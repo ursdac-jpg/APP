@@ -7,10 +7,10 @@
    HOMOGÉNÉITÉ (exigée explicitement) : ce fichier ne crée quasiment
    aucun nouveau composant visuel. Il réutilise :
    - le squelette de fenêtre modale à étapes déjà établi par
-     ouvrirAssistantDepotCV() (metiers.js) : état partagé unique, fenêtre
+     l'ancienne fenêtre de dépôt (supprimée le 30/10/2026) : état partagé unique, fenêtre
      remplacée intégralement à chaque étape (jamais empilée), pied de
      page Retour/Continuer uniforme ;
-   - htmlCollageInstantane()/activerCollageInstantane() (app.js) pour
+   - htmlCollageUniquePage()/brancherCollageUniquePage() (app.js) pour
      TOUT échange avec un assistant externe, y compris le raffinement
      (le même composant, avec un simple suffixe différent) ;
    - ASSISTANTS_IA, stylePastilleInline(), le schéma numéroté déjà
@@ -83,7 +83,7 @@ var DECOUVERTE_NAV_ETAPES = [
   // _decouverteNavIndex ci-dessous n'y touche pas (il ne couvre que les
   // etapes du parcours lui-meme) -- l'index 6 reste donc "a venir"
   // pendant tout le parcours.
-  { label: 'Mon CV', icone: '&#128196;' }
+  { label: 'Vos documents', icone: '&#128196;' }
 ];
 // numero d'etape technique -> index de repere.
 //   1 accueil / 2 coordonnees / 3 recit        -> 0 Preparer
@@ -298,7 +298,7 @@ function reafficherDecouverteCompetences() {
   // window._decouverteVersResultats est vrai. Parcours en page : on
   // renavigue vers la route, pageDecouverte() redessine la derniere etape
   // sans jamais reconstruire l'etat.
-  if (_decouverteRenduEtape && typeof naviguerVers === 'function') { naviguerVers('decouverte'); }
+  if (typeof naviguerVers === 'function') { naviguerVers(_decouverteRenduEtape ? 'decouverte' : 'decouverte-intro'); }   // sans session (page rechargée) : la présentation du récit, jamais un « Retour » sans effet (C14)
 }
 
 // TACHE (retour utilisateur : "précisez-moi", raffinement) : question de
@@ -843,7 +843,8 @@ function ouvrirDecouverteCompetences() {
   // reste la seule source des 6 cartes, utilisee telle quelle par
   // pageObjectif()/Bilan ; seule la LISTE DES ID a montrer ici change, jamais
   // une 2e copie du tableau de cartes.
-  var CARTES_OBJECTIF_DECOUVERTE = ['offre', 'spontanee', 'stage'];
+  // Décision de Denis (27/10/2026) : les six cartes, dans l'ordre de la liste commune (la décision du 19/09/2026 qui en retirait trois est abandonnée).
+  var CARTES_OBJECTIF_DECOUVERTE = ['offre', 'spontanee', 'reconversion', 'stage', 'alternance', 'formation'];
   function etapeAccueil() {
     var objectifChoisi = !!dossier.objectif;
     // TACHE : memes classes que pageObjectif() (js/app.js, .grille-objectif/
@@ -1120,7 +1121,7 @@ function ouvrirDecouverteCompetences() {
               // d'entree (ouvrirFenetreAssistantIA, plutot qu'un appel
               // direct) change.
               onApresValidation: function (urlAssistant, nomAssistant) {
-                _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+                _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
                 afficherEtape(5);
               }
             });
@@ -1131,244 +1132,117 @@ function ouvrirDecouverteCompetences() {
   }
 
   // ------------------------------------------------------------
-  // Étape 5 — Coller la réponse (htmlCollageInstantane, réutilisé tel quel)
+  // Étape 5 - Coller la réponse (fenêtre commune « Collez la réponse », dette B.17, 2026-10-28)
   // ------------------------------------------------------------
-  // TACHE (chantier "ecran tampon avant l’assistant", volet Decouverte) :
-  // banniere decompte/bloque/ouvert (htmlBanniereTransitionIA(), js/app.js,
-  // globale) + rond bleu de collage desactive tant que le retour n'est pas
-  // confirme -- meme mecanisme que l'accordeon ActionIA
-  // (brancherEvenementsResultats(), js/app.js, ~ligne 11421-11501), adapte
-  // ici aux ids de htmlCollageInstantane('Decouverte', ...). Voir
-  // docs/CHANTIER_DECOUVERTE_ALIGNEMENT_IA.md, section 2.
+  // Le décompte avant l'assistant, l'aperçu de la fenêtre du retour et le collage sont dessinés par la brique commune (htmlCollageUniquePage /
+  // brancherCollageUniquePage, js/app.js) : plus de bandeau ni de collage propres à Découverte. « Coller la réponse » lit et vérifie (sans rien
+  // garder) ; c'est « Continuer » (barre du bas) qui range les fragments. Les aides propres à Découverte à l'échec (les deux phrases à renvoyer,
+  // « Revenir à mon récit ») restent sous la fenêtre.
   function etapeCollerReponse() {
     return {
       titre: '📥 Collez la réponse de l’assistant',
       contenuHTML:
-        '<p class="text-muted small mb-2">Vous revenez de ' +
-        (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-        '. Une fois sa réponse copiée, collez-la ci-dessous.</p>' +
-        htmlBanniereTransitionIA() +
-        _decouverteEncart('&#128203;', 'Dans l’assistant, sélectionnez toute sa réponse et copiez-la (clic droit puis « Copier », ou <span style="white-space:nowrap;">Ctrl + C</span>). Ici, le bouton bleu la récupère tout seul. Si elle est longue et coupée en plusieurs morceaux, recopiez chaque morceau et recliquez : ils s’ajoutent à la suite.') +
-        htmlCollageInstantane('Decouverte',
-          '<div class="d-flex gap-2 mb-2 mt-2">' +
-          // TACHE (retour utilisateur : "le bouton Importer doit pulser
-          // une fois le texte colle, pour ne pas le confondre avec Voir
-          // la demonstration") : pulsation permanente
-          // (.bouton-incitation-action, css/style.css) -- visible
-          // seulement une fois cette zone affichee (apres collage
-          // reussi), jamais avant.
-          '<button type="button" id="btnImporterDecouverte" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
-          'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
-          '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecoller">Effacer et recoller</button>' +
-          '</div>') +
+        htmlCollageUniquePage('Decouverte') +
         '<div id="messageImportDecouverte" class="mt-2 small"></div>',
-      // TACHE (retour Denis, 2026-08-31, Chantier 5) : plus d'encart "compte
-      // perso" TOUJOURS visible ici -- il faisait doublon avec le message
-      // d'echec. Le bloc d'aide (2 phrases, 2 situations) n'apparait plus
-      // qu'a l'echec d'un import (voir le handler de #btnImporterDecouverte).
       masquerContinuer: true,
       onAfficher: function () {
-        activerCollageInstantane({
-          idZoneAuto: 'zoneCollageAutoDecouverte', idZoneApercu: 'zoneApercuCollageDecouverte',
-          idTextarea: 'texteCollageDecouverte', idBoutonColler: 'btnCollerAutoDecouverte',
-          idBoutonCollerManuel: 'btnCollerManuelDecouverte', idBoutonEffacerRecoller: 'btnEffacerRecoller',
-          onSucces: function (texte, estAjout) {
-            var msg = document.getElementById('messageImportDecouverte');
-            msg.style.color = 'var(--success-strong)';
-            msg.textContent = estAjout
-              ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
-              : '✅ Réponse importée automatiquement depuis le presse-papiers. Si la réponse fait plusieurs morceaux, recliquez ce même bouton après avoir copié le morceau suivant : il s’ajoutera à la suite.';
-          },
-          onErreur: function (texteErreur) {
-            var msg = document.getElementById('messageImportDecouverte');
-            msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ ' + texteErreur;
-          },
-          // TACHE (retour Denis, 2026-08-31) : le message d'erreur (ou l'encart
-          // "redemander le JSON") ne doit pas survivre a "Effacer et recoller"
-          // ni a un collage manuel.
-          onEffacer: function () { var m = document.getElementById('messageImportDecouverte'); if (m) { m.innerHTML = ''; m.style.color = ''; } },
-          onCollerManuel: function () { var m = document.getElementById('messageImportDecouverte'); if (m) { m.innerHTML = ''; m.style.color = ''; } }
-        });
-
-        // TACHE (chantier "ecran tampon avant l’assistant", volet Decouverte) :
-        // etat desactive/actif du rond bleu + decompte/bannieres -- copie
-        // adaptee du bloc equivalent de brancherEvenementsResultats()
-        // (js/app.js, accordeon ActionIA). btnJeSuisDeRetourIA reprend le
-        // MEME id que la page Action : installerEcouteurVisibiliteRetourIA()
-        // (deja installe globalement, js/app.js) intensifie donc son pulse
-        // au retour de visibilite de l'onglet, sans code supplementaire ici.
-        var btnCollerAutoDecouverte = document.getElementById('btnCollerAutoDecouverte');
-        var texteBtnCollerAutoDecouverte = document.getElementById('texteBtnCollerAutoDecouverte');
-        if (_etatTransitionIA && btnCollerAutoDecouverte) {
-          if (_etatTransitionIA.phase === 'revenu') {
-            btnCollerAutoDecouverte.disabled = false;
-            btnCollerAutoDecouverte.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-            btnCollerAutoDecouverte.classList.add('pulse-collage-retour');
-            if (texteBtnCollerAutoDecouverte) { texteBtnCollerAutoDecouverte.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-          } else {
-            // decompte ou ouvert : jamais cliquable avant le retour confirme
-            // (meme securite UX que la page Action).
-            btnCollerAutoDecouverte.disabled = true;
-            btnCollerAutoDecouverte.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-            btnCollerAutoDecouverte.classList.add('rond-collage-desactive');
-            if (texteBtnCollerAutoDecouverte) { texteBtnCollerAutoDecouverte.textContent = 'Ce bouton s’activera à votre retour.'; }
-          }
-
-          // Ouvre reellement l'assistant (window.open repousse jusqu'ici
-          // depuis etapeChoixAssistant(), voir passerEnAttenteOuvertureIA
-          // plus haut) -- a la fin du decompte OU au clic sur "Continuer
-          // maintenant". Phase 'bloque' geree comme cote page Action : un
-          // window.open() declenche depuis un minuteur (sans clic direct)
-          // est bloque silencieusement par le navigateur (retourne null).
-          function ouvrirAssistantDecouverteEnAttente() {
-            // TACHE (retour utilisateur : "corriger le meme bug sur Action
-            // et Decouverte" -- bug reel trouve en construisant l'ecran
-            // tampon pour CV/Lettre/Entretien) : la croix MASQUE seulement
-            // ce modal (masquerDecouverteCompetences, display:none),
-            // jamais ne le detruit -- sans ce garde-fou, le minuteur du
-            // decompte survivrait a la fermeture et ouvrirait quand meme un
-            // onglet popup surprise. "Reinitialiser" (recommencer()) le
-            // detruit reellement (f.remove()) : verifie aussi que le modal
-            // est toujours attache au document.
-            // Parcours en page : si on a quitte la route 'decouverte'
-            // entre-temps ("Quitter", "Retour"...), le minuteur ne doit
-            // plus ouvrir d'onglet surprise.
-            if (typeof pageActuelle !== 'undefined' && pageActuelle !== 'decouverte') {
-              clearInterval(_intervalleDecompteIA);
-              return;
-            }
-            // TACHE (retour Denis, 2026-09-19, point 4) : voir
-            // recopierTexteAssistantPuisOuvrir() (js/app.js) -- meme
-            // correctif, tous les parcours.
-            recopierTexteAssistantPuisOuvrir(function () {
-              var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-              _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-              // TACHE (retour utilisateur : "le parcours Decouverte n'a aucun
-              // suivi Umami") : mesure combien de navigateurs bloquent
-              // reellement l'ouverture automatique, pour savoir si le repli
-              // (bouton "Ouvrir maintenant") est frequemment sollicite.
-              if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('decouverte_popup_bloque'); }
-              afficherEtape(5);
-            });
-          }
-
-          if (_etatTransitionIA.phase === 'decompte') {
-            var btnContinuerMaintenantIA = document.getElementById('btnContinuerMaintenantIA');
-            if (btnContinuerMaintenantIA) {
-              btnContinuerMaintenantIA.addEventListener('click', function () {
-                clearInterval(_intervalleDecompteIA);
-                ouvrirAssistantDecouverteEnAttente();
-              });
-            }
-            _intervalleDecompteIA = setInterval(function () {
-              _etatTransitionIA.secondesRestantes -= 1;
-              var compteurDecompteIA = document.getElementById('compteurDecompteIA');
-              if (compteurDecompteIA) { compteurDecompteIA.textContent = _etatTransitionIA.secondesRestantes; }
-              if (_etatTransitionIA.secondesRestantes <= 0) {
-                clearInterval(_intervalleDecompteIA);
-                ouvrirAssistantDecouverteEnAttente();
-              }
-            }, 1000);
-          } else if (_etatTransitionIA.phase === 'bloque') {
-            var btnOuvrirBloqueIA = document.getElementById('btnOuvrirBloqueIA');
-            if (btnOuvrirBloqueIA) {
-              // Clic DIRECT (reaction immediate a l'action de la personne),
-              // jamais bloque par le navigateur -- contrairement a l'appel
-              // automatique ci-dessus.
-              btnOuvrirBloqueIA.addEventListener('click', function () { ouvrirAssistantDecouverteEnAttente(); });
-            }
-          } else if (_etatTransitionIA.phase === 'ouvert') {
-            var btnJeSuisDeRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-            if (btnJeSuisDeRetourIA) {
-              // TACHE (decision explicite de l'utilisateur, chantier "ecran
-              // tampon avant l’assistant") : retour MANUEL uniquement, jamais de
-              // detection automatique -- meme regle que la page Action, non
-              // renegociee ici.
-              btnJeSuisDeRetourIA.addEventListener('click', function () {
-                _etatTransitionIA.phase = 'revenu';
-                afficherEtape(5);
-              });
-            }
-            // TACHE (bloc 1.5) : "Rouvrir le site de l'assistant" -- meme
-            // geste que le bouton de la phase "bloque".
-            var btnRouvrirSiteIA = document.getElementById('btnRouvrirSiteIA');
-            if (btnRouvrirSiteIA) { btnRouvrirSiteIA.addEventListener('click', function () { ouvrirAssistantDecouverteEnAttente(); }); }
-          }
+        // Dernière lecture : « Continuer » ne relit pas la réponse si c'est le même texte.
+        var derniere = { texte: null, resultat: null, frais: false };
+        function lire(texte) {
+          if (derniere.texte !== texte) { derniere = { texte: texte, resultat: executerAnalyseInitiale(texte) }; }
+          return derniere.resultat;
         }
-
-        document.getElementById('btnImporterDecouverte').addEventListener('click', function () {
-          var texte = document.getElementById('texteCollageDecouverte').value;
-          var resultat = executerAnalyseInitiale(texte);
+        function effacerAides() { var m = document.getElementById('messageImportDecouverte'); if (m) { m.innerHTML = ''; m.style.color = ''; } }
+        // À l'échec : l'aide propre à ce qui s'est passé, sous la fenêtre (jamais un message qui blâme le collage).
+        function montrerAides(etatFenetre) {
           var msg = document.getElementById('messageImportDecouverte');
-          // TACHE (retour Denis, 2026-08-31) : on repart d'un message vierge a
-          // chaque tentative (l'ancien message d'erreur / encart JSON ne doit
-          // pas rester quand la nouvelle tentative reussit ou change).
-          msg.innerHTML = ''; msg.style.color = '';
-          if (!resultat.succes) {
-            if (resultat.analyseImpossible) {
-              // TACHE (retour Denis, 2026-08-31, Chantier 4) : le texte de
-              // depart ne permet rien -> ecran dedie qui ramene au recit,
-              // jamais la fenetre de validation des fragments ni un message
-              // d'erreur qui blame le collage.
-              msg.innerHTML = _decouverteBlocSaisieInexploitable(resultat.message, resultat.questionsCiblees);
-              _decouverteBrancherBlocSaisieInexploitable(function () {
-                // La croix "tout effacer" apparait a l'arrivee sur "Preparer".
-                _decouverteRecitAEffacer = true;
-                afficherEtape(1);
-              });
-              if (typeof trackEvenement === 'function') { trackEvenement('decouverte_saisie_inexploitable'); }
-              return;
-            }
-            // TACHE (retour Denis, 2026-08-31, Chantier 5) : UN seul bloc
-            // d'aide (message d'erreur + 2 phrases pretes, une par situation :
-            // l'assistant a discute au lieu d'agir / il a repondu hors format).
-            msg.innerHTML = _decouverteBlocEchecImport(echapperAttribut(resultat.erreur));
-            _decouverteBrancherBlocEchecImport();
+          if (!msg) { return; }
+          effacerAides();
+          // Une réponse trop incomplète pour être lue (coupée, sans bloc) n'atteint pas la lecture : aide générale.
+          var resultat = derniere.frais ? derniere.resultat : { succes: false, erreur: 'La réponse n’a pas pu être lue.' };
+          derniere.frais = false;
+          if (etatFenetre !== 'echec' || !resultat || resultat.succes) { return; }
+          if (resultat.analyseImpossible) {
+            msg.innerHTML = _decouverteBlocSaisieInexploitable(resultat.message, resultat.questionsCiblees);
+            _decouverteBrancherBlocSaisieInexploitable(function () {
+              // La croix "tout effacer" apparait a l'arrivee sur "Preparer".
+              _decouverteRecitAEffacer = true;
+              afficherEtape(1);
+            });
+            if (typeof trackEvenement === 'function') { trackEvenement('decouverte_saisie_inexploitable'); }
             return;
           }
-          // TACHE (chantier "ecran tampon avant l’assistant", volet Decouverte) :
-          // import reellement termine -- la transition en attente n'a plus
-          // lieu d'etre (meme reinitialisation que avancerEtape() pour la
-          // page Action, js/app.js), pour eviter qu'un etat 'revenu' perime
-          // ne survive a un futur parcours Action ou Decouverte.
-          _etatTransitionIA = null;
-          // TACHE (retour utilisateur : "le parcours Decouverte beneficie
-          // aussi de la disquette des le 1er passage par l’assistant ?") : Decouverte
-          // n'ecrit jamais dans dossier.ia (voir declaration du drapeau,
-          // js/app.js, pres de dossier.ia) -- ce drapeau, pose ici des le
-          // 1er import reussi, est le seul signal que peutExporterSession()
-          // peut lire pour ce parcours.
-          dossier.decouverteAnalyseRecue = true;
-          // Decouverte ne passe jamais par naviguerVers() (fenetre modale
-          // independante du routeur principal) -- le pulse habituel de la
-          // disquette (declenche depuis naviguerVers(), js/app.js) doit
-          // donc etre appele ici explicitement pour signaler tout de suite
-          // que sauvegarder est desormais possible.
-          if (typeof declencherPulseDisquetteNavigation === 'function') { declencherPulseDisquetteNavigation(); }
-          etat.etatsFragments = resultat.valeurs.fragments.map(initialiserEtatFragment);
-          // TACHE (retour utilisateur : "ce message ne passe pas sur tous
-          // les IA") : conserve la version nettoyée du récit (sans
-          // contexte personnel sensible, decouverte-competences.md),
-          // utilisée plus tard À LA PLACE du récit brut original -- voir
-          // finaliserMappingDossier() plus bas.
-          etat.reciteNettoye = resultat.valeurs.reciteNettoye || '';
-          // TACHE (chantier "exp perso", Phase 1 : relier chaque question
-          // ciblée à un fragment précis) : questionsCiblees passe d'une
-          // simple liste de chaînes à des objets {texte, fragmentIndex,
-          // type} (decouverte-competences.md, section "Questions
-          // ciblées"). Normalisé ici, point d'entrée unique -- accepte
-          // encore l'ancien format (chaîne brute) le temps que l’assistant suive
-          // pleinement la nouvelle consigne, jamais un plantage si elle
-          // ne renvoie pas exactement la forme attendue.
-          etat.questionsCiblees = (resultat.valeurs.questionsCiblees || []).map(function (q) {
-            if (typeof q === 'string') { return { texte: q, fragmentIndex: null, type: 'texte' }; }
-            return {
-              texte: q.texte || '',
-              fragmentIndex: (typeof q.fragmentIndex === 'number') ? q.fragmentIndex : null,
-              type: (q.type === 'date') ? 'date' : 'texte'
-            };
-          });
-          afficherEtape(6);
+          msg.innerHTML = _decouverteBlocEchecImport(echapperAttribut(resultat.erreur));
+          _decouverteBrancherBlocEchecImport();
+        }
+        brancherCollageUniquePage({
+          suffixe: 'Decouverte', idAncre: 'fcRacineDecouverte', rerendre: function () { afficherEtape(5); }, evenementBloque: 'decouverte_popup_bloque',
+          module: {
+            libelleSuite: 'Voir mes expériences',
+            quoi: 'L’assistant vient de lire votre récit et de le découper en expériences, pour que vous puissiez en tirer vos compétences.',
+            pourquoi: 'Vos expériences sont mises en ordre : c’est la base pour trouver ce que vous savez faire.',
+            verif: 'regardez que chaque expérience correspond bien à ce que vous avez raconté. Vous les reprendrez une par une à l’étape suivante.'
+          },
+          verifier: function (texte) {
+            var r = lire(texte);
+            derniere.frais = true;
+            if (r.succes) { return { ok: true }; }
+            return { ok: false, personnalise: { texte: r.analyseImpossible ? 'Ce texte ne permet pas encore de repérer une activité. Ce n’est pas grave : l’aide est juste en dessous.' : 'La réponse n’a pas pu être lue. L’aide est juste en dessous.' } };
+          },
+          onEtat: montrerAides,
+          onChangerAssistant: function () {
+            clearInterval(_intervalleDecompteIA);
+            _etatTransitionIA = null;
+            afficherEtape(4);
+          },
+          onContinuer: function (texte) {
+            if (!String(texte || '').trim()) { return; }
+            var resultat = lire(texte);
+            if (!resultat.succes) { return; }
+            // TACHE (chantier "ecran tampon avant l’assistant", volet Decouverte) :
+            // import reellement termine -- la transition en attente n'a plus
+            // lieu d'etre (meme reinitialisation que avancerEtape() pour la
+            // page Action, js/app.js), pour eviter qu'un etat 'revenu' perime
+            // ne survive a un futur parcours Action ou Decouverte.
+            _etatTransitionIA = null;
+            // TACHE (retour utilisateur : "le parcours Decouverte beneficie
+            // aussi de la disquette des le 1er passage par l’assistant ?") : Decouverte
+            // n'ecrit jamais dans dossier.ia (voir declaration du drapeau,
+            // js/app.js, pres de dossier.ia) -- ce drapeau, pose ici des le
+            // 1er import reussi, est le seul signal que peutExporterSession()
+            // peut lire pour ce parcours.
+            dossier.decouverteAnalyseRecue = true;
+            // Decouverte ne passe jamais par naviguerVers() (fenetre modale
+            // independante du routeur principal) -- le pulse habituel de la
+            // disquette (declenche depuis naviguerVers(), js/app.js) doit
+            // donc etre appele ici explicitement pour signaler tout de suite
+            // que sauvegarder est desormais possible.
+            if (typeof declencherPulseDisquetteNavigation === 'function') { declencherPulseDisquetteNavigation(); }
+            etat.etatsFragments = resultat.valeurs.fragments.map(initialiserEtatFragment);
+            // TACHE (retour utilisateur : "ce message ne passe pas sur tous
+            // les IA") : conserve la version nettoyée du récit (sans
+            // contexte personnel sensible, decouverte-competences.md),
+            // utilisée plus tard À LA PLACE du récit brut original -- voir
+            // finaliserMappingDossier() plus bas.
+            etat.reciteNettoye = resultat.valeurs.reciteNettoye || '';
+            // TACHE (chantier "exp perso", Phase 1 : relier chaque question
+            // ciblée à un fragment précis) : questionsCiblees passe d'une
+            // simple liste de chaînes à des objets {texte, fragmentIndex,
+            // type} (decouverte-competences.md, section "Questions
+            // ciblées"). Normalisé ici, point d'entrée unique -- accepte
+            // encore l'ancien format (chaîne brute) le temps que l’assistant suive
+            // pleinement la nouvelle consigne, jamais un plantage si elle
+            // ne renvoie pas exactement la forme attendue.
+            etat.questionsCiblees = (resultat.valeurs.questionsCiblees || []).map(function (q) {
+              if (typeof q === 'string') { return { texte: q, fragmentIndex: null, type: 'texte' }; }
+              return {
+                texte: q.texte || '',
+                fragmentIndex: (typeof q.fragmentIndex === 'number') ? q.fragmentIndex : null,
+                type: (q.type === 'date') ? 'date' : 'texte'
+              };
+            });
+            afficherEtape(6);
+          }
         });
       }
     };
@@ -1731,20 +1605,28 @@ function ouvrirDecouverteCompetences() {
           });
         }
         var zone = document.getElementById('collageRaffinement_' + id);
+        // Fenêtre commune « Collez la réponse » (dette B.17, 2026-10-28) : lue et vérifiée sans rien garder ; « Continuer » applique le raffinement.
+        _etatTransitionIA = null;
         zone.innerHTML = '<p class="small text-muted mt-2">Collez ce message dans la même conversation, puis collez sa réponse ci-dessous :</p>' +
-          htmlCollageInstantane('Raffinement' + id,
-            '<button type="button" class="btn btn-primary btn-sm mt-2 bouton-incitation-action" data-importer-raffinement="' + id + '">Importer cette réponse</button>');
-        activerCollageInstantane({
-          idZoneAuto: 'zoneCollageAutoRaffinement' + id, idZoneApercu: 'zoneApercuCollageRaffinement' + id,
-          idTextarea: 'texteCollageRaffinement' + id, idBoutonColler: 'btnCollerAutoRaffinement' + id,
-          idBoutonCollerManuel: 'btnCollerManuelRaffinement' + id
-        });
-        zone.querySelector('[data-importer-raffinement]').addEventListener('click', function () {
-          var texteColle = document.getElementById('texteCollageRaffinement' + id).value;
-          var resultat = executerRaffinement(ef, texteColle);
-          if (!resultat.succes) { alert(resultat.erreur); return; }
-          etat.fragmentEnRaffinement = null;
-          afficherEtape(6);
+          htmlCollageUniquePage('Raffinement' + id);
+        brancherCollageUniquePage({
+          suffixe: 'Raffinement' + id, idAncre: 'fcRacineRaffinement' + id, rerendre: function () { afficherEtape(6); }, continuerVisible: true,
+          module: {
+            libelleSuite: 'Voir les nouvelles formulations',
+            quoi: 'L’assistant vient de proposer de nouvelles formulations et de nouvelles compétences, à partir de votre précision.',
+            pourquoi: 'Votre précision rend vos compétences plus justes et plus complètes.',
+            verif: 'regardez que les nouvelles formulations correspondent bien à ce que vous avez précisé.'
+          },
+          verifier: function (texteColle) {
+            var analyse = analyserReponseRaffinement(texteColle);
+            return analyse.succes ? { ok: true } : { ok: false, personnalise: { texte: 'La réponse n’a pas pu être lue. Rien n’a été changé : vous pouvez recommencer le collage ou essayer un autre assistant.' } };
+          },
+          onContinuer: function (texteColle) {
+            var resultat = executerRaffinement(ef, texteColle);
+            if (!resultat.succes) { var fenetre = document.getElementById('fcRacineRaffinement' + id); if (fenetre && fenetre.__collage) { fenetre.__collage.aller('echec'); } return; }
+            etat.fragmentEnRaffinement = null;
+            afficherEtape(6);
+          }
         });
       });
     });
@@ -2256,13 +2138,12 @@ function ouvrirDecouverteCompetences() {
       contenuHTML: htmlEcranComplementCV(true),
       sansCarte: true,
       masquerContinuer: true,
-      continuerDansBarre: true,
-      libelleContinuer: 'Passer, je vois mon CV &#8594;',
-      onContinuer: function () { dossier.complementCVPasse = true; terminerParcoursDecouverte(); },
       onAfficher: function () {
         etatAccordeon = accordeonPourType('cv');
         etatAccordeonValide = accordeonValidePourType('cv');
-        wireComplementCV(function () { terminerParcoursDecouverte(); });
+        // Le bouton de la barre du bas est celui de la fenêtre commune (« Continuer sans le complément » puis « Ajouter le complément »).
+        wireComplementCV(function () { terminerParcoursDecouverte(); },
+          { dansBarre: true, onPasser: function () { dossier.complementCVPasse = true; terminerParcoursDecouverte(); } });
       }
     };
   }
@@ -2632,7 +2513,8 @@ function ouvrirDecouverteCompetences() {
       '<li>un sport, une passion suivie sérieusement</li>' +
       '<li>une responsabilité familiale : gérer un budget, organiser un déménagement, s’occuper de tout à la maison</li>' +
       '</ul></div>' +
-      _decouverteEncart('&#128161;', '<strong>Écrivez comme vous le raconteriez à quelqu’un.</strong> Vous pouvez aussi dicter à la voix : appuyez en même temps sur <strong><span style="white-space:nowrap;">Windows + H</span></strong>.') +
+      _decouverteEncart('&#128161;', '<strong>Écrivez comme vous le raconteriez à quelqu’un.</strong>') +
+      htmlAstuceDictee('encart', 'Vous pouvez aussi <strong>dicter à la voix</strong> plutôt que de tout taper.') +
       rec.contenuHTML +
       _decouverteEncart('&#128075;', 'Plus vous en dites, plus les propositions seront justes. Mais rien n’est figé : vous pourrez toujours revenir en ajouter.', 'ok') +
       '<div class="mt-3 pt-2" style="border-top:1px solid var(--border);">' +

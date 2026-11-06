@@ -1,0 +1,35 @@
+# Paires de fiches regardées et jugées DISTINCTES (décision du 04/11/2026, analyse fiche par fiche : mêmes site ou mêmes numéros, mais lieux ou services différents).
+# Format : identifiant A | identifiant B | raison. Le sas ne les signale plus comme « doublon possible ». L'application NE LIT PAS ce fichier.
+mission-locale-limoges-metropole-87 | mission-locale-limoges-paul-gauguin-87 | antenne La Bastide, autre lieu que le siège
+mission-locale-limoges-metropole-87 | mission-locale-limoges-fabre-deglantine-87 | Cité de l'Emploi, autre lieu que le siège
+association-valentin-hauy-national | association-valentin-hauy-limoges-national | comité local de Limoges et association nationale
+service-public-aides-embauche-national | entreprendre-service-public-national | deux pages thématiques distinctes du même portail
+association-soutien-dordogne-asile-24 | association-de-soutien-de-la-dordogne-24 | service asile et accueil des étrangers, autre service que l'hébergement publié
+france-travail-haute-vienne-87 | france-travail-conseillers-justice-haute-vienne-87 | service d'accompagnement justice, autre service que l'agence
+atelier-domiciliation-bergerac-24 | atelier-plateforme-bpi-24 | deux services de l'Atelier (domiciliation, plateforme protection internationale) au même numéro
+point-info-famille-limoges-firmin-delage-87 | point-info-famille-limoges-penitents-blancs-87 | deux lieux d'accueil différents
+mutualite-sociale-agricole-msa-dordogne-lot-et-garonne-accueil-de-bergerac-24 | msa-dordogne-lot-et-garonne | accueil local de Bergerac avec son adresse, fiche publiée générale
+point-conseil-budget-udaf-24-sarlat-24 | point-conseil-budget-udaf-24-perigueux-24 | deux points d'accueil (Sarlat, Périgueux) au même numéro
+atalian-proprete | atalian-facility-limoges | deux entités du groupe (propreté, facility management)
+peugeot-clara-dordogne | toyota-clara-dordogne | deux concessions de marques différentes du même groupe
+mission-locale-limoges-paul-gauguin-87 | mission-locale-limoges-fabre-deglantine-87 | deux antennes différentes de la Mission Locale
+association-formation-avenir-conseil-24 | asso-afac-24 | activité de formation de l'association, autre service que le garage solidaire publié
+fac-bergerac-24 | asso-afac-24 | antenne de Bergerac, autre lieu que la fiche publiée
+fac-sarlat-24 | asso-afac-24 | antenne de Sarlat, autre lieu que la fiche publiée
+fac-thiviers-24 | asso-afac-24 | antenne de Thiviers, autre lieu que la fiche publiée
+point-justice-perigueux-24 | cdad-dordogne | point d'accès au droit de Périgueux, lieu distinct de la coordination départementale
+prefecture-haute-vienne-etrangers-87 | prefecture-haute-vienne-87 | bureau des étrangers, service distinct de l'accueil général
+apare-cada-perigueux-24 | apare-perigueux-24 | centre d'accueil des demandeurs d'asile, service distinct de l'association
+hestia-cada-limoges-87 | hestia-limoges-87 | centre d'accueil des demandeurs d'asile, service distinct de l'association
+cmp-sainte-claire-limoges-87 | cmp-van-gogh-limoges-87 | deux centres médico-psychologiques de Limoges au même numéro
+cicas-perigueux-24 | cicas-national | permanence locale et fiche nationale au même numéro
+cicas-limoges-87 | cicas-national | permanence locale et fiche nationale au même numéro
+accj-limoges-87 | inae-les-chantiers-des-chemins-jacquaires-87 | service de français de l'association, distinct des chantiers d'insertion publiés
+geiq-sana-87 | profession-sport-loisirs-haute-vienne | le GEIQ est porté par l'association mais c'est une structure distincte au même numéro
+prefecture-haute-vienne-etrangers-87 | point-d-accueil-numerique-limoges-prefecture-87 | deux services de la préfecture au même numéro
+apare-cada-perigueux-24 | chrs-apare-perigueux-24 | centre d'accueil des demandeurs d'asile et centre d'hébergement, deux services
+dreets-nouvelle-aquitaine-economie-region | dreets-nouvelle-aquitaine-inspection-travail | deux services de la DREETS (économie et emploi, inspection du travail) sur le même site
+ars-nouvelle-aquitaine-delegation-dordogne-24 | agence-regionale-de-sante-nouvelle-aquitaine-region | délégation départementale et siège régional, même numéro unique de l'ARS
+ars-nouvelle-aquitaine-delegation-haute-vienne-87 | agence-regionale-de-sante-nouvelle-aquitaine-region | délégation départementale et siège régional, même numéro unique de l'ARS
+la-traverse-acces-aux-droits-bergerac-24 | asso-la-traverse-bergerac-24 | deux services différents du même tiers-lieu : permanence accès aux droits et numérique, et lieu de coworking pour créer son activité
+action-logement-accompagnement-social-national | action-logement-prets-salaries-national | deux services différents d'Action Logement, qui ont le même numéro national

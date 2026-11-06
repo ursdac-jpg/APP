@@ -1200,6 +1200,9 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // « entete-* » de _cvPdfEchellesRubriques n'avaient plus aucun effet sur le rendu des modeles (verifie) : ce levier-ci est le seul vivant, d'ou un
 // nouveau nom (les anciens dossiers n'ont pas ce reglage, donc 1 = taille d'origine). Lu par le modele (opts.enteteBoost).
 'var _cvPdfEnteteBoost = 1;' +
+// Modele pour lequel l'agrandissement automatique de l'en-tete a ete retire parce qu'il le rendait anormal (voir _pdfRetirerEnteteDecaleeSiTropEtroite) : on ne le retente pas, sinon les boucles
+// d'agrandissement (_pdfAgrandirPourRemplir) le reposent sans fin pendant que le controle le retire (page figee a l'arrivee sur « Vos documents », vu le 27/10/2026).
+'var _cvPdfBoostInterditPour = null;' +
 // TACHE (retour utilisateur : "corps de texte de la rubrique, meme police
 // ou une autre au choix") : { cle: idPolice } (defaut {}) -- meme
 // convention persistante que _cvPdfEchellesRubriques ci-dessus.
@@ -2061,9 +2064,42 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  var opts = _pdfLireOptions();' +
 '  return { resultat: _pdfConstruireResultatCourant(document.getElementById("regFormatCV").value, opts), opts: opts };' +
 '}' +
+// Modele « Editorial » (decision de Denis du 27/10/2026, apres la maquette comparative) : un nom long n'est jamais coupe en pleine lettre. Trois paliers, dans cet ordre :
+// 1) le nom rapetisse jusqu'a 85 % de sa taille ; 2) sinon la zone du nom s'elargit (58 % de la largeur au plus) ; 3) sinon le nom rapetisse davantage (28 px au plus bas).
+// Si l'en-tete reste anormal ensuite, la disposition « Empilee » prend le relais (_pdfRetirerEnteteDecaleeSiTropEtroite). Rien ne change pour un nom qui tient deja ; un en-tete regle a la main n'est pas touche.
+'function _pdfAjusterNomEditorial() {' +
+'  var e = _cvPdfEnteteLibreMq;' +
+'  if (e && (e.libre || e.modif)) { return; }' +
+'  var tete = document.querySelector("#conteneurPage .cv.edito .tete-edito");' +
+'  var nom = tete && tete.querySelector(".nom");' +
+'  if (!nom) { return; }' +
+'  var plusLong = String(nom.textContent || "").replace(/-/g, "- ").split(/\\s+/).reduce(function (a, m) { return m.length > a.length ? m : a; }, "");' +
+'  if (!plusLong) { return; }' +
+'  var cs = getComputedStyle(nom), depart = parseFloat(cs.fontSize);' +
+'  if (!(depart > 0)) { return; }' +
+'  var mes = document.createElement("span");' +
+'  mes.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-family:" + cs.fontFamily + ";font-weight:" + cs.fontWeight + ";letter-spacing:" + cs.letterSpacing + ";text-transform:" + cs.textTransform;' +
+'  mes.textContent = plusLong; document.body.appendChild(mes);' +
+'  var tient = function (px) { mes.style.fontSize = px + "px"; return mes.getBoundingClientRect().width <= nom.getBoundingClientRect().width - 2; };' +
+'  var pose = function (px) { if (px < depart) { nom.style.fontSize = px + "px"; } nom.style.overflowWrap = "normal"; mes.remove(); };' +
+'  if (tient(depart)) { mes.remove(); return; }' +
+'  var plancher = Math.round(depart * 0.85);' +
+'  for (var f = depart - 1; f >= plancher; f--) { if (tient(f)) { pose(f); return; } }' +
+'  var colonnes = tete.style.gridTemplateColumns || "", pct = colonnes.match(/([\\d.]+)%/);' +
+'  if (pct) {' +
+'    var inverse = colonnes.indexOf("%") > colonnes.indexOf("fr");' +
+'    for (var w = Math.floor(parseFloat(pct[1])) + 2; w <= 58; w += 2) {' +
+'      tete.style.gridTemplateColumns = inverse ? "1fr " + w + "%" : w + "% 1fr";' +
+'      if (tient(plancher)) { for (var g = depart; g >= plancher; g--) { if (tient(g)) { pose(g); return; } } }' +
+'    }' +
+'  }' +
+'  for (var h = plancher - 1; h >= 28; h--) { if (tient(h)) { pose(h); return; } }' +
+'  nom.style.fontSize = "28px"; mes.remove();' +
+'}' +
 'function _pdfInjecterResultat(resultat) {' +
 '  document.getElementById("styleCv").textContent = resultat.css;' +
 '  document.getElementById("conteneurPage").innerHTML = resultat.pageHtml;' +
+'  try { _pdfAjusterNomEditorial(); } catch (errNom) { /* un plus : le nom garde sa taille d\'origine */ }' +
 '  _pdfPoserComposition();' +
 '  _pdfPoserFormesDeco();' +
 '  _pdfPoserPoigneesCv();' +
@@ -3383,6 +3419,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 'function _pdfAjusterEchelleEnteteEnsemble(delta) {' +
 '  var actuelle = _cvPdfEnteteBoost || 1;' +
 // Plancher 1 : l'en-tete n'est jamais rendu plus petit que sa taille d'origine (Denis l'agrandit toujours a la main, 2026-10-07).
+'  if (delta > 0 && _cvPdfBoostInterditPour === _cvPdfCleModeleEntete) { return false; }' +
 '  var cible = Math.max(1, Math.min(_PDF_ECHELLE_ENTETE_MAX, Math.round((actuelle + delta) * 100) / 100));' +
 '  if (cible === actuelle) { return false; }' +
 '  _cvPdfEnteteBoost = cible;' +
@@ -4368,7 +4405,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '}' +
 'function _pdfEssayerMiseEnValeurEntete(hauteurCible) {' +
 '  var avant = _cvPdfEnteteBoost || 1;' +
-'  if (avant >= 1.15) { return; }' +
+'  if (avant >= 1.15 || _cvPdfBoostInterditPour === _cvPdfCleModeleEntete) { return; }' +
 '  var lignesBase = _pdfLignesEntete();' +
 '  _cvPdfEnteteBoost = 1.15;' +
 '  var h = _pdfRafraichirEtMesurer();' +
@@ -4832,10 +4869,28 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _pdfRafraichir();' +
 '  if (_pdfCoordEnLignePossible() && Math.random() < 0.3) { document.getElementById("regBandeauDisponibilite").checked = true; _pdfRafraichir(); }' +
 '}' +
+// « Style rapide » sans repetition (decision de Denis, 26/10/2026 puis 27/10/2026) : chaque modele une fois par tour, ordre melange, jamais deux modeles de la meme
+// mise en page de base de suite. Le « sac » des modeles restants vit dans la fenetre parente (l'iframe est refaite a chaque rendu) ; sans parente, un sac local.
+'function _pdfSacStyleRapide(cle, ids, courant, famille) {' +
+'  var sac;' +
+'  try { window.parent._mepSacStyleRapide = window.parent._mepSacStyleRapide || {}; sac = window.parent._mepSacStyleRapide; } catch (errSac) { window._sacStyleRapideLocal = window._sacStyleRapideLocal || {}; sac = window._sacStyleRapideLocal; }' +
+'  var reste = (sac[cle] || []).filter(function (id) { return ids.indexOf(id) !== -1 && id !== courant; });' +
+'  if (!reste.length) {' +
+'    reste = ids.filter(function (id) { return id !== courant; });' +
+'    for (var i = reste.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = reste[i]; reste[i] = reste[j]; reste[j] = t; }' +
+'  }' +
+'  var k = 0;' +
+'  while (k < reste.length - 1 && famille(reste[k]) === famille(courant)) { k++; }' +
+'  if (famille(reste[k]) === famille(courant)) { k = 0; }' +
+'  var choisi = reste.splice(k, 1)[0];' +
+'  sac[cle] = reste;' +
+'  return choisi;' +
+'}' +
+'function _pdfFamilleCreatif(id) { var r = _PDF_CREATIF_RECETTES[id]; return (r && r.gabaritMaquette) || id; }' +
 'function _pdfProposerAutreModeleCreatif() {' +
 '  var ids = _pdfIdsModelesCreatif();' +
-'  var i = ids.indexOf(_cvPdfCreatifVariante);' +
-'  _pdfAppliquerModeleCreatifComplet(ids[(i + 1) % ids.length]);' +
+'  if (!ids.length) { return; }' +
+'  _pdfAppliquerModeleCreatifComplet(_pdfSacStyleRapide("creatif", ids, _cvPdfCreatifVariante, _pdfFamilleCreatif));' +
 '  _pdfAfficherMessageMiseEnPage("");' +
 '  _pdfRafraichir();' +
 '  _pdfTirerCoordEnLigne();' +
@@ -4871,10 +4926,12 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '    _cvPdfColonnesAvantModele = null;' +
 '  }' +
 '}' +
+'var _PDF_FAMILLES_SOBRE = { "mq-bandeau": "classique", "mq-fond": "classique", "mq-epure": "classique", "mq-editorial": "editorial", "mq-editorial-large": "editorial", "mq-cartes": "cartes", "mq-cartes-couleurs": "cartes", "mq-grille": "cartes", "mq-frise": "frise", "mq-chrono": "frise" };' +
+'function _pdfFamilleSobre(id) { return _PDF_FAMILLES_SOBRE[id] || id; }' +
 'function _pdfProposerVarianteSobreSuivante() {' +
 '  var ids = _pdfIdsVariantesSobre();' +
-'  var i = ids.indexOf(_cvPdfSobreVariante);' +
-'  _cvPdfSobreVariante = ids[(i + 1) % ids.length];' +
+'  if (!ids.length) { return; }' +
+'  _cvPdfSobreVariante = _pdfSacStyleRapide("sobre", ids, _cvPdfSobreVariante, _pdfFamilleSobre);' +
 '  _pdfRazBordBandeauSimple();' +
 '  _pdfColonnesPourVarianteSobre(_cvPdfSobreVariante);' +
 '  _pdfRafraichir();' +
@@ -5888,6 +5945,10 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // Modeles dont l'en-tete n'occupe pas toute la largeur de la page ou a son propre dessin (verifie sur les 37 modeles, 2026-10-07) : jamais la disposition decalee.
 'var _PDF_MODELES_SANS_ENTETE_DECALE = ["creatif:photoFrise", "creatif:frise", "creatif:friseFoncee", "creatif:rectangles", "creatif:bandeauVertical", "sobre:mq-photo", "sobre:mq-rectangles"];' +
 'function _pdfModeleAccepteDecale(cle) { return _PDF_MODELES_SANS_ENTETE_DECALE.indexOf(cle) === -1; }' +
+// Mesure du 27/10/2026 (39 modeles, contenu long et court, disposition « Empilee » posee d'office, contraste calcule sur les pixels visibles) : seuls ces deux modeles a frise rendent du texte illisible
+// (nom, coordonnees et titre sombres sur le triangle fonce) et la photo recouvre le debut du titre. Le bouton « Empilee » n'y est donc pas propose (comme la disposition decalee, deja refusee pour eux).
+'var _PDF_MODELES_SANS_EMPILEE = ["creatif:frise", "creatif:friseFoncee"];' +
+'function _pdfModeleAccepteEmpilee(cle) { return _PDF_MODELES_SANS_EMPILEE.indexOf(cle) === -1; }' +
 // Modeles dont la colonne coloree est a DROITE : le titre n'a que ~170 px avant la colonne, il est donc un peu plus petit (sinon « SECURITE » passait sous la colonne, de la meme couleur : defaut vu le 2026-10-22).
 'var _PDF_MODELES_COLONNE_DROITE = ["creatif:chronoFonce", "sobre:mq-chrono"];' +
 'function _pdfEnteteDecaleeDefaut(cle) {' +
@@ -6475,15 +6536,48 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  return !!tete && !!page && page.getBoundingClientRect().height > 0 && tete.getBoundingClientRect().height > page.getBoundingClientRect().height * 0.30;' +
 '}' +
 // Retour de Denis (24/10/2026) : l'en-tete « decalee » mise d'office sur un CV neuf peut, sur un modele a colonne coloree large, ne laisser que 12 % de largeur au titre et
-// a l'accroche (un mot par ligne, bandeau enorme). Tant que la personne n'a pas touche a cet en-tete (il est encore tel que la disposition par defaut l'a pose), on revient a l'en-tete d'origine
-// du modele. Un en-tete que la personne a regle elle-meme n'est jamais change ici.
+// a l'accroche (un mot par ligne, bandeau enorme). Decision de Denis du 26/10/2026 (Lot 8) : dans ce cas, et aussi quand l'en-tete d'origine du modele est trop grand, on essaie d'abord la
+// disposition « Empilee » (photo et nom sur une ligne, titre pleine largeur) ; si elle ne suffit pas non plus, on revient a l'en-tete d'origine du modele. Un en-tete que la personne a regle
+// elle-meme (ou une disposition qu'elle a choisie) n'est jamais change ici.
+// Les deux modeles a colonne coloree a droite (titre sous la colonne, illisible en Empilee) n'ont jamais d'Empilee automatique. « Editorial » l'a en dernier recours, apres les paliers de _pdfAjusterNomEditorial.
+'var _PDF_MODELES_SANS_EMPILEE_AUTO = ["creatif:chronoFonce", "sobre:mq-chrono"];' +
+'var _cvPdfEmpileeAutoCle = null;' +   // modele sur lequel l'Empilee a ete posee d'office
+'var _cvPdfEmpileeRefusee = {};' +   // modeles pour lesquels l'Empilee n'a pas suffi : on n'insiste pas
+'function _pdfEnteteEmpileeAuto() {' +
+'  return { libre: true, modif: true, disp: "5", pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'}' +
+// Un bloc de l'en-tete (nom, titre, accroche, coordonnees) qui sort de la page a droite : jamais acceptable (Colonne, contenu long : l'accroche sortait de 80 px, vu le 27/10/2026).
+'function _pdfEnteteDebordePage() {' +
+'  var tete = document.querySelector("#conteneurPage .tete");' +
+'  var page = document.querySelector("#conteneurPage .page-a4");' +
+'  if (!tete || !page) { return false; }' +
+'  var droite = page.getBoundingClientRect().right, blocs = tete.querySelectorAll(".blc, .nom, .metier, .accroche");' +
+'  for (var i = 0; i < blocs.length; i++) { if (blocs[i].getBoundingClientRect().right > droite + 1) { return true; } }' +
+'  return false;' +
+'}' +
+'function _pdfEnteteAnormale() { return _pdfAccrocheTropEtroite() || _pdfEnteteTropHaut() || _pdfEnteteDebordePage(); }' +
 'function _pdfRetirerEnteteDecaleeSiTropEtroite() {' +
-'  var e = _cvPdfEnteteLibreMq;' +
-'  if (!e || e.disp !== "4" || !_cvPdfEnteteDecaleeAuto) { return; }' +
-'  if (JSON.stringify(e) !== JSON.stringify(_pdfEnteteDecaleeDefaut(_cvPdfCleModeleEntete))) { return; }' +
-'  if (!_pdfAccrocheTropEtroite() && !_pdfEnteteTropHaut()) { return; }' +
-'  _cvPdfEnteteLibreMq = _pdfEnteteVierge();' +
-'  _pdfRafraichir();' +
+'  var e = _cvPdfEnteteLibreMq, cle = _cvPdfCleModeleEntete;' +
+'  if (!e) { return; }' +
+'  if (e.disp === "5" && _cvPdfEmpileeAutoCle === cle && JSON.stringify(e) === JSON.stringify(_pdfEnteteEmpileeAuto())) {' +
+'    if (!_pdfEnteteAnormale()) { return; }' +
+'    _cvPdfEmpileeRefusee[cle] = true; _cvPdfEmpileeAutoCle = null; _cvPdfEnteteLibreMq = _pdfEnteteVierge(); _pdfRafraichir();' +
+'    return;' +
+'  }' +
+'  var decaleeIntacte = e.disp === "4" && _cvPdfEnteteDecaleeAuto && JSON.stringify(e) === JSON.stringify(_pdfEnteteDecaleeDefaut(cle));' +
+'  var viergeIntacte = !e.libre && !e.modif;' +
+'  if (!decaleeIntacte && !viergeIntacte) { return; }' +
+'  if (!_pdfEnteteAnormale()) { return; }' +
+// D'abord l'en-tete d'origine du modele (comportement d'avant) ; l'Empilee n'est essayee que si cet en-tete est encore anormal.
+'  if (decaleeIntacte) { _cvPdfEnteteLibreMq = _pdfEnteteVierge(); _pdfRafraichir(); if (!_pdfEnteteAnormale()) { return; } }' +
+// L'agrandissement de 15 % de l'en-tete (mise en valeur au remplissage) a pu etre accepte pendant que l'en-tete etait « decalee » : il ne doit pas rester sur l'en-tete d'origine s'il le rend anormal (Chrono fonce, contenu long : 34 % de la page au lieu de 24 %).
+'  if ((_cvPdfEnteteBoost || 1) > 1) { _cvPdfBoostInterditPour = cle; _cvPdfEnteteBoost = 1; _pdfRafraichir(); if (!_pdfEnteteAnormale()) { return; } }' +
+'  if (_pdfModeleAccepteDecale(cle) && _PDF_MODELES_SANS_EMPILEE_AUTO.indexOf(cle) === -1 && !_cvPdfEmpileeRefusee[cle]) {' +
+'    var avantEmpilee = _cvPdfEnteteLibreMq;' +
+'    _cvPdfEnteteLibreMq = _pdfEnteteEmpileeAuto(); _cvPdfEmpileeAutoCle = cle; _pdfRafraichir();' +
+'    if (!_pdfEnteteAnormale()) { return; }' +
+'    _cvPdfEmpileeRefusee[cle] = true; _cvPdfEmpileeAutoCle = null; _cvPdfEnteteLibreMq = avantEmpilee; _pdfRafraichir();' +
+'  }' +
 '}' +
 // Si le tirage a mis l'accroche en colonne trop étroite (moins de 160 px, la largeur utile d'une page fait environ 700 px), on retire la disposition en cause, une étape à la fois :
 // d'abord « 2 colonnes », puis la position libre de l'en-tête. Jamais le hasard n'est supprimé : seul un résultat illisible est écarté.

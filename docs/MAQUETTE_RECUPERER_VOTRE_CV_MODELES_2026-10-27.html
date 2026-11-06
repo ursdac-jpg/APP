@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Récupérer votre CV, choix du modèle et Continuer dans la barre du bas</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1c7a46; --ok-bg:#e3f4ea; --warn:#8a5a00; --warn-bg:#fff3d6; --barre:#ffffff; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#6fd49b; --ok-bg:#1d3a2b; --warn:#f0c46a; --warn-bg:#3b3015; --barre:#1b212d; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px 16px 110px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+h1 { font-size:1.2rem; margin:0 0 6px; } h2 { font-size:1.35rem; margin:0 0 4px; } h3 { font-size:1.05rem; margin:0 0 6px; }
+p { margin:0 0 8px; } .muted { color:var(--muted); font-size:.92rem; }
+.note { max-width:880px; margin:0 auto 14px; }
+.page { max-width:880px; margin:0 auto; }
+.etapes { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:14px; }
+.etape { font-size:.85rem; padding:4px 10px; border-radius:99px; border:1px solid var(--border); color:var(--muted); background:var(--card); }
+.etape.fait { background:var(--ok-bg); color:var(--ok); border-color:var(--ok); }
+.etape.ici { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+.centre { text-align:center; }
+.cartes { display:grid; gap:14px; grid-template-columns:1fr; margin-top:14px; }
+@media (min-width:780px) { .cartes { grid-template-columns:1.25fr 1fr; align-items:start; } }
+.carte { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--card); }
+.carte.suite { border:2px solid var(--accent); }
+.pastille { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--accent-bg); color:var(--accent); margin-bottom:6px; }
+.btn { font:inherit; font-size:.95rem; padding:.5rem .9rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
+.btn.plein { background:var(--accent); color:#fff; }
+.btn.discret { border-color:var(--border); color:var(--muted); }
+.btn.petit { font-size:.85rem; padding:.3rem .65rem; }
+.btn:focus-visible, textarea:focus-visible, .modele:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.btn:disabled { opacity:.45; cursor:default; }
+textarea { width:100%; font:inherit; font-size:.9rem; padding:.55rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); resize:vertical; }
+.bloc-modeles { border:1px dashed var(--border); border-radius:10px; padding:12px; margin:10px 0 0; background:var(--accent-bg); }
+.bloc-modeles.garde { border:1px solid var(--ok); background:var(--ok-bg); }
+.puces { list-style:none; margin:6px 0 8px; padding:0; display:flex; gap:8px; flex-wrap:wrap; }
+.puce { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:99px; padding:3px 4px 3px 10px; font-size:.9rem; }
+.puce button { border:0; background:none; color:var(--muted); cursor:pointer; font-size:1rem; line-height:1; padding:2px 6px; }
+.ligne { display:flex; gap:8px; flex-wrap:wrap; }
+.apres { margin-top:12px; font-size:.92rem; color:var(--muted); border-top:1px solid var(--border); padding-top:10px; }
+.apres ol { margin:6px 0 0; padding-left:1.2rem; } .apres li { margin-bottom:3px; }
+/* Barre du bas */
+.barre-bas { position:fixed; left:0; right:0; bottom:0; background:var(--barre); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:center; z-index:5; }
+.barre-bas .in { width:100%; max-width:880px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+.barre-bas .btn { font-size:1rem; padding:.6rem 1.1rem; }
+/* Simulation de l'écran d'essai */
+.voile { position:fixed; inset:0; background:rgba(10,14,22,.6); display:flex; align-items:center; justify-content:center; z-index:10; padding:16px; }
+.voile[hidden] { display:none; }
+.essai { width:100%; max-width:760px; max-height:92vh; overflow:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+.galerie { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin:10px 0; }
+.modele { border:1.5px solid var(--border); border-radius:10px; padding:8px; background:var(--card); text-align:center; font:inherit; color:var(--text); cursor:pointer; }
+.modele .vignette { height:90px; border-radius:6px; margin-bottom:6px; display:flex; align-items:center; justify-content:center; font-size:.8rem; color:#fff; }
+.modele[aria-pressed="true"] { border-color:var(--ok); background:var(--ok-bg); }
+.modele .etat { font-size:.8rem; font-weight:700; color:var(--accent); display:block; }
+.modele[aria-pressed="true"] .etat { color:var(--ok); }
+.legende { max-width:880px; margin:18px auto 0; font-size:.9rem; color:var(--muted); }
+.legende li { margin-bottom:5px; }
+.suite-simu { max-width:880px; margin:14px auto 0; border:1px solid var(--ok); background:var(--ok-bg); border-radius:10px; padding:10px 14px; }
+.suite-simu[hidden] { display:none; }
+</style>
+</head>
+<body>
+
+<div class="note">
+  <h1>Maquette 2 : « Récupérer votre CV », choix du modèle et « Continuer » dans la barre du bas</h1>
+  <p class="muted">Tout est cliquable. Essayez : « Regarder nos modèles » (simulation de l’écran d’essai qui existe déjà), gardez un ou deux modèles, revenez, puis « Continuer » dans la barre du bas. Les noms de modèles sont des exemples : les vrais viennent de la galerie.</p>
+</div>
+
+<div class="page">
+  <div class="etapes" aria-label="Étapes de Reformuler et présenter mon CV">
+    <span class="etape fait">Préparer</span><span class="etape fait">Assistant</span><span class="etape fait">Réponse</span><span class="etape fait">Vérifier</span><span class="etape ici" aria-current="step">Mise en forme</span>
+  </div>
+  <div class="centre">
+    <h2>Récupérer votre CV</h2>
+    <p class="muted">Votre CV reformulé est prêt.</p>
+  </div>
+
+  <div class="cartes">
+    <!-- Carte de la suite du parcours -->
+    <section class="carte suite" aria-labelledby="titreModele">
+      <span class="pastille">La suite du parcours</span>
+      <h3 id="titreModele">Remplir un de nos modèles</h3>
+      <p>Votre CV reformulé est rangé dans nos rubriques (expériences, formations, compétences...). À l’écran suivant, vous vérifiez et complétez vos informations, notamment vos coordonnées. Puis vous récupérez votre CV en PDF ou en Word.</p>
+      <p><strong>Quel modèle vous plaît ?</strong> Vous pouvez en regarder dès maintenant et en garder jusqu’à 5 : vous les retrouverez avec votre vrai texte. Vous pouvez aussi choisir plus tard.</p>
+      <div class="bloc-modeles" id="blocModeles"></div>
+    </section>
+
+    <!-- Carte du texte seul -->
+    <section class="carte" aria-labelledby="titreTexte">
+      <h3 id="titreTexte">Seulement le texte ?</h3>
+      <p class="muted">Le texte reformulé, rangé par rubrique, prêt à coller sur Canva, un traitement de texte ou une autre plateforme. La mise en forme, vous la faites là-bas.</p>
+      <textarea rows="9" readonly aria-label="Texte de votre CV reformulé">PROFIL
+Plaquiste titulaire d’un titre professionnel, rigoureux et autonome...
+
+EXPÉRIENCES
+Agent technique, Mairie de Bergerac (2023)
+- Entretien des bâtiments communaux
+...</textarea>
+      <div class="centre" style="margin-top:8px;"><button type="button" class="btn plein" id="btnCopier">Copier le texte</button></div>
+    </section>
+  </div>
+</div>
+
+<div class="suite-simu" id="suiteSimu" hidden role="status"></div>
+
+<!-- Barre du bas -->
+<div class="barre-bas"><div class="in">
+  <button type="button" class="btn" id="btnRetour">&#8592; Retour</button>
+  <button type="button" class="btn" id="btnAccueil">Accueil</button>
+  <button type="button" class="btn plein" id="btnContinuer">Continuer &#8594;</button>
+</div></div>
+
+<!-- Simulation de l'écran d'essai existant -->
+<div class="voile" id="voile" hidden>
+  <div class="essai" role="dialog" aria-labelledby="titreEssai">
+    <h3 id="titreEssai">Nos modèles de CV (écran d’essai qui existe déjà)</h3>
+    <p class="muted">Un CV d’exemple s’affiche dans chaque modèle. Cliquez sur un modèle pour le garder ou le retirer. <strong>5 au plus.</strong></p>
+    <div class="galerie" id="galerie"></div>
+    <p class="muted" id="compteEssai" aria-live="polite"></p>
+    <div class="centre"><button type="button" class="btn plein" id="btnFini">J’ai fini de regarder</button></div>
+  </div>
+</div>
+
+<ul class="legende">
+  <li><strong>Ce qui change par rapport à aujourd’hui :</strong> « Continuer » quitte la page et rejoint « Retour » et « Accueil » dans la barre du bas (règle du 19/10/2026) ; le bouton « Revenir à la vérification » disparaît de la page, car « Retour » fait déjà la même chose ; la carte « Remplir un de nos modèles » passe en premier avec le choix du modèle ; le texte seul devient une deuxième carte plus discrète.</li>
+  <li><strong>Choisir un modèle n’est pas obligatoire :</strong> « Continuer » est toujours actif. Sans modèle gardé, le choix se fait comme aujourd’hui sur « Vos documents ».</li>
+  <li><strong>Avec des modèles gardés :</strong> sur « Vos documents », ils s’affichent avec le texte de la personne et un clic en choisit un (comme à la création d’un CV).</li>
+</ul>
+
+<script>
+(function () {
+  var MAX = 5;
+  var MODELES = [
+    { id:'sobre', nom:'Sobre', couleur:'#3b5b8c' }, { id:'editorial', nom:'Éditorial', couleur:'#7a3b3b' },
+    { id:'chrono', nom:'Chrono', couleur:'#2f7a6a' }, { id:'empilee', nom:'Empilée', couleur:'#8a6a1c' },
+    { id:'pastille', nom:'Pastille', couleur:'#6a3b8c' }, { id:'medaillon', nom:'Médaillon', couleur:'#3b6a8c' },
+    { id:'bandeau', nom:'Bandeau', couleur:'#8c3b6a' }
+  ];
+  var gardes = [];
+  var bloc = document.getElementById('blocModeles');
+  var voile = document.getElementById('voile');
+  var galerie = document.getElementById('galerie');
+  var suite = document.getElementById('suiteSimu');
+
+  function nom(id) { return MODELES.filter(function (m) { return m.id === id; })[0].nom; }
+
+  function dessinerBloc() {
+    if (!gardes.length) {
+      bloc.className = 'bloc-modeles';
+      bloc.innerHTML = '<p class="muted" style="margin-bottom:8px;">Aucun modèle gardé pour l’instant.</p>' +
+        '<button type="button" class="btn plein" id="btnRegarder">Regarder nos modèles</button>';
+    } else {
+      bloc.className = 'bloc-modeles garde';
+      bloc.innerHTML = '<p style="margin-bottom:0;"><strong>&#9989; Mes modèles gardés : ' + gardes.length + ' sur ' + MAX + '</strong></p>' +
+        '<ul class="puces">' + gardes.map(function (id) { return '<li class="puce">' + nom(id) + '<button type="button" data-retirer="' + id + '" aria-label="Retirer ' + nom(id) + '">&#10005;</button></li>'; }).join('') + '</ul>' +
+        '<p class="muted" style="margin-bottom:8px;">Ils vous seront proposés, avec votre texte, sur « Vos documents ».</p>' +
+        '<div class="ligne"><button type="button" class="btn petit" id="btnRegarder">En ajouter ou en changer</button><button type="button" class="btn petit discret" id="btnOublier">Oublier mes modèles</button></div>';
+    }
+    var r = document.getElementById('btnRegarder'); if (r) { r.addEventListener('click', ouvrirEssai); }
+    var o = document.getElementById('btnOublier'); if (o) { o.addEventListener('click', function () { gardes = []; dessinerBloc(); }); }
+    Array.prototype.forEach.call(bloc.querySelectorAll('[data-retirer]'), function (b) {
+      b.addEventListener('click', function () { gardes = gardes.filter(function (x) { return x !== b.getAttribute('data-retirer'); }); dessinerBloc(); });
+    });
+  }
+
+  function dessinerGalerie() {
+    galerie.innerHTML = MODELES.map(function (m) {
+      var est = gardes.indexOf(m.id) !== -1;
+      return '<button type="button" class="modele" data-id="' + m.id + '" aria-pressed="' + est + '">' +
+        '<div class="vignette" style="background:' + m.couleur + '">CV d’exemple</div><strong>' + m.nom + '</strong>' +
+        '<span class="etat">' + (est ? '&#9989; Gardé' : 'Garder ce modèle') + '</span></button>';
+    }).join('');
+    document.getElementById('compteEssai').textContent = gardes.length + ' modèle' + (gardes.length > 1 ? 's' : '') + ' gardé' + (gardes.length > 1 ? 's' : '') + ' sur ' + MAX + '.';
+    Array.prototype.forEach.call(galerie.querySelectorAll('.modele'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-id'), i = gardes.indexOf(id);
+        if (i !== -1) { gardes.splice(i, 1); }
+        else if (gardes.length < MAX) { gardes.push(id); }
+        dessinerGalerie();
+        var n = galerie.querySelector('[data-id="' + id + '"]'); if (n) { n.focus(); }
+      });
+    });
+  }
+
+  function ouvrirEssai() { voile.hidden = false; dessinerGalerie(); document.getElementById('btnFini').focus(); }
+  function fermerEssai() { voile.hidden = true; dessinerBloc(); var r = document.getElementById('btnRegarder'); if (r) { r.focus(); } }
+  document.getElementById('btnFini').addEventListener('click', fermerEssai);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !voile.hidden) { fermerEssai(); } });
+
+  document.getElementById('btnCopier').addEventListener('click', function () { this.textContent = 'Texte copié ✓'; });
+  document.getElementById('btnContinuer').addEventListener('click', function () {
+    var avec = gardes.length
+      ? (gardes.length > 1
+        ? 'Vos ' + gardes.length + ' modèles gardés (' + gardes.map(nom).join(', ') + ') vous attendent'
+        : 'Votre modèle gardé (' + nom(gardes[0]) + ') vous attend') + ' sur « Vos documents », avec votre vrai texte.'
+      : 'Aucun modèle gardé : vous choisirez votre modèle sur « Vos documents », comme aujourd’hui.';
+    suite.hidden = false;
+    suite.innerHTML = '<strong>Simulation de la suite :</strong> vous vérifiez vos informations (objectif, coordonnées...), puis « Vos documents ». ' + avec;
+    suite.scrollIntoView({ block:'nearest' });
+  });
+  document.getElementById('btnRetour').addEventListener('click', function () { suite.hidden = false; suite.innerHTML = '<strong>Simulation :</strong> « Retour » ramène à la vérification de la version choisie.'; });
+  document.getElementById('btnAccueil').addEventListener('click', function () { suite.hidden = false; suite.innerHTML = '<strong>Simulation :</strong> « Accueil » ramène à l’accueil de l’application.'; });
+
+  dessinerBloc();
+})();
+</script>
+</body>
+</html>

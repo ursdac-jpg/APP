@@ -7,7 +7,7 @@ tags: [Tese, titre emploi-service entreprise, chèque emploi associatif, premiè
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "titre emploi-service entreprise (Tese)"
     definition: "Service gratuit de l'Urssaf qui prend en charge, pour l'employeur, les déclarations, le bulletin de paie, le calcul des cotisations et le prélèvement à la source. Réservé aux employeurs qui l'utilisent pour l'ensemble de leurs salariés."
@@ -21,16 +21,19 @@ sources:
 ce_qui_change_souvent:
   - "Le périmètre exact des employeurs éligibles au Tese"
   - "Les contrats couverts par le Tesa+ et le Tesa simplifié (agricole)"
-revisions: []
+revisions:
+  - "2026-11-04 : la page de la MSA confirme le Tesa simplifié (contrats à durée déterminée de trois mois au plus) et le Tesa+ (petites entreprises agricoles sans logiciel de paie, CDI et CDD) ; le remplacement de l'ancien titre emploi simplifié agricole n'y figure pas (retiré) ; les caractéristiques du Tese de l'Urssaf n'étaient pas sur cette page (à confirmer)"
+  - "2026-11-04 : les pages de l'Urssaf et de Service Public sur le Tese confirment la gratuité, les contrats en CDD et CDI, la prise en charge des bulletins de paie et des déclarations, et l'usage du Tese pour une partie ou la totalité des salariés depuis le 1er janvier 2026 ; l'apprentissage, le tiers déclarant et l'ancienne règle « tous ou aucun » n'y figurent pas (retirés)"
+phrase_generale: "Embaucher pour la première fois représente une charge administrative réelle, mais des outils existent pour l'alléger, sans supprimer les obligations elles-mêmes. Les services proposés, leurs conditions et leurs coûts changent : avant de choisir, renseignez-vous auprès de l'Urssaf ou sur les sources officielles indiquées plus bas."
 collecte: employeurs.collecte.md
 ---
 
 Embaucher pour la première fois représente une charge administrative réelle : déclaration préalable, bulletin de paie, calcul des cotisations, déclarations mensuelles. Des outils existent pour l'alléger, sans supprimer les obligations elles-mêmes.
 
-Le titre emploi-service entreprise (Tese), géré par l'Urssaf, est gratuit. Il prend en charge l'ensemble des démarches déclaratives, établit les bulletins de paie, calcule les cotisations et taxes dues, et gère le prélèvement à la source. Il accepte tous les types de contrat (CDI, CDD, apprentissage). Depuis le 1er janvier 2026, l'employeur peut y déclarer seulement une partie de ses salariés et confier les autres à un tiers déclarant ; auparavant, c'était tous ou aucun.
+Le titre emploi-service entreprise (Tese), géré par l'Urssaf, est gratuit. Il prend en charge l'ensemble des démarches déclaratives, établit les bulletins de paie, calcule les cotisations et taxes dues, et gère le prélèvement à la source. Il permet de gérer les formalités liées à l'embauche et à la gestion de salariés en CDI et en CDD. Depuis le 1er janvier 2026, une entreprise peut utiliser le Tese pour une partie de ses salariés, en cas de besoin d'embauche ponctuel, ou pour tous ses salariés.
 
 Pour les associations, le chèque emploi associatif fonctionne sur le même principe.
 
-Dans l'agriculture, la MSA propose deux services en ligne : le Tesa simplifié, pour les contrats à durée déterminée de trois mois au plus (saisonniers, remplacements, vendanges), et le Tesa+, pensé pour les petites exploitations sans logiciel de paie, qui couvre aussi les CDI. Ils remplacent l'ancien titre emploi simplifié agricole. Les conditions précises se lisent sur le site de la MSA.
+Dans l'agriculture, la MSA propose deux services en ligne : le Tesa simplifié, pour les contrats à durée déterminée de trois mois au plus (saisonniers, remplacements, vendanges), et le Tesa+, destiné en priorité aux petites exploitations sans logiciel de paie, qui couvre aussi les CDI. Les conditions précises se lisent sur le site de la MSA.
 
 Ces outils sont utiles en particulier pour une structure qui embauche pour la première fois, ou qui n'a pas les moyens d'un service de paie interne. Ils réduisent le temps passé sur les formalités, pas le coût du salarié lui-même.

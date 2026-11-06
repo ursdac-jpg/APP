@@ -56,7 +56,8 @@ function ucpmPreparerDossierLettre(copie, donnees) {
   c.objectif = '';
   c.metierCible = String(d.titre || '');
   c.titreCV = String(d.titre || c.titreCV || '');
-  c.lettreDestinataire = { choix: 'recrutement', gabarit: d.gabarit || 'g0', police: ucpmPoliceLettreDepuisCv(d.jetonPolice), couleur: '', icones: true, coordLigne: false };
+  // rue : la rue de la personne n'est imprimée en haut de la lettre que si elle l'a demandé (même réglage que la lettre seule, 28/10/2026).
+  c.lettreDestinataire = { choix: 'recrutement', gabarit: d.gabarit || 'g0', police: ucpmPoliceLettreDepuisCv(d.jetonPolice), couleur: '', icones: true, coordLigne: false, rue: d.rue === true };
   return c;
 }
 

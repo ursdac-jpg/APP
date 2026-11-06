@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : vérifier dans l'outil de prospection</title>
+<style>
+  :root { --fond:#f6f7f9; --texte:#1f2937; --carte:#fff; --bord:#d1d5db; --bord-fort:#9ca3af; --accent:#1d4ed8; --accent-texte:#fff; --doux:#e8eefc; --ok:#e6f4ea; --ok-bord:#6bb26b; --alerte:#fff7e0; --alerte-bord:#e0b94a; --verif:#c4553a; --verif-bg:#fde5de; --verif-texte:#fff; --danger:#fdecec; --danger-bord:#d46a6a; }
+  @media (prefers-color-scheme: dark) { :root { --fond:#111827; --texte:#f3f4f6; --carte:#1f2937; --bord:#374151; --bord-fort:#6b7280; --accent:#7aa2ff; --accent-texte:#0b1220; --doux:#22304f; --ok:#16301f; --ok-bord:#4c8a58; --alerte:#3a3216; --alerte-bord:#a98a2c; --verif:#f0987f; --verif-bg:#40201a; --verif-texte:#2a1209; --danger:#3a1d1d; --danger-bord:#a85555; } }
+  body { margin:0; background:var(--fond); color:var(--texte); font-family:system-ui,"Segoe UI",sans-serif; line-height:1.5; }
+  main { max-width:880px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.35rem; } h2 { font-size:1.1rem; margin:0 0 8px; }
+  .carte { background:var(--carte); border:1px solid var(--bord); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .legende { background:var(--doux); border-radius:10px; padding:10px 14px; margin:10px 0 18px; font-size:.92rem; }
+  .petit { font-size:.88rem; opacity:.85; }
+  .rangee { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0; }
+  button { font:inherit; font-weight:600; color:var(--texte); background:var(--carte); border:2px solid var(--bord-fort); border-radius:10px; padding:9px 15px; cursor:pointer; }
+  button.verif { background:var(--verif); border-color:var(--verif); color:var(--verif-texte); }
+  button.petit { padding:5px 10px; font-size:.88rem; }
+  .zone-verif { background:var(--verif-bg); border:2px solid var(--verif); border-radius:10px; padding:10px 12px; margin:10px 0; }
+  .pastille { display:inline-block; border-radius:999px; padding:1px 10px; font-size:.82rem; font-weight:700; border:2px solid var(--bord-fort); }
+  .p-ok { background:var(--ok); border-color:var(--ok-bord); } .p-warn { background:var(--alerte); border-color:var(--alerte-bord); } .p-alert { background:var(--danger); border-color:var(--danger-bord); }
+  textarea { width:100%; min-height:70px; box-sizing:border-box; font:inherit; padding:8px; border:2px solid var(--bord-fort); border-radius:8px; background:var(--carte); color:var(--texte); }
+  table { width:100%; border-collapse:collapse; } td { border-top:1px solid var(--bord); padding:8px 6px; vertical-align:top; }
+  .avant { background:var(--danger); text-decoration:line-through; padding:1px 6px; border-radius:6px; display:inline-block; }
+  .apres { background:var(--ok); padding:1px 6px; border-radius:6px; display:inline-block; }
+  a.btn { display:inline-block; font-weight:600; border:2px solid var(--bord-fort); border-radius:10px; padding:5px 10px; font-size:.88rem; color:var(--texte); text-decoration:none; background:var(--carte); }
+  .num { display:inline-block; background:var(--accent); color:var(--accent-texte); border-radius:50%; width:1.6rem; height:1.6rem; text-align:center; font-weight:700; margin-right:6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : « Faire vérifier par un assistant » dans l'outil de prospection</h1>
+  <div class="legende">Cette page est une <strong>maquette</strong> : rien n'est branché. Elle montre les quatre endroits qui changeraient, au deuxième tri. Les boutons saumon sont ceux de l'outil de veille. Tout reste une <strong>proposition</strong> : vous ouvrez la page lue et vous vérifiez à la main, comme aujourd'hui.</div>
+
+  <div class="carte">
+    <h2><span class="num">1</span>La rangée d'actions du deuxième tri</h2>
+    <div class="rangee">
+      <button type="button">Message 1 : retrouver les coordonnées</button>
+      <button type="button" class="verif">Message 2 : faire trier par un second assistant</button>
+      <button type="button">Message 3 : repérer recrutement et actualité</button>
+      <button type="button">Coller la réponse de l'assistant</button>
+      <button type="button">Contrôler les adresses des cases remplies</button>
+    </div>
+    <p class="petit">Seul le message 2 (la vérification) devient saumon. Il prend <strong>8 entreprises au plus</strong> au lieu de 15 et sert à <strong>trier</strong> : confirmé, à regarder, non vérifiable, fermée ou absente. Il ne remplace plus aucune coordonnée tout seul. <em>Question pour vous : les messages 1 et 3 passent-ils aussi à 8, ou restent-ils à 15 ?</em></p>
+  </div>
+
+  <div class="carte">
+    <h2><span class="num">2</span>Sur la fiche d'une entreprise : un bouton pour elle seule</h2>
+    <strong>Boulangerie Dupont SARL</strong> <span class="petit">Bergerac (24)</span>
+    <div class="petit">Téléphone : 05 53 00 00 00 · Site : https://www.boulangerie-dupont.fr · E-mail : (vide)</div>
+    <div class="rangee">
+      <button type="button">J'ai vérifié à la main</button>
+      <button type="button" class="verif">Faire vérifier cette entreprise par un assistant</button>
+    </div>
+    <div class="zone-verif">
+      <div class="petit">Prompt copié. Ouvrez l'assistant (recherche web activée), collez-le, puis collez sa réponse ci-dessous.</div>
+      <div class="rangee"><a class="btn" href="#">Ouvrir ChatGPT</a><a class="btn" href="#">Ouvrir Perplexity</a><button type="button" class="petit">Copier le prompt à nouveau</button><button type="button" class="petit">Fermer</button></div>
+      <label class="petit"><strong>Collez ici la réponse de l'assistant, telle quelle</strong></label>
+      <textarea aria-label="Réponse de l'assistant">téléphone | corrigé | 05 53 00 00 00 | 05 53 11 22 33 | https://www.boulangerie-dupont.fr/contact | « Appelez-nous au 05 53 11 22 33 »</textarea>
+      <div class="rangee"><button type="button" class="verif">Lire la réponse</button></div>
+      <p class="petit"><strong>Résultat de l'assistant : une proposition, pas une preuve.</strong> Ouvrez la page lue avant de remplir une case.</p>
+      <table><tbody>
+        <tr><td style="width:9rem"><strong>Téléphone</strong></td><td><span class="pastille p-warn">corrigé</span><div><span class="avant">05 53 00 00 00</span> <span class="apres">05 53 11 22 33</span></div><div class="petit">Lu : « Appelez-nous au 05 53 11 22 33 »</div>
+          <div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a><button type="button" class="verif petit">Mettre « 05 53 11 22 33 » dans la case</button></div></td></tr>
+        <tr><td><strong>Site internet</strong></td><td><span class="pastille p-ok">confirmé</span><div class="petit">https://www.boulangerie-dupont.fr</div><div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a></div></td></tr>
+        <tr><td><strong>E-mail</strong></td><td><span class="pastille p-alert">non vérifiable</span><div class="petit">Aucune page officielle ouverte : rien à remplir.</div></td></tr>
+      </tbody></table>
+      <p class="petit">« Mettre dans la case » remplit seulement la case et la marque « à vérifier à la main » : l'entreprise ne peut pas passer au troisième tri tant que vous n'avez pas cliqué sur « J'ai vérifié à la main ».</p>
+    </div>
+  </div>
+
+  <div class="carte">
+    <h2><span class="num">3</span>Le résultat du message 2 (lot de 8) : un tri</h2>
+    <p class="petit"><strong>Résultat de groupe : un tri, pas une vérification.</strong> Aucune valeur n'est proposée : une entreprise « à regarder » se creuse avec son bouton individuel.</p>
+    <table><tbody>
+      <tr><td style="width:12rem"><strong>Boulangerie Dupont SARL</strong></td><td><span class="pastille p-warn">à regarder</span> <span class="petit">le téléphone diffère de la page contact</span><div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a><button type="button" class="verif petit">Faire vérifier cette entreprise seule</button></div></td></tr>
+      <tr><td><strong>Garage Martin</strong></td><td><span class="pastille p-ok">confirmé</span><div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a></div></td></tr>
+      <tr><td><strong>Menuiserie Lacoste</strong></td><td><span class="pastille p-alert">fermée ou absente</span> <span class="petit">radiée selon la page lue</span><div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a><button type="button" class="verif petit">Faire vérifier cette entreprise seule</button></div></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="carte">
+    <h2><span class="num">4</span>L'aperçu de « Coller la réponse » : la page lue devient cliquable</h2>
+    <div class="petit"><strong>Boulangerie Dupont SARL</strong></div>
+    <div class="petit">Avis du second assistant : corrigé · Téléphone : 05 53 11 22 33 · Page source : https://www.boulangerie-dupont.fr/contact</div>
+    <div class="rangee"><a class="btn" href="#">Ouvrir la page lue</a></div>
+    <p class="petit">Aujourd'hui, l'adresse de la page est écrite en texte simple : elle devient un bouton pour l'ouvrir et comparer avant de « Remplir les cases vides du carnet ».</p>
+  </div>
+
+  <div class="legende">
+    <strong>Ce qui ne change pas</strong> : les trois niveaux de tri, « J'ai vérifié à la main », le contrôle des adresses, les ventes et les fermetures (qui viennent du BODACC, une source officielle), le refus des noms qui ressemblent à une personne, la sauvegarde du carnet.
+  </div>
+</main>
+</body>
+</html>

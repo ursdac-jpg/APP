@@ -4,7 +4,7 @@
    Lance par « Lancer l'outil de veille.bat ». Aucune dependance (Node seul).
    Il est VOLONTAIREMENT tres limite :
      - il n'ecoute que sur 127.0.0.1 (cet ordinateur, jamais le reseau) ;
-     - il ne sert que DEUX fichiers (veille.html et base_fiches.js) et des reponses d'API, rien d'autre : aucun autre fichier du dossier, aucun
+     - il ne sert que TROIS fichiers (veille.html, base_fiches.js et veillePreuve.js) et des reponses d'API, rien d'autre : aucun autre fichier du dossier, aucun
        dossier parent, aucune liste de dossier ;
      - GET et HEAD pour les pages ; POST seulement pour /api/..., et seulement avec un JETON secret (tire au sort a chaque lancement, ecrit dans la
        page servie, donc connu de la page ouverte par le lanceur et de personne d'autre), une adresse locale, et une origine locale ;
@@ -14,9 +14,17 @@
        (/api/sas/controle/...) LIT en plus le texte des pages (500 Ko au plus, redirections verifiees une a une, jamais de site prive ou local), a partir des
        adresses ECRITES dans outils/sas/employeurs.sas.txt (la fenetre n'envoie que des identifiants) ; son seul fichier ecrit est outils/controles/sas_employeurs.json
        (dernier resultat, chemin fixe, ignore par Git) ;
+     - le controle des adresses de l'application (/api/adresses/...) ouvre, en lecture, les adresses https ECRITES dans les fichiers du depot (registre des adresses du Cadre,
+       Lexique, chiffres, liens des modules) ; ses seuls fichiers ecrits sont outils/controles/adresses.json et outils/controles/adresses_gardees.json (chemins fixes, ignores par Git) ;
+     - EXCEPTION ASSUMEE : « Retrouver le passage » (/api/preuve/verifier) ouvre les adresses https citees dans une reponse d'assistant que Denis a collee, apres son clic ; memes
+       garde-fous (site public, sans port ni identifiant, 40 pages au plus, 500 Ko, lecture seule, rien n'est garde ni ecrit) ;
      - lecture d'UN dossier hors depot : le pont depuis l'outil de prospection (/api/pont/...) lit, en LECTURE SEULE, trois fichiers de noms fixes dans le dossier voisin
        PROSPECTION/donnees/pont (chemin fixe calcule a partir du depot, 1 Mo au plus, aucun autre fichier de PROSPECTION, rien n'est ecrit ni supprime) ;
-     - il N'ECRIT RIEN LUI-MEME et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
+     - EXCEPTION ASSUMEE : les dates de dernier passage (/api/passages/...) lisent et ecrivent UN seul fichier, outils/passages.json (chemin fixe, cles et dates
+       validees, une date ne recule jamais, rien n'est ecrit si le fichier est illisible) ; ce fichier est suivi par Git mais jamais enregistre ni envoye par l'outil ;
+     - EXCEPTION ASSUMEE : les reponses collees dans l'onglet « Travailler avec Claude » (/api/retours/...) s'ecrivent dans outils/retours/AAAA-MM-JJ/<identifiant>.md (jour de
+       l'ordinateur, identifiants valides, 400 Ko au plus par reponse, 80 fichiers au plus par jour) ; dossier prive, ignore par Git, jamais envoye ;
+     - il N'ECRIT RIEN LUI-MEME (a part ce fichier) et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
        veilleDepot.js (« Publier ») et veilleEnvoi.js (lots pour GitHub), sur des listes fermees de destinations. JAMAIS DE PUSH.
    ============================================================ */
 'use strict';
@@ -29,7 +37,11 @@ const { creerDepot } = require('./veilleDepot.js');
 const { creerEnvoi } = require('./veilleEnvoi.js');
 const { creerGithub } = require('./veilleGithub.js');
 const { creerControleSas } = require('./veilleControleSas.js');
+const { creerAdresses } = require('./veilleAdresses.js');
 const veilleOfficiels = require('./veilleOfficiels.js');
+const veillePreuveVerif = require('./veillePreuveVerif.js');
+const { creerPassages } = require('./veillePassages.js');
+const { creerRetours } = require('./veilleRetours.js');
 
 const DOSSIER = __dirname;
 const RACINE_DEPOT = path.resolve(__dirname, '..');
@@ -39,7 +51,8 @@ const TAILLE_CORPS_MAX = 6 * 1024 * 1024;
 const FICHIERS = {
   '/': { nom: 'veille.html', type: 'text/html; charset=utf-8' },
   '/veille.html': { nom: 'veille.html', type: 'text/html; charset=utf-8' },
-  '/base_fiches.js': { nom: 'base_fiches.js', type: 'text/javascript; charset=utf-8' }
+  '/base_fiches.js': { nom: 'base_fiches.js', type: 'text/javascript; charset=utf-8' },
+  '/veillePreuve.js': { nom: 'veillePreuve.js', type: 'text/javascript; charset=utf-8' }
 };
 const HOTE_AUTORISE = /^(127\.0\.0\.1|localhost)(:\d{1,5})?$/i;
 const ORIGINE_AUTORISEE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d{1,5})?$/i;
@@ -86,6 +99,9 @@ function creerServeur(options) {
   const envoi = opt.envoi || creerEnvoi(racine);
   const github = opt.github || creerGithub(racine);
   const controleSas = opt.controleSas || creerControleSas(racine, depot, { fetch: opt.fetchControle, resoudre: opt.resoudreControle });
+  const adresses = opt.adresses || creerAdresses(racine, { fetch: opt.fetchControle, controleSas: controleSas });
+  const passages = opt.passages || creerPassages(racine);
+  const retours = opt.retours || creerRetours(racine);
   const ouvrir = opt.ouvrir || ouvrirParDefaut;
   const jeton = opt.jeton || crypto.randomBytes(24).toString('hex');
 
@@ -100,7 +116,7 @@ function creerServeur(options) {
       case '/api/territoire/lister': return repondreResultat(res, depot.listerTerritoire(donnees && donnees.fichier));
       case '/api/territoire/controler': return repondreResultat(res, depot.controlerTerritoire(donnees && donnees.fichier));
       case '/api/sas/analyser': return repondreResultat(res, depot.analyserLot(donnees && donnees.fichier, donnees && donnees.texte));
-      case '/api/sas/lister': return repondreResultat(res, depot.listerSas(donnees && donnees.fichier));
+      case '/api/sas/lister': return repondreResultat(res, depot.listerSas(donnees && donnees.fichier, !!(donnees && donnees.doublons)));
       // Le pont depuis l'outil de prospection : lecture seule d'un fichier a chemin fixe (veillePont.js), sans les lignes que la veille connait deja.
       case '/api/pont/etat': return repondreResultat(res, depot.etatPont());
       case '/api/pont/lire': return repondreResultat(res, depot.lirePont(donnees && donnees.fichier));
@@ -108,7 +124,24 @@ function creerServeur(options) {
       case '/api/sas/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'sas' })));
       case '/api/sas/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'sas' })));
       // Revérification des fiches PUBLIÉES (même contrôle, mêmes preuves, comparaison avec le dernier contrôle) : lecture seule, rien n'est modifié ni daté.
+      // « Retrouver le passage » : l'outil ouvre les pages citees par l'assistant (https public, 40 au plus, lecture seule, rien n'est garde) et rend un verdict par ligne.
+      case '/api/passages/lire': return repondreResultat(res, passages.lire());
+      case '/api/passages/noter': return repondreResultat(res, passages.noter(donnees));
+      case '/api/retours/lister': return repondreResultat(res, retours.lister());
+      case '/api/retours/enregistrer': return repondreResultat(res, retours.enregistrer(donnees));
+      // Les propositions que Claude a déposées aujourd'hui (outils/retours/<jour>/propositions/, noms de fichier fermés) : lecture seule.
+      case '/api/propositions/lister': return repondreResultat(res, retours.propositions());
+      case '/api/preuve/verifier': return repondreResultat(res, veillePreuveVerif.verifier(donnees && donnees.lignes, { fetch: opt.fetchControle, resoudre: opt.resoudreControle }));
+      // Les adresses de l'application (consigne 92) : ouvre les adresses ECRITES dans les fichiers du depot, en lecture ; ecrit seulement outils/controles/adresses*.json.
+      case '/api/adresses/apercu': return repondreResultat(res, adresses.apercu());
+      case '/api/adresses/demarrer': return repondreResultat(res, adresses.demarrer(donnees));
+      case '/api/adresses/etat': return repondreResultat(res, adresses.etat());
+      case '/api/adresses/garder': return repondreResultat(res, adresses.garder(donnees));
+      case '/api/adresses/ne-plus-garder': return repondreResultat(res, adresses.nePlusGarder(donnees));
+      case '/api/adresses/marquer': return repondreResultat(res, adresses.marquer(donnees));
       case '/api/registre/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'registre' })));
+      case '/api/registre/controle/mensuel/demarrer': return repondreResultat(res, controleSas.demarrerMensuel());
+      case '/api/registre/controle/mensuel/etat': return repondreResultat(res, controleSas.bilanMensuel());
       case '/api/registre/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'registre' })));
       // Magasins officiels d'une enseigne (fichier local ecrit par Claude apres lecture des pages officielles) : lecture seule, rien n'est ecrit.
       case '/api/sas/officiels': return repondreResultat(res, opt.officiels ? opt.officiels() : veilleOfficiels.lire(racine));
@@ -128,8 +161,14 @@ function creerServeur(options) {
       case '/api/chiffres/verifier': return repondreResultat(res, depot.verifierChiffres(donnees && donnees.fichier, donnees && donnees.demande));
       case '/api/chiffres/lire': return repondreResultat(res, depot.lireChiffres(donnees && donnees.fichier));
       case '/api/fiches/lire': return repondreResultat(res, depot.lireFiche(donnees && donnees.rayon, donnees && donnees.id));
+      case '/api/fichessas/lister': return repondreResultat(res, depot.listerFichesSas());
+      case '/api/fichessas/lire': return repondreResultat(res, depot.lireReponseFichesSas(donnees));
+      case '/api/fichessas/prev': return repondreResultat(res, depot.marquerPrevFichesSas(donnees));
+      case '/api/fichessas/prompt': return repondreResultat(res, depot.promptFicheSas(donnees));
       case '/api/changements/lister': return repondreResultat(res, depot.listerChangements());
       case '/api/changements/prompt': return repondreResultat(res, depot.promptChangement(donnees));
+      case '/api/verification/prompt': return repondreResultat(res, depot.promptVerification(donnees));
+      case '/api/verification/lire': return repondreResultat(res, depot.lireVerification(donnees));
       case '/api/changements/lire': return repondreResultat(res, depot.lireReponseChangement(donnees));
       case '/api/annuler': return repondreResultat(res, depot.annuler());
       case '/api/depot/reprendre': return repondreResultat(res, depot.reprendre(donnees && donnees.action));

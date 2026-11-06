@@ -470,7 +470,7 @@ function appliquerMoteurDecisionCV(objetCV, recommandationsIA, capacitesModele) 
     if (formationTrouvee) {
       // TACHE (missions de formation) : jusqu'a 10 missions reformulees/
       // deduites par l’assistant (cv.md, point 11), reduites a 5 au maximum par
-      // la personne dans l'ecran de revision (voir wireEcranChoixReponseIACV) --
+      // la personne dans l'ecran de revision (voir l'ancien ecran a onglets (supprime le 31/10/2026)) --
       // injectees dans la formation retenue -- le rendu (composeurRender.js,
       // rubrique 'formations') sait deja afficher f.missions en puces des
       // lors qu'elles existent, TOUJOURS desormais (harmonise avec le PDF,

@@ -29,7 +29,7 @@
    - htmlChoixAssistantBilanCorps, ASSISTANTS_IA, ETAPES_DETAIL_CHOIX_IA (js/app.js)
    - ouvrirFenetreAssistantIA + recopierTexteAssistantPuisOuvrir (js/app.js)
    - htmlBanniereTransitionIA + _etatTransitionIA + _intervalleDecompteIA (js/app.js)
-   - htmlCollageInstantane / activerCollageInstantane (js/app.js)
+   - htmlCollageUniquePage / brancherCollageUniquePage (js/app.js)
    - bilanCorpsCiblageOffreHTML / bilanCablerCiblageOffre / bilanLireCiblageOffre (data/metiers.js)
    - htmlVerificationDocument / cablerVerificationDocument (data/metiers.js, mode texte)
    - reperesBoutonAncre / reperesBrancherBoutonAncre (modules/reperes/index.js)
@@ -63,19 +63,20 @@ function _rrEchapAttr(s) {
 // 4 pastilles (famille 2, depot + assistant, PAS d'etape de correction).
 var RR_ETAPES = [
   { label: 'Préparer', icone: '&#128221;' },
-  { label: 'Envoyer', icone: '&#128228;&#65039;' },
-  { label: 'Le regard', icone: '&#128196;' },
-  { label: 'Ma fiche', icone: '&#9989;' }
+  { label: 'Assistant', icone: '&#128228;&#65039;' },
+  { label: 'Résultat', icone: '&#128196;' },
+  { label: 'Terminé', icone: '&#9989;' }
 ];
 
 // Toutes les vues du parcours. 'masquer' est un detour de 'preparer'
-// (meme etape) ; 'chez' / 'coller' / 'erreur-lecture' partagent l'etape
-// « Envoyer » avec 'choix-assistant'.
-var RR_VUES = ['preparer', 'masquer', 'choix-assistant', 'chez', 'coller', 'erreur-lecture', 'regard', 'fiche'];
+// (meme etape) ; 'coller' / 'erreur-lecture' partagent l'etape
+// « Assistant » avec 'choix-assistant'. L'ancienne vue 'chez' n'existe plus (decompte et
+// apercu de la fenetre sont sur 'coller', 2026-10-28) : une session reprise dessus va sur 'coller'.
+var RR_VUES = ['preparer', 'masquer', 'choix-assistant', 'coller', 'erreur-lecture', 'regard', 'fiche'];
 
 function _rrEtapeIndex(vue) {
   if (vue === 'preparer' || vue === 'masquer') { return 0; }
-  if (vue === 'choix-assistant' || vue === 'chez' || vue === 'coller' || vue === 'erreur-lecture') { return 1; }
+  if (vue === 'choix-assistant' || vue === 'coller' || vue === 'erreur-lecture') { return 1; }
   if (vue === 'regard') { return 2; }
   if (vue === 'fiche') { return 3; }
   return -1;
@@ -85,7 +86,6 @@ var RR_TITRES = {
   'preparer': 'Préparer',
   'masquer': 'Masquer ce qui est personnel',
   'choix-assistant': 'Choisir l’assistant',
-  'chez': 'L’assistant va s’ouvrir',
   'coller': 'De retour : coller la réponse',
   'erreur-lecture': 'On n’a pas réussi à lire cette réponse',
   'regard': 'Ce qu’on voit sur votre CV',
@@ -98,7 +98,6 @@ var RR_VUE_RETOUR = {
   'preparer': null,
   'masquer': 'preparer',
   'choix-assistant': 'preparer',
-  'chez': 'choix-assistant',
   'coller': 'choix-assistant',
   'erreur-lecture': 'coller',
   'regard': 'coller',
@@ -160,6 +159,7 @@ function regardRecruteurEtatNeuf() {
   return {
     vue: 'preparer',
     modeTexte: false,
+    modeChoisi: false,       // true des que la personne a clique sur l'une des deux cartes (consigne 75 : aucune cochee au depart)
     images: [],              // [{ nom, dataUrl, masquee }] -- dataUrl = image en base64,
                              //   jamais transmise a personne ; sert a l'outil de masquage
                              //   (rectangles dans le navigateur) et a la reprise disquette.
@@ -261,6 +261,7 @@ function regardRecruteurRepriseContinuer() {
 
 // Detruit la session (seul endroit qui remet l'etat a null).
 function regardRecruteurReinitialiser() {
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('regard-recruteur'); }
   _regardRecruteurSessionHistorique++;
   _regardRecruteurEtat = null;
   _regardRecruteurRenduVue = null;
@@ -285,6 +286,7 @@ function regardRecruteurExporterEtatPourSauvegarde() {
   try { return JSON.parse(JSON.stringify(e)); } catch (err) { return null; }
 }
 function regardRecruteurRestaurerEtatDepuisSauvegarde(snap) {
+  if (snap && typeof snap === 'object' && snap.vue === 'chez') { snap.vue = 'coller'; }
   if (snap && typeof snap === 'object' && typeof snap.vue === 'string' && RR_VUES.indexOf(snap.vue) !== -1) {
     _regardRecruteurSessionHistorique++;
     _regardRecruteurEtat = snap;
@@ -313,38 +315,36 @@ function ouvrirRegardRecruteur() {
   function imagesToutesMasquees() {
     return etat.images.length > 0 && etat.images.every(function (i) { return i.masquee === true; });
   }
-  // Avertissement transitoire (jamais persiste, jamais sur etat) : la
-  // personne a depose une image via le depot partage alors qu'elle est en
-  // Mode texte -- ce depot ne sait pas garder l'image pour l'outil de
-  // masquage du module (voir _rrOuvrirDepotTexteCV). Remis a false a
-  // chaque nouvelle tentative.
-  var _rrAvertissementDepotImage = false;
-  // Ouvre le depot partage (texte / PDF / Word / photo) pour le Mode
-  // texte : audit 2026-09-17, point 3 -- avant, seul le copier-coller
-  // manuel existait. Une image deposee ici ne peut pas alimenter l'outil
-  // de masquage du module (le depot partage la telecharge sur le poste
-  // sans en garder de copie en memoire) : on le signale, sans bloquer,
-  // et on invite a utiliser le Mode image pour ce cas.
-  function _rrOuvrirDepotTexteCV() {
-    if (typeof ouvrirAssistantDepotCV !== 'function') { return; }
-    ouvrirAssistantDepotCV('pret', {
-      titre: 'Le texte de votre CV',
+  // Message du dernier ajout d'image (PDF trop long, fichier Word, PDF illisible) : affiche dans la partie 1, efface a l'ajout suivant.
+  var _rrMessageDepotImage = '';
+  // Depot du texte du CV EN PAGE pour le Mode texte (brique htmlDepotCVEnPage, data/metiers.js : texte / PDF / Word / photo lue par la lecture
+  // automatique, relecture et masquage dans le point 1, plus aucune fenetre, consigne 28). Une photo deposee ici est lue en texte ; l'outil de masquage
+  // d'images du module reste reserve au Mode image.
+  function _rrDepotCfg() {
+    return {
+      cle: 'regard-recruteur',
       titreDocument: 'CV',
-      intro: 'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan de votre CV. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.',
+      avecIdentite: true,
+      fait: !!(etat.texteRelu && String(etat.cvTexte || '').trim()),
+      nomFait: etat.cvNom || '',
+      rerender: function () { afficherVue('preparer'); },
       onDocumentPrepare: function (res) {
         if (res && res.type === 'texte' && (res.valeur || '').trim()) {
           etat.cvTexte = res.valeur;
+          etat.cvNom = res.nomFichier ? String(res.nomFichier) : '';
           etat.texteRelu = true;
-          _rrAvertissementDepotImage = false;
           _rrTrack('regard_recruteur_texte_depose');
-        } else if (res && res.type === 'image') {
-          _rrAvertissementDepotImage = true;
         }
         afficherVue('preparer');
       }
-    });
+    };
+  }
+  // Un mode est « choisi » si la personne a clique une carte, ou si une session reprise (disquette) a deja une image ou un texte.
+  function _rrModeChoisi() {
+    return etat.modeChoisi === true || !!etat.modeTexte || etat.images.length > 0 || !!etat.texteRelu || !!String(etat.cvTexte || '').trim();
   }
   function prepImagePrete() {
+    if (!_rrModeChoisi()) { return false; }
     if (etat.modeTexte) { return (etat.cvTexte || '').trim().length > 0 && etat.texteRelu; }
     return imagesToutesMasquees();
   }
@@ -354,18 +354,85 @@ function ouvrirRegardRecruteur() {
   // Chaine vide si le bouton n'est pas bloque.
   function texteBlocageAssistant() {
     if (prepImagePrete()) { return ''; }
+    if (!_rrModeChoisi()) { return 'Choisissez d’abord comment faire lire votre CV (les deux cartes en haut de page).'; }
     if (etat.modeTexte) { return 'Déposez et relisez le texte de votre CV (partie 1) pour continuer.'; }
     if (!etat.images.length) { return 'Ajoutez une image de votre CV (partie 1), ou passez en Mode texte, pour continuer.'; }
     return 'Masquez toutes vos images (partie 2) pour continuer.';
   }
   function passerModeTexte() {
     etat.modeTexte = true;
+    etat.modeChoisi = true;
     _rrTrack('regard_recruteur_mode_texte');
     afficherVue('preparer');
   }
   function quitterModeTexte() {
     etat.modeTexte = false;
+    etat.modeChoisi = true;
     afficherVue('preparer');
+  }
+
+  // Consigne 76 (Denis, 30/10/2026) : une image, un PDF (page par page, code existant pagesEnImagesRecommandation de data/metiers.js) ou une capture
+  // collee arrivent tous en etat.images, puis passent par le meme outil de masquage.
+  function _rrAjouterFichiers(liste) {
+    var messages = [];
+    var place = RR_MAX_IMAGES - etat.images.length;
+    var taches = [];
+    liste.forEach(function (f) {
+      var type = String(f.type || ''), nom = String(f.name || 'image');
+      var base = nom.replace(/\.[a-z0-9]+$/i, '');
+      if (/^image\//.test(type)) {
+        taches.push(new Promise(function (res) {
+          var lecteur = new FileReader();
+          lecteur.onload = function () { res([{ nom: nom, dataUrl: lecteur.result, masquee: false }]); };
+          lecteur.onerror = function () { res([]); };
+          lecteur.readAsDataURL(f);
+        }));
+      } else if (type === 'application/pdf' || /\.pdf$/i.test(nom)) {
+        if (typeof pagesEnImagesRecommandation !== 'function') {
+          messages.push('Ce PDF n’a pas pu être transformé en image. Faites plutôt une capture d’écran de votre CV.');
+          return;
+        }
+        taches.push(pagesEnImagesRecommandation(f).then(function (urls) {
+          return urls.map(function (u, i) { return { nom: base + ' (page ' + (i + 1) + ')', dataUrl: u, masquee: false }; });
+        }).catch(function () {
+          messages.push('Ce PDF n’a pas pu être transformé en image (une connexion internet est nécessaire). Faites plutôt une capture d’écran de votre CV.');
+          return [];
+        }));
+      } else if (/\.docx?$/i.test(nom)) {
+        messages.push('Un fichier Word ne peut pas être transformé en image ici : enregistrez-le d’abord en PDF (Fichier, puis Enregistrer sous, puis le type PDF), puis ajoutez ce PDF.');
+      } else {
+        messages.push('« ' + nom + ' » n’est ni une image ni un PDF : il n’a pas été ajouté.');
+      }
+    });
+    return Promise.all(taches).then(function (groupes) {
+      var ajouts = [].concat.apply([], groupes);
+      if (place <= 0 && liste.length) {
+        messages.push('Trois images au plus : retirez-en une pour en ajouter une autre.');
+        ajouts = [];
+      } else if (ajouts.length > place) {
+        messages.push('Trois images au plus : ' + (place === 1 ? 'seule la première page a été gardée.' : 'seules les ' + place + ' premières pages ont été gardées.'));
+        ajouts = ajouts.slice(0, place);
+      }
+      ajouts.forEach(function (x) { etat.images.push(x); });
+      _rrMessageDepotImage = messages.join(' ');
+      if (ajouts.length) { _rrTrack('regard_recruteur_image_ajoutee', { total: etat.images.length }); }
+      afficherVue('preparer');
+    });
+  }
+
+  // Capture collee avec Ctrl + V (la capture Windows + Maj + S est dans le presse-papiers, pas dans un fichier). Seulement sur « Preparer », en mode
+  // image, hors d'un champ de saisie. Un seul ecouteur a la fois : le precedent est retire a chaque affichage.
+  function _rrCollerCapture(evenement) {
+    if (!_regardRecruteurEtat || _regardRecruteurEtat.vue !== 'preparer' || !document.getElementById('rrBloc1')) { return; }
+    if (etat.modeTexte || !_rrModeChoisi()) { return; }
+    var cible = evenement.target;
+    if (cible && (cible.tagName === 'TEXTAREA' || cible.tagName === 'INPUT' || cible.isContentEditable)) { return; }
+    var fichiers = Array.prototype.slice.call((evenement.clipboardData && evenement.clipboardData.files) || []).filter(function (f) { return /^image\//.test(f.type); });
+    if (!fichiers.length) { return; }
+    evenement.preventDefault();
+    _rrAjouterFichiers(fichiers.map(function (f, i) {
+      return new File([f], 'capture collée ' + (etat.images.length + i + 1) + '.png', { type: f.type });
+    }));
   }
 
   // dataUrl -> HTMLImageElement (l'outil de masquage travaille sur un canvas).
@@ -457,6 +524,25 @@ function ouvrirRegardRecruteur() {
   // ------------------------------------------------------------------
   // VUE « Préparer »
   // ------------------------------------------------------------------
+  // Petites maquettes de CV (dessin simple, jamais un visage) : avec du visuel pour l'image, seulement des lignes de texte pour le contenu.
+  var RR_MINI_CV_IMAGE = '<svg viewBox="0 0 34 44" aria-hidden="true"><rect width="34" height="44" fill="#fff"/><rect width="34" height="12" fill="#2f6bff"/><rect x="3" y="3" width="6" height="6" rx="1" fill="#fff" opacity=".85"/><rect x="12" y="4" width="14" height="2" fill="#fff"/><rect x="12" y="8" width="9" height="1.5" fill="#fff" opacity=".8"/><rect x="0" y="12" width="11" height="32" fill="#dfe8ff"/><rect x="2" y="16" width="7" height="1.5" fill="#2f6bff"/><rect x="2" y="20" width="6" height="1.5" fill="#2f6bff" opacity=".7"/><rect x="2" y="24" width="7" height="1.5" fill="#2f6bff" opacity=".7"/><rect x="14" y="16" width="16" height="2" fill="#9aa6bd"/><rect x="14" y="21" width="17" height="1.5" fill="#c3cad8"/><rect x="14" y="25" width="15" height="1.5" fill="#c3cad8"/><rect x="14" y="31" width="16" height="2" fill="#9aa6bd"/><rect x="14" y="36" width="17" height="1.5" fill="#c3cad8"/></svg>';
+  var RR_MINI_CV_TEXTE = '<svg viewBox="0 0 34 44" aria-hidden="true"><rect width="34" height="44" fill="#fff"/><rect x="4" y="5" width="16" height="2.4" fill="#4a5568"/><rect x="4" y="11" width="26" height="1.5" fill="#a0a8b8"/><rect x="4" y="15" width="24" height="1.5" fill="#a0a8b8"/><rect x="4" y="19" width="26" height="1.5" fill="#a0a8b8"/><rect x="4" y="25" width="14" height="2.4" fill="#4a5568"/><rect x="4" y="31" width="25" height="1.5" fill="#a0a8b8"/><rect x="4" y="35" width="26" height="1.5" fill="#a0a8b8"/><rect x="4" y="39" width="20" height="1.5" fill="#a0a8b8"/></svg>';
+
+  function _rrCartesModeHTML() {
+    var carte = function (mode, titre, obtenez, dessin) {
+      var choisie = _rrModeChoisi() && (mode === 'texte') === !!etat.modeTexte;
+      return '<button type="button" class="rr-carte-mode' + (choisie ? ' choisie' : '') + '" data-rr-mode="' + mode + '" aria-pressed="' + (choisie ? 'true' : 'false') + '">' +
+        '<span class="rr-mini-cv">' + dessin + '</span><span class="rr-carte-texte">' +
+        '<span class="rr-carte-titre"><span class="rr-coche">' + (choisie ? '&#10003;' : '') + '</span>' + titre + '</span>' +
+        '<span class="rr-carte-obtenez"><strong>Vous obtenez :</strong> ' + obtenez + '</span></span></button>';
+    };
+    return '<p class="rr-accroche rr-choix-mode-titre"><strong>Comment voulez-vous faire lire votre CV&nbsp;?</strong> Vous pouvez changer à tout moment.</p>' +
+      '<div class="rr-choix-mode">' +
+      carte('image', 'Lire aussi la présentation', 'les 6 parties, dont la mise en page, les couleurs et l’aération.', RR_MINI_CV_IMAGE) +
+      carte('texte', 'Lire le contenu seul', '4 parties : la première impression, le message de votre CV, les questions d’entretien. Pas d’avis sur la présentation ni les couleurs.', RR_MINI_CV_TEXTE) +
+      '</div>';
+  }
+
   function vuePreparerHTML() {
     var img = etat.images;
     var listeImages = img.length
@@ -472,41 +558,36 @@ function ouvrirRegardRecruteur() {
 
     var bloc1 =
       '<details class="rr-bloc" id="rrBloc1"' + _rrOuvert('rrBloc1') + '>' +
-      '<summary><span class="rr-num">1</span> L’image de votre CV <span class="rr-pilule bleu">Fortement conseillé</span></summary>' +
+      '<summary><span class="rr-num">1</span> L’image de votre CV</summary>' +
       '<div class="rr-bloc-corps">' +
-      '<p>Un regard sur mon CV s’appuie sur une <strong>image</strong> de votre CV, pas seulement le texte : c’est ce qui permet de parler de la mise en page, des couleurs, de l’aération. Sans image, une lecture plus courte reste possible (voir ci-dessous).</p>' +
+      '<p>Un regard sur mon CV s’appuie sur une <strong>image</strong> de votre CV, pas seulement le texte : c’est ce qui permet de parler de la mise en page, des couleurs, de l’aération.</p>' +
       '<div class="rr-boutons">' +
-      '<label class="btn btn-primary btn-sm rr-label-fichier">Ajouter une image' +
-      '<input type="file" accept="image/*" multiple data-rr-ajouter-images hidden></label>' +
+      '<label class="btn btn-primary btn-sm rr-label-fichier">Ajouter une image ou un PDF' +
+      '<input type="file" accept="image/*,application/pdf,.pdf" multiple data-rr-ajouter-images hidden></label>' +
       '</div>' +
-      '<p class="rr-detail">Une capture d’écran nette par page, ou une page de CV exportée en image (mieux qu’une photo prise au téléphone). <strong>Si votre CV fait deux pages, ajoutez les deux</strong> (jusqu’à trois images).</p>' +
+      '<p class="rr-detail">Votre CV en <strong>PDF</strong> (l’application le transforme en images), ou une <strong>capture d’écran</strong> nette par page (mieux qu’une photo prise au téléphone). <strong>Si votre CV fait deux pages, ajoutez les deux</strong> (jusqu’à trois images). Vous pouvez aussi <strong>coller</strong> une capture avec Ctrl + V.</p>' +
+      (_rrMessageDepotImage ? '<div class="rr-encart warn"><span>&#9888;&#65039;</span><span>' + _rrEchapTexte(_rrMessageDepotImage) + '</span></div>' : '') +
       listeImages +
-      (img.length ? '' :
-        '<div class="rr-encart">' +
-        '<span>&#128172;</span><span>Vous n’avez pas d’image, ou une capture d’écran est difficile pour vous&nbsp;? ' +
-        '<button type="button" class="btn btn-outline-secondary btn-sm" data-rr-mode-texte>Je préfère une lecture du contenu seul (Mode texte)</button>' +
-        '<br><span class="rr-detail">La lecture porte alors sur le texte : la première impression, le message que renvoie votre CV et les questions d’entretien. Pas d’avis sur la présentation ni les couleurs.</span></span>' +
-        '</div>') +
+      '<details class="rr-repli"><summary>&#128161; Astuce : comment obtenir l’image de mon CV ?</summary>' +
+      '<div class="rr-detail"><ul class="rr-liste-fine">' +
+      '<li><strong>Mon CV est un PDF :</strong> ajoutez-le tel quel avec le bouton ci-dessus, l’application en fait des images (trois pages au plus).</li>' +
+      '<li><strong>Mon CV est un fichier Word :</strong> enregistrez-le d’abord en PDF (dans Word : Fichier, puis Enregistrer sous, puis choisissez le type PDF), puis ajoutez ce PDF.</li>' +
+      '<li><strong>Je préfère faire une capture d’écran :</strong> ouvrez votre CV à l’écran, puis' +
+      '<ul class="rr-liste-fine">' +
+      '<li>sur un ordinateur Windows : touches Windows + Maj + S, dessinez un cadre autour du CV, puis revenez ici et faites Ctrl + V pour la coller ;</li>' +
+      '<li>sur un Mac : touches Commande + Maj + 4, dessinez le cadre ; la capture est enregistrée sur le bureau, ajoutez-la avec le bouton ci-dessus ;</li>' +
+      '<li>sur un téléphone : utilisez les boutons de capture d’écran du téléphone (en général marche et volume bas sur Android, marche et volume haut sur iPhone), puis « Ajouter une image » et choisissez la capture dans la galerie.</li>' +
+      '</ul></li></ul></div></details>' +
       '</div></details>';
 
-    var avertissementImage = _rrAvertissementDepotImage
-      ? '<div class="rr-encart warn"><span>&#9888;&#65039;</span><span>Vous avez déposé une image : ce dépôt-ci ne sait pas la garder pour l’outil de masquage du module. Pour une lecture qui regarde aussi la présentation, utilisez plutôt <strong>Revenir au mode image</strong> ci-dessous. En Mode texte, déposez un texte, un PDF ou un Word.</span></div>'
-      : '';
     var bloc1Texte =
       '<details class="rr-bloc" id="rrBloc1"' + _rrOuvert('rrBloc1') + '>' +
       '<summary><span class="rr-num">1</span> Le texte de votre CV <span class="rr-pilule bleu">Mode texte</span></summary>' +
       '<div class="rr-bloc-corps">' +
-      '<p>En Mode texte, la lecture porte sur le <strong>contenu</strong> de votre CV : la première impression, le message qu’il renvoie, les questions d’entretien. Pas d’avis sur la mise en page ni les couleurs (cela demande une image).</p>' +
-      avertissementImage +
-      '<p class="rr-detail">' + (etat.texteRelu
-        ? '&#9989; Texte relu et masqué. Vous pouvez le revoir ou le corriger ci-dessous.'
-        : 'Déposez votre CV (texte, PDF ou Word) : vous le relisez et le masquez à l’étape suivante, avant l’envoi.') + '</p>' +
-      '<div class="rr-boutons">' +
+      (typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_rrDepotCfg()) : '') +
       (etat.texteRelu
-        ? '<button type="button" class="btn btn-primary btn-sm" data-rr-aller="masquer">Revoir le texte</button>'
-        : '<button type="button" class="btn btn-primary btn-sm" data-rr-deposer-texte>Déposer mon CV</button>') +
-      '<button type="button" class="btn btn-outline-secondary btn-sm" data-rr-quitter-mode-texte>Revenir au mode image</button>' +
-      '</div>' +
+        ? '<div class="rr-boutons mt-2"><button type="button" class="btn btn-outline-secondary btn-sm" data-rr-aller="masquer">Revoir ou corriger le texte</button></div>'
+        : '') +
       '</div></details>';
 
     var toutesMasq = imagesToutesMasquees();
@@ -530,7 +611,7 @@ function ouvrirRegardRecruteur() {
       '<summary><span class="rr-num">2</span> Masquer ce qui est personnel <span class="rr-pilule bleu">Obligatoire</span>' +
       (toutesMasq ? '<span class="rr-etat ok">Fait</span>' : '') + '</summary>' +
       '<div class="rr-bloc-corps">' +
-      '<p>Avant l’envoi, vous cachez sur <strong>chaque image</strong>, avec des rectangles pleins : votre <strong>nom</strong>, votre <strong>photo</strong>, vos <strong>coordonnées</strong>. L’application vous donne un outil pour dessiner ces rectangles directement ici ; l’image n’est jamais modifiée sur votre ordinateur, vous téléchargez une copie masquée.</p>' +
+      '<p><strong>Pourquoi :</strong> votre <strong>nom</strong>, votre <strong>photo</strong> et vos <strong>coordonnées</strong> ne partent jamais chez l’assistant. Vous les cachez vous-même sur <strong>chaque image</strong>, avec des rectangles pleins, grâce à un outil dans cette page ; l’image d’origine n’est jamais modifiée sur votre ordinateur, vous téléchargez une copie masquée.</p>' +
       (img.length
         ? '<div class="rr-boutons">' +
           '<button type="button" class="btn btn-primary' + (pulseMasquerActif ? ' rr-btn-masquer-attention' : ' btn-sm') + '" id="rrBtnMasquerImages" data-rr-aller="masquer">' + (toutesMasq ? 'Revoir le masquage' : 'Masquer mes images') + '</button>' +
@@ -542,7 +623,7 @@ function ouvrirRegardRecruteur() {
 
     var bloc3 =
       '<details class="rr-bloc" id="rrBloc3"' + _rrOuvert('rrBloc3') + '>' +
-      '<summary><span class="rr-num">3</span> Le poste, l’entreprise, son site <span class="rr-pilule bleu">À compléter · conseillé</span></summary>' +
+      '<summary><span class="rr-num">' + (etat.modeTexte ? 2 : 3) + '</span> Le poste, l’entreprise, son site <span class="rr-pilule bleu">À compléter · conseillé</span></summary>' +
       '<div class="rr-bloc-corps">' +
       '<p>Le métier visé et l’offre aident l’assistant à repérer ce qu’un recruteur de <strong>ce</strong> poste regarderait en premier. Si vous avez une offre, le métier peut rester vide : l’assistant le déduit de l’offre.</p>' +
       // Panneau Candidature partage (2026-09-29, DECISION DE DENIS) : metier ou
@@ -556,17 +637,31 @@ function ouvrirRegardRecruteur() {
       '</div>' +
       '</div></details>';
 
+    // Consigne 74 (Denis, 30/10/2026) : deux cartes de choix en tete (aucune n'est conseillee), puis les parties, avec entre elles la rubrique
+    // « Ce qui se passe ensuite » (brique htmlLiaisonBlocs).
+    var liaison = function (texte) { return (typeof htmlLiaisonBlocs === 'function') ? htmlLiaisonBlocs(texte) : ''; };
+    var partiesImage = liaison('Trois parties vous attendent, dans l’ordre : votre image, ce que vous cachez dessus, puis le poste visé. Les suivantes se débloquent au fur et à mesure.') +
+      bloc1 +
+      liaison('Dès qu’une image est ajoutée, le bouton « Masquer mes images » apparaît : un outil s’ouvre, puis vous revenez ici.') +
+      bloc2Image +
+      liaison('Une fois l’image masquée, il reste à dire quel poste vous visez. C’est à compléter, sans obligation : vous pouvez laisser vide.') +
+      bloc3;
+    var partiesTexte = liaison('Deux parties vous attendent, dans l’ordre : votre texte, puis le poste visé. La deuxième se débloque quand la première est faite.') +
+      bloc1Texte +
+      liaison('Après le dépôt, le texte s’affiche : vous le relisez et vous masquez ce qui est personnel, puis vous revenez ici.') +
+      bloc3;
+    // Aucune carte cochee au depart : seule la partie 1 est montree, grisee, avec le message qui dit quoi faire d'abord.
+    var partiesAttente = liaison('Choisissez l’une des deux cartes : les parties à remplir se placent ensuite ici.') +
+      '<details class="rr-bloc" id="rrBloc1" open><summary><span class="rr-num">1</span> Votre CV</summary>' +
+      '<div class="rr-bloc-corps"><p>Une fois votre choix fait, c’est ici que vous ajoutez l’image de votre CV, ou que vous déposez son texte.</p></div></details>';
     return '<div class="regard-recruteur-preparer">' +
-      '<p class="rr-accroche">On rassemble ici tout ce dont la lecture a besoin. Les parties restent <strong>ouvertes</strong> tant que vous ne les refermez pas ; le bouton du bas s’active quand ' +
-      (etat.modeTexte ? 'le texte de votre CV est relu et masqué' : 'l’image de votre CV est prête') + '.</p>' +
-      (etat.modeTexte ? bloc1Texte : bloc1) +
-      (etat.modeTexte ? '' : bloc2Image) +
-      bloc3 +
+      _rrCartesModeHTML() +
+      (!_rrModeChoisi() ? partiesAttente : (etat.modeTexte ? partiesTexte : partiesImage)) +
       '<div class="rr-pied-actions" data-barre-bas-zone><span></span>' +
       '<button type="button" class="btn btn-primary" id="rrBtnVersAssistant" data-barre-bas="1"' + (prepImagePrete() ? '' : ' disabled title="' + _rrEchapAttr(texteBlocageAssistant()) + '"') + '>Continuer &#8594;</button>' +
       '</div>' +
       '<p class="rr-detail" style="text-align:center;">Actif une fois ' +
-      (etat.modeTexte ? 'le texte relu et masqué' : 'l’image ajoutée et masquée') + '. Le poste et l’offre peuvent rester vides.</p>' +
+      (!_rrModeChoisi() ? 'votre choix fait et votre CV prêt' : (etat.modeTexte ? 'le texte relu et masqué' : 'l’image ajoutée et masquée')) + '. Le poste et l’offre peuvent rester vides.</p>' +
       '</div>';
   }
 
@@ -579,8 +674,9 @@ function ouvrirRegardRecruteur() {
     // a pas d'image.
     if (typeof appliquerVerrouBlocs === 'function') {
       appliquerVerrouBlocs([
+        { id: 'rrBloc1', actif: _rrModeChoisi(), message: 'Choisissez d’abord l’une des deux cartes ci-dessus : ce point s’active ensuite.' },
         { id: 'rrBloc2', actif: etat.images.length > 0, message: 'Ajoutez d’abord une image de votre CV (partie 1) : ce point s’active ensuite.' },
-        { id: 'rrBloc3', actif: prepImagePrete(), masque: !etat.modeTexte && etat.images.length === 0, message: etat.modeTexte
+        { id: 'rrBloc3', actif: prepImagePrete(), message: etat.modeTexte
           ? 'Déposez, relisez et enregistrez d’abord le texte de votre CV (partie 1) : ce point s’active ensuite.'
           : 'Ajoutez d’abord votre CV en image et masquez ce qui est personnel (parties 1 et 2) : ce point s’active ensuite.' }
       ]);
@@ -588,27 +684,16 @@ function ouvrirRegardRecruteur() {
     var champFichier = z.querySelector('[data-rr-ajouter-images]');
     if (champFichier) {
       champFichier.addEventListener('change', function () {
-        var fichiers = Array.prototype.slice.call(this.files || []).filter(function (f) {
-          return /^image\//.test(f.type) && etat.images.length + 0 < RR_MAX_IMAGES;
-        });
-        var restants = fichiers.slice(0, RR_MAX_IMAGES - etat.images.length);
-        Promise.all(restants.map(function (f) {
-          return new Promise(function (res) {
-            var lecteur = new FileReader();
-            lecteur.onload = function () { res({ nom: f.name || 'image', dataUrl: lecteur.result, masquee: false }); };
-            lecteur.onerror = function () { res(null); };
-            lecteur.readAsDataURL(f);
-          });
-        })).then(function (ajouts) {
-          ajouts.filter(Boolean).forEach(function (a) { etat.images.push(a); });
-          _rrTrack('regard_recruteur_image_ajoutee', { total: etat.images.length });
-          afficherVue('preparer');
-        });
+        _rrAjouterFichiers(Array.prototype.slice.call(this.files || []));
       });
     }
+    if (window.__rrEcouteurCollage) { document.removeEventListener('paste', window.__rrEcouteurCollage); }
+    window.__rrEcouteurCollage = _rrCollerCapture;
+    document.addEventListener('paste', _rrCollerCapture);
     z.querySelectorAll('[data-rr-retirer-image]').forEach(function (b) {
       b.addEventListener('click', function () {
         etat.images.splice(parseInt(this.dataset.rrRetirerImage, 10), 1);
+        _rrMessageDepotImage = '';
         afficherVue('preparer');
       });
     });
@@ -620,12 +705,14 @@ function ouvrirRegardRecruteur() {
         afficherVue('preparer');
       });
     }
-    var btnModeTexte = z.querySelector('[data-rr-mode-texte]');
-    if (btnModeTexte) { btnModeTexte.addEventListener('click', passerModeTexte); }
-    var btnQuitterMT = z.querySelector('[data-rr-quitter-mode-texte]');
-    if (btnQuitterMT) { btnQuitterMT.addEventListener('click', quitterModeTexte); }
-    var btnDeposerTexte = z.querySelector('[data-rr-deposer-texte]');
-    if (btnDeposerTexte) { btnDeposerTexte.addEventListener('click', _rrOuvrirDepotTexteCV); }
+    z.querySelectorAll('[data-rr-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var versTexte = this.dataset.rrMode === 'texte';
+        if (_rrModeChoisi() && versTexte === !!etat.modeTexte) { return; }
+        if (versTexte) { passerModeTexte(); } else { quitterModeTexte(); }
+      });
+    });
+    if (etat.modeTexte && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_rrDepotCfg()); }
 
     z.querySelectorAll('[data-rr-aller]').forEach(function (b) {
       b.addEventListener('click', function () { afficherVue(this.dataset.rrAller); });
@@ -805,9 +892,13 @@ function ouvrirRegardRecruteur() {
     var etapes = (typeof ETAPES_DETAIL_CHOIX_IA !== 'undefined') ? ETAPES_DETAIL_CHOIX_IA : [];
     return '<div class="regard-recruteur-choix">' +
       '<p class="rr-accroche">Dernière étape avant l’envoi : avec quel assistant en ligne faire lire votre CV&nbsp;? <strong>Cliquer sur un assistant prépare et copie tout, puis l’ouvre</strong> : vous n’avez rien à taper.</p>' +
+      // Les gestes a faire chez l'assistant se disent ICI, sur l'ecran d'avant, ou la personne lit tranquillement : l'ecran du retour reste libre (decision Denis 2026-10-28, consigne 35).
       (etat.modeTexte
-        ? '<div class="rr-encart"><span>&#128221;</span><span>Vous êtes en <strong>Mode texte</strong> : le texte de votre CV part avec la consigne. Vous n’avez pas d’image à joindre.</span></div>'
-        : '<div class="rr-encart"><span>&#128444;&#65039;</span><span>Ce module montre votre CV sous forme d’<strong>image</strong> : les assistants ci-dessous savent tous lire les images. Une fois chez l’assistant, vous joindrez vous-même votre image masquée.</span></div>') +
+        ? '<div class="rr-encart"><span>&#128221;</span><span>Vous êtes en <strong>Mode texte</strong> : le texte de votre CV part avec la consigne. Vous n’avez pas d’image à joindre. <strong>Une fois chez l’assistant</strong>, collez le texte (déjà copié), puis envoyez. Revenez ensuite ici coller la réponse.</span></div>'
+        : '<div class="rr-encart"><span>&#128444;&#65039;</span><span><strong>Une fois chez l’assistant, deux gestes, dans cet ordre&nbsp;:</strong>' +
+          '<ol class="fc-etapes"><li><strong>Joignez d’abord votre image masquée</strong> au message (glissez-la, ou utilisez le trombone de l’assistant).</li>' +
+          '<li>Collez ensuite le texte (déjà copié) <strong>dans ce même message</strong>, puis envoyez.</li></ol></span></div>' +
+          '<div class="rr-encart warn"><span>&#9888;&#65039;</span><span>Envoyer le texte seul, sans l’image déjà jointe, donne toujours « nous n’avons pas réussi à lire ce CV » : l’assistant ne reçoit alors rien à analyser.</span></div>') +
       (typeof htmlChoixAssistantBilanCorps === 'function'
         ? htmlChoixAssistantBilanCorps({
           idErreur: 'rrErreurChoixIA',
@@ -854,213 +945,66 @@ function ouvrirRegardRecruteur() {
           },
           onApresValidation: function (urlAssistant, nomAssistant) {
             if (typeof _etatTransitionIA !== 'undefined') {
-              _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+              _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
             }
-            afficherVue('chez');
+            afficherVue('coller');
           }
         });
       });
     });
-  }
-
-  // ------------------------------------------------------------------
-  // VUE « Chez l'assistant » (transition)
-  // ------------------------------------------------------------------
-  function vueChezHTML() {
-    var nom = (etat.assistantChoisi && etat.assistantChoisi.nom) || 'l’assistant';
-    return '<div class="regard-recruteur-chez">' +
-      (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-      '<div class="rr-carte-plat">' +
-      (etat.modeTexte
-        ? '<p style="margin:0;"><strong>Une fois sur ' + _rrEchapAttr(nom) + '&nbsp;:</strong> collez le texte (il est déjà dans le presse-papiers), puis envoyez. Revenez ensuite ici coller la réponse.</p>'
-        : '<p style="margin:0 0 .5rem;"><strong>Une fois sur ' + _rrEchapAttr(nom) + '&nbsp;:</strong></p>' +
-          '<p style="margin:0 0 .3rem;">1. <strong>Joignez d’abord votre image masquée</strong> au message (glissez-la, ou utilisez le trombone).</p>' +
-          '<p style="margin:0;">2. Collez le texte (déjà dans le presse-papiers) <strong>dans ce même message</strong>, puis envoyez.</p>' +
-          '<div class="rr-encart warn" style="margin-top:.6rem;"><span>&#9888;&#65039;</span><span>Envoyer le texte seul, sans l’image déjà jointe, donne toujours « nous n’avons pas réussi à lire ce CV » : l’assistant ne reçoit alors rien à analyser.</span></div>') +
-      '</div>' +
-      '<div class="rr-pied-actions"><span></span>' +
-      '<button type="button" class="btn btn-primary" data-rr-aller="coller">Je suis de retour, coller la réponse &#8594;</button>' +
-      '</div>' +
-      '</div>';
-  }
-
-  function vueChezBrancher() {
-    var z = document.getElementById('rrContenu');
-    if (!z) { return; }
-    z.querySelectorAll('[data-rr-aller]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA) { _etatTransitionIA.phase = 'revenu'; }
-        afficherVue(this.dataset.rrAller);
-      });
-    });
-
-    _brancherTransitionIA();
-  }
-
-  // Ouvre reellement l'assistant + gere decompte / bloque / ouvert / revenu.
-  // Repris du patron de decouverteParcours.js (etapeCollerReponse).
-  function _brancherTransitionIA() {
-    if (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA) { return; }
-
-    function ouvrirAssistantEnAttente() {
-      if (typeof pageActuelle !== 'undefined' && pageActuelle !== 'regard-recruteur') {
-        if (typeof _intervalleDecompteIA !== 'undefined') { clearInterval(_intervalleDecompteIA); }
-        return;
-      }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fen = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fen ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque') { _rrTrack('regard_recruteur_popup_bloque'); }
-        afficherVue(etat.vue);
-      });
-    }
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnMaintenant = document.getElementById('btnContinuerMaintenantIA');
-      if (btnMaintenant) {
-        btnMaintenant.addEventListener('click', function () {
-          if (typeof _intervalleDecompteIA !== 'undefined') { clearInterval(_intervalleDecompteIA); }
-          ouvrirAssistantEnAttente();
-        });
-      }
-      if (typeof _intervalleDecompteIA !== 'undefined') {
-        _intervalleDecompteIA = setInterval(function () {
-          _etatTransitionIA.secondesRestantes -= 1;
-          var c = document.getElementById('compteurDecompteIA');
-          if (c) { c.textContent = _etatTransitionIA.secondesRestantes; }
-          if (_etatTransitionIA.secondesRestantes <= 0) {
-            clearInterval(_intervalleDecompteIA);
-            ouvrirAssistantEnAttente();
-          }
-        }, 1000);
-      }
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnBloque = document.getElementById('btnOuvrirBloqueIA');
-      if (btnBloque) { btnBloque.addEventListener('click', ouvrirAssistantEnAttente); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnRetourIA) {
-        btnRetourIA.addEventListener('click', function () {
-          _etatTransitionIA.phase = 'revenu';
-          afficherVue('coller');
-        });
-      }
-      var btnRouvrir = document.getElementById('btnRouvrirSiteIA');
-      if (btnRouvrir) { btnRouvrir.addEventListener('click', ouvrirAssistantEnAttente); }
-    }
   }
 
   // ------------------------------------------------------------------
   // VUE « Coller la réponse »
   // ------------------------------------------------------------------
+  // Fenetre unique « Collez la reponse » EN PAGE (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+  // La vue 'erreur-lecture' (reponse illisible, ou session restauree sur cette vue) affiche la meme fenetre, deja en echec.
+  // « Coller la reponse » lit et verifie (analyseur pur) sans rien enregistrer ; « Continuer » (barre du bas) construit le regard.
+  var RR_PHRASE_RELANCE = 'Reprends ta lecture de mon CV et donne-la uniquement dans le format demandé au début, sans commentaire ni introduction.';
+
+  // Echec de lecture : explication rassurante + phrase de relance a recopier chez l'assistant (le bouton la copie).
+  function _rrEchecRelance() {
+    return {
+      texte: '<strong>Ce n’est pas de votre faute.</strong> L’assistant n’a pas répondu dans la forme attendue, ou la réponse est arrivée incomplète. Rien n’est perdu : votre image et vos réponses restent là. Retournez sur l’assistant et collez-lui cette phrase, puis rapportez sa nouvelle réponse : <em>« ' + _rrEchapTexte(RR_PHRASE_RELANCE) + ' »</em>',
+      bouton: { libelle: 'Copier cette phrase', sansFleche: true }
+    };
+  }
+
   function vueCollerHTML() {
-    var nom = (etat.assistantChoisi && etat.assistantChoisi.nom) || 'l’assistant';
-    return '<div class="regard-recruteur-coller">' +
-      '<p class="rr-accroche">Vous revenez de ' + _rrEchapAttr(nom) + '. Une fois sa réponse copiée, collez-la ci-dessous.</p>' +
-      (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-      '<div class="rr-encart"><span>&#128172;</span><span>Si l’assistant a donné son avis sur la consigne au lieu de faire la lecture (ça arrive sur un compte connecté), collez-lui : <em>« Applique la consigne directement et entièrement, sans commentaire. »</em> puis rapportez sa nouvelle réponse.</span></div>' +
-      '<div class="rr-zone-collage">' +
-      (typeof htmlCollageInstantane === 'function'
-        ? htmlCollageInstantane('RegardRecruteur',
-          '<div class="rr-boutons" style="margin-top:.6rem;">' +
-          '<button type="button" id="rrBtnImporter" class="btn btn-primary" data-barre-bas="1">&#128229; Lire la réponse</button>' +
-          '<button type="button" class="btn btn-outline-secondary btn-sm" id="rrBtnEffacerRecoller">Effacer et recoller</button>' +
-          '</div>')
-        : '') +
-      '</div>' +
-      '<div id="rrMessageImport" role="alert" class="rr-detail" style="margin-top:.5rem;"></div>' +
-      '</div>';
+    return '<div class="regard-recruteur-coller">' + htmlCollageUniquePage('RegardRecruteur') + '</div>';
   }
 
   function vueCollerBrancher() {
-    var z = document.getElementById('rrContenu');
-    if (!z) { return; }
-
-    if (typeof activerCollageInstantane === 'function') {
-      activerCollageInstantane({
-        idZoneAuto: 'zoneCollageAutoRegardRecruteur', idZoneApercu: 'zoneApercuCollageRegardRecruteur',
-        idTextarea: 'texteCollageRegardRecruteur', idBoutonColler: 'btnCollerAutoRegardRecruteur',
-        idBoutonCollerManuel: 'btnCollerManuelRegardRecruteur', idBoutonEffacerRecoller: 'rrBtnEffacerRecoller',
-        idBoutonImporter: 'rrBtnImporter',
-        onSucces: function (t, ajout) {
-          var m = document.getElementById('rrMessageImport');
-          if (m) { m.style.color = 'var(--success, #157347)'; m.textContent = ajout ? '&#9989; Morceau ajouté à la suite.' : '&#9989; Réponse récupérée. Cliquez « Lire la réponse ».'; m.innerHTML = m.textContent; }
-        },
-        onErreur: function (msg) {
-          var m = document.getElementById('rrMessageImport');
-          if (m) { m.style.color = 'var(--danger, #b91c1c)'; m.textContent = '⚠️ ' + msg; }
-        },
-        onEffacer: function () { var m = document.getElementById('rrMessageImport'); if (m) { m.textContent = ''; m.style.color = ''; } },
-        onCollerManuel: function () { var m = document.getElementById('rrMessageImport'); if (m) { m.textContent = ''; m.style.color = ''; } }
-      });
-    }
-
-    // Etat du rond de collage selon la phase de transition (jamais
-    // cliquable avant le retour confirme).
-    var rond = document.getElementById('btnCollerAutoRegardRecruteur');
-    var texteRond = document.getElementById('texteBtnCollerAutoRegardRecruteur');
-    if (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA && rond) {
-      if (_etatTransitionIA.phase === 'revenu') {
-        rond.disabled = false;
-        rond.classList.remove('rond-collage-desactive');
-        rond.classList.add('pulse-collage-retour');
-        if (texteRond) { texteRond.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-      } else {
-        rond.disabled = true;
-        rond.classList.add('rond-collage-desactive');
-        if (texteRond) { texteRond.textContent = 'Ce bouton s’activera à votre retour.'; }
-      }
-    }
-    _brancherTransitionIA();
-
-    var btnImporter = document.getElementById('rrBtnImporter');
-    if (btnImporter) {
-      btnImporter.addEventListener('click', function () {
-        var ta = document.getElementById('texteCollageRegardRecruteur');
-        traiterReponseCollee(ta ? ta.value : '');
-      });
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // VUE « Réponse illisible / refus »
-  // ------------------------------------------------------------------
-  function vueErreurLectureHTML() {
-    return '<div class="regard-recruteur-erreur">' +
-      '<p class="rr-accroche">Ce n’est pas de votre faute. L’assistant n’a pas répondu dans la forme attendue, ou la réponse est arrivée incomplète.</p>' +
-      '<div class="rr-carte">' +
-      '<h4>&#128260; Ce que vous pouvez faire</h4>' +
-      '<ul class="rr-liste">' +
-      '<li><strong>Retourner sur l’assistant</strong> et coller la phrase ci-dessous : elle lui redemande une réponse dans le bon format.</li>' +
-      '<li>Ou <strong>coller à nouveau</strong> la réponse ici, si vous pensez qu’il en manque un morceau.</li>' +
-      '<li>Ou <strong>choisir un autre assistant</strong> et recommencer l’envoi.</li>' +
-      '</ul>' +
-      '<div class="rr-carte-plat">' +
-      '<p style="font-style:italic;margin:.2rem 0;">« Reprends ta lecture de mon CV et donne-la uniquement dans le format demandé au début, sans commentaire ni introduction. »</p>' +
-      '<div class="rr-boutons"><button type="button" class="btn btn-primary btn-sm" id="rrBtnCopierRelance">Copier cette phrase</button></div>' +
-      '</div>' +
-      '<div class="rr-boutons">' +
-      '<button type="button" class="btn btn-outline-secondary" data-rr-aller="coller">Coller à nouveau</button>' +
-      '<button type="button" class="btn btn-outline-secondary" data-rr-aller="choix-assistant">Choisir un autre assistant</button>' +
-      '</div>' +
-      '</div>' +
-      '<div class="rr-encart"><span>&#128172;</span><span>Rien n’est perdu : votre image et vos réponses restent là. Vous pouvez aussi <strong>sauvegarder</strong> (icône disquette) et revenir plus tard.</span></div>' +
-      '</div>';
-  }
-
-  function vueErreurLectureBrancher() {
-    var z = document.getElementById('rrContenu');
-    if (!z) { return; }
-    var btnCopier = document.getElementById('rrBtnCopierRelance');
-    if (btnCopier && typeof copierTexteVersPressePapier === 'function') {
-      btnCopier.addEventListener('click', function () {
-        copierTexteVersPressePapier('Reprends ta lecture de mon CV et donne-la uniquement dans le format demandé au début, sans commentaire ni introduction.', btnCopier);
-      });
-    }
-    z.querySelectorAll('[data-rr-aller]').forEach(function (b) {
-      b.addEventListener('click', function () { afficherVue(this.dataset.rrAller); });
+    brancherCollageUniquePage({
+      suffixe: 'RegardRecruteur', idAncre: 'rrContenu', rerendre: function () { afficherVue('coller'); }, evenementBloque: 'regard_recruteur_popup_bloque',
+      echecInitial: etat.vue === 'erreur-lecture',
+      module: {
+        libelleSuite: 'Voir mon regard',
+        quoi: 'L’assistant vient de lire votre CV comme le ferait un recruteur : première impression, contenu, lisibilité.',
+        pourquoi: 'Vous savez ce qu’un recruteur retient en quelques secondes et ce que vous pouvez améliorer.',
+        verif: 'regardez que ce qu’il dit voir sur votre CV correspond bien à ce qui y est écrit. Ce sont des pistes, pas des vérités : un autre recruteur pourrait le lire autrement.',
+        conseil: 'Si l’assistant a donné son avis sur la consigne au lieu de faire la lecture (ça arrive sur un compte connecté), collez-lui : <em>« Applique la consigne directement et entièrement, sans commentaire. »</em> puis rapportez sa nouvelle réponse.'
+      },
+      echecParDefaut: _rrEchecRelance(),
+      verifier: function (texte) {
+        try {
+          regardRecruteurParserRapport(texte, { modeAnalyse: etat.modeTexte ? 'texte' : 'image', siteEntrepriseFourni: !!(etat.ciblage && etat.ciblage.siteEntreprise) },
+            (typeof extraireBlocJSONDepuisTexte === 'function') ? { extraireJSON: extraireBlocJSONDepuisTexte } : {});
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, personnalise: _rrEchecRelance() };
+        }
+      },
+      onEchecAction: function () {
+        var bouton = document.querySelector('#fcRacineRegardRecruteur [data-fc=echecAction]');
+        if (typeof copierTexteVersPressePapier === 'function') { copierTexteVersPressePapier(RR_PHRASE_RELANCE, bouton); }
+      },
+      onChangerAssistant: function () {
+        if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
+        if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+        afficherVue('choix-assistant');
+      },
+      onContinuer: function (texte) { traiterReponseCollee(texte); }
     });
   }
 
@@ -1088,6 +1032,21 @@ function ouvrirRegardRecruteur() {
     return h;
   }
 
+  // Consigne 72 (Denis, 30/10/2026) : l'assistant dit seulement oui ou non au fond de couleur, c'est l'application qui ecrit le message
+  // (toujours complet, trois usages). oui : message au present ; non : rien ; pas de reponse nette : meme texte, en « Si... ».
+  function _rrFondCouleurHTML(fond) {
+    if (fond === false) { return ''; }
+    var entree = (fond === true)
+      ? '<strong>Votre CV a un fond de couleur.</strong> Selon la façon dont vous l’envoyez, cela ne compte pas pareil :'
+      : '<strong>Si votre CV a un fond de couleur</strong>, voici ce qui compte selon la façon dont vous l’envoyez :';
+    return '<div class="rr-encart rr-fond-couleur"><span>&#127912;</span><span>' + entree +
+      '<ul class="rr-liste">' +
+      '<li><strong>Par une plateforme de recrutement</strong> : le logiciel qui lit les CV peut ne pas lire tout le texte sur un fond de couleur. Votre CV peut alors être pénalisé.</li>' +
+      '<li><strong>Par mail</strong> : beaucoup de recruteurs impriment les CV en noir et blanc. Un fond foncé devient alors difficile à lire.</li>' +
+      '<li><strong>Remis en main propre</strong> : aucun risque.</li>' +
+      '</ul><span class="rr-detail">Rien n’est obligatoire : c’est vous qui choisissez la version à envoyer selon le cas.</span></span></div>';
+  }
+
   function _rrAxeHTML(axe) {
     var meta = RR_AXES_META[axe.id] || { icone: '', titre: axe.id, style: 'trois-temps' };
     var corps;
@@ -1102,7 +1061,7 @@ function ouvrirRegardRecruteur() {
       : '';
     return '<details class="rr-bloc rr-axe rr-axe-' + axe.id + '"' + (meta.ouvert ? ' open' : '') + '>' +
       '<summary><span class="rr-num-emoji">' + meta.icone + '</span> ' + _rrEchapTexte(_rrTexteBrut(meta.titre)) + ' ' + pilule + '</summary>' +
-      '<div class="rr-bloc-corps">' + corps + ancre + '</div>' +
+      '<div class="rr-bloc-corps">' + corps + (axe.id === 'couleurs' && etat.rapport ? _rrFondCouleurHTML(etat.rapport.fondDeCouleur) : '') + ancre + '</div>' +
       '</details>';
   }
 
@@ -1295,6 +1254,7 @@ function ouvrirRegardRecruteur() {
       '<button type="button" class="btn btn-outline-secondary btn-sm" id="rrBtnCopier">&#128203; Copier le texte (pour un e-mail)</button>' +
       '</div>' +
       '</div>' +
+      htmlRappelSauvegarde() +   // brique commune (consigne 49)
 
       (ancresPoints
         ? '<div class="rr-carte rr-garder">' +
@@ -1391,9 +1351,8 @@ function ouvrirRegardRecruteur() {
       case 'preparer': return vuePreparerHTML();
       case 'masquer': return vueMasquerHTML();
       case 'choix-assistant': return vueChoixAssistantHTML();
-      case 'chez': return vueChezHTML();
       case 'coller': return vueCollerHTML();
-      case 'erreur-lecture': return vueErreurLectureHTML();
+      case 'erreur-lecture': return vueCollerHTML();
       case 'regard': return vueRegardHTML();
       case 'fiche': return vueFicheHTML();
       default: return '';
@@ -1404,9 +1363,8 @@ function ouvrirRegardRecruteur() {
       case 'preparer': return vuePreparerBrancher();
       case 'masquer': return vueMasquerBrancher();
       case 'choix-assistant': return vueChoixAssistantBrancher();
-      case 'chez': return vueChezBrancher();
       case 'coller': return vueCollerBrancher();
-      case 'erreur-lecture': return vueErreurLectureBrancher();
+      case 'erreur-lecture': return vueCollerBrancher();
       case 'regard': return vueRegardBrancher();
       case 'fiche': return vueFicheBrancher();
     }
@@ -1415,6 +1373,7 @@ function ouvrirRegardRecruteur() {
   var _vueRendue = null;
 
   function afficherVue(vue) {
+    if (vue === 'chez') { vue = 'coller'; }
     _regardRecruteurInscrireHistorique();
     if (RR_VUES.indexOf(vue) === -1) { vue = etat.vue || 'preparer'; }
     var memeVue = (vue === _vueRendue);
@@ -1448,11 +1407,11 @@ function ouvrirRegardRecruteur() {
       '<div class="page-catalogue-contenu regard-recruteur-parcours">' +
       (typeof barreEtapesModule === 'function' ? barreEtapesModule(RR_ETAPES, idxEtape) : '') +
       (typeof htmlBandeRepriseModule === 'function' ? htmlBandeRepriseModule(bouton, encart) : bouton + encart) +
-      '<div class="text-center"><h1><i class="bi bi-image"></i> ' + (RR_TITRES[vue] || 'Un regard sur mon CV') + '</h1></div>' +
+      htmlTitreEtapeModule('bi-image', 'Un regard sur mon CV', RR_TITRES[vue] || '') +
       '<div id="rrContenu">' + contenuVue(vue) + '</div>' +
       '</div>' +
       '<div class="barre-navigation-fixe">' +
-      (typeof barreNavigation === 'function' ? barreNavigation('cv', null, null, { onclickPrecedent: 'regardRecruteurRetour()' }) : '') +
+      (typeof barreNavigation === 'function' ? barreNavigation('cv', null, null, { onclickPrecedent: 'regardRecruteurRetour()', terminerParcours: vue === 'fiche', onclickTerminer: 'terminerParcoursSansFenetre()' }) : '') +
       '</div>';
 
     // La fleche « Precedent » du navigateur retrouve cette vue (brique B.24).

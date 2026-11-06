@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la tuile Fonction publique</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { padding: 16px; }
+  .m-bloc { max-width: 820px; margin: 0 auto 40px; }
+  .m-etiquette { font-weight: 700; color: #1d4ed8; margin: 24px 0 6px; }
+  .m-note { font-size: .9rem; color: #555; }
+  .m-liste { list-style: none; padding: 0; margin: 12px 0; }
+  .m-liste li { border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; background: #fff; }
+  .m-liste li strong { display: block; }
+  .m-liste li span { font-size: .9rem; color: #555; }
+</style>
+</head>
+<body>
+<div class="m-bloc">
+  <h1 class="h4">Maquette : la tuile « Fonction publique »</h1>
+  <p class="m-note">Rien n'est encore codé. Deux écrans : ce que la personne voit après un clic sur la tuile, puis le second choix.</p>
+
+  <div class="m-etiquette">Écran 1 : après un clic sur « Fonction publique » (nouveau)</div>
+  <h2 class="h5 text-center"><i class="bi bi-bank"></i> Fonction publique</h2>
+  <p class="text-center">Deux façons d'avancer. Choisissez celle qui vous convient.</p>
+  <div class="d-flex flex-wrap gap-3 justify-content-center">
+    <button type="button" class="sous-carte-accueil"><i class="bi bi-briefcase"></i><strong>Les offres des employeurs publics</strong><span>Mairies, hôpitaux, État, collectivités : leurs offres d'emploi</span></button>
+    <button type="button" class="sous-carte-accueil"><i class="bi bi-signpost-split"></i><strong>Qui peut m'aider</strong><span>Centres de gestion, concours, conseillers carrière</span><span class="badge text-bg-primary mt-1">5 structures</span></button>
+  </div>
+  <p class="m-note text-center mt-3">Le premier bouton ouvre exactement ce que la tuile ouvre aujourd'hui. Rien ne disparaît.</p>
+
+  <div class="m-etiquette">Écran 2 : « Qui peut m'aider » (liste, même présentation que les autres rayons)</div>
+  <ul class="m-liste">
+    <li><strong>Centre de gestion de la fonction publique territoriale de la Dordogne</strong><span>Concours et emplois des collectivités du département</span></li>
+    <li><strong>Centre de gestion de la fonction publique territoriale de la Haute-Vienne</strong><span>Concours et emplois des collectivités du département</span></li>
+    <li><strong>CNFPT : conseil en évolution professionnelle</strong><span>Pour les agents des collectivités (national)</span></li>
+    <li><strong>Conseillers mobilité carrière de l'État</strong><span>Pour les agents de l'État (national)</span></li>
+    <li><strong>SCORE : concours</strong><span>Trouver et préparer un concours (national)</span></li>
+  </ul>
+  <p class="m-note">Chaque ligne s'affiche comme les structures des autres domaines (adresse, téléphone, site, date de vérification), et seul le centre de gestion du département choisi apparaît en premier.</p>
+</div>
+</body>
+</html>

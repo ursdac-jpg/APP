@@ -7,7 +7,7 @@ tags: [conseil en évolution professionnelle, CEP, accompagnement gratuit, proje
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "conseil en évolution professionnelle"
     definition: "Accompagnement gratuit et personnalisé pour faire le point sur sa situation, explorer des pistes d'évolution et construire un plan d'action, avec les financements."
@@ -21,7 +21,8 @@ sources:
 ce_qui_change_souvent:
   - "Les opérateurs retenus dans chaque région"
   - "Les modalités de rendez-vous (sur place, par téléphone, en visioconférence)"
-revisions: []
+revisions:
+  - "2026-11-04 : la liste des opérateurs par profil (APEC, Mission locale) n'est pas détaillée sur les pages relues ; remplacée par un renvoi à l'outil « Trouver son opérateur CEP » du site officiel"
 collecte: former.collecte.md
 ---
 
@@ -29,10 +30,8 @@ Le conseil en évolution professionnelle est un accompagnement gratuit, ouvert �
 
 L'interlocuteur dépend de votre situation :
 
-- si vous êtes salarié ou indépendant du privé, c'est l'opérateur régional, dont les coordonnées sont sur le site mon-cep.org ;
-- si vous êtes cadre ou jeune diplômé du supérieur, c'est l'APEC ;
-- si vous avez entre 16 et 25 ans, c'est la Mission locale ;
-- si vous êtes demandeur d'emploi, c'est France Travail, ou Cap emploi si vous avez une reconnaissance de travailleur handicapé.
+- le site mon-cep.org propose un outil « Trouver son opérateur CEP » : vous indiquez votre situation et il vous indique l'organisme à contacter ;
+- si vous êtes demandeur d'emploi, c'est en principe France Travail, ou Cap emploi si vous avez une reconnaissance de travailleur handicapé.
 
 Le conseiller est neutre : il ne vend rien et ne travaille pour aucun organisme de formation.
 

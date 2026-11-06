@@ -15,8 +15,8 @@ var MT_DOMAINES = [
   { id: 'formation', libelle: 'Formation', icone: 'bi-mortarboard', sousTitre: 'Se former, se reconvertir, jeunes', ouvert: true },
   { id: 'social', libelle: 'Social', icone: 'bi-people', sousTitre: 'Logement, mobilité, accompagnement', ouvert: true },
   { id: 'vie-pratique', libelle: 'Vie pratique', icone: 'bi-basket', sousTitre: 'Garde d’enfant, santé, retraite', ouvert: true },
-  { id: 'fonction-publique', libelle: 'Fonction publique', icone: 'bi-bank', sousTitre: 'Les employeurs publics et leurs offres', ouvert: true },
-  { id: 'armees', libelle: 'Armées', icone: 'bi-shield', sousTitre: 'Information et recrutement' },
+  { id: 'fonction-publique', libelle: 'Fonction publique', icone: 'bi-bank', sousTitre: 'Offres publiques, concours, qui peut m’aider', ouvert: true },
+  { id: 'armees', libelle: 'Armées', icone: 'bi-shield', sousTitre: 'Information et recrutement', ouvert: true },
   { id: 'appui-employeurs', libelle: 'Appui aux employeurs', icone: 'bi-building', sousTitre: 'Aides et organismes', ouvert: true },
   { id: 'creer', libelle: 'Créer son activité', icone: 'bi-rocket-takeoff', sousTitre: 'Aide à la création', ouvert: true },
   { id: 'accueil-langue', libelle: 'Accueil et langue', icone: 'bi-globe2', sousTitre: 'Français, venir de l’étranger', ouvert: true },
@@ -117,11 +117,14 @@ function _mtCharger(onOk, onErreur) {
     fetch(MT_BASE + 'lieux.txt').then(function (r) { if (!r.ok) { throw new Error('lieux'); } return r.text(); }),
     fetch(MT_BASE + 'offres.txt').then(function (r) { if (!r.ok) { throw new Error('offres'); } return r.text(); }),
     // Registre des adresses (liens de l'écran Insertion) : s'il manque, les boutons concernés n'apparaissent pas, le reste du module fonctionne.
-    fetch(MT_URL_REGISTRE_LIENS).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; })
+    fetch(MT_URL_REGISTRE_LIENS).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
+    // Fiches « inaccessibles pour l'instant » : s'il manque, aucune fiche n'est en attente (le reste du module fonctionne).
+    fetch(MT_BASE + 'en-attente.txt').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; })
   ].concat(communes)).then(function (t) {
     var toutes = [];
-    for (var i = 4; i < t.length; i++) { toutes = toutes.concat(mtParserCommunes(t[i]).lignes); }
-    _mtDonnees = { employeurs: mtParserEmployeurs(t[0]).lignes, communes: toutes, lieux: mtParserLieux(t[1]).lignes, offres: mtParserOffres(t[2]).lignes, liens: mtLiensDepuisRegistre(t[3]) };
+    for (var i = 5; i < t.length; i++) { toutes = toutes.concat(mtParserCommunes(t[i]).lignes); }
+    var attente = mtAttenteParCle(mtParserAttente(t[4]).lignes);
+    _mtDonnees = { employeurs: mtAppliquerAttente('employeurs', mtParserEmployeurs(t[0]).lignes, attente), communes: toutes, lieux: mtAppliquerAttente('lieux', mtParserLieux(t[1]).lignes, attente), offres: mtAppliquerAttente('offres', mtParserOffres(t[2]).lignes, attente), liens: mtLiensDepuisRegistre(t[3]) };
     _mtChargement = 'ok';
     onOk();
   }).catch(function () { _mtChargement = 'erreur'; onErreur(); });
@@ -269,7 +272,7 @@ function _mtReconstruireHistorique() {
   }
 }
 
-// Point d'entrée de la présentation de « Qui fait quoi » (bouton « Ouvrir Qui fait quoi ») : l'accueil du module.
+// Point d'entrée de la présentation de « Qui fait quoi » (bouton « Je commence ») : l'accueil du module.
 function monTerritoireOuvrirAccueil() { _mtOuvrirSurChemin('module', [], { ecran: 'accueil' }); }
 window.monTerritoireOuvrirAccueil = monTerritoireOuvrirAccueil;
 
@@ -371,12 +374,30 @@ function monTerritoireOuvrirDepuisCadre(rayon) {
 // En-tête et pied communs
 // ------------------------------------------------------------
 
-function _mtIndexEtape() {
-  var e = _mtEtat.ecran;
+function _mtIndexEtapePour(e) {
   if (e === 'fiche') { return 2; }
   if (e === 'emploi' || e === 'liste' || e === 'prospection' || e === 'offres' || e === 'siae' || e === 'interim' || e === 'lieux' || MT_SOUS_BRANCHES[e]) { return 1; }
   return 0;
 }
+function _mtIndexEtape() { return _mtIndexEtapePour(_mtEtat.ecran); }
+
+// Fil « Vous êtes ici » (consigne 93, mêmes pastilles que Comprendre le cadre) : le nom du module, puis le domaine, puis la fiche.
+// Un lieu déjà traversé se touche pour y revenir : on recule dans la pile du module jusqu'au dernier écran de ce lieu (jamais un saut par-dessus l'historique).
+function _mtReculPourEtape(numero) {
+  var i;
+  if (numero === 0) { return _mtPile.length; }   // la page principale = le premier écran du module
+  for (i = _mtPile.length - 1; i >= 0; i--) { if (_mtIndexEtapePour(_mtPile[i].ecran) === numero) { return _mtPile.length - i; } }
+  return 0;
+}
+function _mtChaineFil() {
+  var idx = _mtIndexEtape();
+  var nom = _mtEntree === 'employeurs' ? 'Employeurs près de chez moi' : 'Qui fait quoi';
+  var ch = [{ label: nom, aller: (idx > 0 && _mtReculPourEtape(0) > 0) ? 0 : null }];
+  if (idx >= 1) { ch.push({ label: MT_ETAPES[1].label, aller: (idx > 1 && _mtReculPourEtape(1) > 0) ? 1 : null }); }
+  if (idx >= 2) { ch.push({ label: MT_ETAPES[2].label, aller: null }); }
+  return ch;
+}
+function _mtFilAller(numero) { var n = _mtReculPourEtape(numero); if (n > 0) { _mtReculer(n); } }
 
 // Deux boutons au-dessus du contenu : « Revoir la présentation » (la présentation de la porte d'entrée) et, dès qu'on a quitté la page principale,
 // « Revenir à la page principale » (un seul clic au lieu de plusieurs « Retour »). Même forme de bouton, même note d'aide.
@@ -389,7 +410,7 @@ function _mtRenduEnTete() {
     ? '<div class="comprendre-le-cadre-territoire d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">' +
       '<span class="fs-6"><i class="bi bi-geo-alt"></i> Votre département : <strong>' + _mtEsc(_mtDepInfo().nom) + ' (' + _mtEsc(_mtDepInfo().code) + ')</strong></span>' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" data-mt-changer-departement><i class="bi bi-arrow-repeat"></i> Changer de département</button></div>' : '';
-  return (typeof barreEtapesModule === 'function' ? barreEtapesModule(MT_ETAPES, _mtIndexEtape()) : '') + departement +
+  return (typeof barreRepereNavigation === 'function' ? barreRepereNavigation(MT_ETAPES, _mtIndexEtape(), { chaine: _mtChaineFil(), surClic: '_mtFilAller' }) : '') + departement +
     (typeof htmlBoutonRevoirModule === 'function' ? htmlBoutonRevoirModule('btnMonTerritoireRevoirIntro', icone, 'Revoir la présentation', false) : '') + principale;
 }
 
@@ -879,18 +900,23 @@ function _mtEcranDuRayon(rayon) { return (typeof mtDomaineDuRayon === 'function'
 var _MT_TITRES_DOMAINES = {
   social: { icone: 'bi-people', titre: 'Social : logement, mobilité, accompagnement, budget' },
   formation: { icone: 'bi-mortarboard', titre: 'Formation : se former, se reconvertir, jeunes' },
-  'vie-pratique': { icone: 'bi-basket', titre: 'Vie pratique : garde d’enfant, santé, retraite' },
+  'vie-pratique': { icone: 'bi-basket', titre: 'Vie pratique : garde d’enfant, santé, retraite, parents séparés' },
   'droits-justice': { icone: 'bi-journal-text', titre: 'Droits et justice : accès au droit, sortie de détention' },
-  creer: { icone: 'bi-rocket-takeoff', titre: 'Créer son activité : conseil, financement, coopératives' },
+  creer: { icone: 'bi-rocket-takeoff', titre: 'Créer son activité : conseil, financement, installation agricole' },
+  armees: { icone: 'bi-shield', titre: 'Armées : information et recrutement' },
+  'fonction-publique': { icone: 'bi-bank', titre: 'Fonction publique : les offres et qui peut vous aider' },
   'accueil-langue': { icone: 'bi-globe2', titre: 'Accueil et langue : apprendre le français, démarches des étrangers' },
   'appui-employeurs': { icone: 'bi-building', titre: 'Appui aux employeurs : cotisations, santé au travail, aides à l’embauche' }
 };
 
 function _mtRenduDomaine(domaine) {
   var tuiles = MT_SOUS_BRANCHES[domaine].map(function (b) {
+    if (b.versOffres) {
+      return '<button type="button" class="sous-carte-accueil" data-mt-sousbranche="' + b.id + '"><i class="bi ' + b.icone + '"></i><strong>' + _mtEsc(b.libelle) + '</strong><span>' + _mtEsc(b.sousTitre) + '</span></button>';
+    }
     var n = _mtNbLieux(b.rayon);
     return '<button type="button" class="sous-carte-accueil" data-mt-sousbranche="' + b.id + '"' + (n ? '' : ' style="opacity:.8"') + '><i class="bi ' + b.icone + '"></i><strong>' + _mtEsc(b.libelle) + '</strong><span>' + _mtEsc(b.sousTitre) + '</span>' +
-      (n ? '<span class="badge text-bg-primary mt-1">' + n + ' structures</span>' : '<span class="badge text-bg-light mt-1">Pas encore de liste</span>') + '</button>';
+      (n ? '<span class="badge text-bg-primary mt-1">' + n + (n > 1 ? ' structures' : ' structure') + '</span>' : '<span class="badge text-bg-light mt-1">Pas encore de liste</span>') + '</button>';
   }).join('');
   return _mtTitre(_MT_TITRES_DOMAINES[domaine].icone, _MT_TITRES_DOMAINES[domaine].titre, 'Les structures à qui vous adresser, avec ce qu\u2019elles font.') +
     '<div class="grille-sous-cartes-accueil">' + tuiles + '</div>' +
@@ -947,10 +973,10 @@ function _mtRenduLieux() {
       section(_mtEsc(mtMajuscule(dep.en)), duDepOrdonne, notes);
     if (!corps) { corps = _mtEncart('bi-info-circle', 'Pas encore de liste pour ce domaine.'); }
   }
-  return _mtTitre(b.icone, b.libelle + ', ' + dep.en) +
+  return _mtTitre(b.icone, (b.titre || b.libelle) + ', ' + dep.en) +
     carteInsertion + (noms.length ? _mtBandeauCommunes('lieux-' + _mtEtat.rayon, noms, choix) : '') + (corps && !(noms.length && !choix.length) ? '<p class="small text-muted text-center">Par ordre alphabétique dans chaque partie : ce n\u2019est pas un classement.</p>' : '') + corps +
     '<div class="comprendre-le-cadre-encart mt-4"><i class="bi bi-newspaper"></i> Pour comprendre les aides et les démarches de ce domaine : ' +
-    '<button type="button" class="btn btn-outline-primary btn-sm ms-1" data-mt-vers-cadre="' + _mtEsc(_mtEtat.rayon) + '">Comprendre : ' + _mtEsc(b.libelle) + ' (Comprendre le cadre)</button></div>';
+    '<button type="button" class="btn btn-outline-primary btn-sm ms-1" data-mt-vers-cadre="' + _mtEsc(_mtEtat.rayon) + '">Comprendre : ' + _mtEsc(b.libelleCadre || b.libelle) + ' (Comprendre le cadre)</button></div>';
 }
 
 function _mtRenduVide() {
@@ -974,15 +1000,7 @@ function _mtRenduCriteres() {
     '<details class="bloc-depli bd-ok"><summary>Vérification et mise à jour</summary><div class="bloc-depli-corps">Une fiche vérifiée depuis plus d’un an est marquée « à revérifier ».</div></details>';
 }
 
-// Adresse d'un établissement : un lien qui ouvre la carte (nouvel onglet ; sur un téléphone, l'application de cartes). Seule l'adresse publique de l'employeur est transmise.
-function _mtUrlCarte(adresse) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(adresse); }
-// Téléphone : cliquable (il compose le numéro) seulement sur un appareil tactile ; sur ordinateur, un simple texte, car un clic n'y ouvrirait rien d'utile.
-function _mtEstTactile() { try { return !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches); } catch (e) { return false; } }
-function _mtTelephoneAffiche(tel) {
-  // Le numéro tient toujours sur UNE seule ligne (espaces insécables), lien ou simple texte.
-  var _num = _mtEsc(tel).replace(/ /g, '&nbsp;');
-  return '<span style="white-space:nowrap">' + (_mtEstTactile() ? '<a href="tel:' + _mtEsc(String(tel).replace(/\s+/g, '')) + '">' + _num + '</a>' : _num) + '</span>';
-}
+// Adresse (lien vers la carte) et numéro (qui compose sur téléphone seulement) : fonctions partagées de logique.js (mtUrlCarte, mtTelephoneAffiche), les mêmes que la carte d'une structure.
 
 function _mtRenduFiche() {
   var e = _mtTousLesEmployeurs().filter(function (x) { return x.id === _mtEtat.id; })[0];
@@ -993,24 +1011,27 @@ function _mtRenduFiche() {
   var telsMagasins = e.etablissementsListe.some(function (x) { return x.telephone; });
   var lieux = e.etablissementsListe.map(function (x, i) {
     return '<span class="d-block"><i class="bi bi-geo-alt"></i> <strong>' + _mtEsc(_mtCommuneCp(x.commune)) + '</strong>' + (x.adresse ? ' : ' + _mtEsc(x.adresse) : '') +
-      (x.telephone && fraicheur === 'recente' ? ' · <i class="bi bi-telephone"></i> ' + _mtTelephoneAffiche(x.telephone) : (telsMagasins && !x.telephone && !e.telephone ? ' · <span class="text-muted">numéro en cours de vérification</span>' : '')) +
-      (x.adresse && fraicheur === 'recente' ? ' <a class="btn btn-sm btn-outline-primary ms-1" href="' + _mtEsc(_mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) + '" target="_blank" rel="noopener"><i class="bi bi-map"></i> Voir sur la carte</a>' : '') + '</span>'; }).join('');
+      (x.telephone && fraicheur === 'recente' ? ' · <i class="bi bi-telephone"></i> ' + mtTelephoneAffiche(x.telephone) : (telsMagasins && !x.telephone && !e.telephone ? ' · <span class="text-muted">numéro en cours de vérification</span>' : '')) +
+      (x.adresse && fraicheur === 'recente' ? ' <a class="btn btn-sm btn-outline-primary ms-1" href="' + _mtEsc(mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) + '" target="_blank" rel="noopener"><i class="bi bi-map"></i> Voir sur la carte</a>' : '') + '</span>'; }).join('');
   var verifie = fraicheur === 'recente' ? 'Vérifié le ' + _mtDateFr(e.date)
     : fraicheur === 'a-reverifier' ? 'Vérifié le ' + _mtDateFr(e.date) + ' : à revérifier, appelez avant de vous déplacer' : 'Pas encore vérifié';
   var pastilles = e.nature === 'interim' ? '<span class="badge rounded-pill text-bg-light me-1">Inscription à l’agence</span>' : e.modesListe.map(function (m) { return '<span class="badge rounded-pill text-bg-light me-1">' + _mtEsc(MT_MODES[m] || m) + '</span>'; }).join('');
   var infos = '<span class="d-block"><i class="bi bi-building"></i> ' + _mtNatureLibelle(e) + (e.nature === 'interim' ? '' : ' · ' + _mtEsc(_mtLibelleSecteur(e.secteur))) + '</span>' + lieux +
-    ((e.telephone || !telsMagasins) ? '<span class="d-block"><i class="bi bi-telephone"></i> <strong>' + (e.nature === 'interim' ? 'Téléphone de l’agence' : (telsMagasins ? 'Numéro général de l’enseigne' : 'Téléphone du standard')) + '</strong> : ' + (aff.telephone ? _mtTelephoneAffiche(e.telephone) : 'numéro en cours de vérification') + '</span>' : '') +
+    (e.telephone ? '<span class="d-block"><i class="bi bi-telephone"></i> <strong>' + (e.nature === 'interim' ? 'Téléphone de l’agence' : (telsMagasins ? 'Numéro général de l’enseigne' : 'Téléphone du standard')) + '</strong> : ' + (aff.telephone ? mtTelephoneAffiche(e.telephone) : 'numéro en cours de vérification') + '</span>' : '') +
     '<span class="d-block"><i class="bi bi-clock-history"></i> ' + _mtEsc(verifie) + '</span>';
   var actions = '';
   if (aff.site) { actions += _mtBoutonLienExterne(e.site, 'Voir le site') + ' '; }
   var offre = mtOffreDeLEmployeur(_mtDonnees.offres, e.id, aujourdhui);
   if (offre) { actions += '<span class="d-inline-block">' + _mtBoutonOffres(offre.page, 'Ses offres publiées', 'btn btn-primary') + '<span class="d-block small text-muted">L’employeur publie lui-même ses offres sur cette page. Vous quittez l’application.</span></span> '; }
   else if (aff.recrutement) { actions += _mtBoutonLienExterne(e.recrutement, 'Page de recrutement') + ' '; }   // repli : l'adresse notée sur la fiche elle-même quand la page n'est pas (encore) dans offres.txt
-  var noteSite = (!aff.site && e.nom) ? '<p class="small text-muted mb-0">Le site de l’organisme n’est pas encore vérifié : il sera indiqué ici dès que ce sera fait.</p>' : '';
+  var noteSite = e.enAttente ? '<p class="small text-muted mb-0"><i class="bi bi-pause-circle"></i> ' + _mtEsc(MT_MESSAGE_ATTENTE + ((e.telephone || telsMagasins) ? MT_MESSAGE_ATTENTE_TELEPHONE : '')) + '</p>'
+    : ((!aff.site && e.nom) ? '<p class="small text-muted mb-0">Le site de l’organisme n’est pas encore vérifié : il sera indiqué ici dès que ce sera fait.</p>' : '');
   var viaProspection = mtViaProspection(e);
+  var messageAgences = mtMessageAgencesNombreuses(e);
   return _mtTitre('bi-building', e.nom) +
     (viaProspection ? '<p class="text-center">' + _mtPastilleProspection() + '</p>' : '') +
     '<div class="comprendre-le-cadre-encart mb-3">' + infos + '</div>' +
+    (messageAgences ? _mtEncart('bi-info-circle', _mtEsc(messageAgences)) : '') +
     (viaProspection ? _mtEncart('bi-binoculars', '<strong>Pourquoi cet employeur est ici ?</strong> ' + _mtEsc(_mtPhraseProspection())) : '') +
     '<details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">' + pastilles +
       (e.nature === 'interim' ? '<p class="small mt-2 mb-0">Une agence d’intérim propose des missions temporaires dans plusieurs secteurs. Vous vous inscrivez auprès d’elle (sur place, par téléphone ou sur son site) ; elle vous contacte quand une mission correspond à votre profil.</p>' : '<p class="small text-muted mt-2 mb-0">Ces repères informent, ils ne sont pas à cocher. Nous ne savons pas à quelle fréquence cet employeur recrute et ne l’affirmons jamais.</p>') + '</div></details>' +
@@ -1019,6 +1040,7 @@ function _mtRenduFiche() {
       '<li>Préparez une phrase simple : qui vous êtes et le poste qui vous intéresse.</li></ul></div></details>' +
     (actions ? '<div class="d-flex flex-wrap gap-2 mt-3">' + actions + '</div>' : '') + noteSite +
     '<p class="small text-muted mt-3">Ni recommandation ni garantie de recrutement. Liste non exhaustive.</p>' +
+    '<div class="mt-3"><p class="small mb-1">Une adresse fermée, un numéro qui ne répond plus, un changement ? Dites-le nous : cela aide les autres.</p>' + mtBoutonSignalerCarteHtml('Employeur « ' + String(e.nom || '').slice(0, 80) + ' » (qui fait quoi)') + '</div>' +
     '<div class="text-center"><button type="button" class="btn btn-sm btn-outline-secondary" data-mt-criteres>Comment les fiches sont choisies</button></div>';
 }
 
@@ -1079,7 +1101,6 @@ function _mtBrancherPage() {
     b.addEventListener('click', function () {
       var d = MT_DOMAINES.filter(function (x) { return x.id === b.dataset.mtDomaine; })[0];
       if (d && d.id === 'emploi') { _mtAller('emploi'); }
-      else if (d && d.id === 'fonction-publique') { _mtAller('offres', { secteurOffres: '', groupeOffres: 'public' }); }
       else if (d && MT_SOUS_BRANCHES[d.id]) { _mtAller(d.id); }
       else { _mtAller('vide', { vide: d ? d.libelle : '' }); }
     });
@@ -1094,7 +1115,8 @@ function _mtBrancherPage() {
   document.querySelectorAll('[data-mt-sousbranche]').forEach(function (b) {
     b.addEventListener('click', function () {
       var sb = (MT_SOUS_BRANCHES[_mtEtat.ecran] || []).filter(function (x) { return x.id === b.dataset.mtSousbranche; })[0];
-      if (sb && _mtNbLieux(sb.rayon)) { _mtAller('lieux', { rayon: sb.rayon }); } else { _mtAller('vide', { vide: sb ? sb.libelle : '' }); }
+      if (sb && sb.versOffres) { _mtAller('offres', { secteurOffres: '', groupeOffres: 'public' }); }
+      else if (sb && _mtNbLieux(sb.rayon)) { _mtAller('lieux', { rayon: sb.rayon }); } else { _mtAller('vide', { vide: sb ? (sb.titre || sb.libelle) : '' }); }
     });
   });
   document.querySelectorAll('[data-mt-lieux-rayon]').forEach(function (b) { b.addEventListener('click', function () { _mtAller('lieux', { rayon: b.dataset.mtLieuxRayon }); }); });

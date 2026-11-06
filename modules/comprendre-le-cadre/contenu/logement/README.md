@@ -19,7 +19,7 @@ La fiche « sans hébergement » a été écrite le 2026-09-04 à la demande de 
    - DALO : critères prioritaires, délais 3 à 6 mois, recours contentieux à 4 mois ;
    - le FSL dépend de chaque département (conditions de ressources, prêt ou subvention).
 
-## Les 9 fiches
+## Les 10 fiches
 
 | id | titre |
 |---|---|
@@ -32,6 +32,7 @@ La fiche « sans hébergement » a été écrite le 2026-09-04 à la demande de 
 | `logement-expulsion` | Menacé d'expulsion : les étapes de la procédure, ce qu'on peut faire (ajoutée le 2026-09-06) |
 | `logement-demande-de-logement-social` | Demander un logement social : le numéro unique, les pièces, le renouvellement (ajoutée le 2026-09-06) |
 | `logement-proprietaire-sans-moyens-travaux` | J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser (France Rénov', Anah, Action Logement, ADIL, SOLIHA ; chiffres dans trois fiches du Lexique ; ajoutée le 2026-10-27) |
+| `logement-cheque-energie-et-factures-impayees` | Payer sa facture d'énergie : le chèque énergie, et que faire en cas d'impayé |
 
 ## Section « à qui s'adresser »
 

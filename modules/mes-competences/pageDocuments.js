@@ -1,14 +1,14 @@
 /* ============================================================
    Module « Découvrir mes compétences » : écran 1, « Mes documents ».
-   Dépôt par la fenêtre COMMUNE (ouvrirAssistantDepotCV : PDF, Word, photo, texte, relecture et masquage), jamais une zone de dépôt propre.
-   Piège connu repris des autres appelants : la fenêtre pose le CV de la personne dans dossier.cvTexte / cvAnalyse ; on les remet toujours.
-   Choix v1 : pas de raccourci « mon CV enregistré » (son texte n'a pas été masqué pour l'envoi) : le CV passe par la même fenêtre que les autres.
+   Dépôt EN PAGE par la brique commune htmlDepotCVEnPage (PDF, Word, photo, texte, relecture et masquage sous le bouton « Déposer », plus aucune fenêtre, consigne 28).
+   La brique n'écrit rien dans dossier.cvTexte / cvAnalyse (ecrireCV: false) : le CV de la personne n'est jamais touché par un dépôt d'ici.
+   Choix v1 : pas de raccourci « mon CV enregistré » (son texte n'a pas été masqué pour l'envoi) : le CV passe par le même dépôt que les autres.
    ============================================================ */
 
 var MESCOMP_DEPOTS = {
-  cv: { titre: 'Étape 1 · Déposer votre CV', intro: 'Déposez votre CV (PDF, Word, photo) ou collez son texte. Vous le relirez et masquerez vos coordonnées à l’étape suivante.', titreDocument: 'CV' },
-  lettreMotivation: { titre: 'Étape 1 · Déposer votre lettre de motivation', intro: 'Déposez votre lettre de motivation (PDF, Word, photo) ou collez son texte. Vous la relirez et masquerez vos coordonnées à l’étape suivante.', titreDocument: 'Lettre de motivation' },
-  recommandation: { titre: 'Étape 1 · Déposer une lettre de recommandation', intro: 'Déposez la lettre de recommandation (PDF, Word, photo) ou collez son texte. <strong>Pensez à protéger la personne qui l’a écrite</strong> : à l’étape suivante, son nom et sa fonction sont à masquer. Ils ne partent jamais chez l’assistant.', titreDocument: 'Lettre de recommandation' }
+  cv: { intro: '', titreDocument: 'CV' },
+  lettreMotivation: { intro: '', titreDocument: 'Lettre de motivation' },
+  recommandation: { intro: 'Déposez la lettre de recommandation : PDF, Word, texte, photo ou capture d’écran. Elle est lue directement dans votre navigateur, <strong>elle n’est envoyée nulle part</strong>. <strong>Pensez à protéger la personne qui l’a écrite</strong> : à la relecture, son nom et sa fonction sont à masquer. Ils ne partent jamais chez l’assistant.', titreDocument: 'Lettre de recommandation' }
 };
 var MESCOMP_NIVEAUX_CHOIX = [
   { id: 'execution', libelle: 'Ouvrier ou employé' },
@@ -17,28 +17,35 @@ var MESCOMP_NIVEAUX_CHOIX = [
   { id: 'auto', libelle: 'Je ne sais pas : l’outil propose' }
 ];
 
-function _mesCompDeposer(type) {
+// Zone de dépôt ouverte sous une section (un seul type à la fois : la brique n'a qu'une instance affichée) ; null = aucune.
+var _mesCompDepotOuvert = null;
+function _mesCompDepotCfg(type) {
   var info = MESCOMP_DEPOTS[type];
-  if (!info || typeof ouvrirAssistantDepotCV !== 'function') { return; }
-  var etat = mesCompOuvrir();
-  if (!mesCompPlaceDisponible(etat.documents, type)) { return; }
-  var cvAvant = dossier.cvTexte, analyseAvant = dossier.cvAnalyse;
-  function remettreCv() { dossier.cvTexte = cvAvant; dossier.cvAnalyse = analyseAvant; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: info.titre,
-    intro: info.intro,
+  return {
+    cle: 'mescomp-' + type,
     titreDocument: info.titreDocument,
+    intro: info.intro,
+    avecIdentite: type === 'cv',
+    ecrireCV: false,
     nomsInitiaux: (type === 'recommandation' && typeof nomsSignatureLettreCo === 'function') ? nomsSignatureLettreCo : undefined,
+    rerender: mesCompRendrePage,
+    onFermer: function () { _mesCompDepotOuvert = null; mesCompRendrePage(); },
     onDocumentPrepare: function (documentPrepare) {
-      remettreCv();
       if (documentPrepare && documentPrepare.type === 'texte') {
         var r = mesCompDocumentsAjouter(mesCompOuvrir().documents, type, documentPrepare.valeur);
         if (r.ajoute) { mesCompOuvrir().documents = r.liste; }
       }
+      _mesCompDepotOuvert = null;
       mesCompRendrePage();
-    },
-    onRetourEtape1: function () { remettreCv(); mesCompRendrePage(); }
-  });
+    }
+  };
+}
+function _mesCompDeposer(type) {
+  if (!MESCOMP_DEPOTS[type] || typeof htmlDepotCVEnPage !== 'function') { return; }
+  var etat = mesCompOuvrir();
+  if (!mesCompPlaceDisponible(etat.documents, type)) { return; }
+  _mesCompDepotOuvert = type;
+  mesCompRendrePage();
 }
 
 function _mesCompHtmlSectionDocuments(etat, type, icone, numero, titre) {
@@ -54,9 +61,11 @@ function _mesCompHtmlSectionDocuments(etat, type, icone, numero, titre) {
   var libelle = type === 'cv' ? 'Déposer un CV' : (type === 'lettreMotivation' ? 'Déposer une lettre de motivation' : 'Déposer une lettre de recommandation');
   return '<div class="cv-section"><h4>' + icone + ' ' + numero + '. ' + titre + ' <span class="small text-muted">(' + info.max + ' au plus)</span></h4>' +
     '<div id="mcListe_' + type + '">' + lignes + '</div>' +
-    '<button type="button" class="btn btn-primary" id="btnMcDeposer_' + type + '"' + (plein ? ' disabled title="Vous avez atteint le maximum."' : '') + '>' + libelle + '</button>' +
+    (_mesCompDepotOuvert === type && !plein
+      ? '<div id="mcDepot_' + type + '">' + htmlDepotCVEnPage(_mesCompDepotCfg(type)) + '</div>'
+      : '<button type="button" class="btn btn-primary" id="btnMcDeposer_' + type + '"' + (plein ? ' disabled title="Vous avez atteint le maximum."' : '') + '>' + libelle + '</button>') +
     (type === 'recommandation'
-      ? '<div class="small mt-2" style="background:var(--accent-bg-subtle);border-radius:8px;padding:.5rem .8rem;text-align:left;"><strong>Pour protéger la personne qui l’a écrite</strong> : son nom et sa fonction sont à masquer dans la fenêtre de dépôt. Ils ne partent jamais chez l’assistant.</div>'
+      ? '<div class="small mt-2" style="background:var(--accent-bg-subtle);border-radius:8px;padding:.5rem .8rem;text-align:left;"><strong>Pour protéger la personne qui l’a écrite</strong> : son nom et sa fonction sont à masquer à la relecture. Ils ne partent jamais chez l’assistant.</div>'
       : '') +
     '</div>';
 }
@@ -91,6 +100,7 @@ mesCompEnregistrerPage('documents', {
   peutContinuer: function (etat) { return mesCompRaisonBlocageDocuments(etat.documents) === ''; },
   raisonBlocage: function (etat) { return mesCompRaisonBlocageDocuments(etat.documents); },
   cabler: function (etat) {
+    if (_mesCompDepotOuvert && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_mesCompDepotCfg(_mesCompDepotOuvert)); }
     ['cv', 'lettreMotivation', 'recommandation'].forEach(function (type) {
       var b = document.getElementById('btnMcDeposer_' + type);
       if (b) { b.addEventListener('click', function () { _mesCompDeposer(type); }); }

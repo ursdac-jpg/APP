@@ -1,0 +1,3 @@
+# Fiches « inaccessibles pour l'instant » : un site fermé quelque temps (maintenance, sécurité, panne) garde sa fiche, mais son lien n'est plus montré au public (message neutre, téléphone conservé).
+# Format : registre (lieux, employeurs ou offres) | identifiant de la fiche | raison (maintenance, securite, panne ou autre) | date du constat | date du dernier avis de Denis (« garder en attente »).
+# Écrit par l'outil de veille (module « Qui fait quoi »). Au bout de 90 jours sans nouvel avis, l'outil demande : garder en attente ou retirer la fiche. Rien ne s'efface tout seul.

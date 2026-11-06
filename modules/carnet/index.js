@@ -62,16 +62,18 @@ var _carnetInfoPulseDejaDeclenche = false;
 // (aucun assistant disponible localement). 4 mots suffisent pour rester
 // reconnaissable dans une liste.
 var _CARNET_TITRE_NB_MOTS = 4;
-// TACHE (retour utilisateur, 2026-08-25) : jamais de "..." final -- une
-// coupe nette a 4 mots suffit a signaler que ce n'est qu'un debut, la
-// personne comprend qu'elle peut modifier le titre si besoin. Chaque mot
+// TACHE (retour utilisateur, 2026-08-25) : jamais de "..." final -- REVU le
+// 27/10/2026 (audit D12, decision de Denis) : « … » seulement quand le texte
+// continue au-dela des 4 mots, pour qu'un titre ne ressemble pas a une phrase
+// cassee. Chaque mot
 // est toujours pris en entier, jamais coupe en cours de mot (un mot plus
 // long que les autres reste intact).
 function _carnetExtraitPourTitre(texte) {
   var t = (texte || '').trim();
   if (!t) { return ''; }
   var mots = t.split(/\s+/);
-  return mots.slice(0, _CARNET_TITRE_NB_MOTS).join(' ');
+  var debut = mots.slice(0, _CARNET_TITRE_NB_MOTS).join(' ');
+  return mots.length > _CARNET_TITRE_NB_MOTS ? debut + ' …' : debut;
 }
 
 // `titre` auto-suggere des la creation (jamais un 2e champ a remplir a
@@ -304,15 +306,13 @@ function _carnetRenduListe() {
 // fond/bordure/couleur du texte via variables CSS theme-aware.
 // TACHE (refonte visuelle 2026-09-09) : styles sortis de l'inline vers la
 // classe .carnet-astuce (encart resserre sur une ligne). Emphase reduite
-// (retour Denis) : seul « Astuce : utilisez Windows + H » reste en gras,
+// (retour Denis) : seul « Astuce : utilisez la dictée vocale de votre appareil » reste en gras,
 // le reste de la phrase passe en graisse normale. La copie de Decouverte
 // des competences (_carnetRenduAstuceDictee y a un jumeau) n'est PAS
 // alignee ici -- decision Denis, chantier separe si besoin.
 function _carnetRenduAstuceDictee() {
-  return '<p class="carnet-astuce">' +
-    '💡 <strong>Astuce : utilisez <span class="carnet-kbd">Windows + H</span></strong> ' +
-    'pour dicter votre texte à la voix plutôt que de tout taper au clavier.' +
-    '</p>';
+  // Brique commune (modules/astuce-dictee, consigne 85) : gestes adaptés à l'appareil.
+  return htmlAstuceDictee('encart');
 }
 
 // TACHE (generalisation du patron "page d'introduction de module",
@@ -388,7 +388,7 @@ function _carnetRenduIntro() {
     '<div class="cv-section" style="margin-bottom:1rem;">' +
     '<h4>&#128172; Comment ça se passe concrètement</h4>' +
     '<p class="mb-2">Le Carnet est toujours à portée : une icône reste visible sur le côté de l’écran, quelle que soit la page où vous vous trouvez. Un clic ouvre un petit panneau, sans quitter ce que vous étiez en train de faire : vous notez, puis vous refermez. Le bouton « Voir tout mon Carnet » ouvre l’écran complet, avec toutes vos notes.</p>' +
-    '<div class="cv-section" style="margin-bottom:0;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128161; Vous pouvez dicter votre note à la voix au lieu de la taper : appuyez en même temps sur <strong><span style="white-space:nowrap;">Windows + H</span></strong>.</p></div>' +
+    htmlAstuceDictee('encart', '&#128161; <strong>Vous pouvez dicter votre note à la voix</strong> au lieu de la taper.') +
     '</div>' +
 
     '<div class="cv-section" style="margin-bottom:1rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir écrit, sinon vos notes seront perdues à la fermeture de la page.</p></div>'

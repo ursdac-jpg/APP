@@ -24,6 +24,7 @@ ce_qui_change_souvent:
   - "La reconnaissance automatique pour certains jeunes"
   - "La liste des droits ouverts"
 revisions: []
+phrase_generale: "La reconnaissance de la qualité de travailleur handicapé s'adresse aux personnes dont un problème de santé réduit les possibilités de trouver ou de garder un emploi, même sans handicap visible, et se demande à la maison départementale des personnes handicapées. Les démarches, les durées de validité et les délais de réponse changent : renseignez-vous auprès de la maison départementale ou consultez les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 

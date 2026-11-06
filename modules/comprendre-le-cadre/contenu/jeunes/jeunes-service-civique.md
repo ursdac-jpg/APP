@@ -22,6 +22,7 @@ ce_qui_change_souvent:
   - "Le montant de l'indemnité et de la prestation de subsistance"
   - "Les compléments pour les boursiers et allocataires du RSA"
 revisions: []
+phrase_generale: "Le service civique est un engagement sur une mission utile à la société, indemnisé et sans condition de diplôme : aider des personnes âgées, accompagner des élèves, protéger l'environnement, animer des activités. Les âges, la durée et l'indemnité changent régulièrement : renseignez-vous auprès de la Mission locale ou consultez les sources officielles indiquées plus bas."
 collecte: jeunes.collecte.md
 ---
 

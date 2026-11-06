@@ -7,12 +7,12 @@ tags: [RSA, prime d'activité, reprise d'emploi, cumul, CAF, MSA, déclaration t
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-05
+verifie_le: 2026-11-04
 lexique:
   - terme: "prime d'activité"
     definition: "Complément de revenu versé aux personnes qui travaillent et gagnent peu. Elle est recalculée tous les trois mois selon les revenus déclarés."
   - terme: "déclaration trimestrielle de ressources"
-    definition: "Déclaration à faire tous les trois mois à la CAF ou à la MSA pour continuer à recevoir le RSA ou la prime d'activité. C'est elle qui déclenche le recalcul."
+    definition: "Déclaration à faire tous les trois mois à la CAF pour continuer à recevoir le RSA ou la prime d'activité. C'est elle qui déclenche le recalcul."
 voir_aussi_lexique:
   - prime-activite
   - rsa-ou-prime-activite
@@ -26,18 +26,21 @@ ce_qui_change_souvent:
   - "Le montant forfaitaire du RSA et de la prime d'activité"
   - "Les règles de cumul lors d'une reprise d'activité"
   - "Le volume d'heures d'accompagnement prévu au contrat d'engagement"
-revisions: []
+revisions:
+  - "2026-11-04 : la page de la Caf (RSA et prime d'activité) confirme les montants identiques pendant trois mois, le calcul automatique de la prime d'activité à la reprise d'un emploi et la déclaration trimestrielle ; la page du ministère du Travail confirme l'inscription automatique à France Travail depuis janvier 2025 et le contrat d'engagement ; la MSA, le cumul des premiers mois, la phrase sur le gain du travail, la simulation en ligne et les heures d'activité par semaine n'y figurent pas (retirés)"
+  - "2026-11-04 : la page du ministère du Travail sur l'accompagnement rénové des allocataires du RSA confirme une cible de 15 heures d'activités hebdomadaires"
+phrase_generale: "Reprendre un emploi quand on touche le RSA ne fait pas perdre ses droits d'un coup : la CAF recalcule le RSA et la prime d'activité d'après les ressources que vous déclarez. Les montants, les délais et les règles de calcul changent régulièrement : confirmez-les auprès de la CAF ou sur les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 
-Reprendre un emploi ne fait pas perdre vos droits d'un coup. Le système est fait pour que travailler rapporte toujours plus que ne pas travailler.
+Reprendre un emploi ne fait pas perdre vos droits d'un coup.
 
-Vous continuez à déclarer vos ressources tous les trois mois à la CAF, ou à la MSA si vous relevez du régime agricole. Pendant chaque trimestre, le montant est figé, puis il est recalculé.
+Vous continuez à déclarer vos ressources tous les trois mois à la CAF. Les montants du RSA et de la prime d'activité restent identiques pendant trois mois, même si votre situation change au cours de cette période, puis ils sont recalculés d'après les ressources que vous déclarez.
 
-Les premiers mois après la reprise, votre salaire et votre RSA se cumulent. Ensuite, la prime d'activité prend le relais du RSA : c'est un complément versé aux personnes qui travaillent et gagnent peu.
+Quand vous bénéficiez du RSA et que vous retrouvez du travail, la CAF calcule automatiquement vos droits à la prime d'activité.
 
-Vous n'avez aucune démarche particulière à faire pour ce passage : la CAF ou la MSA bascule automatiquement, à condition que vous continuiez vos déclarations trimestrielles.
+Ce calcul se fait automatiquement : ce qui compte, c'est de continuer vos déclarations trimestrielles de ressources.
 
-Depuis 2025, être au RSA veut dire être inscrit à France Travail et avoir signé un contrat d'engagement, avec un accompagnement et des heures d'activité prévues chaque semaine. Reprendre un emploi s'inscrit dans ce parcours.
+Depuis janvier 2025, l'inscription à France Travail est automatique pour les bénéficiaires du RSA. Un contrat d'engagement, signé avec l'organisme référent, définit les actions d'accompagnement prévues, avec une cible de 15 heures d'activité par semaine. Reprendre un emploi s'inscrit dans ce parcours.
 
-Pour savoir ce que vous toucherez précisément, faites une simulation sur votre compte CAF, ou demandez à votre référent. Votre situation exacte se vérifie auprès de la CAF ou de la MSA.
+Pour savoir ce que vous toucherez précisément, demandez à votre référent ou à la CAF. Votre situation exacte se vérifie auprès de la CAF.

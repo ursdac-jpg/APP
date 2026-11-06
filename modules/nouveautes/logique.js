@@ -5,7 +5,7 @@
    ============================================================ */
 
 // Une nouveauté porte l'étiquette « Nouveau » pendant ce nombre de jours après sa date.
-var NV_JOURS_NOUVEAU = 30;
+var NV_JOURS_NOUVEAU = 7;
 var NV_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
 function _nvDateDepuisIso(iso) {
@@ -23,7 +23,7 @@ function nvAgeJours(iso, auj) {
 }
 function nvEstNouveau(n, auj) {
   var a = nvAgeJours(n && n.date, auj);
-  return a !== null && a >= 0 && a <= NV_JOURS_NOUVEAU;
+  return a !== null && a >= 0 && a < NV_JOURS_NOUVEAU;   // 7 jours écoulés : plus nouveau
 }
 function nvCompterNouveaux(liste, auj) { return (liste || []).filter(function (n) { return nvEstNouveau(n, auj); }).length; }
 // Dates affichées en français (jamais « 2026-10-26 » à l'écran) : « 26 octobre 2026 », « 1er novembre 2026 ».

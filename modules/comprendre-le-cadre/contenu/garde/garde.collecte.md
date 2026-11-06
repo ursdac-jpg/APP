@@ -18,6 +18,9 @@ sources:
   - "solidarites-choisir-mode-accueil | Comment choisir un mode d'accueil pour son enfant ? | https://solidarites.gouv.fr/comment-choisir-un-mode-daccueil-pour-son-enfant | 2026-09-04"
   - "caf-rpe | Le relais petite enfance (RPE) | https://www.caf.fr/allocataires/aides-et-demarches/thematique-libre/relais-petite-enfance-rpe | 2026-09-04"
   - "mesdroitssociaux-simulateur-cmg | Simuler le complément de libre choix du mode de garde | https://www.mesdroitssociaux.gouv.fr/votre-simulateur/complement-mode-de-garde/ | 2026-09-04"
+  - "service-public-conge-supplementaire-naissance | Service Public : congé supplémentaire de naissance d'un salarié du secteur privé | https://www.service-public.gouv.fr/particuliers/vosdroits/F39685 | 2026-11-03"
+  - "service-public-conge-supplementaire-naissance-modalites | Service Public Entreprendre : entrée en vigueur du congé supplémentaire de naissance, modalités pratiques | https://entreprendre.service-public.gouv.fr/actualites/A18939 | 2026-11-03"
+  - "travail-emploi-assistant-maternel-obligations | Ministère du Travail : recruter une assistante maternelle ou un assistant maternel, les obligations à respecter | https://travail-emploi.gouv.fr/recruter-une-assistante-maternelle-ou-un-assistant-maternel-les-obligations-respecter | 2026-11-03"
 structures:
   - "caf-dordogne | CAF de la Dordogne : CMG, allocation de soutien familial, RSA majoré, information sur les crèches AVIP | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-04"
   - "monenfant-annuaire | monenfant.fr (CNAF) : annuaire national des assistantes maternelles, des crèches et des relais petite enfance, avec disponibilités et simulateurs de coût | https://monenfant.fr/ | 2026-09-04"

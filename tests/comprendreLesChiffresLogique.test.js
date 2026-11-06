@@ -19,7 +19,33 @@ const {
   _comprendreLesChiffresRenduGraphe,
   _comprendreLesChiffresTendance,
   _comprendreLesChiffresNombre,
-  _comprendreLesChiffresFormatNombre
+  _comprendreLesChiffresFormatNombre,
+  _comprendreLesChiffresVuesAssembler,
+  _comprendreLesChiffresVuesBarresHTML,
+  _comprendreLesChiffresVuesCamembertHTML,
+  _comprendreLesChiffresVuesPct,
+  _comprendreLesChiffresParserFiches,
+  _comprendreLesChiffresFicheValeur,
+  _comprendreLesChiffresFicheFrance,
+  _comprendreLesChiffresFicheClassement,
+  _comprendreLesChiffresFicheEcart,
+  _comprendreLesChiffresSalaireCarteMoyen,
+  _comprendreLesChiffresSalaireCarteExtremes,
+  _comprendreLesChiffresSalaireCarteMediane,
+  _comprendreLesChiffresNiveauVieCarteTerritoire,
+  _comprendreLesChiffresPauvreteCarteTerritoire,
+  _comprendreLesChiffresPauvreteCarteFrance,
+  _comprendreLesChiffresSmicCarteBeneficiaires,
+  _comprendreLesChiffresPouvoirAchatCarte,
+  _comprendreLesChiffresRenduCarteEntreprises,
+  _comprendreLesChiffresCartesEurope,
+  _comprendreLesChiffresEuropeCartesDe,
+  _comprendreLesChiffresRenduBlocsEurope,
+  _comprendreLesChiffresUEGroupe,
+  _comprendreLesChiffresUEGroupesFreins,
+  _comprendreLesChiffresParserDocAnnuel,
+  _comprendreLesChiffresMaFicheTexte,
+  _comprendreLesChiffresMaFicheImpressionHTML
 } = require('../modules/comprendre-les-chiffres/index.js');
 
 // ---------- _comprendreLesChiffresNombre ----------
@@ -233,4 +259,342 @@ test('entreprises : date écrite en français (jour/mois/année) lue en toutes l
   assert.equal(_comprendreLesChiffresPeriodeEnClair('01/11/2025', '18/10/2026'), 'du 1er novembre 2025 au 18 octobre 2026');
   assert.equal(_comprendreLesChiffresPeriodeEnClair('01/11/2025', ''), '');
   assert.equal(_comprendreLesChiffresPeriodeEnClair('', '18/10/2026'), '');
+});
+
+// ---------- Lecture en trois façons : Chiffres / Barres / Camembert (consigne 119) ----------
+
+test("vues : sans barres ni camembert, la lecture d'origine est rendue telle quelle (jamais de bouton vide)", () => {
+  assert.equal(_comprendreLesChiffresVuesAssembler('carte-x', '<p>origine</p>', [], null), '<p>origine</p>');
+  assert.equal(_comprendreLesChiffresVuesAssembler('carte-x', '<p>origine</p>', [{ titre: 't', lignes: [{ nom: 'a', texte: '1', n: 1 }] }], null), '<p>origine</p>');
+});
+
+test("vues : « Camembert » n'apparait que s'il y a un camembert, et « Chiffres » reste le panneau ouvert par defaut", () => {
+  const g = [{ titre: 't', lignes: [{ nom: 'a', texte: '7 %', n: 7 }, { nom: 'b', texte: '8 %', n: 8 }] }];
+  const sans = _comprendreLesChiffresVuesAssembler('carte-x', '<p>origine</p>', g, null);
+  assert.ok(/data-comprendre-les-chiffres-vue-lecture="barres"/.test(sans));
+  assert.ok(!/data-comprendre-les-chiffres-vue-lecture="camembert"/.test(sans));
+  assert.ok(/data-comprendre-les-chiffres-panneau="chiffres">/.test(sans));
+  assert.ok(/data-comprendre-les-chiffres-panneau="barres" hidden/.test(sans));
+  const avec = _comprendreLesChiffresVuesAssembler('carte-x', '<p>origine</p>', g,
+    { titre: 'c', parts: [{ nom: 'u', texte: '47 %', n: 47 }, { nom: 'v', texte: '53 %', n: 53 }] });
+  assert.ok(/data-comprendre-les-chiffres-vue-lecture="camembert"/.test(avec));
+});
+
+test("vues : les barres partent de zero (jamais d'ecart grossi) et une valeur nulle n'a pas de barre", () => {
+  assert.equal(_comprendreLesChiffresVuesPct(50, 100), 50);
+  assert.equal(_comprendreLesChiffresVuesPct(7.9, 8.3), 95);
+  assert.equal(_comprendreLesChiffresVuesPct(0, 8), 0);
+  assert.equal(_comprendreLesChiffresVuesPct(-0.3, 0.3), 100);
+});
+
+test("vues : le choix d'ordre n'est propose qu'a partir de cinq lignes, et une baisse est signalee par une fleche", () => {
+  const quatre = _comprendreLesChiffresVuesBarresHTML([{ titre: 't', lignes: [1, 2, 3, 4].map((n) => ({ nom: 'l' + n, texte: String(n), n })) }]);
+  assert.ok(!/data-comprendre-les-chiffres-ordre/.test(quatre));
+  const cinq = _comprendreLesChiffresVuesBarresHTML([{ titre: 't', lignes: [1, 2, 3, 4, 5].map((n) => ({ nom: 'l' + n, texte: String(n), n })) }]);
+  assert.equal((cinq.match(/data-comprendre-les-chiffres-ordre=/g) || []).length, 3);
+  const signe = _comprendreLesChiffresVuesBarresHTML([{ titre: 't', signe: true, lignes: [{ nom: 'a', texte: '-0,3 %', n: -0.3 }, { nom: 'b', texte: '0,1 %', n: 0.1 }] }]);
+  assert.ok(signe.indexOf('&#8600;') >= 0 && signe.indexOf('&#8599;') >= 0 && /zone-ligne baisse/.test(signe));
+});
+
+test("vues : le camembert rend des parts qui font le tour complet (100) et refuse un total nul", () => {
+  const html = _comprendreLesChiffresVuesCamembertHTML({ titre: 'c', parts: [{ nom: 'u', texte: '39 %', n: 39 }, { nom: 'v', texte: '61 %', n: 61 }] });
+  const parts = [...html.matchAll(/data-pct="([\d.]+)"/g)].map((m) => parseFloat(m[1]));
+  assert.equal(parts.length, 2);
+  assert.ok(Math.abs(parts[0] + parts[1] - 100) < 0.05);
+  assert.equal(_comprendreLesChiffresVuesCamembertHTML({ parts: [{ nom: 'u', texte: '0', n: 0 }, { nom: 'v', texte: '0', n: 0 }] }), '');
+  assert.equal(_comprendreLesChiffresVuesCamembertHTML({ parts: [{ nom: 'u', texte: '1', n: 1 }] }), '');
+});
+
+// ---------- salaires, niveau de vie, Europe (consignes 119 à 123, 2026-11-06) ----------
+const fs = require('node:fs');
+const path = require('node:path');
+const CONTENU = path.join(__dirname, '..', 'modules', 'comprendre-les-chiffres', 'contenu');
+const lireFiche = (f) => _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, f), 'utf8'));
+const espaces = (s) => String(s).replace(/\s/g, ' ');
+
+test("fiches : le parseur lit les trois fichiers (groupes, sources datées, un champ par ligne)", () => {
+  const S = lireFiche('salaires-insee.md');
+  assert.equal(S.ordre.departements.length, 101);
+  assert.equal(S.ordre.regions.length, 18);
+  assert.equal(S.ordre.france.length, 1);
+  assert.match(S.verifie_le, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(S.sources['insee-salaires-2024'].url.startsWith('https://www.insee.fr/'));
+  assert.equal(S.sources['insee-premiere-2079'].url, 'https://www.insee.fr/fr/statistiques/8657156');
+  const dordogne = _comprendreLesChiffresFicheValeur(S, 'departements', 'Dordogne', 'salaire_net_mensuel');
+  assert.equal(dordogne.n, 2194);
+  assert.equal(dordogne.nom, 'Dordogne');
+  assert.equal(dordogne.src.cle, 'insee-salaires-2024');
+  // « Guadeloupe » existe comme département ET comme région : chaque groupe a la sienne
+  assert.ok(_comprendreLesChiffresFicheValeur(S, 'departements', 'Guadeloupe', 'salaire_net_mensuel'));
+  assert.ok(_comprendreLesChiffresFicheValeur(S, 'regions', 'Guadeloupe', 'salaire_net_mensuel'));
+  // les chiffres nationaux citent leur propre source
+  assert.equal(_comprendreLesChiffresFicheFrance(S, 'salaire_mediane').n, 2190);
+  assert.equal(_comprendreLesChiffresFicheFrance(S, 'salaire_mediane').src.cle, 'insee-premiere-2079');
+  assert.equal(_comprendreLesChiffresFicheFrance(S, 'salaire_net_mensuel').src.cle, 'insee-salaires-2024');
+  const E = lireFiche('europe-eurostat.md');
+  assert.equal(E.ordre.pays.length, 27);
+  assert.equal(_comprendreLesChiffresFicheValeur(E, 'pays', 'France', 'niveau_des_prix').n > 100, true);
+  assert.equal(_comprendreLesChiffresFicheValeur(E, 'pays', 'Suède', 'salaire_minimum_mensuel'), null, 'un pays sans salaire minimum légal n’a pas la ligne');
+  assert.equal(_comprendreLesChiffresParserFiches('pas d’en-tête'), null);
+});
+
+test("fiches : le classement va du plus haut au plus bas, sans rang écrit nulle part", () => {
+  const S = lireFiche('salaires-insee.md');
+  const cl = _comprendreLesChiffresFicheClassement(S, 'departements', 'salaire_net_mensuel');
+  assert.equal(cl.length, 101);
+  for (let i = 1; i < cl.length; i++) { assert.ok(cl[i - 1].n >= cl[i].n); }
+  const html = _comprendreLesChiffresSalaireCarteExtremes(S);
+  assert.ok(html.length > 0);
+  assert.ok(!/\d+(er|e|ème)\s+(rang|sur)/i.test(html) && !/classement/i.test(html), 'on situe, on ne classe pas');
+});
+
+test("fiches : la carte du salaire moyen compare le département au plus haut, au plus bas et à la France, et chiffre l’écart", () => {
+  const S = lireFiche('salaires-insee.md');
+  const html = espaces(_comprendreLesChiffresSalaireCarteMoyen(S, 'dep', 'Dordogne', 'la Dordogne'));
+  assert.match(html, /2 194 €/);
+  assert.match(html, /France entière/);
+  assert.match(html, /\(le mieux payé\)/);
+  assert.match(html, /\(le moins bien payé\)/);
+  assert.match(html, /20 % sous la moyenne de la France/);
+  assert.match(html, /data-comprendre-les-chiffres-vue-lecture="barres"/);
+  assert.ok(!/data-comprendre-les-chiffres-vue-lecture="camembert"/.test(html), 'un salaire n’est pas la part d’un tout');
+});
+
+test("fiches : une carte dont le chiffre manque, ou dont le territoire est inconnu, n’est pas affichée (jamais de rubrique vide)", () => {
+  const S = lireFiche('salaires-insee.md');
+  assert.equal(_comprendreLesChiffresSalaireCarteMoyen(S, 'dep', 'Atlantide', 'l’Atlantide'), '');
+  const sansMediane = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'salaires-insee.md'), 'utf8').replace(/^salaire_mediane:.*\n/m, ''));
+  assert.equal(_comprendreLesChiffresSalaireCarteMediane(sansMediane), '');
+  const N = lireFiche('niveau-de-vie-insee.md');
+  assert.equal(_comprendreLesChiffresNiveauVieCarteTerritoire(N, 'dep', 'Atlantide', 'l’Atlantide'), '');
+  assert.ok(_comprendreLesChiffresNiveauVieCarteTerritoire(N, 'dep', 'Haute-Vienne', 'la Haute-Vienne').length > 0);
+});
+
+test("fiches : l’Europe cite les pays sans salaire minimum légal d’après le fichier, et situe la France sans la classer", () => {
+  const E = lireFiche('europe-eurostat.md');
+  const html = espaces(_comprendreLesChiffresCartesEurope(E));
+  assert.match(html, /Danemark, Italie, Autriche, Finlande, Suède/);
+  assert.match(html, /Voir tous les pays \(22\)/);
+  assert.match(html, /Voir tous les pays \(27\)/);
+  assert.ok(!/classement/i.test(html));
+});
+
+test("fiches : l’écart se dit avec des mots, sous, au-dessus ou au niveau", () => {
+  assert.match(espaces(_comprendreLesChiffresFicheEcart(80, 100, 'la moyenne')), /20 % sous la moyenne/);
+  assert.match(espaces(_comprendreLesChiffresFicheEcart(110, 100, 'la moyenne')), /10 % au-dessus de la moyenne/);
+  assert.match(_comprendreLesChiffresFicheEcart(100, 100, 'la moyenne'), /au niveau de la moyenne/);
+});
+
+test("vue Union européenne : chaque indicateur donne deux barres (France, moyenne UE-27), et rien si un chiffre manque ou reste à vérifier", () => {
+  const g = _comprendreLesChiffresUEGroupe('Taux de chômage', '8,5 %', '6,2 %');
+  assert.deepEqual(g.lignes.map((l) => [l.nom, l.n]), [['France', 8.5], ['Moyenne UE-27', 6.2]]);
+  assert.equal(_comprendreLesChiffresUEGroupe('x', '8,5 %', ''), null);
+  assert.equal(_comprendreLesChiffresUEGroupe('x', 'à vérifier', '6,2 %'), null);
+  const doc = _comprendreLesChiffresParserDocAnnuel(fs.readFileSync(path.join(CONTENU, 'ue-2026.md'), 'utf8').replace(/\r\n/g, '\n'));
+  const freins = doc.sections.filter((s) => /frein/i.test(s.slug))[0];
+  const groupes = _comprendreLesChiffresUEGroupesFreins(freins);
+  assert.ok(groupes.length >= 4, 'les freins comparés se lisent en barres');
+  groupes.forEach((x) => assert.equal(x.lignes.length, 2));
+});
+
+test("Ma fiche chiffres : le texte copié donne, pour chaque chiffre, son territoire, sa question, sa valeur et sa source, sans tiret long", () => {
+  const texte = _comprendreLesChiffresMaFicheTexte([
+    { territoire: 'Dordogne (24)', q: 'Quel est le salaire net mensuel moyen ?', valeur: '2 194 € net par mois', source: 'Insee, publié le 4 décembre 2025' },
+    { territoire: 'France', q: 'Combien gagne un salarié ?', valeur: '2 190 €', source: '' }
+  ], '2026-11-06');
+  const lignes = texte.split('\n');
+  assert.equal(lignes[0], 'Ma fiche chiffres, au 6 novembre 2026');
+  assert.match(texte, /1\. Dordogne \(24\) : Quel est le salaire net mensuel moyen \? 2 194 € net par mois\. Source : Insee, publié le 4 décembre 2025\./);
+  assert.match(texte, /2\. France : Combien gagne un salarié \? 2 190 €\.$/);
+  assert.ok(!/[\u2014\u2013]/.test(texte));
+  assert.equal(_comprendreLesChiffresMaFicheTexte([], '2026-11-06').split('\n').length, 3, 'une fiche vide ne contient que son en-tête');
+});
+
+test("fiches : l’inflation par pays est lue dans le fichier, chaque pays cite sa source Eurostat, la France est située sans classement", () => {
+  const E = lireFiche('europe-eurostat.md');
+  assert.equal(_comprendreLesChiffresFicheClassement(E, 'pays', 'inflation_annuelle').length, 27);
+  const fr = _comprendreLesChiffresFicheValeur(E, 'pays', 'France', 'inflation_annuelle');
+  assert.equal(fr.src.cle, 'eurostat-inflation');
+  assert.ok(fr.n > -5 && fr.n < 30);
+  const html = espaces(_comprendreLesChiffresCartesEurope(E));
+  assert.match(html, /pays par pays \?/);
+  assert.match(html, /Voir tous les pays \(27\)/);
+  assert.ok(!/classement/i.test(html));
+});
+
+test("fiches : le taux de pauvreté est lu dans le fichier, situé face au plus haut, au plus bas et à la France, sans rang", () => {
+  const N = lireFiche('niveau-de-vie-insee.md');
+  const d = _comprendreLesChiffresFicheValeur(N, 'departements', 'Dordogne', 'taux_pauvrete');
+  assert.equal(d.n, 17.1);
+  assert.equal(d.src.cle, 'insee-pauvrete-2023');
+  assert.equal(_comprendreLesChiffresFicheFrance(N, 'taux_pauvrete').n, 15.9);
+  const html = espaces(_comprendreLesChiffresPauvreteCarteTerritoire(N, 'dep', 'Dordogne', 'la Dordogne'));
+  assert.match(html, /17,1 %/);
+  assert.match(html, /points? au-dessus de la France métropolitaine/);
+  assert.ok(!/classement/i.test(html));
+  assert.equal(_comprendreLesChiffresPauvreteCarteTerritoire(N, 'dep', 'Atlantide', 'l’Atlantide'), '', 'territoire inconnu : pas de carte vide');
+  assert.ok(_comprendreLesChiffresPauvreteCarteFrance(N).length > 0);
+});
+
+test("Smic (Dares) : la carte dit « bénéficiaires de la revalorisation », cite la Dares, et disparaît si le chiffre manque", () => {
+  const D = lireFiche('smic-dares.md');
+  assert.equal(_comprendreLesChiffresFicheFrance(D, 'part_beneficiaires_smic').n, 11.8);
+  assert.equal(_comprendreLesChiffresFicheFrance(D, 'part_beneficiaires_smic').src.cle, 'dares-smic-2026');
+  const html = espaces(_comprendreLesChiffresSmicCarteBeneficiaires(D));
+  assert.match(html, /11,8 %/);
+  assert.match(html, /25,6 %/);
+  assert.match(html, /0,6 point sous le niveau de novembre 2024 \(12,4 %\)/);
+  assert.match(html, /dares\.travail-emploi\.gouv\.fr\/publication\/la-revalorisation-du-smic-au-1er-janvier-2026/);
+  assert.ok(!/payés au Smic/.test(html), 'la Dares compte les bénéficiaires de la hausse, pas les salariés payés au Smic');
+  assert.ok(!/[–—]/.test(html));
+  const sans = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'smic-dares.md'), 'utf8').replace(/^part_beneficiaires_smic: .*\n/m, ''));
+  assert.equal(_comprendreLesChiffresSmicCarteBeneficiaires(sans), '');
+});
+
+test("Pouvoir d'achat (Insee) : la carte dit le sens, garde les chiffres négatifs, cite l'Insee, et disparaît si le chiffre manque", () => {
+  const D = lireFiche('pouvoir-achat-insee.md');
+  assert.equal(_comprendreLesChiffresFicheFrance(D, 'pouvoir_achat_2025').n, -0.7);
+  assert.equal(_comprendreLesChiffresFicheFrance(D, 'pouvoir_achat_2024').n, 2.2);
+  assert.equal(_comprendreLesChiffresFicheFrance(D, 'pouvoir_achat_2025').src.cle, 'insee-comptes-nation-2025');
+  const html = espaces(_comprendreLesChiffresPouvoirAchatCarte(D));
+  assert.match(html, /-0,7 %/);
+  assert.match(html, /a baissé, après \+2,2 % en 2024/);
+  assert.match(html, /insee\.fr\/fr\/statistiques\/8996855/);
+  assert.match(html, /relevé le 6 novembre 2026/);
+  assert.ok(!/20\d\d-\d\d-\d\d/.test(html), 'aucune date à l’anglo-saxonne');
+  assert.ok(!/[–—]/.test(html));
+  // les points de chaque cause s'additionnent bien en pouvoir d'achat de l'année (à l'arrondi près)
+  const somme = ['activite', 'patrimoine', 'prestations', 'impots', 'prix', 'demographie'].reduce((t, c) => t + _comprendreLesChiffresFicheFrance(D, 'pouvoir_achat_contribution_' + c + '_2025').n, 0);
+  assert.ok(Math.abs(somme - (-0.7)) < 0.15, 'les causes expliquent le pouvoir d’achat : ' + somme);
+  const sans = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'pouvoir-achat-insee.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^pouvoir_achat_2025: .*\n/m, ''));
+  assert.equal(_comprendreLesChiffresPouvoirAchatCarte(sans), '');
+});
+
+test("Entreprises (BODACC) : la carte offre Chiffres et Barres, compare le même département à lui-même un an plus tôt, jamais un autre", () => {
+  const src = { titre: 'BODACC, annonces commerciales', url: 'https://bodacc-datadila.opendatasoft.com/' };
+  const html = espaces(_comprendreLesChiffresRenduCarteEntreprises('entreprises-test', 'Combien ?', 431, 422, 'Phrase.', '', '1er novembre 2025 au 18 octobre 2026', src));
+  assert.match(html, /data-comprendre-les-chiffres-vue-lecture="chiffres"/);
+  assert.match(html, /data-comprendre-les-chiffres-vue-lecture="barres"/);
+  assert.ok(!/data-comprendre-les-chiffres-vue-lecture="camembert"/.test(html), 'pas de camembert : ce ne sont pas les parts d\u2019un tout');
+  assert.match(html, /Période relevée/);
+  assert.match(html, /Même période un an plus tôt/);
+  assert.match(html, /à peu près stable/);
+  assert.ok(!/Dordogne|Haute-Vienne/.test(html), 'un seul territoire, jamais le nom d\u2019un autre');
+  assert.ok(!/[–—]/.test(html));
+  const sansPrec = espaces(_comprendreLesChiffresRenduCarteEntreprises('entreprises-test2', 'Combien ?', 12, null, 'Phrase.', '', '', src));
+  assert.ok(!/data-comprendre-les-chiffres-vue-lecture/.test(sansPrec), 'sans année précédente, pas de bascule inutile');
+});
+
+test("Europe, économie (Eurostat) : 27 pays, France lue, sens des évolutions, énergie datée 2022, aucune carte vide", () => {
+  const EE = lireFiche('europe-economie-eurostat.md');
+  assert.equal(EE.ordre.pays.length, 27);
+  const fr = (c) => _comprendreLesChiffresFicheValeur(EE, 'pays', 'France', c);
+  assert.equal(fr('croissance_pib').n, 0.8, 'la croissance de la France est la même que celle de l’Insee (0,8 %)');
+  assert.equal(fr('croissance_pib').src.cle, 'eurostat-croissance');
+  assert.equal(fr('part_depenses_energie').src.cle, 'eurostat-depenses-energie');
+  ['croissance_pib', 'evolution_emploi', 'taux_emploi', 'evolution_remuneration_nette', 'taux_creation_entreprises', 'taux_cessation_entreprises',
+    'part_depenses_alimentation', 'part_depenses_logement', 'part_depenses_energie'].forEach((c) => {
+    assert.equal(_comprendreLesChiffresFicheClassement(EE, 'pays', c).length, 27, c + ' : un chiffre par pays');
+  });
+  // le logement comprend l'énergie du logement : la part de l'énergie est donc plus petite que celle du logement, partout
+  EE.ordre.pays.forEach((cle) => {
+    const f = EE.groupes.pays[cle], n = (c) => _comprendreLesChiffresNombre(f.champs[c]);
+    assert.ok(n('part_depenses_energie') < n('part_depenses_logement'), f.nom + ' : énergie < logement');
+  });
+  const tout = ['salaires', 'economie', 'entreprises', 'budget'].map((g) => espaces(_comprendreLesChiffresEuropeCartesDe(EE, g))).join(' ');
+  assert.match(tout, /\+3,6 %/);
+  assert.match(tout, /en 2022, en France/);
+  assert.match(tout, /Eurostat ne publie pas ce chiffre pour : Bulgarie/);
+  assert.match(tout, /relevé le 6 novembre 2026/);
+  assert.ok(!/20\d\d-\d\d-\d\d/.test(tout), 'aucune date à l’anglo-saxonne');
+  assert.ok(!/[–—]/.test(tout));
+  const sans = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'europe-economie-eurostat.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^## France\n[\s\S]*?\n\n/m, ''));
+  assert.equal(_comprendreLesChiffresEuropeCartesDe(sans, 'economie'), '', 'sans la France, aucune carte');
+});
+
+test("garde-fou (consigne 134) : l'année écrite dans le texte d'une carte est celle du chiffre relevé, sinon le test échoue et le texte doit être relu", () => {
+  // Quand le relevé passe à une année plus récente, le texte écrit dans le code (« en 2025 ») ne doit pas rester : ce test casse, on relit l'explication avec Denis.
+  const EE = lireFiche('europe-economie-eurostat.md');
+  const PA = lireFiche('pouvoir-achat-insee.md');
+  const blocs = ['salaires', 'economie', 'entreprises', 'budget'].map((g) => _comprendreLesChiffresEuropeCartesDe(EE, g)).join('') + _comprendreLesChiffresPouvoirAchatCarte(PA);
+  const cartes = blocs.split('<div class="comprendre-les-chiffres-indic"').slice(1);
+  assert.ok(cartes.length >= 13, 'les cartes à contrôler sont bien là : ' + cartes.length);
+  cartes.forEach((c) => {
+    const id = (c.match(/id="comprendre-les-chiffres-carte-([a-z-]+)"/) || [])[1];
+    const unite = (c.match(/<span class="comprendre-les-chiffres-unite">([^<]*)</) || [])[1] || '';
+    const source = (c.match(/D’après ([^<]*)</) || c.match(/comprendre-les-chiffres-source[^>]*>([^<]*)</) || [])[1] || '';
+    const annees = (unite.match(/20\d\d/g) || []).map(Number);
+    assert.ok(annees.length > 0, id + ' : une année dans le texte du chiffre');
+    const plusRecente = Math.max.apply(null, annees);
+    assert.ok(source.indexOf(String(plusRecente)) >= 0, id + ' : le texte dit ' + plusRecente + ' mais la source ne le dit pas : « ' + source.slice(0, 120) + ' »');
+  });
+});
+
+test("Ma fiche chiffres : la page imprimée porte le titre, la date, chaque chiffre avec sa source, échappe le texte et n'a aucun tiret long", () => {
+  const html = _comprendreLesChiffresMaFicheImpressionHTML([
+    { territoire: 'la Dordogne', q: 'Quel est le niveau de vie ?', valeur: '24 150 €', source: 'Insee, Filosofi 2023' },
+    { territoire: 'France', q: 'Piège <b>', valeur: '11,8 %', source: '' }
+  ], '2026-11-06');
+  assert.match(html, /<h1>Ma fiche chiffres<\/h1>/);
+  assert.match(html, /Établie le 6 novembre 2026/);
+  assert.match(html, /la Dordogne : Quel est le niveau de vie \?<\/strong> 24 150 €<span class="imp-src">Source : Insee, Filosofi 2023/);
+  assert.ok(!html.includes('<b>'), 'le texte est échappé');
+  assert.equal((html.match(/<li>/g) || []).length, 2);
+  assert.ok(!/[–—]/.test(html));
+});
+
+test("portrait : le fichier d'age couvre 96 departements, la France metropolitaine et des extremes plausibles", () => {
+  const doc = lireFiche('age-insee.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(doc.ordre.france.length, 1);
+  assert.ok(_comprendreLesChiffresDateEnClair(doc.verifie_le));
+  const cl = (champ) => Object.keys(doc.groupes.departements).map((k) => _comprendreLesChiffresNombre(doc.groupes.departements[k].champs[champ])).sort((a, b) => b - a);
+  const ages = cl('part_65_plus');
+  assert.ok(ages[0] > 28 && ages[0] < 40 && ages[95] > 8 && ages[95] < 16, 'extremes des 65 ans et plus');
+  assert.ok(doc.groupes.departements.dordogne.champs.part_moins_25);
+});
+
+test("portrait : le fichier de formation couvre 96 departements et la France metropolitaine", () => {
+  const doc = lireFiche('formation-insee.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(doc.ordre.france.length, 1);
+  assert.ok(_comprendreLesChiffresDateEnClair(doc.verifie_le));
+  const sans = Object.keys(doc.groupes.departements).map((k) => _comprendreLesChiffresNombre(doc.groupes.departements[k].champs.sans_diplome));
+  assert.ok(Math.max(...sans) < 45 && Math.min(...sans) > 10, 'sans diplome plausible');
+  assert.ok(doc.groupes.departements['haute-vienne'] || doc.groupes.departements['hautevienne'] || Object.keys(doc.groupes.departements).some((k) => /vienne/.test(k)));
+});
+
+test("portrait : le fichier des secteurs couvre 96 departements et les cinq parts font un tout", () => {
+  const doc = lireFiche('secteurs-insee.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(doc.ordre.france.length, 1);
+  const champs = ['etab_commerce_services', 'etab_administration_sante', 'etab_construction', 'etab_agriculture', 'etab_industrie'];
+  Object.keys(doc.groupes.departements).forEach((k) => {
+    const total = champs.reduce((t, c) => t + _comprendreLesChiffresNombre(doc.groupes.departements[k].champs[c]), 0);
+    assert.ok(total > 98 && total < 102, k + ' : parts a ' + total);
+  });
+});
+
+test("portrait : le fichier du temps partiel couvre 96 departements et la France metropolitaine", () => {
+  const doc = lireFiche('temps-partiel-insee.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(doc.ordre.france.length, 1);
+  const v = Object.keys(doc.groupes.departements).map((k) => _comprendreLesChiffresNombre(doc.groupes.departements[k].champs.temps_partiel));
+  assert.ok(Math.min(...v) > 5 && Math.max(...v) < 30);
+});
+
+test("portrait : le fichier des medecins couvre 96 departements et la France metropolitaine", () => {
+  const doc = lireFiche('generalistes-insee.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(_comprendreLesChiffresNombre(doc.groupes.france[doc.ordre.france[0]].champs.densite_medecins), 146);
+  const v = Object.keys(doc.groupes.departements).map((k) => _comprendreLesChiffresNombre(doc.groupes.departements[k].champs.densite_medecins));
+  assert.ok(Math.min(...v) > 50 && Math.max(...v) < 400);
+});
+
+test("portrait : le fichier des demandeurs d'emploi couvre 96 departements et la France metropolitaine", () => {
+  const doc = lireFiche('demandeurs-dares.md');
+  assert.equal(doc.ordre.departements.length, 96);
+  assert.equal(doc.ordre.france.length, 1);
+  const f = Object.keys(doc.groupes.departements).map((k) => _comprendreLesChiffresNombre(doc.groupes.departements[k].champs.part_femmes));
+  assert.ok(Math.min(...f) > 40 && Math.max(...f) < 60);
 });

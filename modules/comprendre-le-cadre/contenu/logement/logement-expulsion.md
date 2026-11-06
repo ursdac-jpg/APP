@@ -7,7 +7,7 @@ tags: [expulsion, loyers impayés, commandement de payer, trêve hivernale, juge
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "commandement de payer"
     definition: "Document remis par un commissaire de justice qui réclame les loyers en retard. Il ouvre un délai de six semaines pour régler ou trouver un accord."
@@ -18,10 +18,14 @@ voir_aussi_lexique:
   - commandement-de-payer
 sources:
   - service-public-loyers-impayes-expulsion
+  - ecologie-treve-hivernale-2026
 ce_qui_change_souvent:
   - "Les délais de la procédure et les possibilités de délais accordés par le juge"
   - "Les aides mobilisables pour rembourser une dette de loyer"
-revisions: []
+revisions:
+  - "2026-11-03 : trêve hivernale 2026-2027 du 1er novembre 2026 au 31 mars 2027, procédures qui peuvent reprendre dès le 1er avril, relue sur ecologie.gouv.fr (mise à jour le 02/11/2026)"
+  - "2026-11-04 : six semaines pour payer, délais de paiement jusqu'à trois ans, deux mois après le commandement de quitter les lieux (le juge peut l'avoir réduit), trêve et SOS loyers impayés gratuit relus et confirmés sur la page Service Public"
+phrase_generale: "Un propriétaire ne peut jamais vous forcer à quitter votre logement sans une décision de justice, même en cas de loyers impayés : la procédure suit des étapes, avec un délai à chacune. Les délais et les possibilités d'aide changent selon les situations : dès les premières difficultés, demandez conseil à une association, à votre mairie ou à un point d'accès au droit, ou consultez les sources officielles indiquées plus bas."
 collecte: logement.collecte.md
 ---
 
@@ -29,7 +33,7 @@ Un propriétaire ne peut jamais vous forcer à quitter votre logement sans une d
 
 Elle commence par un commandement de payer, remis par un commissaire de justice : vous avez alors six semaines pour régler la dette ou trouver un accord. Sans solution, le propriétaire saisit le juge. À l'audience, vous pouvez expliquer votre situation. Le juge peut accorder des délais de paiement, jusqu'à trois ans, si vous reprenez le paiement du loyer courant : la procédure d'expulsion est alors suspendue.
 
-Si l'expulsion est prononcée, un commandement de quitter les lieux vous laisse deux mois. Ensuite seulement, le propriétaire peut demander le concours de la force publique. Et du 1er novembre au 31 mars, la trêve hivernale suspend toute expulsion.
+Si l'expulsion est prononcée, un commandement de quitter les lieux vous laisse deux mois. Ensuite seulement, le propriétaire peut demander le concours de la force publique. Et du 1er novembre au 31 mars (cet hiver, du 1er novembre 2026 au 31 mars 2027), la trêve hivernale suspend toute expulsion. Les procédures peuvent reprendre à la fin de la trêve si la situation n'a pas été régularisée.
 
 Ce qu'il faut faire, le plus tôt possible : ne quittez pas le logement de vous-même, contactez une agence d'information sur le logement, un travailleur social ou le centre communal d'action sociale. Le fonds de solidarité pour le logement peut aider à rembourser la dette. Vous pouvez aussi appeler SOS loyers impayés, un service gratuit.
 

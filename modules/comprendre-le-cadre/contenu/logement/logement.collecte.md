@@ -17,6 +17,10 @@ sources:
   - "service-public-etablissements-precarite | Quels établissements peuvent héberger une personne en situation de précarité ? | https://www.service-public.gouv.fr/particuliers/vosdroits/F2003 | 2026-09-04"
   - "service-public-loyers-impayes-expulsion | Loyers impayés et expulsion du locataire | https://www.service-public.gouv.fr/particuliers/vosdroits/F31272 | 2026-09-05"
   - "service-public-demande-logement-social | Comment obtenir un logement social (HLM) ? | https://www.service-public.gouv.fr/particuliers/vosdroits/F869 | 2026-09-05"
+  - "service-public-cheque-energie | Service Public : chèque énergie | https://www.service-public.gouv.fr/particuliers/vosdroits/F33667 | 2026-11-03"
+  - "service-public-treve-hivernale-energie | Service Public : impayés de factures (gaz, électricité, eau, téléphone, internet) | https://www.service-public.gouv.fr/particuliers/vosdroits/F20055 | 2026-11-03"
+  - "ecologie-treve-hivernale-2026 | Ministères de la Transition écologique : trêve hivernale 2026, quand commence-t-elle ? | https://www.ecologie.gouv.fr/actualites/treve-hivernale-2026-quand-commence-t-elle-que-prevoit-loi | 2026-11-03"
+  - "service-public-heures-creuses-plages | Service Public : heures creuses, de nouvelles plages horaires | https://www.service-public.gouv.fr/particuliers/actualites/A18476 | 2026-11-03"
 structures:
 ---
 

@@ -18,6 +18,7 @@ voir_aussi_lexique:
 sources:
   - pour-les-personnes-agees-conge-proche-aidant
   - pour-les-personnes-agees-ajpa
+phrase_generale: "Le congé de proche aidant permet de suspendre ou de réduire son activité pour accompagner un proche en perte d'autonomie ou en situation de handicap, avec une allocation journalière sous conditions. Les durées, les montants et les conditions changent régulièrement : confirmez-les auprès de votre employeur, de la CAF ou sur les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 

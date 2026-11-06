@@ -2114,7 +2114,13 @@ cssPuces +
     if (!(petitsCarres && !iconesCoord)) { classesFr.push('sans-icoc'); }
     if (opts.friseFoncee) { classesFr.push('frise-foncee'); }
     return {
-      css: cssFr + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts),
+      // Texte a deux tons du bandeau de la frise sobre (bug du 2026-10-30 : le bandeau en ruban court laissait le debut du nom et du titre blancs sur la colonne claire). Ce modele sort ici, avant le bloc
+      // generique de la fin du gabarit : il ecrit donc lui-meme la forme (--clip-bandeau), la couleur (--hors) et les regles de la copie, les memes que le bloc generique (bandeau seulement, pas de colonne).
+      css: cssFr + ((g === 'sobre-frise' && texteHors !== 'aucun' && clipTexte) ?
+        ('  .cv { --clip-bandeau: ' + clipTexte + '; --hors: ' + couleurHors + '; --hors-actif: 1; }' +
+         '  .cv .tete-hors { background: none !important; box-shadow: none !important; pointer-events: none; user-select: none; z-index: 4; }  .cv .tete-hors::before { display: none !important; }' +
+         '  .cv .tete-hors, .cv .tete-hors * { color: var(--hors) !important; pointer-events: none !important; }  .cv .tete-hors .coord div::before { background: var(--hors) !important; }  .cv .tete-hors .accroche { border-left-color: var(--hors) !important; }' +
+         '  @media print { .cv .tete-hors { display: block; } }') : '') + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts),
       pageHtml: '<div class="' + classesFr.join(' ') + '">' + (g === 'sobre-frise' ? '' : '<div class="fr-coin"></div><div class="fr-coin2"></div>') + '<div class="fr-grille"><aside class="fr-lat">' + latFr + '</aside><main class="fr-main">' + mainFr + '</main></div></div>',
       nomComplet: nomComplet, largeurPage: '210mm', hauteurPage: '297mm'
     };
@@ -2497,6 +2503,12 @@ cssPuces +
   (colVide ? '  .cv.col-vide .col-fond, .cv.col-vide .bloc-fond, .cv.col-vide .col-fond h2, .cv.col-vide .bloc-fond h2, .cv.col-vide .col-fond .pill { color: #1f2933; }' +
     '  .cv.col-vide .col-fond .pill { background: rgba(0,0,0,.08); }  .cv.col-vide .col-fond h2 { border-bottom-color: rgba(0,0,0,.28); }  .cv.col-vide .col-fond .meta, .cv.col-vide .col-fond .lieu-gris { color: rgba(0,0,0,.7); }' +
     (enteteFond ? '' : '  .cv.col-vide.col-vague-g .tete:not(.libre) > div:first-child .nom, .cv.col-vide.col-vague-g .tete:not(.libre) > div:first-child .coord, .cv.col-vide.col-vague-g .blc[data-bl="nom"] .nom, .cv.col-vide.col-vague-g .blc[data-bl="coord"] .coord, .cv.col-vide.col-vague-d .tete:not(.libre) > .accroche, .cv.col-vide.col-vague-d .blc[data-bl="accroche"] .accroche { color: #1f2933; }  .cv.col-vide.col-vague-g .tete .coord div::before { background: #1f2933; }  .cv.col-vide.col-vague-d .tete .accroche { border-left-color: rgba(0,0,0,.35); }') : '') : '') +
+// Nom en vertical (bande de 12 mm a gauche) : tout le contenu est decale de 12 mm, la colonne reelle l'est donc aussi (12 x (1 - part de la colonne) mm de plus que prevu). Sans cette rallonge, le bord ondule du fond passait SOUS le texte de la colonne (« 2026 » blanc sur page blanche, mesure du 29/10/2026).
+(nomVert && colVague && !colVagueDroite ? '  .cv.nom-vert.col-vague-g::before { width: ' + r2(colVagueMm - colFondRentre + 12 * (1 - largeurGauche / 100) - ((colAvant && colForme !== 'filets') ? 6 : 0)) + 'mm; }' : '') +
+// Bord vallonne (par defaut) de la colonne coloree : le bord interieur ondule de 0 a 3 mm, le texte de la colonne commençait pile sur ce bord et se retrouvait par endroits sur le papier (titre gris sur blanc d'un cote, sur bleu de l'autre, illisible ; mq-epure, colonne a droite, mesure du 29/10/2026). 3 mm de marge interieure du cote du bord.
+(colVague && !opts.colonneBordDroit && !colFormeActive ? '  .cv.col-vague-g:not(.col-forme) .col-fond { padding-right: 3mm !important; }  .cv.col-vague-d:not(.col-forme) .col-fond { padding-left: 3mm !important; }' : '') +
+// Arche (haut de la colonne en demi-cercle) : a hauteur du premier titre de rubrique, la courbe est encore a environ 6 mm du bord de la colonne, le texte commençait en deçà et ses premieres lettres se retrouvaient sur le papier (titre gris sur blanc puis sur bleu, illisible ; mq-epure, colonne a droite, arche, mesure du 29/10/2026). 7 mm de marge interieure du cote de l'arche.
+(archeColonne && colSens !== 1 ? '  .cv.col-arche.col-vague-g .col-fond { padding-right: 7mm !important; }  .cv.col-arche.col-vague-d .col-fond { padding-left: 7mm !important; }' : '') +
 // Colonne DOUCE des modeles Sobre (etape 4.4, maquette validee par Denis le 2026-10-21) : teinte claire de la couleur du CV (le texte est passe en sombre par le panneau) ; « pleine » reprend la couleur du CV.
 (colVague && allure === 'sobre' && opts.colonneTeinte === 'douce' ? '  .cv.col-vague-g::before, .cv.col-vague-d::before { background: var(--pale); }' : '') +
 '  .cv.col-vague-g .col-fond, .cv.col-vague-d .col-fond { background: none !important; border-radius: 0; padding-left: 0; padding-right: 0; }' +

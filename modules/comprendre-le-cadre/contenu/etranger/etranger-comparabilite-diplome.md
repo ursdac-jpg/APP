@@ -25,6 +25,7 @@ ce_qui_change_souvent:
   - "Les usages acceptés de l'attestation (par exemple pour la naturalisation)"
   - "Les procédures propres aux professions réglementées"
 revisions: []
+phrase_generale: "En France, il n'existe pas d'équivalence automatique d'un diplôme étranger : l'attestation de comparabilité, délivrée par un centre officiel, aide à le situer par rapport aux niveaux d'études français. Son coût, les délais et les pièces demandées changent : renseignez-vous auprès du centre ou consultez les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

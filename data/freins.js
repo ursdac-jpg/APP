@@ -101,7 +101,7 @@ var FREINS_REPERTOIRE = {
       'Le CCAS de votre commune et l\'assistante sociale de secteur'
     ],
     ressources: [
-      { libelle: 'service-public.fr', url: 'https://www.service-public.fr', motsCles: ['droits logement', 'aide au logement', 'expulsion'], verifieLe: 'liste-fermee-prompt' }
+      { libelle: 'service-public.fr', url: 'https://www.service-public.gouv.fr', motsCles: ['droits logement', 'aide au logement', 'expulsion'], verifieLe: 'liste-fermee-prompt' }
     ],
     synonymes: ['logement', 'pas de logement', 'sans logement', 'hébergé', 'hébergement', 'à la rue', 'sans domicile', 'expulsion', 'expulsé', 'squat', 'dormir', 'où dormir'],
     urgence: { numero: '115', libelle: 'SAMU social - hébergement d\'urgence, gratuit, 24h/24' }
@@ -125,7 +125,7 @@ var FREINS_REPERTOIRE = {
     ],
     ressources: [
       { libelle: 'Solidarauto', url: 'https://solidarauto.org', motsCles: ['garage solidaire', 'réparation à prix réduit'], verifieLe: 'liste-fermee-prompt' },
-      { libelle: 'service-public.fr', url: 'https://www.service-public.fr', motsCles: ['aide à la mobilité', 'microcrédit personnel'], verifieLe: 'liste-fermee-prompt' }
+      { libelle: 'service-public.fr', url: 'https://www.service-public.gouv.fr', motsCles: ['aide à la mobilité', 'microcrédit personnel'], verifieLe: 'liste-fermee-prompt' }
     ],
     synonymes: ['mobilité', 'voiture', 'pas de voiture', 'permis', 'pas de permis', 'conduire', 'se déplacer', 'déplacement', 'transport', 'bus', 'trajet', 'loin de tout', 'isolé', 'rural', 'panne'],
     urgence: null
@@ -172,7 +172,7 @@ var FREINS_REPERTOIRE = {
       'Un CMP (Centre Médico-Psychologique) de votre secteur pour la santé psychique'
     ],
     ressources: [
-      { libelle: 'Mon Soutien Psy', url: 'https://www.monsoutienpsy.sante.gouv.fr', motsCles: ['séances psychologue remboursées'], verifieLe: 'liste-fermee-prompt' },
+      { libelle: 'Mon Soutien Psy', url: 'https://www.ameli.fr/assure/remboursements/rembourse/remboursement-seance-psychologue-mon-soutien-psy', motsCles: ['séances psychologue remboursées'], verifieLe: 'liste-fermee-prompt' },
       { libelle: 'Ameli', url: 'https://www.ameli.fr', motsCles: ['assurance maladie', 'droits santé', 'CPAM'], verifieLe: 'liste-fermee-prompt' }
     ],
     synonymes: ['santé', 'maladie', 'fatigue', 'douleurs', 'moral', 'déprime', 'psy', 'psychologue', 'arrêt maladie', 'soins'],
@@ -223,7 +223,7 @@ var FREINS_REPERTOIRE = {
     ressources: [
       { libelle: 'Banque de France (particuliers)', url: 'https://www.banque-france.fr', motsCles: ['surendettement', 'dépôt de dossier'], verifieLe: 'liste-fermee-prompt' },
       { libelle: 'Mes Droits Sociaux', url: 'https://www.mesdroitssociaux.gouv.fr', motsCles: ['droits', 'simulation prestations'], verifieLe: 'liste-fermee-prompt' },
-      { libelle: 'service-public.fr', url: 'https://www.service-public.fr', motsCles: ['démarches administratives', 'microcrédit personnel'], verifieLe: 'liste-fermee-prompt' }
+      { libelle: 'service-public.fr', url: 'https://www.service-public.gouv.fr', motsCles: ['démarches administratives', 'microcrédit personnel'], verifieLe: 'liste-fermee-prompt' }
     ],
     synonymes: ['dettes', 'surendettement', 'endetté', 'découvert', 'huissier', 'crédit', 'papiers', 'démarche bloquée', 'administration', 'dossier bloqué', 'préfecture', 'caf', 'assistante sociale', 'assistant social'],
     urgence: null
@@ -321,7 +321,7 @@ var FREINS_REPERTOIRE = {
       'L\'assistante sociale de votre secteur pour l\'orientation'
     ],
     ressources: [
-      { libelle: 'service-public.fr', url: 'https://www.service-public.fr', motsCles: ['accès au droit', 'aide juridictionnelle'], verifieLe: 'liste-fermee-prompt' }
+      { libelle: 'service-public.fr', url: 'https://www.service-public.gouv.fr', motsCles: ['accès au droit', 'aide juridictionnelle'], verifieLe: 'liste-fermee-prompt' }
     ],
     synonymes: ['justice', 'tribunal', 'jugement', 'convocation', 'avocat', 'casier', 'contrôle judiciaire', 'procédure', 'litige'],
     urgence: null

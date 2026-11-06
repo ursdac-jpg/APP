@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : les titres des pages de travail</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* MAQUETTE du 29/10/2026 : titres des pages de travail (audit G2). Feuilles de style réelles de l'application ; seules les règles .tp-* sont propres à la maquette.
+     Règle proposée (décision du 27/10/2026, déjà appliquée à Un CV plusieurs métiers, Comparer mes pistes, Regard recruteur, les mots du CV et la page Corriger du Bilan) :
+     le NOM DU MODULE en titre sur tous les écrans de travail, l'étape en sous-titre. */
+  body { background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); margin: 0; padding: 1rem; }
+  .tp-entete, .tp-notes { max-width: 980px; margin: 0 auto 1rem; }
+  .tp-notes { background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: .9rem 1.1rem; font-size: .95rem; }
+  .tp-notes h2 { font-size: 1rem; margin: 0 0 .4rem; }
+  .tp-notes ul { margin: 0; padding-left: 1.2rem; }
+  .tp-notes li { margin-bottom: .25rem; }
+  .tp-onglets { max-width: 980px; margin: 0 auto 1rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tp-onglets button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: .5rem; padding: .35rem .8rem; font-size: .9rem; cursor: pointer; }
+  .tp-onglets button[aria-pressed="true"] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+  .tp-ligne { max-width: 980px; margin: 0 auto .8rem; display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  @media (max-width: 700px) { .tp-ligne { grid-template-columns: 1fr; } }
+  .tp-cadre { background: var(--bg-page); border: 1px solid var(--border-strong); border-radius: 1rem; padding: .9rem 1rem; }
+  .tp-cadre .tp-etiquette { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 0 0 .4rem; }
+  .tp-cadre h1 { font-size: 1.3rem; font-weight: 800; margin: 0 0 .25rem; }
+  .tp-ecran { font-size: .8rem; color: var(--text-muted); max-width: 980px; margin: 1rem auto .3rem; font-weight: 700; }
+  .tp-pourquoi { max-width: 980px; margin: 0 auto .8rem; font-size: .88rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="tp-entete"><h1 class="h4">Maquette : le titre des pages de travail</h1></div>
+<div class="tp-notes">
+  <h2>Ce que vous regardez</h2>
+  <ul>
+    <li><strong>À gauche</strong>, le titre que la personne voit aujourd'hui ; <strong>à droite</strong>, ce que je propose. Les phrases et les boutons ne changent pas.</li>
+    <li><strong>La règle</strong> : le nom du module reste en titre sur tous les écrans de travail, et le nom de l'étape passe en sous-titre, en gras. La personne sait toujours dans quel module elle est et où elle en est.</li>
+    <li><strong>Déjà fait ainsi</strong> : Un CV plusieurs métiers, Comparer mes pistes, Regard recruteur, les mots du CV (ATS), la page Corriger du Bilan.</li>
+    <li><strong>Défauts réels corrigés au passage</strong> : « Vérifier votre CV reformulé » et « Vérifiez votre CV reformulé » sont deux écrans différents au titre presque identique ; l'entretien avancé a deux noms (« Aller plus loin : mon entretien » et « Mon entretien avancé »).</li>
+    <li><strong>Hors sujet ici</strong> : les modules de consultation (Lexique, Comprendre le cadre, Comprendre les chiffres, Carnet, Mes Repères) gardent un titre propre à chaque page, car ce ne sont pas des parcours à étapes.</li>
+  </ul>
+</div>
+<div class="tp-onglets" id="onglets"></div>
+<div id="contenu"></div>
+
+<script>
+/* Les écrans viennent du code réel (data/metiers.js, modules/...) : titre actuel relevé écran par écran. */
+var MODULES = [
+  { id: 'reformuler', nom: 'Reformuler', icone: 'bi-brush', titreModule: 'Reformuler et présenter mon CV',
+    ecrans: [
+      { avant: 'Reformuler et présenter mon CV', apres: ['Reformuler et présenter mon CV', 'Préparer'], note: 'Premier écran : déjà au bon format ; l’étape porte le même nom que la barre du haut.' },
+      { avant: 'Vérifier votre CV reformulé', apres: ['Reformuler et présenter mon CV', 'Vérifier la réponse de l’assistant'], note: 'Écran d’alerte quand la réponse n’est pas un CV. Aujourd’hui son titre se confond avec le suivant.' },
+      { avant: 'Choisissez une version', apres: ['Reformuler et présenter mon CV', 'Choisir une version'], note: 'Même verbe à l’infinitif que les autres étapes.' },
+      { avant: 'Vérifiez votre CV reformulé', apres: ['Reformuler et présenter mon CV', 'Vérifier la version reformulée'], note: 'Écran de contrôle de la version choisie.' },
+      { avant: 'Récupérer votre CV', apres: ['Reformuler et présenter mon CV', 'Récupérer mon CV'], note: '' }
+    ] },
+  { id: 'lettre', nom: 'Lettre de motivation', icone: 'bi-pen', titreModule: 'Écrire ma lettre de motivation avec l’assistant',
+    ecrans: [
+      { avant: 'Écrire ma lettre de motivation avec l’assistant', apres: ['Écrire ma lettre de motivation avec l’assistant', 'Préparer'], note: '' },
+      { avant: 'Votre lettre de motivation', apres: ['Écrire ma lettre de motivation avec l’assistant', 'Votre lettre'], note: 'Écran du résultat.' },
+      { avant: 'En attente de votre lettre de motivation', apres: ['Écrire ma lettre de motivation avec l’assistant', 'En attente de votre lettre'], note: 'La personne est chez l’assistant : on ne change plus de module à l’œil.' }
+    ] },
+  { id: 'entretien', nom: 'Préparer un entretien', icone: 'bi-mic', titreModule: 'M’entraîner à un entretien d’embauche',
+    ecrans: [
+      { avant: 'M’entraîner à un entretien d’embauche', apres: ['M’entraîner à un entretien d’embauche', 'Préparer'], note: '' },
+      { avant: 'En attente de votre préparation d’entretien', apres: ['M’entraîner à un entretien d’embauche', 'En attente de votre préparation'], note: '' }
+    ] },
+  { id: 'coherence', nom: 'Cohérence : entretien avancé', icone: 'bi-check2-circle', titreModule: 'Cohérence de mon dossier',
+    ecrans: [
+      { avant: 'Cohérence de mon dossier', apres: ['Cohérence de mon dossier', 'Collecter les informations'], note: 'Déjà le nom du module ; on ajoute l’étape.' },
+      { avant: '🎯 Aller plus loin : mon entretien', apres: ['Cohérence de mon dossier', 'Aller plus loin : mon entretien'], note: 'Aujourd’hui le titre change de module sans prévenir.' },
+      { avant: '🎯 Mon entretien avancé', apres: ['Cohérence de mon dossier', 'Aller plus loin : mon entretien'], note: 'Même étape, nom unique (les deux noms existent aujourd’hui).' }
+    ] },
+  { id: 'main', nom: 'Créer mon CV à la main', icone: 'bi-pencil', titreModule: 'Créer mon CV à la main, sans assistant',
+    ecrans: [
+      { avant: 'Lecture de votre CV', apres: ['Créer mon CV à la main, sans assistant', 'Lecture de votre CV'], note: '' },
+      { avant: 'Classez les informations de votre CV', apres: ['Créer mon CV à la main, sans assistant', 'Classer les informations'], note: '' },
+      { avant: 'Vérifiez vos fiches', apres: ['Créer mon CV à la main, sans assistant', 'Vérifier mes fiches'], note: '' }
+    ] },
+  { id: 'comp', nom: 'Découvrir mes compétences', icone: 'bi-compass', titreModule: 'Découvrir mes compétences',
+    ecrans: [
+      { avant: 'Mes documents', apres: ['Découvrir mes compétences', 'Mes documents'], note: 'Aujourd’hui le titre est celui de l’étape : la personne ne voit le nom du module que sur la page de présentation.' },
+      { avant: 'L’assistant en ligne', apres: ['Découvrir mes compétences', 'L’assistant en ligne'], note: '' },
+      { avant: 'Je relis mes compétences', apres: ['Découvrir mes compétences', 'Je relis mes compétences'], note: '' },
+      { avant: 'Mes compétences', apres: ['Découvrir mes compétences', 'Mes compétences'], note: '' }
+    ] }
+];
+
+function cadre(etiquette, titre, sous, icone) {
+  return '<div class="tp-cadre"><p class="tp-etiquette">' + etiquette + '</p><div class="text-center"><h1>' + (icone ? '<i class="bi ' + icone + '"></i> ' : '') + titre + '</h1>' +
+    (sous ? '<p class="sousTitre"><strong>' + sous + '</strong></p>' : '') + '</div></div>';
+}
+function afficher(id) {
+  var m = MODULES.filter(function (x) { return x.id === id; })[0];
+  document.querySelectorAll('#onglets button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.id === id ? 'true' : 'false'); });
+  document.getElementById('contenu').innerHTML = m.ecrans.map(function (e, i) {
+    return '<div class="tp-ecran">Écran ' + (i + 1) + '</div>' +
+      '<div class="tp-ligne">' + cadre('Aujourd’hui', e.avant.replace(/^[^\wÀ-ÿ’]+/, ''), '', m.icone) + cadre('Proposition', e.apres[0], e.apres[1], m.icone) + '</div>' +
+      (e.note ? '<div class="tp-pourquoi">' + e.note + '</div>' : '');
+  }).join('');
+}
+document.getElementById('onglets').innerHTML = MODULES.map(function (m) { return '<button type="button" data-id="' + m.id + '" aria-pressed="false">' + m.nom + '</button>'; }).join('');
+document.getElementById('onglets').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b) { afficher(b.dataset.id); } });
+afficher('reformuler');
+</script>
+</body>
+</html>

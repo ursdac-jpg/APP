@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Déposer mon CV dans la page, version 2</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; } }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1.mq-h1 { font-size:1.3rem; margin:0 0 6px; } h2.mq-h2 { font-size:1.08rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:18px; }
+.mq-reglages { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; border:1px solid var(--mq-border); border-radius:12px; padding:10px 14px; background:var(--mq-card); margin-bottom:14px; font-size:.9rem; }
+.mq-reglages b { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin-right:4px; }
+.mq-reglages label { margin-right:8px; cursor:pointer; }
+.mq-reglages .mq-fermer { margin-left:auto; border:0; background:transparent; font-size:1.2rem; cursor:pointer; color:var(--mq-muted); }
+.mq-q { border-left:4px solid var(--mq-accent); padding:6px 12px; margin:10px 0; background:var(--mq-card); border-radius:0 8px 8px 0; }
+.mq-ul { margin:.3rem 0 0; padding-left:1.2rem; font-size:.93rem; }
+
+/* la page simulée */
+#dpPage { border:1px dashed var(--mq-border); border-radius:12px; padding:16px; background:var(--bg, #fff); margin:0 auto; transition:max-width .2s; }
+#dpPage.tel { max-width:380px; border-radius:22px; border-style:solid; padding:12px; }
+.dp-bloc { margin-bottom:.5rem; }
+.dp-barre-bas.barre-navigation-fixe { position:sticky; bottom:0; left:auto; right:auto; padding:.6rem .8rem; margin:1rem -4px -4px; border-radius:10px; }
+.tel .dp-barre-bas .btn-lg { padding:.4rem .6rem; font-size:.9rem; }
+.dp-choix { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin:.4rem 0 .6rem; }
+.tel .dp-choix { grid-template-columns:1fr; }
+.dp-carte { border:2px dashed var(--border-strong, var(--border)); border-radius:14px; background:var(--bg-card); padding:1rem; text-align:center; display:flex; flex-direction:column; align-items:center; gap:.35rem; }
+.dp-carte.survol { border-color:var(--accent); background:var(--accent-bg-subtle); }
+.dp-carte .dp-icone { font-size:2rem; line-height:1; }
+.dp-carte .dp-titre { font-weight:700; font-size:1.05rem; }
+.dp-carte .dp-petit { font-size:.85rem; color:var(--text-muted); margin:0; }
+.dp-formats { display:flex; flex-wrap:wrap; gap:.3rem; justify-content:center; }
+.dp-formats span { font-size:.75rem; font-weight:600; padding:.1rem .5rem; border-radius:99px; background:var(--accent-bg-subtle); color:var(--accent); }
+.dp-zone-large { border:2px dashed var(--border-strong, var(--border)); border-radius:14px; background:var(--bg-card); padding:1.2rem; text-align:center; display:flex; flex-direction:column; align-items:center; gap:.4rem; margin:.4rem 0 .5rem; }
+.dp-sens { background:var(--warning-bg-subtle, #fff7e0); border:2px solid var(--warning-border, #f0c36d); border-radius:12px; padding:.8rem .9rem; margin:.6rem 0; }
+.dp-sens h4 { font-size:1.05rem; margin:0 0 .25rem; }
+.dp-pill { background:#FEF3C7; color:#92400E; border:1px solid #FDE68A; border-radius:6px; padding:.2rem .4rem .2rem .6rem; font-size:.85rem; font-weight:600; display:inline-flex; align-items:center; gap:.35rem; }
+.dp-pill button { border:none; background:transparent; color:#92400E; font-weight:700; line-height:1; cursor:pointer; padding:0 .15rem; font-size:1rem; }
+.dp-edit { border:1px solid var(--border, #ced4da); border-radius:12px; padding:.9rem 1rem; background:var(--bg-card, #fff); color:var(--text-strong, #222); font-size:.88rem; white-space:pre-wrap; min-height:11rem; max-height:16rem; overflow:auto; outline:none; }
+.dp-edit:focus { border-color:var(--accent); box-shadow:0 0 0 .2rem var(--accent-bg-subtle); }
+.dp-m { background:#FEF08A; color:#1d2433; border-radius:3px; padding:0 2px; }
+.dp-garde { border:2px solid var(--accent); background:var(--accent-bg-subtle); border-radius:12px; padding:.8rem .9rem; margin:.8rem 0; }
+.dp-garde h4 { font-size:1.05rem; margin:0 0 .25rem; }
+.dp-champs { display:grid; grid-template-columns:1fr 1fr; gap:.5rem .8rem; margin-top:.5rem; }
+.tel .dp-champs { grid-template-columns:1fr; }
+.dp-champs label { font-size:.8rem; font-weight:700; color:var(--text-muted); display:block; margin:0 0 .1rem; }
+.dp-champs .form-control { font-size:.92rem; }
+.dp-barre { height:8px; border-radius:4px; background:var(--accent-bg-subtle); overflow:hidden; margin:.4rem 0; }
+.dp-barre > span { display:block; height:100%; width:0; background:var(--accent); transition:width .15s; }
+.dp-fichier { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem; }
+.dp-etape { display:flex; flex-wrap:wrap; gap:.3rem; margin:.2rem 0 .8rem; font-size:.78rem; }
+.dp-etape span { padding:.15rem .6rem; border-radius:99px; border:1px solid var(--mq-border); color:var(--mq-muted); }
+.dp-etape span.on { background:var(--mq-accent); color:#fff; border-color:var(--mq-accent); }
+.dp-toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#1d2433; color:#fff; padding:8px 16px; border-radius:10px; z-index:50; font-size:.9rem; display:none; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1 class="mq-h1">Déposer mon CV dans la page : le parcours en entier</h1>
+<p class="muted">Cette maquette se <strong>joue</strong> : cliquez sur les boutons comme sur la vraie page, du premier écran jusqu’au point 2 débloqué. Elle montre le module ATS (« Les mots de votre CV »), choisi comme pilote ; le même bloc serait repris dans les autres modules. Le texte du CV est modifiable, comme dans la vraie application.</p>
+
+<div class="mq-reglages" id="mqReglages">
+ <span><b>Je simule</b>
+  <label><input type="radio" name="mqType" value="pdf" checked> un PDF ou un Word</label>
+  <label><input type="radio" name="mqType" value="photo"> une photo ou un scan</label>
+  <label><input type="radio" name="mqType" value="texte"> du texte copié</label></span>
+ <span><b>Dépôt</b>
+  <label><input type="radio" name="mqVar" value="A" checked> A : deux cartes</label>
+  <label><input type="radio" name="mqVar" value="B"> B : une grande zone</label></span>
+ <span><b>Écran</b>
+  <label><input type="radio" name="mqLarg" value="pc" checked> ordinateur</label>
+  <label><input type="radio" name="mqLarg" value="tel"> téléphone</label></span>
+ <button type="button" class="btn btn-outline-secondary btn-sm" id="mqRejouer">&#8635; Rejouer depuis le début</button>
+ <button type="button" class="mq-fermer" id="mqFermerReg" aria-label="Fermer ce panneau">&#10005;</button>
+</div>
+
+<div id="dpPage"></div>
+
+<div class="mq-carte" style="margin-top:20px;">
+<h2 class="mq-h2">Ce qui change par rapport à aujourd’hui</h2>
+<ul class="mq-ul">
+ <li><strong>Dépôt :</strong> fini le bouton qui occupe toute la largeur. Deux cartes de même poids (« Un fichier », « Du texte copié »), dont la première accepte aussi le <em>glisser-déposer</em> (nouveau, simple : il utilise la même lecture de fichier que le bouton).</li>
+ <li><strong>Informations sensibles repérées :</strong> un encadré jaune bien visible, placé <em>avant</em> le texte, qui liste tout ce qui a été repéré, avec un grand bouton jaune « Retirer toutes les informations sensibles repérées ». Les croix une par une restent.</li>
+ <li><strong>Relire vous-même :</strong> un message dit que l’application ne repère pas tout (par exemple <em>12 rue des Lilas</em>, dans l’exemple, n’est pas surligné) et invite à effacer directement dans le texte ce qui reste. Comme aujourd’hui, le texte est modifiable avant « Enregistrer ».</li>
+ <li><strong>Nouvelle rubrique « Retiré du texte, gardé chez vous » :</strong> elle montre ce que l’application retient pour pré-remplir le CV et la lettre, et permet de le corriger tout de suite (nouvelle adresse, nouveau numéro).</li>
+</ul>
+</div>
+
+<div class="mq-carte">
+<h2 class="mq-h2">Ce qui existe déjà, ce qui est nouveau, et les limites (vérifié dans le code)</h2>
+<ul class="mq-ul">
+ <li><strong>Déjà là :</strong> l’application repère déjà, au moment de la relecture, le prénom, le nom, le téléphone, le courriel, le code postal et la ville, les garde en mémoire <em>le temps de la visite seulement</em>, et les propose ensuite dans « Identité » (avec un bandeau « Repéré automatiquement, vérifiez »). Ce qui est nouveau : le montrer <strong>ici</strong>, au moment du dépôt, et le rendre corrigeable.</li>
+ <li><strong>Limite 1 :</strong> la rue n’est jamais repérée automatiquement (aucune forme fiable : faux positifs). Le champ « Adresse » est donc proposé vide, à compléter si la personne le veut.</li>
+ <li><strong>Limite 2 :</strong> ces informations ne sont pas enregistrées dans le navigateur (règle du projet). Elles restent dans l’application tant que la page est ouverte, et partent avec la sauvegarde (disquette) si la personne en fait une. Le message de la maquette le dit en mots simples.</li>
+ <li><strong>Limite 3 :</strong> la rubrique n’apparaît que pour un <strong>CV</strong> (c’est le cas d’aujourd’hui : la capture d’identité est déjà désactivée pour une lettre ou une préparation d’entretien).</li>
+</ul>
+</div>
+
+<div class="mq-carte">
+<h2 class="mq-h2">Questions pour vous</h2>
+<div class="mq-q"><strong>1. Présentation du dépôt : A (deux cartes côte à côte) ou B (une grande zone avec « ou coller le texte » dessous) ?</strong> Je recommande A : le choix « fichier ou texte » est plus clair, et c’est la même logique que les deux cartes de Regard recruteur.</div>
+<div class="mq-q"><strong>2. La relecture et le masquage restent dans le point 1, et le point 2 se déverrouille au clic sur « Enregistrer »</strong> (aucun bouton « Continuer » dans la page : s'il y en a un, il est dans la barre du bas, avec Retour et Accueil, comme partout). Je le recommande : la numérotation de chaque module ne bouge pas.</div>
+<div class="mq-q"><strong>3. Si le CV déposé donne une adresse, un téléphone ou un courriel différents de ce qui est déjà dans l’application</strong> (la personne a déjà rempli « Identité » avant) : je recommande que ce qu’elle vient de vérifier ici <strong>remplace</strong> l’ancien, avec une ligne qui le dit (« Remplace le numéro enregistré : 06 98… »). Sinon, on garde l’ancien et on ne propose que les champs vides, comme aujourd’hui.</div>
+<div class="mq-q"><strong>4. « Revoir le texte relu et masqué » (replié, en fin de parcours) :</strong> on l’ajoute, comme dans la maquette ? Je le recommande.</div>
+</div>
+
+</div>
+<div class="dp-toast" id="dpToast"></div>
+
+<script>
+(function () {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'sombre'); }
+
+  var TEXTE_CV =
+    '<span class="dp-m" data-ic="&#129706;">Marie DUPONT</span>\n' +
+    '12 rue des Lilas\n' +
+    '<span class="dp-m" data-ic="&#128205;">87000 Limoges</span>\n' +
+    '<span class="dp-m" data-ic="&#128222;">06 12 34 56 78</span> · <span class="dp-m" data-ic="&#128231;">marie.dupont@exemple.fr</span>\n\n' +
+    'Agent d’accueil, 6 ans d’expérience\n\n' +
+    'EXPÉRIENCES\n' +
+    'Accueil et standard, mairie de Limoges, 2019 à aujourd’hui\n' +
+    '- Accueil du public, orientation, prise de rendez-vous\n' +
+    '- Tenue du standard, gestion du courrier\n\n' +
+    'FORMATION\n' +
+    'Titre professionnel d’agent d’accueil, 2018';
+
+  var S = { etat: 'arrivee', type: 'pdf', variante: 'A', retirees: 0, champs: { prenom: 'Marie', nom: 'Dupont', tel: '06 12 34 56 78', mail: 'marie.dupont@exemple.fr', cp: '87000', ville: 'Limoges', adresse: '' }, texteFinal: '', metier: '' };
+  var racine = document.getElementById('dpPage');
+
+  function toast(t) { var e = document.getElementById('dpToast'); e.textContent = t; e.style.display = 'block'; setTimeout(function () { e.style.display = 'none'; }, 2200); }
+  function nomFichier() { return S.type === 'photo' ? 'photo-cv.jpg' : (S.type === 'texte' ? 'texte collé' : 'mon-cv.pdf'); }
+
+  function etapes() {
+    var n = { arrivee: 1, lecture: 2, collage: 2, relecture: 3, fait: 4 }[S.etat];
+    var noms = ['Arrivée sur la page', 'Fichier choisi', 'Relecture et masquage', 'Enregistré, point 2 actif'];
+    return '<div class="dp-etape" aria-hidden="true">' + noms.map(function (x, i) { return '<span class="' + (i + 1 === n ? 'on' : '') + '">' + (i + 1) + ' · ' + x + '</span>'; }).join('') + '</div>';
+  }
+
+  function blocDepot() {
+    var h = '<p>Déposez votre CV, sous la forme que vous avez : PDF, Word, texte, photo ou capture d’écran. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong>. Vous le relisez ensuite et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre.</p>';
+    if (S.variante === 'A') {
+      h += '<div class="dp-choix">' +
+        '<div class="dp-carte" id="dpDepose"><span class="dp-icone">&#128196;</span><span class="dp-titre">Un fichier</span>' +
+        '<div class="dp-formats"><span>PDF</span><span>Word</span><span>Texte</span><span>Photo</span></div>' +
+        '<button type="button" class="btn btn-primary" id="dpChoisir">Choisir un fichier</button>' +
+        '<p class="dp-petit">ou glissez-le ici</p></div>' +
+        '<div class="dp-carte" style="border-style:solid;"><span class="dp-icone">&#128203;</span><span class="dp-titre">Du texte copié</span>' +
+        '<p class="dp-petit">Votre CV est déjà dans un document ouvert ? Copiez-le, puis collez-le.</p>' +
+        '<button type="button" class="btn btn-outline-primary" id="dpColler">Coller le texte</button></div></div>';
+    } else {
+      h += '<div class="dp-zone-large" id="dpDepose"><span class="dp-icone" style="font-size:2rem;">&#128196;</span><span class="dp-titre" style="font-weight:700;">Glissez votre CV ici</span>' +
+        '<span class="dp-petit small text-muted">ou</span><button type="button" class="btn btn-primary" id="dpChoisir">Choisir un fichier</button>' +
+        '<div class="dp-formats"><span>PDF</span><span>Word</span><span>Texte</span><span>Photo</span></div></div>' +
+        '<p class="small mb-0"><button type="button" class="btn btn-link btn-sm p-0" id="dpColler">Je préfère coller le texte directement</button></p>';
+    }
+    return h;
+  }
+
+  function blocCollage() {
+    return '<p class="small text-muted mb-1">Collez ici le texte de votre CV :</p>' +
+      '<textarea class="form-control mb-2" rows="6" id="dpTexteColle">Marie DUPONT\n12 rue des Lilas\n87000 Limoges\n06 12 34 56 78 · marie.dupont@exemple.fr\n\nAgent d’accueil, 6 ans d’expérience</textarea>' +
+      '<button type="button" class="btn btn-primary btn-sm" id="dpLireTexte">Relire et masquer ce texte</button> ' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="dpAutre">Annuler</button>';
+  }
+
+  function blocLecture() {
+    return '<div class="dp-fichier"><span>&#128193; <strong>' + nomFichier() + '</strong></span></div>' +
+      '<div class="mb-2" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:0.6rem 0.9rem;color:#1E3A5F;"><p class="mb-0 small"><strong>&#128161; Document image détecté</strong> - l’application lit le texte de l’image.</p></div>' +
+      '<p class="text-muted small mb-0" aria-live="polite" id="dpPct">Lecture du document en cours... 0 %</p><div class="dp-barre"><span id="dpBarre"></span></div>';
+  }
+
+  function blocRelecture() {
+    var detecte = S.type === 'texte' ? '' : '<div class="mb-2" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:0.6rem 0.9rem;color:#1E3A5F;"><p class="mb-0 small"><strong>&#128161; ' + (S.type === 'photo' ? 'Texte lu dans votre image' : 'Document texte détecté') + '</strong> - ' + (S.type === 'photo' ? 'relisez-le : une lecture automatique peut se tromper.' : 'le texte de votre CV a été lu directement.') + '</p></div>';
+    return '<div class="dp-fichier"><span>&#128193; <strong>' + nomFichier() + '</strong></span><button type="button" class="btn btn-outline-secondary btn-sm" id="dpAutre">' + (S.type === 'texte' ? 'Recoller un autre texte' : 'Choisir un autre fichier') + '</button></div>' +
+      detecte +
+      '<hr><p class="verif-doc-eyebrow">Relire et masquer</p><h3 class="verif-doc-titre">Vérifier le texte de votre CV</h3>' +
+      '<div id="dpSens"></div>' +
+      '<p class="mb-2"><strong>Relisez le texte ci-dessous.</strong> L’application ne repère pas tout : une adresse avec le nom de la rue, un employeur, un proche… <strong>Effacez vous-même, directement dans le texte, ce qui reste de sensible</strong> avant d’enregistrer. Vous pouvez aussi corriger le texte.</p>' +
+      '<div class="dp-edit" id="dpTexte" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Texte de votre CV, modifiable"></div>' +
+      '<div class="dp-garde"><h4>&#127968; Retiré du texte, gardé chez vous</h4>' +
+      '<p class="small mb-1">Ce que vous retirez du texte <strong>n’est pas envoyé à l’assistant</strong>. Mais l’application le garde <strong>sur votre appareil</strong> pour <strong>pré-remplir votre CV et votre lettre de motivation</strong>. Vérifiez ces informations : si elles ont changé (nouvelle adresse, nouveau numéro), corrigez-les ici, elles seront reprises telles quelles. <strong>Vous les reverrez une dernière fois juste avant de créer votre CV ou votre lettre.</strong></p>' +
+      '<div class="dp-champs">' +
+      champ('prenom', 'Prénom') + champ('nom', 'Nom') + champ('tel', 'Téléphone') + champ('mail', 'Courriel') + champ('cp', 'Code postal') + champ('ville', 'Ville') +
+      '<div style="grid-column:1/-1;"><label for="dpc_adresse">Adresse (rue) <span style="font-weight:400;">· à compléter, jamais repérée automatiquement</span></label><input id="dpc_adresse" class="form-control" data-champ="adresse" value="' + esc(S.champs.adresse) + '" placeholder="Numéro et nom de la rue"></div>' +
+      '</div>' +
+      '<p class="small text-muted mt-2 mb-0">Rien n’est enregistré dans votre navigateur : ces informations restent dans l’application tant que cette page est ouverte, et partent avec votre sauvegarde (la disquette) si vous en faites une.</p></div>' +
+      '<div class="verif-doc-enregistrer-ligne"><button type="button" class="btn btn-primary verif-doc-btn-enregistrer" id="dpEnregistrer" style="font-weight:700;">&#128190; Enregistrer</button></div>';
+  }
+  function champ(k, lib) { return '<div><label for="dpc_' + k + '">' + lib + '</label><input id="dpc_' + k + '" class="form-control" data-champ="' + k + '" value="' + esc(S.champs[k]) + '"></div>'; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+  function blocFait() {
+    var c = S.champs;
+    return '<div class="cv-section" style="margin-top:.2rem;"><strong>&#9989; Déposé et relu</strong> ' + nomFichier() + '</div>' +
+      '<p class="small mt-2 mb-1"><strong>Gardé chez vous pour pré-remplir votre CV et votre lettre :</strong> ' + esc([c.prenom + ' ' + c.nom, c.tel, c.mail, (c.adresse ? c.adresse + ', ' : '') + c.cp + ' ' + c.ville].join(' · ')) + '</p>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm mt-1" id="dpAutre">Changer de CV</button>' +
+      '<details class="mt-2"><summary class="small" style="cursor:pointer;">Revoir le texte relu et masqué</summary><div class="dp-edit mt-2" style="min-height:0;max-height:10rem;" contenteditable="false">' + esc(S.texteFinal) + '</div></details>';
+  }
+
+  function rendre() {
+    var fait = S.etat === 'fait';
+    var corps = { arrivee: blocDepot, collage: blocCollage, lecture: blocLecture, relecture: blocRelecture, fait: blocFait }[S.etat]();
+    var verrou2 = !fait;
+    var cont = fait && S.metier;
+    racine.className = (racine.className.indexOf('tel') > -1 ? 'tel' : '');
+    racine.innerHTML = etapes() +
+      '<div class="text-center"><h2 style="font-size:1.6rem;font-weight:800;margin:0;">Préparer</h2><p class="small text-muted">On rassemble ici ce dont la comparaison a besoin.</p></div>' +
+      '<details class="cv-section ats-depli dp-bloc" open><summary style="cursor:pointer;font-weight:600;list-style:none;"><span class="ats-num">1</span> Votre CV <span style="font-weight:400;color:var(--text-muted);font-size:.9rem;">(déposer, puis relire et masquer)</span>' + (fait ? ' <span class="badge bg-secondary" style="float:right;">Fait</span>' : '') + '</summary><div style="margin-top:.6rem;">' + corps + '</div></details>' +
+      '<details class="cv-section ats-depli dp-bloc' + (verrou2 ? ' bloc-verrouille' : '') + '" open><summary style="cursor:pointer;font-weight:600;list-style:none;"><span class="ats-num">2</span> La référence <span style="font-weight:400;color:var(--text-muted);font-size:.9rem;">(à quoi comparer votre vocabulaire)</span>' + (fait ? ' <span class="badge bg-secondary" style="float:right;">' + (S.metier ? 'Choisie' : 'À choisir') + '</span>' : '') + '</summary>' +
+      (verrou2 ? '<div class="bloc-verrou-message small" style="margin-top:.5rem;">&#128274; ' + (S.etat === 'relecture' ? 'Cliquez sur « Enregistrer » dans le point 1 : ce point s’active ensuite.' : 'Déposez et relisez d’abord votre CV (point 1) : ce point s’active ensuite.') + '</div>'
+        : '<div style="margin-top:.6rem;"><p class="small">Choisissez le métier visé (ou collez une offre).</p><select class="form-select form-select-sm" id="dpMetier"><option value="">Choisir…</option><option' + (S.metier ? ' selected' : '') + ' value="a">Agent d’accueil</option><option value="b">Secrétaire</option></select></div>') + '</details>' +
+      // Comme dans l'application : aucun bouton « Continuer » dans la page, il vit dans la barre de navigation du bas, avec Retour et Accueil.
+      '<div class="barre-navigation-fixe dp-barre-bas"><div class="d-flex justify-content-between align-items-center barre-navigation">' +
+      '<button class="btn btn-nav-erip btn-lg" type="button">&#8592; Retour</button>' +
+      '<button class="btn btn-nav-erip btn-accueil" type="button"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>' +
+      '<span class="text-end"><button type="button" class="btn btn-primary btn-lg" id="dpContinuer"' + (cont ? '' : ' disabled') + '>Continuer &#8594;</button>' +
+      (cont ? '' : '<span class="small text-muted d-block mt-1">Actif une fois votre CV relu et la référence choisie.</span>') + '</span></div></div>';
+    brancher();
+  }
+
+  function pastilles() {
+    var zone = document.getElementById('dpSens'); var t = document.getElementById('dpTexte');
+    if (!zone || !t) { return; }
+    var ms = t.querySelectorAll('.dp-m');
+    var n = ms.length;
+    if (!n) {
+      zone.innerHTML = S.retirees ? '<div class="dp-sens" style="border-color:#86E0B0;background:#DCFCE7;color:#14532D;"><strong>&#9989; ' + S.retirees + ' information' + (S.retirees > 1 ? 's' : '') + ' sensible' + (S.retirees > 1 ? 's' : '') + ' retirée' + (S.retirees > 1 ? 's' : '') + ' du texte.</strong> Relisez maintenant le texte pour vérifier qu’il ne reste rien d’autre.</div>' : '';
+      return;
+    }
+    zone.innerHTML = '<div class="dp-sens"><h4>&#128269; Informations sensibles repérées dans votre CV (' + n + ')</h4>' +
+      '<p class="small mb-2">Elles sont surlignées en jaune dans le texte plus bas. <strong>Pensez à les retirer</strong> si vous ne voulez pas les envoyer à l’assistant.</p>' +
+      '<div class="d-flex flex-wrap gap-2 mb-2">' + Array.prototype.map.call(ms, function (m, i) { return '<span class="dp-pill">' + m.getAttribute('data-ic') + ' ' + esc(m.textContent) + '<button type="button" data-retirer="' + i + '" aria-label="Retirer cette information du texte">&#10005;</button></span>'; }).join('') + '</div>' +
+      '<button type="button" class="btn btn-warning" id="dpRetirerTout" style="font-weight:700;">&#10005; Retirer toutes les informations sensibles repérées (' + n + ')</button></div>';
+    zone.querySelectorAll('[data-retirer]').forEach(function (b) { b.addEventListener('click', function () { var m = t.querySelectorAll('.dp-m')[+b.getAttribute('data-retirer')]; if (m) { m.remove(); S.retirees++; pastilles(); } }); });
+    document.getElementById('dpRetirerTout').addEventListener('click', function () { t.querySelectorAll('.dp-m').forEach(function (m) { m.remove(); S.retirees++; }); pastilles(); toast('Informations retirées du texte. Elles restent chez vous (rubrique plus bas).'); });
+  }
+
+  function brancher() {
+    var q = function (id) { return document.getElementById(id); };
+    var autre = q('dpAutre'); if (autre) { autre.addEventListener('click', function () { S.etat = 'arrivee'; S.retirees = 0; rendre(); }); }
+    var ch = q('dpChoisir'); if (ch) { ch.addEventListener('click', function () { choisir(); }); }
+    var dz = q('dpDepose');
+    if (dz) {
+      ['dragenter', 'dragover'].forEach(function (e) { dz.addEventListener(e, function (ev) { ev.preventDefault(); dz.classList.add('survol'); }); });
+      ['dragleave', 'drop'].forEach(function (e) { dz.addEventListener(e, function (ev) { ev.preventDefault(); dz.classList.remove('survol'); if (e === 'drop') { choisir(); } }); });
+    }
+    var co = q('dpColler'); if (co) { co.addEventListener('click', function () { S.type = 'texte'; document.querySelector('input[name=mqType][value=texte]').checked = true; S.etat = 'collage'; rendre(); }); }
+    var lt = q('dpLireTexte'); if (lt) { lt.addEventListener('click', function () { S.etat = 'relecture'; rendre(); }); }
+    var t = q('dpTexte'); if (t) { t.innerHTML = S.texteTemp || TEXTE_CV; S.texteTemp = null; pastilles(); t.addEventListener('input', pastilles); }
+    document.querySelectorAll('[data-champ]').forEach(function (i) { i.addEventListener('input', function () { S.champs[i.getAttribute('data-champ')] = i.value; }); });
+    var en = q('dpEnregistrer'); if (en) { en.addEventListener('click', function () { S.texteFinal = q('dpTexte').textContent; S.etat = 'fait'; rendre(); }); }
+    var me = q('dpMetier'); if (me) { me.addEventListener('change', function () { S.metier = me.value; rendre(); }); }
+    var cn = q('dpContinuer'); if (cn) { cn.addEventListener('click', function () { toast('La suite du module (assistant, import) ne change pas.'); }); }
+  }
+
+  function choisir() {
+    if (S.type === 'texte') { S.type = 'pdf'; document.querySelector('input[name=mqType][value=pdf]').checked = true; }
+    if (S.type === 'photo') {
+      S.etat = 'lecture'; rendre();
+      var p = 0; var iv = setInterval(function () { p += 9; if (p >= 100) { clearInterval(iv); S.etat = 'relecture'; rendre(); return; } var b = document.getElementById('dpBarre'), l = document.getElementById('dpPct'); if (!b) { clearInterval(iv); return; } b.style.width = p + '%'; l.textContent = 'Lecture du document en cours... ' + p + ' %'; }, 180);
+    } else { S.etat = 'relecture'; rendre(); }
+  }
+
+  function reset() { S.etat = 'arrivee'; S.retirees = 0; S.metier = ''; S.texteTemp = null; S.champs = { prenom: 'Marie', nom: 'Dupont', tel: '06 12 34 56 78', mail: 'marie.dupont@exemple.fr', cp: '87000', ville: 'Limoges', adresse: '' }; rendre(); }
+
+  document.querySelectorAll('input[name=mqType]').forEach(function (r) { r.addEventListener('change', function () { S.type = r.value; reset(); }); });
+  document.querySelectorAll('input[name=mqVar]').forEach(function (r) { r.addEventListener('change', function () { S.variante = r.value; reset(); }); });
+  document.querySelectorAll('input[name=mqLarg]').forEach(function (r) { r.addEventListener('change', function () { racine.className = r.value === 'tel' ? 'tel' : ''; rendre(); }); });
+  document.getElementById('mqRejouer').addEventListener('click', reset);
+  document.getElementById('mqFermerReg').addEventListener('click', function () { document.getElementById('mqReglages').style.display = 'none'; });
+  reset();
+})();
+</script>
+</body>
+</html>

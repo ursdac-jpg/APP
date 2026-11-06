@@ -6,7 +6,7 @@ const L = require('./lib.js');
   await L.photo(p, 'cad-2');
   console.log((await L.boutons(p)).filter(x => !/aide-option|jeton/.test(x)).slice(0, 26).join('\n'));
   console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 800));
-  await L.clicTexte(p, 'Choisir mon territoire', 'Choisir mon territoire'); await p.waitForTimeout(1200); await L.photo(p, 'cad-3');
+  await L.clicTexte(p, 'Choisir mon département', 'Choisir mon département'); await p.waitForTimeout(1200); await L.photo(p, 'cad-3');
   await L.clicTexte(p, 'Haute-Vienne (87)', 'département Haute-Vienne'); await p.waitForTimeout(1500);
   await L.photo(p, 'cad-4');
   await L.clicTexte(p, 'Emploi et contrats', 'rayon Emploi et contrats'); await p.waitForTimeout(1500); await L.photo(p, 'cad-5');

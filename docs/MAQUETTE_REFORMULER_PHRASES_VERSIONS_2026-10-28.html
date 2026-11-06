@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : phrases sous les deux versions de Reformuler</title>
+<link rel="stylesheet" href="../vendor/bootstrap.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { background: var(--bg-card); color: var(--text-strong); font-family: system-ui, sans-serif; margin: 0; padding: 1rem; }
+  .reglages { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; padding: 0.6rem; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; }
+  .reglages[hidden] { display: none; }
+  .fermer { margin-left: auto; }
+  .qui-sert { font-size: 0.92rem; margin: 0.35rem 0 0.7rem; color: var(--text-strong); }
+  .qui-sert strong { display: block; }
+  .ouvrir-reglages { position: fixed; right: 0.8rem; bottom: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="reglages" id="reglages">
+  <strong>Réglages de la maquette</strong>
+  <label>Formulation
+    <select id="selForm">
+      <option value="A">A (recommandée) : dit ce que devient chaque version</option>
+      <option value="B">B : très courte</option>
+      <option value="C">C : sans mention de la suite</option>
+    </select>
+  </label>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTheme">Mode sombre</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary fermer" id="btnFermer" aria-label="Fermer les réglages">&#10005;</button>
+</div>
+<button type="button" class="btn btn-sm btn-outline-secondary ouvrir-reglages" id="btnOuvrir" hidden>Réglages</button>
+
+<div class="page-catalogue-contenu bilan-preparer">
+  <div class="text-center"><h1><i class="bi bi-brush"></i> Choisissez une version</h1>
+    <p class="sousTitre">Le fond est le même dans les deux : mêmes expériences, mêmes dates, mêmes diplômes. Seules la formulation et la mise en ordre changent.</p></div>
+  <div class="text-center mb-3"><button type="button" class="btn btn-outline-secondary btn-sm">&#128196; Voir mon CV d’origine</button></div>
+  <div class="reformuler-cartes-choix">
+    <div class="reformuler-carte-choix">
+      <h3>&#128204; La plus proche de votre CV</h3>
+      <p class="reformuler-piste">Au plus près de votre texte.</p>
+      <p class="qui-sert" data-v="1"></p>
+      <div class="reformuler-apercu"><div><strong>Agent de sécurité</strong></div><h4>Expériences professionnelles</h4><p><strong>Agent - Sécuritas</strong> <em>(2022 - 2024)</em></p><ul><li>Surveiller les accès</li></ul></div>
+      <div class="text-center mt-2"><button type="button" class="btn btn-outline-secondary btn-sm">&#9660; Déplier pour tout lire</button> <button type="button" class="btn btn-primary">Choisir celle-ci &#8594;</button></div>
+    </div>
+    <div class="reformuler-carte-choix">
+      <h3>&#11088; Notre version recommandée</h3>
+      <p class="reformuler-piste">Missions mises en avant pour le poste visé.</p>
+      <p class="qui-sert" data-v="2"></p>
+      <div class="reformuler-apercu"><div><strong>Agent de sécurité et de prévention</strong></div><h4>Expériences professionnelles</h4><p><strong>Agent - Sécuritas</strong> <em>(2022 - 2024)</em></p><ul><li>Surveiller les accès et prévenir les incidents</li></ul></div>
+      <div class="text-center mt-2"><button type="button" class="btn btn-outline-secondary btn-sm">&#9660; Déplier pour tout lire</button> <button type="button" class="btn btn-primary">Choisir celle-ci &#8594;</button></div>
+    </div>
+  </div>
+</div>
+<script>
+  var TEXTES = {
+    A: { 1: '<strong>Vous la gardez telle quelle.</strong>Elle reste au plus près de ce que vous avez écrit. Vous passez directement à la mise en forme.',
+         2: '<strong>Vous pourrez la développer ensuite.</strong>Elle est un peu plus travaillée. Si vous le souhaitez, l’assistant pourra la rendre plus complète à l’étape suivante.' },
+    B: { 1: '<strong>Au plus près de votre texte.</strong>',
+         2: '<strong>Un peu plus travaillée</strong>, améliorable ensuite.' },
+    C: { 1: '<strong>Fidèle à votre CV.</strong>Seule la présentation change.',
+         2: '<strong>Plus évoluée.</strong>Vocabulaire et ordre rapprochés du poste visé.' }
+  };
+  function maj() {
+    var f = document.getElementById('selForm').value;
+    document.querySelectorAll('[data-v]').forEach(function (p) { p.innerHTML = TEXTES[f][p.getAttribute('data-v')]; });
+  }
+  document.getElementById('selForm').addEventListener('change', maj);
+  document.getElementById('btnTheme').addEventListener('click', function () { var h = document.documentElement; h.setAttribute('data-theme', h.getAttribute('data-theme') === 'sombre' ? 'clair' : 'sombre'); });
+  document.getElementById('btnFermer').addEventListener('click', function () { document.getElementById('reglages').hidden = true; document.getElementById('btnOuvrir').hidden = false; });
+  document.getElementById('btnOuvrir').addEventListener('click', function () { document.getElementById('reglages').hidden = false; document.getElementById('btnOuvrir').hidden = true; });
+  maj();
+</script>
+</body>
+</html>

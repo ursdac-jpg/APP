@@ -78,9 +78,9 @@
   "bandeau": "arrondi"
  },
  "creatif:frise": {
-  "html": "551821ea:10235",
+  "html": "23795b78:10235",
   "css": "a4a5ef33:7390",
-  "xml": "85aae024:48595",
+  "xml": "8959e6cc:48595",
   "pages": 1,
   "couverture": 39
  },
@@ -172,8 +172,8 @@
  },
  "creatif:sidebarVague": {
   "html": "55a732a8:12955",
-  "css": "97bae5c8:21019",
-  "xml": "45f4ae76:70307",
+  "css": "1517e844:21174",
+  "xml": "74b921a8:70211",
   "pages": 1,
   "couverture": 53,
   "bord": "vallonne"

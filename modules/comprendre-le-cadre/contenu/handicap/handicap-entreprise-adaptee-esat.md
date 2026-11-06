@@ -7,7 +7,7 @@ tags: [entreprise adaptée, ESAT, milieu protégé, milieu adapté, contrat de t
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "entreprise adaptée"
     definition: "Entreprise du secteur ordinaire dont l'effectif est majoritairement composé de personnes handicapées, avec un contrat de travail classique et un salaire au moins égal au SMIC."
@@ -25,7 +25,9 @@ sources:
 ce_qui_change_souvent:
   - "Les passerelles entre ESAT, entreprise adaptée et milieu ordinaire"
   - "Les droits des travailleurs d'ESAT (qui se rapprochent de ceux des salariés)"
-revisions: []
+revisions:
+  - "2026-11-04 : page Service Public F1654 relue : le contrat signé en ESAT s'appelle « contrat d'accompagnement par le travail »"
+phrase_generale: "L'entreprise adaptée est une vraie entreprise, avec un contrat de travail classique et les mêmes droits que partout ailleurs, alors que l'ESAT relève d'un autre cadre. Les statuts, les rémunérations et les droits changent selon les structures : renseignez-vous auprès de la structure qui vous oriente ou consultez les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 
@@ -33,6 +35,6 @@ Il y a deux cadres différents, souvent confondus.
 
 L'entreprise adaptée est une vraie entreprise, du secteur marchand. Vous y avez un contrat de travail classique, un CDI ou un CDD, un salaire au moins égal au SMIC, et les mêmes droits que dans n'importe quelle entreprise. Ce qui change, c'est que l'effectif est majoritairement composé de personnes handicapées et que les conditions de travail sont adaptées. L'entreprise adaptée aide aussi à rebondir vers un autre employeur. On y entre sur candidature, souvent avec l'appui de Cap emploi. Il existe aussi des entreprises adaptées de travail temporaire, pour des missions ponctuelles.
 
-L'ESAT relève du secteur médico-social. Il s'adresse aux personnes dont le handicap ne permet pas de travailler en entreprise, même adaptée, même à temps partiel. Vous n'y avez pas un contrat de travail mais un contrat de soutien et d'aide par le travail, signé pour un an, avec un accompagnement médico-social en plus de l'activité. L'entrée en ESAT est décidée par la commission de la maison départementale des personnes handicapées.
+L'ESAT relève du secteur médico-social. Il s'adresse aux personnes dont le handicap ne permet pas de travailler en entreprise, même adaptée, même à temps partiel. Vous n'y avez pas un contrat de travail mais un contrat d'accompagnement par le travail, signé pour un an et reconduit chaque année, avec un accompagnement médico-social en plus de l'activité. L'entrée en ESAT est décidée par la commission des droits et de l'autonomie des personnes handicapées, au sein de la maison départementale des personnes handicapées.
 
 Le choix entre les deux dépend de votre situation et de l'évaluation faite par la maison départementale des personnes handicapées. Des passages de l'un à l'autre, et vers une entreprise classique, sont possibles.

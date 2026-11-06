@@ -23,6 +23,7 @@ ce_qui_change_souvent:
   - "La liste des aides et des appuis spécifiques"
 revisions:
   - "2025-10 : révision de l'offre de services et d'aides financières de l'AGEFIPH"
+phrase_generale: "L'AGEFIPH aide les personnes handicapées du secteur privé à chaque étape de leur parcours professionnel : se former, être recrutée, s'intégrer dans l'entreprise, créer son activité ou garder son emploi. Les aides disponibles et leurs montants changent régulièrement : renseignez-vous auprès de l'AGEFIPH ou d'un conseiller, ou consultez les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 

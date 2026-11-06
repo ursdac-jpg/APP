@@ -24,8 +24,8 @@
    la presentation.
 
    Briques partagees appelees, jamais recopiees :
-     ouvrirAssistantDepotCV, htmlVerificationDocument, bilanCorpsCiblageOffreHTML,
-     htmlChoixAssistantBilanCorps, htmlBanniereTransitionIA, htmlCollageInstantane,
+     htmlDepotCVEnPage / cablerDepotCVEnPage, htmlVerificationDocument, bilanCorpsCiblageOffreHTML,
+     htmlChoixAssistantBilanCorps, htmlCollageUniquePage / brancherCollageUniquePage,
      reperesBoutonAncre, htmlEncartRepriseModule / appliquerGelModule,
      barreEtapesModule, barreNavigation, extraireBlocJSONDepuisTexte.
    Logique pure (testee) : modules/ats/detectionTexteCache.js,
@@ -49,19 +49,22 @@ var ATS_ETAPES_CHOIX_IA = [
   { titre: 'Votre choix', detail: 'Rien n’est appliqué : vous décidez quels mots reprendre, à partir de votre expérience réelle.' }
 ];
 
+// -- Titre des pages de travail : le nom du module, l'etape en sous-titre (decision de Denis, 27/10/2026 ; brique htmlTitreEtapeModule).
+function _atsTitre(etape, phrase) { return htmlTitreEtapeModule('bi-card-checklist', 'Les mots de votre CV (ATS)', etape, phrase); }
+
 // -- Barre d'etapes : 4 pastilles (maquette).
 var ATS_ETAPES = [
   { id: 'preparer', icone: '&#128221;', label: 'Préparer' },
-  { id: 'envoyer', icone: '&#128228;&#65039;', label: 'Envoyer' },
+  { id: 'envoyer', icone: '&#128228;&#65039;', label: 'Assistant' },
   { id: 'resultat', icone: '&#128196;', label: 'Résultat' },
-  { id: 'fiche', icone: '&#128206;', label: 'Ma fiche' }
+  { id: 'fiche', icone: '&#9989;', label: 'Terminé' }
 ];
 // Ecran de session -> index d'etape dans ATS_ETAPES. « Relire et masquer »
-// n'est pas un ecran a part : la brique ouvrirAssistantDepotCV l'inclut
+// n'est pas un ecran a part : la brique htmlDepotCVEnPage l'inclut
 // dans le depot du CV (decision Denis 2026-09-08, option B).
 var ATS_ECRAN_VERS_ETAPE = {
   preparer: 0,
-  'choix-assistant': 1, chez: 1, coller: 1,
+  'choix-assistant': 1, coller: 1,
   resultat: 2,
   emporter: 3
 };
@@ -73,7 +76,7 @@ var _atsEtat = null;
 function atsEtatNeuf() {
   return {
     ecran: 'preparer',
-    cvTexte: '',             // texte du CV, deja relu et masque (sortie de ouvrirAssistantDepotCV)
+    cvTexte: '',             // texte du CV, deja relu et masque (sortie de htmlDepotCVEnPage)
     cvNom: '',               // nom de fichier affiche, si depot fichier
     cvRelu: false,           // le wizard de depot (qui inclut relire / masquer) a ete mene a son terme
     modeReference: 'offre',  // 'offre' | 'metier'
@@ -117,6 +120,7 @@ function atsRepriseContinuer() {
 // « Recommencer » : detruit la comparaison (seul endroit qui remet a null).
 function atsReinitialiser() {
   _atsEtat = null;
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('ats'); }
   _atsDetourPresentation = false;
   _atsReprisePendante = false;
 }
@@ -151,7 +155,7 @@ function atsRestaurerEtatDepuisSauvegarde(snap) {
 function ouvrirAts() {
   // Coupe un eventuel decompte en cours : naviguer ailleurs ne doit jamais
   // laisser le minuteur ouvrir un onglet surprise (meme garde-fou que le Bilan).
-  if (_atsIntervalleDecompte) { clearInterval(_atsIntervalleDecompte); _atsIntervalleDecompte = null; }
+  if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); _intervalleDecompteIA = null; }
 
   var premiereFois = !_atsEtat;
   if (premiereFois) { _atsEtat = atsEtatNeuf(); _atsTrack('ats_session_demarree'); }
@@ -161,10 +165,11 @@ function ouvrirAts() {
   var scrollAvant = (typeof window !== 'undefined') ? (window.scrollY || 0) : 0;
 
   var ecran = _atsEtat.ecran || 'preparer';
+  // L'ancien ecran « Chez l'assistant » n'existe plus (decompte et fenetre du retour sont sur « Coller la reponse ») : une session reprise sur cet ecran y va.
+  if (ecran === 'chez') { ecran = (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA) ? 'coller' : 'choix-assistant'; _atsEtat.ecran = ecran; }
   var rendu = ({
     preparer: _atsRendrePreparer,
     'choix-assistant': _atsRendreChoixAssistant,
-    chez: _atsRendreChezAssistant,
     coller: _atsRendreColler,
     resultat: _atsRendreResultat,
     emporter: _atsRendreEmporter
@@ -177,14 +182,13 @@ function ouvrirAts() {
     '<div class="ats-ecran" data-ats-ecran="' + ecran + '">' + rendu() + '</div>' +
     '</div>' +
     '<div class="barre-navigation-fixe">' +
-    barreNavigation('cv', null, null, { onclickPrecedent: _atsCibleRetour(ecran) }) +
+    barreNavigation('cv', null, null, { onclickPrecedent: _atsCibleRetour(ecran), terminerParcours: ecran === 'emporter', onclickTerminer: 'terminerParcoursSansFenetre()' }) +
     '</div>';
 
   _atsBrancherCommun();
   var brancher = ({
     preparer: _atsBrancherPreparer,
     'choix-assistant': _atsBrancherChoixAssistant,
-    chez: _atsBrancherChezAssistant,
     coller: _atsBrancherColler,
     resultat: _atsBrancherResultat,
     emporter: _atsBrancherEmporter
@@ -212,8 +216,7 @@ function _atsCibleRetour(ecran) {
   var map = {
     preparer: "naviguerVers('ats-intro')",
     'choix-assistant': "atsAllerA('preparer')",
-    chez: "atsAllerA('choix-assistant')",
-    coller: "atsAllerA('chez')",
+    coller: "atsAllerA('choix-assistant')",
     resultat: "atsAllerA('coller')",
     emporter: "atsAllerA('resultat')"
   };
@@ -280,7 +283,7 @@ function _atsConfirmerRecommencer() {
 
 // ============================================================
 //  ECRAN 2 -- PREPARER (page depliante : CV, reference, relire et masquer)
-//  Option B (Denis 2026-09-08) : la brique ouvrirAssistantDepotCV fait
+//  Option B (Denis 2026-09-08) : la brique htmlDepotCVEnPage fait
 //  depot + extraction + relire/masquer d'un bloc. Le bloc 3 en est donc
 //  le RECAP (« C'est fait, revoir si besoin »), pas une etape a refaire.
 // ============================================================
@@ -302,17 +305,12 @@ function _atsRendrePreparer() {
   // module utilisait un <h1> sans <div class="text-center">, seule
   // divergence trouvee (la taille, elle, etait deja la bonne : 2.8rem
   // global, aucun style inline ici contrairement a d'autres modules).
-  return '<div class="text-center"><h1>Préparer</h1>' +
-    '<p class="sousTitre">On rassemble ici ce dont la comparaison a besoin. La relecture de votre CV, où vous masquez votre nom et vos coordonnées, se fait au moment du dépôt (partie 1).</p></div>' +
+  return _atsTitre('Préparer', 'On rassemble ici ce dont la comparaison a besoin. La relecture de votre CV, où vous masquez votre nom et vos coordonnées, se fait au moment du dépôt (partie 1).') +
 
-    // -- Bloc 1 : votre CV (depot + relecture, brique partagee)
+    // -- Bloc 1 : votre CV (depot + relecture EN PAGE, brique partagee htmlDepotCVEnPage : aucune fenetre, consigne 28)
     _atsDetails('atsDep1', '1', 'Votre CV', 'déposer, puis relire et masquer', cvOk ? 'Fait' : '', true,
-      '<p>Déposez votre CV, sous la forme que vous avez : PDF, Word, .txt, une photo ou une capture d’écran. Il est lu directement dans votre navigateur. Vous le relisez ensuite à l’écran et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre (nom, adresse, téléphone) : rien n’est masqué à votre place.</p>' +
-      '<button type="button" class="btn btn-primary btn-sm" id="btnAtsDeposerCV">' + (cvOk ? 'Changer de CV' : 'Déposer mon CV') + '</button>' +
-      (cvOk
-        ? '<div class="cv-section" style="margin-top:.6rem;"><strong>&#9989; Déposé et relu</strong> ' +
-          (e.cvNom ? echapperAttribut(e.cvNom) : 'texte collé') + '</div>'
-        : '')) +
+      (typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_atsDepotCfg()) : '')) +
+    _atsLiaison('Quand votre CV est relu et enregistré, le point 2 s’ouvre : vous y dites à quoi comparer votre vocabulaire.') +
 
     // -- Bloc 2 : la reference (panneau Candidature partage, 2026-09-29,
     // DECISION DE DENIS : metier ou domaine, offre, entreprise, site, type de
@@ -328,6 +326,7 @@ function _atsRendrePreparer() {
         ? 'Les mots-clés seront extraits <strong>strictement</strong> du texte de l’offre. Le type de structure sert à l’assistant : une association et une entreprise privée n’emploient pas toujours les mêmes mots.'
         : 'Sans offre, l’objectif devient : employer le vocabulaire du métier, et clarifier votre projet. Ces termes proviennent d’une fiche générale et peuvent varier selon les employeurs.') +
       '</p>') +
+    _atsLiaison('Vous choisissez ensuite votre assistant en ligne : l’application prépare tout et l’ouvre dans un nouvel onglet, vous n’avez rien à taper.') +
 
     '<div class="text-center" style="margin-top:1.25rem;" data-barre-bas-zone>' +
     '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="Déposez et relisez votre CV, puis choisissez la référence (une offre ou un métier)."' + (actif ? '' : ' disabled') + '>Continuer &#8594;</button>' +
@@ -353,12 +352,17 @@ function _atsDetails(id, num, titre, gloss, etat, ouvert, corpsHTML) {
     '</details>';
 }
 
-// Ouvre le wizard partage de depot (depot + extraction + relire/masquer)
-// et recupere le texte final anonymise via onDocumentPrepare.
-function _atsOuvrirDepotCV() {
-  if (typeof ouvrirAssistantDepotCV !== 'function') { return; }
-  ouvrirAssistantDepotCV('maj', {
+// Depot du CV EN PAGE (brique htmlDepotCVEnPage, data/metiers.js) : depot + relecture + masquage dans le point 1, plus aucune fenetre.
+function _atsDepotCfg() {
+  var e = _atsEtat;
+  return {
+    cle: 'ats',
     titreDocument: 'CV',
+    avecIdentite: true,
+    fait: !!(e.cvTexte || '').trim(),
+    nomFait: e.cvNom || '',
+    texteFait: e.cvTexte || '',
+    rerender: ouvrirAts,
     onDocumentPrepare: function (res) {
       var valeur = res && (res.valeur != null ? res.valeur : res.texte);
       if (typeof valeur === 'string' && valeur.trim()) {
@@ -369,8 +373,10 @@ function _atsOuvrirDepotCV() {
       }
       ouvrirAts();
     }
-  });
+  };
 }
+// Texte entre deux points numerotes (brique htmlLiaisonBlocs, consigne 63).
+function _atsLiaison(texte) { return (typeof htmlLiaisonBlocs === 'function') ? htmlLiaisonBlocs(texte) : ''; }
 
 function _atsBrancherPreparer() {
   // Points suivants desactives tant que le CV n'est pas depose et valide
@@ -386,8 +392,7 @@ function _atsBrancherPreparer() {
   if (typeof cablerBlocDepliManuel === 'function') {
     ['atsDep1', 'atsDep2'].forEach(function (idBloc) { cablerBlocDepliManuel(_atsEtat, idBloc, idBloc); });
   }
-  var dep = document.getElementById('btnAtsDeposerCV');
-  if (dep) { dep.addEventListener('click', _atsOuvrirDepotCV); }
+  if (typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_atsDepotCfg()); }
 
   // Panneau Candidature partage : ecrit dans les champs globaux, chaque choix
   // re-rend la page.
@@ -399,9 +404,8 @@ function _atsBrancherPreparer() {
   if (suite && !suite.disabled) { suite.addEventListener('click', function () { atsAllerA('choix-assistant'); }); }
 }
 
-// Note : « Relire et masquer » n'est pas un ecran a part. La brique
-// ouvrirAssistantDepotCV le fait a l'interieur du depot du CV
-// (_atsOuvrirDepotCV, ecran « Preparer »). Decision Denis 2026-09-08.
+// Note : « Relire et masquer » n'est pas un ecran a part : la brique htmlDepotCVEnPage le fait a l'interieur du point 1
+// de l'ecran « Preparer » (decision Denis 2026-09-08, puis consigne 28 : en page, sans fenetre).
 
 // ============================================================
 //  ECRAN 2c -- CHOISIR L'ASSISTANT (brique partagee htmlChoixAssistantBilanCorps)
@@ -410,7 +414,7 @@ function _atsBrancherPreparer() {
 function _atsRendreChoixAssistant() {
   var e = _atsEtat;
   var metierLibelle = e.modeReference === 'metier' && e.metier ? e.metier.nom : (e.ciblage && e.ciblage.metierCible) || 'le métier visé';
-  return '<div class="text-center"><h1>Choisir l’assistant</h1></div>' +
+  return _atsTitre('Choisir l’assistant') +
     '<div class="cv-section">' +
     '<p class="mb-1"><strong>&#128203; Ce qui va être envoyé</strong></p>' +
     '<ul class="mb-1" style="padding-left:1.25rem;">' +
@@ -500,9 +504,9 @@ function _atsPreparerEtEnvoyer(assistantId) {
         etapes: (typeof ETAPES_ASSISTANT_IA_TEXTE !== 'undefined') ? ETAPES_ASSISTANT_IA_TEXTE : undefined,
         construireTexteACopier: function () { return texte; },
         onApresValidation: function (urlAssistant, nomAssistant) {
-          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
           _atsTrack('ats_prompt_envoye');
-          atsAllerA('chez');
+          atsAllerA('coller');
         }
       });
     }
@@ -513,116 +517,39 @@ function _atsPreparerEtEnvoyer(assistantId) {
 }
 
 // ============================================================
-//  ECRAN 2d -- CHEZ L'ASSISTANT (brique partagee htmlBanniereTransitionIA)
-//  Meme sequence que le Bilan / la page Action (etat global _etatTransitionIA,
-//  phases decompte -> ouvert/bloque -> revenu). Le rerender = ouvrirAts().
+//  ECRAN 2d -- COLLER LA REPONSE (fenetre unique « Collez la reponse », dette B.17, etape C, 2026-10-28 : voir htmlCollageUniquePage(), js/app.js).
+//  Le decompte avant l'ouverture de l'assistant et l'apercu de la fenetre du retour sont dessines ici par la brique (plus d'ecran « Chez l'assistant » a part, 2026-10-28).
 // ============================================================
 
-var _atsIntervalleDecompte = null;
-
-function _atsRendreChezAssistant() {
-  var nom = (_etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-  return '<div class="text-center"><h1>Chez ' + echapperAttribut(nom) + '</h1>' +
-    '<p class="sousTitre">Le texte est déjà copié. L’onglet s’ouvre tout seul ; <strong>cette page reste ouverte</strong>, c’est ici que vous reviendrez.</p></div>' +
-    (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-    '<div class="cv-section" style="margin-top:.8rem;">' +
-    '<p class="mb-1"><strong>&#128278; Ce que vous retrouverez ici</strong></p>' +
-    '<p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">De retour de l’assistant : cliquez sur <strong>« Je suis de retour »</strong> ci-dessus, puis sur <strong>« Coller la réponse »</strong>, puis sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
-    '</div>';
-}
-
-function _atsBrancherChezAssistant() {
-  if (!_etatTransitionIA) { atsAllerA('choix-assistant'); return; }
-  // TACHE (audit robustesse ATS, 2026-09-11) : retour en arriere depuis
-  // « Coller la reponse » (bouton Retour de la barre du bas,
-  // _atsCibleRetour) alors que la phase est deja 'revenu' (posee au clic
-  // sur « Je suis de retour ») -- htmlBanniereTransitionIA() ne sait rien
-  // afficher pour cette phase (bandeau vide) et le texte de cet ecran
-  // promet un bouton absent : ecran sans aucune action possible. On
-  // ramene la phase a 'ouvert', l'etat coherent pour cet ecran -- l'assistant
-  // est deja ouvert dans un autre onglet, on peut y retourner ou re-cliquer
-  // « Je suis de retour ».
-  if (_etatTransitionIA.phase !== 'decompte' && _etatTransitionIA.phase !== 'bloque' && _etatTransitionIA.phase !== 'ouvert') {
-    _etatTransitionIA.phase = 'ouvert';
-    ouvrirAts();
-    return;
-  }
-
-  function rerender() { ouvrirAts(); }
-
-  function ouvrirAssistantEnAttente() {
-    if (!document.querySelector('[data-ats-ecran="chez"]')) { clearInterval(_atsIntervalleDecompte); return; }
-    // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-    // (js/app.js) -- meme correctif, tous les parcours.
-    recopierTexteAssistantPuisOuvrir(function () {
-      var fen = window.open(_etatTransitionIA.urlAssistant, '_blank');
-      _etatTransitionIA.phase = fen ? 'ouvert' : 'bloque';
-      if (_etatTransitionIA.phase === 'bloque') { _atsTrack('ats_popup_bloque'); }
-      rerender();
-    });
-  }
-
-  if (_etatTransitionIA.phase === 'decompte') {
-    var cont = document.getElementById('btnContinuerMaintenantIA');
-    if (cont) { cont.addEventListener('click', function () { clearInterval(_atsIntervalleDecompte); ouvrirAssistantEnAttente(); }); }
-    _atsIntervalleDecompte = setInterval(function () {
-      _etatTransitionIA.secondesRestantes -= 1;
-      var c = document.getElementById('compteurDecompteIA');
-      if (c) { c.textContent = _etatTransitionIA.secondesRestantes; }
-      if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_atsIntervalleDecompte); ouvrirAssistantEnAttente(); }
-    }, 1000);
-  } else if (_etatTransitionIA.phase === 'bloque') {
-    var bl = document.getElementById('btnOuvrirBloqueIA');
-    if (bl) { bl.addEventListener('click', ouvrirAssistantEnAttente); }
-  } else if (_etatTransitionIA.phase === 'ouvert') {
-    var ret = document.getElementById('btnJeSuisDeRetourIA');
-    if (ret) { ret.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; atsAllerA('coller'); }); }
-    var rouvrir = document.getElementById('btnRouvrirSiteIA');
-    if (rouvrir) { rouvrir.addEventListener('click', ouvrirAssistantEnAttente); }
-  }
-}
-
-// ============================================================
-//  ECRAN 2e -- COLLER LA REPONSE (brique partagee htmlCollageInstantane)
-// ============================================================
-
-// Retour Denis 2026-09-30 (C11) : meme bloc « De retour : collez la reponse » que le reste de l'application (carte teintee, composant
-// partage en rendu par defaut : « Coller la reponse » / « Coller manuellement », puis Importer et Effacer et recoller). Ce module
-// utilisait l'ancien rendu de compatibilite (htmlCollageInstantane sans options), d'ou son aspect different.
+// « Coller la reponse » lit et verifie (parseur pur) sans rien garder ; « Continuer » (barre du bas) lance la lecture et ouvre le resultat.
 function _atsRendreColler() {
-  var nom = (_etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-  return '<div class="text-center"><h1>Coller la réponse</h1></div>' +
-    '<div class="cv-section bilan-etape-import-ia">' +
-    '<h4>&#128229; De retour : collez la réponse</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
-    '<div class="bilan-zone-collage">' +
-    (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane('Ats', {}) : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
-    '</div>' +
-    '</div>';
+  return _atsTitre('Coller la réponse') + htmlCollageUniquePage('Ats');
 }
 
 function _atsBrancherColler() {
-  if (typeof activerCollageInstantane === 'function') {
-    activerCollageInstantane({
-      idZoneAuto: 'zoneCollageAutoAts', idZoneApercu: 'zoneApercuCollageAts',
-      idTextarea: 'texteCollageAts', idBoutonColler: 'btnCollerAutoAts'
-    });
-  }
-  var imp = document.getElementById('btnImporterAts');
-  if (imp) {
-    imp.addEventListener('click', function () {
-      var msg = document.getElementById('messageImportAts');
-      if (msg) { msg.textContent = ''; msg.style.color = ''; }
-      var ta = document.getElementById('texteCollageAts');
-      var texte = ta ? String(ta.value || '') : '';
-      if (!texte.trim()) {
-        if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ Collez d’abord la réponse de l’assistant.'; }
-        return;
-      }
+  brancherCollageUniquePage({
+    suffixe: 'Ats', idAncre: 'fcRacineAts', rerendre: ouvrirAts, evenementBloque: 'ats_popup_bloque',
+    module: {
+      libelleSuite: 'Voir le résultat',
+      quoi: 'L’assistant vient de comparer le vocabulaire de votre CV avec celui de la référence : mots déjà présents, mots à faire ressortir.',
+      pourquoi: 'Beaucoup d’employeurs cherchent des mots précis dans les CV : savoir lesquels manquent aide à être lu.',
+      verif: 'regardez que les mots qu’il dit retrouver sont bien dans votre CV, et que ceux qu’il dit manquer correspondent à ce que vous savez faire. Ce sont des pistes, jamais une note.'
+    },
+    verifier: function (texte) {
+      var deps = (typeof extraireBlocJSONDepuisTexte === 'function') ? { extraireJSON: extraireBlocJSONDepuisTexte } : {};
+      var lu = (typeof parserResultatAts === 'function') ? parserResultatAts(texte, _atsEtat.cvTexte || '', deps, _atsEtat.modeReference) : null;
+      return { ok: !!(lu && lu.lisible) };
+    },
+    onChangerAssistant: function () {
+      if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
+      _etatTransitionIA = null;
+      atsAllerA('choix-assistant');
+    },
+    onContinuer: function (texte) {
       _atsEtat.reponseCollee = texte;
       _atsImporterReponse();
-    });
-  }
+    }
+  });
 }
 
 // Lit la reponse collee -> parseur + detection locale -> ecran resultat.
@@ -652,14 +579,14 @@ function _atsRendreResultat() {
   var r = e.resultat;
 
   if (!r || !r.lisible) {
-    return '<div class="text-center"><h1>Le résultat</h1></div>' +
+    return _atsTitre('Le résultat') +
       '<div class="cv-section" style="border-left:4px solid var(--warning);">' +
       '<p><strong>La réponse n’a pas pu être lue.</strong> Recopiez-la en entier depuis l’assistant, sans rien ajouter avant ni après.</p>' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsRecoller">Revenir coller la réponse</button>' +
       '</div>';
   }
   if (r.analyseImpossible) {
-    return '<div class="text-center"><h1>Le résultat</h1></div>' +
+    return _atsTitre('Le résultat') +
       '<div class="cv-section">' +
       '<p>' + echapperAttribut(r.messageImpossible || 'La comparaison n’a pas pu se faire.') + '</p>' +
       '<p style="color:var(--text-muted);font-size:.9rem;">Vérifiez que c’est bien le texte de votre CV qui a été envoyé, puis recommencez.</p>' +
@@ -672,7 +599,7 @@ function _atsRendreResultat() {
     ? r.texteCache.extraits
     : ((e.detectionLocale && e.detectionLocale.extraits) || []);
 
-  return '<div class="text-center"><h1>Le résultat</h1></div>' +
+  return _atsTitre('Le résultat') +
     _atsEncart('&#9878;&#65039;', '<strong>Ni un test ni une note.</strong> Ce module n’est pas un logiciel de tri : il en imite la vérification pour vous montrer, en clair, quels mots attendus sont présents dans votre CV et lesquels faire ressortir. Ce sont des pistes, si vous le souhaitez.', 'ok') +
     (texteCacheSuspect ? _atsEncartTriche(extraitsTriche, r.texteCache && r.texteCache.explication) : '') +
     (r.sansOffre ? _atsBlocSansOffre(r.sansOffre) : _atsBlocMotsReference(r)) +
@@ -847,8 +774,7 @@ function _atsRendreEmporter() {
   var motsUniques = [];
   mots.forEach(function (m) { if (m && motsUniques.indexOf(m) === -1) { motsUniques.push(m); } });
 
-  return '<div class="text-center"><h1>Ce que vous emportez</h1>' +
-    '<p class="sousTitre">Des éléments de travail à relire, jamais un résultat figé. Aucun enregistrement automatique.</p></div>' +
+  return _atsTitre('Ce que vous emportez', 'Des éléments de travail à relire, jamais un résultat figé. Aucun enregistrement automatique.') +
     '<div class="cv-section">' +
     '<p class="mb-1"><strong>&#128203; Votre aide-mémoire « Vocabulaire et CV »</strong></p>' +
     '<p style="color:var(--text-muted);font-size:.9rem;">Cochez les mots que vous voulez retenir. Il n’est pas nécessaire de tous les utiliser. Vous les remplacez ensuite vous-même dans votre CV.</p>' +
@@ -867,6 +793,7 @@ function _atsRendreEmporter() {
     '</div>' +
 
     _atsBlocQuestionsConseiller(r) +
+    htmlRappelSauvegarde() +   // brique commune (consigne 49)
 
     '<div class="cv-section">' +
     '<p class="mb-1"><strong>&#9999;&#65039; Votre phrase d’accroche et votre lettre</strong></p>' +

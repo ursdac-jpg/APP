@@ -592,3 +592,20 @@
 .comprendre-le-cadre-digest-liste-sources li { padding: .5rem 0; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .comprendre-le-cadre-digest-liste-sources li > span:first-of-type { flex: 1 1 14rem; }
 .comprendre-le-cadre-digest-liste-sources .comprendre-le-cadre-digest-btn-source { min-height: 34px; padding: .15rem .8rem; font-size: .82rem; }
+
+/* Pour ne rien rater : délais, alertes arnaques, bouton « Signaler ». Couleurs : uniquement des variables du thème (clair et sombre). */
+.comprendre-le-cadre-delai-quand { font-size: .95rem; }
+.comprendre-le-cadre-arnaque {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: .6rem;
+  padding: .9rem 1rem;
+  margin-top: .8rem;
+}
+.comprendre-le-cadre-arnaque h2 { color: var(--text-strong); }
+.comprendre-le-cadre-arnaque-rubrique { margin: 0 0 .35rem; font-size: .93rem; }
+.comprendre-le-cadre-signaler { border-top: 1px solid var(--border); padding-top: .8rem; }
+/* Bouton « Signaler une erreur ou un changement » (Comprendre le cadre, Qui fait quoi, Près de chez moi, Smic et inflation) : un vrai bouton à cadre, jamais une ligne de texte soulignée (langage visuel commun, décision de Denis du 06/11/2026). Couleurs du thème : lisible en clair et en sombre. */
+button.comprendre-le-cadre-signaler-lien { display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem; padding: .4rem .9rem; min-height: 2.25rem; border: 1px solid var(--border-strong); border-radius: var(--radius, .5rem); background: var(--bg-subtle); font-size: .875rem; text-align: left; cursor: pointer; color: var(--text-strong); text-decoration: none; }
+button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signaler-lien:focus-visible { color: var(--accent); border-color: var(--accent); background: var(--accent-bg-subtle); }

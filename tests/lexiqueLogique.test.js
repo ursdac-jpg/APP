@@ -74,7 +74,7 @@ test('indexSecondNiveau : inverse fichesEntree -> id de fiche -> liste d\'entree
 });
 
 // ---------- « Les chiffres a jour » d'une fiche (chantier du 20 octobre 2026) : la regle des 6 mois, avec des dates simulees ----------
-const { _lexiqueEtatDetails, _lexiqueRenduDetails, _lexiqueDateFr, LEXIQUE_SEUIL_MOIS_DETAILS } = require('../modules/lexique/index.js');
+const { _lexiqueEtatDetails, _lexiqueRenduDetails, _lexiqueCorpsAffiche, _lexiqueEtatSuivi, _lexiqueRenduCorpsSecondNiveau, _lexiqueDateFr, LEXIQUE_SEUIL_MOIS_DETAILS } = require('../modules/lexique/index.js');
 global.echapperAttribut = function (t) { return String(t || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
 const BLOC_TEST = {
   verifieLe: '2026-10-12',
@@ -129,4 +129,30 @@ test('chiffres a jour : le rendu (bloc, message general, rien), tout est echappe
   assert.ok(stable.indexOf('Vérifié le') === -1, 'un fait passe ne porte pas de date de verification');
   assert.equal(_lexiqueDateFr('2026-11-01'), '1er novembre 2026');
   assert.equal(_lexiqueDateFr('n’importe quoi'), '');
+});
+
+test('phrase generale : le texte precis tant que le bloc est a jour, la phrase generale ensuite (consigne 95)', () => {
+  const fiche = { id: 'x', corps: 'Une aide de 1 500 € par mois.', detailsAJour: Object.assign({}, BLOC_TEST, { phraseGenerale: 'Une aide dont le montant change.' }) };
+  assert.equal(_lexiqueCorpsAffiche(fiche, '2026-12-01'), 'Une aide de 1 500 € par mois.', 'a jour : texte precis');
+  assert.equal(_lexiqueCorpsAffiche(fiche, '2027-04-13'), 'Une aide dont le montant change.', 'plus de 6 mois : phrase generale');
+  const jamais = { id: 'y', corps: 'Texte precis.', detailsAJour: Object.assign({}, BLOC_TEST, { verifieLe: '', phraseGenerale: 'Phrase generale.' }) };
+  assert.equal(_lexiqueCorpsAffiche(jamais, '2026-12-01'), 'Phrase generale.', 'jamais verifie : phrase generale');
+  const sansPhrase = { id: 'z', corps: 'Texte precis.', detailsAJour: BLOC_TEST };
+  assert.equal(_lexiqueCorpsAffiche(sansPhrase, '2028-01-01'), 'Texte precis.', 'sans phrase generale : le texte reste');
+  assert.equal(_lexiqueCorpsAffiche({ id: 'w', corps: 'Sans bloc.' }, '2028-01-01'), 'Sans bloc.');
+});
+
+test('second niveau : texte précis tant que le suivi a moins de 6 mois, phrase générale ensuite (consigne 95 étendue)', () => {
+  const entree = { id: 'sn', corps: 'Depuis le 1er septembre 2026, la durée est de 15 mois.', suivi: { verifieLe: '2026-11-03', source: { nom: 'Service Public', url: 'https://www.service-public.gouv.fr/x' }, phraseGenerale: 'Une durée qui change.' } };
+  assert.equal(_lexiqueEtatSuivi(entree.suivi, '2026-12-01'), 'ajour');
+  assert.equal(_lexiqueEtatSuivi(entree.suivi, '2027-05-04'), 'ajour', 'presque 6 mois');
+  assert.equal(_lexiqueEtatSuivi(entree.suivi, '2027-05-06'), 'message', '6 mois révolus');
+  assert.equal(_lexiqueEtatSuivi(Object.assign({}, entree.suivi, { verifieLe: '' }), '2026-12-01'), 'message', 'jamais daté');
+  assert.equal(_lexiqueEtatSuivi(undefined, '2026-12-01'), 'absent');
+  assert.equal(_lexiqueEtatSuivi(Object.assign({}, entree.suivi, { phraseGenerale: '' }), '2026-12-01'), 'absent', 'sans phrase générale : le texte reste');
+  const ajour = _lexiqueRenduCorpsSecondNiveau(entree, '2026-12-01');
+  assert.ok(/15 mois/.test(ajour) && /Vérifié le 3 novembre 2026/.test(ajour) && /href="https:\/\/www.service-public.gouv.fr\/x"/.test(ajour));
+  const message = _lexiqueRenduCorpsSecondNiveau(entree, '2027-06-01');
+  assert.ok(/Une durée qui change\./.test(message) && !/15 mois/.test(message) && /data-lexique-suivi="message"/.test(message) && /href="https:\/\/www.service-public.gouv.fr\/x"/.test(message));
+  assert.equal(_lexiqueRenduCorpsSecondNiveau({ id: 'sans', corps: 'Texte <b>brut</b>.' }, '2027-06-01'), '<p class="mb-0">Texte &lt;b&gt;brut&lt;/b&gt;.</p>');
 });

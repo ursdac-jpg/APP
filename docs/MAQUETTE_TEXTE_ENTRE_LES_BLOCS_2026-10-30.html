@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : un texte utile entre les blocs numérotés</title>
+<style>
+/* MAQUETTE du 30/10/2026 (consigne 63). Autonome : les règles .bloc-depli, .preparer-*, .pilule-etat et les variables de couleur sont copiées de css/style.css. Seules les règles .mq-* sont propres à la maquette. */
+:root{--bg-page: #f0f4fa;
+  --bg-card: #ffffff;
+  --bg-subtle: #f8fafc;
+  --bg-hover: #edf4ff;
+  --border: #e2e8f0;
+  --border-strong: #d5dbe4;
+  --text-strong: #0b1a33;
+  --text-muted: #4a5b6e;
+  --text-soft: #3a4a5e;
+  --accent: #0d6efd;
+  --accent-hover: #0a58ca;
+  --accent-bg-subtle: #eef2fd;
+  
+  --accent-solide: #0d6efd;
+  --accent-solide-hover: color-mix(in srgb, var(--accent-solide) 86%, #000);
+  --success: #198754;
+  --success-strong: #157347;
+  --success-bg-subtle: #d1f4de;
+  --danger: #dc3545;
+  --danger-bg-subtle: #fdeaea;
+  
+  --alert: #a3372b;
+  --alert-bg: #fbe6e3;
+  --warning: #b45309;
+  --warning-strong: #92400e;
+  --warning-bg-subtle: #fdf1d9;
+  --warning-border: #f0c675;
+  --repere-ref: #7c3aed;
+  --jaune-bg-subtle: #fff6d8;
+  --jaune-strong: #7a5b00;
+  --jaune-border: #ffe58a;
+  --police-app: 'Segoe UI', Roboto, system-ui, sans-serif;
+  --letter-spacing-app: normal;}
+[data-theme="sombre"]{--bg-page: #12161f;
+  --bg-card: #1b212c;
+  --bg-subtle: #222834;
+  --bg-hover: #2a3444;
+  --border: #313a4a;
+  --border-strong: #3d4759;
+  --text-strong: #e8edf5;
+  --text-muted: #a8b3c4;
+  --text-soft: #c3ccd9;
+  --accent: #4d94ff;
+  --accent-hover: #6ba5ff;
+  --accent-bg-subtle: #1e2940;
+  
+  --accent-solide: #1d4ed8;
+  
+  --success: #35c79a;
+  --success-strong: #6ee89a;
+  --success-bg-subtle: #17301f;
+  
+  --danger: #ff8a42;
+  --danger-bg-subtle: #3a1f1f;
+  --alert: #eda69c;
+  --alert-bg: #3a1f1b;
+  --warning: #f5a742;
+  --warning-strong: #ffc46b;
+  --warning-bg-subtle: #3a2c14;
+  --warning-border: #6b4e1e;
+  --repere-ref: #b794f6;
+  --jaune-bg-subtle: #3a2f0f;
+  --jaune-strong: #e6c65c;
+  --jaune-border: #6b551e;}
+:root{--famille-comprendre: #4338ca;
+  --famille-comprendre-bg-subtle: #eef2ff;
+  --famille-explorer: #0e7490;
+  --famille-explorer-bg-subtle: #ecfeff;
+  --famille-personnel: #b45309;
+  --famille-personnel-bg-subtle: #fffbeb;
+  --famille-accompagnement: #166534;
+  --famille-accompagnement-bg-subtle: #f0fdf4;}
+[data-theme="sombre"]{--famille-comprendre: #a5b4fc;
+  --famille-comprendre-bg-subtle: #1e1b4b;
+  --famille-explorer: #67e8f9;
+  --famille-explorer-bg-subtle: #083344;
+  --famille-personnel: #fbbf24;
+  --famille-personnel-bg-subtle: #451a03;
+  --famille-accompagnement: #4ade80;
+  --famille-accompagnement-bg-subtle: #052e16;}
+.carte-voie-num{font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--accent-solide); color: #fff; padding: 0.2rem 0.75rem; border-radius: 999px;}
+.voie-presentation{border: 2px solid var(--border-strong); border-radius: 14px; background: var(--bg-card); padding: 0.9rem 1rem; margin-bottom: 0.9rem;}
+.voie-presentation-tete{display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.4rem; font-size: 1.1rem;}
+.voie-presentation-tete > .bi{color: var(--accent); font-size: 1.3rem;}
+.voie-presentation-phrase{margin-bottom: 0.4rem;}
+[data-theme="sombre"]{--fond-pulse-doux: color-mix(in srgb, var(--accent) 14%, var(--bg-card));}
+.bloc-depli{border: 1px solid var(--border); border-radius: 12px; margin: 0.6rem 0; overflow: hidden; background: var(--bg-card);}
+.bloc-depli > summary{list-style: none; cursor: pointer; padding: 0.8rem 1rem;
+  font-weight: 700; color: var(--text-strong);
+  display: flex; align-items: center; gap: 0.5rem;}
+.bloc-depli > summary::-webkit-details-marker{display: none;}
+.bloc-depli > summary::before{content: "\25B8"; color: var(--accent); font-size: 0.85em; flex-shrink: 0;
+  transition: transform 0.15s;}
+.bloc-depli[open] > summary::before{transform: rotate(90deg);}
+.bloc-depli > summary .bloc-depli-etat{margin-left: auto; font-size: 0.8rem; font-weight: 700;}
+.bloc-depli-corps{padding: 0.2rem 1rem 1rem; border-top: 1px solid var(--border);}
+.bloc-verrouille > .bloc-depli-corps, .bloc-verrouille > .rr-bloc-corps{opacity: 0.55; user-select: none;}
+.bloc-verrouille > .bloc-depli-corps, .bloc-verrouille > .bloc-depli-corps *, .bloc-verrouille > .rr-bloc-corps, .bloc-verrouille > .rr-bloc-corps *,
+.ats-depli.bloc-verrouille > div:not(.bloc-verrou-message), .ats-depli.bloc-verrouille > div:not(.bloc-verrou-message) *{cursor: not-allowed !important;}
+.bloc-depli.bd-pret{border-left: 4px solid var(--success);}
+.bloc-depli.bd-pret > summary{background: var(--success-bg-subtle);}
+.bloc-depli.bd-warn{border-left: 4px solid var(--warning);}
+.bloc-depli.bd-warn > summary{background: var(--warning-bg-subtle);}
+.bloc-depli.bd-alert{border-left: 4px solid var(--alert);}
+.bloc-depli.bd-alert > summary{background: var(--alert-bg);}
+.bloc-depli.bd-accent{border-left: 4px solid var(--accent);}
+.bloc-depli.bd-accent > summary{background: var(--accent-bg-subtle);}
+.bloc-depli.a-resume > summary{flex-wrap: wrap; row-gap: 0.2rem;}
+.bloc-depli-resume{flex-basis: 100%; order: 9;
+  font-weight: 400; font-size: 0.9rem; color: var(--text-muted); line-height: 1.35;}
+.bloc-depli-resume .r-ok{color: var(--success-strong); font-weight: 700;}
+.bloc-depli-resume .r-warn{color: var(--warning-strong); font-weight: 700;}
+.bloc-depli-resume .r-alert{color: var(--alert); font-weight: 700;}
+.bilan-groupe-info .bloc-depli{border-style: dashed; background: var(--bg-subtle);}
+.bilan-groupe-info .bloc-depli > summary{background: transparent; font-weight: 600;}
+.bilan-preparer .preparer-num{flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  width: clamp(2.05rem, 3rem - 1vw, 2.5rem); height: clamp(2.05rem, 3rem - 1vw, 2.5rem); border-radius: 50%;
+  background: var(--accent-solide); color: #fff; font-size: clamp(1.1rem, 1.55rem - 1vw, 1.25rem); font-weight: 700;}
+.bilan-preparer .preparer-titre{font-weight: 700; font-size: clamp(1.2rem, 1.8rem - 1vw, 1.4rem);}
+.bloc-depli > summary .preparer-oblig{font-size: 0.72rem; font-weight: 600; color: var(--text-muted);}
+.bloc-depli > summary .pilule-etat{margin-left: auto; flex-shrink: 0;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 0.15rem 0.55rem; border-radius: 999px;
+  max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.pilule-etat.pe-ok{background: var(--success-bg-subtle); color: var(--success);}
+.pilule-etat.pe-info{background: var(--accent-bg-subtle); color: var(--accent);}
+.pilule-etat.pe-attente{background: var(--warning-bg-subtle); color: var(--warning);}
+.bilan-preparer .preparer-detail{color: var(--text-muted); font-size: 0.82rem; margin-top: 0.4rem;}
+.bilan-preparer .carte-preparer-ok{display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+  padding: 0.6rem 0.8rem; border-radius: 9px;
+  background: transparent; border: 1px solid var(--border);}
+.bilan-preparer .preparer-jetons{display: flex; flex-wrap: wrap; gap: 0.5rem;}
+.bilan-preparer .preparer-jeton{font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  padding: 0.4rem 0.9rem; border-radius: 999px;
+  color: var(--accent); background: var(--bg-card);
+  border: 1px solid var(--accent);}
+.bilan-preparer .preparer-jeton-actif{color: #fff; background: var(--accent-solide);}
+.comparer-pistes-parcours #cpBlocFacons .bloc-depli-corps > details.bloc-depli:not([open]) > summary{background: var(--accent-bg-subtle);}
+.comparer-pistes-parcours #cpBlocFacons .bloc-depli-corps > details.bloc-depli[open] > summary{background: var(--bg-card);}
+.comparer-pistes-parcours #cpBlocFacons .bloc-depli-corps > details.bloc-depli > summary .preparer-titre{font-size: 1.15rem;}
+.comparer-pistes-parcours .cp-voie{border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.8rem 0.9rem; background: var(--bg-card);}
+.comparer-pistes-parcours .cp-voie strong{display: block; color: var(--text-strong); font-size: 0.95rem;}
+.comparer-pistes-parcours .cp-voie-faite{border-color: var(--success); background: var(--success-bg-subtle);}
+:root[data-theme="sombre"] .btn.cp-btn-panier.cp-btn-panier-actif{color: var(--bg-card);}
+:root{--rb-identite: #0d6efd; --rb-accroche: #7c3aed; --rb-experience: #15803d; --rb-formation: #b45309;
+  --rb-competences: #0e7490; --rb-langues: #be185d; --rb-loisirs: #4f46e5; --rb-autres: #64748b; --rb-aclasser: #c2410c;
+  --rb-qualites: #0f766e; --rb-logiciels: #0369a1; --rb-certifications: #a16207; --rb-engagements: #86198f;}
+[data-theme="sombre"]{--rb-identite: #6ba5ff; --rb-accroche: #b79cff; --rb-experience: #4ade80; --rb-formation: #fbbf24;
+  --rb-competences: #22d3ee; --rb-langues: #f472b6; --rb-loisirs: #9aa0ff; --rb-autres: #a3b0c2; --rb-aclasser: #fb923c;
+  --rb-qualites: #5eead4; --rb-logiciels: #7dd3fc; --rb-certifications: #fde047; --rb-engagements: #f0abfc;}
+.bloc-depli > summary .rpast{margin-right: .5rem;}
+.mc-comp.retire .bloc-depli-corps > *:not(.mc-gestes){opacity: .5;}
+.cpv-panneau .bloc-depli{border-style: dashed;}
+body { background: var(--bg-page); color: var(--text-strong); font-family: system-ui, "Segoe UI", sans-serif; margin: 0; padding: 1rem; line-height: 1.5; }
+.mq-colonne { max-width: 860px; margin: 0 auto; }
+.mq-notes { background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: .9rem 1.1rem; font-size: .95rem; margin-bottom: 1rem; }
+.mq-notes h2 { font-size: 1rem; margin: 0 0 .4rem; }
+.mq-notes ul { margin: 0; padding-left: 1.2rem; }
+.mq-notes li { margin-bottom: .25rem; }
+.mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 0 0 1rem; }
+.mq-barre span.mq-lib { font-weight: 700; font-size: .9rem; margin-right: .2rem; }
+.mq-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: .5rem; padding: .35rem .8rem; font-size: .9rem; cursor: pointer; }
+.mq-barre button[aria-pressed="true"] { background: var(--accent-solide, var(--accent)); color: #fff; border-color: var(--accent-solide, var(--accent)); }
+.mq-ecran { background: var(--bg-page); border: 1px solid var(--border-strong); border-radius: 1rem; padding: 1rem; margin-bottom: 1.2rem; }
+.mq-titre-page { text-align: center; margin: .2rem 0 1rem; }
+.mq-titre-page h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.mq-titre-page p { margin: .3rem 0 0; color: var(--text-muted); }
+.mq-voies { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: .6rem; }
+@media (max-width: 700px) { .mq-voies { grid-template-columns: 1fr; } }
+.mq-voie { border: 1px solid var(--border); border-radius: .8rem; padding: .7rem; text-align: center; font-size: .9rem; background: var(--bg-card); }
+.mq-voie b { display: block; margin-bottom: .2rem; }
+.mq-voies.mq-bloque { opacity: .45; filter: grayscale(1); pointer-events: none; }
+.mq-btn { display: inline-block; background: var(--accent-solide, var(--accent)); color: #fff; border-radius: .5rem; padding: .35rem .9rem; font-size: .9rem; }
+.mq-sequence > .bloc-depli { margin: 0; }
+.mq-liaison { display: flex; gap: .7rem; align-items: flex-start; padding: .6rem .4rem 2rem 1rem; }
+.mq-liaison .mq-fleche { flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .95rem; }
+.mq-liaison p { margin: 0; color: var(--text-muted); font-size: .98rem; }
+.mq-liaison p strong { color: var(--text-strong); }
+.mq-table { width: 100%; border-collapse: collapse; font-size: .92rem; background: var(--bg-card); }
+.mq-table th, .mq-table td { border: 1px solid var(--border); padding: .5rem .6rem; text-align: left; vertical-align: top; }
+.mq-table th { background: var(--bg-subtle); }
+h2.mq-h2 { font-size: 1.1rem; margin: 1.4rem 0 .5rem; }
+</style>
+</head>
+<body>
+<div class="mq-colonne">
+<div class="mq-notes">
+  <h2>Ce que vous regardez</h2>
+  <ul>
+    <li><strong>L'écran « Reprendre mon CV »</strong> tel que vous me l'avez montré : bloc 1 « Votre CV », bloc 2 « Que voulez-vous faire de votre CV ? ». <strong>Nouveau</strong> : entre les deux blocs, un petit texte qui dit ce qui se passe, et un peu plus d'espace.</li>
+    <li><strong>Le texte reste visible quand un bloc se ferme.</strong> Essayez : cliquez sur le titre du bloc 1 pour le fermer ou le rouvrir.</li>
+    <li><strong>Choisi par vous</strong> : la note calme (A). Le texte est collé au bloc 1, avec un grand espace avant le bloc 2, et il ne répète plus ce que dit le bloc 1.</li>
+    <li><strong>Ce que je vous demande de trancher</strong> : l'état du bloc 2 quand la personne arrive, avant d'avoir déposé son CV. Trois états à essayer avec les boutons ci-dessous.</li>
+    <li><strong>Plus bas</strong> : les textes proposés pour les autres modules (lettre, entretien, CV reformulé), à valider avant de les mettre partout.</li>
+    <li>Les trois voies du bloc 2 ne changent pas : elles sont dessinées ici en simplifié.</li>
+  </ul>
+</div>
+
+<div class="mq-barre">
+  <span class="mq-lib">État du bloc 2 :</span>
+  <button type="button" data-e="1" aria-pressed="true">1 : fermé jusqu'au dépôt (je recommande)</button>
+  <button type="button" data-e="2" aria-pressed="false">2 : ouvert, cartes grisées (comme aujourd'hui)</button>
+  <button type="button" data-e="3" aria-pressed="false">3 : après le dépôt</button>
+</div>
+<p class="mq-etat" id="etatTexte" style="margin:0 0 .8rem;font-size:.92rem;color:var(--text-muted);"></p>
+
+<div class="mq-ecran bilan-preparer" id="ecran">
+  <div class="mq-titre-page"><h1>Reprendre mon CV</h1><p>Tout se prépare ici, sur une seule page qui se déplie. Vous pourrez rouvrir une partie déjà faite à tout moment.</p></div>
+  <div class="mq-sequence">
+    <details class="bloc-depli" id="bloc1" open>
+      <summary><span class="preparer-num">1</span><span class="preparer-titre">Votre CV</span><span class="pilule-etat pe-attente" id="pilule1">À déposer</span></summary>
+      <div class="bloc-depli-corps">
+        <p>Déposez votre CV, ou collez son texte. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>
+        <p><span class="mq-btn">Déposer mon fichier</span></p>
+        <p class="preparer-detail"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d’écran.</p>
+      </div>
+    </details>
+
+    <div class="mq-liaison"><span class="mq-fleche" aria-hidden="true">&#8595;</span>
+      <p><strong>Ce qui se passe ensuite.</strong> Une fois votre CV déposé, vous le relisez et vous pouvez masquer ce que vous ne souhaitez pas garder, comme votre téléphone ou votre adresse. Puis vous choisissez ce que vous voulez en faire.</p>
+    </div>
+
+    <details class="bloc-depli" id="bloc2" open>
+      <summary><span class="preparer-num">2</span><span class="preparer-titre">Que voulez-vous faire de votre CV ?</span><span class="pilule-etat pe-info" id="pilule2">À choisir</span></summary>
+      <div class="bloc-depli-corps">
+        <p>Trois voies différentes : choisissez-en une en cliquant sur sa carte. Votre CV déposé reste là : vous pourrez changer d’avis sans le redéposer.</p>
+        <p id="msgBloque" class="preparer-detail" hidden><strong>Les trois voies sont bloquées pour l’instant</strong> : déposez d’abord votre CV (partie 1 ci-dessus). Il sera relu à ce moment-là, puis vous pourrez choisir.</p>
+        <div class="mq-voies" id="voies">
+          <div class="mq-voie"><b>Voie 1<br>Le garder et le compléter</b>Avec l’assistant.</div>
+          <div class="mq-voie"><b>Voie 2<br>Le reformuler et le présenter</b>Avec l’assistant.</div>
+          <div class="mq-voie"><b>Voie 3<br>Le refaire moi-même dans un modèle</b>Sans assistant.</div>
+        </div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<h2 class="mq-h2">Les textes proposés pour les autres modules</h2>
+<p>Même principe : un texte court entre deux blocs, écrit à partir de ce que fait vraiment l'écran. Dites-moi ceux que vous gardez et ceux que vous changez ; je ne les pose qu'après votre accord.</p>
+<table class="mq-table">
+  <thead><tr><th>Module</th><th>Entre ces blocs</th><th>Texte proposé</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="2">Écrire ma lettre de motivation</td><td>1 « Votre CV » et 2 « Votre situation et l'offre visée »</td><td>Votre CV sert de base : l’assistant s’appuie sur votre parcours réel pour écrire. Ensuite, vous dites à qui la lettre s’adresse.</td></tr>
+    <tr><td>2 et 3 « Votre assistant »</td><td>Ces précisions permettent une lettre qui parle de ce poste et de cette entreprise, pas d’une lettre pour tout le monde. Il reste à choisir l’assistant qui la rédigera.</td></tr>
+    <tr><td rowspan="2">M'entraîner à un entretien</td><td>1 « Votre CV » et 2 « Adaptation au métier »</td><td>Votre CV permet de préparer des questions à partir de votre vrai parcours. Ensuite, vous précisez le poste et l’entreprise.</td></tr>
+    <tr><td>2 et 3 « Votre assistant »</td><td>Plus le poste est précis, plus la préparation est utile. Il reste à choisir l’assistant qui vous préparera.</td></tr>
+    <tr><td rowspan="2">Reformuler mon CV</td><td>1 « Votre CV » et 2 « Votre objectif »</td><td>Une fois votre CV déposé, vous le relisez et vous pouvez masquer ce que vous ne souhaitez pas garder. Puis vous dites pourquoi vous faites ce CV.</td></tr>
+    <tr><td>2 et 3 « Votre assistant »</td><td>Dire pourquoi vous faites ce CV permet à l’assistant d’adapter le vocabulaire de vos compétences. Il reste à choisir l’assistant.</td></tr>
+  </tbody>
+</table>
+<p style="font-size:.9rem;color:var(--text-muted);">Restent à rédiger après votre accord sur le principe : Analyser ma candidature, Cohérence, Comparer mes pistes, Regard recruteur, Un CV plusieurs métiers, Découvrir mes compétences.</p>
+</div>
+<script>
+var TEXTES = {
+  '1': 'Avant le dépôt : le bloc 1 est ouvert, c’est la seule chose à faire. Le bloc 2 est fermé et sa pastille dit « Après le dépôt ». Rien de grisé à regarder, rien qui ne marche pas.',
+  '2': 'Avant le dépôt, comme aujourd’hui : les deux blocs sont ouverts, mais les trois cartes sont grisées et on ne peut pas cliquer dessus. C’est ce qui peut perdre une personne fragile.',
+  '3': 'Après le dépôt et la relecture : le bloc 1 se replie sur « Déposé », le bloc 2 s’ouvre et les trois cartes sont actives.'
+};
+function etat(e) {
+  var b1 = document.getElementById('bloc1'), b2 = document.getElementById('bloc2'), p1 = document.getElementById('pilule1'), p2 = document.getElementById('pilule2');
+  var voies = document.getElementById('voies'), msg = document.getElementById('msgBloque');
+  Array.prototype.forEach.call(document.querySelectorAll('.mq-barre button'), function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-e') === e ? 'true' : 'false'); });
+  document.getElementById('etatTexte').textContent = TEXTES[e];
+  if (e === '1') { b1.open = true; b2.open = false; p1.className = 'pilule-etat pe-attente'; p1.textContent = 'À déposer'; p2.className = 'pilule-etat pe-attente'; p2.textContent = 'Après le dépôt'; voies.classList.remove('mq-bloque'); msg.hidden = true; }
+  if (e === '2') { b1.open = true; b2.open = true; p1.className = 'pilule-etat pe-attente'; p1.textContent = 'À déposer'; p2.className = 'pilule-etat pe-info'; p2.textContent = 'À choisir'; voies.classList.add('mq-bloque'); msg.hidden = false; }
+  if (e === '3') { b1.open = false; b2.open = true; p1.className = 'pilule-etat pe-ok'; p1.textContent = 'Déposé · vous pouvez le changer'; p2.className = 'pilule-etat pe-info'; p2.textContent = 'À choisir'; voies.classList.remove('mq-bloque'); msg.hidden = true; }
+}
+document.querySelector('.mq-barre').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b) { etat(b.getAttribute('data-e')); } });
+etat('1');
+</script>
+</body>
+</html>

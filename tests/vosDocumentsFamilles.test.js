@@ -11,13 +11,13 @@ const CAS = [
   { nom: '02 creer avec l’assistant', s: { modeCreation: 'nouveau', creationSansAssistant: false, docActif: 'cv', origine: 'cv' },
     attendu: { famille: 'creer-assistant', barre: 'CREER_CV', indexBarre: 5, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },
   { nom: '03 recit', s: { decouverteVersResultats: true, docActif: 'cv', origine: 'cv' },
-    attendu: { famille: 'recit', barre: 'DECOUVERTE', indexBarre: 6, titre: 'Vos documents', retour: { type: 'fonction', cible: 'reafficherDecouverteCompetences()' }, fin: 'fenetre-et-maintenant' } },
+    attendu: { famille: 'recit', barre: 'DECOUVERTE', indexBarre: 6, titre: 'Vos documents', retour: { type: 'fonction', cible: 'reafficherDecouverteCompetences()' }, fin: 'accueil' } },
   { nom: '04 mettre a jour (voie 1)', s: { modeCreation: 'maj', docActif: 'cv', origine: 'cv' },
-    attendu: { famille: 'maj', barre: 'MAJ_CV', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'fenetre-et-maintenant' } },
-  { nom: '05 reformuler (barre de « Mettre a jour », constat C1)', s: { modeCreation: 'maj', origineReformuler: true, docActif: 'cv', origine: 'cv' },
-    attendu: { famille: 'reformuler', barre: 'MAJ_CV', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },
+    attendu: { famille: 'maj', barre: 'MAJ_CV', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },
+  { nom: '05 reformuler (barre propre de Reformuler depuis le 28/10/2026)', s: { modeCreation: 'maj', origineReformuler: true, docActif: 'cv', origine: 'cv' },
+    attendu: { famille: 'reformuler', barre: 'REFORMULER', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },
   { nom: '06 voie 3', s: { modeCreation: 'maj', modeFidele: true, docActif: 'cv', origine: 'cv-sans-assistant' },
-    attendu: { famille: 'voie3', barre: 'CSA', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv-sans-assistant' }, fin: 'fenetre-et-maintenant' } },
+    attendu: { famille: 'voie3', barre: 'CSA', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv-sans-assistant' }, fin: 'accueil' } },
   { nom: '07 lettre rapide', s: { modeCreation: 'pret', docActif: 'lettre', origine: 'cv' },
     attendu: { famille: 'pret', barre: 'PREPARER_LETTRE_ENTRETIEN', indexBarre: 4, titre: 'Ma lettre de motivation rapide', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },
   { nom: '07 bis entretien rapide', s: { modeCreation: 'pret', docActif: 'entretien', origine: 'cv' },
@@ -27,11 +27,11 @@ const CAS = [
   { nom: '09 m’entrainer a l’entretien', s: { docActif: 'entretien', origine: 'prepa-entretien' },
     attendu: { famille: 'prepa-entretien', barre: 'PREPA_ENTRETIEN', indexBarre: 3, titre: 'Votre préparation d’entretien', retour: { type: 'route', cible: 'prepa-entretien' }, fin: 'fenetre-effacement' } },
   { nom: '10 un CV, plusieurs metiers', s: { modeCreation: 'maj', docActif: 'cv', origine: 'un-cv-plusieurs-metiers' },
-    attendu: { famille: 'ucpm', barre: 'UCPM', indexBarre: 2, titre: 'Vos documents', retour: { type: 'fonction', cible: 'ucpmRetourDepuisEditeur()' }, fin: 'fenetre-et-maintenant' } },
+    attendu: { famille: 'ucpm', barre: 'UCPM', indexBarre: 2, titre: 'Vos documents', retour: { type: 'fonction', cible: 'ucpmRetourDepuisEditeur()' }, fin: 'accueil' } },
   { nom: '11 bilan', s: { docActif: 'cv', origine: 'bilan' },
-    attendu: { famille: 'bilan', barre: 'ANCIENNE', indexBarre: null, titre: 'Vos documents', retour: { type: 'route', cible: 'bilan' }, fin: 'fenetre-et-maintenant' } },
+    attendu: { famille: 'bilan', barre: 'ANCIENNE', indexBarre: null, titre: 'Vos documents', retour: { type: 'route', cible: 'bilan' }, fin: 'accueil' } },
   { nom: '12 arrivee directe', s: { docActif: 'cv', origine: 'cv' },
-    attendu: { famille: 'direct', barre: 'ANCIENNE', indexBarre: null, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'fenetre-et-maintenant' } }
+    attendu: { famille: 'direct', barre: 'ANCIENNE', indexBarre: null, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } }
 ];
 
 CAS.forEach(function (c) {
@@ -62,8 +62,12 @@ test('un parcours « origine prepa-entretien » sur un CV (document actif cv) ne
   assert.notEqual(familleVosDocuments({ origine: 'prepa-entretien', docActif: 'cv' }).famille, 'prepa-entretien');
 });
 
-test('la lettre deja importee suffit a reconnaitre « Ecrire ma lettre » (memes signaux que afficherProgression)', () => {
-  assert.equal(familleVosDocuments({ lettreDejaImportee: true, docActif: 'lettre', origine: 'cv' }).famille, 'co-lettre');
+test('une lettre deja importee, sans le drapeau « Ecrire ma lettre », garde l’ancienne barre (mesure du 31/10/2026)', () => {
+  assert.equal(familleVosDocuments({ lettreDejaImportee: true, docActif: 'lettre', origine: 'cv' }).barre, 'ANCIENNE');
+});
+
+test('« Mettre a jour » reste sur sa barre quand Reformuler n’est pas le parcours en cours', () => {
+  assert.equal(familleVosDocuments({ modeCreation: 'maj', origineReformuler: false, docActif: 'cv' }).barre, 'MAJ_CV');
 });
 
 test('recit termine : tous les reperes sont verts (index 7), sinon le repere « Mon CV » est courant (index 6)', () => {
@@ -81,17 +85,23 @@ test('retour : import direct de session = page d’avant l’import, repli accue
   assert.deepEqual(familleVosDocuments({ importDirect: true, docActif: 'cv' }).retour, { type: 'route', cible: 'cv' });
 });
 
+test('retour : le récit l’emporte sur l’import direct, et l’import direct sur la page d’origine', () => {
+  assert.deepEqual(familleVosDocuments({ decouverteVersResultats: true, importDirect: true, pageAvantImport: 'bilan', docActif: 'cv' }).retour, { type: 'fonction', cible: 'reafficherDecouverteCompetences()' });
+  assert.deepEqual(familleVosDocuments({ importDirect: true, pageAvantImport: 'bilan', origine: 'projet', docActif: 'cv' }).retour, { type: 'route', cible: 'bilan' });
+  assert.deepEqual(familleVosDocuments({ origine: 'projet', docActif: 'cv' }).retour, { type: 'route', cible: 'projet' });
+});
+
 test('retour : sans origine connue, repli « Votre profil » (comme resultatsCibleRetour)', () => {
   assert.deepEqual(familleVosDocuments({ docActif: 'cv' }).retour, { type: 'route', cible: 'revelation' });
 });
 
-test('fin : la regle de Denis (pas de fenetre si la page propose deja la suite) s’applique aujourd’hui a « nouveau », Reformuler et la lettre seulement', () => {
+test('fin : la regle de Denis (pas de fenetre si la page propose deja la suite) s’applique a tous les CV et a la lettre (decision du 27/10/2026)', () => {
   assert.equal(familleVosDocuments({ modeCreation: 'nouveau', docActif: 'cv' }).fin, 'accueil');
   assert.equal(familleVosDocuments({ modeCreation: 'maj', origineReformuler: true, docActif: 'cv' }).fin, 'accueil');
   assert.equal(familleVosDocuments({ modeCreation: 'maj', docActif: 'lettre' }).fin, 'accueil');
   // Constat C17 : les autres CV ouvrent « Et maintenant ? » alors que la page propose deja la suite ; ce test change quand la decision de Denis est appliquee.
-  assert.equal(familleVosDocuments({ modeCreation: 'maj', docActif: 'cv' }).fin, 'fenetre-et-maintenant');
-  assert.equal(familleVosDocuments({ decouverteVersResultats: true, docActif: 'cv' }).fin, 'fenetre-et-maintenant');
+  assert.equal(familleVosDocuments({ modeCreation: 'maj', docActif: 'cv' }).fin, 'accueil');
+  assert.equal(familleVosDocuments({ decouverteVersResultats: true, docActif: 'cv' }).fin, 'accueil');
 });
 
 test('sans signaux : ne plante pas et retombe sur l’arrivee directe', () => {
@@ -111,4 +121,17 @@ test('les titres du registre sont ceux de la matrice de reference mesuree dans l
     const h1 = parNom[nom].h1.replace(/^\S+\s+/, '');   // retire l'icone « 📄 »
     assert.equal(familleVosDocuments(cas.s).titre, h1, nom);
   });
+});
+
+test('C19 : tant que l’assistant se prépare, « Mettre à jour » et « Prêt » s’appellent « L’assistant en ligne », pas « Vos documents »', () => {
+  assert.equal(familleVosDocuments({ modeCreation: 'maj', docActif: 'cv', preparationAssistant: true }).titre, 'L’assistant en ligne');
+  assert.equal(familleVosDocuments({ modeCreation: 'pret', docActif: 'cv', preparationAssistant: true }).titre, 'L’assistant en ligne');
+  assert.equal(familleVosDocuments({ modeCreation: 'maj', docActif: 'cv', preparationAssistant: false }).titre, 'Vos documents');
+});
+
+test('C19 : les titres rapides, l’entretien du module, l’essai et les autres familles gardent leur titre', () => {
+  assert.equal(familleVosDocuments({ modeCreation: 'pret', docActif: 'lettre', preparationAssistant: true }).titre, 'Ma lettre de motivation rapide');
+  assert.equal(familleVosDocuments({ origine: 'prepa-entretien', docActif: 'entretien', preparationAssistant: true }).titre, 'Votre préparation d’entretien');
+  assert.equal(familleVosDocuments({ essaiModeles: true, modeCreation: 'maj', preparationAssistant: true }).titre, 'Nos modèles de CV');
+  assert.equal(familleVosDocuments({ docActif: 'cv', origine: 'bilan', preparationAssistant: true }).titre, 'Vos documents');
 });

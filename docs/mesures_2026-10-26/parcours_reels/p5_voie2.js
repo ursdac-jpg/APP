@@ -7,11 +7,11 @@ const L = require('./lib.js'); const S = require('./saisies4.js'); const A = req
   await L.clic(p, '#btnSuivantNavigation', 'Continuer (Préparer)'); await p.waitForTimeout(1500);
   await S.assistantEtColler(p, REF, 'v2');
   await A.avancer(p, 'v2', 6);
-  await L.clicTexte(p, 'Choisir celle-ci', 'v2 Choisir la 1re version'); await p.waitForTimeout(2000);
+  await p.getByText('Choisir celle-ci', { exact: false }).nth(1).click(); await p.waitForTimeout(2000);   // version 2 (la version 1 saute le deuxième passage : voir p5_voie2_version1.js)
   await L.photo(p, 'v2-3-apres-choix');
   await L.clic(p, '#btnSuivantNavigation', 'v2 C’est bon, passer à la mise en forme'); await p.waitForTimeout(2500);
   await L.photo(p, 'v2-4-sorties');
-  await L.clic(p, '#btnReformulerVersModele', 'v2 Continuer (vers le modèle)'); await p.waitForTimeout(2500);
+  await L.clic(p, '#btnSuivantNavigation', 'v2 Continuer (vers le modèle, barre du bas)'); await p.waitForTimeout(2500);
   await A.avancer(p, 'v2b', 6);
   await L.photo(p, 'v2-5a-documents-arrivee');
   await L.clic(p, '#btnSuivantNavigation', 'v2 documents : Continuer'); await p.waitForTimeout(1500);

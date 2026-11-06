@@ -838,7 +838,7 @@ function _htmlSecEnteteMiseEnPage() {
       var inclurePhoto = !!(dossier.photo && dossier.photo.inclure);
       return '<div class="ligne-comp" style="flex-wrap:wrap;margin-top:.35rem">' +
         (aPhoto
-          ? '<label style="display:flex;align-items:center;gap:.3rem;font-size:.8rem"><input type="checkbox" id="mepPhotoInclure"' + (inclurePhoto ? ' checked' : '') + '> Inclure ma photo</label>' +
+          ? '<label style="display:flex;align-items:center;gap:.3rem;font-size:0.875rem"><input type="checkbox" id="mepPhotoInclure"' + (inclurePhoto ? ' checked' : '') + '> Inclure ma photo</label>' +
             ((dossier.photo && dossier.photo.source) ? '<button type="button" class="btn-miss" id="mepPhotoAjuster">Ajuster le cadrage</button>' : '') +
             '<button type="button" class="btn-miss" id="mepPhotoChanger">Changer la photo</button>' +
             '<button type="button" class="btn-miss" id="mepPhotoRetirer">Retirer la photo</button>'
@@ -948,7 +948,7 @@ function _htmlSecExperiencesMiseEnPage() {
     return '<label class="rad"><input type="radio" name="' + nom + '" ' + attr + '="' + valeur + '"' + (actuel === valeur ? ' checked' : '') + '> ' + (petit ? '<span class="mot-final">' + libelle + ' ' + _mepAideBtn(petit) + '</span>' : libelle) + '</label>';
   }
   function boutonSI(attr, actif, texte, titre) {
-    return '<button type="button" class="btn-g-i' + (actif ? ' on' : '') + '" data-mep-evid-simple="' + attr + '" title="' + titre + '" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">' + texte + '</button>';
+    return '<button type="button" class="btn-g-i' + (actif ? ' on' : '') + '" data-mep-evid-simple="' + attr + '" title="' + titre + '" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:0.875rem">' + texte + '</button>';
   }
   var choixExpOuvert = _mepCarteOuverte('zoneChoixExp', false) || _mepEditionExp;
   var absentes = _mepExperiencesAbsentesDuCV();
@@ -985,7 +985,7 @@ function _htmlSecExperiencesMiseEnPage() {
     '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>' +
     '<span>&Eacute;diter les exp&eacute;riences <small>(intitul&eacute;, lieu, dates, missions)</small></span></label>' +
     (absentes.length
-      ? '<div class="alerte-exp-absentes" style="margin-top:.5rem;padding:.55rem .7rem;border:1px solid var(--warning-border,#e0a800);border-left-width:4px;background:var(--warning-bg,#fff8e1);border-radius:9px;font-size:.78rem">' +
+      ? '<div class="alerte-exp-absentes" style="margin-top:.5rem;padding:.55rem .7rem;border:1px solid var(--warning-border,#e0a800);border-left-width:4px;background:var(--warning-bg,#fff8e1);border-radius:9px;font-size:0.875rem">' +
         '<b>' + absentes.length + (absentes.length > 1 ? ' exp&eacute;riences de votre dossier ne sont pas sur le CV' : ' exp&eacute;rience de votre dossier n&rsquo;est pas sur le CV') + ' :</b> ' +
         absentes.map(function (e) { return echapperAttribut(e.poste) + (e.entreprise ? ' (' + echapperAttribut(e.entreprise) + ')' : ''); }).join(', ') + '.' +
         '<div style="margin-top:.4rem"><button type="button" class="mep-btn principal" data-mep-exp-ajouter-absentes>Ajouter au CV</button></div></div>' : '') +
@@ -1713,10 +1713,10 @@ function _htmlBoiteInfosCompMq() {
   var cochees = choix.infosCompAffichees || [];
   var nbSurCv = (cochees || []).length + ((lien && choix.afficherLien !== false) ? 1 : 0);
   var corps = (lien ? '<div class="checks auto">' + _mepCkMq('data-mep-info-lien', 'Afficher mon lien <span class="ex">(' + echapperAttribut(lien) + ')</span>', choix.afficherLien !== false) + '</div>'
-          : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Votre lien LinkedIn ou site se renseigne dans votre identit&eacute; (&laquo; Vos informations &raquo;).</p>') +
+          : '<p style="font-size:0.875rem;color:var(--text-muted);margin:.2rem 0">Votre lien LinkedIn ou site se renseigne dans votre identit&eacute; (&laquo; Vos informations &raquo;).</p>') +
     (infos.length ? '<div class="checks auto" style="grid-template-columns:1fr">' + infos.map(function (t, i) {
       return _mepCkMq('data-mep-info-comp="' + i + '"', echapperAttribut(t), cochees.indexOf(t) !== -1);
-    }).join('') + '</div>' : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Aucune information &agrave; compl&eacute;ter pour le moment. Vous pouvez y mettre votre disponibilit&eacute; (imm&eacute;diate), vos horaires (d&eacute;cal&eacute;s, tous types d&rsquo;horaires : c&rsquo;est une force), votre mobilit&eacute;&hellip; Rien ne s&rsquo;affiche sans que vous le cochiez.</p>') +
+    }).join('') + '</div>' : '<p style="font-size:0.875rem;color:var(--text-muted);margin:.2rem 0">Aucune information &agrave; compl&eacute;ter pour le moment. Vous pouvez y mettre votre disponibilit&eacute; (imm&eacute;diate), vos horaires (d&eacute;cal&eacute;s, tous types d&rsquo;horaires : c&rsquo;est une force), votre mobilit&eacute;&hellip; Rien ne s&rsquo;affiche sans que vous le cochiez.</p>') +
     '<div class="champ" style="margin-top:.4rem"><label for="mepInfoNouvelle">Ajouter une information</label>' +
     '<div style="display:flex;gap:.4rem;flex-wrap:wrap"><input type="text" id="mepInfoNouvelle" maxlength="120" placeholder="Ex. : Disponible imm&eacute;diatement" style="flex:1 1 9rem;min-width:0">' +
     '<button type="button" class="mep-btn principal" style="white-space:nowrap;flex:0 0 auto" data-mep-info-ajouter>+ Ajouter</button>' +

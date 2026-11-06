@@ -8,11 +8,11 @@ const L = require('../modules/nouveautes/logique.js');
 
 const AUJ = new Date(2026, 9, 26);   // 26 octobre 2026
 
-test('nvAgeJours et étiquette « Nouveau » : 30 jours, jamais une date future ni illisible', () => {
+test('nvAgeJours et étiquette « Nouveau » : 7 jours, jamais une date future ni illisible', () => {
   assert.strictEqual(L.nvAgeJours('2026-10-26', AUJ), 0);
-  assert.strictEqual(L.nvAgeJours('2026-09-26', AUJ), 30);
-  assert.strictEqual(L.nvEstNouveau({ date: '2026-09-26' }, AUJ), true);
-  assert.strictEqual(L.nvEstNouveau({ date: '2026-09-25' }, AUJ), false);
+  assert.strictEqual(L.nvAgeJours('2026-10-19', AUJ), 7);
+  assert.strictEqual(L.nvEstNouveau({ date: '2026-10-20' }, AUJ), true);
+  assert.strictEqual(L.nvEstNouveau({ date: '2026-10-19' }, AUJ), false);
   assert.strictEqual(L.nvEstNouveau({ date: '2026-10-27' }, AUJ), false);
   assert.strictEqual(L.nvAgeJours('pas une date', AUJ), null);
   assert.strictEqual(L.nvEstNouveau({}, AUJ), false);
@@ -41,6 +41,7 @@ test('les données : chaque ligne a une date, un titre, un texte, un lien connu 
   const liste = ctx.NOUV;
   assert.ok(liste.length > 0);
   const app = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+  const CARTES = ['Mes documents', 'Me préparer à candidater', 'Boîte à outils', 'Outils d’analyse', 'Se tenir informé', 'Vous hésitez encore ?'];
   liste.forEach((n) => {
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(n.date), n.titre);
     assert.ok(n.titre && n.texte, n.date);
@@ -49,5 +50,6 @@ test('les données : chaque ligne a une date, un titre, un texte, un lien connu 
     const t = n.titre + ' ' + n.texte + ' ' + (n.module || '');
     assert.ok(!/[–—]/.test(t) && !/\bIA\b/.test(t), 'tiret long ou « IA » : ' + n.titre);
     assert.ok(!/territoire/i.test(t), 'fonction fermée au public : ' + n.titre);
+    assert.ok(CARTES.indexOf(n.carte) !== -1, 'carte de l’accueil inconnue : ' + n.titre);
   });
 });

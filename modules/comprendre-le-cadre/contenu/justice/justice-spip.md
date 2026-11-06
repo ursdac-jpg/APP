@@ -7,7 +7,7 @@ tags: [SPIP, conseiller pénitentiaire d'insertion et de probation, probation, m
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "SPIP"
     definition: "Service pénitentiaire d'insertion et de probation. Service de l'administration pénitentiaire, présent dans chaque département, qui suit les personnes condamnées en détention et à l'extérieur."
@@ -24,16 +24,17 @@ sources:
 ce_qui_change_souvent:
   - "L'organisation des SPIP et de leurs partenariats"
   - "Les programmes d'accompagnement proposés"
-revisions: []
+revisions:
+  - "2026-11-04 : la page du ministère de la Justice (suivi en milieu ouvert) confirme le contrôle des obligations fixées par le juge, les rapports aux magistrats et les partenaires du soin, de l'hébergement et de l'insertion professionnelle ; la formation, l'accès aux droits, l'orientation vers France Travail et la mission locale, l'instruction des aménagements de peine (décidés par le juge de l'application des peines) et le greffe du tribunal n'y figurent pas (retirés ou corrigés) ; le rôle en détention n'était pas sur cette page"
 collecte: justice.collecte.md
 ---
 
 Le service pénitentiaire d'insertion et de probation, le SPIP, est votre interlocuteur principal quand vous êtes suivi par la justice, que vous soyez en détention ou à l'extérieur, par exemple sous sursis probatoire ou avec un travail d'intérêt général.
 
-Son rôle est double. D'un côté, il contrôle que vous respectez bien les obligations fixées par le juge et rend compte aux magistrats. De l'autre, et c'est le plus important pour la suite, il prépare l'insertion : le logement, les soins, la formation, le travail, l'accès aux droits.
+Son rôle est double. D'un côté, il contrôle que vous respectez bien les obligations fixées par le juge et rend compte aux magistrats. De l'autre, et c'est le plus important pour la suite, il prépare l'insertion : le soin, l'hébergement, l'insertion professionnelle.
 
-Au sein du SPIP, votre interlocuteur est un conseiller pénitentiaire d'insertion et de probation. C'est lui qui fait le point sur votre situation, vous oriente vers France Travail, la mission locale ou des associations, et instruit les demandes d'aménagement de peine.
+Au sein du SPIP, votre interlocuteur est un conseiller pénitentiaire d'insertion et de probation. C'est lui qui fait le point sur votre situation, vous met en lien avec des partenaires (soin, hébergement, insertion professionnelle).
 
 Si vous êtes en détention, demandez à rencontrer votre conseiller pour parler de la sortie : plus tôt le projet se construit, mieux c'est. Si vous êtes en milieu ouvert, votre conseiller est le premier point de contact pour toute difficulté.
 
-Les coordonnées du SPIP de votre département sont dans « Près de chez moi », ou auprès du greffe du tribunal.
+Les coordonnées du SPIP de votre département sont dans « Près de chez moi », ou dans l'annuaire des services pénitentiaires d'insertion et de probation du ministère de la Justice.

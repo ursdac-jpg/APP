@@ -7,7 +7,7 @@ tags: [guichet unique, INPI, immatriculation, SIREN, SIRET, registre national de
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "guichet unique des formalités des entreprises"
     definition: "Site en ligne, géré par l'Institut national de la propriété industrielle, par lequel passent obligatoirement toutes les formalités de création, de modification et de cessation d'entreprise."
@@ -22,16 +22,17 @@ ce_qui_change_souvent:
   - "Le fonctionnement du guichet unique et des registres"
   - "Les pièces demandées selon l'activité"
   - "Les obligations de compte bancaire dédié et de déclaration de TVA"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Service Public Entreprendre (R61572) confirme que le guichet unique concerne toutes les entreprises, quelle que soit leur forme ; la liste des pièces, l'attribution automatique du SIREN, l'obligation du compte bancaire dédié et la gratuité du conseil n'y figurent pas (retirées ou assouplies)"
 collecte: creer.collecte.md
 ---
 
 Créer officiellement une entreprise passe aujourd'hui par un seul site : le guichet unique des formalités des entreprises, géré par l'Institut national de la propriété industrielle. C'est obligatoire, quelle que soit la forme de l'entreprise.
 
-Vous y déclarez votre activité, votre adresse, le régime choisi, et vous joignez les pièces demandées : pièce d'identité, justificatif de domicile, et selon le métier, une qualification ou une autorisation.
+Vous y déclarez votre activité, votre adresse, le régime choisi, et vous joignez les pièces demandées, qui varient selon l'activité.
 
 Vous n'avez rien à demander pour vos numéros. Le SIREN, qui identifie l'entreprise, et le SIRET, qui identifie l'établissement, vous sont attribués automatiquement dès que la création est acceptée. Votre entreprise est alors inscrite au registre national des entreprises.
 
-Ensuite viennent les premières obligations : ouvrir un compte bancaire réservé à l'activité (obligatoire pour un micro-entrepreneur au-delà d'un certain chiffre d'affaires), déclarer et payer ses cotisations aux échéances, tenir un suivi de ses recettes, et selon le régime, déclarer la TVA.
+Ensuite viennent les premières obligations : ouvrir un compte bancaire réservé à l'activité, déclarer et payer ses cotisations aux échéances, tenir un suivi de ses recettes, et selon le régime, déclarer la TVA.
 
-Ces démarches paraissent techniques, mais un conseiller de la chambre de métiers, de la chambre de commerce, ou d'un réseau d'accompagnement peut les faire avec vous, gratuitement.
+Ces démarches paraissent techniques, mais un conseiller de la chambre de métiers, de la chambre de commerce, ou d'un réseau d'accompagnement peut les faire avec vous.

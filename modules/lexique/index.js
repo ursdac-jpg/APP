@@ -187,6 +187,14 @@ function _lexiqueFichesParRegistre(registre) {
 function _lexiqueRechercher(texte) {
   var cible = normaliserTexte(texte);
   if (!cible) { return []; }
+  // Consigne 100 : meme classement que la barre de l'accueil (rangFicheLexiqueERIP, data/baseConnaissancesERIP.js, charge avant ce module) :
+  // le mot exact d'abord, puis le titre, les variantes, enfin la recherche par mots (« difference cdd interim »).
+  if (typeof rangFicheLexiqueERIP === 'function') {
+    return LEXIQUE_FICHES.map(function (f, ordre) { return { f: f, ordre: ordre, rang: rangFicheLexiqueERIP(f, cible) }; })
+      .filter(function (x) { return x.rang < 9; })
+      .sort(function (a, b) { return a.rang - b.rang || a.ordre - b.ordre; })
+      .map(function (x) { return x.f; });
+  }
   return LEXIQUE_FICHES.filter(function (f) {
     if (normaliserTexte(f.titre).indexOf(cible) !== -1) { return true; }
     return (f.variantesRecherche || []).some(function (v) { return normaliserTexte(v).indexOf(cible) !== -1; });
@@ -239,6 +247,37 @@ function _lexiqueBoutonSource(source) {
   if (!source || typeof source.url !== 'string' || !/^https:\/\/[^\s"'<>]+$/.test(source.url)) { return ''; }
   return '<a class="btn btn-outline-secondary btn-sm" href="' + echapperAttribut(source.url) + '" target="_blank" rel="noopener noreferrer">' +
     '<i class="bi bi-box-arrow-up-right"></i> ' + echapperAttribut(source.nom) + ' (vous quittez l’application)</a>';
+}
+// Le texte du mot que voit la personne (consigne 95, decision de Denis du 03/11/2026) : tant que les chiffres sont a jour, le texte precis ; quand ils ne le
+// sont plus (verification de plus de 6 mois, ou jamais datee), la phrase generale du bloc, sans chiffre, qui ne risque pas de donner une fausse information.
+// Un mot sans phrase generale garde son texte.
+function _lexiqueCorpsAffiche(fiche, aujourdhui) {
+  var d = fiche && fiche.detailsAJour;
+  if (d && typeof d.phraseGenerale === 'string' && d.phraseGenerale && _lexiqueEtatDetails(d, aujourdhui || _lexiqueAujourdhui()) === 'message') { return d.phraseGenerale; }
+  return fiche.corps;
+}
+// Le suivi d'une entree de SECOND NIVEAU (champ facultatif `suivi`, consigne 95 etendue le 03/11/2026) : { verifieLe, source: { nom, url https }, phraseGenerale }.
+// 'absent' (pas de suivi : le texte tel quel), 'ajour' (verifie depuis moins de 6 mois : le texte precis avec « Verifie le »), 'message' (plus de 6 mois ou jamais date :
+// la phrase generale, sans chiffre, avec le message general et le lien vers la source officielle).
+function _lexiqueEtatSuivi(suivi, aujourdhui, seuilMois) {
+  if (!suivi || typeof suivi !== 'object' || typeof suivi.phraseGenerale !== 'string' || !suivi.phraseGenerale) { return 'absent'; }
+  if (!suivi.source || typeof suivi.source.nom !== 'string' || !suivi.source.nom) { return 'absent'; }
+  if (typeof suivi.verifieLe !== 'string' || !suivi.verifieLe) { return 'message'; }
+  var jours = _lexiqueJoursEntre(suivi.verifieLe, aujourdhui);
+  if (isNaN(jours)) { return 'message'; }
+  if (jours < 0) { return 'ajour'; }
+  return jours / 30.4375 < (seuilMois || LEXIQUE_SEUIL_MOIS_DETAILS) ? 'ajour' : 'message';
+}
+// Le contenu d'une entree de second niveau pour la personne : tout est echappe, jamais de HTML brut venu des donnees.
+function _lexiqueRenduCorpsSecondNiveau(a, aujourdhui) {
+  var etat = _lexiqueEtatSuivi(a && a.suivi, aujourdhui || _lexiqueAujourdhui());
+  if (etat === 'absent') { return '<p class="mb-0">' + echapperAttribut(a.corps) + '</p>'; }
+  if (etat === 'message') {
+    return '<p class="mb-2">' + echapperAttribut(a.suivi.phraseGenerale) + '</p>' +
+      '<p class="mb-2" data-lexique-suivi="message">' + echapperAttribut(LEXIQUE_MESSAGE_DETAILS_PERIMES) + '</p>' + _lexiqueBoutonSource(a.suivi.source);
+  }
+  return '<p class="mb-2">' + echapperAttribut(a.corps) + '</p>' +
+    '<p class="lexique-fiche-chiffres-pied mb-2" data-lexique-suivi="ajour">Vérifié le ' + echapperAttribut(_lexiqueDateFr(a.suivi.verifieLe)) + '.</p>' + _lexiqueBoutonSource(a.suivi.source);
 }
 // Le HTML du bloc (ou du message general, ou rien) pour une fiche. Tout est echappe : jamais de HTML brut venu des donnees.
 function _lexiqueRenduDetails(fiche, aujourdhui) {
@@ -956,7 +995,7 @@ function _lexiqueRenduFiche(id) {
     '<p class="small text-muted mb-1">' + lienUnivers + (lienRegistres ? ' · ' + lienRegistres : '') + '</p>' +
     '<h1 class="h4 mb-1">' + echapperAttribut(fiche.titre) + '</h1>' +
     '<p class="small text-muted mb-2">' + libelleType + '</p>' +
-    '<p class="lexique-fiche-def">' + echapperAttribut(fiche.corps) + '</p>' +
+    '<p class="lexique-fiche-def">' + echapperAttribut(_lexiqueCorpsAffiche(fiche)) + '</p>' +
     _lexiqueRenduDetails(fiche) +
     (blocFrein ? '<div class="lexique-fiche-frein">' + blocFrein + '</div>' : '') +
     blocUrgence +
@@ -1004,7 +1043,7 @@ function _lexiqueRenduBoutonsSecondNiveau(ficheId) {
       'aria-expanded="false" aria-controls="lexiqueAccordion-' + a.id + '">' +
       '<i class="bi bi-chevron-right"></i> ' + (unique ? 'En savoir plus' : 'En savoir plus : ' + echapperAttribut(a.titre)) +
       '</button>' +
-      '<div class="lexique-fiche-plus-corps" id="lexiqueAccordion-' + a.id + '" hidden><p class="mb-0">' + echapperAttribut(a.corps) + '</p></div>' +
+      '<div class="lexique-fiche-plus-corps" id="lexiqueAccordion-' + a.id + '" hidden>' + _lexiqueRenduCorpsSecondNiveau(a) + '</div>' +
       '</div>';
   }).join('');
   return '<div class="lexique-fiche-plus-zone">' + blocs + '</div>';
@@ -1036,13 +1075,21 @@ function _lexiqueContenuBoutonFavori(favori) {
 // definition -- le libelle a gauche, des petites pilules a droite -- au
 // lieu de gros boutons bordes qui pesaient plus lourd que la definition.
 // Chaque pilule garde data-lexique-fiche : la navigation ne change pas.
+// Un sigle seul (« PMSMP ») ne dit rien a la personne : quand la fiche le developpe dans sa premiere phrase
+// (« Une PMSMP (periode de mise en situation en milieu professionnel) permet... »), la pastille de renvoi affiche ce developpement (audit D16, 29/10/2026).
+function _lexiqueSigleDeveloppe(fiche) {
+  if (!fiche || !/^[A-Z0-9]{2,}$/.test(fiche.titre) || typeof fiche.corps !== 'string') { return ''; }
+  var m = new RegExp("^(?:Une?|Le|La|L[’'])?\\s*" + fiche.titre + " \\(([^)]{6,90})\\)").exec(fiche.corps);
+  return m ? ' (' + m[1] + ')' : '';
+}
+
 function _lexiqueRenduListeRelations(titre, idsCibles) {
   if (!idsCibles.length) { return ''; }
   var pastilles = idsCibles.map(function (id) {
     var cible = _lexiqueTrouverFiche(id);
     if (!cible) { return ''; }
     return '<button type="button" class="lexique-fiche-lien" data-lexique-fiche="' + cible.id + '">' +
-      echapperAttribut(cible.titre) + '</button>';
+      echapperAttribut(cible.titre + _lexiqueSigleDeveloppe(cible)) + '</button>';
   }).join('');
   if (!pastilles) { return ''; }
   return '<div class="lexique-fiche-renvoi">' +
@@ -1893,6 +1940,9 @@ if (typeof module !== 'undefined') {
     _lexiqueConstruireIndexSecondNiveau: _lexiqueConstruireIndexSecondNiveau,
     _lexiqueEtatDetails: _lexiqueEtatDetails,
     _lexiqueRenduDetails: _lexiqueRenduDetails,
+    _lexiqueCorpsAffiche: _lexiqueCorpsAffiche,
+    _lexiqueEtatSuivi: _lexiqueEtatSuivi,
+    _lexiqueRenduCorpsSecondNiveau: _lexiqueRenduCorpsSecondNiveau,
     _lexiqueDateFr: _lexiqueDateFr,
     LEXIQUE_SEUIL_MOIS_DETAILS: LEXIQUE_SEUIL_MOIS_DETAILS
   };

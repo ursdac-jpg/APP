@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : disposition à l'intérieur des cartes</title>
+<style>
+:root { --bg-page:#f0f4fa; --bg-card:#fff; --bg-subtle:#f8fafc; --border:#e2e8f0; --border-strong:#d5dbe4; --text-strong:#0b1a33; --text-muted:#4a5b6e; --text-soft:#3a4a5e; --accent:#0d6efd; --accent-bg-subtle:#eef2fd; }
+[data-theme="sombre"] { --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834; --border:#313a4a; --border-strong:#3d4759; --text-strong:#e8edf5; --text-muted:#a8b3c4; --text-soft:#c3ccd9; --accent:#4d94ff; --accent-bg-subtle:#1e2940; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg-page); color:var(--text-strong); font-family:system-ui,"Segoe UI",sans-serif; font-size:clamp(1rem, .65rem + .5vw, 1.4rem); }
+main { max-width: 2100px; margin: 0 auto; padding: 1rem clamp(.8rem, 2vw, 2.5rem) 5rem; }
+h1 { margin: .2rem 0 .3rem; }
+.bandeau { background:#fff7d6; color:#5b4a00; border:1px solid #e6c84d; border-radius:.4rem; padding:.4rem .7rem; font-size:.8em; margin:.4rem 0 1rem; }
+.barre { position:sticky; top:0; z-index:5; background:var(--bg-page); padding:.5rem 0; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--border); }
+.barre button { border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); border-radius:.4rem; padding:.35rem .8rem; font:inherit; font-size:.85em; cursor:pointer; }
+.barre button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+textarea { width:100%; height:3.2rem; font-size:.8em; margin:.4rem 0; }
+.proposition { margin: 1.6rem 0 2.2rem; }
+.proposition > h2 { font-size:1.05em; margin:0 0 .4rem; padding:.3rem .7rem; background:var(--accent-bg-subtle); border-left:4px solid var(--accent); border-radius:.3rem; }
+.proposition > p.expl { margin:.2rem 0 .8rem; color:var(--text-muted); font-size:.88em; }
+
+/* --- éléments communs d'une carte --- */
+.carte { background:var(--bg-card); border:1px solid var(--border); border-radius:.9rem; padding:1rem 1.3rem; }
+.q { font-weight:700; font-size:1.1em; margin:0 0 .3rem; }
+.onglets { display:inline-flex; border:1px solid var(--accent); border-radius:.4rem; overflow:hidden; margin:.1rem 0 .3rem; }
+.onglets span { padding:.25rem .8rem; font-size:.8em; color:var(--accent); }
+.onglets span.on { background:var(--accent); color:#fff; }
+.valeur { font-size:2.4em; font-weight:800; color:var(--accent); line-height:1.05; margin:.15rem 0; }
+.tend { display:inline-block; border:1px solid var(--border-strong); border-radius:1rem; padding:.05rem .6rem; font-size:.8em; color:var(--text-muted); }
+.phrase { margin:.4rem 0; color:var(--text-soft); line-height:1.4; }
+.repere { display:inline-block; border:1px solid var(--border-strong); background:var(--bg-subtle); border-radius:.4rem; padding:.25rem .6rem; font-size:.9em; margin:.3rem 0; }
+.gtitre { font-weight:700; font-size:.92em; margin:.7rem 0 .2rem; }
+.ligne { display:flex; justify-content:space-between; gap:1rem; padding:.2rem 0; border-bottom:1px dotted var(--border-strong); }
+.ligne .nom { color:var(--text-muted); } .ligne .n { font-weight:800; color:var(--accent); white-space:nowrap; }
+.ligne.fort .nom { color:var(--text-strong); font-weight:700; }
+.encart { background:var(--accent-bg-subtle); border:1px solid var(--border); border-radius:.6rem; padding:.7rem .9rem; font-size:.92em; color:var(--text-soft); }
+.encart b.t { display:block; font-size:.78em; letter-spacing:.03em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.3rem; }
+.source { font-size:.8em; color:var(--text-muted); margin-top:.8rem; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+.btn { border:1px solid var(--border-strong); background:var(--bg-subtle); border-radius:.5rem; padding:.2rem .7rem; font-size:.95em; color:var(--text-strong); }
+
+/* --- Proposition A : deux colonnes ; à droite l'encart ET la liste trimestre par trimestre --- */
+.A .grille { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:1.6rem; align-items:start; }
+.A .colonne > :first-child { margin-top:0; }
+/* --- Proposition B : bandeau en haut (chiffre à gauche, comparaisons en 3 tuiles à droite), puis listes en colonnes --- */
+.B .haut { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.5fr); gap:1.6rem; align-items:center; }
+.B .tuiles { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.8rem; }
+.B .tuile { border:1px solid var(--border); background:var(--bg-subtle); border-radius:.7rem; padding:.6rem .8rem; text-align:center; }
+.B .tuile.fort { border-color:var(--accent); background:var(--accent-bg-subtle); }
+.B .tuile .nom { font-size:.8em; color:var(--text-muted); } .B .tuile .n { font-size:1.6em; font-weight:800; color:var(--accent); }
+.B .bas { display:grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap:1.6rem; margin-top:1rem; align-items:start; }
+.B .puces { display:grid; grid-template-columns:repeat(auto-fill, minmax(12rem,1fr)); gap:.4rem; }
+.B .puce { white-space:nowrap; border:1px solid var(--border-strong); border-radius:.5rem; padding:.3rem .6rem; display:flex; justify-content:space-between; gap:.5rem; background:var(--bg-subtle); }
+.B .puce .n { font-weight:800; color:var(--accent); }
+/* --- Proposition C : cartes côte à côte, une fiche compacte chacune (la liste longue se replie) --- */
+.C .deux { display:grid; grid-template-columns: repeat(auto-fit, minmax(26rem,1fr)); gap:1.2rem; align-items:start; }
+.C .liste-deux { columns: 2; column-gap:1.4rem; }
+.C .liste-deux .ligne { break-inside:avoid; }
+details.pli { margin-top:.6rem; border:1px solid var(--border); border-radius:.5rem; padding:.4rem .7rem; background:var(--bg-subtle); }
+details.pli summary { cursor:pointer; font-weight:600; font-size:.92em; }
+@media (max-width: 800px) { .A .grille, .B .haut, .B .bas { grid-template-columns:1fr; } .B .tuiles { grid-template-columns:1fr; } .C .liste-deux { columns:1; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="barre">
+    <strong>Disposition à l'intérieur d'une carte</strong>
+    <button type="button" data-p="A">Je choisis A</button>
+    <button type="button" data-p="B">Je choisis B</button>
+    <button type="button" data-p="C">Je choisis C</button>
+    <button type="button" id="sombre">Clair / sombre</button>
+  </div>
+  <textarea id="sortie" readonly placeholder="Cliquez sur « Je choisis A, B ou C » : votre choix apparaît ici, à coller dans la conversation (vous pouvez ajouter ce que vous changeriez)."></textarea>
+  <p class="bandeau">Maquette : la même carte (« La difficulté est-elle passagère ou installée ? », vrais chiffres de la Dordogne) disposée de trois façons. Seule la disposition change : rien n'est retiré, tout reste cliquable comme dans l'application. Ouvrez-la dans votre vraie fenêtre.</p>
+
+  <!-- ============ A ============ -->
+  <section class="proposition A">
+    <h2>A. Deux colonnes égales : l'explication et la liste trimestre par trimestre passent à droite</h2>
+    <p class="expl">On garde la forme actuelle (chiffre à gauche, explication à droite) mais on remplit le vide : la colonne de droite reçoit aussi la liste des trimestres, la colonne de gauche reste courte.</p>
+    <div class="carte"><div class="grille">
+      <div class="colonne">
+        <p class="q">La difficulté est-elle passagère ou installée ?</p>
+        <div class="onglets"><span class="on">Chiffres</span><span>Barres</span><span>Camembert</span></div>
+        <p class="valeur">environ 47 %</p>
+        <span class="tend">→ à peu près stable</span>
+        <p class="phrase">Parmi les personnes qui cherchent un emploi, <b style="color:var(--accent)">environ 47 %</b> sont inscrites depuis plus d'un an.</p>
+        <span class="repere">C'est élevé : près d'une personne sur deux, et en hausse depuis un an.</span>
+        <p class="gtitre">Le territoire et les autres niveaux</p>
+        <div class="ligne fort"><span class="nom">Dordogne (24)</span><span class="n">47 %</span></div>
+        <div class="ligne"><span class="nom">Nouvelle-Aquitaine</span><span class="n">46,1 %</span></div>
+        <div class="ligne"><span class="nom">France</span><span class="n">46,5 %</span></div>
+      </div>
+      <div class="colonne">
+        <div class="encart"><b class="t">Ce que « longue durée » veut dire</b><b>Un an et plus</b> : on parle de chômage de longue durée.<br><br>Plus l'inscription dure, plus le retour à l'emploi demande du temps et un accompagnement adapté. Ce n'est pas une fatalité.</div>
+        <p class="gtitre">Trimestre par trimestre</p>
+        <div class="ligne"><span class="nom">T3 2024</span><span class="n">45,5 %</span></div>
+        <div class="ligne"><span class="nom">T4 2024</span><span class="n">45,3 %</span></div>
+        <div class="ligne"><span class="nom">T1 2025</span><span class="n">43,6 %</span></div>
+        <div class="ligne"><span class="nom">T2 2025</span><span class="n">44,8 %</span></div>
+      </div>
+    </div>
+    <div class="source">D'après Dares, France Travail (STMT), fin du 2e trimestre 2026. <span class="btn">Ouvrir la page</span> <span class="btn">Ajouter à ma fiche</span></div></div>
+  </section>
+
+  <!-- ============ B ============ -->
+  <section class="proposition B">
+    <h2>B. Bandeau : le chiffre à gauche, les comparaisons en trois tuiles à droite ; en dessous, trimestres en puces et explication</h2>
+    <p class="expl">Les trois comparaisons (territoire, région, France) deviennent des tuiles qu'on lit d'un coup d'œil à côté du chiffre principal ; les trimestres se rangent en puces serrées, sans longue colonne.</p>
+    <div class="carte">
+      <p class="q">La difficulté est-elle passagère ou installée ?</p>
+      <div class="haut">
+        <div>
+          <div class="onglets"><span class="on">Chiffres</span><span>Barres</span><span>Camembert</span></div>
+          <p class="valeur">environ 47 %</p>
+          <span class="tend">→ à peu près stable</span>
+          <p class="phrase">Parmi les personnes qui cherchent un emploi, <b style="color:var(--accent)">environ 47 %</b> sont inscrites depuis plus d'un an.</p>
+        </div>
+        <div class="tuiles">
+          <div class="tuile fort"><div class="nom">Dordogne (24)</div><div class="n">47 %</div></div>
+          <div class="tuile"><div class="nom">Nouvelle-Aquitaine</div><div class="n">46,1 %</div></div>
+          <div class="tuile"><div class="nom">France</div><div class="n">46,5 %</div></div>
+        </div>
+      </div>
+      <div class="bas">
+        <div>
+          <span class="repere">C'est élevé : près d'une personne sur deux, et en hausse depuis un an.</span>
+          <p class="gtitre">Trimestre par trimestre</p>
+          <div class="puces">
+            <div class="puce"><span>T3 2024</span><span class="n">45,5 %</span></div>
+            <div class="puce"><span>T4 2024</span><span class="n">45,3 %</span></div>
+            <div class="puce"><span>T1 2025</span><span class="n">43,6 %</span></div>
+            <div class="puce"><span>T2 2025</span><span class="n">44,8 %</span></div>
+          </div>
+        </div>
+        <div class="encart"><b class="t">Ce que « longue durée » veut dire</b><b>Un an et plus</b> : on parle de chômage de longue durée.<br><br>Plus l'inscription dure, plus le retour à l'emploi demande du temps et un accompagnement adapté. Ce n'est pas une fatalité.</div>
+      </div>
+      <div class="source">D'après Dares, France Travail (STMT), fin du 2e trimestre 2026. <span class="btn">Ouvrir la page</span> <span class="btn">Ajouter à ma fiche</span></div>
+    </div>
+  </section>
+
+  <!-- ============ C ============ -->
+  <section class="proposition C">
+    <h2>C. Deux cartes côte à côte, listes en deux colonnes, explication repliable</h2>
+    <p class="expl">Deux indicateurs voisins (ici le chômage de longue durée et le taux de pauvreté) occupent la largeur ensemble. Les listes se rangent sur deux colonnes dans la carte ; l'explication reste à un clic, sous la carte. Le principe : une carte ne s'étire jamais seule sur toute la largeur.</p>
+    <div class="deux">
+      <div class="carte">
+        <p class="q">La difficulté est-elle passagère ou installée ?</p>
+        <div class="onglets"><span class="on">Chiffres</span><span>Barres</span><span>Camembert</span></div>
+        <p class="valeur">environ 47 %</p>
+        <span class="tend">→ à peu près stable</span>
+        <p class="phrase">Parmi les personnes qui cherchent un emploi, <b style="color:var(--accent)">environ 47 %</b> sont inscrites depuis plus d'un an.</p>
+        <div class="liste-deux">
+          <div class="ligne fort"><span class="nom">Dordogne (24)</span><span class="n">47 %</span></div>
+          <div class="ligne"><span class="nom">Nouvelle-Aquitaine</span><span class="n">46,1 %</span></div>
+          <div class="ligne"><span class="nom">France</span><span class="n">46,5 %</span></div>
+          <div class="ligne"><span class="nom">T3 2024</span><span class="n">45,5 %</span></div>
+          <div class="ligne"><span class="nom">T4 2024</span><span class="n">45,3 %</span></div>
+          <div class="ligne"><span class="nom">T1 2025</span><span class="n">43,6 %</span></div>
+          <div class="ligne"><span class="nom">T2 2025</span><span class="n">44,8 %</span></div>
+        </div>
+        <details class="pli" open><summary>Ce que « longue durée » veut dire</summary><p class="phrase"><b>Un an et plus</b> : on parle de chômage de longue durée. Plus l'inscription dure, plus le retour à l'emploi demande du temps et un accompagnement adapté. Ce n'est pas une fatalité.</p></details>
+        <div class="source">D'après Dares, France Travail. <span class="btn">Ouvrir la page</span> <span class="btn">Ajouter à ma fiche</span></div>
+      </div>
+      <div class="carte">
+        <p class="q">Le taux de pauvreté</p>
+        <div class="onglets"><span class="on">Chiffres</span><span>Barres</span><span>Camembert</span></div>
+        <p class="valeur">17,1 %</p>
+        <span class="tend">en Dordogne</span>
+        <p class="phrase">Part des habitants dont le niveau de vie est sous le seuil de pauvreté.</p>
+        <div class="liste-deux">
+          <div class="ligne fort"><span class="nom">Dordogne (24)</span><span class="n">17,1 %</span></div>
+          <div class="ligne"><span class="nom">France métropolitaine</span><span class="n">15,9 %</span></div>
+        </div>
+        <details class="pli"><summary>Comment lire ce chiffre ?</summary><p class="phrase">Un repère pour situer le territoire, pas un jugement sur les personnes.</p></details>
+        <div class="source">D'après Insee, 2023. <span class="btn">Ouvrir la page</span> <span class="btn">Ajouter à ma fiche</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var s = document.getElementById('sortie');
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-p]').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      var t = 'Choix de disposition : ' + b.getAttribute('data-p') + ' (fenêtre ' + window.innerWidth + ' px). Remarques : ';
+      s.value = t;
+      try { navigator.clipboard.writeText(t); } catch (e) {}
+      s.focus();
+    });
+  });
+  document.getElementById('sombre').addEventListener('click', function () {
+    var h = document.documentElement;
+    h.setAttribute('data-theme', h.getAttribute('data-theme') === 'sombre' ? 'clair' : 'sombre');
+  });
+})();
+</script>
+</body>
+</html>

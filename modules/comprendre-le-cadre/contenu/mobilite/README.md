@@ -19,7 +19,7 @@ consignée dans `mobilite.collecte.md`.
    - bonus écologique supprimé au 1er juillet 2025 ; leasing social rouvert le 16 juillet 2026 ;
    - Carte Solidaire Nouvelle-Aquitaine : 80 % de réduction, gratuite, valable un an.
 
-## Les 6 fiches
+## Les 7 fiches
 
 | id | titre |
 |---|---|
@@ -29,6 +29,7 @@ consignée dans `mobilite.collecte.md`.
 | `mobilite-acheter-ou-reparer-un-vehicule` | Acheter ou réparer une voiture avec peu de moyens |
 | `mobilite-se-deplacer-sans-voiture` | Se déplacer sans voiture pour chercher ou garder un emploi |
 | `mobilite-aide-mobilite-france-travail` | L'aide à la mobilité de France Travail |
+| `mobilite-leasing-social` | Le leasing social : louer une voiture électrique à petit prix |
 
 ## Section « à qui s'adresser »
 

@@ -50,6 +50,7 @@ Pour chaque rayon :
 - Offres d'emploi, embauches : Data Emploi (France Travail), pages « Panorama », à lire dans le navigateur. Les embauches ont un retard d'environ six mois.
 - Demandeurs d'emploi : **ne jamais mélanger** la mesure de la Dares (corrigée des variations saisonnières) et celle de Data Emploi : elles donnent des nombres différents.
 - Après modification : vérifier que le module lit bien le fichier (fonction d'analyse du module dans le navigateur).
+- **Quand un chiffre change, relire les textes qui l'expliquent (consigne 134 de Denis, 2026-11-06).** Une phrase comme « un peu en dessous de la moyenne », « a baissé », « en 2025 » peut devenir fausse dès que le chiffre bouge. Après chaque relevé : (1) lancer `npm test` : le garde-fou casse si l'année écrite dans le texte d'une carte n'est plus celle de la source ; (2) relire à la main les textes qui commentent le chiffre (« En quelques mots » et « Lecture du territoire » des fichiers trimestriels, notes et dépliants des cartes dans `modules/comprendre-les-chiffres/index.js`) ; (3) le texte d'explication est écrit par Denis ou avec lui, jamais par l'outil ; (4) dans le compte rendu à Denis, lister les textes relus ou à réécrire.
 
 ## Après chaque modification de fiche (obligatoire)
 

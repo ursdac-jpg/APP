@@ -43,18 +43,50 @@ test('la réponse choisie (une année proposée) est appliquée à la certificat
   assert.equal(objet.certifications[0], 'Sensibilisation amiante (2026)');
 });
 
-test('sans texte du CV, ou sans formation reconnue au-dessus, aucune année n’est proposée', () => {
+test('sans lien avec une formation, les années des formations du CV sont proposées (plus récentes d’abord, quatre au plus), sans regroupement', () => {
   const p1 = inc.pointsCertificationsSansAnnee([JEU], []);
   inc.suggererAnneesCertifications(p1, [JEU], '');
-  assert.equal(p1[0].suggestions, undefined);
+  assert.deepEqual(p1[0].suggestions, ['2026', '2025', '2020', '2019']);
+  assert.equal(p1[0].groupe, undefined);
+  assert.match(p1[0].question, /années de vos formations/);
   const p2 = inc.pointsCertificationsSansAnnee([JEU], []);
   inc.suggererAnneesCertifications(p2, [JEU], 'Sensibilisation amiante\nAutre ligne');
-  assert.equal(p2[0].suggestions, undefined);
+  assert.deepEqual(p2[0].suggestions, ['2026', '2025', '2020', '2019']);
 });
 
-test('une ligne datée entre la formation et la certification coupe le lien : rien n’est proposé', () => {
+test('sans aucune formation datée, rien n’est proposé', () => {
+  const jeu = { certifications: ['Sensibilisation amiante'], formations: [{ intitule: 'Plaquiste' }] };
+  const p = inc.pointsCertificationsSansAnnee([jeu], []);
+  inc.suggererAnneesCertifications(p, [jeu], 'Sensibilisation amiante\nAutre ligne');
+  assert.equal(p[0].suggestions, undefined);
+});
+
+test('une ligne datée entre la formation et la certification coupe le lien avec cette formation : les années du parcours sont proposées à la place', () => {
   const texte = '2025 - 2026 : Titre professionnel Plaquiste, IDC PRO\n2023 : Agent technique, X\nSensibilisation amiante';
   const pts = inc.pointsCertificationsSansAnnee([{ formations: JEU.formations, certifications: ['Sensibilisation amiante'] }], []);
   inc.suggererAnneesCertifications(pts, [JEU], texte);
-  assert.equal(pts[0].suggestions, undefined);
+  assert.equal(pts[0].groupe, undefined);
+  assert.deepEqual(pts[0].suggestions, ['2026', '2025', '2020', '2019']);
+});
+
+test('le lien « rattachements » donné par l’assistant propose les années de la formation, même sans texte du CV, avec le regroupement « même année »', () => {
+  const pts = inc.pointsCertificationsSansAnnee([JEU], []);
+  inc.suggererAnneesCertifications(pts, [JEU], '', [
+    { certification: 'Sensibilisation amiante', formation: 'Plaquiste' },
+    { certification: 'Module travail en hauteur', formation: 'Plaquiste' }
+  ]);
+  const amiante = pts.find((p) => /amiante/.test(p.extrait));
+  assert.deepEqual(amiante.suggestions, ['2025', '2026']);
+  assert.equal(amiante.groupe, 'Plaquiste');
+  assert.match(amiante.question, /range sous « Plaquiste »/);
+  // une certification sans lien : les années du parcours, sans regroupement
+  const echafaudage = pts.find((p) => /échafaudage/.test(p.extrait));
+  assert.equal(echafaudage.groupe, undefined);
+  assert.deepEqual(echafaudage.suggestions, ['2026', '2025', '2020', '2019']);
+});
+
+test('un lien « rattachements » vers une formation inconnue est ignoré (jamais d’année inventée)', () => {
+  const pts = inc.pointsCertificationsSansAnnee([JEU], []);
+  inc.suggererAnneesCertifications(pts, [JEU], '', [{ certification: 'Sensibilisation amiante', formation: 'Maçon' }]);
+  assert.equal(pts[0].groupe, undefined);
 });

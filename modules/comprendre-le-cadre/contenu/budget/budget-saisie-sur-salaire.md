@@ -22,6 +22,7 @@ ce_qui_change_souvent:
   - "Le montant du RSA qui sert de plancher insaisissable"
 revisions:
   - "2025-07 : la saisie sur salaire passe par un commissaire de justice, plus par le tribunal (loi du 20 novembre 2023, décret du 12 février 2025)"
+phrase_generale: "Quand un créancier fait saisir une partie du salaire, une partie de la paie reste toujours protégée, et la part qui peut être prélevée dépend de vos revenus et de votre situation. Les barèmes sont revus régulièrement : pour connaître ce qui s'applique aujourd'hui, demandez à un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 

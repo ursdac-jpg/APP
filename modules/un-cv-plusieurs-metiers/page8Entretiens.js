@@ -99,6 +99,9 @@ function _ucpmConfigPassagePrep(etat, mode) {
         });
       });
     },
+    module: { libelleSuite: 'Voir la préparation', quoi: 'L’assistant vient de préparer vos entretiens.',
+      pourquoi: 'Vous arrivez à chaque entretien en sachant à quoi vous attendre.', verif: 'relisez les réponses proposées : elles doivent rester vraies pour vous. Ce sont des pistes, jamais un texte à réciter.' },
+    verifier: function (texte) { return !!ucpmLireReponsePreparation(texte, _ucpmP8Cibles(etat, mode).map(function (e) { return e.id; })).succes; },
     importer: function (texte) {
       var cibles = _ucpmP8Cibles(etat, mode);
       var r = ucpmLireReponsePreparation(texte, cibles.map(function (e) { return e.id; }));
@@ -302,11 +305,11 @@ function _ucpmP8HtmlLecture(etat) {
       ? '<div class="cv-section"><p class="mb-1"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, courante)) + '</strong></p>' +
         '<p class="small mb-2" style="color:var(--text-muted);">' + _ucpmEsc(etiquette) + ' &#183; <span id="ucpmP8NbPages">mise en page en cours</span></p>' +
         '<div data-ucpm-p8-apercu="' + courante.id + '" role="img" aria-label="Aperçu de la feuille de préparation" style="border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);overflow:hidden;min-height:8rem;"></div>' +
-        '<div class="d-flex flex-wrap gap-2 mt-3"><button type="button" class="btn btn-primary" data-ucpm-p8-tel="un" data-ucpm-p8-tel-id="' + courante.id + '">Télécharger cette préparation</button>' +
+        '<div class="d-flex flex-wrap gap-2 mt-3"><button type="button" class="btn btn-primary" data-ucpm-p8-tel="un" data-ucpm-p8-tel-id="' + courante.id + '">Enregistrer cette préparation en PDF</button>' +
         (p.mode === 'general' ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-approfondir="' + courante.id + '">Une préparation approfondie pour ce métier</button>' : '') + '</div></div>'
       : '') +
     '<div class="cv-section"><div class="d-flex flex-wrap gap-2">' +
-    (avec.length > 1 ? '<button type="button" class="btn btn-primary" data-ucpm-p8-tel="toutes">Télécharger toutes mes préparations (un seul PDF)</button>' : '') +
+    (avec.length > 1 ? '<button type="button" class="btn btn-primary" data-ucpm-p8-tel="toutes">Enregistrer toutes mes préparations en un seul PDF</button>' : '') +
     '<button type="button" class="btn btn-outline-secondary" id="btnUcpmP8Autre">Faire une autre préparation</button></div>' +
     _ucpmP8HtmlContenuPdf(etat) + '</div>';
 }

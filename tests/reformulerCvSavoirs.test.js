@@ -27,3 +27,13 @@ test('le prompt de Reformuler demande les savoirs et les présente comme propos�
   assert.ok(/`savoirs` : de 3 à 6 \*\*connaissances\*\*/.test(t));
   assert.ok(/seulement \*\*proposés\*\*/.test(t));
 });
+
+test('rattachements : le lien certification / formation donné par l’assistant est lu, nettoyé, et demandé par le prompt', () => {
+  const fs = require('node:fs');
+  const brut = JSON.stringify({ pasUnCV: false, pointsAVerifier: [], rattachements: [{ certification: ' SST ', formation: 'Plaquiste' }, { certification: 'Vide', formation: '' }, null], propositions: [{ certifications: ['SST'], formations: [{ intitule: 'Plaquiste', annee: '2025 - 2026' }] }] });
+  const lire = { extraireJSON: (t) => JSON.parse(t) };
+  const parse = m._reformulerCvParserReponse(brut, lire);
+  assert.deepEqual(parse.rattachements, [{ certification: 'SST', formation: 'Plaquiste' }]);
+  assert.deepEqual(m._reformulerCvParserReponse(JSON.stringify({ pasUnCV: false, propositions: [] }), lire).rattachements, []);
+  assert.match(fs.readFileSync(__dirname + '/../prompts/reformuler-cv.md', 'utf8'), /"rattachements"/);
+});

@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : l'aide « Explication rapide » de l'accueil</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* MAQUETTE du 29/10/2026 : la partie « Explication rapide » du bouton Aide (ampoule), page d'accueil.
+     Elle reprend les feuilles de style réelles de l'application (clair et sombre). Seules les règles .a2-* sont nouvelles. */
+  body { background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); margin: 0; padding: 1rem; }
+  .a2-barre { max-width: 900px; margin: 0 auto 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .a2-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: .6rem; padding: .35rem .8rem; font-size: .9rem; }
+  .a2-barre button[aria-pressed="true"] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+  .a2-notes { max-width: 900px; margin: 0 auto 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: .9rem 1.1rem; font-size: .92rem; }
+  .a2-notes h2 { font-size: 1rem; margin: 0 0 .4rem; }
+  .a2-notes ul { margin: 0; padding-left: 1.2rem; }
+  .a2-fond { display: flex; justify-content: center; padding: 1rem 0 2rem; }
+  .a2-fond.tel .a2-fenetre { max-width: 375px; padding: 1rem; }
+
+  /* La fenêtre : taille « très large » (900 px) déjà prévue par la spécification des fenêtres de l'application ; en plein écran sur téléphone. */
+  .a2-fenetre { background: var(--bg-card); border-radius: 1.5rem; max-width: 900px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.3); position: relative; }
+  .a2-entete { position: sticky; top: -1.5rem; z-index: 3; background: var(--bg-card); margin: -1.5rem -1.5rem 0; padding: 1.5rem 1.5rem .7rem; border-bottom: 1px solid var(--border); }
+  .a2-fond.tel .a2-entete { top: -1rem; margin: -1rem -1rem 0; padding: 1rem 1rem .6rem; }
+  .a2-titre-ligne { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
+  .a2-titre { font-size: 1.25rem; font-weight: 800; color: var(--text-strong); margin: 0; }
+  .a2-titre i { color: var(--accent); }
+  .a2-croix { border: 1px solid var(--border-strong); background: var(--bg-card); border-radius: 50%; width: 2.2rem; height: 2.2rem; color: var(--text-strong); }
+  .a2-intro { margin: .45rem 0 .6rem; color: var(--text-muted); font-size: .95rem; }
+  .a2-plan { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .a2-plan a { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--border-strong); background: var(--bg-subtle); border-radius: 999px; padding: .25rem .8rem .25rem .3rem; font-size: .88rem; color: var(--text-strong); text-decoration: none; }
+  .a2-plan a:hover { background: var(--bg-hover); border-color: var(--accent); }
+  .a2-num { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--accent-solide); color: #fff; font-weight: 700; font-size: .85rem; flex: 0 0 auto; }
+
+  /* Un bloc délimité par grand thème : bandeau de titre + « où le trouver », puis le contenu */
+  .a2-section { border: 1px solid var(--border-strong); border-radius: 1rem; margin-top: 1.1rem; overflow: hidden; scroll-margin-top: 9rem; }
+  .a2-section-tete { display: flex; align-items: center; gap: .7rem; background: var(--accent-bg-subtle); padding: .7rem 1rem; border-bottom: 1px solid var(--border-strong); }
+  .a2-section-tete h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-strong); }
+  .a2-ou { margin: 0; font-size: .85rem; color: var(--text-muted); }
+  .a2-section-corps { padding: .4rem 1rem .9rem; }
+  .a2-ligne { display: flex; align-items: flex-start; gap: .8rem; padding: .7rem 0; border-top: 1px solid var(--border); }
+  .a2-ligne:first-child { border-top: 0; }
+  .a2-pastille { flex: 0 0 auto; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; }
+  .a2-pastille i { color: var(--accent); }
+  .a2-ligne strong { display: block; color: var(--text-strong); }
+  .a2-ligne p { margin: .1rem 0 0; font-size: .93rem; color: var(--text-muted); }
+  .a2-plus-tard { margin-top: .4rem; padding: .6rem .8rem; border: 1px dashed var(--border-strong); border-radius: .7rem; font-size: .88rem; color: var(--text-muted); }
+
+  /* Les six cartes : une grille de six blocs, chacun avec son intro puis sa liste d'outils */
+  .a2-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; padding: .9rem 1rem 1rem; }
+  .a2-fond.tel .a2-cartes { grid-template-columns: 1fr; }
+  .a2-carte { border: 1px solid var(--border-strong); border-radius: .9rem; overflow: hidden; display: flex; flex-direction: column; }
+  .a2-carte-tete { display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
+  .a2-carte-tete .a2-pastille { width: 2rem; height: 2rem; font-size: 1rem; }
+  .a2-carte-tete h4 { margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-strong); }
+  .a2-carte-intro { margin: 0; padding: .6rem .8rem .2rem; font-size: .9rem; color: var(--text-muted); }
+  .a2-outils { list-style: none; margin: 0; padding: .3rem .8rem .8rem; }
+  .a2-outils li { padding: .45rem 0 .45rem .7rem; border-left: 3px solid var(--accent); margin-top: .5rem; background: var(--bg-subtle); border-radius: 0 .5rem .5rem 0; padding-right: .5rem; }
+  .a2-outils strong { display: block; font-size: .93rem; color: var(--text-strong); }
+  .a2-outils span { font-size: .87rem; color: var(--text-muted); }
+
+
+  /* Chaque outil est un vrai bouton : un clic mène à la page d'accueil du module. */
+  button.a2-lien { display: flex; align-items: flex-start; gap: .8rem; width: 100%; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; border-radius: .5rem; }
+  button.a2-ligne { border-top: 1px solid var(--border); }
+  button.a2-ligne:first-child { border-top: 0; }
+  button.a2-lien:hover { background: var(--bg-hover); }
+  button.a2-lien:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .a2-go { margin-left: auto; align-self: center; color: var(--accent); font-size: 1.25rem; flex: 0 0 auto; }
+  .a2-outils li { padding: 0; }
+  .a2-outils li button.a2-lien { padding: .45rem .5rem .45rem .7rem; flex-wrap: nowrap; }
+  .a2-outils li button.a2-lien > strong, .a2-outils li button.a2-lien > span { display: block; }
+  .a2-outils li button.a2-lien > strong { flex: 0 0 100%; }
+
+  .a2-outils li button.a2-lien { display: grid; grid-template-columns: 1fr auto; column-gap: .6rem; }
+  .a2-outils li button.a2-lien > strong, .a2-outils li button.a2-lien > span { grid-column: 1; flex: none; }
+  .a2-outils li button.a2-lien > .a2-go { grid-column: 2; grid-row: 1 / span 2; }
+  button.a2-ligne > div { flex: 1 1 auto; }
+
+
+  .a2-plan-invite { margin: 0 0 .4rem; font-size: .9rem; color: var(--text-muted); }
+  .a2-plan-invite i { color: var(--accent); }
+  .a2-plan a { font-size: 1rem; font-weight: 600; padding: .5rem .9rem .5rem .5rem; gap: .55rem; border-width: 2px; border-color: var(--accent); background: var(--bg-card); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .a2-plan a .a2-num { width: 1.9rem; height: 1.9rem; font-size: 1rem; }
+  .a2-plan-fleche { color: var(--accent); font-size: 1.2rem; }
+  .a2-plan a:hover { background: var(--accent-solide); color: #fff; }
+  .a2-plan a:hover .a2-plan-fleche { color: #fff; }
+  .a2-etiquette { display: inline-block; margin-left: .4rem; padding: .05rem .55rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); font-size: .78rem; font-weight: 600; vertical-align: middle; }
+
+
+  /* Les quatre boutons du plan tiennent sur une seule ligne ; sur un écran étroit, deux par ligne. */
+  .a2-plan { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+  .a2-plan a { font-size: .95rem; padding: .4rem .6rem .4rem .4rem; gap: .45rem; justify-content: flex-start; white-space: nowrap; }
+  .a2-plan a .a2-num { width: 1.7rem; height: 1.7rem; font-size: .95rem; }
+  .a2-plan a .a2-plan-fleche { margin-left: auto; }
+  @media (max-width: 760px) { .a2-plan { grid-template-columns: 1fr 1fr; } }
+  .a2-fond.tel .a2-plan { grid-template-columns: 1fr 1fr; }
+  /* Écran peu haut : l'en-tête (titre et plan) défile avec le reste, pour ne pas manger la moitié de la place. */
+  @media (max-height: 760px) { .a2-entete { position: static; } }
+  .a2-pied { position: sticky; bottom: -1.5rem; background: var(--bg-card); margin: 1.1rem -1.5rem -1.5rem; padding: .8rem 1.5rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: .6rem; justify-content: space-between; align-items: center; }
+  .a2-fond.tel .a2-pied { bottom: -1rem; margin: 1rem -1rem -1rem; padding: .7rem 1rem; }
+  .a2-pied p { margin: 0; font-size: .88rem; color: var(--text-muted); }
+  .a2-pied .btn-visite { border: 1px solid var(--accent-solide); background: var(--accent-solide); color: #fff; border-radius: .6rem; padding: .45rem 1rem; font-weight: 600; }
+  .a2-pied .btn-visite:hover { background: var(--accent-solide-hover); }
+  #a2Avis { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); background: var(--text-strong); color: var(--bg-card); padding: .6rem 1rem; border-radius: .7rem; font-size: .9rem; display: none; z-index: 10; max-width: 90vw; }
+</style>
+</head>
+<body>
+
+<div class="a2-barre">
+  <button type="button" id="a2Theme" aria-pressed="false"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+  <button type="button" id="a2Tel" aria-pressed="false"><i class="bi bi-phone"></i> Largeur téléphone</button>
+  <button type="button" id="a2Notes" aria-pressed="true"><i class="bi bi-info-circle"></i> Notes de la maquette</button>
+</div>
+
+<div class="a2-notes" id="a2NotesBloc">
+  <h2>Ce que montre cette maquette</h2>
+  <ul>
+    <li><strong>Aujourd'hui</strong> : une fenêtre étroite (520 px), une seule liste de 12 textes collés les uns aux autres, avec des mots en gras qui passent à la ligne au milieu des phrases. Le texte des cartes n'est plus à jour (« Boîte à outils » oublie Découvrir mes compétences, « Vous hésitez encore ? » oublie Un CV, plusieurs métiers).</li>
+    <li><strong>Proposé</strong> : une fenêtre plus large (900 px, l'une des 3 tailles déjà prévues), un petit plan en haut (4 boutons qui amènent au bon bloc), puis 4 blocs délimités dans l'ordre où la personne voit l'écran : les boutons du haut, la recherche, les six cartes, le bas de page. Tout est ouvert, rien à déplier.</li>
+    <li><strong>Une seule source</strong> : les textes des six cartes sont ceux de l'infobulle « i » de chaque carte (déjà tenus à jour, y compris les modules fermés au public qui s'ajoutent d'eux-mêmes à l'ouverture). L'aide les lit au même endroit : plus de deuxième texte à recopier.</li>
+    <li><strong>Pont avec l'autre aide</strong> : en bas, un bouton « Lancer la visite guidée » mène à la visite pas à pas.</li>
+    <li><strong>Chaque outil est un bouton</strong> (flèche à droite) : la personne lit, est curieuse, clique, et arrive sur la page d'accueil du module. Dans l'application, le clic ferme cette fenêtre, ouvre la carte concernée et déclenche le vrai bouton de l'outil : aucune route recopiée. Les outils du haut et du bas de page ouvrent leur propre panneau.</li>
+    <li><strong>Les deux boutons qui apparaissent plus tard</strong> (Journal de parcours, panier « Comparer mes pistes ») sont expliqués comme les autres, avec une pastille jaune qui dit quand ils apparaissent. Le clic mène au module lié : la personne le découvre sans attendre.</li>
+    <li>Le plan, le mode sombre, la largeur téléphone et les boutons du bas fonctionnent dans la maquette.</li>
+  </ul>
+</div>
+
+<div class="a2-fond" id="a2Fond">
+  <div class="a2-fenetre" id="a2Fenetre" role="dialog" aria-modal="true" aria-labelledby="a2T">
+    <div class="a2-entete">
+      <div class="a2-titre-ligne">
+        <h2 class="a2-titre" id="a2T"><i class="bi bi-lightbulb"></i> À quoi sert cette page ?</h2>
+        <button type="button" class="a2-croix" id="a2Fermer1" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p class="a2-intro">C'est votre page de départ. Voici tout ce qu'elle contient, dans l'ordre où vous le voyez à l'écran.</p>
+      <p class="a2-plan-invite"><i class="bi bi-hand-index-thumb"></i> Un clic vous amène directement au bloc :</p>
+      <nav class="a2-plan" aria-label="Aller directement à un bloc">
+        <a href="#a2-haut"><span class="a2-num">1</span> Boutons du haut <i class="bi bi-arrow-down-circle a2-plan-fleche" aria-hidden="true"></i></a>
+        <a href="#a2-recherche"><span class="a2-num">2</span> Recherche <i class="bi bi-arrow-down-circle a2-plan-fleche" aria-hidden="true"></i></a>
+        <a href="#a2-cartes"><span class="a2-num">3</span> Six cartes <i class="bi bi-arrow-down-circle a2-plan-fleche" aria-hidden="true"></i></a>
+        <a href="#a2-bas"><span class="a2-num">4</span> Bas de page <i class="bi bi-arrow-down-circle a2-plan-fleche" aria-hidden="true"></i></a>
+      </nav>
+    </div>
+
+    <section class="a2-section" id="a2-haut">
+      <div class="a2-section-tete"><span class="a2-num">1</span><div><h3>Les boutons du haut</h3><p class="a2-ou">En haut à gauche de l'écran, et à droite pour le Carnet. Ils restent là sur toutes les pages.</p></div></div>
+      <div class="a2-section-corps">
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-gear"></i></span><div><strong>Affichage</strong><p>Rendre l'écran plus confortable, à tout moment : thème clair ou sombre, mode daltonien, confort de lecture, couleur, taille du texte et police.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <div class="a2-ligne"><span class="a2-pastille"><i class="bi bi-lightbulb"></i></span><div><strong>Aide (l'ampoule)</strong><p>Deux façons de comprendre une page : cette explication, ou la visite guidée qui met en lumière chaque élément, pas à pas.</p></div></div>
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-floppy"></i></span><div><strong>Sauvegarder ma session</strong><p>L'application ne garde rien sur un serveur : vos informations restent dans ce navigateur. Enregistrez un fichier pour reprendre plus tard, ici ou ailleurs. Pensez-y surtout quand votre CV est terminé, avant de l'imprimer.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-megaphone"></i></span><div><strong>Nouveautés</strong><p>Ce qui a été ajouté ou amélioré dernièrement. La pastille orange compte les ajouts des 30 derniers jours.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-journal-text"></i></span><div><strong>Mon Carnet</strong><p>Un espace à vous pour noter en un instant une idée, un numéro, une offre repérée, sans décider tout de suite quoi en faire. Personne ne le lit ni ne l'analyse.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien" data-vers="Mes Repères (le Journal de parcours en est le raccourci)"><span class="a2-pastille"><i class="bi bi-journals"></i></span><div><strong>Journal de parcours <span class="a2-etiquette">Apparaît dès que vous avez gardé un premier Repère</span></strong><p>Un raccourci vers vos Repères, depuis n’importe quelle page : garder une réflexion en deux clics et revoir vos derniers Repères sans quitter ce que vous faisiez. Un clic vous mène à Mes Repères, pour découvrir l’outil dès maintenant.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien" data-vers="Comparer mes pistes (le panier en est le raccourci)"><span class="a2-pastille"><i class="bi bi-signpost-split"></i></span><div><strong>Le panier « Comparer mes pistes » <span class="a2-etiquette">Apparaît dès que vous avez mis une piste de côté</span></strong><p>Votre pense-bête de pistes, toujours sous la main : vous y retrouvez ce que vous avez mis de côté et vous les comparez quand vous voulez. Un clic vous mène à Comparer mes pistes, pour découvrir l’outil dès maintenant.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+      </div>
+    </section>
+
+    <section class="a2-section" id="a2-recherche">
+      <div class="a2-section-tete"><span class="a2-num">2</span><div><h3>La recherche</h3><p class="a2-ou">La grande barre, sous le titre « Par où voulez-vous commencer ? ».</p></div></div>
+      <div class="a2-section-corps">
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-search"></i></span><div><strong>Rechercher</strong><p>Tapez un métier, un domaine d'activité, une compétence ou un mot de l'emploi : vous arrivez directement à la fiche. Pratique si vous savez déjà quel métier vous visez, sans passer par les questions de découverte.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+      </div>
+    </section>
+
+    <section class="a2-section" id="a2-cartes">
+      <div class="a2-section-tete"><span class="a2-num">3</span><div><h3>Les six cartes</h3><p class="a2-ou">Au milieu de l'écran. Chaque carte ouvre ses outils : vous choisissez l'ordre, rien n'est obligatoire.</p></div></div>
+      <div class="a2-cartes">
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-folder2-open"></i></span><h4>Mes documents</h4></div>
+          <p class="a2-carte-intro">Trois parcours, selon l'état de votre CV et ce que vous voulez en faire.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Créer un nouveau CV</strong><span>Quand vous n'avez pas encore de CV, ou que vous préférez repartir de zéro.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Reprendre mon CV</strong><span>Quand vous avez déjà un CV, complet ou non, bien présenté ou non.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Lettre et entretien en version rapide</strong><span>Quand votre CV est prêt et que vous voulez aller vite. Pour un travail plus poussé : « Me préparer à candidater ».</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-person"></i></span><h4>Me préparer à candidater</h4></div>
+          <p class="a2-carte-intro">De quoi arriver plus tranquille le jour de la rencontre. Les deux outils partent de votre CV, tel que vous l'avez : un fichier, une photo ou un texte collé.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Écrire ma lettre avec l'assistant</strong><span>En profondeur, avec plusieurs échanges : vous n'êtes jamais seul devant la page, l'assistant propose, vous décidez.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>M'entraîner à un entretien</strong><span>Vous vous exercez à voix haute ou au clavier, autant de fois que vous voulez.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Employeurs près de chez moi</strong><span>Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée. <em>(Ajouté d'office quand le module s'ouvre.)</em></span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-briefcase"></i></span><h4>Boîte à outils</h4></div>
+          <p class="a2-carte-intro">Des outils que vous ouvrez quand vous en avez besoin, sans ordre imposé et sans que rien ne soit noté.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Mes Repères</strong><span>Pour ne pas perdre une pensée juste parce qu'elle est venue au mauvais moment.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Mon Carnet</strong><span>Vous écrivez d'abord ; vous verrez plus tard ce que vous en faites, ou rien.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Lexique</strong><span>Rien à préparer : vous cherchez un mot au moment où il vous arrête.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Découvrir mes compétences</strong><span>Vos documents montrent déjà ce que vous savez faire : l'outil le repère, avec la phrase qui le prouve, et vous aide à le dire.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-graph-up-arrow"></i></span><h4>Outils d'analyse</h4></div>
+          <p class="a2-carte-intro">Un avis extérieur sur votre candidature avant de l'envoyer. Ces outils demandent un CV déjà prêt.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Analyser ma candidature</strong><span>Mon CV est-il solide ? L'assistant que vous choisissez ; le copier-coller reste manuel, rien ne part tout seul.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Un regard sur mon CV</strong><span>Que verra un recruteur ? Ce qui ressort en premier, et ce qui peut faire hésiter.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Les mots de votre CV (ATS)</strong><span>Mon CV parle-t-il comme l'offre ? Ni un logiciel de tri, ni une note : la même vérification, en clair.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Cohérence de mon dossier</strong><span>Mes documents se tiennent-ils ? Repère les endroits où ils ne disent pas tout à fait la même chose.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-newspaper"></i></span><h4>Se tenir informé</h4></div>
+          <p class="a2-carte-intro">Un aperçu de ce qui bouge dans l'emploi et la formation, sans le stress d'un fil d'actualités.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Comprendre le cadre</strong><span>Organisé par rayon (emploi, logement, mobilité, droits...), avec une recherche à affiner si vous ne savez pas par où commencer.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Comprendre les chiffres</strong><span>Le chômage, l'emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Qui fait quoi</strong><span>À qui vous adresser dans votre département, avec coordonnées et date de vérification. <em>(Ajouté d'office quand le module s'ouvre.)</em></span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+        <article class="a2-carte">
+          <div class="a2-carte-tete"><span class="a2-pastille"><i class="bi bi-signpost-split"></i></span><h4>Vous hésitez encore ?</h4></div>
+          <p class="a2-carte-intro">Pour quand le projet n'est pas encore clair : de quoi poser les choses et décider à son rythme.</p>
+          <ul class="a2-outils">
+            <li><button type="button" class="a2-lien"><strong>Comparer mes pistes</strong><span>Deux ou trois pistes, ou deux situations, mises côte à côte pour choisir vous-même.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+            <li><button type="button" class="a2-lien"><strong>Un CV, plusieurs métiers</strong><span>Quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun, sans rien inventer.</span><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="a2-section" id="a2-bas">
+      <div class="a2-section-tete"><span class="a2-num">4</span><div><h3>Le bas de la page</h3><p class="a2-ou">Sous les six cartes.</p></div></div>
+      <div class="a2-section-corps">
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-link-45deg"></i></span><div><strong>Liens utiles</strong><p>Des sites extérieurs pour compléter votre démarche : une immersion en entreprise, une formation, d'autres métiers, un service d'accompagnement près de chez vous. Avec des liens propres à la Haute-Vienne (87) et à la Dordogne (24).</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-chat-square-text"></i></span><div><strong>Partager une information</strong><p>Un petit formulaire pour nous faire connaître un dispositif, une aide, une adresse ou une idée. Nous la vérifions avant de l'ajouter.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+        <button type="button" class="a2-ligne a2-lien"><span class="a2-pastille"><i class="bi bi-exclamation-triangle"></i></span><div><strong>Signaler un problème</strong><p>Quelque chose ne marche pas comme prévu ? Dites-le-nous ici : c'est le bon endroit pour un problème de fonctionnement.</p></div><i class="bi bi-arrow-right-circle a2-go" aria-hidden="true"></i></button>
+      </div>
+    </section>
+
+    <div class="a2-pied">
+      <p><i class="bi bi-map"></i> Envie qu'on vous montre, pas à pas, sur la vraie page ?</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button type="button" class="btn-visite" id="a2Visite"><i class="bi bi-map"></i> Lancer la visite guidée</button>
+        <button type="button" class="a2-barre-btn" id="a2Fermer2" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:.6rem;padding:.45rem 1rem">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="a2Avis" role="status"></div>
+
+<script>
+  var h = document.documentElement;
+  function avis(t) { var a = document.getElementById('a2Avis'); a.textContent = t; a.style.display = 'block'; clearTimeout(avis._t); avis._t = setTimeout(function () { a.style.display = 'none'; }, 3500); }
+  document.getElementById('a2Theme').addEventListener('click', function () {
+    var sombre = h.getAttribute('data-theme') === 'sombre';
+    if (sombre) { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); }
+    this.setAttribute('aria-pressed', String(!sombre));
+    this.innerHTML = sombre ? '<i class="bi bi-moon-stars"></i> Mode sombre' : '<i class="bi bi-sun"></i> Mode clair';
+  });
+  document.getElementById('a2Tel').addEventListener('click', function () {
+    var f = document.getElementById('a2Fond'); var tel = f.classList.toggle('tel');
+    this.setAttribute('aria-pressed', String(tel));
+  });
+  document.getElementById('a2Notes').addEventListener('click', function () {
+    var b = document.getElementById('a2NotesBloc'); b.hidden = !b.hidden; this.setAttribute('aria-pressed', String(!b.hidden));
+  });
+  document.querySelectorAll('.a2-plan a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault(); var cible = document.querySelector(a.getAttribute('href'));
+      if (cible) { cible.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  document.querySelectorAll('.a2-lien').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.dataset.vers || b.querySelector('strong').firstChild.textContent.trim();
+      var carte = b.closest('.a2-carte'), bloc = b.closest('.a2-section');
+      var dans = carte ? ' (carte « ' + carte.querySelector('h4').textContent + ' »)' : '';
+      if (bloc && bloc.id === 'a2-recherche') { avis("Dans l’application : la fenêtre se ferme et le curseur se place dans la barre de recherche."); return; }
+      avis("Dans l’application : un clic ouvre « " + t + " »" + dans + ", sur sa page d’accueil.");
+    });
+  });
+  document.getElementById('a2Visite').addEventListener('click', function () { avis('Dans l\'application : la fenêtre se ferme et la visite guidée démarre sur la vraie page.'); });
+  ['a2Fermer1', 'a2Fermer2'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { avis('Dans l\'application : la fenêtre se ferme.'); }); });
+</script>
+</body>
+</html>

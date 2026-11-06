@@ -26,6 +26,16 @@
   })();
   var attente = function (ms) { return new Promise(function (r) { setTimeout(r, ms || 600); }); };
   var resultats = [];
+  // Ecran « Collez la reponse » partage (fenetre unique, 28/10/2026) : colle une reponse dans la fenetre, puis clique sur « Continuer » (celui de la barre du bas s'il est la, sinon celui de la fenetre).
+  async function collerActionIA(texteReponse) {
+    var r = document.getElementById('fcRacineActionIA');
+    if (!r || !r.__collage) { return false; }
+    r.__collage.coller(texteReponse); await attente(500);
+    var b = document.getElementById('btnContinuerCollage'); var c = r.querySelector('#btnContinuerActionIA');
+    var cible = (b && !b.disabled) ? b : c;
+    if (!cible || cible.disabled) { return false; }
+    cible.click(); return true;
+  }
   function cas(nom, condition, detail) { resultats.push({ nom: nom, ok: !!condition, detail: condition ? '' : String(detail === undefined ? '' : detail) }); }
   function $(sel, racine) { return (racine || document).querySelector(sel); }
   function texte(el) { return el ? (el.innerText || el.textContent || '') : ''; }
@@ -34,32 +44,40 @@
   async function parcoursBilan() {
     bilanEntrerPreparation(null); await attente(1500);
     // Premiere entree dans le module depuis un chargement neuf : la page de presentation peut passer avant l'ecran « Preparer » ; on y entre une 2e fois.
-    if (!$('#btnPreparerDeposerCv') && !$('#btnPreparerChangerCv')) { bilanEntrerPreparation(null); await attente(1500); }
+    if (!$('#depotPageColler') && !$('#depotPageChanger') && !$('#verifDocTextarea')) { bilanEntrerPreparation(null); await attente(1500); }
     var titres = [].slice.call(document.querySelectorAll('.bloc-depli .preparer-titre')).map(function (e) { return e.textContent; });
     cas('bilan : deux blocs seulement, plus de « Relire et masquer »', titres.length === 2 && titres[0] === 'Votre CV' && !$('#preparerBloc2'), titres.join(' | '));
+    cas('bilan : le dépôt est dans le point 1 (deux cartes « Un fichier » et « Du texte copié »), aucune fenêtre', !!$('#preparerBloc1 #depotPageChoisir') && !!$('#preparerBloc1 #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
 
-    $('#preparerCollerZone').hidden = false;   // plus de bouton « Ou coller le texte » (retire le 25/10/2026) : la zone de collage reste dans la page
-    var ta = $('#preparerCollerTexte'); ta.value = 'Camille Martin\n0600000000\nAgent de sécurité chez Sécuritas de 2022 à 2024';
+    $('#depotPageColler').click(); await attente(300);
+    var ta = $('#depotPageTexte'); ta.value = 'Camille Martin\n0600000000\nAgent de sécurité chez Sécuritas de 2022 à 2024';
     ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(300);
-    $('#btnPreparerCollerValider').click(); await attente(1300);
-    cas('bilan : un texte collé ouvre la relecture tout seul', !!$('#bilanRelectureAnnulerBtn'), 'écran de relecture absent');
-    if ($('#verifDocBtnEnregistrer')) { $('#verifDocBtnEnregistrer').click(); await attente(500); }
-    if ($('#bilanRelectureContinuerBtn')) { $('#bilanRelectureContinuerBtn').click(); await attente(1300); }
+    $('#depotPageLireTexte').click(); await attente(900);
+    cas('bilan : un texte collé arrive à la relecture dans la page, sans fenêtre', !!$('#verifDocTextarea') && !$('#bilanRelectureAnnulerBtn') && !$('#fenetreERIP') && /Camille Martin/.test($('#verifDocTextarea').value), 'relecture absente');
+    cas('bilan : tant que rien n’est enregistré, le bloc suivant reste verrouillé', /bloc-verrouille/.test($('#preparerBloc3').className));
+    $('#verifDocBtnEnregistrer').click(); await attente(900);
     var pill = texte($('#preparerBloc1 .pilule-etat'));
-    cas('bilan : après validation, « Déposé et relu »', /relu/.test(pill), pill);
+    cas('bilan : après « Enregistrer », « Déposé et relu »', /relu/.test(pill) && /Camille Martin/.test(_etatBilan.preparer.cvTexte), pill);
     cas('bilan : le bloc suivant est déverrouillé', !/bloc-verrouille/.test($('#preparerBloc3').className), $('#preparerBloc3').className);
 
-    $('#btnPreparerChangerCv').click(); await attente(500);
-    $('#preparerCollerZone').hidden = false;   // plus de bouton « Ou coller le texte » (retire le 25/10/2026) : la zone de collage reste dans la page
-    var ta2 = $('#preparerCollerTexte'); ta2.value = 'Texte pour annuler'; ta2.dispatchEvent(new Event('input', { bubbles: true }));
-    $('#btnPreparerCollerValider').click(); await attente(1200);
-    var annuler = $('#bilanRelectureAnnulerBtn'); if (annuler) { annuler.click(); await attente(1200); }
-    cas('bilan : annuler la relecture oublie le CV et propose le dépôt', !_etatBilan.preparer.cvTexte && !!$('#btnPreparerDeposerCv'), JSON.stringify(_etatBilan.preparer));
+    // un autre CV non enregistré ne remplace jamais le CV relu
+    var cvRelu = _etatBilan.preparer.cvTexte;
+    $('#depotPageChanger').click(); await attente(500);
+    $('#depotPageColler').click(); await attente(300);
+    var ta2 = $('#depotPageTexte'); ta2.value = 'Texte pour annuler'; ta2.dispatchEvent(new Event('input', { bubbles: true }));
+    $('#depotPageLireTexte').click(); await attente(800);
+    $('#depotPageAutre').click(); await attente(400);
+    $('#depotPageAnnuler').click(); await attente(500);
+    cas('bilan : abandonner un nouveau CV avant « Enregistrer » garde le CV déjà relu', _etatBilan.preparer.cvTexte === cvRelu && _etatBilan.preparer.relectureFaite === true && /relu/.test(texte($('#preparerBloc1 .pilule-etat'))), JSON.stringify(_etatBilan.preparer));
 
+    reinitialiserDepotCVEnPage();
     _etatBilan.preparer = { relectureFaite: false, situationTouchee: false, cvTexte: 'Texte existant de l’application' };
     pageBilanCandidature(); await attente(800);
     var nav = $('#btnSuivantNavigation');
-    cas('bilan : CV de l’application non relu -> bouton « Relire et masquer mon CV » et suite bloquée', /Relire et masquer mon CV/.test(texte($('#btnPreparerRelecture'))) && nav && nav.disabled, texte($('#btnPreparerRelecture')));
+    cas('bilan : CV de l’application non relu -> sa relecture s’ouvre dans le point 1 et la suite est bloquée', !!$('#verifDocTextarea') && /Texte existant/.test($('#verifDocTextarea').value) && nav && nav.disabled, texte($('#preparerBloc1')).slice(0, 80));
+    $('#verifDocBtnEnregistrer').click(); await attente(900);
+    cas('bilan : une fois enregistré, le CV de l’application est « relu » et la suite se débloque', _etatBilan.preparer.relectureFaite === true && /relu/.test(texte($('#preparerBloc1 .pilule-etat'))));
+    reinitialiserDepotCVEnPage();
     demarrerBilanCandidatureAvecDepot({ cvDejaRelu: 'Camille Martin. Agent de sécurité.' }); await attente(1800);
     var nav2 = $('#btnSuivantNavigation');
     cas('bilan : CV déjà relu (venant de Cohérence) repris sans revalidation', /relu/.test(texte($('#preparerBloc1 .pilule-etat'))) && nav2 && !nav2.disabled, texte($('#preparerBloc1 .pilule-etat')));
@@ -72,14 +90,17 @@
     var v = document.getElementById('validerAssistantIABtn');
     if (!v) { return false; }
     v.click(); await attente(900);
-    clearInterval(_comparerIntervalleDecompte);
+    clearInterval(_intervalleDecompteIA);
     _etatTransitionIA.phase = 'ouvert';
     return true;
   }
+  // Fenetre unique « Collez la reponse » (dette B.17, 28/10/2026) : « Coller la reponse » lit et verifie ; « Continuer » (barre du bas) applique. Renvoie l'etat de la fenetre.
   async function colle(suffixe, contenu) {
-    var za = document.getElementById('zoneActionsCollage' + suffixe); if (za) { za.style.display = ''; }
-    var t = document.getElementById('texteCollage' + suffixe); t.value = contenu;
-    document.getElementById('btnImporter' + suffixe).click(); await attente(700);
+    var r = document.getElementById('fcRacine' + suffixe); if (!r || !r.__collage) { return 'absent'; }
+    r.__collage.coller(contenu); await attente(500);
+    var etatFenetre = r.__collage.etat();
+    if (etatFenetre === 'recu') { var b = document.getElementById('btnContinuerCollage') || document.getElementById('btnContinuer' + suffixe); if (b && !b.disabled) { b.click(); await attente(800); } }
+    return etatFenetre;
   }
   async function parcoursComparer() {
     var ouverts = []; var openOrigine = window.open; window.open = function (u) { ouverts.push(u); return {}; };
@@ -97,18 +118,18 @@
       cas('comparer/collecter : aucun texte de prompt affiché', !c.querySelector('.cp-prompt'));
       cas('comparer/collecter : « Je n’ai pas d’assistant » présent', !!c.querySelector('[data-cp-sans-assistant]'));
       await validerAssistant('perplexity'); _comparerRenduEcran(2); await attente(600);
-      cas('comparer/collecter : après confirmation, phase « chez » et texte copié', e.envoi.collecte === 'chez' && (_dernierTexteCopieAssistantIA || '').length > 500, e.envoi.collecte);
+      cas('comparer/collecter : après confirmation, on est directement sur « Coller la réponse » (plus d’écran « chez ») et le texte est copié', e.envoi.collecte === 'coller' && (_dernierTexteCopieAssistantIA || '').length > 500, e.envoi.collecte);
       _etatTransitionIA.phase = 'ouvert'; _comparerRenduEcran(2); await attente(500);
-      document.getElementById('btnJeSuisDeRetourIA').click(); await attente(600);
-      cas('comparer/collecter : « Je suis de retour » -> collage', e.envoi.collecte === 'coller', e.envoi.collecte);
+      document.querySelector('#fcRacineCompCollecte [data-fc=retour]').click(); await attente(600);
+      cas('comparer/collecter : « Je suis de retour » -> la fenêtre est prête à coller', e.envoi.collecte === 'coller' && document.getElementById('fcRacineCompCollecte').__collage.etat() === 'pret', e.envoi.collecte);
       _comparerActionsBarre.retour(); await attente(500); var r1 = e.envoi.collecte;
-      _comparerActionsBarre.retour(); await attente(500); var r2 = e.envoi.collecte;
-      cas('comparer : « Retour » recule coller -> chez -> choix', r1 === 'chez' && r2 === 'choix', r1 + ' / ' + r2);
+      cas('comparer : « Retour » recule de « coller » au choix de l’assistant', r1 === 'choix' && !_etatTransitionIA, String(r1));
       e.envoi = { collecte: 'coller' }; _comparerRenduEcran(2); await attente(600);
-      await colle('CompCollecte', 'pas de json');
-      cas('comparer/collecter : réponse invalide -> message d’erreur, on reste au collage', e.envoi.collecte === 'coller' && /⚠/.test(texte(document.getElementById('messageImportCompCollecte'))), texte(document.getElementById('messageImportCompCollecte')));
-      await colle('CompCollecte', 'ok {"territoire":"Dordogne (24)","pistes":[{"nom":"Aide-soignante","durable":{},"a_verifier":[],"incertitudes":[]},{"nom":"Éducatrice spécialisée","durable":{},"a_verifier":[],"incertitudes":[]}],"cloture":"x"}');
-      cas('comparer/collecter : réponse valide prise en compte', !!e.dossiersCollecte, 'dossiersCollecte vide');
+      cas('comparer/collecter : la fenêtre unique remplace l’ancienne zone de collage', !!document.getElementById('fcRacineCompCollecte') && !document.getElementById('texteCollageCompCollecte') && !document.getElementById('btnImporterCompCollecte'));
+      var etInvalide = await colle('CompCollecte', 'pas de json');
+      cas('comparer/collecter : réponse invalide -> refusée dans la fenêtre, on reste au collage', etInvalide === 'echec' && e.envoi.collecte === 'coller' && !e.dossiersCollecte, etInvalide);
+      var etValide = await colle('CompCollecte', 'ok {"territoire":"Dordogne (24)","pistes":[{"nom":"Aide-soignante","durable":{},"a_verifier":[],"incertitudes":[]},{"nom":"Éducatrice spécialisée","durable":{},"a_verifier":[],"incertitudes":[]}],"cloture":"x"}');
+      cas('comparer/collecter : réponse valide lue, puis prise en compte seulement au « Continuer »', etValide === 'recu' && !!e.dossiersCollecte, etValide);
 
       // Les quatre autres envois
       var autres = [
@@ -116,7 +137,7 @@
           mauvais: 'nimporte quoi', bon: 'ici : {"colonnes":[{"nom":"Aide-soignante","role":"repere","aujourdhui":"a","pendant":"b","apres":"c"},{"nom":"Éducatrice spécialisée","role":"depart","aujourdhui":"d","pendant":"e","apres":"f"}],"conditions_a_reunir":[],"impact_sur_les_droits":[],"questions_conseiller":["Q1"],"incertitudes":["I1"]}', verifie: function () { return !!e.frise; } },
         { nom: 'aller plus loin', ecran: 7, id: 'apl', suf: 'CompApl', pre: function () { e.pistesReflexion = null; },
           mauvais: 'rien d utile', bon: '{"questions":["Avez-vous observé ce métier sur le terrain ?","Comment financeriez-vous la formation ?"],"cloture":"x"}', verifie: function () { return (e.pistesReflexion || []).length === 2; } },
-        { nom: 'côte à côte affiné', ecran: 5, id: 'superpo', suf: 'CompSuperpo', pre: function () { e.formeComparaison = 'cote_a_cote'; e.superpositionAffinee = null; e.superpositionAffineeErreur = ''; },
+        { nom: 'côte à côte affiné', ecran: 5, id: 'superpo', suf: 'CompSuperpo', pre: function () { /* depuis le 30/10/2026 le message ne demande que les lignes en mots : il en faut au moins une */ (e.dossiersCollecte.pistes || []).forEach(function (pp) { pp.a_verifier = [{ element: 'duree_formation', valeur: 'neuf mois', unite: 'mois', portee: 'nationale', source: { nom: null, url: null }, date_info: null }]; }); e.formeComparaison = 'cote_a_cote'; e.superpositionAffinee = null; e.superpositionAffineeErreur = ''; e.ecran = 5; e.superpoEtape = 'affinage'; },
           mauvais: 'texte sans json', bon: '{"dimensions":[{"element":"duree_formation","valeurs":[]}]}', verifie: function () { return !!e.superpositionAffinee; } },
         { nom: 'détection des pistes', ecran: 1, id: 'detection', suf: 'CompDetection', pre: function () { e.pistes = []; e.detectionFaite = false; e._pistesConstruites = false; e._detectionPistes = null; },
           mauvais: 'bonjour', bon: 'Voici : {"pistes":[{"nom":"CAP carrelage","etiquette":"formation","extrait":"x"},{"nom":"Rester en poste","etiquette":"situation"}],"ce_qui_ne_rentre_pas":"mal au dos"}', verifie: function () { return e.detectionFaite && e.pistes.length === 2; } }
@@ -128,28 +149,182 @@
           zone.querySelectorAll('[data-cp-assistant]').length >= 5 && !zone.querySelector('.cp-prompt') && !zone.querySelector('button[data-cp-assistant="perplexity"].btn-lg'));
         var passe = await validerAssistant('mistral');
         _comparerRenduEcran(a.ecran); await attente(600);
-        var retour = document.getElementById('btnJeSuisDeRetourIA'); if (retour) { retour.click(); await attente(600); }
-        cas('comparer/' + a.nom + ' : confirmation -> chez -> retour -> collage', passe && e.envoi[a.id] === 'coller', e.envoi[a.id]);
-        await colle(a.suf, a.mauvais);
-        cas('comparer/' + a.nom + ' : réponse invalide -> erreur affichée', /⚠/.test(texte(document.getElementById('messageImport' + a.suf))), texte(document.getElementById('messageImport' + a.suf)));
-        await colle(a.suf, a.bon);
-        cas('comparer/' + a.nom + ' : réponse valide prise en compte', a.verifie(), 'état non mis à jour');
+        var retour = document.querySelector('#fcRacine' + a.suf + ' [data-fc=retour]'); if (retour) { retour.click(); await attente(600); }
+        cas('comparer/' + a.nom + ' : confirmation -> retour -> collage (une seule page)', passe && e.envoi[a.id] === 'coller', e.envoi[a.id]);
+        var etMauvais = await colle(a.suf, a.mauvais);
+        cas('comparer/' + a.nom + ' : réponse invalide -> refusée dans la fenêtre, rien n’est gardé', etMauvais === 'echec' && !a.verifie(), etMauvais);
+        var etBon = await colle(a.suf, a.bon);
+        cas('comparer/' + a.nom + ' : réponse valide lue, puis prise en compte au « Continuer »', etBon === 'recu' && a.verifie(), etBon + ' / état non mis à jour');
       }
+
+      // Fin de parcours (consigne 67, D40) : le dernier écran porte le bouton vert « Merci bien, j'ai fini » dans la barre du bas, et aucun autre écran
+      _comparerRenduEcran(2); await attente(500);
+      cas('comparer : pas de bouton de fin avant le dernier écran', !document.querySelector('.barre-navigation .btn-success'));
+      _comparerRenduEcran(8); await attente(700);
+      var fin = document.querySelector('.barre-navigation .btn-success');
+      cas('comparer : le dernier écran a le bouton vert de fin, branché sur la fin sans fenêtre', !!fin && /j.ai fini/.test(fin.innerText) && /terminerParcoursSansFenetre/.test(fin.getAttribute('onclick') || ''), fin && fin.getAttribute('onclick'));
       cas('comparer : le navigateur n’a rien ouvert sans clic (ouvertures simulées seulement)', true);
     } finally { window.open = openOrigine; }
   }
 
+  // ---------------- Comparer mes pistes, ecran 5 : A (comparaison) -> B (completer ou non) -> assistant -> comparaison completee (28/10/2026) ----------------
+  async function parcoursComparerAffinage() {
+    var ouverts = []; var openOrigine = window.open; window.open = function (u) { ouverts.push(u); return {}; };
+    var ligne = function (el, v, u, nom) { return { element: el, valeur: v, unite: u, source: { nom: nom, url: null }, date_info: '2026-05' }; };
+    var collecte = function () {
+      return comparerParserCollecte('ok ' + JSON.stringify({ territoire: 'Dordogne (24)', cloture: 'x', pistes: [
+        { nom: 'Aide-soignante', durable: {}, incertitudes: [], a_verifier: [ligne('duree_formation', '12', 'mois', 'Service public'), ligne('cout_total', 'gratuit (financé par la Région)', 'euros', 'Région')] },
+        { nom: 'Éducatrice spécialisée', durable: {}, incertitudes: [], a_verifier: [ligne('duree_formation', 'environ trois ans', 'mois', 'Service public'), ligne('cout_total', '9 800', 'euros', 'Région')] }
+      ] }));
+    };
+    var reponse = JSON.stringify({ dimensions: [
+      { dimension: 'cout_total', unite: 'euros', valeurs: [{ piste: 'Aide-soignante', valeur: '0', min: '0', max: '0', portee: 'regionale', source: { nom: 'Région', url: null }, date_info: '2026-05' }] },
+      { dimension: 'duree_formation', unite: 'mois', valeurs: [{ piste: 'Éducatrice spécialisée', valeur: '3 ans', min: '36', max: '36', portee: 'nationale', source: { nom: 'Service public', url: null }, date_info: '2026-06' }] }
+    ], cloture: 'x' });
+    var barre = function () { return document.getElementById('btnSuivantNavigation'); };
+    var reperes = function () { return document.querySelectorAll('#contenuEcranComparer .cp-repere').length; };
+    try {
+      ouvrirComparerPistes(); naviguerVers('comparer-pistes'); await attente(1200);
+      var e = _comparerEtat;
+      e.situation = 'sans-emploi'; e.trancheAge = '26-45'; e.recit = 'Aide-soignante ou éducatrice.';
+      e.pistes = [comparerFabriquerPiste('Aide-soignante', { etiquette: 'metier', couleur: '#2f6690' }), comparerFabriquerPiste('Éducatrice spécialisée', { etiquette: 'metier', couleur: '#d9822b' })];
+      e.detectionFaite = true; e._pistesConstruites = true; e.envoi = {}; e.formeComparaison = 'cote_a_cote';
+      e.dossiersCollecte = collecte(); e.superpositionAffinee = null; e.ecran = 4; e.superpoEtape = 'comparaison';
+      _comparerRenduEcran(5); await attente(800);
+      var zone = document.getElementById('contenuEcranComparer');
+
+      // A : la comparaison, avec une phrase qui prepare la suite, sans € parasite ni graduations sur une echelle a un seul point
+      cas('affinage/A : la comparaison s’affiche, étape « comparaison »', e.superpoEtape === 'comparaison' && /Superposer/.test(texte(document.body)), e.superpoEtape);
+      cas('affinage/A : une phrase prépare la suite (2 informations à compléter)', /2 informations n’ont pas pu être placées sur les échelles/.test(texte(zone)) && /L’étape suivante vous aide à les compléter/.test(texte(zone)), texte(zone).slice(-300));
+      cas('affinage/A : aucun « € » parasite derrière une valeur en mots', !/gratuit \(financé par la Région\) €/.test(texte(zone)) && /Aide-soignante : gratuit \(financé par la Région\)/.test(texte(zone)));
+      cas('affinage/A : une échelle à un seul point n’affiche pas de graduations', !zone.querySelector('.cp-grad'), String(zone.querySelectorAll('.cp-grad').length));
+      cas('affinage/A : plus aucun bloc « Affiner avec un assistant » sous la comparaison', !zone.querySelector('[data-cp-assistant]') && !/Affiner avec un assistant/.test(texte(zone)));
+      cas('affinage/A : la barre du bas dit « Continuer »', !!barre() && /^Continuer/.test(texte(barre())), barre() && texte(barre()));
+
+      // B : la decision
+      barre().click(); await attente(600);
+      zone = document.getElementById('contenuEcranComparer');
+      cas('affinage/B : étape « décision », titre « Compléter la comparaison »', e.superpoEtape === 'decision' && /Compléter la comparaison/.test(texte(document.body)), e.superpoEtape);
+      cas('affinage/B : dit précisément ce qui manque', /2 informations à placer/.test(texte(zone)) && /Coût total/.test(texte(zone)) && /gratuit \(financé par la Région\)/.test(texte(zone)) && /environ trois ans/.test(texte(zone)));
+      cas('affinage/B : explique ce que implique de continuer sans compléter', /Si vous continuez sans compléter/.test(texte(zone)) && /rien n’est perdu et rien n’est faux/.test(texte(zone)));
+      cas('affinage/B : le bouton du bas dit « Compléter avec un assistant » et le bouton de la page « Continuer sans compléter » est là', !!barre() && /Compléter/.test(texte(barre())) && !!document.getElementById('btnCpSuperpoSansCompleter'), barre() && texte(barre()));
+      cas('affinage/B : pas encore de choix d’assistant', !zone.querySelector('[data-cp-assistant]'));
+
+      // Choix de l'assistant : plus de bouton « Continuer » dans la barre
+      barre().click(); await attente(600);
+      zone = document.getElementById('contenuEcranComparer');
+      cas('affinage/choix : le choix de l’assistant s’affiche, avec le rappel de ce qu’il faut chiffrer', e.superpoEtape === 'affinage' && !!zone.querySelector('[data-cp-assistant="chatgpt"]') && /À transformer en chiffres/.test(texte(zone)), e.superpoEtape);
+      cas('affinage/choix : aucun bouton « Continuer » dans la barre du bas', !barre() && !document.getElementById('btnContinuerCollage'));
+      comparerBarreRetour(); await attente(500);
+      cas('affinage/choix : « Retour » ramène à la décision (B)', e.superpoEtape === 'decision' && !!document.getElementById('btnCpSuperpoSansCompleter'), e.superpoEtape);
+      barre().click(); await attente(500);
+      await validerAssistant('mistral'); _comparerRenduEcran(5); await attente(600);
+      var retourIA = document.getElementById('btnJeSuisDeRetourIA'); if (retourIA) { retourIA.click(); await attente(700); }
+      var racine = document.getElementById('fcRacineCompSuperpo');
+      cas('affinage/collage : la fenêtre commune est affichée', !!racine && !!racine.__collage, e.envoi && e.envoi.superpo);
+      var adopte = document.getElementById('btnContinuerCollage');
+      cas('affinage/collage : le « Continuer » de la fenêtre est dans la barre du bas, grisé tant qu’il n’y a pas de réponse', !!adopte && adopte.disabled, adopte && adopte.outerHTML.slice(0, 120));
+      if (!racine || !racine.__collage) { return; }
+      var etRefus = await colle('CompSuperpo', 'texte sans rien d’utile');
+      cas('affinage/collage : une réponse sans données est refusée, rien n’est gardé', etRefus === 'echec' && !e.superpositionAffinee && e.superpoEtape === 'affinage', etRefus);
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(300);
+      racine.__collage.coller(reponse); await attente(600);
+      adopte = document.getElementById('btnContinuerCollage');
+      cas('affinage/collage : réponse lisible, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !e.superpositionAffinee && !!adopte && !adopte.disabled && /Voir la comparaison mise à jour/.test(texte(adopte)), racine.__collage.etat() + ' / ' + (adopte && texte(adopte)));
+      adopte.click(); await attente(900);
+      zone = document.getElementById('contenuEcranComparer');
+      cas('affinage/mise à jour : « Continuer » prend la réponse en compte et ouvre « Comparaison mise à jour »', !!e.superpositionAffinee && e.superpoEtape === 'miseajour' && /Comparaison mise à jour/.test(texte(document.body)), e.superpoEtape);
+      cas('affinage/mise à jour : les deux valeurs sont placées et listées « Ajouté »', /Les 2 informations sont maintenant placées/.test(texte(zone)) && zone.querySelectorAll('.cp-ajoute').length === 2 && reperes() === 4, reperes() + ' reperes, ' + zone.querySelectorAll('.cp-ajoute').length + ' ajoutés');
+      cas('affinage/mise à jour : « gratuit » devient 0 €, « environ trois ans » devient 36 mois', /Coût total, Aide-soignante : 0 €/.test(texte(zone)) && /Durée de la formation, Éducatrice spécialisée : 36 mois/.test(texte(zone)));
+      cas('affinage/mise à jour : la barre du bas est redevenue « Continuer »', !!barre() && /^Continuer/.test(texte(barre())), barre() && texte(barre()));
+
+      // Retour -> A deja complete, sans nouvelle proposition ; Continuer -> ecran suivant
+      comparerBarreRetour(); await attente(500);
+      zone = document.getElementById('contenuEcranComparer');
+      cas('affinage/retour : A déjà complétée, sans nouvelle proposition', e.superpoEtape === 'comparaison' && !/n’ont pas pu être placées/.test(texte(zone)) && reperes() === 4, e.superpoEtape);
+      barre().click(); await attente(600);
+      cas('affinage/suite : « Continuer » mène à l’écran suivant du module', e.ecran === 7, String(e.ecran));
+
+      // « Continuer sans compléter » : la suite du module, et « Retour » retrouve la decision
+      e.superpositionAffinee = null; e.envoi = {}; e.ecran = 4; e.superpoEtape = 'comparaison';
+      _comparerRenduEcran(5); await attente(700);
+      barre().click(); await attente(600);
+      document.getElementById('btnCpSuperpoSansCompleter').click(); await attente(700);
+      cas('affinage/sans compléter : on passe à l’écran suivant, rien n’est modifié', e.ecran === 7 && !e.superpositionAffinee, String(e.ecran));
+      comparerBarreRetour(); await attente(600);
+      cas('affinage/sans compléter : « Retour » depuis l’écran suivant retrouve l’écran de décision', e.ecran === 5 && e.superpoEtape === 'decision' && !!document.getElementById('btnCpSuperpoSansCompleter'), e.ecran + ' / ' + e.superpoEtape);
+
+      // Rien a placer : l'etape B n'apparait pas
+      e.dossiersCollecte = comparerParserCollecte('ok ' + JSON.stringify({ territoire: 'x', cloture: 'x', pistes: [
+        { nom: 'Aide-soignante', durable: {}, incertitudes: [], a_verifier: [ligne('duree_formation', '12', 'mois', 'S'), ligne('cout_total', '0', 'euros', 'R')] },
+        { nom: 'Éducatrice spécialisée', durable: {}, incertitudes: [], a_verifier: [ligne('duree_formation', '36', 'mois', 'S'), ligne('cout_total', '9 800', 'euros', 'R')] }] }));
+      e.ecran = 4; e.superpoEtape = 'comparaison'; e.superpositionAffinee = null;
+      _comparerRenduEcran(5); await attente(700);
+      cas('affinage/rien à placer : aucune phrase de préparation', !/pas pu être placée/.test(texte(document.getElementById('contenuEcranComparer'))));
+      barre().click(); await attente(600);
+      cas('affinage/rien à placer : « Continuer » va directement à l’écran suivant (B n’apparaît pas)', e.ecran === 7 && e.superpoEtape !== 'decision', e.ecran + ' / ' + e.superpoEtape);
+      cas('affinage : le navigateur n’a rien ouvert sans clic (ouvertures simulées seulement)', true);
+    } catch (err) {
+      cas('affinage : aucune erreur', false, err && err.message);
+    } finally { window.open = openOrigine; naviguerVers('accueil'); }
+  }
+
   // ---------------- Decouverte : l'import applique les propositions et termine le parcours ----------------
+  // ---------------- Découverte : « Coller la réponse » dans la fenêtre commune (décompte, aperçu, aides propres à l'échec) (28/10/2026) ----------------
+  async function parcoursDecouverteCollage() {
+    var ouvrirReel = window.open; var ouvertures = [];
+    try {
+      window.open = function (u) { ouvertures.push(u); return {}; };
+      ouvrirDecouverteCompetences(); await attente(800);
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+      _decouverteRenduEtape(5); await attente(600);
+      var racine = $('#fcRacineDecouverte');
+      cas('découverte/collage : pendant le décompte, le bandeau est dans la fenêtre commune, en aperçu', !!racine && !!racine.querySelector('#banniereTransitionIA') && !!racine.querySelector('.fc-apercu-legende'));
+      cas('découverte/collage : plus d’ancienne zone de collage ni de bouton « Importer » propres au module', !$('#texteCollageDecouverte') && !$('#btnImporterDecouverte') && !$('#zoneCollageAutoDecouverte'));
+      $('#btnContinuerMaintenantIA').click(); await attente(900);
+      cas('découverte/collage : « Ouvrir maintenant » ouvre l’assistant, la fenêtre passe à « Je suis de retour »', ouvertures.length === 1 && !!$('#fcRacineDecouverte [data-fc=retour]'), ouvertures.length + '');
+      $('#fcRacineDecouverte [data-fc=retour]').click(); await attente(400);
+      var illisible = await colle('Decouverte', 'Voici mes conseils, sans aucun JSON.');
+      cas('découverte/collage : une réponse illisible est refusée et l’aide (les deux phrases à renvoyer) apparaît sous la fenêtre', illisible === 'echec' && !!$('#btnEchecImportRelance'), String(illisible));
+      $('#fcRacineDecouverte [data-fc=recommencer]').click(); await attente(300);
+      cas('découverte/collage : « Recommencer » efface l’aide', !$('#btnEchecImportRelance') && !texte($('#messageImportDecouverte')));
+      var vide = await colle('Decouverte', '{"analyseImpossible": true, "message": "Le texte est trop court."}');
+      cas('découverte/collage : une saisie inexploitable montre l’écran qui ramène au récit', vide === 'echec' && !!$('#btnDecouverteReecrireRecit'), String(vide));
+      $('#fcRacineDecouverte [data-fc=recommencer]').click(); await attente(300);
+      var bonne = '```json\n{"fragments":[{"texteBrut":"Vendeur en boulangerie","origine":"proDeclaree","propositions":["Vente de produits frais"],"competencesProposees":[]}],"questionsCiblees":[]}\n```';
+      var etatBon = await colle('Decouverte', bonne);
+      await attente(600);
+      cas('découverte/collage : une réponse lisible est reçue, « Continuer » mène à l’étape suivante et la transition est effacée', etatBon === 'recu' && _decouverteNumeroCourant === 6 && !_etatTransitionIA, String(_decouverteNumeroCourant));
+      // Raffinement d'une expérience (« Aucune ne correspond, précisez-moi ») : le collage de la réponse est la fenêtre commune.
+      var btnRaff = $('[data-raffiner-fragment]');
+      cas('découverte/raffinement : le bouton « Aucune ne correspond, précisez-moi » est là', !!btnRaff);
+      if (btnRaff) {
+        btnRaff.click(); await attente(500);
+        var champ = $('[id^=precisionRaffinement_]'); champ.value = 'Je vendais aussi du pain.';
+        $('[data-copier-precision]').click(); await attente(400);
+        var fenRaff = $('[id^=fcRacineRaffinement]');
+        cas('découverte/raffinement : la fenêtre commune remplace l’ancienne zone de collage', !!fenRaff && !!fenRaff.__collage && !$('[id^=texteCollageRaffinement]') && fenRaff.__collage.etat() === 'pret');
+        var idRaff = fenRaff.id.replace('fcRacineRaffinement', '');
+        var etIll = await colle('Raffinement' + idRaff, 'Voici mes conseils, sans aucun JSON.');
+        cas('découverte/raffinement : une réponse illisible est refusée, rien n’est changé', etIll === 'echec' && /viennoiseries/.test(texte(document.getElementById('app'))) === false, String(etIll));
+        fenRaff.querySelector('[data-fc=recommencer]').click(); await attente(300);
+        await colle('Raffinement' + idRaff, '```json\n{"propositions":["Vente de pain et de viennoiseries"],"competencesProposees":[{"texte":"Conseiller un client","categorie":"Relation client","preuve":["Je vendais du pain"]}]}\n```'); await attente(700);
+        cas('découverte/raffinement : une réponse lisible est appliquée par « Continuer », la fenêtre se referme', /viennoiseries/.test(texte(document.getElementById('app'))) && !$('[id^=fcRacineRaffinement]'));
+      }
+    } catch (e) {
+      cas('découverte/collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; clearInterval(_intervalleDecompteIA); _etatTransitionIA = null; if (typeof fermerDecouverteCompetences === 'function') { try { fermerDecouverteCompetences(); } catch (e2) {} } naviguerVers('accueil'); }
+  }
+
   async function parcoursDecouverte() {
     dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', email: 'c@ex.fr', telephone: '0600000000', ville: 'Limoges' };
     dossier.experiences = [{ poste: 'Agent', entreprise: 'X', dateDebut: '2020-01', dateFin: '2022-01', missions: 'Accueillir' }];
     ouvrirDecouverteCompetences(); await attente(800); _decouverteRenduEtape(12); await attente(800);
-    var ta = document.getElementById('texteCollageActionIA'); var bt = document.getElementById('btnImporterActionIA');
-    cas('découverte : étape « Importer » affichée', !!ta && !!bt);
-    if (!ta || !bt) { return; }
-    ta.value = JSON.stringify({ titresProposes: ['Agent d’accueil'], accrochesProposees: ['Une accroche.'], accrochesCourtesProposees: ['Courte'], pointsForts: ['Rigueur'], motsCles: ['accueil'], recommandations: { typeCV: { valeur: 'chronologique', justification: 'ok' }, experiencesAMettreEnAvant: [{ poste: 'Agent', entreprise: 'X', justification: 'ok' }], competencesAValoriser: [{ competence: 'Accueil', justification: 'ok' }] } });
-    ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(500);
-    bt.click(); await attente(2500);
+    var racineImp = document.getElementById('fcRacineActionIA');
+    cas('découverte : étape « Importer » affichée (fenêtre unique)', !!racineImp && !!racineImp.__collage);
+    if (!racineImp || !racineImp.__collage) { return; }
+    var texteRepDec = JSON.stringify({ titresProposes: ['Agent d’accueil'], accrochesProposees: ['Une accroche.'], accrochesCourtesProposees: ['Courte'], pointsForts: ['Rigueur'], motsCles: ['accueil'], recommandations: { typeCV: { valeur: 'chronologique', justification: 'ok' }, experiencesAMettreEnAvant: [{ poste: 'Agent', entreprise: 'X', justification: 'ok' }], competencesAValoriser: [{ competence: 'Accueil', justification: 'ok' }] } });
+    cas('découverte : la réponse collée est lue et reconnue', await collerActionIA(texteRepDec)); await attente(2500);
     cas('découverte : après l’import, le parcours attend (complément de CV facultatif, bouton « Continuer »)', location.hash !== '#resultats' && !!document.getElementById('btnSuivantNavigation') && !document.getElementById('btnContinuerDecouverte') && !!document.getElementById('btnOuvrirComplementCV') && dossier.titreCV === 'Agent d’accueil');
     document.getElementById('btnSuivantNavigation').click(); await attente(2000);
     cas('découverte : « Continuer » aboutit sur « Mon CV » (#resultats), parcours marqué terminé', location.hash === '#resultats' && dossier.decouverteTerminee === true, location.hash);
@@ -159,12 +334,18 @@
     naviguerVers('decouverte'); await attente(1500); _decouverteRenduEtape(12); await attente(800);
     cas('découverte : avec un complément proposé, la page « Collez la réponse » n’a ni bandeau ni rectangle du complément', !document.querySelector('.complement-cv-banniere') && !document.querySelector('[data-assistant-rect-toggle="complement-cv"]'));
     document.getElementById('btnSuivantNavigation').click(); await attente(1000);
-    cas('découverte : « Continuer » mène à l’écran du complément (importer ou passer)', location.hash !== '#resultats' && /complément de votre CV/i.test(document.querySelector('h1').textContent) && /Continuer/.test(document.getElementById('btnSuivantNavigation').textContent) && /y revenir plus tard/.test(document.body.innerText) && !!document.getElementById('texteCollageComplement'));
+    cas('découverte : « Continuer » mène à l’écran du complément (fenêtre commune, « Continuer sans le complément » dans la barre)', location.hash !== '#resultats' && /complément de votre CV/i.test(document.querySelector('h1').textContent) && /Continuer sans le complément/.test(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]').textContent) && /ajouter plus tard/.test(document.body.innerText) && !!document.getElementById('fcRacineComplement') && !document.getElementById('texteCollageComplement'));
     _decouverteAgirRetour(); await attente(800);
-    cas('découverte : « Retour » depuis l’écran du complément revient à « Collez la réponse »', location.hash !== '#resultats' && !!document.getElementById('texteCollageActionIA'));
+    cas('découverte : « Retour » depuis l’écran du complément revient à « Collez la réponse »', location.hash !== '#resultats' && !!document.getElementById('fcRacineActionIA'));
+    // Retour Denis 28/10/2026 : réponse déjà importée = plus de bouton « Importer dans le CV » grisé à côté d'un « Continuer » actif, et la phrase d'orientation dit la vérité.
+    var btnImp = document.getElementById('btnContinuerActionIA'); var orient = document.querySelector('.import-ia-orient');
+    cas('découverte : réponse déjà importée, le bouton de la fenêtre est visible mais grisé et la phrase le dit en clair', !!btnImp && btnImp.offsetParent !== null && btnImp.disabled && !!orient && /déjà importée/.test(orient.textContent) && !/cliquez sur «\s*Importer\s*»/.test(orient.textContent), orient && orient.textContent);
+    document.getElementById('fcRacineActionIA').__collage.coller(texteRepDec); await attente(400);
+    btnImp = document.getElementById('btnContinuerActionIA');
+    cas('découverte : réponse déjà importée, coller une autre réponse active le bouton de la fenêtre', !!btnImp && btnImp.offsetParent !== null && !btnImp.disabled);
     document.getElementById('btnSuivantNavigation').click(); await attente(800);
-    document.getElementById('btnSuivantNavigation').click(); await attente(2500);
-    cas('découverte : « Passer, je vois mon CV » aboutit sur la page de création, le complément reste importable plus tard', location.hash === '#resultats' && dossier.complementCVPasse === true && complementCVImportable());
+    document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(2500);
+    cas('découverte : « Continuer sans le complément » aboutit sur la page de création, le complément reste importable plus tard', location.hash === '#resultats' && dossier.complementCVPasse === true && complementCVImportable());
   }
 
   // ---------------- Prompts : lignes directrices par situation et voix humaine ----------------
@@ -204,7 +385,7 @@
     CSA_OUVERT = true; _prepLERendreDepot(); await attente(600);
     cas('voie 3 : ouverte quand CSA_OUVERT est vrai, avec la phrase « remets en page moi-même »', !!carte() && carte().getAttribute('aria-disabled') !== 'true' && /remets en page moi-même/.test(carte().innerText));
     carte().click(); await attente(1200);
-    cas('voie 3 : la carte mène à l’écran « Classer » (route cv-sans-assistant)', pageActuelle === 'cv-sans-assistant' && /Classez les informations/.test(document.body.innerText));
+    cas('voie 3 : la carte mène à l’écran « Classer » (route cv-sans-assistant)', pageActuelle === 'cv-sans-assistant' && /Classer les informations/.test(document.body.innerText));
     cas('voie 3 : bandeau Déposer, Ma voie, Classer, Vérifier, Vos documents', /Déposer[\s\S]*Ma voie[\s\S]*Classer[\s\S]*Vérifier[\s\S]*Vos documents/.test(($('.barre-etapes-bilan') || { innerText: '' }).innerText));
     cas('voie 3 : le CV est découpé en blocs classés, les coordonnées surlignées', blocs() >= 5 && document.querySelectorAll('.det').length >= 3, blocs());
     cas('voie 3 : Retour, Accueil et Continuer sont dans la barre du bas, aucun bouton « Importer » dans la page', document.querySelectorAll('.barre-navigation-fixe button').length === 3 && !/Importer/.test(($('#csaBlocs') || { innerText: '' }).innerText));
@@ -251,7 +432,7 @@
     CSA_OUVERT = true; naviguerVers('reprendre-cv'); await attente(800);
     $('[data-reprendre-voie="sans"]').click(); await attente(1200);
     csaContinuer(); await attente(700);
-    cas('voie 3 / Vérifier : une fiche par rubrique, préremplie, avec le compte des informations', /Vérifiez vos fiches/.test(document.body.innerText) && document.querySelectorAll('#csaFiches details').length === 12 && /\d+\s+informations seront reprises/.test(($('#csaCompteur') || { innerText: '' }).innerText));
+    cas('voie 3 / Vérifier : une fiche par rubrique, préremplie, avec le compte des informations', /Vérifier mes fiches/.test(document.body.innerText) && document.querySelectorAll('#csaFiches details').length === 12 && /\d+\s+informations seront reprises/.test(($('#csaCompteur') || { innerText: '' }).innerText));
     cas('voie 3 / Vérifier : l’identité est préremplie et le « à vérifier » est signalé sur ce qui est deviné', $('#csaf-identite-nom').value === 'RIVIÈRE' && $('#csaf-identite-telephone').value !== '' && !!$('[data-csa-devine="experience.0.poste"]'));
     var comp = $('#csaf-competences'); comp.value = comp.value.replace(/Conseil$/, 'Conseil clientèle'); comp.dispatchEvent(new Event('input', { bubbles: true })); await attente(150);
     cas('voie 3 / Vérifier : corriger une case retire son « à vérifier »', (function () { var p = $('#csaf-experience-0-poste'); p.value = 'Chargée de clientèle senior'; p.dispatchEvent(new Event('input', { bubbles: true })); return !$('[data-csa-devine="experience.0.poste"]'); })());
@@ -275,10 +456,52 @@
     var a = function () { return /appuis/i.test(document.getElementById('app').innerHTML); };
     dossier.modeCreation = 'nouveau'; dossier.objectif = 'offre';
     dossier.creationSansAssistant = false; pageObjectif(); await attente(500);
-    cas('appuis : « Créer un nouveau CV » avec l’assistant propose « Vos appuis » sur « Votre objectif »', a());
+    cas('appuis : « Votre objectif » (création de CV avec l’assistant) ne propose plus « Vos appuis » (28/10/2026)', !a());
     dossier.creationSansAssistant = true; pageObjectif(); await attente(500);
     cas('appuis : « Créer un nouveau CV » à la main, sans assistant, ne propose pas « Vos appuis »', !a());
+    // 28/10/2026 : trois appuis dans le même panneau (lettre de recommandation, « Mes compétences », texte libre)
+    var hote = document.createElement('div'); document.body.appendChild(hote);
+    var etatMc = (typeof _mesCompEtat !== 'undefined') ? _mesCompEtat : null;
+    var redessiner = function () { hote.innerHTML = _coLettreHtmlAppuis({ pourCv: true }); _coLettreBrancherAppuis(redessiner); };
+    _mesCompEtat = null; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; redessiner();
+    cas('appuis : sans « Mes compétences » terminé, une ligne l’explique et rien ne bloque', /pas encore terminé/.test(hote.textContent) && !hote.querySelector('[data-appui-mescomp]'));
+    _mesCompEtat = mesCompEtatInitial(); _mesCompEtat.termine = true;
+    _mesCompEtat.lignes = [{ id: 'l1', famille: MESCOMP_FAMILLES[0].id, libelle: 'Accueillir le public', confirmation: 'declaree', geste: 'ok', pourLeCV: 'Accueil du public', preuves: [], pourLOral: '' }];
+    redessiner();
+    cas('appuis : « Mes compétences » terminé : proposé, jamais joint d’office', !!hote.querySelector('[data-appui-mescomp]') && sectionAppuisPourMessage() === '');
+    hote.querySelector('[data-appui-mescomp="oui"]').click();
+    var zone = hote.querySelector('#coLettreAppuiTexte'); zone.value = 'Je suis ponctuel.'; zone.dispatchEvent(new Event('input', { bubbles: true }));
+    cas('appuis : « Mes compétences » joint et texte libre partent dans le message', /COMPÉTENCES RELEVÉES/.test(sectionAppuisPourMessage()) && /Je suis ponctuel/.test(sectionAppuisPourMessage()));
+    hote.remove(); _mesCompEtat = etatMc; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = '';
     dossier.modeCreation = av.m; dossier.creationSansAssistant = av.s; dossier.objectif = av.o;
+  }
+
+  // ---------------- Reformuler, version 2 : « Envie d'un CV plus développé ? » avant « Vos documents » (28/10/2026) ----------------
+  async function parcoursReformulerInvitation() {
+    var sauve = { dossier: JSON.stringify(dossier), mc: _mesCompEtat, recos: _coLettreRecos, rep: _coLettreRecoReponse, mcj: _coLettreAppuiMesComp, tx: _coLettreAppuiTexte };
+    var rafraichir = function () { dossier._reformulerSansSecondePasse = false; dossier._reformulerInvitationEnAttente = true; dossier.modeFidele = false; pageResultats(); };
+    dossier.modeCreation = 'maj'; dossier._modeCreationVia = 'reformuler'; dossier._origineReformuler = true; dossier.cvAnalyse = true; dossier.dernierDocumentPrepare = 'cv'; dossier.cvTexte = 'Agent d accueil. 2019-2023 Accueil du public.';
+    _coLettreRecos = []; _coLettreRecoReponse = null; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; _mesCompEtat = null;
+    rafraichir(); await attente(700);
+    cas('invitation : la version 2 commence par « Envie d’un CV plus développé ? », avec « Vos appuis » dans la page', !!document.getElementById('invitationCvDeveloppe') && !!document.getElementById('coLettreAppuis'));
+    cas('invitation : aucun appui joint, la phrase du bas le dit', /Aucun appui joint/.test(document.getElementById('phraseInvitationCv').textContent));
+    // Barre d'étapes (28/10/2026) : sur « Vos documents », la barre de Reformuler reste, dernier repère « Vos documents » allumé ; jamais celle de « Mettre à jour mon CV »
+    var barreRf = document.querySelector('.barre-etapes-bilan'), pastillesRf = barreRf ? barreRf.querySelectorAll('.pastille-etape-action') : [];
+    cas('barre de Reformuler : Préparer, Assistant, Réponse, Vérifier, Vos documents', !!barreRf && /Préparer[\s\S]*Assistant[\s\S]*Réponse[\s\S]*Vérifier[\s\S]*Vos documents/.test(barreRf.textContent) && !/Corriger mon CV|Mise en forme/.test(barreRf.textContent), barreRf ? barreRf.textContent : 'barre absente');
+    cas('barre de Reformuler : « Vos documents » est le repère allumé, les quatre autres sont faits, aucun n’est cliquable', pastillesRf.length === 5 && pastillesRf[4].className.indexOf('pastille-etape-action-courante') !== -1 && barreRf.querySelectorAll('.pastille-etape-action-validee').length === 4 && barreRf.querySelectorAll('a').length === 0);
+    // Le signal de Reformuler ne survit pas à un autre parcours du CV : avec « Mettre à jour mon CV » (même mode interne 'maj'), la barre est celle de la mise à jour
+    dossier._modeCreationVia = 'maj'; pageResultats(); await attente(500);
+    cas('barre : un CV mis à jour (pas Reformuler) garde sa propre barre, sans « Vos documents » de Reformuler', /Corriger mon CV/.test((document.querySelector('.barre-etapes-bilan') || { textContent: '' }).textContent));
+    dossier._modeCreationVia = 'reformuler'; rafraichir(); await attente(700);
+    reformulerInvitationContinuer(); await attente(900);
+    cas('invitation : sans appui, version donnée telle quelle (pas de second passage, mode fidèle, plus d’invitation)', reformulerSansSecondePasse() && dossier.modeFidele === true && !document.getElementById('invitationCvDeveloppe'));
+    rafraichir(); await attente(700);
+    var zone = document.getElementById('coLettreAppuiTexte'); zone.value = 'Je suis ponctuel.'; zone.dispatchEvent(new Event('input', { bubbles: true }));
+    cas('invitation : un appui joint, la phrase du bas le dit', /1 appui joint/.test(_phraseInvitationCvDeveloppe()));
+    reformulerInvitationContinuer(); await attente(900);
+    cas('invitation : avec un appui, second passage chez l’assistant (pas de mode fidèle), et les appuis ne sont pas redemandés', !reformulerSansSecondePasse() && dossier.modeFidele === false && !document.getElementById('invitationCvDeveloppe') && !document.getElementById('coLettreAppuis'));
+    var d = JSON.parse(sauve.dossier); Object.keys(dossier).forEach(function (k) { if (!(k in d)) { delete dossier[k]; } }); Object.assign(dossier, d);
+    _mesCompEtat = sauve.mc; _coLettreRecos = sauve.recos; _coLettreRecoReponse = sauve.rep; _coLettreAppuiMesComp = sauve.mcj; _coLettreAppuiTexte = sauve.tx;
   }
 
   // ---------------- Prompts de l'entretien : la fiche déjà faite part avec l'entraînement, jamais avec la fiche rapide (26/10/2026) ----------------
@@ -325,13 +548,15 @@
       certifications: ['Sensibilisation amiante', 'Habilitation échafaudage fixe & roulant', 'Module travail en hauteur', 'Habilitation électrique BS/BEM', 'Module Règles Générale de sécurité'] };
     var pts = pointsIncoherencesImport([jeu], []); _incoh().suggererAnnees(pts, [jeu], texteCv);
     cas('certifs : une question par certification sans année, avec les années de la formation proposées', pts.length === 5 && pts.every(function (p) { return p.suggestions && p.suggestions.join() === '2025,2026'; }), JSON.stringify(pts.map(function (p) { return p.suggestions; })));
-    afficherClarificationPointsAVerifier(pts, function () {}, { appliquer: appliquerPrecisionSurValeurs(jeu) }); await attente(700);
-    var groupe = [].slice.call(document.querySelectorAll('[data-annee-groupe]'));
+    // Point 15 (01/11/2026) : le choix groupé est celui du bloc en page (plus de fenêtre) ; les réponses s'appliquent tout de suite sur `jeu`.
+    var etatCertifs = passagesCreerEtat(pts, { cibles: function () { return [jeu]; }, marqueurRetirer: PRECISION_RETIRER, appliquer: appliquerPrecisionSurValeurs(jeu) });
+    var zoneCertifs = document.createElement('div'); zoneCertifs.innerHTML = htmlBlocPassages(etatCertifs); document.body.appendChild(zoneCertifs); brancherBlocPassages(zoneCertifs, etatCertifs, {}); await attente(200);
+    var groupe = [].slice.call(zoneCertifs.querySelectorAll('[data-passage-groupe]'));
     cas('certifs : un choix groupé « 2025 pour toutes » / « 2026 pour toutes »', groupe.length === 2 && /pour toutes/.test(groupe[1].textContent), groupe.map(texte).join(' | '));
     if (groupe.length === 2) { groupe[1].click(); }
-    var valeurs = [0, 1, 2, 3, 4].map(function (i) { return (document.getElementById('reponsePointAVerifier' + i) || {}).value; });
+    var valeurs = [0, 1, 2, 3, 4].map(function (i) { return (zoneCertifs.querySelector('#passageReponse' + i) || {}).value; });
     cas('certifs : le choix groupé remplit toutes les réponses', valeurs.every(function (v) { return v === '2026'; }), valeurs.join(','));
-    document.getElementById('btnClarificationContinuer').click(); await attente(400);
+    await attente(400); zoneCertifs.remove();
     cas('certifs : l’année choisie est appliquée à chaque certification', jeu.certifications.every(function (c) { return /\(2026\)$/.test(c); }), jeu.certifications.join(' | '));
   }
 
@@ -3591,13 +3816,18 @@
       cas('ucpm p1 : CV relu : « Continuer » de la barre s’active, toujours aucun bouton dans la page', !$('#btnSuivantNavigation').disabled && !$('#btnUcpmVersAssistant'));
       $('#btnSuivantNavigation').click(); await attente(500);
       cas('ucpm p1 : le choix de l’assistant propose les six assistants de l’application', document.querySelectorAll('[data-assistant-ucpm]').length === 6);
+      // Décompte (28/10/2026) : plus d'écran « Chez l'assistant » à part ; une session restée sur l'ancienne vue « chez » est reprise sur « coller ».
+      etat.passages = { metiers: { vue: 'chez', assistant: 'chatgpt' } };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+      ucpmRendrePage(); await attente(500);
+      cas('ucpm p1 : une session restée sur l’ancienne vue « chez » est reprise sur « coller », avec le décompte et l’aperçu de la fenêtre', etat.passages.metiers.vue === 'coller' && !!$('#fcRacineUcpmMetiers #banniereTransitionIA') && !!$('#fcRacineUcpmMetiers .fc-apercu-legende') && !$('[data-ucpm-vue=chez]'), String(etat.passages.metiers.vue));
+      clearInterval(_intervalleDecompteIA); _etatTransitionIA = null;
       etat.passages = { metiers: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(400);
-      $('#texteCollageUcpmMetiers').value = 'Voici mes conseils, sans aucun JSON.';
-      $('#btnImporterUcpmMetiers').click(); await attente(300);
-      cas('ucpm p1 : une réponse illisible donne un message clair et ne passe pas à la page 2', etat.page === 1 && /ne ressemble pas/.test(texte($('#messageImportUcpmMetiers'))));
+      var etIllisible = await colle('UcpmMetiers', 'Voici mes conseils, sans aucun JSON.');
+      cas('ucpm p1 : une réponse illisible est refusée par la fenêtre commune et ne passe pas à la page 2', etat.page === 1 && etIllisible === 'echec' && !etat.reponseMetiers, String(etIllisible));
+      $('#fcRacineUcpmMetiers [data-fc=recommencer]').click(); await attente(300);
       var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
-      $('#texteCollageUcpmMetiers').value = rep;
-      $('#btnImporterUcpmMetiers').click(); await attente(800);
+      await colle('UcpmMetiers', rep);
       cas('ucpm p1 : une vraie réponse de l’assistant (version 5 du prompt) est lue et mène à la page 2', etat.page === 2 && !!etat.reponseMetiers);
       cas('ucpm p2 : deux colonnes et la synthèse en lecture seule', document.querySelectorAll('[data-ucpm-colonne]').length === 2 && !!$('#ucpmSynthese') && !$('#ucpmSynthese textarea'));
       cas('ucpm p2 : tant que l’identité est inconnue, les deux formes sont affichées', /Électricien \/ Électricienne/.test(texte($('[data-ucpm-colonne="droite"]'))));
@@ -3686,8 +3916,7 @@
         experiencesPerso: [], formations: [{ niveau: 'CAP', intitule: 'Peintre applicateur', annee: '2014', etablissement: '', lieu: '', missions: [], confiance: 'elevee', alertes: [] }],
         competences: { savoirFaire: ['Peinture'], savoirEtre: ['Autonomie'], savoirs: [] }, langues: [], certifications: [], certificationsAvecMissions: [], logiciels: [], permis: { possede: null, categories: [], vehicule: null },
         loisirs: [], engagements: [], informationsNonClassees: [], pointsAVerifier: [] };
-      $('#texteCollageUcpmExtraction').value = '```json\n' + JSON.stringify(json) + '\n```';
-      $('#btnImporterUcpmExtraction').click(); await attente(800);
+      await colle('UcpmExtraction', '```json\n' + JSON.stringify(json) + '\n```');
       cas('ucpm p3 : après le rangement, l’écran « Vos informations » de l’application s’ouvre avec ce qui a été repéré, barre d’étapes du module', pageActuelle === 'projet' && etat.p3Vue === 'infos' && /Vos informations/.test(texte($('h1'))) && /Référence/.test(texte($('.barre-etapes-bilan'))) && /Agent d.entretien en résidence/.test(document.body.innerHTML));
       cas('ucpm p3 : la barre du bas propose de continuer vers le style d’écriture et l’assistant', /Continuer/.test(texte($('.barre-navigation-fixe'))));
       document.querySelector('[onclick="ucpmContinuerDepuisInfos()"]').click(); await attente(1200);
@@ -3697,18 +3926,18 @@
       document.querySelector('[data-assistant-rect-toggle="import-ia"]').click(); await attente(500);
       var reponseCv = { titresProposes: ['Agent d’entretien des bâtiments'], accrochesProposees: ['Dix ans d’entretien de bâtiments collectifs.', 'Agent d’entretien autonome.'], accrochesCourtesProposees: ['Dix ans d’entretien.', 'Entretien et dépannages.'], pointsForts: ['Autonomie'], motsCles: ['entretien'],
         recommandations: { typeCV: { valeur: 'chronologique', justification: 'parcours continu' }, postesRecommandes: [], experiencesAMettreEnAvant: [], competencesAValoriser: [], competencesPersonnelles: [], competencesAttenduesMetier: [], rubriquesMasquables: [] } };
-      $('#texteCollageActionIA').value = '```json\n' + JSON.stringify(reponseCv) + '\n```\n\nCopiez ce message dans l’application. Voulez-vous aussi le complément de CV (missions de vos formations) ? Si oui, répondez : oui';
-      $('#btnImporterActionIA').click(); await attente(1500);
+      var texteRepUcpm = '```json\n' + JSON.stringify(reponseCv) + '\n```\n\nCopiez ce message dans l’application. Voulez-vous aussi le complément de CV (missions de vos formations) ? Si oui, répondez : oui';
+      await collerActionIA(texteRepUcpm); await attente(1500);
       cas('ucpm p3 : la réponse est importée et validée dans la page, « Régler mon CV » se débloque', reponseIAImportee('cv') && !$('#btnSuivantNavigation').disabled && !$('#fenetreERIP'));
       // Complément de CV (facultatif) : la zone existe après l'import, accepte le second bloc suivi de la question, et FUSIONNE sans rien écraser.
       // Retour Denis 2026-10-19 : le complément a son propre écran (importer ou passer) AVANT l'éditeur de CV ; pas de bandeau ni de rectangle sur la vue de l'assistant tant que le choix n'est pas fait.
       cas('ucpm p3 : pas de bandeau ni de rectangle du complément sur la vue de l’assistant avant le choix', !$('.complement-cv-banniere') && !$('[data-assistant-rect-toggle="complement-cv"]'));
       ucpmBarreContinuer(); await attente(700);
-      cas('ucpm p3 : « Régler mon CV » mène d’abord à l’écran du complément (importer ou passer), pas à l’éditeur', etat.p3Vue === 'complement' && !!$('.complement-cv-banniere') && /répondez-lui/i.test(document.body.innerText) && /dernière fenêtre/.test(document.body.innerText) && /Continuer/.test(texte($('#btnSuivantNavigation'))) && /y revenir plus tard/.test(document.body.innerText), [etat.p3Vue, !!$('.complement-cv-banniere'), texte($('#btnSuivantNavigation')), /y revenir plus tard/.test(document.body.innerText)].join(' | '));
+      cas('ucpm p3 : « Régler mon CV » mène d’abord à l’écran du complément (importer ou passer), pas à l’éditeur', etat.p3Vue === 'complement' && !!$('.complement-cv-banniere') && /répondez-lui/i.test(document.body.innerText) && /même conversation/.test(document.body.innerText) && /Continuer sans le complément/.test(texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]'))) && /ajouter plus tard/.test(document.body.innerText), [etat.p3Vue, !!$('.complement-cv-banniere'), texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]')), /ajouter plus tard/.test(document.body.innerText)].join(' | '));
       var blocComplement = '```json\n{"recommandations":{"formationsAvecMissions":[{"intitule":"BTS - Maintenance des systèmes (niveau)","missions":["Étudier le fonctionnement des systèmes techniques.","Repérer les causes d’un dysfonctionnement."],"justification":"j"}],"certificationsAvecMissions":[{"certification":"SST (2016)","missions":["Prévenir les risques."],"justification":"j"}],"loisirRetenu":{"intitule":"","missions":[],"justification":""}}}\n```\n\nVoulez-vous le complément de CV ? (missions de vos formations)';
-      $('#texteCollageComplement').value = blocComplement; $('#texteCollageComplement').dispatchEvent(new Event('input', { bubbles: true })); await attente(300); $('#btnImporterComplement').click(); await attente(800);
+      await colle('Complement', blocComplement); await attente(800);
       cas('ucpm p3 : le complément est ajouté, la phrase de question collée ne gêne pas', dossier.complementCVAjoute === true && dossier.ia.cv.recommandations.formationsAvecMissions.length === 1 && dossier.ia.cv.recommandations.certificationsAvecMissions.length === 1);
-      cas('ucpm p3 : une fois le complément ajouté, on passe à l’éditeur (plus de consigne, plus de deuxième collage possible)', etat.p3Vue === 'editeur' && !$('.complement-cv-banniere') && !$('#texteCollageComplement') && !complementCVEnAttente());
+      cas('ucpm p3 : une fois le complément ajouté, on passe à l’éditeur (plus de consigne, plus de deuxième collage possible)', etat.p3Vue === 'editeur' && !$('.complement-cv-banniere') && !$('#fcRacineComplement') && !complementCVEnAttente());
       etat.p3Vue = 'assistant'; ucpmRendrePage(); await attente(500);
       var rDouble = fusionnerComplementCV(blocComplement);
       cas('ucpm p3 : le même complément collé deux fois ne crée pas de doublon', dossier.ia.cv.recommandations.formationsAvecMissions.length === 1, String(rDouble.succes));
@@ -3716,7 +3945,7 @@
       cas('ucpm p3 : un texte sans données est refusé avec un message clair', !rVide.succes && /explain|écrit|bloc|donn|mission|trouvé/i.test(rVide.erreur || '') && dossier.ia.cv.recommandations.formationsAvecMissions.length === 1, rVide.erreur);
       $('[data-assistant-rect-toggle="import-ia"]').click(); await attente(500);
       cas('ucpm p3 : un petit bouton « Importer le complément de CV » est à côté de l’import', !!$('#btnOuvrirComplementCV'));
-      $('#texteCollageActionIA').value = '{"formationsAvecMissions":[{"intitule":"CAP Menuiserie","missions":["Tracer des pièces."],"justification":"j"}],"couleursEntrepriseSuggerees":["#0A7F5A"]}'; $('#btnImporterActionIA').click(); await attente(1500);
+      var texteCompl2 = '{"formationsAvecMissions":[{"intitule":"CAP Menuiserie","missions":["Tracer des pièces."],"justification":"j"}],"couleursEntrepriseSuggerees":["#0A7F5A"]}'; await collerActionIA(texteCompl2); await attente(1500);
       cas('ucpm p3 : un complément collé dans la zone principale est reconnu et ajouté, sans erreur', dossier.ia.cv.recommandations.formationsAvecMissions.length === 2 && dossier.ia.cv.couleurEntrepriseSuggeree === '#0A7F5A');
       ucpmBarreContinuer(); await attente(600);
       cas('ucpm p3 : un seul bouton « Régler mon CV », celui de la barre du bas (plus de doublon dans la carte)', !$('#btnUcpmOuvrirEditeur')); ucpmBarreContinuer(); await attente(5000);
@@ -3760,7 +3989,7 @@
         if (!pretes) { await attente(1000); }
       }
       cas('ucpm p5 : chaque carte montre l’aperçu de son CV (compartiment étanche)', pretes);
-      cas('ucpm p5 : les aperçus ne remplacent pas la page et le vrai dossier est intact', pageActuelle === 'un-cv-plusieurs-metiers' && $('h1').textContent.trim() === 'Mes CV' && JSON.stringify(dossier) === avant && !_ucpmDossierReference);
+      cas('ucpm p5 : les aperçus ne remplacent pas la page et le vrai dossier est intact', pageActuelle === 'un-cv-plusieurs-metiers' && $('.sousTitre').textContent.trim() === 'Mes CV' && JSON.stringify(dossier) === avant && !_ucpmDossierReference);
       cas('ucpm p5 : le titre de chaque aperçu est celui de son CV', /PEINTRE EN B/i.test($('[data-ucpm-miniature="d1"]').shadowRoot.textContent) && /AGENT D/i.test($('[data-ucpm-miniature="g1"]').shadowRoot.textContent));
       $('[data-ucpm-acc-ouvrir="d1"]').click(); await attente(400);
       $('[data-ucpm-acc-radio="d1|0"]').click(); await attente(500);
@@ -3833,12 +4062,26 @@
       cas('ucpm p6 : la demande est complète (genre, profil, trois CV, objectif), sans marqueur ni coordonnées', texteDemande.indexOf('Titre du CV : Peintre applicatrice') > 0 && /Titre du CV : Électricienne d/.test(texteDemande) && !/\{(GENRE|PROFIL|CVS)\}/.test(texteDemande) && !/Limoges|Camille/.test(texteDemande));
       etat.passages = { lettres: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(500);
       var brut = await (await fetch('/docs/essais_prompts_ucpm/reponses/03_lettres_V6_10_feminin_chatgpt_1.txt')).text();
-      var ta = document.getElementById('texteCollageUcpmLettres'); ta.value = brut; ta.dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('btnImporterUcpmLettres').click(); await attente(800);
+      await colle('UcpmLettres', brut);
       var lettres = etat.lettres || {};
       cas('ucpm p6 : la vraie réponse est lue, une lettre par CV, la page passe à la lecture', Object.keys(lettres).length === 3 && etat.p6Vue === 'lecture' && !!$('[data-ucpm-lettre-texte]'));
       cas('ucpm p6 : formule d’appel imposée en tête et signature en bas', /^Madame, Monsieur,/.test(lettres.g1) && /Camille Martin$/.test(lettres.g1.trim()) && /Camille Martin$/.test($('[data-ucpm-lettre-texte]').value.trim()));
       cas('ucpm p6 : « Terminer » se débloque et le sélecteur montre les trois CV', !$('#btnSuivantNavigation').disabled && document.querySelectorAll('[data-ucpm-lettre-sel]').length === 3);
+      // La rue sur les lettres (28/10/2026) : une seule case, décochée au départ, absente quand aucune rue n'est écrite dans « Vos informations ».
+      cas('ucpm p6 : sans rue dans « Vos informations », la case « Ajouter ma rue » n’apparaît pas', !$('#ucpmCaseRueLettre'));
+      dossier.identite.adresse = '12 rue des Lilas'; ucpmRendrePage(); await attente(2500);
+      cas('ucpm p6 : avec une rue écrite, la case apparaît, décochée, et montre la rue', !!$('#ucpmCaseRueLettre') && !$('#ucpmCaseRueLettre').checked && /12 rue des Lilas/.test(texte($('#ucpmCaseRueLettre').parentElement)));
+      var entreeRue = ucpmEntreesCochees(etat)[0];
+      var lettreSansRue = await ucpmRendreLettre(etat, entreeRue, 'g0');
+      cas('ucpm p6 : tant que la case n’est pas cochée, la lettre ne porte pas la rue (code postal et ville seulement)', !/12 rue des Lilas/.test(lettreSansRue.html) && /87000|Limoges/.test(lettreSansRue.html));
+      $('#ucpmCaseRueLettre').click(); await attente(2500);
+      var lettreAvecRue = await ucpmRendreLettre(etat, entreeRue, 'g0');
+      cas('ucpm p6 : case cochée : la lettre porte la rue, tient sur une page, et le choix part dans la disquette', etat.rueLettre === true && /12 rue des Lilas/.test(lettreAvecRue.html) && lettreAvecRue.nbPages === 1 && collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers.rueLettre === true);
+      cas('ucpm p6 : la rue ne passe pas dans le vrai dossier', !(dossier.lettreDestinataire && dossier.lettreDestinataire.rue) && !!$('#ucpmCaseRueLettre').checked);
+      $('#ucpmCaseRueLettre').click(); await attente(2500);
+      var lettreDecochee = await ucpmRendreLettre(etat, entreeRue, 'g0');
+      cas('ucpm p6 : case décochée : la rue disparaît de la lettre', etat.rueLettre === false && !/12 rue des Lilas/.test(lettreDecochee.html));
+      delete dossier.identite.adresse; ucpmRendrePage(); await attente(600);
       $('[data-ucpm-lettre-sel="d1"]').click(); await attente(400);
       cas('ucpm p6 : le sélecteur change de lettre', $('[data-ucpm-lettre-texte]').getAttribute('data-ucpm-lettre-texte') === 'd1' && $('[data-ucpm-lettre-texte]').value === lettres.d1);
       var champ = $('[data-ucpm-lettre-texte]');
@@ -3903,7 +4146,7 @@
       }
       cas('ucpm p7 : les boutons de téléchargement se débloquent quand les CV sont prêts', prets);
       cas('ucpm p7 : le bilan annonce 3 CV et 3 lettres', /3 CV/.test(texte($('.cv-section'))) && /3 lettres/.test(texte($('.cv-section'))));
-      cas('ucpm p7 : trois cartes, chacune avec « Télécharger ce CV » et « avec sa lettre »', document.querySelectorAll('[data-ucpm-carte]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv"]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv-lettre"]').length === 3);
+      cas('ucpm p7 : trois cartes, chacune avec « Enregistrer ce CV en PDF » et « avec sa lettre »', document.querySelectorAll('[data-ucpm-carte]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv"]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv-lettre"]').length === 3);
       cas('ucpm p7 : le nombre de pages est annoncé', /Un seul document PDF de \d+ pages?/.test(texte($('#contenuPageUcpm'))));
       cas('ucpm p7 : avant tout téléchargement, la recherche d’offres est annoncée mais absente', !$('#btnUcpmP7Offres') && /Après le téléchargement/.test(texte($('#contenuPageUcpm'))));
       cas('ucpm p7 : le bouton du bas propose la préparation d’entretien, facultative (page 8)', !!$('#btnSuivantNavigation') && /Continuer/.test(texte($('#btnSuivantNavigation'))));
@@ -3924,12 +4167,12 @@
       cadre.remove();
       imprime = null;
       $('[data-ucpm-tel="lettres"]').click(); await attente(2500);
-      cas('ucpm p7 : « Mes lettres » envoie trois lettres signées, une par page', !!imprime && imprime.titre === 'L_M_MARTIN' && (imprime.html.match(/class="ucpm-lettre"/g) || []).length === 3 && /<p class="signature">Camille Martin<\/p>/.test(imprime.html));
-      cas('ucpm p7 : la lettre porte les coordonnées, le lieu et la date', /12 rue des Lilas/.test(imprime.html) && /87000 Limoges/.test(imprime.html) && /Limoges, le \d/.test(imprime.html));
+      cas('ucpm p7 : « Mes lettres » envoie trois lettres signées, une par page', !!imprime && imprime.titre === 'L_M_MARTIN' && (imprime.html.match(/<template shadowrootmode="open">/g) || []).length === 3 && (imprime.html.match(/Madame, Monsieur,/g) || []).length === 3 && (imprime.html.match(/Camille Martin/g) || []).length >= 3);   // depuis le 24/10/2026 : les lettres prennent les modèles de la lettre seule (un compartiment étanche par lettre)
+      cas('ucpm p7 : la lettre porte les coordonnées, le lieu et la date', /87000 Limoges/.test(imprime.html) && /06.12.34.56.78/.test(imprime.html) && /camille\.martin@example\.org/.test(imprime.html) && /\d{1,2}(er)? [a-zéû]+ 20\d\d/.test(imprime.html) && !/12 rue des Lilas/.test(imprime.html));   // la rue n'est imprimée que si la personne la demande (comme la lettre seule) ; la date est écrite en toutes lettres
       imprime = null;
       $('[data-ucpm-tel="cv-lettre"][data-ucpm-tel-id="d1"]').click(); await attente(2500);
-      var ordre = imprime ? imprime.html.search(/PEINTRE APPLICATRICE/i) : -1;
-      cas('ucpm p7 : « Ce CV avec sa lettre » envoie le CV puis sa lettre, dans un seul fichier de deux pièces', !!imprime && (imprime.html.match(/<template shadowrootmode="open">/g) || []).length === 2 && ordre > 0 && ordre < imprime.html.indexOf('class="ucpm-lettre"') && /PEINTRE|peintre/i.test(imprime.titre));
+      var morceaux = imprime ? imprime.html.split('<template shadowrootmode="open">') : [];
+      cas('ucpm p7 : « Ce CV avec sa lettre » envoie le CV puis sa lettre, dans un seul fichier de deux pièces', !!imprime && morceaux.length === 3 && /PEINTRE APPLICATRICE/i.test(morceaux[1]) && /Madame, Monsieur,/.test(morceaux[2]) && /PEINTRE|peintre/i.test(imprime.titre));
       cas('ucpm p7 : le fichier « CV avec sa lettre » s’appelle « métier_NOM » (métier du CV choisi en minuscules sans accent)', !!imprime && /^[a-z0-9-]+_MARTIN$/.test(imprime.titre) && /peintre/.test(imprime.titre), String(imprime && imprime.titre));
       cas('ucpm p7 : noms de fichier : tous les CV, un CV, les lettres, un CV avec sa lettre, sans nom', ucpmNomFichierPdf('cvs', '', { nom: 'Martin' }) === 'CV_MARTIN' && ucpmNomFichierPdf('cv', 'Électricienne d’entretien', { nom: 'de la Tour', prenom: 'Léa' }) === 'CV_DE-LA-TOUR' && ucpmNomFichierPdf('lettres', '', { nom: 'Martin' }) === 'L_M_MARTIN' && ucpmNomFichierPdf('cv-lettre', 'Électricienne d’entretien', { nom: 'Martin' }) === 'electricienne-d-entretien_MARTIN' && ucpmNomFichierPdf('cvs', '', { prenom: 'Léa' }) === 'CV_LEA' && ucpmNomFichierPdf('cvs', '', {}) === 'CV' && ucpmNomFichierPdf('lettres', '', {}) === 'L_M');
       $('#btnUcpmP7Offres').click(); await attente(600);
@@ -4052,8 +4295,7 @@
       cas('ucpm retravail : la case décochée revient à la seule lettre choisie', etat.retravail.toutes === false);
       etat.passages = { retravail: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(500);
       var reponse = '```json\n[{"id":1,"metier":"Agent","lettre":"Madame, Monsieur,\\n\\nLettre un retravaillée.\\n\\nCordialement."}]\n```';
-      var ta = document.getElementById('texteCollageUcpmRetravail'); ta.value = reponse; ta.dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('btnImporterUcpmRetravail').click(); await attente(800);
+      await colle('UcpmRetravail', reponse);
       cas('ucpm retravail : la réponse est lue et la page revient à la lecture', etat.p6Vue === 'lecture' && etat.retravail === null && !!$('[data-ucpm-lettre-texte]'));
       cas('ucpm retravail : la lettre retravaillée remplace l’ancienne, avec formule et signature de l’application', /Lettre un retravaillée\./.test(etat.lettres.g1) && /Camille Martin$/.test(etat.lettres.g1.trim()) && /^Madame, Monsieur,/.test(etat.lettres.g1));
       cas('ucpm retravail : les autres lettres n’ont pas bougé', /Lettre deux\./.test(etat.lettres.d1) && /Lettre trois\./.test(etat.lettres.d2));
@@ -4118,9 +4360,10 @@
       window.__ucpmImpressionSimulee = function (titre, html) { impressions.push({ titre: titre, html: html }); };
       naviguerVers('un-cv-plusieurs-metiers'); await attente(1000);
       var avant = JSON.stringify(dossier);
-      cas('ucpm p8 : le titre de la page et la barre d’étapes à huit pas (le dernier « Entretiens »)', /Préparer mes entretiens/.test(texte($('h1'))) && /Entretiens/.test(texte($('.page-catalogue-contenu'))));
+      cas('ucpm p8 : le titre de la page et la barre d’étapes à huit pas (le dernier « Entretiens »)', /Préparer mes entretiens/.test(texte($('.page-catalogue-contenu .sousTitre'))) && /Entretiens/.test(texte($('.page-catalogue-contenu'))));
       cas('ucpm p8 : le choix propose la générale et l’approfondie, et dit que la feuille est pour la personne', !!$('#btnUcpmP8General') && !!$('#btnUcpmP8Approfondie') && /pour vous/.test(texte($('#contenuPageUcpm'))) && /M’entraîner à un entretien/.test(texte($('#contenuPageUcpm'))));
       cas('ucpm p8 : le bouton du bas n’offre plus de « suite » sur la dernière page', !$('#btnSuivantNavigation'));
+      cas('ucpm p8 : le bouton vert de fin est toujours actif dans la barre du bas, dès le choix (D49)', !!document.querySelector('.barre-navigation .btn-success:not(:disabled)') && !!$('#btnUcpmP8General'));
       $('#btnUcpmP8General').click(); await attente(700);
       cas('ucpm p8 : la préparation générale s’ouvre sans réglage de style d’écriture, avec le choix des métiers puis de l’assistant', etat.p8Vue === 'general' && !$('#ucpmStyleEcriture') && document.querySelectorAll('[data-ucpm-p8-cv]').length === 3 && !!$('.ucpm-choix-ia') && window.scrollY === 0);
       var cases = document.querySelectorAll('[data-ucpm-p8-cv]');
@@ -4143,8 +4386,7 @@
         { id: 2, metier: 'B', questions: [q('Parlez de vos peintures ?', 'competences', false), q('Pourquoi changer de métier ?', 'changement', true)], aMettreEnAvant: ['CAP.'] },
         { id: 3, metier: 'C', questions: [q('Votre habilitation ?', 'competences', false)], aMettreEnAvant: [] }
       ]) + '\n```';
-      var ta = document.getElementById('texteCollageUcpmPrepGen'); ta.value = reponse; ta.dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('btnImporterUcpmPrepGen').click(); await attente(1500);
+      await colle('UcpmPrepGen', reponse); await attente(700);
       cas('ucpm p8 : la réponse est lue, les trois préparations sont gardées (mode général) et la page passe à la lecture', etat.p8Vue === 'lecture' && Object.keys(etat.preparations).length === 3 && etat.preparations.g1.mode === 'general' && etat.preparations.g1.niveau === '');
       cas('ucpm p8 : les repères « délicate » suivent le sujet', etat.preparations.g1.questions[1].delicate === true && etat.preparations.g1.questions[0].delicate === false && etat.preparations.d1.questions[1].delicate === true);
       cas('ucpm p8 : la lecture montre le sélecteur, l’aperçu de la feuille et le nombre de pages', document.querySelectorAll('[data-ucpm-p8-sel]').length === 3 && !!$('[data-ucpm-p8-apercu]') && !!$('[data-ucpm-p8-apercu]').shadowRoot && !!$('[data-ucpm-p8-apercu]').shadowRoot.querySelector('.prep') && /tient sur une page A4/.test(texte($('#ucpmP8NbPages'))));
@@ -4193,8 +4435,7 @@
       cas('ucpm p8 : la demande approfondie porte le niveau, le nombre, le sujet et un seul métier', /Mode : approfondi/.test(demande2) && /Niveau d’exigence : Exigeant/.test(demande2) && /Nombre de questions par métier : 8/.test(demande2) && /Titre du CV : Électricienne d’entretien/.test(demande2) && !/Titre du CV : Peintre/.test(demande2) && /Sujets : /.test(demande2));
       etat.passages = { prepApprofondie: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(500);
       var rep2 = '```json\n' + JSON.stringify([{ id: 1, metier: 'C', questions: [q('Votre habilitation en détail ?', 'competences', false, 'Et qu’est-ce qui le prouve ?'), q('Pourquoi chez nous ?', 'entreprise', true, 'Qu’avez-vous repéré ?')], aMettreEnAvant: ['BS.'] }]) + '\n```';
-      var ta2 = document.getElementById('texteCollageUcpmPrepApp'); ta2.value = rep2; ta2.dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('btnImporterUcpmPrepApp').click(); await attente(1500);
+      await colle('UcpmPrepApp', rep2); await attente(700);
       cas('ucpm p8 : l’approfondie remplace la générale du même métier, les autres ne bougent pas', etat.preparations.d2.mode === 'approfondi' && etat.preparations.d2.niveau === 'exigeant' && etat.preparations.d2.questions.length === 2 && etat.preparations.g1.mode === 'general' && etat.preparations.d1.questions.length === 2);
       cas('ucpm p8 : la feuille approfondie porte le niveau et la relance du recruteur', etat.p8Sel === 'd2' && /niveau exigeant/.test($('[data-ucpm-p8-apercu]').shadowRoot.textContent) && /Il peut relancer : Et qu’est-ce qui le prouve/.test($('[data-ucpm-p8-apercu]').shadowRoot.textContent));
       // Péremption
@@ -4252,7 +4493,7 @@
       ucpmOuvrirInfos(); await attente(1200);
       cas('ucpm invite : depuis le module, « Vos informations » dit ce qu’on regarde et ce qu’il reste à faire', pageActuelle === 'projet' && !!$('#ucpmInviteInfos') && /Voici ce que l’application a repéré/.test(texte($('#ucpmInviteInfos'))) && /Continuer/.test(texte($('#ucpmInviteInfos'))));
       cas('ucpm invite : l’invitation est après le titre et avant les blocs, avec la barre d’étapes du module', !!$('.barre-etapes-bilan') && !!($('h1').compareDocumentPosition($('#ucpmInviteInfos')) & 4));
-      cas('ucpm invite : le bouton « Continuer » du module existe bien en bas', /Continuer : style d’écriture et assistant/.test(texte($('.barre-navigation-fixe'))));
+      cas('ucpm invite : le bouton « Continuer » du module existe bien en bas', /Continuer/.test(texte($('.barre-navigation-fixe'))));
       naviguerVers('cv'); await attente(600);
       naviguerVers('projet'); await attente(1200);
       cas('ucpm invite : depuis un autre parcours, l’écran « Vos informations » n’a pas l’invitation du module', pageActuelle === 'projet' && !$('#ucpmInviteInfos'));
@@ -4271,27 +4512,26 @@
       var etat = ouvrirUnCvPlusieursMetiers();
       naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
       var boutons = function () { return [].slice.call(document.querySelectorAll('button')); };
-      cas('ucpm p1 : un simple bouton « Déposer mon CV », pas de zone de dépôt qui occupe la page', !!$('#btnUcpmDeposer') && !$('#contenuPageUcpm input[type="file"]') && $('#btnUcpmVersAssistant').disabled);
-      $('#btnUcpmDeposer').click(); await attente(800);
-      cas('ucpm p1 : la fenêtre commune « Déposer votre document » s’ouvre', /Déposer votre document/.test(document.body.innerText));
-      boutons().filter(function (b) { return /Coller le texte/.test(b.innerText); })[0].click(); await attente(400);
-      var ta = [].slice.call(document.querySelectorAll('textarea')).filter(function (t) { return t.offsetParent; })[0];
+      cas('ucpm p1 : le dépôt est dans la page (deux cartes « Un fichier » et « Du texte copié »), aucune fenêtre, « Continuer » grisé', !!$('#depotPageChoisir') && !!$('#depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP') && $('#btnSuivantNavigation').disabled);
+      $('#depotPageColler').click(); await attente(400);
+      var ta = $('#depotPageTexte');
       ta.value = 'Josiane BOKENOMAE\n06 12 34 56 78\njosiane.bokenomae@gmail.com\n12 rue des Lilas 87000 Limoges\nAssistante de vie aux familles\nCIAS de Beaumont : aide à la toilette, préparation des repas.\nFormation : Assistante de vie aux familles 2026. Certification SST.';
-      ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(400);
-      boutons().filter(function (b) { return /^Continuer/.test(b.innerText.trim()) && b.offsetParent && !b.disabled; })[0].click(); await attente(1200);
-      cas('ucpm p1 : la vérification s’ouvre toute seule, avec le courriel complet (arobase comprise) et le nom repéré', /Vérifier le texte/.test(document.body.innerText) && /josiane\.bokenomae@gmail\.com/.test(document.body.innerText) && /Josiane BOKENOMAE/.test(document.body.innerText));
-      cas('ucpm p1 : tant que rien n’est validé, le CV de la page reste vide', !etat.cvRelu && !etat.texteCV);
-      boutons().filter(function (b) { return /Enregistrer/.test(b.innerText) && b.offsetParent; })[0].click(); await attente(600);
-      boutons().filter(function (b) { return /^Continuer/.test(b.innerText.trim()) && b.offsetParent && !b.disabled; })[0].click(); await attente(1200);
-      cas('ucpm p1 : une fois validé, le CV est prêt et on peut choisir l’assistant', etat.cvRelu && /Josiane BOKENOMAE/.test(etat.texteCV) && !$('#btnSuivantNavigation').disabled && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
-      // remplacer le CV puis fermer la fenêtre sans valider : le dernier CV validé reste en place
+      ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(300);
+      $('#depotPageLireTexte').click(); await attente(900);
+      cas('ucpm p1 : la relecture s’ouvre dans la page, avec le courriel complet (arobase comprise) et le nom repéré', /Vérifier le texte/.test(document.body.innerText) && /josiane\.bokenomae@gmail\.com/.test($('#verifDocTextarea').value) && /Josiane BOKENOMAE/.test($('#verifDocTextarea').value));
+      cas('ucpm p1 : tant que rien n’est enregistré, le CV de la page reste vide', !etat.cvRelu && !etat.texteCV);
+      $('#verifDocBtnEnregistrer').click(); await attente(700);
+      cas('ucpm p1 : une fois enregistré, le CV est prêt et on peut choisir l’assistant', etat.cvRelu && /Josiane BOKENOMAE/.test(etat.texteCV) && !$('#btnSuivantNavigation').disabled && /Déposé et relu/.test(texte($('#contenuPageUcpm'))));
+      // remplacer le CV puis abandonner sans enregistrer : le dernier CV enregistré reste en place
       var ancien = etat.texteCV;
-      $('#btnUcpmDeposerAutre').click(); await attente(600);
-      var fenetre = /Déposer votre document/.test(document.body.innerText);
-      var fermer = document.querySelector('[aria-label="Fermer"], .modal-fermer, .btn-fermer-fenetre') || boutons().filter(function (b) { return /^[✕×]$/.test(b.innerText.trim()); })[0];
-      cas('ucpm p1 : « Déposer un autre CV » rouvre la fenêtre de dépôt', fenetre);
-      if (fermer) { fermer.click(); await attente(500); } else { fermerFenetreERIP(); await attente(500); }
-      cas('ucpm p1 : fermer la fenêtre sans valider laisse le dernier CV en place', etat.cvRelu && etat.texteCV === ancien && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
+      $('#depotPageChanger').click(); await attente(400);
+      cas('ucpm p1 : « Changer de CV » rouvre les deux cartes dans la page, avec « Annuler : garder mon CV actuel »', !!$('#depotPageColler') && !!$('#depotPageAnnuler') && !$('#assistantDepotCV'));
+      $('#depotPageColler').click(); await attente(300);
+      var ta2 = $('#depotPageTexte'); ta2.value = 'Autre personne\n06 99 99 99 99\nCuisinier'; ta2.dispatchEvent(new Event('input', { bubbles: true })); await attente(200);
+      $('#depotPageLireTexte').click(); await attente(700);
+      $('#depotPageAutre').click(); await attente(400);
+      $('#depotPageAnnuler').click(); await attente(400);
+      cas('ucpm p1 : abandonner le nouveau CV sans l’enregistrer laisse le dernier CV en place', etat.cvRelu && etat.texteCV === ancien && /Déposé et relu/.test(texte($('#contenuPageUcpm'))));
     } finally { window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser(); try { fermerFenetreERIP(); } catch (e) { /* rien */ } naviguerVers('cv'); await attente(500); }
   }
 
@@ -4312,20 +4552,29 @@
       etat.refId = 'g1'; etat.page = 3; etat.pageMax = 3; etat.p3Vue = 'structurer';
       dossier.imports = { courant: { donnees: { identite: {}, experiences: [], formations: [], certifications: ['s.s.T'], pointsAVerifier: [{ titre: 'SST', extrait: 's.s.T', question: 'Que signifie « s.s.T » ?', suggestion: 'SST (Sauveteur secouriste du travail)' }] } } };
       naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
-      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(700);
-      cas('ucpm clarification : le panneau « Quelques passages à préciser » pose la question sur la certification mal écrite', /Quelques passages à préciser/.test(document.body.innerText) && /Que signifie/.test(document.body.innerText) && etat.p3Vue === 'structurer');
-      // Touche Entrée (retour Denis 2026-10-19) : valide la zone de texte (pastille « répondu ») et le focus passe à la question suivante, puis au bouton « Continuer »
-      var champ0 = document.getElementById('reponsePointAVerifier0');
+      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(900);
+      // Point 15 (01/11/2026) : plus de fenêtre, les questions sont dans un bloc en haut de « Vos informations », modifiable jusqu'à « Continuer ».
+      cas('ucpm clarification : les questions sont dans la page « Vos informations », en haut, sans fenêtre', pageActuelle === 'projet' && etat.p3Vue === 'infos' && !document.getElementById('fenetreERIP') && !!document.querySelector('[data-passages-bloc]') && /Que signifie/.test(document.body.innerText));
+      cas('ucpm clarification : le bloc est avant les blocs de la page', !!(document.querySelector('[data-passages-bloc]').compareDocumentPosition(document.querySelector('.grille-mon-projet')) & 4));
+      cas('ucpm clarification : la certification mal écrite est déjà dans le dossier avant toute réponse', JSON.stringify(dossier.certifications || []).indexOf('s.s.T') !== -1);
+      // Touche Entrée (retour Denis 2026-10-19) : valide la zone de texte (pastille « répondu ») et le focus passe à « Terminé » après la dernière question
+      var champ0 = document.getElementById('passageReponse0');
       champ0.focus(); champ0.value = 'SST';
       champ0.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-      cas('ucpm clarification : la touche Entrée valide la réponse (« répondu ») et envoie sur « Continuer » après la dernière question', /répondu/.test(texte(document.getElementById('pilulePointAVerifier0'))) && document.activeElement === document.getElementById('btnClarificationContinuer'), document.activeElement && document.activeElement.id);
-      document.querySelector('[data-utiliser-suggestion-point]').click(); await attente(300);
-      document.getElementById('btnClarificationContinuer').click(); await attente(700);
-      cas('ucpm clarification : la réponse corrige la certification, puis on passe à « Vos informations »', etat.p3Vue === 'infos' && pageActuelle === 'projet' && /Sauveteur secouriste du travail/.test(JSON.stringify(dossier.certifications || [])));
+      cas('ucpm clarification : la touche Entrée valide la réponse (« répondu ») et envoie sur « Terminé » après la dernière question', /répondu/.test(texte(document.querySelector('[data-passage-pilule="0"]'))) && document.activeElement === document.querySelector('[data-passages-termine]'));
+      document.querySelector('[data-passage-suggestion]').click(); await attente(300);
+      cas('ucpm clarification : la réponse corrige la certification dans le dossier, sans quitter la page', pageActuelle === 'projet' && /Sauveteur secouriste du travail/.test(JSON.stringify(dossier.certifications || [])));
+      cas('ucpm clarification : la correction se voit tout de suite dans les blocs de la page', /Sauveteur secouriste du travail/.test(document.querySelector('.grille-mon-projet').innerText) || !/s.s.T/.test(document.querySelector('.grille-mon-projet').innerText));
+      document.querySelector('[data-passage-passer="0"]').click(); await attente(300);
+      cas('ucpm clarification : on peut changer d’avis tant que la page n’est pas validée (le texte d’origine revient)', /s.s.T/.test(JSON.stringify(dossier.certifications || [])) && !/Sauveteur/.test(JSON.stringify(dossier.certifications || [])));
+      document.querySelector('[data-passages-termine]').click(); await attente(200);
+      cas('ucpm clarification : « Terminé » replie le bloc sur une ligne de résumé', !!document.querySelector('[data-passages-corps]').hidden && !document.querySelector('[data-passages-resume]').hidden);
+      document.querySelector('[onclick="ucpmContinuerDepuisInfos()"]').click(); await attente(900);
+      cas('ucpm clarification : « Continuer » fige le bloc, il disparaît de « Vos informations »', typeof passagesEtatDePage === 'function' && !passagesEtatDePage('ucpm'));
       naviguerVers('un-cv-plusieurs-metiers'); await attente(600);
       dossier.imports = { courant: { donnees: { identite: {}, experiences: [], formations: [], certifications: [], pointsAVerifier: [] } } }; etat.p3Vue = 'structurer';
-      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(700);
-      cas('ucpm clarification : sans point à préciser, le panneau saute tout seul', etat.p3Vue === 'infos' && !/Quelques passages/.test(document.body.innerText));
+      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(900);
+      cas('ucpm clarification : sans point à préciser, aucun bloc n’est affiché', etat.p3Vue === 'infos' && !/Quelques passages/.test(document.body.innerText));
     } finally {
       try { var vieuxClar = JSON.parse(dossierAvantClar); Object.keys(dossier).forEach(function (k) { if (!(k in vieuxClar)) { delete dossier[k]; } }); Object.assign(dossier, vieuxClar); } catch (e0) { /* tant pis */ }
       try { dossier.imports = JSON.parse(importsAvant); } catch (e) { dossier.imports = null; }
@@ -4462,11 +4711,11 @@
       naviguerVers('assistant'); await attente(800); naviguerVers('resultats'); await attente(2000);
       var barre = function () { return document.querySelector('.barre-navigation-fixe .barre-navigation'); };
       cas('complément : avant la page de création, l’écran de choix s’affiche (pas d’éditeur de CV)', /Le complément de votre CV/.test(texte($('h1'))) && !$('#zonePdfInlineCV') && /Étape 2 sur 2/.test(texte($('.complement-cv-etape'))));
-      cas('complément : « Passer, je vois mon CV » est dans la barre du bas, à droite', /Continuer/.test(texte(barre().lastElementChild)) && !/IA/.test(document.body.innerText), texte(barre()));
-      cas('complément : la page dit qu’on peut y revenir plus tard avec un bouton prévu à cet effet en bas de la page de création', /Rien n’est perdu/.test(document.body.innerText) && /y revenir plus tard/.test(document.body.innerText) && /Ajouter le complément du CV/.test(document.body.innerText) && /en bas de la page/.test(document.body.innerText));
-      var ta = $('#texteCollageComplement'); ta.value = '{"titresProposes":["Agent"],"accrochesProposees":["Une phrase."],"pointsForts":["x"]}'; ta.dispatchEvent(new Event('input', { bubbles: true }));
-      $('#btnImporterComplement').click(); await attente(500);
-      cas('complément : recoller la 1re partie donne un message qui renvoie à la dernière fenêtre de l’assistant et à « oui »', /première partie/.test(texte($('#messageImportComplement'))) && /oui/.test(texte($('#messageImportComplement'))) && !/IA/.test(texte($('#messageImportComplement'))), texte($('#messageImportComplement')));
+      cas('complément : « Continuer sans le complément » est dans la barre du bas, à droite, discret (fond blanc comme Retour et Accueil)', /Continuer sans le complément/.test(texte(barre().lastElementChild)) && /btn-nav-erip/.test(barre().lastElementChild.className) && !/\bIA\b/.test(document.body.innerText), texte(barre()) + ' / ' + barre().lastElementChild.className);
+      cas('complément : la fenêtre dit qu’on pourra l’ajouter plus tard avec le bouton « Ajouter le complément du CV »', /ajouter plus tard/.test(document.body.innerText) && /Ajouter le complément du CV/.test(document.body.innerText) && /Vos documents/.test(document.body.innerText));
+      var etPremiere = await colle('Complement', '{"titresProposes":["Agent"],"accrochesProposees":["Une phrase."],"pointsForts":["x"]}');
+      cas('complément : recoller la 1re partie est refusé, avec un message qui renvoie à la dernière fenêtre de l’assistant et à « oui »', etPremiere === 'echec' && /première partie/.test(texte($('#fcRacineComplement'))) && /oui/.test(texte($('#fcRacineComplement'))) && !/\bIA\b/.test(texte($('#fcRacineComplement'))) && !dossier.complementCVAjoute, etPremiere + ' / ' + texte($('#fcRacineComplement')).slice(0, 200));
+      $('#fcRacineComplement [data-fc=recommencer]').click(); await attente(300);
       barre().lastElementChild.click(); await attente(6500);
       var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
       cas('complément : après « Passer », la page de création apparaît avec « Valider le CV » dans la barre', !!$('#zonePdfInlineCV') && /Valider le CV/.test(texte(barre().lastElementChild)) && dossier.complementCVPasse === true);
@@ -4475,8 +4724,7 @@
       w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(3000);
       var modele = _mepModeleCreatifActuel();
       $('#btnMepAjouterComplement').click(); await attente(800);
-      var ta2 = $('#texteCollageComplement'); ta2.value = '{"recommandations":{"formationsAvecMissions":[{"intitule":"Agent de prévention","missions":["Surveiller les accès."],"justification":"j"}]}}'; ta2.dispatchEvent(new Event('input', { bubbles: true }));
-      $('#btnImporterComplement').click(); await attente(6000);
+      await colle('Complement', '{"recommandations":{"formationsAvecMissions":[{"intitule":"Agent de prévention","missions":["Surveiller les accès."],"justification":"j"}]}}'); await attente(6000);
       cas('complément : ajouté plus tard, le CV garde son modèle et ses réglages, le bouton disparaît', dossier.complementCVAjoute === true && _mepModeleCreatifActuel() === modele && !$('#btnMepAjouterComplement') && !$('#fenetreERIP'), modele + ' / ' + _mepModeleCreatifActuel());
     } finally {
       window.reponseIAImportee = importeeAvant; dossier.complementCVPropose = drap.p; dossier.complementCVAjoute = drap.a; dossier.complementCVRefuse = drap.r; dossier.complementCVPasse = drap.s;
@@ -6133,19 +6381,19 @@
     dossier.complementCVPropose = true; dossier.complementCVAjoute = false; dossier.complementCVRefuse = false;
     var conteneur = document.createElement('div'); document.body.appendChild(conteneur);
     conteneur.innerHTML = contenuRectangleComplementCV();
-    cas('complément : en attente, la zone de collage et le bouton « Je ne suis pas intéressé(e) » sont là', !!conteneur.querySelector('[data-complement-refus]') && !!conteneur.querySelector('#btnImporterComplement') && complementCVEnAttente());
     var rendus = 0; etatAccordeon['complement-cv'] = true;
     wireComplementCV(function () { rendus++; });
-    conteneur.querySelector('[data-complement-refus]').click();
-    cas('complément : « Je ne suis pas intéressé(e) » ferme le rectangle, retient le refus et ne demande plus rien', dossier.complementCVRefuse === true && etatAccordeon['complement-cv'] === false && rendus === 1 && !complementCVEnAttente());
+    cas('complément : en attente, la fenêtre commune (mode complément) est là avec « Continuer sans le complément »', !!conteneur.querySelector('#fcRacineComplement') && !!conteneur.querySelector('#fcRacineComplement').__collage && /Continuer sans le complément/.test(conteneur.querySelector('[data-fc=continuer]').textContent) && !conteneur.querySelector('#btnImporterComplement') && complementCVEnAttente());
+    conteneur.querySelector('[data-fc=continuer]').click();
+    cas('complément : « Continuer sans le complément » ferme le rectangle, retient le refus et ne demande plus rien', dossier.complementCVRefuse === true && etatAccordeon['complement-cv'] === false && rendus === 1 && !complementCVEnAttente());
     conteneur.innerHTML = contenuRectangleComplementCV();
-    cas('complément : refusé, plus de zone de collage, un lien « Finalement, je le veux »', !conteneur.querySelector('#btnImporterComplement') && !!conteneur.querySelector('[data-complement-reprendre]'));
+    cas('complément : refusé, plus de fenêtre de collage, un lien « Finalement, je le veux »', !conteneur.querySelector('#fcRacineComplement') && !!conteneur.querySelector('[data-complement-reprendre]'));
     wireComplementCV(function () { rendus++; });
     conteneur.querySelector('[data-complement-reprendre]').click();
     cas('complément : « Finalement, je le veux » rouvre la zone et remet l’attente', dossier.complementCVRefuse === false && etatAccordeon['complement-cv'] === true && complementCVEnAttente());
     dossier.complementCVAjoute = true;
     conteneur.innerHTML = contenuRectangleComplementCV();
-    cas('complément : une fois ajouté, plus de zone de collage (pas de deuxième collage possible)', !conteneur.querySelector('#btnImporterComplement') && /déjà ajouté/.test(conteneur.textContent) && !complementCVEnAttente());
+    cas('complément : une fois ajouté, plus de fenêtre de collage (pas de deuxième collage possible)', !conteneur.querySelector('#fcRacineComplement') && /déjà ajouté/.test(conteneur.textContent) && !complementCVEnAttente());
     conteneur.remove(); dossier.complementCVPropose = false; dossier.complementCVAjoute = false; etatAccordeon['complement-cv'] = false;
     // 2. nom du PDF : le titre de la page hôte, au moment de l'impression, est « NOM_poste » comme pour le Word
     await preparerCvResultats();
@@ -6178,6 +6426,7 @@
     clic('[data-mt-domaine="emploi"]'); await attente(300);
     cas('Qui fait quoi (aide) : l’ecran des secteurs a une aide', presentes().indexOf('Les secteurs d’employeurs') !== -1, presentes().join(' | '));
     clic('[data-mt-secteur="commerce-vente"]'); await attente(300);
+    clic('[data-mt-commune-v="*"]'); await attente(300);   // la liste n'apparaît qu'après le choix d'une commune ou « Voir toute la liste »
     cas('Qui fait quoi (aide) : la liste a une aide sur la fiche', presentes().indexOf('Voir la fiche') !== -1, presentes().join(' | '));
     if (avant.apercu === null) { localStorage.removeItem('erip_mon_territoire_apercu'); } else { localStorage.setItem('erip_mon_territoire_apercu', avant.apercu); }
     if (avant.dep === null) { localStorage.removeItem('erip_departement_ressources'); } else { localStorage.setItem('erip_departement_ressources', avant.dep); }
@@ -6185,6 +6434,16 @@
   }
   // ---- Aides communes aux essais « Qui fait quoi » (2026-10-16) : les nombres de structures grossissent a chaque validation du sas, les essais les lisent dans les donnees au lieu de les ecrire en dur.
   // Nombre de structures visibles pour un departement dans un rayon (meme regle que l'application : departement + region + national).
+  // Les listes de « Qui fait quoi » se choisissent par communes et le répertoire grossit : les essais lisent toute la liste, jamais un nombre exact.
+  async function mtToutVoir() {
+    var tout = document.querySelector('[data-mt-commune-v="*"]'); if (tout && tout.getAttribute('aria-pressed') !== 'true') { tout.click(); await attente(400); }
+    for (var pg = 0; pg < 40 && document.querySelector('[data-mt-suivants]'); pg++) { document.querySelector('[data-mt-suivants]').click(); await attente(100); }
+  }
+  // Titres des cartes affichées (le nom seul) : un service régional a son site à Limoges et reste légitime en Dordogne ; seul un nom qui dit « Haute-Vienne » est une structure de l'autre département.
+  function titresCartes() { return [].map.call(document.querySelectorAll('.page-catalogue-contenu .fw-semibold'), function (e) { return e.textContent.trim(); }); }
+  function nbStructuresDe(el) { return Number(((el && el.textContent || '').match(/(\d+)\s+structures?/) || [0, 0])[1]); }
+  // Un doublon = deux cartes qui commencent par le même texte (nom et début de description) ; le nom seul peut légitimement se répéter (deux antennes).
+  function sansDoublonCartes(liste) { return new Set(liste.map(function (x) { return x.slice(0, 90); })).size === liste.length; }
   async function mtAttendu(rayon, dep) {
     if (!_mtDonnees) { await new Promise(function (ok) { _mtCharger(ok, ok); }); }
     return mtLieuxDuRayon(mtLieuxVisibles(_mtDonnees.lieux, dep), rayon).length;
@@ -6203,7 +6462,7 @@
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), commune: localStorage.getItem('erip_mon_territoire_commune'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var remettre = mtSimulerFerme();
-    cas('Qui fait quoi : fermé au public par défaut (en ligne, sans aperçu), ni tuile ni résultat de recherche ; il n\u2019est ouvert que pour le travail local', mtOuvert() === false);
+    cas('Qui fait quoi : le retour arrière fonctionne (interrupteur simulé à faux, en ligne, sans aperçu) : ni tuile ni résultat de recherche', mtOuvert() === false);
     remettre();
     localStorage.setItem('erip_mon_territoire_apercu', '1'); localStorage.setItem('erip_departement_ressources', '24'); localStorage.removeItem('erip_mon_territoire_commune');
     _mtEntree = 'module'; _mtPile = []; _mtEtat = { ecran: 'accueil', secteur: '', id: '', requete: '', nature: '', nbAffiches: 0, vide: '', choixCommunes: null, messageCommune: '', saisieCommune: '', saisieRecherche: '' };
@@ -6215,22 +6474,32 @@
     cas('Qui fait quoi : un code postal commun à plusieurs communes propose un choix', document.querySelectorAll('[data-mt-choisir-commune]').length > 1);
     clic('[data-mt-choisir-commune]'); await attente(200);
     clic('[data-mt-domaine="emploi"]'); await attente(200);
-    cas('Qui fait quoi : 21 secteurs, celui qui a une liste en premier', document.querySelectorAll('[data-mt-secteur]').length === 21 && document.querySelector('[data-mt-secteur]').dataset.mtSecteur === 'commerce-vente');
-    clic('[data-mt-secteur="btp"]'); await attente(200);
+    var boutonsSecteurs = [].slice.call(document.querySelectorAll('[data-mt-secteur]'));
+    var nbSecteur = function (b) { return Number((b.textContent.match(/(\d+)\s+enseigne/) || [0, 0])[1]); };
+    cas('Qui fait quoi : 21 secteurs, ceux qui ont une liste passent en premier', boutonsSecteurs.length === 21 && nbSecteur(boutonsSecteurs[0]) > 0 && boutonsSecteurs.every(function (b, i) { return i === 0 || !(nbSecteur(b) > 0 && nbSecteur(boutonsSecteurs[i - 1]) === 0); }));
+    _mtAller('vide', { vide: 'Un secteur sans liste' }); await attente(200);
     cas('Qui fait quoi : un secteur sans liste ouvre « Pas encore de liste »', h1() === 'Pas encore de liste ici');
     _mtAllerVersPrecedent(); await attente(200);
-    clic('[data-mt-secteur="commerce-vente"]'); await attente(200);
+    // Les données vivantes évoluent : l'essai prend le secteur le moins rempli (qui a une liste), jamais un secteur écrit en dur.
+    var candidats = boutonsSecteurs.filter(function (b) { return nbSecteur(b) >= 2; }).sort(function (a, b) { return nbSecteur(a) - nbSecteur(b); });
+    var clePetit = '';
+    for (var ic = 0; ic < candidats.length; ic++) {
+      clePetit = candidats[ic].dataset.mtSecteur;
+      clic('[data-mt-secteur="' + clePetit + '"]'); await attente(200);
+      if (document.querySelectorAll('[data-mt-fiche]').length >= 2) { break; }
+      _mtAllerVersPrecedent(); await attente(200);
+    }
     var noms = [].map.call(document.querySelectorAll('[data-mt-fiche]'), function (b) { return b.closest('.comprendre-le-cadre-encart').querySelector('.fw-semibold').textContent; });
-    cas('Qui fait quoi : liste par ordre alphabétique, sans bouton « suivants » sous 10 lignes', noms.length >= 2 && noms.join() === noms.slice().sort(function (a, b) { return a.localeCompare(b, 'fr'); }).join() && !document.querySelector('[data-mt-suivants]'));
-    clic('[data-mt-fiche="lidl"]'); await attente(200);
+    cas('Qui fait quoi : liste par ordre alphabétique, sans bouton « suivants » sous 12 lignes', noms.length >= 2 && noms.join() === noms.slice().sort(function (a, b) { return a.localeCompare(b, 'fr'); }).join() && (noms.length > 12 || !document.querySelector('[data-mt-suivants]')), clePetit + ' : ' + noms.length + ' fiches');
+    _mtAller('fiche', { id: 'lidl' }); await attente(200);
     var t = document.body.textContent;
-    cas('Qui fait quoi : fiche vérifiée avec site et page de recrutement, sans téléphone inventé', !!document.querySelector('a[href="https://emplois.lidl.fr/"]') && !document.querySelector('a[href^="tel:"]') && /numéro en cours de vérification/.test(t));
-    cas('Qui fait quoi : jamais d\u2019ancienneté ni de « recrute régulièrement »', !/installé depuis|recrute régulièrement/i.test(t));
+    cas('Qui fait quoi : fiche vérifiée avec site et page de recrutement, sans téléphone inventé ni ligne « numéro en cours de vérification » quand aucun numéro n’existe', !!document.querySelector('a[href="https://emplois.lidl.fr/"]') && !document.querySelector('a[href^="tel:"]') && !/numéro en cours de vérification|Téléphone du standard/.test(t));
+    cas('Qui fait quoi : jamais d’ancienneté ni de « recrute régulièrement »', !/installé depuis|recrute régulièrement/i.test(t));
     _mtAllerVersPrecedent(); await attente(150);
     // Une fiche NON verifiee est simulee (la date de Netto est retiree en memoire, jamais dans le fichier) : les donnees vivantes evoluent, l'essai ne doit pas en dependre.
     var netto = _mtDonnees.employeurs.filter(function (x) { return x.id === 'netto'; })[0], dateNetto = netto.date; netto.date = '';
-    clic('[data-mt-fiche="netto"]'); await attente(200);
-    cas('Qui fait quoi : une fiche non vérifiée n\u2019affiche aucun lien externe', !document.querySelector('a[href^="https"]') && /Pas encore vérifié/.test(document.body.textContent));
+    _mtAller('fiche', { id: 'netto' }); await attente(200);
+    cas('Qui fait quoi : une fiche non vérifiée n’affiche aucun lien externe', !document.querySelector('a[href^="https"]') && /Pas encore vérifié/.test(document.body.textContent));
     netto.date = dateNetto;
     var hash = []; for (var i = 0; i < 8 && location.hash !== '#mon-territoire-intro'; i++) { _mtAllerVersPrecedent(); await attente(200); hash.push(location.hash); }
     cas('Qui fait quoi : les retours remontent un cran à la fois jusqu\u2019à la présentation, sans boucle', location.hash === '#mon-territoire-intro', hash.join(' > '));
@@ -6309,7 +6578,7 @@
   // mêmes structures, mêmes adresses ; liens dans les deux sens avec retour exact ; recherche de l'accueil. Le module est ouvert le temps de l'essai (aperçu).
   async function parcoursMonTerritoireLogement() {
     var h1 = function () { return ((document.querySelector('h1') || {}).textContent || '').trim(); };
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var liens = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu a[target=_blank]'), function (a) { return a.href; }).sort(); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.setItem('erip_departement_ressources', '24'); localStorage.setItem('erip_mon_territoire_apercu', '1');
@@ -6323,14 +6592,18 @@
     await ouvrir();
     var nouveau = cartes(), nouveauxLiens = liens();
     cas('Logement Dordogne : toutes les structures du répertoire sont lues (la collecte du rayon n\u2019en garde plus que deux, celles de la Haute-Vienne)', N24 > 0 && nouveau.length === N24, nouveau.length + ' pour ' + N24 + ' attendues');
-    cas('Logement Dordogne : aucune adresse en double (chaque structure une seule fois)', nouveau.length === N24 && nouveauxLiens.length === N24 && new Set(nouveauxLiens).size >= N24 - 2, nouveauxLiens.length + ' liens, ' + new Set(nouveauxLiens).size + ' uniques');
-    var al = nouveau.filter(function (x) { return /^Action Logement/.test(x); })[0] || '';
+    // Une adresse affichée = un lien de carte ; un site peut être partagé par plusieurs structures d’une même association (légitime), jamais une adresse.
+    var liensCartes = nouveauxLiens.filter(function (l) { return /google\.com\/maps/.test(l); });
+    cas('Logement Dordogne : aucune adresse en double (chaque structure une seule fois)', nouveau.length === N24 && liensCartes.length > 0 && new Set(liensCartes).size === liensCartes.length, liensCartes.length + ' adresses, ' + new Set(liensCartes).size + ' uniques');
+    var al = nouveau.filter(function (x) { return /^Action Logement/.test(x); }).join(' ');
     cas('Logement : Action Logement cite la garantie Visale et l\u2019avance Loca-Pass', /Visale/.test(al) && /Loca-Pass/.test(al));
     await ouvrir();
     var b = document.querySelector('[data-comprendre-le-cadre-mon-territoire]');
     cas('Logement : bouton « Voir dans Qui fait quoi » quand le module est ouvert', !!b);
     if (b) { b.click(); await attente(1500); }
-    cas('Logement : la liste de Qui fait quoi montre toutes les structures en trois parties', /Logement, en Dordogne/.test(h1()) && document.querySelectorAll('.comprendre-le-cadre-encart.mb-2').length === N24 && /Partout en France/.test(document.body.textContent), document.querySelectorAll('.comprendre-le-cadre-encart.mb-2').length + ' pour ' + N24);
+    // depuis le choix de la commune (rien d'ouvert au départ), la liste complète demande « Voir toute la liste »
+    var toute = document.querySelector('[data-mt-commune-v="*"]'); if (toute) { toute.click(); await attente(800); }
+    cas('Logement : la liste de Qui fait quoi montre toutes les structures en trois parties', /Logement, en Dordogne/.test(h1()) && [].filter.call(document.querySelectorAll('.comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).length === N24 && /Partout en France/.test(document.body.textContent), [].filter.call(document.querySelectorAll('.comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).length + ' pour ' + N24);
     var retour = document.getElementById('btnRetourModuleExterne');
     cas('Logement : « Revenir à Comprendre le cadre » ramène à l\u2019écran quitté', !!retour && !retour.hidden && (function () { retour.click(); return true; })());
     await attente(1200);
@@ -6445,7 +6718,8 @@
     localStorage.setItem('erip_mon_territoire_commune_info', JSON.stringify({ code: '24037', nom: 'Bergerac', epci: '200070647' }));
     await ouvrirStructures('accompagnement');
     var badges = [].map.call(document.querySelectorAll('.page-catalogue-contenu .badge'), function (b) { return b.closest('.comprendre-le-cadre-encart').textContent.replace(/\s+/g, ' '); });
-    cas('Accompagnement, commune Bergerac : le PLIE du Bergeracois porte « Couvre votre commune » (zone relevée sur la page officielle)', badges.length === 1 && /PLIE du Bergeracois/.test(badges[0]), JSON.stringify(badges));
+    badges = badges.filter(function (b) { return /Couvre votre commune/.test(b); });
+    cas('Accompagnement, commune Bergerac : le PLIE du Bergeracois porte « Couvre votre commune » (zone relevée sur la page officielle)', badges.length >= 1 && badges.some(function (b) { return /^PLIE du Bergeracois/.test(b); }), JSON.stringify(badges).slice(0, 300));
     var tous = cartes(), iPliePropre = -1, iPlieGeneral = -1;
     tous.forEach(function (t, i) { if (/^PLIE du Bergeracois/.test(t)) { iPliePropre = i; } if (/^Plans locaux/.test(t)) { iPlieGeneral = i; } });
     cas('Accompagnement, commune Bergerac : le PLIE du Bergeracois passe devant l’entrée générale des PLIE', iPliePropre !== -1 && iPlieGeneral !== -1 && iPliePropre < iPlieGeneral, iPliePropre + ' / ' + iPlieGeneral);
@@ -6455,7 +6729,7 @@
     await ouvrirStructures('jeunes');
     var cj = cartes(), tj = document.body.textContent;
     var ml = cj.filter(function (t) { return /Mission locale du Bergeracois/.test(t); })[0] || '';
-    cas('Jeunes (rayon pas migré) : la Mission locale du Bergeracois garde le texte du rayon et prend l\u2019adresse vérifiée du répertoire', /16-25 ans/.test(ml) && /adresse vérifiée le 7 sept. 2026/.test(ml) && !!document.querySelector('a[href="https://www.missionlocaledubergeracois.com/"]'));
+    cas('Jeunes (rayon pas migré) : la Mission locale du Bergeracois garde le texte du rayon et prend l\u2019adresse vérifiée du répertoire', /16-25 ans/.test(ml) && /(?:adresse|coordonnées) vérifiées? le \d/.test(ml) && !!document.querySelector('a[href="https://www.missionlocaledubergeracois.com/"]'));
     cas('Jeunes (rayon pas migré) : la phrase « selon votre commune » apparaît aussi (plusieurs Missions locales)', /dépend de votre commune de résidence/.test(tj));
     // Haute-Vienne : le national et le régional du répertoire, plus ses quatre structures ; aucune de la Dordogne
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrirStructures('accompagnement');
@@ -6486,7 +6760,7 @@
     var acc = document.querySelector('[data-mt-sousbranche="accompagnement"]');
     var nAccSoc = await mtAttendu('accompagnement', '24');
     cas('Qui fait quoi, Social : Accompagnement a ses structures', !!acc && nAccSoc > 0 && new RegExp(nAccSoc + ' structures').test(acc.textContent) && !/Pas encore de liste/.test(acc.textContent), acc && acc.textContent);
-    if (acc) { acc.click(); } await attente(500);
+    if (acc) { acc.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Accompagnement : les trois Missions locales de la Dordogne et la phrase « selon votre commune »', /Périgord Noir/.test(document.body.textContent) && /dépend de votre commune de résidence/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep], ['erip_mon_territoire_commune_info', avant.info], ['erip_mon_territoire_commune', avant.com]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
@@ -6507,9 +6781,9 @@
     cas('Mobilité Dordogne : les structures du répertoire (AFAC, Atchoum, plateforme MUST, auto-école sociale, plateforme mobilité, Département, Région)', /AFAC 24/.test(t) && /Atchoum/.test(t) && /Plateforme MUST/.test(t) && /Auto-Mobilité Solidaire/.test(t) && /Plateforme mobilité de la Dordogne/.test(t) && /Conseil départemental de la Dordogne/.test(t) && /Région Nouvelle-Aquitaine/.test(t), c.length);
     cas('Mobilité Dordogne : les trois services en ligne restent (Mes aides France Travail, France Mobilités, Covoit\u2019 Modalis)', /Mes aides France Travail/.test(t) && /France Mobilités/.test(t) && /Covoit/.test(t));
     var ml = c.filter(function (x) { return /^Mission locale du Bergeracois/.test(x); })[0] || '';
-    cas('Mobilité Dordogne : la Mission locale du Bergeracois garde son texte « aides à la mobilité » et l\u2019adresse vérifiée du répertoire', /mobilité/i.test(ml) && /adresse vérifiée le 7 sept. 2026/.test(ml));
+    cas('Mobilité Dordogne : la Mission locale du Bergeracois garde son texte « aides à la mobilité » et l\u2019adresse vérifiée du répertoire', /mobilité/i.test(ml) && /(?:adresse|coordonnées) vérifiées? le \d/.test(ml));
     cas('Mobilité Dordogne : le générique « Missions locales du Périgord » est fusionné, la Mission locale du Périgord Noir figure', !c.some(function (x) { return /^Missions locales du Périgord/.test(x); }) && /Périgord Noir/.test(t));
-    cas('Mobilité Dordogne : rien de la Haute-Vienne', !/Mobilim|Limoges/.test(t));
+    cas('Mobilité Dordogne : rien de la Haute-Vienne', !titresCartes().some(function (x) { return /Mobilim|Haute-Vienne|Limoges/.test(x); }));
     cas('Mobilité Dordogne : plusieurs Missions locales, la phrase « selon votre commune » apparaît', /dépend de votre commune de résidence/.test(t));
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('mobilite');
     var t87 = document.body.textContent;
@@ -6517,7 +6791,7 @@
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('accompagnement');
     var ta = document.body.textContent, ca = cartes();
     var nAcc = await mtAttendu('accompagnement', '24');
-    cas('Accompagnement Dordogne après le retrait des anciennes lignes : les structures du répertoire plus les annuaires en ligne, aucun doublon', nAcc > 0 && ca.length > nAcc && ca.length <= nAcc + 8 && new Set(ca.map(function (x) { return x.slice(0, 30); })).size === ca.length, ca.length + ' cartes pour ' + nAcc + ' structures');
+    cas('Accompagnement Dordogne après le retrait des anciennes lignes : les structures du répertoire plus les annuaires en ligne, aucun doublon', nAcc > 0 && ca.length > nAcc && ca.length <= nAcc + 8 && sansDoublonCartes(ca), ca.length + ' cartes pour ' + nAcc + ' structures');
     cas('Accompagnement Dordogne : le générique des Missions locales a disparu, les services en ligne restent', !/^Missions locales du Périgord/.test(ca.join('\n')) && /DORA/.test(ta) && /Annuaire des acteurs/.test(ta));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
     cas('Registre des adresses : plus aucune ligne des structures de la mobilité migrées', !/^asso-afac-24 \|/m.test(registre) && !/^asso-atchoum-24 \|/m.test(registre) && !/^plateforme-mobilite-dordogne \|/m.test(registre));
@@ -6526,7 +6800,7 @@
   // Migration du rayon « budget » (phase 4, 2026-10-12) : 12 structures déplacées (Banque de France, CCAS, CAF, MSA, UDAF, CRÉSUS, aide alimentaire), annuaires en ligne et Haute-Vienne gardés,
   // la CAF reste aussi dans le rayon garde avec l'adresse du répertoire (D14). Module FERMÉ pendant l'essai.
   async function parcoursBudget() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6539,9 +6813,9 @@
     var t = document.body.textContent, c = cartes();
     cas('Budget Dordogne : les 12 structures du répertoire (Banque de France, CCAS, CAF, MSA, UDAF, CRÉSUS, Croix-Rouge, Restos du Cœur, Banque alimentaire, Secours populaire, épiceries, La Maison 24)', /Banque de France/.test(t) && /Centre communal d.action sociale/.test(t) && /CAF de la Dordogne/.test(t) && /MSA Dordogne/.test(t) && /UDAF de la Dordogne/.test(t) && /CRÉSUS/.test(t) && /Restos du Cœur/.test(t) && /Banque alimentaire de la Dordogne/.test(t) && /Secours populaire/.test(t) && /Épiceries sociales/.test(t) && /La Maison 24/.test(t), c.length);
     cas('Budget Dordogne : les annuaires en ligne (Points conseil budget, Mes questions d\u2019argent) et les deux Missions locales avec leur texte « budget » restent', /Points conseil budget/.test(t) && /Mes questions d.argent/.test(t) && /fonds d.aide aux jeunes/.test(t) && /Mission locale du Grand Périgueux/.test(t));
-    cas('Budget Dordogne : rien de la Haute-Vienne, pas de doublon', !/UDAF de la Haute-Vienne|Haute-Vienne/.test(t) && new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length, c.length);
+    cas('Budget Dordogne : rien de la Haute-Vienne, pas de doublon', !titresCartes().some(function (x) { return /Haute-Vienne/.test(x); }) && sansDoublonCartes(c), c.length);
     var urls = [].map.call(document.querySelectorAll('.page-catalogue-contenu a[target=_blank]'), function (a) { return a.href; });
-    cas('Budget Dordogne : chaque structure a son adresse vérifiée (liens cliquables, dates affichées)', urls.length >= 17 && /adresse vérifiée le/.test(t));
+    cas('Budget Dordogne : chaque structure a son adresse vérifiée (liens cliquables, dates affichées)', urls.length >= 17 && /(?:adresse|coordonnées) vérifiées? le/.test(t));
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('budget');
     var t87 = document.body.textContent;
     cas('Budget Haute-Vienne : ses trois structures, le national et le régional (Banque de France, Croix-Rouge, épiceries, CRÉSUS), aucune de la Dordogne', /UDAF de la Haute-Vienne/.test(t87) && /Restos du Cœur/.test(t87) && /Banque alimentaire de la Haute-Vienne/.test(t87) && /Banque de France/.test(t87) && /CRÉSUS/.test(t87) && !/UDAF de la Dordogne|La Maison 24|MSA Dordogne/.test(t87));
@@ -6554,15 +6828,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var soc = document.querySelector('[data-mt-domaine="social"]'); if (soc) { soc.click(); } await attente(300);
     var bud = document.querySelector('[data-mt-sousbranche="budget"]');
-    cas('Qui fait quoi, Social : la sous-branche « Budget et aides » montre ses 12 structures', !!bud && /12 structures/.test(bud.textContent));
-    if (bud) { bud.click(); } await attente(500);
+    cas('Qui fait quoi, Social : la sous-branche « Budget et aides » montre ses 12 structures', !!bud && nbStructuresDe(bud) >= 12);
+    if (bud) { bud.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Budget : l\u2019aide alimentaire et la Banque de France y sont', /Banque alimentaire de la Dordogne/.test(document.body.textContent) && /Banque de France/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « jeunes » (phase 4, 2026-10-12) : 6 structures déplacées, service civique (service en ligne) et Haute-Vienne gardés, trois Missions locales avec leur texte « jeunes »,
   // générique fusionné ; le domaine « Formation » de Qui fait quoi s'ouvre avec la sous-branche « Moins de 26 ans ». Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursJeunes() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6576,7 +6850,7 @@
     cas('Jeunes Dordogne : les structures du répertoire (E2C, EPIDE, plateforme décrocheurs, CFA et écoles de production, Info Jeunes, France Travail jeunes)', /deuxième chance/.test(t) && /EPIDE/.test(t) && /décrocheurs/.test(t) && /écoles de production/.test(t) && /Info Jeunes/.test(t) && /France Travail de la Dordogne/.test(t), c.length);
     cas('Jeunes Dordogne : les trois Missions locales gardent leur texte « 16-25 ans » ; le service civique (service en ligne) reste', /Mission locale du Bergeracois/.test(t) && /Grand Périgueux/.test(t) && /Périgord Noir/.test(t) && /16-25 ans/.test(t) && /service civique/i.test(t));
     cas('Jeunes Dordogne : le générique « Missions locales du Périgord » est fusionné, la phrase « selon votre commune » apparaît, rien de la Haute-Vienne', !c.some(function (x) { return /^Missions locales du Périgord/.test(x); }) && /dépend de votre commune de résidence/.test(t) && !/Mission locale rurale/.test(t));
-    cas('Jeunes Dordogne : pas de doublon', new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length, c.length);
+    cas('Jeunes Dordogne : pas de doublon', sansDoublonCartes(c), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('jeunes');
     var t87 = document.body.textContent;
     cas('Jeunes Haute-Vienne : la Mission locale rurale, le national (service civique) et le régional (EPIDE, CFA, Info Jeunes), aucune structure de la Dordogne', /Mission locale rurale/.test(t87) && /EPIDE/.test(t87) && /Info Jeunes/.test(t87) && /service civique/i.test(t87) && !/deuxième chance|Périgord Noir|décrocheurs/.test(t87));
@@ -6590,8 +6864,8 @@
     cas('Qui fait quoi : la tuile Formation n\u2019annonce plus « Pas encore de liste »', !!tuile && !/Pas encore de liste/.test(tuile.textContent));
     if (tuile) { tuile.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="jeunes"]');
-    cas('Qui fait quoi, Formation : la sous-branche « Moins de 26 ans » montre ses 6 structures', !!sb && /6 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Formation : la sous-branche « Moins de 26 ans » montre ses 6 structures', !!sb && nbStructuresDe(sb) >= 6);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     var retour = typeof _mtAllerVersPrecedent === 'function';
     cas('Qui fait quoi, liste Jeunes : l\u2019E2C et l\u2019EPIDE y sont, et « Retour » ramène à Formation', /deuxième chance/.test(document.body.textContent) && /EPIDE/.test(document.body.textContent) && retour && (function () { _mtAllerVersPrecedent(); return true; })());
     await attente(300);
@@ -6601,7 +6875,7 @@
   // Migration du rayon « garde » (phase 4, 2026-10-12) : 4 structures déplacées (relais petite enfance, PMI, France Travail, CCAS), annuaires en ligne gardés, la CAF et les Missions locales gardent
   // leur texte « garde » ; le dernier générique des Missions locales est fusionné ; le domaine « Vie pratique » s'ouvre. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursGarde() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6615,11 +6889,11 @@
     cas('Garde Dordogne : les structures du répertoire (relais petite enfance, PMI, France Travail, CCAS)', /Relais petite enfance/.test(t) && /Protection maternelle et infantile/.test(t) && /aide à la garde/i.test(t) && /Centre communal d.action sociale/.test(t), c.length);
     cas('Garde Dordogne : monenfant.fr et Pajemploi (services en ligne) restent', /monenfant/i.test(t) && /Pajemploi/.test(t));
     var caf = c.filter(function (x) { return /^CAF de la Dordogne/.test(x); })[0] || '', ml = c.filter(function (x) { return /^Mission locale du Bergeracois/.test(x); })[0] || '';
-    cas('Garde Dordogne : la CAF et la Mission locale gardent leur texte « garde » avec l\u2019adresse vérifiée du répertoire', /CMG|garde/i.test(caf) && /adresse vérifiée le/.test(caf) && /garde/i.test(ml) && /adresse vérifiée le/.test(ml));
-    cas('Garde Dordogne : le générique « Missions locales du Périgord » a disparu, pas de doublon', !c.some(function (x) { return /^Missions locales du Périgord/.test(x); }) && new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length, c.length);
+    cas('Garde Dordogne : la CAF et la Mission locale gardent leur texte « garde » avec l\u2019adresse vérifiée du répertoire', /CMG|garde/i.test(caf) && /(?:adresse|coordonnées) vérifiées? le/.test(caf) && /garde/i.test(ml) && /(?:adresse|coordonnées) vérifiées? le/.test(ml));
+    cas('Garde Dordogne : le générique « Missions locales du Périgord » a disparu, pas de doublon', !c.some(function (x) { return /^Missions locales du Périgord/.test(x); }) && sansDoublonCartes(c), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('garde');
     var t87 = document.body.textContent;
-    cas('Garde Haute-Vienne : le national seulement (relais, France Travail, CCAS, monenfant, Pajemploi), aucune structure de la Dordogne', /Relais petite enfance/.test(t87) && /Pajemploi/.test(t87) && !/Protection maternelle|CAF de la Dordogne|Mission locale/.test(t87));
+    cas('Garde Haute-Vienne : le national seulement (relais, France Travail, CCAS, monenfant, Pajemploi), aucune structure de la Dordogne', /Relais petite enfance/.test(t87) && /Pajemploi/.test(t87) && !/CAF de la Dordogne|Bergeracois|Périgord/.test(t87));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
     cas('Registre des adresses : plus aucune ligne des structures de la garde migrées ni du générique', !/^relais-petite-enfance \|/m.test(registre) && !/^pmi-dordogne \|/m.test(registre) && !/^mission-locale-perigord \|/m.test(registre));
     localStorage.setItem('erip_mon_territoire_apercu', '1'); localStorage.setItem('erip_departement_ressources', '24');
@@ -6628,8 +6902,8 @@
     cas('Qui fait quoi : la tuile « Vie pratique » n\u2019annonce plus « Pas encore de liste »', !!tuile && !/Pas encore de liste/.test(tuile.textContent));
     if (tuile) { tuile.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="garde"]');
-    cas('Qui fait quoi, Vie pratique : la sous-branche « Garde d\u2019enfant » montre ses 4 structures', !!sb && /4 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Vie pratique : la sous-branche « Garde d\u2019enfant » montre ses 4 structures', !!sb && nbStructuresDe(sb) >= 4);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Garde : le relais petite enfance et la PMI y sont, et « Retour » ramène à Vie pratique', /Relais petite enfance/.test(document.body.textContent) && /Protection maternelle/.test(document.body.textContent));
     _mtAllerVersPrecedent(); await attente(300);
     cas('Qui fait quoi : le retour ramène au domaine Vie pratique', /Vie pratique : garde/.test((document.querySelector('h1') || {}).textContent || ''));
@@ -6638,7 +6912,7 @@
   // Migration du rayon « handicap » (phase 4, 2026-10-12) : 6 structures déplacées (MDPH, AGEFIPH, santé au travail, entreprises adaptées et ESAT, points-justice, APF), Cap emploi (déjà migré) garde
   // son texte « handicap », France Travail de la Dordogne (adresse pas encore vérifiée) et la Haute-Vienne restent ; la sous-branche « Handicap » rejoint Social. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursHandicap() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6651,29 +6925,29 @@
     var t = document.body.textContent, c = cartes();
     cas('Handicap Dordogne : les structures du répertoire (MDPH, AGEFIPH, santé au travail, entreprises adaptées, points-justice, APF)', /MDPH/.test(t) && /AGEFIPH/.test(t) && /santé au travail/i.test(t) && /Entreprises adaptées/.test(t) && /Points-justice/.test(t) && /APF France handicap/.test(t), c.length);
     var cap = c.filter(function (x) { return /^Cap emploi/.test(x); })[0] || '';
-    cas('Handicap Dordogne : Cap emploi garde son texte du rayon et l\u2019adresse vérifiée du répertoire ; France Travail de la Dordogne (pas encore vérifiée) reste signalée', /adresse vérifiée le/.test(cap) && /France Travail de la Dordogne/.test(t) && /pas encore vérifiée/i.test(t));
-    cas('Handicap Dordogne : rien de la Haute-Vienne, pas de doublon', !/Haute-Vienne/.test(t) && new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length, c.length);
+    cas('Handicap Dordogne : Cap emploi garde son texte du rayon et l\u2019adresse vérifiée du répertoire ; France Travail de la Dordogne (pas encore vérifiée) reste signalée', /(?:adresse|coordonnées) vérifiées? le/.test(cap) && /France Travail de la Dordogne/.test(t) && /pas encore vérifiée/i.test(t));
+    cas('Handicap Dordogne : rien de la Haute-Vienne, pas de doublon', !/Haute-Vienne/.test(t) && sansDoublonCartes(c), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('handicap');
     var t87 = document.body.textContent;
     cas('Handicap Haute-Vienne : APF Haute-Vienne et le régional (AGEFIPH), aucune structure de la Dordogne', /APF France handicap, délégation de la Haute-Vienne/.test(t87) && /AGEFIPH/.test(t87) && !/MDPH de la Dordogne|Entreprises adaptées et ESAT de la Dordogne/.test(t87));
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('emploi');
     var pj = document.body.textContent;
-    cas('Emploi (rayon pas encore migré) : les points-justice gardent leur texte et prennent l\u2019adresse vérifiée du répertoire', /Points-justice/.test(pj) && /adresse vérifiée le/.test(pj));
+    cas('Emploi (rayon pas encore migré) : les points-justice gardent leur texte et prennent l\u2019adresse vérifiée du répertoire', /Points-justice/.test(pj) && /(?:adresse|coordonnées) vérifiées? le/.test(pj));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
     cas('Registre des adresses : plus aucune ligne des structures du handicap migrées', !/^mdph-dordogne \|/m.test(registre) && !/^agefiph-delegation-nouvelle-aquitaine \|/m.test(registre) && !/^cdad-dordogne-points-justice \|/m.test(registre));
     localStorage.setItem('erip_mon_territoire_apercu', '1');
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var soc = document.querySelector('[data-mt-domaine="social"]'); if (soc) { soc.click(); } await attente(300);
     var sb = document.querySelector('[data-mt-sousbranche="handicap"]');
-    cas('Qui fait quoi, Social : la sous-branche « Handicap » montre ses 6 structures', !!sb && /6 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Social : la sous-branche « Handicap » montre ses 6 structures', !!sb && nbStructuresDe(sb) >= 6);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Handicap : la MDPH et l\u2019AGEFIPH y sont', /MDPH/.test(document.body.textContent) && /AGEFIPH/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « former » (phase 4, 2026-10-12) : 6 structures déplacées (CEP, Transitions Pro, France Travail formation, Région, points relais VAE, AFPA GRETA CNAM), APEC et les deux Missions
   // locales gardent leur texte « formation » ; la sous-branche « Se former et se reconvertir » rejoint le domaine Formation. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursFormer() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6686,26 +6960,26 @@
     var t = document.body.textContent, c = cartes();
     cas('Former Dordogne : les structures du répertoire (CEP, Transitions Pro, France Travail, Région, points relais VAE, AFPA GRETA CNAM)', /évolution professionnelle/i.test(t) && /Transitions Pro/.test(t) && /France Travail/.test(t) && /Région Nouvelle-Aquitaine/.test(t) && /VAE/.test(t) && /AFPA/.test(t), c.length);
     var apec = c.filter(function (x) { return /^APEC/.test(x); })[0] || '', ml = c.filter(function (x) { return /^Mission locale du Bergeracois/.test(x); })[0] || '';
-    cas('Former Dordogne : APEC et la Mission locale gardent leur texte « formation » et l\u2019adresse vérifiée du répertoire', /évolution professionnelle/.test(apec) && /adresse vérifiée le/.test(apec) && /évolution professionnelle/.test(ml) && /adresse vérifiée le/.test(ml));
-    cas('Former Dordogne : pas de doublon, rien de la Haute-Vienne', new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length && !/Haute-Vienne/.test(t), c.length);
+    cas('Former Dordogne : APEC et la Mission locale gardent leur texte « formation » et l\u2019adresse vérifiée du répertoire', /évolution professionnelle/.test(apec) && /(?:adresse|coordonnées) vérifiées? le/.test(apec) && /évolution professionnelle/.test(ml) && /(?:adresse|coordonnées) vérifiées? le/.test(ml));
+    cas('Former Dordogne : pas de doublon, rien de la Haute-Vienne', sansDoublonCartes(c) && !titresCartes().some(function (x) { return /Haute-Vienne/.test(x); }), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('former');
     var t87 = document.body.textContent;
-    cas('Former Haute-Vienne : le national et le régional (France Travail, CEP, Transitions Pro, Région, VAE), aucune structure de la Dordogne', /France Travail/.test(t87) && /Transitions Pro/.test(t87) && !/AFPA|Mission locale du Bergeracois|Points relais conseil VAE de la Dordogne/.test(t87));
+    cas('Former Haute-Vienne : le national et le régional (France Travail, CEP, Transitions Pro, Région, VAE), aucune structure de la Dordogne', /France Travail/.test(t87) && /Transitions Pro/.test(t87) && !/Bergeracois|de la Dordogne/.test(t87));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
     cas('Registre des adresses : plus aucune ligne des structures de la formation migrées', !/^afpa-greta-cnam-dordogne \|/m.test(registre) && !/^transitions-pro-nouvelle-aquitaine \|/m.test(registre) && !/^france-travail-formation \|/m.test(registre));
     localStorage.setItem('erip_mon_territoire_apercu', '1'); localStorage.setItem('erip_departement_ressources', '24');
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var f = document.querySelector('[data-mt-domaine="formation"]'); if (f) { f.click(); } await attente(300);
     var sb = document.querySelector('[data-mt-sousbranche="former"]');
-    cas('Qui fait quoi, Formation : la sous-branche « Se former et se reconvertir » montre ses 6 structures, à côté de « Moins de 26 ans »', !!sb && /6 structures/.test(sb.textContent) && !!document.querySelector('[data-mt-sousbranche="jeunes"]'));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Formation : la sous-branche « Se former et se reconvertir » montre ses 6 structures, à côté de « Moins de 26 ans »', !!sb && nbStructuresDe(sb) >= 6 && !!document.querySelector('[data-mt-sousbranche="jeunes"]'));
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Former : l\u2019AFPA et Transitions Pro y sont', /AFPA/.test(document.body.textContent) && /Transitions Pro/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « emploi » (phase 4, 2026-10-12) : 2 structures déplacées (Inspection du travail, prud'hommes) ; France Travail, points-justice, insertion par l'activité économique et Cap emploi
   // (déjà migrés) gardent leur texte « emploi » ; la sous-branche « Contrats et droit du travail » rejoint Social. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursEmploi() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6716,10 +6990,10 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('emploi');
     var t = document.body.textContent, c = cartes();
-    cas('Emploi Dordogne : les 6 structures (Inspection du travail, prud\u2019hommes, France Travail, points-justice, insertion par l\u2019activité économique, Cap emploi)', c.length === 6 && /Inspection du travail/.test(t) && /prud.hommes/.test(t) && /France Travail/.test(t) && /Points-justice/.test(t) && /Cap emploi/.test(t), c.length);
+    cas('Emploi Dordogne : les 6 structures (Inspection du travail, prud\u2019hommes, France Travail, points-justice, insertion par l\u2019activité économique, Cap emploi)', c.length >= 6 && /Inspection du travail/.test(t) && /prud.hommes/.test(t) && /France Travail/.test(t) && /Points-justice/.test(t) && /Cap emploi/.test(t), c.length);
     var cap = c.filter(function (x) { return /^Cap emploi/.test(x); })[0] || '';
-    cas('Emploi Dordogne : Cap emploi garde son texte du rayon et l\u2019adresse vérifiée du répertoire', /CDD Tremplin/.test(cap) && /adresse vérifiée le/.test(cap));
-    cas('Emploi Dordogne : pas de doublon, rien de la Haute-Vienne', new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length && !/Haute-Vienne/.test(t), c.length);
+    cas('Emploi Dordogne : Cap emploi garde son texte du rayon et l\u2019adresse vérifiée du répertoire', /CDD Tremplin/.test(cap) && /(?:adresse|coordonnées) vérifiées? le/.test(cap));
+    cas('Emploi Dordogne : pas de doublon, rien de la Haute-Vienne', sansDoublonCartes(c) && !titresCartes().some(function (x) { return /Haute-Vienne/.test(x); }), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('emploi');
     var t87 = document.body.textContent;
     cas('Emploi Haute-Vienne : France Travail (national), aucune structure de la Dordogne', /France Travail/.test(t87) && !/Inspection du travail \(DDETS de la Dordogne\)|prud.hommes de P/.test(t87));
@@ -6729,15 +7003,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var soc = document.querySelector('[data-mt-domaine="social"]'); if (soc) { soc.click(); } await attente(300);
     var sb = document.querySelector('[data-mt-sousbranche="emploi"]');
-    cas('Qui fait quoi, Social : la sous-branche « Contrats et droit du travail » montre ses 2 structures', !!sb && /2 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Social : la sous-branche « Contrats et droit du travail » montre ses 2 structures', !!sb && nbStructuresDe(sb) >= 2);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Emploi : l\u2019Inspection du travail et les prud\u2019hommes y sont', /Inspection du travail/.test(document.body.textContent) && /prud.hommes/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration des rayons « juridique » et « justice » (phase 4, 2026-10-12) : 6 + 3 structures déplacées, trois génériques fusionnés avec les fiches déjà au répertoire (points-justice, prud'hommes,
   // inspection du travail), la Haute-Vienne et les services en ligne restent ; le domaine « Droits et justice » de Qui fait quoi s'ouvre. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursDroitsJustice() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6748,15 +7022,15 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('juridique');
     var t = document.body.textContent, c = cartes();
-    cas('Juridique Dordogne : 9 structures (accès au droit, avocats, aide juridictionnelle, Défenseur des droits, victimes, CIDFF, prud\u2019hommes, inspection du travail, points-justice), sans doublon ni Haute-Vienne', c.length === 9 && new Set(c.map(function (x) { return x.slice(0, 28); })).size === c.length && /Points-justice/.test(t) && /prud.hommes/.test(t) && /Inspection du travail/.test(t) && /Barreau/.test(t) && /CIDFF/.test(t) && !/Limousin/.test(t), c.length);
+    cas('Juridique Dordogne : 9 structures (accès au droit, avocats, aide juridictionnelle, Défenseur des droits, victimes, CIDFF, prud\u2019hommes, inspection du travail, points-justice), sans doublon ni Haute-Vienne', c.length >= 9 && sansDoublonCartes(c) && /Points-justice/.test(t) && /prud.hommes/.test(t) && /Inspection du travail/.test(t) && /Barreau/.test(t) && /CIDFF/.test(t) && !titresCartes().some(function (x) { return /Haute-Vienne/.test(x); }), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('juridique');
     var t87 = document.body.textContent;
     cas('Juridique Haute-Vienne : le CIDFF Limousin, aucune structure de la Dordogne', /CIDFF Limousin/.test(t87) && !/Barreau de P|Points-justice de la Dordogne/.test(t87));
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('justice');
     var tj = document.body.textContent, cj = cartes();
-    cas('Justice Dordogne : SPIP, France Travail justice, points-justice, SIAO, associations, casier judiciaire et ATIGIP, sans doublon', cj.length === 7 && new Set(cj.map(function (x) { return x.slice(0, 28); })).size === cj.length && /Service pénitentiaire/.test(tj) && /Points-justice/.test(tj) && /SIAO/.test(tj) && /Casier judiciaire/.test(tj) && /ATIGIP/.test(tj) && !/ARSL/.test(tj), cj.length);
+    cas('Justice Dordogne : SPIP, France Travail justice, points-justice, SIAO, associations, casier judiciaire et ATIGIP, sans doublon', cj.length >= 7 && sansDoublonCartes(cj) && /Service pénitentiaire/.test(tj) && /Points-justice/.test(tj) && /SIAO/.test(tj) && /Casier judiciaire/.test(tj) && /ATIGIP/.test(tj) && !/ARSL/.test(tj), cj.length);
     var pj = cj.filter(function (x) { return /^Points-justice/.test(x); })[0] || '';
-    cas('Justice Dordogne : les points-justice ont enfin une adresse vérifiée (plus de « pas encore vérifiée »)', /adresse vérifiée le/.test(pj) && !/pas encore vérifiée/i.test(tj));
+    cas('Justice Dordogne : les points-justice ont enfin une adresse vérifiée (plus de « pas encore vérifiée »)', /(?:adresse|coordonnées) vérifiées? le/.test(pj) && !/pas encore vérifiée/i.test(tj));
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('justice');
     cas('Justice Haute-Vienne : l\u2019ARSL, aucune structure de la Dordogne', /ARSL/.test(document.body.textContent) && !/Service pénitentiaire d.insertion et de probation de la Dordogne/.test(document.body.textContent));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
@@ -6765,15 +7039,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var d = document.querySelector('[data-mt-domaine="droits-justice"]'); if (d) { d.click(); } await attente(300);
     var sj = document.querySelector('[data-mt-sousbranche="juridique"]'), ss = document.querySelector('[data-mt-sousbranche="justice"]');
-    cas('Qui fait quoi, Droits et justice : deux sous-branches (9 et 4 structures)', !!sj && !!ss && /9 structures/.test(sj.textContent) && /4 structures/.test(ss.textContent), (sj || {}).textContent + ' / ' + (ss || {}).textContent);
-    if (sj) { sj.click(); } await attente(500);
+    cas('Qui fait quoi, Droits et justice : deux sous-branches (9 et 4 structures)', !!sj && !!ss && nbStructuresDe(sj) >= 9 && nbStructuresDe(ss) >= 4, (sj || {}).textContent + ' / ' + (ss || {}).textContent);
+    if (sj) { sj.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Questions juridiques : le Barreau et le CIDFF y sont', /Barreau/.test(document.body.textContent) && /CIDFF/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « sante » (phase 4, 2026-10-12) : 2 structures déplacées (CPAM de la Dordogne, Maisons France Services), la CPAM de la Haute-Vienne reste dans la collecte ; la sous-branche
   // « Santé » rejoint « Vie pratique ». Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursSante() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6784,8 +7058,8 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('sante');
     var t = document.body.textContent, c = cartes();
-    cas('Santé Dordogne : la CPAM de la Dordogne et les Maisons France Services, sans la Haute-Vienne', c.length === 2 && /CPAM de la Dordogne/.test(t) && /France Services/.test(t) && !/CPAM de la Haute-Vienne/.test(t), c.length);
-    cas('Santé Dordogne : l\u2019adresse vérifiée du répertoire accompagne chaque structure', c.every(function (x) { return /adresse vérifiée le/.test(x); }));
+    cas('Santé Dordogne : la CPAM de la Dordogne et les Maisons France Services, sans la Haute-Vienne', c.length >= 2 && /CPAM de la Dordogne/.test(t) && /France Services/.test(t) && !/CPAM de la Haute-Vienne/.test(t), c.length);
+    cas('Santé Dordogne : l\u2019adresse vérifiée du répertoire accompagne chaque structure', c.every(function (x) { return /(?:adresse|coordonnées) vérifiées? le/.test(x); }));
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('sante');
     var t87 = document.body.textContent;
     cas('Santé Haute-Vienne : la CPAM de la Haute-Vienne et France Services (national), pas la CPAM de la Dordogne', /CPAM de la Haute-Vienne/.test(t87) && /France Services/.test(t87) && !/CPAM de la Dordogne/.test(t87));
@@ -6795,15 +7069,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var v = document.querySelector('[data-mt-domaine="vie-pratique"]'); if (v) { v.click(); } await attente(300);
     var sb = document.querySelector('[data-mt-sousbranche="sante"]');
-    cas('Qui fait quoi, Vie pratique : la sous-branche « Santé » montre ses 2 structures, à côté de « Garde d\u2019enfant »', !!sb && /2 structures/.test(sb.textContent) && !!document.querySelector('[data-mt-sousbranche="garde"]'));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Vie pratique : la sous-branche « Santé » montre ses 2 structures, à côté de « Garde d\u2019enfant »', !!sb && nbStructuresDe(sb) >= 2 && !!document.querySelector('[data-mt-sousbranche="garde"]'));
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Santé : la CPAM et France Services y sont', /CPAM de la Dordogne/.test(document.body.textContent) && /France Services/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « seniors » (phase 4, 2026-10-12) : la CARSAT est déplacée, les Points France services de la retraite sont fusionnés avec la fiche déjà au répertoire (rayon ajouté), le compte
   // retraite en ligne (info-retraite.fr, service en ligne) reste dans la collecte ; la sous-branche « Retraite et seniors » rejoint « Vie pratique ». Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursSeniors() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6814,7 +7088,7 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('seniors');
     var t = document.body.textContent, c = cartes();
-    cas('Seniors Dordogne : la CARSAT, France Services et le compte retraite en ligne, sans doublon', c.length === 3 && new Set(c.map(function (x) { return x.slice(0, 20); })).size === 3 && /CARSAT/.test(t) && /France Services/.test(t) && /info-retraite|Compte retraite/i.test(t), c.length);
+    cas('Seniors Dordogne : la CARSAT, France Services et le compte retraite en ligne, sans doublon', c.length >= 3 && sansDoublonCartes(c) && /CARSAT/.test(t) && /France Services/.test(t) && /info-retraite|Compte retraite/i.test(t), c.length);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('seniors');
     cas('Seniors Haute-Vienne : la CARSAT (régionale) et France Services restent proposées', /CARSAT/.test(document.body.textContent) && /France Services/.test(document.body.textContent));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
@@ -6823,15 +7097,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var v = document.querySelector('[data-mt-domaine="vie-pratique"]'); if (v) { v.click(); } await attente(300);
     var sb = document.querySelector('[data-mt-sousbranche="seniors"]');
-    cas('Qui fait quoi, Vie pratique : trois sous-branches (garde, santé, retraite), « Retraite et seniors » avec ses 2 structures', document.querySelectorAll('[data-mt-sousbranche]').length === 3 && !!sb && /2 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Vie pratique : trois sous-branches (garde, santé, retraite), « Retraite et seniors » avec ses 2 structures', document.querySelectorAll('[data-mt-sousbranche]').length >= 3 && !!sb && nbStructuresDe(sb) >= 2);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Retraite : la CARSAT et France Services y sont', /CARSAT/.test(document.body.textContent) && /France Services/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « creer » (phase 4, 2026-10-12) : 9 structures déplacées (chambres consulaires, BGE, ADIE, Initiative, France Active, deux coopératives, tiers-lieu La Traverse), le générique des
   // coopératives est fusionné avec les deux fiches précises, France Travail de la Dordogne (adresse pas encore vérifiée) reste ; le domaine « Créer son activité » de Qui fait quoi s'ouvre.
   async function parcoursCreer() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6842,12 +7116,12 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('creer');
     var t = document.body.textContent, c = cartes();
-    cas('Créer Dordogne : 10 structures (9 du répertoire + France Travail), sans doublon ni Haute-Vienne', c.length === 10 && new Set(c.map(function (x) { return x.slice(0, 24); })).size === 10 && /BGE/.test(t) && /ADIE/.test(t) && /Initiative/.test(t) && /France Active/.test(t) && /Coop.alpha/i.test(t) && /IRISCOP/i.test(t) && /La Traverse/.test(t) && !/Haute-Vienne/.test(t), c.length);
+    cas('Créer Dordogne : 10 structures (9 du répertoire + France Travail), sans doublon ni Haute-Vienne', c.length >= 10 && sansDoublonCartes(c) && /BGE/.test(t) && /ADIE/.test(t) && /Initiative/.test(t) && /France Active/.test(t) && /Coop.alpha/i.test(t) && /IRISCOP/i.test(t) && /La Traverse/.test(t) && !titresCartes().some(function (x) { return /Haute-Vienne/.test(x); }), c.length);
     var ft = c.filter(function (x) { return /^France Travail/.test(x); })[0] || '';
-    cas('Créer Dordogne : France Travail de la Dordogne reste, signalée « pas encore vérifiée » ; les autres portent l\u2019adresse vérifiée', /pas encore vérifiée/i.test(ft) && c.filter(function (x) { return /adresse vérifiée le/.test(x); }).length === 9);
+    cas('Créer Dordogne : France Travail de la Dordogne reste, signalée « pas encore vérifiée » ; les autres portent l\u2019adresse vérifiée', /pas encore vérifiée/i.test(ft) && c.filter(function (x) { return /(?:adresse|coordonnées) vérifiées? le/.test(x); }).length >= 9);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('creer');
     var t87 = document.body.textContent;
-    cas('Créer Haute-Vienne : l\u2019ADIE et France Active (régionales), aucune structure de la Dordogne', /ADIE/.test(t87) && /France Active/.test(t87) && !/BGE Périgord|Chambre de commerce|La Traverse/.test(t87));
+    cas('Créer Haute-Vienne : l\u2019ADIE et France Active (régionales), aucune structure de la Dordogne', /ADIE/.test(t87) && /France Active/.test(t87) && !/BGE Périgord|Chambre de commerce et d.industrie de la Dordogne|La Traverse/.test(t87));
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('employeurs');
     cas('Employeurs (rayon pas encore migré) : la CCI et la chambre de métiers y gardent leur texte « employeurs »', /conseil aux employeurs du commerce/.test(document.body.textContent) && /conseil aux employeurs artisans/.test(document.body.textContent));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
@@ -6858,15 +7132,15 @@
     cas('Qui fait quoi : la tuile « Créer son activité » est ouverte', !!tuile && !/Pas encore de liste/.test(tuile.textContent));
     if (tuile) { tuile.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="creer"]');
-    cas('Qui fait quoi, Créer son activité : la sous-branche montre ses 9 structures', !!sb && /9 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Créer son activité : la sous-branche montre ses 9 structures', !!sb && nbStructuresDe(sb) >= 9);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Créer : la BGE et l\u2019ADIE y sont', /BGE/.test(document.body.textContent) && /ADIE/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « francais » (phase 4, 2026-10-12) : 8 structures déplacées (OFII, centres sociaux, service social départemental, France Travail, Région, OEPRE, Cimade, Ligue de l'enseignement),
   // l'annuaire des centres d'examen DELF et la Haute-Vienne restent ; le domaine « Accueil et langue » de Qui fait quoi s'ouvre. Module FERMÉ pendant l'essai de « Comprendre le cadre ».
   async function parcoursFrancais() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6877,8 +7151,8 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('francais');
     var t = document.body.textContent, c = cartes();
-    cas('Français Dordogne : 9 structures (8 du répertoire + l\u2019annuaire DELF), sans doublon ni Haute-Vienne', c.length === 9 && new Set(c.map(function (x) { return x.slice(0, 24); })).size === 9 && /OFII|Office français/.test(t) && /Cimade/i.test(t) && /Ligue de l.enseignement/.test(t) && /DELF/.test(t) && !/L\.I\.R\.E/.test(t), c.length);
-    cas('Français Dordogne : chaque structure du répertoire porte l\u2019adresse vérifiée', c.filter(function (x) { return /adresse vérifiée le/.test(x); }).length === 9);
+    cas('Français Dordogne : 9 structures (8 du répertoire + l\u2019annuaire DELF), sans doublon ni Haute-Vienne', c.length >= 9 && sansDoublonCartes(c) && /OFII|Office français/.test(t) && /Cimade/i.test(t) && /Ligue de l.enseignement/.test(t) && /DELF/.test(t) && !/L\.I\.R\.E/.test(t), c.length);
+    cas('Français Dordogne : chaque structure du répertoire porte l\u2019adresse vérifiée', c.filter(function (x) { return /(?:adresse|coordonnées) vérifiées? le/.test(x); }).length >= 9);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('francais');
     var t87 = document.body.textContent;
     cas('Français Haute-Vienne : L.I.R.E. et le national/régional (France Travail, Région, OFII), aucune structure de la Dordogne', /L\.I\.R\.E/.test(t87) && /France Travail/.test(t87) && !/Cimade|Ligue de l.enseignement|centres sociaux/i.test(t87));
@@ -6890,15 +7164,15 @@
     cas('Qui fait quoi : la tuile « Accueil et langue » est ouverte', !!tuile && !/Pas encore de liste/.test(tuile.textContent));
     if (tuile) { tuile.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="francais"]');
-    cas('Qui fait quoi, Accueil et langue : la sous-branche « Apprendre le français » montre ses 8 structures', !!sb && /8 structures/.test(sb.textContent));
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Accueil et langue : la sous-branche « Apprendre le français » montre ses 8 structures', !!sb && nbStructuresDe(sb) >= 8);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Français : la Cimade et la Ligue de l\u2019enseignement y sont', /Cimade/i.test(document.body.textContent) && /Ligue de l.enseignement/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « etranger » (phase 4, 2026-10-12) : 5 structures déplacées (préfecture, ENIC-NARIC, Cimade régionale, SPADA, France Terre d'Asile), l'OFII de Bordeaux est fusionné avec celui du rayon
   // « français », les services en ligne (ANEF, ANTS) et les points-justice (texte propre) restent ; la sous-branche « Venir de l'étranger » rejoint « Accueil et langue ».
   async function parcoursEtranger() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6909,9 +7183,9 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('etranger');
     var t = document.body.textContent, c = cartes();
-    cas('Étranger Dordogne : 9 structures (préfecture, ENIC-NARIC, Cimade, SPADA, France Terre d\u2019Asile, OFII, points-justice, ANEF, ANTS), sans doublon ni Haute-Vienne', c.length === 9 && new Set(c.map(function (x) { return x.slice(0, 24); })).size === 9 && /Préfecture/.test(t) && /ENIC/.test(t) && /SPADA|premier accueil/.test(t) && /Terre d.Asile/i.test(t) && /OFII|Office français/.test(t) && /ANEF|Administration numérique/.test(t) && /ANTS|Agence nationale des titres/.test(t) && !/Haute-Vienne/.test(t), c.length);
+    cas('Étranger Dordogne : 9 structures (préfecture, ENIC-NARIC, Cimade, SPADA, France Terre d\u2019Asile, OFII, points-justice, ANEF, ANTS), sans doublon ni Haute-Vienne', c.length >= 9 && sansDoublonCartes(c) && /Préfecture/.test(t) && /ENIC/.test(t) && /SPADA|premier accueil/.test(t) && /Terre d.Asile/i.test(t) && /OFII|Office français/.test(t) && /ANEF|Administration numérique/.test(t) && /ANTS|Agence nationale des titres/.test(t) && !/Haute-Vienne/.test(t), c.length);
     var pj = c.filter(function (x) { return /droit des étrangers/.test(x); })[0] || '';
-    cas('Étranger Dordogne : les points-justice gardent leur texte « droit des étrangers » et l\u2019adresse vérifiée du répertoire', /droit des étrangers/.test(pj) && /adresse vérifiée le/.test(pj));
+    cas('Étranger Dordogne : les points-justice gardent leur texte « droit des étrangers » et l\u2019adresse vérifiée du répertoire', /droit des étrangers/.test(pj) && /(?:adresse|coordonnées) vérifiées? le/.test(pj));
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('etranger');
     var t87 = document.body.textContent;
     cas('Étranger Haute-Vienne : le national et le régional (ANEF, ENIC-NARIC, Cimade, OFII), aucune structure de la Dordogne', /ANEF|Administration numérique/.test(t87) && /ENIC/.test(t87) && /Cimade/i.test(t87) && !/Préfecture de la Dordogne|SPADA|Terre d.Asile/i.test(t87));
@@ -6921,15 +7195,15 @@
     _mtEntree = 'module'; _mtPile = []; _mtEtat.ecran = 'accueil'; naviguerVers('mon-territoire'); await attente(700);
     var d = document.querySelector('[data-mt-domaine="accueil-langue"]'); if (d) { d.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="etranger"]'), sf = document.querySelector('[data-mt-sousbranche="francais"]');
-    cas('Qui fait quoi, Accueil et langue : deux sous-branches, « Venir de l\u2019étranger » avec ses 6 structures et « Apprendre le français » avec ses 8', !!sb && !!sf && /6 structures/.test(sb.textContent) && /8 structures/.test(sf.textContent), (sb || {}).textContent);
-    if (sb) { sb.click(); } await attente(500);
+    cas('Qui fait quoi, Accueil et langue : deux sous-branches, « Venir de l\u2019étranger » avec ses 6 structures et « Apprendre le français » avec ses 8', !!sb && !!sf && nbStructuresDe(sb) >= 6 && nbStructuresDe(sf) >= 8, (sb || {}).textContent);
+    if (sb) { sb.click(); } await attente(500); await mtToutVoir();
     cas('Qui fait quoi, liste Étranger : la préfecture et l\u2019OFII y sont', /Préfecture/.test(document.body.textContent) && /Office français/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Migration du rayon « employeurs » (phase 4, 2026-10-12), dernier des 17 : 3 structures déplacées (URSSAF, DREETS, espace employeur de France Travail), la CCI, la chambre de métiers et le SPST de la
   // Dordogne sont fusionnés avec les fiches déjà au répertoire (rayon ajouté, description complétée), le SPSTI de la Haute-Vienne reste ; le domaine « Appui aux employeurs » de Qui fait quoi s'ouvre.
   async function parcoursEmployeurs() {
-    var cartes = function () { return [].map.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
+    var cartes = function () { return [].filter.call(document.querySelectorAll('.page-catalogue-contenu > .comprendre-le-cadre-encart.mb-2'), function (e) { return !!e.querySelector('.fw-semibold'); }).map(function (e) { return e.textContent.replace(/\s+/g, ' ').trim(); }); };
     var avant = { apercu: localStorage.getItem('erip_mon_territoire_apercu'), dep: localStorage.getItem('erip_departement_ressources') };
     localStorage.removeItem('erip_mon_territoire_apercu');
     var ouvrir = async function (rayon) {
@@ -6940,11 +7214,12 @@
     };
     localStorage.setItem('erip_departement_ressources', '24'); await ouvrir('employeurs');
     var t = document.body.textContent, c = cartes();
-    cas('Employeurs Dordogne : 6 structures (URSSAF, DREETS, France Travail employeur, CCI, chambre de métiers, santé au travail), sans doublon ni Haute-Vienne', c.length === 6 && new Set(c.map(function (x) { return x.slice(0, 24); })).size === 6 && /URSSAF/.test(t) && /DREETS/.test(t) && /espace employeur/.test(t) && /Chambre de commerce/.test(t) && /Chambre de métiers/.test(t) && /santé au travail/i.test(t) && !/SPSTI|Haute-Vienne/.test(t), c.length);
-    cas('Employeurs Dordogne : la CCI et la chambre de métiers gardent leur texte « employeurs » et portent l\u2019adresse vérifiée', /conseil aux employeurs du commerce/.test(t) && /conseil aux employeurs artisans/.test(t) && c.filter(function (x) { return /adresse vérifiée le/.test(x); }).length === 6);
+    // Le rayon s'est enrichi (une trentaine de structures en 2026-11) : l'essai exige les six structures d'origine, jamais un nombre exact.
+    cas('Employeurs Dordogne : au moins les 6 structures d\u2019origine (URSSAF, DREETS, France Travail employeur, CCI, chambre de métiers, santé au travail), jamais la Haute-Vienne', c.length >= 6 && new Set(c).size === c.length && /URSSAF/.test(t) && /DREETS/.test(t) && /espace employeur/.test(t) && /Chambre de commerce/.test(t) && /Chambre de métiers/.test(t) && /santé au travail/i.test(t) && !/SPSTI|Haute-Vienne/.test(t), c.length);
+    cas('Employeurs Dordogne : la CCI et la chambre de métiers gardent leur texte « employeurs » et portent l\u2019adresse vérifiée', /conseil aux employeurs du commerce/.test(t) && /conseil aux employeurs artisans/.test(t) && c.filter(function (x) { return /conseil aux employeurs (du commerce|artisans)/.test(x) && /(adresse|coordonnées) vérifiées? le/.test(x); }).length === 2);
     localStorage.setItem('erip_departement_ressources', '87'); await ouvrir('employeurs');
     var t87 = document.body.textContent;
-    cas('Employeurs Haute-Vienne : l\u2019URSSAF, la DREETS, France Travail et le SPSTI 23/87, aucune structure de la Dordogne', /URSSAF/.test(t87) && /DREETS/.test(t87) && /SPSTI|Creuse-Haute-Vienne/.test(t87) && !/Chambre de commerce|Chambre de métiers/.test(t87));
+    cas('Employeurs Haute-Vienne : l\u2019URSSAF, la DREETS, France Travail et le SPSTI 23/87, aucune structure de la Dordogne', /URSSAF/.test(t87) && /DREETS/.test(t87) && /SPSTI|Creuse-Haute-Vienne/.test(t87) && !/Dordogne/.test(t87));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
     cas('Registre des adresses : plus aucune ligne des structures des employeurs migrées ni du SPST fusionné', !/^urssaf-nouvelle-aquitaine \|/m.test(registre) && !/^spst-19-24-perigueux \|/m.test(registre) && !/^france-travail-espace-employeur \|/m.test(registre));
     localStorage.setItem('erip_mon_territoire_apercu', '1'); localStorage.setItem('erip_departement_ressources', '24');
@@ -6953,8 +7228,11 @@
     cas('Qui fait quoi : la tuile « Appui aux employeurs » est ouverte', !!tuile && !/Pas encore de liste/.test(tuile.textContent));
     if (tuile) { tuile.click(); } await attente(400);
     var sb = document.querySelector('[data-mt-sousbranche="employeurs"]');
-    cas('Qui fait quoi, Appui aux employeurs : la sous-branche montre ses 6 structures', !!sb && /6 structures/.test(sb.textContent));
+    cas('Qui fait quoi, Appui aux employeurs : la sous-branche montre ses structures (au moins les 6 d\u2019origine)', !!sb && Number((sb.textContent.match(/(\d+) structures/) || [0, 0])[1]) >= 6);
     if (sb) { sb.click(); } await attente(500);
+    // La liste se choisit par communes (une trentaine de structures) : on demande toute la liste avant de chercher.
+    var toutE = document.querySelector('[data-mt-commune-v="*"]'); if (toutE && toutE.getAttribute('aria-pressed') !== 'true') { toutE.click(); await attente(400); }
+    for (var pgE = 0; pgE < 30 && document.querySelector('[data-mt-suivants]'); pgE++) { document.querySelector('[data-mt-suivants]').click(); await attente(120); }
     cas('Qui fait quoi, liste Employeurs : l\u2019URSSAF et la CCI y sont', /URSSAF/.test(document.body.textContent) && /Chambre de commerce/.test(document.body.textContent));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
@@ -7031,7 +7309,10 @@
     if (inp) { inp.value = 'dettes'; inp.dispatchEvent(new Event('input', { bubbles: true })); await attente(800); zone = document.getElementById('resultatsRechercheERIP'); }
     cas('Dordogne : la recherche « dettes » (frein budget) ne propose aucune structure de la Haute-Vienne', !!inp && !(zone && /Banque alimentaire de la Haute-Vienne|UDAF de la Haute-Vienne|Restos du Cœur, association départementale de la Haute-Vienne/.test(zone.textContent)));
     var registre = await (await fetch('modules/comprendre-le-cadre/liens-verifies.txt')).text();
-    cas('Registre des adresses : plus aucune ligne de la Haute-Vienne (87)', !/ \| 87\s*$/m.test(registre));
+    // Les lignes de la Haute-Vienne qui restent au registre sont des liens de « Comprendre le cadre » (statistiques, pompiers...) : aucune ne doit être une structure du répertoire de Qui fait quoi.
+    var idsLieux = {}; (_mtDonnees.lieux || []).forEach(function (x) { idsLieux[x.id] = true; });
+    var lignes87 = registre.split('\n').filter(function (l) { return / \| 87\s*$/.test(l); }).map(function (l) { return l.split(' | ')[0].trim(); });
+    cas('Registre des adresses : aucune structure du répertoire n\u2019est restée au registre de la Haute-Vienne (87)', !lignes87.some(function (id) { return idsLieux[id]; }), lignes87.join(', '));
     [['erip_mon_territoire_apercu', avant.apercu], ['erip_departement_ressources', avant.dep]].forEach(function (kv) { if (kv[1] === null) { localStorage.removeItem(kv[0]); } else { localStorage.setItem(kv[0], kv[1]); } });
   }
   // Le module « Qui fait quoi » parle du DÉPARTEMENT de la personne (2026-10-12, lot L5) : tous les mots viennent de la table des départements, aucun nom n'est écrit en dur. Dordogne et Haute-Vienne
@@ -7083,7 +7364,16 @@
     await ouvrirModule('87');
     var e87 = document.querySelector('[data-mt-domaine="emploi"]'); if (e87) { e87.click(); } await attente(500);
     var com87 = document.querySelector('[data-mt-secteur="commerce-vente"]');
-    cas('Haute-Vienne : aucun employeur de la Dordogne dans ses secteurs (« Pas encore de liste »)', !!com87 && /Pas encore de liste/.test(com87.textContent) && !/enseignes ou employeurs/.test(texte()), (com87 || {}).textContent);
+    // La Haute-Vienne a maintenant ses propres employeurs (2026-11) : l'essai vérifie que le compteur est celui de la Haute-Vienne et qu'aucune fiche propre à la Dordogne n'y figure.
+    var eDep = function (dep) { return mtEmployeursDuDepartement(_mtDonnees.employeurs, _mtDonnees.communes, dep); };
+    var ids87 = {}; eDep('87').forEach(function (x) { ids87[x.id] = true; });
+    var seuls24 = {}; eDep('24').forEach(function (x) { if (!ids87[x.id]) { seuls24[x.id] = true; } });
+    var attendu87 = mtCompterParSecteur(eDep('87'))['commerce-vente'] || 0;
+    if (com87) { com87.click(); await attente(400); }
+    var tout87 = document.querySelector('[data-mt-commune-v="*"]'); if (tout87 && tout87.getAttribute('aria-pressed') !== 'true') { tout87.click(); await attente(400); }
+    for (var pg = 0; pg < 30 && document.querySelector('[data-mt-suivants]'); pg++) { document.querySelector('[data-mt-suivants]').click(); await attente(120); }
+    var fiches87 = [].map.call(document.querySelectorAll('[data-mt-fiche]'), function (b) { return b.getAttribute('data-mt-fiche'); });
+    cas('Haute-Vienne : le secteur Commerce montre les employeurs de la Haute-Vienne, aucun employeur propre à la Dordogne', !!com87 && attendu87 > 0 && fiches87.length === attendu87 && !fiches87.some(function (id) { return seuls24[id]; }), fiches87.length + ' fiches pour ' + attendu87 + ' attendues');
 
     await ouvrirModule('ailleurs');
     var th = texte();
@@ -7172,6 +7462,53 @@
       }
     } finally {
       if (dep === null) { localStorage.removeItem('erip_departement_ressources'); } else { localStorage.setItem('erip_departement_ressources', dep); }
+    }
+  }
+
+  // ---------------- Comprendre les chiffres : lire en Chiffres / Barres / Camembert (consigne 119) ----------------
+  async function parcoursChiffresLecture() {
+    var dep = localStorage.getItem('erip_departement_ressources');
+    try {
+      localStorage.setItem('erip_departement_ressources', '24');
+      _comprendreLesChiffresEtat.niveau = 'dep'; _comprendreLesChiffresEtat.ecran = 'accueil';
+      naviguerVers('comprendre-les-chiffres'); await attente(3000);
+      var carte = function (slug) { return document.getElementById('comprendre-les-chiffres-carte-' + slug); };
+      var bouton = function (slug, vue) { return carte(slug).querySelector('[data-comprendre-les-chiffres-vue-lecture="' + vue + '"]'); };
+      var panneau = function (slug, vue) { return carte(slug).querySelector('[data-comprendre-les-chiffres-panneau="' + vue + '"]'); };
+      var slugs = ['chomage', 'demandeurs', 'longue-duree', 'emploi-salarie', 'offres'];
+      cas('chiffres lecture : les cinq cartes proposent « Chiffres » et « Barres »', slugs.every(function (s) { return carte(s) && bouton(s, 'chiffres') && bouton(s, 'barres'); }));
+      cas('chiffres lecture : « Camembert » seulement pour l’ancienneté d’inscription et la durée des embauches',
+        !!bouton('longue-duree', 'camembert') && !!bouton('offres', 'camembert') && !bouton('chomage', 'camembert') && !bouton('emploi-salarie', 'camembert') && !bouton('demandeurs', 'camembert'));
+      cas('chiffres lecture : à l’ouverture, c’est « Chiffres » qui est lu (rien ne change par défaut)', slugs.every(function (s) { return !panneau(s, 'chiffres').hidden && panneau(s, 'barres').hidden; }));
+      cas('chiffres lecture : la lecture d’origine est toujours là (chiffre principal et phrase)', slugs.every(function (s) { return !!panneau(s, 'chiffres').querySelector('.comprendre-les-chiffres-indic-valeur'); }));
+      bouton('longue-duree', 'barres').click();
+      cas('chiffres lecture : « Barres » ouvre les barres et masque le reste', !panneau('longue-duree', 'barres').hidden && panneau('longue-duree', 'chiffres').hidden && panneau('longue-duree', 'barres').querySelectorAll('.comprendre-les-chiffres-zone-ligne').length >= 3);
+      bouton('longue-duree', 'camembert').click();
+      var cam = panneau('longue-duree', 'camembert');
+      cas('chiffres lecture : « Camembert » montre un vrai camembert avec sa légende', !cam.hidden && !!cam.querySelector('svg.comprendre-les-chiffres-camembert') && cam.querySelectorAll('.comprendre-les-chiffres-camembert-legende li').length >= 2);
+      bouton('longue-duree', 'chiffres').click();
+      cas('chiffres lecture : on revient à « Chiffres »', !panneau('longue-duree', 'chiffres').hidden && panneau('longue-duree', 'camembert').hidden);
+      // L'ordre : huit trimestres, donc le choix est proposé ; « du plus bas au plus haut » trie vraiment.
+      bouton('demandeurs', 'barres').click();
+      var ordreAsc = panneau('demandeurs', 'barres').querySelector('[data-comprendre-les-chiffres-ordre="asc"]');
+      cas('chiffres lecture : le choix d’ordre est proposé sur une liste de huit trimestres', !!ordreAsc);
+      if (ordreAsc) {
+        ordreAsc.click();
+        var liste = ordreAsc.closest('.comprendre-les-chiffres-vues-groupe').querySelector('[data-comprendre-les-chiffres-liste]');
+        var ns = [].slice.call(liste.children).map(function (l) { return parseFloat(l.getAttribute('data-n')); });
+        cas('chiffres lecture : « du plus bas au plus haut » range bien les lignes', ns.every(function (n, i) { return i === 0 || ns[i - 1] <= n; }), ns.join(' '));
+        panneau('demandeurs', 'barres').querySelector('[data-comprendre-les-chiffres-ordre="origine"]').click();
+        var ns2 = [].slice.call(liste.children).map(function (l) { return l.querySelector('.comprendre-les-chiffres-zone-nom').textContent; });
+        cas('chiffres lecture : « comme dans la source » remet l’ordre d’origine (du plus ancien au plus récent)', /^T3 2024/.test(ns2[0]) && /^T2 2026/.test(ns2[ns2.length - 1]), ns2.join(' '));
+      }
+      // Le choix de lecture survit à un changement de niveau (région), sans rien enregistrer sur l'appareil.
+      bouton('emploi-salarie', 'barres').click();
+      document.querySelector('[data-comprendre-les-chiffres-niveau="na"]').click(); await attente(900);
+      cas('chiffres lecture : le choix « Barres » est gardé quand on change de niveau', !panneau('emploi-salarie', 'barres').hidden);
+      cas('chiffres lecture : rien n’est enregistré sur l’appareil', !Object.keys(localStorage).some(function (k) { return /lecture|vues/i.test(k) && /comprendre/i.test(k); }));
+    } finally {
+      if (dep === null) { localStorage.removeItem('erip_departement_ressources'); } else { localStorage.setItem('erip_departement_ressources', dep); }
+      _comprendreLesChiffresEtat.niveau = null;
     }
   }
 
@@ -7294,6 +7631,37 @@
     }
   }
 
+  // Rappel de sauvegarde (consigne 49, 29/10/2026) : une brique commune, la disquette qui pulse, les modules recents pris en compte, departement et commune dans le fichier.
+  async function parcoursRappelSauvegarde() {
+    var cles = ['erip_departement_ressources', 'erip_mon_territoire_commune', 'erip_mon_territoire_commune_info'];
+    var avantLS = cles.map(function (k) { return localStorage.getItem(k); });
+    cles.forEach(function (k) { localStorage.removeItem(k); });
+    ucpmRestaurerEtatDepuisSauvegarde(null);
+    cas('rappel : rien a sauvegarder au depart, la brique reste vide', !peutExporterSession() && _contenuRappelSauvegarde() === '');
+    localStorage.setItem('erip_departement_ressources', '87');
+    cas('rappel : choisir un departement seul n’est pas un travail a sauvegarder', !peutExporterSession());
+    ucpmRestaurerEtatDepuisSauvegarde({ texteCV: 'CV texte rappel', page: 3 });
+    cas('rappel : Un CV plusieurs metiers compte (avant, jamais)', peutExporterSession());
+    var h = htmlRappelSauvegarde();
+    cas('rappel : le bloc actif porte le message A et son bouton, sans felicitations',
+      h.indexOf('data-rappel-sauvegarde-bouton') >= 0 && h.indexOf(MESSAGE_RAPPEL_SAUVEGARDE) >= 0 && !/bravo|félicitations/i.test(h));
+    var fichier = JSON.parse(JSON.stringify(sauvegarderSession()));
+    cas('rappel : le departement part dans le fichier', fichier.modulesEtat.territoire && fichier.modulesEtat.territoire.departement === '87');
+    cles.forEach(function (k) { localStorage.removeItem(k); });
+    restaurerEtatsModules(fichier.modulesEtat);
+    cas('rappel : le departement revient depuis le fichier', localStorage.getItem('erip_departement_ressources') === '87');
+    var zone = document.createElement('div'); zone.innerHTML = htmlRappelSauvegarde(); document.body.appendChild(zone);
+    exporterSessionFichier();
+    rafraichirRappelsSauvegarde();
+    cas('rappel : apres la sauvegarde le bloc se calme et dit l’heure', !!zone.querySelector('.rappel-sauvegarde.fait') && sessionDejaSauvegardee());
+    ucpmRestaurerEtatDepuisSauvegarde({ texteCV: 'CV texte rappel modifie', page: 4 });
+    rafraichirRappelsSauvegarde();
+    cas('rappel : du travail nouveau reactive le bloc', !sessionDejaSauvegardee() && !!zone.querySelector('.rappel-sauvegarde:not(.fait)'));
+    zone.remove();
+    ucpmRestaurerEtatDepuisSauvegarde(null);
+    cles.forEach(function (k, i) { if (avantLS[i] === null) { localStorage.removeItem(k); } else { localStorage.setItem(k, avantLS[i]); } });
+  }
+
   async function parcoursAideCouverture() {
     // Routes qui redirigent vers une autre page deja couverte.
     var EXCEPTIONS_PAGES = ['decouverte'];
@@ -7307,14 +7675,33 @@
     var re1 = /aideContexte:\s*'([a-z0-9-]+)'/g, re2 = /ouvrirPanneauGuide\([^;]*,\s*'([a-z0-9-]+)'\s*\)/g, m;
     while ((m = re1.exec(textes))) { utilises[m[1]] = true; }
     while ((m = re2.exec(textes))) { utilises[m[1]] = true; }
+    // Le seuil garantit seulement que la lecture des contextes a fonctionné : il y en a moins depuis que les fenêtres sont devenues des pages (18 le 2026-11-05).
     var sansEntree = Object.keys(utilises).filter(function (k) { return !(AIDE_FENETRES[k] && AIDE_FENETRES[k].length); });
-    cas('aide : chaque fenêtre à contexte d’aide a son entrée (AIDE_FENETRES)', Object.keys(utilises).length > 20 && sansEntree.length === 0, 'sans entrée : ' + sansEntree.join(', ') + ' (' + Object.keys(utilises).length + ' contextes lus)');
+    cas('aide : chaque fenêtre à contexte d’aide a son entrée (AIDE_FENETRES)', Object.keys(utilises).length > 10 && sansEntree.length === 0, 'sans entrée : ' + sansEntree.join(', ') + ' (' + Object.keys(utilises).length + ' contextes lus)');
     // Entree morte : la cle n'apparait qu'une fois (sa definition) dans tout le code.
     var mortes = Object.keys(AIDE_FENETRES).filter(function (k) {
       var n = textes.split("'" + k + "'").length - 1;
       return n < 2;
     });
     cas('aide : aucune entrée de fenêtre morte', mortes.length === 0, 'mortes : ' + mortes.join(', '));
+    // « Explication rapide » de l'accueil (29/10/2026) : chaque outil cliquable mene a un vrai bouton ou a une vraie tuile de carte.
+    naviguerVers('cv'); await attente(500);
+    document.querySelectorAll('.fenetre-erip-overlay').forEach(function (o) { o.remove(); });
+    afficherRecapAidePage(); await attente(500);
+    var cibles = [].slice.call(document.querySelectorAll('#fenetreERIP [data-aide-cible]')).map(function (b) { return b.getAttribute('data-aide-cible'); });
+    cas('aide accueil : les quatre blocs et les six cartes sont affichés', document.querySelectorAll('#fenetreERIP .aide-acc-section').length === 4 && document.querySelectorAll('#fenetreERIP .aide-acc-carte').length === 6);
+    var sansBouton = cibles.filter(function (c) { var p = c.split(':'); return p[0] === 'bouton' && !document.getElementById(p[1]); });
+    cas('aide accueil : chaque outil « bouton » pointe vers un bouton réel', cibles.length > 20 && sansBouton.length === 0, 'absents : ' + sansBouton.join(', '));
+    var sansTuile = [];
+    for (var ic = 0; ic < cibles.length; ic++) {
+      var q = cibles[ic].split(':'); if (q[0] !== 'carte') { continue; }
+      document.querySelectorAll('.fenetre-erip-overlay').forEach(function (o) { o.remove(); });
+      ouvrirCarteAccueil(q[1]); await attente(250);
+      var trouve = [].slice.call(document.querySelectorAll('#fenetreERIP .sous-carte-accueil')).some(function (t) { var st = t.querySelector('strong'); return st && st.textContent === q.slice(2).join(':'); });
+      if (!trouve) { sansTuile.push(cibles[ic]); }
+    }
+    document.querySelectorAll('.fenetre-erip-overlay').forEach(function (o) { o.remove(); });
+    cas('aide accueil : chaque outil « carte » pointe vers une tuile réelle de sa carte', sansTuile.length === 0, 'sans tuile : ' + sansTuile.join(' | '));
   }
   // ---------------- Analyser ma candidature : la fleche « Precedent » du navigateur (brique B.24) ----------------
   // Un diagnostic RECU est simule (fausses fonctions remises en place a la fin) : seule la navigation est essayee, jamais le contenu du rapport.
@@ -7640,7 +8027,7 @@
     naviguerVers('resultats'); await attente(1000);
     var t = texte(document.body);
     cas('sortie entretien : titre « Votre préparation d’entretien »', /Votre préparation d’entretien/.test(texte($('h1'))), texte($('h1')));
-    cas('sortie entretien : barre du module, étape Terminé, plus l’ancienne barre', /S’entraîner/.test(t) && /Terminé/.test(t) && !/Ce que vous faisiez/.test(t), t.slice(0, 200));
+    cas('sortie entretien : barre du module, étape Terminé, plus l’ancienne barre', /Réponse/.test(t) && /Terminé/.test(t) && !/Ce que vous faisiez/.test(t), t.slice(0, 200));
     cas('sortie entretien : encart de confirmation présent', !!$('#encartPreparationEnregistree'), 'encart absent');
     cas('sortie entretien : plus d’« Adaptation au métier » ni de « Choisissez votre assistant »', !/Adaptation au métier/.test(t) && !/Choisissez votre assistant/.test(t), 'réglages encore affichés');
     cas('sortie entretien : la mise en page est là, « Exporter » n’apparaît qu’après « Continuer » (barre du bas)', /mise en page/i.test(t) && !$('[data-rect-doc="exporter"]') && /Continuer/.test(texte($('.barre-navigation'))), 'mise en page ou export mal placés');
@@ -7959,18 +8346,16 @@
       cas('objectif : dès qu’une carte est choisie, l’effet d’invitation s’arrête', carteEnAvant() === '', carteEnAvant());
       cas('objectif : le composant de la lettre (« L’offre et l’entreprise »), sans ancien bloc ni « Le poste que vous recherchez »', !!$('#ciblageEntreprise') && !$('#blocERIP-candidature') && !$('#blocERIP-projet') && !/Le poste que vous recherchez/.test(document.body.innerText), 'ancien bloc présent');
       cas('objectif : le titre de la partie n’a plus de numéro seul', !$('#objectifBlocCandidature .preparer-num'), 'numéro présent');
-      cas('objectif : « Vos appuis » est proposé (création de CV)', !!$('#coLettreAppuis'), 'appuis absents');
+      cas('objectif : « Vos appuis » n’est plus proposé ici (une seule fois, à « Vos documents »)', !$('#coLettreAppuis'), 'appuis présents');
       // Reformuler : cartes, composant, pas d'appuis
       dossier.modeCreation = 'maj'; raz(); _prepLEMode = 'reformuler'; _prepLEEtat = { cvTexte: cv, relectureFaite: true }; _prepLEEcran = 'depot'; _prepLEDetour = false; _reprendreCvActif = false;
       naviguerVers('reformuler-cv'); await attente(1200);
       $('[data-prepel-situation="offre"]').click(); await attente(900);
       cas('reformuler : les cartes puis le composant de la lettre (entreprise ciblée), sans ancien bloc', document.querySelectorAll('.carte-objectif').length === 6 && !!$('#ciblageEntreprise') && !$('#blocERIP-candidature'), 'composant absent');
-      cas('reformuler : « Vos appuis » (lettre de recommandation) est proposé', !!$('#coLettreAppuis'), 'appuis absents');
+      cas('reformuler : « Vos appuis » n’est plus proposé sur « Votre objectif »', !$('#coLettreAppuis'), 'appuis présents');
       var recosAvantRef = _coLettreRecos, repAvantRef = _coLettreRecoReponse;
       _coLettreRecos = [{ id: 1, texte: 'Camille est ponctuelle et rigoureuse.', role: 'Ancien employeur' }]; _coLettreRecoReponse = 'oui';
-      cas('reformuler : la lettre de recommandation part dans le message de l’assistant', /LETTRE DE RECOMMANDATION/.test(_reformulerCvContexteTexte()) && /ponctuelle et rigoureuse/.test(_reformulerCvContexteTexte()), 'section absente');
-      _coLettreRecoReponse = 'non';
-      cas('reformuler : « Non » : aucune lettre dans le message', !/LETTRE DE RECOMMANDATION/.test(_reformulerCvContexteTexte()), 'section présente');
+      cas('reformuler : le premier passage ne lit aucun appui (pas de lettre de recommandation dans le message, 28/10/2026)', !/LETTRE DE RECOMMANDATION/.test(_reformulerCvContexteTexte()), 'section présente');
       _coLettreRecos = recosAvantRef; _coLettreRecoReponse = repAvantRef;
       // Analyser ma candidature (Bilan) et Cohérence : le meme composant, sans ancien bloc repliable
       bilanEntrerPreparation(null); await attente(1000); _etatBilan.preparer = { relectureFaite: true, situationTouchee: false, cvTexte: cv }; raz(); pageBilanCandidature(); await attente(900);
@@ -8011,7 +8396,18 @@
     for (var i = 0; i < modules.length; i++) {
       var m = modules[i];
       raz(); await m.ouvrir(false); await attente(1200);
-      cas(m.nom + ' : sans CV, la partie 2 est désactivée et la partie 3 n’est pas encore montrée', etat(m.cible) === 'verrouille' && etat(m.suite) === 'masque', etat(m.cible) + ' / ' + etat(m.suite));
+      cas(m.nom + ' : sans CV, les parties 2 et 3 sont visibles mais grisées (règle du 30/10/2026 : la personne voit la suite)', etat(m.cible) === 'verrouille' && etat(m.suite) === 'verrouille', etat(m.cible) + ' / ' + etat(m.suite));
+      cas(m.nom + ' : un texte explicatif entre chaque bloc (consigne 63)', document.querySelectorAll('.liaison-blocs').length === 2 && /Ce qui se passe ensuite/.test(document.querySelector('.liaison-blocs').innerText), String(document.querySelectorAll('.liaison-blocs').length));
+      var griseBarre = document.querySelector('.barre-navigation-fixe .barre-navigation > button.btn-primary:disabled');
+      if (griseBarre) {
+        var rg = griseBarre.getBoundingClientRect();
+        var barre = griseBarre.parentElement;
+        cas(m.nom + ' : le « Continuer » grisé ne reçoit plus la souris et son message reste affiché (consigne 66)', getComputedStyle(griseBarre).pointerEvents === 'none' && getComputedStyle(barre.querySelector('.barre-raison-suivant') || document.body).display === 'block', String(!!barre.querySelector('.barre-raison-suivant')));
+        barre.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: rg.left + rg.width / 2, clientY: rg.top + rg.height / 2 }));
+        await attente(900);
+        var pulsee = document.querySelector('.a-completer-pulse');
+        cas(m.nom + ' : un clic sur le « Continuer » grisé mène à la première partie à remplir (le CV) et la fait clignoter (consigne 66)', !!pulsee && /Votre CV/.test(pulsee.innerText), pulsee ? pulsee.id : 'aucune');
+      }
       var carte = document.querySelector('#' + m.cible + ' [data-action="objectif"][data-value="offre"]'); if (carte) { carte.click(); await attente(400); }
       cas(m.nom + ' : une carte désactivée ne se choisit pas (curseur « sens interdit »)', !dossier.objectif && !!carte && getComputedStyle(carte).cursor === 'not-allowed', String(dossier.objectif));
       raz(); await m.ouvrir(true); await attente(1200);
@@ -8026,9 +8422,9 @@
     raz(); _ctEnCollecte = true; naviguerVers('coherence-transversale'); await attente(1200);
     var ec = _ctCollecteEtat, suiteCt = function () { return idsCt.map(etat).join(' / '); };
     ec.cv = null; ec.lettre = null; ec.entretien = null; ctHtmlCollecte(); await attente(600);
-    cas('cohérence : sans CV, seule la lettre se voit (désactivée), les parties suivantes ne se montrent pas', suiteCt() === 'verrouille / masque / masque', suiteCt());
+    cas('cohérence : sans CV, la lettre et les parties suivantes sont visibles mais grisées (règle du 30/10/2026)', suiteCt() === 'verrouille / verrouille / verrouille', suiteCt());
     ec.cv = { texte: 'Camille Martin', dejaRelu: true }; ctHtmlCollecte(); await attente(600);
-    cas('cohérence : le CV déposé ouvre la lettre ; l’entretien apparaît désactivé', suiteCt() === 'ouvert / verrouille / masque', suiteCt());
+    cas('cohérence : le CV déposé ouvre la lettre ; l’entretien et la situation restent grisés', suiteCt() === 'ouvert / verrouille / verrouille', suiteCt());
     ec.lettre = { texte: 'Madame, Monsieur', dejaRelu: true }; ctHtmlCollecte(); await attente(600);
     cas('cohérence : la lettre déposée ouvre l’entretien ; la situation apparaît désactivée', suiteCt() === 'ouvert / ouvert / verrouille', suiteCt());
     ec.entretien = { texte: null, dejaRelu: false }; ctHtmlCollecte(); await attente(600);
@@ -8091,7 +8487,7 @@
       cas('mesCompétences : la première réponse est lue par le filet', imp.succes, imp.erreur);
       mesCompRendrePage(); await attente(600);
       var nbLignes = mesCompOuvrir().lignes.length, nbEnvies = mesCompOuvrir().envies.length;
-      cas('relecture : l’écran s’appelle « Je relis mes compétences »', /Je relis mes compétences/.test(($('h1') || {}).textContent || ''), ($('h1') || {}).textContent);
+      cas('relecture : l’écran s’appelle « Je relis mes compétences »', /Je relis mes compétences/.test(texte($('#app'))), ($('h1') || {}).textContent);   // depuis la consigne 57, le titre principal est le nom du module : l'écran s'affiche dans le titre d'étape
       cas('relecture : une carte par ligne et par envie, familles dépliables', document.querySelectorAll('.mc-comp').length === nbLignes + nbEnvies && document.querySelectorAll('.bloc-depli:not(.mc-comp)').length >= 1, document.querySelectorAll('.mc-comp').length + ' / ' + (nbLignes + nbEnvies));
       var btnSuivant = function () { return $('.barre-navigation-fixe .btn-primary'); };
       cas('relecture : « Continuer » est grisé tant qu’aucune ligne n’est gardée', !!btnSuivant() && btnSuivant().disabled, btnSuivant() ? 'actif' : 'absent');
@@ -8127,9 +8523,8 @@
       $('#btnMcEnvoyerReponses').click(); await attente(400);
       mesCompOuvrir().passages = { second: { vue: 'coller', assistant: 'chatgpt' } }; mesCompRendrePage(); await attente(600);
       var rep2 = await (await fetch('/docs/essais_mes_competences/reponses/01_passe2v6_perplexity.txt')).text();
-      var coll = $('#texteCollageMcSecond'), bImp = $('#btnImporterMcSecond');
-      cas('second passage : la zone de collage est celle de l’application', !!coll && !!bImp, 'zone de collage absente');
-      if (coll && bImp) { coll.value = rep2; bImp.disabled = false; bImp.click(); await attente(700); }
+      cas('second passage : la fenêtre de collage est la fenêtre commune', !!$('#fcRacineMcSecond'), 'fenêtre absente');
+      if ($('#fcRacineMcSecond')) { await colle('McSecond', rep2); await attente(300); }
       var apres = mesCompOuvrir().lignes.filter(function (l) { return l.id === aPreciser.id; })[0];
       cas('second passage : la ligne précisée revient, confirmée par la réponse, à relire', !!apres && apres.confirmation !== 'aPreciser' && apres.geste === '' && !!document.querySelector('.mc-comp'), JSON.stringify(apres && apres.confirmation));
       cas('second passage : une phrase dit ce qui s’est passé', /précisée/.test(document.body.textContent), 'phrase absente');
@@ -8142,7 +8537,7 @@
       var retiree = mesCompOuvrir().lignes.filter(function (l) { return l.geste === 'non'; })[0];
       mesCompBarreContinuer(); await attente(600);
       var feuille = $('#mcFeuille');
-      cas('document : l’écran s’appelle « Mes compétences » et montre la feuille', !!feuille && /Mes compétences/.test(($('h1') || {}).textContent || ''), 'feuille absente');
+      cas('document : l’écran s’appelle « Mes compétences » et montre la feuille', !!feuille && /Mes compétences/.test(texte($('#app'))), 'feuille absente');
       cas('document : seules les lignes gardées y sont, la ligne retirée n’y est pas', !!feuille && !!retiree && feuille.textContent.indexOf(retiree.libelle) < 0 && feuille.textContent.indexOf(mesCompOuvrir().lignes[0].libelle) >= 0, 'contenu inattendu');
       cas('document : le texte écrit par la personne remplace la proposition', !!feuille && feuille.textContent.indexOf('Mes mots à moi') >= 0 && /écrit par moi/.test(feuille.textContent), 'texte de la personne absent');
       cas('document : aucune ligne « à préciser » ni consigne interne', !!feuille && !/à préciser/i.test(feuille.textContent) && !/prompt|json/i.test(feuille.textContent), 'texte parasite');
@@ -8152,7 +8547,7 @@
       var btnWord = $('#btnMcWord');
       cas('document : le bouton « Télécharger en Word » existe', !!btnWord, 'bouton absent');
       if (btnWord) { btnWord.click(); await attente(2500); }
-      HTMLAnchorElement.prototype.click = clicAvant;
+      delete HTMLAnchorElement.prototype.click;   // retire la propriete posee ci-dessus (la remettre a clicAvant laissait une copie figee qui court-circuitait l'essai « ats » lance apres)
       cas('document : « Télécharger en Word » donne un fichier .docx', /.docx$/.test(nomWord), nomWord || 'aucun fichier');
       cas('document : le Word est annoncé à la personne', /Word est téléchargé/.test((document.getElementById('mcMessageDoc') || {}).textContent || ''), (document.getElementById('mcMessageDoc') || {}).textContent);
       $('#oPreuvesMc').click(); await attente(200);
@@ -8191,7 +8586,1176 @@
     }
   }
 
-  var PARCOURS = { mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, comparer: parcoursComparer, decouverte: parcoursDecouverte, prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
+  // ---------------- Bilan : écran « Collez la réponse » de l'analyse -> fenêtre unique en page (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursBilanCollageDiagnostic() {
+    var ouvrirReel = window.open;
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cand = bilanCreerCandidature({ id: 'cand-essai-diag', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      window.open = function () { return {}; };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: 9 };
+      naviguerVers('bilan'); await attente(400); pageBilanCandidature(); await attente(500);
+      cas('bilan analyse : pendant le décompte, le bandeau s’affiche DANS la fenêtre unique, en aperçu', !!$('.fc #banniereTransitionIA') && !!$('.fc .fc-apercu-legende'), texte($('.cv-section')).slice(0, 80));
+      clearInterval(_intervalleDecompteIA);
+      _etatTransitionIA.phase = 'ouvert'; pageBilanCandidature(); await attente(500);
+      var racine = $('#fcRacineBilan');
+      cas('bilan analyse : assistant ouvert -> fenêtre unique, passage 1 sur 2, « Continuer » grisé dans la barre du bas', !!racine && /1 sur 2/.test(texte(racine)) && /ouvert dans un autre onglet/.test(texte(racine)) && !!$('.barre-navigation-fixe [data-barre-bas-adopte]') && $('.barre-navigation-fixe [data-barre-bas-adopte]').disabled, texte($('.barre-navigation-fixe')));
+      $('[data-fc=retour]', racine).click();
+      cas('bilan analyse : « Je suis de retour » passe l’état à « revenu »', _etatTransitionIA.phase === 'revenu' && racine.__collage.etat() === 'pret', _etatTransitionIA.phase);
+      var reponse = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse du bilan.' },
+        premiereImpression: { texte: 'Bonne première impression.' }, ceQuiDonneEnvie: { texte: 'Un parcours cohérent.' }, ceQuiPeutFreiner: { texte: 'Peu de résultats chiffrés.' },
+        axes: [{ id: 'credibilite', restitutionQualitative: 'convaincant', observationsArgumentees: [{ texte: 'Affirmations étayées.', observationsFactuellesLiees: [] }], pointsForts: ['Ton mesuré'], pointsFaibles: [], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-1', contenu: 'Ajouter un résultat chiffré.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Affirmations étayées.'] }],
+        planAction: ['reco-1'], syntheseProjectionRecruteur: { texte: 'Impression globale positive.' } };
+      var json = '```json\n' + JSON.stringify(reponse, null, 2) + '\n```';
+      var coupure = Math.floor(json.length / 2);
+      racine.__collage.coller(json.slice(0, coupure));
+      cas('bilan analyse : une réponse coupée est signalée, rien d’enregistré', racine.__collage.etat() === 'coupe' && bilanObtenirDiagnostic().statut === 'genere', racine.__collage.etat());
+      racine.__collage.coller(json.slice(coupure));
+      await attente(400);
+      cas('bilan analyse : la suite est assemblée, « Continuer » actif, diagnostic pas encore enregistré', racine.__collage.etat() === 'recu' && !$('.barre-navigation-fixe [data-barre-bas-adopte]').disabled && bilanObtenirDiagnostic().statut === 'genere', racine.__collage.etat());
+      $('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(900);
+      cas('bilan analyse : « Continuer » enregistre le diagnostic et ouvre le rapport', bilanObtenirDiagnostic().statut === 'complete' && !$('#fcRacineBilan'), bilanObtenirDiagnostic().statut);
+    } catch (e) {
+      cas('bilan analyse : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; }
+  }
+
+  // ---------------- Bilan, « Corriger » : le texte complet du CV s'ouvre dans la carte de la recommandation (point 15, étape 7, 01/11/2026) ----------------
+  async function parcoursBilanTexteLibre() {
+    var sauve = { manuel: dossier.profilTexteManuel, exp: dossier.experiences, expPerso: dossier.experiencesPerso, mode: dossier.modeCreation, modifie: dossier.bilanCvModifie };
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cvDepose = 'JEAN DUPONT\nVendeur\nResponsable de rayon, chargé de la caisse, de la commande des produits frais et de l’accueil des clients (2019 à 2024).';
+      var cand = bilanCreerCandidature({ id: 'cand-essai-texte', cv: cvDepose });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      var reponseDiag = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse.' },
+        premiereImpression: { texte: 'Bonne.' }, ceQuiDonneEnvie: { texte: 'Cohérent.' }, ceQuiPeutFreiner: { texte: 'Paragraphes longs.' },
+        axes: [{ id: 'lisibilite', restitutionQualitative: 'a_renforcer', observationsArgumentees: [{ texte: 'Phrases longues.', observationsFactuellesLiees: [] }], pointsForts: [], pointsFaibles: ['Paragraphes longs'], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-lisib', contenu: 'Aérer le CV.', dimensionsLiees: ['lisibilite'], priorite: 'moyenne', extraitConcerne: 'Responsable de rayon, chargé de la caisse', observationsLiees: ['Phrases longues.'] }],
+        planAction: ['reco-lisib'], syntheseProjectionRecruteur: { texte: 'Positive.' } };
+      bilanSoumettreReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```');
+      // --- Cas 1 : CV déposé en texte (aucune expérience rangée) ---
+      dossier.experiences = []; dossier.experiencesPerso = []; delete _bilanStatutsCorrection['reco-lisib'];
+      naviguerVers('bilan'); await attente(400); bilanOuvrirModeCorrection('libre'); await attente(600);
+      var corriger = $('[data-libre-corriger="reco-lisib"]');
+      cas('bilan texte libre : la recommandation « Lisibilité » propose « Corriger »', !!corriger, 'statut=' + (bilanObtenirDiagnostic() && bilanObtenirDiagnostic().statut) + ' | corr=' + JSON.stringify(_etatBilan.correction) + ' | ' + JSON.stringify(bilanObtenirDiagnostic() && bilanObtenirDiagnostic().erreur || '').slice(0, 200) + ' | ' + texte($('#app')).slice(0, 700));
+      if (!corriger) { return; }
+      corriger.click(); await attente(500);
+      var champ = $('#bilanTexteLibreChamp');
+      cas('bilan texte libre : le texte du CV s’ouvre dans la carte, sans fenêtre, sous le passage concerné', !!champ && !$('#fenetreERIP') && champ.value === cvDepose && /Le passage de votre CV/.test(texte($('#app'))) && !!$('[data-libre-texte-annuler]') && !$('[data-libre-texte-valider]'), champ && champ.value.slice(0, 40));
+      $('[data-libre-texte-annuler]').click(); await attente(400);
+      cas('bilan texte libre : « Annuler » referme sans rien marquer', !$('#bilanTexteLibreChamp') && !!$('[data-libre-corriger="reco-lisib"]') && !_bilanStatutsCorrection['reco-lisib'] && bilanObtenirCandidature().cv === cvDepose);
+      $('[data-libre-corriger="reco-lisib"]').click(); await attente(400);
+      champ = $('#bilanTexteLibreChamp'); champ.value = cvDepose + '\n\nFORMATION\nBac pro Commerce, 2018.'; champ.dispatchEvent(new Event('input')); await attente(100);
+      cas('bilan texte libre : dès que le texte change, « Annuler » devient « Valider »', !!$('[data-libre-texte-valider]') && !$('[data-libre-texte-annuler]'));
+      $('[data-libre-texte-valider]').click(); await attente(600);
+      cas('bilan texte libre : « Valider » enregistre le texte du CV de la candidature et marque « Corrigée »', /Bac pro Commerce/.test(bilanObtenirCandidature().cv) && _bilanStatutsCorrection['reco-lisib'] === 'corrigee' && /Corrigée/.test(texte($('#app'))) && !$('#bilanTexteLibreChamp') && dossier.bilanCvModifie === true, bilanObtenirCandidature().cv);
+      $('[data-libre-revenir="reco-lisib"]').click(); await attente(400);
+      cas('bilan texte libre : « Revenir sur ma décision » rend le bouton « Corriger »', !!$('[data-libre-corriger="reco-lisib"]') && _bilanStatutsCorrection['reco-lisib'] !== 'corrigee');
+      // --- Cas 2 : CV déjà rangé dans l'application (le texte est celui transmis à l'assistant) ---
+      dossier.modeCreation = 'nouveau'; dossier.experiences = [{ poste: 'Agent de tri', entreprise: 'Atelier', lieu: '', dateDebut: '2019-01', dateFin: '2024-01', missions: 'Tri\nPesée' }]; dossier.profilTexteManuel = null;
+      var cvAvant = bilanObtenirCandidature().cv;
+      pageBilanCandidature(); await attente(400);
+      $('[data-libre-corriger="reco-lisib"]').click(); await attente(500);
+      champ = $('#bilanTexteLibreChamp');
+      cas('bilan texte libre : CV rangé, le texte transmis à l’assistant s’ouvre avec sa phrase d’explication', !!champ && champ.value === texteProfilEffectif('cv') && /ne change pas votre CV rangé/.test(texte($('#app'))) && !$('#fenetreERIP'));
+      champ.value = champ.value + '\nMa précision.'; champ.dispatchEvent(new Event('input')); await attente(100);
+      $('[data-libre-texte-valider]').click(); await attente(600);
+      cas('bilan texte libre : CV rangé, « Valider » garde le texte pour l’assistant, le CV de la candidature n’est pas touché', /Ma précision/.test(dossier.profilTexteManuel || '') && bilanObtenirCandidature().cv === cvAvant && _bilanStatutsCorrection['reco-lisib'] === 'corrigee');
+    } catch (e) {
+      cas('bilan texte libre : aucune erreur', false, e && e.message);
+    } finally {
+      delete _bilanStatutsCorrection['reco-lisib'];
+      dossier.profilTexteManuel = sauve.manuel; dossier.experiences = sauve.exp; dossier.experiencesPerso = sauve.expPerso; dossier.modeCreation = sauve.mode; dossier.bilanCvModifie = sauve.modifie; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Bilan : « Organiser mon CV », écran de collage -> fenêtre unique en page (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursBilanCollageOrganisation() {
+    var ouvrirReel = window.open;
+    // Le parcours compte ce que l'import AJOUTE au dossier : il part d'un dossier sans CV (un essai précédent, comme « datesSuggestion », en laisse un rempli : « Valider (aucun ajout) »), puis le remet.
+    var rubriquesCv = ['experiences', 'formations', 'certifications', 'competencesCV', 'langues', 'loisirs', 'informationsNonClassees', 'identite'];
+    var copieRubriques = JSON.parse(JSON.stringify(rubriquesCv.map(function (k) { return dossier[k]; })));
+    rubriquesCv.forEach(function (k) { dossier[k] = (k === 'identite') ? {} : []; });
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cand = bilanCreerCandidature({ id: 'cand-essai-org', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      var reponseDiag = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse.' },
+        premiereImpression: { texte: 'Bonne.' }, ceQuiDonneEnvie: { texte: 'Cohérent.' }, ceQuiPeutFreiner: { texte: 'Peu de chiffres.' },
+        axes: [{ id: 'credibilite', restitutionQualitative: 'convaincant', observationsArgumentees: [{ texte: 'Étayé.', observationsFactuellesLiees: [] }], pointsForts: ['Ton mesuré'], pointsFaibles: [], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-1', contenu: 'Ajouter un chiffre.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] }],
+        planAction: ['reco-1'], syntheseProjectionRecruteur: { texte: 'Positive.' } };
+      bilanSoumettreReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```');
+      window.open = function () { return {}; };
+      _etatBilan.organisation = { ecran: 'coller' };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('bilan'); await attente(400); pageBilanCandidature(); await attente(500);
+      var racine = $('#fcRacineBilanOrganisation');
+      cas('bilan organiser : fenêtre unique affichée, assistant ouvert, un seul passage (pas de pastille 1 sur 2)', !!racine && /ouvert dans un autre onglet/.test(texte(racine)) && !$('.fc-passage', racine), texte(racine).slice(0, 100));
+      $('[data-fc=retour]', racine).click();
+      racine.__collage.coller('Voici : {"informationsNonClassees":["Texte libre');
+      cas('bilan organiser : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('"],"certifications":["sSsT"],"pointsAVerifier":[{"titre":"Certification à vérifier","extrait":"sSsT","question":"Quel est l’intitulé exact ?","suggestion":"SST"}]}');
+      await attente(400);
+      cas('bilan organiser : la suite est assemblée, rien enregistré avant « Continuer »', racine.__collage.etat() === 'recu' && !(dossier.imports && dossier.imports.courant && dossier.imports.courant.typeSource === 'bilan_organisation'), racine.__collage.etat());
+      $('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(900);
+      cas('bilan organiser : « Continuer » enregistre l’import et ouvre l’écran de validation', dossier.imports.courant.typeSource === 'bilan_organisation' && _etatBilan.organisation && _etatBilan.organisation.ecran === 'validation', JSON.stringify(_etatBilan.organisation));
+      // Point 15 (01/11/2026) : « Quelques passages à préciser » est un bloc en haut de l'écran de validation ; les réponses s'appliquent aux éléments retenus à « Valider ».
+      cas('bilan organiser : les questions sont dans un bloc en haut de l’écran de validation, sans fenêtre', !!$('[data-passages-bloc]') && !$('#fenetreERIP') && /intitulé exact/.test(texte($('#app'))));
+      $('[data-passage-suggestion]').click(); await attente(200);
+      cas('bilan organiser : la réponse est gardée sans bouger la liste (elle s’applique à « Valider »)', /sSsT/.test(texte($('.ecran-validation-import')) + Array.prototype.map.call(document.querySelectorAll('.ecran-validation-import input, .ecran-validation-import textarea'), function (x) { return x.value; }).join('|')) && /répondu/.test(texte($('[data-passage-pilule="0"]'))));
+      $('#btnValiderImport').click(); await attente(900);
+      cas('bilan organiser : « Valider » applique la réponse (certification corrigée dans le dossier) et le bloc disparaît', JSON.stringify(dossier.certifications || []).indexOf('SST') !== -1 && JSON.stringify(dossier.certifications || []).indexOf('sSsT') === -1 && !passagesEtatDePage('bilan'), JSON.stringify(dossier.certifications));
+      // Vérification de l'extraction fusionnée du premier passage : même écran en page, « Retour » revient au rapport
+      if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }
+      _etatBilan.organisation = null; dossier.imports = dossier.imports || {}; dossier.imports.courant = null;
+      var cand2 = bilanCreerCandidature({ id: 'cand-essai-fusion', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand2, cand2.cv); bilanStoreDefinirCandidature(cand2); await bilanDemarrerDiagnostic({});
+      bilanImporterReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```\n## BLOC_EXTRACTION_CV\n```json\n' + JSON.stringify({ identite: { nom: 'Martin', prenom: 'Camille' }, experiences: [{ poste: 'Agent', entreprise: 'Sécuritas', dateDebut: '2022', dateFin: '2024', missions: ['Surveiller les accès'] }] }) + '\n```', null); await attente(900);
+      cas('bilan extraction fusionnée : l’extraction jointe au diagnostic ouvre la vérification EN PAGE (retour direct au rapport), sans fenêtre', !!_etatBilan.organisation && _etatBilan.organisation.ecran === 'validation' && _etatBilan.organisation.retourDirect === true && !$('#fenetreERIP'), JSON.stringify(_etatBilan.organisation));
+      cas('bilan extraction fusionnée : l’écran « Vérifiez les informations importées » est dans la page, sans fenêtre', /Vérifiez les informations importées/.test(texte($('#app'))) && !$('#fenetreERIP') && !$('#assistantDepotCV'));
+      // ---- Écran refait en une seule page (consigne 81, 30/10/2026) ----
+      var ecranVI = document.querySelector('.ecran-validation-import');
+      var nbCochees = function () { return ecranVI.querySelectorAll('input[type="checkbox"][id^="val_"]:checked').length + ecranVI.querySelectorAll('input[type="radio"][id$="_remplacer"]:checked').length; };
+      var libBouton = function () { return ($('#btnValiderImport') || {}).textContent || ''; };
+      cas('validation refaite : une seule page, plus d’onglets', !!ecranVI && !document.querySelector('.onglet-validation-import-btn') && ecranVI.querySelectorAll('.groupe-validation-import').length >= 5, String(ecranVI && ecranVI.querySelectorAll('.groupe-validation-import').length));
+      cas('validation refaite : introduction rassurante et légende des trois pastilles', /Rien n’est enregistré tant que vous n’avez pas validé/.test(texte(ecranVI)) && ecranVI.querySelectorAll('.legende-validation-import .pastille-validation-import').length === 3, '');
+      cas('validation refaite : mots simples à la place des noms techniques (Prénom, Nom)', /Prénom/.test(texte(ecranVI)) && !Array.prototype.some.call(ecranVI.querySelectorAll('.lib-champ-validation'), function (e) { return /^(nom|prenom|telephone|email|codePostal)$/.test(e.textContent.trim()); }), '');
+      cas('validation refaite : chaque ligne repérée porte une pastille écrite', ecranVI.querySelectorAll('.ligne-validation-import .pastille-validation-import, .carte-validation-import .pastille-validation-import').length >= 3, '');
+      cas('validation refaite : le bouton du bas dit combien d’éléments seront ajoutés, et le chiffre est le vrai', /^Valider \((\d+) éléments?\)$/.test(libBouton()) && +libBouton().match(/\d+/)[0] === nbCochees(), libBouton() + ' / ' + nbCochees());
+      var uneCase = ecranVI.querySelector('input[type="checkbox"][id^="val_"]:checked');
+      var avantN = nbCochees();
+      uneCase.click(); await attente(100);
+      cas('validation refaite : décocher un élément fait baisser le chiffre du bouton de un', nbCochees() === avantN - 1 && (libBouton().indexOf('(' + (avantN - 1) + ' ') >= 0 || (avantN - 1 === 0 && /aucun ajout/.test(libBouton()))), libBouton());
+      uneCase.click(); await attente(100);
+      cas('validation refaite : recocher remet le chiffre', nbCochees() === avantN, libBouton());
+      // rubrique vide : une ligne repliée avec son bouton Ajouter ; une ligne vide ajoutée ne compte pas, remplie elle compte
+      var boutonVide = ecranVI.querySelector('.rubrique-validation.est-vide [data-bouton-ajouter-validation]');
+      cas('validation refaite : une rubrique vide est une ligne repliée « rien repéré » avec son bouton Ajouter', !!boutonVide && /rien repéré/.test(texte(boutonVide.closest('.rubrique-validation'))), '');
+      if (boutonVide) {
+        var catVide = boutonVide.dataset.boutonAjouterValidation;
+        boutonVide.click(); await attente(100);
+        cas('validation refaite : une ligne ajoutée à la main mais vide ne compte pas', nbCochees() === avantN + 1 && libBouton().indexOf('(' + avantN + ' ') >= 0, libBouton());
+        var ligneAjoutee = ecranVI.querySelector('[data-ligne-ajout]');
+        var saisie = ligneAjoutee && ligneAjoutee.querySelector('input[type="text"]');
+        if (saisie) { saisie.value = 'Habilitation électrique'; saisie.dispatchEvent(new Event('input', { bubbles: true })); }
+        await attente(100);
+        cas('validation refaite : remplie, la ligne ajoutée compte et la rubrique l’annonce', libBouton().indexOf('(' + (avantN + 1) + ' ') >= 0 && /1 élément à ajouter/.test(texte(ecranVI.querySelector('.rubrique-validation[data-rubrique="' + catVide + '"]'))), libBouton());
+        var decVide = lireDecisionsValidationImport(comparerDonnees(dossier, dossier.imports.courant.donnees, SPECIFICATION_IMPORT), SPECIFICATION_IMPORT);
+        cas('validation refaite : la décision lue contient bien la ligne ajoutée (contrat des identifiants inchangé)', JSON.stringify(decVide[catVide] || {}).indexOf('Habilitation électrique') >= 0 || JSON.stringify(decVide[catVide] || {}).indexOf('electrique') >= 0, JSON.stringify(decVide[catVide] || {}).slice(0, 120));
+        ecranVI.querySelector('[data-supprimer-ligne-ajout]').click(); await attente(100);
+        cas('validation refaite : supprimer la ligne ajoutée remet le chiffre', libBouton().indexOf('(' + avantN + ' ') >= 0 && !ecranVI.querySelector('[data-ligne-ajout]'), libBouton());
+      }
+      // conflit : deux cartes, le dossier est gardé par défaut, « Lu dans le document » compte pour un
+      var nomReel = dossier.identite.nom;
+      dossier.identite.nom = 'Dupont'; pageBilanCandidature(); await attente(400);
+      ecranVI = document.querySelector('.ecran-validation-import');
+      var cartesConflit = ecranVI.querySelectorAll('.conflit-validation-import .option-conflit-validation');
+      cas('validation refaite : une différence se présente en deux cartes « Dans votre dossier » / « Lu dans le document »', cartesConflit.length >= 2 && /Dans votre dossier/.test(texte(cartesConflit[0])) && /Lu dans le document/.test(texte(cartesConflit[1])) && /À choisir/.test(texte(ecranVI)), String(cartesConflit.length));
+      var garder = document.getElementById('val_identite_conflit_nom_garder'), remplacer = document.getElementById('val_identite_conflit_nom_remplacer');
+      var cmpC = comparerDonnees(dossier, dossier.imports.courant.donnees, SPECIFICATION_IMPORT);
+      cas('validation refaite : par défaut, le dossier est gardé (rien ne change par surprise)', !!garder && garder.checked && !!remplacer && !remplacer.checked && !('nom' in (lireDecisionsValidationImport(cmpC, SPECIFICATION_IMPORT).identite.champsAAppliquer || {})), '');
+      var avantC = nbCochees();
+      remplacer.click(); await attente(100);
+      cas('validation refaite : choisir « Lu dans le document » ajoute un à l’écran et remplace le nom dans la décision', nbCochees() === avantC + 1 && lireDecisionsValidationImport(cmpC, SPECIFICATION_IMPORT).identite.champsAAppliquer.nom === 'Martin', libBouton());
+      document.getElementById('val_identite_conflit_nom_garder').click(); await attente(50);
+      dossier.identite.nom = nomReel;
+      bilanRetourOrganisation(); await attente(600);
+      cas('bilan extraction fusionnée : « Retour » revient directement au rapport (ni collage ni choix de l’assistant)', !_etatBilan.organisation && !/Vérifiez les informations importées/.test(texte($('#app'))) && !$('#fcRacineBilanOrganisation'), JSON.stringify(_etatBilan.organisation));
+    } catch (e) {
+      cas('bilan organiser : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _etatBilan.organisation = null; rubriquesCv.forEach(function (k, i) { if (copieRubriques[i] === undefined) { delete dossier[k]; } else { dossier[k] = copieRubriques[i]; } }); }
+  }
+
+  // ---------------- Bilan : titre et accroche, écran de collage -> fenêtre unique en page (dette B.17, 28/10/2026) ----------------
+  async function parcoursBilanCollageTitreAccroche() {
+    var ouvrirReel = window.open;
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cand = bilanCreerCandidature({ id: 'cand-essai-titre', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      var reponseDiag = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse.' },
+        premiereImpression: { texte: 'Bonne.' }, ceQuiDonneEnvie: { texte: 'Cohérent.' }, ceQuiPeutFreiner: { texte: 'Peu de chiffres.' },
+        axes: [{ id: 'credibilite', restitutionQualitative: 'convaincant', observationsArgumentees: [{ texte: 'Étayé.', observationsFactuellesLiees: [] }], pointsForts: ['Ton mesuré'], pointsFaibles: [], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-1', contenu: 'Ajouter un chiffre.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] }],
+        planAction: ['reco-1'], syntheseProjectionRecruteur: { texte: 'Positive.' } };
+      bilanSoumettreReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```');
+      window.open = function () { return {}; };
+      _etatBilan.titreAccroche = { ecran: 'coller', metierVise: 'Agent de sécurité' };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('bilan'); await attente(400); pageBilanCandidature(); await attente(500);
+      var racine = $('#fcRacineTitreAccroche');
+      cas('bilan titre et accroche : fenêtre unique affichée, assistant ouvert, plus d’ancienne zone de collage', !!racine && /ouvert dans un autre onglet/.test(texte(racine)) && !$('#texteCollageTitreAccroche') && !$('#btnImporterTitreAccroche'), texte(racine).slice(0, 100));
+      $('[data-fc=retour]', racine).click();
+      racine.__collage.coller('Voici sans aucun bloc de données.');
+      cas('bilan titre et accroche : une réponse illisible est refusée', racine.__collage.etat() === 'echec', racine.__collage.etat());
+      $('[data-fc=recommencer]', racine).click(); await attente(200);
+      racine.__collage.coller('```json\n{"titre":"Agent de sécurité","accroches":["Une accroche vraie."],"accrochesCourtes":["Courte."]}\n```'); await attente(400);
+      cas('bilan titre et accroche : une réponse lisible est reçue, rien n’est encore choisi', racine.__collage.etat() === 'recu' && _etatBilan.titreAccroche.ecran === 'coller', racine.__collage.etat());
+      $('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(900);
+      cas('bilan titre et accroche : « Continuer » ouvre le choix du titre et de l’accroche', _etatBilan.titreAccroche && _etatBilan.titreAccroche.ecran === 'choix-final' && !!$('#champTitreChoixGeneration') && $('#champTitreChoixGeneration').value === 'Agent de sécurité', JSON.stringify(_etatBilan.titreAccroche && _etatBilan.titreAccroche.ecran));
+    } catch (e) {
+      cas('bilan titre et accroche : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _etatBilan.titreAccroche = null; }
+  }
+
+  // ---------------- Bilan : correction par lot, écran de collage -> fenêtre unique en page (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursBilanCollageCorrectionLot() {
+    var ouvrirReel = window.open;
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cand = bilanCreerCandidature({ id: 'cand-essai-lot', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      var reponseDiag = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse.' },
+        premiereImpression: { texte: 'Bonne.' }, ceQuiDonneEnvie: { texte: 'Cohérent.' }, ceQuiPeutFreiner: { texte: 'Peu de chiffres.' },
+        axes: [{ id: 'credibilite', restitutionQualitative: 'convaincant', observationsArgumentees: [{ texte: 'Étayé.', observationsFactuellesLiees: [] }], pointsForts: ['Ton mesuré'], pointsFaibles: [], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-1', contenu: 'Ajouter un chiffre.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] },
+          { id: 'reco-2', contenu: 'Préciser le lieu.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] }],
+        planAction: ['reco-1', 'reco-2'], syntheseProjectionRecruteur: { texte: 'Positive.' } };
+      bilanSoumettreReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```');
+      Object.keys(_bilanPropositionsParRecommandation).forEach(function (k) { delete _bilanPropositionsParRecommandation[k]; });
+      var lot = await bilanDemanderAmeliorationLot(['reco-1', 'reco-2'], {}, {});
+      window.open = function () { return {}; };
+      _etatBilan.correction = { mode: 'copier', index: 0, confirmationRecoId: null, lot: { ecran: 'coller', ids: ['reco-1', 'reco-2'], demandes: lot.demandes } };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('bilan'); await attente(400); pageBilanCandidature(); await attente(500);
+      var racine = $('#fcRacineCorrectionLot');
+      cas('bilan lot : fenêtre unique affichée, passage 2 sur 2, assistant ouvert', !!racine && /2 sur 2/.test(texte(racine)) && /ouvert dans un autre onglet/.test(texte(racine)), texte(racine).slice(0, 100));
+      $('[data-fc=retour]', racine).click();
+      var morceau = function (d, t) { return '{"id":"' + d.id + '","proposition":"' + t + '","justification":"Parce que."}'; };
+      var d1 = lot.demandes[0], d2 = lot.demandes[1];
+      var debut = '[' + morceau(d1, 'Un chiffre ajouté') + ',{"id":"' + d2.id + '","proposition":"Le lieu pré';
+      racine.__collage.coller(debut);
+      cas('bilan lot : un tableau coupé au milieu du deuxième objet est signalé', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('cisé","justification":"Aussi."}]');
+      await attente(400);
+      cas('bilan lot : la suite est assemblée, aucune proposition enregistrée avant « Continuer »', racine.__collage.etat() === 'recu' && !_bilanPropositionsParRecommandation['reco-1'], racine.__collage.etat());
+      $('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(900);
+      cas('bilan lot : « Continuer » enregistre les deux propositions et sort de l’écran de collage', !!_bilanPropositionsParRecommandation['reco-1'] && !!_bilanPropositionsParRecommandation['reco-2'] && !(_etatBilan.correction && _etatBilan.correction.lot), JSON.stringify(Object.keys(_bilanPropositionsParRecommandation)));
+    } catch (e) {
+      cas('bilan lot : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _etatBilan.correction = null; }
+  }
+
+  // ---------------- Bilan : assistance par lot, écran de collage -> fenêtre unique en page (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursBilanCollageAssistanceLot() {
+    var ouvrirReel = window.open;
+    try {
+      naviguerVers('cv'); await attente(400);
+      var cand = bilanCreerCandidature({ id: 'cand-essai-assist', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' });
+      bilanMarquerConfidentialiteValidee(cand, cand.cv); bilanStoreDefinirCandidature(cand);
+      await bilanDemarrerDiagnostic({});
+      var reponseDiag = { metaDiagnostic: { niveauAnalyse: 1, dimensionsNonEvaluables: [] }, alertesPrioritaires: [], syntheseGenerale: { statutPreparation: 'a_ajuster', resumeNarratif: 'Synthèse.' },
+        premiereImpression: { texte: 'Bonne.' }, ceQuiDonneEnvie: { texte: 'Cohérent.' }, ceQuiPeutFreiner: { texte: 'Peu de chiffres.' },
+        axes: [{ id: 'credibilite', restitutionQualitative: 'convaincant', observationsArgumentees: [{ texte: 'Étayé.', observationsFactuellesLiees: [] }], pointsForts: ['Ton mesuré'], pointsFaibles: [], incoherences: [], risques: [] }],
+        recommandations: [{ id: 'reco-1', contenu: 'Ajouter un chiffre.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] },
+          { id: 'reco-2', contenu: 'Préciser le lieu.', dimensionsLiees: ['credibilite'], priorite: 'moyenne', extraitConcerne: null, observationsLiees: ['Étayé.'] }],
+        planAction: ['reco-1', 'reco-2'], syntheseProjectionRecruteur: { texte: 'Positive.' } };
+      bilanSoumettreReponseDiagnostic('```json\n' + JSON.stringify(reponseDiag) + '\n```');
+      Object.keys(_bilanPropositionsParRecommandation).forEach(function (k) { delete _bilanPropositionsParRecommandation[k]; });
+      var lot = await bilanDemanderAmeliorationLot(['reco-1', 'reco-2'], {}, {});
+      window.open = function () { return {}; };
+      _etatBilan.assistance = { ecran: 'generation', repartition: { famille1: [], famille2: [] }, etatRelecture: null, chiffres: {}, lot: { ecran: 'coller', demandes: lot.demandes } };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('bilan'); await attente(400); pageBilanCandidature(); await attente(500);
+      var racine = $('#fcRacineAssistanceLot');
+      cas('bilan assistance lot : fenêtre unique affichée, passage 2 sur 2, assistant ouvert', !!racine && /2 sur 2/.test(texte(racine)) && /ouvert dans un autre onglet/.test(texte(racine)), texte(racine).slice(0, 100));
+      $('[data-fc=retour]', racine).click();
+      var morceau = function (d, t) { return '{"id":"' + d.id + '","proposition":"' + t + '","justification":"Parce que."}'; };
+      var d1 = lot.demandes[0], d2 = lot.demandes[1];
+      var debut = '[' + morceau(d1, 'Un chiffre ajouté') + ',{"id":"' + d2.id + '","proposition":"Le lieu pré';
+      racine.__collage.coller(debut);
+      cas('bilan assistance lot : un tableau coupé au milieu du deuxième objet est signalé', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('cisé","justification":"Aussi."}]');
+      await attente(400);
+      cas('bilan assistance lot : la suite est assemblée, aucune proposition enregistrée avant « Continuer »', racine.__collage.etat() === 'recu' && !_bilanPropositionsParRecommandation['reco-1'], racine.__collage.etat());
+      $('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(900);
+      cas('bilan assistance lot : « Continuer » enregistre les deux propositions et sort de l’écran de collage', !!_bilanPropositionsParRecommandation['reco-1'] && !!_bilanPropositionsParRecommandation['reco-2'] && !(_etatBilan.assistance && _etatBilan.assistance.lot), JSON.stringify(Object.keys(_bilanPropositionsParRecommandation)));
+    } catch (e) {
+      cas('bilan assistance lot : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _etatBilan.assistance = null; }
+  }
+
+  // ---------------- Page « L'assistant en ligne » (Créer mon CV) : écran « Collez la réponse » partagé, lettre et entretien (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursImportActionIA() {
+    var ouvrirReel = window.open; var sauve = { mode: dossier.modeCreation, doc: dossier.dernierDocumentPrepare, ia: JSON.stringify(dossier.ia || null) };
+    try {
+      window.open = function () { return {}; };
+      dossier.modeCreation = 'nouveau';
+      dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', email: 'c@ex.fr', telephone: '0600000000', ville: 'Limoges' };
+      dossier.experiences = [{ poste: 'Agent', entreprise: 'X', dateDebut: '2020-01', dateFin: '2022-01', missions: 'Accueillir' }];
+      dossier.dernierDocumentPrepare = 'lettre'; dossier.ia = creerDossierIAVide();
+      RECTANGLES_ASSISTANT.forEach(function (r) { etatAccordeon[r] = false; }); etatAccordeon['import-ia'] = true; _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('assistant'); await attente(900); if (!document.getElementById('fcRacineActionIA')) { document.querySelector('[data-assistant-rect-toggle="import-ia"]').click(); } await attente(600);
+      var racine = document.getElementById('fcRacineActionIA');
+      cas('import partagé (lettre) : la fenêtre unique est dans le rectangle « Importer la réponse », assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"accroche":"Une accroche.","versions":[{"objet":"Candidature","texte":"Bonjour, je');
+      cas('import partagé (lettre) : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('suis motivée.","texteCourt":"Bonjour"}]}');
+      await attente(300);
+      cas('import partagé (lettre) : la suite est assemblée, rien n’est enregistré avant « Continuer »', racine.__collage.etat() === 'recu' && !(dossier.ia.lettre && dossier.ia.lettre.versions && dossier.ia.lettre.versions.length), racine.__collage.etat());
+      var bouton = document.getElementById('btnContinuerCollage'); cas('import partagé (lettre) : « Continuer » est dans la barre du bas, actif', !!bouton && !bouton.disabled);
+      if (bouton) { bouton.click(); await attente(900); }
+      cas('import partagé (lettre) : « Continuer » enregistre la lettre', !!(dossier.ia.lettre && dossier.ia.lettre.versions && dossier.ia.lettre.versions.length === 1 && /motivée/.test(dossier.ia.lettre.lettre.texte)), JSON.stringify(dossier.ia.lettre));
+      // Réponse inutilisable : explication dans la fenêtre, rien d'enregistré.
+      dossier.ia = creerDossierIAVide(); dossier.dernierDocumentPrepare = 'entretien'; RECTANGLES_ASSISTANT.forEach(function (r) { etatAccordeon[r] = false; }); etatAccordeon['import-ia'] = true;
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('cv'); await attente(300); naviguerVers('assistant'); await attente(900); if (!document.getElementById('fcRacineActionIA')) { document.querySelector('[data-assistant-rect-toggle="import-ia"]').click(); } await attente(600);
+      racine = document.getElementById('fcRacineActionIA');
+      racine.querySelector('[data-fc=retour]').click(); racine.__collage.coller('Bonjour, voici du texte sans aucun bloc de données.'); await attente(300);
+      cas('import partagé (entretien) : un texte sans données est expliqué dans la fenêtre, rien n’est enregistré', racine.__collage.etat() === 'echec' && !(dossier.ia.entretien && dossier.ia.entretien.presentation), racine.__collage.etat());
+      racine.__collage.coller('{"presentation":"Je suis Camille.","pointsAPreparer":["Mes missions"],"questionsAnticipees":[{"question":"Pourquoi ce poste ?","reponse":"Parce que."}],"questionsDuCandidat":["Quelle équipe ?"]}');
+      await attente(400);
+      cas('import partagé (entretien) : une réponse lisible passe, « Continuer » enregistre la préparation', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      bouton = document.getElementById('btnContinuerCollage'); if (bouton) { bouton.click(); await attente(900); }
+      cas('import partagé (entretien) : la présentation est enregistrée', !!(dossier.ia.entretien && /Camille/.test(dossier.ia.entretien.presentation || '')), JSON.stringify(dossier.ia.entretien));
+    } catch (e) {
+      cas('import partagé : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; dossier.modeCreation = sauve.mode; dossier.dernierDocumentPrepare = sauve.doc; dossier.ia = JSON.parse(sauve.ia); }
+  }
+
+  // ---------------- Reformuler : écran « Collez la réponse » -> fenêtre unique en page (dette B.17, étape C, 28/10/2026) ----------------
+  async function parcoursReformulerCollage() {
+    var ouvrirReel = window.open; var sauve = { mode: dossier.modeCreation, etat: _prepLEEtat };
+    try {
+      window.open = function () { return {}; };
+      dossier.modeCreation = 'maj'; _prepLEMode = 'reformuler'; _reprendreCvActif = false; _prepLEDetour = false;
+      _prepLEEtat = { cvTexte: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.', dejaRelu: true, relectureFaite: true };
+      _prepLEEcran = 'echange'; _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('cv'); await attente(300); naviguerVers('reformuler-cv'); await attente(900);
+      var racine = $('#fcRacineReformulerCv');
+      cas('reformuler : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('reformuler : plus de bouton « Effacer et recoller » ni de zone de collage de l’ancien écran', !$('#texteCollageReformulerCv') && !$('#btnEffacerRecollerReformulerCv'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"propositions":[{"identite":{"nom":"Martin"},"titre":"Agent de sécurité","experiences":[{"poste":"Agent","entreprise":"Sécuritas');
+      cas('reformuler : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('"}]}]}');
+      await attente(300);
+      cas('reformuler : la suite est assemblée, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !_prepLEEtat.reponseAssistant, racine.__collage.etat());
+      // Un CV refusé par l'assistant est expliqué dans la fenêtre.
+      racine.__collage.coller('{"pasUnCV":true,"message":"une liste de courses"}'); await attente(300);
+      cas('reformuler : « pas un CV » est expliqué dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && /pas reconnu un CV/.test(racine.innerText) && /liste de courses/.test(racine.innerText) && !_prepLEEtat.reponseAssistant, racine.innerText.slice(0, 160));
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"propositions":[{"titre":"Agent de sécurité","experiences":[{"poste":"Agent","entreprise":"Sécuritas","dateDebut":"2022","dateFin":"2024","missions":["Surveiller les accès"]}]}]}'); await attente(500);
+      cas('reformuler : une réponse lisible passe', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('reformuler : « Continuer » (Vérifier mon CV) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Vérifier mon CV/.test(bouton.innerText));
+      if (bouton) { bouton.click(); await attente(1200); }
+      cas('reformuler : « Continuer » enregistre la réponse et ouvre l’écran « Vérifier »', !!_prepLEEtat.reponseAssistant && _prepLEEcran === 'verifier', _prepLEEcran);
+    } catch (e) {
+      cas('reformuler collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; dossier.modeCreation = sauve.mode; _prepLEEtat = sauve.etat; _prepLEEcran = 'depot'; }
+  }
+
+  // ---------------- Point 15, étape 7 (01/11/2026) : texte transmis, lettre et fiche d'entretien se modifient EN PAGE (plus de fenêtre) ----------------
+  async function parcoursModifierSurPlace() {
+    var sauve = { ia: JSON.stringify(dossier.ia || null), doc: dossier.dernierDocumentPrepare, manuel: dossier.profilTexteManuel, mode: dossier.modeCreation, rect: _rectDocOuvert, drapeaux: [dossier.cvTermine, dossier.lettreTerminee, dossier.identiteEnregistree, dossier.entretienTermine] };
+    try {
+      dossier.ia = dossier.ia || creerDossierIAVide(); dossier.modeCreation = 'pret'; _rectDocOuvert = null;
+      dossier.cvTermine = true; dossier.lettreTerminee = false; dossier.identiteEnregistree = true; dossier.entretienTermine = false;
+      // --- Fiche d'entretien ---
+      dossier.ia.entretien = { presentation: 'Je suis Camille.', pointsAPreparer: ['Appeler'], questionsAnticipees: [], questionsDuCandidat: ['Quelles missions ?'] };
+      dossier.dernierDocumentPrepare = 'entretien'; naviguerVers('resultats'); await attente(1500);
+      var bEnt = $('#btnModifierEntretien');
+      cas('modifier sur place : le bouton « Modifier le texte » de la fiche est là', !!bEnt);
+      if (bEnt) {
+        bEnt.click(); await attente(300);
+        cas('modifier sur place : la fiche s’ouvre sous le bouton, sans fenêtre', !$('#fenetreERIP') && !$('#editionEntretienSurPlace').hidden && document.getElementById('editionPresentationEntretien').value === 'Je suis Camille.' && bEnt.hidden);
+        $('#btnAnnulerEntretien').click(); await attente(200);
+        cas('modifier sur place : « Annuler » referme sans rien changer', $('#editionEntretienSurPlace').hidden && !bEnt.hidden && dossier.ia.entretien.presentation === 'Je suis Camille.');
+        bEnt.click(); await attente(200);
+        document.getElementById('editionPresentationEntretien').value = 'Je suis Camille, agent de sécurité.'; document.getElementById('editionPointsEntretien').value = 'Appeler\nPréparer le trajet';
+        $('#btnEnregistrerEntretien').click(); await attente(900);
+        cas('modifier sur place : « Enregistrer » change la fiche (une ligne = un élément)', dossier.ia.entretien.presentation === 'Je suis Camille, agent de sécurité.' && dossier.ia.entretien.pointsAPreparer.join('|') === 'Appeler|Préparer le trajet' && !$('#fenetreERIP'), JSON.stringify(dossier.ia.entretien.pointsAPreparer));
+      }
+      // --- Lettre ---
+      dossier.ia.lettre = { lettre: { objet: 'Candidature', texte: 'Madame, Monsieur, version un.', texteCourt: 'Court' }, versions: [{ objet: 'Candidature', texte: 'Madame, Monsieur, version un.', texteCourt: 'Court' }, { objet: 'Candidature bis', texte: 'Bonjour, version deux.', texteCourt: 'Court 2' }], versionActive: 0 };
+      dossier.dernierDocumentPrepare = 'lettre'; naviguerVers('accueil'); await attente(300); naviguerVers('resultats'); await attente(1500);
+      var bLet = $('#btnModifierVersionLettre');
+      cas('modifier sur place : le bouton « Modifier le texte » de la lettre est là', !!bLet, pageActuelle + ' | rects=' + [].map.call(document.querySelectorAll('.assistant-rect'), function (r) { return (r.className.indexOf('ouvert') >= 0 ? '+' : '-') + texte(r.querySelector('.assistant-rect-titre')).slice(0, 25); }).join(';') + ' | btns=' + [].map.call(document.querySelectorAll('#app button[id]'), function (b) { return b.id; }).join(','));
+      if (bLet) {
+        bLet.click(); await attente(300);
+        cas('modifier sur place : la version s’ouvre sous le bouton, sans fenêtre', !$('#fenetreERIP') && !$('#editionLettreSurPlace').hidden && document.getElementById('editionTexteLettre').value === 'Madame, Monsieur, version un.');
+        document.getElementById('editionTexteLettre').value = 'Madame, Monsieur, version un corrigée.';
+        $('#btnEnregistrerVersionLettre').click(); await attente(900);
+        cas('modifier sur place : « Enregistrer » corrige la version active, la version courte reste', dossier.ia.lettre.versions[0].texte === 'Madame, Monsieur, version un corrigée.' && dossier.ia.lettre.versions[0].texteCourt === 'Court' && dossier.ia.lettre.versions[1].texte === 'Bonjour, version deux.' && !$('#fenetreERIP'), JSON.stringify(dossier.ia.lettre.versions));
+      }
+      // --- Texte transmis à l'assistant ---
+      // Pas encore de document préparé : la page « Assistant » s'ouvre sur le choix de l'assistant (sinon elle saute à « Vos documents »).
+      dossier.profilTexteManuel = null; dossier.ia.lettre = null; dossier.ia.cv = null; dossier.ia.entretien = null; dossier.dernierDocumentPrepare = 'cv'; dossier.cvTermine = false; naviguerVers('accueil'); await attente(300); naviguerVers('assistant'); await attente(1200);
+      var okStyle = $('#btnStyleCvOk'); if (okStyle) { okStyle.click(); await attente(1000); }
+      var enteteChoix = $('[data-assistant-rect-toggle="choix-ia"]'); if (enteteChoix && !$('#btnVoirTexteTransmisAssistant')) { enteteChoix.click(); await attente(600); }
+      var bTxt = $('#btnVoirTexteTransmisAssistant');
+      cas('modifier sur place : « Voir ou modifier le texte transmis » est dans le bloc de l’assistant', !!bTxt && $('#panneauTexteTransmis').hidden, pageActuelle + ' | rects=' + [].map.call(document.querySelectorAll('.assistant-rect'), function (r) { return (r.className.indexOf('ouvert') >= 0 ? '+' : '-') + texte(r.querySelector('.assistant-rect-titre')).slice(0, 25); }).join(';') + ' | btns=' + [].map.call(document.querySelectorAll('#app button[id]'), function (b) { return b.id; }).slice(0, 25).join(','));
+      if (bTxt) {
+        bTxt.click(); await attente(300);
+        cas('modifier sur place : le texte s’ouvre sous le bouton (sans fenêtre) et contient les informations', !$('#fenetreERIP') && !$('#panneauTexteTransmis').hidden && $('#champTexteTransmis').value.length > 20 && $('#champTexteTransmis').value === texteProfilEffectif('cv'), $('#champTexteTransmis').value.slice(0, 60));
+        $('#btnEnregistrerTexteTransmis').click(); await attente(200);
+        cas('modifier sur place : enregistrer sans rien changer reste en mode automatique (pas de badge à tort)', dossier.profilTexteManuel === null && $('#badgeTexteTransmis').hidden && $('#btnRevenirTexteAuto').hidden);
+        $('#champTexteTransmis').value = $('#champTexteTransmis').value + '\nMa précision personnelle.';
+        $('#btnEnregistrerTexteTransmis').click(); await attente(200);
+        cas('modifier sur place : un texte modifié est retenu, avec le badge et « Revenir au texte automatique »', /Ma précision personnelle/.test(dossier.profilTexteManuel || '') && !$('#badgeTexteTransmis').hidden && !$('#btnRevenirTexteAuto').hidden && /Ma précision personnelle/.test(texteProfilEffectif('cv')));
+        $('#btnRevenirTexteAuto').click(); await attente(200);
+        cas('modifier sur place : « Revenir au texte automatique » rétablit le texte d’origine', dossier.profilTexteManuel === null && $('#badgeTexteTransmis').hidden && !/Ma précision personnelle/.test($('#champTexteTransmis').value));
+        $('#btnAnnulerTexteTransmis').click(); await attente(100);
+        cas('modifier sur place : « Annuler » referme le texte', $('#panneauTexteTransmis').hidden);
+      }
+    } catch (e) {
+      cas('modifier sur place : aucune erreur', false, e && e.message);
+    } finally {
+      dossier.ia = JSON.parse(sauve.ia); dossier.dernierDocumentPrepare = sauve.doc; dossier.profilTexteManuel = sauve.manuel; dossier.modeCreation = sauve.mode; dossier.cvTermine = sauve.drapeaux[0]; dossier.lettreTerminee = sauve.drapeaux[1]; dossier.identiteEnregistree = sauve.drapeaux[2]; dossier.entretienTermine = sauve.drapeaux[3]; _rectDocOuvert = sauve.rect; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Reformuler : « Quelques passages à préciser » en haut de l'écran « Vérifier » (point 15, étape 5, 01/11/2026) ----------------
+  async function parcoursReformulerPassages() {
+    var copieDossier = JSON.parse(JSON.stringify(dossier)); var sauve = { etat: _prepLEEtat, mode: _prepLEMode, ecran: _prepLEEcran, modeCreation: dossier.modeCreation };
+    try {
+      dossier.modeCreation = 'maj'; _prepLEMode = 'reformuler'; _reprendreCvActif = false; _prepLEDetour = false;
+      var prop = function (titre) { return { titre: titre, experiences: [{ poste: 'Agent', entreprise: 'Sécuritas', dateDebut: '2022', dateFin: '2024', missions: ['Surveiller les accès'] }], certifications: ['sSsT'] }; };
+      var json = { propositions: [prop('Agent de sécurité'), prop('Agent de sécurité qualifié')], pointsAVerifier: [
+        { titre: 'Certification à vérifier', extrait: 'sSsT', question: 'Quel est l’intitulé exact ?', suggestion: 'SST' },
+        { titre: 'Autre passage', extrait: 'Introuvable', question: 'Que vouliez-vous dire ?' }] };
+      _prepLEEtat = { cvTexte: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024. sSsT.', dejaRelu: true, relectureFaite: true, reponseAssistant: JSON.stringify(json), clarificationOcrTraitee: false };
+      _precisionsPointsAVerifier = []; passagesRetirerDePage(); _prepLEEcran = 'verifier';
+      naviguerVers('cv'); await attente(300); naviguerVers('reformuler-cv'); await attente(1000);
+      var ap = function (i) { return texte($('#reformulerApercu' + i)); };
+      cas('reformuler passages : le bloc est en haut de l’écran « Choisir une version », sans fenêtre', !!$('[data-passages-bloc]') && !$('#fenetreERIP') && /Que vouliez-vous dire/.test(texte($('#app'))));
+      cas('reformuler passages : avant toute réponse, les deux versions montrent le texte d’origine', /sSsT/.test(ap(0)) && /sSsT/.test(ap(1)), ap(0));
+      $('[data-passage-suggestion="0"]').click(); await attente(300);
+      cas('reformuler passages : une réponse corrige tout de suite LES DEUX versions affichées', /SST/.test(ap(0)) && !/sSsT/.test(ap(0)) && /SST/.test(ap(1)) && !/sSsT/.test(ap(1)), ap(0));
+      $('[data-passage-passer="0"]').click(); await attente(300);
+      cas('reformuler passages : on peut changer d’avis, le texte d’origine revient', /sSsT/.test(ap(0)) && /sSsT/.test(ap(1)));
+      $('[data-passage-reprendre="0"]').click(); $('[data-passage-suggestion="0"]').click(); await attente(300);
+      var c1 = document.getElementById('passageReponse1'); c1.value = 'Texte libre'; c1.dispatchEvent(new Event('blur')); await attente(300);
+      cas('reformuler passages : une réponse qui ne remplace rien ne change pas les versions', /SST/.test(ap(0)) && !/Texte libre/.test(ap(0)));
+      document.querySelector('[data-reformuler-choisir="1"]').click(); await attente(900);
+      cas('reformuler passages : le bloc reste en haut de « Vérifier la version reformulée » avec les réponses gardées', !!$('[data-passages-bloc]') && /Vérifier la version reformulée/.test(texte($('#app'))) && /SST/.test(texte($('#reformulerZoneRendu'))) && document.getElementById('passageReponse1').value === 'Texte libre');
+      var c0 = document.getElementById('passageReponse0'); c0.value = 'SST (Sauveteur secouriste du travail)'; c0.dispatchEvent(new Event('blur')); await attente(300);
+      cas('reformuler passages : une réponse changée sur cet écran met à jour la version retenue', /Sauveteur secouriste du travail/.test(texte($('#reformulerZoneRendu'))) && /Sauveteur secouriste du travail/.test($('#reformulerTexteEdition').value));
+      $('#btnReformulerVersSorties').click(); await attente(900);
+      var struct = _prepLEEtat.propositionChoisieStruct || {};
+      cas('reformuler passages : la version transmise au modèle porte la correction', JSON.stringify(struct.certifications || []).indexOf('Sauveteur secouriste du travail') !== -1 && JSON.stringify(struct.certifications || []).indexOf('sSsT') === -1, JSON.stringify(struct.certifications));
+      cas('reformuler passages : la réponse qui ne remplaçait rien est rangée dans les informations non classées, le bloc est retiré', (dossier.informationsNonClassees || []).indexOf('Autre passage : Texte libre') !== -1 && !passagesEtatDePage('reformuler'), JSON.stringify(dossier.informationsNonClassees));
+    } catch (e) {
+      cas('reformuler passages : aucune erreur', false, e && e.message);
+    } finally {
+      passagesRetirerDePage(); _precisionsPointsAVerifier = [];
+      Object.keys(dossier).forEach(function (k) { delete dossier[k]; }); Object.assign(dossier, copieDossier);
+      _prepLEEtat = sauve.etat; _prepLEMode = sauve.mode; _prepLEEcran = 'depot'; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Lettre et entretien en version rapide / Mettre à jour mon CV (PrepLE) : « Collez la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursPrepLECollage() {
+    var ouvrirReel = window.open; var copieDossier = JSON.parse(JSON.stringify(dossier)); var sauve = { etat: _prepLEEtat, mode: _prepLEMode, ecran: _prepLEEcran };
+    try {
+      window.open = function () { return {}; };
+      _prepLEEtat = { cvTexte: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.', dejaRelu: true, relectureFaite: true };
+      _prepLEMode = 'pret'; _prepLEDetour = false; _prepLEEcran = 'echange';
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('cv'); await attente(300); naviguerVers('preparer-lettre-entretien'); await attente(900);
+      var racine = $('#fcRacinePrepLE');
+      cas('prepLE : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('prepLE : plus de zone de collage ni de bouton « Effacer et recoller » de l’ancien écran', !$('#texteCollagePrepLE') && !$('#btnEffacerRecollerPrepLE') && !$('#btnPrepLEVersValider'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"identite":{"nom":"Martin","prenom":"Camille"},"experiences":[{"poste":"Agent","entreprise":"Sécuritas');
+      cas('prepLE : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('","dateDebut":"2022","dateFin":"2024","missions":["Surveiller les accès"]}]}');
+      await attente(400);
+      cas('prepLE : la suite est assemblée, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !_prepLEEtat.reponseAssistant, racine.__collage.etat());
+      racine.__collage.coller('Bonjour, voici mon analyse sans code.'); await attente(300);
+      cas('prepLE : une réponse sans code est refusée dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && !_prepLEEtat.reponseAssistant, racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"identite":{"nom":"Martin","prenom":"Camille"},"experiences":[{"poste":"Agent","entreprise":"Sécuritas","dateDebut":"2022","dateFin":"2024","missions":["Surveiller les accès"],"confiance":"elevee","alertes":[]}]}'); await attente(500);
+      cas('prepLE : une réponse lisible passe', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('prepLE : « Continuer » (Vérifier mes informations) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Vérifier mes informations/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(1500); }
+      cas('prepLE : « Continuer » enregistre la réponse et quitte l’écran', !!_prepLEEtat.reponseAssistant && !$('#fcRacinePrepLE'), location.hash);
+    } catch (e) {
+      cas('prepLE collage : aucune erreur', false, e && e.message);
+    } finally {
+      window.open = ouvrirReel; _etatTransitionIA = null;
+      Object.keys(dossier).forEach(function (k) { delete dossier[k]; }); Object.assign(dossier, copieDossier);
+      _prepLEEtat = sauve.etat; _prepLEMode = sauve.mode; _prepLEEcran = 'depot'; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Version rapide : « Quelques passages à préciser » dans « Vos informations » (point 15, 01/11/2026) ----------------
+  async function parcoursPrepLEPassages() {
+    var ouvrirReel = window.open; var copieDossier = JSON.parse(JSON.stringify(dossier)); var sauve = { etat: _prepLEEtat, mode: _prepLEMode, ecran: _prepLEEcran };
+    try {
+      window.open = function () { return {}; };
+      Object.keys(dossier).forEach(function (k) { delete dossier[k]; }); Object.assign(dossier, JSON.parse(JSON.stringify(copieDossier)));
+      dossier.objectif = 'stage'; dossier.cvAnalyse = true; dossier.certifications = [];
+      _prepLEEtat = { cvTexte: 'Camille Martin. Agent de sécurité.', dejaRelu: true, relectureFaite: true };
+      _prepLEMode = 'pret'; _prepLEDetour = false; _prepLEEcran = 'echange';
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('cv'); await attente(300); naviguerVers('preparer-lettre-entretien'); await attente(900);
+      var racine = $('#fcRacinePrepLE');
+      var json = { identite: { nom: 'Martin', prenom: 'Camille' }, experiences: [{ poste: 'Agent', entreprise: 'Sécuritas', dateDebut: '2022', dateFin: '2024', missions: ['Surveiller les accès'], confiance: 'elevee', alertes: [] }], certifications: ['sSsT'], pointsAVerifier: [{ titre: 'Certification à vérifier', extrait: 'sSsT', question: 'Quel est l’intitulé exact ?', suggestion: 'SST' }] };
+      racine.__collage.coller(JSON.stringify(json)); await attente(400);
+      $('#btnContinuerCollage').click(); await attente(1800);
+      cas('prepLE passages : après l’import, on arrive sur « Vos informations » avec le bloc, sans fenêtre', pageActuelle === 'projet' && !document.getElementById('fenetreERIP') && !!document.querySelector('[data-passages-bloc]') && /intitulé exact/.test(document.body.innerText), pageActuelle);
+      cas('prepLE passages : la certification importée est dans le dossier avant toute réponse', JSON.stringify(dossier.certifications || []).indexOf('sSsT') !== -1, JSON.stringify(dossier.certifications));
+      document.querySelector('[data-passage-suggestion]').click(); await attente(300);
+      cas('prepLE passages : la réponse corrige VRAIMENT le dossier (défaut d’avant : la correction se perdait)', JSON.stringify(dossier.certifications || []) === '["SST"]', JSON.stringify(dossier.certifications));
+      document.querySelector('[data-passage-passer="0"]').click(); await attente(300);
+      cas('prepLE passages : on peut changer d’avis, le texte d’origine revient', JSON.stringify(dossier.certifications || []) === '["sSsT"]', JSON.stringify(dossier.certifications));
+      document.querySelector('[data-passage-reprendre="0"]').click(); var c0 = document.getElementById('passageReponse0'); c0.value = 'SST (Sauveteur secouriste du travail)'; c0.dispatchEvent(new Event('blur')); await attente(300);
+      cas('prepLE passages : une réponse écrite à la main s’applique aussi', /Sauveteur secouriste du travail/.test(JSON.stringify(dossier.certifications || [])));
+      $('#btnSuivantNavigation').click(); await attente(900);
+      cas('prepLE passages : « Continuer » valide la page et fige le bloc', typeof passagesEtatDePage === 'function' && !passagesEtatDePage('prepLE') && pageActuelle !== 'projet', pageActuelle);
+    } catch (e) {
+      cas('prepLE passages : aucune erreur', false, e && e.message);
+    } finally {
+      window.open = ouvrirReel; _etatTransitionIA = null; if (typeof passagesRetirerDePage === 'function') { passagesRetirerDePage(); }
+      Object.keys(dossier).forEach(function (k) { delete dossier[k]; }); Object.assign(dossier, copieDossier);
+      _prepLEEtat = sauve.etat; _prepLEMode = sauve.mode; _prepLEEcran = 'depot'; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Préparer un entretien : écran « Coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursEntretienCollage() {
+    var ouvrirReel = window.open; var sauve = { entretien: dossier.ia && dossier.ia.entretien, ecran: _prepaEntretienEcran };
+    try {
+      window.open = function () { return {}; };
+      if (dossier.ia) { dossier.ia.entretien = null; }
+      _prepaEntretienDetour = false; _prepaEntretienEcran = 'reponse';
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('prepa-entretien'); await attente(900);
+      var racine = $('#fcRacineEntretien');
+      cas('entretien : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('entretien : plus de zone de collage ni de bouton « Importer ma préparation » de l’ancien écran', !$('#texteCollageEntretien') && !$('#btnImporterEntretien') && !$('#btnEffacerRecollerEntretien'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"presentation":"Je me présente.","pointsAPreparer":["Mon parcours"],"questionsAnticipees":[{"question":"Parlez-moi de vous","piste":"Votre parcours');
+      cas('entretien : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('"}],"questionsDuCandidat":["Quelle est l’équipe ?"]}');
+      await attente(300);
+      cas('entretien : la suite est assemblée, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !(dossier.ia && dossier.ia.entretien && dossier.ia.entretien.presentation), racine.__collage.etat());
+      racine.__collage.coller('Bonjour, voici ma préparation sans code.'); await attente(300);
+      cas('entretien : une réponse sans code est refusée dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && !(dossier.ia && dossier.ia.entretien && dossier.ia.entretien.presentation), racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"presentation":"Je me présente.","pointsAPreparer":["Mon parcours"],"questionsAnticipees":[{"question":"Parlez-moi de vous","piste":"Votre parcours"}],"questionsDuCandidat":["Quelle est l’équipe ?"]}'); await attente(500);
+      cas('entretien : une réponse lisible passe', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('entretien : « Continuer » (Voir ma préparation) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Voir ma préparation/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(1200); }
+      cas('entretien : « Continuer » enregistre la préparation et ouvre « Vos documents »', !!(dossier.ia && dossier.ia.entretien && dossier.ia.entretien.presentation === 'Je me présente.') && location.hash === '#resultats', location.hash);
+    } catch (e) {
+      cas('entretien collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; if (dossier.ia) { dossier.ia.entretien = sauve.entretien; } _prepaEntretienEcran = 'intro'; naviguerVers('accueil'); }
+  }
+
+  // ---------------- Cohérence de mon dossier : deux écrans « Coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursCoherenceCollage() {
+    var ouvrirReel = window.open; var etatStore = ctStoreExporterEtat();
+    var sauve = { collecte: _ctEnCollecte, intro: _ctVoirIntro, reprise: _ctReprisePendante, etape: _ctEtapeEntretienAvance };
+    try {
+      window.open = function () { return {}; };
+      _ctEnCollecte = false; _ctVoirIntro = false; _ctReprisePendante = false; _ctEtapeEntretienAvance = null; _ctRetourAccueil = false;
+      var dossierCt = ctCreerDossierTransversal({ cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.', lettre: 'Madame, Monsieur, je souhaite postuler.' });
+      ctStoreDefinirDossier(dossierCt);
+      ctStoreDefinirDiagnostic(ctCreerDiagnostic({ dossierId: dossierCt.id, promptTexte: 'x' }));
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('coherence-transversale'); await attente(900);
+      var racine = $('#fcRacineCoherenceTransversale');
+      cas('cohérence : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('cohérence : plus de zone de collage ni de bouton « Importer » de l’ancien écran', !$('#texteCollageCoherenceTransversale') && !$('#btnImporterCoherence'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"syntheseGenerale":"Analyse terminée.","constats":[');
+      cas('cohérence : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      racine.__collage.coller('],"recommandations":[]}'); await attente(300);
+      cas('cohérence : la suite est assemblée, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && ctStoreObtenirDiagnostic().statut === 'genere', racine.__collage.etat() + ' / ' + ctStoreObtenirDiagnostic().statut);
+      racine.__collage.coller('Bonjour, voici mon analyse sans code.'); await attente(300);
+      cas('cohérence : une réponse sans code est refusée dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && ctStoreObtenirDiagnostic().statut === 'genere', racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"analyseImpossible":true,"message":"documents vides"}'); await attente(300);
+      cas('cohérence : « pièces non exploitables » est expliqué dans la fenêtre avec « Revenir au dépôt »', racine.__collage.etat() === 'echec' && /ne sont pas exploitables/.test(racine.innerText) && /Revenir au dépôt/.test(racine.innerText) && /documents vides/.test(racine.innerText));
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"syntheseGenerale":"Analyse terminée.","constats":[],"recommandations":[]}'); await attente(500);
+      cas('cohérence : une réponse lisible passe', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('cohérence : « Continuer » (Voir mon rapport) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Voir mon rapport/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(1200); }
+      cas('cohérence : « Continuer » enregistre l’analyse et ouvre le rapport', ctStoreObtenirDiagnostic().statut === 'complete' && !$('#fcRacineCoherenceTransversale'), ctStoreObtenirDiagnostic().statut);
+
+      // 2e écran : entretien avancé
+      // Écran des questions de l'entretien avancé (consigne 66, D45) : « Valider » dans la barre du bas, plus de « Retour au rapport » dans la page
+      var _repSauve = _ctReponsesEntretienAvance;
+      _ctReponsesEntretienAvance = [{ question: 'Test ?', reponse: '' }];
+      var htmlQuestions = ctHtmlEntretienAvanceCollecte();
+      var zoneQ = document.createElement('div'); zoneQ.innerHTML = htmlQuestions;
+      var barreQ = zoneQ.querySelector('.barre-navigation-fixe');
+      cas('cohérence questions entretien avancé : « Valider » est dans la barre du bas', !!barreQ && /Valider/.test(barreQ.innerText || barreQ.textContent) && /ctValiderReponsesEntretienAvance/.test(barreQ.innerHTML), barreQ && barreQ.textContent);
+      cas('cohérence questions entretien avancé : plus de « Retour au rapport » ni de « Valider » dans la page', !zoneQ.querySelector('#btnAnnulerEntretienAvance') && !zoneQ.querySelector('#btnValiderEntretienAvance'));
+      _ctReponsesEntretienAvance = _repSauve;
+      ctStoreDefinirEntretienAvance(ctCreerEntretienAvance({ dossierId: dossierCt.id, questionsReponses: [], promptTexte: 'x' }));
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('coherence-transversale'); await attente(900);
+      var racine2 = $('#fcRacineCoherenceEntretienAvance');
+      cas('cohérence entretien avancé : la fenêtre unique est affichée', !!racine2 && !!racine2.__collage && /ouvert dans un autre onglet/.test(racine2.innerText), racine2 && racine2.innerText.slice(0, 80));
+      if (!racine2 || !racine2.__collage) { return; }
+      cas('cohérence entretien avancé : plus de zone de collage de l’ancien écran', !$('#texteCollageCoherenceTransversaleEntretienAvance') && !$('#btnImporterEntretienAvance'));
+      racine2.querySelector('[data-fc=retour]').click();
+      racine2.__collage.coller('Bonjour, voici ma réponse sans code.'); await attente(300);
+      cas('cohérence entretien avancé : une réponse sans code est refusée, rien n’est gardé', racine2.__collage.etat() === 'echec' && ctStoreObtenirEntretienAvance().statut === 'genere', racine2.__collage.etat());
+      racine2.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine2.__collage.coller('{"synthese":"Bon retour.","pointsForts":["A"],"axesAmelioration":["B"],"recommandations":["C"],"parQuestion":[]}'); await attente(500);
+      var bouton2 = $('#btnContinuerCollage'); cas('cohérence entretien avancé : « Continuer » (Voir mon retour) est dans la barre du bas, actif', !!bouton2 && !bouton2.disabled && /Voir mon retour/.test(bouton2.innerText), bouton2 && bouton2.innerText);
+      if (bouton2) { bouton2.click(); await attente(1200); }
+      cas('cohérence entretien avancé : « Continuer » enregistre le retour', ctStoreObtenirEntretienAvance().statut === 'complete', ctStoreObtenirEntretienAvance().statut);
+    } catch (e) {
+      cas('cohérence collage : aucune erreur', false, e && e.message);
+    } finally {
+      window.open = ouvrirReel; _etatTransitionIA = null; ctStoreRestaurerEtat(etatStore);
+      _ctEnCollecte = sauve.collecte; _ctVoirIntro = sauve.intro; _ctReprisePendante = sauve.reprise; _ctEtapeEntretienAvance = sauve.etape; naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Regard extérieur : fenêtre « Collez la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursRegardExterieurCollage() {
+    var ouvrirReel = window.open; var sauve = { rapports: _regardExterieurRapports, envoyes: _regardExterieurReperesEnvoyes };
+    try {
+      window.open = function () { return {}; };
+      naviguerVers('reperes'); await attente(900);
+      _regardExterieurRapports = []; _regardExterieurReperesEnvoyes = [{ id: 'rTest', titre: 'Mon repère', texte: 'Un texte de repère.', type: 'reflexion', date: '2026-10-28' }];
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      _regardExterieurOuvrirAttente(_regardExterieurTraiterReponse1erPassage, function () { return 'x'; }); await attente(900);
+      var racine = $('#fcRacineRegardExterieur');
+      cas('regard extérieur : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('regard extérieur : plus de zone de collage ni de bouton « Importer » de l’ancien écran', !$('#texteCollageRegardExterieur') && !$('#btnImporterRegardExterieur') && !$('#btnEffacerRecollerRegardExterieur'));
+      var continuer = $('#btnContinuerRegardExterieur'); cas('regard extérieur : « Continuer » est dans la fenêtre, grisé avant la réponse', !!continuer && continuer.disabled, continuer && continuer.outerHTML.slice(0, 80));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Bonjour, voici mon analyse sans code.'); await attente(300);
+      cas('regard extérieur : une réponse sans code est refusée, aucun rapport enregistré', racine.__collage.etat() === 'echec' && _regardExterieurRapports.length === 0, racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"titre":"Mon regard","vueEnsemble":{"ceQuiRevient":"La confiance."},"vueParCategorie":{},"eclairagesParRepere":[]}'); await attente(500);
+      cas('regard extérieur : une réponse lisible passe, rien n’est enregistré avant « Continuer »', racine.__collage.etat() === 'recu' && _regardExterieurRapports.length === 0, racine.__collage.etat());
+      continuer = $('#btnContinuerRegardExterieur'); cas('regard extérieur : « Continuer » (Enregistrer l’analyse) est actif', !!continuer && !continuer.disabled && /Enregistrer l’analyse/.test(continuer.innerText), continuer && continuer.innerText);
+      if (continuer) { continuer.click(); await attente(600); }
+      cas('regard extérieur : « Continuer » enregistre le rapport et affiche la confirmation avec « Voir le rapport »', _regardExterieurRapports.length === 1 && !!$('#btnRegardExterieurVoirRapport'), String(_regardExterieurRapports.length));
+      var zone = $('#regardExterieurZoneCollageComplete'); cas('regard extérieur : la zone de collage est repliée une fois le rapport enregistré', !!zone && zone.style.display === 'none');
+    } catch (e) {
+      cas('regard extérieur collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _regardExterieurRapports = sauve.rapports; _regardExterieurReperesEnvoyes = sauve.envoyes; fermerFenetreERIP(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Regard recruteur : écran « De retour : coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursRegardRecruteurCollage() {
+    var ouvrirReel = window.open;
+    try {
+      window.open = function () { return {}; };
+      naviguerVers('cv'); await attente(500);
+      regardRecruteurReinitialiser(); ouvrirRegardRecruteur(); naviguerVers('regard-recruteur'); await attente(900);
+      // Consigne 65 : sans image ni texte, les trois parties sont visibles ; les parties 2 et 3 sont grisées avec leur message
+      cas('regard recruteur : au départ, aucune carte cochée et la partie 1 est grisée, avec le message qui dit de choisir d’abord', !$('.rr-carte-mode.choisie') && !!$('#rrBloc1') && /bloc-verrouille/.test($('#rrBloc1').className) && /Choisissez d’abord l’une des deux cartes/.test(texte($('#rrBloc1'))), ($('#rrBloc1') || {}).className);
+      $('[data-rr-mode="image"]').click(); await attente(600);
+      cas('regard recruteur : après le choix « présentation », les trois parties sont visibles, les deux dernières grisées', !!$('#rrBloc1') && !!$('#rrBloc2') && !!$('#rrBloc3') && !/bloc-verrouille/.test($('#rrBloc1').className) && /bloc-verrouille/.test($('#rrBloc2').className) && /bloc-verrouille/.test($('#rrBloc3').className), ($('#rrBloc3') || {}).className);
+      _regardRecruteurEtat.assistantChoisi = { id: 'chatgpt', nom: 'ChatGPT', url: 'https://example.org' };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      _regardRecruteurRenduVue('coller'); await attente(900);
+      var racine = $('#fcRacineRegardRecruteur');
+      cas('regard recruteur : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('regard recruteur : plus de zone de collage ni de bouton « Lire la réponse » de l’ancien écran', !$('#texteCollageRegardRecruteur') && !$('#rrBtnImporter') && !$('#rrBtnEffacerRecoller'));
+      cas('regard recruteur : le conseil « comptes connectés » est dans la fenêtre', /Applique la consigne directement/.test(racine.innerText));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Bonjour, voici mon avis sans code.'); await attente(300);
+      cas('regard recruteur : une réponse sans code est refusée dans la fenêtre, avec la phrase de relance', racine.__collage.etat() === 'echec' && !_regardRecruteurEtat.rapport && /Reprends ta lecture de mon CV/.test(racine.innerText) && !!racine.querySelector('[data-fc=echecAction]'), racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"syntheseOuverture":"Une bonne première impression.","axes":[]}'); await attente(500);
+      cas('regard recruteur : une réponse lisible passe, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !_regardRecruteurEtat.rapport, racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('regard recruteur : « Continuer » (Voir mon regard) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Voir mon regard/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(900); }
+      cas('regard recruteur : « Continuer » construit le regard et ouvre « Ce qu’on voit sur votre CV »', !!_regardRecruteurEtat.rapport && _regardRecruteurEtat.vue === 'regard', _regardRecruteurEtat.vue);
+      // Décompte sur la même page (plus de vue « chez »), et les gestes à faire chez l'assistant sur l'écran de choix (28/10/2026, consigne 35)
+      _regardRecruteurEtat.modeTexte = false; _regardRecruteurRenduVue('choix-assistant'); await attente(700);
+      cas('regard recruteur : l’écran de choix dit les deux gestes (image masquée d’abord, puis le texte) et prévient du texte seul', /Joignez d’abord votre image masquée/.test(texte($('#rrContenu'))) && /texte seul/.test(texte($('#rrContenu'))), texte($('#rrContenu')).slice(0, 100));
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+      _regardRecruteurRenduVue('coller'); await attente(700);
+      cas('regard recruteur : le décompte est sur « Coller la réponse », avec l’aperçu de la fenêtre, sans les consignes de l’image', !!$('#fcRacineRegardRecruteur #banniereTransitionIA') && !!$('#fcRacineRegardRecruteur .fc-apercu-legende') && !/Joignez d’abord/.test(texte($('#rrContenu'))), texte($('#rrContenu')).slice(0, 100));
+      clearInterval(_intervalleDecompteIA);
+      _regardRecruteurEtat.vue = 'chez'; _regardRecruteurRenduVue('chez'); await attente(700);
+      cas('regard recruteur : une session restée sur l’ancienne vue « chez » est reprise sur « Coller la réponse »', _regardRecruteurEtat.vue === 'coller', String(_regardRecruteurEtat.vue));
+    } catch (e) {
+      cas('regard recruteur collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; regardRecruteurReinitialiser(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Regard recruteur : choix du mode en tête de « Préparer » (consigne 74, 30/10/2026) ----------------
+  async function parcoursRegardChoixMode() {
+    try {
+      regardRecruteurReinitialiser(); ouvrirRegardRecruteur(); naviguerVers('regard-recruteur'); await attente(800);
+      var z = function () { return $('#rrContenu'); };
+      cas('regard choix du mode : deux cartes, aucune n’est « conseillée »', z().querySelectorAll('.rr-carte-mode').length === 2 && !/Conseillé/i.test(texte(z().querySelector('.rr-choix-mode'))), texte(z().querySelector('.rr-choix-mode')).slice(0, 60));
+      cas('regard choix du mode : aucune carte cochée au départ, seule la partie 1 est montrée, grisée', !z().querySelector('.rr-carte-mode.choisie') && !$('#rrBloc2') && !$('#rrBloc3') && /bloc-verrouille/.test($('#rrBloc1').className) && /Choisissez l’une des deux cartes/.test(texte(z())));
+      cas('regard choix du mode : tant qu’aucune carte n’est choisie, « Continuer » est grisé avec sa raison', !!$('#rrBtnVersAssistant') && $('#rrBtnVersAssistant').disabled && /Choisissez d’abord comment faire lire votre CV/.test($('#rrBtnVersAssistant').title || ''), $('#rrBtnVersAssistant') && $('#rrBtnVersAssistant').title);
+      z().querySelector('[data-rr-mode="image"]').click(); await attente(600);
+      cas('regard choix du mode : après un clic sur « présentation », trois parties numérotées 1, 2, 3 et trois messages « Ce qui se passe ensuite »', !!z().querySelector('[data-rr-mode="image"].choisie') && /^1/.test(texte($('#rrBloc1 .rr-num'))) && texte($('#rrBloc3 .rr-num')) === '3' && z().querySelectorAll('.liaison-blocs').length === 3);
+      z().querySelector('[data-rr-mode="texte"]').click(); await attente(600);
+      cas('regard choix du mode : la carte « contenu seul » passe en Mode texte, deux parties numérotées 1 et 2, deux messages', !!_regardRecruteurEtat.modeTexte && !!z().querySelector('[data-rr-mode="texte"].choisie') && texte($('#rrBloc3 .rr-num')) === '2' && z().querySelectorAll('.liaison-blocs').length === 2 && !$('#rrBloc2'));
+      cas('regard choix du mode : plus de bouton « Revenir au mode image » ni de petit bouton caché', !z().querySelector('[data-rr-quitter-mode-texte]') && !z().querySelector('[data-rr-mode-texte]'));
+      z().querySelector('[data-rr-mode="image"]').click(); await attente(600);
+      cas('regard choix du mode : un clic sur « présentation » revient au mode image', !_regardRecruteurEtat.modeTexte && !!$('#rrBloc2'));
+    } catch (e) {
+      cas('regard choix du mode : aucune erreur', false, e && e.message);
+    } finally { regardRecruteurReinitialiser(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Dépôt EN PAGE dans les autres modules (consigne 28, séance 2, 30/10/2026) : une section par module migré ----------------
+  async function parcoursDepotPageModules() {
+    if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }
+    var NL = String.fromCharCode(10);
+    var sauvegardeDossier = JSON.stringify(dossier);
+    var sauve = { id: dossier.identite, enreg: dossier.identiteEnregistree, cvTexte: dossier.cvTexte, cvAnalyse: dossier.cvAnalyse };
+    // Dépose un texte collé dans la brique visible, relit, enregistre ; rend le texte de la relecture avant enregistrement.
+    var deposer = async function (texteCV) {
+      $('#depotPageColler').click(); await attente(300);
+      var zt = $('#depotPageTexte'); zt.value = texteCV; zt.dispatchEvent(new Event('input', { bubbles: true }));
+      $('#depotPageLireTexte').click(); await attente(700);
+      var relu = $('#verifDocTextarea') ? $('#verifDocTextarea').value : '';
+      $('#verifDocBtnEnregistrer').click(); await attente(700);
+      return relu;
+    };
+    var cv = ['Marie DUPONT', '12 rue des Lilas', '87000 Limoges', '06 12 34 56 78 · marie.dupont@exemple.fr', '', 'Agent d’accueil, 6 ans d’expérience'].join(NL);
+    try {
+      dossier.identite = null; dossier.identiteEnregistree = false;
+      // ---- Regard recruteur, Mode texte ----
+      regardRecruteurReinitialiser(); ouvrirRegardRecruteur(); naviguerVers('regard-recruteur'); await attente(800);
+      $('#rrContenu [data-rr-mode="texte"]').click(); await attente(600);
+      cas('dépôt en page regard : deux cartes dans le point 1 du Mode texte, aucune fenêtre', !!$('#rrBloc1 #depotPageChoisir') && !!$('#rrBloc1 #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+      cas('dépôt en page regard : « Continuer » grisé tant que le texte n’est pas enregistré', $('#rrBtnVersAssistant').disabled);
+      var reluRegard = await deposer(cv);
+      cas('dépôt en page regard : le texte relu arrive à la relecture avec le courriel complet', /marie\.dupont@exemple\.fr/.test(reluRegard), reluRegard.slice(0, 40));
+      cas('dépôt en page regard : après « Enregistrer », le texte est relu, « Continuer » s’active et « Revoir ou corriger le texte » reste disponible', !!_regardRecruteurEtat.texteRelu && /Marie DUPONT/.test(_regardRecruteurEtat.cvTexte) && !$('#rrBtnVersAssistant').disabled && !!$('#rrBloc1 [data-rr-aller="masquer"]'));
+      cas('dépôt en page regard : les informations vérifiées pré-remplissent « Identité » sans la marquer enregistrée', !!dossier.identite && dossier.identite.email === 'marie.dupont@exemple.fr' && !dossier.identiteEnregistree, JSON.stringify(dossier.identite));
+      // ---- Découvrir mes compétences : documents ----
+      regardRecruteurReinitialiser();
+      mesCompReinitialiser(); mesCompOuvrir(); naviguerVers('mes-competences'); await attente(800);
+      var cvAvantMc = dossier.cvTexte;
+      cas('dépôt en page mes compétences : « Déposer un CV » est un bouton de la page, sans fenêtre', !!$('#btnMcDeposer_cv') && !$('#assistantDepotCV'));
+      $('#btnMcDeposer_cv').click(); await attente(500);
+      cas('dépôt en page mes compétences : le clic ouvre le dépôt sous la section « Mes CV » (deux cartes, bouton « Annuler »), aucune fenêtre', !!$('#mcDepot_cv #depotPageChoisir') && !!$('#mcDepot_cv #depotPageColler') && !!$('#depotPageFermer') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+      $('#depotPageFermer').click(); await attente(400);
+      cas('dépôt en page mes compétences : « Annuler » referme la zone et rend le bouton', !$('#mcDepot_cv') && !!$('#btnMcDeposer_cv'));
+      $('#btnMcDeposer_cv').click(); await attente(400);
+      var reluMc = await deposer(cv);
+      cas('dépôt en page mes compétences : la relecture montre le CV, puis « Enregistrer » l’ajoute à la liste', /marie\.dupont@exemple\.fr/.test(reluMc) && mesCompOuvrir().documents.length === 1 && !$('#mcDepot_cv') && /Déposé/.test(texte($('#mcListe_cv'))), String(mesCompOuvrir().documents.length));
+      cas('dépôt en page mes compétences : le CV du dossier n’est jamais touché par un dépôt d’ici', dossier.cvTexte === cvAvantMc);
+      $('#btnMcDeposer_lettreMotivation').click(); await attente(400);
+      cas('dépôt en page mes compétences : la lettre de motivation se dépose de la même façon, sans la rubrique « gardé chez vous »', !!$('#mcDepot_lettreMotivation #depotPageColler') && /lettre de motivation/.test(texte($('#mcDepot_lettreMotivation'))));
+      await deposer('Madame, Monsieur,' + NL + 'Je candidate au poste d’agent d’accueil. Cordialement, Marie DUPONT' + NL + '06 12 34 56 78');
+      cas('dépôt en page mes compétences : la lettre est ajoutée', mesCompOuvrir().documents.filter(function (d) { return d.type === 'lettreMotivation'; }).length === 1);
+      mesCompReinitialiser();
+      // ---- Mes documents : Préparer ma lettre et mon entretien (version rapide), même page pour Reformuler et Mettre à jour ----
+      mesCompReinitialiser();
+      var sauvePrepLE = { etat: _prepLEEtat, mode: _prepLEMode, ecran: _prepLEEcran, detour: _prepLEDetour, reprendre: _reprendreCvActif };
+      try {
+        _prepLEEtat = null; _prepLEMode = 'pret'; _prepLEDetour = false; _prepLEEcran = 'depot'; _reprendreCvActif = false;
+        naviguerVers('cv'); await attente(300); naviguerVers('preparer-lettre-entretien'); await attente(900);
+        cas('dépôt en page préparer : le point 1 « Votre CV » montre les deux cartes, aucune fenêtre', !!$('#prepLEBloc1 #depotPageChoisir') && !!$('#prepLEBloc1 #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+        var reluPrepLE = await deposer(cv);
+        cas('dépôt en page préparer : la relecture s’ouvre dans la page puis « Enregistrer » range le CV', /marie\.dupont@exemple\.fr/.test(reluPrepLE) && !!_prepLEEtat.cvTexte && _prepLEEtat.relectureFaite === true && /Déposé et relu/.test(texte($('#prepLEBloc1'))), JSON.stringify(_prepLEEtat).slice(0, 120));
+        $('#depotPageChanger').click(); await attente(400);
+        $('#depotPageColler').click(); await attente(300);
+        var ztP = $('#depotPageTexte'); ztP.value = 'Autre texte' + NL + 'Cuisinier'; ztP.dispatchEvent(new Event('input', { bubbles: true }));
+        $('#depotPageLireTexte').click(); await attente(600);
+        $('#depotPageAutre').click(); await attente(300);
+        $('#depotPageAnnuler').click(); await attente(400);
+        cas('dépôt en page préparer : abandonner un autre CV garde le CV relu', /Marie DUPONT/.test(_prepLEEtat.cvTexte) && /Déposé et relu/.test(texte($('#prepLEBloc1'))));
+        // CV déjà dans l'application, non relu : la relecture démarre seule
+        reinitialiserDepotCVEnPage();
+        _prepLEEtat = { cvTexte: 'Texte déjà dans l’application', dejaRelu: false, relectureFaite: false, situationTouchee: false };
+        _prepLERendreDepot(); await attente(600);
+        cas('dépôt en page préparer : un CV non relu part directement à la relecture dans le point 1', !!$('#verifDocTextarea') && /Texte déjà dans/.test($('#verifDocTextarea').value));
+      } finally {
+        _prepLEEtat = sauvePrepLE.etat; _prepLEMode = sauvePrepLE.mode; _prepLEEcran = sauvePrepLE.ecran; _prepLEDetour = sauvePrepLE.detour; _reprendreCvActif = sauvePrepLE.reprendre;
+      }
+      // ---- Coécrire ma lettre : CV, puis lettre de recommandation à la demande ----
+      _coLettreRecommencer(); await attente(900);
+      cas('dépôt en page lettre : le point 1 « Votre CV » montre les deux cartes, aucune fenêtre', !!$('#coLettreBlocCv #depotPageChoisir') && !!$('#coLettreBlocCv #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+      var reluLettre = await deposer(cv);
+      cas('dépôt en page lettre : la relecture s’ouvre dans la page, « Enregistrer » range le CV et déverrouille la suite', /marie\.dupont@exemple\.fr/.test(reluLettre) && !!_coLettreDocument && _coLettreCvRelu === true && /Déposé et relu/.test(texte($('#coLettreBlocCv'))) && !/bloc-verrouille/.test($('#coLettreBlocCible').className), String(_coLettreCvRelu));
+      cas('dépôt en page lettre : les coordonnées vérifiées pré-remplissent « Identité »', !!dossier.identite && dossier.identite.email === 'marie.dupont@exemple.fr', JSON.stringify(dossier.identite));
+      // lettre de recommandation, à la demande
+      var hote = document.createElement('div'); document.body.appendChild(hote);
+      var redessiner = function () { hote.innerHTML = _coLettreHtmlAppuis({ pourCv: false }); _coLettreBrancherAppuis(redessiner); };
+      _coLettreRecos = []; _coLettreRecoReponse = 'oui'; _coLettreRecoDepotOuvert = false; redessiner();
+      var cvAvantReco = dossier.cvTexte;
+      hote.querySelector('[data-reco-deposer]').click(); await attente(400);
+      cas('dépôt en page recommandation : le bouton ouvre la zone de dépôt dans « Vos appuis », aucune fenêtre', !!hote.querySelector('#coLettreRecoDepot #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+      await deposer('Je recommande Marie.' + NL + 'Pierre MARTIN, directeur' + NL + '05 55 00 00 00');
+      cas('dépôt en page recommandation : la lettre enregistrée rejoint la liste, la zone se referme, le CV du dossier n’est pas touché', _coLettreRecos.length === 1 && !hote.querySelector('#coLettreRecoDepot') && dossier.cvTexte === cvAvantReco, String(_coLettreRecos.length));
+      hote.remove(); _coLettreRecos = []; _coLettreRecoReponse = null; _coLettreRecoDepotOuvert = false;
+      _coLettreRecommencer();
+      // ---- Préparer un entretien : CV, puis lettre de motivation dans le même point 1 ----
+      _prepaEntretienRecommencerTravail(); await attente(900);
+      cas('dépôt en page entretien : le point 1 « Votre CV » montre les deux cartes, aucune fenêtre', !!$('#prepaEntretienBlocCv #depotPageChoisir') && !!$('#prepaEntretienBlocCv #depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP') && !document.querySelector('[data-lettre-reponse]'));
+      var reluEntretien = await deposer(cv);
+      cas('dépôt en page entretien : « Enregistrer » range le CV, la question sur la lettre de motivation apparaît', /marie\.dupont@exemple\.fr/.test(reluEntretien) && !!_prepaEntretienDocumentCv && _prepaEntretienCvRelu === true && !!document.querySelector('[data-lettre-reponse="oui"]') && /Marie DUPONT/.test(dossier.cvTexte));
+      document.querySelector('[data-lettre-reponse="oui"]').click(); await attente(400);
+      cas('dépôt en page entretien : répondre « Oui » ouvre le dépôt de la lettre dans la page, sans la rubrique « gardé chez vous »', !!$('#prepaEntretienBlocCv #depotPageColler') && !$('.depot-garde') && !$('#assistantDepotCV'));
+      var cvAvantLettre = dossier.cvTexte;
+      await deposer('Madame, Monsieur,' + NL + 'Je candidate. Cordialement, Marie DUPONT');
+      cas('dépôt en page entretien : la lettre enregistrée est rangée et le CV du dossier n’est pas touché', !!_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip' && _prepaEntretienLettreRelue === true && /Marie DUPONT/.test(dossier.lettreMotivation.texte) && dossier.cvTexte === cvAvantLettre);
+      _prepaEntretienRecommencerTravail(); await attente(300);
+      // ---- Cohérence de mon dossier : les trois documents de la collecte, chacun dans son bloc ----
+      var deposerCt = async function (sfx, texteDoc) {
+        $('#depotPageColler' + sfx).click(); await attente(300);
+        var zt = $('#depotPageTexte' + sfx); zt.value = texteDoc; zt.dispatchEvent(new Event('input', { bubbles: true }));
+        $('#depotPageLireTexte' + sfx).click(); await attente(700);
+        var relu = $('#verifDocTextarea') ? $('#verifDocTextarea').value : '';
+        $('#verifDocBtnEnregistrer').click(); await attente(700);
+        return relu;
+      };
+      var etatCt = { enCollecte: _ctEnCollecte, intro: _ctVoirIntro, reprise: _ctReprisePendante, store: ctStoreExporterEtat() };
+      _ctCollecteEtat = null; _ctReinitialiserDepots(); _ctEnCollecte = true; _ctVoirIntro = false; _ctReprisePendante = false;
+      naviguerVers('coherence-transversale'); await attente(1200);
+      cas('dépôt en page cohérence : les points 1, 2 et 3 ont chacun leurs deux cartes, aucune fenêtre, plus de bouton « Déposer »', !!$('#ctCollecteBlocCv #depotPageChoisir-cv') && !!$('#ctCollecteBlocLettre #depotPageColler-lettre') && !!$('#ctCollecteBlocEntretien #depotPageColler-entretien') && !$('#assistantDepotCV') && !$('#fenetreERIP') && !$('#btnCtCollecteDeposerCv') && !$('#btnCtCollecteDeposerLettre') && !$('#btnCtCollecteDeposerEntretien'));
+      cas('dépôt en page cohérence : « Continuer » est grisé et la lettre attend le CV', !!$('#btnCtCollecteContinuer').disabled && $('#ctCollecteBlocLettre').classList.contains('bloc-verrouille'));
+      var reluCt = await deposerCt('-cv', cv);
+      cas('dépôt en page cohérence : le CV relu et enregistré est rangé, le point 2 s’active', /marie\.dupont@exemple\.fr/.test(reluCt) && !!_ctCollecteEtat.cv && _ctCollecteEtat.cv.dejaRelu === true && /Marie DUPONT/.test(_ctCollecteEtat.cv.texte) && !$('#ctCollecteBlocLettre').classList.contains('bloc-verrouille') && /Déposé/.test(texte($('#ctCollecteBlocCv'))), JSON.stringify(_ctCollecteEtat.cv));
+      var cvAvantCt = dossier.cvTexte;
+      await deposerCt('-lettre', 'Madame, Monsieur,' + NL + 'Je candidate. Cordialement, Marie DUPONT');
+      cas('dépôt en page cohérence : la lettre est rangée sans toucher au CV du dossier, le point 3 s’active', !!_ctCollecteEtat.lettre && _ctCollecteEtat.lettre.dejaRelu === true && dossier.cvTexte === cvAvantCt && !$('#ctCollecteBlocEntretien').classList.contains('bloc-verrouille') && !$('.depot-garde #depotPageChamp_prenom-lettre'));
+      cas('dépôt en page cohérence : CV et lettre suffisent : « Continuer » s’active', !$('#btnCtCollecteContinuer').disabled);
+      $('#btnCtCollecteSansEntretien').click(); await attente(400);
+      cas('dépôt en page cohérence : « Je n’en ai pas » marque l’entretien « Non fournie » et garde la zone de dépôt', !!_ctCollecteEtat.entretien && _ctCollecteEtat.entretien.texte === null && /Non fournie/.test(texte($('#ctCollecteBlocEntretien'))) && !!$('#depotPageColler-entretien'));
+      await deposerCt('-entretien', 'Mes réponses préparées : je suis ponctuelle et rigoureuse.');
+      cas('dépôt en page cohérence : l’entretien déposé remplace « je n’en ai pas », le bouton disparaît', !!_ctCollecteEtat.entretien && /ponctuelle/.test(_ctCollecteEtat.entretien.texte) && _ctCollecteEtat.entretien.dejaRelu === true && !$('#btnCtCollecteSansEntretien'));
+      // Rapport : changer un document, dans la page
+      var dossierCt = ctCreerDossierTransversal({ cv: 'Camille Martin. Agent de sécurité chez Sécuritas.', lettre: 'Madame, Monsieur, je souhaite postuler.' });
+      ctStoreDefinirDossier(dossierCt);
+      ctStoreDefinirDiagnostic(ctMarquerDiagnosticComplet(ctCreerDiagnostic({ dossierId: dossierCt.id, promptTexte: 'x' }), { syntheseGenerale: 'Analyse terminée.', constats: [], recommandations: [] }, 'x'));
+      _ctEnCollecte = false; _ctModificationsEnAttente = {}; _ctModifEnCours = null;
+      naviguerVers('coherence-transversale'); await attente(1200);
+      var boutonChanger = document.querySelector('[data-ct-modifier-document="lettre"]');
+      cas('dépôt en page cohérence rapport : « Changer ce document » est proposé sur la carte de la lettre', !!boutonChanger);
+      if (boutonChanger) {
+        boutonChanger.click(); await attente(500);
+        cas('dépôt en page cohérence rapport : le clic ouvre la zone de dépôt sous les cartes, avec « Annuler », aucune fenêtre', !!$('#ctDepotModif #depotPageColler') && !!$('#ctDepotModif #depotPageFermer') && !$('#assistantDepotCV') && !$('#fenetreERIP'));
+        cas('Modifier et relancer (consigne 82) : une ligne par document, la zone de dépôt s’ouvre sous la ligne de la lettre, « Ce que vous visez » en pleine largeur, aucun bouton grisé « Résumé indisponible »',
+          document.querySelectorAll('.ct-bloc-docs .ct-ligne-doc').length === 3 && !!$('#ctDepotModif') && $('#ctDepotModif').previousElementSibling === document.querySelector('[data-ct-modifier-document="lettre"]').closest('.ct-ligne-doc') && !!$('.ct-bloc-visee .ct-visee #ctChampOffreTdb') && !/Résumé indisponible/.test(texte($('#app'))));
+        $('#depotPageFermer').click(); await attente(500);
+        cas('dépôt en page cohérence rapport : « Annuler » referme la zone sans rien modifier', !$('#ctDepotModif') && Object.keys(_ctModificationsEnAttente).length === 0);
+        document.querySelector('[data-ct-modifier-document="lettre"]').click(); await attente(500);
+        await deposer('Madame, Monsieur,' + NL + 'Nouvelle version de ma lettre. Marie DUPONT');
+        cas('dépôt en page cohérence rapport : la nouvelle lettre est en attente (« Modifié, pas encore relancé »), la zone se referme', /Nouvelle version/.test(_ctModificationsEnAttente.lettre || '') && !$('#ctDepotModif') && /Modifié, pas encore relancé/.test(texte($('#app'))), String(_ctModificationsEnAttente.lettre));
+      }
+      _ctModificationsEnAttente = {}; _ctModifEnCours = null; _ctReinitialiserDepots(); _ctCollecteEtat = null;
+      ctStoreRestaurerEtat(etatCt.store); _ctEnCollecte = etatCt.enCollecte; _ctVoirIntro = etatCt.intro; _ctReprisePendante = etatCt.reprise;
+      // ---- Candidater depuis la recherche : « J'ai déjà un CV » mène à la page de dépôt du module, sans fenêtre ----
+      var cvDispoReel = window.cvDisponible, rgReel = rechercheGuidee, modeLEReel = _prepLEMode, ecranLEReel = _prepLEEcran, etatLEReel = _prepLEEtat, actifReel = _reprendreCvActif;
+      window.cvDisponible = function () { return false; };
+      try {
+        rechercheGuidee = { metier: 'Agent d’accueil', cible: 'Agent d’accueil', estSecteur: false, parcours: 'cv', cvExiste: 'oui', maj: 'oui' };
+        _prepLEEtat = null; _candidaterFinaliser(); await attente(1000);
+        cas('candidater : « J’ai un CV » à mettre à jour ouvre la page de dépôt de « Reprendre mon CV », sans fenêtre', pageActuelle === 'reprendre-cv' && !!$('#depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'), pageActuelle);
+        rechercheGuidee = { metier: 'Agent d’accueil', cible: 'Agent d’accueil', estSecteur: false, parcours: 'lettre', cvExiste: 'oui', maj: 'non' };
+        _prepLEEtat = null; _candidaterFinaliser(); await attente(1000);
+        cas('candidater : « J’ai un CV » prêt ouvre la page de dépôt de « Préparer ma lettre et mon entretien », sans fenêtre', pageActuelle === 'preparer-lettre-entretien' && !!$('#depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'), pageActuelle);
+      } finally {
+        window.cvDisponible = cvDispoReel; rechercheGuidee = rgReel; _prepLEMode = modeLEReel; _prepLEEcran = ecranLEReel; _prepLEEtat = etatLEReel; _reprendreCvActif = actifReel;
+        try { reinitialiserDepotCVEnPage('prepLE'); } catch (e4) { /* rien */ }
+      }
+    } catch (e) {
+      cas('dépôt en page modules : aucune erreur', false, e && e.message);
+    } finally {
+      try { var vieux = JSON.parse(sauvegardeDossier); Object.keys(dossier).forEach(function (k) { if (!(k in vieux)) { delete dossier[k]; } }); Object.assign(dossier, vieux); } catch (e1) { /* tant pis */ }
+      try { regardRecruteurReinitialiser(); } catch (e2) { /* rien */ }
+      try { _prepaEntretienRecommencerTravail(); _coLettreRecommencer(); } catch (e3) { /* rien */ }
+      if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage(); }
+      naviguerVers('accueil');
+    }
+  }
+
+  // ---------------- Dépôt du CV EN PAGE, module pilote ATS (consigne 28, séance 1, 30/10/2026) ----------------
+  async function parcoursDepotPageAts() {
+    if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }   // une fenetre laissee ouverte par un parcours precedent fausserait « aucune fenetre »
+    var NL = String.fromCharCode(10);
+    var sauve = { id: dossier.identite, enreg: dossier.identiteEnregistree, cvTexte: dossier.cvTexte, cvAnalyse: dossier.cvAnalyse };
+    try {
+      dossier.identite = null; dossier.identiteEnregistree = false;
+      atsReinitialiser(); ouvrirAts(); naviguerVers('ats'); await attente(800);
+      cas('dépôt en page ats : deux cartes (fichier, texte copié), aucune fenêtre', !!$('#depotPageChoisir') && !!$('#depotPageColler') && !$('#assistantDepotCV') && !$('#fenetreERIP'), '');
+      cas('dépôt en page ats : aucun bouton « Continuer » dans la page (il est dans la barre du bas)', !$('#atsDep1 #btnAtsVersAssistant') && !!$('#btnSuivantNavigation'));
+      cas('dépôt en page ats : un message « Ce qui se passe ensuite » entre le point 1 et le point 2, un autre sous le point 2', document.querySelectorAll('.liaison-blocs').length === 2, String(document.querySelectorAll('.liaison-blocs').length));
+      cas('dépôt en page ats : le point 2 est grisé tant que le CV n’est pas déposé', /bloc-verrouille/.test($('#atsDep2').className));
+      var cv = ['Marie DUPONT', '12 rue des Lilas', '87000 Limoges', '06 12 34 56 78 · marie.dupont@exemple.fr', '', 'Agent d’accueil, 6 ans d’expérience', '', 'EXPÉRIENCES', 'Accueil et standard, mairie de Limoges, 2019 à aujourd’hui'].join(NL);
+      var dt = new DataTransfer(); dt.items.add(new File([cv], 'mon-cv.txt', { type: 'text/plain' }));
+      var champ = $('#depotPageFichier'); champ.files = dt.files; champ.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+      cas('dépôt en page ats : le fichier est lu et la relecture apparaît dans le même point', !!$('#verifDocTextarea') && !!$('#depotPageAutre') && /mon-cv\.txt/.test(texte($('#atsDep1'))));
+      cas('dépôt en page ats : l’encadré des informations sensibles liste ce qui est repéré avec un bouton jaune', /Informations sensibles repérées/.test(texte($('#verifDocDetectionZone'))) && !!$('#verifDocDetectionZone .btn-warning[data-retirer-toutes-detections]'));
+      cas('dépôt en page ats : le message dit que l’application ne repère pas tout', /ne repère pas tout/.test(texte($('#atsDep1'))));
+      cas('dépôt en page ats : la rubrique « gardé chez vous » est pré-remplie', !!$('.depot-garde') && $('#depotPageChamp_email').value === 'marie.dupont@exemple.fr' && $('#depotPageChamp_ville').value === 'Limoges' && $('#depotPageChamp_adresse').value === '', ($('#depotPageChamp_email') || {}).value);
+      cas('dépôt en page ats : le point 2 reste grisé tant que ce n’est pas enregistré', /bloc-verrouille/.test($('#atsDep2').className));
+      $('[data-retirer-toutes-detections]').click(); await attente(200);
+      cas('dépôt en page ats : « Retirer toutes… » vide le texte des informations repérées et le dit', !/marie\.dupont@/.test($('#verifDocTextarea').value) && /retirées du texte/.test(texte($('#verifDocDetectionZone'))), $('#verifDocTextarea').value.slice(0, 60));
+      var ad = $('#depotPageChamp_adresse'); ad.value = '5 allée des Roses'; ad.dispatchEvent(new Event('input', { bubbles: true }));
+      $('#verifDocBtnEnregistrer').click(); await attente(700);
+      cas('dépôt en page ats : après « Enregistrer », le point 1 est fait et le point 2 est ouvert', /Déposé et relu/.test(texte($('#atsDep1'))) && !/bloc-verrouille/.test($('#atsDep2').className) && _atsEtat.cvRelu === true && !/marie\.dupont@/.test(_atsEtat.cvTexte));
+      cas('dépôt en page ats : les informations vérifiées pré-remplissent « Identité » (adresse saisie comprise)', !!dossier.identite && dossier.identite.email === 'marie.dupont@exemple.fr' && dossier.identite.adresse === '5 allée des Roses' && dossier.identite.telephone === '0612345678', JSON.stringify(dossier.identite));
+      cas('dépôt en page ats : l’identité n’est jamais marquée « enregistrée » (la vérification finale reste)', !dossier.identiteEnregistree);
+      $('#depotPageChanger').click(); await attente(400);
+      cas('dépôt en page ats : « Changer de CV » rouvre les deux cartes avec « Annuler : garder mon CV actuel »', !!$('#depotPageChoisir') && !!$('#depotPageAnnuler') && /Annuler/.test(texte($('#depotPageAnnuler'))));
+      $('#depotPageAnnuler').click(); await attente(400);
+      cas('dépôt en page ats : « Annuler » ramène à « Déposé et relu » sans toucher au CV enregistré', /Déposé et relu/.test(texte($('#atsDep1'))) && !!_atsEtat.cvTexte);
+      $('#depotPageChanger').click(); await attente(300);
+      $('#depotPageColler').click(); await attente(300);
+      var zt = $('#depotPageTexte'); zt.value = 'Paul MARTIN' + NL + '06 11 22 33 44' + NL + 'Cariste'; zt.dispatchEvent(new Event('input', { bubbles: true }));
+      cas('dépôt en page ats : le texte collé active « Relire et masquer ce texte »', !$('#depotPageLireTexte').disabled);
+      $('#depotPageLireTexte').click(); await attente(500);
+      cas('dépôt en page ats : le texte collé arrive à la relecture avec le bouton « Recoller un autre texte »', !!$('#verifDocTextarea') && /Recoller un autre texte/.test(texte($('#depotPageAutre'))) && /Paul MARTIN/.test($('#verifDocTextarea').value));
+      $('#depotPageAutre').click(); await attente(300);
+      cas('dépôt en page ats : abandonner la relecture ne change pas le CV déjà enregistré', !!_atsEtat.cvTexte && !/Paul/.test(_atsEtat.cvTexte));
+    } catch (e) {
+      cas('dépôt en page ats : aucune erreur', false, e && e.message);
+    } finally { dossier.identite = sauve.id; dossier.identiteEnregistree = sauve.enreg; dossier.cvTexte = sauve.cvTexte; dossier.cvAnalyse = sauve.cvAnalyse; atsReinitialiser(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Regard recruteur : PDF, capture collée et astuce pour obtenir l'image (consigne 76, 30/10/2026) ----------------
+  // pdf.js ne se charge pas dans le banc d'essai (réseau coupé) : la fonction de transformation est remplacée par une doublure.
+  async function parcoursRegardAjoutImage() {
+    var vraie = window.pagesEnImagesRecommandation;
+    try {
+      regardRecruteurReinitialiser(); ouvrirRegardRecruteur(); naviguerVers('regard-recruteur'); await attente(800);
+      var z = function () { return $('#rrContenu'); };
+      var png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      z().querySelector('[data-rr-mode="image"]').click(); await attente(600);
+      var astuce = Array.prototype.slice.call(z().querySelectorAll('#rrBloc1 details')).filter(function (d) { return /Astuce/.test(texte(d.querySelector('summary'))); })[0];
+      cas('regard ajout d’image : une astuce repliée explique comment obtenir l’image (PDF, Word, capture)', !!astuce && !astuce.open && /Windows \+ Maj \+ S/.test(astuce.textContent) && /Ctrl \+ V/.test(astuce.textContent) && /Word/.test(astuce.textContent), astuce ? String(astuce.open) : 'astuce introuvable');
+      cas('regard ajout d’image : le champ accepte les PDF', /pdf/.test($('[data-rr-ajouter-images]').accept), $('[data-rr-ajouter-images]').accept);
+      var deposer = async function (fichiers) {
+        var dt = new DataTransfer(); fichiers.forEach(function (f) { dt.items.add(f); });
+        var champ = $('[data-rr-ajouter-images]'); champ.files = dt.files;
+        champ.dispatchEvent(new Event('change', { bubbles: true })); await attente(500);
+      };
+      // PDF de deux pages
+      window.pagesEnImagesRecommandation = function () { return Promise.resolve([png, png]); };
+      await deposer([new File([new Uint8Array([37, 80, 68, 70])], 'mon-cv.pdf', { type: 'application/pdf' })]);
+      cas('regard ajout d’image : un PDF de deux pages donne deux images dans la liste', _regardRecruteurEtat.images.length === 2 && /mon-cv \(page 2\)/.test(_regardRecruteurEtat.images[1].nom), JSON.stringify(_regardRecruteurEtat.images.map(function (i) { return i.nom; })));
+      // PDF de quatre pages : une place libre seulement
+      window.pagesEnImagesRecommandation = function () { return Promise.resolve([png, png, png, png]); };
+      await deposer([new File([new Uint8Array([37])], 'long.pdf', { type: 'application/pdf' })]);
+      cas('regard ajout d’image : au plus trois images, avec un message qui le dit', _regardRecruteurEtat.images.length === 3 && /Trois images au plus/.test(texte($('#rrBloc1'))), texte($('#rrBloc1')).slice(-200));
+      // Retirer : le message disparaît
+      $('[data-rr-retirer-image="2"]').click(); await attente(400);
+      cas('regard ajout d’image : retirer une image efface le message', _regardRecruteurEtat.images.length === 2 && !/Trois images au plus/.test(texte($('#rrBloc1'))));
+      // Word
+      await deposer([new File([new Uint8Array([1])], 'cv.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })]);
+      cas('regard ajout d’image : un fichier Word n’est pas ajouté, un message explique d’enregistrer en PDF', _regardRecruteurEtat.images.length === 2 && /Word[^.]*en PDF/.test(texte($('#rrBloc1'))), texte($('#rrBloc1')).slice(-200));
+      // PDF illisible
+      window.pagesEnImagesRecommandation = function () { return Promise.reject(new Error('x')); };
+      $('[data-rr-retirer-image="1"]').click(); await attente(400);
+      await deposer([new File([new Uint8Array([1])], 'casse.pdf', { type: 'application/pdf' })]);
+      cas('regard ajout d’image : un PDF illisible donne un message qui propose la capture d’écran', _regardRecruteurEtat.images.length === 1 && /capture d’écran/.test(texte($('#rrBloc1').querySelector('.rr-encart'))), texte($('#rrBloc1')).slice(-200));
+      // Capture collée avec Ctrl+V
+      var dt2 = new DataTransfer(); dt2.items.add(new File([new Uint8Array([137, 80, 78, 71])], 'image.png', { type: 'image/png' }));
+      document.body.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt2, bubbles: true, cancelable: true })); await attente(600);
+      cas('regard ajout d’image : une capture collée avec Ctrl + V arrive dans la liste des images', _regardRecruteurEtat.images.length === 2 && /capture collée/.test(_regardRecruteurEtat.images[1].nom), JSON.stringify(_regardRecruteurEtat.images.map(function (i) { return i.nom; })));
+      cas('regard ajout d’image : la capture collée passe par l’outil de masquage comme un fichier (case de masquage proposée)', !!$('#rrBloc1').querySelector('[data-rr-retirer-image="1"]'));
+      // Pas de collage ailleurs que dans la partie 1 : un champ de texte garde son comportement
+      var nb = _regardRecruteurEtat.images.length;
+      var champTexte = document.createElement('textarea'); document.body.appendChild(champTexte);
+      var dt3 = new DataTransfer(); dt3.items.add(new File([new Uint8Array([1])], 'x.png', { type: 'image/png' }));
+      champTexte.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt3, bubbles: true, cancelable: true })); await attente(400);
+      champTexte.remove();
+      cas('regard ajout d’image : coller dans un champ de texte n’ajoute pas d’image', _regardRecruteurEtat.images.length === nb);
+      // Passer en mode texte : plus de collage d'image
+      z().querySelector('[data-rr-mode="texte"]').click(); await attente(500);
+      var nb2 = _regardRecruteurEtat.images.length;
+      var dt4 = new DataTransfer(); dt4.items.add(new File([new Uint8Array([1])], 'y.png', { type: 'image/png' }));
+      document.body.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt4, bubbles: true, cancelable: true })); await attente(400);
+      cas('regard ajout d’image : en Mode texte, une capture collée n’ajoute pas d’image', _regardRecruteurEtat.images.length === nb2);
+    } catch (e) {
+      cas('regard ajout d’image : aucune erreur', false, e && e.message);
+    } finally { window.pagesEnImagesRecommandation = vraie; regardRecruteurReinitialiser(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Regard recruteur : avertissement sur le fond de couleur (consigne 72, 30/10/2026) ----------------
+  async function parcoursRegardFondCouleur() {
+    try {
+      regardRecruteurReinitialiser(); ouvrirRegardRecruteur(); naviguerVers('regard-recruteur'); await attente(700);
+      var etat = _regardRecruteurEtat; etat.modeTexte = false;
+      var reponse = function (fond) {
+        var o = { syntheseOuverture: 'Une bonne première impression.', axes: [{ id: 'couleurs', afficher: true, points: [{ titre: 'Combien de couleurs, et comment', constat: 'Bleu et blanc.', lecture: 'Lisible.', piste: '' }] }] };
+        if (fond !== undefined) { o.fondDeCouleur = fond; }
+        return JSON.stringify(o);
+      };
+      var montrer = async function (fond) {
+        etat.rapport = regardRecruteurParserRapport(reponse(fond), { modeAnalyse: 'image', siteEntrepriseFourni: false });
+        _regardRecruteurRenduVue('regard'); await attente(600);
+        var d = $('.rr-axe-couleurs'); if (d) { d.open = true; }
+        return $('.rr-fond-couleur');
+      };
+      var oui = await montrer(true);
+      cas('regard fond de couleur : oui => message au présent, avec les trois usages', !!oui && /Votre CV a un fond de couleur/.test(texte(oui)) && /plateforme de recrutement/.test(texte(oui)) && /noir et blanc/.test(texte(oui)) && /main propre/.test(texte(oui)), oui && texte(oui).slice(0, 80));
+      var non = await montrer(false);
+      cas('regard fond de couleur : non => aucun message', !non);
+      var rien = await montrer(undefined);
+      cas('regard fond de couleur : pas de réponse nette => texte « Si votre CV a un fond de couleur », mêmes trois usages', !!rien && /Si votre CV a un fond de couleur/.test(texte(rien)) && /plateforme de recrutement/.test(texte(rien)) && /noir et blanc/.test(texte(rien)) && /main propre/.test(texte(rien)));
+      etat.modeTexte = true; etat.rapport = regardRecruteurParserRapport(reponse(true), { modeAnalyse: 'texte', siteEntrepriseFourni: false });
+      _regardRecruteurRenduVue('regard'); await attente(500);
+      cas('regard fond de couleur : en Mode texte, aucun message sur le fond', !$('.rr-fond-couleur'));
+    } catch (e) {
+      cas('regard fond de couleur : aucune erreur', false, e && e.message);
+    } finally { regardRecruteurReinitialiser(); naviguerVers('accueil'); }
+  }
+
+  // ---------------- Les mots de votre CV (ATS) : écran « Coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursAtsCollage() {
+    var ouvrirReel = window.open; var sauve = _atsEtat;
+    try {
+      window.open = function () { return {}; };
+      _atsEtat = atsEtatNeuf(); _atsEtat.cvTexte = 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024. Surveillance, accueil.'; _atsEtat.cvRelu = true; _atsEtat.ecran = 'coller';
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('ats'); await attente(900);
+      var racine = $('#fcRacineAts');
+      cas('ats : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('ats : plus de zone de collage ni de bouton « Importer » de l’ancien écran', !$('#texteCollageAts') && !$('#btnImporterAts') && !$('#btnEffacerRecollerAts'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Bonjour, voici mon analyse sans code.'); await attente(300);
+      cas('ats : une réponse sans code est refusée dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && !_atsEtat.resultat, racine.__collage.etat());
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"analyseImpossible":false,"dejaExprime":[],"pasRetrouve":[],"changementsPrioritaires":[]}'); await attente(500);
+      cas('ats : une réponse lisible passe, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !_atsEtat.resultat, racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('ats : « Continuer » (Voir le résultat) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Voir le résultat/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(900); }
+      cas('ats : « Continuer » lit la réponse et ouvre « Le résultat »', !!_atsEtat.resultat && _atsEtat.resultat.lisible && _atsEtat.ecran === 'resultat', String(_atsEtat.ecran));
+    } catch (e) {
+      cas('ats collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; _atsEtat = sauve; naviguerVers('accueil'); }
+  }
+
+  // ---------------- Décompte avant l'assistant : bandeau calme (piste sans chiffre, 15 secondes) + aperçu de la fenêtre du retour (28/10/2026) ----------------
+  async function parcoursDecompteApercu() {
+    var ouvrirReel = window.open; var sauve = _atsEtat; var ouvertures = [];
+    try {
+      window.open = function (u) { ouvertures.push(u); return {}; };
+      cas('décompte : la durée est de 15 secondes (une seule valeur)', DUREE_DECOMPTE_IA_SECONDES === 15, String(DUREE_DECOMPTE_IA_SECONDES));
+      _atsEtat = atsEtatNeuf(); _atsEtat.cvTexte = 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024. Surveillance, accueil.'; _atsEtat.cvRelu = true; _atsEtat.ecran = 'coller';
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+      naviguerVers('ats'); await attente(900);
+      var racine = $('#fcRacineAts'); var ban = racine && $('#banniereTransitionIA', racine);
+      cas('décompte/ats : le bandeau est dans la fenêtre, avec la piste qui recule et sans chiffre', !!ban && !!ban.querySelector('.transition-piste') && !$('#compteurDecompteIA'), ban && ban.innerText.slice(0, 80));
+      if (!ban) { return; }
+      var boutons = [].slice.call(ban.querySelectorAll('button')).map(texte);
+      cas('décompte/ats : « Me laisser le temps » puis « Ouvrir maintenant » (à droite)', boutons.join('|') === 'Me laisser le temps|Ouvrir maintenant', boutons.join('|'));
+      cas('décompte/ats : la phrase dit que la page reste ouverte et que l’écran sera retrouvé', /Cette page reste ouverte/.test(ban.innerText) && /retrouverez cet écran/.test(ban.innerText), ban.innerText.slice(0, 160));
+      cas('décompte/ats : la fenêtre du retour est là en aperçu, ses boutons sont inactifs', !!racine.querySelector('.fc-apercu-legende') && racine.querySelector('[data-fc=coller]').disabled && !racine.querySelector('[data-fc=main]:not([disabled])'));
+      cas('décompte/ats : plus d’écran « Chez l’assistant » à part', !$('[data-ats-ecran=chez]') && /choix-assistant/.test(_atsCibleRetour('coller')), _atsCibleRetour('coller'));
+      $('#btnAttendreIA').click(); await attente(200);
+      cas('décompte/ats : « Me laisser le temps » arrête le compte à rebours (plus de piste, un seul bouton « Ouvrir ChatGPT »)', _etatTransitionIA.attente === true && !ban.querySelector('.transition-piste') && ban.querySelectorAll('button').length === 1 && /Ouvrir ChatGPT/.test(texte($('#btnContinuerMaintenantIA'))) && !ouvertures.length, ban.innerText.slice(0, 120));
+      ouvrirAts(); await attente(600);
+      cas('décompte/ats : redessiné pendant l’attente, il reste arrêté et rien ne s’ouvre', /arrêté/.test(texte($('#banniereTransitionIA'))) && !$('.transition-piste') && !ouvertures.length, texte($('#banniereTransitionIA')).slice(0, 80));
+      $('#btnContinuerMaintenantIA').click(); await attente(800);
+      cas('décompte/ats : « Ouvrir ChatGPT » ouvre l’assistant, la fenêtre passe à « assistant ouvert » (Je suis de retour)', ouvertures.length === 1 && _etatTransitionIA.phase === 'ouvert' && !!$('#fcRacineAts [data-fc=retour]'), ouvertures.length + ' / ' + _etatTransitionIA.phase);
+      // fin du décompte : l'ouverture se fait toute seule
+      ouvertures.length = 0;
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: 1 };
+      ouvrirAts(); await attente(1700);
+      cas('décompte/ats : au bout du compte à rebours, l’assistant s’ouvre tout seul', ouvertures.length === 1 && _etatTransitionIA.phase === 'ouvert', ouvertures.length + ' / ' + _etatTransitionIA.phase);
+      // navigateur qui bloque l'ouverture
+      window.open = function () { return null; };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: 1 };
+      ouvrirAts(); await attente(1700);
+      cas('décompte/ats : si le navigateur bloque, le message le dit et un bouton propose d’ouvrir, la fenêtre reste visible', _etatTransitionIA.phase === 'bloque' && !!$('#btnOuvrirBloqueIA') && /bloqué/.test(texte($('#banniereTransitionIA'))) && !!$('#fcRacineAts .fc-apercu-legende'), String(_etatTransitionIA.phase));
+      // session reprise sur l'ancien écran « chez »
+      _atsEtat.ecran = 'chez'; ouvrirAts(); await attente(600);
+      cas('décompte/ats : une session restée sur l’ancien écran « chez » est reprise sur « Coller la réponse »', _atsEtat.ecran === 'coller' && !!$('#fcRacineAts'), String(_atsEtat.ecran));
+      // « Changer d'assistant » dès l'écran du retour (assistant ouvert, prêt à coller)
+      window.open = function () { return {}; };
+      _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      _atsEtat.ecran = 'coller'; ouvrirAts(); await attente(600);
+      var changer = $('#fcRacineAts [data-fc=changer]');
+      cas('retour/ats : « Changer d’assistant » est visible dès l’écran du retour, sans la démonstration vidéo', !!changer && !$('#fcRacineAts [data-fc=video]'), changer ? 'present' : 'absent');
+      if (changer) { changer.click(); await attente(700); }
+      cas('retour/ats : « Changer d’assistant » ramène au choix de l’assistant et annule le passage en cours', _atsEtat.ecran === 'choix-assistant' && !_etatTransitionIA, String(_atsEtat.ecran));
+    } catch (e) {
+      cas('décompte : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; clearInterval(_intervalleDecompteIA); _etatTransitionIA = null; _atsEtat = sauve; naviguerVers('accueil'); }
+  }
+
+  // ---------------- Lettre (Co-construire ma lettre) : écran « Coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
+  async function parcoursLettreCollage() {
+    var ouvrirReel = window.open; var sauve = { lettre: dossier.ia && dossier.ia.lettre, ecran: _coLettreEcran, origine: dossier._origineCoLettre };
+    try {
+      window.open = function () { return {}; };
+      if (dossier.ia) { dossier.ia.lettre = null; }
+      _coLettreReponseForcerCollage = false;
+      _coLettreEcran = 'reponse'; _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'ouvert', secondesRestantes: 0 };
+      naviguerVers('co-lettre'); await attente(900);
+      var racine = $('#fcRacineLettreV1');
+      cas('lettre : la fenêtre unique est affichée, assistant ouvert', !!racine && !!racine.__collage && /ouvert dans un autre onglet/.test(racine.innerText), racine && racine.innerText.slice(0, 80));
+      if (!racine || !racine.__collage) { return; }
+      cas('lettre : plus de zone de collage ni de bouton « Importer ma lettre » de l’ancien écran', !$('#texteCollageLettreV1') && !$('#btnImporterLettreV1') && !$('#btnEffacerRecollerLettreV1'));
+      cas('lettre : le bouton de recopie du message de départ est toujours là', !!$('#btnRecopierMessageLettreV1'));
+      racine.querySelector('[data-fc=retour]').click();
+      racine.__collage.coller('Voici : {"accroche":"Une accroche.","versions":[{"objet":"Candidature","texte":"Bonjour, je');
+      cas('lettre : une réponse coupée est signalée', racine.__collage.etat() === 'coupe', racine.__collage.etat());
+      cas('lettre : réponse collée (coupée), le bloc « Ctrl + V / recopier » disparaît et la ligne « Étape validée » prend sa place', $('#blocMessageDepartLettreV1').offsetParent === null && $('#messageDepartValideLettreV1').offsetParent !== null);
+      racine.__collage.coller(' vous écris."}]}');
+      await attente(300);
+      cas('lettre : la suite est assemblée, rien n’est gardé avant « Continuer »', racine.__collage.etat() === 'recu' && !(dossier.ia && dossier.ia.lettre && dossier.ia.lettre.versions), racine.__collage.etat());
+      racine.__collage.coller('Bonjour, voici ma lettre sans code.'); await attente(300);
+      cas('lettre : une réponse sans code est refusée dans la fenêtre, rien n’est gardé', racine.__collage.etat() === 'echec' && !(dossier.ia && dossier.ia.lettre && dossier.ia.lettre.versions), racine.__collage.etat());
+      cas('lettre : en cas d’échec, le bloc de recopie du message revient (la personne peut en avoir besoin)', $('#blocMessageDepartLettreV1').offsetParent !== null && $('#messageDepartValideLettreV1').offsetParent === null);
+      racine.querySelector('[data-fc=recommencer]').click(); await attente(200);
+      racine.__collage.coller('{"accroche":"Une accroche.","arguments":["A","B"],"versions":[{"objet":"Candidature spontanée","texte":"Madame, Monsieur,\\n\\nBonjour.\\n\\nCordialement."}]}'); await attente(500);
+      cas('lettre : une réponse lisible passe', racine.__collage.etat() === 'recu', racine.__collage.etat());
+      var bouton = $('#btnContinuerCollage'); cas('lettre : « Continuer » (Voir ma lettre) est dans la barre du bas, actif', !!bouton && !bouton.disabled && /Voir ma lettre/.test(bouton.innerText), bouton && bouton.innerText);
+      if (bouton) { bouton.click(); await attente(1200); }
+      cas('lettre : « Continuer » enregistre la lettre et ouvre « Vos documents »', !!(dossier.ia && dossier.ia.lettre && dossier.ia.lettre.versions && dossier.ia.lettre.versions.length === 1) && location.hash === '#resultats', location.hash);
+    } catch (e) {
+      cas('lettre collage : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; _etatTransitionIA = null; if (dossier.ia) { dossier.ia.lettre = sauve.lettre; } dossier._origineCoLettre = sauve.origine; _coLettreEcran = 'intro'; naviguerVers('accueil'); }
+  }
+
+  // ---------------- Bilan : fenêtre « Générer une proposition » -> fenêtre unique « Collez la réponse » (dette B.17, 28/10/2026) ----------------
+  async function parcoursBilanAmeliorationFenetre() {
+    var ouvrirReel = window.open, ouvertures = 0;
+    try {
+      naviguerVers('cv'); await attente(400);
+      bilanStoreDefinirCandidature(bilanCreerCandidature({ id: 'cand-essai', cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.' }));
+      var diag = bilanCreerDiagnostic({ candidatureId: 'cand-essai', promptTexte: 'x' }); bilanStoreDefinirDiagnostic(diag);
+      var dem = bilanCreerDemandeAmelioration({ diagnosticSourceId: diag.id, recommandationSelectionnee: { id: 'rec1', contenu: 'Précisez vos résultats' }, dateCreation: new Date().toISOString() });
+      bilanStoreAjouterDemandeAmelioration(dem);
+      window.open = function () { ouvertures++; return {}; };
+      bilanAfficherEtapeCollageAmelioration(dem, ASSISTANTS_IA[0], 'TEXTE ENVOYE'); await attente(500);
+      var racine = $('#fcRacineAmelioration');
+      cas('bilan amélioration : la fenêtre unique s’affiche, passage 2 sur 2, assistant ouvert', !!racine && /2 sur 2/.test(texte(racine)) && /ouvert dans un autre onglet/.test(texte(racine)) && ouvertures === 1, texte(racine).slice(0, 120));
+      cas('bilan amélioration : le gros bouton attend le retour, « Continuer » grisé', !!$('[data-fc=coller]', racine) && $('[data-fc=coller]', racine).disabled && $('[data-fc=continuer]', racine).disabled);
+      $('[data-fc=retour]', racine).click();
+      racine.__collage.coller('Voici : {"proposition":"J’ai encadré 5 personnes","justif');
+      cas('bilan amélioration : une réponse coupée est signalée, « Coller la suite » proposé', racine.__collage.etat() === 'coupe' && /Coller la suite/.test(texte(racine)), racine.__collage.etat());
+      racine.__collage.coller('ication":"Un chiffre rassure","actionsConcretes":["Ajouter un chiffre"]}');
+      cas('bilan amélioration : la suite est assemblée, « Continuer » actif, rien enregistré avant le clic', racine.__collage.etat() === 'recu' && !$('[data-fc=continuer]', racine).disabled && !bilanObtenirPropositionAmelioration(dem.id), racine.__collage.etat());
+      $('[data-fc=continuer]', racine).click(); await attente(800);
+      cas('bilan amélioration : « Continuer » enregistre la proposition et ferme la fenêtre', !!bilanObtenirPropositionAmelioration(dem.id) && !$('#fenetreERIP'), '');
+      bilanAfficherEtapeCollageAmelioration(dem, ASSISTANTS_IA[0], 'TEXTE ENVOYE'); await attente(400);
+      racine = $('#fcRacineAmelioration'); $('[data-fc=retour]', racine).click(); racine.__collage.coller('Je ne peux pas répondre à cela.');
+      cas('bilan amélioration : une réponse inutilisable ne change rien et propose de recommencer, avec changer d’assistant', racine.__collage.etat() === 'echec' && !!$('[data-fc=recommencer]', racine) && !!$('[data-fc=changer]', racine), racine.__collage.etat());
+      if ($('#fenetreERIP')) { fermerFenetreERIP(); await attente(300); }
+    } catch (e) {
+      cas('bilan amélioration : aucune erreur', false, e && e.message);
+    } finally { window.open = ouvrirReel; }
+  }
+
+  var PARCOURS = { mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteCollage: parcoursDecouverteCollage, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, bilanAmeliorationFenetre: parcoursBilanAmeliorationFenetre, bilanCollageDiagnostic: parcoursBilanCollageDiagnostic, bilanCollageOrganisation: parcoursBilanCollageOrganisation, bilanCollageTitreAccroche: parcoursBilanCollageTitreAccroche, bilanCollageCorrectionLot: parcoursBilanCollageCorrectionLot, bilanCollageAssistanceLot: parcoursBilanCollageAssistanceLot, importActionIA: parcoursImportActionIA, reformulerCollage: parcoursReformulerCollage, lettreCollage: parcoursLettreCollage, prepLECollage: parcoursPrepLECollage, prepLEPassages: parcoursPrepLEPassages, reformulerPassages: parcoursReformulerPassages, modifierSurPlace: parcoursModifierSurPlace, bilanTexteLibre: parcoursBilanTexteLibre, entretienCollage: parcoursEntretienCollage, coherenceCollage: parcoursCoherenceCollage, regardExterieurCollage: parcoursRegardExterieurCollage, regardRecruteurCollage: parcoursRegardRecruteurCollage, regardFondCouleur: parcoursRegardFondCouleur, regardChoixMode: parcoursRegardChoixMode, regardAjoutImage: parcoursRegardAjoutImage, depotPageAts: parcoursDepotPageAts, depotPageModules: parcoursDepotPageModules, atsCollage: parcoursAtsCollage, decompteApercu: parcoursDecompteApercu, comparer: parcoursComparer, comparerAffinage: parcoursComparerAffinage, decouverte: parcoursDecouverte, prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, reformulerInvitation: parcoursReformulerInvitation, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, rappelSauvegarde: parcoursRappelSauvegarde, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, chiffresLecture: parcoursChiffresLecture, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
 
   // Attend que l'application soit chargee (un eval lance juste apres un rechargement tombe sinon sur une page a moitie prete).
   async function attendreApplication() {

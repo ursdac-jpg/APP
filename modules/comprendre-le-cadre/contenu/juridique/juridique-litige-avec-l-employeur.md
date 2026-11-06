@@ -7,7 +7,9 @@ tags: [conseil de prud'hommes, licenciement, salaire impayé, délais de prescri
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-05
+verifie_le: 2026-11-04
+delai:
+  - "Droits et recours | 12 mois, 2 ans ou 3 ans pour saisir le conseil de prud'hommes | Vous avez un litige avec votre employeur | Il faut saisir le conseil de prud'hommes dans les 12 mois après un licenciement, dans les 2 ans pour un problème lié à l'exécution du contrat, et dans les 3 ans pour des salaires non payés."
 lexique:
   - terme: "conseil de prud'hommes"
     definition: "Tribunal qui règle les litiges individuels entre un salarié et son employeur nés du contrat de travail."
@@ -26,8 +28,11 @@ ce_qui_change_souvent:
   - "Les frais de saisine"
   - "Les pièces à joindre à la saisine"
 revisions:
+  - "2026-11-03 : relu sur Légifrance (décret n° 2026-683 du 27 juillet 2026, article 10 : la requête est accompagnée d'un bordereau des pièces et du dernier bulletin de salaire afférent au litige ou de toute pièce permettant de déterminer l'activité de l'employeur ; article 21 : applicable aux instances introduites à compter du 1er octobre 2026) ; la page service-public F2360 décrit encore l'ancienne règle (toutes les pièces avec la requête)"
   - "2026-10 : pour les affaires portées devant le conseil à partir du 1er octobre 2026 (décret du 27 juillet 2026), il n'est plus nécessaire de joindre toutes ses pièces à la requête : la liste des pièces et le dernier bulletin de salaire suffisent, les pièces étant transmises ensuite à l'autre partie avant l'audience ; vérifié sur Légifrance le 2026-10-05"
   - "2026-03 : un timbre fiscal de 50 euros est exigé pour saisir le conseil de prud'hommes, sauf aide juridictionnelle"
+  - "2026-11-04 : la page Code du travail numérique confirme la conciliation puis le jugement, la contribution de 50 euros pour les instances introduites depuis le 1er mars 2026 (sauf aide juridictionnelle, formulation corrigée : ce n'est pas un « timbre fiscal ») et la simplification du dépôt à partir du 1er octobre 2026 ; l'avocat non obligatoire et la durée des jugements n'y figurent pas (retirés) ; les délais de saisine et le barème avaient été confirmés le 2026-11-03 sur d'autres pages"
+phrase_generale: "Le conseil de prud'hommes règle les désaccords entre un salarié et son employeur : salaire non payé, licenciement jugé injustifié, contrat mal appliqué, documents non remis. Les délais pour agir et la procédure changent régulièrement : demandez conseil à un syndicat ou à un point d'accès au droit, ou consultez les sources officielles indiquées plus bas."
 collecte: juridique.collecte.md
 ---
 
@@ -37,10 +42,10 @@ Avant d'aller au tribunal, un courrier recommandé à l'employeur, l'appui de l'
 
 Les délais pour agir comptent. Il faut saisir le conseil dans les 12 mois après un licenciement, dans les 2 ans pour un problème lié à l'exécution du contrat, et dans les 3 ans pour des salaires non payés.
 
-La procédure passe d'abord par une tentative de conciliation, puis par un jugement. La saisine se fait avec un formulaire. Depuis le 1er mars 2026, il faut un timbre fiscal de 50 euros, sauf si vous avez l'aide juridictionnelle. L'avocat n'est pas obligatoire, mais il est utile.
+La procédure passe d'abord par une tentative de conciliation, puis par un jugement. La saisine se fait avec un formulaire. Depuis le 1er mars 2026, il faut s'acquitter d'une contribution pour l'aide juridique de 50 euros, sauf si vous avez l'aide juridictionnelle. Vous pouvez vous faire assister ou représenter.
 
-Depuis le 1er octobre 2026, il n'est plus nécessaire de joindre toutes vos pièces dès le départ. Vous joignez à la demande la liste de vos pièces et votre dernier bulletin de salaire en lien avec le litige. Le greffe vous demandera ensuite d'envoyer vos pièces à l'employeur avant la séance de conciliation ou l'audience : gardez-les donc toutes sous la main, bien classées.
+Pour les affaires portées devant le conseil à partir du 1er octobre 2026, il n'est plus nécessaire de joindre toutes vos pièces dès le départ. Vous joignez à la demande la liste de vos pièces et votre dernier bulletin de salaire en lien avec le litige (ou, à défaut, toute pièce qui permet de savoir quelle est l'activité de l'employeur). Le greffe vous demandera ensuite d'envoyer vos pièces à l'employeur avant la séance de conciliation ou l'audience : gardez-les donc toutes sous la main, bien classées.
 
 Si le licenciement est jugé sans motif valable, un barème fixe l'indemnité selon votre ancienneté. Ce barème ne s'applique pas quand le licenciement est nul, par exemple pour discrimination ou harcèlement.
 
-Les jugements demandent souvent plus d'un an. Faites-vous accompagner tôt.
+Faites-vous accompagner tôt.

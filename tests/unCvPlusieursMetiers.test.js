@@ -13,6 +13,12 @@ test('ucpm : huit pages, une icône et un libellé chacune, jamais d\'icône de 
   });
 });
 
+test('ucpm : la barre ne dit pas « Fin » avant « Entretiens » : le septième repère est « Mes documents » (28/10/2026)', () => {
+  const libelles = ucpm.UCPM_ETAPES.map(function (e) { return e.label; });
+  assert.deepEqual(libelles.slice(5), ['Lettres', 'Mes documents', 'Entretiens']);
+  assert.ok(libelles.indexOf('Fin') === -1);
+});
+
 test('ucpm : bornes du module (10 métiers au plus, 2 pour créer)', () => {
   assert.equal(ucpm.UCPM_MAX_METIERS, 10);
   assert.equal(ucpm.UCPM_MIN_METIERS_POUR_CREER, 2);

@@ -131,6 +131,15 @@ function _rrConstruirePointsARetenir(axes) {
   return liste.length ? liste : [_RR_A_RETENIR_VIDE];
 }
 
+// Oui / non de l'assistant : true, false, ou null quand il n'a rien dit de net (l'application affiche alors son texte de repli).
+function _rrLireOuiNon(v) {
+  if (v === true || v === false) { return v; }
+  var s = (typeof v === 'string') ? v.trim().toLowerCase() : '';
+  if (s === 'true' || s === 'oui') { return true; }
+  if (s === 'false' || s === 'non') { return false; }
+  return null;
+}
+
 function _rrRapportVide(modeAnalyse) {
   return {
     modeAnalyse: modeAnalyse,
@@ -139,6 +148,7 @@ function _rrRapportVide(modeAnalyse) {
     cvCourt: false,
     messageCvCourt: '',
     syntheseOuverture: '',
+    fondDeCouleur: null,
     axes: REGARD_RECRUTEUR_AXES.map(function (id) { return { id: id, afficher: false, points: [] }; }),
     questionsLieesAuCv: [],
     pointsARetenir: []
@@ -238,6 +248,7 @@ function regardRecruteurParserRapport(texteColle, contexte, dependances) {
       ? (_rrAssainir(_rrTexte(brut.messageCvCourt)) || _RR_MSG_CV_COURT_DEFAUT)
       : '',
     syntheseOuverture: _rrAssainir(_rrTexte(brut.syntheseOuverture)),
+    fondDeCouleur: (modeAnalyse === 'image') ? _rrLireOuiNon(brut.fondDeCouleur) : null,
     axes: axes,
     questionsLieesAuCv: questions,
     pointsARetenir: _rrConstruirePointsARetenir(axes)

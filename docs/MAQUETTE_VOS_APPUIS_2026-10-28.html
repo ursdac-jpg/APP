@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Vos appuis, une seule fois, avant le second passage</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1c7a46; --ok-bg:#e3f4ea; --warn:#8a5a00; --warn-bg:#fff3d6; --barre:#ffffff; --gris:#e9edf5; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#6fd49b; --ok-bg:#1d3a2b; --warn:#f0c46a; --warn-bg:#3b3015; --barre:#1b212d; --gris:#262d3b; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px 16px 110px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+h1 { font-size:1.2rem; margin:0 0 6px; } h2 { font-size:1.3rem; margin:0 0 4px; } h3 { font-size:1.05rem; margin:0 0 6px; }
+p { margin:0 0 8px; } .muted { color:var(--muted); font-size:.92rem; }
+.note, .page, .onglets, .legende { max-width:920px; margin-left:auto; margin-right:auto; }
+.note { margin-bottom:12px; }
+.onglets { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.onglets button { font:inherit; padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); cursor:pointer; }
+.onglets button[aria-selected="true"] { border-color:var(--accent); background:var(--accent-bg); font-weight:700; }
+.frise { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0 14px; }
+.ecr { font-size:.85rem; padding:5px 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); }
+.ecr.nouveau { border:2px solid var(--accent); background:var(--accent-bg); font-weight:700; }
+.ecr.retire { border:1.5px dashed var(--warn); background:var(--warn-bg); color:var(--warn); text-decoration:line-through; }
+.fl { color:var(--muted); }
+.etapes { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.etape { font-size:.85rem; padding:4px 10px; border-radius:99px; border:1px solid var(--border); color:var(--muted); background:var(--card); }
+.etape.fait { background:var(--ok-bg); color:var(--ok); border-color:var(--ok); } .etape.ici { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+.centre { text-align:center; }
+.carte { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--card); margin-bottom:12px; }
+.carte.vedette { border:2px solid var(--accent); }
+.piece { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px; background:var(--card); }
+.piece.ajoutee { border-color:var(--ok); background:var(--ok-bg); }
+.piece .txt { flex:1 1 320px; } .piece strong { display:block; }
+.pilule { font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--gris); color:var(--muted); }
+.pilule.ok { background:var(--ok-bg); color:var(--ok); } .pilule.att { background:var(--warn-bg); color:var(--warn); }
+.btn { font:inherit; font-size:.95rem; padding:.5rem .9rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
+.btn.plein { background:var(--accent); color:#fff; } .btn.discret { border-color:var(--border); color:var(--muted); } .btn.petit { font-size:.85rem; padding:.3rem .65rem; }
+.btn:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.encart { border-left:4px solid var(--warn); background:var(--warn-bg); border-radius:6px; padding:8px 12px; font-size:.92rem; margin:8px 0; }
+.encart.ok { border-left-color:var(--ok); background:var(--ok-bg); }
+.etiquette { display:inline-block; font-size:.75rem; font-weight:700; padding:1px 8px; border-radius:99px; background:var(--warn-bg); color:var(--warn); margin-left:6px; }
+.reglages { display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:.92rem; padding:8px 12px; border:1px dashed var(--border); border-radius:10px; margin-bottom:12px; }
+.reglages label { display:flex; gap:6px; align-items:center; }
+.barre-bas { position:fixed; left:0; right:0; bottom:0; background:var(--barre); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:center; z-index:5; }
+.barre-bas .in { width:100%; max-width:920px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+.barre-bas .btn { font-size:1rem; padding:.6rem 1.1rem; }
+.suite { border:1px solid var(--ok); background:var(--ok-bg); border-radius:10px; padding:10px 14px; margin-top:10px; }
+.legende { margin-top:18px; font-size:.9rem; color:var(--muted); } .legende li { margin-bottom:5px; }
+[hidden] { display:none !important; }
+textarea { width:100%; font:inherit; font-size:.9rem; padding:.5rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); }
+.avant { border:1.5px dashed var(--warn); background:var(--warn-bg); border-radius:10px; padding:10px 12px; margin:8px 0; }
+.apres { border:2px solid var(--ok); background:var(--ok-bg); border-radius:10px; padding:10px 12px; margin:8px 0; }
+table.t { width:100%; border-collapse:collapse; font-size:.92rem; margin:8px 0; } table.t th, table.t td { border:1px solid var(--border); padding:6px 8px; text-align:left; vertical-align:top; } table.t th { background:var(--accent-bg); }
+</style>
+<body>
+<div class="note">
+  <h1>Maquette : « Vos appuis » une seule fois, avant le second passage de l’assistant</h1>
+  <p class="muted">Trois onglets. Trois appuis, proposés partout où ils servent (CV, lettre, entretien) : <strong>les lettres de recommandation</strong> (déjà là), <strong>le document « Mes compétences »</strong> et <strong>une zone de texte libre</strong> (écrite ou dictée). <strong>La lettre de motivation n’est pas un appui</strong> : elle risque d’être générale et de ne pas représenter la personne. Tout est cliquable pour simuler ; rien n’est codé.</p>
+</div>
+
+<div class="onglets" role="tablist">
+  <button type="button" role="tab" id="ong1" aria-selected="true">1. Ce qui change, écran par écran</button>
+  <button type="button" role="tab" id="ong2" aria-selected="false">2. Reformuler, version 2 : « Un CV plus développé ? »</button>
+  <button type="button" role="tab" id="ong3" aria-selected="false">3. Autres CV avec second passage</button>
+</div>
+
+<div id="ch1" class="page">
+  <div class="carte">
+    <h3>Où « Vos appuis » apparaît, avant et après</h3>
+    <table class="t">
+      <tr><th>Écran</th><th>Aujourd’hui</th><th>Proposé</th></tr>
+      <tr><td>« Votre objectif » : CV créé avec l’assistant</td><td>Panneau affiché, avant tout passage</td><td><strong>Retiré</strong></td></tr>
+      <tr><td>« Votre objectif » : Reformuler et « Mettre à jour »</td><td>Panneau affiché, avant le premier passage</td><td><strong>Retiré</strong></td></tr>
+      <tr><td>« Vos documents », « Choisissez votre assistant » (CV)</td><td>Panneau affiché (avant le second passage)</td><td><strong>Gardé</strong>, avec trois appuis : lettres de recommandation, « Mes compétences », texte libre</td></tr>
+      <tr><td>Reformuler, version 2</td><td>Panneau déjà vu avant le premier passage, puis second passage obligatoire</td><td>Invitation « Un CV plus développé ? » (onglet 2)</td></tr>
+      <tr><td>Reformuler, version 1</td><td>Panneau vu avant d’avoir choisi la version</td><td><strong>Aucun appui</strong> (la version est donnée telle quelle)</td></tr>
+      <tr><td>« Un CV, plusieurs métiers », page 3</td><td>Panneau avant le choix de l’assistant</td><td>Inchangé, avec « Mes compétences » et le texte libre en plus</td></tr>
+      <tr><td>Lettre de motivation et entretien : « Préparer »</td><td>Panneau (lettres de recommandation)</td><td>Panneau gardé (un seul passage : pas de « après le premier »), avec « Mes compétences » et le texte libre en plus</td></tr>
+    </table>
+    <div class="encart ok"><strong>Effet pour la personne :</strong> on ne lui demande plus ses appuis avant d’avoir vu ce que l’assistant a compris de son CV. On les lui propose une seule fois, au moment où ils servent.</div>
+  </div>
+  <div class="carte">
+    <h3>Écran « Votre objectif » après le changement (Reformuler et « Mettre à jour »)</h3>
+    <div class="avant"><strong>Avant</strong> : cartes d’objectif, panneau « Votre candidature », <u>puis le panneau « Vos appuis » (lettre de recommandation, Oui / Non)</u>.</div>
+    <div class="apres"><strong>Après</strong> : cartes d’objectif, panneau « Votre candidature ». C’est tout. Les appuis viennent plus loin, à « Vos documents ».</div>
+  </div>
+</div>
+
+<div id="ch2" class="page" hidden>
+  <div class="frise" aria-label="Les écrans du chemin version 2">
+    <span class="ecr">Choisissez une version</span><span class="fl">&#8594;</span>
+    <span class="ecr">Vérifiez votre CV reformulé</span><span class="fl">&#8594;</span>
+    <span class="ecr">Récupérer votre CV</span><span class="fl">&#8594;</span>
+    <span class="ecr">Vos informations</span><span class="fl">&#8594;</span>
+    <span class="ecr">Votre profil</span><span class="fl">&#8594;</span>
+    <span class="ecr nouveau">Vos documents : « Un CV plus développé ? » (facultatif)</span><span class="fl">&#8594;</span>
+    <span class="ecr">(seulement si un appui est joint) choix de l’assistant, collage, « Choisir ce qui ira sur le CV »</span><span class="fl">&#8594;</span>
+    <span class="ecr">Mes modèles</span>
+  </div>
+  <div class="reglages">
+    <strong>Simulations :</strong>
+    <label><input type="checkbox" id="aDecouverte" checked> J’ai fait « Découvrir mes compétences »</label>
+  </div>
+  <div class="carte">
+    <div class="etapes"><span class="etape fait">Préparer</span><span class="etape fait">Assistant</span><span class="etape fait">Réponse</span><span class="etape fait">Corriger mon CV</span><span class="etape ici">Vos documents</span></div>
+    <div class="centre"><h2>Vos documents</h2></div>
+    <section class="carte vedette" aria-labelledby="titreInv" style="margin-top:12px;">
+      <h3 id="titreInv">Envie d’un CV plus développé ?</h3>
+      <p>Vous avez choisi la version reformulée. Si vous le souhaitez, l’assistant peut la <strong>développer un peu plus</strong>, en s’appuyant sur des documents que vous lui donnez. Il reste centré sur <strong>votre objectif</strong> : <em>agent d’entretien</em>. Ce n’est pas obligatoire.</p>
+      <div class="encart ok"><strong>Vous gardez la main.</strong> Tout ce que l’assistant ajoute à partir de vos documents est marqué <span class="etiquette">proposé, à vérifier</span> : vous décidez de le garder ou non.</div>
+      <div id="pieces"></div>
+      <div class="encart"><strong>Protégez les personnes citées.</strong> Avant d’ajouter une lettre, retirez les noms, téléphones et adresses. Les noms repérés sont surlignés en jaune à l’étape suivante, comme pour votre CV.</div>
+    </section>
+    <p class="muted centre" id="phraseBas"></p>
+  </div>
+  <div class="suite" id="suite2" hidden role="status"></div>
+</div>
+
+<div id="ch3" class="page" hidden>
+  <div class="frise" aria-label="Les écrans du chemin des autres CV">
+    <span class="ecr">Votre objectif (sans appuis)</span><span class="fl">&#8594;</span>
+    <span class="ecr">Vos informations</span><span class="fl">&#8594;</span>
+    <span class="ecr">Votre profil</span><span class="fl">&#8594;</span>
+    <span class="ecr nouveau">Vos documents : « Choisissez votre assistant » avec « Vos appuis »</span>
+  </div>
+  <p class="muted">Pour « Mettre à jour », la création avec l’assistant et « Un CV, plusieurs métiers » : le second passage est obligatoire, donc les appuis sont <strong>proposés au-dessus du choix de l’assistant</strong> (comme aujourd’hui), mais une seule fois et avec « Mes compétences » et le texte libre en plus.</p>
+  <div class="carte">
+    <div class="etapes"><span class="etape fait">Préparer</span><span class="etape fait">Assistant</span><span class="etape fait">Réponse</span><span class="etape fait">Corriger mon CV</span><span class="etape ici">Vos documents</span></div>
+    <div class="centre"><h2>Vos documents</h2></div>
+    <section class="carte vedette">
+      <h3>&#129309; Vos appuis <span class="etiquette">à compléter</span></h3>
+      <p class="muted">Des documents que l’assistant peut lire pour rédiger votre CV avec les mots justes de votre métier. Plus vous donnez d’appuis, plus votre candidature a de poids.</p>
+      <div id="pieces3"></div>
+      <div class="encart"><strong>Protégez les personnes citées.</strong> Avant d’ajouter une lettre, retirez les noms, téléphones et adresses.</div>
+    </section>
+    <div class="carte"><strong>&#128172; Choisissez votre assistant</strong><p class="muted" style="margin:4px 0 0">(écran existant, inchangé)</p></div>
+  </div>
+</div>
+
+<div class="barre-bas"><div class="in">
+  <button type="button" class="btn" id="btnRetour">&#8592; Retour</button>
+  <button type="button" class="btn" id="btnAccueil">Accueil</button>
+  <button type="button" class="btn plein" id="btnContinuer">Continuer &#8594;</button>
+</div></div>
+
+<ul class="legende">
+  <li><strong>Mes compétences</strong> : le document existe déjà (lignes gardées par la personne, chacune avec sa preuve). Il n’est proposé que si la personne a terminé « Découvrir mes compétences ». Sinon, une ligne explique qu’elle pourra le faire plus tard : rien ne bloque.</li>
+  <li><strong>Zone de texte libre</strong> : remplace l’idée de la lettre de motivation. Même protection que les autres appuis (conseil de retirer noms, téléphones et adresses). Dans l’application, la dictée est annoncée comme « la dictée vocale de votre appareil », jamais « Windows + H ». La lettre de motivation comme appui pourrait exister plus tard, seulement dans « Découvrir mes compétences ».</li>
+  <li><strong>Où</strong> : lettre de recommandation, « Mes compétences » et texte libre sont proposés aux mêmes endroits (CV, lettre, entretien, « Un CV, plusieurs métiers ») : un seul panneau, trois appuis.</li>
+  <li><strong>Avant d’ouvrir</strong> : la phrase « base d’enrichissement du CV » ne sera écrite dans l’introduction du module que dans le commit qui branche réellement le document. Un paragraphe sera ajouté dans la consigne du CV, à tester par vous avec un vrai assistant avant ouverture.</li>
+  <li><strong>Reformuler, version 2, sans appui joint</strong> : « Continuer » garde la version telle quelle et passe aux modèles (comme la maquette 4 du 27/10). C’est un <strong>changement</strong> par rapport à aujourd’hui, où la version 2 passe toujours par le style d’écriture et le second passage : à confirmer.</li>
+</ul>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var etat = { reco:false, decouverte:false };
+  var PIECES = [
+    { k:'reco', t:'Une lettre de recommandation', d:'D’un ancien employeur, d’un tuteur de stage, d’un formateur… Jusqu’à trois lettres. Elle donne du poids à votre CV.', b:'Déposer ou coller' },
+    { k:'decouverte', t:'Ma synthèse « Mes compétences »', d:'Les compétences qui sont ressorties de votre récit, avec leur preuve. Elle permet de retrouver des compétences que votre CV ne montrait pas.', b:'Joindre ma synthèse' },
+    { k:'infos', t:'Dites-le avec vos mots', d:'Si vous n’avez pas trouvé ailleurs où le dire : qu’est-ce que vous voudriez mettre en avant pour votre candidature ? Écrivez-le, ou dictez-le avec la dictée vocale de votre appareil. Quelques lignes suffisent.', b:'Écrire quelques lignes' }
+  ];
+  function carte(p, on) {
+    var zone = (on && p.k === 'infos') ? '<textarea rows="3" aria-label="Dites-le avec vos mots">Je suis ponctuel et j’aime le contact avec le public. J’ai aidé mes voisins pendant des années.</textarea>' : '';
+    return '<div class="piece' + (on ? ' ajoutee' : '') + '"><div class="txt"><strong>' + p.t + ' <span class="pilule ' + (on ? 'ok' : '') + '">' + (on ? 'Ajouté' : 'à votre choix') + '</span></strong><span class="muted">' + p.d + '</span>' + zone + '</div>' +
+      '<button type="button" class="btn petit' + (on ? ' discret' : '') + '" data-k="' + p.k + '">' + (on ? 'Retirer' : p.b) + '</button></div>';
+  }
+  function nb() { return Object.keys(etat).filter(function (k) { return etat[k] && !(k === 'decouverte' && !$('aDecouverte').checked); }).length; }
+  function dessiner() {
+    var h = '';
+    PIECES.forEach(function (p) {
+      if (p.k === 'decouverte' && !$('aDecouverte').checked) {
+        h += '<div class="piece"><div class="txt"><strong>' + p.t + ' <span class="pilule">pas encore faite</span></strong><span class="muted">Vous n’avez pas encore fait « Découvrir mes compétences ». Vous pourrez la faire plus tard : elle ne bloque rien.</span></div></div>';
+        return;
+      }
+      h += carte(p, etat[p.k]);
+    });
+    $('pieces').innerHTML = h; $('pieces3').innerHTML = h;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k]'), function (b) { b.addEventListener('click', function () { etat[b.getAttribute('data-k')] = !etat[b.getAttribute('data-k')]; $('suite2').hidden = true; dessiner(); }); });
+    var n = nb();
+    $('phraseBas').textContent = n ? n + ' appui' + (n > 1 ? 's' : '') + ' joint' + (n > 1 ? 's' : '') + ' : « Continuer » ouvre le choix de l’assistant pour développer votre CV.' : 'Aucun appui joint : « Continuer » garde votre version telle quelle et passe directement à la mise en page.';
+  }
+  $('aDecouverte').addEventListener('change', dessiner);
+  $('btnContinuer').addEventListener('click', function () {
+    var s = $('suite2'); if ($('ch2').hidden) { s.hidden = true; return; } s.hidden = false;
+    s.innerHTML = nb() ? '<strong>Simulation :</strong> choix de l’assistant, collage de sa réponse, puis « Choisir ce qui ira sur le CV » : les ajouts venant de vos appuis y sont marqués <span class="etiquette">proposé, à vérifier</span>. Ensuite, la mise en page.' : '<strong>Simulation :</strong> aucun appui joint, on garde votre version telle quelle. Vous arrivez directement sur la mise en page, avec vos modèles gardés.';
+  });
+  $('btnRetour').addEventListener('click', function () { if ($('ch2').hidden) { return; } $('suite2').hidden = false; $('suite2').innerHTML = '<strong>Simulation :</strong> « Retour » ramène à « Votre profil ».'; });
+  $('btnAccueil').addEventListener('click', function () { if ($('ch2').hidden) { return; } $('suite2').hidden = false; $('suite2').innerHTML = '<strong>Simulation :</strong> « Accueil » ramène à l’accueil.'; });
+  function montrer(n) { [1, 2, 3].forEach(function (i) { $('ch' + i).hidden = n !== i; $('ong' + i).setAttribute('aria-selected', n === i); }); $('suite2').hidden = true; }
+  [1, 2, 3].forEach(function (i) { $('ong' + i).addEventListener('click', function () { montrer(i); }); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

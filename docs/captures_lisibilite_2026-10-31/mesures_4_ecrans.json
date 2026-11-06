@@ -1,0 +1,612 @@
+{
+ "bureau-1920 | accueil": {
+  "texteTotal": 1342,
+  "partTexteSous14px": 30,
+  "tailles": "12.2:402 14.4:86 15.2:687 19.2:33 20:104 44.8:30",
+  "nbBoutons": 10,
+  "boutonHauteurMin": 42,
+  "boutonHauteurMediane": 362,
+  "boutonsSous40": 0,
+  "boutonsSous44": 4,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1169,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "bureau-1920 | rapide-depot": {
+  "texteTotal": 2044,
+  "partTexteSous14px": 34.5,
+  "tailles": "11.5:73 12:17 12.5:20 12.8:129 13.1:258 13.6:209 14.4:233 15.2:13 15.7:325 16:442 16.8:43 17.6:3 19.2:238 32:4 44.8:37",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 5,
+  "boutonsSous44": 5,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1568,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "bureau-1920 | rapide-choix-assistant": {
+  "texteTotal": 2684,
+  "partTexteSous14px": 33.9,
+  "tailles": "9.9:45 10:1 11.2:4 11.5:40 12.8:164 13.1:198 13.6:458 14:167 14.1:1105 14.4:37 14.7:74 15.2:10 16:123 16.8:51 17.6:2 19.2:175 44.8:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 38,
+  "boutonHauteurMediane": 48,
+  "boutonsSous40": 2,
+  "boutonsSous44": 2,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1080,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "bureau-1920 | lettre-vos-documents": {
+  "texteTotal": 3122,
+  "partTexteSous14px": 14.9,
+  "tailles": "11.5:71 12.5:42 12.8:129 13.1:26 13.3:81 13.6:116 14:1741 14.4:303 15.2:32 15.7:15 16:462 16.8:71 44.8:33",
+  "nbBoutons": 36,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 47,
+  "boutonsSous40": 14,
+  "boutonsSous44": 15,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   },
+   {
+    "t": "Feuille A4",
+    "h": 33,
+    "w": 91,
+    "fs": 13.1
+   },
+   {
+    "t": "Message par mail",
+    "h": 33,
+    "w": 137,
+    "fs": 13.1
+   },
+   {
+    "t": "Bleu",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Marine",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Vert",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Bordeaux",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 2019,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-125-1536 | accueil": {
+  "texteTotal": 1342,
+  "partTexteSous14px": 30,
+  "tailles": "12.2:402 14.4:86 15.2:687 19.2:33 20:104 44.8:30",
+  "nbBoutons": 10,
+  "boutonHauteurMin": 42,
+  "boutonHauteurMediane": 362,
+  "boutonsSous40": 0,
+  "boutonsSous44": 4,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1169,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-125-1536 | rapide-depot": {
+  "texteTotal": 2044,
+  "partTexteSous14px": 34.5,
+  "tailles": "11.5:73 12:17 12.5:20 12.8:129 13.1:258 13.6:209 14.4:233 15.2:13 15.7:325 16:442 16.8:43 17.6:3 19.2:238 32:4 44.8:37",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 5,
+  "boutonsSous44": 5,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1592,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-125-1536 | rapide-choix-assistant": {
+  "texteTotal": 2684,
+  "partTexteSous14px": 33.9,
+  "tailles": "9.9:45 10:1 11.2:4 11.5:40 12.8:164 13.1:198 13.6:458 14:167 14.1:1105 14.4:37 14.7:74 15.2:10 16:123 16.8:51 17.6:2 19.2:175 44.8:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 38,
+  "boutonHauteurMediane": 48,
+  "boutonsSous40": 2,
+  "boutonsSous44": 2,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1017,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-125-1536 | lettre-vos-documents": {
+  "texteTotal": 3122,
+  "partTexteSous14px": 14.9,
+  "tailles": "11.5:71 12.5:42 12.8:129 13.1:26 13.3:81 13.6:116 14:1741 14.4:303 15.2:32 15.7:15 16:462 16.8:71 44.8:33",
+  "nbBoutons": 36,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 47,
+  "boutonsSous40": 14,
+  "boutonsSous44": 15,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   },
+   {
+    "t": "Feuille A4",
+    "h": 33,
+    "w": 91,
+    "fs": 13.1
+   },
+   {
+    "t": "Message par mail",
+    "h": 33,
+    "w": 137,
+    "fs": 13.1
+   },
+   {
+    "t": "Bleu",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Marine",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Vert",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Bordeaux",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 2099,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-150-1280 | accueil": {
+  "texteTotal": 1342,
+  "partTexteSous14px": 30,
+  "tailles": "12.2:402 14.4:86 15.2:687 19.2:33 20:104 44.8:30",
+  "nbBoutons": 10,
+  "boutonHauteurMin": 42,
+  "boutonHauteurMediane": 362,
+  "boutonsSous40": 0,
+  "boutonsSous44": 4,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1169,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-150-1280 | rapide-depot": {
+  "texteTotal": 2044,
+  "partTexteSous14px": 34.5,
+  "tailles": "11.5:73 12:17 12.5:20 12.8:129 13.1:258 13.6:209 14.4:233 15.2:13 15.7:325 16:442 16.8:43 17.6:3 19.2:238 32:4 44.8:37",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 5,
+  "boutonsSous44": 5,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1599,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-150-1280 | rapide-choix-assistant": {
+  "texteTotal": 2684,
+  "partTexteSous14px": 33.9,
+  "tailles": "9.9:45 10:1 11.2:4 11.5:40 12.8:164 13.1:198 13.6:458 14:167 14.1:1105 14.4:37 14.7:74 15.2:10 16:123 16.8:51 17.6:2 19.2:175 44.8:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 38,
+  "boutonHauteurMediane": 48,
+  "boutonsSous40": 2,
+  "boutonsSous44": 2,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1021,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "portable-150-1280 | lettre-vos-documents": {
+  "texteTotal": 3122,
+  "partTexteSous14px": 14.9,
+  "tailles": "11.5:71 12.5:42 12.8:129 13.1:26 13.3:81 13.6:116 14:1741 14.4:303 15.2:32 15.7:15 16:462 16.8:71 44.8:33",
+  "nbBoutons": 36,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 47,
+  "boutonsSous40": 14,
+  "boutonsSous44": 15,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   },
+   {
+    "t": "Feuille A4",
+    "h": 33,
+    "w": 91,
+    "fs": 13.1
+   },
+   {
+    "t": "Message par mail",
+    "h": 33,
+    "w": 137,
+    "fs": 13.1
+   },
+   {
+    "t": "Bleu",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Marine",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Vert",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Bordeaux",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 2099,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "tablette-768 | accueil": {
+  "texteTotal": 1342,
+  "partTexteSous14px": 30,
+  "tailles": "12.2:402 14.4:86 15.2:687 19.2:33 20:104 32:30",
+  "nbBoutons": 10,
+  "boutonHauteurMin": 42,
+  "boutonHauteurMediane": 347,
+  "boutonsSous40": 0,
+  "boutonsSous44": 4,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1583,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "tablette-768 | rapide-depot": {
+  "texteTotal": 2044,
+  "partTexteSous14px": 47.2,
+  "tailles": "11.5:73 12:70 12.5:20 12.8:309 13.1:258 13.6:235 15.2:13 15.7:325 16:502 16.8:24 17.6:3 19.2:112 21.1:59 32:41",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 7,
+  "boutonsSous44": 7,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1683,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "tablette-768 | rapide-choix-assistant": {
+  "texteTotal": 2684,
+  "partTexteSous14px": 34.5,
+  "tailles": "9.9:45 10:1 11.2:4 11.5:40 12:53 12.8:111 13.1:198 13.6:473 14:167 14.1:1105 14.4:37 14.7:74 15.2:10 16:116 16.8:43 17.6:2 19.2:117 21.1:58 32:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 38,
+  "boutonHauteurMediane": 48,
+  "boutonsSous40": 3,
+  "boutonsSous44": 3,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1045,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "tablette-768 | lettre-vos-documents": {
+  "texteTotal": 3122,
+  "partTexteSous14px": 16,
+  "tailles": "11.5:71 12:53 12.5:42 12.8:76 13.1:26 13.3:81 13.6:150 14:1741 14.4:136 15.2:32 15.7:15 16:455 16.8:44 17.1:167 32:33",
+  "nbBoutons": 36,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 57,
+  "boutonsSous40": 16,
+  "boutonsSous44": 17,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   },
+   {
+    "t": "Feuille A4",
+    "h": 33,
+    "w": 91,
+    "fs": 13.1
+   },
+   {
+    "t": "Message par mail",
+    "h": 33,
+    "w": 137,
+    "fs": 13.1
+   },
+   {
+    "t": "Bleu",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Marine",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Vert",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   },
+   {
+    "t": "Bordeaux",
+    "h": 30,
+    "w": 30,
+    "fs": 16
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 2809,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "telephone-375 | accueil": {
+  "texteTotal": 1342,
+  "partTexteSous14px": 30,
+  "tailles": "12.2:402 14.4:86 15.2:687 19.2:33 20:104 32:30",
+  "nbBoutons": 10,
+  "boutonHauteurMin": 42,
+  "boutonHauteurMediane": 337,
+  "boutonsSous40": 0,
+  "boutonsSous44": 4,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 2832,
+  "corpsPx": "16.25px",
+  "erreurs": 0
+ },
+ "telephone-375 | rapide-depot": {
+  "texteTotal": 2044,
+  "partTexteSous14px": 46.3,
+  "tailles": "0:7 11.5:73 12:70 12.5:20 12.8:309 13.1:258 13.6:209 14.4:19 15.2:13 15.7:325 16:100 16.3:402 16.8:24 19.2:112 20:3 22.4:59 32:41",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 6,
+  "boutonsSous44": 6,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 2703,
+  "corpsPx": "16.25px",
+  "erreurs": 0
+ },
+ "telephone-375 | rapide-choix-assistant": {
+  "texteTotal": 2684,
+  "partTexteSous14px": 34.2,
+  "tailles": "0:7 9.9:45 10:1 11.2:4 11.5:40 12:53 12.8:111 13.1:198 13.6:458 14.1:1105 14.2:167 14.4:45 14.7:74 15.2:10 16.3:116 16.8:43 19.2:117 20:2 22.4:58 32:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 38,
+  "boutonHauteurMediane": 48,
+  "boutonsSous40": 2,
+  "boutonsSous44": 2,
+  "petitsBoutons": [],
+  "scrollHorizontal": false,
+  "hauteurPage": 1596,
+  "corpsPx": "16.25px",
+  "erreurs": 0
+ },
+ "telephone-375 | lettre-vos-documents": {
+  "texteTotal": 3122,
+  "partTexteSous14px": 15.1,
+  "tailles": "0:7 11.5:71 12:53 12.5:42 12.8:76 13.1:26 13.3:81 13.6:116 14:639 14.2:1102 14.4:133 15.2:32 15.7:15 16:82 16.3:403 16.8:44 17.6:167 32:33",
+  "nbBoutons": 36,
+  "boutonHauteurMin": 15,
+  "boutonHauteurMediane": 62,
+  "boutonsSous40": 13,
+  "boutonsSous44": 14,
+  "petitsBoutons": [
+   {
+    "t": "Revoir la présentation",
+    "h": 34,
+    "w": 188,
+    "fs": 13.6
+   },
+   {
+    "t": "✕",
+    "h": 15,
+    "w": 17,
+    "fs": 15.2
+   },
+   {
+    "t": "Feuille A4",
+    "h": 33,
+    "w": 91,
+    "fs": 13.1
+   },
+   {
+    "t": "Message par mail",
+    "h": 33,
+    "w": 137,
+    "fs": 13.1
+   },
+   {
+    "t": "Bleu",
+    "h": 30,
+    "w": 30,
+    "fs": 16.3
+   },
+   {
+    "t": "Marine",
+    "h": 30,
+    "w": 30,
+    "fs": 16.3
+   },
+   {
+    "t": "Vert",
+    "h": 30,
+    "w": 30,
+    "fs": 16.3
+   },
+   {
+    "t": "Bordeaux",
+    "h": 30,
+    "w": 30,
+    "fs": 16.3
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 4050,
+  "corpsPx": "16.25px",
+  "erreurs": 0
+ }
+}

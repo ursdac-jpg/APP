@@ -60,6 +60,7 @@ async function controler(adresses, opt) {
         if (r.etat === 'sans-reponse') { r = await tester(url, appeler); }
       }
       sortie[i] = Object.assign({ id: a && a.id, url: url }, r);
+      if (opt && typeof opt.progression === 'function') { try { opt.progression(sortie[i]); } catch (e) { /* le suivi ne doit jamais arrêter le contrôle */ } }
     }
   }
   await Promise.all(Array.from({ length: Math.min(PARALLELE, liste.length) }, travailleur));

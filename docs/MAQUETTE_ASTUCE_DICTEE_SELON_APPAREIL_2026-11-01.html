@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astuce de dictée selon l’appareil, maquette</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/carnet/carnet.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; }
+:root[data-theme="sombre"] { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1.mq-h1 { font-size:1.3rem; margin:0 0 6px; } h2.mq-h2 { font-size:1.08rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:18px; }
+.mq-reglages { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; border:1px solid var(--mq-border); border-radius:12px; padding:10px 14px; background:var(--mq-card); margin-bottom:14px; font-size:.9rem; }
+.mq-reglages b { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin-right:4px; }
+.mq-reglages label { margin-right:8px; cursor:pointer; white-space:nowrap; }
+.mq-reglages .mq-fermer { margin-left:auto; border:0; background:transparent; font-size:1.2rem; cursor:pointer; color:var(--mq-muted); }
+.mq-q { border-left:4px solid var(--mq-accent); padding:8px 12px; margin:12px 0; background:var(--mq-card); border-radius:0 8px 8px 0; }
+.mq-q p { margin:.2rem 0; } .mq-q ul { margin:.3rem 0 0; padding-left:1.2rem; font-size:.93rem; }
+.mq-reco { font-weight:700; color:var(--mq-accent); }
+.mq-note { font-size:.85rem; color:var(--mq-muted); border:1px dashed var(--mq-border); border-radius:8px; padding:6px 10px; margin:0 0 10px; background:var(--mq-card); }
+.mq-ecran { border:1px dashed var(--mq-border); border-radius:12px; padding:14px; background:var(--bg-page); margin:0 auto 16px; }
+.mq-ecran > .mq-titre { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin:0 0 8px; }
+#mqEcrans.tel .mq-ecran { max-width:380px; border-radius:22px; border-style:solid; padding:12px; }
+
+.mq-cinq { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; }
+.mq-cinq .mq-cas { border:1px solid var(--mq-border); border-radius:12px; padding:10px; background:var(--bg-page); }
+.mq-cinq .mq-cas > h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin:0 0 6px; }
+.mq-cinq .astuce-dictee { margin:0; }
+/* ---- Le composant proposé (sera dans css/style.css, une seule fois) ---- */
+.astuce-dictee { background:var(--accent-bg-subtle); border:1px solid var(--accent); border-radius:6px; padding:.5rem .75rem; margin:0 0 1rem; font-size:var(--t-moyen); line-height:1.45; color:var(--text-strong); }
+.astuce-dictee p { margin:0; }
+.astuce-dictee-detail { margin-top:.4rem; }
+.astuce-dictee-detail > summary { cursor:pointer; font-weight:700; color:var(--accent-texte); font-size:var(--t-moyen); padding:.2rem 0; min-height:44px; display:flex; align-items:center; }
+.astuce-dictee-detail > summary::marker { color:var(--accent-texte); }
+.astuce-dictee-detail ol { margin:.3rem 0 .2rem; padding-left:1.3rem; }
+.astuce-dictee-detail li { margin:.25rem 0; }
+.astuce-dictee-aide { margin:.4rem 0 0; font-size:var(--t-petit); color:var(--text-muted); }
+.astuce-dictee-touche { display:inline-block; white-space:nowrap; padding:0 .4rem; border:1px solid var(--border-strong); border-radius:5px; background:var(--bg-card); font-weight:700; font-size:var(--t-moyen); }
+.astuce-dictee-autres { list-style:none; padding-left:0 !important; }
+.astuce-dictee-autres li { margin:.45rem 0; }
+/* variante B : petite bulle au clic */
+.astuce-dictee-bulle-lien { border:1px solid var(--accent); background:var(--bg-card); color:var(--accent-texte); border-radius:999px; font-weight:700; font-size:var(--t-petit); padding:.15rem .7rem; margin-left:.4rem; cursor:pointer; min-height:32px; }
+.astuce-dictee-bulle { margin:.5rem 0 0; background:var(--bg-card); border:1px solid var(--accent); border-radius:10px; padding:.6rem .8rem; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+.astuce-dictee-bulle[hidden] { display:none; }
+/* forme « ligne » : phrase courte sous une zone de texte */
+.astuce-dictee-ligne { font-size:var(--t-petit); color:var(--text-muted); margin:.3rem 0 0; }
+.astuce-dictee-ligne .astuce-dictee-detail > summary { display:inline-flex; min-height:0; font-size:var(--t-petit); padding:0 0 0 .3rem; }
+.astuce-dictee-ligne .astuce-dictee-detail { display:inline; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1 class="mq-h1">Astuce de dictée, adaptée à l’appareil de la personne (maquette)</h1>
+<p class="muted">Consigne 85 de Denis (01/11/2026). Cette page montre le futur composant <b>unique</b>, qui remplacera les 12 phrases « dictée vocale de votre appareil » écrites à la main. Elle reprend les vraies feuilles de style de l’application (couleurs, tailles, mode sombre). <b>Rien n’est codé dans l’application.</b> Utilisez la barre ci-dessous pour <b>simuler l’appareil</b> de la personne.</p>
+
+<div class="mq-reglages" id="mqReglages">
+  <span><b>Appareil simulé</b>
+    <label><input type="radio" name="mqApp" value="windows" checked> Windows</label>
+    <label><input type="radio" name="mqApp" value="mac"> Macintosh</label>
+    <label><input type="radio" name="mqApp" value="iphone"> iPhone / iPad</label>
+    <label><input type="radio" name="mqApp" value="android"> Android</label>
+    <label><input type="radio" name="mqApp" value="autre"> Non reconnu</label>
+  </span>
+  <span><b>Forme</b>
+    <label><input type="radio" name="mqForme" value="A" checked> A : texte déplié (recommandé)</label>
+    <label><input type="radio" name="mqForme" value="B"> B : petite bulle au clic</label>
+  </span>
+  <span><b>Thème</b>
+    <label><input type="radio" name="mqTheme" value="clair" checked> Clair</label>
+    <label><input type="radio" name="mqTheme" value="sombre"> Sombre</label>
+  </span>
+  <span><b>Écran</b>
+    <label><input type="radio" name="mqLarg" value="pc" checked> Ordinateur</label>
+    <label><input type="radio" name="mqLarg" value="tel"> Téléphone</label>
+  </span>
+  <button type="button" class="mq-fermer" id="mqFermer" title="Fermer ce panneau" aria-label="Fermer ce panneau">✕</button>
+</div>
+
+<div class="mq-carte">
+  <h2 class="mq-h2">Ce que le composant fait</h2>
+  <ul class="mb-0">
+    <li>Il reconnaît l’appareil grâce au navigateur : <b>Windows, Macintosh, iPhone ou iPad, Android</b>. Un iPad récent se présente comme un Mac, le code sait le distinguer.</li>
+    <li>La phrase « Astuce » reste visible comme aujourd’hui. Dessous, un lien « <b>Comment faire sur mon… ?</b> » déplie <b>seulement les gestes de SON appareil</b>, en trois pas simples.</li>
+    <li>Si l’appareil n’est pas reconnu (Linux, tablette rare), le lien déplie les quatre cas en une ligne chacun.</li>
+    <li><b>Limite à connaître</b> : l’application ne peut pas savoir si la dictée est déjà activée sur l’appareil. Le texte dit donc comment l’utiliser <i>et</i> quoi faire « si rien ne se passe ».</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2 class="mq-h2">Les cinq cas côte à côte (iPhone ET Android compris)</h2>
+  <p class="muted">Chaque appareil a son propre texte, ouvert ici pour que vous les lisiez tous d’un coup. Dans l’application, la personne ne voit que celui de son appareil, replié sous le lien.</p>
+  <div id="mqCinq" class="mq-cinq"></div>
+</div>
+
+<div id="mqEcrans">
+
+<div class="mq-ecran">
+  <p class="mq-titre">Exemple 1 : forme « encart » (Carnet, Repères, Regard extérieur, Découvrir mes compétences, Cohérence)</p>
+  <h3 style="font-size:var(--t-grand);margin:0 0 .6rem;">Garder une note</h3>
+  <div data-astuce="encart"></div>
+  <textarea class="form-control" rows="3" placeholder="Écrivez ici…" aria-label="Zone de texte d’exemple"></textarea>
+</div>
+
+<div class="mq-ecran">
+  <p class="mq-titre">Exemple 2 : forme « ligne », sous une zone de texte (compléter une mission du CV, <code>data/metiers.js</code> et <code>js/app.js</code>)</p>
+  <label class="form-label fw-bold" for="mqEx2">Que faisiez-vous au quotidien ?</label>
+  <textarea class="form-control" id="mqEx2" rows="2"></textarea>
+  <div data-astuce="ligne"></div>
+</div>
+
+<div class="mq-ecran">
+  <p class="mq-titre">Exemple 3 : dans la page du Regard extérieur (question une à la fois)</p>
+  <p class="mb-1" style="font-size:var(--t-petit);font-weight:700;color:var(--accent-texte);">Question 1 sur 5</p>
+  <p class="fw-bold">Qu’est-ce qui a changé pour vous depuis votre dernier Repère ?</p>
+  <div data-astuce="encart"></div>
+  <textarea class="form-control" rows="3" aria-label="Zone de texte d’exemple"></textarea>
+</div>
+
+</div>
+
+<div class="mq-carte">
+  <h2 class="mq-h2">Questions pour Denis (une recommandation chacune)</h2>
+
+  <div class="mq-q">
+    <p><b>Q1. Comment montrer les gestes ?</b> <span class="mq-reco">Recommandé : A, le texte déplié sous un lien.</span></p>
+    <ul>
+      <li><b>A, texte déplié</b> : fonctionne au doigt comme à la souris, se lit en entier, reste dans la page (comme « En savoir plus » du choix de l’assistant). Risque : une ligne de plus sur les écrans.</li>
+      <li><b>B, petite bulle au clic</b> : plus discrète, au plus près du texte. Risque : une bulle se ferme facilement par erreur sur téléphone et se remarque moins.</li>
+      <li>Je déconseille une vraie infobulle « au survol » : elle n’existe pas au doigt, donc inutilisable sur téléphone.</li>
+    </ul>
+  </div>
+
+  <div class="mq-q">
+    <p><b>Q2. Appareil non reconnu.</b> <span class="mq-reco">Recommandé : montrer les quatre cas (Windows, Mac, iPhone, Android), une ligne chacun.</span></p>
+    <ul>
+      <li>Bénéfice : personne n’est laissé sans réponse. Risque : un peu plus de texte, dans un cas rare.</li>
+    </ul>
+  </div>
+
+  <div class="mq-q">
+    <p><b>Q3. Où l’installer ?</b> <span class="mq-reco">Recommandé : partout d’un coup, par le même composant (12 endroits).</span></p>
+    <ul>
+      <li>Forme « encart » là où l’astuce est déjà un encart (Carnet, Repères, Regard extérieur, Découvrir mes compétences, Cohérence).</li>
+      <li>Forme « ligne » là où la phrase est une petite ligne sous une zone de texte (CV, <code>data/metiers.js</code>, <code>js/app.js</code>, Comparer mes pistes).</li>
+      <li>Bénéfice : un seul texte à corriger plus tard. Risque : il faut vérifier chaque écran touché dans le navigateur.</li>
+    </ul>
+  </div>
+
+  <div class="mq-q">
+    <p><b>Q4. Les gestes eux-mêmes : à relire par vous.</b></p>
+    <ul>
+      <li>Je les ai écrits de mémoire : <b>je ne peux pas les essayer sur un vrai Mac, iPhone ou Android</b> depuis ici. Les versions changent (surtout sur Mac et Android). Merci de les confirmer sur vos appareils ou de me dire ce que vous voulez changer.</li>
+      <li>Windows + H demande une connexion internet : je l’ai écrit.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  var APPAREILS = {
+    windows: { nom: 'mon ordinateur Windows', pas: [
+      'Cliquez dans la zone où vous voulez écrire.',
+      'Appuyez en même temps sur la touche <span class="astuce-dictee-touche">Windows</span> et la touche <span class="astuce-dictee-touche">H</span>.',
+      'Une petite fenêtre avec un micro apparaît : parlez, votre texte s’écrit. Appuyez sur le micro pour arrêter.'
+    ], aide: 'Il faut être connecté à internet. Si rien ne se passe, vérifiez que le micro de l’ordinateur est branché.' },
+    mac: { nom: 'mon Mac', pas: [
+      'Cliquez dans la zone où vous voulez écrire.',
+      'Appuyez <b>deux fois de suite</b> sur la touche <span class="astuce-dictee-touche">fn</span> (en bas à gauche du clavier).',
+      'Un petit micro apparaît : parlez, votre texte s’écrit. Appuyez sur « Terminé » pour arrêter.'
+    ], aide: 'Si rien ne se passe : ouvrez le menu « Édition » en haut de l’écran, puis « Démarrer la dictée ». La première fois, le Mac peut vous proposer de l’activer : acceptez.' },
+    iphone: { nom: 'mon iPhone ou mon iPad', pas: [
+      'Touchez la zone où vous voulez écrire : le clavier apparaît.',
+      'Touchez le petit <b>micro</b> en bas à droite du clavier.',
+      'Parlez : votre texte s’écrit. Touchez à nouveau le micro pour arrêter.'
+    ], aide: 'Si vous ne voyez pas de micro : Réglages, Général, Clavier, puis activez « Activer la dictée ».' },
+    android: { nom: 'mon téléphone Android', pas: [
+      'Touchez la zone où vous voulez écrire : le clavier apparaît.',
+      'Touchez le petit <b>micro</b> sur le clavier (en haut ou à droite, selon le téléphone).',
+      'Parlez : votre texte s’écrit. Touchez à nouveau le micro pour arrêter.'
+    ], aide: 'Si vous ne voyez pas de micro, il peut être à activer dans les réglages du clavier : demandez de l’aide à un proche ou à votre conseiller.' }
+  };
+
+  function corps(appareil) {
+    if (APPAREILS[appareil]) {
+      var a = APPAREILS[appareil];
+      return '<ol>' + a.pas.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ol><p class="astuce-dictee-aide">' + a.aide + '</p>';
+    }
+    return '<ul class="astuce-dictee-autres">' +
+      '<li><b>Ordinateur Windows</b> : touche <span class="astuce-dictee-touche">Windows</span> + <span class="astuce-dictee-touche">H</span>, puis parlez.</li>' +
+      '<li><b>Mac</b> : appuyez deux fois sur la touche <span class="astuce-dictee-touche">fn</span>, puis parlez.</li>' +
+      '<li><b>iPhone ou iPad</b> : touchez le micro en bas à droite du clavier.</li>' +
+      '<li><b>Téléphone Android</b> : touchez le micro sur le clavier.</li></ul>';
+  }
+  function libelle(appareil) {
+    return APPAREILS[appareil] ? 'Comment faire sur ' + APPAREILS[appareil].nom + ' ?' : 'Comment faire ?';
+  }
+  function html(forme, appareil, variante, n) {
+    var phrase = forme === 'encart'
+      ? '💡 <strong>Astuce : dictez votre texte à la voix</strong> plutôt que de tout taper au clavier.'
+      : 'Vous pouvez aussi dicter à la voix.';
+    var detail = variante === 'B'
+      ? '<div><button type="button" class="astuce-dictee-bulle-lien" data-bulle="' + n + '" aria-expanded="false">' + libelle(appareil) + '</button>' +
+        '<div class="astuce-dictee-bulle" id="bulle' + n + '" hidden>' + corps(appareil) + '</div></div>'
+      : '<details class="astuce-dictee-detail"><summary>' + libelle(appareil) + '</summary>' + corps(appareil) + '</details>';
+    if (forme === 'encart') { return '<div class="astuce-dictee"><p>' + phrase + '</p>' + detail + '</div>'; }
+    return '<div class="astuce-dictee-ligne">' + phrase + detail + '</div>';
+  }
+  function dessinerCinq() {
+    var cas = [['windows', 'Ordinateur Windows'], ['mac', 'Macintosh'], ['iphone', 'iPhone ou iPad'], ['android', 'Téléphone Android'], ['autre', 'Appareil non reconnu']];
+    document.getElementById('mqCinq').innerHTML = cas.map(function (c) {
+      var h = html('encart', c[0], 'A', 0).replace('<details class="astuce-dictee-detail">', '<details class="astuce-dictee-detail" open>');
+      return '<div class="mq-cas"><h3>' + c[1] + '</h3>' + h + '</div>';
+    }).join('');
+  }
+  function dessiner() {
+    var appareil = document.querySelector('input[name=mqApp]:checked').value;
+    var variante = document.querySelector('input[name=mqForme]:checked').value;
+    var n = 0;
+    document.querySelectorAll('[data-astuce]').forEach(function (z) {
+      n++;
+      z.innerHTML = html(z.getAttribute('data-astuce'), appareil, variante, n);
+    });
+    document.querySelectorAll('[data-bulle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var c = document.getElementById('bulle' + b.getAttribute('data-bulle'));
+        var ouvert = c.hidden;
+        c.hidden = !ouvert;
+        b.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+      });
+    });
+  }
+  document.querySelectorAll('input[name=mqApp], input[name=mqForme]').forEach(function (r) { r.addEventListener('change', dessiner); });
+  document.querySelectorAll('input[name=mqTheme]').forEach(function (r) { r.addEventListener('change', function () { document.documentElement.setAttribute('data-theme', r.value === 'sombre' ? 'sombre' : 'clair'); }); });
+  document.querySelectorAll('input[name=mqLarg]').forEach(function (r) { r.addEventListener('change', function () { document.getElementById('mqEcrans').classList.toggle('tel', r.value === 'tel'); }); });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqReglages').style.display = 'none'; });
+  dessiner();
+  dessinerCinq();
+})();
+</script>
+</body>
+</html>

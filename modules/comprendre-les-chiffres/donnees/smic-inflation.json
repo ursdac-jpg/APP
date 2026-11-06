@@ -1,0 +1,58 @@
+{
+  "_lisez_moi": "SOURCE UNIQUE des valeurs du Smic et de l'inflation (consigne 117 de Denis, 05/11/2026). Aucun autre fichier ne doit recopier un montant du Smic sans qu'il figure ici (test tests/smicSource.test.js). Valeurs relevées sur des pages officielles ouvertes le 2026-11-05. À revérifier : le Smic à chaque revalorisation (1er janvier, ou en cours d'année quand les prix montent d'au moins 2 %), l'inflation à chaque publication mensuelle de l'INSEE.",
+  "verifie_le": "2026-11-05",
+  "smic": {
+    "en_vigueur": {
+      "effet": "2026-06-01",
+      "horaire_brut": 12.31,
+      "mensuel_brut_35h": 1867.02,
+      "horaire_net_indicatif": 9.74,
+      "mensuel_net_indicatif": 1477.93,
+      "pourcentage": 2.41,
+      "annonce": "2026-05-18",
+      "decision": "2026-05-22",
+      "decision_libelle": "Arrêté du 22 mai 2026 relatif au relèvement du salaire minimum de croissance, publié au Journal officiel du 22 mai 2026",
+      "declencheur": "Revalorisation automatique en cours d'année : les prix à la consommation ont augmenté d'au moins 2 % depuis la dernière revalorisation (seuil franchi le 13 mai 2026)."
+    },
+    "precedent": {
+      "effet": "2026-01-01",
+      "horaire_brut": 12.02,
+      "horaire_brut_avant": 11.88,
+      "mensuel_brut_35h": 1823.03
+    },
+    "regles_qui_gardent_la_valeur_du_1er_janvier": [
+      "Plafond du cumul emploi-retraite en 2026 : 160 % du Smic du 1er janvier 2026, soit 2 916,85 € brut par mois (Smic de 1 823,03 €).",
+      "Seuil d'activité de faible importance du cumul emploi-retraite en 2026 : moins du tiers du Smic annuel du 1er janvier, soit 7 292,13 € brut.",
+      "Réduction générale dégressive unique (RGDU) des cotisations patronales en 2026 : Smic retenu du 1er janvier 2026 (1 823,03 € brut par mois), plafond de 3 Smic."
+    ],
+    "regle_revalorisation": "Le Smic est revalorisé chaque année au 1er janvier. En cours d'année, s'il y a une hausse d'au moins 2 % de l'indice des prix à la consommation depuis la dernière revalorisation, il est augmenté automatiquement dans les mêmes proportions. Le gouvernement peut aussi le relever à tout moment (« coup de pouce »).",
+    "sources": [
+      { "nom": "Service-public.gouv.fr, fiche « Salaire minimum interprofessionnel de croissance (Smic) » (vérifiée par la page le 1er juin 2026)", "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F2300" },
+      { "nom": "Service-public.gouv.fr, actualité « Le Smic va augmenter le 1er juin »", "url": "https://www.service-public.gouv.fr/particuliers/actualites/A18916" },
+      { "nom": "Insee, Salaire minimum interprofessionnel de croissance (Smic)", "url": "https://www.insee.fr/fr/statistiques/1375188" }
+    ]
+  },
+  "inflation": {
+    "indice": "Indice des prix à la consommation (IPC), ensemble des ménages, France",
+    "dernier": {
+      "mois": "2026-10",
+      "sur_un_an": 3.4,
+      "sur_un_mois": 0.4,
+      "provisoire": true,
+      "publie_le": "2026-10-30",
+      "energie": 24.1,
+      "alimentation": 1.2,
+      "services": 2.7,
+      "produits_manufactures": -0.2,
+      "tabac": 3.3,
+      "harmonise_sur_un_an": 3.8
+    },
+    "precedent": { "mois": "2026-09", "sur_un_an": 3.1, "sur_un_mois": -0.3 },
+    "resultats_definitifs_prevus": "2026-11-13",
+    "prochaine_publication": "2026-11-27",
+    "sources": [
+      { "nom": "Insee, Informations rapides n° 266 : prix à la consommation, octobre 2026 (estimation provisoire)", "url": "https://www.insee.fr/fr/statistiques/9107965" },
+      { "nom": "Insee, « L'essentiel sur... l'inflation »", "url": "https://www.insee.fr/fr/statistiques/4268033" }
+    ]
+  }
+}

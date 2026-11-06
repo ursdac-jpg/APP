@@ -1,0 +1,53 @@
+Je te donne une liste de 30 structures (services publics, associations, organismes) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 101 à 130. Pour chacune, un site et un numéro de téléphone ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque structure, ouvre sa page officielle : son propre site, ou à défaut la page d'une administration (commune, département, préfecture, ministère) qui la présente. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. N'utilise aucun annuaire privé, PagesJaunes, comparateur, site d'offres d'emploi ni réseau social.
+3. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+4. Le territoire compte : la structure doit être celle du territoire indiqué (24, 87, région ou national). Méfie-toi des homonymes d'un autre département.
+5. Le statut est un seul mot : « confirmé » (le site et le numéro proposés correspondent à la page officielle), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucune page officielle trouvée), « fermée » (la structure n'existe plus ou n'est plus dans ce territoire).
+6. Le téléphone est copié exactement tel qu'affiché ; s'il n'y en a pas, écris « pas de numéro vu ». L'adresse est copiée telle qu'affichée (rue, code postal, commune) ; sinon « pas d'adresse vue ».
+
+Réponds uniquement avec une ligne par structure, sans tableau, sous cette forme exacte :
+numéro | statut | téléphone affiché | adresse affichée | URL exacte de la page où tu les as lus | site officiel de la structure (si différent)
+
+Longueur et méthode : la liste est courte (30 lignes, numéros 101 à 130) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 30 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | commune | territoire | site proposé | numéro proposé) :
+101 | Coopérer pour Entreprendre | commune non précisée | national | site proposé : https://www.cooperer.coop | numéro proposé : aucun
+102 | Maison de l'Emploi du Grand Périgueux | Périgueux | Dordogne (24) | site proposé : https://www.mde-grandperigueux.fr | numéro proposé : aucun
+103 | Les Entreprises s'engagent | commune non précisée | national | site proposé : https://lesentreprises-sengagent.gouv.fr | numéro proposé : aucun
+104 | Service Public - Aides à l'embauche | commune non précisée | national | site proposé : https://entreprendre.service-public.fr | numéro proposé : aucun
+105 | Conseil départemental de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.haute-vienne.fr/nos-actions/insertion/vous-etes-un-employeur-du-public-ou-du-prive | numéro proposé : aucun
+106 | Entreprendre.Service-Public.fr | commune non précisée | national | site proposé : https://entreprendre.service-public.fr | numéro proposé : aucun
+107 | Chambres d'agriculture Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://nouvelle-aquitaine.chambres-agriculture.fr | numéro proposé : aucun
+108 | Association de Soutien de la Dordogne (ASD) | Périgueux | Dordogne (24) | site proposé : https://www.asd24.org | numéro proposé : aucun
+109 | Préfecture de la Haute-Vienne - Bureau de l'immigration et de l'intégration | Limoges | Haute-Vienne (87) | site proposé : https://www.haute-vienne.gouv.fr/Demarches/Accueil-des-etrangers-vos-demarches-en-Haute-Vienne | numéro proposé : 05 55 44 18 00
+110 | Centre Hospitalier Esquirol | Limoges | Haute-Vienne (87) | site proposé : https://www.ch-esquirol-limoges.fr | numéro proposé : 05 55 43 10 10
+111 | Maison des Adolescents de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://ch-esquirol-limoges.fr/offre-de-soin/maison-des-adolescents-mda/ | numéro proposé : 05 55 12 76 00
+112 | Agirc-Arrco | commune non précisée | national | site proposé : https://www.agirc-arrco.fr | numéro proposé : aucun
+113 | Cap Métiers Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://www.cap-metiers.fr | numéro proposé : 05 57 81 45 65
+114 | ANEFA | commune non précisée | national | site proposé : https://www.anefa.org | numéro proposé : aucun
+115 | GEIQ 87 Construction | Limoges | Haute-Vienne (87) | site proposé : https://geiq87construction.fr | numéro proposé : 05 55 35 10 42
+116 | Fédération Française des GEIQ | commune non précisée | national | site proposé : https://www.lesgeiq.fr | numéro proposé : aucun
+117 | Centre Social La Brunetière | Bergerac | Dordogne (24) | site proposé : https://bergerac.fr/vivre-a-bergerac/centres-sociaux/ | numéro proposé : 05 53 63 15 57
+118 | Centre Social et Culturel L'Arche | Périgueux | Dordogne (24) | site proposé : https://www.france-services.gouv.fr/le-reseau/france-services-de-perigueux | numéro proposé : 05 53 09 50 43
+119 | La Maison des Aidants | Bergerac | Dordogne (24) | site proposé : https://la-cab.fr | numéro proposé : 05 53 24 97 27
+120 | Alcooliques Anonymes France | commune non précisée | national | site proposé : https://alcooliques-anonymes.fr | numéro proposé : 09 69 39 40 20
+121 | Consultation de planification des Carmes | Limoges | Haute-Vienne (87) | site proposé : https://haute-vienne.fr/tous-les-annuaires/consultation-de-planification-des-carmes | numéro proposé : aucun
+122 | Choisir le service public | commune non précisée | national | site proposé : https://choisirleservicepublic.gouv.fr | numéro proposé : aucun
+123 | Service de Remplacement Dordogne | Coulounieix-Chamiers | Dordogne (24) | site proposé : https://servicederemplacement.fr/fr/les-structures-locales/departement/dordogne-210 | numéro proposé : 05 53 35 88 48
+124 | FDSEA Dordogne - Service Employeurs | Coulounieix-Chamiers | Dordogne (24) | site proposé : https://fdsea24.fr/services-employeurs/ | numéro proposé : 05 53 35 88 38
+125 | MSA Dordogne Lot-et-Garonne - Santé au travail | Périgueux | Dordogne (24) | site proposé : https://dlg.msa.fr/lfp/sst/st | numéro proposé : 05 53 67 77 23
+126 | Service de Remplacement Haute-Vienne | Panazol | Haute-Vienne (87) | site proposé : https://servicederemplacement.fr/fr/les-structures-locales/departement/haute-vienne-275 | numéro proposé : 05 87 50 41 10
+127 | Fédération Service de Remplacement Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://servicederemplacement.fr/fr/les-structures-locales/nouvelle-aquitaine-10 | numéro proposé : 05 56 01 33 60
+128 | L'Atelier, Club de prévention spécialisée | Bergerac | Dordogne (24) | site proposé : https://atelier-asso.fr | numéro proposé : 05 53 22 78 50
+129 | L'Atelier, Espace rencontre parents-enfants | Bergerac | Dordogne (24) | site proposé : https://atelier-asso.fr | numéro proposé : 05 53 57 78 26
+130 | CIDFF de la Dordogne, accompagnements numériques | commune non précisée | Dordogne (24) | site proposé : https://dordogne.cidff.info | numéro proposé : 05 53 35 90 90
+

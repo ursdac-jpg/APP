@@ -150,6 +150,20 @@ Ce rapport s'appuie sur une discipline déjà en place : « un commit par sous-�
 
 Voir aussi `LECONS_A_NE_PAS_REPRODUIRE.md` section 10, Règle 11.
 
+## Mode de travail « au fil de l'eau » : corriger, noter, tenir à jour (décision de Denis, 29/10/2026, très important)
+
+Cinq gestes, à faire pendant le travail, jamais « plus tard » :
+
+1. **Une erreur trouvée sur le chemin se corrige tout de suite**, dans le même passage (suite de la règle du 2026-09-12). Seule exception : un vrai choix de Denis (alors on présente les options et on attend).
+2. **Une consigne donnée à propos d'un module qu'on est en train de corriger ou de vérifier s'applique tout de suite**, dans ce module, sans la mettre en file d'attente.
+3. **Quand Denis demande de garder une tâche pour plus tard, on la note** dans `docs/TACHES_VALIDEES.md` (avec son étiquette d'effort), et la consigne dans `docs/CONSIGNES_DE_DENIS_A_SUIVRE.md`, avant de continuer.
+4. **Toute tâche accomplie est notée comme faite** (statut `[CLOS]` ou `[FAIT]` dans `TACHES_VALIDEES.md`, `docs/ETAT_DES_CHANTIERS.md`, ligne du journal si c'est visible), dans le même passage et le même commit : le but est de ne jamais refaire un travail déjà fait. Avant de proposer une tâche, vérifier dans ces fichiers et dans `git log` qu'elle n'a pas déjà été faite.
+5. **Nourrir les fichiers de mémoire du projet au fur et à mesure** : erreurs et malentendus dans `docs/LECONS_A_NE_PAS_REPRODUIRE.md`, bugs dans `docs/ERREURS_ET_BUGS.md`, idées dans `docs/IDEES_A_RECLASSER.md`, composants dans `docs/BRIQUES_COMMUNES.md`.
+
+6. **Une vérification ou un balayage lancé en arrière-plan reste à la charge de Claude jusqu'à couverture complète** (décision de Denis, 29/10/2026). Denis ne peut pas savoir quand c'est fini ni si tout a été joué : Claude tient la liste de ce qui devait être joué, compte ce qui l'a réellement été (un plantage ou un arrêt compte comme « non joué »), rejoue ce qui manque, et annonce « terminé » seulement quand le compte est complet. Une tâche en cours n'est jamais abandonnée à moitié quand une autre arrive : elle est terminée, ou son état exact (fait / pas fait) est écrit dans `docs/ETAT_DES_CHANTIERS.md` avant de passer à la suite.
+
+Une tâche n'est pas finie tant que ses fichiers de suivi ne sont pas à jour.
+
 ## À chaque décision que Denis prend
 
 Claude répond systématiquement avec : sa recommandation, ses critiques / axes d'amélioration, et les zones d'ombre qui pourraient échapper au raisonnement de Denis. En une ou deux phrases (sauf `[détaillé]`). Jamais un simple "d'accord" sans ce retour.

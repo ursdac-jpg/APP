@@ -7,7 +7,7 @@ tags: [APL, ALS, ALF, aide au logement, CAF, MSA, loyer, ressources]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "APL"
     definition: "Aide personnalisée au logement. Elle concerne les logements conventionnés, c'est-à-dire ayant fait l'objet d'un accord entre le propriétaire et l'État."
@@ -21,18 +21,20 @@ ce_qui_change_souvent:
   - "Les plafonds de loyer et de ressources"
   - "Le mode de calcul et sa périodicité"
   - "Les conditions pour les étudiants étrangers"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Service Public confirme les ressources sur douze mois actualisées tous les trois mois, l'aide due à partir du mois qui suit la demande (versement le 5 du mois) et la règle des étudiants étrangers (précisée) ; le plafond de loyer n'y figure pas (retiré)"
+phrase_generale: "La CAF (ou la MSA pour le régime agricole) verse une aide au logement à beaucoup de locataires aux revenus modestes, et c'est elle qui détermine laquelle de ces aides vous concerne. Les conditions, les plafonds et les montants changent régulièrement : faites une simulation auprès de la CAF ou consultez les sources officielles indiquées plus bas."
 collecte: logement.collecte.md
 ---
 
 La CAF verse une aide au logement à beaucoup de locataires aux revenus modestes. Il en existe trois : l'APL, l'ALS et l'ALF. On ne peut en toucher qu'une seule, et c'est la CAF, ou la MSA pour le régime agricole, qui détermine laquelle vous concerne selon votre logement et votre situation.
 
-Pour y avoir droit, le logement doit être votre résidence principale, décent, situé en France, et le loyer ne doit pas dépasser un certain plafond. Le montant dépend de vos ressources, de la composition de votre foyer et de l'endroit où vous habitez.
+Pour y avoir droit, le logement doit être votre résidence principale, décent, situé en France. Le montant dépend de vos ressources, de la composition de votre foyer et de l'endroit où vous habitez.
 
 Vos ressources sont recalculées tous les trois mois, sur la base des douze derniers mois : si vos revenus baissent, l'aide augmente sans que vous ayez de démarche à faire, à condition de bien déclarer vos changements.
 
 La demande se fait en ligne, sur le site de la CAF ou de la MSA. L'aide est le plus souvent versée directement au propriétaire, qui la déduit de votre loyer. Elle commence le mois qui suit votre demande : pensez à faire la démarche dès l'entrée dans le logement.
 
-Depuis le 1er juillet 2026, un étudiant étranger hors Europe n'y a droit que s'il touche une bourse sur critères sociaux, s'il travaille ou s'il est en alternance.
+Depuis le 1er juillet 2026, un étudiant étranger (hors Union européenne, ou venant de l'Espace économique européen ou de Suisse avec un titre de séjour pour études) n'y a droit que dans trois cas : bourse sur critères sociaux, activité professionnelle, contrat d'apprentissage ou de professionnalisation.
 
 Elle n'est pas versée si votre propriétaire est un de vos parents ou grands-parents. Pour une simulation, utilisez l'outil sur le site de la CAF.

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparer mes pistes : de A à B</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* Seul l'habillage de la maquette est ici (panneau de réglages, notes). Tout ce qui est dans le cadre « application » reprend les styles réels de css/style.css. */
+body { margin:0; }
+.mq-panneau { position:sticky; top:0; z-index:50; background:var(--bg-subtle, #f4f6fb); border-bottom:2px solid var(--accent, #2f6bff); padding:10px 16px; font-size:.92rem; }
+.mq-panneau .mq-ligne { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+.mq-panneau label { cursor:pointer; margin:0; }
+.mq-panneau .mq-fermer { margin-left:auto; }
+.mq-rouvrir { position:fixed; top:8px; right:8px; z-index:60; display:none; }
+.mq-cadre { max-width:900px; margin:0 auto; padding:16px 16px 0; }
+.mq-barre-collante { position:sticky; bottom:0; background:var(--bg, #fff); padding:6px 0 12px; z-index:40; }
+.mq-barre-collante .barre-navigation { margin-top:0 !important; }
+.mq-notes { max-width:900px; margin:30px auto 60px; padding:0 16px; font-size:.92rem; }
+.mq-notes h2 { font-size:1.05rem; margin-top:1.2rem; }
+.mq-exemple { font-size:.8rem; max-height:180px; overflow:auto; background:var(--bg-subtle, #f4f6fb); border:1px solid var(--border, #c9d2e6); border-radius:8px; padding:8px; white-space:pre-wrap; word-break:break-all; }
+.mq-liste-manque { margin:.4rem 0 .6rem 1.1rem; padding:0; }
+.mq-liste-manque li { margin-bottom:.25rem; }
+.mq-ajoute { color:var(--success-strong, #1c7a46); font-weight:700; }
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-sm btn-outline-primary mq-rouvrir" id="mqRouvrir">&#9881;&#65039; Réglages de la maquette</button>
+
+<div class="mq-panneau" id="mqPanneau">
+  <div class="mq-ligne">
+    <strong>Maquette (pas l'application)</strong>
+    <span>Cas :</span>
+    <label><input type="radio" name="mqCas" value="manque" checked> 2 informations à placer</label>
+    <label><input type="radio" name="mqCas" value="complet"> Rien à placer (l'étape B n'apparaît pas)</label>
+    <label><input type="checkbox" id="mqSombre"> Mode sombre</label>
+    <button type="button" class="btn btn-sm btn-outline-primary" id="mqRecommencer">&#8635; Recommencer</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary mq-fermer" id="mqFermer" aria-label="Fermer les réglages">&#10005;</button>
+  </div>
+  <details style="margin-top:6px;"><summary>Réponse d'exemple de l'assistant (le bouton « Coller la réponse » la lit déjà tout seul)</summary>
+    <div class="mq-exemple" id="mqExemple"></div>
+  </details>
+</div>
+
+<div class="mq-cadre">
+  <div class="page-catalogue-contenu comparer-pistes-parcours" id="mqPage"></div>
+  <div class="mq-barre-collante"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation" id="mqBarre"></div></div>
+</div>
+
+<div class="mq-notes">
+  <h2>Ce que montre cette maquette</h2>
+  <ul>
+    <li><strong>Un seul fil.</strong> A (la comparaison), puis B (compléter) seulement s'il y a quelque chose à compléter, puis le choix de l'assistant, puis la comparaison mise à jour, puis la suite du module. <strong>La décision se prend sur B</strong> : le bouton du bas mène vers l'assistant (« Compléter avec un assistant »), « Continuer sans compléter » saute l'étape. Sur le choix de l'assistant, la personne a décidé de compléter : il n'y a plus de bouton « Continuer » (il ne pourrait jamais s'y activer, cliquer sur un assistant mène directement à la fenêtre de collage). Dans la fenêtre de collage, il apparaît grisé, puis s'active dès que la réponse est reçue.</li>
+    <li><strong>Réel :</strong> les échelles, la barre du bas, le choix de l'assistant et la fenêtre « Collez la réponse » (le vrai composant, avec « Je suis de retour », « Coller la réponse » et les vérifications) sont ceux de l'application.</li>
+    <li><strong>Simulé :</strong> l'ouverture de l'assistant (aucun onglet ne s'ouvre, le décompte de 5 secondes est sauté) et le contenu de la réponse (un exemple fixe). Le choix du cas « Rien à placer » montre que l'écran B n'existe alors pas.</li>
+    <li><strong>Deux défauts vus pendant la préparation :</strong> dans l'application actuelle, une valeur en mots reçoit un « € » parasite (« gratuit (financé par la Région) € »), et une échelle avec un seul point affiche deux graduations très proches (« 11 » et « 13 »). La maquette montre la version corrigée du premier ; à corriger dans le même passage que l'étape B.</li>
+  </ul>
+</div>
+
+<script src="../modules/collage-reponse/logique.js" charset="UTF-8"></script>
+<script src="../modules/collage-reponse/fenetre.js" charset="UTF-8"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------- Données d'exemple ---------------- */
+  var AIDE = '#2f6690', EDU = '#d9822b';
+  var REPONSE = JSON.stringify({
+    dimensions: [
+      { dimension: 'cout_total', unite: 'euros', valeurs: [{ piste: 'Aide-soignante', valeur: '0', min: '0', max: '0', portee: 'regionale', source: { nom: 'Région Nouvelle-Aquitaine', url: null }, date_info: '2026-05' }], question: 'Le coût vous distingue-t-il les pistes, ou pas ?' },
+      { dimension: 'duree_formation', unite: 'mois', valeurs: [{ piste: 'Éducatrice spécialisée', valeur: '36', min: '36', max: '36', portee: 'nationale', source: { nom: 'Service public', url: null }, date_info: '2026-06' }], question: 'Est-ce que cet écart de durée change quelque chose pour vous ?' }
+    ],
+    cloture: 'Ces informations servent à préparer un échange avec un conseiller et peuvent évoluer.'
+  }, null, 1);
+  document.getElementById('mqExemple').textContent = REPONSE;
+
+  // Une dimension = ce que dessine ecran5RegletteHTML (mêmes classes, mêmes textes).
+  function repere(r) {
+    return '<div class="cp-repere" style="left:' + r.pct + '%;bottom:' + (r.bas ? '-2.6rem' : '1.4rem') + ';">' +
+      '<div class="cp-repere-lbl" style="color:' + r.couleur + ';">' + r.nom + '</div>' +
+      '<div class="cp-repere-pt" style="background:' + r.couleur + ';"></div>' +
+      '<div class="cp-repere-val">' + r.val + '</div></div>';
+  }
+  function dimension(d) {
+    return '<div class="cp-dim-bloc"><p class="cp-dim-titre">' + d.titre + '</p>' +
+      '<div class="cp-reglette"><div class="cp-grad" style="left:1%"><span>' + d.min + '</span></div><div class="cp-grad" style="left:99%"><span>' + d.max + '</span></div>' +
+      d.reperes.map(repere).join('') + '</div>' +
+      (d.texte ? '<p class="preparer-detail" style="margin:.2rem 0 0;">' + d.texte + '</p>' : '') +
+      '<p class="cp-dim-question">' + d.question + '</p><p class="srcline">' + d.sources + '</p></div>';
+  }
+  var SRC_SP = 'Aide-soignante : Service public (2026-06) ; Éducatrice spécialisée : Service public (2026-06)';
+  var SRC_REG = 'Aide-soignante : Région Nouvelle-Aquitaine (2026-05) ; Éducatrice spécialisée : Région Nouvelle-Aquitaine (2026-05)';
+  var SRC_CC = 'Aide-soignante : Convention collective (2026-01) ; Éducatrice spécialisée : Convention collective (2026-01)';
+  var Q_UNE = 'Sur ce point, la dimension ne distingue pas vos pistes (une seule valeur chiffrée). ';
+
+  function dimensions(complet) {
+    var duree = complet
+      ? { titre: 'Durée de la formation (mois)', min: 0, max: 41, reperes: [{ pct: 29.4, couleur: AIDE, nom: 'Aide-soignante', val: '12 mois' }, { pct: 88.2, bas: true, couleur: EDU, nom: 'Éducatrice spécialisée', val: '36 mois' }], texte: '', question: 'Est-ce que cet écart de durée change quelque chose pour vous (revenus, organisation, patience) ?', sources: SRC_SP }
+      : { titre: 'Durée de la formation (mois)', min: 11, max: 13, reperes: [{ pct: 50, couleur: AIDE, nom: 'Aide-soignante', val: '12 mois' }], texte: 'Éducatrice spécialisée : environ trois ans', question: Q_UNE + 'Est-ce que cet écart de durée change quelque chose pour vous (revenus, organisation, patience) ?', sources: SRC_SP };
+    var cout = complet
+      ? { titre: 'Coût total (€)', min: 0, max: 11760, reperes: [{ pct: 8, couleur: AIDE, nom: 'Aide-soignante', val: '0 €' }, { pct: 83.3, bas: true, couleur: EDU, nom: 'Éducatrice spécialisée', val: '9 800 €' }], texte: '', question: 'Le coût vous distingue-t-il les pistes, ou pas ?', sources: SRC_REG }
+      : { titre: 'Coût total (€)', min: 8820, max: 10780, reperes: [{ pct: 50, couleur: EDU, nom: 'Éducatrice spécialisée', val: '9 800 €' }], texte: 'Aide-soignante : gratuit (financé par la Région)', question: Q_UNE + 'Le coût vous distingue-t-il les pistes, ou pas ?', sources: SRC_REG };
+    var reste = { titre: 'Reste à charge pour vous (€)', min: 0, max: 1440, reperes: [{ pct: 8, couleur: AIDE, nom: 'Aide-soignante', val: '0 €' }, { pct: 83.3, bas: true, couleur: EDU, nom: 'Éducatrice spécialisée', val: '1 200 €' }], texte: '', question: 'Ce reste à charge est-il tenable pour vous ?', sources: SRC_REG };
+    var rem = { titre: 'Rémunération à l’embauche (€)', min: 1640, max: 2060, reperes: [{ pct: 26.2, couleur: AIDE, nom: 'Aide-soignante', val: '1 700 à 1 800 € net par mois' }, { pct: 67.9, bas: true, couleur: EDU, nom: 'Éducatrice spécialisée', val: '1 850 à 2 000 € net par mois' }], texte: '', question: 'Une rémunération plus élevée n’est pas « mieux » : qu’est-ce qui pèse le plus pour vous ?', sources: SRC_CC };
+    return [duree, cout, reste, rem].map(dimension).join('');
+  }
+
+  function debutComparaison(complet) {
+    return '<div class="bilan-preparer"><p class="text-muted small" style="margin-bottom:.6rem;">Une dimension à la fois, les pistes sur la même échelle, chacune dans sa couleur. Une valeur plus courte, moins chère ou plus élevée n’est pas « meilleure ».</p>' +
+      '<div class="cp-legende"><span class="cp-legende-titre">Vos pistes</span><span class="cp-legende-piste"><span class="cp-pastille" style="background:' + AIDE + ';"></span>Aide-soignante</span><span class="cp-legende-piste"><span class="cp-pastille" style="background:' + EDU + ';"></span>Éducatrice spécialisée</span></div>' +
+      '<div class="cp-choix-dim"><p class="cp-choix-dim-titre">Ce que je compare</p><p class="preparer-detail" style="margin:0 0 .4rem;">Cochez les lignes qui comptent pour vous. Les informations viennent de la recherche déjà faite.</p>' +
+      '<div class="cp-choix-dim-liste"><label class="cp-choix-dim-ligne"><input type="checkbox" checked> Durée de la formation</label><label class="cp-choix-dim-ligne"><input type="checkbox" checked> Coût total</label><label class="cp-choix-dim-ligne"><input type="checkbox" checked> Reste à charge pour vous</label><label class="cp-choix-dim-ligne"><input type="checkbox" checked> Rémunération à l’embauche</label></div></div>' +
+      dimensions(complet) +
+      '<div class="cp-info-encart">Les dimensions sans chiffre comparable (activités, conditions de travail, ce que ça implique) ne sont pas superposées : elles restent dans les fiches. Aucun total, aucune note.</div>';
+  }
+
+  /* ---------------- Écrans ---------------- */
+  var titre = function (sous) { return '<div class="text-center"><h1><i class="bi bi-signpost-split"></i> Comparer mes pistes</h1><p class="sousTitre"><strong>' + sous + '</strong></p></div>'; };
+
+  // A : la comparaison. S'il manque des informations, une phrase prépare la suite (pas un choix : le bouton du bas continue).
+  function ecranA() {
+    var reste = manque();
+    return titre('Superposer : les pistes côte à côte') + debutComparaison(!reste) +
+      (reste ? '<div class="cp-info-encart"><strong>&#128207; Deux informations n’ont pas pu être placées sur les échelles.</strong> L’étape suivante vous aide à les compléter.</div>' : '') +
+      '</div>';
+  }
+
+  var CHOIX_ASSISTANT =
+    '<div class="cv-section"><h4>&#128172; Choisissez votre assistant</h4>' +
+    '<p class="text-muted small mb-2">Cliquez sur un assistant. L’application prépare et copie tout, puis l’ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, vous n’avez rien à taper.</p>' +
+    '<div class="bilan-choix-ia"><div class="choix-ia-colonne-pastilles">' +
+    '<div class="choix-ia-groupe"><span class="choix-ia-etiq">Sans compte à créer <span class="quoi">: utilisable tout de suite</span></span>' + pastille('chatgpt', 'ChatGPT', 'sans compte', true) + '</div>' +
+    '<div class="choix-ia-groupe"><span class="choix-ia-etiq">Avec une connexion <span class="quoi">: à un compte existant</span></span>' +
+    pastille('claude', 'Claude', 'connexion') + pastille('gemini', 'Gemini', 'connexion') + pastille('perplexity', 'Perplexity', 'connexion') + pastille('mistral', 'Mistral', 'connexion') + pastille('deepseek', 'DeepSeek', 'connexion') + '</div></div>' +
+    '<div class="choix-ia-aide"><p class="choix-ia-aide-invite">&#128433;&#65039; Venez avec la souris et cliquez sur la pastille de votre choix.</p>' +
+    '<p><span class="choix-ia-legende-pastille" style="background:var(--success);"></span><strong>Vert, sans compte</strong> : utilisable tout de suite, sans rien créer ni retenir de mot de passe. Le plus simple pour commencer.</p>' +
+    '<p><span class="choix-ia-legende-pastille" style="background:var(--accent);"></span><strong>Bleu, avec connexion</strong> : nécessite un compte que vous avez déjà chez cet assistant. À utiliser seulement si vous en avez déjà un.</p></div></div>' +
+    '<details class="bloc-depli" open><summary>&#128203; Ce qui va se passer, et vos données <span class="bilan-accordeon-invite">Cliquez ici pour voir</span></summary><div class="bloc-depli-corps"><ul class="choix-ia-etapes">' +
+    '<li><span class="rond">1</span><span><span class="titre">Copie.</span> Le texte préparé est copié automatiquement, rien à écrire ni à coller vous-même.</span></li>' +
+    '<li><span class="rond">2</span><span><span class="titre">Réflexion.</span> L’assistant lit seulement ce qui est déjà dans l’application : aucune recherche sur internet n’est nécessaire.</span></li>' +
+    '<li><span class="rond">3</span><span><span class="titre">Réponse.</span> Vous revenez ici et collez sa réponse : le texte reste caché, vous n’avez rien à relire.</span></li></ul>' +
+    '<div class="choix-ia-rappel-conf"><span>&#128274;</span><span>Le texte reprend seulement les deux informations à transformer en chiffres, sans votre nom. Rien n’est envoyé avant votre clic sur un assistant.</span></div></div></details></div>';
+
+  function pastille(id, nom, sous, vert) {
+    var couleur = vert ? 'background:var(--success-bg-subtle);border-color:var(--success);color:var(--success-strong);' : 'background:var(--accent-bg-subtle);border-color:var(--accent);color:var(--accent);';
+    return '<button type="button" class="pastille-selection" data-mq-assistant="' + id + '" style="display:inline-block;padding:0.45rem 1rem;margin:0.25rem 0.4rem 0.25rem 0;border-radius:999px;font-size:0.9rem;cursor:pointer;background:var(--bg-subtle);color:var(--text-strong);border:2px solid var(--border);font-weight:600;display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;' + couleur + '">' + nom + '<span class="assist-sous">' + sous + '</span></button>';
+  }
+
+  // B : « Compléter la comparaison » : dit précisément ce qui manque. C'est ICI que la personne décide : le bouton du bas la mène vers l'assistant, « Continuer sans compléter » saute l'étape.
+  function ecranB() {
+    return titre('Compléter la comparaison') +
+      '<div class="bilan-preparer"><div class="cv-section">' +
+      '<h4>&#128207; Deux informations à placer sur les échelles</h4>' +
+      '<p class="mb-1">Pour ces deux informations, l’application n’a pas trouvé de chiffre à placer :</p>' +
+      '<ul class="mq-liste-manque"><li><strong>Coût total</strong>, Aide-soignante : « gratuit (financé par la Région) »</li>' +
+      '<li><strong>Durée de la formation</strong>, Éducatrice spécialisée : « environ trois ans »</li></ul>' +
+      '<p class="mb-0">Un assistant peut les transformer en chiffres (par exemple « gratuit » devient 0 €). Les deux pistes apparaîtront alors sur les échelles. Il ne fait aucune recherche : il relit seulement ce qui a déjà été trouvé. Cela demande d’ouvrir un assistant, puis de coller sa réponse ici.</p></div>' +
+      '<div class="cp-info-encart mt-3"><strong>Si vous continuez sans compléter</strong>, rien n’est perdu et rien n’est faux. Ces deux informations restent écrites sous les échelles, avec leur source. Elles n’ont simplement pas de point sur l’échelle : ces deux lignes se lisent un peu moins d’un coup d’œil. Si vous avez déjà les informations qu’il vous faut, vous pouvez continuer tranquillement.</div>' +
+      '<div class="text-center mt-3"><button type="button" class="btn btn-outline-primary" id="mqSansCompleter">Continuer sans compléter</button></div></div>';
+  }
+
+  // C : on arrive ici parce que la personne veut compléter : choix de l'assistant, puis la fenêtre commune « Collez la réponse ».
+  function ecranC(assistant) {
+    return titre('Compléter la comparaison') +
+      '<div class="bilan-preparer"><p class="preparer-detail" style="margin:0 0 .6rem;">À transformer en chiffres : le coût total (Aide-soignante) et la durée de la formation (Éducatrice spécialisée).</p>' +
+      (assistant ? '<div id="fcRacineMock"></div>' : CHOIX_ASSISTANT) + '</div>';
+  }
+
+  // B2 : la comparaison mise à jour, avec ce qui vient d'être ajouté.
+  function ecranB2() {
+    return titre('Comparaison mise à jour') +
+      '<div class="bilan-preparer"><div class="cv-section"><h4>&#9989; Les deux pistes sont maintenant placées</h4>' +
+      '<ul class="mq-liste-manque mb-0"><li><span class="mq-ajoute">Ajouté</span> : Coût total, Aide-soignante : 0 €</li><li><span class="mq-ajoute">Ajouté</span> : Durée de la formation, Éducatrice spécialisée : 36 mois</li></ul></div></div>' +
+      debutComparaison(true) + '</div>';
+  }
+
+  function ecranSuite() {
+    return titre('Suite du module') +
+      '<div class="bilan-preparer"><div class="cv-section"><p class="mb-0">Ici, le parcours continue vers l’écran suivant du module (comme aujourd’hui). Fin de la maquette.</p></div></div>';
+  }
+
+  /* ---------------- Machine à états ---------------- */
+  var ecran = 'A';          // A | B (décision) | C (choix de l'assistant) | W (fenêtre de collage) | B2 | S (suite)
+  var fenetre = null;       // contrôleur de la fenêtre commune
+  var corrige = false;      // la réponse a été prise en compte
+  function cas() { return document.querySelector('input[name="mqCas"]:checked').value; }
+  // Plus rien à placer : soit le cas choisi, soit la réponse de l'assistant a déjà été prise en compte.
+  function manque() { return cas() === 'manque' && !corrige; }
+  var page = document.getElementById('mqPage'), barre = document.getElementById('mqBarre');
+
+  function btnBarre(id, classes, html) { return '<button type="button" class="' + classes + '" id="' + id + '">' + html + '</button>'; }
+  function dessinerBarre(libelleContinuer, actifContinuer) {
+    var retour = (ecran === 'A' || ecran === 'S') ? '<span></span>' : btnBarre('mqRetour', 'btn btn-nav-erip btn-lg', '← Retour');
+    if (ecran === 'S') { retour = btnBarre('mqRetour', 'btn btn-nav-erip btn-lg', '← Retour'); }
+    barre.innerHTML = retour + '<button type="button" class="btn btn-nav-erip btn-accueil" disabled><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>' +
+      ((ecran === 'S' || actifContinuer === 'absent') ? '<span></span>' : '<button type="button" class="btn btn-primary btn-lg" id="mqContinuer"' + (actifContinuer === false ? ' disabled' : '') + '>' + libelleContinuer + ' →</button>');
+    var r = document.getElementById('mqRetour'); if (r) { r.addEventListener('click', retourner); }
+    var c = document.getElementById('mqContinuer'); if (c) { c.addEventListener('click', continuer); }
+  }
+
+  function afficher() {
+    window.scrollTo(0, 0);
+    if (ecran === 'A') { page.innerHTML = ecranA(); dessinerBarre('Continuer'); }
+    else if (ecran === 'B') {
+      page.innerHTML = ecranB(); dessinerBarre('Compléter avec un assistant');
+      document.getElementById('mqSansCompleter').addEventListener('click', function () { ecran = 'S'; afficher(); });
+    }
+    else if (ecran === 'C') {
+      page.innerHTML = ecranC(false); dessinerBarre('', 'absent');
+      page.querySelectorAll('[data-mq-assistant]').forEach(function (b) { b.addEventListener('click', function () { ecran = 'W'; fenetre = null; afficher(); }); });
+    }
+    else if (ecran === 'W') { page.innerHTML = ecranC(true); brancherFenetre(); majBarreFenetre(); }
+    else if (ecran === 'B2') { page.innerHTML = ecranB2(); dessinerBarre('Continuer'); }
+    else { page.innerHTML = ecranSuite(); dessinerBarre(''); }
+  }
+
+  function brancherFenetre() {
+    fenetre = activerFenetreCollage({
+      racine: document.getElementById('fcRacineMock'), suffixe: 'Mock', nomAssistant: 'ChatGPT', etatInitial: 'ouvert',
+      module: {
+        libelleSuite: 'Voir la comparaison mise à jour',
+        quoi: 'L’assistant vient de transformer en chiffres les deux informations qui n’avaient pas pu être placées.',
+        verif: 'regardez que les chiffres correspondent bien à ce que vous aviez lu (par exemple « gratuit » correspond bien à 0 €).',
+        conseil: 'Si un chiffre vous semble faux, la source est indiquée sous chaque échelle : vous pourrez la consulter.'
+      },
+      lirePressePapiers: function () { return Promise.resolve(REPONSE); },
+      verifier: function (texte) {
+        try { var o = JSON.parse(texte.slice(texte.indexOf('{'), texte.lastIndexOf('}') + 1)); return { ok: Array.isArray(o.dimensions) }; } catch (e) { return { ok: false }; }
+      },
+      onChangerAssistant: function () { ecran = 'C'; afficher(); },
+      onEtat: function () { majBarreFenetre(); },
+      onContinuer: function () { continuer(); }
+    });
+  }
+  function majBarreFenetre() {
+    var recu = fenetre && fenetre.etat() === 'recu';
+    if (recu) { dessinerBarre('Voir la comparaison mise à jour'); } else { dessinerBarre('Continuer', false); }
+  }
+
+  function continuer() {
+    if (ecran === 'A') { ecran = manque() ? 'B' : 'S'; }
+    else if (ecran === 'B') { ecran = 'C'; }
+    else if (ecran === 'W') { if (fenetre && fenetre.etat() === 'recu') { corrige = true; ecran = 'B2'; } else { ecran = 'S'; } }
+    else if (ecran === 'B2') { ecran = 'S'; }
+    afficher();
+  }
+  function retourner() {
+    if (ecran === 'S') { ecran = (cas() === 'manque') ? (corrige ? 'B2' : 'B') : 'A'; }
+    else if (ecran === 'B2') { ecran = 'A'; }
+    else if (ecran === 'W') { ecran = 'C'; }
+    else if (ecran === 'C') { ecran = 'B'; }
+    else if (ecran === 'B') { ecran = 'A'; }
+    afficher();
+  }
+
+  /* ---------------- Réglages de la maquette ---------------- */
+  function recommencer() { ecran = 'A'; fenetre = null; corrige = false; afficher(); }
+  document.getElementById('mqRecommencer').addEventListener('click', recommencer);
+  document.querySelectorAll('input[name="mqCas"]').forEach(function (r) { r.addEventListener('change', recommencer); });
+  document.getElementById('mqSombre').addEventListener('change', function () {
+    if (this.checked) { document.documentElement.setAttribute('data-theme', 'sombre'); } else { document.documentElement.removeAttribute('data-theme'); }
+  });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqPanneau').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'inline-block'; });
+  document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqPanneau').style.display = ''; this.style.display = 'none'; });
+
+  afficher();
+})();
+</script>
+</body>
+</html>

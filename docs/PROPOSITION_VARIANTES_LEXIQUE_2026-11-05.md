@@ -1,0 +1,108 @@
+# Variantes de recherche proposées pour le Lexique (consigne 100), le 05/11/2026
+
+Pour chaque mot : les expressions qu'une personne peut taper pour le retrouver. Les variantes déjà présentes sont conservées en premier ; les nouvelles suivent. Le maximum est de 4 par mot. Les comparaisons « A ou B ? » reçoivent « différence entre A et B » et « comparer A et B ».
+
+- **CDD** : contrat court ; contrat à durée déterminée ; contrat temporaire ; contrat avec une date de fin
+- **Stage** : stage obligatoire ; stage en entreprise ; convention de stage ; stagiaire
+- **Temps partiel** : mi-temps ; moins de 35 heures ; quelques heures par semaine
+- **Salaire brut** : salaire avant impôts ; salaire avant cotisations ; montant brut ; salaire brut mensuel
+- **Salaire net** : salaire reçu ; salaire après impôts ; ce que je touche ; salaire versé
+- **Comment lire son bulletin de salaire** : fiche de paie ; bulletin de paie ; feuille de paie ; fiche de salaire
+- **CDD ou intérim ?** : différence entre CDD et intérim ; comparer CDD et intérim
+- **CDI ou CDD ?** : différence entre CDI et CDD ; comparer CDI et CDD
+- **Stage ou PMSMP ?** : différence entre Stage et PMSMP ; comparer Stage et PMSMP
+- **Diagnostic partagé** : faire le point avec mon conseiller ; faire un bilan de situation ; point sur ma situation
+- **Employabilité** : mes chances de trouver un emploi ; être employable ; trouver du travail facilement
+- **Que veut dire "autonomie" dans une offre d'emploi ?** : travailler en autonomie ; être autonome ; autonome en poste
+- **Pourquoi on vous demande "parlez-moi de vous" ?** : présentez-vous ; se présenter en entretien ; question de présentation
+- **Que veut dire "savoir-être" ?** : comportement au travail ; qualités humaines ; qualités personnelles ; attitude professionnelle
+- **Que veut dire "savoir-faire" ?** : compétences techniques ; compétences pratiques ; savoir faire un métier
+- **Que veut dire "esprit d'équipe" dans une offre d'emploi ?** : travailler en équipe ; bien s'entendre avec ses collègues ; collaborer avec les collègues
+- **Que veut dire "être force de proposition" ?** : avoir des idées ; proposer des améliorations ; prendre des initiatives
+- **Que veut dire "rigueur" dans une offre d'emploi ?** : faire attention aux détails ; être rigoureux ; être minutieux
+- **Ce que regarde un recruteur sur un CV** : ce qui compte sur un CV ; comment un recruteur lit mon CV ; ce qu'un recruteur regarde en premier
+- **Comment lire une lettre de motivation** : lettre de motiv ; lettre de candidature ; écrire à un employeur
+- **Le rôle de France Travail** : Pôle emploi ; s'inscrire au chômage ; ANPE ; demandeur d'emploi
+- **Le rôle de la Mission Locale** : aide pour les jeunes ; jeunes de 16 à 25 ans ; conseiller jeunesse
+- **Le rôle de Cap Emploi** : emploi et handicap ; accompagnement handicap et emploi ; travailleur handicapé et emploi
+- **CAF** : Caisse d'allocations familiales ; allocations familiales ; aides au logement
+- **Les structures de l'insertion par l'activité économique (SIAE)** : structure d'insertion ; parcours d'insertion ; contrat d'insertion en structure
+- **Chantier d'insertion (ACI)** : atelier et chantier d'insertion ; chantier insertion
+- **Entreprise d'insertion (EI)** : entreprise qui fait de l'insertion ; emploi en entreprise d'insertion
+- **Association intermédiaire (AI)** : petits travaux chez les particuliers ; mise à disposition en insertion
+- **ETTI** : intérim d'insertion ; entreprise de travail temporaire d'insertion ; intérim insertion
+- **RQTH** : reconnaissance handicap ; travailleur handicapé ; reconnaissance de la qualité de travailleur handicapé
+- **Aptitude ou inaptitude ?** : différence entre Aptitude et inaptitude ; comparer Aptitude et inaptitude
+- **Prime ou indemnité ?** : différence entre Prime et indemnité ; comparer Prime et indemnité
+- **Savoir-être ou savoir-faire ?** : différence entre Savoir-être et savoir-faire ; comparer Savoir-être et savoir-faire
+- **CPF ou VAE ?** : différence entre CPF et VAE ; comparer CPF et VAE
+- **France Travail, Mission Locale ou Cap Emploi ?** : différence entre France Travail, Mission Locale et Cap Emploi ; quelle structure choisir pour l'emploi
+- **PACEA** : parcours mission locale jeunes ; parcours contractualisé d'accompagnement ; accompagnement vers l'emploi et l'autonomie
+- **CQP** : certificat de qualification ; certificat de qualification professionnelle ; qualification de branche
+- **Titre professionnel** : titre pro ; diplôme de l'État pour l'emploi ; bloc de compétences
+- **Certification** : être certifié ; certificat professionnel ; attestation de compétences ; faire reconnaître ses compétences
+- **Qualification** : être qualifié pour un poste ; niveau de qualification ; avoir une qualification ; personne qualifiée
+- **Formation qualifiante ou certifiante ?** : différence entre Formation qualifiante et certifiante ; comparer Formation qualifiante et certifiante
+- **RNCP ou CQP ?** : différence entre RNCP et CQP ; comparer RNCP et CQP
+- **RNCP ou RS ?** : différence entre RNCP et RS ; comparer RNCP et RS
+- **Diplôme, titre professionnel ou certification ?** : différence entre diplôme, titre professionnel et certification ; comparer diplôme titre et certification
+- **Écoute active** : bien écouter en entretien ; savoir écouter ; écouter sans interrompre ; écoute bienveillante
+- **Reformulation** : redire avec ses mots ; reformuler ; répéter avec d'autres mots
+- **Estime de soi, confiance en soi ou affirmation de soi ?** : différence entre estime de soi, confiance en soi et affirmation de soi ; comparer estime confiance affirmation
+- **Questionnement** : poser les bonnes questions ; poser des questions ouvertes ; questions pour aider à réfléchir
+- **Conduite d'un entretien d'accompagnement** : mener un entretien avec un conseiller ; mener un entretien ; animer un entretien ; structurer un entretien
+- **ADVP** : méthode ADVP ; activation du développement vocationnel et personnel ; exploration vocationnelle
+- **Co-construction** : décider ensemble avec mon conseiller ; construire ensemble ; coconstruction ; travailler ensemble sur un projet
+- **Pouvoir d'agir** : reprendre la main sur ma situation ; empowerment ; reprendre le contrôle ; agir sur sa situation
+- **Licenciement** : être licencié ; perdre son emploi ; lettre de licenciement ; renvoi par l'employeur
+- **Rupture conventionnelle** : partir à l'amiable ; rupture à l'amiable ; départ négocié ; quitter son emploi d'un commun accord
+- **Démission ou rupture conventionnelle ?** : différence entre Démission et rupture conventionnelle ; comparer Démission et rupture conventionnelle
+- **Entretien annuel** : entretien avec mon responsable ; entretien d'évaluation ; bilan de l'année avec mon responsable
+- **Marque employeur** : image d'une entreprise comme employeur ; attractivité de l'entreprise ; réputation d'un employeur ; image de l'employeur
+- **Cooptation** : être recommandé pour un poste ; recommandation par un salarié ; coopter ; parrainage d'un candidat
+- **Polyvalence** : savoir faire plusieurs choses ; polyvalent ; être polyvalent ; savoir tout faire
+- **Projet professionnel** : savoir ce que je veux faire ; objectif professionnel ; métier visé ; projet de carrière
+- **Réorientation professionnelle** : changer de voie sans tout changer ; réorientation ; changer d'orientation
+- **Réorientation ou reconversion ?** : différence entre Réorientation et reconversion ; comparer Réorientation et reconversion
+- **Reconversion ou évolution professionnelle ?** : différence entre Reconversion et évolution professionnelle ; comparer Reconversion et évolution professionnelle
+- **Soft skills ou hard skills ?** : différence entre Soft skills et hard skills ; comparer Soft skills et hard skills
+- **RQTH ou invalidité ?** : différence entre RQTH et invalidité ; comparer RQTH et invalidité
+- **L'insertion par l'activité économique (IAE)** : secteur de l'insertion ; insertion par l'activité économique ; emplois d'insertion
+- **PLIE** : plan local pour l'insertion et l'emploi ; plan local insertion emploi ; accompagnement renforcé vers l'emploi ; référent de parcours
+- **Discrimination à l'embauche** : refus injustifié à l'embauche ; refus d'embauche injuste ; discriminé à l'embauche ; recrutement discriminatoire
+- **Portage salarial** : travailler en indépendant sans créer d'entreprise ; société de portage ; portage ; salarié porté
+- **Profession libérale** : exercer en libéral ; travailler en libéral ; indépendant libéral
+- **Auto-entrepreneur, portage salarial ou profession libérale ?** : différence entre auto-entrepreneur, portage salarial et profession libérale ; quel statut indépendant choisir
+- **Temps partiel choisi ou subi ?** : différence entre Temps partiel choisi et subi ; comparer Temps partiel choisi et subi
+- **Maître d'ouvrage ou maître d'œuvre ?** : différence entre Maître d'ouvrage et maître d'œuvre ; comparer Maître d'ouvrage et maître d'œuvre
+- **RSA ou prime d'activité ?** : différence entre RSA et prime d'activité ; comparer RSA et prime d'activité
+- **AAH ou pension d'invalidité ?** : différence entre AAH et pension d'invalidité ; comparer AAH et pension d'invalidité
+- **ARE ou ASS ?** : différence entre ARE et ASS ; comparer ARE et ASS
+- **Recours amiable ou contentieux ?** : différence entre Recours amiable et contentieux ; comparer Recours amiable et contentieux
+- **Discrimination ou différence de traitement ?** : différence entre Discrimination et différence de traitement ; comparer Discrimination et différence de traitement
+- **Hébergement ou logement accompagné ?** : différence entre Hébergement et logement accompagné ; comparer Hébergement et logement accompagné
+- **Plan conventionnel ou mesures imposées ?** : différence entre Plan conventionnel et mesures imposées ; comparer Plan conventionnel et mesures imposées
+- **Milieu ordinaire ou milieu protégé ?** : différence entre Milieu ordinaire et milieu protégé ; comparer Milieu ordinaire et milieu protégé
+- **RQTH ou OETH ?** : différence entre RQTH et OETH ; comparer RQTH et OETH
+- **Inscrit à France Travail ou chômeur au sens du BIT ?** : différence entre Inscrit à France Travail et chômeur au sens du BIT ; comparer Inscrit à France Travail et chômeur au sens du BIT
+- **Métier en tension ou métier qui recrute ?** : différence entre Métier en tension et métier qui recrute ; comparer Métier en tension et métier qui recrute
+- **SIREN ou SIRET ?** : différence entre SIREN et SIRET ; comparer SIREN et SIRET
+- **Entreprise individuelle ou société ?** : différence entre Entreprise individuelle et société ; comparer Entreprise individuelle et société
+- **Salarié ou travailleur non salarié ?** : différence entre Salarié et travailleur non salarié ; comparer Salarié et travailleur non salarié
+- **Microcrédit personnel ou professionnel ?** : différence entre Microcrédit personnel et professionnel ; comparer Microcrédit personnel et professionnel
+- **Apprentissage ou professionnalisation ?** : différence entre Apprentissage et professionnalisation ; comparer Apprentissage et professionnalisation
+- **École de la deuxième chance ou EPIDE ?** : différence entre École de la deuxième chance et EPIDE ; comparer École de la deuxième chance et EPIDE
+- **Statut de réfugié ou protection subsidiaire ?** : différence entre Statut de réfugié et protection subsidiaire ; comparer Statut de réfugié et protection subsidiaire
+- **Titre de séjour ou autorisation de travail ?** : différence entre Titre de séjour et autorisation de travail ; comparer Titre de séjour et autorisation de travail
+- **Bulletin n° 2 ou bulletin n° 3 ?** : différence entre Bulletin n° 2 et bulletin n° 3 ; comparer Bulletin n° 2 et bulletin n° 3
+- **Milieu ouvert ou milieu fermé ?** : différence entre Milieu ouvert et milieu fermé ; comparer Milieu ouvert et milieu fermé
+- **Cumul intégral ou cumul plafonné ?** : différence entre Cumul intégral et cumul plafonné ; comparer Cumul intégral et cumul plafonné
+- **Départ volontaire ou mise à la retraite ?** : différence entre Départ volontaire et mise à la retraite ; comparer Départ volontaire et mise à la retraite
+- **Permis suspendu ou annulé ?** : différence entre Permis suspendu et annulé ; comparer Permis suspendu et annulé
+- **CDD classique ou CDD d'insertion ?** : différence entre CDD classique et CDD d'insertion ; comparer CDD classique et CDD d'insertion
+- **Prime de précarité ou indemnité de licenciement ?** : différence entre Prime de précarité et indemnité de licenciement ; comparer Prime de précarité et indemnité de licenciement
+- **Illettrisme ou illectronisme ?** : différence entre Illettrisme et illectronisme ; comparer Illettrisme et illectronisme
+- **Alphabétisation ou français langue étrangère ?** : différence entre Alphabétisation et français langue étrangère ; comparer Alphabétisation et français langue étrangère
+- **Sous-traitance ou co-traitance ?** : différence entre Sous-traitance et co-traitance ; comparer Sous-traitance et co-traitance
+- **Moins-disant ou mieux-disant ?** : différence entre Moins-disant et mieux-disant ; comparer Moins-disant et mieux-disant
+- **Clause d'exécution ou critère d'attribution ?** : différence entre Clause d'exécution et critère d'attribution ; comparer Clause d'exécution et critère d'attribution

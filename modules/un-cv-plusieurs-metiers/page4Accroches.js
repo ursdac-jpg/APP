@@ -40,6 +40,9 @@ function _ucpmConfigPassageAccroches(etat) {
         }) + ucpmConsignesStyle('cv');
       });
     },
+    module: { libelleSuite: 'Voir les accroches', quoi: 'L’assistant vient d’écrire une accroche pour chacun de vos métiers.',
+      pourquoi: 'Une accroche adaptée à chaque métier retient mieux l’attention.', verif: 'relisez chaque accroche : elle doit rester vraie pour vous. Vous pourrez la modifier à l’étape suivante.' },
+    verifier: function (texte) { return !!ucpmLireReponseAccroches(texte, entrees.map(function (e) { return e.id; })).succes; },
     importer: function (texte) {
       var r = ucpmLireReponseAccroches(texte, entrees.map(function (e) { return e.id; }));
       if (r.succes) {

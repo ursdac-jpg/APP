@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Vérifier avec un assistant (Qui fait quoi)</title>
+<style>
+  :root { --bg:#fff; --bg-subtle:#f4f6f8; --text:#1d2733; --text-muted:#5b6775; --border:#d5dbe2; --border-strong:#aeb8c4; --ok:#1d7a4a; --ok-bg:#dff3e7; --warn:#a85d00; --warn-bg:#fdf0d8; --alert:#a3262a; --alert-bg:#f9dede; --info-bg:#e1eefb; --radius:8px; --verif:#c4553a; --verif-bg:#fde5de; --verif-texte:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#161b22; --bg-subtle:#1e252e; --text:#e6ebf1; --text-muted:#9aa7b6; --border:#34404d; --border-strong:#506071; --ok:#6fd39b; --ok-bg:#16382a; --warn:#f0b35c; --warn-bg:#3d2d12; --alert:#f08a8d; --alert-bg:#43191b; --info-bg:#16304a; --verif:#f0987f; --verif-bg:#40201a; --verif-texte:#2a1209; } }
+  body { margin:0; padding:1rem 1rem 4rem; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, sans-serif; max-width:1000px; margin-inline:auto; }
+  h1 { font-size:1.3rem; margin:.2rem 0; } h2 { font-size:1.05rem; margin:1.6rem 0 .4rem; border-top:2px solid var(--border); padding-top:.9rem; } h3 { font-size:.95rem; margin:.8rem 0 .2rem; }
+  .mini { font-size:.82rem; color:var(--text-muted); }
+  .btn { font:inherit; border:1px solid var(--border-strong); background:var(--bg); color:var(--text); border-radius:var(--radius); padding:.4rem .8rem; cursor:pointer; }
+  .btn.primaire { background:var(--text); color:var(--bg); } .btn.petit { font-size:.8rem; padding:.2rem .55rem; }
+  .barre { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.5rem 0; }
+  .note { background:var(--info-bg); border-radius:var(--radius); padding:.55rem .8rem; margin:.6rem 0; }
+  .zone { border:1px solid var(--border); border-radius:var(--radius); padding:.8rem 1rem; margin:.6rem 0; }
+  .fiche-sas { border:1px solid var(--border-strong); border-radius:var(--radius); padding:.7rem .9rem; margin:.7rem 0; }
+  .pastille { display:inline-block; border-radius:999px; padding:.1rem .6rem; font-size:.78rem; font-weight:600; }
+  .p-neutre { background:var(--bg-subtle); } .p-ok { background:var(--ok-bg); color:var(--ok); } .p-warn { background:var(--warn-bg); color:var(--warn); } .p-alert { background:var(--alert-bg); color:var(--alert); }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; } td { padding:.3rem .4rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  input[type=text] { font:inherit; width:100%; box-sizing:border-box; background:var(--bg); color:var(--text); border:1px solid var(--border-strong); border-radius:6px; padding:.3rem .5rem; }
+  textarea { width:100%; box-sizing:border-box; min-height:6rem; font:.82rem ui-monospace, Consolas, monospace; background:var(--bg-subtle); color:var(--text); border:1px solid var(--border-strong); border-radius:var(--radius); padding:.5rem; }
+  pre { white-space:pre-wrap; background:var(--bg-subtle); border-radius:var(--radius); padding:.7rem; font-size:.8rem; max-height:20rem; overflow:auto; }
+  .avant { background:var(--alert-bg); border-radius:6px; padding:.2rem .5rem; margin:.15rem 0; text-decoration:line-through; }
+  .apres { background:var(--ok-bg); border-radius:6px; padding:.2rem .5rem; margin:.15rem 0; font-weight:600; }
+  .btn-verif { background:var(--verif); border-color:var(--verif); color:var(--verif-texte); font-weight:600; }
+  .zone-verif { border:2px solid var(--verif); background:var(--verif-bg); border-radius:var(--radius); padding:.7rem 1rem; margin:.6rem 0; }
+  .masque { display:none; }
+  .q { border-left:4px solid var(--warn); background:var(--warn-bg); padding:.5rem .8rem; border-radius:6px; margin:.5rem 0; }
+</style>
+</head>
+<body>
+<h1>Maquette : « Vérifier avec un assistant » dans Qui fait quoi</h1>
+<p class="mini">Maquette cliquable, 29/10/2026. Les boutons <strong>saumon</strong> sont ceux de la vérification avec un assistant : une couleur à eux, pour les repérer d'un coup d'œil (clair et sombre). Deux niveaux : un prompt de groupe pour trier (8 fiches au plus), un prompt individuel pour creuser. Rien n'est enregistré ici. Les données sont inventées.</p>
+
+<h2>Écran 1. Le sas, la liste (employeurs)</h2>
+<div class="barre"><label>Le sas des : <select><option>Employeurs</option><option>Structures</option><option>Pages d'offres</option></select></label>
+<input type="text" value="" placeholder="Chercher (nom, ville, mot...)" style="max-width:16rem"></div>
+<div class="zone">
+  <strong>Contrôle automatique</strong> <span class="mini">(existe déjà : ouvre les sites tout seul, ne valide rien)</span>
+  <div class="barre"><button class="btn">Contrôler ces fiches</button></div>
+</div>
+<div class="zone-verif">
+  <strong>Faire vérifier ce groupe de fiches (pour trier)</strong>
+  <p class="mini">Prompt de groupe : 8 fiches au plus, les premières de la liste affichée. L'assistant dit seulement « confirmé », « à regarder » ou « introuvable », avec la page lue. <strong>Il ne propose aucune valeur à recopier</strong> : une fiche « à regarder » se creuse avec son bouton individuel (écran 2).</p>
+  <div class="barre"><button class="btn btn-verif" id="b-groupe">Préparer la vérification de ces 8 fiches</button></div>
+  <div id="groupe-res" class="masque">
+    <div class="note">Le prompt de groupe est <strong>déjà copié</strong>. Collez-le chez l'assistant, puis collez ici sa réponse.</div>
+    <textarea placeholder="Collez ici la réponse de l'assistant.">1 | Biocoop Périgueux | à regarder | téléphone différent sur la page officielle | https://www.biocoop.fr/magasin-biocoop_perigueux
+2 | Leroy Merlin Limoges | confirmé | site et page de recrutement lus | https://www.leroymerlin.fr/magasins/limoges.html
+3 | Boulangerie Dupont | introuvable | aucune page officielle trouvée |</textarea>
+    <div class="barre"><button class="btn btn-verif">Lire la réponse</button></div>
+    <table><tbody>
+      <tr><td>Biocoop Périgueux</td><td><span class="pastille p-warn">À regarder</span> <span class="mini">téléphone différent</span></td><td><button class="btn petit btn-verif">Faire vérifier cette fiche seule</button></td></tr>
+      <tr><td>Leroy Merlin Limoges</td><td><span class="pastille p-ok">Confirmé par l'assistant</span> <span class="mini">à vous d'ouvrir la page lue</span></td><td><button class="btn petit">Ouvrir la page lue</button></td></tr>
+      <tr><td>Boulangerie Dupont</td><td><span class="pastille p-alert">Introuvable</span></td><td><button class="btn petit btn-verif">Faire vérifier cette fiche seule</button></td></tr>
+    </tbody></table>
+    <p class="mini">Le résultat d'un groupe est marqué « de groupe » : c'est un tri, pas une vérification. Ni date ni « C'est bon » automatiques.</p>
+  </div>
+</div>
+
+<h2>Écran 2. Une carte du sas, avec le résultat de l'assistant</h2>
+<div class="fiche-sas">
+  <strong>Biocoop Périgueux</strong> <span class="pastille p-neutre">Enseigne</span>
+  <span class="pastille p-warn" id="past-res" style="display:none">L'assistant propose une correction</span>
+  <div class="mini">Alimentation · Dordogne</div>
+  <div class="barre"><button class="btn btn-verif" id="b-lot">Faire vérifier cette fiche par un assistant</button> <span class="mini">un prompt pour CETTE fiche seulement</span></div>
+  <div id="lot-prompt" class="masque">
+    <div class="note">Le prompt est <strong>déjà copié</strong>. Ouvrez l'assistant, collez-le (Ctrl+V) et lancez-le.</div>
+    <div class="barre"><button class="btn">Ouvrir ChatGPT</button><button class="btn">Ouvrir Perplexity</button><button class="btn petit" id="b-voir-prompt">Voir le prompt</button></div>
+    <pre id="le-prompt" class="masque">@Recherche sur le Web
+
+Vérifie UNE seule fiche, UNIQUEMENT sur les sites OFFICIELS de cet employeur.
+
+Employeur : Biocoop Périgueux (enseigne, alimentation), commune : Périgueux (24)
+Site actuel : https://www.biocoop.fr/magasin-biocoop_perigueux
+Page de recrutement actuelle : https://www.biocoop.fr/recrutement
+Téléphone actuel : 05 53 00 00 00
+Où chercher : le site officiel de l'enseigne, la page de CE magasin, puis sa page de recrutement.
+
+Règles :
+1. Lis uniquement ce qui est affiché sur les pages officielles. Aucun annuaire, comparateur, PagesJaunes, Indeed, France Travail.
+2. N'invente jamais. Page impossible à ouvrir : « non vérifiable ».
+3. Employeur absent du site officiel : « fermée ou absente ».
+4. Valeur différente : « corrigé », avec la valeur lue. Tout correspond : « confirmé ».
+5. Si un numéro ou une adresse appartient en réalité à un autre magasin ou un autre réseau, dis-le.
+
+Réponds uniquement sous cette forme, une ligne par champ :
+champ | statut | valeur lue | URL exacte de la page où tu l'as lue | phrase lue (courte citation)
+Champs : site, recrutement, téléphone. Aucun commentaire.</pre>
+    <h3>Coller la réponse de l'assistant (dans la carte)</h3>
+    <textarea id="reponse" placeholder="Collez ici la réponse de l'assistant, telle quelle.">téléphone | corrigé | 05 53 00 00 01 | https://www.biocoop.fr/magasin-biocoop_perigueux | Tél. : 05 53 00 00 01
+site | confirmé | https://www.biocoop.fr/magasin-biocoop_perigueux | https://www.biocoop.fr/magasin-biocoop_perigueux | Biocoop Périgueux
+recrutement | confirmé | https://www.biocoop.fr/recrutement | https://www.biocoop.fr/recrutement | Rejoignez-nous</textarea>
+    <div class="barre"><button class="btn btn-verif" id="b-lire">Lire la réponse</button><span class="mini">Rien n'est enregistré. La carte reste à vous.</span></div>
+  </div>
+  <div id="res-carte" class="masque">
+    <div class="note"><strong>Résultat de l'assistant (proposition, pas une preuve).</strong> Ouvrez la page ci-dessous pour contrôler.</div>
+    <table><tbody>
+      <tr><td style="width:11rem">Site à ouvrir</td><td><span class="pastille p-ok">confirmé</span> https://www.biocoop.fr/magasin-biocoop_perigueux <button class="btn petit">Ouvrir la page lue</button></td></tr>
+      <tr><td>Page de recrutement</td><td><span class="pastille p-ok">confirmé</span> https://www.biocoop.fr/recrutement <button class="btn petit">Ouvrir la page lue</button></td></tr>
+      <tr><td>Téléphone</td><td><span class="pastille p-warn">corrigé</span>
+        <div class="avant">05 53 00 00 00</div><div class="apres">05 53 00 00 01</div>
+        <div class="mini">Lu sur la page : « Tél. : 05 53 00 00 01 »</div>
+        <button class="btn petit" id="b-prendre">Mettre 05 53 00 00 01 dans la carte</button> <button class="btn petit">Garder l'ancien</button></td></tr>
+    </tbody></table>
+    <p class="mini">« Mettre dans la carte » remplit seulement la case ci-dessous, comme pour le Lexique. Rien n'est enregistré, et la fiche n'est pas datée : « C'est bon » reste à vous, après avoir ouvert la source.</p>
+  </div>
+  <table><tbody>
+    <tr><td style="width:11rem">Site à ouvrir</td><td><input type="text" value="https://www.biocoop.fr/magasin-biocoop_perigueux"></td></tr>
+    <tr><td>Page de recrutement</td><td><input type="text" value="https://www.biocoop.fr/recrutement"></td></tr>
+    <tr><td>Téléphone</td><td><input type="text" id="tel" value="05 53 00 00 00"></td></tr>
+  </tbody></table>
+  <div class="barre"><button class="btn">C'est bon</button><button class="btn">Écarter</button></div>
+</div>
+
+<h2>Écran 3. Qui fait quoi, la liste publiée (fiches à revérifier)</h2>
+<div class="barre"><button class="btn">Contrôler les fiches à revérifier</button> <button class="btn btn-verif">Préparer la vérification de ces 8 fiches</button> <button class="btn">Ajouter une fiche</button> <button class="btn">Importer plusieurs fiches</button> <button class="btn">Le sas (12)</button></div>
+<table><tbody><tr><td><strong>Biocoop Périgueux</strong><br><span class="mini">biocoop-perigueux</span></td><td>vérifiée le 02/03/2026 (il y a 7 mois, à revérifier)</td>
+<td><button class="btn petit">Valider</button> <button class="btn petit">Modifier</button> <button class="btn petit">Supprimer</button> <button class="btn petit btn-verif">Faire vérifier</button></td></tr></tbody></table>
+<p class="mini">Même circuit que les écrans 1 et 2 : un bouton saumon par ligne (prompt individuel), et un bouton de groupe en haut de la liste. Le collage et le résultat s'affichent sous la ligne.</p>
+
+<h2>Écran 4. Et ensuite (après Qui fait quoi), un bouton « Faire vérifier » individuel partout ailleurs</h2>
+<table><tbody>
+<tr><td><strong>Lexique : un mot</strong></td><td>« Comprendre ce mot » : un prompt pour un seul mot (sens, et chiffres à jour si la fiche en a). Le prompt des chiffres par lot de 8 devient un prompt par fiche.</td></tr>
+<tr><td><strong>Comprendre le cadre : une fiche</strong></td><td>Un prompt par fiche (aujourd'hui : un contrôle par rayon entier).</td></tr>
+<tr><td><strong>Les adresses des fiches (liens)</strong></td><td>Un prompt par adresse.</td></tr>
+<tr><td><strong>Changements du trimestre</strong></td><td>Existe déjà, une carte à la fois.</td></tr>
+<tr><td><strong>Comprendre les chiffres</strong></td><td>Existe déjà par fiche de chiffres ; à vérifier si le grain convient.</td></tr>
+<tr><td><strong>Numéros à ajouter, pages d'offres, structures</strong></td><td>Un prompt par carte, comme l'écran 2.</td></tr>
+</tbody></table>
+
+<h2>Ce qui est tranché et ce qui reste</h2>
+<div class="q"><strong>Tranché le 29/10/2026 :</strong> deux niveaux, un prompt de groupe pour trier et un prompt individuel pour creuser ; boutons de vérification en saumon.</div>
+<div class="q"><strong>Q1.</strong> Le collage de la réponse se fait dans la carte, avec « Mettre dans la carte » par valeur corrigée (individuel seulement). Recommandé.</div>
+<div class="q"><strong>Q2.</strong> Mails : seules les structures en ont un, vérifié sur leur site, « non vérifiable » sinon, jamais deviné. Recommandé.</div>
+<div class="q"><strong>Q3.</strong> Liste « À vérifier » triée de la plus ancienne vérification à la plus récente. Recommandé.</div>
+
+<script>
+  var $ = function (i) { return document.getElementById(i); };
+  $('b-groupe').onclick = function () { $('groupe-res').classList.remove('masque'); };
+  $('b-lot').onclick = function () { $('lot-prompt').classList.remove('masque'); };
+  $('b-voir-prompt').onclick = function () { $('le-prompt').classList.toggle('masque'); };
+  $('b-lire').onclick = function () { $('res-carte').classList.remove('masque'); $('past-res').style.display = ''; $('res-carte').scrollIntoView({ behavior: 'smooth' }); };
+  $('b-prendre').onclick = function () { $('tel').value = '05 53 00 00 01'; $('tel').style.background = 'var(--ok-bg)'; };
+</script>
+</body>
+</html>

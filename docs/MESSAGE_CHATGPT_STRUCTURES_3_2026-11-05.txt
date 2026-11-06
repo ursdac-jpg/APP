@@ -1,0 +1,49 @@
+Je te donne une liste de 25 structures (services publics, associations, organismes) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 51 à 75. Pour chacune, un site et un numéro de téléphone ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque structure, ouvre sa page officielle : son propre site, ou à défaut la page d'une administration (commune, département, préfecture, ministère) qui la présente. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. N'utilise aucun annuaire privé, PagesJaunes, comparateur, site d'offres d'emploi ni réseau social.
+3. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+4. Le territoire compte : la structure doit être celle du territoire indiqué (24, 87, région ou national). Méfie-toi des homonymes d'un autre département.
+5. Le statut est un seul mot : « confirmé » (le site et le numéro proposés correspondent à la page officielle), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucune page officielle trouvée), « fermée » (la structure n'existe plus ou n'est plus dans ce territoire).
+6. Le téléphone est copié exactement tel qu'affiché ; s'il n'y en a pas, écris « pas de numéro vu ». L'adresse est copiée telle qu'affichée (rue, code postal, commune) ; sinon « pas d'adresse vue ».
+
+Réponds uniquement avec une ligne par structure, sans tableau, sous cette forme exacte :
+numéro | statut | téléphone affiché | adresse affichée | URL exacte de la page où tu les as lus | site officiel de la structure (si différent)
+
+Longueur et méthode : la liste est courte (25 lignes, numéros 51 à 75) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 25 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | commune | territoire | site proposé | numéro proposé) :
+51 | Les Premières Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://lespremieres.fr | numéro proposé : aucun
+52 | Chambre d'agriculture de la Dordogne - Antenne du Périgord Noir | Sarlat-la-Canéda | Dordogne (24) | site proposé : https://dordogne.chambre-agriculture.fr | numéro proposé : aucun
+53 | France Services Vallée Dordogne Forêt Bessède - Saint-Cyprien | Saint-Cyprien | Dordogne (24) | site proposé : https://ccdordogne-bessede.fr/aides-creation-entreprise/ | numéro proposé : 05 53 28 63 90
+54 | Réseau Entreprendre Limousin | Limoges | Haute-Vienne (87) | site proposé : https://www.reseau-entreprendre.org/limousin/ | numéro proposé : aucun
+55 | Association Interconsulaire de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.haute-vienne.gouv.fr/Actions-de-l-Etat/Entreprises-economie-emploi-et-finances-publiques/Appui-au-developpement-de-l-emploi-et-des-entreprises-en-Haute-Vienne | numéro proposé : aucun
+56 | Initiative Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://www.initiative-nouvelleaquitaine.org | numéro proposé : aucun
+57 | ENTRE DEUX | Limoges | région Nouvelle-Aquitaine | site proposé : https://annuairesolidaire.fr/services/caa4dc93ba-action-socio-linguistique-complementaire-du-cir-limoges/ | numéro proposé : 05 87 19 69 95
+58 | Centre d'Addictologie du Sarladais | Sarlat-la-Canéda | Dordogne (24) | site proposé : https://www.ceid-addiction.com | numéro proposé : 05 53 28 92 34
+59 | CSAPA Bobillot | Limoges | Haute-Vienne (87) | site proposé : aucun | numéro proposé : 05 55 34 43 77
+60 | Accueils de jour de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.service-public.fr | numéro proposé : aucun
+61 | Coop'Alpha Limousin | Limoges | Haute-Vienne (87) | site proposé : https://www.coopalpha.coop | numéro proposé : aucun
+62 | Entreprises adaptées et ESAT de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://annuaire.action-sociale.org | numéro proposé : aucun
+63 | Habitat Jeunes Limoges | Limoges | Haute-Vienne (87) | site proposé : https://www.unhaj.org | numéro proposé : aucun
+64 | France Travail Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.francetravail.fr | numéro proposé : 09 72 72 39 49
+65 | France Travail Haute-Vienne - accompagnement justice | Limoges | Haute-Vienne (87) | site proposé : https://www.francetravail.fr | numéro proposé : aucun
+66 | GEIQ Limousin | Limoges | Haute-Vienne (87) | site proposé : https://www.lesgeiq.fr | numéro proposé : aucun
+67 | IRISCOP Limousin | Limoges | Haute-Vienne (87) | site proposé : https://www.iriscop.org | numéro proposé : aucun
+68 | SIAO Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.siao87.fr | numéro proposé : aucun
+69 | Réseau des conseillers numériques France Services de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.conseiller-numerique.gouv.fr | numéro proposé : aucun
+70 | Groupe FEL | Limoges | Haute-Vienne (87) | site proposé : https://www.cri-aquitaine.org/lieux-de-formation/fiche-repertoire/fel-gueret/ | numéro proposé : aucun
+71 | ASTI de Périgueux | Périgueux | Dordogne (24) | site proposé : https://asti24.fr | numéro proposé : aucun
+72 | Association Échange Culturel | Bergerac | Dordogne (24) | site proposé : https://www.helloasso.com/associations/association-echange-culturel | numéro proposé : 05 53 73 85 34
+73 | Association Périgord Linguistique et Culturel | Périgueux | Dordogne (24) | site proposé : aucun | numéro proposé : aucun
+74 | Espace Économie Emploi du Ribéracois | Ribérac | Dordogne (24) | site proposé : aucun | numéro proposé : aucun
+75 | ADEFA Dordogne | Coulounieix-Chamiers | Dordogne (24) | site proposé : https://www.anefa.org | numéro proposé : aucun
+
+

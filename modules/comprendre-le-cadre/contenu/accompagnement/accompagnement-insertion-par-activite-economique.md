@@ -7,7 +7,7 @@ tags: [insertion par l'activité économique, IAE, entreprise d'insertion, chant
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "insertion par l'activité économique"
     definition: "Dispositif qui permet à des personnes très éloignées de l'emploi de travailler dans une structure dédiée, avec un contrat, un salaire et un accompagnement, pour rebondir vers un emploi durable."
@@ -26,13 +26,15 @@ ce_qui_change_souvent:
   - "Les critères d'éligibilité"
   - "La durée du parcours et les cas de CDI"
   - "Les modalités d'entrée (auto-candidature, prescripteurs habilités)"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Service Public cite les moins de 26 ans et les plus de 50 ans comme critères complémentaires à cumuler ; durée minimale de quatre mois, plafond de deux ans en principe et CDI à partir de 57 ans confirmés ; le lien entre le CDDI et les quatre mois est une déduction de la page"
+phrase_generale: "L'insertion par l'activité économique permet de reprendre un travail dans une structure spéciale, avec un vrai contrat, un salaire et un accompagnateur, quand on est très éloigné de l'emploi. Les publics concernés, la durée des contrats et les conditions d'entrée changent : renseignez-vous auprès d'un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: accompagnement.collecte.md
 ---
 
 L'insertion par l'activité économique permet de reprendre un travail dans une structure spéciale, avec un vrai contrat et un salaire, quand on est très éloigné de l'emploi. En parallèle, un accompagnateur aide à lever les difficultés et à préparer la suite.
 
-Elle s'adresse notamment aux personnes au chômage depuis très longtemps, aux bénéficiaires du RSA, de l'allocation de solidarité spécifique ou de l'AAH, aux jeunes en difficulté, aux personnes de plus de cinquante ans, aux personnes handicapées, aux sortants de détention, aux parents isolés, aux personnes réfugiées.
+Elle s'adresse notamment aux personnes au chômage depuis très longtemps, aux bénéficiaires du RSA, de l'allocation de solidarité spécifique ou de l'AAH, aux jeunes de moins de vingt-six ans, aux personnes de plus de cinquante ans, aux personnes handicapées, aux sortants de détention, aux parents isolés, aux personnes réfugiées. Pour certains de ces critères, il faut en remplir plusieurs.
 
 Il existe quatre types de structures : l'entreprise d'insertion, qui produit et vend ; l'entreprise de travail temporaire d'insertion, qui met à disposition en intérim ; l'atelier et chantier d'insertion, qui mène des activités d'utilité sociale ; l'association intermédiaire, qui propose des missions ponctuelles chez des particuliers ou des entreprises.
 

@@ -15,7 +15,8 @@ const T = require('./veilleTerritoire.js');
 
 const CHEMINS = { lieux: 'outils/sas/lieux.sas.txt', employeurs: 'outils/sas/employeurs.sas.txt', complements: 'outils/sas/complements.sas.txt', offres: 'outils/sas/offres.sas.txt' };
 const COLONNES = { lieux: T.FICHIERS.lieux.colonnes, employeurs: T.FICHIERS.employeurs.colonnes, complements: ['cible', 'registre', 'telephone', 'source'], offres: T.FICHIERS.offres.colonnes };
-const MAX_LIGNES = 100;
+const MAX_LIGNES = 100;   // un import (collage de lignes dans le sas) : inchangé
+const MAX_ACTIONS_SAS = 1500;   // retirer du sas les fiches validées en un seul « Enregistrer » (demande de Denis, 04/11/2026) ; les sas font environ 1 000 fiches au plus
 const RE_ID = /^[a-z0-9][a-z0-9-]{1,80}$/;
 const SOURCE_ABSENTE = 'proposée par un assistant, source non donnée';
 const TIRET_LONG = new RegExp(String.fromCharCode(0x2013) + '|' + String.fromCharCode(0x2014), 'g');
@@ -241,14 +242,23 @@ function lieuxDifferents(v, x) {
   const a = communesDe(v), b = communesDe(x.valeurs);
   return a.length > 0 && b.length > 0 && !a.some(function (c) { return b.indexOf(c) !== -1; });
 }
-function doublon(index, v, ctx) {
+// Deux fiches dont les numéros de téléphone sont tous deux connus et DIFFÉRENTS ne sont pas la même : un même site peut servir plusieurs services ou établissements (analyse de Denis du 04/11/2026).
+function chiffres(t) { return String(t || '').replace(/[^0-9]/g, ''); }
+function telephonesDifferents(v, x) { const a = chiffres(v.telephone), b = chiffres(x.valeurs && x.valeurs.telephone); return a.length > 0 && b.length > 0 && a !== b; }
+// Paires de fiches que Denis (ou Claude, avec son accord) a regardées et jugées DISTINCTES : outils/sas/pas-doublons.txt, passées dans ctx.pasDoublons ({ 'idA|idB': true }, ids rangés par ordre alphabétique).
+function cleDePaire(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+function doublon(index, v, ctx, sansLuiMeme) {
   const nom = norm(v.nom), site = siteNorm(v.site || v.page), communes = motsDeCommunes(ctx);
   for (let i = 0; i < index.length; i++) {
     const x = index[i];
+    if (sansLuiMeme && x.id === v.id) { continue; }   // une fiche du sas ne se compare pas à elle-même
     if (x.id === v.id) { return { ou: x.ou, id: x.id, nom: x.nom, raison: 'identifiant' }; }
     if (lieuxDifferents(v, x)) { continue; }
+    if (ctx && ctx.pasDoublons && ctx.pasDoublons[cleDePaire(x.id, v.id)]) { continue; }
     if (nom && x.nomNorm === nom) { return { ou: x.ou, id: x.id, nom: x.nom, raison: 'nom' }; }
-    if (site && x.site && x.site === site && x.ou !== 'lot' && String((x.valeurs && x.valeurs.portee) || v.portee) === String(v.portee) && partageUnMot(nom, x.nomNorm, communes)) { return { ou: x.ou, id: x.id, nom: x.nom, raison: 'site' }; }
+    if (site && x.site && x.site === site && x.ou !== 'lot' && String((x.valeurs && x.valeurs.portee) || v.portee) === String(v.portee) && !telephonesDifferents(v, x) && partageUnMot(nom, x.nomNorm, communes)) { return { ou: x.ou, id: x.id, nom: x.nom, raison: 'site' }; }
+    // Même numéro de téléphone (au moins 8 chiffres) et un mot significatif en commun dans le nom : le site peut différer (un assistant peut avoir deviné une adresse), la fiche reste la même structure.
+    if (x.ou !== 'lot' && chiffres(v.telephone).length >= 8 && chiffres(v.telephone) === chiffres(x.valeurs && x.valeurs.telephone) && partageUnMot(nom, x.nomNorm, communes)) { return { ou: x.ou, id: x.id, nom: x.nom, raison: 'telephone' }; }
   }
   return null;
 }
@@ -263,9 +273,10 @@ function memeAdresse(index, v) {
 function decouper(brut, colonnes) {
   let p = brut.split(/\s*\|\s*/).map(function (x) { return x.trim(); });
   if (p.length === colonnes.length + 1 && p[p.length - 1] === '') { p.pop(); }
-  // Les anciennes lignes des structures n'ont pas la colonne « mail » (la dernière) : elle est alors vide.
-  if (colonnes[colonnes.length - 1] === 'mail' && p.length === colonnes.length - 2) { p.push(''); }
-  if (colonnes[colonnes.length - 1] === 'mail' && p.length === colonnes.length - 1) { p.push(''); }
+  // Les anciennes lignes des structures n'ont pas les colonnes « mail » et « adresse » (les dernières) : elles sont alors vides.
+  // Une date absente en plus (11 colonnes) : elle est vide aussi.
+  if (L.mtNbFacultativesFin(colonnes) && p.length === colonnes.length - L.mtNbFacultativesFin(colonnes) - 1) { p.push(''); }
+  L.mtCompleterFin(p, colonnes);
   if (p.length === colonnes.length - 1) { p.push(''); }
   if (p.length !== colonnes.length) { return { ok: false, message: 'Cette ligne a ' + p.length + ' colonnes au lieu de ' + colonnes.length + ' (' + colonnes.join(' | ') + '). Une colonne vide s\'écrit « | | ».' }; }
   const v = {}; colonnes.forEach(function (c, k) { v[c] = p[k]; });
@@ -348,7 +359,8 @@ function analyserComplement(brut, numero, registres, index) {
 function analyserLot(fichier, texteColle, registres, texteSas, ctx, aujourdhui) {
   if (!CHEMINS[fichier]) { return { ok: false, erreur: 'Registre inconnu.' }; }
   const colonnes = fichier === 'complements' ? ['nom', 'telephone', 'source', 'verifier'] : T.FICHIERS[fichier].colonnes;
-  const net = nettoyer(texteColle, colonnes.length);
+  // Le seuil de lignes reconnues reste celui d'avant l'ajout de la colonne « adresse » (une seule colonne facultative de plus ne le change pas).
+  const net = nettoyer(texteColle, colonnes.length - Math.max(0, L.mtNbFacultativesFin(colonnes) - 1));
   if (!net.lignes.length) { return { ok: false, erreur: 'Aucune ligne reconnue. Collez des lignes dont les colonnes sont séparées par « | ».' }; }
   if (net.lignes.length > MAX_LIGNES) { return { ok: false, erreur: 'Trop de lignes d\'un coup (' + MAX_LIGNES + ' au plus). Faites plusieurs imports.' }; }
   const lignes = [];
@@ -370,7 +382,9 @@ function analyserLot(fichier, texteColle, registres, texteSas, ctx, aujourdhui) 
 }
 
 // ---------- 9. Le sas lui-meme ----------
-function lister(fichier, texteSas, registres) {
+// ctx (facultatif) : quand il est donné, chaque fiche reçoit « doublon » = { ou: 'registre' | 'sas', id, nom, raison: 'identifiant' | 'nom' | 'site' } si elle ressemble à une fiche déjà publiée ou à une autre fiche du sas (même règle que l'import : une seule source de vérité).
+//   raison « identifiant » + ou « registre » = la fiche est DÉJÀ PUBLIÉE : l'enregistrer échouerait (identifiant existant).
+function lister(fichier, texteSas, registres, ctx) {
   if (!CHEMINS[fichier]) { return { ok: false, erreur: 'Registre inconnu.' }; }
   const lignes = lireSas(texteSas, COLONNES[fichier]).lignes.filter(function (l) { return l.id; }).map(function (l) {
     const o = { id: l.id, valeurs: l.valeurs, nom: l.valeurs.nom || '' };
@@ -381,6 +395,34 @@ function lister(fichier, texteSas, registres) {
     }
     return o;
   });
+  if (ctx && fichier !== 'complements') {
+    const reg = indexer((registres && registres[fichier]) || '', T.FICHIERS[fichier].colonnes, 'registre'), dansSas = indexer(texteSas, COLONNES[fichier], 'sas');
+    lignes.forEach(function (o) {
+      const v = Object.assign({}, o.valeurs, { id: o.id });
+      const d = doublon(reg, v, ctx) || doublon(dansSas, v, ctx, true);
+      if (d) { o.doublon = d; }
+    });
+    // Les contrôles du registre sur chaque fiche, tels qu'ils seront joués à l'enregistrement (même vérificateur que l'import : une seule source de vérité).
+    // Une seule passe : le registre publié, puis toutes les fiches du sas à la suite, datées d'aujourd'hui. « problemes » = messages des fiches qui feraient échouer l'enregistrement.
+    // Les mêmes limites que l'enregistrement sur chaque champ (barre verticale, retour à la ligne, longueur) : sinon le refus n'arrive qu'au clic final.
+    lignes.forEach(function (o) {
+      Object.keys(o.valeurs || {}).forEach(function (c) {
+        if (c === 'id' || c === 'date') { return; }
+        const pv = T.problemeDeValeur(String(o.valeurs[c] || '').trim(), c);
+        if (pv) { (o.problemes = o.problemes || []).push('« ' + c + ' » ' + pv + '.'); }
+      });
+    });
+    const f = T.FICHIERS[fichier];
+    if (typeof f.verifier === 'function' && ctx.aujourdhui && lignes.length) {
+      const base = String((registres && registres[fichier]) || '').replace(/\s*$/, ''), fin = finDeLigne(base), n0 = base ? base.split(/\r?\n/).length : 0;
+      const texte = (base ? base + fin : '') + lignes.map(function (o) { return T.formater(COLONNES[fichier], Object.assign({}, o.valeurs, { id: o.id, date: ctx.aujourdhui })); }).join(fin);
+      f.verifier(texte, ctx).forEach(function (e) {
+        const m = /^ligne (\d+) \(([^)]*)\) : (.*)$/.exec(e); if (!m || Number(m[1]) <= n0) { return; }
+        const o = lignes[Number(m[1]) - n0 - 1]; if (!o || m[3].indexOf('identifiant en double') === 0) { return; }
+        (o.problemes = o.problemes || []).push(traduire(m[3], COLONNES[fichier], ctx, o.valeurs).message);
+      });
+    }
+  }
   return { ok: true, fichier: fichier, colonnes: COLONNES[fichier], lignes: lignes };
 }
 
@@ -391,11 +433,11 @@ function cleDeLigne(fichier, v) { return fichier === 'complements' ? v.cible : v
 function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
   if (!CHEMINS[fichier]) { return { ok: false, erreur: 'Sas inconnu.' }; }
   if (!Array.isArray(actions) || !actions.length) { return { ok: false, erreur: 'Aucune modification à enregistrer dans le sas.' }; }
-  if (actions.length > MAX_LIGNES + 20) { return { ok: false, erreur: 'Trop de modifications d\'un coup.' }; }
+  if (actions.length > MAX_ACTIONS_SAS) { return { ok: false, erreur: 'Trop de modifications d\'un coup (' + MAX_ACTIONS_SAS + ' au plus).' }; }
   const colonnes = COLONNES[fichier];
   const fin = finDeLigne(texteSas || '');
   let texte = String(texteSas || '').trim() ? String(texteSas) : EN_TETES[fichier];
-  const resume = { importes: 0, retires: 0, modifies: 0 };
+  const resume = { importes: 0, retires: 0, modifies: 0, idsImportes: [] };
   const lignesDe = function (t) { return lireSas(t, colonnes); };
   const retirerLigne = function (t, id) {
     const a = lignesDe(t); let trouve = false;
@@ -415,7 +457,7 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
         return fichier === 'complements' ? [l.valeurs.cible, l.valeurs.registre, l.valeurs.telephone, l.valeurs.source].join(' | ') : T.formater(colonnes, Object.assign({}, l.valeurs, { date: '' }));
       });
       texte = texte.replace(/\s*$/, '') + fin + ajoutees.join(fin) + fin;
-      resume.importes += ajoutees.length; continue;
+      resume.importes += ajoutees.length; r.lignes.forEach(function (l) { if (l.valeurs && l.valeurs.id) { resume.idsImportes.push(l.valeurs.id); } }); continue;
     }
     const id = String(ac.id || '');
     if (!id || vus[id]) { return { ok: false, erreur: 'Identifiant manquant ou répété dans les modifications du sas : ' + id.slice(0, 40) + '.' }; }

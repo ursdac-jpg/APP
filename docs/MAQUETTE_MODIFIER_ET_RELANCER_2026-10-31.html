@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modifier et relancer, maquette</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; }
+:root[data-theme="sombre"] { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1.mq-h1 { font-size:1.3rem; margin:0 0 6px; } h2.mq-h2 { font-size:1.08rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:18px; }
+.mq-reglages { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; border:1px solid var(--mq-border); border-radius:12px; padding:10px 14px; background:var(--mq-card); margin-bottom:14px; font-size:.9rem; }
+.mq-reglages b { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin-right:4px; }
+.mq-reglages label { margin-right:8px; cursor:pointer; }
+.mq-reglages .mq-fermer { margin-left:auto; border:0; background:transparent; font-size:1.2rem; cursor:pointer; color:var(--mq-muted); }
+.mq-ul { margin:.3rem 0 0; padding-left:1.2rem; font-size:.93rem; }
+
+#mrPage { border:1px dashed var(--mq-border); border-radius:12px; padding:16px; background:var(--bg-page); margin:0 auto; transition:max-width .2s; }
+#mrPage.tel { max-width:380px; border-radius:22px; border-style:solid; padding:12px; }
+.mr-barre.barre-navigation-fixe { position:sticky; bottom:0; left:auto; right:auto; padding:.6rem .8rem; margin:1rem -4px -4px; border-radius:10px; }
+.tel .mr-barre .btn-lg { padding:.45rem .7rem; font-size:.9rem; }
+.tel .mr-barre .btn-accueil { font-size:0; padding:.45rem .65rem; }
+.tel .mr-barre .btn-accueil i { font-size:1.15rem; }
+
+.mr-titre-sec { font-size:1.2rem; margin:1rem 0 .15rem; color:var(--text-strong); }
+.mr-sous { color:var(--text-muted); font-size:.9rem; margin:0 0 .7rem; }
+.mr-bloc { border:1px solid var(--border); border-radius:12px; background:var(--bg-card); padding:.2rem .9rem; margin:.6rem 0; }
+.mr-bloc-titre { font-weight:700; color:var(--text-strong); font-size:1rem; margin:.7rem 0 .2rem; }
+
+.mr-doc { display:grid; grid-template-columns:1fr auto; gap:.4rem .8rem; align-items:center; padding:.7rem 0; border-top:1px solid var(--border); }
+.mr-doc:first-of-type { border-top:0; }
+.mr-doc-nom { font-weight:700; color:var(--text-strong); }
+.mr-doc-sous { color:var(--text-muted); font-size:.88rem; }
+.mr-doc-actions { display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end; }
+.mr-pastille { font-size:.72rem; font-weight:700; padding:.12rem .55rem; border-radius:99px; display:inline-block; margin-left:.45rem; vertical-align:middle; }
+.mr-pastille.ok { background:var(--success-bg-subtle); color:var(--success-strong); }
+.mr-pastille.vide { background:var(--bg-subtle, #f1f4f9); color:var(--text-muted); }
+.mr-pastille.modif { background:var(--accent-bg-subtle); color:var(--accent); }
+.mr-resume { grid-column:1 / -1; font-size:.9rem; background:var(--accent-bg-subtle); border-radius:10px; padding:.55rem .75rem; }
+.mr-resume p { margin:0 0 .25rem; } .mr-resume p:last-child { margin:0; }
+.mr-depot { grid-column:1 / -1; border:1px dashed var(--border-strong, var(--border)); border-radius:10px; padding:.7rem; }
+.tel .mr-doc { grid-template-columns:1fr; }
+.tel .mr-doc-actions { justify-content:flex-start; }
+
+.mr-visee { display:grid; grid-template-columns:1fr 1fr; gap:.5rem .9rem; padding:.2rem 0 .8rem; }
+.mr-visee .plein { grid-column:1 / -1; }
+.mr-visee label { font-size:.85rem; color:var(--text-muted); display:block; margin-bottom:.15rem; }
+.tel .mr-visee { grid-template-columns:1fr; }
+
+.mr-message { text-align:center; color:var(--accent); font-weight:600; font-size:.92rem; margin:.9rem 0 .5rem; min-height:1.2rem; }
+.mr-actions { display:flex; flex-wrap:wrap; gap:.8rem; justify-content:center; align-items:flex-start; }
+.mr-bp { text-align:center; max-width:15rem; }
+.mr-bp .small { color:var(--text-muted); margin-top:.3rem; }
+.tel .mr-actions { flex-direction:column; align-items:stretch; }
+.tel .mr-bp { max-width:none; }
+.tel .mr-bp .btn, .tel .mr-actions > .btn { width:100%; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1 class="mq-h1">Cohérence de mon dossier : « Modifier et relancer » refait</h1>
+<p class="muted">Cette maquette se <strong>joue</strong> : changez un document, annulez, ouvrez le résumé, écrivez dans « Ce que vous visez », et regardez le bouton « Relancer l’analyse » s’activer avec sa phrase. Elle remplace la grille de quatre colonnes d’aujourd’hui par <strong>une ligne par document</strong>, puis « Ce que vous visez » en pleine largeur. Tous les boutons gardent le même rôle qu’aujourd’hui.</p>
+
+<div class="mq-reglages" id="mqReglages">
+ <span><b>Je simule</b>
+  <label><input type="checkbox" id="mqResume" checked> l’analyse a donné un résumé par document</label>
+  <label><input type="checkbox" id="mqReco"> une recommandation est appliquée à la lettre</label></span>
+ <span><b>Écran</b>
+  <label><input type="radio" name="mqLarg" value="pc" checked> ordinateur</label>
+  <label><input type="radio" name="mqLarg" value="tel"> téléphone</label></span>
+ <span><b>Affichage</b>
+  <label><input type="radio" name="mqTheme" value="clair" checked> clair</label>
+  <label><input type="radio" name="mqTheme" value="sombre"> sombre</label></span>
+ <button type="button" class="btn btn-outline-secondary btn-sm" id="mqRejouer">&#8635; Rejouer depuis le début</button>
+ <button type="button" class="mq-fermer" id="mqFermerReg" aria-label="Fermer ce panneau">&#10005;</button>
+</div>
+
+<div id="mrPage"></div>
+
+<div class="mq-carte" style="margin-top:20px;">
+<h2 class="mq-h2">Ce qui change par rapport à aujourd’hui</h2>
+<ul class="mq-ul">
+ <li><strong>Une ligne par document</strong> : le nom, son état en pastille, et les boutons à droite. Plus de grands vides, les boutons ne sont plus collés en bas d’une carte haute.</li>
+ <li><strong>« Ce que vous visez » en pleine largeur</strong> : deux colonnes de champs au lieu d’une colonne étroite, l’offre d’emploi en grand.</li>
+ <li><strong>Plus de bouton grisé « Résumé indisponible »</strong> : sans résumé, le bouton n’apparaît pas.</li>
+ <li><strong>Inchangé</strong> : « Changer ce document » ouvre la zone de dépôt en page, « Annuler » reprend le document d’avant, rien n’est appliqué avant « Relancer l’analyse », « Voir/imprimer votre lettre » reste grisé tant qu’aucune recommandation n’est appliquée.</li>
+</ul>
+</div>
+</div>
+
+<script>
+(function () {
+  var racine = document.documentElement;
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    racine.setAttribute('data-theme', 'sombre');
+    document.querySelector('input[name=mqTheme][value=sombre]').checked = true;
+  }
+  var page = document.getElementById('mrPage');
+  var DOCS = [
+    { cle: 'cv', nom: 'Votre CV', titre: 'Agent logistique', present: true, f: 'Permis CACES, expérience en entrepôt', e: 'Peu de détails sur les missions' },
+    { cle: 'lettre', nom: 'Votre lettre de motivation', titre: 'Magasinier', present: true, f: 'Motivation claire', e: 'Trop courte' },
+    { cle: 'preparationEntretien', nom: 'Préparation d’entretien d’embauche', titre: '', present: false, f: '', e: '' }
+  ];
+  var modif = {}, resumeOuvert = {}, depotOuvert = null, visee = false;
+
+  function relancable() { return Object.keys(modif).length > 0 || visee || document.getElementById('mqReco').checked; }
+
+  function ligneDoc(d) {
+    var m = !!modif[d.cle];
+    var avecResume = d.present && !m && document.getElementById('mqResume').checked && (d.f || d.e);
+    var past = m ? '<span class="mr-pastille modif">Modifié, pas encore relancé</span>'
+      : d.present ? '<span class="mr-pastille ok">Enregistré' + (d.cle === 'lettre' ? 'e' : '') + '</span>'
+      : '<span class="mr-pastille vide">À compléter</span>';
+    var sous = m ? 'Nouveau document' : (d.present && document.getElementById('mqResume').checked && d.titre ? d.titre : '');
+    var actions = '';
+    if (avecResume) { actions += '<button type="button" class="btn btn-sm" style="background:var(--accent-bg-subtle);color:var(--accent);border:1px solid var(--accent);font-weight:600;" data-resume="' + d.cle + '">&#128203; ' + (resumeOuvert[d.cle] ? 'Masquer le résumé' : 'Voir le résumé') + '</button>'; }
+    if (m) { actions += '<button type="button" class="btn btn-outline-secondary btn-sm" data-annuler="' + d.cle + '">Annuler</button>'; }
+    actions += (d.present || m)
+      ? '<button type="button" class="btn btn-sm" style="background:var(--warning-bg-subtle);color:var(--warning-strong);border:1px solid var(--warning-border);font-weight:600;" data-changer="' + d.cle + '">&#9999; Changer ce document</button>'
+      : '<button type="button" class="btn btn-primary btn-sm" data-changer="' + d.cle + '">&#10133; Ajouter</button>';
+    var corps = '<div class="mr-doc"><div><span class="mr-doc-nom">' + d.nom + '</span>' + past + (sous ? '<div class="mr-doc-sous">' + sous + '</div>' : '') + '</div><div class="mr-doc-actions">' + actions + '</div>';
+    if (avecResume && resumeOuvert[d.cle]) {
+      corps += '<div class="mr-resume">' + (d.f ? '<p><strong>&#128994; Points forts :</strong> ' + d.f + '</p>' : '') + (d.e ? '<p><strong>&#128993; À enrichir :</strong> ' + d.e + '</p>' : '') + '</div>';
+    }
+    if (depotOuvert === d.cle) {
+      corps += '<div class="mr-depot"><div class="fw-bold mb-1">Changer : ' + d.nom.replace('Votre ', '') + '</div>' +
+        '<textarea class="form-control mb-2" rows="3" placeholder="Collez ici le nouveau texte, ou choisissez un fichier" id="mrDepotTexte"></textarea>' +
+        '<div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-primary btn-sm" data-depot-ok="' + d.cle + '">Utiliser ce document</button><button type="button" class="btn btn-outline-secondary btn-sm" data-depot-non="1">Annuler</button></div></div>';
+    }
+    return corps + '</div>';
+  }
+
+  function rendre() {
+    var hVisee = '<div class="mr-bloc"><div class="mr-bloc-titre">&#128188; Ce que vous visez</div>' +
+      '<p class="mr-sous mb-2">Ces informations aident l’analyse à juger si vos documents correspondent à ce poste.</p>' +
+      '<div class="mr-visee">' +
+      '<div><label for="mrEnt">Entreprise</label><input type="text" id="mrEnt" class="form-control form-control-sm" placeholder="À compléter"></div>' +
+      '<div><label for="mrSite">Son site internet</label><input type="text" id="mrSite" class="form-control form-control-sm" placeholder="À compléter"></div>' +
+      '<div class="plein"><label for="mrType">Type d’entreprise</label><select id="mrType" class="form-select form-select-sm"><option value="">À compléter</option><option>Petite entreprise (moins de 50 personnes)</option><option>Entreprise de taille moyenne</option><option>Grande entreprise</option><option>Association</option><option>Administration ou collectivité</option></select></div>' +
+      '<div class="plein"><label for="mrOffre">L’offre d’emploi</label><textarea id="mrOffre" class="form-control form-control-sm" rows="3" placeholder="À compléter"></textarea></div>' +
+      '</div></div>';
+    var r = relancable();
+    page.innerHTML =
+      '<h2 class="mr-titre-sec">&#9999;&#65039; Modifier et relancer</h2>' +
+      '<p class="mr-sous">Si vous changez un document ou ce que vous visez, vous pouvez relancer l’analyse pour voir si le résultat change.</p>' +
+      '<div class="mr-bloc">' + DOCS.map(ligneDoc).join('') + '</div>' +
+      hVisee +
+      '<div class="mr-message" id="mrMessage"></div>' +
+      '<div class="mr-actions">' +
+      '<div class="mr-bp"><button type="button" class="btn btn-outline-secondary" id="mrVoirLettre"' + (document.getElementById('mqReco').checked ? '' : ' disabled style="opacity:.45;"') + '>&#128196; Voir/imprimer votre lettre</button>' +
+        (document.getElementById('mqReco').checked ? '' : '<div class="small">Disponible dès que vous appliquez une recommandation à votre lettre.</div>') + '</div>' +
+      '<div class="mr-bp"><button type="button" class="btn btn-primary" id="mrRelancer"' + (r ? '' : ' disabled') + '>&#128260; Relancer l’analyse</button>' +
+        (r ? '' : '<div class="small">Disponible dès que vous modifiez un document ou ce que vous visez.</div>') + '</div>' +
+      '<button type="button" class="btn btn-outline-primary" id="mrEntretien">&#127919; Aller plus loin : mon entretien</button>' +
+      '</div>' +
+      '<div class="barre-navigation-fixe mr-barre"><div class="d-flex justify-content-between align-items-center barre-navigation">' +
+      '<button class="btn btn-nav-erip btn-lg" type="button">&#8592; Retour</button>' +
+      '<button class="btn btn-nav-erip btn-accueil" type="button"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>' +
+      '<button type="button" class="btn btn-success btn-lg">&#9989; Merci bien, j’ai fini</button></div></div>';
+    brancher();
+    majMessage();
+  }
+
+  function majMessage() {
+    var el = document.getElementById('mrMessage');
+    if (!el) { return; }
+    var noms = [];
+    if (modif.cv) { noms.push('votre CV'); }
+    if (modif.lettre) { noms.push('votre lettre'); }
+    if (modif.preparationEntretien) { noms.push('votre préparation d’entretien'); }
+    var t = '';
+    if (noms.length) { t = 'Vous avez changé ' + noms.join(' et ') + '. Relancez l’analyse pour voir le nouveau résultat.'; }
+    else if (visee) { t = 'Vous avez complété ce que vous visez. Relancez l’analyse pour en tenir compte.'; }
+    else if (document.getElementById('mqReco').checked) { t = 'Une recommandation est appliquée à votre lettre. Relancez l’analyse pour la vérifier.'; }
+    el.textContent = t;
+  }
+
+  function brancher() {
+    page.querySelectorAll('[data-resume]').forEach(function (b) { b.addEventListener('click', function () { resumeOuvert[b.dataset.resume] = !resumeOuvert[b.dataset.resume]; rendre(); }); });
+    page.querySelectorAll('[data-changer]').forEach(function (b) { b.addEventListener('click', function () { depotOuvert = b.dataset.changer; rendre(); }); });
+    page.querySelectorAll('[data-annuler]').forEach(function (b) { b.addEventListener('click', function () { delete modif[b.dataset.annuler]; rendre(); }); });
+    page.querySelectorAll('[data-depot-ok]').forEach(function (b) { b.addEventListener('click', function () { modif[b.dataset.depotOk] = true; depotOuvert = null; rendre(); }); });
+    page.querySelectorAll('[data-depot-non]').forEach(function (b) { b.addEventListener('click', function () { depotOuvert = null; rendre(); }); });
+    ['mrEnt', 'mrSite', 'mrOffre'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', function () {
+        var avant = relancable();
+        visee = ['mrEnt', 'mrSite', 'mrOffre'].some(function (i) { return document.getElementById(i).value.trim(); }) || !!document.getElementById('mrType').value;
+        if (avant !== relancable()) { var vals = ['mrEnt', 'mrSite', 'mrOffre'].map(function (i) { return document.getElementById(i).value; }); var typ = document.getElementById('mrType').value; rendre(); ['mrEnt', 'mrSite', 'mrOffre'].forEach(function (i, k) { document.getElementById(i).value = vals[k]; }); document.getElementById('mrType').value = typ; document.getElementById(id).focus(); } else { majMessage(); }
+      });
+    });
+    document.getElementById('mrType').addEventListener('change', function () {
+      var vals = ['mrEnt', 'mrSite', 'mrOffre'].map(function (i) { return document.getElementById(i).value; }); var typ = this.value;
+      visee = !!typ || vals.some(function (v) { return v.trim(); });
+      rendre(); ['mrEnt', 'mrSite', 'mrOffre'].forEach(function (i, k) { document.getElementById(i).value = vals[k]; }); document.getElementById('mrType').value = typ;
+    });
+    document.getElementById('mrRelancer').addEventListener('click', function () {
+      modif = {}; visee = false; depotOuvert = null; document.getElementById('mqReco').checked = false; rendre();
+      document.getElementById('mrMessage').textContent = 'Analyse relancée (dans l’application, le rapport du dessus se met à jour).';
+    });
+    document.getElementById('mrEntretien').addEventListener('click', function () { document.getElementById('mrMessage').textContent = 'Ici, l’application ouvre l’entretien avancé.'; });
+  }
+
+  document.getElementById('mqResume').addEventListener('change', rendre);
+  document.getElementById('mqReco').addEventListener('change', rendre);
+  document.querySelectorAll('input[name=mqLarg]').forEach(function (r) { r.addEventListener('change', function () { page.className = r.value === 'tel' ? 'tel' : ''; }); });
+  document.querySelectorAll('input[name=mqTheme]').forEach(function (r) { r.addEventListener('change', function () { if (r.value === 'sombre') { racine.setAttribute('data-theme', 'sombre'); } else { racine.removeAttribute('data-theme'); } }); });
+  document.getElementById('mqRejouer').addEventListener('click', function () { modif = {}; resumeOuvert = {}; depotOuvert = null; visee = false; document.getElementById('mqReco').checked = false; rendre(); });
+  document.getElementById('mqFermerReg').addEventListener('click', function () { document.getElementById('mqReglages').style.display = 'none'; });
+
+  rendre();
+})();
+</script>
+</body>
+</html>

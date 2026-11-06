@@ -1,0 +1,49 @@
+Je te donne une liste de 25 structures (services publics, associations, organismes) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 76 à 100. Pour chacune, un site et un numéro de téléphone ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque structure, ouvre sa page officielle : son propre site, ou à défaut la page d'une administration (commune, département, préfecture, ministère) qui la présente. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. N'utilise aucun annuaire privé, PagesJaunes, comparateur, site d'offres d'emploi ni réseau social.
+3. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+4. Le territoire compte : la structure doit être celle du territoire indiqué (24, 87, région ou national). Méfie-toi des homonymes d'un autre département.
+5. Le statut est un seul mot : « confirmé » (le site et le numéro proposés correspondent à la page officielle), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucune page officielle trouvée), « fermée » (la structure n'existe plus ou n'est plus dans ce territoire).
+6. Le téléphone est copié exactement tel qu'affiché ; s'il n'y en a pas, écris « pas de numéro vu ». L'adresse est copiée telle qu'affichée (rue, code postal, commune) ; sinon « pas d'adresse vue ».
+
+Réponds uniquement avec une ligne par structure, sans tableau, sous cette forme exacte :
+numéro | statut | téléphone affiché | adresse affichée | URL exacte de la page où tu les as lus | site officiel de la structure (si différent)
+
+Longueur et méthode : la liste est courte (25 lignes, numéros 76 à 100) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 25 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | commune | territoire | site proposé | numéro proposé) :
+76 | Retravailler Sud-Ouest | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://www.retravailler-sudouest.fr | numéro proposé : 05 56 08 29 58
+77 | Club Dordogne Entrepreneurs | Bergerac | Dordogne (24) | site proposé : https://www.club-dordogne-entrepreneurs.fr | numéro proposé : 06 63 12 53 61
+78 | 60 000 Rebonds Nouvelle-Aquitaine | Périgueux | Dordogne (24) | site proposé : https://60000rebonds.com | numéro proposé : aucun
+79 | ASTER Couveuse d'entreprises | Limoges | Haute-Vienne (87) | site proposé : https://www.bge-nouvelle-aquitaine.fr/presence-sur-le-territoire/haute-vienne | numéro proposé : 05 55 33 14 79
+80 | Entreprendre au Féminin Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://entreprendreaufeminin-aquitaine.org | numéro proposé : 05 56 01 35 70
+81 | Fédération des Centres Sociaux de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.centres-sociaux.fr | numéro proposé : aucun
+82 | Limoges Habitat | Limoges | Haute-Vienne (87) | site proposé : https://www.limoges-habitat.fr | numéro proposé : 05 55 43 45 00
+83 | Centre de planification familiale de Saint-Junien | Saint-Junien | Haute-Vienne (87) | site proposé : https://www.haute-vienne.fr/tous-les-annuaires/tous-les-centres-de-planification | numéro proposé : aucun
+84 | Centre de planification de Saint-Yrieix | Saint-Yrieix-la-Perche | Haute-Vienne (87) | site proposé : https://www.haute-vienne.fr/tous-les-annuaires/tous-les-centres-de-planification | numéro proposé : aucun
+85 | Espace CHOISIR | Limoges | Haute-Vienne (87) | site proposé : https://www.haute-vienne.fr/tous-les-annuaires/tous-les-centres-de-planification | numéro proposé : aucun
+86 | Place de l'emploi public | commune non précisée | national | site proposé : https://www.place-emploi-public.gouv.fr | numéro proposé : aucun
+87 | FARAGO Nouvelle-Aquitaine | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://www.farago.fr | numéro proposé : 05 56 01 33 60
+88 | Équipe mobile psychiatrie précarité du Bergeracois (centre hospitalier de Vauclaire) | Bergerac | Dordogne (24) | site proposé : aucun | numéro proposé : 05 53 27 71 41
+89 | La Banque Postale, service L'Appui | commune non précisée | national | site proposé : aucun | numéro proposé : 09 69 36 39 20
+90 | France Rénov' | commune non précisée | national | site proposé : https://france-renov.gouv.fr | numéro proposé : 08 08 80 07 00
+91 | Habitat et Humanisme Limousin | Limoges | Haute-Vienne (87) | site proposé : https://habitat-humanisme.org/associations/habitat-humanisme-limousin/ | numéro proposé : 05 55 32 21 98
+92 | Mission Locale du Haut Périgord | Thiviers | Dordogne (24) | site proposé : https://missionlocalehautperigord.fr | numéro proposé : 05 53 52 59 91
+93 | Union nationale des Missions Locales | commune non précisée | national | site proposé : https://www.unml.info | numéro proposé : aucun
+94 | Cheops - Réseau Cap emploi | commune non précisée | national | site proposé : https://www.cheops-ops.org | numéro proposé : aucun
+95 | GRETA du Limousin | Limoges | Haute-Vienne (87) | site proposé : https://greta-du-limousin.fr | numéro proposé : 05 55 12 31 31
+96 | IGL Formation | Limoges | Haute-Vienne (87) | site proposé : https://igl-formation.fr | numéro proposé : 05 55 32 32 59
+97 | Cité de l'Emploi Limoges | Limoges | Haute-Vienne (87) | site proposé : https://limoges-metropole.fr/services/politique-de-la-ville/la-cite-de-lemploi | numéro proposé : 05 87 14 10 10
+98 | France Services | commune non précisée | national | site proposé : https://www.france-services.gouv.fr | numéro proposé : aucun
+99 | Mob'In France | commune non précisée | national | site proposé : https://mobin-solutions.fr | numéro proposé : aucun
+100 | Adie | commune non précisée | national | site proposé : https://www.adie.org | numéro proposé : aucun
+
+

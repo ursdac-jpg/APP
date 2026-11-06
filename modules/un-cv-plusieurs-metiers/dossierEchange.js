@@ -172,7 +172,7 @@ function ucpmRendreLettre(etat, e, gabarit) {
   var o = (typeof ucpmNormaliserObjectif === 'function' ? ucpmNormaliserObjectif(e.objectif) : null) || e.objectif || {};
   var cv = (etat.cvs && etat.cvs[e.id]) || {};
   var jeton = (copie.pdfReglages && copie.pdfReglages.regPolice) || (copie.reglagesMiseEnPageCV && copie.reglagesMiseEnPageCV.police) || '';
-  ucpmPreparerDossierLettre(copie, { texte: texte, employeur: o.employeur, civiliteRecruteur: o.civiliteRecruteur, nomRecruteur: o.nomRecruteur, titre: cv.titre || copie.titreCV, gabarit: g, jetonPolice: jeton });
+  ucpmPreparerDossierLettre(copie, { texte: texte, employeur: o.employeur, civiliteRecruteur: o.civiliteRecruteur, nomRecruteur: o.nomRecruteur, titre: cv.titre || copie.titreCV, gabarit: g, jetonPolice: jeton, rue: etat.rueLettre === true });
   var cle = ucpmEmpreinte(JSON.stringify(copie));
   var cache = _ucpmCacheLettres[e.id + ':' + g];
   if (cache && cache.cle === cle) { return Promise.resolve(cache.resultat); }

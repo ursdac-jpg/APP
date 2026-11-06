@@ -81,6 +81,13 @@ test('controles : un chiffre dans le texte est une ERREUR pour un mot neuf et po
   const surLaListe = mots.verifierMot(avecChiffre, [], { original: BON, phrase: 'x', transition: [BON.id] });
   assert.ok(!surLaListe.erreurs.some((e) => /Chiffre ou date/.test(e)));
   assert.ok(surLaListe.avertissements.some((a) => /liste de transition/.test(a)));
+  const bloc = { verifieLe: '2026-11-03', source: { nom: 'x', url: 'https://exemple.fr' }, lignes: [{ libelle: 'Montant', valeur: '12 mois', categorie: 'duree', peutChanger: true }] };
+  const sansGenerale = mots.verifierMot(Object.assign({}, avecChiffre, { details: bloc }), [], { original: BON, phrase: 'x', transition: [] });
+  assert.ok(sansGenerale.erreurs.some((e) => /phrase générale/.test(e)), 'un chiffre du texte exige la phrase générale du bloc');
+  const suivi = mots.verifierMot(Object.assign({}, avecChiffre, { details: Object.assign({}, bloc, { phraseGenerale: 'Une aide qui change. Consultez la source officielle.' }) }), [], { original: BON, phrase: 'x', transition: [] });
+  assert.ok(!suivi.erreurs.some((e) => /Chiffre ou date|phrase générale/.test(e)), 'un chiffre du texte est permis quand le bloc « Les chiffres à jour » le suit avec sa phrase générale');
+  const generaleAvecChiffre = mots.verifierMot(Object.assign({}, avecChiffre, { details: Object.assign({}, bloc, { phraseGenerale: 'Une aide de 12 mois. Elle change.' }) }), [], { original: BON, phrase: 'x', transition: [] });
+  assert.ok(generaleAvecChiffre.erreurs.some((e) => /aucun chiffre/.test(e)), 'la phrase générale ne peut pas contenir de chiffre');
 });
 test('controles : modifier un mot exige une phrase, et dit ce qui change', () => {
   const original = { id: 'cdi', titre: 'CDI', titreDeTri: 'CDI', univers: 'contrats-statuts-emploi', registres: ['langage-rh'], variantes: ['contrat fixe'], corps: 'Un texte. Un autre.', relations: [] };

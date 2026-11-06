@@ -18,7 +18,10 @@ const MAX_CARTES = 1000;
 const PARALLELE = 6;
 const RE_ID = /^[a-z0-9][a-z0-9-]{0,120}$/;
 // Ce qui peut être contrôlé : { genre : [fichiers] } (les compléments de numéros, vides aujourd'hui, ne sont pas pris en charge).
-const FICHIERS_CONTROLABLES = { sas: ['employeurs', 'lieux', 'offres'], registre: ['employeurs', 'lieux', 'offres'] };
+const ORDRE_MENSUEL = ['lieux', 'employeurs', 'offres'];
+const JOURS_ENTRE_TESTS = 30;
+const RE_PROTECTION_ROBOTS = /^https?:\/\/[^/]*(perfdrive|radware|captcha|datadome|px-cdn|perimeterx|challenges?\.cloudflare|incapsula|imperva|sucuri)/i;
+const FICHIERS_CONTROLABLES ={ sas: ['employeurs', 'lieux', 'offres'], registre: ['employeurs', 'lieux', 'offres'] };
 
 function adresseHttps(v) { const s = String(v || '').trim(); return /^https:\/\/\S+$/.test(s) ? s : ''; }
 
@@ -138,8 +141,49 @@ function creerControleSas(racine, depot, options) {
     if (!lignes.length) { return { ok: false, erreur: 'Aucune carte ne correspond.' }; }
     const cartes = lignes.map(function (l) { return tachesDeCarte(l, fichier); }), esp = espace(genre, fichier);
     travail = { enCours: true, cle: cleDe(genre, fichier), fait: 0, total: cartes.length, debut: new Date().toISOString().slice(0, 16).replace('T', ' '), erreur: '' };
-    controlerCartes(cartes, esp).then(function () { travail.enCours = false; ecrireFichier(esp); }, function (e) { travail.enCours = false; travail.erreur = 'Le contrôle s\'est arrêté : ' + (e && e.message); ecrireFichier(esp); });
+    controlerCartes(cartes, esp).then(function () { travail.enCours = false; ecrireFichier(esp); suiteMensuelle(); }, function (e) { travail.enCours = false; travail.erreur = 'Le contrôle s\'est arrêté : ' + (e && e.message); ecrireFichier(esp); mensuel.enCours = false; mensuel.erreur = travail.erreur; });
     return { ok: true, total: cartes.length };
+  }
+
+  // ---------- Le test du mois : les trois registres de « Qui fait quoi », l'un après l'autre, puis un bilan. Rien n'est daté ni modifié : ce sont des PREUVES, la décision reste à Denis. ----------
+  let mensuel = { enCours: false, suite: [], erreur: '', debut: '' };
+  function suiteMensuelle() {
+    if (!mensuel.enCours) { return; }
+    if (!mensuel.suite.length) { mensuel.enCours = false; return; }
+    const r = demarrer({ genre: 'registre', fichier: mensuel.suite.shift(), tout: true });
+    if (!r.ok) { mensuel.enCours = false; mensuel.erreur = r.erreur || 'Le test s\'est arrêté.'; }
+  }
+  function demarrerMensuel() {
+    if (travail.enCours) { return { ok: false, erreur: 'Un contrôle est déjà en cours : attendez sa fin.' }; }
+    mensuel = { enCours: true, suite: ORDRE_MENSUEL.slice(1), erreur: '', debut: String(opt.maintenant ? opt.maintenant() : new Date().toISOString()).slice(0, 16).replace('T', ' ') };
+    const r = demarrer({ genre: 'registre', fichier: ORDRE_MENSUEL[0], tout: true });
+    if (!r.ok) { mensuel.enCours = false; return r; }
+    return { ok: true, registres: ORDRE_MENSUEL.length };
+  }
+  const MOTIFS_A_TRAITER = ['introuvable', 'ailleurs'];
+  function bilanMensuel() {
+    const maintenant = String(opt.maintenant ? opt.maintenant() : new Date().toISOString()).slice(0, 10);
+    const registres = ORDRE_MENSUEL.map(function (fichier) {
+      const liste = depot.listerTerritoire(fichier), res = espace('registre', fichier).resultats;
+      const lignes = liste && liste.ok ? liste.lignes : [];
+      const r = { fichier: fichier, cartes: lignes.length, controlees: 0, derniere: '', complet: 0, partiel: 0, main: 0, motifs: {}, problemes: [] };
+      lignes.forEach(function (l) {
+        const x = res[l.id]; if (!x) { return; }
+        r.controlees++;
+        if (x.date && (!r.derniere || x.date < r.derniere)) { r.derniere = x.date; }   // la plus ancienne : le registre n'est « à jour » que si toutes ses cartes l'ont été
+        r[x.verdict] = (r[x.verdict] || 0) + 1;
+        if (x.motif) { r.motifs[x.motif] = (r.motifs[x.motif] || 0) + 1; }
+        // Une page de protection contre les robots (le site refuse d'être lu) n'est pas une adresse disparue : elle reste « à ouvrir à la main ».
+        if (MOTIFS_A_TRAITER.indexOf(x.motif) !== -1 && !(x.motif === 'ailleurs' && RE_PROTECTION_ROBOTS.test((x.site && x.site.finale) || ''))) { r.problemes.push({ id: l.id, nom: (l.valeurs && l.valeurs.nom) || l.nom || l.id, motif: x.motif, url: (x.site && x.site.url) || '', finale: (x.site && x.site.finale) || '' }); }
+      });
+      if (r.controlees < r.cartes) { r.derniere = ''; }
+      return r;
+    });
+    const datees = registres.map(function (r) { return r.derniere; });
+    const derniere = datees.every(Boolean) ? datees.slice().sort()[0] : '';
+    const jours = derniere ? Math.floor((Date.parse(maintenant) - Date.parse(derniere.slice(0, 10))) / 86400000) : null;
+    const ici = travail.enCours;
+    return { ok: true, enCours: mensuel.enCours, registreEnCours: ici ? travail.cle.replace(/^registre:/, '') : '', fait: ici ? travail.fait : 0, total: ici ? travail.total : 0, erreur: mensuel.erreur || (ici ? travail.erreur : ''), registres: registres, derniere: derniere, jours: jours, aFaire: jours === null || jours >= JOURS_ENTRE_TESTS, joursEntreTests: JOURS_ENTRE_TESTS };
   }
 
   // donnees : { genre, fichier } (mêmes valeurs par défaut). L'avancement n'est rendu que pour le contrôle en cours de CE fichier.
@@ -152,7 +196,7 @@ function creerControleSas(racine, depot, options) {
   // Pour les essais : attend la fin du contrôle en cours.
   function attendre() { return new Promise(function (ok) { (function boucle() { if (!travail.enCours) { ok(); } else { setTimeout(boucle, 5); } })(); }); }
 
-  return { demarrer: demarrer, etat: etat, attendre: attendre, chemin: function (genre, fichier) { return cheminDe(genre || 'sas', fichier || 'employeurs'); } };
+  return { demarrer: demarrer, etat: etat, attendre: attendre, demarrerMensuel: demarrerMensuel, bilanMensuel: bilanMensuel, chemin: function (genre, fichier) { return cheminDe(genre || 'sas', fichier || 'employeurs'); } };
 }
 
-module.exports = { creerControleSas: creerControleSas, tachesDeCarte: tachesDeCarte, verdictDe: verdictDe, resume: resume, FICHIERS_CONTROLABLES: FICHIERS_CONTROLABLES };
+module.exports = { creerControleSas: creerControleSas, tachesDeCarte: tachesDeCarte, verdictDe: verdictDe, resume: resume, FICHIERS_CONTROLABLES: FICHIERS_CONTROLABLES, RE_PROTECTION_ROBOTS: RE_PROTECTION_ROBOTS };

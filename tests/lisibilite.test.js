@@ -52,3 +52,22 @@ test('degrade : les couleurs unies sont lues, tout le reste est ignore', () => {
   assert.deepStrictEqual(m._lisibiliteCouleursDegrade('none'), []);
   assert.deepStrictEqual(m._lisibiliteCouleursDegrade('url("x.png")'), []);
 });
+test('degrade vertical simple : la couleur exacte a une hauteur donnee (haut, milieu, bas, sens inverse)', () => {
+  const g = 'linear-gradient(rgb(61, 107, 44), rgb(127, 174, 63))';
+  assert.strictEqual(m._lisibiliteDegradeA(g, 0), 'rgb(61, 107, 44)');
+  assert.strictEqual(m._lisibiliteDegradeA(g, 1), 'rgb(127, 174, 63)');
+  assert.strictEqual(m._lisibiliteDegradeA(g, 0.5), 'rgb(94, 141, 54)');
+  assert.strictEqual(m._lisibiliteDegradeA('linear-gradient(0deg, rgb(61, 107, 44), rgb(127, 174, 63))', 0), 'rgb(127, 174, 63)');
+  assert.strictEqual(m._lisibiliteDegradeA(g, 2), 'rgb(127, 174, 63)');
+});
+test('degrade qui n\'est pas vertical a deux couleurs : on ne devine pas', () => {
+  assert.strictEqual(m._lisibiliteDegradeA('linear-gradient(90deg, rgb(1, 2, 3), rgb(4, 5, 6))', 0.5), '');
+  assert.strictEqual(m._lisibiliteDegradeA('linear-gradient(rgb(1, 2, 3), rgb(4, 5, 6), rgb(7, 8, 9))', 0.5), '');
+  assert.strictEqual(m._lisibiliteDegradeA('linear-gradient(rgb(1, 2, 3) 20%, rgb(4, 5, 6))', 0.5), '');
+  assert.strictEqual(m._lisibiliteDegradeA('none', 0.5), '');
+});
+test('texte de la couleur du haut du degrade : illisible au milieu, la decision le corrige quand on lui donne la couleur exacte', () => {
+  const texte = '#3d6b2c', milieu = '#5e8d36';
+  assert.strictEqual(m._lisibiliteDecision(texte, ['#3d6b2c', '#7fae3f']), '');   // les deux bouts : lisible sur le bas, donc rien (cas prudent d'avant)
+  assert.notStrictEqual(m._lisibiliteDecision(texte, [milieu]), '');               // la couleur reelle du milieu : le texte est corrige
+});

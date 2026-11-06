@@ -4,6 +4,7 @@ type: methode
 titre: Comment savoir quelle règle s'applique à ma situation
 pour_qui: Toute personne qui lit qu'une règle a changé et qui se demande si elle est concernée, ou selon quelle version.
 tags: droit, entrée en vigueur, méthode, situation
+verifie_le: 2026-11-05
 ---
 
 Quand une règle change, l'ancienne version ne disparaît pas d'un coup. Selon votre situation, c'est parfois l'ancienne règle qui continue de s'appliquer. Voici comment s'y retrouver.

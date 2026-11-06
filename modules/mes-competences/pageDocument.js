@@ -53,7 +53,7 @@ function _mesCompHtmlDocumentEcran(etat) {
     '<button type="button" class="btn btn-outline-primary" id="btnMcCopierTexte">Copier le texte</button>' +
     '<button type="button" class="btn btn-outline-secondary" id="btnMcWord">Télécharger en Word</button></div>' +
     '<p class="small text-center text-muted mb-3" id="mcMessageDoc" role="status"></p>' +
-    '<div class="cv-section" style="background:var(--success-bg-subtle);"><p class="mb-0"><strong>Gardé avec votre disquette.</strong> Vous pourrez le reprendre, le modifier ou recommencer. Pour l’instant, aucune autre partie de l’application ne le lit : c’est vous qui l’utilisez.</p></div>' +
+    htmlRappelSauvegarde() +
     '<div class="cv-section"><h4>&#10145;&#65039; Et ensuite ?</h4><p class="mb-0 small">Pour préparer un entretien, relisez les phrases pour l’oral. Pour un CV, reprenez les lignes « Pour mon CV ».</p></div>';
 }
 

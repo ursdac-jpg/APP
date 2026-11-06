@@ -9,11 +9,11 @@
 'use strict';
 
 // Clés dont la valeur s'écrit entre guillemets, clés en liste (une ligne « - » par élément, éléments entre guillemets ou non).
-const CLES_TEXTE_GUILLEMETS = ['titre', 'pour_qui', 'periode', 'voir_aussi_chiffres', 'retire_raison'];
+const CLES_TEXTE_GUILLEMETS = ['titre', 'pour_qui', 'periode', 'voir_aussi_chiffres', 'phrase_generale', 'retire_raison'];
 const CLES_TEXTE_BRUT = ['id', 'rayon', 'territoire', 'statut', 'verifie_le', 'collecte', 'type', 'publie_le', 'retire_le', 'remplace_par', 'frein'];
-const CLES_LISTES = { sources: false, structures: false, voir_aussi_lexique: false, ce_qui_change_souvent: true, revisions: true };
+const CLES_LISTES = { sources: false, structures: false, voir_aussi_lexique: false, ce_qui_change_souvent: true, revisions: true, delai: false };
 // Clés qu'une personne peut modifier depuis l'outil (id, rayon, collecte restent verrouillés).
-const CLES_MODIFIABLES = ['titre', 'pour_qui', 'tags', 'territoire', 'statut', 'frein', 'verifie_le', 'lexique', 'voir_aussi_lexique', 'voir_aussi_chiffres', 'sources', 'structures', 'ce_qui_change_souvent', 'revisions', 'retire_le', 'retire_raison', 'remplace_par'];
+const CLES_MODIFIABLES = ['titre', 'pour_qui', 'tags', 'territoire', 'statut', 'frein', 'verifie_le', 'lexique', 'voir_aussi_lexique', 'voir_aussi_chiffres', 'phrase_generale', 'sources', 'structures', 'ce_qui_change_souvent', 'revisions', 'retire_le', 'retire_raison', 'remplace_par'];
 const CLES_VERROUILLEES = ['id', 'rayon', 'collecte'];
 
 function echapGuillemets(v) { return String(v).replace(/"/g, '\\"'); }
@@ -153,6 +153,12 @@ const TERRITOIRES = ['national', 'region', '24', '87'];
 const RE_DATE = /^\d{4}-\d{2}-\d{2}$/;
 // Longueur maximale de la phrase du bouton « Pour aller plus loin » vers Comprendre les chiffres (la plus longue phrase actuelle fait 85 caractères).
 const LONGUEUR_MAX_PHRASE_CHIFFRES = 100;
+// Phrase generale (consigne 95, 05/11/2026) : affichee a la place du texte quand la fiche a six mois ou plus. Jamais de chiffre (regle controlee ici ET a l'ecran).
+const LONGUEUR_MAX_PHRASE_GENERALE = 500;
+// Une fiche « cite des chiffres » : un chiffre OU un nombre écrit en lettres devant une unité (« trente jours », « deux ans »).
+// MÊME MOTIF que COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES (modules/comprendre-le-cadre/index.js, ce que voit la personne) : le test tests/veilleFiche.test.js vérifie qu'ils sont identiques.
+const MOTIF_A_CHIFFRES = '\\d|\\b(?:un|une)[ -](?:mois|an|ann[ée]e|semaine|jour|heure|euro)s?\\b|\\b(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|cent|mille)(?:[- ][a-zéèêû]+){0,2}[ -](?:mois|jours?|ans?|ann[ée]es?|semaines?|heures?|euros?|pour cent|salari[ée]s?)\\b';
+function aChiffres(texte) { return new RegExp(MOTIF_A_CHIFFRES, 'i').test(String(texte || '')); }
 // Champs que la demande ne fixe jamais directement : la date passe par « redater », les révisions par la phrase « ce que j'ai changé ».
 const CHAMPS_GERES_A_PART = ['verifie_le', 'revisions', 'retire_le'];
 
@@ -178,7 +184,7 @@ function appliquerModification(texte, demande, contexte) {
 
   // 1. Ne garder que ce qui change réellement.
   const ch = {};
-  let retirerChiffres = false;
+  let retirerChiffres = false, retirerPhrase = false;
   for (const k of Object.keys(brut)) {
     if (CLES_VERROUILLEES.indexOf(k) !== -1) { return { ok: false, erreur: 'Le champ « ' + k + ' » ne se modifie pas ici.' }; }
     if (CHAMPS_GERES_A_PART.indexOf(k) !== -1) { return { ok: false, erreur: 'Le champ « ' + k + ' » se règle avec les cases de date et « ce que j\'ai changé », jamais directement.' }; }
@@ -189,6 +195,14 @@ function appliquerModification(texte, demande, contexte) {
       if (typeof brut[k] !== 'string') { return { ok: false, erreur: 'La phrase du bouton vers Comprendre les chiffres est un texte.' }; }
       const phrase = brut[k].trim();
       if (!phrase) { if (actuels[k] !== undefined && actuels[k] !== '') { retirerChiffres = true; } continue; }
+      if (actuels[k] === undefined || actuels[k] !== phrase) { ch[k] = phrase; }
+      continue;
+    }
+    if (k === 'phrase_generale') {
+      // Phrase affichee a la place du texte passe six mois : vide = pas de phrase propre a la fiche (la phrase commune prend le relais, le champ est retire).
+      if (typeof brut[k] !== 'string') { return { ok: false, erreur: 'La phrase générale est un texte.' }; }
+      const phrase = brut[k].trim();
+      if (!phrase) { if (actuels[k] !== undefined && actuels[k] !== '') { retirerPhrase = true; } continue; }
       if (actuels[k] === undefined || actuels[k] !== phrase) { ch[k] = phrase; }
       continue;
     }
@@ -209,6 +223,13 @@ function appliquerModification(texte, demande, contexte) {
     // L'application écrit cette phrase TELLE QUELLE dans la page (modules/comprendre-le-cadre/index.js) : ces signes la casseraient.
     if (/[<>&]/.test(p)) { return { ok: false, erreur: 'La phrase du bouton ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.' }; }
   }
+  if (ch.phrase_generale !== undefined) {
+    const p = String(ch.phrase_generale);
+    if (aChiffres(p)) { return { ok: false, erreur: 'La phrase générale ne doit contenir aucun chiffre, ni en chiffres ni en lettres devant une unité (« deux ans », « trente jours ») : elle remplace le texte quand les chiffres ne sont plus sûrs.' }; }
+    if (p.length > LONGUEUR_MAX_PHRASE_GENERALE) { return { ok: false, erreur: 'La phrase générale est trop longue : ' + p.length + ' caractères (' + LONGUEUR_MAX_PHRASE_GENERALE + ' au plus).' }; }
+    // L'application ecrit cette phrase TELLE QUELLE dans la page : ces signes la casseraient.
+    if (/[<>&]/.test(p)) { return { ok: false, erreur: 'La phrase générale ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.' }; }
+  }
   if (ch.frein !== undefined && ch.frein !== 'true' && ch.frein !== 'false') { return { ok: false, erreur: 'Le champ « frein » vaut true ou false.' }; }
   if (ch.statut !== undefined && ch.statut !== 'actif' && ch.statut !== 'retire') { return { ok: false, erreur: 'État de la fiche inconnu : « ' + ch.statut + ' ».' }; }
   if (ch.tags !== undefined && (!Array.isArray(ch.tags) || ch.tags.some(function (t) { return !String(t).trim() || String(t).indexOf(',') !== -1; }))) { return { ok: false, erreur: 'Les mots de recherche sont des mots non vides, sans virgule à l\'intérieur.' }; }
@@ -227,7 +248,7 @@ function appliquerModification(texte, demande, contexte) {
   }
 
   // 3. Retrait et réactivation (le texte de la fiche est gardé dans les deux cas).
-  const supprimer = retirerChiffres ? ['voir_aussi_chiffres'] : [];
+  const supprimer = (retirerChiffres ? ['voir_aussi_chiffres'] : []).concat(retirerPhrase ? ['phrase_generale'] : []);
   const etaitRetiree = actuels.statut === 'retire';
   let action = 'modifiée';
   if (ch.statut === 'retire' && !etaitRetiree) {
@@ -266,4 +287,4 @@ function appliquerModification(texte, demande, contexte) {
   return { ok: true, texte: r.texte, resume: { champs: Object.keys(ch).concat(supprimer), action: action, phrase: d.formeSeule ? 'simple correction de forme' : revision } };
 }
 
-module.exports = { lire: lire, ecrire: ecrire, ecrireBloc: ecrireBloc, champs: champs, corpsDe: corpsDe, appliquerModification: appliquerModification, CLES_MODIFIABLES: CLES_MODIFIABLES, CLES_VERROUILLEES: CLES_VERROUILLEES, TERRITOIRES: TERRITOIRES, LONGUEUR_MAX_PHRASE_CHIFFRES: LONGUEUR_MAX_PHRASE_CHIFFRES };
+module.exports = { lire: lire, ecrire: ecrire, ecrireBloc: ecrireBloc, champs: champs, corpsDe: corpsDe, appliquerModification: appliquerModification, CLES_MODIFIABLES: CLES_MODIFIABLES, CLES_VERROUILLEES: CLES_VERROUILLEES, TERRITOIRES: TERRITOIRES, LONGUEUR_MAX_PHRASE_CHIFFRES: LONGUEUR_MAX_PHRASE_CHIFFRES, LONGUEUR_MAX_PHRASE_GENERALE: LONGUEUR_MAX_PHRASE_GENERALE, MOTIF_A_CHIFFRES: MOTIF_A_CHIFFRES, aChiffres: aChiffres };

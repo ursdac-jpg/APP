@@ -243,3 +243,64 @@ test('voir_aussi_chiffres : les 7 phrases actuelles des fiches réelles respecte
   });
   assert.ok(n >= 7, 'au moins 7 fiches ont une phrase');
 });
+
+// ---------- phrase générale (phrase_generale), consigne 95, 05/11/2026 ----------
+test('phrase_generale : ajouter l\'écrit avant « collecte » sans phrase de révision ; vide la retire ; refus de tout chiffre, signe interdit ou longueur excessive', () => {
+  const phrase = 'Les montants et les durées changent régulièrement : le plus sûr est de consulter les sources officielles.';
+  const r = F.appliquerModification(CESU_FIXTURE, demande({ phrase_generale: phrase }), CX);
+  assert.ok(r.ok, r.erreur);
+  assert.ok(/phrase_generale: "[^"\n]+"\ncollecte: emploi.collecte.md/.test(r.texte));
+  assert.strictEqual(r.texte.split('\n').length, CESU_FIXTURE.split('\n').length + 1, 'une seule ligne de plus');
+  assert.deepStrictEqual(r.resume.champs, ['phrase_generale']);
+  assert.strictEqual(F.champs(F.lire(r.texte)).phrase_generale, phrase);
+  const retire = F.appliquerModification(r.texte, demande({ phrase_generale: '  ' }), CX);
+  assert.ok(retire.ok, retire.erreur);
+  assert.strictEqual(retire.texte, CESU_FIXTURE, 'retirer la phrase redonne exactement la fiche d\'origine');
+  const ko = (v) => F.appliquerModification(CESU_FIXTURE, demande({ phrase_generale: v }), CX);
+  assert.strictEqual(ko('Un délai de 30 jours').ok, false);
+  assert.match(ko('En 2026, ça change').erreur, /chiffre/);
+  assert.strictEqual(ko('Voir <b>ici</b>').ok, false);
+  assert.strictEqual(ko('Il dit "ici"').ok, false);
+  assert.strictEqual(ko('Ligne un\nligne deux').ok, false);
+  assert.strictEqual(ko('x'.repeat(F.LONGUEUR_MAX_PHRASE_GENERALE + 1)).ok, false);
+  assert.strictEqual(ko(7).ok, false);
+});
+
+test('phrase_generale : toutes les phrases des fiches réelles sont sans chiffre, sans signe interdit, sans tiret long, et d\'une longueur permise', () => {
+  const tirets = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']');
+  fichesReelles().forEach(function (f) {
+    const p = F.champs(F.lire(fs.readFileSync(f.chemin, 'utf8'))).phrase_generale;
+    if (p === undefined) { return; }
+    assert.strictEqual(typeof p, 'string', f.nom);
+    assert.ok(p.trim().length > 0 && p.length <= F.LONGUEUR_MAX_PHRASE_GENERALE, f.nom + ' : ' + p.length + ' caractères');
+    assert.ok(!/\d/.test(p), f.nom + ' : un chiffre dans la phrase générale');
+    assert.ok(!/[<>&"]/.test(p) && !tirets.test(p), f.nom);
+  });
+});
+
+test('aChiffres : un chiffre, ou un nombre en lettres devant une unité ; pas un simple « un salarié » ni « deux côtés »', () => {
+  ['Délai de 30 jours', 'dans les trente jours', 'vingt-cinq ans', 'quatre-vingts pour cent', 'cent vingt euros', 'huit mille euros', 'un mois de préavis', 'une année entière', 'au moins vingt salariés'].forEach((t) => assert.ok(F.aChiffres(t), t));
+  ['Aucun chiffre ici', 'Le salarié est un salarié protégé', 'des deux côtés', 'le premier jour', 'Les montants changent régulièrement'].forEach((t) => assert.ok(!F.aChiffres(t), t));
+});
+
+test('aChiffres : le motif est IDENTIQUE à celui du module (ce que voit la personne) et de la base générée pour l\'outil de veille', () => {
+  require('./_domStub').installerStubDom();
+  const m = require('../modules/comprendre-le-cadre/index.js');
+  assert.strictEqual(m.COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES, F.MOTIF_A_CHIFFRES);
+  const brut = fs.readFileSync(path.join(__dirname, '..', 'outils', 'base_fiches.js'), 'utf8');
+  const base = JSON.parse(brut.slice(brut.indexOf('window.BASE_VEILLE = ') + 'window.BASE_VEILLE = '.length).replace(/;\s*$/, ''));
+  assert.strictEqual(base.motifAChiffres, F.MOTIF_A_CHIFFRES, 'relancer node scripts/genererBaseVeille.js');
+});
+
+test('phrase_generale : toute fiche active qui cite des chiffres a sa phrase générale (sinon la phrase commune s\'afficherait)', () => {
+  const manque = [];
+  fichesReelles().forEach(function (f) {
+    if (f.rayon === 'methode' || f.rayon === 'balayage') { return; }
+    const fi = F.lire(fs.readFileSync(f.chemin, 'utf8'));
+    if (!fi.ok) { return; }
+    const c = F.champs(fi);
+    if (c.statut === 'retire' || !F.aChiffres(F.corpsDe(fi))) { return; }
+    if (!c.phrase_generale) { manque.push(f.nom); }
+  });
+  assert.deepStrictEqual(manque, [], 'fiches à chiffres sans phrase générale : ' + manque.join(', '));
+});

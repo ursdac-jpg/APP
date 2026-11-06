@@ -144,3 +144,44 @@ test('_comprendreLeCadreParserFiche : listes absentes du frontmatter restent des
   assert.deepEqual(f.sources, []);
   assert.deepEqual(f.voir_aussi_lexique, []);
 });
+
+// Fiche à chiffres non revérifiée depuis six mois : avertissement (sans chiffre dans la phrase).
+test('_comprendreLeCadreFichePerimee : six mois ou plus avec un chiffre = périmée, sinon non', () => {
+  const m = require('../modules/comprendre-le-cadre/index.js');
+  const f = (v, corps) => ({ verifie_le: v, corps: corps });
+  assert.strictEqual(m._comprendreLeCadreFichePerimee(f('2026-01-10', 'Délai de 30 jours'), '2026-07-10'), true);
+  assert.strictEqual(m._comprendreLeCadreFichePerimee(f('2026-01-10', 'Délai de 30 jours'), '2026-07-09'), false);
+  assert.strictEqual(m._comprendreLeCadreFichePerimee(f('2026-01', 'Délai de 30 jours'), '2026-07-09'), true);
+  assert.strictEqual(m._comprendreLeCadreFichePerimee(f('2025-01-10', 'Aucun chiffre ici'), '2026-07-10'), false);
+});
+
+// Consigne 95 (Denis, option 1, 05/11/2026) : passé six mois, une fiche à chiffres montre sa phrase générale (ou la phrase commune) à la place du texte.
+test('_comprendreLeCadreCorpsAffiche : à jour = le texte ; six mois ou plus = la phrase générale de la fiche, ou la phrase commune, jamais un chiffre', () => {
+  const m = require('../modules/comprendre-le-cadre/index.js');
+  const fiche = (extra) => Object.assign({ verifie_le: '2026-01-10', corps: 'Le plafond est de 30 jours.\n\nDeuxième paragraphe.' }, extra || {});
+  const aJour = m._comprendreLeCadreCorpsAffiche(fiche(), '2026-03-10');
+  assert.ok(aJour.indexOf('30 jours') !== -1 && aJour.indexOf('data-cadre-phrase-generale') === -1);
+  const propre = m._comprendreLeCadreCorpsAffiche(fiche({ phrase_generale: 'Le plafond change régulièrement.' }), '2026-07-10');
+  assert.ok(propre.indexOf('Le plafond change régulièrement.') !== -1 && propre.indexOf('data-cadre-phrase-generale="fiche"') !== -1);
+  assert.ok(propre.indexOf('30 jours') === -1 && propre.indexOf('Deuxième paragraphe') === -1, 'le texte précis ne s\'affiche plus');
+  const commune = m._comprendreLeCadreCorpsAffiche(fiche(), '2026-07-10');
+  assert.ok(commune.indexOf(m.COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE) !== -1 && commune.indexOf('data-cadre-phrase-generale="commune"') !== -1);
+  assert.ok(!/\d/.test(m.COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE), 'la phrase commune ne contient aucun chiffre');
+  // Une fiche sans chiffre n'est jamais remplacée, même très ancienne.
+  const sans = m._comprendreLeCadreCorpsAffiche({ verifie_le: '2020-01-10', corps: 'Aucun chiffre ici.' }, '2026-07-10');
+  assert.ok(sans.indexOf('Aucun chiffre ici.') !== -1 && sans.indexOf('data-cadre-phrase-generale') === -1);
+});
+
+test('_comprendreLeCadreAvertissementPerime : le bandeau annonce que les chiffres ne sont plus affichés (sans chiffre dans la phrase)', () => {
+  const m = require('../modules/comprendre-le-cadre/index.js');
+  const bandeau = m._comprendreLeCadreAvertissementPerime({ verifie_le: '2026-01-10', corps: 'Délai de 30 jours' }, '2026-07-10');
+  assert.ok(bandeau.indexOf('data-cadre-perime="oui"') !== -1 && /ne sont plus affichés/.test(bandeau));
+  assert.ok(!/\d/.test(bandeau.replace(/<[^>]*>/g, '')));
+  assert.strictEqual(m._comprendreLeCadreAvertissementPerime({ verifie_le: '2026-06-10', corps: 'Délai de 30 jours' }, '2026-07-10'), '');
+});
+
+test('_comprendreLeCadreParserFiche lit phrase_generale (vide par défaut)', () => {
+  const avec = _comprendreLeCadreParserFiche('---\nid: x\nrayon: r\ntitre: "T"\nphrase_generale: "Ça change souvent."\n---\nCorps');
+  assert.strictEqual(avec.phrase_generale, 'Ça change souvent.');
+  assert.strictEqual(_comprendreLeCadreParserFiche('---\nid: x\nrayon: r\ntitre: "T"\n---\nCorps').phrase_generale, '');
+});

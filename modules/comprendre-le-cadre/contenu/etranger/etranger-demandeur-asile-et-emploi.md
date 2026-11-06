@@ -32,6 +32,7 @@ ce_qui_change_souvent:
   - "Les conditions d'accès au RSA pour les personnes protégées"
 revisions:
   - "2026-10 : depuis le 12 juin 2026 (Pacte européen sur la migration et l'asile), les personnes qui font l'objet d'une décision de transfert vers un autre pays européen (procédure Dublin) n'ont plus accès au marché du travail ; le délai de six mois démarre à l'enregistrement de la demande ; vérifié sur service-public.fr (page vérifiée le 16 septembre 2026) le 2026-10-05"
+phrase_generale: "Ce qu'une personne peut faire pour l'emploi dépend de l'étape où elle en est : demande d'asile en cours, ou statut de réfugié ou protection subsidiaire obtenu. Les délais avant de pouvoir travailler et les droits associés changent selon les lois et les situations : renseignez-vous auprès d'une association spécialisée ou consultez les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

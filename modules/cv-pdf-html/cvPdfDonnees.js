@@ -47,13 +47,15 @@
 // R.7 : quel secteur du referentiel (data/competencesSecteurs.js) fournit les competences attendues ? Ordre de fiabilite : le secteur de
 // la fiche du metier vise (sur), puis le secteur choisi par la personne, puis celui que l'assistant rapproche d'un metier ABSENT de la base
 // (secteurProche). Un nom qui n'est pas l'un des 21 secteurs est ignore : jamais bloquant, jamais une competence inventee.
-// Retourne { nom (libelle exact du referentiel), ref, origine: 'fiche' | 'choix' | 'assistant' } ou null.
-function cvResoudreSecteurReferentiel(ficheVisee, secteurCible, secteurProche) {
+// Maquette v3 (2026-11-04) : le domaine choisi par la personne pour un metier saisi librement (origine 'metier') passe avant celui de l'assistant.
+// Retourne { nom (libelle exact du referentiel), ref, origine: 'fiche' | 'metier' | 'choix' | 'assistant' } ou null.
+function cvResoudreSecteurReferentiel(ficheVisee, secteurCible, secteurProche, secteurDuMetier) {
   if (typeof COMPETENCES_SECTEURS === 'undefined') { return null; }
   var norm = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim(); };
   var cles = Object.keys(COMPETENCES_SECTEURS);
   var candidats = [
     { libelle: ficheVisee && ficheVisee.secteur, origine: 'fiche' },
+    { libelle: secteurDuMetier, origine: 'metier' },
     { libelle: secteurCible, origine: 'choix' },
     { libelle: secteurProche, origine: 'assistant' }
   ];
@@ -303,7 +305,9 @@ function construireDonneesPdfCV(dossierSource, formatPage, bandeauDisponibilite,
   // complet, aucune par defaut en A4 essentiel et A5 : place comptee, elles restent proposees dans « Choisir »).
   // R.4 : sources par priorite = savoir-etre connus de la personne, puis fiche du metier vise, puis secteur, puis liste de l'assistant.
   var ficheVisee = (dossierSource.metierCible && typeof metierParNom === 'function') ? metierParNom(dossierSource.metierCible) : null;
-  var secteurRetenu = cvResoudreSecteurReferentiel(ficheVisee, dossierSource.secteurCible, objetCV.secteurProche);
+  var choixDomaineMetier = dossierSource.secteurMetierSaisi;
+  var secteurDuMetier = (choixDomaineMetier && choixDomaineMetier.metier === dossierSource.metierCible) ? choixDomaineMetier.secteur : '';
+  var secteurRetenu = cvResoudreSecteurReferentiel(ficheVisee, dossierSource.secteurCible, objetCV.secteurProche, secteurDuMetier);
   var refSecteur = secteurRetenu ? secteurRetenu.ref : null;
   var assembler = (typeof _cvAssemblerParPriorite === 'function') ? _cvAssemblerParPriorite : null;
   var texteComp = function (c) { return (typeof c === 'string') ? c : ((c && (c.competence || c.texte)) || ''); };

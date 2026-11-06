@@ -174,6 +174,21 @@ test('analyseImpossible sans message : message de repli', () => {
   assert.ok(r.messageAnalyseImpossible.length > 0);
 });
 
+test('fondDeCouleur : true / false / « oui » conservés, absent ou illisible => null (l’application affiche alors son texte de repli)', () => {
+  const lire = (v) => regardRecruteurParserRapport(texteColleDepuis(reponseDeBase(v === undefined ? {} : { fondDeCouleur: v })), CTX_IMAGE).fondDeCouleur;
+  assert.equal(lire(true), true);
+  assert.equal(lire(false), false);
+  assert.equal(lire('Oui'), true);
+  assert.equal(lire('non'), false);
+  assert.equal(lire(undefined), null);
+  assert.equal(lire('peut-être'), null);
+});
+
+test('fondDeCouleur : en Mode texte, toujours null (pas d’image, pas d’avis sur le fond)', () => {
+  const r = regardRecruteurParserRapport(texteColleDepuis(reponseDeBase({ modeAnalyse: 'texte', fondDeCouleur: true })), CTX_TEXTE);
+  assert.equal(r.fondDeCouleur, null);
+});
+
 test('cvCourt : drapeau + message conserves, le rapport reste exploitable', () => {
   const r = regardRecruteurParserRapport(texteColleDepuis(reponseDeBase({ cvCourt: true, messageCvCourt: 'CV encore leger.' })), CTX_IMAGE);
   assert.equal(r.cvCourt, true);

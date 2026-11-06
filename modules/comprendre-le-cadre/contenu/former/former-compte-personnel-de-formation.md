@@ -27,6 +27,7 @@ ce_qui_change_souvent:
   - "La liste des formations éligibles"
 revisions:
   - "2026 : la participation forfaitaire du titulaire passe de 100 à 150 euros par formation (montant revu chaque 1er janvier, confirmé sur service-public.fr le 2026-09-05)"
+phrase_generale: "Le compte personnel de formation est un compte en euros alimenté en travaillant, qui vous suit tout au long de votre vie active, même au chômage. Les sommes ajoutées chaque année, le plafond et les restes à charge changent régulièrement : pour connaître votre solde et les règles à jour, consultez votre compte en ligne ou les sources officielles indiquées plus bas."
 collecte: former.collecte.md
 ---
 

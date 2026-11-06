@@ -23,6 +23,8 @@ avec avertissement « règle responsive à ajouter ». Un toolkit réutilisable 
 | Élément | Règle |
 |---|---|
 | **Boutons** | Rectangle à **coins arrondis** (`border-radius: 12px` pour les gros, `var(--radius)` pour les petits). **Jamais de bouton rond.** Le bouton d'action principal du moment « pousse » (`.bouton-incitation-action`, pulsation bornée, respecte `prefers-reduced-motion`). |
+| **Action cliquable** | Toujours un **bouton** (cadre, fond, coins arrondis), **jamais une ligne de texte soulignée** (décision Denis, 05/11/2026 : « beaucoup plus sympa »). Cela vaut aussi pour les petites actions comme « Voir les autres fiches ». Exceptions rares : un lien dans une phrase qui continue (une adresse internet, un renvoi dans un paragraphe). |
+| **Fil « Vous êtes ici »** | `barreRepereNavigation` (`js/app.js`) : cadre arrondi, épingle, pastilles. Le lieu courant en bleu plein, les lieux traversés en pastilles claires cliquables. Jamais de numéro, jamais de flèche double (aucune idée d'ordre à suivre). Le nom du module est toujours écrit. Décision Denis, 05/11/2026 (piste 1). |
 | **Accordéon** | `<details class="bloc-depli">` : filet gauche coloré selon la valence (`bd-ok` / `bd-warn` / `bd-alert`), fond du `summary` teinté de la même couleur, chevron `::before`. Le corps : `.bloc-depli-corps`. |
 | **Encart d'information / de rappel** | Fond teinté (`var(--…-bg-subtle)`) **+ filet gauche accent de 3 px** + une icône objet. Jamais un pavé de gris plat, jamais du `text-muted small` isolé pour une consigne importante. |
 | **Verdict / statut** | Pastille **dessinée** (`.pastille-verdict` : `v-ok` / `v-warn` / `v-alert`). **Jamais un émoji rond** 🟢🟡🔴. Les pilules d'état (« Déposé », « À valider »…) : `border-radius: 999px`, petite, à droite du `summary`. |
@@ -41,6 +43,13 @@ avec avertissement « règle responsive à ajouter ». Un toolkit réutilisable 
 - **Toujours des jetons `var(--…)`**, jamais de hex en dur. Toute couleur a sa valeur claire **et** sombre (`[data-theme="sombre"]`).
 - **Spécificité du module = sa teinte `--accent`** (le mécanisme existe déjà dans `css/style.css`, plusieurs `--accent` par contexte). Tout le reste (success / warning / alert / bordures / surfaces) est partagé.
 - Rouge dramatique proscrit pour un simple « à revoir » : utiliser `--alert` / `--alert-bg` (rouge brique doux) ou l'ambre `--warning-*`.
+
+## 3 bis. Tailles de texte (décision A bis, 01/11/2026)
+
+- **Cinq tailles seulement**, jetons définis dans `css/style.css` (près de `--accent-texte`) : `--t-petit` (0,875 rem : aides, étiquettes, puces), `--t-moyen` (1 rem : corps, boutons), `--t-grand` (1,25 rem : titre de bloc ou de carte), `--t-tres-grand` (1,5 rem : sous-titre de page), `--t-titre-page` (2,8 rem, 1,9 rem sur téléphone).
+- **Règle pour tout nouveau code** : `font-size: var(--t-…)`, jamais une taille en px ni une valeur intermédiaire isolée. Jamais sous `--t-petit` (14 px minimum, décision lisibilité du 31/10/2026).
+- Les règles existantes ne sont PAS réécrites d'un coup (risque de déplacer des mises en page) : elles s'alignent sur l'échelle quand un module est refondu, avec capture avant et après.
+- Police : une seule (Segoe UI), rien à harmoniser.
 
 ## 4. Ton (public en fragilité numérique, confiance en soi fragile)
 

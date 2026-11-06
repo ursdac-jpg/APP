@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérifiez les informations importées, maquette</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --vi-warn-txt:#7a4e00; --vi-warn-bord:#f0c36d; }
+:root[data-theme="sombre"] { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --vi-warn-txt:#f5d089; --vi-warn-bord:#8a6a2a; }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1.mq-h1 { font-size:1.3rem; margin:0 0 6px; } h2.mq-h2 { font-size:1.08rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:18px; }
+.mq-reglages { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; border:1px solid var(--mq-border); border-radius:12px; padding:10px 14px; background:var(--mq-card); margin-bottom:14px; font-size:.9rem; }
+.mq-reglages b { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin-right:4px; }
+.mq-reglages label { margin-right:8px; cursor:pointer; }
+.mq-reglages .mq-fermer { margin-left:auto; border:0; background:transparent; font-size:1.2rem; cursor:pointer; color:var(--mq-muted); }
+.mq-q { border-left:4px solid var(--mq-accent); padding:6px 12px; margin:10px 0; background:var(--mq-card); border-radius:0 8px 8px 0; }
+.mq-ul { margin:.3rem 0 0; padding-left:1.2rem; font-size:.93rem; }
+
+/* la page simulée */
+#viPage { border:1px dashed var(--mq-border); border-radius:12px; padding:16px; background:var(--bg-page); margin:0 auto; transition:max-width .2s; }
+#viPage.tel { max-width:380px; border-radius:22px; border-style:solid; padding:12px; }
+.vi-barre-bas.barre-navigation-fixe { position:sticky; bottom:0; left:auto; right:auto; padding:.6rem .8rem; margin:1rem -4px -4px; border-radius:10px; }
+.tel .vi-barre-bas .btn-lg { padding:.4rem .6rem; font-size:.9rem; }
+.tel .vi-barre-bas .btn-accueil { display:none; }
+.vi-kicker { font-size:.8rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); margin:0; }
+.vi-titre { font-size:1.45rem; margin:.1rem 0 .5rem; color:var(--text-strong); }
+.tel .vi-titre { font-size:1.2rem; }
+.vi-intro { border:1px solid var(--border); background:var(--accent-bg-subtle); border-radius:12px; padding:.8rem .95rem; margin-bottom:.8rem; }
+.vi-intro p { margin:0 0 .35rem; } .vi-intro p:last-child { margin:0; }
+.vi-exemple { font-size:.9rem; color:var(--text-muted); }
+.vi-legende { display:flex; flex-wrap:wrap; gap:.4rem .9rem; font-size:.82rem; color:var(--text-muted); margin:.2rem 0 .9rem; }
+.vi-legende span { display:inline-flex; align-items:center; gap:.35rem; }
+
+.vi-groupe { margin:1.2rem 0 .3rem; }
+.vi-groupe h2 { font-size:1.12rem; margin:0; color:var(--text-strong); display:flex; align-items:center; gap:.45rem; }
+.vi-rub { border:1px solid var(--border); border-radius:12px; background:var(--bg-card); margin:.55rem 0; padding:.75rem .9rem; }
+.vi-rub-tete { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.vi-rub-tete h3 { font-size:1rem; margin:0; color:var(--text-strong); }
+.vi-compte { font-size:.8rem; font-weight:700; color:var(--accent); }
+.vi-rub-vide { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; border:1px dashed var(--border-strong, var(--border)); border-radius:12px; background:var(--bg-card); padding:.55rem .9rem; margin:.55rem 0; }
+.vi-rub-vide .vi-nom { font-weight:700; color:var(--text-strong); font-size:.95rem; }
+.vi-rub-vide .vi-rien { color:var(--text-muted); font-size:.88rem; margin-left:.4rem; }
+
+.vi-p { font-size:.72rem; font-weight:700; padding:.12rem .55rem; border-radius:99px; border:1px solid transparent; white-space:nowrap; display:inline-block; }
+.vi-p.nouveau { background:var(--success-bg-subtle); color:var(--success-strong); border-color:var(--success); }
+.vi-p.deja { background:var(--bg-subtle, #f1f4f9); color:var(--text-muted); border-color:var(--border-strong, var(--border)); }
+.vi-p.choisir { background:var(--warning-bg-subtle); color:var(--vi-warn-txt); border-color:var(--vi-warn-bord); }
+.vi-legende .vi-p { font-size:.7rem; }
+
+.vi-ligne { display:grid; grid-template-columns:auto 9rem 1fr auto; gap:.4rem .7rem; align-items:center; padding:.35rem 0; border-top:1px solid var(--border); }
+.vi-ligne:first-of-type { border-top:0; }
+.tel .vi-cl { grid-template-columns:auto 1fr auto; }
+.tel .vi-cl > .vi-garder, .tel .vi-cl > .vi-case { grid-column:1; grid-row:1; }
+.tel .vi-cl > .vi-lib { grid-column:2; grid-row:1; }
+.tel .vi-cl > .vi-p { grid-column:3; grid-row:1; }
+.tel .vi-cl > .vi-saisie { grid-column:1 / 4; grid-row:2; }
+.vi-lib { font-weight:600; font-size:.9rem; color:var(--text-strong); }
+.vi-ligne .form-control, .vi-carte-objet .form-control { font-size:.92rem; }
+.vi-ligne.deja { opacity:.75; }
+.vi-ligne.deja .vi-saisie { color:var(--text-muted); font-size:.92rem; }
+.vi-garder { width:1.25rem; height:1.25rem; cursor:pointer; accent-color:var(--accent); }
+.vi-case { display:inline-flex; align-items:center; gap:.35rem; font-size:.82rem; color:var(--text-muted); cursor:pointer; }
+.vi-case.vide { visibility:hidden; }
+
+.vi-carte-objet { border:1px solid var(--border); border-radius:10px; padding:.6rem .7rem; margin:.5rem 0; background:var(--bg-page); }
+.vi-carte-objet.deja { opacity:.75; background:var(--bg-subtle, #f6f8fb); }
+.vi-carte-tete { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
+.vi-carte-tete .vi-ct { font-weight:700; color:var(--text-strong); flex:1 1 10rem; }
+.vi-champs { display:grid; grid-template-columns:1fr 1fr; gap:.4rem .7rem; margin-top:.5rem; }
+.tel .vi-champs { grid-template-columns:1fr; }
+.vi-champs label { font-size:.78rem; font-weight:700; color:var(--text-muted); display:block; margin:0 0 .1rem; }
+.vi-champs .large { grid-column:1 / -1; }
+
+.vi-choix { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:.4rem 0; }
+.tel .vi-choix { grid-template-columns:1fr; }
+.vi-opt { border:2px solid var(--border-strong, var(--border)); border-radius:12px; padding:.55rem .7rem; background:var(--bg-card); cursor:pointer; display:block; }
+.vi-opt.sel { border-color:var(--accent); background:var(--accent-bg-subtle); }
+.vi-opt .vi-opt-tete { display:flex; align-items:center; gap:.45rem; font-weight:700; font-size:.85rem; margin-bottom:.3rem; color:var(--text-strong); }
+.vi-opt input[type=radio] { accent-color:var(--accent); width:1.1rem; height:1.1rem; }
+.vi-conflit-q { font-size:.88rem; color:var(--text-muted); margin:.1rem 0 0; }
+
+.vi-puces { display:flex; flex-direction:column; }
+.vi-ajout-ligne { display:grid; grid-template-columns:auto 1fr auto; gap:.5rem; align-items:center; padding:.3rem 0; }
+.vi-retirer { border:0; background:transparent; color:var(--text-muted); font-size:1.15rem; cursor:pointer; line-height:1; }
+.vi-bt-ajout { margin-top:.35rem; }
+.vi-note { font-size:.82rem; color:var(--text-muted); margin:.3rem 0 0; }
+.vi-toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#1d2433; color:#fff; padding:8px 16px; border-radius:10px; z-index:50; font-size:.9rem; display:none; max-width:90vw; text-align:center; }
+.vi-fin { border:2px solid var(--success); background:var(--success-bg-subtle); color:var(--text-strong); border-radius:12px; padding:.8rem .95rem; margin:.5rem 0 .8rem; }
+.vi-fin h2 { font-size:1.1rem; margin:0 0 .25rem; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1 class="mq-h1">Vérifiez les informations importées : l’écran refait</h1>
+<p class="muted">Cette maquette se <strong>joue</strong> : cochez, décochez, corrigez une valeur, choisissez entre deux versions d’une information, ajoutez un élément dans une rubrique vide, et regardez le bouton « Valider » compter ce qui sera réellement ajouté. Elle montre l’écran tel qu’il apparaîtrait après le dépôt d’un CV, avec vos sept réponses (une seule page, mots simples, pastilles, rubriques vides repliées, deux cartes en cas de différence, barre du bas, introduction rassurante). Les exemples sont inventés.</p>
+
+<div class="mq-reglages" id="mqReglages">
+ <span><b>Je simule</b>
+  <label><input type="radio" name="mqScen" value="riche" checked> un CV bien lu</label>
+  <label><input type="radio" name="mqScen" value="pauvre"> un CV presque vide</label>
+  <label><input type="radio" name="mqScen" value="deja"> tout est déjà chez vous</label></span>
+ <span><b>Écran</b>
+  <label><input type="radio" name="mqLarg" value="pc" checked> ordinateur</label>
+  <label><input type="radio" name="mqLarg" value="tel"> téléphone</label></span>
+ <span><b>Affichage</b>
+  <label><input type="radio" name="mqTheme" value="clair" checked> clair</label>
+  <label><input type="radio" name="mqTheme" value="sombre"> sombre</label></span>
+ <button type="button" class="btn btn-outline-secondary btn-sm" id="mqRejouer">&#8635; Rejouer depuis le début</button>
+ <button type="button" class="mq-fermer" id="mqFermerReg" aria-label="Fermer ce panneau">&#10005;</button>
+</div>
+
+<div id="viPage"></div>
+
+<div class="mq-carte" style="margin-top:20px;">
+<h2 class="mq-h2">Ce qui change par rapport à aujourd’hui</h2>
+<ul class="mq-ul">
+ <li><strong>Une seule page</strong> au lieu de cinq onglets : tout se voit en descendant, les cinq grands thèmes (identité, expériences, formations, compétences, le reste) sont des titres.</li>
+ <li><strong>Des mots simples</strong> : « Nom », « Prénom », « Téléphone » au lieu de « nom », « prenom ». La valeur lue est dans une case que l’on peut corriger, avec une case « Garder ».</li>
+ <li><strong>Trois pastilles</strong> écrites en toutes lettres : « Nouveau » (s’ajoutera), « Déjà chez vous » (rien à faire, pas de case), « À choisir » (la valeur lue n’est pas la même que celle de votre dossier).</li>
+ <li><strong>Deux cartes côte à côte</strong> pour une différence : « Dans votre dossier » et « Lu dans le document ». Par défaut, <em>votre dossier est conservé</em> : rien ne change si vous ne touchez pas à la carte de droite.</li>
+ <li><strong>Rubriques vides</strong> : une ligne repliée « Formations : rien repéré » avec un bouton « Ajouter », au lieu d’un titre et d’une phrase grise.</li>
+ <li><strong>Barre du bas</strong> : « Retour », « Accueil » et un seul bouton « Valider (N) » où N est le nombre réel d’éléments qui seront ajoutés ou remplacés. Aucun bouton « Continuer » dans la page.</li>
+</ul>
+</div>
+
+<div class="mq-carte">
+<h2 class="mq-h2">Ce que je garde du fonctionnement actuel (vérifié dans le code)</h2>
+<ul class="mq-ul">
+ <li>Les mêmes catégories lues : identité, titre et accroche, mobilité (permis), langues, expériences professionnelles, expériences personnelles, formations, certifications, compétences, logiciels, loisirs, engagements, et « Autres informations » seulement si l’assistant en a trouvé.</li>
+ <li>Les mêmes décisions rendues au programme (cochées ou non, valeurs corrigées, éléments ajoutés à la main) : le code qui fusionne dans le dossier ne change pas, seul l’habillage change.</li>
+ <li><strong>Une seule zone « Ajouter »</strong> par rubrique, jamais trois (décision de Denis du 19/09/2026 : la personne n’a pas à classer savoir-faire, savoir-être et savoirs).</li>
+ <li>« Retour » ramène au point d’où l’on vient ; si l’écran s’ouvre après le diagnostic, il ramène directement au rapport.</li>
+</ul>
+</div>
+
+<div class="mq-carte">
+<h2 class="mq-h2">Questions qui restent pour vous</h2>
+<div class="mq-q"><strong>1. Par défaut, quand une valeur lue diffère de votre dossier, je garde votre dossier</strong> (carte de gauche sélectionnée). La personne doit toucher la carte de droite pour changer. Je le recommande : rien n’est modifié par surprise. L’alternative serait de présélectionner « Lu dans le document ».</div>
+<div class="mq-q"><strong>2. Éléments « Déjà chez vous » :</strong> ils sont montrés en gris, sans case, pour rassurer (« c’est bien là »). Si vous préférez qu’ils soient repliés dans une ligne « 3 éléments déjà chez vous », dites-le.</div>
+<div class="mq-q"><strong>3. Après « Valider » :</strong> aujourd’hui l’écran suivant dépend d’où l’on vient (points à clarifier, puis rapport). Je ne change pas ce trajet ; la maquette montre seulement un message de fin. D’accord ?</div>
+</div>
+
+</div>
+<div class="vi-toast" id="viToast"></div>
+
+<script>
+(function () {
+  var racine = document.documentElement;
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    racine.setAttribute('data-theme', 'sombre');
+    document.querySelector('input[name=mqTheme][value=sombre]').checked = true;
+  }
+
+  /* ---------- Données inventées (trois scénarios) ---------- */
+  function champ(id, etat, label, valeur, extra) { var o = { id: id, etat: etat, label: label, valeur: valeur }; if (extra) { for (var k in extra) { o[k] = extra[k]; } } return o; }
+
+  var SCENARIOS = {
+    riche: [
+      { titre: 'Identité et mobilité', icone: '🪪', rubriques: [
+        { cle: 'identite', titre: 'Identité', type: 'champs', lignes: [
+          champ('i1', 'deja', 'Civilité', 'Madame'),
+          champ('i2', 'nouveau', 'Nom', 'DUPONT'),
+          champ('i3', 'nouveau', 'Prénom', 'Marie'),
+          champ('i4', 'choisir', 'Téléphone', '06 12 34 56 78', { ancienne: '06 11 22 33 44' }),
+          champ('i5', 'nouveau', 'Adresse mail', 'marie.dupont@exemple.fr'),
+          champ('i6', 'nouveau', 'Code postal', '87000'),
+          champ('i7', 'nouveau', 'Ville', 'Limoges')
+        ] },
+        { cle: 'presentation', titre: 'Titre et accroche du CV', type: 'champs', lignes: [
+          champ('p1', 'nouveau', 'Titre', 'Agente d’accueil polyvalente'),
+          champ('p2', 'nouveau', 'Accroche', 'Cinq ans d’accueil du public en mairie, à l’aise avec les outils de bureautique et le contact avec toutes sortes de personnes.', { long: true })
+        ] },
+        { cle: 'permis', titre: 'Mobilité (permis)', type: 'champs', lignes: [
+          champ('m1', 'nouveau', 'Permis', 'Permis B'),
+          champ('m2', 'nouveau', 'Véhicule', 'Oui')
+        ] },
+        { cle: 'langues', titre: 'Langues', type: 'objets', lignes: [
+          { id: 'l1', etat: 'nouveau', titre: 'Anglais', champs: [['Langue', 'Anglais'], ['Niveau', 'B1']] },
+          { id: 'l2', etat: 'deja', titre: 'Espagnol', champs: [['Langue', 'Espagnol'], ['Niveau', 'A2']] }
+        ], ajout: 'Ajouter une langue' }
+      ] },
+      { titre: 'Expériences professionnelles', icone: '💼', rubriques: [
+        { cle: 'experiences', titre: 'Expériences professionnelles', type: 'objets', lignes: [
+          { id: 'e1', etat: 'nouveau', titre: 'Agente d’accueil, Mairie de Limoges', champs: [['Poste', 'Agente d’accueil'], ['Entreprise', 'Mairie de Limoges'], ['Lieu', 'Limoges'], ['Dates', '2019 à 2023'], ['Missions', 'Accueillir et orienter le public\nTenir l’agenda des rendez-vous\nTraiter le courrier du service', 'large']] },
+          { id: 'e2', etat: 'deja', titre: 'Secrétaire, Cabinet Martin', champs: [['Poste', 'Secrétaire'], ['Entreprise', 'Cabinet Martin'], ['Dates', '2017 à 2019']] },
+          { id: 'e3', etat: 'choisir', titre: 'Employée polyvalente, Super U', ancienne: [['Poste', 'Employée polyvalente'], ['Entreprise', 'Super U'], ['Dates', '2015 à 2017']], champs: [['Poste', 'Employée polyvalente'], ['Entreprise', 'Super U'], ['Dates', '2015 à 2018']] }
+        ], ajout: 'Ajouter une expérience' },
+        { cle: 'experiencesPerso', titre: 'Expériences personnelles (bénévolat, entraide...)', type: 'objets', lignes: [], ajout: 'Ajouter une expérience personnelle' }
+      ] },
+      { titre: 'Formations et certifications', icone: '🎓', rubriques: [
+        { cle: 'formations', titre: 'Formations et diplômes', type: 'objets', lignes: [
+          { id: 'f1', etat: 'nouveau', titre: 'BTS Support à l’action managériale', champs: [['Intitulé', 'BTS Support à l’action managériale'], ['Établissement', 'Lycée Gay-Lussac'], ['Année', '2018']] },
+          { id: 'f2', etat: 'deja', titre: 'CAP Employé de commerce', champs: [['Intitulé', 'CAP Employé de commerce'], ['Année', '2015']] }
+        ], ajout: 'Ajouter une formation' },
+        { cle: 'certifications', titre: 'Certifications', type: 'textes', lignes: [], ajout: 'Ajouter une certification' }
+      ] },
+      { titre: 'Compétences', icone: '🛠️', rubriques: [
+        { cle: 'competences', titre: 'Compétences', type: 'textes', lignes: [
+          champ('c1', 'nouveau', '', 'Accueillir le public'),
+          champ('c2', 'nouveau', '', 'Orienter les usagers'),
+          champ('c3', 'deja', '', 'Gérer un agenda'),
+          champ('c4', 'nouveau', '', 'Sens de l’écoute')
+        ], ajout: 'Ajouter une compétence' }
+      ] },
+      { titre: 'Loisirs, engagements et logiciels', icone: '➕', rubriques: [
+        { cle: 'logiciels', titre: 'Logiciels', type: 'textes', lignes: [
+          champ('g1', 'nouveau', '', 'Word'), champ('g2', 'nouveau', '', 'Excel'), champ('g3', 'deja', '', 'Outlook')
+        ], ajout: 'Ajouter un logiciel' },
+        { cle: 'loisirs', titre: 'Loisirs', type: 'textes', lignes: [], ajout: 'Ajouter un loisir' },
+        { cle: 'engagements', titre: 'Engagements', type: 'objets', lignes: [], ajout: 'Ajouter un engagement' }
+      ] }
+    ]
+  };
+
+  /* « CV presque vide » : seulement deux informations repérées. */
+  SCENARIOS.pauvre = SCENARIOS.riche.map(function (g) {
+    return { titre: g.titre, icone: g.icone, rubriques: g.rubriques.map(function (r) {
+      var garde = [];
+      if (r.cle === 'identite') { garde = r.lignes.filter(function (l) { return l.id === 'i2' || l.id === 'i3'; }); }
+      if (r.cle === 'competences') { garde = r.lignes.filter(function (l) { return l.id === 'c1'; }); }
+      return { cle: r.cle, titre: r.titre, type: r.type, ajout: r.ajout, lignes: garde };
+    }) };
+  });
+
+  /* « Tout est déjà chez vous » : aucune pastille Nouveau ni À choisir. */
+  SCENARIOS.deja = SCENARIOS.riche.map(function (g) {
+    return { titre: g.titre, icone: g.icone, rubriques: g.rubriques.map(function (r) {
+      var l = r.lignes.filter(function (x) { return x.etat === 'deja'; });
+      return { cle: r.cle, titre: r.titre, type: r.type, ajout: r.ajout, lignes: l };
+    }) };
+  });
+
+  /* ---------- Outils ---------- */
+  var scen = 'riche';
+  var page = document.getElementById('viPage');
+  var compteurAjout = 0;
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function toast(t) { var e = document.getElementById('viToast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { e.style.display = 'none'; }, 2600); }
+  function pastille(etat) {
+    var mot = etat === 'nouveau' ? 'Nouveau' : (etat === 'deja' ? 'Déjà chez vous' : 'À choisir');
+    return '<span class="vi-p ' + etat + '">' + mot + '</span>';
+  }
+  function pluriel(n, un, plus) { return n + ' ' + (n > 1 ? plus : un); }
+
+  /* ---------- Rendu des lignes ---------- */
+  function htmlChampSimple(l) {
+    if (l.etat === 'deja') {
+      return '<div class="vi-ligne vi-cl deja"><span class="vi-case vide"></span><span class="vi-lib">' + esc(l.label) + '</span><span class="vi-saisie">' + esc(l.valeur) + '</span>' + pastille('deja') + '</div>';
+    }
+    if (l.etat === 'choisir') {
+      return '<div class="vi-ligne" style="display:block;" data-item="' + l.id + '" data-etat="choisir">' +
+        '<div class="d-flex align-items-center gap-2 mb-1"><span class="vi-lib">' + esc(l.label) + '</span>' + pastille('choisir') + '</div>' +
+        '<p class="vi-conflit-q">Votre dossier et le document ne disent pas la même chose. Touchez la version à garder.</p>' +
+        '<div class="vi-choix">' +
+        '<label class="vi-opt sel" data-opt="dossier"><span class="vi-opt-tete"><input type="radio" name="ch_' + l.id + '" value="dossier" checked> Dans votre dossier</span><input class="form-control" type="text" value="' + esc(l.ancienne) + '" aria-label="' + esc(l.label) + ', version de votre dossier"></label>' +
+        '<label class="vi-opt" data-opt="doc"><span class="vi-opt-tete"><input type="radio" name="ch_' + l.id + '" value="doc"> Lu dans le document</span><input class="form-control" type="text" value="' + esc(l.valeur) + '" aria-label="' + esc(l.label) + ', version lue dans le document"></label>' +
+        '</div></div>';
+    }
+    var saisie = l.long
+      ? '<textarea class="form-control vi-saisie" rows="3" aria-label="' + esc(l.label) + '">' + esc(l.valeur) + '</textarea>'
+      : '<input class="form-control vi-saisie" type="text" value="' + esc(l.valeur) + '" aria-label="' + esc(l.label) + '">';
+    return '<div class="vi-ligne vi-cl" data-item="' + l.id + '" data-etat="nouveau"><input class="vi-garder" type="checkbox" checked aria-label="Garder : ' + esc(l.label) + '"><label class="vi-lib">' + esc(l.label) + '</label>' + saisie + pastille('nouveau') + '</div>';
+  }
+
+  function htmlLigneTexte(l) {
+    if (l.etat === 'deja') {
+      return '<div class="vi-ligne deja" style="grid-template-columns:auto 1fr auto;"><span class="vi-case vide"></span><span class="vi-saisie">' + esc(l.valeur) + '</span>' + pastille('deja') + '</div>';
+    }
+    return '<div class="vi-ligne" style="grid-template-columns:auto 1fr auto;" data-item="' + l.id + '" data-etat="nouveau"><input class="vi-garder" type="checkbox" checked aria-label="Garder : ' + esc(l.valeur) + '"><input class="form-control vi-saisie" type="text" value="' + esc(l.valeur) + '" aria-label="Valeur lue">' + pastille('nouveau') + '</div>';
+  }
+
+  function htmlChampsObjet(champs, lectureSeule, id) {
+    return '<div class="vi-champs">' + champs.map(function (c, k) {
+      var large = c[2] === 'large';
+      var champHtml = large
+        ? '<textarea class="form-control" rows="3"' + (lectureSeule ? ' readonly' : '') + '>' + esc(c[1]) + '</textarea>'
+        : '<input class="form-control" type="text" value="' + esc(c[1]) + '"' + (lectureSeule ? ' readonly' : '') + '>';
+      return '<div class="' + (large ? 'large' : '') + '"><label>' + esc(c[0]) + '</label>' + champHtml + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function htmlCarteObjet(l) {
+    if (l.etat === 'deja') {
+      return '<div class="vi-carte-objet deja"><div class="vi-carte-tete"><span class="vi-ct">' + esc(l.titre) + '</span>' + pastille('deja') + '</div></div>';
+    }
+    if (l.etat === 'choisir') {
+      return '<div class="vi-carte-objet" data-item="' + l.id + '" data-etat="choisir"><div class="vi-carte-tete"><span class="vi-ct">' + esc(l.titre) + '</span>' + pastille('choisir') + '</div>' +
+        '<p class="vi-conflit-q">Cette expérience existe déjà dans votre dossier, mais les dates ne sont pas les mêmes. Touchez la version à garder.</p>' +
+        '<div class="vi-choix">' +
+        '<label class="vi-opt sel" data-opt="dossier"><span class="vi-opt-tete"><input type="radio" name="ch_' + l.id + '" value="dossier" checked> Dans votre dossier</span>' + htmlChampsObjet(l.ancienne, false) + '</label>' +
+        '<label class="vi-opt" data-opt="doc"><span class="vi-opt-tete"><input type="radio" name="ch_' + l.id + '" value="doc"> Lu dans le document</span>' + htmlChampsObjet(l.champs, false) + '</label>' +
+        '</div></div>';
+    }
+    return '<div class="vi-carte-objet" data-item="' + l.id + '" data-etat="nouveau"><div class="vi-carte-tete"><input class="vi-garder" type="checkbox" checked aria-label="Garder : ' + esc(l.titre) + '"><span class="vi-ct">' + esc(l.titre) + '</span>' + pastille('nouveau') + '</div>' + htmlChampsObjet(l.champs, false) + '</div>';
+  }
+
+  function htmlRubrique(r) {
+    if (!r.lignes.length) {
+      return '<div class="vi-rub-vide" data-vide="' + r.cle + '"><span><span class="vi-nom">' + esc(r.titre) + '</span><span class="vi-rien">rien repéré</span></span><button type="button" class="btn btn-outline-primary btn-sm" data-ajouter="' + r.cle + '">+ ' + esc(r.ajout) + '</button></div>';
+    }
+    var corps = r.lignes.map(function (l) {
+      if (r.type === 'champs') { return htmlChampSimple(l); }
+      if (r.type === 'textes') { return htmlLigneTexte(l); }
+      return htmlCarteObjet(l);
+    }).join('');
+    var seulementDeja = r.lignes.every(function (l) { return l.etat === 'deja'; });
+    return '<section class="vi-rub" data-rub="' + r.cle + '" data-type="' + r.type + '">' +
+      '<div class="vi-rub-tete"><h3>' + esc(r.titre) + '</h3><span class="vi-compte" data-compte="' + r.cle + '"></span></div>' +
+      '<div class="vi-puces" data-corps="' + r.cle + '">' + corps + '</div>' +
+      (seulementDeja ? '<p class="vi-note">Tout est déjà dans votre dossier : rien à faire ici.</p>' : '') +
+      (r.ajout ? '<button type="button" class="btn btn-outline-primary btn-sm vi-bt-ajout" data-ajouter="' + r.cle + '">+ ' + esc(r.ajout) + '</button>' : '') +
+      '</section>';
+  }
+
+  /* ---------- Page entière ---------- */
+  function rendre() {
+    var groupes = SCENARIOS[scen];
+    var html = '' +
+      '<p class="vi-kicker">Analyser ma candidature</p>' +
+      '<h1 class="vi-titre">Vérifiez les informations importées</h1>' +
+      '<div class="vi-intro"><p><strong>Voici ce que l’application a lu dans votre CV.</strong> Rien n’est enregistré tant que vous n’avez pas validé : vous pouvez corriger, décocher ou ajouter.</p>' +
+      '<p class="vi-exemple">Par exemple, si un numéro de téléphone a été mal lu, corrigez-le dans la case ; si vous ne voulez pas le garder, décochez-le.</p></div>' +
+      '<div class="vi-legende"><span>' + pastille('nouveau') + ' s’ajoutera à votre dossier</span><span>' + pastille('deja') + ' rien à faire</span><span>' + pastille('choisir') + ' à vous de choisir</span></div>';
+    groupes.forEach(function (g) {
+      html += '<div class="vi-groupe"><h2><span aria-hidden="true">' + g.icone + '</span> ' + esc(g.titre) + '</h2></div>';
+      g.rubriques.forEach(function (r) { html += htmlRubrique(r); });
+    });
+    html += '<div id="viFin"></div>' +
+      '<div class="barre-navigation-fixe vi-barre-bas"><div class="d-flex justify-content-between align-items-center barre-navigation">' +
+      '<button class="btn btn-nav-erip btn-lg" type="button" id="viRetour">&#8592; Retour</button>' +
+      '<button class="btn btn-nav-erip btn-accueil" type="button" id="viAccueil"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>' +
+      '<span class="text-end"><button type="button" class="btn btn-primary btn-lg" id="viValider">Valider</button></span></div></div>';
+    page.innerHTML = html;
+    brancher();
+    recalculer();
+  }
+
+  /* ---------- Comptage réel, branché sur les vraies cases ---------- */
+  function compterRubrique(sec) {
+    var n = 0;
+    sec.querySelectorAll('[data-item]').forEach(function (it) {
+      if (it.getAttribute('data-etat') === 'choisir') {
+        var r = it.querySelector('input[type=radio]:checked');
+        if (r && r.value === 'doc') { n++; }
+      } else if (it.classList.contains('vi-ajout-ligne')) {
+        var t = it.querySelector('input[type=text]'); if (t && t.value.trim()) { n++; }
+      } else {
+        var c = it.querySelector('.vi-garder'); if (c && c.checked) { n++; }
+      }
+    });
+    return n;
+  }
+  function recalculer() {
+    var total = 0;
+    page.querySelectorAll('.vi-rub').forEach(function (sec) {
+      var n = compterRubrique(sec); total += n;
+      var e = sec.querySelector('.vi-compte');
+      e.textContent = n === 0 ? 'rien à ajouter' : (n === 1 ? '1 élément à ajouter' : n + ' éléments à ajouter');
+    });
+    var b = document.getElementById('viValider');
+    b.textContent = total === 0 ? 'Valider (aucun ajout)' : 'Valider (' + pluriel(total, 'élément', 'éléments') + ')';
+    b.setAttribute('data-total', total);
+  }
+
+  /* ---------- Événements ---------- */
+  var pageBranchee = false;
+  function brancher() {
+    if (!pageBranchee) { pageBranchee = true; brancherPage(); }
+    document.getElementById('viRetour').addEventListener('click', function () { toast('Retour : on revient à l’écran d’où l’on vient (le rapport, si l’écran s’ouvre après le diagnostic).'); });
+    document.getElementById('viAccueil').addEventListener('click', function () { toast('Accueil de l’application.'); });
+    document.getElementById('viValider').addEventListener('click', valider);
+  }
+  function brancherPage() {
+    page.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t.type === 'radio') {
+        var it = t.closest('[data-item]');
+        it.querySelectorAll('.vi-opt').forEach(function (o) { o.classList.toggle('sel', o.querySelector('input[type=radio]').checked); });
+      }
+      recalculer();
+    });
+    page.addEventListener('input', recalculer);
+    page.addEventListener('click', function (e) {
+      var ajout = e.target.closest('[data-ajouter]');
+      if (ajout) { ajouterElement(ajout.getAttribute('data-ajouter')); return; }
+      var ret = e.target.closest('.vi-retirer');
+      if (ret) { ret.closest('.vi-ajout-ligne').remove(); recalculer(); return; }
+      var opt = e.target.closest('.vi-opt');
+      if (opt && e.target.tagName !== 'INPUT') { var r = opt.querySelector('input[type=radio]'); if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } }
+    });
+  }
+
+  function ajouterElement(cle) {
+    var vide = page.querySelector('[data-vide="' + cle + '"]');
+    var sec = page.querySelector('[data-rub="' + cle + '"]');
+    if (vide) {
+      /* La ligne repliée devient une rubrique ouverte, avec une première ligne vide. */
+      var def = null;
+      SCENARIOS[scen].forEach(function (g) { g.rubriques.forEach(function (r) { if (r.cle === cle) { def = r; } }); });
+      var tmp = document.createElement('div');
+      tmp.innerHTML = '<section class="vi-rub" data-rub="' + cle + '" data-type="' + def.type + '"><div class="vi-rub-tete"><h3>' + esc(def.titre) + '</h3><span class="vi-compte" data-compte="' + cle + '"></span></div><div class="vi-puces" data-corps="' + cle + '"></div><button type="button" class="btn btn-outline-primary btn-sm vi-bt-ajout" data-ajouter="' + cle + '">+ ' + esc(def.ajout) + '</button></section>';
+      vide.parentNode.replaceChild(tmp.firstChild, vide);
+      sec = page.querySelector('[data-rub="' + cle + '"]');
+    }
+    var corps = sec.querySelector('.vi-puces');
+    compteurAjout++;
+    var ligne = document.createElement('div');
+    ligne.className = 'vi-ajout-ligne'; ligne.setAttribute('data-item', 'a' + compteurAjout); ligne.setAttribute('data-etat', 'ajout');
+    ligne.innerHTML = '<span class="vi-p nouveau">Ajouté par vous</span><input class="form-control" type="text" placeholder="Écrivez ici" aria-label="Élément ajouté"><button type="button" class="vi-retirer" aria-label="Retirer cette ligne">&#10005;</button>';
+    corps.appendChild(ligne);
+    ligne.querySelector('input').focus();
+    recalculer();
+  }
+
+  function valider() {
+    var total = +document.getElementById('viValider').getAttribute('data-total');
+    var fin = document.getElementById('viFin');
+    fin.innerHTML = '<div class="vi-fin"><h2>' + (total ? 'C’est noté' : 'Rien à ajouter') + '</h2><p class="mb-0">' +
+      (total ? pluriel(total, 'élément a été ajouté', 'éléments ont été ajoutés') + ' à votre dossier. Vos autres informations n’ont pas changé.' : 'Votre dossier n’a pas changé.') +
+      ' <em>(Dans l’application, on passerait ensuite à l’étape suivante, comme aujourd’hui.)</em></p></div>';
+    fin.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ---------- Réglages de la maquette ---------- */
+  document.querySelectorAll('input[name=mqScen]').forEach(function (r) { r.addEventListener('change', function () { scen = r.value; rendre(); }); });
+  document.querySelectorAll('input[name=mqLarg]').forEach(function (r) { r.addEventListener('change', function () { page.className = r.value === 'tel' ? 'tel' : ''; }); });
+  document.querySelectorAll('input[name=mqTheme]').forEach(function (r) { r.addEventListener('change', function () { if (r.value === 'sombre') { racine.setAttribute('data-theme', 'sombre'); } else { racine.removeAttribute('data-theme'); } }); });
+  document.getElementById('mqRejouer').addEventListener('click', function () { rendre(); });
+  document.getElementById('mqFermerReg').addEventListener('click', function () { document.getElementById('mqReglages').style.display = 'none'; });
+
+  rendre();
+})();
+</script>
+</body>
+</html>

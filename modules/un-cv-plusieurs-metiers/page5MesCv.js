@@ -44,10 +44,10 @@ function ucpmCvSansAccroche(etat) {
 
 function _ucpmP5HtmlAccroche(etat, e, cv, estRef) {
   if (estRef) {
-    return '<p class="small mb-2"><strong>Phrase d’accroche</strong> <span style="color:var(--success-strong);">&#10003; choisie à la page 3</span><br><span style="color:var(--text-muted);">' + _ucpmEsc(cv.accroche) + '</span></p>';
+    return '<p class="small mb-2"><strong>Phrase d’accroche</strong> <span style="color:var(--success-strong);">&#10003; choisie dans « Référence »</span><br><span style="color:var(--text-muted);">' + _ucpmEsc(cv.accroche) + '</span></p>';
   }
   var choisie = !!(cv.accrocheChoisie && String(cv.accroche || '').trim());
-  var h = '<div class="mb-2"><p class="small mb-1"><strong>Phrase d’accroche</strong> ' +
+  var h = '<div class="mb-2"' + (choisie ? '' : ' data-a-completer="1"') + '><p class="small mb-1"><strong>Phrase d’accroche</strong> ' +
     (choisie ? '<span style="color:var(--success-strong);">&#10003; choisie</span>' : '<span style="color:var(--danger);">à choisir</span>') + '</p>';
   if (choisie) { h += '<p class="small mb-1" style="color:var(--text-muted);">' + _ucpmEsc(cv.accroche) + '</p>'; }
   if (_ucpmUi5.accOuverte === e.id) {
@@ -75,7 +75,7 @@ function _ucpmP5HtmlCarte(etat, e, ref) {
     '<div style="display:flex;gap:.8rem;align-items:flex-start;">' +
     '<div data-ucpm-miniature="' + e.id + '" style="width:' + UCPM_LARGEUR_MINIATURE + 'px;height:' + Math.round(UCPM_LARGEUR_MINIATURE * 1123 / 794) + 'px;flex:0 0 ' + UCPM_LARGEUR_MINIATURE + 'px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);overflow:hidden;position:relative;"' +
     ' role="img" aria-label="Aperçu du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
-    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong data-ucpm-libelle-cv="' + e.id + '">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
+    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong data-ucpm-libelle-cv="' + e.id + '">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary" style="display:inline-block;max-width:100%;white-space:normal;text-align:left;">CV de référence</span>' : '') + '</p>' +
     '<p class="small mb-1" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) + '</p>' +
     '<p class="small mb-0" data-ucpm-alerte-pages="' + e.id + '" style="color:var(--warning-strong);"' + (alerte ? '' : ' hidden') + '>' + _ucpmEsc(alerte) + '</p></div></div>' +
     '<div class="mt-2 mb-2"><label class="form-label small mb-1" for="ucpmTitre_' + e.id + '"><strong>Titre du CV</strong></label>' +
@@ -207,8 +207,12 @@ ucpmEnregistrerPage(5, {
   peutContinuer: function (etat) { _ucpmP5Assurer(etat); return ucpmCvSansAccroche(etat).length === 0; },
   raisonBlocage: function (etat) {
     _ucpmP5Assurer(etat);
-    var n = ucpmCvSansAccroche(etat).length;
-    return 'Choisissez la phrase d’accroche de ' + (n > 1 ? 'chacun des ' + n + ' CV qui n’en ont pas encore' : 'votre dernier CV') + ' pour continuer.';
+    var manquants = ucpmCvSansAccroche(etat);
+    var noms = manquants.map(function (e) {
+      var cv = etat.cvs && etat.cvs[e.id];
+      return '« ' + ((cv && String(cv.titre || '').trim()) || ucpmNomMetier(e, etat.sexe)) + ' »';
+    });
+    return 'Choisissez la phrase d’accroche de ' + (noms.length > 1 ? 'chacun de ces ' + noms.length + ' CV : ' + noms.join(', ') : 'votre dernier CV : ' + noms[0]) + ', pour continuer.';
   },
   continuer: function () { _ucpmUi5.accOuverte = null; ucpmAllerPage(6); }
 });

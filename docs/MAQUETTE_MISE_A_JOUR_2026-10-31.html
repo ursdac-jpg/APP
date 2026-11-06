@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la rubrique Mise à jour de l'outil de veille</title>
+<style>
+  :root { --bg:#f6f7f9; --carte:#fff; --texte:#1c2430; --doux:#5b6675; --bord:#d5dbe3; --accent:#1d5fa8; --accent-bg:#e6f0fb; --ok:#1b7a3d; --alerte:#a15c00; --alerte-bg:#fff3de; --o-mois:#1d5fa8; --o-trim:#6b3fa0; --o-rayon:#1b7a3d; --o-brut:#a15c00; --o-lien:#8a3b5c; --prev:#0b6b3a; --prev-bg:#d9f2e3; --sup:#a8321f; --sup-bg:#fde0d8; --ajout:#14672f; --ajout-bg:#d5f0dd; }
+  [data-theme="sombre"] { --bg:#12161c; --carte:#1b212a; --texte:#e8edf3; --doux:#9aa6b5; --bord:#323b48; --accent:#6fb1f2; --accent-bg:#1b2d44; --ok:#5fcf86; --alerte:#f0b35a; --alerte-bg:#3a2d17; --o-mois:#6fb1f2; --o-trim:#b99af0; --o-rayon:#5fcf86; --o-brut:#f0b35a; --o-lien:#f09ab8; --prev:#7fe0a8; --prev-bg:#17382a; --sup:#ff9d8a; --sup-bg:#4a2018; --ajout:#8fe3ab; --ajout-bg:#173a25; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--texte); }
+  main { max-width:760px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.25rem; margin:.2rem 0 .3rem; }
+  h2 { font-size:1.1rem; margin:0; }
+  .doux { color:var(--doux); font-size:.9rem; margin:.2rem 0 .8rem; }
+  .bandeau { background:var(--alerte-bg); color:var(--texte); border:1px solid var(--alerte); border-radius:8px; padding:.6rem .8rem; margin:0 0 1rem; font-size:.9rem; }
+  button { font:inherit; cursor:pointer; color:inherit; }
+  .carte-module { display:block; width:100%; text-align:left; background:var(--carte); border:1px solid var(--bord); border-radius:10px; padding:.8rem 1rem; margin:.5rem 0; }
+  .carte-module.premiere { border:2px solid var(--accent); background:var(--accent-bg); }
+  .carte-module .titre { font-weight:700; }
+  .carte-module .desc { color:var(--doux); font-size:.9rem; }
+  .badge { display:inline-block; margin-top:.35rem; font-size:.8rem; background:var(--alerte-bg); color:var(--alerte); border-radius:999px; padding:.1rem .6rem; }
+  .porte { display:flex; justify-content:space-between; align-items:center; gap:.6rem; width:100%; text-align:left; background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.65rem .9rem; margin:.35rem 0; }
+  .porte small { display:block; color:var(--doux); }
+  .groupe { font-weight:700; margin:1.1rem 0 .1rem; }
+  .retour { background:none; border:none; color:var(--doux); font-weight:600; padding:.3rem 0; }
+  .btn { background:var(--carte); border:1px solid var(--bord); border-radius:6px; padding:.45rem .8rem; margin:.2rem .2rem .2rem 0; }
+  .btn.primaire { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .rayon { display:flex; justify-content:space-between; gap:.6rem; align-items:center; background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.5rem .8rem; margin:.3rem 0; }
+  .etat { font-size:.82rem; border-radius:999px; padding:.05rem .6rem; }
+  .etat.retard { background:var(--alerte-bg); color:var(--alerte); }
+  .etat.ok { color:var(--ok); }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  th, td { text-align:left; padding:.4rem .5rem; border-bottom:1px solid var(--bord); vertical-align:top; }
+  .filtres { display:flex; flex-wrap:wrap; gap:.6rem; margin:.6rem 0; } .filtres label { font-size:.82rem; color:var(--doux); display:block; } .filtres select { font:inherit; padding:.3rem .4rem; background:var(--carte); color:var(--texte); border:1px solid var(--bord); border-radius:6px; }
+  .tete { display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; flex-wrap:wrap; }
+  .ligne-v { background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.55rem .8rem; margin:.35rem 0; }
+  .pastille { display:inline-block; font-size:.78rem; border:1px solid var(--bord); border-radius:999px; padding:0 .5rem; margin-right:.3rem; color:var(--doux); }
+  .pastille.prev { border-color:var(--accent); color:var(--accent); }
+  .ligne-v { position:relative; border-left-width:6px; padding-right:7.5rem; }
+  .badge-prev { position:absolute; top:.5rem; right:.6rem; font-weight:800; font-size:.85rem; background:var(--prev-bg); color:var(--prev); border:2px solid var(--prev); border-radius:6px; padding:.15rem .5rem; }
+  .badge-averifier { position:absolute; top:.5rem; right:.6rem; font-size:.8rem; color:var(--doux); border:1px dashed var(--bord); border-radius:6px; padding:.15rem .5rem; }
+  .o-mois { border-left-color:var(--o-mois); } .o-trim { border-left-color:var(--o-trim); } .o-rayon { border-left-color:var(--o-rayon); } .o-brut { border-left-color:var(--o-brut); } .o-lien { border-left-color:var(--o-lien); }
+  .pastille.p-mois { background:var(--o-mois); color:#fff; border-color:var(--o-mois); } .pastille.p-trim { background:var(--o-trim); color:#fff; border-color:var(--o-trim); } .pastille.p-rayon { background:var(--o-rayon); color:#fff; border-color:var(--o-rayon); } .pastille.p-brut { background:var(--o-brut); color:#fff; border-color:var(--o-brut); } .pastille.p-lien { background:var(--o-lien); color:#fff; border-color:var(--o-lien); }
+  [data-theme="sombre"] .pastille.p-mois, [data-theme="sombre"] .pastille.p-trim, [data-theme="sombre"] .pastille.p-rayon, [data-theme="sombre"] .pastille.p-brut, [data-theme="sombre"] .pastille.p-lien { color:#10151b; }
+  .legende { display:flex; flex-wrap:wrap; gap:.4rem .8rem; align-items:center; font-size:.82rem; color:var(--doux); margin:.4rem 0; }
+  del { background:var(--sup-bg); color:var(--sup); text-decoration:line-through; padding:0 .2rem; border-radius:3px; } ins { background:var(--ajout-bg); color:var(--ajout); text-decoration:none; font-weight:700; padding:0 .2rem; border-radius:3px; }
+  .boite { background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.7rem .9rem; margin:.6rem 0; } .boite h2 { margin-bottom:.4rem; } textarea { width:100%; min-height:90px; font:inherit; background:var(--bg); color:var(--texte); border:1px solid var(--bord); border-radius:6px; padding:.4rem; } .code { white-space:pre-wrap; font:.8rem/1.4 ui-monospace, monospace; background:var(--bg); border:1px solid var(--bord); border-radius:6px; padding:.5rem; max-height:160px; overflow:auto; }
+  .ecran { display:none; } .ecran.actif { display:block; }
+  .cadre { border:1px dashed var(--bord); border-radius:8px; padding:.5rem .8rem; margin:.8rem 0; font-size:.88rem; color:var(--doux); }
+</style>
+</head>
+<body>
+<main>
+  <div class="bandeau"><strong>Maquette, rien n'est codé.</strong> Cliquez pour parcourir. Le mode sombre se règle avec le bouton en bas de page. Dites-moi ce qui ne va pas, avant que j'écrive la moindre ligne dans l'outil.</div>
+
+  <!-- ÉCRAN 1 : accueil -->
+  <section class="ecran actif" id="e1">
+    <h1>Outil de veille</h1>
+    <p class="doux">Qu'est-ce que vous voulez mettre à jour aujourd'hui ?</p>
+
+    <button class="carte-module premiere" onclick="aller('e2')">
+      <div class="titre">Mise à jour (nouveau, en première place)</div>
+      <div class="desc">Tout ce qui sert à garder les fiches à jour : voir ce qui a changé, contrôler, ranger une information, valider. Et tous les messages pour l'assistant au même endroit.</div>
+      <span class="badge">3 choses en attente</span>
+    </button>
+    <button class="carte-module" onclick="alert('Inchangé : le menu actuel de Comprendre le cadre.')"><div class="titre">Comprendre le cadre</div><div class="desc">Les fiches d'information : aides, démarches, droits, dispositifs.</div></button>
+    <button class="carte-module" onclick="alert('Inchangé.')"><div class="titre">Comprendre les chiffres</div><div class="desc">Les indicateurs datés : chômage, emploi, métiers qui recrutent.</div></button>
+    <button class="carte-module" onclick="alert('Inchangé.')"><div class="titre">Lexique</div><div class="desc">Le dictionnaire des mots du monde du travail.</div></button>
+    <button class="carte-module" onclick="alert('Inchangé.')"><div class="titre">Qui fait quoi</div><div class="desc">Les structures et les employeurs : valider, corriger, ajouter.</div></button>
+    <div class="cadre">Les quatre cartes du dessous ne changent pas. Seule la première est nouvelle. Les mises à jour des chiffres, du Lexique et de Qui fait quoi restent aussi dans leur carte : la rubrique Mise à jour les affiche en plus, pour que rien ne se perde.</div>
+  </section>
+
+  <!-- ÉCRAN 2 : menu Mise à jour (version 2) -->
+  <section class="ecran" id="e2">
+    <button class="retour" onclick="aller('e1')">&#8592; Tous les modules</button>
+    <div class="tete"><h1>Mise à jour</h1><button class="btn primaire" onclick="aller('e8')">À valider : 7 en attente &#8250;</button></div>
+    <p class="doux">Vous choisissez le niveau : tout le trimestre, le mois, ou un rayon. Les résultats arrivent dans « À valider » (le bouton en haut à droite), le sas propre à la mise à jour : il ne se mélange pas avec les autres.</p>
+
+    <div class="groupe">Que voulez-vous mettre à jour ?</div>
+    <button class="porte" onclick="aller('e5')"><span><strong>Chaque trimestre</strong><small>Les chiffres, le non officiel, les mots du Lexique, les sites à ouvrir à la main</small></span><span class="etat retard">à faire pour juillet à septembre</span></button>
+    <button class="porte" onclick="aller('e6')"><span><strong>Chaque mois</strong><small>Ce qui a changé ce mois-ci (7 messages), et la veille rapide</small></span><span class="etat retard">à faire pour septembre</span></button>
+    <button class="porte" onclick="aller('e3')"><span><strong>Par rayon</strong><small>Un rayon à la fois : ses fiches, de nouvelles fiches, celles à retirer</small></span><span class="etat retard">2 rayons en retard</span></button>
+
+    <div class="groupe">Aussi</div>
+    <button class="porte" onclick="alert('Ouvre « Un lien source ne répond plus ».')"><span><strong>Un lien ne répond plus</strong><small>À la demande, pour une adresse citée par une fiche</small></span><span>&#8250;</span></button>
+    <button class="porte" onclick="alert('Ouvre la gestion des adresses des fiches et des liens vérifiés.')"><span><strong>Les adresses des fiches</strong><small>Les liens cités par les fiches, et le registre des adresses vérifiées</small></span><span>&#8250;</span></button>
+    <button class="porte" onclick="alert('Ouvre le réglage : tous les rayons ne bougent pas au même rythme.')"><span><strong>Le rythme de contrôle de chaque rayon</strong><small>Réglé une fois, gardé</small></span><span>&#8250;</span></button>
+    <button class="porte" style="margin-top:1rem" onclick="aller('e4')"><span><strong>Tous les messages pour l'assistant</strong><small>La liste complète, avec un bouton pour ouvrir chacun</small></span><span>&#8250;</span></button>
+  </section>
+
+  <!-- ÉCRAN 3 : par rayon -->
+  <section class="ecran" id="e3">
+    <button class="retour" onclick="aller('e2')">&#8592; Mise à jour</button>
+    <h1>Par rayon</h1>
+    <p class="doux">Les plus anciens sont en haut. Cliquez sur un rayon pour entrer dedans.</p>
+    <button class="rayon" style="width:100%;text-align:left" onclick="aller('e7')"><span><strong>Emploi et contrats</strong><br><small class="doux">12 fiches, dernier contrôle il y a 3 mois</small></span><span class="etat retard">en retard</span></button>
+    <button class="rayon" style="width:100%;text-align:left" onclick="aller('e7')"><span><strong>Chômage et indemnisation</strong><br><small class="doux">9 fiches, dernier contrôle il y a 2 mois</small></span><span class="etat retard">en retard</span></button>
+    <button class="rayon" style="width:100%;text-align:left" onclick="aller('e7')"><span><strong>Formation</strong><br><small class="doux">14 fiches, dernier contrôle il y a 3 semaines</small></span><span class="etat ok">à jour</span></button>
+    <div class="cadre">Données inventées pour la maquette.</div>
+  </section>
+
+  <!-- ÉCRAN 5 : chaque trimestre -->
+  <section class="ecran" id="e5">
+    <button class="retour" onclick="aller('e2')">&#8592; Mise à jour</button>
+    <h1>Chaque trimestre</h1>
+    <p class="doux">Juillet à septembre 2026. Dans l'ordre conseillé.</p>
+    <button class="porte" onclick="alert('Ouvre les chiffres clés, le portrait annuel et l\'Union européenne.')"><span><strong>1. Les chiffres</strong><small>Les 5 chiffres clés, la lecture du territoire</small></span><span class="etat retard">à faire</span></button>
+    <button class="porte" onclick="alert('Ouvre À confronter.')"><span><strong>2. Ce qui circule dans le réseau</strong><small>Le non officiel, comparé à l'officiel</small></span><span class="etat retard">à faire</span></button>
+    <button class="porte" onclick="alert('Ouvre la recherche de mots du Lexique.')"><span><strong>3. Les mots du Lexique</strong><small>Mots nouveaux ou changés</small></span><span class="etat retard">à faire</span></button>
+    <button class="porte" onclick="alert('Ouvre le complément manuel.')"><span><strong>4. Les sites à ouvrir à la main</strong><small>Ce que les assistants ne peuvent pas lire</small></span><span class="etat retard">à faire</span></button>
+    <button class="porte" onclick="alert('Ouvre le portrait annuel, l\'Union européenne, les découpes par âge et diplôme, les déserts médicaux.')"><span><strong>Une fois par an</strong><small>Le portrait du territoire, l'Union européenne, les découpes, les déserts médicaux</small></span><span>&#8250;</span></button>
+    <button class="porte" onclick="alert('Ouvre la recherche d\'associations du territoire (Près de chez moi).')"><span><strong>Les associations du territoire</strong><small>Pour « Près de chez moi »</small></span><span>&#8250;</span></button>
+    <button class="porte" onclick="alert('Ouvre le balayage sur trois mois.')"><span><strong>Balayage sur tout le trimestre</strong><small>Si vous préférez un seul passage plutôt que trois mensuels</small></span><span>&#8250;</span></button>
+  </section>
+
+  <!-- ÉCRAN 6 : chaque mois -->
+  <section class="ecran" id="e6">
+    <button class="retour" onclick="aller('e2')">&#8592; Mise à jour</button>
+    <h1>Chaque mois</h1>
+    <p class="doux">Septembre 2026.</p>
+    <button class="porte" onclick="alert('Ouvre le balayage du mois : 7 messages, collage des réponses, couverture, sites non ouverts.')"><span><strong>Ce qui a changé ce mois-ci</strong><small>7 messages, un par groupe de domaines</small></span><span class="etat retard">à faire</span></button>
+    <button class="porte" onclick="alert('Ouvre la veille rapide hebdomadaire.')"><span><strong>La veille rapide de la semaine</strong><small>Un passage court sur les dispositifs</small></span><span>&#8250;</span></button>
+    <button class="porte" onclick="alert('Ouvre l\'import d\'un texte copié à la main.')"><span><strong>Coller un texte trouvé à la main</strong><small>Un site qui bloque les robots, un document, un mail</small></span><span>&#8250;</span></button>
+    <div class="cadre">Les changements trouvés arrivent dans « À valider », reliés à la ou aux fiches concernées.</div>
+  </section>
+
+  <!-- ÉCRAN 7 : un rayon -->
+  <section class="ecran" id="e7">
+    <button class="retour" onclick="aller('e3')">&#8592; Par rayon</button>
+    <h1>Rayon : Emploi et contrats</h1>
+    <p class="doux">12 fiches. Trois actions pour tout le rayon, puis chaque fiche.</p>
+    <button class="btn primaire" onclick="alert('Copie le message de contrôle de ce rayon, avec la suite en plusieurs fois.')">Contrôler tout le rayon</button>
+    <button class="btn" onclick="alert('Copie un message qui cherche les sujets manquants pour ce rayon.')">Chercher de nouvelles fiches</button>
+    <button class="btn" onclick="alert('Ouvre la collecte d\'une information brute pour ce rayon.')">Coller une information brute</button>
+    <table style="margin-top:.8rem">
+      <thead><tr><th>Fiche</th><th>État</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Le contrat à durée déterminée</td><td><span class="etat ok">à jour</span></td><td><button class="btn" onclick="alert('Prépare une mise à jour de cette fiche.')">Mettre à jour</button> <button class="btn" onclick="alert('Propose le retrait, à valider.')">Retirer</button></td></tr>
+        <tr><td>La période d'essai</td><td><span class="etat retard">à revoir</span></td><td><button class="btn" onclick="alert('Prépare une mise à jour de cette fiche.')">Mettre à jour</button> <button class="btn" onclick="alert('Propose le retrait, à valider.')">Retirer</button></td></tr>
+        <tr><td>Un dispositif supprimé</td><td><span class="etat retard">peut-être périmée</span></td><td><button class="btn" onclick="alert('Prépare une mise à jour de cette fiche.')">Mettre à jour</button> <button class="btn" onclick="alert('Propose le retrait, à valider.')">Retirer</button></td></tr>
+      </tbody>
+    </table>
+    <div class="cadre">Tout ce qui est proposé (mise à jour, nouvelle fiche, retrait) va dans « À valider » : rien n'est publié avant votre « C'est bon ».</div>
+  </section>
+
+  <!-- ÉCRAN 8 : le sas de mise à jour -->
+  <section class="ecran" id="e8">
+    <button class="retour" onclick="aller('e2')">&#8592; Mise à jour</button>
+    <h1>À valider</h1>
+    <p class="doux">Le sas de la mise à jour. Tout ce que les messages ont ramené, complété ou pré-vérifié arrive ici. Vous triez, vous ouvrez la source, vous dites « C'est bon ». Rien n'est public avant « Enregistrer ».</p>
+    <div class="filtres">
+      <div><label for="fo">D'où ça vient</label><select id="fo" onchange="filtrer()"><option value="">Tout</option><option>Balayage du mois</option><option>Balayage du trimestre</option><option>Contrôle d'un rayon</option><option>Information brute collée</option><option>Lien source</option></select></div>
+      <div><label for="fr">Rayon</label><select id="fr" onchange="filtrer()"><option value="">Tous</option><option>Emploi et contrats</option><option>Chômage et indemnisation</option><option>Formation</option></select></div>
+      <div><label for="ft">Ce que c'est</label><select id="ft" onchange="filtrer()"><option value="">Tout</option><option>Mise à jour</option><option>Nouvelle fiche</option><option>Retrait</option></select></div>
+      <div><label for="fe">Où en est-ce</label><select id="fe" onchange="filtrer()"><option value="">Tout</option><option>Pré-vérifié</option><option>À vérifier</option></select></div>
+      <div><label for="ff">Fiche</label><input id="ff" type="search" placeholder="Nom d'une fiche" oninput="filtrer()" style="font:inherit;padding:.3rem .4rem;background:var(--carte);color:var(--texte);border:1px solid var(--bord);border-radius:6px"></div>
+    </div>
+    <div class="legende"><strong>D'où ça vient :</strong> <span class="pastille p-mois">Balayage du mois</span> <span class="pastille p-trim">Balayage du trimestre</span> <span class="pastille p-rayon">Contrôle d'un rayon</span> <span class="pastille p-brut">Information brute collée</span> <span class="pastille p-lien">Lien source</span> <span class="pastille" style="border-color:var(--prev);color:var(--prev);font-weight:800">&#9733; PRÉ-VÉRIFIÉ</span> = vous avez déjà vérifié et validé dans la fiche</div>
+    <div id="compte" class="doux"></div>
+    <div style="margin:.4rem 0"><button class="btn" onclick="alert('Coche tout ce qui est affiché, sauf ce qui a changé depuis sa pré-vérification.')">Cocher tout ce qui est affiché</button> <button class="btn primaire" onclick="alert('« C\'est bon » pour tout ce qui est coché. Rien n\'est public avant Enregistrer.')">C'est bon pour la sélection</button> <button class="btn primaire" onclick="alert('Publie ce que vous avez validé, avec retour en arrière possible.')">Enregistrer</button></div>
+    <div id="liste"></div>
+    <div class="cadre">Données inventées pour la maquette. Les filtres fonctionnent : essayez-les.</div>
+  </section>
+
+  <!-- ÉCRAN 9 : une fiche ouverte -->
+  <section class="ecran" id="e9">
+    <button class="retour" onclick="aller('e8')">&#8592; À valider</button>
+    <h1 id="f-titre"></h1>
+    <p class="doux" id="f-sous"></p>
+
+    <div class="boite"><h2>Texte actuel de la fiche</h2>
+      <p id="f-texte">La période d'essai d'un contrat à durée indéterminée est de <strong>2 mois</strong> pour un employé.</p>
+    </div>
+
+    <div class="boite"><h2>Vérifier ou approfondir, depuis cette fiche</h2>
+      <label for="f-choix" class="doux">Que voulez-vous demander à l'assistant ?</label><br>
+      <select id="f-choix" onchange="majPrompt()" style="font:inherit;padding:.3rem;background:var(--carte);color:var(--texte);border:1px solid var(--bord);border-radius:6px">
+        <option value="exact">Vérifier que cette fiche est exacte aujourd'hui</option>
+        <option value="point">Vérifier un point précis</option>
+        <option value="approf">Approfondir un sujet de la fiche</option>
+        <option value="source">Retrouver la source officielle</option>
+      </select>
+      <div id="f-precis" style="display:none;margin-top:.4rem"><input id="f-precis-txt" type="text" placeholder="Quel point ? Par exemple : la durée pour un cadre" oninput="majPrompt()" style="width:100%;font:inherit;padding:.3rem;background:var(--carte);color:var(--texte);border:1px solid var(--bord);border-radius:6px"></div>
+      <p class="doux" style="margin:.5rem 0 .2rem">Le message prêt à copier (il contient le texte de la fiche et le format de réponse attendu) :</p>
+      <div class="code" id="f-prompt"></div>
+      <button class="btn primaire" onclick="alert('Copie le message et ouvre l\'assistant de votre choix.')">Copier le message et ouvrir l'assistant</button>
+    </div>
+
+    <div class="boite"><h2>Coller la réponse de l'assistant</h2>
+      <textarea id="f-rep" placeholder="Collez ici la réponse."></textarea>
+      <button class="btn" onclick="exemple()">Pour la maquette : coller une réponse d'exemple</button>
+      <button class="btn primaire" onclick="lire()">Lire la réponse</button>
+    </div>
+
+    <div class="boite" id="f-diff" style="display:none"><h2>Ce qui va changer dans la fiche</h2>
+      <p>La période d'essai d'un contrat à durée indéterminée est de <del>2 mois</del> <ins>4 mois, renouvelable une fois</ins> pour un employé.</p>
+      <p class="doux">Source trouvée : service-public.gouv.fr, page « Période d'essai » (https://www.service-public.gouv.fr/exemple). Extrait lu par l'assistant : « la durée maximale est de quatre mois ».</p>
+      <label><input type="checkbox" id="f-ok" onchange="document.getElementById('f-val').disabled = !this.checked"> J'ai ouvert la source et je confirme</label><br>
+      <button class="btn primaire" id="f-val" disabled onclick="valider()">Valider cette modification</button>
+      <div class="cadre">Valider ici ne publie rien : la ligne revient dans « À valider » avec le repère PRÉ-VÉRIFIÉ. Il vous reste à dire « C'est bon ».</div>
+    </div>
+  </section>
+
+  <p><button class="btn" onclick="var h=document.documentElement; h.dataset.theme = h.dataset.theme==='sombre' ? '' : 'sombre'">Mode sombre</button></p>
+</main>
+<script>
+  var LIGNES = [
+    { o: 'Balayage du mois', r: 'Emploi et contrats', t: 'Mise à jour', e: 'À vérifier', f: 'La période d\'essai', d: 'Durée portée à 4 mois. Source : service-public.gouv.fr' },
+    { o: 'Balayage du mois', r: 'Chômage et indemnisation', t: 'Mise à jour', e: 'Pré-vérifié', f: 'Le calcul de l\'allocation', d: 'Nouveau plafond. Source ouverte et confirmée par l\'assistant' },
+    { o: 'Information brute collée', r: 'Emploi et contrats', t: 'Nouvelle fiche', e: 'À vérifier', f: 'Le contrat de professionnalisation', d: 'Préparée à partir de votre information brute' },
+    { o: 'Contrôle d\'un rayon', r: 'Emploi et contrats', t: 'Retrait', e: 'À vérifier', f: 'Un dispositif supprimé', d: 'Le dispositif n\'existe plus' },
+    { o: 'Balayage du trimestre', r: 'Formation', t: 'Mise à jour', e: 'Pré-vérifié', f: 'Le compte personnel de formation', d: 'Participation financière relevée. Source confirmée' },
+    { o: 'Lien source', r: 'Formation', t: 'Mise à jour', e: 'À vérifier', f: 'La validation des acquis', d: 'La page citée a changé d\'adresse' },
+    { o: 'Balayage du mois', r: 'Formation', t: 'Nouvelle fiche', e: 'Pré-vérifié', f: 'L\'aide à l\'embauche d\'un apprenti', d: 'Sujet absent de la base' }
+  ];
+  var CLES = { 'Balayage du mois': 'mois', 'Balayage du trimestre': 'trim', 'Contrôle d\'un rayon': 'rayon', 'Information brute collée': 'brut', 'Lien source': 'lien' };
+  var COURANT = 0;
+  function ouvrir(i) {
+    COURANT = i; var x = LIGNES[i];
+    document.getElementById('f-titre').textContent = x.t + ' : ' + x.f;
+    document.getElementById('f-sous').textContent = x.o + ' / ' + x.r + ' / ' + x.e;
+    document.getElementById('f-rep').value = ''; document.getElementById('f-diff').style.display = 'none'; document.getElementById('f-ok').checked = false; document.getElementById('f-val').disabled = true;
+    document.getElementById('f-choix').value = 'exact'; majPrompt(); aller('e9');
+  }
+  function majPrompt() {
+    var ch = document.getElementById('f-choix').value, x = LIGNES[COURANT];
+    document.getElementById('f-precis').style.display = (ch === 'point' || ch === 'approf') ? 'block' : 'none';
+    var tache = { exact: 'Vérifie sur le web, sur des pages officielles que tu as réellement ouvertes, que ce texte est exact aujourd\'hui.', point: 'Vérifie ce point précis : ' + (document.getElementById('f-precis-txt').value || '[votre point]') + '.', approf: 'Approfondis ce sujet de la fiche : ' + (document.getElementById('f-precis-txt').value || '[votre sujet]') + '.', source: 'Retrouve la page officielle qui fonde ce texte.' }[ch];
+    document.getElementById('f-prompt').textContent = 'Voici le texte d\'une fiche d\'information (' + x.f + ').\n' + tache + '\nRègles : recherche web obligatoire, aucune adresse inventée, une seule URL par source.\nRéponds uniquement par ce bloc, un champ par ligne :\n[VERIFICATION]\nancien_texte: la phrase de la fiche concernée, recopiée\nnouveau_texte: la phrase corrigée (ou : inchangé)\nsource: https://adresse\ncitation: courte citation lue sur la page\n[/VERIFICATION]\n\nTEXTE DE LA FICHE :\nLa période d\'essai d\'un contrat à durée indéterminée est de 2 mois pour un employé.';
+  }
+  function exemple() { document.getElementById('f-rep').value = '[VERIFICATION]\nancien_texte: est de 2 mois pour un employé\nnouveau_texte: est de 4 mois, renouvelable une fois, pour un employé\nsource: https://www.service-public.gouv.fr/exemple\ncitation: la durée maximale est de quatre mois\n[/VERIFICATION]'; }
+  function lire() { if (!document.getElementById('f-rep').value.trim()) { alert('Collez d\'abord la réponse.'); return; } document.getElementById('f-diff').style.display = 'block'; }
+  function valider() { LIGNES[COURANT].e = 'Pré-vérifié'; alert('Modification validée dans la fiche. Retour à « À valider » : la ligne porte maintenant le repère PRÉ-VÉRIFIÉ.'); aller('e8'); }
+  function filtrer() {
+    var v = function (i) { return document.getElementById(i).value; }, q = v('ff').toLowerCase();
+    var l = LIGNES.filter(function (x) { return (!v('fo') || x.o === v('fo')) && (!v('fr') || x.r === v('fr')) && (!v('ft') || x.t === v('ft')) && (!v('fe') || x.e === v('fe')) && (!q || x.f.toLowerCase().indexOf(q) !== -1); });
+    document.getElementById('compte').textContent = l.length + ' sur ' + LIGNES.length + ' à valider';
+    document.getElementById('liste').innerHTML = l.map(function (x) {
+      var k = CLES[x.o] || 'mois', i = LIGNES.indexOf(x), prev = x.e === 'Pré-vérifié';
+      return '<div class="ligne-v o-' + k + '">' + (prev ? '<span class="badge-prev">&#9733; PRÉ-VÉRIFIÉ</span>' : '<span class="badge-averifier">à vérifier</span>') + '<span class="pastille p-' + k + '">' + x.o + '</span><span class="pastille">' + x.r + '</span><br><strong>' + x.t + '</strong> : ' + x.f + '<br><small class="doux">' + x.d + '</small><div><button class="btn" onclick="ouvrir(' + i + ')">Voir et vérifier</button><button class="btn primaire" onclick="alert(\'C\\\'est bon\')">C\'est bon</button><button class="btn" onclick="alert(\'Écarter\')">Écarter</button></div></div>';
+    }).join('') || '<p class="doux">Rien ne correspond à ces filtres.</p>';
+  }
+  function aller(id) { document.querySelectorAll('.ecran').forEach(function (e) { e.classList.remove('actif'); }); document.getElementById(id).classList.add('actif'); window.scrollTo(0, 0); if (id === 'e8') { filtrer(); } }
+</script>
+</body>
+</html>

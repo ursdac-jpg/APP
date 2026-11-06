@@ -29,6 +29,7 @@ revisions:
   - "2026-10 : la circulaire qui servait de grille pour l'admission exceptionnelle (circulaire de 2012) a été abrogée le 23 janvier 2025 et remplacée par une circulaire d'orientations générales sur l'admission exceptionnelle au séjour ; texte non relu en entier, ses orientations restent à confirmer ; phrase du corps du texte précisée en conséquence"
   - "2026-09 : la voie « métiers en tension » (article L. 435-4) est une expérimentation applicable jusqu'au 31 décembre 2026 ; la circulaire qui servait de grille pour l'admission exceptionnelle a été abrogée en janvier 2025"
   - "2026-05 : le droit de visa de régularisation passe de 200 à 300 euros, dont une part non remboursable de 100 euros due au dépôt de la demande (article 128 de la loi de finances pour 2026, application au 1er mai 2026) ; confirmé le 2026-09-14"
+phrase_generale: "Il existe des démarches pour régulariser une situation par le travail, mais aucune n'est automatique : c'est la préfecture qui décide, au cas par cas. Les conditions et les dispositifs temporaires changent souvent : avant toute démarche, demandez conseil à une association spécialisée ou consultez les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

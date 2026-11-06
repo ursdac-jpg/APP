@@ -261,3 +261,40 @@ test('contrôle : au contrôle suivant, le résultat précédent est gardé comm
     assert.strictEqual(resume(null), null);
   } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
 });
+
+test('test du mois : les trois registres l\'un après l\'autre, un bilan par registre, les adresses disparues listées, rappel après 30 jours', async () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'ctl-mois-'));
+  try {
+    const f = reseau({
+      'https://bon.test/': () => page('<title>Bon</title><p>Bergerac 05 53 00 00 01</p>'),
+      'https://disparu.test/': new Response('', { status: 404 }),
+      'https://autre.test/': () => page('<title>Employeur</title><p>Bergerac</p>')
+    });
+    const fiche = (id, nom, cle, url) => ({ id: id, nom: nom, valeurs: { nom: nom, [cle]: url, telephone: '' }, etabs: [] });
+    const tables = {
+      lieux: [fiche('l-bon', 'Bon', 'site', 'https://bon.test/'), fiche('l-disparu', 'Disparu', 'site', 'https://disparu.test/')],
+      employeurs: [fiche('e-autre', 'Employeur', 'site', 'https://autre.test/')],
+      offres: [fiche('o-bon', 'Bon', 'page', 'https://bon.test/')]
+    };
+    const depot = { listerTerritoire: (n) => ({ ok: true, lignes: tables[n] }) };
+    let maintenant = '2026-10-31T09:00:00';
+    const c = creerControleSas(dossier, depot, { fetch: f, resoudre: PUBLIC, maintenant: () => maintenant });
+    let b = c.bilanMensuel();
+    assert.strictEqual(b.aFaire, true, 'jamais fait : à faire'); assert.strictEqual(b.derniere, ''); assert.strictEqual(b.jours, null);
+    assert.strictEqual(c.demarrerMensuel().ok, true);
+    assert.strictEqual(c.demarrerMensuel().ok, false, 'un seul test à la fois');
+    await c.attendre();
+    b = c.bilanMensuel();
+    assert.strictEqual(b.enCours, false); assert.strictEqual(b.erreur, '');
+    assert.deepStrictEqual(b.registres.map((r) => [r.fichier, r.cartes, r.controlees]), [['lieux', 2, 2], ['employeurs', 1, 1], ['offres', 1, 1]]);
+    assert.deepStrictEqual(b.registres[0].problemes.map((p) => [p.id, p.motif]), [['l-disparu', 'introuvable']]);
+    assert.strictEqual(b.registres[0].motifs.introuvable, 1);
+    assert.strictEqual(b.derniere.slice(0, 10), '2026-10-31'); assert.strictEqual(b.jours, 0); assert.strictEqual(b.aFaire, false);
+    // un mois plus tard, le rappel revient
+    maintenant = '2026-12-01T09:00:00';
+    b = c.bilanMensuel(); assert.strictEqual(b.jours, 31); assert.strictEqual(b.aFaire, true);
+    // une carte ajoutée depuis le dernier test n'a pas de résultat : le registre n'est pas « à jour »
+    tables.lieux.push(fiche('l-neuf', 'Neuf', 'site', 'https://bon.test/'));
+    assert.strictEqual(c.bilanMensuel().registres[0].derniere, ''); assert.strictEqual(c.bilanMensuel().derniere, '');
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});

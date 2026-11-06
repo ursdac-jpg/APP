@@ -13,6 +13,7 @@
 
 var VD_TITRE_PAR_DEFAUT = 'Vos documents';
 var VD_TITRE_ESSAI = 'Nos modèles de CV';
+var VD_TITRE_PREPARATION = 'L’assistant en ligne';   // decision de Denis, 31/10/2026 (C19) : meme titre que la page « Assistant » de « Creer un nouveau CV »
 var VD_TITRE_ENTRETIEN = 'Votre préparation d’entretien';
 var VD_TITRES_RAPIDES = { lettre: 'Ma lettre de motivation rapide', entretien: 'Ma fiche de préparation à l’entretien' };
 
@@ -24,7 +25,8 @@ function _vdBarre(s) {
   if (s.origine === 'un-cv-plusieurs-metiers') { return { famille: 'ucpm', barre: 'UCPM', indexBarre: s.aspectUcpm ? 4 : 2 }; }
   if (s.origine === 'prepa-entretien' && s.docActif === 'entretien') { return { famille: 'prepa-entretien', barre: 'PREPA_ENTRETIEN', indexBarre: 3 }; }
   if (s.modeCreation === 'maj') {
-    return { famille: s.origineReformuler ? 'reformuler' : 'maj', barre: 'MAJ_CV', indexBarre: 4 };   // Reformuler porte la barre de « Mettre a jour » (constat C1)
+    // Reformuler a sa propre barre depuis le 28/10/2026 (maquette validee) ; le signal origineReformuler vaut « _origineReformuler ET passage par Reformuler » (signauxVosDocuments).
+    return s.origineReformuler ? { famille: 'reformuler', barre: 'REFORMULER', indexBarre: 4 } : { famille: 'maj', barre: 'MAJ_CV', indexBarre: 4 };
   }
   if (s.modeCreation === 'pret') { return { famille: 'pret', barre: 'PREPARER_LETTRE_ENTRETIEN', indexBarre: 4 }; }
   if (s.modeCreation === 'nouveau') {
@@ -32,7 +34,7 @@ function _vdBarre(s) {
       ? { famille: 'creer-main', barre: 'CREER_CV_SANS', indexBarre: 4 }
       : { famille: 'creer-assistant', barre: 'CREER_CV', indexBarre: 5 };
   }
-  if ((s.origineCoLettre && s.docActif !== 'cv') || s.lettreDejaImportee) { return { famille: 'co-lettre', barre: 'CO_LETTRE', indexBarre: 3 }; }
+  if (s.origineCoLettre && s.docActif !== 'cv') { return { famille: 'co-lettre', barre: 'CO_LETTRE', indexBarre: 3 }; }
   return { famille: s.origine === 'bilan' ? 'bilan' : 'direct', barre: 'ANCIENNE', indexBarre: null };   // ancienne barre a 9 reperes (constat C10)
 }
 
@@ -43,6 +45,8 @@ function _vdTitre(s) {
   var rapide = (s.modeCreation === 'pret' || s.modeCreation === 'maj') && (s.docActif === 'lettre' || s.docActif === 'entretien');
   var coLettreEnCours = !!s.origineCoLettre && s.docActif !== 'cv';
   if (rapide && !coLettreEnCours) { return VD_TITRES_RAPIDES[s.docActif]; }
+  // C19 : tant que la personne prepare l'assistant (choix, collage, relecture), la page ne s'appelle plus « Vos documents », reserve au resultat (mise en page, export).
+  if (s.preparationAssistant && (s.modeCreation === 'maj' || s.modeCreation === 'pret')) { return VD_TITRE_PREPARATION; }
   return VD_TITRE_PAR_DEFAUT;
 }
 
@@ -57,7 +61,7 @@ function _vdRetour(s, famille) {
 // Fin du parcours (terminerParcours, js/app.js, decision de Denis 15, 16 et 17/09/2026 : pas de fenetre quand la page propose deja la suite).
 function _vdFin(s) {
   if (s.docActif === 'cv') {
-    return (s.modeCreation === 'nouveau' || s.origineReformuler) ? 'accueil' : 'fenetre-et-maintenant';
+    return 'accueil';   // tous les CV (decision de Denis, 27/10/2026) : la page propose deja la suite, ou n'en propose volontairement aucune (Bilan, Un CV plusieurs metiers)
   }
   if (s.docActif === 'lettre') { return 'accueil'; }
   return 'fenetre-effacement';

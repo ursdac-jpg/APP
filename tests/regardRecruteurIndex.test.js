@@ -14,7 +14,6 @@ test('_rrEtapeIndex : chaque vue tombe sur la bonne pastille (0..3)', () => {
   assert.equal(rr._rrEtapeIndex('preparer'), 0);
   assert.equal(rr._rrEtapeIndex('masquer'), 0);
   assert.equal(rr._rrEtapeIndex('choix-assistant'), 1);
-  assert.equal(rr._rrEtapeIndex('chez'), 1);
   assert.equal(rr._rrEtapeIndex('coller'), 1);
   assert.equal(rr._rrEtapeIndex('erreur-lecture'), 1);
   assert.equal(rr._rrEtapeIndex('regard'), 2);
@@ -23,9 +22,9 @@ test('_rrEtapeIndex : chaque vue tombe sur la bonne pastille (0..3)', () => {
 });
 
 test('RR_VUES et RR_ETAPES : formes attendues', () => {
-  assert.equal(rr.RR_VUES.length, 8);
+  assert.equal(rr.RR_VUES.length, 7);
   assert.equal(rr.RR_ETAPES.length, 4);
-  assert.deepEqual(rr.RR_ETAPES.map(e => e.label), ['Préparer', 'Envoyer', 'Le regard', 'Ma fiche']);
+  assert.deepEqual(rr.RR_ETAPES.map(e => e.label), ['Préparer', 'Assistant', 'Résultat', 'Terminé']);
 });
 
 test('5 questions générales fixes, chacune complète', () => {

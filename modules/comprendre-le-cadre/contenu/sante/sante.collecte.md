@@ -7,6 +7,9 @@ sources:
   - "ameli-organisations-coordonnees | Difficile de trouver un médecin traitant ? Les organisations coordonnées territoriales peuvent aider | https://www.ameli.fr/assure/droits-demarches/difficultes-acces-droits-soins/organisations-coordonnees-territoriales | 2026-09-13"
   - "ameli-choisir-medecin-traitant | Choisir et déclarer votre médecin traitant | https://www.ameli.fr/assure/droits-demarches/principes/choisir-et-declarer-votre-medecin-traitant | 2026-09-13"
   - "geoconfluences-desert-medical | Désert médical (glossaire) | https://geoconfluences.ens-lyon.fr/glossaire/desert-medical | 2026-09-13"
+  - "service-public-puma | Service Public : la couverture maladie universelle (CMU) existe-t-elle toujours ? (Puma) | https://www.service-public.gouv.fr/particuliers/vosdroits/F34306 | 2026-11-03"
+  - "service-public-c2s | Service Public : complémentaire santé solidaire (C2S) | https://www.service-public.gouv.fr/particuliers/vosdroits/F10027 | 2026-11-03"
+  - "service-public-medecin-traitant | Service Public : médecin traitant et parcours de soins coordonnés | https://www.service-public.gouv.fr/particuliers/vosdroits/F163 | 2026-11-03"
 structures:
 ---
 

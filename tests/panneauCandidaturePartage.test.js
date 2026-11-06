@@ -139,21 +139,6 @@ test('appliquerVerrouBlocs : bloc inactif => verrouillé (sens interdit, jamais 
   metiers.appliquerVerrouBlocs([{ id: 'absent', actif: false }]);
 });
 
-test('fermerAssistantDepotCV : fermé sans validation => restauration, armée une seule fois ; validé => rien restauré', () => {
-  global.document = { getElementById: () => null };
-  let appels = 0;
-  metiers._depotCVDefinirRestauration(() => { appels++; });
-  metiers.fermerAssistantDepotCV();
-  assert.equal(appels, 1);
-  metiers.fermerAssistantDepotCV();          // plus rien d'armé
-  assert.equal(appels, 1);
-  // validé (désarmé) : la fermeture ne restaure rien
-  metiers._depotCVDefinirRestauration(() => { appels++; });
-  metiers._depotCVDefinirRestauration(null);
-  metiers.fermerAssistantDepotCV();
-  assert.equal(appels, 1);
-});
-
 // ---------- Formation : type et niveau presélectionnés (R3, 2026-09-29) ----------
 // normaliserTexte est un global de data/metiers.js dans le navigateur.
 global.normaliserTexte = metiers.normaliserTexte;

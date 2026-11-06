@@ -1,0 +1,48 @@
+Je te donne une liste de 25 structures (services publics, associations, organismes) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 1 à 25. Pour chacune, un site et un numéro de téléphone ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque structure, ouvre sa page officielle : son propre site, ou à défaut la page d'une administration (commune, département, préfecture, ministère) qui la présente. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. N'utilise aucun annuaire privé, PagesJaunes, comparateur, site d'offres d'emploi ni réseau social.
+3. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+4. Le territoire compte : la structure doit être celle du territoire indiqué (24, 87, région ou national). Méfie-toi des homonymes d'un autre département.
+5. Le statut est un seul mot : « confirmé » (le site et le numéro proposés correspondent à la page officielle), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucune page officielle trouvée), « fermée » (la structure n'existe plus ou n'est plus dans ce territoire).
+6. Le téléphone est copié exactement tel qu'affiché ; s'il n'y en a pas, écris « pas de numéro vu ». L'adresse est copiée telle qu'affichée (rue, code postal, commune) ; sinon « pas d'adresse vue ».
+
+Réponds uniquement avec une ligne par structure, sans tableau, sous cette forme exacte :
+numéro | statut | téléphone affiché | adresse affichée | URL exacte de la page où tu les as lus | site officiel de la structure (si différent)
+
+Longueur et méthode : la liste est courte (25 lignes, numéros 1 à 25) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 25 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | commune | territoire | site proposé | numéro proposé) :
+1 | Micro-Crèche Les Coccinelles | Brantôme en Périgord | Dordogne (24) | site proposé : https://brantomeenperigord.fr/fr/as/260210/150646/association-un-deux-trois-micro-creche-les-coccinelles | numéro proposé : 05 53 05 27 83
+2 | DREETS Nouvelle-Aquitaine - Pôle entreprises, emploi et économie | commune non précisée | région Nouvelle-Aquitaine | site proposé : https://nouvelle-aquitaine.dreets.gouv.fr/ | numéro proposé : aucun
+3 | GE Alisé Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.limoges.fr/annuaire-des-associations/ge-alise | numéro proposé : 05 55 01 18 73
+4 | École nationale de police de Périgueux | Périgueux | Dordogne (24) | site proposé : https://www.police-nationale.interieur.gouv.fr/nous-rejoindre/nos-voies-dacces/structures-de-formation-initiale/structures-de-formation/ecole-3 | numéro proposé : 05 53 35 54 00
+5 | Solidaires, union départementale de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://solidaires87.org/ | numéro proposé : 05 55 77 84 49
+6 | Médiathèque Pierre Fanlac | Périgueux | Dordogne (24) | site proposé : https://www.perigueux-mediatheque.fr/ | numéro proposé : 05 53 45 65 45
+7 | France Terre d'Asile | Bergerac | Dordogne (24) | site proposé : aucun | numéro proposé : aucun
+8 | Service d'Accompagnement des Familles en Difficulté (SAFED) | Périgueux | Dordogne (24) | site proposé : aucun | numéro proposé : aucun
+9 | Association Service Formation Emploi Limousin | Saint-Junien | Haute-Vienne (87) | site proposé : aucun | numéro proposé : 05 19 29 00 50
+10 | Association d'aide aux victimes AVIMED France Victimes 87 | Limoges | Haute-Vienne (87) | site proposé : https://france-victimes.fr | numéro proposé : aucun
+11 | Service d'accueil unique du justiciable du tribunal de proximité de Sarlat-la-Canéda | Sarlat-la-Canéda | Dordogne (24) | site proposé : https://www.justice.fr | numéro proposé : aucun
+12 | Centre départemental de santé - site d'Excideuil | Excideuil | Dordogne (24) | site proposé : https://www.dordogne.fr/relever-les-defis-du-21e-siecle/lavenir-en-grand/centre-departemental-de-sante | numéro proposé : 05 53 02 06 00
+13 | Centre départemental de santé - site de Ribérac | Ribérac | Dordogne (24) | site proposé : https://www.dordogne.fr/relever-les-defis-du-21e-siecle/lavenir-en-grand/centre-departemental-de-sante | numéro proposé : 05 53 02 07 20
+14 | Centre départemental de santé - site de Saint-Médard-de-Mussidan | Saint-Médard-de-Mussidan | Dordogne (24) | site proposé : https://www.dordogne.fr/relever-les-defis-du-21e-siecle/lavenir-en-grand/centre-departemental-de-sante | numéro proposé : 05 53 02 06 20
+15 | Chambre de métiers et de l'artisanat de la Haute-Vienne | Limoges | Haute-Vienne (87) | site proposé : https://www.cma-nouvelleaquitaine.fr | numéro proposé : aucun
+16 | Conseil de prud'hommes de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://www.justice.fr | numéro proposé : aucun
+17 | Point-Justice de Brantôme en Périgord | Brantôme en Périgord | Dordogne (24) | site proposé : https://www.cdad-dordogne.fr/nouvelles-permanences.html | numéro proposé : 05 53 06 39 33
+18 | Point-Justice de la Cité judiciaire de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://cdad-hautevienne.justice.fr/lespermanences/permanence-daccueil-et-decoute/ | numéro proposé : aucun
+19 | Point-Justice du Commissaire de justice de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/haute-vienne/4a428d7d-213c-4548-a207-194dcba4a2a1 | numéro proposé : 05 87 19 35 94
+20 | Point-Justice des Chambres consulaires de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/haute-vienne/f610dd40-9745-43d7-aee9-5ce1ae9b93ca | numéro proposé : 05 87 19 34 00
+21 | Point-Justice des associations caritatives de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/haute-vienne/a7bacfc6-4eaf-40b1-acfc-289159152879 | numéro proposé : 05 55 77 42 76
+22 | Point-Justice de Bessines-sur-Gartempe | Bessines-sur-Gartempe | Haute-Vienne (87) | site proposé : https://cdad-hautevienne.justice.fr/permanences/ | numéro proposé : 05 55 76 05 09
+23 | Centre communal d'action sociale de Limoges | Limoges | Haute-Vienne (87) | site proposé : https://www.limoges.fr | numéro proposé : 05 55 45 97 00
+24 | CEID Addictions Dordogne - antenne de Bergerac | Bergerac | Dordogne (24) | site proposé : https://ceid-addiction.com/centres-ambulatoires/centres-daccueil/ | numéro proposé : 05 53 74 20 49
+25 | Centre Médico Psychologique du Val de Vienne | Saint-Junien | Haute-Vienne (87) | site proposé : aucun | numéro proposé : 05 55 43 11 20
+

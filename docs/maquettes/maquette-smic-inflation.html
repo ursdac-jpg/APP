@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : Smic et inflation dans Comprendre les chiffres</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/comprendre-les-chiffres/comprendre-les-chiffres.css">
+<style>
+  /* Réservé à cette maquette : barre de réglages et cadres de présentation. Les écrans eux-mêmes n'ont AUCUN style propre : ce sont les classes de l'application. */
+  .demo-barre { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; font-size: .9rem; }
+  .demo-barre button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-page { max-width: 820px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .demo-cas { margin: 2rem 0 .5rem; font-weight: 700; font-size: 1.05rem; }
+  .demo-cas small { font-weight: 400; color: var(--text-muted); display: block; }
+  .demo-ecran { border: 1px solid var(--border); border-radius: .6rem; padding: 1rem; background: var(--bg-subtle, transparent); }
+  .demo-questions { border: 1px dashed var(--border-strong, var(--border)); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+  /* Deux cartes côte à côte (une sous l'autre sur téléphone) : seule mise en page ajoutée, les cartes restent celles de l'application. */
+  .demo-deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .9rem; }
+  .demo-deux .comprendre-les-chiffres-indic { margin: 0; }
+</style>
+</head>
+<body>
+<div class="demo-barre">
+  <strong>Maquette (aucun code de l'application modifié)</strong>
+  <span>Affichage :</span>
+  <button type="button" id="btnClair" class="actif">Clair</button>
+  <button type="button" id="btnSombre">Sombre</button>
+  <span>Appareil :</span>
+  <button type="button" id="btnTel">Téléphone</button>
+  <button type="button" id="btnTab">Tablette</button>
+  <button type="button" id="btnLarge" class="actif">Ordinateur</button>
+</div>
+
+<div class="demo-page" id="page">
+  <h1 class="h4 mt-3">Smic et inflation, dans « Comprendre les chiffres »</h1>
+  <p class="small text-muted mb-0">Cette version reprend <strong>exactement le format des cartes de chiffres de l'application</strong> : la question, le gros chiffre, la pastille de tendance, les comparaisons, la source en bas avec « Ouvrir la page ». <strong>Passez la souris sur un chiffre (ou touchez-le sur téléphone) : la source s'affiche</strong>, comme dans l'application. Les chiffres sont les vrais, relevés le 5 novembre 2026.</p>
+
+  <div class="demo-cas">1. L'entrée : une porte sur l'accueil du module<small>Même porte que « Une autre question » ; chiffres nationaux, donc ouverte sans choisir de département.</small></div>
+  <div class="demo-ecran comprendre-les-chiffres-contenu">
+    <button type="button" class="comprendre-les-chiffres-porte w-100 text-start" onclick="montrer('ecran')">
+      <span class="titre"><i class="bi bi-cash-coin"></i> Le Smic et l'inflation</span>
+      <span class="quoi">Le salaire minimum et la hausse des prix, avec leur source.</span>
+    </button>
+  </div>
+
+  <div class="demo-cas" id="ecran">2. L'écran « Le Smic et l'inflation »<small>Deux cartes côte à côte. Chaque chiffre est survolable : la bulle donne la source et la date.</small></div>
+  <div class="demo-ecran comprendre-les-chiffres-contenu">
+    <h2 class="comprendre-les-chiffres-section comprendre-les-chiffres-section-1" style="margin-top:0">Le Smic et l'inflation</h2>
+    <p><span class="comprendre-les-chiffres-fraicheur">&#128197; Chiffres vérifiés le 5 novembre 2026. Prochaine mise à jour de l'inflation prévue : 27 novembre 2026.</span></p>
+
+    <div class="demo-deux">
+      <div class="comprendre-les-chiffres-indic" id="carte-smic">
+        <p class="comprendre-les-chiffres-indic-q">Combien vaut le Smic aujourd'hui ?</p>
+        <p class="comprendre-les-chiffres-indic-valeur"><span class="chiffre" data-source="Service-public.gouv.fr, Smic horaire brut en vigueur depuis le 1er juin 2026 - vérifié le 2026-11-05">12,31 €</span></p>
+        <span class="comprendre-les-chiffres-tendance">&#8599; + 2,41 % depuis le 1er juin 2026</span>
+        <p class="comprendre-les-chiffres-compare"><b>Par mois (35 h) :</b> <span class="chiffre" data-source="Service-public.gouv.fr, Smic mensuel brut (35 heures par semaine) - vérifié le 2026-11-05">1 867,02 €</span> brut &nbsp;&bull;&nbsp; <span class="chiffre" data-source="Service-public.gouv.fr, Smic mensuel net, donné à titre indicatif - vérifié le 2026-11-05">1 477,93 €</span> net</p>
+        <p class="comprendre-les-chiffres-compare"><b>Avant le 1er juin :</b> <span class="chiffre" data-source="Service-public.gouv.fr, Smic horaire brut du 1er janvier 2026 - vérifié le 2026-11-05">12,02 €</span> de l'heure &nbsp;&bull;&nbsp; <span class="chiffre" data-source="Service-public.gouv.fr, Smic mensuel brut du 1er janvier 2026 - vérifié le 2026-11-05">1 823,03 €</span> par mois</p>
+        <p class="comprendre-les-chiffres-compare"><b>Décidé le :</b> 22 mai 2026 (arrêté publié au Journal officiel)</p>
+        <details class="comprendre-les-chiffres-depli">
+          <summary><span class="comprendre-les-chiffres-depli-titre">Pourquoi une hausse en juin ?</span><span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>
+          <div class="comprendre-les-chiffres-depli-corps">
+            <p class="comprendre-les-chiffres-compare mb-1">Les prix ont monté d'au moins 2 % depuis la dernière hausse : le Smic suit alors automatiquement.</p>
+            <p class="comprendre-les-chiffres-compare mb-0">Le cumul emploi-retraite et la RGDU gardent le Smic du 1er janvier.</p>
+          </div>
+        </details>
+        <p class="comprendre-les-chiffres-source">D’après Service-public.gouv.fr, vérifié le 5 novembre 2026. <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la page</a></p>
+        <p class="comprendre-les-chiffres-a-lire-avec"><i class="bi bi-link-45deg"></i> À lire avec : <button type="button" class="comprendre-les-chiffres-lien-interne" onclick="return voir('Smic')">le mot « Smic » du Lexique</button></p>
+      </div>
+
+      <div class="comprendre-les-chiffres-indic" id="carte-inflation">
+        <p class="comprendre-les-chiffres-indic-q">De combien les prix ont-ils augmenté en un an ?</p>
+        <p class="comprendre-les-chiffres-indic-valeur"><span class="chiffre" data-source="Insee, Informations rapides n° 266, prix à la consommation sur un an, octobre 2026 (estimation provisoire publiée le 30 octobre 2026)">3,4 %</span></p>
+        <span class="comprendre-les-chiffres-tendance">&#8599; en hausse</span>
+        <p class="comprendre-les-chiffres-compare"><b>Le mois d'avant (septembre) :</b> <span class="chiffre" data-source="Insee, Informations rapides n° 247, prix à la consommation sur un an, septembre 2026">3,1 %</span></p>
+        <p class="comprendre-les-chiffres-compare"><b>Énergie :</b> <span class="chiffre" data-source="Insee, Informations rapides n° 266, énergie sur un an, octobre 2026 (provisoire)">24,1 %</span> &nbsp;&bull;&nbsp; <b>Alimentation :</b> <span class="chiffre" data-source="Insee, Informations rapides n° 266, alimentation sur un an, octobre 2026 (provisoire)">1,2 %</span> &nbsp;&bull;&nbsp; <b>Services :</b> <span class="chiffre" data-source="Insee, Informations rapides n° 266, services sur un an, octobre 2026 (provisoire)">2,7 %</span></p>
+        <div class="comprendre-les-chiffres-encart small"><i class="bi bi-info-circle"></i> Estimation provisoire. Résultats définitifs prévus le 13 novembre 2026.</div>
+        <details class="comprendre-les-chiffres-depli">
+          <summary><span class="comprendre-les-chiffres-depli-titre">Qu'est-ce qui la fait monter ou baisser ?</span><span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>
+          <div class="comprendre-les-chiffres-depli-corps">
+            <p class="comprendre-les-chiffres-compare mb-1"><b>Elle monte :</b> pétrole ou produits frais plus chers, taxe relevée.</p>
+            <p class="comprendre-les-chiffres-compare mb-0"><b>Elle ralentit :</b> baisse des cours des matières premières.</p>
+          </div>
+        </details>
+        <p class="comprendre-les-chiffres-source">D’après l'Insee, publié le 30 octobre 2026. <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la page</a></p>
+        <p class="comprendre-les-chiffres-a-lire-avec"><i class="bi bi-link-45deg"></i> À lire avec : <button type="button" class="comprendre-les-chiffres-lien-interne" onclick="return voir('Inflation')">le mot « Inflation » du Lexique</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-cas">3. Quand un chiffre vieillit<small>Même cartouche que « Ce chiffre n'est pas encore disponible » de l'application : le vieux chiffre disparaît, la source reste.</small></div>
+  <div class="demo-ecran comprendre-les-chiffres-contenu">
+    <div class="demo-deux">
+      <div class="comprendre-les-chiffres-indic">
+        <p class="comprendre-les-chiffres-indic-q">Combien vaut le Smic aujourd'hui ?</p>
+        <p class="comprendre-les-chiffres-indic-absent"><i class="bi bi-hourglass-split"></i> Ce montant n’a pas été vérifié depuis plus de six mois. Voyez le montant en vigueur sur le site officiel.</p>
+        <p class="comprendre-les-chiffres-source">D’après Service-public.gouv.fr. <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la page</a></p>
+      </div>
+      <div class="comprendre-les-chiffres-indic">
+        <p class="comprendre-les-chiffres-indic-q">De combien les prix ont-ils augmenté en un an ?</p>
+        <p class="comprendre-les-chiffres-indic-absent"><i class="bi bi-hourglass-split"></i> Un nouveau chiffre est paru. Voyez le plus récent sur le site de l’Insee.</p>
+        <p class="comprendre-les-chiffres-source">D’après l'Insee. <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la page</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-questions">
+    <h2 class="h6">Vos décisions</h2>
+    <ol class="small mb-2">
+      <li><strong>Emplacement.</strong> Une porte sur l'accueil du module, ouverte sans département choisi (chiffres nationaux). Recommandé.</li>
+      <li><strong>Pas de soustraction</strong> entre « + 2,41 % » et « 3,4 % » : les périodes diffèrent.</li>
+      <li><strong>Quand un chiffre vieillit :</strong> Smic après six mois ou nouvelle revalorisation, inflation à la date de la prochaine publication de l'Insee. Il est alors remplacé par le message ci-dessus.</li>
+      <li><strong>Mise à jour</strong> de l'inflation à chaque publication mensuelle, ajoutée à vos vérifications régulières.</li>
+      <li><strong>Courbe historique :</strong> plus tard.</li>
+      <li><strong>Recherche :</strong> la porte est branchée à la barre d'accueil (Smic, salaire minimum, inflation, prix).</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+  /* Même comportement que la bulle de l'application (js/app.js, bulleInfoFlottante*) : survol et toucher d'un chiffre = sa source. */
+  var bulle = null, ancreOuverte = null;
+  function bulleEl() { if (!bulle) { bulle = document.createElement('div'); bulle.className = 'bulle-info-hover-flottante'; document.body.appendChild(bulle); } return bulle; }
+  function montrerBulle(a) {
+    var b = bulleEl(); b.textContent = 'Source : ' + a.getAttribute('data-source'); b.classList.add('visible');
+    var r = a.getBoundingClientRect(), g = Math.min(Math.max(10, r.left), window.innerWidth - 250), h = r.bottom + 8;
+    if (h + b.offsetHeight + 10 > window.innerHeight) { h = r.top - b.offsetHeight - 8; }
+    b.style.left = g + 'px'; b.style.top = h + 'px';
+  }
+  function cacherBulle() { if (bulle) { bulle.classList.remove('visible'); } ancreOuverte = null; }
+  document.addEventListener('mouseover', function (e) { var a = e.target.closest('.chiffre'); if (a && !a.contains(e.relatedTarget)) { montrerBulle(a); } });
+  document.addEventListener('mouseout', function (e) { var a = e.target.closest('.chiffre'); if (a && !a.contains(e.relatedTarget) && !ancreOuverte) { cacherBulle(); } });
+  document.addEventListener('click', function (e) { var a = e.target.closest('.chiffre'); if (a) { if (ancreOuverte === a) { cacherBulle(); } else { montrerBulle(a); ancreOuverte = a; } } else { cacherBulle(); } });
+  document.querySelectorAll('.chiffre').forEach(function (c) { c.setAttribute('tabindex', '0'); c.setAttribute('role', 'button'); });
+
+  function montrer(id) { var e = document.getElementById(id); e.scrollIntoView({ behavior: 'smooth', block: 'start' }); e.style.outline = '3px solid var(--accent)'; setTimeout(function () { e.style.outline = ''; }, 1600); }
+  function voir(mot) { alert('Dans l\'application, ce lien ouvre le mot « ' + mot + ' » du Lexique.'); return false; }
+  function reglage(id, f) { document.getElementById(id).onclick = f; }
+  function actif(a, b) { document.getElementById(a).classList.add('actif'); document.getElementById(b).classList.remove('actif'); }
+  reglage('btnClair', function () { document.documentElement.removeAttribute('data-theme'); actif('btnClair', 'btnSombre'); });
+  reglage('btnSombre', function () { document.documentElement.setAttribute('data-theme', 'sombre'); actif('btnSombre', 'btnClair'); });
+  function choisirAppareil(largeur, id) { document.getElementById('page').style.maxWidth = largeur; ['btnTel', 'btnTab', 'btnLarge'].forEach(function (x) { document.getElementById(x).classList.toggle('actif', x === id); }); }
+  reglage('btnTel', function () { choisirAppareil('375px', 'btnTel'); });
+  reglage('btnTab', function () { choisirAppareil('600px', 'btnTab'); });
+  reglage('btnLarge', function () { choisirAppareil('820px', 'btnLarge'); });
+</script>
+</body>
+</html>

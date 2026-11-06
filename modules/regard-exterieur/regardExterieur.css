@@ -42,14 +42,6 @@
    (infini), toujours borne dans le temps. */
 .regard-exterieur-pulse-doux { animation: regardExterieurPulseApparition 1.8s ease-in-out 6; }
 
-/* TACHE (retour utilisateur, 2026-08-26, "coller un morceau
-   supplementaire, ne pas oublier de valider") : bandeau jaune, disparait
-   des que l'import est tente (reussi ou non). */
-.regard-exterieur-attente-morceaux {
-  background: var(--jaune-bg-subtle); color: var(--jaune-strong); border: 1px solid var(--jaune-border);
-  border-radius: 10px; padding: 0.6rem 0.9rem; margin: 0.6rem 0; font-size: 0.9rem; font-weight: 600; text-align: center;
-}
-
 /* TACHE (retour utilisateur, 2026-08-26, "message rouge si l'import
    echoue") : jamais un simple texte muted -- fond rouge clair, franc. */
 .regard-exterieur-erreur-import {
@@ -241,101 +233,6 @@
   border-color: var(--accent-solide);
 }
 
-/* ---- Choix de l'assistant (même patron que Découverte) ---- */
-.regard-exterieur-ligne-assistants {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 0.8rem;
-}
-.regard-exterieur-etiquette-assistants {
-  width: 150px;
-  flex-shrink: 0;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--text-strong);
-}
-/* Les pastilles d'assistant viennent de stylePastilleInline() (js/app.js),
-   un style INLINE qui fixe font-size:0.9rem -- une règle externe normale
-   ne peut jamais gagner contre un style inline sur la même propriété,
-   d'où le !important ici, seul moyen réel d'agrandir ce texte sans
-   dupliquer ni modifier cette fonction partagée par 5+ consommateurs. */
-[data-assistant-regard-exterieur] {
-  font-size: 1.05rem !important;
-  padding: 0.6rem 1.1rem !important;
-  min-height: 48px;
-  display: inline-flex !important;
-  align-items: center;
-}
-/* TACHE (retour utilisateur, 2026-08-25, BUG REEL) : ces 4 pastilles ne
-   viennent PLUS de stylePastilleInline() (jamais de style inline ici,
-   voir _regardExterieurRenduChoixAssistant()) -- plus besoin de
-   !important, style complet et dédié, pensé pour que les 4 tiennent sur
-   une seule ligne (jamais de retour a la ligne isolant "Votre lecture",
-   qui ressemblait alors a un 5e assistant IA distinct). */
-.regard-exterieur-ligne-etapes {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  margin-bottom: 0.8rem;
-}
-.regard-exterieur-etiquette-etapes {
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--text-strong);
-  margin: 0 0 0.4rem;
-}
-.regard-exterieur-pastille-etape {
-  display: inline-flex;
-  align-items: center;
-  flex: 1 1 0;
-  justify-content: center;
-  white-space: nowrap;
-  background: var(--bg-subtle);
-  color: var(--text-strong);
-  border: 2px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  padding: 0.5rem 0.6rem;
-  cursor: pointer;
-  transition: background .15s, border-color .15s, color .15s;
-}
-.regard-exterieur-pastille-etape.is-active {
-  background: var(--accent-solide);
-  color: #fff;
-  border-color: var(--accent-solide);
-}
-.regard-exterieur-etape-numero {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  background: #0d6efd;
-  color: #fff;
-  font-size: 0.8rem;
-  margin-right: 0.4rem;
-  flex-shrink: 0;
-}
-@media (max-width: 640px) {
-  .regard-exterieur-ligne-etapes { flex-wrap: wrap; }
-  .regard-exterieur-pastille-etape { flex: 1 1 45%; }
-}
-
-.regard-exterieur-btn-importer {
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 0.7rem 1.6rem;
-  background: #0d6efd;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(13, 110, 253, .4);
-  min-height: 48px;
-}
-
 /* ---- Sélection des catégories à approfondir ---- */
 .regard-exterieur-choix-categories {
   display: flex;
@@ -360,11 +257,11 @@
   flex-shrink: 0;
 }
 /* TACHE (retour utilisateur, 2026-08-26, bouton "Developper") : le
-   libelle/case a coche garde sa largeur, "Developper" toujours pousse a
-   droite -- la case elle-meme reste .regard-exterieur-categorie-case
+   libelle/case a coche garde sa largeur, "Developper" est place sous la ligne (jamais dans la
+   ligne de la case, libelle colle a sa case : correction du 01/11/2026) -- la case elle-meme reste .regard-exterieur-categorie-case
    (inchangee), juste enveloppee ici avec le bouton et le resume repliable. */
 .regard-exterieur-categorie-bloc { display: flex; flex-direction: column; }
-.regard-exterieur-categorie-bloc .regard-exterieur-categorie-case { justify-content: space-between; }
+.regard-exterieur-categorie-bloc .regard-exterieur-categorie-case { justify-content: flex-start; }
 .regard-exterieur-btn-developper { align-self: flex-start; margin-top: 0.4rem; }
 .regard-exterieur-categorie-resume {
   margin-top: 0.5rem; padding: 0.6rem 0.8rem; background: var(--bg-subtle);
@@ -530,19 +427,12 @@
   color: #fff;
   border-color: var(--accent-solide);
 }
-.regard-exterieur-astuce-dictee {
-  background: var(--accent-bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 1rem;
-}
 
 /* Textarea/input de collage et de réponse -- Bootstrap .form-control
    retombe par défaut sur ~1rem, mais les tailles form-control-sm
    utilisées pour les réponses aux questions descendent à ~0.875rem :
    relevées ici pour rester au-dessus du plancher de ce module. */
-.regard-exterieur-question textarea.form-control-sm,
-#texteCollageRegardExterieur {
+.regard-exterieur-question textarea.form-control-sm {
   font-size: 1.05rem !important;
 }
 
@@ -564,3 +454,6 @@
 .regard-exterieur-mesfreins-lien:focus-visible {
   color: var(--text-strong);
 }
+
+/* Déroulé en page (01/11/2026) : titre du parcours sous la barre d’étapes (l’en-tête « Mes Repères » garde le seul titre de niveau 1). */
+.regard-exterieur-parcours-titre { font-size: var(--t-tres-grand); font-weight: 800; margin: 0 0 0.2rem; }

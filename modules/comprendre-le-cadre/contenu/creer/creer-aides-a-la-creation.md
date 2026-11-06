@@ -8,6 +8,8 @@ territoire: national
 statut: actif
 frein: false
 verifie_le: 2026-10-13
+delai:
+  - "Créer son activité | 60 jours pour demander | Vous créez une micro-entreprise | La demande d'ACRE (cotisations réduites au démarrage) se dépose à l'Urssaf dans les 60 jours. Elle n'est plus automatique."
 lexique:
   - terme: "ACRE"
     definition: "Aide aux créateurs ou repreneurs d'entreprise : une exonération d'une partie des cotisations sociales la première année."
@@ -29,6 +31,7 @@ ce_qui_change_souvent:
 revisions:
   - "2026-07 : pour les micro-entreprises créées à partir du 1er juillet 2026, l'ACRE abaisse les cotisations d'un quart (au lieu de la moitié) ; demande à l'URSSAF dans les 60 jours (décret du 6 février 2026) ; confirmé sur service-public.fr le 2026-09-05"
   - "2025-04 : le maintien de l'ARE pendant la création d'entreprise est plafonné à 60 % du reliquat de droits (nouvelles ouvertures de droits depuis le 1er avril 2025) ; confirmé le 2026-09-05"
+phrase_generale: "Plusieurs dispositifs, comme l'ACRE, l'ARE, l'ARCE ou le RSA, limitent le risque quand on crée une activité avec peu de revenus. Les taux, les durées et les conditions changent souvent : avant de vous lancer, confirmez-les auprès de France Travail, de l'Urssaf ou sur les sources officielles indiquées plus bas."
 collecte: creer.collecte.md
 ---
 

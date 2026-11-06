@@ -14,10 +14,6 @@ sources:
   - "francetravail-creer-entreprise | ARE, ARCE, ACRE : créer son entreprise quand on est demandeur d'emploi | https://www.francetravail.fr/actualites/a-laffiche/2026/are-arce-acre-creer-son-entrepri.html | 2026-09-04"
   - "entreprendre-guichet-unique | Guichet des formalités des entreprises | https://entreprendre.service-public.gouv.fr/vosdroits/R61572 | 2026-09-04"
   - "bpifrance-creation | Bpifrance Création : informations et outils pour créer une entreprise | https://bpifrance-creation.fr/ | 2026-09-04"
-  - "chambres-agriculture-sinstaller | Je suis futur agriculteur (Chambres d'agriculture France) | https://chambres-agriculture.fr/je-suis-futur-agriculteur/ | 2026-09-08"
-  - "chambre-agriculture-dordogne | Chambre d'agriculture de la Dordogne | https://dordogne.chambres-agriculture.fr/ | 2026-09-08"
-  - "onisep-bprea | BP responsable d'entreprise agricole (Onisep) | https://www.onisep.fr/ressources/univers-formation/formations/lycees/bp-responsable-d-entreprise-agricole | 2026-09-08"
-  - "region-na-dnja | Installation : dotation Nouveaux et Jeunes agriculteurs (DNJA), guide des aides de la Région Nouvelle-Aquitaine | https://les-aides.nouvelle-aquitaine.fr/economie-et-emploi/installation-dotation-nouveaux-et-jeunes-agriculteurs-dnja | 2026-09-08"
 structures:
   - "france-travail-createur-dordogne | France Travail de la Dordogne : information sur l'ACRE, l'ARE, l'ARCE, orientation vers l'accompagnement à la création | https://www.francetravail.fr/ | 2026-09-04"
 ---

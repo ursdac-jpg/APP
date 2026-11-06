@@ -7,7 +7,7 @@ tags: [Fondation de la 2ème Chance, aide financière, formation qualifiante, cr
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "aide de dernier recours"
     definition: "Une aide qui n'intervient qu'après avoir demandé toutes les autres (France Travail, Région, aides de droit commun). Elle complète, elle ne remplace pas."
@@ -22,16 +22,16 @@ ce_qui_change_souvent:
   - "Le montant maximum de l'aide"
   - "Les bornes d'âge"
   - "La liste des structures qui peuvent accompagner le montage du dossier"
-revisions: []
+revisions:
+  - "2026-11-04 : les pages de la Fondation confirment les plafonds, les moyennes (relevées en 2019) et l'âge ; elles ne mentionnent ni parrainage par un bénévole, ni délai, ni aide de dernier recours, ni limite à la France métropolitaine (phrases retirées)"
+phrase_generale: "Une fondation aide des personnes qui ont traversé une épreuve lourde et se retrouvent en difficulté, mais avec un projet concret de formation ou de création d'activité. Le montant de l'aide, les conditions et la manière de candidater changent : renseignez-vous auprès de la fondation ou consultez les sources officielles indiquées plus bas."
 collecte: former.collecte.md
 ---
 
-La Fondation de la 2ème Chance aide des personnes qui ont traversé de lourdes épreuves (accident, maladie, rupture, précarité) et qui se retrouvent aujourd'hui en difficulté, mais avec un projet concret pour rebondir.
+La Fondation de la 2ème Chance aide des personnes qui ont traversé une ou des épreuves (accident, maladie, rupture, précarité) et qui se retrouvent aujourd'hui en difficulté, mais avec un projet concret pour rebondir.
 
-L'aide peut financer une formation qualifiante, jusqu'à 5 000 euros, ou la création ou la reprise d'une entreprise, jusqu'à 8 000 euros. Dans les deux cas, elle s'accompagne d'un parrainage par un bénévole. En pratique, l'aide moyenne se situe autour de 2 500 à 3 500 euros.
+L'aide peut financer une formation qualifiante, jusqu'à 5 000 euros, ou la création ou la reprise d'une entreprise, jusqu'à 8 000 euros. En pratique, l'aide moyenne se situe autour de 2 500 à 3 500 euros.
 
 Trois conditions comptent. Avoir entre 18 et 62 ans. Être en situation de précarité au moment de la demande. Et ne pas être seul : le dossier se prépare avec une structure qui vous accompagne, une mission locale, France Travail, un centre communal d'action sociale, une chambre de métiers, une association spécialisée.
 
-C'est une aide de dernier recours : il faut avoir cherché les autres financements d'abord. Elle vient en complément, quand il manque une somme pour boucler le projet.
-
-Le parcours : vous envoyez votre dossier, la Fondation l'étudie, puis une équipe locale vous rencontre pour que vous présentiez votre projet, et un comité décide de l'accompagnement. Comptez plusieurs semaines. La Fondation intervient en France métropolitaine.
+Le parcours : vous envoyez votre dossier, la Fondation l'étudie, puis une équipe locale vous rencontre pour que vous présentiez votre projet, et un comité décide de l'accompagnement.

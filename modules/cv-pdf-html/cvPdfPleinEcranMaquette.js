@@ -1163,6 +1163,9 @@ function _mqSegDisp() {
   var d = _mqEnteteEtat().disp, fr = _mqEl('mqFrame').contentDocument, met = fr && fr.querySelector('.metier');
   var courant = d || ((met && met.textContent.length > 42) ? '2' : '3');
   Array.prototype.forEach.call(document.querySelectorAll('#mqSegDisp button'), function (b) { b.classList.toggle('on', b.getAttribute('data-v') === courant); });
+  // « Empilee » : pas proposee aux modeles dont la frise la rend illisible (mesure du 27/10/2026, voir _PDF_MODELES_SANS_EMPILEE).
+  var pan = _mqPanneau(), btnEmpilee = document.querySelector('#mqSegDisp button[data-v="5"]');
+  if (btnEmpilee && pan && typeof pan._pdfModeleAccepteEmpilee === 'function') { btnEmpilee.style.display = pan._pdfModeleAccepteEmpilee(pan._pdfCleModeleEntete()) ? '' : 'none'; }
 }
 
 // ============================================================

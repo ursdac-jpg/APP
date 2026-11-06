@@ -7,7 +7,7 @@ tags: [démission, reconversion, chômage, ARE, projet réel et sérieux, Transi
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "projet réel et sérieux"
     definition: "Projet de reconversion ou de création d'entreprise jugé cohérent et réalisable par une commission. Sa validation ouvre le droit au chômage après démission."
@@ -24,23 +24,25 @@ ce_qui_change_souvent:
   - "La durée d'activité exigée avant la démission"
   - "Les délais entre validation, démission et inscription"
   - "Le contrôle du projet après six mois"
-revisions: []
+revisions:
+  - "2026-11-04 : d'après la page France Travail, « au moins » 1 300 jours dans les 60 mois ; le délai de six mois concerne l'inscription et la demande d'allocation après la notification de la décision, pas la démission ; le contrôle a lieu dans les six mois suivant l'ouverture du droit ; la gratuité du conseil en évolution professionnelle n'y figure pas (retirée)"
+phrase_generale: "Démissionner ne donne normalement pas droit au chômage, sauf dans le cadre du dispositif démission-reconversion, pour un salarié en CDI qui a un projet réel et sérieux de reconversion, de création ou de reprise d'entreprise. Les conditions, la durée de travail exigée et les démarches changent régulièrement : avant de démissionner, confirmez-les auprès de France Travail ou sur les sources officielles indiquées plus bas."
 collecte: former.collecte.md
 ---
 
 Normalement, démissionner ne donne pas droit au chômage. Il existe une exception : le dispositif démission-reconversion, pour un salarié en CDI qui a un projet réel et sérieux de reconversion, ou de création ou reprise d'entreprise.
 
-Il faut justifier d'environ 1 300 jours travaillés, chez un ou plusieurs employeurs, au cours des cinq dernières années qui précèdent la démission.
+Il faut justifier d'au moins 1 300 jours travaillés, chez un ou plusieurs employeurs, au cours des soixante mois (cinq ans) qui précèdent la démission.
 
 L'ordre des étapes est important, et il ne faut pas démissionner avant :
 
-1. demander un conseil en évolution professionnelle, gratuit ;
+1. demander un conseil en évolution professionnelle (la demande doit intervenir avant la démission) ;
 2. faire valider le caractère réel et sérieux du projet par la commission de votre région, portée par Transitions Pro ;
-3. démissionner dans les six mois qui suivent cette validation ;
-4. s'inscrire à France Travail.
+3. démissionner ;
+4. vous inscrire à France Travail et demander l'allocation dans les six mois qui suivent la notification de la décision de la commission.
 
 L'allocation chômage est ensuite versée comme pour tout demandeur d'emploi, pendant et après la formation ou la création d'entreprise.
 
-Attention : au bout de six mois, France Travail vérifie que le projet a bien avancé. S'il n'a pas été mis en œuvre sans motif valable, vous risquez de perdre quatre mois d'allocation et d'être radié de la liste des demandeurs d'emploi pendant quatre mois.
+Attention : dans les six mois qui suivent l'ouverture du droit, France Travail contrôle que le projet est mis en œuvre. S'il n'a pas été mis en œuvre sans motif valable, vous risquez de perdre quatre mois d'allocation et d'être radié de la liste des demandeurs d'emploi pendant quatre mois.
 
 Commencez par le conseil en évolution professionnelle : c'est lui qui vous dira si le dispositif est adapté à votre situation.

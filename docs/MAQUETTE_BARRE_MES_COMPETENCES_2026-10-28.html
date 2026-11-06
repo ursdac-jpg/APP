@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes compétences : la barre d'étapes, avant et après</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:10px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+.barre-etapes-bilan { flex-wrap:wrap; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:8px; padding:8px 10px; margin:6px 0; background:var(--mq-card); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Découvrir mes compétences : la barre d'étapes</h1>
+<p class="muted">Les barres ci-dessous sont dessinées avec les vraies couleurs de l'application. Seuls les mots (et une icône) changent. Rien n'est codé.</p>
+
+<div class="mq-carte">
+  <h2>Aujourd'hui <span class="mq-etiquette">« Documents » veut dire autre chose ailleurs</span></h2>
+  <div class="mq-ligne">1. Écran « Mes documents » : elle dépose ses documents et masque ce qui est personnel :</div>
+  <div id="a0"></div>
+  <div class="mq-ligne">2. Écran « L'assistant en ligne » : elle choisit l'assistant, copie le message, colle la réponse (un seul repère pour les trois gestes) :</div>
+  <div id="a1"></div>
+  <div class="mq-ligne">3. Écran « Je relis mes compétences » : elle garde ou retire chaque ligne :</div>
+  <div id="a2"></div>
+  <div class="mq-ligne">4. Écran « Mes compétences » : son document est prêt, elle le télécharge :</div>
+  <div id="a3"></div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposé : Préparer, Assistant, Relecture, Terminé <span class="mq-etiquette ok">mêmes mots que les autres modules</span></h2>
+  <div class="mq-ligne">1. Préparer :</div>
+  <div id="b0"></div>
+  <div class="mq-ligne">2. Assistant :</div>
+  <div id="b1"></div>
+  <div class="mq-ligne">3. Relecture (le mot reste : c'est un vrai travail de la personne) :</div>
+  <div id="b2"></div>
+  <div class="mq-ligne">4. Terminé :</div>
+  <div id="b3"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que j'ai lu dans le code</h2>
+  <ul>
+    <li><strong>Simple :</strong> la barre est un seul tableau (<code>MESCOMP_NAV_ETAPES</code>, <code>modules/mes-competences/index.js</code>), et les repères se calculent à partir de l'écran affiché. Aucun écran n'est lié à un mot. Un seul texte d'aide cite les noms (« La barre en haut suit les quatre étapes… »). Aucun test ne les cite.</li>
+    <li><strong>Pas de décalage ici, contrairement à la lettre :</strong> le repère « Assistant » reste allumé sur tout l'écran de l'assistant, du choix jusqu'au collage de la réponse, exactement comme dans le Bilan, l'ATS et le Regard. « Relecture » s'allume sur l'écran où l'on relit, et « Mon document » sur l'écran final : les mots étaient justes, seulement différents.</li>
+    <li><strong>Pourquoi « Documents » change :</strong> dans l'application, « Vos documents » désigne la dernière étape d'un CV. Ici « Documents » est la première étape (le dépôt). Le même mot veut dire le début ici et la fin ailleurs. « Préparer » dit la même chose que dans toutes les autres barres.</li>
+    <li><strong>Pourquoi « Relecture » reste :</strong> c'est un travail propre au module (la personne décide de chaque ligne), comme « Corriger » dans le Bilan. La règle ne vise que les moments communs.</li>
+    <li><strong>Pourquoi « Mon document » devient « Terminé » :</strong> c'est la fin du module, comme dans le Bilan, la lettre et l'entretien. Le titre de l'écran continue de dire « Mes compétences » et le bouton vert de fin est inchangé.</li>
+    <li><strong>Une icône à changer au passage :</strong> « Relecture » porte la coche verte ✅, qui est aussi celle de « Terminé » ailleurs. Avec « Terminé » à la fin, la même coche apparaîtrait deux fois dans la même barre. « Relecture » prend la loupe (🔍), un objet sans visage ; « Terminé » garde la coche ✅.</li>
+    <li><strong>Risque :</strong> aucun. Trois mots, une icône, un texte d'aide. Retour en arrière : un seul commit.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>Votre choix</h2>
+  <div class="mq-opt"><strong>A. Préparer, Assistant, Relecture, Terminé (Recommandé).</strong><br>Bénéfice : même vocabulaire que les autres modules, on garde le mot qui décrit le vrai travail de la personne (Relecture). Risque : « Mon document » disparaît de la barre, mais l'écran garde son titre.</div>
+  <div class="mq-opt"><strong>B. Préparer, Assistant, Relecture, Mon document.</strong><br>Bénéfice : le dernier mot dit ce que la personne obtient. Risque : un mot de fin de plus à retenir, alors que partout ailleurs c'est « Terminé ».</div>
+  <div class="mq-opt"><strong>C. Préparer, Assistant, Résultat, Terminé.</strong><br>Bénéfice : strictement les mêmes mots que le Regard et l'ATS. Risque : « Résultat » ne décrit pas ce que fait la personne à cet écran (elle relit et décide de chaque ligne) ; on perd une information utile.</div>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> A, avec la loupe pour « Relecture ». Pour valider, un mot suffit : « compétences : A ». Si vous préférez B ou C, ou garder la coche, dites-le avant que je code.
+</div>
+</div>
+<script>
+(function () {
+  function barre(etapes, idx) {
+    var h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+    etapes.forEach(function (e, i) {
+      var fait = i < idx, courant = i === idx, avenir = i > idx;
+      if (i > 0) { h += '<span class="chevron-etape-action" ' + (i > idx ? 'style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+      h += '<span class="pastille-etape-action' + (fait ? ' pastille-etape-action-validee' : (courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '')) + '" style="cursor:default;' + (avenir ? 'opacity:0.4;' : '') + '">' +
+        '<span class="pastille-etape-action-icone">' + e[0] + '</span><span class="pastille-etape-action-label">' + e[1] + '</span></span>';
+    });
+    return h + '</div>';
+  }
+  var avant = [['&#128196;', 'Documents'], ['&#128172;', 'Assistant'], ['&#9989;', 'Relecture'], ['&#128216;', 'Mon document']];
+  var apres = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#128269;', 'Relecture'], ['&#9989;', 'Terminé']];
+  [0, 1, 2, 3].forEach(function (i) { document.getElementById('a' + i).innerHTML = barre(avant, i); document.getElementById('b' + i).innerHTML = barre(apres, i); });
+})();
+</script>
+</body>
+</html>

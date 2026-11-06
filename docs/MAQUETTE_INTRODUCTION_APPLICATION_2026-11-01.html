@@ -1,0 +1,377 @@
+<!doctype html>
+<!--
+  MAQUETTE - « Introduction » de l'application (présentation pour quelqu'un qui ne la connaît pas). Version 3, 02/11/2026.
+  Décisions de Denis du 01/11/2026 :
+    - public : les deux (personnes accompagnées ET partenaires), un seul texte simple ;
+    - forme : page « Introduction » d'abord, diaporama oral ensuite (tiré de la même matière) ;
+    - accès : bouton « Introduction » en haut de l'accueil, toujours visible ;
+    - v3 (02/11/2026) : captures prises DANS les outils (pas leurs pages d'explication), plus de film, et « Employeurs près de chez moi » et « Qui fait quoi » présentés comme s'ils étaient ouverts (ils le seront bientôt).
+  Cette maquette utilise les VRAIES feuilles de style de l'application (clair / sombre / téléphone) et de VRAIES captures,
+  fabriquées par les scripts de docs/maquette_introduction/ (captures.js, captures_parcours.js, captures_modules_interieur.js, captures_outils_libres.js, planches_modeles.js).
+  Les images sont celles du navigateur de test : Employeurs et Qui fait quoi y sont ouverts, comme ils le seront au public.
+  Aucun code de l'application n'est touché. Textes en brouillon, à valider mot pour mot par Denis.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Introduction de l'application</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* Barre de la maquette (hors application) */
+  .mq-barre { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+    padding: .55rem .8rem; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); font-size: var(--t-petit); }
+  .mq-barre strong { color: var(--text-strong); margin-right: .4rem; }
+  .mq-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px;
+    padding: .3rem .7rem; font-size: var(--t-petit); cursor: pointer; }
+  .mq-barre button.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-sep { width: 1px; align-self: stretch; background: var(--border-strong); margin: 0 .3rem; }
+  .mq-scene { max-width: 1000px; margin: 1rem auto 3rem; padding: 0 1rem; }
+  .mq-cadre { background: var(--bg-page, var(--bg-card)); border: 1px solid var(--border-strong); border-radius: 16px; padding: 1.2rem 1.2rem 2rem; margin: 0 auto; }
+  .mq-cadre.tel { max-width: 375px; padding: .9rem .7rem 1.6rem; }
+  .mq-legende { color: var(--text-muted); font-size: var(--t-petit); margin: .3rem 0 .8rem; }
+
+  /* Accueil (copie de la page réelle, cartes simplifiées) */
+  .mq-accueil-cartes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.2rem; }
+  .mq-cadre.tel .mq-accueil-cartes { grid-template-columns: 1fr; }
+  .mq-cadre.tel h1 { font-size: var(--t-titre-page, 1.9rem); }
+  /* Ligne du haut de l'application : quatre icônes rondes à gauche (réglages, aide, disquette, nouveautés), le bouton Introduction tout à droite, même hauteur. */
+  .mq-ligne-haut { display: flex; align-items: center; gap: 10px; margin: -.4rem 0 .9rem; }
+  .mq-icone-ronde { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); font-size: 1.3rem; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.12); position: relative; }
+  [data-theme="sombre"] .mq-icone-ronde { border: 2px solid var(--border-strong); box-shadow: none; }
+  .mq-icone-ronde .mq-pastille { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px; background: #f59e0b; color: #1b212c; font-size: .68rem; font-weight: 700; line-height: 18px; padding: 0 4px; text-align: center; }
+  .mq-ligne-haut .bouton-introduction { margin-left: auto; }
+  .bouton-introduction { display: inline-flex; align-items: center; gap: .45rem; border: 2px solid var(--accent); color: var(--accent-texte);
+    background: var(--bg-card); border-radius: 8px; padding: .4rem .9rem; font-weight: 700; font-size: var(--t-moyen); min-height: 44px; cursor: pointer; }
+  .bouton-introduction:hover { background: var(--accent-bg-subtle); }
+  .bouton-introduction i { font-size: 1.15rem; }
+
+  /* Page Introduction : même patron que les pages d'introduction des modules (.cv-section, titres h4 + objet, encart d'accroche centré) */
+  .intro-page { max-width: 860px; margin: 0 auto; }
+  .intro-entete { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+  .intro-accroche { background: var(--accent-bg-subtle); text-align: center; margin-bottom: 1rem; }
+  .intro-page .cv-section { margin-bottom: 1rem; }
+  .intro-page .cv-section p:last-child { margin-bottom: 0; }
+  .intro-encart { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: .65rem .9rem; margin-top: .8rem; font-size: var(--t-moyen); display: flex; gap: .6rem; align-items: flex-start; }
+  .intro-encart i { color: var(--accent-texte); font-size: 1.25rem; flex: 0 0 auto; margin-top: .1rem; }
+  .intro-etapes { list-style: none; padding: 0; margin: .4rem 0 0; display: grid; gap: .8rem; }
+  .intro-etapes li { display: flex; gap: .8rem; align-items: flex-start; font-size: var(--t-moyen); line-height: 1.55; }
+  .intro-rond { flex: 0 0 auto; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+  .intro-etapes b { color: var(--text-strong); }
+  .intro-liste { list-style: none; padding: 0; margin: .3rem 0 0; display: grid; gap: .5rem; }
+  .intro-liste li { display: flex; gap: .6rem; align-items: flex-start; font-size: var(--t-moyen); line-height: 1.55; }
+  .intro-liste li i { color: var(--accent-texte); flex: 0 0 auto; margin-top: .15rem; }
+  .intro-figure { margin: .8rem 0 .2rem; }
+  .intro-figure img, .intro-figure video { width: 100%; height: auto; border: 1px solid var(--border-strong); border-radius: 12px; display: block; background: var(--bg-card); }
+  .intro-figure figcaption { color: var(--text-muted); font-size: var(--t-petit); margin-top: .3rem; }
+  .intro-figures-deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .mq-cadre.tel .intro-figures-deux { grid-template-columns: 1fr; }
+  .intro-pas { display: grid; gap: 1.2rem; margin-top: .8rem; }
+  .intro-pas-ligne { display: grid; grid-template-columns: 2.1rem 1fr; gap: .8rem; align-items: start; }
+  .intro-pas-ligne .intro-figure { margin: .5rem 0 0; }
+  .intro-pas-ligne p { margin: 0; }
+  .intro-etapes-barre { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .2rem; }
+  .intro-etapes-barre span { border-radius: 999px; padding: .15rem .7rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); font-size: var(--t-petit); font-weight: 700; color: var(--text-strong); }
+  .intro-outil { border: 1px solid var(--border); border-radius: 12px; padding: .8rem .95rem .9rem; margin: .6rem 0; background: var(--bg-card); }
+  .intro-outil > strong { display: block; color: var(--text-strong); font-size: var(--t-moyen); }
+  .intro-outil > span { display: block; font-size: var(--t-petit); color: var(--text-muted); line-height: 1.5; margin: .1rem 0 .5rem; }
+  .intro-outil-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .7rem; }
+  .intro-outil-images figure { margin: 0; }
+  .intro-outil-images img { width: 100%; height: auto; display: block; border: 1px solid var(--border-strong); border-radius: 10px; }
+  .intro-outil-images figcaption { font-size: var(--t-petit); color: var(--text-muted); margin-top: .25rem; }
+  .intro-groupe { margin: 1.1rem 0 .1rem; font-size: var(--t-moyen); font-weight: 800; color: var(--text-strong); display: flex; align-items: center; gap: .5rem; }
+  .intro-groupe i { color: var(--accent-texte); font-size: 1.25rem; }
+  .intro-modeles { display: grid; grid-template-columns: 1.15fr .85fr; gap: .9rem; align-items: start; }
+  .mq-cadre.tel .intro-modeles { grid-template-columns: 1fr; }
+  .intro-pied { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin: 1.6rem 0 .4rem; }
+  .intro-pied .btn { border-radius: 12px; font-weight: 700; min-height: 44px; }
+
+  /* Notes pour Denis */
+  .mq-notes { background: var(--bg-card); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); border-radius: 12px; padding: 1rem 1.2rem; margin: 1.4rem auto 0; max-width: 860px; }
+  .mq-notes h2 { font-size: var(--t-grand); margin: 0 0 .5rem; color: var(--text-strong); }
+  .mq-notes h3 { font-size: var(--t-moyen); margin: 1rem 0 .3rem; color: var(--text-strong); }
+  .mq-notes ul { margin: .2rem 0 .4rem; padding-left: 1.2rem; }
+  .mq-notes li { margin: .25rem 0; font-size: var(--t-moyen); }
+  .mq-notes .fermer { float: right; }
+</style>
+</head>
+<body>
+
+<div class="mq-barre">
+  <strong>Maquette : Introduction (v4)</strong>
+  <button type="button" data-ecran="accueil">1. Accueil</button>
+  <button type="button" data-ecran="intro" class="actif">2. Page Introduction</button>
+  <span class="mq-sep"></span>
+  <button type="button" data-theme-choix="clair" class="actif">Clair</button>
+  <button type="button" data-theme-choix="sombre">Sombre</button>
+  <span class="mq-sep"></span>
+  <button type="button" data-vue="ordi" class="actif">Ordinateur</button>
+  <button type="button" data-vue="tel">Téléphone</button>
+  <span class="mq-sep"></span>
+  <button type="button" id="mqNotes">Notes pour Denis</button>
+</div>
+
+<div class="mq-scene">
+  <div class="mq-cadre" id="mqCadre">
+
+    <!-- Ligne du haut, visible sur toutes les pages : les quatre icônes habituelles à gauche, le bouton Introduction tout à droite -->
+    <div class="mq-ligne-haut">
+      <span class="mq-icone-ronde"><i class="bi bi-gear"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-lightbulb"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-floppy"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-megaphone"></i><span class="mq-pastille">3</span></span>
+      <button type="button" class="bouton-introduction" id="mqBoutonIntro"><i class="bi bi-compass"></i> Introduction</button>
+    </div>
+
+    <!-- ===== ÉCRAN 1 : l'accueil ===== -->
+    <section id="ecran-accueil" hidden>
+      <div class="text-center"><h1>Par où <span style="white-space:nowrap">voulez-vous</span> commencer&nbsp;?</h1>
+        <p class="sousTitre">Choisissez votre point de départ.</p></div>
+
+      <div class="zone-recherche-erip-large">
+        <i class="bi bi-search zone-recherche-icone" aria-hidden="true"></i>
+        <input type="text" class="form-control" placeholder="Rechercher un métier, un domaine d’activité, une compétence...">
+      </div>
+
+      <div class="mq-accueil-cartes" id="mqCartes"></div>
+      <p class="mq-legende" style="margin-top:1rem">Le bouton « Introduction » est tout à droite de la ligne du haut, à la même hauteur que les quatre icônes rondes, sans texte d’explication. Il reste visible sur toutes les pages, comme les quatre icônes. Le reste de l’accueil ne change pas.</p>
+    </section>
+
+    <!-- ===== ÉCRAN 2 : la page Introduction ===== -->
+    <section id="ecran-intro">
+      <div class="intro-page">
+        <div class="intro-entete">
+          <button type="button" class="btn btn-outline-primary btn-accueil" data-retour-accueil><i class="bi bi-house"></i> Accueil</button>
+        </div>
+
+        <div class="text-center">
+          <h1><i class="bi bi-compass"></i> Introduction</h1>
+          <p class="sousTitre">Cette application, en quelques mots et en images.</p>
+        </div>
+
+        <div class="cv-section intro-accroche">
+          <p class="mb-0">Chercher un emploi, ce n’est pas facile, surtout quand on ne se sent pas à l’aise avec l’informatique. <strong>Cette application vous accompagne, à votre rythme</strong> : personne ne vous juge et rien n’est obligatoire.</p>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#127919; À quoi ça sert</h4>
+          <p><strong>APP</strong> veut dire « Accompagnement de Parcours Professionnel ». Elle vous aide à avancer : écrire ou améliorer votre CV et votre lettre de motivation, vous entraîner à l’entretien, mieux comprendre le monde du travail, ou simplement réfléchir à la direction à prendre.</p>
+          <p>Elle vous aide aussi à trouver, près de chez vous, <strong>les employeurs à qui écrire</strong> et <strong>les structures à qui vous adresser</strong>, avec leurs coordonnées vérifiées et datées.</p>
+          <p>Vous choisissez ce qui vous est utile. <strong>Rien n’est obligatoire</strong>, et vous pouvez vous arrêter et revenir quand vous voulez.</p>
+          <div class="intro-figures-deux">
+            <figure class="intro-figure"><a href="maquette_introduction/accueil.png" target="_blank"><img src="maquette_introduction/accueil.png" alt="Capture de l'accueil de l'application : les premières cartes pour choisir son point de départ"></a><figcaption>L’accueil : des grandes cartes, vous choisissez par laquelle commencer.</figcaption></figure>
+            <figure class="intro-figure"><a href="maquette_introduction/accueil_bas.png" target="_blank"><img src="maquette_introduction/accueil_bas.png" alt="Capture de l'accueil, suite : les outils d'analyse, Se tenir informé, Vous hésitez encore"></a><figcaption>Et la suite de l’accueil.</figcaption></figure>
+          </div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#128203; Comment ça se passe</h4>
+          <ol class="intro-etapes">
+            <li><span class="intro-rond">1</span><span><b>Vous choisissez un point de départ</b> sur l’accueil, par exemple « Créer un nouveau CV ».</span></li>
+            <li><span class="intro-rond">2</span><span><b>L’application prépare pour vous une demande toute prête.</b> Vous la copiez, puis vous la collez chez l’assistant en ligne de votre choix.</span></li>
+            <li><span class="intro-rond">3</span><span><b>Vous revenez coller sa réponse.</b> L’application la remet en forme. Vous relisez, vous modifiez ce que vous voulez, puis vous téléchargez votre document.</span></li>
+          </ol>
+          <div class="intro-encart"><i class="bi bi-hand-index-thumb"></i><span><strong>Vous gardez toujours la main.</strong> Rien ne se décide sans vous, et rien n’est envoyé sans votre geste.</span></div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#129517; Un exemple pas à pas : Camille crée son CV</h4>
+          <p>Camille est un personnage inventé, pour l’exemple. Voici ce qu’elle voit à chaque étape. La barre en haut de l’écran vous montre toujours où vous en êtes :</p>
+          <div class="intro-etapes-barre"><span>Votre objectif</span><span>Vos informations</span><span>Votre parcours</span><span>Votre profil</span><span>Vos documents</span></div>
+          <div class="intro-pas">
+            <div class="intro-pas-ligne"><span class="intro-rond">1</span><div><p><strong>Elle choisit comment commencer.</strong> Trois façons de faire, selon qu’elle a déjà un CV ou non.</p>
+              <figure class="intro-figure"><a href="maquette_introduction/i_cv_1_choix.png" target="_blank"><img src="maquette_introduction/i_cv_1_choix.png" alt="Capture : choix entre créer un CV avec un assistant, à la main, ou à partir de son récit"></a></figure></div></div>
+            <div class="intro-pas-ligne"><span class="intro-rond">2</span><div><p><strong>Elle dit ce qu’elle cherche.</strong> Un métier précis, une présentation générale : quelques clics, pas de page blanche.</p>
+              <figure class="intro-figure"><a href="maquette_introduction/i_cv_2_objectif.png" target="_blank"><img src="maquette_introduction/i_cv_2_objectif.png" alt="Capture : l'étape Votre objectif, avec des choix à cocher"></a></figure></div></div>
+            <div class="intro-pas-ligne"><span class="intro-rond">3</span><div><p><strong>Elle choisit ce qui compte pour elle.</strong> Des propositions déjà prêtes à cocher : elle garde celles qui lui ressemblent.</p>
+              <figure class="intro-figure"><a href="maquette_introduction/i_cv_3_parcours.png" target="_blank"><img src="maquette_introduction/i_cv_3_parcours.png" alt="Capture : l'étape Votre parcours, avec des choix comme Bon équilibre vie professionnelle et personnelle"></a></figure></div></div>
+            <div class="intro-pas-ligne"><span class="intro-rond">4</span><div><p><strong>Elle découvre son profil.</strong> Un coup d’œil sur ce qu’elle a saisi, ses compétences repérées et des métiers à regarder.</p>
+              <figure class="intro-figure"><a href="maquette_introduction/i_cv_4_profil.png" target="_blank"><img src="maquette_introduction/i_cv_4_profil.png" alt="Capture : l'étape Votre profil"></a></figure></div></div>
+          </div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#127912; Un CV qui vous ressemble</h4>
+          <p>Votre CV existe en <strong>39 modèles</strong> : 13 sobres et 26 créatifs. Vous choisissez les couleurs, les formes et la mise en page. Votre texte, lui, ne change jamais. Vous le téléchargez en PDF ou en Word.</p>
+          <div class="intro-modeles">
+            <figure class="intro-figure"><a href="maquette_introduction/modeles_creatifs.png" target="_blank"><img src="maquette_introduction/modeles_creatifs.png" alt="Huit modèles de CV créatifs"></a><figcaption>Quelques modèles créatifs.</figcaption></figure>
+            <figure class="intro-figure"><a href="maquette_introduction/modele_grand.png" target="_blank"><img src="maquette_introduction/modele_grand.png" alt="Un modèle de CV en grand : colonne foncée"></a><figcaption>Un modèle en grand. Le CV d’exemple est inventé.</figcaption></figure>
+          </div>
+          <figure class="intro-figure">
+            <a href="maquette_introduction/modeles_sobres.png" target="_blank"><img src="maquette_introduction/modeles_sobres.png" alt="Huit modèles de CV sobres"></a>
+            <figcaption>Quelques modèles sobres, pour un style plus classique.</figcaption>
+          </figure>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#9993;&#65039; Votre lettre et votre entretien</h4>
+          <p>Avec le même personnage inventé, voici deux autres documents que l’application vous aide à préparer. Les réponses de l’assistant en ligne sont des exemples. Cliquez sur une image pour l’agrandir.</p>
+          <div id="mqGalerieDocs"></div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#128269; Vérifier la solidité de votre candidature</h4>
+          <p>Avant de postuler, vous pouvez demander un regard sur votre CV : ce qui est solide, ce qui peut faire hésiter, et des pistes concrètes pour le renforcer.</p>
+          <div id="mqGalerieAnalyse"></div>
+          <p class="mb-0">D’autres outils regardent votre CV avec les yeux d’un recruteur, comparent ses mots à ceux d’une offre, ou vérifient que votre CV, votre lettre et votre entretien racontent la même histoire.</p>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#128506;&#65039; Comprendre ce qui se passe près de chez vous</h4>
+          <p>Pour savoir où vous en êtes et à qui vous adresser, l’application met à votre portée des repères sur votre département, expliqués simplement et datés.</p>
+          <ul class="intro-liste">
+            <li><i class="bi bi-journal-text"></i><span><strong>Comprendre le cadre</strong> : les règles, les aides et les dispositifs de l’emploi et de la formation.</span></li>
+            <li><i class="bi bi-bar-chart"></i><span><strong>Comprendre les chiffres</strong> : le chômage, l’emploi et les métiers qui recrutent.</span></li>
+            <li><i class="bi bi-signpost-split"></i><span><strong>Qui fait quoi</strong> : les structures à qui vous adresser, avec leurs coordonnées.</span></li>
+            <li><i class="bi bi-geo-alt"></i><span><strong>Employeurs près de chez moi</strong> : des employeurs à qui envoyer une candidature spontanée.</span></li>
+          </ul>
+          <div id="mqGalerieTerritoire" style="margin-top:.8rem"></div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#129520; Et aussi</h4>
+          <ul class="intro-liste">
+            <li><i class="bi bi-briefcase"></i><span><strong>Une boîte à outils</strong> pour garder vos réflexions (Mes Repères), noter librement (Mon Carnet), chercher un mot (Lexique) et découvrir vos compétences.</span></li>
+            <li><i class="bi bi-signpost-split"></i><span><strong>Si vous hésitez sur la direction</strong> : comparer vos pistes de métier, ou préparer un seul CV pour plusieurs métiers.</span></li>
+          </ul>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#128161; Ce qui guide cette application</h4>
+          <ul class="intro-liste">
+            <li><i class="bi bi-clock"></i><span><strong>Votre rythme.</strong> Aucune obligation, aucun rappel, aucun délai.</span></li>
+            <li><i class="bi bi-slash-circle"></i><span><strong>Pas de note, pas de comparaison.</strong> L’application ne vous juge pas et ne dit rien de vous : elle vous aide à mettre en forme ce que vous savez déjà faire.</span></li>
+            <li><i class="bi bi-door-open"></i><span><strong>Simple d’accès.</strong> Pas de compte à créer, rien à installer : elle s’ouvre dans votre navigateur.</span></li>
+            <li><i class="bi bi-person-check"></i><span><strong>Vous restez l’auteur.</strong> Vos textes, vos choix, votre voix. L’assistant en ligne propose, vous décidez.</span></li>
+          </ul>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#128274; Vos informations</h4>
+          <p>Ce que vous écrivez reste sur votre appareil, tant que la page est ouverte. Quand vous fermez ou rechargez la page, tout disparaît : l’application ne garde rien de façon permanente.</p>
+          <p>Pour retrouver votre travail plus tard, la <strong>disquette</strong> en haut à gauche l’enregistre dans un fichier, chez vous. Vous choisissez où.</p>
+          <p>Si vous utilisez un assistant en ligne, c’est vous qui copiez ce qu’il reçoit. Des outils vous permettent de masquer votre nom, votre téléphone et votre e-mail avant de l’envoyer.</p>
+          <div class="intro-pied" style="justify-content:flex-start;margin:.8rem 0 0"><button type="button" class="btn btn-outline-primary btn-sm"><i class="bi bi-shield-check"></i> Confidentialité de vos données</button></div>
+        </div>
+
+        <div class="cv-section">
+          <h4>&#129309; Pour les professionnels de l’accompagnement</h4>
+          <ul class="intro-liste">
+            <li><i class="bi bi-check2"></i><span>Utilisable <strong>seul ou pendant un rendez-vous</strong> : la personne avance sans que le conseiller ait besoin d’être présent.</span></li>
+            <li><i class="bi bi-check2"></i><span><strong>Aucun compte, aucun serveur qui garde les données</strong> : les informations restent sur l’appareil de la personne.</span></li>
+            <li><i class="bi bi-check2"></i><span>Avec « Mes Repères », la personne <strong>choisit elle-même</strong> ce qu’elle veut garder pour elle ou aborder avec son conseiller.</span></li>
+            <li><i class="bi bi-check2"></i><span>« Qui fait quoi » et « Employeurs près de chez moi » donnent, pour le département, des <strong>adresses utiles avec leur date de vérification</strong> : un appui pour préparer un rendez-vous.</span></li>
+          </ul>
+        </div>
+
+        <div class="intro-pied">
+          <button type="button" class="btn btn-primary" data-retour-accueil><i class="bi bi-arrow-right-circle"></i> Commencer</button>
+          <button type="button" class="btn btn-outline-primary" data-retour-accueil><i class="bi bi-house"></i> Retour à l’accueil</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Notes pour Denis (refermables) ===== -->
+  <div class="mq-notes" id="mqNotesBloc" hidden>
+    <button type="button" class="btn btn-sm btn-outline-secondary fermer" id="mqNotesFermer" aria-label="Fermer les notes"><i class="bi bi-x-lg"></i></button>
+    <h2>Notes pour Denis (version 4)</h2>
+    <h3>Ce qui a changé depuis la version 3</h3>
+    <ul>
+      <li><strong>Vous avez demandé de garder l’essentiel</strong> : la page passe de 32 à 16 images. Le détail de chaque outil a disparu.</li>
+      <li><strong>Gardé en détail</strong> : la création du CV (l’exemple de Camille et les modèles), puis la lettre et l’entretien.</li>
+      <li><strong>Un seul outil d’analyse en images</strong> : « Analyser ma candidature » (deux résultats). Les autres tiennent en une phrase.</li>
+      <li><strong>Un bloc « Comprendre ce qui se passe près de chez vous »</strong> : Comprendre le cadre, Comprendre les chiffres, Qui fait quoi et Employeurs près de chez moi, une ligne chacun, avec seulement deux images (les chiffres, les employeurs).</li>
+      <li><strong>Le bouton « Introduction » est tout à droite de la ligne du haut</strong>, à la même hauteur que les quatre icônes, sans phrase d’explication. Il est rectangulaire, comme les autres boutons de l’application, et visible sur toutes les pages.</li>
+      <li><strong>Un bloc « Et aussi »</strong> : la boîte à outils et les outils pour hésiter, en deux lignes, sans image.</li>
+    </ul>
+    <h3>Ce qui reste à savoir</h3>
+    <ul>
+      <li><strong>Les deux modules à venir</strong> (Employeurs, Qui fait quoi) sont toujours présentés comme ouverts. L’Introduction ne passera en ligne que lorsque vous les ouvrirez au public ; le code lira leurs interrupteurs.</li>
+      <li><strong>Les captures des employeurs</strong> viennent des données actuelles : à refaire après vos nouvelles fiches (une seule commande).</li>
+      <li><strong>Les images vieillissent</strong> quand un écran change : moins d’images, c’est aussi moins à refaire.</li>
+      <li><strong>Le bloc « professionnels »</strong> affirme des faits (aucun serveur, rien de gardé) : relisez-le avec un œil de partenaire.</li>
+    </ul>
+    <h3>Questions pour vous</h3>
+    <ul>
+      <li>Ce niveau de détail vous convient-il, ou faut-il encore alléger (par exemple retirer la lettre et l’entretien, ou la galerie des modèles de CV) ?</li>
+      <li>Sur téléphone, les icônes passent déjà sur une ligne plus bas : le bouton « Introduction » les suivrait à droite sur cette ligne. Vous convient-il ainsi ?</li>
+      <li>Voulez-vous un bloc « Qui a conçu cette application » ? Je n’ai rien inventé à ce sujet.</li>
+    </ul>
+    <h3>Ce que je ferai au moment du code (rien avant votre feu vert)</h3>
+    <ul>
+      <li>Nouvelle page « introduction », bouton fixe en haut à droite sur toutes les pages, entrée dans l’aide, recherche de l’accueil et Lexique branchés.</li>
+      <li>Les phrases des outils lues depuis la source des cartes de l’accueil, jamais recopiées ; les deux outils à venir suivent leurs interrupteurs.</li>
+      <li>Test automatique, essai navigateur clair, sombre, téléphone, ligne dans le journal et dans Nouveautés.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  var CARTES = [
+    ['bi-folder2-open', 'Mes documents', 'Le point de départ pour votre CV, votre lettre de motivation et votre préparation d’entretien d’embauche.', ['Créer un nouveau CV', 'Reprendre mon CV', 'Lettre et entretien en version rapide']],
+    ['bi-person', 'Me préparer à candidater', 'Écrire votre lettre avec un assistant et vous entraîner à l’entretien, puis trouver où envoyer votre candidature.', ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien', 'Employeurs près de chez moi']],
+    ['bi-briefcase', 'Boîte à outils', 'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.', ['Mes Repères', 'Mon Carnet', 'Lexique', 'Découvrir mes compétences']],
+    ['bi-graph-up-arrow', 'Outils d’analyse', 'Vérifier la solidité de votre candidature avant de postuler.', ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']],
+    ['bi-newspaper', 'Se tenir informé', 'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, et à qui vous adresser : expliqués simplement, à consulter quand vous en avez besoin.', ['Comprendre le cadre', 'Comprendre les chiffres', 'Qui fait quoi']],
+    ['bi-signpost-split', 'Vous hésitez encore ?', 'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.', ['Comparer mes pistes', 'Un CV, plusieurs métiers']]
+  ];
+  document.getElementById('mqCartes').innerHTML = CARTES.map(function (c) {
+    return '<div class="carte" role="button" tabindex="0"><i class="bi ' + c[0] + '"></i><h3>' + c[1] + '</h3><p>' + c[2] + '</p><div class="carte-puces">' + c[3].map(function (x) { return '<span class="carte-puce">' + x + '</span>'; }).join('') + '</div></div>';
+  }).join('');
+
+  // Images prises DANS les outils (voir les scripts captures_*). [titre de l'outil, phrase (reprise des sous-cartes de l'accueil), [ [image, légende], ... ] ]
+  var DOCS = [
+    ['Écrire ma lettre de motivation', 'Vous écrivez la lettre avec un assistant, phrase par phrase, en prenant le temps. Puis vous choisissez la mise en page.', [['i_lettre_1_preparer', 'Vous déposez votre CV et dites à qui vous écrivez.'], ['i_lettre_2_mise_en_page', 'La lettre mise en page : modèle, couleur, police, aperçu.']]],
+    ['M’entraîner à un entretien', 'Une séance d’entraînement : vous répondez à des questions d’entretien, à l’écrit ou à voix haute, et l’assistant réagit à vos réponses.', [['i_entretien_1_resultat', 'Votre préparation est enregistrée et mise en page.']]]
+  ];
+  var ANALYSE = [
+    ['Analyser ma candidature', 'Mon CV est-il solide ? Un assistant repère ce qui mérite d’être renforcé.', [['i_bilan_2_resultat', 'Un résultat clair : ce qui est solide, ce qui peut faire hésiter.'], ['i_bilan_3_resultat', 'Des pistes concrètes, de la plus importante à la moindre.']]]
+  ];
+  var TERRITOIRE = [
+    ['En images', 'Le chômage de votre département, expliqué ; et des employeurs à qui écrire, avec leur date de vérification.', [['i_chiffres_1_chomage', 'Comprendre les chiffres : le taux de chômage de votre département.'], ['i_employeurs_2_liste', 'Employeurs près de chez moi : la liste, avec la date de vérification et le lien vers leurs offres.']]]
+  ];
+  function rendreOutils(id, outils) {
+    document.getElementById(id).innerHTML = outils.map(function (o) {
+      return '<div class="intro-outil"><strong>' + o[0] + '</strong><span>' + o[1] + '</span><div class="intro-outil-images">' + o[2].map(function (im) {
+        return '<figure><a href="maquette_introduction/' + im[0] + '.png" target="_blank"><img loading="lazy" src="maquette_introduction/' + im[0] + '.png" alt="Capture dans l’outil « ' + o[0] + ' » : ' + im[1] + '"></a><figcaption>' + im[1] + '</figcaption></figure>';
+      }).join('') + '</div></div>';
+    }).join('');
+  }
+  rendreOutils('mqGalerieDocs', DOCS);
+  rendreOutils('mqGalerieAnalyse', ANALYSE);
+  rendreOutils('mqGalerieTerritoire', TERRITOIRE);
+
+  function montrer(nom) {
+    document.getElementById('ecran-accueil').hidden = (nom !== 'accueil');
+    document.getElementById('ecran-intro').hidden = (nom !== 'intro');
+    document.querySelectorAll('[data-ecran]').forEach(function (b) { b.classList.toggle('actif', b.dataset.ecran === nom); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-ecran]').forEach(function (b) { b.addEventListener('click', function () { montrer(b.dataset.ecran); }); });
+  document.getElementById('mqBoutonIntro').addEventListener('click', function () { montrer('intro'); });
+  document.querySelectorAll('[data-retour-accueil]').forEach(function (b) { b.addEventListener('click', function () { montrer('accueil'); }); });
+
+  document.querySelectorAll('[data-theme-choix]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.themeChoix === 'sombre') { document.documentElement.setAttribute('data-theme', 'sombre'); }
+      else { document.documentElement.removeAttribute('data-theme'); }
+      document.querySelectorAll('[data-theme-choix]').forEach(function (x) { x.classList.toggle('actif', x === b); });
+    });
+  });
+  document.querySelectorAll('[data-vue]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.getElementById('mqCadre').classList.toggle('tel', b.dataset.vue === 'tel');
+      document.querySelectorAll('[data-vue]').forEach(function (x) { x.classList.toggle('actif', x === b); });
+    });
+  });
+  var notes = document.getElementById('mqNotesBloc');
+  document.getElementById('mqNotes').addEventListener('click', function () { notes.hidden = !notes.hidden; if (!notes.hidden) { notes.scrollIntoView({ behavior: 'smooth' }); } });
+  document.getElementById('mqNotesFermer').addEventListener('click', function () { notes.hidden = true; });
+})();
+</script>
+</body>
+</html>

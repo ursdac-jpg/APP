@@ -112,3 +112,28 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
 - **Correction** : `css/mise-en-page-maquette.css`, en boutons agrandis la grille passe à une colonne dès qu'il n'y a pas la place pour deux (`auto-fit`, 17 rem), et les lignes de boutons passent à la ligne. Essai `grandsBoutons` : 17 sur 17 à 1043 et à 1200 px.
 - **Règle** : un essai de mise en page se rejoue à plusieurs largeurs (738, 1043, 1200), pas à une seule.
 - **Statut** : CORRIGÉ.
+
+### CV : ruban court sur « Colonne et frise » Sobre, le début du nom et du titre est blanc sur fond clair (CORRIGÉ le 2026-10-30)
+- **Symptôme** : modèle `sobre:mq-frise`, bandeau en tête « ruban court » sens 1 : la diagonale du bandeau laisse le début du nom (le « C » de Camille) et le début du titre (« Ag » de Agent de sécurité) sur le fond clair de la colonne, en blanc sur gris clair, donc illisibles. Même famille, constatée une seule fois sur `creatif:colonneBandeau` et `creatif:colonneClaire` (bandeau diagonale sens 1) : une ligne de coordonnées sombre au milieu de lignes blanches ; non reproduite à la relance.
+- **Constat** : balayage des 39 modèles le 2026-10-30, mode complet (illisible : 1 cas sur 39 modèles ; mélange de couleurs : 2 cas non reproduits) et options court/moyen (0 anomalie sur les 78 passages). Capture du cas : `C:\tmp\ph1\sobre_mq-frise__bandeau_rubanCourt_1.png` (non gardée dans le dépôt).
+- **Cause (vérifiée)** : le modèle `sobre-frise` construit son propre CSS et sort de `cvPdfTemplateMaquette.js` avant le bloc qui écrit la forme du bandeau pour le texte à deux tons (`--clip-bandeau`, `--hors`, `--hors-actif`). La copie `.tete-hors` n'était donc jamais posée : tout bandeau de forme découpée y laissait du texte blanc sur la colonne claire, pas seulement le ruban court.
+- **Correction** : `cvPdfTemplateMaquette.js`, la branche frise sobre émet les mêmes variables et règles que le bloc générique (bandeau seulement). Scan de lisibilité `mq-frise` : 0 cas sur 34 scénarios ; `mq-photo`, `mq-rectangles`, `mq-grille` : 0 ; `npm test` : 2193.
+- **Statut** : CORRIGÉ. Les deux cas de « mélange de couleurs » sur `colonneBandeau` et `colonneClaire` ne se sont pas reproduits et restent à surveiller.
+
+### Version rapide : la réponse à « Quelques passages à préciser » ne corrigeait pas le dossier (trouvé le 01/11/2026, CORRIGÉ le 01/11/2026)
+- **Symptôme** : en version rapide (lettre et entretien), répondre à une question comme « sSsT » devenu « SST » ne changeait rien dans « Vos informations » ; la réponse n'était pas non plus rangée dans les informations non classées : elle était perdue sans message.
+- **Cause** : le rangement dans le dossier (`fusionnerDonnees`) se faisait AVANT les questions, puis la réponse était appliquée sur la copie `valeurs`, déjà sans lien avec le dossier ; la fonction renvoyait « appliqué », donc rien n'était gardé ailleurs. Vérifié au navigateur avant la correction (valeurs corrigées, dossier inchangé).
+- **Correction** : les questions sont posées dans le bloc en page (`modules/passages-a-preciser/`), qui applique la réponse sur le dossier lui-même ; essai `prepLEPassages`.
+- **Statut** : CORRIGÉ (étape 3 du chantier relecture en page).
+- **Règle** : une correction doit s'appliquer sur l'objet qui sera réellement lu après, jamais sur une copie ; l'essai doit relire le dossier, pas l'objet corrigé.
+
+### Regard extérieur : « Aller plus loin » ne faisait plus rien après un rechargement (trouvé le 01/11/2026, CORRIGÉ le 01/11/2026)
+- **Symptôme** : depuis un ancien rapport rouvert dans « Mes rapports » (session sauvegardée puis rechargée), on répondait à toutes les questions de « Aller plus loin », puis rien ne se passait à la fin : pas de message, pas d'assistant.
+- **Cause** : l'assistant choisi (`_regardExterieurDernierAssistant`) n'est pas sauvegardé ; `_regardExterieurLancerApprofondissementFinal` s'arrêtait en silence (`if (!assistant) { return; }`). Trouvé en relisant le code pour la maquette « Regard extérieur sans fenêtres ».
+- **Correction** : si aucun assistant n'est retenu, la fenêtre « Choisissez votre assistant » s'ouvre, puis l'envoi continue. Vérifié au navigateur (assistant effacé, fonction appelée : la fenêtre s'ouvre avec les 6 assistants).
+- **Statut** : CORRIGÉ. Le déroulé sans fenêtres de la maquette passera toujours par l'étape « Assistant » quand aucun n'est retenu.
+- **Règle** : une variable de travail qui n'est pas sauvegardée ne doit jamais conditionner la fin d'un parcours sans solution de repli visible.
+
+## Camembert de « Comprendre les chiffres » : trou blanc dans le disque (2026-11-06)
+
+**Symptôme** : sur « Depuis combien de temps les demandeurs sont inscrits » (Haute-Vienne, 46 % et 54 %), un quart du disque restait blanc. **Cause** : les parts étaient tracées par des tirets d'un trait très épais (`stroke-dasharray` avec `pathLength`), que le navigateur découpe mal. **Correction** : chaque part est maintenant une vraie part de gâteau (chemin SVG), la somme fait le tour complet ; test passé sur `data-pct`. Règle : jamais de tirets pour dessiner une part de disque.

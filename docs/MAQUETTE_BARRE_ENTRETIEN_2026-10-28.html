@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entretien : la barre d'étapes, avant et après</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:10px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+.barre-etapes-bilan { flex-wrap:wrap; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:8px; padding:8px 10px; margin:6px 0; background:var(--mq-card); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>M'entraîner à un entretien : la barre d'étapes</h1>
+<p class="muted">Les barres ci-dessous sont dessinées avec les vraies couleurs de l'application. Seul un mot change. Rien n'est codé.</p>
+
+<div class="mq-carte">
+  <h2>Aujourd'hui <span class="mq-etiquette">« S'entraîner » : la personne ne s'entraîne pas à ce moment</span></h2>
+  <div class="mq-ligne">1. Elle prépare sa demande (écran « Préparer ») :</div>
+  <div id="a0"></div>
+  <div class="mq-ligne">2. Elle choisit son assistant :</div>
+  <div id="a1"></div>
+  <div class="mq-ligne">3. Elle est sur l'écran <strong>« En attente de votre préparation d'entretien »</strong> : elle colle la réponse de l'assistant (le troisième repère est allumé) :</div>
+  <div id="a2"></div>
+  <div class="mq-ligne">4. Sa fiche de préparation est là, dans « Vos documents » :</div>
+  <div id="a3"></div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposé : Préparer, Assistant, Réponse, Terminé <span class="mq-etiquette ok">même mot que la lettre</span></h2>
+  <div class="mq-ligne">1. Préparer :</div>
+  <div id="b0"></div>
+  <div class="mq-ligne">2. Assistant :</div>
+  <div id="b1"></div>
+  <div class="mq-ligne">3. Sur l'écran où elle colle la réponse (seul changement) :</div>
+  <div id="b2"></div>
+  <div class="mq-ligne">4. Terminé :</div>
+  <div id="b3"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que j'ai lu dans le code</h2>
+  <ul>
+    <li><strong>Simple :</strong> la barre se définit en un seul endroit (<code>PREPA_ENTRETIEN_NAV_ETAPES</code>, <code>data/metiers.js</code>), exactement comme celle de la lettre. Le troisième repère ne s'allume que sur l'écran de collage ; aucun autre écran ne s'y appuie.</li>
+    <li><strong>Trois endroits à mettre à jour avec le mot :</strong> le texte d'aide du bouton « Où vous en êtes » (« La barre en haut suit les quatre étapes… »), l'icône (le micro devient le bloc-notes, comme la lettre), et un cas du parcours automatique qui cherche encore « S'entraîner » dans la barre de fin.</li>
+    <li><strong>Un détail :</strong> le micro de « S'entraîner » rappelait le thème de l'entretien ; il disparaît du repère. Le titre de la page et l'icône du module sur l'accueil gardent le micro.</li>
+    <li><strong>Risque :</strong> aucun. Un mot, une icône, un texte d'aide, un cas de test. Retour en arrière : un seul commit.</li>
+  </ul>
+</div>
+
+<div class="mq-reponse">
+  <strong>Pour valider :</strong> « entretien : OK ». Si vous préférez garder le micro, ou un autre mot, dites-le avant que je code.
+</div>
+</div>
+<script>
+(function () {
+  function barre(etapes, idx) {
+    var h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+    etapes.forEach(function (e, i) {
+      var fait = i < idx, courant = i === idx, avenir = i > idx;
+      if (i > 0) { h += '<span class="chevron-etape-action" ' + (i > idx ? 'style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+      h += '<span class="pastille-etape-action' + (fait ? ' pastille-etape-action-validee' : (courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '')) + '" style="cursor:default;' + (avenir ? 'opacity:0.4;' : '') + '">' +
+        '<span class="pastille-etape-action-icone">' + e[0] + '</span><span class="pastille-etape-action-label">' + e[1] + '</span></span>';
+    });
+    return h + '</div>';
+  }
+  var avant = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#127908;', 'S’entraîner'], ['&#9989;', 'Terminé']];
+  var apres = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#128203;', 'Réponse'], ['&#9989;', 'Terminé']];
+  [0, 1, 2, 3].forEach(function (i) { document.getElementById('a' + i).innerHTML = barre(avant, i); document.getElementById('b' + i).innerHTML = barre(apres, i); });
+})();
+</script>
+</body>
+</html>

@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="modules/regard-exterieur/regardExterieur.css">
   <!-- Module « Carnet » — voir modules/carnet/ARCHITECTURE_TECHNIQUE.md. -->
   <link rel="stylesheet" href="modules/carnet/carnet.css">
+  <link rel="stylesheet" href="modules/astuce-dictee/astuceDictee.css">
   <!-- Module « Lexique » — voir modules/lexique/ARCHITECTURE_TECHNIQUE.md. Cible ses
        écrans via [id^="lexique"], jamais les classes Bootstrap génériques globalement. -->
   <link rel="stylesheet" href="modules/lexique/lexique.css">
@@ -188,6 +189,8 @@
   <!-- Nouveautés (26/10/2026, docs/CHANTIER_NOUVEAUTES_2026-10-26.md) : 4e icône de la ligne du haut, même forme, visible sur toutes les pages ; la pastille compte les ajouts des 30 derniers jours. -->
   <button type="button" id="btnNouveautes" aria-label="Nouveautés : voir ce qui a été ajouté" title="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i><span class="pastille-nouveau" id="nvPastille" hidden></span></button>
   <button type="button" id="btnAide" aria-label="Aide sur cette page" title="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
+  <!-- Introduction (02/11/2026, modules/introduction) : bouton rectangulaire tout à droite de la ligne du haut, visible sur toutes les pages une fois le module ouvert (caché sinon). -->
+  <button type="button" id="btnIntroduction" hidden aria-label="Introduction : présentation de l’application" title="Introduction"><i class="bi bi-compass" aria-hidden="true"></i> Introduction</button>
   <div id="panneauAide" hidden>
     <h6><i class="bi bi-lightbulb"></i> Besoin d'aide ?</h6>
     <p class="small text-muted mb-2">Comprendre à quoi sert chaque outil de cette page.</p>
@@ -238,6 +241,8 @@
   <script src="data/environnementsTravail.js" charset="UTF-8"></script>
   <script src="data/valeursProfessionnelles.js" charset="UTF-8"></script>
   <script src="data/baseConnaissancesERIP.js" charset="UTF-8"></script>
+  <!-- Index des fiches de « Comprendre le cadre » pour la recherche de l'accueil (genere, consigne 101). -->
+  <script src="data/indexFichesCadre.js" charset="UTF-8"></script>
   <script src="data/secteurs.js" charset="UTF-8"></script>
   <script src="data/competencesSecteurs.js" charset="UTF-8"></script>
   <script src="data/microFormations.js" charset="UTF-8"></script>
@@ -385,6 +390,7 @@
   <script src="modules/cv-mise-en-page/reglagesTraducteurs.js" charset="UTF-8"></script>
   <!-- Recadrage de la photo du CV (zoom + deplacement), appele par ajouterPhotoAuDossier() de js/app.js. -->
   <script src="modules/photo-cadrage/photoCadrage.js" charset="UTF-8"></script>
+  <script src="modules/vos-documents/familles.js" charset="UTF-8"></script>
   <script src="modules/lettre-core/destinataireLettreCo.js" charset="UTF-8"></script>
   <script src="modules/lettre-core/normaliserDonneesLettre.js" charset="UTF-8"></script>
   <script src="modules/lettre-core/construireMessageLettreCo.js" charset="UTF-8"></script>
@@ -529,6 +535,12 @@
        js/app.js (référencé dans l'objet `routes`). Voir
        docs/CHANTIER_AIDE_DECISION_ORIENTATION.md. -->
   <script src="modules/comparer-pistes/index.js" charset="UTF-8"></script>
+  <!-- Fenêtre unique « Collez la réponse de l'assistant » (dette B.17) : logique pure puis dessin ; chargée avant js/app.js. Maquette : docs/MAQUETTE_FENETRE_UNIQUE_COLLAGE_2026-10-28.html. -->
+  <script src="modules/collage-reponse/logique.js" charset="UTF-8"></script>
+  <script src="modules/collage-reponse/fenetre.js" charset="UTF-8"></script>
+  <!-- Bloc « Quelques passages à préciser » en page (point 15, étape 1 : composant partagé, pas encore branché sur un module). Logique pure puis dessin ; chargé avant js/app.js. Maquette : docs/MAQUETTE_RELECTURE_EN_PAGE_2026-11-01.html. -->
+  <script src="modules/passages-a-preciser/logique.js" charset="UTF-8"></script>
+  <script src="modules/passages-a-preciser/bloc.js" charset="UTF-8"></script>
   <!-- Module « Comprendre le cadre » (sous-carte de « Se tenir informé »),
        page routée, pure consultation, voir ARCHITECTURE_TECHNIQUE.md du
        module. Chargé avant js/app.js (référencé dans l'objet `routes`). -->
@@ -589,10 +601,17 @@
   <script src="modules/cv-sans-assistant/logique.js" charset="UTF-8"></script>
   <script src="modules/cv-sans-assistant/lecteurPdf.js" charset="UTF-8"></script>
   <script src="modules/cv-sans-assistant/index.js" charset="UTF-8"></script>
+  <!-- Astuce de dictée selon l'appareil (brique commune, consigne 85) ; avant js/app.js et les modules. -->
+  <script src="modules/astuce-dictee/astuceDictee.js" charset="UTF-8"></script>
   <!-- Nouveautés : données, logique pure, interface ; avant js/app.js (route 'nouveautes'). -->
   <script src="data/nouveautes.js" charset="UTF-8"></script>
   <script src="modules/nouveautes/logique.js" charset="UTF-8"></script>
   <script src="modules/nouveautes/index.js" charset="UTF-8"></script>
+  <!-- Introduction : logique pure puis interface ; après Qui fait quoi (mtOuvert) et avant js/app.js (route introduction). -->
+  <script src="modules/introduction/logique.js" charset="UTF-8"></script>
+  <script src="modules/introduction/index.js" charset="UTF-8"></script>
+<script src="modules/introduction/diaporama.js" charset="UTF-8"></script>
+<script src="modules/introduction/video.js" charset="UTF-8"></script>
   <script src="js/app.js" charset="UTF-8"></script>
 
 </body>

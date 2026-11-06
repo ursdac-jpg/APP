@@ -7,7 +7,7 @@ tags: [sortie de détention, levée d'écrou, papiers d'identité, santé, RSA, 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "levée d'écrou"
     definition: "Le moment officiel de la sortie de détention. Plusieurs droits, mis en pause ou attachés à la détention, sont alors à réactiver ou à ouvrir."
@@ -24,7 +24,8 @@ ce_qui_change_souvent:
   - "Les démarches de couverture santé à la sortie"
   - "Les conditions d'accès au RSA pour les sortants de détention"
   - "L'organisation de l'hébergement d'urgence des sortants"
-revisions: []
+revisions:
+  - "2026-11-04 : la complémentaire santé solidaire et le circuit du service d'accueil et d'orientation ne sont pas confirmés par la page relue (assouplis) ; le paragraphe sur la domiciliation est retiré"
 collecte: justice.collecte.md
 ---
 
@@ -32,12 +33,10 @@ La sortie de détention s'accompagne d'une série de démarches. Le mieux est de
 
 Les papiers d'identité : si votre carte est périmée, commencez le renouvellement pendant la détention.
 
-La santé : pendant la détention, vous êtes couvert automatiquement. À la sortie, il faut faire le lien avec la caisse d'assurance maladie pour garder une couverture, et demander la complémentaire santé solidaire si vos ressources sont faibles.
-
-La domiciliation : celle de l'établissement pénitentiaire s'arrête à la levée d'écrou. Demandez-en une nouvelle au centre communal d'action sociale ou à une association agréée, sinon vous ne pourrez pas recevoir votre courrier ni faire valoir vos droits.
+La santé : pendant la détention, vous êtes couvert automatiquement. À la sortie, il faut faire le lien avec la caisse d'assurance maladie pour garder une couverture,.
 
 Le RSA, la prime d'activité, l'aide au logement : vous pouvez les demander à la sortie, avec l'aide de la caisse d'allocations familiales et du SPIP. Si vous perceviez le RSA avant la détention, il peut reprendre dès votre libération : faites la démarche tout de suite.
 
-L'hébergement : si vous n'avez pas de solution, la demande passe par le service d'accueil et d'orientation du département, en lien avec le SPIP. Voir aussi la fiche « Sans hébergement » du rayon logement.
+L'hébergement : si vous n'avez pas de solution, parlez-en à votre conseiller du SPIP. Voir aussi la fiche « Sans hébergement » du rayon logement.
 
 Rien de tout cela ne se règle seul le jour de la sortie : c'est un travail à mener en amont avec le SPIP et les partenaires.

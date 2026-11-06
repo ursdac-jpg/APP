@@ -11,13 +11,18 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "handicap-aah-et-travail",
       "rayon": "handicap",
       "titre": "L'allocation aux adultes handicapés (AAH) et le travail"
+    },
+    {
+      "ficheId": "handicap-majoration-vie-autonome",
+      "rayon": "handicap",
+      "titre": "La majoration pour la vie autonome : un complément de l'AAH pour vivre chez soi"
     }
   ],
   "abandon-de-poste": [
     {
       "ficheId": "emploi-abandon-de-poste",
       "rayon": "emploi",
-      "titre": "L'abandon de poste : ce que ça change vraiment depuis 2023"
+      "titre": "L'abandon de poste : ce que ça change vraiment"
     }
   ],
   "abondement-cpf": [
@@ -74,6 +79,18 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "handicap-agefiph",
       "rayon": "handicap",
       "titre": "L'AGEFIPH : les aides pour l'emploi quand on a une reconnaissance de travailleur handicapé"
+    },
+    {
+      "ficheId": "handicap-trouver-formation-accessible",
+      "rayon": "handicap",
+      "titre": "Trouver une formation accessible : l'outil QuiForme et le filtre « Accueil handicap »"
+    }
+  ],
+  "agirc-arrco": [
+    {
+      "ficheId": "seniors-retraite-complementaire-agirc-arrco",
+      "rayon": "seniors",
+      "titre": "La retraite complémentaire du privé : l'Agirc-Arrco, comment elle fonctionne"
     }
   ],
   "aide-a-la-mobilite": [
@@ -81,6 +98,11 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "mobilite-aide-mobilite-france-travail",
       "rayon": "mobilite",
       "titre": "L'aide à la mobilité de France Travail : frais de déplacement, repas, hébergement"
+    },
+    {
+      "ficheId": "mobilite-leasing-social",
+      "rayon": "mobilite",
+      "titre": "Le leasing social : louer une voiture électrique à petit prix"
     }
   ],
   "aide-alimentaire": [
@@ -123,6 +145,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Se former en français pour le travail, et faire financer la formation"
     }
   ],
+  "alternance": [
+    {
+      "ficheId": "jeunes-apprentissage-sans-employeur",
+      "rayon": "jeunes",
+      "titre": "Inscrit en apprentissage mais sans employeur : qui peut vous aider"
+    }
+  ],
   "amenagement-de-peine": [
     {
       "ficheId": "justice-amenagement-de-peine",
@@ -156,6 +185,26 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "garde-elever-seul-son-enfant",
       "rayon": "garde",
       "titre": "Quand on élève seul son ou ses enfants : priorités d'accès et aides"
+    },
+    {
+      "ficheId": "garde-pension-alimentaire-paiement-direct",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire impayée : le paiement direct pour la récupérer"
+    },
+    {
+      "ficheId": "garde-pension-impayee-asf",
+      "rayon": "parents-separes",
+      "titre": "Une pension alimentaire non versée : l'allocation de soutien familial (ASF)"
+    },
+    {
+      "ficheId": "parents-separes-aripa-intermediation-pension",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire : l'Aripa collecte et verse à votre place (intermédiation financière)"
+    },
+    {
+      "ficheId": "parents-separes-fixer-la-pension-alimentaire",
+      "rayon": "parents-separes",
+      "titre": "Fixer la pension alimentaire pour un enfant : l'accord entre parents ou le juge"
     }
   ],
   "arret-de-travail-indemnites-journalieres": [
@@ -163,6 +212,35 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "emploi-arret-maladie",
       "rayon": "emploi",
       "titre": "L'arrêt maladie : combien de temps, quelles indemnités, et comment préparer la reprise"
+    }
+  ],
+  "asf": [
+    {
+      "ficheId": "garde-pension-alimentaire-paiement-direct",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire impayée : le paiement direct pour la récupérer"
+    },
+    {
+      "ficheId": "garde-pension-impayee-asf",
+      "rayon": "parents-separes",
+      "titre": "Une pension alimentaire non versée : l'allocation de soutien familial (ASF)"
+    },
+    {
+      "ficheId": "parents-separes-aripa-intermediation-pension",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire : l'Aripa collecte et verse à votre place (intermédiation financière)"
+    },
+    {
+      "ficheId": "parents-separes-fixer-la-pension-alimentaire",
+      "rayon": "parents-separes",
+      "titre": "Fixer la pension alimentaire pour un enfant : l'accord entre parents ou le juge"
+    }
+  ],
+  "aspa": [
+    {
+      "ficheId": "seniors-aspa-minimum-vieillesse",
+      "rayon": "seniors",
+      "titre": "L'ASPA : un complément quand la retraite est trop faible"
     }
   ],
   "atelier-sociolinguistique": [
@@ -224,6 +302,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Mon titre de séjour me permet-il de travailler ?"
     }
   ],
+  "bilan-competences": [
+    {
+      "ficheId": "fonction-publique-bilan-de-competences-agents",
+      "rayon": "fonction-publique",
+      "titre": "Agent public : faire un bilan de compétences pour changer de voie"
+    }
+  ],
   "bonne-foi": [
     {
       "ficheId": "budget-surendettement",
@@ -240,8 +325,13 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "bprea": [
     {
+      "ficheId": "agriculture-bprea-se-former-pour-sinstaller",
+      "rayon": "agriculture",
+      "titre": "Se former pour devenir agriculteur : le BPREA, voies d'accès et conditions"
+    },
+    {
       "ficheId": "creer-s-installer-en-agriculture",
-      "rayon": "creer",
+      "rayon": "agriculture",
       "titre": "S'installer en agriculture : créer ou reprendre une exploitation"
     }
   ],
@@ -278,6 +368,18 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "creer-cooperative-activite-emploi",
       "rayon": "creer",
       "titre": "La coopérative d'activité et d'emploi : tester son activité en gardant un statut de salarié"
+    }
+  ],
+  "carriere-longue": [
+    {
+      "ficheId": "seniors-carriere-longue-depart-anticipe",
+      "rayon": "seniors",
+      "titre": "Carrière longue : partir à la retraite avant l'âge légal"
+    },
+    {
+      "ficheId": "seniors-retraite-et-enfants",
+      "rayon": "seniors",
+      "titre": "Retraite et enfants : les trimestres et les avantages liés à la parentalité"
     }
   ],
   "casier-judiciaire": [
@@ -343,9 +445,26 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "cfa": [
     {
+      "ficheId": "emploi-fonction-publique-apprentissage-age",
+      "rayon": "fonction-publique",
+      "titre": "Fonction publique : l'apprentissage, et quand la limite d'âge d'un concours ne s'applique pas"
+    },
+    {
+      "ficheId": "jeunes-apprentissage-sans-employeur",
+      "rayon": "jeunes",
+      "titre": "Inscrit en apprentissage mais sans employeur : qui peut vous aider"
+    },
+    {
       "ficheId": "jeunes-contrat-apprentissage",
       "rayon": "jeunes",
       "titre": "Le contrat d'apprentissage : apprendre un métier en étant payé"
+    }
+  ],
+  "cheque-energie": [
+    {
+      "ficheId": "logement-cheque-energie-et-factures-impayees",
+      "rayon": "logement",
+      "titre": "Payer sa facture d'énergie : le chèque énergie, et que faire en cas d'impayé"
     }
   ],
   "clause-sociale": [
@@ -367,11 +486,30 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Lecture, écriture, calcul : les formations aux compétences de base"
     }
   ],
+  "cmg": [
+    {
+      "ficheId": "garde-conge-supplementaire-de-naissance",
+      "rayon": "garde",
+      "titre": "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant"
+    },
+    {
+      "ficheId": "parents-separes-fixer-la-pension-alimentaire",
+      "rayon": "parents-separes",
+      "titre": "Fixer la pension alimentaire pour un enfant : l'accord entre parents ou le juge"
+    }
+  ],
   "commandement-de-payer": [
     {
       "ficheId": "logement-expulsion",
       "rayon": "logement",
       "titre": "Menacé d'expulsion : les étapes de la procédure, ce qu'on peut faire"
+    }
+  ],
+  "commissaire-de-justice": [
+    {
+      "ficheId": "garde-pension-alimentaire-paiement-direct",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire impayée : le paiement direct pour la récupérer"
     }
   ],
   "commission-de-surendettement": [
@@ -395,6 +533,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "La complémentaire santé (mutuelle) : une obligation pour l'employeur"
     }
   ],
+  "conge-supplementaire-de-naissance": [
+    {
+      "ficheId": "garde-conge-supplementaire-de-naissance",
+      "rayon": "garde",
+      "titre": "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant"
+    }
+  ],
   "conseil-de-prud-hommes": [
     {
       "ficheId": "juridique-litige-avec-l-employeur",
@@ -403,6 +548,11 @@ var LEXIQUE_RENVOIS_CADRE = {
     }
   ],
   "contrat-d-apprentissage": [
+    {
+      "ficheId": "emploi-fonction-publique-apprentissage-age",
+      "rayon": "fonction-publique",
+      "titre": "Fonction publique : l'apprentissage, et quand la limite d'âge d'un concours ne s'applique pas"
+    },
     {
       "ficheId": "jeunes-contrat-apprentissage",
       "rayon": "jeunes",
@@ -442,14 +592,36 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "CDD, CDI, contrat saisonnier : quelles différences concrètes ?"
     }
   ],
+  "cotisations-sociales": [
+    {
+      "ficheId": "employeurs-reduction-generale-rgdu",
+      "rayon": "employeurs",
+      "titre": "La réduction générale des cotisations patronales : pour quels salaires"
+    }
+  ],
   "cout-employeur": [
     {
       "ficheId": "employeurs-cout-du-travail",
       "rayon": "employeurs",
       "titre": "Le coût réel d'un salarié pour l'employeur"
+    },
+    {
+      "ficheId": "employeurs-reduction-generale-rgdu",
+      "rayon": "employeurs",
+      "titre": "La réduction générale des cotisations patronales : pour quels salaires"
     }
   ],
   "cpf": [
+    {
+      "ficheId": "emploi-cpf-agents-publics",
+      "rayon": "fonction-publique",
+      "titre": "Le compte personnel de formation d'un agent public : heures, plafond, refus"
+    },
+    {
+      "ficheId": "fonction-publique-bilan-de-competences-agents",
+      "rayon": "fonction-publique",
+      "titre": "Agent public : faire un bilan de compétences pour changer de voie"
+    },
     {
       "ficheId": "former-compte-personnel-de-formation",
       "rayon": "former",
@@ -464,6 +636,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "mobilite-financer-le-permis",
       "rayon": "mobilite",
       "titre": "Comment financer le permis de conduire ?"
+    }
+  ],
+  "cpf-agents-publics": [
+    {
+      "ficheId": "emploi-cpf-agents-publics",
+      "rayon": "fonction-publique",
+      "titre": "Le compte personnel de formation d'un agent public : heures, plafond, refus"
     }
   ],
   "creche-avip": [
@@ -490,6 +669,18 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "emploi-csp",
       "rayon": "emploi",
       "titre": "Le contrat de sécurisation professionnelle (CSP), comment ça marche ?"
+    }
+  ],
+  "css": [
+    {
+      "ficheId": "sante-puma-c2s-et-medecin-traitant",
+      "rayon": "sante",
+      "titre": "Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant"
+    },
+    {
+      "ficheId": "seniors-aspa-minimum-vieillesse",
+      "rayon": "seniors",
+      "titre": "L'ASPA : un complément quand la retraite est trop faible"
     }
   ],
   "cumul-emploi-retraite": [
@@ -565,6 +756,11 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "sante-desert-medical",
       "rayon": "sante",
       "titre": "Pas de médecin près de chez vous ? Comprendre le désert médical"
+    },
+    {
+      "ficheId": "sante-puma-c2s-et-medecin-traitant",
+      "rayon": "sante",
+      "titre": "Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant"
     }
   ],
   "diplomes-de-francais": [
@@ -583,8 +779,18 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "dnja": [
     {
+      "ficheId": "agriculture-bprea-se-former-pour-sinstaller",
+      "rayon": "agriculture",
+      "titre": "Se former pour devenir agriculteur : le BPREA, voies d'accès et conditions"
+    },
+    {
+      "ficheId": "creer-guichet-unique-installation-agricole",
+      "rayon": "agriculture",
+      "titre": "S'installer en agriculture : le futur guichet unique France Services Agriculture"
+    },
+    {
       "ficheId": "creer-s-installer-en-agriculture",
-      "rayon": "creer",
+      "rayon": "agriculture",
       "titre": "S'installer en agriculture : créer ou reprendre une exploitation"
     }
   ],
@@ -747,7 +953,7 @@ var LEXIQUE_RENVOIS_CADRE = {
     {
       "ficheId": "jeunes-aides-financieres",
       "rayon": "jeunes",
-      "titre": "Les aides financières quand on a moins de 26 ans"
+      "titre": "Les aides financières quand on est jeune"
     }
   ],
   "foyer-jeunes-travailleurs": [
@@ -762,6 +968,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "francais-se-former-pour-le-travail",
       "rayon": "francais",
       "titre": "Se former en français pour le travail, et faire financer la formation"
+    }
+  ],
+  "france-services-agriculture": [
+    {
+      "ficheId": "creer-guichet-unique-installation-agricole",
+      "rayon": "agriculture",
+      "titre": "S'installer en agriculture : le futur guichet unique France Services Agriculture"
     }
   ],
   "france-travail-justice": [
@@ -800,6 +1013,11 @@ var LEXIQUE_RENVOIS_CADRE = {
     }
   ],
   "fsl": [
+    {
+      "ficheId": "logement-cheque-energie-et-factures-impayees",
+      "rayon": "logement",
+      "titre": "Payer sa facture d'énergie : le chèque énergie, et que faire en cas d'impayé"
+    },
     {
       "ficheId": "logement-fonds-de-solidarite-logement",
       "rayon": "logement",
@@ -874,6 +1092,18 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Le licenciement : la procédure, l'indemnité, le droit au chômage"
     }
   ],
+  "indemnite-solidarite-nationale": [
+    {
+      "ficheId": "agriculture-assurance-recolte-subvention",
+      "rayon": "agriculture",
+      "titre": "Agriculteur : l'assurance récolte et la subvention sur la prime"
+    },
+    {
+      "ficheId": "creer-indemnite-solidarite-nationale-secheresse-2026",
+      "rayon": "agriculture",
+      "titre": "Agriculteur en Dordogne : l'indemnité après la sécheresse"
+    }
+  ],
   "index-egalite-professionnelle": [
     {
       "ficheId": "employeurs-egalite-professionnelle",
@@ -907,6 +1137,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "justice-amenagement-de-peine",
       "rayon": "justice",
       "titre": "L'aménagement de peine et la libération sous contrainte"
+    }
+  ],
+  "leasing-social": [
+    {
+      "ficheId": "mobilite-leasing-social",
+      "rayon": "mobilite",
+      "titre": "Le leasing social : louer une voiture électrique à petit prix"
     }
   ],
   "levee-d-ecrou": [
@@ -967,9 +1204,21 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "mdph": [
     {
+      "ficheId": "handicap-majoration-vie-autonome",
+      "rayon": "handicap",
+      "titre": "La majoration pour la vie autonome : un complément de l'AAH pour vivre chez soi"
+    },
+    {
       "ficheId": "handicap-rqth-mdph",
       "rayon": "handicap",
       "titre": "La reconnaissance de la qualité de travailleur handicapé (RQTH) : à quoi ça sert, comment la demander"
+    }
+  ],
+  "medecin-traitant": [
+    {
+      "ficheId": "sante-puma-c2s-et-medecin-traitant",
+      "rayon": "sante",
+      "titre": "Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant"
     }
   ],
   "medecine-travail": [
@@ -1030,6 +1279,11 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "mission-locale": [
     {
+      "ficheId": "armees-service-militaire-volontaire",
+      "rayon": "armees",
+      "titre": "Le service militaire volontaire : une formation et un premier métier pour les jeunes sans emploi"
+    },
+    {
       "ficheId": "jeunes-mission-locale-cej",
       "rayon": "jeunes",
       "titre": "La Mission locale et le contrat d'engagement jeune"
@@ -1047,13 +1301,45 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "garde-elever-seul-son-enfant",
       "rayon": "garde",
       "titre": "Quand on élève seul son ou ses enfants : priorités d'accès et aides"
+    },
+    {
+      "ficheId": "garde-pension-impayee-asf",
+      "rayon": "parents-separes",
+      "titre": "Une pension alimentaire non versée : l'allocation de soutien familial (ASF)"
     }
   ],
   "msa": [
     {
+      "ficheId": "agriculture-assurance-recolte-subvention",
+      "rayon": "agriculture",
+      "titre": "Agriculteur : l'assurance récolte et la subvention sur la prime"
+    },
+    {
+      "ficheId": "agriculture-msa-affiliation-et-cotisations",
+      "rayon": "agriculture",
+      "titre": "Devenir exploitant agricole : la MSA, l'affiliation et les cotisations"
+    },
+    {
+      "ficheId": "agriculture-saisonnier-agricole-contrat-et-tesa",
+      "rayon": "agriculture",
+      "titre": "Travailler comme saisonnier agricole : votre contrat et le Tesa"
+    },
+    {
+      "ficheId": "creer-indemnite-solidarite-nationale-secheresse-2026",
+      "rayon": "agriculture",
+      "titre": "Agriculteur en Dordogne : l'indemnité après la sécheresse"
+    },
+    {
       "ficheId": "creer-s-installer-en-agriculture",
-      "rayon": "creer",
+      "rayon": "agriculture",
       "titre": "S'installer en agriculture : créer ou reprendre une exploitation"
+    }
+  ],
+  "mva": [
+    {
+      "ficheId": "handicap-majoration-vie-autonome",
+      "rayon": "handicap",
+      "titre": "La majoration pour la vie autonome : un complément de l'AAH pour vivre chez soi"
     }
   ],
   "naturalisation-par-decret": [
@@ -1103,6 +1389,11 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "handicap-obligation-emploi-lourdeur",
       "rayon": "handicap",
       "titre": "L'obligation d'emploi et la reconnaissance de la lourdeur du handicap"
+    },
+    {
+      "ficheId": "handicap-recrutement-fonction-publique",
+      "rayon": "fonction-publique",
+      "titre": "Entrer dans la fonction publique avec un handicap : concours aménagé ou contrat"
     }
   ],
   "offre-raisonnable-d-emploi": [
@@ -1138,10 +1429,27 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Quand on touche le RSA : l'orientation et l'accompagnement"
     }
   ],
+  "paiement-direct-pension": [
+    {
+      "ficheId": "garde-pension-alimentaire-paiement-direct",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire impayée : le paiement direct pour la récupérer"
+    },
+    {
+      "ficheId": "parents-separes-aripa-intermediation-pension",
+      "rayon": "parents-separes",
+      "titre": "Pension alimentaire : l'Aripa collecte et verse à votre place (intermédiation financière)"
+    }
+  ],
   "pait": [
     {
+      "ficheId": "creer-guichet-unique-installation-agricole",
+      "rayon": "agriculture",
+      "titre": "S'installer en agriculture : le futur guichet unique France Services Agriculture"
+    },
+    {
       "ficheId": "creer-s-installer-en-agriculture",
-      "rayon": "creer",
+      "rayon": "agriculture",
       "titre": "S'installer en agriculture : créer ou reprendre une exploitation"
     }
   ],
@@ -1150,6 +1458,11 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "garde-complement-mode-de-garde-cmg",
       "rayon": "garde",
       "titre": "Le complément de libre choix du mode de garde (CMG) : l'aide de la CAF pour payer la garde"
+    },
+    {
+      "ficheId": "parents-separes-residence-alternee-et-cmg",
+      "rayon": "parents-separes",
+      "titre": "Résidence alternée : chaque parent peut toucher l'aide pour faire garder l'enfant (CMG)"
     }
   ],
   "pass-iae": [
@@ -1227,6 +1540,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "logement-demande-de-logement-social",
       "rayon": "logement",
       "titre": "Demander un logement social : le numéro unique, les pièces, le renouvellement"
+    }
+  ],
+  "plafond-securite-sociale": [
+    {
+      "ficheId": "garde-conge-supplementaire-de-naissance",
+      "rayon": "garde",
+      "titre": "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant"
     }
   ],
   "plan-conventionnel-de-redressement": [
@@ -1376,6 +1696,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "L'obligation de formation des 16-18 ans : un droit à être accompagné"
     }
   ],
+  "puma": [
+    {
+      "ficheId": "sante-puma-c2s-et-medecin-traitant",
+      "rayon": "sante",
+      "titre": "Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant"
+    }
+  ],
   "qpv": [
     {
       "ficheId": "emploi-qpv-frr",
@@ -1441,9 +1768,31 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "releve-de-carriere": [
     {
+      "ficheId": "seniors-carriere-longue-depart-anticipe",
+      "rayon": "seniors",
+      "titre": "Carrière longue : partir à la retraite avant l'âge légal"
+    },
+    {
       "ficheId": "seniors-ou-s-informer-retraite",
       "rayon": "seniors",
       "titre": "Où m'informer sur ma retraite, à qui m'adresser"
+    },
+    {
+      "ficheId": "seniors-retraite-complementaire-agirc-arrco",
+      "rayon": "seniors",
+      "titre": "La retraite complémentaire du privé : l'Agirc-Arrco, comment elle fonctionne"
+    },
+    {
+      "ficheId": "seniors-retraite-et-enfants",
+      "rayon": "seniors",
+      "titre": "Retraite et enfants : les trimestres et les avantages liés à la parentalité"
+    }
+  ],
+  "reserve-operationnelle": [
+    {
+      "ficheId": "emploi-volontariat-reserve-armees",
+      "rayon": "armees",
+      "titre": "Volontaire ou réserviste dans les armées : deux façons de découvrir ou de rester en lien"
     }
   ],
   "reste-a-charge-formation": [
@@ -1467,6 +1816,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "La retraite progressive : réduire son activité en fin de carrière"
     }
   ],
+  "rgdu": [
+    {
+      "ficheId": "employeurs-reduction-generale-rgdu",
+      "rayon": "employeurs",
+      "titre": "La réduction générale des cotisations patronales : pour quels salaires"
+    }
+  ],
   "rlh": [
     {
       "ficheId": "handicap-obligation-emploi-lourdeur",
@@ -1476,9 +1832,19 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "rqth": [
     {
+      "ficheId": "handicap-recrutement-fonction-publique",
+      "rayon": "fonction-publique",
+      "titre": "Entrer dans la fonction publique avec un handicap : concours aménagé ou contrat"
+    },
+    {
       "ficheId": "handicap-rqth-mdph",
       "rayon": "handicap",
       "titre": "La reconnaissance de la qualité de travailleur handicapé (RQTH) : à quoi ça sert, comment la demander"
+    },
+    {
+      "ficheId": "handicap-trouver-formation-accessible",
+      "rayon": "handicap",
+      "titre": "Trouver une formation accessible : l'outil QuiForme et le filtre « Accueil handicap »"
     }
   ],
   "rsa-ou-prime-activite": [
@@ -1510,6 +1876,11 @@ var LEXIQUE_RENVOIS_CADRE = {
     }
   ],
   "service-civique": [
+    {
+      "ficheId": "emploi-volontariat-reserve-armees",
+      "rayon": "armees",
+      "titre": "Volontaire ou réserviste dans les armées : deux façons de découvrir ou de rester en lien"
+    },
     {
       "ficheId": "jeunes-service-civique",
       "rayon": "jeunes",
@@ -1556,6 +1927,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "justice-spip",
       "rayon": "justice",
       "titre": "Le service pénitentiaire d'insertion et de probation : votre interlocuteur pendant et après la peine"
+    }
+  ],
+  "suspension-reforme-retraites-2026": [
+    {
+      "ficheId": "seniors-carriere-longue-depart-anticipe",
+      "rayon": "seniors",
+      "titre": "Carrière longue : partir à la retraite avant l'âge légal"
     }
   ],
   "suspension-remobilisation": [
@@ -1614,6 +1992,11 @@ var LEXIQUE_RENVOIS_CADRE = {
   ],
   "treve-hivernale": [
     {
+      "ficheId": "logement-cheque-energie-et-factures-impayees",
+      "rayon": "logement",
+      "titre": "Payer sa facture d'énergie : le chèque énergie, et que faire en cas d'impayé"
+    },
+    {
       "ficheId": "logement-expulsion",
       "rayon": "logement",
       "titre": "Menacé d'expulsion : les étapes de la procédure, ce qu'on peut faire"
@@ -1662,6 +2045,23 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "handicap-inaptitude-medecine-du-travail",
       "rayon": "handicap",
       "titre": "La médecine du travail et l'inaptitude : garder son emploi, ou ce qui se passe si on ne peut plus"
+    }
+  ],
+  "volontariat-armees": [
+    {
+      "ficheId": "armees-legion-etrangere",
+      "rayon": "armees",
+      "titre": "S'engager dans la Légion étrangère : conditions, contrat et sélection"
+    },
+    {
+      "ficheId": "armees-service-national-volontaire",
+      "rayon": "armees",
+      "titre": "Le service national volontaire : qui peut candidater, comment, et combien c'est payé"
+    },
+    {
+      "ficheId": "emploi-volontariat-reserve-armees",
+      "rayon": "armees",
+      "titre": "Volontaire ou réserviste dans les armées : deux façons de découvrir ou de rester en lien"
     }
   ]
 };

@@ -7,7 +7,7 @@ tags: [DUERP, document unique d'évaluation des risques, sécurité au travail, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "document unique d'évaluation des risques professionnels (DUERP)"
     definition: "Document obligatoire dès l'embauche du premier salarié, qui recense les risques identifiés dans l'entreprise pour la santé et la sécurité. Mis à jour régulièrement, transmis au service de prévention et de santé au travail."
@@ -19,7 +19,9 @@ sources:
   - inrs-mortel-ton-taf
 ce_qui_change_souvent:
   - "Les modalités de conservation et de transmission du DUERP"
-revisions: []
+revisions:
+  - "2026-11-04 : la page de l'INRS confirme le DUERP dès l'embauche du premier salarié, sa mise à jour annuelle au-delà de onze salariés et lors de tout aménagement important, la contravention de 5e classe et le service de prévention et de santé au travail ; l'obligation générale d'adapter le poste et de maintenir la capacité à occuper un emploi n'y figure pas (paragraphe retiré)"
+phrase_generale: "Dès l'embauche du premier salarié, l'employeur doit évaluer les risques professionnels, adapter le poste et assurer des formations de sécurité. Les obligations précises et les échéances de mise à jour changent selon la taille de l'entreprise et le secteur : consultez les sources officielles indiquées plus bas."
 collecte: employeurs.collecte.md
 ---
 
@@ -27,6 +29,4 @@ Dès l'embauche du premier salarié, l'employeur doit établir un document uniqu
 
 Son absence, ou le fait de ne pas le tenir à jour, expose l'employeur à une sanction pénale (contravention de 5e classe), en plus du risque réel que représente un accident du travail non anticipé.
 
-Au-delà du DUERP, l'employeur a une obligation générale d'adapter le poste à la personne et de veiller au maintien de sa capacité à occuper un emploi, notamment par la formation. C'est une obligation qui dure tout au long du contrat, pas seulement au moment de l'embauche.
-
-Un service de prévention et de santé au travail interentreprises accompagne l'employeur sur ces sujets : visites médicales, conseils d'adaptation du poste, évaluation des risques.
+Un service de prévention et de santé au travail accompagne l'employeur sur ces sujets : visites médicales, conseils d'adaptation du poste, évaluation des risques.

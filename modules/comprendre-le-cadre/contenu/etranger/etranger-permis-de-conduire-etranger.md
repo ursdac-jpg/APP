@@ -23,6 +23,7 @@ ce_qui_change_souvent:
   - "Le coût de la démarche"
 revisions:
   - "2026-10 : depuis le 12 mai 2026 (le 4 mai était prévu, puis reporté), la demande d'échange est payante (droit de timbre électronique réglé en ligne au moment de la demande sur le site de l'ANTS) ; vérifié sur service-public.fr (actualité mise à jour le 30 avril 2026) le 2026-10-07"
+phrase_generale: "Ce qu'il faut faire d'un permis de conduire étranger dépend du pays qui l'a délivré : il peut rester valable en France, ou devoir être échangé dans un délai fixé. Les listes de pays et les délais changent régulièrement : vérifiez votre cas sur les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

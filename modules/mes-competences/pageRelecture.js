@@ -177,6 +177,13 @@ function _mesCompConfigSecond() {
       return (m && mesCompMessageTropLong(m)) ? 'Vos documents sont trop longs pour un seul envoi. Retirez un document (revenez à « Mes documents ») puis réessayez.' : '';
     },
     construireTexte: function () { var m = message(); return m ? Promise.resolve(m) : Promise.reject(new Error('message absent')); },
+    module: { libelleSuite: 'Voir les précisions', quoi: 'L’assistant vient de relire vos réponses pour préciser vos compétences.',
+      pourquoi: 'Des compétences bien précisées se retrouvent ensuite dans votre CV et vos lettres.', verif: 'regardez que ses précisions correspondent bien à ce que vous avez dit.' },
+    verifier: function (texte) {
+      var prep = mesCompPreparerSecondPassage(etat);
+      if (!prep) { return false; }
+      return !!MesCompFilet.filtrerReponse(texte, _mesCompDocumentsDEnvoi(etat), { secondPassage: true, reponsesPersonne: prep.reponsesTexte, questionsPosees: prep.libelles }).ok;
+    },
     importer: _mesCompImporterSecond,
     apresSucces: function () { _mesCompSecondEnCours = false; mesCompRendrePage(); }
   };

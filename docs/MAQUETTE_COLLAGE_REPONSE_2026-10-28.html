@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écrans « Collez la réponse » : trop de boutons</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; --mq-ko:#a4262c; --mq-ko-bg:#fde8e8; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; --mq-ko:#f4a3a8; --mq-ko-bg:#3d1f22; } }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1040px; margin:0 auto; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.08rem; margin:0 0 8px; } h3 { font-size:1rem; margin:12px 0 4px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); vertical-align:middle; }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+.mq-etiquette.ko { background:var(--mq-ko-bg); color:var(--mq-ko); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
+.mq-capture { border:1px solid var(--mq-border); border-radius:10px; overflow:hidden; background:var(--mq-card); }
+.mq-capture img { width:100%; display:block; }
+.mq-capture p { margin:0; padding:8px 10px; font-size:.9rem; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:10px; padding:10px 12px; margin:8px 0; background:var(--mq-card); }
+.mq-opt.reco { border:2px solid var(--mq-accent); }
+.mq-benef { color:var(--mq-ok); font-weight:700; } .mq-risque { color:var(--mq-ko); font-weight:700; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+table { border-collapse:collapse; width:100%; font-size:.92rem; } th, td { border:1px solid var(--mq-border); padding:6px 8px; text-align:left; vertical-align:top; } th { background:var(--mq-bg); }
+/* l'écran proposé */
+.mq-ecran { border:1px solid var(--mq-border); border-radius:14px; background:var(--mq-card); max-width:760px; margin:8px auto; overflow:hidden; }
+.mq-ecran-corps { padding:16px 18px 10px; }
+.mq-bandeau { background:var(--accent-bg-subtle, #eaf0ff); border-left:3px solid var(--accent, #2f6bff); border-radius:8px; padding:.6rem .85rem; font-size:.92rem; margin-bottom:12px; }
+.mq-zone { text-align:center; padding:14px 0; }
+.mq-gros { border:none; border-radius:12px; background:var(--accent, #2f6bff); color:#fff; font-weight:700; font-size:1.15rem; padding:.85rem 2rem; box-shadow:0 4px 14px rgba(13,110,253,.4); cursor:pointer; }
+.mq-succes { background:var(--mq-ok-bg); color:var(--mq-ok); border-radius:10px; padding:14px 16px; font-size:1.15rem; font-weight:700; text-align:center; margin:10px 0; }
+.mq-succes small { display:block; font-weight:400; font-size:.92rem; margin-top:4px; }
+.mq-petit { font-size:.88rem; color:var(--mq-muted); text-align:center; margin:6px 0; }
+.mq-lien { background:none; border:none; color:var(--mq-accent); text-decoration:underline; cursor:pointer; font-size:.9rem; padding:2px 4px; }
+.mq-barre { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--mq-border); background:var(--mq-bg); }
+.mq-barre .btn[disabled] { opacity:.45; }
+.mq-etats { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px; }
+.mq-etats button { border:1px solid var(--mq-border); background:var(--mq-card); color:var(--mq-text); border-radius:99px; padding:4px 12px; cursor:pointer; font-size:.9rem; }
+.mq-etats button.actif { background:var(--mq-accent); color:#fff; border-color:var(--mq-accent); }
+.mq-cache { display:none !important; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1>Écrans « Collez la réponse de l'assistant » : trop de boutons pour une seule action</h1>
+<p class="muted">Rien n'est codé. Les captures ci-dessous sont les vrais écrans de l'application, relevés ce jour. Au milieu de la page, l'écran proposé est cliquable : « Coller la réponse » et « Continuer » y fonctionnent pour de faux, pour que vous jugiez le geste.</p>
+
+<div class="mq-carte">
+  <h2>1. Ce que j'ai trouvé dans le code <span class="mq-etiquette">cause du cafouillage</span></h2>
+  <ul>
+    <li><strong>Un seul composant, une trentaine d'écrans</strong> : Bilan (cinq écrans), Reformuler, Préparer lettre ou entretien, lettre, entretien, Cohérence (deux), Découvrir mes compétences, Regard (deux), Comparer, ATS, Un CV plusieurs métiers, le complément (quatre endroits : bandeau, écran « Étape 2 sur 2 », rubrique, fenêtre) et la fenêtre « Amélioration » (deux).</li>
+    <li><strong>La règle du 25/10</strong> : sur ces écrans, le bouton de la barre du bas (« Continuer ») <strong>est</strong> le bouton d'import. Il reste gris tant que rien n'est collé. Il n'y a donc plus de bouton « Importer » dans la page. C'est le bon fonctionnement, vous le voyez sur la capture 1.</li>
+    <li><strong>Le défaut</strong> : quand une réponse est <strong>déjà importée</strong> (on revient sur l'écran avec « Retour », ou on ajoute un complément), la barre rend son « Continuer » au module, pour que la personne puisse avancer. Du coup la page <strong>remet</strong> le bouton « Importer » (inutile, grisé), à côté de « Coller la réponse » et de « Continuer ». C'est votre capture (capture 3).</li>
+    <li><strong>Deux phrases fausses</strong> sur l'écran normal : l'en-tête dit « puis cliquez sur « Importer » » (ce bouton n'existe plus) et le message vert dit « Réponse <em>importée</em> automatiquement » alors que la réponse est seulement <em>collée</em> (capture 2). C'est pour cela que vous ne voyez jamais « bien importé dans le CV ».</li>
+    <li><strong>Dans la fenêtre du complément</strong>, il n'y a pas de barre du bas : le bouton « Importer le complément » reste dans la fenêtre (capture 5). Et la phrase parle encore du « rond bleu », alors que le bouton est rectangulaire depuis le 30/08.</li>
+    <li><strong>Le complément a deux chemins</strong> pour la même chose, sur le même écran : le petit bouton « Importer le complément de CV » (qui ouvre une <strong>fenêtre</strong>) et la rubrique « Compléter mon CV » (qui s'ouvre <strong>dans la page</strong>).</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>2. Les écrans réels, tels qu'ils sont aujourd'hui</h2>
+  <p class="muted">Écran « Collez la réponse de l'assistant », étape 12 de « Découvrir mes compétences » (le même composant sert à « Vos documents » et à « Créer mon CV »).</p>
+  <div class="mq-grille">
+    <div class="mq-capture"><img src="maquette_collage_reponse/1_avant_collage.jpg" alt="Avant le collage"><p><strong>1. Rien d'importé</strong> <span class="mq-etiquette ok">correct</span><br>« Coller la réponse » et « Continuer » grisé.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/2_apres_collage.jpg" alt="Après le collage"><p><strong>2. Juste après le collage</strong> <span class="mq-etiquette">phrases fausses</span><br>« Importer » dans l'en-tête et « importée » dans le message vert : ni l'un ni l'autre n'est vrai.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/3_deja_importee.jpg" alt="Réponse déjà importée"><p><strong>3. Réponse déjà importée : votre capture</strong> <span class="mq-etiquette ko">défaut</span><br>Trois boutons, plus le complément en double.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/4_fenetre_complement_avant.jpg" alt="Fenêtre du complément"><p><strong>4. Fenêtre « Ajouter le complément du CV »</strong><br>« rond bleu » : le mot est faux.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/5_fenetre_complement_apres.jpg" alt="Fenêtre du complément après collage"><p><strong>5. La même, après le collage</strong><br>« Coller » puis « Importer le complément » : deux gestes dans une fenêtre.</p></div>
+  </div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>3. L'écran proposé (cliquez pour essayer) <span class="mq-etiquette ok">options B et C ci-dessous</span></h2>
+  <p class="muted">Un seul bouton pour la réponse, un seul pour avancer. Aucun bouton « Importer ». Choisissez l'état à voir, puis cliquez dans l'écran.</p>
+  <div class="mq-etats" id="mqEtats">
+    <button type="button" data-etat="avant" class="actif">Rien d'importé</button>
+    <button type="button" data-etat="deja">Réponse déjà ajoutée (retour sur l'écran)</button>
+  </div>
+  <div class="mq-ecran">
+    <div class="mq-ecran-corps">
+      <h3 style="text-align:center;font-size:1.4rem;">&#128229; Collez la réponse de l'assistant</h3>
+      <div class="mq-bandeau">Vous revenez de l'assistant : copiez sa réponse, puis cliquez sur « Coller la réponse ». <span style="text-decoration:underline;">&#8634; Changer d'assistant</span></div>
+
+      <div id="mqAvant" class="mq-zone">
+        <button type="button" class="mq-gros" id="mqColler">&#128203; Coller la réponse</button>
+        <p class="mq-petit">Ça ne se colle pas tout seul ? <button type="button" class="mq-lien">Coller à la main</button></p>
+      </div>
+
+      <div id="mqSucces" class="mq-succes mq-cache">&#10003; Votre réponse a bien été ajoutée à votre CV
+        <small>Vous pouvez maintenant cliquer sur « Continuer », en bas à droite.</small>
+        <small><button type="button" class="mq-lien" id="mqRecoller">Ce n'est pas la bonne réponse ? Coller une autre réponse</button> · <button type="button" class="mq-lien">Coller la suite (réponse en plusieurs morceaux)</button></small>
+      </div>
+
+      <div id="mqComplement" class="mq-petit mq-cache" style="text-align:left;border-top:1px solid var(--mq-border);padding-top:10px;">
+        <strong>&#10133; Compléter mon CV</strong> (à compléter si vous le voulez) : missions des formations, des certifications. <span style="text-decoration:underline;color:var(--mq-accent);">Ouvrir</span>
+      </div>
+    </div>
+    <div class="mq-barre">
+      <button type="button" class="btn btn-outline-primary">&#8592; Retour</button>
+      <button type="button" class="btn btn-outline-primary btn-sm">Accueil</button>
+      <button type="button" class="btn btn-primary btn-lg" id="mqContinuer" disabled>Continuer &#8594;</button>
+    </div>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:6px;" id="mqLegende">Rien n'est importé : « Continuer » est grisé, comme aujourd'hui.</p>
+</div>
+
+<div class="mq-carte">
+  <h2>4. Les options <span class="mq-etiquette">votre choix</span></h2>
+  <p class="muted">Vos deux messages disent deux choses différentes : « c'est Continuer qui doit faire importer » (option A) et « Coller colle et emporte, avec un grand message » (options B et C). Je vous les présente donc toutes, avec leurs bénéfices et leurs risques.</p>
+
+  <div class="mq-opt">
+    <strong>A. « Continuer » importe, partout (on garde la règle du 25/10 et on corrige les défauts).</strong>
+    <ul>
+      <li>Ce qui change : on ne remet plus jamais le bouton « Importer » dans la page. Si rien de nouveau n'est collé, « Continuer » avance. Si on colle du nouveau, « Continuer » importe. Les deux phrases fausses sont corrigées (« collée », plus « Importer »). Le grand message dit : « Réponse collée : cliquez sur Continuer pour l'ajouter à votre CV ».</li>
+      <li><span class="mq-benef">Bénéfice :</span> faible risque, un seul endroit à modifier (la barre du bas et le composant), les ~25 écrans déjà au bon fonctionnement ne bougent pas.</li>
+      <li><span class="mq-risque">Risque :</span> la confirmation « bien ajouté à votre CV » n'arrive qu'après « Continuer », sur l'écran suivant : ce n'est pas le grand message que vous voulez voir tout de suite.</li>
+    </ul>
+  </div>
+
+  <div class="mq-opt">
+    <strong>B. « Coller la réponse » colle ET importe tout de suite, partout.</strong>
+    <ul>
+      <li>Ce qui change : un clic sur « Coller la réponse » lit le presse-papiers et lance l'import dans la foulée ; le grand message s'affiche ; « Continuer » ne fait plus qu'avancer. Aucun bouton « Importer », aucune écriture dans les ~30 modules (le composant lancerait lui-même l'import du module).</li>
+      <li><span class="mq-benef">Bénéfice :</span> c'est exactement votre gros message « bien importé » ; un geste, un résultat visible.</li>
+      <li><span class="mq-risque">Risques :</span> (1) sur beaucoup d'écrans, l'import <strong>change d'écran ou ouvre une relecture</strong> : le grand message ne serait pas vu ; (2) une réponse en <strong>plusieurs morceaux</strong> (longue) serait importée trop tôt et provoquerait une erreur au premier morceau ; (3) si le presse-papiers contient autre chose que la réponse, l'import part quand même (message d'erreur, mais plus d'étape de contrôle) ; (4) les 30 écrans sont à retester un par un.</li>
+    </ul>
+  </div>
+
+  <div class="mq-opt reco">
+    <strong>C. Un mélange, étape par étape (Recommandé).</strong> <span class="mq-etiquette ok">recommandé</span>
+    <ul>
+      <li>Ce qui change : sur les écrans où l'import <strong>reste sur la page</strong> (Vos documents, Créer mon CV, Découvrir mes compétences, Un CV plusieurs métiers, et les deux fenêtres du complément), « Coller la réponse » colle ET importe, avec le grand message (écran proposé ci-dessus). Sur tous les autres (Bilan, ATS, Regard, Cohérence, Comparer, Reformuler, lettre, entretien), on applique l'option A : « Continuer » importe, les défauts sont corrigés. Ensuite, on étend écran par écran à votre rythme, comme pour les autres dettes de composants (chantier par chantier).</li>
+      <li><span class="mq-benef">Bénéfices :</span> vous avez tout de suite le comportement voulu là où il est sûr (le cas de votre capture et du complément) ; aucun écran n'est cassé ; le geste visible est le même partout (coller, puis continuer), seul le texte du message diffère un temps.</li>
+      <li><span class="mq-risque">Risques :</span> pendant la transition, deux familles d'écrans se comportent un peu différemment (le message dit « ajoutée » ici, « collée » là) ; il faut l'écrire clairement dans les briques communes pour ne pas l'oublier.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mq-carte">
+  <h2>5. Trois questions à trancher <span class="mq-etiquette">pour B et C</span></h2>
+  <table>
+    <tr><th>Question</th><th>Ma recommandation</th><th>Autres choix</th></tr>
+    <tr>
+      <td><strong>Q1. Réponse longue, en plusieurs morceaux.</strong> Aujourd'hui la personne peut coller un premier morceau, puis « Coller un morceau supplémentaire ».</td>
+      <td><strong>(Recommandé)</strong> On tente l'import au premier collage. Si la réponse est coupée, un message simple dit : « Il manque la fin de la réponse : copiez la suite chez l'assistant, puis cliquez sur « Coller la suite » » ; l'import est retenté à chaque morceau.<br><span class="mq-benef">+</span> reste très simple ; <span class="mq-risque">−</span> un message d'erreur doux apparaît au premier morceau.</td>
+      <td>Garder le mode actuel (coller tous les morceaux, puis « Continuer » importe) pour les seuls cas longs : <span class="mq-benef">+</span> aucun message d'erreur ; <span class="mq-risque">−</span> deux comportements à expliquer.</td>
+    </tr>
+    <tr>
+      <td><strong>Q2. « Coller à la main »</strong> (quand le presse-papiers ne répond pas).</td>
+      <td><strong>(Recommandé)</strong> La zone de texte s'affiche, avec un seul bouton « Ajouter à mon CV » (c'est le seul cas où un bouton d'import reste, car rien ne peut le déclencher tout seul).<br><span class="mq-benef">+</span> la personne contrôle ce qu'elle colle ; <span class="mq-risque">−</span> un bouton de plus dans ce cas précis.</td>
+      <td>Importer dès que le texte est tapé ou collé : <span class="mq-benef">+</span> aucun bouton ; <span class="mq-risque">−</span> l'import peut partir sur un texte à moitié collé.</td>
+    </tr>
+    <tr>
+      <td><strong>Q3. Le complément de CV</strong> (deux chemins aujourd'hui).</td>
+      <td><strong>(Recommandé)</strong> Un seul chemin : la rubrique « Compléter mon CV » dans la page (pas de fenêtre, comme vous le demandez). On retire le petit bouton « Importer le complément de CV » qui ouvre une fenêtre. La fenêtre n'est ouverte que de deux endroits (ce petit bouton, et le bouton « Ajouter le complément du CV » de « Vos documents ») : le premier disparaît, le second est à examiner avec vous (le garder tel quel, ou ouvrir la rubrique dans la page).<br><span class="mq-benef">+</span> un seul geste, moins d'écrans ; <span class="mq-risque">−</span> le bouton de « Vos documents » demande un petit choix de plus.</td>
+      <td>Garder la fenêtre et retirer la rubrique : <span class="mq-benef">+</span> moins de texte dans la page ; <span class="mq-risque">−</span> une fenêtre de plus, contraire à votre règle.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="mq-carte">
+  <h2>6. Ce que je corrige quelle que soit votre option <span class="mq-etiquette ok">sans choix à faire</span></h2>
+  <ul>
+    <li>L'en-tête de l'écran ne dit plus « cliquez sur Importer » ; la phrase est adaptée à l'option choisie.</li>
+    <li>Le message vert ne dit plus « importée » quand la réponse est seulement collée.</li>
+    <li>« Cliquez sur le rond bleu » devient « Cliquez sur « Coller la réponse » » dans les quatre endroits du complément.</li>
+    <li>Un test automatique est ajouté pour le cas « réponse déjà importée » : jamais plus de bouton « Importer » grisé dans la page. Les cas des écrans de collage du parcours automatique sont mis à jour.</li>
+  </ul>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> C, avec Q1, Q2 et Q3 sur ma recommandation. Pour valider, un mot par question suffit, par exemple : « C, Q1 reco, Q2 reco, Q3 reco ». Et regardez bien les captures 1 à 5 : dites-moi si la 3 est bien l'écran que vous avez vu, et si le « autre écran avec les mêmes trois boutons » est la 5 (la fenêtre du complément) ou un autre. Je ne code rien avant votre réponse.
+</div>
+
+</div>
+<script>
+(function () {
+  var etat = 'avant';
+  var $ = function (id) { return document.getElementById(id); };
+  function dessiner() {
+    var colle = (etat === 'colle' || etat === 'deja');
+    $('mqAvant').classList.toggle('mq-cache', colle);
+    $('mqSucces').classList.toggle('mq-cache', !colle);
+    $('mqComplement').classList.toggle('mq-cache', !colle);
+    $('mqContinuer').disabled = !colle;
+    $('mqLegende').textContent = etat === 'avant' ? 'Rien n’est importé : « Continuer » est grisé, comme aujourd’hui.'
+      : (etat === 'colle' ? 'Après le clic sur « Coller la réponse » : la réponse est ajoutée à votre CV, le message le dit en grand, « Continuer » s’active.'
+      : 'Réponse déjà ajoutée : un seul message, un seul « Continuer » actif. Aucun bouton « Importer ».');
+    Array.prototype.forEach.call(document.querySelectorAll('#mqEtats button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-etat') === (etat === 'colle' ? 'avant' : etat)); });
+  }
+  $('mqColler').addEventListener('click', function () { etat = 'colle'; dessiner(); });
+  $('mqRecoller').addEventListener('click', function () { etat = 'avant'; dessiner(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#mqEtats button'), function (b) { b.addEventListener('click', function () { etat = b.getAttribute('data-etat'); dessiner(); }); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

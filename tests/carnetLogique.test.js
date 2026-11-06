@@ -14,6 +14,8 @@ const {
 test('extraitPourTitre : garde les premiers mots, espaces normalises', () => {
   const t = _carnetExtraitPourTitre('  Deux   mots  ');
   assert.equal(t, 'Deux mots');
+  assert.equal(_carnetExtraitPourTitre('Ma conseillère m’a dit que oui'), 'Ma conseillère m’a dit …');
+  assert.equal(_carnetExtraitPourTitre('Quatre mots tout juste'), 'Quatre mots tout juste');
 });
 
 test('extraitPourTitre : vide ou absent -> chaine vide', () => {

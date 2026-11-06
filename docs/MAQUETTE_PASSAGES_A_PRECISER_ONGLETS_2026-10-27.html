@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Quelques passages à préciser, un onglet par certification</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1c7a46; --ok-bg:#e3f4ea; --warn:#8a5a00; --warn-bg:#fff3d6; --passe:#5b6478; --passe-bg:#eceff5; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#6fd49b; --ok-bg:#1d3a2b; --warn:#f0c46a; --warn-bg:#3b3015; --passe:#9aa6bd; --passe-bg:#262d3b; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+h1 { font-size:1.2rem; margin:0 0 6px; } p { margin:0 0 8px; }
+.muted { color:var(--muted); font-size:.92rem; }
+.note { max-width:760px; margin:0 auto 12px; }
+.fenetre { max-width:760px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.18); overflow:hidden; }
+.entete { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); }
+.entete h2 { font-size:1.1rem; margin:0; }
+.croix { border:0; background:none; font-size:1.2rem; color:var(--muted); cursor:pointer; }
+.corps { padding:14px 16px; }
+.btn { font:inherit; font-size:.95rem; padding:.45rem .85rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
+.btn.plein { background:var(--accent); color:#fff; }
+.btn.discret { border-color:var(--border); color:var(--muted); }
+.btn[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.btn:focus-visible, .onglet:focus-visible, input:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.btn:disabled { opacity:.45; cursor:default; }
+/* Raccourci "même année" */
+.groupe { border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:12px; background:var(--accent-bg); }
+.groupe .boutons { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+/* Barre d'onglets */
+.barre { display:flex; gap:6px; flex-wrap:wrap; align-items:stretch; margin-bottom:10px; }
+.onglet { font:inherit; display:flex; align-items:center; gap:8px; padding:6px 10px; border:1.5px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); cursor:pointer; text-align:left; max-width:100%; }
+.onglet .num { display:inline-flex; width:24px; height:24px; border-radius:50%; align-items:center; justify-content:center; background:var(--accent-bg); color:var(--accent); font-weight:700; font-size:.85rem; flex:none; }
+.onglet .nom { font-size:.92rem; line-height:1.2; }
+.onglet .etat { display:block; font-size:.75rem; font-weight:700; }
+.onglet[aria-selected="true"] { border-color:var(--accent); background:var(--accent-bg); }
+.etat.attente { color:var(--warn); } .etat.ok { color:var(--ok); } .etat.passe { color:var(--passe); }
+.onglet.fait .num { background:var(--ok-bg); color:var(--ok); }
+.onglet:first-child { align-self:stretch; }
+/* Contenu d'un onglet */
+.panneau { border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+.panneau[hidden] { display:none; }
+.panneau h3 { font-size:1.02rem; margin:0 0 4px; }
+.badge-q { display:inline-block; font-size:.78rem; font-weight:700; padding:1px 8px; border-radius:99px; background:var(--warn-bg); color:var(--warn); margin-left:6px; }
+.question { border-top:1px dashed var(--border); padding-top:10px; margin-top:10px; }
+.question:first-of-type { border-top:0; padding-top:0; margin-top:6px; }
+.question label { display:block; font-size:.92rem; margin-bottom:4px; }
+.question input[type=text] { width:100%; font:inherit; padding:.5rem .6rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); }
+.question input:disabled { background:var(--passe-bg); }
+.suggestions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+.suggestions .lib { font-size:.85rem; color:var(--muted); }
+.pied { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid var(--border); }
+.compteur { font-size:.92rem; color:var(--muted); }
+.legende { max-width:760px; margin:14px auto 0; font-size:.9rem; color:var(--muted); }
+.legende li { margin-bottom:4px; }
+@media (max-width:520px) { .onglet .nom { max-width:150px; } }
+</style>
+</head>
+<body>
+
+<div class="note">
+  <h1>Maquette 1 : « Quelques passages à préciser », un onglet par certification</h1>
+  <p class="muted">Tout est cliquable. Les données sont celles d’un CV d’essai (4 certifications rangées sous un titre professionnel, plus d’autres passages). Les boutons d’année viennent des formations du CV ; rien n’est coché à la place de la personne.</p>
+</div>
+
+<div class="fenetre" role="dialog" aria-labelledby="titreFenetre">
+  <div class="entete"><h2 id="titreFenetre">Quelques passages à préciser</h2><button type="button" class="croix" aria-label="Fermer" title="Fermer">&#10005;</button></div>
+  <div class="corps">
+    <p>L’assistant a relevé quelques points à préciser. Rien n’est obligatoire : vous pouvez passer une question si vous ne savez pas.</p>
+
+    <div class="groupe" id="groupe">
+      <strong>Les 3 certifications rangées sous « Titre professionnel Plaquiste » ont-elles la même année ?</strong>
+      <div class="muted">Un clic remplit toutes les années ci-dessous ; vous pouvez ensuite en corriger une.</div>
+      <div class="boutons" id="boutonsGroupe"></div>
+    </div>
+
+    <div class="barre" id="barre" role="tablist" aria-label="Passages à préciser, un onglet par sujet"></div>
+    <div id="panneaux"></div>
+  </div>
+  <div class="pied">
+    <span class="compteur" id="compteur" aria-live="polite"></span>
+    <span style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button type="button" class="btn discret" id="btnPrec">&#8592; Précédent</button>
+      <button type="button" class="btn" id="btnSuiv">Suivant &#8594;</button>
+      <button type="button" class="btn plein" id="btnContinuer">Continuer &#8594;</button>
+    </span>
+  </div>
+</div>
+
+<ul class="legende">
+  <li><strong>Un onglet par sujet</strong> : chaque certification a son onglet, avec toutes les questions qui la concernent (année, intitulé exact). Le petit badge « 2 questions » le dit.</li>
+  <li><strong>Année</strong> : des boutons proposés d’après les formations du CV, toujours remplaçables par une année écrite. Rien n’est choisi à la place de la personne.</li>
+  <li><strong>Touche Entrée</strong> : valide la réponse et passe à la question suivante, puis à l’onglet suivant. Elle n’efface jamais rien.</li>
+  <li><strong>Tout voir</strong> : premier onglet, sans numéro, ouvert dès l’arrivée. Il montre toutes les questions les unes sous les autres, pour qu’on ne remplisse pas seulement la première. Les onglets numérotés servent ensuite à les compléter un par un.</li>
+  <li><strong>Autres passages</strong> : les points qui ne concernent pas une certification (dates, qualités) sont réunis dans un dernier onglet.</li>
+</ul>
+
+<script>
+(function () {
+  var ANNEES = ['2026', '2025', '2020', '2019'];
+  var SOUS_PLAQUISTE = ['2025', '2026'];
+  // Chaque sujet : une certification (ou « Autres passages ») et ses questions.
+  var SUJETS = [
+    { nom: 'Habilitation électrique BS/BEM', groupe: true, questions: [
+      { id: 'q1', type: 'annee', libelle: 'En quelle année avez-vous obtenu cette certification ?', suggestions: SOUS_PLAQUISTE, aide: 'Le CV la range sous « Titre professionnel Plaquiste » (2025 - 2026).' },
+      { id: 'q2', type: 'texte', libelle: 'Cette certification est écrite « Habilitation électrique BS/BEM & module Règles Générale de sécurité » : quel est son intitulé exact ?', suggestions: [] } ] },
+    { nom: 'Habilitation échafaudage fixe et roulant', groupe: true, questions: [
+      { id: 'q3', type: 'annee', libelle: 'En quelle année avez-vous obtenu cette certification ?', suggestions: SOUS_PLAQUISTE, aide: 'Le CV la range sous « Titre professionnel Plaquiste » (2025 - 2026).' } ] },
+    { nom: 'Module travail en hauteur', groupe: true, questions: [
+      { id: 'q4', type: 'annee', libelle: 'En quelle année avez-vous obtenu cette certification ?', suggestions: SOUS_PLAQUISTE, aide: 'Le CV la range sous « Titre professionnel Plaquiste » (2025 - 2026).' } ] },
+    { nom: 'SSST', groupe: false, questions: [
+      { id: 'q5', type: 'annee', libelle: 'En quelle année avez-vous obtenu cette certification ?', suggestions: ANNEES, aide: 'Le CV ne la range sous aucune formation : voici les années de vos formations.' } ] },
+    { nom: 'Autres passages', groupe: false, autres: true, questions: [
+      { id: 'q6', type: 'texte', libelle: 'Le poste « Agent technique » a une date de fin avant sa date de début (2023 et 2021). Quelles sont les bonnes dates ?', suggestions: [] } ] }
+  ];
+  var etat = {};   // id question -> { valeur, passe }
+  var courant = 0, toutVoir = true;   // à l'ouverture : « Tout voir » est ouvert, pour que la personne voie tout de suite l'ensemble des questions
+  var barre = document.getElementById('barre'), panneaux = document.getElementById('panneaux');
+
+  function etatSujet(s) {
+    var n = s.questions.length, rep = 0, pas = 0;
+    s.questions.forEach(function (q) { var e = etat[q.id]; if (e && e.passe) { pas++; } else if (e && e.valeur) { rep++; } });
+    if (rep + pas === n) { return pas === n ? 'passe' : 'ok'; }
+    return 'attente';
+  }
+  var LIBELLES = { attente: 'à préciser', ok: 'répondu', passe: 'passé' };
+
+  function construire() {
+    barre.innerHTML = ''; panneaux.innerHTML = '';
+    SUJETS.forEach(function (s, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'onglet'; b.setAttribute('role', 'tab'); b.dataset.i = i;
+      b.innerHTML = '<span class="num">' + (i + 1) + '</span><span><span class="nom"></span><span class="etat"></span></span>';
+      b.querySelector('.nom').textContent = s.nom;
+      b.addEventListener('click', function () { toutVoir = false; courant = i; maj(); });
+      barre.appendChild(b);
+
+      var p = document.createElement('section'); p.className = 'panneau'; p.dataset.i = i;
+      var h = '<h3></h3>';
+      p.innerHTML = h;
+      var t = p.querySelector('h3'); t.textContent = s.nom;
+      if (s.questions.length > 1) { var bq = document.createElement('span'); bq.className = 'badge-q'; bq.textContent = s.questions.length + ' questions'; t.appendChild(bq); }
+      s.questions.forEach(function (q) {
+        var d = document.createElement('div'); d.className = 'question';
+        var l = document.createElement('label'); l.htmlFor = q.id; l.textContent = q.libelle;
+        var inp = document.createElement('input'); inp.type = 'text'; inp.id = q.id; inp.autocomplete = 'off';
+        if (q.type === 'annee') { inp.inputMode = 'numeric'; inp.placeholder = 'Année (par exemple 2024)'; }
+        d.appendChild(l); d.appendChild(inp);
+        if (q.aide) { var a = document.createElement('div'); a.className = 'muted'; a.style.marginTop = '4px'; a.textContent = q.aide; d.appendChild(a); }
+        var sg = document.createElement('div'); sg.className = 'suggestions';
+        (q.suggestions || []).forEach(function (v) {
+          var bs = document.createElement('button'); bs.type = 'button'; bs.className = 'btn'; bs.textContent = v;
+          bs.setAttribute('aria-pressed', 'false'); bs.dataset.v = v;
+          bs.addEventListener('click', function () { inp.disabled = false; inp.value = v; etat[q.id] = { valeur: v }; maj(); });
+          sg.appendChild(bs);
+        });
+        var pas = document.createElement('button'); pas.type = 'button'; pas.className = 'btn discret'; pas.textContent = 'Je ne sais pas, passer cette question';
+        pas.addEventListener('click', function () { inp.value = ''; inp.disabled = true; inp.placeholder = 'Passé'; etat[q.id] = { passe: true }; maj(); suivantApres(q); });
+        sg.appendChild(pas);
+        d.appendChild(sg);
+        inp.addEventListener('input', function () { etat[q.id] = inp.value.trim() ? { valeur: inp.value.trim() } : undefined; maj(true); });
+        inp.addEventListener('keydown', function (ev) {
+          if (ev.key !== 'Enter') { return; }
+          ev.preventDefault();
+          if (inp.value.trim()) { etat[q.id] = { valeur: inp.value.trim() }; }
+          maj(true); suivantApres(q);
+        });
+        p.appendChild(d);
+      });
+      panneaux.appendChild(p);
+    });
+  }
+
+  function aplatir() { var r = []; SUJETS.forEach(function (s, i) { s.questions.forEach(function (q) { r.push({ i: i, q: q }); }); }); return r; }
+  function suivantApres(q) {
+    var liste = aplatir(), k = liste.findIndex(function (x) { return x.q === q; });
+    var suivante = liste[k + 1];
+    if (suivante) { courant = suivante.i; maj(); document.getElementById(suivante.q.id).focus({ preventScroll: true }); }
+    else { document.getElementById('btnContinuer').focus(); }
+  }
+
+  function maj(garderFocus) {
+    var onglets = barre.querySelectorAll('.onglet:not(:first-child)');
+    SUJETS.forEach(function (s, i) {
+      var e = etatSujet(s), o = onglets[i];
+      o.setAttribute('aria-selected', String(!toutVoir && i === courant));
+      o.classList.toggle('fait', e !== 'attente');
+      var et = o.querySelector('.etat'); et.className = 'etat ' + e; et.textContent = LIBELLES[e];
+      panneaux.children[i].hidden = !(toutVoir || i === courant);
+      s.questions.forEach(function (q) {
+        var v = etat[q.id] && etat[q.id].valeur;
+        var inp = document.getElementById(q.id);
+        if (!garderFocus && etat[q.id] && etat[q.id].valeur !== undefined && inp.value !== v) { inp.value = v; }
+        panneaux.children[i].querySelectorAll('.suggestions .btn[data-v]').forEach(function (bs) {
+          if (bs.closest('.question').querySelector('input') === inp) { bs.setAttribute('aria-pressed', String(v === bs.dataset.v)); }
+        });
+      });
+    });
+    var total = aplatir().length, faites = aplatir().filter(function (x) { return etat[x.q.id]; }).length;
+    document.getElementById('compteur').textContent = faites + ' question' + (faites > 1 ? 's' : '') + ' sur ' + total + ' traitée' + (faites > 1 ? 's' : '');
+    document.getElementById('btnPrec').disabled = toutVoir;
+    document.getElementById('btnSuiv').disabled = !toutVoir && courant === SUJETS.length - 1;
+    tout.setAttribute('aria-selected', String(toutVoir));
+  }
+
+  // Premier onglet « Tout voir » (sans numéro), ouvert à l'arrivée
+  var tout = document.createElement('button');
+  tout.type = 'button'; tout.className = 'onglet'; tout.setAttribute('role', 'tab');
+  tout.innerHTML = '<span class="nom"><strong>Tout voir</strong></span>';
+  tout.addEventListener('click', function () { toutVoir = true; maj(); });
+
+  // Raccourci « même année pour toutes »
+  SOUS_PLAQUISTE.forEach(function (a) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'btn plein'; b.textContent = a + ' pour toutes';
+    b.addEventListener('click', function () {
+      ['q1', 'q3', 'q4'].forEach(function (id) { var inp = document.getElementById(id); inp.disabled = false; inp.value = a; etat[id] = { valeur: a }; });
+      maj();
+    });
+    document.getElementById('boutonsGroupe').appendChild(b);
+  });
+
+  construire();
+  barre.insertBefore(tout, barre.firstChild);
+  document.getElementById('btnPrec').addEventListener('click', function () { if (toutVoir) { return; } if (courant > 0) { courant--; } else { toutVoir = true; } maj(); });
+  document.getElementById('btnSuiv').addEventListener('click', function () { if (toutVoir) { toutVoir = false; courant = 0; } else if (courant < SUJETS.length - 1) { courant++; } maj(); });
+  document.getElementById('btnContinuer').addEventListener('click', function () { alert('Maquette : ici la fenêtre se ferme et le parcours continue avec ce qui est rempli.'); });
+  maj();
+})();
+</script>
+</body>
+</html>

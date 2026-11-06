@@ -1,8 +1,8 @@
 ---
-periode: 1er trimestre 2026
-verifie_le: 2026-09
+periode: 2e trimestre 2026
+verifie_le: 2026-11-03
 sources:
-  - "insee-chomage-zone | INSEE, taux de chômage localisés par zone d'emploi | https://www.insee.fr/fr/statistiques/1893230 | 2026-09-12"
+  - "insee-chomage-zone | INSEE, taux de chômage localisés par zone d'emploi | https://www.insee.fr/fr/statistiques/1893230 | 2026-11-03"
   - "insee-vulnerabilite-ze | INSEE, 15 zones d'emploi aquitaines plus ou moins armées face à la crise | https://www.insee.fr/fr/statistiques/fichier/1292950/edos_1203.pdf | 2026-09-12"
   - "insee-tourisme-na | INSEE, note sur l'emploi touristique en Nouvelle-Aquitaine | https://pro.en-nouvelle-aquitaine.fr/wp-content/uploads/sites/2/2025/10/Note_INSEE_2022_emploi_touristique_NA.pdf | 2026-09-12"
   - "france-strategie-vulnerabilite | France Stratégie, vulnérabilité économique des zones d'emploi face à la crise | https://www.strategie-plan.gouv.fr/point-de-vue/vulnerabilite-economique-zones-demploi-face-crise | 2026-09-12"
@@ -21,7 +21,7 @@ sources:
 # 24
 
 ## Bergerac
-valeur: 8,5 %
+valeur: 8,6 %
 sources: insee-chomage-zone, insee-vulnerabilite-ze, cci-dordogne-a89, insee-dossier-bergerac
 chomage_recensement: 12,0 %
 niveau_vie_median: 23 700 €
@@ -35,7 +35,7 @@ secteur_principal: Agriculture : 14,2 % des établissements (le plus haut des 3 
 Bergerac fait partie des zones identifiées de longue date par l'INSEE parmi les plus fragiles de l'ex-Aquitaine, avec un chômage durablement parmi les plus élevés de la région. Le territoire porte aussi un vrai passé industriel en déclin : la poudrerie de Bergerac (aujourd'hui Eurenco) employait jusqu'à 12 000 personnes pendant la Seconde Guerre mondiale, contre un effectif bien réduit aujourd'hui. Autre facteur concret : Bergerac n'a pas d'accès direct à l'autoroute A89, seulement un échangeur à Mussidan, à 30 à 40 minutes de route, un frein reconnu par la CCI Dordogne au développement de la logistique et de l'entreposage sur ce secteur. Ces deux facteurs cumulés (un passé industriel plus lourd à porter, un désenclavement routier moins bon) expliquent l'essentiel de l'écart avec les deux autres zones du département, et se retrouvent dans les chiffres ci-dessus : chômage, pauvreté et niveau de vie parmi les moins favorables des cinq zones comparées ici.
 
 ## Périgueux
-valeur: 7,5 %
+valeur: 7,7 %
 sources: insee-vulnerabilite-ze, an-marbot-bata, cci-dordogne-a89, insee-dossier-perigueux
 chomage_recensement: 10,9 %
 niveau_vie_median: 24 380 €
@@ -49,7 +49,7 @@ secteur_principal: Commerce et services : 58,5 % des établissements, agricultur
 Une étude de l'INSEE classe Périgueux parmi les zones en situation plutôt favorable de l'ex-Aquitaine, malgré des fermetures industrielles passées. La zone a par exemple encaissé la fermeture, en 2010, de l'usine de chaussures Marbot-Bata à Neuvic-sur-l'Isle (jusqu'à 1 600 emplois dans les années 1970, spécialisée dans les rangers de l'armée française, fermée après la perte de ce marché au profit d'une fabrication en Tunisie et en Europe de l'Est). La zone a pourtant gardé une situation plus stable que Bergerac : le poids de l'emploi public et administratif (préfecture, hôpital, services) amortit mieux ce genre de choc qu'une économie concentrée sur l'industrie, et l'accès direct à l'autoroute A89, qui contourne la ville par le sud, a permis le développement d'un vrai pôle logistique et entrepôts, contrairement à Bergerac. Les chiffres ci-dessus le confirment sur toute la ligne : pauvreté la plus basse, niveau de vie le plus haut et agriculture la plus faible des trois zones de Dordogne.
 
 ## Sarlat-la-Canéda
-valeur: 7,2 %
+valeur: 7,4 %
 sources: france-strategie-vulnerabilite, insee-tourisme-na, insee-dossier-sarlat
 chomage_recensement: 11,7 %
 niveau_vie_median: 24 070 €
@@ -65,7 +65,7 @@ Une première piste ("l'économie touristique de Sarlat explique ses bons chiffr
 # 87
 
 ## Limoges
-valeur: 7,6 %
+valeur: 7,9 %
 sources: insee-analyses-limousin-30ans, insee-dossier-limoges
 population: 315 700 habitants
 niveau_vie_median: 24 960 €
@@ -79,7 +79,7 @@ secteur_principal: Santé, action sociale et administration publique : plus de 4
 Une étude de l'INSEE Limousin retrace trente ans de transformation de la zone. L'industrie (porcelaine, mais aussi cuir et chaussure, comme en Dordogne) a perdu environ la moitié de ses emplois depuis 1982. Ce recul a été compensé, pas remplacé à l'identique, par la croissance de la santé, de l'action sociale et de l'administration publique, comme le montre le chiffre ci-dessus. Sur les 321 zones d'emploi de France, Limoges se situe autour du milieu du classement pour le chômage le plus bas, une zone ni particulièrement fragile, ni particulièrement épargnée. Les chiffres ci-dessus confirment le profil de grande ville : de loin la plus peuplée des cinq zones comparées ici (2 à 5 fois les autres), la plus salariée, et deux fois plus de gros établissements (10 salariés ou plus) que les zones plus rurales. La part de diplômés du supérieur ci-dessus, la plus haute des cinq zones, est cohérente avec ce profil de grande ville universitaire et administrative.
 
 ## Saint-Junien
-valeur: 6,5 %
+valeur: 6,6 %
 sources: saint-junien-patrimoine, usine-nouvelle-hermes-saint-junien, insee-dossier-saint-junien
 chomage_recensement: 10,7 %
 niveau_vie_median: 23 310 €

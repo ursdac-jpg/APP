@@ -1,0 +1,38 @@
+# Lot 6
+
+Tu fais une recherche web pour une application d'aide à la recherche d'emploi (Dordogne 24 et Haute-Vienne 87). Pour chaque employeur de la liste, trouve : (1) son SITE OFFICIEL, (2) sa PAGE DE RECRUTEMENT (offres, « nous rejoindre », candidature spontanée). Ne cherche PAS d'adresses de magasins ni de numéros de téléphone.
+
+Méthode : utilise la commande curl -L avec un en-tête User-Agent de navigateur (l'outil de lecture de pages ne résout pas les domaines). Ne contourne jamais un blocage, ne désactive jamais la vérification des certificats.
+
+Règles strictes :
+- Lis la page : le nom de l'employeur doit y figurer. Les adresses de ma liste sont des INDICATIONS, souvent fausses : vérifie-les.
+- Méfie-toi des homonymes et des filiales régionales (autre région, autre département) : une page de recrutement d'une autre région ne convient pas. Cherche une phrase qui nomme la Dordogne, la Haute-Vienne, Périgueux, Bergerac, Sarlat, Limoges ou la région Nouvelle-Aquitaine.
+- Refuse les annuaires, les sites parqués ou « à vendre », les sites de ressemblance, les agrégateurs d'offres.
+- Si tu n'es pas sûr, écris « non fiable » : ne devine jamais. Si la connexion échoue, écris « connexion impossible » (pas « domaine inexistant »).
+- Ne donne jamais d'adresse ni de téléphone de magasin.
+
+Format de réponse : un tableau Markdown avec les colonnes : Employeur | Site officiel | Page de recrutement | Présence 24 / 87 (si la page le dit) | Preuve (la phrase lue) | Confiance (sûr / à vérifier / non fiable). Termine par la ligne « Pages ouvertes au total : N ».
+
+Dernière section obligatoire, intitulée « À OUVRIR PAR MOI » : pour chaque employeur dont le site a refusé les robots (403, Access Denied, Just a moment ou équivalent), un lien cliquable au format Markdown vers le site et un vers la page de recrutement supposée, par exemple : [Site](https://...) · [Recrutement](https://...).
+
+Employeurs du lot :
+1. Cultura
+2. Monoprix
+3. Maisons du Monde
+4. Besson Chaussures
+5. Celio
+6. H&M
+7. Weldom (Sarlat)
+8. Centre hospitalier de Périgueux
+9. Centre hospitalier de Domme
+10. Centre hospitalier de Vauclaire
+11. Amelis
+12. Petits-fils
+13. Senior Compagnie
+14. A DOM' Limousin
+15. Bergerac TP
+16. ERCTP
+17. Pasquier et Fils
+18. Transports Royer-Sazerat
+19. CEVA Logistics
+20. Chronopost

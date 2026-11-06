@@ -25,6 +25,7 @@ ce_qui_change_souvent:
   - "Les conditions d'accès à l'aide individuelle à la formation"
 revisions:
   - "2026 : la participation forfaitaire du CPF est de 150 euros par formation (revue chaque 1er janvier), sauf pour les demandeurs d'emploi inscrits et en cas de cofinancement ; cohérent avec la fiche du rayon Se former"
+phrase_generale: "Quand le français est un frein pour l'emploi, il existe des formations centrées sur le monde du travail et plusieurs façons de les financer. Les formations disponibles, leur durée et leur financement changent selon les situations et les territoires : demandez à un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: francais.collecte.md
 ---
 

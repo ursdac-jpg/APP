@@ -12,10 +12,10 @@
 var MESCOMP_OUVERT = true;
 
 var MESCOMP_NAV_ETAPES = [
-  { icone: '&#128196;', label: 'Documents' },
+  { icone: '&#128221;', label: 'Préparer' },
   { icone: '&#128172;', label: 'Assistant' },
-  { icone: '&#9989;', label: 'Relecture' },
-  { icone: '&#128216;', label: 'Mon document' }
+  { icone: '&#128269;', label: 'Relecture' },
+  { icone: '&#9989;', label: 'Terminé' }
 ];
 var MESCOMP_ECRANS = ['documents', 'assistant', 'relecture', 'document'];
 var MESCOMP_TITRES = { documents: 'Mes documents', assistant: 'L’assistant en ligne', relecture: 'Je relis mes compétences', document: 'Mes compétences' };
@@ -90,6 +90,8 @@ function mesCompRepriseContinuer() {
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
 function mesCompReinitialiser() {
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('mescomp-*'); }
+  if (typeof _mesCompDepotOuvert !== 'undefined') { _mesCompDepotOuvert = null; }
   _mesCompSessionHistorique++;
   _mesCompEtat = null;
   _mesCompDetourPresentation = false;
@@ -97,7 +99,7 @@ function mesCompReinitialiser() {
   _mesCompSecondEnCours = false;
   _mesCompNoteRetour = '';
   _mesCompSousOuverts = {};
-  if (typeof clearInterval === 'function' && typeof _ucpmIntervalleDecompte !== 'undefined') { clearInterval(_ucpmIntervalleDecompte); }
+  if (typeof clearInterval === 'function' && typeof _intervalleDecompteIA !== 'undefined') { clearInterval(_intervalleDecompteIA); }
   if (typeof _barreEtapesMaxAtteint !== 'undefined' && _barreEtapesMaxAtteint && typeof _barreEtapesMaxAtteint.delete === 'function') {
     _barreEtapesMaxAtteint.delete(MESCOMP_NAV_ETAPES);
   }
@@ -172,7 +174,7 @@ function mesCompRendrePage() {
     '<div class="page-catalogue-contenu un-cv-plusieurs-metiers-parcours mes-competences-parcours">' +
     barreEtapesModule(MESCOMP_NAV_ETAPES, i) +
     htmlBandeRepriseModule(boutonRevoir, encart) +
-    '<div class="text-center"><h1><i class="bi bi-compass"></i> ' + titre + '</h1></div>' +
+    htmlTitreEtapeModule('bi-compass', 'Découvrir mes compétences', titre) +
     '<div id="contenuPageMesComp">' + corps + '</div>' +
     '</div>' +
     '<div class="barre-navigation-fixe">' +

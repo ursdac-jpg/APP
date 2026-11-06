@@ -110,7 +110,7 @@ test('analyserLot : colonne manquante (date absente) acceptee ; mauvais nombre d
   const r = S.analyserLot('lieux', sansDate + '\n' + ligne(L12('t-87')).split(' | ').slice(0, 8).join(' | ') + ' | a | b | c | d | e | f | g', REG, '', CTX, AUJ);
   assert.strictEqual(r.lignes[0].statut, 'prete');
   assert.strictEqual(r.lignes[1].statut, 'corriger');
-  assert.ok(/colonnes au lieu de 13/.test(r.lignes[1].problemes[0].message));
+  assert.ok(/colonnes au lieu de 14/.test(r.lignes[1].problemes[0].message));
 });
 
 test('analyserLot : limite de 100 lignes, aucun texte reconnu', () => {
@@ -328,6 +328,30 @@ test('depot : « C\'est bon » = une seule publication qui ajoute la fiche au re
   } finally { nettoyerDepot(d); }
 });
 
+test('depot : l’adresse d’une structure du sas (colonne facultative) arrive au registre public avec « C’est bon », sans mail ajouté', () => {
+  const d = depotJetable();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => AUJ });
+    const adresse = '12 rue de la Paix, 87000 Limoges';
+    const a = depot.analyserLot('lieux', ligne(L12('mission-locale-limoges-87', { tel: '05 55 00 00 00' })) + '| | ' + adresse);
+    assert.strictEqual(a.lignes[0].statut, 'prete', JSON.stringify(a.lignes[0].problemes));
+    assert.strictEqual(a.lignes[0].valeurs.adresse, adresse);
+    assert.ok(depot.publier([{ type: 'sas', fichier: 'lieux', actions: [{ op: 'importer', lignes: [a.lignes[0].ligneFinale] }] }]).ok);
+    assert.strictEqual(depot.listerSas('lieux').lignes[0].valeurs.adresse, adresse, 'le sas garde l’adresse');
+    const v = a.lignes[0].valeurs;
+    const valeurs = Object.assign({}, v); delete valeurs.id; delete valeurs.date;
+    const r = depot.publier([
+      { type: 'territoire', fichier: 'lieux', actions: [{ op: 'ajouter', id: v.id, valeurs: valeurs, dater: true }] },
+      { type: 'sas', fichier: 'lieux', actions: [{ op: 'retirer', id: v.id }] }
+    ]);
+    assert.ok(r.ok, r.erreur);
+    const registre = fs.readFileSync(path.join(d, 'modules/mon-territoire/contenu/lieux.txt'), 'utf8');
+    const publiee = registre.split(String.fromCharCode(10)).filter((l) => l.indexOf('mission-locale-limoges-87') === 0)[0];
+    assert.ok(publiee && publiee.indexOf(adresse) !== -1 && publiee.indexOf('| ' + AUJ) !== -1, 'adresse et date du jour dans la fiche publiée : ' + publiee);
+    assert.strictEqual(require('../modules/mon-territoire/logique.js').mtParserLieux(publiee).lignes[0].adresse, adresse);
+  } finally { nettoyerDepot(d); }
+});
+
 test('depot : un numero du sas complete la fiche publiee (telephone + date du jour) et sort du sas', () => {
   const d = depotJetable();
   try {
@@ -434,4 +458,33 @@ test('appliquer (modifier) : la marque « Petite structure ; » ou « Via prospe
   assert.ok(garde.texte.indexOf('comparée le 20/10/2026') !== -1);
   const normale = S.appliquer('lieux', r1.texte, [{ op: 'modifier', id: 'q-87', ligne: ligne(L12('q-87', { desc: 'phrase corrigée' })) }], REG, CTX, AUJ);
   assert.ok(normale.ok);
+});
+
+test('depot : une fiche venue de la prospection avec « vérifiées à la main le » arrive pré-validée ; sans cette phrase, non ; annuler retire aussi le repère', () => {
+  const d = depotJetable();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => AUJ });
+    const emp = (id, source) => [id, 'local', 'Boulangerie ' + id, 'artisanat-bouche', 'Limoges:12 rue du Four:05 55 00 00 01', '05 55 00 00 01', 'https://' + id + '.example.fr/', '', 'non-indique', source, ''].join(' | ');
+    const lignes = [
+      emp('a-limoges-87', 'Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 12/10/2026'),
+      emp('b-limoges-87', 'Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le '),
+      emp('c-limoges-87', 'Via prospection ; Registre des entreprises (Sirene)')
+    ];
+    const analyse = depot.analyserLot('employeurs', lignes.join('\n'));
+    assert.ok(analyse.ok, analyse.erreur);
+    const pretes = analyse.lignes.filter((l) => l.statut === 'prete').map((l) => l.ligneFinale);
+    assert.strictEqual(pretes.length, 3, JSON.stringify(analyse.lignes.map((l) => l.problemes)));
+    const r = depot.publier([{ type: 'sas', fichier: 'employeurs', actions: [{ op: 'importer', lignes: pretes }] }]);
+    assert.ok(r.ok, r.erreur);
+    assert.strictEqual(r.resumeSas.etoilees, 1);
+    assert.ok(git(d, 'ls-files', 'outils/sas/prevalidees.txt').sortie.indexOf('prevalidees.txt') !== -1, 'le repère est rangé dans le même enregistrement');
+    const cartes = depot.listerSas('employeurs').lignes;
+    const p = (id) => cartes.filter((c) => c.id === id)[0].prevalidee;
+    assert.strictEqual(p('a-limoges-87').valide, true);
+    assert.strictEqual(p('a-limoges-87').niveau, 'main');
+    assert.strictEqual(p('b-limoges-87'), undefined);
+    assert.strictEqual(p('c-limoges-87'), undefined);
+    assert.ok(depot.annuler().ok);
+    assert.strictEqual(fs.existsSync(path.join(d, 'outils/sas/prevalidees.txt')), false, 'annuler défait aussi le repère');
+  } finally { nettoyerDepot(d); }
 });

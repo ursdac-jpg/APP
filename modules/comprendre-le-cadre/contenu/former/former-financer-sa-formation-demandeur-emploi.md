@@ -7,7 +7,7 @@ tags: [aide individuelle à la formation, action de formation conventionnée, pr
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "action de formation conventionnée"
     definition: "Formation achetée par France Travail sur un métier qui recrute. Le demandeur d'emploi qui y entre n'a rien à payer."
@@ -26,7 +26,8 @@ ce_qui_change_souvent:
   - "Les montants de la rémunération de formation et le plafond de la rémunération de fin de formation"
   - "Le plafond et les conditions de l'aide individuelle à la formation"
   - "L'offre du programme régional de formation"
-revisions: []
+revisions:
+  - "2026-11-04 : la participation de 150 euros et le montant plus élevé à partir de vingt-six ans ne figurent pas sur la page relue (retirés)"
 collecte: former.collecte.md
 ---
 
@@ -38,8 +39,8 @@ Selon votre projet :
 - le conseil régional finance aussi tout un programme de formations, souvent gratuites, notamment pour les savoirs de base et les métiers en tension ;
 - l'aide individuelle à la formation complète le financement quand aucune autre solution ne couvre la formation choisie, après validation de votre conseiller.
 
-Votre compte personnel de formation reste mobilisable : inscrit à France Travail, vous ne payez pas la participation de 150 euros, et un abondement peut compléter le montant.
+Votre compte personnel de formation reste mobilisable : inscrit à France Travail, un abondement peut compléter le montant.
 
-Pendant la formation, vous continuez à être payé. Si vous touchez l'allocation chômage, elle est maintenue le temps de la formation. Si vous n'êtes pas, ou plus, indemnisé, la rémunération de formation de France Travail prend le relais : un montant forfaitaire mensuel, plus élevé à partir de vingt-six ans.
+Pendant la formation, vous continuez à être payé. Si vous touchez l'allocation chômage, elle est maintenue le temps de la formation. Si vous n'êtes pas, ou plus, indemnisé, la rémunération de formation de France Travail prend le relais : un montant mensuel, que France Travail vous communique.
 
 Parlez de votre projet à votre conseiller le plus tôt possible : le montage du financement prend du temps.

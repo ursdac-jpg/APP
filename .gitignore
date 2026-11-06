@@ -8,3 +8,6 @@ scripts/rendu/sortie/
 
 # Dernier resultat du controle automatique du sas des employeurs (outil de veille, poste de Denis) : jamais envoye sur GitHub
 outils/controles/
+
+# Reponses des assistants collees dans l'onglet « Travailler avec Claude » (outil de veille, poste de Denis) : jamais envoyees sur GitHub
+outils/retours/

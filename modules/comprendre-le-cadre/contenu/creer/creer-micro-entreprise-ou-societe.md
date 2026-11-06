@@ -7,7 +7,7 @@ tags: [micro-entreprise, auto-entrepreneur, société, EURL, SASU, entreprise in
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "micro-entreprise"
     definition: "Régime simplifié de l'entreprise individuelle : cotisations et impôt calculés sur le chiffre d'affaires, peu de formalités, plafond de chiffre d'affaires à respecter."
@@ -26,13 +26,14 @@ ce_qui_change_souvent:
   - "Les plafonds de chiffre d'affaires de la micro-entreprise"
   - "Les taux de cotisations et le régime social des dirigeants"
   - "Les seuils de franchise de TVA"
-revisions: []
+revisions:
+  - "2026-11-04 : la phrase sur la protection du patrimoine (loi de 2022) n'est pas confirmée par la page relue (retirée)"
 collecte: creer.collecte.md
 ---
 
 Avant de créer, il faut choisir une forme. Les deux grandes options pour une personne seule sont la micro-entreprise et la société.
 
-La micro-entreprise est la plus simple. C'est une entreprise individuelle avec un calcul allégé : vos cotisations et votre impôt sont un pourcentage de votre chiffre d'affaires, que vous déclarez chaque mois ou chaque trimestre. Pas de capital, pas de comptabilité lourde. En échange, votre chiffre d'affaires ne doit pas dépasser un plafond. Depuis la loi de 2022, votre patrimoine personnel est protégé, séparé de votre patrimoine professionnel.
+La micro-entreprise est la plus simple. C'est une entreprise individuelle avec un calcul allégé : vos cotisations et votre impôt sont un pourcentage de votre chiffre d'affaires, que vous déclarez chaque mois ou chaque trimestre. Pas de capital, pas de comptabilité lourde. En échange, votre chiffre d'affaires ne doit pas dépasser un plafond.
 
 Une société, comme l'EURL ou la SASU, crée une entité juridique séparée de vous. Votre responsabilité est limitée à ce que vous avez apporté, vous pouvez vous associer plus tard, et vous déduisez vos charges réelles. Mais il faut un capital, des statuts, une comptabilité complète, et cela coûte à créer et à gérer chaque année. Selon la société, votre protection sociale et vos cotisations changent.
 

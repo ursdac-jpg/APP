@@ -65,6 +65,12 @@ function _mesCompConfigPassage() {
         ? 'Vos documents sont trop longs pour un seul envoi. Retirez un document (revenez à « Mes documents ») puis réessayez.' : '';
     },
     construireTexte: _mesCompConstruireTexte,
+    module: { libelleSuite: 'Voir mes compétences', quoi: 'L’assistant vient de relever des compétences dans vos documents.',
+      pourquoi: 'Vous découvrez ce que vos documents montrent déjà de vous.', verif: 'regardez que chaque compétence correspond bien à ce que vous savez faire. À l’étape suivante, vous garderez ou retirerez chaque ligne.' },
+    verifier: function (texte) {
+      var f = MesCompFilet.filtrerReponse(texte, _mesCompDocumentsDEnvoi(etat));
+      return !!(f.ok && !f.vide && f.competences && f.competences.length);
+    },
     importer: _mesCompImporter,
     apresSucces: function () { mesCompAllerEcran('relecture'); }
   };

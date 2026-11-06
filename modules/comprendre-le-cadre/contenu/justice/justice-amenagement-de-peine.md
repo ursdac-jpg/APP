@@ -26,6 +26,7 @@ ce_qui_change_souvent:
   - "Les seuils de peine ou de reliquat pour chaque mesure"
   - "Les règles de la libération sous contrainte"
 revisions: []
+phrase_generale: "Une peine de prison ferme peut être exécutée autrement qu'en cellule à temps plein quand un projet sérieux existe : emploi, formation, soins. C'est le juge de l'application des peines qui décide, selon des conditions qui changent avec la peine et la situation : renseignez-vous auprès du conseiller pénitentiaire d'insertion et de probation ou consultez les sources officielles indiquées plus bas."
 collecte: justice.collecte.md
 ---
 

@@ -896,7 +896,7 @@
    grand écran) : sans ça, les graphes et les lignes de texte s'étalent sur
    toute la largeur de l'écran. Centré, ~1150 px. ---- */
 .comprendre-les-chiffres-accueil {
-  max-width: 1150px;
+  max-width: 2100px;
   margin-inline: auto;
 }
 /* Les deux graphes d'évolution : répartition proportionnelle dans le
@@ -1017,4 +1017,197 @@
 @media (max-width: 640px) {
   .comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-ligne { grid-template-columns: 1fr; gap: .15rem; }
   .comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-valeur { text-align: left; }
+}
+
+/* Page « Le Smic et l’inflation » : deux cartes côte à côte, une seule colonne sur téléphone. */
+.comprendre-les-chiffres-smic-deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .9rem; }
+.comprendre-les-chiffres-smic-deux .comprendre-les-chiffres-indic { margin: 0; }
+.comprendre-les-chiffres-smic-bloc { margin: 1rem 0; }
+.comprendre-les-chiffres-smic-titre { margin: 0 0 .4rem; font-size: 1.1rem; }
+
+/* ---- Métiers qui recrutent le plus (enquête BMO) : liste à barres ---- */
+.comprendre-les-chiffres-choix-dep { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0 .8rem; }
+.comprendre-les-chiffres-choix-dep button {
+  border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+  border-radius: .4rem; padding: .35rem .8rem; cursor: pointer; font: inherit; font-size: .92rem;
+}
+.comprendre-les-chiffres-choix-dep button.actif { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); font-weight: 700; }
+.comprendre-les-chiffres-liste-metiers { list-style: none; padding: 0; margin: .5rem 0 0; }
+.comprendre-les-chiffres-metier { padding: .55rem 0; border-top: 1px solid var(--border); }
+.comprendre-les-chiffres-metier:first-child { border-top: none; }
+.comprendre-les-chiffres-metier-nom { font-weight: 700; color: var(--text-strong); }
+.comprendre-les-chiffres-barre-fond { position: relative; height: .7rem; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: .35rem; margin: .3rem 0; overflow: hidden; }
+.comprendre-les-chiffres-barre-val { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); opacity: .45; }
+.comprendre-les-chiffres-barre-sais { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.comprendre-les-chiffres-metier-chiffres { font-size: .9rem; color: var(--text-muted); }
+.comprendre-les-chiffres-pastille-sais {
+  font-size: .75rem; font-weight: 600; border-radius: 1rem; padding: .1rem .55rem; margin-left: .3rem;
+  border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap;
+}
+.comprendre-les-chiffres-pastille-sais.est-saisonnier { background: var(--warning-bg-subtle); border-color: var(--warning); color: var(--text-strong); }
+.comprendre-les-chiffres-legende-barres { font-size: .85rem; color: var(--text-muted); margin: .6rem 0 0; }
+.comprendre-les-chiffres-legende-barres i { display: inline-block; width: .9rem; height: .5rem; border-radius: .25rem; background: var(--accent); vertical-align: middle; }
+.comprendre-les-chiffres-legende-barres i.clair { opacity: .45; }
+
+/* ---- Lecture en trois façons : Chiffres / Barres / Camembert (+ ordre) ----
+   Composant commun (consigne 119). Uniquement des variables existantes,
+   donc le mode sombre suit sans valeur en plus. */
+.comprendre-les-chiffres-bascule-lecture {
+  display: inline-flex; flex-wrap: wrap; margin: .35rem 0 .6rem;
+  border: 1px solid var(--accent-solide); border-radius: 4px; overflow: hidden;
+}
+.comprendre-les-chiffres-bascule-lecture button {
+  border: none; border-right: 1px solid var(--accent-solide); background: transparent; color: var(--accent);
+  padding: .3rem .85rem; min-height: 2rem; font: inherit; font-size: .84rem; cursor: pointer;
+}
+.comprendre-les-chiffres-bascule-lecture button:last-child { border-right: none; }
+.comprendre-les-chiffres-bascule-lecture button.actif { background: var(--accent-solide); color: #fff; font-weight: 700; }
+.comprendre-les-chiffres-bascule-lecture button:focus-visible,
+.comprendre-les-chiffres-vues-ordre button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.comprendre-les-chiffres-vues-groupe + .comprendre-les-chiffres-vues-groupe { margin-top: .9rem; }
+.comprendre-les-chiffres-vues-titre { font-size: .84rem; font-weight: 700; color: var(--text-strong); margin: .2rem 0 .3rem; }
+.comprendre-les-chiffres-vues-ordre { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: .2rem 0 .4rem; font-size: .8rem; color: var(--text-muted); }
+.comprendre-les-chiffres-vues-ordre button {
+  border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+  border-radius: 4px; padding: .2rem .65rem; font: inherit; font-size: .78rem; cursor: pointer;
+}
+.comprendre-les-chiffres-vues-ordre button.actif { border-color: var(--accent); color: var(--accent); font-weight: 700; background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne { grid-template-columns: minmax(8.5rem, 40%) 1fr 5rem; padding: .18rem 0; }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-nom { font-size: .8rem; line-height: 1.2; font-weight: 400; color: var(--text-muted); }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne.fort .comprendre-les-chiffres-zone-nom { color: var(--text-strong); font-weight: 700; }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-valeur { white-space: nowrap; font-weight: 800; }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-valeur .chiffre { border-bottom: none; font-size: inherit; }
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne:not(.fort) .comprendre-les-chiffres-zone-remplissage { opacity: .55; }
+/* Une baisse : la barre est hachurée (le sens ne repose pas sur la seule couleur). */
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne.baisse .comprendre-les-chiffres-zone-remplissage {
+  background: repeating-linear-gradient(135deg, var(--accent-solide) 0 4px, transparent 4px 7px);
+}
+.comprendre-les-chiffres-camembert-zone { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: .5rem 0 .3rem; }
+.comprendre-les-chiffres-camembert { width: 130px; height: 130px; flex: none; }
+.comprendre-les-chiffres-camembert-part { fill: var(--accent-solide); stroke: none; }
+.comprendre-les-chiffres-camembert-contour { stroke: var(--border-strong); stroke-width: .4; }
+.comprendre-les-chiffres-camembert-legende { flex: 1 1 180px; list-style: none; margin: 0; padding: 0; font-size: .88rem; color: var(--text-strong); }
+.comprendre-les-chiffres-camembert-legende li { margin: .2rem 0; }
+.comprendre-les-chiffres-camembert-pastille { display: inline-block; width: .75rem; height: .75rem; border-radius: 2px; margin-right: .4rem; vertical-align: -1px; background: var(--accent-solide); }
+.comprendre-les-chiffres-camembert-legende b { white-space: nowrap; }
+
+/* « Chiffres » : une ligne par information (nom en écriture normale, chiffre en gras). */
+.comprendre-les-chiffres-lignes { margin: .3rem 0 .3rem; }
+.comprendre-les-chiffres-ligne { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; padding: .32rem 0; border-bottom: 1px dotted var(--border-strong); }
+.comprendre-les-chiffres-ligne:last-child { border-bottom: none; }
+.comprendre-les-chiffres-ligne-lib { font-size: .86rem; color: var(--text-muted); }
+.comprendre-les-chiffres-ligne.fort .comprendre-les-chiffres-ligne-lib { color: var(--text-strong); font-weight: 700; }
+.comprendre-les-chiffres-ligne-val { font-weight: 800; font-size: 1rem; color: var(--accent); white-space: nowrap; }
+.comprendre-les-chiffres-ligne-val .chiffre { border-bottom: none; font-size: inherit; }
+.comprendre-les-chiffres-bascule-lecture button .bi { margin-right: .2rem; }
+
+/* Salaires, niveau de vie, Europe : l'unité qui suit le grand chiffre d'une carte (« net par mois », « par an »...) */
+.comprendre-les-chiffres-unite { font-size: .9rem; font-weight: 600; color: var(--text-muted); }
+
+/* Ma fiche chiffres : le bouton posé sur chaque carte, la fiche et son impression */
+.comprendre-les-chiffres-fiche-bouton { display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem; padding: .35rem .85rem; min-height: 2.1rem; border: 1px solid var(--border-strong); border-radius: var(--radius, .5rem); background: var(--bg-subtle); color: var(--text-strong); font-size: .85rem; cursor: pointer; }
+.comprendre-les-chiffres-fiche-bouton:hover, .comprendre-les-chiffres-fiche-bouton:focus-visible { color: var(--accent); border-color: var(--accent); background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-fiche-bouton.ajoute { color: var(--accent); border-color: var(--accent); }
+.comprendre-les-chiffres-fiche-ligne { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; padding: .5rem 0; border-bottom: 1px dotted var(--border-strong); font-size: .9rem; }
+.comprendre-les-chiffres-fiche-src { display: block; font-size: .78rem; color: var(--text-muted); }
+.comprendre-les-chiffres-fiche-retirer { flex: none; display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .6rem; min-height: 1.9rem; border: 1px solid var(--border-strong); border-radius: var(--radius, .5rem); background: transparent; color: var(--text-muted); font-size: .8rem; cursor: pointer; }
+.comprendre-les-chiffres-fiche-retirer:hover, .comprendre-les-chiffres-fiche-retirer:focus-visible { color: var(--accent); border-color: var(--accent); }
+#impression-fiche-chiffres { display: none; }
+.comprendre-les-chiffres-fiche-acces { display: flex; justify-content: center; margin: 0 0 .6rem; }
+@media print {
+  body.imprimer-fiche-chiffres > *:not(#impression-fiche-chiffres) { display: none !important; }
+  body.imprimer-fiche-chiffres { background: #fff !important; color: #000 !important; }
+  body.imprimer-fiche-chiffres #impression-fiche-chiffres { display: block; color: #000; background: #fff; font: 12pt/1.45 Arial, Helvetica, sans-serif; padding: 0; }
+  #impression-fiche-chiffres h1 { font-size: 20pt; margin: 0 0 .2em; }
+  #impression-fiche-chiffres .imp-date { margin: 0 0 .6em; font-size: 11pt; }
+  #impression-fiche-chiffres .imp-intro { margin: 0 0 1em; font-style: italic; }
+  #impression-fiche-chiffres ol { padding-left: 1.4em; margin: 0; }
+  #impression-fiche-chiffres li { margin: 0 0 .8em; break-inside: avoid; }
+  #impression-fiche-chiffres .imp-src { display: block; font-size: 10pt; color: #333; }
+}
+
+/* ---- Espaces libres réduits (consigne 128, 2026-11-06) ---- */
+.comprendre-les-chiffres-indic { padding: .8rem 1rem; margin: 1.2rem 0; }
+.comprendre-les-chiffres-bascule-lecture { margin: .2rem 0 .4rem; }
+.comprendre-les-chiffres-lignes { margin: .15rem 0; }
+.comprendre-les-chiffres-ligne { padding: .22rem 0; }
+.comprendre-les-chiffres-vues-titre { margin: .1rem 0 .2rem; }
+.comprendre-les-chiffres-vues-ordre { margin: .1rem 0 .25rem; }
+.comprendre-les-chiffres-vues-groupe + .comprendre-les-chiffres-vues-groupe { margin-top: .5rem; }
+.comprendre-les-chiffres-fiche-bouton.dans-la-source { margin-top: 0; }
+/* Deuxième passe (consigne 128) */
+.comprendre-les-chiffres-vues-entete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .1rem .8rem; }
+.comprendre-les-chiffres-vues-entete .comprendre-les-chiffres-vues-titre { margin: .1rem 0; }
+.comprendre-les-chiffres-vues-entete .comprendre-les-chiffres-vues-ordre { margin: .1rem 0; }
+.comprendre-les-chiffres-smic-deux { align-items: start; }
+.comprendre-les-chiffres-indic .comprendre-les-chiffres-depli { margin: .4rem 0; }
+.comprendre-les-chiffres-indic .comprendre-les-chiffres-depli > summary { padding: .5rem .8rem; }
+
+/* ---- Mise en page qui suit l'écran (consigne 130, réglages de Denis sur la maquette du 2026-11-06) ----
+   Le contenu occupe presque toute la largeur (plafond 2100 px), une colonne de cartes,
+   et tout le module (texte, chiffres, graphes, espaces) grandit par paliers avec la fenêtre
+   (x1,25 vers 1700 px, x1,45 vers 1900 px). Téléphone : aucun agrandissement. */
+.comprendre-les-chiffres-accueil { zoom: 1; }
+@media (min-width: 1100px) { .comprendre-les-chiffres-accueil { zoom: 1.1; } }
+@media (min-width: 1400px) { .comprendre-les-chiffres-accueil { zoom: 1.2; } }
+@media (min-width: 1700px) { .comprendre-les-chiffres-accueil { zoom: 1.3; } }
+@media (min-width: 1900px) { .comprendre-les-chiffres-accueil { zoom: 1.45; } }
+@media print { .comprendre-les-chiffres-accueil { zoom: 1; } }
+
+/* ---- Disposition « B » des cartes (choix de Denis le 2026-11-06, maquette docs/MAQUETTE_CHIFFRES_DISPOSITION_CARTES_2026-11-06.html) ----
+   Sur écran large : le chiffre et ses phrases à gauche, les comparaisons à droite
+   (de 1 à 4 lignes = tuiles ; 5 lignes ou plus = puces serrées), l'encart « Ce que… veut dire »
+   sous le bandeau au lieu d'une colonne à part qui laisse du vide. Aucune règle ici
+   sous 1000 px : téléphone et tablette gardent leur disposition. Couleurs : variables du thème (clair et sombre). */
+@media (min-width: 1000px) {
+  .comprendre-les-chiffres-indic--avec-cote .comprendre-les-chiffres-indic-grille,
+  .comprendre-les-chiffres-indic--maigre .comprendre-les-chiffres-indic-grille { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+  .comprendre-les-chiffres-indic--avec-cote .comprendre-les-chiffres-cote { max-width: 80rem; margin-top: 0; }
+
+  /* Cartes à chiffre principal DANS le panneau (cartes clés) : texte à gauche, comparaisons à droite */
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 1.6rem; align-items: start;
+  }
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > :not(.comprendre-les-chiffres-vues-groupe) { grid-column: 1; }
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe { grid-column: 2; grid-row: 9; margin-top: 0; }
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe:first-of-type { grid-row: 1 / span 8; }
+
+  /* Cartes « fiche » (chiffre principal hors du panneau) : chiffre à gauche, lecture à droite */
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 1.6rem; align-items: start;
+  }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > * { grid-column: 1 / -1; }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-indic-valeur,
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-tendance { grid-column: 1; justify-self: start; }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues { grid-column: 2; grid-row: 2 / span 2; }
+
+  /* Comparaisons : 1 à 4 lignes = tuiles */
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .6rem; }
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne {
+    flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: .1rem;
+    padding: .55rem .7rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--bg-subtle);
+  }
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne.fort { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-val { font-size: 1.6rem; }
+  .comprendre-les-chiffres-lignes > .comprendre-les-chiffres-ligne { min-width: 0; }
+  .comprendre-les-chiffres-lignes > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-lib { min-width: 0; overflow-wrap: anywhere; }
+  /* 5 lignes ou plus (trimestres, années...) = puces serrées */
+  .comprendre-les-chiffres-lignes:has(> :nth-child(5)) { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .4rem; }
+  .comprendre-les-chiffres-lignes:has(> :nth-child(5)) > .comprendre-les-chiffres-ligne {
+    padding: .3rem .6rem; border: 1px solid var(--border-strong); border-radius: .5rem; background: var(--bg-subtle);
+  }
+
+  /* Cartes hautes (deux séries de comparaisons à droite) : la phrase d'évolution reste collée sous le chiffre, et la note,
+     « Comment lire ce chiffre ? » et la source remontent dans la colonne de gauche, au lieu de laisser un grand vide sous le chiffre
+     (étape A12, consigne 133, 2026-11-06). Mesuré avant et après : page 1 % à 3,8 % plus courte selon le niveau, vide dans les cartes réduit. */
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-indic-valeur,
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-tendance { align-self: start; }
+  /* Tout ce qui n'est ni la question ni les comparaisons va dans la colonne de gauche (la phrase « En France, cet écart est de... »,
+     la note, le dépliant, la source, les boutons) : sinon un élément pleine largeur se retrouve sous les comparaisons et laisse un grand vide
+     (retour de Denis le 2026-11-06, carte « Hommes et femmes »). La dernière ligne de la grille absorbe la hauteur en trop au lieu de la répartir entre les lignes. */
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) {
+    grid-template-rows: auto auto auto auto auto auto auto 1fr;
+  }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > :not(.comprendre-les-chiffres-indic-q):not(.comprendre-les-chiffres-vues) { grid-column: 1; }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-vues { grid-row: 2 / span 7; }
 }

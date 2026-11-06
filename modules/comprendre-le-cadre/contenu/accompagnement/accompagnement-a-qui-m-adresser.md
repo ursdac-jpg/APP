@@ -7,7 +7,7 @@ tags: [accompagnement, France Travail, Mission locale, Cap emploi, RSA, orientat
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "organisme référent"
     definition: "Structure chargée de vous accompagner après votre inscription à France Travail : France Travail, la Mission locale, Cap emploi ou le département, selon votre situation."
@@ -21,13 +21,15 @@ sources:
 ce_qui_change_souvent:
   - "Les règles d'orientation depuis la loi pour le plein emploi"
   - "Le partage des publics entre France Travail et le département"
-revisions: []
+revisions:
+  - "2026-11-04 : la page du ministère du Travail sur la loi pour le plein emploi ne mentionne aucun délai d'orientation de six semaines ; le délai est retiré du texte"
+phrase_generale: "Depuis la loi pour le plein emploi, toute personne sans emploi qui cherche du travail est inscrite à France Travail, y compris les bénéficiaires du RSA et les jeunes suivis par la Mission locale ; être inscrit ne veut pas dire être suivi par un conseiller France Travail. Les structures et les règles d'orientation évoluent : pour savoir qui vous accompagne, demandez à France Travail ou consultez les sources officielles indiquées plus bas."
 collecte: accompagnement.collecte.md
 ---
 
 Depuis la loi pour le plein emploi, toute personne sans emploi qui cherche du travail est inscrite à France Travail : cela vaut aussi pour les bénéficiaires du RSA et les jeunes suivis par la Mission locale.
 
-Être inscrit ne veut pas dire être suivi par un conseiller France Travail. Après un premier point sur votre situation, vous êtes orienté, dans les six semaines, vers la structure la plus adaptée.
+Être inscrit ne veut pas dire être suivi par un conseiller France Travail. Après un premier point sur votre situation, vous êtes orienté vers la structure la plus adaptée.
 
 France Travail accompagne la plupart des demandeurs d'emploi : diagnostic, plan d'action, offres, formations, aides.
 

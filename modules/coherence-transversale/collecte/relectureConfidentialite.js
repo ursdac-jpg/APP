@@ -14,7 +14,7 @@
    ctDemanderRelectureDossier() relit CV, lettre, puis entretien (si
    fourni), EN SEQUENCE. Invariant 6 (CONTRATS.md) : aucun texte envoye a
    l'IA sans relecture -- mais un document deja relu ailleurs (ex. deja
-   passe par le composant de depot ouvrirAssistantDepotCV(), qui inclut
+   passe par la zone de depot en page (htmlDepotCVEnPage), qui inclut
    sa propre etape de relecture/masquage) n'est jamais relu une seconde
    fois, meme principe que bilanDemanderRelectureCv() (Bilan, RC-02 --
    "cvDejaRelu"). Offre/entreprise ne sont jamais relues separement :

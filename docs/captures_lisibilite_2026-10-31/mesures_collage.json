@@ -1,0 +1,58 @@
+{
+ "portable-150-1280 | rapide-collage-reponse": {
+  "texteTotal": 1104,
+  "partTexteSous14px": 15.4,
+  "tailles": "11.5:14 12.8:53 13.1:67 13.6:36 14.1:244 14.4:188 15.2:126 16:89 16.8:37 17.6:2 19.2:164 20.8:54 44.8:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 32,
+  "boutonHauteurMediane": 38,
+  "boutonsSous40": 6,
+  "boutonsSous44": 6,
+  "petitsBoutons": [
+   {
+    "t": "ⓘ",
+    "h": 32,
+    "w": 32,
+    "fs": 16.8
+   },
+   {
+    "t": "ⓘ",
+    "h": 32,
+    "w": 32,
+    "fs": 16.8
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1303,
+  "corpsPx": "16px",
+  "erreurs": 0
+ },
+ "telephone-375 | rapide-collage-reponse": {
+  "texteTotal": 1104,
+  "partTexteSous14px": 16,
+  "tailles": "0:7 11.5:14 12:53 13.1:67 13.6:36 14.1:244 14.4:134 15.2:126 16:89 16.3:82 16.8:2 19.2:117 20:2 20.8:54 22.4:47 32:30",
+  "nbBoutons": 9,
+  "boutonHauteurMin": 32,
+  "boutonHauteurMediane": 44,
+  "boutonsSous40": 4,
+  "boutonsSous44": 4,
+  "petitsBoutons": [
+   {
+    "t": "ⓘ",
+    "h": 32,
+    "w": 32,
+    "fs": 16.8
+   },
+   {
+    "t": "ⓘ",
+    "h": 32,
+    "w": 32,
+    "fs": 16.8
+   }
+  ],
+  "scrollHorizontal": false,
+  "hauteurPage": 1791,
+  "corpsPx": "16.25px",
+  "erreurs": 0
+ }
+}

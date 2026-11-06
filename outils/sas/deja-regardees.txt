@@ -1,0 +1,555 @@
+# Fiches du sas que Denis a déjà regardées à la main (site ouvert, rien de plus à relever) : le script des messages pour Perplexity ne les reprend pas. Ce n'est PAS une pré-validation : aucune donnée n'est jugée vérifiée. L'application ne lit pas ce fichier.
+# Format : identifiant | date | remarque
+service-penitentiaire-insertion-probation-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+casier-judiciaire-national-service-public-national | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+cooperative-tiers-lieux-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+ddetspp-dordogne-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+cada-association-soutien-dordogne-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+spada-limoges-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+cnam-nouvelle-aquitaine-limoges-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+inspection-travail-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-regional-conseil-vae-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+ccas-saint-yrieix-la-perche-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+geiq-sante-social-medico-social-nouvelle-aquitaine-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+jeune-chambre-economique-bergerac-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+reseau-egee-nouvelle-aquitaine-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-carlux-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-coulounieix-chamiers-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-eymet-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-lalinde-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+france-services-le-bugue-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+mission-locale-limoges-paul-gauguin-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+mission-locale-limoges-marcel-vardelle-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+mission-locale-limoges-fabre-deglantine-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-perigueux-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+creche-maison-enfance-montignac-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+creche-isle-aux-bambins-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+cmpp-saint-junien-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+equipe-mobile-psychiatrie-precarite-limoges-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+groupement-employeurs-metiers-24-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+groupement-employeurs-rural-sarladais-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+federation-centres-sociaux-perigord-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+centre-social-parenthese-glane-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+saint-astier-maison-petite-enfance | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+cfdt-union-departementale-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+mission-locale-nouvelle-aquitaine-jeunes-emploi-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+caf-dordogne-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+caf-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+caf-france-national | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+apajh-nouvelle-aquitaine-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+fnath-perigueux-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+association-valentin-hauy-national | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+academie-limoges-dava-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-villefranche-du-perigord-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-monpazier-24 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-france-services-haute-vienne-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+service-accueil-unique-justiciable-limoges-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-le-dorat-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-saint-yrieix-la-perche-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-panazol-87 | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+afpa-nouvelle-aquitaine-region | 2026-11-04 | site ouvert par Denis, rien de plus relevé
+point-justice-bergerac-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-mussidan-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-nontron-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-riberac-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-saint-astier-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-saint-medard-dexcideuil-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-sarlat-la-caneda-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-terrasson-lavilledieu-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-thenon-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-hautefort-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-thiviers-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+point-justice-vergt-24 | 2026-11-04 | page du CDAD 24 ouverte par Denis
+creche-maison-des-doudous-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+creche-maison-petit-prince-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+creche-le-xylophone-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+creche-gambada-caneda-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+micro-creche-petitous-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+micro-creche-lutins-edith-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+hestia-cada-limoges-87 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+centre-medico-psychologique-nontron-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-sarlat-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-terrasson-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-montpon-menesterol-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-enfants-montpon-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-enfants-beaumont-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-enfants-riberac-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-enfants-nontron-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+hopital-de-jour-addictologie-envol-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmp-saint-leonard-de-noblat-87 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+cmpp-limoges-87 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+bibliotheque-francophone-multimedia-pages-et-partage-limoges-87 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+fac-bergerac-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+fac-sarlat-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+fac-thiviers-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+creche-clos-chassaing-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+creche-valentine-bussiere-24 | 2026-11-05 | message 1 passé par trois assistants et testé par Claude ; rien de plus de fiable à relever
+ccas-saint-junien-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ccas-isle-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ccas-couzeix-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ccas-aixe-sur-vienne-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ccas-bellac-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+maison-d-arret-de-perigueux-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+maison-d-arret-de-limoges-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-de-detention-de-neuvic-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+coactions-region | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+fdsea-haute-vienne-service-employeurs-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-bergerac-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-excideuil-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-montpon-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-neuvic-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-nontron-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-perigueux-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-sarlat-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gem-terrasson-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+part-age-evs-bergerac-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cms-sigoules-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+la-traverse-acces-aux-droits-bergerac-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+parcours-confiance-microcredit-national | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+action-logement-prets-salaries-national | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+bibliotheque-francophone-multimedia-limoges-87 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cegidd-centre-hospitalier-perigueux-24 | 2026-11-05 | message 2 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cite-bethanie-bergerac-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+association-formation-avenir-conseil-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-mussidan-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-la-force-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-mouleydier-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-chateau-leveque-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-boulazac-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-limoges-val-aurence-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-limoges-nord-beaubreuil-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-aixe-sur-vienne-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-bellac-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-bergerac-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-brantome-en-perigord-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-montignac-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-chalus-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-chateauponsac-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-eymoutiers-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-javerdat-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-nexon-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-rochechouart-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+micro-creche-fee-risette-compreignac-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+creche-des-arenes-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+creche-souris-vertes-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+creche-pous-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+mdph-haute-vienne-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+point-justice-saint-aulaye-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+point-justice-saint-junien-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ordre-avocats-barreau-limoges-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ofpra-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+csapa-addictions-france-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ceid-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+maison-des-adolescents-dordogne-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+cmpp-bergerac-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+apare-cada-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+anfh-conseil-evolution-professionnelle-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+asp-plateforme-vae-hopital-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ministere-education-vae-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+service-accueil-unique-justiciable-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+bureau-aide-juridictionnelle-limoges-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+association-de-soutien-de-la-dordogne-perigueux-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+services-penitentiaires-insertion-probation-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+beaubfm-tiers-lieu-limoges-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+fabrique-a-initiatives-limousin-region | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+accj-limoges-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+adoma-cada-eymoutiers-87 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+administration-numerique-etrangers-france-national | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+cmp-brantome-24 | 2026-11-05 | messages 3 et 4 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+service-accueil-unique-justiciable-bergerac-24 | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+atelier-sao-bergerac-24 | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+atelier-hebergement-bergerac-24 | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+atelier-plateforme-bpi-24 | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+atelier-domiciliation-bergerac-24 | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+action-logement-accompagnement-social-national | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+avh-comite-de-haute-vienne | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+agence-limoges-leclerc | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+medecine-travail-agricole-msa-national | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+dreets-unite-departementale-dordogne | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+dreets-unite-departementale-haute-vienne | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ddetspp-haute-vienne | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cio-de-haute-vienne-les-quatre | 2026-11-05 | message 5 passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+safed-perigueux | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+croix-rouge-delegation-de-la-dordogne | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+pmi-de-la-haute-vienne | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+sarlat-maison-de-la-petite-enfance | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+nontron-les-p-tits-loups | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+gem-le-tremplin-bergerac-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+la-halte-24-perigueux-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+envergure-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+confederation-syndicale-des-familles-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+autisme-87-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ares-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+mshv-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+fnath-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+cibc-haute-vienne-prc-vae-region | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+defenseur-des-droits-nouvelle-aquitaine-region | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+formation-jeunes-info-jeunes-france-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+cap-emploi-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+apsah-aixe-sur-vienne-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+afm-telethon-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+apajh-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+cfppa-dordogne-vae-coulounieix-chamiers-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ecoles-cci-dordogne-vae-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+service-public-france-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+conseil-national-barreaux-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+federation-nationale-cidff-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-victimes-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+hestia-asll-avdl-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+hestia-alba-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+halte-vincent-limoges-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+chambre-agriculture-dordogne-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+chambre-agriculture-haute-vienne-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+france-services-belves-creation-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+incubatest-bge-limousin-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+bge-nouvelle-aquitaine-region | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+initiative-france-national | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+fsl-de-la-haute-vienne | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+action-logement | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+perinatalite-bergerac-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+gem-les-univers-singuliers-perigueux-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+uraf-nouvelle-aquitaine-microcredit-region | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+garage-solidaire-mon-garage-solidaire-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+ville-limoges-creches-87 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+maison-justice-droit-perigueux-24 | 2026-11-05 | messages 6 et 7 passés par un assistant et testés par Claude ; rien de plus de fiable à relever
+chapelle-saint-martin | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+camping-lac-arfeuille | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sdis-24-perigueux | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+campanile-dordogne | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+premiere-classe-dordogne | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+camping-auberoche-24 | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+laboratoire-departemental-dordogne | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+chu-limoges | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cci-haute-vienne-ecoles | 2026-11-05 | message 1 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+geiq-sana-87 | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cdos-haute-vienne | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+pixine | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+spa-dordogne | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-hospitalier-belves | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-hospitalier-saint-yrieix | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+amad-sud-bergeracois | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+service-aide-personne-sarladais | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+onela-limoges-87 | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+apef-limoges-87 | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+free-dom-limoges | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+geodis-road-limoges | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+elringklinger-meillor | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+weston-limoges | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+france-paratonnerres | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cc-porte-oceane-limousin | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+smd3 | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+veolia-dordogne | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+an-carrosserie | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cafpi-haute-vienne | 2026-11-05 | message 2 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+empruntis-haute-vienne | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ymanci-haute-vienne | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ligue-enseignement-87 | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cfp-academie-limoges | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-beaubreuil | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+soutien-partage-evasion | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+pascalain | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+slmc | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+au-salon-danais | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-caricature | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+elephant-haven | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+erina | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sos-faune-sauvage | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+savencia | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+yelloh-pomport-beach | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+socotec-autre-entreprise | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cral87-limoges | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cartonnerie-lacaux-bosmie-l-aiguille | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+madrange-limoges | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+hunyvers-limoges-feytiat | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+pnr-millevaches-en-limousin | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+texelis-limoges | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+royal-limoges | 2026-11-05 | message 3 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+lavauzelle-limoges | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+laiterie-les-fayes-limoges | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+chateau-de-castelnaud | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+chateau-de-monbazillac | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+grotte-de-rouffignac | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+la-roque-saint-christophe | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gouffre-de-proumeyssac | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+chateau-des-milandes | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+limoges-csp | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sdis-87-limoges | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+repetto-saint-medard-d-excideuil-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+chaux-de-saint-astier-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ceraquitaine-saint-aulaye-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+lou-gascoun-eymet-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+beauty-success-saint-astier-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+socat-terrasson-lavilledieu-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cofidur-ems-boulazac-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+inovelec-boulazac-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sotech-technologies-services-bergerac-24 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cofel-industries-limoges-87 | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+c-and-a-haute-vienne | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+vacanceole-dordogne | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+domaine-dessendieras | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+the-originals-haute-vienne | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+clinique-francheville | 2026-11-05 | message 4 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+clinique-pasteur-bergerac | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+domusvi | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+adom-limousin | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+foyer-sourds-aveugles-peyrouse | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+famidom-limoges | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+bergerac-tp | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+erctp | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+eiffage-construction-limousin | 2026-11-05 | message 5 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+nge-routes-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+blanchon | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mauffrey-dordogne | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+stef-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+xpo-logistics-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+dpd-france-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+dhl-freight-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+db-schenker-limoges | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sonoco-perigueux | 2026-11-05 | message 6 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+arcelormittal-perigueux | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+fromarsac | 2026-11-05 | Denis la garde ; site fromarsac.fr non joignable, adresse et téléphone à vérifier
+tpl-systemes | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+arkeus-limoges | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+specialty-minerals-france | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+madeleines-bijou | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+idmc-manufacture | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+dvi | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+epc-france-saint-sylvestre | 2026-11-05 | dépôt de Saint-Sylvestre (87) établi par des sources publiques (Géorisques, Sirene) ; Denis n'en trouvait pas ; adresse et téléphone à vérifier
+saica-pack-saint-junien | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+orano-mining | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+engie-solutions-haute-vienne | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+valeo-limoges | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+conseil-departemental-dordogne | 2026-11-05 | page de recrutement mise à jour ; numéro de téléphone non retrouvé
+agc-dordogne | 2026-11-05 | confusion possible avec la Chambre d'agriculture ; il s'agit d'une association de gestion et de comptabilité (AGC Périgord, CréaVallée, Coulounieix-Chamiers) ; site agc24.fr non joignable
+mutualite-francaise-dordogne | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+exco-haute-vienne | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+urssaf-limousin | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+ag2r-la-mondiale-limoges | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+malakoff-humanis-limoges | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+acec-bsr-audit | 2026-11-05 | Denis dit « ok » ; page du site presque vide, adresse et téléphone non relus
+sageco-bellac | 2026-11-05 | message 7 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+cabinet-muriel-bellegarde | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+sarl-pepinieres-laplace | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+pepinieres-du-perigord | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+idverde-dordogne | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+serpe-dordogne | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+ocealia-haute-vienne | 2026-11-05 | Denis ne la trouve pas en 87 ; des sources publiques placent des sites d'Océalia en Haute-Vienne (Janailhac, Saint-Yrieix-la-Perche, Bellac) mais l'adresse de Limoges n'est pas établie ; site non joignable
+limousin-paysage | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+horticulture-delage | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+pepiniere-chapelle | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+pepiniere-pres-du-chiron | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+puygrenier-centre-vert | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+les-serres-du-ponteix | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+les-serres-de-ventadour | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+paprec-trivalo-dordogne | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+paprec-crv24 | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+suez-bergerac | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+derichebourg-proprete | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+samsic-proprete-dordogne | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+nicollin-dordogne | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+samsic-facility-limoges | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+multi-propr-services | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+matei-environnement | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+concept-nettoyage | 2026-11-05 | message 8 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever (adresse et téléphone non confirmés)
+clean-service-87 | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+challancin-limoges | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+jeammet-automobiles | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+de-guglielmi-ad | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+garage-lacombe | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+garage-antoine | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+clinic-auto | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+autobilan-perigord | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+sdal-peugeot | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-auto-palais | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+atelier-carrossier-lm | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+garage-charbonnier | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+citroen-midi-auto87 | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+ld-auto-87 | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+speedauto-limoges | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+asi-perigueux | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+competence-securite | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gs3-securite | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+weesure-protection | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+provencale-securite | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+limousin-securite | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+aps-87 | 2026-11-05 | message 9 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-arche | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+loft-fitness-perigueux | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+magic-fitness-couzeix | 2026-11-05 | salle de Limoges, numéro identique ; adresse à vérifier
+iron-gym-limoges | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+planete-forme-feytiat | 2026-11-05 | le site indiqué est celui d'une salle du Val-d'Oise ; salle de Feytiat à vérifier
+centre-social-alis | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-entre-deux | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+club-des-sports-saint-junien | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+temps-jeunes-terrasson | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-loisirs-jeunes-limoges | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mjc-limoges | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+alsc-bellevue-sainte-claire | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-alchimis | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+aplose | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cste | 2026-11-05 | site ouvert, numéro 05 54 54 35 41 affiché ; adresse à vérifier
+koesio-limoges | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+internatel | 2026-11-05 | site ouvert, numéro identique à la fiche (05 55 10 07 02) ; adresse à vérifier
+odb | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+neosoft-limoges | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+maison-lissajoux | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+antoine-girard | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+au-fournil-de-benjamin | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+au-tour-des-traditions | 2026-11-05 | message 11 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gbs-boucherie-charcuterie | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+charcuterie-anthony-filet | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+lard-du-gout | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+servolle-charcuterie | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+chez-arnaud | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+maison-faurie | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+deperry | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+delices-des-gourmets | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+boulangerie-gavroche | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+diablotin | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+tournepains | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+chez-many | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+la-cerise-sur-le-gateau | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+chez-renard | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+pain-et-tradition-france | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+au-fin-palais | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+les-beigneurs | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+a-la-foret-noire | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+boulangerie-sainte-claire | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+latelier-du-perigord | 2026-11-05 | message 12 des employeurs : aucune page ouverte par l'assistant, rien de fiable à relever
+peny-ebenisterie | 2026-11-05 | site ouvert : atelier de Gardonne, numéro 06 79 58 20 05 identique à la fiche ; adresse complète à vérifier
+lp-menuiserie | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+menuiserie-raynal | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+leclerc-menuiseries | 2026-11-05 | site ouvert : commune d'Isle indiquée ; adresse et téléphone à vérifier
+atelier-isa | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+coud-fil | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+haviland | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+raynaud | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+deshoulieres | 2026-11-05 | Denis ne la trouve pas ; une fiche de l'office de tourisme (Visit Limousin) donne Porcelaine Philippe Deshoulières au 21 rue de la Mauvendière à Limoges ; à vérifier
+atelier-arquie | 2026-11-05 | site ouvert : Limoges, numéro 05 55 34 40 52 identique à la fiche ; adresse à vérifier
+emaux-cheron | 2026-11-05 | site presque vide ; un atelier Chéron (Chéron-Tessier) existe à Limoges, 17 rue Gustave Flaubert, autre adresse que celle de la fiche ; à vérifier
+atelier-desmetiers | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+artistyk | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mathys-by-kristel | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+style-et-tendances | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+linstant-coiffure-beaute | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+a-limage-de-soie | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+stylcoiffure-laetis | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+aura-et-beaute | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+les-fees-de-la-beaute | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+le-grain-de-beaute | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+fabio-salsa-limoges | 2026-11-05 | portail du réseau ouvert ; salon de Limoges non affiché ; à vérifier
+emy-avet | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+me-and-my-salon | 2026-11-05 | message 13 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+univhairspa | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mon-salon-saint-victurnien | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+pensee-cocoon | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+terre-lune | 2026-11-05 | site ouvert : numéro identique à la fiche ; adresse à vérifier
+stratege | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+studio-emia | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+theatre-expression7 | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+musee-adrien-dubouche | 2026-11-05 | site ouvert, adresse et téléphone non relus ; lien de recrutement du service public déjà indiqué
+cvga-gour-arche | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+animalis-montpon | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+clinique-beaublanc | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+clinique-louyat | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+cabinet-les-moustaches | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+panaveto-panazol | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+groupement-veterinaire-saint-leonard | 2026-11-05 | message 15 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+vitadom | 2026-11-05 | page de recrutement trouvée ; adresses des agences à vérifier
+fiducial-securite-limoges | 2026-11-05 | page de recrutement ouverte (redirigée vers la rubrique carrière) ; agence de Limoges à vérifier
+protectim-security-limoges | 2026-11-05 | site protégé contre les robots, non relu ; agence de Limoges à vérifier
+goron-limoges | 2026-11-05 | portail de recrutement ajouté ; agence de Limoges à vérifier
+psl-securite | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+wise-securite | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mp-sp | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+alk-securite | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+gpsi-securite | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+segao-securite | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+apm-securite-87 | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+lynx-securite-europe | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+credit-agricole-services-immobiliers | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+axa-assurance-et-banque | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+mma | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+institution-sainte-marthe-saint-front | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+3ifa-limoges | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+alfred-fournier | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+les-vaseix-mfr | 2026-11-05 | réseau MFR ouvert ; maison des Vaseix non relue
+centre-social-jean-moulin | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-germaine-tillion | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+centre-social-brunetiere | 2026-11-05 | message 10 des employeurs passé par un assistant et testé par Claude ; rien de plus de fiable à relever
+france-terre-d-asile-bergerac-24 | 2026-11-05 | message 1 des structures passé par ChatGPT : aucune page de l'antenne de Bergerac trouvée
+safed-perigueux-24 | 2026-11-05 | message 1 des structures passé par ChatGPT : aucune page officielle trouvée
+centre-departemental-de-sante-excideuil-24 | 2026-11-05 | page du Département en maintenance le 05/11/2026 (erreur 503), à revoir quand elle rouvre
+centre-departemental-de-sante-riberac-24 | 2026-11-05 | page du Département en maintenance le 05/11/2026 (erreur 503), à revoir quand elle rouvre
+centre-departemental-de-sante-saint-medard-de-mussidan-24 | 2026-11-05 | page du Département en maintenance le 05/11/2026 (erreur 503), à revoir quand elle rouvre
+point-justice-bessines-sur-gartempe-87 | 2026-11-05 | page du CDAD 87 en maintenance le 05/11/2026 (erreur 502), à revoir quand elle rouvre
+point-justice-brantome-en-perigord-24 | 2026-11-05 | la page n'affiche ni adresse ni numéro local : 05 53 06 39 33 est le numéro du CDAD 24 (Périgueux) ; adresse venue de l'annuaire de l'administration, à confirmer
+point-justice-cite-judiciaire-limoges-87 | 2026-11-05 | page ouverte, aucun numéro propre relevé
+dreets-nouvelle-aquitaine-economie-region | 2026-11-05 | message 1 passé par ChatGPT : aucune donnée relevée
+solidaires-union-departementale-haute-vienne-87 | 2026-11-05 | message 1 passé par ChatGPT : aucune donnée relevée
+mediatheque-pierre-fanlac-perigueux-24 | 2026-11-05 | message 1 passé par ChatGPT : aucune donnée relevée
+cma-haute-vienne-87 | 2026-11-05 | message 1 passé par ChatGPT : aucune donnée relevée
+ccas-limoges-87 | 2026-11-05 | message 1 passé par ChatGPT : aucune donnée relevée
+service-social-departemental-haute-vienne-87 | 2026-11-05 | message 2 passé par ChatGPT : numéro tiré d'un PDF du Département, non relu par Claude
+point-orientation-apprentissage-cci-limoges-87 | 2026-11-05 | message 2 : ChatGPT donne 16 place Jourdan, mais la page répond « accès refusé » à Claude : à ouvrir par Denis
+cjd-national | 2026-11-05 | message 2 : siège au 35 rue Saint-Sabin à Paris confirmé, mais le numéro n'apparaît pas sur la page (ChatGPT donne 01 53 23 92 50, la fiche 01 53 35 03 00)
+centre-social-alchimis-87 | 2026-11-05 | message 2 : ChatGPT confirme 05 55 57 38 24 mais sur une page générale de la ville, non relue
+plateforme-aidants-castel-87 | 2026-11-05 | message 2 : adresse « rue » ou « route » de Nexon non tranchée, page de l'annuaire inaccessible à Claude
+dsden-dordogne-24 | 2026-11-05 | message 2 : adresse 20 rue Alfred de Musset trouvée dans un annuaire non officiel, site de l'académie inaccessible à Claude
+dsden-haute-vienne-87 | 2026-11-05 | message 2 : ChatGPT donne 5 allée Alfred Leroux et une nouvelle page, inaccessible à Claude
+altipole-87 | 2026-11-05 | message 2 : site en erreur 502, ChatGPT n'a trouvé aucune page officielle
+initiative-nouvelle-aquitaine-region | 2026-11-05 | message 3 : le site initiative-nouvelleaquitaine.org répond en erreur 502 (Denis : mort) ; le réseau existe, un autre site initiative-nouvelleaquitaine.fr est cité mais n'a pas pu être ouvert par Claude
+asti-perigueux-24 | 2026-11-05 | message 3 : le site asti24.fr ne répond plus (Denis : mort), mais l'ASTI de Périgueux existe et publie des missions de bénévolat sur jeveuxaider.gouv.fr ; coordonnées à retrouver
+association-interconsulaire-haute-vienne-87 | 2026-11-05 | message 3 : aucune page propre trouvée par ChatGPT
+entre-deux-region | 2026-11-05 | message 3 : ChatGPT donne un numéro et une adresse venant d'un livret d'été de la ville, sans lien clair avec la structure : non retenu
+accueils-de-jour-haute-vienne-87 | 2026-11-05 | message 3 : plusieurs établissements, pas de coordonnées uniques à relever
+coopalpha-limousin-87 | 2026-11-05 | message 3 : ChatGPT corrige sans donner de coordonnées
+entreprises-adaptees-esat-haute-vienne-87 | 2026-11-05 | message 3 : aucune page trouvée par ChatGPT
+habitat-jeunes-haute-vienne-87 | 2026-11-05 | message 3 : aucune page trouvée par ChatGPT
+france-travail-conseillers-justice-haute-vienne-87 | 2026-11-05 | message 3 : aucune page propre trouvée par ChatGPT
+geiq-haute-vienne-87 | 2026-11-05 | message 3 : aucune page trouvée par ChatGPT
+inclusion-numerique-haute-vienne-87 | 2026-11-05 | message 3 : aucune page trouvée par ChatGPT
+groupe-fel-limoges-87 | 2026-11-05 | message 3 : la page proposée est celle de Guéret (Creuse), aucune page de Limoges trouvée
+association-perigord-linguistique-et-culturel-24 | 2026-11-05 | message 3 : aucune page officielle trouvée
+espace-economie-emploi-riberacois-24 | 2026-11-05 | message 3 : adresse 36 rue du 26 mars 1944 à Ribérac tirée d'un PDF de 2017, trop ancien, sans numéro
+adefa-dordogne-24 | 2026-11-05 | message 3 : aucune page trouvée par ChatGPT
+club-dordogne-entrepreneurs-24 | 2026-11-05 | message 4 : le site ne répond pas (Denis : mort), mais le club existe, rattaché à la CCI de la Dordogne, pôle de Bergerac (1 rue Ragueneau) ; numéro 06 63 12 53 61 non retrouvé
+60-000-rebonds-nouvelle-aquitaine-dordogne-24 | 2026-11-05 | message 4 : la page indique que le relais de Périgueux est en cours de création ; seul numéro : celui de la région (06 88 84 99 04) : à ne pas publier tant que le relais n'est pas ouvert
+couveuse-aster-87 | 2026-11-05 | message 4 : ChatGPT ne trouve aucune page
+empp-bergerac-24 | 2026-11-05 | message 4 : ChatGPT ne donne que le standard du centre hospitalier (05 53 82 82 82), pas le numéro de l'équipe
+banque-postale-l-appui-microcredit-national | 2026-11-05 | message 4 : ChatGPT confirme 09 69 36 39 20, page non relue par Claude
+association-cc-aide-domicile-mussidan | 2026-11-05 | message 1 des employeurs relancé : ChatGPT confirme le numéro 05 53 81 27 60 sur une page de la commune, non relue par Claude
+foyer-vie-lysander | 2026-11-05 | page des offres d'emploi de l'APEI Périgueux ouverte, mais ni adresse ni numéro du foyer sur cette page : à confirmer
+foyer-lou-prat-dou-solelh | 2026-11-05 | page des offres d'emploi de l'APEI Périgueux ouverte, mais ni adresse ni numéro du foyer sur cette page : à confirmer
+chlorophylle-condat | 2026-11-05 | message 1 relancé : ChatGPT ne trouve aucun site ni établissement
+centre-hospitalier-bellac | 2026-11-05 | page des offres d'emploi de l'hôpital du Haut Limousin ouverte (hihl.fr), mais adresses et numéros des trois sites non relus par Claude
+centre-hospitalier-eymoutiers | 2026-11-05 | message 1 relancé : ChatGPT ne trouve aucun site
+sotec-groupe-massy | 2026-11-05 | message 1 relancé : ChatGPT ne trouve aucun site
+industrie-bois-rousseau | 2026-11-05 | message 1 relancé : ChatGPT ne trouve aucun site
+chez-sylvain-panazol | 2026-11-05 | message 1 relancé : l'établissement existe (annuaire d'accessibilité) mais aucun numéro relu ; Denis n'a pas relevé celui de Panazol
+fredange-ambulances-rouffignacoises | 2026-11-05 | site dordogneambulances.fr relu par Claude : numéro 05 53 05 41 52 confirmé, pas de page recrutement, mais aucune adresse sur le site (ChatGPT donne 32 voie des Farges, d'après un recueil de la préfecture)
+ambulances-taxis-lalinde | 2026-11-05 | message 1 relancé : ChatGPT ne trouve aucun site
+aide-familiale-domicile-bergerac | 2026-11-05 | message 1 relancé : numéro 05 53 57 58 98 vu dans l'annuaire de la communauté d'agglomération, non relu par Claude
+assad-dordogne | 2026-11-05 | message 1 relancé : adresse à Cubjac (Le Maine) vue dans une liste du Département de 2023, non relue par Claude
+limousin-aide-a-domicile-87 | 2026-11-05 | site mort (Denis) ; l'établissement figure pourtant dans l'annuaire officiel des services pour personnes âgées (18 rue Aigueperse, 05 55 33 34 08) : à confirmer par un appel
+eveil-aides-services | 2026-11-05 | site mort (Denis) ; l'établissement figure dans l'annuaire officiel des services pour personnes âgées (2 avenue Pasteur, Ambazac, 06 15 53 69 67), page non ouverte par Claude : à confirmer
+aides-et-services-87 | 2026-11-05 | ChatGPT donne le site aidesetservices87.com (74 avenue Garibaldi, 05 55 49 04 62) mais Claude n'a pas pu l'ouvrir (erreur de connexion sécurisée) : à confirmer
+afrpa-bessines-lauriere | 2026-11-05 | ChatGPT ne trouve qu'un recueil de la préfecture de 2016 : trop ancien pour valider
+entreprise-generale-batiment-creysse | 2026-11-05 | ChatGPT donne le site babilon.fr (6 route de la Nauve, 05 53 23 78 76) mais le site répond « indisponible » à Claude : à confirmer
+ets-ribeiro | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+batifrere-electricite | 2026-11-05 | numéro 07 50 15 94 96 et adresse vus sur une page de la mairie de Siorac, non relue par Claude
+gebo-tp | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+coulon-tp | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+transports-gil | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+transports-jr-maury | 2026-11-05 | ChatGPT trouve l'adresse sur une page de la mairie de Négrondes, sans numéro : non retenu
+transports-malaurie | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+transports-rebeyrolle | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+bus-lavalade | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+europ-voyages-87 | 2026-11-05 | Denis dit « pas de présence en 24 ni 87 » : mais la société SARL Europ Voyages 87 a son siège à Panazol (28 rue ou avenue Adrien Pressemane, 87350), d'après un annuaire d'entreprises ; son site redirige vers une autre adresse et ne s'ouvre plus : présence probable, adresse et numéro à confirmer
+crc-logistique | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+viandes-logistique-distribution | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+mta-limoges | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement
+centre-express-limousin | 2026-11-05 | adresse et numéro 05 55 36 63 30 vus sur une page de la mairie de Bonnac-la-Côte, non relue par Claude
+transports-realle | 2026-11-05 | message 2 des employeurs relancé : ChatGPT ne trouve aucun site ni établissement

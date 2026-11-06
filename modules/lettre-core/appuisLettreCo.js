@@ -80,8 +80,40 @@ function nomsSignatureLettreCo(texte) {
   return noms;
 }
 
+// Appuis ajoutes le 28/10/2026 (maquette validee par Denis) : le document « Mes compétences » (si la personne l'a termine) et un texte libre, ecrit ou dicte.
+// Ni l'un ni l'autre ne contient le nom de la personne : « Mes compétences » est lu sans son nom ni ses preuves, le texte libre porte le conseil de retirer les noms.
+var TEXTE_LIBRE_APPUI_MAX = 2000;
+function nettoyerTexteLibreAppui(texte) {
+  return String(texte || '').replace(/\r\n?/g, '\n').trim().slice(0, TEXTE_LIBRE_APPUI_MAX);
+}
+function sectionTexteLibreLettreCo(texte) {
+  var t = nettoyerTexteLibreAppui(texte);
+  return t ? 'CE QUE LA PERSONNE AJOUTE AVEC SES MOTS (écrit ou dicté par elle, relu par elle)\n' + t : '';
+}
+// doc : le document final de « Mes compétences » (mesCompObtenirDocument), null tant que la personne n'a pas termine. Les « envies » n'y entrent pas : ce ne sont pas des competences.
+function sectionMesCompetencesLettreCo(doc) {
+  if (!doc || doc.vide || !doc.sections || !doc.sections.length) { return ''; }
+  var l = ['COMPÉTENCES RELEVÉES PAR LA PERSONNE (son document « Mes compétences » : les lignes qu\'elle a relues et gardées)'];
+  doc.sections.forEach(function (s) {
+    l.push('', s.titre);
+    s.lignes.forEach(function (x) {
+      l.push('- ' + x.libelle + (x.pourLeCV ? ' : ' + x.pourLeCV : '') + (x.confirmation === 'confirmee' ? ' (confirmé par une autre personne)' : ''));
+    });
+  });
+  return l.join('\n');
+}
+function compterLignesMesCompetences(doc) {
+  if (!doc || !doc.sections) { return 0; }
+  return doc.sections.reduce(function (n, s) { return n + s.lignes.length; }, 0);
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
+    TEXTE_LIBRE_APPUI_MAX: TEXTE_LIBRE_APPUI_MAX,
+    nettoyerTexteLibreAppui: nettoyerTexteLibreAppui,
+    sectionTexteLibreLettreCo: sectionTexteLibreLettreCo,
+    sectionMesCompetencesLettreCo: sectionMesCompetencesLettreCo,
+    compterLignesMesCompetences: compterLignesMesCompetences,
     MAX_RECOMMANDATIONS_LETTRE_CO: MAX_RECOMMANDATIONS_LETTRE_CO,
     ROLES_RECOMMANDATION_LETTRE_CO: ROLES_RECOMMANDATION_LETTRE_CO,
     ajouterRecommandationLettreCo: ajouterRecommandationLettreCo,

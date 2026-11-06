@@ -379,7 +379,22 @@ Bloc dédié dans `outils/veille.html` (mode « Entretenir la base »). Le promp
 l'ouverture, pour le dernier trimestre complet. Pour un autre trimestre : choisir un mois qui en fait
 partie ; sinon, laisser le champ vide.
 
-### Texte assemblé par l'outil
+### NOUVELLE VERSION du 31/10/2026 : un message par groupe de domaines (remplace le texte unique ci-dessous)
+
+Constat (réponse réelle d'un assistant, 31/10/2026) : un seul message pour 12 domaines faisait répondre « Aucun changement retenu » à 9 domaines sur 12, sans que l'on sache si rien n'existait ou si rien n'avait été cherché. **Source de vérité : `BAL_GROUPES`, `balMessage()` et `assemblerBalayage()` dans `outils/veille.html`** (jamais une copie ici). Ce qui change :
+
+- **Durée** : « Un mois » (par défaut, le dernier mois complet, fichier `contenu/balayage/AAAA-MM.md`) ou « Un trimestre » (comme avant).
+- **7 messages**, un par groupe de domaines (emploi et retraite ; assurance chômage ; formation ; IAE et handicap ; RSA, jeunes et mobilité ; séjour des étrangers ; région et département), chacun avec sa liste « Où chercher » (sources nommées, aucune adresse profonde inventée).
+- **Balayage approfondi exigé** : ouvrir chaque source de la liste puis chercher par recherches ciblées ; « aucun changement » n'est plus une sortie facile.
+- **Réponse en plusieurs fois** : l'assistant s'arrête proprement à la fin d'un domaine et demande « Voulez-vous la suite ? ». Il ne saute aucun domaine en silence.
+- **Trois blocs en réponse** : `[BALAYAGE]` (inchangé, il alimente le sas des changements), `[COUVERTURE]` (par domaine : changements trouvés / rien trouvé / non couvert, avec les pages ouvertes ; « rien trouvé » exige au moins 3 pages) et `[SITES-NON-OUVERTS]` (site, adresse, raison, ce qu'il cherchait).
+- **Règles de fond** : un discours n'est pas un changement (il ne va que dans « Annoncé » s'il annonce une mesure datée) ; type limité à 4 valeurs ; adresse nue sans lien Markdown ni `?lang=en` ; « source primaire non ouverte » à signaler dans le texte.
+- **Lecture dans l'outil** : on colle toutes les réponses à la suite ; l'outil assemble les blocs, affiche la couverture par domaine (✅, ⚠️, ❌), la liste cliquable des sites à ouvrir à la main, et un bouton « Préparer un message pour les N domaines à reprendre ».
+- Rien n'est publié sans vérification : le sas des changements (un par un, avec « J'ai ouvert la source ») est inchangé.
+
+*Pas encore essayé sur une vraie réponse d'assistant avec les nouveaux messages (seulement sur des réponses simulées dans le navigateur).*
+
+### Ancien texte assemblé par l'outil (avant le 31/10/2026, pour mémoire)
 
 ```
 Je constitue un digest trimestriel de veille pour des professionnels de l'insertion (CIP).
@@ -1500,3 +1515,23 @@ Les **structures** (logement, puis les autres rayons au fur et à mesure) et les
 - **Zones** : la colonne « Zone desservie » se remplit avec `epci:` (code de l'intercommunalité, liste dans `modules/mon-territoire/contenu/communes-24.txt`) ou `commune:` (nom), séparés par « ; ». Ne jamais la deviner : laisser vide tant qu'elle n'est pas confirmée par la structure.
 - **Rayons migrés** (aujourd'hui : Logement et Accompagnement) : leurs structures vivent seulement dans `lieux.txt` ; ne plus les ajouter à la collecte du rayon ni au registre `liens-verifies.txt`. Le bloc « Annuaire associatif » de la page reste valable pour les rayons pas encore migrés.
 - Détail technique : `outils/veilleTerritoire.js`, `outils/veilleDepot.js` (type `territoire`), `modules/mon-territoire/ARCHITECTURE_TECHNIQUE.md`.
+
+---
+
+## 11. Les prompts de vérification « Faire vérifier par un assistant » (ajouté le 2026-10-29)
+
+**Source du code** : `outils/veilleVerification.js` (constructeurs et lecteurs), `outils/veilleMotsVerifies.js` (date de vérification des mots), branchés par `outils/veilleDepot.js` et l'écran `outils/veille.html` (fonctions `ver*`). Les textes vivent dans le code ; ce paragraphe en donne le mode d'emploi.
+
+**Principe (décision de Denis)** : l'assistant PROPOSE, Denis ouvre la source et décide. Rien n'est enregistré ni daté tout seul. Boutons toujours **saumon** (`.btn.btn-verif`).
+
+| Où | Bouton | Niveau | Réponse attendue |
+|---|---|---|---|
+| Sas « Qui fait quoi » et registre (employeurs, structures, pages d'offres) | une fiche / un groupe de 8 au plus | individuel : fait foi, propose des valeurs ; groupe : tri seulement | `mot / statut / valeur lue / adresse / citation` ; groupe : `numéro / nom / statut / ce qui diffère / adresse` |
+| Fiches du cadre | une fiche / un groupe | une fiche : six points comparés ; groupe : tri | `point / statut / ce que dit la fiche / ce que tu as lu / adresse / citation` |
+| Lexique, un mot | « Faire vérifier ce mot » + « Marquer ce mot comme vérifié aujourd'hui » | individuel | idem fiche ; la date va dans `outils/lexique_verifications.txt` (jamais dans `data/lexique.js`) ; filtre « Mots à revérifier » (jamais vérifié ou plus de 6 mois) |
+| Adresses des fiches | une adresse | individuel, une ligne | l'adresse corrigée remplit seulement le champ « Modifier » |
+| Comprendre les chiffres | un chiffre (valeurs de l'écran) | individuel | une ligne par valeur, rien à recopier |
+
+**Statuts** : confirmé, corrigé, non vérifiable, obsolète (fiches, mots, chiffres, adresses) ; fermée ou absente (structures, employeurs) ; groupe : confirmé, à regarder, introuvable, obsolète.
+
+**Gardés tels quels (décision de Denis, 2026-10-29)** : le lot de 8 fiches avec chiffres du Lexique (`veilleMots.promptVerificationChiffres`) et le « contrôle de source » d'une adresse morte (RESTRUCTURE / MODIFIE / SUPPRIME) : ce sont d'autres travaux, avec leur propre lecteur.

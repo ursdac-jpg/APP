@@ -31,6 +31,7 @@ revisions:
   - "2026-10 : précision sur les dispenses (réfugiés ou apatrides de plus de 70 ans résidant depuis au moins 15 ans, pour le niveau de français ; handicap ou état de santé, sur certificat médical) ; une dispense pour toutes les personnes réfugiées n'existe pas ; vérifié sur service-public.fr et Légifrance (décret du 15 juillet 2025, arrêté du 30 décembre 2025) le 2026-10-05"
   - "2026-01 : le niveau de français exigé passe à B2 (oral et écrit) et l'examen civique (40 questions, 32 bonnes réponses exigées) devient obligatoire ; confirmé sur service-public.fr le 2026-09-05"
   - "2026-05 : le droit de timbre pour la demande de naturalisation passe de 55 à 255 euros (article 128 de la loi de finances pour 2026, application au 1er mai 2026) ; confirmé sur service-public.fr F2213 le 2026-09-14"
+phrase_generale: "La naturalisation par décret est une demande, pas un droit : l'État décide, après avoir vérifié notamment la durée de résidence, l'intégration et la maîtrise du français. Les conditions, les délais et les pièces demandées changent régulièrement : avant de déposer un dossier, consultez les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

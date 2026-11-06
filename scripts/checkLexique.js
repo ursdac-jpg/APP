@@ -50,18 +50,31 @@ var GABARITS_CONNUS = [
 // { verifieLe: 'AAAA-MM-JJ' ou '' (jamais verifie), source: { nom, url https }, lignes: [{ libelle, valeur, categorie, peutChanger }] }.
 // Rend la liste des erreurs de forme (vide si le bloc est correct). Source unique : l'outil de veille appelle cette meme fonction.
 var MAX_LIGNES_DETAILS = 8;
+var SEUIL_MOIS_PHRASE_GENERALE = 6;
+// Date du jour sur l'horloge locale (pas en UTC : entre minuit et 1 h ou 2 h du matin, l'UTC est encore à la veille et ferait refuser une vérification faite « aujourd'hui »).
+function dateDuJour() { var n = new Date(); return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'); }
+
 function verifierDetails(d, aujourdhui) {
   var e = [];
   var categories = Object.keys(require('./reperesChiffres.js').CATEGORIES);
   if (!d || typeof d !== 'object' || Array.isArray(d)) { return ['Le bloc des chiffres à jour est mal formé.']; }
-  Object.keys(d).forEach(function (k) { if (['verifieLe', 'source', 'lignes'].indexOf(k) === -1) { e.push('Champ inconnu dans le bloc : ' + k + '.'); } });
+  Object.keys(d).forEach(function (k) { if (['verifieLe', 'source', 'lignes', 'phraseGenerale'].indexOf(k) === -1) { e.push('Champ inconnu dans le bloc : ' + k + '.'); } });
   var v = d.verifieLe;
   if (typeof v !== 'string') { e.push('La date de vérification manque (une date, ou vide si le bloc n\'a jamais été vérifié).'); }
   else if (v !== '') {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v), ok = !!m;
     if (ok) { var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); ok = t.getUTCFullYear() === +m[1] && t.getUTCMonth() === +m[2] - 1 && t.getUTCDate() === +m[3]; }
     if (!ok) { e.push('La date de vérification doit être une vraie date au format AAAA-MM-JJ : ' + v + '.'); }
-    else if (v > (aujourdhui || new Date().toISOString().slice(0, 10))) { e.push('La date de vérification est dans le futur : ' + v + '.'); }
+    else if (v > (aujourdhui || dateDuJour())) { e.push('La date de vérification est dans le futur : ' + v + '.'); }
+  }
+  if (d.phraseGenerale !== undefined) {
+    var pg = d.phraseGenerale;
+    if (typeof pg !== 'string' || !pg.trim()) { e.push('La phrase générale est vide : elle remplace le texte précis après ' + SEUIL_MOIS_PHRASE_GENERALE + ' mois.'); }
+    else {
+      if (/[–—]/.test(pg)) { e.push('Un tiret long ou demi-long s\'est glissé dans la phrase générale (interdit).'); }
+      var cg = require('./reperesChiffres.js').extrait(pg);
+      if (cg) { e.push('La phrase générale ne doit contenir aucun chiffre, date, montant ni durée (« ' + cg + ' ») : elle remplace le texte précis quand les chiffres ne sont plus vérifiés.'); }
+    }
   }
   var s = d.source;
   if (!s || typeof s !== 'object' || typeof s.nom !== 'string' || !s.nom.trim()) { e.push('La source officielle manque (son nom).'); }
@@ -88,6 +101,54 @@ function verifierDetails(d, aujourdhui) {
 // qui tape des mots tres varies du quotidien. 4 laisse un peu d'air sans
 // ouvrir en grand -- au-dela, on s'appuie sur les synonymes des freins
 // (data/freins.js), qui remontent aussi dans la recherche.
+// Suivi d'une entree de SECOND NIVEAU (champ facultatif `suivi`, decision de Denis du 03/11/2026, consigne 95 etendue) :
+// { verifieLe: 'AAAA-MM-JJ', source: { nom, url https }, phraseGenerale }. Meme logique que le bloc des chiffres d'une fiche : tant que la verification a moins
+// de 6 mois, l'entree s'affiche avec ses chiffres ; au-dela, la phrase generale (sans aucun chiffre) la remplace, avec le lien vers la source officielle.
+function verifierSuivi(s, aujourdhui) {
+  var e = [];
+  if (!s || typeof s !== 'object' || Array.isArray(s)) { return ['Le suivi est mal formé.']; }
+  Object.keys(s).forEach(function (k) { if (['verifieLe', 'source', 'phraseGenerale'].indexOf(k) === -1) { e.push('Champ inconnu dans le suivi : ' + k + '.'); } });
+  var v = s.verifieLe, m = typeof v === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(v) : null, ok = !!m;
+  if (ok) { var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); ok = t.getUTCFullYear() === +m[1] && t.getUTCMonth() === +m[2] - 1 && t.getUTCDate() === +m[3]; }
+  if (!ok) { e.push('La date de vérification doit être une vraie date au format AAAA-MM-JJ.'); }
+  else if (v > (aujourdhui || dateDuJour())) { e.push('La date de vérification est dans le futur : ' + v + '.'); }
+  if (!s.source || typeof s.source !== 'object' || typeof s.source.nom !== 'string' || !s.source.nom.trim()) { e.push('La source officielle manque (son nom).'); }
+  else if (typeof s.source.url !== 'string' || !/^https:\/\/[^\s"'<>]+$/.test(s.source.url)) { e.push('L\'adresse de la source doit commencer par https:// et ne contenir ni espace ni guillemet.'); }
+  var pg = s.phraseGenerale;
+  if (typeof pg !== 'string' || !pg.trim()) { e.push('La phrase générale manque : elle remplace le texte précis après ' + SEUIL_MOIS_PHRASE_GENERALE + ' mois.'); }
+  else {
+    if (/[–—]/.test(pg)) { e.push('Un tiret long ou demi-long s\'est glissé dans la phrase générale (interdit).'); }
+    var cg = require('./reperesChiffres.js').extrait(pg);
+    if (cg) { e.push('La phrase générale ne doit contenir aucun chiffre, date, montant ni durée (« ' + cg + ' »).'); }
+  }
+  return e;
+}
+// Liste de transition du second niveau : les entrees ANCIENNES dont le texte contient un chiffre sans suivi (exemples et faits stables, a revoir). Elle ne peut que retrecir.
+var CHEMIN_TRANSITION_SECOND_NIVEAU = path.join(__dirname, '..', 'outils', 'lexique_second_niveau_transition.txt');
+// Une entree de second niveau dont le texte contient un chiffre doit avoir son suivi, sauf si elle est sur la liste de transition ; une entree listee qui n'a plus
+// de chiffre, ou qui a maintenant son suivi, doit sortir de la liste. Rend la liste des erreurs.
+function controlerSecondNiveau(entrees, transition, aujourdhui) {
+  var detecteur = require('./reperesChiffres.js');
+  var liste = {}; (transition || []).forEach(function (id) { liste[id] = true; });
+  var erreurs = [], connus = {};
+  entrees.forEach(function (a) {
+    connus[a.id] = true;
+    var extrait = detecteur.extrait(a.corps);
+    if (a.suivi !== undefined) {
+      verifierSuivi(a.suivi, aujourdhui).forEach(function (m) { erreurs.push('Second niveau "' + a.id + '" : ' + m); });
+    }
+    if (extrait && a.suivi === undefined && !liste[a.id]) {
+      erreurs.push('Second niveau "' + a.id + '" : le texte contient un chiffre, une date, un montant ou une durée (« ' + extrait + ' ») et l\'entrée n\'a pas de suivi. Ajoutez le champ suivi (date de vérification, source, phrase générale sans chiffre) pour que ce chiffre soit revérifié.');
+    } else if (liste[a.id] && !extrait) {
+      erreurs.push('Second niveau "' + a.id + '" : sur la liste de transition mais son texte n\'a plus de chiffre. Retirez-le de outils/lexique_second_niveau_transition.txt.');
+    } else if (liste[a.id] && a.suivi !== undefined) {
+      erreurs.push('Second niveau "' + a.id + '" : sur la liste de transition alors qu\'il a maintenant son suivi. Retirez-le de outils/lexique_second_niveau_transition.txt.');
+    }
+  });
+  Object.keys(liste).forEach(function (id) { if (!connus[id]) { erreurs.push('La liste de transition du second niveau cite "' + id + '", qui n\'est pas une entrée de data/lexique.js.'); } });
+  return erreurs;
+}
+
 var MAX_VARIANTES = 4;
 var MAX_VOIR_AUSSI = 3;
 var MAX_A_NE_PAS_CONFONDRE = 2;
@@ -118,8 +179,10 @@ var CHEMIN_TRANSITION = path.join(__dirname, '..', 'outils', 'lexique_transition
 function lireTransition(texte) {
   return String(texte || '').split(/\r?\n/).map(function (l) { return l.replace(/#.*$/, '').trim(); }).filter(Boolean);
 }
-// Regle : un chiffre, une date, un montant ou une duree dans le TEXTE d'une fiche est une erreur, sauf si la fiche est sur la liste de transition ;
-// et une fiche listee qui n'a plus de chiffre doit sortir de la liste. fiches = objets { id, corps } ; transition = identifiants. Rend la liste des erreurs.
+// Regle (decision de Denis du 03/11/2026, consigne 94, qui remplace celle du 20/10/2026) : un chiffre, une date, un montant ou une duree dans le TEXTE
+// d'une fiche est permis quand la fiche a son bloc « Les chiffres a jour » (champ detailsAJour : date de verification, source), qui permet de le retrouver
+// et de le reverifier ; sans ce bloc, c'est une erreur, sauf si la fiche est sur la liste de transition ;
+// et une fiche listee qui n'a plus de chiffre doit sortir de la liste. fiches = objets { id, corps, detailsAJour? } ; transition = identifiants. Rend la liste des erreurs.
 function controlerChiffresDuTexte(fiches, transition) {
   var detecteur = require('./reperesChiffres.js');
   var liste = {}; (transition || []).forEach(function (id) { liste[id] = true; });
@@ -127,8 +190,13 @@ function controlerChiffresDuTexte(fiches, transition) {
   fiches.forEach(function (f) {
     connus[f.id] = true;
     var extrait = detecteur.extrait(f.corps);
-    if (extrait && !liste[f.id]) {
-      erreurs.push('Fiche "' + f.id + '" : le texte contient un chiffre, une date, un montant ou une durée (« ' + extrait + ' »). Placez-le dans le bloc « Les chiffres à jour » de la fiche (champ detailsAJour), ou reformulez sans chiffre.');
+    var suivi = !!(f.detailsAJour && Array.isArray(f.detailsAJour.lignes) && f.detailsAJour.lignes.length);
+    var generale = !!(f.detailsAJour && typeof f.detailsAJour.phraseGenerale === 'string' && f.detailsAJour.phraseGenerale.trim());
+    if (extrait && suivi && !generale) {
+      erreurs.push('Fiche "' + f.id + '" : le texte contient un chiffre, une date, un montant ou une durée (« ' + extrait + ' ») et le bloc « Les chiffres à jour » n\'a pas de phrase générale. Ajoutez le champ phraseGenerale : une phrase sans aucun chiffre, qui remplace le texte précis quand la vérification a plus de 6 mois.');
+    }
+    if (extrait && !liste[f.id] && !suivi) {
+      erreurs.push('Fiche "' + f.id + '" : le texte contient un chiffre, une date, un montant ou une durée (« ' + extrait + ' ») et la fiche n\'a pas de bloc « Les chiffres à jour ». Ajoutez ce bloc (champ detailsAJour : date de vérification, source, lignes) pour que ce chiffre soit suivi et revérifié.');
     } else if (!extrait && liste[f.id]) {
       erreurs.push('Fiche "' + f.id + '" : elle est sur la liste de transition mais son texte n\'a plus de chiffre. Retirez-la de outils/lexique_transition_chiffres.txt.');
     }
@@ -305,6 +373,8 @@ function verifier() {
   // -- Pas de chiffre dans le texte de fond (hors liste de transition) --
   var transition = fs.existsSync(CHEMIN_TRANSITION) ? lireTransition(fs.readFileSync(CHEMIN_TRANSITION, 'utf8')) : [];
   controlerChiffresDuTexte(fiches, transition).forEach(function (m) { erreurs.push(m); });
+  var transitionSN = fs.existsSync(CHEMIN_TRANSITION_SECOND_NIVEAU) ? lireTransition(fs.readFileSync(CHEMIN_TRANSITION_SECOND_NIVEAU, 'utf8')) : [];
+  controlerSecondNiveau(secondNiveau, transitionSN).forEach(function (m) { erreurs.push(m); });
 
   var messageRenvoisCadre = renvoisCadre.verifierFraicheur();
   if (messageRenvoisCadre) { erreurs.push(messageRenvoisCadre); }
@@ -386,5 +456,5 @@ module.exports = {
   UNIVERS_CONNUS: UNIVERS_CONNUS, REGISTRES_CONNUS: REGISTRES_CONNUS, GABARITS_CONNUS: GABARITS_CONNUS,
   MAX_VARIANTES: MAX_VARIANTES, MAX_VOIR_AUSSI: MAX_VOIR_AUSSI, MAX_A_NE_PAS_CONFONDRE: MAX_A_NE_PAS_CONFONDRE,
   MAX_LIGNES_DETAILS: MAX_LIGNES_DETAILS, verifierDetails: verifierDetails,
-  CHEMIN_TRANSITION: CHEMIN_TRANSITION, lireTransition: lireTransition, controlerChiffresDuTexte: controlerChiffresDuTexte, chargerDonnees: chargerDonnees
+  CHEMIN_TRANSITION: CHEMIN_TRANSITION, lireTransition: lireTransition, controlerChiffresDuTexte: controlerChiffresDuTexte, verifierSuivi: verifierSuivi, controlerSecondNiveau: controlerSecondNiveau, CHEMIN_TRANSITION_SECOND_NIVEAU: CHEMIN_TRANSITION_SECOND_NIVEAU, chargerDonnees: chargerDonnees
 };

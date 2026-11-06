@@ -24,6 +24,7 @@ ce_qui_change_souvent:
   - "Le nombre d'heures d'activités et sa modulation"
   - "Les règles de cumul avec d'autres aides"
 revisions: []
+phrase_generale: "Pour les jeunes qui ne sont plus à l'école, la Mission locale est le premier interlocuteur : l'accompagnement est gratuit et couvre l'emploi, la formation, mais aussi le logement, la santé et la mobilité. Les âges concernés, la durée du contrat d'engagement jeune et l'allocation changent régulièrement : renseignez-vous auprès de la Mission locale ou consultez les sources officielles indiquées plus bas."
 collecte: jeunes.collecte.md
 ---
 

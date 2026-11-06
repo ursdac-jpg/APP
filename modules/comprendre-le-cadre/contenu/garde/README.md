@@ -1,4 +1,4 @@
-# Rayon « Garde d'enfant » : 6 fiches
+# Rayon « Garde d'enfant » : 7 fiches
 
 **Statut : relu et validé par Denis le 2026-09-06.** Recherche web sur les pages officielles (service-public.gouv.fr,
 solidarites.gouv.fr, CAF, Urssaf, France Travail, monenfant.fr, Légifrance), consignée dans
@@ -26,7 +26,7 @@ diagnostic sur la personne.
    - crèche AVIP de la communauté d'agglomération bergeracoise ouverte début 2026 (à revérifier avant
      de la nommer dans « Près de chez moi »).
 
-## Les 6 fiches
+## Les 7 fiches
 
 | id | titre |
 |---|---|
@@ -36,6 +36,7 @@ diagnostic sur la personne.
 | `garde-creche-insertion-avip` | Les crèches à vocation d'insertion professionnelle (AVIP) |
 | `garde-horaires-decales-urgence` | Garde en horaires décalés, garde ponctuelle ou d'urgence |
 | `garde-elever-seul-son-enfant` | Quand on élève seul son ou ses enfants |
+| `garde-conge-supplementaire-de-naissance` | Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant |
 
 ## Recoupements
 

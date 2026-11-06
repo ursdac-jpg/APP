@@ -1,0 +1,215 @@
+<!doctype html>
+<!--
+  MAQUETTE - Diaporama oral de l'Introduction (présentation de l'application devant un groupe). Version 1, 02/11/2026.
+  Décisions de Denis du 02/11/2026 : le diaporama vit DANS l'application ; il sert à Denis devant un groupe (peu de texte, grosses images, une idée par écran).
+  Matière : la page Introduction (modules/introduction/index.js) et ses 16 images (images/introduction/). Textes en brouillon, à valider mot pour mot par Denis.
+  Dans le vrai code : le nombre de modèles, les boutons du haut et les outils du territoire seront LUS à la source (comme sur la page), et les diapositives
+  « près de chez vous » et « Pour les professionnels » s'adapteront à ce qui est ouvert. Ici, tout est présenté comme ouvert.
+  Aucun code de l'application n'est touché.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Diaporama de l'Introduction</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { margin: 0; background: var(--bg-page, var(--bg-card)); color: var(--text-strong); }
+  /* Barre de la maquette (hors application) */
+  .mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .55rem .8rem; background: var(--bg-card);
+    border-bottom: 1px solid var(--border-strong); font-size: var(--t-petit); }
+  .mq-barre strong { color: var(--text-strong); margin-right: .4rem; }
+  .mq-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px;
+    padding: .3rem .7rem; font-size: var(--t-petit); cursor: pointer; }
+  .mq-barre button.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-sep { width: 1px; align-self: stretch; background: var(--border-strong); margin: 0 .3rem; }
+  .mq-aide { color: var(--text-muted); font-size: var(--t-petit); padding: .5rem .9rem 0; max-width: 1100px; margin: 0 auto; }
+
+  /* Le diaporama : un cadre 16/9, toutes les tailles en cqw (suivent la largeur du cadre : écran, vidéoprojecteur, plein écran) */
+  .dp { max-width: 1100px; margin: .8rem auto 1rem; padding: 0 1rem; }
+  .dp-cadre { container-type: inline-size; position: relative; aspect-ratio: 16 / 9; background: var(--bg-card); border: 2px solid var(--border-strong);
+    border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .dp-diapo { flex: 1 1 auto; min-height: 0; padding: 3.4cqw 5cqw 1cqw; display: flex; flex-direction: column; justify-content: center; gap: 1.6cqw; }
+  .dp-diapo h2 { font-size: 4.2cqw; line-height: 1.15; margin: 0; font-weight: 800; color: var(--text-strong); }
+  .dp-diapo h2 i { color: var(--accent-texte); margin-right: .8cqw; }
+  .dp-diapo p, .dp-diapo li { font-size: 2.5cqw; line-height: 1.35; margin: 0; }
+  .dp-sous { color: var(--text-muted); font-size: 2.3cqw !important; }
+  .dp-centre { text-align: center; align-items: center; }
+  .dp-grand { font-size: 3.3cqw !important; font-weight: 700; }
+  .dp-titre-grand { font-size: 9cqw !important; letter-spacing: .02em; }
+  .dp-rond-compas { font-size: 7cqw; color: var(--accent-texte); line-height: 1; }
+  .dp-colonnes { display: grid; grid-template-columns: 1fr 1.25fr; gap: 3cqw; align-items: center; min-height: 0; }
+  .dp-colonnes.egal { grid-template-columns: 1fr 1fr; }
+  .dp-liste { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5cqw; }
+  .dp-liste li { display: flex; gap: 1.4cqw; align-items: center; }
+  .dp-liste li > i { font-size: 3.4cqw; color: var(--accent-texte); flex: 0 0 auto; width: 4cqw; text-align: center; }
+  .dp-rond { flex: 0 0 auto; width: 4.6cqw; height: 4.6cqw; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 2.6cqw;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .dp-pastille { flex: 0 0 auto; width: 5cqw; height: 5cqw; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte);
+    font-size: 2.6cqw; display: inline-flex; align-items: center; justify-content: center; }
+  .dp-image { display: block; width: 100%; height: auto; max-height: 30cqw; object-fit: contain; object-position: top left; border: 1px solid var(--border-strong); border-radius: .9cqw; background: #fff; }
+  .dp-images { display: grid; gap: 1.6cqw; min-height: 0; align-items: start; }
+  .dp-images.n2 { grid-template-columns: 1fr 1fr; }
+  .dp-images.n4 { grid-template-columns: repeat(4, 1fr); gap: 1.2cqw; }
+  .dp-figure { margin: 0; min-height: 0; }
+  .dp-figure figcaption { font-size: 1.7cqw; color: var(--text-muted); margin-top: .5cqw; line-height: 1.25; }
+  .dp-encart { background: var(--accent-bg-subtle); border-left: .5cqw solid var(--accent); border-radius: 1cqw; padding: 1.4cqw 2cqw; display: flex; gap: 1.6cqw; align-items: center; }
+  .dp-encart i { color: var(--accent-texte); font-size: 3.4cqw; }
+  .dp-etapes-barre { display: flex; gap: 1cqw; }
+  .dp-etapes-barre span { flex: 1 1 0; text-align: center; font-size: 1.8cqw; font-weight: 600; padding: .6cqw 0; border-radius: 99px; border: 1px solid var(--border-strong); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .dp-etapes-barre span.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .dp-figure figcaption { font-size: 2cqw; }
+  .dp-pied { flex: 0 0 auto; display: flex; align-items: center; gap: 1.6cqw; padding: 1cqw 2.4cqw 1.4cqw; }
+  .dp-pied .dp-btn { border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent-texte); border-radius: 8px; font-weight: 700; font-size: 1.9cqw; padding: .7cqw 1.8cqw; cursor: pointer; }
+  .dp-pied .dp-btn.plein { background: var(--accent); color: #fff; }
+  .dp-pied .dp-btn:disabled { opacity: .4; cursor: default; }
+  .dp-points { flex: 1 1 auto; display: flex; gap: .7cqw; justify-content: center; flex-wrap: wrap; }
+  .dp-points button { width: 1.5cqw; height: 1.5cqw; min-width: 10px; min-height: 10px; border-radius: 50%; border: 1px solid var(--accent); background: transparent; padding: 0; cursor: pointer; }
+  .dp-points button.actif { background: var(--accent); }
+  .dp-compteur { font-size: 1.7cqw; color: var(--text-muted); min-width: 7cqw; text-align: center; }
+  .dp-notes { margin: .8rem auto 0; max-width: 1100px; background: var(--accent-bg-subtle); border-left: 4px solid var(--accent); border-radius: 8px; padding: .7rem 1rem; font-size: var(--t-moyen); }
+  .dp-notes[hidden] { display: none; }
+  .dp-notes strong { color: var(--accent-texte); }
+  .dp-cadre:fullscreen { border-radius: 0; border: 0; }
+  .dp-plein-ecran { position: absolute; top: 1.2cqw; right: 1.4cqw; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 8px; font-size: 1.8cqw; padding: .4cqw 1cqw; cursor: pointer; z-index: 3; }
+  /* Téléphone : les diapositives s'empilent, un mode de lecture et non de projection */
+  @media (max-width: 700px) {
+    .dp-cadre { aspect-ratio: auto; min-height: 70vh; }
+    .dp-colonnes, .dp-colonnes.egal { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mq-barre">
+  <strong>Maquette : diaporama oral</strong>
+  <button id="mqSombre" type="button">Mode sombre</button>
+  <button id="mqNotes" type="button">Notes de l'orateur</button>
+  <span class="mq-sep"></span>
+  <span>Flèches du clavier ou boutons pour avancer · F : plein écran · Échap : en sortir</span>
+</div>
+<p class="mq-aide">Dans l'application, ce diaporama s'ouvrira depuis un bouton « Présenter en diaporama » de la page Introduction. Il utilise les mêmes images et les mêmes sources que la page.</p>
+
+<div class="dp">
+  <div class="dp-cadre" id="dpCadre" aria-label="Diaporama de présentation de l'application">
+    <button type="button" class="dp-plein-ecran" id="dpPlein" title="Plein écran (touche F)"><i class="bi bi-arrows-fullscreen" aria-hidden="true"></i> Plein écran</button>
+    <div class="dp-diapo" id="dpDiapo" aria-live="polite"></div>
+    <div class="dp-pied">
+      <button type="button" class="dp-btn" id="dpPrec"><i class="bi bi-arrow-left" aria-hidden="true"></i> Précédent</button>
+      <div class="dp-points" id="dpPoints"></div>
+      <span class="dp-compteur" id="dpCompteur"></span>
+      <button type="button" class="dp-btn plein" id="dpSuiv">Suivant <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div class="dp-notes" id="dpNotes" hidden></div>
+</div>
+
+<script>
+var IMG = '../images/introduction/';
+function img(f, alt) { return '<img class="dp-image" src="' + IMG + f + '.png" alt="' + alt + '">'; }
+function barreEtapes(actifs) {
+  var noms = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Votre profil', 'Vos documents'];
+  return '<div class="dp-etapes-barre">' + noms.map(function (n, i) { return '<span' + (actifs.indexOf(i) !== -1 ? ' class="actif"' : '') + '>' + n + '</span>'; }).join('') + '</div>';
+}
+function fig(f, alt, leg) { return '<figure class="dp-figure">' + img(f, alt) + (leg ? '<figcaption>' + leg + '</figcaption>' : '') + '</figure>'; }
+
+var DIAPOS = [
+  { notes: 'Accueillir. Dire en une phrase ce que c\'est : une application pour avancer dans sa recherche d\'emploi, à son rythme.',
+    html: '<div class="dp-centre" style="display:flex;flex-direction:column;align-items:center;gap:1.4cqw"><i class="bi bi-compass dp-rond-compas" aria-hidden="true"></i><h2 class="dp-titre-grand">APP</h2><p class="dp-grand">Accompagnement de Parcours Professionnel</p><p class="dp-sous">À votre rythme. Sans jugement.</p></div>' },
+
+  { notes: 'Partir de la difficulté réelle : chercher un emploi est dur, et l\'informatique ajoute de la peur. Insister : personne n\'est jugé.',
+    html: '<h2>Chercher un emploi, ce n\'est pas facile</h2><p class="dp-grand">Surtout quand on ne se sent pas à l\'aise avec l\'informatique.</p><div class="dp-encart"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i><p><strong>Cette application vous accompagne, à votre rythme.</strong> Personne ne vous juge, rien n\'est obligatoire.</p></div>' },
+
+  { notes: 'Les quatre grands services. Ne pas détailler : chacun a sa diapositive plus loin.',
+    html: '<h2><i class="bi bi-bullseye" aria-hidden="true"></i>À quoi ça sert</h2><ul class="dp-liste"><li><i class="bi bi-file-earmark-person" aria-hidden="true"></i><span>Écrire ou améliorer votre CV et votre lettre de motivation</span></li><li><i class="bi bi-chat-dots" aria-hidden="true"></i><span>Vous entraîner à l\'entretien</span></li><li><i class="bi bi-graph-up" aria-hidden="true"></i><span>Mieux comprendre le monde du travail</span></li><li><i class="bi bi-signpost-split" aria-hidden="true"></i><span>Réfléchir à la direction à prendre</span></li></ul>' },
+
+  { notes: 'Montrer l\'écran d\'accueil réel. Le message : de grandes cartes, on choisit celle qui nous parle. Rien n\'est imposé.',
+    html: '<h2>Un point de départ à choisir</h2><div class="dp-colonnes egal"><p class="dp-grand">De grandes cartes.<br>Vous choisissez par laquelle commencer.</p>' + fig('accueil', 'Accueil de l\'application', '') + '</div>' },
+
+  { notes: 'Le fonctionnement en trois temps. Bien dire que la demande est copiée par la personne : elle garde la main.',
+    html: '<h2><i class="bi bi-list-ol" aria-hidden="true"></i>Comment ça se passe</h2><ul class="dp-liste"><li><span class="dp-rond">1</span><span><strong>Vous choisissez</strong> un point de départ sur l\'accueil.</span></li><li><span class="dp-rond">2</span><span><strong>L\'application prépare une demande toute prête.</strong> Vous la collez chez l\'assistant en ligne de votre choix.</span></li><li><span class="dp-rond">3</span><span><strong>Vous revenez coller sa réponse.</strong> Vous relisez, vous modifiez, vous téléchargez.</span></li></ul>' },
+
+  { notes: 'Phrase clé à dire lentement. C\'est la réponse à la peur de « l\'ordinateur qui décide ».',
+    html: '<div class="dp-centre" style="display:flex;flex-direction:column;align-items:center;gap:2cqw"><i class="bi bi-hand-index-thumb dp-rond-compas" aria-hidden="true"></i><h2>Vous gardez toujours la main</h2><p class="dp-grand">Rien ne se décide sans vous.<br>Rien n\'est envoyé sans votre geste.</p></div>' },
+
+  { notes: 'Montrer du doigt les boutons en haut de l\'écran sur le vrai écran si possible. Ils facilitent beaucoup la navigation.',
+    html: '<h2>Les boutons du haut de l\'écran</h2><ul class="dp-liste"><li><span class="dp-pastille"><i class="bi bi-gear" aria-hidden="true"></i></span><span><strong>Affichage</strong> : taille du texte, couleurs</span></li><li><span class="dp-pastille"><i class="bi bi-lightbulb" aria-hidden="true"></i></span><span><strong>Aide</strong> : explique la page où vous êtes</span></li><li><span class="dp-pastille"><i class="bi bi-floppy" aria-hidden="true"></i></span><span><strong>Sauvegarder ma session</strong> : dans un fichier, chez vous</span></li><li><span class="dp-pastille"><i class="bi bi-megaphone" aria-hidden="true"></i></span><span><strong>Nouveautés</strong> : ce qui vient d\'être ajouté</span></li><li><span class="dp-pastille"><i class="bi bi-compass" aria-hidden="true"></i></span><span><strong>Introduction</strong> : cette présentation, quand vous voulez</span></li></ul>' },
+
+  { notes: 'Camille est un personnage inventé. Premier écran : trois façons de commencer. Deuxième écran : elle dit ce qu\'elle cherche. La barre du haut dit toujours où l\'on en est.',
+    html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (1/2)</h2>' + barreEtapes([0]) + '<div class="dp-images n2">' + fig('i_cv_1_choix', 'Choisir comment commencer', 'Elle choisit comment commencer') + fig('i_cv_2_objectif', 'Dire ce qu\'on cherche', 'Elle dit ce qu\'elle cherche') + '</div>' },
+
+  { notes: 'Troisième écran : des propositions déjà prêtes à cocher : la personne choisit celles qui lui ressemblent. Quatrième écran : son profil, ses compétences repérées et des métiers à regarder.',
+    html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (2/2)</h2>' + barreEtapes([2, 3]) + '<div class="dp-images n2">' + fig('i_cv_3_parcours', 'Choisir ce qui compte', 'Elle choisit ce qui compte pour elle : des choix à cocher') + fig('i_cv_4_profil', 'Découvrir son profil', 'Elle découvre son profil') + '</div>' },
+
+  { notes: 'Dire le chiffre, il est lu dans l\'application : 39 modèles. Le texte ne change jamais, seule la présentation change.',
+    html: '<h2><i class="bi bi-palette" aria-hidden="true"></i>Un CV qui vous ressemble</h2><div class="dp-colonnes"><div><p class="dp-grand"><strong>39 modèles</strong> : 13 sobres et 26 créatifs.</p><p style="margin-top:1.2cqw">Vous choisissez couleurs, formes et mise en page. Votre texte ne change jamais.</p></div><div class="dp-images n2">' + fig('modeles_creatifs', 'Modèles de CV créatifs', '') + fig('modele_grand', 'Un modèle en grand', '') + '</div></div>' },
+
+  { notes: 'La lettre se construit avec l\'assistant, phrase par phrase. Rappeler que les réponses montrées sont des exemples.',
+    html: '<h2><i class="bi bi-envelope-paper" aria-hidden="true"></i>Votre lettre de motivation</h2><p class="dp-sous">Écrite avec un assistant, phrase par phrase, en prenant le temps.</p><div class="dp-images n2">' + fig('i_lettre_1_preparer', 'Préparer la lettre', 'Vous déposez votre CV et dites à qui vous écrivez') + fig('i_lettre_2_mise_en_page', 'Mise en page de la lettre', 'La lettre mise en page : modèle, couleur, police') + '</div>' },
+
+  { notes: 'On peut répondre à l\'écrit ou à voix haute. L\'assistant réagit, sans note ni jugement.',
+    html: '<h2><i class="bi bi-chat-dots" aria-hidden="true"></i>S\'entraîner à l\'entretien</h2><div class="dp-colonnes"><p class="dp-grand">Vous répondez à des questions d\'entretien, à l\'écrit ou à voix haute. L\'assistant réagit à vos réponses.</p>' + fig('i_entretien_1_resultat', 'Résultat de la préparation', 'Votre préparation est enregistrée et mise en page') + '</div>' },
+
+  { notes: 'Avant de postuler : un regard sur le CV. Ce qui est solide, ce qui peut faire hésiter, des pistes concrètes. Évoquer en une phrase les autres outils (regard recruteur, comparaison avec une offre, cohérence).',
+    html: '<h2><i class="bi bi-search" aria-hidden="true"></i>Vérifier la solidité de votre candidature</h2><p class="dp-sous">Ce qui est solide, ce qui peut faire hésiter, des pistes pour renforcer.</p><div class="dp-images n2">' + fig('i_bilan_2_resultat', 'Résultat de l\'analyse', 'Un résultat clair') + fig('i_bilan_3_resultat', 'Pistes concrètes', 'Des pistes, de la plus importante à la moindre') + '</div>' },
+
+  { notes: 'Pour les employeurs et les structures : adresses vérifiées et datées. Seulement quand ces deux outils seront ouverts.',
+    html: '<h2><i class="bi bi-geo-alt" aria-hidden="true"></i>Comprendre ce qui se passe près de chez vous</h2><div class="dp-colonnes egal"><ul class="dp-liste"><li><i class="bi bi-bank" aria-hidden="true"></i><span>Le cadre et les chiffres de votre département</span></li><li><i class="bi bi-people" aria-hidden="true"></i><span>Qui fait quoi, à qui s\'adresser</span></li><li><i class="bi bi-buildings" aria-hidden="true"></i><span>Les employeurs à qui écrire, avec la date de vérification</span></li></ul><div class="dp-images n2">' + fig('i_chiffres_1_chomage', 'Le chômage du département', '') + fig('i_employeurs_2_liste', 'Liste d\'employeurs', '') + '</div></div>' },
+
+  { notes: 'Deux mots seulement : la boîte à outils et l\'aide à l\'hésitation. Pas de détail.',
+    html: '<h2><i class="bi bi-plus-circle" aria-hidden="true"></i>Et aussi</h2><ul class="dp-liste"><li><i class="bi bi-briefcase" aria-hidden="true"></i><span><strong>Une boîte à outils</strong> : garder vos réflexions, noter librement, chercher un mot, découvrir vos compétences</span></li><li><i class="bi bi-signpost-split" aria-hidden="true"></i><span><strong>Si vous hésitez</strong> : comparer vos pistes de métier</span></li></ul>' },
+
+  { notes: 'Les quatre principes. C\'est la diapositive sur laquelle on peut prendre le plus de temps avec un groupe de professionnels.',
+    html: '<h2><i class="bi bi-lightbulb" aria-hidden="true"></i>Ce qui guide cette application</h2><ul class="dp-liste"><li><i class="bi bi-clock" aria-hidden="true"></i><span><strong>Votre rythme</strong> : aucune obligation, aucun délai</span></li><li><i class="bi bi-slash-circle" aria-hidden="true"></i><span><strong>Pas de note, pas de comparaison</strong></span></li><li><i class="bi bi-door-open" aria-hidden="true"></i><span><strong>Simple d\'accès</strong> : pas de compte, rien à installer</span></li><li><i class="bi bi-person-check" aria-hidden="true"></i><span><strong>Vous restez l\'auteur</strong> : l\'assistant propose, vous décidez</span></li></ul>' },
+
+  { notes: 'Question qui revient toujours. Réponse simple : tout reste sur l\'appareil, rien n\'est gardé. La disquette sert à retrouver son travail.',
+    html: '<h2><i class="bi bi-shield-lock" aria-hidden="true"></i>Vos informations</h2><ul class="dp-liste"><li><i class="bi bi-laptop" aria-hidden="true"></i><span>Elles restent <strong>sur votre appareil</strong>, tant que la page est ouverte</span></li><li><i class="bi bi-floppy" aria-hidden="true"></i><span>La <strong>disquette</strong> les enregistre dans un fichier, chez vous</span></li><li><i class="bi bi-eye-slash" aria-hidden="true"></i><span>Vous pouvez <strong>masquer</strong> votre nom, votre téléphone et votre e-mail avant d\'écrire à l\'assistant</span></li></ul>' },
+
+  { notes: 'Pour un public de conseillers uniquement. À retirer si la salle est composée de personnes accompagnées.',
+    html: '<h2><i class="bi bi-people" aria-hidden="true"></i>Pour les professionnels de l\'accompagnement</h2><ul class="dp-liste"><li><i class="bi bi-check2" aria-hidden="true"></i><span>Seul ou <strong>pendant un rendez-vous</strong></span></li><li><i class="bi bi-check2" aria-hidden="true"></i><span><strong>Aucun compte</strong>, aucun serveur qui garde les données</span></li><li><i class="bi bi-check2" aria-hidden="true"></i><span>La personne <strong>choisit</strong> ce qu\'elle garde ou aborde avec son conseiller</span></li><li><i class="bi bi-check2" aria-hidden="true"></i><span>Des adresses utiles, <strong>datées</strong>, pour préparer un rendez-vous</span></li></ul>' },
+
+  { notes: 'Conclure. Ouvrir l\'application devant le groupe et faire cliquer sur une carte de l\'accueil.',
+    html: '<div class="dp-centre" style="display:flex;flex-direction:column;align-items:center;gap:2cqw"><i class="bi bi-compass dp-rond-compas" aria-hidden="true"></i><h2>À vous de jouer</h2><p class="dp-grand">Choisissez un point de départ.<br>Rien n\'est obligatoire, vous pouvez vous arrêter et revenir.</p></div>' }
+];
+
+var cle = 0;
+var elDiapo = document.getElementById('dpDiapo');
+var elPoints = document.getElementById('dpPoints');
+var elNotes = document.getElementById('dpNotes');
+var elCadre = document.getElementById('dpCadre');
+DIAPOS.forEach(function (d, i) {
+  var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Aller à la diapositive ' + (i + 1));
+  b.addEventListener('click', function () { aller(i); }); elPoints.appendChild(b);
+});
+function aller(i) {
+  cle = Math.max(0, Math.min(DIAPOS.length - 1, i));
+  elDiapo.innerHTML = DIAPOS[cle].html;
+  elNotes.innerHTML = '<strong>Notes de l\'orateur (diapositive ' + (cle + 1) + ') :</strong> ' + DIAPOS[cle].notes;
+  [].forEach.call(elPoints.children, function (b, k) { b.classList.toggle('actif', k === cle); });
+  document.getElementById('dpCompteur').textContent = (cle + 1) + ' / ' + DIAPOS.length;
+  document.getElementById('dpPrec').disabled = cle === 0;
+  document.getElementById('dpSuiv').disabled = cle === DIAPOS.length - 1;
+}
+document.getElementById('dpPrec').addEventListener('click', function () { aller(cle - 1); });
+document.getElementById('dpSuiv').addEventListener('click', function () { aller(cle + 1); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') { aller(cle + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { aller(cle - 1); }
+  else if (e.key === 'f' || e.key === 'F') { basculerPlein(); }
+});
+function basculerPlein() {
+  if (document.fullscreenElement) { document.exitFullscreen(); } else if (elCadre.requestFullscreen) { elCadre.requestFullscreen(); }
+}
+document.getElementById('dpPlein').addEventListener('click', basculerPlein);
+document.getElementById('mqSombre').addEventListener('click', function () {
+  var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+  if (sombre) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); }
+  this.classList.toggle('actif', !sombre);
+});
+document.getElementById('mqNotes').addEventListener('click', function () { elNotes.hidden = !elNotes.hidden; this.classList.toggle('actif', !elNotes.hidden); });
+aller(0);
+</script>
+</body>
+</html>

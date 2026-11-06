@@ -31,6 +31,58 @@ test('chiffres : le digest se réécrit à l\'identique ; les entrées de chiffr
   assert.strictEqual(new Set(g.entrees.map((e) => e.ref)).size, g.entrees.length, 'chaque entrée a une référence unique');
 });
 
+// ---------- salaires-insee.md et niveau-de-vie-insee.md (2026-11-06) : une ligne par territoire, tout en euros ----------
+test("chiffres : salaires-insee et niveau-de-vie-insee se lisent, se réécrivent à l'identique, et chaque donnée a la forme attendue", () => {
+  [['salaires-insee.md', 120, ['salaire_net_mensuel', 'salaire_hommes', 'salaire_femmes', 'salaire_cadres', 'salaire_intermediaires', 'salaire_employes', 'salaire_ouvriers']],
+   ['niveau-de-vie-insee.md', 111, ['niveau_vie_median', 'niveau_vie_decile_1', 'niveau_vie_decile_9']]].forEach(([f, nb, champs]) => {
+    const t = fs.readFileSync(path.join(DOSSIER, f), 'utf8').replace(/\r\n/g, '\n');
+    const l = C.lireTerritoire(t);
+    assert.ok(l.ok, f + ' : ' + l.erreur);
+    assert.strictEqual(l.blocs.length, nb, f + ' : nombre de territoires');
+    assert.strictEqual(C.territoireEnTexte(l), t, f + " : réécriture à l'identique");
+    assert.strictEqual(C.territoireEnTexte(l, { toutCanonique: true }), t, f + ' : forme canonique');
+    assert.ok(/^verifie_le: \d{4}-\d{2}-\d{2}$/m.test(l.entete), f + ' : date de vérification');
+    l.blocs.forEach((b) => {
+      // la ligne « France » de salaires-insee.md porte en plus les chiffres nationaux (médiane, déciles, secteurs) venus d'Insee Première n° 2079
+      const attendus = (f === 'salaires-insee.md' && b.nom === 'France') ? champs.concat(['salaire_mediane', 'salaire_decile_1', 'salaire_decile_9', 'salaire_industrie', 'salaire_services', 'salaire_construction']) : champs;
+      // le taux de pauvreté (Insee, 2023) est un champ en plus, absent des territoires que l'Insee n'a pas publiés (jamais de ligne vide)
+      const aPauvrete = b.champs.some((x) => x.cle === 'taux_pauvrete');
+      assert.deepStrictEqual(b.champs.filter((x) => x.cle !== 'sources' && x.cle !== 'taux_pauvrete').map((x) => x.cle), attendus, f + ' : ' + b.nom);
+      b.champs.filter((x) => x.cle !== 'sources' && x.cle !== 'taux_pauvrete').forEach((x) => assert.ok(C.RE_FORME.eur.test(x.valeur), f + ' : ' + b.nom + ' ' + x.cle + ' ' + x.valeur));
+      b.champs.filter((x) => x.cle === 'taux_pauvrete').forEach((x) => assert.ok(C.RE_FORME.pct.test(x.valeur), f + ' : ' + b.nom + ' taux de pauvreté ' + x.valeur));
+      assert.strictEqual(b.sources.length, ((f === 'salaires-insee.md' && b.nom === 'France') || aPauvrete) ? 2 : 1, f + ' : ' + b.nom + ' source');
+    });
+    assert.deepStrictEqual([...new Set(l.blocs.map((b) => b.groupe))], ['departements', 'regions', 'france'], f + ' : groupes');
+  });
+});
+
+test("chiffres : un salaire du fichier se modifie avec la confirmation de la source, par groupe (« Guadeloupe » est à la fois un département et une région)", () => {
+  const t = fs.readFileSync(path.join(DOSSIER, 'salaires-insee.md'), 'utf8').replace(/\r\n/g, '\n');
+  const sans = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { salaire_net_mensuel: '2 200 €' } }, AUJ);
+  assert.strictEqual(sans.ok, false); assert.match(sans.erreur, /confirmez/);
+  const r = C.modifierTerritoire(t, { lieu: 'Dordogne', groupe: 'departements', champs: { salaire_net_mensuel: '2 200 €' }, confirmeSource: true }, AUJ);
+  assert.ok(r.ok, r.erreur);
+  assert.match(r.texte, /## Dordogne\nsalaire_net_mensuel: 2 200 €/);
+  const deux = C.modifierTerritoire(t, { lieu: 'Guadeloupe', champs: { salaire_net_mensuel: '2 400 €' }, confirmeSource: true }, AUJ);
+  assert.strictEqual(deux.ok, false); assert.match(deux.erreur, /groupe/);
+  const mauvais = C.modifierTerritoire(t, { lieu: 'Dordogne', groupe: 'departements', champs: { salaire_net_mensuel: '2200' }, confirmeSource: true }, AUJ);
+  assert.strictEqual(mauvais.ok, false);
+});
+
+test("chiffres : europe-eurostat se lit, se réécrit à l'identique, a 27 pays dont 22 avec un salaire minimum, et chaque donnée a sa forme", () => {
+  const t = fs.readFileSync(path.join(DOSSIER, 'europe-eurostat.md'), 'utf8').replace(/\r\n/g, '\n');
+  const l = C.lireTerritoire(t);
+  assert.ok(l.ok, l.erreur);
+  assert.strictEqual(l.blocs.length, 27);
+  assert.strictEqual(C.territoireEnTexte(l), t);
+  assert.strictEqual(C.territoireEnTexte(l, { toutCanonique: true }), t);
+  assert.strictEqual(l.blocs.filter((b) => b.champs.some((x) => x.cle === 'salaire_minimum_mensuel')).length, 22);
+  l.blocs.forEach((b) => b.champs.filter((x) => x.cle !== 'sources').forEach((x) => assert.ok(C.RE_FORME[C.FORMES_CHAMP[x.cle]].test(x.valeur), b.nom + ' ' + x.cle + ' ' + x.valeur)));
+  l.blocs.forEach((b) => b.sources.forEach((id) => assert.ok(l.sources.some((s) => s.id === id), b.nom + ' : source ' + id)));
+  const r = C.modifierTerritoire(t, { lieu: 'France', champs: { salaire_minimum_mensuel: '1 900 €' }, confirmeSource: true }, AUJ);
+  assert.ok(r.ok, r.erreur);
+});
+
 // ---------- jeux d'essai fixes ----------
 const ENT_Z = '---\nperiode: 1er trimestre 2026\nverifie_le: 2026-09\nsources:\n  - "src-a | Source A | https://exemple.org/a | 2026-09-12"\n  - "src-b | Source B | https://exemple.org/b | 2026-09"\n  - "src-c | Source C | https://exemple.org/c | "\n---\n';
 const ZONES = ENT_Z + '\n# 24\n\n## Bergerac\nvaleur: 8,5 %\nsources: src-a, src-b\nniveau_vie_median: 23 700 €\nsecteur_principal: Agriculture\n\nPremier paragraphe sur Bergerac.\n\n## Périgueux\nvaleur: 7,5 %\nsources: src-a\n\nParagraphe sur Périgueux.\n\n# 87\n\n## Limoges\nvaleur: 7,1 %\nsources: src-b\n\nParagraphe sur Limoges.\n';

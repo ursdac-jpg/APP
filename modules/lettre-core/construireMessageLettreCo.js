@@ -13,7 +13,7 @@
    contrairement a data/metiers.js.
 
    Le CV est toujours du texte : une photo ou un scan est lu par OCR puis
-   relu par la personne a l'ecran de depot (ouvrirAssistantDepotCV).
+   relu par la personne dans la zone de depot en page (htmlDepotCVEnPage).
    ============================================================ */
 
 var TITRE_SECTION_CV_LETTRE_CO = 'CV DE LA PERSONNE';

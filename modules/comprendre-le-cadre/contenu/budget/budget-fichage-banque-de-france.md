@@ -23,6 +23,7 @@ ce_qui_change_souvent:
   - "Les conditions de radiation anticipée"
 revisions:
   - "2026-10 : retrait d'une phrase non confirmée par les sources (conséquence sur la location de longue durée) ; durées d'inscription confirmées sur service-public.fr et banque-france.fr le 2026-10-05"
+phrase_generale: "Être fiché à la Banque de France veut dire, le plus souvent, être inscrit dans le fichier des incidents de remboursement des crédits aux particuliers, après des impayés répétés ou le dépôt d'un dossier de surendettement. La durée d'inscription et les conditions pour en sortir changent selon les situations : renseignez-vous auprès de la Banque de France ou consultez les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 

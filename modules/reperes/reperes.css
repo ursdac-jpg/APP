@@ -657,16 +657,16 @@
    déjà bien dégagé de tout contenu de page, icône agrandie au passage. */
 #btnJournalParcours {
   position: fixed;
-  top: 154px;
+  top: 161px;   /* sous le Carnet (97 + 52 + 12), 02/11/2026 */
   right: 20px;
   z-index: 2700;
-  width: 58px;
-  height: 58px;
+  width: 52px;   /* même taille que le Carnet et le panier de pistes (Denis, 02/11/2026) */
+  height: 52px;
   border-radius: 16px;
   border: 1px solid var(--border-strong);
   background: var(--bg-card);
   color: var(--accent);
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
 }
@@ -676,7 +676,7 @@
   /* TACHE (retour Denis 2026-09-20) : position fixe, EN DESSOUS de
      #btnCarnet (top: calc(var(--hauteur-progression) + 46px), 42px de
      haut, carnet.css) -- jamais recalculee en JS desormais. */
-  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 96px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
+  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 108px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
   /* TACHE (retour Denis 2026-09-20) : redocke a droite (voir la regle de
      base ci-dessus) -- meme repli mobile que #panneauCarnet. */
   #panneauJournalParcours { right: 8px; width: calc(100vw - 16px); max-width: 320px; }

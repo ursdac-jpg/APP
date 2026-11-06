@@ -27,6 +27,7 @@ ce_qui_change_souvent:
   - "Les critères d'appréciation de la recevabilité et de la bonne foi"
 revisions:
   - "2026-09 : fiche scindée en deux. Celle-ci garde le dépôt du dossier, le rôle de la commission et la décision de recevabilité ; les effets de la recevabilité et les trois issues passent dans « Surendettement : ce qui change une fois le dossier recevable »."
+phrase_generale: "Quand les dettes deviennent impossibles à rembourser malgré vos efforts, vous pouvez déposer un dossier de surendettement auprès de la commission de votre département, gratuitement. Les délais, les décisions possibles et les démarches changent régulièrement : demandez à la Banque de France ou consultez les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 

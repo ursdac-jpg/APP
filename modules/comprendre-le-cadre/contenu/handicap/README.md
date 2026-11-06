@@ -1,4 +1,4 @@
-# Rayon « Handicap et emploi » : 9 fiches
+# Rayon « Handicap et emploi » : 11 fiches
 
 **Statut : relu et validé par Denis le 2026-09-06** pour les 7 premières fiches, **et le 2026-09-11**
 pour les 2 suivantes (pension d'invalidité, proche aidant/AJPA) : trouvées absentes du rayon lors d'un
@@ -24,7 +24,7 @@ consignée dans `handicap.collecte.md`.
    le 2026-09-11 et datées dans `liens-verifies.txt` : `ameli-demander-pension-invalidite`,
    `ameli-entree-invalidite`, `pour-les-personnes-agees-conge-proche-aidant`, `pour-les-personnes-agees-ajpa`.
 
-## Les 9 fiches
+## Les 11 fiches
 
 | id | titre |
 |---|---|
@@ -37,12 +37,15 @@ consignée dans `handicap.collecte.md`.
 | `handicap-aah-et-travail` | L'allocation aux adultes handicapés (AAH) et le travail (ajoutée le 2026-09-06) |
 | `handicap-pension-invalidite` | La pension d'invalidité : qui la demande, comment, selon quels critères (ajoutée le 2026-09-11) |
 | `handicap-proche-aidant` | Accompagner un proche en travaillant : le congé de proche aidant et l'AJPA (ajoutée le 2026-09-11) |
+| `handicap-majoration-vie-autonome` | La majoration pour la vie autonome : un complément de l'AAH pour vivre chez soi |
+| `handicap-trouver-formation-accessible` | Trouver une formation accessible : l'outil QuiForme et le filtre « Accueil handicap » (ajoutée le 2026-11-03) |
 
 ## Recoupements
 
 - Cap emploi est aussi cité dans le rayon Accompagnement (comme structure du paysage) et dans le
   rayon Emploi (CDD Tremplin). Ici, il est détaillé.
 - Le CDD Tremplin est détaillé dans `emploi-contrats-de-l-insertion`.
+- Le recrutement des personnes handicapées dans la fonction publique (contrat, titularisation) est détaillé dans le rayon Fonction publique : `handicap-recrutement-fonction-publique`.
 
 ## Section « à qui s'adresser »
 

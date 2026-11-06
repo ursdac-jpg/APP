@@ -12,7 +12,7 @@ lexique:
   - terme: "permis à 1 euro par jour"
     definition: "Prêt à taux zéro pour financer le permis, réservé aux 15-25 ans à la première inscription. L'État paie les intérêts ; on rembourse 30 euros par mois maximum."
   - terme: "auto-école associative ou sociale"
-    definition: "École de conduite portée par une association, qui prépare au permis à un rythme et à un tarif adaptés, sur orientation d'un travailleur social ou d'un conseiller emploi."
+    definition: "École de conduite portée par une association, qui forme à la conduite et à la sécurité routière des personnes en difficulté d'insertion, avec un accompagnement individualisé et un suivi social et professionnel. Le public est généralement orienté par un travailleur social, la Mission locale ou France Travail."
 voir_aussi_lexique:
   - cpf
   - permis-a-1-euro-par-jour
@@ -26,6 +26,8 @@ ce_qui_change_souvent:
   - "Les aides de la région, du département et des communes"
 revisions:
   - "2026 : fin de l'aide au permis B de France Travail au 1er avril 2026 (délibération France Travail du 27 novembre 2025) et fin de l'aide de 500 euros aux apprentis en février 2026 (loi de finances 2026) ; confirmé le 2026-09-05"
+  - "2026-11-04 : la fiche Dora d'une auto-école associative (publiée le 18 mars 2022) confirme le public (tous publics, personnes en difficulté d'insertion ou en situation de handicap), l'accompagnement individualisé avec suivi social et professionnel et l'orientation par les travailleurs sociaux, la Mission locale et France Travail ; le rythme et le tarif adaptés n'y figurent pas (retirés)"
+phrase_generale: "Passer le permis coûte cher, mais plusieurs aides existent selon l'âge et la situation, et certaines ont déjà disparu ou changé. Les aides disponibles, leurs conditions et leurs montants évoluent souvent : avant de vous inscrire, demandez à un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: mobilite.collecte.md
 ---
 

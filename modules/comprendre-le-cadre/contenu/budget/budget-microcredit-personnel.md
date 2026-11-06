@@ -22,6 +22,7 @@ ce_qui_change_souvent:
   - "Le montant maximum et la durée de remboursement"
   - "La liste des réseaux accompagnants habilités"
 revisions: []
+phrase_generale: "Le microcrédit personnel accompagné est un petit prêt pour financer un projet qui aide à travailler, quand une banque classique a refusé un crédit : voiture, permis, formation, équipement. Les montants, les durées et les conditions changent selon les organismes : demandez à un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barres du CV : avant et après</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:10px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+.barre-etapes-bilan { flex-wrap:wrap; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:8px; padding:8px 10px; margin:6px 0; background:var(--mq-card); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Les barres du CV : Réponse, Mise en forme, Vos documents</h1>
+<p class="muted">Les barres ci-dessous sont dessinées avec les vraies couleurs de l'application. Rien n'est codé.</p>
+
+<div class="mq-carte">
+  <h2>1. « Réponse » : le mot est déjà le bon <span class="mq-etiquette ok">rien à changer</span></h2>
+  <p>Les barres du CV (mettre à jour, préparer lettre et entretien, reformuler, découvrir mes compétences) disent déjà <strong>Préparer, Assistant, Réponse</strong>. Depuis la lettre et l'entretien, c'est le même mot partout pour « coller la réponse de l'assistant ». Un seul détail : l'icône. Les barres du CV montrent un plateau de réception (📥), la lettre et l'entretien un bloc-notes (📋) que j'avais pris. Je propose la même partout, le plateau 📥.</p>
+  <div class="mq-ligne">Aujourd'hui, la lettre :</div>
+  <div id="r0"></div>
+  <div class="mq-ligne">Proposé, la lettre (et l'entretien) avec l'icône du CV :</div>
+  <div id="r1"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>2. Reformuler : « Mise en forme » et la barre qui change en route <span class="mq-etiquette">défaut constaté</span></h2>
+  <p>En suivant le parcours avec le vrai code, j'ai constaté que <strong>la barre change au milieu du parcours</strong> : les deux premiers écrans de la fin portent la barre de Reformuler, puis la page « Vos documents » affiche la barre de « Mettre à jour mon CV », avec « Corriger mon CV » cochée alors que ce n'est pas une étape de Reformuler.</p>
+  <div class="mq-ligne">Aujourd'hui, écran « Vérifier » :</div>
+  <div id="a3"></div>
+  <div class="mq-ligne">Aujourd'hui, écran « Récupérer votre CV » (repère « Mise en forme ») :</div>
+  <div id="a4"></div>
+  <div class="mq-ligne">Aujourd'hui, page « Vos documents » (<strong>une autre barre</strong>, « Corriger mon CV » cochée) :</div>
+  <div id="a5"></div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposé pour Reformuler : une seule barre, Préparer, Assistant, Réponse, Vérifier, Vos documents <span class="mq-etiquette ok">même barre jusqu'au bout</span></h2>
+  <div class="mq-ligne">Écran « Vérifier » :</div>
+  <div id="b3"></div>
+  <div class="mq-ligne">Écran « Récupérer votre CV » :</div>
+  <div id="b4"></div>
+  <div class="mq-ligne">Page « Envie d'un CV plus développé ? », puis page « Vos documents » (même barre, même repère) :</div>
+  <div id="b5"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>3. Découvrir mes compétences : « Mon CV » <span class="mq-etiquette">même écart</span></h2>
+  <p>Le dernier repère s'appelle « Mon CV » alors que la page affichée est « Vos documents » (la même page que dans les autres parcours du CV). Proposé : « Vos documents ».</p>
+  <div class="mq-ligne">Aujourd'hui, le dernier repère :</div>
+  <div id="d0"></div>
+  <div class="mq-ligne">Proposé :</div>
+  <div id="d1"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que j'ai lu dans le code avant de proposer</h2>
+  <ul>
+    <li><strong>Simple :</strong> « Vos documents » (mettre à jour, préparer lettre et entretien, créer, à la main) reste tel quel : c'est le titre réel de la page, la règle des autres barres. Pour la lettre et l'entretien : une icône à aligner dans deux tableaux.</li>
+    <li><strong>Simple :</strong> « Mon CV » de Découverte : un mot dans un tableau, rien d'autre ne le cite. Aucun test ne cite « Mon CV » ou « Mise en forme » dans une barre. Un texte d'aide de Reformuler dit « mettre en forme » et sera mis à jour.</li>
+    <li><strong>Moyen (Reformuler) :</strong> renommer « Mise en forme » est simple, mais le défaut constaté demande de toucher la fonction qui choisit la barre des pages « Vos documents » (<code>afficherProgression</code>, partagée par plusieurs parcours). J'ajouterais une seule condition : « si le CV vient de Reformuler, prendre la barre de Reformuler, dernier repère allumé ». Les autres parcours ne changent pas.</li>
+    <li><strong>Piège trouvé en lisant :</strong> le signal « ce CV vient de Reformuler » (<code>_origineReformuler</code>) n'est jamais remis à zéro. Si une personne fait Reformuler, puis « Mettre à jour mon CV » dans la même séance, elle verrait la mauvaise barre (et, déjà aujourd'hui, la lettre ne lui serait pas proposée à la fin). Je le remettrais à zéro quand un autre parcours du CV démarre : même passage, avec un test.</li>
+    <li><strong>Un détail :</strong> la barre de Reformuler n'est pas cliquable aujourd'hui et le resterait ; celle de « Mettre à jour mon CV » l'est. À la page « Vos documents » de Reformuler, les repères déjà faits ne seraient donc plus cliquables. Perte légère : ils rouvraient déjà la page d'introduction, pas l'écran exact.</li>
+    <li><strong>Risque :</strong> faible à moyen pour Reformuler (fonction partagée, à vérifier avec les parcours de Reformuler et des autres parcours du CV), nul pour le reste. Retour en arrière : un commit par morceau.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>Vos choix</h2>
+  <p class="mb-1"><strong>Question 1. Reformuler</strong></p>
+  <div class="mq-opt"><strong>A. Une seule barre jusqu'au bout, dernier repère « Vos documents » (Recommandé).</strong><br>Bénéfice : la barre ne change plus en route, plus de « Corriger mon CV » cochée à tort, même mot que les autres parcours du CV. Risque : on touche la fonction partagée (une condition de plus) et les repères de la page « Vos documents » de Reformuler ne sont plus cliquables.</div>
+  <div class="mq-opt"><strong>B. Seulement renommer « Mise en forme » en « Vos documents ».</strong><br>Bénéfice : un mot, aucun risque. Risque : la barre change toujours en route et « Corriger mon CV » reste cochée à tort ; « Vos documents » apparaît deux fois à la suite sur deux barres différentes.</div>
+  <div class="mq-opt"><strong>C. Ne rien changer.</strong><br>Bénéfice : aucun risque. Risque : le défaut reste.</div>
+  <p class="mb-1 mt-3"><strong>Question 2. Découvrir mes compétences</strong></p>
+  <div class="mq-opt"><strong>A. « Mon CV » devient « Vos documents » (Recommandé).</strong><br>Bénéfice : le repère porte le titre de la page où l'on arrive. Risque : on perd l'idée d'« aboutissement : mon CV » voulue le 31/08/2026.</div>
+  <div class="mq-opt"><strong>B. Garder « Mon CV ».</strong><br>Bénéfice : on garde l'idée de l'aboutissement. Risque : le mot diffère de la page affichée.</div>
+  <p class="mb-1 mt-3"><strong>Question 3. L'icône de « Réponse » de la lettre et de l'entretien</strong></p>
+  <div class="mq-opt"><strong>A. Le plateau 📥 partout (Recommandé).</strong><br>Bénéfice : même icône pour le même moment dans tous les parcours. Risque : aucun.</div>
+  <div class="mq-opt"><strong>B. Garder le bloc-notes 📋 pour la lettre et l'entretien.</strong><br>Bénéfice : rien à changer. Risque : la même étape a deux icônes selon le parcours.</div>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> A, A, A. Pour valider : « barres du CV : A, A, A ». Si vous préférez une autre option, dites laquelle avant que je code.
+</div>
+</div>
+<script>
+(function () {
+  function barre(etapes, idx) {
+    var h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+    etapes.forEach(function (e, i) {
+      var fait = i < idx, courant = i === idx, avenir = i > idx;
+      if (i > 0) { h += '<span class="chevron-etape-action" ' + (i > idx ? 'style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+      h += '<span class="pastille-etape-action' + (fait ? ' pastille-etape-action-validee' : (courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '')) + '" style="cursor:default;' + (avenir ? 'opacity:0.4;' : '') + '">' +
+        '<span class="pastille-etape-action-icone">' + e[0] + '</span><span class="pastille-etape-action-label">' + e[1] + '</span></span>';
+    });
+    return h + '</div>';
+  }
+  var P = '&#128221;', A = '&#128172;', R = '&#128229;', D = '&#128196;';
+  var lettreAvant = [[P, 'Préparer'], [A, 'Assistant'], ['&#128203;', 'Réponse'], ['&#9989;', 'Terminé']];
+  var lettreApres = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#9989;', 'Terminé']];
+  var refAvant = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#128269;', 'Vérifier'], [D, 'Mise en forme']];
+  var majBarre = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#9999;&#65039;', 'Corriger mon CV'], [D, 'Vos documents']];
+  var refApres = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#128269;', 'Vérifier'], [D, 'Vos documents']];
+  var decAvant = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#128161;', 'Compétences'], ['&#128203;', 'Compléter'], ['&#9999;', 'Rédiger mon CV'], [D, 'Mon CV']];
+  var decApres = [[P, 'Préparer'], [A, 'Assistant'], [R, 'Réponse'], ['&#128161;', 'Compétences'], ['&#128203;', 'Compléter'], ['&#9999;', 'Rédiger mon CV'], [D, 'Vos documents']];
+  function met(id, html) { document.getElementById(id).innerHTML = html; }
+  met('r0', barre(lettreAvant, 2)); met('r1', barre(lettreApres, 2));
+  met('a3', barre(refAvant, 3)); met('a4', barre(refAvant, 4)); met('a5', barre(majBarre, 4));
+  met('b3', barre(refApres, 3)); met('b4', barre(refApres, 4)); met('b5', barre(refApres, 4));
+  met('d0', barre(decAvant, 6)); met('d1', barre(decApres, 6));
+})();
+</script>
+</body>
+</html>

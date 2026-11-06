@@ -85,7 +85,10 @@ function cartesSansNumero(registres, texteSans, aujourdhui, ciblesEnAttente) {
       if (attente[l.id]) { return; }
       const d = conf[reg + ':' + l.id];
       if (d && estValable(d, aujourdhui, 6)) { return; }
-      cartes.push({ id: 'sans-' + reg + '-' + l.id, nom: v.nom || l.id, generee: true, derniereConfirmation: d || '', fiche: v, valeurs: { cible: l.id, registre: reg, telephone: '', source: '' } });
+      /* Une fiche dont le NOM est le numéro lui-même (« Le 115 », « Le 3919 ») : le numéro court est déjà connu, on le propose (un clic). Rien n'est deviné pour les autres. */
+      const court = String(v.nom || '').trim().match(/^(?:le |la |l')?\s*(1[578]|1\d\d|3\d{3}|116 ?\d{3})$/i);
+      const numero = court ? court[1].replace(/^(116)(\d{3})$/, '$1 $2') : '';
+      cartes.push({ id: 'sans-' + reg + '-' + l.id, nom: v.nom || l.id, generee: true, numeroCourt: !!numero, derniereConfirmation: d || '', fiche: v, valeurs: { cible: l.id, registre: reg, telephone: numero, source: numero ? 'Le numéro figure dans le nom de la fiche (« ' + String(v.nom).trim() + ' »)' : '' } });
     });
   });
   return cartes;

@@ -61,7 +61,7 @@ Rayon considéré relu et validé.
    fiches détaillées d'un rayon). Le Lexique a aussi une fiche `cse` générale (définition courte) ;
    `employeurs-seuils-representation-personnel` est un complément côté seuils, pas un doublon.
 
-## Les 12 fiches
+## Les 13 fiches
 
 | id | titre |
 |---|---|
@@ -77,6 +77,7 @@ Rayon considéré relu et validé.
 | `employeurs-seuils-representation-personnel` | Les obligations qui grandissent avec la taille de l'entreprise : CSE et délégué syndical |
 | `employeurs-clause-sociale-marche-public` | Gagner un marché public avec une clause sociale : ce que l'entreprise doit faire |
 | `employeurs-egalite-professionnelle` | L'index de l'égalité professionnelle entre femmes et hommes |
+| `employeurs-reduction-generale-rgdu` | La réduction générale des cotisations patronales : pour quels salaires |
 
 ## Recoupements avec d'autres rayons
 

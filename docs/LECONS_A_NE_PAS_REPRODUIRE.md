@@ -939,6 +939,12 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Cause** : la date de vérification déclenche l'affichage des coordonnées ; je ne l'avais pas relié à la règle de Denis en écrivant la recommandation.
 - **Règle** : avant de recommander une modification d'une fiche publiée, vérifier ce que la date de vérification fait afficher. Pour une coordonnée non confirmée, passer par le sas (date vide), jamais par la fiche publiée.
 
+## 9.68 Un écouteur clavier global ne doit jamais agir sous une fenêtre ouverte ni sur un champ qui a le focus (2026-10-27)
+
+- **Symptôme** : dans « Quelques passages à préciser » (Reformuler), appuyer sur Entrée effaçait toutes les réponses déjà saisies.
+- **Cause** : l'écouteur global du « collage instantané » (`activerCollageInstantane`) reste actif tant que l'écran de collage existe dessous et clique « Importer » à chaque Entrée ; l'import se relançait donc sous la fenêtre, qui était reconstruite vide. Même famille que le bug d'assombrissement de 2026-09-20, corrigé alors seulement pour les écrans qui pensent à appeler `desactiverCollageInstantane()`.
+- **Règle** : un écouteur `document` sur une touche courante (Entrée, Échap) commence par ignorer l'événement si une fenêtre ERIP est ouverte (`#fenetreERIP`) ou si la cible est un champ, un bouton ou un lien. Ne pas compter sur chaque écran pour se « désarmer » à l'ouverture.
+
 ### 9.64 Deux modules qui écrivent la même donnée n'ont pas forcément le même but : demander l'intention avant de parler de doublon (2026-10-26)
 
 - **Symptôme** : pour « Découvrir mes compétences », Claude a présenté « À partir de mon récit » et le nouvel outil comme « deux producteurs de compétences à dédoublonner avec `fusionnerSansDoublon` ». Denis : « Absolument pas. »
@@ -961,3 +967,254 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Symptôme** : sur un CV à nom et titre très longs, j'ai empêché le texte de sortir de la page et de passer sur le texte voisin (grille bornée, mots coupés partout). Le résultat montrait « PRÉVENTIO / N » et « VANDENBR / OUCKE » : plus aucun chevauchement, mais une disposition laide. Denis : « c'est horrible, la disposition choisie n'est pas la meilleure ».
 - **Cause** : j'ai traité le symptôme mesurable (texte hors page, texte sur texte) avec un réglage de sécurité, sans me demander quelle disposition aurait un humain pour ce contenu. Mon outil de mesure ne voyait pas la laideur ; seul le rendu la montre.
 - **Règle** : pour tout remède qui change l'allure du CV, regarder la capture avant de le proposer et ne jamais livrer un « garde-fou » qui coupe des mots. Un contenu long se règle par la DISPOSITION (titre pleine largeur sur deux lignes, coordonnées sur une ligne, accroche en bas), pas en comprimant des colonnes. Maquette réelle (captures avant / après) avant le code, comme pour la lisibilité.
+
+## 9.69 Un contrôle qui défait ce que fait une boucle d'ajustement fige la page : essayer l'arrivée réelle, pas seulement la mesure par modèle (2026-10-27)
+- **Symptôme** : après le commit « l'agrandissement de 15 % de l'en-tête est retiré quand l'en-tête devient anormal », l'arrivée sur « Vos documents » (parcours réel, de vrais clics) faisait planter l'onglet (« Target crashed »). La mesure sur 39 modèles, elle, passait.
+- **Cause** : la boucle `_pdfAgrandirPourRemplir` pose l'agrandissement (+ 0,05), rafraîchit, puis le contrôle de l'en-tête (appelé à chaque rafraîchissement) le retire parce que l'en-tête est anormal ; la boucle ne voit plus de problème et recommence, sans fin.
+- **Règle** : tout contrôle placé dans `_pdfRafraichir` qui annule un réglage doit aussi interdire que ce réglage soit reposé (ici `_cvPdfBoostInterditPour`, par modèle). Après toute modification de ce crochet, rejouer l'arrivée réelle sur « Vos documents » (`docs/mesures_2026-10-26/lot8/vers_editeur.js`), en plus de la mesure par modèle, qui force parfois le chemin court. Trouvé par bissection de commits (copie de travail Git à part, serveur sur un autre port).
+
+
+## 9.70 Un émoji d'objet peut s'afficher avec un visage selon l'appareil : vérifier à l'écran chaque icône d'objet (2026-10-28)
+- **Symptôme** : dans la barre de l'ATS, le dernier repère « Terminé » portait un trombone (`&#128206;`) qui s'affichait avec des yeux ; Denis l'a signalé (la règle « jamais d'icône avec un visage » était respectée sur le papier).
+- **Cause** : le dessin d'un émoji dépend de la police du système ; certains « objets » reçoivent des yeux ou une expression sur certains appareils.
+- **Règle** : pour une icône d'objet nouvelle, regarder son rendu réel à l'écran (et si possible sur deux systèmes) avant de la garder. Remplacés le 28/10/2026 : le trombone de l'ATS par la coche verte (comme les autres « Terminé »), celui des liens vers les fiches métier par le lien (`&#128279;`), celui de « Une fois l'assistant ouvert » par le bloc-notes (`&#128203;`) et celui de Comparer par le crayon-papier (`&#128221;`).
+
+
+## 9.71 Un changement de format d'un document ou d'un titre doit mettre à jour le test de parcours dans le même commit (2026-10-28)
+
+- **Symptôme** : quatre cas du parcours automatique « Un CV, plusieurs métiers » échouaient sans que personne le voie ; le résultat « tout vert » de `npm test` ne les couvre pas (le parcours tourne dans le navigateur).
+- **Cause** : le 24/10/2026 les lettres du module sont passées aux modèles de la lettre seule (plus de `class="ucpm-lettre"` ni de « Limoges, le »), et le titre de la page « Mes CV » est devenu un sous-titre ; le script `scripts/parcours/parcours_smoke.js` n'avait pas suivi.
+- **Règle** : quand on change la forme d'un document produit ou le titre d'une page, lancer la série de parcours du module concerné (`window.__parcours([...])`) et corriger ses cas dans le même commit. Dans le doute, comparer avec et sans le changement (`git stash`) pour savoir si l'échec est nouveau.
+
+### 9.72 Avant de dire « cet écran existe », vérifier qu'il a encore un appelant (2026-10-28)
+- **Symptôme** : la maquette de la fenêtre unique de collage et le plan de l'étape C annonçaient « les deux fenêtres du Bilan : Amélioration et Titre et accroche ». Au moment de brancher, `bilanAfficherEtapeCollageTitreAccroche` s'est révélée **code mort** (plus aucun appelant, remplacée par le sous-parcours en page `_etatBilan.titreAccroche` le 19/09) ; seule la fenêtre Amélioration 1:1 est vivante.
+- **Cause** : l'inventaire des écrans avait été fait en lisant les appels à `htmlCollageInstantane`, sans vérifier les appelants des fonctions qui les contiennent (le commentaire « CODE MORT » était pourtant au-dessus).
+- **Règle** : tout inventaire d'écrans (maquette, plan de chantier) se fait en partant des **écrans atteignables** (grep des appelants, ou parcours réel rejoué), jamais des appels à un composant. Un commentaire « CODE MORT » trouvé en chemin se signale et s'inscrit dans l'inventaire.
+
+### 9.73 Un audit « qui appelle quoi » se fait sur TOUT le dépôt, pas sur js/ et modules/ (2026-10-28)
+- **Symptôme** : j'ai annoncé à Denis que « Reformuler utilise l'écran partagé Importer la réponse (ActionIA) ». Faux : Reformuler a son propre appel `htmlCollageInstantane('ReformulerCv')` dans `data/metiers.js`, comme `Wizard`, `PrepLE`, `LettreV1` et `Entretien`. L'écran partagé `ActionIA` ne sert que Créer mon CV (page « L'assistant en ligne »), Découverte (étape 12) et Un CV plusieurs métiers (page 3).
+- **Cause** : le grep de l'inventaire avait visé `js/` et `modules/` seulement ; `data/` contient du code de rendu (`data/metiers.js`).
+- **Règle** : avant d'annoncer qui utilise une brique, `grep -rn` sur **tout le dépôt** (hors `A_envoyer_sur_GitHub`, `node_modules`, `docs`). Même règle que « grep sur tout le dépôt » avant de toucher une signature partagée.
+
+## 9.72 Une maquette doit être autonome (styles et scripts dans le fichier) : l'aperçu de fichier de l'application ne charge pas les liens relatifs (2026-10-28)
+- **Symptôme** : Denis ouvre la maquette de l'écran de décompte et voit une page sans mise en forme, sans fenêtre, avec seulement les notes (« je n'arrive pas à voir »). Dans mon propre navigateur de test (adresse http du serveur local), elle s'affichait parfaitement.
+- **Cause** : la maquette appelait `../css/style.css`, `../vendor/bootstrap.min.css` et `../modules/collage-reponse/*.js` par chemin relatif. Ouverte comme simple fichier dans l'application de Denis (adresse `data:`), ces liens ne mènent nulle part : ni styles ni scripts.
+- **Règle** : toute maquette livrée à Denis est un fichier **autonome** (styles et scripts copiés dans le fichier, aucune référence `../`). Avant d'annoncer qu'elle est prête, regarder l'onglet de Denis (`tabs_context`, `computer screenshot` sur son onglet) ou l'ouvrir sans le serveur, pas seulement via `http://localhost`.
+
+## 9.73 « Rassurer » et « expliquer » veulent dire UNE phrase, pas un bloc : trop d'informations sur un écran de transition fait concurrence à l'attention (2026-10-28)
+- **Symptôme** : Denis demande de dire à la personne ce qui va se passer pendant le décompte et d'expliquer deux boutons. J'ai livré un décompte à gros chiffre, un bloc en trois temps, deux phrases d'explication sous les boutons (loin de l'endroit où l'on clique) et les consignes d'un module au-dessus : « trop d'informations, j'ai du mal, et pourtant je connais le parcours ».
+- **Cause** : traduire chaque demande de clarté par un bloc de texte de plus, sans me demander ce que la personne lit vraiment en 15 secondes ; reprendre aussi un élément (les consignes du module) sur l'écran où elle ne les lira pas.
+- **Règle** : sur un écran de transition, une seule phrase rassurante, des boutons à leur place habituelle, une aide au survol plutôt qu'écrite. Ce qu'il faut faire chez l'assistant se dit sur l'écran d'avant, pas sur celui du retour. Avant d'ajouter un texte, se demander quel autre élément il fait concurrence.
+
+## 9.74 Un balayage long se lance un modèle par processus, et une mesure de dégradé se fait à la hauteur du texte (2026-10-29)
+- **Symptôme** : un balayage de 39 modèles dans un seul navigateur a planté au 27e scénario du modèle colonneRuban (manque de mémoire) et fait échouer les 25 modèles suivants sans aucun message clair ; le fichier de résultats d'un modèle est aussi écrasé par le suivant. Par ailleurs, le garde-fou de lisibilité jugeait « lisible » un texte vert foncé sur un dégradé vert foncé vers vert clair, parce qu'il le lisait sur le vert clair du bas, alors qu'au milieu de la page le fond lui ressemblait.
+- **Cause** : un seul processus pour tout le balayage ; et pour un dégradé, seules les deux couleurs d'extrémité étaient regardées, pas la couleur réelle à la hauteur du texte.
+- **Règle** : lancer le balayage **un modèle par processus**, un fichier de sortie par modèle, et **compter les scénarios réellement joués** (un plantage est « non joué », jamais « sans problème »). Pour un dégradé vertical simple, lire la couleur exacte à la hauteur du texte (`_lisibiliteDegradeA`). Un texte corrigé prend d'abord la couleur du texte voisin (parent) quand elle se lit, pour ne pas mettre un noir isolé au milieu d'une colonne blanche.
+
+## 9.75 Un test qui « restaure » une fonction héritée en laisse une copie figée : utiliser `delete` (2026-10-29)
+- **Symptôme** : l'essai « ats » échouait (fichier jamais vu comme téléchargé) seulement quand il passait après « mesCompetences », sans lien avec le code testé.
+- **Cause** : « mesCompetences » remplaçait `HTMLAnchorElement.prototype.click` puis le « remettait » à la valeur lue avant (en réalité la fonction héritée de `HTMLElement`) : cela laisse une propriété propre figée, qui court-circuite le remplacement fait ensuite plus haut dans la chaîne.
+- **Règle** : pour défaire un remplacement posé sur un prototype qui n'avait pas la propriété à lui, faire `delete Prototype.methode`, jamais la réaffecter. Un échec qui dépend de l'ordre des essais vient presque toujours d'un état laissé par l'un d'eux.
+
+## 9.76 Un signal « y a-t-il du travail à sauvegarder » doit connaître chaque nouveau module (2026-10-29)
+- **Symptôme** : dans Un CV plusieurs métiers ou Découvrir mes compétences, la disquette ne pulsait jamais et « Exporter » restait grisé alors que la personne avait travaillé.
+- **Cause** : `peutExporterSession()` ne regardait que `dossier.ia` et le drapeau de Découverte ; les modules qui gardent leur état hors du dossier n'y étaient pas, alors qu'ils étaient déjà dans la disquette.
+- **Règle** : le signal parcourt `collecterEtatsModulesPourSauvegarde()` (une seule liste, celle de la disquette) ; un nouveau module ajouté à cette liste est compté tout seul. Les réglages (département, commune) sont dans le fichier mais ne comptent pas comme un travail.
+
+## 9.77 Un « reste à faire » se recompose depuis le registre des consignes, pas depuis le plan précédent (2026-10-30)
+- **Symptôme** : Denis a dû rappeler une consigne du 28/10 (explications entre les points des premiers écrans, C6) que j'avais laissée « OUVERTE » dans `CONSIGNES_DE_DENIS_A_SUIVRE.md` mais absente de ma liste de reste à faire, après un « point exact » censé tout vérifier.
+- **Cause** : le point a été fait en partant du plan et des audits, sans repasser chaque entrée « OUVERTE » du registre des consignes.
+- **Règle** : pour dresser le reste à faire, relire d'abord toutes les consignes marquées OUVERTE / EN COURS du registre, puis le plan ; une consigne sans ligne dans le plan en reçoit une tout de suite.
+
+## 9.78 Un nom proche ou un domaine qui « ressemble » n'est pas la bonne association : vérifier le département (2026-10-30)
+- **Symptôme** : pour l'Adapei de la Dordogne, Denis a retenu `adapeila.fr` (nouveau nom de l'Adapei de Loire-Atlantique) ; pour la Banque Populaire et la Caisse d'Épargne, des pages de recrutement d'une autre région (`bpbfc`, `cepac`) ont été proposées.
+- **Cause** : les réseaux régionaux portent des noms voisins ; une page « de la même enseigne » peut être celle d'un autre département ou d'une autre région.
+- **Règle** : avant d'enregistrer un site ou une page de recrutement d'un réseau régional ou associatif, lire une phrase de la page qui nomme le département ou la région (Dordogne, Haute-Vienne, Aquitaine...) ; sinon la mettre « à vérifier ». Le prompt du cloud contient désormais cette consigne (homonymes, filiales régionales).
+
+## 9.79 Un essai qui clique sur un bouton « bascule » doit d'abord regarder l'état (2026-10-30)
+
+- **Symptôme** : l'essai « import partagé » (`importActionIA`) réussissait seul mais échouait après `entretienCollage` (« Cannot read properties of null »).
+- **Cause** : l'essai cliquait sur le bouton qui déplie le rectangle « Importer la réponse », or celui-ci était déjà ouvert selon l'état laissé par l'essai précédent : le clic le refermait.
+- **Règle** : dans un essai, un clic sur un bouton qui ouvre ou ferme ne se fait qu'après avoir vérifié que l'élément visé n'est pas déjà affiché. Un essai qui ne marche que seul est un essai fragile, à corriger tout de suite.
+
+## 9.80 Deux zones de dépôt sur une même page : identifiants à suffixer, une seule en relecture (2026-10-30)
+- **Symptôme** : en migrant Cohérence (CV, lettre et entretien dans la même page), la brique de dépôt en page avait des identifiants fixes (`depotPageChoisir`, `depotPageTexte`...) et le texte à relire a ceux de `verifDocTextarea` : deux zones auraient reçu les clics et les textes de l'autre.
+- **Cause** : la brique avait été pensée pour une seule zone par page.
+- **Règle** : dès qu'une page porte plusieurs zones, donner à chacune sa `cle` et son `suffixeId` ; une seule zone à la fois peut être en lecture ou en relecture, donc le module abandonne les autres (`_ctDepotRerender`). Câbler une zone seulement si son HTML est affiché.
+
+## 9.81 Maquette : couleurs de fond à prendre dans les variables réelles, vérifier le mode sombre (2026-10-30)
+- **Symptôme** : dans la maquette de l'écran de validation, la page simulée restait blanche en mode sombre, titres clairs sur fond blanc donc illisibles (même défaut dans la maquette du dépôt du CV du même jour).
+- **Cause** : le fond de la page simulée utilisait `var(--bg, #fff)`, or la variable réelle de l'application s'appelle `--bg-page` (`--bg` n'existe pas, la valeur de repli blanche s'appliquait toujours).
+- **Règle** : dans une maquette comme dans le code, ne prendre que des variables qui existent dans `css/style.css` (grep avant), et regarder la maquette en mode sombre avant de la montrer. Une valeur de repli en dur masque l'erreur.
+
+## 9.82 Un registre « qui décrit l'existant » se confronte au code réel avant de le brancher (2026-10-31)
+- **Symptôme** : le registre des familles de « Vos documents », écrit le 26/10 d'après des mesures, annonçait pour Reformuler la barre de « Mettre à jour » et pour une lettre déjà importée la barre de la lettre, alors que le code affichait la barre propre de Reformuler (changement du 28/10) et l'ancienne barre.
+- **Cause** : le registre et son test reposaient sur un fichier de mesures figé (`matrice_vos_documents.REFERENCE.json`, périmé) et non sur le code courant ; le test « croisé » ne comparait que les titres.
+- **Règle** : avant de brancher un registre, relever l'état réel AVANT (script de mesure élargi : repère allumé, liens, titre, boutons) et corriger le registre sur ce relevé, pas sur un ancien fichier de référence ; garder la sortie AVANT, puis comparer à l'octet après le branchement.
+
+## 9.83 Un essai ne doit jamais lire une vraie fiche qui peut être publiée (2026-10-31)
+- **Symptôme** : lors de la première vraie publication du sas des fiches (copie du dépôt), les vérifications automatiques ont refusé l'enregistrement : mes essais lisaient `emploi-rupture-conventionnelle` et `emploi-cesu`, que la publication venait justement de modifier et de retirer.
+- **Cause** : un essai appuyé sur un contenu réel qui change (c'est le but de l'outil) casse dès que ce contenu est publié.
+- **Règle** : tout essai d'un outil qui écrit dans les fiches, registres ou données lit des copies figées (`tests/fixtures/`), jamais le contenu vivant ; et le premier essai de publication se fait sur une copie du dépôt, jamais sur le vrai.
+
+## 9.84 Un lecteur de réponse ne doit pas se fier au seul bloc balisé (2026-10-31)
+- **Symptôme** : la veille rapide a reçu « signal: Non vérifié » écrit HORS du bloc [VEILLE-HEBDO] (bloc laissé vide) : l'outil affichait « Rien de notable signalé » et datait la veille comme faite. Même réponse : adresses en lien cliquable [texte](adresse) mal lues dans les sites non ouverts.
+- **Cause** : le lecteur ne regardait que l'intérieur du bloc et ne nettoyait pas les liens que les assistants fabriquent malgré la consigne.
+- **Règle** : un lecteur cherche les mentions d'échec (« Non vérifié », « SUITE DISPONIBLE », sites non ouverts) dans TOUT le texte collé, jamais seulement dans le bloc ; il ne conclut « rien à signaler » que si rien n'indique un échec ; les adresses sont ramenées de [texte](adresse) à l'adresse seule avant lecture. Tester chaque lecteur avec une vraie réponse d'assistant, pas seulement avec le format idéal.
+
+## 9.85 L'outil de veille s'est empilé au lieu de se simplifier (2026-10-31)
+- **Symptôme** : Denis, après ses premiers essais réels : « super compliqué, pas très utile, je n'arrive pas à m'en servir, rien n'est simple ». Une carte qui ne faisait rien, des adresses cassées, des réponses mal lues.
+- **Cause** : chaque chantier a ajouté des écrans, des messages et des exigences sans que le parcours réel d'une personne (quoi faire cette semaine, dans quel ordre, avec quel résultat) soit tracé de bout en bout ni essayé par Denis entre deux ajouts. Les essais de Claude vérifiaient le format, pas la prise en main.
+- **Règle** : avant tout nouvel ajout à l'outil de veille, Denis fait un vrai parcours accompagné (un geste, du clic à la fin) ; chaque point où il hésite est noté ; on simplifie avant d'ajouter. Un outil de veille doit dire « voici le geste à faire aujourd'hui », pas offrir un menu.
+
+## 9.86 Un essai dans le navigateur contre le vrai dépôt a écrit ET commité (2026-10-31)
+- **Symptôme** : en essayant la lecture du Lexique dans l'outil de veille lancé sur le vrai dépôt, trois mots de test sont arrivés dans `outils/sas/mots.sas.txt` et un commit automatique « Veille : mise a jour du contenu » est apparu sur `master`.
+- **Cause** : la liste du Lexique s'écrit par `/api/publier` (le même circuit que le bouton « Publier »), pas par la route `/api/lexique/proposer` que j'avais simulée. Le serveur de l'outil écrit puis commite tout seul.
+- **Règle** : avant d'essayer un lecteur dans l'outil de veille lancé sur le vrai dépôt, chercher quelle route il appelle réellement (`appeler(` dans le lecteur) et simuler `/api/publier` dans la page, ou travailler sur une copie du dépôt. Après tout essai : `git log -3` et `git status` pour vérifier qu'aucun commit ni fichier ne traîne. Réparé le jour même (commit local annulé, fichier de test supprimé, rien n'avait été envoyé).
+
+## 9.87 Le guide en 4 gestes cachait des zones que d'autres boutons visent, et avançait sans vérifier (2026-11-01)
+- **Symptôme** (essai de Denis, « Ce qui a changé ce mois-ci ») : « Préparer un message pour les 11 domaines » et « Voir la réponse collée » ne faisaient rien ; le guide passait à « Vérifier » alors que la réponse était illisible (« Rien de lisible ») ; les réponses collées l'une après l'autre s'effaçaient ; les messages partaient avec la période « APP ».
+- **Cause** : le guide masque tout ce qui n'est pas dans le geste en cours (`.g-hors`) mais d'autres boutons de la page visent des zones d'autres gestes (message à préparer = geste 1, case de réponse = geste 3). « Coller ici et lire » remplaçait le contenu au lieu de l'ajouter, malgré « collez TOUTES les réponses ». Le guide avançait après 700 ms sans regarder si la lecture avait réussi. Une valeur sans année dans « Comment l'appeler » était prise pour la période.
+- **Règle** : (1) tout bouton qui cible une zone peut être appelé quand le guide la cache : il ramène au bon geste ou rend la zone visible ; (2) un guide n'avance qu'après un succès constaté (la case s'est repliée sur « Réponse reçue et lue »), jamais sur un simple délai ; (3) une case où l'on colle plusieurs réponses ajoute à la suite (liste `REPONSES_CUMULEES`), et « recommencer » demande confirmation ; (4) une période saisie sans année est ignorée. Essai navigateur : cliquer CHAQUE bouton à chaque geste, avec une réponse lisible ET une illisible.
+
+## 9.88 Un prompt de recherche donne toujours des dates exactes, et le jour vient de l'ordinateur (2026-11-01)
+- **Symptôme** : les assistants répondaient « la période APP n'est pas définie » ; le prompt de la semaine disait « les 7 derniers jours » sans dates ; `jourCourant()` donnait la veille entre minuit et 1 h ou 2 h (heure universelle).
+- **Cause** : un libellé de période (« octobre 2026 ») ou une durée relative ne dit pas de quel jour à quel jour chercher ; un champ libre pouvait contenir un mot isolé ; `toISOString()` donne la date en heure universelle.
+- **Règle** : tout prompt qui parle d'une période écrit « du JJ/MM/AAAA au JJ/MM/AAAA inclus » (fonctions `phrasePeriode` et `phraseDepuisJours`, jamais une phrase refaite à la main) ; un champ de période sans année est ignoré (`periodeSaisie`) ; le jour du jour se prend avec `jourIso(new Date())`, jamais `toISOString`. Test : `tests/veillePeriodesExactes.test.js`.
+
+## 9.89 Un « git stash » fait dans un dépôt partagé emporte le travail des autres conversations (2026-11-01)
+- **Symptôme** : en plein travail, mes fichiers sont revenus à leur état d'avant (tests qui échouent, fonction introuvable) ; `git status` ne montrait plus rien de modifié. Une autre conversation avait mis tout le travail en cours de côté (`git stash`), le mien compris.
+- **Cause** : plusieurs conversations travaillent dans le même dossier ; un `stash` ou un `reset` prend tout, pas seulement les fichiers de celui qui le lance.
+- **Règle** : ne jamais lancer `git stash`, `git reset` ni `git checkout .` dans ce dépôt. Si le travail a disparu, regarder `git stash list` et `git reflog` avant de recommencer, et ne récupérer que ses propres fichiers avec `git checkout stash@{0} -- <fichiers>` (sans vider le stash). Piège associé : sous Windows (`autocrlf`), cette commande réécrit les fichiers en fins de ligne Windows, ce qui casse les tests qui découpent le code avec des motifs « \n » : remettre les fins de ligne en LF juste après.
+
+## 9.90 Un script écrit par « heredoc » dans le shell perd ses antislashs (2026-11-01 ; récidives 05/11/2026 : `veilleFiche.js`, `veille.html`, et une chaîne `'Jusqu\'à'` devenue `'Jusqu'à'` qui a cassé tout le script de l'outil de veille : toujours valider la syntaxe des blocs script après un patch, et écrire les apostrophes de texte en `’`)
+- **Symptôme** : un fichier patché par un petit script Node envoyé par le shell contenait `/.json$/` au lieu de `/\.json$/`, et même de vrais retours à la ligne à la place de `\r\n`. Le fichier ne se chargeait plus.
+- **Cause** : les antislashs passent mal dans un heredoc ou un `node -e` lancé par le shell ; ils sont mangés avant que Node ne lise le script.
+- **Règle** : tout script de patch qui contient des expressions régulières ou des `\n` s'écrit avec l'outil d'écriture de fichier (jamais en heredoc ni en `node -e`), puis se lance. Vérifier par un chargement du fichier modifié (`require` ou contrôle de syntaxe des blocs script) juste après.
+- **Récidive le 2026-11-01 (lot 4b)** : un patch envoyé par heredoc a encore perdu ses antislashs et a échoué à l'application (heureusement avant toute écriture). Réflexe : outil d'écriture de fichier pour tout script de patch, ou l'outil d'édition directement.
+
+## 9.91 Une carte de l'onglet qui dépend d'un autre écran peut disparaître sans erreur (2026-11-01)
+- **Symptôme** : la carte « Les mots du lexique » de l'onglet « Travailler avec Claude » n'apparaissait pas, sans message.
+- **Cause** : son prompt est vide tant que la liste des mots du Lexique n'a pas été chargée, ce qui n'arrivait qu'à l'ouverture de la fenêtre du Lexique ; la liste des cartes écarte en silence un prompt vide.
+- **Règle** : une carte construite à partir de données d'un autre écran doit charger elle-même ces données à l'ouverture de l'onglet, et tester en repartant d'une page toute neuve (jamais après avoir ouvert l'autre écran).
+
+## 9.92 Un chiffre écrit dans une maquette doit être lu dans le code, pas dans un rapport (2026-11-02)
+- **Symptôme** : la maquette de l'Introduction annonçait « 37 modèles de CV : 12 sobres et 25 créatifs » ; l'application en compte 39 (13 sobres et 26 créatifs).
+- **Cause** : le chiffre venait d'un rapport du banc de rendu (« 37 modèles identiques à la référence »), qui ne comptait pas les 2 écarts voulus, pris pour le total.
+- **Règle** : tout nombre affiché à une personne (modèles, outils, fiches) est LU dans la liste du code au moment de l'affichage (ici `_MEP_GALERIE_SOBRE` et `_MEP_GALERIE_CREATIF`), jamais recopié d'un compte rendu. Dans une maquette, vérifier le nombre dans le code avant de l'écrire.
+- **Complément (2026-11-02, en préparant la vidéo)** : le « bon » nombre dépend de ce que la personne voit. La galerie du CV annonce « Sobre 12 modèles » et « Créatif 25 modèles » parce que deux modèles construits autour d'une photo ne sont proposés qu'avec une photo (`_mepModeleVisible`) ; l'Introduction annonçait 39. Elle compte maintenant comme la galerie (37 sans photo, 39 avec). Règle : un nombre montré avant un écran doit être celui que cet écran affichera, donc passer par la même règle de comptage que lui.
+
+## 9.93 Une image ouverte dans un nouvel onglet piège la personne (2026-11-02)
+- **Symptome** : sur la page Introduction, un clic sur une image montrait l'image seule sur tout l'ecran, sans croix ni moyen de revenir.
+- **Cause** : le lien de l'image portait target="_blank" ; dans l'application de bureau, l'onglet ne se ferme pas comme dans un navigateur, et la page de l'image n'a aucun bouton.
+- **Regle** : jamais de lien vers un nouvel onglet pour agrandir une image ; utiliser la fenetre commune de l'application (ouvrirFenetreERIP : croix, Echap), comme introAgrandirImage() de modules/introduction/index.js. Tester le clic reel, jamais seulement l'affichage.
+
+## 9.94 Un script de branchement bricolé en ligne a coupé une entrée existante (2026-11-02)
+- **Symptome** : après le branchement du diaporama, `js/app.js` ne se chargeait plus (« Unexpected token ] ») : l'entrée « Nouveautés » de l'aide était coupée en deux ; le bouton Introduction ne faisait plus rien.
+- **Cause** : le script d'insertion avait été retouché en ligne (expression régulière sur son propre texte) ; l'ancre choisie était la ligne SUIVANTE de l'insertion, donc le bloc inséré a remplacé le début d'une entrée au lieu de venir avant.
+- **Regle** : après tout script qui modifie `js/app.js`, lancer tout de suite `node --check js/app.js` et relire `git diff` (seulement des lignes ajoutées attendues) AVANT d'ouvrir le navigateur ; ne jamais retoucher un script d'insertion par une expression régulière sur son propre texte : le réécrire avec l'outil d'édition.
+
+## 9.95 Une phrase rassurante peut classer la personne (2026-11-02)
+- **Symptome** : la vidéo, la page Introduction et le diaporama disaient « pas besoin de savoir bien écrire ». Denis : c'est justement ne pas catégoriser ni juger les gens.
+- **Cause** : rassurer en nommant la difficulté de la personne (écrire) revient à la désigner ; le texte avait été écrit sans relire la règle « jamais de diagnostic sur la personne ».
+- **Règle** : on décrit ce que l'application fait (« les propositions sont déjà là, vous choisissez »), jamais ce que la personne ne saurait pas faire. Relire tout texte destiné au public avec cette question : nomme-t-il un manque de la personne ?
+
+## 9.96 Le résumé d'une page officielle peut simplifier le texte de loi : lire le décret avant de déclarer une fiche fausse (2026-11-03)
+- **Symptome** : à l'étape 2 du dossier Cloud, j'ai annoncé à Denis que la phrase « affection de longue durée non exonérante » de la fiche sur l'arrêt maladie était « fausse », d'après le résumé de service-public.gouv.fr (« hors accident du travail, maladie professionnelle et affection de longue durée »). Le lendemain, la lecture du décret n° 2026-866 sur Légifrance montrait que le critère juridique est bien la prise en charge des soins (participation de l'assuré limitée ou supprimée : trois ans ; sinon : un an). L'ancienne fiche était donc plus proche du texte que mon remplacement.
+- **Cause** : j'ai appliqué un texte de remplacement du dossier et conclu à une erreur après la lecture d'une seule page de synthèse, sans ouvrir le décret cité pourtant disponible.
+- **Règle** : quand deux sources officielles se recoupent mal, ouvrir le texte de loi lui-même avant de dire qu'une fiche est fausse, et n'écrire à Denis « faux » qu'après cette lecture. Formuler à défaut de façon prudente (« notamment quand... ») en citant les deux sources dans `revisions`.
+
+## 9.97 Une nuit arrêtée avant la fin du plan, et le reste renvoyé à la matinée (2026-11-04)
+- Symptôme : Denis prépare un plan de nuit, laisse tourner la machine, et la nuit s'arrête au bout d'environ vingt minutes avec 58 fiches sur 59, les 12 nuances du Lexique et les mots à page bloquée « pour la prochaine séance ». Le travail prévu pour la nuit est fait le matin, avec lui présent.
+- Cause : j'ai traité les pages difficiles d'accès comme une raison de rendre la main et de lister le reste, au lieu de continuer sur tout ce qui était faisable (relire les fiches une par une, appliquer les nuances) puis de ne laisser à Denis que ce qui exige vraiment lui ou Perplexity.
+- Règle : en mode Nuit, ne jamais conclure tant qu'il reste un point du plan faisable sans Denis. Les pages bloquées vont dans une liste pour Perplexity, mais n'arrêtent pas le reste. Un compte-rendu qui dit « prochaine séance : faire X » où X était au plan de la nuit est un échec à signaler comme tel, pas un compte-rendu normal.
+
+## 9.98 « Prête » ne voulait pas dire « passe les contrôles » : une étiquette d'origine prise pour un contrôle (2026-11-04)
+- Symptôme : des fiches du sas étiquetées « Prête : un clic » (copiées par Denis, recopiées de l'annuaire, prévalidées) faisaient échouer l'enregistrement (site en http, commune absente des listes, type inconnu, téléphone court, identifiant trop long). Denis a cru que ses informations n'avaient pas été saisies, alors qu'elles étaient bien dans la fiche.
+- Cause : l'état « Prête » ne reposait que sur l'origine de la fiche (qui l'a regardée ou d'où elle est copiée), jamais sur les règles du registre. Le contrôle n'était joué qu'au clic final, sur tout le lot.
+- Règle : un état affiché à la personne qui promet « un clic » doit être calculé avec le vrai vérificateur du registre (même source de vérité que l'enregistrement), pas avec une provenance. Avant de nommer un état « prêt », se demander : qu'est-ce qui peut encore faire échouer le clic ? Corrigé le 04/11/2026 : `problemes` calculé par `lister`, état « À corriger ».
+
+## 9.99 Un message d'erreur qui accuse la mauvaise cause fait chercher au mauvais endroit (2026-11-04)
+- Symptôme : la fiche Carrefour était refusée avec « ne peut pas contenir de barre verticale ni de retour à la ligne » alors qu'elle n'en contenait aucun : la vraie cause était la longueur (2 017 caractères pour une limite de 800).
+- Cause : un contrôle regroupait trois conditions (barre verticale, retour à la ligne, longueur) sous un seul message. Le pré-contrôle du sas, écrit juste avant, ne rejouait pas ces limites de champ.
+- Règle : un message de refus dit la cause exacte (une condition = un message, avec la valeur mesurée) ; et tout contrôle bloquant de l'enregistrement est aussi rejoué par le sas avant le clic. Voir la leçon 9.98.
+
+## 9.100 Ne jamais couper une ligne du sas avec « | » à la main : les champs vides se décalent (2026-11-04)
+- Symptôme : après la fusion de deux maisons de la petite enfance, leur site et leur numéro avaient disparu et les colonnes « rayon » et « mail » contenaient du texte de la source ; l'outil de veille ne l'a signalé que plus tard (« rayon 24 n'existe pas »).
+- Cause : mon script découpait la ligne avec `split(' | ')`. Un champ vide s'écrit « | | » (un seul espace) et n'est pas reconnu : les colonnes suivantes glissent d'un cran.
+- Règle : toute modification d'une ligne du sas passe par `T.analyser` puis `T.formater` (outils/veilleTerritoire.js), jamais par un découpage de texte ; après toute fusion, relancer `listerSas` et vérifier qu'il n'y a ni « problème » ni valeur déplacée.
+
+## 9.101 Forcer Perplexity à traiter 50 lignes d'un coup : il écrit les 50 lignes mais abandonne la plupart (2026-11-04)
+- Symptôme : message 1 (numéros 1 à 50, consigne « une seule réponse ») : Perplexity a quand même coupé en passages de 8, 14, 26 puis 32 lignes, et Denis a dû le relancer. Message 2 (51 à 100) : 50 lignes rendues d'un coup, mais 44 d'entre elles sont « non vérifiable, non ouverte » : il a inscrit le total demandé en renonçant à ouvrir les pages. Denis a dû ouvrir les sites lui-même.
+- Cause : la consigne « une ou deux recherches par ligne, sinon introuvable » avec l'obligation de remplir 50 lignes pousse à répondre sans chercher. Un total imposé ne garantit pas un travail réel.
+- Règle : ne pas imposer un total de lignes ; préférer des messages plus courts (25 fiches) où chaque ligne est réellement traitée, et toujours tester les pages citées avant d'intégrer un relevé (script `verif_perplexity.js` : la page répond, le numéro et l'adresse y figurent).
+
+## 9.102 Comparaison de trois assistants sur le même lot de 25 (2026-11-05)
+- Constat : sur le message 1 des structures, le premier ChatGPT donne le plus de données exactes dès le premier passage (12 lignes pleinement justes sur 25, mais l'étiquette « corrigé » est mise même quand rien ne change, et un code postal ou une rue peut être faux) ; le ChatGPT avec recherche web n'est juste qu'après un second passage de rectification, et ce second passage a remplacé trois numéros précis (Montpon, Beaumont, Ribérac) par le standard de l'hôpital ; Perplexity n'a ouvert que 3 pages sur 25 mais a affiché « corrigé » sur des lignes vides.
+- Règle : ne jamais appliquer un relevé tel quel, toujours rouvrir la page citée ; un numéro général d'hôpital ne remplace jamais le numéro d'un service ; une étiquette « corrigé » ou « confirmé » sans donnée à côté ne vaut rien ; un site hospitalier peut refuser mes requêtes (403) ou être en panne (503) : dans ce cas la donnée reste « à confirmer », jamais pré-validée.
+
+## 9.103 Une variable CSS avec une couleur de repli en dur reste illisible en mode sombre (2026-11-05)
+
+**Symptôme** : dans la maquette des délais, la pastille « 15 jours pour contester » était un texte clair sur fond jaune pâle (contraste 1,06) en mode sombre, signalé par Denis. **Cause** : `var(--accent-soft, #fff3cd)` pour le fond : la variable n'existait pas, donc le repli en dur (clair) s'appliquait, alors que la couleur du texte suivait le thème. **Règle** : jamais de repli hexadécimal, et ne choisir que des variables qui existent (`--warning-bg-subtle`, `--warning-border`, `--warning-strong`, ou la classe `comprendre-le-cadre-pastille--a`). Avant de montrer une maquette, mesurer le contraste en clair ET en sombre avec `getComputedStyle` (visé : au moins 4,5). Voir aussi §9.10.
+
+## 9.104 Un employeur que Denis dit absent du territoire : on le vérifie, sinon on l'efface (2026-11-05)
+
+**Symptôme** : Denis a cherché plusieurs fois les mêmes fiches (Clara Automobiles, JBS Plomberie) et ces fiches revenaient le stresser. **Règle (décision de Denis)** : quand Denis écrit qu'un employeur n'existe pas en Dordogne ou en Haute-Vienne, Claude vérifie lui-même la présence (page de l'établissement local). Présence démontrée = la fiche reste et Claude le dit à Denis (Clinique Pasteur, Vacancéole, Cofidur EMS). Présence non démontrée = la fiche est effacée du sas, sans pile « à revoir » ; si l'employeur resurgit un jour, Denis la recrée. Quand Denis écrit « ok », c'est que l'employeur a une antenne sur le territoire : ne pas le remettre en cause. Un site mort constaté par Denis ou par Claude = effacement aussi. **Garde-fou** : un site qui ne répond plus ne prouve pas que l'entreprise a disparu (Hebras Travaux Publics avait un autre site, hebras-tp.fr, que Denis a retrouvé après mon effacement) : avant d'effacer, chercher le vrai site de l'entreprise (recherche web du nom et de la commune) ; si Denis écrit ensuite une donnée, la fiche est recréée à partir de ses données.
+
+## 9.105 Maquette d'un nouvel écran dans un module existant : reprendre le format des cartes du module, pas des styles propres (2026-11-05)
+
+**Symptôme** : la première maquette « Smic et inflation » avait ses propres blocs et plusieurs lignes de texte ; Denis a demandé le format réel de « Comprendre les chiffres » (question, gros chiffre, pastille de tendance, comparaisons, source en bas, source au survol des chiffres). **Cause** : j'ai habillé la maquette avec des classes inventées au lieu de lire d'abord la fonction qui dessine les cartes existantes (`_comprendreLesChiffresRenduCarte`). **Règle** : avant toute maquette d'un écran dans un module existant, lire le rendu réel d'un écran voisin et n'utiliser que ses classes (`.comprendre-les-chiffres-indic`, `.chiffre` avec `data-source`, `.comprendre-les-chiffres-source`...) ; pas de paragraphes explicatifs visibles : un chiffre, ses comparaisons courtes, la source ; l'explication va dans un dépliant. Les montants s'écrivent avec des espaces insécables pour ne jamais couper « 1 823,03 € » sur deux lignes.
+
+## 9.106 Avant de proposer un message ou d'annoncer un reste : relire l'état réel, jamais le chiffre d'un résumé (2026-11-05)
+
+**Symptôme** : Claude a proposé à Denis d'envoyer les messages « structures » à l'assistant alors qu'ils avaient déjà été faits, envoyés et intégrés (commits 4c60a971 à fa294bb0), puis a annoncé « 11 fiches non prévalidées » en soustrayant deux nombres sans rapport (233 fiches moins 222 lignes de prevalidees.txt, qui contient beaucoup de lignes de fiches déjà publiées). **Cause** : la reprise après résumé s'est fiée à la mémoire de la séance et à un fichier daté du jour (le fichier de messages est refabriqué avec « tous »), sans relire `git log` ni calculer le vrai état. **Règle** : (1) avant de proposer un message à envoyer ou de dire « il reste N », faire `git log --grep` sur le sujet puis un calcul réel : cartes du sas, croisées avec prevalidees.txt ET deja-regardees.txt (script du bilan : compter prête / déjà regardée / jamais regardée). (2) Un fichier de messages fabriqué avec « tous » contient TOUTES les fiches, pas seulement celles qui restent. (3) prevalidees.txt garde des lignes de fiches publiées depuis : ne jamais le compter tel quel.
+
+## 9.107 Un contrôle qui refuse un chiffre : ajouter le suivi, jamais supprimer ni contourner le chiffre (2026-11-05)
+
+**Symptôme** : en écrivant les seconds niveaux du Lexique (K.3), Claude a retiré des chiffres officiels (âges, délais, pourcentages, nombres de structures) ou les a écrits en toutes lettres pour que `node scripts/checkLexique.js` passe. Les fiches sont devenues plus générales, donc moins utiles : leur force est justement de donner des chiffres. **Cause** : Claude a lu le refus (« le texte contient un chiffre… et l'entrée n'a pas de suivi ») comme une interdiction du chiffre, alors que c'est une demande du bloc de suivi (décision de Denis du 03/11/2026). Écrire un nombre en lettres contourne le contrôle sans régler le fond : le chiffre n'est plus revérifié. **Règle** : (1) un chiffre, une date, un montant ou une durée de source officielle se garde TOUJOURS. (2) On ajoute à l'entrée le champ `suivi : { verifieLe (date système réelle), source { nom, url https }, phraseGenerale (sans aucun chiffre) }` : le chiffre s'affiche six mois, puis la phrase générale le remplace avec le lien vers la source. (3) Ne jamais écrire un nombre en lettres pour échapper au contrôle. (4) Un refus du contrôle se lit en entier avant d'agir : il dit ce qu'il faut ajouter. (5) Les seconds niveaux des lots 2 à 9 du K.3 ont été écrits avec ce défaut : à reprendre pour y rétablir les chiffres avec leur suivi.
+
+## 9.108 Détecter « cite des chiffres » : le chiffre seul ne suffit pas, et un motif copié à plusieurs endroits doit être gardé par un test (2026-11-05)
+
+- **Symptôme** : après l’ajout du champ `phrase_generale`, 31 fiches citaient des durées ou des nombres écrits en lettres (« deux mois », « dix-huit ans ») et passaient entre les mailles de la détection par chiffres.
+- **Cause** : le motif ne cherchait que les chiffres ; il ne voyait pas un nombre en lettres devant une unité.
+- **Règle** : (1) le motif « cite des chiffres » = chiffre OU nombre en lettres devant une unité ; (2) il existe en trois exemplaires (`modules/comprendre-le-cadre/index.js`, `outils/veilleFiche.js`, `outils/base_fiches.js` généré) parce que l’application et l’outil de veille ne partagent pas de fichier : le test de concordance de `tests/comprendreLeCadreLogique.test.js` doit rester vert, et on ne modifie jamais un exemplaire sans les deux autres ; (3) un script de patch qui contient des antislashs s’écrit avec l’outil d’écriture de fichier, jamais en heredoc (voir 9.90, récidive du 05/11/2026 sur `veilleFiche.js` et `veille.html` : `/\d/` devenu `/d/`) ; (4) les phrases générales ne contiennent aucun chiffre ni nombre en lettres devant une unité, le script d’application les refuse sinon.
+
+## 9.109 Ajouter une colonne à un registre invalide toutes les prévalidations déjà données (2026-11-05)
+
+**Symptôme** : 21 fiches que Denis avait validées apparaissaient « À regarder » au lieu de « Prête : un clic ». **Cause** : l'empreinte d'une prévalidation couvre tous les champs sauf la source, la date et l'identifiant ; la colonne « adresse » ajoutée entre-temps a changé l'empreinte de chaque ligne, sans que le contenu change. **Règle** : avant d'ajouter une colonne à un registre ou au sas, relire `outils/sas/prevalidees.txt` et prévoir la re-signature (recalculer l'empreinte sans la nouvelle colonne : si elle redevient identique, le contenu n'a pas bougé et la re-signature est sûre ; sinon laisser la fiche à regarder). Et rappeler à Denis que « C'est bon » ne fait que cocher : c'est le bouton Enregistrer en bas qui publie.
+
+## 9.110 Un essai de parcours ne doit pas compter des données vivantes écrites en dur (2026-11-05)
+
+**Symptôme** : à l'ouverture du module, 11 échecs d'essais qui n'étaient pas des régressions : « secteur animalier = 1 fiche », « 71 liens pour 66 uniques », « la première fiche Action Logement cite Visale ». **Cause** : les essais supposaient un secteur précis, un lien par carte (les cartes ont maintenant lien de carte + site) et une seule fiche par enseigne, alors que le registre grossit chaque semaine. **Règle** : un essai choisit son secteur d'après les compteurs affichés (et en essaie plusieurs jusqu'à en trouver un qui convient), compte les adresses par lien de carte et non par lien quelconque (un site peut être partagé par plusieurs structures d'une même association), et lit une mention sur toutes les fiches de l'enseigne. Quand un essai échoue après un ajout de données, vérifier d'abord si c'est l'essai qui est périmé.
+
+
+## 9.111 Une liste « reste à faire » se recoupe avec git log et le code avant d'être donnée (2026-11-05)
+
+**Symptôme** : Claude a dit à Denis que la barre « Vous êtes ici » et l'ouverture des deux derniers modules restaient à faire, alors que les deux étaient commitées depuis quelques heures par une autre session. **Cause** : la liste venait des documents de pilotage (plan, état, consignes) et de la mémoire de la conversation, pas du dépôt ; les documents retardent dès que deux sessions travaillent le même jour. **Règle** : avant de dire « il reste X », lire `git log` des derniers jours pour chaque point et ouvrir le code concerné (ex. `grep` de la fonction, de la ligne de `data/nouveautes.js`, de l'interrupteur) ; dire ce qui a été vérifié et ce qui ne l'a pas été ; corriger les documents périmés dans le même passage.
+
+## 9.112 Une fiche d'un seul département ne porte jamais la portée « region » (2026-11-06)
+
+**Symptôme** : en rejouant les essais « rien de la Haute-Vienne dans la Dordogne », trois fiches de la Haute-Vienne (fonds de solidarité pour le logement, centre interinstitutionnel de bilans de compétences, direction régionale de l'environnement à Limoges) apparaissaient dans les listes de la Dordogne. **Cause** : leur portée était « region » alors que leur adresse et leur public sont d'un seul département ; la portée « region » sert aux organismes qui servent vraiment les deux départements. **Règle** : à l'écriture d'une fiche, la portée suit le public servi, pas le nom de l'organisme (un nom en « Nouvelle-Aquitaine » ou un bureau installé à Limoges ne suffit pas). Un essai qui lit les titres des cartes et non tout le texte repère ce défaut ; ne jamais assouplir l'essai pour le faire taire.
+
+## 9.113 Une adresse de source ne s'écrit jamais de mémoire, et un texte avec des antislashs ne passe pas par un « heredoc » (2026-11-06)
+
+**Symptôme** : (1) en ajoutant la source d'Insee Première n° 2079 à un fichier de données, j'ai écrit une adresse que je n'avais pas lue (elle ne menait pas à la bonne page) ; je l'ai repérée avant le commit en cherchant l'adresse réelle. (2) Des essais écrits par un « heredoc » du shell ont perdu leurs antislashs (`
+` devenu un vrai retour à la ligne, expression régulière cassée), ce qui a fait échouer la suite sans que le code testé soit en cause.
+**Cause** : (1) une adresse « qui a l'air juste » est une invention tant qu'elle n'a pas été lue sur la page. (2) le shell de l'outil interprète les antislashs d'un « heredoc ».
+**Règle** : (1) toute adresse de source vient d'une page ouverte ou d'une recherche, jamais de la mémoire ; en cas de doute, la chercher avant de l'écrire dans un fichier de données. (2) pour écrire du code ou des essais qui contiennent des antislashs, utiliser l'outil d'écriture de fichier, ou construire le caractère en Python (`chr(92)`), puis relire la ligne écrite.
+
+## 9.114 Jamais deux départements nommés côte à côte : on montre le département choisi, et on le situe (2026-11-06)
+
+**Symptôme** : les cartes du portrait de « Comprendre les chiffres » (A5) montraient la Dordogne ET la Haute-Vienne ensemble, alors que la personne en avait choisi un seul. Denis : « erreur grossière, à ne plus reproduire ». **Cause** : j'ai structuré un fichier à deux départements pour fabriquer une comparaison, sans relire la consigne déjà écrite dans le code du module (retour de Denis du 12/09/2026) ni le sens du choix de département. **Règle** : tout écran d'un module territorial ne montre QUE le département choisi. Une comparaison se fait uniquement avec le département le plus haut et le plus bas de la Nouvelle-Aquitaine et de la France (valeurs calculées sur des fichiers complets), plus la France entière ; jamais l'autre département de l'application. Avant de coder une carte territoriale : relire cette règle et vérifier avec chaque département choisi (24 puis 87) qu'aucun nom de l'autre n'apparaît. Un amalgame de ce genre rend l'application confuse et nuit à sa crédibilité.
+
+## 9.115 Une date de bulle d'info ou de source passe aussi par la mise en clair (2026-11-06)
+
+**Symptôme** : dans « Comprendre les chiffres », la bulle du Smic disait « vérifié le 2026-11-05 » et celle du chômage « relevé le 2026-09-09 » (année, mois, jour), alors que le reste de l'écran était en français. **Cause** : ces phrases sont écrites dans des attributs `data-source` (non visibles sans toucher le chiffre) ; le contrôle des dates à l'écran ne les lisait pas, et une valeur brute du fichier était recopiée telle quelle. **Règle** : toute date écrite dans un texte, y compris un attribut ou une bulle, passe par `_comprendreLesChiffresDateEnClair` / `_comprendreLesChiffresSmicMoisEnClair` (« 5 novembre 2026 ») ; un mois seul se dit « en septembre 2026 », jamais « le septembre 2026 ». Pour contrôler : lire `outerHTML` de la page (pas seulement `innerText`), sans les `href`, et chercher `20\d\d-\d\d`. Voir aussi 9.54.
+
+## 9.116 Une année ou une phrase écrite dans le code finit par contredire le chiffre relevé (2026-11-06)
+
+**Symptôme** : une vingtaine de cartes de « Comprendre les chiffres » écrivent l'année dans leur texte (« en 2025, en France », « 2e trimestre 2026 ») alors que le chiffre vient d'un fichier relevé par script. Au prochain relevé, le chiffre de 2026 s'afficherait sous la mention « 2025 ». Denis l'a signalé : quand les chiffres changent, l'interprétation doit changer. **Cause** : le texte est dans le code, le chiffre dans le fichier, rien ne les lie. **Règle** : tout texte qui cite une année, un montant ou un sens (« a baissé ») doit soit être calculé à partir du fichier, soit être couvert par un test qui échoue quand la source change ; après chaque relevé on relit les explications (voir `docs/FAIRE_LA_VEILLE.md`, section Chiffres). L'interprétation n'est jamais écrite seule par le code.
+
+## 9.117 Une règle de grille qui liste les éléments un par un en oublie un (2026-11-06)
+
+**Symptôme** : sur la carte « Hommes et femmes » (grand écran), un grand vide s'ouvrait entre le chiffre et la phrase « En France, cet écart est de 13 % ». **Cause** : l'étape A12 envoyait la note, le dépliant et la source dans la colonne de gauche en les nommant un par un, mais pas la phrase (`.comprendre-les-chiffres-indic-phrase`) : restée en pleine largeur, elle était rejetée sous les comparaisons, et six lignes vides s'étiraient. **Règle** : dans une grille de carte, on désigne « tout sauf la question et les comparaisons », jamais une liste d'éléments ; la dernière ligne (`1fr`) absorbe la hauteur en trop. Après un changement de disposition, mesurer chaque type de carte (position de chaque enfant), pas seulement la carte qu'on regardait.

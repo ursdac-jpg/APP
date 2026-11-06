@@ -13,14 +13,12 @@ arret-de-travail-indemnites-journalieres
 attestation-de-demande-d-asile
 bprea
 cape
-clause-sociale
 commandement-de-payer
 complementaire-sante-collective
 conge-maternite-paternite
 conseil-de-prud-hommes
 contrat-d-engagement
 contrat-emploi-penitentiaire
-contrat-valorisation-experience
 cpf
 cpf-plafonds-2026
 creations-entreprises-micro-entrepreneurs
@@ -44,7 +42,6 @@ fondation-2eme-chance
 fonds-d-aide-aux-jeunes
 foyer-jeunes-travailleurs
 francetravail-missionlocale-capemploi
-frr
 guichet-unique-entreprises
 homologation-rupture-conventionnelle
 indemnite-legale-de-licenciement
@@ -57,7 +54,6 @@ obligation-de-formation
 permis-a-1-euro-par-jour
 prescription-delai
 prime-activite
-primes
 primo-arrivant
 proche-aidant
 psad

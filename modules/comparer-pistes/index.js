@@ -139,6 +139,7 @@ function comparerEtatNeuf() {
     anglesVus: [],
     superpositionAffinee: null,
     superpositionAffineeErreur: '',
+    superpoEtape: 'comparaison', // ecran 5 : 'comparaison' (A) | 'decision' (B : completer ou non) | 'affinage' (choix de l'assistant, collage) | 'miseajour' (comparaison completee)
     friseBrut: '',
     friseErreur: '',
     friseSansAssistant: false,
@@ -147,7 +148,7 @@ function comparerEtatNeuf() {
     pistesReflexionErreur: '',
     pistesReflexionSautee: false,
     pistesReflexion: null,
-    envoi: {},                 // phase de chaque envoi a un assistant : { detection|collecte|superpo|frise|apl : 'choix'|'chez'|'coller' }
+    envoi: {},                 // phase de chaque envoi a un assistant : { detection|collecte|superpo|frise|apl : 'choix'|'coller' }
     retenirTexte: ''
   };
 }
@@ -636,7 +637,6 @@ var COMPARER_ETAPES_CHOIX_IA_SANS_WEB = [
   { titre: 'Réflexion', detail: 'L’assistant lit seulement ce qui est déjà dans l’application : aucune recherche sur internet n’est nécessaire.' },
   { titre: 'Réponse', detail: 'Vous revenez ici et collez sa réponse : le texte reste caché, vous n’avez rien à relire.' }
 ];
-var _comparerIntervalleDecompte = null;
 
 var COMPARER_TITRES_ECRANS = [
   'Ajouter mes pistes',
@@ -675,7 +675,7 @@ var _comparerEcranCourant = 0;
 // Flèche « Précédent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
 // Les écrans du module sont numérotés de 0 à 8 (_comparerEtat.ecran) et tous dessinés par afficherEcran() : chaque dessin appelle
 // _comparerSynchroniserHistorique(), chaque changement d'écran devient une entrée de l'historique. Les données saisies restent dans _comparerEtat (elles ne
-// reculent jamais) ; seul le numéro d'écran est remis. Les étapes d'un envoi à l'assistant (choix, chez l'assistant, collage) restent DANS un écran.
+// reculent jamais) ; seul le numéro d'écran est remis. Les étapes d'un envoi à l'assistant (choix, puis collage avec son décompte) restent DANS un écran.
 // ------------------------------------------------------------
 // Numéro de la comparaison en cours : il change quand la comparaison est effacée (« Recommencer ») ou remplacée (restauration de la disquette).
 var _comparerSessionHistorique = 1;
@@ -714,6 +714,7 @@ function pageComparerPistes() {
 // cours (encart "Continuer / Recommencer" a droite + gel jusqu'au choix).
 var _comparerDetourPresentation = false;
 var _comparerReprisePendante = false;
+var _dernierEcranComparerRendu = null;   // pour ouvrir un nouvel ecran en haut (D41)
 
 // TACHE (correctif boucle Retour, 2026-09-09 -- LECONS section 2,
 // "Variante boucle infinie"). "Retour" de la barre du bas (et du bouton
@@ -948,9 +949,9 @@ function ouvrirComparerPistes() {
 
       '<details class="bloc-depli"><summary><span class="preparer-titre">&#127897;&#65039; Je raconte</span></summary>' +
       '<div class="bloc-depli-corps">' +
-      '<p class="preparer-detail" style="margin-top:0;">À l’écrit ou à la voix (' +
-      '<strong><span style="white-space:nowrap;">Windows + H</span></strong>). Ce qui vous tracasse, entre quoi vous hésitez. ' +
+      '<p class="preparer-detail" style="margin-top:0;">À l’écrit ou à la voix. Ce qui vous tracasse, entre quoi vous hésitez. ' +
       'On en tire des pistes que vous validez ensuite.</p>' +
+      htmlAstuceDictee('ligne', 'Pour parler plutôt que taper :') +
       '<textarea class="form-control form-control-sm" rows="4" data-cp-recit ' +
       'placeholder="Dites ou écrivez ce qui vous fait hésiter...">' + echapperTexte(etat.recit || '') + '</textarea>' +
       '</div></details>' +
@@ -961,7 +962,7 @@ function ouvrirComparerPistes() {
       pistesNommeesHTML +
       '</div></details>' +
 
-      '<details class="bloc-depli"><summary><span class="preparer-titre">&#128206; J’ajoute un texte</span></summary>' +
+      '<details class="bloc-depli"><summary><span class="preparer-titre">&#128221; J’ajoute un texte</span></summary>' +
       '<div class="bloc-depli-corps">' +
       '<p class="preparer-detail" style="margin-top:0;">Collez le texte d’une fiche, d’une offre, d’un programme.</p>' +
       '<textarea class="form-control form-control-sm" rows="3" data-cp-documents ' +
@@ -971,6 +972,7 @@ function ouvrirComparerPistes() {
       '</div></details>' +
 
       '</div></details>' +
+      (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('Une fois vos pistes décrites, il reste à dire où vous en êtes : cette partie est nécessaire. Les deux parties d’après sont à compléter si vous le souhaitez.') : '') +
 
       // --- Bloc 2 : ou en etes-vous (obligatoire) ---
       // TACHE (Paquet B, decision de Denis 2026-09-26) : "open" ne se
@@ -995,6 +997,7 @@ function ouvrirComparerPistes() {
       }).join('') +
       '</div>' +
       '</div></details>' +
+      (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('Une fois votre situation donnée, la suite est à compléter si vous le souhaitez : vous pouvez aussi passer directement à l’étape suivante.') : '') +
 
       // --- Bloc 3 : ou etes-vous (facultatif) ---
       '<details class="bloc-depli' + (etat.territoire ? ' bd-ok' : '') + '" id="cpBlocTerritoire" open>' +
@@ -1007,6 +1010,7 @@ function ouvrirComparerPistes() {
           '<button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-cp-changer-territoire>Changer</button></div>'
         : '<button type="button" class="btn btn-outline-secondary btn-sm" data-cp-indiquer-territoire>Indiquer mon département</button>') +
       '</div></details>' +
+      (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('Une dernière partie, à compléter elle aussi : elle sert à adapter les informations si elle vous concerne.') : '') +
 
       // --- Bloc 4 : handicap (facultatif) ---
       '<details class="bloc-depli' + (etat.handicap ? ' bd-ok' : '') + '" id="cpBlocHandicap" open>' +
@@ -1305,7 +1309,7 @@ function ouvrirComparerPistes() {
     var enTrop = (etat.pistes.length - pistes.length) + enReserve;
 
     var listeHTML = pistes.map(function (p, i) {
-      return '<div class="cp-piste">' +
+      return '<div class="cp-piste"' + (p.etiquette ? '' : ' data-a-completer="1"') + '>' +
         '<div class="cp-piste-tete">' +
         '<span class="cp-pastille" style="background:' + echapperAttribut(p.couleur) + ';"></span>' +
         '<input type="text" class="form-control form-control-sm" data-cp-piste-nom-idx="' + i + '" placeholder="Nom de la piste" value="' + echapperAttribut(p.nom) + '">' +
@@ -1643,12 +1647,13 @@ function ouvrirComparerPistes() {
   // ------------------------------------------------------------------
   // BRIQUE COMMUNE : envoyer un texte a un assistant en ligne, puis coller sa reponse
   // (retour Denis 2026-09-30 : meme parcours que le reste de l'application, plus de texte de prompt affiche, plus de bouton « Copier »).
-  // Trois phases par envoi, retenues dans etat.envoi[id] : 'choix' (on choisit l'assistant, le texte est copie), 'chez' (decompte, onglet
-  // ouvert, « Je suis de retour »), 'coller' (on colle la reponse). Une configuration par ecran dans envoiIAConfig() : detection (ecran 1),
+  // Deux phases par envoi, retenues dans etat.envoi[id] : 'choix' (on choisit l'assistant, le texte est copie), 'coller' (decompte, onglet
+  // ouvert, « Je suis de retour », puis on colle la reponse : tout est dans la fenetre commune, plus d'ecran « Chez l'assistant » a part, 2026-10-28). Une configuration par ecran dans envoiIAConfig() : detection (ecran 1),
   // collecte (2), superposition (5), frise (6), aller plus loin (7).
   // ------------------------------------------------------------------
   var ENVOI_IA_ECRANS = { 1: 'detection', 2: 'collecte', 5: 'superpo', 6: 'frise', 7: 'apl' };
-  function envoiIAPhase(id) { return (etat.envoi && etat.envoi[id]) || 'choix'; }
+  // Une session reprise avec l'ancienne phase « chez » (disquette) est reprise sur « coller ».
+  function envoiIAPhase(id) { var p = (etat.envoi && etat.envoi[id]) || 'choix'; return p === 'chez' ? 'coller' : p; }
   function envoiIADefinirPhase(id, phase) { etat.envoi = etat.envoi || {}; etat.envoi[id] = phase; }
   function envoiIAConfig(id) {
     var confidPistes = 'Le texte reprend les informations déjà rassemblées sur vos pistes, sans votre nom. Rien n’est envoyé avant votre clic sur un assistant.';
@@ -1656,10 +1661,17 @@ function ouvrirComparerPistes() {
       collecte: {
         ecran: 2, suffixe: 'CompCollecte', web: true, track: 'collecte', video: 'comparer-activer-recherche-web',
         texte: ecran2ConstruireTexte, traiter: ecran2TraiterCollage,
+        verifier: function (t) { return !comparerParserCollecte(t).erreur; },
+        module: {
+          libelleSuite: 'Voir mes fiches',
+          quoi: 'L’assistant vient de chercher des informations sur vos pistes (formations, métiers, aides) et de les ranger piste par piste.',
+          pourquoi: 'Vous comparez vos pistes avec des informations réunies au même endroit, sans chercher partout.',
+          verif: 'regardez que chaque information a bien une source et une date, et vérifiez l’essentiel sur le site officiel.',
+          conseil: 'Si la réponse n’a aucun lien de source, ou si toutes les dates sont celles d’aujourd’hui, l’application le signale : elle n’a probablement pas été cherchée sur internet.'
+        },
         erreur: function () { return etat.collecteErreur; }, effacerErreur: function () { etat.collecteErreur = ''; },
         attente: function () { return !etat.collecteSansAssistant && !etat.dossiersCollecte; },
         confidentialite: 'Le texte ne contient pas votre nom. Rien n’est envoyé avant votre clic sur un assistant.',
-        aideColler: '<p class="preparer-detail" style="margin-top:0;">Si la réponse n’a aucun lien de source, ou si toutes les dates sont celles d’aujourd’hui, l’application le signale : elle n’a probablement pas été cherchée sur internet.</p>',
         extraChoix: function () {
           return (
           '<details class="bloc-depli" open><summary><span class="preparer-titre">Je n’ai pas d’assistant en ligne</span></summary>' +
@@ -1672,6 +1684,13 @@ function ouvrirComparerPistes() {
       detection: {
         ecran: 1, suffixe: 'CompDetection', web: false, track: 'detection', video: null,
         texte: ecran0bisTextePromptDetection, traiter: ecran0bisTraiterDetection,
+        verifier: function (t) { return !comparerParserDetection(t).erreur; },
+        module: {
+          libelleSuite: 'Voir mes pistes',
+          quoi: 'L’assistant vient de lire ce que vous avez écrit et de le séparer en pistes distinctes.',
+          pourquoi: 'Chaque piste est étudiée à part : rien n’est mélangé ni oublié.',
+          verif: 'regardez que chaque piste correspond bien à ce que vous aviez en tête, et que rien n’a été mélangé.'
+        },
         erreur: function () { return etat.detectionErreur; }, effacerErreur: function () { etat.detectionErreur = ''; },
         attente: function () { return ecran0bisBesoinDetection(); },
         confidentialite: 'Le texte reprend ce que vous avez écrit dans « Ajouter mes pistes ». Si vous y avez mis votre nom, votre adresse ou votre téléphone, revenez les retirer avant de choisir un assistant. Rien n’est envoyé avant votre clic sur un assistant.'
@@ -1679,6 +1698,15 @@ function ouvrirComparerPistes() {
       superpo: {
         ecran: 5, suffixe: 'CompSuperpo', web: false, track: 'superposition', video: null,
         texte: ecran5TextePromptSuperpo, traiter: ecran5TraiterAffinage,
+        verifier: function (t) { return !!ecran5LireAffinage(t); },
+        // Pas de « Continuer » propre au module sur cette etape (la decision de completer s'est prise avant) : la barre du bas adopte celui de la fenetre, grise jusqu'a la reponse.
+        module: {
+          libelleSuite: 'Voir la comparaison mise à jour',
+          quoi: 'L’assistant vient de transformer en chiffres les informations qui n’avaient pas pu être placées.',
+          pourquoi: 'Des chiffres permettent de comparer vos pistes plus facilement.',
+          verif: 'regardez que les chiffres correspondent bien à ce que vous aviez lu (par exemple, « gratuit » doit correspondre à 0 €).',
+          conseil: 'Si un chiffre vous semble faux, la source est indiquée sous chaque échelle : vous pourrez la consulter.'
+        },
         erreur: function () { return etat.superpositionAffineeErreur; }, effacerErreur: function () { etat.superpositionAffineeErreur = ''; },
         attente: function () { return !etat.superpositionAffinee; },
         confidentialite: confidPistes
@@ -1686,6 +1714,13 @@ function ouvrirComparerPistes() {
       frise: {
         ecran: 6, suffixe: 'CompFrise', web: false, track: 'frise', video: null,
         texte: ecran6TextePromptFrise, traiter: ecran6TraiterCollage,
+        verifier: function (t) { return !comparerParserFrise(t).erreur; },
+        module: {
+          libelleSuite: 'Voir la frise',
+          quoi: 'L’assistant vient de dessiner ce que pourrait devenir chaque piste dans le temps.',
+          pourquoi: 'Voir où mène chaque piste aide à choisir en connaissance de cause.',
+          verif: 'regardez que les étapes sont réalistes pour vous : ce sont des repères, pas des promesses.'
+        },
         erreur: function () { return etat.friseErreur; }, effacerErreur: function () { etat.friseErreur = ''; },
         attente: function () { return !etat.frise && !etat.friseSansAssistant; },
         confidentialite: confidPistes
@@ -1693,6 +1728,14 @@ function ouvrirComparerPistes() {
       apl: {
         ecran: 7, suffixe: 'CompApl', web: false, track: 'aller-plus-loin', video: null,
         texte: ecran7TextePrompt, traiter: ecran7TraiterCollage,
+        verifier: function (t) { return !comparerParserAllerPlusLoin(t).erreur; },
+        continuerVisible: true,   // etape facultative, voir « superpo »
+        module: {
+          libelleSuite: 'Afficher ces pistes de réflexion',
+          quoi: 'L’assistant vient de proposer des questions pour aller plus loin sur vos pistes.',
+          pourquoi: 'Ces questions vous aident à préciser vos envies avant de décider.',
+          verif: 'regardez si ces questions vous parlent et gardez celles qui vous aident. Aucune n’est un résultat.'
+        },
         erreur: function () { return etat.pistesReflexionErreur; }, effacerErreur: function () { etat.pistesReflexionErreur = ''; },
         attente: function () { return !etat.pistesReflexion; },
         confidentialite: 'Le texte reprend tout ce qui a été rassemblé sur vos pistes et vos réponses, sans votre nom. Rien n’est envoyé avant votre clic sur un assistant.'
@@ -1704,22 +1747,9 @@ function ouvrirComparerPistes() {
   function envoiIAHTML(id) {
     var cfg = envoiIAConfig(id);
     var phase = envoiIAPhase(id);
-    var nomAssistant = (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-    if (phase === 'chez') {
-      return '<div class="cv-section" data-cp-ecran-chez="' + id + '"><h4>&#128172; Chez ' + echapperAttribut(nomAssistant) + '</h4>' +
-        '<p class="text-muted small mb-2">Le texte est déjà copié. L’onglet s’ouvre tout seul ; <strong>cette page reste ouverte</strong>, c’est ici que vous reviendrez.</p>' +
-        (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') + '</div>';
-    }
     if (phase === 'coller') {
-      var erreurColler = cfg.erreur();
-      return '<div class="cv-section bilan-etape-import-ia"><h4>&#128229; De retour : collez la réponse</h4>' +
-        '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nomAssistant) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
-        (cfg.aideColler || '') +
-        '<div class="bilan-zone-collage">' +
-        (typeof htmlCollageInstantane === 'function'
-          ? htmlCollageInstantane(cfg.suffixe, { messageImportInitial: erreurColler ? '⚠️ ' + erreurColler : '', messageImportInitialErreur: !!erreurColler })
-          : '<textarea class="form-control form-control-sm" rows="6" data-cp-collecte-manuel placeholder="Collez ici la réponse de l’assistant"></textarea>') +
-        '</div></div>';
+      // Fenetre unique « Collez la reponse » en page (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+      return htmlCollageUniquePage(cfg.suffixe);
     }
     // Phase « choix »
     if (!cfg.texte()) {
@@ -1747,7 +1777,7 @@ function ouvrirComparerPistes() {
       (erreurChoix ? '<p class="cp-erreur">&#9888;&#65039; ' + echapperTexte(erreurChoix) + '</p>' : '');
   }
 
-  // Choix d'un assistant : meme fenetre de confirmation que partout ailleurs (le texte est copie), puis on passe « Chez l'assistant ».
+  // Choix d'un assistant : meme fenetre de confirmation que partout ailleurs (le texte est copie), puis on passe a « Coller la reponse » (decompte et apercu de la fenetre).
   function envoiIAPreparerEtEnvoyer(id, assistantId) {
     var cfg = envoiIAConfig(id);
     var assistant = (typeof ASSISTANTS_IA !== 'undefined') ? ASSISTANTS_IA.filter(function (a) { return a.id === assistantId; })[0] : null;
@@ -1758,47 +1788,14 @@ function ouvrirComparerPistes() {
       etapes: (typeof ETAPES_ASSISTANT_IA_TEXTE !== 'undefined') ? ETAPES_ASSISTANT_IA_TEXTE : undefined,
       construireTexteACopier: function () { return cfg.texte() || ''; },
       onApresValidation: function (urlAssistant, nomAssistantValide) {
-        _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistantValide, phase: 'decompte', secondesRestantes: 5 };
-        envoiIADefinirPhase(id, 'chez'); cfg.effacerErreur();
+        _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistantValide, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+        envoiIADefinirPhase(id, 'coller'); cfg.effacerErreur();
         _comparerTrack('comparer_prompt_copie', { type: cfg.track });
         afficherEcran(cfg.ecran);
       }
     });
   }
-  // Etape « Chez l'assistant » : decompte, ouverture de l'onglet, « Je suis de retour » (meme sequence que le Bilan et Les mots de votre CV).
-  function envoiIABrancherChez(id) {
-    var cfg = envoiIAConfig(id);
-    if (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA) { envoiIADefinirPhase(id, 'choix'); afficherEcran(cfg.ecran); return; }
-    if (['decompte', 'bloque', 'ouvert'].indexOf(_etatTransitionIA.phase) === -1) { _etatTransitionIA.phase = 'ouvert'; afficherEcran(cfg.ecran); return; }
-    function ouvrirEnAttente() {
-      if (!document.querySelector('[data-cp-ecran-chez]')) { clearInterval(_comparerIntervalleDecompte); return; }
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fen = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fen ? 'ouvert' : 'bloque';
-        afficherEcran(cfg.ecran);
-      });
-    }
-    if (_etatTransitionIA.phase === 'decompte') {
-      var cont = document.getElementById('btnContinuerMaintenantIA');
-      if (cont) { cont.addEventListener('click', function () { clearInterval(_comparerIntervalleDecompte); ouvrirEnAttente(); }); }
-      clearInterval(_comparerIntervalleDecompte);
-      _comparerIntervalleDecompte = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var c = document.getElementById('compteurDecompteIA');
-        if (c) { c.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_comparerIntervalleDecompte); ouvrirEnAttente(); }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var bl = document.getElementById('btnOuvrirBloqueIA');
-      if (bl) { bl.addEventListener('click', ouvrirEnAttente); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var ret = document.getElementById('btnJeSuisDeRetourIA');
-      if (ret) { ret.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; envoiIADefinirPhase(id, 'coller'); afficherEcran(cfg.ecran); }); }
-      var rouvrir = document.getElementById('btnRouvrirSiteIA');
-      if (rouvrir) { rouvrir.addEventListener('click', ouvrirEnAttente); }
-    }
-  }
-  // Cablage d'un envoi : choix de l'assistant, etape « Chez l'assistant », collage de la reponse.
+  // Cablage d'un envoi : choix de l'assistant, collage de la reponse (avec son decompte).
   function envoiIABrancher(id) {
     var racine = document.getElementById('contenuEcranComparer');
     if (!racine) { return; }
@@ -1806,39 +1803,32 @@ function ouvrirComparerPistes() {
     racine.querySelectorAll('[data-cp-assistant]').forEach(function (el) {
       el.addEventListener('click', function () { envoiIAPreparerEtEnvoyer(id, this.getAttribute('data-cp-assistant')); });
     });
-    if (racine.querySelector('[data-cp-ecran-chez="' + id + '"]')) { envoiIABrancherChez(id); }
-    if (racine.querySelector('#zoneCollageAuto' + cfg.suffixe) && typeof activerCollageInstantane === 'function') {
-      activerCollageInstantane({
-        idZoneAuto: 'zoneCollageAuto' + cfg.suffixe, idZoneApercu: 'zoneApercuCollage' + cfg.suffixe,
-        idTextarea: 'texteCollage' + cfg.suffixe, idBoutonColler: 'btnCollerAuto' + cfg.suffixe
+    if (racine.querySelector('#fcRacine' + cfg.suffixe)) {
+      // « Coller la reponse » lit et verifie (analyseur pur) sans rien garder ; « Continuer » (barre du bas) applique le traitement d'origine.
+      brancherCollageUniquePage({
+        suffixe: cfg.suffixe, idAncre: 'contenuEcranComparer', rerendre: function () { afficherEcran(cfg.ecran); }, evenementBloque: 'comparer_popup_bloque',
+        echecInitial: !!cfg.erreur(), module: cfg.module, continuerVisible: !!cfg.continuerVisible,
+        verifier: function (texte) { return { ok: !!cfg.verifier(texte) }; },
+        onChangerAssistant: function () {
+          clearInterval(_intervalleDecompteIA);
+          if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+          envoiIADefinirPhase(id, 'choix'); cfg.effacerErreur();
+          afficherEcran(cfg.ecran);
+        },
+        onContinuer: function (texte) { cfg.traiter(texte); }
       });
-      var btnImp = document.getElementById('btnImporter' + cfg.suffixe);
-      if (btnImp) {
-        btnImp.addEventListener('click', function () {
-          var ta = document.getElementById('texteCollage' + cfg.suffixe);
-          var v = ta ? ta.value : '';
-          var msg = document.getElementById('messageImport' + cfg.suffixe);
-          if (msg) { msg.textContent = ''; msg.style.color = ''; }
-          if (!v || !v.trim()) {
-            if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ Collez d’abord la réponse de l’assistant.'; }
-            return;
-          }
-          cfg.traiter(v);
-        });
-      }
     }
   }
-  // « Retour » : recule d'une etape de l'envoi en cours (coller -> chez -> choix) avant de quitter l'ecran. Renvoie true si l'ecran a recule.
+  // « Retour » : recule d'une etape de l'envoi en cours (coller -> choix) avant de quitter l'ecran. Renvoie true si l'ecran a recule.
   function envoiIARetourArriere() {
     var id = ENVOI_IA_ECRANS[etat.ecran];
     if (!id) { return false; }
     var cfg = envoiIAConfig(id);
     var phase = envoiIAPhase(id);
-    if (!cfg.attente() || (phase !== 'coller' && phase !== 'chez')) { return false; }
-    clearInterval(_comparerIntervalleDecompte);
-    var avant = (phase === 'coller') ? 'chez' : 'choix';
-    envoiIADefinirPhase(id, avant);
-    if (avant === 'chez' && typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA) { _etatTransitionIA.phase = 'ouvert'; }
+    if (!cfg.attente() || phase !== 'coller') { return false; }
+    clearInterval(_intervalleDecompteIA);
+    if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+    envoiIADefinirPhase(id, 'choix');
     afficherEcran(cfg.ecran);
     return true;
   }
@@ -1888,10 +1878,6 @@ function ouvrirComparerPistes() {
 
     // Choix de l'assistant, etape « Chez l'assistant », puis collage de la reponse (brique commune).
     envoiIABrancher('collecte');
-    var manuel = racine.querySelector('[data-cp-collecte-manuel]');
-    if (manuel) {
-      manuel.addEventListener('change', function () { if (this.value.trim()) { ecran2TraiterCollage(this.value); } });
-    }
     var btnRecommencer = racine.querySelector('[data-cp-collecte-recommencer]');
     if (btnRecommencer) {
       btnRecommencer.addEventListener('click', function () {
@@ -2108,8 +2094,20 @@ function ouvrirComparerPistes() {
           return l.element === dim.element;
         })[0];
         var nb = ligne ? comparerExtraireNombres(ligne.valeur) : null;
+        if (nb && dim.type !== 'texte' && comparerUniteIncoherente(ligne)) { nb = null; }
+        var ajoute = false;
+        // Valeur en mots que l'application n'a pas su placer (« gratuit », « environ trois ans ») : si l'assistant l'a chiffree (ecran « Compléter la comparaison »), on la place.
+        // On ne remplace jamais une valeur deja placee, et on n'invente rien : sans reponse lisible de l'assistant, la valeur reste ecrite en texte.
+        if (ligne && ligne.valeur && !nb && dim.type !== 'texte') {
+          var aff = comparerValeurAffinee(etat.superpositionAffinee, dim.element, p.nom);
+          if (aff) {
+            ligne = { element: ligne.element, valeur: aff.valeur, unite: aff.unite || ligne.unite, portee: aff.portee || ligne.portee,
+              source: (aff.source && aff.source.nom) ? aff.source : ligne.source, date_info: aff.date_info || ligne.date_info };
+            nb = aff.nb; ajoute = true;
+          }
+        }
         return {
-          piste: p, ligne: ligne || null, nb: nb,
+          piste: p, ligne: ligne || null, nb: nb, ajoute: ajoute,
           texte: ligne ? comparerFormaterValeur(ligne) : null
         };
       });
@@ -2154,9 +2152,10 @@ function ouvrirComparerPistes() {
         '<div class="cp-repere-pt" style="background:' + echapperAttribut(v.piste.couleur) + ';"></div>' +
         '<div class="cp-repere-val">' + echapperTexte(v.texte) + '</div></div>';
     }).join('');
+    // Un seul repere : les bornes ne sont que des marges autour de lui (« 11 » et « 13 » pour 12 mois), elles ne disent rien : on ne les affiche pas.
     var track = '<div class="cp-reglette">' +
-      '<div class="cp-grad" style="left:1%"><span>' + Math.round(d.borneMin) + '</span></div>' +
-      '<div class="cp-grad" style="left:99%"><span>' + Math.round(d.borneMax) + '</span></div>' +
+      (d.avecNb < 2 ? '' : '<div class="cp-grad" style="left:1%"><span>' + Math.round(d.borneMin) + '</span></div>' +
+        '<div class="cp-grad" style="left:99%"><span>' + Math.round(d.borneMax) + '</span></div>') +
       reperes + '</div>';
 
     var absentes = d.valeurs.filter(function (v) { return !v.texte; }).map(function (v) { return v.piste.nom; });
@@ -2182,33 +2181,104 @@ function ouvrirComparerPistes() {
       '</div>';
   }
 
+  // Valeurs en mots que l'application n'a pas su placer sur une echelle (« gratuit », « environ trois ans ») : [{ dim, piste, texte }].
+  function ecran5ValeursNonPlacees() {
+    var res = [];
+    ecran5Donnees().forEach(function (d) {
+      if (d.dim.type === 'texte') { return; }
+      d.valeurs.forEach(function (v) { if (v.ligne && v.ligne.valeur && !v.nb) { res.push({ dim: d.dim, piste: v.piste, texte: v.ligne.valeur }); } });
+    });
+    return res;
+  }
+  // Valeurs que l'assistant vient de chiffrer : [{ dim, piste, texte }].
+  function ecran5ValeursAjoutees() {
+    var res = [];
+    ecran5Donnees().forEach(function (d) {
+      d.valeurs.forEach(function (v) { if (v.ajoute) { res.push({ dim: d.dim, piste: v.piste, texte: v.texte }); } });
+    });
+    return res;
+  }
+  function ecran5Etape() { return etat.superpoEtape || 'comparaison'; }
+  // On ne propose de completer qu'une fois, et seulement si le texte a envoyer peut etre prepare.
+  function ecran5PeutProposerAffinage() {
+    return !etat.superpositionAffinee && ecran5ValeursNonPlacees().length > 0 && !!ecran5TextePromptSuperpo();
+  }
+
+  // Etape B (decision) : dit precisement ce qui manque. C'est ICI que la personne decide : le bouton du bas la mene vers l'assistant, « Continuer sans compléter » saute l'etape.
+  function ecran5DecisionHTML() {
+    var manque = ecran5ValeursNonPlacees();
+    var n = manque.length, un = (n === 1);
+    return '<div class="bilan-preparer"><div class="cv-section">' +
+      '<h4>&#128207; ' + (un ? 'Une information à placer sur l’échelle' : n + ' informations à placer sur les échelles') + '</h4>' +
+      '<p class="mb-1">' + (un ? 'Pour cette information, l’application n’a pas trouvé de chiffre à placer :' : 'Pour ces ' + n + ' informations, l’application n’a pas trouvé de chiffre à placer :') + '</p>' +
+      '<ul class="cp-liste-a-placer">' + manque.map(function (m) {
+        return '<li><strong>' + echapperTexte(m.dim.label) + '</strong>, ' + echapperTexte(m.piste.nom) + ' : « ' + echapperTexte(m.texte) + ' »</li>';
+      }).join('') + '</ul>' +
+      '<p class="mb-0">Un assistant peut ' + (un ? 'la transformer en chiffre' : 'les transformer en chiffres') + ' (par exemple « gratuit » devient 0 €). ' +
+      (un ? 'La piste concernée apparaîtra alors sur l’échelle.' : 'Les pistes concernées apparaîtront alors sur les échelles.') +
+      ' Il ne fait aucune recherche : il relit seulement ce qui a déjà été trouvé. Cela demande d’ouvrir un assistant, puis de coller sa réponse ici.</p></div>' +
+      '<div class="cp-info-encart mt-3"><strong>Si vous continuez sans compléter</strong>, rien n’est perdu et rien n’est faux. ' +
+      (un ? 'Cette information reste écrite sous l’échelle, avec sa source. Elle n’a simplement pas de point sur l’échelle : cette ligne se lit un peu moins d’un coup d’œil.'
+          : 'Ces informations restent écrites sous les échelles, avec leur source. Elles n’ont simplement pas de point sur l’échelle : ces lignes se lisent un peu moins d’un coup d’œil.') +
+      ' Si vous avez déjà les informations qu’il vous faut, vous pouvez continuer tranquillement.</div>' +
+      '<div class="text-center mt-3"><button type="button" class="btn btn-outline-primary" id="btnCpSuperpoSansCompleter">Continuer sans compléter</button></div></div>';
+  }
+
+  // Etape « Compléter » : choix de l'assistant, attente chez l'assistant, collage de la reponse (brique commune d'envoi). On n'y arrive que parce que la personne a decide de completer.
+  function ecran5AffinageHTML() {
+    var manque = ecran5ValeursNonPlacees();
+    var rappel = manque.length
+      ? '<p class="preparer-detail" style="margin:0 0 .6rem;">À transformer en chiffres : ' + manque.map(function (m) { return echapperTexte(m.dim.label) + ' (' + echapperTexte(m.piste.nom) + ')'; }).join(' ; ') + '.</p>'
+      : '';
+    return '<div class="bilan-preparer">' + rappel + envoiIAHTML('superpo') + '</div>';
+  }
+
+  // Comparaison completee : ce que l'assistant vient de placer (ou, s'il n'a rien pu placer, une phrase honnete), au-dessus de la comparaison.
+  function ecran5MiseAJourHTML() {
+    var ajoutees = ecran5ValeursAjoutees();
+    var restantes = ecran5ValeursNonPlacees().length;
+    var total = ajoutees.length + restantes;
+    var titre, apres = '';
+    if (!ajoutees.length) {
+      titre = '&#8505;&#65039; L’assistant n’a pas pu placer ' + (total > 1 ? 'ces informations' : 'cette information');
+      apres = '<p class="mb-0">Rien n’est perdu : ' + (total > 1 ? 'elles restent écrites' : 'elle reste écrite') + ' sous ' + (total > 1 ? 'les échelles' : 'l’échelle') + ', avec leur source.</p>';
+    } else if (!restantes) {
+      titre = '&#9989; ' + (total === 1 ? 'L’information est maintenant placée sur l’échelle' : 'Les ' + total + ' informations sont maintenant placées sur les échelles');
+    } else {
+      titre = '&#9989; ' + ajoutees.length + ' information' + (ajoutees.length > 1 ? 's sont maintenant placées' : ' est maintenant placée') + ' sur ' + total;
+      apres = '<p class="mb-0 mt-1">Les autres restent écrites sous les échelles, avec leur source.</p>';
+    }
+    return '<div class="cv-section"><h4>' + titre + '</h4>' +
+      (ajoutees.length ? '<ul class="cp-liste-a-placer mb-0">' + ajoutees.map(function (v) {
+        return '<li><span class="cp-ajoute">Ajouté</span> : ' + echapperTexte(v.dim.label) + ', ' + echapperTexte(v.piste.nom) + ' : ' + echapperTexte(v.texte) + '</li>';
+      }).join('') + '</ul>' : '') + apres + '</div>';
+  }
+
   function ecran5HTML() {
-    var donnees = ecran5Donnees();
+    var etape = ecran5Etape();
     var pistesSuperpo = ecran2PistesReelles().filter(function (p) { return p.etiquette === 'metier' || p.etiquette === 'formation'; });
     if (etat.anglesVus.indexOf('superposition') < 0) { etat.anglesVus.push('superposition'); }
+    if (etape === 'decision') { return ecran5DecisionHTML(); }
+    if (etape === 'affinage') { return ecran5AffinageHTML(); }
 
+    var donnees = ecran5Donnees();
     var corps = ecran5ChoixDimensionsHTML() + (donnees.length
       ? donnees.map(ecran5RegletteHTML).join('')
       : '<p class="preparer-detail">Aucune donnée chiffrée à superposer pour l’instant. Les fiches (écran précédent) gardent le détail.</p>');
 
-    var promptAffine = ecran5TextePromptSuperpo();
-    var affinage = (promptAffine && typeof htmlCollageInstantane === 'function')
-      ? '<details class="bloc-depli mt-3" open><summary><span class="preparer-titre">&#10024; Affiner avec un assistant (optionnel)</span></summary>' +
-        '<div class="bloc-depli-corps">' +
-'<p class="preparer-detail" style="margin-top:0;">L’application a placé ce qu’elle a pu. Pour des questions plus fines ou des valeurs floues, vous pouvez passer ce texte à un assistant (aucune recherche web).</p>' +
-        (etat.superpositionAffinee
-          ? '<p class="small" style="color:var(--success-strong);">&#9989; Réponse prise en compte, merci.</p>' +
-            '<button type="button" class="btn btn-outline-secondary btn-sm" data-cp-superpo-recommencer>Coller une autre réponse</button>'
-          : envoiIAHTML('superpo')) +
-        '</div></details>'
+    // Phrase qui prepare la suite : le bouton du bas continue, il ne demande pas de choisir (la decision se prend sur l'ecran suivant).
+    var nbManque = (etape === 'comparaison' && ecran5PeutProposerAffinage()) ? ecran5ValeursNonPlacees().length : 0;
+    var prepare = nbManque
+      ? '<div class="cp-info-encart"><strong>&#128207; ' + (nbManque === 1 ? 'Une information n’a pas pu être placée sur l’échelle.' : nbManque + ' informations n’ont pas pu être placées sur les échelles.') + '</strong> L’étape suivante vous aide à ' + (nbManque === 1 ? 'la' : 'les') + ' compléter.</div>'
       : '';
 
     return '<div class="bilan-preparer">' +
+      (etape === 'miseajour' ? ecran5MiseAJourHTML() : '') +
       '<p class="text-muted small" style="margin-bottom:.6rem;">Une dimension à la fois, les pistes sur la même échelle, chacune dans sa couleur. Une valeur plus courte, moins chère ou plus élevée n’est pas « meilleure ».</p>' +
       ecranLegendePistes(pistesSuperpo) +
       corps +
       '<div class="cp-info-encart">Les dimensions sans chiffre comparable (activités, conditions de travail, ce que ça implique) ne sont pas superposées : elles restent dans les fiches. Aucun total, aucune note.</div>' +
-      affinage +
+      prepare +
       (etat.formeComparaison === 'mixte'
         ? '<div class="cp-info-encart"><strong>&#128260; Il reste l’autre angle.</strong> Pour savoir si bouger vaut le coup, regardez « dans le temps ».' +
           ' <button type="button" class="btn btn-primary btn-sm" data-cp-angle-vers="6">Regarder « dans le temps » &#8594;</button>' +
@@ -2225,15 +2295,13 @@ function ouvrirComparerPistes() {
     var appariement = comparerApparierDossiers(pistesSuperpo, etat.dossiersCollecte.pistes);
     var dossiersLegers = pistesSuperpo.map(function (p) {
       var d = appariement[p.id];
-      return { nom: p.nom, a_verifier: (d && d.a_verifier) || [] };
-    });
-    var valeurs = {
-      DOSSIERS: JSON.stringify(dossiersLegers, null, 1),
-      COMMUNE: ''
-    };
+      return { nom: p.nom, lignes_a_chiffrer: comparerLignesAChiffrer(d && d.a_verifier) };
+    }).filter(function (p) { return p.lignes_a_chiffrer.length > 0; });
+    if (!dossiersLegers.length) { return null; }
+    var valeurs = { DOSSIERS: JSON.stringify(dossiersLegers, null, 1) };
     return (typeof bilanResoudrePlaceholders === 'function')
       ? bilanResoudrePlaceholders(brut, valeurs).texte
-      : brut.replace(/\{DOSSIERS\}/g, valeurs.DOSSIERS).replace(/\{COMMUNE\}/g, '');
+      : brut.replace(/\{DOSSIERS\}/g, valeurs.DOSSIERS);
   }
 
   function ecran5Brancher() {
@@ -2256,23 +2324,31 @@ function ouvrirComparerPistes() {
       });
     });
     envoiIABrancher('superpo');
-    var rSuperpo = racine.querySelector('[data-cp-superpo-recommencer]');
-    if (rSuperpo) { rSuperpo.addEventListener('click', function () { etat.superpositionAffinee = null; etat.superpositionAffineeErreur = ''; envoiIADefinirPhase('superpo', 'choix'); afficherEcran(5); }); }
+    // « Continuer sans compléter » : on passe a la suite du module ; en revenant, on retrouve cet ecran de decision.
+    var sansCompleter = racine.querySelector('#btnCpSuperpoSansCompleter');
+    if (sansCompleter) { sansCompleter.addEventListener('click', function () { afficherEcran(_ecranSuivant(5)); }); }
   }
 
   function ecran5TraiterAffinage(texte) {
     // TACHE (audit de stabilisation, 2026-09-13, finding 1) : un succes ne donnait auparavant AUCUN retour visible ; le message de confirmation
     // est desormais affiche dans le bloc (« Reponse prise en compte, merci »).
-    try {
-      var t = String(texte); var a = t.indexOf('{'); var b = t.lastIndexOf('}');
-      var obj = _comparerLireJSON(t.slice(a, b + 1), t);
-      if (!obj || !Array.isArray(obj.dimensions)) { throw new Error('format'); }
+    var obj = ecran5LireAffinage(texte);
+    if (obj) {
       etat.superpositionAffinee = obj;
       etat.superpositionAffineeErreur = '';
-    } catch (e) {
+      etat.superpoEtape = 'miseajour';
+    } else {
       etat.superpositionAffineeErreur = 'La réponse n’a pas pu être lue. L’affichage automatique reste valable.';
     }
     afficherEcran(5);
+  }
+  // Lecture pure de la reponse d'affinage (utilisee par la verification de la fenetre de collage ET par le traitement) : l'objet, ou null.
+  function ecran5LireAffinage(texte) {
+    try {
+      var t = String(texte); var a = t.indexOf('{'); var b = t.lastIndexOf('}');
+      var obj = _comparerLireJSON(t.slice(a, b + 1), t);
+      return (obj && Array.isArray(obj.dimensions)) ? obj : null;
+    } catch (e) { return null; }
   }
 
   // ------------------------------------------------------------------
@@ -2703,6 +2779,8 @@ function ouvrirComparerPistes() {
 
   function afficherEcran(ecran) {
     if (typeof ecran !== 'number' || ecran < 0 || ecran > 8) { ecran = etat.ecran || 0; }
+    // On arrive sur la comparaison par l'avant : on repart de la comparaison (A). Depuis l'ecran suivant (retour), on retrouve l'etape ou on l'avait quittee.
+    if (ecran === 5 && etat.ecran < 5) { etat.superpoEtape = 'comparaison'; }
     etat.ecran = ecran;
     _comparerEcranCourant = ecran;
     if (ecran > (etat._ecranMax || 0)) {
@@ -2719,8 +2797,19 @@ function ouvrirComparerPistes() {
     // d'ecran du module : couvre ce cas et tout futur cas similaire.
     _comparerMettreAJourIconePanier();
 
-    var scrollPrecedent = window.scrollY || window.pageYOffset || 0;
-    var titre = COMPARER_TITRES_ECRANS[ecran] || 'Comparer mes pistes';
+    // Un changement d'ecran s'ouvre en haut (D41 de l'audit : l'ecran des etiquettes s'ouvrait defile en bas) ; seul un redessin du MEME ecran garde la position.
+    var scrollPrecedent = (_dernierEcranComparerRendu === ecran) ? (window.scrollY || window.pageYOffset || 0) : 0;
+    _dernierEcranComparerRendu = ecran;
+    var titre = COMPARER_TITRES_ECRANS[ecran] || '';
+    // Collecte : deux sous-étapes (choisir, coller) ne portent plus le même sous-titre.
+    if (ecran === 2 && !etat.collecteSansAssistant && !etat.dossiersCollecte) {
+      titre += ' : ' + ({ coller: 'coller la réponse' }[envoiIAPhase('collecte')] || 'choisir l’assistant');
+    }
+    if (ecran === 5) {
+      var etape5 = ecran5Etape();
+      if (etape5 === 'decision' || etape5 === 'affinage') { titre = 'Compléter la comparaison'; }
+      else if (etape5 === 'miseajour') { titre = 'Comparaison mise à jour'; }
+    }
     var navIndex = _comparerRenduEcran ? _comparerNavIndex(ecran) : -1;
 
     var _cpNoteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_comparerReprisePendante)
@@ -2755,8 +2844,7 @@ function ouvrirComparerPistes() {
         ? barreEtapesModule(COMPARER_NAV_ETAPES, navIndex)
         : '') +
       htmlBandeRepriseModule(_cpBouton, _cpEncart) +
-      '<div class="text-center"><h1>' +
-      '<i class="bi bi-signpost-split"></i> ' + titre + '</h1></div>' +
+      htmlTitreEtapeModule('bi-signpost-split', 'Comparer mes pistes', titre) +
       '<div id="contenuEcranComparer">' + contenuEcran(ecran) + '</div>' +
       '</div>' +
       // Retour Denis 2026-09-30 (C14-b/c) : plus de ligne « Retour / Continuer » dans la page, uniquement la barre du bas commune.
@@ -2764,9 +2852,12 @@ function ouvrirComparerPistes() {
       // dans la barre, grise tant que l'ecran n'est pas complet.
       '<div class="barre-navigation-fixe">' +
       (typeof barreNavigation === 'function'
-        ? barreNavigation('cv', ecran >= 8 ? null : 'comparer-suite', null, {
+        ? barreNavigation('cv', (ecran >= 8 || (ecran === 5 && ecran5Etape() === 'affinage')) ? null : 'comparer-suite',
+          // Etape B : le bouton du bas mene vers l'assistant (version courte sur telephone).
+          (ecran === 5 && ecran5Etape() === 'decision') ? '<span class="lib-intro-long">Compléter avec un assistant &#8594;</span><span class="lib-intro-court">Compléter &#8594;</span>' : null, {
             onclickPrecedent: 'comparerBarreRetour()',
             onclickSuivant: 'comparerBarreContinuer()',
+            terminerParcours: ecran >= 8, onclickTerminer: 'terminerParcoursSansFenetre()',
             suivantDesactive: !ecranPeutContinuer(ecran),
             suivantDesactiveMessage: ecranRaisonBlocage(ecran) || 'Complétez cet écran pour continuer.'
           })
@@ -2803,7 +2894,16 @@ function ouvrirComparerPistes() {
 
     // Les deux actions de la barre du bas (voir comparerBarreRetour / comparerBarreContinuer, plus haut dans ce fichier).
     _comparerActionsBarre.retour = function () {
-      // Ecrans qui envoient un texte a un assistant : « Retour » recule d'abord d'une etape de l'envoi (coller la reponse, puis chez l'assistant) avant de quitter l'ecran.
+      // Ecran 5 : A <- B <- choix de l'assistant ; la comparaison completee revient a A (deja complete, sans nouvelle proposition).
+      if (etat.ecran === 5) {
+        var etapeR = ecran5Etape();
+        if (etapeR === 'affinage') {
+          if (envoiIARetourArriere()) { return; }
+          etat.superpoEtape = 'decision'; afficherEcran(5); return;
+        }
+        if (etapeR === 'decision' || etapeR === 'miseajour') { etat.superpoEtape = 'comparaison'; afficherEcran(5); return; }
+      }
+      // Ecrans qui envoient un texte a un assistant : « Retour » recule d'abord d'une etape de l'envoi (coller la reponse, puis le choix de l'assistant) avant de quitter l'ecran.
       if (envoiIARetourArriere()) { return; }
       if (etat.ecran <= 0) { comparerRetour(); return; }
       afficherEcran(_ecranPrecedent(etat.ecran));
@@ -2811,6 +2911,15 @@ function ouvrirComparerPistes() {
     {
       _comparerActionsBarre.continuer = function () {
         if (!ecranPeutContinuer(etat.ecran) || etat.ecran >= 8) { return; }
+        // Ecran 5 : s'il y a des valeurs a placer, « Continuer » mene d'abord a l'etape B, puis (si la personne le souhaite) au choix de l'assistant.
+        if (etat.ecran === 5) {
+          var etapeC = ecran5Etape();
+          if (etapeC === 'comparaison' && ecran5PeutProposerAffinage()) { etat.superpoEtape = 'decision'; afficherEcran(5); return; }
+          if (etapeC === 'decision') {
+            etat.superpoEtape = 'affinage'; envoiIADefinirPhase('superpo', 'choix'); etat.superpositionAffineeErreur = '';
+            afficherEcran(5); return;
+          }
+        }
         // En quittant l'ecran 0 bis : on fige la forme de comparaison
         // (routage deterministe, corrigeable en revenant).
         if (etat.ecran === 1) {
@@ -2986,6 +3095,30 @@ function comparerExtraireNombres(valeur) {
   return { min: min, max: max };
 }
 
+// Une valeur « 3 ans » sur une echelle en mois (ou « 2 mois » sur une echelle en semaines) ne doit pas devenir 3 ou 2 : tant qu'elle n'est pas convertie,
+// elle compte comme non placee et part chez l'assistant pour etre chiffree (30/10/2026, consigne 31 : defaut trouve en preparant le message d'affinage).
+function comparerUniteIncoherente(ligne) {
+  if (!ligne || ligne.valeur === null || ligne.valeur === undefined) { return false; }
+  var v = String(ligne.valeur).toLowerCase(), u = String(ligne.unite || '').toLowerCase();
+  var an = /(^|[^a-zà-ÿ])(ans?|ann[ée]es?)([^a-zà-ÿ]|$)/.test(v);
+  if (u === 'mois') { return an; }
+  if (u === 'semaines') { return an || /(^|[^a-zà-ÿ])mois([^a-zà-ÿ]|$)/.test(v); }
+  return false;
+}
+
+// Les seules lignes que l'assistant doit chiffrer (ecran « Completer la comparaison ») : une dimension chiffrable, une valeur ecrite en mots (ou dans une
+// autre unite) que l'application n'a pas su placer. Jamais les lignes deja placees, ni les lignes en texte, ni les valeurs absentes.
+function comparerLignesAChiffrer(aVerifier) {
+  var chiffrables = COMPARER_DIMENSIONS_REGLETTE.filter(function (d) { return d.type !== 'texte'; }).map(function (d) { return d.element; });
+  return (Array.isArray(aVerifier) ? aVerifier : []).filter(function (l) {
+    if (!l || chiffrables.indexOf(l.element) === -1) { return false; }
+    if (l.valeur === null || l.valeur === undefined || String(l.valeur).trim() === '' || String(l.valeur) === 'null') { return false; }
+    return !comparerExtraireNombres(l.valeur) || comparerUniteIncoherente(l);
+  }).map(function (l) {
+    return { element: l.element, valeur: l.valeur, unite: l.unite || null, portee: l.portee || null, source: l.source || { nom: null, url: null }, date_info: l.date_info || null };
+  });
+}
+
 // Libelle lisible d'un `element` du bloc "a_verifier".
 var COMPARER_ELEMENT_LABELS = {
   duree_formation: 'Durée de la formation',
@@ -3008,6 +3141,8 @@ var COMPARER_ELEMENT_LABELS = {
 function comparerFormaterValeur(ligne) {
   if (ligne.valeur === null || ligne.valeur === undefined || ligne.valeur === '') { return 'non trouvé'; }
   var v = String(ligne.valeur);
+  // Une valeur en mots (« gratuit », « environ un an ») n'a pas d'unite a recoller : « gratuit € » n'a aucun sens (retour Denis 2026-10-28).
+  if (!/\d/.test(v)) { return v; }
   switch (ligne.unite) {
     case 'mois': return v + (/\bmois\b/.test(v) ? '' : ' mois');
     case 'semaines': return v + (/semaine/.test(v) ? '' : ' semaines');
@@ -3032,19 +3167,61 @@ function comparerTexteSurCouleur(hex) {
 // peut avoir ete legerement reformule par l'assistant). Renvoie une Map
 // { id de piste -> dossier | null }.
 function comparerApparierDossiers(pistes, dossiers) {
-  var norm = (typeof normaliserTexte === 'function') ? normaliserTexte : function (s) { return String(s).toLowerCase().trim(); };
   var res = {};
   var libres = (dossiers || []).slice();
   (pistes || []).forEach(function (p) {
-    var cible = norm(p.nom);
     var idx = -1;
     for (var i = 0; i < libres.length; i++) {
-      var dn = norm(libres[i].nom);
-      if (dn === cible || dn.indexOf(cible) >= 0 || cible.indexOf(dn) >= 0) { idx = i; break; }
+      if (comparerNomsCorrespondent(p.nom, libres[i].nom)) { idx = i; break; }
     }
     res[p.id] = (idx >= 0) ? libres.splice(idx, 1)[0] : null;
   });
   return res;
+}
+
+// Deux noms de piste designent-ils la meme (l'assistant peut en avoir legerement reformule un) ? Une seule regle pour les dossiers et pour l'affinage.
+function comparerNomsCorrespondent(a, b) {
+  var norm = (typeof normaliserTexte === 'function') ? normaliserTexte : function (s) { return String(s).toLowerCase().trim(); };
+  var na = norm(a), nb = norm(b);
+  return na === nb || nb.indexOf(na) >= 0 || na.indexOf(nb) >= 0;
+}
+
+// Reponse d'affinage (prompt « comparer-meme-categorie ») : la valeur chiffree d'une dimension pour une piste, ou null si l'assistant n'a rien de lisible.
+// { nb: { min, max }, valeur, unite, portee, source: { nom, url }, date_info }. Ne sert qu'a combler une valeur que l'application n'avait pas su placer.
+function comparerValeurAffinee(affinage, element, nomPiste) {
+  if (!affinage || !Array.isArray(affinage.dimensions) || !String(nomPiste || '').trim()) { return null; }
+  var dims = affinage.dimensions;
+  for (var i = 0; i < dims.length; i++) {
+    var d = dims[i] || {};
+    if (String(d.dimension || d.element || '').trim() !== element || !Array.isArray(d.valeurs)) { continue; }
+    for (var j = 0; j < d.valeurs.length; j++) {
+      var v = d.valeurs[j] || {};
+      if (!String(v.piste || '').trim() || !comparerNomsCorrespondent(nomPiste, v.piste)) { continue; }
+      var bas = comparerExtraireNombres(v.min), haut = comparerExtraireNombres(v.max);
+      var nb = (bas && haut) ? { min: Math.min(bas.min, haut.min), max: Math.max(bas.max, haut.max) } : comparerExtraireNombres(v.valeur);
+      if (!nb) { return null; }
+      var src = (v.source && typeof v.source === 'object') ? v.source : {};
+      var uniteRep = d.unite || null;
+      var dimRep = COMPARER_DIMENSIONS_REGLETTE.filter(function (x) { return x.element === element; })[0];
+      var uniteAttendue = dimRep && dimRep.unite;
+      // L'assistant a parfois repondu dans l'autre echelle de temps (« 144 » en semaines pour une echelle en mois) : on convertit, 1 mois = 4 semaines.
+      if (uniteRep !== uniteAttendue && ((uniteRep === 'semaines' && uniteAttendue === 'mois') || (uniteRep === 'mois' && uniteAttendue === 'semaines'))) {
+        var f = uniteRep === 'mois' ? 4 : 0.25;
+        nb = { min: Math.round(nb.min * f), max: Math.round(nb.max * f) };
+        uniteRep = uniteAttendue;
+        bas = haut = null;
+      }
+      return {
+        nb: nb,
+        valeur: (bas && haut) ? (nb.min === nb.max ? String(nb.min) : nb.min + ' à ' + nb.max) : (uniteRep === d.unite ? String(v.valeur) : (nb.min === nb.max ? String(nb.min) : nb.min + ' à ' + nb.max)),
+        unite: uniteRep,
+        portee: v.portee || null,
+        source: { nom: src.nom || null, url: src.url || null },
+        date_info: v.date_info || null
+      };
+    }
+  }
+  return null;
 }
 
 // Parser TOLERANT du retour du prompt de collecte. Renvoie
@@ -3390,6 +3567,8 @@ if (typeof module !== 'undefined' && module.exports) {
     COMPARER_BLOC_B: COMPARER_BLOC_B,
     _comparerNavIndex: _comparerNavIndex,
     _comparerTerritoireLibelle: _comparerTerritoireLibelle,
+    comparerLignesAChiffrer: comparerLignesAChiffrer,
+    comparerUniteIncoherente: comparerUniteIncoherente,
     comparerPanierAjouter: comparerPanierAjouter,
     comparerPanierRetirer: comparerPanierRetirer,
     comparerPanierContient: comparerPanierContient,
@@ -3404,6 +3583,8 @@ if (typeof module !== 'undefined' && module.exports) {
     comparerFormaterValeur: comparerFormaterValeur,
     comparerTexteSurCouleur: comparerTexteSurCouleur,
     comparerApparierDossiers: comparerApparierDossiers,
+    comparerNomsCorrespondent: comparerNomsCorrespondent,
+    comparerValeurAffinee: comparerValeurAffinee,
     comparerExtraireNombres: comparerExtraireNombres,
     COMPARER_DIMENSIONS_REGLETTE: COMPARER_DIMENSIONS_REGLETTE,
     comparerRouterForme: comparerRouterForme,

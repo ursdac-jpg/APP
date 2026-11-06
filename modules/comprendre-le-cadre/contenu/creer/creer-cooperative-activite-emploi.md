@@ -7,7 +7,7 @@ tags: [coopérative d'activité et d'emploi, CAE, CAPE, entrepreneur salarié, C
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "coopérative d'activité et d'emploi"
     definition: "Structure qui héberge des entrepreneurs : ils développent leur activité sous le numéro de la coopérative, avec un contrat de travail et un accompagnement."
@@ -24,7 +24,9 @@ sources:
 ce_qui_change_souvent:
   - "La durée du contrat d'appui au projet d'entreprise"
   - "Le taux de la contribution versée à la coopérative"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Service Public (F37875) indique une contribution de 10 % en moyenne du chiffre d'affaires (et non 8 à 15 %), et un contrat Cape de 12 mois renouvelable 2 fois"
+phrase_generale: "La coopérative d'activité et d'emploi permet de tester son activité en devenant entrepreneur salarié au sein d'une coopérative, avec un accompagnement et une protection sociale. Les étapes, les durées et les conditions changent selon les coopératives : contactez-en une ou consultez les sources officielles indiquées plus bas."
 collecte: creer.collecte.md
 ---
 
@@ -36,6 +38,6 @@ D'abord une phase de test, avec un contrat d'appui au projet d'entreprise. Vous 
 
 Ensuite, quand votre activité est suffisante, vous signez un contrat à durée indéterminée avec la coopérative. Vous vous versez un salaire à partir de votre chiffre d'affaires, et vous avez tous les droits d'un salarié : congés payés, assurance chômage, retraite, maladie. Vous devenez ensuite associé de la coopérative.
 
-Le coût : les cotisations sur votre salaire, et une contribution à la coopérative, en général de huit à quinze pour cent de votre chiffre d'affaires, qui paie la comptabilité, l'assurance et l'accompagnement mutualisés.
+Le coût : les cotisations sur votre salaire, et une contribution à la coopérative, en moyenne de dix pour cent de votre chiffre d'affaires, qui paie la comptabilité, l'assurance et l'accompagnement mutualisés.
 
 Cette formule convient à qui veut se lancer sans tout risquer d'un coup. On y entre après une réunion d'information et un entretien. Les coopératives de votre territoire sont dans « Près de chez moi ».

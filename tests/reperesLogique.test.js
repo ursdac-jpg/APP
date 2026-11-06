@@ -12,7 +12,8 @@ const {
 } = require('../modules/reperes/index.js');
 
 test('extraitPourTitre : garde les 4 premiers mots, espaces normalises', () => {
-  assert.equal(_reperesExtraitPourTitre('Un texte assez long pour depasser le titre'), 'Un texte assez long');
+  assert.equal(_reperesExtraitPourTitre('Un texte assez long pour depasser le titre'), 'Un texte assez long …');
+  assert.equal(_reperesExtraitPourTitre('Quatre mots tout juste'), 'Quatre mots tout juste');
   assert.equal(_reperesExtraitPourTitre('  Deux   mots  '), 'Deux mots');
 });
 

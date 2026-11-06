@@ -26,6 +26,31 @@
   --rr-ok-bg: var(--success-bg-subtle);
 }
 
+/* Choix du mode en tete de « Preparer » (consigne 74) : deux cartes, aucune conseillee, avec une petite maquette de CV. */
+.regard-recruteur-parcours .rr-choix-mode { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: 0 0 .3rem; }
+@media (max-width: 640px) { .regard-recruteur-parcours .rr-choix-mode { grid-template-columns: 1fr; } }
+.regard-recruteur-parcours .rr-choix-mode-titre { margin-bottom: .5rem; }
+.regard-recruteur-parcours .rr-carte-mode {
+  display: flex; gap: .8rem; align-items: flex-start; text-align: left; font: inherit;
+  border: 2px solid var(--rr-bord-fort); border-radius: 14px; background: var(--rr-carte); color: var(--rr-texte-fort);
+  padding: .8rem .9rem; cursor: pointer;
+}
+.regard-recruteur-parcours .rr-carte-mode.choisie { border-color: var(--rr-accent); background: var(--rr-accent-bg); }
+.regard-recruteur-parcours .rr-carte-texte { flex: 1 1 auto; min-width: 0; }
+.regard-recruteur-parcours .rr-carte-titre { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.05rem; margin: 0 0 .3rem; }
+.regard-recruteur-parcours .rr-coche {
+  width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 2px solid var(--rr-bord-fort); flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; color: #fff;
+}
+.regard-recruteur-parcours .rr-carte-mode.choisie .rr-coche { background: var(--accent-solide, var(--rr-accent)); border-color: var(--accent-solide, var(--rr-accent)); }
+.regard-recruteur-parcours .rr-carte-obtenez { display: block; font-size: .9rem; color: var(--rr-texte-fort); }
+.regard-recruteur-parcours .rr-mini-cv { flex: 0 0 auto; width: 3.4rem; height: 4.4rem; border-radius: 6px; border: 1.5px solid var(--rr-bord-fort); background: #fff; overflow: hidden; }
+.regard-recruteur-parcours .rr-mini-cv svg { display: block; width: 100%; height: 100%; }
+
+/* « Preparer » : numeros et noms des parties plus grands que le texte de la rubrique « Ce qui se passe ensuite » entre elles (retour Denis 30/10/2026). */
+.regard-recruteur-preparer .rr-bloc > summary { font-size: 1.2rem; gap: .65rem; }
+.regard-recruteur-preparer .rr-bloc > summary .rr-num { width: 2.2rem; height: 2.2rem; font-size: 1.1rem; }
+
 /* Pas de max-width ici : les autres modules de la même famille (ATS,
    Comparer mes pistes...) laissent leur contenu occuper toute la largeur
    utile de la page, sans plafond - corrigé le 2026-09-17 (retour Denis,
@@ -216,13 +241,6 @@
 .regard-recruteur-parcours .rr-repli-imbrique {
   border-top-style: solid; border-color: var(--rr-bord-fort);
   margin-top: .5rem;
-}
-.regard-recruteur-parcours .rr-zone-collage {
-  border: 1px solid var(--rr-accent);
-  border-radius: 12px;
-  padding: 1rem;
-  background: var(--rr-accent-bg);
-  margin: .6rem 0;
 }
 
 /* ---- Impression de la fiche ---- */

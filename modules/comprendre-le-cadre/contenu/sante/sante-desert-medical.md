@@ -7,7 +7,7 @@ tags: [désert médical, médecin traitant, accès aux soins, CPAM, zone sous-do
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "désert médical"
     definition: "Territoire où le nombre de médecins (ou d'un autre professionnel de santé) est nettement plus faible que la moyenne, avec des délais de rendez-vous qui s'allongent."
@@ -24,19 +24,21 @@ voir_aussi_chiffres: "Voir où en est l'accès aux soins ici"
 ce_qui_change_souvent:
   - "Les organisations coordonnées territoriales actives sur le secteur"
   - "Le classement ARS des zones sous-dotées (zones d'intervention prioritaire, zones d'action complémentaire)"
-revisions: []
+revisions:
+  - "2026-11-04 : les pages d'ameli confirment les organisations coordonnées territoriales (téléconsultations), le remboursement réduit hors parcours de soins, l'accès direct au chirurgien-dentiste et au psychiatre pour les 16 à 25 ans ; pour l'ophtalmologue et le gynécologue, la page exige un médecin traitant déclaré (corrigé) ; la gratuité de l'annuaire sans compte et le numéro 3646 n'y figurent pas (retirés)"
+phrase_generale: "Un désert médical n'est pas qu'une question de campagne isolée : certains quartiers de grandes villes sont aussi concernés, et cela ne dit rien de la valeur d'un territoire. Les zones concernées et les mesures d'aide changent régulièrement : pour trouver un professionnel près de chez vous, renseignez-vous auprès de votre caisse d'assurance maladie ou consultez les sources officielles indiquées plus bas."
 collecte: sante.collecte.md
 ---
 
 Un désert médical n'est pas qu'une question de campagne isolée : certains quartiers de grandes villes sont aussi concernés. Il ne s'agit pas d'un jugement sur un territoire, mais d'un simple constat chiffré : moins de professionnels de santé qu'ailleurs pour le même nombre d'habitants, et donc des délais plus longs pour obtenir un rendez-vous.
 
-Ne pas avoir de médecin traitant a une conséquence concrète : le remboursement de vos consultations est réduit si vous consultez un médecin « hors parcours de soins », sauf pour certains professionnels accessibles directement, sans pénalité : l'ophtalmologue, le gynécologue, le chirurgien-dentiste, et le psychiatre pour les 16-25 ans.
+Ne pas avoir de médecin traitant a une conséquence concrète : le remboursement de vos consultations est réduit si vous consultez un médecin « hors parcours de soins », sauf pour certains professionnels accessibles directement : le chirurgien-dentiste, et le psychiatre pour les 16 à 25 ans. Pour l'ophtalmologue et le gynécologue, le remboursement normal suppose d'avoir déclaré un médecin traitant.
 
 Que faire concrètement si vous n'avez pas de médecin traitant :
 
-- **L'Annuaire santé** (service gratuit de l'Assurance maladie, aucun compte à créer) permet de chercher un médecin, un dentiste ou un autre professionnel près de chez vous, et de voir s'il accepte de nouveaux patients.
-- Si aucun médecin n'a de place, une **organisation coordonnée territoriale** peut exister sur votre secteur : un regroupement de professionnels qui s'organise pour répondre plus vite, parfois par téléconsultation en attendant un premier rendez-vous en cabinet.
-- Pour toute question sur vos droits ou votre carte Vitale, la CPAM reste votre interlocuteur (par téléphone au <a href="tel:3646">3646</a>, ou sur ameli.fr).
+- **L'Annuaire santé** (service de l'Assurance maladie) permet de chercher un médecin, un dentiste ou un autre professionnel près de chez vous, et de voir s'il accepte de nouveaux patients.
+- Si aucun médecin n'a de place, une **organisation coordonnée territoriale** peut exister sur votre secteur : un regroupement de professionnels qui s'organise pour répondre plus vite,, notamment par téléconsultation.
+- Pour toute question sur vos droits ou votre carte Vitale, la CPAM reste votre interlocuteur (sur ameli.fr).
 - Si les démarches en ligne sont difficiles, une **maison France Services** peut vous aider gratuitement, sans rendez-vous.
 
 Ce n'est pas à vous de résoudre le manque de médecins sur un territoire : ces démarches servent seulement à trouver la meilleure solution disponible aujourd'hui, en attendant que l'offre de soins s'améliore.

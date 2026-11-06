@@ -13,8 +13,8 @@
    RÉÉCRITURE (harmonisation avec le Parcours Découverte, décidée avec
    Denis) : ce module réutilise désormais les briques déjà partagées
    (ASSISTANTS_SANS_COMPTE_IA, lignePastillesAssistantsIA(),
-   htmlBanniereTransitionIA()/_etatTransitionIA, htmlCollageInstantane(),
-   activerCollageInstantane(), js/app.js) plutôt que sa propre version
+   htmlBanniereTransitionIA()/_etatTransitionIA, htmlCollageUniquePage(),
+   brancherCollageUniquePage(), js/app.js) plutôt que sa propre version
    simplifiée -- même expérience de transition IA que Découverte/Bilan
    CV/Action, y compris le décompte automatique et son repli manuel en
    cas de blocage pop-up (risque assumé consciemment, voir
@@ -164,7 +164,7 @@ function _regardExterieurConstruireCadrage() {
 var _REGARD_EXTERIEUR_PLAFOND_REPERES = 40;
 
 // TACHE (retour utilisateur, 2026-08-26, panneau de sélection) : ids
-// choisis dans _regardExterieurOuvrirSelection() -- `null` tant qu'aucune
+// choisis a l'ecran de selection du deroule en page (_regardExterieurBrancherSelectionParcours()) -- `null` tant qu'aucune
 // sélection n'a encore eu lieu cette session (repli sur tous les
 // Repères). Reste intentionnellement en place entre le 1er et le 2e
 // passage (approfondissement) : on approfondit CE qui a été analysé,
@@ -351,7 +351,7 @@ var _REGARD_EXTERIEUR_SITES_AUTORISES = [
   'https://www.transitionspro-na.fr',
   'https://www.onisep.fr',
   'https://www.afpa.fr',
-  'https://www.greta.fr',
+  'https://www.education.gouv.fr/la-formation-continue-des-adultes-l-education-nationale-3035',
   'https://www.cap-metiers.fr',
   'https://www.1jeune1solution.gouv.fr',
   'https://www.cidj.com',
@@ -359,7 +359,7 @@ var _REGARD_EXTERIEUR_SITES_AUTORISES = [
   'https://www.monparcourshandicap.gouv.fr',
   'https://www.agefiph.fr',
   'https://www.epnak.org',
-  'https://www.service-public.fr',
+  'https://www.service-public.gouv.fr',
   'https://www.mesdroitssociaux.gouv.fr',
   'https://www.caf.fr',
   'https://monenfant.fr',
@@ -375,7 +375,7 @@ var _REGARD_EXTERIEUR_SITES_AUTORISES = [
   'https://www.societe.com',
   'https://www.insee.fr',
   'https://dares.travail-emploi.gouv.fr',
-  'https://www.monsoutienpsy.sante.gouv.fr',
+  'https://www.ameli.fr/assure/remboursements/rembourse/remboursement-seance-psychologue-mon-soutien-psy',
   'https://www.addictions-france.org',
   'https://www.fncidff.info',
   'https://arretonslesviolences.gouv.fr',
@@ -1202,105 +1202,461 @@ function _regardExterieurBrancherBoutonsGarderRepere(racine) {
 }
 
 // ============================================================
-// FLUX : CHOIX DE L'ASSISTANT (briques partagées avec Découverte)
+// DÉROULÉ EN PAGE (01/11/2026) : les trois parcours (1ère analyse, Deuxième Regard, Aller plus loin) ne s’ouvrent plus en fenêtres.
+// Ils se déroulent DANS la page Mes Repères (troisième mode, comme « Mes rapports ») : l’en-tête de Mes Repères reste en haut, ce module dessine
+// la zone dessous (regardExterieurRenduParcours / regardExterieurBrancherParcours, appelées par modules/reperes/index.js) et lui demande de se
+// redessiner par les façades reperesRegard*(). Maquette : docs/MAQUETTE_REGARD_EXTERIEUR_EN_PAGE_2026-11-01.html ; fiche : docs/CHANTIER_REGARD_EXTERIEUR_EN_PAGE_2026-11-01.md.
+// Trois étapes : Préparer (sélection, « Affiner ? », catégories, questions) / Assistant (choix, collage) / Terminé.
+// Briques communes réutilisées telles quelles : barreEtapesModule, htmlChoixAssistantBilanCorps, htmlCollageUniquePage, bouton de la barre du bas (data-barre-bas).
 // ============================================================
 
-// Même disposition que Découverte (docs/CHANTIER_DECOUVERTE_ALIGNEMENT_IA.md) :
-// Sans compte / Compte nécessaire / Ce qui va se passer, en réutilisant
-// ASSISTANTS_SANS_COMPTE_IA et lignePastillesAssistantsIA() (js/app.js,
-// globales depuis ce chantier) -- seul le contenu du stepper et le nom de
-// l'attribut data- changent (data-assistant-regard-exterieur, propre à ce
-// module comme chaque consommateur existant).
-function _regardExterieurRenduChoixAssistant() {
-  return '<p class="text-muted small mb-3">Cliquez sur un assistant ci-dessous. L\'application prépare et copie tout pour vous, puis ouvre l\'assistant : vous n\'avez rien à taper.</p>' +
-    '<div class="regard-exterieur-ligne-assistants">' +
-    '<span class="regard-exterieur-etiquette-assistants">Sans compte</span>' +
-    lignePastillesAssistantsIA(ASSISTANTS_IA.filter(function (a) { return ASSISTANTS_SANS_COMPTE_IA.indexOf(a.id) !== -1; }), '#DCFCE7', '#86E0B0', '#14532D', 'data-assistant-regard-exterieur') +
-    '</div>' +
-    '<div class="regard-exterieur-ligne-assistants">' +
-    '<span class="regard-exterieur-etiquette-assistants">Compte nécessaire</span>' +
-    lignePastillesAssistantsIA(ASSISTANTS_IA.filter(function (a) { return ASSISTANTS_SANS_COMPTE_IA.indexOf(a.id) === -1; }), '#EFF6FF', '#BFDBFE', '#1E3A5F', 'data-assistant-regard-exterieur') +
-    '</div>' +
-    // TACHE (retour utilisateur, 2026-08-25, BUG REEL : "Votre lecture"
-    // retombait seule sur une 2e ligne, ressemblant a un 5e assistant
-    // distinct -- Denis s'y est lui-meme trompe) : etiquette placee sur sa
-    // PROPRE ligne (jamais partagee avec les pastilles, qui lui prenaient
-    // 150px de large a chaque fois) -- les 4 etapes recuperent ainsi toute
-    // la largeur de la fenetre pour tenir sur une seule ligne.
-    '<p class="regard-exterieur-etiquette-etapes">Ce qui va se passer</p>' +
-    '<div class="regard-exterieur-ligne-etapes">' +
-    _REGARD_EXTERIEUR_ETAPES_DETAIL.map(function (e, i) {
-      return '<button type="button" class="regard-exterieur-pastille-etape" data-etape-regard-exterieur="' + i + '" data-detail-regard-exterieur="' + echapperAttribut(e.detail) + '">' +
-        '<span class="regard-exterieur-etape-numero">' + (i + 1) + '</span>' + e.titre + '</button>';
+var _REGARD_EXTERIEUR_PARCOURS_ETAPES = [
+  { label: 'Préparer', icone: '&#128221;' },
+  { label: 'Assistant', icone: '&#128228;&#65039;' },
+  { label: 'Terminé', icone: '&#9989;' }
+];
+
+// null hors déroulé. type : '1ere' | '2e-regard' | 'aller-plus-loin'. ecran : 'selection' | 'affiner' | 'categories' | 'questions' | 'choix' | 'coller' | 'termine'.
+// origine : où revient « Retour » depuis le premier écran ('reperes' ou 'rapports'). pile : écrans déjà vus (pour « Retour »). Jamais sauvegardé avec la session.
+var _regardExterieurParcours = null;
+
+var _REGARD_EXTERIEUR_CLE_QUESTIONS_DR = '_deuxieme-regard';
+
+function _regardExterieurParcoursDemarrer(type, ecran, origine, preparer) {
+  regardExterieurParcoursAbandonner();
+  var p = {
+    id: Date.now(), type: type, ecran: ecran, origine: origine, pile: [],
+    // Un tableau neuf par déroulé : la barre d’étapes retient, par tableau, l’étape la plus loin atteinte.
+    etapes: _REGARD_EXTERIEUR_PARCOURS_ETAPES.map(function (e) { return { label: e.label, icone: e.icone }; }),
+    decoches: [], categoriesCochees: [], categoriesDeveloppees: [], categoriesChoisies: [],
+    questions: [], position: 0, reponses: {}, collecte: null,
+    assistant: null, rapportId: null, resultat: null
+  };
+  _regardExterieurParcours = p;
+  if (typeof preparer === 'function') { preparer(p); }
+  if (typeof reperesRegardOuvrir === 'function') { reperesRegardOuvrir(); }
+}
+
+// Fin de la transition vers l’assistant (décompte, onglet ouvert) : état partagé avec les autres modules, remis à zéro pour ne rien laisser derrière soi.
+function _regardExterieurParcoursNettoyerTransition() {
+  if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
+  if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+}
+
+// Appelée par Mes Repères à chaque arrivée « normale » sur la page, et à la fin d’un déroulé : plus rien n’est en cours.
+function regardExterieurParcoursAbandonner() {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  if (p.assistant) { _regardExterieurParcoursNettoyerTransition(); }
+  _regardExterieurParcours = null;
+}
+
+function _regardExterieurParcoursQuitter() {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  var versRapports = p.origine === 'rapports';
+  regardExterieurParcoursAbandonner();
+  if (typeof reperesRegardFermer === 'function') { reperesRegardFermer(versRapports); }
+}
+
+function _regardExterieurParcoursAller(ecran) {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  p.pile.push(p.ecran);
+  p.ecran = ecran;
+  if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(true); }
+}
+
+// « Retour » de la barre du bas (reperesRetour()) : une question en arrière, sinon l’écran d’avant, sinon la page d’où l’on vient.
+function regardExterieurParcoursPrecedent() {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  if (p.ecran === 'termine') { _regardExterieurParcoursQuitter(); return; }
+  if (p.ecran === 'questions') {
+    _regardExterieurQuestionSauvegarder();
+    if (p.position > 0) {
+      p.position--;
+      if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(true); }
+      return;
+    }
+  }
+  if (p.ecran === 'coller') { _regardExterieurParcoursNettoyerTransition(); }
+  if (!p.pile.length) { _regardExterieurParcoursQuitter(); return; }
+  p.ecran = p.pile.pop();
+  if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(true); }
+}
+
+// Flèche « Précédent » du navigateur (brique B.24) : instantané de l’écran, puis retour à cet écran si le déroulé existe encore.
+function regardExterieurParcoursInstantane() {
+  var p = _regardExterieurParcours;
+  if (!p) { return null; }
+  return { id: p.id, ecran: p.ecran, pile: p.pile.slice(), position: p.position };
+}
+
+function regardExterieurParcoursPeutReprendre(instantane) {
+  var p = _regardExterieurParcours;
+  if (!p || !instantane || instantane.id !== p.id) { return false; }
+  // Une fois le rapport enregistré, on ne revient pas sur le collage (il serait enregistré deux fois).
+  return p.rapportId ? instantane.ecran === 'termine' : instantane.ecran !== 'termine';
+}
+
+function regardExterieurParcoursReprendre(instantane) {
+  if (!regardExterieurParcoursPeutReprendre(instantane)) { return false; }
+  var p = _regardExterieurParcours;
+  if (p.ecran === 'coller' && instantane.ecran !== 'coller') { _regardExterieurParcoursNettoyerTransition(); }
+  p.ecran = instantane.ecran;
+  p.pile = instantane.pile.slice();
+  p.position = instantane.position;
+  return true;
+}
+
+function _regardExterieurParcoursIndexEtape(ecran) {
+  if (ecran === 'choix' || ecran === 'coller') { return 1; }
+  if (ecran === 'termine') { return 2; }
+  return 0;
+}
+
+function _regardExterieurParcoursSousTitre(p) {
+  switch (p.ecran) {
+    case 'selection': return p.type === '1ere' ? 'Quels Repères envoyer ?' : 'Quels Repères pour ce Deuxième Regard ?';
+    case 'affiner': return 'Affiner ce Deuxième Regard ?';
+    case 'categories': return 'Quelles catégories approfondir ?';
+    case 'questions': return 'Quelques questions';
+    case 'choix': return 'Choisir l’assistant';
+    case 'coller': return 'De retour : coller la réponse';
+    default: return 'Terminé';
+  }
+}
+
+function _regardExterieurParcoursCandidats(p) {
+  return p.type === '1ere' ? _regardExterieurReperesNonAnalyses() : _regardExterieurReperesPourDeuxiemeRegard();
+}
+
+// Ce qui change d’un parcours à l’autre : le texte envoyé à l’assistant, la lecture de sa réponse, ce qui est enregistré ensuite.
+function _regardExterieurParcoursConfig(p) {
+  if (p.type === '2e-regard') {
+    return { construireTexte: _regardExterieurConstruirePromptDeuxiemeRegard, analyseur: _regardExterieurAnalyser1erPassage, traiter: _regardExterieurTraiterReponseDeuxiemeRegard, approfondissement: false };
+  }
+  if (p.type === 'aller-plus-loin') {
+    return {
+      construireTexte: function () {
+        var collecte = p.collecte || { parCategorie: {}, questionsGenerales: [] };
+        return _regardExterieurConstruirePromptApprofondissement(p.categoriesChoisies, collecte.parCategorie, collecte.questionsGenerales);
+      },
+      analyseur: _regardExterieurAnalyser2ePassage, traiter: _regardExterieurTraiterReponseApprofondissement, approfondissement: true
+    };
+  }
+  return { construireTexte: _regardExterieurConstruirePrompt, analyseur: _regardExterieurAnalyser1erPassage, traiter: _regardExterieurTraiterReponse1erPassage, approfondissement: false };
+}
+
+// ---- Dessin de la zone (appelée par Mes Repères) ----
+
+function regardExterieurRenduParcours() {
+  var p = _regardExterieurParcours;
+  if (!p) { return ''; }
+  var versRapports = p.origine === 'rapports';
+  var introPreparer = (p.ecran === 'selection' || p.ecran === 'categories')
+    ? '<p class="text-muted small text-center mb-3">Une étape à la fois. Vous pouvez revenir en arrière avec « Retour » : rien n’est envoyé avant la fin.</p>'
+    : '';
+  return '<button type="button" class="btn btn-sm reperes-bouton-rapports mb-3" data-regard-parcours-quitter>&#8592; ' +
+      (versRapports ? 'Retour à Mes rapports' : '<i class="bi bi-bookmark-star"></i> Retour à Mes Repères') + '</button>' +
+    (typeof barreEtapesModule === 'function' ? barreEtapesModule(p.etapes, _regardExterieurParcoursIndexEtape(p.ecran)) : '') +
+    '<div class="text-center mt-3"><h2 class="regard-exterieur-parcours-titre"><span aria-hidden="true">&#128301;</span> Un regard extérieur</h2>' +
+    '<p class="sousTitre mb-2"><strong>' + _regardExterieurParcoursSousTitre(p) + '</strong></p></div>' +
+    introPreparer +
+    '<div id="regardExterieurParcoursContenu">' + _regardExterieurParcoursContenu(p) + '</div>';
+}
+
+function _regardExterieurParcoursContenu(p) {
+  switch (p.ecran) {
+    case 'selection': return _regardExterieurRenduSelection(_regardExterieurParcoursCandidats(p), p.type === '1ere', p.decoches);
+    case 'affiner': return _regardExterieurRenduAffiner();
+    case 'categories': return _regardExterieurRenduCategories(p);
+    case 'questions': return _regardExterieurRenduQuestionParcours(p);
+    case 'choix': return _regardExterieurRenduChoixParcours();
+    case 'coller':
+      // #regardExterieurResultat : seulement pour un message d’erreur de lecture, si jamais le collage vérifié ne pouvait pas être enregistré.
+      return '<div id="regardExterieurZoneCollage">' + htmlCollageUniquePage('RegardExterieur') + '</div><div id="regardExterieurResultat" class="mt-3"></div>';
+    default:
+      return p.resultat
+        ? _regardExterieurRenduConfirmationImport(p.resultat.nombreNettoyes, p.resultat.incertains)
+        : '<p class="text-muted text-center">Enregistrement en cours…</p>';
+  }
+}
+
+function regardExterieurBrancherParcours(racine) {
+  var p = _regardExterieurParcours;
+  if (!p || !racine) { return; }
+  var quitter = racine.querySelector('[data-regard-parcours-quitter]');
+  if (quitter) { quitter.addEventListener('click', _regardExterieurParcoursQuitter); }
+  switch (p.ecran) {
+    case 'selection': _regardExterieurBrancherSelectionParcours(racine, p); break;
+    case 'affiner': _regardExterieurBrancherAffiner(racine, p); break;
+    case 'categories': _regardExterieurBrancherCategories(racine, p); break;
+    case 'questions': _regardExterieurBrancherQuestionParcours(racine, p); break;
+    case 'choix': _regardExterieurBrancherChoixParcours(racine, p); break;
+    case 'coller': _regardExterieurBrancherCollage(p); break;
+    default: _regardExterieurBrancherConfirmationImport(racine);
+  }
+}
+
+// ---- Étape Préparer : « Affiner ? » (Deuxième Regard seulement) ----
+
+function _regardExterieurRenduAffiner() {
+  return '<div class="cv-section text-center">' +
+    '<p class="mb-3">Voulez-vous répondre à quelques questions pour affiner ce Deuxième Regard ? C’est <strong>à compléter</strong> : sans ça, l’assistant relit vos Repères tels quels.</p>' +
+    '<div class="d-flex gap-2 justify-content-center flex-wrap">' +
+    '<button type="button" class="btn btn-outline-secondary" id="regardExterieurAffinerNon">Non, relire tel quel</button>' +
+    '<button type="button" class="btn btn-outline-secondary" id="regardExterieurAffinerOui">Oui, répondre à quelques questions</button>' +
+    '</div></div>';
+}
+
+function _regardExterieurBrancherAffiner(racine, p) {
+  var non = racine.querySelector('#regardExterieurAffinerNon');
+  var oui = racine.querySelector('#regardExterieurAffinerOui');
+  if (non) {
+    non.addEventListener('click', function () {
+      _regardExterieurDRContexte = null;
+      if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_deuxieme_regard_contexte', { repondu: false, nbReponses: 0 }); }
+      _regardExterieurParcoursAller('choix');
+    });
+  }
+  if (oui) {
+    oui.addEventListener('click', function () {
+      p.questions = _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD.map(function (q, i) {
+        return { cle: _REGARD_EXTERIEUR_CLE_QUESTIONS_DR, index: i, q: q, idQuestion: 'dr-' + i };
+      });
+      p.position = 0;
+      p.reponses = {};
+      _regardExterieurParcoursAller('questions');
+    });
+  }
+}
+
+// ---- Étape Préparer : catégories à approfondir (Aller plus loin) ----
+
+// « Développer » affiche le résumé déjà écrit par l’assistant pour la catégorie (ceQuiRessort), pour savoir ce qu’il y a derrière avant de décider ;
+// « Continuer » reste inactif tant qu’aucune catégorie n’est cochée, avec son explication au-dessus du bouton (brique de la barre du bas).
+function _regardExterieurRenduCategories(p) {
+  var disponibles = _regardExterieurCategoriesAvecQuestions(_regardExterieurDerniereAnalyse.vueParCategorie);
+  return '<p class="text-muted small mb-3">Choisissez les catégories pour lesquelles vous voulez avoir plus d’informations. Pour cela, vous êtes invité(e) à répondre à quelques questions supplémentaires par catégorie choisie.</p>' +
+    '<div class="regard-exterieur-choix-categories">' +
+    disponibles.map(function (cat) {
+      var donnees = _regardExterieurDerniereAnalyse.vueParCategorie[cat.cle];
+      var n = donnees.questionsApprofondissement.length;
+      var resume = donnees.ceQuiRessort ? echapperAttribut(donnees.ceQuiRessort) : 'Pas de résumé disponible pour cette catégorie.';
+      var ouvert = p.categoriesDeveloppees.indexOf(cat.cle) !== -1;
+      return '<div class="regard-exterieur-categorie-bloc">' +
+        '<label class="regard-exterieur-categorie-case">' +
+        '<input type="checkbox" value="' + cat.cle + '" class="regard-exterieur-categorie-checkbox"' + (p.categoriesCochees.indexOf(cat.cle) !== -1 ? ' checked' : '') + '>' +
+        '<span>' + cat.icone + ' ' + cat.libelle + ' <span class="text-muted small">(' + n + (n > 1 ? ' questions' : ' question') + ')</span></span>' +
+        '</label>' +
+        '<button type="button" class="btn btn-outline-secondary btn-sm regard-exterieur-btn-developper" data-developper="' + cat.cle + '">' + (ouvert ? 'Réduire &#9650;' : 'Développer &#9660;') + '</button>' +
+        '<div class="regard-exterieur-categorie-resume" data-resume="' + cat.cle + '" style="display:' + (ouvert ? 'block' : 'none') + ';">' + resume + '</div>' +
+        '<p class="small text-muted mt-1 mb-0">En choisissant cette catégorie, vous êtes invité(e) à répondre à des questions supplémentaires.</p>' +
+        '</div>';
     }).join('') +
     '</div>' +
-    '<div id="regardExterieurDetailEtape" class="small text-secondary mt-2" style="display:none;background:var(--bg-subtle);border-radius:8px;padding:0.5rem 0.75rem;"></div>' +
-    '<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2" style="border-top:1px solid var(--border);">' +
-    '<span class="small text-muted">&#128274; Votre nom, adresse et coordonnées ne sont jamais transmis à l\'assistant.</span>' +
-    // TACHE (video de demonstration) : aucune video specifique a Regard
-    // exterieur n'existe encore -- reutilise 'export-ia-texte', deja
-    // generique (comment recuperer/coller une reponse de l’assistant), plutot que de
-    // laisser cet ecran sans aucune demonstration. A remplacer par une
-    // video dediee si une est produite un jour (decision de Denis,
-    // 2026-08-18 : reutiliser l'existant plutot que rien).
-    (typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo('export-ia-texte') : '') +
-    '</div>';
+    '<div class="text-center mt-3" data-barre-bas-zone>' +
+    '<button type="button" class="btn btn-primary" id="regardExterieurContinuerSelection" data-barre-bas="1" data-barre-bas-message="Veuillez choisir parmi les catégories proposées."' +
+    (p.categoriesCochees.length ? '' : ' disabled') + '>Continuer &#8594;</button></div>';
 }
 
-function _regardExterieurChoisirAssistant(onAssistantChoisi) {
-  ouvrirFenetreERIP({
-    // TACHE (retour utilisateur, 2026-08-25) : tete de robot (&#129302;)
-    // remplacee par le telescope -- meme icone que le bouton "Demander un
-    // regard exterieur" qui a ouvert cette fenetre (_regardExterieurRenduBouton()),
-    // coherence visuelle du module + suite du chantier vocabulaire neutre
-    // (voir [[project_chantier_vocabulaire_ia_neutre]]).
-    titre: '&#128301; Choisissez votre assistant',
-    taille: 'large',
-    aideContexte: 'regard-exterieur-choix',
-    contenuHTML: _regardExterieurRenduChoixAssistant()
-  });
-
-  var detailEtape = document.getElementById('regardExterieurDetailEtape');
-  document.querySelectorAll('.regard-exterieur-pastille-etape').forEach(function (el) {
-    el.addEventListener('click', function () {
-      document.querySelectorAll('.regard-exterieur-pastille-etape').forEach(function (b) { b.classList.remove('is-active'); });
-      this.classList.add('is-active');
-      if (detailEtape) { detailEtape.textContent = this.dataset.detailRegardExterieur; detailEtape.style.display = 'block'; }
+function _regardExterieurBrancherCategories(racine, p) {
+  racine.querySelectorAll('[data-developper]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var cle = btn.getAttribute('data-developper');
+      var resume = racine.querySelector('[data-resume="' + cle + '"]');
+      var ouvert = resume.style.display !== 'none';
+      resume.style.display = ouvert ? 'none' : 'block';
+      btn.innerHTML = ouvert ? 'Développer &#9660;' : 'Réduire &#9650;';
+      p.categoriesDeveloppees = p.categoriesDeveloppees.filter(function (c) { return c !== cle; });
+      if (!ouvert) { p.categoriesDeveloppees.push(cle); }
     });
   });
+  var checkboxes = racine.querySelectorAll('.regard-exterieur-categorie-checkbox');
+  var bouton = racine.querySelector('#regardExterieurContinuerSelection');
+  checkboxes.forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      p.categoriesCochees = Array.prototype.filter.call(checkboxes, function (c) { return c.checked; }).map(function (c) { return c.value; });
+      if (bouton) { bouton.disabled = !p.categoriesCochees.length; }
+    });
+  });
+  if (bouton) {
+    bouton.addEventListener('click', function () {
+      if (!p.categoriesCochees.length) { return; }
+      p.categoriesChoisies = p.categoriesCochees.slice();
+      if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_approfondir_categories_choisies', { nombreCategories: p.categoriesChoisies.length }); }
+      p.questions = _regardExterieurConstruireQuestionsAPlat(p.categoriesChoisies);
+      p.position = 0;
+      p.reponses = {};
+      _regardExterieurParcoursAller('questions');
+    });
+  }
+}
 
-  document.querySelectorAll('[data-assistant-regard-exterieur]').forEach(function (bouton) {
+// ---- Étape Préparer : une question à la fois (Deuxième Regard ET Aller plus loin : un seul composant) ----
+// Une question : { cle, idQuestion, q } ; q = { question, choix?, precisionLabel?, reperesCentraux? }. Les réponses vivent dans p.reponses[idQuestion],
+// { choixIndices, precision, texte, reperesCentraux } -- relues telles quelles par _regardExterieurDRCollecter() et _regardExterieurCollecterReponsesQuestions().
+// Les choix se cochent chacun indépendamment (jamais exclusifs) ; « Retour » de la barre du bas recule d’une question.
+
+function _regardExterieurRenduQuestionParcours(p) {
+  var total = p.questions.length;
+  var pos = p.position;
+  var item = p.questions[pos];
+  var q = item.q;
+  var etat = p.reponses[item.idQuestion] || { choixIndices: [], precision: '', texte: '', reperesCentraux: [] };
+  var pourcentage = Math.round(((pos + 1) / total) * 100);
+  var categorie = item.cle === _REGARD_EXTERIEUR_CLE_QUESTIONS_DR
+    ? null
+    : (_REGARD_EXTERIEUR_CATEGORIES.filter(function (c) { return c.cle === item.cle; })[0] || _REGARD_EXTERIEUR_CATEGORIE_QUESTIONS_FIXES);
+  var bloc;
+  if (q.reperesCentraux) {
+    var titres = (_regardExterieurSelectionIds || []).map(function (id) {
+      var t = _regardExterieurDRTitreRepere(id);
+      return t ? { id: id, titre: t } : null;
+    }).filter(function (x) { return x; });
+    bloc = '<p class="small text-muted mb-1">Sélectionnez le ou les Repères (2 au maximum) autour desquels vous voulez que ce regard se concentre. Vous pouvez n’en sélectionner aucun : dans ce cas, tous comptent autant.</p>' +
+      '<div class="regard-exterieur-choix-groupe">' +
+      titres.map(function (r) {
+        var actif = (etat.reperesCentraux || []).indexOf(r.id) !== -1;
+        return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (actif ? ' is-selected' : '') + '" data-repere-central="' + echapperAttribut(r.id) + '">' +
+          (actif ? '&#10003; ' : '') + echapperAttribut(r.titre) + '</button>';
+      }).join('') +
+      '</div>' +
+      '<p class="small text-muted mt-2 mb-1">Précisez ce qui se passe autour de ce sujet (à compléter)</p>' +
+      _regardExterieurRenduAstuceDictee() +
+      '<textarea class="form-control form-control-sm" id="regardExterieurQTexte" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
+  } else if (q.choix && q.choix.length) {
+    bloc = '<div class="regard-exterieur-choix-groupe">' +
+      q.choix.map(function (c, i) {
+        var actif = (etat.choixIndices || []).indexOf(i) !== -1;
+        return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (actif ? ' is-selected' : '') + '" data-choix-index="' + i + '">' +
+          (actif ? '&#10003; ' : '') + echapperAttribut(c) + '</button>';
+      }).join('') +
+      '</div>' +
+      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (à compléter)</p>' +
+      _regardExterieurRenduAstuceDictee() +
+      '<textarea class="form-control form-control-sm" id="regardExterieurQPrecision">' + echapperAttribut(etat.precision) + '</textarea>';
+  } else {
+    bloc = _regardExterieurRenduAstuceDictee() +
+      '<textarea class="form-control form-control-sm" id="regardExterieurQTexte" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
+  }
+  return '<p class="regard-exterieur-compteur-questions">Question ' + (pos + 1) + ' sur ' + total + '</p>' +
+    '<div class="regard-exterieur-barre-progression"><div class="regard-exterieur-barre-progression-remplie" style="width:' + pourcentage + '%;"></div></div>' +
+    (categorie ? '<p class="regard-exterieur-question-categorie">' + categorie.icone + ' ' + categorie.libelle + '</p>' : '') +
+    '<p class="regard-exterieur-question-texte">' + echapperAttribut(q.question) + '</p>' +
+    bloc +
+    '<div class="text-center mt-3" data-barre-bas-zone><button type="button" class="btn btn-primary" id="regardExterieurQuestionSuivante" data-barre-bas="1">' +
+    (pos + 1 < total ? 'Valider et continuer &#8594;' : 'Valider &#8594;') + '</button></div>';
+}
+
+function _regardExterieurQuestionSauvegarder() {
+  var p = _regardExterieurParcours;
+  var racine = document.getElementById('regardExterieurParcoursContenu');
+  if (!p || !racine || p.ecran !== 'questions') { return; }
+  var item = p.questions[p.position];
+  if (!item) { return; }
+  var q = item.q;
+  var etat = { choixIndices: [], precision: '', texte: '', reperesCentraux: [] };
+  var texte = racine.querySelector('#regardExterieurQTexte');
+  var precision = racine.querySelector('#regardExterieurQPrecision');
+  if (q.reperesCentraux) {
+    etat.reperesCentraux = Array.prototype.map.call(racine.querySelectorAll('[data-repere-central].is-selected'),
+      function (b) { return b.getAttribute('data-repere-central'); }).filter(function (x) { return x; });
+    etat.texte = texte ? texte.value : '';
+  } else if (q.choix && q.choix.length) {
+    etat.choixIndices = Array.prototype.map.call(racine.querySelectorAll('[data-choix-index].is-selected'),
+      function (b) { return parseInt(b.getAttribute('data-choix-index'), 10); }).filter(function (n) { return !isNaN(n); });
+    etat.precision = precision ? precision.value : '';
+  } else {
+    etat.texte = texte ? texte.value : '';
+  }
+  p.reponses[item.idQuestion] = etat;
+}
+
+function _regardExterieurBrancherQuestionParcours(racine, p) {
+  racine.querySelectorAll('[data-choix-index]').forEach(function (btn) {
+    btn.addEventListener('click', function () { btn.classList.toggle('is-selected'); });
+  });
+  // Repères centraux du Deuxième Regard : deux au plus.
+  racine.querySelectorAll('[data-repere-central]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!btn.classList.contains('is-selected') && racine.querySelectorAll('[data-repere-central].is-selected').length >= 2) { return; }
+      btn.classList.toggle('is-selected');
+    });
+  });
+  var suivante = racine.querySelector('#regardExterieurQuestionSuivante');
+  if (!suivante) { return; }
+  suivante.addEventListener('click', function () {
+    _regardExterieurQuestionSauvegarder();
+    if (p.position + 1 < p.questions.length) {
+      p.position++;
+      if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(true); }
+      return;
+    }
+    if (p.type === '2e-regard') {
+      _regardExterieurDRContexte = _regardExterieurDRCollecter();
+      if (typeof trackEvenement === 'function') {
+        trackEvenement('regard_exterieur_deuxieme_regard_contexte', {
+          repondu: !!_regardExterieurDRContexte,
+          nbReponses: _regardExterieurDRContexte ? _regardExterieurDRContexte.reponses.length : 0
+        });
+      }
+    } else {
+      p.collecte = _regardExterieurCollecterReponsesQuestions();
+    }
+    _regardExterieurParcoursAller('choix');
+  });
+}
+
+// ---- Étape Assistant : choix (brique commune d’aujourd’hui, comme le Bilan et Regard recruteur) ----
+
+function _regardExterieurRenduChoixParcours() {
+  return '<p class="text-muted small mb-1">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis l’ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, vous n’avez rien à taper.</p>' +
+    htmlChoixAssistantBilanCorps({
+      idErreur: 'regardExterieurErreurChoixIA',
+      attrAssistant: 'data-assistant-regard-exterieur',
+      recapContexte: [],
+      etapes: _REGARD_EXTERIEUR_ETAPES_DETAIL,
+      texteConfidentialite: 'Votre nom, adresse et coordonnées ne sont jamais transmis à l’assistant.'
+    });
+}
+
+function _regardExterieurBrancherChoixParcours(racine, p) {
+  racine.querySelectorAll('[data-assistant-regard-exterieur]').forEach(function (bouton) {
     bouton.addEventListener('click', function () {
       var assistant = ASSISTANTS_IA.filter(function (a) { return a.id === bouton.dataset.assistantRegardExterieur; })[0];
-      if (!assistant) { return; }
-      if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_assistant_choisi', { assistant: assistant.id }); }
-      if (typeof onAssistantChoisi === 'function') { onAssistantChoisi(assistant); }
+      if (assistant) { _regardExterieurParcoursChoisirAssistant(assistant); }
     });
   });
 }
 
-// ============================================================
-// FLUX : TRANSITION (décompte, ouverture, retour, collage)
-// Réutilise _etatTransitionIA / htmlBanniereTransitionIA() (js/app.js,
-// globales) -- MÊME mécanisme que Bilan CV / Action / Découverte, y
-// compris le décompte automatique et son repli manuel en cas de blocage
-// pop-up. Adapté ici à ouvrirFenetreERIP() (modale) plutôt qu'à une
-// étape de wizard ou un accordéon inline : le garde-fou "l'écran est-il
-// toujours affiché ?" vérifie donc la présence de la fenêtre modale,
-// jamais un ancrage de page.
-// ============================================================
-
-var _regardExterieurIntervalleDecompte = null;
-
-function _regardExterieurCopierPuisAttendre(assistant, construireTexte, onReponseTraitee) {
-  var texteACopier = construireTexte();
-  function surCopieTerminee() {
-    _etatTransitionIA = { urlAssistant: assistant.url, nomAssistant: assistant.nom, phase: 'decompte', secondesRestantes: 5 };
-    _regardExterieurOuvrirAttente(onReponseTraitee);
+// Copie D’ABORD le texte à envoyer, ouvre ENSUITE l’assistant (window.open déplace le focus et peut faire échouer une copie encore en cours) :
+// l’ouverture se fait depuis l’écran de collage, après le décompte (brancherCollageUniquePage). Le texte est gardé dans _dernierTexteCopieAssistantIA
+// pour que « Rouvrir l’assistant » le recopie.
+function _regardExterieurParcoursChoisirAssistant(assistant) {
+  var p = _regardExterieurParcours;
+  if (!p || p.ecran !== 'choix') { return; }
+  _regardExterieurDernierAssistant = assistant;
+  p.assistant = assistant;
+  if (typeof trackEvenement === 'function') {
+    trackEvenement('regard_exterieur_assistant_choisi', { assistant: assistant.id });
+    if (p.type === 'aller-plus-loin' && p.collecte) {
+      var parCategorie = p.collecte.parCategorie || {};
+      trackEvenement('regard_exterieur_approfondir_reponses_envoyees', {
+        nombreReponses: Object.keys(parCategorie).reduce(function (acc, cle) { return acc + parCategorie[cle].length; }, 0),
+        nombreReponsesGenerales: (p.collecte.questionsGenerales || []).length
+      });
+    }
   }
-  // TACHE (meme bug deja trouve et corrige ailleurs dans ERIP -- voir
-  // decouverteParcours.js) : window.open() ne doit jamais partir avant
-  // que la copie soit reellement terminee.
+  var texteACopier = _regardExterieurParcoursConfig(p).construireTexte();
+  _dernierTexteCopieAssistantIA = texteACopier;
+  function surCopieTerminee() {
+    if (_regardExterieurParcours !== p || p.ecran !== 'choix') { return; }
+    _etatTransitionIA = { urlAssistant: assistant.url, nomAssistant: assistant.nom, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+    _regardExterieurParcoursAller('coller');
+  }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(texteACopier).then(surCopieTerminee).catch(function () {
       var z = document.createElement('textarea');
@@ -1316,146 +1672,49 @@ function _regardExterieurCopierPuisAttendre(assistant, construireTexte, onRepons
   }
 }
 
-function _regardExterieurOuvrirAttente(onReponseTraitee) {
-  var nomEchappe = echapperAttribut(_etatTransitionIA.nomAssistant);
-  var fenetre = ouvrirFenetreERIP({
-    titre: '&#128270; Collez la réponse',
-    aideContexte: 'regard-exterieur-resultat',
-    contenuHTML:
-      // TACHE (retour utilisateur, 2026-08-26, "une fois importé, replier
-      // toute cette partie") : tout ce qui précède #regardExterieurResultat
-      // vit désormais dans ce conteneur unique -- masqué d'un coup dès que
-      // l'import réussit (_regardExterieurReplierZoneCollage()), pour que
-      // plus rien d'ici ne soit cliquable ni visible une fois la partie
-      // complexe terminée. Reste affiché si l'import échoue (la personne
-      // doit pouvoir réessayer).
-      '<div id="regardExterieurZoneCollageComplete">' +
-      '<p class="text-muted small mb-2">Vous revenez de <strong>' + nomEchappe + '</strong>. Une fois sa réponse copiée, collez-la ci-dessous.</p>' +
-      htmlBanniereTransitionIA() +
-      htmlCollageInstantane('RegardExterieur',
-        '<div class="d-flex gap-2 mb-2 mt-2 justify-content-center">' +
-        '<button type="button" id="btnImporterRegardExterieur" class="bouton-incitation-action regard-exterieur-btn-importer">&#128229; Importer</button>' +
-        '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerRegardExterieur">Effacer et recoller</button>' +
-        '</div>') +
-      '<div id="regardExterieurAttenteMorceaux" class="regard-exterieur-attente-morceaux" style="display:none;">' +
-      '&#8987; En attente du message complet. N\'oubliez pas de cliquer sur « Continuer » une fois tous les morceaux collés.' +
-      '</div>' +
-      '<div id="regardExterieurMessageImport" class="mt-2 small"></div>' +
-      '</div>' +
-      '<div id="regardExterieurResultat" class="mt-3"></div>'
-  });
+// ---- Étape Assistant : collage (brique commune « fenêtre unique de collage », « Continuer » dans la barre du bas) ----
+// « Coller la réponse » lit et vérifie (analyseur pur) sans rien enregistrer ; l’enregistrement du rapport et le marquage des Repères ont lieu au clic
+// sur « Enregistrer l’analyse » : on appelle alors le traitement d’origine, qui passe à l’écran « Terminé ».
 
-  var dernierModeCollage = 'auto';
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoRegardExterieur',
-    idZoneApercu: 'zoneApercuCollageRegardExterieur',
-    idTextarea: 'texteCollageRegardExterieur',
-    idBoutonColler: 'btnCollerAutoRegardExterieur',
-    idBoutonCollerManuel: 'btnCollerManuelRegardExterieur',
-    idBoutonEffacerRecoller: 'btnEffacerRecollerRegardExterieur',
-    onCollerManuel: function () { dernierModeCollage = 'manuel'; },
-    // TACHE (retour utilisateur, 2026-08-26, "morceau supplémentaire, ne
-    // pas oublier de valider") : `estAjout` (déjà fourni par
-    // activerCollageInstantane(), js/app.js) dit si CE collage vient du
-    // bouton "Coller un morceau supplémentaire" -- dans ce cas seulement,
-    // un bandeau jaune rappelle qu'il reste à cliquer "Importer" une fois
-    // tous les morceaux collés. Disparaît de lui-même dès l'import
-    // (réussi ou non), jamais laissé affiché après coup.
-    onSucces: function (texte, estAjout) {
-      dernierModeCollage = 'auto';
-      var attente = document.getElementById('regardExterieurAttenteMorceaux');
-      if (attente) { attente.style.display = estAjout ? 'block' : 'none'; }
+function _regardExterieurBrancherCollage(p) {
+  var cfg = _regardExterieurParcoursConfig(p);
+  brancherCollageUniquePage({
+    suffixe: 'RegardExterieur', idAncre: 'regardExterieurZoneCollage', evenementBloque: 'regard_exterieur_popup_bloque',
+    rerendre: function () { if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(false); } },
+    module: {
+      libelleSuite: 'Enregistrer l’analyse',
+      quoi: cfg.approfondissement
+        ? 'L’assistant vient d’approfondir ce que vous avez écrit, à partir de vos réponses aux questions supplémentaires.'
+        : 'L’assistant vient de relire vos Repères : il en dégage ce qui revient, ce qui a évolué et des questions à se poser.',
+      pourquoi: cfg.approfondissement
+        ? 'Vos réponses rendent l’éclairage plus proche de votre situation.'
+        : 'Prendre du recul sur ce que vous avez écrit aide à mieux voir où vous en êtes.',
+      verif: 'regardez que ses remarques correspondent bien à ce que vous avez écrit. C’est un éclairage, jamais un jugement sur vous : gardez ce qui vous parle.'
     },
-    onErreur: function (texteErreur) {
-      var msg = document.getElementById('regardExterieurMessageImport');
-      if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ ' + texteErreur; }
-      if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_erreur_collage'); }
-    }
+    verifier: function (texte) { return { ok: !!cfg.analyseur(texte) }; },
+    onChangerAssistant: regardExterieurParcoursPrecedent,
+    onContinuer: function (texte) { cfg.traiter(texte, 'auto'); }
   });
+}
 
-  var boutonImporter = document.getElementById('btnImporterRegardExterieur');
-  if (boutonImporter) {
-    boutonImporter.addEventListener('click', function () {
-      var texteArea = document.getElementById('texteCollageRegardExterieur');
-      if (texteArea && texteArea.value.trim()) { onReponseTraitee(texteArea.value, dernierModeCollage); }
-    });
-  }
+// ---- Étape Terminé ----
 
-  // ---- Décompte / ouverture / repli manuel (même patron que
-  // decouverteParcours.js, ouvrirAssistantDecouverteEnAttente()) ----
-  var btnCollerAutoRegardExterieur = document.getElementById('btnCollerAutoRegardExterieur');
-  var texteBtnCollerAuto = document.getElementById('texteBtnCollerAutoRegardExterieur');
+// Appelée par les trois traitements de réponse AVANT de toucher aux Repères : chacun de leurs rafraîchissements (nettoyage, marquage) redessine alors
+// l’écran « Terminé » (provisoire, sans collage) et non le collage en cours de lecture.
+function _regardExterieurParcoursEntrerTraitement() {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  p.ecran = 'termine';
+  p.resultat = null;
+}
 
-  // TACHE (bug reel trouve en verification navigateur) : ne verifier QUE
-  // la presence dans le DOM, jamais la classe CSS 'visible' -- celle-ci
-  // n'est ajoutee qu'au prochain requestAnimationFrame apres l'ouverture
-  // (ouvrirFenetreERIP(), js/app.js), pas garanti synchrone selon le
-  // contexte de rendu. Meme garde-fou que Decouverte/Bilan CV
-  // (document.body.contains(...) seul, jamais de verification de classe
-  // -- voir decouverteParcours.js, ouvrirAssistantDecouverteEnAttente()).
-  function fenetreEncoreAffichee() {
-    return document.body.contains(fenetre);
-  }
-
-  if (_etatTransitionIA.phase === 'revenu') {
-    if (btnCollerAutoRegardExterieur) {
-      btnCollerAutoRegardExterieur.disabled = false;
-      btnCollerAutoRegardExterieur.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-      btnCollerAutoRegardExterieur.classList.add('pulse-collage-retour');
-    }
-    if (texteBtnCollerAuto) { texteBtnCollerAuto.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-  } else {
-    if (btnCollerAutoRegardExterieur) {
-      btnCollerAutoRegardExterieur.disabled = true;
-      btnCollerAutoRegardExterieur.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-      btnCollerAutoRegardExterieur.classList.add('rond-collage-desactive');
-    }
-    if (texteBtnCollerAuto) { texteBtnCollerAuto.textContent = 'Ce bouton s\'activera à votre retour.'; }
-
-    function ouvrirAssistantRegardExterieurEnAttente() {
-      if (!fenetreEncoreAffichee()) { clearInterval(_regardExterieurIntervalleDecompte); return; }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_popup_bloque'); }
-        _regardExterieurOuvrirAttente(onReponseTraitee);
-      });
-    }
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnContinuerMaintenantIA = document.getElementById('btnContinuerMaintenantIA');
-      if (btnContinuerMaintenantIA) {
-        btnContinuerMaintenantIA.addEventListener('click', function () {
-          clearInterval(_regardExterieurIntervalleDecompte);
-          ouvrirAssistantRegardExterieurEnAttente();
-        });
-      }
-      _regardExterieurIntervalleDecompte = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteurDecompteIA = document.getElementById('compteurDecompteIA');
-        if (compteurDecompteIA) { compteurDecompteIA.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) {
-          clearInterval(_regardExterieurIntervalleDecompte);
-          ouvrirAssistantRegardExterieurEnAttente();
-        }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnOuvrirBloqueIA = document.getElementById('btnOuvrirBloqueIA');
-      if (btnOuvrirBloqueIA) {
-        btnOuvrirBloqueIA.addEventListener('click', function () { ouvrirAssistantRegardExterieurEnAttente(); });
-      }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnJeSuisDeRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnJeSuisDeRetourIA) {
-        btnJeSuisDeRetourIA.addEventListener('click', function () {
-          _etatTransitionIA.phase = 'revenu';
-          _regardExterieurOuvrirAttente(onReponseTraitee);
-        });
-      }
-    }
-  }
+function _regardExterieurParcoursTerminer(rapport, nombreNettoyes, incertains) {
+  var p = _regardExterieurParcours;
+  if (!p) { return; }
+  p.rapportId = rapport ? rapport.id : null;
+  p.resultat = { nombreNettoyes: nombreNettoyes || 0, incertains: incertains || [] };
+  _regardExterieurParcoursNettoyerTransition();
+  if (typeof reperesRegardRafraichir === 'function') { reperesRegardRafraichir(true); }
 }
 
 // ============================================================
@@ -1573,22 +1832,23 @@ var _regardExterieurAnalyseDejaVue = false;
 // optionnel (defaut true) -- un Repere DEJA analyse reste en lecture seule
 // dans ce panneau (coherent avec la regle deja en place partout ailleurs :
 // "Repere analyse = non modifiable"), jamais de bouton Modifier affiche
-// pour cet usage precis (voir _regardExterieurOuvrirSelectionDeuxiemeRegard()).
-function _regardExterieurRenduSelection(candidats, avecModifier) {
+// pour cet usage precis (voir regardExterieurLancerDeuxiemeRegard()).
+function _regardExterieurRenduSelection(candidats, avecModifier, decoches) {
   var modifier = avecModifier !== false;
   return '<p class="text-muted small mb-3">Choisissez les Repères à envoyer pour ce Regard Extérieur - tous sont cochés par défaut, décochez ceux que vous préférez garder pour plus tard.</p>' +
     '<div class="regard-exterieur-selection-liste">' +
     candidats.map(function (r) {
       var idCase = 'regardExterieurSelCase' + r.id;
       return '<div class="regard-exterieur-selection-item" data-regard-selection-item="' + r.id + '">' +
-        '<input type="checkbox" id="' + idCase + '" class="regard-exterieur-selection-checkbox" value="' + r.id + '" checked>' +
+        '<input type="checkbox" id="' + idCase + '" class="regard-exterieur-selection-checkbox" value="' + r.id + '"' + ((decoches || []).indexOf(r.id) === -1 ? ' checked' : '') + '>' +
         _regardExterieurRenduContenuSelectionHTML(r) +
         (modifier ? '<button type="button" class="btn btn-outline-secondary btn-sm regard-exterieur-selection-modifier" data-regard-modifier="' + r.id + '">Modifier</button>' : '') +
         '</div>';
     }).join('') +
     '</div>' +
-    '<div class="text-center mt-3">' +
-    '<button type="button" class="btn btn-primary" id="regardExterieurSelectionEnvoiContinuer">Continuer &#8594;</button>' +
+    // « Continuer » vit dans la barre du bas (brique data-barre-bas) ; la phrase qui explique pourquoi il est grisé est tenue à jour par _regardExterieurMettreAJourBoutonContinuer().
+    '<div class="text-center mt-3" data-barre-bas-zone>' +
+    '<button type="button" class="btn btn-primary" id="regardExterieurSelectionEnvoiContinuer" data-barre-bas="1">Continuer &#8594;</button>' +
     '</div>';
 }
 
@@ -1770,30 +2030,32 @@ function _regardExterieurMettreAJourBoutonContinuer() {
   var auMoinsUneCochee = document.querySelectorAll('.regard-exterieur-selection-checkbox:checked').length > 0;
   var enEdition = document.querySelector('.regard-exterieur-selection-item.is-editing') !== null;
   boutonContinuer.disabled = !auMoinsUneCochee || enEdition;
+  boutonContinuer.setAttribute('data-barre-bas-message', enEdition ? 'Terminez la modification du Repère pour continuer.' : 'Choisissez au moins un Repère pour continuer.');
 }
 
-// TACHE (chantier "Phase B") : généralisée pour servir aussi bien le 1er
-// envoi (candidats = non analysés, avecModifier = true) que "Demander un
-// deuxième regard" (candidats = déjà analysés, avecModifier = false) --
-// même panneau, mêmes réglages fins, jamais une 2e implémentation.
-function _regardExterieurOuvrirSelection(candidats, titreFenetre, avecModifier, onValide) {
-  ouvrirFenetreERIP({
-    titre: titreFenetre,
-    taille: 'large',
-    aideContexte: 'regard-exterieur-selection',
-    contenuHTML: _regardExterieurRenduSelection(candidats, avecModifier)
-  });
-  _regardExterieurBrancherSelectionModifier(document);
-  var checkboxes = document.querySelectorAll('.regard-exterieur-selection-checkbox');
-  var boutonContinuer = document.getElementById('regardExterieurSelectionEnvoiContinuer');
+// TACHE (chantier "Phase B") : sert aussi bien le 1er envoi (candidats = non analysés, avecModifier = true) que "Demander un deuxième regard"
+// (candidats = déjà analysés, avecModifier = false) -- même écran, mêmes réglages fins, jamais une 2e implémentation. Dessiné par
+// _regardExterieurRenduSelection() dans le déroulé en page ; "Continuer" est dans la barre du bas.
+function _regardExterieurBrancherSelectionParcours(racine, p) {
+  var candidats = _regardExterieurParcoursCandidats(p);
+  _regardExterieurBrancherSelectionModifier(racine);
+  var checkboxes = racine.querySelectorAll('.regard-exterieur-selection-checkbox');
+  var boutonContinuer = racine.querySelector('#regardExterieurSelectionEnvoiContinuer');
   checkboxes.forEach(function (cb) {
-    cb.addEventListener('change', _regardExterieurMettreAJourBoutonContinuer);
+    cb.addEventListener('change', function () {
+      // Décochées par la personne (jamais les cases grisées d'office d'un Repère vide) : gardées si la page est redessinée.
+      p.decoches = Array.prototype.filter.call(checkboxes, function (c) { return !c.checked && !c.disabled; }).map(function (c) { return c.value; });
+      _regardExterieurMettreAJourBoutonContinuer();
+    });
   });
-  // Garde-fou "Repère vide" : état initial de chaque item (case décochée +
-  // désactivée + invite pour ceux qui n'ont qu'un titre).
-  document.querySelectorAll('.regard-exterieur-selection-item').forEach(function (item) {
+  // Garde-fou "Repère vide" : état initial de chaque item (case décochée + désactivée + invite pour ceux qui n'ont qu'un titre).
+  racine.querySelectorAll('.regard-exterieur-selection-item').forEach(function (item) {
     var id = item.getAttribute('data-regard-selection-item');
-    _regardExterieurSyncSelectionItemVide(item, (candidats || []).filter(function (x) { return x.id === id; })[0]);
+    _regardExterieurSyncSelectionItemVide(item, candidats.filter(function (x) { return x.id === id; })[0]);
+  });
+  p.decoches.forEach(function (id) {
+    var cb = racine.querySelector('.regard-exterieur-selection-checkbox[value="' + id + '"]');
+    if (cb && !cb.disabled) { cb.checked = false; }
   });
   _regardExterieurMettreAJourBoutonContinuer();
   if (boutonContinuer) {
@@ -1801,8 +2063,13 @@ function _regardExterieurOuvrirSelection(candidats, titreFenetre, avecModifier, 
       var idsChoisis = Array.prototype.filter.call(checkboxes, function (c) { return c.checked; }).map(function (c) { return c.value; });
       if (!idsChoisis.length) { return; }
       if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_selection_reperes', { nombreChoisis: idsChoisis.length, nombreDisponibles: candidats.length }); }
-      fermerFenetreERIP();
-      onValide(idsChoisis);
+      _regardExterieurSelectionIds = idsChoisis;
+      if (p.type === '1ere') {
+        _regardExterieurParcoursAller('choix');
+      } else {
+        _regardExterieurDRContexte = null;
+        _regardExterieurParcoursAller('affiner');
+      }
     });
   }
 }
@@ -1810,13 +2077,7 @@ function _regardExterieurOuvrirSelection(candidats, titreFenetre, avecModifier, 
 function _regardExterieurLancer() {
   _regardExterieurHorodatageOuverture = Date.now();
   if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_ouvert'); }
-  _regardExterieurOuvrirSelection(_regardExterieurReperesNonAnalyses(), '&#128301; Quels Repères envoyer ?', true, function (idsChoisis) {
-    _regardExterieurSelectionIds = idsChoisis;
-    _regardExterieurChoisirAssistant(function (assistant) {
-      _regardExterieurDernierAssistant = assistant;
-      _regardExterieurCopierPuisAttendre(assistant, _regardExterieurConstruirePrompt, _regardExterieurTraiterReponse1erPassage);
-    });
-  });
+  _regardExterieurParcoursDemarrer('1ere', 'selection', 'reperes');
 }
 
 // ============================================================
@@ -1840,9 +2101,8 @@ function _regardExterieurReperesPourDeuxiemeRegard() {
 // actuel (un clic, rapide). Oui = 5 questions orientées faits, dont les
 // réponses enrichissent _regardExterieurConstruireCadrageDeuxiemeRegard().
 // Flux léger DÉDIÉ : réutilise les gabarits de rendu de « Aller plus
-// loin » (compteur, barre, choix-btn, astuce dictée) mais jamais son état
-// (_regardExterieurQuestionsAPlat est couplé aux catégories de Repère, et
-// la Q1 « Repères centraux » ne rentre pas dans le modèle `choix`).
+// loin » (compteur, barre, choix-btn, astuce dictée), désormais via l'écran
+// de questions unique du déroulé en page (_regardExterieurRenduQuestionParcours()).
 // Design validé avec Denis le 2026-08-28 (voir docs/TACHES_VALIDEES.md).
 // ============================================================
 
@@ -1861,9 +2121,8 @@ var _REGARD_EXTERIEUR_CADRAGE_DR_CONTEXTE_INTRO =
 var _REGARD_EXTERIEUR_CADRAGE_DR_QUIVOIR =
   'Si l\'une de ces réponses nomme clairement une structure de suivi (France Travail, Mission Locale, Cap Emploi, PLIE, ou une autre nommée par la personne), remplis le champ `quiVoirPersonnalise` du format JSON (une phrase courte qui la nomme) ; sinon laisse-le vide, ne devine jamais.';
 
-// État du flux 5 questions (remis à zéro à chaque lancement).
-// reponses : { <index> : { choixIndices:[], precision:'', texte:'', reperesCentraux:[] } }
-var _regardExterieurDR = { position: 0, reponses: {} };
+// Les 5 questions sont posées par le composant commun du déroulé (voir _regardExterieurRenduQuestionParcours()) ; leurs réponses vivent dans
+// _regardExterieurParcours.reponses['dr-<index>'].
 // Contexte collecté à la fin du flux, lu par le cadrage. `null` si « Non »
 // ou aucune réponse donnée.
 var _regardExterieurDRContexte = null;
@@ -1909,141 +2168,6 @@ function _regardExterieurDRTitreRepere(id) {
   return r ? (r.titre || r.source || 'Réflexion personnelle') : null;
 }
 
-function _regardExterieurDROptIn(onNon, onOui) {
-  ouvrirFenetreERIP({
-    titre: '&#128300; Deuxième Regard',
-    aideContexte: 'regard-exterieur-deuxieme-regard-optin',
-    contenuHTML:
-      '<p class="mb-3">Voulez-vous répondre à quelques questions pour affiner ce Deuxième Regard ? C\'est <strong>à compléter</strong> : sans ça, l\'assistant relit vos Repères tels quels.</p>' +
-      '<div class="d-flex gap-2 justify-content-center flex-wrap">' +
-      '<button type="button" class="btn btn-outline-secondary" id="regardExterieurDROptInNon">Non, relire tel quel</button>' +
-      '<button type="button" class="btn btn-outline-secondary" id="regardExterieurDROptInOui">Oui, répondre à quelques questions</button>' +
-      '</div>'
-  });
-  var bNon = document.getElementById('regardExterieurDROptInNon');
-  var bOui = document.getElementById('regardExterieurDROptInOui');
-  if (bNon) { bNon.addEventListener('click', function () { fermerFenetreERIP(); onNon(); }); }
-  if (bOui) { bOui.addEventListener('click', function () { onOui(); }); }
-}
-
-function _regardExterieurDRRendreQuestion() {
-  var total = _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD.length;
-  var pos = _regardExterieurDR.position;
-  var q = _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD[pos];
-  var etat = _regardExterieurDR.reponses[pos] || { choixIndices: [], precision: '', texte: '', reperesCentraux: [] };
-  var pourcentage = Math.round(((pos + 1) / total) * 100);
-
-  var bloc;
-  if (q.reperesCentraux) {
-    var titres = (_regardExterieurSelectionIds || []).map(function (id) {
-      var t = _regardExterieurDRTitreRepere(id);
-      return t ? { id: id, titre: t } : null;
-    }).filter(function (x) { return x; });
-    bloc = '<p class="small text-muted mb-1">Sélectionnez le ou les Repères (2 au maximum) autour desquels vous voulez que ce regard se concentre. Vous pouvez n\'en sélectionner aucun : dans ce cas, tous comptent autant.</p>' +
-      '<div class="regard-exterieur-choix-groupe">' +
-      titres.map(function (r) {
-        var actif = (etat.reperesCentraux || []).indexOf(r.id) !== -1;
-        return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (actif ? ' is-selected' : '') + '" data-repere-central="' + echapperAttribut(r.id) + '">' +
-          (actif ? '&#10003; ' : '') + echapperAttribut(r.titre) + '</button>';
-      }).join('') +
-      '</div>' +
-      '<p class="small text-muted mt-2 mb-1">Précisez ce qui se passe autour de ce sujet (à compléter)</p>' +
-      _regardExterieurRenduAstuceDictee() +
-      '<textarea class="form-control form-control-sm" id="regardExterieurDRTexte" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
-  } else if (q.choix && q.choix.length) {
-    bloc = '<div class="regard-exterieur-choix-groupe">' +
-      q.choix.map(function (c, i) {
-        var actif = (etat.choixIndices || []).indexOf(i) !== -1;
-        return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (actif ? ' is-selected' : '') + '" data-choix-index="' + i + '">' +
-          (actif ? '&#10003; ' : '') + echapperAttribut(c) + '</button>';
-      }).join('') +
-      '</div>' +
-      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (à compléter)</p>' +
-      _regardExterieurRenduAstuceDictee() +
-      '<textarea class="form-control form-control-sm" id="regardExterieurDRPrecision">' + echapperAttribut(etat.precision) + '</textarea>';
-  } else {
-    bloc = _regardExterieurRenduAstuceDictee() +
-      '<textarea class="form-control form-control-sm" id="regardExterieurDRTexte" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
-  }
-
-  return '<p class="regard-exterieur-compteur-questions">Question ' + (pos + 1) + ' sur ' + total + '</p>' +
-    '<div class="regard-exterieur-barre-progression"><div class="regard-exterieur-barre-progression-remplie" style="width:' + pourcentage + '%;"></div></div>' +
-    '<p class="regard-exterieur-question-texte">' + echapperAttribut(q.question) + '</p>' +
-    bloc +
-    '<div class="text-center mt-3 d-flex gap-2 justify-content-center flex-wrap">' +
-    (pos > 0 ? '<button type="button" id="regardExterieurDRPrecedente" class="btn btn-outline-secondary">&#8592; Précédente</button>' : '') +
-    '<button type="button" id="regardExterieurDRSuivante" class="btn btn-primary">' + (pos + 1 < total ? 'Valider et continuer &#8594;' : 'Valider &#8594;') + '</button>' +
-    '</div>';
-}
-
-function _regardExterieurDRSauvegarder() {
-  var pos = _regardExterieurDR.position;
-  var q = _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD[pos];
-  var zone = document.getElementById('regardExterieurDRZone');
-  if (!zone) { return; }
-  if (q.reperesCentraux) {
-    var ids = Array.prototype.map.call(zone.querySelectorAll('.regard-exterieur-choix-btn.is-selected'),
-      function (b) { return b.getAttribute('data-repere-central'); }).filter(function (x) { return x; });
-    var t = document.getElementById('regardExterieurDRTexte');
-    _regardExterieurDR.reponses[pos] = { choixIndices: [], precision: '', texte: t ? t.value : '', reperesCentraux: ids };
-  } else if (q.choix && q.choix.length) {
-    var idx = Array.prototype.map.call(zone.querySelectorAll('.regard-exterieur-choix-btn.is-selected'),
-      function (b) { return parseInt(b.getAttribute('data-choix-index'), 10); }).filter(function (n) { return !isNaN(n); });
-    var p = document.getElementById('regardExterieurDRPrecision');
-    _regardExterieurDR.reponses[pos] = { choixIndices: idx, precision: p ? p.value : '', texte: '', reperesCentraux: [] };
-  } else {
-    var tl = document.getElementById('regardExterieurDRTexte');
-    _regardExterieurDR.reponses[pos] = { choixIndices: [], precision: '', texte: tl ? tl.value : '', reperesCentraux: [] };
-  }
-}
-
-function _regardExterieurDRAfficher(zone, onTermine) {
-  zone.innerHTML = _regardExterieurDRRendreQuestion();
-  // Repères centraux : toggle, mais plafond 2.
-  zone.querySelectorAll('[data-repere-central]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (!btn.classList.contains('is-selected') && zone.querySelectorAll('[data-repere-central].is-selected').length >= 2) { return; }
-      btn.classList.toggle('is-selected');
-    });
-  });
-  // Choix simples : toggle libre (jamais exclusif).
-  zone.querySelectorAll('.regard-exterieur-choix-btn[data-choix-index]').forEach(function (btn) {
-    btn.addEventListener('click', function () { btn.classList.toggle('is-selected'); });
-  });
-  var bPrec = document.getElementById('regardExterieurDRPrecedente');
-  if (bPrec) {
-    bPrec.addEventListener('click', function () {
-      _regardExterieurDRSauvegarder();
-      _regardExterieurDR.position--;
-      _regardExterieurDRAfficher(zone, onTermine);
-    });
-  }
-  var bSuiv = document.getElementById('regardExterieurDRSuivante');
-  if (bSuiv) {
-    bSuiv.addEventListener('click', function () {
-      _regardExterieurDRSauvegarder();
-      if (_regardExterieurDR.position + 1 < _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD.length) {
-        _regardExterieurDR.position++;
-        _regardExterieurDRAfficher(zone, onTermine);
-      } else {
-        onTermine();
-      }
-    });
-  }
-}
-
-function _regardExterieurDROuvrir(onTermine) {
-  _regardExterieurDR = { position: 0, reponses: {} };
-  ouvrirFenetreERIP({
-    titre: '&#10068; Quelques questions',
-    aideContexte: 'regard-exterieur-questions',
-    contenuHTML: '<div id="regardExterieurDRZone"></div>'
-  });
-  var zone = document.getElementById('regardExterieurDRZone');
-  if (!zone) { return; }
-  _regardExterieurDRAfficher(zone, onTermine);
-}
-
 // Transforme l'état du flux en contexte pour le cadrage. Ne garde que les
 // questions réellement répondues (jamais un « non renseigné », même règle
 // qu'ailleurs). Renvoie null si rien n'a été renseigné.
@@ -2051,7 +2175,7 @@ function _regardExterieurDRCollecter() {
   var reponses = [];
   var reperesCentraux = [];
   _REGARD_EXTERIEUR_QUESTIONS_DEUXIEME_REGARD.forEach(function (q, i) {
-    var etat = _regardExterieurDR.reponses[i];
+    var etat = _regardExterieurParcours ? _regardExterieurParcours.reponses['dr-' + i] : null;
     if (!etat) { return; }
     if (q.reperesCentraux) {
       reperesCentraux = etat.reperesCentraux || [];
@@ -2080,35 +2204,7 @@ function regardExterieurLancerDeuxiemeRegard() {
   if (!candidats.length) { return; }
   _regardExterieurHorodatageOuverture = Date.now();
   if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_deuxieme_regard_ouvert'); }
-  _regardExterieurOuvrirSelection(candidats, '&#128300; Quels Repères pour ce Deuxième Regard ?', false, function (idsChoisis) {
-    _regardExterieurSelectionIds = idsChoisis;
-    _regardExterieurDRContexte = null;
-    function poursuivre() {
-      _regardExterieurChoisirAssistant(function (assistant) {
-        _regardExterieurDernierAssistant = assistant;
-        _regardExterieurCopierPuisAttendre(assistant, _regardExterieurConstruirePromptDeuxiemeRegard, _regardExterieurTraiterReponseDeuxiemeRegard);
-      });
-    }
-    _regardExterieurDROptIn(
-      function () {
-        if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_deuxieme_regard_contexte', { repondu: false, nbReponses: 0 }); }
-        poursuivre();
-      },
-      function () {
-        _regardExterieurDROuvrir(function () {
-          _regardExterieurDRContexte = _regardExterieurDRCollecter();
-          if (typeof trackEvenement === 'function') {
-            trackEvenement('regard_exterieur_deuxieme_regard_contexte', {
-              repondu: !!_regardExterieurDRContexte,
-              nbReponses: _regardExterieurDRContexte ? _regardExterieurDRContexte.reponses.length : 0
-            });
-          }
-          fermerFenetreERIP();
-          poursuivre();
-        });
-      }
-    );
-  });
+  _regardExterieurParcoursDemarrer('2e-regard', 'selection', 'reperes');
 }
 
 // TACHE (retour utilisateur, 2026-08-26, "ne jamais mélanger confirmation
@@ -2136,20 +2232,10 @@ function _regardExterieurRenduConfirmationImport(nombreNettoyes, incertains) {
   }).join('');
   return '<div class="cv-section text-center" style="background:var(--success-bg-subtle);border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1rem;">' +
     '<p class="mb-0" style="color:var(--success-strong);font-weight:700;">&#10003; Réponse importée avec succès.</p></div>' +
-    '<div class="cv-section" style="background:var(--accent-bg-subtle);border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1rem;text-align:center;">' +
-    '<p class="mb-0">&#128190; Pensez à sauvegarder votre session pour pouvoir reprendre exactement ici plus tard.</p></div>' +
+    htmlRappelSauvegarde() +
     (_regardExterieurDernierEnvoiTronque ? '<p class="text-muted small">Un ou plusieurs de vos Repères, particulièrement longs, ont été raccourcis avant l\'envoi.</p>' : '') +
     noteNettoyage + blocsIncertains +
     '<div class="text-center mt-3"><button type="button" id="btnRegardExterieurVoirRapport" class="btn btn-success">&#128193; Voir le rapport</button></div>';
-}
-
-// TACHE (retour utilisateur, 2026-08-26, "replier une fois importé") :
-// masque tout le bloc collage (intro, gros bouton, Importer, Effacer...)
-// -- plus rien n'y est cliquable ni visible une fois le résultat obtenu,
-// pour éviter tout clic égaré une fois la partie complexe terminée.
-function _regardExterieurReplierZoneCollage() {
-  var zone = document.getElementById('regardExterieurZoneCollageComplete');
-  if (zone) { zone.style.display = 'none'; }
 }
 
 // TACHE (retour utilisateur, 2026-08-26, "si on n'arrive pas à importer,
@@ -2166,19 +2252,16 @@ function _regardExterieurAfficherErreurImport(zone, texteOriginal) {
     '<pre class="regard-exterieur-brut">' + echapperAttribut(texteOriginal) + '</pre>';
 }
 
-function _regardExterieurBrancherConfirmationImport(zone) {
-  _regardExterieurReplierZoneCollage();
-  var bouton = document.getElementById('btnRegardExterieurVoirRapport');
+// "Voir le rapport" ouvre Mes rapports avec ce rapport déjà ouvert (la fenêtre "Voir mon analyse" n'existe plus).
+function _regardExterieurBrancherConfirmationImport(racine) {
+  var bouton = racine.querySelector('#btnRegardExterieurVoirRapport');
   if (!bouton) { return; }
-  // TACHE (retour utilisateur, 2026-08-26, "Voir le rapport pulse doux
-  // 10-15s") : une fois la zone de collage repliée, c'est ce bouton qui
-  // prend le relais visuel -- pulse calme (jamais aussi agressif que le
-  // bleu "Importer"), s'arrête tout seul.
+  // TACHE (retour utilisateur, 2026-08-26, "Voir le rapport pulse doux 10-15s") : ce bouton prend le relais visuel, pulse calme, s'arrête tout seul.
   bouton.classList.add('regard-exterieur-pulse-doux');
   setTimeout(function () { bouton.classList.remove('regard-exterieur-pulse-doux'); }, 10000);
   bouton.addEventListener('click', function () {
-    fermerFenetreERIP();
-    if (typeof naviguerVers === 'function') { naviguerVers('reperes'); }
+    var p = _regardExterieurParcours;
+    if (p && p.rapportId && typeof reperesOuvrirRapportsSurRapport === 'function') { reperesOuvrirRapportsSurRapport(p.rapportId); }
   });
 }
 
@@ -2197,7 +2280,8 @@ function _regardExterieurTraiterReponseDeuxiemeRegard(texte, mode) {
     }
     return;
   }
-  _regardExterieurCreerRapport('2e-regard', analyse.titre, _regardExterieurReperesEnvoyes, {
+  _regardExterieurParcoursEntrerTraitement();
+  var rapport = _regardExterieurCreerRapport('2e-regard', analyse.titre, _regardExterieurReperesEnvoyes, {
     vueEnsemble: analyse.vueEnsemble,
     vueParCategorie: analyse.vueParCategorie,
     eclairagesParRepere: analyse.eclairagesParRepere,
@@ -2218,8 +2302,7 @@ function _regardExterieurTraiterReponseDeuxiemeRegard(texte, mode) {
   // JAMAIS un Repère (voir prompts/regard-exterieur.md, "Nettoyage du
   // titre et du texte" -- réservé au 1er passage) -- confirmation seule,
   // jamais de note "X Repères mis à jour".
-  zone.innerHTML = _regardExterieurRenduConfirmationImport(0, []);
-  _regardExterieurBrancherConfirmationImport(zone);
+  _regardExterieurParcoursTerminer(rapport, 0, []);
   if (typeof trackEvenement === 'function') {
     trackEvenement('regard_exterieur_reponse_recue', {
       mode: mode || 'inconnu',
@@ -2242,6 +2325,7 @@ function _regardExterieurTraiterReponse1erPassage(texte, mode) {
     }
     return;
   }
+  _regardExterieurParcoursEntrerTraitement();
   _regardExterieurDerniereAnalyse = analyse;
   _regardExterieurAnalyseDejaVue = false;
   // TACHE (retour utilisateur, 2026-08-26, nettoyage automatique par IA,
@@ -2302,8 +2386,7 @@ function _regardExterieurTraiterReponse1erPassage(texte, mode) {
   if (typeof reperesMarquerAnalyses === 'function') {
     reperesMarquerAnalyses(_regardExterieurReperesEnvoyes.map(function (r) { return r.id; }));
   }
-  zone.innerHTML = _regardExterieurRenduConfirmationImport(nombreNettoyes, incertains);
-  _regardExterieurBrancherConfirmationImport(zone);
+  _regardExterieurParcoursTerminer(rapport, nombreNettoyes, incertains);
   if (typeof trackEvenement === 'function') {
     trackEvenement('regard_exterieur_reponse_recue', {
       mode: mode || 'inconnu',
@@ -2332,7 +2415,7 @@ function _regardExterieurCategoriesAvecQuestions(vueParCategorie) {
 // l'engagement de la question systematique) : ce garde-fou renvoyait vers
 // une impasse ("aucune question supplementaire...") des que les 4
 // categories etaient vides côté IA -- AVANT meme d'atteindre
-// _regardExterieurOuvrirFormulaireQuestions()/_regardExterieurConstruireQuestionsAPlat(),
+// l'ecran de questions du deroule en page (_regardExterieurConstruireQuestionsAPlat()),
 // la ou vit la question systematique d'accompagnement. Resultat : cette
 // question, censee etre TOUJOURS posee, ne l'etait jamais dans exactement
 // le cas ou Denis l'a testee. Desormais, l'absence de categorie avec
@@ -2345,88 +2428,19 @@ function _regardExterieurLancerApprofondir() {
   if (!_regardExterieurDerniereAnalyse) { return; }
   var disponibles = _regardExterieurCategoriesAvecQuestions(_regardExterieurDerniereAnalyse.vueParCategorie);
   if (!disponibles.length) {
-    _regardExterieurOuvrirFormulaireQuestions([]);
+    if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_approfondir_categories_choisies', { nombreCategories: 0 }); }
+    _regardExterieurParcoursDemarrer('aller-plus-loin', 'questions', 'rapports', function (p) {
+      p.categoriesChoisies = [];
+      p.questions = _regardExterieurConstruireQuestionsAPlat([]);
+    });
     return;
   }
-  _regardExterieurOuvrirSelectionCategories(disponibles);
-}
-
-// TACHE (retour utilisateur, 2026-08-26) : "Développer" affiche le résumé
-// déjà écrit par l'assistant pour cette catégorie (ceQuiRessort, déjà
-// rempli, voir _regardExterieurRenduVueParCategorie()) -- pour savoir ce
-// qu'il y a derrière avant de décider de l'envoyer plus loin, jamais un
-// nouveau texte inventé ici. "Continuer" reste désactivé tant qu'aucune
-// catégorie n'est cochée, avec une infobulle expliquant pourquoi (même
-// mécanisme .bulle-info-hover que partout ailleurs) ; "Annuler" ferme
-// simplement la fenêtre, aucune trace laissée.
-function _regardExterieurOuvrirSelectionCategories(disponibles) {
-  ouvrirFenetreERIP({
-    titre: '&#10133; Quelles catégories approfondir ?',
-    aideContexte: 'regard-exterieur-selection-categories',
-    contenuHTML:
-      '<p class="text-muted small mb-3">Choisissez les catégories pour lesquelles vous voulez avoir plus d\'informations. Pour cela, vous êtes invité(e) à répondre à quelques questions supplémentaires par catégorie choisie.</p>' +
-      '<div class="regard-exterieur-choix-categories">' +
-      disponibles.map(function (cat) {
-        var donnees = _regardExterieurDerniereAnalyse.vueParCategorie[cat.cle];
-        var n = donnees.questionsApprofondissement.length;
-        var resume = donnees.ceQuiRessort ? echapperAttribut(donnees.ceQuiRessort) : 'Pas de résumé disponible pour cette catégorie.';
-        return '<div class="regard-exterieur-categorie-bloc">' +
-          '<label class="regard-exterieur-categorie-case">' +
-          '<input type="checkbox" value="' + cat.cle + '" class="regard-exterieur-categorie-checkbox">' +
-          '<span>' + cat.icone + ' ' + cat.libelle + ' <span class="text-muted small">(' + n + (n > 1 ? ' questions' : ' question') + ')</span></span>' +
-          '</label>' +
-          '<button type="button" class="btn btn-outline-secondary btn-sm regard-exterieur-btn-developper" data-developper="' + cat.cle + '">Développer &#9660;</button>' +
-          '<div class="regard-exterieur-categorie-resume" data-resume="' + cat.cle + '" style="display:none;">' + resume + '</div>' +
-          '<p class="small text-muted mt-1 mb-0">En choisissant cette catégorie, vous êtes invité(e) à répondre à des questions supplémentaires.</p>' +
-          '</div>';
-      }).join('') +
-      '</div>' +
-      '<div class="text-center mt-3 d-flex gap-2 justify-content-center">' +
-      '<button type="button" class="btn btn-outline-secondary" id="regardExterieurAnnulerSelection">&#8592; Annuler</button>' +
-      '<span id="regardExterieurEnveloppeContinuer"></span>' +
-      '</div>'
-  });
-  document.querySelectorAll('[data-developper]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var cle = btn.getAttribute('data-developper');
-      var resume = document.querySelector('[data-resume="' + cle + '"]');
-      var ouvert = resume.style.display !== 'none';
-      resume.style.display = ouvert ? 'none' : 'block';
-      btn.innerHTML = ouvert ? 'Développer &#9660;' : 'Réduire &#9650;';
-    });
-  });
-  var checkboxes = document.querySelectorAll('.regard-exterieur-categorie-checkbox');
-  var enveloppeContinuer = document.getElementById('regardExterieurEnveloppeContinuer');
-  function rendreBoutonContinuer(actif) {
-    if (!enveloppeContinuer) { return; }
-    enveloppeContinuer.innerHTML = actif
-      ? '<button type="button" class="btn btn-primary" id="regardExterieurContinuerSelection">Continuer &#8594;</button>'
-      : '<span class="bulle-info-hover" tabindex="0" data-tooltip="Veuillez choisir parmi les catégories proposées."><button type="button" class="btn btn-primary" id="regardExterieurContinuerSelection" disabled>Continuer &#8594;</button></span>';
-    var bouton = document.getElementById('regardExterieurContinuerSelection');
-    if (bouton && actif) {
-      bouton.addEventListener('click', function () {
-        var choisies = Array.prototype.filter.call(checkboxes, function (c) { return c.checked; }).map(function (c) { return c.value; });
-        if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_approfondir_categories_choisies', { nombreCategories: choisies.length }); }
-        _regardExterieurOuvrirFormulaireQuestions(choisies);
-      });
-    }
-  }
-  rendreBoutonContinuer(false);
-  checkboxes.forEach(function (cb) {
-    cb.addEventListener('change', function () {
-      var auMoinsUne = Array.prototype.some.call(checkboxes, function (c) { return c.checked; });
-      rendreBoutonContinuer(auMoinsUne);
-    });
-  });
-  var boutonAnnuler = document.getElementById('regardExterieurAnnulerSelection');
-  if (boutonAnnuler) { boutonAnnuler.addEventListener('click', fermerFenetreERIP); }
+  _regardExterieurParcoursDemarrer('aller-plus-loin', 'categories', 'rapports');
 }
 
 function _regardExterieurRenduAstuceDictee() {
-  return '<p class="mb-2 p-2 regard-exterieur-astuce-dictee">' +
-    '💡 <strong>Astuce : utilisez <span style="white-space:nowrap;">Windows + H</span> pour dicter votre texte à la voix</strong> ' +
-    'plutôt que de tout taper au clavier.' +
-    '</p>';
+  // Brique commune (modules/astuce-dictee, consigne 85) : gestes adaptés à l'appareil.
+  return htmlAstuceDictee('encart');
 }
 
 // TACHE (retour utilisateur, 2026-08-26, "une question à la fois, ce n'est
@@ -2438,11 +2452,9 @@ function _regardExterieurRenduAstuceDictee() {
 // Y" + barre de progression, une seule question affichée, navigation
 // Précédente/Continuer, choix qui togglent chacun INDÉPENDAMMENT (jamais
 // exclusifs -- "la personne pourra tout choisir"). État conservé dans
-// _regardExterieurReponsesEnCours pour survivre à un aller-retour entre
+// _regardExterieurParcours.reponses pour survivre à un aller-retour entre
 // questions (jamais perdu en avançant puis en reculant).
-var _regardExterieurQuestionsAPlat = [];
-var _regardExterieurQuestionPosition = 0;
-var _regardExterieurReponsesEnCours = {};
+// Les questions, la position et les réponses vivent dans _regardExterieurParcours (questions, position, reponses), jamais dans des variables à part.
 
 // TACHE (retour utilisateur, 2026-08-27, "5 questions de base, toujours
 // posées, additives avec l’assistant jamais un filet de repli conditionnel") :
@@ -2578,102 +2590,8 @@ function _regardExterieurConstruireQuestionsAPlat(categoriesChoisies) {
   return liste;
 }
 
-function _regardExterieurRenduEcranQuestionUnique() {
-  var total = _regardExterieurQuestionsAPlat.length;
-  var item = _regardExterieurQuestionsAPlat[_regardExterieurQuestionPosition];
-  var cat = _REGARD_EXTERIEUR_CATEGORIES.filter(function (c) { return c.cle === item.cle; })[0] || _REGARD_EXTERIEUR_CATEGORIE_QUESTIONS_FIXES;
-  var etat = _regardExterieurReponsesEnCours[item.idQuestion] || { choixIndices: [], precision: '', texte: '' };
-  var pourcentage = Math.round(((_regardExterieurQuestionPosition + 1) / total) * 100);
-  var q = item.q;
-  var blocChoix = (q.choix && q.choix.length)
-    ? '<div class="regard-exterieur-choix-groupe">' +
-      q.choix.map(function (c, i) {
-        var actif = etat.choixIndices.indexOf(i) !== -1;
-        return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (actif ? ' is-selected' : '') + '" data-choix-index="' + i + '">' +
-          (actif ? '&#10003; ' : '') + echapperAttribut(c) + '</button>';
-      }).join('') +
-      '</div>' +
-      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (à compléter)</p>' +
-      _regardExterieurRenduAstuceDictee() +
-      '<textarea class="form-control form-control-sm" id="regardExterieurPrecision">' + echapperAttribut(etat.precision) + '</textarea>'
-    : _regardExterieurRenduAstuceDictee() +
-      '<textarea class="form-control form-control-sm" id="regardExterieurReponseLibre" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
-  return '<p class="regard-exterieur-compteur-questions">Question ' + (_regardExterieurQuestionPosition + 1) + ' sur ' + total + '</p>' +
-    '<div class="regard-exterieur-barre-progression"><div class="regard-exterieur-barre-progression-remplie" style="width:' + pourcentage + '%;"></div></div>' +
-    '<p class="regard-exterieur-question-categorie">' + cat.icone + ' ' + cat.libelle + '</p>' +
-    '<p class="regard-exterieur-question-texte">' + echapperAttribut(q.question) + '</p>' +
-    blocChoix +
-    '<div class="text-center mt-3 d-flex gap-2 justify-content-center">' +
-    (_regardExterieurQuestionPosition > 0 ? '<button type="button" id="regardExterieurQuestionPrecedente" class="btn btn-outline-secondary">&#8592; Précédente</button>' : '') +
-    '<button type="button" id="regardExterieurQuestionSuivante" class="btn btn-primary">' + (_regardExterieurQuestionPosition + 1 < total ? 'Valider et continuer &#8594;' : 'Valider &#8594;') + '</button>' +
-    '</div>';
-}
-
-function _regardExterieurSauvegarderReponseEnCours() {
-  var item = _regardExterieurQuestionsAPlat[_regardExterieurQuestionPosition];
-  var q = item.q;
-  if (q.choix && q.choix.length) {
-    var choixSelectionnes = Array.prototype.map.call(
-      document.querySelectorAll('.regard-exterieur-choix-btn.is-selected'),
-      function (b) { return parseInt(b.getAttribute('data-choix-index'), 10); }
-    );
-    var precision = document.getElementById('regardExterieurPrecision');
-    _regardExterieurReponsesEnCours[item.idQuestion] = { choixIndices: choixSelectionnes, precision: precision ? precision.value : '', texte: '' };
-  } else {
-    var champ = document.getElementById('regardExterieurReponseLibre');
-    _regardExterieurReponsesEnCours[item.idQuestion] = { choixIndices: [], precision: '', texte: champ ? champ.value : '' };
-  }
-}
-
-function _regardExterieurBrancherEcranQuestionUnique(zone, categoriesChoisies) {
-  zone.querySelectorAll('.regard-exterieur-choix-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () { btn.classList.toggle('is-selected'); });
-  });
-  var boutonPrecedente = document.getElementById('regardExterieurQuestionPrecedente');
-  if (boutonPrecedente) {
-    boutonPrecedente.addEventListener('click', function () {
-      _regardExterieurSauvegarderReponseEnCours();
-      _regardExterieurQuestionPosition--;
-      _regardExterieurAfficherQuestionUnique(zone, categoriesChoisies);
-    });
-  }
-  var boutonSuivante = document.getElementById('regardExterieurQuestionSuivante');
-  if (boutonSuivante) {
-    boutonSuivante.addEventListener('click', function () {
-      _regardExterieurSauvegarderReponseEnCours();
-      if (_regardExterieurQuestionPosition + 1 < _regardExterieurQuestionsAPlat.length) {
-        _regardExterieurQuestionPosition++;
-        _regardExterieurAfficherQuestionUnique(zone, categoriesChoisies);
-      } else {
-        var collecte = _regardExterieurCollecterReponsesQuestions();
-        if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_approfondir_categories_choisies', { nombreCategories: categoriesChoisies.length }); }
-        _regardExterieurLancerApprofondissementFinal(categoriesChoisies, collecte);
-      }
-    });
-  }
-}
-
-function _regardExterieurAfficherQuestionUnique(zone, categoriesChoisies) {
-  zone.innerHTML = _regardExterieurRenduEcranQuestionUnique();
-  _regardExterieurBrancherEcranQuestionUnique(zone, categoriesChoisies);
-}
-
-function _regardExterieurOuvrirFormulaireQuestions(categoriesChoisies) {
-  _regardExterieurQuestionsAPlat = _regardExterieurConstruireQuestionsAPlat(categoriesChoisies);
-  _regardExterieurQuestionPosition = 0;
-  _regardExterieurReponsesEnCours = {};
-  var overlay = ouvrirFenetreERIP({
-    titre: '&#10068; Quelques questions',
-    aideContexte: 'regard-exterieur-questions',
-    contenuHTML: '<div id="regardExterieurZoneQuestionUnique"></div>'
-  });
-  if (!overlay) { return; }
-  var zone = document.getElementById('regardExterieurZoneQuestionUnique');
-  _regardExterieurAfficherQuestionUnique(zone, categoriesChoisies);
-}
-
 // TACHE (retour utilisateur, 2026-08-26) : lit l'état SAUVEGARDÉ à chaque
-// navigation (_regardExterieurReponsesEnCours), jamais le DOM directement
+// navigation (_regardExterieurParcours.reponses), jamais le DOM directement
 // -- une seule question est affichée à la fois, le DOM des autres n'existe
 // plus. Choix multiples : toutes les réponses cochées sont jointes, jamais
 // une seule (contrairement à l'ancien comportement à sélection exclusive).
@@ -2686,8 +2604,9 @@ function _regardExterieurOuvrirFormulaireQuestions(categoriesChoisies) {
 function _regardExterieurCollecterReponsesQuestions() {
   var parCategorie = {};
   var questionsGenerales = [];
-  _regardExterieurQuestionsAPlat.forEach(function (item) {
-    var etat = _regardExterieurReponsesEnCours[item.idQuestion];
+  var p = _regardExterieurParcours;
+  (p ? p.questions : []).forEach(function (item) {
+    var etat = p.reponses[item.idQuestion];
     if (!etat) { return; }
     var q = item.q;
     var texteReponse = '';
@@ -2747,21 +2666,6 @@ function _regardExterieurConstruirePromptApprofondissement(categoriesChoisies, r
   return promptCache('regard-exterieur-approfondissement', texteProfil);
 }
 
-function _regardExterieurLancerApprofondissementFinal(categoriesChoisies, collecte) {
-  var assistant = _regardExterieurDernierAssistant;
-  if (!assistant) { return; }
-  var reponsesParCategorie = collecte.parCategorie;
-  if (typeof trackEvenement === 'function') {
-    var totalReponses = Object.keys(reponsesParCategorie).reduce(function (acc, cle) { return acc + reponsesParCategorie[cle].length; }, 0);
-    trackEvenement('regard_exterieur_approfondir_reponses_envoyees', { nombreReponses: totalReponses, nombreReponsesGenerales: (collecte.questionsGenerales || []).length });
-  }
-  _regardExterieurCopierPuisAttendre(
-    assistant,
-    function () { return _regardExterieurConstruirePromptApprofondissement(categoriesChoisies, reponsesParCategorie, collecte.questionsGenerales); },
-    _regardExterieurTraiterReponseApprofondissement
-  );
-}
-
 function _regardExterieurTraiterReponseApprofondissement(texte) {
   var zone = document.getElementById('regardExterieurResultat');
   if (!zone) { return; }
@@ -2778,8 +2682,9 @@ function _regardExterieurTraiterReponseApprofondissement(texte) {
   // jamais _regardExterieurDerniereAnalyse (qui reste la version pure du
   // 1er passage, jamais melangee). eclairagesParRepereDelta est garde
   // tel quel dans ce rapport (jamais fusionne dans un autre etat).
+  _regardExterieurParcoursEntrerTraitement();
   _regardExterieurAnalyseDejaVue = false;
-  _regardExterieurCreerRapport('aller-plus-loin', analyse.titre, _regardExterieurReperesEnvoyes, {
+  var rapport = _regardExterieurCreerRapport('aller-plus-loin', analyse.titre, _regardExterieurReperesEnvoyes, {
     vueEnsemble: analyse.vueEnsemble,
     vueParCategorie: analyse.vueParCategorie,
     eclairagesParRepereDelta: analyse.eclairagesParRepereDelta,
@@ -2804,8 +2709,7 @@ function _regardExterieurTraiterReponseApprofondissement(texte) {
   // JAMAIS un Repère (voir prompts/regard-exterieur-approfondissement.md
   // -- ce prompt ne demande d'ailleurs aucun titreSuggere/syntheseComprise)
   // -- confirmation seule, même écran partagé que le 1er passage.
-  zone.innerHTML = _regardExterieurRenduConfirmationImport(0, []);
-  _regardExterieurBrancherConfirmationImport(zone);
+  _regardExterieurParcoursTerminer(rapport, 0, []);
   if (typeof trackEvenement === 'function') {
     trackEvenement('regard_exterieur_approfondir_reponse_recue', {
       formatReconnu: true,
@@ -3307,54 +3211,14 @@ function regardExterieurRenduReponsesRapport(rapport) {
     }).join('') + '</div>';
 }
 
-// Réaffiche le DERNIER rapport '1ere' (ou '2e-regard' si `type` le
-// précise), sans nouvel appel ni nouveau collage. `_regardExterieurDerniereAnalyse`
-// est reconstruite ICI, juste le temps que "Aller plus loin" puisse
-// encore y lire ses catégories/questions -- jamais persistée ni mélangée
-// avec un rapport "Aller plus loin" (chacun reste un rapport séparé,
-// voir _regardExterieurCreerRapport()).
+// "Voir mon analyse" / "Revoir ma dernière analyse" (onglets "Déjà analysés" et "Deuxième regard") : ouvre Mes rapports avec le DERNIER rapport de ce type
+// déjà ouvert, sans nouvel appel ni nouveau collage (la fenêtre "Voir mon analyse" n'existe plus, décision de Denis 01/11/2026). "Aller plus loin" et
+// "Point sur ma situation" sont sur la carte du rapport (regardExterieurLancerApprofondirDepuisRapport()).
 function regardExterieurRevoirDerniereAnalyse(type) {
   var rapport = _regardExterieurDernierRapport(type || '1ere');
   if (!rapport) { return; }
-  var analyse = rapport.contenu;
-  _regardExterieurDerniereAnalyse = analyse;
-  // TACHE (retour utilisateur, 2026-08-26) : titre de la fenêtre partage
-  // exactement la même bascule que le bouton qui l'ouvre -- "Voir mon
-  // analyse" tant que jamais ouverte depuis ce bouton, "Revoir ma
-  // dernière analyse" ensuite.
-  var premiereOuverture = !rapport.dejaVu;
-  rapport.dejaVu = true;
-  var overlay = ouvrirFenetreERIP({
-    titre: premiereOuverture ? '&#128301; Voir mon analyse' : '&#128301; ' + rapport.titre,
-    taille: 'large',
-    aideContexte: 'regard-exterieur-resultat',
-    contenuHTML:
-      _regardExterieurRenduBlocDetresse(analyse) +
-      _regardExterieurRenduToggleVues(true) +
-      '<div data-regard-vue-contenu="ensemble">' + _regardExterieurRenduVueEnsemble(analyse.vueEnsemble, rapport.reperesConcernes, analyse.freinsIdentifies, analyse.quiVoirPersonnalise) + '</div>' +
-      '<div data-regard-vue-contenu="categorie" style="display:none;">' + _regardExterieurRenduVueParCategorie(rapport.reperesConcernes, analyse.eclairagesParRepere, analyse.vueParCategorie, analyse.freinsIdentifies) + '</div>' +
-      '<div data-regard-vue-contenu="repere" style="display:none;">' + _regardExterieurRenduVueParRepere(rapport.reperesConcernes, analyse.eclairagesParRepere, analyse.freinsIdentifies) + '</div>' +
-      // TACHE (retour utilisateur, 2026-08-26, bug reel) : n'est plus
-      // jamais conditionne a categoriesAvecQuestions.length -- "Aller plus
-      // loin" garantit desormais toujours au moins la question
-      // systematique d'accompagnement (voir _regardExterieurLancerApprofondir()),
-      // ce bouton ne doit donc plus jamais disparaitre selon ce que l’assistant a
-      // ou non genere par categorie (incoherent avec la carte de rapport
-      // dans "Mes rapports", qui l'affiche deja sans cette condition).
-      '<div class="text-center mt-3 d-flex gap-2 justify-content-center flex-wrap">' +
-      '<button type="button" id="btnRegardExterieurApprofondir" class="btn btn-outline-primary btn-sm">Aller plus loin &#8594;</button>' +
-      '<button type="button" id="btnRegardExterieurPointSituation" class="btn btn-outline-primary btn-sm">&#128221; Point sur ma situation</button>' +
-      '<p class="small text-muted mt-2 mb-0 w-100">À compléter : « Aller plus loin » pose des questions supplémentaires ; « Point sur ma situation » prépare un document à imprimer ou à emmener à un rendez-vous.</p>' +
-      '</div>'
-  });
-  if (!overlay) { return; }
-  _regardExterieurBrancherToggleVues(overlay);
-  _regardExterieurBrancherBoutonsGarderRepere(overlay);
-  var boutonApprofondir = document.getElementById('btnRegardExterieurApprofondir');
-  if (boutonApprofondir) { boutonApprofondir.addEventListener('click', _regardExterieurLancerApprofondir); }
-  var boutonPointSituation = document.getElementById('btnRegardExterieurPointSituation');
-  if (boutonPointSituation) { boutonPointSituation.addEventListener('click', function () { regardExterieurOuvrirPointSituation(rapport); }); }
   if (typeof trackEvenement === 'function') { trackEvenement('regard_exterieur_derniere_analyse_revue'); }
+  if (typeof reperesOuvrirRapportsSurRapport === 'function') { reperesOuvrirRapportsSurRapport(rapport.id); }
 }
 
 // TACHE : même gap déjà corrigé pour Bilan (EX-17) et Cohérence
@@ -3365,6 +3229,7 @@ function regardExterieurReinitialiser() {
   _regardExterieurSelectionIds = null;
   _regardExterieurAnalyseDejaVue = false;
   _regardExterieurRapports = [];
+  regardExterieurParcoursAbandonner();
 }
 
 function regardExterieurApresNavigation(route) {

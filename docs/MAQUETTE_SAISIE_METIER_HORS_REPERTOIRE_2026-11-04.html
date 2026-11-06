@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : saisie d'un métier hors répertoire</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* Réservé à cette maquette : barre de réglages, refermable. */
+  .demo-barre { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; font-size: .9rem; }
+  .demo-barre-haut { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+  .demo-barre button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-reglages { margin-top: .6rem; padding-top: .6rem; border-top: 1px solid rgba(255,255,255,.2); display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  .demo-reglages[hidden] { display: none; }
+  .demo-croix { margin-left: auto; }
+  .demo-page { max-width: 760px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .demo-page.tel { max-width: 375px; }
+  .demo-bas { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: 1.2rem; }
+  .demo-message { margin-top: .8rem; padding: .6rem .9rem; border-radius: .5rem; font-size: .95rem; }
+  .demo-message.rappel { background: var(--warning-bg-subtle); border: 1px solid var(--border-strong); color: var(--text-strong); }
+  .demo-message.ok { background: var(--accent-bg-subtle); border: 1px solid var(--accent); color: var(--text-strong); }
+  .demo-questions { border: 1px dashed var(--border-strong); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+  .btn-ajouter-tel-quel { display: block; width: 100%; text-align: left; margin-top: .2rem; }
+  .metier-saisi-note { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
+</style>
+</head>
+<body>
+<div class="demo-barre">
+  <div class="demo-barre-haut">
+    <strong>Maquette (aucun code de l'application modifié)</strong>
+    <span>Affichage :</span>
+    <button type="button" id="btnClair" class="actif">Clair</button>
+    <button type="button" id="btnSombre">Sombre</button>
+    <span>Appareil :</span>
+    <button type="button" id="btnOrdi" class="actif">Ordinateur</button>
+    <button type="button" id="btnTel">Téléphone</button>
+    <button type="button" id="btnReglages" class="demo-croix">Variantes</button>
+  </div>
+  <div class="demo-reglages" id="reglages">
+    <span>Quand la personne a tapé un métier absent du répertoire mais n'a pas appuyé sur Entrée :</span>
+    <button type="button" id="varA" class="actif">A : un bouton visible + un rappel doux</button>
+    <button type="button" id="varB" >B : le métier est ajouté tout seul à la sortie</button>
+    <button type="button" id="btnFermer" aria-label="Fermer ce panneau">&#10005;</button>
+  </div>
+</div>
+
+<div class="demo-page" id="page">
+  <p class="small text-muted">Cette maquette reprend la vraie zone « Recherchez un métier » (mêmes classes que l'application). Tout est câblé : tapez par exemple <em>boul</em> (métier du répertoire, cliquable) puis <em>Agent de fabrication de bougies</em> (métier absent). Essayez ensuite de passer à l'étape suivante <strong>sans</strong> appuyer sur Entrée. Entrée fonctionne toujours comme aujourd'hui. Le bouton « Étape suivante » représente le passage à l'écran d'après (le vrai bouton dépend de l'écran).</p>
+
+  <div class="banniere-metier-cible" id="zone">
+    <div id="contenu"></div>
+  </div>
+
+  <div id="messages" aria-live="polite"></div>
+  <div class="demo-bas">
+    <button type="button" class="btn btn-primary" id="btnSuite">Étape suivante</button>
+    <button type="button" class="btn btn-outline-secondary" id="btnRaz">Recommencer l'essai</button>
+  </div>
+
+  <div class="demo-questions">
+    <strong>Ce que cette maquette montre</strong>
+    <ol class="small mb-2">
+      <li>Le texte « appuyez sur Entrée » est remplacé par un <strong>vrai bouton</strong> « Ajouter … tel quel », visible dès que le métier tapé n'est pas dans le répertoire.</li>
+      <li>La touche Entrée fait la même chose qu'aujourd'hui.</li>
+      <li>Variante A : si la personne passe à la suite avec un métier tapé mais pas ajouté, on <strong>ne perd rien en silence</strong> : un rappel doux lui dit d'appuyer sur le bouton. Variante B : le métier est ajouté tout seul.</li>
+      <li>Un métier saisi par la personne porte la mention « saisi par vous » : il n'a pas de fiche officielle, comme aujourd'hui.</li>
+    </ol>
+    <strong>Questions pour vous</strong>
+    <ol class="small mb-0">
+      <li>Variante A (rappel) ou B (ajout automatique) ? Recommandation : <strong>A</strong>, car B peut transformer une faute de frappe en nouveau métier sans que la personne le voie.</li>
+      <li>Le libellé du bouton vous convient-il : « Ajouter … tel quel » ?</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+(function () {
+  var REPERTOIRE = ['Boulanger', 'Boucher', 'Aide-soignant', 'Agent d’entretien', 'Cuisinier', 'Serveur', 'Électricien', 'Employé de libre-service', 'Chauffeur-livreur', 'Maçon', 'Secrétaire', 'Vendeur'];
+  var variante = 'A';
+  var choisi = null;          // { nom, horsRepertoire }
+  var zone = document.getElementById('contenu');
+  var messages = document.getElementById('messages');
+
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function surligner(nom, t) {
+    var i = norm(nom).indexOf(norm(t)); if (!t.trim() || i === -1) { return esc(nom); }
+    return esc(nom.slice(0, i)) + '<mark>' + esc(nom.slice(i, i + t.trim().length)) + '</mark>' + esc(nom.slice(i + t.trim().length));
+  }
+  function majuscule(s) { s = s.trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function dessiner() {
+    messages.innerHTML = '';
+    if (choisi) {
+      zone.innerHTML = '<p class="mb-1">Vous avez choisi de candidater pour le métier :</p>' +
+        '<div class="metiers-chips"><span class="metier-resume-chip metier-resume-cible">' +
+        '<span class="metier-resume-suppr" id="retirer" title="Retirer" style="cursor:pointer">&#10005;</span>' +
+        '<span class="metier-resume-nom">&#127919; ' + esc(choisi.nom) + '</span></span></div>' +
+        (choisi.horsRepertoire ? '<p class="metier-saisi-note">Métier saisi par vous : il n’a pas de fiche officielle, mais il sera bien transmis à l’assistant.</p>' : '');
+      document.getElementById('retirer').addEventListener('click', function () { choisi = null; dessiner(); });
+      return;
+    }
+    zone.innerHTML = '<div class="banniere-metier-cible-recherche">' +
+      '<p class="mb-1 small fw-semibold">&#128269; Recherchez un métier : s’il est dans notre répertoire, cliquez dessus pour l’ajouter. Sinon, tapez-le en entier puis cliquez sur « Ajouter tel quel ».</p>' +
+      '<input type="text" class="form-control" id="saisie" placeholder="Quel métier recherchez-vous ?" autocomplete="off">' +
+      '<div id="resultats"></div></div>';
+    var input = document.getElementById('saisie');
+    var res = document.getElementById('resultats');
+    function majResultats() {
+      var t = input.value, n = norm(t);
+      var trouves = n.length >= 2 ? REPERTOIRE.filter(function (m) { return norm(m).indexOf(n) !== -1; }) : [];
+      var exact = trouves.filter(function (m) { return norm(m) === n; })[0];
+      var html = trouves.map(function (m) {
+        return '<div class="option-metier-ajout" data-nom="' + esc(m) + '"><span class="option-metier-ajout-nom">&#128204; ' + surligner(m, t) + '</span></div>';
+      }).join('');
+      if (n.length >= 2 && !exact) {
+        html += (trouves.length ? '' : '<p class="text-muted small mb-1">Aucun métier trouvé dans notre répertoire.</p>') +
+          '<button type="button" class="btn btn-outline-primary btn-ajouter-tel-quel" id="btnTelQuel">&#10133; Ajouter « ' + esc(majuscule(t)) + ' » tel quel</button>';
+      }
+      res.innerHTML = html;
+      res.querySelectorAll('[data-nom]').forEach(function (el) {
+        el.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        el.addEventListener('click', function () { choisi = { nom: el.dataset.nom, horsRepertoire: false }; dessiner(); });
+      });
+      var b = document.getElementById('btnTelQuel');
+      if (b) {
+        b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        b.addEventListener('click', function () { choisi = { nom: majuscule(input.value), horsRepertoire: true }; dessiner(); });
+      }
+    }
+    input.addEventListener('input', majResultats);
+    input.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') { return; }
+      e.preventDefault();
+      var n = norm(input.value); if (n.length < 2) { return; }
+      var exact = REPERTOIRE.filter(function (m) { return norm(m) === n; })[0];
+      choisi = exact ? { nom: exact, horsRepertoire: false } : { nom: majuscule(input.value), horsRepertoire: true };
+      dessiner();
+    });
+    input.addEventListener('blur', function () {
+      // Variante B seulement : à la sortie du champ, le métier tapé est ajouté tout seul.
+      if (variante !== 'B') { return; }
+      var n = norm(input.value); if (n.length < 2) { return; }
+      var exact = REPERTOIRE.filter(function (m) { return norm(m) === n; })[0];
+      choisi = exact ? { nom: exact, horsRepertoire: false } : { nom: majuscule(input.value), horsRepertoire: true };
+      dessiner();
+      messages.innerHTML = '<div class="demo-message ok">Votre métier « ' + esc(choisi.nom) + ' » a été ajouté. Vous pouvez le retirer avec la croix.</div>';
+    });
+    majResultats();
+  }
+
+  function suite() {
+    var input = document.getElementById('saisie');
+    if (choisi) { messages.innerHTML = '<div class="demo-message ok">C’est noté : on passe à l’écran suivant avec « ' + esc(choisi.nom) + ' ».</div>'; return; }
+    var t = input ? input.value : '';
+    if (norm(t).length >= 2) {
+      if (variante === 'B') {
+        choisi = { nom: majuscule(t), horsRepertoire: true }; dessiner();
+        messages.innerHTML = '<div class="demo-message ok">Votre métier « ' + esc(choisi.nom) + ' » a été ajouté, puis on passe à l’écran suivant.</div>';
+      } else {
+        messages.innerHTML = '<div class="demo-message rappel">Votre métier « ' + esc(majuscule(t)) + ' » n’est pas encore ajouté. Cliquez sur le bouton « Ajouter tel quel » juste au-dessus, puis passez à la suite.</div>';
+        var b = document.getElementById('btnTelQuel'); if (b) { b.focus(); }
+      }
+      return;
+    }
+    messages.innerHTML = '<div class="demo-message rappel">Choisissez d’abord un métier : tapez son nom, puis cliquez sur une proposition ou sur « Ajouter tel quel ».</div>';
+  }
+
+  function theme(sombre) {
+    document.documentElement.setAttribute('data-theme', sombre ? 'sombre' : 'clair');
+    document.getElementById('btnSombre').classList.toggle('actif', sombre);
+    document.getElementById('btnClair').classList.toggle('actif', !sombre);
+  }
+  function appareil(tel) {
+    document.getElementById('page').classList.toggle('tel', tel);
+    document.getElementById('btnTel').classList.toggle('actif', tel);
+    document.getElementById('btnOrdi').classList.toggle('actif', !tel);
+  }
+  function setVar(v) {
+    variante = v; choisi = null;
+    document.getElementById('varA').classList.toggle('actif', v === 'A');
+    document.getElementById('varB').classList.toggle('actif', v === 'B');
+    dessiner();
+  }
+  document.getElementById('btnClair').addEventListener('click', function () { theme(false); });
+  document.getElementById('btnSombre').addEventListener('click', function () { theme(true); });
+  document.getElementById('btnOrdi').addEventListener('click', function () { appareil(false); });
+  document.getElementById('btnTel').addEventListener('click', function () { appareil(true); });
+  document.getElementById('varA').addEventListener('click', function () { setVar('A'); });
+  document.getElementById('varB').addEventListener('click', function () { setVar('B'); });
+  document.getElementById('btnFermer').addEventListener('click', function () { document.getElementById('reglages').hidden = true; });
+  document.getElementById('btnReglages').addEventListener('click', function () { var r = document.getElementById('reglages'); r.hidden = !r.hidden; });
+  document.getElementById('btnSuite').addEventListener('click', suite);
+  document.getElementById('btnRaz').addEventListener('click', function () { choisi = null; dessiner(); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

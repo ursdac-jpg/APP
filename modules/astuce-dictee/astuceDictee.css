@@ -1,0 +1,19 @@
+/* Astuce « dictée à la voix » adaptée à l'appareil (brique commune, consigne 85, 01/11/2026).
+   Couleurs : jetons de l'application uniquement (clair et sombre déjà couverts). */
+.astuce-dictee { background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-radius: 6px; padding: 0.5rem 0.75rem; margin: 0 0 1rem; font-size: var(--t-moyen); line-height: 1.45; color: var(--text-strong); }
+.astuce-dictee p { margin: 0; }
+.astuce-dictee-detail { margin-top: 0.4rem; }
+.astuce-dictee-detail > summary { cursor: pointer; font-weight: 700; color: var(--accent-texte); font-size: var(--t-moyen); padding: 0.2rem 0; min-height: 44px; display: flex; align-items: center; }
+.astuce-dictee-detail > summary::marker { color: var(--accent-texte); }
+.astuce-dictee-detail ol { margin: 0.3rem 0 0.2rem; padding-left: 1.3rem; }
+.astuce-dictee-detail li { margin: 0.25rem 0; }
+.astuce-dictee-aide { margin: 0.4rem 0 0; font-size: var(--t-petit); color: var(--text-muted); }
+.astuce-dictee-touche { display: inline-block; white-space: nowrap; padding: 0 0.4rem; border: 1px solid var(--border-strong); border-radius: 5px; background: var(--bg-card); font-weight: 700; font-size: var(--t-moyen); }
+.astuce-dictee-autres { list-style: none; padding-left: 0 !important; }
+.astuce-dictee-autres li { margin: 0.45rem 0; }
+/* Forme « ligne » : petite phrase sous une zone de texte. */
+.astuce-dictee-ligne { font-size: var(--t-petit); color: var(--text-muted); margin: 0.3rem 0 0.6rem; }
+.astuce-dictee-ligne .astuce-dictee-detail { display: inline; }
+.astuce-dictee-ligne .astuce-dictee-detail > summary { display: inline-flex; min-height: 0; font-size: var(--t-petit); padding: 0 0 0 0.3rem; }
+.astuce-dictee-ligne .astuce-dictee-detail[open] { display: block; margin-top: 0.4rem; }
+.astuce-dictee-ligne .astuce-dictee-detail[open] > summary { display: flex; padding-left: 0; }

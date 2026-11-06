@@ -24,6 +24,7 @@ ce_qui_change_souvent:
   - "Le formulaire et les pièces à fournir"
 revisions:
   - "2026-10 : la demande peut se faire en ligne (système d'information de l'aide juridictionnelle, depuis le 1er janvier 2026) ; vérifié sur justice.gouv.fr et service-public.fr le 2026-10-05"
+phrase_generale: "Quand on a besoin d'un avocat ou d'engager une procédure et que les revenus sont modestes, l'État peut payer tout ou partie des frais : c'est l'aide juridictionnelle. Les plafonds de ressources, les conditions et les montants changent régulièrement : renseignez-vous auprès du tribunal ou d'une maison de justice et du droit, ou consultez les sources officielles indiquées plus bas."
 collecte: juridique.collecte.md
 ---
 

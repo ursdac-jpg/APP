@@ -7,7 +7,7 @@ tags: [garage solidaire, location solidaire, plateforme mobilité, prescription,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "garage solidaire"
     definition: "Atelier qui entretient et répare les véhicules à prix réduit pour les personnes en difficulté. Souvent un atelier et chantier d'insertion."
@@ -24,16 +24,22 @@ sources:
 ce_qui_change_souvent:
   - "La liste des garages solidaires et des plateformes mobilité par territoire"
   - "Les tarifs et les durées maximales de location"
-revisions: []
+revisions:
+  - "2026-11-04 : la page « Mes aides France Travail » (transport) ne décrit ni les garages solidaires, ni les plateformes mobilité, ni les auto-écoles associatives : la durée de location est retirée ; le reste est à confirmer sur des pages dédiées (date de vérification inchangée)"
+  - "2026-11-04 : remise en service d'après la page de Wimoov (garages et locations solidaires, déclenchement par un conseiller mobilité), la page du ministère du Travail sur mesaidesverslemploi.fr, la fiche Dora de la plateforme mobilité de Haute-Vienne et un document de la Sécurité routière sur les garages solidaires ; la vente de véhicules, les ateliers d'insertion, les vélos, les voitures sans permis et les auto-écoles associatives n'y figurent pas (retirés)"
+  - "2026-11-04 : la fiche Dora de la plateforme mobilité MUST (Dordogne, publiée le 14 janvier 2022) confirme le périmètre, l'adressage par un prescripteur partenaire, le diagnostic, les ateliers, le lieu et la gratuité"
+phrase_generale: "Quand un véhicule manque pour aller travailler, il existe des services à tarif solidaire, en général déclenchés par un conseiller et non en s'y présentant directement. Les tarifs, les conditions et les structures disponibles changent selon les territoires : demandez à un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: mobilite.collecte.md
 ---
 
-Quand un véhicule vous manque pour aller travailler, il existe des services réservés aux personnes en difficulté, à petit prix. Ils fonctionnent presque toujours sur orientation d'un conseiller France Travail ou d'un travailleur social.
+Quand un véhicule vous manque pour aller travailler, il existe des services à tarif solidaire. Ils sont en général déclenchés par un conseiller (par exemple un conseiller mobilité), et non en vous y présentant directement.
 
-Les garages solidaires entretiennent et réparent les voitures à tarif réduit. Certains vendent ou louent aussi des véhicules. Beaucoup sont des ateliers d'insertion, qui emploient des personnes en parcours.
+Les garages solidaires, le plus souvent constitués sous forme associative, proposent l'entretien et la réparation de véhicules (voitures et deux-roues motorisés) à tarif solidaire.
 
-Les plateformes mobilité vont plus loin : elles font un point complet sur vos besoins de déplacement, puis proposent une solution adaptée. Elles peuvent vous louer une voiture, un scooter, une voiture sans permis, un vélo ou un vélo électrique, en général pour quelques semaines à trois mois, le temps de trouver une solution durable.
+Des services de location solidaire mettent à disposition des voitures ou des deux-roues motorisés (scooters, mobylettes), temporairement, de quelques heures à quelques mois, à tarif solidaire. Chez Wimoov, par exemple, la location d'une voiture demande le permis B, la signature d'un contrat de mise à disposition et des points de suivi réguliers pour chercher une solution de mobilité durable.
 
-Il existe aussi des auto-écoles associatives, qui préparent au permis à un rythme et à un tarif adaptés.
+En Haute-Vienne, la plateforme mobilité de la Fédération Châtaigne loue des scooters ou des voitures à des personnes en insertion professionnelle ou en recherche d'emploi, sur prescription de France Travail, de Cap emploi, de la Mission locale rurale ou d'un assistant social.
 
-Ces solutions ne s'obtiennent pas en s'y présentant directement : parlez-en d'abord à votre conseiller ou à la personne qui vous accompagne. Pour trouver la structure la plus proche, voyez « Près de chez moi » ou l'annuaire « Mes aides France Travail ».
+En Dordogne, la plateforme mobilité MUST, à Coulounieix-Chamiers, propose gratuitement des informations et des aides à la mobilité, un diagnostic complet et un parcours, avec des ateliers (savoirs de base du code de la route, préparation du permis AM). On y est adressé par un prescripteur partenaire (fiche Dora publiée en 2022 : vérifiez qu'elle est toujours ouverte).
+
+Le site mesaidesverslemploi.fr référence les aides au financement du permis de conduire, à l'achat, la réparation et la location de véhicules, aux vélos électriques, ainsi que les garages solidaires et les plateformes mobilité. Pour trouver la structure la plus proche, voyez aussi « Près de chez moi ».

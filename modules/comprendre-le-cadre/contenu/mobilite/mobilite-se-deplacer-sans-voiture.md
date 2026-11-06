@@ -7,7 +7,7 @@ tags: [transports en commun, carte de réduction régionale, transport à la dem
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "carte de réduction régionale des transports"
     definition: "Tarif réduit sur les trains et les cars d'une région, proposé par certaines régions aux personnes à faibles ressources. Le nom, le tarif et les conditions varient d'une région à l'autre."
@@ -22,7 +22,8 @@ ce_qui_change_souvent:
   - "Les conditions et le tarif des cartes de réduction régionales pour les transports"
   - "Les offres de transport à la demande par territoire"
   - "Les tarifs réduits des réseaux de bus des agglomérations"
-revisions: []
+revisions:
+  - "2026-11-04 : la page de la Carte Solidaire (Nouvelle-Aquitaine) confirme une carte de réduction pour les personnes à faibles ressources ; la priorité des demandeurs d'emploi au transport à la demande, la gratuité pour les demandeurs d'emploi, la gratuité des applications de covoiturage et les aides au vélo n'y figurent pas (retirées ou assouplies)"
 collecte: mobilite.collecte.md
 voir_aussi_chiffres: "Combien de personnes n'ont pas de voiture ici"
 ---
@@ -31,11 +32,11 @@ Ne pas avoir de voiture ne veut pas dire ne pas pouvoir travailler. Plusieurs so
 
 Certaines régions proposent une carte de réduction sur les trains et les cars régionaux, réservée aux personnes à faibles ressources. Le nom, le tarif et les conditions changent d'une région à l'autre, mais le principe est souvent le même. Renseignez-vous sur celle de votre région.
 
-Là où il n'y a pas de ligne de bus régulière, un transport à la demande existe dans de nombreux territoires : un service collectif sur réservation, pour les trajets de proximité. Certains sont ouverts en priorité aux personnes en recherche d'emploi, avec une prise en charge plus près de leur domicile.
+Là où il n'y a pas de ligne de bus régulière, un transport à la demande existe dans de nombreux territoires : un service collectif sur réservation, pour les trajets de proximité.
 
-Dans les villes, plusieurs réseaux de bus proposent un tarif réduit ou gratuit selon les ressources ou le statut de demandeur d'emploi. Renseignez-vous auprès du réseau de votre agglomération.
+Dans les villes, plusieurs réseaux de bus proposent un tarif réduit selon les ressources. Renseignez-vous auprès du réseau de votre agglomération.
 
-Pour les trajets réguliers vers le travail, des applications de covoiturage, parfois publiques et gratuites, existent dans certaines régions et mettent en relation conducteurs et passagers sans commission.
+Pour les trajets réguliers vers le travail, des applications de covoiturage existent dans certaines régions.
 
 Il existe aussi, selon les territoires, des aides à l'achat d'un vélo, des vélos en location longue durée proposés par certaines collectivités, et des ateliers pour apprendre à réparer son vélo soi-même.
 

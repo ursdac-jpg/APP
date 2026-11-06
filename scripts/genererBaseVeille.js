@@ -36,6 +36,12 @@ fs.readdirSync(CONTENU).sort().forEach(function (rayon) {
 
 var contenu = '// FICHIER GENERE par scripts/genererBaseVeille.js : ne pas modifier a la main.\n'
   + '// Copie des fiches de modules/comprendre-le-cadre/contenu/ pour outils/veille.html.\n'
-  + 'window.BASE_VEILLE = ' + JSON.stringify({ genere: dateDuJour(), fiches: fiches }) + ';\n';
+  + 'window.BASE_VEILLE = ' + JSON.stringify({ genere: dateDuJour(), motifAChiffres: require('../outils/veilleFiche.js').MOTIF_A_CHIFFRES, fiches: fiches }) + ';\n';
 fs.writeFileSync(SORTIE, contenu, 'utf8');
 console.log('outils/base_fiches.js ecrit : ' + fiches.length + ' fiches, ' + Math.round(contenu.length / 1024) + ' Ko.');
+
+// Les « Délais à ne pas rater » viennent des mêmes fiches : leur fichier généré se met à jour avec la base de l'outil de veille.
+try { console.log(require('./genererDelais').ecrire() + ' délais mis à jour.'); } catch (e) { console.error('Délais non mis à jour : ' + e.message); process.exitCode = 1; }
+
+// L'index des fiches lu par la barre de recherche de l'accueil (consigne 101) se met aussi à jour ici.
+try { require('child_process').execFileSync(process.execPath, [require('path').join(__dirname, 'genererIndexFichesCadre.js')], { stdio: 'inherit' }); } catch (e) { console.error('Index de la recherche non mis à jour : ' + e.message); process.exitCode = 1; }

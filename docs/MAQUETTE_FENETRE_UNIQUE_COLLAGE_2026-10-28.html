@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Une seule fenêtre « Collez la réponse »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-accent-bg:#eaf0ff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; --mq-ko:#a4262c; --mq-ko-bg:#fde8e8; --mq-sal:#8f3b1f; --mq-sal-bg:#fdebe3; --mq-accent-txt:#fff; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-accent-bg:#1f2a44; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; --mq-ko:#f4a3a8; --mq-ko-bg:#3d1f22; --mq-sal:#f2b49a; --mq-sal-bg:#3a2620; --mq-accent-txt:#0b1020; } }
+body { margin:0; padding:16px 16px 70px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1060px; margin:0 auto; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.1rem; margin:0 0 8px; } h3 { font-size:1rem; margin:12px 0 4px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); vertical-align:middle; }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); } .mq-etiquette.ko { background:var(--mq-ko-bg); color:var(--mq-ko); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
+.mq-capture { border:1px solid var(--mq-border); border-radius:10px; overflow:hidden; background:var(--mq-card); }
+.mq-capture img { width:100%; display:block; } .mq-capture p { margin:0; padding:8px 10px; font-size:.9rem; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:10px; padding:10px 12px; margin:8px 0; background:var(--mq-card); }
+.mq-opt.reco { border:2px solid var(--mq-accent); }
+.mq-benef { color:var(--mq-ok); font-weight:700; } .mq-risque { color:var(--mq-ko); font-weight:700; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+table { border-collapse:collapse; width:100%; font-size:.9rem; } th, td { border:1px solid var(--mq-border); padding:6px 8px; text-align:left; vertical-align:top; } th { background:var(--mq-bg); }
+.mq-choix { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:6px 0; }
+.mq-choix .mq-lib { font-weight:700; font-size:.9rem; min-width:90px; }
+.mq-choix button { border:1px solid var(--mq-border); background:var(--mq-card); color:var(--mq-text); border-radius:99px; padding:4px 12px; cursor:pointer; font-size:.9rem; }
+.mq-choix button.actif { background:var(--mq-accent); color:#fff; border-color:var(--mq-accent); }
+/* LA FENETRE UNIQUE */
+.u-fenetre { border:1px solid var(--mq-border); border-radius:14px; background:var(--mq-card); max-width:760px; margin:10px auto; overflow:hidden; }
+.u-corps { padding:16px 18px 12px; }
+.u-module { text-align:center; font-size:.85rem; color:var(--mq-muted); margin-bottom:2px; }
+.u-titre { text-align:center; font-size:1.45rem; font-weight:800; margin:0 0 10px; }
+.u-bandeau { background:var(--mq-accent-bg); border-left:3px solid var(--mq-accent); border-radius:8px; padding:.7rem .9rem; margin-bottom:10px; }
+.u-bandeau p { margin:0 0 8px; font-size:.95rem; } .u-ligne { display:flex; gap:8px; flex-wrap:wrap; }
+.u-conseil { background:var(--mq-warn-bg); color:var(--mq-text); border-radius:8px; padding:.6rem .85rem; margin-bottom:10px; font-size:.92rem; }
+.u-conseil strong { color:var(--mq-warn); }
+.u-action { text-align:center; padding:12px 0 8px; }
+.u-gros { border:none; border-radius:12px; background:var(--mq-accent); color:#fff; font-weight:700; font-size:1.2rem; padding:.9rem 2.2rem; box-shadow:0 4px 14px rgba(13,110,253,.35); cursor:pointer; }
+.u-gros[disabled] { opacity:.45; cursor:not-allowed; box-shadow:none; }
+.u-sous-gros { font-size:.9rem; color:var(--mq-muted); margin:6px 0 8px; }
+.u-btn { border:1px solid var(--mq-accent); background:var(--mq-card); color:var(--mq-accent); border-radius:8px; padding:.4rem .9rem; font-size:.92rem; cursor:pointer; }
+.u-btn.plein { background:var(--mq-accent); color:#fff; font-weight:700; }
+.u-recu { background:var(--mq-ok-bg); color:var(--mq-ok); border-radius:12px; padding:16px; text-align:center; margin:6px 0 10px; }
+.u-recu .u-grand { font-size:1.4rem; font-weight:800; } .u-recu p { margin:6px 0 0; color:var(--mq-text); }
+.u-coupe { background:var(--mq-warn-bg); color:var(--mq-warn); border-radius:12px; padding:16px; text-align:center; margin:6px 0 10px; }
+.u-coupe .u-grand { font-size:1.3rem; font-weight:800; } .u-coupe p { margin:6px 0 0; color:var(--mq-text); }
+.u-fenetre textarea { width:100%; min-height:90px; border:1px solid var(--mq-border); border-radius:8px; background:var(--mq-bg); color:var(--mq-text); padding:8px; }
+.u-pied { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:10px; padding-top:10px; border-top:1px dashed var(--mq-border); }
+.u-barre { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; border-top:1px solid var(--mq-border); background:var(--mq-bg); flex-wrap:wrap; }
+.u-barre .btn[disabled] { opacity:.45; }
+.u-cache { display:none !important; }
+.u-pulse { animation:u-pulse 1.6s infinite; } @keyframes u-pulse { 0%,100% { box-shadow:0 0 0 0 rgba(47,107,255,.5); } 50% { box-shadow:0 0 0 8px rgba(47,107,255,0); } }
+.u-quoi { background:var(--mq-bg); border:1px solid var(--mq-border); border-radius:8px; padding:.6rem .85rem; margin-bottom:10px; font-size:.93rem; }
+.u-diff { background:var(--mq-warn-bg); border-radius:8px; padding:.6rem .85rem; margin-bottom:10px; font-size:.93rem; }
+.u-diff strong { color:var(--mq-warn); }
+.u-main-bloc { margin-top:22px; padding-top:16px; border-top:1px dashed var(--mq-border); }
+.u-main-bloc p { margin:0 0 8px; font-size:.9rem; color:var(--mq-muted); }
+.u-echec { background:var(--mq-sal-bg); color:var(--mq-sal); border-radius:12px; padding:16px; text-align:left; margin:6px 0 10px; }
+.u-echec .u-grand { font-size:1.3rem; font-weight:800; text-align:center; } .u-echec p, .u-echec ol { color:var(--mq-text); margin:8px 0 0; }
+.u-verifs { text-align:left; margin:8px auto 0; max-width:520px; padding-left:0; list-style:none; font-size:.92rem; color:var(--mq-text); }
+.u-expl { font-size:.85rem; color:var(--mq-muted); margin:4px 0 0; }
+.u-etapes { list-style:none; counter-reset:etape; margin:10px 0 0; padding:0; text-align:left; }
+.u-etapes li { counter-increment:etape; color:var(--mq-text); padding:.25rem 0 .25rem 2.4rem; margin:0 0 6px; position:relative; font-size:1rem; }
+.u-etapes li::before { content:counter(etape); position:absolute; left:0; top:.2rem; width:1.7rem; height:1.7rem; border-radius:50%; background:var(--mq-accent); color:var(--mq-accent-txt); font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.u-etapes li strong { font-weight:800; }
+.u-passage { display:block; width:max-content; margin:0 auto 8px; background:var(--mq-accent-bg); color:var(--mq-accent); border:1px solid var(--mq-accent); font-weight:700; font-size:.88rem; border-radius:99px; padding:.15rem .8rem; }
+.u-passage small { font-weight:500; }
+.u-suite { text-align:center; padding:26px 12px; color:var(--mq-muted); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1>Une seule fenêtre « Collez la réponse » pour tous les modules</h1>
+<p class="muted">Rien n'est codé. Cette page répond à vos deux questions, montre les écrans réels, puis propose <strong>une fenêtre unique</strong> sur laquelle tout est cliquable pour de faux, avec <strong>uniquement des boutons</strong> (plus aucun texte cliquable). C'est la maquette de la dette B.17 que vous demandez depuis le 21/09 (« un seul écran partagé, identique visuellement et fonctionnellement »).</p>
+
+<div class="mq-carte">
+  <h2>1. Vos deux questions <span class="mq-etiquette ok">réponses franches</span></h2>
+  <h3>« Cette variété de fenêtres, c'est ce que j'ai dans l'application ? » : oui</h3>
+  <p>Chaque variante vient du code de l'application, pas de mon environnement de test. Les essais automatiques se contentent de les ouvrir vite, l'une après l'autre. J'ai relu les vingt-huit endroits du code qui dessinent un écran de collage : ils ont aujourd'hui <strong>cinq titres différents</strong>, <strong>au moins six phrases d'introduction différentes</strong>, <strong>huit noms différents pour le bouton d'import</strong> (voir le tableau ci-dessous), des boutons ronds ou rectangulaires, et des particularités propres à chaque module.</p>
+  <h3>« Ça n'existe que chez toi, pour tester ? » : seulement trois choses, que j'ai simulées</h3>
+  <ul>
+    <li>Le <strong>presse-papiers</strong> (je lui fais renvoyer une réponse, sans quoi je ne peux pas cliquer sur « Coller »).</li>
+    <li>L'état « <strong>réponse déjà importée</strong> » sur l'écran de votre capture : je l'ai forcé. Mais il existe vraiment : on l'obtient en revenant sur l'écran avec « Retour ».</li>
+    <li>J'ai ouvert <strong>directement</strong> la fenêtre « Ajouter le complément du CV », sans passer par le bouton de « Vos documents ». La fenêtre est vraie, seul le chemin pour y arriver est raccourci.</li>
+  </ul>
+  <p>Conclusion : <strong>la variété est bien réelle</strong>, et elle est née de l'histoire de l'application (un module après l'autre, chacun avec son écran de collage). Elle est inscrite en dette dans les briques communes (B.17) depuis le 21/09.</p>
+</div>
+
+<div class="mq-carte">
+  <h2>2. Ce qui existe aujourd'hui <span class="mq-etiquette">relevé dans le code</span></h2>
+  <table>
+    <tr><th>Famille d'écrans</th><th>Titre</th><th>Bouton d'import</th><th>Particularités propres</th></tr>
+    <tr><td>Analyser ma candidature (Bilan, 5 écrans), Les mots de votre CV, Comparer mes pistes, Un CV plusieurs métiers</td><td>« De retour : collez la réponse »</td><td>« Continuer » de la barre du bas</td><td>Phrase « Sa réponse est dans votre presse-papiers… »</td></tr>
+    <tr><td>Vos documents, Créer mon CV, Découvrir mes compétences (page de collage), Un CV plusieurs métiers</td><td>« Collez la réponse de l'assistant »</td><td>« Importer dans le CV / la lettre / la préparation » (puis « Continuer »)</td><td>« Changer d'assistant », complément de CV, deux chemins pour le complément</td></tr>
+    <tr><td>Reformuler, Préparer la lettre et l'entretien</td><td>Bloc « 2 Collez la réponse de l'assistant » avec une pastille « À faire »</td><td>« Continuer » de la barre du bas + « Effacer et recoller » maison</td><td>« Je suis de retour », « Rouvrir le site »</td></tr>
+    <tr><td>Lettre, entretien (version rapide)</td><td>Aucun</td><td>« Importer ma lettre », « Importer ma préparation »</td><td>boutons maison</td></tr>
+    <tr><td>Cohérence (2), Découverte (étape 4), Regard extérieur, Un regard sur mon CV</td><td>« Collez la réponse de l'assistant » ou aucun</td><td>« Importer » (rond), « Lire la réponse »</td><td>un encart différent par module (avis sur la consigne, Ctrl + C, « En attente du message complet »)</td></tr>
+    <tr><td>Fenêtres « Amélioration » et « Titre et accroche » du Bilan</td><td>« Collez la réponse de ChatGPT » (nom de l'assistant)</td><td>« Importer » rond</td><td>bouton « Ouvrir … maintenant » si le navigateur a bloqué</td></tr>
+    <tr><td>Complément de CV (4 endroits)</td><td>« Le complément de votre CV », « Ajouter le complément du CV »…</td><td>« Ajouter à mon CV », « Importer le complément »</td><td>« Étape 2 sur 2 », « rond bleu » (faux), « Passer »</td></tr>
+  </table>
+  <p class="muted">Autre défaut relevé au passage : dans les deux fenêtres du Bilan, le choix de l'assistant utilise des couleurs écrites en dur, qui n'ont pas de version pour le mode sombre.</p>
+  <div class="mq-grille" style="margin-top:10px;">
+    <div class="mq-capture"><img src="maquette_collage_reponse/7_ats.jpg" alt="Les mots de votre CV"><p><strong>Les mots de votre CV</strong> : page, titre « De retour : collez la réponse ».</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/6_reformuler.jpg" alt="Reformuler"><p><strong>Reformuler</strong> : bloc numéroté « 2 », « Je suis de retour », « Rouvrir le site », bouton grisé.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/3_deja_importee.jpg" alt="Découvrir mes compétences"><p><strong>Découvrir mes compétences</strong> : votre capture, trois boutons.</p></div>
+    <div class="mq-capture"><img src="maquette_collage_reponse/5_fenetre_complement_apres.jpg" alt="Fenêtre du complément"><p><strong>Fenêtre du complément</strong> : encore un autre dessin, avec « rond bleu ».</p></div>
+  </div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>3. La fenêtre unique (cliquez pour essayer) <span class="mq-etiquette ok">proposition</span></h2>
+  <p class="muted">Le <strong>même dessin</strong>, au <strong>même endroit</strong>, pour tous les modules. Ce qui change d'un module tient dans trois cases fixes : le <em>nom du module</em> (petite ligne en haut), le <em>conseil « Bon à savoir »</em> (encadré jaune, vide quand il n'y a rien à dire) et le <em>texte du bouton de suite</em> (en bas à droite). Changez le module, le passage et l'assistant ci-dessous pour le voir. <strong>Sur un module à deux passages, une petite pastille discrète « Premier passage » ou « Deuxième passage » s'affiche sous le nom du module (plus visible qu'avant, mais jamais plus forte que le gros bouton)</strong> ; sur un module à un seul passage, rien (aucun besoin). <strong>Le premier et le deuxième passage chez l'assistant ont exactement la même fenêtre</strong> : seuls changent la pastille « Passage 1 sur 2 » et les deux messages (ce qui se passe, et en quoi ce passage diffère du premier).</p>
+  <div class="mq-choix" id="uModules"><span class="mq-lib">Module :</span>
+    <button type="button" data-mod="cv" class="actif">Mon CV (Vos documents)</button>
+    <button type="button" data-mod="bilan">Analyser ma candidature</button>
+    <button type="button" data-mod="regard">Un regard sur mon CV</button>
+  </div>
+  <div class="mq-choix" id="uPassages"><span class="mq-lib">Passage :</span>
+    <button type="button" data-pas="1" class="actif">Un seul passage</button>
+    <button type="button" data-pas="1/2">Passage 1 sur 2</button>
+    <button type="button" data-pas="2/2">Passage 2 sur 2</button>
+  </div>
+  <div class="mq-choix" id="uAssistants"><span class="mq-lib">Assistant :</span>
+    <button type="button" data-ass="ChatGPT" class="actif">ChatGPT</button>
+    <button type="button" data-ass="Gemini">Gemini</button>
+    <button type="button" data-ass="Perplexity">Perplexity</button>
+  </div>
+  <div class="mq-choix" id="uEtapes"><span class="mq-lib">Aller à :</span>
+    <button type="button" data-etat="ouvert" class="actif">Chez l'assistant</button>
+    <button type="button" data-etat="pret">Prête à coller</button>
+    <button type="button" data-etat="recu">Bien reçue</button>
+    <button type="button" data-etat="coupe">Réponse coupée (assistant prévenu)</button>
+    <button type="button" data-etat="coupe2">Réponse coupée (en silence)</button>
+    <button type="button" data-etat="echec">Réponse inutilisable</button>
+    <button type="button" data-etat="main">Coller à la main</button>
+    <button type="button" data-etat="complement">Complément de CV</button>
+  </div>
+
+  <div class="u-fenetre" id="uFenetre">
+    <div class="u-corps">
+      <div class="u-module" id="uModule">Vos documents</div>
+      <span class="u-passage u-cache" id="uPassage"></span>
+      <div class="u-titre" id="uTitre">&#128229; Collez la réponse de l'assistant</div>
+
+      <div class="u-quoi" id="uQuoi"><strong>&#8505;&#65039; Ce qui se passe.</strong> <span id="uQuoiTexte"></span></div>
+      <div class="u-diff u-cache" id="uDiff"><strong>&#9888;&#65039; En quoi ce passage est différent du premier.</strong> <span id="uDiffTexte"></span></div>
+
+      <div class="u-bandeau" id="uBandeau">
+        <p id="uBandeauTexte"></p>
+        <div class="u-ligne" id="uBandeauBoutons"></div>
+      </div>
+
+      <div class="u-conseil u-cache" id="uConseil"><strong>&#128161; Bon à savoir.</strong> <span id="uConseilTexte"></span></div>
+
+      <div id="uCoupe" class="u-coupe u-cache">
+        <div class="u-grand">&#9888;&#65039; Il manque la fin de la réponse</div>
+        <p id="uCoupeTexte"></p>
+        <ol class="u-etapes">
+          <li>Retournez dans <strong>la même conversation</strong>, chez l'assistant (le dernier onglet utilisé).</li>
+          <li>Écrivez-lui simplement le mot <strong>suite</strong>, puis envoyez.</li>
+          <li>Copiez sa nouvelle réponse en entier, revenez ici et cliquez sur <strong>« Coller la suite »</strong>, juste en dessous.</li>
+        </ol>
+      </div>
+      <div id="uZoneAction" class="u-action">
+        <button type="button" class="u-gros" id="uColler">&#128203; Coller la réponse <span style="font-weight:400;font-size:.9rem;">(opération automatique)</span></button>
+        <div class="u-sous-gros" id="uSousColler"></div>
+        <div class="u-main-bloc">
+          <p><strong>Le bouton ci-dessus ne marche pas ?</strong> Sur certains navigateurs, la copie automatique n'est pas autorisée. Si vous avez du mal à coller, vous pouvez le faire vous-même :</p>
+          <button type="button" class="u-btn" id="uMain">&#9997; Coller à la main (vous collez vous-même)</button>
+        </div>
+      </div>
+
+      <div id="uZoneMain" class="u-cache">
+        <p class="u-sous-gros" style="text-align:left;">Collez la réponse de l'assistant dans le cadre, puis cliquez sur « Vérifier ce texte ».</p>
+        <textarea id="uTexte" placeholder="La réponse de l'assistant"></textarea>
+        <div class="u-ligne" style="margin-top:8px;justify-content:center;">
+          <button type="button" class="u-btn plein" id="uVerifier">&#10003; Vérifier ce texte</button>
+          <button type="button" class="u-btn" id="uRetourAuto">&#8617; Revenir au collage automatique</button>
+        </div>
+      </div>
+
+      <div id="uRecu" class="u-recu u-cache">
+        <div class="u-grand">&#10003; Réponse bien reçue</div>
+        <p id="uRecuTexte"></p>
+        <ul class="u-verifs" id="uVerifs"></ul>
+      </div>
+      <div id="uEchec" class="u-echec u-cache">
+        <div class="u-grand">Cette réponse n'a pas pu être utilisée</div>
+        <p><strong>Rien n'a été ajouté à votre travail, vous n'avez rien perdu.</strong> Le texte collé ne contient pas les informations attendues : l'assistant a peut-être répondu à autre chose, ou la copie est incomplète.</p>
+        <p id="uEchecPlus" class="u-cache"><strong>La suite n'a pas pu être jointe à la première partie.</strong> Si vous recommencez, le premier morceau est effacé aussi : tout repart de zéro.</p>
+        <ol class="u-etapes">
+          <li>Cliquez sur <strong>« Recommencer le collage »</strong> (il efface tout ce qui a été collé) et collez de nouveau, en copiant bien <strong>toute</strong> la réponse.</li>
+          <li>Si cela recommence, <strong>essayez un autre assistant</strong> ou regardez la démonstration : c'est peut-être l'assistant qui bloque, pas vous.</li>
+        </ol>
+        <div class="u-ligne" style="justify-content:center;margin-top:10px;">
+          <button type="button" class="u-btn plein" id="uRecommencer3">&#8635; Recommencer le collage</button>
+        </div>
+      </div>
+      <div id="uComplement" class="u-cache">
+        <div class="u-bandeau"><p><strong>&#10133; Votre CV est prêt. Le complément le rend plus complet.</strong> Ce n'est pas obligatoire : vous pouvez continuer sans.</p>
+          <div class="u-ligne"><button type="button" class="u-btn" id="uExemple">&#128269; Voir ce que le complément ajoute</button></div>
+          <div id="uExemplePanel" class="u-cache" style="margin-top:8px;font-size:.93rem;">
+            <ul style="margin:0 0 0 1.1rem;">
+              <li><strong>Vos emplois regroupés</strong> quand il y en a beaucoup, pour un CV plus lisible.</li>
+              <li><strong>Vos compétences illustrées</strong> par ce que vous savez faire, thème par thème.</li>
+              <li><strong>Les qualités attendues</strong> pour le métier que vous visez.</li>
+              <li><strong>Ce que vous avez appris</strong> pendant vos formations et vos certifications.</li>
+            </ul>
+          </div>
+        </div>
+        <ol class="u-etapes">
+          <li>Retournez dans <strong>la même conversation</strong>, chez l'assistant.</li>
+          <li>Répondez-lui : <strong>oui</strong>.</li>
+          <li>Copiez sa nouvelle réponse, revenez ici et cliquez sur <strong>« Coller le complément »</strong>.</li>
+        </ol>
+        <div class="u-action"><button type="button" class="u-gros" id="uCollerCompl">&#128203; Coller le complément <span style="font-weight:400;font-size:.9rem;">(opération automatique)</span></button>
+          <p class="u-expl"><strong>Vous pourrez l'ajouter plus tard</strong> : le bouton « Ajouter le complément du CV » reste disponible sur « Vos documents » et au moment de valider la mise en page.</p></div>
+      </div>
+      <div class="u-pied" id="uPied">
+        <button type="button" class="u-btn" id="uChanger">&#8634; Changer d'assistant</button>
+        <button type="button" class="u-btn" id="uVideo">&#9654; Voir la démonstration (20 s)</button>
+      </div>
+      <div id="uChoixAss" class="u-ligne u-cache" style="justify-content:center;margin-top:8px;">
+        <button type="button" class="u-btn plein" data-choix="ChatGPT">ChatGPT</button>
+        <button type="button" class="u-btn plein" data-choix="Gemini">Gemini</button>
+        <button type="button" class="u-btn" id="uAnnulerChoix">Annuler</button>
+      </div>
+    </div>
+    <div class="u-barre">
+      <button type="button" class="btn btn-outline-primary">&#8592; Retour</button>
+      <button type="button" class="btn btn-outline-primary btn-sm">Accueil</button>
+      <button type="button" class="btn btn-primary btn-lg" id="uContinuer" disabled>Continuer &#8594;</button>
+    </div>
+  </div>
+  <p class="muted" style="text-align:center;" id="uLegende"></p>
+  <div class="u-fenetre u-cache" id="uSuiteEcran"><div class="u-suite">Écran suivant du module (non simulé ici). <br><button type="button" class="u-btn" id="uRejouer" style="margin-top:10px;">&#8634; Rejouer la maquette</button></div></div>
+</div>
+
+<div class="mq-carte">
+  <h2>4. Où va chaque particularité actuelle <span class="mq-etiquette ok">rien n'est perdu</span></h2>
+  <table>
+    <tr><th>Ce qui existe aujourd'hui</th><th>Dans la fenêtre unique</th></tr>
+    <tr><td>Passage chez l'assistant : décompte, « Ouvrir maintenant », « Je suis de retour », « Rouvrir le site », ouverture bloquée</td><td>Le <strong>bandeau bleu</strong> du haut, une phrase et deux boutons : « <strong>Je suis de retour</strong> » (obligatoire, gardé : c'est la personne qui dit qu'elle est revenue, sans détection automatique) et « Rouvrir ChatGPT » (qui recopie le texte à envoyer, comme aujourd'hui). Même endroit partout, y compris dans les fenêtres du Bilan.</td></tr>
+    <tr><td>Premier passage chez l'assistant : rien n'explique ce qui se passe</td><td>Un encadré « <strong>Ce qui se passe</strong> » (une ou deux phrases) sous le titre : de quoi il s'agit, ce qui vient d'arriver.</td></tr>
+    <tr><td>Deuxième passage chez l'assistant : une fenêtre différente, sans explication</td><td><strong>La même fenêtre</strong>, avec la pastille « Passage 2 sur 2 » et un second encadré jaune « <strong>En quoi ce passage est différent du premier</strong> » (nouveau texte à envoyer, nouvelle réponse à coller).</td></tr>
+    <tr><td>« Changer d'assistant »</td><td>Bouton en <strong>pied de fenêtre</strong>, qui propose les assistants sous forme de boutons. <strong>Invisible partout, sauf après un échec de la vérification</strong> (message doux « cette réponse n'a pas pu être utilisée, rien n'a été ajouté ») : c'est alors seulement que le problème vient probablement de l'assistant. Pas sur « Coller à la main » (la réponse est peut-être bonne, c'est le navigateur qui bloque le collage), pas sur « Réponse bien reçue », pas sur le complément (changer d'assistant ferait repartir à zéro).</td></tr>
+    <tr><td>Particularités de chaque assistant (connexion demandée, limites sans compte)</td><td>L'encadré jaune « <strong>Bon à savoir</strong> », rempli à partir d'une seule liste d'assistants que vous relisez. Faits retenus : <strong>seul ChatGPT fonctionne sans compte</strong> avec nos textes ; Perplexity est limité sans compte ; les autres demandent un compte. Aucun conseil ne lie la coupure d'une réponse à un assistant ou à l'absence de compte : <strong>tous</strong> peuvent couper une longue réponse (voir 4 ter).</td></tr>
+    <tr><td>Encarts propres à un module (avis sur la consigne du Regard, Ctrl + C de Découverte, « En attente du message complet »)</td><td>La <strong>même case</strong> « Bon à savoir » : un module donne son texte, il n'a pas son propre dessin.</td></tr>
+    <tr><td>Vidéo « Voir la démonstration (20 s) »</td><td>Bouton en pied de fenêtre, visible seulement après un échec de la vérification (comme « Changer d'assistant »).</td></tr>
+    <tr><td>« Coller manuellement » (et son texte d'explication)</td><td>Le grand bouton s'appelle « Coller la réponse <strong>(opération automatique)</strong> ». Plus bas, <strong>bien séparé</strong>, un court texte explique la différence (« la copie automatique n'est pas autorisée sur certains navigateurs ; si vous avez du mal à coller, collez vous-même ») puis le bouton « Coller à la main ». La zone de texte s'ouvre avec <strong>un seul</strong> bouton : « Vérifier ce texte ».</td></tr>
+    <tr><td>Phrase « Les deux versions de votre CV sont bien lisibles dans la réponse »</td><td>Reformulée, sans mot qui prête à confusion : « La réponse est complète et lisible : elle contient bien votre CV. » Le grand « Réponse bien reçue » est gardé. Le compteur « (<strong>2 morceaux</strong> collés) » est gardé, en gras.</td></tr>
+    <tr><td>« Effacer et recoller », « Coller un morceau supplémentaire »</td><td>« <strong>Coller la suite</strong> » : seulement quand la réponse est coupée (c'est le gros bouton, qui change de nom). « <strong>Recommencer le collage</strong> » : seulement sur l'écran « Réponse inutilisable », avec son effet écrit (il efface tout, premier morceau compris). Ni l'un ni l'autre sur « Réponse bien reçue ».</td></tr>
+    <tr><td>Complément de CV (bandeau, écran « Étape 2 sur 2 », rubrique, fenêtre)</td><td><strong>Le même panneau</strong>, une deuxième fois. <strong>Un seul bouton pour continuer sans</strong> : « Continuer sans le complément », dans la barre du bas (le « Passer, je vois mon CV » du milieu disparaît : il faisait la même chose). À sa place, un bouton « <strong>Voir ce que le complément ajoute</strong> » qui montre, sans quitter la page, ce que la personne y gagne. Rappel gras : « Vous pourrez l'ajouter plus tard ».</td></tr>
+    <tr><td>Boutons « Importer », « Importer dans le CV », « Importer ma lettre », « Lire la réponse »</td><td>Disparaissent. Le texte du bouton de <strong>suite</strong> (en bas à droite) dit l'action : « Ajouter à mon CV », « Voir l'analyse », « Lire la réponse ».</td></tr>
+    <tr><td>Messages d'erreur de lecture, « profil inexploitable », reconnaissance d'un complément collé au mauvais endroit</td><td>Conservés tels quels : ils s'affichent dans la même zone (vert, jaune ou rouge).</td></tr>
+  </table>
+</div>
+
+<div class="mq-carte">
+  <h2>4 bis. Deux passages, « Je suis de retour » et « Rouvrir » <span class="mq-etiquette ok">vos deux dernières consignes</span></h2>
+  <h3>Les modules à deux passages que j'ai confirmés dans le code</h3>
+  <ul>
+    <li><strong>Découvrir mes compétences</strong> : premier passage (repérer les compétences), puis deuxième passage de rédaction du CV.</li>
+    <li><strong>Reformuler et présenter mon CV, version 2</strong> : un second passage chez l'assistant, seulement si la personne a joint au moins un appui.</li>
+    <li><strong>Le complément de CV</strong> : un second passage dans la même conversation.</li>
+    <li>Les autres parcours du CV (créer, mettre à jour) sont à confirmer un par un au moment du branchement : je ne les affirme pas sans les avoir rejoués.</li>
+  </ul>
+  <p>Dans la maquette ci-dessus, le choix « Passage 1 sur 2 » puis « Passage 2 sur 2 » montre la <strong>même fenêtre</strong> : seule la pastille change, avec l'encadré « Ce qui se passe » et, au deuxième passage, l'encadré jaune « En quoi ce passage est différent du premier ». Les textes sont des propositions : je les écris, vous les relisez mot à mot avant tout code.</p>
+  <h3>« Je suis de retour » : gardé, sans condition</h3>
+  <ul>
+    <li>Il reste obligatoire : c'est la personne qui dit qu'elle est revenue. La détection automatique du retour a été essayée en maquette puis écartée (consigne conservée dans le code : ne pas la réintroduire sans vous le demander). Le grand bouton « Coller la réponse » reste grisé jusqu'à ce clic.</li>
+    <li>Cela garde aussi son sens technique : lire le presse-papiers demande un geste de la personne et que la page soit active.</li>
+    <li><strong>« Rouvrir ChatGPT »</strong> : gardé lui aussi. Il fait ce que vous décrivez et <strong>le code le fait déjà</strong> depuis le 19/09 : il repart sur l'assistant déjà choisi et <strong>recopie le texte à envoyer</strong>, prêt à coller dans la conversation. Je propose seulement d'ajouter une phrase d'avertissement : si la personne avait déjà copié la réponse de l'assistant, « Rouvrir » la remplace dans le presse-papiers ; la fenêtre le dit alors (« recopiez la réponse »).</li>
+    <li>Ma réponse à votre question : cette zone <strong>n'est pas devenue inutile</strong>. Les évolutions faites ne comblent pas ce qu'elle couvre (onglet fermé, navigateur qui bloque l'ouverture, retour attendu). Elle est gardée et rendue identique partout.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>4 ter. Quand la réponse est coupée : la démarche proposée <span class="mq-etiquette">à valider (Q4)</span></h2>
+  <p><strong>Votre principe, retenu :</strong> on ne pousse jamais l'assistant à découper sa réponse. Le but est <strong>la réponse entière en un seul message</strong>, pour limiter les allers-retours entre l'assistant et l'application. Le mécanisme ci-dessous est un <strong>filet de sécurité</strong> pour le seul cas où l'assistant ne peut vraiment pas : mieux vaut deux allers-retours avec une réponse complète qu'un seul aller-retour avec une réponse coupée sans que personne le sache. Il ne concerne <strong>pas</strong> le complément de CV, qui reste ce qu'il est (démarche normale en deux passages, voir plus bas).</p>
+  <ol>
+    <li><strong>Un garde-fou dans tous nos textes à envoyer.</strong> Une seule phrase commune, écrite à un seul endroit (comme la « voix humaine »), ajoutée à chaque texte. Elle dit d'abord : « donne toute la réponse en un seul message ». Puis : « si c'est vraiment impossible, dis-le clairement en terminant par la ligne [SUITE], et attends que je t'écrive suite ». Elle n'encourage jamais à découper : la première consigne est toujours l'unique message complet. Cette phrase est une <strong>exception</strong> à la consigne « rien après le bloc de données » : la lecture de l'application doit l'accepter.</li>
+    <li><strong>Une détection par l'application, sans compter sur l'assistant.</strong> Elle repère seule : la ligne « [SUITE] », ou un bloc de données qui ne se termine pas (accolade jamais refermée). C'est ce qui protège quand le système coupe en silence. Si l'application se trompe, le bouton « C'est bien la réponse entière » débloque.</li>
+    <li><strong>Une fenêtre de suite, la même que les autres, rarement vue.</strong> À la place du vert « Réponse bien reçue » (qui n'apparaît que lorsque la réponse est complète), un cadre jaune « Il manque la fin de la réponse » dit en trois étapes quoi faire : retourner dans la même conversation, écrire le mot « suite », copier la nouvelle réponse et cliquer sur « Coller la suite ». Le gros bouton du dessous change simplement de nom. Pas de bouton « Copier le mot suite » : la personne le tape, c'est dit dans les étapes. Le compteur « (<strong>2 morceaux</strong>) » dit où l'on en est.</li>
+  </ol>
+  <h3>Votre question : le « complément de CV » peut-il servir aux messages coupés ?</h3>
+  <p>Aujourd'hui, <strong>non, pas tel quel</strong>. Le complément de CV est lié au texte du CV (prompts/cv.md) : à la fin de sa première réponse, l'assistant pose la question « voulez-vous le complément de CV ? », et sa seconde réponse est un <em>autre</em> bloc de données, avec ses propres clés, que l'application reconnaît et <em>fusionne</em> dans le CV. Une réponse coupée, c'est l'<em>inverse</em> : c'est la <em>même</em> réponse, dont il faut ajouter la fin <em>avant</em> de la lire. Ce que l'on peut partager, c'est le <strong>dessin</strong> (même fenêtre, même geste de collage, même compteur), pas le fonctionnement. D'où deux titres distincts : « Le complément de votre CV » et « La suite de la réponse ». Un complément de message est donc bien faisable, mais c'est un mécanisme neuf à coder.</p>
+  <h3>Les limites, dites franchement</h3>
+  <ul>
+    <li>Le mot « <strong>suite</strong> » : quand l'assistant a obéi au garde-fou, c'est le mot que <em>nous</em> lui avons demandé d'attendre, donc il déclenche bien la suite. Quand il a coupé en silence, « suite » est un mot courant que les assistants comprennent comme « continue », mais je ne peux pas le garantir pour les six : <strong>à essayer en vrai</strong> sur chacun avant de coder.</li>
+    <li>Un assistant peut <strong>ne pas obéir</strong> au garde-fou : c'est pour cela que l'application détecte aussi seule.</li>
+    <li>Si la coupure tombe <strong>exactement après la dernière accolade</strong>, rien ne la trahit : la réponse est de toute façon complète et lisible.</li>
+    <li>Un assistant qui <strong>réécrit ou abrège</strong> au lieu de couper (il « massacre » la réponse) n'est pas détectable : on ne peut que le signaler dans « Bon à savoir » quand c'est connu.</li>
+    <li>Technique : la suite se colle <strong>bout à bout</strong>, sans ligne vide (aujourd'hui « Coller un morceau supplémentaire » met une ligne vide entre deux morceaux, ce qui casserait un bloc de données coupé en plein texte). Si l'assistant recommence au début au lieu de continuer, l'application le voit (le bloc ne se lit pas) et l'indique.</li>
+    <li>Pour rendre la réponse entière plus probable en un message, les textes restent <strong>concis</strong> (déjà demandé dans cv.md : JSON compact). On ne baisse pas les quantités demandées pour autant (consigne conservée).</li>
+    <li>Les prompts ne sont pas touchés tant que vous n'avez pas validé : ce changement concerne toutes les consignes, il se testera sur un module à la fois.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>4 quater. Compenser les limites : l'application garante de la réponse <span class="mq-etiquette">validée (Q5)</span></h2>
+  <p>Vous avez raison : la plus-value de l'application, c'est de ne pas laisser passer une réponse abîmée ou douteuse. Il y a deux leviers, côté texte envoyé et côté code, et ils se complètent.</p>
+  <h3>Ce qui existe déjà (relevé dans le code)</h3>
+  <ul>
+    <li>Une réponse <strong>coupée en plein bloc n'est jamais acceptée en silence</strong> : elle ne se lit pas, et un message général dit de copier toute la réponse. Mais il ne dit pas comment aller chercher la fin.</li>
+    <li>Pour le CV, un contrôle existe déjà : éléments que l'application n'a pas pu utiliser, et missions qui se ressemblent trop entre deux expériences. Les autres modules vérifient surtout que la forme est lisible (au moins une rubrique attendue remplie).</li>
+    <li>Contre l'invention, il n'y a aujourd'hui que des <strong>consignes dans les textes envoyés</strong> (« jamais une expérience absente du profil »), pas de vérification par le code.</li>
+  </ul>
+  <h3>Ma recommandation : trois contrôles, du plus fiable au plus fragile</h3>
+  <table>
+    <tr><th>Question</th><th>Comment</th><th>Fiabilité</th></tr>
+    <tr><td><strong>1. Est-elle complète ?</strong></td><td>Dans chaque texte envoyé, un dernier champ « fin » (par exemple <code>"fin":"complet"</code>) que l'assistant n'écrit que s'il est arrivé au bout. Le code vérifie aussi que le bloc est refermé, que toutes les rubriques attendues sont là et que le nombre d'éléments demandés est atteint.</td><td>Forte : c'est de la forme, vérifiable à coup sûr.</td></tr>
+    <tr><td><strong>2. Reste-t-elle fidèle à ce que la personne a donné ?</strong></td><td>Le code compare ce que l'on peut comparer : employeurs, postes, dates, diplômes, chiffres cités dans la réponse, contre le profil de la personne. Un élément absent du profil est signalé « à vérifier », jamais corrigé ni bloqué.</td><td>Moyenne : le code compare des mots, il ne juge pas le vrai du faux ; des reformulations légitimes peuvent donner de fausses alertes, d'où un ton doux et jamais bloquant.</td></tr>
+    <tr><td><strong>3. Est-elle pertinente ?</strong></td><td>Ce qui se mesure déjà (doublons de missions) reste. Le reste est un jugement : l'application montre ce qu'elle a contrôlé, la personne garde la décision.</td><td>Limitée : aucun code ne remplace la relecture de la personne.</td></tr>
+  </table>
+  <h3>Ce que la personne voit</h3>
+  <p>Sous le « Réponse bien reçue » vert, une courte liste « ce qui a été vérifié » (voir la maquette, étape « Bien reçue ») : « complète », « toutes les rubriques sont là », puis une ligne « À vérifier » toujours la même, sans mot technique : relire son CV pour voir que tout ce que l'on a indiqué y figure et que rien n'est répété. L'alerte précise (deux phrases qui disent presque la même chose, citées telles quelles) s'affiche sur la page du CV, <strong>seulement si besoin</strong>, avec les mots de la personne et sans les mots « mission » ou « expérience ». Jamais de diagnostic sur la personne.</p>
+  <p><span class="mq-benef">+</span> La personne est protégée des dérives et comprend pourquoi. <span class="mq-risque">−</span> Un champ de plus dans chaque texte envoyé ; du travail par module (environ quatorze textes) ; les fausses alertes du contrôle 2 sont à régler avec vos essais. <strong>Ordre proposé :</strong> contrôle 1 pour tous les modules d'abord (peu coûteux, très fiable), contrôle 2 pour le CV, la lettre et l'entretien (là où l'invention fait le plus de mal), contrôle 3 plus tard.</p>
+</div>
+
+<div class="mq-carte">
+  <h2>4 quinquies. Tout agencer ensemble : une règle par écran <span class="mq-etiquette">à valider (Q6)</span></h2>
+  <p>Pour que la personne ne se perde jamais, je propose quatre règles, appliquées à tous les écrans ci-dessous.</p>
+  <ul>
+    <li><strong>Les couleurs ont un sens fixe.</strong> Vert : c'est bon. Jaune : c'est incomplet, il reste quelque chose. Saumon doux : ça n'a pas fonctionné, rien n'est perdu. <strong>Bleu (couleur du thème) : ce que vous avez à faire.</strong> Les étapes sont numérotées : <strong>seul le numéro (1, 2, 3) est une pastille bleue</strong>, le texte reste normal. Le gros bouton reste le seul élément très fort de l'écran.</li>
+    <li><strong>Un seul geste évident par écran</strong>, et jamais deux boutons qui font la même chose.</li>
+    <li><strong>Un bouton « de sortie » n'apparaît que là où il a un sens</strong> : « Recommencer » quand tout est à refaire, « Changer d'assistant » et la vidéo quand l'assistant est probablement en cause.</li>
+    <li><strong>Aucun mot de métier</strong> (mission, expérience, bloc de données) dans ce que la personne lit.</li>
+  </ul>
+  <table>
+    <tr><th>Écran</th><th>Ce que la personne fait (en bleu)</th><th>Boutons dans la fenêtre</th><th>Sorties</th></tr>
+    <tr><td>Chez l'assistant</td><td>Copier sa réponse, revenir</td><td>« Je suis de retour », « Rouvrir ChatGPT »</td><td>Aucune autre</td></tr>
+    <tr><td>Prête à coller</td><td>Un clic</td><td>« Coller la réponse (opération automatique) », « Coller à la main »</td><td>Aucune</td></tr>
+    <tr><td>Bien reçue (vert)</td><td>Rien à lire de plus : le bouton du bas est le seul actif</td><td><strong>Aucun</strong> (la liste « ce qui a été vérifié » et « À vérifier »)</td><td>Aucune : la réponse est bonne</td></tr>
+    <tr><td>Coupée (jaune)</td><td>Trois étapes : retourner, écrire « suite », coller la suite</td><td>Le gros bouton devient « Coller la suite »</td><td>Aucune. Si la suite échoue : écran « inutilisable »</td></tr>
+    <tr><td>Inutilisable (saumon)</td><td>Deux étapes : recommencer, ou essayer un autre assistant</td><td>« Recommencer le collage »</td><td>« Changer d'assistant », « Voir la démonstration »</td></tr>
+    <tr><td>Complément de CV</td><td>Trois étapes : retourner, répondre « oui », coller</td><td>« Coller le complément », « Voir ce que le complément ajoute »</td><td>« Continuer sans le complément » (barre du bas)</td></tr>
+  </table>
+  <h3>Mon esprit critique : ce que je ne suis pas, ou pas tout à fait</h3>
+  <ul>
+    <li><strong>« Recommencer le collage » sur l'écran « coupée » : je suis d'accord, je l'enlève.</strong> La première partie est bonne, repartir de zéro ne donnerait pas une réponse plus entière. <strong>« Changer d'assistant » à sa place : je le déconseille.</strong> Changer d'assistant refait tout l'envoi, le nouvel assistant peut couper lui aussi, et on perd une première partie déjà bonne. La suite est presque gratuite (un mot à écrire). La sortie existe pourtant : si la suite ne se joint pas, l'écran « Réponse inutilisable » apparaît et ses deux sorties avec lui, en prévenant que le premier morceau sera effacé.</li>
+    <li><strong>« Recommencer » sur « Bien reçue » : je suis d'accord, je l'enlève.</strong> Le seul cas perdu : une personne qui a collé une ancienne réponse, lisible mais d'hier. Elle garde « Retour », en bas à gauche, et l'écran « déjà importée » la prévient.</li>
+    <li><strong>« À vérifier » : une fenêtre à part ne se justifie pas.</strong> Le bon endroit est la page du CV, sur laquelle la personne arrive juste après : elle y voit son CV et peut le corriger. Un rappel clair avant, une alerte précise là-bas seulement si besoin. Rien de plus à cliquer.</li>
+    <li><strong>Un point de vocabulaire plus large.</strong> Les mots « expériences », « missions », « thèmes de compétences » sont aussi dans les textes actuels du complément. Je les remplace dans la maquette (voir « Voir ce que le complément ajoute »), mais il faudra balayer toute l'application : c'est un chantier à part, à noter avec la lisibilité des textes (consigne F).</li>
+    <li><strong>Le bouton « Ajouter le complément du CV » existe déjà</strong> après un « continuer sans » : sur « Vos documents », et à côté du résumé au moment de valider la mise en page du CV, tant que le complément n'est pas ajouté. Votre exigence est donc déjà tenue. Reste à la vérifier en vrai avec un CV déjà mis en page, puis à rendre ce bouton plus visible.</li>
+  </ul>
+  <p><span class="mq-benef">+</span> Un système lisible : une couleur, un sens ; un écran, un geste. <span class="mq-risque">−</span> Des textes à revoir partout (vocabulaire) ; des étapes bleues à poser dans chaque fenêtre existante (≈ 28 écrans).</p>
+</div>
+
+<div class="mq-carte">
+  <h2>5. La grande question : que fait « Coller la réponse » ? <span class="mq-etiquette">votre choix</span></h2>
+  <p class="muted">Vous voulez un seul comportement partout. Voici les trois façons de l'obtenir, avec leurs bénéfices et leurs risques.</p>
+
+  <div class="mq-opt reco">
+    <strong>Option 1 : « Coller » lit et vérifie, « Continuer » ajoute (Recommandé).</strong> <span class="mq-etiquette ok">recommandé</span>
+    <ul>
+      <li>Au clic, l'application colle, <strong>lit la réponse sans rien modifier</strong> et affiche en grand « Réponse bien reçue » avec ce qu'elle a reconnu (« les deux versions de votre CV sont là »). Si la réponse est coupée, elle le dit tout de suite. Rien n'est ajouté tant que la personne n'a pas cliqué sur « Continuer », dont le texte dit l'action (« Ajouter à mon CV »).</li>
+      <li><span class="mq-benef">Bénéfices :</span> un seul comportement pour les vingt-huit écrans (c'est déjà celui de la plupart) ; la personne a un vrai message de confirmation <em>avant</em> de s'engager ; une mauvaise réponse ou une réponse coupée est repérée <em>avant</em> toute modification ; « Continuer » reste le seul geste de validation, donc rassurant.</li>
+      <li><span class="mq-risque">Risques :</span> deux clics au total (Coller, puis Continuer) ; il faut écrire, pour chaque module, une petite fonction « lire sans appliquer » (la lecture existe déjà dans le code de chaque module, il faut seulement l'appeler séparément). En attendant, une vérification générale (la réponse est-elle complète ?) sert de repli.</li>
+    </ul>
+  </div>
+
+  <div class="mq-opt">
+    <strong>Option 2 : « Coller » fait tout et passe directement à la suite (un seul clic).</strong>
+    <ul>
+      <li>Au clic : coller, lire, ajouter, puis l'écran suivant s'ouvre après un court message « Réponse ajoutée ».</li>
+      <li><span class="mq-benef">Bénéfice :</span> un seul clic, le minimum possible.</li>
+      <li><span class="mq-risque">Risques :</span> la personne perd la main (l'écran change sans qu'elle ait cliqué sur « Continuer ») ; le message de confirmation est vu une seconde à peine ; une mauvaise réponse déclenche une modification ou un message d'échec sans étape de contrôle ; pour les modules dont l'import ouvre une relecture, l'enchaînement est brutal. C'est le plus fatigant pour une personne à confiance fragile.</li>
+    </ul>
+  </div>
+
+  <div class="mq-opt">
+    <strong>Option 3 : « Coller » ajoute tout de suite, « Continuer » ne fait qu'avancer (votre idée du début).</strong>
+    <ul>
+      <li>Au clic : coller, lire et ajouter au CV, avec le grand message « Réponse ajoutée à votre CV ». « Continuer » avance ensuite.</li>
+      <li><span class="mq-benef">Bénéfice :</span> c'est exactement ce que vous avez décrit, le message dit « ajouté à votre CV ».</li>
+      <li><span class="mq-risque">Risques :</span> pour beaucoup de modules, l'import <em>change d'écran ou ouvre une relecture</em> : le grand message ne serait pas vu, donc le comportement ne serait pas le même partout ; une réponse en plusieurs morceaux serait ajoutée trop tôt ; aucun contrôle avant la modification ; trente écrans à retester.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mq-carte">
+  <h2>6. Comment on y va, sans rien casser <span class="mq-etiquette ok">proposition de plan</span></h2>
+  <ul>
+    <li><strong>Étape A (sécurisée, avant la fenêtre unique) :</strong> je corrige tout de suite les défauts qui ne dépendent d'aucun choix : l'écran « réponse déjà importée » (plus de bouton « Importer » grisé), les deux phrases fausses, « rond bleu ». Un commit, des tests, vérifié à l'écran.</li>
+    <li><strong>Étape B :</strong> je construis la fenêtre unique <em>à côté</em> de l'existant, avec ses tests, sans toucher aux écrans actuels.</li>
+    <li><strong>Étape C :</strong> je branche les modules <strong>un par un</strong> (d'abord les deux fenêtres du Bilan, puis Reformuler, la lettre, l'entretien, Cohérence, Découverte, Regard, ATS, Comparer, Un CV plusieurs métiers, Vos documents, enfin le complément). À chaque module : le parcours réel est rejoué (pas seulement le rendu), un commit, et vous voyez l'écran avant que je passe au suivant, comme vous l'avez exigé le 21/09.</li>
+    <li><strong>Étape D :</strong> quand plus aucun écran n'utilise l'ancien dessin, je retire l'ancien code (avec l'audit « zéro régression » fonction par fonction).</li>
+  </ul>
+  <p class="muted">Effort : <strong>élevé</strong> (composant partagé par une trentaine d'écrans). Risque maîtrisé par le branchement un par un.</p>
+</div>
+
+<div class="mq-carte">
+  <h2>7. Les questions à trancher <span class="mq-etiquette">votre choix</span></h2>
+  <table>
+    <tr><th>Question</th><th>Ma recommandation (avec bénéfice et risque)</th><th>Autre choix</th></tr>
+    <tr>
+      <td><strong>Q1. Que fait « Coller la réponse » ?</strong></td>
+      <td><strong>(Recommandé) Option 1.</strong> <span class="mq-benef">+</span> un seul comportement, confirmation avant d'ajouter, rien d'abîmé si la réponse est mauvaise. <span class="mq-risque">−</span> deux clics.</td>
+      <td>Option 3 (votre idée de départ) ou option 2 (un seul clic), avec les risques ci-dessus.</td>
+    </tr>
+    <tr>
+      <td><strong>Q2. Fenêtre ou page ?</strong> Aujourd'hui : des pages, des blocs repliables et des fenêtres.</td>
+      <td><strong>(Recommandé)</strong> Le <strong>même panneau</strong>, posé dans la page partout où c'est possible (conforme à votre règle « minimiser les fenêtres »), et dans une fenêtre seulement là où il est déjà dans une fenêtre aujourd'hui (les deux écrans du Bilan). <span class="mq-benef">+</span> aucun parcours bouleversé. <span class="mq-risque">−</span> deux habillages (page ou fenêtre) pour le même contenu, mais un seul code.</td>
+      <td>Tout dans la page, y compris les deux écrans du Bilan : <span class="mq-benef">+</span> plus aucune fenêtre ; <span class="mq-risque">−</span> il faut revoir ces deux parcours.</td>
+    </tr>
+    <tr>
+      <td><strong>Q3. Le « Bon à savoir » par assistant.</strong> Les textes à écrire (connexion demandée, avis sur la consigne…).</td>
+      <td><strong>(Recommandé)</strong> Une seule liste, que vous relisez : un texte court par assistant et par cas. Faits retenus : seul ChatGPT fonctionne sans compte avec nos textes, Perplexity est limité sans compte, les autres demandent un compte ; la coupure d'une réponse n'est liée à aucun assistant ni au compte (voir 4 ter). <span class="mq-benef">+</span> la personne est prévenue avant l'ennui. <span class="mq-risque">−</span> les textes peuvent vieillir quand les assistants changent : à revérifier de temps en temps.</td>
+      <td>Pas de « Bon à savoir » par assistant, seulement par module : <span class="mq-benef">+</span> moins de textes à tenir à jour ; <span class="mq-risque">−</span> la personne découvre les limites d'un assistant en cours de route.</td>
+    </tr>
+    <tr>
+      <td><strong>Q4. Réponse coupée : la démarche de la section 4 ter ?</strong></td>
+      <td><strong>(Recommandé) Les trois étages</strong> : phrase commune dans tous les textes (ligne [SUITE]), détection par l'application, fenêtre « La suite de la réponse ». <span class="mq-benef">+</span> aucune coupure silencieuse, rien n'est perdu, même fenêtre que le reste. <span class="mq-risque">−</span> un mécanisme neuf à coder et à tester sur chaque module ; une phrase de plus dans chaque texte à envoyer.</td>
+      <td>Détection seule, sans toucher aux textes : <span class="mq-benef">+</span> aucun texte modifié ; <span class="mq-risque">−</span> on ne saurait pas dire à la personne que l'assistant prévoit une suite. Ou ne rien faire : <span class="mq-risque">−</span> les coupures restent silencieuses.</td>
+    </tr>
+    <tr>
+      <td><strong>Q5. Compenser les limites : les trois contrôles de la section 4 quater ?</strong></td>
+      <td><strong>(Recommandé) Contrôle 1 partout, contrôle 2 sur CV, lettre et entretien, contrôle 3 plus tard.</strong> <span class="mq-benef">+</span> la personne est protégée des réponses coupées ou inventées, et sait ce qui a été contrôlé. <span class="mq-risque">−</span> un champ de plus par texte envoyé, du travail par module, des fausses alertes à régler en essais.</td>
+      <td>Contrôle 1 seulement : <span class="mq-benef">+</span> rapide et très fiable ; <span class="mq-risque">−</span> rien contre les informations inventées. Ou tout d'un coup : <span class="mq-risque">−</span> trop de chantiers en même temps.</td>
+    </tr>
+    <tr>
+      <td><strong>Q6. Les quatre règles et le tableau de la section 4 quinquies ?</strong></td>
+      <td><strong>(Recommandé) Oui, tel quel.</strong> <span class="mq-benef">+</span> une règle simple à retenir pour la personne et pour tous les futurs écrans. <span class="mq-risque">−</span> beaucoup d'écrans à reprendre, un par un, avec vérification du vrai parcours à chaque fois.</td>
+      <td>Appliquer seulement le bleu des étapes, sans les autres règles : <span class="mq-benef">+</span> plus rapide ; <span class="mq-risque">−</span> les boutons de sortie resteraient incohérents d'un écran à l'autre.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> Q1 option 1, Q2 le même panneau (page ou fenêtre selon l'existant), Q3 une liste de conseils que vous relisez, Q4 les trois étages (validée), Q5 les trois contrôles (validée), Q6 les quatre règles, puis le plan A à D ci-dessus. Q1 à Q3 sont déjà validées. Pour valider, un mot par question suffit : « Q6 reco ». Dites-moi aussi ce que vous changeriez dans le dessin de la fenêtre (section 3) : l'ordre des blocs, les mots, les boutons.
+</div>
+
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var MODULES = {
+    cv:     { nom: 'Vos documents', suite: 'Ajouter à mon CV', recu: 'La réponse est complète et lisible : elle contient bien votre CV.', conseil: '', complement: true },
+    bilan:  { nom: 'Analyser ma candidature', suite: 'Voir l’analyse', recu: 'La réponse est complète et lisible : elle contient bien l’analyse de votre candidature.', conseil: '', complement: false },
+    regard: { nom: 'Un regard sur mon CV', suite: 'Lire la réponse', recu: 'La réponse est complète et lisible : elle contient bien le regard sur votre CV.', conseil: 'Si l’assistant donne son avis sur la consigne au lieu de lire votre CV, répondez-lui : « Applique la consigne à mon CV ci-dessus. »', complement: false }
+  };
+  var ASSISTANTS = {
+    ChatGPT: { conseil: '' },
+    Gemini:  { conseil: 'Gemini demande de se connecter avec un compte pour envoyer le texte.' },
+    Perplexity: { conseil: 'Sans compte, Perplexity est limité : connectez-vous pour envoyer le texte en entier.' }
+  };
+  var MESSAGES = {
+    cv:     { '1': 'Vous avez demandé à l\u2019assistant de préparer votre CV. Sa réponse est prête : on la ramène ici pour l\u2019ajouter à votre CV.',
+              '1/2': 'Premier passage : l\u2019assistant a lu vos informations et vous propose des titres, des accroches et des compétences. On ramène sa réponse ici pour que vous puissiez choisir.',
+              '2/2': 'Deuxième passage : l\u2019assistant rédige maintenant votre CV complet (accroche, missions) à partir de ce que vous avez validé au premier passage.' },
+    bilan:  { '1': 'L\u2019assistant a analysé votre candidature : on ramène son analyse ici.', '1/2': 'Premier passage : une première analyse de votre candidature. On ramène sa réponse ici.', '2/2': 'Deuxième passage : l\u2019assistant va plus loin, à partir de ce que vous avez validé.' },
+    regard: { '1': 'L\u2019assistant a lu votre CV comme le ferait un recruteur : on ramène sa lecture ici.', '1/2': 'Premier passage : une première lecture de votre CV. On ramène sa réponse ici.', '2/2': 'Deuxième passage : une lecture plus fine, à partir de ce que vous avez validé.' }
+  };
+  var DIFF = 'le texte à envoyer à l\u2019assistant est nouveau, et la réponse que vous allez coller est une réponse différente de la première. Collez bien la nouvelle réponse, pas l\u2019ancienne. La fenêtre, elle, est la même : vous retrouvez les mêmes boutons.';
+  var mod = 'cv', ass = 'ChatGPT', pas = '1', etat = 'ouvert', complement = false, pieces = 0, silencieux = false, venaitDeCoupe = false, echecApresSuite = false;
+  function bouton(texte, id, plein) { return '<button type="button" id="' + id + '" class="u-btn' + (plein ? ' plein u-pulse' : '') + '">' + texte + '</button>'; }
+  function dessiner() {
+    var m = MODULES[mod];
+    $('uModule').textContent = (complement ? m.nom + ' : le complément' : m.nom);
+    $('uPassage').classList.toggle('u-cache', pas === '1' || complement);
+    $('uPassage').innerHTML = pas === '2/2' ? '2<small> sur </small>2 &#183; Deuxième passage chez l’assistant' : '1<small> sur </small>2 &#183; Premier passage chez l’assistant';
+    $('uQuoiTexte').textContent = complement ? 'Le complément se demande dans la même conversation que la réponse principale, avec un message très court. Il ajoute des informations à votre CV, il ne le remplace pas.' : MESSAGES[mod][pas];
+    $('uDiff').classList.toggle('u-cache', !(pas === '2/2' && !complement));
+    $('uDiffTexte').textContent = DIFF.charAt(0).toUpperCase() + DIFF.slice(1);
+    $('uTitre').innerHTML = complement ? '&#10133; Le complément de votre CV' : (etat === 'coupe' ? '&#10133; La suite de la réponse' : '&#128229; Collez la réponse de l’assistant');
+    // bandeau
+    var bandeau = '', btns = '';
+    if (etat === 'ouvert') {
+      bandeau = '✓ <strong>' + ass + '</strong> est ouvert dans un autre onglet. Copiez <strong>toute</strong> sa réponse, puis revenez ici et cliquez sur \u00ab Je suis de retour \u00bb.';
+      btns = bouton('&#8617; Je suis de retour', 'uRetour', true) + bouton('Rouvrir ' + ass + ' (texte à envoyer recopié)', 'uRouvrir', false);
+    } else if (etat === 'pret') {
+      bandeau = 'Vous revenez de <strong>' + ass + '</strong>. Sa réponse est copiée : cliquez sur « Coller la réponse ».';
+    } else if (etat === 'main') {
+      bandeau = 'Vous revenez de <strong>' + ass + '</strong>. Collez sa réponse à la main dans le cadre ci-dessous.';
+    } else if (etat === 'recu') {
+      bandeau = 'Réponse de <strong>' + ass + '</strong>.';
+    } else if (etat === 'complement') {
+      bandeau = '';
+    }
+    $('uBandeau').classList.toggle('u-cache', !bandeau);
+    $('uQuoi').classList.toggle('u-cache', etat === 'coupe' || etat === 'echec');
+    $('uBandeauTexte').innerHTML = bandeau;
+    $('uBandeauBoutons').innerHTML = btns;
+    $('uBandeauBoutons').classList.toggle('u-cache', !btns);
+    // conseil
+    var conseil = [m.conseil, ASSISTANTS[ass].conseil].filter(Boolean).join(' ');
+    var voirConseil = !!conseil && etat !== 'complement';
+    $('uConseil').classList.toggle('u-cache', !voirConseil);
+    $('uConseilTexte').textContent = conseil;
+    // zones
+    $('uZoneAction').classList.toggle('u-cache', !(etat === 'ouvert' || etat === 'pret' || etat === 'coupe'));
+    $('uColler').disabled = (etat === 'ouvert');
+    $('uColler').innerHTML = '&#128203; ' + (etat === 'coupe' ? 'Coller la suite' : 'Coller la réponse') + ' <span style="font-weight:400;font-size:.9rem;">(opération automatique)</span>';
+    $('uSousColler').textContent = etat === 'ouvert' ? 'Ce bouton s’active à votre retour.' : (etat === 'coupe' ? 'Un seul clic : la suite est collée et ajoutée à ce que vous avez déjà collé.' : 'Un seul clic : la réponse est collée et lue.');
+    $('uZoneMain').classList.toggle('u-cache', etat !== 'main');
+    $('uRecu').classList.toggle('u-cache', etat !== 'recu');
+    $('uCoupe').classList.toggle('u-cache', etat !== 'coupe');
+    $('uEchec').classList.toggle('u-cache', etat !== 'echec');
+    $('uEchecPlus').classList.toggle('u-cache', !echecApresSuite);
+    $('uVerifs').innerHTML = '<li>&#10003; La réponse est <strong>complète</strong> : elle se termine comme prévu.</li><li>&#10003; Toutes les rubriques attendues sont là.</li>' + '<li>&#8505;&#65039; <strong>À vérifier :</strong> ' + (mod === 'cv' ? 'en ouvrant votre CV, regardez que tout ce que vous avez indiqué y figure et que rien n’est répété.' : 'en lisant le résultat, regardez qu’il correspond bien à ce que vous avez donné.') + '</li>';
+    $('uComplement').classList.toggle('u-cache', etat !== 'complement');
+    $('uRecuTexte').innerHTML = pieces > 1 ? 'Les <strong>' + pieces + ' morceaux</strong> collés ont été assemblés.' : '';
+    $('uRecuTexte').classList.toggle('u-cache', pieces <= 1);
+    // pied
+    $('uPied').classList.toggle('u-cache', etat !== 'echec');
+    $('uChoixAss').classList.add('u-cache');
+    $('uCoupeTexte').innerHTML = (silencieux
+      ? 'La réponse s’arrête en plein milieu : l’assistant l’a coupée <strong>sans vous prévenir</strong>.'
+      : 'L’assistant vous a prévenu : <strong>sa réponse n’est pas finie</strong>.') + ' Ce que vous avez collé est gardé (<strong>' + Math.max(pieces, 1) + ' morceau' + (pieces > 1 ? 'x' : '') + '</strong>) : il reste à aller chercher la fin.';
+    $('uContinuer').disabled = !(etat === 'recu');
+    $('uContinuer').innerHTML = (complement ? 'Ajouter le complément' : m.suite) + ' &#8594;';
+    if (etat === 'complement') { $('uContinuer').disabled = true; $('uContinuer').innerHTML = 'Continuer sans le complément &#8594;'; $('uContinuer').disabled = false; }
+    $('uLegende').textContent = {
+      ouvert: 'Après le départ chez l’assistant : un bandeau, deux boutons. Le grand bouton est grisé jusqu’au retour. « Continuer » est grisé.',
+      pret: 'De retour : le grand bouton s’active. « Continuer » reste grisé tant qu’aucune réponse n’est collée.',
+      recu: 'Réponse lue et vérifiée (liste de ce qui a été contrôlé), rien n’est encore ajouté. Le bouton de suite (en bas à droite) s’active et dit l’action : aucune phrase ne le répète, c’est le seul bouton actif. Ni « Recommencer », ni « Changer d’assistant », ni vidéo : la réponse est bonne, la seule chose à faire est le bouton du bas.',
+      coupe: 'Numéros 1, 2, 3 en pastilles bleues, un seul gros bouton ci-dessous. Pas de « Recommencer » : la première partie est bonne, il manque seulement la fin. ' + (silencieux ? 'Coupure silencieuse, repérée par l’application seule (bloc de données non terminé) : un message calme, le mot « suite » à envoyer, un bouton pour coller la suite. Rien n’est perdu.' : 'L’assistant a prévenu qu’il y a une suite (ligne [SUITE] dans sa réponse, voir 4 ter) : même fenêtre, même geste.'),
+      echec: 'La vérification a échoué : message doux en saumon, « rien n’a été ajouté ». C’est seulement ici que « Changer d’assistant » et « Voir la démonstration » apparaissent.',
+      main: 'Si le collage automatique ne marche pas : une zone de texte et un seul bouton, « Vérifier ce texte ». Essai : une phrase quelconque donne « réponse inutilisable », un texte avec { et } donne « bien reçue », un texte avec { sans } donne « coupée ».',
+      complement: 'Le complément de CV : le même panneau, une deuxième fois. Un seul bouton pour continuer sans (la barre du bas), et un bouton qui montre ce que le complément apporte.'
+    }[etat];
+    Array.prototype.forEach.call(document.querySelectorAll('#uModules button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-mod') === mod); });
+    Array.prototype.forEach.call(document.querySelectorAll('#uAssistants button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-ass') === ass); });
+    Array.prototype.forEach.call(document.querySelectorAll('#uPassages button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-pas') === pas); });
+    Array.prototype.forEach.call(document.querySelectorAll('#uEtapes button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-etat') === etat); });
+    // liens dynamiques du bandeau
+    if ($('uRetour')) { $('uRetour').addEventListener('click', function () { etat = 'pret'; dessiner(); }); }
+    if ($('uRouvrir')) { $('uRouvrir').addEventListener('click', function () { $('uLegende').textContent = 'Le site de ' + ass + ' se rouvre dans un autre onglet, et le texte à envoyer est de nouveau copié, prêt à coller dans la conversation (simulé). Si la réponse était déjà copiée, la fenêtre prévient qu\u2019il faudra la recopier.'; }); }
+  }
+  function aller(e) { silencieux = (e === 'coupe2'); if (e === 'coupe2') { e = 'coupe'; } etat = e; if (e === 'complement') { complement = true; } else if (e === 'ouvert' || e === 'pret') { complement = false; } if (e === 'recu' || e === 'coupe') { pieces = Math.max(pieces, 1); } if (e === 'ouvert') { pieces = 0; } $('uFenetre').classList.remove('u-cache'); $('uSuiteEcran').classList.add('u-cache'); dessiner(); }
+  $('uColler').addEventListener('click', function () { pieces = (etat === 'coupe') ? Math.max(pieces, 1) + 1 : 1; aller('recu'); });
+  $('uMain').addEventListener('click', function () { venaitDeCoupe = (etat === 'coupe'); aller('main'); });
+  $('uRetourAuto').addEventListener('click', function () { aller('pret'); });
+  $('uVerifier').addEventListener('click', function () { var t = $('uTexte').value.trim(); if (!t) { $('uLegende').textContent = 'Le cadre est vide : collez d’abord la réponse (ou tapez n’importe quoi pour voir la suite).'; return; } if (t.indexOf('[SUITE]') !== -1) { pieces = venaitDeCoupe ? pieces + 1 : 1; aller('coupe'); return; } if (t.indexOf('{') === -1) { echecApresSuite = venaitDeCoupe; aller('echec'); return; } pieces = venaitDeCoupe ? pieces + 1 : 1; aller(t.split('{').length > t.split('}').length ? 'coupe2' : 'recu'); });
+  $('uRecommencer3').addEventListener('click', function () { echecApresSuite = false; venaitDeCoupe = false; pieces = 0; aller('pret'); });
+  $('uExemple').addEventListener('click', function () { $('uExemplePanel').classList.toggle('u-cache'); });
+  $('uCollerCompl').addEventListener('click', function () { pieces = 1; $('uLegende').textContent = 'Complément collé et lu : « Réponse bien reçue », comme pour la réponse principale (non simulé en détail).'; aller('recu'); });
+  $('uContinuer').addEventListener('click', function () {
+    if (etat === 'recu' && MODULES[mod].complement && !complement) { aller('complement'); return; }
+    $('uFenetre').classList.add('u-cache'); $('uSuiteEcran').classList.remove('u-cache');
+  });
+  $('uRejouer').addEventListener('click', function () { complement = false; aller('ouvert'); });
+  $('uChanger').addEventListener('click', function () { $('uChoixAss').classList.remove('u-cache'); });
+  $('uAnnulerChoix').addEventListener('click', function () { $('uChoixAss').classList.add('u-cache'); });
+  Array.prototype.forEach.call(document.querySelectorAll('#uChoixAss [data-choix]'), function (b) { b.addEventListener('click', function () { ass = b.getAttribute('data-choix'); $('uChoixAss').classList.add('u-cache'); aller('ouvert'); }); });
+  $('uVideo').addEventListener('click', function () { $('uLegende').textContent = 'La démonstration de 20 secondes s’ouvre (simulé).'; });
+  Array.prototype.forEach.call(document.querySelectorAll('#uModules button'), function (b) { b.addEventListener('click', function () { mod = b.getAttribute('data-mod'); complement = false; aller('ouvert'); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('#uPassages button'), function (b) { b.addEventListener('click', function () { pas = b.getAttribute('data-pas'); complement = false; aller('ouvert'); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('#uAssistants button'), function (b) { b.addEventListener('click', function () { ass = b.getAttribute('data-ass'); aller(etat === 'complement' ? 'ouvert' : etat); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('#uEtapes button'), function (b) { b.addEventListener('click', function () { echecApresSuite = false; venaitDeCoupe = false; aller(b.getAttribute('data-etat')); }); });
+  aller('ouvert');
+})();
+</script>
+</body>
+</html>

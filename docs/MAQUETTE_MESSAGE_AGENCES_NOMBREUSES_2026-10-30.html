@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!--
+  Maquette - message « agences nombreuses » sur la fiche d'un employeur (module « Qui fait quoi »).
+  Statut : PROPOSITION, rien n'est codé dans l'application, rien n'est publié.
+  Décision de Denis (2026-10-30) : pour les banques, assurances et agences immobilières, la fiche n'a pas à lister toutes les agences ; un message général renvoie vers le site de l'enseigne.
+  Pour un magasin, la fiche garde l'adresse et le téléphone de chaque établissement (voir l'exemple 2).
+  Cette maquette charge les VRAIES feuilles de style de l'application (mode sombre compris). Elle s'ouvre par double-clic depuis le dossier docs/.
+  Les noms d'employeurs sont INVENTÉS. Les textes sont des BROUILLONS à relire par Denis.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Message agences nombreuses</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  body { background: var(--bg-page, #f4f6fb); }
+  .mq-barre { position: sticky; top: 0; z-index: 20; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-barre .mq-titre { font-weight: 700; margin-right: auto; }
+  .mq-page { max-width: 640px; margin: 1rem auto 4rem; padding: 0 16px; }
+  .mq-reglages { max-width: 640px; margin: 1rem auto 0; padding: 0 16px; }
+  .mq-reglages .mq-panneau { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .8rem 1rem; }
+  .mq-reglages fieldset { border: 0; margin: 0 0 .6rem; padding: 0; }
+  .mq-reglages legend { font-size: .9rem; font-weight: 700; margin-bottom: .2rem; }
+  .mq-reglages label { display: block; font-size: .92rem; margin-bottom: .25rem; cursor: pointer; }
+  .mq-titre-fiche { text-align: center; margin: 1rem 0; }
+  .mq-vue[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <span class="mq-titre"><i class="bi bi-layout-text-window"></i> Maquette : message « agences nombreuses »</span>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mq-sombre"><i class="bi bi-moon"></i> Mode sombre</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mq-ouvrir-reglages" hidden><i class="bi bi-sliders"></i> Réglages</button>
+</div>
+
+<div class="mq-reglages" id="mq-reglages">
+  <div class="mq-panneau">
+    <div class="d-flex justify-content-between align-items-start">
+      <strong>Ce que vous pouvez choisir</strong>
+      <button type="button" class="btn-close" id="mq-fermer-reglages" aria-label="Fermer les réglages"></button>
+    </div>
+    <fieldset class="mt-2">
+      <legend>Exemple affiché</legend>
+      <label><input type="radio" name="mq-ex" value="banque" checked> 1. Une banque (beaucoup d'agences) : le message s'affiche</label>
+      <label><input type="radio" name="mq-ex" value="magasin"> 2. Un magasin : la fiche garde ses adresses, pas de message</label>
+    </fieldset>
+    <div id="mq-choix-message">
+      <fieldset>
+        <legend>Formulation du message</legend>
+        <label><input type="radio" name="mq-form" value="A" checked> A : courte, directe</label>
+        <label><input type="radio" name="mq-form" value="B"> B : dit clairement pourquoi on ne liste pas les agences</label>
+        <label><input type="radio" name="mq-form" value="C"> C : met en avant le site (coordonnées à jour)</label>
+      </fieldset>
+      <fieldset>
+        <legend>Emplacement</legend>
+        <label><input type="radio" name="mq-place" value="1" checked> 1. Juste sous le cadre des informations, bien visible</label>
+        <label><input type="radio" name="mq-place" value="2"> 2. Dans « Comment candidater ici ? », en première ligne</label>
+      </fieldset>
+      <fieldset class="mb-0">
+        <legend>Libellé du bouton du site</legend>
+        <label><input type="radio" name="mq-bouton" value="actuel" checked> Actuel : « Voir le site »</label>
+        <label><input type="radio" name="mq-bouton" value="agence"> « Trouver l'agence près de chez moi » (ouvre le même site)</label>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+<div class="mq-page">
+  <!-- EXEMPLE 1 : banque -->
+  <div class="mq-vue" id="mq-banque">
+    <h2 class="h4 mq-titre-fiche"><i class="bi bi-building"></i> Exemple A (banque)</h2>
+    <div class="comprendre-le-cadre-encart mb-3">
+      <span class="d-block"><i class="bi bi-building"></i> Enseigne · Banque, assurance, immobilier</span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Périgueux (24000)</strong></span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Bergerac (24100)</strong></span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Limoges (87000)</strong></span>
+      <span class="d-block"><i class="bi bi-clock-history"></i> Pas encore vérifié</span>
+    </div>
+    <div id="mq-place1"></div>
+    <details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">
+      <div id="mq-place2"></div>
+      <span class="badge rounded-pill text-bg-light me-1">Sur le site de l'employeur</span><span class="badge rounded-pill text-bg-light me-1">Candidature spontanée</span>
+      <p class="small text-muted mt-2 mb-0">Ces repères informent, ils ne sont pas à cocher. Nous ne savons pas à quelle fréquence cet employeur recrute et ne l'affirmons jamais.</p>
+    </div></details>
+    <details class="bloc-depli bd-warn" open><summary>Avant d'y aller</summary><div class="bloc-depli-corps"><ul class="mb-0">
+      <li>Téléphonez d'abord pour demander à qui remettre votre candidature.</li><li>Ayez votre CV à jour sur vous, ou envoyez-le avant.</li>
+      <li>Préparez une phrase simple : qui vous êtes et le poste qui vous intéresse.</li></ul></div></details>
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <a class="btn btn-outline-primary" href="#" onclick="return false" id="mq-btn-site"><i class="bi bi-box-arrow-up-right"></i> <span id="mq-btn-site-txt">Voir le site</span></a>
+      <a class="btn btn-outline-primary" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Page de recrutement</a>
+    </div>
+    <p class="small text-muted mt-3">Ni recommandation ni garantie de recrutement. Liste non exhaustive.</p>
+  </div>
+
+  <!-- EXEMPLE 2 : magasin -->
+  <div class="mq-vue" id="mq-magasin" hidden>
+    <h2 class="h4 mq-titre-fiche"><i class="bi bi-building"></i> Exemple B (magasin)</h2>
+    <div class="comprendre-le-cadre-encart mb-3">
+      <span class="d-block"><i class="bi bi-building"></i> Enseigne · Commerce, vente</span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Trélissac (24750)</strong> : 201 avenue Exemple · <i class="bi bi-telephone"></i> <span style="white-space:nowrap">05&nbsp;53&nbsp;00&nbsp;00&nbsp;01</span> <a class="btn btn-sm btn-outline-primary ms-1" href="#" onclick="return false"><i class="bi bi-map"></i> Voir sur la carte</a></span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Limoges (87000)</strong> : 3 rue Exemple · <i class="bi bi-telephone"></i> <span style="white-space:nowrap">05&nbsp;55&nbsp;00&nbsp;00&nbsp;02</span> <a class="btn btn-sm btn-outline-primary ms-1" href="#" onclick="return false"><i class="bi bi-map"></i> Voir sur la carte</a></span>
+      <span class="d-block"><i class="bi bi-clock-history"></i> Vérifié le 30 octobre 2026</span>
+    </div>
+    <p class="small text-muted">Aucun message ajouté : la personne a l'adresse et le numéro de chaque magasin, comme aujourd'hui.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TEXTES = {
+    A: 'Cette enseigne a beaucoup d’agences dans nos deux départements. Pour trouver la plus proche de chez vous, cherchez-la sur le site de l’enseigne, puis contactez-la directement.',
+    B: 'Nous ne listons pas toutes les agences de cette enseigne : il y en a trop. Allez sur son site, cherchez l’agence près de chez vous et prenez contact avec elle.',
+    C: 'Les agences sont nombreuses et leurs coordonnées changent. Sur le site de l’enseigne, vous trouvez toujours la plus proche de chez vous, avec son numéro à jour. Contactez-la directement.'
+  };
+  function val(n) { return document.querySelector('input[name="' + n + '"]:checked').value; }
+  function esc(s) { return s; }
+  function maj() {
+    var ex = val('mq-ex');
+    document.getElementById('mq-banque').hidden = ex !== 'banque';
+    document.getElementById('mq-magasin').hidden = ex !== 'magasin';
+    document.getElementById('mq-choix-message').style.opacity = ex === 'banque' ? '1' : '.4';
+    var t = TEXTES[val('mq-form')], p = val('mq-place');
+    document.getElementById('mq-place1').innerHTML = p === '1' ? '<div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-info-circle"></i> ' + t + '</div>' : '';
+    document.getElementById('mq-place2').innerHTML = p === '2' ? '<p class="mb-2"><i class="bi bi-info-circle"></i> ' + t + '</p>' : '';
+    document.getElementById('mq-btn-site-txt').textContent = val('mq-bouton') === 'agence' ? 'Trouver l’agence près de chez moi' : 'Voir le site';
+  }
+  document.querySelectorAll('input[type=radio]').forEach(function (r) { r.addEventListener('change', maj); });
+  document.getElementById('mq-sombre').addEventListener('click', function () {
+    var r = document.documentElement; r.setAttribute('data-theme', r.getAttribute('data-theme') === 'sombre' ? 'clair' : 'sombre');
+  });
+  document.getElementById('mq-fermer-reglages').addEventListener('click', function () {
+    document.getElementById('mq-reglages').hidden = true; document.getElementById('mq-ouvrir-reglages').hidden = false;
+  });
+  document.getElementById('mq-ouvrir-reglages').addEventListener('click', function () {
+    document.getElementById('mq-reglages').hidden = false; this.hidden = true;
+  });
+  maj();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le modèle Éditorial avec un nom et un titre longs</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1c7a46; --ok-bg:#e3f4ea; --warn:#8a5a00; --warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#6fd49b; --ok-bg:#1d3a2b; --warn:#f0c46a; --warn-bg:#3b3015; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px 16px 40px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.page { max-width:1040px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.1rem; margin:0 0 6px; } p { margin:0 0 8px; } .muted { color:var(--muted); font-size:.92rem; }
+.carte { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--card); margin-bottom:14px; }
+.carte.choisie { border:2px solid var(--accent); background:var(--accent-bg); }
+.grille { display:grid; grid-template-columns:repeat(auto-fit, minmax(290px, 1fr)); gap:12px; }
+.grille img { width:100%; height:auto; border:1px solid var(--border); border-radius:8px; background:#fff; display:block; margin-bottom:8px; }
+.etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--warn-bg); color:var(--warn); }
+.etiquette.ok { background:var(--ok-bg); color:var(--ok); }
+label.choix { display:flex; gap:8px; align-items:center; font-weight:700; cursor:pointer; margin-top:6px; }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:3px; }
+.reponse { border-left:4px solid var(--accent); background:var(--accent-bg); border-radius:6px; padding:8px 12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Maquette : le modèle « Éditorial » quand le nom et le titre sont longs</h1>
+<p class="muted">Contenu d'essai : « Marie-Hélène DUBOIS-VANDENBROUCKE », titre sur 12 mots, accroche de 5 lignes. Les images viennent du vrai rendu de l'application (aperçu réduit au haut de la page). Rien n'est codé.</p>
+
+<div class="carte">
+  <h2>Ce qui est déjà réglé : « Chrono foncé »</h2>
+  <p>Avec un contenu long, son en-tête prenait 34 % de la page (trop). Il vient d'être ramené à 24 %, sans changer son dessin : l'agrandissement automatique de 15 % ne reste plus quand il rend l'en-tête trop grand. Aucune maquette n'est nécessaire pour lui. Ne pas mettre l'« Empilée » dessus : le titre passerait sous la colonne sombre, en texte sombre sur fond sombre (illisible).</p>
+</div>
+
+<div class="carte">
+  <h2>Le problème de « Éditorial »</h2>
+  <p>Son nom est écrit en très grands caractères à gauche. Un nom composé long se coupe en pleine lettre (« VANDENB / ROUCKE ») et l'en-tête monte à <strong>40 % de la page</strong> : un tiers de la feuille avant la première rubrique.</p>
+  <div class="grille">
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_long_actuel.png" alt="Éditorial aujourd'hui, nom long coupé en plein mot"><strong>Aujourd'hui, nom long</strong><p class="muted">Mot coupé, 40 % de la page.</p></div>
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_court_actuel.png" alt="Éditorial aujourd'hui, nom court"><strong>Aujourd'hui, nom court</strong><p class="muted">Très beau : c'est la signature du modèle. À ne pas changer.</p></div>
+  </div>
+</div>
+
+<div class="carte choisie">
+  <h2>Option D (recommandée) : on combine A et B, par paliers</h2>
+  <p>Trois gestes, dans cet ordre, et seulement quand le nom est long :</p>
+  <ul>
+    <li><strong>1.</strong> Un mot n'est jamais coupé en pleine lettre (la cause du « VANDENB / ROUCKE » est une règle de césure trop permissive).</li>
+    <li><strong>2.</strong> La zone du nom s'élargit (jusqu'à 58 % de la largeur) et le nom rapetisse juste assez pour que le plus long mot tienne.</li>
+    <li><strong>3.</strong> Si l'en-tête dépasse encore 30 % de la page, on passe à la disposition « Empilée » (option B), déjà codée.</li>
+  </ul>
+  <div class="grille">
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/combi_58.png" alt="Option D, nom long : zone du nom élargie"><strong>Nom long</strong><p class="muted">Le nom garde presque sa taille d'origine (41 px au lieu de 46 px), aucun mot coupé, en-tête à 22 % de la page (mesuré). L'accroche reste lisible (288 px de large).</p></div>
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_court_actuel.png" alt="Option D, nom court inchangé"><strong>Nom court</strong><p class="muted">Inchangé, exactement comme aujourd'hui.</p></div>
+  </div>
+  <p><span class="etiquette ok">Avantage</span> C'est la seule option qui garde le grand nom de couleur d'« Éditorial » même avec un nom composé long, sans mot coupé. L'« Empilée » reste un filet de sécurité pour les cas extrêmes.</p>
+  <p><span class="etiquette">Limite</span> Dans l'en-tête seulement, la séparation entre le nom et les coordonnées n'est plus alignée avec la colonne du corps du CV (visible sur l'image). Risque technique : moyen, un réglage d'ajustement qui se calcule après l'affichage (comme celui de l'Empilée) ; il faut vérifier le PDF et le Word.</p>
+  <label class="choix"><input type="radio" name="opt" value="D" checked> Je choisis l'option D</label>
+</div>
+
+<div class="carte">
+  <h2>Option A : le nom rapetisse seulement quand il ne tient pas</h2>
+  <div class="grille">
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_long_A.png" alt="Option A, nom long réduit pour tenir"><strong>Nom long</strong><p class="muted">Le nom est réduit juste assez pour que le plus long mot tienne sur une ligne. En-tête à environ 22 % de la page (estimé sur la capture). Le style « Éditorial » (nom en lettres serif de couleur, titre en capitales) est gardé.</p></div>
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_court_A.png" alt="Option A, nom court inchangé"><strong>Nom court</strong><p class="muted">Inchangé, exactement comme aujourd'hui.</p></div>
+  </div>
+  <p><span class="etiquette ok">Avantage</span> Le modèle garde son dessin ; les noms courts ne bougent pas ; aucun mot n'est coupé.</p>
+  <p><span class="etiquette">Limite</span> Avec un nom très long, le nom devient petit (le « grand nom » n'est plus la vedette de la page). Risque technique : faible (un réglage de taille pour ce seul modèle).</p>
+  <label class="choix"><input type="radio" name="opt" value="A"> Je choisis l'option A</label>
+</div>
+
+<div class="carte">
+  <h2>Option B : passer à la disposition « Empilée » quand le nom est long</h2>
+  <div class="grille">
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_long_B.png" alt="Option B, disposition Empilée"><strong>Nom long</strong><p class="muted">Photo et nom sur une ligne, titre pleine largeur, coordonnées et accroche dessous. En-tête à 23 % de la page.</p></div>
+    <div><img src="mesures_2026-10-26/lot8/captures_editorial/editorial_court_B.png" alt="Option B, nom court"><strong>Nom court, si on l'imposait</strong><p class="muted">Pour montrer le contraste : on ne le ferait que pour les noms longs.</p></div>
+  </div>
+  <p><span class="etiquette ok">Avantage</span> Un en-tête compact et très lisible ; mécanisme déjà codé (choix automatique de l'Empilée).</p>
+  <p><span class="etiquette">Limite</span> Le CV ressemble à un autre modèle : il perd le grand nom de couleur, ce qui fait la personnalité d'« Éditorial ». Deux CV du même modèle auraient deux allures très différentes selon la longueur du nom.</p>
+  <label class="choix"><input type="radio" name="opt" value="B"> Je choisis l'option B</label>
+</div>
+
+<div class="carte">
+  <h2>Option C : ne rien faire pour « Éditorial »</h2>
+  <p><span class="etiquette ok">Avantage</span> Aucun risque, aucun code.</p>
+  <p><span class="etiquette">Limite</span> Un mot coupé en pleine lettre et un tiers de page pris dès qu'un nom est long ; cela arrive pour les noms composés.</p>
+  <label class="choix"><input type="radio" name="opt" value="C"> Je choisis l'option C</label>
+</div>
+
+<div class="reponse">
+  <strong>Question pour vous :</strong> A, B, C ou D pour « Éditorial » ? Ma recommandation : <strong>D</strong>. Si vous êtes d'accord, je la code avec le même contrôle de mesure que pour les autres modèles (nom long, nom court, 39 modèles inchangés).
+</div>
+</div>
+</body>
+</html>

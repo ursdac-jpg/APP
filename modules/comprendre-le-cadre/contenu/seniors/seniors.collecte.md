@@ -11,6 +11,12 @@ sources:
   - "travail-emploi-systeme-regimes-retraite | Le système et les régimes de retraite | https://travail-emploi.gouv.fr/le-systeme-et-les-regimes-de-retraite | 2026-09-06"
   - "info-retraite | Info Retraite : le compte retraite tous régimes | https://www.info-retraite.fr/ | 2026-09-06"
   - "lassuranceretraite | L'Assurance retraite (régime général, CARSAT) | https://www.lassuranceretraite.fr/portail-info/home.html | 2026-09-06"
+  - "service-public-aspa | Service Public : allocation de solidarité aux personnes âgées (Aspa) | https://www.service-public.gouv.fr/particuliers/vosdroits/F16871 | 2026-11-03"
+  - "service-public-carriere-longue | Service Public : retraite anticipée pour carrière longue du salarié | https://www.service-public.gouv.fr/particuliers/vosdroits/F13845 | 2026-11-03"
+  - "service-public-retraite-carriere-longue-2026 | Service Public : départ à la retraite en carrière longue à partir de septembre 2026 | https://www.service-public.gouv.fr/particuliers/actualites/A18997 | 2026-11-03"
+  - "service-public-agirc-arrco | Service Public : retraite complémentaire dans le privé, Agirc-Arrco | https://www.service-public.gouv.fr/particuliers/vosdroits/F15396 | 2026-11-03"
+  - "service-public-revalorisation-agirc-arrco | Service Public : quelle revalorisation pour les retraites complémentaires du privé ? | https://www.service-public.gouv.fr/particuliers/actualites/A17790 | 2026-11-03"
+  - "travail-emploi-retraite-parentalite | Ministère du Travail : retraite et parentalité | https://travail-emploi.gouv.fr/retraite-et-parentalite | 2026-11-03"
 structures:
   - "info-retraite-mon-compte-retraite | Compte retraite sur info-retraite.fr : relevé de carrière tous régimes, estimation du montant, âge de départ, demande en ligne | https://www.info-retraite.fr/ | "
 ---

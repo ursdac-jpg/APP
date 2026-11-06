@@ -7,7 +7,9 @@ tags: [DALO, droit au logement opposable, commission de médiation, logement soc
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
+delai:
+  - "Droits et recours | 2 mois pour contester, 4 mois pour saisir le tribunal | Votre demande de logement prioritaire (DALO) est refusée, ou reconnue sans proposition de logement | Si la commission refuse, vous avez deux mois pour contester. Si vous êtes reconnu prioritaire mais qu'aucune proposition n'arrive, vous pouvez saisir le tribunal administratif dans un délai de quatre mois."
 lexique:
   - terme: "droit au logement opposable"
     definition: "Droit qui permet, quand on remplit certains critères, de faire reconnaître par l'État un besoin prioritaire et urgent de logement, puis d'exiger une proposition."
@@ -21,7 +23,9 @@ ce_qui_change_souvent:
   - "Les critères pour être reconnu prioritaire"
   - "Les délais de la commission et de la proposition de logement"
   - "Les départements où le recours est dématérialisé"
-revisions: []
+revisions:
+  - "2026-11-04 : page Service Public F18005 relue : la commission a trois mois pour décider (six mois en outre-mer) ; le délai de trois ou six mois selon le département concerne la proposition de logement du préfet"
+phrase_generale: "Le droit au logement opposable est un recours de dernier ressort pour les personnes sans logement ou très mal logées quand rien n'avance : on saisit la commission de médiation de son département. Les conditions, les délais de démarche et les suites possibles changent : renseignez-vous auprès de votre mairie, d'une association ou consultez les sources officielles indiquées plus bas."
 collecte: logement.collecte.md
 ---
 
@@ -29,7 +33,7 @@ Le droit au logement opposable est un recours de dernier ressort, quand une pers
 
 Vous saisissez la commission de médiation de votre département, avec un formulaire, souvent en ligne. Vous pouvez être reconnu prioritaire si vous êtes, par exemple, sans logement, menacé d'expulsion sans relogement, hébergé en structure ou à l'hôtel social depuis plus de six mois, logé dans un local impropre à l'habitation, ou dans un logement insalubre ou trop petit avec un enfant ou une personne handicapée, ou encore en attente d'un logement social depuis un délai anormalement long.
 
-La commission a trois mois pour répondre, parfois six selon le département. Si elle vous reconnaît prioritaire, le préfet doit vous faire une proposition de logement dans un délai de trois à six mois.
+La commission a trois mois pour répondre (six mois en outre-mer). Si elle vous reconnaît prioritaire, le préfet doit vous faire une proposition de logement dans un délai de trois ou six mois, selon le département.
 
 Si la commission refuse, vous avez deux mois pour contester. Si vous êtes reconnu prioritaire mais qu'aucune proposition n'arrive, vous pouvez saisir le tribunal administratif dans un délai de quatre mois.
 

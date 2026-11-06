@@ -27,10 +27,10 @@ n'est pas une source de droit.
      entre **40 % et 80 %** d'un temps plein ;
    - mesure « parentalité » du 1er septembre 2026 (calcul sur 24 meilleures années dès
      1 enfant, 23 dès 2 ; jusqu'à 2 trimestres enfants pour la carrière longue) :
-     **actualité datée, à traiter dans le digest Balayage, pas dans une fiche** ;
+     **traitée le 2026-11-03 dans la fiche `seniors-retraite-et-enfants`** (la partie durable : trimestres, surcote, majoration) ; la nouveauté du 1er septembre 2026 y est datée, et signalée dans le digest Balayage de septembre 2026 (03/11/2026) ;
    - cumul emploi-retraite : conditions du cumul intégral, nouveaux droits depuis 2023.
 
-## Les 5 fiches
+## Les 9 fiches
 
 | id | titre |
 |---|---|
@@ -39,6 +39,10 @@ n'est pas une source de droit.
 | `seniors-depart-volontaire-retraite` | Partir à la retraite : le départ volontaire du salarié |
 | `seniors-mise-a-la-retraite` | La mise à la retraite par l'employeur |
 | `seniors-ou-s-informer-retraite` | Où m'informer sur ma retraite, à qui m'adresser |
+| `seniors-aspa-minimum-vieillesse` | L'ASPA : un complément quand la retraite est trop faible |
+| `seniors-carriere-longue-depart-anticipe` | Carrière longue : partir à la retraite avant l'âge légal |
+| `seniors-retraite-complementaire-agirc-arrco` | La retraite complémentaire du privé : l'Agirc-Arrco, comment elle fonctionne |
+| `seniors-retraite-et-enfants` | Retraite et enfants : les trimestres et les avantages liés à la parentalité |
 
 ## Section « à qui s'adresser »
 

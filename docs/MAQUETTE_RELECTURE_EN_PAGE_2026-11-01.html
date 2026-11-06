@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : relecture en page</title>
+<!-- Maquette du 01/11/2026 (point 15 du plan, consigne 83 c et décision de Denis du 31/10). Elle utilise le VRAI CSS de l'application (aucune copie) ; seuls l'habillage de la maquette et les contrôles sont ajoutés ici.
+     Ouvrir par http://localhost:8123/docs/MAQUETTE_RELECTURE_EN_PAGE_2026-11-01.html (serveur de développement). Rien n'est codé dans l'application : tout ce qui est cliquable ici est factice. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body.coque { background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); margin: 0; }
+.coque-barre { position: sticky; top: 0; z-index: 50; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; }
+.coque-groupe { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.coque-groupe > span { font-size: .875rem; font-weight: 700; color: var(--text-muted); margin-right: .2rem; }
+.coque-groupe button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); border-radius: 8px; padding: .45rem .8rem; font-size: .9rem; cursor: pointer; min-height: 40px; }
+.coque-groupe button[aria-pressed="true"] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.coque-legende { max-width: 980px; margin: .8rem auto 0; padding: 0 1rem; font-size: .9rem; color: var(--text-muted); }
+.coque-scene { padding: 1rem; display: flex; justify-content: center; }
+.coque-cadre { width: 100%; max-width: 1000px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-page); box-shadow: 0 2px 14px rgba(0,0,0,.12); overflow: hidden; display: flex; flex-direction: column; }
+.coque-cadre.tel { max-width: 375px; }
+.coque-contenu { padding: .8rem 1.2rem 1.2rem; max-height: 76vh; overflow-y: auto; }
+.coque-cadre.tel .coque-contenu { padding: .6rem .9rem 1rem; }
+.coque-cadre .barre-navigation-fixe { position: static; box-shadow: 0 -2px 8px rgba(0,0,0,.08); background: var(--bg-card); padding: .5rem 1rem; }
+.coque-cadre .barre-navigation { margin-top: 0 !important; }
+.coque-cadre.tel .barre-navigation { grid-template-columns: auto auto minmax(0,1fr); gap: .4rem; }
+.coque-cadre.tel .btn-accueil { font-size: 0; padding-left: .7rem; padding-right: .7rem; }
+.coque-cadre.tel .btn-accueil i { font-size: 1.1rem; }
+.coque-cadre.tel #app h1, .coque-cadre.tel h1 { font-size: 1.7rem; }
+.coque-cadre.tel .barre-etapes-bilan .pastille-etape-action-label { display: none; }
+.coque-cadre.tel .barre-etapes-bilan .pastille-etape-action-courante .pastille-etape-action-label { display: inline; }
+.coque-cadre h1 { text-align: center; margin: .8rem 0 .3rem; font-size: 2.2rem; }
+.coque-cadre .sous-titre-page { text-align: center; color: var(--text-muted); margin: 0 0 1rem; }
+.scene { display: none; }
+.scene.visible { display: block; }
+.note-maquette { margin: .5rem 0 1rem; padding: .6rem .9rem; border-left: 4px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 8px 8px 0; font-size: .9rem; }
+.note-maquette strong { color: var(--text-strong); }
+.rappel-resume { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding: .7rem .9rem; border: 1px solid var(--success); border-left-width: 4px; border-radius: 10px; background: var(--bg-card); margin-bottom: .8rem; }
+.rappel-resume .ok { color: var(--success); font-weight: 700; }
+.carte-doc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
+.carte-doc h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.versions { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.versions button { border: 2px solid var(--border-strong); background: var(--bg-card); border-radius: 10px; padding: .5rem .9rem; font-weight: 600; cursor: pointer; min-height: 44px; color: var(--text-strong); }
+.versions button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.papier { background: #fff; color: #222; border: 1px solid var(--border-strong); border-radius: 6px; padding: 1.1rem 1.3rem; font-family: Georgia, serif; line-height: 1.55; white-space: pre-wrap; }
+.etiquette-modifiee { display: inline-block; margin-left: .5rem; font-size: .875rem; font-weight: 600; padding: .1rem .6rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); }
+.zone-edition { display: none; }
+.en-edition .zone-edition { display: block; }
+.en-edition .zone-lecture { display: none; }
+.coque-questions { max-width: 980px; margin: 1rem auto 3rem; padding: 0 1rem; line-height: 1.55; }
+.coque-questions h2 { font-size: 1.2rem; margin: 1.6rem 0 .5rem; }
+.coque-questions .q { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; margin-bottom: .8rem; }
+.coque-questions .reco { color: var(--success); font-weight: 700; }
+.coque-questions li { margin-bottom: .35rem; }
+</style>
+</head>
+<body class="coque">
+
+<div class="coque-barre">
+  <div class="coque-groupe" id="choixScene"><span>Écran :</span>
+    <button type="button" data-scene="passagesA" aria-pressed="true">1. Quelques passages à préciser (bloc dans la page)</button>
+    <button type="button" data-scene="passagesB" aria-pressed="false">1 bis. Variante : étape à part</button>
+    <button type="button" data-scene="texte" aria-pressed="false">2. Texte transmis à l’assistant</button>
+    <button type="button" data-scene="lettre" aria-pressed="false">3. Modifier la lettre</button>
+    <button type="button" data-scene="entretien" aria-pressed="false">4. Modifier l’entretien</button>
+  </div>
+  <div class="coque-groupe" id="choixLargeur"><span>Affichage :</span>
+    <button type="button" data-largeur="pc" aria-pressed="true">Ordinateur</button>
+    <button type="button" data-largeur="tel" aria-pressed="false">Téléphone</button>
+  </div>
+</div>
+<p class="coque-legende" id="legende"></p>
+
+<div class="coque-scene"><div class="coque-cadre" id="cadre"><div class="coque-contenu" id="contenu">
+
+<!-- ======================== SCÈNE 1 : bloc « Quelques passages à préciser » dans la page « Vos informations » ======================== -->
+<section class="scene visible" id="scene-passagesA">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📄</span><span class="pastille-etape-action-label">Document</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">💬</span><span class="pastille-etape-action-label">Assistant</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">✅</span><span class="pastille-etape-action-label">Vos informations</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action" style="cursor:default;opacity:0.4;"><span class="pastille-etape-action-icone">📑</span><span class="pastille-etape-action-label">Documents</span></span></div>
+  <h1>📋 Vos informations</h1>
+  <p class="sous-titre-page">Les informations qui personnaliseront votre candidature.</p>
+  <div class="note-maquette"><strong>Ce qui change :</strong> la fenêtre disparaît. Les questions s’affichent en haut de la page qui vient juste après (ici « Vos informations »), dans un bloc que vous pouvez rouvrir tant que la page n’est pas validée. <strong>Ce qui ne change pas :</strong> les questions, les propositions d’année, « Je ne sais pas », « Retirer », rien d’obligatoire.</div>
+  <div id="passagesRoot"></div>
+  <details class="bloc-depli"><summary><span class="preparer-num">1</span><span class="preparer-titre">Vous</span><span class="pilule-etat pe-attente">à compléter</span></summary><div class="bloc-depli-corps"><p class="preparer-detail">Identité, coordonnées, situation (déjà relevées dans votre CV).</p></div></details>
+  <details class="bloc-depli"><summary><span class="preparer-num">2</span><span class="preparer-titre">Votre parcours</span><span class="pilule-etat pe-attente">à compléter</span></summary><div class="bloc-depli-corps"><p class="preparer-detail">Expériences, formations, certifications.</p></div></details>
+  <div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg">Continuer →</button></div></div>
+</section>
+
+<!-- ======================== SCÈNE 1 bis : variante, étape à part dans la barre ======================== -->
+<section class="scene" id="scene-passagesB">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📄</span><span class="pastille-etape-action-label">Document</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">💬</span><span class="pastille-etape-action-label">Assistant</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">❔</span><span class="pastille-etape-action-label">Préciser</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action" style="cursor:default;opacity:0.4;"><span class="pastille-etape-action-icone">✅</span><span class="pastille-etape-action-label">Vos informations</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action" style="cursor:default;opacity:0.4;"><span class="pastille-etape-action-icone">📑</span><span class="pastille-etape-action-label">Documents</span></span></div>
+  <h1>❔ Quelques passages à préciser</h1>
+  <p class="sous-titre-page">L’assistant a relevé des points à confirmer dans votre document.</p>
+  <div class="note-maquette"><strong>Variante :</strong> une étape de plus dans la barre du haut (« Préciser »), une page complète avant « Vos informations ». Plus visible, mais <strong>une étape de plus à ajouter dans la barre de chaque module</strong> qui passe par là, et on n’y revient qu’en cliquant sur la barre.</div>
+  <div id="passagesRootB"></div>
+  <div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg">Continuer →</button></div></div>
+</section>
+
+<!-- ======================== SCÈNE 2 : texte transmis à l'assistant ======================== -->
+<section class="scene" id="scene-texte">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📄</span><span class="pastille-etape-action-label">Document</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">💬</span><span class="pastille-etape-action-label">Assistant</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action" style="cursor:default;opacity:0.4;"><span class="pastille-etape-action-icone">📑</span><span class="pastille-etape-action-label">Documents</span></span></div>
+  <h1>💬 Votre assistant</h1>
+  <p class="sous-titre-page">Vous choisissez l’assistant, vous copiez le texte, vous le collez chez lui.</p>
+  <div class="note-maquette"><strong>Ce qui change :</strong> « Vérifier les informations » n’est plus une fenêtre : le texte s’ouvre <strong>sous le bouton, dans le même bloc</strong>. Il reste ouvert tant que vous le souhaitez ; le bloc dit clairement si le texte a été modifié à la main.</div>
+  <div class="assistant-rect ouvert">
+    <button type="button" class="assistant-rect-tete" style="cursor:default"><span class="assistant-rect-ico">💬</span><span class="assistant-rect-titre">Votre assistant : ChatGPT<span class="assistant-rect-sous">Le texte à lui envoyer est prêt.</span></span></button>
+    <div style="padding: 0 1rem 1rem;">
+      <p class="mb-2">Le texte qui sera copié contient votre parcours, vos compétences et vos préférences. <span id="etatTexte" class="etiquette-modifiee" style="display:none">Texte modifié à la main</span></p>
+      <div><button type="button" class="assistant-btn-texte-discret" id="btnOuvrirTexte">🔍 Voir ou modifier le texte transmis à l’assistant</button></div>
+      <div id="panneauTexte" style="display:none" class="mt-3">
+        <p class="preparer-detail mb-2">Voici toutes les informations qui seront transmises à l’assistant (les instructions elles-mêmes ne sont pas affichées ici). Modifiez librement ce texte si besoin.</p>
+        <textarea id="champTexte" class="form-control" rows="9"></textarea>
+        <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+          <button type="button" class="btn btn-primary" id="btnEnregTexte">Enregistrer</button>
+          <button type="button" class="btn btn-outline-secondary" id="btnAnnulTexte">Annuler</button>
+          <button type="button" class="btn btn-outline-secondary" id="btnAutoTexte" style="display:none">Revenir au texte automatique</button>
+          <span class="preparer-detail" id="msgTexte" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg">Continuer →</button></div></div>
+</section>
+
+<!-- ======================== SCÈNE 3 : modifier la lettre sur place ======================== -->
+<section class="scene" id="scene-lettre">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📄</span><span class="pastille-etape-action-label">Document</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">💬</span><span class="pastille-etape-action-label">Assistant</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">📑</span><span class="pastille-etape-action-label">Documents</span></span></div>
+  <h1>✉️ Ma lettre de motivation rapide</h1>
+  <p class="sous-titre-page">Deux versions vous sont proposées. Choisissez, modifiez, puis exportez.</p>
+  <div class="note-maquette"><strong>Ce qui change :</strong> « Modifier la version » n’ouvre plus de fenêtre. La lettre devient <strong>modifiable à sa place</strong>, avec « Enregistrer » et « Annuler ». Les deux versions restent visibles en haut pour comparer ou changer.</div>
+  <div class="versions" id="versionsLettre" role="group" aria-label="Versions de la lettre"></div>
+  <div class="carte-doc" id="carteLettre">
+    <h3>Version <span id="numVersion">1</span> <span class="etiquette-modifiee" id="etLettreMod" style="display:none">modifiée</span></h3>
+    <div class="zone-lecture">
+      <div class="papier" id="lectureLettre"></div>
+      <div class="mt-3 d-flex gap-2 flex-wrap"><button type="button" class="btn btn-outline-primary" id="btnModifLettre">✎ Modifier cette version</button></div>
+    </div>
+    <div class="zone-edition">
+      <label class="small fw-bold text-muted d-block mb-1" for="objLettre">Objet</label>
+      <input type="text" class="form-control mb-3" id="objLettre">
+      <label class="small fw-bold text-muted d-block mb-1" for="texLettre">Texte de la lettre</label>
+      <textarea class="form-control" rows="11" id="texLettre"></textarea>
+      <div class="mt-3 d-flex gap-2 flex-wrap"><button type="button" class="btn btn-primary" id="btnEnregLettre">Enregistrer</button><button type="button" class="btn btn-outline-secondary" id="btnAnnulLettre">Annuler</button></div>
+    </div>
+  </div>
+  <div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg">Continuer →</button></div></div>
+</section>
+
+<!-- ======================== SCÈNE 4 : modifier l'entretien sur place ======================== -->
+<section class="scene" id="scene-entretien">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📄</span><span class="pastille-etape-action-label">Document</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">💬</span><span class="pastille-etape-action-label">Assistant</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">📑</span><span class="pastille-etape-action-label">Documents</span></span></div>
+  <h1>🎤 Ma fiche de préparation à l’entretien</h1>
+  <p class="sous-titre-page">Votre présentation, vos points à préparer, vos questions au recruteur.</p>
+  <div class="note-maquette"><strong>Même principe que la lettre :</strong> chaque rubrique se modifie à sa place, une à la fois ou toutes ensemble, sans fenêtre. On voit toujours le reste de la fiche autour.</div>
+  <div class="carte-doc" id="carteEntretien">
+    <h3>Votre fiche <span class="etiquette-modifiee" id="etEntMod" style="display:none">modifiée</span></h3>
+    <div class="zone-lecture">
+      <p class="small fw-bold text-muted mb-1">Pour me présenter</p><p id="lecPres"></p>
+      <p class="small fw-bold text-muted mb-1">Points à préparer</p><ul id="lecPoints"></ul>
+      <p class="small fw-bold text-muted mb-1">Questions à poser au recruteur</p><ul id="lecQuest"></ul>
+      <div class="mt-3"><button type="button" class="btn btn-outline-primary" id="btnModifEnt">✎ Modifier ma fiche</button></div>
+    </div>
+    <div class="zone-edition">
+      <label class="small fw-bold text-muted d-block mb-1" for="edPres">Pour me présenter</label>
+      <textarea class="form-control mb-3" rows="3" id="edPres"></textarea>
+      <label class="small fw-bold text-muted d-block mb-1" for="edPoints">Points à préparer (un par ligne)</label>
+      <textarea class="form-control mb-3" rows="4" id="edPoints"></textarea>
+      <label class="small fw-bold text-muted d-block mb-1" for="edQuest">Questions à poser au recruteur (une par ligne)</label>
+      <textarea class="form-control" rows="4" id="edQuest"></textarea>
+      <div class="mt-3 d-flex gap-2 flex-wrap"><button type="button" class="btn btn-primary" id="btnEnregEnt">Enregistrer</button><button type="button" class="btn btn-outline-secondary" id="btnAnnulEnt">Annuler</button></div>
+    </div>
+  </div>
+  <div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg">Continuer →</button></div></div>
+</section>
+
+</div></div></div>
+
+<div class="coque-questions">
+  <h2>Ce que cette maquette ne change pas</h2>
+  <ul>
+    <li>Les mêmes questions, les mêmes propositions d’année, « Je ne sais pas », « Retirer », « 2021 pour toutes » : rien n’est retiré, rien n’est obligatoire.</li>
+    <li>Le contenu envoyé à l’assistant et le contenu des documents : seulement l’endroit où on les relit et les modifie.</li>
+    <li>Les cinq endroits qui ouvrent aujourd’hui « Quelques passages à préciser » (Reformuler, version rapide, Un CV plusieurs métiers, Bilan « Organiser mon CV », Bilan fusion) : chacun garde sa suite, seule la fenêtre disparaît.</li>
+  </ul>
+  <h2>Mes questions pour vous</h2>
+  <div class="q"><strong>Q1. Où placer « Quelques passages à préciser » ?</strong><br>
+    <span class="reco">A (recommandé)</span> : un bloc en haut de la page qui suit, rouvrable tant qu’on n’a pas validé. Bénéfice : aucune étape de plus dans les barres, on revient quand on veut, c’est le même composant partout. Risque : si la page suivante est déjà longue, le bloc la rallonge.<br>
+    <strong>B</strong> : une étape à part dans la barre. Bénéfice : très visible. Risque : une étape de plus dans les barres de cinq modules (à valider une par une, comme les autres barres).</div>
+  <div class="q"><strong>Q2. Jusqu’à quand peut-on revenir modifier ses réponses ?</strong><br>
+    <span class="reco">Recommandé</span> : tant que la page suivante n’est pas validée (puis les réponses sont rangées dans le CV comme aujourd’hui). Risque : demande de garder le texte d’origine pour pouvoir réappliquer une réponse corrigée : <strong>c’est la partie délicate du code</strong> (aujourd’hui la réponse remplace le texte une fois pour toutes). Alternative plus simple : bloc modifiable jusqu’au clic sur « Terminé », ensuite rangé.</div>
+  <div class="q"><strong>Q3. « Modifier la lettre » et « Modifier l’entretien » : sur place, comme montré ?</strong><br>
+    <span class="reco">Recommandé</span> : oui, modification sur place avec « Enregistrer » et « Annuler ». Bénéfice : on garde le reste du document sous les yeux. Risque : la page s’allonge un peu pendant la modification.</div>
+  <div class="q"><strong>Q4. « Vérifier les informations » : sous le bouton, dans le bloc de l’assistant, comme montré ?</strong><br>
+    <span class="reco">Recommandé</span> : oui. Une étiquette « Texte modifié à la main » et un bouton « Revenir au texte automatique » rendent l’état clair (aujourd’hui un bandeau l’indique ailleurs).</div>
+  <div class="q"><strong>Q5. Le mot « Terminé » sur le bloc des passages à préciser :</strong> une fois cliqué, le bloc se range en une ligne (« 3 passages précisés · Modifier ») : cela vous convient-il, ou préférez-vous qu’il reste ouvert ?</div>
+  <h2>Effort et risques</h2>
+  <ul>
+    <li><strong>Simple (reprise de l’existant) :</strong> écrans 2, 3 et 4 : mêmes champs, mêmes enregistrements, seul l’affichage change.</li>
+    <li><strong>Risqué :</strong> écran 1 : les réponses sont aujourd’hui appliquées une seule fois, avec une fonction différente selon le module (Reformuler les applique sur les deux versions du CV, les autres dans le dossier). Pour revenir les modifier, il faut les appliquer à partir du texte d’origine à chaque changement.</li>
+    <li><strong>À ne pas oublier :</strong> les cinq appelants à tester un par un (parcours réels), et un test automatique du composant partagé.</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // ---------- Sélecteurs de la coque ----------
+  var legendes = {
+    passagesA: 'Écran 1 : après le collage de la réponse de l’assistant, la personne arrive sur « Vos informations ». Les questions sont dans un bloc en haut de la page.',
+    passagesB: 'Écran 1 bis : même contenu, mais en page à part avec une étape de plus dans la barre.',
+    texte: 'Écran 2 : dans le bloc « Votre assistant », le texte transmis s’ouvre sous le bouton (plus de fenêtre).',
+    lettre: 'Écran 3 : « Vos documents » de la lettre rapide, modification sur place.',
+    entretien: 'Écran 4 : « Vos documents » de la fiche d’entretien, modification sur place.'
+  };
+  function montrerScene(nom) {
+    $$('.scene').forEach(function (s) { s.classList.toggle('visible', s.id === 'scene-' + nom); });
+    $$('#choixScene button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.scene === nom)); });
+    $('#legende').textContent = legendes[nom];
+  }
+  $$('#choixScene button').forEach(function (b) { b.addEventListener('click', function () { montrerScene(b.dataset.scene); }); });
+  $$('#choixLargeur button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $('#cadre').classList.toggle('tel', b.dataset.largeur === 'tel');
+      $$('#choixLargeur button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+  montrerScene('passagesA');
+
+  // ---------- Écran 1 : questions à préciser ----------
+  var questions = [
+    { titre: 'Année de certification', extrait: 'SST (Sauveteur secouriste du travail)', question: 'En quelle année avez-vous obtenu cette certification ?', suggestions: ['2021', '2022'], groupe: 'BTS Commerce' },
+    { titre: 'Année de certification', extrait: 'Habilitation électrique B0', question: 'En quelle année avez-vous obtenu cette habilitation ?', suggestions: ['2021', '2022'], groupe: 'BTS Commerce' },
+    { titre: 'Passage peu lisible', extrait: 'Responsable de ray…', question: 'Quel était l’intitulé de ce poste ?', retirer: true }
+  ];
+  function rendrePassages(racine, idp) {
+    var h = '';
+    h += '<details class="bloc-depli bd-warn" open id="' + idp + 'bloc"><summary><span class="preparer-titre">Quelques passages à préciser</span><span class="pilule-etat pe-attente" id="' + idp + 'pilule">3 questions</span></summary><div class="bloc-depli-corps">';
+    h += '<div id="' + idp + 'ouvert">';
+    h += '<p class="mb-3">Votre document était peut-être une image ou un scan, ou l’assistant a relevé un point à préciser. <strong>Rien n’est obligatoire</strong> : passez une question si vous ne savez pas. Vos réponses sont gardées : vous pouvez revenir ici tant que vous n’avez pas validé la page.</p>';
+    h += '<div class="cv-section mb-3"><p class="mb-1"><strong>Les 2 certifications rangées sous « BTS Commerce » ont-elles la même année ?</strong> <span class="preparer-detail">Un clic remplit toutes les réponses ci-dessous ; vous pouvez ensuite en corriger une.</span></p><div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-primary btn-sm" data-groupe="2021">2021 pour toutes</button><button type="button" class="btn btn-primary btn-sm" data-groupe="2022">2022 pour toutes</button></div></div>';
+    questions.forEach(function (q, i) {
+      h += '<details class="bloc-depli bd-warn" open><summary><span class="preparer-num">' + (i + 1) + '</span><span class="preparer-titre">' + q.titre + '</span><span class="pilule-etat pe-attente" id="' + idp + 'pil' + i + '">à préciser</span></summary><div class="bloc-depli-corps">';
+      h += '<p class="preparer-detail mb-2">Passage retrouvé dans le document : « ' + q.extrait + ' »</p>';
+      h += '<label class="form-label small mb-1" for="' + idp + 'rep' + i + '">' + q.question + '</label>';
+      h += '<input type="text" class="form-control" id="' + idp + 'rep' + i + '">';
+      if (q.suggestions) { h += '<div class="mt-2 d-flex gap-2 flex-wrap">' + q.suggestions.map(function (s) { return '<button type="button" class="btn btn-outline-primary btn-sm" data-sug="' + i + '" data-val="' + s + '">' + s + '</button>'; }).join('') + '</div>'; }
+      if (q.retirer) { h += '<div class="mt-2"><button type="button" class="btn btn-outline-primary btn-sm" data-retirer="' + i + '">Retirer « ' + q.extrait + ' »</button></div>'; }
+      h += '<div class="mt-2"><button type="button" class="btn btn-outline-secondary btn-sm" data-passer="' + i + '">Je ne sais pas, passer cette question</button></div>';
+      h += '</div></details>';
+    });
+    h += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="preparer-detail" id="' + idp + 'cpt" aria-live="polite"></span><button type="button" class="btn btn-primary" id="' + idp + 'fini">Terminé</button></div>';
+    h += '</div>';
+    h += '<div id="' + idp + 'resume" style="display:none"><div class="rappel-resume"><span class="ok">✓</span><span id="' + idp + 'resumeTexte"></span><button type="button" class="btn btn-outline-primary btn-sm ms-auto" id="' + idp + 'modifier">Modifier mes réponses</button></div></div>';
+    h += '</div></details>';
+    racine.innerHTML = h;
+    var etat = [];
+    questions.forEach(function () { etat.push('attente'); });
+    function champ(i) { return $('#' + idp + 'rep' + i); }
+    function maj() {
+      var traitees = 0, repondues = 0, passees = 0, retirees = 0;
+      questions.forEach(function (q, i) {
+        var c = champ(i), p = $('#' + idp + 'pil' + i);
+        var s = c.disabled ? 'passe' : (c.value.trim() ? 'ok' : 'attente');
+        if (c.readOnly && c.value) { s = 'retire'; }
+        etat[i] = s;
+        p.className = 'pilule-etat ' + (s === 'attente' ? 'pe-attente' : 'pe-ok');
+        p.textContent = { attente: 'à préciser', ok: 'répondu : ' + c.value.trim().slice(0, 18), passe: 'passé', retire: 'à retirer' }[s];
+        if (s !== 'attente') { traitees++; }
+        if (s === 'ok') { repondues++; } else if (s === 'passe') { passees++; } else if (s === 'retire') { retirees++; }
+      });
+      $('#' + idp + 'cpt').textContent = traitees + ' question' + (traitees > 1 ? 's' : '') + ' sur 3 traitée' + (traitees > 1 ? 's' : '');
+      $('#' + idp + 'pilule').textContent = traitees === 3 ? 'terminé' : (3 - traitees) + ' à préciser';
+      $('#' + idp + 'pilule').className = 'pilule-etat ' + (traitees === 3 ? 'pe-ok' : 'pe-attente');
+      return { repondues: repondues, passees: passees, retirees: retirees };
+    }
+    $$('input[type=text]', racine).forEach(function (c) { c.addEventListener('input', maj); });
+    $$('[data-sug]', racine).forEach(function (b) { b.addEventListener('click', function () { var c = champ(+b.dataset.sug); c.disabled = false; c.readOnly = false; c.value = b.dataset.val; maj(); }); });
+    $$('[data-groupe]', racine).forEach(function (b) { b.addEventListener('click', function () { [0, 1].forEach(function (i) { var c = champ(i); c.disabled = false; c.value = b.dataset.groupe; }); maj(); }); });
+    $$('[data-retirer]', racine).forEach(function (b) { b.addEventListener('click', function () { var c = champ(+b.dataset.retirer); c.disabled = false; c.value = 'à retirer du CV'; c.readOnly = true; maj(); }); });
+    $$('[data-passer]', racine).forEach(function (b) { b.addEventListener('click', function () { var c = champ(+b.dataset.passer); c.value = ''; c.disabled = true; c.placeholder = 'Passé'; maj(); }); });
+    $('#' + idp + 'fini').addEventListener('click', function () {
+      var r = maj();
+      $('#' + idp + 'ouvert').style.display = 'none'; $('#' + idp + 'resume').style.display = 'block';
+      var morceaux = [];
+      if (r.repondues) { morceaux.push(r.repondues + ' précisé' + (r.repondues > 1 ? 's' : '')); }
+      if (r.retirees) { morceaux.push(r.retirees + ' retiré'); }
+      if (r.passees) { morceaux.push(r.passees + ' passé' + (r.passees > 1 ? 's' : '')); }
+      var reste = 3 - r.repondues - r.passees - r.retirees;
+      if (reste) { morceaux.push(reste + ' laissé' + (reste > 1 ? 's' : '') + ' sans réponse'); }
+      $('#' + idp + 'resumeTexte').textContent = 'Passages à préciser : ' + (morceaux.join(', ') || 'aucune réponse') + '.';
+    });
+    $('#' + idp + 'modifier').addEventListener('click', function () { $('#' + idp + 'ouvert').style.display = 'block'; $('#' + idp + 'resume').style.display = 'none'; });
+    maj();
+  }
+  rendrePassages($('#passagesRoot'), 'a');
+  rendrePassages($('#passagesRootB'), 'b');
+
+  // ---------- Écran 2 : texte transmis ----------
+  var texteAuto = 'Document demandé : CV\n\nCONTEXTE DE LA CANDIDATURE\n- Mode CV GÉNÉRAL : rédigez un CV polyvalent, adaptable à plusieurs employeurs/métiers proches.\n- Objectif : répondre à une offre\n\nPROFIL DU CANDIDAT\n- Expériences professionnelles :\n  . Vendeur - Magasin, 2019 à 2024 - Missions : accueillir les clients, tenir la caisse\n\nCOMPÉTENCES ET ATOUTS\n- Savoir-être : motivation, apprentissage\n- Savoirs : relation client, caisse';
+  var texteCourant = texteAuto, modifie = false;
+  $('#champTexte').value = texteAuto;
+  $('#btnOuvrirTexte').addEventListener('click', function () { var p = $('#panneauTexte'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; });
+  $('#btnEnregTexte').addEventListener('click', function () {
+    var v = $('#champTexte').value;
+    modifie = v !== texteAuto; texteCourant = v;
+    $('#etatTexte').style.display = modifie ? 'inline-block' : 'none';
+    $('#btnAutoTexte').style.display = modifie ? 'inline-flex' : 'none';
+    $('#msgTexte').textContent = modifie ? '✓ Enregistré : ce texte sera copié pour l’assistant.' : '✓ Rien n’a changé : le texte reste automatique.';
+  });
+  $('#btnAnnulTexte').addEventListener('click', function () { $('#champTexte').value = texteCourant; $('#panneauTexte').style.display = 'none'; });
+  $('#btnAutoTexte').addEventListener('click', function () { $('#champTexte').value = texteAuto; texteCourant = texteAuto; modifie = false; $('#etatTexte').style.display = 'none'; $('#btnAutoTexte').style.display = 'none'; $('#msgTexte').textContent = '✓ Texte automatique rétabli.'; });
+
+  // ---------- Écran 3 : lettre ----------
+  var lettres = [
+    { objet: 'Candidature au poste de vendeur', texte: 'Madame, Monsieur,\n\nVendeur depuis cinq ans, j’ai appris à accueillir chaque client avec attention et à tenir une caisse avec rigueur. Votre offre correspond à ce que je sais faire.\n\nJe serais heureux de vous rencontrer.\n\nCordialement,\nJean Dupont', mod: false },
+    { objet: 'Candidature : vendeur polyvalent', texte: 'Bonjour,\n\nJe vous écris pour vous proposer mon aide en magasin : accueil, conseil, caisse. Je suis disponible rapidement.\n\nBien cordialement,\nJean Dupont', mod: false }
+  ];
+  var vIdx = 0;
+  function rendreVersions() {
+    $('#versionsLettre').innerHTML = lettres.map(function (l, i) { return '<button type="button" data-v="' + i + '" aria-pressed="' + (i === vIdx) + '">Version ' + (i + 1) + (l.mod ? ' (modifiée)' : '') + '</button>'; }).join('');
+    $$('#versionsLettre button').forEach(function (b) { b.addEventListener('click', function () { vIdx = +b.dataset.v; $('#carteLettre').classList.remove('en-edition'); majLettre(); rendreVersions(); }); });
+  }
+  function majLettre() {
+    var l = lettres[vIdx];
+    $('#numVersion').textContent = vIdx + 1;
+    $('#lectureLettre').textContent = 'Objet : ' + l.objet + '\n\n' + l.texte;
+    $('#objLettre').value = l.objet; $('#texLettre').value = l.texte;
+    $('#etLettreMod').style.display = l.mod ? 'inline-block' : 'none';
+  }
+  $('#btnModifLettre').addEventListener('click', function () { $('#carteLettre').classList.add('en-edition'); $('#texLettre').focus(); });
+  $('#btnAnnulLettre').addEventListener('click', function () { $('#carteLettre').classList.remove('en-edition'); majLettre(); });
+  $('#btnEnregLettre').addEventListener('click', function () { var l = lettres[vIdx]; l.objet = $('#objLettre').value; l.texte = $('#texLettre').value; l.mod = true; $('#carteLettre').classList.remove('en-edition'); majLettre(); rendreVersions(); });
+  rendreVersions(); majLettre();
+
+  // ---------- Écran 4 : entretien ----------
+  var ent = { pres: 'Je suis vendeur depuis cinq ans et j’aime le contact avec les clients.', points: ['Mon parcours en magasin', 'Mes disponibilités'], quest: ['Quels sont les horaires ?', 'Y a-t-il une formation à l’arrivée ?'] };
+  function majEnt() {
+    $('#lecPres').textContent = ent.pres;
+    $('#lecPoints').innerHTML = ent.points.map(function (x) { return '<li>' + x.replace(/</g, '&lt;') + '</li>'; }).join('');
+    $('#lecQuest').innerHTML = ent.quest.map(function (x) { return '<li>' + x.replace(/</g, '&lt;') + '</li>'; }).join('');
+    $('#edPres').value = ent.pres; $('#edPoints').value = ent.points.join('\n'); $('#edQuest').value = ent.quest.join('\n');
+  }
+  function lignes(v) { return v.split('\n').map(function (l) { return l.trim(); }).filter(Boolean); }
+  $('#btnModifEnt').addEventListener('click', function () { $('#carteEntretien').classList.add('en-edition'); $('#edPres').focus(); });
+  $('#btnAnnulEnt').addEventListener('click', function () { $('#carteEntretien').classList.remove('en-edition'); majEnt(); });
+  $('#btnEnregEnt').addEventListener('click', function () { ent.pres = $('#edPres').value; ent.points = lignes($('#edPoints').value); ent.quest = lignes($('#edQuest').value); $('#carteEntretien').classList.remove('en-edition'); $('#etEntMod').style.display = 'inline-block'; majEnt(); });
+  majEnt();
+  // Les boutons du bas sont factices (la maquette ne navigue pas)
+  $$('.barre-navigation button').forEach(function (b) { b.removeAttribute('onclick'); b.addEventListener('click', function () { b.blur(); }); });
+}());
+</script>
+</body>
+</html>

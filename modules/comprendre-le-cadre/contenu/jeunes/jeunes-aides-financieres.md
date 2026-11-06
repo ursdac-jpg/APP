@@ -1,7 +1,7 @@
 ---
 id: jeunes-aides-financieres
 rayon: jeunes
-titre: "Les aides financières quand on a moins de 26 ans"
+titre: "Les aides financières quand on est jeune"
 pour_qui: "Utile si vous avez moins de 26 ans, peu ou pas de revenus, et un besoin d'argent pour avancer sur votre projet."
 tags: [aides financières, jeune, fonds d'aide aux jeunes, allocation CEJ, mobilité, premier emploi, Mission locale]
 territoire: national
@@ -21,6 +21,7 @@ ce_qui_change_souvent:
   - "Le montant de l'allocation du contrat d'engagement jeune"
   - "Les aides propres à chaque Mission locale et collectivité"
 revisions: []
+phrase_generale: "Plusieurs aides existent pour les jeunes qui ont peu ou pas de revenus, comme l'allocation du contrat d'engagement jeune ou d'autres aides ponctuelles, car le RSA est en principe réservé aux adultes plus âgés. Les montants, les âges et les conditions changent régulièrement : renseignez-vous auprès de la Mission locale ou consultez les sources officielles indiquées plus bas."
 collecte: jeunes.collecte.md
 ---
 

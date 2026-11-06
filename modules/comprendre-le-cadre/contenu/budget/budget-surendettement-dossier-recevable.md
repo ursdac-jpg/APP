@@ -32,6 +32,7 @@ ce_qui_change_souvent:
 revisions:
   - "2026-10 : précision sur l'expulsion (c'est la commission qui saisit le juge, à la demande de la personne) ; vérifié sur banque-france.fr et Légifrance (articles L722-2 et suivants du code de la consommation) le 2026-10-05"
   - "2026-09 : fiche créée par scission de « La procédure de surendettement : comment ça marche ? », à partir du détail de la procédure publié par la Banque de France."
+phrase_generale: "Quand la commission déclare un dossier de surendettement recevable, les saisies et les poursuites des créanciers s'arrêtent, avec des exceptions comme les pensions alimentaires. Les durées de suspension et les étapes suivantes changent selon les situations : renseignez-vous auprès de la Banque de France ou consultez les sources officielles indiquées plus bas."
 collecte: budget.collecte.md
 ---
 

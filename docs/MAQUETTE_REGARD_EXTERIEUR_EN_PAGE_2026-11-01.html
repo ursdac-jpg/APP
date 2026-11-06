@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regard extérieur sans fenêtres, maquette</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/reperes/reperes.css">
+<link rel="stylesheet" href="../modules/regard-exterieur/regardExterieur.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; }
+:root[data-theme="sombre"] { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; }
+body { margin:0; padding:16px 16px 60px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1.mq-h1 { font-size:1.3rem; margin:0 0 6px; } h2.mq-h2 { font-size:1.08rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:18px; }
+.mq-reglages { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; border:1px solid var(--mq-border); border-radius:12px; padding:10px 14px; background:var(--mq-card); margin-bottom:14px; font-size:.9rem; }
+.mq-reglages b { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mq-muted); margin-right:4px; }
+.mq-reglages label { margin-right:8px; cursor:pointer; }
+.mq-reglages .mq-fermer { margin-left:auto; border:0; background:transparent; font-size:1.2rem; cursor:pointer; color:var(--mq-muted); }
+.mq-q { border-left:4px solid var(--mq-accent); padding:8px 12px; margin:12px 0; background:var(--mq-card); border-radius:0 8px 8px 0; }
+.mq-q p { margin:.2rem 0; }
+.mq-q ul { margin:.3rem 0 0; padding-left:1.2rem; font-size:.93rem; }
+.mq-reco { font-weight:700; color:var(--mq-accent); }
+.mq-fil { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+.mq-fil button { border:1px solid var(--mq-border); background:var(--mq-card); color:var(--mq-text); border-radius:99px; padding:.2rem .7rem; font-size:.82rem; cursor:pointer; }
+.mq-fil button.on { background:var(--mq-accent); border-color:var(--mq-accent); color:#fff; }
+.mq-note { font-size:.85rem; color:var(--mq-muted); border:1px dashed var(--mq-border); border-radius:8px; padding:6px 10px; margin:0 0 10px; background:var(--mq-card); }
+
+/* la page simulée */
+#mqPage { border:1px dashed var(--mq-border); border-radius:12px; padding:16px; background:var(--bg-page); margin:0 auto; transition:max-width .2s; }
+#mqPage.tel { max-width:380px; border-radius:22px; border-style:solid; padding:12px; }
+#mqPage .mq-barre-bas.barre-navigation-fixe { position:sticky; bottom:0; left:auto; right:auto; padding:.6rem .8rem; margin:1rem -4px -4px; border-radius:10px; }
+#mqPage .mq-barre-bas .barre-navigation { margin-top:0 !important; gap:.5rem; }
+.tel .mq-barre-bas .btn-lg { padding:.4rem .6rem; font-size:.9rem; }
+.tel .mq-barre-bas .btn-accueil { display:none; }
+.tel h1 { font-size:1.9rem; }
+.tel .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) .pastille-etape-action-label { display:none; }
+.tel .barre-etapes-bilan .pastille-etape-action { padding:0.25rem 0.4rem; }
+.mq-cta { min-width:9rem; }
+.mq-cta[disabled] { opacity:.45; cursor:not-allowed; }
+.mq-confirmation { background:var(--success-bg-subtle); border-radius:12px; padding:.85rem 1.25rem; margin-bottom:1rem; text-align:center; color:var(--success-strong); font-weight:700; }
+.mq-carte-choix { border:1px solid var(--border); border-radius:12px; padding:.9rem 1rem; background:var(--bg-card); margin:.6rem 0; }
+.mq-boutons-oui-non { display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.8rem; }
+.mq-explique { font-size:.85rem; background:var(--bg-subtle); border-radius:8px; padding:.45rem .7rem; margin:.5rem 0; color:var(--text-muted); }
+.mq-intro-parcours { border:1px solid var(--border); background:var(--accent-bg-subtle); border-radius:12px; padding:.8rem .95rem; margin-bottom:.9rem; color:var(--text-strong); }
+.mq-intro-parcours p { margin:0; }
+.mq-ancien { border:1px dashed var(--border-strong, var(--border)); border-radius:10px; padding:.55rem .8rem; margin:.5rem 0 .9rem; font-size:.88rem; color:var(--text-muted); background:var(--bg-subtle); }
+.mq-ancien b { color:var(--text-strong); }
+.mq-ligne-assist { margin:.5rem 0; }
+.mq-sauvegarde { border:1px solid var(--warning, #f0c36d); background:var(--warning-bg-subtle); border-radius:10px; padding:.55rem .8rem; margin:.7rem 0; font-size:.9rem; color:var(--text-strong); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+<h1 class="mq-h1">Regard extérieur sans fenêtres : le déroulé complet en pages</h1>
+<p class="muted">Cette maquette se <strong>joue</strong>. Aujourd’hui, chaque étape du Regard extérieur s’ouvre dans une fenêtre par-dessus la page (8 fenêtres au total). Ici, <strong>les mêmes étapes, avec les mêmes textes, les mêmes boutons et les mêmes classes que l’application</strong>, se déroulent dans la page, comme « Un regard sur mon CV » : une barre de trois étapes, un titre, un contenu, la barre du bas. Les trois déroulés (1ère analyse, Deuxième Regard, Aller plus loin) s’y jouent. Les Repères et réponses sont des exemples inventés.</p>
+
+<div class="mq-reglages" id="mqReglages">
+ <span><b>Je joue</b>
+  <label><input type="radio" name="mqScn" value="premiere" checked> 1ère analyse</label>
+  <label><input type="radio" name="mqScn" value="deuxieme"> Deuxième Regard</label>
+  <label><input type="radio" name="mqScn" value="plusloin"> Aller plus loin</label></span>
+ <span><b>Écran</b>
+  <label><input type="radio" name="mqTaille" value="pc" checked> Ordinateur</label>
+  <label><input type="radio" name="mqTaille" value="tel"> Téléphone</label></span>
+ <span><b>Thème</b>
+  <label><input type="radio" name="mqTheme" value="clair" checked> Clair</label>
+  <label><input type="radio" name="mqTheme" value="sombre"> Sombre</label></span>
+ <button class="mq-fermer" type="button" id="mqFermer" aria-label="Fermer ce panneau">✕</button>
+</div>
+
+<div class="mq-fil" id="mqFil" aria-label="Aller directement à un écran"></div>
+<p class="mq-note" id="mqNote"></p>
+
+<div id="mqPage"></div>
+
+<h2 class="mq-h2" style="margin-top:28px">Ce que je vous demande de trancher</h2>
+<p class="muted">Pour chaque point : ma recommandation en premier, puis ce que chaque choix apporte et risque. Rien n’est codé avant votre réponse.</p>
+
+<div class="mq-q">
+ <p><strong>1. Où se passe ce déroulé ?</strong></p>
+ <p class="mq-reco">Recommandé : dans la page Mes Repères, comme « Mes rapports » (même mécanisme déjà en place).</p>
+ <ul>
+  <li><strong>Dans la page Mes Repères</strong> (recommandé). Apport : « Mes rapports » fonctionne déjà ainsi (un mode de la page, avec « ← Retour à Mes Repères »), donc peu de code nouveau et le public retrouve le même geste. Risque : la page Repères est déjà longue ; il faut bien masquer le reste pendant le déroulé.</li>
+  <li><strong>Une page à part</strong> (comme « Un regard sur mon CV »). Apport : écran très propre, barre d’étapes comme les autres modules. Risque : plus de code (nouvelle route, reprise de session, recherche, aide), et un aller-retour de page en plus.</li>
+ </ul>
+</div>
+<div class="mq-q">
+ <p><strong>2. Le choix de l’assistant et le collage : deux écrans ou un seul ?</strong></p>
+ <p class="mq-reco">Recommandé : deux écrans dans la même étape « Assistant » (comme Regard recruteur).</p>
+ <ul>
+  <li><strong>Deux écrans</strong> (recommandé) : « Choisir l’assistant » puis « Collez la réponse ». Apport : identique à tous les modules déjà refaits, rien à réapprendre. Risque : un écran de plus à parcourir.</li>
+  <li><strong>Un seul écran</strong> : pastilles et collage ensemble. Apport : plus court. Risque : écran chargé pour un public fragile ; différent des autres modules.</li>
+ </ul>
+</div>
+<div class="mq-q">
+ <p><strong>3. Après l’enregistrement, « Voir mon analyse » doit-il rouvrir la grande fenêtre ?</strong></p>
+ <p class="mq-reco">Recommandé : non. « Voir le rapport » ouvre « Mes rapports » avec ce rapport déjà ouvert (il existe déjà, avec les mêmes onglets).</p>
+ <ul>
+  <li><strong>Mes rapports, rapport ouvert</strong> (recommandé). Apport : une seule source de lecture (aujourd’hui la fenêtre « Voir mon analyse » refait la même chose que la carte de « Mes rapports »), une fenêtre de moins. Risque : le bouton « Voir mon analyse » de l’onglet « Déjà analysés » change de destination ; aucun contenu n’est perdu.</li>
+  <li><strong>Garder la fenêtre « Voir mon analyse »</strong>. Apport : aucun changement. Risque : deux endroits à maintenir pour la même lecture, et c’est une fenêtre de plus que vous ne voulez pas.</li>
+ </ul>
+</div>
+<div class="mq-q">
+ <p><strong>4. Les deux suites de questions (Deuxième Regard et Aller plus loin) : un seul écran de question pour les deux ?</strong></p>
+ <p class="mq-reco">Recommandé : oui, un seul composant « une question à la fois » (même rendu, même barre de progression).</p>
+ <ul>
+  <li><strong>Un seul composant</strong> (recommandé). Apport : zéro duplication (vos règles), un seul endroit à corriger ; les boutons « Précédente » et « Valider et continuer » passent dans la barre du bas, comme ailleurs. Risque : un peu de soin pour ne pas casser les réponses déjà données ; je l’essaie sur les deux déroulés.</li>
+  <li><strong>Deux écrans séparés</strong>, comme aujourd’hui. Apport : aucun risque de régression. Risque : deux copies presque identiques à garder justes.</li>
+ </ul>
+</div>
+<div class="mq-q">
+ <p><strong>5. Ce qui reste volontairement en fenêtre.</strong></p>
+ <p class="mq-reco">Recommandé : garder en fenêtre « Mes freins identifiés », la fiche d’un frein, la confirmation de suppression, et l’aperçu avant impression « Point sur ma situation ».</p>
+ <ul>
+  <li><strong>Les garder en fenêtre</strong> (recommandé). Apport : ce sont des lectures courtes ou des actions ponctuelles (imprimer, supprimer), pas des étapes d’un parcours ; l’aperçu avant impression doit rester plein écran pour imprimer correctement. Risque : il reste quatre fenêtres d’usage ponctuel dans ce module.</li>
+  <li><strong>Les passer aussi en page</strong>. Apport : zéro fenêtre. Risque : chantier plus lourd, et l’impression est plus fragile dans une page que dans un aperçu dédié.</li>
+ </ul>
+</div>
+<div class="mq-q">
+ <p><strong>Défaut trouvé et déjà corrigé en lisant le code.</strong> Après un rechargement, « Aller plus loin » depuis un ancien rapport ne faisait plus rien à la fin des questions (l’assistant choisi n’était pas gardé). C’est corrigé (la fenêtre de choix s’ouvre) et noté dans le registre des bugs ; dans ce déroulé, l’étape « Assistant » est toujours là.</p>
+</div>
+
+</div>
+
+<script>
+(function () {
+  var etat = { scn: 'premiere', idx: 0, tel: false, phase: 'ouvert', lu: false, coches: { r1: true, r2: true, r3: true }, quest: 0, choix: {}, cat: {}, resume: {}, edit: false, assistant: 'ChatGPT' };
+
+  var DESCRIPTION = {
+    premiere: ['depart', 'reperes', 'assistant', 'coller', 'termine', 'rapports'],
+    deuxieme: ['depart2', 'reperes2', 'optin', 'questions', 'assistant', 'coller', 'termine', 'rapports'],
+    plusloin: ['rapports0', 'categories', 'questionsPL', 'assistant', 'coller', 'termine', 'rapports']
+  };
+  var LIBELLES = {
+    depart: 'Mes Repères (départ)', reperes: '1. Repères à envoyer', assistant: '2. Choisir l’assistant', coller: '2. Coller la réponse',
+    termine: '3. Terminé', rapports: 'Mes rapports (lecture)', depart2: 'Mes Repères (départ)', reperes2: '1. Repères à renvoyer',
+    optin: '1. Affiner ? (à compléter)', questions: '1. Quelques questions', rapports0: 'Mes rapports (départ)',
+    categories: '1. Catégories à approfondir', questionsPL: '1. Quelques questions'
+  };
+  var NOTES = {
+    depart: 'Aujourd’hui, ce bouton ouvre une fenêtre « Quels Repères envoyer ? ». Ici, il ouvre la page suivante. Le bouton, son texte et son explication ne changent pas.',
+    reperes: 'Remplace la fenêtre « Quels Repères envoyer ? ». Mêmes cases, mêmes boutons « Modifier », même garde-fou pour un Repère sans texte. « Continuer » passe dans la barre du bas.',
+    assistant: 'Remplace la fenêtre « Choisissez votre assistant ». Écran identique à celui du Bilan et de Regard recruteur (la brique commune d’aujourd’hui) : le conseil d’abord, les autres assistants, deux blocs repliés. Cliquer sur un assistant copie tout, puis passe à l’écran suivant.',
+    coller: 'Remplace la fenêtre « Collez la réponse » : la brique commune « fenêtre unique de collage » est déjà en page ailleurs (Regard recruteur, Bilan…). Essayez les boutons dans l’ordre : « Je suis de retour », puis « Coller la réponse ».',
+    termine: 'Remplace l’écran de confirmation de la fenêtre. Même message, même rappel de sauvegarde. « Voir le rapport » ouvre Mes rapports avec ce rapport déjà ouvert.',
+    rapports: 'Page « Mes rapports » existante (rien de nouveau ici). Le rapport tout juste enregistré est ouvert et signalé. « Aller plus loin » y est déjà.',
+    depart2: 'Onglet « Déjà analysés » ou « Deuxième Regard » : le bouton « Demander un Deuxième Regard » ouvre aujourd’hui une fenêtre. Ici, la page suivante.',
+    reperes2: 'Remplace la fenêtre « Quels Repères pour ce Deuxième Regard ? ». Repères déjà analysés : lecture seule, pas de bouton « Modifier » (règle actuelle conservée).',
+    optin: 'Remplace la fenêtre « Deuxième Regard » (Oui / Non). Même question, mêmes deux réponses, dans la page.',
+    questions: 'Remplace la fenêtre « Quelques questions » (5 questions du Deuxième Regard). Même composant que « Aller plus loin ». Essayez « Valider et continuer » puis « Précédente ».',
+    rapports0: 'Carte d’un rapport dans « Mes rapports », avec « Aller plus loin » en tête (existe déjà). Aujourd’hui, ce bouton ouvre une fenêtre de catégories.',
+    categories: 'Remplace la fenêtre « Quelles catégories approfondir ? ». « Développer » et la case à cocher marchent ; « Continuer » reste inactif tant qu’aucune catégorie n’est cochée (avec son explication).',
+    questionsPL: 'Remplace la fenêtre « Quelques questions » d’Aller plus loin. Une question à la fois, comme aujourd’hui.'
+  };
+
+  var ETAPES = [{ label: 'Préparer', icone: '&#128221;' }, { label: 'Assistant', icone: '&#128228;&#65039;' }, { label: 'Terminé', icone: '&#9989;' }];
+  function barreEtapes(idx) {
+    return '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">' + ETAPES.map(function (e, i) {
+      var fait = i < idx, courant = i === idx;
+      var classe = fait ? ' pastille-etape-action-validee' : (courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+      var chev = i > 0 ? '<span class="chevron-etape-action' + (i === idx + 1 ? ' chevron-pulse' : '') + '"' + (i > idx ? ' style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>' : '';
+      return chev + '<span class="pastille-etape-action' + classe + '" style="cursor:default;' + (i > idx ? 'opacity:0.4;' : '') + '"><span class="pastille-etape-action-icone">' + e.icone + '</span><span class="pastille-etape-action-label">' + e.label + '</span></span>';
+    }).join('') + '</div>';
+  }
+  function enteteReperes() {
+    return '<div class="reperes-entete-ecran"><button type="button" class="bouton-revoir-explication btn-revoir-module" data-action="rien"><i class="bi bi-bookmark-star"></i> Revoir la présentation</button><h1 style="margin:0;"><i class="bi bi-bookmark-star"></i> Mes Repères</h1><button type="button" class="btn btn-primary btn-sm" data-action="rien">+ <i class="bi bi-bookmark-star"></i> Garder une réflexion</button></div><p class="sousTitre">Les réflexions que vous avez choisi de garder, pour les retrouver quand vous en aurez besoin.</p>';
+  }
+  function titre(sous) { return '<div class="text-center mt-3"><h2 style="font-size:1.6rem;font-weight:800;margin:0 0 .2rem;"><span aria-hidden="true">&#128301;</span> Un regard extérieur</h2><p class="sousTitre mb-2"><strong>' + sous + '</strong></p></div>'; }
+
+  /* ---- données d'exemple ---- */
+  var REPERES = [
+    { id: 'r1', ic: '&#128204;', titre: 'Ma peur de l’entretien', meta: 'Question du 12/10/2026', vide: false },
+    { id: 'r2', ic: '&#128161;', titre: 'Mon rythme de travail', meta: 'Idée du 14/10/2026', vide: false },
+    { id: 'r3', ic: '&#128172;', titre: 'Mon besoin de stabilité', meta: 'À discuter du 20/10/2026', vide: false },
+    { id: 'r4', ic: '&#128161;', titre: 'Le permis de conduire', meta: 'Idée du 25/10/2026', vide: true }
+  ];
+  function selectionHTML(avecModifier) {
+    return '<p class="text-muted small mb-3">Choisissez les Repères à envoyer pour ce Regard Extérieur - tous sont cochés par défaut, décochez ceux que vous préférez garder pour plus tard.</p>' +
+      '<div class="regard-exterieur-selection-liste">' + REPERES.filter(function (r) { return avecModifier || !r.vide; }).map(function (r) {
+        var coche = etat.coches[r.id] !== false && !r.vide;
+        return '<div class="regard-exterieur-selection-item' + (r.vide ? ' est-vide' : '') + (etat.edit && r.id === 'r1' && avecModifier ? ' is-editing' : '') + '" data-item="' + r.id + '">' +
+          '<input type="checkbox" id="mqc' + r.id + '" class="regard-exterieur-selection-checkbox" data-coche="' + r.id + '"' + (coche ? ' checked' : '') + (r.vide ? ' disabled' : '') + '>' +
+          (etat.edit && r.id === 'r1' && avecModifier
+            ? '<div class="regard-exterieur-selection-contenu regard-exterieur-selection-contenu-edition"><input type="text" class="form-control form-control-sm" value="' + r.titre + '"><textarea class="form-control form-control-sm mt-1" rows="3">J’ai peur de ne pas savoir répondre aux questions.</textarea></div>'
+            : '<label for="mqc' + r.id + '" class="regard-exterieur-selection-contenu"><span class="regard-exterieur-selection-icone">' + r.ic + '</span><span class="regard-exterieur-selection-texte"><span class="regard-exterieur-selection-titre">' + r.titre + '</span><span class="regard-exterieur-selection-meta">' + r.meta + '</span></span></label>') +
+          (avecModifier ? '<button type="button" class="btn btn-outline-secondary btn-sm regard-exterieur-selection-modifier" data-modif="' + r.id + '">' + (r.vide ? '+ Ajouter quelques mots' : (etat.edit && r.id === 'r1' ? 'Annuler' : 'Modifier')) + '</button>' : '') +
+          (r.vide ? '<p class="regard-exterieur-selection-invite-vide">&#9998;&#65039; Ajoutez quelques mots pour l’inclure : sans contexte, l’analyse ne pourrait que deviner.</p>' : '') +
+          '</div>';
+      }).join('') + '</div>';
+  }
+  function nbCoches() { return REPERES.filter(function (r) { return etat.coches[r.id] !== false && !r.vide; }).length; }
+
+  function pageRepereDepart(deux) {
+    return (deux
+        ? '<div class="reperes-ligne-analyse mb-3"><div class="reperes-analyse-bloc"><button type="button" class="btn btn-primary reperes-bouton-analyse" data-action="avancer">&#128301; Revoir ma dernière analyse</button><p class="reperes-analyse-souscaption">Retrouvez le dernier retour de l’assistant.</p></div>' +
+          '<div class="reperes-analyse-bloc"><button type="button" class="btn btn-primary" data-action="avancer">&#128300; Demander un Deuxième Regard</button><p class="reperes-analyse-souscaption">Renvoie ces Repères à l’assistant tels quels, sans nouvelle question - différent de « Aller plus loin », qui vous pose des questions ciblées.</p></div></div>'
+        : '<div id="reperesZoneRegardExterieur"><button type="button" class="btn btn-primary" data-action="avancer">&#128301; Demander un Regard Extérieur</button><p class="reperes-regard-exterieur-explication small text-muted mt-2 mb-0">Avec votre accord, envoie vos Repères à un assistant de votre choix pour obtenir des pistes de réflexion complémentaires. Ce n’est jamais une vérité, seulement un regard supplémentaire.</p></div>') +
+      '<div class="reperes-etat-vide mt-3"><span class="reperes-ic">&#128278;</span><p>Le reste de la page Mes Repères (liste des Repères, onglets, recherche) ne change pas.</p></div>';
+  }
+
+  function assistantHTML() {
+    // Même brique que le Bilan et Regard recruteur (htmlChoixAssistantBilanCorps) : le conseil d'abord, les autres assistants, deux blocs repliés.
+    var STYLE = 'display:inline-block;padding:0.45rem 1rem;margin:0.25rem 0.4rem 0.25rem 0;border-radius:999px;font-size:0.9rem;cursor:pointer;background:var(--bg-subtle);color:var(--text-strong);border:2px solid var(--border);font-weight:600;display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;background:var(--accent-bg-subtle);border-color:var(--accent);color:var(--accent);';
+    var autres = ['Claude', 'Perplexity', 'Gemini', 'Mistral', 'DeepSeek'].map(function (n) { return '<button type="button" class="pastille-selection" data-assistant="' + n + '" style="' + STYLE + '">' + n + '<span class="assist-sous">connexion</span></button>'; }).join('');
+    var reperes = [
+      ['Claude', 'Il écrit avec soin et lit très bien les longs textes : un CV, une offre d’emploi, une lettre.', 'La version gratuite a une limite d’utilisation par jour : si elle est atteinte, il faut attendre quelques heures.'],
+      ['Perplexity', 'Il cite ses sources : chaque affirmation renvoie vers la page d’où elle vient, on peut vérifier.', 'C’est avant tout un outil de recherche : pour rédiger ou reformuler, ses réponses sont parfois plus courtes.'],
+      ['Gemini', 'Toute personne qui a un téléphone Android possède déjà un compte Google : elle a donc déjà accès à Gemini, rien à créer.', 'Vos échanges sont rattachés à votre compte Google : vérifiez les réglages de confidentialité de ce compte.'],
+      ['Mistral', 'C’est un assistant européen et français.', 'Il est moins avancé que les autres aujourd’hui : relisez ses réponses avec soin.'],
+      ['DeepSeek', 'On peut l’utiliser très longtemps, sans être arrêté par une limite.', 'Quand beaucoup de monde l’utilise, il peut répondre lentement ou refuser : dans ce cas, réessayez un peu plus tard.']
+    ].map(function (r) { return '<li><span class="choix-ia-repere-nom">' + r[0] + '</span><span class="choix-ia-repere-ligne"><span class="choix-ia-repere-etiq">Point fort :</span> ' + r[1] + '</span><span class="choix-ia-repere-ligne"><span class="choix-ia-repere-etiq">À surveiller :</span> ' + r[2] + '</span></li>'; }).join('');
+    var etapes = [['Copie', 'Vos Repères (et le contexte de votre parcours) sont copiés automatiquement, rien à écrire vous-même.'], ['Analyse', 'L’assistant repère ce qui revient souvent dans vos réflexions, et ce qui a évolué.'], ['Pistes', 'Des questions à se poser, et des sujets à aborder avec votre conseiller si vous le souhaitez.'], ['Votre lecture', 'Vous retrouvez tout ça dans ERIP, présenté clairement. Ce n’est jamais une vérité, seulement un regard supplémentaire.']]
+      .map(function (e, i) { return '<li><span class="rond">' + (i + 1) + '</span><span><span class="titre">' + e[0] + '.</span> ' + e[1] + '</span></li>'; }).join('');
+    var ancien = etat.scn === 'plusloin'
+      ? '<div class="mq-explique">Vous aviez choisi <strong>ChatGPT</strong> pour l’analyse précédente. Vous pouvez le garder ou en prendre un autre. Si l’application ne s’en souvient plus (page rechargée), cet écran est de toute façon affiché : plus de blocage silencieux.</div>'
+      : '';
+    return '<p class="text-muted small mb-1">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis l’ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, vous n’avez rien à taper.</p>' + ancien +
+      '<div class="choix-ia-conseil"><p class="choix-ia-conseil-titre">Le plus simple : ChatGPT</p><p>Il s’utilise tout de suite, sans compte à créer ni mot de passe à retenir.</p><button type="button" class="btn btn-success btn-lg" data-assistant="ChatGPT">Aller sur ChatGPT &#8594;</button></div>' +
+      '<div class="bilan-choix-ia"><div class="choix-ia-colonne-pastilles"><span class="choix-ia-etiq">Vous avez déjà un compte chez un autre assistant ? <span class="quoi">: choisissez-le ici, seulement si vous avez déjà votre compte</span></span>' + autres + '</div></div>' +
+      '<details class="bloc-depli choix-ia-reperes"><summary>&#128161; En savoir plus sur ces assistants <span class="bilan-accordeon-invite">Cliquez ici pour voir</span></summary><div class="bloc-depli-corps"><ul class="choix-ia-reperes-liste">' + reperes + '</ul><p class="small text-muted mb-0">Ces assistants évoluent vite : ces repères peuvent changer.</p></div></details>' +
+      '<details class="bloc-depli"><summary>&#128203; Ce qui va se passer, et vos données <span class="bilan-accordeon-invite">Cliquez ici pour voir</span></summary><div class="bloc-depli-corps"><ul class="choix-ia-etapes">' + etapes + '</ul><div class="choix-ia-rappel-conf"><span>&#128274;</span><span>Votre nom, adresse et coordonnées ne sont jamais transmis à l’assistant.</span></div><div class="mt-2"><button type="button" class="demo-video-declencheur"><span class="demo-video-declencheur-icone" aria-hidden="true">&#9654;</span>Voir la démonstration (20 s)</button></div></div></details>';
+  }
+
+  function collerHTML() {
+    var quoi = etat.scn === 'plusloin'
+      ? ['L’assistant vient d’approfondir ce que vous avez écrit, à partir de vos réponses aux questions supplémentaires.', 'Vos réponses rendent l’éclairage plus proche de votre situation.']
+      : ['L’assistant vient de relire vos Repères : il en dégage ce qui revient, ce qui a évolué et des questions à se poser.', 'Prendre du recul sur ce que vous avez écrit aide à mieux voir où vous en êtes.'];
+    var nom = etat.assistant;
+    var ouvert = etat.phase === 'ouvert';
+    var bande = ouvert
+      ? '<p>✓ <strong>' + nom + '</strong> est ouvert dans un autre onglet. Copiez <strong>toute</strong> sa réponse, puis revenez ici et cliquez sur «&nbsp;Je suis de retour&nbsp;».</p><div class="fc-boutons"><button type="button" class="btn btn-sm btn-outline-primary" data-action="rien">Rouvrir ' + nom + ' (texte à envoyer recopié)</button><button type="button" class="btn btn-sm btn-primary" data-action="retour">↩ Je suis de retour</button></div>'
+      : '<p>Vous revenez de <strong>' + nom + '</strong>. Sa réponse est copiée : cliquez sur «&nbsp;Coller la réponse&nbsp;».</p>';
+    return '<div class="fc"><h2 class="fc-titre"><span aria-hidden="true">📥</span> Collez la réponse de l’assistant</h2><div class="fc-bande">' + bande + '</div>' +
+      '<div class="fc-action"><button type="button" class="fc-gros' + (ouvert ? '' : ' bouton-incitation-action') + '" data-action="coller"' + (ouvert || etat.lu ? ' disabled' : '') + '>📋 Coller la réponse <span class="fc-auto">(opération automatique)</span></button>' +
+      '<div class="fc-sous">' + (ouvert ? 'Ce bouton s’active à votre retour.' : 'Un seul clic : la réponse est collée et lue.') + '</div>' +
+      '<div class="fc-message" role="status"' + (etat.lu ? ' style="color:var(--success-strong);font-weight:700;"' : '') + '>' + (etat.lu ? '✓ Réponse lue : vous pouvez continuer.' : '') + '</div>' +
+      '<p class="fc-autorisation"><span aria-hidden="true">ℹ️</span> Votre navigateur <strong>peut demander l’autorisation</strong> de lire ce que vous avez copié : cliquez sur «&nbsp;Autoriser&nbsp;» (ou «&nbsp;Accepter&nbsp;»). Si vous refusez, il faudra coller à la main.</p>' +
+      '<p class="fc-quoi"><strong>Ce qui se passe.</strong> ' + quoi[0] + ' <strong>Pourquoi c’est utile.</strong> ' + quoi[1] + '</p>' +
+      '<div class="fc-bas"><div class="fc-bas-col"><p class="fc-question"><strong>Le bouton ci-dessus ne marche pas ?</strong> <button type="button" class="fc-info" aria-label="Lire l’explication">ⓘ</button></p><button type="button" class="btn btn-sm btn-outline-primary" data-action="rien">✍ Coller à la main (vous collez vous-même)</button></div>' +
+      '<div class="fc-bas-col"><p class="fc-question"><strong>Un autre assistant ?</strong></p><button type="button" class="btn btn-sm btn-outline-secondary" data-action="autre">Choisir un autre assistant</button></div></div></div></div>';
+  }
+
+  function questionHTML(deux) {
+    var total = deux ? 5 : 4;
+    var pos = etat.quest;
+    var pct = Math.round(((pos + 1) / total) * 100);
+    var dictee = '<p class="mb-2 p-2 regard-exterieur-astuce-dictee">💡 <strong>Astuce : utilisez la dictée vocale de votre appareil pour dire votre texte à la voix</strong> plutôt que de tout taper au clavier.</p>';
+    var bloc, cat = '', texteQ;
+    if (deux) {
+      var qs = [
+        { q: 'Prenez le Repère de cette sélection qui compte le plus pour vous en ce moment. Qu\'est-il en train de se passer concrètement autour de ce sujet : une démarche en cours, une échéance, une personne impliquée, un lieu ?', type: 'centraux' },
+        { q: 'Depuis que vous avez écrit ces Repères, y a-t-il un fait nouveau qui les concerne ? (une décision prise, une démarche entamée ou abandonnée, un changement de situation)', type: 'libre' },
+        { q: 'Parmi ces Repères, y en a-t-il un qui correspond à un besoin très concret et actuel (argent, logement, mobilité, santé, garde d\'enfant, papiers) pas encore réglé ?', type: 'choix', choix: ['Argent', 'Logement', 'Mobilité', 'Santé', 'Garde d\'enfant', 'Papiers'] },
+        { q: 'Sur les sujets de ces Repères, avez-vous déjà tenté quelque chose, ou déjà parlé à quelqu\'un ? Si oui, quoi et avec qui ?', type: 'libre' },
+        { q: 'Y a-t-il un élément important autour de ces Repères, que vous n\'avez écrit nulle part et qui aiderait à mieux les comprendre ensemble ?', type: 'libre' }
+      ];
+      var q = qs[pos]; texteQ = q.q;
+      if (q.type === 'centraux') {
+        bloc = '<p class="small text-muted mb-1">Sélectionnez le ou les Repères (2 au maximum) autour desquels vous voulez que ce regard se concentre. Vous pouvez n\'en sélectionner aucun : dans ce cas, tous comptent autant.</p><div class="regard-exterieur-choix-groupe">' +
+          ['Ma peur de l’entretien', 'Mon rythme de travail', 'Mon besoin de stabilité'].map(function (t, i) { var on = etat.choix['c' + i]; return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (on ? ' is-selected' : '') + '" data-choix="c' + i + '">' + (on ? '&#10003; ' : '') + t + '</button>'; }).join('') + '</div>' +
+          '<p class="small text-muted mt-2 mb-1">Précisez ce qui se passe autour de ce sujet (à compléter)</p>' + dictee + '<textarea class="form-control form-control-sm" rows="3"></textarea>';
+      } else if (q.type === 'choix') {
+        bloc = '<div class="regard-exterieur-choix-groupe">' + q.choix.map(function (t, i) { var on = etat.choix['q' + i]; return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (on ? ' is-selected' : '') + '" data-choix="q' + i + '">' + (on ? '&#10003; ' : '') + t + '</button>'; }).join('') + '</div>' +
+          '<p class="small text-muted mt-2 mb-1">Un autre besoin, ou un détail sur ce que vous avez coché (à compléter)</p>' + dictee + '<textarea class="form-control form-control-sm"></textarea>';
+      } else {
+        bloc = dictee + '<textarea class="form-control form-control-sm" rows="3"></textarea>';
+      }
+    } else {
+      var qpl = [
+        { c: '🧭 Ce qui revient', q: 'Quand vous parlez de peur avant un entretien, à quel moment la ressentez-vous le plus : la veille, juste avant, ou pendant ?', ch: ['La veille', 'Juste avant', 'Pendant', 'Après'] },
+        { c: '🧭 Ce qui revient', q: 'Qu’est-ce qui vous a déjà aidé à vous sentir plus sûr(e) de vous dans une situation proche ?', ch: null },
+        { c: '🏠 Cadre de vie', q: 'Pour un emploi stable près de chez vous, quels déplacements sont possibles au quotidien ?', ch: ['À pied', 'Vélo', 'Transports en commun', 'Voiture'] },
+        { c: '🌱 Accompagnement', q: 'Y a-t-il un élément important que vous n’avez écrit nulle part et qui aiderait à mieux comprendre votre situation ?', ch: null }
+      ];
+      var qq = qpl[pos]; cat = qq.c; texteQ = qq.q;
+      bloc = qq.ch
+        ? '<div class="regard-exterieur-choix-groupe">' + qq.ch.map(function (t, i) { var on = etat.choix['p' + pos + '_' + i]; return '<button type="button" class="btn btn-sm regard-exterieur-choix-btn' + (on ? ' is-selected' : '') + '" data-choix="p' + pos + '_' + i + '">' + (on ? '&#10003; ' : '') + t + '</button>'; }).join('') + '</div><p class="small text-muted mt-2 mb-1">Souhaitez-vous préciser votre réponse ? (à compléter)</p>' + dictee + '<textarea class="form-control form-control-sm"></textarea>'
+        : dictee + '<textarea class="form-control form-control-sm" rows="3"></textarea>';
+    }
+    return '<p class="regard-exterieur-compteur-questions">Question ' + (pos + 1) + ' sur ' + total + '</p>' +
+      '<div class="regard-exterieur-barre-progression"><div class="regard-exterieur-barre-progression-remplie" style="width:' + pct + '%;"></div></div>' +
+      (cat ? '<p class="regard-exterieur-question-categorie">' + cat + '</p>' : '') +
+      '<p class="regard-exterieur-question-texte">' + texteQ + '</p>' + bloc;
+  }
+
+  function categoriesHTML() {
+    var cats = [['🧭', 'Ce qui revient', 2, 'Des peurs et des attentes reviennent dans plusieurs de vos Repères, notamment avant un entretien.'], ['🏠', 'Cadre de vie', 1, 'Le besoin de stabilité et la proximité du domicile sont liés.'], ['🌱', 'Accompagnement', 1, 'Vous pourriez en parler avec votre conseiller ou votre conseillère.']];
+    return '<p class="text-muted small mb-3">Choisissez les catégories pour lesquelles vous voulez avoir plus d\'informations. Pour cela, vous êtes invité(e) à répondre à quelques questions supplémentaires par catégorie choisie.</p><div class="regard-exterieur-choix-categories">' +
+      cats.map(function (c, i) {
+        return '<div class="regard-exterieur-categorie-bloc"><label class="regard-exterieur-categorie-case"><input type="checkbox" class="regard-exterieur-categorie-checkbox" data-cat="' + i + '"' + (etat.cat[i] ? ' checked' : '') + '><span>' + c[0] + ' ' + c[1] + ' <span class="text-muted small">(' + c[2] + (c[2] > 1 ? ' questions' : ' question') + ')</span></span></label>' +
+          '<button type="button" class="btn btn-outline-secondary btn-sm regard-exterieur-btn-developper" data-dev="' + i + '">' + (etat.resume[i] ? 'Réduire &#9650;' : 'Développer &#9660;') + '</button>' +
+          '<div class="regard-exterieur-categorie-resume" style="display:' + (etat.resume[i] ? 'block' : 'none') + ';">' + c[3] + '</div>' +
+          '<p class="small text-muted mt-1 mb-0">En choisissant cette catégorie, vous êtes invité(e) à répondre à des questions supplémentaires.</p></div>';
+      }).join('') + '</div>';
+  }
+
+  function termineHTML() {
+    return '<div class="mq-confirmation">&#10003; Réponse importée avec succès.</div>' +
+      '<div class="rappel-sauvegarde-zone"><div class="rappel-sauvegarde" role="status"><i class="bi bi-floppy" aria-hidden="true"></i><div><p>Ce travail n’est gardé que dans cette page. Sauvegardez votre session pour le retrouver plus tard, sur cet appareil ou sur un autre.</p><button type="button" class="btn btn-primary rappel-sauvegarde-bouton" data-action="rien"><i class="bi bi-floppy" aria-hidden="true"></i> Sauvegarder ma session</button></div></div></div>' +
+      (etat.scn === 'premiere' ? '<p class="text-muted small">&#9999;&#65039; 2 Repères ont été mis à jour automatiquement (titre + texte nettoyés par l\'assistant). Le texte d\'origine que vous aviez écrit n\'est pas conservé, sauf pour ceux ci-dessous.</p>' : '') +
+      '<div class="text-center mt-3"><button type="button" class="btn btn-success regard-exterieur-pulse-doux" data-action="avancer">&#128193; Voir le rapport</button></div>';
+  }
+
+  function rapportHTML(ouvrirNouveau) {
+    var badge = etat.scn === 'plusloin' ? ['reperes-rapport-badge-approfondir', '&#10133; Aller plus loin'] : (etat.scn === 'deuxieme' ? ['reperes-rapport-badge-2e-regard', '&#128300; Deuxième Regard'] : ['reperes-rapport-badge-1ere', '&#128301; 1ère analyse']);
+    var carte = function (ouverte, nouveau, bdg, titreR, date) {
+      return '<details class="reperes-rapport' + (nouveau ? ' reperes-rapport-pulse' : '') + '"' + (ouverte ? ' open' : '') + '><summary><span class="reperes-rapport-badge ' + bdg[0] + '">' + bdg[1] + '</span><span class="reperes-rapport-titre">' + titreR + '</span><span class="reperes-rapport-date">' + date + '</span></summary>' +
+        (nouveau ? '<p class="reperes-rapport-badge-nouveau">&#128276; Nouveau rapport</p>' : '') +
+        '<p class="reperes-rapport-indice">&#128073; Cliquez sur ce rapport pour le consulter en détail.</p><div class="reperes-rapport-contenu">' +
+        (bdg[0] !== 'reperes-rapport-badge-approfondir' ? '<div class="reperes-rapport-aller-plus-loin-bloc text-center mb-3"><button type="button" class="btn btn-primary" data-action="allerPlusLoin">&#10133; Aller plus loin</button><p class="small text-muted mt-1 mb-0">Répondez à quelques questions ciblées pour approfondir certains sujets de cette analyse, sans tout refaire.</p></div>' : '') +
+        '<div class="regard-exterieur-rubrique"><h6>Ce qui revient</h6><p class="small">Une inquiétude avant les entretiens, et un besoin de repères stables. (Le contenu du rapport est celui de l’application : rien ne change dedans.)</p></div>' +
+        '<div class="reperes-rapport-bas"><button type="button" class="btn btn-outline-secondary btn-sm" data-action="rien">Fermer le rapport</button><button type="button" class="btn btn-outline-primary btn-sm" data-action="rien">&#128221; Point sur ma situation</button><button type="button" class="btn btn-outline-danger btn-sm" data-action="rien">Supprimer ce rapport</button></div></div></details>';
+    };
+    return '<button type="button" class="btn btn-sm reperes-bouton-rapports mb-3" data-action="debut">&#8592; <i class="bi bi-bookmark-star"></i> Retour à Mes Repères</button>' +
+      (ouvrirNouveau ? carte(true, true, badge, 'Ce que vos Repères disent de vous', '01/11/2026 à 10h42') : '') +
+      carte(false, false, ['reperes-rapport-badge-1ere', '&#128301; 1ère analyse'], 'Premier regard sur mes Repères', '28/10/2026 à 15h10');
+  }
+
+  /* ---- les écrans ---- */
+  function ecran() {
+    var id = DESCRIPTION[etat.scn][etat.idx];
+    var o = { id: id, etape: -1, sous: '', html: '', prec: true, cta: '', ctaOn: true, hors: false };
+    switch (id) {
+      case 'depart': o.hors = true; o.html = pageRepereDepart(false); o.prec = false; break;
+      case 'depart2': o.hors = true; o.html = pageRepereDepart(true); o.prec = false; break;
+      case 'rapports0': o.hors = true; o.html = rapportHTML(false).replace('data-action="debut">', 'data-action="rien">'); o.prec = false; break;
+      case 'reperes': o.etape = 0; o.sous = 'Quels Repères envoyer ?'; o.html = selectionHTML(true); o.cta = 'Continuer →'; o.ctaOn = nbCoches() > 0 && !etat.edit; break;
+      case 'reperes2': o.etape = 0; o.sous = 'Quels Repères pour ce Deuxième Regard ?'; o.html = selectionHTML(false); o.cta = 'Continuer →'; o.ctaOn = nbCoches() > 0; break;
+      case 'optin': o.etape = 0; o.sous = 'Affiner ce Deuxième Regard ?'; o.html = '<div class="mq-carte-choix"><p class="mb-3">Voulez-vous répondre à quelques questions pour affiner ce Deuxième Regard ? C\'est <strong>à compléter</strong> : sans ça, l\'assistant relit vos Repères tels quels.</p><div class="mq-boutons-oui-non"><button type="button" class="btn btn-outline-secondary" data-action="optinNon">Non, relire tel quel</button><button type="button" class="btn btn-outline-secondary" data-action="optinOui">Oui, répondre à quelques questions</button></div></div>'; break;
+      case 'questions': o.etape = 0; o.sous = 'Quelques questions'; o.html = questionHTML(true); o.cta = etat.quest < 4 ? 'Valider et continuer →' : 'Valider →'; break;
+      case 'categories': o.etape = 0; o.sous = 'Quelles catégories approfondir ?'; o.html = categoriesHTML(); o.cta = 'Continuer →'; o.ctaOn = Object.keys(etat.cat).some(function (k) { return etat.cat[k]; }); break;
+      case 'questionsPL': o.etape = 0; o.sous = 'Quelques questions'; o.html = questionHTML(false); o.cta = etat.quest < 3 ? 'Valider et continuer →' : 'Valider →'; break;
+      case 'assistant': o.etape = 1; o.sous = 'Choisir l’assistant'; o.html = assistantHTML(); o.cta = ''; break;
+      case 'coller': o.etape = 1; o.sous = 'De retour : coller la réponse'; o.html = collerHTML(); o.cta = 'Enregistrer l’analyse →'; o.ctaOn = etat.lu; break;
+      case 'termine': o.etape = 2; o.sous = 'Terminé'; o.html = termineHTML(); o.prec = false; o.cta = ''; break;
+      case 'rapports': o.hors = true; o.html = rapportHTML(true); o.prec = false; break;
+    }
+    return o;
+  }
+
+  function rendre() {
+    var o = ecran();
+    var ids = DESCRIPTION[etat.scn];
+    var html = enteteReperes();
+    if (!o.hors) {
+      html += '<button type="button" class="btn btn-sm reperes-bouton-rapports mb-3" data-action="debut">&#8592; <i class="bi bi-bookmark-star"></i> Retour à Mes Repères</button>';
+      html += barreEtapes(o.etape) + titre(o.sous);
+      if (o.id === 'reperes' || o.id === 'reperes2' || o.id === 'categories') {
+        html += '<div class="mq-intro-parcours"><p>Une étape à la fois. Vous pouvez revenir en arrière avec « Retour » : rien n’est envoyé avant la fin.</p></div>';
+      }
+    }
+    html += '<div id="mqContenu">' + o.html + '</div>';
+    {
+      html += '<div class="barre-navigation-fixe mq-barre-bas"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation">' +
+        '<button class="btn btn-nav-erip btn-lg" data-action="' + (o.hors || !o.prec ? 'rien' : 'precedent') + '">&#8592; Retour</button>' +
+        '<button class="btn btn-nav-erip btn-accueil" data-action="rien"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>' +
+        (o.cta ? '<button class="btn btn-primary btn-lg mq-cta" data-action="cta"' + (o.ctaOn ? '' : ' disabled') + '>' + o.cta + '</button>' : '<span></span>') +
+        '</div></div>';
+    }
+    var page = document.getElementById('mqPage');
+    page.innerHTML = html;
+    page.classList.toggle('tel', etat.tel);
+    document.getElementById('mqNote').textContent = 'Écran « ' + (LIBELLES[o.id] || o.id) + ' » : ' + NOTES[o.id];
+    document.getElementById('mqFil').innerHTML = ids.map(function (k, i) { return '<button type="button" data-aller="' + i + '"' + (i === etat.idx ? ' class="on"' : '') + '>' + (i + 1) + '. ' + LIBELLES[k] + '</button>'; }).join('');
+    brancher();
+  }
+
+  function aller(i) { etat.idx = Math.max(0, Math.min(DESCRIPTION[etat.scn].length - 1, i)); if (DESCRIPTION[etat.scn][etat.idx] === 'coller') { etat.phase = 'ouvert'; etat.lu = false; } rendre(); window.scrollTo({ top: document.getElementById('mqFil').offsetTop - 80 }); }
+
+  function brancher() {
+    var page = document.getElementById('mqPage');
+    var id = DESCRIPTION[etat.scn][etat.idx];
+    page.querySelectorAll('[data-action]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        var a = b.getAttribute('data-action');
+        if (a === 'rien') { e.preventDefault(); return; }
+        if (a === 'avancer') { aller(etat.idx + 1); return; }
+        if (a === 'precedent') { aller(etat.idx - 1); return; }
+        if (a === 'debut') { aller(0); return; }
+        if (a === 'optinNon') { aller(etat.idx + 2); return; }
+        if (a === 'optinOui') { etat.quest = 0; etat.choix = {}; aller(etat.idx + 1); return; }
+        if (a === 'allerPlusLoin') { etat.scn = 'plusloin'; etat.idx = 1; document.querySelector('input[name=mqScn][value=plusloin]').checked = true; rendre(); return; }
+        if (a === 'retour') { etat.phase = 'pret'; rendre(); return; }
+        if (a === 'coller') { etat.lu = true; rendre(); return; }
+        if (a === 'autre') { aller(etat.idx - 1); return; }
+        if (a === 'cta') {
+          if (id === 'questions' || id === 'questionsPL') {
+            var total = id === 'questions' ? 5 : 4;
+            if (etat.quest + 1 < total) { etat.quest++; rendre(); } else { etat.quest = 0; etat.choix = {}; aller(etat.idx + 1); }
+            return;
+          }
+          aller(etat.idx + 1);
+        }
+      });
+    });
+    if (id === 'questions' || id === 'questionsPL') {
+      var prec = page.querySelector('[data-action=precedent]');
+      if (prec) {
+        var nouv = prec.cloneNode(true); prec.parentNode.replaceChild(nouv, prec);
+        nouv.addEventListener('click', function () { if (etat.quest > 0) { etat.quest--; rendre(); } else { etat.quest = 0; aller(etat.idx - 1); } });
+      }
+    }
+    page.querySelectorAll('[data-coche]').forEach(function (c) { c.addEventListener('change', function () { etat.coches[c.getAttribute('data-coche')] = c.checked; rendre(); }); });
+    page.querySelectorAll('[data-modif]').forEach(function (b) { b.addEventListener('click', function () { if (b.getAttribute('data-modif') === 'r1') { etat.edit = !etat.edit; rendre(); } }); });
+    page.querySelectorAll('[data-choix]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-choix'); etat.choix[k] = !etat.choix[k]; var y = window.scrollY; rendre(); window.scrollTo(0, y); }); });
+    page.querySelectorAll('[data-cat]').forEach(function (c) { c.addEventListener('change', function () { etat.cat[c.getAttribute('data-cat')] = c.checked; var y = window.scrollY; rendre(); window.scrollTo(0, y); }); });
+    page.querySelectorAll('[data-dev]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-dev'); etat.resume[k] = !etat.resume[k]; var y = window.scrollY; rendre(); window.scrollTo(0, y); }); });
+    page.querySelectorAll('[data-assistant]').forEach(function (b) { b.addEventListener('click', function () { etat.assistant = b.getAttribute('data-assistant'); aller(etat.idx + 1); }); });
+    page.querySelectorAll('[data-etape]').forEach(function (b) { b.addEventListener('click', function () { page.querySelectorAll('[data-etape]').forEach(function (x) { x.classList.remove('is-active'); }); b.classList.add('is-active'); var d = document.getElementById('mqDetailEtape'); d.textContent = b.getAttribute('data-detail'); d.style.display = 'block'; }); });
+  }
+
+  /* ---- commandes de la maquette ---- */
+  document.querySelectorAll('input[name=mqScn]').forEach(function (r) { r.addEventListener('change', function () { etat.scn = r.value; etat.idx = 0; etat.quest = 0; etat.choix = {}; etat.cat = {}; etat.edit = false; rendre(); }); });
+  document.querySelectorAll('input[name=mqTaille]').forEach(function (r) { r.addEventListener('change', function () { etat.tel = r.value === 'tel'; rendre(); }); });
+  document.querySelectorAll('input[name=mqTheme]').forEach(function (r) { r.addEventListener('change', function () { document.documentElement.setAttribute('data-theme', r.value === 'sombre' ? 'sombre' : 'clair'); }); });
+  document.getElementById('mqFil').addEventListener('click', function (e) { var b = e.target.closest('[data-aller]'); if (b) { aller(parseInt(b.getAttribute('data-aller'), 10)); } });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqReglages').style.display = 'none'; });
+  rendre();
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ tags: [période d'essai, rupture, employeur, délai de prévenance, prud'hommes]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "délai de prévenance"
     definition: "Préavis court que l'employeur doit respecter avant de mettre fin à la période d'essai, dès que la personne a un peu d'ancienneté dans l'entreprise."
@@ -18,11 +18,13 @@ sources:
   - code-travail-periode-essai-salarie
 ce_qui_change_souvent:
   - "Les durées maximales selon les conventions collectives"
-revisions: []
+revisions:
+  - "2026-11-04 : durées, renouvellement et délais de prévenance confirmés sur la page Service Public ; « pas d'entretien préalable, pas d'indemnité » n'y figure pas (retiré)"
+phrase_generale: "Pour l'employeur, la période d'essai est le seul moment où il peut mettre fin au contrat sans suivre la procédure de licenciement, en respectant un délai de prévenance. La durée maximale et les délais changent selon la catégorie du poste et la convention : confirmez-les sur les sources officielles indiquées plus bas."
 collecte: employeurs.collecte.md
 ---
 
-Pour l'employeur, la période d'essai est le seul moment où il peut mettre fin au contrat sans suivre la procédure de licenciement : pas d'entretien préalable obligatoire, pas d'indemnité de licenciement.
+Pour l'employeur, la période d'essai est le seul moment où il peut mettre fin au contrat sans suivre la procédure de licenciement, en respectant un délai de prévenance.
 
 Sa durée maximale dépend de la catégorie du poste : deux mois pour un employé ou un ouvrier, trois mois pour un agent de maîtrise ou un technicien, quatre mois pour un cadre. Elle peut être renouvelée une fois si un accord de branche le prévoit, avec l'accord écrit du salarié, jusqu'à quatre, six ou huit mois au total.
 

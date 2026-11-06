@@ -184,6 +184,57 @@ test('comparerFormaterValeur : unites lisibles, null -> "non trouve"', () => {
   assert.equal(cp.comparerFormaterValeur({ valeur: null }), 'non trouvé');
 });
 
+test('comparerFormaterValeur : une valeur en mots garde ses mots, sans unite recollee', () => {
+  assert.equal(cp.comparerFormaterValeur({ valeur: 'gratuit (financé par la Région)', unite: 'euros' }), 'gratuit (financé par la Région)');
+  assert.equal(cp.comparerFormaterValeur({ valeur: 'environ un an', unite: 'mois' }), 'environ un an');
+  assert.equal(cp.comparerFormaterValeur({ valeur: 'selon le statut', unite: 'euros_net_mensuel' }), 'selon le statut');
+  assert.equal(cp.comparerFormaterValeur({ valeur: '0', unite: 'euros' }), '0 €');
+});
+
+const AFFINAGE = {
+  dimensions: [
+    { dimension: 'cout_total', unite: 'euros', valeurs: [
+      { piste: 'Aide-soignante', valeur: '0', min: '0', max: '0', portee: 'regionale', source: { nom: 'Région', url: null }, date_info: '2026-05' },
+      { piste: 'Éducatrice spécialisée', valeur: null, min: null, max: null, source: { nom: null, url: null }, date_info: null }
+    ] },
+    { dimension: 'duree_formation', unite: 'mois', valeurs: [
+      { piste: 'Éducatrice spécialisée (DEES)', valeur: '3 ans', min: '36', max: '36', portee: 'nationale', source: { nom: 'Service public', url: null }, date_info: '2026-06' },
+      { piste: 'Auxiliaire de vie', valeur: '9 à 12', min: '9', max: '12' }
+    ] }
+  ]
+};
+
+test('comparerValeurAffinee : place « gratuit » a 0 et convertit 3 ans en mois, par nom de piste', () => {
+  const cout = cp.comparerValeurAffinee(AFFINAGE, 'cout_total', 'Aide-soignante');
+  assert.deepEqual(cout.nb, { min: 0, max: 0 });
+  assert.equal(cout.valeur, '0');
+  assert.equal(cout.unite, 'euros');
+  assert.equal(cout.source.nom, 'Région');
+  const duree = cp.comparerValeurAffinee(AFFINAGE, 'duree_formation', 'Éducatrice spécialisée');
+  assert.deepEqual(duree.nb, { min: 36, max: 36 });
+  assert.equal(duree.valeur, '36', 'la valeur affichee vient des bornes en mois, pas du texte « 3 ans »');
+  assert.equal(cp.comparerFormaterValeur(duree), '36 mois');
+  const fourchette = cp.comparerValeurAffinee(AFFINAGE, 'duree_formation', 'Auxiliaire de vie');
+  assert.deepEqual(fourchette.nb, { min: 9, max: 12 });
+  assert.equal(fourchette.valeur, '9 à 12');
+});
+
+test('comparerValeurAffinee : rien de lisible -> null (jamais une valeur inventee)', () => {
+  assert.equal(cp.comparerValeurAffinee(AFFINAGE, 'cout_total', 'Éducatrice spécialisée'), null, 'valeur null');
+  assert.equal(cp.comparerValeurAffinee(AFFINAGE, 'cout_total', 'Boulanger'), null, 'piste inconnue');
+  assert.equal(cp.comparerValeurAffinee(AFFINAGE, 'reste_a_charge', 'Aide-soignante'), null, 'dimension absente');
+  assert.equal(cp.comparerValeurAffinee(null, 'cout_total', 'Aide-soignante'), null);
+  assert.equal(cp.comparerValeurAffinee({}, 'cout_total', 'Aide-soignante'), null);
+  assert.equal(cp.comparerValeurAffinee(AFFINAGE, 'cout_total', ''), null, 'nom vide');
+  const enMots = { dimensions: [{ dimension: 'cout_total', unite: 'euros', valeurs: [{ piste: 'A', valeur: 'gratuit', min: null, max: null }] }] };
+  assert.equal(cp.comparerValeurAffinee(enMots, 'cout_total', 'A'), null, 'toujours des mots : on ne devine pas');
+});
+
+test('comparerNomsCorrespondent : meme regle que l’appariement des dossiers', () => {
+  assert.equal(cp.comparerNomsCorrespondent('CAP carrelage', 'CAP carrelage mosaïque'), true);
+  assert.equal(cp.comparerNomsCorrespondent('Aide-soignante', 'Boulanger'), false);
+});
+
 test('comparerTexteSurCouleur : blanc sur fonce, sombre sur clair', () => {
   assert.equal(cp.comparerTexteSurCouleur('#2563eb'), '#ffffff');
   assert.equal(cp.comparerTexteSurCouleur('#16a34a'), '#ffffff');
@@ -297,4 +348,55 @@ test('comparerRouterForme : les autres corrections ne changent pas', () => {
   const deuxMetiers = [{ nom: 'A', etiquette: 'metier' }, { nom: 'B', etiquette: 'formation' }];
   assert.equal(cp.comparerRouterForme(deuxMetiers, 'tout-temps'), 'frise');
   assert.equal(cp.comparerRouterForme(deuxMetiers, 'dabord-metiers'), 'superposition');
+});
+
+// Message d'affinage (consigne 31, 30/10/2026) : l'assistant ne recoit que les lignes que l'application n'a pas su placer.
+test('comparerLignesAChiffrer : garde les valeurs en mots, jamais les lignes deja placees, en texte ou absentes', () => {
+  const lignes = cp.comparerLignesAChiffrer([
+    { element: 'cout_total', valeur: 'gratuit', unite: 'euros', portee: 'regionale', source: { nom: 'Région', url: null }, date_info: '2026-05' },
+    { element: 'duree_formation', valeur: '12', unite: 'mois' },
+    { element: 'reste_a_charge', valeur: null, unite: 'euros' },
+    { element: 'remuneration_embauche', valeur: 'selon le statut', unite: 'euros_net_mensuel' },
+    { element: 'financeurs', valeur: 'Région, OPCO', unite: 'mots' },
+    { element: 'lieux', valeur: 'Périgueux', unite: null }
+  ]);
+  assert.deepEqual(lignes.map((l) => l.element), ['cout_total', 'remuneration_embauche']);
+  assert.equal(lignes[0].source.nom, 'Région', 'la source de la ligne est reprise');
+  assert.equal(lignes[1].portee, null);
+  assert.deepEqual(cp.comparerLignesAChiffrer(undefined), []);
+});
+
+test('comparerUniteIncoherente : « 3 ans » sur une echelle en mois reste a chiffrer, jamais lu comme 3', () => {
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '3 ans', unite: 'mois' }), true);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '2 années', unite: 'mois' }), true);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '12', unite: 'mois' }), false);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '9 à 12 mois', unite: 'mois' }), false);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '2 mois', unite: 'semaines' }), true);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: '600', unite: 'euros' }), false);
+  assert.equal(cp.comparerUniteIncoherente({ valeur: null, unite: 'mois' }), false);
+  const lignes = cp.comparerLignesAChiffrer([{ element: 'duree_formation', valeur: '3 ans', unite: 'mois' }]);
+  assert.equal(lignes.length, 1, 'une durée en ans est envoyée pour conversion en mois');
+});
+
+test('prompt comparer-meme-categorie : un seul repere, les trois regles, plus de dimension ni de question inutiles', () => {
+  const texte = require('fs').readFileSync(require('path').join(__dirname, '..', 'prompts', 'comparer-meme-categorie.md'), 'utf8');
+  assert.deepEqual(texte.match(/\{[A-Z_]+\}/g), ['{DOSSIERS}'], 'seul {DOSSIERS} reste');
+  assert.match(texte, /« gratuit » ou « sans frais » = 0/);
+  assert.match(texte, /en \*\*mois\*\*/);
+  assert.match(texte, /"valeur": null/);
+  assert.match(texte, /N'effectue aucune recherche/);
+  ['temps_trajet', 'niveau_vise_apres', 'tension_recrutement'].forEach((d) => assert.equal(texte.indexOf(d), -1, d + ' n’est plus demandé'));
+  assert.equal(texte.indexOf('"question"'), -1, 'plus de question par dimension');
+});
+
+
+test('comparerValeurAffinee : une reponse dans l\'autre echelle de temps est convertie (1 mois = 4 semaines)', function () {
+  var aff = { dimensions: [{ dimension: 'periodes_entreprise', unite: 'mois', valeurs: [{ piste: 'Auxiliaire', valeur: '36', min: '36', max: '36' }] }] };
+  var r = cp.comparerValeurAffinee(aff, 'periodes_entreprise', 'Auxiliaire');
+  assert.strictEqual(r.unite, 'semaines');
+  assert.strictEqual(r.nb.min, 144);
+  var aff2 = { dimensions: [{ dimension: 'duree_formation', unite: 'semaines', valeurs: [{ piste: 'Auxiliaire', valeur: '48' }] }] };
+  var r2 = cp.comparerValeurAffinee(aff2, 'duree_formation', 'Auxiliaire');
+  assert.strictEqual(r2.unite, 'mois');
+  assert.strictEqual(r2.nb.min, 12);
 });

@@ -4,6 +4,7 @@ type: methode
 titre: Reconnaître une source officielle
 pour_qui: Toute personne qui cherche une information sur ses droits ou une démarche et qui tombe sur plusieurs réponses différentes.
 tags: sources, fiabilité, méthode, internet
+verifie_le: 2026-11-05
 ---
 
 Sur internet, la même question reçoit souvent des réponses qui se contredisent. Certaines viennent d'un site officiel, d'autres d'un forum, d'un site privé ou d'une page ancienne jamais mise à jour. Voici comment faire le tri.

@@ -80,16 +80,18 @@ function _reperesDateAujourdhui() {
 // voyait tout son contenu devenir le titre affiche partout (mini-panneau,
 // liste). 4 mots suffisent pour rester reconnaissable dans une liste.
 var _REPERES_TITRE_NB_MOTS = 4;
-// TACHE (retour utilisateur, 2026-08-25) : jamais de "..." final -- une
-// coupe nette a 4 mots suffit a signaler que ce n'est qu'un debut, la
-// personne comprend qu'elle peut modifier le titre si besoin. Chaque mot
+// TACHE (retour utilisateur, 2026-08-25) : jamais de "..." final -- REVU le
+// 27/10/2026 (audit D12, decision de Denis) : « … » seulement quand le texte
+// continue au-dela des 4 mots, pour qu'un titre ne ressemble pas a une phrase
+// cassee. Chaque mot
 // est toujours pris en entier, jamais coupe en cours de mot (un mot plus
 // long que les autres reste intact).
 function _reperesExtraitPourTitre(texte) {
   var t = (texte || '').trim();
   if (!t) { return ''; }
   var mots = t.split(/\s+/);
-  return mots.slice(0, _REPERES_TITRE_NB_MOTS).join(' ');
+  var debut = mots.slice(0, _REPERES_TITRE_NB_MOTS).join(' ');
+  return mots.length > _REPERES_TITRE_NB_MOTS ? debut + ' …' : debut;
 }
 
 // Construit un enregistrement Repère -- ne l'enregistre pas (voir
@@ -856,6 +858,11 @@ var _reperesRapportEnSurbrillance = null;
 // deux Reperes differents.
 var _reperesRapportsVusPendantRecherche = [];
 
+// Id du rapport à montrer DÉJÀ OUVERT à l'arrivée sur "Mes rapports" (fin d'un Regard extérieur : « Voir le rapport » ;
+// boutons « Voir mon analyse » / « Revoir ma dernière analyse »). Remis à null juste après le rendu (voir reperesOuvrirRapportsSurRapport()) :
+// un rapport n'est ouvert d'office qu'à cette arrivée-là, jamais à un rafraîchissement ultérieur.
+var _reperesRapportAOuvrir = null;
+
 function _reperesRenduUnRapport(r) {
   var badge = _REPERES_RAPPORT_BADGES[r.type] || { libelle: r.type, classe: '' };
   var contenu = typeof regardExterieurRenduContenuRapport === 'function' ? regardExterieurRenduContenuRapport(r) : '';
@@ -883,7 +890,7 @@ function _reperesRenduUnRapport(r) {
   // disparaît dès la première ouverture (voir toggle listener,
   // _reperesBrancherEvenementsRapports()) et ne revient jamais.
   var estNouveau = !r.dejaVu;
-  return '<details class="reperes-rapport' + ((enSurbrillance || estNouveau) ? ' reperes-rapport-pulse' : '') + '" data-repere-rapport="' + r.id + '">' +
+  return '<details class="reperes-rapport' + ((enSurbrillance || estNouveau) ? ' reperes-rapport-pulse' : '') + '" data-repere-rapport="' + r.id + '"' + (r.id === _reperesRapportAOuvrir ? ' open' : '') + '>' +
     '<summary>' +
     '<span class="reperes-rapport-badge ' + badge.classe + '">' + badge.icone + ' ' + badge.libelle + '</span>' +
     '<span class="reperes-rapport-titre">' + echapperAttribut(r.titre) + '</span>' +
@@ -975,8 +982,7 @@ function _reperesRenduPageRapports() {
     // que "🔭 1ère analyse" peut être approfondie -- cliquer sur ce
     // rapport, puis "Aller plus loin" en bas de son contenu.
     '<p class="reperes-legende-rapports-approfondir">Toute analyse marquée <span class="reperes-rapport-badge reperes-rapport-badge-1ere">&#128301; 1ère analyse</span> peut être approfondie : cliquez sur ce rapport, puis sur « Aller plus loin ».</p>' +
-    '<div class="cv-section" style="background:var(--accent-bg-subtle);border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1rem;text-align:center;">' +
-    '<p class="mb-0">&#128190; Pensez à sauvegarder votre session pour conserver ces rapports.</p></div>' +
+    htmlRappelSauvegarde() +
     '<div class="reperes-rapports-filtre-ligne">' +
     '<div class="reperes-rapports-filtre">' +
     ['tous', '1ere', 'aller-plus-loin', '2e-regard'].map(function (cle) {
@@ -1204,10 +1210,10 @@ function _reperesBrancherPulseRapports(racine) {
 
 // TACHE (retour utilisateur, 2026-08-26) : chaque phrase déplacée plus
 // bas, calculée seulement une fois `reperesVisiblesOnglet` connu (voir
-// plus bas dans cette fonction) -- "⏳ Non Analysés" ne doit apparaître
+// plus bas dans cette fonction) -- "⏳ Non analysés" ne doit apparaître
 // que s'il y a réellement au moins un Repère dans cet onglet, jamais
-// affichée pour un onglet vide. "🔭 Déjà Analysés" mentionne maintenant
-// explicitement où retrouver le résultat (onglet "🔭 Déjà Analysés" pour
+// affichée pour un onglet vide. "🔭 Déjà analysés" mentionne maintenant
+// explicitement où retrouver le résultat (onglet "🔭 Déjà analysés" pour
 // le Repère, "📁 Mes rapports" pour l'analyse complète).
 function _reperesRenduFiltre() {
   // TACHE (retour utilisateur, 2026-08-26) : legende des boutons d'un
@@ -1233,7 +1239,7 @@ function _reperesRenduFiltre() {
   if (_reperesFiltreActuel === 'deuxieme-regard' && reperesVisiblesOnglet.length) {
     explication = '🔬 Ces Repères ont été envoyés une seconde fois, pour aller plus loin sur certains points precis : vous retrouvez ici ce qui vous a été répondu.';
   } else if (_reperesFiltreActuel === 'analyses' && reperesVisiblesOnglet.length) {
-    explication = '🔭 Ces Repères ont déjà été traités dans l\'onglet 🔭 Déjà Analysés. Vous retrouverez les rapports de ces analyses dans 📁 Mes rapports.';
+    explication = '🔭 Ces Repères ont déjà été traités dans l\'onglet 🔭 Déjà analysés. Vous retrouverez les rapports de ces analyses dans 📁 Mes rapports.';
   } else if (_reperesFiltreActuel === 'non-analyses' && reperesVisiblesOnglet.length) {
     explication = '⏳ Ces Repères n\'ont pas encore été envoyés à un assistant pour un Regard Extérieur : c\'est vous qui choisissez lesquels envoyer, et quand.';
   }
@@ -1260,8 +1266,8 @@ function _reperesRenduFiltre() {
       '</div>'
     : '';
   return _reperesRenduEnteteRapports() + barreRecherche + '<div class="reperes-filtre">' +
-    '<button type="button" class="' + (_reperesFiltreActuel === 'non-analyses' ? 'is-active' : '') + '" data-repere-filtre="non-analyses">⏳ Non Analysés</button>' +
-    '<button type="button" class="' + (_reperesFiltreActuel === 'analyses' ? 'is-active' : '') + '" data-repere-filtre="analyses">🔭 Déjà Analysés</button>' +
+    '<button type="button" class="' + (_reperesFiltreActuel === 'non-analyses' ? 'is-active' : '') + '" data-repere-filtre="non-analyses">⏳ Non analysés</button>' +
+    '<button type="button" class="' + (_reperesFiltreActuel === 'analyses' ? 'is-active' : '') + '" data-repere-filtre="analyses">🔭 Déjà analysés</button>' +
     '<button type="button" class="' + (_reperesFiltreActuel === 'deuxieme-regard' ? 'is-active' : '') + '" data-repere-filtre="deuxieme-regard">🔬 Deuxième Regard</button>' +
     '</div>' +
     (explication ? '<p class="reperes-filtre-explication">' + explication + '</p>' : '') +
@@ -1346,7 +1352,7 @@ function _reperesRenduListe() {
       ? '<div class="reperes-etat-vide"><span class="reperes-ic">&#128301;</span>' +
         '<p>Aucun Repère analysé pour l’instant. Ils apparaîtront ici une fois un Regard Extérieur reçu.</p></div>'
       : '<div class="reperes-etat-vide"><span class="reperes-ic">&#9989;</span>' +
-        '<p>Tous vos Repères ont déjà été analysés. Vous les retrouverez dans l\'onglet 🔭 Déjà Analysés, et le rapport de cette analyse dans 📁 Mes rapports.</p></div>');
+        '<p>Tous vos Repères ont déjà été analysés. Vous les retrouverez dans l\'onglet 🔭 Déjà analysés, et le rapport de cette analyse dans 📁 Mes rapports.</p></div>');
   }
   return ligneAnalyse + '<div class="reperes-colonnes">' +
     Object.keys(_REPERES_TYPES).map(function (cle) { return _reperesRenduColonne(cle, reperesFiltresParTexte); }).join('') +
@@ -1367,10 +1373,8 @@ function _reperesRenduListe() {
 // champ apparaît : la personne peut ne jamais le déplier, mais découvrir
 // l'astuce ici reste utile même si elle ne s'en sert que plus tard.
 function _reperesRenduAstuceDictee() {
-  return '<p class="mb-2 p-2" style="background:var(--accent-bg-subtle);border:1px solid var(--accent);border-radius:6px;font-size:0.95rem;color:var(--text-strong);">' +
-    '💡 <strong>Astuce : utilisez <span style="white-space:nowrap;">Windows + H</span> pour dicter votre texte à la voix</strong> ' +
-    'plutôt que de tout taper au clavier.' +
-    '</p>';
+  // Brique commune (modules/astuce-dictee, consigne 85) : gestes adaptés à l'appareil.
+  return htmlAstuceDictee('encart');
 }
 
 // Écran d'accueil du module -- affiché automatiquement à la toute
@@ -1921,6 +1925,10 @@ function _reperesDeclencherPulseJournal() {
 // lui-même (perdrait le focus) ni les onglets (voir
 // _reperesBrancherRechercheReperes()).
 function _reperesRenduContenuPrincipal() {
+  // Troisième mode (comme "Mes rapports") : le déroulé d'un Regard extérieur, dessiné par son module (façade), en dessous de l'en-tête de cette page.
+  if (_reperesModeAffichage === 'regard') {
+    return typeof regardExterieurRenduParcours === 'function' ? regardExterieurRenduParcours() : '';
+  }
   return _reperesModeAffichage === 'rapports'
     ? _reperesRenduPageRapports()
     : (_reperesRenduFiletAnnulation() + _reperesRenduFiltre() + '<div id="reperesListeInterne">' + _reperesRenduListe() + '</div>');
@@ -1930,7 +1938,12 @@ function _reperesRafraichirListe() {
   var conteneur = document.getElementById('reperesListeConteneur');
   if (!conteneur) { return; }
   conteneur.innerHTML = _reperesRenduContenuPrincipal();
-  if (_reperesModeAffichage === 'rapports') {
+  // Le bouton de départ d'un Regard extérieur n'a pas sa place pendant son déroulé.
+  var zoneRegard = document.getElementById('reperesZoneRegardExterieur');
+  if (zoneRegard) { zoneRegard.style.display = _reperesModeAffichage === 'regard' ? 'none' : ''; }
+  if (_reperesModeAffichage === 'regard') {
+    if (typeof regardExterieurBrancherParcours === 'function') { regardExterieurBrancherParcours(conteneur); }
+  } else if (_reperesModeAffichage === 'rapports') {
     _reperesBrancherEvenementsRapports(conteneur);
   } else {
     _reperesBrancherEvenementsListe();
@@ -2214,9 +2227,56 @@ var _reperesForcerAccueil = false;
 // _reperesRenduEcran().
 var _reperesRetourAccueil = false;
 function reperesRetour() {
+  // Pendant un Regard extérieur, « Retour » recule d'un écran du déroulé (jamais jusqu'à la présentation).
+  if (_reperesModeAffichage === 'regard' && typeof regardExterieurParcoursPrecedent === 'function') { regardExterieurParcoursPrecedent(); return; }
   _reperesForcerAccueil = false;
   _reperesRetourAccueil = true;
   pageReperes();
+}
+
+// ------------------------------------------------------------
+// Déroulé d'un Regard extérieur DANS cette page (décision de Denis, 01/11/2026) : troisième mode d'affichage, comme "Mes rapports" --
+// l'en-tête "Mes Repères" reste en haut, seule la zone dessous change (dessinée par modules/regard-exterieur/, voir regardExterieurRenduParcours()).
+// Façades appelées par ce module-là : il ne touche jamais au DOM de cette page ni à ses variables.
+// ------------------------------------------------------------
+function reperesRegardOuvrir() {
+  _reperesModeAffichage = 'regard';
+  _reperesRafraichirListe();
+  _reperesRegardSynchroniser();
+  window.scrollTo(0, 0);
+}
+
+// `nouvelEcran` vrai : on change d'écran (on remonte en haut) ; faux : même écran redessiné (on garde la position).
+function reperesRegardRafraichir(nouvelEcran) {
+  if (_reperesModeAffichage !== 'regard') { return; }
+  _reperesRafraichirListe();
+  _reperesRegardSynchroniser();
+  if (nouvelEcran) { window.scrollTo(0, 0); }
+}
+
+// Quitte le déroulé : retour à la liste des Repères, ou à "Mes rapports" si le déroulé est parti de là ("Aller plus loin").
+function reperesRegardFermer(versRapports) {
+  _reperesModeAffichage = versRapports ? 'rapports' : 'reperes';
+  _reperesRafraichirListe();
+  _reperesSynchroniserHistorique(false, false, null);
+  window.scrollTo(0, 0);
+}
+
+// "Voir le rapport" (fin d'un Regard extérieur) et "Voir mon analyse" : "Mes rapports", ce rapport déjà ouvert.
+function reperesOuvrirRapportsSurRapport(rapportId) {
+  if (typeof regardExterieurParcoursAbandonner === 'function') { regardExterieurParcoursAbandonner(); }
+  _reperesModeAffichage = 'rapports';
+  _reperesRapportsFiltreActuel = 'tous';
+  _reperesRapportEnSurbrillance = null;
+  _reperesRapportsVusPendantRecherche = [];
+  _reperesRapportsRecherche = '';
+  _reperesRapportAOuvrir = rapportId;
+  if (typeof trackEvenement === 'function') { trackEvenement('reperes_rapports_ouverts'); }
+  _reperesRafraichirListe();
+  _reperesRapportAOuvrir = null;
+  _reperesSynchroniserHistorique(false, false, null);
+  var carte = document.querySelector('[data-repere-rapport="' + rapportId + '"]');
+  if (carte && carte.scrollIntoView) { carte.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else { window.scrollTo(0, 0); }
 }
 
 // Route enregistrée dans `routes` (js/app.js). app.js appelle cette
@@ -2229,31 +2289,60 @@ function reperesRetour() {
 // Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
 // Deux ecrans (l'accueil explicatif, normal ou force, et l'ecran de travail) dessines par pageReperes() : chaque dessin note l'ecran, chaque changement d'ecran devient une entree de l'historique.
 // ------------------------------------------------------------
-function _reperesSynchroniserHistorique(accueil, forcer) {
+// `regard` : instantané du déroulé d'un Regard extérieur (regardExterieurParcoursInstantane()), null hors déroulé. Chaque écran du déroulé a sa propre entrée.
+function _reperesSynchroniserHistorique(accueil, forcer, regard) {
   if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('reperes', _reperesRestaurerHistorique); }
   if (typeof historiqueInterneSynchroniser !== 'function') { return; }
-  historiqueInterneSynchroniser('reperes', { cle: accueil ? (forcer ? 'accueil-detour' : 'accueil') : 'travail', accueil: accueil, forcer: forcer });
+  historiqueInterneSynchroniser('reperes', { cle: regard ? 'regard-' + regard.ecran : (accueil ? (forcer ? 'accueil-detour' : 'accueil') : 'travail'), accueil: accueil, forcer: forcer, regard: regard || null });
 }
 
+// Instantané du déroulé à l'écran, remis à jour à chaque dessin de ce déroulé.
+function _reperesRegardSynchroniser() {
+  var instantane = typeof regardExterieurParcoursInstantane === 'function' ? regardExterieurParcoursInstantane() : null;
+  _reperesSynchroniserHistorique(false, false, instantane);
+}
+
+// Écran du déroulé à remettre au prochain dessin de la page (flèche « Précédent » du navigateur), consommé par pageReperes().
+var _reperesRegardAReprendre = null;
+
 function _reperesRestaurerHistorique(instantane) {
+  if (instantane.regard) {
+    // Le déroulé n'existe plus tel quel (terminé, quitté ou abandonné) : on passe à l'entrée voisine.
+    if (typeof regardExterieurParcoursPeutReprendre !== 'function' || !regardExterieurParcoursPeutReprendre(instantane.regard)) { return 'sauter'; }
+    _reperesRegardAReprendre = instantane.regard;
+    _reperesForcerAccueil = false;
+    _reperesRetourAccueil = false;
+    return;
+  }
   _reperesForcerAccueil = !!(instantane.accueil && instantane.forcer);
   _reperesRetourAccueil = !!(instantane.accueil && !instantane.forcer);
 }
 
 function pageReperes() {
-  _reperesModeAffichage = 'reperes';
+  // Retour par la flèche « Précédent » du navigateur sur un écran du déroulé d'un Regard extérieur : on le remet. Toute autre arrivée ferme un déroulé resté en mémoire.
+  var regardAReprendre = _reperesRegardAReprendre;
+  _reperesRegardAReprendre = null;
+  var parcoursRepris = !!(regardAReprendre && typeof regardExterieurParcoursReprendre === 'function' && regardExterieurParcoursReprendre(regardAReprendre));
+  if (!parcoursRepris && typeof regardExterieurParcoursAbandonner === 'function') { regardExterieurParcoursAbandonner(); }
+  _reperesModeAffichage = parcoursRepris ? 'regard' : 'reperes';
   var versAccueilNormal = _reperesRetourAccueil;
   _reperesRetourAccueil = false;
-  if (_reperesForcerAccueil || versAccueilNormal || !dossier.reperesIntroVue) {
+  if (!parcoursRepris && (_reperesForcerAccueil || versAccueilNormal || !dossier.reperesIntroVue)) {
     app.innerHTML = _reperesRenduAccueil();
     _reperesSynchroniserHistorique(true, !!_reperesForcerAccueil);
     _reperesBrancherEvenementsAccueil();
     return;
   }
   app.innerHTML = _reperesRenduEcran();
-  _reperesSynchroniserHistorique(false, false);
+  _reperesSynchroniserHistorique(false, false, parcoursRepris && typeof regardExterieurParcoursInstantane === 'function' ? regardExterieurParcoursInstantane() : null);
   _reperesBrancherEvenementsPickers();
-  _reperesBrancherEvenementsListe();
+  if (parcoursRepris) {
+    if (typeof regardExterieurBrancherParcours === 'function') { regardExterieurBrancherParcours(document.getElementById('reperesListeConteneur')); }
+    var zoneDepart = document.getElementById('reperesZoneRegardExterieur');
+    if (zoneDepart) { zoneDepart.style.display = 'none'; }
+  } else {
+    _reperesBrancherEvenementsListe();
+  }
   // TACHE (retour utilisateur, 2026-08-26, en profitant de la
   // restructuration recherche) : ce bouton vit dans l'ENTÊTE de l'écran
   // (_reperesRenduEcran()), jamais régénéré par _reperesRafraichirListe()

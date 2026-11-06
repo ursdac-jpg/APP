@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : les trois états du sas</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --pret:#176b3a; --pret-bord:#2e9b5c;
+    --regard:#b45309; --regard-bg:#fdf1d9; --regard-bord:#d99a00;
+    --jamais:#4b5868; --jamais-bg:#eceff3; --jamais-bord:#9aa5b4;
+    --alert:#a3372b;
+    --radius:10px;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --pret:#6fdc9b; --pret-bord:#3fae6e;
+    --regard:#f5a742; --regard-bg:#3a2c14; --regard-bord:#c99a2e;
+    --jamais:#b4bfcf; --jamais-bg:#2a313d; --jamais-bord:#5d6a7d;
+    --alert:#eda69c;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font:16px/1.45 system-ui, "Segoe UI", sans-serif; }
+  .page { max-width:960px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.25rem; margin:.2rem 0 .3rem; color:var(--text-strong); }
+  h2 { font-size:1.05rem; margin:1.6rem 0 .5rem; color:var(--text-strong); }
+  .mini { font-size:.85rem; color:var(--text-muted); }
+  .bandeau { background:var(--accent-bg); border-left:6px solid var(--accent); border-radius:var(--radius); padding:.6rem .8rem; margin:.6rem 0 1rem; font-size:.9rem; }
+  .haut { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; }
+  .btn { font:inherit; font-size:.9rem; font-weight:600; background:var(--bg-card); color:var(--text); border:1.5px solid var(--border-strong); border-radius:6px; padding:.4rem .8rem; cursor:pointer; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primaire { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn.petit { font-size:.82rem; padding:.28rem .6rem; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .fenetre { background:var(--bg-card); border:1px solid var(--border-strong); border-radius:var(--radius); padding:14px; box-shadow:0 10px 30px rgba(20,35,60,.10); }
+  .barre { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.3rem 0 .7rem; }
+  select, input[type=text] { font:inherit; font-size:.9rem; color:var(--text); background:var(--bg-page); border:1.5px solid var(--border-strong); border-radius:6px; padding:.35rem .5rem; }
+  input[type=text] { min-width:12rem; flex:1; }
+
+  /* Les trois états, cliquables : ils servent aussi de filtre */
+  .etats { display:grid; grid-template-columns:repeat(3, 1fr); gap:.5rem; margin:.4rem 0 .8rem; }
+  .etat-case { text-align:left; font:inherit; cursor:pointer; background:var(--bg-card); color:var(--text); border:2px solid var(--border-strong); border-left-width:8px; border-radius:8px; padding:.5rem .7rem; }
+  .etat-case .n { font-size:1.5rem; font-weight:800; line-height:1.1; display:block; }
+  .etat-case .t { font-weight:700; font-size:.92rem; display:block; }
+  .etat-case .d { font-size:.78rem; color:var(--text-muted); display:block; }
+  .etat-case.pret { border-left-color:var(--pret-bord); } .etat-case.pret .n, .etat-case.pret .t { color:var(--pret); }
+  .etat-case.regard { border-left-color:var(--regard-bord); } .etat-case.regard .n, .etat-case.regard .t { color:var(--regard); }
+  .etat-case.jamais { border-left-color:var(--jamais-bord); } .etat-case.jamais .n, .etat-case.jamais .t { color:var(--jamais); }
+  .etat-case.actif { background:var(--bg-subtle); border-color:var(--accent); border-left-width:8px; }
+  .etat-case.pret.actif { border-left-color:var(--pret-bord); } .etat-case.regard.actif { border-left-color:var(--regard-bord); } .etat-case.jamais.actif { border-left-color:var(--jamais-bord); }
+
+  .note { border-radius:8px; padding:.55rem .75rem; margin:.5rem 0; font-size:.88rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .note.pret { background:var(--bg-subtle); border-left:6px solid var(--pret-bord); }
+  .note.regard { background:var(--regard-bg); border-left:6px solid var(--regard-bord); color:var(--regard); }
+  .note.ok { background:var(--bg-subtle); border-left:6px solid var(--accent); }
+
+  /* Une carte du sas : le contenu de la carte ne change pas, seule l'étiquette du coin change */
+  .fiche { position:relative; background:var(--bg-card); border:1.5px solid var(--border-strong); border-radius:var(--radius); padding:.8rem .9rem; padding-top:3.1rem; margin:.7rem 0; }
+  .fiche.pret { border-color:var(--pret-bord); } .fiche.regard { border-color:var(--regard-bord); } .fiche.jamais { border-style:dashed; }
+  .fiche.choisie { box-shadow:0 0 0 3px var(--accent-bg); border-color:var(--accent); }
+  .etiq { position:absolute; top:0; right:0; max-width:92%; display:flex; align-items:center; gap:.5rem; padding:.3rem .7rem; border-radius:0 var(--radius) 0 var(--radius); border-left:2px solid; border-bottom:2px solid; font-weight:800; font-size:.92rem; background:var(--bg-card); }
+  .etiq .ico { font-size:1.3rem; line-height:1; }
+  .etiq .raison { display:block; font-weight:600; font-size:.76rem; color:var(--text-muted); }
+  .etiq.pret { color:var(--pret); border-color:var(--pret-bord); }
+  .etiq.regard { color:var(--regard); border-color:var(--regard-bord); background:var(--regard-bg); }
+  .etiq.regard .raison { color:var(--regard); }
+  .etiq.jamais { color:var(--jamais); border-color:var(--jamais-bord); background:var(--jamais-bg); }
+  .pastille { display:inline-block; font-size:.75rem; font-weight:700; background:var(--bg-subtle); border:1px solid var(--border-strong); border-radius:99px; padding:.05rem .5rem; margin-left:.3rem; }
+  .fiche .champs { font-size:.85rem; color:var(--text-muted); margin:.25rem 0 .5rem; }
+  .fiche .champs b { color:var(--text); }
+  .choix { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .choix .btn.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .pied { position:sticky; bottom:0; background:var(--bg-card); border-top:2px solid var(--border-strong); padding:.6rem 0 .2rem; margin-top:.8rem; display:flex; gap:.8rem; align-items:center; flex-wrap:wrap; }
+  table.corr { border-collapse:collapse; width:100%; font-size:.85rem; background:var(--bg-card); }
+  table.corr th, table.corr td { border:1px solid var(--border); padding:.35rem .5rem; text-align:left; vertical-align:top; }
+  table.corr th { background:var(--bg-subtle); }
+  @media (max-width:640px) { .etats { grid-template-columns:1fr; } .page { padding:12px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="haut">
+    <div>
+      <h1>Maquette : les trois états du sas</h1>
+      <div class="mini">Outil de veille, fenêtre « Le sas ». Maquette du 04/11/2026, à valider avant tout code.</div>
+    </div>
+    <button class="btn petit" type="button" id="btnSombre">Mode sombre</button>
+  </div>
+  <div class="bandeau">
+    <strong>Cette maquette est cliquable.</strong> La liste ci-dessous est un exemple de 18 fiches (vraies fiches de vos sas, états choisis pour l'exemple). Les nombres se recalculent seuls. Rien n'est enregistré. Les chiffres réels de vos sas sont au bas de la page.
+  </div>
+
+  <div class="fenetre">
+    <div class="barre">
+      <label>Le sas des : <select id="selSas"><option value="employeurs">Employeurs</option><option value="lieux">Structures</option></select></label>
+      <button class="btn petit" type="button" id="btnImport">Importer plusieurs fiches</button>
+    </div>
+
+    <div class="etats" id="etats"></div>
+
+    <div class="barre">
+      <input type="text" id="recherche" placeholder="Chercher un nom, une commune..." aria-label="Chercher">
+      <select id="selEtat" aria-label="Filtrer par état">
+        <option value="">Tous les états</option>
+        <option value="pret">Prêtes : un clic</option>
+        <option value="regard">À regarder</option>
+        <option value="jamais">Jamais vérifiées</option>
+      </select>
+      <select id="selOrigine" aria-label="Filtrer par origine du contrôle" style="display:none">
+        <option value="">Toutes les origines</option>
+        <option value="main">Contrôlées par vous (à la main)</option>
+        <option value="assistant">Page lue et testée par l'assistant</option>
+        <option value="cloud">Lues en ligne le 02/11 (dossier Cloud)</option>
+        <option value="annuaire">Recopiées de l'annuaire officiel</option>
+      </select>
+    </div>
+
+    <div id="lot"></div>
+    <p class="mini" id="compte"></p>
+    <div id="liste"></div>
+
+    <div class="pied">
+      <span><strong id="nChoix">0</strong> choix en attente</span>
+      <button class="btn primaire" type="button" id="btnEnreg" disabled>Enregistrer</button>
+      <span class="mini">Un seul enregistrement, quel que soit le nombre de fiches (plus de plafond à 100), avec une seule annulation possible.</span>
+    </div>
+    <div id="resultat"></div>
+  </div>
+
+  <h2>Ce qui remplace quoi (inventaire de l'existant)</h2>
+  <table class="corr">
+    <tr><th>Aujourd'hui</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+    <tr><td>★ Pré-validée à la main</td><td>« Prête : un clic », raison « Copiée par vous depuis la page officielle »</td><td>FUSIONNÉ</td></tr>
+    <tr><td>★ Pré-validée par l'assistant</td><td>« Prête : un clic », raison « Page lue et testée par l'assistant »</td><td>FUSIONNÉ</td></tr>
+    <tr><td>☆ Préremplie (dossier Cloud)</td><td>« Prête : un clic », raison « Lue en ligne le 02/11/2026 »</td><td>FUSIONNÉ</td></tr>
+    <tr><td>☆ Recopiée de l'annuaire officiel</td><td>« Prête : un clic », raison « Recopiée de l'annuaire officiel »</td><td>FUSIONNÉ</td></tr>
+    <tr><td>⚠ Modifiée depuis la pré-validation</td><td>« À regarder », raison « Contrôlée puis modifiée depuis »</td><td>DÉPLACÉ</td></tr>
+    <tr><td>Aucune étiquette (fiches « À contrôler par le responsable », environ 305)</td><td>« À regarder », raison « Mise de côté par le dossier Cloud »</td><td>ENRICHI (aujourd'hui invisibles)</td></tr>
+    <tr><td>Aucune étiquette (fiches jamais contrôlées, environ 650)</td><td>« Jamais vérifiée »</td><td>ENRICHI</td></tr>
+    <tr><td>Menu à 9 entrées « Pré-validées ou non »</td><td>Menu « État » (4 entrées) + menu « Origine » (5 entrées, visible seulement pour les prêtes) + les trois cases cliquables du haut</td><td>DÉPLACÉ, mêmes 9 filtres retrouvables</td></tr>
+    <tr><td>Deux bandeaux de lot (pré-validées, préremplies) avec leurs boutons « Mettre C'est bon sur ces N », « Seulement sur les N vérifiées à la main », « Retirer le C'est bon »</td><td>Un seul bandeau « Prêtes » avec les mêmes trois boutons</td><td>FUSIONNÉ, aucun bouton perdu</td></tr>
+    <tr><td>Bandeau d'alerte « N modifiées depuis leur pré-validation, une par une »</td><td>Bandeau « À regarder » : pas de coche en bloc, une par une</td><td>GARDÉ</td></tr>
+    <tr><td>Colonne « Pré-validation » du tableau (tri)</td><td>Colonne « État » (même tri : à la main, assistant, à regarder, jamais)</td><td>GARDÉ, renommée</td></tr>
+    <tr><td>Boutons de la carte, pastille de contrôle, « Enregistrer », annulation, pages de 10</td><td>Inchangés</td><td>GARDÉ</td></tr>
+  </table>
+  <p class="mini">Rien n'est retiré. Les fiches « Jamais vérifiées » et « À regarder » ne reçoivent jamais de coche en bloc : le bouton en bloc ne touche que les « Prêtes ».</p>
+
+  <h2>Chiffres réels aujourd'hui (comptés dans les fichiers, l'outil donnera les siens)</h2>
+  <table class="corr">
+    <tr><th>Sas</th><th>Prêtes</th><th>À regarder</th><th>Jamais vérifiées</th><th>Total</th></tr>
+    <tr><td>Employeurs</td><td>564</td><td>249</td><td>95</td><td>908</td></tr>
+    <tr><td>Structures</td><td>613</td><td>56</td><td>321</td><td>990</td></tr>
+    <tr><td>Recruteurs, intérim</td><td>0</td><td>0</td><td>234</td><td>234</td></tr>
+  </table>
+</div>
+
+<script>
+(function () {
+  var ESC = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var RAISONS = {
+    main: 'Copiée par vous depuis la page officielle',
+    assistant: 'Page lue et testée par l’assistant',
+    cloud: 'Lue en ligne le 02/11/2026 (dossier Cloud)',
+    annuaire: 'Recopiée de l’annuaire officiel',
+    modifiee: 'Contrôlée puis modifiée depuis : à revérifier',
+    acontroler: 'Mise de côté par le dossier Cloud (doute ou doublon possible)',
+    rien: 'Aucun contrôle pour l’instant'
+  };
+  var ETAT_DE = { main: 'pret', assistant: 'pret', cloud: 'pret', annuaire: 'pret', modifiee: 'regard', acontroler: 'regard', rien: 'jamais' };
+  var DONNEES = {
+    employeurs: [
+      ['Centrakor', 'commerce-vente', 'Trélissac et 10 autres magasins', 'main'], ['Intersport', 'commerce-vente', 'Trélissac et 7 autres magasins', 'main'],
+      ['Besson Chaussures', 'commerce-vente', 'Boisseuil', 'assistant'], ['Cultura', 'commerce-vente', 'Boisseuil', 'assistant'],
+      ['Monoprix', 'commerce-vente', 'Périgueux, Limoges', 'cloud'], ['Celio', 'commerce-vente', 'Boulazac Isle Manoire', 'cloud'],
+      ['Savencia', 'industrie', 'Dordogne', 'cloud'], ['SDIS 24', 'administration', 'Périgueux', 'cloud'],
+      ['La Chapelle Saint Martin', 'hotellerie-restauration', 'Nieul', 'modifiee'],
+      ['C&A', 'commerce-vente', 'Boisseuil', 'acontroler'], ['Vacancéole Le Clos du Rocher', 'hotellerie-restauration', 'Les Eyzies', 'acontroler'],
+      ['Weldom Sarlat-la-Canéda', 'commerce-vente', 'Sarlat-la-Canéda', 'acontroler'], ['AXA', 'finance-assurance', 'Dordogne', 'acontroler'],
+      ['Campanile Périgueux Boulazac', 'hotellerie-restauration', 'Boulazac Isle Manoire', 'rien'], ['Première Classe Périgueux Boulazac', 'hotellerie-restauration', 'Boulazac Isle Manoire', 'rien'],
+      ['Mercure Limoges', 'hotellerie-restauration', 'Limoges', 'rien'], ['Boulangerie Paul Limoges', 'commerce-vente', 'Limoges', 'rien'], ['Garage du Centre', 'automobile', 'Bergerac', 'rien']
+    ],
+    lieux: [
+      ['Mission Locale Limoges Métropole', 'mission-locale', 'Limoges', 'main'], ['France Services Ambazac', 'france-services', 'Ambazac', 'main'],
+      ['Habitat et Humanisme Limousin', 'logement-hebergement', 'Limoges', 'assistant'], ['Mission Locale du Haut Périgord', 'mission-locale', 'Thiviers', 'assistant'],
+      ['Visale', 'logement-hebergement', 'National', 'cloud'], ['Fonds de solidarité pour le logement de la Haute-Vienne', 'logement-hebergement', 'Limoges', 'cloud'],
+      ['APPEL, prévention du psychotrauma chez l’enfant', 'sante-soins-addictions', 'Saint-Priest-Taurion', 'annuaire'], ['Bureau d’aide aux victimes du tribunal de Limoges', 'acces-au-droit', 'Limoges', 'annuaire'],
+      ['Point-justice de Nontron', 'acces-au-droit', 'Nontron', 'annuaire'], ['CCAS de Bellac', 'ccas', 'Bellac', 'modifiee'],
+      ['La Halte 24', 'logement-hebergement', 'Périgueux', 'acontroler'], ['Envergure Limoges', 'formation-orientation', 'Limoges', 'acontroler'],
+      ['Cité Béthanie, CHRS', 'logement-hebergement', 'Bergerac', 'rien'], ['France Terre d’Asile', 'logement-hebergement', 'Bergerac', 'rien'],
+      ['SAFED', 'soutien-aux-familles', 'Périgueux', 'rien'], ['Crèche Pous', 'petite-enfance', 'Bergerac', 'rien'],
+      ['Maison de la Petite Enfance', 'petite-enfance', 'Sarlat-la-Canéda', 'rien'], ['Planning Familial 24', 'sante-soins-addictions', 'Bergerac', 'rien']
+    ]
+  };
+  var st = { sas: 'employeurs', etat: '', origine: '', q: '', choix: {} };
+  var $ = function (id) { return document.getElementById(id); };
+  var ICO = { pret: '✓', regard: '!', jamais: '○' };
+  var TITRE = { pret: 'Prête : un clic', regard: 'À regarder', jamais: 'Jamais vérifiée' };
+  var DESC = { pret: 'déjà contrôlées, vous cochez en bloc', regard: 'un doute : une par une', jamais: 'personne ne les a encore regardées' };
+
+  function lignes() { return DONNEES[st.sas].map(function (d, i) { return { id: st.sas + i, nom: d[0], type: d[1], ou: d[2], base: d[3], etat: ETAT_DE[d[3]] }; }); }
+  function filtrer() {
+    return lignes().filter(function (l) {
+      if (st.etat && l.etat !== st.etat) { return false; }
+      if (st.etat === 'pret' && st.origine && l.base !== st.origine) { return false; }
+      if (st.q && (l.nom + ' ' + l.ou).toLowerCase().indexOf(st.q.toLowerCase()) === -1) { return false; }
+      return true;
+    });
+  }
+  function rendre() {
+    var tout = lignes(), n = { pret: 0, regard: 0, jamais: 0 };
+    tout.forEach(function (l) { n[l.etat]++; });
+    $('etats').innerHTML = ['pret', 'regard', 'jamais'].map(function (e) {
+      return '<button type="button" class="etat-case ' + e + (st.etat === e ? ' actif' : '') + '" data-etat="' + e + '"><span class="n">' + n[e] + '</span><span class="t">' + TITRE[e] + '</span><span class="d">' + DESC[e] + '</span></button>';
+    }).join('');
+    $('selEtat').value = st.etat; $('selOrigine').style.display = st.etat === 'pret' ? '' : 'none'; $('selOrigine').value = st.origine;
+    var f = filtrer(), prets = f.filter(function (l) { return l.etat === 'pret'; }), mains = prets.filter(function (l) { return l.base === 'main'; }), regards = f.filter(function (l) { return l.etat === 'regard'; });
+    var deja = prets.filter(function (l) { return st.choix[l.id]; }).length, h = '';
+    if (prets.length) {
+      h += '<div class="note pret"><span><strong>' + prets.length + ' fiche' + (prets.length > 1 ? 's' : '') + ' prête' + (prets.length > 1 ? 's' : '') + '</strong> dans la liste affichée' + (deja ? ' ; ' + deja + ' déjà avec « C’est bon »' : '') + '. Choisissez d’abord une origine, un type ou une recherche pour ne prendre qu’un bloc. Rien n’est publié avant « Enregistrer ».</span> ' +
+        '<button class="btn primaire petit" type="button" data-act="cocher">Mettre « C’est bon » sur ces ' + prets.length + '</button>' +
+        (mains.length && mains.length < prets.length ? ' <button class="btn primaire petit" type="button" data-act="cocher-main">Seulement sur les ' + mains.length + ' contrôlées par vous</button>' : '') +
+        ' <button class="btn petit" type="button" data-act="decocher"' + (deja ? '' : ' disabled') + '>Retirer le « C’est bon » de ces fiches</button></div>';
+    }
+    if (regards.length) { h += '<div class="note regard"><span><strong>' + regards.length + ' fiche' + (regards.length > 1 ? 's' : '') + ' à regarder</strong> dans cette liste : elles ne sont jamais cochées en bloc, à revérifier une par une.</span></div>'; }
+    $('lot').innerHTML = h;
+    $('compte').textContent = tout.length + ' fiches en attente de vérification' + (f.length !== tout.length ? ' ; ' + f.length + ' correspondent à votre choix' : '') + '. Rien n’est publié tant que vous n’avez pas cliqué « Enregistrer ».';
+    $('liste').innerHTML = f.length ? f.map(function (l) {
+      var c = st.choix[l.id];
+      return '<div class="fiche ' + l.etat + (c ? ' choisie' : '') + '"><div class="etiq ' + l.etat + '"><span class="ico">' + ICO[l.etat] + '</span><span>' + TITRE[l.etat] + '<span class="raison">' + ESC(RAISONS[l.base]) + '</span></span></div>' +
+        '<strong>' + ESC(l.nom) + '</strong><span class="pastille">' + ESC(l.type) + '</span>' +
+        '<div class="champs"><b>Où :</b> ' + ESC(l.ou) + '</div>' +
+        '<div class="choix"><button type="button" class="btn petit' + (c === 'publier' ? ' on' : '') + '" data-id="' + l.id + '" data-dec="publier">C’est bon</button><button type="button" class="btn petit' + (c === 'ecarter' ? ' on' : '') + '" data-id="' + l.id + '" data-dec="ecarter">Écarter</button></div></div>';
+    }).join('') : '<p class="mini">Aucune fiche ne correspond.</p>';
+    var nc = Object.keys(st.choix).length; $('nChoix').textContent = nc; $('btnEnreg').disabled = !nc;
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('button'); if (!t) { return; }
+    if (t.dataset.etat) { st.etat = st.etat === t.dataset.etat ? '' : t.dataset.etat; st.origine = ''; rendre(); return; }
+    if (t.dataset.dec) { st.choix[t.dataset.id] === t.dataset.dec ? delete st.choix[t.dataset.id] : (st.choix[t.dataset.id] = t.dataset.dec); rendre(); return; }
+    if (t.dataset.act) {
+      filtrer().filter(function (l) { return l.etat === 'pret' && (t.dataset.act !== 'cocher-main' || l.base === 'main'); }).forEach(function (l) {
+        if (t.dataset.act === 'decocher') { if (st.choix[l.id] === 'publier') { delete st.choix[l.id]; } } else if (!st.choix[l.id]) { st.choix[l.id] = 'publier'; }
+      });
+      rendre(); return;
+    }
+    if (t.id === 'btnEnreg') {
+      var nc = Object.keys(st.choix).length;
+      $('resultat').innerHTML = '<div class="note ok"><span><strong>Maquette : rien n’est enregistré.</strong> Dans l’outil, ces ' + nc + ' choix seraient publiés en un seul enregistrement, annulable d’un clic.</span></div>';
+      return;
+    }
+    if (t.id === 'btnImport') { $('resultat').innerHTML = '<div class="note ok"><span>Bouton gardé tel quel (non reproduit dans la maquette).</span></div>'; return; }
+    if (t.id === 'btnSombre') { document.body.classList.toggle('dark'); t.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre'; }
+  });
+  $('selEtat').addEventListener('change', function (e) { st.etat = e.target.value; st.origine = ''; rendre(); });
+  $('selOrigine').addEventListener('change', function (e) { st.origine = e.target.value; rendre(); });
+  $('selSas').addEventListener('change', function (e) { st.sas = e.target.value; st.etat = ''; st.origine = ''; st.choix = {}; rendre(); });
+  $('recherche').addEventListener('input', function (e) { st.q = e.target.value; rendre(); });
+  rendre();
+})();
+</script>
+</body>
+</html>

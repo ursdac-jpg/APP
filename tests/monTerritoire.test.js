@@ -170,13 +170,13 @@ test('types de structure : 28, et ceux du Lexique y figurent avec le même ident
   ['france-travail', 'mission-locale', 'cap-emploi', 'plie', 'caf', 'siae'].forEach((id) => { assert.ok(L.MT_TYPES[id], id); });
 });
 
-test('module fermé au public par défaut (D11) ; aucun tiret long dans les fichiers du module', () => {
-  // Fermé au public (décision de Denis, 2026-10-18, avant l'envoi vers GitHub) : visible seulement sur son poste (localhost) ; à passer à true pour ouvrir au public.
-  assert.equal(L.MT_OUVERT, false, 'MT_OUVERT : le module est fermé au public ; le passer à true seulement pour l’ouvrir (et adapter ce test)');
+test('module ouvert au public (feu vert de Denis, 2026-11-05) ; aucun tiret long dans les fichiers du module', () => {
+  // Ouvert au public le 2026-11-05 sur le feu vert écrit de Denis. Retour arrière : MT_OUVERT = false (et remettre ce test dans son état fermé).
+  assert.equal(L.MT_OUVERT, true, 'MT_OUVERT : le module est ouvert au public ; le repasser à false pour le fermer (et adapter ce test)');
   const avant = global.location;
   try {
     global.location = { hostname: 'localhost' }; assert.equal(L.mtEstEnLocal(), true, 'machine locale reconnue'); assert.equal(L.mtOuvert(), true, 'visible sur le poste de Denis');
-    global.location = { hostname: 'denis.github.io' }; assert.equal(L.mtEstEnLocal(), false); assert.equal(L.mtOuvert(), false, 'caché en ligne');
+    global.location = { hostname: 'denis.github.io' }; assert.equal(L.mtEstEnLocal(), false); assert.equal(L.mtOuvert(), true, 'visible en ligne, sans aperçu');
   } finally { if (avant === undefined) { delete global.location; } else { global.location = avant; } }
   ['modules/mon-territoire/logique.js', 'modules/mon-territoire/contenu/employeurs.txt'].forEach((f) => {
     assert.ok(!/[–—]/.test(lire(f)), f);
@@ -227,9 +227,34 @@ test('petites structures : mail, marque et contacts (mtParserLieux, mtVerifierLi
   assert.equal(L.mtLieuEnStructure(L.mtParserLieux(ancienne).lignes[0], '2026-10-20', null).petite, false);
 });
 
+test('adresse d’une structure : colonne facultative en fin de ligne, lien vers la carte partout, numéro qui compose sur téléphone seulement', () => {
+  const sans = 'p1 | ccas | Un CCAS | aide | Bergerac | | 05 53 00 00 01 | https://a.fr/ | 24 | accompagnement | source | 2026-10-12';
+  const avecMail = sans + ' | contact@exemple.fr';
+  const avecAdresse = avecMail + ' | 12 rue de la Paix, 24100 Bergerac';
+  assert.equal(L.MT_COLONNES_LIEUX[L.MT_COLONNES_LIEUX.length - 1], 'adresse');
+  [sans, avecMail, avecAdresse].forEach((l) => assert.equal(L.mtParserLieux(l).erreurs.length, 0, 'une ligne à 12, 13 ou 14 colonnes se lit : ' + l.split('|').length));
+  assert.equal(L.mtParserLieux(sans).lignes[0].adresse, '');
+  assert.equal(L.mtParserLieux(avecAdresse).lignes[0].adresse, '12 rue de la Paix, 24100 Bergerac');
+  assert.deepEqual(L.mtColonnesAEcrire(L.MT_COLONNES_LIEUX, { mail: '', adresse: '' }).length, 12, 'sans mail ni adresse : 12 colonnes écrites');
+  assert.equal(L.mtColonnesAEcrire(L.MT_COLONNES_LIEUX, { mail: '', adresse: 'x' }).length, 14, 'adresse sans mail : le mail reste une colonne vide');
+  assert.equal(L.mtColonnesAEcrire(L.MT_COLONNES_EMPLOYEURS, {}).length, L.MT_COLONNES_EMPLOYEURS.length, "les employeurs n’ont pas de colonne facultative");
+  const lieu = L.mtParserLieux(avecAdresse).lignes[0];
+  const s = L.mtLieuEnStructure(lieu, '2026-10-20', null);
+  assert.equal(s.adresse, '12 rue de la Paix, 24100 Bergerac');
+  const sur = L.mtCarteStructureHtml(s, { appel: true }), ordi = L.mtCarteStructureHtml(s, { appel: false });
+  const carte = 'href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent('Un CCAS, 12 rue de la Paix, 24100 Bergerac').replace(/&/g, '&amp;');
+  assert.ok(sur.indexOf(carte) !== -1 && ordi.indexOf(carte) !== -1, 'adresse cliquable vers la carte sur tous les appareils');
+  assert.ok(sur.indexOf('href="tel:0553000001"') !== -1 && ordi.indexOf('tel:') === -1 && ordi.indexOf('05&nbsp;53&nbsp;00&nbsp;00&nbsp;01') !== -1, 'numéro cliquable seulement avec appel');
+  assert.ok(sur.indexOf('coordonnées vérifiées') !== -1);
+  const vieux = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2028-10-20', null), { appel: true });
+  assert.ok(vieux.indexOf('maps') === -1 && vieux.indexOf('12 rue de la Paix') === -1, 'sans date récente : aucune adresse');
+  assert.ok(L.mtVerifierLieux(avecAdresse.replace('2026-10-12', ''), {}).some((e) => /adresse/.test(e)), 'une adresse sans date de vérification est refusée');
+  assert.equal(L.mtEstTelephone(), false, 'hors navigateur : pas de téléphone');
+});
+
 test('carte de structure partagée : téléphone et mail cliquables et datés, pastille, aide, jamais de coordonnée sans date', () => {
   const lieu = L.mtParserLieux('p1 | francais-langue | Un atelier <b> | des cours | Bergerac | | 05 53 00 00 01 | | 24 | francais | Petite structure ; page | 2026-10-12 | contact@exemple.fr').lignes[0];
-  const h = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => 'le-' + d });
+  const h = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => 'le-' + d, appel: true });
   assert.ok(h.indexOf('href="tel:0553000001"') !== -1 && h.indexOf('href="mailto:contact@exemple.fr"') !== -1);
   assert.ok(h.indexOf('Petite structure locale') !== -1 && h.indexOf('coordonnées vérifiées le le-2026-10-12') !== -1 && h.indexOf('téléphonez ou écrivez') !== -1);
   assert.ok(h.indexOf('Un atelier &lt;b&gt;') !== -1, 'le nom est échappé');
@@ -519,6 +544,22 @@ test('collecte du rayon seniors : ne garde que le service en ligne info-retraite
 
 test('mtDomaineDuRayon : la retraite est dans « Vie pratique »', () => {
   assert.equal(L.mtDomaineDuRayon('seniors'), 'vie-pratique');
+});
+
+test('mtDomaineDuRayon : les rayons Armées, Agriculture et Parents séparés ont leur place', () => {
+  assert.equal(L.mtDomaineDuRayon('armees'), 'armees');
+  assert.equal(L.mtDomaineDuRayon('agriculture'), 'creer');
+  assert.equal(L.mtDomaineDuRayon('parents-separes'), 'vie-pratique');
+  assert.equal(L.mtDomaineDuRayon('fonction-publique'), 'fonction-publique', 'la tuile Fonction publique a deux choix : les offres publiques et « Qui peut m’aider »');
+});
+
+test('Fonction publique : deux choix, le premier mène aux offres publiques sans rayon, le second lit le rayon fonction-publique', () => {
+  const choix = L.MT_SOUS_BRANCHES['fonction-publique'];
+  assert.equal(choix.length, 2);
+  assert.equal(choix[0].versOffres, true);
+  assert.equal(choix[0].rayon, undefined);
+  assert.equal(choix[1].rayon, 'fonction-publique');
+  assert.ok(L.MT_RAYONS.indexOf('fonction-publique') !== -1 && L.MT_RAYONS_MIGRES.indexOf('fonction-publique') !== -1);
 });
 
 const HISTORIQUE_CREER = ['chambre-metiers-artisanat-dordogne', 'cci-dordogne', 'bge-perigord', 'adie-nouvelle-aquitaine', 'initiative-perigord', 'france-active-nouvelle-aquitaine', 'asso-coopalpha-24', 'asso-iriscop-24', 'asso-la-traverse-bergerac-24'];
@@ -1086,4 +1127,83 @@ test('mtVerifierEmployeurs : la marque « Via prospection » est contrôlée (fo
 
 test('contenu/employeurs.txt : aucune fiche ne mentionne la prospection ailleurs qu\'au début de sa source', () => {
   L.mtParserEmployeurs(texteEmployeurs).lignes.forEach((e) => { if (/prospection/i.test(e.source)) { assert.equal(L.mtViaProspection(e), true, e.id); } });
+});
+
+test('message « agences nombreuses » : seulement une enseigne de banque, assurance ou immobilier', () => {
+  const msg = L.mtMessageAgencesNombreuses({ nature: 'enseigne', secteur: 'banque-assurance-immobilier' });
+  assert.match(msg, /site de l’enseigne/);
+  assert.equal(L.mtMessageAgencesNombreuses({ nature: 'enseigne', secteur: 'commerce-vente' }), '', 'un magasin garde ses adresses, sans message');
+  assert.equal(L.mtMessageAgencesNombreuses({ nature: 'local', secteur: 'banque-assurance-immobilier' }), '', 'un employeur local n’est pas concerné');
+  assert.equal(L.mtMessageAgencesNombreuses(null), '');
+});
+
+// ---------- fiches « inaccessibles pour l'instant » (contenu/en-attente.txt) ----------
+// Un site fermé quelque temps garde sa fiche ; son lien n'est plus montré au public (message neutre, téléphone conservé). Une seule porte : mtAppliquerAttente.
+const LIEU_ATTENTE = 'a-24 | ccas | CCAS A | aide sociale | Perigueux | | 05 53 00 00 00 | https://a.example.org/ | 24 | logement | Source | 2026-10-20\n' +
+  'b-24 | ccas | CCAS B | aide sociale | Perigueux | | | https://b.example.org/ | 24 | logement | Source | 2026-10-20\n';
+
+test('mtParserAttente : format « registre | identifiant | raison | constat | dernier avis » ; une ligne mal écrite est signalée et n\'entre pas', () => {
+  const ok = L.mtParserAttente('# commentaire\nlieux | a-24 | maintenance | 2026-10-01 | 2026-10-20\nemployeurs | aldi | securite | 2026-09-01 | 2026-09-01\n');
+  assert.deepEqual(ok.erreurs, []);
+  assert.deepEqual(ok.lignes.map((l) => l.registre + ':' + l.id + ':' + l.motif), ['lieux:a-24:maintenance', 'employeurs:aldi:securite']);
+  [
+    ['inconnu | a-24 | panne | 2026-10-01 | 2026-10-01', /registre inconnu/],
+    ['lieux | a-24 | au-hasard | 2026-10-01 | 2026-10-01', /raison inconnue/],
+    ['lieux | a-24 | panne | 2026-13-01 | 2026-10-01', /date illisible/],
+    ['lieux | a-24 | panne | 2026-10-01', /colonnes/],
+    ['lieux | A 24 | panne | 2026-10-01 | 2026-10-01', /identifiant illisible/]
+  ].forEach(([texte, motif]) => { const r = L.mtParserAttente(texte); assert.equal(r.lignes.length, 0, texte); assert.match(r.erreurs[0], motif); });
+  const doublon = L.mtParserAttente('lieux | a-24 | panne | 2026-10-01 | 2026-10-01\nlieux | a-24 | autre | 2026-10-02 | 2026-10-02');
+  assert.equal(doublon.lignes.length, 1);
+  assert.match(doublon.erreurs[0], /déjà en attente/);
+});
+
+test('mtAppliquerAttente : structure en attente = fiche et téléphone gardés, lien caché, message neutre ; sans téléphone, pas de phrase sur le téléphone', () => {
+  const attente = L.mtAttenteParCle(L.mtParserAttente('lieux | a-24 | panne | 2026-10-25 | 2026-10-25\nlieux | b-24 | maintenance | 2026-10-25 | 2026-10-25').lignes);
+  const lieux = L.mtAppliquerAttente('lieux', L.mtParserLieux(LIEU_ATTENTE).lignes, attente);
+  const a = L.mtLieuEnStructure(lieux[0], '2026-10-31', null), b = L.mtLieuEnStructure(lieux[1], '2026-10-31', null);
+  assert.equal(a.url, ''); assert.equal(a.verifie, false); assert.equal(a.enAttente, true);
+  assert.equal(a.telephone, '05 53 00 00 00');
+  const ha = L.mtCarteStructureHtml(a, { appel: true }), hb = L.mtCarteStructureHtml(b, {});
+  assert.ok(!/href="https/.test(ha) && !/href="https/.test(hb), 'aucun lien externe');
+  assert.match(ha, /Ce site est momentanément fermé\. Vous pouvez joindre l’organisme par téléphone\./);
+  assert.match(ha, /tel:0553000000/);
+  assert.match(hb, /Ce site est momentanément fermé\./);
+  assert.ok(!/par téléphone/.test(hb) && !/pas encore vérifiée/.test(hb));
+  // sans fichier d'attente, ou fiche absente du fichier : la carte est celle d'avant (lien montré)
+  const normal = L.mtLieuEnStructure(L.mtAppliquerAttente('lieux', L.mtParserLieux(LIEU_ATTENTE).lignes, {})[0], '2026-10-31', null);
+  assert.equal(normal.url, 'https://a.example.org/'); assert.equal(normal.enAttente, false);
+  assert.equal(L.mtAppliquerAttente('lieux', L.mtParserLieux(LIEU_ATTENTE).lignes, null)[0].site, 'https://a.example.org/');
+});
+
+test('mtAppliquerAttente : employeur en attente = site et page de recrutement cachés (fiche gardée) ; page d\'offres en attente = retirée de la liste', () => {
+  const emp = L.mtParserEmployeurs(FIX_EMPLOYEURS).lignes.filter((e) => e.site && e.recrutement)[0];
+  if (emp) {
+    const attente = L.mtAttenteParCle([{ registre: 'employeurs', id: emp.id, motif: 'panne', constat: '2026-10-25', avis: '2026-10-25' }]);
+    const e = L.mtAppliquerAttente('employeurs', [Object.assign({}, emp)], attente)[0];
+    assert.equal(e.site, ''); assert.equal(e.recrutement, ''); assert.equal(e.enAttente, 'panne'); assert.equal(e.nom, emp.nom);
+    const aff = L.mtContactAffichable(e, '2026-10-31');
+    assert.equal(aff.site, false); assert.equal(aff.recrutement, false);
+  }
+  const offres = L.mtParserOffres(lire('tests/fixtures/mon-territoire-offres.txt')).lignes;
+  const cible = offres[0].id;
+  const restantes = L.mtAppliquerAttente('offres', offres.slice(), L.mtAttenteParCle([{ registre: 'offres', id: cible, motif: 'autre', constat: '2026-10-25', avis: '2026-10-25' }]));
+  assert.equal(restantes.length, offres.length - 1);
+  assert.ok(!restantes.some((o) => o.id === cible));
+});
+
+test('mtAttenteARevoir : 90 jours sans nouvel avis, le compte repart à « garder en attente »', () => {
+  assert.equal(L.mtJoursEntre('2026-07-01', '2026-10-31'), 122);
+  assert.equal(L.mtJoursEntre('2026-10-31', '2026-10-31'), 0);
+  assert.equal(L.mtJoursEntre('pas une date', '2026-10-31'), null);
+  assert.equal(L.mtAttenteARevoir({ avis: '2026-08-03' }, '2026-10-31'), false);   // 89 jours
+  assert.equal(L.mtAttenteARevoir({ avis: '2026-08-02' }, '2026-10-31'), true);    // 90 jours
+  assert.equal(L.mtAttenteARevoir({ avis: '2026-10-30' }, '2026-10-31'), false);
+});
+
+test('contenu/en-attente.txt : aucune erreur, et chaque fiche citée existe encore dans son registre', () => {
+  const ids = {};
+  [['lieux', L.mtParserLieux], ['employeurs', L.mtParserEmployeurs], ['offres', L.mtParserOffres]].forEach(([k, parser]) => { ids[k] = parser(lire('modules/mon-territoire/contenu/' + k + '.txt')).lignes.map((x) => x.id); });
+  assert.deepEqual(L.mtVerifierAttente(lire('modules/mon-territoire/contenu/en-attente.txt'), { ids, aujourdhui: new Date().toISOString().slice(0, 10) }), []);
+  assert.deepEqual(L.mtVerifierAttente('lieux | fiche-qui-nexiste-pas | panne | 2026-10-01 | 2026-10-01', { ids }).length, 1);
 });

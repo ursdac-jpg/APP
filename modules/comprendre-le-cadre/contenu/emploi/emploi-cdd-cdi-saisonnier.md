@@ -7,7 +7,7 @@ tags: [CDD, CDI, contrat saisonnier, durée, renouvellement, prime de précarit�
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-05
+verifie_le: 2026-11-04
 lexique:
   - terme: "prime de précarité"
     definition: "Indemnité de fin de contrat versée à la fin d'un CDD, d'au moins 10 % de la rémunération brute totale. Elle n'est pas due dans plusieurs cas, dont le contrat saisonnier."
@@ -27,7 +27,9 @@ ce_qui_change_souvent:
   - "Les règles du délai de carence"
 revisions:
   - "2026-10 : précision sur les cas où la prime de précarité n'est pas due (rupture à l'initiative du salarié, faute grave) ; vérifié sur service-public.fr (F803 et F40) le 2026-10-05"
+  - "2026-11-04 : la limite de deux renouvellements n'est pas confirmée sur la page relue (retirée)"
 voir_aussi_chiffres: "Comment on est embauché ici"
+phrase_generale: "Le CDI est la forme normale du contrat de travail, sans date de fin ; le CDD ne peut servir qu'à une tâche précise et temporaire ; le contrat saisonnier suit des règles propres. Les durées maximales, les indemnités et les délais changent selon les secteurs et les lois : confirmez-les auprès d'un conseiller ou sur les sources officielles indiquées plus bas."
 collecte: emploi.collecte.md
 ---
 
@@ -35,7 +37,7 @@ Le CDI est la forme normale du contrat de travail : il n'a pas de date de fin.
 
 Le CDD ne peut servir qu'à une tâche précise et temporaire : remplacer un salarié absent, faire face à un surcroît d'activité, un emploi saisonnier, un contrat d'usage dans certains métiers. Il ne peut pas remplacer un emploi permanent. Le motif doit figurer dans le contrat, qu'on doit vous remettre dans les deux jours ouvrables.
 
-Sa durée est en général de dix-huit mois au maximum, et il ne peut être renouvelé que deux fois. À la fin, vous touchez une prime de précarité d'au moins dix pour cent de ce que vous avez gagné, sauf dans plusieurs cas : contrat saisonnier, contrat pendant vos vacances scolaires, refus de votre part d'un CDI sur le même poste, contrat aidé, rupture du contrat à votre initiative, faute grave.
+Sa durée est en général de dix-huit mois au maximum, renouvellement compris. À la fin, vous touchez une prime de précarité d'au moins dix pour cent de ce que vous avez gagné, sauf dans plusieurs cas : contrat saisonnier, contrat pendant vos vacances scolaires, refus de votre part d'un CDI sur le même poste, contrat aidé, rupture du contrat à votre initiative, faute grave.
 
 Entre deux CDD sur le même poste, l'employeur doit respecter un délai d'attente, calculé sur la durée du contrat précédent.
 

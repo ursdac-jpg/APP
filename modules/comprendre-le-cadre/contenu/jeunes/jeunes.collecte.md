@@ -14,6 +14,7 @@ sources:
   - "travail-emploi-ecoles-de-production | Présentation des écoles de production | https://travail-emploi.gouv.fr/IMG/pdf/ecoles_de_production.pdf | 2026-09-04"
   - "un-jeune-une-solution | 1 jeune 1 solution : les dispositifs pour les jeunes | https://www.1jeune1solution.gouv.fr/ | 2026-09-04"
   - "service-public-apprentissage | Contrat d'apprentissage | https://www.service-public.gouv.fr/particuliers/vosdroits/F2918 | 2026-09-05"
+  - "travail-emploi-mobiliser-employeurs-apprentissage | Ministère du Travail : faire de l'apprentissage un levier de réussite pour tous les jeunes et les entreprises | https://travail-emploi.gouv.fr/mobiliser-les-employeurs-en-faveur-de-lapprentissage | 2026-11-03"
 structures:
   - "agence-service-civique | Agence du service civique : moteur de recherche des missions | https://www.service-civique.gouv.fr/trouver-ma-mission | 2026-09-04"
   - "asso-mission-locale-perigord-noir-24 | Mission locale et Maison de l'emploi du Périgord Noir : accompagnement des 16-25 ans vers l'emploi, la formation et l'autonomie (contrat d'engagement jeune, logement des saisonniers, mobilité), à Sarlat et Terrasson (24) | https://www.missionlocaleperigordnoir.com/ | 2026-09-07"

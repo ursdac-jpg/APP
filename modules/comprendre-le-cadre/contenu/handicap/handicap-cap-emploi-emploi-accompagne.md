@@ -7,7 +7,7 @@ tags: [Cap emploi, emploi accompagné, travailleur handicapé, référent, maint
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "Cap emploi"
     definition: "Réseau départemental qui accompagne les personnes ayant une reconnaissance de travailleur handicapé, vers l'emploi et pour se maintenir en poste. Il travaille en lien avec France Travail."
@@ -22,15 +22,16 @@ sources:
 ce_qui_change_souvent:
   - "L'articulation entre Cap emploi et France Travail"
   - "Les conditions d'entrée dans l'emploi accompagné"
-revisions: []
+revisions:
+  - "2026-11-04 : l'orientation vers l'emploi accompagné (demande à la MDPH, préconisation par Cap emploi, France Travail, l'employeur ou la mission locale) est confirmée ; la présence « dans chaque département » de Cap emploi n'est pas sur la page (retirée) ; le lien avec l'employeur est assuré par la plateforme"
 collecte: handicap.collecte.md
 ---
 
 Deux formes d'accompagnement existent quand on a une reconnaissance de travailleur handicapé.
 
-Cap emploi est un réseau spécialisé, présent dans chaque département. Il accompagne à la fois vers l'emploi (bilan, projet, mise en relation avec des employeurs, aides mobilisables) et pour se maintenir en poste quand la santé se dégrade. Cap emploi travaille main dans la main avec France Travail : selon votre situation, vous êtes suivi par l'un, par l'autre, ou par les deux.
+Cap emploi est un réseau spécialisé. Il accompagne à la fois vers l'emploi (bilan, projet, mise en relation avec des employeurs, aides mobilisables) et pour se maintenir en poste quand la santé se dégrade. Cap emploi travaille main dans la main avec France Travail : selon votre situation, vous êtes suivi par l'un, par l'autre, ou par les deux.
 
-L'emploi accompagné va plus loin dans la durée. Un même référent vous suit tout au long de votre parcours, y compris une fois en poste, et intervient aussi auprès de votre employeur pour faire tenir la situation dans le temps. Il s'adresse aux personnes qui cherchent un emploi comme à celles qui en ont un mais rencontrent des difficultés.
+L'emploi accompagné va plus loin dans la durée. Un référent est votre interlocuteur principal tout au long de votre parcours, y compris une fois en poste, et la plateforme d'emploi accompagné assure aussi le lien avec votre employeur et l'équipe. Il s'adresse aux personnes qui cherchent un emploi comme à celles qui en ont un mais rencontrent des difficultés.
 
 On entre dans l'emploi accompagné sur décision de la maison départementale des personnes handicapées, ou sur orientation de Cap emploi ou de France Travail.
 

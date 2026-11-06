@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aperçu de la fenêtre unique « Collez la réponse »</title>
+<link rel="stylesheet" href="../vendor/bootstrap.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { background: var(--bg-card); color: var(--text-strong); font-family: system-ui, sans-serif; margin: 0; padding: 1rem; }
+  .reglages { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; padding: 0.6rem; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; font-size: 0.9rem; }
+  .reglages select, .reglages button { font-size: 0.9rem; }
+  #journal { font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<p>Aperçu du <strong>vrai composant</strong> (modules/collage-reponse/fenetre.js), sans module branché. Pour essayer en vrai : copiez un texte dans le presse-papiers puis cliquez sur le gros bouton.</p>
+<div class="reglages">
+  <label>Module <select id="selModule"><option value="cv">Créer mon CV</option><option value="bilan">Analyser ma candidature</option></select></label>
+  <label>Passage <select id="selPassage"><option value="">Un seul passage</option><option value="1/2">1 sur 2</option><option value="2/2">2 sur 2</option></select></label>
+  <label>Mode <select id="selMode"><option value="reponse">Réponse</option><option value="complement">Complément du CV</option></select></label>
+  <label>État <select id="selEtat"><option value="ouvert">Assistant ouvert</option><option value="pret">Prêt à coller</option><option value="main">Collage à la main</option><option value="recu">Bien reçue</option><option value="coupe">Coupée</option><option value="echec">Inutilisable</option></select></label>
+  <button type="button" id="btnTheme">Mode sombre</button>
+  <button type="button" id="btnRedessiner">Redessiner</button>
+</div>
+<div id="fenetre"></div>
+<div id="journal"></div>
+<script src="../modules/collage-reponse/logique.js" charset="UTF-8"></script>
+<script src="../modules/collage-reponse/fenetre.js" charset="UTF-8"></script>
+<script>
+var MODULES = {
+  cv: { nom: 'Créer mon CV', libelleSuite: 'Importer dans le CV', quoi: 'L’assistant vient de rédiger votre CV à partir de ce que vous avez indiqué.',
+        differe: 'Cette fois, l’assistant complète votre CV avec des détails supplémentaires.', verif: 'vérifiez que vos emplois et vos formations sont bien tous présents, sans doublon.', conseil: '' },
+  bilan: { nom: 'Analyser ma candidature', libelleSuite: 'Voir mon analyse', quoi: 'L’assistant a analysé votre candidature.', differe: '', verif: '', conseil: '' }
+};
+function journal(t) { document.getElementById('journal').textContent += t + '\n'; }
+function dessiner() {
+  var mode = document.getElementById('selMode').value;
+  var racine = document.getElementById('fenetre');
+  document.getElementById('journal').textContent = '';
+  var c = activerFenetreCollage({
+    racine: racine, suffixe: 'Apercu', nomAssistant: 'ChatGPT', mode: mode,
+    module: MODULES[document.getElementById('selModule').value],
+    passage: document.getElementById('selPassage').value,
+    etatInitial: document.getElementById('selEtat').value,
+    verifier: function (t) { return { ok: /"[a-z_]+"\s*:/.test(t) }; },
+    onContinuer: function (t) { journal('Continuer cliqué, texte final : ' + (t === null ? '(aucun)' : t.length + ' caractères')); },
+    onRouvrir: function () { journal('Rouvrir l’assistant'); },
+    onChangerAssistant: function () { journal('Changer d’assistant'); },
+    onVideo: function () { journal('Voir la démonstration'); }
+  });
+  window.__c = c;
+}
+['selModule', 'selPassage', 'selMode', 'selEtat'].forEach(function (id) { document.getElementById(id).addEventListener('change', dessiner); });
+document.getElementById('btnRedessiner').addEventListener('click', dessiner);
+document.getElementById('btnTheme').addEventListener('click', function () {
+  var h = document.documentElement; h.setAttribute('data-theme', h.getAttribute('data-theme') === 'sombre' ? 'clair' : 'sombre');
+});
+dessiner();
+</script>
+</body>
+</html>

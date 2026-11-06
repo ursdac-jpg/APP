@@ -21,6 +21,7 @@ ce_qui_change_souvent:
   - "Le seuil de salaire jusqu'auquel la réduction s'applique (relevé à trois Smic au 1er janvier 2026)"
   - "Le mode de calcul exact de la réduction"
 revisions: []
+phrase_generale: "Le coût réel d'un salarié pour l'employeur dépasse toujours le salaire brut visible sur le bulletin, à cause des cotisations sociales payées en plus. Les taux et les allègements changent régulièrement : pour calculer un coût à jour, consultez l'Urssaf ou les sources officielles indiquées plus bas."
 collecte: employeurs.collecte.md
 ---
 

@@ -7,7 +7,7 @@ tags: [fonds de solidarité pour le logement, FSL, dépôt de garantie, impayés
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "fonds de solidarité pour le logement"
     definition: "Aide du conseil départemental, sous conditions de ressources, pour entrer dans un logement ou s'y maintenir. Elle peut prendre la forme d'un prêt ou d'une subvention."
@@ -21,7 +21,8 @@ ce_qui_change_souvent:
   - "Les conditions de ressources, fixées par chaque département"
   - "La liste des dépenses prises en charge"
   - "Le partage entre prêt et subvention"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Service Public cite le dépôt de garantie, le premier loyer, les frais d'agence, l'assurance, le déménagement, les équipements de première nécessité, les dettes de loyer, les factures d'énergie, d'eau et de téléphone et les frais de commissaire de justice ; l'ouverture des compteurs et les charges n'y figurent pas (retirés) ; les critères exacts dépendent de chaque département"
 collecte: logement.collecte.md
 ---
 
@@ -29,9 +30,9 @@ Le fonds de solidarité pour le logement est une aide du conseil départemental.
 
 Il aide à deux moments.
 
-À l'entrée dans un logement, il peut financer le dépôt de garantie, le premier loyer, les frais d'agence, l'assurance habitation, l'ouverture des compteurs, le déménagement, ou l'achat de meubles de première nécessité. Il peut aussi servir de garant.
+À l'entrée dans un logement, il peut financer le dépôt de garantie, le premier loyer, les frais d'agence, l'assurance habitation, le déménagement, ou l'achat de meubles de première nécessité. Il peut aussi servir de garant.
 
-Pour se maintenir dans un logement, il peut aider à rembourser une dette de loyer ou de charges, ou des factures d'énergie, d'eau ou de téléphone, et couvrir des frais de procédure.
+Pour se maintenir dans un logement, il peut aider à rembourser une dette de loyer, ou des factures d'énergie, d'eau ou de téléphone, et couvrir des frais de procédure.
 
 L'aide peut être un prêt ou une somme donnée, selon votre situation. Elle n'est accordée que si le loyer, une fois les aides au logement déduites, reste tenable pour votre budget.
 

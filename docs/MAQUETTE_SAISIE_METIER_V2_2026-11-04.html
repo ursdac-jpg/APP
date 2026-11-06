@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette v2 : choix du métier, trois niveaux invisibles</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../data/competencesSecteurs.js"></script>
+<style>
+  /* Réservé à cette maquette : barre de réglages refermable. */
+  .demo-barre { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; font-size: .9rem; }
+  .demo-barre-haut { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+  .demo-barre button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-reglages { margin-top: .6rem; padding-top: .6rem; border-top: 1px solid rgba(255,255,255,.2); display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  .demo-reglages[hidden] { display: none; }
+  .demo-croix { margin-left: auto; }
+  .demo-page { max-width: 760px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .demo-page.tel { max-width: 375px; }
+  .demo-bas { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: 1.2rem; }
+  .demo-message { margin-top: .8rem; padding: .6rem .9rem; border-radius: .5rem; font-size: .95rem; }
+  .demo-message.rappel { background: var(--warning-bg-subtle); border: 1px solid var(--border-strong); color: var(--text-strong); }
+  .demo-message.ok { background: var(--accent-bg-subtle); border: 1px solid var(--accent); color: var(--text-strong); }
+  .demo-questions { border: 1px dashed var(--border-strong); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+  .btn-valider-metier { display: block; width: 100%; text-align: left; margin-top: .2rem; }
+  /* Étiquette visible seulement si Denis active l'option : jamais dans l'application. */
+  .demo-niveau { display: none; margin-left: .5rem; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 10px; background: #ffc94d; color: #1b212c; }
+  .montrer-niveaux .demo-niveau { display: inline-block; }
+  .etape-titre { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 0 0 .3rem; }
+  .liste-competences label { display: flex; gap: .5rem; align-items: baseline; padding: .35rem .2rem; cursor: pointer; }
+  .liste-competences .attendu { font-size: .78rem; color: var(--text-muted); }
+  .grille-domaines { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+</style>
+</head>
+<body>
+<div class="demo-barre">
+  <div class="demo-barre-haut">
+    <strong>Maquette v2 (aucun code de l'application modifié)</strong>
+    <span>Affichage :</span>
+    <button type="button" id="btnClair" class="actif">Clair</button>
+    <button type="button" id="btnSombre">Sombre</button>
+    <span>Appareil :</span>
+    <button type="button" id="btnOrdi" class="actif">Ordinateur</button>
+    <button type="button" id="btnTel">Téléphone</button>
+    <button type="button" id="btnReglages" class="demo-croix">Réglages de la démonstration</button>
+  </div>
+  <div class="demo-reglages" id="reglages">
+    <button type="button" id="btnNiveaux">Montrer à Denis d'où vient chaque métier (jamais affiché dans l'application)</button>
+    <button type="button" id="btnFermer" aria-label="Fermer ce panneau">&#10005;</button>
+  </div>
+</div>
+
+<div class="demo-page" id="page">
+  <p class="small text-muted">Même zone « Recherchez un métier » que l'application, avec les vraies feuilles de style et les vraies compétences par domaine du fichier <code>data/competencesSecteurs.js</code>. Essayez : <em>boul</em> (fiche complète), <em>plong</em> (répertoire élargi : aucune différence à l'écran), puis <em>Agent de fabrication de bougies</em> (absent partout). Passez à l'étape suivante en appuyant sur Entrée, sur le bouton, ou sans rien faire.</p>
+
+  <section id="etape1">
+    <p class="etape-titre">Étape 1 : votre métier</p>
+    <div class="banniere-metier-cible"><div id="contenu"></div></div>
+  </section>
+
+  <section id="etape2" hidden>
+    <p class="etape-titre">Étape 2 : vos compétences (CV sans assistant)</p>
+    <div class="banniere-metier-cible"><div id="contenu2"></div></div>
+  </section>
+
+  <div id="messages" aria-live="polite"></div>
+  <div class="demo-bas">
+    <button type="button" class="btn btn-primary" id="btnSuite">Étape suivante</button>
+    <button type="button" class="btn btn-outline-secondary" id="btnRaz">Recommencer l'essai</button>
+  </div>
+
+  <div class="demo-questions">
+    <strong>Ce que cette version change</strong>
+    <ol class="small mb-2">
+      <li><strong>Aucune marque</strong> « saisi par vous » : un métier choisi s'affiche toujours de la même façon, qu'il ait une fiche complète, qu'il vienne du répertoire élargi ou qu'il ait été tapé librement.</li>
+      <li>Le bouton devient neutre : « Valider ce métier ». Il apparaît dès que le texte tapé ne correspond exactement à aucune proposition.</li>
+      <li><strong>Ajout automatique seulement quand rien ne ressemble</strong> à ce qui est tapé (sortie du champ ou passage à la suite). S'il y a des propositions proches, un rappel doux évite de transformer une faute de frappe en nouveau métier.</li>
+      <li>Les métiers du répertoire élargi apparaissent dans les mêmes suggestions, au même format. Seul le contenu de l'étape 2 diffère : les métiers à fiche complète auraient en plus leurs compétences propres.</li>
+      <li>Étape 2, CV sans assistant : un métier de la base ou du répertoire élargi reçoit tout de suite les compétences « attendues dans ce secteur ». Un métier tapé librement déclenche d'abord la question « Dans quel domaine ? » (présentée comme une aide, pas comme un manque). Avec l'assistant, cette question n'existe pas : il rapproche lui-même le métier d'un domaine, comme aujourd'hui.</li>
+    </ol>
+    <strong>Questions pour vous</strong>
+    <ol class="small mb-0">
+      <li>La question « Dans quel domaine ? » vous convient-elle pour un métier tapé librement, ou préférez-vous ne rien demander et laisser la personne saisir ses compétences elle-même ?</li>
+      <li>Le texte « attendu dans ce secteur » à côté de chaque compétence est celui qui existe déjà dans l'application : on le garde tel quel ?</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+(function () {
+  var COMPLET = [
+    ['Boulanger', 'Métiers de bouche (artisanat)'], ['Aide-soignant', 'Santé et soins'], ['Employé de libre-service', 'Commerce et vente'],
+    ['Cuisinier', 'Hôtellerie, restauration et tourisme'], ['Maçon', 'Bâtiment et travaux publics'], ['Secrétaire', 'Administration, gestion et bureau'],
+    ['Chauffeur-livreur', 'Transport et logistique'], ['Boucher', 'Métiers de bouche (artisanat)']
+  ];
+  var ELARGI = [
+    ['Plongeur', 'Hôtellerie, restauration et tourisme'], ['Fleuriste', 'Commerce et vente'], ['Cordiste', 'Bâtiment et travaux publics'],
+    ['Magasinier cariste', 'Transport et logistique'], ['Pâtissier', 'Métiers de bouche (artisanat)'], ['Toiletteur canin', 'Métiers animaliers'],
+    ['Opérateur de saisie', 'Administration, gestion et bureau'], ['Agent de sûreté', 'Sécurité'], ['Peintre en bâtiment', 'Bâtiment et travaux publics'],
+    ['Moniteur de sport', 'Sport, animation et loisirs'], ['Accompagnant éducatif et social', 'Social et services à la personne'], ['Plombier', 'Bâtiment et travaux publics']
+  ];
+  var TOUS = COMPLET.map(function (m) { return { nom: m[0], secteur: m[1], niveau: 'fiche complète' }; })
+    .concat(ELARGI.map(function (m) { return { nom: m[0], secteur: m[1], niveau: 'répertoire élargi' }; }));
+  var choisi = null;   // { nom, secteur|null, niveau }
+  var domaineChoisi = null;
+  var zone = document.getElementById('contenu');
+  var zone2 = document.getElementById('contenu2');
+  var messages = document.getElementById('messages');
+  var etape = 1;
+
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function majuscule(s) { s = s.trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function surligner(nom, t) {
+    var i = norm(nom).indexOf(norm(t)); if (!t.trim() || i === -1) { return esc(nom); }
+    var l = t.trim().length;
+    return esc(nom.slice(0, i)) + '<mark>' + esc(nom.slice(i, i + l)) + '</mark>' + esc(nom.slice(i + l));
+  }
+  function trouver(t) {
+    var n = norm(t); if (n.length < 2) { return []; }
+    return TOUS.filter(function (m) { return norm(m.nom).indexOf(n) !== -1; });
+  }
+  function exact(t) { var n = norm(t); return TOUS.filter(function (m) { return norm(m.nom) === n; })[0]; }
+  function choisir(m) { choisi = m; domaineChoisi = null; dessiner(); }
+  function choisirTexte(t) {
+    var e = exact(t);
+    choisir(e || { nom: majuscule(t), secteur: null, niveau: 'saisie libre' });
+  }
+
+  function dessiner() {
+    messages.innerHTML = '';
+    if (choisi) {
+      zone.innerHTML = '<p class="mb-1">Vous avez choisi de candidater pour le métier :</p>' +
+        '<div class="metiers-chips"><span class="metier-resume-chip metier-resume-cible">' +
+        '<span class="metier-resume-suppr" id="retirer" title="Retirer" style="cursor:pointer">&#10005;</span>' +
+        '<span class="metier-resume-nom">&#127919; ' + esc(choisi.nom) + '</span></span>' +
+        '<span class="demo-niveau">' + esc(choisi.niveau) + '</span></div>';
+      document.getElementById('retirer').addEventListener('click', function () { choisi = null; etape = 1; basculer(); dessiner(); });
+      return;
+    }
+    zone.innerHTML = '<div class="banniere-metier-cible-recherche">' +
+      '<p class="mb-1 small fw-semibold">&#128269; Recherchez un métier : cliquez sur une proposition. Si votre métier n’apparaît pas, tapez-le en entier puis cliquez sur « Valider ce métier ».</p>' +
+      '<input type="text" class="form-control" id="saisie" placeholder="Quel métier recherchez-vous ?" autocomplete="off">' +
+      '<div id="resultats"></div></div>';
+    var input = document.getElementById('saisie');
+    var res = document.getElementById('resultats');
+    function maj() {
+      var t = input.value, trouves = trouver(t), e = exact(t);
+      var html = trouves.map(function (m, i) {
+        return '<div class="option-metier-ajout" data-i="' + i + '"><span class="option-metier-ajout-nom">&#128204; ' + surligner(m.nom, t) + '</span><span class="demo-niveau">' + esc(m.niveau) + '</span></div>';
+      }).join('');
+      if (norm(t).length >= 2 && !e) {
+        html += '<button type="button" class="btn btn-outline-primary btn-valider-metier" id="btnValider">&#10003; Valider « ' + esc(majuscule(t)) + ' »</button>';
+      }
+      res.innerHTML = html;
+      res.querySelectorAll('[data-i]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function () { choisir(trouves[+el.dataset.i]); });
+      });
+      var b = document.getElementById('btnValider');
+      if (b) {
+        b.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        b.addEventListener('click', function () { choisirTexte(input.value); });
+      }
+    }
+    input.addEventListener('input', maj);
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter') { return; }
+      ev.preventDefault();
+      if (norm(input.value).length >= 2) { choisirTexte(input.value); }
+    });
+    input.addEventListener('blur', function () {
+      // Ajout automatique seulement si le texte est un métier connu à l'identique, ou si rien ne ressemble.
+      var t = input.value; if (norm(t).length < 2) { return; }
+      if (exact(t) || trouver(t).length === 0) {
+        choisirTexte(t);
+        messages.innerHTML = '<div class="demo-message ok">Votre métier « ' + esc(choisi.nom) + ' » est bien noté. Vous pouvez le retirer avec la croix.</div>';
+      }
+    });
+    maj();
+  }
+
+  function dessiner2() {
+    var secteur = choisi.secteur || domaineChoisi;
+    if (!secteur) {
+      var noms = Object.keys(COMPETENCES_SECTEURS);
+      zone2.innerHTML = '<p class="fw-semibold mb-1">Pour vous proposer des compétences, dans quel domaine « ' + esc(choisi.nom) + ' » se range-t-il le mieux ?</p>' +
+        '<p class="small text-muted mb-0">Vous pourrez toujours écrire vos compétences vous-même.</p>' +
+        '<div class="grille-domaines">' + noms.map(function (n) { return '<button type="button" class="jeton jeton--radio jeton--compact" data-dom="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</div>' +
+        '<p class="mt-2 mb-0"><button type="button" class="btn btn-link p-0" id="passer">Passer : je saisis mes compétences moi-même</button></p>';
+      zone2.querySelectorAll('[data-dom]').forEach(function (b) { b.addEventListener('click', function () { domaineChoisi = b.dataset.dom; dessiner2(); }); });
+      document.getElementById('passer').addEventListener('click', function () {
+        zone2.innerHTML = '<p class="mb-0">D’accord : vous écrirez vos compétences à la main, rien n’est perdu.</p>';
+      });
+      return;
+    }
+    var ref = COMPETENCES_SECTEURS[secteur];
+    zone2.innerHTML = '<p class="fw-semibold mb-1">Compétences souvent attendues pour « ' + esc(choisi.nom) + ' » (domaine : ' + esc(secteur) + ')</p>' +
+      '<p class="small text-muted">Cochez celles qui vous correspondent vraiment : rien n’est ajouté à votre CV sans votre accord.' +
+      (choisi.niveau === 'fiche complète' ? ' <span class="demo-niveau">+ compétences propres du métier</span>' : '') + '</p>' +
+      '<div class="liste-competences">' + ref.savoirFaire.slice(0, 8).map(function (c) {
+        return '<label><input type="checkbox"> <span>' + esc(c) + ' <span class="attendu">attendu dans ce secteur</span></span></label>';
+      }).join('') + '</div>' +
+      (domaineChoisi ? '<p class="small mb-0"><button type="button" class="btn btn-link p-0" id="changerDom">Changer de domaine</button></p>' : '');
+    var c = document.getElementById('changerDom');
+    if (c) { c.addEventListener('click', function () { domaineChoisi = null; dessiner2(); }); }
+  }
+
+  function basculer() {
+    document.getElementById('etape2').hidden = (etape !== 2);
+    if (etape === 2) { dessiner2(); }
+  }
+
+  function suite() {
+    var input = document.getElementById('saisie');
+    if (choisi) {
+      etape = 2; basculer(); messages.innerHTML = '';
+      return;
+    }
+    var t = input ? input.value : '';
+    if (norm(t).length >= 2) {
+      if (exact(t) || trouver(t).length === 0) {
+        choisirTexte(t); etape = 2; basculer();
+        messages.innerHTML = '<div class="demo-message ok">Votre métier « ' + esc(choisi.nom) + ' » est bien noté.</div>';
+      } else {
+        messages.innerHTML = '<div class="demo-message rappel">Vous avez tapé « ' + esc(majuscule(t)) + ' » : cliquez sur l’une des propositions, ou sur « Valider » si votre métier n’y est pas.</div>';
+        var b = document.getElementById('btnValider'); if (b) { b.focus(); }
+      }
+      return;
+    }
+    messages.innerHTML = '<div class="demo-message rappel">Choisissez d’abord un métier : tapez son nom, puis cliquez sur une proposition.</div>';
+  }
+
+  function theme(s) { document.documentElement.setAttribute('data-theme', s ? 'sombre' : 'clair'); document.getElementById('btnSombre').classList.toggle('actif', s); document.getElementById('btnClair').classList.toggle('actif', !s); }
+  function appareil(t) { document.getElementById('page').classList.toggle('tel', t); document.getElementById('btnTel').classList.toggle('actif', t); document.getElementById('btnOrdi').classList.toggle('actif', !t); }
+  document.getElementById('btnClair').addEventListener('click', function () { theme(false); });
+  document.getElementById('btnSombre').addEventListener('click', function () { theme(true); });
+  document.getElementById('btnOrdi').addEventListener('click', function () { appareil(false); });
+  document.getElementById('btnTel').addEventListener('click', function () { appareil(true); });
+  document.getElementById('btnFermer').addEventListener('click', function () { document.getElementById('reglages').hidden = true; });
+  document.getElementById('btnReglages').addEventListener('click', function () { var r = document.getElementById('reglages'); r.hidden = !r.hidden; });
+  document.getElementById('btnNiveaux').addEventListener('click', function () {
+    var on = document.body.classList.toggle('montrer-niveaux'); this.classList.toggle('actif', on);
+  });
+  document.getElementById('btnSuite').addEventListener('click', suite);
+  document.getElementById('btnRaz').addEventListener('click', function () { choisi = null; domaineChoisi = null; etape = 1; basculer(); dessiner(); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

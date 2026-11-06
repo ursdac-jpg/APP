@@ -4,9 +4,29 @@
     {
       "name": "site-v2-python-server",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["serveur_dev.py"],
+      "runtimeArgs": [
+        "serveur_dev.py"
+      ],
       "port": 8123,
       "autoPort": true
+    },
+    {
+      "name": "outil-veille-sans-ouverture",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "require('./outils/serveur_veille.js').demarrer(8792,function(e){if(e){console.log(e.message);process.exit(1);}console.log('pret sur 8792')})"
+      ],
+      "port": 8792
+    },
+    {
+      "name": "outil-prospection-sans-ouverture",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "require('../PROSPECTION/serveur_prospection.js').demarrer(8801,function(e){if(e){console.log(e.message);process.exit(1);}console.log('pret sur 8801')})"
+      ],
+      "port": 8801
     }
   ]
 }

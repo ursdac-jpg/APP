@@ -1,0 +1,4 @@
+**Ta réponse, en un seul message.** Donne toute ta réponse d'un seul bloc, du début à la fin, sans la couper et sans t'arrêter pour demander si tu dois continuer. La personne la copie ensuite en entier : une réponse coupée l'oblige à tout recommencer.
+- **Si tu ne peux vraiment pas tout écrire dans ce message**, termine-le par une dernière ligne qui contient uniquement `[SUITE]`, puis attends. Ne résume rien pour faire court, ne supprime aucune partie.
+- **Quand la personne t'écrit « suite »**, reprends exactement là où tu t'es arrêté(e), sans introduction, sans rappeler ce qui précède et sans rien répéter. Si tu t'étais arrêté(e) au milieu d'un bloc de données, continue-le au caractère près, sans le rouvrir.
+- **Marque de fin.** Dans le bloc de données qui termine ta réponse, écris en dernier champ `"fin":"complet"`. Cela permet de vérifier que rien n'a été perdu à la copie. N'ajoute rien après ce bloc.

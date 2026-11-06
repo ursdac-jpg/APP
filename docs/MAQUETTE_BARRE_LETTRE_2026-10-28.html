@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lettre : la barre d'étapes, avant et après</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:10px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+.barre-etapes-bilan { flex-wrap:wrap; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:8px; padding:8px 10px; margin:6px 0; background:var(--mq-card); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Écrire ma lettre : la barre d'étapes</h1>
+<p class="muted">Les barres ci-dessous sont dessinées avec les vraies couleurs de l'application. Seuls les mots changent. Rien n'est codé.</p>
+
+<div class="mq-carte">
+  <h2>Aujourd'hui <span class="mq-etiquette">« Rédiger » : la personne n'écrit pas à ce moment</span></h2>
+  <div class="mq-ligne">1. Elle dépose son CV et prépare sa lettre (écran « Préparer ») :</div>
+  <div id="a0"></div>
+  <div class="mq-ligne">2. Elle choisit son assistant :</div>
+  <div id="a1"></div>
+  <div class="mq-ligne">3. Elle est sur l'écran <strong>« En attente de votre lettre de motivation »</strong> : elle colle la réponse de l'assistant (le troisième repère est allumé) :</div>
+  <div id="a2"></div>
+  <div class="mq-ligne">4. Sa lettre est là, dans « Vos documents » :</div>
+  <div id="a3"></div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposé : Préparer, Assistant, Réponse, Terminé <span class="mq-etiquette ok">le mot colle à l'écran</span></h2>
+  <div class="mq-ligne">3. Sur l'écran où elle colle la réponse :</div>
+  <div id="b2"></div>
+  <div class="mq-ligne">Les trois autres moments gardent les mêmes mots qu'aujourd'hui (« Préparer », « Assistant », « Terminé »).</div>
+</div>
+
+<div class="mq-carte">
+  <h2>Votre formulation : Préparer, Assistant, Résultat, Terminé</h2>
+  <div class="mq-ligne">3. Sur l'écran où elle colle la réponse :</div>
+  <div id="c2"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que j'ai lu dans le code avant de proposer</h2>
+  <ul>
+    <li><strong>Simple :</strong> la barre se définit en un seul endroit (<code>CO_LETTRE_NAV_ETAPES</code>, <code>data/metiers.js</code>). Changer un mot ne touche aucun écran : la fonction qui dessine les barres lit seulement le mot et l'icône.</li>
+    <li><strong>Un seul texte d'aide à mettre à jour</strong> (« La barre en haut suit les quatre étapes… »). Aucun test ne cite ce mot. Aucune autre page ne s'appuie dessus.</li>
+    <li><strong>Ce que j'ai constaté, et qui change la question :</strong> le troisième repère s'allume sur l'écran où l'on <strong>colle la réponse de l'assistant</strong> (« En attente de votre lettre de motivation »). Le résultat, c'est-à-dire la lettre elle-même, n'apparaît qu'à l'écran d'après, qui allume « Terminé ». Dans le Bilan, l'ATS, le Regard et la Cohérence, « Résultat » s'allume sur l'écran qui <strong>montre</strong> le résultat : ce n'est pas le même moment.</li>
+    <li><strong>« Réponse » est déjà le mot des barres du CV</strong> pour ce même moment (coller ce que l'assistant a répondu). Le prendre pour la lettre rapproche la lettre du CV sans rien inventer.</li>
+    <li><strong>L'entretien a exactement la même structure</strong> (« S'entraîner » s'allume sur « En attente de votre préparation d'entretien », où l'on colle aussi). Je le traiterai après, comme la prochaine barre, avec le même mot que celui que vous choisirez ici.</li>
+    <li><strong>Risque :</strong> aucun. Un mot, un texte d'aide, un commit. Retour en arrière immédiat.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>Votre choix</h2>
+  <div class="mq-opt"><strong>A. « Réponse » (Recommandé).</strong><br>Bénéfice : le mot décrit ce que la personne fait à cet écran (coller la réponse), et c'est celui des barres du CV. Risque : la lettre n'aura pas le même mot que le Bilan, l'ATS, le Regard et la Cohérence, mais leur « Résultat » s'allume à un autre moment, donc ce n'est pas une incohérence.</div>
+  <div class="mq-opt"><strong>B. « Résultat », comme vous l'avez écrit.</strong><br>Bénéfice : le même mot que les quatre analyses. Risque : à l'écran de collage, le repère « Résultat » s'allume alors que la lettre n'est pas encore là, ce qui peut dérouter une personne qui cherche son résultat.</div>
+  <div class="mq-opt"><strong>C. « Résultat » et on déplace le repère</strong> : « Assistant » reste allumé jusqu'au collage, puis « Résultat » s'allume quand la lettre apparaît.<br>Bénéfice : même logique que les analyses. Risque : « Terminé » ne s'allumerait plus jamais, car la lettre apparaît sur la dernière page ; il faudrait retirer ce repère (trois repères) ou ajouter un écran de fin. Plus de travail et un changement de parcours, à ne pas faire à chaud.</div>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> A, « Préparer, Assistant, Réponse, Terminé ». Pour valider, un mot suffit : « lettre : Réponse ». Si vous préférez B ou C, dites-le avant que je code.
+</div>
+</div>
+<script>
+(function () {
+  function barre(etapes, idx) {
+    var h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+    etapes.forEach(function (e, i) {
+      var fait = i < idx, courant = i === idx, avenir = i > idx;
+      if (i > 0) { h += '<span class="chevron-etape-action" ' + (i > idx ? 'style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+      h += '<span class="pastille-etape-action' + (fait ? ' pastille-etape-action-validee' : (courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '')) + '" style="cursor:default;' + (avenir ? 'opacity:0.4;' : '') + '">' +
+        '<span class="pastille-etape-action-icone">' + e[0] + '</span><span class="pastille-etape-action-label">' + e[1] + '</span></span>';
+    });
+    return h + '</div>';
+  }
+  var avant = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#128395;&#65039;', 'Rédiger'], ['&#9989;', 'Terminé']];
+  var reponse = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#128203;', 'Réponse'], ['&#9989;', 'Terminé']];
+  var resultat = [['&#128221;', 'Préparer'], ['&#128172;', 'Assistant'], ['&#128203;', 'Résultat'], ['&#9989;', 'Terminé']];
+  [0, 1, 2, 3].forEach(function (i) { document.getElementById('a' + i).innerHTML = barre(avant, i); });
+  document.getElementById('b2').innerHTML = barre(reponse, 2);
+  document.getElementById('c2').innerHTML = barre(resultat, 2);
+})();
+</script>
+</body>
+</html>

@@ -127,30 +127,6 @@
   border-radius: 8px;
 }
 
-/* TACHE (refonte 2026-09-09) : encart astuce dictee resserre (styles sortis
-   de l'inline). Meme fond/filet accent qu'avant. « Windows + H » en petite
-   touche clavier. */
-.carnet-astuce {
-  margin: 0 0 1rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--accent-bg-subtle);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--text-strong);
-}
-.carnet-kbd {
-  display: inline-block;
-  white-space: nowrap;
-  padding: 0 0.35rem;
-  border: 1px solid var(--border-strong);
-  border-radius: 5px;
-  background: var(--bg-card);
-  font-weight: 600;
-  font-size: 0.86rem;
-}
-
 /* TACHE (refonte visuelle 2026-09-09) : filet gauche a la couleur du site
    + fond « papier » tres leger (accent a 5 %). Le module n'a pas de teinte
    propre : il suit --accent, comme le reste de l'app. */
@@ -365,7 +341,7 @@
    (reperes.css), jamais hidden par défaut (voir index.html). */
 #btnCarnet {
   position: fixed;
-  top: 90px;
+  top: 97px;   /* sous le bouton « Introduction » (19 à 63 px), avec un écart (34 px) plus grand que celui entre les trois boutons (12 px), décision Denis 02/11/2026 */
   right: 20px;
   z-index: 2700;
   width: 52px;
@@ -402,7 +378,7 @@
      haut, css/style.css) -- jamais recalculee en JS desormais (voir
      carnetApresNavigation()), donc jamais devinee au hasard : jamais la
      meme valeur qu'un autre bouton persistant sur cette meme colonne. */
-  #btnCarnet { top: calc(var(--hauteur-progression, 5rem) + 46px); right: 8px; width: 42px; height: 42px; font-size: 1.1rem; }
+  #btnCarnet { top: calc(var(--hauteur-progression, 5rem) + 58px); right: 8px; width: 42px; height: 42px; font-size: 1.1rem; }
 }
 
 /* Panneau compact ouvert depuis #btnCarnet -- reste sur la page

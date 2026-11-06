@@ -51,6 +51,20 @@ function _lisibiliteCouleursDegrade(img) {
   return l.length >= 2 ? l : [];
 }
 
+// La couleur d'un degrade vertical simple (deux couleurs unies, de haut en bas ou de bas en haut) a la fraction `t` de sa hauteur (0 = haut, 1 = bas) : « rgb(r, g, b) », ou '' si le degrade n'est pas de ce type
+// (angle autre, plus de deux couleurs, arrets en pourcentage). Sans cela, un texte de la couleur du haut du degrade etait juge lisible parce qu'il se lit sur le bas, alors qu'au milieu le fond lui ressemble (29/10/2026).
+function _lisibiliteDegradeA(img, t) {
+  var m = String(img || '').trim().match(/^linear-gradient\(\s*(?:(-?[\d.]+)deg\s*,\s*)?(rgba?\([^)]*\))\s*,\s*(rgba?\([^)]*\))\s*\)$/i);
+  if (!m) { return ''; }
+  var angle = (m[1] === undefined) ? 180 : parseFloat(m[1]);
+  if (angle !== 180 && angle !== 0) { return ''; }
+  var lire = function (c) { var q = c.match(/[\d.]+/g); return (q && q.length >= 3 && (q.length < 4 || parseFloat(q[3]) === 1)) ? [parseFloat(q[0]), parseFloat(q[1]), parseFloat(q[2])] : null; };
+  var c1 = lire(angle === 180 ? m[2] : m[3]), c2 = lire(angle === 180 ? m[3] : m[2]);
+  if (!c1 || !c2) { return ''; }
+  var u = Math.max(0, Math.min(1, t)), mel = function (i) { return Math.round(c1[i] + (c2[i] - c1[i]) * u); };
+  return 'rgb(' + mel(0) + ', ' + mel(1) + ', ' + mel(2) + ')';
+}
+
 // ------------------------------------------------------------------------------------------------------------------------------
 // Partie navigateur : aucune ligne n'est testee sous Node (js/app.js et les modules d'affichage ne sont pas charges par les tests).
 // ------------------------------------------------------------------------------------------------------------------------------
@@ -79,7 +93,7 @@ function _lisibiliteGarderCorps(pageEl) {
     if (isFinite(larg) && isFinite(haut) && larg > 10 && haut > 10 && ((cl && cl[3] > 0) || degr.length)) {
       var gauche = parseFloat(pv.left), droite = parseFloat(pv.right);
       var x0 = isFinite(gauche) ? gauche : (isFinite(droite) ? pageEl.offsetWidth - droite - larg : 0), y0 = isFinite(parseFloat(pv.top)) ? parseFloat(pv.top) : 0;
-      colonne = { x: x0, y: y0, w: larg, h: haut, clip: pv.clipPath, couleurs: degr.length ? degr : [pv.backgroundColor] };
+      colonne = { x: x0, y: y0, w: larg, h: haut, clip: pv.clipPath, couleurs: degr.length ? degr : [pv.backgroundColor], img: degr.length ? pv.backgroundImage : '' };
     } else if (pv.backgroundImage && pv.backgroundImage !== 'none') { return; }   // fond de colonne en image : non compris, on ne touche a rien
   }
   // PLACE : une ligne datee (intitule a gauche, date a droite) qui commence dans la colonne coloree de gauche mais dont la date sort du fond colore (texte blanc qui continue sur le papier) :
@@ -107,6 +121,12 @@ function _lisibiliteGarderCorps(pageEl) {
     if (!enregistre) { enregistre = { p: p, items: [] }; parElement.push(enregistre); }
     enregistre.items.push(q);
   }
+  var decisions = [];
+  // les couleurs du fond d'une couche a la hauteur `y` de la page : la couleur exacte d'un degrade vertical simple, sinon toutes ses couleurs (cas prudent d'avant)
+  function aLaHauteur(couche, y) {
+    var u = couche.img && couche.h > 0 ? _lisibiliteDegradeA(couche.img, (y - couche.y) / couche.h) : '';
+    return u ? [u] : couche.couleurs;
+  }
   parElement.forEach(function (o) {
     var p = o.p, st = vue.getComputedStyle(p);
     var cTexte = cssRgba(st.webkitTextFillColor) || cssRgba(st.color); if (!cTexte || cTexte[3] < 0.5) { return; }
@@ -128,7 +148,7 @@ function _lisibiliteGarderCorps(pageEl) {
         var l2 = parseFloat(s2.left), t2 = parseFloat(s2.top);
         if (ps === '::before' && s2.position === 'absolute' && isFinite(w2) && isFinite(h2) && isFinite(l2) && isFinite(t2) && (s2.backgroundImage === 'none' || degr2.length) && (!s2.mixBlendMode || s2.mixBlendMode === 'normal') && (!s2.filter || s2.filter === 'none')) {
           var er = e.getBoundingClientRect();
-          couches.push({ e: e, x: (er.left - pr.left) / k + l2, y: (er.top - pr.top) / k + t2, w: w2, h: h2, clip: s2.clipPath, couleurs: degr2.length ? degr2 : [s2.backgroundColor] });
+          couches.push({ e: e, x: (er.left - pr.left) / k + l2, y: (er.top - pr.top) / k + t2, w: w2, h: h2, clip: s2.clipPath, couleurs: degr2.length ? degr2 : [s2.backgroundColor], img: degr2.length ? s2.backgroundImage : '' });
           return;
         }
         inconnu = true;
@@ -137,7 +157,7 @@ function _lisibiliteGarderCorps(pageEl) {
     if (inconnu) { return; }
     // Texte de l'en-tete a deux tons : la partie qui sort de la forme est deja reprise par la copie `.tete-hors` (couleur du bandeau) ; seuls les points DANS une couche coloree comptent.
     var teteP = p.closest('.tete'), deuxTons = !!(teteP && !teteP.classList.contains('tete-vide') && String(vue.getComputedStyle(teteP).getPropertyValue('--hors-actif')).trim() === '1');
-    var fondsTotal = [], fondsCouleur = [];
+    var fondsTotal = [], fondsCouleur = [], fondsForme = [];
     o.items.forEach(function (q) {
       // une grille de points sur le texte (5 en largeur, 3 en hauteur) : un texte a cheval sur le bord d'une forme est vu des deux cotes
       var gx = [], gy = [], i2, j2;
@@ -145,29 +165,63 @@ function _lisibiliteGarderCorps(pageEl) {
       for (j2 = 0; j2 < 3; j2++) { gy.push((q.top + q.height * (0.25 + 0.25 * j2) - pr.top) / k); }
       var pointsXY = []; gy.forEach(function (yy) { gx.forEach(function (xx) { pointsXY.push([xx, yy]); }); });
       pointsXY.forEach(function (pt) {
-        var x = pt[0], y = pt[1];
+        var x = pt[0], y = pt[1], dansBandeau = false;
         var fonds = [base];
         if (colonne && _lisibiliteDansForme(colonne.clip, colonne.w, colonne.h, x - colonne.x, y - colonne.y)) {
-          fonds = colonne.couleurs.map(function (c) { return composer(base, c); });
+          fonds = aLaHauteur(colonne, y).map(function (c) { return composer(base, c); });
         }
         chaine.forEach(function (e) {
           var se = vue.getComputedStyle(e), degr = _lisibiliteCouleursDegrade(se.backgroundImage);
           if (degr.length) { fonds = degr.map(function (c) { return composer(fonds[0], c); }); }
           else { fonds = fonds.map(function (f) { return composer(f, se.backgroundColor); }); }
           couches.forEach(function (cc) {
-            if (cc.e === e && _lisibiliteDansForme(cc.clip, cc.w, cc.h, x - cc.x, y - cc.y)) { var dessous = fonds[0]; fonds = cc.couleurs.map(function (c) { return composer(dessous, c); }); }
+            if (cc.e === e && _lisibiliteDansForme(cc.clip, cc.w, cc.h, x - cc.x, y - cc.y)) { var dessous = fonds[0]; fonds = aLaHauteur(cc, y).map(function (c) { return composer(dessous, c); }); dansBandeau = true; }
           });
         });
         fondsTotal = fondsTotal.concat(fonds);
         if (fonds.length !== 1 || fonds[0] !== base) { fondsCouleur = fondsCouleur.concat(fonds); }
+        if (dansBandeau) { fondsForme = fondsForme.concat(fonds); }
       });
     });
-    var c = _lisibiliteDecision(texteHex, deuxTons ? fondsCouleur : fondsTotal, _LISIBILITE_SEUIL);
-    if (!c) { return; }
-    p.style.setProperty('color', c, 'important'); p.style.setProperty('-webkit-text-fill-color', c, 'important'); p.setAttribute('data-lisib', '1');
+    // Texte a deux tons : seule la partie DANS la forme du bandeau est jugee ici (la colonne coloree de la page, par exemple le beige de « Colonne claire », ne compte pas : la partie qui sort du bandeau
+    // est reprise par la copie `.tete-hors`). Sans cela, une ligne a cheval sur le bord du bandeau restait sombre dans la forme foncee (29/10/2026).
+    var listeFonds = deuxTons ? (fondsForme.length ? fondsForme : fondsCouleur) : fondsTotal;
+    var c = _lisibiliteDecision(texteHex, listeFonds, _LISIBILITE_SEUIL);
+    // la couleur du texte voisin : celle du parent le plus proche qui se lit partout. Un nom d'entreprise en couleur d'accent sur la colonne du meme accent prend le blanc du reste de la colonne, pas un noir isole (remarque de Denis, 29/10/2026).
+    if (c && !deuxTons) {
+      var contrasteF = _lisibFn('_compoContraste');
+      for (var anc = p.parentElement; contrasteF && anc; anc = anc.parentElement) {
+        var cAnc = hexDe(vue.getComputedStyle(anc).color);
+        if (cAnc && listeFonds.every(function (f) { return contrasteF(cAnc, f) >= _LISIBILITE_SEUIL; })) { c = cAnc; break; }
+        if (anc === pageEl) { break; }
+      }
+    }
+    var corrige = !!c; if (!c) { c = texteHex; }   // un texte deja lisible reste dans son groupe : le groupe doit rester d'une seule couleur
+    // le role : la meme chaine de balises et de classes sur quatre niveaux (tous les noms d'entreprise, tous les intitules)
+    var chemin = '', nv = p;
+    for (var lv = 0; lv < 4 && nv; lv++, nv = nv.parentElement) { chemin += nv.tagName + '.' + (typeof nv.className === 'string' ? nv.className : '') + '<'; }
+    decisions.push({ p: p, c: c, corrige: corrige, fonds: listeFonds, groupe: deuxTons ? '' : chemin });
+  });
+  // Meme role, meme couleur : si les decisions d'un meme role different (blanc en haut du degrade, sombre en bas), on cherche une couleur qui se lit sur TOUS leurs fonds, et on la donne a tous. Sinon chacun garde la sienne.
+  var groupes = {};
+  decisions.forEach(function (d) { if (d.groupe) { (groupes[d.groupe] = groupes[d.groupe] || []).push(d); } });
+  Object.keys(groupes).forEach(function (k) {
+    var g = groupes[k], contrasteG = _lisibFn('_compoContraste');
+    if (g.length < 2 || !contrasteG || !g.some(function (x) { return x.corrige; }) || !g.some(function (x) { return x.c !== g[0].c; })) { return; }
+    var tous = []; g.forEach(function (x) { tous = tous.concat(x.fonds); });
+    var pire = function (cand) { return Math.min.apply(null, tous.map(function (f) { return contrasteG(cand, f); })); };
+    // d'abord une couleur deja portee par le groupe ; sinon, entre le sombre et le blanc, celle qui se lit le mieux sur le fond le plus defavorable (compromis pour un degrade tres contraste)
+    var choix = '';
+    for (var q = 0; q < g.length && !choix; q++) { if (pire(g[q].c) >= _LISIBILITE_SEUIL) { choix = g[q].c; } }
+    if (!choix) { var m1 = pire('#1b1b1b'), m2 = pire('#ffffff'), mieux = m1 >= m2 ? '#1b1b1b' : '#ffffff'; if (Math.max(m1, m2) >= _LISIBILITE_SEUIL) { choix = mieux; } }
+    if (choix) { g.forEach(function (x) { if (x.c !== choix) { x.c = choix; x.corrige = true; } }); }
+  });
+  decisions.forEach(function (d) {
+    if (!d.corrige) { return; }
+    d.p.style.setProperty('color', d.c, 'important'); d.p.style.setProperty('-webkit-text-fill-color', d.c, 'important'); d.p.setAttribute('data-lisib', '1');
   });
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { _lisibiliteDecision: _lisibiliteDecision, _lisibiliteDansForme: _lisibiliteDansForme, _lisibiliteCouleursDegrade: _lisibiliteCouleursDegrade };
+  module.exports = { _lisibiliteDecision: _lisibiliteDecision, _lisibiliteDansForme: _lisibiliteDansForme, _lisibiliteCouleursDegrade: _lisibiliteCouleursDegrade, _lisibiliteDegradeA: _lisibiliteDegradeA };
 }

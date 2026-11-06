@@ -1,0 +1,121 @@
+{
+  "annee": 2026,
+  "publie_le": "2026-04-21",
+  "verifie_le": "2026-11-05",
+  "source": {
+    "nom": "France Travail, enquête Besoins en main-d’œuvre 2026",
+    "url": "https://statistiques.francetravail.org/bmo"
+  },
+  "departements": {
+    "24": {
+      "nom": "Dordogne",
+      "metiers": [
+        {
+          "nom": "Viticulteurs, arboriculteurs",
+          "met": 1447,
+          "s": 1383
+        },
+        {
+          "nom": "Agriculteurs",
+          "met": 1212,
+          "s": 1145
+        },
+        {
+          "nom": "Aides de cuisine et employés polyvalents de la restauration",
+          "met": 1098,
+          "s": 524
+        },
+        {
+          "nom": "Serveurs de cafés restaurants",
+          "met": 965,
+          "s": 842
+        },
+        {
+          "nom": "Employés de l'hôtellerie",
+          "met": 894,
+          "s": 797
+        },
+        {
+          "nom": "Professionnels de l'animation socioculturelle",
+          "met": 561,
+          "s": 428
+        },
+        {
+          "nom": "Cuisiniers",
+          "met": 528,
+          "s": 356
+        },
+        {
+          "nom": "Aides à domicile et auxiliaires de vie",
+          "met": 522,
+          "s": 64
+        },
+        {
+          "nom": "Aides-soignants",
+          "met": 459,
+          "s": 64
+        },
+        {
+          "nom": "Agents d'entretien de locaux",
+          "met": 458,
+          "s": 78
+        }
+      ]
+    },
+    "87": {
+      "nom": "Haute-Vienne",
+      "metiers": [
+        {
+          "nom": "Agriculteurs",
+          "met": 692,
+          "s": 610
+        },
+        {
+          "nom": "Aides de cuisine et employés polyvalents de la restauration",
+          "met": 500,
+          "s": 137
+        },
+        {
+          "nom": "Aides-soignants",
+          "met": 407,
+          "s": 84
+        },
+        {
+          "nom": "Serveurs de cafés restaurants",
+          "met": 332,
+          "s": 226
+        },
+        {
+          "nom": "Cuisiniers",
+          "met": 281,
+          "s": 104
+        },
+        {
+          "nom": "Aides à domicile et auxiliaires de vie",
+          "met": 275,
+          "s": 90
+        },
+        {
+          "nom": "Professionnels de l'animation socioculturelle",
+          "met": 272,
+          "s": 184
+        },
+        {
+          "nom": "Employés de libre service",
+          "met": 257,
+          "s": 105
+        },
+        {
+          "nom": "Infirmiers et sages-femmes",
+          "met": 256,
+          "s": 22
+        },
+        {
+          "nom": "Agents de service hospitaliers",
+          "met": 234,
+          "s": 61
+        }
+      ]
+    }
+  }
+}

@@ -360,7 +360,7 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
           ? '<button type="button" id="apercu-docx-btn-ajuster" class="btn btn-outline-secondary btn-sm" style="margin-right:0.5rem;" aria-pressed="false">Voir toute la feuille</button>'
           : '') +
         // Lettre et fiche d'entretien : pas de « Télécharger le Word » ici (Denis, 24/10/2026 puis 25/10/2026) ; le format (Word, PDF, texte) se choisit apres la validation, a l'etape « Exporter ».
-        ((type === 'lettre' || type === 'entretien') ? '' : '<button type="button" id="apercu-docx-btn-telecharger" class="btn btn-primary btn-sm" style="margin-right:0.5rem;">Télécharger le Word</button>') +
+        ((type === 'lettre' || type === 'entretien') ? '' : '<button type="button" id="apercu-docx-btn-telecharger" class="btn btn-primary btn-sm" style="margin-right:0.5rem;">Télécharger en Word</button>') +
         // TACHE (retour utilisateur, 2026-08-22 -- "je valide mon CV" vs
         // "fermer", 2 sorties a intention differente) : "Je valide" marque
         // le document comme version retenue (marquerDocumentEnregistre(),

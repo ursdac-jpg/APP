@@ -7,7 +7,7 @@ tags: [rupture conventionnelle, CDI, indemnité, homologation, administration du
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-05
+verifie_le: 2026-11-05
 lexique:
   - terme: "rupture conventionnelle"
     definition: "Fin d'un CDI décidée d'un commun accord entre l'employeur et le salarié. Ce n'est ni un licenciement, ni une démission."
@@ -28,6 +28,9 @@ ce_qui_change_souvent:
   - "Les délais de rétractation et d'homologation"
 revisions:
   - "2026-09 : à compter du 1er septembre 2026, durée maximale d'indemnisation chômage raccourcie pour les ruptures conventionnelles individuelles (15 mois avant 55 ans au lieu de 18, 20,5 mois à partir de 55 ans) ; confirmé sur unedic.org et code.travail.gouv.fr le 2026-09-05 ; la rupture conventionnelle collective n'est pas concernée"
+  - "2026-11-04 : la page de l'Unédic confirme le droit à l'allocation, les durées maximales de 15 mois et de 20,5 mois pour les fins de contrat à partir du 1er septembre 2026 et le fait que seule la date de fin de contrat compte ; la comparaison avec dix-huit mois n'y figure pas (retirée) ; les délais de rétractation et d'homologation n'étaient pas sur cette page (à confirmer sur Service Public)"
+  - "2026-11-05 : la page Service Public F19030 (vérifiée le 26 juin 2026) confirme quinze jours calendaires de rétractation, quinze jours ouvrables d'homologation avec homologation en l'absence de réponse, et une indemnité au moins égale à l'indemnité légale de licenciement"
+phrase_generale: "La rupture conventionnelle met fin à un CDI d'un commun accord : elle n'est ni un licenciement ni une démission, et personne ne peut l'imposer. Les délais, les indemnités et les démarches changent régulièrement : avant de signer, confirmez-les auprès d'un conseiller ou sur les sources officielles indiquées plus bas."
 collecte: emploi.collecte.md
 ---
 
@@ -39,6 +42,6 @@ Après la signature, chacun a quinze jours calendaires pour changer d'avis. Pass
 
 L'indemnité versée ne peut pas être inférieure à l'indemnité légale de licenciement à laquelle vous auriez eu droit.
 
-Après une rupture conventionnelle, vous avez droit à l'allocation chômage. Attention : pour les ruptures conventionnelles individuelles dont le contrat se termine à partir du 1er septembre 2026, la durée maximale d'indemnisation est raccourcie : quinze mois avant cinquante-cinq ans, au lieu de dix-huit, et vingt mois et demi à partir de cinquante-cinq ans. C'est la date de fin de contrat inscrite dans la convention qui compte. Ces règles changent régulièrement : vérifiez-les sur le site officiel.
+Après une rupture conventionnelle, vous avez droit à l'allocation chômage. Attention : pour les ruptures conventionnelles individuelles dont le contrat se termine à partir du 1er septembre 2026, la durée maximale d'indemnisation est raccourcie : quinze mois avant cinquante-cinq ans et vingt mois et demi à partir de cinquante-cinq ans, avec des prolongations possibles à partir de cinquante-cinq ans. C'est la date de fin de contrat inscrite dans la convention qui compte. Ces règles changent régulièrement : vérifiez-les sur le site officiel.
 
 Avant de signer, prenez le temps de comparer avec les autres options (démission-reconversion, projet de transition professionnelle). Un conseil en évolution professionnelle peut vous y aider.

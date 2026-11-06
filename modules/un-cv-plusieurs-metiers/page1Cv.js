@@ -1,9 +1,8 @@
 /* ============================================================
    Module « Un CV, plusieurs métiers » : PAGE 1 « Mon CV ».
-   Déposer le CV avec la fenêtre commune de l'application (ouvrirAssistantDepotCV, la même que « Reformuler mon CV » : dépôt, lecture, relecture et masquage
-   s'ouvrent d'eux-mêmes, jamais recopiés), puis premier passage avec l'assistant : les métiers proches (prompt prompts/ucpm-metiers.md, version 5, testée).
-   Règle de Denis (2026-10-10, précisée le jour même) : une fenêtre pour déposer et vérifier le CV, comme dans les autres parcours, qui s'ouvre automatiquement ;
-   le reste se fait dans la page. Si la personne change de CV sans valider le nouveau, le dernier CV validé reste en place (l'état n'est changé qu'à la validation).
+   Déposer le CV EN PAGE avec la brique commune htmlDepotCVEnPage (data/metiers.js : dépôt, lecture, relecture et masquage dans le point 1, plus aucune fenêtre, consigne 28),
+   puis premier passage avec l'assistant : les métiers proches (prompt prompts/ucpm-metiers.md, version 5, testée).
+   Règle de Denis (2026-10-10), remplacée le 2026-10-30 par la consigne 28 : plus aucune fenêtre, tout se fait dans la page. Si la personne change de CV sans valider le nouveau, le dernier CV validé reste en place (l'état n'est changé qu'à la validation).
    La page se termine quand la réponse est lue : on passe à la page 2 (la synthèse et le choix des métiers).
    Composants communs réutilisés : voir passageAssistant.js.
    ============================================================ */
@@ -51,6 +50,9 @@ function _ucpmConfigPassageMetiers(etat) {
         return ucpmConstruirePromptMetiers(modele, { cv: etat.texteCV });
       });
     },
+    module: { libelleSuite: 'Voir les métiers', quoi: 'L’assistant vient de lire votre CV et de proposer des intitulés et des métiers proches.',
+      pourquoi: 'Un même CV peut mener à plusieurs métiers : vous voyez ceux qui vous ressemblent.', verif: 'regardez que les métiers proposés vous ressemblent. Vous pourrez en retirer ou en ajouter à l’étape suivante.' },
+    verifier: function (texte) { return !!ucpmLireReponseMetiers(texte).succes; },
     importer: function (texte) {
       var r = ucpmLireReponseMetiers(texte);
       if (r.succes) {
@@ -72,12 +74,20 @@ function echapperTexteUcpm(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Ouvre la fenêtre commune de dépôt (dépôt + relecture + masquage automatiques) et ne garde le texte qu'une fois relu et validé : tant que la personne n'a pas validé,
+// Dépôt du CV EN PAGE (brique htmlDepotCVEnPage) : le texte n'est gardé qu'une fois relu et enregistré ; tant que la personne n'a pas enregistré,
 // le CV précédent reste en place avec tout ce qui en découle.
-function _ucpmOuvrirDepotCV(etat) {
-  if (typeof ouvrirAssistantDepotCV !== 'function') { return; }
-  ouvrirAssistantDepotCV('maj', {
+function _ucpmDepotCfg(etat) {
+  return {
+    cle: 'ucpm',
     titreDocument: 'CV',
+    avecIdentite: true,
+    fait: !!(etat.cvRelu && String(etat.texteCV || '').trim()),
+    nomFait: etat.cvNom || '',
+    texteFait: etat.texteCV || '',
+    intro: etat.reponseMetiers
+      ? 'Si vous enregistrez un autre CV, les métiers proposés pour votre CV actuel seront effacés : vous les redemanderez pour le nouveau CV. Tant que vous n’enregistrez pas, votre CV actuel reste en place.'
+      : '',
+    rerender: ucpmRendrePage,
     onDocumentPrepare: function (res) {
       var valeur = res && (res.valeur != null ? res.valeur : res.texte);
       if (typeof valeur === 'string' && valeur.trim()) {
@@ -96,23 +106,14 @@ function _ucpmOuvrirDepotCV(etat) {
       }
       ucpmRendrePage();
     }
-  });
+  };
 }
 
 // ---------------- Vue 'depot' : les deux cartes ----------------
 
 function _ucpmHtmlP1Depot(etat) {
   var pret = !!(etat.cvRelu && String(etat.texteCV || '').trim());
-  var carte1;
-  if (pret) {
-    carte1 = '<p class="mb-2"><strong>&#9989; Votre CV est prêt</strong> (relu et masqué' + (etat.cvNom ? ' : ' + echapperAttribut(etat.cvNom) : '') + ').</p>' +
-      '<details class="mt-2"><summary style="cursor:pointer;">Voir le texte qui sera envoyé à l’assistant</summary>' +
-      '<textarea class="form-control mt-2" rows="8" readonly aria-label="Texte du CV relu et masqué">' + echapperTexteUcpm(etat.texteCV) + '</textarea></details>' +
-      '<div class="mt-2"><button type="button" class="btn btn-outline-secondary" id="btnUcpmDeposerAutre">Déposer un autre CV</button></div>';
-  } else {
-    carte1 = '<p>Déposez votre CV (PDF, Word, texte ou photo). Une fenêtre s’ouvre pour le déposer, puis pour le relire et masquer votre nom, votre adresse et vos coordonnées : rien de personnel n’est envoyé à l’assistant en ligne.</p>' +
-      '<button type="button" class="btn btn-primary" id="btnUcpmDeposer">Déposer mon CV</button>';
-  }
+  var carte1 = (typeof htmlDepotCVEnPage === 'function') ? htmlDepotCVEnPage(_ucpmDepotCfg(etat)) : '';
   var recu = !!etat.reponseMetiers;
   var carte2 =
     '<p>L’assistant lit votre CV masqué. Il vous propose d’autres noms pour votre métier, et d’autres métiers qui utilisent les mêmes compétences. Vous choisirez ensuite : il ne décide rien à votre place.</p>' +
@@ -133,17 +134,7 @@ ucpmEnregistrerPage(1, {
   },
   cabler: function (etat) {
     if (etat.p1Vue === 'passage') { ucpmPassageCabler(etat, 'metiers', _ucpmConfigPassageMetiers(etat)); return; }
-    var dep = document.getElementById('btnUcpmDeposer');
-    if (dep) { dep.addEventListener('click', function () { _ucpmOuvrirDepotCV(etat); }); }
-    var autre = document.getElementById('btnUcpmDeposerAutre');
-    if (autre) {
-      autre.addEventListener('click', function () {
-        var ouvrir = function () { _ucpmOuvrirDepotCV(etat); };
-        if (etat.reponseMetiers && typeof confirmerAction === 'function') {
-          confirmerAction('Déposer un autre CV ?', 'Si vous validez un autre CV, les métiers proposés pour votre CV actuel seront effacés : vous les redemanderez pour le nouveau CV. Tant que vous ne validez pas, votre CV actuel reste en place.', 'Déposer un autre CV', 'btn-primary', ouvrir);
-        } else { ouvrir(); }
-      });
-    }
+    if (typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_ucpmDepotCfg(etat)); }
     var refaire = document.getElementById('btnUcpmRefaireMetiers');
     if (refaire) {
       refaire.addEventListener('click', function () {

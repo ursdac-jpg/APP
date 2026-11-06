@@ -232,4 +232,6 @@ Cette analyse est la toute première lecture de chaque Repère par un regard ext
 - **`titreSuggere`** : un titre court (4 à 6 mots), cohérent avec le contenu réel de ce Repère - jamais les premiers mots tels quels si ceux-ci ne représentent pas le sujet (ex. un Repère qui commence par « Alors j'ai une question... » doit recevoir un titre qui dit QUELLE question, pas ces mots de démarrage).
 - **`interpretationIncertaine`** : `true` uniquement si tu as un doute réel sur le sens de CE Repère précis (texte trop confus, dictée manifestement mal retranscrite, plusieurs sens possibles) - `false` dans tous les autres cas, jamais mis à `true` par prudence excessive ou par défaut.
 
+{{GARDE_FOU_REPONSE}}
+
 Voici la situation, puis les Repères, du plus ancien au plus récent, chacun avec sa catégorie :

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choisissez votre assistant : deux propositions</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1100px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:16px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-ok-bg); color:var(--mq-ok); }
+.mq-cols { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+.mq-tel { width:360px; max-width:100%; border:1px solid var(--mq-border); border-radius:18px; padding:10px; background:var(--bg, #fff); }
+.mq-grand { flex:1 1 560px; min-width:300px; }
+
+/* Carte du conseil (nouveauté de la proposition) */
+.choix-conseil { border:2px solid var(--success); background:var(--success-bg-subtle); border-radius:14px; padding:.9rem 1rem; margin:.6rem 0 1rem; text-align:center; }
+.choix-conseil .titre { font-weight:700; color:var(--success-strong); font-size:1.05rem; margin:0 0 .2rem; }
+.choix-conseil p { margin:0 0 .6rem; font-size:.92rem; }
+.choix-conseil .btn { font-weight:700; }
+.choix-autres-titre { font-weight:700; font-size:.95rem; margin:.4rem 0 .2rem; }
+.mq-note { font-size:.85rem; color:var(--mq-muted); margin:.4rem 0 0; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Choisissez votre assistant : deux propositions</h1>
+<p class="muted">Cet écran est le même dans une quinzaine de modules (Analyser ma candidature, Cohérence, Regard recruteur, analyse de CV, lettre, entretien...). Les pastilles et les couleurs sont celles de l'application. Rien n'est codé : les boutons de cette page ne font rien. Chaque proposition est montrée sur ordinateur et sur téléphone.</p>
+
+<div class="mq-carte">
+  <h2>Ce que je constate aujourd'hui sur cet écran</h2>
+  <ul class="muted">
+    <li><strong>Le choix est enfoui</strong> : le premier bloc est un encadré « Ce que l'assistant saura de votre candidature » avec cinq lignes « non précisé », qui ressemble à une erreur ou à un formulaire à finir. Le choix, lui, arrive après.</li>
+    <li><strong>La légende répète les mots des groupes</strong> (« Vert, sans compte », « Bleu, avec connexion ») et dit « Venez avec la souris », ce qui n'a pas de sens sur téléphone.</li>
+    <li><strong>Rien ne dit lequel prendre</strong> : « Si vous hésitez : ChatGPT » est une petite ligne grise tout en haut.</li>
+    <li><strong>« Ce qui va se passer »</strong> (les quatre temps et le rappel de confidentialité) est tout en bas, après le choix, alors qu'il rassure avant de cliquer.</li>
+    <li><strong>Le « Continuer » grisé</strong> noté dans ta consigne n'existe plus sur cet écran (la barre du bas n'a que « Retour » et « Accueil ») : cliquer sur un assistant mène directement à l'assistant. Je propose de ne pas en remettre.</li>
+  </ul>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposition A : un conseil clair, puis les autres choix <span class="mq-etiquette">recommandée</span></h2>
+  <p class="muted">L'ordre de lecture devient : une phrase qui dit quoi faire, un gros bouton pour la solution la plus simple (ChatGPT, sans compte), les autres assistants en dessous pour qui a déjà un compte, ce qui va se passer, puis ce que l'assistant saura.</p>
+  <div class="mq-cols">
+    <div class="mq-grand"><div class="mq-ecran" id="aGrand"></div></div>
+    <div class="mq-tel"><div class="mq-ecran" id="aTel"></div></div>
+  </div>
+</div>
+
+<div class="mq-carte">
+  <h2>Proposition B : mêmes éléments, seulement remis dans l'ordre</h2>
+  <p class="muted">Pas de carte de conseil : les pastilles actuelles passent en premier, la légende est fondue dans les titres des deux groupes, puis « Ce qui va se passer », puis ce que l'assistant saura. Plus proche de l'écran d'aujourd'hui, moins guidant.</p>
+  <div class="mq-cols">
+    <div class="mq-grand"><div class="mq-ecran" id="bGrand"></div></div>
+    <div class="mq-tel"><div class="mq-ecran" id="bTel"></div></div>
+  </div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que ça change dans le code</h2>
+  <ul class="muted">
+    <li><strong>Une seule fonction</strong> à modifier, <code>htmlChoixAssistantBilanCorps</code> (<code>js/app.js</code>), appelée par 24 écrans : tous changent en même temps, et c'est voulu (une seule source).</li>
+    <li><strong>Simple</strong> : réordonner, deux nouveaux textes, retirer la légende doublon ; aucune pastille ni aucun clic ne change (mêmes attributs <code>data-assistant-...</code>, mêmes gestionnaires).</li>
+    <li><strong>À vérifier</strong> : les essais de parcours qui cherchent les pastilles, le texte « Si vous hésitez », et l'écran sur ordinateur, tablette et téléphone, en mode sombre aussi.</li>
+    <li><strong>Choix du conseil</strong> : « ChatGPT » comme conseil est aujourd'hui la seule solution sans compte confirmée (mesure du 29/09/2026). Si cela change, il suffit de changer une liste, pas l'écran.</li>
+  </ul>
+</div>
+</div>
+
+<script>
+function pastille(nom, sous, vert) {
+  var coul = vert ? 'background:var(--success-bg-subtle);border-color:var(--success);color:var(--success-strong);' : 'background:var(--accent-bg-subtle);border-color:var(--accent);color:var(--accent);';
+  return '<button type="button" class="pastille-selection" style="padding:0.45rem 1rem;margin:0.25rem 0.4rem 0.25rem 0;border-radius:999px;font-size:0.9rem;cursor:pointer;border:2px solid;font-weight:600;display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;' + coul + '">' + nom + '<span class="assist-sous">' + sous + '</span></button>';
+}
+var AUTRES = pastille('Claude', 'connexion') + pastille('Gemini', 'connexion') + pastille('Perplexity', 'connexion') + pastille('Mistral', 'connexion') + pastille('DeepSeek', 'connexion');
+var ETAPES = [['Copie', 'Vos réponses (parcours, compétences, préférences) sont copiées automatiquement, rien à écrire vous-même.'], ['Propositions', 'Une accroche, une reformulation de vos points forts, des mots clés adaptés au poste.'], ['Stratégie', 'Quelles compétences mettre en avant pour ce poste, et lesquelles laisser de côté.'], ['Votre choix', 'Un écran de relecture où vous décochez, modifiez et réordonnez. Rien n’est appliqué avant que vous validiez.']];
+var ETAPES_HTML = '<details class="bloc-depli" open><summary>&#128203; Ce qui va se passer, et vos données</summary><div class="bloc-depli-corps"><ul class="choix-ia-etapes">' + ETAPES.map(function (e, i) { return '<li><span class="rond">' + (i + 1) + '</span><span><span class="titre">' + e[0] + '.</span> ' + e[1] + '</span></li>'; }).join('') + '</ul><div class="choix-ia-rappel-conf"><span>&#128274;</span><span>Rien n’est envoyé avant que vous ayez relu et validé votre CV.</span></div></div></details>';
+var SAURA = '<div class="cv-section recap-contexte-envoi mb-3"><p class="mb-1"><strong>&#128203; Ce que l’assistant saura de votre candidature</strong></p><p class="small mb-1">Votre CV, et ce que vous avez indiqué sur votre situation et le poste visé. Ce qui manque encore est à compléter avec « Retour » : rien n’est obligatoire.</p></div>';
+var TITRE = '<h4>&#128172; Choisissez votre assistant</h4>';
+var DEBUT = '<p class="text-muted small mb-2">Vous cliquez, l’application prépare et copie tout pour vous, puis ouvre l’assistant dans un nouvel onglet. <strong>Cette page reste ouverte</strong> : vous n’avez rien à taper.</p>';
+
+var A = TITRE + DEBUT +
+  '<div class="choix-conseil"><p class="titre">Le plus simple : ChatGPT</p><p>Il s’utilise tout de suite, sans compte à créer ni mot de passe à retenir.</p><button type="button" class="btn btn-success btn-lg">Aller sur ChatGPT &#8594;</button></div>' +
+  '<p class="choix-autres-titre">Vous avez déjà un compte chez un autre assistant ?</p><p class="text-muted small mb-1">Choisissez-le ici. À utiliser seulement si vous avez déjà votre compte.</p><div>' + AUTRES + '</div>' +
+  '<div class="mt-3">' + ETAPES_HTML + '</div><div class="mt-3">' + SAURA + '</div>';
+
+var B = TITRE + DEBUT +
+  '<div class="bilan-choix-ia"><div class="choix-ia-colonne-pastilles">' +
+  '<div class="choix-ia-groupe"><span class="choix-ia-etiq">Vert : sans compte à créer <span class="quoi">: utilisable tout de suite, le plus simple pour commencer</span></span>' + pastille('ChatGPT', 'sans compte', true) + '</div>' +
+  '<div class="choix-ia-groupe"><span class="choix-ia-etiq">Bleu : avec une connexion <span class="quoi">: seulement si vous avez déjà un compte</span></span>' + AUTRES + '</div>' +
+  '</div></div>' + '<div class="mt-3">' + ETAPES_HTML + '</div><div class="mt-3">' + SAURA + '</div>';
+
+function put(id, h) { document.getElementById(id).innerHTML = h; }
+put('aGrand', A); put('aTel', A); put('bGrand', B); put('bTel', B);
+</script>
+</body>
+</html>

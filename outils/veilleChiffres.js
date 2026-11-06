@@ -2,7 +2,7 @@
    veilleChiffres.js  --  lire et réécrire les fichiers de « Comprendre les chiffres » champ par champ (outil de veille, poste de Denis)
    ------------------------------------------------------------
    Deux formes sont prises en charge :
-     - les fiches de TERRITOIRE (departements-region, regions-france, zones-emploi, medecins / dentistes / pharmaciens / specialistes) :
+     - les fiches de TERRITOIRE (departements-region, regions-france, zones-emploi, salaires-insee, niveau-de-vie-insee, medecins / dentistes / pharmaciens / specialistes) :
        un bloc « ## Lieu » par lieu, des champs « clé: valeur », des sources par identifiant, un paragraphe ;
      - le DIGEST trimestriel (<AAAA-MM>.md) : une puce par territoire (phrase, valeur en gras, période, « précédent », « il y a un an », source),
        suivie de lignes « serie: », « serie_annuelle: », « histo: », « repere: ».
@@ -24,7 +24,25 @@ const FORMES_CHAMP = {
   // entreprises-departements.md (repères d'entreprises, 2026-10-19) : des nombres d'annonces du BODACC, jamais une entreprise
   ouvertures: 'nb', ouvertures_an_precedent: 'nb', ventes: 'nb', ventes_an_precedent: 'nb',
   // début et fin de la période comptée : écrites en français (jour/mois/année), comme partout où une date est vue ; l'application les met en toutes lettres
-  periode_du: 'jour', periode_au: 'jour'
+  periode_du: 'jour', periode_au: 'jour',
+  // salaires-insee.md et niveau-de-vie-insee.md (2026-11-06) : une ligne par territoire (101 départements, 18 régions, France), tout en euros ;
+  // les plus hauts, les plus bas et la moyenne sont CALCULÉS par l'application à partir de ces lignes, jamais écrits à la main
+  salaire_net_mensuel: 'eur', salaire_hommes: 'eur', salaire_femmes: 'eur', salaire_cadres: 'eur', salaire_intermediaires: 'eur', salaire_employes: 'eur', salaire_ouvriers: 'eur',
+  salaire_mediane: 'eur', salaire_decile_1: 'eur', salaire_decile_9: 'eur', salaire_industrie: 'eur', salaire_services: 'eur', salaire_construction: 'eur',
+  niveau_vie_decile_1: 'eur', niveau_vie_decile_9: 'eur',
+  // europe-eurostat.md (2026-11-06) : une ligne par pays de l'Union européenne ; un pays sans salaire minimum légal n'a simplement pas cette ligne
+  salaire_minimum_mensuel: 'eur', remuneration_nette_annuelle: 'eur', niveau_des_prix: 'nombre', inflation_annuelle: 'nombre',
+  // smic-dares.md (2026-11-06) : les chiffres nationaux de la Dares sur la revalorisation du Smic (une seule fiche, « France »)
+  beneficiaires_smic_millions: 'nombre', part_beneficiaires_smic: 'pct', part_beneficiaires_smic_precedente: 'pct', part_beneficiaires_smic_temps_partiel: 'pct',
+  part_beneficiaires_smic_temps_complet: 'pct', part_beneficiaires_smic_tpe: 'pct', part_beneficiaires_smic_autres: 'pct', part_femmes_beneficiaires_smic: 'pct',
+  // pouvoir-achat-insee.md (2026-11-06) : l'évolution du pouvoir d'achat des ménages (Insee, comptes de la Nation), une seule fiche « France » ; un nombre peut être négatif
+  pouvoir_achat_2021: 'nombre', pouvoir_achat_2022: 'nombre', pouvoir_achat_2023: 'nombre', pouvoir_achat_2024: 'nombre', pouvoir_achat_2025: 'nombre',
+  pouvoir_achat_contribution_activite_2025: 'nombre', pouvoir_achat_contribution_patrimoine_2025: 'nombre', pouvoir_achat_contribution_prestations_2025: 'nombre',
+  pouvoir_achat_contribution_impots_2025: 'nombre', pouvoir_achat_contribution_prix_2025: 'nombre', pouvoir_achat_contribution_demographie_2025: 'nombre',
+  // europe-economie-eurostat.md (2026-11-06, relevé par scripts/releveEuropeEconomieEurostat.py) : une ligne par pays ; les évolutions peuvent être négatives, le revenu est un nombre entier en SPA
+  croissance_pib: 'nombre', revenu_menages_spa: 'nb', evolution_emploi: 'nombre', taux_emploi: 'pct', evolution_salaire_minimum: 'nombre', evolution_remuneration_nette: 'nombre',
+  taux_creation_entreprises: 'pct', taux_cessation_entreprises: 'pct', evolution_faillites: 'nombre',
+  part_depenses_alimentation: 'pct', part_depenses_logement: 'pct', part_depenses_energie: 'pct'
 };
 const RE_FORME = { pct: /^\d+(,\d+)? ?%$/, eur: /^\d[\d  ]* ?€$/, nb: /^\d[\d  ]*$/, nombre: /^-?\d+(,\d+)?( ?%)?$/, txt: /\S/, jour: /^\d{2}\/\d{2}\/\d{4}$/ };
 const AIDE_FORME = { pct: 'un pourcentage à la française, par exemple « 8,5 % »', eur: 'un montant en euros, par exemple « 23 700 € »', nb: 'un nombre entier', nombre: 'un nombre à la française, par exemple « 8,5 % » ou « 133 »', txt: 'un texte non vide', jour: 'une date jour/mois/année, par exemple « 18/10/2026 »' };
@@ -535,7 +553,7 @@ function modifierAnnuel(texte, demande, contexte) {
 // ============================================================
 // D. FICHES MÉTHODE (en-tête simple : id, type, titre, pour_qui, tags, sans guillemets) + texte
 // ============================================================
-const CLES_METHODE = ['id', 'type', 'titre', 'pour_qui', 'tags'];
+const CLES_METHODE = ['id', 'type', 'titre', 'pour_qui', 'tags', 'verifie_le']; // verifie_le : date de relecture, lue et conservée telle quelle (non modifiable par l'outil)
 function lireMethode(texte) {
   const s = separerEntete(texte);
   if (!s.ok) { return s; }

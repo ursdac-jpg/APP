@@ -1,0 +1,262 @@
+# Message pour le Cloud : seconds niveaux du Lexique (03/11/2026)
+
+À coller tel quel. Le résultat revient en texte ; Claude Code l'insère ensuite dans le Lexique.
+
+---
+
+Le Lexique de l'application contient des mots qui n'ont pas encore de « second niveau » : un court complément (2 à 4 phrases) affiché sous le texte principal. Voici 238 mots à traiter, par lots d'environ 8, dans l'ordre de la liste.
+
+Règles, une par une :
+- Pour chaque mot, ouvre réellement UNE page officielle (service-public.gouv.fr, ministère, Légifrance, organisme public concerné) et lis-la. Rien de mémoire.
+- Le complément ne répète pas le texte principal du mot. Il apporte une précision, un exemple concret ou un cas d'usage vérifiable sur la page. Pour une notion : un exemple ou une mise en situation. Pour un dispositif : une précision et un cas d'usage. Pour une structure : « qui m'envoie où ». Pour un comparatif « X ou Y ? » : deux ou trois scénarios.
+- AUCUN chiffre, aucune date, aucun montant, aucune durée dans le texte (les chiffres vivent ailleurs, dans des blocs séparés). Écris par exemple « un délai court » ou « un plafond de ressources », jamais le nombre.
+- Public : personnes peu à l'aise avec l'informatique, confiance fragile. Ton simple et rassurant, phrases courtes, aucun diagnostic sur la personne.
+- Français impeccable, accents partout, jamais de tiret long ni demi-long, jamais le mot « IA », jamais « facultatif » (écris « à compléter »).
+- Si la page ne s'ouvre pas, ne devine pas : passe au mot suivant et mets-le dans « À OUVRIR PAR MOI ».
+- Si un mot relève de la psychologie ou du développement personnel et qu'aucune page officielle n'existe pour lui (confiance en soi, estime de soi, styles de communication, croyance limitante, méthode DESC, groupe de pairs, etc.), ne l'écris pas : mets-le dans « NON TRAITÉS » avec la raison.
+- Ne contourne aucune protection anti-robot, aucun CAPTCHA.
+
+Format de réponse, une ligne par mot, exactement :
+identifiant | texte du complément (2 à 4 phrases, sans chiffre) | adresse exacte de la page lue | date de la page si elle y figure
+
+Termine par deux sections : « NON TRAITÉS » (mot et raison) et « À OUVRIR PAR MOI » (mot et lien cliquable complet de la page qui n'a pas pu s'ouvrir).
+
+Les mots (identifiant | titre | type) :
+- desert-medical | Désert médical | terme
+- zonage-ars | Zonage ARS (ZIP, ZAC) | terme
+- accompagnement-global | Accompagnement global | terme
+- affirmation-de-soi | Affirmation de soi | terme
+- aide-a-la-mobilite | Aide à la mobilité | terme
+- aide-materielle | Aide matérielle | terme
+- atelier-thematique | Atelier thématique | terme
+- coach | Coach | terme
+- confiance-en-soi | Confiance en soi | terme
+- critique-ou-reproche | Critique ou reproche ? | notion
+- croyance-limitante | Croyance limitante | terme
+- epicerie-sociale | Épicerie sociale et solidaire | terme
+- estime-confiance-ou-affirmation | Estime de soi, confiance en soi ou affirmation de soi ? | notion
+- estime-de-soi | Estime de soi | terme
+- groupe-de-pairs | Groupe de pairs | terme
+- hebergement-ou-logement-accompagne | Hébergement ou logement accompagné ? | notion
+- heures-d-insertion | Heures d'insertion | terme
+- intermediation-locative | Intermédiation locative | terme
+- message-en-je | Message en « je » | terme
+- methode-desc | Méthode DESC | terme
+- non-recours | Non-recours aux droits | terme
+- pair-aidance | Pair-aidance | terme
+- parrainage-vers-l-emploi | Parrainage vers l'emploi | terme
+- personnes-invisibles | Les personnes invisibles | terme
+- referent-unique | Référent unique | terme
+- secours-d-urgence | Secours d'urgence | terme
+- secret-professionnel | Secret professionnel et partage d'informations | terme
+- styles-de-communication | Styles de communication : passif, agressif ou assertif ? | notion
+- violences | Violences (et parcours professionnel) | terme
+- visite-entreprise | Visite d'entreprise | terme
+- prime-de-precarite-ou-indemnite-de-licenciement | Prime de précarité ou indemnité de licenciement ? | notion
+- caces | CACES | terme
+- apprentissage-ou-professionnalisation | Apprentissage ou professionnalisation ? | notion
+- cdd-classique-ou-cdd-d-insertion | CDD classique ou CDD d'insertion ? | notion
+- cdd-tremplin | CDD Tremplin | terme
+- contrat-emploi-penitentiaire | Contrat d'emploi pénitentiaire | terme
+- contrat-saisonnier | Contrat saisonnier | terme
+- pec | Parcours emploi compétences (PEC) | terme
+- accord-de-reciprocite | Accord de réciprocité (permis de conduire) | terme
+- admission-exceptionnelle-au-sejour | Admission exceptionnelle au séjour | terme
+- bonne-foi | Bonne foi | terme
+- declaration-de-ressources | Déclaration de ressources | terme
+- examen-civique | Examen civique | terme
+- illectronisme | Illectronisme | terme
+- naturalisation-par-decret | Naturalisation par décret | terme
+- numero-unique-enregistrement | Numéro unique d'enregistrement | terme
+- pajemploi | Pajemploi | terme
+- personne-de-confiance | Personne de confiance | terme
+- primo-arrivant | Primo-arrivant | terme
+- profession-reglementee | Profession réglementée | terme
+- radiation | Radiation de France Travail | terme
+- recepisse | Récépissé | terme
+- recours-amiable | Recours amiable | terme
+- recours-amiable-ou-contentieux | Recours amiable ou contentieux ? | notion
+- refugie-ou-protection-subsidiaire | Statut de réfugié ou protection subsidiaire ? | notion
+- releve-de-carriere | Relevé de carrière | terme
+- tiers-de-confiance-numerique | Aidant numérique et mandat | terme
+- titre-de-sejour | Titre de séjour | terme
+- amenagement-de-peine | Aménagement de peine | terme
+- atelier-sociolinguistique | Atelier sociolinguistique (ASL) | terme
+- carte-mobilite-inclusion | CMI (carte mobilité inclusion) | terme
+- entretien-information-retraite | Entretien information retraite | terme
+- fonds-d-aide-aux-jeunes | Fonds d'aide aux jeunes (FAJ) | terme
+- fsl | Fonds de solidarité pour le logement (FSL) | terme
+- levee-d-ecrou | Levée d'écrou | terme
+- liberation-sous-contrainte | Libération sous contrainte | terme
+- maprimeadapt | MaPrimeAdapt' | terme
+- maprimerenov | MaPrimeRénov' | terme
+- mesures-imposees | Mesures imposées | terme
+- microcredit-personnel-ou-professionnel | Microcrédit personnel ou professionnel ? | notion
+- microcredit-professionnel | Microcrédit professionnel | terme
+- mobili-jeune | Mobili-Jeune : une aide pour payer son loyer en alternance | terme
+- o2r | O2R (Offre de Repérage et de Remobilisation) | terme
+- pass-iae | Pass IAE | terme
+- pch | PCH (prestation de compensation du handicap) | terme
+- plan-conventionnel-de-redressement | Plan conventionnel de redressement | terme
+- plan-conventionnel-ou-mesures-imposees | Plan conventionnel ou mesures imposées ? | notion
+- pret-d-honneur | Prêt d'honneur | terme
+- prets-action-logement-salaries | Prêts d'Action Logement pour les salariés propriétaires | terme
+- retablissement-personnel | Rétablissement personnel | terme
+- retraite-progressive | Retraite progressive | terme
+- rlh | RLH (reconnaissance de la lourdeur du handicap) | terme
+- service-civique | Service civique | terme
+- suspension-reforme-retraites-2026 | La suspension de la réforme des retraites (2026-2028) | terme
+- suspension-remobilisation | Suspension-remobilisation | terme
+- transport-a-la-demande | Transport à la demande (TAD) | terme
+- treve-hivernale | Trêve hivernale | terme
+- visale | Garantie Visale | terme
+- autorisation-de-travail | Autorisation de travail | terme
+- bulletin-2-ou-bulletin-3 | Bulletin n° 2 ou bulletin n° 3 ? | notion
+- bulletin-n-3 | Bulletin n° 3 du casier judiciaire | terme
+- cumul-emploi-retraite | Cumul emploi-retraite | terme
+- cumul-integral-ou-cumul-plafonne | Cumul intégral ou cumul plafonné ? | notion
+- delais-qui-protegent | Les délais qui protègent (rétractation, réflexion, prévenance) | terme
+- delegue-syndical | Délégué syndical | terme
+- demission-legitime | Démission légitime | terme
+- depart-volontaire-ou-mise-a-la-retraite | Départ volontaire ou mise à la retraite ? | notion
+- discrimination | Discrimination | terme
+- discrimination-ou-difference-de-traitement | Discrimination ou différence de traitement ? | notion
+- entretien-prealable | Entretien préalable | terme
+- homologation-rupture-conventionnelle | Homologation (rupture conventionnelle) | terme
+- indemnite-depart-volontaire-retraite | Indemnité de départ volontaire à la retraite | terme
+- indemnite-legale-de-licenciement | Indemnité légale de licenciement | terme
+- licenciement-procedure-employeur | Licencier : une décision encadrée pour l'employeur | terme
+- mise-a-la-retraite | Mise à la retraite | terme
+- obligation-de-formation | Obligation de formation des 16-18 ans | terme
+- oeth | Obligation d'emploi des travailleurs handicapés (OETH) | terme
+- offre-raisonnable-d-emploi | Offre raisonnable d'emploi | terme
+- portabilite-mutuelle | Portabilité de la mutuelle | terme
+- prescription-delai | Prescription (délai) | terme
+- rehabilitation | Réhabilitation | terme
+- rqth-ou-oeth | RQTH ou OETH ? | notion
+- saisie-sur-salaire | Saisie sur salaire | terme
+- titre-de-sejour-ou-autorisation-de-travail | Titre de séjour ou autorisation de travail ? | notion
+- besoins-en-main-d-oeuvre | Besoins en main-d'œuvre (BMO) | terme
+- chomage-au-sens-du-bit | Chômage au sens du Bureau international du travail | terme
+- chomage-recensement | Chômage au sens du recensement | terme
+- correction-variations-saisonnieres | Correction des variations saisonnières (CVS) | terme
+- demandeur-emploi-categories | Les catégories A, B, C de demandeurs d'emploi | terme
+- demandeur-emploi-longue-duree | Demandeur d'emploi de longue durée | terme
+- economie-presentielle | Économie présentielle | terme
+- emploi-franc | Emploi franc (dispositif arrêté) | terme
+- frr | FRR (zone France Ruralités Revitalisation) | terme
+- inscription-automatique-france-travail-2025 | L'inscription automatique à France Travail depuis 2025 | terme
+- inscrit-a-france-travail-ou-chomeur-bit | Inscrit à France Travail ou chômeur au sens du BIT ? | notion
+- job-dating | Job dating et forums de l'emploi | terme
+- metier-en-tension | Métier en tension | terme
+- metier-en-tension-ou-metier-qui-recrute | Métier en tension ou métier qui recrute ? | notion
+- neet | NEET (ni en emploi, ni en études, ni en formation) | terme
+- obligations-employeur-embauche | Ce que l'employeur doit faire pour embaucher | terme
+- periode-essai-cote-employeur | Période d'essai : pourquoi l'employeur y tient | terme
+- population-active | Population active | terme
+- prouver-une-competence | Comment prouver une compétence ? | notion
+- savoirs-connaissances | Que veut dire "savoirs" (ce que l'on connaît) ? | notion
+- taux-d-emploi | Taux d'emploi | terme
+- zone-d-emploi | Zone d'emploi | terme
+- cape | Contrat d'appui au projet d'entreprise (CAPE) | terme
+- defaillance-entreprise | Défaillance d'entreprise | terme
+- entreprise-individuelle-ou-societe | Entreprise individuelle ou société ? | notion
+- franchise-de-tva | Franchise de TVA | terme
+- garantie-de-pret | Garantie de prêt | terme
+- radiation-d-office-entreprise | Radiation d'office d'une entreprise | terme
+- salarie-ou-travailleur-non-salarie | Salarié ou travailleur non salarié ? | notion
+- siren-ou-siret | SIREN ou SIRET ? | notion
+- travailleur-non-salarie | Travailleur non salarié (TNS) | terme
+- vente-fonds-de-commerce | Vente d'un fonds de commerce | terme
+- versement-liberatoire | Versement libératoire | terme
+- action-de-formation-conventionnee | Action de formation conventionnée (AFC) | terme
+- aif | AIF (aide individuelle à la formation) | terme
+- alphabetisation-ou-fle | Alphabétisation ou français langue étrangère ? | notion
+- aref-ou-rfft | AREF ou RFFT ? | notion
+- bourse-sur-criteres-sociaux | Bourse sur critères sociaux | terme
+- cecrl | Échelle européenne des langues (CECRL) | terme
+- clea | CléA | terme
+- competences-de-base | Compétences de base | terme
+- cpf-plafonds-2026 | Les plafonds du CPF depuis 2026 | terme
+- diplomes-de-francais | Les diplômes et tests de français (DELF, DILF, TCF) | terme
+- francais-a-visee-professionnelle | Français à visée professionnelle | terme
+- illettrisme-ou-illectronisme | Illettrisme ou illectronisme ? | notion
+- oepre | OEPRE (Ouvrir l'école aux parents pour la réussite des enfants) | terme
+- prepa-apprentissage | Prépa-apprentissage | terme
+- projet-transition-professionnelle | Projet de transition professionnelle (PTP) | terme
+- reste-a-charge-formation | Reste à charge (formation) | terme
+- rncp-ou-rs | RNCP ou RS ? | notion
+- rs | RS (répertoire spécifique) | terme
+- credit-conso-nouvelles-regles-2026 | De nouvelles règles pour le crédit à la consommation (2026) | terme
+- permis-a-1-euro-par-jour | Permis à 1 euro par jour | terme
+- permis-points | Permis à points : perte et récupération | terme
+- permis-suspendu-ou-annule | Permis suspendu ou annulé ? | notion
+- plafond-de-ressources | Plafond de ressources | terme
+- quotient-familial | Quotient familial | terme
+- recevabilite | Recevabilité (surendettement) | terme
+- reste-a-vivre | Reste à vivre | terme
+- acheteur-public | Acheteur public | terme
+- allotissement | Allotissement | terme
+- clause-d-execution-ou-critere-d-attribution | Clause d'exécution ou critère d'attribution ? | notion
+- co-traitance | Co-traitance (groupement) | terme
+- marche-public | Marché public | terme
+- marche-reserve | Marché réservé | terme
+- moins-disant-ou-mieux-disant | Moins-disant ou mieux-disant ? | notion
+- sous-traitance | Sous-traitance | terme
+- sous-traitance-ou-co-traitance | Sous-traitance ou co-traitance ? | notion
+- aah-ou-pension-invalidite | AAH ou pension d'invalidité ? | notion
+- aides-au-logement | Les aides au logement (APL, ALS, ALF) | terme
+- are-ou-ass | ARE ou ASS ? | notion
+- ass | ASS | terme
+- complementaire-sante-collective | Complémentaire santé collective | terme
+- css | Complémentaire santé solidaire (CSS) | terme
+- monoparentalite | Monoparentalité et allocation de soutien familial (ASF) | terme
+- prevoyance-complementaire | Prévoyance complémentaire | terme
+- prime-activite | Prime d'activité | terme
+- proche-aidant | Proche aidant : congé et allocation (AJPA) | terme
+- rsa | RSA | terme
+- rsa-ou-prime-activite | RSA ou prime d'activité ? | notion
+- accident-travail-maladie-professionnelle | Accident du travail et maladie professionnelle (AT/MP) | terme
+- visite-d-information-et-de-prevention | Visite d'information et de prévention (VIP) | terme
+- accueil-de-jour | Accueil de jour | terme
+- agefiph | Agefiph et FIPHFP | terme
+- aripa | Aripa (recouvrement des pensions alimentaires) | terme
+- auto-ecole-sociale | Auto-école sociale et solidaire | terme
+- cae | Coopérative d'activité et d'emploi (CAE) | terme
+- ccas | CCAS (centre communal d'action sociale) | terme
+- cesf | Le rôle du CESF | notion
+- cfa | Centre de formation d'apprentis (CFA) | terme
+- commission-de-surendettement | Commission de surendettement | terme
+- conseil-de-prud-hommes | Conseil de prud'hommes | terme
+- creche-avip | Crèche à vocation d'insertion professionnelle (AVIP) | terme
+- defenseur-des-droits | Défenseur des droits | terme
+- ecole-2e-chance | École de la deuxième chance (E2C) | terme
+- ecole-2e-chance-ou-epide | École de la deuxième chance ou EPIDE ? | notion
+- ecole-de-production | École de production | terme
+- entreprise-adaptee | Entreprise adaptée (EA) | terme
+- epide | EPIDE (établissement pour l'insertion dans l'emploi) | terme
+- esat | ESAT (établissement ou service d'aide par le travail) | terme
+- foyer-jeunes-travailleurs | Foyer de jeunes travailleurs (FJT) | terme
+- france-services | France Services | terme
+- france-travail-justice | France Travail justice | terme
+- garage-solidaire | Garage solidaire | terme
+- geiq | GEIQ (groupement d'employeurs pour l'insertion et la qualification) | terme
+- guichet-unique-entreprises | Guichet unique des formalités des entreprises | terme
+- inspection-du-travail | Inspection du travail | terme
+- juge-de-l-application-des-peines | Juge de l'application des peines | terme
+- mam | Maison d'assistants maternels (MAM) | terme
+- milieu-ordinaire-ou-milieu-protege | Milieu ordinaire ou milieu protégé ? | notion
+- milieu-ouvert-ou-milieu-ferme | Milieu ouvert ou milieu fermé ? | notion
+- msa | MSA (Mutualité sociale agricole) | terme
+- ofii | OFII (Office français de l'immigration et de l'intégration) | terme
+- ofpra | OFPRA (Office français de protection des réfugiés et apatrides) | terme
+- opco | OPCO (opérateur de compétences) | terme
+- pension-de-famille | Pension de famille | terme
+- plateforme-mobilite | Plateforme de mobilité | terme
+- point-conseil-budget | Point conseil budget (PCB) | terme
+- point-justice | Point-justice | terme
+- psad | Plateforme de suivi et d'appui aux décrocheurs (PSAD) | terme
+- relais-petite-enfance | Relais petite enfance (RPE) | terme
+- siao-115 | SIAO et 115 | terme
+- spip | SPIP (service pénitentiaire d'insertion et de probation) | terme
+- transitions-pro | Transitions Pro | terme

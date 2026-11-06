@@ -134,13 +134,13 @@ function _ucpmP7HtmlCarte(etat, e, ref) {
     '<div style="display:flex;gap:.8rem;align-items:flex-start;">' +
     '<div data-ucpm-miniature="' + e.id + '" style="width:' + UCPM_LARGEUR_MINIATURE + 'px;height:' + Math.round(UCPM_LARGEUR_MINIATURE * 1123 / 794) + 'px;flex:0 0 ' + UCPM_LARGEUR_MINIATURE + 'px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);overflow:hidden;position:relative;"' +
     ' role="img" aria-label="Aperçu du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
-    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
+    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary" style="display:inline-block;max-width:100%;white-space:normal;text-align:left;">CV de référence</span>' : '') + '</p>' +
     '<p class="small mb-1" style="color:var(--text-muted);">Objectif : ' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) + '</p>' +
     '<p class="small mb-1" data-ucpm-alerte-pages="' + e.id + '" style="color:var(--warning-strong);"' + (alerte ? '' : ' hidden') + '>' + _ucpmEsc(alerte) + '</p>' +
     (longue ? '<p class="small mb-0" style="color:var(--warning-strong);">Sa lettre est longue : elle risque de passer sur deux pages.</p>' : '') + '</div></div>' +
     '<div class="d-flex flex-wrap gap-2 mt-2">' +
-    '<button type="button" class="btn btn-outline-primary btn-sm" data-ucpm-tel="cv" data-ucpm-tel-id="' + e.id + '">Télécharger ce CV</button>' +
-    (a ? '<button type="button" class="btn btn-outline-primary btn-sm" data-ucpm-tel="cv-lettre" data-ucpm-tel-id="' + e.id + '">Télécharger ce CV avec sa lettre</button>' : '') +
+    '<button type="button" class="btn btn-outline-primary btn-sm" data-ucpm-tel="cv" data-ucpm-tel-id="' + e.id + '">Enregistrer ce CV en PDF</button>' +
+    (a ? '<button type="button" class="btn btn-outline-primary btn-sm" data-ucpm-tel="cv-lettre" data-ucpm-tel-id="' + e.id + '">Enregistrer ce CV avec sa lettre en PDF</button>' : '') +
     (_ucpmP8Prep(etat, e.id) ? '<button type="button" class="btn btn-outline-secondary btn-sm" data-ucpm-p8-tel-p7="' + e.id + '">Télécharger la préparation d’entretien</button>' : '') +
     '</div></div>';
 }
@@ -181,13 +181,13 @@ function _ucpmP7Rendre(etat) {
   h += '<div class="cv-section"><h4>&#128196; Document 1 : mes CV</h4>' +
     '<p class="mb-2">Un seul document PDF de ' + nbPages + ' page' + (nbPages > 1 ? 's' : '') + (nbPages > cvs.length ? ' (certains CV passent sur plusieurs pages)' : ', un CV par page') + '.</p>' +
     '<div class="mb-2">' + cvs.map(function (e) { var cv = (etat.cvs && etat.cvs[e.id]) || {}; return '<span class="badge bg-secondary me-1 mb-1">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</span>'; }).join('') + '</div>' +
-    '<button type="button" class="btn btn-primary" data-ucpm-tel="cvs"' + desactive + '>Télécharger mes CV (un seul PDF)</button></div>';
+    '<button type="button" class="btn btn-primary" data-ucpm-tel="cvs"' + desactive + '>Enregistrer mes CV en un seul PDF</button></div>';
 
   h += '<div class="cv-section"><h4>&#9993;&#65039; Document 2 : mes lettres de motivation</h4>' +
     (avec.length
       ? '<p class="mb-2">Un seul document PDF de ' + avec.length + ' page' + (avec.length > 1 ? 's' : '') + ', une lettre par page.</p>' +
         '<div class="mb-2">' + avec.map(function (e) { var cv = (etat.cvs && etat.cvs[e.id]) || {}; return '<span class="badge bg-secondary me-1 mb-1">Lettre : ' + _ucpmEsc(cv.titre || ucpmNomMetier(e, etat.sexe)) + '</span>'; }).join('') + '</div>' +
-        '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" data-ucpm-tel="lettres"' + desactive + '>Télécharger mes lettres (un seul PDF)</button>' +
+        '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" data-ucpm-tel="lettres"' + desactive + '>Enregistrer mes lettres en un seul PDF</button>' +
         '<button type="button" class="btn btn-outline-primary" id="btnUcpmP7Retravail">Retravailler une lettre avec l’assistant</button></div>'
       : '<p class="mb-0">Vous n’avez pas de lettre. Vous pouvez revenir en arrière pour en demander.</p>') + '</div>';
 
@@ -196,6 +196,7 @@ function _ucpmP7Rendre(etat) {
     '<p class="small mt-2 mb-0" style="color:var(--text-muted);">« Ce CV avec sa lettre » donne un seul fichier : le CV, puis sa lettre, prêt à envoyer pour une candidature. <strong>Vous envoyez le CV et la lettre ; la préparation d’entretien est pour vous.</strong> Elle n’est jamais ajoutée à ce fichier.</p></div>';
 
   h += _ucpmP7HtmlPreparations(etat);
+  h += htmlRappelSauvegarde();   // brique commune (consigne 49)
 
   return h + _ucpmP7HtmlOffres(etat, cvs);
 }
@@ -205,9 +206,9 @@ function _ucpmP7HtmlPreparations(etat) {
   var avec = _ucpmP8AvecPrep(etat);
   // Un seul PDF « toutes mes préparations » n'a de sens qu'avec au moins deux préparations ; avec une seule, on la télécharge ou on en fait une autre (F22).
   var boutonsPdf = avec.length > 1
-    ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="toutes">Télécharger toutes mes préparations (un seul PDF)</button>'
+    ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="toutes">Enregistrer toutes mes préparations en un seul PDF</button>'
     : (avec.length === 1
-      ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="' + avec[0].id + '">Télécharger cette préparation</button>' +
+      ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="' + avec[0].id + '">Enregistrer cette préparation en PDF</button>' +
         '<button type="button" class="btn btn-outline-secondary" id="btnUcpmP7AutrePrep">Faire une autre préparation</button>'
       : '');
   return '<div class="cv-section" style="border-left:4px solid var(--accent);"><h4>&#128221; Document 3 : mes préparations d’entretien</h4>' +

@@ -61,7 +61,7 @@ function valeurLisible(champ, mot) {
   if (champ === 'details') {
     const d = mot.details;
     if (!d || d.illisible) { return ''; }
-    return 'vérifié le ' + (d.verifieLe || '(jamais)') + ' ; source : ' + ((d.source && d.source.nom) || '') + ' ; ' + (d.lignes || []).map(function (l) { return l.libelle + ' : ' + l.valeur + (l.peutChanger ? '' : ' (fait passé)'); }).join(' ; ');
+    return 'vérifié le ' + (d.verifieLe || '(jamais)') + ' ; source : ' + ((d.source && d.source.nom) || '') + ' ; ' + (d.lignes || []).map(function (l) { return l.libelle + ' : ' + l.valeur + (l.peutChanger ? '' : ' (fait passé)'); }).join(' ; ') + (d.phraseGenerale ? ' ; phrase générale : ' + d.phraseGenerale : '');
   }
   if (champ === 'registres') { return (mot.registres || []).join(', '); }
   if (champ === 'variantes') { return (mot.variantes || []).join(' ; '); }
@@ -136,11 +136,16 @@ function verifierMot(mot, existants, options) {
     if (np < 2) { av('Le texte tient en ' + np + ' phrase : le Lexique en demande 2 à 4.'); } else if (np > 4) { av('Le texte fait ' + np + ' phrases : le Lexique en demande 2 à 4.'); }
     const ch = extraitChiffre(corps), cats = reperesChiffres.categoriesDe(corps).map(function (k) { return reperesChiffres.CATEGORIES[k].toLowerCase(); });
     if (ch) {
-      // Un mot neuf, ou une fiche qui n'est pas sur la liste de transition, ne peut pas avoir de chiffre dans son texte (scripts/checkLexique.js le refuserait). Une fiche encore sur la liste : simple avertissement.
+      // Un chiffre dans le texte est permis quand la fiche a son bloc « Les chiffres à jour » (decision de Denis du 03/11/2026, consigne 94) : le bloc permet de le retrouver et de le reverifier.
+      // Sans bloc, un mot neuf, ou une fiche qui n'est pas sur la liste de transition, est refuse (scripts/checkLexique.js le refuserait). Une fiche encore sur la liste : simple avertissement.
+      const aBloc = !!(mot.details && !mot.details.illisible && Array.isArray(mot.details.lignes) && mot.details.lignes.length);
       const surLaListe = Array.isArray(opt.transition) ? opt.transition.indexOf(mot.id) !== -1 : false;
       const msg = 'Chiffre ou date repéré dans le texte (' + cats.join(', ') + ' : « ' + ch + ' »). ';
-      if (opt.nouveau || (Array.isArray(opt.transition) && !surLaListe)) { ko(msg + 'Placez-le dans le bloc « Les chiffres à jour » de la fiche, ou reformulez sans chiffre (doctrine du Lexique, principe 1).'); }
-      else { av(msg + 'Cette fiche est sur la liste de transition : ses chiffres seront déplacés dans le bloc « Les chiffres à jour » (doctrine du Lexique, principe 1).'); }
+      const aGenerale = aBloc && typeof mot.details.phraseGenerale === 'string' && mot.details.phraseGenerale.trim();
+      if (aBloc && !aGenerale) { ko(msg + 'Le bloc « Les chiffres à jour » n\'a pas de phrase générale : ajoutez-la (une phrase sans aucun chiffre, qui remplace le texte précis quand la vérification a plus de 6 mois).'); }
+      else if (aBloc) { /* chiffre suivi par le bloc daté, avec sa phrase générale : rien à signaler */ }
+      else if (opt.nouveau || (Array.isArray(opt.transition) && !surLaListe)) { ko(msg + 'Ajoutez le bloc « Les chiffres à jour » de la fiche : il suit ce chiffre, avec sa date de vérification et sa source (doctrine du Lexique, principe 1).'); }
+      else { av(msg + 'Cette fiche est sur la liste de transition : ses chiffres seront repris dans le bloc « Les chiffres à jour » (doctrine du Lexique, principe 1).'); }
     }
   }
   let modifies = [];
@@ -198,6 +203,16 @@ function lireEvolution(texte) {
 // Etats : sans (pas de bloc), stable (aucune ligne ne peut changer), ajour, bientot, perime (message general), jamais (jamais verifie : message general).
 function lireSeuilDetails(texteModule) { const m = /var LEXIQUE_SEUIL_MOIS_DETAILS = (\d+);/.exec(String(texteModule || '')); return m ? parseInt(m[1], 10) : 6; }
 function jourVersTemps(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; }
+// L'etat du suivi d'une entree de second niveau : 'sans' (pas de suivi), 'jamais' (jamais date), 'ajour', 'bientot' (dernier mois avant le seuil), 'perime' (la personne voit la phrase generale).
+function etatSuivi(s, aujourdhui, seuilMois) {
+  if (!s || typeof s !== 'object' || s.illisible || !s.source || !s.source.nom || !s.phraseGenerale) { return 'sans'; }
+  if (!s.verifieLe) { return 'jamais'; }
+  const jours = Math.round((jourVersTemps(aujourdhui) - jourVersTemps(s.verifieLe)) / 86400000);
+  if (isNaN(jours)) { return 'jamais'; }
+  if (jours < 0) { return 'ajour'; }
+  const mois = jours / 30.4375, seuil = seuilMois || 6;
+  return mois < seuil - 1 ? 'ajour' : (mois < seuil ? 'bientot' : 'perime');
+}
 function etatDetails(d, aujourdhui, seuilMois) {
   if (!d || typeof d !== 'object' || d.illisible || !Array.isArray(d.lignes) || !d.lignes.length || !d.source || !d.source.nom) { return 'sans'; }
   if (!d.lignes.some(function (l) { return l && l.peutChanger !== false; })) { return 'stable'; }
@@ -270,6 +285,16 @@ function lireVerificationChiffres(texte, fiches) {
   };
 }
 
-module.exports = { promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, lireSeuilDetails: lireSeuilDetails, etatDetails: etatDetails, idPropose: idPropose, verifierMot: verifierMot, differences: differences, lignesPourInsertion: lignesPourInsertion, titreDeTriPropose: titreDeTriPropose, libellesDepuis: libellesDepuis, citationsDuCadre: citationsDuCadre,
+// Aide à choisir les registres (« qui parle comme ça ? ») : une phrase simple par registre, montrée à côté des cases. Les clés viennent de checkLexique (REGISTRES_CONNUS) ; un test vérifie qu'aucun registre n'est sans aide.
+const AIDE_REGISTRES = {
+  'langage-cip': 'Les mots des conseillers en insertion professionnelle : accompagnement, projet, parcours, diagnostic.',
+  'langage-rh': 'Les mots des ressources humaines et du recrutement : poste, fiche de poste, entretien, intégration.',
+  'langage-juridique': 'Les mots du droit du travail et des contrats : clause, préavis, licenciement, convention collective.',
+  'langage-employeur': 'Les mots que les employeurs utilisent dans leurs annonces et leurs échanges : profil, savoir-être, poste à pourvoir.',
+  'langage-administratif': 'Les mots des démarches et des papiers officiels : dossier, justificatif, attestation, droits.',
+  'langage-france-travail': 'Les mots propres à France Travail : actualisation, allocation, conseiller référent, offre.'
+};
+
+module.exports = { promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, lireSeuilDetails: lireSeuilDetails, etatDetails: etatDetails, etatSuivi: etatSuivi, idPropose: idPropose, verifierMot: verifierMot, differences: differences, lignesPourInsertion: lignesPourInsertion, titreDeTriPropose: titreDeTriPropose, libellesDepuis: libellesDepuis, citationsDuCadre: citationsDuCadre,
   lignesEvolution: lignesEvolution, ajouterEvolution: ajouterEvolution, lireEvolution: lireEvolution, extraitChiffre: extraitChiffre, nbPhrases: nbPhrases, norm: norm,
-  CHEMIN_EVOLUTION: CHEMIN_EVOLUTION, NOMS_CHAMPS: NOMS_CHAMPS, CHAMPS: CHAMPS, REGLES: regles };
+  CHEMIN_EVOLUTION: CHEMIN_EVOLUTION, NOMS_CHAMPS: NOMS_CHAMPS, CHAMPS: CHAMPS, REGLES: regles, AIDE_REGISTRES: AIDE_REGISTRES };

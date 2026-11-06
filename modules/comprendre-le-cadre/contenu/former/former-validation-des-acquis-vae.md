@@ -7,7 +7,7 @@ tags: [VAE, validation des acquis de l'expérience, diplôme, France VAE, jury, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "validation des acquis de l'expérience"
     definition: "Procédure qui permet d'obtenir tout ou partie d'un diplôme, d'un titre ou d'un certificat reconnu grâce à son expérience, sans repasser par la formation."
@@ -26,13 +26,15 @@ ce_qui_change_souvent:
   - "Les modalités d'accompagnement et de financement"
   - "La liste des certifications accessibles par la VAE"
 revisions:
+  - "2026-11-04 : la page Service Public confirme l'absence de durée minimale, le congé de quarante-huit heures par session et la demande trente jours avant ; la mention « réforme de 2023-2024 » n'y figure pas (retirée)"
   - "2023-2024 : suppression de la condition d'un an d'expérience minimale, portail unique France VAE"
+phrase_generale: "La validation des acquis de l'expérience permet d'obtenir un diplôme, un titre ou un certificat grâce à ce que vous avez appris en travaillant, sans repasser toute la formation. Les conditions de durée d'expérience, les étapes et les financements changent régulièrement : renseignez-vous auprès d'un conseiller ou consultez les sources officielles indiquées plus bas."
 collecte: former.collecte.md
 ---
 
 La validation des acquis de l'expérience permet d'obtenir un diplôme, un titre ou un certificat reconnu grâce à ce que vous avez appris en travaillant, sans repasser toute la formation.
 
-Elle est ouverte à tout le monde, quel que soit votre statut, votre âge ou votre niveau d'études. Depuis la réforme de 2023-2024, il n'y a plus de durée d'expérience minimale : il faut seulement que votre expérience ait un lien direct avec la certification visée.
+Elle est ouverte à tout le monde, quel que soit votre statut, votre âge ou votre niveau d'études. Il n'y a plus de durée d'expérience minimale : il faut seulement que votre expérience ait un lien direct avec la certification visée.
 
 La démarche se fait sur le portail France VAE, en plusieurs étapes : vous déposez votre candidature, vous pouvez être accompagné, on vérifie que votre dossier est recevable, vous écrivez un dossier qui décrit votre expérience, puis vous passez devant un jury.
 

@@ -17,7 +17,7 @@ ministère du Travail, ministère de l'Éducation nationale, Agence du service c
    - obligation de formation 16-18 : loi de 2019, contrôle confié aux Missions locales ;
    - prépa-apprentissage : 16-29 ans, financée par le plan d'investissement dans les compétences.
 
-## Les 7 fiches
+## Les 8 fiches
 
 | id | titre |
 |---|---|
@@ -26,8 +26,9 @@ ministère du Travail, ministère de l'Éducation nationale, Agence du service c
 | `jeunes-service-civique` | Le service civique : s'engager sur une mission d'intérêt général |
 | `jeunes-obligation-de-formation-16-18` | L'obligation de formation des 16-18 ans : un droit à être accompagné |
 | `jeunes-prepa-apprentissage-ecoles-de-production` | La prépa-apprentissage et les écoles de production |
-| `jeunes-aides-financieres` | Les aides financières quand on a moins de 26 ans |
+| `jeunes-aides-financieres` | Les aides financières quand on est jeune |
 | `jeunes-contrat-apprentissage` | Le contrat d'apprentissage : apprendre un métier en étant payé (ajoutée le 2026-09-06) |
+| `jeunes-apprentissage-sans-employeur` | Inscrit en apprentissage mais sans employeur : qui peut vous aider (ajoutée le 2026-11-03) |
 
 ## Recoupements
 

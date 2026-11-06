@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Un CV, plusieurs métiers : ajouter sa rue sur les lettres</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:10px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+ul { margin:4px 0 8px 1.1rem; padding:0; } li { margin-bottom:4px; }
+.mq-reponse { border-left:4px solid var(--mq-accent); background:var(--mq-card); border-radius:6px; padding:8px 12px; margin:10px 0; }
+.mq-modele { border:2px solid var(--mq-border); border-radius:10px; padding:.5rem; background:var(--mq-card); flex:1 1 9rem; max-width:12rem; }
+.mq-mini { aspect-ratio:210/297; border:1px solid var(--mq-border); background:#fff; margin-bottom:.4rem; }
+.mq-img { max-width:100%; height:auto; border:1px solid var(--mq-border); border-radius:6px; background:#fff; }
+.mq-q { margin:0 0 10px; }
+.mq-opt { border:1px solid var(--mq-border); border-radius:8px; padding:8px 10px; margin:6px 0; background:var(--mq-card); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Un CV, plusieurs métiers : pouvoir ajouter sa rue sur les lettres</h1>
+<p class="muted">Rien n'est codé. Les deux lettres en images plus bas sont de vrais rendus de l'application (même fonction que la page « Mes documents »), avec et sans la rue.</p>
+
+<div class="mq-carte">
+  <h2>Aujourd'hui <span class="mq-etiquette">la rue n'est jamais imprimée</span></h2>
+  <p>Dans ce module, l'en-tête de chaque lettre porte le nom, le code postal et la ville, le téléphone et le courriel. La rue n'y est jamais, même si elle est écrite dans « Vos informations ». Pour une lettre envoyée par la poste, il manque donc l'adresse complète.</p>
+  <p class="mb-0">Dans la lettre seule, une case « Ajouter aussi ma rue (12 rue des Lilas) » existe déjà : elle n'apparaît que si la rue est renseignée, et elle est décochée au départ.</p>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Proposé : la même case, dans la page « Mes lettres » <span class="mq-etiquette ok">une case pour toutes les lettres</span></h2>
+  <p class="muted">Elle se place dans le bloc « Modèle de lettre », juste sous le choix du modèle, parce que c'est un réglage commun à toutes les lettres (comme le modèle).</p>
+
+  <div class="mq-ligne">Cas 1 : la rue est écrite dans « Vos informations », case décochée (état de départ) :</div>
+  <div class="cv-section" style="margin:0 0 10px;">
+    <h4>&#127912; Modèle de lettre (le même pour toutes vos lettres)</h4>
+    <p class="small mb-2" style="color:var(--text-muted);">Chaque lettre prend la couleur et la police de son CV. Vos informations sont mises en valeur dans la colonne, le bandeau ou le titre.</p>
+    <div class="d-flex flex-wrap gap-3">
+      <div class="mq-modele" style="border-color:var(--mq-accent);"><div class="mq-mini"></div><strong>Sobre</strong><br><span class="small" style="color:var(--text-muted);">Vos informations en haut à gauche.</span></div>
+      <div class="mq-modele"><div class="mq-mini"></div><strong>Bandeau</strong><br><span class="small" style="color:var(--text-muted);">Un bandeau de la couleur de votre CV.</span></div>
+      <div class="mq-modele"><div class="mq-mini"></div><strong>Titre</strong><br><span class="small" style="color:var(--text-muted);">Grand titre, informations à côté.</span></div>
+    </div>
+    <div class="form-check small mt-3"><input type="checkbox" class="form-check-input" id="mqRue1"><label class="form-check-label" for="mqRue1">Ajouter aussi ma rue en haut de mes lettres (12 rue des Lilas)</label></div>
+  </div>
+
+  <div class="mq-ligne">Cas 2 : la case est cochée. Les aperçus des modèles se mettent à jour, et les lettres imprimées à la page « Mes documents » portent la rue :</div>
+  <div class="cv-section" style="margin:0 0 10px;">
+    <div class="form-check small mb-0"><input type="checkbox" class="form-check-input" id="mqRue2" checked><label class="form-check-label" for="mqRue2">Ajouter aussi ma rue en haut de mes lettres (12 rue des Lilas)</label></div>
+  </div>
+
+  <div class="mq-ligne">Cas 3 : aucune rue n'est écrite dans « Vos informations » : la case n'apparaît pas (comme dans la lettre seule). Le bloc reste exactement comme aujourd'hui.</div>
+
+  <div class="mq-ligne">Le résultat sur la lettre, vrai rendu de l'application (modèle Sobre, à gauche sans la rue, à droite avec) :</div>
+  <img class="mq-img" src="maquette_rue_lettres/lettre_sobre_sans_et_avec.png" alt="Lettre au modèle Sobre, sans puis avec la rue en haut à gauche">
+  <div class="mq-ligne">Même chose avec le modèle Bandeau (la ligne devient « Adresse : 12 rue des Lilas, 87000 Limoges ») :</div>
+  <img class="mq-img" src="maquette_rue_lettres/lettre_bandeau_sans_et_avec.png" alt="Lettre au modèle Bandeau, sans puis avec la rue dans le bandeau">
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que j'ai lu dans le code avant de proposer</h2>
+  <ul>
+    <li><strong>Simple, reprise de l'existant :</strong> toute la mécanique de la rue existe déjà et sert la lettre seule (une seule fonction, <code>ligneRueLettreCo</code>, utilisée par les cinq modèles et par le Word). Ce module ne la déclenche jamais, parce qu'il construit ses lettres avec un réglage qui ne contient pas « rue ». Il suffit de lui en donner un.</li>
+    <li><strong>Simple :</strong> quatre endroits à toucher, tous dans le module : l'état de la page (une valeur oui / non), la préparation de la lettre (<code>ucpmPreparerDossierLettre</code>), le rendu (<code>ucpmRendreLettre</code>), et la case dans le bloc « Modèle de lettre » avec son câblage. Les aperçus et la page « Mes documents » reprennent le même rendu : aucun écran à recâbler.</li>
+    <li><strong>Sans risque pour la mise en page :</strong> j'ai fait l'essai avec le vrai code. La lettre avec la rue tient toujours sur une page (le moteur choisit tout seul une mise en page plus serrée si besoin, comme pour la lettre seule). Le Word suit : même fonction.</li>
+    <li><strong>Vie privée :</strong> rien ne change. La rue reste sur l'appareil, elle ne part jamais chez l'assistant (le module ne l'envoie déjà pas). Elle n'est imprimée que si la personne coche la case.</li>
+    <li><strong>Une limite à connaître :</strong> la case vaut pour toutes les lettres à la fois, pas une lettre par lettre (comme le modèle). C'est plus simple et c'est ce que fait une personne qui écrit à plusieurs employeurs depuis la même adresse.</li>
+    <li><strong>Tests :</strong> un test unitaire (la préparation de la lettre pose bien la rue quand on la demande, jamais autrement) et deux cas du parcours automatique (case absente sans rue, lettre imprimée avec la rue quand la case est cochée). Une ligne au journal des changements.</li>
+    <li><strong>Risque :</strong> faible. Retour en arrière : un seul commit. Bloquant : aucun.</li>
+  </ul>
+</div>
+
+<div class="mq-carte">
+  <h2>Trois questions pour vous</h2>
+
+  <p class="mq-q"><strong>1. Où mettre la case ?</strong></p>
+  <div class="mq-opt"><strong>A. Dans le bloc « Modèle de lettre », sous le choix du modèle (Recommandé).</strong><br>Bénéfice : un seul endroit, avec le modèle, et on voit tout de suite l'effet dans les aperçus. Risque : aucun, on ne la voit que sur la page des lettres.</div>
+  <div class="mq-opt"><strong>B. Sur la page « Mes documents », avant le téléchargement.</strong><br>Bénéfice : au dernier moment, là où on envoie. Risque : les aperçus de la page des lettres ne la montrent pas, et on peut la manquer.</div>
+  <div class="mq-opt"><strong>C. Une case pour chaque lettre.</strong><br>Bénéfice : un choix différent selon l'employeur (une lettre postale, les autres par courriel). Risque : plus de cases, plus de confusion pour un public qui n'est pas à l'aise ; ce besoin est rare.</div>
+
+  <p class="mq-q mt-3"><strong>2. Case cochée ou décochée au départ ?</strong></p>
+  <div class="mq-opt"><strong>A. Décochée (Recommandé).</strong><br>Bénéfice : même comportement que la lettre seule, discret par défaut (beaucoup de candidatures se font en ligne, sans besoin de la rue). Risque : une personne qui envoie par la poste doit penser à cocher.</div>
+  <div class="mq-opt"><strong>B. Cochée si une rue est écrite.</strong><br>Bénéfice : rien à penser pour l'envoi postal. Risque : la rue de la personne est imprimée sans qu'elle l'ait décidé, ce qui n'est pas anodin pour sa vie privée.</div>
+
+  <p class="mq-q mt-3"><strong>3. Sans rue renseignée, que montre-t-on ?</strong></p>
+  <div class="mq-opt"><strong>A. Rien (Recommandé).</strong><br>Bénéfice : comme la lettre seule, aucun bruit. Risque : la personne ne sait pas que l'option existe.</div>
+  <div class="mq-opt"><strong>B. Une phrase « Ajoutez votre rue dans Vos informations pour pouvoir l'imprimer ».</strong><br>Bénéfice : l'option se découvre. Risque : ça renvoie vers un autre écran, en plein milieu des lettres, pour une option dont beaucoup de personnes n'ont pas besoin.</div>
+</div>
+
+<div class="mq-reponse">
+  <strong>Ma recommandation :</strong> 1-A, 2-A, 3-A. Pour valider, un mot suffit : « rue des lettres : A, A, A ». Si vous préférez une autre option, dites laquelle avant que je code.
+</div>
+</div>
+</body>
+</html>

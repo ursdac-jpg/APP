@@ -109,7 +109,7 @@ function pageCvSansAssistant() {
     return;
   }
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 2) +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Lecture de votre CV</h1><p class="sousTitre">Un instant, nous lisons les lignes de votre CV sur votre appareil.</p></div></div>';
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1><p class="sousTitre"><strong>Lecture de votre CV</strong><br>Un instant, nous lisons les lignes de votre CV sur votre appareil.</p></div></div>';
   _csaPreparerTexte().then(function (r) {
     if (pageActuelle !== 'cv-sans-assistant') { return; }
     _csaEtat = { signature: sig, texte: r.texte, perdu: r.perdu, blocs: csaDecouper(r.texte), ecran: 'classer', engage: true, ouvertId: null };
@@ -128,8 +128,8 @@ function _csaRendre() {
     : '';
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 2) +
     _htmlBandeRevoirModule('bi-pencil-square', 'csaVoirPresentation()') +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Classez les informations de votre CV</h1>' +
-    '<p class="sousTitre">Nous avons découpé votre CV en blocs. Ce qui est sûr est déjà classé. Pour le reste, <strong>c’est vous qui choisissez</strong> : touchez la pastille d’un bloc pour changer sa rubrique. ' +
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1>' +
+    '<p class="sousTitre"><strong>Classer les informations</strong><br>Nous avons découpé votre CV en blocs. Ce qui est sûr est déjà classé. Pour le reste, <strong>c’est vous qui choisissez</strong> : touchez la pastille d’un bloc pour changer sa rubrique. ' +
     'Les ciseaux, à droite d’une ligne, coupent le bloc après cette ligne. Quand nous avons une idée pour un bloc encore incertain, elle est proposée sous la forme « Peut-être : ... ? » : un toucher pour l’accepter.</p></div>' +
     alerte + '<div class="csa-legende">' + legende + '</div><div class="csa-resume" id="csaResume"></div><div id="csaBlocs"></div>' +
     '<p class="small text-muted text-center mt-3" id="csaAvantBarre"></p></div>' +
@@ -351,8 +351,8 @@ function _csaRendreVerifier() {
   _csaConstruireFiches();
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 3) +
     _htmlBandeRevoirModule('bi-pencil-square', 'csaVoirPresentation()') +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Vérifiez vos fiches</h1>' +
-    '<p class="sousTitre">Les mots sont les vôtres, rien n’est reformulé. Les cases marquées <span class="csa-devine">à vérifier</span> ont été lues d’après leur place dans votre CV : corrigez-les si besoin.</p></div>' +
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1>' +
+    '<p class="sousTitre"><strong>Vérifier mes fiches</strong><br>Les mots sont les vôtres, rien n’est reformulé. Les cases marquées <span class="csa-devine">à vérifier</span> ont été lues d’après leur place dans votre CV : corrigez-les si besoin.</p></div>' +
     '<div class="csa-resume" id="csaCompteur"></div><div id="csaFiches"></div>' +
     '<div class="csa-alerte" id="csaErreur" hidden></div></div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'cv-sans-assistant', 'Continuer', { onclickPrecedent: 'csaRetourClasser()', onclickSuivant: 'csaVersDocuments()' }) + '</div>';
@@ -412,6 +412,16 @@ function _csaClicFiches(ev) {
   _csaConserverDefilement(_csaRendreFichesZone);
 }
 
+// Réglages « tout apparaît » du mode fidèle : toutes les missions de chaque expérience et toutes les informations complémentaires sont affichées d'emblée.
+// Partagé avec « Reformuler » (version 1) : une seule définition de ce que veut dire « tout apparaît ».
+function cvReglagesToutApparait(reglagesAvant, dossierSource) {
+  var plusLongue = (dossierSource.experiences || []).reduce(function (m, x) { return Math.max(m, String(x.missions || '').split('\n').filter(Boolean).length); }, 0);
+  var reglages = Object.assign({}, reglagesAvant || {});
+  reglages.missionsGlobal = Math.max(10, plusLongue);
+  reglages.choixMq = Object.assign({}, reglages.choixMq || {}, { infosCompAffichees: (dossierSource.informationsNonClassees || []).slice() });
+  return reglages;
+}
+
 /* ---------- Vers « Vos documents » : écriture dans la fiche du CV (même moteur que l'import), puis la page habituelle, sans assistant ---------- */
 function csaVersDocuments() {
   var e = _csaEtat;
@@ -427,10 +437,7 @@ function csaVersDocuments() {
     dossier.identiteEnregistree = true;
     dossier.modeFidele = true;
     // « Tout apparaît » : toutes les missions de chaque expérience et toutes les informations complémentaires sont affichées d'emblée (la personne peut ensuite en masquer).
-    var plusLongue = (dossier.experiences || []).reduce(function (m, x) { return Math.max(m, String(x.missions || '').split('\n').filter(Boolean).length); }, 0);
-    var reglages = Object.assign({}, reglagesAvant || {});
-    reglages.missionsGlobal = Math.max(10, plusLongue);
-    reglages.choixMq = Object.assign({}, reglages.choixMq || {}, { infosCompAffichees: (dossier.informationsNonClassees || []).slice() });
+    var reglages = cvReglagesToutApparait(reglagesAvant, dossier);
     // Les titres de rubriques du CV d'origine (« Savoir-etre », « Ma passion »...) deviennent les intitules du CV, modifiables ensuite dans « Vos documents ».
     var defauts = {}; Object.keys(CSA_NOM_ORIGINE_RUBRIQUE).forEach(function (r) { var nom = CSA_NOM_ORIGINE_RUBRIQUE[r]; defauts[nom] = (typeof _mepLibelleDefaut === 'function') ? _mepLibelleDefaut(nom) : nom; });
     var intitules = csaIntitulesDOrigine(e.fiches.titres, defauts);

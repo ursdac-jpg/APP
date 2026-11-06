@@ -21,6 +21,7 @@ ce_qui_change_souvent:
   - "Le seuil d'allocation journalière en dessous duquel on y a droit"
   - "Les délais pour déposer la demande"
 revisions: []
+phrase_generale: "France Travail peut prendre en charge une partie des frais de déplacement, de repas et d'hébergement quand un déplacement est nécessaire pour retrouver un emploi : entretien, concours, formation ou reprise d'emploi. Les personnes concernées, les montants et les distances minimales changent régulièrement : confirmez-les auprès de France Travail ou sur les sources officielles indiquées plus bas."
 collecte: mobilite.collecte.md
 ---
 

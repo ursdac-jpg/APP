@@ -1,0 +1,360 @@
+<!doctype html>
+<!--
+  MAQUETTE - Où placer la vidéo de présentation sur l'accueil, et comment elle s'ouvre. Version 1, 02/11/2026.
+  Décisions de Denis : vidéo avec voix et sous-titres, enregistrée à l'écran (docs/SCENARIO_VIDEO_PRESENTATION_2026-11-02.md), accessible à tous depuis l'accueil.
+  Cette maquette est ÉDITABLE (standard des maquettes de placement) : on glisse l'élément « vidéo » dans un des emplacements de l'accueil (ou on les choisit dans le panneau),
+  on règle la forme, l'alignement, la taille et le texte ; le panneau écrit la configuration choisie en clair.
+  Elle utilise les VRAIES feuilles de style de l'application (clair / sombre / téléphone) et la vraie structure de l'accueil. Aucun code de l'application n'est touché.
+  La vidéo n'est pas encore tournée : le lecteur de la page vidéo est une image fixe, son bouton de lecture le dit.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : emplacement de la vidéo de présentation</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { margin: 0; background: var(--bg-page, var(--bg-card)); color: var(--text-strong); }
+  /* Barre et panneau de la maquette (hors application) */
+  .mq-banniere { background: #fff4d6; color: #5a4300; text-align: center; font-size: var(--t-petit); padding: .35rem .6rem; border-bottom: 1px solid #e6cf8a; }
+  [data-theme="sombre"] .mq-banniere { background: #3a3014; color: #f1dc9a; border-color: #6b5a20; }
+  .mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .5rem .8rem; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); font-size: var(--t-petit); }
+  .mq-barre strong { color: var(--text-strong); margin-right: .3rem; }
+  .mq-barre button, .mq-panneau button.mq-b { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; padding: .3rem .7rem; font-size: var(--t-petit); cursor: pointer; min-height: 34px; }
+  .mq-barre button.actif, .mq-panneau button.mq-b.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-sep { width: 1px; align-self: stretch; background: var(--border-strong); margin: 0 .3rem; }
+  .mq-panneau { background: var(--accent-bg-subtle); border-bottom: 2px solid var(--accent); padding: .7rem 1rem .9rem; font-size: var(--t-petit); }
+  .mq-panneau[hidden] { display: none; }
+  .mq-panneau-entete { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .5rem; }
+  .mq-panneau-entete strong { color: var(--text-strong); font-size: var(--t-moyen); }
+  .mq-croix { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; line-height: 1; }
+  .mq-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .8rem 1.2rem; }
+  .mq-groupe > span { display: block; font-weight: 700; color: var(--text-strong); margin-bottom: .25rem; }
+  .mq-groupe label { display: flex; gap: .4rem; align-items: center; margin: .15rem 0; cursor: pointer; }
+  .mq-config { margin-top: .7rem; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: .5rem .7rem; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; white-space: pre-wrap; }
+  .mq-rouvrir { position: fixed; right: 12px; bottom: 12px; z-index: 60; border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent-texte); border-radius: 8px; padding: .4rem .8rem; font-weight: 700; cursor: pointer; }
+  .mq-rouvrir[hidden] { display: none; }
+  .mq-scene { max-width: 1000px; margin: 1rem auto 3rem; padding: 0 1rem; }
+  .mq-cadre { background: var(--bg-page, var(--bg-card)); border: 1px solid var(--border-strong); border-radius: 16px; padding: 1.2rem 1.2rem 2rem; margin: 0 auto; }
+  .mq-cadre.tel { max-width: 375px; padding: .9rem .7rem 1.6rem; }
+  .mq-cadre.tel .cartes-accueil { grid-template-columns: 1fr; }
+  .mq-cadre.tel h1 { font-size: 1.9rem; }
+  .mq-legende { color: var(--text-muted); font-size: var(--t-petit); margin: .3rem 0 .8rem; }
+
+  /* Ligne du haut (copie de l'application) */
+  .mq-ligne-haut { display: flex; align-items: center; gap: 10px; margin: -.4rem 0 .9rem; }
+  .mq-icone-ronde { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); font-size: 1.3rem; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  [data-theme="sombre"] .mq-icone-ronde { border: 2px solid var(--border-strong); box-shadow: none; }
+  .mq-ligne-haut .bouton-introduction { margin-left: auto; }
+  .bouton-introduction { display: inline-flex; align-items: center; gap: .45rem; border: 2px solid var(--accent); color: var(--accent-texte); background: var(--bg-card); border-radius: 8px; padding: .4rem .9rem; font-weight: 700; font-size: var(--t-moyen); min-height: 44px; cursor: pointer; }
+  .bouton-introduction i { font-size: 1.15rem; }
+
+  /* Emplacements de la vidéo sur l'accueil */
+  .vs { min-height: 6px; border-radius: 10px; margin: .15rem 0; }
+  .glisse .vs { min-height: 54px; border: 2px dashed var(--accent); background: var(--accent-bg-subtle); display: flex; align-items: center; justify-content: center; color: var(--accent-texte); font-size: var(--t-petit); font-weight: 700; }
+  .glisse .vs.survol { background: var(--accent); color: #fff; }
+  .glisse .vs:empty::before { content: "Déposer ici : " attr(data-nom); }
+  .vs[data-slot="pied"] { margin-top: .8rem; }
+
+  /* L'élément « vidéo » dans ses trois formes */
+  .ve { display: flex; }
+  .ve.al-gauche { justify-content: flex-start; } .ve.al-centre { justify-content: center; } .ve.al-droite { justify-content: flex-end; }
+  .ve-poignee { cursor: grab; }
+  .ve-bandeau { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; border: 1px solid var(--border-strong); border-left: 5px solid var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); border-radius: 10px; padding: .6rem 1rem; cursor: pointer; }
+  .ve-bandeau i { font-size: 2rem; color: var(--accent-texte); flex: 0 0 auto; }
+  .ve-bandeau strong { display: block; }
+  .ve-bandeau small { color: var(--text-muted); }
+  .ve-bouton { display: inline-flex; align-items: center; gap: .5rem; border: 2px solid var(--accent); color: var(--accent-texte); background: var(--bg-card); border-radius: 8px; padding: .4rem .9rem; font-weight: 700; min-height: 44px; cursor: pointer; }
+  .ve-bouton i { font-size: 1.3rem; }
+  .ve-lien { display: inline-flex; align-items: center; gap: .4rem; border: 0; background: transparent; color: var(--accent-texte); text-decoration: underline; padding: .3rem .2rem; min-height: 44px; font-weight: 600; cursor: pointer; }
+  .taille-grande .ve-bandeau, .taille-grande .ve-bouton, .taille-grande .ve-lien { font-size: 1.25rem; }
+  .taille-grande .ve-bandeau { padding: .9rem 1.3rem; } .taille-grande .ve-bandeau i { font-size: 2.7rem; }
+  .taille-grande .ve-bouton { padding: .6rem 1.2rem; min-height: 56px; }
+
+  /* Page vidéo */
+  .vp-page { max-width: 860px; margin: 0 auto; }
+  .vp-lecteur { position: relative; border: 2px solid var(--border-strong); border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+  .vp-lecteur img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .55; }
+  .vp-play { position: absolute; inset: 0; margin: auto; width: 84px; height: 84px; border-radius: 50%; border: 3px solid #fff; background: rgba(0,0,0,.45); color: #fff; font-size: 2.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .vp-sous-titre { position: absolute; left: 6%; right: 6%; bottom: 8%; text-align: center; color: #fff; background: rgba(0,0,0,.72); border-radius: 6px; padding: .35rem .6rem; font-size: 1.05rem; line-height: 1.3; }
+  .vp-sous-titre[hidden] { display: none; }
+  .vp-message { position: absolute; left: 6%; right: 6%; top: 8%; background: #fff4d6; color: #5a4300; border-radius: 8px; padding: .5rem .8rem; font-size: var(--t-petit); text-align: center; }
+  .vp-message[hidden] { display: none; }
+  .vp-outils { display: flex; flex-wrap: wrap; gap: .6rem; margin: .7rem 0; }
+  .vp-outils .btn { border-radius: 8px; font-weight: 700; min-height: 44px; }
+  .vp-texte p { margin: 0 0 .55rem; line-height: 1.55; }
+  .vp-texte b { color: var(--accent-texte); }
+  .mq-barre-bas { display: flex; justify-content: space-between; margin-top: 1.4rem; }
+  .intro-accroche { background: var(--accent-bg-subtle); text-align: center; margin-bottom: 1rem; }
+  .tableau-emplacements { width: 100%; border-collapse: collapse; font-size: var(--t-petit); margin: .6rem 0 1rem; }
+  .tableau-emplacements th, .tableau-emplacements td { border: 1px solid var(--border-strong); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  .tableau-emplacements th { background: var(--accent-bg-subtle); }
+</style>
+</head>
+<body>
+
+<div class="mq-banniere"><strong>MAQUETTE : une proposition, pas l'application.</strong> Rien n'est enregistré : la vidéo n'est pas encore tournée.</div>
+
+<div class="mq-barre">
+  <strong>Écran :</strong>
+  <button type="button" data-ecran="accueil" class="actif">1. L'accueil</button>
+  <button type="button" data-ecran="intro">2. La page Introduction</button>
+  <button type="button" data-ecran="video">3. La page de la vidéo</button>
+  <span class="mq-sep"></span>
+  <button type="button" id="mqSombre">Mode sombre</button>
+  <button type="button" id="mqTel">Largeur téléphone</button>
+  <span class="mq-sep"></span>
+  <button type="button" id="mqOuvrirPanneau">Réglages</button>
+</div>
+
+<div class="mq-panneau" id="mqPanneau">
+  <div class="mq-panneau-entete"><strong>Réglages de la maquette (vous les déplacez, je recopie la configuration)</strong><button type="button" class="mq-croix" id="mqFermerPanneau" aria-label="Fermer les réglages" title="Fermer les réglages">&#10005;</button></div>
+  <div class="mq-grille">
+    <div class="mq-groupe"><span>Emplacement (ou glissez l'élément sur l'accueil)</span>
+      <label><input type="radio" name="slot" value="sous-titre"> Sous le titre, avant la recherche</label>
+      <label><input type="radio" name="slot" value="sous-recherche"> Sous la barre de recherche</label>
+      <label><input type="radio" name="slot" value="apres-cartes"> Après les six cartes</label>
+      <label><input type="radio" name="slot" value="pied"> Dans le bas de page, avec « Confidentialité »</label>
+      <label><input type="radio" name="slot" value="aucun"> Pas sur l'accueil : seulement dans l'Introduction</label>
+    </div>
+    <div class="mq-groupe"><span>Forme</span>
+      <label><input type="radio" name="forme" value="bandeau"> Bandeau avec icône et phrase</label>
+      <label><input type="radio" name="forme" value="bouton"> Bouton rectangulaire</label>
+      <label><input type="radio" name="forme" value="lien"> Lien souligné, discret</label>
+    </div>
+    <div class="mq-groupe"><span>Alignement</span>
+      <label><input type="radio" name="align" value="gauche"> À gauche</label>
+      <label><input type="radio" name="align" value="centre"> Au centre</label>
+      <label><input type="radio" name="align" value="droite"> À droite</label>
+      <span style="margin-top:.5rem">Taille</span>
+      <label><input type="radio" name="taille" value="normale"> Normale</label>
+      <label><input type="radio" name="taille" value="grande"> Grande</label>
+    </div>
+    <div class="mq-groupe"><span>Texte</span>
+      <label><input type="radio" name="texte" value="Voir la présentation en vidéo"> Voir la présentation en vidéo</label>
+      <label><input type="radio" name="texte" value="Regarder la vidéo (3 minutes)"> Regarder la vidéo (3 minutes)</label>
+      <label><input type="radio" name="texte" value="L’application en 3 minutes"> L’application en 3 minutes</label>
+      <label style="margin-top:.5rem"><input type="checkbox" id="mqAussiIntro"> Aussi un lien dans la page Introduction</label>
+    </div>
+  </div>
+  <div class="mq-config" id="mqConfig" aria-live="polite"></div>
+  <div style="margin-top:.5rem"><button type="button" class="mq-b" id="mqCopier">Copier cette configuration</button> <span id="mqCopie" style="margin-left:.5rem"></span></div>
+</div>
+<button type="button" class="mq-rouvrir" id="mqRouvrir" hidden>Réglages</button>
+
+<div class="mq-scene">
+  <div class="mq-cadre" id="mqCadre">
+
+    <div class="mq-ligne-haut">
+      <span class="mq-icone-ronde"><i class="bi bi-gear"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-lightbulb"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-floppy"></i></span>
+      <span class="mq-icone-ronde"><i class="bi bi-megaphone"></i></span>
+      <button type="button" class="bouton-introduction" data-ecran="intro"><i class="bi bi-compass"></i> Introduction</button>
+    </div>
+
+    <!-- ===== ÉCRAN 1 : l'accueil ===== -->
+    <section id="ecran-accueil">
+      <div class="text-center"><h1>Par où <span style="white-space:nowrap">voulez-vous</span> commencer&nbsp;?</h1>
+        <p class="sousTitre">Choisissez votre point de départ.</p></div>
+      <div class="vs" data-slot="sous-titre" data-nom="Sous le titre"></div>
+      <div class="zone-recherche-erip-large">
+        <i class="bi bi-search zone-recherche-icone" aria-hidden="true"></i>
+        <input type="text" class="form-control" placeholder="Rechercher un métier, un domaine d’activité, une compétence...">
+      </div>
+      <div class="vs" data-slot="sous-recherche" data-nom="Sous la recherche"></div>
+      <div class="objectifs objectifs-accueil cartes-accueil" id="mqCartes"></div>
+      <div class="vs" data-slot="apres-cartes" data-nom="Après les cartes"></div>
+      <div class="pied-accueil" id="mqPied">
+        <button type="button"><i class="bi bi-shield-check"></i> Confidentialité de vos données</button>
+        <button type="button"><i class="bi bi-link-45deg"></i> Liens utiles</button>
+        <button type="button"><i class="bi bi-chat-square-text"></i> Partager une information</button>
+        <button type="button"><i class="bi bi-exclamation-triangle"></i> Signaler un problème</button>
+      </div>
+      <div class="vs" data-slot="pied" data-nom="Dans le bas de page"></div>
+    </section>
+
+    <!-- ===== ÉCRAN 2 : la page Introduction (haut de page seulement) ===== -->
+    <section id="ecran-intro" hidden>
+      <div class="intro-page" style="max-width:860px;margin:0 auto">
+        <div class="text-center"><h1><i class="bi bi-compass"></i> Introduction</h1><p class="sousTitre">Cette application, en quelques mots et en images.</p></div>
+        <div class="cv-section intro-accroche"><p class="mb-0">Chercher un emploi, ce n’est pas facile, surtout quand on ne se sent pas à l’aise avec l’informatique. <strong>Cette application vous accompagne, à votre rythme</strong> : personne ne vous juge et rien n’est obligatoire.</p></div>
+        <div id="mqIntroVideo"></div>
+        <div class="ip-pied" style="justify-content:center;margin:.4rem 0 1rem"><button type="button" class="btn btn-outline-primary" disabled style="opacity:1"><i class="bi bi-easel"></i> Présenter en diaporama</button></div>
+        <p class="mq-legende" style="text-align:center">La suite de la page (À quoi ça sert, Comment ça se passe, Camille, etc.) est celle de la page Introduction actuelle.</p>
+        <div class="mq-barre-bas"><button type="button" class="btn btn-nav-erip btn-lg" data-ecran="accueil">&larr; Retour</button><button type="button" class="btn btn-primary btn-lg" data-ecran="accueil">Commencer</button></div>
+      </div>
+    </section>
+
+    <!-- ===== ÉCRAN 3 : la page de la vidéo ===== -->
+    <section id="ecran-video" hidden>
+      <div class="vp-page">
+        <div class="text-center"><h1><i class="bi bi-play-circle"></i> La présentation en vidéo</h1><p class="sousTitre">L’application en trois minutes, avec la voix et les sous-titres.</p></div>
+        <div class="vp-lecteur" id="vpLecteur">
+          <img src="../images/introduction/accueil.png" alt="Image fixe : l’accueil de l’application. La vidéo n’est pas encore tournée.">
+          <button type="button" class="vp-play" id="vpPlay" aria-label="Lancer la vidéo"><i class="bi bi-play-fill"></i></button>
+          <div class="vp-message" id="vpMessage" hidden>Maquette : la vraie vidéo se lancera ici, dans la page (jamais dans une fenêtre, jamais sur un autre site).</div>
+          <div class="vp-sous-titre" id="vpSousTitre" hidden>Voici APP, l'Accompagnement<br>de Parcours Professionnel.</div>
+        </div>
+        <div class="vp-outils">
+          <button type="button" class="btn btn-outline-primary" id="vpBasculeSousTitres" aria-pressed="true"><i class="bi bi-badge-cc"></i> Sous-titres : oui</button>
+          <button type="button" class="btn btn-outline-primary" data-ecran="intro"><i class="bi bi-compass"></i> Lire l’Introduction</button>
+        </div>
+        <div class="cv-section vp-texte">
+          <h4><i class="bi bi-card-text"></i> Le texte de la vidéo</h4>
+          <p><b>1.</b> Voici APP, l’Accompagnement de Parcours Professionnel. Une application pour avancer dans votre recherche d’emploi, à votre rythme, sans que personne ne vous juge.</p>
+          <p><b>2.</b> Sur l’accueil, de grandes cartes. Vous choisissez celle qui vous parle : écrire un CV, préparer une lettre, vous entraîner à l’entretien, mieux comprendre le monde du travail. Rien n’est obligatoire.</p>
+          <p><b>3.</b> Trois temps. Vous choisissez un point de départ. L’application prépare une demande toute prête, que vous collez chez l’assistant en ligne de votre choix. Puis vous revenez coller sa réponse. Vous relisez, vous modifiez, vous téléchargez. Vous gardez toujours la main.</p>
+          <p class="mb-0"><b>…</b> (la suite : les neuf plans, le texte complet de la voix)</p>
+        </div>
+        <div class="mq-barre-bas"><button type="button" class="btn btn-nav-erip btn-lg" id="vpRetour">&larr; Retour</button><span></span></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="mq-scene" style="margin-top:0">
+  <h2 style="font-size:1.3rem">Les emplacements possibles (bénéfices et risques)</h2>
+  <table class="tableau-emplacements">
+    <tr><th>Emplacement</th><th>Bénéfice</th><th>Risque</th></tr>
+    <tr><td><b>Sous le titre</b> (Recommandé)</td><td>C'est ce que voit une personne qui arrive pour la première fois, avant d'avoir à choisir. Une ligne seulement : les cartes restent visibles.</td><td>Une ligne de plus en haut de l'accueil pour les personnes qui connaissent déjà l'application.</td></tr>
+    <tr><td>Sous la barre de recherche</td><td>Près des cartes, là où l'on regarde pour choisir.</td><td>Sépare la recherche des cartes ; sur téléphone, repousse les cartes plus bas.</td></tr>
+    <tr><td>Après les six cartes</td><td>Aucun poids en haut de page.</td><td>Presque personne ne descend jusque-là : la vidéo ne serait pas vue.</td></tr>
+    <tr><td>Bas de page</td><td>Discret, sans encombrer.</td><td>Mélangé aux liens de service (Confidentialité, Liens utiles) : on ne penserait pas à y chercher une présentation.</td></tr>
+    <tr><td>Seulement dans l'Introduction</td><td>Aucun changement de l'accueil, qui reste très épuré.</td><td>Il faut déjà avoir remarqué le bouton « Introduction » ; la vidéo se découvre moins.</td></tr>
+  </table>
+  <h2 style="font-size:1.3rem">Ce que je propose, à valider</h2>
+  <ul>
+    <li><b>Emplacement</b> : sous le titre, en bandeau fin centré, avec le texte « Voir la présentation en vidéo ». Le bouton « Introduction » du haut reste inchangé.</li>
+    <li><b>Ouverture</b> : une page de l'application (écran 3), jamais une fenêtre et jamais un autre site. Le texte complet de la vidéo est toujours affiché sous le lecteur (pas de bloc à déplier), pour ceux qui ne peuvent pas ou ne veulent pas écouter.</li>
+    <li><b>Dans l'Introduction</b> : un lien vers la même page, sous la phrase d'accroche.</li>
+    <li><b>Ouverture au public</b> : la vidéo sort avec l'Introduction (en même temps que « Qui fait quoi » et « Employeurs »).</li>
+  </ul>
+  <h2 style="font-size:1.3rem">Questions pour vous</h2>
+  <ul>
+    <li>L'emplacement, la forme et le texte vous conviennent-ils ? Glissez l'élément sur l'accueil, ou utilisez les réglages, puis dites-moi la configuration affichée dans le panneau.</li>
+    <li>Souhaitez-vous le lien aussi dans la page Introduction ?</li>
+    <li>Le texte de la vidéo doit-il rester visible en permanence sous le lecteur (ma proposition), ou repliable ?</li>
+  </ul>
+  <h2 style="font-size:1.3rem">Ce que je ferai au moment du code (rien avant votre feu vert)</h2>
+  <ul>
+    <li>Une page « video-presentation » avec le lecteur du navigateur (fichier de la vidéo et fichier de sous-titres dans l'application, aucun site tiers), le texte sous le lecteur, « Retour » dans la barre du bas.</li>
+    <li>L'élément sur l'accueil et dans l'Introduction, fermés au public avec l'Introduction ; l'aide de la page, la recherche de l'accueil (« vidéo », « présentation ») et un essai automatique.</li>
+    <li>Essai navigateur clair, sombre et téléphone, ligne dans le journal et dans Nouveautés le jour de l'ouverture.</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var CARTES = [
+    ['bi-folder2-open', 'Mes documents', 'Le point de départ pour votre CV, votre lettre de motivation et votre préparation d’entretien d’embauche.', ['Créer un nouveau CV', 'Reprendre mon CV', 'Lettre et entretien en version rapide']],
+    ['bi-person', 'Me préparer à candidater', 'Écrire votre lettre avec un assistant et vous entraîner à l’entretien, puis trouver où envoyer votre candidature.', ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien', 'Employeurs près de chez moi']],
+    ['bi-briefcase', 'Boîte à outils', 'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.', ['Mes Repères', 'Mon Carnet', 'Lexique', 'Découvrir mes compétences']],
+    ['bi-graph-up-arrow', 'Outils d’analyse', 'Vérifier la solidité de votre candidature avant de postuler.', ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']],
+    ['bi-newspaper', 'Se tenir informé', 'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, et à qui vous adresser.', ['Comprendre le cadre', 'Comprendre les chiffres', 'Qui fait quoi']],
+    ['bi-signpost-split', 'Vous hésitez encore ?', 'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.', ['Comparer mes pistes', 'Un CV, plusieurs métiers']]
+  ];
+  document.getElementById('mqCartes').innerHTML = CARTES.map(function (c) {
+    return '<div class="carte"><i class="bi ' + c[0] + '"></i><h3>' + c[1] + '</h3><p>' + c[2] + '</p><div class="carte-puces">' + c[3].map(function (x) { return '<span class="carte-puce">' + x + '</span>'; }).join('') + '</div></div>';
+  }).join('');
+
+  // La configuration choisie (celle que je recopierai dans le code). Départ = ma recommandation.
+  var cfg = { slot: 'sous-titre', forme: 'bandeau', align: 'centre', taille: 'normale', texte: 'Voir la présentation en vidéo', aussiIntro: true };
+  var ecranCourant = 'accueil', ecranAvant = 'accueil';
+  var NOMS_SLOT = { 'sous-titre': 'sous-le-titre', 'sous-recherche': 'sous-la-recherche', 'apres-cartes': 'apres-les-cartes', 'pied': 'bas-de-page', 'aucun': 'seulement-dans-l-introduction' };
+
+  function elementVideo(petit) {
+    var cl = 've al-' + cfg.align + ' ' + (cfg.taille === 'grande' ? 'taille-grande' : '');
+    var corps;
+    if (petit) { corps = '<button type="button" class="ve-lien" data-ecran="video"><i class="bi bi-play-circle"></i> ' + cfg.texte + '</button>'; return '<div class="ve al-centre">' + corps + '</div>'; }
+    if (cfg.forme === 'bandeau') { corps = '<button type="button" class="ve-bandeau" data-ecran="video"><i class="bi bi-play-circle-fill"></i><span><strong>' + cfg.texte + '</strong><small>Environ 3 minutes, avec la voix et les sous-titres.</small></span></button>'; }
+    else if (cfg.forme === 'bouton') { corps = '<button type="button" class="ve-bouton" data-ecran="video"><i class="bi bi-play-circle"></i> ' + cfg.texte + '</button>'; }
+    else { corps = '<button type="button" class="ve-lien" data-ecran="video"><i class="bi bi-play-circle"></i> ' + cfg.texte + '</button>'; }
+    return '<div class="' + cl + '" draggable="true" id="mqVideoElem" title="Glissez-moi sur un autre emplacement">' + corps + '</div>';
+  }
+
+  function dessiner() {
+    document.querySelectorAll('.vs').forEach(function (z) { z.innerHTML = z.getAttribute('data-slot') === cfg.slot ? elementVideo(false) : ''; });
+    var intro = document.getElementById('mqIntroVideo');
+    intro.innerHTML = (cfg.aussiIntro || cfg.slot === 'aucun') ? '<div class="' + (cfg.taille === 'grande' ? 'taille-grande' : '') + '">' + elementVideo(false) + '</div>' : '';
+    // Dans l'Introduction, l'élément n'est pas déplaçable
+    var e = intro.querySelector('[draggable]'); if (e) { e.removeAttribute('draggable'); e.removeAttribute('id'); e.removeAttribute('title'); }
+    ecrireConfig();
+    brancherGlisser();
+  }
+
+  function ecrireConfig() {
+    document.getElementById('mqConfig').textContent =
+      'Emplacement : ' + NOMS_SLOT[cfg.slot] + '\nForme : ' + cfg.forme + '\nAlignement : ' + cfg.align + '\nTaille : ' + cfg.taille +
+      '\nTexte : « ' + cfg.texte + ' »\nLien aussi dans l’Introduction : ' + (cfg.aussiIntro || cfg.slot === 'aucun' ? 'oui' : 'non') +
+      '\nOuverture : page de l’application (pas de fenêtre)';
+    ['slot', 'forme', 'align', 'taille', 'texte'].forEach(function (n) {
+      document.querySelectorAll('input[name="' + n + '"]').forEach(function (r) { r.checked = (r.value === cfg[n]); });
+    });
+    var c = document.getElementById('mqAussiIntro'); c.checked = cfg.aussiIntro || cfg.slot === 'aucun'; c.disabled = cfg.slot === 'aucun';
+  }
+
+  // Glisser-déposer : l'élément vers un autre emplacement de l'accueil
+  function brancherGlisser() {
+    var el = document.getElementById('mqVideoElem');
+    if (el) {
+      el.addEventListener('dragstart', function (ev) { ev.dataTransfer.setData('text/plain', 'video'); document.getElementById('ecran-accueil').classList.add('glisse'); });
+      el.addEventListener('dragend', function () { document.getElementById('ecran-accueil').classList.remove('glisse'); document.querySelectorAll('.vs').forEach(function (z) { z.classList.remove('survol'); }); });
+    }
+    document.querySelectorAll('.vs').forEach(function (z) {
+      z.ondragover = function (ev) { ev.preventDefault(); z.classList.add('survol'); };
+      z.ondragleave = function () { z.classList.remove('survol'); };
+      z.ondrop = function (ev) { ev.preventDefault(); cfg.slot = z.getAttribute('data-slot'); document.getElementById('ecran-accueil').classList.remove('glisse'); dessiner(); };
+    });
+  }
+  function montrer(nom) {
+    if (nom === ecranCourant) { return; }
+    ecranAvant = ecranCourant; ecranCourant = nom;
+    ['accueil', 'intro', 'video'].forEach(function (e) { document.getElementById('ecran-' + e).hidden = (e !== nom); });
+    document.querySelectorAll('.mq-barre [data-ecran]').forEach(function (b) { b.classList.toggle('actif', b.getAttribute('data-ecran') === nom); });
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('[data-ecran]') : null;
+    if (b) { montrer(b.getAttribute('data-ecran')); }
+  });
+  document.getElementById('vpRetour').addEventListener('click', function () { montrer(ecranAvant === 'video' ? 'accueil' : ecranAvant); });
+
+  document.querySelectorAll('.mq-panneau input[type=radio]').forEach(function (r) {
+    r.addEventListener('change', function () { cfg[r.name] = r.value; dessiner(); });
+  });
+  document.getElementById('mqAussiIntro').addEventListener('change', function () { cfg.aussiIntro = this.checked; dessiner(); });
+
+  document.getElementById('mqSombre').addEventListener('click', function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    if (s) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); }
+    this.classList.toggle('actif', !s);
+  });
+  document.getElementById('mqTel').addEventListener('click', function () { var t = document.getElementById('mqCadre').classList.toggle('tel'); this.classList.toggle('actif', t); });
+
+  function panneau(ouvert) { document.getElementById('mqPanneau').hidden = !ouvert; document.getElementById('mqRouvrir').hidden = ouvert; document.getElementById('mqOuvrirPanneau').classList.toggle('actif', ouvert); }
+  document.getElementById('mqFermerPanneau').addEventListener('click', function () { panneau(false); });
+  document.getElementById('mqRouvrir').addEventListener('click', function () { panneau(true); });
+  document.getElementById('mqOuvrirPanneau').addEventListener('click', function () { panneau(document.getElementById('mqPanneau').hidden); });
+  document.getElementById('mqCopier').addEventListener('click', function () {
+    var t = document.getElementById('mqConfig').textContent, m = document.getElementById('mqCopie');
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { m.textContent = 'Copié.'; }, function () { m.textContent = 'Sélectionnez le texte ci-dessus et copiez-le (Ctrl+C).'; });
+  });
+
+  // Page vidéo : le lecteur n'est qu'une image, le dit clairement ; les sous-titres s'affichent ou se masquent pour de vrai.
+  document.getElementById('vpPlay').addEventListener('click', function () { var m = document.getElementById('vpMessage'); m.hidden = !m.hidden; });
+  document.getElementById('vpBasculeSousTitres').addEventListener('click', function () {
+    var st = document.getElementById('vpSousTitre'); st.hidden = !st.hidden;
+    this.setAttribute('aria-pressed', st.hidden ? 'false' : 'true');
+    this.innerHTML = '<i class="bi bi-badge-cc"></i> Sous-titres : ' + (st.hidden ? 'non' : 'oui');
+  });
+  document.getElementById('vpSousTitre').hidden = false;
+
+  panneau(false);
+  dessiner();
+})();
+</script>
+</body>
+</html>

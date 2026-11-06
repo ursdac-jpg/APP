@@ -1,0 +1,92 @@
+[
+ {
+  "theme": "Emploi et ruptures de contrat",
+  "quand": "21 jours pour répondre",
+  "situation": "Vous êtes licencié pour motif économique et on vous propose un contrat de sécurisation professionnelle",
+  "resume": "Vous avez 21 jours de réflexion pour accepter ou refuser. Sans réponse dans ce délai, vous êtes considéré comme ayant refusé.",
+  "fiche": "emploi-csp",
+  "rayon": "emploi",
+  "titre": "Le contrat de sécurisation professionnelle (CSP), comment ça marche ?",
+  "verifie_le": "2026-11-04"
+ },
+ {
+  "theme": "Droits et recours",
+  "quand": "15 jours pour contester",
+  "situation": "Vous n'êtes pas d'accord avec l'avis du médecin du travail",
+  "resume": "La contestation se fait devant le conseil de prud'hommes, dans les 15 jours qui suivent la remise de l'avis. Passé ce délai, elle n'est plus recevable.",
+  "fiche": "handicap-inaptitude-medecine-du-travail",
+  "rayon": "handicap",
+  "titre": "La médecine du travail et l'inaptitude : garder son emploi, ou ce qui se passe si on ne peut plus",
+  "verifie_le": "2026-10-05"
+ },
+ {
+  "theme": "Droits et recours",
+  "quand": "12 mois, 2 ans ou 3 ans pour saisir le conseil de prud'hommes",
+  "situation": "Vous avez un litige avec votre employeur",
+  "resume": "Il faut saisir le conseil de prud'hommes dans les 12 mois après un licenciement, dans les 2 ans pour un problème lié à l'exécution du contrat, et dans les 3 ans pour des salaires non payés.",
+  "fiche": "juridique-litige-avec-l-employeur",
+  "rayon": "juridique",
+  "titre": "Un litige avec l'employeur : le conseil de prud'hommes",
+  "verifie_le": "2026-11-04"
+ },
+ {
+  "theme": "Droits et recours",
+  "quand": "2 mois pour contester, 4 mois pour saisir le tribunal",
+  "situation": "Votre demande de logement prioritaire (DALO) est refusée, ou reconnue sans proposition de logement",
+  "resume": "Si la commission refuse, vous avez deux mois pour contester. Si vous êtes reconnu prioritaire mais qu'aucune proposition n'arrive, vous pouvez saisir le tribunal administratif dans un délai de quatre mois.",
+  "fiche": "logement-droit-au-logement-opposable",
+  "rayon": "logement",
+  "titre": "Le droit au logement opposable (DALO) : faire reconnaître un besoin prioritaire",
+  "verifie_le": "2026-11-04"
+ },
+ {
+  "theme": "Famille et enfants",
+  "quand": "3 mois au plus tard",
+  "situation": "Vous reprenez un emploi ou entrez en formation et vous avez des frais de garde d'enfant",
+  "resume": "La demande d'aide à la garde d'enfants de France Travail se fait au plus tard dans les trois mois qui suivent la reprise d'emploi ou l'entrée en formation, avec l'accord de votre conseiller.",
+  "fiche": "garde-aide-france-travail",
+  "rayon": "garde",
+  "titre": "L'aide à la garde d'enfants de France Travail (AGE) pour reprendre un emploi ou une formation",
+  "verifie_le": "2026-11-04"
+ },
+ {
+  "theme": "Famille et enfants",
+  "quand": "9 mois au plus tard",
+  "situation": "Un enfant est né ou arrivé dans votre foyer",
+  "resume": "Le congé supplémentaire de naissance doit commencer au plus tard 9 mois après la naissance ou l'arrivée de l'enfant.",
+  "fiche": "garde-conge-supplementaire-de-naissance",
+  "rayon": "garde",
+  "titre": "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant",
+  "verifie_le": "2026-11-03"
+ },
+ {
+  "theme": "Argent et banque",
+  "quand": "3 jours ouvrés",
+  "situation": "Une banque a refusé de vous ouvrir un compte",
+  "resume": "Après la désignation d'une banque par la Banque de France, celle-ci envoie la liste des pièces dans les trois jours ouvrés, puis ouvre le compte dans un délai de trois jours ouvrés.",
+  "fiche": "budget-droit-au-compte",
+  "rayon": "budget",
+  "titre": "Une banque refuse de m'ouvrir un compte : le droit au compte",
+  "verifie_le": "2026-11-03"
+ },
+ {
+  "theme": "Créer son activité",
+  "quand": "60 jours pour demander",
+  "situation": "Vous créez une micro-entreprise",
+  "resume": "La demande d'ACRE (cotisations réduites au démarrage) se dépose à l'Urssaf dans les 60 jours. Elle n'est plus automatique.",
+  "fiche": "creer-aides-a-la-creation",
+  "rayon": "creer",
+  "titre": "Créer son activité en gardant un filet : ACRE, ARE, ARCE, RSA",
+  "verifie_le": "2026-10-13"
+ },
+ {
+  "theme": "Se former",
+  "quand": "120 jours avant le début",
+  "situation": "Vous voulez suivre une longue formation en une fois, à temps plein, avec un projet de transition professionnelle",
+  "resume": "Il faut demander l'autorisation d'absence à votre employeur au plus tard cent vingt jours avant le début de la formation.",
+  "fiche": "former-projet-de-transition-professionnelle",
+  "rayon": "former",
+  "titre": "Le projet de transition professionnelle : se former pour changer de métier en gardant son salaire",
+  "verifie_le": "2026-11-04"
+ }
+]

@@ -63,3 +63,33 @@ test('nom du signataire : après « Je soussigné », et pas de faux nom sur une
   assert.deepEqual(A.nomsSignatureLettreCo(''), []);
 });
 
+
+// 28/10/2026 : deux appuis de plus (maquette « Vos appuis » validée) : le document « Mes compétences » et le texte libre.
+test('texte libre : vide rien, espaces retirés, plafonné, sans nom ajouté', () => {
+  assert.equal(A.sectionTexteLibreLettreCo('   '), '');
+  assert.equal(A.sectionTexteLibreLettreCo(null), '');
+  const s = A.sectionTexteLibreLettreCo('  Je suis ponctuel.\r\nJ’aime le contact.  ');
+  assert.match(s, /^CE QUE LA PERSONNE AJOUTE AVEC SES MOTS/);
+  assert.ok(s.endsWith('Je suis ponctuel.\nJ’aime le contact.'));
+  assert.equal(A.nettoyerTexteLibreAppui('x'.repeat(A.TEXTE_LIBRE_APPUI_MAX + 500)).length, A.TEXTE_LIBRE_APPUI_MAX);
+});
+
+test('Mes compétences : section sans nom ni preuves ni envies, rien tant que le document est absent ou vide', () => {
+  assert.equal(A.sectionMesCompetencesLettreCo(null), '');
+  assert.equal(A.sectionMesCompetencesLettreCo({ vide: true, sections: [] }), '');
+  const doc = {
+    titre: 'Mes compétences', nom: 'Camille Durand', vide: false,
+    sections: [{ id: 'a', titre: 'Savoir-faire', lignes: [
+      { libelle: 'Accueillir le public', pourLeCV: 'Accueil et orientation du public', confirmation: 'confirmee', preuves: [{ source: 'Mon CV', extrait: 'Camille Durand a accueilli' }], pourLOral: 'oral' },
+      { libelle: 'Trier le courrier', pourLeCV: '', confirmation: 'declaree', preuves: [] }
+    ] }],
+    envies: [{ libelle: 'Travailler en équipe', preuve: { source: 'Mon CV', extrait: 'envie' } }]
+  };
+  const s = A.sectionMesCompetencesLettreCo(doc);
+  assert.match(s, /^COMPÉTENCES RELEVÉES PAR LA PERSONNE/);
+  assert.match(s, /- Accueillir le public : Accueil et orientation du public \(confirmé par une autre personne\)/);
+  assert.match(s, /- Trier le courrier$/m);
+  assert.doesNotMatch(s, /Camille|Durand|oral|envie|Travailler en équipe|Mon CV/);
+  assert.equal(A.compterLignesMesCompetences(doc), 2);
+  assert.equal(A.compterLignesMesCompetences(null), 0);
+});

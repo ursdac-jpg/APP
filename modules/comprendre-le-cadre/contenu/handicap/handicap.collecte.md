@@ -12,6 +12,8 @@ sources:
   - "service-public-emploi-accompagne | Qu'est-ce que le dispositif d'emploi accompagné des travailleurs handicapés ? | https://www.service-public.gouv.fr/particuliers/vosdroits/F34063 | 2026-09-04"
   - "travail-emploi-cap-emploi | Cap emploi | https://travail-emploi.gouv.fr/cap-emploi | 2026-09-04"
   - "service-public-entreprise-adaptee | Handicap : travail en entreprise adaptée (EA) | https://www.service-public.gouv.fr/particuliers/vosdroits/F1653 | 2026-09-04"
+  - "agefiph-quiforme | Agefiph : trouver une formation accessible avec l'outil QuiForme (communiqué) | https://www.agefiph.fr/espace-presse/tous-les-documents-presse/trouver-une-formation-accessible-devient-plus-simple-sur | 2026-11-03"
+  - "intercariforef-quiforme | Réseau des Carif-Oref : QuiForme, recherche d'un organisme de formation | https://www.intercariforef.org/outils/recherche-quiforme | 2026-11-03"
   - "service-public-esat | Handicap : travail en établissement et service d'aide par le travail (ESAT) | https://www.service-public.gouv.fr/particuliers/vosdroits/F1654 | 2026-09-04"
   - "service-public-oeth | Obligation d'emploi des travailleurs handicapés (OETH) | https://www.service-public.gouv.fr/particuliers/vosdroits/F23149 | 2026-09-04"
   - "service-public-rlh | Aide liée à la reconnaissance de la lourdeur du handicap (RLH) | https://www.service-public.gouv.fr/particuliers/vosdroits/F1658 | 2026-09-04"
@@ -20,6 +22,8 @@ sources:
   - "ameli-entree-invalidite | L'entrée en invalidité : ce qu'il faut savoir | https://www.ameli.fr/assure/droits-demarches/invalidite-handicap/invalidite/entree-invalidite | 2026-09-11"
   - "pour-les-personnes-agees-conge-proche-aidant | Le congé de proche aidant | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/travailler-et-aider-un-proche/le-conge-de-proche-aidant | 2026-09-11"
   - "pour-les-personnes-agees-ajpa | L'allocation journalière du proche aidant (AJPA) | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/soutien-financier/l-allocation-journaliere-du-proche-aidant-qu-est-ce-que-c-est | 2026-09-11"
+  - "service-public-mva | Service Public : majoration pour la vie autonome (MVA) | https://www.service-public.gouv.fr/particuliers/vosdroits/F12903 | 2026-11-03"
+  - "travail-emploi-recours-avis-inaptitude | Ministère du Travail : questions-réponses, quels recours contre un avis d'inaptitude ? | https://travail-emploi.gouv.fr/questions-reponses-quels-recours-contre-un-avis-dinaptitude | 2026-11-03"
 structures:
   - "cap-emploi-dordogne | Cap emploi de la Dordogne : accompagnement vers l'emploi et maintien dans l'emploi des personnes handicapées | https://www.capemploi.fr/ | 2026-09-04"
   - "france-travail-dordogne | France Travail de la Dordogne : accompagnement, en lien avec Cap emploi | https://www.francetravail.fr/ | 2026-09-04"

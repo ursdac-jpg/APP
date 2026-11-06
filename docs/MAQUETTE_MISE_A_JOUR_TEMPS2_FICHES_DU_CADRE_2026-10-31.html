@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : les fiches du cadre dans « Mise à jour » (temps 2)</title>
+<style>
+  :root { --bg:#f6f7f9; --carte:#fff; --texte:#1c2430; --doux:#5b6675; --bord:#d5dbe3; --accent:#1d5fa8; --accent-bg:#e6f0fb; --ok:#1b7a3d; --ok-bg:#e3f4e9; --alerte:#a15c00; --alerte-bg:#fff3de; --k-maj:#1b7a3d; --k-nouv:#1d5fa8; --k-ret:#b3362b; --prev:#8a6100; --prev-bg:#fff0b8; --sup:#a8321f; --sup-bg:#fde3de; --ajout:#14663a; --ajout-bg:#d9f2e2; }
+  [data-theme="sombre"] { --bg:#12161c; --carte:#1b212a; --texte:#e8edf3; --doux:#9aa6b5; --bord:#323b48; --accent:#6fb1f2; --accent-bg:#1b2d44; --ok:#5fcf86; --ok-bg:#183222; --alerte:#f0b35a; --alerte-bg:#3a2d17; --k-maj:#5fcf86; --k-nouv:#6fb1f2; --k-ret:#f08a80; --prev:#f5d26b; --prev-bg:#4a3a0c; --sup:#f6a99e; --sup-bg:#4a2320; --ajout:#8fe0ae; --ajout-bg:#1a3b28; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--texte); }
+  main { max-width:780px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.25rem; margin:.2rem 0 .3rem; } h2 { font-size:1.05rem; margin:0 0 .4rem; } h3 { font-size:.95rem; margin:.8rem 0 .3rem; }
+  .doux { color:var(--doux); font-size:.9rem; margin:.2rem 0 .8rem; }
+  .bandeau { background:var(--alerte-bg); border:1px solid var(--alerte); border-radius:8px; padding:.6rem .8rem; margin:0 0 1rem; font-size:.9rem; }
+  button { font:inherit; cursor:pointer; color:inherit; }
+  .retour { background:none; border:none; color:var(--doux); font-weight:600; padding:.3rem 0; }
+  .btn { background:var(--carte); border:1px solid var(--bord); border-radius:6px; padding:.45rem .8rem; margin:.2rem .2rem .2rem 0; }
+  .btn.primaire { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn.ok { background:var(--k-maj); color:#fff; border-color:var(--k-maj); }
+  [data-theme="sombre"] .btn.primaire, [data-theme="sombre"] .btn.ok { color:#10151b; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .tete { display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; flex-wrap:wrap; }
+  .porte { display:flex; justify-content:space-between; align-items:center; gap:.6rem; width:100%; text-align:left; background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.65rem .9rem; margin:.35rem 0; }
+  .porte small { display:block; color:var(--doux); }
+  .etat { font-size:.82rem; border-radius:999px; padding:.05rem .6rem; white-space:nowrap; }
+  .etat.retard { background:var(--alerte-bg); color:var(--alerte); } .etat.ok { color:var(--ok); } .etat.ret { background:var(--sup-bg); color:var(--sup); }
+  .resume { display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0; }
+  .resume div { background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.4rem .8rem; min-width:7.5rem; } .resume strong { display:block; font-size:1.3rem; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; margin-top:.6rem; } th, td { text-align:left; padding:.45rem .5rem; border-bottom:1px solid var(--bord); vertical-align:top; }
+  .boite { background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.7rem .9rem; margin:.6rem 0; }
+  textarea { width:100%; min-height:110px; font:inherit; background:var(--bg); color:var(--texte); border:1px solid var(--bord); border-radius:6px; padding:.5rem; }
+  .code { font:.82rem/1.45 ui-monospace, Consolas, monospace; background:var(--bg); border:1px solid var(--bord); border-radius:6px; padding:.5rem .6rem; white-space:pre-wrap; }
+  .ligne-v { background:var(--carte); border:1px solid var(--bord); border-left-width:6px; border-radius:8px; padding:.55rem 7.5rem .55rem .8rem; margin:.4rem 0; position:relative; cursor:pointer; }
+  .k-maj { border-left-color:var(--k-maj); } .k-nouv { border-left-color:var(--k-nouv); } .k-ret { border-left-color:var(--k-ret); } .k-bal { border-left-color:#6b3fa0; }
+  .pastille { display:inline-block; font-size:.78rem; border:1px solid var(--bord); border-radius:999px; padding:0 .55rem; margin-right:.3rem; color:var(--doux); }
+  .p-maj { background:var(--k-maj); color:#fff; border-color:var(--k-maj); } .p-nouv { background:var(--k-nouv); color:#fff; border-color:var(--k-nouv); } .p-ret { background:var(--k-ret); color:#fff; border-color:var(--k-ret); } .p-bal { background:#6b3fa0; color:#fff; border-color:#6b3fa0; }
+  [data-theme="sombre"] .p-maj, [data-theme="sombre"] .p-nouv, [data-theme="sombre"] .p-ret, [data-theme="sombre"] .p-bal { color:#10151b; }
+  .badge-prev { position:absolute; top:.5rem; right:.6rem; font-weight:800; font-size:.85rem; background:var(--prev-bg); color:var(--prev); border:2px solid var(--prev); border-radius:6px; padding:.15rem .5rem; }
+  .badge-av { position:absolute; top:.5rem; right:.6rem; font-size:.8rem; color:var(--doux); border:1px dashed var(--bord); border-radius:6px; padding:.15rem .5rem; }
+  .legende { display:flex; flex-wrap:wrap; gap:.4rem .8rem; align-items:center; font-size:.82rem; color:var(--doux); margin:.4rem 0; }
+  .filtres { display:flex; flex-wrap:wrap; gap:.6rem; margin:.6rem 0; } .filtres label { font-size:.82rem; color:var(--doux); display:block; } .filtres select { font:inherit; padding:.3rem .4rem; background:var(--carte); color:var(--texte); border:1px solid var(--bord); border-radius:6px; }
+  del { background:var(--sup-bg); color:var(--sup); text-decoration:line-through; padding:0 .2rem; border-radius:3px; } ins { background:var(--ajout-bg); color:var(--ajout); text-decoration:none; font-weight:700; padding:0 .2rem; border-radius:3px; }
+  .champ { border:1px solid var(--bord); border-radius:8px; padding:.5rem .7rem; margin:.4rem 0; background:var(--carte); } .champ .nom { font-size:.8rem; color:var(--doux); text-transform:uppercase; letter-spacing:.03em; }
+  .champ.change { border-color:var(--alerte); background:var(--alerte-bg); }
+  .ecran { display:none; } .ecran.actif { display:block; }
+  .cadre { border:1px dashed var(--bord); border-radius:8px; padding:.5rem .8rem; margin:.8rem 0; font-size:.88rem; color:var(--doux); }
+  .note-ok { background:var(--ok-bg); border:1px solid var(--ok); border-radius:8px; padding:.5rem .8rem; margin:.5rem 0; font-size:.9rem; }
+  .note-warn { background:var(--alerte-bg); border:1px solid var(--alerte); border-radius:8px; padding:.5rem .8rem; margin:.5rem 0; font-size:.9rem; }
+  .q { background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.6rem .9rem; margin:.5rem 0; } .q b { color:var(--accent); }
+  .theme { position:fixed; bottom:10px; right:10px; background:var(--carte); border:1px solid var(--bord); border-radius:999px; padding:.3rem .8rem; font-size:.85rem; }
+  .masque { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="bandeau"><strong>Maquette, rien n'est codé.</strong> Cliquez pour parcourir. Les noms de fiches et les textes sont ceux du rayon « Emploi et contrats » ; les nombres, les dates et les propositions de l'assistant sont inventés pour l'exemple. Le mode sombre se règle avec le bouton en bas à droite.</div>
+
+  <!-- F1 : un rayon -->
+  <section class="ecran actif" id="f1">
+    <button class="retour" onclick="alert('Retour à la liste des rayons (écran existant).')">&#8592; Par rayon</button>
+    <div class="tete"><h1>Rayon : Emploi et contrats</h1><button class="btn primaire" onclick="aller('f3')">À valider : 5 en attente &#8250;</button></div>
+    <p class="doux">15 fiches. Dernier contrôle du rayon : il y a 3 mois. Ce rayon se contrôle chaque mois.</p>
+    <div class="resume">
+      <div><strong>10</strong>à jour</div><div><strong>2</strong>à mettre à jour</div><div><strong>1</strong>à retirer</div><div><strong>2</strong>incertaines</div><div><strong>1</strong>sujet nouveau proposé</div>
+    </div>
+    <p class="doux">Ces nombres viennent du dernier « Contrôle du rayon » (le rapport que votre assistant a rendu). Tant qu'il n'a pas été fait, le rayon ne montre que le nombre de fiches.</p>
+
+    <h3>Pour tout le rayon</h3>
+    <button class="btn primaire" onclick="alert('Copie le message de contrôle de ce rayon (avec « Voulez-vous la suite ? », la couverture et la liste des sites non ouverts). Même message qu\'aujourd\'hui, mais amélioré.')">1. Contrôler tout le rayon</button>
+    <button class="btn" onclick="alert('Copie un message qui cherche les sujets manquants de ce rayon (ce que le public demande et que le rayon ne couvre pas).')">2. Chercher de nouvelles fiches</button>
+    <button class="btn" onclick="aller('f2')">3. Coller une information brute</button>
+    <button class="btn" onclick="aller('f2')">Coller la réponse de mon assistant</button>
+
+    <h3>Chaque fiche</h3>
+    <table>
+      <thead><tr><th>Fiche</th><th>État</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>La rupture conventionnelle, comment ça marche ?<br><small class="doux">vérifiée le 5 octobre 2026</small></td><td><span class="etat retard">à mettre à jour</span><br><small class="doux">signalée par le contrôle</small></td><td><button class="btn primaire" onclick="aller('f4')">Mettre à jour</button> <button class="btn" onclick="alert('Ouvre la fiche pour la modifier vous-même, champ par champ (écran qui existe déjà depuis le 18 octobre).')">Modifier moi-même</button> <button class="btn" onclick="aller('f6')">Retirer</button></td></tr>
+        <tr><td>La période d'essai : durée, rupture, délai de prévenance<br><small class="doux">vérifiée le 5 octobre 2026</small></td><td><span class="etat ok">à jour</span></td><td><button class="btn" onclick="alert('Prépare un message pour demander à votre assistant de relire cette seule fiche contre ses sources.')">Mettre à jour</button> <button class="btn" onclick="alert('Modifier moi-même (existe déjà).')">Modifier moi-même</button> <button class="btn" onclick="aller('f6')">Retirer</button></td></tr>
+        <tr><td>Travailler chez un particulier avec le CESU<br><small class="doux">vérifiée le 11 septembre 2026</small></td><td><span class="etat retard">incertaine</span><br><small class="doux">à ouvrir à la main</small></td><td><button class="btn" onclick="alert('Prépare la mise à jour.')">Mettre à jour</button> <button class="btn" onclick="alert('Modifier moi-même.')">Modifier moi-même</button> <button class="btn" onclick="aller('f6')">Retirer</button></td></tr>
+        <tr><td>Sujet proposé par le contrôle : « Le droit à la déconnexion »</td><td><span class="etat retard">nouveau</span></td><td><button class="btn primaire" onclick="aller('f5')">Préparer cette fiche</button></td></tr>
+      </tbody>
+    </table>
+    <div class="cadre">Les quatre boutons de la fiche (Mettre à jour, Modifier moi-même, Retirer, et pour un sujet nouveau Préparer cette fiche) sont les seules nouveautés de cet écran. Le contrôle du rayon, la rédaction et la modification champ par champ existent déjà : on les relie, on ne les refait pas.</div>
+  </section>
+
+  <!-- F2 : boîte unique -->
+  <section class="ecran" id="f2">
+    <button class="retour" onclick="aller('f1')">&#8592; Rayon Emploi et contrats</button>
+    <h1>Coller ce que votre assistant a répondu</h1>
+    <p class="doux">Un seul endroit pour tous les cas : une fiche rédigée, un contrôle de rayon, une information brute. L'outil reconnaît ce que c'est et le range dans « À valider ». Rien n'est publié ici.</p>
+    <div class="boite">
+      <h2>Collez la réponse (ou le texte trouvé à la main)</h2>
+      <textarea id="collage" placeholder="Collez ici..."></textarea>
+      <button class="btn primaire" onclick="lireCollage()">Lire ce texte</button>
+      <button class="btn" onclick="remplirExemple()">(maquette) Remplir avec un exemple</button>
+    </div>
+    <div id="resultatCollage" class="masque">
+      <div class="note-ok"><strong>J'ai reconnu 3 choses dans votre texte :</strong></div>
+      <div class="ligne-v k-maj" style="cursor:default"><span class="pastille p-maj">Mise à jour d'une fiche</span> La rupture conventionnelle, comment ça marche ?<br><small class="doux">2 champs changent : le texte (1 paragraphe) et les révisions</small></div>
+      <div class="ligne-v k-nouv" style="cursor:default"><span class="pastille p-nouv">Nouvelle fiche</span> Le droit à la déconnexion<br><small class="doux">identifiant proposé : emploi-droit-a-la-deconnexion (libre, aucune fiche ne porte ce nom)</small></div>
+      <div class="ligne-v k-ret" style="cursor:default"><span class="pastille p-ret">Retrait</span> Travailler chez un particulier avec le CESU<br><small class="doux">raison donnée : le dispositif a été remplacé</small></div>
+      <div class="note-warn"><strong>Une chose n'a pas pu être lue :</strong> un quatrième paragraphe sans nom de fiche. Il est gardé à part, comme information brute, à relier à une fiche plus tard.</div>
+      <button class="btn primaire" onclick="aller('f3')">Envoyer ces 3 choses dans « À valider »</button>
+      <button class="btn" onclick="alert('Annule : rien n\'est gardé.')">Ne rien garder</button>
+    </div>
+    <div class="cadre">Le contrôle fait seul ces vérifications avant d'envoyer : l'identifiant d'une nouvelle fiche n'existe pas déjà, le rayon est le bon, aucun tiret long, aucun guillemet droit, les sources citées sont dans le registre des adresses. Ce qui ne passe pas est dit en clair, jamais corrigé en silence.</div>
+  </section>
+
+  <!-- F3 : À valider -->
+  <section class="ecran" id="f3">
+    <button class="retour" onclick="aller('f1')">&#8592; Mise à jour</button>
+    <div class="tete"><h1>À valider</h1><span class="doux">5 en attente, dont 1 pré-vérifié</span></div>
+    <div class="legende"><strong>Ce que c'est :</strong>
+      <span class="pastille p-bal">Changement du balayage</span><span class="pastille p-maj">Mise à jour d'une fiche</span><span class="pastille p-nouv">Nouvelle fiche</span><span class="pastille p-ret">Retrait</span>
+      <span class="badge-prev" style="position:static">&#9733; PRÉ-VÉRIFIÉ</span> = source ouverte et confirmée par vous, il reste « C'est bon »
+    </div>
+    <div class="filtres">
+      <div><label>Ce que je veux voir</label><select><option>Tout</option><option>Changements du balayage</option><option>Fiches du cadre</option><option>Mises à jour de fiches</option><option>Nouvelles fiches</option><option>Retraits</option><option>Pré-vérifiés</option></select></div>
+      <div><label>Rayon</label><select><option>Tous</option><option>Emploi et contrats</option><option>Chômage et indemnisation</option></select></div>
+      <div><label>Chercher un mot</label><input style="font:inherit;padding:.3rem .4rem;background:var(--carte);color:var(--texte);border:1px solid var(--bord);border-radius:6px" placeholder="Nom, rayon..."></div>
+    </div>
+    <div class="ligne-v k-maj" onclick="aller('f4')"><span class="badge-prev">&#9733; PRÉ-VÉRIFIÉ</span><span class="pastille p-maj">Mise à jour d'une fiche</span><span class="pastille">Emploi et contrats</span><br><strong>La rupture conventionnelle, comment ça marche ?</strong><br><small class="doux">1 paragraphe change, 1 ligne de révision ajoutée. Reliée au changement de septembre « durée d'indemnisation ».</small></div>
+    <div class="ligne-v k-nouv" onclick="aller('f5')"><span class="badge-av">à vérifier</span><span class="pastille p-nouv">Nouvelle fiche</span><span class="pastille">Emploi et contrats</span><br><strong>Le droit à la déconnexion</strong><br><small class="doux">Écrite par votre assistant le 31 octobre. 4 sources, 3 mots du Lexique.</small></div>
+    <div class="ligne-v k-ret" onclick="aller('f6')"><span class="badge-av">à vérifier</span><span class="pastille p-ret">Retrait</span><span class="pastille">Emploi et contrats</span><br><strong>Travailler chez un particulier avec le CESU</strong><br><small class="doux">Raison : le dispositif a été remplacé. Le texte est gardé, la fiche disparaît du public.</small></div>
+    <div class="ligne-v k-bal" onclick="alert('Ouvre le changement du balayage (écran déjà codé le 31 octobre).')"><span class="badge-av">à vérifier</span><span class="pastille p-bal">Changement du balayage</span><span class="pastille">Assurance chômage</span><br><strong>Nouvelle durée maximale d'indemnisation (rupture conventionnelle)</strong><br><small class="doux">Balayage de septembre. Concerne la fiche « La rupture conventionnelle » ci-dessus.</small></div>
+    <div class="ligne-v k-bal" onclick="alert('Ouvre le changement du balayage.')"><span class="badge-av">à vérifier</span><span class="pastille p-bal">Changement du balayage</span><span class="pastille">Formation</span><br><strong>Test trimestre</strong></div>
+    <p><button class="btn primaire" onclick="alert('« C\'est bon » en bloc pour les pré-vérifiés affichés : ici 1.')">C'est bon pour les 1 pré-vérifié affichés</button> <small class="doux">Rien n'est public avant « Enregistrer ».</small></p>
+    <div class="cadre">Un changement du balayage et la fiche qu'il touche se retrouvent côte à côte (« Concerne la fiche... »). C'est le lien qui manque aujourd'hui entre le balayage et les fiches.</div>
+  </section>
+
+  <!-- F4 : mise à jour d'une fiche -->
+  <section class="ecran" id="f4">
+    <button class="retour" onclick="aller('f3')">&#8592; À valider</button>
+    <div class="tete"><h1>Mise à jour : La rupture conventionnelle</h1><span class="badge-prev" style="position:static" id="badge4">à vérifier</span></div>
+    <p class="doux"><span class="pastille p-maj">Mise à jour d'une fiche</span> Rayon Emploi et contrats. Proposée par votre assistant le 31 octobre 2026.</p>
+
+    <h3>Ce qui change dans la fiche</h3>
+    <div class="champ change"><div class="nom">Texte, paragraphe 2</div>Elle passe par un ou plusieurs entretiens, pendant lesquels vous pouvez être <del>assisté.</del> <ins>assisté : par un salarié de l'entreprise, ou, s'il n'y a pas de représentant du personnel, par un conseiller du salarié.</ins> Vous signez ensuite une convention qui fixe la date de fin et le montant de l'indemnité.</div>
+    <div class="champ change"><div class="nom">Ce qui a changé (ligne ajoutée aux révisions)</div><ins>2026-10 : précision sur l'assistance pendant les entretiens ; vérifié sur service-public.gouv.fr le 2026-10-31.</ins></div>
+    <div class="champ"><div class="nom">Date de vérification</div>5 octobre 2026 : <strong>ne change pas toute seule</strong>. Elle passera au jour de votre « C'est bon » seulement si vous cochez la case ci-dessous.</div>
+    <div class="champ"><div class="nom">Tout le reste</div>Titre, « utile si », mots de recherche, mots du Lexique, sources : <strong>inchangés</strong>.</div>
+
+    <h3>Les sources de cette fiche</h3>
+    <div class="champ">service-public.gouv.fr : la rupture conventionnelle <button class="btn" onclick="alert('Ouvre la page dans un nouvel onglet.')">Ouvrir la source</button> <small class="doux">adresse du registre, vérifiée le 5 septembre 2026</small></div>
+    <label style="display:block;margin:.5rem 0"><input type="checkbox" id="ck4" onchange="cocher(4)"> J'ai ouvert la source et le changement y est bien</label>
+    <label style="display:block;margin:.5rem 0"><input type="checkbox"> Redater : la fiche entière et ses sources ont été relues aujourd'hui</label>
+
+    <div class="boite">
+      <h2>Faire vérifier par un assistant (facultatif)</h2>
+      <p class="doux" style="margin:0 0 .4rem">Un message prêt : il redonne à l'assistant la fiche actuelle, la proposition, les sources, et lui demande de confirmer ou d'approfondir.</p>
+      <button class="btn" onclick="alert('Copie le message de vérification de cette mise à jour.')">Copier le message</button>
+      <textarea style="min-height:60px;margin-top:.4rem" placeholder="Collez ici la réponse : la comparaison se refait avec le texte rouge barré et le texte vert."></textarea>
+    </div>
+
+    <button class="btn ok" id="ok4" disabled onclick="aller('f7')">C'est bon, valider cette mise à jour</button>
+    <button class="btn" onclick="alert('Modifier à la main avant de valider : ouvre l\'écran champ par champ qui existe déjà, avec cette proposition déjà remplie.')">Corriger avant de valider</button>
+    <button class="btn" onclick="aller('f3')">Pas maintenant</button>
+    <button class="btn" onclick="alert('Écarter : la proposition disparaît de À valider, la fiche ne change pas.')">Écarter cette proposition</button>
+  </section>
+
+  <!-- F5 : nouvelle fiche -->
+  <section class="ecran" id="f5">
+    <button class="retour" onclick="aller('f3')">&#8592; À valider</button>
+    <div class="tete"><h1>Nouvelle fiche : Le droit à la déconnexion</h1><span class="badge-av" style="position:static" id="badge5">à vérifier</span></div>
+    <p class="doux"><span class="pastille p-nouv">Nouvelle fiche</span> Rayon Emploi et contrats. Identifiant : <code>emploi-droit-a-la-deconnexion</code></p>
+
+    <div class="champ"><div class="nom">Titre</div>Le droit à la déconnexion : que faire si on vous écrit le soir ?</div>
+    <div class="champ"><div class="nom">Utile si</div>Utile si votre employeur ou vos collègues vous contactent en dehors de vos heures de travail.</div>
+    <div class="champ"><div class="nom">Texte (aperçu, 4 paragraphes)</div>Le droit à la déconnexion, c'est le droit de ne pas répondre aux messages professionnels en dehors de votre temps de travail. Il est prévu par le Code du travail...<br><small class="doux">Aucun montant, aucune date figée dans le texte (règle du module).</small></div>
+    <div class="champ"><div class="nom">Sources</div>4 sources, toutes dans le registre des adresses.</div>
+    <div class="champ"><div class="nom">Mots du Lexique reliés</div>3, tous existants.</div>
+
+    <div class="boite">
+      <h2>Ce que l'outil fera tout seul quand vous direz « C'est bon » puis « Enregistrer »</h2>
+      <ul style="margin:.2rem 0 0 1.1rem;padding:0">
+        <li>ranger la fiche dans le dossier du rayon</li>
+        <li>ajouter sa ligne dans le tableau du rayon (« Les 16 fiches »)</li>
+        <li>remettre à jour la base de l'outil de veille et les renvois du Lexique</li>
+        <li>lancer tous les tests ; s'ils échouent, rien n'est enregistré</li>
+        <li>vous permettre de tout annuler (« Annuler la dernière publication »)</li>
+      </ul>
+      <p class="doux" style="margin:.4rem 0 0">C'est le circuit de « Publier » qui existe déjà. Plus de « Télécharger les deux fichiers ».</p>
+    </div>
+
+    <label style="display:block;margin:.5rem 0"><input type="checkbox" id="ck5" onchange="cocher(5)"> J'ai ouvert les 4 sources et la fiche dit bien ce qu'elles disent</label>
+    <button class="btn" onclick="alert('Copie le message de vérification de cette fiche : il demande de relire chaque affirmation contre sa source.')">Faire vérifier par un assistant</button>
+    <button class="btn ok" id="ok5" disabled onclick="aller('f7')">C'est bon, publier cette nouvelle fiche</button>
+    <button class="btn" onclick="alert('Corriger avant de valider : le formulaire champ par champ, déjà rempli.')">Corriger avant de valider</button>
+    <button class="btn" onclick="alert('Écarter.')">Écarter</button>
+  </section>
+
+  <!-- F6 : retrait -->
+  <section class="ecran" id="f6">
+    <button class="retour" onclick="aller('f3')">&#8592; À valider</button>
+    <div class="tete"><h1>Retrait : Travailler chez un particulier avec le CESU</h1><span class="badge-av" style="position:static" id="badge6">à vérifier</span></div>
+    <p class="doux"><span class="pastille p-ret">Retrait</span> Rayon Emploi et contrats.</p>
+    <div class="champ change"><div class="nom">Raison du retrait (visible dans l'historique)</div>Le dispositif a été remplacé par un autre.</div>
+    <div class="champ"><div class="nom">Remplacée par</div>aucune fiche (à compléter si une autre fiche prend le relais)</div>
+    <div class="note-warn">Le texte de la fiche est <strong>gardé</strong> dans le dépôt, avec la mention « retirée ». Elle disparaît seulement du public. On peut la réactiver plus tard avec « Modifier moi-même ».</div>
+    <label style="display:block;margin:.5rem 0"><input type="checkbox" id="ck6" onchange="cocher(6)"> J'ai vérifié sur la source que le dispositif a bien disparu</label>
+    <button class="btn ok" id="ok6" disabled onclick="aller('f7')">C'est bon, retirer cette fiche</button>
+    <button class="btn" onclick="aller('f3')">Pas maintenant</button>
+  </section>
+
+  <!-- F7 : prêt à enregistrer -->
+  <section class="ecran" id="f7">
+    <button class="retour" onclick="aller('f3')">&#8592; À valider</button>
+    <h1>1 choix en attente</h1>
+    <div class="note-ok">Votre « C'est bon » est noté. <strong>Rien n'est encore public.</strong> Vous pouvez en valider d'autres, puis enregistrer tout d'un coup.</div>
+    <div class="boite"><strong>Mise à jour : La rupture conventionnelle, comment ça marche ?</strong> <small class="doux">(vert : valide)</small></div>
+    <button class="btn primaire" onclick="alert('Enregistre : écrit la fiche, lance tous les tests, fait l\'enregistrement Git sur cet ordinateur.')">Enregistrer</button>
+    <button class="btn" onclick="alert('Annule tous les choix en attente.')">Tout annuler</button>
+    <button class="btn" onclick="alert('Défait la dernière publication (existe déjà).')">Annuler la dernière publication</button>
+  </section>
+
+  <!-- F8 : questions -->
+  <section class="ecran" id="f8">
+    <button class="retour" onclick="aller('f1')">&#8592; Retour à la maquette</button>
+    <h1>Vos choix à trancher</h1>
+    <div class="q"><b>1.</b> Où atterrit ce que votre assistant rédige ? Recommandé : toujours dans « À valider », jamais directement dans les fichiers.</div>
+    <div class="q"><b>2.</b> Le « pré-vérifié » doit-il être gardé quand vous fermez l'outil ? Recommandé : oui.</div>
+    <div class="q"><b>3.</b> Qui écrit les fiches ? Recommandé : votre assistant, collé dans l'outil ; Claude seulement sur votre demande.</div>
+    <div class="q"><b>4.</b> Une information brute (un mail, un texte copié) : à relier à une fiche tout de suite, ou à garder dans une réserve ? Recommandé : réserve, reliée plus tard.</div>
+  </section>
+
+  <p style="margin-top:2rem"><button class="btn" onclick="aller('f8')">Voir les questions</button></p>
+</main>
+<button class="theme" onclick="var d=document.documentElement;d.dataset.theme=d.dataset.theme==='sombre'?'':'sombre'">Mode sombre</button>
+<script>
+  function aller(id) { document.querySelectorAll('.ecran').forEach(function (e) { e.classList.remove('actif'); }); document.getElementById(id).classList.add('actif'); window.scrollTo(0, 0); }
+  function cocher(n) {
+    var ok = document.getElementById('ck' + n).checked;
+    document.getElementById('ok' + n).disabled = !ok;
+    var b = document.getElementById('badge' + n);
+    b.className = ok ? 'badge-prev' : 'badge-av'; b.style.position = 'static'; b.innerHTML = ok ? '&#9733; PRÉ-VÉRIFIÉ' : 'à vérifier';
+  }
+  function remplirExemple() { document.getElementById('collage').value = '[FICHE emploi-rupture-conventionnelle] ...\n[FICHE-NOUVELLE emploi-droit-a-la-deconnexion] ...\n[RETRAIT emploi-cesu] raison : ...'; }
+  function lireCollage() { document.getElementById('resultatCollage').classList.remove('masque'); }
+</script>
+</body>
+</html>

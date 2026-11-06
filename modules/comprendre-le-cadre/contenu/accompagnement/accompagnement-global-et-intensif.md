@@ -7,7 +7,7 @@ tags: [accompagnement global, accompagnement intensif, travailleur social, sous-
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "accompagnement global"
     definition: "Suivi à deux voix, par un conseiller France Travail et un travailleur social du département, pour les personnes qui ont à la fois des difficultés sociales et un projet d'emploi."
@@ -25,15 +25,14 @@ ce_qui_change_souvent:
   - "La part de l'accompagnement confiée à des opérateurs privés"
 revisions:
   - "2026-09-06 : les pages francetravail.fr « France Travail vous accompagne » (accompagnement global et intensif) ont disparu du site candidat (restructuration) ; sources repointées vers le contrat d'engagement (service-public F14926) et la loi pour le plein emploi. Dispositifs inchangés sur le fond."
+  - "2026-11-04 : la page France Travail (Hauts-de-France) confirme l'accompagnement global par un conseiller France Travail et un travailleur social du conseil départemental, pour des personnes avec un projet d'emploi et des difficultés de logement ou d'argent ; l'accompagnement intensif (durée, rythme) et la sous-traitance à un organisme extérieur n'y figurent pas (assouplis ou retirés)"
 collecte: accompagnement.collecte.md
 ---
 
 France Travail n'accompagne pas tout le monde de la même façon. Selon votre situation, le suivi est plus ou moins rapproché.
 
-L'accompagnement global associe un conseiller France Travail et un travailleur social du conseil départemental. Il s'adresse aux personnes qui ont un projet d'emploi mais aussi des difficultés à régler : logement, argent, santé. Les deux professionnels travaillent ensemble sur votre situation.
+L'accompagnement global associe un conseiller France Travail et un travailleur social du conseil départemental. Il s'adresse aux personnes qui ont un projet d'emploi mais aussi des difficultés à régler, comme le logement ou l'argent ; le travailleur social peut aussi aider pour la santé ou la mobilité. Les deux professionnels travaillent ensemble sur votre situation.
 
-L'accompagnement intensif est un suivi resserré, avec un conseiller référent, sur quelques mois, et un rythme d'activités soutenu. Il vise les personnes éloignées de l'emploi qui ont besoin d'un vrai coup de pouce.
-
-La sous-traitance : France Travail confie parfois l'accompagnement à un organisme extérieur, public ou privé. Vous êtes alors reçu par cet organisme, mais c'est bien France Travail qui pilote et qui verse l'allocation.
+France Travail propose aussi des suivis plus ou moins rapprochés : la nature et la fréquence des rendez-vous sont définies avec vous.
 
 Si l'accompagnement qu'on vous propose ne vous semble pas adapté, dites-le à votre conseiller : le type de suivi peut être revu.

@@ -23,6 +23,7 @@ ce_qui_change_souvent:
   - "L'âge maximum et les cas de dérogation"
   - "Les aides versées à l'employeur"
 revisions: []
+phrase_generale: "L'apprentissage permet de préparer un diplôme tout en travaillant dans une entreprise : c'est un vrai contrat de travail, avec un salaire et des droits de salarié. Les âges, les rémunérations, la durée et les aides changent régulièrement : avant de signer, confirmez-les auprès de votre centre de formation ou sur les sources officielles indiquées plus bas."
 collecte: jeunes.collecte.md
 ---
 

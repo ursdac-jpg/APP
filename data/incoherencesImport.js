@@ -219,9 +219,8 @@ function pointsCertificationsSansAnnee(jeux, pointsExistants) {
 // Annee(s) SUGGEREE(S) pour une certification sans annee (retour Denis 2026-09-30, CV « Nicolas POIROT » : les certifications sont rangees SOUS le
 // titre professionnel dans le CV, donc obtenues pendant cette formation). Le code ne devine pas : il PROPOSE l'annee (ou les deux annees de la
 // periode) de la formation sous forme de boutons, la personne choisit ou ecrit la bonne. texteSource = le texte du CV (sans lui, rien n'est propose).
-function suggererAnneesCertifications(points, jeux, texteSource) {
+function suggererAnneesCertifications(points, jeux, texteSource, rattachements) {
   var texte = String(texteSource || '');
-  if (!texte.trim()) { return points; }
   var formations = [];
   (jeux || []).forEach(function (j) { ((j && j.formations) || []).forEach(function (f) { if (f && f.intitule) { formations.push(f); } }); });
   if (!formations.length) { return points; }
@@ -231,7 +230,35 @@ function suggererAnneesCertifications(points, jeux, texteSource) {
     var r = String(t || '').match(/(?:19|20)\d{2}/g) || [];
     return r.filter(function (a, i) { return r.indexOf(a) === i; }).sort();
   };
+  var proposerDeLaFormation = function (p, formation) {
+    var annees = anneesDe([formation.annee, formation.dateDebut, formation.dateFin].join(' '));
+    if (!annees.length) { return false; }
+    annees = annees.slice(0, 2);
+    p.suggestions = annees;
+    p.groupe = formation.intitule;   // les certifications rangees sous la meme formation peuvent recevoir la meme annee d'un seul clic
+    p.question = 'Le CV ne donne pas l’année de « ' + String(p.cible.certification || '').replace(/\s*\([^()]*\)\s*$/, '') + ' », mais il la range sous « ' + formation.intitule +
+      ' » (' + annees.join(' - ') + '). Est-ce l’année où vous l’avez obtenue ? Cliquez sur une année ci-dessous si c’est la bonne, sinon écrivez la vôtre. (Vous pouvez passer cette question.)';
+    return true;
+  };
+  // 1) Le lien donne par l'assistant (champ « rattachements » du JSON) : plus fiable qu'une relecture du texte du CV.
   (points || []).forEach(function (p) {
+    if (!p || !p.cible || p.cible.type !== 'certifAnnee' || (p.suggestions && p.suggestions.length)) { return; }
+    var nomCertif = _incNorm(String(p.cible.certification || '').replace(/\s*\([^()]*\)\s*$/, ''));
+    if (nomCertif.length < 4) { return; }
+    (rattachements || []).forEach(function (r) {
+      if (p.suggestions && p.suggestions.length) { return; }
+      var nomR = _incNorm(String((r && r.certification) || '').replace(/\s*\([^()]*\)\s*$/, ''));
+      if (!nomR || nomR !== nomCertif) { return; }
+      var nomF = _incNorm((r && r.formation) || '');
+      if (nomF.length < 4) { return; }
+      var formation = null;
+      formations.forEach(function (f) { var n = _incNorm(f.intitule); if (!formation && n.length >= 4 && (n === nomF || n.indexOf(nomF) !== -1 || nomF.indexOf(n) !== -1)) { formation = f; } });
+      if (formation) { proposerDeLaFormation(p, formation); }
+    });
+  });
+  // 2) Sinon, relecture du texte du CV : la certification est rangee sous une formation si aucune autre ligne datee ne les separe.
+  (points || []).forEach(function (p) {
+    if (!texte.trim()) { return; }
     if (!p || !p.cible || p.cible.type !== 'certifAnnee' || (p.suggestions && p.suggestions.length)) { return; }
     var nom = _incNorm(String(p.cible.certification || '').replace(/\s*\([^()]*\)\s*$/, ''));
     if (nom.length < 4) { return; }
@@ -260,6 +287,19 @@ function suggererAnneesCertifications(points, jeux, texteSource) {
       break;
     }
   });
+  // Retour Denis 2026-10-27 : une proposition pour TOUTES les certifications, pas seulement celles rangées sous une formation. Quand le lien avec une
+  // formation n'est pas établi, on propose les années des formations du CV (les plus récentes d'abord, quatre au plus) : la personne clique ou écrit la sienne.
+  var anneesParcours = [];
+  formations.forEach(function (f) { anneesDe([f.annee, f.dateDebut, f.dateFin].join(' ')).forEach(function (a) { if (anneesParcours.indexOf(a) === -1) { anneesParcours.push(a); } }); });
+  anneesParcours = anneesParcours.sort().reverse().slice(0, 4);
+  if (anneesParcours.length) {
+    (points || []).forEach(function (p) {
+      if (!p || !p.cible || p.cible.type !== 'certifAnnee' || (p.suggestions && p.suggestions.length)) { return; }
+      p.suggestions = anneesParcours.slice();
+      p.question = 'Le CV ne donne pas l’année de « ' + String(p.cible.certification || '').replace(/\s*\([^()]*\)\s*$/, '') + ' ». En quelle année l’avez-vous obtenue ? ' +
+        'Les années de vos formations sont proposées ci-dessous : cliquez sur la bonne, sinon écrivez la vôtre. (Vous pouvez passer cette question.)';
+    });
+  }
   return points;
 }
 function appliquerAnneeCertification(objet, cible, reponse) {

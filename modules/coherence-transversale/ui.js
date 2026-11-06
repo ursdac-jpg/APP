@@ -5,7 +5,7 @@
    seul fichier de ce module qui connait l'existence de l'app hote.
    Reprend EXACTEMENT les conventions deja eprouvees du module Bilan de
    candidature (voir js/app.js, fonctions bilan*) : ouvrirFenetreERIP(),
-   ouvrirFenetreAssistantIA(), htmlCollageInstantane()/activerCollageInstantane(),
+   ouvrirFenetreAssistantIA(), htmlCollageUniquePage()/brancherCollageUniquePage(),
    barreNavigation(), trackEvenement(), accordeons <details>/<summary>,
    meme palette de couleurs (BILAN_COULEURS_RESTITUTION).
 
@@ -84,10 +84,9 @@ function ctMemoriserCandidatureAppWide(valeurs) {
 // bloquee sur "Rapport" tout du long, comme si la personne n'avait pas
 // avance dans une phase pourtant reelle et distincte.
 var CT_ETAPES = [
-  { id: 'documents', icone: '&#128196;', label: 'Vos documents' },
-  { id: 'choix_ia', icone: '&#128172;', label: 'Choix de l’assistant' },
-  { id: 'chez_assistant', icone: '&#128257;', label: 'Chez l’assistant' },
-  { id: 'rapport', icone: '&#9989;', label: 'Rapport' },
+  { id: 'documents', icone: '&#128196;', label: 'Préparer' },
+  { id: 'assistant', icone: '&#128172;', label: 'Assistant' },
+  { id: 'rapport', icone: '&#9989;', label: 'Résultat' },
   { id: 'entretien_avance', icone: '&#127919;', label: 'Entretien avancé' }
 ];
 
@@ -109,8 +108,8 @@ function ctEtapeCourante() {
   var dossierExistant = !!ctObtenirDossier();
   var diagnostic = ctObtenirDiagnostic();
   if (!dossierExistant) { return 'documents'; }
-  if (!diagnostic) { return 'choix_ia'; }
-  if (diagnostic.statut !== 'complete') { return 'chez_assistant'; }
+  // 28/10/2026 : choisir l'assistant et être chez l'assistant ne font plus qu'un repère, « Assistant » (comme le Bilan, l'ATS et le Regard).
+  if (!diagnostic || diagnostic.statut !== 'complete') { return 'assistant'; }
   if (ctEnEntretienAvance()) { return 'entretien_avance'; }
   return 'rapport';
 }
@@ -200,16 +199,17 @@ function ctHtmlExplication(detour) {
         '<p class="mb-0"><strong>Vos documents ne sont pas mis en concurrence.</strong> Comparer votre CV, votre lettre et votre préparation d’entretien, ce n’est pas chercher une faute : c’est vérifier qu’ils se répondent, et ajuster ce qui mérite de l’être.</p>' },
       { corpsHTML:
         '<h4>&#127919; À quoi ça sert ?</h4>' +
-        '<p class="mb-0">Un recruteur lit votre CV, votre lettre, puis vous rencontre en entretien - dans cet ordre, ou dans le désordre. Si ces documents se contredisent (un métier différent, une expérience oubliée, un ton qui change), ça peut semer le doute. Ce module compare vos documents entre eux, et avec l’offre visée si vous en avez une, pour repérer ce qui est cohérent et ce qui mérite d’être ajusté.</p>' },
+        '<p class="mb-0">Un recruteur lit votre CV, votre lettre, puis vous rencontre en entretien, dans cet ordre ou dans le désordre. Si ces documents se contredisent (un métier différent, une expérience oubliée, un ton qui change), ça peut semer le doute. Ce module compare vos documents entre eux, et avec l’offre visée si vous en avez une, pour repérer ce qui est cohérent et ce qui mérite d’être ajusté.</p>' },
       { corpsHTML:
         '<h4>&#128203; Ce qu’on va vous demander</h4>' +
         '<p class="mb-0">Votre CV et votre lettre de motivation (obligatoires), votre préparation d’entretien d’embauche si vous en avez une (à compléter), et si vous le souhaitez : l’offre visée, l’entreprise, ou une question précise. Chaque document peut être déposé en fichier ou collé directement en texte.</p>' },
       { corpsHTML:
         '<h4>&#128221; Ce qui va se passer</h4>' +
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
-        '<li>Vous rassemblez votre CV et votre lettre de motivation, et votre préparation d’entretien d’embauche si vous en avez une.</li>' +
-        '<li>Un assistant en ligne (ChatGPT, Claude, Gemini...) les lit ensemble, et les compare à l’offre visée si vous en indiquez une.</li>' +
-        '<li>Vous recevez un rapport qui montre, point par point, ce qui concorde et ce qui diverge, avec une piste concrète pour chaque écart.</li>' +
+        '<li>Vous rassemblez votre CV et votre lettre de motivation, et votre préparation d’entretien d’embauche si vous en avez une. Vous les relisez.</li>' +
+        '<li>Vous les copiez et vous les collez sur le site d’un assistant en ligne de votre choix (ChatGPT, Claude, Gemini...). Il les lit ensemble et les compare à l’offre visée si vous en indiquez une.</li>' +
+        '<li>Vous rapportez sa réponse ici. L’application vous guide à chaque étape.</li>' +
+        '<li>Un rapport s’affiche. Il montre, point par point, ce qui concorde et ce qui diverge, avec une piste concrète pour chaque écart. Il reste modifiable : vous pouvez relancer l’analyse.</li>' +
         '</ul>' +
         '<details style="margin-top:0.6rem;"><summary style="cursor:pointer;">En savoir plus sur ce qui est comparé</summary>' +
         '<p class="text-muted small mt-2 mb-0">Le métier et le projet mis en avant, les expériences citées d’un document à l’autre, les dates et la chronologie, les compétences réellement présentes partout, et le ton employé. Un écart n’est pas une erreur : c’est un endroit où vos documents racontent l’histoire un peu différemment.</p></details>' },
@@ -231,9 +231,6 @@ function ctHtmlExplication(detour) {
       { fond: true, corpsHTML:
         '<h4><i class="bi bi-bookmark-star"></i> Mes Repères</h4>' +
         '<p class="mb-0">Depuis le rapport, vous pouvez garder un constat ou une recommandation comme <strong>Repère</strong> : un point mis de côté pour y revenir (une question, un sujet à creuser, quelque chose à discuter avec la personne qui vous accompagne). Vous le retrouvez ensuite dans <strong>Mes Repères</strong>, un espace à vous, jamais jugé, accessible depuis n’importe où dans l’application.</p>' },
-      { corpsHTML:
-        '<h4>&#128172; Comment ça se passe concrètement</h4>' +
-        '<p class="mb-0">Vous relisez vos documents, vous les copiez, vous les collez sur le site d’un assistant de votre choix, puis vous rapportez sa réponse ici. Le rapport s’affiche alors, et reste modifiable si vous voulez relancer l’analyse. L’application vous guide à chaque étape.</p>' },
       { corpsHTML:
         '<h4>&#128274; Vos informations personnelles</h4>' +
         '<p class="mb-0">Avant l’envoi, vous relisez chaque document et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, courriel). L’analyse se fait sur des documents anonymisés : vos informations personnelles ne sont pas prises en compte.</p>' }
@@ -282,6 +279,58 @@ function ctRetourDepuisCollecte() {
   pageCoherenceTransversale();
 }
 
+// Depot EN PAGE (brique htmlDepotCVEnPage, data/metiers.js, consigne 28, 30/10/2026) : le CV, la lettre et la preparation d'entretien ont chacun leur zone
+// dans leur bloc (suffixe d'identifiants -cv, -lettre, -entretien). Plus de fenetre de depot ni de fenetre de relecture : un document n'est range
+// qu'une fois relu et enregistre (dejaRelu toujours vrai), donc ctDeposerDossier() n'ouvre plus aucune relecture au moment de continuer.
+var CT_CLES_DEPOT = ['ctCv', 'ctLettre', 'ctEntretien', 'ctModif'];
+function _ctReinitialiserDepots() {
+  if (typeof reinitialiserDepotCVEnPage !== 'function') { return; }
+  CT_CLES_DEPOT.forEach(function (cle) { reinitialiserDepotCVEnPage(cle); });
+}
+// Une seule zone a la fois peut etre en lecture ou en relecture (le texte a relire a des identifiants fixes) : si une autre l'etait, elle est abandonnee.
+function _ctDepotRerender(cle, rendre) {
+  var p = (typeof _depotPages !== 'undefined') ? _depotPages[cle] : null;
+  if (p && (p.phase === 'lecture' || p.phase === 'relecture')) {
+    CT_CLES_DEPOT.forEach(function (autre) { if (autre !== cle) { reinitialiserDepotCVEnPage(autre); } });
+  }
+  rendre();
+}
+function _ctDepotCfg(champ) {
+  var etat = _ctCollecteEtat;
+  var def = {
+    cv: { cle: 'ctCv', suffixeId: '-cv', titreDocument: 'CV', avecIdentite: true, nomARelire: 'CV déjà dans l’application', raccourciLibelle: 'Utiliser mon CV déjà dans l’application' },
+    lettre: { cle: 'ctLettre', suffixeId: '-lettre', titreDocument: 'Lettre de motivation', avecIdentite: false, ecrireCV: false, nomARelire: 'lettre déjà dans l’application', raccourciLibelle: 'Utiliser ma lettre déjà dans l’application' },
+    entretien: { cle: 'ctEntretien', suffixeId: '-entretien', titreDocument: 'Préparation d’entretien d’embauche', avecIdentite: false, ecrireCV: false, nomARelire: 'préparation déjà dans l’application', raccourciLibelle: 'Utiliser ma préparation d’entretien déjà dans l’application',
+      intro: 'Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici. Sinon, cliquez sur « Je n’en ai pas » : ce n’est pas obligatoire.' }
+  }[champ];
+  var doc = etat[champ];
+  var present = !!(doc && doc.texte);
+  var texteApp = '';
+  if (!present) {
+    if (champ === 'cv') {
+      if (typeof cvDisponible === 'function' && cvDisponible()) {
+        texteApp = (dossier.experiences && dossier.experiences.length && typeof texteProfilEffectif === 'function') ? texteProfilEffectif('cv') : (dossier.cvTexte || '');
+      }
+    } else {
+      var lecteurs = ctLecteursParDefaut();
+      texteApp = champ === 'lettre' ? lecteurs.lireLettreTexte() : lecteurs.lireEntretienTexte();
+    }
+    texteApp = String(texteApp || '').trim();
+  }
+  def.fait = present;
+  def.nomFait = (doc && doc.nomFichier) || '';
+  def.texteFait = present ? doc.texte : '';
+  def.raccourciTexte = texteApp;
+  def.rerender = function () { _ctDepotRerender(def.cle, ctHtmlCollecte); };
+  def.onDocumentPrepare = function (res) {
+    if (res && res.type === 'texte' && res.valeur && _ctCollecteEtat) {
+      _ctCollecteEtat[champ] = { texte: res.valeur, dejaRelu: true, fichier: res.fichier || null, nomFichier: res.nomFichier || '' };
+    }
+    ctHtmlCollecte();
+  };
+  return def;
+}
+
 function ctHtmlCollecte() {
   var etat = _ctCollecteEtat;
   var cvPresent = !!(etat.cv && etat.cv.texte);
@@ -298,18 +347,14 @@ function ctHtmlCollecte() {
       '<div class="bloc-depli-corps">' + (present ? corpsSiPresent : corpsSiVide) + '</div></details>';
   }
 
-  var bloc1 = blocDocument(1, 'ctCollecteBlocCv', 'Votre CV', true, cvPresent,
-    '<p>Déposez votre CV, ou collez son texte. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>' +
-    '<button type="button" id="btnCtCollecteDeposerCv" class="btn btn-primary btn-sm">Déposer mon CV</button>',
-    '<div class="carte-preparer-ok"><strong>&#9989; Déposé</strong>' +
-    '<button type="button" id="btnCtCollecteChangerCv" class="btn btn-changer-document btn-sm ms-2">Changer de CV</button></div>',
+  var htmlDepotCv = typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_ctDepotCfg('cv')) : '';
+  var htmlDepotLettre = typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_ctDepotCfg('lettre')) : '';
+  var htmlDepotEntretien = typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_ctDepotCfg('entretien')) : '';
+
+  var bloc1 = blocDocument(1, 'ctCollecteBlocCv', 'Votre CV', true, cvPresent, htmlDepotCv, htmlDepotCv,
     ouvertBlocDepliManuel(etat, 'blocCv', !cvPresent));
 
-  var bloc2 = blocDocument(2, 'ctCollecteBlocLettre', 'Votre lettre de motivation', true, lettrePresente,
-    '<p>Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.</p>' +
-    '<button type="button" id="btnCtCollecteDeposerLettre" class="btn btn-primary btn-sm">Déposer ma lettre</button>',
-    '<div class="carte-preparer-ok"><strong>&#9989; Déposée</strong>' +
-    '<button type="button" id="btnCtCollecteChangerLettre" class="btn btn-changer-document btn-sm ms-2">Changer de lettre</button></div>',
+  var bloc2 = blocDocument(2, 'ctCollecteBlocLettre', 'Votre lettre de motivation', true, lettrePresente, htmlDepotLettre, htmlDepotLettre,
     ouvertBlocDepliManuel(etat, 'blocLettre', cvPresent && !lettrePresente));
 
   // TACHE (Paquet B, decision de Denis 2026-09-26) : "open" ne se recalcule
@@ -320,19 +365,9 @@ function ctHtmlCollecte() {
     '<span class="preparer-oblig">à compléter</span>' +
     '<span class="pilule-etat ' + (entretienPresent ? 'pe-ok">Déposée' : entretienTraite ? 'pe-info">Non fournie' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    (entretienPresent
-      ? '<div class="carte-preparer-ok"><strong>&#9989; Déposée</strong>' +
-        '<button type="button" id="btnCtCollecteChangerEntretien" class="btn btn-changer-document btn-sm ms-2">Changer</button></div>'
-      : '<p>Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici - sinon, passez cette étape, ce n’est pas obligatoire.</p>' +
-        // TACHE (retour Denis 2026-09-27) : une fois "Je n'en ai pas" choisi
-        // (entretienTraite sans entretienPresent), ce bouton devient
-        // l'option active (plein) et "Deposer" repasse en secondaire -- la
-        // personne garde la main pour changer d'avis dans les deux sens,
-        // aucun des deux boutons n'est jamais desactive.
-        '<div class="d-flex gap-2 flex-wrap">' +
-        '<button type="button" id="btnCtCollecteDeposerEntretien" class="btn btn-sm ' + (entretienTraite ? 'btn-outline-secondary' : 'btn-primary') + '">Déposer</button>' +
-        '<button type="button" id="btnCtCollecteSansEntretien" class="btn btn-sm ' + (entretienTraite ? 'btn-primary' : 'btn-outline-secondary') + '">Je n’en ai pas</button>' +
-        '</div>') +
+    htmlDepotEntretien +
+    // La personne garde la main pour changer d'avis dans les deux sens : une fois « Je n'en ai pas » choisi, ce bouton devient l'option active (plein).
+    (entretienPresent ? '' : '<div class="mt-2"><button type="button" id="btnCtCollecteSansEntretien" class="btn btn-sm ' + (entretienTraite ? 'btn-primary' : 'btn-outline-secondary') + '">Je n’en ai pas</button></div>') +
     '</div></details>';
 
   // TACHE (panneau Candidature partage, 2026-09-29, DECISION DE DENIS) :
@@ -360,13 +395,15 @@ function ctHtmlCollecte() {
     '<h4 class="h6">&#128172; Une question ou une demande précise ? <span class="text-muted small">(à compléter)</span></h4>' +
     '<p class="text-muted small mb-2">Par exemple : « Ai-je assez insisté sur mon autonomie ? », « J’aimerais plus d’ambition dans mes phrases », « Où pourrais-je mettre en avant mes résultats ? ».</p>' +
     '<textarea id="ctChampQuestions" class="form-control mb-2" rows="3" placeholder="Vos questions ou demandes, une par ligne...">' + (etat.questionsPersonne ? echapperAttribut(etat.questionsPersonne) : '') + '</textarea>' +
-    '<p class="small text-muted mb-0" style="background:var(--accent-bg-subtle);border-radius:8px;padding:0.5rem 0.75rem;">&#127908; <strong>Aide à la rédaction</strong> - vous pouvez dicter ce texte au lieu de le taper : appuyez sur les touches <strong><span style="white-space:nowrap;">Windows + H</span></strong> de votre clavier, puis parlez.</p>' +
+    htmlAstuceDictee('encart', '&#127908; <strong>Aide à la rédaction</strong> : vous pouvez dicter ce texte au lieu de le taper.') +
     '</div></details>';
 
-  var html = '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1>' +
-    '<p class="sousTitre">CV et lettre de motivation sont obligatoires, le reste est à compléter.</p></div>' +
+  var html = htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Collecter les informations', 'CV et lettre de motivation sont obligatoires, le reste est à compléter.') +
     '<div id="ctErreurCollecte" class="small mb-3" style="display:none;color:var(--danger);"></div>' +
-    bloc1 + bloc2 + bloc3 + bloc4 +
+    bloc1 + (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('L’analyse compare vos documents entre eux : ce que dit le CV doit se retrouver dans la lettre. Vous déposez donc maintenant la lettre.') : '') +
+    bloc2 + (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('Si vous avez déjà préparé votre entretien, l’analyse vérifie aussi que ce que vous comptez dire à l’oral va dans le même sens que vos documents.') : '') +
+    bloc3 + (typeof htmlLiaisonBlocs === 'function' ? htmlLiaisonBlocs('Il reste à dire ce que vous visez, puis vous pourrez lancer l’analyse.') : '') +
+    bloc4 +
     '<div class="text-center" style="margin-top:1.4rem;" data-barre-bas-zone>' +
     '<button type="button" id="btnCtCollecteContinuer" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="Déposez d’abord votre CV et votre lettre pour lancer l’analyse."' + (peutContinuer ? '' : ' disabled') + '>Continuer &#8594;</button>' +
     '<p class="preparer-detail" style="margin-top:.5rem;">Ce bouton s’active une fois votre CV et votre lettre déposés.</p>' +
@@ -402,73 +439,28 @@ function ctBrancherCollecte() {
   cablerBlocDepliManuel(etat, 'blocOffre', 'ctCollecteBlocOffre');
   // Tant que le CV n'est pas depose et valide, les autres points sont
   // desactives (decision Denis 2026-09-29).
-  // Deverrouillage progressif (Lot 5, 25/10/2026) : chaque partie n'apparait qu'une fois la precedente ouverte, et s'active quand la precedente est remplie.
+  // Deverrouillage progressif (Lot 5, 25/10/2026) : chaque partie reste visible mais grisee (regle de Denis du 30/10/2026) et s'active quand la precedente est remplie.
   // Partie 2 (lettre) : CV depose. Partie 3 (entretien) : lettre deposee. Partie 4 (situation) : entretien depose ou « je n'en ai pas ».
   var _cvOk = !!(etat.cv && etat.cv.texte);
   var _lettreOk = _cvOk && !!(etat.lettre && etat.lettre.texte);
   var _entretienFait = _lettreOk && !!etat.entretien;
   appliquerVerrouBlocs([
     { id: 'ctCollecteBlocLettre', actif: _cvOk, message: MSG_VERROU_CV_A_DEPOSER },
-    { id: 'ctCollecteBlocEntretien', actif: _lettreOk, masque: !_cvOk, message: 'Déposez d’abord votre lettre de motivation (partie 2) : ce point s’active ensuite.' },
-    { id: 'ctCollecteBlocOffre', actif: _entretienFait, masque: !_lettreOk, message: 'Déposez d’abord votre préparation d’entretien, ou dites que vous n’en avez pas (partie 3) : ce point s’active ensuite.' }
+    { id: 'ctCollecteBlocEntretien', actif: _lettreOk, message: 'Déposez d’abord votre lettre de motivation (partie 2) : ce point s’active ensuite.' },
+    { id: 'ctCollecteBlocOffre', actif: _entretienFait, message: 'Déposez d’abord votre préparation d’entretien, ou dites que vous n’en avez pas (partie 3) : ce point s’active ensuite.' }
   ]);
 
-  var btnDeposerCv = document.getElementById('btnCtCollecteDeposerCv');
-  if (btnDeposerCv) {
-    btnDeposerCv.addEventListener('click', function () {
-      // Le drapeau reste arme tant qu'un CV n'a pas ete REELLEMENT depose : annuler
-      // la fenetre ne doit pas faire revenir l'ancien CV (bug signale par Denis).
-      var forcer = !!etat.forcerNouveauDepotCv;
-      obtenirOuDeposerTexteCV(function (resultat) {
-        etat.forcerNouveauDepotCv = false;
-        // TACHE (comportement inchange : un CV en photo/scan n'est pas
-        // exploitable par ce module -- deja le cas avant ce chantier,
-        // ctDemarrerCollecte() abandonnait alors tout le parcours ;
-        // desormais on reste juste sur cette page, le bloc reste "a
-        // deposer" au lieu d'un abandon silencieux total).
-        if (!resultat || resultat.texte === null) { return; }
-        etat.cv = resultat;
-        ctHtmlCollecte();
-      }, forcer);
-    });
-  }
-  var btnChangerCv = document.getElementById('btnCtCollecteChangerCv');
-  if (btnChangerCv) {
-    btnChangerCv.addEventListener('click', function () {
-      etat.cv = null;
-      etat.forcerNouveauDepotCv = true;
-      ctHtmlCollecte();
-    });
+  // Les trois zones de depot (CV, lettre, preparation d'entretien) : depot, relecture et masquage EN PAGE.
+  if (typeof cablerDepotCVEnPage === 'function') {
+    cablerDepotCVEnPage(_ctDepotCfg('cv'));
+    cablerDepotCVEnPage(_ctDepotCfg('lettre'));
+    cablerDepotCVEnPage(_ctDepotCfg('entretien'));
   }
 
-  var btnDeposerLettre = document.getElementById('btnCtCollecteDeposerLettre');
-  if (btnDeposerLettre) {
-    btnDeposerLettre.addEventListener('click', function () {
-      ctObtenirOuDeposerTexteLettre(function (resultat) {
-        if (!resultat || resultat.texte === null) { return; }
-        etat.lettre = resultat;
-        ctHtmlCollecte();
-      });
-    });
-  }
-  var btnChangerLettre = document.getElementById('btnCtCollecteChangerLettre');
-  if (btnChangerLettre) { btnChangerLettre.addEventListener('click', function () { etat.lettre = null; ctHtmlCollecte(); }); }
-
-  var btnDeposerEntretien = document.getElementById('btnCtCollecteDeposerEntretien');
-  if (btnDeposerEntretien) {
-    btnDeposerEntretien.addEventListener('click', function () {
-      ctObtenirOuDeposerTexteEntretien(function (resultat) {
-        etat.entretien = (resultat && resultat.texte !== null) ? resultat : { texte: null, dejaRelu: false };
-        ctHtmlCollecte();
-      });
-    });
-  }
   var btnSansEntretien = document.getElementById('btnCtCollecteSansEntretien');
   if (btnSansEntretien) {
     btnSansEntretien.addEventListener('click', function () { etat.entretien = { texte: null, dejaRelu: false }; ctHtmlCollecte(); });
   }
-  var btnChangerEntretien = document.getElementById('btnCtCollecteChangerEntretien');
-  if (btnChangerEntretien) { btnChangerEntretien.addEventListener('click', function () { etat.entretien = null; ctHtmlCollecte(); }); }
 
   // Panneau Candidature partage (situation, metier/domaine, offre...) : ecrit
   // directement dans les champs globaux, aucune lecture a faire au lancement.
@@ -517,6 +509,7 @@ function ctBrancherCollecte() {
       }).then(function () {
         _ctEnCollecte = false;
         _ctCollecteEtat = null;
+        _ctReinitialiserDepots();
         naviguerVers('coherence-transversale');
       }).catch(function (erreur) {
         // TACHE (comportement ameliore : l'ancienne fenetre se refermait
@@ -533,44 +526,6 @@ function ctBrancherCollecte() {
     });
   }
 }
-
-// Meme mecanisme generique que le CV/la lettre ailleurs dans l'app
-// (ouvrirAssistantDepotCV(), data/metiers.js -- deja reutilise pour ces 2
-// documents, "3 appelants existants CV/Lettre/Entretien" par son propre
-// commentaire) : accepte texte colle, PDF/Word lus automatiquement dans
-// le navigateur, ou photo (la personne gere alors elle-meme via son IA).
-// Retourne { texte, dejaRelu } -- dejaRelu vrai si le document vient du
-// depot (deja relu a l'etape 2 du wizard), faux s'il vient d'un texte
-// deja present dans ERIP (jamais relu specifiquement pour cet envoi).
-function ctObtenirOuDeposerTexteLettre(callback) {
-  var lettreExistante = ctLecteursParDefaut().lireLettreTexte();
-  if (lettreExistante) { callback({ texte: lettreExistante, dejaRelu: false }); return; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: 'Votre lettre de motivation',
-    intro: 'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan de votre lettre. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.',
-    onDocumentPrepare: function (resultat) {
-      callback(resultat && resultat.type === 'texte' ? { texte: resultat.valeur, dejaRelu: true } : { texte: null, dejaRelu: false });
-    },
-    onRetourEtape1: function () { callback({ texte: null, dejaRelu: false }); }
-  });
-}
-
-// preparationEntretien est facultative (invariant 1, CONTRATS.md) --
-// bouton "Passer cette etape" propose via optionnel:true.
-function ctObtenirOuDeposerTexteEntretien(callback) {
-  var entretienExistant = ctLecteursParDefaut().lireEntretienTexte();
-  if (entretienExistant) { callback({ texte: entretienExistant, dejaRelu: false }); return; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: 'Votre préparation d’entretien d’embauche',
-    intro: 'Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici - sinon, passez cette étape, ce n’est pas obligatoire.',
-    optionnel: true,
-    onDocumentPrepare: function (resultat) {
-      callback(resultat && resultat.type === 'texte' ? { texte: resultat.valeur, dejaRelu: true } : { texte: null, dejaRelu: false });
-    },
-    onRetourEtape1: function () { callback({ texte: null, dejaRelu: false }); }
-  });
-}
-
 
 // ---------- Route (dispatcher, meme principe que pageBilanCandidature) ----------
 
@@ -662,8 +617,7 @@ function pageCoherenceTransversale() {
 function ctHtmlEtapeChoixIA() {
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
-    '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1>' +
-    '<p class="sousTitre">Une analyse de l’ensemble de votre candidature par un assistant de votre choix.</p></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Choisir l’assistant', 'Une analyse de l’ensemble de votre candidature par un assistant de votre choix.') +
     '<div class="cv-section coherence-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
     '<p class="text-muted small mb-3">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis ouvre l’assistant.</p>' +
@@ -683,22 +637,10 @@ function ctHtmlEtapeImportIA(diagnostic) {
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
     '<div id="ctEtapeImportIAAncre"></div>' +
-    '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Coller la réponse') +
     '<div class="cv-section coherence-etape-import-ia">' +
-    '<h4>&#128229; Collez la réponse de l’assistant</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de ' +
-    (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Une fois sa réponse copiée, collez-la ci-dessous.</p>' +
-    (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-    htmlCollageInstantane('CoherenceTransversale',
-      '<div class="d-flex gap-2 mb-2 mt-2">' +
-      '<button type="button" id="btnImporterCoherence" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
-      'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
-      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerCoherenceTransversale">Effacer et recoller</button>' +
-      '</div>') +
-    '<div id="messageImportCoherence" class="mt-2 small"' + (diagnostic.statut === 'echec_parsing' ? ' style="color:var(--danger);"' : '') + '">' +
-    (diagnostic.statut === 'echec_parsing' ? '⚠️ La réponse collée précédemment n’a pas pu être lue. Vérifiez qu’elle contient bien tout le bloc renvoyé par l’assistant, puis réessayez.' : '') +
-    '</div>' +
+    // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+    htmlCollageUniquePage('CoherenceTransversale') +
     '</div></div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRevenirAuChoixIA()' }) + '</div>';
 }
@@ -789,7 +731,7 @@ function ctDocumentsDepuisAncrage(ancrage) {
 // et l'invite -- retro-compatible avec tous les appels existants
 // (2 arguments, aucune description) qui ne l'utilisent pas.
 function ctHtmlEnTeteAccordeon(icone, titre, description) {
-  return '<summary style="cursor:pointer;">' +
+  return '<summary class="ct-resume-accordeon" style="cursor:pointer;">' +
     '<p class="fw-bold mb-0">' + icone + ' ' + titre + '</p>' +
     (description ? '<p class="text-muted small mb-1 mt-1">' + description + '</p>' : '') +
     '<p class="mb-1"><span class="bilan-accordeon-invite" style="font-weight:600;">Cliquez pour en savoir plus</span></p>' +
@@ -951,7 +893,7 @@ function ctHtmlRapport(diagnostic) {
 
   var htmlConstats = '<div class="cv-section" style="margin-bottom:1rem;">' +
     '<h4 class="mb-2">&#128203; Ce que l’analyse montre</h4>' +
-    '<p class="text-muted small mb-3">Cliquez sur une catégorie pour voir le détail - commencez par où vous préférez.</p>' +
+    '<p class="text-muted small mb-3">Cliquez sur une catégorie pour voir le détail. Commencez par où vous préférez.</p>' +
     '<div style="display:flex;gap:1rem;flex-wrap:wrap;">' +
     buckets.map(function (bucket) {
       var constatsBucket = (resultat.constats || []).filter(function (c) { return bucket.natures.indexOf(c.nature) !== -1; });
@@ -996,13 +938,16 @@ function ctHtmlRapport(diagnostic) {
 
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
-    '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Résultat') +
     ctHtmlSynthese(resultat) +
-    ctHtmlTableauDeBord(diagnostic) +
     htmlConstats + htmlRecommandations +
+    // Consigne 69 : les résultats d'abord ; le bloc qui permet de modifier ses documents et de relancer l'analyse vient après
+    '<h4 class="mt-4 mb-1">&#9999;&#65039; Modifier et relancer</h4>' +
+    '<p class="text-muted small mb-2">Si vous changez un document ou ce que vous visez, vous pouvez relancer l’analyse pour voir si le résultat change.</p>' +
+    ctHtmlTableauDeBord(diagnostic) +
     ctHtmlRappelSauvegarde() +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRetour()' }) + '</div>';
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRetour()', terminerParcours: true, onclickTerminer: 'terminerParcoursSansFenetre()' }) + '</div>';
 }
 
 // TACHE (retour utilisateur, 2026-08-25, DECISION DE DENIS -- disquette) :
@@ -1012,9 +957,7 @@ function ctHtmlRapport(diagnostic) {
 // bouton "Sauvegarder ma session" (&#128190;, id="btnSessionTransfert",
 // index.html) - jamais une nouvelle icone pour la meme intention.
 function ctHtmlRappelSauvegarde() {
-  return '<div class="cv-section" style="background:var(--accent-bg-subtle);border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1rem;text-align:center;">' +
-    '<p class="mb-0">&#128190; Pensez à sauvegarder votre session pour pouvoir reprendre exactement ici plus tard.</p>' +
-    '</div>';
+  return htmlRappelSauvegarde();   // brique commune (consigne 49)
 }
 
 // ---------- Entretien avance (2e prompt, DECISION DE DENIS 2026-08-25) ----------
@@ -1162,16 +1105,14 @@ function ctHtmlEntretienAvanceCollecte() {
 
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
-    '<div class="text-center"><h1>&#127919; Aller plus loin : mon entretien</h1></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Aller plus loin : mon entretien') +
     '<div class="cv-section" style="margin-bottom:1rem;">' +
-    '<p class="text-muted small mb-3">Quelques questions courtes pour mieux comprendre votre candidature, avant de préparer un entretien plus approfondi avec un assistant. Vous pouvez répondre au clavier, ou utiliser la <strong>dictée vocale</strong> de Windows (touches <strong><span style="white-space:nowrap;">Windows + H</span></strong>) si c’est plus simple pour vous.</p>' +
+    '<p class="text-muted small mb-3">Quelques questions courtes pour mieux comprendre votre candidature, avant de préparer un entretien plus approfondi avec un assistant. Vous pouvez répondre au clavier, ou à la voix si c’est plus simple pour vous.</p>' +
+    htmlAstuceDictee('ligne', 'Pour répondre à la voix :') +
     corps +
-    '<div class="d-flex gap-2 justify-content-center mt-3">' +
-    '<button type="button" class="btn btn-outline-secondary" id="btnAnnulerEntretienAvance">Retour au rapport</button>' +
-    '<button type="button" class="btn btn-primary" id="btnValiderEntretienAvance">Valider</button>' +
-    '</div>' +
     '</div></div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctAnnulerEntretienAvance()' }) + '</div>';
+    // Consigne 66 (D45) : « Valider » est dans la barre du bas, plus de « Retour au rapport » dans la page (le « Retour » de la barre y ramene).
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'cv', 'Valider', { onclickPrecedent: 'ctAnnulerEntretienAvance()', onclickSuivant: 'ctValiderReponsesEntretienAvance()' }) + '</div>';
 }
 
 // TACHE (2026-08-25, DECISION DE DENIS) : rappel du micro meme sans
@@ -1180,8 +1121,7 @@ function ctHtmlEntretienAvanceCollecte() {
 function ctHtmlEtapeChoixIAEntretienAvance() {
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
-    '<div class="text-center"><h1>&#127919; Aller plus loin : mon entretien</h1>' +
-    '<p class="sousTitre">Choisissez l’assistant avec qui vous allez faire cet entretien.</p></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Aller plus loin : mon entretien', 'Choisissez l’assistant avec qui vous allez faire cet entretien.') +
     '<div class="cv-section coherence-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
     '<p class="text-muted small mb-3">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis ouvre l’assistant.</p>' +
@@ -1201,22 +1141,10 @@ function ctHtmlEtapeImportIAEntretienAvance(entretienAvance) {
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
     '<div id="ctEtapeImportIAAncre"></div>' +
-    '<div class="text-center"><h1>&#127919; Aller plus loin : mon entretien</h1></div>' +
+    htmlTitreEtapeModule('bi-check2-circle', 'Cohérence de mon dossier', 'Aller plus loin : mon entretien') +
     '<div class="cv-section coherence-etape-import-ia">' +
-    '<h4>&#128229; Collez la réponse de l’assistant</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de ' +
-    (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Une fois sa réponse copiée, collez-la ci-dessous.</p>' +
-    (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-    htmlCollageInstantane('CoherenceTransversaleEntretienAvance',
-      '<div class="d-flex gap-2 mb-2 mt-2">' +
-      '<button type="button" id="btnImporterEntretienAvance" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
-      'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
-      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerEntretienAvance">Effacer et recoller</button>' +
-      '</div>') +
-    '<div id="messageImportEntretienAvance" class="mt-2 small"' + (entretienAvance.statut === 'echec_parsing' ? ' style="color:var(--danger);"' : '') + '">' +
-    (entretienAvance.statut === 'echec_parsing' ? '⚠️ La réponse collée précédemment n’a pas pu être lue. Vérifiez qu’elle contient bien tout le bloc renvoyé par l’assistant, puis réessayez.' : '') +
-    '</div>' +
+    // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+    htmlCollageUniquePage('CoherenceEntretienAvance') +
     '</div></div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRevenirAuChoixIAEntretienAvance()' }) + '</div>';
 }
@@ -1347,7 +1275,7 @@ function ctHtmlRapportEntretienAvance(entretienAvance) {
 
   return '<div class="page-catalogue-contenu">' +
     ctHtmlBarreEtapes() +
-    '<div class="text-center"><h1>&#127919; Mon entretien avancé</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1><p class="sousTitre"><strong>Aller plus loin : mon entretien</strong></p>' +
     '<div class="d-flex flex-wrap justify-content-center gap-2 mt-2">' +
     '<button type="button" id="ctBoutonRetourRapportPrincipal" class="btn btn-outline-secondary btn-sm">&#11013; Retour au rapport</button>' +
     '<button type="button" id="ctBoutonApercuImpressionEntretienAvance" class="btn btn-outline-primary btn-sm' + classePulseApercu + '">&#128424; Aperçu avant impression</button>' +
@@ -1379,7 +1307,7 @@ function ctHtmlRapportEntretienAvance(entretienAvance) {
     // les recommandations non appliquees pour rester coherent.
     '<div class="text-center mb-3"><button type="button" id="ctBoutonRefaireEntretienAvance" class="btn btn-outline-primary">&#128260; Refaire l’entretien avancé</button></div>' +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRevenirAuRapportPrincipal()' }) + '</div>';
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRevenirAuRapportPrincipal()', terminerParcours: true, onclickTerminer: 'terminerParcoursSansFenetre()' }) + '</div>';
 }
 
 // ---------- Synthese (titre + fond colore selon la coherence globale) ----------
@@ -1421,7 +1349,7 @@ function ctHtmlSynthese(resultat) {
     : '<p class="text-muted small mb-0 mt-2">Pas de synthèse plus détaillée disponible pour cette analyse.</p>';
   return '<div class="cv-section" style="margin-bottom:1rem;background:' + couleur.bg + ';border:1px solid ' + couleur.border + ';">' +
     '<details>' +
-    '<summary style="cursor:pointer;">' +
+    '<summary class="ct-resume-accordeon" style="cursor:pointer;">' +
     '<p class="fw-bold mb-1 d-flex align-items-center">' +
     '<span>&#128269; Synthèse</span>' +
     '<span class="bilan-accordeon-invite" style="margin-left:auto;font-weight:600;">Cliquez pour en savoir plus</span>' +
@@ -1442,6 +1370,7 @@ function ctHtmlSynthese(resultat) {
 // remis a zero uniquement apres un "Relancer l'analyse" reussi. Cle =
 // champ du DossierTransversal (cv/lettre/preparationEntretien).
 var _ctModificationsEnAttente = {};
+var _ctModifEnCours = null;   // document en cours de remplacement dans le rapport (zone de depot affichee en page) : 'cv' | 'lettre' | 'preparationEntretien'
 
 // TACHE (entretien avance, Pass B, 2026-08-25, DECISION DE DENIS) : etat
 // PROPRE A L'ECRAN (pas au module -- _ctReponsesEntretienAvance n'existe
@@ -1502,6 +1431,8 @@ function ctRepriseContinuer() { _ctReprisePendante = false; pageCoherenceTransve
 function ctRecommencerDepuisIntro() {
   if (typeof ctStoreReinitialiser === 'function') { ctStoreReinitialiser(); }
   _ctModificationsEnAttente = {};
+  _ctModifEnCours = null;
+  _ctReinitialiserDepots();
   _ctRecommandationsLettreAppliquees = {};
   _ctReponsesEntretienAvance = null;
   _ctEtapeEntretienAvance = null;
@@ -1568,84 +1499,82 @@ function ctRendreCarteDocument(champ, titreCarte, dossierAffiche, diagnostic, op
   else if (optionnel) { badge = { texte: 'À compléter', bg: 'var(--bg-subtle)', couleur: 'var(--text-muted)' }; }
   else { badge = { texte: 'Manquant', bg: 'var(--danger-bg-subtle)', couleur: 'var(--danger)' }; }
 
-  // TACHE (retour utilisateur, 2026-08-25 : "en gris le bouton voir le
-  // resume est difficilement identifiable") : icone reprise de "Ce que
-  // l'analyse montre" (meme &#128203;, c'est la meme analyse qui remonte
-  // ici) + fond accent (meme role "information" que les cartes
-  // Recommandations, var(--accent-bg-subtle)) -- jamais une nouvelle
-  // couleur inventee. Sur sa propre ligne (largeur pleine), la personne a
-  // de la place, demande explicite de Denis.
+  // Consigne 82 (maquette validee par Denis, 31/10/2026) : UNE LIGNE par
+  // document (nom + pastille d'etat a gauche, boutons a droite), plus une
+  // carte haute avec des vides. Sans resume produit par l'analyse, aucun
+  // bouton n'est affiche (plus de « Resume indisponible » grise). Meme icone
+  // que « Ce que l'analyse montre » et fond accent : le resume remonte de la
+  // meme analyse.
   var boutonResume = (infosIA && (infosIA.pointsForts.length || infosIA.pointsFaibles.length))
-    ? '<button type="button" class="btn btn-sm w-100" style="background:var(--accent-bg-subtle);color:var(--accent);border:1px solid var(--accent);font-weight:600;" data-ct-voir-resume="' + champ + '">&#128203; Voir le résumé</button>'
-    : '<button type="button" class="btn btn-outline-secondary btn-sm w-100" disabled title="Le résumé est produit lors de l’analyse - relancez l’analyse pour l’obtenir.">&#128203; Résumé indisponible</button>';
+    ? '<button type="button" class="btn btn-sm" style="background:var(--accent-bg-subtle);color:var(--accent);border:1px solid var(--accent);font-weight:600;" data-ct-voir-resume="' + champ + '">&#128203; Voir le résumé</button>'
+    : '';
 
   var boutonAnnuler = modifie
     ? '<button type="button" class="btn btn-outline-secondary btn-sm" data-ct-annuler-modification="' + champ + '">Annuler</button>'
     : '';
 
-  // TACHE (retour utilisateur : "modifier" preterait a confusion avec un
-  // futur bouton "apporter des corrections" -- pas encore construit,
-  // voir docs/CHANTIER_COHERENCE_TRANSVERSALE_SYNTHESE.md) : renomme en
-  // "Changer ce document", sans ambiguite sur ce que ce bouton fait
-  // (remplacer entierement). Fond ambre (meme role "a enrichir/attention"
-  // que CT_COULEURS_NATURE.absence), distinct du bleu du resume.
+  // « Changer ce document » : remplace entierement le document (fond ambre,
+  // distinct du bleu du resume) ; « Ajouter » quand il n'y en a pas.
   var boutonPrincipal = present
     ? '<button type="button" class="btn btn-sm" style="background:var(--warning-bg-subtle);color:var(--warning-strong);border:1px solid var(--warning-border);font-weight:600;" data-ct-modifier-document="' + champ + '">&#9999; Changer ce document</button>'
     : '<button type="button" class="btn btn-primary btn-sm" data-ct-modifier-document="' + champ + '">&#10133; Ajouter</button>';
 
   var htmlResume = infosIA
-    ? '<div id="ct-resume-' + champ + '" style="display:none;" class="small mt-2">' +
-      (infosIA.pointsForts.length ? '<p class="mb-1"><strong>&#128994; Points forts :</strong> ' + infosIA.pointsForts.map(echapperAttribut).join(' - ') + '</p>' : '') +
-      (infosIA.pointsFaibles.length ? '<p class="mb-0"><strong>&#128993; À enrichir :</strong> ' + infosIA.pointsFaibles.map(echapperAttribut).join(' - ') + '</p>' : '') +
+    ? '<div id="ct-resume-' + champ + '" style="display:none;" class="ct-resume-doc small">' +
+      (infosIA.pointsForts.length ? '<p><strong>&#128994; Points forts :</strong> ' + infosIA.pointsForts.map(echapperAttribut).join(' ; ') + '</p>' : '') +
+      (infosIA.pointsFaibles.length ? '<p><strong>&#128993; À enrichir :</strong> ' + infosIA.pointsFaibles.map(echapperAttribut).join(' ; ') + '</p>' : '') +
       '</div>'
     : '';
 
-  // TACHE (retour utilisateur, 2026-08-25 : "changer ce document/ajouter
-  // doit etre en bas de la carte, pas juste sous le resume") : carte deja
-  // en colonne flexible (display:flex;flex-direction:column) -- il suffit
-  // que ce bloc soit le DERNIER enfant avec margin-top:auto pour etre
-  // pousse en bas, quelle que soit la hauteur du contenu au-dessus.
-  // "Voir le resume" reste lui en haut, juste sous le badge.
-  return '<div class="col-md-3 col-sm-6 mb-2">' +
-    '<div style="border:1px solid var(--border);border-radius:10px;padding:0.75rem;height:100%;display:flex;flex-direction:column;">' +
-    '<div class="fw-bold small">' + echapperAttribut(titreCarte) + '</div>' +
+  return '<div class="ct-ligne-doc">' +
+    '<div class="ct-ligne-doc-info">' +
+    '<span class="fw-bold">' + echapperAttribut(titreCarte) + '</span>' +
+    '<span class="badge ms-2" style="background:' + badge.bg + ';color:' + badge.couleur + ';font-weight:600;">' + badge.texte + '</span>' +
     (sousTitre ? '<div class="text-muted small">' + echapperAttribut(sousTitre) + '</div>' : '') +
-    '<span class="badge mt-1 align-self-start" style="background:' + badge.bg + ';color:' + badge.couleur + ';font-weight:600;">' + badge.texte + '</span>' +
-    '<div class="mt-2">' + boutonResume + '</div>' +
+    '</div>' +
+    '<div class="ct-ligne-doc-actions">' + boutonResume + boutonAnnuler + boutonPrincipal + '</div>' +
     htmlResume +
-    '<div class="d-flex gap-2 flex-wrap pt-2" style="margin-top:auto;">' + boutonAnnuler + boutonPrincipal + '</div>' +
-    '</div></div>';
+    '</div>';
 }
 
 function ctHtmlTableauDeBord(diagnostic) {
   var dossierBase = ctObtenirDossier() || {};
   var dossierAffiche = Object.assign({}, dossierBase, _ctModificationsEnAttente);
 
-  var cartesDocuments =
-    ctRendreCarteDocument('cv', 'Votre CV', dossierAffiche, diagnostic, false) +
-    ctRendreCarteDocument('lettre', 'Votre lettre de motivation', dossierAffiche, diagnostic, false) +
-    ctRendreCarteDocument('preparationEntretien', 'Préparation d’entretien d’embauche', dossierAffiche, diagnostic, true);
+  // La zone de depot s'ouvre juste sous la ligne du document concerne.
+  var lignesDocuments = [
+    ['cv', 'Votre CV', false],
+    ['lettre', 'Votre lettre de motivation', false],
+    ['preparationEntretien', 'Préparation d’entretien d’embauche', true]
+  ].map(function (d) {
+    return ctRendreCarteDocument(d[0], d[1], dossierAffiche, diagnostic, d[2]) +
+      (_ctModifEnCours === d[0] && typeof htmlDepotCVEnPage === 'function'
+        ? '<div id="ctDepotModif" class="cv-section mt-2 mb-2"><h4 class="h6">Changer : ' + echapperAttribut(CT_DEPOT_MODIF_TITRES[_ctModifEnCours]) + '</h4>' + htmlDepotCVEnPage(_ctDepotModifCfg()) + '</div>'
+        : '');
+  }).join('');
 
-  var carteCandidature = '<div class="col-md-3 col-sm-6 mb-2">' +
-    '<div style="border:1px solid var(--border);border-radius:10px;padding:0.75rem;height:100%;">' +
-    '<div class="fw-bold small mb-2">&#128188; Votre candidature</div>' +
-    '<label class="small text-muted mb-1 d-block">Entreprise ciblée</label>' +
-    '<input type="text" id="ctChampEntrepriseTdb" class="form-control form-control-sm mb-2" value="' + echapperAttribut(dossierAffiche.entrepriseCiblee || '') + '" placeholder="Non renseignée">' +
-    '<label class="small text-muted mb-1 d-block">Type de structure</label>' +
-    '<select id="ctChampTypeStructureTdb" class="form-select select-type-structure mb-2">' +
-    '<option value="">Non précisé</option>' +
+  var carteCandidature = '<div class="ct-bloc ct-bloc-visee">' +
+    '<div class="fw-bold mt-2 mb-1">&#128188; Ce que vous visez</div>' +
+    '<p class="small text-muted mb-2">Ces informations aident l’analyse à juger si vos documents correspondent à ce poste.</p>' +
+    '<div class="ct-visee">' +
+    '<div><label for="ctChampEntrepriseTdb">Entreprise</label>' +
+    '<input type="text" id="ctChampEntrepriseTdb" class="form-control form-control-sm" value="' + echapperAttribut(dossierAffiche.entrepriseCiblee || '') + '" placeholder="À compléter"></div>' +
+    '<div><label for="ctChampSiteTdb">Son site internet</label>' +
+    '<input type="text" id="ctChampSiteTdb" class="form-control form-control-sm" value="' + echapperAttribut(dossierAffiche.siteEntreprise || '') + '" placeholder="À compléter"></div>' +
+    '<div class="plein"><label for="ctChampTypeStructureTdb">Type d’entreprise</label>' +
+    '<select id="ctChampTypeStructureTdb" class="form-select select-type-structure">' +
+    '<option value="">À compléter</option>' +
     (typeof BILAN_TYPES_STRUCTURE !== 'undefined' ? BILAN_TYPES_STRUCTURE.map(function (t) {
       return '<option value="' + echapperAttribut(t) + '"' + (dossierAffiche.typeStructure === t ? ' selected' : '') + '>' + echapperAttribut(t) + '</option>';
     }).join('') : '') +
-    '</select>' +
-    '<label class="small text-muted mb-1 d-block">Site internet</label>' +
-    '<input type="text" id="ctChampSiteTdb" class="form-control form-control-sm mb-2" value="' + echapperAttribut(dossierAffiche.siteEntreprise || '') + '" placeholder="Non renseigné">' +
-    '<label class="small text-muted mb-1 d-block">Offre visée</label>' +
-    '<textarea id="ctChampOffreTdb" class="form-control form-control-sm" rows="2" placeholder="Non renseignée">' + echapperAttribut(dossierAffiche.offreEmploi || '') + '</textarea>' +
+    '</select></div>' +
+    '<div class="plein"><label for="ctChampOffreTdb">L’offre d’emploi</label>' +
+    '<textarea id="ctChampOffreTdb" class="form-control form-control-sm" rows="3" placeholder="À compléter">' + echapperAttribut(dossierAffiche.offreEmploi || '') + '</textarea></div>' +
     '</div></div>';
 
   return '<div class="cv-section" style="margin-bottom:1rem;">' +
-    '<div class="row g-2">' + cartesDocuments + carteCandidature + '</div>' +
+    '<div class="ct-bloc ct-bloc-docs">' + lignesDocuments + '</div>' +
+    carteCandidature +
     '<div id="ctErreurTableauDeBord" class="small mt-2" style="display:none;color:var(--danger);"></div>' +
     // TACHE (message contextuel avant "Relancer l'analyse", 2026-08-25,
     // DECISION DE DENIS) : rempli/affiche dynamiquement par
@@ -1653,15 +1582,17 @@ function ctHtmlTableauDeBord(diagnostic) {
     // texte fixe (la raison varie : document modifie, recommandation
     // appliquee, candidature modifiee, ou plusieurs a la fois).
     '<div id="ctMessageRelancer" class="small mt-3 mb-2 text-center" style="display:none;color:var(--accent);font-weight:600;"></div>' +
-    '<div class="text-center d-flex flex-wrap justify-content-center gap-2">' +
+    '<div class="ct-actions-tdb text-center d-flex flex-wrap justify-content-center gap-2">' +
     // TACHE (retour utilisateur, 2026-08-25, DECISION DE DENIS) : place
     // AVANT "Relancer l'analyse" pour rester visible - desactive/
     // transparent tant qu'aucune recommandation n'a ete appliquee a la
     // lettre de motivation, piloté par ctActualiserBoutonRelancer() (meme
     // etat _ctRecommandationsLettreAppliquees). Style inline (opacity),
     // pas une nouvelle classe CSS pour un etat aussi simple.
-    '<button type="button" id="ctBoutonVoirLettre" class="btn btn-outline-secondary" disabled style="opacity:0.45;">&#128196; Voir/imprimer votre lettre</button>' +
-    '<button type="button" id="ctBoutonRelancerAnalyse" class="btn btn-primary" disabled>&#128260; Relancer l’analyse</button>' +
+    '<div class="ct-bouton-et-phrase"><button type="button" id="ctBoutonVoirLettre" class="btn btn-outline-secondary" disabled style="opacity:0.45;">&#128196; Voir/imprimer votre lettre</button>' +
+    '<div id="ctPhraseVoirLettre" class="small text-muted mt-1">Disponible dès que vous appliquez une recommandation à votre lettre.</div></div>' +
+    '<div class="ct-bouton-et-phrase"><button type="button" id="ctBoutonRelancerAnalyse" class="btn btn-primary" disabled>&#128260; Relancer l’analyse</button>' +
+    '<div id="ctPhraseRelancer" class="small text-muted mt-1">Disponible dès que vous modifiez un document ou appliquez une recommandation.</div></div>' +
     '<button type="button" id="ctBoutonEntretienAvance" class="btn btn-outline-primary">&#127919; Aller plus loin : mon entretien</button>' +
     '</div>' +
     // TACHE (retour utilisateur, 2026-08-25, DECISION DE DENIS -- "il doit
@@ -1675,30 +1606,36 @@ function ctHtmlTableauDeBord(diagnostic) {
     '</div>';
 }
 
-// Reouvre le meme assistant de depot que la 1ere collecte (fichier ou
-// texte colle, voir data/metiers.js) -- ecrit dans _ctModificationsEnAttente
+// Ouvre, EN PAGE sous les cartes, la meme zone de depot que la 1ere collecte (fichier ou
+// texte colle, relecture et masquage compris, voir data/metiers.js) -- ecrit dans _ctModificationsEnAttente
 // UNIQUEMENT (jamais applique tant que "Relancer l'analyse" n'a pas ete
 // cliquee), puis rafraichit l'affichage pour montrer "modifie, pas encore
 // relance".
-function ctModifierDocument(champ) {
-  var configs = {
-    cv: { titre: 'Votre CV', intro: 'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan de votre CV. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.' },
-    lettre: { titre: 'Votre lettre de motivation', intro: 'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan de votre lettre. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.' },
-    preparationEntretien: { titre: 'Votre préparation d’entretien d’embauche', intro: 'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.', optionnel: true }
-  };
-  var config = configs[champ];
-  if (!config) { return; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: config.titre,
-    intro: config.intro,
-    optionnel: config.optionnel,
-    onDocumentPrepare: function (resultat) {
-      if (!resultat || resultat.type !== 'texte' || !resultat.valeur) { return; }
-      _ctModificationsEnAttente[champ] = resultat.valeur;
+var CT_DEPOT_MODIF_TITRES = { cv: 'CV', lettre: 'Lettre de motivation', preparationEntretien: 'Préparation d’entretien d’embauche' };
+function _ctDepotModifCfg() {
+  var champ = _ctModifEnCours;
+  return {
+    cle: 'ctModif',
+    titreDocument: CT_DEPOT_MODIF_TITRES[champ] || 'CV',
+    avecIdentite: false,
+    ecrireCV: false,
+    fait: false,
+    rerender: pageCoherenceTransversale,
+    libelleFermer: 'Annuler',
+    onFermer: function () { _ctModifEnCours = null; reinitialiserDepotCVEnPage('ctModif'); pageCoherenceTransversale(); },
+    onDocumentPrepare: function (res) {
+      if (res && res.type === 'texte' && res.valeur && champ) { _ctModificationsEnAttente[champ] = res.valeur; }
+      _ctModifEnCours = null;
+      reinitialiserDepotCVEnPage('ctModif');
       pageCoherenceTransversale();
-    },
-    onRetourEtape1: function () {}
-  });
+    }
+  };
+}
+function ctModifierDocument(champ) {
+  if (!CT_DEPOT_MODIF_TITRES[champ]) { return; }
+  reinitialiserDepotCVEnPage('ctModif');
+  _ctModifEnCours = champ;
+  pageCoherenceTransversale();
 }
 
 // TACHE (2026-08-25, DECISION DE DENIS) : revenir sur une modification en
@@ -1754,11 +1691,8 @@ function ctRelancerAnalyse() {
     typeStructure: champTypeStructure,
     questionsPersonne: dossierActuel.questionsPersonne
   };
-  var dejaRelu = {
-    cv: _ctModificationsEnAttente.cv === undefined,
-    lettre: _ctModificationsEnAttente.lettre === undefined,
-    preparationEntretien: _ctModificationsEnAttente.preparationEntretien === undefined
-  };
+  // Un document modifie vient de la zone de depot en page : deja relu et masque par la personne, aucune relecture a rouvrir.
+  var dejaRelu = { cv: true, lettre: true, preparationEntretien: true };
 
   if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_relance'); }
 
@@ -1871,6 +1805,8 @@ function ctActualiserBoutonRelancer(pulserEntretienAvanceSiActif) {
   var relancerEtaitDesactive = btn.disabled;
   btn.disabled = raisons.length === 0;
   if (relancerEtaitDesactive && !btn.disabled) { ctDeclencherPulseBouton(btn); }
+  var phraseRelancer = document.getElementById('ctPhraseRelancer');
+  if (phraseRelancer) { phraseRelancer.style.display = raisons.length ? 'none' : 'block'; }
   if (zoneMessage) {
     zoneMessage.style.display = raisons.length ? 'block' : 'none';
     zoneMessage.textContent = raisons.length ? 'L’analyse sera relancée avec ' + raisons.join(' et ') + '.' : '';
@@ -1895,6 +1831,8 @@ function ctActualiserBoutonRelancer(pulserEntretienAvanceSiActif) {
     var lettreImprimable = Object.keys(_ctRecommandationsLettreAppliquees).length > 0;
     btnVoirLettre.disabled = !lettreImprimable;
     btnVoirLettre.style.opacity = lettreImprimable ? '1' : '0.45';
+    var phraseLettre = document.getElementById('ctPhraseVoirLettre');
+    if (phraseLettre) { phraseLettre.style.display = lettreImprimable ? 'none' : 'block'; }
     if (lettreImprimable && !_ctPulseVoirLettreMontre) {
       btnVoirLettre.classList.add('case-a-cocher-pulse');
       _ctPulseVoirLettreMontre = true;
@@ -2169,6 +2107,7 @@ function ctOuvrirPanneauApercuLettre(texteLettreActuel, texteLettreCourte) {
 }
 
 function ctBrancherTableauDeBord() {
+  if (_ctModifEnCours && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_ctDepotModifCfg()); }
   document.querySelectorAll('[data-ct-modifier-document]').forEach(function (bouton) {
     bouton.addEventListener('click', function () { ctModifierDocument(bouton.dataset.ctModifierDocument); });
   });
@@ -2239,7 +2178,7 @@ function ctBrancherEntretienAvanceChoixIA() {
           etapes: ETAPES_ASSISTANT_IA_TEXTE,
           construireTexteACopier: function () { return entretienAvanceGenere.promptTexte; },
           onApresValidation: function (urlAssistant, nomAssistant) {
-            _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+            _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
             pageCoherenceTransversale();
           }
         });
@@ -2259,86 +2198,31 @@ function ctBrancherEntretienAvanceChoixIA() {
 // id d'ancre (ctEtapeImportIAAncre) -- sans risque, un seul ecran de
 // transition rendu a la fois (application mono-page).
 function ctBrancherEntretienAvanceImportIA() {
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoCoherenceTransversaleEntretienAvance', idZoneApercu: 'zoneApercuCollageCoherenceTransversaleEntretienAvance',
-    idTextarea: 'texteCollageCoherenceTransversaleEntretienAvance', idBoutonColler: 'btnCollerAutoCoherenceTransversaleEntretienAvance',
-    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversaleEntretienAvance', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversaleEntretienAvance', idBoutonImporter: 'btnImporterEntretienAvance',
-    onSucces: function (texte, estAjout) {
-      var msg = document.getElementById('messageImportEntretienAvance');
-      msg.style.color = 'var(--success-strong)';
-      msg.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
-        : '✅ Réponse importée automatiquement depuis le presse-papiers.';
+  // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : « Coller la reponse » lit et verifie (analyseur pur) ; l'enregistrement a lieu au clic sur « Continuer ».
+  var controleurEntretienAvance = brancherCollageUniquePage({
+    suffixe: 'CoherenceEntretienAvance', idAncre: 'ctEtapeImportIAAncre', rerendre: pageCoherenceTransversale, evenementBloque: 'coherence_transversale_entretien_avance_popup_bloque',
+    echecInitial: !!(typeof ctObtenirEntretienAvance === 'function' && ctObtenirEntretienAvance() && ctObtenirEntretienAvance().statut === 'echec_parsing'),
+    module: {
+      libelleSuite: 'Voir mon retour',
+      quoi: 'L’assistant vient d’analyser vos réponses aux questions d’entretien : points forts, axes d’amélioration et recommandations.',
+      pourquoi: 'Vous voyez ce qui est déjà solide et ce qui mérite d’être retravaillé avant le vrai entretien.',
+      verif: 'ces conseils n’abordent que certains aspects de votre parcours : le recruteur pourra toujours poser d’autres questions et explorer d’autres dimensions de votre vie professionnelle. Gardez ce qui vous aide.'
     },
-    onErreur: function (texteErreur) {
-      var msg = document.getElementById('messageImportEntretienAvance');
-      msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ ' + texteErreur;
+    verifier: function (texte) {
+      try { ctParserReponseEntretienAvance(texte); return { ok: true }; } catch (erreur) { return { ok: false }; }
     },
-    // TACHE (retour Denis, 2026-08-31) : un message d'erreur ne survit pas a
-    // "Effacer et recoller" ni a un collage manuel.
-    onEffacer: function () { var m = document.getElementById('messageImportEntretienAvance'); if (m) { m.textContent = ''; } },
-    onCollerManuel: function () { var m = document.getElementById('messageImportEntretienAvance'); if (m) { m.textContent = ''; } }
-  });
-
-  if (_etatTransitionIA) {
-    var ctOuvrirAssistantEnAttenteEntretienAvance = function () {
-      if (!document.getElementById('ctEtapeImportIAAncre')) {
-        clearInterval(_intervalleDecompteIA);
-        return;
-      }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_entretien_avance_popup_bloque'); }
-        pageCoherenceTransversale();
-      });
-    };
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnContinuerMaintenant = document.getElementById('btnContinuerMaintenantIA');
-      if (btnContinuerMaintenant) {
-        btnContinuerMaintenant.addEventListener('click', function () { clearInterval(_intervalleDecompteIA); ctOuvrirAssistantEnAttenteEntretienAvance(); });
-      }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteur = document.getElementById('compteurDecompteIA');
-        if (compteur) { compteur.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_intervalleDecompteIA); ctOuvrirAssistantEnAttenteEntretienAvance(); }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnOuvrirBloque = document.getElementById('btnOuvrirBloqueIA');
-      if (btnOuvrirBloque) { btnOuvrirBloque.addEventListener('click', ctOuvrirAssistantEnAttenteEntretienAvance); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnJeSuisDeRetour = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnJeSuisDeRetour) {
-        btnJeSuisDeRetour.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; pageCoherenceTransversale(); });
-      }
-    }
-  }
-
-  var btnImporter = document.getElementById('btnImporterEntretienAvance');
-  if (btnImporter) {
-    btnImporter.addEventListener('click', function () {
-      var texte = document.getElementById('texteCollageCoherenceTransversaleEntretienAvance').value;
-      var msg = document.getElementById('messageImportEntretienAvance');
-      if (msg) { msg.textContent = ''; msg.style.color = ''; }
+    onChangerAssistant: function () { ctRevenirAuChoixIAEntretienAvance(); },
+    onContinuer: function (texte) {
       try {
         ctSoumettreReponseEntretienAvance(texte, {});
         _etatTransitionIA = null;
         if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_entretien_avance_complete'); }
         pageCoherenceTransversale();
       } catch (erreur) {
-        if (msg) {
-          msg.style.color = 'var(--danger)';
-          msg.textContent = (erreur && erreur.code === 'ReponseIllisible')
-            ? '⚠️ Aucune réponse valide trouvée dans ce texte. Vérifiez que vous avez bien copié toute la réponse de l’assistant, puis réessayez.'
-            : '⚠️ La réponse copiée est incomplète. Vérifiez que vous avez bien copié toute la réponse de l’assistant, puis réessayez.';
-        }
+        if (controleurEntretienAvance) { controleurEntretienAvance.aller('echec'); }
       }
-    });
-  }
+    }
+  });
 }
 
 // Retour Denis 2026-09-30 (C9) : les rectangles explicatifs « Garder comme repere » et « Vos documents relus avant l'analyse » sont retires de cet
@@ -2417,7 +2301,7 @@ function ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance) {
             etapes: ETAPES_ASSISTANT_IA_TEXTE,
             construireTexteACopier: function () { return diagnosticGenere.promptTexte; },
             onApresValidation: function (urlAssistant, nomAssistant) {
-              _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+              _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
               pageCoherenceTransversale();
             }
           });
@@ -2457,126 +2341,54 @@ function ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance) {
     return;
   }
 
-  // ---------- Ecran "Coller la reponse" ----------
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoCoherenceTransversale', idZoneApercu: 'zoneApercuCollageCoherenceTransversale',
-    idTextarea: 'texteCollageCoherenceTransversale', idBoutonColler: 'btnCollerAutoCoherenceTransversale',
-    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversale', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversale', idBoutonImporter: 'btnImporterCoherence',
-    onSucces: function (texte, estAjout) {
-      var msg = document.getElementById('messageImportCoherence');
-      msg.style.color = 'var(--success-strong)';
-      msg.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
-        : '✅ Réponse importée automatiquement depuis le presse-papiers.';
+  // ---------- Ecran « Collez la reponse » (fenetre unique, dette B.17, etape C, 2026-10-28) ----------
+  // « Coller la reponse » lit et verifie (analyseur pur) sans rien enregistrer ; l'enregistrement a lieu au clic sur « Continuer » (barre du bas).
+  var controleurCoherence = brancherCollageUniquePage({
+    suffixe: 'CoherenceTransversale', idAncre: 'ctEtapeImportIAAncre', rerendre: pageCoherenceTransversale, evenementBloque: 'coherence_transversale_popup_bloque',
+    echecInitial: !!(diagnostic && diagnostic.statut === 'echec_parsing'),
+    module: {
+      libelleSuite: 'Voir mon rapport',
+      quoi: 'L’assistant vient de comparer vos documents : il repère ce qui se tient bien et ce qui se contredit.',
+      pourquoi: 'Un recruteur remarque vite les écarts entre un CV et une lettre : mieux vaut les repérer vous-même avant lui.',
+      verif: 'regardez que les remarques correspondent bien à vos documents.'
     },
-    onErreur: function (texteErreur) {
-      var msg = document.getElementById('messageImportCoherence');
-      msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ ' + texteErreur;
+    verifier: function (texte) {
+      try {
+        ctParserReponseDiagnostic(texte);
+        return { ok: true };
+      } catch (erreur) {
+        // TACHE (retour Denis, 2026-08-31, Chantier 4) : l'assistant a repondu que les pieces fournies ne permettent aucune analyse de coherence
+        // -> explication dans la fenetre qui ramene au depot, jamais un message d'echec de format ni un rapport vide.
+        if (erreur && erreur.code === 'SaisieInexploitable') {
+          return { ok: false, personnalise: {
+            texte: '<strong>Les pièces analysées ne sont pas exploitables.</strong> Ce n’est pas un souci de copier-coller : le CV ou la lettre transmis étaient vides, trop courts, ou illisibles.' +
+              (erreur.message ? '<br><em>' + echapperAttribut(erreur.message) + '</em><br>' : ' ') + 'Revenez au dépôt et fournissez un CV et une lettre lisibles.',
+            bouton: { libelle: 'Revenir au dépôt' }
+          } };
+        }
+        return { ok: false };
+      }
     },
-    // TACHE (retour Denis, 2026-08-31) : un message d'erreur ne survit pas a
-    // "Effacer et recoller" ni a un collage manuel.
-    onEffacer: function () { var m = document.getElementById('messageImportCoherence'); if (m) { m.textContent = ''; } },
-    onCollerManuel: function () { var m = document.getElementById('messageImportCoherence'); if (m) { m.textContent = ''; } }
-  });
-
-  // Reprend _etatTransitionIA/htmlBanniereTransitionIA()/_intervalleDecompteIA,
-  // partages par toute l'application (page Action, Decouverte, Bilan) --
-  // memes id de boutons (btnContinuerMaintenantIA, btnOuvrirBloqueIA,
-  // btnJeSuisDeRetourIA, compteurDecompteIA), jamais une variante propre a
-  // ce module : un seul ecran de transition visible a la fois de toute
-  // facon (application mono-page), aucun risque de collision reelle.
-  if (_etatTransitionIA) {
-    function ctOuvrirAssistantEnAttente() {
-      if (!document.getElementById('ctEtapeImportIAAncre')) {
-        clearInterval(_intervalleDecompteIA);
-        return;
-      }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_popup_bloque'); }
-        pageCoherenceTransversale();
-      });
-    }
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnContinuerMaintenant = document.getElementById('btnContinuerMaintenantIA');
-      if (btnContinuerMaintenant) {
-        btnContinuerMaintenant.addEventListener('click', function () { clearInterval(_intervalleDecompteIA); ctOuvrirAssistantEnAttente(); });
-      }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteur = document.getElementById('compteurDecompteIA');
-        if (compteur) { compteur.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_intervalleDecompteIA); ctOuvrirAssistantEnAttente(); }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnOuvrirBloque = document.getElementById('btnOuvrirBloqueIA');
-      if (btnOuvrirBloque) { btnOuvrirBloque.addEventListener('click', ctOuvrirAssistantEnAttente); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnJeSuisDeRetour = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnJeSuisDeRetour) {
-        btnJeSuisDeRetour.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; pageCoherenceTransversale(); });
-      }
-    }
-  }
-
-  var btnImporter = document.getElementById('btnImporterCoherence');
-  if (btnImporter) {
-    btnImporter.addEventListener('click', function () {
-      var texte = document.getElementById('texteCollageCoherenceTransversale').value;
-      var msg = document.getElementById('messageImportCoherence');
-      if (msg) { msg.textContent = ''; msg.style.color = ''; }
+    onEchecAction: function () {
+      // Le dossier/diagnostic inexploitables sont effaces (comme avant), puis on atterrit directement sur l'ecran de collecte (page).
+      if (typeof ctStoreReinitialiser === 'function') { ctStoreReinitialiser(); }
+      _ctCollecteEtat = null;
+      _ctReinitialiserDepots();
+      _ctEnCollecte = true;
+      pageCoherenceTransversale();
+    },
+    onChangerAssistant: function () { ctRevenirAuChoixIA(); },
+    onContinuer: function (texte) {
       try {
         ctSoumettreReponseDiagnostic(texte, {});
         _etatTransitionIA = null;
         if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_diagnostic_complete'); }
         pageCoherenceTransversale();
       } catch (erreur) {
-        // TACHE (retour Denis, 2026-08-31, Chantier 4) : l'assistant a repondu
-        // que les pieces fournies ne permettent aucune analyse de coherence
-        // -> ecran dedie qui ramene au depot, jamais un message d'echec de
-        // format ni un rapport vide.
-        if (erreur && erreur.code === 'SaisieInexploitable') {
-          if (msg) {
-            msg.style.color = '';
-            msg.innerHTML =
-              '<div style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);' +
-              'border-radius:8px;padding:0.85rem 1rem;font-size:0.95rem;">' +
-              '<p class="mb-2"><span style="font-size:1.1rem;">&#128196;</span> <strong>Les pièces analysées ne sont pas exploitables.</strong> ' +
-              'Ce n’est pas un souci de copier-coller : le CV ou la lettre transmis étaient vides, trop courts, ou illisibles.</p>' +
-              (erreur.message ? '<p class="text-muted mb-2" style="font-style:italic;">' + echapperAttribut(erreur.message) + '</p>' : '') +
-              '<p class="mb-2">Revenez au dépôt et fournissez un CV et une lettre lisibles.</p>' +
-              '<div class="text-center"><button type="button" id="btnCtRevenirDepotInexploitable" class="btn btn-primary">&#8592; Revenir au dépôt</button></div>' +
-              '</div>';
-            var btnCtRet = document.getElementById('btnCtRevenirDepotInexploitable');
-            if (btnCtRet) {
-              btnCtRet.addEventListener('click', function () {
-                // TACHE (adaptation chantier "elimination des fenetres de
-                // depot CV", 2026-09-04) : le dossier/diagnostic inexploitables
-                // sont effaces (comme avant -- ctDemarrerCollecte() partait
-                // deja de zero), puis on atterrit directement sur l'ecran de
-                // collecte (page), plus une cascade de fenetres.
-                if (typeof ctStoreReinitialiser === 'function') { ctStoreReinitialiser(); }
-                _ctCollecteEtat = null;
-                _ctEnCollecte = true;
-                pageCoherenceTransversale();
-              });
-            }
-          }
-          return;
-        }
-        if (msg) {
-          msg.style.color = 'var(--danger)';
-          msg.textContent = (erreur && erreur.code === 'ReponseIllisible')
-            ? '⚠️ Aucune réponse valide trouvée dans ce texte. Vérifiez que vous avez bien copié toute la réponse de l’assistant, puis réessayez.'
-            : '⚠️ La réponse copiée est incomplète. Vérifiez que vous avez bien copié toute la réponse de l’assistant, puis réessayez.';
-        }
+        if (controleurCoherence) { controleurCoherence.aller('echec'); }
       }
-    });
-  }
+    }
+  });
 }
 
 // ---------- Actions des recommandations (rapport termine) ----------

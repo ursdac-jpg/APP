@@ -17,11 +17,11 @@ const vm = require('vm');
 const L = require('../modules/mon-territoire/logique.js');
 
 const RE_ID = /^[a-z0-9][a-z0-9-]{1,80}$/;
-const MAX_ACTIONS = 100;
+const MAX_ACTIONS = 1000;   // demande de Denis (04/11/2026) : valider 500 fiches du sas d'un seul « Enregistrer » ; le travail par action est court, un seul enregistrement Git, une seule annulation.
 
 const LIBELLES = {
   id: 'Identifiant', type: 'Type', nom: 'Nom', description: 'Ce qu\'il fait', commune: 'Commune', zone: 'Zone desservie (epci:code ; commune:Nom, vide si pas relevée)', telephone: 'Téléphone',
-  site: 'Site (https://...)', mail: 'Mail (adresse de service, jamais celle d’une personne)', portee: 'Portée', rayons: 'Rayons de Comprendre le cadre', source: 'Source', date: 'Dernière vérification',
+  site: 'Site (https://...)', adresse: 'Adresse (numéro, rue, code postal, commune)', mail: 'Mail (adresse de service, jamais celle d’une personne)', portee: 'Portée', rayons: 'Rayons de Comprendre le cadre', source: 'Source', date: 'Dernière vérification',
   nature: 'Nature', secteur: 'Secteur', etablissements: 'Établissements (Commune:adresse ; Commune:adresse)', recrutement: 'Page de recrutement (https://...)',
   modes: 'Modes de candidature',
   famille: 'Famille', territoire: 'Territoire', page: 'Page où l\'employeur publie ses offres (https://...)', employeur: 'Fiche d\'employeur liée (identifiant, vide si aucune)',
@@ -31,7 +31,7 @@ const LIBELLES = {
 // Dans l'OUTIL, une structure ou un employeur est « à revérifier » dès 6 mois ; le site public garde sa règle (12 mois, MT_VALIDITE_MOIS) : seul Denis décide de ce qui est affiché.
 const REVOIR_MOIS = 6;
 const FICHIERS = {
-  lieux: { chemin: 'modules/mon-territoire/contenu/lieux.txt', colonnes: L.MT_COLONNES_LIEUX, coordonnees: ['telephone', 'site', 'mail'], verifier: L.mtVerifierLieux, revoirMois: REVOIR_MOIS },
+  lieux: { chemin: 'modules/mon-territoire/contenu/lieux.txt', colonnes: L.MT_COLONNES_LIEUX, coordonnees: ['telephone', 'site', 'mail', 'adresse'], verifier: L.mtVerifierLieux, revoirMois: REVOIR_MOIS },
   employeurs: { chemin: 'modules/mon-territoire/contenu/employeurs.txt', colonnes: L.MT_COLONNES_EMPLOYEURS, coordonnees: ['telephone', 'site', 'recrutement'], verifier: L.mtVerifierEmployeurs, revoirMois: REVOIR_MOIS },
   // Une page d'offres ne s'enregistre jamais sans date de vérification à la main (dateObligatoire) ; « controle » et « stages » ne se modifient pas ici.
   offres: { chemin: 'modules/mon-territoire/contenu/offres.txt', colonnes: L.MT_COLONNES_OFFRES, coordonnees: ['page'], verifier: L.mtVerifierOffres, dateObligatoire: true, cachees: ['controle', 'stages'], revoirMois: L.MT_VALIDITE_OFFRES_MOIS, masqueeMois: L.MT_VALIDITE_MOIS }
@@ -84,10 +84,8 @@ function analyser(texte, colonnes) {
   const lignes = texte.split(/\r?\n/).map(function (brut) {
     if (!brut.trim() || /^\s*#/.test(brut)) { return { brut: brut }; }
     const p = brut.trim().split(/\s*\|\s*/).map(function (x) { return x.trim(); });
-    // Anciennes lignes des structures : la colonne « mail » (la dernière) peut manquer.
-    if (p.length === colonnes.length - 1 && colonnes[colonnes.length - 1] === 'mail') { p.push(''); }
-    // Anciennes lignes des structures : la colonne « mail » (la dernière) peut manquer.
-    if (p.length === colonnes.length - 1 && colonnes[colonnes.length - 1] === 'mail') { p.push(''); }
+    // Anciennes lignes des structures : les colonnes « mail » et « adresse » (les dernières) peuvent manquer.
+    L.mtCompleterFin(p, colonnes);
     if (p.length !== colonnes.length) { return { brut: brut }; }
     const v = {};
     colonnes.forEach(function (c, k) { v[c] = p[k]; });
@@ -98,14 +96,24 @@ function analyser(texte, colonnes) {
 
 // Une ligne d'enregistrement : colonnes separees par « | », une colonne vide s'ecrit « | | », la derniere peut rester vide.
 function formater(colonnes, v) {
-  // La colonne « mail » (la dernière des structures) est omise quand elle est vide : les lignes sans mail gardent leurs 12 colonnes d'origine.
-  if (colonnes[colonnes.length - 1] === 'mail' && !String(v.mail == null ? '' : v.mail).trim()) { colonnes = colonnes.slice(0, -1); }
+  // Les colonnes « mail » et « adresse » (les dernières des structures) sont omises quand elles sont vides : les lignes sans mail ni adresse gardent leurs 12 colonnes d'origine.
+  colonnes = L.mtColonnesAEcrire(colonnes, v);
   let t = colonnes.map(function (c) { return String(v[c] == null ? '' : v[c]).trim(); }).join(' | ');
   while (t.indexOf(' |  | ') !== -1) { t = t.replace(' |  | ', ' | | '); }
   return t.replace(/ \| $/, ' |');
 }
 
-function valeurPropre(x) { return typeof x === 'string' && x.indexOf('|') === -1 && !/[\r\n\u0000]/.test(x) && x.length <= 800; }
+// Longueur permise d'un champ : 800 caractères, sauf la liste des établissements d'une enseigne (une enseigne de 39 magasins en fait plus de 2 000 ; limite relevée le 04/11/2026 après un refus de Carrefour).
+const LONGUEUR_MAX = 800, LONGUEUR_MAX_ETABLISSEMENTS = 4000, LONGUEUR_MAX_SOURCE = 1500;   // la note de source est un texte libre (la fiche Cofel en compte 822)
+function longueurMax(colonne) { return colonne === 'etablissements' ? LONGUEUR_MAX_ETABLISSEMENTS : (colonne === 'source' ? LONGUEUR_MAX_SOURCE : LONGUEUR_MAX); }
+// Rend '' si le champ est correct, sinon la raison EXACTE (barre verticale / retour à la ligne, ou trop long) : l'ancien message accusait toujours la barre verticale.
+function problemeDeValeur(x, colonne) {
+  if (typeof x !== 'string') { return 'doit être un texte'; }
+  if (x.indexOf('|') !== -1 || /[\r\n\u0000]/.test(x)) { return 'ne peut pas contenir de barre verticale ni de retour à la ligne'; }
+  if (x.length > longueurMax(colonne)) { return 'est trop long (' + x.length + ' caractères, ' + longueurMax(colonne) + ' au plus)'; }
+  return '';
+}
+function valeurPropre(x, colonne) { return !problemeDeValeur(x, colonne); }
 
 // Fraîcheur d'une ligne : 'sans-date' | 'recente' | 'a-reverifier' (au-delà du seuil propre au registre : 12 mois, ou 6 mois pour les pages d'offres).
 function fraicheurDe(f, date, aujourdhui) {
@@ -157,7 +165,7 @@ function appliquer(fichier, texte, actions, aujourdhui, ctx) {
     const sortie = {};
     for (const c of Object.keys(v || {})) {
       if (colonnesModifiables.indexOf(c) === -1) { return { erreur: id + ' : colonne inconnue ou non modifiable (« ' + c + ' »).' }; }
-      if (!valeurPropre(v[c])) { return { erreur: id + ' : « ' + (LIBELLES[c] || c) + ' » ne peut pas contenir de barre verticale ni de retour a la ligne.' }; }
+      const pv = problemeDeValeur(v[c], c); if (pv) { return { erreur: id + ' : « ' + (LIBELLES[c] || c) + ' » ' + pv + '.' }; }
       sortie[c] = v[c].trim();
     }
     return { valeurs: sortie };
@@ -216,4 +224,4 @@ function appliquer(fichier, texte, actions, aujourdhui, ctx) {
   return { ok: true, texte: nouveauTexte, resume: resume };
 }
 
-module.exports = { FICHIERS: FICHIERS, contexteDepuis: contexteDepuis, analyser: analyser, formater: formater, lister: lister, appliquer: appliquer };
+module.exports = { FICHIERS: FICHIERS, contexteDepuis: contexteDepuis, analyser: analyser, formater: formater, lister: lister, appliquer: appliquer, problemeDeValeur: problemeDeValeur };

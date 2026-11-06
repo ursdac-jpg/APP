@@ -88,7 +88,7 @@ function _ucpmP6CablerChoixCv(etat) {
 
 // La lettre de recommandation de référence (la même que pour la lettre seule et le CV, stock commun), à la fin du message ; rien si la personne a dit « Non » ou n'en a pas déposé.
 function _ucpmP6SectionRecommandation() {
-  var section = (typeof sectionRecommandationPourMessage === 'function') ? sectionRecommandationPourMessage() : '';
+  var section = (typeof sectionAppuisPourMessage === 'function') ? sectionAppuisPourMessage() : '';
   return section ? '\n\n' + section : '';
 }
 
@@ -98,7 +98,8 @@ function _ucpmConfigPassageLettres(etat) {
     idSuffixe: 'UcpmLettres',
     etapes: UCPM_ETAPES_CHOIX_LETTRES,
     texteConfidentialite: 'Seul le profil de votre CV de référence et les informations de chaque CV choisi sont envoyés : votre nom, votre téléphone et votre adresse ne partent pas.',
-    recapHtml: ucpmHtmlStyleEcriture('lettre') + _ucpmP6HtmlChoixCv(etat),
+    // « Vos appuis » (consigne 50, 29/10/2026) : parcours qui produit des lettres, donc le panneau est proposé ici, juste avant la demande ; ils partent déjà dans le message (_ucpmP6SectionRecommandation).
+    recapHtml: ucpmHtmlStyleEcriture('lettre') + _ucpmP6HtmlChoixCv(etat) + ((typeof _coLettreHtmlAppuis === 'function') ? '<div class="mb-3">' + _coLettreHtmlAppuis() + '</div>' : ''),
     construireTexte: function () {
       return ucpmChargerPrompt('ucpm-lettres', 'ucpm-lettres.md').then(function (modele) {
         return ucpmConstruirePromptLettres(modele, {
@@ -110,6 +111,9 @@ function _ucpmConfigPassageLettres(etat) {
         }) + ucpmConsignesStyle('lettre') + _ucpmP6SectionRecommandation();
       });
     },
+    module: { libelleSuite: 'Voir les lettres', quoi: 'L’assistant vient d’écrire une lettre pour chacun de vos métiers.',
+      pourquoi: 'Vous partez de lettres déjà écrites, adaptées à chaque métier.', verif: 'relisez chaque lettre : les faits doivent être exacts. Vous pourrez la modifier ensuite.' },
+    verifier: function (texte) { return !!ucpmLireReponseLettres(texte, entrees.map(function (e) { return e.id; })).succes; },
     importer: function (texte) {
       var r = ucpmLireReponseLettres(texte, entrees.map(function (e) { return e.id; }));
       if (r.succes) {
@@ -175,6 +179,20 @@ var _ucpmP6JetonModeles = 0;
 
 function _ucpmP6ModeleActif(etat) { return gabaritLettreCo(etat.modeleLettre).id; }
 
+// La rue de la personne (écrite dans « Vos informations ») n'est imprimée en haut des lettres que si elle coche cette case : un seul réglage pour toutes les lettres, décoché au départ,
+// absent quand aucune rue n'est renseignée (même comportement que la lettre seule, maquette validée par Denis le 28/10/2026). La rue ne part jamais chez l'assistant.
+function _ucpmP6RueDisponible() {
+  var id = (typeof ucpmDossierVrai === 'function' && ucpmDossierVrai().identite) || {};
+  return String(id.adresse || '').trim();
+}
+
+function _ucpmP6HtmlCaseRue(etat) {
+  var rue = _ucpmP6RueDisponible();
+  if (!rue) { return ''; }
+  return '<div class="form-check small mt-3"><input type="checkbox" class="form-check-input" id="ucpmCaseRueLettre"' + (etat.rueLettre === true ? ' checked' : '') + '>' +
+    '<label class="form-check-label" for="ucpmCaseRueLettre">Ajouter aussi ma rue en haut de mes lettres (' + _ucpmEsc(rue) + ')</label></div>';
+}
+
 function _ucpmP6HtmlModeles(etat) {
   var actif = _ucpmP6ModeleActif(etat);
   return '<div class="cv-section" id="ucpmModelesLettre"><h4>&#127912; Modèle de lettre (le même pour toutes vos lettres)</h4>' +
@@ -185,7 +203,7 @@ function _ucpmP6HtmlModeles(etat) {
         '<div class="ucpm-mini-lettre" data-ucpm-mini="' + g.id + '" style="position:relative;aspect-ratio:210/297;overflow:hidden;border:1px solid var(--border);background:#fff;margin:0 0 .4rem;">' +
         '<span class="small" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#666;">Aperçu en cours…</span></div>' +
         '<strong>' + _ucpmEsc(g.nom) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(UCPM_DESCRIPTIONS_MODELES_LETTRE[g.id] || '') + '</span></button>';
-    }).join('') + '</div>' +
+    }).join('') + '</div>' + _ucpmP6HtmlCaseRue(etat) +
     '<p class="small mt-2 mb-0" id="ucpmAvisWordModele" style="color:var(--warning-strong);"' + (gabaritLettreCo(actif).wordFidele ? ' hidden' : '') + '>' +
     '&#9888;&#65039; Avec ce modèle, le Word s’écarte du PDF (la colonne colorée ne couvre que la première page) : il est recommandé d’enregistrer en PDF.</p></div>';
 }
@@ -242,6 +260,14 @@ function _ucpmP6CablerModeles(etat) {
       if (typeof trackEvenement === 'function') { trackEvenement('ucpm_modele_lettre', { modele: etat.modeleLettre }); }
     });
   });
+  var caseRue = document.getElementById('ucpmCaseRueLettre');
+  if (caseRue) {
+    caseRue.addEventListener('change', function () {
+      etat.rueLettre = caseRue.checked;
+      if (typeof trackEvenement === 'function') { trackEvenement('ucpm_rue_lettre', { avec: etat.rueLettre }); }
+      _ucpmP6RemplirModeles(etat);
+    });
+  }
   _ucpmP6RemplirModeles(etat);
 }
 
@@ -475,6 +501,9 @@ function _ucpmConfigPassageRetravail(etat) {
         }) + ucpmConsignesStyle('lettre');
       });
     },
+    module: { libelleSuite: 'Voir les lettres retravaillées', quoi: 'L’assistant vient de retravailler vos lettres selon votre demande.',
+      pourquoi: 'Vos remarques rendent les lettres plus proches de ce que vous voulez dire.', verif: 'comparez avec la version d’avant : vous pourrez revenir à celle-ci si la nouvelle vous convient moins.' },
+    verifier: function (texte) { return !!ucpmLireReponseLettres(texte, _ucpmP6CiblesRetravail(etat).map(function (e) { return e.id; })).succes; },
     importer: function (texte) {
       var nom = _ucpmP6NomSignature();
       var cibles = _ucpmP6CiblesRetravail(etat);
@@ -537,7 +566,7 @@ ucpmEnregistrerPage(6, {
     }
     if (etat.lettres && etat.p6Vue === 'lecture') { _ucpmP6CablerLecture(etat); return; }
     ucpmPassageCabler(etat, 'lettres', _ucpmConfigPassageLettres(etat));
-    if (ucpmPassageVue(etat, 'lettres') === 'choix') { _ucpmP6CablerChoixCv(etat); ucpmCablerStyleEcriture('lettre', ucpmRendrePage); }
+    if (ucpmPassageVue(etat, 'lettres') === 'choix') { _ucpmP6CablerChoixCv(etat); ucpmCablerStyleEcriture('lettre', ucpmRendrePage); if (typeof _coLettreBrancherAppuis === 'function') { _coLettreBrancherAppuis(ucpmRendrePage); } }
   },
   libelleContinuer: 'Terminer &#8594;',
   peutContinuer: function (etat) { return !!etat.lettres && etat.p6Vue === 'lecture' && _ucpmP6LettresExistantes(etat).length > 0; },

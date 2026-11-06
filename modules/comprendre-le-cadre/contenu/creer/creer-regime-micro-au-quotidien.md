@@ -26,6 +26,7 @@ ce_qui_change_souvent:
   - "Les taux de cotisations sociales et l'exonération ACRE de la première année (réduite depuis juillet 2026)"
   - "Le plafond de revenu fiscal pour le versement libératoire"
 revisions: []
+phrase_generale: "Le régime micro-entrepreneur est simple mais il a ses règles : déclarations régulières du chiffre d'affaires, cotisations sociales calculées sur ce que vous gagnez, plafonds à ne pas dépasser. Les taux et les plafonds changent régulièrement : pour connaître ceux qui s'appliquent aujourd'hui, consultez l'Urssaf ou les sources officielles indiquées plus bas."
 collecte: creer.collecte.md
 ---
 

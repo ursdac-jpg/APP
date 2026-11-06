@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : contrôle des adresses dans l'outil de veille</title>
+<style>
+  /* Variables copiées de outils/veille.html (même rendu que l'outil). */
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --jamais:#4b5868; --jamais-bg:#eceff3;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --jamais:#b4bfcf; --jamais-bg:#2a313d;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:840px; margin:0 auto; padding:1.2rem 16px 4rem; }
+  body.tel main { max-width:390px; }
+  h2 { font-size:1.05rem; color:var(--text-strong); margin:0 0 .5rem; }
+  h3 { font-size:.9rem; color:var(--text-strong); margin:.8rem 0 .3rem; }
+  p { margin:.5rem 0; }
+  a { color:var(--accent); }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 1rem; }
+  .mini { color:var(--text-muted); font-size:.82rem; }
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-bottom:.9rem; box-shadow:var(--shadow); }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.petit { padding:.3rem .7rem; font-size:.85rem; }
+  .btn.actif { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-rangee { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .note { display:flex; gap:.5rem; align-items:flex-start; background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.88rem; }
+  .note.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .note.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+  .note.alert { background:var(--alert-bg); border-left-color:var(--alert); }
+  .carte-tache { display:flex; align-items:center; justify-content:space-between; gap:.8rem; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:.7rem .9rem; margin-bottom:.5rem; }
+  .carte-tache.nouvelle { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-bg); }
+  .titre-tache { font-weight:700; color:var(--text-strong); font-size:.95rem; }
+  .sous-tache { color:var(--text-muted); font-size:.82rem; margin-top:.1rem; }
+  .etiquette { display:inline-block; font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin:.8rem 0 .3rem; }
+  .pastille-ver { display:inline-block; border-radius:999px; padding:.1rem .6rem; font-size:.78rem; font-weight:600; white-space:nowrap; background:var(--bg-subtle); }
+  .pv-ok { background:var(--ok-bg); color:var(--ok); } .pv-warn { background:var(--warn-bg); color:var(--warn); } .pv-alert { background:var(--alert-bg); color:var(--alert); } .pv-gris { background:var(--jamais-bg); color:var(--jamais); }
+  input[type=text] { width:100%; font:inherit; color:var(--text); background:var(--bg-page); border:1px solid var(--border-strong); border-radius:9px; padding:.45rem .6rem; }
+  .barre-progres { height:.7rem; border-radius:999px; background:var(--bg-subtle); border:1px solid var(--border); overflow:hidden; }
+  .barre-progres > div { height:100%; width:0; background:var(--accent); transition:width .2s; }
+  .famille { display:flex; gap:.7rem; align-items:flex-start; padding:.55rem 0; border-bottom:1px solid var(--border); }
+  .famille:last-child { border-bottom:0; }
+  .famille input { width:auto; margin-top:.35rem; }
+  .ligne { border:1px solid var(--border); border-radius:10px; padding:.7rem .9rem; margin-bottom:.6rem; background:var(--bg-card); }
+  .ligne .adr { font-family:ui-monospace,Consolas,monospace; font-size:.8rem; word-break:break-all; color:var(--text-muted); }
+  .ligne .ou { font-size:.85rem; margin:.25rem 0; }
+  .ligne.gardee { opacity:.8; background:var(--bg-subtle); }
+  /* Réservé à la maquette. */
+  .mq-haut { position:sticky; top:0; z-index:900; background:#1b212c; color:#fff; padding:.6rem 1.2rem; display:flex; gap:.8rem; align-items:center; flex-wrap:wrap; font-size:.9rem; }
+  .mq-haut button { border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08); color:#fff; border-radius:4px; padding:.3rem .9rem; cursor:pointer; }
+  .mq-haut button.actif { background:#ffc94d; color:#1b212c; border-color:#ffc94d; font-weight:700; }
+  .mq-titre { margin:2rem 0 .3rem; font-weight:700; font-size:1.1rem; color:var(--text-strong); }
+  .mq-ecran { border:1px dashed var(--border-strong); border-radius:.6rem; padding:1rem; margin-bottom:1rem; }
+  .mq-nom { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:.5rem; }
+  .mq-questions { border:1px dashed var(--border-strong); border-radius:.5rem; padding:.8rem 1rem; margin-top:2rem; background:var(--bg-card); }
+  .mq-questions li { margin-bottom:.9rem; }
+  .mq-reco { color:var(--ok); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="mq-haut">
+  <strong>Maquette du 05/11/2026 (consigne 92)</strong>
+  <button id="btnClair" class="actif">Clair</button><button id="btnSombre">Sombre</button>
+  <button id="btnTel">Téléphone</button><button id="btnLarge" class="actif">Large</button>
+</div>
+<main id="page">
+  <p class="mini">Maquette pour la consigne 92 : un contrôle de toutes les adresses internet citées par l'application, dans l'outil de veille. Les adresses et les résultats ci-dessous sont des <strong>exemples inventés</strong> (sauf le centre hospitalier de Sarlat, que vous m'avez signalé). Les nombres de la ligne « Ce que le contrôle va ouvrir » sont les vrais nombres du dépôt. Tous les boutons fonctionnent : essayez-les.</p>
+
+  <div class="mq-titre">1. Où le trouver</div>
+  <p class="sous-titre">Sur l'écran « Tous les modules » de l'outil de veille : une carte à part, parce qu'elle concerne plusieurs modules à la fois (fiches du Cadre, Lexique, chiffres, Qui fait quoi).</p>
+  <div class="mq-ecran">
+    <div class="mq-nom">Écran « Tous les modules » (extrait)</div>
+    <div class="carte-tache"><div><div class="titre-tache">Comprendre le cadre</div><div class="sous-tache">Vos fiches d'information : les contrôler, voir ce qui a changé, en ajouter.</div></div><span>&#8250;</span></div>
+    <div class="carte-tache"><div><div class="titre-tache">Lexique</div><div class="sous-tache">Ce qu'il y a à faire, classé par rythme.</div></div><span>&#8250;</span></div>
+    <div class="carte-tache"><div><div class="titre-tache">Comprendre les chiffres</div><div class="sous-tache">Ce qu'il y a à faire, classé par rythme.</div></div><span>&#8250;</span></div>
+    <div class="carte-tache nouvelle"><div><div class="titre-tache">Les adresses de l'application <span class="pastille-ver pv-ok">nouveau</span></div><div class="sous-tache">Vérifier que les pages citées par l'application répondent encore. Une fois par mois.</div></div><button class="btn petit primaire" id="btnEntrer" type="button">Ouvrir</button></div>
+  </div>
+
+  <div class="mq-titre">2. Écran « Les adresses de l'application »</div>
+  <div class="mq-ecran" id="ecranA">
+    <div class="mq-nom">Avant le contrôle</div>
+    <h2>Les adresses de l'application</h2>
+    <p class="sous-titre">Dernier contrôle : <strong id="dernier">jamais</strong>. Le contrôle ouvre chaque adresse comme le ferait un navigateur et dit si elle répond. Il ne corrige rien et ne date rien : c'est vous qui décidez.</p>
+    <span class="etiquette">Ce que le contrôle va ouvrir</span>
+    <div class="carte" style="padding:.4rem 1rem">
+      <label class="famille"><input type="checkbox" class="fam" data-n="363" data-id="cadre" checked><div><div class="titre-tache">Les sources des fiches de « Comprendre le cadre »</div><div class="sous-tache">363 adresses, sur 101 sites (le registre des adresses)</div></div></label>
+      <label class="famille"><input type="checkbox" class="fam" data-n="116" data-id="lexique" checked><div><div class="titre-tache">Les sources du Lexique</div><div class="sous-tache">116 adresses, sur 26 sites</div></div></label>
+      <label class="famille"><input type="checkbox" class="fam" data-n="91" data-id="chiffres" checked><div><div class="titre-tache">Les sources de « Comprendre les chiffres » et du répertoire des freins et des métiers</div><div class="sous-tache">91 adresses, sur 29 sites</div></div></label>
+      <div class="famille"><span style="width:1.1rem"></span><div><div class="titre-tache">Qui fait quoi (employeurs, structures, pages d'offres) <span class="pastille-ver pv-gris">déjà contrôlé</span></div><div class="sous-tache">Environ 2 500 adresses, déjà contrôlées chaque mois par le contrôle de Qui fait quoi. On <strong>reprend ses résultats</strong> au lieu de tout rouvrir (voir plus bas).</div></div></div>
+    </div>
+    <p class="mini" id="resume">570 adresses à ouvrir, environ 4 minutes.</p>
+    <div class="btn-rangee"><button class="btn primaire" id="btnLancer" type="button">Lancer le contrôle</button></div>
+    <div id="progres" style="display:none;margin-top:.8rem" aria-live="polite">
+      <div class="barre-progres"><div id="barre"></div></div>
+      <p class="mini" id="progresTexte"></p>
+    </div>
+  </div>
+
+  <div class="mq-ecran" id="ecranB" style="display:none">
+    <div class="mq-nom">Après le contrôle</div>
+    <h2>Résultat du contrôle</h2>
+    <p class="sous-titre" id="bilanTexte"></p>
+    <div id="pastilles" class="btn-rangee"></div>
+    <div class="note warn" id="noteRobots" style="display:none"><span>&#128161;</span><span><strong>« Refusée aux robots » ne veut pas dire « cassée ».</strong> Beaucoup de sites officiels refusent la lecture automatique. Ouvrez la page vous-même : si elle s'affiche, cliquez sur « Garder tel quel ».</span></div>
+    <div id="liste"></div>
+    <div id="gardees"></div>
+    <h3>Qui fait quoi : on reprend le contrôle existant</h3>
+    <div class="note"><span>&#128279;</span><span>Dernier contrôle mensuel des structures (194 adresses) : <strong>175</strong> répondent, <strong>2</strong> mènent ailleurs, <strong>5</strong> sont refusées aux robots, <strong>1</strong> n'existe plus, <strong>11</strong> n'ont pas répondu à temps. Le détail se lit dans Qui fait quoi.</span></div>
+    <div class="btn-rangee"><button class="btn" id="btnQfq" type="button">Voir le détail dans Qui fait quoi</button><span class="mini" id="msgQfq"></span></div>
+    <h3>À donner à Claude</h3>
+    <p class="mini">Pour les adresses du Lexique et des chiffres, la correction se fait avec moi à la prochaine séance : le bouton copie la liste de ce que vous avez marqué « à corriger ».</p>
+    <div class="btn-rangee"><button class="btn" id="btnCopier" type="button">Copier la liste pour Claude</button><span class="mini" id="msgCopie"></span></div>
+    <p class="mini" style="margin-top:.8rem">Corrections préparées dans la liste des adresses des fiches (en attente d'enregistrement) : <strong id="nbAttente">0</strong></p>
+  </div>
+
+  <div class="mq-titre">3. Dans « À faire maintenant »</div>
+  <div class="mq-ecran">
+    <div class="mq-nom">Rappel mensuel (comme le contrôle de Qui fait quoi)</div>
+    <div class="carte-tache"><div><div class="titre-tache">Contrôler les adresses de l'application</div><div class="sous-tache">Dernier contrôle il y a plus d'un mois : à refaire</div></div><span class="pastille-ver pv-warn">à faire</span></div>
+  </div>
+
+  <div class="mq-questions">
+    <h2>Vos choix (une recommandation chaque fois)</h2>
+    <ol>
+      <li><strong>Où mettre la carte ?</strong><br>
+        <span class="mq-reco">Option 1 (Recommandée) : une carte à part sur « Tous les modules ».</span> Apport : un seul endroit pour toutes les adresses, vous ne cherchez pas dans quel module la lancer. Risque : une carte de plus sur l'écran.<br>
+        Option 2 : l'étendre dans la carte existante « Un lien source ne répond plus » de Comprendre le cadre. Apport : rien de nouveau à l'écran. Risque : le Lexique et les chiffres n'y ont pas leur place, on ne les trouverait plus.</li>
+      <li><strong>Qui fait quoi : reprendre ses résultats ou tout rouvrir ?</strong><br>
+        <span class="mq-reco">Option 1 (Recommandée) : reprendre les résultats du contrôle mensuel qui existe déjà.</span> Apport : une seule source de vérité, pas de doublon, 4 minutes au lieu de plus d'une demi-heure. Risque : si ce contrôle est ancien, le résultat l'est aussi (la date est affichée).<br>
+        Option 2 : tout rouvrir (environ 3 000 adresses). Apport : tout est frais. Risque : très long, et certains sites bloquent quand on leur demande trop de pages.</li>
+      <li><strong>Mémoriser les adresses « gardées telles quelles » ?</strong> (cas du centre hospitalier de Sarlat)<br>
+        <span class="mq-reco">Option 1 (Recommandée) : oui, avec une note, dans un fichier de l'outil qui n'est pas envoyé sur GitHub.</span> Apport : elles ne reviennent pas à chaque contrôle, mais restent visibles dans un coin avec votre note, et réapparaissent si le résultat change. Risque : une adresse qui casse vraiment après coup passe d'abord pour « connue » (d'où la réapparition).<br>
+        Option 2 : non, tout est resigné à chaque fois. Apport : rien n'est oublié. Risque : les mêmes fausses alertes à chaque mois.</li>
+      <li><strong>Rappel dans « À faire maintenant » ?</strong><br>
+        <span class="mq-reco">Option 1 (Recommandée) : un rappel par mois.</span> Apport : vous ne l'oubliez pas, même rythme que le contrôle de Qui fait quoi. Risque : une tâche de plus par mois.<br>
+        Option 2 : seulement quand vous le demandez. Apport : aucune tâche en plus. Risque : on peut passer des mois sans regarder.</li>
+    </ol>
+    <p class="mini"><strong>Ce que le contrôle ne fera jamais :</strong> écrire dans une fiche ou un mot, dater une adresse, ou la supprimer. Il ne sort pas de votre poste en dehors des ouvertures de pages. <strong>Limite honnête :</strong> pour le registre des adresses du Cadre, le bouton « Corriger » ouvre la fenêtre qui existe déjà (Valider, Modifier, Supprimer). Pour le Lexique et les chiffres, il n'existe pas encore de fenêtre de correction d'une seule adresse : la correction passe par la liste « à donner à Claude ».</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var corps = document.body;
+  function theme(sombre) { corps.classList.toggle('dark', sombre); $('btnClair').classList.toggle('actif', !sombre); $('btnSombre').classList.toggle('actif', sombre); }
+  function largeur(tel) { corps.classList.toggle('tel', tel); $('btnTel').classList.toggle('actif', tel); $('btnLarge').classList.toggle('actif', !tel); }
+  $('btnClair').onclick = function () { theme(false); }; $('btnSombre').onclick = function () { theme(true); };
+  $('btnTel').onclick = function () { largeur(true); }; $('btnLarge').onclick = function () { largeur(false); };
+
+  // Exemples inventés (sauf Sarlat). etat : ailleurs | refuse | absente | sans-reponse
+  var LIGNES = [
+    { id: 1, famille: 'cadre', etat: 'absente', adr: 'https://www.exemple-caf.fr/ancienne-page-aides', ou: 'Fiche « Les aides au logement », source « caf-aides-logement »', detail: 'Le site n’existe plus ou l’adresse est fausse.', nouveau: true },
+    { id: 2, famille: 'cadre', etat: 'ailleurs', adr: 'https://www.exemple-region.fr/formation', ou: 'Fiche « La formation payée par la Région », source « region-formation »', detail: 'L’adresse mène vers un autre site (exemple-emploi.fr) : ouvrez la page à la main pour vérifier.', nouveau: false },
+    { id: 3, famille: 'cadre', etat: 'refuse', adr: 'https://www.ch-sarlat.fr/', ou: 'Fiche « Se soigner en Dordogne », structure « ch-sarlat »', detail: 'Le site refuse la lecture automatique. Pour vous, la page affiche une erreur 404 (noté le 03/11/2026).', nouveau: false },
+    { id: 4, famille: 'cadre', etat: 'sans-reponse', adr: 'https://www.exemple-urssaf.fr/employeur', ou: 'Fiche « Employer une première fois », source « urssaf-employeur »', detail: 'Le site n’a pas répondu à temps : réessayez, ou ouvrez la page à la main.', nouveau: true },
+    { id: 5, famille: 'cadre', etat: 'refuse', adr: 'https://www.exemple-impots.fr/particulier', ou: 'Fiche « Déclarer ses revenus », source « impots-particulier »', detail: 'Le site refuse la lecture automatique.', nouveau: false },
+    { id: 6, famille: 'lexique', etat: 'ailleurs', adr: 'https://www.exemple-travail.fr/rupture', ou: 'Mot du Lexique « Rupture conventionnelle », source du suivi', detail: 'L’adresse mène vers un autre site (exemple-droit.fr) : ouvrez la page à la main pour vérifier.', nouveau: true },
+    { id: 7, famille: 'lexique', etat: 'refuse', adr: 'https://www.exemple-retraite.fr/points', ou: 'Mot du Lexique « Compte professionnel de prévention », « En savoir plus »', detail: 'Le site refuse la lecture automatique.', nouveau: false },
+    { id: 8, famille: 'lexique', etat: 'sans-reponse', adr: 'https://www.exemple-sante.fr/arret', ou: 'Mot du Lexique « Arrêt de travail », source du suivi', detail: 'Le site n’a pas répondu à temps : réessayez, ou ouvrez la page à la main.', nouveau: false },
+    { id: 9, famille: 'chiffres', etat: 'absente', adr: 'https://www.exemple-insee.fr/serie-ancienne', ou: 'Comprendre les chiffres, carte « Le chômage par département »', detail: 'Le site n’existe plus ou l’adresse est fausse.', nouveau: false },
+    { id: 10, famille: 'chiffres', etat: 'refuse', adr: 'https://www.exemple-dares.fr/donnees', ou: 'Répertoire des métiers, fiche « Aide à domicile »', detail: 'Le site refuse la lecture automatique.', nouveau: false },
+    { id: 11, famille: 'chiffres', etat: 'sans-reponse', adr: 'https://www.exemple-eurostat.fr/tableau', ou: 'Comprendre les chiffres, bloc européen', detail: 'Le site n’a pas répondu à temps : réessayez, ou ouvrez la page à la main.', nouveau: true },
+    { id: 12, famille: 'chiffres', etat: 'refuse', adr: 'https://www.exemple-frein.fr/aide', ou: 'Répertoire des freins, frein « Garde d’enfant »', detail: 'Le site refuse la lecture automatique.', nouveau: false }
+  ];
+  var ETATS = { ailleurs: ['Mène ailleurs', 'pv-warn'], refuse: ['Refusée aux robots', 'pv-gris'], absente: ['Absente', 'pv-alert'], 'sans-reponse': ['Sans réponse', 'pv-warn'] };
+  var LIB_CORR = { cadre: 'Corriger dans la liste des adresses', lexique: 'Marquer « à corriger »', chiffres: 'Marquer « à corriger »' };
+  var NOMS_FAMILLE = { cadre: 'Comprendre le cadre', lexique: 'Lexique', chiffres: 'Chiffres et répertoires' };
+
+  var gardees = {}, aCorriger = {}, attente = 0, filtre = 'tous', selection = ['cadre', 'lexique', 'chiffres'];
+
+  function totalSelection() {
+    var n = 0; selection = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.fam'), function (c) { if (c.checked) { n += +c.getAttribute('data-n'); selection.push(c.getAttribute('data-id')); } });
+    return n;
+  }
+  function majResume() {
+    var n = totalSelection();
+    $('resume').textContent = n ? (n + ' adresses à ouvrir, environ ' + Math.max(1, Math.round(n / 140)) + ' minutes.') : 'Cochez au moins une famille.';
+    $('btnLancer').disabled = !n;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.fam'), function (c) { c.onchange = majResume; });
+
+  function lignesActives() { return LIGNES.filter(function (l) { return selection.indexOf(l.famille) !== -1; }); }
+  function visibles() { return lignesActives().filter(function (l) { return !gardees[l.id]; }); }
+
+  function dessiner() {
+    var vis = visibles(), cpt = { ailleurs: 0, refuse: 0, absente: 0, 'sans-reponse': 0 };
+    vis.forEach(function (l) { cpt[l.etat]++; });
+    var tot = totalSelection(), nGardees = Object.keys(gardees).filter(function (k) { return lignesActives().some(function (l) { return l.id === +k; }); }).length;
+    var aSignaler = vis.length;
+    var repondent = tot - aSignaler - nGardees;
+    $('bilanTexte').textContent = tot + ' adresses ouvertes : ' + repondent + ' répondent bien, ' + aSignaler + ' à regarder' + (nGardees ? ', ' + nGardees + ' gardée' + (nGardees > 1 ? 's' : '') + ' telle' + (nGardees > 1 ? 's' : '') + ' quelle' + (nGardees > 1 ? 's' : '') : '') + '.';
+    var defs = [['tous', 'Toutes (' + aSignaler + ')'], ['absente', 'Absentes (' + cpt.absente + ')'], ['ailleurs', 'Mènent ailleurs (' + cpt.ailleurs + ')'], ['sans-reponse', 'Sans réponse (' + cpt['sans-reponse'] + ')'], ['refuse', 'Refusées aux robots (' + cpt.refuse + ')']];
+    $('pastilles').innerHTML = '';
+    defs.forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn petit' + (filtre === d[0] ? ' actif' : ''); b.textContent = d[1];
+      b.onclick = function () { filtre = d[0]; dessiner(); }; $('pastilles').appendChild(b);
+    });
+    $('noteRobots').style.display = cpt.refuse ? 'flex' : 'none';
+    var zone = $('liste'); zone.innerHTML = '';
+    var aff = vis.filter(function (l) { return filtre === 'tous' || l.etat === filtre; });
+    if (!aff.length) { zone.innerHTML = '<div class="note ok"><span>&#10003;</span><span>Rien à regarder dans cette catégorie.</span></div>'; }
+    aff.forEach(function (l) { zone.appendChild(carteLigne(l)); });
+    // Gardées telles quelles
+    var zg = $('gardees'); zg.innerHTML = '';
+    var gl = lignesActives().filter(function (l) { return gardees[l.id]; });
+    if (gl.length) {
+      var h = document.createElement('h3'); h.textContent = 'Gardées telles quelles (' + gl.length + ')'; zg.appendChild(h);
+      gl.forEach(function (l) {
+        var d = document.createElement('div'); d.className = 'ligne gardee';
+        d.innerHTML = '<div class="adr"></div><div class="ou"></div><div class="mini"></div>';
+        d.children[0].textContent = l.adr; d.children[1].textContent = l.ou; d.children[2].textContent = 'Votre note : ' + (gardees[l.id].note || '(aucune)');
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn petit'; b.textContent = 'Ne plus garder';
+        b.onclick = function () { delete gardees[l.id]; dessiner(); }; d.appendChild(b); zg.appendChild(d);
+      });
+    }
+    $('nbAttente').textContent = attente;
+  }
+
+  function carteLigne(l) {
+    var d = document.createElement('div'); d.className = 'ligne';
+    var e = ETATS[l.etat];
+    d.innerHTML = '<div><span class="pastille-ver ' + e[1] + '"></span> <span class="pastille-ver pv-gris famille-pastille"></span> <span class="pastille-ver pv-ok nouveau-pastille" style="display:none">nouveau depuis le dernier contrôle</span></div><div class="adr"></div><div class="ou"></div><div class="mini"></div><div class="btn-rangee"></div><div class="zone-saisie"></div>';
+    d.querySelector('.pastille-ver').textContent = e[0];
+    d.querySelector('.famille-pastille').textContent = NOMS_FAMILLE[l.famille];
+    if (l.nouveau) { d.querySelector('.nouveau-pastille').style.display = ''; }
+    d.querySelector('.adr').textContent = l.adr; d.querySelector('.ou').textContent = 'Utilisée par : ' + l.ou; d.querySelector('.mini').textContent = l.detail;
+    var rangee = d.querySelector('.btn-rangee'), zone = d.querySelector('.zone-saisie');
+    function bouton(texte, f, primaire) { var b = document.createElement('button'); b.type = 'button'; b.className = 'btn petit' + (primaire ? ' primaire' : ''); b.textContent = texte; b.onclick = function () { f(b); }; rangee.appendChild(b); return b; }
+    bouton('Ouvrir la page', function (b) { b.textContent = 'Page ouverte dans un nouvel onglet'; b.disabled = true; }, true);
+    bouton('Garder tel quel', function () {
+      zone.innerHTML = '<label class="mini">Pourquoi la garder ? (une phrase, pour vous en souvenir)</label><input type="text" placeholder="Par exemple : la page s’affiche chez moi"><div class="btn-rangee"><button type="button" class="btn petit primaire">Garder</button><button type="button" class="btn petit">Annuler</button></div>';
+      var bs = zone.querySelectorAll('button');
+      bs[0].onclick = function () { gardees[l.id] = { note: zone.querySelector('input').value.trim() }; dessiner(); };
+      bs[1].onclick = function () { zone.innerHTML = ''; };
+    });
+    bouton(LIB_CORR[l.famille], function () {
+      if (l.famille === 'cadre') {
+        zone.innerHTML = '<label class="mini">Nouvelle adresse (collez-la)</label><input type="text" placeholder="https://..."><div class="btn-rangee"><button type="button" class="btn petit primaire">Préparer la correction</button><button type="button" class="btn petit">Annuler</button></div><p class="mini">Elle part dans « Les adresses des fiches » comme modification en attente : rien n’est enregistré avant votre « Enregistrer ».</p>';
+        var bs = zone.querySelectorAll('button');
+        bs[0].onclick = function () {
+          var v = zone.querySelector('input').value.trim();
+          if (!/^https?:\/\/\S+$/.test(v)) { zone.querySelector('p').textContent = 'Cette adresse n’est pas valable : elle doit commencer par https://'; return; }
+          attente++; zone.innerHTML = '<div class="note ok"><span>&#10003;</span><span>Correction préparée. Elle attend dans « Les adresses des fiches ».</span></div>'; $('nbAttente').textContent = attente;
+        };
+        bs[1].onclick = function () { zone.innerHTML = ''; };
+      } else {
+        aCorriger[l.id] = true; zone.innerHTML = '<div class="note ok"><span>&#10003;</span><span>Notée pour Claude. Elle sera dans la liste à copier plus bas.</span></div>';
+      }
+    });
+    return d;
+  }
+
+  $('btnLancer').onclick = function () {
+    var n = totalSelection(); if (!n) { return; }
+    $('btnLancer').disabled = true; $('progres').style.display = ''; $('ecranB').style.display = 'none';
+    var fait = 0, pas = Math.max(1, Math.round(n / 40));
+    var t = setInterval(function () {
+      fait = Math.min(n, fait + pas);
+      $('barre').style.width = Math.round(fait * 100 / n) + '%';
+      $('progresTexte').textContent = fait + ' adresses ouvertes sur ' + n + '.';
+      if (fait >= n) {
+        clearInterval(t); $('btnLancer').disabled = false; $('progres').style.display = 'none';
+        $('dernier').textContent = 'aujourd’hui, 5 novembre 2026'; $('ecranB').style.display = ''; filtre = 'tous'; dessiner();
+        $('ecranB').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 80);
+  };
+  $('btnEntrer').onclick = function () { $('ecranA').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  $('btnQfq').onclick = function () { $('msgQfq').textContent = 'Dans l’outil, ce bouton ouvre le contrôle de Qui fait quoi à son dernier résultat.'; };
+  $('btnCopier').onclick = function () {
+    var lignes = LIGNES.filter(function (l) { return aCorriger[l.id]; });
+    if (!lignes.length) { $('msgCopie').textContent = 'Rien n’est marqué « à corriger » pour l’instant.'; return; }
+    var texte = 'Adresses à corriger (contrôle du 05/11/2026) :\n' + lignes.map(function (l) { return '- ' + l.adr + ' : ' + l.ou; }).join('\n');
+    (navigator.clipboard ? navigator.clipboard.writeText(texte) : Promise.reject()).then(function () { $('msgCopie').textContent = lignes.length + ' adresse(s) copiée(s).'; }, function () { $('msgCopie').textContent = 'Copie impossible ici : ' + lignes.length + ' adresse(s) prête(s).'; });
+  };
+  majResume();
+})();
+</script>
+</body>
+</html>

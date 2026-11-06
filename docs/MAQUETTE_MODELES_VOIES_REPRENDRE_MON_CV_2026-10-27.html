@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : voir nos modèles dans Reprendre mon CV, voies 1, 2 et 3</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1c7a46; --ok-bg:#e3f4ea; --warn:#8a5a00; --warn-bg:#fff3d6; --barre:#ffffff; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#6fd49b; --ok-bg:#1d3a2b; --warn:#f0c46a; --warn-bg:#3b3015; --barre:#1b212d; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px 16px 110px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+h1 { font-size:1.2rem; margin:0 0 6px; } h2 { font-size:1.35rem; margin:0 0 4px; } h3 { font-size:1.05rem; margin:0 0 6px; }
+p { margin:0 0 8px; } .muted { color:var(--muted); font-size:.92rem; }
+.note, .page { max-width:900px; margin:0 auto 14px; }
+.onglets { display:flex; gap:8px; flex-wrap:wrap; max-width:900px; margin:0 auto 12px; }
+.onglets button { font:inherit; padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); cursor:pointer; }
+.onglets button[aria-selected="true"] { border-color:var(--accent); background:var(--accent-bg); font-weight:700; }
+.reglages { max-width:900px; margin:0 auto 12px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:.92rem; padding:8px 12px; border:1px dashed var(--border); border-radius:10px; }
+.reglages label { display:flex; gap:6px; align-items:center; }
+.etapes { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.etape { font-size:.85rem; padding:4px 10px; border-radius:99px; border:1px solid var(--border); color:var(--muted); background:var(--card); }
+.etape.fait { background:var(--ok-bg); color:var(--ok); border-color:var(--ok); } .etape.ici { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+.centre { text-align:center; }
+.bloc { border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--card); margin-bottom:12px; }
+.bloc > .tete { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+.num { display:inline-flex; width:28px; height:28px; border-radius:50%; align-items:center; justify-content:center; background:var(--accent); color:#fff; font-weight:700; flex:none; }
+.pilule { font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--accent-bg); color:var(--accent); }
+.pilule.ok { background:var(--ok-bg); color:var(--ok); } .pilule.att { background:var(--warn-bg); color:var(--warn); }
+.nouveau { border:2px solid var(--accent); }
+.invitation { border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--card); margin-bottom:12px; text-align:center; }
+.invitation .garde { text-align:left; }
+.voies { display:grid; gap:10px; grid-template-columns:1fr; }
+@media (min-width:780px) { .voies { grid-template-columns:repeat(3,1fr); } }
+.voie { font:inherit; text-align:left; border:1.5px solid var(--border); border-radius:10px; padding:10px; background:var(--card); color:var(--text); cursor:pointer; }
+.voie[aria-disabled="true"] { opacity:.5; cursor:not-allowed; }
+.voie strong { display:block; margin-bottom:4px; }
+.btn { font:inherit; font-size:.95rem; padding:.5rem .9rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
+.btn.plein { background:var(--accent); color:#fff; } .btn.discret { border-color:var(--border); color:var(--muted); } .btn.petit { font-size:.85rem; padding:.3rem .65rem; }
+.btn:focus-visible, .voie:focus-visible, .modele:focus-visible, .vign:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.ligne { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.rang { display:flex; gap:12px; flex-wrap:wrap; margin:8px 0; }
+.vign { position:relative; width:84px; font:inherit; border:2px solid var(--border); border-radius:8px; padding:4px; background:var(--card); color:var(--text); text-align:center; cursor:pointer; }
+.vign .img { display:block; width:64px; height:90px; margin:0 auto 4px; border-radius:4px; }
+.vign small { display:block; font-size:.74rem; font-weight:600; line-height:1.15; }
+.vign[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-bg); }
+.puces { list-style:none; margin:6px 0 8px; padding:0; display:flex; gap:8px; flex-wrap:wrap; }
+.puce { background:var(--card); border:1px solid var(--border); border-radius:99px; padding:3px 10px; font-size:.9rem; }
+.garde { background:var(--ok-bg); border:1px solid var(--ok); border-radius:10px; padding:10px 12px; margin-top:8px; }
+.barre-bas { position:fixed; left:0; right:0; bottom:0; background:var(--barre); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:center; z-index:5; }
+.barre-bas .in { width:100%; max-width:900px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+.barre-bas .btn { font-size:1rem; padding:.6rem 1.1rem; }
+.voile { position:fixed; inset:0; background:rgba(10,14,22,.6); display:flex; align-items:center; justify-content:center; z-index:10; padding:16px; }
+.voile[hidden] { display:none; }
+.essai { width:100%; max-width:760px; max-height:92vh; overflow:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+.galerie { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin:10px 0; }
+.modele { border:1.5px solid var(--border); border-radius:10px; padding:8px; background:var(--card); text-align:center; font:inherit; color:var(--text); cursor:pointer; }
+.modele .vignette { height:90px; border-radius:6px; margin-bottom:6px; display:flex; align-items:center; justify-content:center; font-size:.8rem; color:#fff; }
+.modele[aria-pressed="true"] { border-color:var(--ok); background:var(--ok-bg); }
+.modele .etat { font-size:.8rem; font-weight:700; color:var(--accent); display:block; } .modele[aria-pressed="true"] .etat { color:var(--ok); }
+.legende { max-width:900px; margin:18px auto 0; font-size:.9rem; color:var(--muted); } .legende li { margin-bottom:5px; }
+.apercu-cv { height:150px; max-width:240px; border-radius:6px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; margin:6px 0; }
+[hidden] { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="note">
+  <h1>Maquette 3 : voir nos modèles dans « Reprendre mon CV » (voies 1, 2 et 3)</h1>
+  <p class="muted">Deux écrans, deux onglets. Premier onglet : l’écran où l’on choisit sa voie, avec, sous les deux points, une invitation « Regarder nos modèles », libre même sans CV déposé. Deuxième onglet : la fin du parcours, où la personne choisit parmi ses modèles gardés, comme à la création du CV. Tout est cliquable ; les noms de modèles sont des exemples.</p>
+</div>
+
+<div class="onglets" role="tablist">
+  <button type="button" role="tab" id="ong1" aria-selected="true">1. Reprendre votre CV (choix de la voie)</button>
+  <button type="button" role="tab" id="ong2" aria-selected="false">2. Fin du parcours (Vos documents)</button>
+</div>
+
+<!-- ÉCRAN 1 -->
+<div id="ecran1">
+  <div class="reglages">
+    <strong>Simulations :</strong>
+    <label><input type="checkbox" id="cvDepose"> CV déjà déposé</label>
+    <label><input type="checkbox" id="recharge"> Page rechargée (les petites images ont disparu)</label>
+  </div>
+  <div class="page">
+    <div class="etapes"><span class="etape ici" aria-current="step">Déposer</span><span class="etape">Ma voie</span></div>
+    <div class="centre"><h2>Reprendre votre CV</h2><p class="muted">Tout se prépare ici, sur une seule page qui se déplie.</p></div>
+
+    <section class="bloc">
+      <div class="tete"><span class="num">1</span><h3 style="margin:0">Déposer votre CV</h3><span class="pilule att" id="etatDepot">À faire</span></div>
+      <p class="muted" style="margin:0">Fichier, copier-coller, photo ou scan. (Écran de dépôt existant, inchangé.)</p>
+    </section>
+
+    <section class="bloc">
+      <div class="tete"><span class="num">2</span><h3 style="margin:0">Que voulez-vous faire de votre CV ?</h3><span class="pilule att" id="etatVoie">À choisir</span></div>
+      <p class="muted" id="msgVoies">Les trois voies sont bloquées pour l’instant : déposez d’abord votre CV.</p>
+      <div class="voies" id="voies">
+        <button type="button" class="voie" data-voie="1"><strong>1. Le garder et le compléter</strong><span class="muted">Avec l’assistant, puis vos corrections.</span></button>
+        <button type="button" class="voie" data-voie="2"><strong>2. Le reformuler et le présenter</strong><span class="muted">L’assistant reformule, vous choisissez.</span></button>
+        <button type="button" class="voie" data-voie="3"><strong>3. Le refaire moi-même</strong><span class="muted">Sans assistant, dans un modèle.</span></button>
+      </div>
+    </section>
+
+    <aside class="invitation" aria-labelledby="titreModeles">
+      <h3 id="titreModeles">Envie de voir nos modèles de CV ? <span class="pilule">si vous voulez</span></h3>
+      <p>Vous pouvez regarder ce que donnera votre CV <strong>avant de choisir une voie</strong>, même sans avoir déposé de CV. Gardez jusqu’à 5 modèles : vous les retrouverez, avec votre texte, à la fin du parcours. Ce n’est pas une étape : vous pouvez aussi enchaîner directement.</p>
+      <div id="blocModeles" class="centre"></div>
+    </aside>
+
+  </div>
+  <div class="barre-bas"><div class="in">
+    <button type="button" class="btn">&#8592; Retour</button><button type="button" class="btn">Accueil</button><span class="muted">Pas de « Continuer » ici : on avance en cliquant sur une voie.</span>
+  </div></div>
+</div>
+
+<!-- ÉCRAN 2 -->
+<div id="ecran2" hidden>
+  <div class="reglages">
+    <strong>Simulations :</strong>
+    <label>Voie : <select id="voieFin"><option value="1">1. Le garder et le compléter</option><option value="2">2. Le reformuler et le présenter</option><option value="3" selected>3. Le refaire moi-même</option></select></label>
+    <span class="muted">Les modèles gardés sont ceux de l’onglet 1.</span>
+  </div>
+  <div class="page">
+    <div class="etapes" id="etapesFin"></div>
+    <div class="centre"><h2>Vos documents</h2></div>
+    <p class="muted" id="phraseFin"></p>
+    <section class="bloc nouveau" id="blocFin"></section>
+  </div>
+  <div class="barre-bas"><div class="in">
+    <button type="button" class="btn">&#8592; Retour</button><button type="button" class="btn">Accueil</button><button type="button" class="btn plein">Valider le CV &#8594;</button>
+  </div></div>
+</div>
+
+<!-- Simulation de l'écran d'essai existant -->
+<div class="voile" id="voile" hidden>
+  <div class="essai" role="dialog" aria-labelledby="titreEssai">
+    <h3 id="titreEssai">Nos modèles de CV (écran d’essai qui existe déjà)</h3>
+    <p class="muted">Un CV d’exemple s’affiche dans chaque modèle. Cliquez sur un modèle pour le garder ou le retirer. <strong>5 au plus.</strong></p>
+    <div class="galerie" id="galerie"></div>
+    <p class="muted" id="compteEssai" aria-live="polite"></p>
+    <div class="centre"><button type="button" class="btn plein" id="btnFini">J’ai fini de regarder</button></div>
+  </div>
+</div>
+
+<ul class="legende">
+  <li><strong>Où :</strong> sur l’écran « Reprendre votre CV », sous les deux points (déposer, choisir sa voie), sur fond blanc, avec le bouton « Regarder nos modèles » au milieu. Ce n’est pas un point numéroté et ce n’est pas obligatoire : la personne regarde ou enchaîne. Jamais bloqué par le dépôt du CV.</li>
+  <li><strong>Quand :</strong> avant, pendant ou après le dépôt, à tout moment. Rien n’oblige à regarder : les voies se choisissent comme aujourd’hui.</li>
+  <li><strong>À la fin :</strong> pour les voies 1 et 3, sur « Vos documents », « Mes modèles » apparaît avec le vrai texte (aucune fenêtre à part). La voie 2 a en plus son écran « Récupérer votre CV », déjà fait.</li>
+  <li><strong>Page rechargée :</strong> les petites images disparaissent, un message les remplace ; les modèles restent gardés (avec la disquette).</li>
+</ul>
+
+<script>
+(function () {
+  var MAX = 5;
+  var MODELES = [
+    { id:'sobre', nom:'Sobre', c:'#3b5b8c' }, { id:'editorial', nom:'Éditorial', c:'#7a3b3b' }, { id:'chrono', nom:'Chrono', c:'#2f7a6a' },
+    { id:'empilee', nom:'Empilée', c:'#8a6a1c' }, { id:'pastille', nom:'Pastille', c:'#6a3b8c' }, { id:'medaillon', nom:'Médaillon', c:'#3b6a8c' }
+  ];
+  var gardes = [], choisi = null;
+  var $ = function (id) { return document.getElementById(id); };
+  function modele(id) { return MODELES.filter(function (m) { return m.id === id; })[0]; }
+  function courant() { return gardes.indexOf(choisi) !== -1 ? choisi : (gardes.length ? gardes[gardes.length - 1] : null); }
+
+  /* Écran 1 */
+  function dessinerVoies() {
+    var depose = $('cvDepose').checked;
+    Array.prototype.forEach.call(document.querySelectorAll('.voie'), function (v) { v.setAttribute('aria-disabled', depose ? 'false' : 'true'); });
+    $('msgVoies').hidden = depose;
+    $('etatDepot').textContent = depose ? 'Déposé' : 'À faire'; $('etatDepot').className = 'pilule ' + (depose ? 'ok' : 'att');
+  }
+  function dessinerBloc() {
+    var b = $('blocModeles'), recharge = $('recharge').checked;
+    if (!gardes.length) {
+      b.innerHTML = '<button type="button" class="btn plein" id="btnRegarder">Regarder nos modèles</button>';
+    } else if (recharge) {
+      b.innerHTML = '<div class="garde"><strong>&#9989; Mes modèles gardés : ' + gardes.length + ' sur ' + MAX + '</strong><ul class="puces">' +
+        gardes.map(function (id) { return '<li class="puce">' + modele(id).nom + '</li>'; }).join('') + '</ul>' +
+        '<p class="muted" style="margin:0 0 8px">Les petites images ne sont plus affichées sur cette page. Pas d’inquiétude : vos modèles sont bien gardés. À la fin du parcours, sur « Vos documents », vous choisirez celui de votre CV parmi eux.</p>' +
+        '<div class="ligne"><button type="button" class="btn petit" id="btnRegarder">En ajouter ou en changer</button><button type="button" class="btn petit discret" id="btnOublier">Oublier mes modèles</button></div></div>';
+    } else {
+      b.innerHTML = '<div class="garde"><strong>&#9989; Mes modèles gardés : ' + gardes.length + ' sur ' + MAX + '</strong><div class="rang">' +
+        gardes.map(function (id) { var m = modele(id); return '<span class="vign" style="cursor:default"><span class="img" style="background:' + m.c + '"></span><small>' + m.nom + '</small></span>'; }).join('') + '</div>' +
+        '<p class="muted" style="margin:0 0 8px">Ils vous attendent, avec votre texte, à la fin du parcours.</p>' +
+        '<div class="ligne"><button type="button" class="btn petit" id="btnRegarder">En ajouter ou en changer</button><button type="button" class="btn petit discret" id="btnOublier">Oublier mes modèles</button></div></div>';
+    }
+    var r = $('btnRegarder'); if (r) { r.addEventListener('click', ouvrirEssai); }
+    var o = $('btnOublier'); if (o) { o.addEventListener('click', function () { gardes = []; dessinerBloc(); }); }
+  }
+  $('cvDepose').addEventListener('change', dessinerVoies);
+  $('recharge').addEventListener('change', dessinerBloc);
+
+  /* Essai */
+  function dessinerGalerie() {
+    $('galerie').innerHTML = MODELES.map(function (m) {
+      var est = gardes.indexOf(m.id) !== -1;
+      return '<button type="button" class="modele" data-id="' + m.id + '" aria-pressed="' + est + '"><div class="vignette" style="background:' + m.c + '">CV d’exemple</div><strong>' + m.nom + '</strong><span class="etat">' + (est ? '&#9989; Gardé' : 'Garder ce modèle') + '</span></button>';
+    }).join('');
+    $('compteEssai').textContent = gardes.length + ' modèle' + (gardes.length > 1 ? 's' : '') + ' gardé' + (gardes.length > 1 ? 's' : '') + ' sur ' + MAX + '.';
+    Array.prototype.forEach.call(document.querySelectorAll('.modele'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-id'), i = gardes.indexOf(id);
+        if (i !== -1) { gardes.splice(i, 1); } else if (gardes.length < MAX) { gardes.push(id); }
+        dessinerGalerie(); var n = document.querySelector('.modele[data-id="' + id + '"]'); if (n) { n.focus(); }
+      });
+    });
+  }
+  function ouvrirEssai() { $('voile').hidden = false; dessinerGalerie(); $('btnFini').focus(); }
+  function fermerEssai() { $('voile').hidden = true; dessinerBloc(); var r = $('btnRegarder'); if (r) { r.focus(); } }
+  $('btnFini').addEventListener('click', fermerEssai);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('voile').hidden) { fermerEssai(); } });
+
+  /* Écran 2 */
+  var ETAPES = {
+    '1': ['Préparer', 'Assistant', 'Réponse', 'Corriger mon CV', 'Vos documents'],
+    '2': ['Préparer', 'Assistant', 'Réponse', 'Vérifier', 'Mise en forme'],
+    '3': ['Déposer', 'Ma voie', 'Classer', 'Vérifier', 'Vos documents']
+  };
+  function dessinerFin() {
+    var v = $('voieFin').value, e = ETAPES[v];
+    $('etapesFin').innerHTML = e.map(function (t, i) { return '<span class="etape ' + (i === 4 ? 'ici' : 'fait') + '">' + t + '</span>'; }).join('');
+    $('phraseFin').textContent = v === '1' ? 'Après le passage « Adaptation au métier » de l’assistant, la mise en page arrive ici.' : v === '2' ? 'Déjà choisi sur « Récupérer votre CV » : le modèle choisi est posé à l’arrivée.' : 'Après « Vérifiez vos fiches », la mise en page arrive ici.';
+    var f = $('blocFin');
+    if (!gardes.length) {
+      f.innerHTML = '<h3>La mise en page</h3><p class="muted">Aucun modèle gardé : ce bloc est celui d’aujourd’hui (galerie complète de modèles, couleurs, réglages). Rien ne change pour ceux qui n’ont rien gardé.</p>';
+      return;
+    }
+    var c = courant(), m = modele(c);
+    f.innerHTML = '<h3>Mes modèles <span class="muted" style="font-weight:400">(votre texte, dans les modèles que vous avez gardés)</span></h3>' +
+      '<div class="rang" role="radiogroup" aria-label="Mes modèles">' + gardes.map(function (id, i) {
+        var mm = modele(id), sel = id === c;
+        return '<button type="button" class="vign" role="radio" aria-pressed="' + sel + '" aria-checked="' + sel + '" data-ch="' + id + '"><span class="img" style="background:' + mm.c + '"></span><small>Modèle ' + (i + 1) + (sel ? ' : choisi' : '') + '</small></button>';
+      }).join('') + '</div>' +
+      '<p><strong>Modèle ' + (gardes.indexOf(c) + 1) + ' : ' + m.nom + '</strong> <span class="muted">(votre texte, tel qu’il sera enregistré)</span></p>' +
+      '<div class="apercu-cv" style="background:' + m.c + '">Votre CV, modèle ' + m.nom + '</div>' +
+      '<div class="ligne"><button type="button" class="btn">Remodeler ce modèle</button><button type="button" class="btn plein">Garder celui-ci et exporter &#8594;</button></div>' +
+      '<p class="muted" style="margin-top:8px">La personne peut toujours modifier son CV : « Remodeler ce modèle » ouvre tous les réglages.</p>';
+    Array.prototype.forEach.call(f.querySelectorAll('[data-ch]'), function (b) { b.addEventListener('click', function () { choisi = b.getAttribute('data-ch'); dessinerFin(); }); });
+  }
+  $('voieFin').addEventListener('change', dessinerFin);
+
+  function montrer(n) {
+    $('ecran1').hidden = (n !== 1); $('ecran2').hidden = (n !== 2);
+    $('ong1').setAttribute('aria-selected', n === 1); $('ong2').setAttribute('aria-selected', n === 2);
+    if (n === 2) { dessinerFin(); }
+  }
+  $('ong1').addEventListener('click', function () { montrer(1); }); $('ong2').addEventListener('click', function () { montrer(2); });
+
+  dessinerVoies(); dessinerBloc();
+})();
+</script>
+</body>
+</html>

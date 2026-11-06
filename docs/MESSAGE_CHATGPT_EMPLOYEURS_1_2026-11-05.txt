@@ -1,0 +1,48 @@
+Je te donne une liste de 25 employeurs (entreprises, enseignes, établissements publics) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 1 à 25. Pour chacun, un site et parfois une page de recrutement ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque employeur, ouvre son site officiel. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. Cherche ensuite sa PAGE DE RECRUTEMENT officielle (offres, « nous rejoindre », candidature spontanée). Si le recrutement passe par un site de groupe ou de réseau, donne cette page. Si elle n'existe pas, écris « pas de page recrutement ».
+3. N'utilise aucun annuaire privé, PagesJaunes, comparateur ni site d'offres d'emploi (Indeed, Hellowork, France Travail, etc.) comme source de l'adresse ou du numéro.
+4. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+5. Établissements : pour une « enseigne à plusieurs magasins », relève dans le localisateur officiel de la marque jusqu'à 3 magasins de la Dordogne ET jusqu'à 3 de la Haute-Vienne, sous la forme commune:adresse:téléphone, séparés par « ; ». Pour un « établissement unique », relève son adresse et son téléphone.
+6. Le statut est un seul mot : « confirmé » (le site proposé est le bon et l'employeur est présent dans le territoire), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucun site officiel trouvé), « absent » (l'employeur n'a aucun établissement en Dordogne ni en Haute-Vienne).
+
+Réponds uniquement avec une ligne par employeur, sans tableau, sous cette forme exacte :
+numéro | statut | site officiel | page de recrutement officielle | établissements relevés (commune:adresse:téléphone ; ...) | URL exacte de la page où tu as lu les établissements
+
+Longueur et méthode : la liste est courte (25 lignes, numéros 1 à 25) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 25 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | type | secteur | lieux proposés | site proposé | recrutement proposé) :
+1 | Association Communauté de Communes d'Aide à Domicile | un seul établissement | social-personne | lieux proposés : Mussidan | site proposé : aucun | recrutement proposé : aucun
+2 | Centre Social et Culturel Passerelle Vézère Haut Périgord Noir | un seul établissement | sport-animation | lieux proposés : Thenon | site proposé : aucun | recrutement proposé : aucun
+3 | Vitalliance Limoges | un seul établissement | social-personne | lieux proposés : Limoges | site proposé : https://www.vitalliance.fr | recrutement proposé : aucun
+4 | Foyer de Vie Lysander | un seul établissement | social-personne | lieux proposés : Bassillac et Auberoche | site proposé : aucun | recrutement proposé : aucun
+5 | Foyer de Vie Lou Prat Dòu Solelh | un seul établissement | social-personne | lieux proposés : Ribérac | site proposé : aucun | recrutement proposé : aucun
+6 | Chlorophylle Horticulture Germain Joncheray | un seul établissement | agriculture-nature | lieux proposés : Condat-sur-Vienne | site proposé : aucun | recrutement proposé : aucun
+7 | Centre Hospitalier du Haut Limousin | un seul établissement | sante | lieux proposés : Bellac, Magnac-Laval, Le Dorat | site proposé : aucun | recrutement proposé : aucun
+8 | Centre Hospitalier Michel Barriet | un seul établissement | sante | lieux proposés : Eymoutiers | site proposé : aucun | recrutement proposé : aucun
+9 | SOTEC Groupe Massy | un seul établissement | btp | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+10 | Industrie Bois Rousseau | un seul établissement | industrie | lieux proposés : Dussac | site proposé : aucun | recrutement proposé : aucun
+11 | P.N.S | un seul établissement | proprete | lieux proposés : Verneuil-sur-Vienne | site proposé : aucun | recrutement proposé : aucun
+12 | Sécuritest Limoges Sud | un seul établissement | automobile | lieux proposés : Limoges | site proposé : https://www.securitest.fr | recrutement proposé : aucun
+13 | Sécuritest Le Vigen | un seul établissement | automobile | lieux proposés : Le Vigen | site proposé : https://www.securitest.fr | recrutement proposé : aucun
+14 | CAFPI Périgueux | un seul établissement | banque-assurance-immobilier | lieux proposés : Périgueux | site proposé : https://www.cafpi.fr | recrutement proposé : https://cafpi-career.talent-soft.com
+15 | Meilleurtaux Périgueux | un seul établissement | banque-assurance-immobilier | lieux proposés : Périgueux | site proposé : https://www.meilleurtaux.com | recrutement proposé : aucun
+16 | Chez Sylvain | un seul établissement | artisanat-bouche | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+17 | Chez Sylvain | un seul établissement | artisanat-bouche | lieux proposés : Panazol | site proposé : aucun | recrutement proposé : aucun
+18 | Mairie de Sarlat-la-Canéda - restauration scolaire | un seul établissement | hotellerie-restauration | lieux proposés : Sarlat-la-Canéda | site proposé : https://sarlat.fr/mon-quotidien/scolarite-enfance-et-jeunesse/les-ecoles-de-sarlat/la-restauration-scolaire/ | recrutement proposé : aucun
+19 | SAS Fredange Ambulances Rouffignacoises | un seul établissement | sante | lieux proposés : Rouffignac-Saint-Cernin-de-Reilhac | site proposé : aucun | recrutement proposé : aucun
+20 | Ambulances et Taxis de Lalinde | un seul établissement | sante | lieux proposés : Lalinde | site proposé : aucun | recrutement proposé : aucun
+21 | Malika et Associés Ambulances | un seul établissement | sante | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+22 | Aide Familiale à Domicile | un seul établissement | social-personne | lieux proposés : Bergerac | site proposé : aucun | recrutement proposé : aucun
+23 | ASSAD Dordogne | enseigne à plusieurs magasins | social-personne | lieux proposés : Périgueux | site proposé : aucun | recrutement proposé : aucun
+24 | Limousin Aide à Domicile | un seul établissement | social-personne | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+25 | Foyer Jacques Delprat | un seul établissement | social-personne | lieux proposés : Monpazier | site proposé : aucun | recrutement proposé : aucun
+

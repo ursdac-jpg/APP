@@ -19,6 +19,8 @@ sources:
   - "travail-emploi-cse-11-49 | Le CSE dans les entreprises de 11 à 49 salariés | https://travail-emploi.gouv.fr/le-cse-dans-les-entreprises-de-11-49-salaries | 2026-09-12"
   - "travail-emploi-index-egalite-professionnelle | Index de l'égalité professionnelle : calcul et questions/réponses | https://travail-emploi.gouv.fr/index-de-legalite-professionnelle-calcul-et-questionsreponses | 2026-09-12"
   - "msa-tesa-en-bref | Tesa : en bref | https://tesa.msa.fr/en-bref/ | 2026-10-13"
+  - "entreprendre-rgdu | Service Public Entreprendre : réduction générale dégressive unique (RGDU) | https://entreprendre.service-public.gouv.fr/vosdroits/F24542 | 2026-11-03"
+  - "urssaf-rgdu | Urssaf : la réduction générale dégressive unique | https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/reduction-generale-cotisation.html | 2026-11-03"
 structures:
 ---
 

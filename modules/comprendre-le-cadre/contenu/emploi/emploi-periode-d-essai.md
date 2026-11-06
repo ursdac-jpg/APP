@@ -7,7 +7,7 @@ tags: [période d'essai, contrat de travail, CDI, CDD, rupture, délai de préve
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-05
+verifie_le: 2026-11-04
 lexique:
   - terme: "période d'essai"
     definition: "Temps, au début d'un contrat, pendant lequel l'employeur et le salarié peuvent chacun mettre fin au contrat librement, sans motif. Elle doit être écrite dans le contrat."
@@ -20,7 +20,9 @@ sources:
 ce_qui_change_souvent:
   - "Les durées maximales par catégorie et les règles de renouvellement"
   - "Les durées prévues par les conventions collectives"
-revisions: []
+revisions:
+  - "2026-11-04 : durées, renouvellement et délais de prévenance (employeur et salarié) relus et confirmés sur la page Service Public"
+phrase_generale: "La période d'essai sert à vérifier, des deux côtés, que le poste convient : elle n'est pas obligatoire, et si elle existe, elle est écrite dans le contrat. Sa durée maximale, son renouvellement et le délai pour y mettre fin changent selon la catégorie du poste et la convention : confirmez-les sur votre contrat ou sur les sources officielles indiquées plus bas."
 collecte: emploi.collecte.md
 ---
 

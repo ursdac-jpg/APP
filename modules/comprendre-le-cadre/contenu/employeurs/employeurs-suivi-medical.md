@@ -24,6 +24,7 @@ ce_qui_change_souvent:
   - "La périodicité exacte de renouvellement selon le poste et les risques identifiés"
 revisions:
   - "2026-10 : pour les arrêts de travail délivrés à partir du 15 juin 2026 (décret du 12 juin 2026), la visite de reprise n'est plus obligatoire si une visite de pré-reprise a eu lieu dans les 30 jours avant le retour et si le médecin du travail a conclu qu'aucun aménagement n'était nécessaire ; l'employeur est informé de la visite de pré-reprise sauf opposition du salarié ; vérifié sur service-public.fr le 2026-10-05"
+phrase_generale: "Le suivi médical d'un salarié ne s'arrête pas à la visite d'embauche : c'est une obligation de l'employeur qui dure tout le contrat, avec des visites régulières. Leur calendrier dépend du poste et de la situation de la personne : confirmez-le auprès du service de prévention et de santé au travail ou sur les sources officielles indiquées plus bas."
 collecte: employeurs.collecte.md
 ---
 

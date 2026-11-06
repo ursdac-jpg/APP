@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : lisibilité de l’écran « Collez la réponse »</title>
+<!-- Maquette du 31/10/2026 (point 12, consigne 83 a). Elle utilise le VRAI CSS de l'application (aucune copie) puis ajoute, en bas de ce fichier, uniquement les ajustements proposés.
+     Ouvrir par http://localhost:8123/docs/MAQUETTE_LISIBILITE_ECRAN_COLLAGE_2026-10-31.html (serveur de développement) ou directement depuis le dossier du projet. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<link rel="stylesheet" href="../modules/carnet/carnet.css">
+<style>
+/* ===================== PAGE DE PRÉSENTATION DE LA MAQUETTE (hors application) ===================== */
+body.coque { background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); padding: 0; }
+.coque-barre { position: sticky; top: 0; z-index: 50; background: var(--bg-card, var(--bg-page)); border-bottom: 1px solid var(--border); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; }
+.coque-groupe { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.coque-groupe > span { font-size: .85rem; font-weight: 700; color: var(--text-muted); margin-right: .2rem; }
+.coque-groupe button { border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-strong); border-radius: 8px; padding: .4rem .75rem; font-size: .9rem; cursor: pointer; }
+.coque-groupe button[aria-pressed="true"] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.coque-scene { padding: 1rem; display: flex; justify-content: center; }
+.coque-cadre { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.12); }
+.coque-cadre iframe { border: 0; display: block; transform-origin: top left; }
+.coque-note { max-width: 980px; margin: 0 auto 2rem; padding: 0 1rem; line-height: 1.55; }
+.coque-note h2 { font-size: 1.15rem; margin: 1.4rem 0 .5rem; }
+.coque-note li { margin-bottom: .35rem; }
+.coque-mesure { font-size: .9rem; color: var(--text-muted); text-align: center; margin: 0 0 .6rem; }
+
+/* ===================== AJUSTEMENTS PROPOSÉS (c'est ici que la maquette diffère de l'application) ===================== */
+/* 1. Échelle : plus aucun texte sous 14 px ; sur ordinateur portable (1000 à 1600 px) tout l'écran passe automatiquement à 17 px. */
+@media (min-width: 1000px) and (max-width: 1600px) { html.cadre { font-size: 106.25%; } }
+html.cadre .fc-sous, html.cadre .fc-autorisation, html.cadre .preparer-detail, html.cadre .fc-bas-col p.fc-info-texte,
+html.cadre .pilule-etat, html.cadre .pastille-etape-action-label, html.cadre .barre-raison-suivant, html.cadre .bloc-depli > summary .pilule-etat { font-size: max(.875rem, 14px); }
+html.cadre .barre-etapes-bilan .pastille-etape-action { font-size: .875rem; }
+/* 2. Boutons : 44 px de haut au minimum, même les petits ; zone cliquable des « i » élargie sans grossir le dessin. */
+html.cadre .btn, html.cadre .btn-sm { min-height: 44px; font-size: 1rem; }
+html.cadre .fc-info { position: relative; }
+html.cadre .fc-info::after { content: ""; position: absolute; inset: -7px; }
+html.cadre .fc-gros { min-height: 3.5rem; font-size: 1.25rem; }
+html.cadre .fc-auto, html.cadre .barre-navigation .btn, html.cadre .btn-nav-erip, html.cadre .barre-navigation .btn-lg { font-size: max(1rem, 14px) !important; }
+html.cadre #btnPreferencesAffichage, html.cadre #btnAide, html.cadre #btnSessionTransfert, html.cadre #btnNouveautes, html.cadre #btnCarnet { min-width: 44px; min-height: 44px; }
+/* 3. Un seul titre et un seul message d'attente : le titre du bloc suffit, le titre répété est retiré. */
+html.cadre .fc-titre { display: none; }
+html.cadre .fc { padding-top: .1rem; }
+/* 4. Écran bas (portable 720 à 800 px) : le bouton « Coller la réponse » doit se voir sans défiler. */
+@media (max-height: 800px) {
+  html.cadre .page-catalogue-contenu h1 { font-size: 2.1rem; margin-bottom: .3rem; }
+  html.cadre .sousTitre { font-size: 1.05rem; margin-bottom: .9rem; }
+  html.cadre .fc-bande { margin-bottom: .9rem; padding: .7rem 1rem; }
+  html.cadre .fc-quoi { margin-bottom: .6rem; }
+  html.cadre .bloc-depli { margin-bottom: .6rem; }
+}
+/* 5. Téléphone : barre des étapes sans coupure, barre du bas sans débordement, message d'attente dans la barre. */
+@media (max-width: 480px) {
+  html.cadre .barre-etapes-bilan { flex-wrap: nowrap; justify-content: center; padding-right: 0; padding-left: 0; overflow: hidden; }
+  html.cadre .barre-etapes-bilan .pastille-etape-action { padding: .25rem .35rem; }
+  html.cadre .barre-etapes-bilan .chevron-etape-action { width: .75rem; }
+  html.cadre .bloc-depli > summary .preparer-titre { font-size: 1.1rem; }
+  html.cadre #btnCarnet { top: 80px !important; right: 8px !important; bottom: auto !important; }
+  html.cadre .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) .pastille-etape-action-label { display: none; }
+  html.cadre .barre-navigation { display: flex !important; width: 100%; flex-wrap: wrap !important; gap: .5rem; }
+  html.cadre .barre-navigation .barre-raison-suivant { order: -1; flex: 0 0 100% !important; width: 100% !important; max-width: none !important; left: auto !important; right: auto !important; bottom: auto !important; position: static !important; display: block; text-align: center; margin: 0; padding: .1rem 0 .15rem; background: none; border: 0; box-shadow: none; transform: none; color: var(--text-muted); }
+  html.cadre .barre-navigation button:not(:disabled) + .barre-raison-suivant { display: none; }
+  html.cadre .barre-navigation .btn-accueil .txt-accueil { display: none; }
+  html.cadre .barre-navigation .btn-primary { flex: 1 1 0; min-width: 0; }
+  html.cadre .page-catalogue-contenu h1 { font-size: 1.9rem; }
+  html.cadre .fc-bas-col { flex-basis: 100%; }
+  html.cadre .fc-bas-col .btn { width: 100%; }
+  html.cadre .fc-bas-droite { align-items: flex-start; text-align: left; }
+  html.cadre .fc-gros { width: 100%; padding: 1rem; }
+}
+html.cadre .lib-court { display: none; }
+@media (max-width: 480px) { html.cadre .lib-long { display: none; } html.cadre .lib-court { display: inline; } }
+html.cadre body { padding-top: 0 !important; padding-bottom: 8rem; }
+.choix-assistants { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
+.note-maquette { position: fixed; left: 50%; bottom: 7.5rem; transform: translateX(-50%); background: var(--text-strong); color: var(--bg-page); padding: .5rem .9rem; border-radius: 10px; font-size: .95rem; z-index: 99; max-width: 90%; }
+</style>
+</head>
+<body>
+
+<script>
+(function () {
+  var dansCadre = (new URLSearchParams(location.search).get('cadre') === '1');
+  var ETATS = ['ouvert', 'pret', 'main', 'recu', 'coupe', 'echec'];
+  var NOMS = { ouvert: '1. Assistant ouvert', pret: '2. Prêt à coller', main: '3. Coller à la main', recu: '4. Réponse reçue', coupe: '5. Réponse coupée', echec: '6. Échec' };
+  var VUES = [['portable125', 'Portable 125 % (1536 x 864)', 1536, 864], ['portable150', 'Portable 150 % (1280 x 720)', 1280, 720], ['tablette', 'Tablette (768 x 1024)', 768, 1024], ['telephone', 'Téléphone (375 x 812)', 375, 812]];
+  var params = new URLSearchParams(location.search);
+
+  /* ============================ DANS LE CADRE : l'écran lui-même ============================ */
+  if (dansCadre) {
+    document.documentElement.className = 'cadre';
+    var theme = params.get('theme'); if (theme === 'sombre') { document.documentElement.setAttribute('data-theme', 'sombre'); }
+    var etat = params.get('etat') || 'pret', assistant = 'ChatGPT', blocAOuvert = false, note = '';
+    var NB = ' ';
+    var q = function (t) { return '«' + NB + t + NB + '»'; };
+
+    var bandeau = function () {
+      var a = '<strong>' + assistant + '</strong>';
+      if (etat === 'ouvert') return '<div class="fc-bande"><p>✓ ' + a + ' est ouvert dans un autre onglet. Copiez <strong>toute</strong> sa réponse, puis revenez ici et cliquez sur ' + q('Je suis de retour') + '.</p><div class="fc-boutons"><button type="button" class="btn btn-sm btn-outline-primary" data-a="rouvrir">Rouvrir ' + assistant + ' (texte à envoyer recopié)</button> <button type="button" class="btn btn-sm btn-primary" data-a="retour">↩ Je suis de retour</button></div></div>';
+      if (etat === 'pret') return '<div class="fc-bande"><p>Vous revenez de ' + a + '. Sa réponse est copiée : cliquez sur ' + q('Coller la réponse') + '.</p></div>';
+      if (etat === 'main') return '<div class="fc-bande"><p>Vous revenez de ' + a + '. Collez sa réponse à la main dans le cadre ci-dessous.</p></div>';
+      if (etat === 'recu') return '<div class="fc-bande"><p>Réponse de ' + a + '.</p></div>';
+      return '';
+    };
+    var question = function (id, qt, ex) {
+      return '<p class="fc-question"><strong>' + qt + '</strong> <button type="button" class="fc-info" data-info="' + id + '" aria-expanded="false" aria-label="Lire l’explication : ' + qt + '">ⓘ</button></p><p class="fc-info-texte fc-cache" data-info-texte="' + id + '" role="note">' + ex + '</p>';
+    };
+    var QUOI = '<p class="fc-quoi"><strong>Ce qui se passe.</strong> L’assistant vient de lire votre CV et de le ranger : identité, expériences, formations, compétences.</p>';
+    var zoneAction = function (avecQuoi) {
+      var libelle = etat === 'coupe' ? 'Coller la suite' : 'Coller la réponse';
+      var sous = etat === 'ouvert' ? 'Ce bouton s’active à votre retour.' : (etat === 'coupe' ? 'Un seul clic : la suite est collée et ajoutée à ce que vous avez déjà collé.' : 'Un seul clic : la réponse est collée et lue.');
+      return '<div class="fc-action"><button type="button" class="fc-gros' + (etat === 'ouvert' ? '' : ' bouton-incitation-action') + '" data-a="coller"' + (etat === 'ouvert' ? ' disabled' : '') + '>📋 ' + libelle + ' <span class="fc-auto">(opération automatique)</span></button>' +
+        '<div class="fc-sous">' + sous + '</div>' +
+        /* Texte raccourci proposé : une seule idée (le navigateur peut demander l'autorisation), la suite est dite par le bouton « Coller à la main ». */
+        '<p class="fc-autorisation"><span aria-hidden="true">ℹ️</span> Votre navigateur peut demander l’autorisation de lire ce que vous avez copié : cliquez sur ' + q('Autoriser') + '. Si vous refusez, collez à la main.</p>' + (avecQuoi ? QUOI : '') +
+        '<div class="fc-bas"><div class="fc-bas-col">' + question('main', 'Le bouton ci-dessus ne marche pas ?', 'Sur certains navigateurs, la copie automatique n’est pas autorisée. Si vous avez du mal à coller, vous pouvez le faire vous-même :') +
+        '<button type="button" class="btn btn-sm btn-outline-primary" data-a="main">✍ Coller à la main</button></div>' +
+        '<div class="fc-bas-col fc-bas-droite">' + question('changer', 'Un autre assistant ?', 'À utiliser si l’assistant ne répond pas, est saturé ou refuse votre demande. Vous revenez au choix de l’assistant : votre travail est gardé.') +
+        '<button type="button" class="btn btn-sm btn-outline-primary" data-a="changer">↺ Changer d’assistant</button></div></div></div>';
+    };
+    var contenuB = function () {
+      var h = '<div class="fc">';
+      if (etat === 'main' || etat === 'recu') h += QUOI;
+      h += bandeau();
+      if (etat === 'ouvert' || etat === 'pret') h += zoneAction(true);
+      if (etat === 'main') h += '<div class="fc-saisie"><p class="fc-sous fc-gauche">Collez la réponse de l’assistant dans le cadre, puis cliquez sur ' + q('Vérifier ce texte') + '.</p><textarea class="form-control" rows="5" placeholder="La réponse de l’assistant"></textarea><div class="fc-ligne fc-centre" style="margin-top:.8rem;display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center"><button type="button" class="btn btn-primary" data-a="verifier">✓ Vérifier ce texte</button><button type="button" class="btn btn-outline-primary" data-a="retourAuto">↩ Revenir au collage automatique</button></div></div>';
+      if (etat === 'recu') h += '<div class="fc-etat fc-recu" role="status"><div class="fc-grand">✓ Réponse bien reçue</div><ul class="fc-verifs"><li>✓ La réponse est complète : elle se termine comme prévu, et toutes les rubriques attendues sont là.</li></ul></div><div class="fc-averifier" role="note"><span aria-hidden="true">🔍</span> <span><strong>À vérifier :</strong> en lisant le résultat, regardez qu’il correspond bien à ce que vous avez donné.</span></div>';
+      if (etat === 'coupe') h += '<div class="fc-etat fc-coupe" role="status"><div class="fc-grand">⚠️ Il manque la fin de la réponse</div><p>L’assistant vous a prévenu : <strong>sa réponse n’est pas finie</strong>. Ce que vous avez collé est gardé (<strong>1 morceau</strong>) : il reste à aller chercher la fin.</p><ol class="fc-etapes"><li>Retournez dans <strong>la même conversation</strong>, chez l’assistant.</li><li>Écrivez-lui simplement le mot <strong>suite</strong>, puis envoyez.</li><li>Copiez sa nouvelle réponse en entier, revenez ici et cliquez sur <strong>' + q('Coller la suite') + '</strong>, juste en dessous.</li></ol></div>' + zoneAction();
+      if (etat === 'echec') h += '<div class="fc-etat fc-echec" role="alert"><div class="fc-grand">Cette réponse n’a pas pu être utilisée</div><p><strong>Rien n’a été ajouté à votre travail, vous n’avez rien perdu.</strong> Le texte collé ne contient pas les informations attendues : l’assistant a peut-être répondu à autre chose, ou la copie est incomplète.</p><ol class="fc-etapes"><li>Cliquez sur <strong>' + q('Recommencer le collage') + '</strong> et collez de nouveau, en copiant bien <strong>toute</strong> la réponse.</li><li>Si cela recommence, <strong>essayez un autre assistant</strong> ou regardez la démonstration.</li></ol><div class="fc-ligne" style="display:flex;gap:.6rem;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-a="recommencer">↻ Recommencer le collage</button><button type="button" class="btn btn-outline-primary" data-a="changer">↺ Changer d’assistant</button></div></div>';
+      return h + '</div>';
+    };
+    var etapesBarre = function () {
+      var p = function (cl, ic, lb, att) { return '<span class="pastille-etape-action ' + cl + '" style="cursor:default;' + (att ? 'opacity:0.4;' : '') + '"><span class="pastille-etape-action-icone">' + ic + '</span><span class="pastille-etape-action-label">' + lb + '</span></span>'; };
+      var c = function (att) { return '<span class="chevron-etape-action" style="' + (att ? 'opacity:0.4;' : '') + '" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; };
+      return '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">' + p('pastille-etape-action-validee', '📝', 'Préparer') + c() + p('pastille-etape-action-validee', '💬', 'Assistant') + c() + p('pastille-etape-action-courante pastille-etape-action-ouverte', '📥', 'Réponse') + c(1) + p('', '📋', 'Vos informations', 1) + c(1) + p('', '📄', 'Vos documents', 1) + '</div>';
+    };
+    var rendre = function () {
+      var choisis = etat !== 'x';
+      var blocA = '<details class="bloc-depli bd-ok" id="blocA"' + (blocAOuvert ? ' open' : '') + '><summary><span class="preparer-num">1</span><span class="preparer-titre">Votre assistant</span><span class="pilule-etat pe-ok">' + assistant + '</span></summary><div class="bloc-depli-corps"><p class="preparer-detail">Le texte à copier a été préparé pour <strong>' + assistant + '</strong>. Pour en prendre un autre, cliquez sur un nom :</p><div class="choix-assistants">' + ['ChatGPT', 'Claude', 'Perplexity', 'Gemini', 'Mistral', 'DeepSeek'].map(function (n) { return '<button type="button" class="btn btn-outline-primary btn-sm" data-a="assistant" data-n="' + n + '">' + n + '</button>'; }).join('') + '</div></div></details>';
+      var pilule = etat === 'recu' ? '<span class="pilule-etat pe-ok">Reçue</span>' : (etat === 'echec' ? '<span class="pilule-etat pe-attente">À refaire</span>' : (etat === 'coupe' ? '<span class="pilule-etat pe-attente">Incomplète</span>' : '<span class="pilule-etat pe-info">À faire</span>'));
+      var blocB = '<details class="bloc-depli" open><summary><span class="preparer-num">2</span><span class="preparer-titre">Collez la réponse de l’assistant</span>' + pilule + '</summary><div class="bloc-depli-corps">' + contenuB() + '</div></details>';
+      var actif = etat === 'recu';
+      var barre = '<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button class="btn btn-nav-erip btn-lg" data-a="retourPage">← Retour</button><button class="btn btn-nav-erip btn-accueil" data-a="accueil" aria-label="Accueil"><i class="bi bi-house-door" aria-hidden="true"></i> <span class="txt-accueil">Accueil</span></button><button type="button" class="btn btn-primary btn-lg" data-a="continuer"' + (actif ? '' : ' disabled') + '><span class="lib-long">Vérifier mes informations →</span><span class="lib-court">Vérifier →</span></button><span class="barre-raison-suivant" role="status">Complétez cette page pour continuer.</span></div></div>';
+      var haut = '<button type="button" id="btnPreferencesAffichage" aria-label="Préférences d’affichage"><i class="bi bi-gear" aria-hidden="true"></i></button><button type="button" id="btnAide" aria-label="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button><button type="button" id="btnSessionTransfert" aria-label="Sauvegarder ma session"><i class="bi bi-floppy" aria-hidden="true"></i></button><button type="button" id="btnNouveautes" aria-label="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i></button><button type="button" id="btnCarnet" aria-label="Carnet"><i class="bi bi-journal-text" aria-hidden="true"></i></button>';
+      document.body.innerHTML = haut + '<div id="app"><div class="page-catalogue-contenu bilan-preparer">' + etapesBarre() +
+        '<div class="text-center"><h1><i class="bi bi-file-earmark-check"></i> Ma lettre de motivation rapide</h1><p class="sousTitre">Revenez coller la réponse de l’assistant ici. Tout se passe sur cette page.</p></div>' + blocA + blocB + '</div></div>' + barre + (note ? '<div class="note-maquette">' + note + '</div>' : '');
+      note = '';
+      try { parent.postMessage({ maquetteEtat: etat }, '*'); } catch (e) {}
+    };
+    var changer = function (e) { etat = e; rendre(); window.scrollTo(0, 0); };
+    document.addEventListener('click', function (ev) {
+      var i = ev.target.closest('[data-info]');
+      if (i) { var id = i.getAttribute('data-info'); var t = document.querySelector('[data-info-texte="' + id + '"]'); var ouvert = i.getAttribute('aria-expanded') === 'true'; i.setAttribute('aria-expanded', ouvert ? 'false' : 'true'); t.classList.toggle('fc-cache', ouvert); return; }
+      var b = ev.target.closest('[data-a]'); if (!b || b.disabled) return;
+      var a = b.getAttribute('data-a');
+      if (a === 'retour') changer('pret');
+      else if (a === 'rouvrir') { note = 'Maquette : ici l’assistant se rouvre dans un autre onglet.'; rendre(); }
+      else if (a === 'coller') changer('recu');
+      else if (a === 'main') changer('main');
+      else if (a === 'verifier') changer('recu');
+      else if (a === 'retourAuto' || a === 'recommencer') changer('pret');
+      else if (a === 'changer') { blocAOuvert = true; rendre(); document.getElementById('blocA').scrollIntoView({ block: 'start' }); }
+      else if (a === 'assistant') { assistant = b.getAttribute('data-n'); blocAOuvert = false; changer('ouvert'); }
+      else if (a === 'continuer') { note = 'Maquette : ici s’ouvre l’écran « Vérifiez les informations importées ».'; rendre(); }
+      else if (a === 'retourPage' || a === 'accueil') { note = 'Maquette : ce bouton ne quitte pas la maquette.'; rendre(); }
+    });
+    window.addEventListener('message', function (ev) { if (ev.data && ev.data.maquetteEtat) { changer(ev.data.maquetteEtat); } });
+    rendre();
+    var courante = document.querySelector('.pastille-etape-action-courante'); if (courante && courante.scrollIntoView) { courante.scrollIntoView({ inline: 'center', block: 'nearest' }); }
+    return;
+  }
+
+  /* ============================ COQUE : présentation de la maquette ============================ */
+  document.body.className = 'coque';
+  var vue = params.get('vue') || 'portable150', etatC = params.get('etat') || 'pret', theme = params.get('theme') || 'clair';
+  var racine = document.createElement('div'); document.body.appendChild(racine);
+  racine.innerHTML =
+    '<div class="coque-barre"><div class="coque-groupe" id="gVue"><span>Écran :</span></div><div class="coque-groupe" id="gEtat"><span>Moment :</span></div><div class="coque-groupe" id="gTheme"><span>Thème :</span></div></div>' +
+    '<div class="coque-scene"><div><p class="coque-mesure" id="mesure"></p><div class="coque-cadre" id="cadre"><iframe id="f" title="Écran proposé"></iframe></div></div></div>' +
+    '<div class="coque-note">' +
+    '<h2>Ce que la maquette propose (écran « Collez la réponse de l’assistant », version rapide)</h2><ol>' +
+    '<li><strong>Taille automatique sur ordinateur portable</strong> : entre 1000 et 1600 px de large, tout l’écran passe à 17 px (au lieu de 16 px). Essayez « Portable 125 % » et « Portable 150 % ».</li>' +
+    '<li><strong>Plus aucun texte sous 14 px</strong> : les petites phrases d’aide, les pastilles et les noms d’étapes sont agrandis.</li>' +
+    '<li><strong>Tous les boutons font 44 px de haut au moins</strong>, même les petits (« Coller à la main », « Changer d’assistant »). Les « i » gardent leur taille, mais on peut les toucher plus facilement.</li>' +
+    '<li><strong>Un seul titre</strong> : « Collez la réponse de l’assistant » n’est plus écrit deux fois de suite. Le sous-titre est raccourci. <strong>L’action passe avant l’explication</strong> : la consigne et le bouton « Coller la réponse » viennent en premier, « Ce qui se passe » se lit juste en dessous.</li>' +
+    '<li><strong>Le bloc « Votre assistant » est replié</strong> une fois l’assistant choisi (il reste ouvrable) : le bouton « Coller la réponse » se voit sans défiler sur un portable de 720 px de haut. « Changer d’assistant » ouvre ce bloc et propose les autres assistants.</li>' +
+    '<li><strong>Texte d’autorisation raccourci</strong> : une idée, deux lignes.</li>' +
+    '<li><strong>Téléphone</strong> : la barre des étapes ne montre que le nom de l’étape en cours (les autres restent en icônes) et n’est plus coupée ; la barre du bas ne déborde plus (« Accueil » devient une icône, « Vérifier mes informations → » devient « Vérifier → ») ; le message « Complétez cette page pour continuer » est dans la barre, au-dessus des boutons, au lieu de recouvrir le titre.</li>' +
+    '<li><strong>Rien n’est retiré</strong> : toutes les fonctions et tous les boutons actuels restent (coller, coller à la main, vérifier, revenir au collage automatique, recommencer, changer d’assistant, je suis de retour, rouvrir l’assistant, continuer).</li></ol>' +
+    '<h2>Manipulations à essayer</h2><ul><li>Moment 1 : « Je suis de retour » → moment 2. « Coller la réponse » → moment 4 (le bouton du bas s’active). « Coller à la main » → moment 3. « Changer d’assistant » ouvre le choix.</li><li>Mode sombre : bouton « Thème ».</li><li>Cette maquette ne couvre que cet écran. Si elle vous convient, la même échelle sera appliquée aux autres écrans d’import, car ils partagent le même composant (41 appels).</li></ul>' +
+    '<h2>Questions pour vous</h2><ol><li>Sur téléphone, « Vérifier → » raccourci vous convient-il, ou préférez-vous le bouton principal seul sur une ligne, en pleine largeur, au-dessus de « Retour » et « Accueil » ?</li><li>Le bloc « Votre assistant » replié par défaut vous convient-il ?</li><li>17 px sur portable : trop, pas assez ?</li></ol></div>';
+
+  var cadre = document.getElementById('cadre'), f = document.getElementById('f');
+  var groupe = function (id, items, courant, cb) {
+    var g = document.getElementById(id);
+    items.forEach(function (it) { var b = document.createElement('button'); b.type = 'button'; b.textContent = it[1]; b.setAttribute('data-k', it[0]); b.addEventListener('click', function () { cb(it[0]); }); g.appendChild(b); });
+    return function (c) { [].forEach.call(g.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-k') === c ? 'true' : 'false'); }); };
+  };
+  var majVue = groupe('gVue', VUES.map(function (v) { return [v[0], v[1]]; }), vue, function (k) { vue = k; place(true); });
+  var majEtat = groupe('gEtat', ETATS.map(function (e) { return [e, NOMS[e]]; }), etatC, function (k) { etatC = k; f.contentWindow.postMessage({ maquetteEtat: k }, '*'); majEtat(k); });
+  var majTheme = groupe('gTheme', [['clair', 'Clair'], ['sombre', 'Sombre']], theme, function (k) { theme = k; place(true); });
+  function place(recharger) {
+    var v = VUES.filter(function (x) { return x[0] === vue; })[0];
+    var dispo = Math.max(300, window.innerWidth - 40), dispoH = Math.max(300, window.innerHeight - 150);
+    var s = Math.min(1, dispo / v[2], dispoH / v[3]);
+    f.style.width = v[2] + 'px'; f.style.height = v[3] + 'px'; f.style.transform = 'scale(' + s + ')';
+    cadre.style.width = Math.round(v[2] * s) + 'px'; cadre.style.height = Math.round(v[3] * s) + 'px';
+    document.getElementById('mesure').textContent = v[1] + (s < 1 ? ' · affiché à ' + Math.round(s * 100) + ' % pour tenir dans la fenêtre (les tailles de texte restent celles de l’écran réel)' : '');
+    majVue(vue); majEtat(etatC); majTheme(theme);
+    if (recharger) { f.src = location.pathname + '?cadre=1&etat=' + etatC + '&theme=' + theme; }
+  }
+  window.addEventListener('resize', function () { place(false); });
+  window.addEventListener('message', function (ev) { if (ev.data && ev.data.maquetteEtat) { etatC = ev.data.maquetteEtat; majEtat(etatC); } });
+  place(true);
+})();
+</script>
+</body>
+</html>

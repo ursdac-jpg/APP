@@ -104,6 +104,34 @@ var COMPRENDRE_LE_CADRE_OUTILS = [
     accroche: 'Les changements officiels du dernier trimestre, en emploi, formation, insertion, droits sociaux et séjour.' }
 ];
 
+// ============================================================
+// POUR NE RIEN RATER : « Délais à ne pas rater » et « Alertes arnaques »
+// (05/11/2026, décisions de Denis sur la maquette docs/maquettes/maquette-delais-arnaques-signaler.html).
+// - Les délais ont UNE seule source : la ligne `delai:` de l'en-tête de chaque fiche. scripts/genererDelais.js en tire
+//   modules/comprendre-le-cadre/donnees/delais.json (jamais modifié à la main, test tests/delaisFiches.test.js).
+// - Les alertes sont dans donnees/arnaques.txt ; seules celles marquées « valide » (relues par Denis) s'affichent, et seulement
+//   pendant 12 mois après leur dernière vérification, 10 au plus.
+// Une carte de l'accueil n'apparaît que si sa page a du contenu.
+// ============================================================
+var COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER = [
+  { ecran: 'delais', icone: 'bi-hourglass-split', titre: 'Délais à ne pas rater',
+    quoi: 'Les démarches à faire avant une date limite, avec le nombre de jours ou de mois.',
+    mots: 'délai date limite jours mois contester recours prud\'hommes demander avant passé ce délai',
+    accroche: 'Les délais à respecter pour ne pas perdre un droit. Chacun renvoie à la fiche qui explique tout.' },
+  { ecran: 'arnaques', icone: 'bi-shield-exclamation', titre: 'Alertes arnaques',
+    quoi: 'Les fausses propositions qui visent les personnes en recherche d\'emploi ou de formation.',
+    mots: 'arnaque escroquerie fraude faux conseiller compte formation CPF démarchage appel téléphone message SMS signaler',
+    accroche: 'Les arnaques du moment, comment les reconnaître et que faire.' }
+];
+var COMPRENDRE_LE_CADRE_CHEMIN_DELAIS = 'modules/comprendre-le-cadre/donnees/delais.json';
+var COMPRENDRE_LE_CADRE_CHEMIN_ARNAQUES = 'modules/comprendre-le-cadre/donnees/arnaques.txt';
+var COMPRENDRE_LE_CADRE_ARNAQUES_MAX = 10;
+var COMPRENDRE_LE_CADRE_ARNAQUES_MOIS_MAX = 12;
+// État de lecture des deux fichiers : 'inactif' | 'encours' | 'ok' | 'erreur'.
+var _comprendreLeCadrePnrrEtat = 'inactif';
+var _comprendreLeCadreDelais = [];
+var _comprendreLeCadreArnaques = [];
+
 // Barre d'étapes du module (retour Denis, 2026-09-05) : liste FIXE et
 // toujours entièrement affichée, même principe que CT_ETAPES
 // (modules/coherence-transversale/ui.js, implémentation de référence
@@ -255,6 +283,22 @@ var COMPRENDRE_LE_CADRE_QUESTIONS_RAYON = {
   sante: [
     "Cherchez-vous un médecin traitant, un dentiste, ou un autre professionnel de santé ?",
     "Avez-vous déjà essayé l'Annuaire santé de l'Assurance maladie, ou contacté votre CPAM ?"
+  ],
+  armees: [
+    "Cherchez-vous à vous engager, à découvrir les armées par un volontariat, ou à rejoindre la réserve ?",
+    "Avez-vous déjà pris contact avec un centre d'information et de recrutement des forces armées ?"
+  ],
+  'fonction-publique': [
+    "Visez-vous un concours, un recrutement sans concours, ou un contrat ?",
+    "Êtes-vous déjà agent public, titulaire ou contractuel ?"
+  ],
+  agriculture: [
+    "Souhaitez-vous créer une exploitation, en reprendre une, ou êtes-vous déjà exploitant ?",
+    "Votre exploitation est-elle touchée par un aléa climatique, comme la sécheresse ?"
+  ],
+  'parents-separes': [
+    "La pension alimentaire est-elle fixée par un jugement ou par un accord ?",
+    "Le parent qui doit la verser la paie-t-il en partie, en retard ou pas du tout ?"
   ]
 };
 
@@ -344,10 +388,18 @@ var RAYON_LABEL = {
   juridique: { icone: 'bi-bank', titre: 'Questions juridiques',
     quoi: "Conseil de prud'hommes, tribunal administratif, défenseur des droits, aide juridictionnelle, radiation d'une entreprise, litige avec l'administration." },
   sante: { icone: 'bi-heart-pulse', titre: 'Accès aux soins',
-    quoi: "Trouver un médecin traitant, un dentiste ou un autre professionnel de santé, comprendre le désert médical, la CPAM." }
+    quoi: "Trouver un médecin traitant, un dentiste ou un autre professionnel de santé, comprendre le désert médical, la CPAM." },
+  armees: { icone: 'bi-shield-check', titre: "Armées",
+    quoi: "S'engager dans l'armée, volontariat dans les armées, réserve opérationnelle, centre d'information et de recrutement des forces armées (CIRFA)." },
+  'fonction-publique': { icone: 'bi-flag', titre: "Fonction publique",
+    quoi: "Concours, recrutement sans concours, contrat, apprentissage dans la fonction publique, compte personnel de formation des agents publics, recrutement des personnes handicapées." },
+  agriculture: { icone: 'bi-tree', titre: "Agriculture",
+    quoi: "S'installer en agriculture, dotation aux nouveaux et jeunes agriculteurs, guichet unique d'installation, indemnité après la sécheresse, chambre d'agriculture." },
+  'parents-separes': { icone: 'bi-signpost-split', titre: "Parents séparés",
+    quoi: "Pension alimentaire non versée, paiement direct de la pension, allocation de soutien familial (ASF)." }
 };
 
-// Groupement des 17 rayons en 4 familles pour l'écran d'accueil, même
+// Groupement des 21 rayons en 4 familles pour l'écran d'accueil, même
 // ordre et mêmes familles que l'accueil général d'ERIP
 // (data/metiers.js, cartes[]) : « Emploi et parcours », « Situations et
 // publics », « Lever un frein du quotidien », « Faire valoir ses
@@ -358,10 +410,12 @@ var RAYON_LABEL = {
 // rayon qui regarde le monde du travail depuis l'autre côté). « sante »
 // ajouté le 2026-09-13 (Denis) : nouveau rayon, aucun des 15 precedents ne
 // couvrait l'acces aux soins / desert medical.
+// « armees », « fonction-publique », « agriculture » et « parents-separes » ajoutes le 2026-11-03 (Denis, partie D du dossier Cloud) : fiches
+// regroupees depuis les rayons emploi, handicap, creer et garde, identifiants de fiches inchanges. Dans « Qui fait quoi » depuis le 2026-11-03 sauf « fonction-publique » (MT_RAYONS, sous-branches de MT_SOUS_BRANCHES).
 var COMPRENDRE_LE_CADRE_FAMILLES = [
-  { titre: 'Emploi et parcours', rayons: ['emploi', 'former', 'accompagnement', 'creer', 'employeurs'] },
+  { titre: 'Emploi et parcours', rayons: ['emploi', 'former', 'accompagnement', 'creer', 'employeurs', 'armees', 'fonction-publique', 'agriculture'] },
   { titre: 'Situations et publics', rayons: ['jeunes', 'seniors', 'handicap', 'etranger', 'justice', 'budget', 'sante'] },
-  { titre: 'Lever un frein du quotidien', rayons: ['mobilite', 'logement', 'garde', 'francais'] },
+  { titre: 'Lever un frein du quotidien', rayons: ['mobilite', 'logement', 'garde', 'parents-separes', 'francais'] },
   { titre: 'Faire valoir ses droits', rayons: ['juridique'] }
 ];
 
@@ -393,14 +447,15 @@ function _comprendreLeCadreParserFiche(texteMd) {
   var entete = m[1];
   var f = {
     id: '', rayon: '', titre: '', pour_qui: '', territoire: '', statut: 'actif',
-    frein: false, verifie_le: '', tags: [], lexique: [], voir_aussi_lexique: [], voir_aussi_chiffres: '', sources: [],
+    frein: false, verifie_le: '', tags: [], lexique: [], voir_aussi_lexique: [], voir_aussi_chiffres: '', phrase_generale: '', sources: [],
     ce_qui_change_souvent: [], revisions: [], collecte: '', corps: (m[2] || '').trim()
   };
   // TACHE (extension Chiffres, 2026-09-12) : phrase courte optionnelle
   // (ex. "Comment on est embauché ici"), affichee sur le bouton "Pour
   // aller plus loin -> Comprendre les chiffres" -- vide par defaut, jamais
   // devinee, meme principe que voir_aussi_lexique.
-  ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'statut', 'verifie_le', 'collecte', 'voir_aussi_chiffres'].forEach(function (cle) {
+  // Consigne 95 (Denis, option 1 du 05/11/2026) : phrase_generale = phrase SANS chiffre, affichee a la place du texte quand la fiche a six mois ou plus.
+  ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'statut', 'verifie_le', 'collecte', 'voir_aussi_chiffres', 'phrase_generale'].forEach(function (cle) {
     var mm = entete.match(new RegExp('^' + cle + ':\\s*(.+)$', 'm'));
     if (mm) { f[cle] = mm[1].trim().replace(/^"|"$/g, ''); }
   });
@@ -463,6 +518,43 @@ function _comprendreLeCadreDateFr(s) {
   var mC = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (mC) { return parseInt(mC[3], 10) + ' ' + (COMPRENDRE_LE_CADRE_MOIS_FR[parseInt(mC[2], 10) - 1] || mC[2]) + ' ' + mC[1]; }
   return d;
+}
+
+// Fiche à chiffres dont la dernière vérification date de six mois ou plus : on ne montre plus ses montants, durées et dates comme sûrs, on
+// renvoie vers les sources officielles (même principe que le suivi à six mois des « En savoir plus » du Lexique). `aujourdhui` : 'AAAA-MM-JJ'.
+var COMPRENDRE_LE_CADRE_SEUIL_MOIS_CHIFFRES = 6;
+// Un texte « cite des chiffres » quand il contient un chiffre OU un nombre écrit en lettres devant une unité (« trente jours », « deux ans », « un mois »).
+// MÊME MOTIF que REGEX_A_CHIFFRES de outils/veilleFiche.js (l'outil de veille) : tests/veilleFiche.test.js vérifie que les deux sont identiques.
+var COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES = '\\d|\\b(?:un|une)[ -](?:mois|an|ann[ée]e|semaine|jour|heure|euro)s?\\b|\\b(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|cent|mille)(?:[- ][a-zéèêû]+){0,2}[ -](?:mois|jours?|ans?|ann[ée]es?|semaines?|heures?|euros?|pour cent|salari[ée]s?)\\b';
+function _comprendreLeCadreCiteDesChiffres(texte) {
+  return new RegExp(COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES, 'i').test(String(texte || ''));
+}
+function _comprendreLeCadreFichePerimee(f, aujourdhui) {
+  if (!f || !_comprendreLeCadreCiteDesChiffres(f.corps)) { return false; }
+  var m = String(f.verifie_le || '').match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/), a = String(aujourdhui || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m || !a) { return !!a; }
+  var mois = (parseInt(a[1], 10) - parseInt(m[1], 10)) * 12 + (parseInt(a[2], 10) - parseInt(m[2], 10)) - (m[3] && parseInt(a[3], 10) < parseInt(m[3], 10) ? 1 : 0);
+  return mois >= COMPRENDRE_LE_CADRE_SEUIL_MOIS_CHIFFRES;
+}
+function _comprendreLeCadreAujourdhui() {
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function _comprendreLeCadreAvertissementPerime(f, aujourdhui) {
+  if (!_comprendreLeCadreFichePerimee(f, aujourdhui || _comprendreLeCadreAujourdhui())) { return ''; }
+  return '<div class="alert alert-warning comprendre-le-cadre-avertissement-perime" data-cadre-perime="oui" role="note">' +
+    "<i class=\"bi bi-hourglass-split\"></i> Cette fiche n'a pas été vérifiée depuis plus de six mois. Pour ne pas vous donner un montant, une durée ou une date qui aurait changé, " +
+    "ils ne sont plus affichés : avant toute démarche, consultez les sources officielles indiquées en bas de page.</div>";
+}
+// Phrase commune a toutes les fiches, sans chiffre : affichee tant qu'une fiche a chiffres n'a pas sa propre phrase generale. Ainsi aucune fiche n'est
+// jamais laissee avec un chiffre perime, meme avant que toutes les phrases soient ecrites.
+var COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE = "Les montants, les durées et les dates de ce sujet changent régulièrement. Pour connaître ce qui s'applique aujourd'hui, " +
+  "le plus sûr est de consulter les sources officielles indiquées plus bas, ou de demander à un conseiller.";
+// Le texte que voit la personne : le texte precis tant que la fiche est a jour, sinon la phrase generale de la fiche (ou la phrase commune).
+function _comprendreLeCadreCorpsAffiche(f, aujourdhui) {
+  if (!_comprendreLeCadreFichePerimee(f, aujourdhui || _comprendreLeCadreAujourdhui())) { return _comprendreLeCadreRenduCorps(f.corps); }
+  var phrase = String(f.phrase_generale || '').trim() || COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE;
+  return '<p data-cadre-phrase-generale="' + (String(f.phrase_generale || '').trim() ? 'fiche' : 'commune') + '">' + phrase + '</p>';
 }
 
 // La collecte d'un rayon a une section "sources:" au même format que
@@ -619,6 +711,8 @@ function _comprendreLeCadreChargerStructuresRayon(id, onCharge, onErreur) {
       if (!reponse.ok) { throw new Error('lieux'); }
       return reponse.text();
     }).catch(function (e) { if (migre) { throw e; } return ''; }));
+    // Fiches « inaccessibles pour l'instant » (lien caché, message neutre) : s'il manque, aucune fiche n'est en attente.
+    lectures.push(fetch('modules/mon-territoire/contenu/en-attente.txt').then(function (reponse) { return reponse.ok ? reponse.text() : ''; }).catch(function () { return ''; }));
   }
   Promise.all(lectures).then(function (resultats) {
     var texteCollecte = resultats[0], liensVerifies = resultats[1];
@@ -637,13 +731,13 @@ function _comprendreLeCadreChargerStructuresRayon(id, onCharge, onErreur) {
     if (resultats.length > 2 && resultats[2]) {
       var aujourdhui = new Date().toISOString().slice(0, 10);
       var commune = (typeof mtCommuneInfoMemorisee === 'function') ? mtCommuneInfoMemorisee() : null;
-      var lignesRepertoire = mtParserLieux(resultats[2]).lignes;
+      var lignesRepertoire = mtAppliquerAttente('lieux', mtParserLieux(resultats[2]).lignes, mtAttenteParCle(mtParserAttente(resultats[3] || '').lignes));
       var parId = {};
       lignesRepertoire.forEach(function (l) { parId[l.id] = mtLieuEnStructure(l, aujourdhui, commune); });
       // Adresse, date, portée, type et couverture viennent du répertoire ; le texte reste celui du rayon.
       structures = structures.map(function (x) {
         var o = parId[x.id];
-        return o ? { id: x.id, titre: x.titre, detail: x.detail, url: o.url, verifie: o.verifie, date: o.date, portee: o.portee, type: o.type, couvre: o.couvre } : x;
+        return o ? { id: x.id, titre: x.titre, detail: x.detail, url: o.url, verifie: o.verifie, date: o.date, portee: o.portee, type: o.type, couvre: o.couvre, enAttente: o.enAttente, telephone: o.enAttente ? o.telephone : undefined } : x;
       });
       if (migre) {
         var duRepertoire = mtLieuxDuRayon(lignesRepertoire, id).map(function (l) { return parId[l.id]; });
@@ -987,9 +1081,9 @@ function _comprendreLeCadreLibelleTerritoire() {
 function _comprendreLeCadreRenduBandeauTerritoire() {
   return '' +
     '<div class="comprendre-le-cadre-territoire d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">' +
-      '<span class="fs-6"><i class="bi bi-geo-alt"></i> Votre territoire : <strong>' + _comprendreLeCadreLibelleTerritoire() + '</strong></span>' +
+      '<span class="fs-6"><i class="bi bi-geo-alt"></i> Votre département : <strong>' + _comprendreLeCadreLibelleTerritoire() + '</strong></span>' +
       '<button type="button" class="btn btn-outline-secondary" data-comprendre-le-cadre-changer-territoire>' +
-        '<i class="bi bi-arrow-repeat"></i> Changer le territoire</button>' +
+        '<i class="bi bi-arrow-repeat"></i> Changer de département</button>' +
     '</div>';
 }
 
@@ -1008,14 +1102,14 @@ function _comprendreLeCadreRenduChoixTerritoire() {
       '<h1><i class="bi bi-newspaper"></i> Comprendre le cadre</h1>' +
     '</div>' +
     '<div class="comprendre-le-cadre-encart">' +
-      '<p class="fs-5 fw-bold mb-2"><i class="bi bi-geo-alt"></i> Avant de commencer, indiquez votre territoire</p>' +
+      '<p class="fs-5 fw-bold mb-2"><i class="bi bi-geo-alt"></i> Avant de commencer, indiquez votre département</p>' +
       '<p class="mb-3">Certaines aides et beaucoup de structures dépendent de votre département. Sans cette information, les indications locales risquent de ne pas vous concerner.</p>' +
       '<button type="button" class="btn btn-primary btn-lg" data-comprendre-le-cadre-choisir-territoire>' +
-        '<i class="bi bi-geo-alt"></i> Choisir mon territoire</button>' +
+        '<i class="bi bi-geo-alt"></i> Choisir mon département</button>' +
     '</div>' +
     '<div class="comprendre-le-cadre-apercu-verrou" data-comprendre-le-cadre-apercu role="button" tabindex="0" ' +
-        'aria-label="Choisir mon territoire pour débloquer le contenu">' +
-      '<p class="comprendre-le-cadre-apercu-mot"><i class="bi bi-lock"></i> Choisissez votre territoire pour ouvrir ces sujets.</p>' +
+        'aria-label="Choisir mon département pour débloquer le contenu">' +
+      '<p class="comprendre-le-cadre-apercu-mot"><i class="bi bi-lock"></i> Choisissez votre département pour ouvrir ces sujets.</p>' +
       '<div class="comprendre-le-cadre-apercu-contenu" inert aria-hidden="true">' +
         _comprendreLeCadreRenduFamilles() +
         _comprendreLeCadreRenduOutils() +
@@ -1119,13 +1213,222 @@ function _comprendreLeCadreBrancherCarteDigest() {
   });
 }
 
+// ---- Fonctions pures (testées sous Node : tests/delaisFiches.test.js) ----
+
+function _comprendreLeCadreAujourdhui() {
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+
+// Nombre de mois entiers écoulés entre `dateIso` ('AAAA-MM' ou 'AAAA-MM-JJ') et `aujourdhui` ('AAAA-MM-JJ'), ou null si une date est illisible.
+function _comprendreLeCadreAgeEnMois(dateIso, aujourdhui) {
+  var m = String(dateIso || '').match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/), a = String(aujourdhui || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m || !a) { return null; }
+  return (parseInt(a[1], 10) - parseInt(m[1], 10)) * 12 + (parseInt(a[2], 10) - parseInt(m[2], 10)) - (m[3] && parseInt(a[3], 10) < parseInt(m[3], 10) ? 1 : 0);
+}
+
+// Regroupe les délais par thème, dans l'ordre où les thèmes apparaissent (le fichier généré est déjà trié).
+function _comprendreLeCadreGrouperDelais(liste) {
+  var groupes = [], index = {};
+  (liste || []).forEach(function (d) {
+    if (index[d.theme] === undefined) { index[d.theme] = groupes.length; groupes.push({ theme: d.theme, delais: [] }); }
+    groupes[index[d.theme]].delais.push(d);
+  });
+  return groupes;
+}
+
+// arnaques.txt : « id | statut | titre | ce qui se passe | comment le reconnaître | quoi faire | où signaler | libellé source | adresse source | ajoutée le | vérifiée le ».
+// Une ligne mal formée est ignorée (jamais d'exception) ; une adresse qui ne commence pas par https:// n'est pas gardée.
+function _comprendreLeCadreParserArnaques(texte) {
+  return String(texte || '').replace(/\r\n/g, '\n').split('\n').map(function (l) {
+    var s = l.trim();
+    if (!s || s.charAt(0) === '#') { return null; }
+    var p = s.split('|').map(function (x) { return x.trim(); });
+    if (p.length !== 11 || !p[0] || !p[2]) { return null; }
+    return {
+      id: p[0], statut: p[1], titre: p[2], sePasse: p[3], reconnaitre: p[4], quoiFaire: p[5], signaler: p[6],
+      sourceLibelle: p[7], sourceUrl: /^https:\/\//.test(p[8]) ? p[8] : '', ajoutee: p[9], verifiee: p[10]
+    };
+  }).filter(Boolean);
+}
+
+// Alertes à afficher : validées par Denis, vérifiées depuis moins de 12 mois, les plus récemment vérifiées d'abord, 10 au plus.
+function _comprendreLeCadreArnaquesAffichables(liste, aujourdhui) {
+  return (liste || []).filter(function (a) {
+    var age = _comprendreLeCadreAgeEnMois(a.verifiee, aujourdhui);
+    return a.statut === 'valide' && age !== null && age < COMPRENDRE_LE_CADRE_ARNAQUES_MOIS_MAX;
+  }).sort(function (x, y) { return x.verifiee < y.verifiee ? 1 : x.verifiee > y.verifiee ? -1 : 0; }).slice(0, COMPRENDRE_LE_CADRE_ARNAQUES_MAX);
+}
+
+// ---- Lecture des deux fichiers (une fois par session) ----
+
+var _comprendreLeCadrePnrrAttentes = [];
+function _comprendreLeCadreChargerPourNeRienRater(apres) {
+  if (_comprendreLeCadrePnrrEtat === 'ok' || _comprendreLeCadrePnrrEtat === 'erreur') { if (apres) { apres(); } return; }
+  if (apres) { _comprendreLeCadrePnrrAttentes.push(apres); }
+  if (_comprendreLeCadrePnrrEtat === 'encours') { return; }
+  _comprendreLeCadrePnrrEtat = 'encours';
+  var delais = fetch(COMPRENDRE_LE_CADRE_CHEMIN_DELAIS).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+  var arnaques = fetch(COMPRENDRE_LE_CADRE_CHEMIN_ARNAQUES).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; });
+  Promise.all([delais, arnaques]).then(function (r) {
+    _comprendreLeCadreDelais = Array.isArray(r[0]) ? r[0] : [];
+    _comprendreLeCadreArnaques = _comprendreLeCadreArnaquesAffichables(_comprendreLeCadreParserArnaques(r[1]), _comprendreLeCadreAujourdhui());
+    _comprendreLeCadrePnrrEtat = 'ok';
+    var attentes = _comprendreLeCadrePnrrAttentes; _comprendreLeCadrePnrrAttentes = [];
+    attentes.forEach(function (f) { f(); });
+  });
+}
+
+// ---- Accueil : le groupe « Pour ne rien rater » (cartes visibles seulement si la page a du contenu) ----
+
+function _comprendreLeCadrePnrrCartesVisibles() {
+  return COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER.filter(function (p) {
+    return p.ecran === 'delais' ? _comprendreLeCadreDelais.length > 0 : _comprendreLeCadreArnaques.length > 0;
+  });
+}
+function _comprendreLeCadreRenduPourNeRienRaterContenu() {
+  var cartes = _comprendreLeCadrePnrrCartesVisibles();
+  if (!cartes.length) { return ''; }
+  return '<h2 class="h4 fw-bold text-uppercase text-muted mt-4 mb-2">Pour ne rien rater</h2>' +
+    '<div class="grille-sous-cartes-accueil">' + cartes.map(function (p) {
+      return _comprendreLeCadreRenduSousCarte('data-comprendre-le-cadre-ouvrir-pnrr', p.ecran, p.icone, p.titre, p.quoi);
+    }).join('') + '</div>';
+}
+// id sur le conteneur : point d'ancrage de l'aide guidée ; data-comprendre-le-cadre-famille : la recherche de l'accueil le masque comme les rayons.
+function _comprendreLeCadreRenduPourNeRienRater() {
+  var contenu = _comprendreLeCadreRenduPourNeRienRaterContenu();
+  return '<div id="comprendreLeCadrePourNeRienRater" data-comprendre-le-cadre-famille' + (contenu ? '' : ' hidden') + '>' + contenu + '</div>';
+}
+function _comprendreLeCadreBrancherPourNeRienRater() {
+  document.querySelectorAll('[data-comprendre-le-cadre-ouvrir-pnrr]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _comprendreLeCadreEtat.ecran = this.dataset.comprendreLeCadreOuvrirPnrr;
+      pageComprendreLeCadre();
+    });
+  });
+}
+// Lecture au premier affichage de l'accueil ; une fois prête, seul le groupe est redessiné en place (jamais l'accueil entier : on perdrait la recherche tapée).
+function _comprendreLeCadreChargerPourNeRienRaterAccueil() {
+  if (_comprendreLeCadrePnrrEtat === 'ok' || _comprendreLeCadrePnrrEtat === 'erreur') { return; }
+  _comprendreLeCadreChargerPourNeRienRater(function () {
+    var bloc = document.getElementById('comprendreLeCadrePourNeRienRater');
+    if (!bloc || _comprendreLeCadreEtat.ecran !== 'accueil') { return; }
+    var contenu = _comprendreLeCadreRenduPourNeRienRaterContenu();
+    bloc.innerHTML = contenu;
+    bloc.hidden = !contenu;
+    _comprendreLeCadreBrancherPourNeRienRater();
+  });
+}
+
+// ---- Bouton « Signaler une erreur ou un changement » : le formulaire de signalement existant (js/app.js), page préremplie ----
+
+function _comprendreLeCadreRenduBoutonSignaler(nomPage, phrase) {
+  return '<div class="comprendre-le-cadre-signaler mt-4">' +
+    '<p class="small mb-2">' + phrase + '</p>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" data-signaler-probleme="1" data-signaler-page="' +
+      _comprendreLeCadreEchapper(nomPage).replace(/"/g, '&quot;') + '"><i class="bi bi-flag"></i> Signaler une erreur ou un changement</button>' +
+  '</div>';
+}
+
+// ---- Page « Délais à ne pas rater » ----
+
+function _comprendreLeCadreRenduDelais(outil) {
+  var aujourdhui = _comprendreLeCadreAujourdhui();
+  var groupes = _comprendreLeCadreGrouperDelais(_comprendreLeCadreDelais);
+  var corps = groupes.map(function (g, i) {
+    var nb = g.delais.length;
+    return '<details class="comprendre-le-cadre-digest-panneau"' + (i === 0 ? ' open' : '') + '>' +
+      '<summary class="comprendre-le-cadre-digest-domaine">' +
+        '<span class="comprendre-le-cadre-digest-domaine-nom">' + _comprendreLeCadreEchapper(g.theme) + '</span>' +
+        '<span class="comprendre-le-cadre-digest-badge">' + nb + (nb > 1 ? ' délais' : ' délai') + '<i class="bi bi-chevron-down"></i></span>' +
+      '</summary>' +
+      g.delais.map(function (d) {
+        var age = _comprendreLeCadreAgeEnMois(d.verifie_le, aujourdhui);
+        var ancien = age === null || age >= COMPRENDRE_LE_CADRE_SEUIL_MOIS_CHIFFRES;
+        return '<div class="comprendre-le-cadre-digest-item">' +
+          '<p class="mb-1"><span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--a comprendre-le-cadre-delai-quand"><i class="bi bi-hourglass-split"></i> ' + _comprendreLeCadreEchapper(d.quand) + '</span></p>' +
+          '<p class="fw-semibold mb-1">' + _comprendreLeCadreEchapper(d.situation) + '</p>' +
+          '<p class="small mb-2">' + _comprendreLeCadreEchapper(d.resume) + '</p>' +
+          '<p class="mb-2"><button type="button" class="comprendre-le-cadre-digest-btn-source" data-comprendre-le-cadre-delai-fiche="' + _comprendreLeCadreEchapper(d.rayon) + '|' + _comprendreLeCadreEchapper(d.fiche) + '">' +
+            '<i class="bi bi-journal-text"></i> Lire la fiche</button></p>' +
+          '<p class="mb-0">' + (ancien
+            ? '<span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--a"><i class="bi bi-exclamation-triangle"></i> Vérifié il y a plus de six mois : confirmez ce délai sur la fiche</span>'
+            : '<span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--v"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(d.verifie_le) + '</span>') + '</p>' +
+        '</div>';
+      }).join('') +
+    '</details>';
+  }).join('');
+  return '' +
+    _comprendreLeCadreRenduBoutonRetour('Tous les rayons') +
+    '<h1><i class="bi ' + outil.icone + '"></i> ' + outil.titre + '</h1>' +
+    '<p class="text-muted">' + outil.accroche + '</p>' +
+    '<p class="small text-muted mb-2">Ces délais sont donnés à titre de repère. Vérifiez toujours la date sur la fiche et auprès de l\'organisme concerné : un délai manqué est parfois impossible à rattraper.</p>' +
+    corps +
+    _comprendreLeCadreRenduBoutonSignaler('Délais à ne pas rater (comprendre-le-cadre)', 'Un délai qui a changé ou qui manque ? Dites-le nous : cela aide les autres.');
+}
+function _comprendreLeCadreBrancherDelais() {
+  _comprendreLeCadreBrancherRetour(_comprendreLeCadreAllerVersPrecedent);
+  document.querySelectorAll('[data-comprendre-le-cadre-delai-fiche]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var p = this.dataset.comprendreLeCadreDelaiFiche.split('|');
+      comprendreLeCadreOuvrirFiche(p[0], p[1], 'Délais à ne pas rater', 'comprendre-le-cadre', function () {
+        _comprendreLeCadreEtat.ecran = 'delais';
+        naviguerVers('comprendre-le-cadre');
+      });
+    });
+  });
+}
+
+// ---- Page « Alertes arnaques » ----
+
+function _comprendreLeCadreRenduArnaques(outil) {
+  var rubrique = function (libelle, texte) { return texte ? '<p class="comprendre-le-cadre-arnaque-rubrique"><strong>' + libelle + '</strong> ' + _comprendreLeCadreEchapper(texte) + '</p>' : ''; };
+  var cartes = _comprendreLeCadreArnaques.map(function (a) {
+    return '<div class="comprendre-le-cadre-arnaque">' +
+      '<h2 class="h5 fw-bold mb-2"><i class="bi bi-shield-exclamation"></i> ' + _comprendreLeCadreEchapper(a.titre) + '</h2>' +
+      rubrique('Ce qui se passe.', a.sePasse) + rubrique('Comment le reconnaître.', a.reconnaitre) + rubrique('Quoi faire.', a.quoiFaire) + rubrique('Où signaler.', a.signaler) +
+      '<p class="mb-0 mt-2"><span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--v"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(a.verifiee) + '</span></p>' +
+      (a.sourceUrl
+        ? '<p class="mb-0 mt-2"><a class="comprendre-le-cadre-digest-btn-source" href="' + a.sourceUrl.replace(/"/g, '%22') + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la source officielle</a>' +
+          '<span class="small text-muted d-block mt-1">Source : ' + _comprendreLeCadreEchapper(a.sourceLibelle) + '. Ce lien ouvre un autre site.</span></p>'
+        : (a.sourceLibelle ? '<p class="small text-muted mb-0 mt-2">Source : ' + _comprendreLeCadreEchapper(a.sourceLibelle) + '.</p>' : '')) +
+    '</div>';
+  }).join('');
+  return '' +
+    _comprendreLeCadreRenduBoutonRetour('Tous les rayons') +
+    '<h1><i class="bi ' + outil.icone + '"></i> ' + outil.titre + '</h1>' +
+    '<p class="text-muted">' + outil.accroche + '</p>' +
+    '<p class="small text-muted mb-2">Si vous avez un doute, ne répondez pas sur le moment : raccrochez ou fermez la page, puis vérifiez auprès de l\'organisme lui-même, avec les coordonnées de son site officiel. Vous n\'avez pas à vous justifier.</p>' +
+    cartes +
+    _comprendreLeCadreRenduBoutonSignaler('Alertes arnaques (comprendre-le-cadre)', 'Une arnaque qui n\'est pas ici ? Dites-le nous : cela aide les autres.');
+}
+
 // Index courant dans COMPRENDRE_LE_CADRE_ETAPES pour l'écran affiché.
 function _comprendreLeCadreIndexEtape() {
   var e = _comprendreLeCadreEtat.ecran;
   if (e === 'rayon' || e === 'fiche' || e === 'structures') { return 1; }
   if (e === 'orienteur' || e.indexOf('recherche-') === 0) { return 2; }
-  if (COMPRENDRE_LE_CADRE_OUTILS.some(function (o) { return o.dossier === e; })) { return 3; }
+  if (COMPRENDRE_LE_CADRE_OUTILS.some(function (o) { return o.dossier === e; }) || e === 'delais' || e === 'arnaques') { return 3; }
   return 0;
+}
+
+// Fil « Vous êtes ici » (consigne 93) : le nom du module, puis le lieu courant. Sur un rayon, on lit le vrai nom du rayon ; sur une fiche, le fil
+// garde le rayon cliquable pour y revenir. Numéros transmis à _comprendreLeCadreFilAller : 0 = accueil du module, 1 = liste du rayon.
+function _comprendreLeCadreChaineFil() {
+  var idx = _comprendreLeCadreIndexEtape();
+  var nom = 'Comprendre le cadre';
+  if (idx === 0) { return [{ label: nom, aller: null }]; }
+  var rayon = (typeof RAYON_LABEL !== 'undefined' && _comprendreLeCadreEtat.rayon && RAYON_LABEL[_comprendreLeCadreEtat.rayon]) ? RAYON_LABEL[_comprendreLeCadreEtat.rayon].titre : '';
+  if (idx === 1 && rayon) {
+    if (_comprendreLeCadreEtat.ecran === 'fiche') { return [{ label: nom, aller: 0 }, { label: rayon, aller: 1 }, { label: 'La fiche', aller: null }]; }
+    return [{ label: nom, aller: 0 }, { label: rayon, aller: null }];
+  }
+  return [{ label: nom, aller: 0 }, { label: COMPRENDRE_LE_CADRE_ETAPES[idx].label, aller: null }];
+}
+
+function _comprendreLeCadreFilAller(numero) {
+  _comprendreLeCadreEtat.ecran = (numero === 1 && _comprendreLeCadreEtat.rayon) ? 'rayon' : 'accueil';
+  pageComprendreLeCadre();
 }
 
 // En-tête commune à tous les écrans du module (façade, voir plus bas).
@@ -1136,8 +1439,8 @@ function _comprendreLeCadreIndexEtape() {
 // 2026-09-05 : l'ordre précédent plaçait le bouton au-dessus).
 function _comprendreLeCadreRenduEnTete() {
   return '' +
-    (typeof barreEtapesModule === 'function'
-      ? barreEtapesModule(COMPRENDRE_LE_CADRE_ETAPES, _comprendreLeCadreIndexEtape())
+    (typeof barreRepereNavigation === 'function'
+      ? barreRepereNavigation(COMPRENDRE_LE_CADRE_ETAPES, _comprendreLeCadreIndexEtape(), { chaine: _comprendreLeCadreChaineFil(), surClic: '_comprendreLeCadreFilAller' })
       : '') +
     (typeof htmlBoutonRevoirModule === 'function'
       ? htmlBoutonRevoirModule('btnComprendreLeCadreRevoirIntro', 'bi-newspaper', 'Revoir la présentation', false)
@@ -1198,7 +1501,7 @@ function _comprendreLeCadreInscrireHistorique() {
 // d'accueil, carteRetour: 'informe' dans pageIntroSeTenirInforme()).
 function _comprendreLeCadreAllerVersPrecedent() {
   var e = _comprendreLeCadreEtat;
-  var estOutil = COMPRENDRE_LE_CADRE_OUTILS.some(function (o) { return o.dossier === e.ecran; });
+  var estOutil = COMPRENDRE_LE_CADRE_OUTILS.some(function (o) { return o.dossier === e.ecran; }) || e.ecran === 'delais' || e.ecran === 'arnaques';
   if (e.ecran === 'fiche' || e.ecran === 'structures') {
     e.ecran = 'rayon';
   } else if (e.ecran === 'recherche-resultat') {
@@ -1269,6 +1572,7 @@ function _comprendreLeCadreRenduAccueil() {
     '</div>' +
     _comprendreLeCadreRenduBandeauTerritoire() +
     _comprendreLeCadreRenduOutils() +
+    _comprendreLeCadreRenduPourNeRienRater() +
     // TACHE (relecture LECONS 9.10 avant commit) : .alert-light, .bg-light,
     // .form-control et .input-group-text sont des classes Bootstrap non
     // adaptees au mode sombre nulle part dans css/style.css (verifie par
@@ -1883,8 +2187,10 @@ function _comprendreLeCadreRenduFiche(f) {
   return '' +
     _comprendreLeCadreRenduBoutonRetour('Retour au rayon') +
     '<h1>' + f.titre + '</h1>' +
-    (f.pour_qui ? '<p class="text-muted">' + f.pour_qui + '</p>' : '') +
-    '<div class="comprendre-le-cadre-corps">' + _comprendreLeCadreRenduCorps(f.corps) + '</div>' +
+    // Passé six mois, un « Utile si... » qui cite un âge, une durée ou un montant n'est plus affiché (même raison que le texte : il a pu changer) ; la phrase générale dit à qui la fiche s'adresse.
+    ((f.pour_qui && !(_comprendreLeCadreCiteDesChiffres(f.pour_qui) && _comprendreLeCadreFichePerimee(f, _comprendreLeCadreAujourdhui()))) ? '<p class="text-muted">' + f.pour_qui + '</p>' : '') +
+    _comprendreLeCadreAvertissementPerime(f) +
+    '<div class="comprendre-le-cadre-corps">' + _comprendreLeCadreCorpsAffiche(f) + '</div>' +
     blocVoirAussi +
     '<div class="comprendre-le-cadre-fiche-verif mt-4">' +
       '<p class="comprendre-le-cadre-verif-ligne">' +
@@ -1894,7 +2200,8 @@ function _comprendreLeCadreRenduFiche(f) {
       (listeSources
         ? '<p class="small mb-1 mt-2">Pour vérifier vous-même, les sources officielles :</p>' + listeSources
         : '') +
-    '</div>';
+    '</div>' +
+    _comprendreLeCadreRenduBoutonSignaler('Fiche « ' + String(f.titre || '').slice(0, 80) + ' » (comprendre-le-cadre)', 'Une adresse fermée, un numéro qui ne répond plus, un montant qui a changé ? Dites-le nous : cela aide les autres.');
 }
 
 // Département brut mémorisé : '24' / '87' / 'ailleurs' / null.
@@ -2080,6 +2387,7 @@ function _comprendreLeCadreBrancherAccueil() {
   }
 
   _comprendreLeCadreBrancherCarteDigest();
+  _comprendreLeCadreBrancherPourNeRienRater();
 
   var champRecherche = document.getElementById('comprendreLeCadreRechercheInput');
   if (champRecherche) {
@@ -2639,6 +2947,24 @@ function pageComprendreLeCadre() {
       }
     };
     evenement = 'comprendre_le_cadre_structures_affichees'; evenementDonnees = { rayon: _comprendreLeCadreEtat.rayon };
+  } else if (_comprendreLeCadreEtat.ecran === 'delais' || _comprendreLeCadreEtat.ecran === 'arnaques') {
+    var pnrr = COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER.filter(function (x) { return x.ecran === _comprendreLeCadreEtat.ecran; })[0];
+    if (_comprendreLeCadrePnrrEtat !== 'ok') {
+      // Reprise directe sur cet écran (historique du navigateur) : les fichiers ne sont pas encore lus.
+      var ecranAttendu = _comprendreLeCadreEtat.ecran;
+      corpsHTML = _comprendreLeCadreRenduBoutonRetour('Tous les rayons') + '<p class="text-muted">Chargement...</p>';
+      brancherCorps = function () {
+        _comprendreLeCadreBrancherRetour(_comprendreLeCadreAllerVersPrecedent);
+        _comprendreLeCadreChargerPourNeRienRater(function () { if (_comprendreLeCadreEtat.ecran === ecranAttendu) { pageComprendreLeCadre(); } });
+      };
+    } else if (_comprendreLeCadreEtat.ecran === 'delais') {
+      corpsHTML = _comprendreLeCadreRenduDelais(pnrr);
+      brancherCorps = _comprendreLeCadreBrancherDelais;
+    } else {
+      corpsHTML = _comprendreLeCadreRenduArnaques(pnrr);
+      brancherCorps = function () { _comprendreLeCadreBrancherRetour(_comprendreLeCadreAllerVersPrecedent); };
+    }
+    evenement = 'comprendre_le_cadre_' + _comprendreLeCadreEtat.ecran + '_affiche';
   } else if (outilCourant) {
     corpsHTML = _comprendreLeCadreRenduDigest(outilCourant, _comprendreLeCadreEtat.digests, _comprendreLeCadreEtat.digestIndex);
     brancherCorps = function () {
@@ -2655,6 +2981,7 @@ function pageComprendreLeCadre() {
   } else {
     if (_comprendreLeCadreAccueilExtraEtat === 'inactif') { _comprendreLeCadreChargerAccueilExtra(); }
     _comprendreLeCadreChargerDigestAccueil();
+    _comprendreLeCadreChargerPourNeRienRaterAccueil();
     corpsHTML = _comprendreLeCadreRenduAccueil();
     brancherCorps = _comprendreLeCadreBrancherAccueil;
     evenement = 'comprendre_le_cadre_accueil_affiche';
@@ -2718,6 +3045,16 @@ if (typeof module !== 'undefined') {
     _comprendreLeCadreParserFiche: _comprendreLeCadreParserFiche,
     _comprendreLeCadreParserLiensVerifies: _comprendreLeCadreParserLiensVerifies,
     _comprendreLeCadreParserLigneStructure: _comprendreLeCadreParserLigneStructure,
-    _comprendreLeCadreDateFr: _comprendreLeCadreDateFr
+    _comprendreLeCadreDateFr: _comprendreLeCadreDateFr,
+    _comprendreLeCadreFichePerimee: _comprendreLeCadreFichePerimee,
+    _comprendreLeCadreCiteDesChiffres: _comprendreLeCadreCiteDesChiffres,
+    COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES: COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES,
+    _comprendreLeCadreCorpsAffiche: _comprendreLeCadreCorpsAffiche,
+    _comprendreLeCadreAvertissementPerime: _comprendreLeCadreAvertissementPerime,
+    COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE: COMPRENDRE_LE_CADRE_PHRASE_COMMUNE_PERIMEE,
+    _comprendreLeCadreAgeEnMois: _comprendreLeCadreAgeEnMois,
+    _comprendreLeCadreGrouperDelais: _comprendreLeCadreGrouperDelais,
+    _comprendreLeCadreParserArnaques: _comprendreLeCadreParserArnaques,
+    _comprendreLeCadreArnaquesAffichables: _comprendreLeCadreArnaquesAffichables
   };
 }

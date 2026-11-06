@@ -16,11 +16,12 @@ maladie, Géoconfluences), consignée dans `sante.collecte.md`.
    coordonnées territoriales) de Dordogne ou de Haute-Vienne ont un site stable dans le temps, pour les
    citer nommément plutôt qu'un renvoi générique à santé.fr - pas fait dans cette première passe.
 
-## L'unique fiche
+## Les 2 fiches
 
 | id | titre |
 |---|---|
 | `sante-desert-medical` | Pas de médecin près de chez vous ? Comprendre le désert médical |
+| `sante-puma-c2s-et-medecin-traitant` | Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant |
 
 ## Section « à qui s'adresser »
 

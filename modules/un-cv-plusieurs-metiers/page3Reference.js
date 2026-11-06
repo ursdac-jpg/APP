@@ -122,6 +122,9 @@ function _ucpmConfigPassageExtraction(etat) {
       '<p class="mb-1"><strong>&#128221; Ranger mon CV en rubriques</strong></p>' +
       '<p class="mb-0">Pour construire votre CV complet, l’application doit d’abord ranger votre CV en rubriques : vos expériences, vos formations, vos compétences… Cette étape passe par l’assistant en ligne et ne dure que quelques instants. Vous relirez le résultat avant de continuer.</p></div>',
     construireTexte: function () { return promptCache('extraction-cv', etat.texteCV); },
+    module: { libelleSuite: 'Voir mon CV rangé', quoi: 'L’assistant vient de ranger votre CV en rubriques : expériences, formations, compétences.',
+      pourquoi: 'Un CV bien rangé se remet en forme dans tous les modèles sans rien retaper.', verif: 'regardez que rien n’a été oublié ni déformé. Vous pourrez tout corriger à l’étape suivante.' },
+    verifier: function (texte) { return !!analyserReponseImport(texte, SPECIFICATION_IMPORT).succes; },
     importer: function (texte) {
       var r = analyserReponseImport(texte, SPECIFICATION_IMPORT);
       if (!r.succes) { return { succes: false, erreur: r.erreur || 'Cette réponse n’a pas pu être lue. Vérifiez qu’elle contient bien tout le bloc renvoyé par l’assistant.' }; }
@@ -130,15 +133,16 @@ function _ucpmConfigPassageExtraction(etat) {
       if (typeof trackEvenement === 'function') { trackEvenement('ucpm_extraction_importee'); }
       return { succes: true };
     },
-    // Retours 20 et 23 de Denis : le panneau « Quelques passages à préciser » de « Reformuler mon CV » (le même, afficherClarificationPointsAVerifier) pose ses questions sur ce qui est
-    // peu clair dans le CV (SST mal écrit, certification sans année...) AVANT que cela passe sur le CV ; saute tout seul s'il n'y a rien à préciser.
+    // Retours 20 et 23 de Denis : les questions de « Quelques passages à préciser » (SST mal écrit, certification sans année...) ne s'affichent plus dans une fenêtre (point 15, décision du 01/11/2026) :
+    // elles sont posées dans un bloc en haut de « Vos informations » (modules/passages-a-preciser/), modifiable tant que la page n'est pas validée. Les points sont gardés ici, le bloc est créé après le rangement.
     apresSucces: function () {
       var valeurs = dossier.imports && dossier.imports.courant && dossier.imports.courant.donnees;
-      var suite = function () { _ucpmP3AppliquerImportEtOuvrirInfos(etat); };
-      if (valeurs && typeof afficherClarificationPointsAVerifier === 'function') {
+      etat.p3Points = [];
+      if (valeurs) {
         try { if (typeof _incoh === 'function') { _incoh().suggererAnnees(valeurs.pointsAVerifier, [valeurs], etat.texteCV); } } catch (e) { /* les suggestions d'années sont facultatives */ }
-        afficherClarificationPointsAVerifier(valeurs.pointsAVerifier, suite, { appliquer: appliquerPrecisionSurValeurs(valeurs) });
-      } else { suite(); }
+        etat.p3Points = valeurs.pointsAVerifier || [];
+      }
+      _ucpmP3AppliquerImportEtOuvrirInfos(etat);
     }
   };
 }
@@ -162,9 +166,17 @@ function _ucpmP3AppliquerImportEtOuvrirInfos(etat) {
     } finally { cache.remove(); }
     dossier.imports.courant = null;
   }
+  _ucpmP3PoserPassages(etat);
   etat.p3Extrait = true;
   etat.p3Vue = 'infos';
   ucpmOuvrirInfos();
+}
+
+// Bloc « Quelques passages à préciser » de « Vos informations » : une réponse s'applique tout de suite sur le dossier (déjà rangé) et peut être changée jusqu'à « Continuer ».
+function _ucpmP3PoserPassages(etat) {
+  var points = etat.p3Points || [];
+  etat.p3Points = null;
+  if (typeof passagesPoserSurDossier === 'function') { passagesPoserSurDossier('ucpm', points); }
 }
 
 function ucpmOuvrirInfos() {
@@ -188,6 +200,8 @@ function ucpmRetourDepuisInfos() {
   naviguerVers('un-cv-plusieurs-metiers');
 }
 function ucpmContinuerDepuisInfos() {
+  // La page est validée : le bloc « Quelques passages à préciser » n'est plus modifiable (ses réponses sont déjà dans le dossier).
+  if (typeof passagesValiderPage === 'function') { passagesValiderPage('ucpm'); }
   var etat = ouvrirUnCvPlusieursMetiers();
   etat.page = 3; etat.p3Vue = 'assistant';
   _ucpmP3AmorcerAssistant(etat);
@@ -355,17 +369,19 @@ ucpmEnregistrerPage(3, {
     if (infos) { infos.addEventListener('click', ucpmOuvrirInfos); }
     if (etat.p3Vue === 'assistant') { _ucpmP3CablerAssistant(); }
     // Étape « complément » (retour Denis 2026-10-19) : après l'import, avant l'éditeur ; importer ou passer, puis l'éditeur.
-    if (etat.p3Vue === 'complement') { wireComplementCV(function () { etat.p3Vue = 'editeur'; ucpmRendrePage(); }); }
+    if (etat.p3Vue === 'complement') {
+      wireComplementCV(function () { etat.p3Vue = 'editeur'; ucpmRendrePage(); },
+        { dansBarre: true, onPasser: function () { if (dossier) { dossier.complementCVPasse = true; } etat.p3Vue = 'editeur'; ucpmRendrePage(); } });
+    }
   },
   libelleContinuer: function (etat) {
     if (!etat.p3Vue || etat.p3Vue === 'choix') { return 'Préparer mon CV complet &#8594;'; }
-    if (etat.p3Vue === 'complement') { return 'Passer, je vois mon CV &#8594;'; }
     // Après l'import, si l'assistant a proposé un complément, le bouton emmène d'abord à la deuxième partie.
     if (etat.p3Vue === 'assistant' && typeof complementCVEnAttente === 'function' && complementCVEnAttente()) { return 'Voir la deuxième partie &#8594;'; }
     return 'Régler mon CV &#8594;';
   },
   peutContinuer: function (etat) {
-    if (etat.p3Vue === 'editeur' || etat.p3Vue === 'infos' || etat.p3Vue === 'complement') { return true; }
+    if (etat.p3Vue === 'editeur' || etat.p3Vue === 'infos') { return true; }   // 'complement' : le bouton de la barre est celui de la fenêtre commune (« Continuer sans le complément »)
     if (!etat.p3Vue || etat.p3Vue === 'choix') { return !!ucpmRefCourante(etat); }
     if (etat.p3Vue === 'assistant') { return !!(typeof _relectureIAValideeParType !== 'undefined' && _relectureIAValideeParType.cv); }
     return false;
@@ -379,7 +395,6 @@ ucpmEnregistrerPage(3, {
     if (!etat.p3Vue || etat.p3Vue === 'choix') { _ucpmP3Preparer(etat); return; }
     if (etat.p3Vue === 'infos') { ucpmOuvrirInfos(); return; }
     if (etat.p3Vue === 'assistant') { etat.p3Vue = (typeof complementCVEnAttente === 'function' && complementCVEnAttente()) ? 'complement' : 'editeur'; ucpmRendrePage(); return; }
-    if (etat.p3Vue === 'complement') { if (dossier) { dossier.complementCVPasse = true; } etat.p3Vue = 'editeur'; ucpmRendrePage(); return; }
     ucpmOuvrirEditeur();
   },
   // « Retour » : recule d'une vue, sans rien supprimer ; depuis le premier choix, la page 2.

@@ -20,6 +20,7 @@ sources:
   - ameli-entree-invalidite
 ce_qui_change_souvent:
   - "Les montants de la pension par catégorie (revalorisés chaque année)"
+phrase_generale: "La pension d'invalidité est un revenu de remplacement versé à une personne dont la capacité de travail est fortement réduite par une maladie ou un accident d'origine non professionnelle. Les critères, les montants et les démarches changent régulièrement : renseignez-vous auprès de votre caisse d'assurance maladie ou consultez les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 

@@ -215,7 +215,10 @@ function ecrireDetails(d, indent) {
   l.push(i1 + 'source: { nom: ' + s(d.source.nom) + ', url: ' + s(d.source.url) + ' },');
   l.push(i1 + 'lignes: [');
   l.push(d.lignes.map(function (x) { return i2 + '{ libelle: ' + s(x.libelle) + ', valeur: ' + s(x.valeur) + ', categorie: ' + s(x.categorie) + ', peutChanger: ' + (x.peutChanger ? 'true' : 'false') + ' }'; }).join(',\n'));
-  l.push(i1 + ']');
+  if (typeof d.phraseGenerale === 'string' && d.phraseGenerale.trim()) {
+    l.push(i1 + '],');
+    l.push(i1 + 'phraseGenerale: ' + s(d.phraseGenerale.trim()));
+  } else { l.push(i1 + ']'); }
   l.push(indent + '}');
   return l.join('\n');
 }
@@ -237,6 +240,19 @@ function lireMots(contenu) {
     while ((m = rr.exec(br))) { relations.push([m[1], m[2]]); }
     return { id: chaineJs(par('id')), titre: chaineJs(par('titre')), titreDeTri: chaineJs(par('titreDeTri')), type: chaineJs(par('type')), gabarit: chaineJs(par('gabarit')), univers: chaineJs(par('univers')),
       registres: textes('registres'), variantes: textes('variantesRecherche'), corps: chaineJs(par('corps')), relations: relations, chiffres: chaineJs(par('voirAussiChiffres')), details: lireDetails(par('detailsAJour')) };
+  }).filter(function (e) { return e.id; });
+}
+// Le second niveau (« En savoir plus ») : [{ id, titre, fiches: [ids], corps, suivi }], lus comme du texte, en lecture seule (consigne 95 etendue, 03/11/2026).
+// `suivi` : le petit bloc { verifieLe, source, phraseGenerale } de l'entree, null si elle n'en a pas, ou { illisible } s'il ne se lit pas.
+function lireSecondNiveau(contenu) {
+  const liste = objetsDeLaListe(contenu, 'var LEXIQUE_SECOND_NIVEAU = [');
+  if (!liste) { return []; }
+  return liste.objets.map(function (o) {
+    const props = proprietes(contenu.slice(o.debut, o.fin));
+    const par = function (cle) { const p = props.filter(function (x) { return x.cle === cle; })[0]; return p ? p.brut : ''; };
+    const fiches = [], re = /'([^']+)'/g, b = par('fichesEntree').replace(/^[A-Za-z_$][\w$]*\s*:\s*/, ''); let m;
+    while ((m = re.exec(b))) { fiches.push(m[1]); }
+    return { id: chaineJs(par('id')), titre: chaineJs(par('titre')), fiches: fiches, corps: chaineJs(par('corps')), suivi: lireDetails(par('suivi')) };
   }).filter(function (e) { return e.id; });
 }
 // Les collections et parcours : [{ id, titre, mode, fiches: [ids] }].
@@ -392,7 +408,9 @@ function remplacerChamps(contenu, id, champs) {
 }
 // Le bloc dans l'ordre exact des cles du fichier (pour comparer deux blocs sans dependre de l'ordre des cles de l'appelant).
 function detailsCanonique(d) {
-  return { verifieLe: d.verifieLe || '', source: { nom: d.source.nom, url: d.source.url }, lignes: d.lignes.map(function (x) { return { libelle: x.libelle, valeur: x.valeur, categorie: x.categorie, peutChanger: !!x.peutChanger }; }) };
+  const o = { verifieLe: d.verifieLe || '', source: { nom: d.source.nom, url: d.source.url }, lignes: d.lignes.map(function (x) { return { libelle: x.libelle, valeur: x.valeur, categorie: x.categorie, peutChanger: !!x.peutChanger }; }) };
+  if (typeof d.phraseGenerale === 'string' && d.phraseGenerale.trim()) { o.phraseGenerale = d.phraseGenerale.trim(); }
+  return o;
 }
 
-module.exports = { lireLitteral: lireLitteral, lireDetails: lireDetails, ecrireDetails: ecrireDetails, detailsCanonique: detailsCanonique, lireMots: lireMots, lireCollections: lireCollections, proprietesPositions: proprietesPositions, remplacerChamps: remplacerChamps, CHAMPS_MODIFIABLES: CHAMPS_MODIFIABLES, objetsDeLaListe: objetsDeLaListe, proprietes: proprietes, trouverEntree: trouverEntree, identifiantsExistants: identifiantsExistants, lireEntrees: lireEntrees, remplacerEntree: remplacerEntree, construireBloc: construireBloc, CHAMPS_DE_L_OUTIL: CHAMPS_DE_L_OUTIL };
+module.exports = { lireSecondNiveau: lireSecondNiveau, lireLitteral: lireLitteral, lireDetails: lireDetails, ecrireDetails: ecrireDetails, detailsCanonique: detailsCanonique, lireMots: lireMots, lireCollections: lireCollections, proprietesPositions: proprietesPositions, remplacerChamps: remplacerChamps, CHAMPS_MODIFIABLES: CHAMPS_MODIFIABLES, objetsDeLaListe: objetsDeLaListe, proprietes: proprietes, trouverEntree: trouverEntree, identifiantsExistants: identifiantsExistants, lireEntrees: lireEntrees, remplacerEntree: remplacerEntree, construireBloc: construireBloc, CHAMPS_DE_L_OUTIL: CHAMPS_DE_L_OUTIL };

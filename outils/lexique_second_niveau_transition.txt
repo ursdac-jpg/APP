@@ -1,0 +1,14 @@
+# Liste de transition du second niveau (consigne 95 etendue, 03/11/2026) : les entrees anciennes dont le texte contient un chiffre sans suivi.
+# Elle ne peut que retrecir : une entree qui recoit son champ suivi, ou qui n a plus de chiffre, sort de la liste. Un identifiant par ligne.
+second-niveau-abandon-poste
+second-niveau-addictologie
+second-niveau-bulletin-salaire
+second-niveau-clause-sociale-apres-le-marche
+second-niveau-francetravail-missionlocale-capemploi
+second-niveau-horaires-travail
+second-niveau-mdph-delai
+second-niveau-mobilite-internationale
+second-niveau-objectifs-smart
+second-niveau-salaire-net
+second-niveau-teletravail
+second-niveau-temps-partiel-choisi-ou-subi

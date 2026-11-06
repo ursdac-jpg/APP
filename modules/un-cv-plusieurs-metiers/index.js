@@ -93,19 +93,11 @@ function ucpmRepriseContinuer() {
 }
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
-// « Merci bien, j'ai fini » (page 8, apres un telechargement) : meme geste de fin que les autres parcours (la session est sauvegardee, puis effacee), mais sans passer par
-// terminerParcours(), qui propose ensuite une lettre ou un entretien (sans objet ici : le module les a deja traites).
-function ucpmTerminerParcours() {
-  if (typeof confirmerAction !== 'function') { return; }
-  confirmerAction(
-    'Merci, tout est en ordre',
-    'Vos documents sont enregistrés sur votre ordinateur. Toutes les informations de cette session vont être effacées ; vous pourrez les restaurer depuis la page d’accueil tant que vous n’aurez pas commencé un nouveau parcours.',
-    'Terminer', 'btn-success',
-    function () { if (typeof ecrireSauvegarde === 'function' && typeof sauvegarderSession === 'function') { ecrireSauvegarde(sauvegarderSession()); } if (typeof recommencer === 'function') { recommencer(); } }
-  );
-}
+// « Merci bien, j'ai fini » (page 8) : meme geste de fin que les documents et les autres modules d'analyse, sans fenetre (consigne 67) : terminerParcoursSansFenetre(), js/app.js.
+function ucpmTerminerParcours() { if (typeof terminerParcoursSansFenetre === 'function') { terminerParcoursSansFenetre(); } }
 
 function ucpmReinitialiser() {
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('ucpm'); }
   _ucpmSessionHistorique++;
   _ucpmEtat = null;
   _ucpmDetourPresentation = false;
@@ -191,7 +183,7 @@ function ucpmRendrePage() {
     '<div class="page-catalogue-contenu un-cv-plusieurs-metiers-parcours">' +
     barreEtapesModule(UCPM_NAV_ETAPES, n - 1) +
     htmlBandeRepriseModule(boutonRevoir, encart) +
-    '<div class="text-center"><h1><i class="bi bi-files"></i> ' + titre + '</h1></div>' +
+    htmlTitreEtapeModule('bi-files', 'Un CV, plusieurs métiers', titre) +
     '<div id="contenuPageUcpm">' + corps + '</div>' +
     '</div>' +
     '<div class="barre-navigation-fixe">' +
@@ -199,9 +191,11 @@ function ucpmRendrePage() {
       onclickPrecedent: 'ucpmBarreRetour()',
       onclickSuivant: 'ucpmBarreContinuer()',
       suivantDesactive: !peutContinuer,
-      suivantDesactiveMessage: raison || 'Complétez cette page pour continuer.',
-      // Page 8 : une fois une préparation téléchargée, le bouton vert de fin remplace l'emplacement de « Continuer » (qui n'existe pas à la dernière page).
-      terminerParcours: n >= UCPM_NB_PAGES && !!etat.p8Telecharge,
+      // D50 : à la reprise, le module est gelé et l'encart du haut porte le vrai « Continuer » ; le bouton grisé de la barre y renvoie.
+      suivantDesactiveMessage: _ucpmReprisePendante ? 'Choisissez d’abord « Continuer » ou « Recommencer » en haut de la page.' : (raison || 'Complétez cette page pour continuer.'),
+      blocCibleId: _ucpmReprisePendante ? 'btnUcpmRepriseContinuer' : undefined,
+      // Page 8 : le bouton vert « Terminer » est toujours actif dans la barre du bas (consigne 66, D49 option A) ; il remplace l'emplacement de « Continuer », qui n'existe pas à la dernière page.
+      terminerParcours: n >= UCPM_NB_PAGES,
       onclickTerminer: 'ucpmTerminerParcours()'
     }) +
     '</div>';
@@ -275,7 +269,7 @@ function pageIntroUnCvPlusieursMetiers() {
         '<li>L’assistant en ligne vous propose deux phrases d’accroche courtes par métier. Vous choisissez ou vous écrivez la vôtre.</li>' +
         '<li>Vous voyez tous vos CV côte à côte, et vous pouvez changer l’aspect d’un CV en particulier.</li>' +
         '<li>Vous obtenez une lettre de motivation par CV, que vous pouvez relire et modifier.</li>' +
-        '<li>À la fin, vous téléchargez tous vos CV dans un seul fichier, toutes vos lettres dans un autre, ou un CV avec sa lettre.</li>' +
+        '<li>À la fin, vous enregistrez tous vos CV dans un seul PDF, toutes vos lettres dans un autre, ou un CV avec sa lettre.</li>' +
         '<li>Si vous le souhaitez, vous préparez aussi vos entretiens d’embauche : une feuille par métier avec les questions probables, ce que le recruteur cherche et des pistes pour répondre. Cette feuille est pour vous, vous ne l’envoyez pas.</li>' +
         '</ul>') +
       _introBlocSection('&#128683; Ce que ce module ne fait pas',

@@ -1,0 +1,45 @@
+Je te donne une liste de 22 employeurs (entreprises, enseignes, établissements publics) de la Dordogne (24) et de la Haute-Vienne (87), numérotées de 26 à 47. Pour chacun, un site et parfois une page de recrutement ont été proposés, mais ils n'ont jamais été vérifiés. Tu dois vérifier UNIQUEMENT sur les sites OFFICIELS et me rapporter ce qui y est AFFICHÉ.
+
+Règles :
+1. Pour chaque employeur, ouvre son site officiel. Le site que je propose est une INDICATION, souvent fausse : vérifie-le, et cherche le bon s'il est faux ou absent.
+2. Cherche ensuite sa PAGE DE RECRUTEMENT officielle (offres, « nous rejoindre », candidature spontanée). Si le recrutement passe par un site de groupe ou de réseau, donne cette page. Si elle n'existe pas, écris « pas de page recrutement ».
+3. N'utilise aucun annuaire privé, PagesJaunes, comparateur ni site d'offres d'emploi (Indeed, Hellowork, France Travail, etc.) comme source de l'adresse ou du numéro.
+4. Lis uniquement ce qui est affiché sur la page. N'invente rien, ne complète rien de mémoire.
+5. Établissements : pour une « enseigne à plusieurs magasins », relève dans le localisateur officiel de la marque jusqu'à 3 magasins de la Dordogne ET jusqu'à 3 de la Haute-Vienne, sous la forme commune:adresse:téléphone, séparés par « ; ». Pour un « établissement unique », relève son adresse et son téléphone.
+6. Le statut est un seul mot : « confirmé » (le site proposé est le bon et l'employeur est présent dans le territoire), « corrigé » (une valeur diffère : donne celle que tu as lue), « introuvable » (aucun site officiel trouvé), « absent » (l'employeur n'a aucun établissement en Dordogne ni en Haute-Vienne).
+
+Réponds uniquement avec une ligne par employeur, sans tableau, sous cette forme exacte :
+numéro | statut | site officiel | page de recrutement officielle | établissements relevés (commune:adresse:téléphone ; ...) | URL exacte de la page où tu as lu les établissements
+
+Longueur et méthode : la liste est courte (22 lignes, numéros 26 à 47) pour que tu puisses OUVRIR RÉELLEMENT la page de chaque ligne. Traite-les toutes dans l'ordre, en une seule réponse, sans en sauter aucune, sans proposer de suite, sans demander si tu dois continuer, sans question, sans commentaire, sans introduction ni conclusion.
+
+Honnêteté avant tout : n'écris « non vérifiable » ou « introuvable » qu'après avoir réellement essayé d'ouvrir la page ou de chercher son site officiel. Une ligne exacte vaut mieux qu'une ligne remplie pour la forme. Ne remplis jamais une ligne sans avoir regardé.
+
+Dernière ligne de ta réponse, après la dernière ligne de résultat : « PAGES RÉELLEMENT OUVERTES : N sur 22 ».
+
+Dernière section, intitulée « À OUVRIR PAR MOI » : pour chaque site qui t'a refusé l'accès ou que tu n'as pas pu ouvrir (403, Access Denied, Just a moment, erreur), un lien cliquable au format Markdown vers le site, avec le numéro de la ligne concernée.
+
+LISTE (numéro | nom | type | secteur | lieux proposés | site proposé | recrutement proposé) :
+26 | Éveil Aides et Services à Domicile | enseigne à plusieurs magasins | social-personne | lieux proposés : Ambazac, Compreignac | site proposé : aucun | recrutement proposé : aucun
+27 | Aides et Services 87 | un seul établissement | social-personne | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+28 | AFRPA Bessines-Laurière | un seul établissement | social-personne | lieux proposés : Bessines-sur-Gartempe | site proposé : aucun | recrutement proposé : aucun
+29 | Bouijaud TP | un seul établissement | btp | lieux proposés : Vélines | site proposé : aucun | recrutement proposé : aucun
+30 | Entreprise Générale de Bâtiment | un seul établissement | btp | lieux proposés : Creysse | site proposé : aucun | recrutement proposé : aucun
+31 | ETS Ribeiro | un seul établissement | btp | lieux proposés : Coulounieix-Chamiers | site proposé : aucun | recrutement proposé : aucun
+32 | Batifrère Électricité | un seul établissement | btp | lieux proposés : Siorac-en-Périgord | site proposé : aucun | recrutement proposé : aucun
+33 | Dordogne Sanitaire Chauffage Lamblin | un seul établissement | btp | lieux proposés : Périgueux | site proposé : aucun | recrutement proposé : aucun
+34 | GEBO TP | un seul établissement | btp | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+35 | COULON TP | un seul établissement | btp | lieux proposés : Saint-Victurnien | site proposé : aucun | recrutement proposé : aucun
+36 | Transports Gil | un seul établissement | transport-logistique | lieux proposés : Creysse | site proposé : aucun | recrutement proposé : aucun
+37 | Transports J.R. Maury | un seul établissement | transport-logistique | lieux proposés : Négrondes | site proposé : aucun | recrutement proposé : aucun
+38 | Transports Malaurie | un seul établissement | transport-logistique | lieux proposés : Le Buisson-de-Cadouin | site proposé : aucun | recrutement proposé : aucun
+39 | Transports Bellanger | un seul établissement | transport-logistique | lieux proposés : Grignols | site proposé : aucun | recrutement proposé : aucun
+40 | Transports Rebeyrolle | un seul établissement | transport-logistique | lieux proposés : Saint-Victurnien | site proposé : aucun | recrutement proposé : aucun
+41 | Bus Lavalade Daniel | un seul établissement | transport-logistique | lieux proposés : Bellac | site proposé : aucun | recrutement proposé : aucun
+42 | Europ Voyages 87 | un seul établissement | transport-logistique | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+43 | CRC Logistique | un seul établissement | transport-logistique | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+44 | Viandes Logistique Distribution | un seul établissement | transport-logistique | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+45 | Groupe MTA Limoges | un seul établissement | transport-logistique | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+46 | Centre Express Limousin 87 | un seul établissement | transport-logistique | lieux proposés : Bonnac-la-Côte | site proposé : aucun | recrutement proposé : aucun
+47 | Transports Realle | un seul établissement | transport-logistique | lieux proposés : Limoges | site proposé : aucun | recrutement proposé : aucun
+

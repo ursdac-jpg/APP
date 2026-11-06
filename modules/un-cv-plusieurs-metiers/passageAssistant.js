@@ -2,10 +2,11 @@
    Module « Un CV, plusieurs métiers » : PASSAGE AVEC L'ASSISTANT (une seule implémentation pour les quatre passages du module).
    Règle de Denis (2026-10-08) : AUCUNE nouvelle fenêtre. On assemble ici les composants existants, jamais recopiés :
    htmlChoixAssistantBilanCorps + ouvrirFenetreAssistantIA (choix et copie), htmlBanniereTransitionIA + _etatTransitionIA (« chez l'assistant »),
-   htmlCollageInstantane + activerCollageInstantane (collage de la réponse), recopierTexteAssistantPuisOuvrir.
+   htmlCollageUniquePage + brancherCollageUniquePage (décompte, aperçu de la fenêtre du retour et collage de la réponse : la fenêtre commune, dette B.17), recopierTexteAssistantPuisOuvrir.
 
-   Un passage a trois vues, dans l'ordre : 'choix' (choisir l'assistant, le texte est copié) -> 'chez' (l'assistant est ouvert, la page reste ouverte)
-   -> 'coller' (coller la réponse, « Importer »). Son état vit dans etat.passages[cle] = { vue, assistant } (donnée pure, part dans la disquette).
+   Un passage a deux vues, dans l'ordre : 'choix' (choisir l'assistant, le texte est copié) -> 'coller' (décompte puis assistant ouvert, la page reste ouverte ;
+   au retour on colle la réponse, « Continuer » en bas). L'ancienne vue 'chez' n'existe plus (2026-10-28) : une session reprise dessus va sur 'coller'.
+   Son état vit dans etat.passages[cle] = { vue, assistant } (donnée pure, part dans la disquette).
 
    config d'un passage :
      titre            titre de la page quand la vue est 'choix' (ex. « Choisir l'assistant »)
@@ -15,6 +16,8 @@
      recapHtml        (à compléter) HTML d'un récapitulatif de ce qui va être envoyé
      construireTexte  function () -> Promise<string> ou string : le texte à copier
      importer         function (texteColle) -> { succes, erreur } : lit la réponse ; si succes, le module enregistre lui-même le résultat
+     verifier         (à compléter) function (texteColle) -> booléen : lecture SANS rien enregistrer, pour dire tout de suite si la réponse est lisible (sinon l'échec n'apparaît qu'à « Continuer »)
+     module           (à compléter) { libelleSuite, quoi, verif, conseil } : les mots de la fenêtre commune propres au passage
      apresSucces      function () : suite quand la réponse est lue (en général aller à la page suivante)
      nomAssistant     (à compléter) function (assistant) -> texte d'alerte propre à ce passage
      avantEnvoi       (à compléter) function () -> texte : si non vide, la demande n'est pas préparée et ce texte est montré à la place (ex. trop de métiers pour une seule réponse)
@@ -27,8 +30,6 @@
      nomSuivi         nom du module dans le suivi d'usage (défaut : ucpm)
    Le nom « ucpm » des fonctions reste (renommage = dette notée dans docs/BRIQUES_COMMUNES.md, B.10 / B.17).
    ============================================================ */
-
-var _ucpmIntervalleDecompte = null;
 
 // Redessine la page du module qui porte le passage (par défaut celle de « Un CV, plusieurs métiers »).
 function _ucpmRerendre(config) {
@@ -81,35 +82,33 @@ function _ucpmEtatPassage(etat, cle) {
 function ucpmPassageReinitialiser(etat, cle) {
   if (etat && etat.passages) { delete etat.passages[cle]; }
   if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
-  clearInterval(_ucpmIntervalleDecompte);
+  clearInterval(_intervalleDecompteIA);
 }
 
-// Vue courante, ramenée à 'choix' si elle ne peut plus s'afficher (après un rechargement : l'ouverture de l'assistant est perdue).
+// Vue courante. Une session reprise sur l'ancienne vue 'chez' va sur 'coller' ; après un rechargement l'ouverture de l'assistant est perdue,
+// mais 'coller' sait s'afficher sans elle (la fenêtre est alors prête à recevoir la réponse).
 function ucpmPassageVue(etat, cle) {
   var p = _ucpmEtatPassage(etat, cle);
-  if (p.vue === 'chez' && (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA)) { p.vue = 'choix'; }
+  if (p.vue === 'chez') { p.vue = 'coller'; }
   return p.vue;
 }
 
 // Bouton « Retour » : recule d'une vue du passage ; renvoie true si c'est fait, false quand on est déjà au début du passage.
 function ucpmPassageRetour(etat, cle, rerendre) {
   var p = _ucpmEtatPassage(etat, cle);
-  clearInterval(_ucpmIntervalleDecompte);
-  if (p.vue === 'coller') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } _ucpmRerendre({ rerendre: rerendre }); return true; }
-  if (p.vue === 'chez') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } _ucpmRerendre({ rerendre: rerendre }); return true; }
+  clearInterval(_intervalleDecompteIA);
+  if (p.vue === 'coller' || p.vue === 'chez') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } _ucpmRerendre({ rerendre: rerendre }); return true; }
   return false;
 }
 
 function ucpmPassageRendre(etat, cle, config) {
   var vue = ucpmPassageVue(etat, cle);
-  if (vue === 'chez') { return _ucpmPassageHtmlChez(); }
   if (vue === 'coller') { return _ucpmPassageHtmlColler(config); }
   return _ucpmPassageHtmlChoix(config);
 }
 
 function ucpmPassageCabler(etat, cle, config) {
   var vue = ucpmPassageVue(etat, cle);
-  if (vue === 'chez') { _ucpmPassageCablerChez(etat, cle, config); return; }
   if (vue === 'coller') { _ucpmPassageCablerColler(etat, cle, config); return; }
   _ucpmPassageCablerChoix(etat, cle, config);
 }
@@ -133,7 +132,7 @@ function _ucpmPassageHtmlChoix(config) {
 function _ucpmPassageCablerChoix(etat, cle, config) {
   // Revenir sur le choix annule une ouverture en cours.
   if (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA) { _etatTransitionIA = null; }
-  clearInterval(_ucpmIntervalleDecompte);
+  clearInterval(_intervalleDecompteIA);
   Array.prototype.forEach.call(document.querySelectorAll('[' + _ucpmOptAttr(config) + ']'), function (el) {
     el.addEventListener('click', function () {
       var id = el.getAttribute(_ucpmOptAttr(config));
@@ -155,8 +154,8 @@ function _ucpmPassageCablerChoix(etat, cle, config) {
           etapes: (typeof ETAPES_ASSISTANT_IA_TEXTE !== 'undefined') ? ETAPES_ASSISTANT_IA_TEXTE : undefined,
           construireTexteACopier: function () { return texte; },
           onApresValidation: function (urlAssistant, nomAssistant) {
-            _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
-            p.vue = 'chez';
+            _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
+            p.vue = 'coller';
             _ucpmRerendre(config);
           }
         });
@@ -168,103 +167,49 @@ function _ucpmPassageCablerChoix(etat, cle, config) {
   });
 }
 
-// ---------- Vue 'chez' (meme sequence que le Bilan, les autres modules et la page Action : decompte, ouvert ou bloque, revenu) ----------
-
-function _ucpmPassageHtmlChez() {
-  var nom = (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-  return '<div data-ucpm-vue="chez">' +
-    '<div class="text-center"><h2>Chez ' + echapperAttribut(nom) + '</h2>' +
-    '<p class="sousTitre">Le texte est déjà copié. L’onglet s’ouvre tout seul ; <strong>cette page reste ouverte</strong>, c’est ici que vous reviendrez.</p></div>' +
-    (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
-    '<div class="cv-section" style="margin-top:.8rem;">' +
-    '<p class="mb-1"><strong>&#128278; Ce que vous retrouverez ici</strong></p>' +
-    '<p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">De retour de l’assistant : cliquez sur <strong>« Je suis de retour »</strong> ci-dessus, puis collez sa réponse.</p>' +
-    '</div></div>';
-}
-
-function _ucpmPassageCablerChez(etat, cle, config) {
-  var p = _ucpmEtatPassage(etat, cle);
-  if (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA) { p.vue = 'choix'; _ucpmRerendre(config); return; }
-  // Retour en arrière depuis « Coller la réponse » alors que la phase est déjà 'revenu' : l'assistant est déjà ouvert, on revient à 'ouvert'.
-  if (_etatTransitionIA.phase !== 'decompte' && _etatTransitionIA.phase !== 'bloque' && _etatTransitionIA.phase !== 'ouvert') {
-    _etatTransitionIA.phase = 'ouvert';
-    _ucpmRerendre(config);
-    return;
-  }
-  function ouvrirAssistantEnAttente() {
-    if (!document.querySelector('[data-ucpm-vue="chez"]')) { clearInterval(_ucpmIntervalleDecompte); return; }
-    // Recopie le texte avant chaque ouverture (voir recopierTexteAssistantPuisOuvrir, js/app.js) : une seule fonction pour tous les parcours.
-    recopierTexteAssistantPuisOuvrir(function () {
-      var fen = window.open(_etatTransitionIA.urlAssistant, '_blank');
-      _etatTransitionIA.phase = fen ? 'ouvert' : 'bloque';
-      if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement(_ucpmOptSuivi(config) + '_popup_bloque'); }
-      _ucpmRerendre(config);
-    });
-  }
-  if (_etatTransitionIA.phase === 'decompte') {
-    var cont = document.getElementById('btnContinuerMaintenantIA');
-    if (cont) { cont.addEventListener('click', function () { clearInterval(_ucpmIntervalleDecompte); ouvrirAssistantEnAttente(); }); }
-    clearInterval(_ucpmIntervalleDecompte);
-    _ucpmIntervalleDecompte = setInterval(function () {
-      _etatTransitionIA.secondesRestantes -= 1;
-      var c = document.getElementById('compteurDecompteIA');
-      if (c) { c.textContent = _etatTransitionIA.secondesRestantes; }
-      if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_ucpmIntervalleDecompte); ouvrirAssistantEnAttente(); }
-    }, 1000);
-  } else if (_etatTransitionIA.phase === 'bloque') {
-    var bl = document.getElementById('btnOuvrirBloqueIA');
-    if (bl) { bl.addEventListener('click', ouvrirAssistantEnAttente); }
-  } else if (_etatTransitionIA.phase === 'ouvert') {
-    var ret = document.getElementById('btnJeSuisDeRetourIA');
-    if (ret) { ret.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; p.vue = 'coller'; _ucpmRerendre(config); }); }
-    var rouvrir = document.getElementById('btnRouvrirSiteIA');
-    if (rouvrir) { rouvrir.addEventListener('click', ouvrirAssistantEnAttente); }
-  }
-}
-
-// ---------- Vue 'coller' ----------
+// ---------- Vue 'coller' (fenetre commune : decompte avec apercu, assistant ouvert, collage de la reponse) ----------
 
 function _ucpmPassageHtmlColler(config) {
-  var nom = (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-  return '<div class="cv-section bilan-etape-import-ia" data-ucpm-vue="coller">' +
-    '<h4>&#128229; De retour : collez la réponse</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
-    '<div class="bilan-zone-collage">' +
-    (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane(config.idSuffixe, {}) : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
-    '</div></div>';
+  return '<div data-ucpm-vue="coller">' + htmlCollageUniquePage(config.idSuffixe) + '</div>';
 }
 
 function _ucpmPassageCablerColler(etat, cle, config) {
   var s = config.idSuffixe;
-  if (typeof activerCollageInstantane === 'function') {
-    activerCollageInstantane({
-      idZoneAuto: 'zoneCollageAuto' + s, idZoneApercu: 'zoneApercuCollage' + s,
-      idTextarea: 'texteCollage' + s, idBoutonColler: 'btnCollerAuto' + s
-    });
-  }
-  var imp = document.getElementById('btnImporter' + s);
-  if (!imp) { return; }
-  imp.addEventListener('click', function () {
-    var msg = document.getElementById('messageImport' + s);
-    if (msg) { msg.textContent = ''; msg.style.color = ''; }
-    var ta = document.getElementById('texteCollage' + s);
-    var texte = ta ? String(ta.value || '') : '';
-    if (!texte.trim()) {
-      if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ Collez d’abord la réponse de l’assistant.'; }
-      return;
-    }
-    var r = config.importer(texte);
-    if (!r || !r.succes) {
-      if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: _ucpmOptSuivi(config), raison: (r && r.coupe) ? 'coupee' : 'illisible' }); }
-      if (msg) {
-        msg.style.color = 'var(--danger)';
-        msg.textContent = '⚠️ ' + ((r && r.erreur) || 'La réponse n’a pas pu être lue.') + ' Effacez, retournez chez l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
+  var p = _ucpmEtatPassage(etat, cle);
+  var module = config.module || {
+    libelleSuite: 'Continuer',
+    quoi: 'L’assistant vient de répondre à la demande que vous lui avez envoyée.',
+    pourquoi: 'Vous gardez la main : rien n’est enregistré sans que vous l’ayez relu.',
+    verif: 'relisez ce que l’application a retenu à l’étape suivante : rien n’est définitif, vous pouvez corriger.'
+  };
+  var controleur = brancherCollageUniquePage({
+    suffixe: s, idAncre: 'fcRacine' + s, rerendre: function () { _ucpmRerendre(config); }, evenementBloque: _ucpmOptSuivi(config) + '_popup_bloque',
+    module: module,
+    verifier: function (texte) {
+      // Lecture sans rien enregistrer quand le module sait la faire ; sinon la lecture a lieu à « Continuer ».
+      if (typeof config.verifier === 'function') { return { ok: !!config.verifier(texte) }; }
+      return { ok: true };
+    },
+    onChangerAssistant: function () {
+      clearInterval(_intervalleDecompteIA);
+      if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+      p.vue = 'choix';
+      _ucpmRerendre(config);
+    },
+    onContinuer: function (texte) {
+      if (!String(texte || '').trim()) { return; }
+      var r = config.importer(texte);
+      if (!r || !r.succes) {
+        if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: _ucpmOptSuivi(config), raison: (r && r.coupe) ? 'coupee' : 'illisible' }); }
+        var racine = document.getElementById('fcRacine' + s);
+        if (racine && racine.__collage) { racine.__collage.aller('echec'); }
+        return;
       }
-      return;
+      if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
+      clearInterval(_intervalleDecompteIA);
+      delete etat.passages[cle];
+      config.apresSucces();
     }
-    if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; }
-    clearInterval(_ucpmIntervalleDecompte);
-    delete etat.passages[cle];
-    config.apresSucces();
   });
+  return controleur;
 }

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barres de navigation : style distinct des barres d'étapes</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+:root { --mq-bg:#f4f6fb; --mq-card:#fff; --mq-text:#1d2433; --mq-muted:#5b6478; --mq-accent:#2f6bff; --mq-border:#c9d2e6; --mq-ok:#1c7a46; --mq-ok-bg:#e3f4ea; --mq-warn:#8a5a00; --mq-warn-bg:#fff3d6; }
+@media (prefers-color-scheme: dark) { :root { --mq-bg:#12161f; --mq-card:#1b212d; --mq-text:#e8ecf5; --mq-muted:#9aa6bd; --mq-accent:#7ba2ff; --mq-border:#39435a; --mq-ok:#6fd49b; --mq-ok-bg:#1d3a2b; --mq-warn:#f0c46a; --mq-warn-bg:#3b3015; } }
+body { margin:0; padding:16px 16px 40px; background:var(--mq-bg); color:var(--mq-text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+.mq-page { max-width:1000px; margin:0 auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; }
+.muted { color:var(--mq-muted); font-size:.92rem; }
+.mq-carte { border:1px solid var(--mq-border); border-radius:12px; padding:14px; background:var(--mq-card); margin-bottom:14px; }
+.mq-carte.propose { border:2px solid var(--mq-accent); }
+.mq-ligne { margin:12px 0 4px; font-size:.9rem; color:var(--mq-muted); }
+.mq-etiquette { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--mq-warn-bg); color:var(--mq-warn); }
+.mq-etiquette.ok { background:var(--mq-ok-bg); color:var(--mq-ok); }
+
+/* Variante A (recommandée) : « Vous êtes ici », fil de repères en texte : on sait où l'on est, sans laisser croire à des étapes à suivre dans l'ordre */
+.nav-fil { display:flex; flex-wrap:wrap; align-items:center; gap:.2rem .35rem; margin:0 0 1rem; padding:.45rem .2rem; font-size:.9rem; color:var(--mq-muted); }
+.nav-fil-ici { font-weight:700; color:var(--mq-text); }
+.nav-fil a, .nav-fil button { background:none; border:0; padding:0; font:inherit; color:var(--mq-accent); cursor:pointer; text-decoration:underline; }
+.nav-fil-sep { opacity:.6; }
+.nav-fil-titre { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; margin-right:.3rem; }
+
+/* Variante B : onglets soulignés, tous cliquables */
+.nav-onglets { display:flex; flex-wrap:wrap; gap:.2rem 1.2rem; margin:0 0 1rem; border-bottom:2px solid var(--mq-border); }
+.nav-onglets span { padding:.45rem .1rem; font-size:.92rem; color:var(--mq-muted); border-bottom:3px solid transparent; margin-bottom:-2px; }
+.nav-onglets span.ici { color:var(--mq-text); font-weight:700; border-bottom-color:var(--mq-accent); }
+</style>
+</head>
+<body>
+<div class="mq-page">
+<h1>Les barres de navigation : un style distinct des barres d'étapes</h1>
+<p class="muted">Les trois écrans concernés : « Comprendre le cadre » (Accueil, Un rayon, Affiner ma recherche, Outils), « Comprendre les chiffres » (Les chiffres, Une autre question), « Qui fait quoi » (Accueil, Un domaine, Une fiche). Aujourd'hui ils sont dessinés comme les barres d'étapes des parcours (pastilles, chevrons, vert « fait », jaune « en cours »). Une personne peut croire qu'il y a des étapes à suivre dans l'ordre : or on circule librement. Les mots ne changent pas. Rien n'est codé.</p>
+
+<div class="mq-carte">
+  <h2>Aujourd'hui <span class="mq-etiquette">dessinée comme une barre d'étapes</span></h2>
+  <div class="mq-ligne">« Comprendre le cadre », sur l'écran « Affiner ma recherche » :</div>
+  <div id="a0"></div>
+  <div class="mq-ligne">« Qui fait quoi », sur « Une fiche » :</div>
+  <div id="a1"></div>
+  <div class="mq-ligne">« Comprendre les chiffres », sur « Les chiffres » :</div>
+  <div id="a2"></div>
+</div>
+
+<div class="mq-carte propose">
+  <h2>Variante A (recommandée) : un fil « Vous êtes ici » <span class="mq-etiquette ok">aucune idée d'ordre à suivre</span></h2>
+  <p class="muted">Du texte simple, la page où l'on est en gras, les pages déjà visitées en lien pour revenir. Pas de pastille, pas de chevron, pas de vert ni de jaune : la couleur reste réservée aux vraies étapes d'un parcours.</p>
+  <div class="mq-ligne">« Comprendre le cadre », « Affiner ma recherche » :</div>
+  <div id="b0"></div>
+  <div class="mq-ligne">« Qui fait quoi », « Une fiche » :</div>
+  <div id="b1"></div>
+  <div class="mq-ligne">« Comprendre les chiffres », « Les chiffres » :</div>
+  <div id="b2"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Variante B : onglets soulignés</h2>
+  <p class="muted">Tous les repères sont visibles et au même niveau, celui où l'on est est souligné. Plus proche d'un menu, mais un peu plus « d'application ».</p>
+  <div class="mq-ligne">« Comprendre le cadre », « Affiner ma recherche » :</div>
+  <div id="c0"></div>
+  <div class="mq-ligne">« Qui fait quoi », « Une fiche » :</div>
+  <div id="c1"></div>
+</div>
+
+<div class="mq-carte">
+  <h2>Ce que ça change dans le code</h2>
+  <ul class="muted">
+    <li><strong>Simple</strong> : une nouvelle petite fonction commune pour ce fil, utilisée par les trois modules à la place de la barre d'étapes ; les mots et les clics de retour restent ceux d'aujourd'hui.</li>
+    <li><strong>À mettre à jour en même temps</strong> : les textes d'aide qui parlent de « la barre d'étapes » de ces trois écrans, et les essais qui la cherchent.</li>
+    <li><strong>Risque</strong> : faible. Seuls ces trois écrans changent ; les barres des parcours ne sont pas touchées.</li>
+  </ul>
+</div>
+</div>
+
+<script>
+function etapes(labels, ici, icones) {
+  var h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+  labels.forEach(function (l, i) {
+    var cls = i < ici ? ' pastille-etape-action-validee' : (i === ici ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+    if (i > 0) { h += '<span class="chevron-etape-action"' + (i > ici ? ' style="opacity:.4"' : '') + '><i class="bi bi-chevron-double-right"></i></span>'; }
+    h += '<span class="pastille-etape-action' + cls + '"><span class="pastille-etape-action-icone">' + icones[i] + '</span><span class="pastille-etape-action-label">' + l + '</span></span>';
+  });
+  return h + '</div>';
+}
+function fil(labels, ici) {
+  var h = '<div class="nav-fil"><span class="nav-fil-titre">Vous êtes ici</span>';
+  for (var i = 0; i <= ici; i++) {
+    if (i > 0) { h += '<span class="nav-fil-sep">&#8250;</span>'; }
+    h += (i === ici) ? '<span class="nav-fil-ici">' + labels[i] + '</span>' : '<button type="button">' + labels[i] + '</button>';
+  }
+  return h + '</div>';
+}
+function onglets(labels, ici) {
+  return '<div class="nav-onglets">' + labels.map(function (l, i) { return '<span class="' + (i === ici ? 'ici' : '') + '">' + l + '</span>'; }).join('') + '</div>';
+}
+var CADRE = ['Accueil', 'Un rayon', 'Affiner ma recherche', 'Outils'], CADRE_I = ['&#127968;', '&#128203;', '&#128269;', '&#128202;'];
+var QFQ = ['Accueil', 'Un domaine', 'Une fiche'], QFQ_I = ['&#127968;', '&#128203;', '&#128205;'];
+var CHIF = ['Les chiffres', 'Une autre question'], CHIF_I = ['&#128202;', '&#128269;'];
+function put(id, h) { document.getElementById(id).innerHTML = h; }
+put('a0', etapes(CADRE, 2, CADRE_I)); put('a1', etapes(QFQ, 2, QFQ_I)); put('a2', etapes(CHIF, 0, CHIF_I));
+put('b0', fil(CADRE, 2)); put('b1', fil(QFQ, 2)); put('b2', fil(CHIF, 0));
+put('c0', onglets(CADRE, 2)); put('c1', onglets(QFQ, 2));
+</script>
+</body>
+</html>

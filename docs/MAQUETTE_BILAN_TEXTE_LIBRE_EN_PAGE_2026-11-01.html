@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : texte complet du CV dans « Corriger » (Bilan)</title>
+<!-- Maquette du 01/11/2026 (point 15, étape 7, dernière fenêtre « Vérifier les informations », celle du Bilan). Elle utilise le VRAI CSS de l'application (aucune copie) ; seuls l'habillage de la maquette et les contrôles sont ajoutés ici.
+     Ouvrir par http://localhost:8123/docs/MAQUETTE_BILAN_TEXTE_LIBRE_EN_PAGE_2026-11-01.html (serveur de développement). Rien n'est codé dans l'application : tout ce qui est cliquable ici est factice. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body.coque { background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); margin: 0; }
+.coque-barre { position: sticky; top: 0; z-index: 50; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; }
+.coque-groupe { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.coque-groupe > span { font-size: .875rem; font-weight: 700; color: var(--text-muted); margin-right: .2rem; }
+.coque-groupe button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); border-radius: 8px; padding: .45rem .8rem; font-size: .9rem; cursor: pointer; min-height: 40px; }
+.coque-groupe button[aria-pressed="true"] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.coque-legende { max-width: 980px; margin: .8rem auto 0; padding: 0 1rem; font-size: .9rem; color: var(--text-muted); }
+.coque-scene { padding: 1rem; display: flex; justify-content: center; }
+.coque-cadre { width: 100%; max-width: 1000px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-page); box-shadow: 0 2px 14px rgba(0,0,0,.12); overflow: hidden; display: flex; flex-direction: column; }
+.coque-cadre.tel { max-width: 375px; }
+.coque-contenu { padding: .8rem 1.2rem 1.2rem; max-height: 76vh; overflow-y: auto; }
+.coque-cadre.tel .coque-contenu { padding: .6rem .9rem 1rem; }
+.coque-cadre .barre-navigation-fixe { position: static; box-shadow: 0 -2px 8px rgba(0,0,0,.08); background: var(--bg-card); padding: .5rem 1rem; }
+.coque-cadre .barre-navigation { margin-top: 0 !important; }
+.coque-cadre.tel .barre-navigation { grid-template-columns: auto auto minmax(0,1fr); gap: .4rem; }
+.coque-cadre.tel .btn-accueil { font-size: 0; padding-left: .7rem; padding-right: .7rem; }
+.coque-cadre.tel .btn-accueil i { font-size: 1.1rem; }
+.coque-cadre h1 { text-align: center; margin: .8rem 0 .3rem; font-size: 2.2rem; }
+.coque-cadre.tel h1 { font-size: 1.7rem; }
+.coque-cadre .sous-titre-page { text-align: center; color: var(--text-muted); margin: 0 0 1rem; }
+.scene { display: none; }
+.scene.visible { display: block; }
+.note-maquette { margin: .5rem 0 1rem; padding: .6rem .9rem; border-left: 4px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 8px 8px 0; font-size: .9rem; }
+.coque-questions { max-width: 980px; margin: 1rem auto 3rem; padding: 0 1rem; line-height: 1.55; }
+.coque-questions h2 { font-size: 1.2rem; margin: 1.6rem 0 .5rem; }
+.coque-questions .q { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; margin-bottom: .8rem; }
+.coque-questions .reco { color: var(--success); font-weight: 700; }
+.coque-questions li { margin-bottom: .35rem; }
+</style>
+</head>
+<body class="coque">
+
+<div class="coque-barre">
+  <div class="coque-groupe" id="choixScene"><span>Cas :</span>
+    <button type="button" data-scene="depose" aria-pressed="true">1. CV déposé en texte</button>
+    <button type="button" data-scene="structure" aria-pressed="false">2. CV déjà rangé dans l’application</button>
+  </div>
+  <div class="coque-groupe" id="choixLargeur"><span>Affichage :</span>
+    <button type="button" data-largeur="pc" aria-pressed="true">Ordinateur</button>
+    <button type="button" data-largeur="tel" aria-pressed="false">Téléphone</button>
+  </div>
+</div>
+<p class="coque-legende" id="legende"></p>
+
+<div class="coque-scene"><div class="coque-cadre" id="cadre"><div class="coque-contenu" id="contenu">
+
+<div class="barre-etapes-bilan d-flex justify-content-center align-items-center"><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📝</span><span class="pastille-etape-action-label">Préparer</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-validee" style="cursor:default;"><span class="pastille-etape-action-icone">📊</span><span class="pastille-etape-action-label">Rapport</span></span><span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span><span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte" style="cursor:default;"><span class="pastille-etape-action-icone">✏️</span><span class="pastille-etape-action-label">Corriger</span></span></div>
+<h1>📊 Analyser ma candidature</h1>
+<p class="sous-titre-page">Corrigez ces points dans l’ordre de votre choix.</p>
+
+<section class="scene visible" id="scene-depose"><div id="racineDepose"></div></section>
+<section class="scene" id="scene-structure"><div id="racineStructure"></div></section>
+
+<div class="barre-navigation-fixe" style="margin:0 -1.2rem -1.2rem;"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg">← Retour au rapport</button><button type="button" class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg" id="btnBas">Retour au rapport →</button></div></div>
+
+</div></div></div>
+
+<div class="coque-questions">
+  <h2>Ce que cette maquette change, et ne change pas</h2>
+  <ul>
+    <li><strong>Change :</strong> « Corriger » (sur une recommandation « Lisibilité et structure ») n’ouvre plus la fenêtre « Vérifier les informations ». Le texte s’ouvre <strong>dans la carte de la recommandation</strong>, sous le passage concerné et le « Pourquoi », comme les expériences se modifient déjà aujourd’hui dans cet écran.</li>
+    <li><strong>Ne change pas :</strong> le texte modifiable est le même qu’aujourd’hui, et il s’enregistre au même endroit (cas 1 : le texte du CV de la candidature ; cas 2 : le texte transmis à l’assistant). Les autres recommandations et leurs boutons restent comme ils sont.</li>
+    <li><strong>Un seul bouton de fin, comme pour les expériences :</strong> « Annuler » tant que rien n’a changé ; dès que vous modifiez le texte, il devient « Valider » (il enregistre et marque la recommandation « Corrigée »). Aujourd’hui il faut enregistrer dans la fenêtre puis cliquer encore sur « C’est corrigé » : une étape de moins.</li>
+  </ul>
+  <h2>Mes questions pour vous</h2>
+  <div class="q"><strong>Q1. Un seul bouton « Valider » qui enregistre ET marque « Corrigée », comme pour les expériences ?</strong><br>
+    <span class="reco">Recommandé : oui.</span> Bénéfice : une étape de moins, même geste que partout dans cet écran. Risque : si la personne enregistre sans avoir vraiment corrigé la lisibilité, la recommandation passe quand même en « Corrigée » ; elle peut toujours cliquer sur « Revenir sur ma décision ».<br>
+    <strong>Autre choix :</strong> garder deux gestes (« Enregistrer », puis « C’est corrigé » comme aujourd’hui). Bénéfice : plus prudent. Risque : un clic de plus, deux boutons proches qui se ressemblent.</div>
+  <div class="q"><strong>Q2. Cas 2 (CV déjà rangé dans l’application) : le texte qui s’ouvre est le « texte transmis à l’assistant », pas le CV.</strong><br>
+    C’est le comportement actuel : il sert à la prochaine demande à l’assistant, il ne change pas le CV rangé dans l’application. Je l’ai seulement expliqué en une phrase dans la carte pour que cela soit clair.<br>
+    <span class="reco">Recommandé : le garder tel quel pour l’instant</span> (reprise de l’existant, aucun risque). Bénéfice : rien à casser. Risque : le geste reste peu intuitif pour une recommandation de lisibilité ; une vraie correction du CV rangé demanderait un autre chantier.<br>
+    <strong>Autre choix :</strong> pour ce cas, renvoyer plutôt vers « Vos informations » (où le CV rangé se modifie vraiment). Bénéfice : correction réelle. Risque : on quitte l’écran « Corriger », à examiner à part.</div>
+  <h2>Effort et risques</h2>
+  <ul>
+    <li><strong>Simple (reprise de l’existant) :</strong> mêmes textes, mêmes enregistrements ; le panneau suit le modèle des expériences déjà en place dans cet écran (état de la recommandation concernée, « Annuler » / « Valider »).</li>
+    <li><strong>Risqué :</strong> peu. Il faut ouvrir et refermer le panneau sans perdre ce qui est tapé quand l’écran se redessine, et tester les deux cas dans un vrai parcours du Bilan. Dernier appelant de la fenêtre : elle pourra ensuite être supprimée.</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var legendes = {
+    depose: 'Cas 1 : le CV a été déposé sous forme de texte. « Corriger » ouvre le texte complet du CV dans la carte, sous le passage concerné.',
+    structure: 'Cas 2 : le CV est déjà rangé dans l’application. Le texte qui s’ouvre est celui transmis à l’assistant (comportement actuel, expliqué en une phrase).'
+  };
+  function montrer(nom) {
+    $$('.scene').forEach(function (s) { s.classList.toggle('visible', s.id === 'scene-' + nom); });
+    $$('#choixScene button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.scene === nom)); });
+    $('#legende').textContent = legendes[nom];
+  }
+  $$('#choixScene button').forEach(function (b) { b.addEventListener('click', function () { montrer(b.dataset.scene); }); });
+  $$('#choixLargeur button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $('#cadre').classList.toggle('tel', b.dataset.largeur === 'tel');
+      $$('#choixLargeur button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+  montrer('depose');
+
+  function echap(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  // Deux cartes par cas : la recommandation « Lisibilité et structure » (celle qui ouvre le texte) et une autre, pour le contexte.
+  function creerEcran(racine, cfg) {
+    var etat = { statut: 'a-corriger', ouvert: false, texteEnregistre: cfg.texte };
+    function constat() {
+      return '<div class="small" style="background:var(--bg-subtle);border-left:3px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;margin:0.4rem 0;">' +
+        '<p class="mb-1"><strong>Le passage de votre CV :</strong> « ' + echap(cfg.extrait) + ' »</p>' +
+        '<p class="mb-0"><strong>Pourquoi :</strong> ' + echap(cfg.pourquoi) + '</p></div>';
+    }
+    function panneau() {
+      return '<div class="mt-2" id="' + cfg.id + 'Panneau">' +
+        '<p class="small mb-2">' + cfg.intro + '</p>' +
+        '<label class="small fw-bold text-muted d-block mb-1" for="' + cfg.id + 'Champ">' + cfg.libelle + '</label>' +
+        '<textarea class="form-control" rows="12" id="' + cfg.id + 'Champ">' + echap(etat.texteEnregistre) + '</textarea>' +
+        '<div class="text-end mt-2" id="' + cfg.id + 'Fin"><button type="button" class="btn btn-outline-secondary btn-sm" id="' + cfg.id + 'Annuler">Annuler</button></div>' +
+        '</div>';
+    }
+    function dessiner() {
+      var corrigee = etat.statut === 'corrigee';
+      var actions;
+      if (etat.ouvert) { actions = panneau(); }
+      else if (corrigee) {
+        actions = '<span class="badge" style="background:var(--success-bg-subtle);color:var(--success-strong);border:1px solid var(--success-strong);">Corrigée</span> ' +
+          '<button type="button" class="btn btn-outline-secondary btn-sm" id="' + cfg.id + 'Revenir">Revenir sur ma décision</button>';
+      } else { actions = '<button type="button" class="btn btn-primary btn-sm" id="' + cfg.id + 'Corriger">Corriger</button>'; }
+      racine.innerHTML =
+        '<div class="cv-section" style="margin-bottom:0.75rem;' + (corrigee ? 'background:var(--success-bg-subtle);border-color:var(--success-strong);' : '') + '">' +
+        '<p class="small text-muted mb-1">Lisibilité et structure</p>' +
+        '<p class="mb-2">' + echap(cfg.reco) + '</p>' + (corrigee ? '' : constat()) + actions + '</div>' +
+        '<div class="cv-section" style="margin-bottom:0.75rem;"><p class="small text-muted mb-1">Crédibilité</p><p class="mb-2">Ajouter un chiffre ou un détail concret à votre dernière expérience.</p>' +
+        '<button type="button" class="btn btn-primary btn-sm" disabled>Corriger</button></div>';
+      var bC = $('#' + cfg.id + 'Corriger'), bR = $('#' + cfg.id + 'Revenir'), bA = $('#' + cfg.id + 'Annuler'), champ = $('#' + cfg.id + 'Champ');
+      if (bC) { bC.addEventListener('click', function () { etat.ouvert = true; dessiner(); $('#' + cfg.id + 'Champ').focus(); }); }
+      if (bR) { bR.addEventListener('click', function () { etat.statut = 'a-corriger'; dessiner(); }); }
+      if (bA) { bA.addEventListener('click', function () { etat.ouvert = false; dessiner(); }); }
+      if (champ) {
+        champ.addEventListener('input', function () {
+          var change = champ.value !== etat.texteEnregistre;
+          $('#' + cfg.id + 'Fin').innerHTML = change
+            ? '<button type="button" class="btn btn-success btn-sm" id="' + cfg.id + 'Valider">&#9989; Valider</button>'
+            : '<button type="button" class="btn btn-outline-secondary btn-sm" id="' + cfg.id + 'Annuler">Annuler</button>';
+          var v = $('#' + cfg.id + 'Valider'), a = $('#' + cfg.id + 'Annuler');
+          if (v) { v.addEventListener('click', function () { etat.texteEnregistre = champ.value; etat.ouvert = false; etat.statut = 'corrigee'; dessiner(); majBas(); }); }
+          if (a) { a.addEventListener('click', function () { etat.ouvert = false; dessiner(); }); }
+        });
+      }
+    }
+    dessiner();
+    return etat;
+  }
+  var e1 = creerEcran($('#racineDepose'), {
+    id: 'dep',
+    reco: 'Aérer le CV : des paragraphes très longs rendent la lecture difficile.',
+    extrait: 'Responsable de rayon, chargé de la caisse, de la commande des produits frais, de la gestion de l’équipe de six personnes et de l’accueil des clients pendant les périodes de forte affluence…',
+    pourquoi: 'Un recruteur parcourt un CV en quelques secondes : des phrases courtes se repèrent plus vite.',
+    intro: 'Voici le texte complet de votre CV. Modifiez-le directement ici : coupez les phrases trop longues, ajoutez des sauts de ligne.',
+    libelle: 'Le texte complet de votre CV',
+    texte: 'JEAN DUPONT\nVendeur\n\nEXPÉRIENCES\nResponsable de rayon, chargé de la caisse, de la commande des produits frais, de la gestion de l’équipe de six personnes et de l’accueil des clients pendant les périodes de forte affluence (2019 à 2024).\n\nFORMATION\nBac professionnel Commerce, 2018.'
+  });
+  var e2 = creerEcran($('#racineStructure'), {
+    id: 'str',
+    reco: 'Aérer le CV : des paragraphes très longs rendent la lecture difficile.',
+    extrait: 'Responsable de rayon, chargé de la caisse, de la commande des produits frais, de la gestion de l’équipe de six personnes…',
+    pourquoi: 'Un recruteur parcourt un CV en quelques secondes : des phrases courtes se repèrent plus vite.',
+    intro: '<strong>À savoir :</strong> votre CV est déjà rangé dans l’application. Ce texte est celui qui sera transmis à l’assistant pour sa prochaine réponse ; il ne change pas votre CV rangé. Modifiez-le librement.',
+    libelle: 'Le texte transmis à l’assistant',
+    texte: 'Document demandé : CV\n\nPROFIL DU CANDIDAT\n- Expériences professionnelles :\n  . Responsable de rayon - Magasin, 2019 à 2024 - Missions : caisse, commande des produits frais, gestion de l’équipe de six personnes, accueil des clients\n\nCOMPÉTENCES ET ATOUTS\n- Savoir-être : motivation, rigueur'
+  });
+  function majBas() {
+    var fait = e1.statut === 'corrigee' || e2.statut === 'corrigee';
+    $('#btnBas').textContent = fait ? 'J’ai terminé pour l’instant →' : 'Retour au rapport →';
+  }
+  $$('.barre-navigation button').forEach(function (b) { b.removeAttribute('onclick'); b.addEventListener('click', function () { b.blur(); }); });
+}());
+</script>
+</body>
+</html>

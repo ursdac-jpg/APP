@@ -87,3 +87,10 @@ test('dossier de lettre : sans entreprise ni recruteur, rien d’inventé', () =
   assert.equal(r.rechercheCandidature.nomRecruteur, '');
   assert.equal(r.lettreDestinataire.gabarit, 'g0');
 });
+
+test('dossier de lettre : la rue n’est demandée que si la personne l’a cochée (décochée au départ)', () => {
+  assert.equal(ucpmPreparerDossierLettre({}, { texte: 'T.', titre: 'Agent' }).lettreDestinataire.rue, false);
+  assert.equal(ucpmPreparerDossierLettre({}, { texte: 'T.', titre: 'Agent', rue: false }).lettreDestinataire.rue, false);
+  assert.equal(ucpmPreparerDossierLettre({}, { texte: 'T.', titre: 'Agent', rue: 'oui' }).lettreDestinataire.rue, false);
+  assert.equal(ucpmPreparerDossierLettre({}, { texte: 'T.', titre: 'Agent', rue: true }).lettreDestinataire.rue, true);
+});

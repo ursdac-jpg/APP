@@ -11,9 +11,10 @@ sources:
   - "service-public-aide-mobilite-chomage | Chômage : aide à la mobilité | https://www.service-public.gouv.fr/particuliers/vosdroits/F1011 | 2026-09-05"
   - "mes-aides-france-travail-mobilite | Mes aides France Travail : transport et mobilité | https://mes-aides.francetravail.fr/transport | 2026-09-05"
   - "ecologie-aides-vehicules-peu-polluants | Prime au rétrofit, bonus écologique : toutes les aides à l'acquisition de véhicules propres | https://www.ecologie.gouv.fr/politiques-publiques/prime-retrofit-bonus-ecologique-toutes-aides-faveur-lacquisition-vehicules | 2026-09-04"
-  - "primealaconversion-leasing-social-2026 | Aide au leasing social 2026 | https://www.primealaconversion.gouv.fr/dboneco/accueil/leasingsocial2026.html | 2026-09-04"
+  - "primealaconversion-leasing-social-2026 | Le dispositif leasing social 2026 (ministères de la Transition écologique) | https://www.ecologie.gouv.fr/leasing-social | 2026-11-03"
   - "transports-nouvelle-aquitaine-carte-solidaire | La Carte Solidaire pour les transports en Nouvelle-Aquitaine | https://transports.nouvelle-aquitaine.fr/les-offres/la-carte-solidaire | 2026-09-04"
   - "transports-nouvelle-aquitaine-tad | Le transport à la demande (TAD) en Nouvelle-Aquitaine | https://transports.nouvelle-aquitaine.fr/transports-la-demande | 2026-09-04"
+  - "service-public-leasing-social | Service Public : location sociale de voitures électriques (leasing social 2026) | https://www.service-public.gouv.fr/particuliers/vosdroits/F39280 | 2026-11-03"
 structures:
   - "mes-aides-france-travail | Mes aides France Travail : annuaire des aides à la mobilité, des garages solidaires et des plateformes mobilité, filtrable par territoire | https://mes-aides.francetravail.fr/ | 2026-09-04"
   - "france-mobilites-solutions | France Mobilités : recensement des solutions de mobilité solidaire par territoire | https://www.francemobilites.fr/ | 2026-09-04"

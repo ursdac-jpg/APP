@@ -22,7 +22,7 @@ var UCPM_ETAPES = [
   { label: 'Accroches', icone: '&#128172;' },
   { label: 'Mes CV', icone: '&#128450;&#65039;' },
   { label: 'Lettres', icone: '&#9993;&#65039;' },
-  { label: 'Fin', icone: '&#9989;' },
+  { label: 'Mes documents', icone: '&#9989;' },
   { label: 'Entretiens', icone: '&#128221;' }
 ];
 var UCPM_NB_PAGES = 8;

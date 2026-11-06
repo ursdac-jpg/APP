@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : fiche d'une structure avec adresse</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  /* Réservé à cette maquette : barre de réglages et cadres de présentation. */
+  .demo-barre { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; font-size: .9rem; }
+  .demo-barre button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-page { max-width: 760px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .demo-cas { margin: 1.4rem 0 .4rem; font-weight: 700; }
+  .demo-cas small { font-weight: 400; color: var(--text-muted); display: block; }
+  .demo-questions { border: 1px dashed var(--border-strong, var(--border)); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="demo-barre">
+  <strong>Maquette (aucun code de l'application modifié)</strong>
+  <span>Affichage :</span>
+  <button type="button" id="btnClair" class="actif">Clair</button>
+  <button type="button" id="btnSombre">Sombre</button>
+  <span>Appareil :</span>
+  <button type="button" id="btnTel">Téléphone</button>
+  <button type="button" id="btnTab">Tablette</button>
+  <button type="button" id="btnLarge" class="actif">Ordinateur</button>
+</div>
+
+<div class="demo-page" id="page">
+  <h1 class="h4 mt-3">Fiche d'une structure : ce qui change</h1>
+  <p class="small text-muted mb-0">Chaque carte ci-dessous est la <strong>vraie carte de l'application</strong> (la même fonction, les mêmes styles). La nouveauté : <strong>une ligne « adresse »</strong>, juste sous le type et la commune, <strong>cliquable : elle ouvre Google Maps</strong> (téléphone, tablette et ordinateur). Le <strong>numéro</strong> compose directement, <strong>seulement sur téléphone portable</strong> : essayez les trois boutons « Appareil » en haut. Les exemples sont des structures réelles du sas, la date est fictive.</p>
+
+  <div class="demo-cas">1. Cas courant : adresse et téléphone connus, ligne datée<small>Aujourd'hui, cette ligne adresse n'existe pas. Elle apparaît seulement si la ligne est datée de moins de 12 mois (comme le téléphone).</small></div>
+  <div id="cas1"></div>
+
+  <div class="demo-cas">2. Petite structure locale<small>Même ligne adresse, et le message « téléphonez avant de vous déplacer » est conservé.</small></div>
+  <div id="cas2"></div>
+
+  <div class="demo-cas">3. Adresse inconnue (téléphone seul)<small>Aucune ligne adresse affichée : on ne devine jamais.</small></div>
+  <div id="cas3"></div>
+
+  <div class="demo-cas">4. Ligne pas encore vérifiée<small>Ni adresse, ni téléphone, ni lien : le message actuel reste identique.</small></div>
+  <div id="cas4"></div>
+
+  <div class="demo-questions">
+    <h2 class="h6">Vos décisions déjà prises et ce qui reste</h2>
+    <ul class="small mb-2">
+      <li><strong>Adresse cliquable vers Google Maps</strong> : oui, sur téléphone, tablette et ordinateur. Seule l'adresse publique de la structure est transmise, rien sur la personne.</li>
+      <li><strong>Numéro qui compose</strong> : seulement sur téléphone portable ; sur tablette et ordinateur, un simple texte (un clic n'y ouvrirait rien d'utile).</li>
+      <li><strong>Horaires</strong> : non.</li>
+      <li><strong>À confirmer</strong> : la ligne adresse se place sous le type et la commune (comme ici). Convient-il ?</li>
+    </ul>
+    <p class="small text-muted mb-0">Ce qui ne change pas : la date de vérification, la marque « Petite structure », le badge « Couvre votre commune », la recherche, le mode sombre.</p>
+  </div>
+</div>
+
+<script src="../../modules/mon-territoire/logique.js"></script>
+<script>
+  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  function dateFr(iso) { var m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? parseInt(m[3], 10) + ' ' + MOIS[parseInt(m[2], 10) - 1] + ' ' + m[1] : iso; }
+  var appareil = 'ordinateur';
+  // Comme sur les cartes d'employeurs : l'adresse ouvre Google Maps (seule l'adresse publique de la structure est envoyée), le numéro n'est un lien que sur téléphone.
+  function urlCarte(adresse) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(adresse); }
+  function avecAdresse(html, adresse) {
+    if (!adresse) { return html; }
+    var ligne = '<span class="d-block small mt-1"><i class="bi bi-geo-alt"></i> <a href="' + mtEchapperHtml(urlCarte(adresse)) + '" target="_blank" rel="noopener">' + mtEchapperHtml(adresse) + '</a></span>';
+    var i = html.indexOf('text-muted">'); if (i < 0) { return html + ligne; }
+    var fin = html.indexOf('</span>', i) + 7;
+    return html.slice(0, fin) + ligne + html.slice(fin);
+  }
+  function sansAppel(html) { return appareil === 'telephone' ? html : html.replace(new RegExp('<a href="tel:[^"]*"[^>]*>(<strong>[^<]*</strong>)</a>'), '$1'); }
+  function carte(s, adresse) { return sansAppel(avecAdresse(mtCarteStructureHtml(s, { dateFr: dateFr, communeAffichee: s.commune }), adresse)); }
+  var base = { type: 'collectivite-etat', couvre: null, enAttente: false };
+  function rendre() {
+  document.getElementById('cas1').innerHTML = carte(Object.assign({}, base, { titre: 'Sous-préfecture de Nontron', detail: "Services de l'État pour les démarches des habitants de l'arrondissement. Un espace France Services y conseille sur les démarches en ligne.", commune: 'Nontron (24300)', telephone: '05 47 24 16 76', mail: '', url: '', verifie: false, coordonnees: true, date: '2026-11-03', petite: false }), '208 boulevard Gambetta, 24300 Nontron');
+  document.getElementById('cas2').innerHTML = carte(Object.assign({}, base, { type: 'aide-alimentaire-materielle', titre: "Épicerie solidaire (exemple)", detail: 'Aide alimentaire pour les personnes qui en ont besoin, sur orientation ou sur rendez-vous.', commune: 'Bergerac (24100)', telephone: '05 53 00 00 00', mail: '', url: '', verifie: false, coordonnees: true, date: '2026-11-03', petite: true }), '12 rue des Écoles, 24100 Bergerac');
+  document.getElementById('cas3').innerHTML = carte(Object.assign({}, base, { type: 'service-social-secteur', titre: 'Service social du secteur (exemple)', detail: 'Rendez-vous avec une assistante sociale pour vos démarches.', commune: 'Limoges (87000)', telephone: '05 55 00 00 00', mail: '', url: '', verifie: false, coordonnees: true, date: '2026-11-03', petite: false }), '');
+  document.getElementById('cas4').innerHTML = carte(Object.assign({}, base, { type: 'ccas', titre: 'Centre communal d\'action sociale (exemple)', detail: 'Aide sociale de la commune.', commune: 'Saint-Junien (87200)', telephone: '', mail: '', url: '', verifie: false, coordonnees: false, date: '', petite: false }), '');
+  }
+  rendre();
+
+  function reglage(id, f) { document.getElementById(id).onclick = f; }
+  function actif(a, b) { document.getElementById(a).classList.add('actif'); document.getElementById(b).classList.remove('actif'); }
+  reglage('btnClair', function () { document.documentElement.removeAttribute('data-theme'); actif('btnClair', 'btnSombre'); });
+  reglage('btnSombre', function () { document.documentElement.setAttribute('data-theme', 'sombre'); actif('btnSombre', 'btnClair'); });
+  function choisirAppareil(nom, largeur, id) { appareil = nom; document.getElementById('page').style.maxWidth = largeur; ['btnTel', 'btnTab', 'btnLarge'].forEach(function (x) { document.getElementById(x).classList.toggle('actif', x === id); }); rendre(); }
+  reglage('btnTel', function () { choisirAppareil('telephone', '375px', 'btnTel'); });
+  reglage('btnTab', function () { choisirAppareil('tablette', '600px', 'btnTab'); });
+  reglage('btnLarge', function () { choisirAppareil('ordinateur', '760px', 'btnLarge'); });
+</script>
+</body>
+</html>

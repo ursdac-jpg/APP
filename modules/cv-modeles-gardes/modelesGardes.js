@@ -15,6 +15,7 @@
    ============================================================ */
 
 var _mgListe = [];                    // les modèles gardés : [{ id, nom, style: { pdf, mep } }], 5 au plus
+var _mgChoisiId = null;               // le modèle choisi avant « Vos documents » (« Récupérer votre CV ») ; absent de la liste : le dernier gardé
 var _mgEssai = null;                  // pendant l'essai : { origine, etatApercu }
 var _mgAilleursOuvert = false;        // l'explication « Aucun modèle ne vous plaît ? » est ouverte
 var _mgRemodeler = false;             // « Vos documents » : tous les réglages sont montrés (sinon : le choix parmi les modèles gardés)
@@ -29,7 +30,7 @@ var _mgSigAffichee = '';
 /* ---------- Mémoire (disquette) ---------- */
 function mgExporterEtatPourSauvegarde() { return _mgListe.length ? { liste: JSON.parse(JSON.stringify(_mgListe)) } : null; }
 function mgRestaurerEtatDepuisSauvegarde(etat) { _mgListe = mgNormaliserListe(etat && etat.liste); }
-function mgReinitialiser() { _mgListe = []; _mgApercus = {}; _mgRendus = {}; _mgDernierAjoute = null; _mgAilleursOuvert = false; _mgRemodeler = false; }
+function mgReinitialiser() { _mgListe = []; _mgChoisiId = null; _mgApercus = {}; _mgRendus = {}; _mgDernierAjoute = null; _mgAilleursOuvert = false; _mgRemodeler = false; }
 
 /* ---------- Petits outils ---------- */
 function _mgEsc(t) { return (typeof echapperAttribut === 'function') ? echapperAttribut(String(t == null ? '' : t)) : String(t == null ? '' : t); }
@@ -78,14 +79,73 @@ function _mgPuces(avecRetirer) {
   }).join('') + '</div>';
 }
 
-function mgHtmlBlocIntro() {
+// Le modèle qui sera posé à l'arrivée sur « Vos documents » : celui que la personne a choisi parmi ses modèles gardés (« Récupérer votre CV »), sinon le dernier gardé.
+function _mgChoisiCourant() {
+  for (var i = 0; i < _mgListe.length; i++) { if (_mgListe[i].id === _mgChoisiId) { return _mgListe[i]; } }
+  return _mgListe.length ? _mgListe[_mgListe.length - 1] : null;
+}
+// « Récupérer votre CV » (Reformuler) : les modèles gardés en petites vignettes, un clic en choisit un (celui où le texte de la personne apparaîtra) ; sans modèle gardé, de quoi en regarder.
+function _mgHtmlChoixSortie(invitation) {
+  var entete = invitation ? '' : '<p class="mb-2"><strong>Quel modèle vous plaît ?</strong> Regardez-en dès maintenant et gardez-en <strong>jusqu’à ' + MG_MAX + '</strong> : vous les retrouverez avec votre vrai texte. Vous pouvez aussi choisir plus tard.</p>';
+  if (!_mgListe.length) {
+    return '<div id="blocMgVoirModeles" style="margin-top:.6rem;">' + entete +
+      (invitation ? '' : '<p class="small mb-2" style="color:var(--text-muted);">Aucun modèle gardé pour l’instant.</p>') +
+      '<button type="button" class="btn btn-primary" id="btnMgVoirModeles">Regarder nos modèles</button></div>';
+  }
+  // Après un rechargement de la page, les petites images ne sont plus en mémoire (les modèles, eux, restent avec la disquette) : un message remplace les vignettes (décision Denis 2026-10-27).
+  var sansImages = _mgListe.some(function (m) { return !_mgApercus[m.id]; });
+  if (sansImages) {
+    return '<div id="blocMgVoirModeles" style="margin-top:.6rem;">' + entete +
+      '<p class="mb-1"><strong>&#9989; Mes modèles gardés : ' + _mgListe.length + ' sur ' + MG_MAX + '</strong></p>' + _mgPuces(true) +
+      '<p class="small mb-2" style="color:var(--text-muted);">Les petites images ne sont plus affichées sur cette page. Pas d’inquiétude : vos modèles sont bien gardés. À la fin du parcours, sur « Vos documents », vous choisirez celui de votre CV parmi eux.</p>' +
+      '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary btn-sm" id="btnMgVoirModeles">En ajouter ou en changer</button> ' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnMgOublier">Oublier mes modèles</button></div></div>';
+  }
+  var choisi = _mgChoisiCourant();
+  var cartes = _mgListe.map(function (m, i) {
+    var actif = choisi && choisi.id === m.id;
+    return '<div class="mg-choix-item">' +
+      '<button type="button" class="mg-choix-carte' + (actif ? ' mg-choix-actif' : '') + '" id="btnMgChoisir_' + _mgEsc(m.id) + '" role="radio" aria-checked="' + (actif ? 'true' : 'false') + '" title="' + _mgEsc(_mgLibelle(m)) + '">' +
+      '<span class="mg-choix-vignette" data-ucpm-miniature="mgc_' + _mgEsc(m.id) + '"' + (_mgApercus[m.id] ? '' : ' style="background:' + _mgEsc(_mgCouleur(m)) + ';"') + '></span>' +
+      '<span class="mg-choix-nom">' + (i + 1) + '. ' + _mgEsc(_mgLibelle(m)) + (actif ? ' &#10003;' : '') + '</span></button>' +
+      '<button type="button" class="mg-choix-retirer" id="btnMgRetirer_' + _mgEsc(m.id) + '" aria-label="Retirer le modèle ' + (i + 1) + '" title="Retirer ce modèle">&times;</button></div>';
+  }).join('');
+  return '<div id="blocMgVoirModeles" style="margin-top:.6rem;">' + entete +
+    '<p class="mb-1"><strong>&#9989; Mes modèles gardés : ' + _mgListe.length + ' sur ' + MG_MAX + '</strong></p>' +
+    '<div class="mg-choix" role="radiogroup" aria-label="Le modèle de votre CV">' + cartes + '</div>' +
+    '<p class="small mb-2" style="color:var(--text-muted);">' + (invitation ? 'Cliquez sur celui que vous préférez : il vous attend, avec votre texte, à la fin du parcours.' : 'Cliquez sur celui que vous voulez : votre texte apparaîtra dedans sur « Vos documents », puis « Continuer ».') + '</p>' +
+    '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary btn-sm" id="btnMgVoirModeles">En ajouter ou en changer</button> ' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnMgOublier">Oublier mes modèles</button></div></div>';
+}
+// « Reprendre votre CV » : l'invitation (sans numéro, sur fond blanc, jamais obligatoire ni bloquée par le dépôt du CV) à regarder nos modèles avant ou après le choix de la voie.
+function mgHtmlInvitation() {
+  return '<div class="cv-section text-center" id="mgInvitation" style="margin-top:1rem;">' +
+    '<h2 style="font-size:1.1rem;">Envie de voir nos modèles de CV ? <span class="small" style="font-weight:400;color:var(--text-muted);">(si vous voulez)</span></h2>' +
+    '<p class="small mb-2" style="color:var(--text-muted);">Regardez ce que donnera votre CV <strong>avant de choisir une voie</strong>, même sans avoir déposé de CV. Gardez jusqu’à ' + MG_MAX + ' modèles : vous les retrouverez, avec votre texte, à la fin du parcours. Ce n’est pas une étape : vous pouvez aussi enchaîner directement.</p>' +
+    _mgHtmlChoixSortie(true) + '</div>';
+}
+// Les boutons de ce bloc (chaque { id, action }) et le dessin des petites images une fois le bloc posé dans la page.
+function mgActionsSortie(rendre) {
+  var actions = mgActionsIntro(rendre);
+  _mgListe.forEach(function (m) {
+    actions.push({ id: 'btnMgChoisir_' + m.id, action: function () { _mgChoisiId = m.id; rendre(); } });
+  });
+  return actions;
+}
+function mgMontrerVignettesSortie() {
+  _mgListe.forEach(function (m) { if (_mgApercus[m.id] && typeof _ucpmP5MontrerMiniature === 'function') { _ucpmP5MontrerMiniature('mgc_' + m.id, _mgApercus[m.id], 64); } });
+}
+
+// `sortie` : le bloc est posé dans la carte « Remplir un de nos modèles » de « Récupérer votre CV » (Reformuler), qui a déjà son titre : vignettes à choisir, pas de « Comment faire ? ».
+function mgHtmlBlocIntro(sortie) {
   var garde = _mgListe.length
     ? '<div class="cv-section" style="border-left:4px solid var(--success);background:var(--success-bg-subtle);max-width:720px;margin:.6rem auto;text-align:left;">' +
       '<p class="mb-1"><strong>&#9989; Mes modèles gardés : ' + _mgListe.length + ' sur ' + MG_MAX + '</strong></p>' + _mgPuces(true) +
-      '<p class="small mb-2" style="color:var(--text-muted);">Ils vous seront proposés, avec votre texte, quel que soit le parcours choisi.</p>' +
+      '<p class="small mb-2" style="color:var(--text-muted);">' + (sortie ? 'Ils vous seront proposés, avec votre texte, sur « Vos documents ».' : 'Ils vous seront proposés, avec votre texte, quel que soit le parcours choisi.') + '</p>' +
       '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary btn-sm" id="btnMgVoirModeles">En ajouter ou en changer</button> ' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnMgOublier">Oublier mes modèles</button></div></div>'
     : '<button type="button" class="btn btn-primary" id="btnMgVoirModeles">Regarder nos modèles</button>';
+  if (sortie) { return _mgHtmlChoixSortie(); }
   return '<div class="cv-section text-center" id="blocMgVoirModeles" style="margin-top:1rem;">' +
     '<h2 style="font-size:1.1rem;"><i class="bi bi-grid-1x2" aria-hidden="true"></i> Voir nos modèles de CV</h2>' +
     '<p class="small mb-2" style="color:var(--text-muted);">Regardez ce que donnera votre CV, avant de remplir quoi que ce soit. <strong>Gardez jusqu’à ' + MG_MAX + ' modèles</strong> : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.</p>' +
@@ -282,10 +342,11 @@ function mgBasculerGarde() {
 // et son grand CV (l'aperçu réel, en lecture seule : un clic dessus l'ouvre très grand). Toute modification passe par « Remodeler ce modèle » : une seule source de vérité.
 // Choisir un modèle ne redessine pas la page : seuls l'aperçu (sans blanc, avec la photo de l'ancien) et ce bloc changent.
 
-// Les modèles gardés ne concernent que « Créer un nouveau CV » (jamais l'amélioration d'un CV existant).
+// Les modèles gardés concernent « Créer un nouveau CV » et « Reformuler et présenter mon CV » (sortie « Remplir un de nos modèles », décision Denis 2026-10-27) ; jamais l'amélioration d'un CV existant par les autres voies.
 function _mgConcerne(docActif) {
   return docActif === 'cv' && !window._modeEssaiModeles && !window._modeModuleUcpm && _mgListe.length > 0 &&
-    !!(dossier && (dossier.modeCreation === 'nouveau' || dossier.decouverteTerminee));
+    !!(dossier && (dossier.modeCreation === 'nouveau' || dossier.decouverteTerminee || window._modeVoie3Csa ||
+      (dossier.modeCreation === 'maj' && (dossier._modeCreationVia === 'reformuler' || dossier._modeCreationVia === 'maj'))));
 }
 function _mgCarteActive() {
   var id = dossier && dossier.modeleGardeActifId;
@@ -314,7 +375,7 @@ function _mgStabiliserBase() {
 // À l'arrivée sur « Vos documents » : le dernier modèle gardé est déjà posé (une seule fois par CV : ensuite, la personne garde la main).
 function mgAppliquerArrivee(docActif) {
   if (!_mgConcerne(docActif) || dossier.modeleGardeActifId !== undefined) { return; }
-  _mgPoserStyle(_mgListe[_mgListe.length - 1]);
+  _mgPoserStyle(_mgChoisiCourant());
   _mgRemodeler = false;
 }
 

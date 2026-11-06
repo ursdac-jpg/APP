@@ -7,7 +7,7 @@ tags: [licenciement, motif réel et sérieux, procédure, prud'hommes, employeur
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-13
+verifie_le: 2026-11-04
 lexique:
   - terme: "motif réel et sérieux"
     definition: "Fait précis et vérifiable que l'employeur doit invoquer pour licencier - jamais une simple impression."
@@ -20,12 +20,13 @@ sources:
   - travail-emploi-procedure-licenciement
 ce_qui_change_souvent:
   - "Le barème des indemnités en cas de litige"
-revisions: []
+revisions:
+  - "2026-11-04 : la page Code du travail numérique confirme la cause réelle et sérieuse à justifier, l'entretien préalable et la lettre de licenciement ; le « fait précis et vérifiable », la requalification, les indemnités supplémentaires et les indemnités de fin de contrat n'y figurent pas (retirés ou assouplis)"
 collecte: employeurs.collecte.md
 ---
 
-Une fois la période d'essai terminée, un employeur ne peut pas mettre fin à un CDI librement. Il doit avoir un motif réel et sérieux - un fait précis et vérifiable, pas une impression - et suivre une procédure obligatoire : convocation à un entretien préalable, entretien, puis notification écrite du licenciement avec son motif.
+Une fois la période d'essai terminée, un employeur ne peut pas mettre fin à un CDI librement. Il doit avoir une cause réelle et sérieuse, qu'il doit pouvoir justifier, et suivre une procédure obligatoire : convocation à un entretien préalable, entretien, puis notification écrite du licenciement avec son motif.
 
-Si la personne saisit le conseil de prud'hommes et que le motif est jugé insuffisant ou la procédure irrégulière, le licenciement peut être requalifié « sans cause réelle et sérieuse ». L'employeur doit alors verser des indemnités supplémentaires, en plus de celles déjà dues à la fin de tout contrat (indemnité de licenciement, congés payés non pris). C'est un vrai risque juridique et financier pour l'employeur, pas une formalité symbolique.
+Si le motif n'est pas justifié ou si la procédure n'est pas respectée, le licenciement peut être contesté devant le conseil de prud'hommes. C'est un vrai risque juridique et financier pour l'employeur, pas une formalité symbolique.
 
 Cette difficulté réelle à se séparer d'un salarié, une fois l'essai passé, est une des raisons structurelles pour lesquelles une embauche est un choix pesé avec soin - ce n'est pas la même chose que dire qu'une personne doit se sentir jugée ou insuffisante si elle n'est pas retenue à l'embauche. La prudence à l'embauche existe même quand tout se passe bien dans un poste ; elle ne mesure rien sur la valeur d'une personne.

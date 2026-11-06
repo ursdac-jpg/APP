@@ -360,3 +360,37 @@ test('API : la liste et la lecture des fichiers de chiffres sont reservees au bo
     assert.deepStrictEqual(appels, [['lister'], ['lire', '2026-06.md']]);
   } finally { await s.fermer(); }
 });
+
+test('API : « retrouver le passage » est reservee au bon jeton, ne lit que des pages https publiques et rend un verdict par ligne', async () => {
+  const f = faux();
+  const demandes = [];
+  const texte = 'Le titre de séjour doit être renouvelé deux mois avant son expiration. ' + 'Beaucoup de texte utile pour la personne qui cherche un emploi. '.repeat(8);
+  const fetchControle = (url) => { demandes.push(url); return Promise.resolve(new Response('<html><body><p>' + texte + '</p></body></html>', { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } })); };
+  const s = await lancer({ depot: f.depot, envoi: f.envoi, ouvrir: f.ouvrir, fetchControle, resoudreControle: () => Promise.resolve([{ address: '93.184.216.34' }]) });
+  try {
+    const corps = json({ lignes: [{ id: 'fiche-a', adresse: 'https://exemple.gouv.fr/page', passage: 'Le titre de séjour doit être renouvelé deux mois avant son expiration' }, { id: 'fiche-b', adresse: 'http://exemple.gouv.fr/page', passage: 'Le titre de séjour doit être renouvelé deux mois avant son expiration' }] });
+    assert.strictEqual((await requete(s.port, '/api/preuve/verifier', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, corps)).code, 403);
+    assert.deepStrictEqual(demandes, [], 'aucune page ouverte sans jeton');
+    const r = await requete(s.port, '/api/preuve/verifier', { method: 'POST', headers: entetesJson(s.jeton) }, corps);
+    assert.strictEqual(r.code, 200);
+    const v = JSON.parse(r.corps.toString('utf8'));
+    assert.deepStrictEqual(v.resultats.map((x) => [x.id, x.verdict]), [['fiche-a', 'retrouve'], ['fiche-b', 'non-lisible']]);
+    assert.deepStrictEqual(demandes, ['https://exemple.gouv.fr/page'], 'l\'adresse http n\'est jamais ouverte');
+  } finally { await s.fermer(); }
+});
+
+test('API : les dates de dernier passage sont reservees au bon jeton et passent par le seul module des passages', async () => {
+  const f = faux();
+  const appels = [];
+  const passages = { lire: () => { appels.push(['lire']); return { ok: true, passages: { veille: '2026-10-30' } }; }, noter: (d) => { appels.push(['noter', d]); return { ok: true, passages: d.passages, notes: 1 }; } };
+  const s = await lancer({ depot: f.depot, envoi: f.envoi, ouvrir: f.ouvrir, passages });
+  try {
+    assert.strictEqual((await requete(s.port, '/api/passages/lire', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.deepStrictEqual(appels, [], 'rien sans jeton');
+    const l = await requete(s.port, '/api/passages/lire', { method: 'POST', headers: entetesJson(s.jeton) }, '{}');
+    assert.deepStrictEqual(JSON.parse(l.corps.toString('utf8')).passages, { veille: '2026-10-30' });
+    const n = await requete(s.port, '/api/passages/noter', { method: 'POST', headers: entetesJson(s.jeton) }, json({ passages: { mois: '2026-10-31' } }));
+    assert.strictEqual(JSON.parse(n.corps.toString('utf8')).notes, 1);
+    assert.deepStrictEqual(appels, [['lire'], ['noter', { passages: { mois: '2026-10-31' } }]]);
+  } finally { await s.fermer(); }
+});

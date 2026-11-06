@@ -23,6 +23,7 @@ ce_qui_change_souvent:
   - "Le montant de l'aide liée à la lourdeur du handicap"
   - "Les règles de calcul de la contribution des employeurs"
 revisions: []
+phrase_generale: "Des mécanismes agissent en arrière-plan de l'emploi des personnes handicapées : l'obligation d'emploi imposée aux entreprises d'une certaine taille, et une aide quand le handicap pèse lourd sur le travail. Les seuils, les pourcentages et les montants changent régulièrement : consultez les sources officielles indiquées plus bas."
 collecte: handicap.collecte.md
 ---
 

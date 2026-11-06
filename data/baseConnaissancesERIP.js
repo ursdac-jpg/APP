@@ -51,6 +51,12 @@ var MODULES_RECHERCHABLES = [
   // autres parcours CV -> la personne clique ensuite la tuile (qui remet
   // l'etat a zero proprement).
   // F9 (25/10/2026) : une seule tuile « Reprendre mon CV » pour les parcours « Mettre a jour » et « Reformuler » ; le CV se depose une fois, puis on choisit la voie.
+  { titre: 'Introduction', desc: 'Une présentation de l’application en quelques mots et en images : à quoi elle sert, comment ça se passe, des exemples.',
+    motsCles: ['introduction', 'presentation', 'presenter l application', 'a quoi sert l application', 'a quoi ca sert', 'decouvrir l application', 'comment ca marche', 'comment ca se passe', 'nouveau ici', 'premiere fois', 'visite', 'bienvenue', 'mode d emploi'], cible: 'route:introduction', ouvertSi: 'INTRO_OUVERTE' },
+  { titre: 'Diaporama de présentation', desc: 'Présenter l’application devant un groupe : un diaporama, une idée par écran, avec de grandes images, en plein écran.',
+    motsCles: ['diaporama', 'diapositives', 'presenter en diaporama', 'presentation orale', 'presenter devant un groupe', 'projeter', 'videoprojecteur', 'plein ecran', 'slides', 'presentation de l application'], cible: 'route:introduction-diaporama', ouvertSi: 'INTRO_OUVERTE' },
+  { titre: 'Vidéo de présentation', desc: 'Regarder l’application en quelques minutes : une vidéo avec la voix et les sous-titres, et son texte écrit.',
+    motsCles: ['video', 'vidéo', 'video de presentation', 'regarder', 'film', 'sous-titres', 'presentation de l application', 'decouvrir l application'], cible: 'route:introduction-video', ouvertSi: 'INTRO_OUVERTE' },
   { titre: 'Nouveautés', desc: 'Ce qui a été ajouté à l’application, du plus récent au plus ancien.',
     motsCles: ['nouveautes', 'nouveaute', 'quoi de neuf', 'ce qui change', 'dernieres nouveautes', 'mises a jour', 'ajouts', 'historique des nouveautes'], cible: 'route:nouveautes' },
   { titre: 'Reprendre mon CV', desc: 'Vous avez déjà un CV : déposez-le une seule fois, puis complétez-le, reformulez-le (avec l’assistant), ou refaites-le vous-même dans un de nos modèles (sans assistant).',
@@ -96,10 +102,40 @@ var MODULES_RECHERCHABLES = [
 // N'inclut que les categories pour lesquelles une donnee reelle existe
 // (pas de "Niveau d'etudes" / "Codes ROME" en categories independantes :
 // aucune donnee de ce type n'existe aujourd'hui dans la Base de connaissances).
+// Consigne 100 (05/11/2026) : recherche par MOTS, partagee par l'accueil et le Lexique. « difference cdd interim » retrouve « CDD ou interim ? »
+// meme si la phrase tapee n'est pas contenue telle quelle dans un libelle : chaque mot utile tape doit commencer un mot du libelle.
+// `q` : texte deja passe dans normaliserTexte(). Les mots de moins de 3 lettres et les mots vides ne comptent pas ; il faut au moins 2 mots utiles.
+var MOTS_VIDES_RECHERCHE_ERIP = ['les', 'des', 'une', 'pour', 'mon', 'mes', 'dans', 'sur', 'avec', 'que', 'qui', 'est', 'entre', 'par'];
+function motsRechercheERIP(q) {
+  return String(q || '').split(/[^a-z0-9]+/).filter(function (m) { return m.length >= 3 && MOTS_VIDES_RECHERCHE_ERIP.indexOf(m) === -1; });
+}
+function libellesCorrespondentParMots(mots, libelles) {
+  if (!mots || mots.length < 2) { return false; }
+  var motsFiche = normaliserTexte((libelles || []).join(' ')).split(/[^a-z0-9]+/);
+  return mots.every(function (m) { return motsFiche.some(function (w) { return w.indexOf(m) === 0; }); });
+}
+// Rang d'une fiche du Lexique pour une saisie : 0 = titre identique, 1 = titre qui contient la saisie, 2 = variante qui la contient (ou qu'elle contient),
+// 3 = tous les mots tapes retrouves dans titre + variantes, 9 = aucun. Le classement met en premier l'exact (« ASS » avant les mots qui contiennent « ass »).
+function rangFicheLexiqueERIP(f, q) {
+  var titre = normaliserTexte(f.titre || '');
+  if (titre === q) { return 0; }
+  if (titre.indexOf(q) !== -1) { return 1; }
+  var variantes = f.variantesRecherche || [];
+  var dansVariantes = variantes.some(function (v) {
+    var s = normaliserTexte(v || '');
+    if (!s) { return false; }
+    if (s === q) { return true; }
+    return s.indexOf(q) !== -1 || (s.length >= 4 && q.indexOf(s) !== -1);
+  });
+  if (dansVariantes) { return variantes.some(function (v) { return normaliserTexte(v || '') === q; }) ? 1 : 2; }
+  return libellesCorrespondentParMots(motsRechercheERIP(q), [f.titre].concat(variantes)) ? 3 : 9;
+}
+
 function rechercherBaseConnaissances(texte) {
   var q = normaliserTexte(String(texte || '')).trim();
   if (!q || q.length < 2) { return []; }
   function correspond(libelle) { return normaliserTexte(libelle || '').indexOf(q) !== -1; }
+  var motsTapes = motsRechercheERIP(q);
 
   var resultats = [];
 
@@ -249,6 +285,14 @@ function rechercherBaseConnaissances(texte) {
         cible: 'route:comprendre-le-cadre'
       };
     });
+    // « Pour ne rien rater » (05/11/2026) : les deux pages se trouvent aussi par la barre d'accueil (titre, description et mots voisins).
+    if (typeof COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER !== 'undefined' && Array.isArray(COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER)) {
+      COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER.forEach(function (p) {
+        if (correspond((p.titre || '') + ' ' + (p.quoi || '') + ' ' + (p.mots || ''))) {
+          rayonsCadreTrouves.push({ titre: 'Comprendre le cadre : ' + p.titre, desc: p.quoi || '', cible: 'route:comprendre-le-cadre' });
+        }
+      });
+    }
     if (rayonsCadreTrouves.length) {
       resultats.push({ categorie: 'Comprendre le cadre', icone: '🧭', resultats: rayonsCadreTrouves, type: 'module' });
     }
@@ -274,6 +318,24 @@ function rechercherBaseConnaissances(texte) {
     // fonds de commerce, annonces legales).
     if (typeof COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC !== 'undefined') {
       chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC]);
+    }
+    // Bloc « Les salaires et le niveau de vie » (consignes 119 à 123, 2026-11-06) : salaire, médiane, niveau de vie, salaire minimum, prix en Europe.
+    if (typeof COMPRENDRE_LES_CHIFFRES_SALAIRES_BLOC !== 'undefined') {
+      chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_SALAIRES_BLOC]);
+    }
+    // « Ma fiche chiffres » (consigne 121, 2026-11-06) : mettre de côté les chiffres importants pour préparer un entretien ou une demande.
+    if (typeof COMPRENDRE_LES_CHIFFRES_FICHE_BLOC !== 'undefined') {
+      chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_FICHE_BLOC]);
+    }
+    // Blocs de l'Union européenne (consigne 127, 2026-11-06) : économie et emploi, entreprises, budget des ménages.
+    if (typeof COMPRENDRE_LES_CHIFFRES_EUROPE_BLOCS !== 'undefined' && Array.isArray(COMPRENDRE_LES_CHIFFRES_EUROPE_BLOCS)) {
+      chiffresSujets = chiffresSujets.concat(COMPRENDRE_LES_CHIFFRES_EUROPE_BLOCS);
+    }
+    if (typeof COMPRENDRE_LES_CHIFFRES_SMIC_BLOC !== 'undefined') {
+      chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_SMIC_BLOC]);
+    }
+    if (typeof COMPRENDRE_LES_CHIFFRES_BMO_BLOC !== 'undefined') {
+      chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_BMO_BLOC]);
     }
     if (typeof COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS !== 'undefined' && Array.isArray(COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS)) {
       chiffresSujets = chiffresSujets.concat(COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS);
@@ -385,22 +447,41 @@ function rechercherBaseConnaissances(texte) {
   // PLAFOND 5, groupe classe EN DERNIER -> pas de mur de resultats pour un
   // public fragile. Le filet "Chercher dans le Lexique" (rendreResultatsRechercheERIP,
   // js/app.js) reste pour les requetes qui ne matchent vraiment rien.
+  // TACHE (consigne 101, Denis, 05/11/2026) : les fiches de « Comprendre le cadre » se trouvent aussi par la barre d'accueil. Elles ne sont pas
+  // chargees ici (chargement paresseux par rayon) : on lit data/indexFichesCadre.js (genere par scripts/genererIndexFichesCadre.js), jamais le corps
+  // d'une fiche. Match sur le titre et les mots-cles seulement. Groupe classe juste avant « Dans le Lexique », 8 fiches au plus (l'ecran en montre 3,
+  // un bouton montre les autres). Une fiche propre a un autre departement n'est pas proposee.
+  if (typeof INDEX_FICHES_CADRE !== 'undefined' && Array.isArray(INDEX_FICHES_CADRE)) {
+    var depCadre = (typeof departementRessourcesMemorise === 'function') ? departementRessourcesMemorise() : null;
+    var fichesCadre = INDEX_FICHES_CADRE.map(function (f) {
+      if (f.territoire === '24' || f.territoire === '87') { if (depCadre && f.territoire !== depCadre) { return null; } }
+      var rang = 9;
+      if (correspond(f.titre)) { rang = 0; }
+      else if ((f.tags || []).some(function (t) {
+        var s = normaliserTexte(t || '');
+        return s && (s.indexOf(q) !== -1 || (s.length >= 4 && q.indexOf(s) !== -1));
+      })) { rang = 1; }
+      else if (libellesCorrespondentParMots(motsTapes, [f.titre].concat(f.tags || []))) { rang = 2; }
+      return rang < 9 ? { rang: rang, fiche: f } : null;
+    }).filter(Boolean).sort(function (a, b) { return a.rang - b.rang; }).slice(0, 8).map(function (x) {
+      var info = (typeof RAYON_LABEL !== 'undefined' && RAYON_LABEL && RAYON_LABEL[x.fiche.rayon]) ? RAYON_LABEL[x.fiche.rayon].titre : '';
+      return { id: x.fiche.id, rayon: x.fiche.rayon, rayonTitre: info, titre: x.fiche.titre, pourQui: x.fiche.pour_qui || '' };
+    });
+    if (fichesCadre.length) {
+      resultats.push({ categorie: 'Dans Comprendre le cadre', icone: '📚', resultats: fichesCadre, type: 'cadre' });
+    }
+  }
+
   if (typeof LEXIQUE_FICHES !== 'undefined' && Array.isArray(LEXIQUE_FICHES)) {
     var dejaVu = function (f) {
       if (f.univers === 'urgences') { return true; }
       if (typeof _LEXIQUE_FICHES_TYPE_STRUCTURE !== 'undefined' && _LEXIQUE_FICHES_TYPE_STRUCTURE[f.id]) { return true; }
       return String(f.id || '').indexOf('freins-') === 0;
     };
-    var fichesLexique = LEXIQUE_FICHES.filter(function (f) {
-      if (dejaVu(f)) { return false; }
-      if (correspond(f.titre)) { return true; }
-      return (f.variantesRecherche || []).some(function (v) {
-        var s = normaliserTexte(v || '');
-        if (!s) { return false; }
-        if (s.indexOf(q) !== -1) { return true; }
-        return s.length >= 4 && q.indexOf(s) !== -1;
-      });
-    }).slice(0, 5).map(function (f) { return { id: f.id, titre: f.titre, corps: f.corps || '' }; });
+    // Consigne 100 : classement par rang (le mot exact d'abord) AVANT le plafond de 5, sinon un sigle court comme « ASS » est noye parmi des mots qui le contiennent.
+    var fichesLexique = LEXIQUE_FICHES.map(function (f, ordre) {
+      return dejaVu(f) ? null : { f: f, ordre: ordre, rang: rangFicheLexiqueERIP(f, q) };
+    }).filter(function (x) { return x && x.rang < 9; }).sort(function (a, b) { return a.rang - b.rang || a.ordre - b.ordre; }).slice(0, 5).map(function (x) { return x.f; }).map(function (f) { return { id: f.id, titre: f.titre, corps: f.corps || '' }; });
     if (fichesLexique.length) {
       resultats.push({ categorie: 'Dans le Lexique', icone: '📖', resultats: fichesLexique, type: 'lexique' });
     }

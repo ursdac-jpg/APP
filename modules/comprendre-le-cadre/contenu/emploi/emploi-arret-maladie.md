@@ -7,7 +7,7 @@ tags: [arrêt maladie, arrêt de travail, indemnités journalières, délai de c
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10-05
+verifie_le: 2026-11-04
 lexique:
   - terme: "arrêt de travail"
     definition: "Prescription d'un médecin, d'une sage-femme ou d'un chirurgien-dentiste qui vous dispense de travailler pour des raisons de santé pendant une durée donnée."
@@ -21,6 +21,7 @@ voir_aussi_lexique:
 sources:
   - ameli-arret-maladie-salarie
   - service-public-plafonnement-arrets-travail
+  - service-public-arret-maladie-duree-2026
   - legifrance-decret-2026-866-ald
   - service-public-dispense-visite-reprise
   - travail-emploi-visite-reprise
@@ -29,7 +30,10 @@ ce_qui_change_souvent:
   - "La durée pendant laquelle les indemnités peuvent être versées, surtout pour les affections de longue durée"
   - "Les conditions de la visite de reprise"
 revisions:
+  - "2026-11-03 : relu sur service-public.gouv.fr (actualité du 20/10/2026) et sur Légifrance (décret n° 2026-866 du 16 septembre 2026, Journal officiel du 18/09/2026) : la durée maximale passe de trois ans à un an quand la participation de l'assuré n'est pas limitée ou supprimée (soins non pris en charge à 100 %), elle reste de trois ans quand elle l'est ; la page Service Public résume en « hors accident du travail, maladie professionnelle et affection de longue durée » ; les personnes déjà en arrêt depuis plus de six mois au 15 octobre 2026 restent à l'ancienne règle ; la règle des 31 et 62 jours est confirmée sur la page A18962"
   - "2026-10 : fiche créée. Depuis le 1er septembre 2026, un arrêt initial ne peut pas dépasser 31 jours ni une prolongation 62 jours, sauf justification du médecin ; pour les arrêts prescrits à partir du 15 octobre 2026, les indemnités sont limitées à un an (au lieu de trois) pour une affection de longue durée non exonérante (décret du 16 septembre 2026) ; pour les arrêts délivrés à partir du 15 juin 2026, la visite de reprise peut être évitée dans un cas précis ; vérifié sur ameli.fr, service-public.fr et Légifrance le 2026-10-05"
+  - "2026-11-04 : durées de 31 et 62 jours à partir du 1er septembre 2026 relues et conformes à la page officielle"
+phrase_generale: "Un arrêt de travail est une prescription médicale qui dispense de travailler pour raison de santé ; il faut le transmettre rapidement à l'employeur et à l'assurance maladie. La durée, les indemnités et les règles de reprise changent régulièrement : confirmez-les auprès de votre caisse d'assurance maladie ou sur les sources officielles indiquées plus bas."
 collecte: emploi.collecte.md
 ---
 
@@ -39,7 +43,7 @@ Depuis le 1er septembre 2026, la durée d'un arrêt est limitée : 31 jours pour
 
 Pendant l'arrêt, l'Assurance maladie vous verse des indemnités journalières. Les trois premiers jours ne sont pas indemnisés, sauf dans quelques cas comme une affection de longue durée, un accident du travail ou une maladie professionnelle. Ces indemnités ne remplacent qu'une partie de votre salaire. Selon votre convention collective, votre employeur peut compléter. Pour y avoir droit, il faut avoir assez travaillé avant l'arrêt, avec des conditions plus strictes si l'arrêt dépasse six mois : votre caisse vous dit où vous en êtes.
 
-Les indemnités ne durent pas sans limite. En règle générale, elles peuvent être versées pendant 360 jours sur une période de trois ans. Pour les arrêts prescrits à partir du 15 octobre 2026, la limite passe à un an, au lieu de trois, quand l'arrêt vient d'une affection de longue durée dont les soins ne sont pas remboursés à 100 %. Les affections remboursées à 100 %, comme un cancer, gardent la limite de trois ans. Si votre arrêt est déjà long, demandez à votre caisse ce qui s'applique dans votre cas.
+Les indemnités ne durent pas sans limite. En règle générale, elles peuvent être versées pendant 360 jours sur une période de trois ans. Pour les arrêts prescrits à partir du 15 octobre 2026, et pour les arrêts en cours qui atteignent six mois après cette date, la durée maximale d'indemnisation passe de trois ans à un an pour certains arrêts de plus de six mois, notamment quand les soins ne sont pas pris en charge à 100 %. Elle reste de trois ans pour une affection de longue durée prise en charge à 100 %, et elle ne change pas pour un accident du travail ou une maladie professionnelle. Pour avoir droit à une nouvelle période d'un an au titre de la même maladie, il faut avoir repris le travail pendant au moins un an. Les personnes déjà en arrêt depuis plus de six mois au 15 octobre 2026 restent soumises à l'ancienne règle. Si votre arrêt est déjà long, demandez à votre caisse ce qui s'applique dans votre cas.
 
 Pour préparer le retour, une visite de pré-reprise avec le médecin du travail permet d'avoir un aménagement du poste ou du temps de travail avant même de reprendre. Après un arrêt long, une visite de reprise a lieu à votre retour. Pour les arrêts délivrés à partir du 15 juin 2026, elle n'est plus obligatoire si une visite de pré-reprise a eu lieu dans les trente jours avant votre retour et si le médecin du travail a conclu qu'aucun aménagement n'était nécessaire. Vous, votre employeur ou le médecin du travail pouvez quand même la demander.
 

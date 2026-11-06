@@ -127,3 +127,29 @@ Commits : d27b49c5 (page candidater), 36e3f9ca (encart « Passer à l'action »,
 - **Passer à l'action** (option A) : encart dans la page avec « Indiquer l’entreprise » (renvoie sur « Votre objectif », où le bloc est en page) et « Continuer sans » (même règle qu'avant : recherche « simple », entreprise vidée).
 - **Retirés** (validés par Denis avec la maquette) : `ouvrirDemandeCoordonneesEntreprise`, `ouvrirFormulaireCoordonneesEntreprise`, entrées d'aide `entreprise-connue-candidature` et `coordonnees-entreprise`. Aide : nouvelle étape « L’entreprise visée » sur candidater, texte « Votre cible » mis à jour.
 - **Vérifié** : navigateur (clair, sombre, mobile 375 px), `npm test` 1557 verts, parcours `candidaterEntreprise` (10 essais, nouveau), `aide`, `cartes` verts. La suite complète des 126 parcours n'a pas été rejouée (trop longue pour une séance) : à lancer par lots à ta convenance.
+
+## Contrôle du 2026-10-29 (demande de Denis : « vérifier l'ampoule d'aide »)
+
+- Essai automatique `aide` rejoué (`node scripts/parcours/lancerEssais.js aide`) : 4 réussites, 0 échec.
+- Inventaire rejoué (`await window.__inventaireAide()`, 44 routes, 36 contextes de fenêtre) : une seule route sans entrée d'aide, `decouverte`, par construction (l'aide de Découvrir mes compétences passe par les 8 entrées de fenêtre `decouverte-*`). Les 4 routes sans aide du 15/10 (`candidater`, `creer-cv`, `comprendre-les-chiffres-intro`, `comprendre-les-chiffres`) en ont une. Les modules ajoutés depuis (Un CV plusieurs métiers, Découvrir mes compétences, Comprendre le cadre, Mon territoire / Employeurs) ont tous leur entrée. Aucune erreur de page, aucune entrée de fenêtre morte.
+- Sélecteurs « morts » : 80 signalés à vide, de même nature qu'au 15/10 (éléments qui n'existent qu'après un clic, dans un parcours guidé ou dans un état précis). Un balayage automatique ne peut pas les trancher.
+- Reste, non joué (`[effort : haut]`) : contrôle manuel module par module, dans l'état où l'ampoule est réellement utilisée, pour les modules nés après le 15/10 (Un CV plusieurs métiers, Découvrir mes compétences, Comprendre le cadre, Mon territoire). À faire à part, hors série de tests CV.
+
+## Refonte de l'« Explication rapide » de l'accueil (2026-10-29, consigne 48, maquette validée par Denis) `[effort : moyen]` FAIT
+- `js/app.js` : `htmlAideAccueil()`, `afficherRecapAccueil()`, `aideAccueilAller()` (fenêtre très large, quatre blocs délimités, plan cliquable, pied avec « Lancer la visite guidée »). Les autres pages gardent la liste simple.
+- `data/metiers.js` : `itemsInfoCarteAccueil()` isolée, lue par l'infobulle « i » ET par l'aide (une seule source pour les textes des six cartes).
+- Chaque outil est un bouton : il ferme la fenêtre puis déclenche le vrai bouton ou la vraie tuile (aucune route recopiée). Journal de parcours et panier « Comparer mes pistes » expliqués avec une pastille « Apparaît dès que… », cliquables vers Mes Repères et Comparer mes pistes.
+- Défaut corrigé au passage : les mots en gras de l'ancienne fenêtre passaient à la ligne au milieu des phrases (`css/style.css`). Textes de visite guidée de « Boîte à outils » et « Vous hésitez encore ? » mis à jour (Découvrir mes compétences, Un CV plusieurs métiers).
+- Contrôle : les 29 outils testés un par un dans le navigateur (cartes, boutons du haut, recherche, bas de page), clair, sombre, téléphone 375 px. Essai automatique `aide` : 7 réussites (3 nouvelles : blocs affichés, boutons réels, tuiles réelles).
+
+## Contrôle manuel module par module (29/10/2026) `[effort : haut]` FAIT
+- **Qui fait quoi** : parcouru à l'écran (département, domaines, sous-branches, pages d'offres, secteurs, commune). Défaut corrigé : l'étape « Copier l'adresse » promettait un bouton qui n'existe nulle part (aucun `data-mt-copier` dans le dépôt) : retirée. Non vérifiable à l'écran tant que les employeurs ne sont pas validés : « Voir la fiche » (listes vides).
+- **Comprendre le cadre** : étapes justes dans chaque état (accueil avec département, rayon ouvert avec « Près de chez moi »). Rien à corriger.
+- **Découvrir mes compétences** : l'aide ne couvrait que 3 étapes pour 4 écrans. Refaite écran par écran (dépôt, niveau, assistant, trois gestes, petits blocs, ligne à préciser, cases du document, téléchargement). Vérifié à l'écran sur Documents, Assistant, Relecture et Document.
+- **Un CV plusieurs métiers** : l'étape générique est remplacée par une étape qui décrit la page où se trouve la personne (8 textes). Vérifié sur les pages 1, 6 et 8.
+- `npm test` 2189 verts, essai `aide` 7 réussites, 0 échec.
+
+## Contrôle de toutes les cibles (29/10/2026, 2e passage) `[effort : haut]` FAIT
+- Nouvel outil `scripts/parcours/controle_cibles_aide.js` : sur les 245 étapes (pages et fenêtres), il cherche celles dont aucune cible n'a de trace dans le code. Résultat final : 0. Il avait trouvé une étape morte, corrigée : « Un aller-retour tout simple » du Regard extérieur visait d'anciennes zones de collage disparues avec l'écran de collage unique (B.17, 28/10) ; elle vise maintenant `#fcRacineRegardExterieur`.
+- États vérifiés à l'écran en plus : CV sans assistant (Classer, puis Vérifier). Les autres cibles « absentes » de l'inventaire à vide existent dans le code et dépendent d'un état (département choisi, offre visée, fiche ouverte, 3 Repères...).
+- Les messages « Failed to load resource » de l'essai viennent du script de statistiques Umami (cloud.umami.is), volontairement bloqué par l'essai automatique : aucun défaut.

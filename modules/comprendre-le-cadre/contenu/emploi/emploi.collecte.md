@@ -14,6 +14,8 @@ sources:
   - "travail-emploi-pec | Le parcours emploi compétences (PEC) | https://travail-emploi.gouv.fr/le-parcours-emploi-competences-pec | 2026-09-04"
   - "francetravail-cdd-tremplin | Handicap : le CDD Tremplin | https://www.francetravail.fr/candidat/handicap-et-talents/a-la-une/handicap-inserez-vous-dans-le-mo.html | 2026-09-04"
   - "unedic-rupture-conventionnelle | Rupture conventionnelle (Unédic) | https://www.unedic.org/la-reglementation/fiches-thematiques/rupture-conventionnelle | 2026-09-04"
+  - "service-public-solde-tout-compte | Solde de tout compte | https://www.service-public.gouv.fr/particuliers/vosdroits/F86 | 2026-11-05"
+  - "service-public-portabilite-mutuelle | Un salarié peut-il garder la complémentaire santé (mutuelle) de son employeur à la fin de son contrat ? | https://www.service-public.gouv.fr/particuliers/vosdroits/F20744 | 2026-11-05"
   - "service-public-licenciement-motif-personnel | Procédure de licenciement d'un salarié pour motif personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F2839 | 2026-09-05"
   - "service-public-indemnite-licenciement | Indemnité de licenciement d'un salarié du secteur privé | https://www.service-public.gouv.fr/particuliers/vosdroits/F987 | 2026-09-05"
   - "service-public-demission | Démission d'un salarié | https://www.service-public.gouv.fr/particuliers/vosdroits/F2883 | 2026-09-05"
@@ -31,11 +33,9 @@ sources:
   - "service-public-plafonnement-arrets-travail | La durée des arrêts de travail plafonnée depuis le 1er septembre | https://www.service-public.gouv.fr/particuliers/actualites/A18962 | 2026-10-05"
   - "legifrance-decret-2026-866-ald | Décret n° 2026-866 du 16 septembre 2026 relatif à la durée maximale dérogatoire d'indemnisation pour arrêt de travail | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054855169 | 2026-10-05"
   - "service-public-dispense-visite-reprise | Visites de préreprise et de reprise : nouvelles modalités | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05"
-  - "fonction-publique-voies-acces | Je découvre les voies d'accès à la fonction publique | https://www.fonction-publique.gouv.fr/devenir-agent-public/je-decouvre-les-voies-dacces-la-fonction-publique | 2026-10-13"
-  - "sengager-faq | FAQ du recrutement de l'armée de Terre | https://www.sengager.fr/editos/faq | 2026-10-13"
 structures:
   - "france-travail | France Travail : inscription, accompagnement, information sur les droits liés à un contrat et à sa fin | https://www.francetravail.fr/ | 2026-09-04"
-  - "cdad-dordogne-points-justice | Points-justice et maisons de justice et du droit de la Dordogne : information juridique gratuite, dont le droit du travail | https://www.cdad-dordogne.justice.fr/ | 2026-09-04"
+  - "cdad-dordogne-points-justice | Points-justice et maisons de justice et du droit de la Dordogne : information juridique gratuite, dont le droit du travail | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/c75765f2-d8f8-4224-ba57-d8a92c30ce4b | 2026-11-03"
   - "structures-iae-dordogne | Structures de l'insertion par l'activité économique de la Dordogne (entreprises d'insertion, associations intermédiaires, ateliers et chantiers d'insertion, ETTI) : recrutent en CDD d'insertion, sur orientation | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-04"
   - "cap-emploi-dordogne | Cap emploi de la Dordogne : accompagnement vers l'emploi et le CDD Tremplin pour les personnes ayant une reconnaissance de travailleur handicapé | https://www.capemploi.fr/ | 2026-09-04"
 ---

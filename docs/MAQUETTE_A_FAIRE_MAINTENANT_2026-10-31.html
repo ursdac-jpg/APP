@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : l'écran « À faire maintenant » de l'outil de veille</title>
+<style>
+  :root { --bg:#f6f7f9; --carte:#fff; --texte:#1c2430; --doux:#5b6675; --bord:#d5dbe3; --accent:#1d5fa8; --accent-bg:#e6f0fb; --ok:#1b7a3d; --ok-bg:#e4f4ea; --alerte:#a15c00; --alerte-bg:#fff3de; --rouge:#a3262a; --rouge-bg:#fbe6e6; --case:#cfd6df; }
+  [data-theme="sombre"] { --bg:#12161c; --carte:#1b212a; --texte:#e8edf3; --doux:#9aa6b5; --bord:#323b48; --accent:#6fb1f2; --accent-bg:#1b2d44; --ok:#5fcf86; --ok-bg:#16301f; --alerte:#f0b35a; --alerte-bg:#3a2d17; --rouge:#f08a8d; --rouge-bg:#3a1b1c; --case:#3b4553; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--texte); }
+  main { max-width:760px; margin:0 auto; padding:16px 16px 5rem; }
+  h1 { font-size:1.3rem; margin:.2rem 0 .2rem; }
+  h2 { font-size:1.05rem; margin:1.3rem 0 .4rem; }
+  p { margin:.3rem 0; }
+  .doux { color:var(--doux); font-size:.9rem; }
+  button { font:inherit; cursor:pointer; color:inherit; }
+  a { color:var(--accent); }
+  .bandeau { background:var(--alerte-bg); border:1px solid var(--alerte); border-radius:8px; padding:.6rem .8rem; margin:0 0 1rem; font-size:.88rem; }
+  .haut { display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; flex-wrap:wrap; }
+  .outils-haut { display:flex; gap:.4rem; flex-wrap:wrap; }
+  .btn { background:var(--carte); border:1px solid var(--bord); border-radius:6px; padding:.5rem .9rem; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primaire { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+  .btn.grand { padding:.8rem 1.2rem; font-size:1.05rem; }
+  .btn.petit { padding:.25rem .6rem; font-size:.85rem; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .retour { background:none; border:none; color:var(--doux); font-weight:600; padding:.3rem 0; }
+  .jauge { display:flex; gap:4px; margin:.5rem 0 .2rem; }
+  .jauge i { flex:1; height:12px; border-radius:3px; background:var(--case); display:block; }
+  .jauge i.ok { background:var(--ok); } .jauge i.bientot { background:var(--alerte); } .jauge i.retard { background:var(--rouge); }
+  .legende { display:flex; flex-wrap:wrap; gap:.3rem .9rem; font-size:.8rem; color:var(--doux); }
+  .pt { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:.3rem; vertical-align:-1px; }
+  .pt.ok { background:var(--ok); } .pt.bientot { background:var(--alerte); } .pt.retard { background:var(--rouge); }
+  .suivant { background:var(--accent-bg); border:2px solid var(--accent); border-radius:12px; padding:1rem 1.1rem; margin:.8rem 0; }
+  .suivant .etiquette { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); }
+  .suivant .titre { font-size:1.2rem; font-weight:800; margin:.15rem 0; }
+  .grosse-icone { font-size:2rem; line-height:1; margin-right:.7rem; }
+  .ligne-suivant { display:flex; align-items:flex-start; }
+  .tache { display:flex; align-items:center; gap:.8rem; background:var(--carte); border:1px solid var(--bord); border-radius:10px; padding:.65rem .9rem; margin:.4rem 0; }
+  .tache .icone { font-size:1.4rem; width:2rem; text-align:center; }
+  .tache .corps { flex:1; min-width:0; }
+  .tache .titre { font-weight:700; }
+  .etat { display:inline-block; font-size:.78rem; border-radius:999px; padding:0 .55rem; margin-left:.3rem; font-weight:600; }
+  .etat.retard { background:var(--rouge-bg); color:var(--rouge); } .etat.bientot { background:var(--alerte-bg); color:var(--alerte); } .etat.ok { background:var(--ok-bg); color:var(--ok); }
+  .puce-a-valider { display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--bord); background:var(--carte); border-radius:999px; padding:.3rem .8rem; font-size:.9rem; }
+  .groupe { font-weight:800; margin:1.2rem 0 .2rem; font-size:.95rem; }
+  .boite { background:var(--carte); border:1px solid var(--bord); border-radius:10px; padding:.8rem 1rem; margin:.6rem 0; }
+  .etapes { display:flex; gap:.4rem; margin:.8rem 0; }
+  .etapes .e { flex:1; text-align:center; font-size:.8rem; color:var(--doux); }
+  .etapes .rond { display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; margin:0 auto .2rem; border-radius:50%; border:2px solid var(--case); background:var(--carte); font-weight:800; }
+  .etapes .e.fait .rond { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .etapes .e.courant .rond { border-color:var(--accent); color:var(--accent); }
+  .etapes .e.courant { color:var(--texte); font-weight:700; }
+  .etape { display:none; }
+  .etape.visible { display:block; }
+  .tout .etape { display:block; margin-bottom:.8rem; }
+  .tout .expl { display:none; }
+  .etape h2 { margin-top:.2rem; }
+  .expl { background:var(--accent-bg); border-radius:8px; padding:.5rem .8rem; font-size:.92rem; margin:.5rem 0; }
+  .aide { margin:.6rem 0; font-size:.9rem; }
+  .aide summary { cursor:pointer; color:var(--accent); font-weight:600; }
+  .aide div { background:var(--carte); border:1px dashed var(--bord); border-radius:8px; padding:.5rem .8rem; margin-top:.3rem; }
+  .message-apercu { background:var(--bg); border:1px solid var(--bord); border-radius:8px; padding:.5rem .8rem; font-family:ui-monospace, Consolas, monospace; font-size:.8rem; max-height:7rem; overflow:auto; white-space:pre-wrap; }
+  textarea { width:100%; min-height:110px; font:inherit; padding:.5rem; border:1px solid var(--bord); border-radius:6px; background:var(--carte); color:var(--texte); }
+  .rangee { display:flex; flex-wrap:wrap; gap:.4rem; margin:.5rem 0; align-items:center; }
+  .note { border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.92rem; border:1px solid var(--bord); background:var(--carte); }
+  .note.ok { background:var(--ok-bg); border-color:var(--ok); } .note.warn { background:var(--alerte-bg); border-color:var(--alerte); } .note.alerte { background:var(--rouge-bg); border-color:var(--rouge); }
+  .controle { list-style:none; padding:0; margin:.4rem 0; font-size:.92rem; }
+  .controle li { padding:.15rem 0; }
+  .ecran { display:none; } .ecran.actif { display:block; }
+  .volet { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; justify-content:flex-end; z-index:20; }
+  .volet.ouvert { display:flex; }
+  .volet .panneau { width:min(440px, 100%); background:var(--bg); height:100%; overflow:auto; padding:1rem; border-left:1px solid var(--bord); }
+  .volet .fermer { float:right; border:1px solid var(--bord); background:var(--carte); border-radius:6px; width:2.2rem; height:2.2rem; font-size:1.1rem; }
+  .reglage { display:grid; grid-template-columns:1fr auto auto; gap:.5rem; align-items:center; border-bottom:1px solid var(--bord); padding:.45rem 0; font-size:.9rem; }
+  select { font:inherit; padding:.25rem .3rem; background:var(--carte); color:var(--texte); border:1px solid var(--bord); border-radius:5px; }
+  .niveaux label { display:block; background:var(--carte); border:1px solid var(--bord); border-radius:8px; padding:.5rem .7rem; margin:.3rem 0; cursor:pointer; }
+  .niveaux input { margin-right:.5rem; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th, td { text-align:left; padding:.4rem .4rem; border-bottom:1px solid var(--bord); vertical-align:top; }
+  .pied { position:fixed; bottom:0; left:0; right:0; background:var(--carte); border-top:1px solid var(--bord); padding:.5rem 1rem; display:flex; justify-content:center; gap:.5rem; z-index:10; }
+  .bandeau-auto { display:flex; flex-wrap:wrap; gap:.4rem .9rem; background:var(--ok-bg); border:1px solid var(--ok); border-radius:10px; padding:.6rem .9rem; margin:.6rem 0; font-size:.9rem; }
+  .bandeau-auto b { font-size:1.1rem; }
+  .carte-lot { background:var(--carte); border:1px solid var(--bord); border-left:6px solid var(--rouge); border-radius:10px; padding:.7rem .9rem; margin:.6rem 0; }
+  .carte-lot.main { border-left-color:var(--alerte); }
+  .carte-lot.fait { border-left-color:var(--ok); display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+  .carte-lot .motif { font-size:.88rem; font-weight:700; }
+  .carte-lot .registre { font-size:.78rem; color:var(--doux); text-transform:uppercase; letter-spacing:.04em; }
+  .ligne-info { display:grid; grid-template-columns:6.5rem 1fr auto; gap:.4rem; align-items:center; font-size:.9rem; padding:.2rem 0; border-top:1px dashed var(--bord); overflow-wrap:anywhere; }
+  .ligne-info .lib { color:var(--doux); }
+  .puce { display:inline-block; font-size:.76rem; border-radius:999px; padding:0 .5rem; font-weight:600; }
+  .puce.ko { background:var(--rouge-bg); color:var(--rouge); } .puce.warn { background:var(--alerte-bg); color:var(--alerte); } .puce.ok { background:var(--ok-bg); color:var(--ok); }
+  .saisie-modif { display:none; margin:.4rem 0; } .saisie-modif.ouvert { display:flex; gap:.4rem; flex-wrap:wrap; }
+  .saisie-modif input { flex:1; min-width:12rem; font:inherit; padding:.35rem .5rem; border:1px solid var(--bord); border-radius:6px; background:var(--carte); color:var(--texte); }
+  .apercu-public { border:1px dashed var(--accent); background:var(--accent-bg); border-radius:8px; padding:.5rem .8rem; margin:.5rem 0; font-size:.9rem; }
+  .apercu-public .etiq { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); }
+  .apercu-public .msg { background:var(--carte); border:1px solid var(--bord); border-radius:6px; padding:.3rem .6rem; margin:.3rem 0; }
+  @media (max-width:560px) { .reglage { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="bandeau"><strong>Maquette, rien n'est codé dans l'outil.</strong> Tout se clique : essayez-la comme si vous arriviez pour la première fois. Les chiffres sont des exemples. Dans cette maquette, toutes les tâches suivent le même parcours en 4 gestes ; seul le contenu du message change. Le bouton « Remettre la démonstration à zéro » est dans les réglages (⚙).</div>
+
+  <!-- ===== ÉCRAN 1 : À FAIRE MAINTENANT ===== -->
+  <section class="ecran actif" id="e-accueil">
+    <div class="haut">
+      <div>
+        <h1>Outil de veille</h1>
+        <p class="doux" id="date-jour"></p>
+      </div>
+      <div class="outils-haut">
+        <button class="btn" id="b-niveau" type="button" onclick="ouvrirReglages()" title="Changer le niveau d'aide">Aide : <span id="niveau-lib">pas à pas</span></button>
+        <button class="btn" type="button" onclick="ouvrirReglages()" aria-label="Réglages">⚙ Réglages</button>
+        <button class="btn" type="button" onclick="basculerTheme()" aria-label="Mode sombre">◐</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:.8rem">Où en est la veille</h2>
+    <div class="jauge" id="jauge"></div>
+    <div class="legende"><span><span class="pt ok"></span>à jour</span><span><span class="pt bientot"></span>bientôt à faire</span><span><span class="pt retard"></span>en retard</span><span id="compte-jauge"></span></div>
+
+    <div class="suivant" id="suivant"></div>
+
+    <div class="boite" id="lot-boite"></div>
+
+    <div class="rangee"><button class="puce-a-valider" type="button" onclick="aller('valider')" id="puce-valider"></button><button class="puce-a-valider" type="button" onclick="aller('attente')" id="puce-attente"></button></div>
+
+    <h2>Ensuite</h2>
+    <div id="liste-ensuite"></div>
+
+    <div class="rangee" style="margin-top:1rem">
+      <button class="btn" type="button" onclick="aller('toutes')">Voir toutes les tâches</button>
+      <button class="btn" type="button" onclick="ouvrirAide()">J'ai besoin d'aide</button>
+    </div>
+  </section>
+
+  <!-- ===== ÉCRAN 2 : LE GUIDE EN 4 GESTES ===== -->
+  <section class="ecran" id="e-guide">
+    <button class="retour" type="button" onclick="quitterGuide()">← Retour à « À faire maintenant »</button>
+    <div class="ligne-suivant"><span class="grosse-icone" id="g-icone"></span><div><h1 id="g-titre"></h1><p class="doux" id="g-sous"></p></div></div>
+    <div class="etapes" id="g-etapes"></div>
+    <div id="g-corps">
+      <div class="etape" id="et1">
+        <h2>1. Copier le message</h2>
+        <div class="expl">Ce message est écrit pour l'assistant en ligne. Vous n'avez rien à lire ni à modifier : il suffit de le copier.</div>
+        <div class="message-apercu" id="g-message"></div>
+        <div class="rangee"><button class="btn primaire grand" type="button" onclick="copierMessage()" id="b-copier">Copier le message</button><span class="doux" id="copie-ok"></span></div>
+        <details class="aide"><summary>Je suis perdu</summary><div>Cliquez sur « Copier le message ». Il ne se passe rien d'autre à l'écran, c'est normal : le texte est gardé en mémoire par l'ordinateur. À l'étape suivante, vous le collerez avec les touches Ctrl et V.</div></details>
+        <div class="rangee"><button class="btn primaire" type="button" id="s1" onclick="etape(2)" disabled>Étape suivante</button></div>
+      </div>
+      <div class="etape" id="et2">
+        <h2>2. Le donner à l'assistant en ligne</h2>
+        <div class="expl">On ouvre un assistant en ligne, on lui colle le message, on attend sa réponse, puis on copie cette réponse en entier.</div>
+        <ol>
+          <li>Cliquez sur l'un des deux boutons : l'assistant s'ouvre dans un nouvel onglet.</li>
+          <li>Dans sa zone d'écriture, faites Ctrl et V pour coller le message, puis validez.</li>
+          <li>Attendez la fin de sa réponse, puis copiez-la en entier (le bouton « Copier » sous la réponse).</li>
+        </ol>
+        <div class="rangee"><a class="btn" href="https://chatgpt.com" target="_blank" rel="noopener">Ouvrir ChatGPT</a><a class="btn" href="https://www.perplexity.ai" target="_blank" rel="noopener">Ouvrir Perplexity</a></div>
+        <label class="rangee"><input type="checkbox" id="c-reponse" onchange="document.getElementById('s2').disabled = !this.checked"> J'ai copié sa réponse</label>
+        <details class="aide"><summary>Je suis perdu</summary><div>Si l'assistant demande de se connecter, fermez la fenêtre de connexion : ChatGPT fonctionne sans compte. Si la réponse est coupée, écrivez « oui » : il continue, et vous copiez aussi la suite.</div></details>
+        <div class="rangee"><button class="btn" type="button" onclick="etape(1)">← Précédent</button><button class="btn primaire" type="button" id="s2" onclick="etape(3)" disabled>Étape suivante</button></div>
+      </div>
+      <div class="etape" id="et3">
+        <h2>3. Coller la réponse ici</h2>
+        <div class="expl">Faites Ctrl et V dans la case. L'outil lit la réponse et vous dit tout de suite si elle est complète.</div>
+        <textarea id="g-reponse" placeholder="Collez ici la réponse de l'assistant."></textarea>
+        <div class="rangee"><span class="doux">Pour essayer la maquette sans assistant :</span>
+          <button class="btn petit" type="button" onclick="exemple('rien')">réponse « rien à signaler »</button>
+          <button class="btn petit" type="button" onclick="exemple('changements')">« 2 changements »</button>
+          <button class="btn petit" type="button" onclick="exemple('nonverifie')">« non vérifié »</button>
+          <button class="btn petit" type="button" onclick="exemple('coupee')">réponse coupée</button>
+        </div>
+        <details class="aide"><summary>Je suis perdu</summary><div>Cliquez dans la grande case, puis Ctrl et V. Si rien n'apparaît, retournez sur l'assistant, copiez de nouveau sa réponse et recommencez.</div></details>
+        <div class="rangee"><button class="btn" type="button" onclick="etape(2)">← Précédent</button><button class="btn primaire" type="button" onclick="lire()">Lire la réponse</button></div>
+      </div>
+      <div class="etape" id="et4">
+        <h2>4. Vérifier et valider</h2>
+        <div id="g-verdict"></div>
+        <div class="rangee"><button class="btn" type="button" onclick="etape(3)">← Précédent</button></div>
+      </div>
+    </div>
+    <div id="g-fin" style="display:none"></div>
+  </section>
+
+  <!-- ===== ÉCRAN 3 : TOUTES LES TÂCHES ===== -->
+  <section class="ecran" id="e-toutes">
+    <button class="retour" type="button" onclick="aller('accueil')">← Retour à « À faire maintenant »</button>
+    <h1>Toutes les tâches</h1>
+    <p class="doux">Tout ce que l'outil sait faire, rangé par rythme. Chaque tâche ouvre le même guide en 4 gestes.</p>
+    <div id="liste-toutes"></div>
+    <div class="note" style="margin-top:1rem"><strong>Pour les habitués.</strong> Les menus actuels de l'outil (rayons, messages, réglages, import) restent accessibles : <button class="btn petit" type="button" onclick="alert('Maquette : ici s\'ouvrirait l\'outil actuel, avec tous ses menus, comme aujourd\'hui.')">Ouvrir l'outil complet</button></div>
+  </section>
+
+  <!-- ===== ÉCRAN : LE LOT DU JOUR ===== -->
+  <section class="ecran" id="e-lot">
+    <button class="retour" type="button" onclick="aller('accueil')">← Retour à « À faire maintenant »</button>
+    <h1>Le lot du jour</h1>
+    <p class="doux">L'outil a déjà ouvert tous les sites tout seul. Vous ne voyez ici que les exceptions, quelques-unes par jour.</p>
+    <div class="bandeau-auto" id="lot-auto"></div>
+    <div class="jauge" id="lot-jauge"></div>
+    <p class="doux" id="lot-compte"></p>
+    <div id="lot-cartes"></div>
+    <div class="boite" id="lot-tel"></div>
+  </section>
+
+  <!-- ===== ÉCRAN : SITES INACCESSIBLES POUR L'INSTANT ===== -->
+  <section class="ecran" id="e-attente">
+    <button class="retour" type="button" onclick="aller('accueil')">← Retour à « À faire maintenant »</button>
+    <h1>Sites inaccessibles pour l'instant</h1>
+    <p class="doux">Ces sites sont fermés pour maintenance, sécurité ou panne. Leurs fiches restent : seul le lien est caché au public, avec un message neutre. L'outil les retestera chaque mois et vous dira dès qu'un site revient.</p>
+    <div id="liste-attente"></div>
+  </section>
+
+  <!-- ===== ÉCRAN 4 : À VALIDER ===== -->
+  <section class="ecran" id="e-valider">
+    <button class="retour" type="button" onclick="aller('accueil')">← Retour à « À faire maintenant »</button>
+    <h1>À valider</h1>
+    <p class="doux">Les changements que l'assistant a trouvés. Rien n'est publié tant que vous n'avez pas dit « C'est bon ».</p>
+    <div id="liste-valider"></div>
+  </section>
+</main>
+
+<!-- ===== VOLET RÉGLAGES (se referme avec la croix) ===== -->
+<div class="volet" id="volet">
+  <div class="panneau">
+    <button class="fermer" type="button" onclick="fermerReglages()" aria-label="Fermer les réglages">✕</button>
+    <h1>Réglages</h1>
+    <h2>Niveau d'aide</h2>
+    <p class="doux">Vous gardez le guide aussi longtemps que vous voulez. On peut le réduire quand on se sent à l'aise, et revenir en arrière à tout moment.</p>
+    <div class="niveaux" id="niveaux">
+      <label><input type="radio" name="niv" value="pas" checked onchange="reglerNiveau(this.value)"><strong>Pas à pas</strong> : un geste par écran, avec une explication et « Je suis perdu ».</label>
+      <label><input type="radio" name="niv" value="allege" onchange="reglerNiveau(this.value)"><strong>Allégé</strong> : les 4 gestes sur une seule page, sans explications.</label>
+      <label><input type="radio" name="niv" value="expert" onchange="reglerNiveau(this.value)"><strong>Habitué</strong> : on ouvre directement l'outil complet avec ses menus.</label>
+    </div>
+    <h2>Taille du lot du jour</h2>
+    <p class="doux">Combien de fiches l'outil vous montre chaque jour. Petit, c'est plus léger ; grand, cela va plus vite.</p>
+    <div class="rangee"><select id="reg-lot" onchange="reglerLot(this.value)"><option value="4">4 fiches</option><option value="8" selected>8 fiches</option><option value="12">12 fiches</option></select></div>
+    <h2>Rythme de chaque tâche</h2>
+    <p class="doux">Le rythme décide quand une tâche passe en « bientôt » puis « en retard ».</p>
+    <div id="liste-reglages"></div>
+    <h2>Apparence et démonstration</h2>
+    <div class="rangee"><button class="btn" type="button" onclick="basculerTheme()">Mode clair / sombre</button><button class="btn" type="button" onclick="remettreAZero()">Remettre la démonstration à zéro</button></div>
+  </div>
+</div>
+
+<div class="pied" id="pied">
+  <span class="doux" style="align-self:center">Maquette, mode d'essai :</span>
+  <button class="btn petit" type="button" onclick="aller('accueil')">Accueil</button>
+  <button class="btn petit" type="button" onclick="aller('lot')">Lot du jour</button>
+  <button class="btn petit" type="button" onclick="aller('attente')">Sites en attente</button>
+  <button class="btn petit" type="button" onclick="aller('toutes')">Toutes les tâches</button>
+  <button class="btn petit" type="button" onclick="aller('valider')">À valider</button>
+</div>
+
+<script>
+(function () {
+  var AUJOURDHUI = '31 octobre 2026';
+  var NOMS_NIVEAU = { pas: 'pas à pas', allege: 'allégé', expert: 'habitué' };
+  var RYTHMES = { 7: 'chaque semaine', 30: 'chaque mois', 91: 'chaque trimestre', 365: 'chaque année', 0: 'à la demande' };
+  var NIVEAU_PAR_DEFAUT = 'pas';
+
+  function neuf() {
+    return {
+      niveau: NIVEAU_PAR_DEFAUT, theme: '', fois: {}, lot: { taille: 8, faits: {} }, attente: [
+        { id: 'a1', reg: 'Structures', nom: 'Exemple : une caisse de l\'État (site fermé pour sécurité)', motif: 'fermé pour raison de sécurité', depuis: '12/10/2026', jours: 19, test: 'revenu', tel: '05 53 00 00 00' },
+        { id: 'a2', reg: 'Structures', nom: 'Exemple : une préfecture (maintenance annoncée)', motif: 'maintenance', depuis: '28/10/2026', jours: 3, test: 'ferme', tel: '05 53 00 00 01' },
+        { id: 'a3', reg: 'Employeurs', nom: 'Exemple : un service public en panne depuis longtemps', motif: 'panne', depuis: '29/07/2026', jours: 94, test: 'ferme', tel: '05 53 00 00 02' }
+      ], valider: [
+        { id: 'v1', titre: 'Aide au retour à l\'emploi : montant journalier minimal revalorisé', rayon: 'Emploi et contrats', source: 'service-public.gouv.fr' },
+        { id: 'v2', titre: 'Prime de transport : plafond d\'exonération relevé temporairement', rayon: 'Emploi et contrats', source: 'service-public.gouv.fr' }
+      ],
+      taches: [
+        { id: 'veille', icone: '🔎', titre: 'La veille de la semaine', sous: 'Ce qui est paru dans les 7 derniers jours (décrets, actualités)', duree: '10 min', rythme: 7, depuis: 9, visible: true, groupe: 'Chaque semaine' },
+        { id: 'adresses', icone: '🔗', titre: 'Le test des adresses', sous: 'Les sites de vos structures, employeurs et pages d\'offres répondent-ils encore ?', duree: '5 min', rythme: 30, depuis: 0, visible: true, groupe: 'Chaque mois' },
+        { id: 'mois', icone: '📅', titre: 'Ce qui a changé ce mois-ci', sous: 'Sept messages, un par groupe de domaines', duree: '25 min', rythme: 30, depuis: 28, visible: true, groupe: 'Chaque mois' },
+        { id: 'rayon', icone: '🗂️', titre: 'Contrôler un rayon : « Emploi et contrats »', sous: '15 fiches ; dernier contrôle il y a 33 jours', duree: '20 min', rythme: 30, depuis: 33, visible: true, groupe: 'Chaque mois' },
+        { id: 'chiffres', icone: '📊', titre: 'Les chiffres clés du trimestre', sous: 'Les 5 chiffres et la lecture du territoire', duree: '20 min', rythme: 91, depuis: 79, visible: true, groupe: 'Chaque trimestre' },
+        { id: 'reseau', icone: '🗞️', titre: 'Ce qui circule dans le réseau', sous: 'Le non officiel, comparé aux sources officielles', duree: '15 min', rythme: 91, depuis: 40, visible: true, groupe: 'Chaque trimestre' },
+        { id: 'lexique', icone: '📕', titre: 'Les mots du Lexique', sous: 'Mots nouveaux ou changés', duree: '15 min', rythme: 91, depuis: 60, visible: true, groupe: 'Chaque trimestre' },
+        { id: 'portrait', icone: '🧭', titre: 'Le portrait du territoire', sous: 'Une fois par an', duree: '30 min', rythme: 365, depuis: 140, visible: true, groupe: 'Chaque année' },
+        { id: 'telephones', icone: '📞', titre: 'Faire vérifier des numéros de téléphone', sous: 'Un lot de fiches : l\'assistant relit les numéros, vous voyez seulement les écarts', duree: '15 min', rythme: 0, depuis: 0, visible: true, groupe: 'À la demande' },
+        { id: 'lien', icone: '🧩', titre: 'Un lien ne répond plus', sous: 'Une adresse citée par une fiche renvoie une erreur', duree: '10 min', rythme: 0, depuis: 0, visible: true, groupe: 'À la demande' },
+        { id: 'texte', icone: '📋', titre: 'Coller un texte trouvé à la main', sous: 'Un site qui bloque les robots, un document, un mail', duree: '10 min', rythme: 0, depuis: 0, visible: true, groupe: 'À la demande' }
+      ]
+    };
+  }
+  var S = neuf();
+  var G = { tache: null, etape: 1, lu: null };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function statut(t) {
+    if (!t.rythme) { return 'demande'; }
+    if (t.depuis > t.rythme) { return 'retard'; }
+    if (t.depuis >= t.rythme - Math.max(2, Math.round(t.rythme * 0.15))) { return 'bientot'; }
+    return 'ok';
+  }
+  function ageTexte(t) {
+    if (!t.rythme) { return ''; }
+    if (t.depuis === 0) { return 'faite aujourd\'hui'; }
+    return 'dernière fois il y a ' + t.depuis + ' jour' + (t.depuis > 1 ? 's' : '');
+  }
+  function libEtat(t) { var s = statut(t); return s === 'retard' ? 'en retard' : (s === 'bientot' ? 'bientôt' : (s === 'ok' ? 'à jour' : '')); }
+  function urgence(t) { var s = statut(t); return s === 'retard' ? 0 : (s === 'bientot' ? 1 : (s === 'ok' ? 3 : 4)); }
+  function parId(id) { return S.taches.filter(function (t) { return t.id === id; })[0]; }
+
+  // ----- navigation -----
+  window.aller = function (nom) {
+    ['accueil', 'guide', 'toutes', 'valider', 'lot', 'attente'].forEach(function (n) { $('e-' + n).classList.toggle('actif', n === nom); });
+    $('pied').style.display = nom === 'guide' ? 'none' : 'flex';
+    rendre(); window.scrollTo(0, 0);
+  };
+
+  // ----- écran 1 -----
+  function rendreAccueil() {
+    $('date-jour').textContent = 'Aujourd\'hui, ' + AUJOURDHUI;
+    $('niveau-lib').textContent = NOMS_NIVEAU[S.niveau];
+    var suivies = S.taches.filter(function (t) { return t.visible && t.rythme; });
+    var tri = suivies.slice().sort(function (a, b) { return urgence(a) - urgence(b) || (b.depuis / b.rythme) - (a.depuis / a.rythme); });
+    $('jauge').innerHTML = tri.map(function (t) { return '<i class="' + statut(t) + '" title="' + esc(t.titre) + '"></i>'; }).join('');
+    var nbOk = suivies.filter(function (t) { return statut(t) === 'ok'; }).length;
+    $('compte-jauge').textContent = nbOk + ' tâche' + (nbOk > 1 ? 's' : '') + ' à jour sur ' + suivies.length;
+    var aFaire = tri.filter(function (t) { return statut(t) === 'retard' || statut(t) === 'bientot'; });
+    var s = $('suivant');
+    if (!aFaire.length) {
+      s.innerHTML = '<div class="etiquette">Prochaine étape</div><div class="titre">Tout est à jour</div><p class="doux">Rien à faire pour le moment. La prochaine tâche arrivera bientôt : elle apparaîtra ici.</p><div class="rangee"><button class="btn" type="button" onclick="aller(\'toutes\')">Voir toutes les tâches</button></div>';
+    } else {
+      var t = aFaire[0];
+      s.innerHTML = '<div class="etiquette">À faire maintenant</div><div class="ligne-suivant"><span class="grosse-icone">' + t.icone + '</span><div><div class="titre">' + esc(t.titre) + '</div><p class="doux">' + esc(t.sous) + '</p><p><span class="etat ' + statut(t) + '" style="margin-left:0">' + libEtat(t) + '</span> <span class="doux">' + esc(ageTexte(t)) + ' · environ ' + esc(t.duree) + '</span></p></div></div>'
+        + '<div class="rangee" style="margin-top:.6rem"><button class="btn primaire grand" type="button" onclick="commencer(\'' + t.id + '\')">Commencer</button></div>';
+    }
+    var reste = aFaire.slice(1);
+    $('liste-ensuite').innerHTML = reste.length ? reste.map(ligneTache).join('') : '<p class="doux">Rien d\'autre en attente.</p>';
+    var nv = S.valider.length;
+    $('puce-valider').innerHTML = nv ? '⚠ <strong>' + nv + '</strong> changement' + (nv > 1 ? 's' : '') + ' à valider ›' : '✔ Rien à valider ›';
+  }
+  function ligneTache(t) {
+    return '<div class="tache"><span class="icone">' + t.icone + '</span><div class="corps"><div class="titre">' + esc(t.titre) + (t.rythme ? ' <span class="etat ' + statut(t) + '">' + libEtat(t) + '</span>' : '') + '</div><div class="doux">' + esc(t.sous) + (t.rythme ? ' · ' + esc(ageTexte(t)) : '') + '</div></div><button class="btn' + (statut(t) === 'retard' ? ' primaire' : '') + ' petit" type="button" onclick="commencer(\'' + t.id + '\')">Commencer</button></div>';
+  }
+
+  // ----- écran 3 -----
+  function rendreToutes() {
+    var groupes = {}, ordre = [];
+    S.taches.forEach(function (t) { if (!groupes[t.groupe]) { groupes[t.groupe] = []; ordre.push(t.groupe); } groupes[t.groupe].push(t); });
+    var h = ordre.map(function (g) { return '<div class="groupe">' + esc(g) + '</div>' + groupes[g].map(function (t) { return t.visible ? ligneTache(t) : '<div class="tache" style="opacity:.55"><span class="icone">' + t.icone + '</span><div class="corps"><div class="titre">' + esc(t.titre) + '</div><div class="doux">Masquée dans les réglages</div></div></div>'; }).join(''); }).join('');
+    h += '<div class="groupe">Par rayon</div><div class="boite"><p class="doux">17 rayons. Le rythme se règle rayon par rayon dans les réglages. Ouvrez un rayon pour le contrôler :</p><div class="rangee">'
+      + ['Venir de l\'étranger', 'Mobilité', 'Moins de 26 ans', 'Handicap et emploi', 'Emploi et contrats', 'Se former', 'Créer son activité', 'Logement'].map(function (r) { return '<button class="btn petit" type="button" onclick="commencer(\'rayon\')">' + esc(r) + '</button>'; }).join('') + '<button class="btn petit" type="button" onclick="alert(\'Maquette : les 9 autres rayons seraient listés ici.\')">… les autres</button></div></div>';
+    $('liste-toutes').innerHTML = h;
+  }
+
+  // ----- écran 4 -----
+  function rendreValider() {
+    var l = S.valider;
+    $('liste-valider').innerHTML = l.length ? l.map(function (v) {
+      return '<div class="boite"><strong>' + esc(v.titre) + '</strong><p class="doux">Rayon : ' + esc(v.rayon) + ' · source : ' + esc(v.source) + '</p><div class="rangee"><button class="btn primaire" type="button" onclick="trancher(\'' + v.id + '\', true)">C\'est bon, publier</button><button class="btn" type="button" onclick="trancher(\'' + v.id + '\', false)">Écarter</button></div></div>';
+    }).join('') : '<div class="note ok">Rien à valider pour le moment. Les changements trouvés arrivent ici.</div>';
+  }
+  window.trancher = function (id, bon) {
+    S.valider = S.valider.filter(function (v) { return v.id !== id; });
+    rendreValider(); rendreAccueil();
+    $('liste-valider').insertAdjacentHTML('afterbegin', '<div class="note ' + (bon ? 'ok' : 'warn') + '">' + (bon ? 'Publié. Le changement est ajouté à la fiche concernée.' : 'Écarté. Rien n\'a été publié.') + '</div>');
+  };
+
+  // ----- guide -----
+  var MESSAGES = {
+    veille: 'Vous constituez une veille rapide, hebdomadaire, pour un conseiller en insertion professionnelle.\nCherchez UNIQUEMENT ce qui a été publié ou annoncé au cours des 7 DERNIERS JOURS sur Légifrance (https://www.legifrance.gouv.fr/jorf/jo) et service-public.fr (https://www.service-public.gouv.fr/particuliers/actualites).\nOuvrez chaque page. Rien de mémoire. « Non vérifié » si une source ne peut pas être ouverte.\n[...]'
+  };
+  MESSAGES.telephones = 'Je vais vous donner une liste de 8 fiches (employeurs, structures). Vérifiez UNIQUEMENT sur les sites OFFICIELS.\nPour chaque fiche, ouvrez le site officiel et relevez le numéro de téléphone affiché.\nRépondez en une ligne par fiche : numéro | nom | statut (confirmé, à regarder, introuvable) | numéro lu | adresse exacte de la page lue.\n[La liste des 8 fiches du lot s\'afficherait ici.]';
+  window.commencer = function (id) {
+    var t = parId(id); if (!t) { return; }
+    if (S.niveau === 'expert') { alert('Maquette : au niveau « habitué », cette tâche ouvrirait directement l\'écran actuel de l\'outil, avec ses menus.'); return; }
+    G = { tache: t, etape: 1, lu: null };
+    $('g-icone').textContent = t.icone; $('g-titre').textContent = t.titre; $('g-sous').textContent = t.sous + ' · environ ' + t.duree;
+    $('g-message').textContent = MESSAGES[id] || 'Vous constituez une mise à jour pour un conseiller en insertion professionnelle.\nSujet : « ' + t.titre + ' ».\nOuvrez chaque page citée. Rien de mémoire. « Non vérifié » si une source ne peut pas être ouverte.\n[Le vrai message de l\'outil s\'afficherait ici.]';
+    $('copie-ok').textContent = ''; $('s1').disabled = true; $('c-reponse').checked = false; $('s2').disabled = true; $('g-reponse').value = '';
+    $('g-verdict').innerHTML = ''; $('g-fin').style.display = 'none'; $('g-corps').style.display = '';
+    $('g-corps').classList.toggle('tout', S.niveau === 'allege');
+    aller('guide'); etape(1);
+  };
+  window.quitterGuide = function () { aller('accueil'); };
+  window.etape = function (n) {
+    G.etape = n;
+    var tout = S.niveau === 'allege';
+    ['et1', 'et2', 'et3', 'et4'].forEach(function (id, i) { $(id).classList.toggle('visible', tout ? (i < 3 || !!G.lu) : i + 1 === n); });
+    $('g-etapes').innerHTML = ['Copier', 'Donner à l\'assistant', 'Coller la réponse', 'Vérifier'].map(function (nom, i) {
+      var c = i + 1 < n ? 'fait' : (i + 1 === n ? 'courant' : '');
+      return '<div class="e ' + c + '"><div class="rond">' + (i + 1 < n ? '✓' : (i + 1)) + '</div>' + esc(nom) + '</div>';
+    }).join('');
+    if (tout) { $('s1').style.display = 'none'; $('s2').style.display = 'none'; } else { $('s1').style.display = ''; $('s2').style.display = ''; }
+    window.scrollTo(0, 0);
+  };
+  window.copierMessage = function () {
+    var txt = $('g-message').textContent;
+    function ok() { $('copie-ok').textContent = '✔ Message copié. Passez à l\'étape suivante.'; $('s1').disabled = false; }
+    try { navigator.clipboard.writeText(txt).then(ok, ok); } catch (e) { ok(); }
+  };
+  var EXEMPLES = {
+    rien: '[VEILLE-HEBDO]\nsignal: Rien à signaler cette semaine\n[/VEILLE-HEBDO]\n[SITES-NON-OUVERTS]\naucun\n[/SITES-NON-OUVERTS]',
+    changements: '[VEILLE-HEBDO]\nsignal: Montant journalier minimal de l\'allocation chômage revalorisé\nrayon: emploi\nce_qui_change: le montant passe à 33,50 euros\ndate_effet: 01/11/2026\nsource: service-public.gouv.fr https://www.service-public.gouv.fr/particuliers/actualites\n\nsignal: Plafond d\'exonération de la prime de transport relevé\nrayon: emploi\nce_qui_change: plafond relevé temporairement\ndate_effet: 24/10/2026\nsource: service-public.gouv.fr https://www.service-public.gouv.fr/particuliers/actualites\n[/VEILLE-HEBDO]\n[SITES-NON-OUVERTS]\naucun\n[/SITES-NON-OUVERTS]',
+    nonverifie: 'signal: Non vérifié, la page du Journal officiel n\'a pas pu être lue.\n[VEILLE-HEBDO]\n[/VEILLE-HEBDO]\n[SITES-NON-OUVERTS]\nLégifrance | https://www.legifrance.gouv.fr/jorf/jo | bloqué | décrets de la semaine\n[/SITES-NON-OUVERTS]',
+    coupee: '[VEILLE-HEBDO]\nsignal: Montant journalier minimal de l\'allocation chômage revalorisé\nrayon: emploi\nce_qui_change: le montant passe à 33,50 euros\ndate_effet: 01/11/2026\nsource: service-public.gouv.fr\n[/VEILLE-HEBDO]\nSUITE DISPONIBLE : il reste les actualités du ministère du Travail. Voulez-vous la suite ?'
+  };
+  window.exemple = function (k) { $('g-reponse').value = EXEMPLES[k]; };
+  window.lire = function () {
+    var t = $('g-reponse').value.trim(), h = '';
+    if (!t) { $('g-verdict').innerHTML = '<div class="note warn">La case est vide. Collez d\'abord la réponse de l\'assistant (ou utilisez un exemple ci-dessus).</div>'; G.lu = { cas: 'vide' }; etape(4); return; }
+    var nonVerifie = /signal\s*:\s*non\s+v[ée]rifi/i.test(t), coupee = /SUITE\s+DISPONIBLE/i.test(t.slice(t.lastIndexOf('[/VEILLE-HEBDO]') + 1) || t);
+    var nbSignaux = (t.match(/^\s*signal\s*:\s*(?!rien|non\s+v)/gim) || []).length;
+    var sites = /legifrance\s*\|/i.test(t) ? ['Légifrance : https://www.legifrance.gouv.fr/jorf/jo (bloqué)'] : [];
+    var tache = G.tache, fait = false;
+    if (nonVerifie) {
+      G.lu = { cas: 'non' };
+      h = '<div class="note alerte"><strong>Pas contrôlé.</strong> L\'assistant dit n\'avoir pas pu lire une source. Ce n\'est pas « rien à signaler ».</div>'
+        + '<ul class="controle"><li>✘ Journal officiel : non lu</li><li>✔ Actualités du service public : lues</li></ul>'
+        + (sites.length ? '<p><strong>Sites à ouvrir vous-même :</strong></p><ul class="controle">' + sites.map(function (x) { return '<li>🔗 ' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
+        + '<p class="doux">La tâche reste « à faire » : elle n\'est pas marquée comme faite.</p>'
+        + '<div class="rangee"><button class="btn primaire" type="button" onclick="commencer(\'texte\')">Coller un texte trouvé à la main</button><button class="btn" type="button" onclick="etape(1)">Refaire avec l\'assistant</button><button class="btn" type="button" onclick="quitterGuide()">Plus tard</button></div>';
+    } else if (coupee) {
+      G.lu = { cas: 'coupee' };
+      h = '<div class="note warn"><strong>La réponse est coupée.</strong> L\'assistant a écrit « SUITE DISPONIBLE ».</div>'
+        + '<ol><li>Retournez sur l\'assistant et écrivez : oui.</li><li>Copiez sa nouvelle réponse.</li><li>Collez-la À LA SUITE de la précédente, dans la même case, puis cliquez de nouveau sur « Lire la réponse ».</li></ol>'
+        + '<div class="rangee"><button class="btn primaire" type="button" onclick="etape(3)">Coller la suite</button></div>';
+    } else if (nbSignaux === 0) {
+      G.lu = { cas: 'rien' }; fait = true;
+      h = '<div class="note ok"><strong>Réponse complète.</strong> Aucun changement signalé cette semaine.</div>'
+        + '<ul class="controle"><li>✔ Journal officiel : lu</li><li>✔ Actualités du service public : lues</li><li>✔ Aucun site non ouvert</li></ul>'
+        + '<div class="rangee"><button class="btn primaire grand" type="button" onclick="terminer(0)">Marquer cette tâche comme faite</button></div>';
+    } else {
+      G.lu = { cas: 'chg', n: nbSignaux }; fait = true;
+      h = '<div class="note ok"><strong>Réponse complète : ' + nbSignaux + ' changement' + (nbSignaux > 1 ? 's' : '') + ' trouvé' + (nbSignaux > 1 ? 's' : '') + '.</strong></div>'
+        + '<ul class="controle"><li>✔ Journal officiel : lu</li><li>✔ Actualités du service public : lues</li><li>✔ Chaque changement a une source et une date d\'effet</li></ul>'
+        + '<p class="doux">Les changements ne sont pas publiés : ils arrivent dans « À valider », où vous les relisez un par un.</p>'
+        + '<div class="rangee"><button class="btn primaire grand" type="button" onclick="terminer(' + nbSignaux + ')">Envoyer dans « À valider »</button></div>';
+    }
+    $('g-verdict').innerHTML = h; etape(4);
+  };
+  window.terminer = function (n) {
+    var t = G.tache; t.depuis = 0;
+    S.fois[t.id] = (S.fois[t.id] || 0) + 1;
+    for (var i = 0; i < n; i++) { S.valider.push({ id: 'n' + Date.now() + i, titre: 'Changement trouvé par la veille de la semaine (' + (i + 1) + ')', rayon: 'Emploi et contrats', source: 'service-public.gouv.fr' }); }
+    var prochaine = S.taches.filter(function (x) { return x.visible && x.rythme && (statut(x) === 'retard' || statut(x) === 'bientot'); }).sort(function (a, b) { return urgence(a) - urgence(b); })[0];
+    var h = '<div class="note ok"><strong>Tâche terminée : ' + esc(t.titre) + '.</strong>' + (n ? ' ' + n + ' changement' + (n > 1 ? 's sont partis' : ' est parti') + ' dans « À valider ».' : '') + '</div>';
+    if (S.niveau === 'pas' && S.fois[t.id] >= 3) { h += '<div class="boite"><p>Vous avez terminé cette tâche ' + S.fois[t.id] + ' fois. Voulez-vous passer au niveau d\'aide « allégé » ? Vous pourrez revenir au pas à pas à tout moment, dans les réglages.</p><div class="rangee"><button class="btn" type="button" onclick="reglerNiveau(\'allege\'); this.parentNode.parentNode.remove()">Passer en allégé</button><button class="btn" type="button" onclick="this.parentNode.parentNode.remove()">Non, garder le pas à pas</button></div></div>'; }
+    h += '<div class="rangee">' + (prochaine ? '<button class="btn primaire" type="button" onclick="commencer(\'' + prochaine.id + '\')">Tâche suivante : ' + esc(prochaine.titre) + '</button>' : '') + (n ? '<button class="btn" type="button" onclick="aller(\'valider\')">Aller valider</button>' : '') + '<button class="btn" type="button" onclick="aller(\'accueil\')">Retour à l\'accueil</button></div>';
+    $('g-corps').style.display = 'none'; $('g-etapes').innerHTML = ''; $('g-fin').innerHTML = h; $('g-fin').style.display = 'block';
+  };
+
+  // ----- réglages -----
+  function rendreReglages() {
+    $('liste-reglages').innerHTML = S.taches.map(function (t) {
+      return '<div class="reglage"><span>' + t.icone + ' ' + esc(t.titre) + '</span>'
+        + (t.rythme ? '<select onchange="reglerRythme(\'' + t.id + '\', this.value)">' + [7, 30, 91, 365].map(function (r) { return '<option value="' + r + '"' + (t.rythme === r ? ' selected' : '') + '>' + RYTHMES[r] + '</option>'; }).join('') + '</select>' : '<span class="doux">à la demande</span>')
+        + '<label><input type="checkbox"' + (t.visible ? ' checked' : '') + ' onchange="reglerVisible(\'' + t.id + '\', this.checked)"> afficher</label></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#niveaux input'), function (i) { i.checked = i.value === S.niveau; });
+    $('reg-lot').value = String(S.lot.taille);
+  }
+  window.reglerRythme = function (id, v) { parId(id).rythme = parseInt(v, 10); rendre(); };
+  window.reglerVisible = function (id, v) { parId(id).visible = v; rendre(); };
+  window.reglerNiveau = function (v) { S.niveau = v; rendre(); };
+  window.ouvrirReglages = function () { rendreReglages(); $('volet').classList.add('ouvert'); };
+  window.fermerReglages = function () { $('volet').classList.remove('ouvert'); };
+  $('volet').addEventListener('click', function (e) { if (e.target === $('volet')) { fermerReglages(); } });
+  window.basculerTheme = function () { var sombre = document.documentElement.getAttribute('data-theme') === 'sombre'; if (sombre) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); } };
+  window.remettreAZero = function () { var th = document.documentElement.getAttribute('data-theme'); S = neuf(); rendre(); rendreReglages(); aller('accueil'); };
+  window.ouvrirAide = function () { alert('Aide. Chaque tâche suit toujours les mêmes 4 gestes : copier le message, le donner à l\'assistant, coller sa réponse ici, puis vérifier. Si vous êtes bloqué à un geste, ouvrez « Je suis perdu » : il explique ce geste en une phrase.'); };
+
+  // ----- le lot du jour : seulement les exceptions, quelques-unes par jour -----
+  var TOTAL_EXCEPTIONS = 130;
+  var POOL = [
+    { id: 'p1', reg: 'Structures', nom: 'Structures de l\'insertion par l\'activité économique de la Dordogne', motif: 'ailleurs', site: 'https://emplois.inclusion.gouv.fr', vers: 'https://plateforme.inclusion.gouv.fr', tel: false },
+    { id: 'p2', reg: 'Structures', nom: 'Points-justice de la Dordogne', motif: 'introuvable', site: 'https://www.annuaires.justice.gouv.fr/points-justice-24', vers: '', tel: false },
+    { id: 'p3', reg: 'Employeurs', nom: 'Actual Périgueux Wilson', motif: 'ailleurs', site: 'https://www.actual-emploi.fr/perigueux', vers: 'https://www.actualgroup.com', tel: true, rec: 'https://www.actual-emploi.fr/offres' },
+    { id: 'p13', reg: 'Fiches du cadre', nom: 'Exemple : une aide à l\'embauche supprimée par une loi récente', motif: 'obsolete', resume: 'Cette aide a été supprimée au 1er juillet. Elle est remplacée par une autre aide, plus limitée.', sources: ['https://www.service-public.fr', 'https://www.legifrance.gouv.fr'], remplace: 'Aide à l\'embauche : le nouveau dispositif' },
+    { id: 'p4', reg: 'Pages d\'offres', nom: 'Hôpital privé Francheville (Vivalto Santé)', motif: 'ailleurs', site: 'https://www.hpfrancheville.fr/recrutement', vers: 'https://www.vivalto-sante.fr', tel: false },
+    { id: 'p5', reg: 'Pages d\'offres', nom: 'Marine nationale', motif: 'ailleurs', site: 'https://www.defense.gouv.fr/marine/recrutement', vers: 'https://www.lamarinerecrute.gouv.fr', tel: false },
+    { id: 'p6', reg: 'Pages d\'offres', nom: 'Armée de l\'Air et de l\'Espace', motif: 'ailleurs', site: 'https://air.defense.gouv.fr/recrutement', vers: 'https://www.devenir-aviateur.gouv.fr', tel: false },
+    { id: 'p14', reg: 'Fiches du cadre', nom: 'Exemple : Que faire à la fin d\'un contrat aidé ?', motif: 'sujet', resume: 'Beaucoup de personnes se posent cette question et aucune fiche du rayon n\'y répond. Il faudrait expliquer les droits, les démarches et les délais.', sources: ['https://www.service-public.fr'] },
+    { id: 'p7', reg: 'Pages d\'offres', nom: 'Hunyvers', motif: 'ailleurs', site: 'https://www.hunyvers.fr/carrieres', vers: 'https://www.hunyvers-groupe.com', tel: false },
+    { id: 'p8', reg: 'Pages d\'offres', nom: 'Centre hospitalier Jean Leclaire (Sarlat)', motif: 'introuvable', site: 'https://www.ch-sarlat.fr/recrutement', vers: '', tel: false },
+    { id: 'p9', reg: 'Employeurs', nom: 'Exemple : un employeur dont le site refuse les robots', motif: 'main', site: 'https://www.exemple-employeur.fr', vers: '', tel: true },
+    { id: 'p10', reg: 'Structures', nom: 'Exemple : une structure sans réponse du site', motif: 'main', site: 'https://www.exemple-structure.fr', vers: '', tel: true },
+    { id: 'p11', reg: 'Employeurs', nom: 'Exemple : un numéro non retrouvé sur la page', motif: 'main', site: 'https://www.exemple-numero.fr', vers: '', tel: true },
+    { id: 'p12', reg: 'Pages d\'offres', nom: 'Exemple : une page de recrutement à revoir', motif: 'main', site: 'https://www.exemple-recrutement.fr', vers: '', tel: false }
+  ];
+  function lotJour() { return POOL.slice(0, S.lot.taille); }
+  function lotFaits() { return lotJour().filter(function (c) { return S.lot.faits[c.id]; }).length; }
+  function nbFaitsTotal() { return Object.keys(S.lot.faits).length; }
+  var MOTIFS = { introuvable: 'Le site ne répond plus (fermé ou disparu : à confirmer).', ailleurs: 'L\'adresse enregistrée renvoie vers un autre site.', main: 'L\'outil n\'a pas pu conclure tout seul : à ouvrir à la main.', obsolete: 'Le contrôle du mois dit que cette fiche n\'est plus d\'actualité.', sujet: 'Le contrôle du mois propose un sujet qu\'aucune fiche ne couvre.' };
+  function rendreLotBoite() {
+    var j = lotJour(), n = lotFaits(), reste = TOTAL_EXCEPTIONS - nbFaitsTotal();
+    var jauge = '<div class="jauge">' + j.map(function (c) { return '<i class="' + (S.lot.faits[c.id] ? 'ok' : '') + '"></i>'; }).join('') + '</div>';
+    if (n >= j.length) {
+      $('lot-boite').innerHTML = '<div class="ligne-suivant"><span class="grosse-icone">📦</span><div><strong>Le lot du jour est terminé.</strong><p class="doux">Il reste ' + reste + ' fiche' + (reste > 1 ? 's' : '') + ' à regarder en tout. Le prochain lot sera proposé demain.</p></div></div>' + jauge + '<div class="rangee"><button class="btn" type="button" onclick="aller(\'lot\')">Revoir le lot</button></div>';
+    } else {
+      $('lot-boite').innerHTML = '<div class="ligne-suivant"><span class="grosse-icone">📦</span><div><strong>Le lot du jour : ' + (j.length - n) + ' fiche' + (j.length - n > 1 ? 's' : '') + ' à regarder</strong><p class="doux">L\'outil a déjà ouvert tous les sites. Il vous montre seulement les exceptions. Il en reste ' + reste + ' en tout.</p></div></div>' + jauge + '<div class="rangee"><button class="btn primaire" type="button" onclick="aller(\'lot\')">Ouvrir le lot</button></div>';
+    }
+  }
+  function ligneInfo(lib, valeur, lien, puce) {
+    return '<div class="ligne-info"><span class="lib">' + esc(lib) + '</span><span>' + (lien ? '<a href="' + esc(lien) + '" target="_blank" rel="noopener">' + esc(valeur) + '</a>' : esc(valeur)) + '</span>' + puce + '</div>';
+  }
+  function carteLot(c) {
+    var f = S.lot.faits[c.id];
+    if (f) { return '<div class="carte-lot fait" style="flex-wrap:wrap"><div style="flex:1;min-width:14rem"><span class="registre">' + esc(c.reg) + '</span><br><strong>' + esc(c.nom) + '</strong> <span class="puce ok">' + esc(f) + '</span>' + (f.indexOf('Inaccessible') === 0 ? apercuPublic(c.nom, '05 53 00 00 00') : '') + '</div><button class="btn petit" type="button" onclick="annulerLot(\'' + c.id + '\')">Annuler</button></div>'; }
+    if (c.motif === 'obsolete' || c.motif === 'sujet') { return carteFiche(c); }
+    var h = '<div class="carte-lot ' + (c.motif === 'main' ? 'main' : '') + '"><span class="registre">' + esc(c.reg) + '</span><div><strong>' + esc(c.nom) + '</strong></div><div class="motif">' + esc(MOTIFS[c.motif]) + '</div>';
+    if (c.motif === 'introuvable') { h += '<p class="doux">Cela peut être une panne passagère. Si vous pensez que le site reviendra, choisissez « Inaccessible pour l\'instant » plutôt que « Retirer la fiche ».</p>'; }
+    h += ligneInfo('Adresse enregistrée', c.site, c.site, '<span class="puce ' + (c.motif === 'main' ? 'warn' : 'ko') + '">' + (c.motif === 'introuvable' ? 'ne répond plus' : (c.motif === 'ailleurs' ? 'renvoie ailleurs' : 'à ouvrir')) + '</span>');
+    if (c.vers) { h += ligneInfo('Adresse trouvée', c.vers, c.vers, '<span class="puce ok">trouvée par l\'outil</span>'); }
+    else if (c.motif === 'introuvable') { h += ligneInfo('Chercher', 'Rechercher le nouveau site de cette structure', 'https://duckduckgo.com/?q=' + encodeURIComponent(c.nom), '<span class="puce warn">à faire</span>'); }
+    if (c.rec) { h += ligneInfo('Recrutement', c.rec, c.rec, '<span class="puce warn">à revoir</span>'); }
+    if (c.tel) { h += ligneInfo('Téléphone', 'Non contrôlé par l\'outil', '', '<span class="puce warn">à faire vérifier</span>'); }
+    h += '<div class="saisie-modif" id="mod-' + c.id + '"><input type="text" id="in-' + c.id + '" value="' + esc(c.vers || c.site) + '" aria-label="Nouvelle adresse"><button class="btn primaire petit" type="button" onclick="enregistrerLot(\'' + c.id + '\')">Enregistrer</button></div>';
+    h += '<div class="saisie-modif" id="inacc-' + c.id + '"><select id="mot-' + c.id + '" aria-label="Raison"><option>maintenance</option><option>fermé pour raison de sécurité</option><option>panne</option><option>autre raison</option></select><button class="btn primaire petit" type="button" onclick="enregistrerInacc(\'' + c.id + '\')">Enregistrer</button><span class="doux">Date du constat : aujourd\'hui. La fiche reste ; le lien n\'est plus montré au public.</span></div>';
+    h += '<div class="rangee"><button class="btn primaire" type="button" onclick="validerLot(\'' + c.id + '\', \'Validée aujourd\\\'hui\')">C\'est bon</button><button class="btn" type="button" onclick="document.getElementById(\'mod-' + c.id + '\').classList.toggle(\'ouvert\')">Modifier</button><button class="btn" type="button" onclick="document.getElementById(\'inacc-' + c.id + '\').classList.toggle(\'ouvert\')">Inaccessible pour l\'instant</button><button class="btn" type="button" onclick="retirerLot(\'' + c.id + '\')">Retirer la fiche</button></div></div>';
+    return h;
+  }
+  function carteFiche(c) {
+    var h = '<div class="carte-lot main"><span class="registre">' + esc(c.reg) + (c.motif === 'obsolete' ? ' : à retirer ?' : ' : sujet proposé') + '</span><div><strong>' + esc(c.nom) + '</strong></div><div class="motif">' + esc(MOTIFS[c.motif]) + '</div>';
+    h += '<p class="doux">' + esc(c.resume) + '</p>';
+    c.sources.forEach(function (s) { h += ligneInfo('Source officielle', s, s, '<span class="puce ok">donnée par l\'assistant</span>'); });
+    if (c.motif === 'obsolete') {
+      h += ligneInfo('Remplacée par', c.remplace, '', '<span class="puce warn">à vérifier</span>');
+      h += '<div class="note ok">Retirer ne supprime rien : la fiche passe en « retirée » avec sa raison et la date. Elle n\'est plus affichée au public, et l\'historique la garde.</div>';
+      h += '<div class="rangee"><button class="btn primaire" type="button" onclick="validerLot(\'' + c.id + '\', \'Fiche retirée (gardée dans l\\\'historique)\')">Retirer cette fiche</button><button class="btn" type="button" onclick="validerLot(\'' + c.id + '\', \'Mise à jour à préparer\')">Préparer la mise à jour à la place</button><button class="btn" type="button" onclick="validerLot(\'' + c.id + '\', \'Gardée telle quelle, à revoir le mois prochain\')">La garder telle quelle</button></div>';
+    } else {
+      h += '<div class="note ok">Rien n\'est créé tant que vous n\'avez pas validé. L\'outil prépare la rédaction, avec les sources, et vous la relisez comme toute fiche.</div>';
+      h += '<div class="rangee"><button class="btn primaire" type="button" onclick="validerLot(\'' + c.id + '\', \'Fiche à préparer\')">Préparer cette fiche</button><button class="btn" type="button" onclick="validerLot(\'' + c.id + '\', \'Gardé pour plus tard\')">Plus tard</button><button class="btn" type="button" onclick="validerLot(\'' + c.id + '\', \'Sujet écarté\')">Pas utile</button></div>';
+    }
+    return h + '</div>';
+  }
+  function rendreLot() {
+    var j = lotJour(), n = lotFaits(), reste = TOTAL_EXCEPTIONS - nbFaitsTotal();
+    $('lot-auto').innerHTML = '<span><b>429</b> sites ouverts par l\'outil</span><span><b>307</b> confirmés tout seuls : rien à faire</span><span><b>' + reste + '</b> exceptions à regarder, ' + j.length + ' par jour</span>';
+    $('lot-jauge').innerHTML = j.map(function (c) { return '<i class="' + (S.lot.faits[c.id] ? 'ok' : '') + '"></i>'; }).join('');
+    $('lot-compte').textContent = n + ' fiche' + (n > 1 ? 's' : '') + ' traitée' + (n > 1 ? 's' : '') + ' sur ' + j.length + (n >= j.length ? '. Le lot du jour est terminé.' : '. Les fiches à corriger passent en premier.');
+    $('lot-cartes').innerHTML = j.map(carteLot).join('');
+    $('lot-tel').innerHTML = '<strong>Les numéros de téléphone</strong><p class="doux">Le code ne sait pas les vérifier. L\'assistant peut relire un lot de fiches et ne vous renvoyer que les écarts.</p><div class="rangee"><button class="btn" type="button" onclick="commencer(\'telephones\')">Faire vérifier les téléphones de ce lot</button></div>';
+  }
+  window.validerLot = function (id, texte) { S.lot.faits[id] = texte; rendre(); };
+  window.enregistrerLot = function (id) { var v = $('in-' + id).value.trim(); if (!v) { return; } S.lot.faits[id] = 'Adresse modifiée : ' + v; rendre(); };
+  window.retirerLot = function (id) { if (window.confirm('Retirer cette fiche du registre ? (Dans l\'outil réel, une annulation resterait possible.)')) { S.lot.faits[id] = 'Fiche retirée'; rendre(); } };
+  window.annulerLot = function (id) { delete S.lot.faits[id]; S.attente = S.attente.filter(function (a) { return a.src !== id; }); rendre(); };
+  window.enregistrerInacc = function (id) {
+    var c = POOL.filter(function (x) { return x.id === id; })[0], m = $('mot-' + id).value;
+    S.lot.faits[id] = 'Inaccessible pour l\'instant (' + m + ')';
+    S.attente.push({ id: 'a-' + id, src: id, reg: c.reg, nom: c.nom, motif: m, depuis: '31/10/2026', jours: 0, test: 'ferme', tel: '05 53 00 00 00' });
+    rendre();
+  };
+
+  // ----- les sites inaccessibles pour l'instant -----
+  function apercuPublic(nom, tel) {
+    return '<div class="apercu-public"><div class="etiq">Ce que verra le public</div><strong>' + esc(nom) + '</strong><div class="msg">Ce site est momentanément fermé. Vous pouvez joindre l\'organisme par téléphone.</div>Téléphone : ' + esc(tel) + '</div>';
+  }
+  function carteAttente(a) {
+    var h = '<div class="carte-lot main"><span class="registre">' + esc(a.reg) + '</span><div><strong>' + esc(a.nom) + '</strong></div><div class="motif">Inaccessible pour l\'instant : ' + esc(a.motif) + ', constaté le ' + esc(a.depuis) + (a.jours ? ' (il y a ' + a.jours + ' jour' + (a.jours > 1 ? 's' : '') + ')' : ' (aujourd\'hui)') + '</div>';
+    h += ligneInfo('Test du mois', a.test === 'revenu' ? 'Le site répond de nouveau' : 'Toujours sans réponse', '', '<span class="puce ' + (a.test === 'revenu' ? 'ok' : 'warn') + '">' + (a.test === 'revenu' ? 'revenu' : 'toujours fermé') + '</span>');
+    if (a.jours >= 90 && a.test !== 'revenu') { h += '<div class="note warn">Fermé depuis plus de 90 jours. Voulez-vous encore le garder en attente, ou retirer la fiche ? Rien n\'est effacé sans votre accord.</div>'; }
+    h += apercuPublic(a.nom, a.tel);
+    if (a.test === 'revenu') { h += '<div class="rangee"><button class="btn primaire" type="button" onclick="reafficher(\'' + a.id + '\')">Il est revenu : réafficher le lien</button><button class="btn" type="button" onclick="garderAttente(\'' + a.id + '\')">Pas encore, garder en attente</button></div>'; }
+    else { h += (a.gardee ? '<div class="note ok">Gardée en attente. L\'outil retestera ce site le mois prochain.</div>' : '') + '<div class="rangee"><button class="btn primaire" type="button" onclick="garderAttente(\'' + a.id + '\')">Garder en attente</button><button class="btn" type="button" onclick="retirerAttente(\'' + a.id + '\')">Retirer la fiche</button></div>'; }
+    return h + '</div>';
+  }
+  function rendreAttente() {
+    var n = S.attente.length;
+    $('liste-attente').innerHTML = n ? S.attente.map(carteAttente).join('') : '<div class="note ok">Aucun site en attente. Tous les liens sont affichés.</div>';
+    var rev = S.attente.filter(function (a) { return a.test === 'revenu'; }).length;
+    $('puce-attente').innerHTML = n ? '⏸ <strong>' + n + '</strong> site' + (n > 1 ? 's' : '') + ' en attente' + (rev ? ', ' + rev + ' revenu' + (rev > 1 ? 's' : '') : '') + ' ›' : '⏸ Aucun site en attente ›';
+  }
+  window.reafficher = function (id) { S.attente = S.attente.filter(function (a) { return a.id !== id; }); rendre(); $('liste-attente').insertAdjacentHTML('afterbegin', '<div class="note ok">Le lien est de nouveau affiché au public.</div>'); };
+  window.garderAttente = function (id) { S.attente.forEach(function (a) { if (a.id === id) { a.gardee = true; } }); rendre(); };
+  window.retirerAttente = function (id) { if (window.confirm('Retirer cette fiche du registre ? (Dans l\'outil réel, une annulation resterait possible.)')) { S.attente = S.attente.filter(function (a) { return a.id !== id; }); rendre(); } };
+  window.reglerLot = function (v) { S.lot.taille = parseInt(v, 10); rendre(); };
+
+  function rendre() { rendreAccueil(); rendreToutes(); rendreValider(); rendreLotBoite(); rendreLot(); rendreAttente(); }
+  rendre();
+})();
+</script>
+</body>
+</html>

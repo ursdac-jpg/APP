@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : fiches du cadre après six mois</title>
+<link rel="stylesheet" href="../../vendor/bootstrap.min.css">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  /* Réservé à la maquette. */
+  .mq-haut { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; font-size: .9rem; }
+  .mq-haut button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .mq-haut button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .mq-page { max-width: 820px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .mq-titre { margin: 2rem 0 .3rem; font-weight: 700; font-size: 1.1rem; }
+  .mq-sous { color: var(--text-muted); font-size: .9rem; margin-bottom: .6rem; }
+  .mq-ecran { border: 1px solid var(--border); border-radius: .6rem; padding: 1rem; margin-bottom: 1rem; background: var(--bg-card); }
+  .mq-nom { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin-bottom: .5rem; }
+  .mq-questions { border: 1px dashed var(--border); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+  .mq-etiquette { font-size: .75rem; font-weight: 700; border-radius: 1rem; padding: .1rem .6rem; border: 1px solid var(--border); margin-left: .4rem; }
+  .mq-phrase { border-left: 4px solid var(--accent-solide); background: var(--bg-subtle); padding: .7rem 1rem; border-radius: 0 .4rem .4rem 0; margin-bottom: 1rem; }
+  .mq-masque { border: 1px dashed var(--border-strong); border-radius: .4rem; padding: .5rem .8rem; color: var(--text-muted); margin-bottom: 1rem; font-size: .92rem; }
+  .mq-veille { font-family: system-ui, sans-serif; }
+  .mq-veille label { font-weight: 600; display: block; margin-bottom: .2rem; }
+  .mq-veille textarea { width: 100%; min-height: 4.5rem; border: 1px solid var(--border-strong); border-radius: .4rem; padding: .5rem; background: var(--bg-card); color: var(--text-strong); }
+  .mq-ok { color: #1b7a3d; font-weight: 600; }
+  .mq-ko { color: #b3261e; font-weight: 600; }
+  .mq-veille table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .mq-veille th, .mq-veille td { border-bottom: 1px solid var(--border); padding: .35rem .5rem; text-align: left; }
+  .mq-btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: .4rem; padding: .3rem .9rem; font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="mq-haut">
+  <strong>Maquette du 05/11/2026</strong>
+  <button id="btnClair" class="actif">Clair</button><button id="btnSombre">Sombre</button>
+  <button id="btnTel">Téléphone</button><button id="btnLarge" class="actif">Large</button>
+</div>
+<div class="mq-page" id="page">
+  <p class="small text-muted">Maquette pour les consignes 95 et 96 : ce que voit la personne quand une fiche de « Comprendre le cadre » n’a pas été vérifiée depuis six mois ou plus, puis ce que fait Denis dans l’outil de veille. Le texte est celui de la vraie fiche du complément de libre choix du mode de garde (CMG). Rien n’est codé : c’est pour choisir.</p>
+
+  <div class="mq-titre">1. Ce que voit la personne après six mois : trois façons de faire</div>
+  <div class="mq-sous">La fiche ci-dessous est « vérifiée le 4 nov. 2026 », vue en mai 2027. Les trois écrans montrent la même fiche.</div>
+
+  <div class="mq-ecran">
+    <div class="mq-nom">Aujourd’hui (rien de masqué, seul le bandeau avertit) <span class="mq-etiquette">à abandonner</span></div>
+    <h2 class="h5">Le complément de libre choix du mode de garde (CMG) : l’aide de la CAF pour payer la garde</h2>
+    <div class="alert alert-warning" role="note"><i class="bi bi-hourglass-split"></i> Cette fiche n’a pas été vérifiée depuis plus de six mois. Les montants, les durées et les dates qu’elle cite ont peut-être changé : avant toute démarche, confirmez-les sur les sources officielles indiquées en bas de page.</div>
+    <p>Le CMG est une aide de la CAF qui prend en charge une partie du coût de la garde. Il concerne les enfants de moins de 6 ans gardés par une assistante maternelle agréée, une garde à domicile, ou une micro-crèche.</p>
+    <p>Depuis septembre 2025, le calcul a changé : l’aide suit les heures réellement déclarées, et vous n’êtes plus obligé de garder au moins 15 pour cent du coût à votre charge.</p>
+    <p class="mq-ko"><i class="bi bi-x-circle"></i> Les chiffres restent affichés comme s’ils étaient sûrs.</p>
+  </div>
+
+  <div class="mq-ecran">
+    <div class="mq-nom">Option 1 : une phrase générale écrite pour la fiche remplace le texte <span class="mq-etiquette">recommandée</span></div>
+    <h2 class="h5">Le complément de libre choix du mode de garde (CMG) : l’aide de la CAF pour payer la garde</h2>
+    <p class="text-muted">Utile si vous faites garder un enfant de moins de 6 ans par une assistante maternelle, une garde à domicile ou une micro-crèche.</p>
+    <div class="alert alert-warning" role="note"><i class="bi bi-hourglass-split"></i> Cette fiche n’a pas été vérifiée depuis plus de six mois. Pour éviter de vous donner un chiffre qui a changé, les montants, les durées et les dates ne sont plus affichés.</div>
+    <div class="mq-phrase">Le CMG est une aide de la CAF (ou de la MSA) qui prend en charge une partie du coût de la garde d’un jeune enfant. Les conditions pour y avoir droit, les montants et l’âge limite de l’enfant dépendent de votre situation et changent régulièrement : le plus sûr est de les vérifier sur les sources officielles ci-dessous.</div>
+    <p class="small mb-1"><i class="bi bi-calendar-check"></i> Information vérifiée pour la dernière fois le <strong>4 nov. 2026</strong>.</p>
+    <p class="small mb-1">Pour vérifier vous-même, les sources officielles : <em>Service-public.fr, Caf, Urssaf…</em> (liens cliquables, comme aujourd’hui)</p>
+    <p class="mq-ok mt-2 mb-0"><i class="bi bi-check-circle"></i> Même principe que dans le Lexique. Aucun chiffre périmé ne peut s’afficher. Si aucune phrase n’est encore écrite pour une fiche, une phrase commune à toutes les fiches s’affiche à la place.</p>
+  </div>
+
+  <div class="mq-ecran">
+    <div class="mq-nom">Option 2 : on masque seulement les paragraphes qui contiennent un chiffre <span class="mq-etiquette">plus léger, moins sûr</span></div>
+    <h2 class="h5">Le complément de libre choix du mode de garde (CMG) : l’aide de la CAF pour payer la garde</h2>
+    <div class="alert alert-warning" role="note"><i class="bi bi-hourglass-split"></i> Cette fiche n’a pas été vérifiée depuis plus de six mois. Les passages qui citent des montants, des durées ou des dates sont masqués.</div>
+    <div class="mq-masque"><i class="bi bi-eye-slash"></i> Un passage avec des chiffres est masqué. Vérifiez sur les sources officielles ci-dessous.</div>
+    <p>Pour y avoir droit, il faut en général travailler au moins une heure le mois de la demande. D’autres situations ouvrent aussi droit au CMG : être bénéficiaire du RSA et engagé dans une démarche d’insertion professionnelle, de l’allocation aux adultes handicapés…</p>
+    <div class="mq-masque"><i class="bi bi-eye-slash"></i> Un passage avec des chiffres est masqué.</div>
+    <p class="mq-ko mb-0"><i class="bi bi-x-circle"></i> Le premier paragraphe, qui explique ce qu’est le CMG, disparaît avec ses chiffres. Un chiffre écrit en lettres (« une heure », « deux ans ») passe au travers et reste affiché : le code ne peut pas le deviner à coup sûr.</p>
+  </div>
+
+  <div class="mq-titre">2. Dans l’outil de veille (pour Denis)</div>
+  <div class="mq-sous">Le répertoire des fiches existe déjà (filtre « À chiffres, à revérifier »). On y ajoute trois choses, seulement pour l’option 1.</div>
+  <div class="mq-ecran mq-veille">
+    <div class="mq-nom">Écran « Modifier une fiche » : une nouvelle case</div>
+    <label for="mqPhrase">Phrase générale (affichée à la place du texte quand la fiche a plus de six mois)</label>
+    <textarea id="mqPhrase">Le CMG est une aide de la CAF (ou de la MSA) qui prend en charge une partie du coût de la garde d’un jeune enfant. Les conditions pour y avoir droit, les montants et l’âge limite de l’enfant dépendent de votre situation et changent régulièrement : le plus sûr est de les vérifier sur les sources officielles ci-dessous.</textarea>
+    <p class="small mt-1 mb-0" id="mqCtrl"></p>
+    <p class="small text-muted mt-1 mb-0">Contrôle en direct : la phrase ne doit contenir aucun chiffre. Essayez d’y taper un « 6 » pour voir.</p>
+  </div>
+  <div class="mq-ecran mq-veille">
+    <div class="mq-nom">Liste des fiches : un filtre et une colonne</div>
+    <p class="mb-2">Filtre : <span class="mq-btn">Fiches à chiffres sans phrase générale (111)</span></p>
+    <table>
+      <thead><tr><th>Rayon</th><th>Fiche</th><th>Vérifiée</th><th>Phrase générale</th></tr></thead>
+      <tbody>
+        <tr><td>Garde d’enfant</td><td>Le CMG : l’aide de la CAF pour payer la garde</td><td>4 nov. 2026</td><td class="mq-ok">écrite</td></tr>
+        <tr><td>Garde d’enfant</td><td>Les modes de garde, du plus proche au plus lointain</td><td>4 nov. 2026</td><td class="mq-ko">à écrire</td></tr>
+        <tr><td>Logement</td><td>Les aides au logement (APL)</td><td>3 nov. 2026</td><td class="mq-ko">à écrire</td></tr>
+      </tbody>
+    </table>
+    <p class="small text-muted mt-2 mb-0">Les fiches sans chiffre n’ont pas besoin de phrase : elles ne sont jamais masquées.</p>
+  </div>
+
+  <div class="mq-questions">
+    <strong>Questions pour Denis</strong>
+    <ol class="mb-0">
+      <li>Option 1 (phrase écrite pour chaque fiche à chiffres) ou option 2 (masquage automatique des paragraphes) ?</li>
+      <li>Si option 1 : je peux écrire les phrases par rayon, que vous relisez dans l’outil de veille. D’ici là, la phrase commune s’affiche, donc aucune fiche n’est jamais laissée avec un chiffre périmé. D’accord ?</li>
+      <li>Le bandeau jaune garde-t-il ce texte, ou préférez-vous une autre formulation ?</li>
+    </ol>
+  </div>
+</div>
+<script>
+  var bC = document.getElementById('btnClair'), bS = document.getElementById('btnSombre'), bT = document.getElementById('btnTel'), bL = document.getElementById('btnLarge'), pg = document.getElementById('page');
+  function theme(s) { document.documentElement.setAttribute('data-theme', s ? 'sombre' : 'clair'); bS.classList.toggle('actif', s); bC.classList.toggle('actif', !s); }
+  bC.onclick = function () { theme(false); }; bS.onclick = function () { theme(true); };
+  bT.onclick = function () { pg.style.maxWidth = '390px'; bT.classList.add('actif'); bL.classList.remove('actif'); };
+  bL.onclick = function () { pg.style.maxWidth = '820px'; bL.classList.add('actif'); bT.classList.remove('actif'); };
+  var ta = document.getElementById('mqPhrase'), ct = document.getElementById('mqCtrl');
+  function ctrl() { ct.innerHTML = /\d/.test(ta.value) ? '<span class="mq-ko">Cette phrase contient un chiffre : elle ne peut pas être enregistrée.</span>' : '<span class="mq-ok">Aucun chiffre dans la phrase : elle peut être enregistrée.</span>'; }
+  ta.addEventListener('input', ctrl); ctrl();
+</script>
+</body>
+</html>

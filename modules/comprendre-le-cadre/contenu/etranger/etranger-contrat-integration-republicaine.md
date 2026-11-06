@@ -7,7 +7,7 @@ tags: [contrat d'intégration républicaine, CIR, OFII, formation civique, forma
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10-05
+verifie_le: 2026-11-03
 lexique:
   - terme: "OFII"
     definition: "Office français de l'immigration et de l'intégration. L'établissement public qui reçoit les personnes étrangères arrivant en France et organise leur parcours d'intégration."
@@ -21,13 +21,16 @@ voir_aussi_lexique:
 sources:
   - service-public-contrat-integration-republicaine
   - ofii-accueil-integration
+  - interieur-parcours-integration-republicaine
 ce_qui_change_souvent:
   - "Le niveau de français à atteindre en fin de contrat"
   - "Le volume d'heures des formations en français"
   - "Les règles de l'examen civique en fin de formation civique"
   - "Le lien entre le contrat et la délivrance de la carte pluriannuelle"
 revisions:
+  - "2026-11-03 : niveaux A2 (carte pluriannuelle) et B1 (carte de résident), examen civique de 40 questions et test de français confirmés sur immigration.interieur.gouv.fr (page sans date affichée)"
   - "2026-10 : depuis le 1er janvier 2026, la formation civique se termine par l'examen civique (40 questions, 80 % de réussite), nécessaire pour une carte pluriannuelle ; niveau de français demandé : A2 pour une carte pluriannuelle, B1 pour une carte de résident ; vérifié sur service-public.fr (page vérifiée le 26 juin 2026) le 2026-10-05"
+phrase_generale: "Après un premier titre de séjour, la personne qui souhaite rester en France signe avec l'État un contrat d'intégration républicaine, préparé par l'OFII, qui comprend notamment des formations. Sa durée, ses obligations et ses conditions peuvent changer : renseignez-vous auprès de l'OFII ou consultez les sources officielles indiquées plus bas."
 collecte: etranger.collecte.md
 ---
 

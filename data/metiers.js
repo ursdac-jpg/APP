@@ -2383,25 +2383,6 @@ function fermerFenetreCV() {
 //   etape lit pour se pre-remplir plutot que repartir de zero.
 // ============================================================
 
-// TACHE (decision Denis 2026-09-29, regle valable pour TOUTE l'application) :
-// un document n'est « valide » que lorsqu'il est passe par la fenetre de
-// verification ET a ete enregistre. Fermer la fenetre avant (croix, Retour)
-// = comme si rien n'avait ete depose : on restaure ce que le depot avait deja
-// ecrit dans le dossier (texte extrait, drapeau d'analyse). Sans cela,
-// l'application gardait en memoire un CV jamais valide et le proposait
-// comme s'il l'etait. _depotCVRestaurer est arme a l'ouverture, desarme a
-// l'enregistrement (ou a l'entree avec un texte deja valide).
-var _depotCVRestaurer = null;
-function fermerAssistantDepotCV() {
-  var f = document.getElementById('assistantDepotCV');
-  if (f) { f.remove(); }
-  if (typeof _depotCVRestaurer === 'function') {
-    var restaurer = _depotCVRestaurer;
-    _depotCVRestaurer = null;
-    restaurer();
-  }
-}
-
 // TACHE (retour utilisateur : "je veux le tel/mail en jaune pour les
 // trouver plus facilement", option B validée) : detecte les telephones
 // (formats francais courants, espaces/points/tirets optionnels) et les
@@ -2662,8 +2643,15 @@ function afficherDetectionCoordonnees(texte, nomsConfirmes) {
     });
   }
   zone._detections = trouves;
-  if (!trouves.length) { zone.innerHTML = ''; return; }
-  zone.innerHTML = '<p class="small text-muted mb-1">Coordonnées détectées dans le texte ci-dessous - pensez à les retirer si vous ne voulez pas les envoyer :</p>' +
+  // Consigne 78 (Denis, 30/10/2026) : un encadre bien visible AVANT le texte, qui dit ce qui a ete repere, avec un grand bouton jaune pour tout retirer.
+  if (!trouves.length) {
+    zone.innerHTML = zone._nbRetirees
+      ? '<div class="depot-sens depot-sens-ok"><strong>&#9989; ' + zone._nbRetirees + ' information' + (zone._nbRetirees > 1 ? 's' : '') + ' sensible' + (zone._nbRetirees > 1 ? 's' : '') + ' retirée' + (zone._nbRetirees > 1 ? 's' : '') + ' du texte.</strong> Relisez maintenant le texte pour vérifier qu’il ne reste rien d’autre.</div>'
+      : '';
+    return;
+  }
+  zone.innerHTML = '<div class="depot-sens"><h4>&#128269; Informations sensibles repérées dans votre CV (' + trouves.length + ')</h4>' +
+    '<p class="small mb-2">Elles sont surlignées en jaune dans le texte plus bas. <strong>Pensez à les retirer</strong> si vous ne voulez pas les envoyer à l’assistant.</p>' +
     '<div class="d-flex flex-wrap gap-2">' +
     trouves.map(function (t, i) {
       return '<span style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:6px;padding:0.2rem 0.4rem 0.2rem 0.6rem;font-size:0.85rem;font-weight:600;display:inline-flex;align-items:center;gap:0.35rem;">' +
@@ -2673,7 +2661,7 @@ function afficherDetectionCoordonnees(texte, nomsConfirmes) {
         '</span>';
     }).join('') + '</div>' +
     // Retour Denis 25/10/2026 : un bouton pour retirer d'un coup tout ce qui est surligne en jaune ; la croix de chaque pastille reste (un par un).
-    '<div class="mt-2"><button type="button" data-retirer-toutes-detections class="btn btn-sm btn-outline-secondary">&#10005; Retirer tout ce qui est en jaune (' + trouves.length + ')</button></div>';
+    '<div class="mt-2"><button type="button" data-retirer-toutes-detections class="btn btn-warning fw-bold">&#10005; Retirer toutes les informations sensibles repérées (' + trouves.length + ')</button></div></div>';
 }
 
 // TACHE (Paquet B, decision de Denis 2026-09-26 + precision du 2026-09-27 :
@@ -2695,6 +2683,11 @@ function afficherDetectionCoordonnees(texte, nomsConfirmes) {
 // completion ulterieure ne referme plus jamais le bloc tout seul. Un clic
 // explicite (cablerBlocDepliManuel ci-dessous) peut ensuite changer ce
 // choix fige dans n'importe quel sens.
+// 31/10/2026 (consigne 83 a) : bloc « Votre assistant » des pages d'echange, une fois l'assistant choisi : REPLIE a l'arrivee (exception a la regle ci-dessous, maquette validee par Denis), la personne peut le rouvrir.
+function ouvertBlocAssistantChoisi(etat, cle) {
+  return !!(etat.blocsOuverts && Object.prototype.hasOwnProperty.call(etat.blocsOuverts, cle) && etat.blocsOuverts[cle]);
+}
+var SOUS_TITRE_ECHANGE_ASSISTANT_CHOISI = 'Revenez coller la réponse de l’assistant ici. Tout se passe sur cette page.';
 function ouvertBlocDepliManuel(etat, cle, ouvertCalcule) {
   if (!etat.blocsOuverts) { etat.blocsOuverts = {}; }
   var overrides = etat.blocsOuverts;
@@ -2706,48 +2699,15 @@ function ouvertBlocDepliManuel(etat, cle, ouvertCalcule) {
   // cablerBlocDepliManuel), jamais un rendu ni la fin de sa saisie.
   return true;
 }
-// TACHE (decision Denis 2026-09-29) : « Choisir un fichier » doit se voir
-// autant que « Coller le texte directement », sinon la personne qui hesite
-// colle du texte par defaut. Brique PARTAGEE par toutes les fenetres de depot
-// (CV, lettre, entretien : ouvrirAssistantDepotCV ; lettre de la preparation
-// d'entretien) : le champ natif (« Choisir un fichier / Aucun fichier choisi »,
-// peu lisible) reste dans la page mais cache, un vrai gros bouton d'action le
-// declenche et affiche le nom du fichier retenu.
-//   idInput  : id du champ fichier natif (les ecouteurs 'change' existants
-//              continuent de fonctionner sans changement)
-//   options  : { grand: true (defaut) | false pour une ligne de boutons }
-function htmlChoixFichierEvident(idInput, accept, options) {
-  options = options || {};
-  var grand = options.grand !== false;
-  return '<input type="file" id="' + idInput + '" class="visually-hidden" accept="' + accept + '" tabindex="-1">' +
-    '<button type="button" id="' + idInput + 'Bouton" class="btn btn-primary ' + (grand ? 'btn-lg w-100 mb-1' : 'btn-sm') + '">' +
-    '&#128193; Choisir un fichier</button>' +
-    '<div id="' + idInput + 'Nom" class="small text-muted ' + (grand ? 'text-center mb-2' : 'mt-1') + '">Aucun fichier choisi</div>';
-}
-function cablerChoixFichierEvident(idInput) {
-  var input = document.getElementById(idInput);
-  var bouton = document.getElementById(idInput + 'Bouton');
-  var nom = document.getElementById(idInput + 'Nom');
-  if (!input || !bouton) { return; }
-  bouton.addEventListener('click', function () { if (!input.disabled) { input.click(); } });
-  input.addEventListener('change', function () {
-    if (nom) { nom.textContent = input.files && input.files.length ? input.files[0].name : 'Aucun fichier choisi'; }
-  });
-}
-// Active / desactive ensemble le champ natif et son bouton (le fichier et le
-// texte colle sont mutuellement exclusifs).
-function definirChoixFichierActif(idInput, actif) {
-  var input = document.getElementById(idInput);
-  var bouton = document.getElementById(idInput + 'Bouton');
-  if (input) { input.disabled = !actif; }
-  if (bouton) { bouton.disabled = !actif; }
-}
 // TACHE (decision Denis 2026-09-29, regle valable pour tout parcours qui
 // demande un CV) : tant que le CV n'est pas depose ET valide, les autres
 // points sont DESACTIVES : ils restent visibles (on voit ce qui vient) mais on
 // ne peut rien y saisir. Brique partagee, a appeler apres chaque rendu.
 //   regles : [{ id: 'idDuBloc', actif: booleen, message: 'texte' }]
 // Le contenu du bloc est rendu inerte (ni clic, ni saisie, ni tabulation).
+// Texte entre deux blocs (brique htmlLiaisonBlocs de js/app.js) ; vide si la brique n'est pas chargee (tests Node).
+function _liaisonBlocs(texte) { return (typeof htmlLiaisonBlocs === 'function') ? htmlLiaisonBlocs(texte) : ''; }
+
 // Deverrouillage progressif (Lot 5, 25/10/2026, regle de Denis) : un point desactive reste visible, avec le « sens interdit » et un message qui dit pourquoi ; ce qu'il contient reagit
 // au survol (une carte se met en avant) mais rien ne s'enregistre : clic, frappe et tabulation sont arretes ici (plus de « inert », qui rendait les cartes muettes). Une regle peut aussi
 // porter masque: true : le point n'est pas encore montre du tout (le troisieme n'apparait qu'une fois le deuxieme ouvert).
@@ -2935,7 +2895,10 @@ function htmlVerificationDocument(cfg) {
   var roleHTML = '<p class="verif-doc-role"><span class="verif-doc-role-icone">&#128274;</span> Relisez ' +
     (cfg.titreDocument ? 'ce document (' + echapperAttribut(cfg.titreDocument) + ')' : 'ce document') +
     ', corrigez-le si besoin, puis masquez ce que vous ne voulez pas envoyer à l’assistant : nom, ' +
-    'coordonnées' + iconePersonne + '.</p>';
+    'coordonnées' + iconePersonne + '.' +
+    (cfg.mode === 'texte'
+      ? ' <strong>L’application ne repère pas tout</strong> (une adresse avec le nom de la rue, un employeur, un proche…) : effacez vous-même, directement dans le texte, ce qui reste de sensible avant d’enregistrer.'
+      : '') + '</p>';
 
   if (cfg.mode === 'texte') {
     // TACHE (point 1, stabilisation Bilan, 2026-08-22, DECISION DE DENIS) :
@@ -2966,6 +2929,7 @@ function htmlVerificationDocument(cfg) {
       'style="font-size:0.85rem;position:relative;background:transparent;color:transparent;caret-color:var(--text-strong);"></textarea>' +
       '</div>' +
       '<div class="text-center verif-doc-video-ligne">' + htmlDeclencheurDemoVideo('masquage-texte') + '</div>' +
+      (cfg.htmlAvantEnregistrer || '') +
       '<div class="verif-doc-enregistrer-ligne">' +
       '<button type="button" id="verifDocBtnEnregistrer" class="btn btn-primary verif-doc-btn-enregistrer" ' +
       'style="font-weight:700;">&#128190; Enregistrer</button>' +
@@ -2993,7 +2957,7 @@ function htmlVerificationDocument(cfg) {
     '</div>' +
     (cfg.avecEtapeSuivante !== false
       ? '<div id="verifDocNextPanel" class="verif-doc-next-panel" style="display:none;">' +
-        '<p class="fw-bold mb-2">&#128206; Une fois l’assistant ouvert</p>' +
+        '<p class="fw-bold mb-2">&#128203; Une fois l’assistant ouvert</p>' +
         '<ol class="small ps-3 mb-2">' +
         '<li>Collez le prompt : appuyez sur <kbd>Ctrl</kbd>+<kbd>V</kbd>, puis sur <strong>Entrée</strong>.</li>' +
         '<li>Glissez ce document (téléchargé juste au-dessus) dans la conversation.</li>' +
@@ -3111,6 +3075,7 @@ function cablerVerificationDocument(cfg) {
         var boutonTout = evenement.target.closest('[data-retirer-toutes-detections]');
         if (boutonTout) {
           (zoneDetection._detections || []).forEach(function (d) { champ.value = champ.value.split(d.valeur).join(''); });
+          zoneDetection._nbRetirees = (zoneDetection._nbRetirees || 0) + (zoneDetection._detections || []).length;
           afficherDetectionCoordonnees(champ.value, nomsConfirmes);
           rafraichirSurbrillance();
           if (typeof cfg.onModification === 'function') { cfg.onModification(champ.value); }
@@ -3122,6 +3087,7 @@ function cablerVerificationDocument(cfg) {
         var detection = zoneDetection._detections && zoneDetection._detections[indice];
         if (!detection) { return; }
         champ.value = champ.value.split(detection.valeur).join('');
+        zoneDetection._nbRetirees = (zoneDetection._nbRetirees || 0) + 1;
         afficherDetectionCoordonnees(champ.value, nomsConfirmes);
         rafraichirSurbrillance();
         if (typeof cfg.onModification === 'function') { cfg.onModification(champ.value); }
@@ -3232,865 +3198,293 @@ function cablerVerificationDocument(cfg) {
   if (cfg._dejaEnregistre) { marquerEnregistre(); }
 }
 
-function ouvrirAssistantDepotCV(mode, options) {
-  fermerAssistantDepotCV();
-  var modeCV = mode || 'maj';
-  var contexte = options || {};
-  // Etat du dossier avant ce depot, a restaurer si la fenetre est fermee sans
-  // enregistrement (voir fermerAssistantDepotCV). Sans objet quand le texte
-  // arrive deja valide (texteInitial).
-  var _cvTexteAvantDepot = dossier.cvTexte;
-  var _cvAnalyseAvantDepot = dossier.cvAnalyse;
-  var _identiteCapteeAvantDepot = _identiteCaptee;
-  _depotCVRestaurer = contexte.texteInitial ? null : function () {
-    dossier.cvTexte = _cvTexteAvantDepot;
-    dossier.cvAnalyse = _cvAnalyseAvantDepot;
-    _identiteCaptee = _identiteCapteeAvantDepot;   // un depot jamais valide ne laisse pas d'identite captee
-  };
-  // TACHE (retour utilisateur : "je veux avoir les trois chemins de la
-  // boite a outils... creer un CV, modifier un CV, mettre a jour un CV") :
-  // point d'entree UNIQUE des modes "pret"/"maj" (carte d'accueil ET
-  // panneau guide de recherche, tous deux appellent cette meme fonction,
-  // voir js/app.js) -- un seul endroit a instrumenter pour couvrir les 2
-  // chemins vers chacun de ces 2 modes. "nouveau" n'a pas de point
-  // d'entree unique equivalent : trackee directement a ses 2 sites
-  // d'appel (js/app.js).
-  if (typeof trackEvenement === 'function') { trackEvenement('mode_creation_choisi', { mode: modeCV }); }
-
-  // TACHE 1 : etat partage unique. Les champs ci-dessous anticipent les
-  // besoins des Taches 2 a 5 (juste leur NOM, pas leur logique) -- ce n'est
-  // pas une anticipation artificielle de fonctionnalites non demandees,
-  // c'est la structure de donnees necessaire au fonctionnement meme du
-  // wizard deja valide (dossier, methode, image editee, assistant, reponse).
-  // TACHE (RC-02, Vague 3, 2026-08-22) : contexte.texteInitial/etapeInitiale
-  // (tous deux optionnels, retro-compatibles -- absents, rien ne change
-  // pour les 3 appelants existants CV/Lettre/Entretien) permettent d'entrer
-  // directement a l'etape 3 (structuration) avec un texte deja pret,
-  // deja relu ailleurs -- jamais un nouveau depot, jamais une nouvelle
-  // relecture. Fonction PLATEFORME, generique : ne sait pas d'ou vient ce
-  // texte ni pourquoi (voir structurerTexteExistant() plus bas, seul
-  // appelant a ce jour).
-  var etat = {
-    etapeCourante: contexte.etapeInitiale || 1,
-    fichier: null,
-    resultatAnalyse: null,
-    modeEditeur: contexte.texteInitial ? 'texte' : null,
-    assistantChoisi: null,
-    texteReponseIA: '',
-    texteDocumentPrepare: contexte.texteInitial || null,
-    texteVerifie: !!contexte.texteInitial
-  };
-
-  var fenetre = document.createElement('div');
-  fenetre.id = 'assistantDepotCV';
-  fenetre.style.cssText = 'position:fixed;inset:0;background:rgba(11,26,51,0.55);' +
-    'display:flex;align-items:center;justify-content:center;z-index:2000;padding:1rem;';
-  document.body.appendChild(fenetre);
-  // TACHE (retour utilisateur : plus de fermeture au clic sur le fond) :
-  // la croix (fermerAssistantDepotCVBtn, plus bas) reste le seul moyen
-  // explicite de fermer, en plus de la fin naturelle du parcours.
-
-  function etapeSuivanteWizard() {
-    fermerAssistantDepotCV();
-    if (contexte && typeof contexte.onTerminer === 'function') {
-      contexte.onTerminer();
-    } else {
-      dossier.modeCreation = modeCV;
-      naviguerVers('objectif');
-    }
+// ============================================================
+// DEPOT DU CV EN PAGE (consigne 28, seance 1, Denis 30/10/2026) : remplace la fenetre ouvrirAssistantDepotCV pour le mode « depot + relecture ».
+// Un seul bloc, dans le point 1 de la page du module : choisir un fichier ou coller le texte (deux cartes), relire et masquer (meme composant
+// que partout : htmlVerificationDocument), rubrique « Retire du texte, garde chez vous » (identite reperee, corrigeable), Enregistrer.
+// Aucune fenetre, aucun bouton « Continuer » ici : le module garde le sien dans la barre du bas (data-barre-bas).
+// Etat PRIVE de la brique (une seule instance affichee a la fois, comme htmlVerificationDocument) ; le module garde le CV valide dans son propre etat.
+//   cfg : { cle (identifiant du module), titreDocument, intro, avecIdentite (rubrique + pre-remplissage d'« Identite »), ecrireCV (defaut vrai :
+//           memes ecritures dans le dossier que la fenetre : cvAnalyse, cvTexte), fait (le module a deja un document valide), nomFait,
+//           texteFait (texte valide, pour « Revoir »), optionnel, nomsInitiaux, rerender(), onDocumentPrepare({type, valeur, fichier, nomFichier}), onPasser(),
+//           texteARelire + nomARelire (texte que le module a deja mais pas encore relu, ex. CV deja dans l'application : la brique demarre a la relecture),
+//           raccourciTexte + raccourciLibelle (bouton « utiliser le CV deja dans l'application » : son texte part a la relecture),
+//           suffixeId (ajoute a tous les identifiants de la zone : obligatoire des que plusieurs zones sont sur la meme page, ex. '-cv', '-lettre'),
+//           onFermer() + libelleFermer (bouton « Annuler » du depot a la demande : le module referme la zone) }
+// ============================================================
+// Une instance par cle (plusieurs zones de depot peuvent vivre sur une meme page : le CV, puis une lettre de recommandation a la demande). Les identifiants du
+// composant de relecture sont uniques : une seule zone doit etre en lecture ou en relecture a la fois (les modules l'assurent par leur ordre et leurs verrous).
+var _depotPages = {};
+function _depotPageEtat(cfg) {
+  if (!_depotPages[cfg.cle]) {
+    _depotPages[cfg.cle] = { cle: cfg.cle, phase: null, jeton: 0, fichier: null, nom: '', texteRaw: '', texte: '', brouillon: null, message: '', ocr: false, info: null, champs: null, identiteAvant: undefined };
   }
-
-  // TACHE 1 : coeur du squelette. Remplace INTEGRALEMENT le contenu a
-  // chaque appel (jamais d'accumulation) et pose un pied de page uniforme
-  // (Retour a gauche des l'etape 2, Continuer a droite), dont le
-  // comportement est fourni par la definition de l'etape elle-meme.
-  // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a CV/
-  // Lettre/Entretien, pour la coherence de tout le parcours") : coupe
-  // systematiquement tout decompte herite d'un rendu precedent AVANT de
-  // reconstruire quoi que ce soit -- meme precaution que naviguerVers()/
-  // afficherEtape() (Decouverte), js/app.js. Redemarre seulement plus bas
-  // (etape 4, cablerEtape4()) si les conditions sont toujours reunies.
-  function afficherEtape(numero) {
-    clearInterval(_intervalleDecompteIA);
-    etat.etapeCourante = numero;
-    var etape = obtenirDefinitionEtape(numero);
-    // TACHE (bug reel trouve en verifiant "Retour" depuis le pont
-    // structurerTexteExistant()) : quand le wizard est ouvert directement
-    // a une etape avancee (contexte.etapeInitiale, ex. etape 3 -- aucun
-    // fichier n'a jamais ete depose), "Retour" ne doit jamais redescendre
-    // en dessous de l'etape juste avant l'entree -- au-dela, l'etape 1
-    // (depot de fichier) n'a aucune donnee reelle a afficher et devient un
-    // ecran casse (Continuer actif sans fichier depose). Plancher = etape
-    // d'entree - 1 (la revue du contenu deja fourni reste legitime, un
-    // pas plus loin non). Sans etapeInitiale (parcours normal), plancher
-    // reste 1 -- comportement inchange.
-    var etapePlancher = Math.max(1, (contexte.etapeInitiale || 1) - 1);
-
-    // TACHE (retour utilisateur : bouton Continuer difficilement atteignable
-    // sur l'etape Verification, 2026-08-24) : pied de fenetre desormais FIXE
-    // (jamais defile avec le contenu) -- avant ce correctif, Retour/Continuer
-    // vivaient DANS le meme conteneur overflow-y:auto que le contenu, donc
-    // descendaient hors champ des que le texte du CV (textarea rows=14 +
-    // badges de coordonnees) depassait 90vh. Pire : la molette au-dessus du
-    // textarea fait defiler SON PROPRE contenu interne (pas la fenetre), donc
-    // il fallait deplacer la souris hors du texte pour esperer atteindre
-    // Continuer -- jamais decouvert naturellement. Desormais : seule la zone
-    // de contenu (id=wizardZoneContenuDefilante) defile, le pied de fenetre
-    // (Retour/Continuer, avec son pulse deja existant) reste toujours visible
-    // en bas de la fenetre, quelle que soit la hauteur du contenu.
-    fenetre.innerHTML =
-      '<div style="background:var(--bg-card);color:var(--text-strong);border-radius:1.5rem;max-width:680px;width:100%;' +
-      'max-height:90vh;display:flex;flex-direction:column;padding:0;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
-      '<div style="padding:1.5rem 1.5rem 0 1.5rem;overflow-y:auto;flex:1 1 auto;min-height:0;">' +
-      '<div class="d-flex justify-content-between align-items-center mb-3">' +
-      '<h5 class="mb-0">' + etape.titre + '</h5>' +
-      '<button type="button" id="fermerAssistantDepotCVBtn" class="btn btn-sm btn-outline-secondary" ' +
-      'style="border-radius:50%;width:32px;height:32px;padding:0;">&#10005;</button>' +
-      '</div>' +
-      '<div id="contenuEtapeWizard">' + etape.contenuHTML + '</div>' +
-      '</div>' +
-      // TACHE (rapprochement maquette, pied de fenetre) : un peu plus de
-      // respiration (mt-3/pt-3 -> mt-4/pt-4) -- meme gabarit pour les 4
-      // etapes du wizard, coherent avec le reste des espacements repris
-      // de la maquette.
-      '<div class="d-flex justify-content-between align-items-center" style="flex:0 0 auto;padding:1rem 1.5rem 1.5rem 1.5rem;border-top:1px solid #E5E7EB;">' +
-      (numero > etapePlancher || (numero === etapePlancher && typeof contexte.onRetourEtape1 === 'function')
-        ? '<button type="button" id="btnRetourWizard" class="btn btn-outline-secondary">&#8592; Retour</button>'
-        : '<span></span>') +
-      (etape.boutonMilieuHTML || '<span></span>') +
-      (etape.masquerContinuer ? '' :
-      '<button type="button" id="btnContinuerWizard" class="btn btn-primary"' +
-      (etape.peutContinuer ? '' : ' disabled') + '>' + (etape.libelleContinuer || 'Continuer &#8594;') + '</button>') +
-      '</div></div>';
-
-    document.getElementById('fermerAssistantDepotCVBtn').addEventListener('click', fermerAssistantDepotCV);
-    var btnRetour = document.getElementById('btnRetourWizard');
-    if (btnRetour) {
-      btnRetour.addEventListener('click', function () {
-        // TACHE (retour utilisateur : bouton Retour vers le choix initial) :
-        // depuis le plancher (etape 1 en temps normal, ou l'etape juste
-        // avant contexte.etapeInitiale pour une entree directe -- voir
-        // etapePlancher plus haut), si ce wizard a ete ouvert avec un point
-        // de retour explicite (onRetourEtape1), Retour y renvoie plutot que
-        // de continuer a redescendre vers une etape jamais reellement visitee.
-        if (numero === etapePlancher && typeof contexte.onRetourEtape1 === 'function') {
-          fermerAssistantDepotCV();
-          contexte.onRetourEtape1();
-        } else {
-          allerEtapePrecedente(numero);
-        }
-      });
-    }
-    if (!etape.masquerContinuer) {
-      document.getElementById('btnContinuerWizard').addEventListener('click', function () {
-        if (typeof etape.onContinuer === 'function') { etape.onContinuer(); }
-      });
-    }
-    if (typeof etape.onCablerBoutonMilieu === 'function') { etape.onCablerBoutonMilieu(); }
-
-    if (typeof etape.onAfficher === 'function') { etape.onAfficher(); }
-  }
-
-  // TACHE 2 : navigation arriere consciente des etapes sautees -- si
-  // l'etape 2 ne s'applique pas (methode rapide, ou document texte pour
-  // la methode IA), "Retour" depuis l'etape 3 doit revenir a l'etape 1,
-  // jamais s'arreter sur une etape 2 qui n'a jamais ete affichee.
-  function allerEtapePrecedente(depuis) {
-    afficherEtape(Math.max(1, depuis - 1));
-  }
-
-  // TACHE 2 (Etape 1) : cable le depot de fichier + la detection deja
-  // construite (analyserDocumentDepose(), Tache 1 du chantier precedent) --
-  // aucune logique dupliquee. Si l'etat contient deja un resultat d'analyse
-  // (retour en arriere puis re-avance), le reaffiche directement plutot
-  // que d'exiger un nouveau depot.
-  function cablerEtape1() {
-    var inputFichier = document.getElementById('fichierWizardCV');
-    cablerChoixFichierEvident('fichierWizardCV');
-    var zoneAnalyse = document.getElementById('zoneAnalyseEtape1');
-    var btnAfficherCollage = document.getElementById('btnAfficherCollageTexteWizard');
-    var zoneCollageTexte = document.getElementById('zoneCollageTexteWizard');
-    var texteCollageWizard = document.getElementById('texteCollageWizardCV');
-    var btnAnnulerCollageTexte = document.getElementById('btnAnnulerCollageTexteWizard');
-
-    var btnPasser = document.getElementById('btnPasserEtapeWizard');
-    if (btnPasser) {
-      btnPasser.addEventListener('click', function () {
-        fermerAssistantDepotCV();
-        if (typeof contexte.onDocumentPrepare === 'function') { contexte.onDocumentPrepare(null); }
-      });
-    }
-
-    if (etat.resultatAnalyse) {
-      afficherRecommandation(etat.resultatAnalyse);
-      if (btnAfficherCollage) { btnAfficherCollage.style.display = 'none'; }
-    } else if (etat.modeEditeur === 'texte' && !etat.fichier) {
-      // TACHE (Retour n'efface rien) : un texte colle a l'etape 1, puis
-      // Retour depuis l'etape 2 -- on le reaffiche tel quel plutot que de
-      // reperdre la saisie.
-      zoneCollageTexte.style.display = 'block';
-      texteCollageWizard.value = etat.texteDocumentPrepare || '';
-      btnAfficherCollage.style.display = 'none';
-      definirChoixFichierActif('fichierWizardCV', false);
-    }
-
-    inputFichier.addEventListener('change', function () {
-      if (!inputFichier.files.length) { return; }
-      etat.fichier = inputFichier.files[0];
-      // Fichier et texte colle sont mutuellement exclusifs -- choisir un
-      // fichier efface tout texte colle en attente (jamais les deux
-      // sources actives a la fois).
-      etat.modeEditeur = null;
-      etat.texteDocumentPrepare = null;
-      // TACHE (chantier OCR) : efface aussi l'image et le texte OCR d'un
-      // depot precedent -- sinon un nouveau fichier choisi apres un echec
-      // d'OCR reutiliserait a tort l'ancienne image (voir cablerEtape2()).
-      etat.imageSource = null;
-      if (texteCollageWizard) { texteCollageWizard.value = ''; }
-      if (zoneCollageTexte) { zoneCollageTexte.style.display = 'none'; }
-      if (btnAfficherCollage) { btnAfficherCollage.style.display = 'none'; }
-      var btnContinuer = document.getElementById('btnContinuerWizard');
-      if (btnContinuer) { btnContinuer.disabled = true; }
-      zoneAnalyse.innerHTML = '<div class="alert alert-light border mb-0">&#8987; Analyse du document en cours...</div>';
-
-      analyserDocumentDepose(etat.fichier).then(function (resultatAnalyse) {
-        dossier.cvTexte = resultatAnalyse.texteExtrait || '';
-        dossier.cvAnalyse = true;
-        etat.resultatAnalyse = resultatAnalyse;
-        // TACHE (unification du parcours) : un seul mode restant --
-        // l'application ne demande plus de choisir, elle oriente
-        // automatiquement vers l'editeur adapte (texte ou graphique).
-        etat.modeEditeur = resultatAnalyse.recommandation.texteDisponible ? 'texte' : 'image';
-        afficherRecommandation(resultatAnalyse);
-      }).catch(function (erreur) {
-        zoneAnalyse.innerHTML = '<div class="alert alert-warning mb-0">Impossible de lire ce fichier (' +
-          erreur.message + ').</div>';
-      });
-    });
-
-    if (btnAfficherCollage) {
-      btnAfficherCollage.addEventListener('click', function () {
-        zoneCollageTexte.style.display = 'block';
-        btnAfficherCollage.style.display = 'none';
-        definirChoixFichierActif('fichierWizardCV', false);
-        texteCollageWizard.focus();
-      });
-    }
-
-    if (btnAnnulerCollageTexte) {
-      btnAnnulerCollageTexte.addEventListener('click', function () {
-        texteCollageWizard.value = '';
-        zoneCollageTexte.style.display = 'none';
-        if (btnAfficherCollage) { btnAfficherCollage.style.display = 'block'; }
-        definirChoixFichierActif('fichierWizardCV', true);
-        etat.modeEditeur = null;
-        etat.texteDocumentPrepare = null;
-        dossier.cvAnalyse = _cvAnalyseAvantDepot;
-        var btnContinuer = document.getElementById('btnContinuerWizard');
-        if (btnContinuer) { btnContinuer.disabled = true; }
-      });
-    }
-
-    if (texteCollageWizard) {
-      texteCollageWizard.addEventListener('input', function () {
-        var texte = texteCollageWizard.value;
-        var btnContinuer = document.getElementById('btnContinuerWizard');
-        etat.fichier = null;
-        if (texte.trim()) {
-          etat.modeEditeur = 'texte';
-          etat.texteDocumentPrepare = texte;
-          // Comme le chemin « fichier » (plus haut) : un CV est maintenant analysé, quel que soit le mode de dépôt ; sans ça, après l'import la personne arrivait sur « Votre parcours » (ancienne barre) au lieu de « Vos informations ».
-          dossier.cvAnalyse = true;
-          if (btnContinuer) { btnContinuer.disabled = false; }
-        } else {
-          etat.modeEditeur = null;
-          etat.texteDocumentPrepare = null;
-          dossier.cvAnalyse = _cvAnalyseAvantDepot;   // plus de texte : l'état d'avant le dépôt (fermer sans enregistrer le restaure déjà)
-          if (btnContinuer) { btnContinuer.disabled = true; }
-        }
-      });
-    }
-
-    function afficherRecommandation(resultatAnalyse) {
-      zoneAnalyse.innerHTML =
-        '<div class="mb-2" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:0.6rem 0.9rem;">' +
-        '<p class="mb-0 small"><strong>&#128161; ' + (etat.modeEditeur === 'texte' ? 'Document texte détecté' : 'Document image/scan détecté') +
-        '</strong> - ' + resultatAnalyse.recommandation.message + '</p>' +
-        '</div>';
-      var btnContinuer = document.getElementById('btnContinuerWizard');
-      if (btnContinuer) { btnContinuer.disabled = false; }
-    }
-  }
-
-  // TACHE (chantier OCR, 2026-09-27) : remplace l'ancien editeur graphique
-  // (masquage par rectangles, htmlVerificationDocument mode 'image') par
-  // une extraction de texte (extraireTexteParOCR() plus haut). Une fois le
-  // texte extrait, etat.modeEditeur passe a 'texte' et l'etape se rejoue
-  // (afficherEtape(2)) pour prendre la branche texte, qui reutilise le
-  // MEME ecran de relecture qu'un CV colle (surlignage + pilules avec
-  // croix, A6) -- aucun 2e mecanisme de verification a maintenir.
-  function cablerEtape2() {
-    var zoneEditeur = document.getElementById('zoneEditeurCV');
-
-    function lancerOCR(img) {
-      etat.imageSource = img;
-      extraireTexteParOCR(img, function (pourcentage) {
-        var statut = document.getElementById('ocrStatutTexte');
-        if (statut) { statut.textContent = 'Lecture du document en cours... ' + pourcentage + ' %'; }
-      }).then(function (texte) {
-        etat.texteDocumentPrepare = texte;
-        etat.modeEditeur = 'texte';
-        etat.texteVerifie = false;
-        afficherEtape(2);
-      }).catch(function () {
-        zoneEditeur.innerHTML = '<div class="alert alert-warning mb-0">La lecture automatique du document a échoué.' +
-          '<div class="mt-2"><button type="button" class="btn btn-outline-secondary btn-sm" id="btnReessayerOCR">Réessayer</button></div>' +
-          '<p class="preparer-detail mb-0 mt-2">Vous pouvez aussi revenir en arrière et coller le texte vous-même.</p></div>';
-        var btnReessayer = document.getElementById('btnReessayerOCR');
-        if (btnReessayer) { btnReessayer.addEventListener('click', cablerEtape2); }
-      });
-    }
-
-    // TACHE 3 ("Retour" ne perd rien) : si l'image a deja ete chargee
-    // (aller-retour dans le wizard AVANT que l'OCR ait fini), on relance
-    // directement l'OCR sur cette meme image plutot que de recharger le
-    // fichier -- une fois l'OCR reussi, modeEditeur passe a 'texte' et
-    // cette fonction n'est plus rappelee (l'autre branche prend le relais).
-    if (etat.imageSource) {
-      lancerOCR(etat.imageSource);
-    } else {
-      chargerImageDepuisFichier(etat.fichier).then(lancerOCR).catch(function (erreur) {
-        zoneEditeur.innerHTML = '<div class="alert alert-warning mb-0">' + erreur.message + '</div>';
-      });
-    }
-  }
-
-  // ============================================================
-  // ETAPE 3 : ANALYSE ASSISTEE PAR IA (Tache 4)
-  // ------------------------------------------------------------
-  // Absorbe directement dans le wizard, comme demande -- plus de fenetre
-  // separee. Reutilise ASSISTANTS_IA et ETAPES_ASSISTANT_IA_TEXTE (deja
-  // partagees, app.js), aucune duplication de ces listes. Une nouvelle
-  // liste d'etapes est necessaire pour le mode "image securisee" (collage
-  // automatique, valide dans notre echange) -- differente de l'ancien
-  // mode "piece jointe manuelle" utilise par l'ancienne fenetre.
-  // ============================================================
-
-  // TACHE (retour utilisateur : plus de copie d'image en double) : un seul
-  // parcours desormais -- le document (masque si vous avez utilise l'outil
-  // prevu a cet effet) est deja telecharge a l'Etape 2 (bouton Enregistrer),
-  // il ne reste qu'a le glisser dans la conversation avec l'assistant
-  // choisi.
-  // TACHE (menage confidentialite) : "anonymise" retire du texte -- rien ne
-  // garantit que la personne a reellement dessine un rectangle de masquage,
-  // ce mot affirmait a tort un etat systematiquement atteint.
-  var ETAPES_ASSISTANT_IA_IMAGE_SECURISEE_TELECHARGEMENT = [
-    'Le prompt d’instructions est <strong>automatiquement copié</strong> dans votre presse-papiers.',
-    'Votre document a déjà été téléchargé à l’étape précédente.',
-    'Une fois sur le site de {ASSISTANT}, cliquez dans la zone de conversation et faites <strong>Ctrl + V</strong> ' +
-    'pour coller le prompt.',
-    'Glissez ensuite le document téléchargé dans la conversation, puis appuyez sur <strong>Entrée</strong>.',
-    'Une fois sa réponse affichée, cliquez sur le bouton "Copier" de {ASSISTANT}.',
-    'Revenez ensuite ici pour importer cette réponse.'
-  ];
-  // TACHE : detection simple -- ClipboardItem + navigator.clipboard.write()
-  // doivent tous les deux exister pour pouvoir copier une image.
-
-  // TACHE (chantier "fenetre de verification unifiee") : choisir une
-  // pastille ouvre desormais DIRECTEMENT ouvrirFenetreAssistantIA() (js/
-  // app.js) -- exactement le meme "Avant de continuer" (etapes, aperçu du
-  // rond bleu, decompte) que la page Action et Decouverte, au lieu d'une
-  // explication inline ecrite en propre ici. rendreExplication()/
-  // lancerEnvoiVersAssistantIA() sont retirees : leur contenu (liste
-  // d'etapes, video, astuce image, construction du texte a copier) vit
-  // desormais dans ouvrirConfirmationAssistantWizard() ci-dessous, simple
-  // assemblage des parametres attendus par la primitive partagee -- aucune
-  // logique de confirmation dupliquee.
-  // TACHE (Vague 1, point 6 -- harmonisation) : remplace les cartes
-  // propres a ce wizard par lignePastillesAssistantsIA(), le meme
-  // composant deja utilise par la page Action, Decouverte, et le Bilan de
-  // candidature (choix diagnostic, amelioration d'une recommandation) --
-  // seule la CONFIRMATION qui suit (ouvrirConfirmationAssistantWizard, ci-
-  // dessous) etait deja harmonisee jusqu'ici, pas ce choix initial. Meme
-  // groupement "Sans compte"/"Compte necessaire" que partout ailleurs ;
-  // idActif memorise le choix si la personne revient sur cette etape,
-  // seule difference deliberee avec les autres appelants (voir
-  // lignePastillesAssistantsIA()).
-  function cablerEtape3() {
-    var zone = document.getElementById('zoneEtape3');
-    var idActif = etat.assistantChoisi ? etat.assistantChoisi.id : null;
-
-    zone.innerHTML =
-      // TACHE (retour utilisateur : "une personne a bloqué ici sans
-      // comprendre qu'il faut cliquer sur une pastille") : titre
-      // agrandi (etait un simple <p> discret), instruction explicite
-      // ajoutee juste en dessous plutot que sous-entendue par le seul
-      // titre.
-      '<p class="fw-bold mb-1" style="font-size:1.3rem;">Choisissez votre assistant</p>' +
-      '<p class="small text-muted mb-2">Cliquez sur une des pastilles ci-dessous : l’application prépare et copie ' +
-      'tout pour vous, puis ouvre l’assistant.</p>' +
-      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">' +
-      '<span class="small" style="width:130px;flex-shrink:0;font-weight:700;color:#374151;">Sans compte</span>' +
-      lignePastillesAssistantsIA(ASSISTANTS_IA.filter(function (a) { return ASSISTANTS_SANS_COMPTE_IA.indexOf(a.id) !== -1; }), '#DCFCE7', '#86E0B0', '#14532D', 'data-assistant-wizard', idActif) +
-      '</div>' +
-      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;">' +
-      '<span class="small" style="width:130px;flex-shrink:0;font-weight:700;color:#374151;">Compte nécessaire</span>' +
-      lignePastillesAssistantsIA(ASSISTANTS_IA.filter(function (a) { return ASSISTANTS_SANS_COMPTE_IA.indexOf(a.id) === -1; }), '#EFF6FF', '#BFDBFE', '#1E3A5F', 'data-assistant-wizard', idActif) +
-      '</div>';
-
-    document.querySelectorAll('[data-assistant-wizard]').forEach(function (pastille) {
-      pastille.addEventListener('click', function () {
-        var assistant = ASSISTANTS_IA.filter(function (a) { return a.id === pastille.dataset.assistantWizard; })[0];
-        if (!assistant) { return; }
-        etat.assistantChoisi = assistant;
-        ouvrirConfirmationAssistantWizard(assistant);
-      });
-    });
-  }
-
-  // TACHE (chantier "fenetre de verification unifiee") : reprend EXACTEMENT
-  // les parametres attendus par ouvrirFenetreAssistantIA() (js/app.js,
-  // meme fonction que la page Action) -- etapes (liste deja partagee,
-  // ETAPES_ASSISTANT_IA_IMAGE_SECURISEE_TELECHARGEMENT/TEXTE), video de
-  // demonstration, astuce "image refusee", et construction du texte a
-  // copier (retire d'ici l'ancien lancerEnvoiVersAssistantIA(), aucune
-  // logique changee -- seul le PORTEUR de cette logique change).
-  function ouvrirConfirmationAssistantWizard(assistant) {
-    var etapesAssistant = etat.modeEditeur === 'image'
-      ? ETAPES_ASSISTANT_IA_IMAGE_SECURISEE_TELECHARGEMENT
-      : ETAPES_ASSISTANT_IA_TEXTE;
-    // TACHE (retour utilisateur : "la vidéo n'est pas la bonne, il faut
-    // mettre importer_IA.mp4") : cette etape couvre tout l'aller-retour
-    // (envoi ET recuperation de la reponse), et c'est bien importer_IA.mp4
-    // (deja utilisee ailleurs sous la cle 'import-reponse-ia') qui montre
-    // ce parcours complet -- pas 'export-ia-texte' (Exp_imp_ai.mp4), qui
-    // ne montre que l'envoi seul.
-    var idDemoExport = etat.modeEditeur === 'image' ? 'export-ia-image' : 'import-reponse-ia';
-
-    ouvrirFenetreAssistantIA({
-      nomAssistant: assistant.nom,
-      idAssistant: assistant.id,
-      urlAssistant: assistant.url,
-      etapes: etapesAssistant,
-      idDemoVideo: idDemoExport,
-      avecAstuceImageRefusee: etat.modeEditeur === 'image',
-      construireTexteACopier: function () {
-        if (etat.modeEditeur === 'image') {
-          // TACHE (retour utilisateur : l'image n'atteint jamais l’assistant) :
-          // le document a deja ete telecharge a l'Etape 2 (bouton
-          // Enregistrer) -- un seul scenario possible, glisser ce fichier
-          // dans la conversation.
-          var instructions = promptsExternesCharges['extraction-cv'] || promptParDefaut('extraction-cv');
-          var messageImage = 'Le document à analyser (image) est fourni séparément : glissez le fichier téléchargé dans la conversation.';
-          return instructions.replace(/Voici le texte du CV à lire\s*:\s*$/, messageImage);
-        }
-        // TACHE (retour utilisateur : retrait Anonymiser) : texte brut,
-        // plus de version anonymisee.
-        var texteDocument = etat.texteDocumentPrepare || dossier.cvTexte;
-        return promptCache('extraction-cv', texteDocument);
-      },
-      onApresValidation: function (urlAssistant, nomAssistant) {
-        // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-        // CV/Lettre/Entretien") : window.open() ne se declenche pas ici --
-        // urlAssistant/nomAssistant voyagent jusqu'a l'etape 4
-        // (cablerEtape4()) via _etatTransitionIA (js/app.js, globale, deja
-        // partagee par la page Action et Decouverte), qui decide seule du
-        // moment ou l'ouverture reelle se declenche.
-        _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
-        afficherEtape(4);
-      }
-    });
-  }
-
-  // TACHE 1 : definitions PROVISOIRES des 4 etapes -- juste assez pour
-  // valider la mecanique de navigation avant d'y apporter du contenu reel
-  // (Taches 2 a 5). Chaque etape est deja individuellement identifiable,
-  // navigable dans les deux sens, sans aucune accumulation visuelle.
-  // ETAPE 4 : import de la reponse de l’assistant -- reutilise integralement le
-  // pipeline deja construit (analyserReponseImport/SPECIFICATION_IMPORT/
-  // ouvrirEcranValidationImport), aucune logique dupliquee.
-  function cablerEtape4() {
-    var messageImport = document.getElementById('messageImportWizard');
-    activerCollageInstantane({
-      idZoneAuto: 'zoneCollageAutoWizard',
-      idZoneApercu: 'zoneApercuCollageWizard',
-      idTextarea: 'texteCollageWizard',
-      idBoutonColler: 'btnCollerAutoWizard',
-      idBoutonCollerManuel: 'btnCollerManuelWizard',
-      idBoutonEffacerRecoller: 'btnEffacerRecoller',
-      idBoutonImporter: 'btnImporterWizard',
-      onErreur: function (message) { messageImport.style.color = 'var(--danger)'; messageImport.textContent = '⚠️ ' + message; },
-      onEffacer: function () { messageImport.textContent = ''; },
-      onSucces: function (texte, estAjout) { messageImport.style.color = 'var(--success-strong)'; messageImport.textContent = estAjout ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.' : '✅ Réponse importée automatiquement depuis le presse-papiers. Si la réponse de l’assistant fait plusieurs morceaux, copiez le morceau suivant puis cliquez sur "Coller un morceau supplémentaire", juste en dessous : il s’ajoutera à la suite. Vérifiez l’aperçu ci-dessous, puis cliquez sur "Importer".'; },
-      onCollerManuel: function () { messageImport.textContent = ''; }
-    });
-
-    // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-    // CV/Lettre/Entretien") : etat desactive/actif du rond bleu +
-    // decompte/bannieres -- copie adaptee du bloc equivalent de
-    // brancherEvenementsResultats() (js/app.js, accordeon ActionIA) et de
-    // etapeCollerReponse() (decouverteParcours.js). btnJeSuisDeRetourIA
-    // reprend le MEME id que les 2 autres parcours :
-    // installerEcouteurVisibiliteRetourIA() (deja installe globalement,
-    // js/app.js) intensifie donc son pulse au retour de visibilite de
-    // l'onglet, sans code supplementaire ici.
-    var btnCollerAutoWizard = document.getElementById('btnCollerAutoWizard');
-    var texteBtnCollerAutoWizard = document.getElementById('texteBtnCollerAutoWizard');
-    if (_etatTransitionIA && btnCollerAutoWizard) {
-      if (_etatTransitionIA.phase === 'revenu') {
-        btnCollerAutoWizard.disabled = false;
-        btnCollerAutoWizard.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-        btnCollerAutoWizard.classList.add('pulse-collage-retour');
-        if (texteBtnCollerAutoWizard) { texteBtnCollerAutoWizard.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-      } else {
-        // decompte ou ouvert : jamais cliquable avant le retour confirme
-        // (meme securite UX que la page Action/Decouverte).
-        btnCollerAutoWizard.disabled = true;
-        btnCollerAutoWizard.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-        btnCollerAutoWizard.classList.add('rond-collage-desactive');
-        if (texteBtnCollerAutoWizard) { texteBtnCollerAutoWizard.textContent = 'Ce bouton s’activera à votre retour.'; }
-      }
-
-      // Ouvre reellement l'assistant (window.open repousse jusqu'ici
-      // depuis lancerEnvoiVersAssistantIA()) -- a la fin du decompte OU au
-      // clic sur "Continuer maintenant". Phase 'bloque' geree comme cote
-      // page Action/Decouverte : un window.open() declenche depuis un
-      // minuteur (sans clic direct) est bloque silencieusement par le
-      // navigateur (retourne null).
-      function ouvrirAssistantWizardEnAttente() {
-        // TACHE (bug reel trouve en construisant ce chantier : "fermer le
-        // wizard pendant le decompte ouvre quand meme un popup 5s plus
-        // tard") : fermerAssistantDepotCV() DETRUIT fenetre (f.remove()),
-        // contrairement a Decouverte qui se contente de la MASQUER -- sans
-        // ce garde-fou, le minuteur du decompte survivrait a la fermeture
-        // et ouvrirait un onglet surprise vers l'assistant meme apres que
-        // la personne ait ferme la fenetre. btnCollerAutoWizard n'existe
-        // QUE si l'etape 4 de CE wizard est toujours affichee.
-        if (!document.getElementById('btnCollerAutoWizard')) { clearInterval(_intervalleDecompteIA); return; }
-        // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-        // (js/app.js) -- meme correctif, tous les parcours.
-        recopierTexteAssistantPuisOuvrir(function () {
-          var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-          _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-          // TACHE (retour utilisateur : "je veux bien aussi" le suivi popup
-          // bloque pour ces 3 nouveaux parcours) : mesure combien de
-          // navigateurs bloquent reellement l'ouverture automatique --
-          // mode (pret/maj) inclus pour distinguer les 2 cartes d'accueil.
-          if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') {
-            trackEvenement('cv_depot_popup_bloque', { mode: modeCV });
-          }
-          afficherEtape(4);
-        });
-      }
-
-      if (_etatTransitionIA.phase === 'decompte') {
-        var btnContinuerMaintenantIA = document.getElementById('btnContinuerMaintenantIA');
-        if (btnContinuerMaintenantIA) {
-          btnContinuerMaintenantIA.addEventListener('click', function () {
-            clearInterval(_intervalleDecompteIA);
-            ouvrirAssistantWizardEnAttente();
-          });
-        }
-        _intervalleDecompteIA = setInterval(function () {
-          _etatTransitionIA.secondesRestantes -= 1;
-          var compteurDecompteIA = document.getElementById('compteurDecompteIA');
-          if (compteurDecompteIA) { compteurDecompteIA.textContent = _etatTransitionIA.secondesRestantes; }
-          if (_etatTransitionIA.secondesRestantes <= 0) {
-            clearInterval(_intervalleDecompteIA);
-            ouvrirAssistantWizardEnAttente();
-          }
-        }, 1000);
-      } else if (_etatTransitionIA.phase === 'bloque') {
-        var btnOuvrirBloqueIA = document.getElementById('btnOuvrirBloqueIA');
-        if (btnOuvrirBloqueIA) {
-          btnOuvrirBloqueIA.addEventListener('click', function () { ouvrirAssistantWizardEnAttente(); });
-        }
-      } else if (_etatTransitionIA.phase === 'ouvert') {
-        var btnJeSuisDeRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-        if (btnJeSuisDeRetourIA) {
-          // TACHE (decision explicite de l'utilisateur, chantier "ecran
-          // tampon avant l’assistant") : retour MANUEL uniquement, jamais de
-          // detection automatique -- meme regle que les 2 autres parcours.
-          btnJeSuisDeRetourIA.addEventListener('click', function () {
-            _etatTransitionIA.phase = 'revenu';
-            afficherEtape(4);
-          });
-        }
-      }
-    }
-
-    document.getElementById('btnImporterWizard').addEventListener('click', function () {
-      var texteColle = document.getElementById('texteCollageWizard').value;
-      var resultatImport = analyserReponseImport(texteColle, SPECIFICATION_IMPORT);
-      if (!resultatImport.succes) {
-        messageImport.style.color = 'var(--danger)';
-        messageImport.textContent = '⚠️ ' + resultatImport.erreur;
-        return;
-      }
-      // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-      // CV/Lettre/Entretien") : import reellement termine -- la transition
-      // en attente n'a plus lieu d'etre (meme reinitialisation que dans
-      // les 2 autres parcours).
-      _etatTransitionIA = null;
-      var nomFichier = (etat.fichier && etat.fichier.name) || '';
-      var typeSource = /\.docx$/i.test(nomFichier) ? 'cv_word' : (/\.pdf$/i.test(nomFichier) ? 'cv_pdf' : 'autre');
-      dossier.imports.courant = {
-        schemaVersion: 1,
-        typeSource: typeSource,
-        date: new Date().toISOString(),
-        donnees: resultatImport.valeurs
-      };
-      // TACHE (retour utilisateur : bouton Retour sur validation d'import) :
-      // le wizard n'est PLUS ferme avant d'ouvrir l'ecran de validation --
-      // il reste present (juste recouvert visuellement par l'ecran de
-      // validation, z-index superieur), pour pouvoir y revenir sans tout
-      // reperdre si la personne clique sur "Retour" (reaffiche l'Etape 2,
-      // le texte deja saisi/colle reste intact dans etat.texteDocumentPrepare).
-      // etapeSuivanteWizard() ferme deja le wizard elle-meme (voir plus bas).
-      // TACHE (chantier OCR, etape 5) : ecran de clarification si l'assistant
-      // a signale des points a verifier -- saute automatiquement si vide.
-      _incoh().suggererAnnees(resultatImport.valeurs.pointsAVerifier, [resultatImport.valeurs], etat.texteDocumentPrepare);
-      afficherClarificationPointsAVerifier(resultatImport.valeurs.pointsAVerifier, function () {
-        ouvrirEcranValidationImport(etapeSuivanteWizard, function () { afficherEtape(2); });
-      }, { appliquer: appliquerPrecisionSurValeurs(resultatImport.valeurs) });
-    });
-  }
-
-  function obtenirDefinitionEtape(numero) {
-    if (numero === 1) {
-      return {
-        titre: (contexte && contexte.titre) || 'Étape 1 · Déposer votre document',
-        contenuHTML:
-          '<p class="text-muted small">' + ((contexte && contexte.intro) ||
-          'Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan de ' +
-          'votre CV (.jpg, .png...). Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.') + '</p>' +
-          htmlChoixFichierEvident('fichierWizardCV', '.pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,.heic') +
-          // TACHE (retour utilisateur : "je ne peux pas coller mon texte,
-          // je dois obligatoirement choisir un fichier") : alternative de
-          // collage direct, sous le choix de fichier -- fichier et texte
-          // colle sont mutuellement exclusifs (jamais les deux sources
-          // actives a la fois, voir cablerEtape1 plus bas), pour ne
-          // jamais laisser planer un doute sur quel contenu part
-          // reellement vers l’assistant.
-          '<p class="text-center text-muted small mb-2">ou</p>' +
-          '<button type="button" id="btnAfficherCollageTexteWizard" class="btn btn-outline-secondary btn-sm w-100 mb-2">' +
-          '&#128203; Coller le texte directement</button>' +
-          '<div id="zoneCollageTexteWizard" style="display:none;">' +
-          '<p class="text-muted small mb-1">Si votre document est déjà sous forme de texte (pas un fichier), collez-le ici :</p>' +
-          '<textarea id="texteCollageWizardCV" class="form-control mb-1" rows="8" placeholder="Collez votre texte ici..."></textarea>' +
-          '<button type="button" id="btnAnnulerCollageTexteWizard" class="btn btn-outline-secondary btn-sm mb-2">Annuler et choisir un fichier</button>' +
-          '</div>' +
-          '<div id="zoneAnalyseEtape1"></div>' +
-          // TACHE (Entretien, document facultatif) : n apparait que si
-          // contexte.optionnel est vrai (ex. lettre de motivation) --
-          // absent par defaut, comportement du CV inchange.
-          (contexte && contexte.optionnel
-            ? '<button type="button" id="btnPasserEtapeWizard" class="btn btn-outline-secondary btn-sm mt-2">Passer cette étape</button>'
-            : ''),
-        // TACHE (unification du parcours) : Continuer disponible des que
-        // le document est analyse (plus de choix de methode a faire).
-        peutContinuer: !!etat.modeEditeur,
-        onContinuer: function () { afficherEtape(2); },
-        onAfficher: function () { cablerEtape1(); }
-      };
-    }
-    // TACHE (chantier "fenetre de verification unifiee") : delegue au
-    // composant partage htmlVerificationDocument()/cablerVerificationDocument()
-    // (meme composant que Preparer un entretien et le Bilan de candidature).
-    // "Enregistrer" vit desormais DANS le corps (a cote du canvas/textarea),
-    // le pied du wizard ne garde que Retour/Continuer -- boutonMilieuHTML
-    // n'est donc plus utilise ici pour l'etape 2.
-    if (numero === 2) {
-      var titreDocEtape2 = (contexte && contexte.titreDocument) || 'CV';
-      if (etat.modeEditeur === 'texte') {
-        return {
-          // TACHE (rapprochement maquette) : titre vide ici -- desormais
-          // rendu par htmlVerificationDocument() lui-meme (etiquette
-          // d'etape + titre principal), jamais affiche deux fois.
-          titre: '',
-          contenuHTML: htmlVerificationDocument({ mode: 'texte', titreDocument: titreDocEtape2, etapeLabel: 'Étape 2 · Vérification' }),
-          // TACHE : Continuer reste bloque tant que le texte n'a pas ete
-          // reellement enregistre (etat.texteVerifie sert de temoin -- y
-          // compris pour un document depose en image, converti en texte
-          // par OCR avant d'atteindre cette meme branche, voir cablerEtape2()).
-          peutContinuer: !!etat.texteVerifie,
-          libelleContinuer: 'Continuer &#8594;',
-          onContinuer: function () {
-            // TACHE (Entretien, sortie anticipee) : si l appelant ne veut
-            // que le document prepare (pas d extraction IA structuree),
-            // on s arrete ici. Comportement par defaut inchange sinon.
-            if (typeof contexte.onDocumentPrepare === 'function') {
-              fermerAssistantDepotCV();
-              // fichier : le document d'origine, quand il y en a un (la lettre de recommandation, jointe au PDF telle que deposee : decision 25 du cahier lettre).
-              contexte.onDocumentPrepare({ type: 'texte', valeur: etat.texteDocumentPrepare, fichier: etat.fichier || null });
-              return;
-            }
-            afficherEtape(3);
-          },
-          onAfficher: function () {
-            cablerVerificationDocument({
-              mode: 'texte',
-              captureIdentite: !/lettre|entretien/i.test(String((contexte && contexte.titre) || '') + ' ' + String(titreDocEtape2 || '')),
-              titreDocument: titreDocEtape2,
-              texteInitial: (typeof etat.texteDocumentPrepare === 'string') ? etat.texteDocumentPrepare : dossier.cvTexte,
-              nomsInitiaux: contexte && contexte.nomsInitiaux,   // etape (g) : noms a surligner d'emblee (signataire d'une lettre de recommandation)
-              _dejaEnregistre: !!etat.texteVerifie,
-              onEnregistre: function (resultat) {
-                etat.texteDocumentPrepare = resultat.texte;
-                etat.texteVerifie = true;
-                _depotCVRestaurer = null;   // valide : plus de retour arriere
-                var btnContinuer = document.getElementById('btnContinuerWizard');
-                if (btnContinuer) { btnContinuer.disabled = false; btnContinuer.classList.add('bouton-incitation-action'); }
-              }
-            });
-          }
-        };
-      }
-      // TACHE (chantier OCR, 2026-09-27) : l'ancien editeur graphique
-      // (masquage par rectangles) est remplace par une extraction de texte
-      // (OCR, cablerEtape2() plus bas) -- une fois le texte extrait,
-      // etat.modeEditeur passe a 'texte' et cette meme etape se rejoue pour
-      // prendre la branche texte ci-dessus (relecture + surlignage +
-      // pilules de coordonnees, deja construites pour un CV colle). Jamais
-      // de "Continuer" ici : cette etape est transitoire (chargement), elle
-      // se resout d'elle-meme vers la branche texte.
-      return {
-        titre: '',
-        contenuHTML: '<div id="zoneEditeurCV" class="text-center py-4">' +
-          '<p class="text-muted small mb-0" id="ocrStatutTexte">Préparation de la lecture du document...</p></div>',
-        masquerContinuer: true,
-        onAfficher: function () { cablerEtape2(); }
-      };
-    }
-    if (numero === 3) {
-      return {
-        titre: 'Étape 3 · Analyse assistée',
-        contenuHTML: '<div id="zoneEtape3"></div>',
-        // TACHE (chantier "fenetre de verification unifiee") : plus de
-        // bouton "Continuer" generique ici -- choisir une pastille ouvre
-        // DIRECTEMENT la confirmation (ouvrirConfirmationAssistantWizard(),
-        // via ouvrirFenetreAssistantIA()), exactement comme sur la page
-        // Action. "J'ai déjà ma réponse" reste le seul bouton de pied de
-        // page pour cette etape.
-        masquerContinuer: true,
-        // TACHE (retour utilisateur : eviter de rouvrir l'assistant pour
-        // rien) : si l'Etape 4 a deja ete affichee au moins une fois dans
-        // CETTE session du wizard (la personne est deja allee jusqu'a
-        // l'assistant), un bouton supplementaire permet d'y retourner
-        // directement -- sans redeclencher la copie du prompt ni
-        // rouvrir un nouvel onglet vers l'assistant.
-        boutonMilieuHTML: etat.etape4DejaVisitee
-          ? '<button type="button" id="btnDejaVuAssistant" class="btn btn-outline-primary">J’ai déjà ma réponse &#8594;</button>'
-          : '',
-        onCablerBoutonMilieu: function () {
-          var btn = document.getElementById('btnDejaVuAssistant');
-          if (btn) { btn.addEventListener('click', function () { afficherEtape(4); }); }
-        },
-        onAfficher: function () { cablerEtape3(); }
-      };
-    }
-    return {
-      titre: 'Étape 4 · Importer la réponse',
-      contenuHTML:
-        // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-        // CV/Lettre/Entretien") : meme banniere partagee que la page
-        // Action/Decouverte (htmlBanniereTransitionIA(), js/app.js) --
-        // decompte/popup bloque/bouton "Je suis de retour", jamais une 2e
-        // version dupliquee du texte.
-        '<p class="small text-muted mb-2">Vous revenez de ' +
-        (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-        '. Cliquez sur son bouton <strong>"Copier"</strong> juste sous sa réponse, puis collez-la ci-dessous.</p>' +
-        htmlBanniereTransitionIA() +
-        // TACHE (retour utilisateur : coller en un clic, generalise) :
-        // reutilise le composant partage (app.js), voir son commentaire
-        // pour le detail du comportement (lecture seule, Entree globale,
-        // filet de secours).
-        htmlCollageInstantane('Wizard',
-          '<div class="d-flex align-items-center gap-2 mb-2 mt-2">' +
-          // TACHE (retour utilisateur : "je clique sur la vidéo par erreur
-          // 2 fois sur 3") : "Importer" etait un petit bouton bootstrap
-          // standard (btn-sm), nettement moins visible que "Voir la
-          // démonstration" juste en dessous (grand bouton bleu en
-          // pilule) -- la personne cliquait le mauvais des deux par
-          // reflexe visuel. Meme style proeminent que "Importer dans le
-          // CV" (page Action) desormais, pour qu'il soit clairement le
-          // bouton principal de cette etape.
-          // TACHE (retour utilisateur : "je clique sur la vidéo par
-          // erreur" persiste malgré le style proéminent ci-dessus --
-          // cause réelle : même bleu que "Voir la démonstration", donc
-          // même prééminence visuelle) : le bouton vidéo est désormais
-          // gris neutre (.demo-video-declencheur, css/style.css), et ce
-          // bouton pulse en plus une fois visible (.bouton-incitation-action).
-          '<button type="button" id="btnImporterWizard" class="bouton-incitation-action" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
-          'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
-          '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecoller">Effacer et recoller</button>' +
-          '</div>') +
-        '<div id="messageImportWizard" class="mt-2 small"></div>',
-      // TACHE (chantier OCR, 2026-09-27) : l'astuce "L'assistant refuse
-      // votre image" n'a plus lieu d'etre ICI -- un document depose en
-      // image passe desormais par l'OCR (cablerEtape2()) et n'atteint
-      // jamais l'assistant autrement que sous forme de texte colle, exactement
-      // comme un CV colle directement. Retiree (ancien appel : etat.modeEditeur
-      // === 'image' ? htmlBlocAstuceImageRefusee() : '').
-      masquerContinuer: true,
-      onAfficher: function () {
-        // TACHE (retour utilisateur : eviter de rouvrir l'assistant pour
-        // rien) : marque cette etape comme deja visitee, pour que
-        // l'Etape 3 propose ensuite un raccourci direct (voir plus haut).
-        etat.etape4DejaVisitee = true;
-        cablerEtape4();
-      }
-    };
-  }
-
-  afficherEtape(contexte.etapeInitiale || 1);
+  return _depotPages[cfg.cle];
 }
-
-// TACHE (RC-02, Vague 3, 2026-08-22) : fonction PLATEFORME, generique --
-// obtient un texte de CV exploitable, sans jamais forcer la structuration
-// en champs. Reutilise cvDisponible() (js/app.js) : CV deja construit
-// dans ERIP -> callback immediat avec le texte reconstruit ; sinon, ouvre
-// l'assistant de depot en mode LEGER (onDocumentPrepare : depot + relecture
-// seulement, jamais la structuration) et rappelle callback une fois le
-// texte relu obtenu.
-// callback(resultat) : resultat = { texte, dejaRelu }.
-//   dejaRelu indique si ce texte a deja ete valide par une relecture de
-//   confidentialite -- vrai pour le depot leger, faux pour un CV deja
-//   construit dans ERIP (jamais relu pour CET usage). L'appelant decide
-//   seul de ce qu'il fait de cette information (ex. sauter sa propre
-//   relecture) -- cette fonction ne connait rien d'un diagnostic, d'une
-//   recommandation, ou du Bilan.
-//   texte === null : cas non couvert par cette voie legere (document
-//   depose sans texte exploitable localement, ex. scan/image) -- laisse
-//   a l'appelant le choix de son propre repli (V1 : voir demarrerBilanCandidature()).
-// forcerNouveauDepot (bool, optionnel) : TACHE (retour Denis 2026-09-27,
-// bug reel "Changer de CV tourne en boucle") -- ignore le raccourci
-// cvDisponible() et ouvre toujours le depot. Sans ce parametre, un clic sur
-// "Changer de CV" (qui vide juste l'etat LOCAL du module) faisait
-// silencieusement revenir le MEME CV deja structure ailleurs dans le
-// dossier des le clic suivant sur "Deposer mon CV" : aucune fenetre ne
-// s'ouvrait, impossible de deposer un document reellement different. Les 3
-// appelants concernes (Bilan, Reformuler/Mettre a jour, Coherence
-// transversale) passent desormais ce drapeau, arme par leur propre bouton
-// "Changer de CV", jamais par un premier depot normal.
-function obtenirOuDeposerTexteCV(callback, forcerNouveauDepot) {
-  if (!forcerNouveauDepot && typeof cvDisponible === 'function' && cvDisponible()) {
-    // Un CV structure (experiences rangees) donne un vrai texte de profil ; sinon on reprend le texte
-    // depose tel quel. Jamais le gabarit creux « Document demande : CV / Contexte de la candidature... »
-    // que texteProfil() produit quand rien n'est range (bug signale par Denis, 2026-09-29).
-    var texteDeCV = (dossier.experiences && dossier.experiences.length) ? texteProfilEffectif('cv') : (dossier.cvTexte || '');
-    if (String(texteDeCV).trim()) {
-      callback({ texte: texteDeCV, dejaRelu: false });
+// Sans argument : toutes les zones ; avec une cle : cette zone ; avec « prefixe* » : les zones dont la cle commence ainsi.
+function reinitialiserDepotCVEnPage(cle) {
+  Object.keys(_depotPages).forEach(function (k) {
+    var vise = (cle === undefined) || (cle === k) || (/\*$/.test(String(cle)) && k.indexOf(String(cle).slice(0, -1)) === 0);
+    if (vise) { _depotPageAbandonner(_depotPages[k]); delete _depotPages[k]; }
+  });
+}
+// Abandon (autre fichier, annulation) : le document non valide ne laisse rien derriere lui (meme regle que la fermeture de la fenetre).
+function _depotPageAbandonner(s) {
+  if (!s) { return; }
+  if (s.identiteAvant !== undefined) { _identiteCaptee = s.identiteAvant; }
+  s.identiteAvant = undefined; s.fichier = null; s.nom = ''; s.texteRaw = ''; s.texte = ''; s.brouillon = null; s.message = ''; s.info = null; s.champs = null; s.ocr = false; s.externe = false;
+  s.jeton++;
+}
+function _depotPageTelAffiche(d) {
+  var c = String(d || '').replace(/[^0-9]/g, '');
+  return c.length === 10 ? c.replace(/(\d{2})(?=\d)/g, '$1 ') : String(d || '');
+}
+var _DEPOT_CHAMPS = [['prenom', 'Prénom'], ['nom', 'Nom'], ['telephone', 'Téléphone'], ['email', 'Courriel'], ['codePostal', 'Code postal'], ['ville', 'Ville']];
+function _depotPageIdentiteVide() { return { civilite: null, nom: '', prenom: '', adresse: '', codePostal: '', telephone: '', email: '', ville: '' }; }
+function _depotPageNormaliser(k, v) {
+  v = String(v || '').trim();
+  return k === 'telephone' ? v.replace(/[^0-9+]/g, '') : v;
+}
+// Valeurs de la rubrique : ce que le CV vient de donner (identite reperee, depuis le TEXTE ORIGINAL), sinon ce que l'application garde deja.
+function _depotPageChampsInitiaux(texteOriginal) {
+  var r = (typeof extraireIdentiteCapteeDepuisTexte === 'function') ? extraireIdentiteCapteeDepuisTexte(texteOriginal) : null;
+  var existant = (typeof dossier !== 'undefined' && dossier.identite) || {};
+  var champs = {};
+  _DEPOT_CHAMPS.concat([['adresse', 'Adresse']]).forEach(function (c) {
+    var k = c[0];
+    var capte = r && r.valeurs && r.valeurs[k] ? String(r.valeurs[k]) : '';
+    champs[k] = capte || String(existant[k] || '');
+  });
+  return { champs: champs, capte: r };
+}
+function _depotPageHtmlGarde(cfg, s) {
+  var sfx = cfg.suffixeId || '';
+  if (!cfg.avecIdentite) { return ''; }
+  if (!s.champs) {
+    var ini = _depotPageChampsInitiaux(s.texte);
+    s.champs = ini.champs; s.suggestionNom = ini.capte ? ini.capte.suggestionNom : null; s.captePresent = !!ini.capte;
+    s.captes = ini.capte && ini.capte.valeurs ? ini.capte.valeurs : {};
+  }
+  if (!s.captePresent) { return ''; }
+  var existant = (typeof dossier !== 'undefined' && dossier.identite) || {};
+  var champHtml = function (k, lib) {
+    var ancien = String(existant[k] || '').trim();
+    var nouveau = _depotPageNormaliser(k, s.champs[k]);
+    var remplace = ancien && s.captes[k] && _depotPageNormaliser(k, ancien) !== nouveau;
+    return '<div><label for="depotPageChamp_' + k + sfx + '">' + lib + '</label>' +
+      '<input id="depotPageChamp_' + k + sfx + '" class="form-control" data-depot-champ="' + k + '" value="' + echapperAttribut(k === 'telephone' ? _depotPageTelAffiche(s.champs[k]) : s.champs[k]) + '">' +
+      (remplace ? '<span class="small text-muted">Remplace ce qui est enregistré : ' + echapperAttribut(ancien) + '</span>' : '') + '</div>';
+  };
+  var suggestion = (s.suggestionNom && !s.champs.nom && !s.champs.prenom)
+    ? '<p class="small mb-2">Vous vous appelez peut-être <strong>' + echapperAttribut(s.suggestionNom.prenom + ' ' + s.suggestionNom.nom) + '</strong> ? ' +
+      '<button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="depotPageSuggestionNom' + sfx + '">Utiliser ce prénom et ce nom</button></p>' : '';
+  return '<div class="depot-garde"><h4>&#127968; Retiré du texte, gardé chez vous</h4>' +
+    '<p class="small mb-1">Ce que vous retirez du texte <strong>n’est pas envoyé à l’assistant</strong>. Mais l’application le garde <strong>sur votre appareil</strong> pour <strong>pré-remplir votre CV et votre lettre de motivation</strong>. Vérifiez ces informations : si elles ont changé (nouvelle adresse, nouveau numéro), corrigez-les ici, elles seront reprises telles quelles. <strong>Vous les reverrez une dernière fois juste avant de créer votre CV ou votre lettre.</strong></p>' +
+    suggestion +
+    '<div class="depot-champs">' + _DEPOT_CHAMPS.map(function (c) { return champHtml(c[0], c[1]); }).join('') +
+    '<div class="depot-champ-large"><label for="depotPageChamp_adresse' + sfx + '">Adresse (rue) <span class="fw-normal">· à compléter, jamais repérée automatiquement</span></label>' +
+    '<input id="depotPageChamp_adresse' + sfx + '" class="form-control" data-depot-champ="adresse" value="' + echapperAttribut(s.champs.adresse) + '" placeholder="Numéro et nom de la rue"></div></div>' +
+    '<p class="small text-muted mt-2 mb-0">Rien n’est enregistré dans votre navigateur : ces informations restent dans l’application tant que cette page est ouverte, et partent avec votre sauvegarde (la disquette) si vous en faites une.</p></div>';
+}
+// Nom du document au milieu d'une phrase : « CV » reste tel quel, « Lettre de motivation » devient « lettre de motivation ».
+function _depotPageNomPhrase(titre) {
+  titre = String(titre || 'CV');
+  return /^[A-Z]{2,}\b/.test(titre) ? titre : titre.charAt(0).toLowerCase() + titre.slice(1);
+}
+function _depotPageAmorcer(cfg, s) {
+  if (!s.phase && !cfg.fait && cfg.texteARelire) {
+    s.texte = String(cfg.texteARelire); s.texteRaw = ''; s.fichier = null; s.nom = cfg.nomARelire || ''; s.info = 'texte'; s.externe = true;
+    s.identiteAvant = _identiteCaptee; s.phase = 'relecture';
+  }
+}
+function htmlDepotCVEnPage(cfg) {
+  var s = _depotPageEtat(cfg);
+  var sfx = cfg.suffixeId || '';
+  _depotPageAmorcer(cfg, s);
+  var phase = s.phase || (cfg.fait ? 'fait' : 'depot');
+  var titreDoc = cfg.titreDocument || 'CV';
+  var nomDoc = _depotPageNomPhrase(titreDoc);
+  var ligneFichier = function (avecAutre) {
+    return '<div class="depot-fichier"><span>&#128193; <strong>' + echapperAttribut(s.nom || 'texte collé') + '</strong></span>' +
+      (avecAutre ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageAutre' + sfx + '">' + (s.fichier ? 'Choisir un autre fichier' : (s.externe ? 'Déposer un autre ' + echapperAttribut(nomDoc) : 'Recoller un autre texte')) + '</button>' : '') + '</div>';
+  };
+  var bandeauInfo = function (gras, reste) {
+    return '<div class="depot-info"><p class="mb-0 small"><strong>&#128161; ' + gras + '</strong> - ' + reste + '</p></div>';
+  };
+  if (phase === 'collage') {
+    return '<p class="small text-muted mb-1">Collez ici le texte de votre ' + echapperAttribut(nomDoc) + ' :</p>' +
+      '<textarea class="form-control mb-2" rows="8" id="depotPageTexte' + sfx + '" placeholder="Collez votre texte ici..."></textarea>' +
+      '<button type="button" class="btn btn-primary btn-sm" id="depotPageLireTexte' + sfx + '" disabled>Relire et masquer ce texte</button> ' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageAnnuler' + sfx + '">Annuler</button>';
+  }
+  if (phase === 'lecture') {
+    return ligneFichier(false) + (s.ocr
+      ? bandeauInfo('Document image détecté', 'l’application lit le texte de l’image.') +
+        '<p class="text-muted small mb-0" aria-live="polite" id="depotPagePct' + sfx + '">Lecture du document en cours... 0 %</p><div class="depot-barre"><span id="depotPageBarre' + sfx + '"></span></div>'
+      : '<p class="text-muted small mb-0" aria-live="polite">&#8987; Analyse du document en cours...</p>');
+  }
+  if (phase === 'relecture') {
+    var info = !s.fichier ? '' : (s.info === 'image'
+      ? bandeauInfo('Texte lu dans votre image', 'relisez-le : une lecture automatique peut se tromper.')
+      : bandeauInfo('Document texte détecté', 'le texte de votre ' + echapperAttribut(nomDoc) + ' a été lu directement.'));
+    return ligneFichier(true) + info + '<hr>' +
+      htmlVerificationDocument({ mode: 'texte', titreDocument: titreDoc, etapeLabel: 'Relire et masquer', titre: 'Vérifier le texte de votre ' + nomDoc, htmlAvantEnregistrer: _depotPageHtmlGarde(cfg, s) });
+  }
+  if (phase === 'fait') {
+    var id = (cfg.avecIdentite && typeof dossier !== 'undefined' && dossier.identite) || null;
+    var gardes = id ? [[id.prenom, id.nom].filter(Boolean).join(' '), _depotPageTelAffiche(id.telephone), id.email,
+      [id.adresse, [id.codePostal, id.ville].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean) : [];
+    return '<div class="cv-section" style="margin-top:.2rem;"><strong>&#9989; Déposé et relu</strong> ' + (cfg.nomFait ? echapperAttribut(cfg.nomFait) : 'texte collé') + '</div>' +
+      (gardes.length ? '<p class="small mt-2 mb-1"><strong>Gardé chez vous pour pré-remplir votre CV et votre lettre :</strong> ' + echapperAttribut(gardes.join(' · ')) + '</p>' : '') +
+      '<button type="button" class="btn btn-outline-secondary btn-sm mt-1" id="depotPageChanger' + sfx + '">Changer de ' + echapperAttribut(nomDoc) + '</button>' +
+      (cfg.texteFait ? '<details class="mt-2"><summary class="small" style="cursor:pointer;">Revoir le texte relu et masqué</summary>' +
+        '<div class="depot-texte-revu mt-2">' + echapperAttribut(cfg.texteFait) + '</div></details>' : '');
+  }
+  // phase 'depot' : deux cartes de meme poids (maquette validee par Denis, presentation A)
+  return '<p>' + (cfg.intro || ('Déposez votre ' + echapperAttribut(nomDoc) + ', sous la forme que vous avez : PDF, Word, texte, photo ou capture d’écran. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong>. Vous le relisez ensuite et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre : rien n’est masqué à votre place.')) + '</p>' +
+    (s.message ? '<div class="alert alert-warning small">' + echapperAttribut(s.message) + '</div>' : '') +
+    '<input type="file" id="depotPageFichier' + sfx + '" class="visually-hidden" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,.heic" tabindex="-1">' +
+    '<div class="depot-choix">' +
+    '<div class="depot-carte" id="depotPageZone' + sfx + '"><span class="depot-carte-icone" aria-hidden="true">&#128196;</span><span class="depot-carte-titre">Un fichier</span>' +
+    '<div class="depot-formats"><span>PDF</span><span>Word</span><span>Texte</span><span>Photo</span></div>' +
+    '<button type="button" class="btn btn-primary" id="depotPageChoisir' + sfx + '">Choisir un fichier</button>' +
+    '<p class="depot-carte-petit">ou glissez-le ici</p></div>' +
+    '<div class="depot-carte depot-carte-texte"><span class="depot-carte-icone" aria-hidden="true">&#128203;</span><span class="depot-carte-titre">Du texte copié</span>' +
+    '<p class="depot-carte-petit">Votre ' + echapperAttribut(nomDoc) + ' est déjà dans un document ouvert ? Copiez-le, puis collez-le.</p>' +
+    '<button type="button" class="btn btn-outline-primary" id="depotPageColler' + sfx + '">Coller le texte</button></div></div>' +
+    (cfg.raccourciTexte ? '<div class="mb-2"><button type="button" class="btn btn-outline-primary btn-sm" id="depotPageRaccourci' + sfx + '">' + (cfg.raccourciLibelle || ('Utiliser mon ' + echapperAttribut(nomDoc) + ' déjà dans l’application')) + '</button></div>' : '') +
+    ((cfg.fait || cfg.texteARelire) ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageAnnuler' + sfx + '">Annuler : garder mon ' + echapperAttribut(nomDoc) + ' actuel</button> ' : '') +
+    (cfg.optionnel ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPagePasser' + sfx + '">Passer cette étape</button>' : '') +
+    (typeof cfg.onFermer === 'function' ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageFermer' + sfx + '">' + (cfg.libelleFermer || 'Annuler') + '</button>' : '');
+}
+// Lecture du fichier : meme analyse que la fenetre (texte lu directement, sinon lecture automatique de l'image).
+function _depotPageLire(cfg, f) {
+  var s = _depotPageEtat(cfg);
+  var avant = _identiteCaptee;
+  _depotPageAbandonner(s);
+  var jeton = s.jeton;
+  s.fichier = f; s.nom = f.name || 'document'; s.phase = 'lecture';
+  s.identiteAvant = avant;
+  cfg.rerender();
+  var echec = function (message) { if (jeton !== s.jeton) { return; } _depotPageAbandonner(s); s.phase = 'depot'; s.message = message; cfg.rerender(); };
+  analyserDocumentDepose(f).then(function (r) {
+    if (jeton !== s.jeton) { return; }
+    if (r.recommandation && r.recommandation.texteDisponible) {
+      s.texteRaw = r.texteExtrait || ''; s.texte = s.texteRaw; s.info = 'texte'; s.phase = 'relecture'; cfg.rerender();
       return;
     }
-  }
-  ouvrirAssistantDepotCV(dossier.modeCreation || 'maj', {
-    onDocumentPrepare: function (resultat) {
-      callback(resultat.type === 'texte'
-        ? { texte: resultat.valeur, dejaRelu: true, fichier: resultat.fichier || null }   // fichier : la voie 3 de « Reprendre mon CV » relit un PDF en gardant ses lignes
-        : { texte: null, dejaRelu: false });
-    }
+    s.ocr = true; cfg.rerender();
+    return chargerImageDepuisFichier(f).then(function (img) {
+      return extraireTexteParOCR(img, function (pct) {
+        if (jeton !== s.jeton) { return; }
+        var b = document.getElementById('depotPageBarre' + (cfg.suffixeId || '')), l = document.getElementById('depotPagePct' + (cfg.suffixeId || ''));
+        if (b) { b.style.width = pct + '%'; }
+        if (l) { l.textContent = 'Lecture du document en cours... ' + pct + ' %'; }
+      });
+    }).then(function (texte) {
+      if (jeton !== s.jeton) { return; }
+      s.texte = texte || ''; s.texteRaw = ''; s.info = 'image'; s.phase = 'relecture'; cfg.rerender();
+    }).catch(function () { echec('La lecture automatique du document a échoué. Vous pouvez choisir un autre fichier, ou coller le texte vous-même.'); });
+  }).catch(function (erreur) { echec('Impossible de lire ce fichier (' + ((erreur && erreur.message) || 'erreur') + ').'); });
+}
+// Ce que la personne a verifie dans la rubrique « garde chez vous » pre-remplit « Identite » (CV et lettre). Jamais « enregistre » : la verification
+// de la derniere etape, juste avant la mise en page, reste le filet de securite (consigne 80).
+function _depotPageAppliquerIdentite(s) {
+  if (!s.champs || !s.captePresent || typeof dossier === 'undefined') { return; }
+  dossier.identite = dossier.identite || _depotPageIdentiteVide();
+  var remplace = false;
+  Object.keys(s.champs).forEach(function (k) {
+    var v = _depotPageNormaliser(k, s.champs[k]);
+    if (!v) { return; }
+    var ancien = _depotPageNormaliser(k, dossier.identite[k]);
+    if (ancien && ancien !== v) { remplace = true; }
+    dossier.identite[k] = v;
+    if (typeof _identiteCapteeMarques !== 'undefined') { _identiteCapteeMarques[k] = true; }
+    if (_identiteCaptee && _identiteCaptee.valeurs) { _identiteCaptee.valeurs[k] = v; }
   });
+  if (remplace) { dossier.identiteEnregistree = false; }
+  if (typeof retirerCodePostalEtVilleDeLAdresse === 'function') { retirerCodePostalEtVilleDeLAdresse(); }
+}
+function cablerDepotCVEnPage(cfg) {
+  var s = _depotPageEtat(cfg);
+  var sfx = cfg.suffixeId || '';
+  _depotPageAmorcer(cfg, s);
+  var phase = s.phase || (cfg.fait ? 'fait' : 'depot');
+  var q = function (id) { return document.getElementById(id + sfx); };
+  var versPhase = function (p) { s.phase = p; cfg.rerender(); };
+  var autre = q('depotPageAutre');
+  if (autre) { autre.addEventListener('click', function () { _depotPageAbandonner(s); versPhase('depot'); }); }
+  var annuler = q('depotPageAnnuler');
+  if (annuler) { annuler.addEventListener('click', function () { _depotPageAbandonner(s); versPhase(null); }); }
+  var changer = q('depotPageChanger');
+  if (changer) { changer.addEventListener('click', function () { s.message = ''; versPhase('depot'); }); }
+  if (phase === 'depot') {
+    var input = q('depotPageFichier'), zone = q('depotPageZone');
+    q('depotPageChoisir').addEventListener('click', function () { input.click(); });
+    input.addEventListener('change', function () { if (input.files && input.files.length) { _depotPageLire(cfg, input.files[0]); } });
+    ['dragenter', 'dragover'].forEach(function (nom) { zone.addEventListener(nom, function (e) { e.preventDefault(); zone.classList.add('survol'); }); });
+    zone.addEventListener('dragleave', function (e) { e.preventDefault(); zone.classList.remove('survol'); });
+    zone.addEventListener('drop', function (e) {
+      e.preventDefault(); zone.classList.remove('survol');
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) { _depotPageLire(cfg, f); }
+    });
+    q('depotPageColler').addEventListener('click', function () { s.message = ''; versPhase('collage'); });
+    var raccourci = q('depotPageRaccourci');
+    if (raccourci) {
+      raccourci.addEventListener('click', function () {
+        var avant = _identiteCaptee;
+        _depotPageAbandonner(s);
+        s.identiteAvant = avant; s.texte = String(cfg.raccourciTexte); s.nom = cfg.nomARelire || ''; s.info = 'texte'; s.externe = true;
+        versPhase('relecture');
+      });
+    }
+    var fermer = q('depotPageFermer');
+    if (fermer) { fermer.addEventListener('click', function () { _depotPageAbandonner(s); s.phase = null; cfg.onFermer(); }); }
+    var passer = q('depotPagePasser');
+    if (passer) { passer.addEventListener('click', function () { if (typeof cfg.onPasser === 'function') { cfg.onPasser(); } }); }
+  } else if (phase === 'collage') {
+    var zoneTexte = q('depotPageTexte'), btnLire = q('depotPageLireTexte');
+    zoneTexte.focus();
+    zoneTexte.addEventListener('input', function () { btnLire.disabled = !zoneTexte.value.trim(); });
+    btnLire.addEventListener('click', function () {
+      var avant = _identiteCaptee, texte = zoneTexte.value;
+      _depotPageAbandonner(s);
+      s.identiteAvant = avant; s.texte = texte; s.info = 'texte';
+      versPhase('relecture');
+    });
+  } else if (phase === 'relecture') {
+    if (cfg.avecIdentite && typeof memoriserIdentiteCaptee === 'function') { memoriserIdentiteCaptee(s.texte); }
+    document.querySelectorAll('[data-depot-champ]').forEach(function (i) {
+      if (i.id !== 'depotPageChamp_' + i.getAttribute('data-depot-champ') + sfx) { return; }   // champ d'une autre zone de la page
+      i.addEventListener('input', function () { s.champs[i.getAttribute('data-depot-champ')] = i.value; });
+    });
+    var sugg = q('depotPageSuggestionNom');
+    if (sugg) {
+      sugg.addEventListener('click', function () {
+        s.champs.prenom = s.suggestionNom.prenom; s.champs.nom = s.suggestionNom.nom;
+        q('depotPageChamp_prenom').value = s.champs.prenom; q('depotPageChamp_nom').value = s.champs.nom;
+      });
+    }
+    cablerVerificationDocument({
+      mode: 'texte',
+      captureIdentite: false,
+      titreDocument: cfg.titreDocument || 'CV',
+      texteInitial: s.brouillon != null ? s.brouillon : s.texte,
+      nomsInitiaux: cfg.nomsInitiaux,
+      onModification: function (valeur) { s.brouillon = valeur; },
+      onEnregistre: function (resultat) {
+        if (cfg.ecrireCV !== false && typeof dossier !== 'undefined') {
+          dossier.cvAnalyse = true;
+          if (s.fichier) { dossier.cvTexte = s.texteRaw || ''; }
+        }
+        if (cfg.avecIdentite) { _depotPageAppliquerIdentite(s); }
+        var documentPrepare = { type: 'texte', valeur: resultat.texte, fichier: s.fichier || null, nomFichier: s.fichier ? s.fichier.name : '', texteOriginal: s.texte };
+        s.identiteAvant = undefined; s.phase = null; s.brouillon = null;
+        cfg.onDocumentPrepare(documentPrepare);
+      }
+    });
+  }
 }
 
 // TACHE (RC-02, Vague 3, 2026-08-22) : fonction PLATEFORME, generique --
@@ -4595,8 +3989,7 @@ function htmlAideModeVocalAssistant() {
 }
 function _prepaEntretienRendreChoixAssistant() {
   var html = barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 1) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche</h1>' +
-    '<p class="sousTitre">Le clic prépare et copie automatiquement votre demande, puis ouvre l’assistant choisi.</p></div>' +
+    htmlTitreEtapeModule('bi-mic', 'M’entraîner à un entretien d’embauche', 'Choisir l’assistant', 'Le clic prépare et copie automatiquement votre demande, puis ouvre l’assistant choisi.') +
     '<div class="cv-section prepa-entretien-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
     '<p class="text-muted small mb-2">Vous n’aurez qu’à faire Ctrl+V, puis glisser le fichier téléchargé à l’étape précédente dans la conversation.</p>' +
@@ -4670,8 +4063,8 @@ function htmlEncartMultilingue(courte) {
       '(clic droit sur la page, ou le menu du navigateur, puis « Traduire »). Vous pouvez alors ' +
       'répondre aux questions dans votre langue : votre CV et votre lettre de motivation seront, ' +
       'eux, rédigés en français correct.</p>' +
-      '<p class="mb-0">Pour dicter à la voix dans votre langue : la dictée de Windows ' +
-      '(touches <span style="white-space:nowrap;">Windows + H</span>) suit la langue de l’ordinateur, ' +
+      '<p class="mb-0">Pour dicter à la voix dans votre langue : la dictée vocale de votre appareil ' +
+      'suit la langue de l’appareil, ' +
       'le plus souvent le français. Sinon, utilisez la dictée vocale de Google Docs, ou le micro du ' +
       'clavier de votre téléphone, puis collez le texte ici.</p>';
   return '<details class="encart-multilingue" style="margin:0.9rem 0;border:1px solid var(--border);' +
@@ -4861,7 +4254,7 @@ function ouvrirModuleCoLettre() {
   _coLettreDetour = false;
   naviguerVers('co-lettre');
 }
-var _coLettreDocument = null; // { type: 'texte' | 'image', valeur } -- resultat de ouvrirAssistantDepotCV
+var _coLettreDocument = null; // { type: 'texte' | 'image', valeur } -- resultat de la zone de depot en page (htmlDepotCVEnPage)
 // TACHE (refonte L1, etape 9, 2026-09-10, docs/CHANTIER_L1_CO_LETTRE_MOTIVATION.md) :
 // trou de confidentialite -- le chemin "Ou coller le texte" de l'ecran 2 sautait
 // la relecture/masquage (seul le chemin fichier passe par ouvrirAssistantDepotCV,
@@ -4891,7 +4284,7 @@ var _coLettreReponseForcerCollage = false;
 var CO_LETTRE_NAV_ETAPES = [
   { label: 'Préparer', icone: '&#128221;' },
   { label: 'Assistant', icone: '&#128172;' },
-  { label: 'Rédiger', icone: '&#128395;&#65039;' },
+  { label: 'Réponse', icone: '&#128229;' },
   { label: 'Terminé', icone: '&#9989;' }
 ];
 
@@ -4985,10 +4378,14 @@ function _coLettreRecommencer() {
   _approfondiViaEncart = false;
   _coLettreSessionHistorique++;
   _coLettreDocument = null;
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('coLettre'); reinitialiserDepotCVEnPage('coReco'); }
+  _coLettreRecoDepotOuvert = false;
   _coLettreRecos = [];
   _coLettreRecoFichiers = {};
   _coLettreRecoChoisie = null;
   _coLettreRecoReponse = null;
+  _coLettreAppuiMesComp = null;
+  _coLettreAppuiTexte = '';
   _coLettreCvRelu = false;
   _coLettreEtatDepot = { blocsOuverts: {} };
   _coLettreEcran = 'depot';
@@ -5166,6 +4563,30 @@ function _coLettreNormaliserCarteOffre() {
   }
 }
 
+// Depot du CV EN PAGE (brique htmlDepotCVEnPage, consigne 28, 30/10/2026) : plus de fenetre de depot ni de fenetre de relecture.
+function _coLettreDepotCfg() {
+  var doc = _coLettreDocument;
+  var texteDoc = (doc && doc.type === 'texte' && typeof doc.valeur === 'string') ? doc.valeur : '';
+  return {
+    cle: 'coLettre',
+    titreDocument: 'CV',
+    avecIdentite: true,
+    fait: !!(doc && _coLettreCvRelu),
+    nomFait: (doc && doc.nomFichier) || '',
+    texteFait: texteDoc,
+    texteARelire: (doc && !_coLettreCvRelu) ? texteDoc : '',
+    nomARelire: 'CV déjà dans l’application',
+    rerender: _coLettreRendreDepot,
+    onDocumentPrepare: function (documentPrepare) {
+      if (!documentPrepare) { return; }
+      _coLettreDocument = documentPrepare;
+      _coLettreCvRelu = true;   // le depot en page a deja fait la relecture et le masquage
+      // Reste sur la page « Preparer » (pas de saut vers l'assistant) : seul « Choisir mon assistant » fait passer a l'ecran suivant.
+      _coLettreRendreDepot();
+    }
+  };
+}
+
 function _coLettreRendreDepot() {
   _coLettreNormaliserCarteOffre();
   var cvPresent = !!_coLettreDocument;
@@ -5223,32 +4644,14 @@ function _coLettreRendreDepot() {
   // sans effet une fois la personne deja passee par le bloc 4.
   if (typeof appliquerDefautsStyleCV === 'function') { appliquerDefautsStyleCV('lettre'); }
   var html = barreEtapesModule(CO_LETTRE_NAV_ETAPES, 0) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant</h1>' +
-    '<p class="sousTitre">Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise à qui la lettre s’adresse.</p></div>' +
+    htmlTitreEtapeModule('bi-pen', 'Écrire ma lettre de motivation avec l’assistant', 'Préparer', 'Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise à qui la lettre s’adresse.') +
     '<details class="bloc-depli' + (cvPresent ? ' bd-ok' : '') + '" id="coLettreBlocCv"' + (ouvertBlocDepliManuel(_coLettreEtatDepot, 'blocCv', !cvPresent) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">1</span><span class="preparer-titre">Votre CV</span>' +
     '<span class="pilule-etat ' + (cvPresent ? 'pe-ok">Déposé &middot; vous pouvez le changer' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    (cvPresent
-      ? '<div class="carte-preparer-ok"><strong>&#9989; Déposé</strong>' +
-        '<button type="button" id="btnCoLettreChangerCv" class="btn btn-changer-document btn-sm ms-2">Changer de CV</button></div>' +
-        '<p class="preparer-detail">Un seul CV à la fois. « Changer de CV » remplace celui-ci.</p>' +
-        // Retour Denis 2026-09-30 : la relecture s'ouvre seule au depot ; le bloc numerote « Relire, verifier, corriger, masquer » est
-        // retire (comme sur la page « Preparer »), reste ce bouton pour la rouvrir (texte seulement : une image est masquee au depot).
-        ('<div class="d-flex gap-2 flex-wrap align-items-center mt-2">' +
-          '<button type="button" id="btnCoLettreRelecture" class="btn btn-outline-primary btn-sm">Relire à nouveau et masquer</button>' +
-          (typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo('masquage-texte') : '') +
-          '</div>')
-      : '<p>Déposez votre CV, ou collez son texte. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>' +
-        '<div class="d-flex gap-2 flex-wrap">' +
-        '<button type="button" id="btnCoLettreDeposerCv" class="btn btn-primary btn-sm">Déposer mon fichier</button>' +
-        '</div>' +
-        '<p class="preparer-detail"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d’écran. Pour une photo ou un scan, une fenêtre s’ouvre le temps de préparer l’image, puis vous revenez ici.</p>' +
-        '<div id="coLettreCollerZone" hidden class="mt-2">' +
-        '<textarea id="coLettreCollerTexte" class="form-control form-control-sm" rows="6" placeholder="Collez ici le texte de votre CV"></textarea>' +
-        '<div class="mt-2"><button type="button" id="btnCoLettreCollerValider" class="btn btn-outline-secondary btn-sm">Annuler</button></div>' +
-        '</div>') +
+    (typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_coLettreDepotCfg()) : '') +
     '</div></details>' +
+    _liaisonBlocs('Une fois votre CV déposé, vous le relisez et vous pouvez masquer ce que vous ne souhaitez pas garder, comme votre téléphone ou votre adresse. Puis vous dites à qui la lettre s’adresse.') +
     '<details class="bloc-depli' + (candidatureRenseignee ? ' bd-ok' : '') + '" id="coLettreBlocCible"' + (ouvertBlocDepliManuel(_coLettreEtatDepot, 'blocCible', cvPresent && cvRelu && !etapeCleCandidatureFranchie) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">2</span><span class="preparer-titre">Votre candidature</span>' +
     '<span class="pilule-etat ' + (candidatureRenseignee ? 'pe-ok">Renseigné' : 'pe-attente">À renseigner') + '</span></summary>' +
@@ -5297,6 +4700,7 @@ function _coLettreRendreDepot() {
         })() + '</div>'
       : '') +
     '</div></details>' +
+    _liaisonBlocs('Une fois ces précisions données, il reste à régler le ton de la lettre selon votre métier.') +
     // TACHE (retour utilisateur 2026-09-17, point 2 (suite)) : "Adaptation au
     // metier" -- meme composant que "Creer un nouveau CV"
     // (contenuRectangleStyleCV(), deja source unique depuis la refonte du
@@ -5500,13 +4904,13 @@ function _coLettreHtmlAppuis(options) {
   var reponse = _coLettreRecoReponse;
   var envoyee = recommandationEnvoyeeLettreCo(_coLettreRecos, _coLettreRecoChoisie);
   var h = '<div id="coLettreAppuis"><hr class="my-3"><p class="mb-1 fw-bold">&#129309; Vos appuis</p>' +
-    '<p class="text-muted small mb-2">Une lettre de recommandation (d’un ancien employeur, d’un tuteur de stage, d’un formateur…) donne du poids à ' + (pourCv ? 'votre CV' : (options && options.pourEntretien ? 'votre candidature' : 'votre lettre')) + ' et aide l’assistant à ' + (options && options.pourEntretien ? 'choisir un cas pratique et des questions qui vous ressemblent.' : 'employer les mots justes de votre métier.') + ' À compléter : plus vous donnez d’appuis, plus votre candidature a de poids.</p>' +
+    '<p class="text-muted small mb-2">Des documents que l’assistant peut lire pour ' + (options && options.pourEntretien ? 'choisir un cas pratique et des questions qui vous ressemblent' : 'employer les mots justes de votre métier') + '. Une lettre de recommandation (d’un ancien employeur, d’un tuteur de stage, d’un formateur…) donne du poids à ' + (pourCv ? 'votre CV' : (options && options.pourEntretien ? 'votre candidature' : 'votre lettre')) + '. À compléter : plus vous donnez d’appuis, plus votre candidature a de poids.</p>' +
     '<div class="jetons-ligne"><div class="jetons-lib">Avez-vous une lettre de recommandation ?</div>' +
     ['oui', 'non'].map(function (v) {
       var actif = (reponse === v) || (v === 'oui' && reponse !== 'non' && _coLettreRecos.length > 0);
       return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-reco-reponse="' + v + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + (v === 'oui' ? 'Oui' : 'Non') + '</button>';
     }).join('') + '</div>';
-  if (reponse === 'non') { return h + '</div>'; }
+  if (reponse === 'non') { return h + _coLettreHtmlAutresAppuis() + '</div>'; }
   if (reponse === 'oui' || _coLettreRecos.length) {
     h += '<div class="encart-limite-missions"><strong>&#128274; Protégez la personne qui l’a écrite.</strong> Avant de continuer, supprimez son nom (en bas de la lettre), son téléphone, son e-mail et son adresse. ' +
       'Ils sont repérés pour vous à l’étape suivante : le nom est surligné en jaune.</div>';
@@ -5531,12 +4935,40 @@ function _coLettreHtmlAppuis(options) {
         '<button type="button" class="btn btn-outline-secondary btn-sm" data-reco-retirer="' + r.id + '">Retirer</button>' +
         '</div></div>';
     }).join('');
-    h += _coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO
+    h += (_coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO && _coLettreRecoDepotOuvert && typeof htmlDepotCVEnPage === 'function')
+      ? '<div id="coLettreRecoDepot">' + htmlDepotCVEnPage(_coLettreRecoDepotCfg()) + '</div>'
+      : _coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO
       ? '<button type="button" class="btn btn-primary btn-sm" data-reco-deposer="1">' + (_coLettreRecos.length ? 'Ajouter une autre lettre' : 'Déposer une lettre de recommandation') + '</button>' +
         '<p class="preparer-detail">Fichier (PDF, Word, photo) ou texte collé. <strong>Elle n’est envoyée nulle part</strong> à ce stade, et elle n’est pas gardée avec votre session.</p>'
       : '<p class="small text-muted mb-0">Trois lettres au plus. Retirez-en une pour en ajouter une autre.</p>';
   }
-  return h + '</div>';
+  return h + _coLettreHtmlAutresAppuis() + '</div>';
+}
+
+// Les deux autres appuis du panneau (28/10/2026, maquette validee) : le document « Mes compétences » et un texte libre. Memes endroits que la lettre de recommandation.
+function _coLettreDocMesCompetences() {
+  try { return (typeof mesCompObtenirDocument === 'function' && typeof _mesCompEtat !== 'undefined') ? mesCompObtenirDocument(_mesCompEtat) : null; } catch (e) { return null; }
+}
+function _coLettreHtmlAutresAppuis() {
+  var doc = _coLettreDocMesCompetences();
+  var nb = compterLignesMesCompetences(doc);
+  var h = '<hr class="my-3"><p class="mb-1 fw-bold">Votre document « Mes compétences »</p>';
+  if (doc && nb) {
+    h += '<p class="text-muted small mb-2">Ce que vous avez relevé et gardé dans « Découvrir mes compétences » (' + nb + (nb > 1 ? ' lignes' : ' ligne') + '). Cela permet de retrouver des compétences que votre CV ne montrait pas.</p>' +
+      '<div class="jetons-ligne"><div class="jetons-lib">Joindre ce document ?</div>' +
+      ['oui', 'non'].map(function (v) {
+        var actif = _coLettreAppuiMesComp !== null && (v === 'oui') === _coLettreAppuiMesComp;
+        return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-appui-mescomp="' + v + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + (v === 'oui' ? 'Oui' : 'Non') + '</button>';
+      }).join('') + '</div>';
+  } else {
+    h += '<p class="text-muted small mb-2">Vous n’avez pas encore terminé « Découvrir mes compétences ». Vous pourrez le faire plus tard : cela ne bloque rien.</p>';
+  }
+  h += '<hr class="my-3"><p class="mb-1 fw-bold"><label for="coLettreAppuiTexte">Dites-le avec vos mots</label></p>' +
+    '<p class="text-muted small mb-2">Si vous n’avez pas trouvé ailleurs où le dire : qu’est-ce que vous voudriez mettre en avant ? Écrivez-le, ou dictez-le à la voix. Quelques lignes suffisent. ' +
+    'Évitez les noms, les téléphones et les adresses : ce texte est lu par l’assistant.</p>' +
+    '<textarea class="form-control" id="coLettreAppuiTexte" rows="4" maxlength="' + TEXTE_LIBRE_APPUI_MAX + '" placeholder="Quelques lignes suffisent.">' + echapperAttribut(_coLettreAppuiTexte) + '</textarea>';
+  h += htmlAstuceDictee('ligne', 'Pour dicter à la voix :');
+  return h;
 }
 
 // Lettres de recommandation pouvant etre jointes au PDF (decision 25 du cahier lettre) : seules celles deposees en PDF ou en photo (on a l'original).
@@ -5596,30 +5028,35 @@ function pagesEnImagesRecommandation(fichier) {
   });
 }
 
-// Depot d'une lettre de recommandation : meme fenetre que le CV (lecture de fichier / photo / texte colle, relecture, masquage). Piege : lire un
-// fichier ecrit dossier.cvTexte et dossier.cvAnalyse ; on les remet toujours en etat, pour ne jamais ecraser le CV de la personne.
-function _coLettreDeposerReco(rerender) {
-  var rr = rerender || _coLettreRendreDepot;   // E5 : la page « Choisir mon assistant » du CV passe son propre rafraichissement
-  var cvAvant = dossier.cvTexte;
-  var analyseAvant = dossier.cvAnalyse;
-  function remettreCv() { dossier.cvTexte = cvAvant; dossier.cvAnalyse = analyseAvant; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: 'Étape 1 · Déposer une lettre de recommandation',
-    intro: 'Déposez la lettre de recommandation (PDF, Word, photo) ou collez son texte. <strong>Pensez à protéger la personne qui l’a écrite</strong> : à l’étape suivante, son nom, son téléphone, son e-mail et son adresse sont repérés pour que vous les supprimiez.',
+// Depot d'une lettre de recommandation EN PAGE (brique htmlDepotCVEnPage, consigne 28) : le bouton ouvre la zone de depot sous la rubrique « Vos appuis », la lettre
+// relue et enregistree rejoint la liste. La brique n'ecrit rien dans le CV du dossier (ecrireCV: false) : il n'y a donc plus rien a remettre en etat.
+var _coLettreRecoDepotOuvert = false;
+function _coLettreRecoDepotCfg(rerender) {
+  var rr = rerender || _coLettreRendreDepot;
+  return {
+    cle: 'coReco',
     titreDocument: 'Lettre de recommandation',
+    intro: 'Déposez la lettre de recommandation : PDF, Word, texte, photo ou capture d’écran. Elle est lue directement dans votre navigateur, <strong>elle n’est envoyée nulle part</strong>. <strong>Pensez à protéger la personne qui l’a écrite</strong> : à la relecture, son nom, son téléphone, son e-mail et son adresse sont repérés pour que vous les supprimiez.',
+    avecIdentite: false,
+    ecrireCV: false,
     nomsInitiaux: nomsSignatureLettreCo,
+    rerender: rr,
+    onFermer: function () { _coLettreRecoDepotOuvert = false; rr(); },
     onDocumentPrepare: function (documentPrepare) {
-      remettreCv();
       if (documentPrepare && documentPrepare.type === 'texte') {
         var nbAvant = _coLettreRecos.length;
         _coLettreRecos = ajouterRecommandationLettreCo(_coLettreRecos, documentPrepare.valeur, '');
         if (_coLettreRecos.length > nbAvant && documentPrepare.fichier) { _coLettreRecoFichiers[_coLettreRecos[_coLettreRecos.length - 1].id] = documentPrepare.fichier; }
         _coLettreRecoReponse = 'oui';
       }
+      _coLettreRecoDepotOuvert = false;
       rr();
-    },
-    onRetourEtape1: function () { remettreCv(); rr(); }
-  });
+    }
+  };
+}
+function _coLettreDeposerReco(rerender) {
+  _coLettreRecoDepotOuvert = true;
+  (rerender || _coLettreRendreDepot)();
 }
 
 function _coLettreBrancherAppuis(rerender) {
@@ -5631,7 +5068,13 @@ function _coLettreBrancherAppuis(rerender) {
       rr();
     });
   });
+  document.querySelectorAll('#coLettreAppuis [data-appui-mescomp]').forEach(function (el) {
+    el.addEventListener('click', function () { _coLettreAppuiMesComp = this.getAttribute('data-appui-mescomp') === 'oui'; rr(); });
+  });
+  var zoneTexteAppui = document.getElementById('coLettreAppuiTexte');
+  if (zoneTexteAppui) { zoneTexteAppui.addEventListener('input', function () { _coLettreAppuiTexte = this.value.slice(0, TEXTE_LIBRE_APPUI_MAX); }); }
   document.querySelectorAll('#coLettreAppuis [data-reco-deposer]').forEach(function (el) { el.addEventListener('click', function () { _coLettreDeposerReco(rr); }); });
+  if (_coLettreRecoDepotOuvert && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_coLettreRecoDepotCfg(rr)); }
   document.querySelectorAll('#coLettreAppuis [data-reco-retirer]').forEach(function (el) {
     el.addEventListener('click', function () {
       var id = parseInt(this.getAttribute('data-reco-retirer'), 10);
@@ -5660,7 +5103,7 @@ function _coLettreAppliquerVerrous() {
   var raisons = relu ? raisonsCandidatureAvantSuite() : [];
   appliquerVerrouBlocs([
     { id: 'coLettreBlocCible', actif: relu, message: msgCv },
-    { id: 'coLettreBlocAdaptation', actif: relu && raisons.length === 0, masque: !relu, message: raisons.length ? raisons[0] : msgCv }
+    { id: 'coLettreBlocAdaptation', actif: relu && raisons.length === 0, message: raisons.length ? raisons[0] : msgCv }
   ]);
 }
 function _coLettreBrancherDepot() {
@@ -5672,100 +5115,8 @@ function _coLettreBrancherDepot() {
   cablerBlocDepliManuel(_coLettreEtatDepot, 'blocAdaptation', 'coLettreBlocAdaptation');
   _coLettreAppliquerVerrous();
 
-  var btnDeposer = document.getElementById('btnCoLettreDeposerCv');
-  if (btnDeposer) {
-    btnDeposer.addEventListener('click', function () {
-      // TACHE (comportement inchange) : meme mecanisme que l'ancienne
-      // ouvrirDepotLettreV1() -- ouvre la fenetre de depot existante
-      // (lecture de fichier/photo, techniquement impossible autrement
-      // qu'une fenetre), une seule fois, refermee des le document pret.
-      // Seule la DESTINATION change : une vraie page, pas une 2e fenetre.
-      ouvrirAssistantDepotCV('pret', {
-        onDocumentPrepare: function (documentPrepare) {
-          if (!documentPrepare) { return; }
-          _coLettreDocument = documentPrepare;
-          // La modale a deja fait son ecran de verification / masquage
-          // (texte) ou de masquage sur l'image : ce CV est deja relu.
-          _coLettreCvRelu = true;
-          if (documentPrepare.type === 'texte') { _coLettreDetecterCoordonneesDepuisCV(documentPrepare.valeur); }
-          // TACHE (retour utilisateur 2026-09-17, bug reel confirme :
-          // "apres l'import du CV, l'appli va direct sur la page Assistant,
-          // sans respecter le parcours du module") : sautait tout droit sur
-          // 'choix-assistant', contrairement au chemin "coller le texte"
-          // (voir plus bas, _coLettreRendreDepot() apres validation) qui
-          // reste sur la page pour laisser remplir le bloc 3 "L'entreprise
-          // et le poste". Reste desormais sur la page "Preparer" dans les
-          // deux cas -- seul le bouton "Choisir mon assistant" (deja cable
-          // plus bas) fait passer a l'ecran suivant.
-          _coLettreRendreDepot();
-        },
-        onRetourEtape1: function () { _coLettreRendreDepot(); }
-      });
-    });
-  }
-
-  // TACHE (retour Denis 2026-09-26, point 5 - meme correctif que _prepLE,
-  // voir ouvrirRelecturePrepLE()) : ouvre la relecture automatiquement,
-  // reutilisable par le bouton ET juste apres un collage.
-  function ouvrirRelectureCoLettre() {
-    if (!_coLettreDocument || _coLettreDocument.type !== 'texte') { return; }
-    memoriserIdentiteCaptee(_coLettreDocument.valeur);
-    bilanDemanderRelectureCv(_coLettreDocument.valeur, undefined, false).then(function (res) {
-      _coLettreDocument.valeur = res.contenuValide;
-      _coLettreCvRelu = true;
-      _coLettreRendreDepot();
-    }).catch(function (erreur) {
-      if (erreur && erreur.code === 'RelectureAnnulee') {
-        // CV jamais valide (relecture fermee sans enregistrer) : comme s'il
-        // n'y avait pas de CV (decision Denis 2026-09-29).
-        if (!_coLettreCvRelu) { _coLettreDocument = null; _coLettreRendreDepot(); }
-        return;
-      }
-      if (typeof trackEvenement === 'function') { trackEvenement('co_lettre_relecture_erreur', { code: erreur && erreur.code }); }
-    });
-  }
-
-  var btnColler = document.getElementById('btnCoLettreCollerCv');
-  var zoneColler = document.getElementById('coLettreCollerZone');
-  var champColler = document.getElementById('coLettreCollerTexte');
-  var btnCollerValider = document.getElementById('btnCoLettreCollerValider');
-  if (btnColler && zoneColler) {
-    btnColler.addEventListener('click', function () { zoneColler.hidden = !zoneColler.hidden; if (!zoneColler.hidden && champColler) { champColler.focus(); } });
-  }
-  if (champColler && btnCollerValider) {
-    champColler.addEventListener('input', function () {
-      btnCollerValider.textContent = champColler.value.trim() ? 'Enregistrer ce texte' : 'Annuler';
-    });
-    btnCollerValider.addEventListener('click', function () {
-      var t = champColler.value.trim();
-      if (!t) { zoneColler.hidden = true; return; }
-      _coLettreDocument = { type: 'texte', valeur: t };
-      // Texte colle = BRUT. On reste sur la page "Preparer" : le bloc 2
-      // "Relire, verifier, masquer" s'ouvre, le CTA reste bloque tant que
-      // bilanDemanderRelectureCv n'a pas ete faite.
-      _coLettreCvRelu = false;
-      // Detection AVANT tout masquage (voir le commentaire de la fonction) :
-      // le texte brut colle est le seul moment ou telephone/e-mail sont
-      // encore surs d'etre presents tels quels.
-      _coLettreDetecterCoordonneesDepuisCV(t);
-      _coLettreRendreDepot();
-      if (typeof bilanDemanderRelectureCv === 'function') { ouvrirRelectureCoLettre(); }
-    });
-  }
-
-  var btnChanger = document.getElementById('btnCoLettreChangerCv');
-  if (btnChanger) {
-    btnChanger.addEventListener('click', function () { _coLettreDocument = null; _coLettreCvRelu = false; _coLettreRendreDepot(); });
-  }
-
-  // ----- Bloc 2 : Relire, verifier, corriger, masquer (brique partagee
-  // bilanDemanderRelectureCv, meme que _prepLE). Ne concerne que le CV
-  // colle en texte : le chemin fichier/image a deja ete masque par la
-  // modale (_coLettreCvRelu = true). -----
-  var btnRelecture = document.getElementById('btnCoLettreRelecture');
-  if (btnRelecture && typeof bilanDemanderRelectureCv === 'function') {
-    btnRelecture.addEventListener('click', ouvrirRelectureCoLettre);
-  }
+  // ----- Bloc 1 : Votre CV (depot, relecture et masquage EN PAGE, brique htmlDepotCVEnPage) -----
+  if (typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_coLettreDepotCfg()); }
 
   // ----- Bloc 3 : Votre candidature (briques partagees de "Votre objectif") -----
   if (typeof invitationCartesObjectif === 'function') { invitationCartesObjectif(); }   // les cartes s'invitent une a une tant qu'aucune n'est choisie
@@ -5920,12 +5271,6 @@ function titreParcoursRapide(id) {
   var p = id && _parcoursRapideDef(id);
   return p ? p.titre : '';
 }
-// Grand titre de « Vos documents » en version rapide (lettre ou fiche) : le nom du parcours ; vide ailleurs (modules approfondis, entretien terminé, autres documents).
-function titreParcoursRapideSiBesoin(docActif, venantDeEntretien) {
-  if (venantDeEntretien || typeof _parcoursRapide !== 'function' || !_parcoursRapide() || (docActif !== 'lettre' && docActif !== 'entretien')) { return ''; }
-  if (typeof coLettreEnCoursLettreCo === 'function' && coLettreEnCoursLettreCo(dossier, docActif)) { return ''; }
-  return titreParcoursRapide(docActif);
-}
 var REPRENDRE_CV_NAV_ETAPES = [
   { label: 'Déposer', icone: '&#128221;' },
   { label: 'Ma voie', icone: '&#129517;' }
@@ -5950,14 +5295,14 @@ var MAJ_CV_NAV_ETAPES = [
 ];
 // TACHE (chantier « Reformuler et presenter mon CV », etape 1) : barre du
 // 4e parcours. Vocabulaire commun (Preparer / Assistant / Reponse), puis
-// « Verifier » (choix entre les 2 versions) et « Mise en forme » (sorties).
+// « Verifier » (choix entre les 2 versions) et « Vos documents » (sorties, puis la page « Vos documents » : meme repere, meme barre jusqu'au bout, 28/10/2026).
 // Une icone par etape, comme les autres barres.
 var REFORMULER_CV_NAV_ETAPES = [
   { label: 'Préparer', icone: '&#128221;' },
   { label: 'Assistant', icone: '&#128172;' },
   { label: 'Réponse', icone: '&#128229;' },
   { label: 'Vérifier', icone: '&#128269;' },
-  { label: 'Mise en forme', icone: '&#128196;' }
+  { label: 'Vos documents', icone: '&#128196;' }
 ];
 // Index de la barre pour chaque ecran de travail (pret / maj). Preparer(0) /
 // Assistant(1) / Reponse(2) se font avant d'atterrir sur ces pages ->
@@ -6777,9 +6122,8 @@ function _reformulerCvContexteTexte() {
     'Domaine ou secteur : ' + (secteur || 'non précisé') + '\n\n' +
     'OFFRE VISÉE :\n' + (offre || 'Non fournie.') + '\n\n' +
     'CV DE LA PERSONNE :\n' + cvTexte +
-    (saisies ? '\n\nINFORMATIONS SAISIES PAR LA PERSONNE DANS L\'APPLICATION :\n' + saisies : '') +
-    // Lettre de recommandation (demande de Denis, 25/10/2026) : lue par l'assistant pour la version 2 seulement (voir prompts/reformuler-cv.md).
-    (function () { try { var reco = (typeof sectionRecommandationPourMessage === 'function') ? sectionRecommandationPourMessage() : ''; return reco ? '\n\n' + reco : ''; } catch (e) { return ''; } })();
+    (saisies ? '\n\nINFORMATIONS SAISIES PAR LA PERSONNE DANS L\'APPLICATION :\n' + saisies : '');
+    // Pas de lettre de recommandation ici (decision de Denis, 28/10/2026) : le premier passage ne lit aucun appui ; les appuis se joignent a « Vos documents », pour le second passage.
 }
 function _reformulerCvComposerPrompt() {
   if (typeof promptCache === 'function') { return promptCache('reformuler-cv', _reformulerCvContexteTexte()); }
@@ -6801,7 +6145,7 @@ function _reformulerCvRendreEchange() {
 
   // ----- Bloc A : choix de l'assistant -----
   var blocA = assistantChoisi
-    ? '<details class="bloc-depli bd-ok" id="reformulerBlocA"' + (ouvertBlocDepliManuel(_prepLEEtat, 'reformulerBlocA', false) ? ' open' : '') + '>' +
+    ? '<details class="bloc-depli bd-ok" id="reformulerBlocA"' + (ouvertBlocAssistantChoisi(_prepLEEtat, 'reformulerBlocA') ? ' open' : '') + '>' +
       '<summary><span class="preparer-num">1</span><span class="preparer-titre">Votre assistant</span>' +
       '<span class="pilule-etat pe-ok">' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</span></summary>' +
       '<div class="bloc-depli-corps">' +
@@ -6827,15 +6171,8 @@ function _reformulerCvRendreEchange() {
       '<summary><span class="preparer-num">2</span><span class="preparer-titre">Collez la réponse de l’assistant</span>' +
       '<span class="pilule-etat pe-info">À faire</span></summary>' +
       '<div class="bloc-depli-corps">' +
-      htmlBanniereTransitionIA() +
-      '<p class="text-muted small">Une fois que l’assistant vous a renvoyé les deux versions de votre CV, ' +
-      'copiez <strong>toute sa réponse</strong>, puis revenez ici.</p>' +
-      htmlCollageInstantane('ReformulerCv',
-        '<div class="d-flex gap-2 mb-2 mt-2">' +
-        '<button type="button" id="btnReformulerCvVersVerifier" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-libelle="Continuer &#8594;" data-barre-bas-message="Collez d’abord la réponse de l’assistant pour continuer." disabled>&#8594; Continuer</button>' +
-        '<button type="button" id="btnEffacerRecollerReformulerCv" class="btn btn-outline-secondary">Effacer et recoller</button>' +
-        '</div>') +
-      '<div id="messageReformulerCvCollage" class="small mb-2"></div>' +
+      // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+      htmlCollageUniquePage('ReformulerCv') +
       '</div></details>'
     : '<details class="bloc-depli" id="reformulerBlocB">' +
       '<summary><span class="preparer-num">2</span><span class="preparer-titre">Collez la réponse de l’assistant</span>' +
@@ -6844,8 +6181,7 @@ function _reformulerCvRendreEchange() {
 
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, etapeBarre) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    '<div class="text-center"><h1><i class="bi bi-brush"></i> Reformuler et présenter mon CV</h1>' +
-    '<p class="sousTitre">Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.</p></div>' +
+    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Préparer', assistantChoisi ? SOUS_TITRE_ECHANGE_ASSISTANT_CHOISI : 'Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.') +
     blocA + blocB +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_reformulerCvRetourDepot()' }) + '</div>';
@@ -6875,7 +6211,7 @@ function _reformulerCvRendreEchange() {
         urlAssistant: assistant.url,
         construireTexteACopier: function () { return _reformulerCvComposerPrompt(); },
         onApresValidation: function (urlAssistant, nomAssistant) {
-          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
           _reformulerCvRendreEchange();
         }
       });
@@ -6892,94 +6228,45 @@ function _reformulerCvRendreEchange() {
 
   if (!assistantChoisi) { return; }
 
-  // ----- Cablage bloc B : transition + collage -----
-  var message = document.getElementById('messageReformulerCvCollage');
-  var btnColler = document.getElementById('btnCollerAutoReformulerCv');
-  var texteBtnColler = document.getElementById('texteBtnCollerAutoReformulerCv');
-
-  if (_etatTransitionIA && btnColler) {
-    if (_etatTransitionIA.phase === 'revenu') {
-      btnColler.disabled = false;
-      btnColler.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-      btnColler.classList.add('pulse-collage-retour');
-      if (texteBtnColler) { texteBtnColler.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-    } else {
-      btnColler.disabled = true;
-      btnColler.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-      btnColler.classList.add('rond-collage-desactive');
-      if (texteBtnColler) { texteBtnColler.textContent = 'Ce bouton s’activera à votre retour.'; }
-    }
-
-    var ouvrirAssistantEnAttente = function () {
-      if (!document.getElementById('btnCollerAutoReformulerCv')) { clearInterval(_intervalleDecompteIA); return; }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('reformuler_cv_popup_bloque'); }
-        _reformulerCvRendreEchange();
-      });
-    };
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnMaintenant = document.getElementById('btnContinuerMaintenantIA');
-      if (btnMaintenant) { btnMaintenant.addEventListener('click', function () { clearInterval(_intervalleDecompteIA); ouvrirAssistantEnAttente(); }); }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteur = document.getElementById('compteurDecompteIA');
-        if (compteur) { compteur.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_intervalleDecompteIA); ouvrirAssistantEnAttente(); }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnBloque = document.getElementById('btnOuvrirBloqueIA');
-      if (btnBloque) { btnBloque.addEventListener('click', ouvrirAssistantEnAttente); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnRetour = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnRetour) { btnRetour.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; _reformulerCvRendreEchange(); }); }
-      var btnRouvrir = document.getElementById('btnRouvrirSiteIA');
-      if (btnRouvrir) { btnRouvrir.addEventListener('click', ouvrirAssistantEnAttente); }
-    }
-  }
-
-  var btnVersVerifier = document.getElementById('btnReformulerCvVersVerifier');
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoReformulerCv', idZoneApercu: 'zoneApercuCollageReformulerCv',
-    idTextarea: 'texteCollageReformulerCv', idBoutonColler: 'btnCollerAutoReformulerCv',
-    idBoutonCollerManuel: 'btnCollerManuelReformulerCv', idBoutonEffacerRecoller: 'btnEffacerRecollerReformulerCv',
-    idBoutonImporter: 'btnReformulerCvVersVerifier',
-    onErreur: function (msg) { message.style.color = 'var(--danger)'; message.textContent = '⚠️ ' + msg; },
-    onEffacer: function () { message.textContent = ''; if (btnVersVerifier) { btnVersVerifier.disabled = true; } },
-    onCollerManuel: function () { message.textContent = ''; },
-    onSucces: function (texte, estAjout) {
-      _prepLEEtat.reponseAssistant = texte;
+  // ----- Cablage bloc B : fenetre unique « Collez la reponse » -----
+  // « Coller la reponse » lit et verifie (analyseur pur, rien n'est garde) ; l'enregistrement et le passage a l'ecran « Verifier » ont lieu au clic sur « Continuer » (barre du bas).
+  brancherCollageUniquePage({
+    suffixe: 'ReformulerCv', idAncre: 'fcRacineReformulerCv', rerendre: _reformulerCvRendreEchange, evenementBloque: 'reformuler_cv_popup_bloque',
+    module: {
+      libelleSuite: 'Vérifier mon CV',
+      quoi: 'L’assistant vous propose <strong>deux versions</strong> de votre CV, avec les mêmes informations : la première reste <strong>au plus près de ce que vous avez écrit</strong>, la seconde est <strong>un peu retravaillée</strong>. Vous choisirez à l’étape suivante.',
+      pourquoi: 'Vous comparez deux façons de présenter les mêmes informations et vous gardez celle qui vous convient.',
+      verif: 'regardez que rien n’a été inventé et que rien d’important ne manque.'
+    },
+    verifier: function (texte) {
+      var parse = _reformulerCvParserReponse(texte);
+      if (!parse.pasUnCv) { return { ok: true }; }
+      // Reponse lisible mais « pas un CV » (l'assistant l'a dit) : on l'explique ; sinon l'echec commun de la fenetre suffit.
+      if (parse.pasUnCv === REFORMULER_CV_PAS_DE_RESULTAT) { return { ok: false }; }
+      return { ok: false, personnalise: {
+        texte: '<strong>L’assistant n’a pas reconnu un CV.</strong> Ce qu’il a lu ressemble plutôt à : ' + echapperAttribut(parse.pasUnCv) + '. ' +
+          '<strong>Le plus simple : redemandez à l’assistant</strong> (une nouvelle conversation, en recollant le même texte) : ce genre de réponse est souvent un incident isolé, qui ne se reproduit pas au 2ᵉ essai. ' +
+          'Si ça persiste, vérifiez que vous avez bien collé la réponse complète de l’assistant, ou recommencez en déposant votre CV.'
+      } };
+    },
+    onChangerAssistant: function () {
+      if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
       _etatTransitionIA = null;
-      if (btnVersVerifier) { btnVersVerifier.disabled = false; }
-      message.style.color = 'var(--success-strong)';
-      message.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le morceau suivant puis recliquez, ou cliquez Continuer si c’était le dernier.'
-        : '✅ Réponse importée. Si la réponse fait plusieurs morceaux, copiez le suivant puis cliquez « Coller un morceau supplémentaire ».';
-    }
-  });
-
-  if (btnVersVerifier) {
-    btnVersVerifier.addEventListener('click', function () {
-      var t = (document.getElementById('texteCollageReformulerCv') || {}).value || _prepLEEtat.reponseAssistant || '';
-      if (!t.trim()) {
-        message.style.color = 'var(--danger)';
-        message.textContent = '⚠️ Collez d’abord la réponse de l’assistant dans la zone ci-dessus.';
-        return;
-      }
+      _reformulerCvRendreEchange();
+    },
+    onContinuer: function (t) {
+      _etatTransitionIA = null;
       _prepLEEtat.reponseAssistant = t;
       // TACHE (chantier OCR, etape 5) : une nouvelle reponse collee doit
       // repasser par l'ecran de clarification si elle contient de nouveaux
       // pointsAVerifier (voir _reformulerCvRendreVerifier()).
       _prepLEEtat.clarificationOcrTraitee = false;
       _precisionsPointsAVerifier = [];
+      if (typeof passagesRetirerDePage === 'function') { passagesRetirerDePage(); }
       _prepLEEcran = 'verifier';
       naviguerVers('reformuler-cv');
-    });
-  }
+    }
+  });
 }
 
 // ---------- Etape 5 : parsing de la reponse + ecran "Verifier" ----------
@@ -7215,13 +6502,14 @@ function _reformulerCvNettoyerPermis(p) {
 // (global navigateur) ; en Node, l'appelant l'injecte (cette fonction ne
 // depend jamais du DOM elle-meme, seul extraireBlocJSONDepuisTexte le fait
 // via echapperAttribut ailleurs dans js/app.js -- jamais charge en Node).
+var REFORMULER_CV_PAS_DE_RESULTAT = 'La réponse reçue ne contient pas de résultat exploitable.';
 function _reformulerCvParserReponse(brut, deps) {
   deps = deps || {};
   var extraireJSON = deps.extraireJSON || (typeof extraireBlocJSONDepuisTexte === 'function' ? extraireBlocJSONDepuisTexte : null);
   var donnees = null;
   if (extraireJSON) { try { donnees = extraireJSON(brut); } catch (e) { donnees = null; } }
   if (!donnees || typeof donnees !== 'object' || Array.isArray(donnees)) {
-    return { pasUnCv: 'La réponse reçue ne contient pas de résultat exploitable.' };
+    return { pasUnCv: REFORMULER_CV_PAS_DE_RESULTAT };
   }
   if (donnees.pasUnCV) {
     return { pasUnCv: _reformulerCvStr(donnees.message) || 'Le texte reçu ne ressemble pas à un CV.' };
@@ -7242,11 +6530,16 @@ function _reformulerCvParserReponse(brut, deps) {
     };
   }).filter(function (p) { return p.question; });
   pointsAVerifier = pointsAVerifier.concat(pointsIncoherencesImport(propositions.map(function (pr) { return pr.struct; }), pointsAVerifier));
+  // Lien « certification rangee sous telle formation » donne par l'assistant (sert seulement a proposer des annees, jamais a modifier le CV).
+  var rattachements = _reformulerCvArr(donnees.rattachements).map(function (r) {
+    return { certification: _reformulerCvStr(r && r.certification), formation: _reformulerCvStr(r && r.formation) };
+  }).filter(function (r) { return r.certification && r.formation; });
   return {
     propositions: propositions,
     identite: _reformulerCvNettoyerIdentite(donnees.identite),
     permis: _reformulerCvNettoyerPermis(donnees.permis),
-    pointsAVerifier: pointsAVerifier
+    pointsAVerifier: pointsAVerifier,
+    rattachements: rattachements
   };
 }
 
@@ -7409,7 +6702,41 @@ function _reformulerCvTexteFinalProposition(struct) {
   return lignes.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-// ---------- Ecran "Verifier" (5a choix des 2 versions, 5b verification) ----------
+// ---------- « Quelques passages a preciser » EN PAGE (point 15, 01/11/2026) : composant partage modules/passages-a-preciser/, cle 'reformuler' ----------
+// Mode « rejoue » : le bloc garde les reponses, on les recopie dans _precisionsPointsAVerifier que _reformulerCvNettoyerStruct rejoue a chaque lecture de la reponse de l'assistant.
+// Changer une reponse = relire la reponse et remettre a jour les versions affichees (_reformulerCvRafraichirVerifier, posee par l'ecran « Verifier » en cours).
+var _reformulerCvRafraichirVerifier = null;
+function _reformulerCvPoserPassages(points) {
+  if (typeof passagesCreerEtat !== 'function') { return; }
+  passagesPoserPourPage('reformuler', passagesCreerEtat(points, { rejoue: true, marqueurRetirer: PRECISION_RETIRER }), function () {
+    _reformulerCvMemoDepuisPassages();
+    if (typeof _reformulerCvRafraichirVerifier === 'function') { _reformulerCvRafraichirVerifier(); }
+  });
+}
+function _reformulerCvMemoDepuisPassages() {
+  var e = (typeof passagesEtatDePage === 'function') ? passagesEtatDePage('reformuler') : null;
+  if (!e) { return; }
+  _precisionsPointsAVerifier = [];
+  e.points.forEach(function (p, i) {
+    var r = e.reponses[i];
+    if ((r.statut === 'repondu' || r.statut === 'retire') && r.valeur) { _precisionsPointsAVerifier.push({ extrait: p.extrait, valeur: r.valeur, cible: p.cible }); }
+  });
+}
+// Page validee (« C'est bon, passer a la mise en forme ») : les reponses qui n'ont rien remplace dans la reponse de l'assistant vont dans les informations non classees (comme avec l'ancienne fenetre), le bloc est retire.
+function _reformulerCvValiderPassages() {
+  var e = (typeof passagesEtatDePage === 'function') ? passagesEtatDePage('reformuler') : null;
+  if (!e) { return; }
+  var memo = _precisionsPointsAVerifier, props = [];
+  _precisionsPointsAVerifier = [];   // lecture sans aucune correction : c'est sur le texte d'origine qu'on voit si une reponse a remplace quelque chose
+  try { props = _reformulerCvParserReponse((_prepLEEtat && _prepLEEtat.reponseAssistant) || '').propositions || []; } finally { _precisionsPointsAVerifier = memo; }
+  var sansEffet = passagesAppliquerSurObjet(e, null, function (extrait, valeur, point) {
+    var cible = point && point.cible;
+    return props.some(function (pr) { return cible ? _incoh().appliquerDates(pr.struct, cible, valeur) : remplacerPrecisionDansListes(pr.struct, extrait, valeur, true); });
+  });
+  if (sansEffet.length && typeof dossier !== 'undefined') { dossier.informationsNonClassees = (dossier.informationsNonClassees || []).concat(sansEffet); }
+  passagesRetirerDePage();
+}
+// Ecran « Verifier » (5a choix des 2 versions, 5b verification)
 function _reformulerCvRendreVerifier() {
   var brut = (_prepLEEtat && _prepLEEtat.reponseAssistant) || '';
   var parse = _reformulerCvParserReponse(brut);
@@ -7422,28 +6749,19 @@ function _reformulerCvRendreVerifier() {
     // Qualites renvoyees par l'assistant mais absentes du CV : question « les retirer ? » (retour Denis 2026-09-30).
     parse.pointsAVerifier = (parse.pointsAVerifier || []).concat(pointsQualitesAbsentesDuCV(parse.propositions, _prepLEEtat.cvTexte, (typeof dossier !== 'undefined' ? dossier : null), parse.pointsAVerifier));
     // Annee(s) proposee(s) pour une certification rangee sous une formation dans le CV (retour Denis 2026-09-30) : boutons, jamais d'annee imposee.
-    _incoh().suggererAnnees(parse.pointsAVerifier, (parse.propositions || []).map(function (pr) { return pr.struct; }), _prepLEEtat.cvTexte);
+    _incoh().suggererAnnees(parse.pointsAVerifier, (parse.propositions || []).map(function (pr) { return pr.struct; }), _prepLEEtat.cvTexte, parse.rattachements);
   }
   if (!parse.pasUnCv && !_prepLEEtat.clarificationOcrTraitee && parse.pointsAVerifier && parse.pointsAVerifier.length) {
+    // Plus de fenetre : les questions sont posees dans un bloc en haut de cet ecran (comme les autres modules), une seule fois par reponse collee.
     _prepLEEtat.clarificationOcrTraitee = true;
-    afficherClarificationPointsAVerifier(parse.pointsAVerifier, _reformulerCvRendreVerifier, {
-      appliquer: function (extrait, valeur, point) {
-        var cible = point && point.cible;
-        var dejaLa = (parse.propositions || []).some(function (pr) {
-          return cible ? _incoh().appliquerDates(pr.struct, cible, valeur) : remplacerPrecisionDansListes(pr.struct, extrait, valeur, true);
-        });
-        if (dejaLa) { _precisionsPointsAVerifier.push({ extrait: extrait, valeur: valeur, cible: cible }); }
-        return dejaLa;
-      }
-    });
-    return;
+    _reformulerCvPoserPassages(parse.pointsAVerifier);
   }
 
   // Cas "ce n'est pas un CV" : message clair, aucun CV fabrique.
   if (parse.pasUnCv) {
     app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
       barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) +
-      '<div class="text-center"><h1><i class="bi bi-brush"></i> Vérifier votre CV reformulé</h1></div>' +
+      htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Vérifier la réponse de l’assistant') +
       '<div class="reformuler-encart reformuler-encart-alerte">' +
       '<strong>L’assistant n’a pas reconnu un CV.</strong> Ce qu’il a lu ressemble plutôt à : ' +
       echapperAttribut(parse.pasUnCv) + '.<br>' +
@@ -7478,6 +6796,10 @@ function _reformulerCvRendreVerifier() {
       return '<div class="reformuler-carte-choix">' +
         '<h3>' + (i === 0 ? '&#128204; ' : '&#11088; ') + titreCarte + '</h3>' +
         (p.piste ? '<p class="reformuler-piste">' + echapperAttribut(p.piste) + '</p>' : '') +
+        // Ce qui se passe ensuite selon la version (retour Denis 28/10/2026) : la 1 part directement vers le modele, la 2 propose ensuite de la garder ou de la developper avec les appuis.
+        '<p class="reformuler-suite">' + ((i === 0)
+          ? '<strong>Vous partez directement avec celle-ci.</strong>C’est ce que nous avons récupéré de votre CV, présenté plus clairement. Ensuite, vous choisissez votre modèle pour l’imprimer.'
+          : '<strong>Un peu plus travaillée.</strong>Si vous la choisissez, nous vous proposerons ensuite deux choix : la garder telle quelle, ou la développer davantage avec vos appuis.') + '</p>' +
         '<div class="reformuler-apercu" id="reformulerApercu' + i + '">' + renduHtml + '</div>' +
         '<div class="text-center mt-2">' +
         '<button type="button" class="btn btn-outline-secondary btn-sm" data-reformuler-deplier="' + i + '">&#9660; Déplier pour tout lire</button> ' +
@@ -7486,15 +6808,15 @@ function _reformulerCvRendreVerifier() {
     }).join('');
 
     var alerteIncomplet = (props.length < 2)
-      ? '<div class="reformuler-encart reformuler-encart-alerte">Une seule version a été trouvée dans la réponse. ' +
-        'Si l’assistant en a renvoyé deux, revenez à l’étape précédente et recollez toute sa réponse.</div>'
+      ? '<div class="reformuler-encart reformuler-encart-alerte"><strong>Il manque une version.</strong> L’assistant devait en renvoyer deux (la plus proche de votre CV et la version recommandée), mais la réponse collée n’en contient qu’une. ' +
+        'Vous n’avez peut-être copié qu’une partie de sa réponse : revenez à l’étape précédente et recollez-la en entier.</div>'
       : '';
 
     app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
       barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-      '<div class="text-center"><h1><i class="bi bi-brush"></i> Choisissez une version</h1>' +
-      '<p class="sousTitre">Le fond est le même dans les deux : mêmes expériences, mêmes dates, mêmes diplômes. ' +
-      'Seules la formulation et la mise en ordre changent.</p></div>' +
+      htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Choisir une version', 'Le fond est le même dans les deux : mêmes expériences, mêmes dates, mêmes diplômes. ' +
+      'Seules la formulation et la mise en ordre changent.') +
+      (typeof htmlBlocPassagesDePage === 'function' ? htmlBlocPassagesDePage('reformuler') : '') +
       alerteIncomplet +
       '<div class="text-center mb-3"><button type="button" id="btnReformulerVoirOriginal" class="btn btn-outline-secondary btn-sm">&#128196; Voir mon CV d’origine</button></div>' +
       '<div id="reformulerZoneOriginal" hidden class="reformuler-encart"><strong>Votre CV d’origine :</strong>' +
@@ -7503,6 +6825,13 @@ function _reformulerCvRendreVerifier() {
       '</div>' +
       '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_reformulerCvRetourEchange()' }) + '</div>';
 
+    if (typeof brancherBlocPassagesDePage === 'function') { brancherBlocPassagesDePage('reformuler'); }
+    // Une reponse du bloc : on relit la reponse de l'assistant (corrections rejouees) et on remet a jour les deux versions affichees.
+    _reformulerCvRafraichirVerifier = function () {
+      parse = _reformulerCvParserReponse(brut);
+      props = parse.propositions || [];
+      props.forEach(function (p, i) { var ap = document.getElementById('reformulerApercu' + i); if (ap) { ap.innerHTML = _reformulerCvRenduCorpsProposition(p.struct); } });
+    };
     var btnOrig = document.getElementById('btnReformulerVoirOriginal');
     if (btnOrig) {
       btnOrig.addEventListener('click', function () {
@@ -7535,9 +6864,9 @@ function _reformulerCvRendreVerifier() {
 
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    '<div class="text-center"><h1><i class="bi bi-brush"></i> Vérifiez votre CV reformulé</h1>' +
-    '<p class="sousTitre">Vous avez choisi « ' + (choix === 0 ? 'la plus proche de votre CV' : 'notre version recommandée') + ' ». ' +
-    'Le fond n’a pas changé. Vous pouvez tout modifier ici.</p></div>' +
+    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Vérifier la version reformulée', 'Vous avez choisi « ' + (choix === 0 ? 'la plus proche de votre CV' : 'notre version recommandée') + ' ». ' +
+    'Le fond n’a pas changé. Vous pouvez tout modifier ici.') +
+    (typeof htmlBlocPassagesDePage === 'function' ? htmlBlocPassagesDePage('reformuler') : '') +
     '<div class="reformuler-encart reformuler-encart-resume"><strong>Ce qui a changé</strong><ul>' +
     resume.map(function (l) { return '<li>' + echapperAttribut(l) + '</li>'; }).join('') + '</ul></div>' +
     '<div class="text-center mb-2">' +
@@ -7554,6 +6883,7 @@ function _reformulerCvRendreVerifier() {
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_reformulerCvRevenirAuChoix()' }) + '</div>';
 
+  if (typeof brancherBlocPassagesDePage === 'function') { brancherBlocPassagesDePage('reformuler'); }
   var btnRevoir = document.getElementById('btnReformulerRevoirChoix');
   if (btnRevoir) { btnRevoir.addEventListener('click', _reformulerCvRevenirAuChoix); }
 
@@ -7575,6 +6905,17 @@ function _reformulerCvRendreVerifier() {
       btnModifier.innerHTML = versEdition ? '&#8592; Revenir à l’affichage normal' : '&#9998; Modifier le texte';
     });
   }
+  // Une reponse du bloc : relecture de la reponse de l'assistant, la version retenue et son resume suivent (un texte modifie a la main n'est jamais ecrase).
+  _reformulerCvRafraichirVerifier = function () {
+    parse = _reformulerCvParserReponse(brut);
+    props = parse.propositions || [];
+    if (!props[choix]) { return; }
+    propChoisie = props[choix];
+    var ul = document.querySelector('.reformuler-encart-resume ul');
+    if (ul) { ul.innerHTML = _reformulerCvResumeChangements(propChoisie.struct).map(function (l) { return '<li>' + echapperAttribut(l) + '</li>'; }).join(''); }
+    if (zoneRendu) { zoneRendu.innerHTML = _reformulerCvRenduCorpsProposition(propChoisie.struct); }
+    if (champEdition && zoneEdition && zoneEdition.hidden && _prepLEEtat.texteFinalEdite == null) { champEdition.value = texteFinalCourant(); }
+  };
   var btnSorties = document.getElementById('btnReformulerVersSorties');
   if (btnSorties) {
     btnSorties.addEventListener('click', function () {
@@ -7594,6 +6935,8 @@ function _reformulerCvRendreVerifier() {
       // (Continuer vers un modele OU Recuperer le texte, les deux y passent).
       _prepLEEtat.propositionChoisieIdentite = parse.identite;
       _prepLEEtat.propositionChoisiePermis = parse.permis;
+      // Page validee : les reponses du bloc « Quelques passages a preciser » ne sont plus modifiables.
+      _reformulerCvValiderPassages();
       _prepLEEcran = 'sorties';
       naviguerVers('reformuler-cv');
     });
@@ -7791,6 +7134,10 @@ function _reformulerCvAjouterExperiencesPersonnelles(perso) {
     connus.push(_reformulerCvNorm(titre));
   });
 }
+// Vrai quand la personne a choisi la version 1 de Reformuler : « Vos documents » n'impose alors aucun deuxième passage chez l'assistant (js/app.js : pageResultats).
+function reformulerSansSecondePasse() {
+  return !!(typeof dossier !== 'undefined' && dossier && dossier._origineReformuler && dossier._reformulerSansSecondePasse);
+}
 function _reformulerCvVersModele(struct) {
   if (typeof dossier === 'undefined' || !dossier) { return; }
   struct = struct || {};
@@ -7868,6 +7215,14 @@ function _reformulerCvVersModele(struct) {
   // terminerParcours() (js/app.js) pour ne plus jamais proposer la lettre
   // de motivation sur ce parcours.
   dossier._origineReformuler = true;
+  // Maquette 4 (Denis, 2026-10-27) : la version 1 (« La plus proche de votre CV ») est donnée telle quelle, sans deuxième passage chez l'assistant ;
+  // même mode fidèle que la voie 3 de « Reprendre mon CV » (tout ce qui est écrit apparaît, rien n'est ajouté). La version 2 garde le passage actuel.
+  var versionProche = !!(_prepLEEtat && _prepLEEtat.propositionChoisie === 0);
+  dossier._reformulerSansSecondePasse = versionProche;
+  // Version 2 (maquette « Un CV plus développé ? », 28/10/2026) : « Vos documents » commence par l'invitation ; le choix de la personne (aucun appui, ou au moins un) décide du second passage.
+  dossier._reformulerInvitationEnAttente = !versionProche;
+  dossier.modeFidele = versionProche;
+  if (versionProche && typeof cvReglagesToutApparait === 'function') { dossier.pdfReglages = cvReglagesToutApparait(dossier.pdfReglages, dossier); }
   dossier.dernierDocumentPrepare = 'cv';
   // TACHE (retour utilisateur 2026-09-16, option 1 validee) : "Votre
   // objectif" (etape suivante, pageObjectif()) redemandait le metier/domaine
@@ -7916,29 +7271,29 @@ function _reformulerCvRendreSorties() {
   var texte = (_prepLEEtat && _prepLEEtat.cvReformuleFinal) || '';
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 4) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    '<div class="text-center"><h1><i class="bi bi-brush"></i> Récupérer votre CV</h1>' +
-    '<p class="sousTitre">Votre CV reformulé est prêt.</p></div>' +
-    '<div class="reformuler-cartes-choix">' +
-    // ----- Sortie A : le texte -----
-    '<div class="reformuler-carte-choix">' +
-    '<h3>&#128203; Récupérer le texte de mon CV</h3>' +
-    '<p class="preparer-detail">Le texte reformulé, rangé par rubrique, prêt à coller sur Canva, un traitement de ' +
-    'texte, ou une autre plateforme de CV. La mise en forme, vous la faites là-bas.</p>' +
-    '<textarea id="reformulerTexteACopier" class="form-control reformuler-textarea" rows="12" readonly>' + echapperAttribut(texte) + '</textarea>' +
-    '<div class="text-center mt-2"><button type="button" id="btnReformulerCopierTexte" class="btn btn-primary">&#128203; Copier le texte</button></div>' +
-    '</div>' +
-    // ----- Sortie B : un de nos modeles -----
-    '<div class="reformuler-carte-choix">' +
+    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Récupérer mon CV', 'Votre CV reformulé est prêt.') +
+    '<div class="reformuler-cartes-choix reformuler-cartes-sorties">' +
+    // ----- Sortie B (en premier : c'est la suite du parcours) : un de nos modeles, avec le choix du modele comme a la creation du CV -----
+    '<div class="reformuler-carte-choix reformuler-carte-suite">' +
+    '<span class="reformuler-pastille-suite">La suite du parcours</span>' +
     '<h3>&#128196; Remplir un de nos modèles</h3>' +
     '<p class="preparer-detail">Votre CV reformulé est rangé dans nos rubriques (expériences, formations, ' +
-    'compétences...). Vous vérifiez et complétez à l’écran suivant, notamment vos coordonnées, puis vous ' +
-    'choisissez un modèle (PDF ou Word).</p>' +
-    '<div class="text-center"><button type="button" id="btnReformulerVersModele" class="btn btn-primary">Continuer &#8594;</button></div>' +
+    'compétences...). À l’écran suivant, vous vérifiez et complétez vos informations, notamment vos coordonnées. ' +
+    'Puis vous récupérez votre CV en PDF ou en Word.</p>' +
+    (typeof mgHtmlBlocIntro === 'function' ? mgHtmlBlocIntro(true) : '') +
+    '</div>' +
+    // ----- Sortie A : le texte seul -----
+    '<div class="reformuler-carte-choix">' +
+    '<h3>&#128203; Seulement le texte ?</h3>' +
+    '<p class="preparer-detail">Le texte reformulé, rangé par rubrique, prêt à coller sur Canva, un traitement de ' +
+    'texte, ou une autre plateforme de CV. La mise en forme, vous la faites là-bas.</p>' +
+    '<textarea id="reformulerTexteACopier" class="form-control reformuler-textarea" rows="9" readonly>' + echapperAttribut(texte) + '</textarea>' +
+    '<div class="text-center mt-2"><button type="button" id="btnReformulerCopierTexte" class="btn btn-primary">&#128203; Copier le texte</button></div>' +
     '</div>' +
     '</div>' +
-    '<div class="text-center mt-3"><button type="button" id="btnReformulerRetourVerif" class="btn btn-outline-secondary btn-sm">&#8592; Revenir à la vérification</button></div>' +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_reformulerCvRevenirVerifierDepuisSorties()' }) + '</div>';
+    // « Continuer » rejoint « Retour » et « Accueil » dans la barre du bas (maquette 2 validee par Denis, 2026-10-27) : « Retour » ramene a la verification.
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'reformuler-cv', 'Continuer', { onclickPrecedent: '_reformulerCvRevenirVerifierDepuisSorties()', onclickSuivant: '_reformulerCvContinuerVersModele()' }) + '</div>';
 
   var btnCopier = document.getElementById('btnReformulerCopierTexte');
   if (btnCopier) {
@@ -7948,19 +7303,24 @@ function _reformulerCvRendreSorties() {
       if (typeof trackEvenement === 'function') { trackEvenement('reformuler_cv_sortie_texte_copie'); }
     });
   }
-  var btnModele = document.getElementById('btnReformulerVersModele');
-  if (btnModele) {
-    btnModele.addEventListener('click', function () {
-      if (typeof trackEvenement === 'function') { trackEvenement('reformuler_cv_sortie_modele'); }
-      // TACHE (retour utilisateur 2026-09-16) : la structure fiable
-      // (propositionChoisieStruct, posee par _reformulerCvRendreVerifier()),
-      // jamais le texte -- voir le commentaire de _reformulerCvVersModele().
-      _reformulerCvVersModele(_prepLEEtat && _prepLEEtat.propositionChoisieStruct);
+  // Le choix du modele (module « Mes modeles », meme bloc qu'a la creation du CV) : « Regarder nos modeles » ouvre l'essai, qui ramene ici.
+  if (typeof mgActionsSortie === 'function') {
+    mgActionsSortie(_reformulerCvRendreSorties).forEach(function (a) {
+      var el = document.getElementById(a.id);
+      if (el) { el.addEventListener('click', a.action); }
     });
+    mgMontrerVignettesSortie();
   }
-  var btnRetour = document.getElementById('btnReformulerRetourVerif');
-  if (btnRetour) { btnRetour.addEventListener('click', _reformulerCvRevenirVerifierDepuisSorties); }
   if (typeof trackEvenement === 'function') { trackEvenement('reformuler_cv_sorties_affiche'); }
+}
+
+// « Continuer » de la barre du bas de « Récupérer votre CV ».
+function _reformulerCvContinuerVersModele() {
+  if (typeof trackEvenement === 'function') { trackEvenement('reformuler_cv_sortie_modele'); }
+  // TACHE (retour utilisateur 2026-09-16) : la structure fiable
+  // (propositionChoisieStruct, posee par _reformulerCvRendreVerifier()),
+  // jamais le texte -- voir le commentaire de _reformulerCvVersModele().
+  _reformulerCvVersModele(_prepLEEtat && _prepLEEtat.propositionChoisieStruct);
 }
 
 function _reformulerCvRevenirVerifierDepuisSorties() {
@@ -8158,6 +7518,7 @@ function _creerCvRecommencer(sansAssistant) {
   // Un seul parcours à la fois (F11) : la session de « À partir de mon récit » est vidée avec le CV.
   if (typeof fermerDecouverteCompetences === 'function') { fermerDecouverteCompetences(); }
   dossier.modeCreation = 'nouveau';
+  dossier._origineReformuler = false;   // un autre parcours du CV commence : le signal de Reformuler est remis a zero
   dossier.creationSansAssistant = (sansAssistant === true);   // premier choix de l'introduction (« Recommencer » passe un evenement : jamais true)
   // TACHE (retour utilisateur 2026-09-15, "pas de lien entre le CV et les
   // autres documents") : voir le commentaire equivalent pres de
@@ -8446,6 +7807,8 @@ function _prepLERendreDepot() {
     // dossier.modeCreation pour ce trio, le _prepLEMode REEL du moment :
     // seule source de verite pour distinguer les deux plus loin.
     dossier._modeCreationVia = _prepLEMode;
+    // Le signal « ce CV vient de Reformuler » ne survit pas a un autre parcours du CV (sinon la page « Vos documents » prendrait la barre de Reformuler).
+    if (_prepLEMode !== 'reformuler') { dossier._origineReformuler = false; }
     _oublierRouteRepriseParcours();
   }
   app.innerHTML = htmlPreparerLettreEntretienDepliante();
@@ -8455,6 +7818,44 @@ function _prepLERendreDepot() {
       : (_prepLEMode === 'reformuler' ? 'reformuler_cv_depot_affiche' : 'preparer_lettre_entretien_depot_affiche');
     trackEvenement(evtDepot);
   }
+}
+
+// Depot du CV EN PAGE (brique htmlDepotCVEnPage, consigne 28, 30/10/2026) pour les trois modes de la page « Preparer » (version rapide, mise a jour, reformulation) :
+// plus de fenetre de depot ni de fenetre de relecture. Le texte n'est garde qu'une fois relu et enregistre.
+var _prepLEEtatDepotVu = null;
+function _prepLEDepotCfg() {
+  var etat = _prepLEEtat;
+  // Une nouvelle session de la page (etat remis a zero ailleurs) repart d'un depot neuf.
+  if (_prepLEEtatDepotVu !== etat) { _prepLEEtatDepotVu = etat; if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('prepLE'); } }
+  var texteApp = '';
+  if (!(etat.cvTexte) && typeof cvDisponible === 'function' && cvDisponible()) {
+    texteApp = (dossier.experiences && dossier.experiences.length && typeof texteProfilEffectif === 'function') ? texteProfilEffectif('cv') : (dossier.cvTexte || '');
+    texteApp = String(texteApp || '').trim();
+  }
+  return {
+    cle: 'prepLE',
+    titreDocument: 'CV',
+    avecIdentite: true,
+    fait: !!(etat.cvTexte && etat.relectureFaite),
+    nomFait: etat.cvNom || '',
+    texteFait: etat.cvTexte || '',
+    texteARelire: (etat.cvTexte && !etat.relectureFaite) ? etat.cvTexte : '',
+    nomARelire: 'CV déjà dans l’application',
+    raccourciTexte: texteApp,
+    rerender: function () { _prepLERendreDepot(); },
+    onDocumentPrepare: function (res) {
+      var valeur = res && (res.valeur != null ? res.valeur : res.texte);
+      if (typeof valeur === 'string' && valeur.trim()) {
+        etat.cvTexte = valeur;
+        etat.cvFichier = (res && res.fichier) || null;   // la voie 3 de « Reprendre mon CV » relit un PDF en gardant ses lignes
+        etat.cvNom = (res && res.nomFichier) ? String(res.nomFichier) : '';
+        etat.dejaRelu = true;
+        etat.relectureFaite = true;
+        etat.forcerNouveauDepotCv = false;
+      }
+      _prepLERendreDepot();
+    }
+  };
 }
 
 function htmlPreparerLettreEntretienDepliante() {
@@ -8510,25 +7911,7 @@ function htmlPreparerLettreEntretienDepliante() {
     '<summary><span class="preparer-num">' + n + '</span><span class="preparer-titre">Votre CV</span>' +
     '<span class="pilule-etat ' + (cvPresent ? 'pe-ok">Déposé &middot; vous pouvez le changer' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    (cvPresent
-      ? '<div class="carte-preparer-ok"><strong>&#9989; Déposé</strong>' +
-        '<button type="button" id="btnPrepLEChangerCv" class="btn btn-changer-document btn-sm ms-2">Changer de CV</button></div>' +
-        '<p class="preparer-detail">Un seul CV à la fois. « Changer de CV » remplace celui-ci.</p>' +
-        // Retour Denis 2026-09-30 : la relecture (masquer ce qu'on ne veut pas transmettre) s'ouvre toute seule au depot ; le
-        // bloc numerote « Relire, verifier, corriger, masquer » est retire, reste ce bouton pour la rouvrir.
-        '<div class="d-flex gap-2 flex-wrap align-items-center mt-2">' +
-        '<button type="button" id="btnPrepLERelecture" class="btn btn-outline-primary btn-sm">Relire à nouveau et masquer</button>' +
-        (typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo('masquage-texte') : '') +
-        '</div>'
-      : '<p>Déposez votre CV, ou collez son texte. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>' +
-        '<div class="d-flex gap-2 flex-wrap">' +
-        '<button type="button" id="btnPrepLEDeposerCv" class="btn btn-primary btn-sm">Déposer mon fichier</button>' +
-        '</div>' +
-        '<p class="preparer-detail"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d’écran. Pour une photo ou un scan, une fenêtre s’ouvre le temps de préparer l’image, puis vous revenez ici.</p>' +
-        '<div id="prepLECollerZone" hidden class="mt-2">' +
-        '<textarea id="prepLECollerTexte" class="form-control form-control-sm" rows="6" placeholder="Collez ici le texte de votre CV"></textarea>' +
-        '<div class="mt-2"><button type="button" id="btnPrepLECollerValider" class="btn btn-outline-secondary btn-sm">Annuler</button></div>' +
-        '</div>') +
+    (typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_prepLEDepotCfg()) : '') +
     '</div></details>'
   );
 
@@ -8569,16 +7952,14 @@ function htmlPreparerLettreEntretienDepliante() {
       '<p>Dites pourquoi vous faites ce CV : cela permet à l’assistant d’adapter le vocabulaire de vos compétences. Selon votre choix, quelques questions apparaissent ensuite.</p>' +
       htmlCartesSituationPartagees('data-prepel-situation') +
       // Lot 4a : le composant « Votre candidature » de la lettre, tel quel. Reformuler n'a pas besoin de la civilite du recruteur ni de la couleur de l'entreprise (son prompt ne les lit pas) ;
-      // la mise a jour (Reprendre, voie 1) les garde, comme « Votre objectif » du CV, et propose « Vos appuis » (lettre de recommandation).
+      // la mise a jour (Reprendre, voie 1) les garde, comme « Votre objectif » du CV. « Vos appuis » n'est plus propose ici (decision de Denis, 28/10/2026) : une seule fois, a « Vos documents ».
       '<div id="prepLEReformulerPanneau" class="mt-3">' +
-      (!objRef ? '' : htmlCandidatureComposant({ sansCiviliteCouleur: estReformuler, avecMetierVise: estReformuler }) +
-        (typeof _coLettreHtmlAppuis === 'function' ? _coLettreHtmlAppuis({ pourCv: true }) : '')) +
+      (!objRef ? '' : htmlCandidatureComposant({ sansCiviliteCouleur: estReformuler, avecMetierVise: estReformuler })) +
       '</div>' +
       '</div></details>');
     if (estPret) {
       // Deverrouillage progressif (Lot 5) : la partie 3 n'apparait qu'une fois la 2 ouverte (CV depose et relu), puis reste desactivee jusqu'au choix du parcours.
       blocObjectifRapide = choixRapide ? htmlBlocObjectif
-        : (!(cvPresent && relu)) ? ''
         : '<details class="bloc-depli" id="prepLEBloc4"><summary><span class="preparer-num">' + (n + 1) + '</span><span class="preparer-titre">Votre objectif</span>' +
           '<span class="pilule-etat pe-attente">Choisissez d’abord ce que vous voulez préparer</span></summary>' +
           '<div class="bloc-depli-corps"><p class="preparer-detail">Cette partie se débloque dès que vous avez choisi, ci-dessus, la lettre de motivation ou la fiche d’entretien.</p></div></details>';
@@ -8692,7 +8073,9 @@ function htmlPreparerLettreEntretienDepliante() {
     barreHaut + bandePres +
     '<div class="text-center"><h1><i class="bi ' + logoModule + '"></i> ' + (estReprendre ? 'Reprendre votre CV' : (estReformuler ? 'Préparer votre CV' : (estMaj ? 'Préparer la mise à jour' : 'Lettre et entretien en version rapide'))) + '</h1>' +
     '<p class="sousTitre">Tout se prépare ici, sur une seule page qui se déplie. Vous pourrez rouvrir une partie déjà faite à tout moment.</p></div>' +
-    blocs.join('') +
+    htmlBlocsAvecLiaisonsPrepLE(blocs, estReprendre, estPret) +
+    // Voir nos modèles (maquette 3 validée par Denis, 2026-10-27) : invitation libre, sous les deux points, jamais bloquée par le dépôt.
+    (estReprendre && typeof mgHtmlInvitation === 'function' ? mgHtmlInvitation() : '') +
     // TACHE (retour utilisateur 2026-09-16) : bouton retire pour 'pret' --
     // le clic sur une des 2 cartes du bloc 3 ci-dessus fait deja directement
     // "continuer" (voir _prepLEVersAssistant()). Inchange pour 'maj'/
@@ -8706,6 +8089,16 @@ function htmlPreparerLettreEntretienDepliante() {
       '</div>') +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_prepLERetourIntro()' }) + '</div>';
+}
+
+// Textes entre les blocs de la page « Preparer » selon le mode (consigne 63).
+function htmlBlocsAvecLiaisonsPrepLE(blocs, estReprendre, estPret) {
+  var rel = 'Une fois votre CV déposé, vous le relisez et vous pouvez masquer ce que vous ne souhaitez pas garder, comme votre téléphone ou votre adresse. ';
+  var textes = estReprendre ? [rel + 'Puis vous choisissez ce que vous voulez en faire.']
+    : estPret ? [rel + 'Puis vous choisissez ce que vous voulez préparer en premier.', 'Votre objectif sert ensuite à cibler le document que vous venez de choisir.']
+    : [rel + 'Puis vous dites pourquoi vous faites ce CV.'];
+  if (typeof htmlBlocsAvecLiaisons !== 'function') { return blocs.join(''); }
+  return htmlBlocsAvecLiaisons(blocs, textes);
 }
 
 function brancherPreparerLettreEntretienDepliante() {
@@ -8728,6 +8121,13 @@ function brancherPreparerLettreEntretienDepliante() {
 
   var btnRevoirPres = document.getElementById('btnPrepLERevoirPres');
   if (btnRevoirPres) { btnRevoirPres.addEventListener('click', _prepLEVoirPresentation); }
+  if (document.getElementById('mgInvitation') && typeof mgActionsSortie === 'function') {
+    mgActionsSortie(_prepLERendreDepot).forEach(function (a) {
+      var el = document.getElementById(a.id);
+      if (el) { el.addEventListener('click', a.action); }
+    });
+    mgMontrerVignettesSortie();
+  }
   Array.prototype.forEach.call(document.querySelectorAll('[data-reprendre-voie]'), function (carte) {
     carte.addEventListener('click', function () {
       if (carte.disabled) { return; }
@@ -8743,89 +8143,8 @@ function brancherPreparerLettreEntretienDepliante() {
     });
   });
 
-  // TACHE (retour Denis 2026-09-26, point 5) : la relecture (surlignage
-  // jaune des informations sensibles) devait jusqu'ici etre rouverte a part
-  // par un clic sur "Ouvrir la relecture" -- pas intuitif, la personne ne
-  // la voyait pas d'elle-meme juste apres avoir depose/colle son texte.
-  // Facture ici pour etre appelee a la fois par ce bouton ET juste apres un
-  // depot/collage reussi qui a encore besoin d'etre relu.
-  function ouvrirRelecturePrepLE() {
-    if (!etat.cvTexte) { return; }
-    memoriserIdentiteCaptee(etat.cvTexte);
-    bilanDemanderRelectureCv(etat.cvTexte, undefined, false).then(function (res) {
-      etat.cvTexte = res.contenuValide;
-      etat.relectureFaite = true;
-      _prepLERendreDepot();
-    }).catch(function (erreur) {
-      if (erreur && erreur.code === 'RelectureAnnulee') {
-        // Relecture fermee sans enregistrer un CV jamais valide : comme s'il
-        // n'y avait pas de CV (decision Denis 2026-09-29).
-        if (!etat.relectureFaite) { etat.cvTexte = null; etat.dejaRelu = false; etat.relectureFaite = false; _prepLERendreDepot(); }
-        return;
-      }
-      if (typeof trackEvenement === 'function') { trackEvenement('preparer_lettre_entretien_relecture_erreur', { code: erreur && erreur.code }); }
-    });
-  }
-
-  var btnDeposer = document.getElementById('btnPrepLEDeposerCv');
-  if (btnDeposer) {
-    btnDeposer.addEventListener('click', function () {
-      // Le drapeau reste arme tant qu'un CV n'a pas ete REELLEMENT depose : annuler
-      // la fenetre ne doit pas faire revenir l'ancien CV (bug signale par Denis).
-      var forcer = !!etat.forcerNouveauDepotCv;
-      obtenirOuDeposerTexteCV(function (r) {
-        etat.forcerNouveauDepotCv = false;
-        if (!r || r.texte === null) {
-          // Photo / scan : repli sur la modale complete (comportement
-          // d'origine, jamais modifie). Elle mene elle-meme a l'objectif.
-          ouvrirAssistantDepotCV('pret');
-          return;
-        }
-        etat.cvTexte = r.texte;
-        etat.cvFichier = r.fichier || null;
-        etat.dejaRelu = !!r.dejaRelu;
-        etat.relectureFaite = !!r.dejaRelu;
-        _prepLERendreDepot();
-        if (!etat.relectureFaite) { ouvrirRelecturePrepLE(); }
-      }, forcer);
-    });
-  }
-
-  var btnColler = document.getElementById('btnPrepLECollerCv');
-  var zoneColler = document.getElementById('prepLECollerZone');
-  var champColler = document.getElementById('prepLECollerTexte');
-  var btnCollerValider = document.getElementById('btnPrepLECollerValider');
-  if (btnColler && zoneColler) {
-    btnColler.addEventListener('click', function () { zoneColler.hidden = !zoneColler.hidden; if (!zoneColler.hidden && champColler) { champColler.focus(); } });
-  }
-  if (champColler && btnCollerValider) {
-    champColler.addEventListener('input', function () {
-      btnCollerValider.textContent = champColler.value.trim() ? 'Enregistrer ce texte' : 'Annuler';
-    });
-    btnCollerValider.addEventListener('click', function () {
-      var t = champColler.value.trim();
-      if (!t) { zoneColler.hidden = true; return; }
-      etat.cvTexte = t;
-      etat.dejaRelu = false;
-      etat.relectureFaite = false;
-      _prepLERendreDepot();
-      ouvrirRelecturePrepLE();
-    });
-  }
-
-  var btnChanger = document.getElementById('btnPrepLEChangerCv');
-  if (btnChanger) {
-    btnChanger.addEventListener('click', function () {
-      etat.cvTexte = null; etat.cvFichier = null; etat.dejaRelu = false; etat.relectureFaite = false;
-      etat.forcerNouveauDepotCv = true;
-      _prepLERendreDepot();
-    });
-  }
-
-  var btnRelecture = document.getElementById('btnPrepLERelecture');
-  if (btnRelecture) {
-    btnRelecture.addEventListener('click', ouvrirRelecturePrepLE);
-  }
+  // Depot, relecture et masquage du CV EN PAGE (brique htmlDepotCVEnPage) : plus de fenetre.
+  if (typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_prepLEDepotCfg()); }
 
   // TACHE (retour utilisateur 2026-09-16) : remplace l'ancien cablage de
   // "Pourquoi ce CV ?" (data-preple-situation, bloc retire -- doublon de
@@ -8970,7 +8289,8 @@ function _prepLETerminerStructuration() {
   // etape necessaire, jamais redondante avec "Vos informations".
   // Lot 4a : en mise a jour (Reprendre mon CV, voie 1) l'objectif est deja choisi avant le premier passage : « Votre objectif » n'est plus montre, comme en « Reformuler ».
   if ((modeParcours === 'maj' || modeParcours === 'pret') && dossier.objectif && typeof etatAccesRevelation === 'function' && etatAccesRevelation().accessible) {
-    naviguerVers(dossier.cvAnalyse ? 'projet' : 'votre-parcours');
+    // Des questions « Quelques passages à préciser » attendent sur « Vos informations » : on y va (elles ne s'affichent que là).
+    naviguerVers((dossier.cvAnalyse || (typeof passagesEtatDePage === 'function' && passagesEtatDePage('prepLE'))) ? 'projet' : 'votre-parcours');
     return;
   }
   naviguerVers('objectif');
@@ -9004,7 +8324,8 @@ function _prepLERendreEchange() {
 
   // ----- Bloc A : choix de l'assistant -----
   var blocA = assistantChoisi
-    ? '<details class="bloc-depli bd-ok" id="prepLEEchangeBlocA"' + (ouvertBlocDepliManuel(_prepLEEtat, 'echangeBlocA', false) ? ' open' : '') + '>' +
+    ? // 31/10/2026 (consigne 83 a, maquette validee par Denis) : une fois l'assistant choisi, ce bloc est REPLIE a l'arrivee (exception a la regle « bloc numerote toujours ouvert ») pour que « Coller la reponse » se voie sans defiler sur un portable ; un clic de la personne le rouvre.
+      '<details class="bloc-depli bd-ok" id="prepLEEchangeBlocA"' + (ouvertBlocAssistantChoisi(_prepLEEtat, 'echangeBlocA') ? ' open' : '') + '>' +
       '<summary><span class="preparer-num">1</span><span class="preparer-titre">Votre assistant</span>' +
       '<span class="pilule-etat pe-ok">' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</span></summary>' +
       '<div class="bloc-depli-corps">' +
@@ -9029,15 +8350,8 @@ function _prepLERendreEchange() {
       '<summary><span class="preparer-num">2</span><span class="preparer-titre">Collez la réponse de l’assistant</span>' +
       '<span class="pilule-etat pe-info">À faire</span></summary>' +
       '<div class="bloc-depli-corps">' +
-      htmlBanniereTransitionIA() +
-      '<p class="text-muted small">Une fois que l’assistant vous a renvoyé son analyse, ' +
-      'copiez <strong>toute sa réponse</strong>, puis revenez ici.</p>' +
-      htmlCollageInstantane('PrepLE',
-        '<div class="d-flex gap-2 mb-2 mt-2">' +
-        '<button type="button" id="btnPrepLEVersValider" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-libelle="Continuer &#8594;" data-barre-bas-message="Collez d’abord la réponse de l’assistant pour continuer." disabled>&#8594; Continuer</button>' +
-        '<button type="button" id="btnEffacerRecollerPrepLE" class="btn btn-outline-secondary">Effacer et recoller</button>' +
-        '</div>') +
-      '<div id="messagePrepLECollage" class="small mb-2"></div>' +
+      // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+      htmlCollageUniquePage('PrepLE') +
       '</div></details>'
     : '<details class="bloc-depli" id="prepLEEchangeBlocB">' +
       '<summary><span class="preparer-num">2</span><span class="preparer-titre">Collez la réponse de l’assistant</span>' +
@@ -9050,7 +8364,7 @@ function _prepLERendreEchange() {
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(navEtapesEchange, etapeBarre) + _prepLEBandeRevoirSurEcran(estMajEchange ? 'mettre-a-jour-cv' : 'preparer-lettre-entretien') +
     '<div class="text-center"><h1><i class="bi ' + logoPage + '"></i> ' + titrePage + '</h1>' +
-    '<p class="sousTitre">Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.</p></div>' +
+    '<p class="sousTitre">' + (assistantChoisi ? SOUS_TITRE_ECHANGE_ASSISTANT_CHOISI : 'Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.') + '</p></div>' +
     blocA + blocB +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_prepLERetourDepot()' }) + '</div>';
@@ -9080,7 +8394,7 @@ function _prepLERendreEchange() {
         urlAssistant: assistant.url,
         construireTexteACopier: function () { return promptCache('extraction-cv', (_prepLEEtat && _prepLEEtat.cvTexte) || ''); },
         onApresValidation: function (urlAssistant, nomAssistant) {
-          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
           _prepLERendreEchange();
         }
       });
@@ -9097,91 +8411,33 @@ function _prepLERendreEchange() {
 
   if (!assistantChoisi) { return; }
 
-  // ----- Cablage bloc B : transition + collage -----
-  var messagePrepLE = document.getElementById('messagePrepLECollage');
-  var btnCollerPrepLE = document.getElementById('btnCollerAutoPrepLE');
-  var texteBtnCollerPrepLE = document.getElementById('texteBtnCollerAutoPrepLE');
-
-  if (_etatTransitionIA && btnCollerPrepLE) {
-    if (_etatTransitionIA.phase === 'revenu') {
-      btnCollerPrepLE.disabled = false;
-      btnCollerPrepLE.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-      btnCollerPrepLE.classList.add('pulse-collage-retour');
-      if (texteBtnCollerPrepLE) { texteBtnCollerPrepLE.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-    } else {
-      btnCollerPrepLE.disabled = true;
-      btnCollerPrepLE.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-      btnCollerPrepLE.classList.add('rond-collage-desactive');
-      if (texteBtnCollerPrepLE) { texteBtnCollerPrepLE.textContent = 'Ce bouton s’activera à votre retour.'; }
-    }
-
-    var ouvrirAssistantEnAttentePrepLE = function () {
-      if (!document.getElementById('btnCollerAutoPrepLE')) { clearInterval(_intervalleDecompteIA); return; }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('prep_le_popup_bloque'); }
-        _prepLERendreEchange();
-      });
-    };
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnMaintenantPrepLE = document.getElementById('btnContinuerMaintenantIA');
-      if (btnMaintenantPrepLE) { btnMaintenantPrepLE.addEventListener('click', function () { clearInterval(_intervalleDecompteIA); ouvrirAssistantEnAttentePrepLE(); }); }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteurPrepLE = document.getElementById('compteurDecompteIA');
-        if (compteurPrepLE) { compteurPrepLE.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) { clearInterval(_intervalleDecompteIA); ouvrirAssistantEnAttentePrepLE(); }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnBloquePrepLE = document.getElementById('btnOuvrirBloqueIA');
-      if (btnBloquePrepLE) { btnBloquePrepLE.addEventListener('click', ouvrirAssistantEnAttentePrepLE); }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnRetourPrepLE = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnRetourPrepLE) { btnRetourPrepLE.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; _prepLERendreEchange(); }); }
-      var btnRouvrirPrepLE = document.getElementById('btnRouvrirSiteIA');
-      if (btnRouvrirPrepLE) { btnRouvrirPrepLE.addEventListener('click', ouvrirAssistantEnAttentePrepLE); }
-    }
-  }
-
-  var btnVersValider = document.getElementById('btnPrepLEVersValider');
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoPrepLE', idZoneApercu: 'zoneApercuCollagePrepLE',
-    idTextarea: 'texteCollagePrepLE', idBoutonColler: 'btnCollerAutoPrepLE',
-    idBoutonCollerManuel: 'btnCollerManuelPrepLE', idBoutonEffacerRecoller: 'btnEffacerRecollerPrepLE',
-    idBoutonImporter: 'btnPrepLEVersValider',
-    onErreur: function (msg) { messagePrepLE.style.color = 'var(--danger)'; messagePrepLE.textContent = '⚠️ ' + msg; },
-    onEffacer: function () { messagePrepLE.textContent = ''; if (btnVersValider) { btnVersValider.disabled = true; } },
-    onCollerManuel: function () { messagePrepLE.textContent = ''; },
-    onSucces: function (texte, estAjout) {
-      _prepLEEtat.reponseAssistant = texte;
+  // ----- Cablage bloc B : fenetre unique « Collez la reponse » -----
+  // Fenetre unique (dette B.17, etape C, 2026-10-28) : « Coller la reponse » lit et verifie (analyseur pur) sans rien enregistrer ;
+  // l'enregistrement et le passage a « Vos informations » ont lieu au clic sur « Continuer » (barre du bas).
+  brancherCollageUniquePage({
+    suffixe: 'PrepLE', idAncre: 'fcRacinePrepLE', rerendre: _prepLERendreEchange, evenementBloque: 'prep_le_popup_bloque',
+    module: {
+      libelleSuite: 'Vérifier mes informations',
+      quoi: 'L’assistant vient de lire votre CV et de le ranger : identité, expériences, formations, compétences.',
+      pourquoi: 'Vous n’avez pas à tout retaper : vous vérifiez, puis vous complétez ce qui manque.',
+      verif: 'regardez que rien n’a été inventé et que rien d’important ne manque.'
+    },
+    verifier: function (texte) {
+      var r = analyserReponseImport(texte, SPECIFICATION_IMPORT);
+      if (r.succes) { return { ok: true }; }
+      if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: 'cv', contexte: 'prep-le' }); }
+      return { ok: false };
+    },
+    onChangerAssistant: function () {
+      if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
       _etatTransitionIA = null;
-      if (btnVersValider) { btnVersValider.disabled = false; }
-      messagePrepLE.style.color = 'var(--success-strong)';
-      messagePrepLE.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le morceau suivant puis recliquez, ou cliquez Continuer si c’était le dernier.'
-        : '✅ Réponse importée. Si la réponse fait plusieurs morceaux, copiez le suivant puis cliquez « Coller un morceau supplémentaire ».';
-    }
-  });
-
-  if (btnVersValider) {
-    btnVersValider.addEventListener('click', function () {
-      var t = (document.getElementById('texteCollagePrepLE') || {}).value || _prepLEEtat.reponseAssistant || '';
-      if (!t.trim()) {
-        messagePrepLE.style.color = 'var(--danger)';
-        messagePrepLE.textContent = '⚠️ Collez d’abord la réponse de l’assistant dans la zone ci-dessus.';
-        return;
-      }
+      _prepLERendreEchange();
+    },
+    onContinuer: function (t) {
       var resultatImport = analyserReponseImport(t, SPECIFICATION_IMPORT);
-      if (!resultatImport.succes) {
-        if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: 'cv', contexte: 'prep-le' }); }
-        messagePrepLE.style.color = 'var(--danger)';
-        messagePrepLE.textContent = '⚠️ ' + resultatImport.erreur;
-        return;
-      }
+      if (!resultatImport.succes) { return; }
+      _prepLEEtat.reponseAssistant = t;
+      _etatTransitionIA = null;
       // TACHE (retour utilisateur 2026-09-16, "cet ecran de validation n'a
       // aucune plus-value... enleve-le completement") : plus d'ecran de
       // validation categorisee intermediaire -- les informations
@@ -9198,9 +8454,12 @@ function _prepLERendreEchange() {
       // a signale des points a verifier -- saute automatiquement si vide.
       // Annee(s) proposee(s) pour une certification rangee sous une formation dans le CV (retour Denis 2026-09-30).
       _incoh().suggererAnnees(resultatImport.valeurs.pointsAVerifier, [resultatImport.valeurs], _prepLEEtat && _prepLEEtat.cvTexte);
-      afficherClarificationPointsAVerifier(resultatImport.valeurs.pointsAVerifier, _prepLETerminerStructuration, { appliquer: appliquerPrecisionSurValeurs(resultatImport.valeurs) });
-    });
-  }
+      // Point 15 (01/11/2026) : plus de fenêtre. Les questions sont posées dans un bloc en haut de « Vos informations » (modules/passages-a-preciser/), sur le dossier déjà rangé ;
+      // (avant, la réponse était appliquée sur une copie des valeurs, après le rangement : elle n'atteignait jamais le dossier).
+      if (typeof passagesPoserSurDossier === 'function') { passagesPoserSurDossier('prepLE', resultatImport.valeurs.pointsAVerifier); }
+      _prepLETerminerStructuration();
+    }
+  });
 }
 // TACHE (retour utilisateur 2026-09-16) : equivalent de
 // lireDecisionsValidationImport() (js/app.js), mais SANS ecran a lire --
@@ -9333,7 +8592,7 @@ var INFOS_CARTE_ACCUEIL = {
     items: MES_DOCUMENTS_PARCOURS.map(function (p) { return [p.titre, p.icone, p.infobulle]; })
   },
   preparer: {
-    intro: 'De quoi arriver plus tranquille le jour de la rencontre. Aucun CV n’est demandé pour commencer.',
+    intro: 'De quoi arriver plus tranquille le jour de la rencontre. Les deux outils partent de votre CV, tel que vous l’avez : un fichier, une photo ou un texte collé.',
     items: [
       // TACHE (retour Denis 2026-09-28, point H1 : "je ne savais pas que ce raccourci existait ailleurs
       // qu'a la fin du CV") : precise desormais "en profondeur, plusieurs echanges" pour contraster
@@ -9352,7 +8611,7 @@ var INFOS_CARTE_ACCUEIL = {
     ]
   },
   analyse: {
-    intro: 'Un avis extérieur sur votre candidature avant de l’envoyer. Ces outils demandent un CV déjà prêt.',
+    intro: 'Un avis extérieur sur votre candidature avant de l’envoyer. Ces outils demandent un CV déjà prêt ; « Cohérence de mon dossier » demande aussi une lettre de motivation.',
     items: [
       ['Analyser ma candidature', 'bi-graph-up', 'Mon CV est-il solide ? L’assistant que vous choisissez ; le copier-coller reste manuel, rien ne part tout seul.'],
       ['Un regard sur mon CV', 'bi-image', 'Que verra un recruteur ? Vous verrez ce qui ressort en premier, et ce qui peut faire hésiter.'],
@@ -9383,16 +8642,23 @@ function htmlDeclencheurInfoCarte(id) {
   return ' <button type="button" class="carte-accueil-info-trigger" id="btnInfoCarteAccueil" ' +
     'aria-expanded="false" aria-label="En savoir plus sur cette carte"><i class="bi bi-info-circle"></i></button>';
 }
-function htmlBulleInfoCarte(id) {
+// La liste des outils d'une carte (libelle, icone, phrase), avec ceux des modules ouverts : lue par l'infobulle « i » ET par la fenetre « Explication rapide » de l'ampoule (une seule source).
+function itemsInfoCarteAccueil(id) {
   var info = INFOS_CARTE_ACCUEIL[id];
-  if (!info) { return ''; }
+  if (!info) { return []; }
   // Raccourci « Employeurs » et module « Qui fait quoi » : seulement quand le module est ouvert (ou en aperçu), jamais une ligne vers une tuile absente.
   var source = info.items.slice();
   var qfqOuvert = typeof mtOuvert === 'function' && mtOuvert();
   if (qfqOuvert && id === 'preparer') { source.push(['Employeurs près de chez moi', 'bi-geo-alt', 'Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée.']); }
   if (id === 'boiteaoutils' && typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) { source.push(['Découvrir mes compétences', 'bi-compass', 'Vos documents montrent déjà ce que vous savez faire : l’outil le repère, avec la phrase qui le prouve, et vous aide à le dire.']); }
+  if (id === 'orientation' && typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) { source.push(['Un CV, plusieurs métiers', 'bi-files', 'Quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun, sans rien inventer.']); }
   if (qfqOuvert && id === 'informe') { source.push(['Qui fait quoi', 'bi-geo-alt', 'À qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification.']); }
-  var items = source.map(function (it) {
+  return source;
+}
+function htmlBulleInfoCarte(id) {
+  var info = INFOS_CARTE_ACCUEIL[id];
+  if (!info) { return ''; }
+  var items = itemsInfoCarteAccueil(id).map(function (it) {
     return '<div class="carte-accueil-info-item">' +
       '<i class="bi ' + it[1] + '"></i>' +
       '<span><strong>' + it[0] + '</strong><span>' + it[2] + '</span></span>' +
@@ -10149,8 +9415,7 @@ function brancherSyntheseAvantAssistant(cfg) {
 
 function _coLettreRendreSynthese() {
   var html = barreEtapesModule(CO_LETTRE_NAV_ETAPES, 0) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant</h1>' +
-    '<p class="sousTitre">Vérifiez que tout est bien reçu avant de choisir l’assistant.</p></div>' +
+    htmlTitreEtapeModule('bi-pen', 'Écrire ma lettre de motivation avec l’assistant', 'Préparer', 'Vérifiez que tout est bien reçu avant de choisir l’assistant.') +
     htmlSyntheseAvantAssistant({ type: 'lettre', document: _coLettreDocument });
   app.innerHTML = '<div class="page-catalogue-contenu co-lettre-parcours">' + html + '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'co-lettre-choix-assistant', 'Continuer &#8594;', {
@@ -10164,8 +9429,7 @@ function _coLettreRendreSynthese() {
 function _prepaEntretienRendreSynthese() {
   var lettreAReleire = !!(_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip' && !_prepaEntretienLettreRelue);   // même règle que « Préparer »
   var html = barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 0) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche</h1>' +
-    '<p class="sousTitre">Vérifiez que tout est bien reçu avant de choisir l’assistant.</p></div>' +
+    htmlTitreEtapeModule('bi-mic', 'M’entraîner à un entretien d’embauche', 'Préparer', 'Vérifiez que tout est bien reçu avant de choisir l’assistant.') +
     htmlSyntheseAvantAssistant({ type: 'entretien', document: _prepaEntretienDocumentCv, lettre: _prepaEntretienDocumentLettre, lettreRelue: _prepaEntretienLettreRelue, htmlLettre: _prepaEntretienHtmlLettre() });
   app.innerHTML = '<div class="page-catalogue-contenu prepa-entretien-parcours">' + html + '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'prepa-entretien-choix-assistant', 'Continuer &#8594;', {
@@ -10202,8 +9466,7 @@ var _CO_LETTRE_ETAPES_DETAIL = [
 
 function _coLettreRendreChoixAssistant() {
   var html = barreEtapesModule(CO_LETTRE_NAV_ETAPES, 1) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant</h1>' +
-    '<p class="sousTitre">Une lettre de motivation écrite avec l’assistant de votre choix.</p></div>' +
+    htmlTitreEtapeModule('bi-pen', 'Écrire ma lettre de motivation avec l’assistant', 'Choisir l’assistant', 'Une lettre de motivation écrite avec l’assistant de votre choix.') +
     '<div class="cv-section co-lettre-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
     '<p class="text-muted small mb-2">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis ouvre l’assistant.</p>' +
@@ -10235,6 +9498,8 @@ var _coLettreRecos = [];
 var _coLettreRecoChoisie = null;
 var _coLettreRecoReponse = null;   // 'oui' | 'non' | null
 var _coLettreRecoFichiers = {};    // id de la lettre -> fichier d'origine (PDF ou photo), gardé en memoire seulement : jamais envoye a l'assistant, jamais enregistre
+var _coLettreAppuiMesComp = null;   // null (pas encore répondu) | true | false ; 28/10/2026 : joindre le document « Mes compétences » (seulement s'il est termine) ; choix de la personne, jamais coche d'office
+var _coLettreAppuiTexte = '';       // 28/10/2026 : texte libre « Dites-le avec vos mots » (ecrit ou dicte), garde en memoire seulement
 
 var _profilCiviliteSeule = false;   // leve le temps d'assembler le message de la lettre (etape (f)) ; defaut faux : les autres prompts inchanges
 function _coLettreConstruireMessage() {
@@ -10247,7 +9512,8 @@ function _coLettreConstruireMessage() {
   } finally { _profilCiviliteSeule = false; }
   var cvTexte = (_coLettreDocument && _coLettreDocument.type === 'texte') ? _coLettreDocument.valeur : '';
   var envoyee = (_coLettreRecoReponse === 'non') ? null : recommandationEnvoyeeLettreCo(_coLettreRecos, _coLettreRecoChoisie);
-  return construireMessageLettreCo(base, cvTexte, sectionRecommandationLettreCo(envoyee));
+  var autres = (typeof sectionAutresAppuisPourMessage === 'function') ? sectionAutresAppuisPourMessage() : '';
+  return construireMessageLettreCo(base, cvTexte, [sectionRecommandationLettreCo(envoyee), autres].filter(Boolean).join('\n\n'));
 }
 
 function _coLettreBrancherChoixAssistant() {
@@ -10282,7 +9548,7 @@ function _coLettreBrancherChoixAssistant() {
           // voyagent jusqu'a l'ecran "reponse" via _etatTransitionIA (js/
           // app.js, globale, deja partagee par les 4 autres parcours), qui
           // decide seule du moment ou l'ouverture reelle se declenche.
-          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+          _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
           _coLettreReponseForcerCollage = false;
           _coLettreEcran = 'reponse';
           naviguerVers('co-lettre');
@@ -10357,7 +9623,7 @@ function _coLettreRendreReponse() {
       '</div></div>';
     app.innerHTML = '<div class="page-catalogue-contenu co-lettre-parcours">' +
       barreEtapesModule(CO_LETTRE_NAV_ETAPES, 2) + _coLettreBandePresentation() +
-      '<div class="text-center"><h1><i class="bi bi-pen"></i> Votre lettre de motivation</h1></div>' +
+      htmlTitreEtapeModule('bi-pen', 'Écrire ma lettre de motivation avec l’assistant', 'Votre lettre') +
       contenuDejaImporteHTML +
       '</div>' +
       '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_coLettreRetourChoixAssistant()' }) + '</div>';
@@ -10378,55 +9644,24 @@ function _coLettreRendreReponse() {
   // « Je suis de retour » bloque. Reste un bouton FACULTATIF pour recopier le
   // message complet (nouvelle conversation, collage rate) : meme message que
   // celui du premier clic (_coLettreConstruireMessage), jamais un texte different.
+  // Des que la reponse est collee (recue ou coupee), ce bloc laisse la place a une ligne « etape validee » : la personne n'est plus attiree par Ctrl + V ni par le bouton de recopie (demande de Denis, 28/10/2026).
   var htmlRecopierMessage =
-    '<div class="mb-3 p-3 text-center" style="background:var(--accent-bg-subtle);border-radius:8px;">' +
+    '<div id="blocMessageDepartLettreV1" class="mb-3 p-3 text-center" style="background:var(--accent-bg-subtle);border-radius:8px;">' +
     '<p class="mb-2" style="line-height:1.5;">Le message de démarrage (les consignes, vos informations de candidature et votre CV relu) ' +
     'a déjà été copié. Collez-le dans la conversation de l’assistant avec <span class="cle-pulse">Ctrl + V</span> : il n’y a rien d’autre à copier.</p>' +
     '<button type="button" id="btnRecopierMessageLettreV1" class="btn btn-outline-secondary btn-sm" title="Copier de nouveau le message complet">' +
     '&#128203; Copier de nouveau le message complet</button>' +
     '<p id="confirmationRecopieLettreV1" class="small mt-2 mb-0" style="color:var(--success-strong);" role="status"></p>' +
-    '</div>';
+    '</div>' +
+    '<p id="messageDepartValideLettreV1" class="text-center mb-3" style="display:none;color:var(--success-strong);font-weight:600;" role="status">&#10003; Étape validée : le message de départ a bien été transmis à l’assistant.</p>';
   var contenuHTML =
     htmlRecopierMessage +
-    // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-    // CV/Lettre/Entretien") : meme banniere partagee que la page Action/
-    // Decouverte/le depot CV (htmlBanniereTransitionIA(), js/app.js) --
-    // decompte/popup bloque/bouton "Je suis de retour", jamais une 2e
-    // version dupliquee du texte.
-    '<p class="small text-muted mb-2">Quand l’assistant aura terminé et vous aura donné le texte complet de la ' +
-    'lettre à copier, revenez sur cette page et cliquez sur « Je suis de retour ».</p>' +
-    htmlBanniereTransitionIA() +
-    '<p class="text-muted small">Une fois votre lettre finalisée avec l’assistant, copiez sa toute dernière ' +
-    'réponse (celle qui contient la lettre complète), puis revenez ici : cliquez sur le bouton ci-dessous pour la ' +
-    'coller automatiquement. Si le clic ne fonctionne pas, un bouton « Coller manuellement » est disponible juste ' +
-    'en dessous.</p>' +
-    // TACHE (retour utilisateur 2026-09-17, point 4) : jusqu'ici, cet ecran
-    // reconstruisait sa propre mise en forme (DOCX/Apercu-Imprimer/version
-    // courte, 3 boutons + un panneau iframe dedie) au lieu de reprendre
-    // l'interface moderne deja utilisee par "Préparer ma lettre et mon
-    // entretien" (le panneau "La mise en page"/"Exporter" de "Vos documents",
-    // pageResultats()/js/app.js -- bascule Feuille A4/Message par mail,
-    // apercu, telechargement, deja la SOURCE UNIQUE pour toute lettre du
-    // dossier). Un seul bouton "Importer" desormais : il ecrit
-    // dossier.ia.lettre (voir plus bas) puis navigue direct vers "Vos
-    // documents", qui prend le relais entierement -- "Terminé" n'a donc plus
-    // de raison d'etre sur CET ecran (la navigation EST l'action de fin).
-    // TACHE (retour utilisateur 2026-09-17) : "Vos coordonnées" deplace ICI
-    // (2e argument de htmlCollageInstantane, la zone d'actions revelee
-    // seulement apres un collage reussi) -- napparait donc qu'une fois la
-    // personne revenue AVEC la reponse de l'assistant, juste avant le bouton
-    // "Importer", pour garantir qu'elle passe par les coordonnees avant de
-    // quitter cet ecran vers "Vos documents".
-    htmlCollageInstantane('LettreV1',
-      '<div class="d-flex gap-2 mb-2 mt-2 flex-wrap">' +
-      '<button type="button" id="btnImporterLettreV1" class="btn btn-primary" data-barre-bas="1">&#128229; Importer ma lettre &#8594;</button>' +
-      '<button type="button" id="btnEffacerRecollerLettreV1" class="btn btn-outline-secondary">Effacer et recoller</button>' +
-      '</div>') +
-    '<div id="messageRecuperationLettreV1" class="small mb-2"></div>';
+    // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+    htmlCollageUniquePage('LettreV1');
 
   app.innerHTML = '<div class="page-catalogue-contenu co-lettre-parcours">' +
     barreEtapesModule(CO_LETTRE_NAV_ETAPES, 2) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> En attente de votre lettre de motivation</h1></div>' +
+    htmlTitreEtapeModule('bi-pen', 'Écrire ma lettre de motivation avec l’assistant', 'En attente de votre lettre') +
     '<div class="cv-section">' + contenuHTML + '</div>' +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_coLettreRetourChoixAssistant()' }) + '</div>';
@@ -10436,9 +9671,8 @@ function _coLettreRendreReponse() {
   // TACHE (retour utilisateur 2026-09-17, point 4) : l'ancien bouton
   // "Terminé, merci !" (et le "Retour" qu'il fallait deja corriger, voir
   // commit precedent) disparait avec les 3 boutons DOCX/Apercu/version
-  // courte -- l'import (plus bas, btnImporterLettreV1) navigue desormais
+  // courte -- l'import (« Continuer » de la fenetre unique, plus bas) navigue desormais
   // lui-meme directement vers "Vos documents" des qu'il reussit.
-  var message = document.getElementById('messageRecuperationLettreV1');
 
   var btnRecopierMessage = document.getElementById('btnRecopierMessageLettreV1');
   if (btnRecopierMessage) {
@@ -10462,151 +9696,61 @@ function _coLettreRendreReponse() {
     });
   }
 
-  // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a CV/
-  // Lettre/Entretien") : etat desactive/actif du rond bleu + decompte/
-  // bannieres -- copie adaptee du meme bloc que les 3 autres parcours
-  // (page Action/Decouverte/depot CV). btnJeSuisDeRetourIA reprend le
-  // MEME id que les 3 autres : installerEcouteurVisibiliteRetourIA() (deja
-  // installe globalement, js/app.js) intensifie donc son pulse au retour
-  // de visibilite de l'onglet, sans code supplementaire ici.
-  var btnCollerAutoLettreV1 = document.getElementById('btnCollerAutoLettreV1');
-  var texteBtnCollerAutoLettreV1 = document.getElementById('texteBtnCollerAutoLettreV1');
-  if (_etatTransitionIA && btnCollerAutoLettreV1) {
-    if (_etatTransitionIA.phase === 'revenu') {
-      btnCollerAutoLettreV1.disabled = false;
-      btnCollerAutoLettreV1.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-      btnCollerAutoLettreV1.classList.add('pulse-collage-retour');
-      if (texteBtnCollerAutoLettreV1) { texteBtnCollerAutoLettreV1.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-    } else {
-      btnCollerAutoLettreV1.disabled = true;
-      btnCollerAutoLettreV1.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-      btnCollerAutoLettreV1.classList.add('rond-collage-desactive');
-      if (texteBtnCollerAutoLettreV1) { texteBtnCollerAutoLettreV1.textContent = 'Ce bouton s’activera à votre retour.'; }
+  // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : « Coller la reponse » lit et verifie (analyseur pur) sans rien enregistrer ;
+  // l'import (ecriture dans le dossier, puis « Vos documents ») a lieu au clic sur « Continuer » (barre du bas).
+  brancherCollageUniquePage({
+    suffixe: 'LettreV1', idAncre: 'fcRacineLettreV1', rerendre: _coLettreRendreReponse, evenementBloque: 'lettre_popup_bloque',
+    module: {
+      libelleSuite: 'Voir ma lettre',
+      quoi: 'L’assistant vient d’écrire votre lettre de motivation, en plusieurs versions.',
+      pourquoi: 'Vous partez d’un texte déjà écrit à partir de votre CV, et vous gardez ce qui vous ressemble.',
+      verif: 'relisez la lettre à la recherche des mots ou des expressions qui reviennent trop souvent et des formules toutes faites, puis assurez-vous que tout est cohérent avec votre parcours.'
+    },
+    verifier: function (texte) {
+      var r = (typeof analyserReponseIALettre === 'function') ? analyserReponseIALettre(texte) : { succes: false };
+      return { ok: !!r.succes };
+    },
+    onEtat: function (etatFenetre) {
+      var recue = (etatFenetre === 'recu' || etatFenetre === 'coupe');
+      var blocDepart = document.getElementById('blocMessageDepartLettreV1');
+      var ligneValidee = document.getElementById('messageDepartValideLettreV1');
+      if (blocDepart) { blocDepart.style.display = recue ? 'none' : ''; }
+      if (ligneValidee) { ligneValidee.style.display = recue ? '' : 'none'; }
+    },
+    onChangerAssistant: function () {
+      if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
+      _etatTransitionIA = null;
+      _coLettreRetourChoixAssistant();
+    },
+    onContinuer: function (texte) {
+      var resultat = analyserReponseIALettre(texte);
+      if (!resultat.succes) { return; }
+      // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
+      // CV/Lettre/Entretien") : import reellement termine -- la transition
+      // en attente n'a plus lieu d'etre (meme reinitialisation que dans les
+      // 3 autres parcours).
+      _etatTransitionIA = null;
+      if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
+      if (!dossier.ia.lettre) { dossier.ia.lettre = {}; }
+      dossier.ia.lettre.accroche = resultat.valeurs.accroche;
+      dossier.ia.lettre.arguments = resultat.valeurs.arguments;
+      var versionsRecues = resultat.valeurs.versions || [];
+      var v0 = versionsRecues[0] || { objet: '', texte: '', texteCourt: '' };
+      dossier.ia.lettre.versions = versionsRecues;
+      dossier.ia.lettre.versionActive = 0;
+      dossier.ia.lettre.lettre = { objet: v0.objet, texte: v0.texte, texteCourt: v0.texteCourt || '' };
+      dossier.dernierDocumentPrepare = 'lettre';
+      // TACHE (retour utilisateur 2026-09-17, point 8 : "Vos documents" apres
+      // "Co-construire ma lettre" affichait l'ancienne barre a 9 reperes --
+      // afficherProgression()/js/app.js ne reconnaissait que dossier.modeCreation
+      // 'pret'/'maj', jamais mis a jour par ce parcours) : meme patron que
+      // dossier._origineReformuler (reformuler-cv) -- signale a pageResultats()
+      // que ce document vient de co-lettre, jamais du pipeline 'pret'/'maj'/
+      // 'nouveau'. Lu par afficherProgression() et pageResultats() (js/app.js).
+      dossier._origineCoLettre = true;
+      if (typeof trackEvenement === 'function') { trackEvenement('lettre_generee'); }
+      naviguerVers('resultats');
     }
-
-    function ouvrirAssistantLettreV1EnAttente() {
-      // TACHE (bug reel trouve en construisant ce chantier : "fermer la
-      // fenetre pendant le decompte ouvre quand meme un popup 5s plus
-      // tard") : fermerFenetreERIP() DETRUIT #fenetreERIP -- sans ce
-      // garde-fou, le minuteur du decompte survivrait a la fermeture et
-      // rouvrirait un onglet + une fenetre "en attente" surprise, meme
-      // apres que la personne ait explicitement ferme. btnCollerAutoLettreV1
-      // n'existe QUE si cet ecran precis de CE parcours est toujours affiche
-      // (jamais confondu avec une autre fenetre ERIP ouverte entre-temps,
-      // qui partagerait le meme id #fenetreERIP generique).
-      if (!document.getElementById('btnCollerAutoLettreV1')) { clearInterval(_intervalleDecompteIA); return; }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        // TACHE (retour utilisateur : "je veux bien aussi" le suivi popup
-        // bloque pour ces 3 nouveaux parcours) : mesure combien de
-        // navigateurs bloquent reellement l'ouverture automatique.
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') {
-          trackEvenement('lettre_popup_bloque');
-        }
-        _coLettreRendreReponse();
-      });
-    }
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnContinuerMaintenantIA = document.getElementById('btnContinuerMaintenantIA');
-      if (btnContinuerMaintenantIA) {
-        btnContinuerMaintenantIA.addEventListener('click', function () {
-          clearInterval(_intervalleDecompteIA);
-          ouvrirAssistantLettreV1EnAttente();
-        });
-      }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteurDecompteIA = document.getElementById('compteurDecompteIA');
-        if (compteurDecompteIA) { compteurDecompteIA.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) {
-          clearInterval(_intervalleDecompteIA);
-          ouvrirAssistantLettreV1EnAttente();
-        }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnOuvrirBloqueIA = document.getElementById('btnOuvrirBloqueIA');
-      if (btnOuvrirBloqueIA) {
-        btnOuvrirBloqueIA.addEventListener('click', function () { ouvrirAssistantLettreV1EnAttente(); });
-      }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnJeSuisDeRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnJeSuisDeRetourIA) {
-        // TACHE (decision explicite de l'utilisateur, chantier "ecran tampon
-        // avant l’assistant") : retour MANUEL uniquement, jamais de detection
-        // automatique -- meme regle que les 3 autres parcours. Etape 2(b) :
-        // plus aucune condition sur un « Copier mon CV » (le CV est dans le message).
-        btnJeSuisDeRetourIA.addEventListener('click', function () {
-          _etatTransitionIA.phase = 'revenu';
-          _coLettreRendreReponse();
-        });
-      }
-    }
-  }
-
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoLettreV1', idZoneApercu: 'zoneApercuCollageLettreV1',
-    idTextarea: 'texteCollageLettreV1', idBoutonColler: 'btnCollerAutoLettreV1',
-    idBoutonCollerManuel: 'btnCollerManuelLettreV1', idBoutonEffacerRecoller: 'btnEffacerRecollerLettreV1',
-    idBoutonImporter: 'btnImporterLettreV1',
-    onErreur: function (msg) { message.style.color = 'var(--danger)'; message.textContent = '⚠️ ' + msg; },
-    onEffacer: function () { message.textContent = ''; },
-    onSucces: function (texte, estAjout) { message.style.color = 'var(--success-strong)'; message.textContent = estAjout ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.' : '✅ Réponse importée automatiquement depuis le presse-papiers. Si la réponse de l’assistant fait plusieurs morceaux, copiez le morceau suivant puis cliquez sur "Coller un morceau supplémentaire", juste en dessous : il s’ajoutera à la suite.'; },
-    onCollerManuel: function () { message.textContent = ''; }
-  });
-
-  // TACHE (retour utilisateur 2026-09-17, point 4) : remplace les 3 anciens
-  // boutons (DOCX/Apercu-Imprimer/version courte, chacun re-analysant la
-  // meme reponse independamment) par un seul import, meme forme que
-  // wireImportIA() (js/app.js, branche type==='lettre') -- versions[] +
-  // versionActive, pour que le carrousel de "La mise en page" (pageResultats(),
-  // meme mecanisme que "Préparer ma lettre et mon entretien") fonctionne
-  // ensuite normalement. Reussite -> navigation directe vers "Vos
-  // documents" : cet ecran n'a plus besoin de generer quoi que ce soit
-  // lui-meme, ni d'un bouton "Termine" separe (la navigation EST la fin).
-  document.getElementById('btnImporterLettreV1').addEventListener('click', function () {
-    var texte = document.getElementById('texteCollageLettreV1').value;
-    if (!texte.trim()) {
-      message.style.color = 'var(--danger)';
-      message.textContent = '⚠️ Collez d’abord la réponse de l’assistant dans la zone ci-dessus.';
-      return;
-    }
-    var resultat = (typeof analyserReponseIALettre === 'function')
-      ? analyserReponseIALettre(texte)
-      : { succes: false, erreur: 'Fonction d’analyse indisponible pour le moment.' };
-    if (!resultat.succes) {
-      message.style.color = 'var(--danger)';
-      message.textContent = '⚠️ ' + resultat.erreur;
-      return;
-    }
-    // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-    // CV/Lettre/Entretien") : import reellement termine -- la transition
-    // en attente n'a plus lieu d'etre (meme reinitialisation que dans les
-    // 3 autres parcours).
-    _etatTransitionIA = null;
-    if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
-    if (!dossier.ia.lettre) { dossier.ia.lettre = {}; }
-    dossier.ia.lettre.accroche = resultat.valeurs.accroche;
-    dossier.ia.lettre.arguments = resultat.valeurs.arguments;
-    var versionsRecues = resultat.valeurs.versions || [];
-    var v0 = versionsRecues[0] || { objet: '', texte: '', texteCourt: '' };
-    dossier.ia.lettre.versions = versionsRecues;
-    dossier.ia.lettre.versionActive = 0;
-    dossier.ia.lettre.lettre = { objet: v0.objet, texte: v0.texte, texteCourt: v0.texteCourt || '' };
-    dossier.dernierDocumentPrepare = 'lettre';
-    // TACHE (retour utilisateur 2026-09-17, point 8 : "Vos documents" apres
-    // "Co-construire ma lettre" affichait l'ancienne barre a 9 reperes --
-    // afficherProgression()/js/app.js ne reconnaissait que dossier.modeCreation
-    // 'pret'/'maj', jamais mis a jour par ce parcours) : meme patron que
-    // dossier._origineReformuler (reformuler-cv) -- signale a pageResultats()
-    // que ce document vient de co-lettre, jamais du pipeline 'pret'/'maj'/
-    // 'nouveau'. Lu par afficherProgression() et pageResultats() (js/app.js).
-    dossier._origineCoLettre = true;
-    if (typeof trackEvenement === 'function') { trackEvenement('lettre_generee'); }
-    naviguerVers('resultats');
   });
 }
 
@@ -10648,173 +9792,56 @@ function _prepaEntretienRendreReponse() {
   // bas), meme precaution que les 3 autres parcours.
   clearInterval(_intervalleDecompteIA);
   var contenuHTML =
-    // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-    // CV/Lettre/Entretien") : meme banniere partagee que les 3 autres
-    // parcours (htmlBanniereTransitionIA(), js/app.js) -- decompte/popup
-    // bloque/bouton "Je suis de retour", jamais une 2e version dupliquee.
-    htmlBanniereTransitionIA() +
-    '<p class="text-muted small">Une fois la réponse de l’assistant affichée, copiez-la (bouton "Copier" de ' +
-    'l’assistant), puis revenez ici : cliquez sur le bouton ci-dessous pour la coller automatiquement. Si le clic ' +
-    'ne fonctionne pas, un bouton « Coller manuellement » est disponible juste en dessous.</p>' +
-    // TACHE (retour utilisateur 2026-09-17, "je veux récupérer la même
-    // interface pour visualiser que j'ai pour Co-construire ma lettre --
-    // là ça manque de clarté, je ne peux voir le fichier qu'en le
-    // téléchargeant") : jusqu'ici, cet écran générait lui-même le DOCX au
-    // clic (genererDocxNatifEntretien(), aucun aperçu, juste un
-    // téléchargement brut) et gardait son propre bouton "Terminé, merci !".
-    // Remplacé par un seul bouton "Importer" (même patron que co-lettre,
-    // point 4 du 2026-09-17) : il écrit dossier.ia.entretien puis navigue
-    // directement vers "Vos documents", qui a DÉJÀ son propre aperçu +
-    // impression + export pour l'entretien (chargerApercuEntretienInline(),
-    // js/app.js -- même mécanisme que pour la lettre, vérifié avant ce
-    // chantier) -- source unique pour tout document du dossier, jamais une
-    // 2e généré ici sans aperçu.
-    htmlCollageInstantane('Entretien',
-      '<div class="d-flex gap-2 mb-2 mt-2 flex-wrap">' +
-      '<button type="button" id="btnImporterEntretien" class="btn btn-primary" data-barre-bas="1">&#128229; Importer ma préparation &#8594;</button>' +
-      '<button type="button" id="btnEffacerRecollerEntretien" class="btn btn-outline-secondary">Effacer et recoller</button>' +
-      '</div>') +
-    '<div id="messageRecuperationEntretien" class="small mb-2"></div>';
+    // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : voir htmlCollageUniquePage() (js/app.js).
+    htmlCollageUniquePage('Entretien');
 
   app.innerHTML = '<div class="page-catalogue-contenu">' +
     barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 2) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> En attente de votre préparation d’entretien</h1></div>' +
+    htmlTitreEtapeModule('bi-mic', 'M’entraîner à un entretien d’embauche', 'En attente de votre préparation') +
     '<div class="cv-section">' + contenuHTML + '</div>' +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_prepaEntretienRetourChoixAssistant()' }) + '</div>';
   _prepaEntretienBrancherBandePresentation();
   if (typeof trackEvenement === 'function') { trackEvenement('prepa_entretien_reponse_affichee'); }
 
-  var message = document.getElementById('messageRecuperationEntretien');
 
-  // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a CV/
-  // Lettre/Entretien") : etat desactive/actif du rond bleu + decompte/
-  // bannieres -- copie adaptee du meme bloc que les 3 autres parcours.
-  // btnJeSuisDeRetourIA reprend le MEME id que les 3 autres :
-  // installerEcouteurVisibiliteRetourIA() (deja installe globalement,
-  // js/app.js) intensifie donc son pulse au retour de visibilite de
-  // l'onglet, sans code supplementaire ici.
-  var btnCollerAutoEntretien = document.getElementById('btnCollerAutoEntretien');
-  var texteBtnCollerAutoEntretien = document.getElementById('texteBtnCollerAutoEntretien');
-  if (_etatTransitionIA && btnCollerAutoEntretien) {
-    if (_etatTransitionIA.phase === 'revenu') {
-      btnCollerAutoEntretien.disabled = false;
-      btnCollerAutoEntretien.classList.remove('rond-collage-desactive', 'bouton-incitation-action');
-      btnCollerAutoEntretien.classList.add('pulse-collage-retour');
-      if (texteBtnCollerAutoEntretien) { texteBtnCollerAutoEntretien.textContent = 'Cliquez ici pour coller la réponse copiée.'; }
-    } else {
-      btnCollerAutoEntretien.disabled = true;
-      btnCollerAutoEntretien.classList.remove('bouton-incitation-action', 'pulse-collage-retour');
-      btnCollerAutoEntretien.classList.add('rond-collage-desactive');
-      if (texteBtnCollerAutoEntretien) { texteBtnCollerAutoEntretien.textContent = 'Ce bouton s’activera à votre retour.'; }
+  // Fenetre unique « Collez la reponse » (dette B.17, etape C, 2026-10-28) : « Coller la reponse » lit et verifie (analyseur pur) sans rien enregistrer ;
+  // l'import (ecriture dans le dossier, puis « Vos documents ») a lieu au clic sur « Continuer » (barre du bas).
+  brancherCollageUniquePage({
+    suffixe: 'Entretien', idAncre: 'fcRacineEntretien', rerendre: _prepaEntretienRendreReponse, evenementBloque: 'entretien_popup_bloque',
+    module: {
+      libelleSuite: 'Voir ma préparation',
+      quoi: 'L’assistant vient de préparer votre entretien : présentation, points à préparer et questions possibles.',
+      pourquoi: 'Vous arrivez à l’entretien en sachant à quoi vous attendre, ce qui rassure.',
+      verif: 'cette préparation n’aborde que certains aspects de votre parcours, sans en faire le tour : le recruteur pourra toujours poser d’autres questions et explorer d’autres dimensions de votre vie professionnelle. Gardez ce qui vous ressemble et reformulez avec vos mots.'
+    },
+    verifier: function (texte) {
+      return { ok: !!analyserReponseIAEntretien(texte).succes };
+    },
+    onChangerAssistant: function () {
+      if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) { clearInterval(_intervalleDecompteIA); }
+      _etatTransitionIA = null;
+      _prepaEntretienRetourChoixAssistant();
+    },
+    onContinuer: function (texte) {
+      var resultat = analyserReponseIAEntretien(texte);
+      if (!resultat.succes) { return; }
+      // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
+      // CV/Lettre/Entretien") : import reellement termine -- la transition
+      // en attente n'a plus lieu d'etre (meme reinitialisation que dans les
+      // 3 autres parcours).
+      _etatTransitionIA = null;
+      if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
+      if (!dossier.ia.entretien) { dossier.ia.entretien = {}; }
+      dossier.ia.entretien.presentation = resultat.valeurs.presentation;
+      dossier.ia.entretien.pointsAPreparer = resultat.valeurs.pointsAPreparer;
+      dossier.ia.entretien.questionsAnticipees = resultat.valeurs.questionsAnticipees;
+      dossier.ia.entretien.questionsDuCandidat = resultat.valeurs.questionsDuCandidat;
+      dossier.dernierDocumentPrepare = 'entretien';
+      _prepaEntretienEcran = 'intro';
+      if (typeof trackEvenement === 'function') { trackEvenement('entretien_genere'); }
+      naviguerVers('resultats');
     }
-
-    function ouvrirAssistantEntretienEnAttente() {
-      // TACHE (bug reel trouve en construisant ce chantier, voir CV/
-      // LettreV1) : fermerFenetreERIP() DETRUIT #fenetreERIP -- sans ce
-      // garde-fou, le minuteur du decompte survivrait a une fermeture
-      // explicite et rouvrirait un onglet + une fenetre "en attente"
-      // surprise.
-      if (!document.getElementById('btnCollerAutoEntretien')) { clearInterval(_intervalleDecompteIA); return; }
-      // TACHE (retour Denis, 2026-09-19, point 4) : voir recopierTexteAssistantPuisOuvrir()
-      // (js/app.js) -- meme correctif, tous les parcours.
-      recopierTexteAssistantPuisOuvrir(function () {
-        var fenetreOuverte = window.open(_etatTransitionIA.urlAssistant, '_blank');
-        _etatTransitionIA.phase = fenetreOuverte ? 'ouvert' : 'bloque';
-        // TACHE (retour utilisateur : "je veux bien aussi" le suivi popup
-        // bloque pour ces 3 nouveaux parcours) : mesure combien de
-        // navigateurs bloquent reellement l'ouverture automatique.
-        if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') {
-          trackEvenement('entretien_popup_bloque');
-        }
-        _prepaEntretienRendreReponse();
-      });
-    }
-
-    if (_etatTransitionIA.phase === 'decompte') {
-      var btnContinuerMaintenantIA = document.getElementById('btnContinuerMaintenantIA');
-      if (btnContinuerMaintenantIA) {
-        btnContinuerMaintenantIA.addEventListener('click', function () {
-          clearInterval(_intervalleDecompteIA);
-          ouvrirAssistantEntretienEnAttente();
-        });
-      }
-      _intervalleDecompteIA = setInterval(function () {
-        _etatTransitionIA.secondesRestantes -= 1;
-        var compteurDecompteIA = document.getElementById('compteurDecompteIA');
-        if (compteurDecompteIA) { compteurDecompteIA.textContent = _etatTransitionIA.secondesRestantes; }
-        if (_etatTransitionIA.secondesRestantes <= 0) {
-          clearInterval(_intervalleDecompteIA);
-          ouvrirAssistantEntretienEnAttente();
-        }
-      }, 1000);
-    } else if (_etatTransitionIA.phase === 'bloque') {
-      var btnOuvrirBloqueIA = document.getElementById('btnOuvrirBloqueIA');
-      if (btnOuvrirBloqueIA) {
-        btnOuvrirBloqueIA.addEventListener('click', function () { ouvrirAssistantEntretienEnAttente(); });
-      }
-    } else if (_etatTransitionIA.phase === 'ouvert') {
-      var btnJeSuisDeRetourIA = document.getElementById('btnJeSuisDeRetourIA');
-      if (btnJeSuisDeRetourIA) {
-        // TACHE (decision explicite de l'utilisateur, chantier "ecran
-        // tampon avant l’assistant") : retour MANUEL uniquement, jamais de
-        // detection automatique -- meme regle que les 3 autres parcours.
-        btnJeSuisDeRetourIA.addEventListener('click', function () {
-          _etatTransitionIA.phase = 'revenu';
-          _prepaEntretienRendreReponse();
-        });
-      }
-    }
-  }
-
-  activerCollageInstantane({
-    idZoneAuto: 'zoneCollageAutoEntretien',
-    idZoneApercu: 'zoneApercuCollageEntretien',
-    idTextarea: 'texteCollageEntretien',
-    idBoutonColler: 'btnCollerAutoEntretien',
-    idBoutonCollerManuel: 'btnCollerManuelEntretien',
-    idBoutonEffacerRecoller: 'btnEffacerRecollerEntretien',
-    idBoutonImporter: 'btnImporterEntretien',
-    onErreur: function (msg) { message.style.color = 'var(--danger)'; message.textContent = '⚠️ ' + msg; },
-    onEffacer: function () { message.textContent = ''; },
-    onSucces: function (texte, estAjout) { message.style.color = 'var(--success-strong)'; message.textContent = estAjout ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.' : '✅ Réponse importée automatiquement depuis le presse-papiers. Si la réponse de l’assistant fait plusieurs morceaux, copiez le morceau suivant puis cliquez sur "Coller un morceau supplémentaire", juste en dessous : il s’ajoutera à la suite.'; },
-    onCollerManuel: function () { message.textContent = ''; }
-  });
-
-  // TACHE (retour utilisateur 2026-09-17, meme patron que co-lettre) : un
-  // seul bouton "Importer" -- ecrit dossier.ia.entretien puis navigue direct
-  // vers "Vos documents", qui prend le relais entierement (apercu +
-  // impression + export, deja la source unique pour ce document). Plus de
-  // generation DOCX ni de bouton "Terminé" ici : la navigation EST l'action
-  // de fin.
-  document.getElementById('btnImporterEntretien').addEventListener('click', function () {
-    var texte = document.getElementById('texteCollageEntretien').value;
-    if (!texte.trim()) {
-      message.style.color = 'var(--danger)';
-      message.textContent = '⚠️ Collez d’abord la réponse de l’assistant dans la zone ci-dessus.';
-      return;
-    }
-    var resultat = analyserReponseIAEntretien(texte);
-    if (!resultat.succes) {
-      message.style.color = 'var(--danger)';
-      message.textContent = '⚠️ ' + resultat.erreur;
-      return;
-    }
-    // TACHE (retour utilisateur : "etendre l'ecran tampon avant l’assistant a
-    // CV/Lettre/Entretien") : import reellement termine -- la transition
-    // en attente n'a plus lieu d'etre (meme reinitialisation que dans les
-    // 3 autres parcours).
-    _etatTransitionIA = null;
-    if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
-    if (!dossier.ia.entretien) { dossier.ia.entretien = {}; }
-    dossier.ia.entretien.presentation = resultat.valeurs.presentation;
-    dossier.ia.entretien.pointsAPreparer = resultat.valeurs.pointsAPreparer;
-    dossier.ia.entretien.questionsAnticipees = resultat.valeurs.questionsAnticipees;
-    dossier.ia.entretien.questionsDuCandidat = resultat.valeurs.questionsDuCandidat;
-    dossier.dernierDocumentPrepare = 'entretien';
-    _prepaEntretienEcran = 'intro';
-    if (typeof trackEvenement === 'function') { trackEvenement('entretien_genere'); }
-    naviguerVers('resultats');
   });
 }
 
@@ -10864,14 +9891,14 @@ function demarrerEnvoiIAEntretien(assistant) {
       // manuelle faite via "Verifier les informations".
       var messageEntretien = promptCache('entretien', texteProfilEffectif('entretien'));
       // N4 (24/10/2026) : lettre de recommandation de reference, pour un cas pratique plus pertinent.
-      var sectionRecoEntretien = (typeof sectionRecommandationPourMessage === 'function') ? sectionRecommandationPourMessage() : '';
+      var sectionRecoEntretien = (typeof sectionAppuisPourMessage === 'function') ? sectionAppuisPourMessage() : '';
       var messageComplet = sectionRecoEntretien ? messageEntretien + '\n\n' + sectionRecoEntretien : messageEntretien;
       // 26/10/2026 : la fiche deja faite (version rapide ou seance precedente) part avec l'entrainement, qui la complete au lieu de tout refaire.
       var sectionFiche = _prepaEntretienSectionFicheDejaEtablie();
       return sectionFiche ? messageComplet + '\n\n' + sectionFiche : messageComplet;
     },
     onApresValidation: function (urlAssistant, nomAssistant) {
-      _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
+      _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
       _prepaEntretienEcran = 'reponse';
       naviguerVers('prepa-entretien');
     }
@@ -10948,6 +9975,56 @@ function _prepaEntretienSyncCvTexte(texte) {
   dossier.cvAnalyse = true;
 }
 
+// Depot EN PAGE (brique htmlDepotCVEnPage, consigne 28, 30/10/2026) : le CV, puis la lettre de motivation dans le meme point 1. Plus de fenetre de depot ni de
+// fenetre de relecture : le texte n'est garde qu'une fois relu et enregistre.
+function _prepaEntretienCvDepotCfg() {
+  var doc = _prepaEntretienDocumentCv;
+  var texteDoc = (doc && doc.type === 'texte' && typeof doc.valeur === 'string') ? doc.valeur : '';
+  return {
+    cle: 'prepaCv',
+    titreDocument: 'CV',
+    avecIdentite: true,
+    fait: !!(doc && _prepaEntretienCvRelu),
+    nomFait: (doc && doc.nomFichier) || '',
+    texteFait: texteDoc,
+    texteARelire: (doc && !_prepaEntretienCvRelu) ? texteDoc : '',
+    nomARelire: 'CV déjà dans l’application',
+    rerender: _prepaEntretienRendrePreparer,
+    onDocumentPrepare: function (documentPrepare) {
+      if (!documentPrepare) { return; }
+      _prepaEntretienDocumentCv = documentPrepare;
+      _prepaEntretienCvRelu = true;   // le depot en page a deja fait la relecture et le masquage
+      if (documentPrepare.type === 'texte') { _prepaEntretienSyncCvTexte(documentPrepare.valeur); }
+      _prepaEntretienRendrePreparer();
+    }
+  };
+}
+function _prepaEntretienLettreDepotCfg(rerender) {
+  var doc = (_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip') ? _prepaEntretienDocumentLettre : null;
+  var texteDoc = (doc && typeof doc.valeur === 'string') ? doc.valeur : '';
+  var rr = rerender || _prepaEntretienRendrePreparer;
+  return {
+    cle: 'prepaLettre',
+    titreDocument: 'Lettre de motivation',
+    avecIdentite: false,
+    ecrireCV: false,
+    fait: !!(doc && _prepaEntretienLettreRelue),
+    texteFait: texteDoc,
+    texteARelire: (doc && !_prepaEntretienLettreRelue) ? texteDoc : '',
+    nomARelire: 'lettre déjà déposée',
+    rerender: rr,
+    onDocumentPrepare: function (documentPrepare) {
+      if (documentPrepare && documentPrepare.type === 'texte') {
+        _prepaEntretienDocumentLettre = { type: 'texte', valeur: documentPrepare.valeur };
+        _prepaEntretienLettreRelue = true;   // le depot en page a deja fait la relecture et le masquage
+        dossier.lettreMotivation = dossier.lettreMotivation || {};
+        dossier.lettreMotivation.texte = documentPrepare.valeur;
+      }
+      rr();
+    }
+  };
+}
+
 // Page unique "Preparer un entretien" -- CV (+ lettre), relecture,
 // candidature, adaptation au metier : 4 blocs deplies, meme mecanique que
 // _coLettreRendreDepot() (auto-avancement par simple re-rendu complet a
@@ -10992,35 +10069,14 @@ function _prepaEntretienRendrePreparer() {
     (prefsEntretienCourantes.longueur && prefsEntretienCourantes.longueur !== STYLE_CV_DEFAUTS.longueur));
 
   var html = barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 0) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche</h1>' +
     // Retour de Denis, 25/10/2026 : la bulle « Astuce » (voix de ChatGPT) est retirée, la page de présentation le dit déjà.
-    '<p class="sousTitre">Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise le poste et l’entreprise.</p></div>' +
+    htmlTitreEtapeModule('bi-mic', 'M’entraîner à un entretien d’embauche', 'Préparer', 'Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise le poste et l’entreprise.') +
     '<details class="bloc-depli' + (bloc1Termine ? ' bd-ok' : '') + '" id="prepaEntretienBlocCv"' + (ouvertBlocDepliManuel(_prepaEntretienEtatPreparer, 'blocCv', !bloc1Termine) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">1</span><span class="preparer-titre">Votre CV</span>' +
     '<span class="preparer-oblig">obligatoire</span>' +
     '<span class="pilule-etat ' + (cvPresent ? 'pe-ok">Déposé &middot; vous pouvez le changer' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    (cvPresent
-      ? '<div class="carte-preparer-ok"><strong>&#9989; Déposé</strong>' +
-        '<button type="button" id="btnPrepaEntretienChangerCv" class="btn btn-changer-document btn-sm ms-2">Changer de CV</button></div>' +
-        '<p class="preparer-detail">Un seul CV à la fois. « Changer de CV » remplace celui-ci.</p>' +
-        // Retour Denis 2026-09-30 : la relecture s'ouvre seule au depot ; le bloc numerote « Relire, verifier, corriger, masquer » est
-        // retire, reste ce bouton pour la rouvrir (texte seulement : une image est masquee au depot).
-        (estImage ? '' :
-          '<div class="d-flex gap-2 flex-wrap align-items-center mt-2">' +
-          '<button type="button" id="btnPrepaEntretienRelecture" class="btn btn-outline-primary btn-sm">Relire à nouveau et masquer</button>' +
-          (typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo('masquage-texte') : '') +
-          '</div>')
-      : '<p>Sans CV, difficile de préparer un entretien : déposez-le, ou collez son texte. Il est lu directement ' +
-        'dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>' +
-        '<div class="d-flex gap-2 flex-wrap">' +
-        '<button type="button" id="btnPrepaEntretienDeposerCv" class="btn btn-primary btn-sm">Déposer mon fichier</button>' +
-        '</div>' +
-        '<p class="preparer-detail"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d’écran. Pour une photo ou un scan, une fenêtre s’ouvre le temps de préparer l’image, puis vous revenez ici.</p>' +
-        '<div id="prepaEntretienCollerCvZone" hidden class="mt-2">' +
-        '<textarea id="prepaEntretienCollerCvTexte" class="form-control form-control-sm" rows="6" placeholder="Collez ici le texte de votre CV"></textarea>' +
-        '<div class="mt-2"><button type="button" id="btnPrepaEntretienCollerCvValider" class="btn btn-outline-secondary btn-sm">Annuler</button></div>' +
-        '</div>') +
+    (typeof htmlDepotCVEnPage === 'function' ? htmlDepotCVEnPage(_prepaEntretienCvDepotCfg()) : '') +
     // TACHE (retour utilisateur, "une ligne supplementaire au 1er point") :
     // la lettre de motivation vit ICI, dans le bloc 1, pas dans un bloc a
     // part -- seulement visible une fois le CV depose (avant, ni la place
@@ -11034,12 +10090,13 @@ function _prepaEntretienRendrePreparer() {
         _prepaEntretienHtmlLettre()
       : '') +
     '</div></details>' +
+    _liaisonBlocs('Une fois votre CV déposé, vous le relisez et vous pouvez masquer ce que vous ne souhaitez pas garder, comme votre téléphone ou votre adresse. Puis vous précisez le poste et l’entreprise visés.') +
     '<details class="bloc-depli' + (candidatureRenseignee ? ' bd-ok' : '') + '" id="prepaEntretienBlocCible"' + (ouvertBlocDepliManuel(_prepaEntretienEtatPreparer, 'blocCible', cvPresent && cvRelu && !etapeCleCandidatureFranchie) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">2</span><span class="preparer-titre">Votre candidature</span>' +
     '<span class="preparer-oblig">à compléter</span>' +
     '<span class="pilule-etat ' + (candidatureRenseignee ? 'pe-ok">Renseigné' : 'pe-info">À compléter &middot; conseillé si vous l’avez') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    '<p>Un entretien se prépare pour un poste et une entreprise précis. Plus vous en dites ici, plus la préparation sera ciblée. Tout est à compléter, mais rien n’est bloquant.</p>' +
+    '<p>Un entretien se prépare pour un poste et une entreprise précis. Plus vous en dites ici, plus la préparation sera ciblée ; sans cela, elle reste plus générale. Tout est à compléter, mais rien n’est bloquant.</p>' +
     '<p class="mb-2">Quel type de candidature préparez-vous ?</p>' +
     '<div class="grille-objectif">' +
     OBJECTIF_CHOIX_CANDIDATURE.map(function (o) {
@@ -11069,6 +10126,7 @@ function _prepaEntretienRendrePreparer() {
         })() + '</div>'
       : '') +
     '</div></details>' +
+    _liaisonBlocs('Une fois ces précisions données, il reste à adapter la préparation à votre métier.') +
     // Bloc 4 : Adaptation au metier -- meme composant que "Creer un nouveau
     // CV"/co-lettre (contenuRectangleStyleCV()), toujours present, s'ouvre
     // des que l'etape cle du bloc 3 est franchie, se referme de lui-meme
@@ -11114,16 +10172,7 @@ function _prepaEntretienRendrePreparer() {
 // ET par la page « Synthèse » (retour de Denis, 25/10/2026 : on ajoute la lettre sans quitter la synthèse). Câblage : _prepaEntretienBrancherLettre.
 function _prepaEntretienHtmlLettre() {
   var lettrePresente = !!(_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip');
-  var lettreRelue = lettrePresente && _prepaEntretienLettreRelue;
-  if (lettrePresente) {
-    return '<div class="carte-preparer-ok"><strong>&#9989; Déposée</strong>' +
-      '<button type="button" id="btnPrepaEntretienChangerLettre" class="btn btn-changer-document btn-sm ms-2">Changer</button></div>' +
-      (lettreRelue
-        ? '<p class="preparer-detail" style="color:var(--success-strong);">&#9989; Relue et masquée.</p>' +
-          '<button type="button" id="btnPrepaEntretienRelectureLettre" class="btn btn-outline-secondary btn-sm">Revoir la relecture</button>'
-        : '<p class="preparer-detail">Relisez-la et masquez ce que vous ne voulez pas transmettre (nom, adresse, téléphone), comme pour le CV.</p>' +
-          '<button type="button" id="btnPrepaEntretienRelectureLettre" class="btn btn-primary btn-sm">Ouvrir la relecture</button>');
-  }
+  if (lettrePresente) { return (typeof htmlDepotCVEnPage === 'function') ? htmlDepotCVEnPage(_prepaEntretienLettreDepotCfg()) : ''; }
   // La question d'abord (même présentation que « Avez-vous une lettre de recommandation ? »), le bouton seulement si la réponse est oui (retour de Denis, 25/10/2026).
   var non = (_prepaEntretienDocumentLettre === 'skip');
   var oui = !non && _prepaEntretienLettreOui;
@@ -11131,35 +10180,13 @@ function _prepaEntretienHtmlLettre() {
     [['oui', 'Oui', oui], ['non', 'Non', non]].map(function (r) {
       return '<button type="button" class="jeton' + (r[2] ? ' is-actif' : '') + '" data-lettre-reponse="' + r[0] + '" aria-pressed="' + (r[2] ? 'true' : 'false') + '">' + r[1] + '</button>';
     }).join('') + '</div>' +
-    (oui ? '<div class="mt-2"><button type="button" id="btnPrepaEntretienDeposerLettre" class="btn btn-primary">+ Ajouter ma lettre de motivation</button></div>' : '');
+    (oui && typeof htmlDepotCVEnPage === 'function' ? '<div class="mt-2">' + htmlDepotCVEnPage(_prepaEntretienLettreDepotCfg()) + '</div>' : '');
 }
-// Dépôt de la lettre de motivation par l'écran de dépôt partagé : le CV du dossier n'est jamais touché, on reste sur la page qui a ouvert l'écran (Préparer ou Synthèse).
-function _prepaEntretienDeposerLettre(rerender) {
-  var cvAvant = dossier.cvTexte;
-  var analyseAvant = dossier.cvAnalyse;
-  function remettreCv() { dossier.cvTexte = cvAvant; dossier.cvAnalyse = analyseAvant; }
-  ouvrirAssistantDepotCV('pret', {
-    titre: 'Étape 1 · Déposer votre lettre de motivation',
-    intro: 'Déposez votre lettre de motivation (PDF, Word, photo) ou collez son texte. Vous la relirez et masquerez vos coordonnées à l’étape suivante.',
-    titreDocument: 'Lettre de motivation',
-    onDocumentPrepare: function (documentPrepare) {
-      remettreCv();
-      if (documentPrepare && documentPrepare.type === 'texte') {
-        _prepaEntretienDocumentLettre = { type: 'texte', valeur: documentPrepare.valeur };
-        _prepaEntretienLettreRelue = true;   // l'écran de dépôt a déjà fait la vérification et le masquage
-        dossier.lettreMotivation = dossier.lettreMotivation || {};
-        dossier.lettreMotivation.texte = documentPrepare.valeur;
-      }
-      rerender();
-    },
-    onRetourEtape1: function () { remettreCv(); rerender(); }
-  });
-}
-
 // Câblage de la sous-section « lettre de motivation » ; rerender = la page qui la contient (Préparer ou Synthèse).
 function _prepaEntretienBrancherLettre(rerender) {
-  var btnDeposerLettre = document.getElementById('btnPrepaEntretienDeposerLettre');
-  if (btnDeposerLettre) { btnDeposerLettre.addEventListener('click', function () { _prepaEntretienDeposerLettre(rerender); }); }
+  // Depot, relecture et masquage de la lettre EN PAGE : seulement quand sa zone est affichee (lettre deja la, ou reponse « Oui »).
+  var lettreAffichee = !!(_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip') || (_prepaEntretienDocumentLettre !== 'skip' && _prepaEntretienLettreOui);
+  if (lettreAffichee && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_prepaEntretienLettreDepotCfg(rerender)); }
   document.querySelectorAll('[data-lettre-reponse]').forEach(function (el) {
     el.addEventListener('click', function () {
       var v = this.getAttribute('data-lettre-reponse');
@@ -11169,43 +10196,6 @@ function _prepaEntretienBrancherLettre(rerender) {
       rerender();
     });
   });
-  var btnChangerLettre = document.getElementById('btnPrepaEntretienChangerLettre');
-  if (btnChangerLettre) {
-    btnChangerLettre.addEventListener('click', function () {
-      _prepaEntretienDocumentLettre = null;
-      _prepaEntretienLettreOui = true;
-      _prepaEntretienLettreRelue = false;
-      if (dossier.lettreMotivation) { dossier.lettreMotivation.texte = ''; }
-      rerender();
-    });
-  }
-  // TACHE (retour utilisateur 2026-09-17, "ajoute la relecture et le
-  // masquage pour la lettre aussi") : meme brique partagee que le CV
-  // (bilanDemanderRelectureCv()).
-  var btnRelectureLettre = document.getElementById('btnPrepaEntretienRelectureLettre');
-  if (btnRelectureLettre && typeof bilanDemanderRelectureCv === 'function') {
-    btnRelectureLettre.addEventListener('click', function () {
-      if (!_prepaEntretienDocumentLettre || _prepaEntretienDocumentLettre.type !== 'texte') { return; }
-      bilanDemanderRelectureCv(_prepaEntretienDocumentLettre.valeur, undefined, false).then(function (res) {
-        _prepaEntretienDocumentLettre.valeur = res.contenuValide;
-        _prepaEntretienLettreRelue = true;
-        dossier.lettreMotivation = dossier.lettreMotivation || {};
-        dossier.lettreMotivation.texte = res.contenuValide;
-        rerender();
-      }).catch(function (erreur) {
-        if (erreur && erreur.code === 'RelectureAnnulee') {
-          // Lettre jamais validee : comme s'il n'y avait pas de lettre (decision Denis 2026-09-29).
-          if (!_prepaEntretienLettreRelue) {
-            _prepaEntretienDocumentLettre = null;
-            if (dossier.lettreMotivation) { dossier.lettreMotivation.texte = ''; }
-            rerender();
-          }
-          return;
-        }
-        if (typeof trackEvenement === 'function') { trackEvenement('prepa_entretien_relecture_lettre_erreur', { code: erreur && erreur.code }); }
-      });
-    });
-  }
 }
 
 // Deverrouillage progressif (Lot 5), comme pour la lettre : partie 1 ouverte ; la 2 desactivee jusqu'au CV relu ; la 3 n'apparait qu'ensuite et reste desactivee jusqu'a ce que la 2 soit remplie.
@@ -11216,7 +10206,7 @@ function _prepaEntretienAppliquerVerrous() {
   var raisons = relu ? raisonsCandidatureAvantSuite() : [];
   appliquerVerrouBlocs([
     { id: 'prepaEntretienBlocCible', actif: relu, message: msgCv },
-    { id: 'prepaEntretienBlocAdaptation', actif: relu && raisons.length === 0, masque: !relu, message: raisons.length ? raisons[0] : msgCv }
+    { id: 'prepaEntretienBlocAdaptation', actif: relu && raisons.length === 0, message: raisons.length ? raisons[0] : msgCv }
   ]);
 }
 function _prepaEntretienBrancherPreparer() {
@@ -11231,81 +10221,8 @@ function _prepaEntretienBrancherPreparer() {
   if (blocCibleMajEntretien) { ['input', 'change', 'click'].forEach(function (nom) { blocCibleMajEntretien.addEventListener(nom, function () { setTimeout(_prepaEntretienAppliquerVerrous, 0); }); }); }
 
 
-  var btnDeposer = document.getElementById('btnPrepaEntretienDeposerCv');
-  if (btnDeposer) {
-    btnDeposer.addEventListener('click', function () {
-      ouvrirAssistantDepotCV('pret', {
-        onDocumentPrepare: function (documentPrepare) {
-          if (!documentPrepare) { return; }
-          _prepaEntretienDocumentCv = documentPrepare;
-          // La modale a deja fait son ecran de verification / masquage
-          // (texte) ou de masquage sur l'image : ce CV est deja relu.
-          _prepaEntretienCvRelu = true;
-          if (documentPrepare.type === 'texte') { _prepaEntretienSyncCvTexte(documentPrepare.valeur); }
-          _prepaEntretienRendrePreparer();
-        },
-        onRetourEtape1: function () { _prepaEntretienRendrePreparer(); }
-      });
-    });
-  }
-
-  var btnColler = document.getElementById('btnPrepaEntretienCollerCv');
-  var zoneColler = document.getElementById('prepaEntretienCollerCvZone');
-  var champColler = document.getElementById('prepaEntretienCollerCvTexte');
-  var btnCollerValider = document.getElementById('btnPrepaEntretienCollerCvValider');
-  if (btnColler && zoneColler) {
-    btnColler.addEventListener('click', function () { zoneColler.hidden = !zoneColler.hidden; if (!zoneColler.hidden && champColler) { champColler.focus(); } });
-  }
-  if (champColler && btnCollerValider) {
-    champColler.addEventListener('input', function () {
-      btnCollerValider.textContent = champColler.value.trim() ? 'Enregistrer ce texte' : 'Annuler';
-    });
-    btnCollerValider.addEventListener('click', function () {
-      var t = champColler.value.trim();
-      if (!t) { zoneColler.hidden = true; return; }
-      _prepaEntretienDocumentCv = { type: 'texte', valeur: t };
-      _prepaEntretienCvRelu = false;
-      _prepaEntretienSyncCvTexte(t);
-      _prepaEntretienRendrePreparer();
-      // Decision Denis 2026-09-29 : un texte n'est valide qu'apres verification
-      // enregistree : la relecture s'ouvre tout de suite (comme dans les autres
-      // parcours) ; la fermer sans enregistrer efface ce texte.
-      var _bRel = document.getElementById('btnPrepaEntretienRelecture');
-      if (_bRel && !_bRel.disabled) { _bRel.click(); }
-    });
-  }
-
-  var btnChangerCv = document.getElementById('btnPrepaEntretienChangerCv');
-  if (btnChangerCv) {
-    btnChangerCv.addEventListener('click', function () {
-      _prepaEntretienDocumentCv = null;
-      _prepaEntretienCvRelu = false;
-      dossier.cvTexte = '';
-      _prepaEntretienRendrePreparer();
-    });
-  }
-
-  // ----- Bloc 2 : Relire, verifier, corriger, masquer -----
-  var btnRelecture = document.getElementById('btnPrepaEntretienRelecture');
-  if (btnRelecture && typeof bilanDemanderRelectureCv === 'function') {
-    btnRelecture.addEventListener('click', function () {
-      if (!_prepaEntretienDocumentCv || _prepaEntretienDocumentCv.type !== 'texte') { return; }
-      memoriserIdentiteCaptee(_prepaEntretienDocumentCv.valeur);
-      bilanDemanderRelectureCv(_prepaEntretienDocumentCv.valeur, undefined, false).then(function (res) {
-        _prepaEntretienDocumentCv.valeur = res.contenuValide;
-        _prepaEntretienCvRelu = true;
-        _prepaEntretienSyncCvTexte(res.contenuValide);
-        _prepaEntretienRendrePreparer();
-      }).catch(function (erreur) {
-        if (erreur && erreur.code === 'RelectureAnnulee') {
-          // CV jamais valide : comme s'il n'y avait pas de CV (decision Denis 2026-09-29).
-          if (!_prepaEntretienCvRelu) { _prepaEntretienDocumentCv = null; dossier.cvTexte = ''; _prepaEntretienRendrePreparer(); }
-          return;
-        }
-        if (typeof trackEvenement === 'function') { trackEvenement('prepa_entretien_relecture_erreur', { code: erreur && erreur.code }); }
-      });
-    });
-  }
+  // ----- Bloc 1 : Votre CV (depot, relecture et masquage EN PAGE, brique htmlDepotCVEnPage) -----
+  if (typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_prepaEntretienCvDepotCfg()); }
 
   // ----- Lettre de motivation (bloc 1, sous-section) -----
   _prepaEntretienBrancherLettre(_prepaEntretienRendrePreparer);
@@ -11387,7 +10304,7 @@ var _prepaEntretienEcranRepris = null;
 var PREPA_ENTRETIEN_NAV_ETAPES = [
   { label: 'Préparer', icone: '&#128221;' },
   { label: 'Assistant', icone: '&#128172;' },
-  { label: 'S’entraîner', icone: '&#127908;' },
+  { label: 'Réponse', icone: '&#128229;' },
   { label: 'Terminé', icone: '&#9989;' }
 ];
 
@@ -11411,6 +10328,7 @@ function ouvrirParcoursEntretien() {
 function _prepaEntretienRecommencerTravail() {
   _approfondiViaEncart = false;
   _prepaEntretienSessionHistorique++;
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('prepaCv'); reinitialiserDepotCVEnPage('prepaLettre'); }
   _prepaEntretienDocumentCv = null;
   _prepaEntretienCvRelu = false;
   _prepaEntretienDocumentLettre = null;
@@ -11701,7 +10619,7 @@ function pageDecouverteIntro() {
         '<p class="mb-0">C’est l’outil pour qui repart de loin : personne longtemps sans emploi, sans diplôme reconnu, avec un parcours difficile à faire tenir dans les cases habituelles.</p>') +
       _introBlocSection('&#128203; Ce qui va se passer',
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
-        '<li>Vous racontez votre parcours dans une zone de texte, <strong>au clavier ou à la voix</strong> (<strong><span style="white-space:nowrap;">Windows + H</span></strong>). Aucune forme imposée.</li>' +
+        '<li>Vous racontez votre parcours dans une zone de texte, <strong>au clavier ou à la voix</strong>. Aucune forme imposée.</li>' +
         '<li>Si vous le souhaitez, vous ajoutez vos coordonnées et le type de poste ou de secteur visé. Ce n’est pas obligatoire pour commencer.</li>' +
         '<li>Vous choisissez un assistant en ligne. L’application prépare le texte, vous le collez chez l’assistant, vous revenez coller sa réponse ici.</li>' +
         '<li>L’application vous propose, pour chaque expérience repérée, plusieurs façons de la dire et une liste de compétences. Vous gardez ce qui vous va, vous écartez le reste.</li>' +
@@ -11925,7 +10843,7 @@ function pageIntroSeTenirInforme() {
     titre: '<i class="bi bi-newspaper"></i> Comprendre le cadre',
     sousTitre: 'Savoir ce qui a changé dans l’emploi, la formation et les dispositifs, avant de décider ou d’accompagner.',
     ctaId: 'btnSeTenirInformeCommencer',
-    ctaLabel: 'Ouvrir Comprendre le cadre &#8594;',
+    ctaLabel: 'Je commence &#8594;',
     onCta: function () {
       // Premiere entree (hors detour) : l'ecran interne du module est
       // deja 'accueil' par defaut, rien a remettre a zero.
@@ -11938,7 +10856,7 @@ function pageIntroSeTenirInforme() {
         '<p class="mb-0"><strong>Pour un professionnel de l’insertion :</strong> une base de repères vérifiés à garder sous la main, à montrer à une personne accompagnée ou à consulter avant un rendez-vous.</p>') +
       _introBlocSection('&#128203; Ce qui va se passer',
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
-        '<li>Vous choisissez un rayon : l’emploi et les contrats, la formation et la reconversion, l’accompagnement, la création d’activité, les moins de 26 ans, les plus de 50 ans et la retraite, le handicap, le séjour quand on vient de l’étranger, la sortie de détention, le budget et les dettes, la mobilité, le logement, la garde d’enfant, l’apprentissage du français, les questions juridiques. Si vous ne savez pas où chercher, « Affiner ma recherche » vous aiguille : des phrases à cocher, ou un champ où décrire votre situation.</li>' +
+        '<li>Vous choisissez un rayon : l’emploi et les contrats, la formation et la reconversion, l’accompagnement, la création d’activité, les moins de 26 ans, les plus de 50 ans et la retraite, le handicap, le séjour quand on vient de l’étranger, la sortie de détention, le budget et les dettes, la mobilité, le logement, la garde d’enfant, l’apprentissage du français, les questions juridiques, l’accès aux soins, les employeurs et entrepreneurs, la fonction publique, les armées, l’agriculture, les parents séparés. Si vous ne savez pas où chercher, « Affiner ma recherche » vous aiguille : des phrases à cocher, ou un champ où décrire votre situation.</li>' +
         '<li>Chaque fiche est courte, en langage simple, avec la date de dernière vérification et le lien vers la source officielle à jour.</li>' +
         '<li>Pour une information récente qui n’a pas encore de fiche (un montant, un financement, des métiers qui recrutent), l’application prépare un texte de recherche à copier chez un assistant en ligne ; vous rapportez sa réponse ici, encadrée d’un rappel de vérifier la source officielle.</li>' +
         '<li>Un tableau des sources officielles (Légifrance, le site du service public, l’INSEE, la DARES, France Travail…) vous dit à quoi sert chacune et où cliquer.</li>' +
@@ -11998,7 +10916,7 @@ function pageIntroComprendreLesChiffres() {
     titre: '<i class="bi bi-bar-chart"></i> Comprendre les chiffres',
     sousTitre: 'Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés.',
     ctaId: 'btnComprendreLesChiffresCommencer',
-    ctaLabel: 'Ouvrir Comprendre les chiffres &#8594;',
+    ctaLabel: 'Je commence &#8594;',
     onCta: function () {
       if (typeof naviguerVers === 'function') { naviguerVers('comprendre-les-chiffres'); }
     },
@@ -12051,7 +10969,7 @@ function pageIntroMonTerritoire() {
     titre: '<i class="bi bi-geo-alt"></i> Qui fait quoi',
     sousTitre: 'Vous cherchez à qui vous adresser dans votre département ? Ici, on vous montre où aller et qui contacter.',
     ctaId: 'btnMonTerritoireCommencer',
-    ctaLabel: 'Ouvrir Qui fait quoi &#8594;',
+    ctaLabel: 'Je commence &#8594;',
     onCta: function () {
       if (typeof monTerritoireOuvrirAccueil === 'function') { monTerritoireOuvrirAccueil(); }
       else if (typeof naviguerVers === 'function') { naviguerVers('mon-territoire'); }
@@ -12213,24 +11131,6 @@ function pageIntroAideDecision() {
   if (typeof trackEvenement === 'function') { trackEvenement('aide_decision_intro_affichee'); }
 }
 
-/* ------------------------------------------------------------
-   AIGUILLAGE AUTOMATIQUE
-   "J'ai deja un CV" / "Mettre a jour" ouvre la fenetre de depot.
-   ------------------------------------------------------------ */
-
-(function () {
-  if (typeof document === 'undefined') { return; }
-
-  document.addEventListener('click', function (e) {
-    var carte = e.target.closest ? e.target.closest('[data-action="mode"]') : null;
-    if (carte && (carte.dataset.value === 'maj' || carte.dataset.value === 'pret')) {
-      e.stopPropagation();
-      e.preventDefault();
-      ouvrirAssistantDepotCV(carte.dataset.value);
-    }
-  }, true);
-})();
-
 /* Export CommonJS protege -- tests/secteursMetiers.test.js,
    tests/reformulerCvLogique.test.js (Node). Sans effet en navigateur
    (module non defini). Les fonctions _reformulerCv* exportees ici sont la
@@ -12267,8 +11167,6 @@ if (typeof module !== "undefined" && module.exports) {
     _reformulerCvTitreExperiencePerso: _reformulerCvTitreExperiencePerso,
     // Regles « un CV n'existe que s'il est valide » (2026-09-29), testees dans
     // tests/panneauCandidaturePartage.test.js.
-    appliquerVerrouBlocs: appliquerVerrouBlocs,
-    fermerAssistantDepotCV: fermerAssistantDepotCV,
-    _depotCVDefinirRestauration: function (fn) { _depotCVRestaurer = fn; }
+    appliquerVerrouBlocs: appliquerVerrouBlocs
   };
 }
