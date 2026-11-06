@@ -118,8 +118,25 @@ function creerGithub(racine, options) {
   function territoireOuvert() {
     const r = git(racine, ['show', 'HEAD:modules/mon-territoire/logique.js']);
     if (r.code !== 0) { return null; }
-    const m = /var MT_OUVERT = (true|false)s*;/.exec(r.sortie);
+    const m = /var MT_OUVERT = (true|false)\s*;/.exec(r.sortie);
     return m ? m[1] === 'true' : null;
+  }
+
+  // Le module est-il DÉJÀ ouvert au public sur GitHub (version en ligne du même fichier) ? true / false, ou null si illisible.
+  // Depuis l'ouverture du 2026-11-05 (feu vert de Denis), le garde-fou ne doit plus s'activer quand le module est déjà ouvert en ligne :
+  // il ne protège que contre une ouverture par mégarde (en ligne fermé, enregistré ouvert).
+  async function territoireOuvertEnLigne(c, parChemin) {
+    const sha = parChemin && parChemin['modules/mon-territoire/logique.js'];
+    if (!sha) { return false; }
+    const r = await requete(c, 'GET', chemRepo(c) + '/git/blobs/' + sha);
+    if (r.statut !== 200 || !r.json || typeof r.json.content !== 'string') { return null; }
+    const m = /var MT_OUVERT = (true|false)\s*;/.exec(Buffer.from(r.json.content, 'base64').toString('utf8'));
+    return m ? m[1] === 'true' : null;
+  }
+  // Vrai seulement si l'envoi OUVRIRAIT le module (enregistré ouvert, pas encore ouvert en ligne ou illisible en ligne).
+  async function envoiOuvrirait(c, parChemin) {
+    if (territoireOuvert() !== true) { return false; }
+    return (await territoireOuvertEnLigne(c, parChemin)) !== true;
   }
 
   // ---------- comparaison ----------
@@ -174,7 +191,7 @@ function creerGithub(racine, options) {
       nouveaux: choisis.filter(function (e) { return !d.parChemin[e.chemin]; }).length,
       seulementSurGithub: seulementDistants,
       modificationsNonEnregistrees: lignesSt.filter(function (l) { return l.indexOf('??') !== 0; }).length,
-      territoireOuvert: territoireOuvert(),
+      territoireOuvert: territoireOuvert() === true ? await envoiOuvrirait(c, d.parChemin) : territoireOuvert(),   // vrai = cet envoi l'OUVRIRAIT au public
       exemples: choisis.slice(0, 8).map(function (e) { return e.chemin; })
     };
   }
@@ -198,7 +215,7 @@ function creerGithub(racine, options) {
     const aEnvoyer = filtrer(locales.filter(function (e) { return d.parChemin[e.chemin] !== e.sha; }), groupes);
     if (!aEnvoyer.length) { return { ok: true, rien: true, nbFichiers: 0 }; }
     // Garde-fou : si la version enregistree OUVRE « Mon territoire » au public, l'envoi est refusé tant que Denis ne l'a pas confirmé en connaissance de cause.
-    if (!confirmerTerritoire && aEnvoyer.some(function (e) { return e.chemin === 'modules/mon-territoire/logique.js'; }) && territoireOuvert() === true) {
+    if (!confirmerTerritoire && aEnvoyer.some(function (e) { return e.chemin === 'modules/mon-territoire/logique.js'; }) && await envoiOuvrirait(c, d.parChemin)) {
       return { ok: false, code: 'territoire-ouvert', erreur: 'Le module « Mon territoire » est OUVERT au public dans ce qui va partir : tout le monde le verrait sur le site. Rien n’a été envoyé.' };
     }
     const entrees = [], tropGros = [], illisibles = [];

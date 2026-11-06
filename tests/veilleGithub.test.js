@@ -40,6 +40,8 @@ function fauxGithub(options) {
       if (req.method === 'GET' && url.pathname === racine + '/branches/' + opt.branche) { return rep(200, { commit: { sha: tete, commit: { tree: { sha: commits[tete].tree } } } }); }
       let m = /^\/repos\/[^/]+\/[^/]+\/git\/trees\/([0-9a-f]{40})$/.exec(url.pathname);
       if (req.method === 'GET' && m) { const t = arbres[m[1]]; return rep(200, { truncated: !!opt.tronque, tree: Object.keys(t).map((p) => ({ path: p, type: 'blob', mode: t[p].mode, sha: t[p].sha })) }); }
+      m = /^\/repos\/[^/]+\/[^/]+\/git\/blobs\/([0-9a-f]{40})$/.exec(url.pathname);
+      if (req.method === 'GET' && m) { const b = blobs[m[1]]; return b ? rep(200, { content: b.toString('base64'), encoding: 'base64' }) : rep(404, { message: 'Not Found' }); }
       if (req.method === 'POST' && url.pathname === racine + '/git/blobs') {
         const b = Buffer.from(json.content, json.encoding === 'base64' ? 'base64' : 'utf8'); const s = shaBlob(b); blobs[s] = b; return rep(201, { sha: s });
       }
@@ -337,4 +339,13 @@ test('envoyer : jamais « Mon territoire » ouvert au public par megarde ; confi
   // 3. le fichier du module n'est pas dans l'envoi (déjà identique en ligne) : pas de blocage même s'il est ouvert partout
   m = await monter({ [chemin]: logique(true), 'a.txt': 'v2' }, { [chemin]: B(logique(true)), 'a.txt': B('v1') });
   try { assert.ok((await m.gh.envoyer(undefined, 'essai')).ok); } finally { await m.fin(); }
+  // 4. le module est DÉJÀ ouvert en ligne (ouverture du 2026-11-05) et le fichier change : ni avertissement ni blocage, aucune confirmation à donner
+  const logiqueMaj = logique(true) + '// autre modification\n';
+  m = await monter({ [chemin]: logiqueMaj, 'a.txt': 'v2' }, { [chemin]: B(logique(true)), 'a.txt': B('v1') });
+  try {
+    assert.strictEqual((await m.gh.comparer()).territoireOuvert, false, 'déjà ouvert en ligne : cet envoi ne l\'ouvre pas');
+    const r = await m.gh.envoyer(undefined, 'essai');
+    assert.ok(r.ok, JSON.stringify(r));
+    assert.strictEqual(m.faux.arbreActuel()[chemin].toString(), logiqueMaj);
+  } finally { await m.fin(); }
 });
