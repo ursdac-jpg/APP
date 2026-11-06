@@ -5780,6 +5780,8 @@
       var n = (r && r.ok && r.lignes) ? r.lignes.length : -1;
       if ($('majBoutonValider')) { $('majBoutonValider').innerHTML = 'À valider' + (n >= 0 ? ' : ' + n + ' en attente' : '') + ' &#8250;'; }
       var b = $('badgeAccueilMaj'); if (b) { if (n > 0) { b.style.display = ''; b.innerHTML = '&#9888; ' + n + ' à valider'; } else { b.style.display = 'none'; } }
+      // Le bouton « À valider » du guide « À faire maintenant » se remet à jour lui aussi : sinon il garde l'ancien nombre (« 3 changements à valider ») alors que le sas est déjà vidé.
+      var p = $('afmPuceValider'); if (p && n >= 0) { p.innerHTML = n ? '&#9888; <strong>' + n + '</strong> changement' + (n > 1 ? 's' : '') + ' à valider &#8250;' : '&#10003; Rien à valider &#8250;'; }
     }).catch(function () { /* hors lanceur : pas de compte, le bouton reste sans nombre */ });
   }
   function ouvrirMenuCadreGuide() {
@@ -10523,6 +10525,7 @@
     h += '<div class="btn-rangee"><button class="btn petit" type="button" id="chgPrevTous"' + (nbPrevAff ? '' : ' disabled') + '>C\'est bon pour les ' + nbPrevAff + ' pré-vérifié' + (nbPrevAff > 1 ? 's' : '') + ' affiché' + (nbPrevAff > 1 ? 's' : '') + '</button> <span class="mini">Rien n\'est public avant « Enregistrer ».</span></div>';
     if (lf.length) { h += '<h3 class="fc-titre">Fiches du cadre (' + lf.length + ')</h3>'; lf.forEach(function (l) { h += fcHtmlCarte(l); }); if (liste.length) { h += '<h3 class="fc-titre">Changements du balayage (' + liste.length + ')</h3>'; } }
     if (!tous.length && !fc.lignes.length) { h += '<div class="note ok"><span>&#9989;</span><span>Le sas est vide : rien en attente de vérification. Les prochains changements arrivent ici quand vous cliquez « Verser les changements dans le sas » à la fin du balayage (Mise à jour, Chaque mois).</span></div>'; }
+    if (!liste.length && !lf.length && (tous.length + fc.lignes.length)) { h += note('warn', '<strong>Rien ne correspond à ce que vous avez demandé de voir</strong> (le filtre ou le mot cherché cache les ' + (tous.length + fc.lignes.length) + ' proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' du sas). <div class="btn-rangee"><button class="btn primaire petit" type="button" id="chgToutAfficher">Tout afficher</button></div>'); }
     liste.slice(chg.page * CHG_PAGE, (chg.page + 1) * CHG_PAGE).forEach(function (l) { h += chgHtmlFiche(l); });
     h += '<div class="barre"><button class="btn petit" type="button" data-chg-page="-1"' + (chg.page === 0 ? ' disabled' : '') + '>Page précédente</button><span>Page ' + (chg.page + 1) + ' sur ' + pages + '</span><button class="btn petit" type="button" data-chg-page="1"' + (chg.page >= pages - 1 ? ' disabled' : '') + '>Page suivante</button></div>';
     h += '<div class="pied"><strong>' + nb + '</strong> choix en attente <button class="btn primaire" type="button" id="chgEnregistrer"' + (nb ? '' : ' disabled') + '>Enregistrer</button> <button class="btn" type="button" id="chgToutAnnuler"' + (nb ? '' : ' disabled') + '>Tout annuler</button> <button class="btn" type="button" id="chgAnnulerPub" style="display:none">Annuler la dernière publication</button></div>';
@@ -10657,7 +10660,8 @@
       });
     });
   });
-  $d('chgOuvrir').addEventListener('click', function () { $d('chgFenetre').style.display = 'block'; $d('chgResultat').innerHTML = ''; chgCharger(); });
+  // À l'ouverture, on repart de « Tout » : un ancien filtre (domaine, mot cherché, « Pré-vérifiés »...) ne doit jamais cacher les changements annoncés par le compteur.
+  $d('chgOuvrir').addEventListener('click', function () { chg.filtre = ''; chg.dom = ''; chg.q = ''; chg.page = 0; $d('chgFenetre').style.display = 'block'; $d('chgResultat').innerHTML = ''; chgCharger(); });
   // Le test des adresses du mois (les trois registres de « Qui fait quoi »).
   // Les adresses de l'application (consigne 92) : l'écran est dans le premier script, l'accès au lanceur ici.
   window.adrAPI = {
@@ -10786,6 +10790,13 @@
   });
   function chgValeursCourantes(l) { var v = {}; CHG_CHAMPS.forEach(function (c) { v[c] = String(chgValeur(l, c)).trim(); }); return v; }
   function chgLigne(id) { return chg.lignes.filter(function (x) { return x.id === id; })[0]; }
+  // Range dans les cases de la carte les propositions cochées de la réponse de l'assistant (« Lire la réponse » le fait seul ; le bouton « Remplir les cases cochées » le refait après un décochage).
+  function chgRemplirDepuisReponse(id) {
+    var l = chgLigne(id), v = chgV(id); if (!l || !v.analyse || !v.analyse.ok) { return; }
+    chg.edits[id] = chg.edits[id] || {};
+    v.analyse.propositions.forEach(function (q) { if (v.garder[q.champ] && !q.probleme && !q.identique) { chg.edits[id][q.champ] = q.propose; v.remplis[q.champ] = true; } });
+    v.sourceOk = false; chgRendre();
+  }
   $d('chgFenetre').addEventListener('click', function (e) {
     var t = e.target.closest ? e.target.closest('button') : null; if (!t) { return; }
     var dec = t.getAttribute('data-chg-dec');
@@ -10810,22 +10821,20 @@
       var zone = document.querySelector('[data-chg-reponse="' + idl.replace(/"/g, '') + '"]'), vv = chgV(idl); if (zone) { vv.texte = zone.value; }
       appeler('/api/changements/lire', { texte: vv.texte, actuel: chgValeursCourantes(ll) }).then(function (r) {
         vv.analyse = r; vv.garder = {};
-        if (r.ok) { r.propositions.forEach(function (q) { vv.garder[q.champ] = !q.probleme && !q.identique && !!q.page && q.champ !== 'ce_qui_change'; }); }
+        // Tout ce qui est lisible et différent de l'actuel est coché ET REMPLI tout de suite (date en vigueur, nature, public, ce qui change, titre et adresse de la source) :
+        // la personne n'a plus qu'à ouvrir la source et à confirmer. Les cases refusées (date illisible, « à vérifier ») restent vides et expliquées.
+        if (r.ok) { r.propositions.forEach(function (q) { vv.garder[q.champ] = !q.probleme && !q.identique; }); chgRemplirDepuisReponse(idl); return; }
         var cible = document.querySelector('[data-chg-propositions="' + idl.replace(/"/g, '') + '"]'); if (cible) { cible.innerHTML = chgPropositionsHtml(ll); }
       });
       return;
     }
     var idr = t.getAttribute('data-chg-remplir');
-    if (idr) {
-      var lr = chgLigne(idr), vr2 = chgV(idr); if (!lr || !vr2.analyse || !vr2.analyse.ok) { return; }
-      chg.edits[idr] = chg.edits[idr] || {};
-      vr2.analyse.propositions.forEach(function (q) { if (vr2.garder[q.champ] && !q.probleme && !q.identique) { chg.edits[idr][q.champ] = q.propose; vr2.remplis[q.champ] = true; } });
-      vr2.sourceOk = false; chgRendre(); return;
-    }
+    if (idr) { chgRemplirDepuisReponse(idr); return; }
     var rz = t.getAttribute('data-chg-reset'); if (rz) { delete chg.edits[rz]; if (chg.verif[rz]) { chg.verif[rz].remplis = {}; chg.verif[rz].sourceOk = false; } chgRendre(); return; }
     var an = t.getAttribute('data-chg-annuler'); if (an) { delete chg.attente[an]; chgRendre(); return; }
     var pg = t.getAttribute('data-chg-page'); if (pg !== null) { chg.page += +pg; chgRendre(); $d('chgFenetre').scrollTop = 0; return; }
     if (t.id === 'chgPrevTous') { chgFiltrees().forEach(function (l) { if (chgPrev(l) && !chgBloquages(l).length && !chg.attente[l.id]) { chg.attente[l.id] = 'valider'; } }); fcFiltrees().forEach(function (l) { if (l.genre !== 'brut' && fcPrev(l) && !fcBloquages(l).length && !fc.attente[l.id]) { fc.attente[l.id] = 'valider'; } }); chgRendre(); return; }
+    if (t.id === 'chgToutAfficher') { chg.filtre = ''; chg.dom = ''; chg.q = ''; chg.page = 0; chgRendre(); return; }
     if (t.id === 'chgEnregistrer') { chgEnregistrer(); return; }
     if (t.id === 'chgToutAnnuler') { chg.attente = {}; fc.attente = {}; chgRendre(); return; }
     if (t.id === 'chgAnnulerPub') { appeler('/api/annuler', {}).then(function (r) { $d('chgResultat').innerHTML = r.ok ? note('ok', 'Dernière publication annulée (enregistrement ' + esc(r.commit) + ').') : note('warn', esc(r.erreur || 'Annulation impossible.')); chgCharger(); }); }
@@ -10848,7 +10857,7 @@
     if (btn) { btn.disabled = true; }
     appeler('/api/publier', { fichiers: [{ type: 'changements', actions: [{ op: 'importer', lignes: lignes }] }] }).then(function (r) {
       if (btn) { btn.disabled = false; }
-      if (r.ok) { var rc = r.resumeChangements || {}; window.alert((rc.importes || 0) + ' changement(s) versé(s) dans le sas (' + (rc.ignores || 0) + ' déjà présent(s)). Rien n\'est public : ouvrez « 6. Les changements du trimestre » dans le Dépôt pour les vérifier un par un.'); chgCharger(); }
+      if (r.ok) { var rc = r.resumeChangements || {}; window.alert((rc.importes || 0) + ' changement(s) versé(s) dans le sas (' + (rc.ignores || 0) + ' déjà présent(s)). Rien n\'est public : ouvrez « 6. Les changements du trimestre » dans le Dépôt pour les vérifier un par un.'); chgCharger(); setTimeout(majRendreBadge, 600); }
       else { window.alert('Impossible de verser dans le sas : ' + (r.erreur || 'erreur inconnue')); }
     });
   };

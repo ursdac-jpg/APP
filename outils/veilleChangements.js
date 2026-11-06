@@ -353,6 +353,22 @@ function construirePrompt(v, exemples, socle) {
 function nettoyerValeurReponse(s) {
   return String(s || '').replace(/^[\s*_`>-]+|[\s*_`]+$/g, '').replace(/^["«]\s*|\s*["»]$/g, '').replace(/\s+/g, ' ').trim();
 }
+// Les assistants écrivent souvent la date à la française malgré la consigne : on la range au format de la case (AAAA-MM-JJ) pour que la personne n'ait pas à l'inverser.
+const MOIS_FR = { janvier: 1, fevrier: 2, mars: 3, avril: 4, mai: 5, juin: 6, juillet: 7, aout: 8, septembre: 9, octobre: 10, novembre: 11, decembre: 12 };
+function dateFrancaiseVersIso(valeur) {
+  const v = String(valeur || '');
+  if (/\d{4}-\d{2}-\d{2}/.test(v)) { return v; }
+  const deux = function (n) { return (n < 10 ? '0' : '') + n; };
+  const valide = function (j, m, a) { return a >= 1990 && a <= 2100 && m >= 1 && m <= 12 && j >= 1 && j <= 31; };
+  let r = /(\d{1,2})\s*(?:er)?\s*[\/.-]\s*(\d{1,2})\s*[\/.-]\s*(\d{4})/.exec(v);
+  if (r && valide(+r[1], +r[2], +r[3])) { return v.replace(r[0], r[3] + '-' + deux(+r[2]) + '-' + deux(+r[1])); }
+  r = /(\d{1,2})\s*(?:er)?\s+([A-Za-zÀ-ÿ]+)\.?\s+(\d{4})/.exec(v);
+  if (r) {
+    const m = MOIS_FR[r[2].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')];
+    if (m && valide(+r[1], m, +r[3])) { return v.replace(r[0], r[3] + '-' + deux(m) + '-' + deux(+r[1])); }
+  }
+  return v;
+}
 const ABSENT = /^(non trouv[ée]e?|inchang[ée]e?|[àa] v[ée]rifier|aucune?|n\/?a|introuvable|vide|\(vide\))(?![a-zA-Zà-ÿ])|^[-\u2014]+$/i;
 
 // Lit le bloc [VERIFICATION] colle par la personne. actuel = les valeurs de la carte (avec les corrections deja saisies).
@@ -382,6 +398,7 @@ function lireReponse(texte, actuel) {
     if (valeur === undefined || valeur === '' || ABSENT.test(valeur)) { return; }
     let probleme = '';
     if (champ === 'en_vigueur') {
+      valeur = dateFrancaiseVersIso(valeur);   // « 5 novembre 2026 » ou « 05/11/2026 » deviennent « 2026-11-05 » (la case garde l'ordre AAAA-MM-JJ)
       const d = /\d{4}-\d{2}-\d{2}/.exec(valeur);
       if (/^sans objet/i.test(valeur)) { valeur = 'sans objet'; }
       else if (d && /^pr[ée]vu/i.test(valeur)) { valeur = 'prévu ' + d[0]; }

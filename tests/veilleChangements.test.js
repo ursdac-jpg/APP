@@ -249,6 +249,20 @@ test('lireReponse : range les valeurs, ignore « non trouvé » et « inchangé 
   assert.strictEqual(C.lireReponse('[VERIFICATION]\nen_vigueur: sans objet\n[/VERIFICATION]', {}).propositions[0].propose, 'sans objet');
   assert.strictEqual(C.lireReponse('[VERIFICATION]\nen_vigueur: prévu 2027-01-01\n[/VERIFICATION]', {}).propositions[0].propose, 'prévu 2027-01-01');
 });
+test('lireReponse : une date écrite à la française est rangée dans l\'ordre de la case (AAAA-MM-JJ), sans que la personne ait à l\'inverser', () => {
+  const lire = (v) => C.lireReponse('[VERIFICATION]\nen_vigueur: ' + v + '\n[/VERIFICATION]', {}).propositions[0];
+  assert.strictEqual(lire('5 novembre 2026').propose, '2026-11-05');
+  assert.strictEqual(lire('1er janvier 2027').propose, '2027-01-01');
+  assert.strictEqual(lire('15 février 2026').propose, '2026-02-15');
+  assert.strictEqual(lire('1 août 2026').propose, '2026-08-01');
+  assert.strictEqual(lire('05/11/2026').propose, '2026-11-05');
+  assert.strictEqual(lire('5.11.2026').propose, '2026-11-05');
+  assert.strictEqual(lire('prévu 1er janvier 2027').propose, 'prévu 2027-01-01');
+  assert.strictEqual(lire('2026-11-05').propose, '2026-11-05');
+  assert.ok(!lire('2026-11-05').probleme && !lire('5 novembre 2026').probleme);
+  assert.ok(lire('septembre 2026').probleme, 'sans jour, la date reste refusée (jamais inventée)');
+  assert.ok(lire('31/13/2026').probleme, 'un mois impossible reste refusé');
+});
 test('listerChangements : fournit des modèles de style pris dans le digest publié', () => {
   const d = depotJetable();
   try {

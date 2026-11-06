@@ -115,21 +115,53 @@ Tant que Denis n'a pas répondu à l'étape 1, rien n'est codé.
 
 ---
 
-## 5 bis. Autres chantiers ouverts HORS de ce plan (vérifié le 06/11/2026 dans `docs/ETAT_DES_CHANTIERS.md`, `docs/TACHES_VALIDEES.md`, `docs/CONSIGNES_DE_DENIS_A_SUIVRE.md`, `git log` et le code)
+## 5 bis. Autres chantiers hors de ce plan : VÉRIFIÉS ligne par ligne contre le code et `git log` (06/11/2026, à la demande de Denis)
 
-**Déjà FAITS, vérifiés, à ne pas refaire** : barres d'étapes G3 (30/10) ; contrôle de lisibilité portable, tablette, téléphone (31/10) ; inventaire illustré des fenêtres (31/10) ; ligne « Nouveautés » de l'Introduction (`85b646f1`) et du Lexique ; pastilles cliquables « Vous êtes ici » de Qui fait quoi (`673eeb3c`) ; répartition des salaires en France (consigne 118 c, `3da0f4f2`) ; Smic et inflation côte à côte ; message final du dossier Cloud (consigne 89, abandonné) ; écran « Vérifiez les informations importées » ; fenêtre commune « Collez la réponse » ; ouverture de Qui fait quoi et des employeurs.
+Correction : la première version de cette section reprenait des mentions périmées du guide (`ETAT_DES_CHANTIERS.md`, dont les titres de chantiers n'ont pas été mis à jour). Chaque ligne ci-dessous a été recontrôlée dans le code (modules, interrupteurs d'ouverture, tests) ou dans l'historique. **Le titre d'un chantier dans `ETAT_DES_CHANTIERS.md` n'est pas fiable : se fier à cette section, puis au code.**
 
-**Attendent un essai ou une relecture de Denis (rien à coder avant)** :
-- « Vos appuis » et Reformuler version 2 : essai avec un vrai assistant des quatre consignes (CV, lettre, entretien, lettres UCPM), marquage « proposé, à vérifier » à contrôler à l'écran, choix du « Retour » à trancher. Ne rien annoncer dans `data/nouveautes.js` avant.
-- Essais réels : Word, PDF, Comparer sur ChatGPT et Gemini, Regard recruteur, parcours « Un CV, plusieurs métiers » (prompts de lettres, conseils de savoir-être), écran « Vérifiez les informations importées », rubrique « Mise à jour » de l'outil de veille.
+### 5 bis.1 CODÉS ET OUVERTS (ne rien refaire ; seulement les essais de Denis)
+
+| Chantier | Preuve dans le code ou l'historique | Ce qui reste |
+|---|---|---|
+| « Découvrir mes compétences » (Lot 9) | `modules/decouverte-competences/` et `modules/mes-competences/`, `MESCOMP_OUVERT = true`, séance C et module ouvert le 27/10 (`254cced7`), export Word, PDF | Essais de Denis |
+| « Mettre mon CV en page, sans rien changer » (Créer un nouveau CV, trois parcours, Voie 3 de Reprendre mon CV) | `modules/cv-sans-assistant/`, `CSA_OUVERT = true`, 39 commits dont la maquette v2 du 04/11 (choix du métier en trois niveaux, question du domaine) | Essais de Denis |
+| « Écrire ma lettre avec l'assistant » | `modules/lettre-core/` et `modules/lettre-editor/`, lots A à E et F10 faits, « Choisir l'autre version » (31/10), relecture en page étape 7 (01/11), « Vos appuis » (28/10) | Essai réel avec un assistant ; restes de la liste du 24/10 non revérifiés un par un |
+| Un CV, plusieurs métiers | `modules/un-cv-plusieurs-metiers/`, `UCPM_OUVERT = true`, choix du domaine pour un métier saisi librement (04/11) | Essais de Denis (prompts de lettres, conseils de savoir-être) |
+| Refonte « La mise en page » du CV en PDF, puis Word depuis le PDF | `modules/cv-pdf-html/` (carte « Organisation du CV » présente dans le code), `modules/cv-word/` (25 modèles A4 plus Mini CV A5), 145 commits PDF, banc de rendu des 39 modèles rejoué le 01/11 (2 écarts voulus) | Essais de Denis (vrai Word, vrai PDF) ; ne pas relancer la « phase 1 » : elle est close depuis le 22/09 |
+| Nouveaux modèles et options de CV (formes de bandeau et de colonne, frise, 39 modèles) | `modules/cv-modeles-gardes/`, balayage des options le 01/11 : 0 anomalie | Quelques réglages au goût de Denis |
+| Outil de prospection privé (carnet, Repérage, Structures d'aide, vérification par un assistant) | Dossier voisin `PROSPECTION/` avec son propre dépôt Git ; B1 à B3, C3, contrôle des adresses par lots ; lancement pour les essais le 31/10 | Essais de Denis ; mise à jour de l'Introduction faite le 02/11 |
+| « Petites structures », marque « Via prospection », repères d'entreprises | Codés (commits d'octobre), blocs de recherche ouverte de l'outil de veille retirés le 20/10 | Essais et décisions de Denis |
+| Reformuler R6 (boutons dans la barre du bas) | Fait le 29/09 (`d795f400`), cahier `CHANTIER_RETOURS_TEST_REFORMULER_2026-09-29.md` section R6 | Essais réels (Word, versions courtes sur ChatGPT) |
+| Dette B.7 (ancien panneau Word Projet XXL) | Nettoyage fait les 29/09 et 01/11 (`d45c72fb`, `c57d619e`, `607252d3`, `f19ed887` : « traitées pour l'essentiel ») | Rien, sauf si Denis veut revoir un détail |
+| Vocabulaire sans le mot « IA » | Aucun texte visible de l'application ne contient « IA » (les seules occurrences restantes sont des commentaires dans le code) | Rien |
+| Barres d'étapes, lisibilité, inventaire des fenêtres | Faits les 30/10 et 31/10 (voir plus haut) | Rien |
+| Vidéo de présentation | Versée dans `video/` le 02/11, page avec sous-titres | Rien |
+| Mise à jour du fichier `entreprises-departements.md` | Relevé le 20/10/2026 (période du 01/11/2025 au 18/10/2026) | Prochaine mise à jour trimestrielle : janvier 2027 |
+
+### 5 bis.2 VRAIMENT PAS FAITS (aucune trace dans le code ni dans l'historique)
+
+- **Modernisation visuelle de la fenêtre ERIP partagée** : préparation seulement (`docs/CHANTIER_MODERNISATION_FENETRE_ERIP_2026-09-21.md`, environ 108 points d'appel). Maquette d'abord.
+- **Questionnaire « Retour sur votre expérience »** à retravailler avec Denis (signalé le 27/08) : aucun commit.
+- **Vidéo « activer la recherche web sur l'assistant »** : aucun commit (ne pas confondre avec la vidéo de présentation, faite).
+- **Refonte de « Mes documents »** : phases 1, 2, 3a, 3b faites (09/2026) ; à revérifier avec Denis ce qui reste réellement (Composeur, allègement de « Mon projet », panneaux perso CV) avant d'y toucher.
+- **Paquet B de « Comprendre le cadre »** : le fichier `docs/PAQUET_B_BLOQUE_A_DATER.md` liste encore des adresses à dater ; non revérifié ligne par ligne.
+- **Mots du K.3 du Lexique sans second niveau** : seulement si Denis valide une source (voir aussi B2 de ce plan).
+- **Relance régulière du contrôle des adresses** (outil de veille, rythme de 30 jours) : l'outil est codé, c'est une action de Denis ou de Claude à chaque échéance.
+
+### 5 bis.3 En attente d'une décision ou d'un essai de Denis (rien à coder avant)
+
+- « Vos appuis » et Reformuler version 2 : essai avec un vrai assistant des quatre consignes (CV, lettre, entretien, lettres UCPM) ; marquage « proposé, à vérifier » à contrôler à l'écran ; choix du « Retour » à trancher. Ne rien annoncer dans `data/nouveautes.js` avant.
+- Essais réels : Word, PDF, Comparer sur ChatGPT et Gemini, Regard recruteur, écran « Vérifiez les informations importées », rubrique « Mise à jour » de l'outil de veille.
 - Sas : 129 structures et 261 employeurs « Jamais vérifiées », 59 groupes de doublons et 168 lignes à contrôler, quelques points précis (Papillons Blancs, ESAT de Creysse, CDG24).
-- « Petites structures », marque « Via prospection », chiffres à jour du Lexique (relecture), repères d'entreprises : en attente de ses essais ou décisions. Tri de ses documents et photos : en attente de ses décisions.
+- Tri de ses documents et photos : décisions en attente.
 
-**Conception faite ou commencée, RIEN codé (reprendre avec Denis)** : « Découvrir mes compétences », « Écrire ma lettre avec l'assistant », « Mettre mon CV en page, sans rien changer » (relecture de Denis), refonte totale de la mise en page des CV en PDF (phase 1), outil de prospection (trois points), nouveaux modèles et options de CV, refonte de « Mes documents » (reste Composeur, allègement de « Mon projet », panneaux perso CV), Reformuler R6, dette B.7 (panneau Word Projet XXL), modernisation de la fenêtre ERIP, vocabulaire sans le mot « IA ».
+### 5 bis.4 Déjà faits et vérifiés (ne pas refaire)
 
-**Claude peut le faire seul quand Denis le décide** : mise à jour trimestrielle de `entreprises-departements.md` ; relance du contrôle des adresses ; 13 adresses à dater (paquet B de Comprendre le cadre) ; mots du K.3 sans second niveau, seulement si Denis valide une source ; questionnaire « Retour sur votre expérience » à retravailler avec lui ; vidéo « activer la recherche web ».
+Barres d'étapes (30/10) ; contrôle de lisibilité (31/10) ; inventaire illustré des fenêtres (31/10) ; lignes « Nouveautés » de l'Introduction et du Lexique ; pastilles cliquables « Vous êtes ici » de Qui fait quoi ; répartition des salaires en France ; Smic et inflation côte à côte ; message final du dossier Cloud (abandonné) ; écran « Vérifiez les informations importées » ; fenêtre commune « Collez la réponse » ; ouverture de Qui fait quoi et des employeurs.
 
-**Réserve honnête** : les points « faits » ci-dessus sont recoupés avec le code ou `git log`. Les chantiers d'essais et de conception sont repris du guide (`ETAT_DES_CHANTIERS.md`) sans avoir été rouverts un par un dans le code ; avant d'en commencer un, refaire le contrôle de son propre périmètre.
+### 5 bis.5 Réserve honnête
+
+Cette fois, chaque « fait » s'appuie sur une preuve (interrupteur d'ouverture, dossier de module, commit). Ce qui reste incertain : le détail des petits restes à l'intérieur des chantiers codés (par exemple les points F1, E6 ou E5 bis de la liste lettre du 24/10) n'a pas été revérifié un par un ; avant de les reprendre, contrôler le point précis dans le code.
 
 ---
 
