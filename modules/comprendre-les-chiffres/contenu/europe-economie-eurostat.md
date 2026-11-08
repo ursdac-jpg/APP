@@ -13,6 +13,19 @@ sources:
   - "eurostat-depenses-alimentation | Eurostat, Dépenses des ménages (prc_ppp_ind_1), 2025 : produits alimentaires et boissons sans alcool, part de la dépense de consommation des ménages | https://ec.europa.eu/eurostat/databrowser/view/prc_ppp_ind_1/default/table | 2026-11-06"
   - "eurostat-depenses-logement | Eurostat, Dépenses des ménages (prc_ppp_ind_1), 2025 : logement, eau, électricité, gaz et autres combustibles, part de la dépense de consommation des ménages | https://ec.europa.eu/eurostat/databrowser/view/prc_ppp_ind_1/default/table | 2026-11-06"
   - "eurostat-depenses-energie | Eurostat, Dépenses des ménages (nama_10_co3_p3), 2022 : électricité, gaz et autres combustibles, part de la dépense de consommation des ménages | https://ec.europa.eu/eurostat/databrowser/view/nama_10_co3_p3/default/table | 2026-11-06"
+periodes:
+  - "eurostat-croissance | 2025"
+  - "eurostat-revenu-menages | 2025"
+  - "eurostat-evolution-emploi | 2025"
+  - "eurostat-taux-emploi | 2025"
+  - "eurostat-evolution-salaire-minimum | S2 2025 > S2 2026"
+  - "eurostat-evolution-remuneration | 2024 > 2025"
+  - "eurostat-creations | 2024"
+  - "eurostat-cessations | 2024"
+  - "eurostat-faillites | T2 2025 > T2 2026"
+  - "eurostat-depenses-alimentation | 2025"
+  - "eurostat-depenses-logement | 2025"
+  - "eurostat-depenses-energie | 2022"
 ---
 
 # pays

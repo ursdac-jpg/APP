@@ -2,6 +2,8 @@
 verifie_le: 2026-11-06
 sources:
   - "insee-etablissements-2024 | Insee, base du comparateur de territoires, établissements actifs par secteur d'activité (Flores), au 31 décembre 2024 | https://www.insee.fr/fr/statistiques/2521169 | 2026-11-06"
+periodes:
+  - "insee-etablissements-2024 | 2024"
 ---
 
 # departements

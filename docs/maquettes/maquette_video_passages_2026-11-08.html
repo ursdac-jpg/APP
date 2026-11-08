@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la petite vidéo d'un passage à l'intérieur d'un module</title>
+<!--
+  Maquette (08/11/2026, consigne 178, suite). Les vidéos de présentation des modules gardent la vignette (habillage C, choisi par Denis).
+  Ici : les petits passages explicatifs À L'INTÉRIEUR d'un module (masquer un texte, coller la réponse, choisir un modèle, exporter en PDF ou en Word...). Pas de vignette : plus simple.
+  Deux états seulement : fermé (une ligne-bouton) et ouvert (le lecteur se déplie, un clic sur le même bouton referme). Aucune mémoire, aucune lecture automatique.
+  Quatre propositions (panneau « Régler la maquette » en bas, refermable) : 1 ligne à filet, 2 bouton contour, 3 bouton plein, 4 petite pastille. Règle du langage visuel : un vrai bouton (cadre, fond, coins arrondis), jamais du texte souligné.
+-->
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .zone-essai { max-width: 820px; margin: 0 auto; padding: 1rem 16px 8rem; }
+  .masque { display: none !important; }
+  .faux-bloc { border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+  .faux-texte { background: var(--bg-subtle); border: 1px dashed var(--border); border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.92rem; color: var(--text-muted); }
+
+  .vm { margin: 0.5rem 0 0.8rem; }
+  .vm-bouton { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font: inherit; text-align: left; color: var(--text-strong); transition: background 0.15s; }
+  .vm-icone { flex: 0 0 auto; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 6px; background: var(--accent); color: #fff; font-size: 0.7rem; padding-left: 0.08rem; }
+  .vm-texte { flex: 1 1 auto; line-height: 1.25; }
+  .vm-texte strong { font-size: 0.95rem; }
+  .vm-duree { flex: 0 0 auto; font-size: 0.82rem; font-weight: 600; color: var(--accent-texte, var(--accent)); white-space: nowrap; }
+  .vm-chevron { flex: 0 0 auto; transition: transform 0.2s; color: var(--accent-texte, var(--accent)); }
+  .vm.ouvert .vm-chevron { transform: rotate(180deg); }
+  .vm-lecteur { margin-top: 0.6rem; text-align: center; }
+  .vm-lecteur video { width: 100%; max-width: 560px; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; }
+  .vm-lecteur p { color: var(--text-muted); font-size: 0.82rem; margin: 0.35rem 0 0; }
+
+  /* 1 : ligne à filet, sur toute la largeur, fond teinté (comme les blocs dépliants) */
+  .v1 .vm-bouton { width: 100%; border: 1px solid var(--accent); border-left-width: 4px; border-radius: 10px; background: var(--accent-bg-subtle); padding: 0.45rem 0.8rem; }
+  .v1 .vm-bouton:hover { background: color-mix(in srgb, var(--accent) 14%, var(--bg-card)); }
+  /* 2 : bouton contour, de la largeur de son texte */
+  .v2 .vm-bouton { display: inline-flex; border: 2px solid var(--accent); border-radius: 12px; background: transparent; padding: 0.4rem 0.8rem; }
+  .v2 .vm-bouton:hover { background: var(--accent-bg-subtle); }
+  .v2 .vm-icone { background: transparent; color: var(--accent-texte, var(--accent)); border: 2px solid var(--accent); }
+  /* 3 : bouton plein */
+  .v3 .vm-bouton { display: inline-flex; border: 2px solid var(--accent-solide, var(--accent)); border-radius: 12px; background: var(--accent-solide, var(--accent)); color: #fff; padding: 0.4rem 0.9rem; }
+  .v3 .vm-bouton:hover { background: var(--accent-solide-hover, var(--accent-hover)); }
+  .v3 .vm-icone { background: #fff; color: var(--accent-solide, var(--accent)); }
+  .v3 .vm-duree, .v3 .vm-chevron { color: #fff; }
+  /* 4 : petite pastille discrète, une seule ligne courte */
+  .v4 .vm-bouton { display: inline-flex; gap: 0.45rem; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); padding: 0.25rem 0.8rem 0.25rem 0.35rem; }
+  .v4 .vm-bouton:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .v4 .vm-icone { width: 1.35rem; height: 1.35rem; border-radius: 50%; }
+  .v4 .vm-texte strong { font-weight: 600; font-size: 0.88rem; }
+
+  .reglage { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card, #fff); border-top: 2px solid var(--accent); padding: 0.6rem 16px; z-index: 50; }
+  .reglage-contenu { max-width: 820px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .reglage button.choix { border: 1px solid var(--border); background: transparent; color: inherit; border-radius: 8px; padding: 0.35rem 0.7rem; cursor: pointer; }
+  .reglage button.choix.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .reglage-croix { margin-left: auto; border: none; background: transparent; font-size: 1.2rem; cursor: pointer; color: inherit; }
+  .reglage-ouvrir { position: fixed; right: 12px; bottom: 12px; z-index: 50; border: 1px solid var(--border); background: var(--bg-card, #fff); border-radius: 8px; padding: 0.35rem 0.7rem; cursor: pointer; color: inherit; }
+  .note-maquette { font-size: 0.85rem; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 8px; padding: 0.5rem 0.8rem; margin: 1.2rem 0; }
+</style>
+</head>
+<body>
+<div class="zone-essai">
+  <div class="text-center">
+    <h1>Mon CV : vérifier avant d’envoyer</h1>
+    <p class="sousTitre">Un écran de travail, comme on en trouve dans un module.</p>
+  </div>
+
+  <div class="faux-bloc">
+    <strong>Masquer ce qui est personnel</strong>
+    <p class="mb-2" style="margin-top:.4rem;">Avant d’envoyer votre CV à l’assistant en ligne, effacez votre nom, votre adresse, votre numéro de téléphone.</p>
+    <div class="vm v1" data-src="../../videos/gestes/masquer-texte.mp4" data-libelle="Voir comment masquer" data-duree="30 s"></div>
+    <div class="faux-texte">Texte de votre CV, modifiable ici…</div>
+  </div>
+
+  <div class="faux-bloc">
+    <strong>Coller la réponse de l’assistant</strong>
+    <p class="mb-2" style="margin-top:.4rem;">Revenez ici avec la réponse copiée, puis collez-la dans la case.</p>
+    <div class="vm v1" data-src="../../videos/gestes/coller-reponse.mp4" data-libelle="Voir comment coller la réponse" data-duree="25 s"></div>
+    <div class="faux-texte">Case où coller la réponse…</div>
+  </div>
+
+  <div class="faux-bloc">
+    <strong>Enregistrer votre CV en PDF</strong>
+    <div class="vm v1" data-src="../../videos/gestes/cv-pdf.mp4" data-libelle="Voir comment l’enregistrer en PDF" data-duree="25 s"></div>
+  </div>
+
+  <div class="note-maquette">
+    <strong>Ce qui change par rapport aux vidéos de présentation des modules</strong> : pas de vignette, un bouton plus petit, d’une seule ligne, avec une phrase qui dit précisément ce qu’on va voir (« Voir comment masquer », « Voir comment coller la réponse »). Même geste : un clic déplie la vidéo sous le bouton, un clic referme ; rien ne démarre seul, rien n’est retenu.
+    Ces petites vidéos remplacent les anciennes (Anonym_txt, importer_IA, cv_pdf, cv_word…), qui ne seront plus utilisées.
+  </div>
+</div>
+
+<div class="reglage" id="reglage">
+  <div class="reglage-contenu">
+    <strong>Régler la maquette</strong>
+    <button type="button" class="choix" data-v="v1">1. Ligne à filet</button>
+    <button type="button" class="choix" data-v="v2">2. Bouton contour</button>
+    <button type="button" class="choix" data-v="v3">3. Bouton plein</button>
+    <button type="button" class="choix" data-v="v4">4. Petite pastille</button>
+    <button type="button" class="reglage-croix" id="fermerReglage" aria-label="Fermer ce panneau">&#10005;</button>
+  </div>
+</div>
+<button type="button" class="reglage-ouvrir masque" id="ouvrirReglage">Régler la maquette</button>
+
+<script>
+(function () {
+  var variante = 'v1';
+  var zones = Array.prototype.slice.call(document.querySelectorAll('.vm'));
+  function dessiner(zone) {
+    var ouvert = zone.classList.contains('ouvert');
+    zone.innerHTML = '<button type="button" class="vm-bouton" aria-expanded="' + ouvert + '">' +
+      '<span class="vm-icone" aria-hidden="true">&#9654;</span>' +
+      '<span class="vm-texte"><strong>' + (ouvert ? 'Fermer la vidéo' : zone.dataset.libelle) + '</strong></span>' +
+      (ouvert ? '' : '<span class="vm-duree">' + zone.dataset.duree + '</span>') +
+      '<span class="vm-chevron" aria-hidden="true">&#9662;</span></button>' +
+      (ouvert ? '<div class="vm-lecteur"><video controls preload="metadata" src="' + zone.dataset.src + '"></video><p>Les sous-titres sont dans l’image. Le son ne démarre jamais tout seul.</p></div>' : '');
+    zone.querySelector('.vm-bouton').addEventListener('click', function () { zone.classList.toggle('ouvert'); dessiner(zone); });
+  }
+  function appliquer() {
+    zones.forEach(function (z) { z.className = 'vm ' + variante + (z.classList.contains('ouvert') ? ' ouvert' : ''); dessiner(z); });
+    document.querySelectorAll('.reglage .choix').forEach(function (b) { b.classList.toggle('actif', b.dataset.v === variante); });
+  }
+  document.querySelectorAll('.reglage .choix').forEach(function (b) { b.addEventListener('click', function () { variante = b.dataset.v; appliquer(); }); });
+  document.getElementById('fermerReglage').addEventListener('click', function () { document.getElementById('reglage').classList.add('masque'); document.getElementById('ouvrirReglage').classList.remove('masque'); });
+  document.getElementById('ouvrirReglage').addEventListener('click', function () { document.getElementById('reglage').classList.remove('masque'); document.getElementById('ouvrirReglage').classList.add('masque'); });
+  appliquer();
+})();
+</script>
+</body>
+</html>

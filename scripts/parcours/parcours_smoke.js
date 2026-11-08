@@ -5200,7 +5200,18 @@
     document.body.click(); await attente(300);
     document.querySelector('[data-mep-compo="equerre"]').click(); await attente(2500);
     cas('compositions : l’équerre est posée (deux équerres), gardée dans les réglages, et le CV tient toujours sur une page', page().getAttribute('data-compo') === 'equerre' && page().querySelectorAll(':scope > .compo-z').length === 2 && dossier.pdfReglages && dossier.pdfReglages.composition === 'equerre' && page().scrollHeight <= 1126, String(page().getAttribute('data-compo')));
-    cas('compositions : tant qu’une composition est choisie, les onglets Bandeau et Colonne disparaissent (elle remplace le bandeau)', onglets().indexOf('bandeau') === -1 && onglets().indexOf('colonne') === -1 && onglets().indexOf('composition') !== -1, onglets().join(','));
+    cas('compositions : tant qu’une composition est choisie, les onglets Bandeau et Colonne restent visibles mais grisés (consigne 141), le panneau Composition reste proposé', [].every.call(document.querySelectorAll('[data-mep-onglet="bandeau"], [data-mep-onglet="colonne"]'), function (b) { return b.getAttribute('aria-disabled') === 'true' && b.classList.contains('mep-onglet-grise'); }) && onglets().indexOf('composition') !== -1, onglets().join(','));
+    var grisBc = document.querySelector('.mep-onglet-grise');
+    if (grisBc) {
+      grisBc.click(); await attente(500);
+      var bRetourBc = document.getElementById('btnMepRetourBandeauColonne');
+      cas('compositions : un clic sur un onglet grisé explique et propose le retour', !!bRetourBc && !!document.querySelector('.mep-avis-grise p'), bRetourBc ? bRetourBc.textContent : 'bouton absent');
+      if (bRetourBc) {
+        bRetourBc.click(); await attente(2500);
+        cas('compositions : le bouton de retour retire la composition et rend les onglets Bandeau et Colonne', !dossier.pdfReglages.composition && !document.querySelector('.mep-onglet-grise') && !document.querySelector('.mep-avis-grise'), String(dossier.pdfReglages && dossier.pdfReglages.composition));
+        await ouvrirPanneau(); document.querySelector('[data-mep-compo="equerre"]').click(); await attente(2500);
+      }
+    }
     // chaque composition : jamais de décor sur le texte du corps, une seule page, du texte lisible (blanc ou sombre selon le fond)
     var pb = [];
     for (var id of ['plaque', 'diagonale', 'l', 'volets', 'etiquette', 'ruban', 'quart', 'equerre']) {

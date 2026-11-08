@@ -1,5 +1,8 @@
 # PLAN PRIORITAIRE À LA REPRISE (Comprendre les chiffres, Lexique, boutons)
 
+> **PLAN PÉRIMÉ, VÉRIFIÉ LE 08/11/2026 contre `git log` et le registre des consignes : tout ce qui dépendait de Claude est FAIT depuis le 07/11/2026.** A13 terminé (consigne 143, commit `7ca39e23`), nom « Ma fiche de chiffres » (146), A4b (146), boutons Appeler et Écrire, dépliants retirés et sélecteur de Mes Repères (146), outil de veille et ses sept fichiers du portrait (146), Lexique B1 et B2 (149), boutons C1 à C8 (147). Les sections 1, 2 et 4 ci-dessous sont gardées pour mémoire : ne pas les lire comme une liste de travail. Restent seulement : les essais de Denis (section 3), le relevé Eurostat de mai 2027, puis accessibilité et découpage de `js/app.js`, en dernier.
+
+
 **Consigne de Denis (06/11/2026) : ce plan est LA PRIORITÉ. À la reprise du travail (quand Denis aura de nouveau du crédit d'usage), Claude le montre en premier et le fait finir avant tout autre chantier.** Tout le reste (autres chantiers de l'ordre du 28/10, accessibilité, découpage de `js/app.js`) vient après.
 
 Établi le 06/11/2026 à partir de `docs/CHANTIER_CHIFFRES_LEXIQUE_BOUTONS_2026-11-06.md`, de `docs/CONSIGNES_DE_DENIS_A_SUIVRE.md` et des commits (dernier au moment de la rédaction : `0c6d28c8`). Ce plan ne remplace pas le cahier du chantier : il en est la photo lisible, détaillée et classée, pour reprendre sans rien relire d'autre. À la reprise, vérifier d'abord `git log` et `git status` (deux comptes Claude, jamais en même temps).
@@ -64,7 +67,7 @@ Texte pris dans la « Synthèse courte » de `2026-06.md` : « En Dordogne, le c
 5. **[Denis + Claude]** Réécrire ensemble les phrases signalées, la première fois sur un vrai relevé.
 6. **[Claude]** Cocher A13 au cahier, ligne au journal, test vert, commit.
 
-Tant que Denis n'a pas répondu à l'étape 1, rien n'est codé.
+**DÉCISION DE DENIS le 07/11/2026 : les trois options, dans l'ordre 1, 3, 2 (consigne 143).** Option 3 faite le 07/11 (moteur, appuis de `2026-06.md`, du portrait et de l'Union européenne, écran « Textes écrits à la main » dans l'outil de veille ; reste l'option 2). Option 1, première moitié faite : garde des paragraphes « Lecture du territoire » de `2026-06.md` (`outils/veilleGardeTextes.js`). Constat de l'audit : dans `2026-06.md`, tous les chiffres des paragraphes retrouvent leur ligne de donnée ; dans `portrait-2026.md` (28 nombres sur 107) et `ue-2026.md` (22 sur 41), certains chiffres ne sont dans aucun autre fichier : ces fichiers contiennent leurs propres données, donc une garde « texte contre données » ne s'y applique pas, c'est le travail de l'option 3. Après A13 : consigne 144 (une seule façon d'afficher la taille du texte dans toute l'application ?).
 
 ---
 
@@ -95,7 +98,7 @@ Tant que Denis n'a pas répondu à l'étape 1, rien n'est codé.
 - Ajouter la ligne « Nouveautés » (`data/nouveautes.js`) quand tout le chantier Chiffres est terminé et vérifié.
 
 **`[effort : moyen]`**
-- **B1** : trois fiches du Lexique (« Niveau de vie », « Médiane », « Pouvoir d'achat ») sur le modèle de la fiche `inflation` ; `node scripts/checkLexique.js` à 0 erreur et 0 avertissement ; brancher les boutons « Lire dans le Lexique » des cartes (`data-comprendre-les-chiffres-fiche-lexique`).
+- **B1 FAIT le 07/11/2026** (boutons ajoutés dans les dépliants d'aide ; les dépliants eux-mêmes restent, leur retrait attend la réponse de Denis, partie D) : trois fiches du Lexique (« Niveau de vie », « Médiane », « Pouvoir d'achat ») sur le modèle de la fiche `inflation` ; `node scripts/checkLexique.js` à 0 erreur et 0 avertissement ; brancher les boutons « Lire dans le Lexique » des cartes (`data-comprendre-les-chiffres-fiche-lexique`).
 - A9, suite possible : doublons « chiffres d'origine + lignes » dans les cartes du chômage ; dépliants « Comment lire ce chiffre ? » remplacés par un bouton à côté de la source.
 - A12, suites possibles : cartes courtes de l'Union européenne en deux colonnes, marges entre cartes.
 - Relancer `scripts/releveEuropeEconomieEurostat.py` tous les six mois (prochain : mai 2027).
@@ -138,7 +141,23 @@ Correction : la première version de cette section reprenait des mentions périm
 | Vidéo de présentation | Versée dans `video/` le 02/11, page avec sous-titres | Rien |
 | Mise à jour du fichier `entreprises-departements.md` | Relevé le 20/10/2026 (période du 01/11/2025 au 18/10/2026) | Prochaine mise à jour trimestrielle : janvier 2027 |
 
-### 5 bis.2 VRAIMENT PAS FAITS (aucune trace dans le code ni dans l'historique)
+### 5 bis.2 CORRECTION DU 07/11/2026 (à la demande de Denis : « tout ça a été fait en grande partie ou abandonné »)
+
+Cette liste était en grande partie fausse. Chaque ligne a été recontrôlée le 07/11/2026 dans le code et l'historique :
+
+| Ligne d'origine | Réalité vérifiée | Statut |
+|---|---|---|
+| Modernisation visuelle de la fenêtre ERIP partagée | Les appels à `ouvrirFenetreERIP(` sont passés d'environ 108 à 63 (migration en pages, consigne « minimiser les fenêtres ») ; le cahier du 21/09 n'a jamais été repris | **Presque sans objet ; à classer abandonné sauf décision contraire de Denis** |
+| Questionnaire « Retour sur votre expérience » | Remplacé par le bouton « Partager une information » (commit `5f3297cb`), avec fenêtre et aides | **Fait (par remplacement)** |
+| Vidéo « activer la recherche web sur l'assistant » | Jamais tournée (aucune entrée dans `DEMOS_VIDEO_ERIP`) ; l'emplacement dans Comparer reste invisible tant qu'il n'y a pas de fichier | **Vraiment non fait, optionnel ; à abandonner ou à décider** |
+| Refonte « Mes documents » : Composeur, allègement de « Mon projet », panneaux perso CV | Composeur retravaillé en octobre (stratégies, plafond de 11 laissé tel quel), « Mon projet » refondu (points 5 et 6), panneaux perso et formations (chantier du 02/10, phases F1 à F5), audit de stabilisation du 12/09 | **Fait par d'autres chantiers** |
+| Paquet B de « Comprendre le cadre » (13 adresses à dater) | `docs/PAQUET_B_BLOQUE_A_DATER.md` : « Paquet B : TERMINÉ (2026-09-06) », 89 sources datées, 4 mortes supprimées | **Clos le 06/09 ; la mention « 13 adresses » était périmée** |
+| Mots du K.3 du Lexique sans second niveau | B2 : 12 seconds niveaux écrits le 07/11/2026 | **Fait** |
+| Relance régulière du contrôle des adresses | Outil codé ; action récurrente, pas un chantier | **Récurrent, rien à faire maintenant** |
+
+Reste réellement ouvert hors plan : les essais de Denis (section 5 bis.3), la vidéo optionnelle ci-dessus, et le chantier « courriers » (analyse dans `docs/ANALYSE_COURRIERS_POUR_CONTRE_2026-11-07.md`).
+
+### 5 bis.2 (ancienne version, FAUSSE, gardée pour mémoire) VRAIMENT PAS FAITS (aucune trace dans le code ni dans l'historique)
 
 - **Modernisation visuelle de la fenêtre ERIP partagée** : préparation seulement (`docs/CHANTIER_MODERNISATION_FENETRE_ERIP_2026-09-21.md`, environ 108 points d'appel). Maquette d'abord.
 - **Questionnaire « Retour sur votre expérience »** à retravailler avec Denis (signalé le 27/08) : aucun commit.

@@ -308,15 +308,16 @@
   margin: 0 0 1rem; max-width: 62ch;
 }
 
-/* "En savoir plus" : declencheur texte discret + contenu legerement teinte */
+/* "En savoir plus" : bouton à cadre (consigne 125, C5, 07/11/2026 : plus de bouton sans cadre) + contenu legerement teinte */
 [id^="lexique"] .lexique-fiche-plus-zone { margin: 0.2rem 0 0; }
 [id^="lexique"] .lexique-fiche-plus { margin-bottom: 0.4rem; }
 [id^="lexique"] .lexique-fiche-plus-toggle {
   appearance: none; -webkit-appearance: none; font-family: inherit;
-  display: inline-flex; align-items: center; gap: 0.35rem;
+  display: inline-flex; align-items: center; gap: 0.35rem; min-height: 2.25rem;
   font-size: 0.92rem; font-weight: 600; color: var(--accent);
-  background: transparent; border: none; padding: 0.2rem 0; cursor: pointer;
+  background: var(--bg-card, transparent); border: 1.5px solid var(--accent); border-radius: 0.375rem; padding: 0.2rem 0.85rem; cursor: pointer; text-align: left;
 }
+[id^="lexique"] .lexique-fiche-plus-toggle:hover, [id^="lexique"] .lexique-fiche-plus-toggle:focus-visible { background: var(--accent-bg-subtle); }
 [id^="lexique"] .lexique-fiche-plus-toggle .bi { font-size: 0.85rem; transition: transform 0.15s ease; }
 [id^="lexique"] .lexique-fiche-plus-toggle[aria-expanded="true"] .bi { transform: none; }
 [id^="lexique"] .lexique-fiche-plus-corps {
@@ -411,3 +412,58 @@
 [id^="lexique"] .lexique-fiche-chiffres-pied { color: var(--text-muted); font-size: 0.95rem; }
 [id^="lexique"] .lexique-fiche-chiffres-message { border-left: 1px dashed var(--border-strong); border: 1px dashed var(--border-strong); }
 [id^="lexique"] .lexique-fiche-chiffres .btn { min-height: 44px; display: inline-flex; align-items: center; gap: 0.4rem; text-align: left; }
+
+/* ============================================================
+   Chapitres d'une fiche en boutons de couleur (consigne 126, option B validée le 07/11/2026).
+   Cinq familles de couleur + un gris neutre pour les registres de langage (cadre en pointillés). Le nom reste toujours écrit :
+   la couleur n'est jamais le seul signal. Valeurs claires, sombres, et mode daltonien (palette Okabe-Ito, comme les familles de boutons de style.css).
+   Correspondance chapitre -> famille : _LEXIQUE_FAMILLE_UNIVERS (modules/lexique/index.js).
+   ============================================================ */
+:root {
+  --chap-1: #1d4ed8; --chap-1-fond: #eff6ff;   /* emploi */
+  --chap-2: #0e7490; --chap-2-fond: #ecfeff;   /* travail et droit */
+  --chap-3: #166534; --chap-3-fond: #f0fdf4;   /* argent et protection */
+  --chap-4: #b45309; --chap-4-fond: #fffbeb;   /* accompagnement et démarches */
+  --chap-5: #9d174d; --chap-5-fond: #fdf2f8;   /* santé, freins et urgences */
+  --chap-7: #475569; --chap-7-fond: #f1f5f9;   /* registres de langage (neutre) */
+}
+[data-theme="sombre"] {
+  --chap-1: #93c5fd; --chap-1-fond: #1e2a4a;
+  --chap-2: #67e8f9; --chap-2-fond: #083344;
+  --chap-3: #86efac; --chap-3-fond: #0f2e1b;
+  --chap-4: #fcd34d; --chap-4-fond: #3a2a08;
+  --chap-5: #f9a8d4; --chap-5-fond: #3b1226;
+  --chap-7: #cbd5e1; --chap-7-fond: #26303b;
+}
+[data-daltonien="1"] {
+  --chap-1: #0072b2; --chap-1-fond: #e6f0f7;
+  --chap-2: #00785a; --chap-2-fond: #e3f3ee;
+  --chap-3: #8a7f0a; --chap-3-fond: #fdfce6;
+  --chap-4: #a8527f; --chap-4-fond: #fbeef5;
+  --chap-5: #b34700; --chap-5-fond: #fdf0e6;
+  --chap-7: #475569; --chap-7-fond: #f1f5f9;
+}
+[data-theme="sombre"][data-daltonien="1"] {
+  --chap-1: #7fc8f0; --chap-1-fond: #0d2a3d;
+  --chap-2: #5fd6b0; --chap-2-fond: #0c2e25;
+  --chap-3: #f0e442; --chap-3-fond: #3d3608;
+  --chap-4: #e4a9c9; --chap-4-fond: #3d1f2e;
+  --chap-5: #ffb27a; --chap-5-fond: #3d2008;
+  --chap-7: #cbd5e1; --chap-7-fond: #26303b;
+}
+.chapitre-lexique {
+  --chap: var(--chap-4); --chap-fond: var(--chap-4-fond);
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  display: inline-flex; align-items: center; min-height: 2.1rem;
+  margin: 0 0.4rem 0.4rem 0; padding: 0.15rem 0.75rem;
+  border: 1.5px solid var(--chap); border-radius: 0.375rem;
+  background: var(--chap-fond); color: var(--chap);
+  font-size: 0.88rem; font-weight: 600; line-height: 1.3; text-decoration: none; text-align: left; cursor: pointer;
+}
+.chapitre-lexique:hover, .chapitre-lexique:focus-visible { background: var(--chap); color: var(--bg-card, #fff); }
+.chapitre-lexique-1 { --chap: var(--chap-1); --chap-fond: var(--chap-1-fond); }
+.chapitre-lexique-2 { --chap: var(--chap-2); --chap-fond: var(--chap-2-fond); }
+.chapitre-lexique-3 { --chap: var(--chap-3); --chap-fond: var(--chap-3-fond); }
+.chapitre-lexique-4 { --chap: var(--chap-4); --chap-fond: var(--chap-4-fond); }
+.chapitre-lexique-5 { --chap: var(--chap-5); --chap-fond: var(--chap-5-fond); }
+.chapitre-lexique-registre { --chap: var(--chap-7); --chap-fond: var(--chap-7-fond); border-style: dashed; }

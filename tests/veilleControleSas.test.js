@@ -290,11 +290,167 @@ test('test du mois : les trois registres l\'un après l\'autre, un bilan par reg
     assert.deepStrictEqual(b.registres[0].problemes.map((p) => [p.id, p.motif]), [['l-disparu', 'introuvable']]);
     assert.strictEqual(b.registres[0].motifs.introuvable, 1);
     assert.strictEqual(b.derniere.slice(0, 10), '2026-10-31'); assert.strictEqual(b.jours, 0); assert.strictEqual(b.aFaire, false);
+    // la liste « à corriger » suit les fiches : tant que l'adresse est celle du test, la ligne reste à corriger
+    assert.strictEqual(b.registres[0].problemes[0].etat, 'a-corriger');
+    // l'adresse de la fiche est corrigée après le test : la ligne le dit, avec la nouvelle adresse
+    tables.lieux[1].valeurs.site = 'https://nouveau.test/';
+    let p = c.bilanMensuel().registres[0].problemes;
+    assert.deepStrictEqual(p.map((x) => [x.id, x.etat, x.urlActuelle]), [['l-disparu', 'corrigee', 'https://nouveau.test/']]);
+    assert.strictEqual(p[0].url, 'https://disparu.test/', 'l\'ancienne adresse testée reste visible');
+    // l'adresse est retirée de la fiche : toujours « corrigée », sans nouvelle adresse
+    tables.lieux[1].valeurs.site = '';
+    p = c.bilanMensuel().registres[0].problemes;
+    assert.deepStrictEqual(p.map((x) => [x.etat, x.urlActuelle]), [['corrigee', '']]);
+    // la fiche est supprimée du registre : « supprimée », avec son nom gardé au moment du test
+    const fiche2 = tables.lieux.pop();
+    p = c.bilanMensuel().registres[0].problemes;
+    assert.deepStrictEqual(p.map((x) => [x.id, x.nom, x.etat]), [['l-disparu', 'Disparu', 'supprimee']]);
+    tables.lieux.push(fiche2); fiche2.valeurs.site = 'https://disparu.test/';
     // un mois plus tard, le rappel revient
     maintenant = '2026-12-01T09:00:00';
     b = c.bilanMensuel(); assert.strictEqual(b.jours, 31); assert.strictEqual(b.aFaire, true);
     // une carte ajoutée depuis le dernier test n'a pas de résultat : le registre n'est pas « à jour »
     tables.lieux.push(fiche('l-neuf', 'Neuf', 'site', 'https://bon.test/'));
     assert.strictEqual(c.bilanMensuel().registres[0].derniere, ''); assert.strictEqual(c.bilanMensuel().derniere, '');
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});
+
+test('test du mois : une redirection gardée telle quelle ne revient plus, sauf si une des deux adresses change', async () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'ctl-garde-'));
+  try {
+    let arrivee = 'https://nouveau.test/accueil';
+    const f = function (url) {
+      if (String(url) === 'https://vieux.test/') { return Promise.resolve(new Response('', { status: 301, headers: { location: arrivee } })); }
+      return Promise.resolve(page('<title>Vieux</title><p>Bergerac</p>'));
+    };
+    const tables = { lieux: [{ id: 'l-vieux', nom: 'Vieux', valeurs: { nom: 'Vieux', site: 'https://vieux.test/', telephone: '' }, etabs: [] }], employeurs: [], offres: [] };
+    const depot = { listerTerritoire: (n) => ({ ok: true, lignes: tables[n] }) };
+    const c = creerControleSas(dossier, depot, { fetch: f, resoudre: PUBLIC, maintenant: () => '2026-11-08T09:00:00' });
+    assert.strictEqual(c.demarrerMensuel().ok, true); await c.attendre();
+    let p = c.bilanMensuel().registres[0].problemes;
+    assert.deepStrictEqual(p.map((x) => [x.motif, x.etat]), [['ailleurs', 'a-corriger']]);
+    assert.strictEqual(c.garderTelleQuelle({ fichier: 'lieux', id: 'l-vieux' }).ok, true);
+    let b = c.bilanMensuel(); assert.strictEqual(b.registres[0].problemes[0].etat, 'gardee'); assert.strictEqual(b.registres[0].gardees, 1); assert.strictEqual(b.registres[0].problemes[0].gardeeLe, '2026-11-08');
+    // le site arrive ailleurs au test suivant : la ligne revient
+    arrivee = 'https://autre.test/'; assert.strictEqual(c.demarrerMensuel().ok, true); await c.attendre();
+    assert.strictEqual(c.bilanMensuel().registres[0].problemes[0].etat, 'a-corriger');
+    assert.strictEqual(c.garderTelleQuelle({ fichier: 'lieux', id: 'l-vieux' }).ok, true);
+    assert.strictEqual(c.nePlusGarderTelleQuelle({ fichier: 'lieux', id: 'l-vieux' }).ok, true);
+    assert.strictEqual(c.bilanMensuel().registres[0].problemes[0].etat, 'a-corriger');
+    // « Prendre la nouvelle adresse » : l'adresse d'arrivée vient du test, jamais de la fenêtre ; refusée si la fiche a changé depuis
+    const n = c.nouvelleAdresse({ fichier: 'lieux', id: 'l-vieux' });
+    assert.deepStrictEqual([n.ok, n.champ, n.adresse, n.ancienne], [true, 'site', 'https://autre.test/', 'https://vieux.test/']);
+    tables.lieux[0].valeurs.site = 'https://deja-change.test/';
+    assert.strictEqual(c.nouvelleAdresse({ fichier: 'lieux', id: 'l-vieux' }).ok, false);
+    tables.lieux[0].valeurs.site = 'https://vieux.test/';
+    assert.strictEqual(c.nouvelleAdresse({ fichier: 'lieux', id: '../x' }).ok, false);
+    assert.strictEqual(c.garderTelleQuelle({ fichier: 'lieux', id: '../x' }).ok, false);
+    assert.strictEqual(c.garderTelleQuelle({ fichier: 'autre', id: 'l-vieux' }).ok, false);
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});
+
+test('test du mois : un numéro vérifié à la main n\u2019est plus signalé non retrouvé, tant que le numéro de la fiche ne change pas', async () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'ctl-num-'));
+  try {
+    const f = function () { return Promise.resolve(page('<title>Bon lieu</title><p>Bergerac, accueil</p>')); };
+    const tables = { lieux: [{ id: 'l-bon', nom: 'Bon lieu', valeurs: { nom: 'Bon lieu', commune: 'Bergerac', site: 'https://bon.test/', telephone: '05 53 00 11 22' }, etabs: [] }], employeurs: [], offres: [] };
+    const depot = { listerTerritoire: (n) => ({ ok: true, lignes: tables[n] }) };
+    const c = creerControleSas(dossier, depot, { fetch: f, resoudre: PUBLIC, maintenant: () => '2026-11-08T09:00:00' });
+    assert.strictEqual(c.demarrerMensuel().ok, true); await c.attendre();
+    let b = c.bilanMensuel().registres[0]; assert.deepStrictEqual([b.complet || 0, b.partiel || 0], [0, 1]);
+    // sans la case cochée, rien ne change
+    assert.strictEqual(c.etat({ genre: 'registre', fichier: 'lieux' }).resultats['l-bon'].numeros[0].trouve, false);
+    assert.strictEqual(c.numeroVerifie({ fichier: 'lieux', id: 'l-bon', numero: '05 53 00 11 22' }).ok, true);
+    b = c.bilanMensuel().registres[0]; assert.deepStrictEqual([b.complet || 0, b.partiel || 0], [1, 0]);
+    const x = c.etat({ genre: 'registre', fichier: 'lieux' }).resultats['l-bon'];
+    assert.deepStrictEqual([x.verdict, x.motif, x.numeros[0].trouve, x.numeros[0].verifieMain], ['complet', '', true, '2026-11-08']);
+    // le numéro de la fiche change : la mention tombe d'elle-même
+    tables.lieux[0].valeurs.telephone = '05 53 99 99 99';
+    b = c.bilanMensuel().registres[0]; assert.deepStrictEqual([b.complet || 0, b.partiel || 0], [0, 1]);
+    // le numéro corrigé dans la fenêtre avant l'enregistrement est reconnu aussi, sans toucher aux autres refus
+    assert.strictEqual(c.numeroVerifie({ fichier: 'lieux', id: 'l-bon', numero: '05 53 77 77 77' }).ok, true);
+    assert.strictEqual(c.numeroVerifie({ fichier: 'lieux', id: '../x', numero: '05 53 77 77 77' }).ok, false);
+    assert.strictEqual(c.numeroVerifie({ fichier: 'offres', id: 'l-bon', numero: '05 53 77 77 77' }).ok, false);
+    assert.strictEqual(c.numeroVerifie({ fichier: 'lieux', id: 'l-bon', numero: '' }).ok, true);
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});
+
+test('registre des employeurs : le numéro de chaque magasin écrit dans le fichier arrive dans la liste de l\u2019outil (il en manquait, les numéros par magasin n\u2019étaient alors jamais contrôlés)', () => {
+  const { creerDepot } = require('../outils/veilleDepot.js');
+  const L = require('../modules/mon-territoire/logique.js');
+  const liste = creerDepot(path.resolve(__dirname, '..')).listerTerritoire('employeurs');
+  assert.strictEqual(liste.ok, true);
+  let avecNumero = 0;
+  liste.lignes.forEach((l) => {
+    const attendus = L.mtParserEtablissements(l.valeurs.etablissements).map((e) => e.telephone);
+    if (!attendus.some(Boolean)) { return; }
+    avecNumero++;
+    assert.deepStrictEqual((l.etabs || []).map((e) => e.telephone), attendus, l.id);
+  });
+  assert.ok(avecNumero > 0);
+});
+
+test('test du mois : une fiche mise de côté quitte les adresses à corriger et va dans son groupe, avec ce que le dernier test du site en dit', async () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'ctl-cote-'));
+  try {
+    let vivant = false;
+    const f = function (url) {
+      if (String(url) === 'https://ferme.test/' && !vivant) { return Promise.resolve(new Response('', { status: 404 })); }
+      return Promise.resolve(page('<title>Ferme</title><p>Bergerac</p>'));
+    };
+    const attente = { motif: 'autre', libelle: 'autre raison', constat: '2026-11-01', avis: '2026-11-01', jours: 7, arevoir: false };
+    const tables = { lieux: [
+      { id: 'l-ferme', nom: 'Ferme', valeurs: { nom: 'Ferme', site: 'https://ferme.test/', telephone: '' }, etabs: [], attente: attente },
+      { id: 'l-mort', nom: 'Mort', valeurs: { nom: 'Mort', site: 'https://mort.test/', telephone: '' }, etabs: [] }], employeurs: [], offres: [] };
+    const mortF = function (url) { return String(url).indexOf('mort.test') !== -1 ? Promise.resolve(new Response('', { status: 404 })) : f(url); };
+    const depot = { listerTerritoire: (n) => ({ ok: true, lignes: tables[n] }) };
+    const c = creerControleSas(dossier, depot, { fetch: mortF, resoudre: PUBLIC, maintenant: () => '2026-11-08T09:00:00' });
+    assert.strictEqual(c.demarrerMensuel().ok, true); await c.attendre();
+    let b = c.bilanMensuel().registres[0];
+    // la fiche de côté n'est plus « à corriger » ; l'autre l'est toujours
+    assert.deepStrictEqual(b.problemes.map((x) => x.id), ['l-mort']);
+    assert.deepStrictEqual(b.misesDeCote.map((x) => [x.id, x.test, x.jours, x.urlActuelle, x.adresseChangee]), [['l-ferme', 'ferme', 7, 'https://ferme.test/', false]]);
+    assert.strictEqual(b.deCoteAProbleme, 1);
+    // le site revient en ligne : le test suivant le dit
+    vivant = true; assert.strictEqual(c.demarrerMensuel().ok, true); await c.attendre();
+    b = c.bilanMensuel().registres[0];
+    assert.strictEqual(b.misesDeCote[0].test, 'revenu'); assert.strictEqual(b.deCoteAProbleme, 0);
+    // l'adresse de la fiche change : le bilan le signale (le test sera à refaire)
+    tables.lieux[0].valeurs.site = 'https://autre.test/';
+    assert.strictEqual(c.bilanMensuel().registres[0].misesDeCote[0].adresseChangee, true);
+    // une fiche mise de côté jamais testée : « pas encore testée »
+    tables.lieux.push({ id: 'l-neuve', nom: 'Neuve', valeurs: { nom: 'Neuve', site: 'https://neuve.test/', telephone: '' }, etabs: [], attente: attente });
+    assert.strictEqual(c.bilanMensuel().registres[0].misesDeCote.filter((x) => x.id === 'l-neuve')[0].test, 'pas-teste');
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});
+
+test('retest réduit : seules les fiches mises de côté sont revérifiées, le reste du test ne bouge pas', async () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'ctl-cote2-'));
+  try {
+    let vivant = false;
+    const f = function (url) {
+      if (String(url) === 'https://ferme.test/' && !vivant) { return Promise.resolve(new Response('', { status: 404 })); }
+      if (String(url).indexOf('mort.test') !== -1) { return Promise.resolve(new Response('', { status: 404 })); }
+      return Promise.resolve(page('<title>Page</title><p>Bergerac</p>'));
+    };
+    const attente = { motif: 'autre', libelle: 'autre raison', constat: '2026-11-01', avis: '2026-11-01', jours: 7, arevoir: false };
+    const tables = {
+      lieux: [
+        { id: 'l-ferme', nom: 'Ferme', valeurs: { nom: 'Ferme', site: 'https://ferme.test/', telephone: '' }, etabs: [], attente: attente },
+        { id: 'l-mort', nom: 'Mort', valeurs: { nom: 'Mort', site: 'https://mort.test/', telephone: '' }, etabs: [] }],
+      employeurs: [{ id: 'e-ferme', nom: 'Emp', valeurs: { nom: 'Emp', site: 'https://ferme.test/', telephone: '' }, etabs: [], attente: attente }], offres: [] };
+    const depot = { listerTerritoire: (n) => ({ ok: true, lignes: tables[n] }) };
+    const c = creerControleSas(dossier, depot, { fetch: f, resoudre: PUBLIC, maintenant: () => '2026-11-08T09:00:00' });
+    assert.strictEqual(c.demarrerMisesDeCote().fiches, 2); await c.attendre();
+    // la fiche rouge non mise de côté n'a pas été touchée (pas de résultat), les deux fiches de côté ont été testées
+    let b = c.bilanMensuel().registres;
+    assert.deepStrictEqual(b[0].problemes, []); assert.strictEqual(b[0].misesDeCote[0].test, 'ferme'); assert.strictEqual(b[1].misesDeCote[0].test, 'ferme');
+    assert.strictEqual(c.bilanMensuel().derniere, '');   // pas un test complet
+    vivant = true; assert.strictEqual(c.demarrerMisesDeCote().ok, true); await c.attendre();
+    b = c.bilanMensuel().registres;
+    assert.strictEqual(b[0].misesDeCote[0].test, 'revenu'); assert.strictEqual(b[1].misesDeCote[0].test, 'revenu');
+    // aucune fiche de côté : rien à faire, dit clairement
+    tables.lieux[0].attente = undefined; tables.employeurs[0].attente = undefined;
+    assert.strictEqual(c.demarrerMisesDeCote().ok, false);
   } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
 });

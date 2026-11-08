@@ -69,16 +69,6 @@
   color: var(--text-muted);
   line-height: 1.3;
 }
-.reperes-picker-annuler {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin-top: 10px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-}
 .reperes-confirmation {
   display: none;
   margin-top: 10px;

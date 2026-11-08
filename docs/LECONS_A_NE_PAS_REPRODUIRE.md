@@ -1222,3 +1222,121 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 ## 9.118 Un compteur affiché à un endroit doit se remettre à jour partout où il apparaît (outil de veille, 2026-11-06)
 
 **Symptôme** : le bouton « À valider » du guide « À faire maintenant » annonçait « 3 changements à valider » alors que le sas était vide ; en l'ouvrant, Denis ne voyait rien et croyait que la mise à jour ne se faisait pas. **Cause** : le compteur du guide n'était calculé qu'à l'ouverture du guide ; la fermeture de l'écran des changements remettait à jour deux autres compteurs, pas celui-là. L'écran gardait aussi un ancien filtre d'une visite précédente. **Règle** : tout nombre affiché à plusieurs endroits est mis à jour par UNE seule fonction (`majRendreBadge`), appelée après chaque action qui le change ; un écran qui s'ouvre depuis un compteur repart de « Tout » et, si un filtre cache des éléments, le dit avec un bouton « Tout afficher ». Même passage : « Lire la réponse » remplit toutes les cases lisibles d'un coup, et les dates à la française sont rangées en AAAA-MM-JJ sans que la personne ait à les inverser.
+
+## 9.119 Un résultat de test gardé en mémoire doit être comparé à l'état actuel avant d'être affiché (outil de veille, 2026-11-06)
+
+**Symptôme** : dans « Le test des adresses du mois », une structure dont Denis avait déjà corrigé l'adresse restait listée « à corriger », et elle ne disait rien de la correction ni d'une suppression. **Cause** : la liste affichait seulement le résultat du dernier test, une photo figée, sans la comparer à la fiche telle qu'elle est maintenant. **Règle** : toute liste construite à partir d'un ancien résultat se compare à la fiche actuelle à chaque affichage et le dit sur la ligne : « Adresse corrigée » (l'adresse de la fiche n'est plus celle du test), « Fiche supprimée » (elle n'existe plus), sinon « à corriger » ; seules ces dernières comptent dans le total. Le nom de la fiche est gardé avec le résultat du test pour pouvoir nommer une fiche supprimée.
+
+## 9.120 Un relevé par fenêtre de lignes peut conclure « absent » à tort (outil de veille, 2026-11-06)
+
+**Symptôme** : la grille de cohérence disait que le contrôle d'un rayon n'avait pas le bloc « sites non ouverts », et le proposait comme correction ; le bloc existait déjà. **Cause** : le relevé automatique ne lisait que les 140 premières lignes de chaque fonction, et ce prompt est plus long. **Règle** : pour dire qu'un élément manque dans un prompt, le chercher dans le texte réellement construit par la page (ou toute la fonction), jamais dans un extrait du code ; et avant de proposer une correction à Denis, la vérifier dans le résultat.
+
+**Même séance, deux autres pièges** : (1) les accents graves dans une commande `node -e "..."` de bash lancent une substitution de commande et font disparaître le texte entre eux : écrire plutôt un fichier de script ; (2) l'outil acceptait des adresses `http://` que l'application ignorait sans le dire : toute règle de validation de l'outil doit être la même que celle de l'application qui lira le fichier.
+
+## 9.121 Ne jamais demander à la personne de ressaisir une donnée que le système possède déjà (outil de veille, 2026-11-07)
+
+- **Symptôme** : dans « À valider », un message orange « Source absente du registre des adresses » restait affiché alors que les sources étaient déjà saisies avec leur adresse.
+- **Cause** : le contrôle exigeait que chaque source soit déjà au registre, sans regarder que la collecte ou l'assistant en avait donné l'adresse https ; la personne devait donc tout recopier à la main.
+- **Règle** : quand une donnée est connue (collecte, bloc [SOURCES] de l'assistant), la préremplir et l'enregistrer automatiquement avec la fiche ; la personne vérifie, elle ne saisit pas. Ne bloquer que ce qui manque vraiment (source sans adresse, adresse en http). Voir consigne 136.
+
+## 9.122 Une règle de publication doit être connue de l'écran qui prépare la publication (outil de veille, 2026-11-07)
+
+- **Symptôme** : les 5 fiches ASS et AAH, validées à l'écran sans aucun message d'alerte, ont été refusées à « Enregistrer » par un contrôle automatique : toute fiche qui cite des chiffres doit avoir sa « phrase générale » (consigne 95). Le refus a aussi laissé l'index de la recherche (`data/indexFichesCadre.js`) modifié : la liste des fichiers remis en état en cas d'échec ne le contenait pas.
+- **Cause** : l'écran « À valider » et les messages de rédaction ne connaissaient pas ce champ ; la règle n'existait que dans les tests, donc elle ne se révélait qu'à la toute fin. Et `genererBaseVeille.js` réécrit quatre fichiers, la liste de sauvegarde n'en couvrait que deux.
+- **Règle** : quand un test global impose une règle sur le contenu publié, la même règle doit être (1) demandée dans les messages de rédaction, (2) contrôlée à l'écran avant « C'est bon », avec un champ pour la corriger, (3) répétée dans la liste des fichiers sauvegardés si un script les réécrit. Avant de dire à Denis « tout est prêt », répéter la publication complète dans une copie du dépôt (cloner sans conversion de fins de ligne). Voir consigne 140.
+
+## 9.123 Jamais d'accents graves (backticks) dans une commande Bash entre guillemets (2026-11-07)
+- **Symptôme** : une commande `node -e "..."` qui écrivait des notes contenant des noms de fichiers entre accents graves a été exécutée par le shell : chaque nom de fichier a été lancé comme une commande (erreurs « command not found », « syntax error »), puis `node` a échoué (« Argument list too long »). Aucun dégât cette fois (rien d'exécutable), mais le risque était réel.
+- **Cause** : en Bash, un accent grave dans une chaîne entre guillemets doubles lance ce qu'il contient.
+- **Règle** : pour écrire ou modifier un texte qui contient des accents graves, des accents ou des `$`, utiliser l'outil Edit ou Write, ou un fichier de script, jamais une chaîne de commande entre guillemets. Contrôler `git status` juste après un incident de ce genre.
+
+## 9.124 Une garde « le nombre existe quelque part » laisse passer un ancien point de série (2026-11-07)
+- **Symptôme** : le paragraphe de la France entière disait « 46,0 % » inscrits depuis plus d'un an alors que la valeur relevée était 46,5 % ; la première garde des textes ne le voyait pas, car 46,0 existe encore dans la série (premier trimestre 2026). Le texte disait aussi « en hausse constante depuis fin 2024 », faux (baisse au premier trimestre 2025).
+- **Cause** : un contrôle qui accepte tout nombre présent dans les lignes du territoire accepte aussi les anciens points de la série.
+- **Règle** : pour chaque chiffre « principal » d'un paragraphe (taux, part), comparer à la VALEUR relevée de la bonne ligne, pas à l'ensemble des nombres ; ajouter ce contrôle précis dès qu'un cas réel est trouvé, avec un test qui reproduit l'erreur. Corrigé le jour même (garde + texte).
+
+## 9.125 Un texte qui compare deux chiffres égaux dit « en dessous » (2026-11-07)
+- **Symptôme** : la ligne Logement du portrait disait que la Dordogne (1,8 %) et la Haute-Vienne (2,2 %) étaient « en dessous de la moyenne régionale (2,2 %) » : 2,2 n'est pas en dessous de 2,2. Découvert en déclarant les appuis du portrait (écrire le sens « moins que » pour chaque comparaison a montré qu'une comparaison était fausse).
+- **Cause** : phrase écrite pour deux départements d'un coup, sans relire chaque comparaison contre son chiffre.
+- **Règle** : déclarer les appuis d'un texte force à relire chaque comparaison ; pour un texte à deux sujets, vérifier chaque sujet séparément. Corrigé le jour même (la Dordogne en dessous, la Haute-Vienne à son niveau).
+
+## 9.126 Une position écrite d'avance finit par être fausse : la phrase se calcule (2026-11-07)
+- **Symptôme** : sous la courbe du chômage, « on est plutôt dans le bas de cette fourchette » était écrit à la main ; avec 7,9 % entre 5,7 % et 10,9 % (Dordogne), le chiffre est vers le milieu. Trouvé en cherchant les années écrites dans le code (consigne 145).
+- **Cause** : une conclusion (bas / milieu / haut) posée à la main une fois, sans que rien ne la relie aux trois nombres du fichier.
+- **Règle** : tout ce qui qualifie un chiffre (haut, bas, en hausse, au-dessus de...) est calculé par le code à partir des nombres du fichier, avec un test aux limites ; jamais un adjectif écrit d'avance. Corrigé le jour même (fonction `_comprendreLesChiffresPositionFourchette`).
+
+## 9.127 Une règle de taille « pour toute l'application » doit être montrée sur l'accueil et les introductions avant d'être codée (2026-11-07)
+
+- **Symptôme** : après le choix A de la consigne 144 (taille de base par paliers pour toute l'application), Denis a trouvé l'accueil, ses cartes et les exemples des pages d'introduction « beaucoup trop gros » et a demandé de les remettre comme avant, en gardant la nouvelle taille à l'intérieur des modules.
+- **Cause** : la maquette de la taille du texte (`docs/MAQUETTE_TAILLE_DU_TEXTE_2026-11-07.html`) ne montrait ni l'accueil ni les introductions ; « partout pareil » a été codé sur la base de l'écran d'un module, puis étendu à tout. Les cartes de l'accueil, faites pour une taille de 16 px, grossissent avec la police sans que personne les ait regardées.
+- **Règle** : avant d'étendre une taille ou une mise en page à « toute l'application », montrer à Denis, par une capture ou une maquette, chaque famille de pages touchée (accueil, introductions, intérieur des modules), pas seulement la page qui a servi de modèle. Une règle générale se pose avec un point d'exception prévu (ici : une page peut garder sa taille propre).
+
+## 9.128 Un bouton posé après coup s'aligne par mesure, pas par une valeur copiée (2026-11-08)
+- **Symptôme** : sur la page « Vos informations » du CV, le bouton « Mots de cette page » collait au bord de l'écran au lieu de s'aligner sur « Revoir la présentation » (vu sur une image de vidéo).
+- **Cause** : la zone copiait le décalage négatif du bloc « Revoir » (-28 px) en supposant le même conteneur ; sur cette page le bouton « Revoir » est dans un autre conteneur.
+- **Règle** : un élément ajouté après coup à côté d'un autre mesure la position du voisin (`getBoundingClientRect`) et s'y aligne, y compris au redimensionnement. Corrigé dans `modules/lexique/index.js` (`_lexiqueMotsPageAligner`), vérifié à 1280 et 390 px.
+
+## 9.129 Les sites d'assistants en ligne arrêtent un navigateur automatique : on n'insiste pas, on ne triche pas (2026-11-08)
+- **Constat** : `chatgpt.com` ouvert par le navigateur de test (Playwright) affiche une vérification « Vérifiez que vous êtes humain » (Cloudflare) ; le même site s'ouvre sans cela dans le navigateur de l'application de bureau.
+- **Règle** : jamais de déguisement (faux agent, drapeau anti-détection) ni de résolution du test. Pour les vidéos, les écrans de sites tiers sont enregistrés par Denis ; Claude ajoute voix, sous-titres et coupe. Les vidéos qui n'ont besoin que de l'écran de l'application restent entièrement automatiques.
+- **Voie trouvée le 08/11/2026 (demande de Denis)** : le navigateur intégré à l'application (non filmable, mais photographiable) ouvre ChatGPT sans test et sans compte. On y prend des **images fixes** (accueil, demande collée, réponse, coche de copie) puis on assemble avec `docs/video_presentation/court/fabriquer_images.js` (voix, sous-titres, rectangles). Le collage clavier n'y fonctionne pas : le texte est inséré par script dans la case. Les rectangles ne sont pas un contournement du test : aucun test n'est apparu.
+
+## 9.130 Deux boutons posés l'un sous l'autre : mesurer l'écart, jamais compter sur la marge d'un voisin (2026-11-08)
+- **Symptôme** : « Revoir la présentation » et « Mots de cette page » se touchaient sur la page « Vos informations » (et sur tout module dont le bouton « Revoir » est dans un simple bloc, soit la majorité : Bilan, ATS, Cohérence, Comparer, Découverte, Mes compétences, Regard, Un CV plusieurs métiers).
+- **Cause** : la zone comptait sur la marge basse du bloc « Revoir » (0,9 rem) que la plupart des modules n'ont pas ; son décalage négatif faisait alors chevaucher les deux boutons. Le défaut avait échappé aux essais parce que les pages testées avaient le bloc habituel.
+- **Règle** : tester un ajout transversal sur une page de CHAQUE famille de structure (ici : avec et sans `.bloc-revoir-module`) ; l'espacement se mesure (`_lexiqueMotsPageAligner` impose 10 px minimum).
+
+## 9.131 Deux modules, un ancien nom : ne jamais fusionner sur le seul titre (2026-11-08)
+- **Symptôme** : dans le plan des vidéos, « Découvrir mes compétences » (Boîte à outils) a été supposé identique à la 3e porte de « Créer un nouveau CV » (« À partir de mon récit »), avec une seule vidéo « montrée aux deux endroits ».
+- **Cause** : le nom a été porté d'abord par l'ancien module (récit dicté, CV créé), renommé et déplacé le 25/10 ; le même titre a ensuite servi à un nouveau module (`modules/mes-competences/`, fiche modifiable des compétences, appui pour CV, lettre, entretien). Une mémoire ancienne et un titre identique ont suffi à les confondre.
+- **Règle** : avant de rapprocher deux modules, ouvrir le code de chacun (`modules/`) et lire ce que chacun produit réellement. Un doute sur une identité de module se confirme à Denis avant de planifier.
+
+## 9.120 Un inventaire ne vend pas une protection ou un gain qu'il n'a pas mesuré (consignes des assistants, 2026-11-08)
+- **Symptôme** : l'inventaire « alléger les consignes » annonçait de la protection pour des sections déplacées ou envoyées en deuxième message, des « questions d'entretien » fournies par le ROME, et des gains en Ko estimés au jugé, alors que les fichiers de consignes sont publics de toute façon et que le ROME ne contient pas de questions d'entretien.
+- **Cause** : le flux d'envoi avait été vérifié, mais pas ce que le dépôt publie ; le gain avait été estimé sans assembler les vraies consignes ; une idée plausible (questions types) n'avait pas été recoupée avec le contenu des fichiers officiels.
+- **Règle** : avant d'annoncer une protection, vérifier ce qui est réellement lisible de l'extérieur (dépôt, site publié) ; avant d'annoncer un gain, le mesurer sur la consigne réellement assemblée ; avant d'attribuer un contenu à une source officielle, ouvrir la source. Ce qui est estimé ou supposé est écrit comme tel, jamais en tête du tableau de verdicts.
+
+## 9.132 Un écran qui montre un état calculé doit se recalculer quand on revient dessus (outil de veille, 2026-11-08)
+- **Symptôme** : Denis corrige une adresse dans une fiche (faute de frappe `periguex`), revient au test des adresses du mois : la ligne reste « à corriger », alors que le serveur la voit bien « corrigée ».
+- **Cause** : l'état n'était relu qu'à l'ouverture du panneau et pendant un test en cours ; rien ne le relisait au retour sur la fenêtre ni après un enregistrement de fiche.
+- **Règle** : tout écran qui affiche un état dérivé d'un fichier modifiable ailleurs dans la même page se relit au retour (fenêtre retrouvée) et après chaque enregistrement concerné, et signale ce qui vient de changer d'état (notification), pour que la personne sache où elle s'est arrêtée.
+
+## 9.133 Un enregistrement qui dure une minute doit bloquer l'écran et se faire en une fois (outil de veille, 2026-11-08)
+- **Symptôme** : Denis masque le lien d'une fiche, puis d'une deuxième pendant que la première s'enregistre : « Un enregistrement précédent a été interrompu : le fichier journal_modifications.txt contient des changements pas rangés ». Plus rien ne s'enregistre, même après « Terminer ».
+- **Cause** : (1) un enregistrement prend environ une minute (génération + tests) et l'écran restait cliquable sans rien montrer : un second clic lançait une seconde publication qui trouvait les fichiers de la première non rangés ; (2) le journal des modifications, écrit par chaque publication, ne figurait pas dans la liste des fichiers que « Terminer » range : il restait modifié et bloquait toute la suite.
+- **Règle** : tout geste qui lance une publication bloque tous les boutons de l'écran et affiche « enregistrement en cours » jusqu'à la fin ; les gestes répétables (masquer plusieurs liens) se marquent d'abord, puis s'enregistrent d'un seul coup avec un bouton bien visible. Tout fichier qu'une publication écrit doit figurer dans `cheminsSuivis` (outils/veilleDepot.js).
+
+## 9.134 Une démonstration filmée avec un texte raccourci peut promettre ce que le vrai texte ne permet pas (vidéo Perplexity, 2026-11-08)
+- **Symptôme** : la vidéo « comment faire sur Perplexity » dit « il s'utilise sans compte » ; or avec une demande de la taille réelle (environ 23 000 caractères) Perplexity bloque et impose de s'inscrire (confirmé le 08/11/2026, comme le test de Denis du 29/09). La démo avait collé une version raccourcie (2 200 caractères), qui passe.
+- **Cause** : pour gagner du temps, la demande de la démonstration a été réduite sans vérifier que le site réagit pareil à la taille réelle.
+- **Règle** : toute vidéo qui montre un site tiers se tourne avec une demande de la taille réelle, ou ne promet rien (« sans compte ») sur ce qu'elle n'a pas éprouvé à cette taille. Le texte long de ChatGPT a, lui, été éprouvé court seulement : à confirmer à pleine taille avant de s'y fier.
+
+## 9.135 Chercher un doublon dans tous les rayons, pas seulement dans celui qu'on rédige (outil de veille, 2026-11-08)
+- **Symptôme** : la veille de la semaine sur l'ASS et l'AAH rend 5 fiches « nouvelles » ; l'une existe déjà telle quelle (reprise d'activité avec l'ASS, rayon budget), une autre est moins précise que la fiche publiée du cumul ASS et AAH, deux autres recoupent en partie la fiche AAH et travail. Rien dans l'outil ne le signalait.
+- **Cause** : le message de rédaction ne montrait à l'assistant que les fiches du rayon choisi (ici « handicap ») ; un même sujet peut exister dans un autre rayon. Et le sas ne comparait une nouvelle fiche à rien.
+- **Règle** : (1) le message de rédaction liste aussi les fiches des autres rayons dont les mots-clés sont dans le matériau ; (2) toute fiche nouvelle est comparée à TOUTES les fiches publiées (mots-clés rares en commun, sources communes, mots du titre) et le sas affiche « ressemble à… » sans bloquer, c'est la personne qui tranche ; (3) pour Claude, `node scripts/veilleDoublons.js <réponse> <rayon>` est obligatoire avant tout dépôt, puis lecture du texte des fiches signalées : déjà couverte (rien à déposer), mise à jour, ou nouvelle ; jamais dégrader une fiche publiée plus précise ou mieux datée. Code : `outils/veilleRessemblance.js`.
+
+## 9.136 Une comparaison de listes se fait ligne par ligne, et « même thème » n'est pas « même contenu » (outil de veille, 2026-11-08)
+- **Symptôme** : dans « À valider », le changement d'une liste (« Ce qui change souvent ») s'affichait en mots rouges et verts mélangés, illisible : Denis ne pouvait pas voir ce qui était retiré ni ce qui arrivait. Et une nouvelle fiche sur « qui peut recevoir l'AAH » était signalée « très probable doublon » d'une fiche sur l'AAH et le travail.
+- **Cause** : (1) la différence se faisait mot à mot sur un texte de plusieurs lignes : les lignes déplacées se mélangent ; (2) la ressemblance ne compare que les mots-clés, les sources et le titre : deux fiches du même thème ont les mêmes mots-clés sans se répéter.
+- **Règle** : une liste s'affiche ligne par ligne (retirée en rouge, ajoutée en vert, inchangée sans couleur) ; le texte seul se compare mot à mot. Un signalement de doublon doit aussi s'appuyer sur le texte (phrases et nombres en commun), sinon il crie au doublon à chaque fiche voisine. Mesure du 08/11/2026 : un vrai doublon partage 17 % de phrases de 4 mots, des fiches voisines moins de 3 %.
+
+## 9.137 Un texte copié depuis l'affichage d'un assistant peut contenir des signes « protégés » (outil de veille, 2026-11-08)
+- **Symptôme** : la veille de la semaine collée dans l'outil était jugée « inutilisable : le bloc [VEILLE-HEBDO] attendu est absent », alors que la réponse de ChatGPT contenait bien le bloc.
+- **Cause** : copiée depuis l'affichage de ChatGPT, la réponse arrivait avec les crochets précédés d'une barre oblique inversée (`\[VEILLE-HEBDO\]`). L'outil cherchait `[VEILLE-HEBDO]` à l'identique.
+- **Règle** : tout texte collé dans l'outil est nettoyé de ces barres (fonction `deMd`, au collage par bouton, au collage Ctrl+V dans une zone de texte, et à l'analyse d'une réponse déjà enregistrée). Tout nouveau lecteur de réponse d'assistant passe par `normaliserTexte` ou `deMd`.
+
+## 9.138 Un message de veille qui donne des noms de sites sans adresse pousse l'assistant à deviner (outil de veille, 2026-11-08)
+- **Symptôme** : sur 8 sites à ouvrir, ChatGPT en a déclaré 6 « non essayé » et a inventé des adresses fausses pour trois (France Travail, Caf, Agefiph) ; Denis a cru à un blocage anti-robot.
+- **Cause** : le message de la veille de la semaine écrivait « les actualités de caf.fr, d'ameli.fr et de l'Agefiph » sans adresse exacte.
+- **Règle** : tout site à ouvrir est donné avec son adresse exacte, vérifiée à la main (par une page réellement ouverte), et on demande à l'assistant d'écrire la vraie raison d'un échec (bloqué, page vide, non essayé). Adresses vérifiées le 08/11/2026 : Unédic /actualites, France Travail /accueil/actualites.html, Caf /allocataires/actualites, Ameli /assure/actualites, Agefiph page d'accueil, ministère du Travail /actualites-presse-et-outils/actualites-et-breves.
+
+## 9.139 La mémoire « déjà versée » ne retenait que le nom du fichier : de nouvelles fiches du même nom restaient invisibles (outil de veille, 2026-11-08)
+- **Symptôme** : Claude annonce « deux fiches dans le sas », mais Denis ne voit ni pastille orange sur « Travailler avec Claude », ni bouton « Verser », et le sas des fiches est vide.
+- **Cause** : la veille du matin avait été versée sous le nom `fiches-hebdo`. Le soir, Claude a déposé un nouveau fichier du même nom ; l'outil le croyait déjà versé (mémoire par nom, valable toute la journée). En réalité les deux fiches n'étaient que « déposées », jamais « dans le sas ».
+- **Règle** : une mémoire « déjà fait » se garde avec l'empreinte du contenu, jamais avec le nom seul (`signatureProp`). Et Claude dit « déposées, à verser par vous » tant que le sas n'a pas reçu les fiches, jamais « dans le sas ».
+
+## 9.140 Une source nouvelle d'une fiche doit aussi figurer dans la liste de son rayon, sinon le garde des 90 % refuse la publication (outil de veille, 2026-11-08)
+- **Symptôme** : en publiant la fiche « Le chômage après 55 ans », l'outil annonce « Rien n'a été enregistré » : le test `veilleChoix` mesure 322/360 sources dans la liste du rayon (89,4 %, seuil 90 %).
+- **Cause** : la liste d'un rayon vient de `<rayon>.collecte.md` ; les fiches publiées au fil des mois avaient ajouté 35 sources absentes de ces listes (déjà 90,2 %, à la limite), et les trois sources de la nouvelle fiche ont fait passer sous le seuil.
+- **Règle** : quand une fiche reçoit une source nouvelle, l'ajouter aussi à la liste `sources:` du `.collecte.md` de son rayon, dans le même passage. Les 35 sources manquantes ont été ajoutées le 08/11/2026 (100 %).

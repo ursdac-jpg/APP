@@ -137,3 +137,7 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
 ## Camembert de « Comprendre les chiffres » : trou blanc dans le disque (2026-11-06)
 
 **Symptôme** : sur « Depuis combien de temps les demandeurs sont inscrits » (Haute-Vienne, 46 % et 54 %), un quart du disque restait blanc. **Cause** : les parts étaient tracées par des tirets d'un trait très épais (`stroke-dasharray` avec `pathLength`), que le navigateur découpe mal. **Correction** : chaque part est maintenant une vraie part de gâteau (chemin SVG), la somme fait le tour complet ; test passé sur `data-pct`. Règle : jamais de tirets pour dessiner une part de disque.
+
+## Visite guidée (ampoule) : bulle coupée en bas de l'écran, bouton « Suivant » inatteignable (2026-11-08)
+
+**Symptôme** : sur un écran de 720 px de haut, à l'étape 2 de la visite de « Reprendre mon CV », le bas de la bulle (boutons « Précédent », « Fermer », « Suivant ») sortait de l'écran. **Cause** : la position de la bulle supposait une hauteur fixe de 170 px, alors que le texte d'une étape en demandait plus de 300. **Correction** : la hauteur réelle de la bulle est mesurée avant de la placer (`positionnerVisiteGuidee`, js/app.js) ; vérifié sur 1280x720, 1024x600 et 390x800, quatre étapes chacune. Trouvé en préparant la vidéo « Besoin d'aide ». Règle : un placement qui dépend d'une hauteur se mesure, il ne s'estime pas.

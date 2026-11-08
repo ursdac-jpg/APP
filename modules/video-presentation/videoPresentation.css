@@ -1,0 +1,50 @@
+/* Vidéo de présentation (lot E, consigne 178) : habillage « C », une vignette tirée de la vraie vidéo. Un vrai bouton (cadre, fond, coins arrondis, jamais du texte souligné).
+   Toutes les couleurs viennent des jetons de l'application : le mode sombre suit tout seul (--accent, --accent-bg-subtle, --border, --text-muted y ont leur valeur sombre). */
+.vp { max-width: 720px; margin: 0.7rem auto 1.1rem; }
+.vp-bouton {
+  width: 100%; display: flex; align-items: center; gap: 0.9rem; text-align: left; cursor: pointer;
+  border: 2px solid var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); color: var(--text-strong);
+  padding: 0.45rem 0.9rem 0.45rem 0.45rem; font: inherit; transition: background 0.15s;
+}
+.vp-bouton:hover { background: color-mix(in srgb, var(--accent) 14%, var(--bg-card)); }
+.vp-bouton:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.vp-vignette { position: relative; flex: 0 0 auto; width: 9.5rem; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #1c2433; }
+.vp-vignette img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.vp-icone { position: absolute; inset: 0; margin: auto; display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: rgba(0, 0, 0, 0.62); color: #fff; font-size: 0.95rem; padding-left: 0.12rem; }
+.vp-texte { flex: 1 1 auto; line-height: 1.25; min-width: 0; }
+.vp-texte strong { display: block; font-size: 1rem; }
+.vp-texte span { font-size: 0.85rem; color: var(--text-muted); }
+.vp-duree { flex: 0 0 auto; font-size: 0.85rem; font-weight: 600; color: var(--accent-texte, var(--accent)); white-space: nowrap; }
+.vp-chevron { flex: 0 0 auto; transition: transform 0.2s; color: var(--accent-texte, var(--accent)); }
+.vp.ouvert .vp-chevron { transform: rotate(180deg); }
+.vp-lecteur { margin-top: 0.7rem; text-align: center; }
+.vp-lecteur video { width: 100%; max-width: 640px; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; }
+.vp-note { color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0 0; }
+/* Dans une voie ou un parcours de la présentation : le bouton prend la largeur de la voie, sans marge de centrage. */
+.voie-presentation .vp { margin: 0.5rem 0 0.7rem; max-width: none; }
+@media (max-width: 480px) {
+  .vp-bouton { gap: 0.6rem; padding-right: 0.6rem; }
+  .vp-vignette { width: 6.6rem; }
+  .vp-icone { width: 1.8rem; height: 1.8rem; font-size: 0.8rem; }
+  .vp-duree { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vp-bouton, .vp-chevron { transition: none; }
+}
+
+/* Petit passage à l'intérieur d'un module (consigne 179, « ligne à filet » choisie par Denis) : sans vignette, une seule ligne, filet à gauche, fond teinté. */
+.vm { margin: 0.5rem 0 0.8rem; text-align: left; }
+.vm-bouton {
+  width: 100%; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font: inherit; text-align: left; color: var(--text-strong);
+  border: 1px solid var(--accent); border-left-width: 4px; border-radius: 10px; background: var(--accent-bg-subtle); padding: 0.45rem 0.8rem; transition: background 0.15s;
+}
+.vm-bouton:hover { background: color-mix(in srgb, var(--accent) 14%, var(--bg-card)); }
+.vm-bouton:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.vm-icone { flex: 0 0 auto; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 6px; background: var(--accent-solide, var(--accent)); color: #fff; font-size: 0.7rem; padding-left: 0.08rem; }
+.vm-texte { flex: 1 1 auto; line-height: 1.25; min-width: 0; }
+.vm-texte strong { font-size: 0.95rem; }
+.vm-duree { flex: 0 0 auto; font-size: 0.82rem; font-weight: 600; color: var(--accent-texte, var(--accent)); white-space: nowrap; }
+.vm-chevron { flex: 0 0 auto; transition: transform 0.2s; color: var(--accent-texte, var(--accent)); }
+.vm.ouvert .vm-chevron { transform: rotate(180deg); }
+.vm .vp-lecteur video { max-width: 560px; }
+@media (prefers-reduced-motion: reduce) { .vm-bouton, .vm-chevron { transition: none; } }

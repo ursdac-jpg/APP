@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la taille du texte partout</title>
+<style>
+:root { --fond: #f7f8fa; --carte: #ffffff; --texte: #1f2933; --discret: #52606d; --trait: #cbd2d9; --accent: #1d5fa8; --bon: #1f7a4d; }
+@media (prefers-color-scheme: dark) { :root { --fond: #151a21; --carte: #1e252e; --texte: #e6eaee; --discret: #a8b3bf; --trait: #3a4452; --accent: #7db4ee; --bon: #6fd0a0; } }
+body { margin: 0; background: var(--fond); color: var(--texte); font-family: system-ui, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.5; }
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 28px 0 8px; }
+p.discret { color: var(--discret); margin: 0 0 12px; }
+.carte { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 14px 16px; margin: 10px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { border: 1px solid var(--trait); padding: 6px 8px; text-align: left; }
+th { background: var(--fond); }
+td.ecart { font-weight: 600; }
+.mauvais { color: #b3261e; }
+@media (prefers-color-scheme: dark) { .mauvais { color: #ff9a92; } }
+.bon { color: var(--bon); }
+.choix { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.choix button { min-height: 44px; padding: 0 16px; border: 2px solid var(--accent); background: var(--carte); color: var(--accent); border-radius: 6px; font-size: 1rem; cursor: pointer; }
+.choix button[aria-pressed="true"] { background: var(--accent); color: var(--carte); }
+.echantillons { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.echantillon { background: var(--carte); border: 2px solid var(--trait); border-radius: 10px; padding: 12px 14px; overflow: hidden; }
+.echantillon.cible { border-color: var(--accent); }
+.echantillon h3 { font-size: 1rem; margin: 0 0 6px; }
+.echantillon .taille { color: var(--discret); font-size: 0.85rem; margin: 0 0 8px; }
+.texte-test p { margin: 0 0 8px; }
+.texte-test .gros { font-weight: 700; }
+.note { font-size: 0.9rem; color: var(--discret); }
+</style>
+</head>
+<body>
+<main>
+  <h1>La taille du texte partout (consigne 144)</h1>
+  <p class="discret">Maquette du 07/11/2026. Rien n'est codé dans l'application. Ouvrez cette page sur votre grand écran : les tailles ci-dessous sont les vraies tailles en pixels.</p>
+
+  <h2>1. Ce qui se passe aujourd'hui, mesuré</h2>
+  <div class="carte">
+    <p>Taille de base du texte (en pixels) selon la largeur de l'écran. Le texte de « Comprendre les chiffres » est agrandi par paliers ; le reste de l'application ne l'est que jusqu'à 1600 px.</p>
+    <table>
+      <thead><tr><th>Largeur de l'écran</th><th>Reste de l'application</th><th>Comprendre les chiffres</th><th>Écart</th></tr></thead>
+      <tbody>
+        <tr><td>Téléphone, tablette (moins de 1000 px)</td><td>16 px</td><td>16 px</td><td class="bon">aucun</td></tr>
+        <tr><td>1000 à 1099 px</td><td>17 px</td><td>17 px</td><td class="bon">aucun</td></tr>
+        <tr><td>1100 à 1399 px (portable à 125 %)</td><td>17 px</td><td>18,7 px</td><td class="ecart">+10 %</td></tr>
+        <tr><td>1400 à 1600 px (portable à 100 %)</td><td>17 px</td><td>20,4 px</td><td class="ecart">+20 %</td></tr>
+        <tr><td>1601 à 1699 px</td><td>16 px</td><td>19,2 px</td><td class="ecart">+20 %<br><span class="note">le module rétrécit ici, puis regrossit</span></td></tr>
+        <tr><td>1700 à 1899 px</td><td>16 px</td><td>20,8 px</td><td class="ecart mauvais">+30 %</td></tr>
+        <tr><td>1900 px et plus (grand écran)</td><td>16 px</td><td>23,2 px</td><td class="ecart mauvais">+45 %</td></tr>
+      </tbody>
+    </table>
+    <p class="note">C'est cet écart que vous voyez en passant d'un module à l'autre sur grand écran. Entre 1000 et 1600 px, la règle générale (17 px) et celle du module se cumulent.</p>
+  </div>
+
+  <h2>2. La règle proposée pour tout le monde</h2>
+  <div class="carte">
+    <p>Les mêmes paliers que « Comprendre les chiffres », mais appliqués à la taille de base du texte de toute l'application (et non plus par un zoom dans un seul module). Le palier de 1601 à 1699 px est corrigé : il ne rétrécit plus.</p>
+    <table>
+      <thead><tr><th>Largeur de l'écran</th><th>Taille de base proposée</th></tr></thead>
+      <tbody>
+        <tr><td>moins de 1000 px</td><td>16 px (inchangé)</td></tr>
+        <tr><td>1000 à 1099 px</td><td>17 px (inchangé)</td></tr>
+        <tr><td>1100 à 1399 px</td><td>18,7 px</td></tr>
+        <tr><td>1400 à 1699 px</td><td>20,4 px</td></tr>
+        <tr><td>1700 px et plus (plafond)</td><td>20,8 px</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Le réglage « Texte plus grand » de la personne (112,5 % ou 125 %) s'ajouterait à ces paliers, comme c'est le cas aujourd'hui dans « Comprendre les chiffres ». Le téléphone et l'impression ne changent pas.</p>
+  </div>
+
+  <h2>3. Voir la différence, en vrai</h2>
+  <div class="carte">
+    <p>Choisissez une largeur d'écran : les trois blocs montrent le même texte à la taille réelle.</p>
+    <div class="choix" role="group" aria-label="Largeur d'écran simulée">
+      <button type="button" data-larg="1280" aria-pressed="false">1280 px (portable à 150 %)</button>
+      <button type="button" data-larg="1536" aria-pressed="false">1536 px (portable à 125 %)</button>
+      <button type="button" data-larg="1920" aria-pressed="true">1920 px (grand écran)</button>
+      <button type="button" data-larg="2560" aria-pressed="false">2560 px (très grand écran)</button>
+    </div>
+    <div class="echantillons">
+      <div class="echantillon" id="ech-reste">
+        <h3>Reste de l'application, aujourd'hui</h3>
+        <p class="taille"></p>
+        <div class="texte-test">
+          <p class="gros">Votre CV est enregistré sur cet ordinateur.</p>
+          <p>Pour continuer, choisissez ce que vous voulez faire : reprendre un CV, écrire une lettre, ou préparer un entretien.</p>
+        </div>
+      </div>
+      <div class="echantillon cible" id="ech-module">
+        <h3>Comprendre les chiffres, aujourd'hui</h3>
+        <p class="taille"></p>
+        <div class="texte-test">
+          <p class="gros">Votre CV est enregistré sur cet ordinateur.</p>
+          <p>Pour continuer, choisissez ce que vous voulez faire : reprendre un CV, écrire une lettre, ou préparer un entretien.</p>
+        </div>
+      </div>
+      <div class="echantillon cible" id="ech-propose">
+        <h3>Toute l'application, proposé</h3>
+        <p class="taille"></p>
+        <div class="texte-test">
+          <p class="gros">Votre CV est enregistré sur cet ordinateur.</p>
+          <p>Pour continuer, choisissez ce que vous voulez faire : reprendre un CV, écrire une lettre, ou préparer un entretien.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">Le bloc « proposé » est identique à « Comprendre les chiffres » : c'est la taille qui vous convient, étendue partout.</p>
+  </div>
+
+  <h2>4. Les trois choix</h2>
+  <div class="carte">
+    <p><b>A. Généraliser par la taille de base du texte (recommandé).</b> Un seul réglage, dans la feuille de style générale. Bénéfice : tous les modules ont la même taille que « Comprendre les chiffres », et le module perd son réglage spécial. Risque : environ vingt largeurs maximales en pixels (pages de 860 ou 1100 px) deviendraient étroites avec un texte plus grand ; elles sont à élargir module par module, avec contrôle à l'écran.</p>
+    <p><b>B. Garder la différence.</b> Rien à faire. Bénéfice : aucun risque. Inconvénient : l'écart de 45 % sur grand écran reste, et vous avez demandé que ce soit pareil partout.</p>
+    <p><b>C. Réduire « Comprendre les chiffres ».</b> Bénéfice : cohérence sans toucher aux autres pages. Inconvénient : vous perdez la taille qui vous convient, et les grands écrans restent à 16 px.</p>
+    <p class="note">Je ne recommande pas d'étendre le zoom à toute l'application : l'éditeur de CV, les barres fixes et le glisser-déposer calculent des positions en pixels, et un zoom les décalerait.</p>
+  </div>
+</main>
+<script>
+(function () {
+  function baseReste(l) { return l < 1000 ? 16 : (l <= 1600 ? 17 : 16); }
+  function zoomModule(l) { return l >= 1900 ? 1.45 : (l >= 1700 ? 1.3 : (l >= 1400 ? 1.2 : (l >= 1100 ? 1.1 : 1))); }
+  function baseModule(l) { return baseReste(l) * zoomModule(l); }
+  function basePropose(l) { return l < 1000 ? 16 : (l < 1100 ? 17 : (l < 1400 ? 18.7 : (l < 1700 ? 20.4 : 20.8))); }
+  function arrondi(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  function montrer(l) {
+    var jeux = [['ech-reste', baseReste(l)], ['ech-module', baseModule(l)], ['ech-propose', basePropose(l)]];
+    jeux.forEach(function (j) {
+      var el = document.getElementById(j[0]);
+      el.querySelector('.texte-test').style.fontSize = j[1] + 'px';
+      el.querySelector('.taille').textContent = 'Taille de base : ' + arrondi(j[1]) + ' px (écran de ' + l + ' px)';
+    });
+    document.querySelectorAll('.choix button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-larg') === l)); });
+  }
+  document.querySelectorAll('.choix button').forEach(function (b) {
+    b.addEventListener('click', function () { montrer(+b.getAttribute('data-larg')); });
+  });
+  montrer(1920);
+})();
+</script>
+</body>
+</html>

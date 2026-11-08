@@ -10,7 +10,7 @@
    Reutilise l'existant plutot que d'en creer un second :
      - ouvrirFenetreERIP()/fermerFenetreERIP() (js/app.js) : meme systeme
        de fenetre que tout le reste de l'application.
-     - htmlDeclencheurDemoVideo('masquage-texte') (js/app.js) : video
+     - htmlVideoGeste('masquer-texte') (modules/video-presentation) : video
        pedagogique deja existante, pas une nouvelle.
      - echapperAttribut() (js/app.js) : echappement deja utilise ailleurs
        pour inserer du texte utilisateur dans une zone editable.

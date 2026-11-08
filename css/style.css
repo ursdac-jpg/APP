@@ -335,19 +335,12 @@
 .btn-famille-accompagnement { color: var(--famille-accompagnement); border-color: var(--famille-accompagnement); }
 .btn-famille-accompagnement:hover, .btn-famille-accompagnement:focus { color: var(--famille-accompagnement); background-color: var(--famille-accompagnement-bg-subtle); border-color: var(--famille-accompagnement); }
 
-/* TACHE (retour utilisateur : "ces boutons-liens [univers/registres du
-   Lexique]... les laisser sous forme de texte mais cliquable et pas
-   sous forme de bouton") : variante "texte" des familles ci-dessus --
-   meme couleur, mais sans jamais l'apparence d'un bouton. Le bug
-   corrige ici : .btn-famille-* ne fixe QUE border-color, jamais
-   border/background eux-memes -- sur un <button class="btn btn-link">,
-   .btn pose deja border: 1px solid transparent et .btn-link ne change
-   que sa couleur en transparent ; ecraser seulement border-color le
-   rendait visible au lieu de rester invisible. .lien-famille-* fixe
-   explicitement border/background a "none", jamais seulement leur
-   couleur, pour qu'aucune boite ne puisse jamais apparaitre. */
-.lien-famille-explorer { border: none; background: none; padding: 0; color: var(--famille-explorer); text-decoration: underline; }
-.lien-famille-explorer:hover, .lien-famille-explorer:focus { border: none; background: none; color: var(--famille-explorer); }
+/* (Le style « .lien-famille-explorer », texte souligné cliquable des chapitres du Lexique, a été retiré le 07/11/2026 : consigne 126, les chapitres sont
+   maintenant de vrais boutons de couleur, voir .chapitre-lexique dans modules/lexique/lexique.css.) */
+/* Boutons communs (consignes 125 et 126, modules/boutons-communs/logique.js) : un bouton vers un site extérieur et, juste en dessous, la mention « Vous quittez l'application ». */
+.bouton-externe-bloc { display: inline-flex; flex-direction: column; align-items: flex-start; max-width: 100%; }
+.bouton-externe-note { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
+.bouton-externe { text-align: left; white-space: normal; }
 
 /* TACHE (retour utilisateur : "taille de texte ajustable... option pour la
    lisibilité, choisir entre Arial, Times New Roman et un autre style") :
@@ -359,8 +352,12 @@
      réglages restent totalement séparées).
    - [data-police="arial"] / [data-police="times"] sur <html> : change la
      police de tout le texte. */
-[data-taille="grand"] { font-size: 112.5%; }
-[data-taille="tres-grand"] { font-size: 125%; }
+/* Taille de base du texte : UN seul endroit (consigne 144, choix A de Denis, 07/11/2026). La taille finale = le palier de l'ecran x le reglage de la personne.
+   Le palier est defini plus bas (section LISIBILITE) ; le reglage « Texte plus grand » s'ajoute au palier, il ne le remplace pas. */
+:root { --palier-taille: 1; --reglage-taille: 1; }
+html { font-size: calc(100% * var(--palier-taille) * var(--reglage-taille)); }
+[data-taille="grand"] { --reglage-taille: 1.125; }
+[data-taille="tres-grand"] { --reglage-taille: 1.25; }
 [data-police="arial"] { --police-app: Arial, Helvetica, sans-serif; }
 [data-police="times"] { --police-app: "Times New Roman", Times, serif; }
 
@@ -1213,13 +1210,29 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
   margin-left: auto; flex: none; border: none; background: none;
   color: var(--text-muted); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0 0.15rem;
 }
+/* « Mots de cette page » : sous « Revoir la présentation », à la place de l'ancienne note (consignes 155 et 156). Même alignement que le bouton du dessus. */
+.mots-page-zone { margin: -0.3rem 0 0.9rem -28px; }
+.mots-page-panneau { margin-top: 0.5rem; padding: 0.6rem 0.8rem; max-width: min(40rem, 100%); background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; }
+.mots-page-panneau[hidden] { display: none; }
+.mots-page-panneau .mots-page-mot, .mots-page-autres .mots-page-mot { margin: 0 0.3rem 0.4rem 0; border-left-width: 6px; }
+/* Bouton principal plus visible (consigne 161, option 1 choisie par Denis le 07/11/2026) : fond teinté plein, cadre épais, livre plus grand et nombre de mots ; il se remplit au survol. */
+.mots-page-bouton { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0.3rem 0.9rem; border: 2px solid var(--accent); border-radius: 8px; background: var(--accent-bg-subtle); color: var(--accent-texte); font-weight: 700; font-size: 0.95rem; line-height: 1.25; text-align: left; cursor: pointer; }
+.mots-page-bouton > .bi { font-size: 1.35rem; flex: 0 0 auto; }
+.mots-page-bouton:hover, .mots-page-bouton:focus-visible, .mots-page-bouton[aria-expanded="true"] { background: var(--accent); color: #fff; }
+.mots-page-nb { flex: 0 0 auto; padding: 0.05rem 0.5rem; border-radius: 6px; background: var(--accent); color: #fff; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+.mots-page-bouton:hover .mots-page-nb, .mots-page-bouton:focus-visible .mots-page-nb, .mots-page-bouton[aria-expanded="true"] .mots-page-nb { background: #fff; color: var(--accent-texte); }
+/* Téléphone : le bouton « Revenir à ... » se place sous « Introduction » (js/app.js, _ajusterBoutonRetourModuleExterne) ; la bande démarre en dessous. */
+@media (max-width: 768px) { .mots-page-autres { margin-top: 3.2rem !important; } }
+.mots-page-autres { margin: 0 0 0.8rem; padding: 0.5rem 0.8rem; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; }
 @media (max-width: 1024px) {
   .bloc-revoir-module { margin-left: -8px; }
   .note-revoir-module { margin-left: -8px; }
+  .mots-page-zone { margin-left: -8px; }
 }
 @media (max-width: 768px) {
   .bloc-revoir-module { margin-left: -8px; }
   .note-revoir-module { margin-left: -8px; }
+  .mots-page-zone { margin-left: -8px; }
 }
 /* Bande "bouton + reprise", juste sous la barre d'etapes (chantier "bouton
    presentation", precisions Denis 2026-09-01). Le bouton partage est a
@@ -1965,16 +1978,21 @@ select.form-select.select-type-structure {
    quelle que soit la largeur d'ecran (une grille auto-fit ne garantissait
    pas ce regroupement precis). Les blocs pouvant desormais se plier
    (point 5), la hauteur reste maitrisee independamment de cette disposition. */
-.grille-mon-projet { display: flex; flex-direction: column; gap: 0.9rem; padding-bottom: 5.5rem; }
+.grille-mon-projet { display: flex; flex-direction: column; gap: 0.9rem; padding-bottom: 4.5rem; }
 /* TACHE (retour utilisateur : "je n'arrive pas a voir Continuer sans
    scroller sur le premier ecran, la personne est perdue") : meme motif que
    .grille-mon-projet ci-dessus, reutilise pour pageSelectionCatalogue()
    (Expérience/Ce que vous faisiez/Environnement/Attentes) -- meme valeur de
    padding-bottom, pour la meme raison (reserver la place de .barre-navigation-fixe). */
-.page-catalogue-contenu { padding-bottom: 5.5rem; }
+.page-catalogue-contenu { padding-bottom: 4.5rem; }
 /* « Qui fait quoi » : les employeurs d'un secteur en grille (1 colonne sur téléphone, jusqu'à 4 sur grand écran), lus de gauche à droite puis ligne par ligne. */
 .mt-grille-employeurs { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(14rem, calc((100% - 3rem) / 4)), 1fr)); gap: 1rem; align-items: stretch; margin-bottom: 1rem; }
 .mt-grille-employeurs > .comprendre-le-cadre-encart { margin: 0 !important; }
+/* Fiche d'une structure (mtCarteStructureHtml : Qui fait quoi, Mon territoire, Lexique) : habillage de la maquette des boutons validée par Denis le 07/11/2026
+   (docs/MAQUETTE_BOUTONS_FIN_DES_LIENS_2026-11-07.html) : barre de couleur à gauche, mention « vérifiée le » en ligne grise discrète, globe devant le site. */
+.comprendre-le-cadre-encart.mt-fiche-structure { border-left: 4px solid var(--accent); }
+.mt-fiche-structure .comprendre-le-cadre-source-date { display: block; margin-top: .5rem; padding: 0; background: transparent; color: var(--text-muted); font-weight: 400; font-size: .85rem; }
+.mt-fiche-structure .mt-icone-site { color: var(--accent); margin-right: .15rem; }
 .mt-carte-employeur { margin: 0 !important; display: flex; flex-direction: column; align-items: flex-start; }
 .mt-carte-employeur .btn { margin-top: auto; }
 
@@ -1984,8 +2002,10 @@ select.form-select.select-type-structure {
    de padding-bottom cote contenu pour ne rien recouvrir). */
 .barre-navigation-fixe {
   position: fixed; left: 0; right: 0; bottom: 0;
-  background: var(--bg-card); padding: 1rem 3rem; box-shadow: 0 -4px 12px rgba(11,26,51,0.08);
+  /* Consigne 158 (07/11/2026) : bandeau plus fin (0.55rem en haut et en bas au lieu de 1rem), boutons inchangés ; taille identique sur toutes les pages (celle de la page d'explication), voir --palier-barre. */
+  background: var(--bg-card); padding: 0.55rem 3rem; box-shadow: 0 -4px 12px rgba(11,26,51,0.08);
   z-index: 500;
+  zoom: calc(var(--palier-barre, 1) / var(--palier-taille, 1));
 }
 /* TACHE (retour Denis 2026-09-04) : la barre interne .barre-navigation porte
    .mt-4 (24px), utile quand elle est DANS LE FLUX (Lexique, Carnet...) pour la
@@ -2866,7 +2886,7 @@ select.form-select.select-type-structure {
    gris sur gris, pas beau -- on garde juste le bouton") : encart réservé
    (fond + bordure pointillée) retiré maintenant que la vidéo est reelle --
    ne reste qu'un simple conteneur centré pour la phrase d'invitation + le
-   bouton (deja gris lui-meme, voir .demo-video-declencheur). */
+   bouton. */
 .encart-video-mon-projet {
   max-width: 640px; margin: 0 auto 1.2rem; text-align: center;
 }
@@ -3978,7 +3998,7 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
 }
 @media (min-width: 769px) and (max-width: 1024px) {
   #app { padding: 1.5rem 1.75rem; padding-top: var(--hauteur-progression, 6.5rem); }
-  .barre-navigation-fixe { padding: 1rem 1.75rem; }
+  .barre-navigation-fixe { padding: 0.55rem 1.75rem; }
 }
 
 /* ============================================================
@@ -4119,60 +4139,7 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
 .fenetre-erip-corps p { color: var(--text-soft); line-height: 1.5; margin-bottom: 1rem; }
 .fenetre-erip-corps p:last-of-type { margin-bottom: 0.5rem; }
 
-/* ============================================================
-   COMPOSANT "DEMO VIDEO" (chantier Videos d'accompagnement)
-   Cadre a ratio fixe : la fenetre garde la meme silhouette du chargement a
-   la lecture, quelle que soit la duree du chargement ou la resolution
-   reelle du fichier -- aucun saut visuel. Fond fixe (#0b1a33, meme teinte
-   que le fond assombri de l'overlay ERIP, rgba(11,26,51,...)) : un cadre
-   video reste sombre quel que soit le theme de l'appli (meme convention
-   que .page-a4, toujours blanc) -- jamais var(--text-strong), qui
-   s'inverse en clair en mode sombre et rendrait le texte gris clair de
-   .demo-video-etat illisible dessus (LECONS 9.1, bug reel corrige 2026-09-13).
-   ============================================================ */
-.demo-video-cadre {
-  position: relative; width: 100%; aspect-ratio: 16 / 9;
-  background: #0b1a33; border-radius: 12px; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-}
-.demo-video-lecteur { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
-.demo-video-etat {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 0.75rem; padding: 1rem; color: #cbd5e1; text-align: center;
-}
-.demo-video-etat-erreur { color: #fca5a5; }
-.demo-video-spinner {
-  width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.25);
-  border-top-color: #fff; border-radius: 50%; animation: demo-video-tourner 0.8s linear infinite;
-}
-@keyframes demo-video-tourner { to { transform: rotate(360deg); } }
-
-/* Bouton declencheur : pastille pleine, MEME FORME que les autres chips
-   ERIP (.pastille) mais volontairement PAS la meme couleur que le bouton
-   "Importer"/"Coller" (accent) -- TACHE (retour utilisateur, bug reel
-   deja signale une fois : "je clique sur la video par erreur 2 fois sur
-   3" -- voir data/metiers.js) : meme accent que le CTA principal =
-   confusion garantie, quel que soit le style (pilule/rond) puisque
-   couleur identique. Gris neutre distinct : signale clairement une
-   action secondaire/optionnelle (voir une demo) plutot que l'action
-   principale attendue (importer). */
-.demo-video-declencheur {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #6c757d; color: #fff; border: none; border-radius: 30px;
-  padding: 0.55rem 1.2rem; font-weight: 600; font-size: 0.85rem; cursor: pointer;
-  transition: 0.15s;
-}
-.demo-video-declencheur:hover { background: #5c636a; }
-/* TACHE (retour utilisateur 2026-09-13, LECONS 9.1) : gris fixe jamais
-   adapte au mode sombre -- reste lisible (blanc sur gris moyen) mais
-   tranche visuellement avec le reste du theme sombre. Variante plus
-   sombre, meme esprit gris neutre "secondaire". */
-[data-theme="sombre"] .demo-video-declencheur { background: #4a5568; }
-[data-theme="sombre"] .demo-video-declencheur:hover { background: #5c6b81; }
-.demo-video-declencheur-icone {
-  width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.25);
-  display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0;
-}
+/* Ancien composant « DEMO VIDEO » (fenetre + bouton gris) retire le 08/11/2026 : voir modules/video-presentation/ (consigne 179). */
 
 /* TACHE (retour utilisateur : "message trop petit, peu d'espace avec les
    cartes") : encart distinct plutot qu'un simple texte gras -- taille et
@@ -5334,8 +5301,24 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
    Maquette validee par Denis : docs/MAQUETTE_LISIBILITE_ECRAN_COLLAGE_2026-10-31.html ; mesures : docs/CONTROLE_LISIBILITE_PORTABLE_TABLETTE_TELEPHONE_2026-10-31.md.
    Portee : composant « Collez la reponse » (.fc), blocs numerotes des pages « Preparer » (.bilan-preparer), barre des etapes et barre du bas.
    ============================================================ */
-/* Ordinateur portable (125 % = 1536 px, 150 % = 1280 px) : tout passe automatiquement de 16 a 17 px. Le reglage « Texte plus grand » de la personne (data-taille) reste prioritaire. */
-@media (min-width: 1000px) and (max-width: 1600px) { html:not([data-taille]) { font-size: 106.25%; } }
+/* Paliers de la taille du texte selon la largeur de l'ecran (consigne 144, choix A de Denis, 07/11/2026 ; maquette docs/MAQUETTE_TAILLE_DU_TEXTE_2026-11-07.html).
+   Ce sont ceux de « Comprendre les chiffres », etendus a toute l'application : base 16 px sous 1000 px, 17 px des 1000 px, 18,7 px des 1100 px, 20,4 px des 1400 px,
+   20,8 px des 1700 px et au-dela (plafond : Denis ne veut pas d'un texte enorme sur tres grand ecran, 07/11/2026). Le telephone, la tablette et l'impression ne changent pas. Le reglage « Texte plus grand » (data-taille) s'y ajoute. */
+@media (min-width: 1000px) { :root { --palier-taille: 1.0625; } }
+@media (min-width: 1100px) { :root { --palier-taille: 1.16875; } }
+@media (min-width: 1400px) { :root { --palier-taille: 1.275; } }
+@media (min-width: 1700px) { :root { --palier-taille: 1.3; } }
+@media print { :root { --palier-taille: 1; --reglage-taille: 1; } }
+/* Accueil (route « cv ») et pages d'introduction (« introduction » et toutes les « ...-intro ») : taille d'AVANT la consigne 144, au retour de Denis du 07/11/2026
+   (« les cartes de l'accueil, les sous-cartes et les exemples des introductions sont beaucoup trop gros »). L'intérieur des modules garde les paliers.
+   Avant : 17 px de 1000 à 1600 px de large, 16 px ailleurs, et le réglage « Texte plus grand » remplaçait ce palier au lieu de s'y ajouter. */
+html[data-route="cv"], html[data-route="introduction"], html[data-route$="-intro"] { --palier-taille: 1; }
+@media (min-width: 1000px) and (max-width: 1600px) {
+  html[data-route="cv"]:not([data-taille]), html[data-route="introduction"]:not([data-taille]), html[data-route$="-intro"]:not([data-taille]) { --palier-taille: 1.0625; }
+}
+/* Barre du bas (consigne 158) : même palier que les pages d'accueil et de présentation (voir la règle ci-dessus), sur TOUTES les pages. La barre est ramenée à cette taille par `zoom` (.barre-navigation-fixe). */
+:root { --palier-barre: 1; }
+@media (min-width: 1000px) and (max-width: 1600px) { html:not([data-taille]) { --palier-barre: 1.0625; } }
 /* Plus aucun texte sous 14 px dans ces composants. */
 .fc-auto, .fc-module, .fc-passage, .barre-raison-suivant, .bloc-depli > summary .pilule-etat, .bloc-depli > summary .preparer-oblig,
 .barre-etapes-bilan .pastille-etape-action, .barre-navigation .btn-accueil { font-size: 0.875rem; }
@@ -5382,11 +5365,11 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .choix-ia-etapes li { font-size: 0.875rem; }
 .choix-ia-etapes .rond { width: 1.6rem; height: 1.6rem; font-size: 0.875rem; }
 .choix-ia-rappel-conf { font-size: 0.875rem; }
-.demo-video-declencheur { font-size: 0.875rem; min-height: 44px; }
-.demo-video-declencheur-icone { width: 24px; height: 24px; font-size: 0.875rem; }
 
 /* « Vos documents » et pages de travail (31/10/2026, point 12) : boutons de 44 px, textes a 14 px minimum, pastilles de couleur et croix aussi faciles a toucher (zone elargie sans grossir le dessin). */
 #app .btn { min-height: 44px; }
+/* Barre du bas (consigne 158) : la barre est réduite par `zoom` ; la hauteur minimale tactile de 44 px est donc agrandie d'autant, pour rester de 44 px à l'écran. */
+#app .barre-navigation-fixe .btn, .barre-navigation-fixe .btn { min-height: calc(44px * var(--palier-taille, 1) / var(--palier-barre, 1)); }
 #app .bouton-format-page-accordeon { font-size: 0.875rem; min-height: 44px; }
 .axe-version-lettre { font-size: 0.875rem; }
 .note-revoir-module { font-size: 0.875rem; }
@@ -5457,7 +5440,7 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 @media (max-width: 768px) {
   #btnIntroduction { top: var(--hauteur-progression, 5rem); right: 12px; height: 38px; font-size: .95rem; padding: 0 .7rem; }
 }
-.ip-page { max-width: 860px; margin: 0 auto; }
+.ip-page { margin: 0 auto; } /* meme largeur que les autres pages (consigne 144) : plus de plafond de 860 px */
 .ip-accroche { background: var(--accent-bg-subtle); text-align: center; margin-bottom: 1rem; }
 .ip-page .cv-section { margin-bottom: 1rem; }
 .ip-page .cv-section p:last-child { margin-bottom: 0; }
@@ -5475,13 +5458,15 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .ip-bouton-haut { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); font-size: 1.3rem; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 [data-theme="sombre"] .ip-bouton-haut { border: 2px solid var(--border-strong); box-shadow: none; }
 .ip-liste li .ip-bouton-haut i { margin-top: 0; }
-.ip-image-agrandie { width: 100%; height: auto; display: block; border: 1px solid var(--border-strong); border-radius: 10px; }
+.ip-image-agrandie { width: auto; max-width: 100%; height: auto; max-height: calc(100vh - 14.5rem); max-height: calc(100dvh - 14.5rem); display: block; margin: 0 auto; border: 1px solid var(--border-strong); border-radius: 10px; }
 /* Image agrandie : le fond reste gris, mais la barre du bas (Retour, Commencer) passe au-dessus et reste cliquable ; la fenêtre lui laisse sa place (02/11/2026). */
 body:has(#fenetreERIP.visible) .ip-barre-fixe { z-index: 2100; }
 body:has(.ip-barre-fixe) #fenetreERIP { padding-bottom: 6.5rem; }
 body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100vh - 8.5rem); }
 .ip-figure { margin: .8rem 0 .2rem; }
-.ip-figure img { width: 100%; height: auto; border: 1px solid var(--border-strong); border-radius: 12px; display: block; background: var(--bg-card); }
+/* Consigne 157 (07/11/2026) : une capture tient toujours en entier sur l'écran, en largeur (42 rem au plus) ET en hauteur, sans déformation : largeur et hauteur automatiques, plafonnées toutes les deux. L'image agrandie (fenêtre) reste un peu plus grande que celle de la page. */
+.ip-figure img, .ip-outil-images img { width: auto; max-width: min(100%, 42rem); height: auto; max-height: max(14rem, calc(100vh - 15.5rem)); max-height: max(14rem, calc(100dvh - 15.5rem)); margin: 0 auto; }
+.ip-figure img { border: 1px solid var(--border-strong); border-radius: 12px; display: block; background: var(--bg-card); }
 .ip-figure figcaption { color: var(--text-muted); font-size: var(--t-petit); margin-top: .3rem; }
 .ip-figures-deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
 .ip-pas { display: grid; gap: 1.2rem; margin-top: .8rem; }
@@ -5495,7 +5480,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .ip-outil > span { display: block; font-size: var(--t-petit); color: var(--text-muted); line-height: 1.5; margin: .1rem 0 .5rem; }
 .ip-outil-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .7rem; }
 .ip-outil-images figure { margin: 0; }
-.ip-outil-images img { width: 100%; height: auto; display: block; border: 1px solid var(--border-strong); border-radius: 10px; }
+.ip-outil-images img { display: block; border: 1px solid var(--border-strong); border-radius: 10px; }
 .ip-outil-images figcaption { font-size: var(--t-petit); color: var(--text-muted); margin-top: .25rem; }
 .ip-modeles { display: grid; grid-template-columns: 1.15fr .85fr; gap: .9rem; align-items: start; }
 .ip-pied { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin: 1.6rem 0 .4rem; }
@@ -5522,7 +5507,8 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 
 /* ===== Introduction : diaporama oral (modules/introduction/diaporama.js) =====
    Un cadre 16/9 dont toutes les tailles suivent SA largeur (unité cqw) : lisible à l'écran, au vidéoprojecteur et en plein écran. Maquette : docs/MAQUETTE_DIAPORAMA_INTRODUCTION_2026-11-02.html */
-.idp-page { max-width: 1100px; margin: 0 auto; }
+/* Consigne 157 : le cadre (16/9, largeur donnée) ne dépasse jamais la hauteur de l'écran : 12 rem pour l'en-tête de l'application, la ligne d'outils et la barre du bas. */
+.idp-page { max-width: min(1100px, max(30rem, calc((100vh - 12rem) * 16 / 9))); max-width: min(1100px, max(30rem, calc((100dvh - 12rem) * 16 / 9))); margin: 0 auto; }
 .idp-haut { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; margin: 0 0 .6rem; }
 .idp-haut .btn { border-radius: 8px; font-weight: 700; min-height: 44px; }
 .idp-aide-clavier { color: var(--text-muted); font-size: var(--t-petit); }
@@ -5546,7 +5532,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .idp-rond { flex: 0 0 auto; width: 4.6cqw; height: 4.6cqw; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 2.6cqw; display: inline-flex; align-items: center; justify-content: center; }
 .idp-pastille { flex: 0 0 auto; width: 5cqw; height: 5cqw; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); font-size: 2.6cqw; display: inline-flex; align-items: center; justify-content: center; }
 .idp-liste li .idp-pastille i { width: auto; font-size: 2.6cqw; }
-.idp-image { display: block; width: 100%; height: auto; max-height: 30cqw; object-fit: contain; object-position: top left; border: 1px solid var(--border-strong); border-radius: .9cqw; background: #fff; }
+.idp-image { display: block; width: 100%; height: auto; max-height: 29cqw; object-fit: contain; object-position: top left; border: 1px solid var(--border-strong); border-radius: .9cqw; background: #fff; }
 .idp-images { display: grid; gap: 1.6cqw; min-height: 0; align-items: start; }
 .idp-images.idp-n1 { grid-template-columns: 1fr; }
 .idp-images.idp-n2 { grid-template-columns: 1fr 1fr; }
@@ -5582,7 +5568,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
   .idp-liste li > i { font-size: 6cqw; width: 8cqw; }
   .idp-rond, .idp-pastille { width: 9cqw; height: 9cqw; font-size: 5cqw; }
   .idp-liste li .idp-pastille i { font-size: 5cqw; }
-  .idp-image { max-height: none; }
+  .idp-image { max-height: max(12rem, calc(100vh - 12rem)); max-height: max(12rem, calc(100dvh - 12rem)); width: auto; max-width: 100%; margin: 0 auto; }
   .idp-btn { font-size: 4cqw; padding: 1.5cqw 3cqw; }
   .idp-compteur, .idp-etapes-barre span, .idp-figure figcaption { font-size: 3.6cqw; }
   .idp-aide-clavier { display: none; }

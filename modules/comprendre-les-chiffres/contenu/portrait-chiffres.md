@@ -7,6 +7,12 @@ sources:
   - "insee-medecins-24 | Insee, densité des médecins généralistes pour 100 000 habitants, Dordogne (2025) | https://www.insee.fr/fr/statistiques/serie/010760995 | 2026-09"
   - "insee-medecins-87 | Insee, densité des médecins généralistes pour 100 000 habitants, Haute-Vienne (2025) | https://www.insee.fr/fr/statistiques/serie/010761060 | 2026-09"
   - "insee-medecins-fr | Insee, densité des médecins généralistes pour 100 000 habitants, France (2025) | https://www.insee.fr/fr/statistiques/serie/010761075 | 2026-09"
+periodes:
+  - "dataemploi-24 | T1 2026"
+  - "dataemploi-87 | T1 2026"
+  - "insee-medecins-24 | 2025"
+  - "insee-medecins-87 | 2025"
+  - "insee-medecins-fr | 2025"
 ---
 
 # departements

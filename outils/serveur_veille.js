@@ -4,7 +4,7 @@
    Lance par « Lancer l'outil de veille.bat ». Aucune dependance (Node seul).
    Il est VOLONTAIREMENT tres limite :
      - il n'ecoute que sur 127.0.0.1 (cet ordinateur, jamais le reseau) ;
-     - il ne sert que TROIS fichiers (veille.html, base_fiches.js et veillePreuve.js) et des reponses d'API, rien d'autre : aucun autre fichier du dossier, aucun
+     - il ne sert que QUATRE fichiers (veille.html, base_fiches.js, veillePreuve.js et veilleRessemblance.js) et des reponses d'API, rien d'autre : aucun autre fichier du dossier, aucun
        dossier parent, aucune liste de dossier ;
      - GET et HEAD pour les pages ; POST seulement pour /api/..., et seulement avec un JETON secret (tire au sort a chaque lancement, ecrit dans la
        page servie, donc connu de la page ouverte par le lanceur et de personne d'autre), une adresse locale, et une origine locale ;
@@ -52,7 +52,8 @@ const FICHIERS = {
   '/': { nom: 'veille.html', type: 'text/html; charset=utf-8' },
   '/veille.html': { nom: 'veille.html', type: 'text/html; charset=utf-8' },
   '/base_fiches.js': { nom: 'base_fiches.js', type: 'text/javascript; charset=utf-8' },
-  '/veillePreuve.js': { nom: 'veillePreuve.js', type: 'text/javascript; charset=utf-8' }
+  '/veillePreuve.js': { nom: 'veillePreuve.js', type: 'text/javascript; charset=utf-8' },
+  '/veilleRessemblance.js': { nom: 'veilleRessemblance.js', type: 'text/javascript; charset=utf-8' }
 };
 const HOTE_AUTORISE = /^(127\.0\.0\.1|localhost)(:\d{1,5})?$/i;
 const ORIGINE_AUTORISEE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d{1,5})?$/i;
@@ -141,7 +142,12 @@ function creerServeur(options) {
       case '/api/adresses/marquer': return repondreResultat(res, adresses.marquer(donnees));
       case '/api/registre/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'registre' })));
       case '/api/registre/controle/mensuel/demarrer': return repondreResultat(res, controleSas.demarrerMensuel());
+      case '/api/registre/controle/mensuel/mises-de-cote': return repondreResultat(res, controleSas.demarrerMisesDeCote());
       case '/api/registre/controle/mensuel/etat': return repondreResultat(res, controleSas.bilanMensuel());
+      case '/api/registre/controle/mensuel/nouvelle-adresse': return repondreResultat(res, controleSas.nouvelleAdresse(donnees));
+      case '/api/registre/controle/numero-verifie': return repondreResultat(res, controleSas.numeroVerifie(donnees));
+      case '/api/registre/controle/mensuel/garder': return repondreResultat(res, controleSas.garderTelleQuelle(donnees));
+      case '/api/registre/controle/mensuel/ne-plus-garder': return repondreResultat(res, controleSas.nePlusGarderTelleQuelle(donnees));
       case '/api/registre/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'registre' })));
       // Magasins officiels d'une enseigne (fichier local ecrit par Claude apres lecture des pages officielles) : lecture seule, rien n'est ecrit.
       case '/api/sas/officiels': return repondreResultat(res, opt.officiels ? opt.officiels() : veilleOfficiels.lire(racine));
@@ -160,6 +166,8 @@ function creerServeur(options) {
       case '/api/chiffres/lister': return repondreResultat(res, depot.listerChiffres());
       case '/api/chiffres/verifier': return repondreResultat(res, depot.verifierChiffres(donnees && donnees.fichier, donnees && donnees.demande));
       case '/api/chiffres/lire': return repondreResultat(res, depot.lireChiffres(donnees && donnees.fichier));
+      case '/api/chiffres/appuis': return repondreResultat(res, depot.controlerAppuis(donnees && donnees.fichier));
+      case '/api/chiffres/appuis-relu': return repondreResultat(res, depot.relireAppuis(donnees && donnees.fichier, donnees && donnees.texte));
       case '/api/fiches/lire': return repondreResultat(res, depot.lireFiche(donnees && donnees.rayon, donnees && donnees.id));
       case '/api/fichessas/lister': return repondreResultat(res, depot.listerFichesSas());
       case '/api/fichessas/lire': return repondreResultat(res, depot.lireReponseFichesSas(donnees));
@@ -183,7 +191,7 @@ function creerServeur(options) {
       case '/api/github/tester': return repondreResultat(res, github.tester());
       case '/api/github/comparer': return repondreResultat(res, github.comparer(donnees && donnees.groupes));
       case '/api/github/envoyer': return repondreResultat(res, github.envoyer(donnees && donnees.groupes, donnees && donnees.message, !!(donnees && donnees.confirmerTerritoire)));
-      default: return json(res, 404, { ok: false, erreur: 'Introuvable.' });
+      default: return json(res, 404, { ok: false, erreur: 'Introuvable.' });   // l'écran (appeler, veille.html) traduit ce mot : un serveur plus ancien que la page ne connaît pas la fonction
     }
   }
 

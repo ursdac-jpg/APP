@@ -79,8 +79,8 @@ var MODULES_RECHERCHABLES = [
     motsCles: ['reperes', 'mes reperes', 'garder une reflexion', 'ancre'], cible: 'fn:reperes' },
   { titre: 'Mon Carnet', desc: 'Noter librement ce qui vous passe par la tête.',
     motsCles: ['carnet', 'mon carnet', 'notes', 'bloc-notes', 'bloc notes', 'prendre des notes'], cible: 'fn:carnet' },
-  { titre: 'Lexique', desc: 'Les mots du monde du travail, expliqués simplement.',
-    motsCles: ['lexique', 'dictionnaire', 'definition', 'definitions', 'vocabulaire', 'mot', 'signification'], cible: 'fn:lexique' },
+  { titre: 'Lexique', desc: 'Les mots du monde du travail, expliqués simplement. Dans chaque module, le bouton « Mots de cette page » donne les mots de la page qui sont expliqués ici.',
+    motsCles: ['lexique', 'dictionnaire', 'definition', 'definitions', 'vocabulaire', 'mot', 'signification', 'mots de cette page', 'mots de la page', 'mot que je ne comprends pas', 'mots difficiles', 'expliquer un mot'], cible: 'fn:lexique' },
   { titre: 'ATS', desc: 'Comparer le vocabulaire de votre CV à celui d’un métier.',
     motsCles: ['ats', 'mots cles', 'tri automatique', 'logiciel de recrutement', 'robot recruteur'], cible: 'route:ats-intro' },
   { titre: 'Un regard sur mon CV', desc: 'Anticiper le regard d’un recruteur sur votre dossier.',
@@ -323,7 +323,7 @@ function rechercherBaseConnaissances(texte) {
     if (typeof COMPRENDRE_LES_CHIFFRES_SALAIRES_BLOC !== 'undefined') {
       chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_SALAIRES_BLOC]);
     }
-    // « Ma fiche chiffres » (consigne 121, 2026-11-06) : mettre de côté les chiffres importants pour préparer un entretien ou une demande.
+    // « Ma fiche de chiffres » (consigne 121, 2026-11-06) : mettre de côté les chiffres importants pour préparer un entretien ou une demande.
     if (typeof COMPRENDRE_LES_CHIFFRES_FICHE_BLOC !== 'undefined') {
       chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_FICHE_BLOC]);
     }

@@ -13,6 +13,7 @@ sources:
   - "defenseur-des-droits-accueil | Défenseur des droits | https://www.defenseurdesdroits.fr/ | 2026-09-04"
   - "caf-faire-une-reclamation | Réclamations, recours hiérarchiques et recours administratifs préalables obligatoires (RAPO) | https://www.service-public.gouv.fr/particuliers/vosdroits/F2474 | 2026-09-05"
   - "justice-fr-annuaires | Justice.fr : trouver un point-justice, un tribunal, une aide | https://www.justice.fr/ | 2026-09-04"
+  - "legifrance-decret-2026-683-prudhommes | Légifrance : décret n° 2026-683, procédure prud'homale | https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000054541160 | 2026-10-05"
 structures:
 ---
 

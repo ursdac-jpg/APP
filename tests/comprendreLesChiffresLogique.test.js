@@ -140,7 +140,8 @@ test('_comprendreLesChiffresRenduEcartsGenerique : barres mises a l\'echelle sur
 test('_comprendreLesChiffresRenduEcartsGenerique : chaque item et ses chiffres secondaires apparaissent dans le rendu', () => {
   var items = [{ nom: 'Zone A', valeur: '7.5', stats: { chomage_recensement: '8,2' }, sourcesCles: ['insee'], paragraphes: ['Texte de contexte.'] }];
   var sourcesMap = { insee: { titre: 'INSEE', url: 'https://insee.fr' } };
-  var html = _comprendreLesChiffresRenduEcartsGenerique(items, sourcesMap, { icone: 'bi-x', titre: 'Titre', intro: 'Intro' });
+  var periodes = { chomage_recensement: { debut: null, fin: { genre: 'annee', n: 0, an: 2023 } } };
+  var html = _comprendreLesChiffresRenduEcartsGenerique(items, sourcesMap, { icone: 'bi-x', titre: 'Titre', intro: 'Intro', periodes: periodes });
   assert.ok(html.includes('Zone A'));
   assert.ok(html.includes('Chômage (recensement 2023)'));
   assert.ok(html.includes('Texte de contexte.'));
@@ -397,13 +398,13 @@ test("vue Union européenne : chaque indicateur donne deux barres (France, moyen
   groupes.forEach((x) => assert.equal(x.lignes.length, 2));
 });
 
-test("Ma fiche chiffres : le texte copié donne, pour chaque chiffre, son territoire, sa question, sa valeur et sa source, sans tiret long", () => {
+test("Ma fiche de chiffres : le texte copié donne, pour chaque chiffre, son territoire, sa question, sa valeur et sa source, sans tiret long", () => {
   const texte = _comprendreLesChiffresMaFicheTexte([
     { territoire: 'Dordogne (24)', q: 'Quel est le salaire net mensuel moyen ?', valeur: '2 194 € net par mois', source: 'Insee, publié le 4 décembre 2025' },
     { territoire: 'France', q: 'Combien gagne un salarié ?', valeur: '2 190 €', source: '' }
   ], '2026-11-06');
   const lignes = texte.split('\n');
-  assert.equal(lignes[0], 'Ma fiche chiffres, au 6 novembre 2026');
+  assert.equal(lignes[0], 'Ma fiche de chiffres, au 6 novembre 2026');
   assert.match(texte, /1\. Dordogne \(24\) : Quel est le salaire net mensuel moyen \? 2 194 € net par mois\. Source : Insee, publié le 4 décembre 2025\./);
   assert.match(texte, /2\. France : Combien gagne un salarié \? 2 190 €\.$/);
   assert.ok(!/[\u2014\u2013]/.test(texte));
@@ -466,8 +467,11 @@ test("Pouvoir d'achat (Insee) : la carte dit le sens, garde les chiffres négati
   // les points de chaque cause s'additionnent bien en pouvoir d'achat de l'année (à l'arrondi près)
   const somme = ['activite', 'patrimoine', 'prestations', 'impots', 'prix', 'demographie'].reduce((t, c) => t + _comprendreLesChiffresFicheFrance(D, 'pouvoir_achat_contribution_' + c + '_2025').n, 0);
   assert.ok(Math.abs(somme - (-0.7)) < 0.15, 'les causes expliquent le pouvoir d’achat : ' + somme);
-  const sans = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'pouvoir-achat-insee.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^pouvoir_achat_2025: .*\n/m, ''));
-  assert.equal(_comprendreLesChiffresPouvoirAchatCarte(sans), '');
+  const sans = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'pouvoir-achat-insee.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^pouvoir_achat_\d{4}: .*\n/gm, ''));
+  assert.equal(_comprendreLesChiffresPouvoirAchatCarte(sans), '', 'plus aucune année dans le fichier : pas de carte');
+  // Depuis la consigne 145, la carte suit la dernière année du fichier : sans 2025, elle dit 2024 (jamais une année périmée écrite dans le code).
+  const sans2025 = _comprendreLesChiffresParserFiches(fs.readFileSync(path.join(CONTENU, 'pouvoir-achat-insee.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^pouvoir_achat_2025: .*\n/m, ''));
+  assert.match(_comprendreLesChiffresPouvoirAchatCarte(sans2025), /de pouvoir d’achat en 2024/);
 });
 
 test("Entreprises (BODACC) : la carte offre Chiffres et Barres, compare le même département à lui-même un an plus tôt, jamais un autre", () => {
@@ -530,12 +534,12 @@ test("garde-fou (consigne 134) : l'année écrite dans le texte d'une carte est 
   });
 });
 
-test("Ma fiche chiffres : la page imprimée porte le titre, la date, chaque chiffre avec sa source, échappe le texte et n'a aucun tiret long", () => {
+test("Ma fiche de chiffres : la page imprimée porte le titre, la date, chaque chiffre avec sa source, échappe le texte et n'a aucun tiret long", () => {
   const html = _comprendreLesChiffresMaFicheImpressionHTML([
     { territoire: 'la Dordogne', q: 'Quel est le niveau de vie ?', valeur: '24 150 €', source: 'Insee, Filosofi 2023' },
     { territoire: 'France', q: 'Piège <b>', valeur: '11,8 %', source: '' }
   ], '2026-11-06');
-  assert.match(html, /<h1>Ma fiche chiffres<\/h1>/);
+  assert.match(html, /<h1>Ma fiche de chiffres<\/h1>/);
   assert.match(html, /Établie le 6 novembre 2026/);
   assert.match(html, /la Dordogne : Quel est le niveau de vie \?<\/strong> 24 150 €<span class="imp-src">Source : Insee, Filosofi 2023/);
   assert.ok(!html.includes('<b>'), 'le texte est échappé');

@@ -600,7 +600,7 @@ function _regardExterieurRenduBlocDetresse(contenu) {
   if (!contenu || contenu.signalDetresse !== true) { return ''; }
   var msg = (contenu.messageDetresse || '').trim() || _REGARD_EXTERIEUR_DETRESSE_MESSAGE_REPLI;
   return '<div class="regard-exterieur-bloc-detresse" role="note">' +
-    '<p class="regard-exterieur-detresse-num"><a href="tel:3114">3114</a></p>' +
+    '<p class="regard-exterieur-detresse-num">' + (typeof mtTelephoneAffiche === 'function' ? mtTelephoneAffiche('3114', undefined, { grand: true }) : '3114') + '</p>' +
     '<p class="regard-exterieur-detresse-texte">' + echapperAttribut(msg) + '</p>' +
     '</div>';
 }
@@ -735,7 +735,8 @@ function _regardExterieurRenduPistesRessourcesListe(liste) {
       // TACHE (retour utilisateur, 2026-08-26) : phrase explicite "on vous
       // conseille d'aller sur le site X" -- jamais juste un nom cliquable
       // isolé, pour que l'invitation soit sans ambiguïté.
-      ligneSite = '<p class="regard-exterieur-piste-invite">On vous conseille d\'aller sur le site <a href="' + echapperAttribut(p.url) + '" target="_blank" rel="noopener noreferrer">' + nomEchappe + ' &#8599;</a>.</p>';
+      // Consigne 147 (C3, maquette validée le 07/11/2026) : plus de lien dans la phrase, le NOM de la structure est un bouton (composant commun modules/boutons-communs/logique.js).
+      ligneSite = '<p class="regard-exterieur-piste-invite">On vous conseille d\'aller sur le site de cet organisme :</p><p class="mb-2">' + boutonExterneHtml(p.url, p.libelle) + '</p>';
     }
     var ligneMotsCles = '';
     if (p.motsCles.length) {

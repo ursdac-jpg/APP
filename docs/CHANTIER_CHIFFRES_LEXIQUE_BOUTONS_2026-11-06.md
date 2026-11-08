@@ -52,10 +52,10 @@ Décisions de Denis (06/11/2026) : adresse web = bouton portant le NOM de la str
 - [ ] **C2. Un composant commun de bouton externe** (nom + icône + « vous quittez l'application ») et un composant « adresse + bouton carte » ; les enregistrer dans `docs/BRIQUES_COMMUNES.md` ; les brancher d'abord dans `mtCarteStructureHtml` (une modification couvre Lexique, Qui fait quoi, Mon territoire).
 - [ ] **C3. Remplacer le lien « On vous conseille d'aller sur le site »** (Regard extérieur / fiches freins) par le même bouton.
 - [ ] **C4. Comprendre le cadre** : liens des textes et sources en boutons (hors liens dans une phrase qui continue : exception admise par la règle).
-- [ ] **C5. Boutons sans cadre** : donner un cadre aux boutons du pied de fiche du Lexique.
-- [ ] **C6. Rendre « Signaler une erreur ou un changement » plus visible** (même style que les boutons secondaires de l'application, mode sombre compris).
-- [ ] **C8. Chapitres de la fiche du Lexique en boutons de couleurs différentes (consigne 126)** : `modules/lexique/index.js` ~881 (`lienUnivers`, `lienRegistres`, classe `lien-famille-explorer`). Maquette d'abord : une couleur par chapitre (univers et registres), le nom reste écrit (la couleur n'est jamais le seul signal), valeur en mode sombre pour chaque couleur, à valider avec Denis. Bien relier aux fiches « freins » (chapitre des freins à un parcours).
-- [ ] **C7. Balayage final** : rejouer le balayage des liens sans cadre sur toutes les fiches du Lexique (script de contrôle dans le navigateur : `a[href]` sans bordure ni fond) ; résultat attendu : plus que les liens dans une phrase. Tests, clair/sombre/téléphone, journal, commit.
+- [x] **C5. Boutons sans cadre** : donner un cadre aux boutons du pied de fiche du Lexique.
+- [x] **C6. Rendre « Signaler une erreur ou un changement » plus visible** (même style que les boutons secondaires de l'application, mode sombre compris).
+- [x] **C8. Chapitres de la fiche du Lexique en boutons de couleurs différentes (consigne 126)** : `modules/lexique/index.js` ~881 (`lienUnivers`, `lienRegistres`, classe `lien-famille-explorer`). Maquette d'abord : une couleur par chapitre (univers et registres), le nom reste écrit (la couleur n'est jamais le seul signal), valeur en mode sombre pour chaque couleur, à valider avec Denis. Bien relier aux fiches « freins » (chapitre des freins à un parcours).
+- [x] **C7. Balayage final** : rejouer le balayage des liens sans cadre sur toutes les fiches du Lexique (script de contrôle dans le navigateur : `a[href]` sans bordure ni fond) ; résultat attendu : plus que les liens dans une phrase. Tests, clair/sombre/téléphone, journal, commit.
 
 ## D. Questions encore ouvertes pour Denis
 

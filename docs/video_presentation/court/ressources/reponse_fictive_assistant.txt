@@ -1,0 +1,26 @@
+J’ai bien lu votre CV. Voici les informations que j’y ai trouvées : relisez-les avant de les valider.
+
+```json
+{
+  "identite": { "civilite": "", "nom": "", "prenom": "", "telephone": "", "email": "", "adresse": "", "codePostal": "", "ville": "", "lien": "" },
+  "presentation": { "titre": "Agent d'entretien", "accroche": "" },
+  "experiences": [
+    { "poste": "Agent d'entretien", "entreprise": "", "lieu": "Limoges", "dateDebut": "2019", "dateFin": "2023", "stage": null, "missions": ["Nettoyage de bureaux, 12 locaux par jour", "Gestion des produits"], "confiance": "elevee", "alertes": [] },
+    { "poste": "Employée polyvalente", "entreprise": "Restaurant Le Marché", "lieu": "Limoges", "dateDebut": "2016", "dateFin": "2019", "stage": null, "missions": ["Service en salle", "Mise en place", "Caisse"], "confiance": "elevee", "alertes": [] }
+  ],
+  "experiencesPerso": [],
+  "formations": [
+    { "niveau": "CAP", "intitule": "Agent polyvalent de restauration", "annee": "2016", "etablissement": "", "lieu": "", "missions": [], "confiance": "elevee", "alertes": [] }
+  ],
+  "competences": { "savoirFaire": [], "savoirEtre": ["Autonomie", "Ponctualité", "Travail en équipe"], "savoirs": ["Respect des consignes d'hygiène"] },
+  "langues": [],
+  "certifications": [],
+  "certificationsAvecMissions": [],
+  "logiciels": [],
+  "permis": { "possede": null, "categories": [], "vehicule": null },
+  "loisirs": [],
+  "engagements": [],
+  "informationsNonClassees": [],
+  "pointsAVerifier": []
+}
+```

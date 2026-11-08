@@ -1,7 +1,8 @@
 # Fiches du sas PRE-VALIDEES : deja controlees, que Denis peut retrouver et cocher en bloc dans l'outil de veille. L'application NE LIT PAS ce fichier.
 # Format : sas (employeurs, lieux ou offres) | identifiant de la fiche | base du controle (texte-denis, denis-main, test-et-assistant ou appel-denis) | empreinte de la fiche au moment du controle.
 # Si la fiche est modifiee ensuite, l'empreinte ne correspond plus et le repere devient « modifiee depuis ». Aucune date ici : la date est celle du commit.
-employeurs | vitadom | test-et-assistant | 73606c8b97
+employeurs | hotelf1-limoges-87 | test-et-assistant | 63512248be
+employeurs | novotel-limoges-le-lac-87 | test-et-assistant | 032d09ab3a
 lieux | centre-gestion-fpt-dordogne-24 | test-et-assistant | 77cc631216
 lieux | centre-gestion-fpt-haute-vienne-87 | test-et-assistant | 76b13b8335
 lieux | cnfpt-conseil-evolution-professionnelle-national | test-et-assistant | afcb29c998

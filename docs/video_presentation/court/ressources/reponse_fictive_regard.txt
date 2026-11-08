@@ -1,0 +1,35 @@
+```json
+{
+  "modeAnalyse": "texte",
+  "analyseImpossible": false,
+  "messageAnalyseImpossible": "",
+  "cvCourt": false,
+  "messageCvCourt": "",
+  "fondDeCouleur": false,
+  "syntheseOuverture": "En parcourant vite le texte, un recruteur retient d'abord deux expériences dans des métiers de service, à Limoges, sur sept années. Il pourrait s'arrêter sur la suite du parcours après 2023.",
+  "axes": [
+    { "id": "positif", "afficher": true, "points": [
+      { "titre": "Un parcours continu", "constat": "« Agent d'entretien (2019 à 2023) » puis « Employée polyvalente (2016 à 2019) »", "lecture": "Les deux expériences se suivent sans trou : le document montre de la régularité.", "piste": "Garder les dates bien visibles, en tête de chaque expérience." },
+      { "titre": "Des missions concrètes", "constat": "« 12 locaux par jour, gestion des produits »", "lecture": "Un chiffre précis aide à imaginer le travail réellement fait.", "piste": "Ajouter un chiffre ou un exemple du même genre dans l'autre expérience." }
+    ] },
+    { "id": "coherence", "afficher": true, "points": [
+      { "titre": "Une période à préciser", "constat": "Dernière expérience terminée en 2023, rien ensuite.", "lecture": "Un recruteur peut se demander ce qui s'est passé depuis.", "piste": "Indiquer en une ligne ce que vous avez fait depuis, si vous le souhaitez." }
+    ] },
+    { "id": "message", "afficher": true, "points": [
+      { "titre": "Le métier visé n'est pas annoncé", "constat": "Le titre « Agent d'entretien » est en haut, sans phrase de présentation.", "lecture": "Le document dit ce que vous avez fait, moins ce que vous cherchez maintenant.", "piste": "Ajouter une phrase courte sur le poste recherché." }
+    ] },
+    { "id": "premiere-lecture", "afficher": true, "points": [
+      { "titre": "", "constat": "Le titre, les deux expériences et le CAP ressortent en premier.", "lecture": "En quelques secondes, le profil se comprend : service et entretien, expérience de terrain.", "piste": "Mettre les compétences en avant juste sous le titre." }
+    ] },
+    { "id": "presentation", "afficher": false, "points": [] },
+    { "id": "couleurs", "afficher": false, "points": [] }
+  ],
+  "questionsLieesAuCv": [
+    { "question": "Que faisiez-vous depuis 2023 ?", "origine": "Dernière expérience terminée en 2023", "ceQueLeRecruteurCherche": "Comprendre la période récente et la disponibilité.", "commentYRepondre": "Une phrase simple : formation, pause, recherche d'emploi, ce qui est vrai pour vous." },
+    { "question": "Pourquoi avoir changé de la restauration à l'entretien ?", "origine": "Passage de « Employée polyvalente » à « Agent d'entretien » en 2019", "ceQueLeRecruteurCherche": "Voir ce qui motive vos choix de métier.", "commentYRepondre": "Parler de ce que vous aviez envie d'apprendre ou de ce que le poste vous a apporté." },
+    { "question": "Comment organisiez-vous 12 locaux par jour ?", "origine": "« 12 locaux par jour »", "ceQueLeRecruteurCherche": "Votre façon de vous organiser et de tenir un rythme.", "commentYRepondre": "Décrire l'ordre des tâches et ce qui vous aidait à ne rien oublier." },
+    { "question": "Quels produits utilisiez-vous, et avec quelles précautions ?", "origine": "« gestion des produits »", "ceQueLeRecruteurCherche": "Le respect des consignes d'hygiène et de sécurité.", "commentYRepondre": "Donner un ou deux exemples de gestes habituels." },
+    { "question": "Quel poste cherchez-vous aujourd'hui ?", "origine": "Aucune phrase de présentation en haut du document", "ceQueLeRecruteurCherche": "Savoir si votre candidature correspond à l'offre.", "commentYRepondre": "Nommer le poste visé en une phrase, avec une raison." }
+  ]
+}
+```

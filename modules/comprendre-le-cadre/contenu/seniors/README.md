@@ -30,7 +30,7 @@ n'est pas une source de droit.
      **traitée le 2026-11-03 dans la fiche `seniors-retraite-et-enfants`** (la partie durable : trimestres, surcote, majoration) ; la nouveauté du 1er septembre 2026 y est datée, et signalée dans le digest Balayage de septembre 2026 (03/11/2026) ;
    - cumul emploi-retraite : conditions du cumul intégral, nouveaux droits depuis 2023.
 
-## Les 9 fiches
+## Les 10 fiches
 
 | id | titre |
 |---|---|
@@ -43,6 +43,7 @@ n'est pas une source de droit.
 | `seniors-carriere-longue-depart-anticipe` | Carrière longue : partir à la retraite avant l'âge légal |
 | `seniors-retraite-complementaire-agirc-arrco` | La retraite complémentaire du privé : l'Agirc-Arrco, comment elle fonctionne |
 | `seniors-retraite-et-enfants` | Retraite et enfants : les trimestres et les avantages liés à la parentalité |
+| `seniors-chomage-apres-55-ans` | Le chômage après 55 ans : durée d'indemnisation, formation et maintien des droits jusqu'à la retraite |
 
 ## Section « à qui s'adresser »
 

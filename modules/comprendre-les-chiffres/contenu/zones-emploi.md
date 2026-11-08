@@ -16,6 +16,8 @@ sources:
   - "insee-dossier-sarlat | INSEE, dossier complet, zone d'emploi de Sarlat-la-Canéda | https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7529 | 2026-09-12"
   - "insee-dossier-limoges | INSEE, dossier complet, zone d'emploi de Limoges | https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7517 | 2026-09-12"
   - "insee-dossier-saint-junien | INSEE, dossier complet, zone d'emploi de Saint-Junien | https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7527 | 2026-09-12"
+periodes:
+  - "chomage_recensement | 2023"
 ---
 
 # 24

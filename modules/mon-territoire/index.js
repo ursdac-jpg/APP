@@ -428,8 +428,9 @@ function _mtEncart(icone, html) {
   return '<div class="comprendre-le-cadre-encart mb-3"><i class="bi ' + icone + '"></i> ' + html + '</div>';
 }
 
+// Un bouton vers un site extérieur : le composant commun (modules/boutons-communs/logique.js), avec « Vous quittez l'application » en dessous.
 function _mtBoutonLienExterne(url, libelle) {
-  return '<a class="btn btn-outline-primary" href="' + _mtEsc(url) + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> ' + libelle + ' (vous quittez l’application)</a>';
+  return boutonExterneHtml(url, libelle);
 }
 
 // ------------------------------------------------------------
@@ -1012,7 +1013,7 @@ function _mtRenduFiche() {
   var lieux = e.etablissementsListe.map(function (x, i) {
     return '<span class="d-block"><i class="bi bi-geo-alt"></i> <strong>' + _mtEsc(_mtCommuneCp(x.commune)) + '</strong>' + (x.adresse ? ' : ' + _mtEsc(x.adresse) : '') +
       (x.telephone && fraicheur === 'recente' ? ' · <i class="bi bi-telephone"></i> ' + mtTelephoneAffiche(x.telephone) : (telsMagasins && !x.telephone && !e.telephone ? ' · <span class="text-muted">numéro en cours de vérification</span>' : '')) +
-      (x.adresse && fraicheur === 'recente' ? ' <a class="btn btn-sm btn-outline-primary ms-1" href="' + _mtEsc(mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) + '" target="_blank" rel="noopener"><i class="bi bi-map"></i> Voir sur la carte</a>' : '') + '</span>'; }).join('');
+      (x.adresse && fraicheur === 'recente' ? ' ' + boutonCarteHtml(mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) : '') + '</span>'; }).join('');
   var verifie = fraicheur === 'recente' ? 'Vérifié le ' + _mtDateFr(e.date)
     : fraicheur === 'a-reverifier' ? 'Vérifié le ' + _mtDateFr(e.date) + ' : à revérifier, appelez avant de vous déplacer' : 'Pas encore vérifié';
   var pastilles = e.nature === 'interim' ? '<span class="badge rounded-pill text-bg-light me-1">Inscription à l’agence</span>' : e.modesListe.map(function (m) { return '<span class="badge rounded-pill text-bg-light me-1">' + _mtEsc(MT_MODES[m] || m) + '</span>'; }).join('');

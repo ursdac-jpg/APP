@@ -68,12 +68,12 @@
   font-weight: 800;
   line-height: 1;
 }
-.regard-exterieur-detresse-num a {
+.regard-exterieur-detresse-num a:not(.btn) {
   color: var(--warning-strong);
   text-decoration: none;
 }
-.regard-exterieur-detresse-num a:hover,
-.regard-exterieur-detresse-num a:focus-visible {
+.regard-exterieur-detresse-num a:not(.btn):hover,
+.regard-exterieur-detresse-num a:not(.btn):focus-visible {
   text-decoration: underline;
 }
 .regard-exterieur-detresse-texte {
@@ -192,7 +192,6 @@
 .regard-exterieur-piste:last-child { margin-bottom: 0; }
 .regard-exterieur-piste-titre { margin: 0 0 0.2rem; font-weight: 700; font-size: 1.1rem; }
 .regard-exterieur-piste-invite { margin: 0 0 0.2rem; font-size: 1rem; }
-.regard-exterieur-piste-invite a { color: var(--accent); }
 .regard-exterieur-piste-motscles { margin: 0 0 0.15rem; font-size: 1rem; }
 
 /* ---- cartes neutres (Questions à poser, Qui voir) ---- */

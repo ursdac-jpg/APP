@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la vidéo de présentation d'un module</title>
+<!--
+  Maquette, version 2 (08/11/2026, consigne 178). Décision de Denis : deux états seulement, pas de mémoire « déjà vue » (pas de compte, navigation privée possible).
+   - fermé : un bouton-ligne, toujours le même, qui montre clairement que c'est une vidéo ;
+   - ouvert : le lecteur se déplie à la même place ; un clic sur le même bouton le referme.
+  La question à trancher : à quoi ressemble ce bouton (quatre propositions A à D, panneau « Régler la maquette » en bas, refermable).
+  Règles du langage visuel respectées : un vrai bouton (cadre, fond, coins arrondis, jamais du texte souligné), jamais rond, couleurs en jetons (clair et sombre),
+  teinte d'accent du module. La vignette de la proposition C est une image extraite de la vraie vidéo (un fichier image par vidéo, à préparer).
+-->
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .zone-essai { max-width: 820px; margin: 0 auto; padding: 1rem 16px 8rem; }
+  .masque { display: none !important; }
+  .faux-bloc { border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+
+  .vp { max-width: 720px; margin: 0.7rem auto 1.1rem; }
+  .vp-bouton {
+    width: 100%; display: flex; align-items: center; gap: 0.9rem; text-align: left; cursor: pointer;
+    border: 1px solid var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); color: var(--text, inherit);
+    padding: 0.6rem 0.9rem; font: inherit; transition: 0.15s;
+  }
+  .vp-bouton:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .vp-icone { flex: 0 0 auto; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 10px; background: var(--accent); color: #fff; font-size: 1rem; }
+  .vp-texte { flex: 1 1 auto; line-height: 1.25; }
+  .vp-texte strong { display: block; font-size: 1rem; }
+  .vp-texte span { font-size: 0.85rem; color: var(--text-muted); }
+  .vp-duree { flex: 0 0 auto; font-size: 0.85rem; font-weight: 600; color: var(--accent); }
+  .vp-chevron { flex: 0 0 auto; transition: transform 0.2s; color: var(--accent); }
+  .vp.ouvert .vp-chevron { transform: rotate(180deg); }
+  .vp-lecteur { margin-top: 0.7rem; text-align: center; }
+  .vp-lecteur video { width: 100%; max-width: 640px; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; }
+  .vp-lecteur p { color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0 0; }
+
+  /* A : la ligne-bouton, le bloc accordéon de l'application (filet gauche, fond teinté) */
+  .va .vp-bouton { border-left-width: 4px; }
+  /* B : bouton plein, couleur d'accent, texte blanc */
+  .vb .vp-bouton { background: var(--accent); color: #fff; justify-content: center; border-radius: 12px; }
+  .vb .vp-bouton:hover { background: var(--accent-hover); }
+  .vb .vp-icone { background: #fff; color: var(--accent); }
+  .vb .vp-texte span, .vb .vp-duree, .vb .vp-chevron { color: #fff; }
+  .vb .vp-texte { flex: 0 1 auto; text-align: center; }
+  /* C : avec une vignette tirée de la vidéo : donne envie de cliquer */
+  .vc .vp-bouton { padding: 0.45rem 0.9rem 0.45rem 0.45rem; border-width: 2px; }
+  .vc .vp-vignette { position: relative; flex: 0 0 auto; width: 9.5rem; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #000; }
+  .vc .vp-vignette img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .vc .vp-vignette .vp-icone { position: absolute; inset: 0; margin: auto; background: rgba(0,0,0,.55); border-radius: 50%; width: 2.2rem; height: 2.2rem; }
+  /* D : contour d'accent, discret */
+  .vd .vp-bouton { background: transparent; }
+  .vd .vp-bouton:hover { background: var(--accent-bg-subtle); }
+  .vd .vp-icone { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+
+  .reglage { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card, var(--bg, #fff)); border-top: 2px solid var(--accent); padding: 0.6rem 16px; z-index: 50; }
+  .reglage-contenu { max-width: 820px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .reglage button.choix { border: 1px solid var(--border); background: transparent; color: inherit; border-radius: 8px; padding: 0.35rem 0.7rem; cursor: pointer; }
+  .reglage button.choix.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .reglage-croix { margin-left: auto; border: none; background: transparent; font-size: 1.2rem; cursor: pointer; color: inherit; }
+  .reglage-ouvrir { position: fixed; right: 12px; bottom: 12px; z-index: 50; border: 1px solid var(--border); background: var(--bg-card, #fff); border-radius: 8px; padding: 0.35rem 0.7rem; cursor: pointer; color: inherit; }
+  .note-maquette { font-size: 0.85rem; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 8px; padding: 0.5rem 0.8rem; margin: 1.2rem 0; }
+</style>
+</head>
+<body>
+<div class="zone-essai">
+  <div class="text-center">
+    <h1>Comprendre les chiffres</h1>
+    <p class="sousTitre">Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés.</p>
+  </div>
+
+  <div class="vp va" id="vp"></div>
+
+  <div class="faux-bloc"><strong>Beaucoup de données existent déjà, gratuites et publiques.</strong> Le problème, c’est que peu de gens savent les lire. Ici, on les explique en langage simple.</div>
+  <div class="faux-bloc"><strong>À quoi ça sert</strong><br>Pour vous : savoir où en est l’emploi près de chez vous, sans avoir à déchiffrer les tableaux de l’INSEE.</div>
+
+  <div class="note-maquette">
+    <strong>Deux états seulement</strong> : fermé (le bouton-ligne ci-dessus, qui prend une seule ligne) et ouvert (le lecteur se déplie dessous). Un clic sur le même bouton referme. Rien n’est retenu sur l’appareil : tout le monde voit la même chose, à chaque visite.
+    Le même bouton servira dans toutes les présentations de modules et dans les écrans de travail (masquer un texte, envoyer à l’assistant, personnaliser un CV), avec un libellé adapté (« Voir la démonstration », 20 s).
+  </div>
+</div>
+
+<div class="reglage" id="reglage">
+  <div class="reglage-contenu">
+    <strong>Régler la maquette</strong>
+    <button type="button" class="choix" data-v="va">A. Ligne à filet (comme les blocs dépliants)</button>
+    <button type="button" class="choix" data-v="vb">B. Bouton plein</button>
+    <button type="button" class="choix" data-v="vc">C. Avec une vignette de la vidéo</button>
+    <button type="button" class="choix" data-v="vd">D. Contour seul</button>
+    <button type="button" class="reglage-croix" id="fermerReglage" aria-label="Fermer ce panneau">&#10005;</button>
+  </div>
+</div>
+<button type="button" class="reglage-ouvrir masque" id="ouvrirReglage">Régler la maquette</button>
+
+<script>
+(function () {
+  var variante = 'va', ouvert = false;
+  var zone = document.getElementById('vp');
+  var SRC = '../../videos/modules/chiffres.mp4';
+  function dessiner() {
+    zone.className = 'vp ' + variante + (ouvert ? ' ouvert' : '');
+    var gauche = variante === 'vc'
+      ? '<span class="vp-vignette"><img src="../../videos/modules/vignettes/chiffres.jpg" alt=""><span class="vp-icone" aria-hidden="true">&#9654;</span></span>'
+      : '<span class="vp-icone" aria-hidden="true">&#9654;</span>';
+    var titre = ouvert ? 'Fermer la vidéo' : 'Voir la présentation en vidéo';
+    var sous = ouvert ? '' : '<span>De quoi s’agit-il ? En images, avec des sous-titres.</span>';
+    var html = '<button type="button" class="vp-bouton" id="vpBouton" aria-expanded="' + ouvert + '">' + gauche +
+      '<span class="vp-texte"><strong>' + titre + '</strong>' + sous + '</span>' +
+      (ouvert ? '' : '<span class="vp-duree">1 min</span>') +
+      '<span class="vp-chevron" aria-hidden="true">&#9662;</span></button>';
+    if (ouvert) {
+      html += '<div class="vp-lecteur"><video controls preload="metadata" src="' + SRC + '"></video>' +
+        '<p>Les sous-titres sont dans l’image. Le son est celui de la voix : il ne démarre jamais tout seul.</p></div>';
+    }
+    zone.innerHTML = html;
+    document.getElementById('vpBouton').addEventListener('click', function () { ouvert = !ouvert; dessiner(); });
+    document.querySelectorAll('.reglage .choix').forEach(function (b) { b.classList.toggle('actif', b.dataset.v === variante); });
+  }
+  document.querySelectorAll('.reglage .choix').forEach(function (b) {
+    b.addEventListener('click', function () { variante = b.dataset.v; dessiner(); });
+  });
+  document.getElementById('fermerReglage').addEventListener('click', function () {
+    document.getElementById('reglage').classList.add('masque'); document.getElementById('ouvrirReglage').classList.remove('masque');
+  });
+  document.getElementById('ouvrirReglage').addEventListener('click', function () {
+    document.getElementById('reglage').classList.remove('masque'); document.getElementById('ouvrirReglage').classList.add('masque');
+  });
+  dessiner();
+})();
+</script>
+</body>
+</html>

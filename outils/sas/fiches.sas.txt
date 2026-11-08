@@ -1,0 +1,2 @@
+# Sas des fiches du cadre : propositions de l'assistant (mise a jour, nouvelle fiche, retrait), PAS ENCORE verifiees. L'application NE LIT PAS ce fichier.
+# Une proposition par ligne (JSON). Elle sort d'ici quand elle est validee (outil de veille, « Mise a jour », « A valider », bouton « C'est bon »).

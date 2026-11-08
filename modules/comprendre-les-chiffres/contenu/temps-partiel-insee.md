@@ -2,6 +2,8 @@
 verifie_le: 2026-11-06
 sources:
   - "insee-temps-partiel-2022 | Insee, Caractéristiques de l'emploi en 2022 (recensement de la population, actifs occupés de 15 ans ou plus à temps partiel, agrégé par département) | https://www.insee.fr/fr/statistiques/8581424 | 2026-11-06"
+periodes:
+  - "insee-temps-partiel-2022 | 2022"
 ---
 
 # departements

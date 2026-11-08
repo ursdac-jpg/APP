@@ -30,6 +30,8 @@
   <!-- Module « Carnet » — voir modules/carnet/ARCHITECTURE_TECHNIQUE.md. -->
   <link rel="stylesheet" href="modules/carnet/carnet.css">
   <link rel="stylesheet" href="modules/astuce-dictee/astuceDictee.css">
+  <!-- Vidéos de présentation des modules (lot E, consigne 178) : un seul bouton-ligne avec vignette, le lecteur se déplie au clic. -->
+  <link rel="stylesheet" href="modules/video-presentation/videoPresentation.css">
   <!-- Module « Lexique » — voir modules/lexique/ARCHITECTURE_TECHNIQUE.md. Cible ses
        écrans via [id^="lexique"], jamais les classes Bootstrap génériques globalement. -->
   <link rel="stylesheet" href="modules/lexique/lexique.css">
@@ -54,6 +56,7 @@
   <button type="button" id="btnPreferencesAffichage" aria-label="Préférences d'affichage" title="Préférences d'affichage"><i class="bi bi-gear" aria-hidden="true"></i></button>
   <div id="panneauPreferencesAffichage" hidden>
     <h6><i class="bi bi-gear"></i> Affichage</h6>
+    <div id="zoneVideoAffichage"></div>
     <!-- TACHE (retour utilisateur : "Thème/Mode daltonien/Confort de
          lecture toujours visibles, les 3 autres moins importantes dans un
          accordéon chacune, pour ne pas noyer les 3 premières") : ces 3
@@ -194,6 +197,7 @@
   <div id="panneauAide" hidden>
     <h6><i class="bi bi-lightbulb"></i> Besoin d'aide ?</h6>
     <p class="small text-muted mb-2">Comprendre à quoi sert chaque outil de cette page.</p>
+    <div id="zoneVideoAide"></div>
     <button type="button" id="btnAideExplicationRapide" class="btn btn-sm btn-outline-secondary w-100 mb-2"><i class="bi bi-card-text"></i> Explication rapide</button>
     <button type="button" id="btnAideVisiteGuidee" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-map"></i> Visite guidée</button>
   </div>
@@ -515,6 +519,8 @@
        l'instant (etape 2/7) : sera scinde si la complexite reelle des
        etapes suivantes le justifie, jamais par anticipation. -->
   <script src="modules/reperes/index.js" charset="UTF-8"></script>
+  <!-- Boutons communs (consignes 125 et 126) : bouton vers un site extérieur, adresse avec bouton carte. Logique pure, chargée avant les modules qui l'appellent. Maquette : docs/MAQUETTE_BOUTONS_FIN_DES_LIENS_2026-11-07.html. -->
+  <script src="modules/boutons-communs/logique.js" charset="UTF-8"></script>
   <!-- Module « Regard extérieur » — voir modules/regard-exterieur/ARCHITECTURE_TECHNIQUE.md.
        Chargé après modules/reperes/index.js (l'ancre #reperesZoneRegardExterieur
        lui appartient), avant js/app.js (qui l'appelle après chaque navigation). -->
@@ -603,6 +609,8 @@
   <script src="modules/cv-sans-assistant/index.js" charset="UTF-8"></script>
   <!-- Astuce de dictée selon l'appareil (brique commune, consigne 85) ; avant js/app.js et les modules. -->
   <script src="modules/astuce-dictee/astuceDictee.js" charset="UTF-8"></script>
+  <!-- Vidéos de présentation (brique commune, lot E) : htmlVideoPresentation(), appelée par les pages de présentation ; avant js/app.js. -->
+  <script src="modules/video-presentation/videoPresentation.js" charset="UTF-8"></script>
   <!-- Nouveautés : données, logique pure, interface ; avant js/app.js (route 'nouveautes'). -->
   <script src="data/nouveautes.js" charset="UTF-8"></script>
   <script src="modules/nouveautes/logique.js" charset="UTF-8"></script>

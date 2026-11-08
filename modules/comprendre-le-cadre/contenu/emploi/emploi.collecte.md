@@ -33,6 +33,10 @@ sources:
   - "service-public-plafonnement-arrets-travail | La durée des arrêts de travail plafonnée depuis le 1er septembre | https://www.service-public.gouv.fr/particuliers/actualites/A18962 | 2026-10-05"
   - "legifrance-decret-2026-866-ald | Décret n° 2026-866 du 16 septembre 2026 relatif à la durée maximale dérogatoire d'indemnisation pour arrêt de travail | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054855169 | 2026-10-05"
   - "service-public-dispense-visite-reprise | Visites de préreprise et de reprise : nouvelles modalités | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05"
+  - "service-public-arret-maladie-duree-2026 | Service Public : durée de l'arrêt maladie, actualité 2026 | https://www.service-public.gouv.fr/particuliers/actualites/A19066 | 2026-11-03"
+  - "travail-emploi-visite-reprise | Ministère du Travail : la visite de pré-reprise et la visite de reprise | https://travail-emploi.gouv.fr/la-visite-de-pre-reprise-et-la-visite-de-reprise | 2026-09-12"
+  - "unedic-csp-prolongation-2026 | Unédic : le contrat de sécurisation professionnelle prolongé jusqu'à fin 2026 | https://www.unedic.org/actualites/le-contrat-de-securisation-professionnelle-csp-prolonge-jusqua-fin-2026 | 2026-10-05"
+  - "entreprendre-prolongation-csp-2026 | Service Public Entreprendre : prolongation du contrat de sécurisation professionnelle | https://entreprendre.service-public.gouv.fr/actualites/A16643 | 2026-11-03"
 structures:
   - "france-travail | France Travail : inscription, accompagnement, information sur les droits liés à un contrat et à sa fin | https://www.francetravail.fr/ | 2026-09-04"
   - "cdad-dordogne-points-justice | Points-justice et maisons de justice et du droit de la Dordogne : information juridique gratuite, dont le droit du travail | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/c75765f2-d8f8-4224-ba57-d8a92c30ce4b | 2026-11-03"

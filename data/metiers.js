@@ -2928,7 +2928,7 @@ function htmlVerificationDocument(cfg) {
       '<textarea class="form-control verif-doc-textarea" id="verifDocTextarea" rows="8" ' +
       'style="font-size:0.85rem;position:relative;background:transparent;color:transparent;caret-color:var(--text-strong);"></textarea>' +
       '</div>' +
-      '<div class="text-center verif-doc-video-ligne">' + htmlDeclencheurDemoVideo('masquage-texte') + '</div>' +
+      '<div class="text-center verif-doc-video-ligne">' + htmlVideoGeste('masquer-texte') + '</div>' +
       (cfg.htmlAvantEnregistrer || '') +
       '<div class="verif-doc-enregistrer-ligne">' +
       '<button type="button" id="verifDocBtnEnregistrer" class="btn btn-primary verif-doc-btn-enregistrer" ' +
@@ -2963,7 +2963,7 @@ function htmlVerificationDocument(cfg) {
         '<li>Glissez ce document (téléchargé juste au-dessus) dans la conversation.</li>' +
         '</ol>' +
         '<p class="small mb-2">L’assistant ne peut pas lire votre document sans cette pièce jointe.</p>' +
-        htmlDeclencheurDemoVideo('masquage-image') +
+        htmlVideoGeste('masquer-image') +
         '</div>'
       : '');
 }
@@ -3167,7 +3167,7 @@ function cablerVerificationDocument(cfg) {
         '<p class="fw-bold mb-1">&#128270; Le bouton Agrandir</p>' +
         '<p class="small mb-3">Ouvre une vue plus grande du document : pratique pour masquer précisément une petite ' +
         'zone.</p>' +
-        htmlDeclencheurDemoVideo('masquage-image')
+        htmlVideoGeste('masquer-image')
     });
   });
   btnAgrandir.addEventListener('click', function () {
@@ -3343,6 +3343,8 @@ function htmlDepotCVEnPage(cfg) {
   // phase 'depot' : deux cartes de meme poids (maquette validee par Denis, presentation A)
   return '<p>' + (cfg.intro || ('Déposez votre ' + echapperAttribut(nomDoc) + ', sous la forme que vous avez : PDF, Word, texte, photo ou capture d’écran. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong>. Vous le relisez ensuite et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre : rien n’est masqué à votre place.')) + '</p>' +
     (s.message ? '<div class="alert alert-warning small">' + echapperAttribut(s.message) + '</div>' : '') +
+    // Petite vidéo « importer son CV » : seulement pour le CV (la page Cohérence a trois zones de dépôt, la même vidéo ne s'y répète pas).
+    (titreDoc === 'CV' && typeof htmlVideoGeste === 'function' ? htmlVideoGeste('importer-cv') : '') +
     '<input type="file" id="depotPageFichier' + sfx + '" class="visually-hidden" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,.heic" tabindex="-1">' +
     '<div class="depot-choix">' +
     '<div class="depot-carte" id="depotPageZone' + sfx + '"><span class="depot-carte-icone" aria-hidden="true">&#128196;</span><span class="depot-carte-titre">Un fichier</span>' +
@@ -4093,6 +4095,8 @@ function htmlPageIntroModuleParcours(config) {
     (config.enTeteHTML || ('<div class="text-center"><h1>' + config.titre + '</h1>' +
       (config.sousTitre ? '<p class="sousTitre">' + config.sousTitre + '</p>' : '') +
       '</div>')) +
+    // Vidéo de présentation du module (lot E) : un bouton-ligne fermé, le lecteur se déplie au clic (modules/video-presentation).
+    (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
     (config.syntheseHTML || '') +
     config.blocsHTML +
     (config.sansMultilingue ? '' : htmlEncartMultilingue(!!config.multilingueCourte)) +
@@ -4458,6 +4462,7 @@ function _coLettreRendreIntro() {
     titre: '<i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant',
     sousTitre: 'Vous n’écrivez pas seul : un assistant en ligne propose, vous gardez la main sur chaque phrase.',
     etapes: CO_LETTRE_NAV_ETAPES,
+    video: 'lettre',
     ctaId: 'btnCoLettreCommencer',
     ctaLabel: 'Écrire ma lettre de motivation &#8594;',
     ctaMasque: (!_coLettreDetour && (lettreFaite || travailEnCours)),
@@ -5247,6 +5252,8 @@ function _reprendreCvPresVoie(id, situation, listeHtml) {
   return '<div class="voie-presentation">' +
     '<div class="voie-presentation-tete">' + _reprendreCvPastilleVoie(id) + '<i class="bi ' + v.icone + '" aria-hidden="true"></i><strong>' + v.titre + '</strong></div>' +
     '<p class="voie-presentation-phrase"><strong>' + v.mode + '</strong> ' + v.phrase + ' <span class="small" style="color:var(--text-muted);">' + situation + '</span></p>' +
+    // Vidéo de cette voie (lot E) : maj -> reprendre-garder, reformuler -> reprendre-reformuler, sans -> reprendre-sans.
+    (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(id === 'maj' ? 'reprendre-garder' : 'reprendre-' + id) : '') +
     '<ul class="mb-0" style="padding-left:1.25rem;">' + listeHtml + '</ul></div>';
 }
 function _reprendreCvPastilleVoie(id) { return '<span class="carte-voie-num">Voie ' + _reprendreCvVoie(id).num + '</span>'; }
@@ -5265,6 +5272,8 @@ function _htmlParcoursRapidePresentation(id, situation, listeHtml) {
   return '<div class="voie-presentation">' +
     '<div class="voie-presentation-tete">' + _pastilleParcoursRapide(id) + '<i class="bi ' + p.icone + '" aria-hidden="true"></i><strong>' + p.titre + '</strong></div>' +
     '<p class="voie-presentation-phrase"><strong>' + p.mode + '</strong> ' + p.phrase + ' <span class="small" style="color:var(--text-muted);">' + situation + '</span></p>' +
+    // Vidéo de ce parcours (lot E) : pret-lettre, pret-entretien.
+    (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation('pret-' + id) : '') +
     '<ul class="mb-0" style="padding-left:1.25rem;">' + listeHtml + '</ul></div>';
 }
 function titreParcoursRapide(id) {
@@ -5966,6 +5975,7 @@ function _majCvRendreIntro() {
     titre: '<i class="bi bi-pencil-square"></i> Mettre à jour mon CV',
     sousTitre: 'On repart de votre CV existant. On en récupère les informations, vous les mettez à jour et les complétez, puis vous choisissez la présentation.',
     etapes: MAJ_CV_NAV_ETAPES,
+    video: 'reprendre-garder',
     ctaId: 'btnMajCvCommencer',
     ctaLabel: 'Déposer mon CV &#8594;',
     onCta: function () {
@@ -7445,6 +7455,7 @@ function _reformulerCvRendreIntro() {
     titre: '<i class="bi bi-brush"></i> Reformuler et présenter mon CV',
     sousTitre: 'Votre CV contient tout ce qu’il faut. On garde vos informations telles quelles : on retravaille seulement la formulation, l’ordre et la mise en forme.',
     etapes: REFORMULER_CV_NAV_ETAPES,
+    video: 'reprendre-reformuler',
     ctaId: 'btnReformulerCvCommencer',
     ctaLabel: 'Déposer mon CV &#8594;',
     onCta: function () {
@@ -7636,6 +7647,36 @@ function _creerCvSyntheseClassique(sansPour) {
   return sortie;
 }
 
+// Deux blocs communs à la présentation du module « Créer un nouveau CV » et à celle de chacun de ses parcours (une seule source, jamais recopiés).
+function _creerCvBlocEnsuite() {
+  return _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
+    '<ul class="mb-0" style="padding-left:1.25rem;">' +
+    '<li>Mettre votre CV en forme : plusieurs modèles, en PDF ou en Word.</li>' +
+    '<li>Préparer votre lettre de motivation.</li>' +
+    '<li>Vous entraîner aux questions d’un entretien d’embauche.</li>' +
+    '</ul>');
+}
+function _creerCvBlocReperes() {
+  return _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
+    '<p class="mb-0">À tout moment, vous pouvez mettre de côté une réflexion utile sur votre parcours (un doute, une idée, une chose à en dire) dans Mes Repères, pour vous ou votre conseiller.</p>');
+}
+// La présentation du MODULE « Créer un nouveau CV », avant le choix d'une des trois façons de faire (consigne 170, 08/11/2026) : de quoi il s'agit, à quoi ça sert, ce qu'il ne fait pas.
+function _creerCvPresentationModuleHaut() {
+  return _introBlocAccroche('<strong>Rien n’est jamais envoyé sans votre accord.</strong> Vous verrez chaque étape avant qu’elle se produise, et vous pourrez tout modifier.') +
+    _introBlocSection('&#127919; À quoi ça sert',
+      '<p class="mb-2">Construire un CV complet à partir d’une page blanche : vos expériences, vos compétences, votre projet. À la fin, vous obtenez un CV prêt à enregistrer en PDF ou en Word.</p>' +
+      '<p class="mb-2">Vous choisissez ensuite <strong>votre façon de faire</strong> : tout écrire vous-même, être aidé par un assistant en ligne, ou raconter votre parcours si vous n’avez jamais eu de CV.</p>' +
+      _introBlocEncart('&#128196;', 'Les modèles de mise en page sont les nôtres (PDF et Word). S’ils ne correspondent pas à ce que vous cherchez, vous pouvez à tout moment <strong>copier le texte de votre CV</strong> et le mettre en forme sur une autre plateforme de création de CV. Vous n’êtes jamais bloqué.'));
+}
+function _creerCvPresentationModuleBas() {
+  return _introBlocSection('&#128683; Ce que ce module ne fait pas',
+    '<ul class="mb-0" style="padding-left:1.25rem;">' +
+    '<li>Il ne part pas d’un CV que vous avez déjà : pour cela, il y a « Reprendre mon CV ».</li>' +
+    '<li>Il ne porte pas de regard critique sur un CV existant : pour cela, il y a « Un regard sur mon CV » et « Analyser ma candidature ».</li>' +
+    '<li>Il ne rédige pas votre lettre à votre place, phrase par phrase.</li>' +
+    '</ul>') + _creerCvBlocEnsuite() + _creerCvBlocReperes();
+}
+
 // Les blocs d'explication d'un parcours classique (le contenu d'origine de la page de présentation de « Créer un nouveau CV », par parcours).
 function _creerCvBlocsPresentation(sans) {
   return _introBlocAccroche('<strong>Rien n’est jamais envoyé sans votre accord.</strong> Vous verrez chaque étape avant qu’elle se produise, et vous pourrez tout modifier.') +
@@ -7659,14 +7700,7 @@ function _creerCvBlocsPresentation(sans) {
       '<li>Il ne rédige pas votre lettre à votre place, phrase par phrase.</li>' +
       (sans ? '<li>Il ne propose pas de phrase d’accroche toute faite : vous l’écrivez, ou vous vous en passez.</li>' : '') +
       '</ul>') +
-    _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
-      '<ul class="mb-0" style="padding-left:1.25rem;">' +
-      '<li>Mettre votre CV en forme : plusieurs modèles, en PDF ou en Word.</li>' +
-      '<li>Préparer votre lettre de motivation.</li>' +
-      '<li>Vous entraîner aux questions d’un entretien d’embauche.</li>' +
-      '</ul>') +
-    _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
-      '<p class="mb-0">À tout moment, vous pouvez mettre de côté une réflexion utile sur votre parcours (un doute, une idée, une chose à en dire) dans Mes Repères, pour vous ou votre conseiller.</p>') +
+    _creerCvBlocEnsuite() + _creerCvBlocReperes() +
     _introBlocSection('&#128172; Comment ça se passe concrètement',
       '<p class="mb-0">Vous avancez page par page. Une barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez. ' +
       (sans ? 'L’application ne remplit rien toute seule : vous validez chaque étape.'
@@ -7688,6 +7722,7 @@ function _creerCvPresentationRendre(sans) {
     onRevenirExpr: '_creerCvRevenirModule()',
     titre: sans ? '<i class="bi bi-pencil"></i> Créer mon CV à la main, sans assistant' : '<i class="bi bi-chat-dots"></i> Créer mon CV avec l’assistant en ligne',
     sousTitre: sans ? 'Vous écrivez vous-même vos informations, étape par étape. Rien n’est envoyé nulle part.' : 'Vous remplissez vos informations, puis un assistant en ligne vous aide à les formuler.',
+    video: sans ? 'creer-main' : 'creer-assistant',
     etapes: sans ? CREER_CV_NAV_ETAPES_SANS : CREER_CV_NAV_ETAPES,
     ctaId: 'btnCreerCvCommencer',
     ctaLabel: 'Commencer mon CV &#8594;',
@@ -7753,8 +7788,6 @@ function pageCreerCv() {
     '<li>Vous choisissez une façon de faire : <strong>à la main</strong>, <strong>avec l’assistant en ligne</strong>, ou <strong>à partir de votre récit</strong>. Chacune a sa page de présentation, avec le bouton pour commencer.</li>' +
     '<li>Si vous le souhaitez, vous commencez par <strong>regarder nos modèles de CV</strong> et vous en gardez jusqu’à 5. Le modèle que vous aurez choisi sera <strong>utilisé tel quel pour fabriquer votre CV</strong>, avec votre texte : vous pourrez ensuite le modifier si vous le voulez.</li>' +
     '<li>Vous avancez page par page. Une barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez.</li>' +
-    '<li>Rien n’est envoyé sans votre accord : l’application ne remplit rien toute seule, vous validez chaque étape.</li>' +
-    '<li>À la fin, vous obtenez un CV prêt à enregistrer (PDF ou Word), puis vous pourrez préparer votre lettre de motivation et votre entretien.</li>' +
     '</ul>');
   var config = {
     carteRetour: 'mesdocuments',
@@ -7765,10 +7798,13 @@ function pageCreerCv() {
     ctaLabel: 'Commencer mon CV &#8594;',
     ctaMasque: true,
     sansMultilingue: true,
-    syntheseHTML: commentCaSePasse + syntheseHTML,
+    // Un travail déjà commencé ou terminé : son encart « Continuer / Recommencer » reste en tête ; sinon la présentation d'abord, puis le choix des trois façons de faire.
+    syntheseHTML: (recitFait || recitEnCours || classique.etat)
+      ? syntheseHTML + _creerCvPresentationModuleHaut() + commentCaSePasse
+      : _creerCvPresentationModuleHaut() + commentCaSePasse + syntheseHTML,
     actionsSynthese: actionsSynthese,
     onCta: _creerCvRecommencer,
-    blocsHTML: ''
+    blocsHTML: _creerCvPresentationModuleBas()
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -10499,6 +10535,7 @@ function _prepaEntretienRendreIntro() {
     titre: '<i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche',
     sousTitre: 'Réfléchir à l’avance à ce que vous direz, pour arriver plus tranquille.',
     etapes: PREPA_ENTRETIEN_NAV_ETAPES,
+    video: 'entretien',
     ctaId: 'btnPrepaEntretienCommencer',
     ctaLabel: 'Préparer mon entretien d’embauche &#8594;',
     ctaMasque: (!_prepaEntretienDetour && entretienFait),
@@ -10597,6 +10634,7 @@ function pageDecouverteIntro() {
       { label: 'Compétences', icone: '&#128161;' },
       { label: 'Compléter', icone: '&#128203;' }
     ],
+    video: 'creer-recit',
     ctaId: 'btnDecouverteCommencer',
     ctaLabel: faite ? 'Reprendre / recommencer &#8594;' : 'Raconter mon parcours &#8594;',
     syntheseHTML: syntheseHTML,
@@ -10692,6 +10730,7 @@ function pageIntroAts() {
     onRevenirExpr: 'atsRevenirDeLaPresentation()',
     titre: '<i class="bi bi-card-checklist"></i> Les mots de votre CV <span style="font-weight:400;opacity:.75;">(ATS)</span>',
     sousTitre: 'Comparer le vocabulaire de votre CV avec celui d’une offre ou d’un métier, pour mieux faire ressortir votre parcours.',
+    video: 'ats',
     ctaId: 'btnAtsCommencer',
     ctaLabel: 'Comparer les mots de mon CV &#8594;',
     etapes: (typeof ATS_ETAPES !== 'undefined') ? ATS_ETAPES : null,
@@ -10760,6 +10799,7 @@ function pageIntroRegardRecruteur() {
     onRevenirExpr: 'regardRecruteurRevenirDeLaPresentation()',
     titre: '<i class="bi bi-image"></i> Un regard sur mon CV',
     sousTitre: 'Vous préparer au regard qu’un recruteur porte sur votre dossier : ce qui ressort, ce qui peut faire hésiter, les questions probables.',
+    video: 'regard',
     ctaId: 'btnRegardRecruteurCommencer',
     ctaLabel: 'Demander un regard sur ma candidature &#8594;',
     etapes: (typeof RR_ETAPES !== 'undefined') ? RR_ETAPES : null,
@@ -10842,6 +10882,7 @@ function pageIntroSeTenirInforme() {
     onRevenirExpr: 'comprendreLeCadreRevenirDeLaPresentation()',
     titre: '<i class="bi bi-newspaper"></i> Comprendre le cadre',
     sousTitre: 'Savoir ce qui a changé dans l’emploi, la formation et les dispositifs, avant de décider ou d’accompagner.',
+    video: 'cadre',
     ctaId: 'btnSeTenirInformeCommencer',
     ctaLabel: 'Je commence &#8594;',
     onCta: function () {
@@ -10915,6 +10956,7 @@ function pageIntroComprendreLesChiffres() {
     onRevenirExpr: 'comprendreLesChiffresRevenirDeLaPresentation()',
     titre: '<i class="bi bi-bar-chart"></i> Comprendre les chiffres',
     sousTitre: 'Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés.',
+    video: 'chiffres',
     ctaId: 'btnComprendreLesChiffresCommencer',
     ctaLabel: 'Je commence &#8594;',
     onCta: function () {
@@ -10968,6 +11010,7 @@ function pageIntroMonTerritoire() {
     onRevenirExpr: 'monTerritoireRevenirDeLaPresentation()',
     titre: '<i class="bi bi-geo-alt"></i> Qui fait quoi',
     sousTitre: 'Vous cherchez à qui vous adresser dans votre département ? Ici, on vous montre où aller et qui contacter.',
+    video: 'quifaitquoi',
     ctaId: 'btnMonTerritoireCommencer',
     ctaLabel: 'Je commence &#8594;',
     onCta: function () {
@@ -11019,6 +11062,7 @@ function pageIntroEmployeursTerritoire() {
     onRevenirExpr: 'monTerritoireRevenirDeLaPresentation()',
     titre: '<i class="bi bi-briefcase"></i> Employeurs près de chez moi',
     sousTitre: 'Des employeurs de votre département à qui vous pouvez envoyer votre CV, même quand ils n’ont pas publié d’annonce.',
+    video: 'employeurs',
     ctaId: 'btnEmployeursCommencer',
     ctaLabel: 'Voir les employeurs &#8594;',
     onCta: function () {
@@ -11078,6 +11122,7 @@ function pageIntroAideDecision() {
     onRevenirExpr: 'comparerRevenirDeLaPresentation()',
     titre: '<i class="bi bi-signpost-split"></i> Comparer mes pistes',
     sousTitre: 'Vous hésitez entre deux ou trois pistes ? Cette comparaison vous aide à mieux comprendre ce que chacune implique, pour décider vous-même.',
+    video: 'pistes',
     ctaId: 'btnAideDecisionCommencer',
     ctaLabel: 'Comparer mes pistes &#8594;',
     etapes: (typeof COMPARER_NAV_ETAPES !== 'undefined') ? COMPARER_NAV_ETAPES : null,

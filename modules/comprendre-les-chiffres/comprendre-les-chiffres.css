@@ -1104,7 +1104,7 @@
 /* Salaires, niveau de vie, Europe : l'unité qui suit le grand chiffre d'une carte (« net par mois », « par an »...) */
 .comprendre-les-chiffres-unite { font-size: .9rem; font-weight: 600; color: var(--text-muted); }
 
-/* Ma fiche chiffres : le bouton posé sur chaque carte, la fiche et son impression */
+/* Ma fiche de chiffres : le bouton posé sur chaque carte, la fiche et son impression */
 .comprendre-les-chiffres-fiche-bouton { display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem; padding: .35rem .85rem; min-height: 2.1rem; border: 1px solid var(--border-strong); border-radius: var(--radius, .5rem); background: var(--bg-subtle); color: var(--text-strong); font-size: .85rem; cursor: pointer; }
 .comprendre-les-chiffres-fiche-bouton:hover, .comprendre-les-chiffres-fiche-bouton:focus-visible { color: var(--accent); border-color: var(--accent); background: var(--accent-bg-subtle); }
 .comprendre-les-chiffres-fiche-bouton.ajoute { color: var(--accent); border-color: var(--accent); }
@@ -1147,12 +1147,7 @@
    Le contenu occupe presque toute la largeur (plafond 2100 px), une colonne de cartes,
    et tout le module (texte, chiffres, graphes, espaces) grandit par paliers avec la fenêtre
    (x1,25 vers 1700 px, x1,45 vers 1900 px). Téléphone : aucun agrandissement. */
-.comprendre-les-chiffres-accueil { zoom: 1; }
-@media (min-width: 1100px) { .comprendre-les-chiffres-accueil { zoom: 1.1; } }
-@media (min-width: 1400px) { .comprendre-les-chiffres-accueil { zoom: 1.2; } }
-@media (min-width: 1700px) { .comprendre-les-chiffres-accueil { zoom: 1.3; } }
-@media (min-width: 1900px) { .comprendre-les-chiffres-accueil { zoom: 1.45; } }
-@media print { .comprendre-les-chiffres-accueil { zoom: 1; } }
+/* La taille du texte et des chiffres suit l'ecran par la taille de base de TOUTE l'application (css/style.css, consigne 144) : plus de zoom propre a ce module. */
 
 /* ---- Disposition « B » des cartes (choix de Denis le 2026-11-06, maquette docs/MAQUETTE_CHIFFRES_DISPOSITION_CARTES_2026-11-06.html) ----
    Sur écran large : le chiffre et ses phrases à gauche, les comparaisons à droite
@@ -1210,4 +1205,7 @@
   }
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > :not(.comprendre-les-chiffres-indic-q):not(.comprendre-les-chiffres-vues) { grid-column: 1; }
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-vues { grid-row: 2 / span 7; }
+  /* L'encart (« Ce sont des moyennes... ») passe sous les comparaisons, à droite : la colonne de gauche s'allège et le vide sous
+     les comparaisons disparaît (carte « Hommes et femmes », point 1 du plan, 2026-11-07). Sélecteur répété pour passer devant la règle précédente. */
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-encart.comprendre-les-chiffres-encart.comprendre-les-chiffres-encart { grid-column: 2; grid-row: 9; margin-top: .5rem; }
 }

@@ -17,6 +17,10 @@ sources:
   - "service-public-agirc-arrco | Service Public : retraite complémentaire dans le privé, Agirc-Arrco | https://www.service-public.gouv.fr/particuliers/vosdroits/F15396 | 2026-11-03"
   - "service-public-revalorisation-agirc-arrco | Service Public : quelle revalorisation pour les retraites complémentaires du privé ? | https://www.service-public.gouv.fr/particuliers/actualites/A17790 | 2026-11-03"
   - "travail-emploi-retraite-parentalite | Ministère du Travail : retraite et parentalité | https://travail-emploi.gouv.fr/retraite-et-parentalite | 2026-11-03"
+  - "service-public-cumul-emploi-retraite-2027 | Service Public : cumul emploi-retraite à partir de 2027 | https://www.service-public.gouv.fr/particuliers/actualites/A18914 | 2026-10-05"
+  - "unedic-duree-indemnisation | Unédic : durée d'indemnisation (maintien des droits, formation) | https://www.unedic.org/la-reglementation/fiches-thematiques/duree-dindemnisation | 2026-11-08"
+  - "unedic-parametres-avril-2026 | Unédic : paramètres utiles de l'assurance chômage, avril 2026 | https://www.unedic.org/storage/uploads/2026/05/27/unedic_parametres_utiles_avril2026_uid_6a17039e9f727.pdf | 2026-11-08"
+  - "unedic-ce-qui-change-1er-avril-2025 | Unédic : ce qui change au 1er avril 2025 pour l'assurance chômage | https://www.unedic.org/publications/assurance-chomage-qu-est-ce-qui-change-au-1er-avril | 2026-11-08"
 structures:
   - "info-retraite-mon-compte-retraite | Compte retraite sur info-retraite.fr : relevé de carrière tous régimes, estimation du montant, âge de départ, demande en ligne | https://www.info-retraite.fr/ | "
 ---

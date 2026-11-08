@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : la veille de la semaine avec plusieurs réponses</title>
+<style>
+  /* Variables copiées de outils/veille.html (même rendu que l'outil). */
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --jamais:#4b5868; --jamais-bg:#eceff3;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --jamais:#b4bfcf; --jamais-bg:#2a313d;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:860px; margin:0 auto; padding:1.2rem 16px 5rem; }
+  body.tel main { max-width:390px; }
+  h1 { font-size:1.35rem; color:var(--text-strong); margin:.2rem 0 .3rem; }
+  h2 { font-size:1.08rem; color:var(--text-strong); margin:1.6rem 0 .4rem; }
+  h3 { font-size:.92rem; color:var(--text-strong); margin:1rem 0 .3rem; }
+  p { margin:.5rem 0; }
+  a { color:var(--accent); }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 .8rem; }
+  .mini { color:var(--text-muted); font-size:.82rem; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.petit { padding:.3rem .7rem; font-size:.85rem; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-rangee { display:flex; gap:.5rem; flex-wrap:wrap; margin:.6rem 0; align-items:center; }
+  .note { display:flex; gap:.5rem; align-items:flex-start; background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.88rem; }
+  .note.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .note.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+  .tc-carte { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-bottom:.9rem; box-shadow:var(--shadow); }
+  .tc-carte.faite { border-color:var(--ok); }
+  .tc-tete { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; margin-bottom:.2rem; }
+  .tc-etat { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:.1rem .6rem; border-radius:999px; background:var(--bg-subtle); color:var(--text-muted); }
+  .tc-carte.faite .tc-etat { background:var(--ok-bg); color:var(--ok); }
+  .pastille { display:inline-block; border-radius:999px; padding:.1rem .65rem; font-size:.78rem; font-weight:700; white-space:nowrap; background:var(--bg-subtle); color:var(--text-muted); }
+  .pv-ok { background:var(--ok-bg); color:var(--ok); } .pv-warn { background:var(--warn-bg); color:var(--warn); } .pv-alert { background:var(--alert-bg); color:var(--alert); }
+  .ligne { border:1px solid var(--border); border-radius:10px; padding:.7rem .9rem; margin-bottom:.6rem; background:var(--bg-card); }
+  .ligne.fait { background:var(--bg-subtle); }
+  .ligne .tete { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+  .ligne .qui { font-weight:700; color:var(--text-strong); }
+  .ligne .adr { font-family:ui-monospace,Consolas,monospace; font-size:.8rem; word-break:break-all; color:var(--text-muted); }
+  .ligne .ou { font-size:.85rem; margin:.25rem 0; color:var(--text-muted); }
+  textarea { width:100%; min-height:7rem; font:inherit; font-size:.88rem; color:var(--text); background:var(--bg-page); border:1px solid var(--border-strong); border-radius:9px; padding:.5rem .6rem; margin-top:.4rem; }
+  .code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:10px; padding:.8rem 1rem; font-family:ui-monospace,Consolas,monospace; font-size:.8rem; white-space:pre-wrap; max-height:22rem; overflow:auto; }
+  details > summary { cursor:pointer; color:var(--accent); font-weight:600; font-size:.88rem; margin:.4rem 0; }
+  .compteur { font-weight:700; color:var(--text-strong); }
+  /* Réservé à la maquette. */
+  .maq-panneau { position:sticky; top:8px; z-index:5; background:var(--bg-card); border:1px dashed var(--border-strong); border-radius:12px; padding:.6rem .9rem; margin:.8rem 0 1rem; font-size:.86rem; }
+  .maq-panneau .rangee { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.4rem; }
+  .maq-panneau .fermer { float:right; cursor:pointer; border:0; background:none; font-size:1.2rem; color:var(--text-muted); }
+  .maq-ouvrir { position:fixed; right:14px; bottom:14px; z-index:6; display:none; }
+  .legende { border-left:3px solid var(--accent); padding:.2rem .8rem; margin:.5rem 0; color:var(--text-muted); font-size:.85rem; }
+  .nouveau { outline:2px solid var(--accent); outline-offset:3px; border-radius:12px; }
+  .etiquette-nouveau { display:inline-block; font-size:.7rem; font-weight:800; text-transform:uppercase; background:var(--accent); color:#fff; border-radius:6px; padding:.05rem .4rem; margin-left:.4rem; }
+  body.dark .etiquette-nouveau { color:#04202e; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : la veille de la semaine avec plusieurs réponses</h1>
+  <p class="sous-titre">Maquette cliquable, rien n'est enregistré. Elle montre la carte « La veille de la semaine » de l'onglet « Travailler avec Claude » telle qu'elle serait. Ce qui change est entouré en bleu et marqué « Nouveau ». Le reste de l'onglet (cartes des rayons, lecture des blocs, sas) ne bouge pas.</p>
+
+  <div class="maq-panneau" id="panneau">
+    <button class="fermer" type="button" onclick="fermerPanneau()" aria-label="Fermer ce panneau">&times;</button>
+    <strong>Réglages de la maquette</strong>
+    <div class="mini">Essayez vraiment : collez une vraie réponse dans la case qui s'ouvre, ou remplissez avec un exemple.</div>
+    <div class="rangee">
+      <button class="btn petit" type="button" onclick="exemple('chatgpt')">Exemple : réponse de ChatGPT</button>
+      <button class="btn petit" type="button" onclick="exemple('perplexity')">Exemple : réponse de Perplexity</button>
+      <button class="btn petit" type="button" onclick="exemple('brut')">Exemple : texte sans le format</button>
+      <button class="btn petit" type="button" onclick="remettre()">Tout remettre à zéro</button>
+      <button class="btn petit" type="button" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+      <button class="btn petit" type="button" onclick="document.body.classList.toggle('tel')">Largeur téléphone</button>
+    </div>
+  </div>
+  <button class="btn primaire maq-ouvrir" id="maqOuvrir" type="button" onclick="ouvrirPanneau()">Réglages</button>
+
+  <h2>Chaque semaine</h2>
+
+  <!-- ====== LA CARTE ====== -->
+  <div class="tc-carte" id="carte">
+    <div class="tc-tete"><span class="tc-etat" id="etat">À faire</span><strong>La veille de la semaine</strong></div>
+    <p class="sous-titre" style="margin:.3rem 0">Ce qu'il fait : relève ce qui a changé ces 7 derniers jours (02/11/2026 au 08/11/2026) sur les sites officiels.<br>Catégorie : Chaque semaine &middot; Rubrique : Fiches de tous les rayons (veille rapide)</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" type="button" onclick="flash(this,'Copié (maquette)')">Copier et ouvrir ChatGPT</button>
+      <button class="btn primaire" type="button" onclick="flash(this,'Copié (maquette)')">Copier et ouvrir Perplexity</button>
+      <button class="btn" type="button" onclick="flash(this,'Copié (maquette)')">Copier seulement</button>
+    </div>
+    <details><summary>Voir le prompt</summary>
+      <div class="code">Vous constituez une veille rapide, hebdomadaire... (début inchangé)
+
+Pages à ouvrir en plus (adresses exactes, à ouvrir telles quelles) :
+- Ministère du Travail : https://travail-emploi.gouv.fr/actualites-presse-et-outils/actualites-et-breves
+- Unédic : https://www.unedic.org/actualites
+- France Travail : https://www.francetravail.org/accueil/actualites.html
+- Caf : https://www.caf.fr/allocataires/actualites
+- Ameli : https://www.ameli.fr/assure/actualites
+- Agefiph : https://www.agefiph.fr/ (les actualités sont sur la page d'accueil)
+- Vie publique : https://www.vie-publique.fr/
+
+Si une page ne s'ouvre pas, écrivez-la dans [SITES-NON-OUVERTS] avec la raison réelle (bloquée, page vide, ou « non essayée »).</div>
+    </details>
+
+    <!-- NOUVEAU : plusieurs réponses -->
+    <div class="nouveau" style="padding:.7rem .8rem; margin-top:.8rem">
+      <h3 style="margin-top:0">Réponses reçues (<span id="nbRep">0</span>)<span class="etiquette-nouveau">Nouveau</span></h3>
+      <p class="sous-titre" style="margin:.1rem 0 .5rem">Vous pouvez en ajouter autant que vous voulez : chaque réponse est gardée telle quelle, l'une à côté de l'autre. Rien n'est remplacé, rien n'est refusé parce que le format n'est pas le bon.</p>
+      <div id="listeRep"></div>
+      <div class="btn-rangee">
+        <button class="btn primaire" type="button" onclick="ouvrirAjout('ChatGPT')">Ajouter la réponse de ChatGPT</button>
+        <button class="btn primaire" type="button" onclick="ouvrirAjout('Perplexity')">Ajouter la réponse de Perplexity</button>
+        <button class="btn" type="button" onclick="ouvrirAjout('Un autre assistant')">Ajouter un autre texte</button>
+      </div>
+      <div id="zoneAjout" style="display:none">
+        <div class="mini" id="ajoutTitre"></div>
+        <textarea id="ajoutTexte" placeholder="Collez ici la réponse, telle quelle (Ctrl+V). Dans l'outil réel, le bouton lit directement ce que vous avez copié."></textarea>
+        <div class="btn-rangee"><button class="btn primaire" type="button" onclick="enregistrerAjout()">Enregistrer cette réponse</button><button class="btn" type="button" onclick="fermerAjout()">Annuler</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== LES SITES ====== -->
+  <div class="tc-carte nouveau" id="carteSites">
+    <div class="tc-tete"><strong>Sites que personne n'a pu lire (<span id="nbSites">0</span>)</strong><span class="etiquette-nouveau" style="margin-left:0">Nouveau</span></div>
+    <p class="sous-titre" style="margin:.2rem 0 .6rem">Ces pages n'ont été lues ni par l'un ni par l'autre des assistants (bloquées, introuvables ou non essayées). Vous les ouvrez vous-même, vous copiez le texte, vous le collez ici. Une page lue par au moins un assistant n'apparaît pas.</p>
+    <div id="listeSites"></div>
+    <details id="luesZone" style="display:none"><summary>Pages déjà lues par un assistant (<span id="nbLues">0</span>)</summary><div id="listeLues" class="mini"></div></details>
+  </div>
+
+  <!-- ====== LE MESSAGE ====== -->
+  <h2>Donner la suite à Claude</h2>
+  <div class="tc-carte nouveau">
+    <span class="etiquette-nouveau" style="margin:0 0 .4rem">Nouveau : le message tient compte de tout</span>
+    <p class="sous-titre" style="margin:.3rem 0">Ce message dit à Claude où sont les réponses, les textes que vous avez copiés vous-même et les pages qui restent non lues. Il est prêt dès qu'une réponse est enregistrée.</p>
+    <p class="compteur" id="resume">Rien d'enregistré pour l'instant.</p>
+    <div class="btn-rangee"><button class="btn primaire" id="btnCopier" type="button" onclick="copierMessage(this)" disabled>Copier le message pour Claude</button><button class="btn" type="button" onclick="basculerMessage()" id="btnVoir">Voir le message</button></div>
+    <div class="code" id="message" style="display:none"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  /* Adresses vérifiées à la main le 08/11/2026 (pages réellement ouvertes). */
+  var SITES = [
+    { cle: 'legifrance', nom: 'Légifrance, Journal officiel', domaine: 'legifrance.gouv.fr', url: 'https://www.legifrance.gouv.fr/jorf/jo' },
+    { cle: 'travail', nom: 'Ministère du Travail, actualités', domaine: 'travail-emploi.gouv.fr', url: 'https://travail-emploi.gouv.fr/actualites-presse-et-outils/actualites-et-breves' },
+    { cle: 'unedic', nom: 'Unédic, actualités', domaine: 'unedic.org', url: 'https://www.unedic.org/actualites' },
+    { cle: 'francetravail', nom: 'France Travail, actualités', domaine: 'francetravail.org', url: 'https://www.francetravail.org/accueil/actualites.html' },
+    { cle: 'caf', nom: 'Caf, actualités', domaine: 'caf.fr', url: 'https://www.caf.fr/allocataires/actualites' },
+    { cle: 'ameli', nom: 'Ameli, actualités', domaine: 'ameli.fr', url: 'https://www.ameli.fr/assure/actualites' },
+    { cle: 'agefiph', nom: 'Agefiph (actualités sur la page d\'accueil)', domaine: 'agefiph.fr', url: 'https://www.agefiph.fr/' },
+    { cle: 'viepublique', nom: 'Vie publique', domaine: 'vie-publique.fr', url: 'https://www.vie-publique.fr/' }
+  ];
+  var EX = {
+    chatgpt: "Veille limitée cette semaine : plusieurs sites complémentaires n'ont pas pu être lus.\n\n[VEILLE-HEBDO]\nsignal: Le cumul entre l'AAH et l'ASS prendra fin pour certains bénéficiaires en 2027.\nrayon: handicap\ndate_effet: 01/01/2027\nsource: Service-Public https://www.service-public.gouv.fr/particuliers/actualites\n\nsignal: Nouvelles règles pour les personnes étrangères qui travaillent (délai de 90 jours).\nrayon: etranger\ndate_effet: 30/10/2026\nsource: Service-Public https://www.service-public.gouv.fr/particuliers/actualites/A19128\n[/VEILLE-HEBDO]\n\n[SITES-NON-OUVERTS]\nhttps://www.legifrance.gouv.fr/jorf/jo | bloqué ou contenu non à jour | JORF du 02 au 08/11/2026\nhttps://travail-emploi.gouv.fr/actualites | bloqué | lettre hebdomadaire\nhttps://www.unedic.org/actualites | non essayé | indemnisation chômage\nhttps://www.francetravail.org/actualites.html | non essayé | aides à l'emploi\nhttps://www.caf.fr/actualites | non essayé | RSA, prime d'activité\nhttps://www.ameli.fr/actualites | non essayé | santé\nhttps://www.agefiph.fr/actualites | non essayé | handicap et emploi\nhttps://www.vie-publique.fr/ | non essayé | amendements\n[/SITES-NON-OUVERTS]",
+    perplexity: "[VEILLE-HEBDO]\nsignal: Chômage : durée maximale d'indemnisation après une rupture conventionnelle.\nrayon: emploi\nsource: Unédic https://www.unedic.org/actualites/assurance-chomage-ce-qui-change-le-1er-septembre-2026\n\nsignal: AAH et ESAT : déclaration trimestrielle des revenus.\nrayon: handicap\nsource: Caf https://www.caf.fr/allocataires/actualites\n\nsignal: Inscrits à France Travail au 3e trimestre 2026.\nrayon: emploi\nsource: France Travail https://www.francetravail.org/accueil/actualites.html\n\nsignal: Ameli : rien de nouveau sur la complémentaire santé solidaire.\nrayon: sante\nsource: Ameli https://www.ameli.fr/assure/actualites\n[/VEILLE-HEBDO]\n\n[SITES-NON-OUVERTS]\nhttps://travail-emploi.gouv.fr/actualites | bloqué (protection anti-robot) | actualités du ministère\nhttps://www.legifrance.gouv.fr/jorf/jo | copie ancienne affichée | Journal officiel de la semaine\nhttps://www.agefiph.fr/actualites | page introuvable | actualités handicap\n[/SITES-NON-OUVERTS]",
+    brut: "Cette semaine, d'après les pages que j'ai pu lire, la durée maximale de chômage après une rupture conventionnelle est de 15 mois avant 55 ans (https://www.unedic.org/actualites). Je n'ai pas réussi à ouvrir le site du ministère du Travail. Aucun autre changement notable."
+  };
+  var etat = { reps: [], texteSites: {}, ecartes: {} };
+  var qui = '';
+  function $(id) { return document.getElementById(id); }
+  function echap(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function dom(u) { var m = /https?:\/\/(?:www\.)?([^\/\s|)]+)/i.exec(u || ''); return m ? m[1].toLowerCase() : ''; }
+  function siteDe(d) { return SITES.filter(function (s) { return d === s.domaine || d.slice(-s.domaine.length - 1) === '.' + s.domaine; })[0] || null; }
+  function heure() { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  window.flash = function (b, t) { var o = b.textContent; b.textContent = t; setTimeout(function () { b.textContent = o; }, 1500); };
+
+  /* Lecture d'une réponse : jamais refusée pour son format. */
+  function lire(texte, auteur) {
+    var t = texte.replace(/\\([\[\]])/g, '$1').replace(/\r\n/g, '\n');
+    var m = /\[SITES-NON-OUVERTS\]([\s\S]*?)\[\/SITES-NON-OUVERTS\]/i.exec(t), bloc = m ? m[1] : '', dehors = bloc ? t.replace(m[0], '') : t;
+    var signaux = (t.match(/^\s*signal\s*:\s*(?!non\s+v[ée]rifi|rien)/gim) || []).length;
+    var refus = /je ne peux pas (?:r[ée]pondre|acc[ée]der|traiter)|je suis d[ée]sol[ée]|je ne suis pas en mesure/i.test(t.slice(0, 600)) && t.length < 600;
+    var sites = [];
+    bloc.replace(/\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/g, '$1').split('\n').forEach(function (ln) {
+      var u = /https?:\/\/[^\s|]+/.exec(ln); if (!u) { return; }
+      var segs = ln.split('|').map(function (x) { return x.trim(); }).filter(function (x) { return x && !/^https?:\/\//i.test(x); });
+      sites.push({ url: u[0], domaine: dom(u[0]), raison: (segs[0] || 'non précisé') });
+    });
+    var ouverts = {}; (dehors.match(/https?:\/\/[^\s|)\]]+/g) || []).forEach(function (u) { ouverts[dom(u)] = true; });
+    return { auteur: auteur, heure: heure(), texte: texte, signaux: signaux, aBloc: /\[VEILLE-HEBDO\]/i.test(t), refus: refus, sites: sites, ouverts: ouverts };
+  }
+
+  /* Calcul de la liste des sites non lus : un site disparaît si au moins un assistant l'a ouvert. */
+  function calculer() {
+    var vus = {}, lues = [];
+    etat.reps.forEach(function (r) {
+      r.sites.forEach(function (s) { var k = (siteDe(s.domaine) || {}).cle || s.domaine; vus[k] = vus[k] || { cle: k, site: siteDe(s.domaine), domaine: s.domaine, urlAssistant: s.url, avis: [] }; vus[k].avis.push(r.auteur + ' : ' + s.raison); });
+    });
+    var liste = [];
+    Object.keys(vus).forEach(function (k) {
+      var v = vus[k], lecteurs = etat.reps.filter(function (r) { return !!r.ouverts[v.domaine] || (v.site && Object.keys(r.ouverts).some(function (d) { return siteDe(d) === v.site; })); }).map(function (r) { return r.auteur; });
+      var lu = etat.reps.some(function (r) { return Object.keys(r.ouverts).some(function (d) { return d === v.domaine || (v.site && siteDe(d) === v.site); }); });
+      if (lu && !etat.texteSites[k]) { lues.push({ nom: v.site ? v.site.nom : v.domaine, par: lecteurs }); } else { liste.push(v); }
+    });
+    return { liste: liste, lues: lues };
+  }
+
+  function dessiner() {
+    /* réponses */
+    $('nbRep').textContent = etat.reps.length;
+    $('listeRep').innerHTML = etat.reps.map(function (r, i) {
+      var pastilles = r.refus ? '<span class="pastille pv-alert">Refus de l\'assistant : à relancer</span>' : r.aBloc ? '<span class="pastille pv-ok">Lue : ' + r.signaux + (r.signaux > 1 ? ' signaux' : ' signal') + '</span>' : '<span class="pastille pv-warn">Texte brut : gardé tel quel, Claude le lira</span>';
+      return '<div class="ligne"><div class="tete"><span class="qui">' + echap(r.auteur) + '</span> ' + pastilles + ' <span class="mini">collée à ' + r.heure + ' &middot; ' + r.sites.length + ' site' + (r.sites.length > 1 ? 's' : '') + ' non ouvert' + (r.sites.length > 1 ? 's' : '') + ' signalé' + (r.sites.length > 1 ? 's' : '') + '</span></div>'
+        + '<div class="btn-rangee" style="margin:.4rem 0 0"><button class="btn petit" type="button" data-voir="' + i + '">Voir la réponse</button><button class="btn petit" type="button" data-retirer="' + i + '">Retirer cette réponse</button></div><div id="voir' + i + '" class="code" style="display:none;margin-top:.4rem">' + echap(r.texte) + '</div></div>';
+    }).join('');
+    $('etat').textContent = etat.reps.length ? etat.reps.length + ' réponse' + (etat.reps.length > 1 ? 's' : '') + ' reçue' + (etat.reps.length > 1 ? 's' : '') : 'À faire';
+    $('carte').classList.toggle('faite', etat.reps.length > 0);
+
+    /* sites */
+    var c = calculer(), restant = 0;
+    $('listeSites').innerHTML = c.liste.length ? c.liste.map(function (v) {
+      var k = v.cle, fait = !!etat.texteSites[k], ecarte = !!etat.ecartes[k], url = v.site ? v.site.url : v.urlAssistant, corrige = v.site && v.urlAssistant && v.urlAssistant.replace(/\/$/, '') !== v.site.url.replace(/\/$/, '');
+      if (!fait && !ecarte) { restant++; }
+      var nom = v.site ? v.site.nom : v.domaine;
+      var etatTxt = fait ? '<span class="pastille pv-ok">Texte reçu (' + etat.texteSites[k].length + ' signes)</span>' : ecarte ? '<span class="pastille">Pas utile cette semaine</span>' : '<span class="pastille pv-warn">À ouvrir par vous</span>';
+      return '<div class="ligne' + (fait || ecarte ? ' fait' : '') + '"><div class="tete"><span class="qui">' + echap(nom) + '</span> ' + etatTxt + (corrige ? ' <span class="pastille pv-ok" title="L\'assistant avait écrit : ' + echap(v.urlAssistant) + '">adresse corrigée</span>' : '') + '</div>'
+        + '<div class="adr">' + echap(url) + '</div><div class="ou">' + v.avis.map(echap).join(' &middot; ') + '</div>'
+        + '<div class="btn-rangee" style="margin:.3rem 0 0"><a class="btn primaire petit" href="' + echap(url) + '" target="_blank" rel="noopener">Ouvrir le site</a>'
+        + (fait ? '<button class="btn petit" type="button" data-effacersite="' + k + '">Effacer ce texte</button>' : ecarte ? '<button class="btn petit" type="button" data-remettre="' + k + '">Remettre dans la liste</button>' : '<button class="btn petit" type="button" data-collersite="' + k + '">Coller le texte copié</button><button class="btn petit" type="button" data-ecarter="' + k + '">Pas utile cette semaine</button>') + '</div>'
+        + '<div id="zs_' + k + '" style="display:none"><textarea id="ts_' + k + '" placeholder="Collez ici le texte copié sur le site (avec la date de la page si elle y est)."></textarea><div class="btn-rangee"><button class="btn primaire petit" type="button" data-enregsite="' + k + '">Enregistrer ce texte</button><button class="btn petit" type="button" data-annulersite="' + k + '">Annuler</button></div></div></div>';
+    }).join('') : '<div class="note ok"><span>&#9989;</span><span>' + (etat.reps.length ? 'Tous les sites ont été lus par au moins un assistant.' : 'Ajoutez une première réponse : les sites non lus apparaîtront ici.') + '</span></div>';
+    $('nbSites').textContent = restant;
+    $('luesZone').style.display = c.lues.length ? '' : 'none';
+    $('nbLues').textContent = c.lues.length;
+    $('listeLues').innerHTML = c.lues.map(function (l) { return '<div>&#9989; ' + echap(l.nom) + ' : lue par ' + echap(l.par.join(' et ') || 'un assistant') + '</div>'; }).join('');
+
+    /* message */
+    var nbTextes = Object.keys(etat.texteSites).length;
+    $('resume').textContent = etat.reps.length ? etat.reps.length + ' réponse' + (etat.reps.length > 1 ? 's' : '') + ' d\'assistant, ' + nbTextes + ' texte' + (nbTextes > 1 ? 's' : '') + ' copié' + (nbTextes > 1 ? 's' : '') + ' à la main, ' + restant + ' site' + (restant > 1 ? 's' : '') + ' encore non lu' + (restant > 1 ? 's' : '') + '.' : 'Rien d\'enregistré pour l\'instant.';
+    $('btnCopier').disabled = !etat.reps.length;
+    if ($('message').style.display !== 'none') { $('message').textContent = fabriquer(c, restant); }
+  }
+
+  function fabriquer(c, restant) {
+    var L = [];
+    L.push('Bonjour Claude. Voici le dossier de la veille de la semaine (du 02/11/2026 au 08/11/2026), dans outils/retours/2026-11-08/.');
+    L.push('');
+    L.push('Contexte : APP est une application d\'accompagnement pour des personnes en insertion ; les fiches de « Comprendre le cadre » doivent rester exactes et sans redite.');
+    L.push('');
+    L.push('Réponses des assistants (brutes, chacune dans son fichier) :');
+    etat.reps.forEach(function (r, i) { L.push('- hebdo-' + (i + 1) + '.md : ' + r.auteur + (r.refus ? ' [refus : à relancer]' : r.aBloc ? ' (' + r.signaux + ' signaux)' : ' [texte brut, sans le format]')); });
+    var mains = Object.keys(etat.texteSites);
+    if (mains.length) { L.push(''); L.push('Textes que j\'ai copiés moi-même sur les sites :'); mains.forEach(function (k) { var s = SITES.filter(function (x) { return x.cle === k; })[0]; L.push('- main-' + k + '.md : ' + (s ? s.nom : k)); }); }
+    var non = c.liste.filter(function (v) { return !etat.texteSites[v.cle] && !etat.ecartes[v.cle]; });
+    if (non.length) { L.push(''); L.push('Pages que personne n\'a pu lire (je ne les ai pas) :'); non.forEach(function (v) { L.push('- ' + (v.site ? v.site.nom : v.domaine) + ' : ' + (v.site ? v.site.url : v.urlAssistant)); }); }
+    L.push('');
+    L.push('Ce que je te demande :');
+    L.push('1. Lis tout, y compris ce qui est brut ; ne reformule pas ce qui est copié.');
+    L.push('2. Compare avec les fiches publiées de tous les rayons : dis pour chaque sujet s\'il est DÉJÀ COUVERT, à METTRE À JOUR, à COMPLÉTER ou NOUVEAU. Jamais deux fiches qui disent la même chose.');
+    L.push('3. Vérifie l\'exactitude : une information qui n\'a qu\'une source reste « à vérifier ».');
+    L.push('4. Dis-moi ce que je dois encore t\'apporter : les articles à ouvrir à la main (avec le lien) et les pages non lues qui comptent.');
+    L.push('5. Dépose seulement des fiches NOUVELLES sans redite avec l\'existant, et des COMPLÉMENTS pour les fiches existantes.');
+    return L.join('\n');
+  }
+
+  /* Gestes */
+  window.ouvrirAjout = function (a) { qui = a; $('ajoutTitre').textContent = 'Réponse de : ' + a; $('ajoutTexte').value = ''; $('zoneAjout').style.display = ''; $('ajoutTexte').focus(); };
+  window.fermerAjout = function () { $('zoneAjout').style.display = 'none'; };
+  window.enregistrerAjout = function () { var t = $('ajoutTexte').value.trim(); if (!t) { return; } etat.reps.push(lire(t, qui)); fermerAjout(); dessiner(); };
+  window.exemple = function (cle) { qui = cle === 'perplexity' ? 'Perplexity' : cle === 'chatgpt' ? 'ChatGPT' : 'Un autre assistant'; etat.reps.push(lire(EX[cle], qui)); dessiner(); };
+  window.remettre = function () { etat = { reps: [], texteSites: {}, ecartes: {} }; fermerAjout(); dessiner(); };
+  window.copierMessage = function (b) { var t = fabriquer(calculer(), 0); try { navigator.clipboard.writeText(t).then(function () { flash(b, 'Copié'); }, function () { flash(b, 'Copie refusée (maquette)'); }); } catch (e) { flash(b, 'Copie refusée (maquette)'); } };
+  window.basculerMessage = function () { var m = $('message'), ouvert = m.style.display !== 'none'; m.style.display = ouvert ? 'none' : ''; $('btnVoir').textContent = ouvert ? 'Voir le message' : 'Cacher le message'; if (!ouvert) { m.textContent = fabriquer(calculer(), 0); } };
+  window.fermerPanneau = function () { $('panneau').style.display = 'none'; $('maqOuvrir').style.display = 'block'; };
+  window.ouvrirPanneau = function () { $('panneau').style.display = ''; $('maqOuvrir').style.display = 'none'; };
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button') : null; if (!b) { return; }
+    var d = b.dataset;
+    if (d.voir !== undefined) { var z = $('voir' + d.voir); z.style.display = z.style.display === 'none' ? '' : 'none'; return; }
+    if (d.retirer !== undefined) { if (window.confirm('Retirer cette réponse ? Les autres restent.')) { etat.reps.splice(+d.retirer, 1); dessiner(); } return; }
+    if (d.collersite) { $('zs_' + d.collersite).style.display = ''; $('ts_' + d.collersite).focus(); return; }
+    if (d.annulersite) { $('zs_' + d.annulersite).style.display = 'none'; return; }
+    if (d.enregsite) { var t = $('ts_' + d.enregsite).value.trim(); if (t) { etat.texteSites[d.enregsite] = t; dessiner(); } return; }
+    if (d.effacersite) { delete etat.texteSites[d.effacersite]; dessiner(); return; }
+    if (d.ecarter) { etat.ecartes[d.ecarter] = true; dessiner(); return; }
+    if (d.remettre) { delete etat.ecartes[d.remettre]; dessiner(); return; }
+  });
+  dessiner();
+})();
+</script>
+</body>
+</html>

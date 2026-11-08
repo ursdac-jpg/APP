@@ -1513,3 +1513,49 @@
 2026-11-05 22:15 | lieux | centre-gestion-fpt-dordogne-24 | ajoutée
 2026-11-05 22:15 | lieux | centre-gestion-fpt-haute-vienne-87 | ajoutée
 2026-11-05 22:20 | employeurs | vitadom | ajoutée
+2026-11-06 11:03 | lieux | envergure-limoges-87 | modifiée
+2026-11-06 11:07 | lieux | structures-iae-dordogne | modifiée
+2026-11-06 11:33 | lieux | cmp-enfants-perigueux-24 | modifiée
+2026-11-06 11:33 | lieux | cmp-mussidan-24 | modifiée
+2026-11-06 11:33 | lieux | cite-bethanie-bergerac-24 | modifiée
+2026-11-06 11:33 | lieux | aec-bergerac-24 | modifiée
+2026-11-06 11:33 | lieux | apare-cada-perigueux-24 | modifiée
+2026-11-06 11:44 | lieux | centre-communal-d-action-sociale-compreignac-87 | modifiée
+2026-11-07 11:43 | liens | service-public-ass | ajoutée
+2026-11-07 11:43 | liens | legifrance-loi-2016-1917-article-87 | ajoutée
+2026-11-07 11:43 | liens | legifrance-decret-2026-547-aah | ajoutée
+2026-11-07 11:43 | liens | service-public-complement-ressources | ajoutée
+2026-11-08 13:02 | lieux | structures-iae-dordogne | modifiée
+2026-11-08 13:05 | lieux | justice-fr-national | modifiée
+2026-11-08 13:05 | lieux | maison-justice-droit-limoges-87 | modifiée
+2026-11-08 13:05 | lieux | tribunal-de-proximite-sarlat-24 | modifiée
+2026-11-08 13:05 | lieux | maison-d-arret-de-perigueux-24 | modifiée
+2026-11-08 13:05 | lieux | maison-d-arret-de-limoges-87 | modifiée
+2026-11-08 13:05 | lieux | centre-de-detention-de-neuvic-24 | modifiée
+2026-11-08 13:05 | lieux | association-aide-victimes-haute-vienne-87 | modifiée
+2026-11-08 13:05 | lieux | conseil-prudhommes-limoges-87 | modifiée
+2026-11-08 13:06 | lieux | jeune-chambre-economique-limoges-87 | modifiée
+2026-11-08 13:08 | lieux | agence-departementale-d-information-sur-le-logement-adil-dordogne-24 | modifiée
+2026-11-08 14:35 | lieux | structures-iae-dordogne | modifiée
+2026-11-08 16:32 | lieux | csapa-addictions-france-perigueux-24 | modifiée
+2026-11-08 16:50 | lieux | planning-familial-24-perigueux-24 | modifiée
+2026-11-08 16:54 | lieux | planning-familial-24-bergerac-24 | modifiée
+2026-11-08 17:01 | employeurs | mercure-dordogne | modifiée
+2026-11-08 19:33 | employeurs | ouvrage-btp | mise en attente
+2026-11-08 20:11 | employeurs | profession-sport-loisirs-haute-vienne | modifiée
+2026-11-08 20:15 | offres | ch-sarlat-24 | modifiée
+2026-11-08 20:16 | employeurs | gauquie-paysage | mise en attente
+2026-11-08 20:21 | lieux | jeune-chambre-economique-limoges-87 | modifiée
+2026-11-08 20:30 | lieux | service-public-france-national | modifiée
+2026-11-08 20:31 | lieux | chambre-agriculture-dordogne-24 | modifiée
+2026-11-08 20:50 | employeurs | novotel-limoges-le-lac-87 | ajoutée
+2026-11-08 20:50 | employeurs | hotelf1-limoges-87 | ajoutée
+2026-11-08 21:10 | cadre | handicap-aah-et-travail | modifiée | 2026-11-08 : les conditions d'accès, le montant, la déconjugalisation et les délais de la MDPH sont maintenant dans deux fiches dédiées (conditions, demande) pour ne pas les écrire à deux endroits
+2026-11-08 21:11 | cadre | budget-ass-reprise-d-activite-que-devient-mon-allocation | modifiée | 2026-11-08 : le plafond et le montant de l'ASS ne sont écrits que dans la fiche sur les conditions de l'ASS (pour ne pas les tenir à jour à deux endroits)
+2026-11-08 22:26 | liens | service-public-actualite-a19128 | ajoutée
+2026-11-08 22:26 | liens | legifrance-decret-2026-1001-etrangers-travailleurs | ajoutée
+2026-11-08 22:26 | cadre | etranger-titre-de-sejour-et-travail | modifiée | 2026-11-08 : nouveautés du 30 octobre 2026 ajoutées d'après l'actualité Service-Public du 6 novembre 2026 (délai de décision de la préfecture, changement d'employeur, chômage avec une carte travailleur temporaire, carte bleue européenne) ; texte complet du décret n° 2026-1001 du 26 octobre 2026 (Journal officiel du 29 octobre 2026) et de l'actualité Service-Public relus par Claude sur les copies collées par Denis le 2026-11-08
+2026-11-08 22:26 | cadre | handicap-aah-et-travail | modifiée | 2026-11-08 : précisions de la page Caf « AAH et ESAT : une nouvelle façon de déclarer vos revenus » (29/09/2026), relue sur la copie collée par Denis : revenus à déclarer, montants en net imposable et formulaire non prérempli, avis par courriel ou SMS, deux déclarations si la prime d'activité est aussi versée
+2026-11-08 23:31 | liens | unedic-duree-indemnisation | ajoutée
+2026-11-08 23:31 | liens | unedic-parametres-avril-2026 | ajoutée
+2026-11-08 23:31 | liens | unedic-ce-qui-change-1er-avril-2025 | ajoutée

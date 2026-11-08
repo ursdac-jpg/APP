@@ -6,7 +6,7 @@
 //   verifier: function (texteEntier) { return { ok: true }; },        // le module dit si le contenu est lisible (son analyseur, sans rien ajouter)
 //   onContinuer: function (texteEntier | null) {},                    // clic sur « Continuer » de la barre du bas (null = continuer sans le complément)
 //   apercuHtml: '<div>..</div>',                                     // aperçu sous le décompte : ce bandeau remplace « Je suis de retour », tout le reste est inactif
-//   onRouvrir, onRetour, onChangerAssistant, onVideo, onEchecAction, lirePressePapiers,
+//   onRouvrir, onRetour, onChangerAssistant, onEchecAction, lirePressePapiers,
 //   onEtat: function (etat) {} });                                    // appelé après chaque affichage (le module peut alléger sa page selon l'état)
 // verifier peut renvoyer { ok: false, personnalise: { texte, bouton: { libelle } } } pour expliquer l'échec ; son bouton appelle onEchecAction ; echecParDefaut (même forme) sert pour toute réponse inutilisable quand verifier n'en dit pas plus (bouton.sansFleche : pas de flèche de retour devant le libellé, pour une action qui ne ramène nulle part).
 // « Coller la réponse » lit et vérifie, sans rien ajouter ; c'est « Continuer » (barre du bas, brique data-barre-bas) qui applique.
@@ -53,6 +53,7 @@ function htmlFenetreCollage(m, suffixe, options) {
     }
     h += '</div>';
   }
+  if (m.videoAssistant && !options.apercuHtml && typeof htmlVideoGeste === 'function') { h += htmlVideoGeste(m.videoAssistant); }
   if (m.conseil) { h += '<p class="fc-conseil"><strong>Bon à savoir.</strong> ' + m.conseil + '</p>'; }
 
   if (m.complement.visible) {
@@ -106,7 +107,8 @@ function htmlFenetreCollage(m, suffixe, options) {
     m.recu.lignes.filter(function (l) { return l.type !== 'ok'; }).forEach(function (l) { h += '<div class="fc-averifier" role="note"><span aria-hidden="true">&#128269;</span> <span>' + l.texte + '</span></div>'; });
   }
   if (changerIci && !changerDansAction) {
-    h += '<div class="fc-pied">' + (m.pied.avecVideo ? _fcBouton('video', '&#9654; ' + m.pied.video, 'btn btn-sm btn-outline-secondary') : '') + _fcBouton('changer', '&#8634; ' + m.pied.changer, 'btn btn-sm btn-outline-primary') + '</div>';
+    // Après un échec : la petite vidéo « comment coller la réponse » (ligne à filet qui se déplie, modules/video-presentation), avant les boutons.
+    h += (m.pied.avecVideo && typeof htmlVideoGeste === 'function' ? htmlVideoGeste('coller-reponse') : '') + '<div class="fc-pied">' + _fcBouton('changer', '&#8634; ' + m.pied.changer, 'btn btn-sm btn-outline-primary') + '</div>';
   }
   // Aperçu sous le décompte : rien d'actif, et pas de « Continuer » (il apparaîtra au retour).
   if (options.apercuHtml) { return h + '</div>'; }
@@ -160,7 +162,6 @@ function activerFenetreCollage(config) {
     lier('recommencer', function () { echecPerso = null; morceaux = []; silencieux = false; echecApresSuite = false; venaitDeCoupe = false; texteFinal = ''; etat = 'pret'; dessiner(); });
     lier('echecAction', function () { if (config.onEchecAction) { config.onEchecAction(); } });
     lier('changer', function () { if (config.onChangerAssistant) { config.onChangerAssistant(); } });
-    lier('video', function () { if (config.onVideo) { config.onVideo(); } });
     Array.prototype.forEach.call(racine.querySelectorAll('[data-fc-info]'), function (b) {
       b.addEventListener('click', function () {
         var texte = racine.querySelector('[data-fc-info-texte="' + b.getAttribute('data-fc-info') + '"]');

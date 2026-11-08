@@ -21,6 +21,12 @@ sources:
   - "msa-tesa-en-bref | Tesa : en bref | https://tesa.msa.fr/en-bref/ | 2026-10-13"
   - "entreprendre-rgdu | Service Public Entreprendre : réduction générale dégressive unique (RGDU) | https://entreprendre.service-public.gouv.fr/vosdroits/F24542 | 2026-11-03"
   - "urssaf-rgdu | Urssaf : la réduction générale dégressive unique | https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/reduction-generale-cotisation.html | 2026-11-03"
+  - "service-public-aide-apprentis-2026 | Service Public Entreprendre : aide à l'embauche d'apprentis en 2026 | https://entreprendre.service-public.gouv.fr/actualites/A18837 | 2026-11-03"
+  - "entreprendre-aides-contrat-apprentissage | Service Public Entreprendre : aides au contrat d'apprentissage | https://entreprendre.service-public.gouv.fr/vosdroits/F23556 | 2026-11-03"
+  - "economie-clauses-sociales | Ministère de l'Économie : guide sur les aspects sociaux de la commande publique | https://www.economie.gouv.fr/daj/guide-sur-les-aspects-sociaux-de-la-commande-publique | 2026-09-06"
+  - "ville-emploi-clause-sociale | Ville et emploi : l'achat responsable et les clauses sociales | https://www.ville-emploi.asso.fr/lachat-responsable | 2026-09-08"
+  - "inrs-mortel-ton-taf | INRS : site mortel-ton-taf.fr | https://mortel-ton-taf.fr/ | 2026-10-27"
+  - "service-public-dispense-visite-reprise | Service Public Entreprendre : dispense de visite de reprise | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05"
 structures:
 ---
 

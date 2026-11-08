@@ -192,6 +192,7 @@ function ctHtmlExplication(detour) {
   return htmlPageIntroModule({
     boutonHautHTML: ctHtmlBandeReprise(),
     icone: 'bi-check2-circle',
+    video: 'coherence',
     titre: 'Cohérence de mon dossier',
     sousTitre: 'Vérifier que votre CV, votre lettre de motivation et votre préparation d’entretien d’embauche racontent la même histoire.',
     sections: [

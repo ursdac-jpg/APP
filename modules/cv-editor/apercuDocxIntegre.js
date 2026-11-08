@@ -790,7 +790,7 @@ function _htmlPopoversAideDocx() {
         '<li>« Structure »/« Style visuel »/« Contenu » permettent de tout régler en détail.</li>' +
         '<li>✍️ La main + le stylo explique comment modifier le texte de ce CV.</li>' +
       '</ul>' +
-      '<div style="text-align:center;">' + htmlDeclencheurDemoVideo('cv-word-personnaliser', 'Voir la démonstration') + '</div>' +
+      '<div style="text-align:center;">' + htmlVideoGeste('cv-word') + '</div>' +
     '</div>' +
     '<div id="popoverEditionDocx" style="' + stylePopover + '">' +
       '<div style="' + styleTitreBarre + '"><span>Modifier le texte</span><button type="button" id="btnFermerEditionDocx" style="' + styleFermer + '">✕</button></div>' +
@@ -819,14 +819,11 @@ function _cablerBoutonsAideDocx() {
       popover.style.display = afficher ? 'block' : 'none';
       if (afficher) { positionnerPopoverSousBouton(bouton, popover); }
     });
-    // TACHE (correction bug : clic sur "Voir la démonstration" sans effet
-    // dans ce popover) : stopPropagation() ci-dessous empêchait TOUT clic
-    // interne (y compris le bouton video) d'atteindre l'ecouteur global
-    // data-demo-video, attache sur document (voir htmlDeclencheurDemoVideo/
-    // ouvrirDemoVideo, js/app.js) -- ce bouton a besoin que son clic
-    // remonte jusqu'a document pour fonctionner, exception faite ici.
+    // stopPropagation() ci-dessous empêcherait TOUT clic interne (y compris le bouton de la petite vidéo) d'atteindre l'écouteur global
+    // du composant vidéo (data-vp-bouton, modules/video-presentation), attaché sur document : ce bouton a besoin que son clic
+    // remonte jusqu'à document pour fonctionner, exception faite ici.
     popover.addEventListener('click', function (evt) {
-      if (evt.target.closest && evt.target.closest('[data-demo-video]')) { return; }
+      if (evt.target.closest && evt.target.closest('[data-vp-bouton]')) { return; }
       evt.stopPropagation();
     });
   }

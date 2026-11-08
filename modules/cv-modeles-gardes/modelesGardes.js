@@ -234,7 +234,8 @@ function mgSurNavigation(route) {
 
 function mgHtmlBandeauEssai() {
   return '<div class="cv-section" id="mgBandeauEssai" role="note" style="border-left:4px solid var(--warning-border);background:var(--warning-bg-subtle);">' +
-    '<p class="mb-0" style="color:var(--warning-strong);"><strong><i class="bi bi-clipboard-check" aria-hidden="true"></i> Ceci est un CV d’exemple.</strong> Vos informations ne sont pas encore remplies : vous voyez simplement nos modèles. Gardez ceux qui vous plaisent (jusqu’à ' + MG_MAX + '), vous les retrouverez avec votre texte.</p></div>';
+    '<p class="mb-0" style="color:var(--warning-strong);"><strong><i class="bi bi-clipboard-check" aria-hidden="true"></i> Ceci est un CV d’exemple.</strong> Vos informations ne sont pas encore remplies : vous voyez simplement nos modèles. Gardez ceux qui vous plaisent (jusqu’à ' + MG_MAX + '), vous les retrouverez avec votre texte.</p></div>' +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('modele') : '');
 }
 function mgBarreEssai() {
   // Sur téléphone la barre n'a pas la place du libellé long : version courte (classes .lib-intro-long / .lib-intro-court, css/style.css).

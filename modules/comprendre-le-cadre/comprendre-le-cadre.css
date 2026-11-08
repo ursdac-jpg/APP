@@ -97,12 +97,6 @@
   font-weight: 600;
   font-size: .92rem;
 }
-.comprendre-le-cadre-source-lien {
-  display: block;
-  font-size: .82rem;
-  word-break: break-all;
-  margin-top: .1rem;
-}
 .comprendre-le-cadre-source-date {
   display: inline-block;
   margin-top: .2rem;

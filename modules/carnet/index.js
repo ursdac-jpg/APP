@@ -338,6 +338,7 @@ function _carnetRenduIntro() {
     multilingueCourte: true,
     detour: _carnetIntroDetour, detourBoutonId: 'btnCarnetRevenirModule', detourLogo: 'bi-journal-text', detourCtaId: 'btnCarnetIntroRevenir',
     onRevenirExpr: 'carnetRevenirDeLaPresentation()',
+    video: 'carnet',
     ctaId: 'btnCarnetIntroOuvrir', ctaLabel: 'Ouvrir mon Carnet &#8594;',
     carteRetour: 'boiteaoutils',
     blocsHTML:

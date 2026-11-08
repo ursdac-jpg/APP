@@ -24,7 +24,7 @@ consignée dans `handicap.collecte.md`.
    le 2026-09-11 et datées dans `liens-verifies.txt` : `ameli-demander-pension-invalidite`,
    `ameli-entree-invalidite`, `pour-les-personnes-agees-conge-proche-aidant`, `pour-les-personnes-agees-ajpa`.
 
-## Les 11 fiches
+## Les 16 fiches
 
 | id | titre |
 |---|---|
@@ -39,6 +39,11 @@ consignée dans `handicap.collecte.md`.
 | `handicap-proche-aidant` | Accompagner un proche en travaillant : le congé de proche aidant et l'AJPA (ajoutée le 2026-09-11) |
 | `handicap-majoration-vie-autonome` | La majoration pour la vie autonome : un complément de l'AAH pour vivre chez soi |
 | `handicap-trouver-formation-accessible` | Trouver une formation accessible : l'outil QuiForme et le filtre « Accueil handicap » (ajoutée le 2026-11-03) |
+| `handicap-fin-du-cumul-ass-aah-au-31-decembre-2026` | Je touche l'ASS et l'AAH en même temps : que se passe-t-il au 31 décembre 2026 ? |
+| `handicap-travail-en-esat-calcul-de-l-aah-a-partir-de-fin-2026` | Je travaille en Esat : comment mon AAH est-elle calculée à partir de fin 2026 ? |
+| `handicap-le-complement-de-ressources-de-l-aah-existe-t-il-encore` | Le complément de ressources de l'AAH existe-t-il encore ? |
+| `handicap-qui-peut-recevoir-l-allocation-aux-adultes-handicapes-aah` | Qui peut recevoir l'allocation aux adultes handicapés (AAH) ? |
+| `handicap-comment-demander-l-aah-et-que-faire-en-cas-de-refus-ou-de-renouvellement` | Comment demander l'AAH, et que faire en cas de refus ou de renouvellement ? |
 
 ## Recoupements
 

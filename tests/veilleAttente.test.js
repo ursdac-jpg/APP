@@ -110,3 +110,24 @@ test('depot : une fiche en attente depuis 90 jours sans nouvel avis est signalé
     assert.equal(apres.arevoir, false);
   } finally { nettoyerDepot(d); }
 });
+
+test('depot : une fiche mise de côté retrouve son lien dans la même publication quand l’adresse de son site change (et pas quand un autre champ change)', () => {
+  const d = depotJetable();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => AUJ, maintenant: () => AUJ + ' 14:32' });
+    const fichier = path.join(d, 'modules/mon-territoire/contenu/en-attente.txt');
+    const lignes = () => fs.readFileSync(fichier, 'utf8').split(/\r?\n/).filter((l) => l[0] !== '#' && l.trim());
+    assert.ok(depot.publier([{ type: 'attente', actions: [{ op: 'mettre', registre: 'lieux', id: 'ccas-demo-24', motif: 'autre' }, { op: 'mettre', registre: 'lieux', id: 'asso-udaf-87', motif: 'autre' }] }]).ok);
+    // un autre champ (la description) : la fiche reste de côté
+    const r1 = depot.publier([{ type: 'territoire', fichier: 'lieux', actions: [{ op: 'modifier', id: 'ccas-demo-24', valeurs: { description: 'aide sociale et domiciliation' }, dater: true }] }]);
+    assert.ok(r1.ok, r1.erreur);
+    assert.strictEqual(lignes().length, 2);
+    // l'adresse du site change : la fiche sort de la mise de côté, l'autre reste
+    const r2 = depot.publier([{ type: 'territoire', fichier: 'lieux', actions: [{ op: 'modifier', id: 'ccas-demo-24', valeurs: { site: 'https://nouveau-ccas.example.org/' }, dater: true }] }]);
+    assert.ok(r2.ok, r2.erreur);
+    assert.strictEqual(lignes().length, 1);
+    assert.match(lignes()[0], /asso-udaf-87/);
+    assert.strictEqual(depot.listerTerritoire('lieux').lignes.filter((l) => l.id === 'ccas-demo-24')[0].attente, undefined);
+    assert.match(fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8'), /ccas-demo-24 \| réaffichée \(nouvelle adresse du site\)/);
+  } finally { nettoyerDepot(d); }
+});

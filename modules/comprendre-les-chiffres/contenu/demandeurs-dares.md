@@ -2,6 +2,8 @@
 verifie_le: 2026-11-06
 sources:
   - "dares-inscrits-communes-2025t4 | Dares et France Travail, Inscrits à France Travail, données communales trimestrielles brutes, catégories A, B et C, 4e trimestre 2025 (effectifs arrondis au multiple de 5, additionnés par département) | https://www.data.gouv.fr/datasets/inscrits-a-france-travail-donnees-communales-trimestrielles-brutes | 2026-11-06"
+periodes:
+  - "dares-inscrits-communes-2025t4 | T4 2025"
 ---
 
 # departements

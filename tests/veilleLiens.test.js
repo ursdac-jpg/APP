@@ -97,6 +97,9 @@ test('liens : refus des actions invalides (nom, adresse, portee, doublons, incon
   assert.ok(!appliquer(FICHIER, new Array(201).fill({ op: 'valider', nom: 'legifrance' }), AUJ, {}).ok);
   assert.ok(!appliquer(FICHIER, [{ op: 'valider', nom: 'legifrance' }], 'hier', {}).ok);
   assert.ok(adresseValide('https://www.service-public.gouv.fr/particuliers/vosdroits/N19775'));
+  assert.ok(!adresseValide('http://mairie-exemple.fr/'), 'une adresse http est refusée : l\'application ne l\'affiche pas');
+  const refus = appliquer(FICHIER, [{ op: 'ajouter', nom: 'mairie-http', adresse: 'http://mairie-exemple.fr/', portee: '24' }], AUJ, {});
+  assert.ok(!refus.ok && /https/.test(refus.erreur) && /version https/.test(refus.erreur));
 });
 
 test('liens : les fins de ligne du fichier (CRLF) et un fichier sans retour final sont conserves', () => {

@@ -132,3 +132,9 @@ Deux formes d'implémentation, selon la nature du module :
 
 Reste à faire : les maquettes HTML de référence pour Cohérence et Repères (retrofit, pas urgent) ;
 l'implémentation du parcours Découverte consolidé (proposition écrite, à valider par Denis).
+
+## Taille du texte : trois familles de pages (consigne 150, 07/11/2026)
+
+La taille de base suit l'écran par paliers (`--palier-taille`, `css/style.css`) **sauf** sur l'accueil (route `cv`), la page « Introduction » et les présentations de module (routes `...-intro`) : elles restent à la taille d'avant (16 px, 17 px de 1000 à 1600 px). L'attribut `data-route` de `<html>` (posé par `naviguerVers`) porte cette distinction. Toute nouvelle présentation de module dont la route finit par `-intro` en profite sans rien faire.
+
+**Exception : la barre du bas (consigne 158, 07/11/2026).** `.barre-navigation-fixe` (Retour, Accueil, Continuer) a la même taille sur toutes les pages, celle des présentations : elle est ramenée par `zoom: calc(var(--palier-barre) / var(--palier-taille))` à `--palier-barre` (1, ou 1,0625 de 1000 à 1600 px sans « Texte plus grand »). La hauteur tactile de 44 px des boutons est compensée dans la même règle. Ne pas redéfinir la taille de ces boutons en dehors de ce mécanisme.

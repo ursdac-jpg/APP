@@ -17,6 +17,11 @@ const TIRETS = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCod
 const RE_DATE = /^\d{4}-\d{2}(-\d{2})?$/;
 const NOMS_CHAMPS = { valeur: 'valeur affichée', periode: 'période', precedent: 'précédent', anPrecedent: 'il y a un an', repere: 'repère', histoH: 'le plus haut connu', histoB: 'le plus bas connu', sourceNom: 'nom de la source' };
 
+// Un champ du pouvoir d'achat dont l'année est dans le nom (pouvoir_achat_2026, pouvoir_achat_contribution_prix_2026) est connu d'avance :
+// ajouter l'année suivante ne demande donc aucun changement de l'outil (consigne 145).
+const RE_CHAMP_POUVOIR_ACHAT = /^pouvoir_achat_(?:contribution_(?:activite|patrimoine|prestations|impots|prix|demographie)_)?20\d\d$/;
+function formeDuChamp(cle) { return FORMES_CHAMP[cle] || (RE_CHAMP_POUVOIR_ACHAT.test(cle) ? 'nombre' : undefined); }
+
 // Forme attendue de chaque donnée d'un lieu : pourcentage, euros, nombre entier, texte libre.
 const FORMES_CHAMP = {
   valeur: 'nombre', chomage_recensement: 'pct', niveau_vie_median: 'eur', taux_pauvrete: 'pct', residences_secondaires: 'pct', part_65_et_plus: 'pct',
@@ -35,6 +40,8 @@ const FORMES_CHAMP = {
   // smic-dares.md (2026-11-06) : les chiffres nationaux de la Dares sur la revalorisation du Smic (une seule fiche, « France »)
   beneficiaires_smic_millions: 'nombre', part_beneficiaires_smic: 'pct', part_beneficiaires_smic_precedente: 'pct', part_beneficiaires_smic_temps_partiel: 'pct',
   part_beneficiaires_smic_temps_complet: 'pct', part_beneficiaires_smic_tpe: 'pct', part_beneficiaires_smic_autres: 'pct', part_femmes_beneficiaires_smic: 'pct',
+  // montants et effectifs qui accompagnent la carte (consigne 145 : plus aucun montant écrit dans le code)
+  part_femmes_salaries_prive: 'pct', salaries_champ_millions: 'nombre', salaries_prive_millions: 'nombre', smic_horaire_ancien: 'eur', smic_horaire_nouveau: 'eur',
   // pouvoir-achat-insee.md (2026-11-06) : l'évolution du pouvoir d'achat des ménages (Insee, comptes de la Nation), une seule fiche « France » ; un nombre peut être négatif
   pouvoir_achat_2021: 'nombre', pouvoir_achat_2022: 'nombre', pouvoir_achat_2023: 'nombre', pouvoir_achat_2024: 'nombre', pouvoir_achat_2025: 'nombre',
   pouvoir_achat_contribution_activite_2025: 'nombre', pouvoir_achat_contribution_patrimoine_2025: 'nombre', pouvoir_achat_contribution_prestations_2025: 'nombre',
@@ -42,7 +49,11 @@ const FORMES_CHAMP = {
   // europe-economie-eurostat.md (2026-11-06, relevé par scripts/releveEuropeEconomieEurostat.py) : une ligne par pays ; les évolutions peuvent être négatives, le revenu est un nombre entier en SPA
   croissance_pib: 'nombre', revenu_menages_spa: 'nb', evolution_emploi: 'nombre', taux_emploi: 'pct', evolution_salaire_minimum: 'nombre', evolution_remuneration_nette: 'nombre',
   taux_creation_entreprises: 'pct', taux_cessation_entreprises: 'pct', evolution_faillites: 'nombre',
-  part_depenses_alimentation: 'pct', part_depenses_logement: 'pct', part_depenses_energie: 'pct'
+  part_depenses_alimentation: 'pct', part_depenses_logement: 'pct', part_depenses_energie: 'pct',
+  // le portrait du territoire (age-insee, formation-insee, secteurs-insee, temps-partiel-insee, generalistes-insee, demandeurs-dares, portrait-chiffres) : une ligne par département
+  part_65_plus: 'pct', part_moins_25: 'pct', part_50_plus: 'pct', part_femmes: 'pct', sans_diplome: 'pct', diplomes_superieur: 'pct', temps_partiel: 'pct', densite_medecins: 'nb',
+  etab_commerce_services: 'pct', etab_administration_sante: 'pct', etab_construction: 'pct', etab_agriculture: 'pct', etab_industrie: 'pct',
+  demandeurs_moins_26: 'pct', demandeurs_55_plus: 'pct', demandeurs_femmes: 'pct', demandeurs_rsa: 'pct', demandeurs_rqth: 'pct'
 };
 const RE_FORME = { pct: /^\d+(,\d+)? ?%$/, eur: /^\d[\d  ]* ?€$/, nb: /^\d[\d  ]*$/, nombre: /^-?\d+(,\d+)?( ?%)?$/, txt: /\S/, jour: /^\d{2}\/\d{2}\/\d{4}$/ };
 const AIDE_FORME = { pct: 'un pourcentage à la française, par exemple « 8,5 % »', eur: 'un montant en euros, par exemple « 23 700 € »', nb: 'un nombre entier', nombre: 'un nombre à la française, par exemple « 8,5 % » ou « 133 »', txt: 'un texte non vide', jour: 'une date jour/mois/année, par exemple « 18/10/2026 »' };
@@ -80,6 +91,33 @@ function sourcesDeLEntete(entete) {
     sortie.push({ i: i, id: c[0].trim(), titre: c[1].trim(), url: c[2].trim(), date: c[3] !== undefined && RE_DATE.test(c[3].trim()) ? c[3].trim() : '' });
   });
   return sortie;
+}
+// Les périodes de l'en-tête (bloc « periodes: », consigne 145) : [{ i (index de ligne), id, valeur }]. Elles disent à l'application de QUELLE période est chaque source,
+// pour que « en 2025 » ou « au 2e trimestre 2026 » ne soit jamais écrit à la main dans le code.
+// Même grammaire que l'application (_comprendreLesChiffresPeriodeLire) : « 2025 », « T2 2026 », « S2 2025 », « 2025-12 », « 2026-01-01 », ou un intervalle « a > b » ; un test garde les deux d'accord.
+const RE_PERIODE_UNE = '(?:20\\d\\d-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[12]\\d|3[01]))?|(?:T[1-4] |S[12] )?20\\d\\d)';
+const RE_PERIODE = new RegExp('^' + RE_PERIODE_UNE + '(?: ?> ?' + RE_PERIODE_UNE + ')?$');
+function periodesDeLEntete(entete) {
+  const sortie = [];
+  let dedans = false;
+  entete.split('\n').forEach(function (l, i) {
+    if (/^periodes:\s*$/.test(l)) { dedans = true; return; }
+    if (dedans && !/^\s+- "/.test(l)) { dedans = false; }
+    if (!dedans) { return; }
+    const m = /^\s+- "(.*)"\s*$/.exec(l);
+    const c = m ? m[1].split(' | ') : [];
+    if (c.length === 2) { sortie.push({ i: i, id: c[0].trim(), valeur: c[1].trim() }); }
+  });
+  return sortie;
+}
+// Met à jour (ou ajoute) la période d'une source dans l'en-tête ; sans bloc « periodes: », il est créé juste après la dernière source.
+function ecrirePeriodeEntete(entete, id, valeur, derniereSource) {
+  const l = entete.split('\n'), ex = periodesDeLEntete(entete), trouve = ex.filter(function (x) { return x.id === id; })[0];
+  const ligne = '  - "' + id + ' | ' + valeur + '"';
+  if (trouve) { l[trouve.i] = ligne; return l.join('\n'); }
+  if (ex.length) { l.splice(ex[ex.length - 1].i + 1, 0, ligne); return l.join('\n'); }
+  l.splice(derniereSource + 1, 0, 'periodes:', ligne);
+  return l.join('\n');
 }
 function formeDate(modele, aujourdhui) { return /^\d{4}-\d{2}$/.test(String(modele || '').trim()) ? aujourdhui.slice(0, 7) : aujourdhui; }
 // Met à jour la date des sources désignées (par leurs lignes) dans l'en-tête, dans le même format que la date existante.
@@ -180,8 +218,8 @@ function modifierTerritoire(texte, demande, contexte) {
   for (const cle of Object.keys(changes)) {
     if (cle === 'sources') { return { ok: false, erreur: 'Les sources se règlent avec la liste de sources, pas comme un champ.' }; }
     const existant = bloc.champs.filter(function (c) { return c.cle === cle; })[0];
-    if (!existant && !FORMES_CHAMP[cle]) { return { ok: false, erreur: 'Champ inconnu : « ' + cle + ' ».' }; }
-    const forme = FORMES_CHAMP[cle] || 'txt', v = String(changes[cle]).trim();
+    if (!existant && !formeDuChamp(cle)) { return { ok: false, erreur: 'Champ inconnu : « ' + cle + ' ».' }; }
+    const forme = formeDuChamp(cle) || 'txt', v = String(changes[cle]).trim();
     if (/[\r\n]/.test(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » tient en une seule ligne.' }; }
     if (!RE_FORME[forme].test(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » doit être ' + AIDE_FORME[forme] + ' (reçu : « ' + v.slice(0, 40) + ' »).' }; }
     if (forme === 'jour' && !jourFrValide(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » doit être ' + AIDE_FORME.jour + ' (cette date n\'existe pas : « ' + v.slice(0, 40) + ' »).' }; }
@@ -198,6 +236,19 @@ function modifierTerritoire(texte, demande, contexte) {
     if (inconnues.length) { return { ok: false, erreur: 'Source absente de l\'en-tête du fichier : ' + inconnues.join(', ') + '.' }; }
     if (JSON.stringify(d.sources) !== JSON.stringify(bloc.sources)) { sources = d.sources; }
   }
+  let periodes = null;
+  if (d.periodes !== undefined) {
+    if (!d.periodes || typeof d.periodes !== 'object' || Array.isArray(d.periodes)) { return { ok: false, erreur: 'Les périodes sont une liste « source : période ».' }; }
+    const existantes = periodesDeLEntete(lu.entete), aEcrire = [];
+    for (const id of Object.keys(d.periodes)) {
+      if (!lu.sources.some(function (x) { return x.id === id; })) { return { ok: false, erreur: 'Source absente de l\'en-tête du fichier : ' + String(id).slice(0, 60) + '.' }; }
+      const v = String(d.periodes[id]).trim();
+      if (!RE_PERIODE.test(v)) { return { ok: false, erreur: 'La période de « ' + id + ' » doit s\'écrire « 2025 », « T2 2026 », « S2 2025 », « 2025-12 » ou « 2026-01-01 », ou deux périodes séparées par « > » (reçu : « ' + v.slice(0, 40) + ' »).' }; }
+      const ex = existantes.filter(function (x) { return x.id === id; })[0];
+      if (!ex || ex.valeur !== v) { aEcrire.push({ id: id, valeur: v }); }
+    }
+    if (aEcrire.length) { periodes = aEcrire; chiffre = true; }
+  }
   let prose = null;
   if (d.prose !== undefined) {
     const p = String(d.prose).replace(/\r\n/g, '\n').replace(/^\n+/, '').replace(/\s+$/, '');
@@ -207,7 +258,7 @@ function modifierTerritoire(texte, demande, contexte) {
     if (p !== bloc.prose) { prose = p; }
   }
   const datation = d.datation === 'redater' ? 'redater' : 'garder';
-  if (!modifies.length && sources === null && prose === null && datation !== 'redater') { return { ok: false, erreur: 'Ces modifications ne changent rien à ce lieu.' }; }
+  if (!modifies.length && sources === null && prose === null && periodes === null && datation !== 'redater') { return { ok: false, erreur: 'Ces modifications ne changent rien à ce lieu.' }; }
   if (chiffre && !d.confirmeSource) { return { ok: false, erreur: 'Un chiffre a changé : confirmez que vous avez ouvert la source et que le chiffre y figure.' }; }
   // Première datation d'un fichier relevé mais jamais vérifié (« verifie_le: a-valider ») : c'est elle qui le rend public, donc elle exige la confirmation même si aucun chiffre ne change.
   if (datation === 'redater' && !/^\d{4}-\d{2}(-\d{2})?$/.test(verifieDe(lu.entete)) && !d.confirmeSource) {
@@ -227,14 +278,20 @@ function modifierTerritoire(texte, demande, contexte) {
   bloc.modifie = true;
   let entete = lu.entete;
   if (chiffre) {
-    const lignesSrc = lu.sources.filter(function (x) { return bloc.sources.indexOf(x.id) !== -1; }).map(function (x) { return x.i; });
+    // les sources du lieu si un chiffre ou ses sources changent, et celles dont la période change
+    const idsPeriodes = periodes ? periodes.map(function (p) { return p.id; }) : [], duLieu = modifies.length > 0 || sources !== null;
+    const lignesSrc = lu.sources.filter(function (x) { return (duLieu && bloc.sources.indexOf(x.id) !== -1) || idsPeriodes.indexOf(x.id) !== -1; }).map(function (x) { return x.i; });
     entete = dateSources(entete, lignesSrc, cx.aujourdhui);
+  }
+  if (periodes) {
+    const derniere = lu.sources.reduce(function (m, x) { return Math.max(m, x.i); }, 0);
+    periodes.forEach(function (p) { entete = ecrirePeriodeEntete(entete, p.id, p.valeur, derniere); });
   }
   if (datation === 'redater') { entete = redaterEntete(entete, cx.aujourdhui); }
   lu.entete = entete;
   const sortie = territoireEnTexte(lu);
   if (sortie === String(texte)) { return { ok: false, erreur: 'Ces modifications ne changent rien à ce lieu.' }; }
-  return { ok: true, texte: sortie, resume: { champs: modifies.map(function (m) { return m.cle; }).concat(sources !== null ? ['sources'] : []).concat(prose !== null ? ['prose'] : []), action: chiffre ? 'chiffre modifié' : (prose !== null ? 'texte modifié' : (datation === 'redater' ? 'redaté' : 'modifié')) } };
+  return { ok: true, texte: sortie, resume: { champs: modifies.map(function (m) { return m.cle; }).concat(sources !== null ? ['sources'] : []).concat(periodes !== null ? ['periodes'] : []).concat(prose !== null ? ['prose'] : []), action: chiffre ? 'chiffre modifié' : (prose !== null ? 'texte modifié' : (datation === 'redater' ? 'redaté' : 'modifié')) } };
 }
 
 // ============================================================
@@ -609,5 +666,5 @@ module.exports = {
   lireDigest: lireDigest, digestEnTexte: digestEnTexte, lireEntree: lireEntree, entreeEnLignes: entreeEnLignes, controlerEntree: controlerEntree, modifierDigest: modifierDigest,
   lireAnnuel: lireAnnuel, lireParagraphes: lireParagraphes, couperEnLignes: couperEnLignes, annuelEnTexte: annuelEnTexte, modifierAnnuel: modifierAnnuel, lirePuce: lirePuce, puceEnLigne: puceEnLigne, gras: gras,
   lireMethode: lireMethode, methodeEnTexte: methodeEnTexte, modifierMethode: modifierMethode,
-  sourcesDeLEntete: sourcesDeLEntete, separerEntete: separerEntete, verifieDe: verifieDe, nombre: nombre, FORMES_CHAMP: FORMES_CHAMP, AIDE_FORME: AIDE_FORME, RE_FORME: RE_FORME
+  sourcesDeLEntete: sourcesDeLEntete, periodesDeLEntete: periodesDeLEntete, RE_PERIODE: RE_PERIODE, separerEntete: separerEntete, verifieDe: verifieDe, nombre: nombre, FORMES_CHAMP: FORMES_CHAMP, formeDuChamp: formeDuChamp, AIDE_FORME: AIDE_FORME, RE_FORME: RE_FORME
 };

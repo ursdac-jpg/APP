@@ -28,6 +28,7 @@ ce_qui_change_souvent:
   - "Les délais de rétractation et d'homologation"
 revisions:
   - "2026-09 : à compter du 1er septembre 2026, durée maximale d'indemnisation chômage raccourcie pour les ruptures conventionnelles individuelles (15 mois avant 55 ans au lieu de 18, 20,5 mois à partir de 55 ans) ; confirmé sur unedic.org et code.travail.gouv.fr le 2026-09-05 ; la rupture conventionnelle collective n'est pas concernée"
+phrase_generale: "La rupture conventionnelle est un accord entre le salarié et l'employeur pour mettre fin au contrat, avec des démarches et des délais à respecter. Les durées et les montants se vérifient auprès de l'administration avant de signer."
 collecte: emploi.collecte.md
 ---
 

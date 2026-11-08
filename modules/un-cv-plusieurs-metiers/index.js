@@ -248,6 +248,7 @@ function pageIntroUnCvPlusieursMetiers() {
     onRevenirExpr: 'ucpmRevenirDeLaPresentation()',
     titre: '<i class="bi bi-files"></i> Un CV, plusieurs métiers',
     sousTitre: 'Vous pouvez viser plusieurs métiers ? Partez d’un seul CV : l’application vous aide à préparer un CV et une lettre de motivation pour chaque métier, sans rien inventer.',
+    video: 'ucpm',
     ctaId: 'btnUcpmCommencer',
     ctaLabel: 'Commencer &#8594;',
     etapes: UCPM_NAV_ETAPES,

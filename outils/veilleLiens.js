@@ -19,7 +19,7 @@ function adresseValide(a) {
   if (typeof a !== 'string') { return false; }
   const t = a.trim();
   if (!t || t.length > 600 || /\s/.test(t) || t.indexOf('|') !== -1 || /[\u0000-\u001f]/.test(t)) { return false; }
-  try { const u = new URL(t); return u.protocol === 'https:' || u.protocol === 'http:'; } catch (e) { return false; }
+  try { const u = new URL(t); return u.protocol === 'https:'; } catch (e) { return false; }
 }
 
 // Lit le fichier : { lignes: [{ brut, nom, adresse, date, portee } | { brut }], fin }
@@ -88,7 +88,7 @@ function appliquer(texte, actions, aujourdhui, usages) {
     const i = index(nom);
     if (ac.op === 'ajouter') {
       if (i !== -1) { return { ok: false, erreur: nom + ' : cette adresse existe deja (choisissez un autre nom court).' }; }
-      if (!adresseValide(ac.adresse)) { return { ok: false, erreur: nom + ' : adresse non valide (elle doit commencer par https:// ou http://, sans espace ni barre verticale).' }; }
+      if (!adresseValide(ac.adresse)) { return { ok: false, erreur: nom + ' : adresse non valide (elle doit commencer par https://, sans espace ni barre verticale). L\'application n\'affiche que les adresses sécurisées : cherchez la version https de la page, ou la même information sur un site officiel en https.' }; }
       const portee = String(ac.portee || 'national');
       if (PORTEES.indexOf(portee) === -1) { return { ok: false, erreur: nom + ' : portee inconnue (national, region, 24 ou 87).' }; }
       lignes.push({ nom: nom, adresse: String(ac.adresse).trim(), date: ac.dater ? aujourdhui : '', portee: portee, brut: null });
@@ -99,7 +99,7 @@ function appliquer(texte, actions, aujourdhui, usages) {
       lignes[i] = { nom: nom, adresse: lignes[i].adresse, date: aujourdhui, portee: lignes[i].portee, brut: null }; resume.valides++; continue;
     }
     if (ac.op === 'modifier') {
-      if (!adresseValide(ac.adresse)) { return { ok: false, erreur: nom + ' : adresse non valide (elle doit commencer par https:// ou http://, sans espace ni barre verticale).' }; }
+      if (!adresseValide(ac.adresse)) { return { ok: false, erreur: nom + ' : adresse non valide (elle doit commencer par https://, sans espace ni barre verticale). L\'application n\'affiche que les adresses sécurisées : cherchez la version https de la page, ou la même information sur un site officiel en https.' }; }
       const portee = (ac.portee === undefined || ac.portee === null || ac.portee === '') ? lignes[i].portee : String(ac.portee);
       if (PORTEES.indexOf(portee) === -1) { return { ok: false, erreur: nom + ' : portee inconnue (national, region, 24 ou 87).' }; }
       lignes[i] = { nom: nom, adresse: String(ac.adresse).trim(), date: ac.dater === false ? '' : aujourdhui, portee: portee, brut: null }; resume.modifies++; continue;

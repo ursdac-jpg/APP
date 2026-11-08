@@ -12,7 +12,7 @@ function fn(nom) {
   const fin = [j, k].filter((x) => x > 0).sort((a, b) => a - b)[0];
   return html.slice(i, fin);
 }
-const analyser = new Function(fn('analyserReponse') + '\nreturn analyserReponse;')();
+const analyser = new Function(fn('deMd') + '\n' + fn('analyserReponse') +'\nreturn analyserReponse;')();
 const NL = String.fromCharCode(10);
 const bloc = (nom, corps) => '[' + nom + ']' + NL + corps + NL + '[/' + nom + ']';
 const PREUVE = 'preuve: https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000000000';
@@ -89,4 +89,9 @@ test('chaque cause donne un message de relance, et une réponse correcte n’en 
   const bon = analyser('hebdo', bloc('VEILLE-HEBDO', 'point: RSA' + NL + PREUVE));
   assert.strictEqual(bon.cause, ''); assert.strictEqual(relance('hebdo', bon), '');
   [refus, sans, coupee, nonVerifie].forEach((a) => assert.ok(!/—|–/.test(relance('hebdo', a))));
+});
+
+test('une réponse copiée depuis ChatGPT avec des crochets protégés (\[VEILLE-HEBDO\]) reste utilisable', () => {
+  const t = '\[VEILLE-HEBDO\]' + NL + 'point: RSA' + NL + PREUVE + NL + '\[/VEILLE-HEBDO\]';
+  assert.strictEqual(analyser('hebdo', t).niveau, 'ok');
 });

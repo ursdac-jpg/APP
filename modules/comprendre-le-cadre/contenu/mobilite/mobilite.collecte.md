@@ -15,6 +15,7 @@ sources:
   - "transports-nouvelle-aquitaine-carte-solidaire | La Carte Solidaire pour les transports en Nouvelle-Aquitaine | https://transports.nouvelle-aquitaine.fr/les-offres/la-carte-solidaire | 2026-09-04"
   - "transports-nouvelle-aquitaine-tad | Le transport à la demande (TAD) en Nouvelle-Aquitaine | https://transports.nouvelle-aquitaine.fr/transports-la-demande | 2026-09-04"
   - "service-public-leasing-social | Service Public : location sociale de voitures électriques (leasing social 2026) | https://www.service-public.gouv.fr/particuliers/vosdroits/F39280 | 2026-11-03"
+  - "mes-aides-france-travail-aide-mobilite-somme | Mes aides France Travail : aides à la mobilité (page du département de la Somme) | https://mes-aides.francetravail.fr/transport/acheter-ou-louer-un-vehicule/departement-somme/aides-a-la-mobilite-somme | 2026-11-05"
 structures:
   - "mes-aides-france-travail | Mes aides France Travail : annuaire des aides à la mobilité, des garages solidaires et des plateformes mobilité, filtrable par territoire | https://mes-aides.francetravail.fr/ | 2026-09-04"
   - "france-mobilites-solutions | France Mobilités : recensement des solutions de mobilité solidaire par territoire | https://www.francemobilites.fr/ | 2026-09-04"

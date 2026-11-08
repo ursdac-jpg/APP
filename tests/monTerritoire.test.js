@@ -244,7 +244,9 @@ test('adresse d’une structure : colonne facultative en fin de ligne, lien vers
   const sur = L.mtCarteStructureHtml(s, { appel: true }), ordi = L.mtCarteStructureHtml(s, { appel: false });
   const carte = 'href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent('Un CCAS, 12 rue de la Paix, 24100 Bergerac').replace(/&/g, '&amp;');
   assert.ok(sur.indexOf(carte) !== -1 && ordi.indexOf(carte) !== -1, 'adresse cliquable vers la carte sur tous les appareils');
-  assert.ok(sur.indexOf('href="tel:0553000001"') !== -1 && ordi.indexOf('tel:') === -1 && ordi.indexOf('05&nbsp;53&nbsp;00&nbsp;00&nbsp;01') !== -1, 'numéro cliquable seulement avec appel');
+  assert.ok(/<a class="btn [^"]*"[^>]*href="tel:0553000001"[^>]*>.*Appeler le 05&nbsp;53&nbsp;00&nbsp;00&nbsp;01<\/a>/.test(sur), 'sur téléphone : le numéro est écrit DANS le bouton « Appeler le … » qui compose');
+  assert.ok(ordi.indexOf('tel:') === -1 && ordi.indexOf('Appeler') === -1 && ordi.indexOf('05&nbsp;53&nbsp;00&nbsp;00&nbsp;01') !== -1, 'ailleurs : le numéro reste écrit, sans lien');
+  assert.ok((sur.match(/<a [^>]*href="tel:/g) || []).every((x) => /class="btn /.test(x)), 'jamais un lien de texte nu pour appeler');
   assert.ok(sur.indexOf('coordonnées vérifiées') !== -1);
   const vieux = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2028-10-20', null), { appel: true });
   assert.ok(vieux.indexOf('maps') === -1 && vieux.indexOf('12 rue de la Paix') === -1, 'sans date récente : aucune adresse');
@@ -254,8 +256,11 @@ test('adresse d’une structure : colonne facultative en fin de ligne, lien vers
 
 test('carte de structure partagée : téléphone et mail cliquables et datés, pastille, aide, jamais de coordonnée sans date', () => {
   const lieu = L.mtParserLieux('p1 | francais-langue | Un atelier <b> | des cours | Bergerac | | 05 53 00 00 01 | | 24 | francais | Petite structure ; page | 2026-10-12 | contact@exemple.fr').lignes[0];
-  const h = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => 'le-' + d, appel: true });
-  assert.ok(h.indexOf('href="tel:0553000001"') !== -1 && h.indexOf('href="mailto:contact@exemple.fr"') !== -1);
+  const h = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => 'le-' + d, appel: true, ecrire: true });
+  assert.ok(h.indexOf('href="tel:0553000001"') !== -1 && h.indexOf('href="mailto:contact@exemple.fr"') !== -1 && h.indexOf('Écrire</a>') !== -1);
+  const ordiMail = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => d, appel: false, ecrire: false });
+  assert.ok(ordiMail.indexOf('mailto:') === -1 && ordiMail.indexOf('contact@exemple.fr') !== -1, 'sur ordinateur : l’adresse reste écrite, sans bouton « Écrire »');
+  assert.equal(L.mtEstTactile(), false, 'hors navigateur : pas d’écran tactile');
   assert.ok(h.indexOf('Petite structure locale') !== -1 && h.indexOf('coordonnées vérifiées le le-2026-10-12') !== -1 && h.indexOf('téléphonez ou écrivez') !== -1);
   assert.ok(h.indexOf('Un atelier &lt;b&gt;') !== -1, 'le nom est échappé');
   const vieux = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2028-10-20', null), {});

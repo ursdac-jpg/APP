@@ -445,29 +445,51 @@ function mtUrlCarte(adresse) { return 'https://www.google.com/maps/search/?api=1
 function mtEstTelephone() {
   try { return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches && /iPhone|Mobi/i.test(window.navigator.userAgent || '')); } catch (e) { return false; }
 }
-// Le numéro tient toujours sur UNE seule ligne (espaces insécables), lien ou simple texte. `appel` : true = lien qui compose (défaut : selon l'appareil).
-function mtTelephoneAffiche(tel, appel) {
+// Téléphone et tablette (écran tactile) : seuls appareils où un bouton « Écrire » ouvre en général une messagerie utilisable ; sur ordinateur (souvent partagé) l'adresse reste écrite, à recopier.
+function mtEstTactile() {
+  try { return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches); } catch (e) { return false; }
+}
+// Le numéro tient toujours sur UNE seule ligne (espaces insécables). Sur ordinateur et tablette il reste du texte ; sur un téléphone, il est écrit DANS un bouton « Appeler le 05 53 ... » qui compose
+// (consigne 146 : plus de ligne de texte cliquable ; précision de Denis du 07/11/2026 : sur portable, un clic sur le numéro appelle). `appel` : true = avec le bouton (défaut : selon l'appareil).
+function mtTelephoneAffiche(tel, appel, options) {
   var num = mtEchapperHtml(tel).replace(/ /g, '&nbsp;');
   if (appel === undefined) { appel = mtEstTelephone(); }
-  return '<span style="white-space:nowrap">' + (appel ? '<a href="' + mtEchapperHtml(mtHrefTelephone(tel)) + '">' + num + '</a>' : num) + '</span>';
+  var grand = !!(options && options.grand);   // grand : le numéro d'urgence mis en avant (ex. 3114), bouton grand format
+  return appel
+    ? '<a class="btn ' + (grand ? 'btn-lg fw-bold' : 'btn-sm') + ' btn-outline-primary" style="white-space:nowrap" href="' + mtEchapperHtml(mtHrefTelephone(tel)) + '"><i class="bi bi-telephone-outbound"></i> Appeler le ' + num + '</a>'
+    : '<span style="white-space:nowrap">' + num + '</span>';
+}
+// L'adresse mail reste écrite ; sur téléphone et tablette, un bouton « Écrire » ouvre la messagerie. `ecrire` : true = avec le bouton (défaut : selon l'appareil).
+function mtMailAffiche(mail, ecrire) {
+  if (ecrire === undefined) { ecrire = mtEstTactile(); }
+  return '<span class="text-break">' + mtEchapperHtml(mail) + '</span>' +
+    (ecrire ? ' <a class="btn btn-sm btn-outline-primary ms-1" href="mailto:' + mtEchapperHtml(mail) + '"><i class="bi bi-envelope"></i> Écrire</a>' : '');
+}
+// Les boutons communs (modules/boutons-communs/logique.js) : script global dans le navigateur, require sous Node (tests).
+function _mtBoutons() {
+  var b = typeof boutonExterneHtml === 'function' ? null : require('../boutons-communs/logique.js');
+  return b
+    ? { externe: b.boutonExterneHtml, adresse: b.adresseAvecCarteHtml, libelleSite: b.libelleSiteStructure }
+    : { externe: boutonExterneHtml, adresse: adresseAvecCarteHtml, libelleSite: libelleSiteStructure };
 }
 function mtCarteStructureHtml(s, o) {
   o = o || {};
+  var bc = _mtBoutons();
   var e = mtEchapperHtml, dateFr = o.dateFr || function (d) { return d; };
   var coord = s.coordonnees !== undefined ? !!s.coordonnees : !!s.verifie;
   var meta = [];
   if (MT_TYPES[s.type]) { meta.push(MT_TYPES[s.type]); }
   var commune = o.communeAffichee || s.commune; if (commune) { meta.push(commune); }
   var contacts = !!(s.telephone || s.mail || s.adresse);
-  var h = '<div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">' + e(s.titre) +
+  var h = '<div class="comprendre-le-cadre-encart mt-fiche-structure mb-2"><span class="d-block fw-semibold">' + e(s.titre) +
     (s.couvre === true ? ' <span class="badge text-bg-primary ms-1">Couvre votre commune</span>' : '') +
     (s.petite ? ' <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span>' : '') + '</span>' +
     (s.detail ? '<span class="d-block small">' + e(s.detail) + '</span>' : '') +
     (meta.length ? '<span class="d-block small text-muted">' + meta.map(e).join(' · ') + '</span>' : '');
-  if (s.adresse) { h += '<span class="d-block small mt-1"><i class="bi bi-geo-alt"></i> <a href="' + e(mtUrlCarte(s.titre + ', ' + s.adresse)) + '" target="_blank" rel="noopener">' + e(s.adresse) + '</a></span>'; }
+  if (s.adresse) { h += '<span class="d-block small mt-1"><i class="bi bi-geo-alt"></i> ' + bc.adresse(s.adresse, mtUrlCarte(s.titre + ', ' + s.adresse)) + '</span>'; }
   if (s.telephone) { h += '<span class="d-block small mt-1"><i class="bi bi-telephone"></i> <strong>' + mtTelephoneAffiche(s.telephone, o.appel) + '</strong></span>'; }
-  if (s.mail) { h += '<span class="d-block small' + (s.telephone ? '' : ' mt-1') + '"><i class="bi bi-envelope"></i> <a href="mailto:' + e(s.mail) + '" class="text-break">' + e(s.mail) + '</a></span>'; }
-  if (s.verifie) { h += '<a href="' + e(s.url) + '" target="_blank" rel="noopener" class="d-block small mt-1"><i class="bi bi-box-arrow-up-right"></i> ' + e(s.url) + '</a>'; }
+  if (s.mail) { h += '<span class="d-block small' + (s.telephone ? '' : ' mt-1') + '"><i class="bi bi-envelope"></i> ' + mtMailAffiche(s.mail, o.ecrire) + '</span>'; }
+  if (s.verifie) { h += '<span class="d-flex align-items-start gap-2 mt-2"><i class="bi bi-globe2 mt-icone-site mt-2"></i>' + bc.externe(s.url, bc.libelleSite(s.titre), { petit: true }) + '</span>'; }
   // Fiche « inaccessible pour l'instant » : jamais de lien, un message neutre, et le téléphone quand il y en a un (voir mtAppliquerAttente).
   if (s.enAttente) { h += '<span class="d-block small text-muted mt-1"><i class="bi bi-pause-circle"></i> ' + e(MT_MESSAGE_ATTENTE + (s.telephone ? MT_MESSAGE_ATTENTE_TELEPHONE : '')) + '</span>'; }
   else if (coord) { h += '<span class="comprendre-le-cadre-source-date">' + (contacts ? 'coordonnées' : 'adresse') + ' vérifiée' + (contacts ? 's' : '') + ' le ' + e(dateFr(s.date)) + '</span>'; }
@@ -911,7 +933,7 @@ if (typeof module !== 'undefined') {
     mtTrierAlphabetique: mtTrierAlphabetique, mtEmployeursDuSecteur: mtEmployeursDuSecteur, mtCompterParSecteur: mtCompterParSecteur, mtPaginer: mtPaginer,
     MT_RAYONS: MT_RAYONS, MT_PORTEES: MT_PORTEES, MT_RAYONS_MIGRES: MT_RAYONS_MIGRES, MT_SOUS_BRANCHES: MT_SOUS_BRANCHES, MT_COLONNES_LIEUX: MT_COLONNES_LIEUX,
     mtDomaineDuRayon: mtDomaineDuRayon, MT_TYPES_SELON_COMMUNE: MT_TYPES_SELON_COMMUNE, MT_CLE_COMMUNE_INFO: MT_CLE_COMMUNE_INFO, mtParserZone: mtParserZone, mtZoneCouvre: mtZoneCouvre, mtOrdonnerParCommune: mtOrdonnerParCommune, mtNotesSelonCommune: mtNotesSelonCommune, mtCommuneInfoMemorisee: mtCommuneInfoMemorisee,
-    mtNbFacultativesFin: mtNbFacultativesFin, mtCompleterFin: mtCompleterFin, mtColonnesAEcrire: mtColonnesAEcrire, MT_COLONNES_FACULTATIVES_FIN: MT_COLONNES_FACULTATIVES_FIN, mtUrlCarte: mtUrlCarte, mtEstTelephone: mtEstTelephone, mtTelephoneAffiche: mtTelephoneAffiche,
+    mtNbFacultativesFin: mtNbFacultativesFin, mtCompleterFin: mtCompleterFin, mtColonnesAEcrire: mtColonnesAEcrire, MT_COLONNES_FACULTATIVES_FIN: MT_COLONNES_FACULTATIVES_FIN, mtUrlCarte: mtUrlCarte, mtEstTelephone: mtEstTelephone, mtTelephoneAffiche: mtTelephoneAffiche, mtMailAffiche: mtMailAffiche, mtEstTactile: mtEstTactile,
     mtParserLieux: mtParserLieux, MT_MARQUE_PETITE_STRUCTURE: MT_MARQUE_PETITE_STRUCTURE, mtPetiteStructure: mtPetiteStructure, MT_RE_MAIL: MT_RE_MAIL, mtRayonMigre: mtRayonMigre, mtLieuxDuRayon: mtLieuxDuRayon, mtLieuEnStructure: mtLieuEnStructure, mtCarteStructureHtml: mtCarteStructureHtml, mtBoutonSignalerCarteHtml: mtBoutonSignalerCarteHtml, mtHrefTelephone: mtHrefTelephone, mtEchapperHtml: mtEchapperHtml, mtRechercherLieux: mtRechercherLieux, mtLieuxVisibles: mtLieuxVisibles, MT_DEPARTEMENTS: MT_DEPARTEMENTS, MT_DEPARTEMENT_PAR_DEFAUT: MT_DEPARTEMENT_PAR_DEFAUT, mtDepartement: mtDepartement, mtDepartementOuvert: mtDepartementOuvert, mtDepartementsOuverts: mtDepartementsOuverts, mtMajuscule: mtMajuscule, mtNomsDesDepartementsOuverts: mtNomsDesDepartementsOuverts, mtPhraseTerritoireNonCouvert: mtPhraseTerritoireNonCouvert, mtCommunesDuDepartement: mtCommunesDuDepartement, mtEmployeursDuDepartement: mtEmployeursDuDepartement, mtRequeteSensible: mtRequeteSensible, mtVerifierLieux: mtVerifierLieux,
     mtFreinsCorrespondants: mtFreinsCorrespondants, mtFreinParTitre: mtFreinParTitre, mtLieuxPourFrein: mtLieuxPourFrein, mtTypeDeFicheLexique: mtTypeDeFicheLexique, mtLieuxDuType: mtLieuxDuType,
     MT_MARQUE_PROSPECTION: MT_MARQUE_PROSPECTION, mtViaProspection: mtViaProspection, mtMessageAgencesNombreuses: mtMessageAgencesNombreuses, mtSeparerProspection: mtSeparerProspection,

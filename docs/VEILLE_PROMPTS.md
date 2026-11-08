@@ -238,12 +238,28 @@ qu'une personne se poserait vraiment (typiquement 3 à 8). Repère toi-même les
 Chaque fiche est prête à publier pour un public en insertion professionnelle et n'utilise
 que ce qui, dans le matériau, concerne son sujet.
 
-=== FICHES DÉJÀ EXISTANTES DANS CE RAYON ===
-Ne recrée pas ces sujets. Si une fiche que tu produis traite le même sujet que l'une
-d'elles, recopie son identifiant EXACT dans le champ « id » et traite-la comme une mise à
-jour. Ne produis jamais deux fiches qui se recouvrent.
+=== FICHES DÉJÀ EXISTANTES ===
+(depuis le 08/11/2026 : les fiches du rayon choisi, TOUTES, et les fiches des AUTRES rayons dont les
+mots-clés se retrouvent dans le matériau, choisies par outils/veilleRessemblance.js)
+Avant de rédiger, compare chaque sujet à ces deux listes. Même sujet qu'une fiche existante =
+recopie son identifiant EXACT dans « id » (mise à jour), même si elle vient d'un autre rayon.
+Si une fiche existante couvre déjà tout ce que dit le matériau : ne la reproduis pas, cite-la dans
+une ligne « DÉJÀ COUVERT : identifiant, raison ». Si le matériau est moins précis ou moins sûr que
+la fiche existante : pas de mise à jour. Jamais deux fiches qui se recouvrent.
+-- Fiches de ce rayon --
 - <id>  |  <titre>  |  <tags>          (une ligne par fiche existante du rayon)
+-- Fiches d'autres rayons sur des sujets proches du matériau --
+- <id>  |  <titre>  |  rayon <rayon>
 === FIN DES FICHES EXISTANTES ===
+
+(Deuxième message, celui que Denis donne à Claude : « Copier le message pour Claude », onglet
+« Travailler avec Claude » ; source : `fabriquerMessage()` dans `outils/veille.html`. Depuis le
+08/11/2026 il contient un paragraphe « Contexte » (l'application APP, l'outil de veille, où sont les
+fiches publiées : `modules/comprendre-le-cadre/contenu/<rayon>/<id>.md`, ouvertes et lisibles par
+Claude) puis la consigne anti-doublon : chercher dans TOUS les rayons, lancer
+`node scripts/veilleDoublons.js`, lire les fiches proches, trancher en une ligne par sujet entre
+DÉJÀ COUVERTE, MISE À JOUR, COMPLÉMENT (ajouté à la fiche existante) et NOUVELLE, jamais deux fiches
+qui disent la même chose. Le détail pour Claude est dans `.claude/commands/veille.md`, étape 4.)
 
 === MATÉRIAU ===
 [le champ texte_brut du prompt 1, inséré automatiquement par l'outil]
@@ -384,7 +400,7 @@ partie ; sinon, laisser le champ vide.
 Constat (réponse réelle d'un assistant, 31/10/2026) : un seul message pour 12 domaines faisait répondre « Aucun changement retenu » à 9 domaines sur 12, sans que l'on sache si rien n'existait ou si rien n'avait été cherché. **Source de vérité : `BAL_GROUPES`, `balMessage()` et `assemblerBalayage()` dans `outils/veille.html`** (jamais une copie ici). Ce qui change :
 
 - **Durée** : « Un mois » (par défaut, le dernier mois complet, fichier `contenu/balayage/AAAA-MM.md`) ou « Un trimestre » (comme avant).
-- **7 messages**, un par groupe de domaines (emploi et retraite ; assurance chômage ; formation ; IAE et handicap ; RSA, jeunes et mobilité ; séjour des étrangers ; région et département), chacun avec sa liste « Où chercher » (sources nommées, aucune adresse profonde inventée).
+- **10 messages** (depuis le 06/11/2026), un par groupe de domaines (emploi et retraite ; assurance chômage ; formation ; IAE et handicap ; RSA, jeunes et mobilité ; séjour des étrangers ; vie quotidienne : logement, garde d'enfant, santé, budget, parents séparés ; droit, justice et langue française ; activité, employeurs, agriculture, fonction publique, armées ; région et département), ce qui couvre les 21 rayons sans balayage par sujet, chacun avec sa liste « Où chercher » (sources nommées, aucune adresse profonde inventée).
 - **Balayage approfondi exigé** : ouvrir chaque source de la liste puis chercher par recherches ciblées ; « aucun changement » n'est plus une sortie facile.
 - **Réponse en plusieurs fois** : l'assistant s'arrête proprement à la fin d'un domaine et demande « Voulez-vous la suite ? ». Il ne saute aucun domaine en silence.
 - **Trois blocs en réponse** : `[BALAYAGE]` (inchangé, il alimente le sas des changements), `[COUVERTURE]` (par domaine : changements trouvés / rien trouvé / non couvert, avec les pages ouvertes ; « rien trouvé » exige au moins 3 pages) et `[SITES-NON-OUVERTS]` (site, adresse, raison, ce qu'il cherchait).
@@ -920,6 +936,11 @@ Le bouton **« Préparer une vérification »** génère un prompt qui liste les
 `point / valeur_verifiee / statut (confirme | corrige | introuvable) / citation`. Recollé, l'outil remplace
 la valeur des points « corrige », marque « (vérifié) » et tamponne l'en-tête `verifie_le: <mois>`. La
 correction va dans le digest lui-même, pas dans un fichier à part.
+
+
+### Second message de vérification (ajouté le 07/11/2026)
+
+Sous le portrait comme sous la comparaison France / Union européenne, le bouton « Préparer le message de vérification » reprend la réponse collée au-dessus et demande à un AUTRE assistant de relire chaque valeur sur la page de sa source. Il rend un bloc `[VERIF-PORTRAIT]` ou `[VERIF-UE]` : `point / valeur_du_texte / valeur_verifiee / statut (confirme | corrige | introuvable) / citation / adresse`. Recollé, l'outil compte les valeurs confirmées, à corriger, introuvables, et montre pour chaque correction l'ancienne valeur, la nouvelle, la phrase de la page et le lien pour l'ouvrir. Il ne modifie rien tout seul : ces deux digests ne sont pas décortiqués, la correction se fait à la main dans le fichier. Le message utilise les mêmes briques que les autres prompts (recherche web, https, « comment travailler », réponse en plusieurs fois, sites non ouverts).
 
 ---
 

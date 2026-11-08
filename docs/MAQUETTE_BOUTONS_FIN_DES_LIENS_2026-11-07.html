@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : plus aucune ligne de texte cliquable</title>
+<style>
+:root {
+  --fond: #f6f7f9; --carte: #ffffff; --texte: #1f2933; --discret: #52606d; --trait: #cbd2d9;
+  --accent: #b45309; --accent-fond: #fff7ed; --accent-solide: #b45309;
+  --explorer: #0e7490; --explorer-fond: #ecfeff;
+  --encart: #eef2f7; --danger: #b3261e;
+  /* couleurs des chapitres du Lexique (option A et B) */
+  --c1: #1d4ed8; --c2: #0e7490; --c3: #166534; --c4: #b45309; --c5: #9d174d; --c6: #6d28d9; --c7: #475569;
+  --c1f: #eff6ff; --c2f: #ecfeff; --c3f: #f0fdf4; --c4f: #fffbeb; --c5f: #fdf2f8; --c6f: #f5f3ff; --c7f: #f1f5f9;
+}
+[data-theme="sombre"] {
+  --fond: #151a21; --carte: #1e252e; --texte: #e6eaee; --discret: #a8b3bf; --trait: #3a4452;
+  --accent: #fdba74; --accent-fond: #3a2410; --accent-solide: #fdba74;
+  --explorer: #67e8f9; --explorer-fond: #083344;
+  --encart: #26303b; --danger: #ff9a92;
+  --c1: #93c5fd; --c2: #67e8f9; --c3: #86efac; --c4: #fcd34d; --c5: #f9a8d4; --c6: #c4b5fd; --c7: #cbd5e1;
+  --c1f: #1e2a4a; --c2f: #083344; --c3f: #0f2e1b; --c4f: #3a2a08; --c5f: #3b1226; --c6f: #2a1f4d; --c7f: #26303b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--texte); font-family: system-ui, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.5; }
+main { max-width: 1000px; margin: 0 auto; padding: 0 16px 64px; }
+h1 { font-size: 1.5rem; margin: 20px 0 4px; }
+h2 { font-size: 1.2rem; margin: 36px 0 6px; padding-top: 8px; border-top: 2px solid var(--trait); }
+h3 { font-size: 1rem; margin: 18px 0 6px; }
+p { margin: 0 0 10px; }
+.discret { color: var(--discret); }
+.petit { font-size: 0.88rem; }
+
+/* barre de réglages de la maquette (refermable) */
+#reglages { position: sticky; top: 0; z-index: 10; background: var(--carte); border-bottom: 2px solid var(--trait); padding: 8px 16px; }
+#reglages .dedans { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+#reglages .groupe { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#reglages .titre { font-weight: 600; font-size: 0.9rem; }
+#reglages button.choix { min-height: 40px; padding: 0 12px; border: 2px solid var(--accent); background: var(--carte); color: var(--accent); border-radius: 6px; font-size: 0.92rem; cursor: pointer; font-family: inherit; }
+#reglages button.choix[aria-pressed="true"] { background: var(--accent-solide); color: var(--carte); }
+#fermer { margin-left: auto; min-height: 40px; min-width: 40px; border: 1px solid var(--trait); background: var(--carte); color: var(--texte); border-radius: 6px; cursor: pointer; font-size: 1.1rem; }
+#reglages.ferme .dedans { display: none; }
+#reglages.ferme { padding: 4px 16px; text-align: right; }
+#rouvrir { display: none; min-height: 36px; border: 1px solid var(--trait); background: var(--carte); color: var(--texte); border-radius: 6px; cursor: pointer; font-family: inherit; }
+#reglages.ferme #rouvrir { display: inline-block; }
+
+.zone { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 14px 16px; margin: 10px 0; }
+.zone.etroite { max-width: 380px; }
+.ou { display: inline-block; background: var(--encart); border-radius: 999px; padding: 2px 10px; font-size: 0.82rem; margin: 0 6px 6px 0; }
+.etiquette { display: inline-block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--discret); margin-bottom: 4px; }
+
+/* LES BOUTONS (même langage que l'application : rectangulaires, cadre, jamais soulignés) */
+.btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 14px; border: 1.5px solid var(--accent); background: var(--carte); color: var(--accent); border-radius: 6px; font: inherit; font-size: 0.92rem; font-weight: 600; text-decoration: none; cursor: pointer; }
+.btn:hover { background: var(--accent-fond); }
+.btn.petit { min-height: 34px; padding: 2px 10px; font-size: 0.86rem; }
+.btn.externe .fleche { font-weight: 400; }
+.btn.explorer { border-color: var(--explorer); color: var(--explorer); }
+.btn.explorer:hover { background: var(--explorer-fond); }
+.btn.secondaire { border-color: var(--discret); color: var(--texte); font-weight: 500; }
+.btn.secondaire:hover { background: var(--encart); }
+.note-quitte { display: block; font-size: 0.8rem; color: var(--discret); margin-top: 2px; }
+
+/* fiche de structure */
+.fiche { border-left: 4px solid var(--accent); background: var(--encart); border-radius: 8px; padding: 10px 14px; }
+.fiche .nom { font-weight: 700; display: block; }
+.fiche .ligne { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-top: 6px; font-size: 0.95rem; }
+.fiche .ligne .ic { width: 1.2em; text-align: center; }
+.fiche .verif { display: block; font-size: 0.8rem; color: var(--discret); margin-top: 8px; }
+.fiche .signaler { margin-top: 8px; }
+body[data-app="ordinateur"] .seulement-tel, body[data-app="tablette"] .seulement-tel { display: none; }
+body[data-app="ordinateur"] .seulement-tactile { display: none; }
+
+/* chapitres du Lexique */
+.chapitre { display: inline-flex; align-items: center; min-height: 34px; padding: 2px 12px; border: 1.5px solid var(--cc); background: var(--cf); color: var(--cc); border-radius: 6px; font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer; margin: 0 6px 6px 0; }
+.chapitre.registre { border-style: dashed; }
+.puce { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--cc); margin-right: 6px; }
+.grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.k1 { --cc: var(--c1); --cf: var(--c1f); } .k2 { --cc: var(--c2); --cf: var(--c2f); } .k3 { --cc: var(--c3); --cf: var(--c3f); }
+.k4 { --cc: var(--c4); --cf: var(--c4f); } .k5 { --cc: var(--c5); --cf: var(--c5f); } .k6 { --cc: var(--c6); --cf: var(--c6f); } .k7 { --cc: var(--c7); --cf: var(--c7f); }
+
+.savoir-plus { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 2px 14px; border: 1.5px solid var(--accent); background: var(--carte); color: var(--accent); border-radius: 6px; font: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer; }
+.savoir-plus-corps { display: none; margin-top: 8px; padding: 10px 14px; background: var(--accent-fond); border-radius: 10px; }
+.savoir-plus[aria-expanded="true"] + .savoir-plus-corps { display: block; }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { border: 1px solid var(--trait); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: var(--encart); }
+.fait { color: #166534; font-weight: 600; } [data-theme="sombre"] .fait { color: #86efac; }
+.risque { color: var(--danger); font-weight: 600; }
+.reco { border: 2px solid var(--accent); border-radius: 10px; padding: 10px 14px; background: var(--accent-fond); margin: 10px 0; }
+ul { margin: 4px 0 10px; padding-left: 22px; }
+</style>
+</head>
+<body data-app="ordinateur">
+
+<div id="reglages">
+  <button type="button" id="rouvrir">Rouvrir les réglages de la maquette</button>
+  <div class="dedans">
+    <div class="groupe"><span class="titre">Thème :</span>
+      <button type="button" class="choix" data-theme-choix="clair" aria-pressed="true">Clair</button>
+      <button type="button" class="choix" data-theme-choix="sombre" aria-pressed="false">Sombre</button>
+    </div>
+    <div class="groupe"><span class="titre">Appareil :</span>
+      <button type="button" class="choix" data-app-choix="ordinateur" aria-pressed="true">Ordinateur</button>
+      <button type="button" class="choix" data-app-choix="tablette" aria-pressed="false">Tablette</button>
+      <button type="button" class="choix" data-app-choix="telephone" aria-pressed="false">Téléphone</button>
+    </div>
+    <button type="button" id="fermer" aria-label="Fermer les réglages">&#10005;</button>
+  </div>
+</div>
+
+<main>
+<h1>Plus aucune ligne de texte cliquable : la maquette des boutons</h1>
+<p class="discret">Maquette du 07/11/2026 (consigne 147). <strong>Rien n'est codé.</strong> Chaque exemple montre ce qui s'afficherait <em>après</em> le changement. Les boutons de la maquette bougent comme dans l'application : changez le thème ou l'appareil en haut pour voir « Appeler » et « Écrire » apparaître ou disparaître.</p>
+
+<div class="zone">
+  <h3 style="margin-top:0">La règle, en trois sortes de boutons</h3>
+  <p>
+    <span class="btn externe">&#8599; Site de France Travail</span>
+    <span class="btn explorer">Lire « Médiane » dans le Lexique</span>
+    <span class="btn secondaire">Signaler une erreur ou un changement</span>
+  </p>
+  <ul class="petit">
+    <li><strong>Vers un site extérieur</strong> (cadre de la couleur de l'application, flèche &#8599;, le NOM de la structure, jamais l'adresse web) : on le dit en clair « vous quittez l'application ».</li>
+    <li><strong>Vers un autre endroit de l'application</strong> (Lexique, fiche) : cadre bleu-vert, comme « Lire dans le Lexique » déjà en place.</li>
+    <li><strong>Une action secondaire</strong> (signaler, retour) : cadre gris, plus lisible qu'aujourd'hui.</li>
+  </ul>
+  <p class="petit discret">Seule exception admise, déjà dans la règle : un mot cliquable au milieu d'une phrase qui continue.</p>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2>1. La fiche d'une structure (le plus gros effet)</h2>
+<p><span class="ou">Qui fait quoi</span><span class="ou">Mon territoire</span><span class="ou">Lexique (fiches de structures)</span><span class="ou">fonction unique : <code>mtCarteStructureHtml</code></span></p>
+<p class="petit discret">Une seule modification de cette fonction change les trois écrans à la fois (une seule source de vérité). Aujourd'hui l'adresse et l'adresse web sont des lignes soulignées.</p>
+<div class="zone etroite" style="max-width:520px">
+  <div class="fiche">
+    <span class="nom">Mission locale de Périgueux</span>
+    <span class="petit discret">Mission locale · Périgueux</span>
+    <div class="ligne"><span class="ic">&#128205;</span><span>12 rue des Écoles, 24000 Périgueux</span>
+      <a class="btn petit explorer" href="#">Voir sur la carte</a></div>
+    <div class="ligne"><span class="ic">&#9742;</span><strong>05 53 00 00 00</strong>
+      <a class="btn petit seulement-tel" href="#">Appeler</a></div>
+    <div class="ligne"><span class="ic">&#9993;</span><span>contact@exemple.fr</span>
+      <a class="btn petit seulement-tactile" href="#">Écrire</a></div>
+    <div class="ligne" style="align-items:flex-start"><span class="ic">&#127760;</span>
+      <span><a class="btn externe petit" href="#"><span class="fleche">&#8599;</span> Site de la Mission locale de Périgueux</a><span class="note-quitte">Vous quittez l'application</span></span></div>
+    <span class="verif">Coordonnées vérifiées le 20 octobre 2026</span>
+    <div class="signaler"><a class="btn petit secondaire" href="#">&#9873; Signaler une erreur ou un changement</a></div>
+  </div>
+</div>
+<p class="petit"><strong>Ce qui change :</strong> l'adresse est écrite en texte simple avec un bouton « Voir sur la carte » à côté (comme sur les fiches d'employeurs, déjà faites) ; le site porte le <em>nom</em> de la structure ; « Appeler » (téléphone seulement) et « Écrire » (téléphone et tablette) déjà codés au bloc précédent restent identiques ; le signalement gagne un cadre gris.</p>
+
+<!-- ============ 2 ============ -->
+<h2>2. « On vous conseille d'aller sur le site » (fiches des freins)</h2>
+<p><span class="ou">Regard extérieur</span><span class="ou">Lexique : 33 fiches « freins »</span><span class="ou"><code>modules/regard-exterieur/index.js</code></span></p>
+<div class="zone etroite" style="max-width:520px">
+  <p><strong>Pistes pour lever ce frein</strong></p>
+  <p class="petit">Un conseiller peut vous aider à chercher une aide au financement de votre permis.</p>
+  <p class="petit" style="margin-bottom:4px">On vous conseille d'aller sur le site de cet organisme :</p>
+  <p><a class="btn externe" href="#"><span class="fleche">&#8599;</span> Mon compte formation</a><span class="note-quitte">Vous quittez l'application</span></p>
+  <p class="petit">&#128161; <strong>Mots-clés à chercher :</strong> aide permis, financement permis</p>
+</div>
+<p class="petit"><strong>Ce qui change :</strong> la phrase ne contient plus de lien ; le nom de la structure devient un bouton. Un seul morceau de code à modifier, 33 fiches en profitent.</p>
+
+<!-- ============ 3 ============ -->
+<h2>3. Comprendre le cadre : sources et liens de texte</h2>
+<p><span class="ou"><code>modules/comprendre-le-cadre/index.js</code></span><span class="ou">environ 7 endroits</span></p>
+<div class="zone" style="max-width:640px">
+  <h3 style="margin-top:0">Sources de cette fiche</h3>
+  <div style="margin-bottom:10px">
+    <span class="d-block"><strong>Service-public.fr, Reconnaissance de la qualité de travailleur handicapé</strong></span>
+    <a class="btn externe petit" href="#" style="margin-top:4px"><span class="fleche">&#8599;</span> Ouvrir cette source</a>
+    <span class="note-quitte">adresse vérifiée le 3 novembre 2026 · vous quittez l'application</span>
+  </div>
+  <h3>Un lien placé dans le texte d'une fiche</h3>
+  <p>Pour déposer votre demande, vous pouvez commencer par <a href="#" style="color:var(--accent)">le formulaire officiel</a> puis joindre un certificat médical.</p>
+  <p class="petit discret">Ici le lien est au milieu d'une phrase qui continue : on le laisse tel quel (exception de la règle). Quand le lien est seul sur sa ligne, il devient un bouton :</p>
+  <p><a class="btn externe petit" href="#"><span class="fleche">&#8599;</span> Le formulaire officiel de demande</a></p>
+  <h3>Les assistants en ligne</h3>
+  <p><span class="btn petit" style="border-radius:999px">ChatGPT</span> <span class="btn petit" style="border-radius:999px">Mistral</span> <span class="btn petit" style="border-radius:999px">Perplexity</span></p>
+  <p class="petit discret">Déjà des pilules avec cadre : inchangé.</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2>4. Le Lexique : boutons du pied de fiche et chapitres en couleurs</h2>
+<p><span class="ou"><code>modules/lexique/index.js</code> (~881 et ~1042)</span><span class="ou"><code>css/style.css</code> (<code>lien-famille-explorer</code>)</span></p>
+<div class="zone" style="max-width:640px">
+  <h3 style="margin-top:0">Les chapitres d'une fiche (consigne 126)</h3>
+  <p class="petit discret">Aujourd'hui : « Bulletin de salaire · langage administratif » en texte souligné. Proposé : deux boutons, le nom reste écrit (la couleur n'est jamais le seul signal).</p>
+  <p><button type="button" class="chapitre k3"><span class="puce"></span>Bulletin de salaire</button><button type="button" class="chapitre registre k7">langage administratif</button></p>
+  <h3>Le pied de fiche : « En savoir plus » avec un cadre</h3>
+  <p><button type="button" class="savoir-plus" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true')">&#9656; En savoir plus</button>
+     <span class="savoir-plus-corps">Ici s'ouvre le complément de la fiche, dans un bloc teinté (inchangé). Cliquez de nouveau pour refermer.</span></p>
+</div>
+
+<h3>Les couleurs des chapitres : deux options à comparer</h3>
+<div class="reco"><strong>Recommandation : option B (cinq familles de couleur).</strong> Dix-neuf chapitres à dix-neuf couleurs se ressembleraient et ne se retiendraient pas ; cinq familles se reconnaissent d'un coup d'œil, et le nom écrit lève tout doute. Le mode sombre et le mode daltonien demandent chacun cinq valeurs seulement, au lieu de dix-neuf.</div>
+
+<div class="zone">
+  <span class="etiquette">Option B (recommandée) : une couleur par famille de chapitres</span>
+  <div class="grille">
+    <div><p class="petit"><span class="puce k1" style="--cc:var(--c1)"></span><strong>Emploi et recrutement</strong></p>
+      <button class="chapitre k1" type="button">Emploi et recrutement</button><button class="chapitre k1" type="button">Ressources humaines</button><button class="chapitre k1" type="button">Entrepreneuriat et indépendance</button></div>
+    <div><p class="petit"><span class="puce k2" style="--cc:var(--c2)"></span><strong>Travail et droit</strong></p>
+      <button class="chapitre k2" type="button">Droit du travail</button><button class="chapitre k2" type="button">Contrats et statuts d'emploi</button><button class="chapitre k2" type="button">Organisation du travail</button><button class="chapitre k2" type="button">Conditions de travail</button></div>
+    <div><p class="petit"><span class="puce k3" style="--cc:var(--c3)"></span><strong>Argent et protection</strong></p>
+      <button class="chapitre k3" type="button">Bulletin de salaire</button><button class="chapitre k3" type="button">Protection sociale</button><button class="chapitre k3" type="button">Mobilité et budget</button></div>
+    <div><p class="petit"><span class="puce k4" style="--cc:var(--c4)"></span><strong>Accompagnement et démarches</strong></p>
+      <button class="chapitre k4" type="button">Accompagnement et insertion</button><button class="chapitre k4" type="button">Formation</button><button class="chapitre k4" type="button">Dispositifs</button><button class="chapitre k4" type="button">Structures et organismes</button><button class="chapitre k4" type="button">Démarches administratives</button></div>
+    <div><p class="petit"><span class="puce k5" style="--cc:var(--c5)"></span><strong>Santé, freins et urgences</strong></p>
+      <button class="chapitre k5" type="button">Santé au travail</button><button class="chapitre k5" type="button">Accès aux soins</button><button class="chapitre k5" type="button">Ce qui peut freiner un parcours</button><button class="chapitre k5" type="button">Numéros d'aide et d'urgence</button></div>
+    <div><p class="petit"><span class="puce k7" style="--cc:var(--c7)"></span><strong>Registres de langage (cadre en pointillés)</strong></p>
+      <button class="chapitre registre k7" type="button">langage CIP</button><button class="chapitre registre k7" type="button">langage RH</button><button class="chapitre registre k7" type="button">langage juridique</button><button class="chapitre registre k7" type="button">langage employeur</button><button class="chapitre registre k7" type="button">langage administratif</button><button class="chapitre registre k7" type="button">langage France Travail</button></div>
+  </div>
+  <p class="petit discret" style="margin-top:8px"><strong>Bénéfice :</strong> repérage rapide, peu de couleurs à maintenir, mode sombre simple. <strong>Risque :</strong> deux chapitres voisins d'une même famille ont la même couleur (le nom les distingue).</p>
+</div>
+
+<div class="zone">
+  <span class="etiquette">Option A : une couleur différente par chapitre (19 couleurs)</span>
+  <p class="petit discret">Un aperçu partiel (six chapitres) pour juger de l'effet :</p>
+  <p>
+    <button class="chapitre k1" type="button">Emploi et recrutement</button><button class="chapitre k6" type="button">Ressources humaines</button><button class="chapitre k2" type="button">Droit du travail</button><button class="chapitre k4" type="button">Formation</button><button class="chapitre k3" type="button">Bulletin de salaire</button><button class="chapitre k5" type="button">Santé au travail</button>
+  </p>
+  <p class="petit discret"><strong>Bénéfice :</strong> chaque chapitre a sa couleur propre. <strong>Risque :</strong> au-delà de sept couleurs, on ne distingue plus (surtout en mode sombre et pour les daltoniens) : certaines devraient se répéter de toute façon, sans logique visible.</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2>5. « Signaler une erreur ou un changement » plus visible</h2>
+<p><span class="ou"><code>mtBoutonSignalerCarteHtml</code></span><span class="ou">Comprendre le cadre</span><span class="ou">Comprendre les chiffres</span></p>
+<div class="zone" style="max-width:520px">
+  <p class="petit discret">Aujourd'hui : un petit texte discret avec un drapeau. Proposé : le même bouton gris que les autres actions secondaires, au même endroit.</p>
+  <p><a class="btn secondaire" href="#">&#9873; Signaler une erreur ou un changement</a></p>
+  <p class="petit discret">Le formulaire de retours existant s'ouvre avec le nom de la page déjà indiqué : inchangé.</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2>6. Ce qui est déjà bon (l'audit l'a confirmé)</h2>
+<div class="zone" style="max-width:640px">
+  <p><span class="btn petit externe">&#128279; Fiche ROME M1805</span> <span class="btn petit explorer">Voir sur la carte</span> <span class="btn petit explorer">Lire « Médiane » dans le Lexique</span></p>
+  <p class="petit">Les fiches métier (16 endroits de <code>js/app.js</code>) sont <strong>déjà des boutons avec cadre</strong> : on n'y touche pas. Les fiches d'employeurs ont déjà « Voir le site » et « Voir sur la carte ».</p>
+</div>
+
+<!-- ============ ampleur ============ -->
+<h2>7. L'ampleur du travail, en un tableau</h2>
+<table>
+  <thead><tr><th>Endroit</th><th>Ce qui change</th><th>Écrans touchés</th><th>Risque</th></tr></thead>
+  <tbody>
+    <tr><td>Fiche de structure</td><td>adresse, site, signalement</td><td>3 écrans, une seule fonction</td><td>bas</td></tr>
+    <tr><td>« On vous conseille d'aller sur le site »</td><td>lien en bouton</td><td>33 fiches, un seul code</td><td>bas</td></tr>
+    <tr><td>Comprendre le cadre</td><td>sources et liens seuls en boutons</td><td>environ 7 endroits</td><td>moyen (liens dans les textes à trier un par un)</td></tr>
+    <tr><td>Lexique : pied de fiche</td><td>cadre sur « En savoir plus »</td><td>toutes les fiches</td><td>bas</td></tr>
+    <tr><td>Lexique : chapitres en couleurs</td><td>texte souligné en boutons colorés</td><td>toutes les fiches, 19 chapitres + 6 registres</td><td>moyen (mode sombre et daltonien à régler)</td></tr>
+    <tr><td>« Signaler une erreur »</td><td>bouton gris visible</td><td>3 modules</td><td>bas</td></tr>
+    <tr><td>Fiches métier</td><td class="fait">rien, déjà des boutons</td><td>16 endroits</td><td class="fait">aucun</td></tr>
+  </tbody>
+</table>
+<p class="petit discret" style="margin-top:8px">Après chaque étape : test automatique, contrôle clair, sombre et téléphone dans le navigateur, une ligne au journal des changements, un commit. À la fin, un balayage de toutes les fiches du Lexique pour vérifier qu'il ne reste que des liens dans une phrase.</p>
+
+<h3>Ce que j'ai besoin que vous tranchiez</h3>
+<ol>
+  <li>Le bouton de site porte-t-il bien <strong>le nom de la structure</strong> (« Site de la Mission locale de Périgueux »), avec la mention « Vous quittez l'application » en dessous ?</li>
+  <li>Les couleurs des chapitres : <strong>option B</strong> (cinq familles, recommandée) ou option A ?</li>
+  <li>« Signaler une erreur » en bouton gris : bien, ou plus visible encore ?</li>
+</ol>
+</main>
+
+<script>
+(function () {
+  var corps = document.body, racine = document.documentElement;
+  function theme(t) {
+    if (t === 'sombre') { racine.setAttribute('data-theme', 'sombre'); } else { racine.removeAttribute('data-theme'); }
+    document.querySelectorAll('[data-theme-choix]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-choix') === t)); });
+  }
+  function appareil(a) {
+    corps.setAttribute('data-app', a);
+    document.querySelectorAll('[data-app-choix]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-app-choix') === a)); });
+  }
+  document.querySelectorAll('[data-theme-choix]').forEach(function (b) { b.addEventListener('click', function () { theme(b.getAttribute('data-theme-choix')); }); });
+  document.querySelectorAll('[data-app-choix]').forEach(function (b) { b.addEventListener('click', function () { appareil(b.getAttribute('data-app-choix')); }); });
+  document.getElementById('fermer').addEventListener('click', function () { document.getElementById('reglages').classList.add('ferme'); });
+  document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('reglages').classList.remove('ferme'); });
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+})();
+</script>
+</body>
+</html>

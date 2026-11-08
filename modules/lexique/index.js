@@ -58,6 +58,21 @@ var _LEXIQUE_LIBELLES_UNIVERS = {
   'urgences': 'Numéros d\'aide et d\'urgence'
 };
 
+// Les chapitres d'une fiche en boutons de couleur (consigne 126, option B validée par Denis le 07/11/2026, maquette
+// docs/MAQUETTE_BOUTONS_FIN_DES_LIENS_2026-11-07.html) : CINQ familles de couleur, jamais dix-neuf teintes qu'on ne distinguerait plus.
+// Le nom reste toujours écrit (la couleur n'est jamais le seul signal) ; les registres de langage ont un cadre en pointillés, couleur neutre.
+// 1 emploi · 2 travail et droit · 3 argent et protection · 4 accompagnement et démarches · 5 santé, freins et urgences. Un test (tests/lexiqueChapitres.test.js) garde cette liste complète.
+var _LEXIQUE_FAMILLE_UNIVERS = {
+  'emploi-recrutement': 1, 'ressources-humaines': 1, 'entrepreneuriat-independance': 1,
+  'droit-travail': 2, 'contrats-statuts-emploi': 2, 'organisation-travail-management': 2, 'conditions-travail': 2,
+  'bulletin-salaire': 3, 'protection-sociale': 3, 'mobilite-budget': 3,
+  'accompagnement-insertion': 4, formation: 4, dispositifs: 4, 'structures-organismes': 4, 'demarches-administratives': 4,
+  'sante-travail': 5, 'acces-aux-soins': 5, 'freins-parcours': 5, urgences: 5
+};
+function _lexiqueClasseChapitre(univers) {
+  return 'chapitre-lexique chapitre-lexique-' + (_LEXIQUE_FAMILLE_UNIVERS[univers] || 4);
+}
+
 var _LEXIQUE_LIBELLES_REGISTRES = {
   'langage-cip': 'langage CIP',
   'langage-rh': 'langage RH',
@@ -199,6 +214,38 @@ function _lexiqueRechercher(texte) {
     if (normaliserTexte(f.titre).indexOf(cible) !== -1) { return true; }
     return (f.variantesRecherche || []).some(function (v) { return normaliserTexte(v).indexOf(cible) !== -1; });
   });
+}
+
+// ------------------------------------------------------------
+// « Les mots de cette page » (consignes 155 et 156, 07/11/2026) : repère, dans le texte d'une page, les mots
+// expliqués dans le Lexique. Logique PURE : le texte lu vient de l'appelant.
+// Règles : seul le TITRE de la fiche compte (jamais ses variantes de recherche, trop générales : « chômage » ne doit pas
+// faire apparaître « ARE ») ; jamais une fiche de freins ni d'urgence (ce ne sont pas des mots) ; jamais un titre de
+// comparaison (« X ou Y ? ») ; au plus `max` mots, dans l'ordre où ils apparaissent dans la page.
+// ------------------------------------------------------------
+var LEXIQUE_MOTS_PAGE_MAX = 12;
+var LEXIQUE_MOTS_PAGE_UNIVERS_EXCLUS = ['freins-parcours', 'urgences'];
+function _lexiqueCleMotPage(titre) {
+  var t = String(titre || '').replace(/[’‘]/g, "'");
+  if (/\bou\b.*\?\s*$/i.test(t)) { return ''; }
+  t = t.replace(/\s*\?\s*$/, '').replace(/\s*\([^)]*\)\s*/g, ' ');
+  t = normaliserTexte(t).replace(/\s+/g, ' ').trim();
+  return t.length >= 3 ? t : '';
+}
+function _lexiqueMotsDeLaPage(texte, max) {
+  var limite = max > 0 ? max : LEXIQUE_MOTS_PAGE_MAX;
+  var t = ' ' + normaliserTexte(String(texte || '').replace(/[’‘]/g, "'")).replace(/\s+/g, ' ') + ' ';
+  var trouves = [];
+  (typeof LEXIQUE_FICHES !== 'undefined' ? LEXIQUE_FICHES : []).forEach(function (f) {
+    if (LEXIQUE_MOTS_PAGE_UNIVERS_EXCLUS.indexOf(f.univers) !== -1) { return; }
+    var cle = _lexiqueCleMotPage(f.titre);
+    if (!cle) { return; }
+    var re = new RegExp('(^|[^a-z0-9])' + cle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?(?=[^a-z0-9]|$)');
+    var m = re.exec(t);
+    if (m) { trouves.push({ id: f.id, titre: f.titre, univers: f.univers, rang: m.index }); }
+  });
+  trouves.sort(function (a, b) { return a.rang - b.rang; });
+  return { mots: trouves.slice(0, limite).map(function (x) { return { id: x.id, titre: x.titre, univers: x.univers }; }), total: trouves.length };
 }
 
 // ============================================================
@@ -631,6 +678,7 @@ function _lexiqueRenduEcran() {
       '<p class="sousTitre">Les mots du travail, expliqués simplement. ' +
       'Cherchez celui que vous voulez comprendre, ou parcourez les sujets.</p>' +
     '</div>' +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('lexique-recherche') : '') +
     '<input type="text" class="form-control lexique-accueil-recherche" id="lexiqueRechercheInput" ' +
     'placeholder="Un mot, un sigle, une question…" autocomplete="off">' +
     '<div id="lexiqueResultats"></div>' +
@@ -694,6 +742,7 @@ function _lexiqueRenduIntro() {
     multilingueCourte: true,
     detour: _lexiqueIntroDetour, detourBoutonId: 'btnLexiqueRevenirModule', detourLogo: 'bi-book', detourCtaId: 'btnLexiqueIntroRevenir',
     onRevenirExpr: 'lexiqueRevenirDeLaPresentation()',
+    video: 'lexique',
     ctaId: 'btnLexiqueIntroOuvrir', ctaLabel: 'Ouvrir le Lexique &#8594;',
     carteRetour: 'boiteaoutils',
     blocsHTML:
@@ -879,14 +928,14 @@ function _lexiqueRenduFiche(id) {
   var libelleType = fiche.type === 'notion'
     ? 'Notion' + (_LEXIQUE_LIBELLES_GABARITS[fiche.gabarit] ? ' · ' + _LEXIQUE_LIBELLES_GABARITS[fiche.gabarit] : '')
     : 'Terme';
-  var lienUnivers = '<button type="button" class="btn lien-famille-explorer align-baseline" ' +
+  var lienUnivers = '<button type="button" class="' + _lexiqueClasseChapitre(fiche.univers) + '" ' +
     'data-lexique-bibliotheque-type="univers" data-lexique-bibliotheque-valeur="' + echapperAttribut(fiche.univers) + '">' +
     echapperAttribut(_LEXIQUE_LIBELLES_UNIVERS[fiche.univers] || fiche.univers) + '</button>';
   var lienRegistres = (fiche.registres || []).map(function (r) {
-    return '<button type="button" class="btn lien-famille-explorer align-baseline" ' +
+    return '<button type="button" class="chapitre-lexique chapitre-lexique-registre" ' +
       'data-lexique-bibliotheque-type="registre" data-lexique-bibliotheque-valeur="' + echapperAttribut(r) + '">' +
       echapperAttribut(_LEXIQUE_LIBELLES_REGISTRES[r] || r) + '</button>';
-  }).join(', ');
+  }).join('');
 
   var aNePasConfondre = _lexiqueRelationsDe(fiche.id, 'a-ne-pas-confondre');
   var voirAussi = _lexiqueRelationsDe(fiche.id, 'voir-aussi');
@@ -992,7 +1041,7 @@ function _lexiqueRenduFiche(id) {
 
   return '<div class="page-catalogue-contenu" id="lexiqueFicheEcran" data-lexique-fiche-id="' + echapperAttribut(fiche.id) + '">' +
     '<button type="button" class="lexique-fiche-retour" id="lexiqueRetourRecherche">&larr; Retour à la recherche</button>' +
-    '<p class="small text-muted mb-1">' + lienUnivers + (lienRegistres ? ' · ' + lienRegistres : '') + '</p>' +
+    '<p class="mb-2">' + lienUnivers + lienRegistres + '</p>' +
     '<h1 class="h4 mb-1">' + echapperAttribut(fiche.titre) + '</h1>' +
     '<p class="small text-muted mb-2">' + libelleType + '</p>' +
     '<p class="lexique-fiche-def">' + echapperAttribut(_lexiqueCorpsAffiche(fiche)) + '</p>' +
@@ -1749,6 +1798,7 @@ function _lexiqueAfficherFiche(id, retour) {
   app.innerHTML = _lexiqueRenduFiche(id);
   _lexiqueNoter('fiche:' + id, function () { _lexiqueAfficherFiche(id, retour); });
   _lexiqueBrancherFiche();
+  _lexiqueMotsPageInsererAutres(id);
   // Module « Mon territoire » (phase 3bis) : les structures du repertoire du meme type que la fiche (Dordogne, module ouvert).
   if (typeof monTerritoireCompleterFicheLexique === 'function') { monTerritoireCompleterFicheLexique(document.getElementById('lexiqueFicheEcran'), id); }
   window.scrollTo(0, 0);
@@ -1904,8 +1954,149 @@ function lexiqueOuvrirFiche(id, retour, provenanceLabel, provenanceRoute, proven
   _lexiqueAfficherFiche(id, retour || _lexiqueAfficherRecherche);
   if (provenanceLabel && typeof definirRetourModuleExterne === 'function') {
     definirRetourModuleExterne(provenanceLabel, provenanceRetour || retour, provenanceRoute);
+    _lexiqueMotsPageInsererAutres(id);
   }
   return true;
+}
+
+// ------------------------------------------------------------
+// « Les mots de cette page » : bouton sous « Revoir la présentation », panneau, et bande « autres mots » dans le Lexique
+// (consignes 155 et 156, 07/11/2026). Un seul code pour tous les modules : le bouton est posé après coup sous le bouton
+// « Revoir la présentation » (.btn-revoir-module) de la page affichée, jamais recopié module par module.
+// ------------------------------------------------------------
+var _lexiqueMotsPageContexte = null; // { label, route, mots, retour } : le module d'où la personne vient et ses mots
+var _lexiqueMotsPageResultat = null; // dernier repérage de la page affichée
+function _lexiqueMotsPageTexte() {
+  var zone = app.querySelector('.mots-page-zone');
+  var t = app.innerText || '';
+  return zone ? t.replace(zone.innerText || '', ' ') : t;
+}
+function _lexiqueMotsPageLabel() {
+  var h = app.querySelector('h1, h2');
+  var t = h ? String(h.textContent || '').replace(/\s+/g, ' ').trim() : '';
+  return t || 'la page';
+}
+function lexiqueMotsPageSynchroniser() {
+  if (typeof app === 'undefined' || !app) { return; }
+  if (typeof pageActuelle !== 'undefined' && pageActuelle === 'lexique') { return; }
+  var btn = [].slice.call(app.querySelectorAll('.btn-revoir-module')).filter(function (b) {
+    return b.getBoundingClientRect().width > 0 && /^\s*Revoir/.test(b.textContent || '');
+  })[0];
+  if (!btn) { return; }
+  // Bulle au survol (ordinateur) : l'ancienne note refermable, devenue une bulle ; sur téléphone elle n'apparaît pas, la personne ne perd rien.
+  if (!btn.getAttribute('title')) { btn.setAttribute('title', 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.'); }
+  var conteneur = btn.closest('.bloc-revoir-module') || btn.parentElement;
+  var texte = _lexiqueMotsPageTexte();
+  var ancien = app.querySelector('.mots-page-zone');
+  if (ancien && ancien.previousElementSibling === conteneur && ancien.getAttribute('data-longueur') === String(texte.length)) { return; }
+  var r = _lexiqueMotsDeLaPage(texte, 9999);
+  if (ancien) { ancien.remove(); }
+  _lexiqueMotsPageResultat = r;
+  if (!r.total) { return; }
+  var zone = document.createElement('div');
+  zone.className = 'mots-page-zone';
+  zone.setAttribute('data-longueur', String(texte.length));
+  zone.innerHTML = '<button type="button" class="mots-page-bouton" aria-expanded="false" ' +
+    'title="Ces mots sont expliqués dans le Lexique, avec plus de détails que sur cette page."><i class="bi bi-book" aria-hidden="true"></i> <span>Mots de cette page expliqués dans le Lexique</span> <span class="mots-page-nb">' + r.total + (r.total > 1 ? ' mots' : ' mot') + '</span></button>' +
+    '<div class="mots-page-panneau" hidden></div>';
+  conteneur.insertAdjacentElement('afterend', zone);
+  _lexiqueMotsPageAligner(zone, btn);
+}
+// Aligne le bouton « Mots de cette page » sur le bord gauche de « Revoir la présentation », quelle que soit la page : sur certaines pages
+// (ex. « Vos informations » du CV) le bouton « Revoir » n'est pas dans le bloc habituel et la zone retombait au bord de l'écran (vu le 08/11/2026).
+// Garantit aussi un petit espace (10 px) entre les deux boutons : sur la plupart des modules « Revoir » est dans un simple bloc sans marge basse
+// et le décalage négatif de la zone faisait toucher les deux boutons (vu le 08/11/2026, consigne 168).
+function _lexiqueMotsPageAligner(zone, btn) {
+  zone.style.marginLeft = '';
+  zone.style.paddingTop = '';
+  var b = zone.querySelector('.mots-page-bouton');
+  if (!b || !btn) { return; }
+  var dx = btn.getBoundingClientRect().left - b.getBoundingClientRect().left;
+  if (Math.abs(dx) > 1) { zone.style.marginLeft = ((parseFloat(getComputedStyle(zone).marginLeft) || 0) + dx) + 'px'; }
+  var ecart = b.getBoundingClientRect().top - btn.getBoundingClientRect().bottom;
+  if (ecart < 10) { zone.style.paddingTop = (10 - ecart) + 'px'; }
+}
+if (typeof window !== 'undefined') {
+  var _lexiqueMotsPageMinuteurAligner = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(_lexiqueMotsPageMinuteurAligner);
+    _lexiqueMotsPageMinuteurAligner = setTimeout(function () {
+      var zone = typeof app !== 'undefined' && app ? app.querySelector('.mots-page-zone') : null;
+      var btn = zone ? [].slice.call(app.querySelectorAll('.btn-revoir-module')).filter(function (x) { return x.getBoundingClientRect().width > 0 && /^\s*Revoir/.test(x.textContent || ''); })[0] : null;
+      if (zone && btn) { _lexiqueMotsPageAligner(zone, btn); }
+    }, 250);
+  });
+}
+function _lexiqueMotsPageBoutons(mots, attribut) {
+  return mots.map(function (m) {
+    // Même bouton de couleur que les chapitres d'une fiche (une seule source : .chapitre-lexique, lexique.css), avec une barre plus épaisse à gauche : la couleur annonce le thème du mot, son nom reste écrit.
+    return '<button type="button" class="' + _lexiqueClasseChapitre(m.univers) + ' mots-page-mot" ' + attribut + '="' + echapperAttribut(m.id) + '">' + echapperAttribut(m.titre) + '</button>';
+  }).join(' ');
+}
+function _lexiqueMotsPageRemplirPanneau(panneau, tous) {
+  var r = _lexiqueMotsPageResultat;
+  if (!r) { return; }
+  var liste = tous ? r.mots : r.mots.slice(0, LEXIQUE_MOTS_PAGE_MAX);
+  panneau.innerHTML = '<p class="small mb-2">Ces mots sont expliqués dans le Lexique, avec plus de détails que sur cette page. Choisissez-en un pour le lire.</p>' +
+    '<div class="mots-page-liste">' + _lexiqueMotsPageBoutons(liste, 'data-mots-page-id') + '</div>' +
+    (!tous && r.total > LEXIQUE_MOTS_PAGE_MAX ? '<p class="mt-2 mb-0"><button type="button" class="btn btn-sm btn-outline-secondary" data-mots-page-tous>Voir les ' + r.total + ' mots</button></p>' : '');
+}
+function lexiqueMotsPageOuvrirMot(id) {
+  var r = _lexiqueMotsPageResultat;
+  var label = _lexiqueMotsPageLabel();
+  var route = typeof pageActuelle !== 'undefined' ? pageActuelle : '';
+  var revenirALaPlace = typeof memoriserPositionPourRetour === 'function' ? memoriserPositionPourRetour() : null;
+  var retour = function () {
+    naviguerVers(route);
+    if (revenirALaPlace) { revenirALaPlace(); }
+  };
+  _lexiqueMotsPageContexte = { label: label, route: route, mots: r ? r.mots.slice(0, LEXIQUE_MOTS_PAGE_MAX) : [], retour: retour };
+  lexiqueOuvrirFiche(id, null, label, route, retour);
+}
+// Dans la fiche : les autres mots de la page d'où la personne vient, pour en lire un autre sans repasser par la page.
+function _lexiqueMotsPageInsererAutres(id) {
+  var c = _lexiqueMotsPageContexte;
+  if (!c || typeof _provenanceExterneModule === 'undefined' || !_provenanceExterneModule || _provenanceExterneModule.label !== c.label) { return; }
+  var racine = document.getElementById('lexiqueFicheEcran');
+  if (racine) { var vieux = racine.querySelector('.mots-page-autres'); if (vieux) { vieux.remove(); } }
+  var autres = c.mots.filter(function (m) { return m.id !== id; });
+  if (!racine || !autres.length) { return; }
+  var bande = document.createElement('div');
+  bande.className = 'mots-page-autres';
+  bande.innerHTML = '<p class="small mb-1">Autres mots de la page « ' + echapperAttribut(c.label) + ' » :</p>' + _lexiqueMotsPageBoutons(autres, 'data-mots-page-autre');
+  racine.insertBefore(bande, racine.firstChild);
+  if (typeof _ajusterBoutonRetourModuleExterne === 'function') { _ajusterBoutonRetourModuleExterne(); }
+}
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('click', function (e) {
+    var cible = e.target && e.target.closest ? e.target : null;
+    if (!cible) { return; }
+    var principal = cible.closest('.mots-page-bouton');
+    if (principal) {
+      var panneau = principal.parentElement.querySelector('.mots-page-panneau');
+      var ouvrir = panneau.hidden;
+      if (ouvrir) { _lexiqueMotsPageRemplirPanneau(panneau, false); }
+      panneau.hidden = !ouvrir;
+      principal.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+      return;
+    }
+    var tous = cible.closest('[data-mots-page-tous]');
+    if (tous) { _lexiqueMotsPageRemplirPanneau(tous.closest('.mots-page-panneau'), true); return; }
+    var mot = cible.closest('[data-mots-page-id]');
+    if (mot) { lexiqueMotsPageOuvrirMot(mot.getAttribute('data-mots-page-id')); return; }
+    var autre = cible.closest('[data-mots-page-autre]');
+    if (autre && _lexiqueMotsPageContexte) {
+      var c = _lexiqueMotsPageContexte;
+      lexiqueOuvrirFiche(autre.getAttribute('data-mots-page-autre'), null, c.label, c.route, c.retour);
+    }
+  });
+}
+if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.body) {
+  var _lexiqueMotsPageMinuteur = null;
+  new MutationObserver(function () {
+    clearTimeout(_lexiqueMotsPageMinuteur);
+    _lexiqueMotsPageMinuteur = setTimeout(lexiqueMotsPageSynchroniser, 350);
+  }).observe(document.body, { childList: true, subtree: true });
 }
 
 // TACHE (echange Denis 2026-08-29) : filet de la barre de recherche de
@@ -1944,6 +2135,11 @@ if (typeof module !== 'undefined') {
     _lexiqueEtatSuivi: _lexiqueEtatSuivi,
     _lexiqueRenduCorpsSecondNiveau: _lexiqueRenduCorpsSecondNiveau,
     _lexiqueDateFr: _lexiqueDateFr,
-    LEXIQUE_SEUIL_MOIS_DETAILS: LEXIQUE_SEUIL_MOIS_DETAILS
+    LEXIQUE_SEUIL_MOIS_DETAILS: LEXIQUE_SEUIL_MOIS_DETAILS,
+    _lexiqueClasseChapitre: _lexiqueClasseChapitre,
+    _LEXIQUE_FAMILLE_UNIVERS: _LEXIQUE_FAMILLE_UNIVERS,
+    _LEXIQUE_LIBELLES_UNIVERS: _LEXIQUE_LIBELLES_UNIVERS,
+    _lexiqueMotsDeLaPage: _lexiqueMotsDeLaPage,
+    _lexiqueCleMotPage: _lexiqueCleMotPage
   };
 }

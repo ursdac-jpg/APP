@@ -1980,188 +1980,8 @@ function htmlLigneAideRepere() {
   return '<p class="small text-muted mt-1 mb-2 aide-repere-ligne">' + texteAideRepere() + '</p>';
 }
 
-// ============================================================
-// DEMONSTRATIONS VIDEO (chantier "Videos d'accompagnement") :
-// ------------------------------------------------------------
-// Table de correspondance UNIQUE, indexee par GESTE (jamais par parcours
-// -- voir Plan_Implementation_Videos_ERIP.md, "Principe de deploiement").
-// Un meme geste (masquer, envoyer a l’assistant, importer une reponse) declenche
-// toujours la meme entree ici, quel que soit l'ecran d'origine (wizard CV,
-// entretien, lettre V1, accordeon Action...).
-//
-// Chaque entree : fichier (chemin relatif, jamais present tant que la
-// video n'est pas fournie -- voir 'export-ia-image' ci-dessous, absent
-// volontairement), titre (affiche en haut de la fenetre), texteAlternatif
-// (TOUJOURS affiche a cote du bouton, jamais seulement dans la fenetre --
-// principe deja acte : l'utilisateur doit pouvoir reussir son parcours
-// sans jamais regarder une seule video).
-//
-// 'export-ia-image' : geste identifie dans les maquettes (joindre une
-// image/PDF a l'assistant) mais AUCUN fichier fourni a ce jour. Entree
-// deliberement absente de la table plutot que renseignee avec un chemin
-// invalide -- htmlDeclencheurDemoVideo() ci-dessous ne genere alors aucun
-// bouton pour ce geste (voir sa garde), ce qui evite un lien mort tant que
-// la video n'existe pas. Ajouter l'entree suffira le jour ou le fichier
-// sera fourni, aucune autre modification necessaire.
-var DEMOS_VIDEO_ERIP = {
-  'masquage-texte': {
-    fichier: 'videos/Anonym_txt.mp4',
-    titre: 'Masquer des informations dans un texte',
-    texteAlternatif: 'Cette démonstration montre comment sélectionner puis effacer les informations personnelles ' +
-      'dans un texte modifiable, avant de l’envoyer à l’assistant.'
-  },
-  'masquage-image': {
-    fichier: 'videos/Anonym_vid_importer.mp4',
-    titre: 'Masquer des informations sur une image',
-    texteAlternatif: 'Cette démonstration montre comment dessiner un rectangle noir sur une image ou un PDF ' +
-      'scanné, pour masquer les informations personnelles avant l’envoi à l’assistant.'
-  },
-  'export-ia-texte': {
-    fichier: 'videos/Exp_imp_ai.mp4',
-    titre: 'Envoyer un texte à un assistant',
-    texteAlternatif: 'Cette démonstration montre comment coller le texte préparé par ERIP dans la conversation ' +
-      'avec l’assistant choisi.'
-  },
-  'import-reponse-ia': {
-    fichier: 'videos/importer_IA.mp4',
-    titre: 'Récupérer la réponse de l’assistant',
-    texteAlternatif: 'Cette démonstration montre comment copier la réponse complète de l’assistant, puis la ' +
-      'coller dans ERIP pour l’importer.'
-  },
-  'astuce-image-refusee': {
-    fichier: 'videos/Astuce_img.mp4',
-    titre: 'Astuce : image refusée par l’assistant',
-    texteAlternatif: 'Certains assistants gratuits limitent ou refusent l’envoi d’images. Cette démonstration ' +
-      'montre comment continuer malgré tout, en utilisant le texte à la place.'
-  },
-  'page-projet': {
-    fichier: 'videos/Page_Projet.mp4',
-    titre: 'Compléter la page Vos informations',
-    texteAlternatif: 'Cette démonstration montre comment remplir les informations de la page Vos informations.'
-  },
-  'cv-word-personnaliser': {
-    fichier: 'videos/cv_word.mp4',
-    titre: 'Personnaliser votre CV (Word)',
-    texteAlternatif: 'Cette démonstration montre comment personnaliser la mise en page, les couleurs et le ' +
-      'contenu de votre CV au format Word.'
-  },
-  'cv-pdf-personnaliser': {
-    fichier: 'videos/cv_pdf.mp4',
-    titre: 'Personnaliser votre CV (PDF)',
-    texteAlternatif: 'Cette démonstration montre comment personnaliser la mise en page, les couleurs et le ' +
-      'contenu de votre CV au format PDF.'
-  },
-  // TACHE (retour utilisateur) : ecran commun a TOUS les parcours (offre,
-  // spontanee, reconversion, stage (de formation ou d’immersion), alternance, formation) -- second passage
-  // IA, choix/reordonnancement des propositions (profil, intitule, accroche,
-  // experiences, competences...). Un seul emplacement video, visible quel
-  // que soit l'onglet ouvert (voir ouvrirEcranChoixReponseIACV plus bas).
-  'choix-cv': {
-    fichier: 'videos/choix_cv.mp4',
-    titre: 'Choisir ce que l’assistant propose pour votre CV',
-    texteAlternatif: 'Cette démonstration montre à quoi sert cet écran et comment choisir, modifier et réordonner ' +
-      'les propositions de l’assistant pour votre CV.'
-  }
-};
-
-// TACHE (chantier "Videos d'accompagnement", refonte du composant apres
-// audit) : trois etats explicites geres par de vrais evenements du lecteur
-// (loadedmetadata/error), plutot qu'un <video> brut livre a lui-meme --
-// chargement (cadre reserve a ratio fixe, aucun saut visuel), pret (le
-// lecteur apparait), erreur (message clair, jamais un rectangle noir muet).
-// Cadre a ratio fixe (.demo-video-cadre, style.css) : la fenetre garde la
-// meme silhouette du chargement a la lecture, quelle que soit la duree du
-// chargement ou la resolution reelle du fichier. Titres raccourcis dans la
-// table ci-dessus (le texte alternatif, plus long, reste la description
-// complete -- toujours affiche sous la video, jamais uniquement dans le
-// titre).
-// TACHE (retour utilisateur : "est-ce possible que la vidéo démarre
-// directement sans appuyer sur play ?") : la personne a deja explicitement
-// cliqué "Voir la démonstration" pour ouvrir cette fenetre -- lui demander
-// un second clic sur le bouton play du lecteur est une friction inutile.
-// Lecture automatique activee (attribut "autoplay"), MUETTE par defaut
-// (attribut "muted", necessaire pour que les navigateurs autorisent le
-// demarrage automatique sans interaction) -- controls reste present, la
-// personne peut reactiver le son au besoin.
-function ouvrirDemoVideo(idDemo) {
-  var demo = DEMOS_VIDEO_ERIP[idDemo];
-  if (!demo || !demo.fichier) { return; } // geste sans video disponible : rien a ouvrir
-  ouvrirFenetreERIP({
-    titre: '&#127909; ' + demo.titre,
-    taille: 'large',
-    aideContexte: 'demo-video',
-    contenuHTML:
-      '<div class="demo-video-cadre" id="demoVideoCadre">' +
-        '<div class="demo-video-etat" id="demoVideoChargement">' +
-          '<div class="demo-video-spinner" aria-hidden="true"></div>' +
-          '<p class="small mb-0">Chargement de la vidéo…</p>' +
-        '</div>' +
-        '<div class="demo-video-etat demo-video-etat-erreur d-none" id="demoVideoErreur">' +
-          '<p class="small mb-0">&#9888;&#65039; Cette vidéo n’a pas pu être chargée.</p>' +
-        '</div>' +
-        '<video class="demo-video-lecteur d-none" id="demoVideoLecteur" ' +
-          'src="' + echapperAttribut(demo.fichier) + '" controls autoplay muted playsinline preload="metadata">' +
-          '<p class="small mb-0">Votre navigateur ne peut pas lire cette vidéo.</p>' +
-        '</video>' +
-      '</div>' +
-      '<p class="text-muted small mt-2 mb-0">' + demo.texteAlternatif + '</p>'
-  });
-
-  var video = document.getElementById('demoVideoLecteur');
-  var chargement = document.getElementById('demoVideoChargement');
-  var erreur = document.getElementById('demoVideoErreur');
-
-  video.addEventListener('loadedmetadata', function () {
-    chargement.classList.add('d-none');
-    erreur.classList.add('d-none');
-    video.classList.remove('d-none');
-  });
-  video.addEventListener('error', function () {
-    chargement.classList.add('d-none');
-    video.classList.add('d-none');
-    erreur.classList.remove('d-none');
-  });
-}
-
-// Petit HTML reutilisable pour le bouton declencheur -- a inserer dans le
-// contenuHTML de n'importe quel ecran qui a besoin de ce geste. Retourne
-// une chaine VIDE si la video n'existe pas encore dans la table (voir
-// 'export-ia-image' ci-dessus) : aucun appelant n'a besoin de verifier
-// lui-meme si le fichier existe, ce test est centralise ici.
-function htmlDeclencheurDemoVideo(idDemo, libelle) {
-  var demo = DEMOS_VIDEO_ERIP[idDemo];
-  if (!demo || !demo.fichier) { return ''; }
-  return '<button type="button" class="demo-video-declencheur" data-demo-video="' + idDemo + '">' +
-    '<span class="demo-video-declencheur-icone" aria-hidden="true">&#9654;</span>' +
-    (libelle || 'Voir la démonstration (20 s)') + '</button>';
-}
-
-// Bloc "Astuce" complet (pas un simple bouton comme htmlDeclencheurDemoVideo) --
-// reprend la mise en forme de la maquette 2 : separe par une ligne, plus
-// petit que le geste principal au-dessus (jamais en concurrence avec lui).
-// A inserer UNIQUEMENT quand le contexte est reellement celui d'une image/PDF
-// (voir les 3 appelants : chacun connait son propre etat.modeEditeur/type) --
-// jamais affiche sur un contexte texte, ou le refus d'image n'a pas de sens.
-function htmlBlocAstuceImageRefusee() {
-  var demo = DEMOS_VIDEO_ERIP['astuce-image-refusee'];
-  if (!demo || !demo.fichier) { return ''; }
-  return '<div class="mt-3 pt-3" style="border-top:1px solid #E5E7EB;">' +
-    '<p class="small fw-bold mb-1">&#128161; Astuce (20 s)</p>' +
-    '<p class="small text-muted mb-1">L’assistant refuse votre image ? Regardez cette courte démonstration pour ' +
-    'savoir comment continuer avec le texte à la place.</p>' +
-    htmlDeclencheurDemoVideo('astuce-image-refusee', 'Voir l’astuce (20 s)') +
-    '</div>';
-}
-
-// Delegation globale (meme principe deja utilise dans metiers.js pour
-// data-action="mode") : un seul ecouteur, installe une fois, qui fonctionne
-// quel que soit l'ecran ou le bouton est re-rendu -- aucun cablage
-// supplementaire necessaire dans chaque wireXxx()/onAfficher() qui integre
-// htmlDeclencheurDemoVideo().
-document.addEventListener('click', function (e) {
-  var bouton = e.target.closest ? e.target.closest('[data-demo-video]') : null;
-  if (bouton) { ouvrirDemoVideo(bouton.dataset.demoVideo); }
-});
+// DEMONSTRATIONS VIDEO : l'ancien mecanisme (table DEMOS_VIDEO_ERIP, fenetre ouvrirDemoVideo, bouton gris) est RETIRE (08/11/2026, consigne 179) ;
+// les petites videos d'un module passent par htmlVideoGeste() (modules/video-presentation/), la ligne a filet qui se deplie dans la page.
 
 // Pastilles simples (Loisirs, Engagements) : dossier[config.cle] est un tableau de chaines.
 function blocPastillesSimples(config, liste) {
@@ -3817,6 +3637,8 @@ function naviguerVers(route, sansHistorique) {
     }
   }
   pageActuelle = route;
+  // La page courante est connue du style (consigne 150) : l'accueil et les introductions gardent la taille d'avant.
+  document.documentElement.setAttribute('data-route', route);
   if (historiquePages.indexOf(route) === -1) { historiquePages.push(route); }
   // Point 4 : on empile dans l'historique du navigateur pour que la fleche
   // "Precedent" revienne a l'etape precedente au lieu de quitter le site.
@@ -8731,6 +8553,7 @@ function pageProjet() {
     (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('projet') : '') +
     '<div class="text-center"><h1>&#128203; Vos informations</h1>' +
     '<p class="sousTitre">Les informations qui personnaliseront votre candidature.</p></div>' +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('projet') : '') +
     // Module « Un CV, plusieurs métiers » seulement (retour 42 de Denis, validé le 2026-10-15) : dire ce qu'on regarde et ce qu'il reste à faire après le rangement du CV.
     (depuisUcpm ? '<div class="cv-section" id="ucpmInviteInfos" role="note" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;"><p class="mb-0">Voici ce que l’application a repéré dans votre CV. Relisez, corrigez ou complétez, puis cliquez sur <strong>« Continuer »</strong> en bas.</p></div>' : '') +
     // Questions sur les passages peu clairs du CV (même bloc partagé pour tous les modules : modules/passages-a-preciser/) ; réponses modifiables tant que la page n'est pas validée.
@@ -8744,7 +8567,7 @@ function pageProjet() {
       '</div>') +
     // TACHE (refonte parcours guide, etape 3, 2026-09-02) : encart video
     // retire -- la page allegee est assez legere (decision Denis). L'entree
-    // DEMOS_VIDEO_ERIP['page-projet'] reste, juste plus declenchee ici.
+    // (L'ancienne video de cette page est retiree ; la nouvelle, projet.mp4, sera branchee plus tard.)
     _projetGrilleHTML(modeAllege) +
     // TACHE (complement) : barre de navigation fixee en bas de l'ecran,
     // toujours visible sans avoir a defiler, quel que soit le nombre de
@@ -9186,7 +9009,7 @@ function domaineMetierSaisiHTML() {
     // Métier du répertoire élargi : domaine connu d'avance, rien à afficher (aucune différence visible avec un métier de la base).
     if (_metiersRepertoireElargiChoisis[dossier.metierCible] || (dossier.secteurMetierSaisi && dossier.secteurMetierSaisi.origine === 'repertoire')) { return ''; }
     return '<p class="small mt-2 mb-0">Domaine choisi : <strong>' + echapperAttribut(choisi) + '</strong> ' +
-      '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-domaine-metier-changer>Changer de domaine</button></p>';
+      '<button type="button" class="btn btn-outline-primary btn-sm ms-1" data-domaine-metier-changer>Changer de domaine</button></p>';
   }
   if (!metierCibleSaisiSansDomaine()) { return ''; }
   var noms = Object.keys(COMPETENCES_SECTEURS).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
@@ -12126,7 +11949,7 @@ function contenuIdentite() {
         apercuPhoto +
         '<label class="btn btn-sm btn-outline-secondary" for="inputPhotoIdentite">' + (photo.url ? 'Changer la photo' : '&#128444;&#65039; Déposer une photo') + '</label>' +
         '<input type="file" accept="image/*" id="inputPhotoIdentite" class="visually-hidden">' +
-        (photo.url ? '<button type="button" class="btn btn-sm btn-link text-danger p-0" id="btnSupprimerPhoto">Retirer</button>' : '') +
+        (photo.url ? '<button type="button" class="btn btn-sm btn-outline-danger" id="btnSupprimerPhoto">Retirer</button>' : '') +
         // TACHE (retour utilisateur : bouton visible a tort) : n'a de sens
         // que pour quelqu'un arrive ici via "Ajouter/Changer ma photo"
         // depuis la page Action (etatVenantDePhotoAction).
@@ -14098,7 +13921,6 @@ function wireComplementCV(rerender, options) {
         if (typeof rerender === 'function') { rerender(); }
         if (typeof afficherToast === 'function') { afficherToast(message, 6000); }
       },
-      onVideo: function () { ouvrirDemoVideo('import-reponse-ia'); }
     });
   });
 }
@@ -14525,8 +14347,7 @@ function brancherCollageUniquePage(o) {
     } : o.onContinuer, onEchecAction: o.onEchecAction, onEtat: o.onEtat,
     onRetour: function () { if (_etatTransitionIA) { _etatTransitionIA.phase = 'revenu'; } },
     onRouvrir: ouvrirAssistantEnAttente,
-    onChangerAssistant: o.onChangerAssistant,
-    onVideo: function () { ouvrirDemoVideo('import-reponse-ia'); }
+    onChangerAssistant: o.onChangerAssistant
   });
 }
 
@@ -17708,9 +17529,9 @@ function construireContenuApercuFinalisation(docActif, opts) {
                     '<input class="form-check-input" type="checkbox" id="checkInclurePhotoApercu"' + (dossier.photo.inclure ? ' checked' : '') + '>' +
                     '<label class="form-check-label" for="checkInclurePhotoApercu">Inclure ma photo</label>' +
                     '</div>' +
-                    ' · <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-danger" id="btnRetirerPhotoApercu">Retirer la photo</button>' +
-                    ' · <button type="button" class="btn btn-link btn-sm p-0 align-baseline" id="btnAllerPhotoIdentite">Changer la photo</button>'
-                  : '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" id="btnAllerPhotoIdentite">Ajouter ma photo</button>') +
+                    ' <button type="button" class="btn btn-outline-danger btn-sm" id="btnRetirerPhotoApercu">Retirer la photo</button>' +
+                    ' <button type="button" class="btn btn-outline-secondary btn-sm" id="btnAllerPhotoIdentite">Changer la photo</button>'
+                  : '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAllerPhotoIdentite">Ajouter ma photo</button>') +
                 '</div>'
               : '') +
             // TACHE (retour utilisateur : "remonter l'option ajouter une
@@ -18978,10 +18799,16 @@ function _mepMajOngletsApercu(essai) {
   _mepModeleVu = cle;
   var kinds = _mepKindsDuModele(cle, e).concat(['formes']);
   // Composition (cvPdfCompositions.js) : proposee seulement quand le modele et le CV affiche la permettent ; elle REMPLACE le bandeau, donc les onglets Bandeau et Colonne disparaissent tant qu'elle est choisie.
+  // Consigne 141 (Denis, 2026-11-07) : ces deux onglets ne disparaissent plus, ils restent visibles mais grisés, avec un retour évident (sinon la personne se croit coincée).
+  var grises = [];
   if (_mepCompositionDispo(cle, e)) {
-    if (_mepComposition()) { kinds = kinds.filter(function (k) { return k !== 'bandeau' && k !== 'colonne'; }); }
+    if (_mepComposition()) {
+      grises = kinds.filter(function (k) { return k === 'bandeau' || k === 'colonne'; });
+      kinds = kinds.filter(function (k) { return k !== 'bandeau' && k !== 'colonne'; });
+    }
     kinds.splice(kinds.indexOf('formes'), 0, 'composition');   // ordre voulu par Denis : Bandeau, Colonne, Composition, Formes
   }
+  if (!grises.length) { _mepAvisGrise = false; }
   // Tirage au hasard (Denis, 2026-10-20) : bandeau, colonne et formes decoratives sont tires comme si la personne les avait choisis, puis les panneaux concernes s'ouvrent sur ce choix (elle peut changer le sens tout de suite).
   if (_mepTirageFormesEnAttente) {
     _mepTirageFormesEnAttente = false;
@@ -19002,7 +18829,19 @@ function _mepMajOngletsApercu(essai) {
     : 'Vous pouvez personnaliser l’allure de ce modèle : ajoutez des formes décoratives sur votre CV.';
   barreHote.appendChild(invite);
   var barre = document.createElement('div'); barre.className = 'mep-onglets-barre'; barre.setAttribute('role', 'group'); barre.setAttribute('aria-label', 'Réglages sur l’aperçu du CV');
-  kinds.forEach(function (k, rang) {
+  var ordreOnglets = ['bandeau', 'colonne', 'composition', 'formes'];
+  kinds.concat(grises).sort(function (a, c) { return ordreOnglets.indexOf(a) - ordreOnglets.indexOf(c); }).forEach(function (k, rang) {
+    if (grises.indexOf(k) !== -1) {
+      // Onglet grisé : pas de panneau, un clic explique et propose le retour (aria-disabled plutôt que disabled pour rester cliquable et lisible).
+      var bg = document.createElement('button'); bg.type = 'button'; bg.className = 'btn-miss mep-onglet-apercu mep-onglet-grise';
+      bg.setAttribute('data-mep-onglet', k); bg.setAttribute('aria-disabled', 'true'); bg.setAttribute('aria-expanded', _mepAvisGrise ? 'true' : 'false');
+      bg.innerHTML = _MEP_FORMES_SVG[_MEP_ONG_ICONES[k]] + '<span>' + _MEP_FORMES[k].court + '</span>';
+      bg.setAttribute('aria-label', _MEP_FORMES[k].titre + ' : désactivé tant qu’une composition est choisie. Appuyez pour savoir comment le retrouver.');
+      bg.title = 'Désactivé tant qu’une composition est choisie. Cliquez pour savoir comment le retrouver.';
+      bg.addEventListener('click', function () { _mepOngletsTouche = true; _mepAvisGrise = !_mepAvisGrise; _mepMajOngletsApercu(); });
+      barre.appendChild(bg);
+      return;
+    }
     var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-miss mep-onglet-apercu' + (_mepOngletsTouche ? '' : ' pulse-sugg' + (kinds.length === 1 ? ' pulse-seul' : ''));
     b.style.setProperty('--rang-pulse', String(rang));
     b.setAttribute('data-mep-onglet', k);
@@ -19016,6 +18855,14 @@ function _mepMajOngletsApercu(essai) {
     barre.appendChild(b);
   });
   barreHote.appendChild(barre);
+  if (grises.length && _mepAvisGrise) {
+    var avis = document.createElement('div'); avis.className = 'mep-avis-grise'; avis.setAttribute('role', 'status');
+    var pAvis = document.createElement('p'); pAvis.textContent = 'Une composition remplace ' + _mepNomsGrises(grises) + '. Vous les retrouvez dès que la composition est retirée.';
+    var bRetour = document.createElement('button'); bRetour.type = 'button'; bRetour.className = 'btn-miss'; bRetour.id = 'btnMepRetourBandeauColonne';
+    bRetour.textContent = _mepLibelleRetourGrises(grises);
+    bRetour.addEventListener('click', function () { _mepAvisGrise = false; _mepDefinirComposition(''); });
+    avis.appendChild(pAvis); avis.appendChild(bRetour); barreHote.appendChild(avis);
+  }
   // « Régler l'en-tête » (cvPdfEnteteApercu.js) : deuxieme rangee, meme taille que les onglets (Denis, 2026-10-21) ; seulement si le modele a un en-tete reglable.
   var enteteDispo = false; try { enteteDispo = typeof _enteteApercuDisponible === 'function' && _enteteApercuDisponible(); } catch (er) { /* apercu pas pret */ }
   if (!enteteDispo && typeof _enteteApercu !== 'undefined' && _enteteApercu.actif) { _enteteApercu.actif = false; }
@@ -19090,6 +18937,9 @@ function _mepMessagesInfoMarquerLus() { Object.keys(_mepMessagesInfo).forEach(fu
 // ====== COMPOSITIONS de l'en-tete et des marges (2026-10-22, regles et dessins dans cvPdfCompositions.js ; maquette docs/MAQUETTE_COMPOSITIONS_UNE_COLONNE_2026-10-22.html) ======
 // L'etat vit dans l'apercu du CV (iframe : `_cvPdfComposition`, garde dans dossier.pdfReglages.composition, donc annulable comme tout reglage) ; ici, le panneau et les conditions.
 var _mepCompoRetraits = 0;   // garde-fou du retrait automatique d'une composition (jamais de boucle)
+var _mepAvisGrise = false;   // le petit message « une composition remplace le bandeau et la colonne » est ouvert (clic sur un onglet grisé)
+function _mepNomsGrises(grises) { return grises.length > 1 ? 'le bandeau et la colonne' : (grises[0] === 'colonne' ? 'la colonne' : 'le bandeau'); }
+function _mepLibelleRetourGrises(grises) { return grises.length > 1 ? 'Revenir au bandeau et à la colonne' : (grises[0] === 'colonne' ? 'Revenir à la colonne' : 'Revenir au bandeau'); }
 function _mepComposition() {
   try {
     var pr = dossier.pdfReglages;
@@ -19204,6 +19054,18 @@ function _mepConstruirePanneauComposition(cle, e) {
     choix.appendChild(b);
   });
   t.appendChild(choix);
+  // Retour évident (consigne 141) : tant qu'une composition est choisie, un bouton ramène le bandeau et la colonne (même effet que « Comme aujourd'hui »).
+  if (courant) {
+    var grisesPanneau = []; try { grisesPanneau = _mepKindsDuModele(cle, e).filter(function (k) { return k === 'bandeau' || k === 'colonne'; }); } catch (er) { grisesPanneau = []; }
+    if (grisesPanneau.length) {
+      var ligneRetour = document.createElement('div'); ligneRetour.className = 'mep-avis-grise';
+      var pRetour = document.createElement('p'); pRetour.textContent = 'Cette composition remplace ' + _mepNomsGrises(grisesPanneau) + '.';
+      var bRet = document.createElement('button'); bRet.type = 'button'; bRet.className = 'btn-miss'; bRet.setAttribute('data-mep-retour-bc', '1');
+      bRet.textContent = _mepLibelleRetourGrises(grisesPanneau);
+      bRet.addEventListener('click', function () { _mepDefinirComposition(''); });
+      ligneRetour.appendChild(pRetour); ligneRetour.appendChild(bRet); t.appendChild(ligneRetour);
+    }
+  }
   // Reglages du croisement du bandeau et de la colonne : avec « Comme aujourd'hui » seulement, quand le CV s'y prete (maquette fusionnee de Denis, 2026-10-22)
   if (!courant && e && _mepCroisementDispo(cle, e)) {
     var cr = _mepCroisement();
@@ -21249,6 +21111,7 @@ function _htmlSecRegSupplementairesMiseEnPage() {
     '<summary><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>' +
     '<div><h3>R&eacute;glages suppl&eacute;mentaires <span class="sous" style="font-weight:400;margin-left:0.5rem">Autres options de mise en forme</span></h3></div><span class="chev">&#8964;</span></summary>' +
     '<div class="carte-corps">' +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('rubriques') : '') +
     '<p class="sous-aide" style="margin:0 0 0.5rem;">Ces r&eacute;glages n\'ont pas de place dans les cartes ci-dessus. Chaque partie porte le nom de sa carte ; &laquo;&nbsp;Style rapide&nbsp;&raquo; ne les touche jamais.</p>' +
     _htmlStyleSectionsMiseEnPage() + htmlSections +
     '</div></details>';
@@ -21414,6 +21277,7 @@ function construireMiseEnPageCV(docActif) {
     '</style>' +
     '<div class="mep-2col mep-mq">' +
     htmlEnteteMepPdf +
+    (estPdfMep && typeof htmlVideoGeste === 'function' ? htmlVideoGeste('mise-en-page') : '') +
     '<div class="mep-2col-grille">' +
     // TACHE (retour utilisateur 2026-09-14, bug reel trouve en testant) :
     // le contenu reste TOUJOURS rendu (jamais vide en ''), meme tiroir
@@ -25168,8 +25032,11 @@ function barreEtapesModule(etapes, indexCourant, options) {
 // meme libelle. Seule l'icone change = logo du module.
 // ============================================================
 var CLE_NOTE_REVOIR_MODULE_VUE = 'aps_note_revoir_module_vue';
+// La note refermable « Ce bouton vous ramène... » n'existe plus (consigne 156, Denis 07/11/2026) : son texte est une bulle au survol du bouton
+// (attribut title, posé par htmlBoutonRevoirModule et, pour les autres pages, par lexiqueMotsPageSynchroniser). Toutes les copies de la note
+// sont gardées par cette fonction : elle répond donc « déjà vue » pour tout le monde, et la place libérée reçoit le bouton « Mots de cette page ».
 function noteRevoirModuleDejaVue() {
-  try { return localStorage.getItem(CLE_NOTE_REVOIR_MODULE_VUE) === '1'; } catch (e) { return false; }
+  return true;
 }
 // `logoModule` : classe Bootstrap Icons (ex. 'bi-graph-up'). `id` : id du
 // bouton (pour le cablage par le module). `libelle` : "Revoir la
@@ -25183,7 +25050,7 @@ function htmlBoutonRevoirModule(id, logoModule, libelle, surPresentation) {
     ? 'Ce bouton vous ramène à l’endroit où vous en étiez dans le module. Vous ne perdez rien.'
     : 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.';
   return '<div class="bloc-revoir-module">' +
-    '<button type="button" id="' + id + '" class="btn-revoir-module">' +
+    '<button type="button" id="' + id + '" class="btn-revoir-module" title="' + texteNote + '">' +
     '<i class="bi ' + logoModule + '"></i> ' + (libelle || 'Revoir la présentation') +
     '</button></div>' +
     (noteRevoirModuleDejaVue() ? '' :
@@ -25259,6 +25126,8 @@ function htmlPageIntroModule(config) {
     (config.boutonHautHTML || '') +
     '<div class="text-center"><h1><i class="bi ' + config.icone + '"></i> ' + config.titre + '</h1>' +
     '<p class="sousTitre">' + config.sousTitre + '</p></div>' +
+    // Vidéo de présentation du module (lot E) : bouton fermé, le lecteur se déplie au clic.
+    (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
     sectionsHTML +
     (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue() : '') +
     '</div>' +
@@ -25602,6 +25471,7 @@ function htmlBilanIntro() {
       ? htmlBoutonRevoirModule('btnBilanRevenirModuleHaut', 'bi-graph-up', 'Revenir au module', true)
       : '',
     icone: 'bi-graph-up',
+    video: 'bilan',
     titre: 'Analyser ma candidature',
     sousTitre: 'Avant de modifier un CV, il est souvent utile de comprendre ce qui fonctionne déjà.',
     sections: [
@@ -25993,7 +25863,6 @@ function htmlChoixAssistantBilanCorps(config) {
     '<div class="bloc-depli-corps">' +
     '<ul class="choix-ia-etapes">' + etapesListe + '</ul>' +
     '<div class="choix-ia-rappel-conf"><span>&#128274;</span><span>' + config.texteConfidentialite + '</span></div>' +
-    (typeof htmlDeclencheurDemoVideo === 'function' ? '<div class="mt-2">' + htmlDeclencheurDemoVideo('export-ia-texte') + '</div>' : '') +
     '</div></details>' +
     '<div class="mt-3">' + htmlRecapContexteEnvoi(config.recapContexte) + '</div>';
 }
@@ -28631,7 +28500,7 @@ function bilanOuvrirConfirmationPointsIgnores(diagnostic, onConfirmer) {
       taille: 'large',
       contenuHTML:
         '<p class="text-muted small mb-3">Vous avez indiqué avoir déjà connaissance de ces points lors de votre dernière lecture. Voulez-vous les garder ignorés pour cette nouvelle analyse, ou revenir dessus ?</p>' +
-        '<div class="text-end mb-2"><button type="button" class="btn btn-link btn-sm p-0" id="btnPointsIgnoresToutReinitialiser">Tout réinitialiser (analyse complète)</button></div>' +
+        '<div class="text-end mb-2"><button type="button" class="btn btn-outline-secondary btn-sm" id="btnPointsIgnoresToutReinitialiser">Tout réinitialiser (analyse complète)</button></div>' +
         elements.map(function (el) {
           var garde = choix[el.cle];
           return '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2" style="border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;">' +
@@ -31158,8 +31027,7 @@ function bilanAfficherEtapeCollageAmelioration(demande, assistant, texteACopier)
       if (texteACopier) { _dernierTexteCopieAssistantIA = texteACopier; }
       recopierTexteAssistantPuisOuvrir(function () { window.open(assistant.url, '_blank'); });
     },
-    onChangerAssistant: function () { bilanOuvrirModaleAmelioration(demande.recommandationSelectionnee); },
-    onVideo: function () { ouvrirDemoVideo('import-reponse-ia'); }
+    onChangerAssistant: function () { bilanOuvrirModaleAmelioration(demande.recommandationSelectionnee); }
   });
 }
 
@@ -32144,8 +32012,6 @@ function ouvrirFenetreAssistantIA(config) {
       // prompt PUIS glisser le document) -- absent par defaut (undefined),
       // aucun effet sur les appelants existants (page Action, Decouverte)
       // qui ne le fournissent pas.
-      (config.idDemoVideo ? '<div class="text-center mb-2">' + htmlDeclencheurDemoVideo(config.idDemoVideo) + '</div>' : '') +
-      (config.avecAstuceImageRefusee && typeof htmlBlocAstuceImageRefusee === 'function' ? htmlBlocAstuceImageRefusee() : '') +
       // TACHE (chantier "ecran tampon avant l’assistant") : aperçu du VRAI bouton
       // (bouton rectangulaire « Coller la réponse ») qu'on retrouvera a l'etape Importer au retour --
       // repere concret pour un public en fragilite numerique, pas le
@@ -35373,7 +35239,7 @@ function texteAlertes(alertes) {
 // aucun etat a nettoyer.
 function boutonSupprimerLigneAjout(groupe) {
   if (groupe !== 'ajoutes') { return ''; }
-  return '<button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" data-supprimer-ligne-ajout ' +
+  return '<button type="button" class="btn btn-sm btn-outline-danger ms-1" data-supprimer-ligne-ajout ' +
     'title="Supprimer cet ajout" aria-label="Supprimer cet ajout">&#128465;&#65039;</button>';
 }
 
@@ -38486,7 +38352,7 @@ function ouvrirGrandApercuPdf(dossierSource) {
       '<p style="font-size:0.875rem;color:var(--text-muted,#4a5b6e);margin:0.5rem 0 0;">Le Word n\'a rien de tout &ccedil;a ' +
       '(mise en page fixe). Son avantage : retoucher le texte apr&egrave;s t&eacute;l&eacute;chargement.</p>' +
       '<div style="margin-top:0.6rem;">' +
-      (typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo('cv-pdf-personnaliser', 'Voir la d\u00e9monstration') : '') +
+      (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('cv-pdf') : '') +
       '</div>' +
       '</details>' +
       // TACHE (retour utilisateur 2026-09-13) : "je veux voir l'integralite
@@ -41156,10 +41022,6 @@ var AIDE_FENETRES = {
   // docs/CHANTIERS_EN_ATTENTE.md pour le detail du chantier). Meme ton
   // simple/rassurant que le reste de l'aide -- public cible peu a l'aise
   // avec l'informatique, jamais de jargon.
-  'demo-video': [
-    { selecteur: '.demo-video-cadre', icone: '&#127909;', titre: 'La vidéo',
-      texte: 'Elle démarre automatiquement, sans le son. Utilisez les commandes du lecteur pour la mettre en pause ou réactiver le son.' }
-  ],
   'catalogue-generique': [
     { selecteur: '.catalogue-categorie', icone: '&#9989;', titre: 'Vos choix',
       texte: 'Cochez tout ce qui vous correspond, dans toutes les catégories : plusieurs choix sont possibles. Si vous ne trouvez pas ce que vous cherchez, la case « Autre » tout en bas permet de l’ajouter vous-même.' }
@@ -41571,7 +41433,9 @@ function positionnerVisiteGuidee(cible, etape, index) {
   // rect.bottom tres superieur a window.innerHeight, placant la bulle (et
   // son bouton Fermer) totalement hors ecran, inatteignable au clic --
   // seul Echap permettait alors de sortir de la visite guidee.
-  var hauteurTooltipEstimee = 170;
+  // Hauteur REELLE de la bulle (mesuree apres avoir ecrit son texte) : une estimation fixe de 170 px la laissait deborder
+  // de l'ecran quand le texte de l'etape est long (bouton « Suivant » alors inatteignable sur un ecran de 720 px de haut).
+  var hauteurTooltipEstimee = Math.max(170, tooltip.offsetHeight || 0);
   var margeEcran = 12;
   var placerAuDessus = (rect.bottom + hauteurTooltipEstimee > window.innerHeight) && (rect.top > hauteurTooltipEstimee);
   if (placerAuDessus) {
@@ -41834,8 +41698,48 @@ function _ajusterBoutonRetourModuleExterne() {
   if (!bouton) { return; }
   // Depuis le 02/11/2026 (bouton « Introduction » tout à droite) : place fixe, plus aucun décalage selon le panier.
   bouton.style.top = '';
+  // Consigne 160 (07/11/2026) : « Introduction » s'élargit avec la taille du texte ; le bouton « Revenir à ... » se place donc d'après la largeur MESURÉE d'« Introduction »,
+  // avec 16 px d'espace entre les deux (sur téléphone, la feuille de style le place ailleurs : on ne touche pas à `right`).
+  var intro = document.getElementById('btnIntroduction');
+  bouton.style.left = '';
+  if (window.innerWidth > 768 && intro && !intro.hidden && intro.getBoundingClientRect().width > 0) {
+    bouton.style.right = Math.round(document.documentElement.clientWidth - intro.getBoundingClientRect().left + 16) + 'px';
+  } else {
+    bouton.style.right = ''; bouton.style.left = '';
+    // Téléphone : quand la bande « Autres mots de la page » est en haut de la fiche (Lexique, modules/lexique), le bouton se place juste sous « Introduction » au lieu de recouvrir la bande ; sans bande, sa place habituelle.
+    var bande = document.querySelector('.mots-page-autres');
+    if (window.innerWidth <= 768 && bande && intro && !intro.hidden && intro.getBoundingClientRect().width > 0) {
+      bouton.style.top = Math.round(intro.getBoundingClientRect().bottom + 8) + 'px';
+      bouton.style.right = 'auto'; bouton.style.left = '16px';   // à gauche : la colonne d'icônes de droite reste libre
+    }
+  }
 }
 window._ajusterBoutonRetourModuleExterne = _ajusterBoutonRetourModuleExterne;
+// Au redimensionnement : on attend que la taille du texte (par paliers de largeur) soit appliquée avant de mesurer « Introduction ».
+if (typeof window !== 'undefined') {
+  var _minuteurAjusteRetourExterne = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(_minuteurAjusteRetourExterne);
+    _minuteurAjusteRetourExterne = setTimeout(_ajusterBoutonRetourModuleExterne, 250);
+  });
+}
+
+// Retour au bon endroit de la page (consigne 146, 07/11/2026) : un module qui envoie la personne lire une fiche du Lexique appelle cette fonction AVANT de partir ;
+// elle note la position de défilement et rend une fonction à appeler APRÈS avoir redessiné le module au retour (la page se remplit parfois en deux temps :
+// on rejoue la position pendant 1,5 seconde, et dès que la personne touche à la souris, au doigt ou au clavier, on la laisse tranquille).
+function memoriserPositionPourRetour() {
+  var y = window.pageYOffset || 0;
+  return function () {
+    var minuteurs = [];
+    function arreter() {
+      minuteurs.forEach(clearTimeout);
+      ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (ev) { window.removeEventListener(ev, arreter, true); });
+    }
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (ev) { window.addEventListener(ev, arreter, true); });
+    [0, 250, 700, 1500].forEach(function (t) { minuteurs.push(setTimeout(function () { window.scrollTo(0, y); }, t)); });
+    minuteurs.push(setTimeout(arreter, 1600));
+  };
+}
 
 function definirRetourModuleExterne(label, retour, moduleRoute, cibleRoute) {
   var etaitCache = !_provenanceExterneModule;

@@ -1659,7 +1659,7 @@ function ouvrirComparerPistes() {
     var confidPistes = 'Le texte reprend les informations déjà rassemblées sur vos pistes, sans votre nom. Rien n’est envoyé avant votre clic sur un assistant.';
     var configs = {
       collecte: {
-        ecran: 2, suffixe: 'CompCollecte', web: true, track: 'collecte', video: 'comparer-activer-recherche-web',
+        ecran: 2, suffixe: 'CompCollecte', web: true, track: 'collecte',
         texte: ecran2ConstruireTexte, traiter: ecran2TraiterCollage,
         verifier: function (t) { return !comparerParserCollecte(t).erreur; },
         module: {
@@ -1771,7 +1771,6 @@ function ouvrirComparerPistes() {
               : undefined
           })
         : '<p class="text-muted">Choix de l’assistant (composant partagé).</p>') +
-      (cfg.video && typeof htmlDeclencheurDemoVideo === 'function' ? htmlDeclencheurDemoVideo(cfg.video) : '') +
       '</div>' +
       (cfg.extraChoix ? cfg.extraChoix() : '') +
       (erreurChoix ? '<p class="cp-erreur">&#9888;&#65039; ' + echapperTexte(erreurChoix) + '</p>' : '');

@@ -1,0 +1,28 @@
+# Appuis des textes écrits à la main de « La France dans l'Union européenne » (ue-2026.md).
+# Fichier propre à l'outil de veille, jamais lu par l'application. Format et règles : outils/veilleAppuis.js (même adressage que le portrait).
+# Les phrases de « Lecture » citent des chiffres des rubriques « Taux de chômage » et « Chômage des jeunes » : leurs appuis pointent donc vers ces rubriques,
+# pour que le texte soit signalé « à relire » dès que le relevé change.
+
+texte: Lecture | Le taux de chômage français
+  valeur: Taux de chômage | France : #1 | valeur | 8,5
+  valeur: Taux de chômage | Moyenne UE-27 : #1 | valeur | 6,2
+  sens: Taux de chômage | Moyenne UE-27 : #1 | moins que | Taux de chômage | France : #1
+
+texte: Lecture | Cet écart n'est pas propre
+  valeur: Chômage des jeunes (moins de 25 ans) | France : #1 | valeur | 21,9
+  valeur: Chômage des jeunes (moins de 25 ans) | Moyenne UE-27 : #1 | valeur | 15,5
+  sens: Chômage des jeunes (moins de 25 ans) | Moyenne UE-27 : #1 | moins que | Chômage des jeunes (moins de 25 ans) | France : #1
+
+texte: Taux d'emploi des seniors (55 à 64 ans) | France :
+  valeur: Taux d'emploi des seniors (55 à 64 ans) | France : #1 | valeur | 61,7
+  valeur: Taux d'emploi des seniors (55 à 64 ans) | Moyenne UE-27 : #1 | valeur | 66,4
+  sens: Taux d'emploi des seniors (55 à 64 ans) | France : #1 | moins que | Taux d'emploi des seniors (55 à 64 ans) | Moyenne UE-27 : #1
+
+texte: Part du temps partiel | France :
+  valeur: Part du temps partiel | France : #1 | valeur | 16,7
+  valeur: Part du temps partiel | Moyenne UE-27 : #1 | valeur | 17,0
+
+texte: Diplômés du supérieur (25 à 64 ans) | France :
+  valeur: Diplômés du supérieur (25 à 64 ans) | France : #1 | valeur | 44,8
+  valeur: Diplômés du supérieur (25 à 64 ans) | Moyenne UE-27 : #1 | valeur | 36,9
+  sens: Diplômés du supérieur (25 à 64 ans) | Moyenne UE-27 : #1 | moins que | Diplômés du supérieur (25 à 64 ans) | France : #1

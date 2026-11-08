@@ -30,11 +30,12 @@ const ficheChamps = require('./veilleFiche.js');
 const fichesSas = require('./veilleFichesSas.js');
 const choix = require('./veilleChoix.js');
 const chiffres = require('./veilleChiffres.js');
+const appuis = require('./veilleAppuis.js');
 const sansNumero = require('./veilleSansNumero.js');
 const attente = require('./veilleAttente.js');
 const motsVerifies = require('./veilleMotsVerifies.js');
 const logiqueTerritoire = require('../modules/mon-territoire/logique.js');
-const RE_TERRITOIRE_CHIFFRES = /^(departements-region|regions-france|zones-emploi|entreprises-departements|salaires-insee|niveau-de-vie-insee|europe-eurostat|europe-economie-eurostat|smic-dares|pouvoir-achat-insee|(medecins|dentistes|pharmaciens|specialistes)-(departements-region|regions-france))\.md$/;
+const RE_TERRITOIRE_CHIFFRES = /^(departements-region|regions-france|zones-emploi|entreprises-departements|salaires-insee|niveau-de-vie-insee|age-insee|formation-insee|secteurs-insee|temps-partiel-insee|generalistes-insee|demandeurs-dares|portrait-chiffres|europe-eurostat|europe-economie-eurostat|smic-dares|pouvoir-achat-insee|(medecins|dentistes|pharmaciens|specialistes)-(departements-region|regions-france))\.md$/;
 
 // Les fichiers de chiffres que l'outil sait modifier : digest trimestriel, fiches de territoire, documents annuels (portrait, Europe) et fiches methode
 // (celles de « Comprendre les chiffres » : « methode/<id>.md » ; celles de « Comprendre le cadre » : « cadre-methode/<id>.md »). Rend { forme, chemin: [...] } ou null.
@@ -73,7 +74,8 @@ const CHEMIN_LEXIQUE = 'data/lexique.js';
 const RAYONS_HORS_FICHES = ['balayage', 'methode'];
 const DOSSIER_CADRE = ['modules', 'comprendre-le-cadre', 'contenu'];
 const DOSSIER_CHIFFRES = ['modules', 'comprendre-les-chiffres', 'contenu'];
-const FICHIERS_GENERES = [['outils', 'base_fiches.js'], ['data', 'lexique-renvois-cadre.js']];
+// Tous les fichiers que « genererBaseVeille.js » réécrit : sauvegardés avant, remis en cas d'échec, enregistrés avec la publication (leçon 9.122 : l'index de la recherche et les délais manquaient, un échec les laissait modifiés).
+const FICHIERS_GENERES = [['outils', 'base_fiches.js'], ['data', 'lexique-renvois-cadre.js'], ['data', 'indexFichesCadre.js'], ['modules', 'comprendre-le-cadre', 'donnees', 'delais.json']];
 
 // Lance une commande avec des arguments fixes (jamais un shell). Rend { code, sortie }.
 function lancerCommande(racine, programme, args, options) {
@@ -404,7 +406,8 @@ function creerDepot(racine, options) {
   function lireRepere() { try { return JSON.parse(fs.readFileSync(cheminRepere, 'utf8')); } catch (e) { return null; } }
   // Registres que l'outil modifie (suivis par Git) : un de ces fichiers modifié sans enregistrement = travail à reprendre ou à annuler.
   function cheminsSuivis() {
-    const l = [territoire.FICHIERS.lieux.chemin, territoire.FICHIERS.employeurs.chemin, territoire.FICHIERS.offres.chemin, attente.CHEMIN.join('/'), 'modules/comprendre-le-cadre/liens-verifies.txt'];
+    // Le journal des modifications en fait partie : une publication l'écrit en même temps que les registres, et un journal laissé modifié bloquerait tous les enregistrements suivants.
+    const l = [territoire.FICHIERS.lieux.chemin, territoire.FICHIERS.employeurs.chemin, territoire.FICHIERS.offres.chemin, attente.CHEMIN.join('/'), 'modules/comprendre-le-cadre/liens-verifies.txt', 'outils/journal_modifications.txt'];
     return l.concat(FICHIERS_GENERES.map(function (c) { return c.join('/'); }));
   }
   // Ce qui est resté en suspens : { chemins, resume, debut } ou null.
@@ -429,6 +432,7 @@ function creerDepot(racine, options) {
       branche: branche(),
       modifications: st.code === 0 ? st.sortie.split('\n').filter(Boolean).length : -1,
       annulable: !!derniere,
+      derniere: derniere ? { quand: derniere.quand || '', chemins: derniere.chemins.slice(0, 12), nb: derniere.chemins.length } : null,
       interrompue: interrompue()
     };
   }
@@ -499,6 +503,7 @@ function creerDepot(racine, options) {
     const nouvelles = [];
     const journalAjouts = [];
     let resumeListe = null, motsAjoutes = [], motsRemplaces = [], resumeLiens = null, resumeTerritoire = null, resumeSas = null, resumeSansNumero = null, resumeAttente = null, resumeChangements = null, resumeFichesSas = null;
+    const adresseChangee = {};   // « registre:identifiant » des fiches dont l'adresse du site change dans cette publication (elles sortent de la mise de côté)
     const resumeFiches = [], resumeChiffres = [], resumeLexique = [];
     for (const v of valides) {
       if (v.type === 'lexique') {
@@ -599,7 +604,8 @@ function creerDepot(racine, options) {
       if (v.type === 'fiche-champs') {
         const courantF = lireOuNull(path.resolve(racine, v.chemin));
         if (courantF === null) { return { ok: false, code: 'fiche-absente', erreur: v.nom + ' : cette fiche n\'existe pas (la creation d\'une fiche ne passe pas par cet ecran).' }; }
-        const tRegistre = lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS)), tLexique = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE));
+        // Le registre à jour de CET enregistrement : les sources ajoutées au registre en même temps que la fiche (fichier « liens » placé avant) sont déjà connues.
+        const tRegistre = prevus[liens.CHEMIN_LIENS] || lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS)), tLexique = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE));
         const ids = tLexique ? lexique.identifiantsExistants(tLexique.toString('utf8')) : null;
         const r = ficheChamps.appliquerModification(courantF.toString('utf8'), { changements: v.changements, revision: v.revision, formeSeule: v.formeSeule, datation: v.datation }, {
           aujourdhui: aujourdhui(),
@@ -612,7 +618,7 @@ function creerDepot(racine, options) {
         continue;
       }
       if (v.type === 'liens') {
-        const courantL = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const courantL = (prevus[v.chemin] || lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
         const r = liens.appliquer(courantL, v.actions, aujourdhui(), liens.usagesDesLiens(racine));
         if (!r.ok) { return { ok: false, code: 'liens', erreur: r.erreur }; }
         if (r.texte === courantL) { return { ok: false, code: 'liens-rien', erreur: 'Ces modifications ne changent rien au registre des adresses.' }; }
@@ -691,6 +697,10 @@ function creerDepot(racine, options) {
       }
       if (v.type === 'territoire') {
         const courantT = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        // Une fiche mise de côté (« site momentanément fermé ») dont l'adresse du site change retrouve son lien : elle sort de la mise de côté dans la même publication.
+        const champAdr = v.fichier === 'offres' ? 'page' : 'site', avantT = {};
+        territoire.analyser(courantT, territoire.FICHIERS[v.fichier].colonnes).lignes.forEach(function (x) { if (x.id) { avantT[x.id] = x.valeurs; } });
+        v.actions.forEach(function (a) { if (a && a.op === 'modifier' && a.valeurs && typeof a.valeurs[champAdr] === 'string' && avantT[a.id] && String(avantT[a.id][champAdr] || '').trim() !== a.valeurs[champAdr].trim()) { adresseChangee[v.fichier + ':' + a.id] = true; } });
         const r = territoire.appliquer(v.fichier, courantT, v.actions, aujourdhui(), territoire.contexteDepuis(racine, aujourdhui()));
         if (!r.ok) { return { ok: false, code: 'territoire', erreur: r.erreur }; }
         if (r.texte === courantT) { return { ok: false, code: 'territoire-rien', erreur: 'Rien à enregistrer : ces fiches sont déjà à jour (déjà vérifiées aujourd\'hui, ou aucun changement fait). Ce n\'est pas une erreur.' }; }
@@ -704,11 +714,16 @@ function creerDepot(racine, options) {
     // Une fiche retirée d'un registre quitte aussi la liste des fiches en attente (sinon une ligne orpheline resterait).
     const retirees = {};
     valides.forEach(function (v) { if (v.type === 'territoire') { v.actions.forEach(function (a) { if (a && a.op === 'supprimer') { retirees[v.fichier + ':' + a.id] = true; } }); } });
-    if (Object.keys(retirees).length) {
+    if (Object.keys(retirees).length || Object.keys(adresseChangee).length) {
       const cheminAtt = attente.CHEMIN.join('/'), courantAtt = courantDe(cheminAtt);
       if (courantAtt) {
-        const rAtt = attente.appliquer(courantAtt.toString('utf8'), [], aujourdhui(), null, retirees);
-        if (rAtt.ok && rAtt.texte !== courantAtt.toString('utf8')) { prevus[cheminAtt] = Buffer.from(rAtt.texte, 'utf8'); }
+        // Si la même publication met une fiche de côté ET change son adresse, la mise de côté explicite reste (on ne la défait pas dans le dos de la personne).
+        const dejaMises = {}; valides.forEach(function (v) { if (v.type === 'attente') { v.actions.forEach(function (a) { if (a && a.op === 'mettre') { dejaMises[a.registre + ':' + a.id] = true; } }); } });
+        const sorties = Object.assign({}, retirees), textePrevu = (prevus[cheminAtt] || courantAtt).toString('utf8');
+        const presentes = {}; logiqueTerritoire.mtParserAttente(textePrevu).lignes.forEach(function (x) { presentes[x.registre + ':' + x.id] = true; });
+        Object.keys(adresseChangee).forEach(function (k) { if (presentes[k] && !dejaMises[k]) { sorties[k] = true; journalAjouts.push(maintenant() + ' | ' + k.split(':')[0] + ' | ' + k.split(':')[1] + ' | réaffichée (nouvelle adresse du site)'); } });
+        const rAtt = attente.appliquer(textePrevu, [], aujourdhui(), null, sorties);
+        if (rAtt.ok && rAtt.texte !== textePrevu) { prevus[cheminAtt] = Buffer.from(rAtt.texte, 'utf8'); }
       }
     }
     if (journalAjouts.length) {
@@ -785,13 +800,13 @@ function creerDepot(racine, options) {
       return { ok: false, code: 'git', erreur: 'Git n\'a pas pu enregistrer (les fichiers restent ecrits, rien n\'est enregistre). Prevenez Claude.', details: commit.sortie };
     }
     const hash = git(['rev-parse', 'HEAD']).sortie.trim();
-    derniere = { hash: hash, chemins: chemins };
+    derniere = { hash: hash, chemins: chemins, quand: maintenant() };
     return {
       ok: true, commit: hash.slice(0, 8), fichiers: valides.map(function (v) { return v.chemin; }),
       nouvelles: nouvelles.map(function (v) { return v.nom.replace(/\.md$/, ''); }),
       nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens, resumeTerritoire: resumeTerritoire, resumeSas: resumeSas, resumeSansNumero: resumeSansNumero, resumeAttente: resumeAttente, resumeChangements: resumeChangements, resumeFichesSas: resumeFichesSas, resumeFiches: resumeFiches, resumeChiffres: resumeChiffres,
       avertissementsLexique: avertissementsLexique, resumeLexique: resumeLexique, resumeListe: resumeListe, remplaces: remplaces,
-      resteAFaire: valides.some(function (v) { return v.type === 'fiche'; }) ? ['Dater les nouvelles adresses : ouvrez « Les adresses » dans le panneau Dépôt, cliquez chaque lien, puis « Valider » (il faut ouvrir et juger chaque page).'] : []
+      resteAFaire: valides.some(function (v) { return v.type === 'fiche'; }) && !valides.some(function (v) { return v.type === 'liens'; }) ? ['Dater les nouvelles adresses : ouvrez « Les adresses » dans le panneau Dépôt, cliquez chaque lien, puis « Valider » (il faut ouvrir et juger chaque page).'] : []
     };
   }
 
@@ -817,7 +832,7 @@ function creerDepot(racine, options) {
       if (commit.code !== 0) { git(['reset', '-q', '--'].concat(i.chemins)); return { ok: false, code: 'git', erreur: 'Git n\'a pas pu ranger. Prévenez Claude.', details: commit.sortie }; }
       retirerRepere();
       const hash = git(['rev-parse', 'HEAD']).sortie.trim();
-      derniere = { hash: hash, chemins: i.chemins };
+      derniere = { hash: hash, chemins: i.chemins, quand: maintenant() };
       return { ok: true, action: 'termine', commit: hash.slice(0, 8), chemins: i.chemins };
     }
     return { ok: false, code: 'action', erreur: 'Action inconnue.' };
@@ -1072,6 +1087,33 @@ function creerDepot(racine, options) {
     return { ok: true, entrees: entrees.slice(0, 3000).map(function (e) { delete e.n; return e; }), total: entrees.length, aujourdhui: aujourdhui() };
   }
 
+  // Les « appuis » des textes écrits à la main (consigne 143, option 3 de A13) : fichier à part outils/appuis/<AAAA-MM | portrait-AAAA | ue-AAAA>.appuis.txt, jamais lu par l'application.
+  function cheminAppuis(nom) { return /^(\d{4}-(0[1-9]|1[0-2])|(portrait|ue)-\d{4})\.md$/.test(nom) ? path.resolve(racine, 'outils', 'appuis', nom.replace(/\.md$/, '') + '.appuis.txt') : null; }
+  // Lecture seule : compare les appuis déclarés aux chiffres actuels. Un fichier sans appuis déclarés rend { existe: false }.
+  function controlerAppuis(fichier) {
+    const nom = String(fichier || ''), cib = cibleChiffres(nom), chemin = cheminAppuis(nom);
+    if (!cib || (cib.forme !== 'digest' && cib.forme !== 'annuel') || !chemin) { return { ok: false, erreur: 'Les appuis ne sont déclarés que pour les fichiers trimestriels, le portrait et l\'Europe.' }; }
+    const brutDigest = lireOuNull(path.resolve(racine, ...cib.chemin)), brutAppuis = lireOuNull(chemin);
+    if (!brutDigest) { return { ok: false, erreur: 'Fichier introuvable.' }; }
+    if (!brutAppuis) { return { ok: true, fichier: nom, existe: false, textes: [], problemes: [], nbAppuis: 0 }; }
+    const r = appuis.controlerAppuis(brutDigest.toString('utf8'), brutAppuis.toString('utf8'), cib.forme);
+    if (!r.ok) { return { ok: false, erreur: r.erreur }; }
+    const relus = {};
+    appuis.lireAppuis(brutAppuis.toString('utf8')).textes.forEach(function (t) { const l = t.lignes.filter(function (x) { return x.type === 'relu_le'; })[0]; relus[t.cle] = l ? l.champs[0] : ''; });
+    return { ok: true, fichier: nom, existe: true, textes: r.textes.map(function (t) { return { cle: t.cle, alertes: t.alertes, nbAppuis: t.nbAppuis, reluLe: relus[t.cle] || '' }; }), problemes: r.problemes, nbAppuis: r.nbAppuis };
+  }
+  // « J'ai relu, le texte reste juste » : met à jour la déclaration du seul texte choisi (jamais le texte de l'application).
+  function relireAppuis(fichier, cleTexte) {
+    const nom = String(fichier || ''), cib = cibleChiffres(nom), chemin = cheminAppuis(nom);
+    if (!cib || (cib.forme !== 'digest' && cib.forme !== 'annuel') || !chemin) { return { ok: false, erreur: 'Les appuis ne sont déclarés que pour les fichiers trimestriels, le portrait et l\'Europe.' }; }
+    const brutDigest = lireOuNull(path.resolve(racine, ...cib.chemin)), brutAppuis = lireOuNull(chemin);
+    if (!brutDigest || !brutAppuis) { return { ok: false, erreur: 'Fichier introuvable.' }; }
+    const r = appuis.alignerAppuis(brutDigest.toString('utf8'), brutAppuis.toString('utf8'), String(cleTexte || ''), aujourdhui(), cib.forme);
+    if (!r.ok) { return r; }
+    try { fs.writeFileSync(chemin + '.tmp', r.texte, 'utf8'); fs.renameSync(chemin + '.tmp', chemin); } catch (e) { return { ok: false, erreur: 'Écriture impossible : ' + (e && e.message) }; }
+    return Object.assign({ ok: true, modifies: r.modifies }, { controle: controlerAppuis(nom) });
+  }
+
   // Les fichiers de « Comprendre les chiffres » que l'outil sait modifier (digests, fiches de territoire, portrait, Europe, fiches methode) ; lecture seule.
   function listerChiffres() {
     const dernieres = dernieresModifications('chiffres'), fichiers = [];
@@ -1115,6 +1157,7 @@ function creerDepot(racine, options) {
     }
     base.verifieLe = chiffres.verifieDe(lu.entete);
     base.sources = lu.sources.map(function (s) { return { id: s.id, titre: s.titre, url: s.url, date: s.date }; });
+    if (forme === 'territoire') { base.periodes = chiffres.periodesDeLEntete(lu.entete).map(function (p) { return { id: p.id, valeur: p.valeur }; }); }
     if (forme === 'digest') {
       base.entrees = lu.entrees.map(function (e) {
         const x = e.entree;
@@ -1124,7 +1167,7 @@ function creerDepot(racine, options) {
       });
     } else if (forme === 'territoire') {
       base.lieux = lu.blocs.map(function (b) {
-        return { lieu: b.nom, groupe: b.groupe, champs: b.champs.filter(function (c) { return c.cle !== 'sources'; }).map(function (c) { return { cle: c.cle, valeur: c.valeur, forme: chiffres.FORMES_CHAMP[c.cle] || 'txt' }; }), sources: b.sources, prose: b.prose };
+        return { lieu: b.nom, groupe: b.groupe, champs: b.champs.filter(function (c) { return c.cle !== 'sources'; }).map(function (c) { return { cle: c.cle, valeur: c.valeur, forme: chiffres.formeDuChamp(c.cle) || 'txt' }; }), sources: b.sources, prose: b.prose };
       });
       base.formes = chiffres.AIDE_FORME; base.champsPossibles = Object.keys(chiffres.FORMES_CHAMP);
     } else {
@@ -1148,7 +1191,12 @@ function creerDepot(racine, options) {
     if (!r.ok) { return { ok: true, valide: false, erreur: r.erreur, bloquants: r.bloquants || [], alertes: r.alertes || [] }; }
     let lignes = '';
     if (cib.forme === 'digest') { const e = chiffres.lireDigest(r.texte).entrees.filter(function (x) { return x.ref === demande.ref; })[0]; lignes = e ? e.brutes.join('\n') : ''; }
-    else if (cib.forme === 'territoire') { const b = chiffres.lireTerritoire(r.texte).blocs.filter(function (x) { return x.nom === demande.lieu && (!demande.groupe || x.groupe === demande.groupe); })[0]; lignes = b ? b.lignesBrutes.join('\n') : ''; }
+    else if (cib.forme === 'territoire') { const b = chiffres.lireTerritoire(r.texte).blocs.filter(function (x) { return x.nom === demande.lieu && (!demande.groupe || x.groupe === demande.groupe); })[0]; lignes = b ? b.lignesBrutes.join('\n') : '';
+      // les périodes changées s'écrivent dans l'en-tête du fichier : on les montre aussi
+      const idsPeriodes = demande.periodes && typeof demande.periodes === 'object' ? Object.keys(demande.periodes) : [];
+      const periodesEcrites = chiffres.periodesDeLEntete(chiffres.lireTerritoire(r.texte).entete).filter(function (x) { return idsPeriodes.indexOf(x.id) !== -1; });
+      if (periodesEcrites.length) { lignes += '\n\nEn-tête du fichier, périodes :\n' + periodesEcrites.map(function (x) { return '  - "' + x.id + ' | ' + x.valeur + '"'; }).join('\n'); }
+    }
     else if (cib.forme === 'annuel' && chiffres.lireAnnuel(texte).paragraphes.some(function (y) { return y.ref === demande.ref; })) {
       const ancien = chiffres.lireAnnuel(texte).paragraphes.filter(function (y) { return y.ref === demande.ref; })[0], nouveau = chiffres.lireAnnuel(r.texte);
       const q = nouveau.paragraphes.filter(function (x) { return x.section === ancien.section && x.rang === ancien.rang; })[0];
@@ -1325,7 +1373,7 @@ function creerDepot(racine, options) {
     (lignes || []).forEach(function (l) {
       const brut = l && l.valeurs && l.valeurs.etablissements;
       if (!brut) { return; }
-      l.etabs = logiqueTerritoire.mtParserEtablissements(brut).map(function (e) { const c = codes[logiqueTerritoire.mtNormaliser(e.commune)]; return { commune: e.commune, adresse: e.adresse, dep: c ? String(c).slice(0, 2) : '' }; });
+      l.etabs = logiqueTerritoire.mtParserEtablissements(brut).map(function (e) { const c = codes[logiqueTerritoire.mtNormaliser(e.commune)]; return { commune: e.commune, adresse: e.adresse, telephone: e.telephone || '', dep: c ? String(c).slice(0, 2) : '' }; });
     });
   }
 
@@ -1360,7 +1408,22 @@ function creerDepot(racine, options) {
   }
 
   // ---------- Le sas des fiches du cadre : ce que l'assistant propose (mise a jour, nouvelle fiche, retrait), a valider une par une. Lecture seule : l'ecriture passe par /api/publier. ----------
+  function fichesPourRessemblance(rayons) {
+    const sortie = [];
+    rayons.forEach(function (rayon) {
+      const dossier = path.resolve(racine, ...DOSSIER_CADRE, rayon);
+      let noms = []; try { noms = fs.readdirSync(dossier); } catch (e) { return; }
+      noms.filter(function (n) { return RE_FICHE.test(n) && !/\.collecte\.md$/.test(n) && n !== 'readme.md'; }).forEach(function (n) {
+        const brut = lireOuNull(path.join(dossier, n)), fi = brut ? ficheChamps.lire(brut.toString('utf8')) : { ok: false };
+        if (!fi.ok) { return; }
+        const c = ficheChamps.champs(fi);
+        sortie.push({ id: n.replace(/\.md$/, ''), rayon: rayon, titre: typeof c.titre === 'string' ? c.titre : '', tags: Array.isArray(c.tags) ? c.tags : [], sources: Array.isArray(c.sources) ? c.sources : [], statut: typeof c.statut === 'string' ? c.statut : 'actif', texte: ficheChamps.corpsDe(fi) });
+      });
+    });
+    return sortie;
+  }
   function contexteFichesSas(rayonChoisi) {
+    let cacheExistantes = null;
     const rayons = rayonsExistants(racine).filter(function (r) { return r !== 'methode'; });
     const tRegistre = lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS)), tLexique = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE));
     const registre = tRegistre ? liens.analyser(tRegistre.toString('utf8')).lignes.filter(function (l) { return l.nom; }) : null;
@@ -1371,6 +1434,8 @@ function creerDepot(racine, options) {
         for (const r of rayons) { const t = lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, r, id + '.md')); if (t) { return { rayon: r, texte: t.toString('utf8') }; } }
         return null;
       },
+      // Toutes les fiches publiées (tous rayons), pour dire si une nouvelle proposition ressemble à l'une d'elles (lues une seule fois par contexte).
+      fichesExistantes: function () { if (!cacheExistantes) { cacheExistantes = fichesPourRessemblance(rayons); } return cacheExistantes; },
       sourcesConnues: registre ? registre.map(function (l) { return l.nom; }) : null,
       lexiqueIds: tLexique ? lexique.identifiantsExistants(tLexique.toString('utf8')) : null,
       adresseDe: function (nom) { const l = registre && registre.filter(function (x) { return x.nom === nom; })[0]; return l ? l.adresse : ''; }
@@ -1401,8 +1466,9 @@ function creerDepot(racine, options) {
     if (!r.ok) { return r; }
     r.items = r.items.map(function (it) {
       if (d && d.fiche && it.genre !== 'brut') { /* une reponse collee DANS une carte remplace la proposition de cette fiche */ if (it.fiche !== d.fiche) { r.notes.push('La fiche « ' + it.fiche + ' » n\'est pas celle de cette carte (« ' + d.fiche + ' ») : gardée telle quelle, à part.'); } }
-      const ev = fichesSas.evaluer(it, cx);
-      return { proposition: it, problemes: ev.problemes, exigeRevision: ev.exigeRevision, champsChanges: ev.champsChanges, corps: ev.corps, id: fichesSas.idDe(it.genre, it.fiche, it.champs && it.champs.texte) };
+      // Les adresses données par le bloc [SOURCES] de la réponse comptent déjà à la lecture (elles sont gardées avec la proposition à l'import) : pas de fausse alerte « source sans adresse ».
+      const ev = fichesSas.evaluer(Object.assign({}, it, { sources_detail: it.sourcesDetail || [] }), cx);
+      return { proposition: it, problemes: ev.problemes, ressemble: ev.ressemble || [], exigeRevision: ev.exigeRevision, champsChanges: ev.champsChanges, corps: ev.corps, id: fichesSas.idDe(it.genre, it.fiche, it.champs && it.champs.texte) };
     });
     r.aujourdhui = aujourdhui();
     return r;
@@ -1415,7 +1481,7 @@ function creerDepot(racine, options) {
     return { ok: true, prompt: fichesSas.construirePrompt(rec, contexteFichesSas(rec.rayon), d && d.socle) };
   }
 
-  return { marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
+  return { marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, controlerAppuis: controlerAppuis, relireAppuis: relireAppuis, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
 }
 
 module.exports = { analyserCandidatsLexique: analyserCandidatsLexique, integrerCandidatsLexique: integrerCandidatsLexique, creerDepot: creerDepot, validerFichier: validerFichier, ajouterLigneReadme: ajouterLigneReadme, rayonsExistants: rayonsExistants, lancerCommande: lancerCommande, TAILLE_MAX: TAILLE_MAX };

@@ -2,6 +2,8 @@
 verifie_le: 2026-11-06
 sources:
   - "insee-estimation-population-2023 | Insee, Estimation de population au 1er janvier 2023, par département, sexe et âge quinquennal (données 2023) | https://www.insee.fr/fr/statistiques/1893198 | 2026-11-06"
+periodes:
+  - "insee-estimation-population-2023 | 2023"
 ---
 
 # departements

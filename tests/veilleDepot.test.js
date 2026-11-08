@@ -398,6 +398,27 @@ test('publier : les adresses (valider, modifier, ajouter, supprimer) s\'enregist
   } finally { nettoyer(d); }
 });
 
+test('publier : une source nouvelle est ajoutee au registre (datee) dans le MEME enregistrement que la fiche qui la cite ; en http elle est refusee', () => {
+  const d = creerDepotDeTest();
+  try {
+    ecrire(d, 'modules/comprendre-le-cadre/liens-verifies.txt', '# Registre\n\nlegifrance | https://www.legifrance.gouv.fr/ | 2026-09-06 | national\n');
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md', '---\nid: emploi-un\nrayon: emploi\ntitre: "Premier"\ntags: [a, b]\nverifie_le: 2026-09-01\nrevisions: []\nsources:\n  - legifrance\n---\n\nPremier paragraphe.\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'fiche');
+    const depot = creerDepot(d, { aujourdhui: () => '2026-11-07', maintenant: () => '2026-11-07 10:00' });
+    const fic = { type: 'fiche-champs', rayon: 'emploi', nom: 'emploi-un.md', datation: 'garder', changements: { sources: ['legifrance', 'service-public-ass'] }, revision: 'source ajoutee' };
+    // sans l'ajout au registre : refus
+    assert.ok(!depot.publier([fic]).ok);
+    // adresse en http : refus du registre
+    assert.ok(!depot.publier([{ type: 'liens', actions: [{ op: 'ajouter', nom: 'service-public-ass', adresse: 'http://service-public.example.fr/ass', portee: 'national', dater: true }] }, fic]).ok);
+    // adresse https : la source entre au registre (datee du jour) et la fiche la cite, en une seule fois
+    const r = depot.publier([{ type: 'liens', actions: [{ op: 'ajouter', nom: 'service-public-ass', adresse: 'https://www.service-public.fr/ass', portee: 'national', dater: true }] }, fic]);
+    assert.ok(r.ok, JSON.stringify(r));
+    assert.match(fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/liens-verifies.txt'), 'utf8'), /service-public-ass \| https:\/\/www\.service-public\.fr\/ass \| 2026-11-07 \| national/);
+    assert.match(fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md'), 'utf8'), /service-public-ass/);
+    assert.ok(depot.annuler().ok);
+  } finally { nettoyer(d); }
+});
+
 test('publier : une fiche du cadre modifiee champ par champ s\'enregistre avec sa revision et son heure ; refus clairs ; echec des tests = tout remis ; annulable', () => {
   const d = creerDepotDeTest();
   try {
@@ -552,5 +573,34 @@ test('chiffres : lister, lire et modifier un digest et un lieu ; la confirmation
     assert.ok(!pub('methode/../../x.md', { changes: { titre: 'x' } }).ok);
     const j2 = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
     assert.ok(j2.indexOf('| chiffres | methode/comment-lire.md | texte modifié | titre et texte') !== -1);
+  } finally { nettoyer(d); }
+});
+
+test('chiffres : le portrait (age-insee) se lit avec ses périodes, et une période se change par le dépôt, avec annulation (consigne 146)', () => {
+  const d = creerDepotDeTest();
+  try {
+    const REEL = fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-chiffres', 'contenu', 'age-insee.md'), 'utf8').replace(/\r\n/g, '\n');
+    ecrire(d, 'modules/comprendre-les-chiffres/contenu/age-insee.md', REEL);
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'portrait');
+    const depot = creerDepot(d, { aujourdhui: () => '2026-12-20', maintenant: () => '2026-12-20 10:00' });
+    const l = depot.listerChiffres();
+    assert.ok(l.fichiers.some((f) => f.fichier === 'age-insee.md' && f.forme === 'territoire'), 'le fichier est proposé dans la liste');
+    const g = depot.lireChiffres('age-insee.md');
+    assert.ok(g.ok && g.forme === 'territoire');
+    assert.deepStrictEqual(g.periodes, [{ id: 'insee-estimation-population-2023', valeur: '2023' }]);
+    const lieu = g.lieux[0];
+    const r = depot.publier([{ type: 'chiffres-champs', nom: 'age-insee.md', phrase: 'période et part des 65 ans', demande: { lieu: lieu.lieu, groupe: lieu.groupe, champs: { part_65_plus: '20,1 %' }, periodes: { 'insee-estimation-population-2023': '2024' }, confirmeSource: true } }]);
+    assert.ok(r.ok, JSON.stringify(r));
+    const apres = fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/age-insee.md'), 'utf8');
+    assert.ok(apres.indexOf('  - "insee-estimation-population-2023 | 2024"') !== -1 && apres.indexOf('part_65_plus: 20,1 %') !== -1);
+    assert.deepStrictEqual(depot.lireChiffres('age-insee.md').periodes, [{ id: 'insee-estimation-population-2023', valeur: '2024' }]);
+    assert.ok(depot.annuler().ok);
+    assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/age-insee.md'), 'utf8'), REEL);
+    // les six autres fichiers du portrait sont pris en charge, et un fichier voisin ne l'est pas
+    ['formation-insee.md', 'secteurs-insee.md', 'temps-partiel-insee.md', 'generalistes-insee.md', 'demandeurs-dares.md', 'portrait-chiffres.md'].forEach((f) => {
+      ecrire(d, 'modules/comprendre-les-chiffres/contenu/' + f, fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-chiffres', 'contenu', f), 'utf8').replace(/\r\n/g, '\n'));
+      assert.ok(depot.lireChiffres(f).ok, f);
+    });
+    assert.ok(!depot.lireChiffres('age-inconnu.md').ok);
   } finally { nettoyer(d); }
 });

@@ -1,0 +1,23 @@
+{
+ "code": "H3301",
+ "coeur": [
+  "Surveiller l'approvisionnement des machines, des installations et le flux des matières ou des produits",
+  "Surveiller le fonctionnement de la machine ou de la ligne de conditionnement et des appareils de contrôle et ajuster en cas d'écarts",
+  "Vérifier la conformité du conditionnement des produits (étanchéité, poids, température, etc.)",
+  "Adapter et optimiser sa pratique au contexte et aux risques professionnels (gestes, postures, ergonomie)",
+  "Approvisionner une machine en matière première ou en produit",
+  "Conditionner des produits",
+  "Assurer la propreté de la zone de travail",
+  "Optimiser l'utilisation des ressources pour réduire les déchets"
+ ],
+ "savoirs": [
+  "Gestes et postures de manutention",
+  "Techniques d'embouteillage",
+  "Techniques de désinfection des surfaces",
+  "Règles et consignes de sécurité",
+  "Pilotage en salle de commande",
+  "Techniques de colisage",
+  "Techniques d'encartonnage",
+  "Techniques d'ensachage"
+ ]
+}

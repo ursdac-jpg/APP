@@ -20,6 +20,9 @@ sources:
   - "solidarites-precarite-alimentaire | Lutter contre la précarité alimentaire (réseaux habilités, épiceries sociales et solidaires) | https://solidarites.gouv.fr/lutter-contre-la-precarite-alimentaire | 2026-09-06"
   - "restos-du-coeur-aide-alimentaire | Les aides alimentaires des Restos du Cœur | https://www.restosducoeur.org/nos-actions/aide-alimentaire/ | 2026-09-04"
   - "service-public-saisie-remuneration | Saisie sur salaire (saisie des rémunérations) | https://www.service-public.gouv.fr/particuliers/vosdroits/F115 | 2026-09-05"
+  - "solidarites-colis-alimentaires | Ministère des Solidarités : les distributions de colis ou paniers alimentaires | https://solidarites.gouv.fr/les-distributions-de-colis-alimentaires-ou-paniers-alimentaires | 2026-11-05"
+  - "solidarites-etude-epiceries-sociales | Ministère des Solidarités : étude qualitative sur les épiceries sociales | https://solidarites.gouv.fr/etude-qualitative-sur-les-epiceries-sociales | 2026-11-05"
+  - "service-public-ass | Service Public : allocation de solidarité spécifique (ASS) | https://www.service-public.gouv.fr/particuliers/vosdroits/F12484 | 2026-11-07"
 structures:
   - "point-conseil-budget-annuaire | Points conseil budget : accompagnement budgétaire gratuit et confidentiel, aide au dossier de surendettement. Annuaire par territoire. | https://lannuaire.service-public.gouv.fr/navigation/pcb | 2026-09-04"
   - "mesquestionsdargent-pcb | Mes questions d'argent (Banque de France) : trouver un point conseil budget, information sur le budget et l'endettement | https://www.mesquestionsdargent.fr/ | 2026-09-04"

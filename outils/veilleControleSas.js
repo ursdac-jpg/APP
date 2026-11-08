@@ -97,7 +97,7 @@ function creerControleSas(racine, depot, options) {
     async function travailleur() {
       while (suivant < cartes.length) {
         const c = cartes[suivant++];
-        const sortie = { date: date };
+        const sortie = { date: date, nom: c.nom || '' };
         const numerosTrouves = {};
         c.numeros.forEach(function (n) { numerosTrouves[n] = false; });
         if (!c.site) { sortie.site = { url: '', etat: 'absente', detail: 'La carte n\'a pas de site : cherchez-le avec « Chercher le site sur le web ».' }; }
@@ -150,7 +150,7 @@ function creerControleSas(racine, depot, options) {
   function suiteMensuelle() {
     if (!mensuel.enCours) { return; }
     if (!mensuel.suite.length) { mensuel.enCours = false; return; }
-    const r = demarrer({ genre: 'registre', fichier: mensuel.suite.shift(), tout: true });
+    const prochain = mensuel.suite.shift(), r = demarrer(typeof prochain === 'string' ? { genre: 'registre', fichier: prochain, tout: true } : { genre: 'registre', fichier: prochain.fichier, ids: prochain.ids });
     if (!r.ok) { mensuel.enCours = false; mensuel.erreur = r.erreur || 'Le test s\'est arrêté.'; }
   }
   function demarrerMensuel() {
@@ -160,22 +160,145 @@ function creerControleSas(racine, depot, options) {
     if (!r.ok) { mensuel.enCours = false; return r; }
     return { ok: true, registres: ORDRE_MENSUEL.length };
   }
+  // Retester seulement les fiches mises de côté (sites fermés), sans refaire tout le test : les résultats des autres fiches ne bougent pas, et la date du « dernier test complet » non plus.
+  function demarrerMisesDeCote() {
+    if (travail.enCours) { return { ok: false, erreur: 'Un contrôle est déjà en cours : attendez sa fin.' }; }
+    const etapes = [];
+    ORDRE_MENSUEL.forEach(function (fichier) {
+      const liste = depot.listerTerritoire(fichier), ids = liste && liste.ok ? liste.lignes.filter(function (l) { return l.attente; }).map(function (l) { return l.id; }) : [];
+      if (ids.length) { etapes.push({ fichier: fichier, ids: ids }); }
+    });
+    if (!etapes.length) { return { ok: false, erreur: 'Aucune fiche n’est mise de côté : rien à retester.' }; }
+    mensuel = { enCours: true, suite: etapes.slice(1), erreur: '', debut: String(opt.maintenant ? opt.maintenant() : new Date().toISOString()).slice(0, 16).replace('T', ' ') };
+    const r = demarrer({ genre: 'registre', fichier: etapes[0].fichier, ids: etapes[0].ids });
+    if (!r.ok) { mensuel.enCours = false; return r; }
+    return { ok: true, fiches: etapes.reduce(function (n, e) { return n + e.ids.length; }, 0) };
+  }
   const MOTIFS_A_TRAITER = ['introuvable', 'ailleurs'];
+  // Une adresse à traiter : disparue ou menant ailleurs. Une page de protection contre les robots (le site refuse d'être lu) n'est pas une adresse disparue : elle reste « à ouvrir à la main ».
+  function problemeDuTest(x) { return MOTIFS_A_TRAITER.indexOf(x.motif) !== -1 && !(x.motif === 'ailleurs' && RE_PROTECTION_ROBOTS.test((x.site && x.site.finale) || '')); }
+  function champAdresse(fichier) { return fichier === 'offres' ? 'page' : 'site'; }
+  // « Garder telle quelle » : une redirection normale (justice.fr vers justice.gouv.fr) n'est pas à corriger. Le choix est retenu avec l'adresse testée ET l'adresse d'arrivée ;
+  // si l'une des deux change, la ligne revient d'elle-même. Fichier à part, sur ce poste seulement (dossier ignoré par Git). Seul le motif « mène ailleurs » peut être gardé.
+  const cheminGardees = path.resolve(racine, ...DOSSIER, 'test_mois_gardees.json');
+  function lireGardees() { try { const j = JSON.parse(fs.readFileSync(cheminGardees, 'utf8')); return (j && j.gardees && typeof j.gardees === 'object') ? j.gardees : {}; } catch (e) { return {}; } }
+  function ecrireGardees(g) {
+    try { fs.mkdirSync(path.dirname(cheminGardees), { recursive: true }); const tmp = cheminGardees + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ version: 1, gardees: g }), 'utf8'); fs.renameSync(tmp, cheminGardees); return true; } catch (e) { return false; }
+  }
+  function jourDuPoste() { return String(opt.maintenant ? opt.maintenant() : new Date().toISOString()).slice(0, 10); }
+  function garderTelleQuelle(donnees) {
+    const d = donnees || {}, fichier = String(d.fichier || ''), id = String(d.id || '');
+    if (ORDRE_MENSUEL.indexOf(fichier) === -1 || !RE_ID.test(id)) { return { ok: false, erreur: 'Cette fiche n’est pas dans le test du mois.' }; }
+    const x = espace('registre', fichier).resultats[id];
+    if (!x || x.motif !== 'ailleurs' || !problemeDuTest(x)) { return { ok: false, erreur: 'Seule une adresse qui mène vers un autre site peut être gardée telle quelle.' }; }
+    const g = lireGardees();
+    g[fichier + ':' + id] = { url: (x.site && x.site.url) || '', finale: (x.site && x.site.finale) || '', date: jourDuPoste() };
+    return ecrireGardees(g) ? { ok: true } : { ok: false, erreur: 'Le choix n’a pas pu être gardé sur ce poste.' };
+  }
+  // « Prendre la nouvelle adresse » : le serveur rend l'adresse d'ARRIVÉE du test (jamais une adresse envoyée par la fenêtre) et le champ de la fiche à remplacer.
+  // Rien n'est écrit ici : la fenêtre publie ensuite par le circuit du Dépôt (essais, annulation possible), après la confirmation de Denis.
+  function nouvelleAdresse(donnees) {
+    const d = donnees || {}, fichier = String(d.fichier || ''), id = String(d.id || '');
+    if (ORDRE_MENSUEL.indexOf(fichier) === -1 || !RE_ID.test(id)) { return { ok: false, erreur: 'Cette fiche n’est pas dans le test du mois.' }; }
+    const x = espace('registre', fichier).resultats[id];
+    if (!x || x.motif !== 'ailleurs' || !problemeDuTest(x)) { return { ok: false, erreur: 'Seule une adresse qui mène vers un autre site peut être remplacée par son adresse d’arrivée.' }; }
+    const arrivee = adresseHttps(x.site && x.site.finale), testee = (x.site && x.site.url) || '';
+    if (!arrivee) { return { ok: false, erreur: 'L’adresse d’arrivée n’est pas une adresse https : ouvrez la fiche et corrigez-la à la main.' }; }
+    const liste = depot.listerTerritoire(fichier), ligne = liste && liste.ok ? liste.lignes.filter(function (l) { return l.id === id; })[0] : null;
+    if (!ligne) { return { ok: false, erreur: 'Cette fiche n’existe plus dans le registre.' }; }
+    const champ = champAdresse(fichier), actuelle = adresseHttps((ligne.valeurs || {})[champ]);
+    if (actuelle !== testee) { return { ok: false, erreur: 'L’adresse de la fiche a changé depuis le test : refaites le test.' }; }
+    return { ok: true, champ: champ, adresse: arrivee, ancienne: actuelle, nom: (ligne.valeurs && ligne.valeurs.nom) || ligne.nom || id };
+  }
+  // « J'ai vérifié le numéro de téléphone » : Denis a joint le numéro (ou l'a trouvé sur la page) et il est bon. Le choix est retenu sur ce poste avec les numéros de la fiche à ce moment-là ;
+  // tant que les numéros de la fiche sont ceux-là, le test ne les montre plus comme « non retrouvés » (le résultat du test lui-même n'est jamais modifié). Un numéro qui change : la mention tombe d'elle-même.
+  const cheminNumeros = path.resolve(racine, ...DOSSIER, 'test_numeros_verifies.json');
+  function lireNumeros() { try { const j = JSON.parse(fs.readFileSync(cheminNumeros, 'utf8')); return (j && j.numeros && typeof j.numeros === 'object') ? j.numeros : {}; } catch (e) { return {}; } }
+  function ecrireNumeros(n) {
+    try { fs.mkdirSync(path.dirname(cheminNumeros), { recursive: true }); const tmp = cheminNumeros + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ version: 1, numeros: n }), 'utf8'); fs.renameSync(tmp, cheminNumeros); return true; } catch (e) { return false; }
+  }
+  function chiffres(n) { return String(n || '').replace(/\D/g, ''); }
+  function numerosDesFiches(fichier) {
+    const liste = depot.listerTerritoire(fichier), m = {};
+    if (liste && liste.ok) { liste.lignes.forEach(function (l) { m[l.id] = tachesDeCarte(l, fichier).numeros.map(chiffres).filter(Boolean); }); }
+    return m;
+  }
+  // Rend les résultats du test avec les numéros vérifiés à la main comptés comme retrouvés ; le verdict « numéro à compléter » devient « complet » s'il ne restait que cela.
+  function avecNumerosVerifies(fichier, res) {
+    const ver = lireNumeros(), ids = Object.keys(res || {}).filter(function (id) { return ver[fichier + ':' + id] && (res[id].numeros || []).some(function (n) { return !n.trouve; }); });
+    if (!ids.length) { return res; }
+    const courants = numerosDesFiches(fichier), sortie = Object.assign({}, res);
+    ids.forEach(function (id) {
+      const v = ver[fichier + ':' + id], actuels = courants[id];
+      if (!actuels || !actuels.length || !actuels.every(function (n) { return (v.numeros || []).indexOf(n) !== -1; })) { return; }
+      const x = Object.assign({}, res[id]);
+      x.numeros = x.numeros.map(function (n) { return n.trouve ? n : Object.assign({}, n, { trouve: true, verifieMain: v.date || '' }); });
+      if (x.verdict === 'partiel' && x.motif === 'numero') { x.verdict = 'complet'; x.motif = ''; }
+      sortie[id] = x;
+    });
+    return sortie;
+  }
+  function numeroVerifie(donnees) {
+    const d = donnees || {}, fichier = String(d.fichier || ''), id = String(d.id || '');
+    if (['lieux', 'employeurs'].indexOf(fichier) === -1 || !RE_ID.test(id)) { return { ok: false, erreur: 'Cette fiche n’a pas de numéro à vérifier ici.' }; }
+    const liste = depot.listerTerritoire(fichier), ligne = liste && liste.ok ? liste.lignes.filter(function (l) { return l.id === id; })[0] : null;
+    if (!ligne) { return { ok: false, erreur: 'Cette fiche n’existe plus dans le registre.' }; }
+    // Le numéro tapé dans la fiche (corrigé ou non) s'ajoute à ceux de la fiche enregistrée : les deux sont reconnus.
+    const numeros = tachesDeCarte(ligne, fichier).numeros.map(chiffres);
+    String(d.numero || '').split(/[;,\/]/).forEach(function (n) { numeros.push(chiffres(n)); });
+    const gardes = numeros.filter(function (n, i) { return n.length >= 9 && numeros.indexOf(n) === i; });
+    if (!gardes.length) { return { ok: false, erreur: 'Aucun numéro à vérifier sur cette fiche.' }; }
+    const tous = lireNumeros(); tous[fichier + ':' + id] = { numeros: gardes, date: jourDuPoste() };
+    return ecrireNumeros(tous) ? { ok: true } : { ok: false, erreur: 'Le choix n’a pas pu être gardé sur ce poste.' };
+  }
+  function nePlusGarderTelleQuelle(donnees) {
+    const d = donnees || {}, cle = String(d.fichier || '') + ':' + String(d.id || ''), g = lireGardees();
+    if (!g[cle]) { return { ok: false, erreur: 'Cette adresse n’est pas gardée.' }; }
+    delete g[cle];
+    return ecrireGardees(g) ? { ok: true } : { ok: false, erreur: 'Le choix n’a pas pu être gardé sur ce poste.' };
+  }
   function bilanMensuel() {
     const maintenant = String(opt.maintenant ? opt.maintenant() : new Date().toISOString()).slice(0, 10);
+    const gardees = lireGardees();
     const registres = ORDRE_MENSUEL.map(function (fichier) {
-      const liste = depot.listerTerritoire(fichier), res = espace('registre', fichier).resultats;
+      const liste = depot.listerTerritoire(fichier), res = avecNumerosVerifies(fichier, espace('registre', fichier).resultats);
       const lignes = liste && liste.ok ? liste.lignes : [];
-      const r = { fichier: fichier, cartes: lignes.length, controlees: 0, derniere: '', complet: 0, partiel: 0, main: 0, motifs: {}, problemes: [] };
+      const r = { fichier: fichier, cartes: lignes.length, controlees: 0, derniere: '', complet: 0, partiel: 0, main: 0, gardees: 0, motifs: {}, problemes: [], misesDeCote: [], deCoteAProbleme: 0 };
       lignes.forEach(function (l) {
-        const x = res[l.id]; if (!x) { return; }
+        const x = res[l.id];
+        // Une fiche mise de côté (« site momentanément fermé ») n'est plus « à corriger » : elle va dans son propre groupe, avec ce que le dernier test en dit.
+        if (l.attente) {
+          const site = x && x.site, champ = champAdresse(fichier), actuelle = adresseHttps((l.valeurs || {})[champ]), testee = (site && site.url) || '';
+          let test = 'pas-teste';
+          if (site) { test = site.etat === 'repond' ? 'revenu' : (site.etat === 'absente' ? 'ferme' : (site.etat === 'ailleurs' && problemeDuTest(x) ? 'ailleurs' : 'incertain')); }
+          if (x && problemeDuTest(x)) { r.deCoteAProbleme++; }
+          r.misesDeCote.push({ id: l.id, nom: (l.valeurs && l.valeurs.nom) || l.nom || l.id, libelle: l.attente.libelle, motif: l.attente.motif, constat: l.attente.constat, jours: l.attente.jours, arevoir: !!l.attente.arevoir, test: test, testeLe: (x && x.date) || '', url: testee, finale: (site && site.finale) || '', urlActuelle: actuelle, adresseChangee: !!testee && testee !== actuelle });
+        }
+        if (!x) { return; }
         r.controlees++;
         if (x.date && (!r.derniere || x.date < r.derniere)) { r.derniere = x.date; }   // la plus ancienne : le registre n'est « à jour » que si toutes ses cartes l'ont été
         r[x.verdict] = (r[x.verdict] || 0) + 1;
         if (x.motif) { r.motifs[x.motif] = (r.motifs[x.motif] || 0) + 1; }
         // Une page de protection contre les robots (le site refuse d'être lu) n'est pas une adresse disparue : elle reste « à ouvrir à la main ».
-        if (MOTIFS_A_TRAITER.indexOf(x.motif) !== -1 && !(x.motif === 'ailleurs' && RE_PROTECTION_ROBOTS.test((x.site && x.site.finale) || ''))) { r.problemes.push({ id: l.id, nom: (l.valeurs && l.valeurs.nom) || l.nom || l.id, motif: x.motif, url: (x.site && x.site.url) || '', finale: (x.site && x.site.finale) || '' }); }
+        if (problemeDuTest(x) && !l.attente) {
+          // « etat » : a-corriger (la fiche porte toujours l'adresse testée), corrigee (l'adresse de la fiche n'est plus celle du test), supprimee (la fiche n'existe plus).
+          const testee = (x.site && x.site.url) || '', actuelle = adresseHttps(((l.valeurs || {})[champAdresse(fichier)]));
+          const corrigee = testee !== actuelle, finaleTestee = (x.site && x.site.finale) || '', gd = gardees[fichier + ':' + l.id];
+          const gardee = !corrigee && x.motif === 'ailleurs' && gd && gd.url === testee && gd.finale === finaleTestee;
+          if (gardee) { r.gardees++; }
+          r.problemes.push({ id: l.id, nom: (l.valeurs && l.valeurs.nom) || l.nom || l.id, motif: x.motif, url: testee, finale: finaleTestee, etat: corrigee ? 'corrigee' : (gardee ? 'gardee' : 'a-corriger'), urlActuelle: corrigee ? actuelle : '', gardeeLe: gardee ? gd.date || '' : '' });
+        }
       });
+      // Les fiches supprimées depuis le test : on ne les voit plus dans le registre, mais le résultat du test (du même passage) les garde.
+      const vues = {}; lignes.forEach(function (l) { vues[l.id] = true; });
+      let passage = ''; Object.keys(res).forEach(function (id) { const d = res[id] && res[id].date; if (d && d > passage) { passage = d; } });
+      if (lignes.length) {
+        Object.keys(res).forEach(function (id) {
+          const x = res[id];
+          if (vues[id] || !x || x.date !== passage || !problemeDuTest(x)) { return; }
+          r.problemes.push({ id: id, nom: x.nom || id, motif: x.motif, url: (x.site && x.site.url) || '', finale: (x.site && x.site.finale) || '', etat: 'supprimee', urlActuelle: '' });
+        });
+      }
       if (r.controlees < r.cartes) { r.derniere = ''; }
       return r;
     });
@@ -191,12 +314,12 @@ function creerControleSas(racine, depot, options) {
     const d = donnees || {}, genre = d.genre || 'sas', fichier = d.fichier || 'employeurs';
     if (!FICHIERS_CONTROLABLES[genre] || FICHIERS_CONTROLABLES[genre].indexOf(fichier) === -1) { return { ok: false, erreur: 'Ce contrôle ne concerne pas « ' + String(fichier).slice(0, 30) + ' ».' }; }
     const ici = travail.cle === cleDe(genre, fichier);
-    return { ok: true, enCours: travail.enCours, ailleurs: travail.enCours && !ici, fait: ici ? travail.fait : 0, total: ici ? travail.total : 0, debut: ici ? travail.debut : '', erreur: ici ? travail.erreur : '', resultats: espace(genre, fichier).resultats };
+    return { ok: true, enCours: travail.enCours, ailleurs: travail.enCours && !ici, fait: ici ? travail.fait : 0, total: ici ? travail.total : 0, debut: ici ? travail.debut : '', erreur: ici ? travail.erreur : '', resultats: genre === 'registre' ? avecNumerosVerifies(fichier, espace(genre, fichier).resultats) : espace(genre, fichier).resultats };
   }
   // Pour les essais : attend la fin du contrôle en cours.
   function attendre() { return new Promise(function (ok) { (function boucle() { if (!travail.enCours) { ok(); } else { setTimeout(boucle, 5); } })(); }); }
 
-  return { demarrer: demarrer, etat: etat, attendre: attendre, demarrerMensuel: demarrerMensuel, bilanMensuel: bilanMensuel, chemin: function (genre, fichier) { return cheminDe(genre || 'sas', fichier || 'employeurs'); } };
+  return { demarrer: demarrer, etat: etat, attendre: attendre, demarrerMensuel: demarrerMensuel, demarrerMisesDeCote: demarrerMisesDeCote, bilanMensuel: bilanMensuel, nouvelleAdresse: nouvelleAdresse, numeroVerifie: numeroVerifie, garderTelleQuelle: garderTelleQuelle, nePlusGarderTelleQuelle: nePlusGarderTelleQuelle, chemin: function (genre, fichier) { return cheminDe(genre || 'sas', fichier || 'employeurs'); } };
 }
 
 module.exports = { creerControleSas: creerControleSas, tachesDeCarte: tachesDeCarte, verdictDe: verdictDe, resume: resume, FICHIERS_CONTROLABLES: FICHIERS_CONTROLABLES, RE_PROTECTION_ROBOTS: RE_PROTECTION_ROBOTS };

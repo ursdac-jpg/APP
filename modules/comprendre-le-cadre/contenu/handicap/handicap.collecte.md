@@ -24,6 +24,12 @@ sources:
   - "pour-les-personnes-agees-ajpa | L'allocation journalière du proche aidant (AJPA) | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/soutien-financier/l-allocation-journaliere-du-proche-aidant-qu-est-ce-que-c-est | 2026-09-11"
   - "service-public-mva | Service Public : majoration pour la vie autonome (MVA) | https://www.service-public.gouv.fr/particuliers/vosdroits/F12903 | 2026-11-03"
   - "travail-emploi-recours-avis-inaptitude | Ministère du Travail : questions-réponses, quels recours contre un avis d'inaptitude ? | https://travail-emploi.gouv.fr/questions-reponses-quels-recours-contre-un-avis-dinaptitude | 2026-11-03"
+  - "caf-aah-esat-declaration-trimestrielle | Caf : AAH et ESAT, une nouvelle façon de déclarer vos revenus | https://www.caf.fr/allocataires/actualites/actualites-nationales/aah-et-esat-une-nouvelle-facon-de-declarer-vos-revenus | 2026-10-05"
+  - "service-public-aah-ass-cumul-2027 | Service Public : fin du cumul entre l'AAH et l'ASS en 2027 | https://www.service-public.gouv.fr/particuliers/actualites/A19095 | 2026-11-03"
+  - "service-public-ass | Service Public : allocation de solidarité spécifique (ASS) | https://www.service-public.gouv.fr/particuliers/vosdroits/F12484 | 2026-11-07"
+  - "legifrance-loi-2016-1917-article-87 | Légifrance : article 87 de la loi de finances pour 2017 (loi n° 2016-1917) | https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000033760616 | 2026-11-07"
+  - "service-public-complement-ressources | Service Public : complément de ressources de l'AAH | https://www.service-public.gouv.fr/particuliers/vosdroits/F12911 | 2026-11-07"
+  - "legifrance-decret-2026-547-aah | Légifrance : décret n° 2026-547 relatif à l'AAH | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054321795 | 2026-11-07"
 structures:
   - "cap-emploi-dordogne | Cap emploi de la Dordogne : accompagnement vers l'emploi et maintien dans l'emploi des personnes handicapées | https://www.capemploi.fr/ | 2026-09-04"
   - "france-travail-dordogne | France Travail de la Dordogne : accompagnement, en lien avec Cap emploi | https://www.francetravail.fr/ | 2026-09-04"

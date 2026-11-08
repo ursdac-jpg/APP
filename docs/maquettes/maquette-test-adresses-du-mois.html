@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le test des adresses du mois (lecture guidée)</title>
+<style>
+  /* Mêmes couleurs que l'outil de veille (outils/veille.html), mode clair et mode sombre. */
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8; --accent-texte:#fff;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a; --accent-texte:#04202e;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif; padding:1rem; }
+  .page { max-width:980px; margin:0 auto; }
+  .haut { display:flex; justify-content:space-between; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.8rem; }
+  .haut small { color:var(--text-muted); }
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; }
+  h1 { font-size:1.15rem; margin:0 0 .2rem; color:var(--text-strong); }
+  h2 { font-size:1rem; margin:1.2rem 0 .5rem; color:var(--text-strong); display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .doux { color:var(--text-muted); font-size:.88rem; }
+  .mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.82rem; overflow-wrap:anywhere; }
+  .btn { font:inherit; font-weight:600; border-radius:var(--radius); padding:.5rem .9rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .btn:hover { filter:brightness(.97); }
+  .btn.petit { padding:.35rem .7rem; font-size:.88rem; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:var(--accent-texte); }
+  .btn.garder { border:2px solid var(--ok); color:var(--ok); background:var(--bg-card); }
+  .btn.neutre { background:var(--bg-subtle); }
+  .btn:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+
+  /* Le bilan en un coup d'oeil : un compteur par sorte de travail, la couleur dit le degré d'urgence. */
+  .compteurs { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0 .2rem; }
+  .compteur { flex:1; min-width:150px; border-radius:var(--radius); padding:.5rem .8rem; border:1px solid var(--border); background:var(--bg-subtle); }
+  .compteur b { font-size:1.4rem; display:block; line-height:1.1; }
+  .compteur.rouge { background:var(--alert-bg); border-color:var(--alert); color:var(--alert); }
+  .compteur.ambre { background:var(--warn-bg); border-color:var(--warn); color:var(--warn); }
+  .compteur.vert { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
+  .barre { height:8px; border-radius:99px; background:var(--bg-subtle); overflow:hidden; margin:.5rem 0 0; }
+  .barre i { display:block; height:100%; background:var(--ok); transition:width .3s; }
+
+  .pastille { font-size:.76rem; font-weight:700; border-radius:999px; padding:.15rem .6rem; white-space:nowrap; }
+  .pastille.rouge { background:var(--alert-bg); color:var(--alert); }
+  .pastille.ambre { background:var(--warn-bg); color:var(--warn); }
+  .pastille.vert { background:var(--ok-bg); color:var(--ok); }
+
+  /* Une fiche = une carte avec une bande de couleur à gauche (la même couleur que son groupe). */
+  .fiche { border:1px solid var(--border); border-left-width:6px; border-radius:var(--radius); background:var(--bg-card); padding:.7rem .9rem; margin:.5rem 0; }
+  .fiche.rouge { border-left-color:var(--alert); }
+  .fiche.ambre { border-left-color:var(--warn); }
+  .fiche.vert { border-left-color:var(--ok); padding:.45rem .9rem; }
+  .fiche .nom { font-weight:700; color:var(--text-strong); }
+  .fiche .ligne { display:flex; gap:.5rem; align-items:baseline; flex-wrap:wrap; margin:.2rem 0; }
+  .fiche .etiquette { color:var(--text-muted); font-size:.82rem; min-width:7.5rem; }
+  .fiche.vert .nom { font-weight:600; }
+
+  /* La zone « Que faire ? » : chaque bouton a sa couleur ET sa phrase de conséquence juste à côté. */
+  .actions { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-top:.6rem; padding-top:.6rem; border-top:1px dashed var(--border-strong); }
+  .action { display:flex; flex-direction:column; gap:.3rem; align-items:flex-start; }
+  .action .btn { width:100%; }
+  .action .consigne { font-size:.82rem; color:var(--text-muted); }
+  .confirmer { margin-top:.6rem; padding:.6rem .8rem; border-radius:var(--radius); background:var(--accent-bg); border:2px solid var(--accent); }
+  .confirmer .rangee { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.5rem; }
+  .fin-ligne { margin-left:auto; }
+  .note { margin:.6rem 0; padding:.5rem .8rem; border-radius:var(--radius); background:var(--bg-subtle); font-size:.88rem; }
+  @media (max-width:720px) { .actions { grid-template-columns:1fr; } .fiche .etiquette { min-width:0; } }
+  .legende { display:flex; gap:1rem; flex-wrap:wrap; font-size:.84rem; color:var(--text-muted); margin:.6rem 0 0; }
+  .legende span::before { content:""; display:inline-block; width:.8rem; height:.8rem; border-radius:3px; margin-right:.35rem; vertical-align:-1px; }
+  .legende .r::before { background:var(--alert); } .legende .a::before { background:var(--warn); } .legende .v::before { background:var(--ok); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="haut">
+    <small>MAQUETTE, rien n'est enregistré : les boutons simulent seulement ce que ferait l'outil.</small>
+    <span><button class="btn petit" id="remise">Remettre à zéro</button> <button class="btn petit" id="theme">Mode sombre</button></span>
+  </div>
+
+  <div class="carte" id="carte"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var JOUR = '08/11/2026';
+  // Les données d'exemple reprennent les lignes de la vraie capture d'écran de Denis.
+  function depart() {
+    return [
+      { id: 1, nom: 'Structures de l’insertion par l’activité économique de la Dordogne', reg: 'Structures', type: 'ailleurs', url: 'https://emplois.inclusion.beta.gouv.fr/', finale: 'https://plateforme.inclusion.gouv.fr/', etat: 'a-traiter' },
+      { id: 2, nom: 'Ministère de la Justice', reg: 'Structures', type: 'ailleurs', url: 'https://justice.fr', finale: 'http://www.justice.fr/', etat: 'a-traiter' },
+      { id: 3, nom: 'Service Public', reg: 'Structures', type: 'ailleurs', url: 'https://www.service-public.fr', finale: 'https://www.service-public.gouv.fr/', etat: 'a-traiter' },
+      { id: 4, nom: 'Jeune Chambre Économique de Limoges', reg: 'Structures', type: 'ailleurs', url: 'https://www.jcef.fr', finale: 'https://jcef.asso.fr/', etat: 'a-traiter' },
+      { id: 5, nom: 'Le Planning Familial 24, Dordogne / Périgueux', reg: 'Structures', type: 'mort', url: 'https://planning-familial-na.org/antenne-departementale/dordogne-24-perigueux/', etat: 'a-traiter' },
+      { id: 6, nom: 'Le Planning Familial 24, Dordogne / Bergerac', reg: 'Structures', type: 'mort', url: 'https://planning-familial-na.org/antenne-departementale/dordogne-24-bergerac/', etat: 'a-traiter' },
+      { id: 7, nom: 'Mercure Périgueux Centre', reg: 'Employeurs', type: 'mort', url: 'https://all.accor.com/hotel/6237', etat: 'a-traiter' },
+      { id: 8, nom: 'Actual Périgueux Wilson', reg: 'Employeurs', type: 'ailleurs', url: 'https://reseau.actualgroup.com/nouvelle-aquitaine/dordogne/perigueux', finale: 'https://www.actualgroup.com/', etat: 'a-traiter' },
+      { id: 9, nom: 'Envergure Limoges', reg: 'Structures', type: 'ailleurs', url: 'https://www.envergure.eu/', finale: 'https://www.envergure.eu/', etat: 'corrigee', quand: '06/11/2026' },
+      { id: 10, nom: 'A.E.C.', reg: 'Structures', type: 'mort', url: 'https://www.cri-aquitaine.org/lieux-de-formation/fiche-repertoire/aec/', etat: 'corrigee', quand: '06/11/2026' }
+    ];
+  }
+  var fiches = depart(), ouverte = null, derniere = null;
+  var CIBLE = document.getElementById('carte');
+  function e(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function hote(u) { return u.replace(/^https?:\/\/(www\.)?/i, '').split(/[/?#]/)[0]; }
+
+  function ficheATraiterAilleurs(f) {
+    var h = '<div class="fiche ambre"><div class="ligne"><span class="nom">' + e(f.nom) + '</span> <span class="pastille ambre">Le site a déménagé</span><span class="doux fin-ligne">' + e(f.reg) + '</span></div>'
+      + '<div class="ligne"><span class="etiquette">Adresse enregistrée</span><span class="mono">' + e(f.url) + '</span></div>'
+      + '<div class="ligne"><span class="etiquette">Arrive maintenant sur</span><span class="mono">' + e(f.finale) + '</span> <button class="btn petit neutre" data-a="voir" data-id="' + f.id + '">Voir cette page ↗</button></div>';
+    if (ouverte === f.id) {
+      h += '<div class="confirmer"><strong>Remplacer l’adresse de cette fiche ?</strong><br><span class="doux">Ancienne : </span><span class="mono">' + e(f.url) + '</span><br><span class="doux">Nouvelle : </span><span class="mono">' + e(f.finale) + '</span>'
+        + '<br><span class="doux">À faire seulement si vous avez ouvert la nouvelle page et que c’est bien la bonne. La fiche sera datée du ' + JOUR + '. Vous pourrez annuler juste après.</span>'
+        + '<div class="rangee"><button class="btn primaire" data-a="confirmer" data-id="' + f.id + '">Oui, je l’ai ouverte, remplacer</button><button class="btn" data-a="annuler-choix" data-id="' + f.id + '">Non, retour</button></div></div>';
+    } else {
+      h += '<div class="actions">'
+        + (/^https:\/\//.test(f.finale)
+          ? '<div class="action"><button class="btn primaire" data-a="prendre" data-id="' + f.id + '">Prendre la nouvelle adresse</button><span class="consigne">Le site a vraiment changé de nom. La fiche prend l’adresse d’arrivée.</span></div>'
+          : '<div class="action"><button class="btn" disabled>Prendre la nouvelle adresse</button><span class="consigne"><strong>Indisponible :</strong> l’arrivée n’est pas sécurisée (http). Gardez la fiche telle quelle, ou ouvrez-la pour corriger à la main.</span></div>')
+        + '<div class="action"><button class="btn garder" data-a="garder" data-id="' + f.id + '">Garder telle quelle</button><span class="consigne">Le site s’ouvre bien, c’est une simple redirection. On n’en reparle plus.</span></div>'
+        + '<div class="action"><button class="btn neutre" data-a="fiche" data-id="' + f.id + '">Ouvrir la fiche</button><span class="consigne">Pour la modifier à la main (autre adresse, texte).</span></div>'
+        + '</div>';
+    }
+    return h + '</div>';
+  }
+  function ficheATraiterMorte(f) {
+    return '<div class="fiche rouge"><div class="ligne"><span class="nom">' + e(f.nom) + '</span> <span class="pastille rouge">Ne répond plus</span><span class="doux fin-ligne">' + e(f.reg) + '</span></div>'
+      + '<div class="ligne"><span class="etiquette">Adresse enregistrée</span><span class="mono">' + e(f.url) + '</span></div>'
+      + '<div class="actions" style="grid-template-columns:1fr 2fr"><div class="action"><button class="btn primaire" data-a="fiche" data-id="' + f.id + '">Ouvrir la fiche pour la corriger</button><span class="consigne">Cherchez la nouvelle adresse du site, ou retirez la fiche.</span></div>'
+      + '<div class="doux" style="align-self:center">Une adresse qui ne répond plus ne se « garde » pas : elle est à corriger.</div></div></div>';
+  }
+  function ficheTraitee(f) {
+    var etat = f.etat === 'gardee' ? ['Gardée telle quelle le ' + f.quand, 'Ne plus garder', 'degarder']
+      : f.etat === 'remplacee' ? ['Adresse remplacée le ' + f.quand + ' (à reconfirmer au prochain test)', 'Annuler ce remplacement', 'annuler-remplacement']
+      : ['Adresse déjà corrigée, à reconfirmer au prochain test', '', ''];
+    return '<div class="fiche vert"><div class="ligne"><span class="nom">' + e(f.nom) + '</span> <span class="pastille vert">Traitée</span><span class="doux">' + e(etat[0]) + '</span>'
+      + (etat[1] ? '<span class="fin-ligne"><button class="btn petit" data-a="' + etat[2] + '" data-id="' + f.id + '">' + etat[1] + '</button></span>' : '') + '</div></div>';
+  }
+  function rendre() {
+    var ail = fiches.filter(function (f) { return f.etat === 'a-traiter' && f.type === 'ailleurs'; });
+    var mor = fiches.filter(function (f) { return f.etat === 'a-traiter' && f.type === 'mort'; });
+    var tra = fiches.filter(function (f) { return f.etat !== 'a-traiter'; });
+    var total = fiches.length, faits = tra.length;
+    var h = '<h1>Le test des adresses du mois</h1><div class="doux">Dernier test complet : le 06/11/2026 (il y a 2 jours). Rien n’est modifié par le test lui-même.</div>'
+      + '<div style="margin:.6rem 0"><button class="btn primaire">Refaire le test</button></div>'
+      + '<div class="compteurs"><div class="compteur rouge"><b>' + mor.length + '</b>ne répondent plus<br><small>à corriger</small></div>'
+      + '<div class="compteur ambre"><b>' + ail.length + '</b>ont déménagé<br><small>à regarder une par une</small></div>'
+      + '<div class="compteur vert"><b>' + faits + '</b>déjà traitées<br><small>rien à faire</small></div></div>'
+      + '<div class="barre" aria-hidden="true"><i style="width:' + Math.round(100 * faits / total) + '%"></i></div>'
+      + '<div class="doux" style="margin-top:.2rem">' + faits + ' sur ' + total + ' traitées</div>'
+      + (derniere ? '<div class="note">' + e(derniere) + '</div>' : '')
+      + '<div class="legende"><span class="r">Rouge : le site n’existe plus, à corriger</span><span class="a">Orange : le site existe mais ailleurs, à décider</span><span class="v">Vert : réglé</span></div>';
+    h += '<h2>Ne répondent plus <span class="pastille rouge">' + mor.length + '</span></h2>' + (mor.length ? mor.map(ficheATraiterMorte).join('') : '<div class="doux">Rien ici.</div>');
+    h += '<h2>Ont déménagé <span class="pastille ambre">' + ail.length + '</span></h2>' + (ail.length ? ail.map(ficheATraiterAilleurs).join('') : '<div class="doux">Rien ici.</div>');
+    h += '<h2>Déjà traitées <span class="pastille vert">' + faits + '</span></h2>' + (tra.length ? tra.map(ficheTraitee).join('') : '<div class="doux">Rien ici.</div>');
+    CIBLE.innerHTML = h;
+  }
+  CIBLE.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-a]'); if (!b) { return; }
+    var a = b.getAttribute('data-a'), id = +b.getAttribute('data-id'), f = fiches.filter(function (x) { return x.id === id; })[0];
+    derniere = null;
+    if (a === 'prendre') { ouverte = id; }
+    else if (a === 'annuler-choix') { ouverte = null; }
+    else if (a === 'confirmer') { f.etat = 'remplacee'; f.quand = JOUR; ouverte = null; derniere = 'Enregistré : l’adresse de « ' + f.nom + ' » est maintenant ' + f.finale + '. Un bouton « Annuler la dernière publication » est disponible.'; }
+    else if (a === 'garder') { f.etat = 'gardee'; f.quand = JOUR; derniere = '« ' + f.nom + ' » est gardée telle quelle. Elle ne reviendra que si l’adresse d’arrivée change.'; }
+    else if (a === 'degarder' || a === 'annuler-remplacement') { f.etat = 'a-traiter'; derniere = '« ' + f.nom + ' » revient dans la liste à traiter.'; }
+    else if (a === 'voir') { derniere = 'Dans l’outil : la page ' + f.finale + ' s’ouvre dans un nouvel onglet.'; }
+    else if (a === 'fiche') { derniere = 'Dans l’outil : le registre s’ouvre sur la fiche « ' + f.nom + ' ».'; }
+    rendre();
+  });
+  document.getElementById('remise').addEventListener('click', function () { fiches = depart(); ouverte = null; derniere = null; rendre(); });
+  document.getElementById('theme').addEventListener('click', function () { var s = document.body.classList.toggle('dark'); this.textContent = s ? 'Mode clair' : 'Mode sombre'; });
+  rendre();
+})();
+</script>
+</body>
+</html>

@@ -245,6 +245,23 @@ test('enregistrement interrompu : l\'outil le repère, le montre, puis le termin
   } finally { nettoyer(d); }
 });
 
+test('enregistrement interrompu : un journal des modifications resté seul en suspens est repéré et rangé par « Terminer » (sinon tous les enregistrements suivants sont refusés)', () => {
+  const d = depotJetable();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => AUJ });
+    ecrire(d, 'outils/journal_modifications.txt', '# Journal\n2026-11-08 10:00 | lieux | a | modifiée\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'journal');
+    assert.strictEqual(depot.etat().interrompue, null);
+    ecrire(d, 'outils/journal_modifications.txt', '# Journal\n2026-11-08 10:00 | lieux | a | modifiée\n2026-11-08 10:05 | employeurs | b | mise en attente\n');
+    const i = depot.etat().interrompue;
+    assert.ok(i && i.chemins.indexOf('outils/journal_modifications.txt') !== -1, 'le journal en suspens est repéré');
+    const fin = depot.reprendre('terminer');
+    assert.ok(fin.ok, JSON.stringify(fin));
+    assert.strictEqual(git(d, 'status', '--porcelain').sortie.trim(), '', 'le journal est rangé');
+    assert.strictEqual(depot.etat().interrompue, null);
+  } finally { nettoyer(d); }
+});
+
 test('sas des pages d\'offres : une page proposée est contrôlée comme la rubrique, un doublon est reconnu, une page validée entre dans offres.txt avec la date du jour', () => {
   const d = depotJetable();
   try {

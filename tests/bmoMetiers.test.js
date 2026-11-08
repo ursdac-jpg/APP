@@ -41,7 +41,7 @@ test('Carte : chaque chiffre porte sa source, « au moins », aucun tiret long, 
   const chiffres = h.match(/<span class="chiffre"/g) || [];
   const sources = h.match(/<span class="chiffre" data-source="[^"]*enquête Besoins en main-d’œuvre 2026, Dordogne, publiée en avril 2026"/g) || [];
   assert.equal(chiffres.length, 21, '20 chiffres dans la liste + le chiffre principal de la carte');
-  assert.ok(h.includes('comprendre-les-chiffres-indic-valeur'), 'chiffre principal : sans lui, pas de bouton « Ma fiche chiffres »');
+  assert.ok(h.includes('comprendre-les-chiffres-indic-valeur'), 'chiffre principal : sans lui, pas de bouton « Ma fiche de chiffres »');
   assert.equal(chiffres.length, sources.length);
   assert.ok(h.includes('Au moins '));
   assert.ok(h.includes('data-comprendre-les-chiffres-fiche-lexique="besoins-en-main-d-oeuvre"'));

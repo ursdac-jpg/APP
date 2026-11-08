@@ -16,6 +16,7 @@ voir_aussi_lexique:
 sources:
   - francetravail-cesu
   - code-travail-numerique-cesu
+phrase_generale: "Le chèque emploi service universel simplifie l'emploi d'un salarié à domicile, avec des déclarations à faire. Les montants et les dates se vérifient sur le site officiel."
 collecte: emploi.collecte.md
 ---
 

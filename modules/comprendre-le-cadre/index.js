@@ -865,7 +865,10 @@ function _comprendreLeCadreRenduCorps(corps) {
 // fiche ; **gras** devient <strong>.
 function _comprendreLeCadreDigestGras(s) {
   return s
-    .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> $1</a>')
+    .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, function (tout, titre, url) {
+      // Jamais de mot souligné cliquable : un lien devient un bouton à cadre (consigne 153, 07/11/2026).
+      return typeof boutonExterneHtml === 'function' ? boutonExterneHtml(url, titre, { petit: true }) : tout;
+    })
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
@@ -1711,7 +1714,7 @@ function _comprendreLeCadreRenduAccueilExtra() {
           '<span class="d-block small text-muted">' + _comprendreLeCadreEchapper(s.aQuoi) + '</span>' +
           '<span class="d-block small text-muted"><em>' + _comprendreLeCadreEchapper(s.quand) + '</em></span>' +
           (s.url
-            ? '<a class="comprendre-le-cadre-source-lien" href="' + _comprendreLeCadreEchapper(s.url) + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> ' + _comprendreLeCadreEchapper(s.url) + '</a>' +
+            ? '<span class="d-block mt-1">' + boutonExterneHtml(s.url, 'Ouvrir cette source', { petit: true }) + '</span>' +
               '<span class="comprendre-le-cadre-source-date">adresse vérifiée le ' + _comprendreLeCadreDateFr(s.date) + '</span>'
             : '<span class="comprendre-le-cadre-source-date comprendre-le-cadre-source-nonverif">adresse pas encore vérifiée</span>') +
           '</li>';
@@ -2135,8 +2138,7 @@ function _comprendreLeCadreRenduFiche(f) {
       if (s.verifie) {
         return '<li>' +
           '<span class="comprendre-le-cadre-source-nom">' + s.titre + '</span>' +
-          '<a class="comprendre-le-cadre-source-lien" href="' + s.url + '" target="_blank" rel="noopener">' +
-            '<i class="bi bi-box-arrow-up-right"></i> ' + s.url + '</a>' +
+          '<span class="d-block mt-1">' + boutonExterneHtml(s.url, 'Ouvrir cette source', { petit: true }) + '</span>' +
           '<span class="comprendre-le-cadre-source-date">adresse vérifiée le ' + _comprendreLeCadreDateFr(s.date) + '</span>' +
         '</li>';
       }
@@ -2857,6 +2859,7 @@ function pageComprendreLeCadre() {
           var idLexique = this.dataset.voirAussiLexique;
           var ecranActuel = _comprendreLeCadreEtat.ecran;
           var ficheActuelle = _comprendreLeCadreEtat.ficheId;
+          var revenirALaPlace = typeof memoriserPositionPourRetour === 'function' ? memoriserPositionPourRetour() : null; // consigne 146 : retour à la même place
           // TACHE (retour Denis 2026-09-12 : "les deux boutons font la meme
           // chose") : le "Retour" local de la fiche Lexique (1er argument)
           // n'est PLUS ce chemin -- laisse a null, il garde son
@@ -2866,6 +2869,7 @@ function pageComprendreLeCadre() {
             _comprendreLeCadreEtat.ecran = ecranActuel;
             _comprendreLeCadreEtat.ficheId = ficheActuelle;
             naviguerVers('comprendre-le-cadre');
+            if (revenirALaPlace) { revenirALaPlace(); }
           });
         });
       });

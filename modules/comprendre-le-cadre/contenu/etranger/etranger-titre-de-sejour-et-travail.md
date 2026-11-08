@@ -7,7 +7,7 @@ tags: [titre de séjour, autorisation de travail, droit au travail, étranger, r
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-11-04
+verifie_le: 2026-11-08
 lexique:
   - terme: "autorisation de travail"
     definition: "Accord donné par l'administration pour qu'une personne étrangère occupe un emploi précis, chez un employeur précis. C'est l'employeur qui la demande."
@@ -25,15 +25,22 @@ sources:
   - service-public-etudiant-etranger-travail
   - immigration-interieur-protection-internationale
   - legifrance-decret-2026-308-inscription-etrangers
+  - service-public-actualite-a19128
+  - legifrance-decret-2026-1001-etrangers-travailleurs
 ce_qui_change_souvent:
   - "Les listes de métiers en tension qui dispensent d'examen de la situation de l'emploi"
   - "Le nombre d'heures autorisées pour un titre étudiant"
   - "Le coût des titres de séjour pour motif professionnel"
   - "Les règles d'inscription à France Travail selon le titre"
+  - "Le délai de décision de la préfecture et le délai supplémentaire pour un dossier complexe"
+  - "La période pendant laquelle on ne peut pas changer d'employeur après une première autorisation de travail"
+  - "La durée de chômage tolérée sans perdre son droit au séjour avec une carte « travailleur temporaire"
 revisions:
   - "2026-04 : depuis le décret du 24 avril 2026 (en vigueur le 26 avril), pour s'inscrire comme demandeur d'emploi, il faut un document de séjour, un document provisoire ou une autorisation provisoire de séjour qui autorise à travailler comme salarié ; vérifié sur Légifrance le 2026-10-05"
   - "2026-11-04 : la page Service Public (F2713) ne traite que les étudiants étrangers : la limite d'heures annuelle sans autorisation et l'autorisation au-delà sont confirmées ; la liste des titres, le récépissé, l'inscription à France Travail et le décret d'avril 2026 n'y figurent pas (le décret et les métiers en tension sont retirés ; le reste à confirmer sur la page de l'immigration du ministère de l'Intérieur)"
   - "2026-11-05 : relu dans Chrome : page Service Public F15898 (vérifiée le 1er mai 2026, signalée « en cours de mise à jour » après un décret d'octobre 2026) : carte « salarié » en CDI, « travailleur temporaire » en CDD, autorisation de travail exigée, visa de long séjour valant titre de séjour pour une première admission ; Légifrance (décret 2026-308) : inscription à France Travail avec un document de séjour autorisant le travail salarié ; recherche : carte de résident, « vie privée et familiale » (avec exceptions) et « passeport talent » dispensent d'autorisation de travail ; « travailleur saisonnier », la demande faite par l'employeur « avant l'arrivée » et le récépissé n'ont pas pu être confirmés (retirés ou non relus) ; date de vérification inchangée"
+  - "2026-11 : 2026-11-08 : nouveautés du 30 octobre 2026 ajoutées d'après l'actualité Service-Public du 6 novembre 2026 (délai de décision de la préfecture, changement d'employeur, chômage avec une carte travailleur temporaire, carte bleue européenne) ; texte complet du décret n° 2026-1001 du 26 octobre 2026 (Journal officiel du 29 octobre 2026) et de l'actualité Service-Public relus par Claude sur les copies collées par Denis le 2026-11-08"
+phrase_generale: "Le droit de travailler dépend du titre de séjour que l'on détient. Plusieurs règles ont changé récemment : les délais et les conditions se vérifient sur la fiche officielle et auprès de la préfecture."
 collecte: etranger.collecte.md
 ---
 
@@ -48,5 +55,15 @@ Un titre « étudiant » permet de travailler comme salarié sans autorisation, 
 Un récépissé demande à être lu attentivement. S'il prolonge un titre qui autorisait déjà le travail, ce droit continue. S'il accompagne une première demande, il ne permet pas toujours de travailler : la mention est portée sur le document.
 
 Pour vous inscrire comme demandeur d'emploi à France Travail, il faut un document de séjour qui vous autorise à travailler comme salarié.
+
+Depuis le 30 octobre 2026, plusieurs règles ont changé pour les personnes étrangères qui travaillent ou cherchent un emploi. Elles viennent d'un décret du 26 octobre 2026, publié au Journal officiel du 29 octobre 2026, que Service-Public a résumé dans une actualité du 6 novembre 2026.
+
+Pour la plupart des demandes de titre de séjour, la préfecture a maintenant 90 jours pour décider, au lieu de quatre mois. Elle peut ajouter 30 jours si le dossier est particulièrement complexe.
+
+Après une première autorisation de travail, la période pendant laquelle on ne peut pas changer d'employeur passe de 12 mois à 6 mois. Cette limite ne s'applique pas si l'employeur a gravement manqué à ses obligations envers vous.
+
+Avec une carte « travailleur temporaire » (pour un CDD), on peut garder son droit au séjour si l'on perd son emploi sans l'avoir voulu, à condition de ne pas rester plus de 3 mois sans emploi pendant la validité de la carte. Cette durée peut aller jusqu'à 6 mois dans certaines situations de travail très graves, comme le travail forcé ou la traite des êtres humains. Si vous trouvez un nouvel employeur pendant cette période, vous pouvez rester en France le temps que la nouvelle demande d'autorisation de travail soit examinée.
+
+Pour la carte bleue européenne, quand le préfet envisage de la retirer ou de ne pas la renouveler à cause de manquements de l'employeur, la personne dispose de 6 mois pour chercher un nouvel emploi, à compter de la notification de la décision. Ce délai peut être allongé pour correspondre à la durée qui lui reste de droits à l'allocation chômage.
 
 Votre situation exacte se lit sur votre titre et se vérifie auprès de la préfecture. En cas de doute, une permanence d'accès au droit des étrangers peut vous aider gratuitement.

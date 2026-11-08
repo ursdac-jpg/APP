@@ -213,6 +213,8 @@ function modeleFenetreCollage(entree) {
     else if (etat === 'main') { modele.bandeau = { texte: T.bandeau.main(a), boutons: [] }; }
     else if (etat === 'recu') { modele.bandeau = { texte: T.bandeau.recu(a), boutons: [] }; }
   }
+  // Petite vidéo « comment faire sur ChatGPT » (lot D1) : seulement quand l'assistant est ouvert et que c'est ChatGPT ou Perplexity (les images sont celles de leur site).
+  modele.videoAssistant = (mode === 'reponse' && etat === 'ouvert') ? (/chatgpt/i.test(a) ? 'chatgpt-demande' : (/perplexity/i.test(a) ? 'perplexity-demande' : '')) : '';
   modele.conseil = mode === 'reponse' ? [m.conseil, e.conseilAssistant].filter(Boolean).join(' ') : '';
 
   // zone du gros bouton : avant la réponse, et quand il manque la fin (le gros bouton devient « Coller la suite »)

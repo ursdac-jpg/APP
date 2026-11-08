@@ -217,7 +217,7 @@ var LEXIQUE_FICHES = [
   {
     id: 'inflation', titre: 'Inflation', titreDeTri: 'Inflation', type: 'terme',
     univers: 'bulletin-salaire', registres: ['langage-administratif'],
-    variantesRecherche: ['hausse des prix', 'vie chère', 'pouvoir d\'achat', 'coût de la vie'],
+    variantesRecherche: ['hausse des prix', 'vie chère', 'coût de la vie'],
     corps: "L'inflation est la hausse générale des prix des biens et des services : avec la même somme d'argent, on peut acheter un peu moins de choses qu'avant. En France, l'Insee la mesure chaque mois avec l'indice des prix à la consommation : il suit un grand panier de produits et de services, relevés mois après mois, chacun compté selon son poids dans les dépenses des ménages, et compare avec un an plus tôt. Elle monte, par exemple, quand le prix du pétrole ou celui de produits alimentaires frais augmente (à cause du climat ou de tensions dans le monde), ou quand une taxe est relevée. Elle ralentit quand les cours internationaux des matières premières baissent. Elle sert de repère pour revaloriser certains montants, comme le Smic, certaines pensions ou les loyers.",
     detailsAJour: {
       verifieLe: '2026-11-05',
@@ -232,7 +232,54 @@ var LEXIQUE_FICHES = [
       phraseGenerale: "L'inflation est la hausse générale des prix. L'Insee publie son chiffre chaque mois : consultez la source officielle pour le taux le plus récent."
     },
     relations: [
-      { ficheId: 'smic', type: 'voir-aussi' }, { ficheId: 'salaire-net', type: 'voir-aussi' }
+      { ficheId: 'smic', type: 'voir-aussi' }, { ficheId: 'salaire-net', type: 'voir-aussi' }, { ficheId: 'pouvoir-achat', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'pouvoir-achat', titre: "Pouvoir d'achat", titreDeTri: "Pouvoir d'achat", type: 'terme',
+    univers: 'mobilite-budget', registres: ['langage-administratif'],
+    variantesRecherche: ['pouvoir d\'achat des ménages', 'revenus et prix', 'ce que je peux acheter'],
+    corps: "Le pouvoir d'achat, c'est ce que les revenus d'un foyer permettent d'acheter : la quantité de biens et de services. Il dépend de deux choses : l'évolution des revenus et celle des prix. Si les revenus montent moins vite que les prix, le pouvoir d'achat baisse, même quand le salaire augmente. Pour l'ensemble des ménages, l'Insee le calcule à partir du revenu disponible brut, c'est-à-dire ce qui reste après les cotisations et les impôts, en retirant la hausse des prix. Il est donné par unité de consommation, pour tenir compte de la taille du foyer. Ce chiffre est une moyenne : il ne dit pas ce que vit chaque foyer, dont le pouvoir d'achat ressenti dépend de sa situation.",
+    detailsAJour: {
+      verifieLe: '2026-11-07',
+      source: { nom: 'Insee, Les comptes de la Nation en 2025 (Insee Première n° 2105, paru le 29 mai 2026)', url: 'https://www.insee.fr/fr/statistiques/8996855' },
+      lignes: [
+        { libelle: 'Pouvoir d\'achat des ménages par unité de consommation en 2025', valeur: '- 0,7 %', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Pouvoir d\'achat des ménages par unité de consommation en 2024', valeur: '+ 2,2 %', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Contribution des prix au pouvoir d\'achat en 2025', valeur: '- 0,8 point', categorie: 'pourcent', peutChanger: true }
+      ],
+      phraseGenerale: "Le pouvoir d'achat des ménages suit l'évolution des revenus, une fois la hausse des prix retirée. L'Insee publie son estimation chaque année : consultez la source officielle pour le chiffre le plus récent."
+    },
+    relations: [
+      { ficheId: 'inflation', type: 'voir-aussi' }, { ficheId: 'smic', type: 'voir-aussi' }, { ficheId: 'niveau-de-vie', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'niveau-de-vie', titre: 'Niveau de vie', titreDeTri: 'Niveau de vie', type: 'terme',
+    univers: 'mobilite-budget', registres: ['langage-administratif'],
+    variantesRecherche: ['revenu par personne', 'niveau de vie médian', 'unité de consommation', 'seuil de pauvreté'],
+    corps: "Le niveau de vie est le revenu disponible d'un ménage (ce qui lui reste après les impôts et les aides) divisé par le nombre d'unités de consommation. Ces unités tiennent compte de la taille de la famille : le premier adulte compte pour 1, chaque autre personne de 14 ans ou plus pour 0,5 et chaque enfant de moins de 14 ans pour 0,3. Toutes les personnes d'un même ménage ont donc le même niveau de vie. Ce n'est ni un salaire ni un coût de la vie : il ne dit pas ce que coûtent le logement ou les courses. L'Insee s'en sert pour comparer les territoires, avec le niveau de vie médian, et pour mesurer la pauvreté.",
+    detailsAJour: {
+      verifieLe: '2026-11-07',
+      source: { nom: 'Insee, Niveau de vie en 2023, comparaisons régionales et départementales (paru le 11 mai 2026)', url: 'https://www.insee.fr/fr/statistiques/2012717' },
+      lignes: [
+        { libelle: 'Niveau de vie médian en 2023, France métropolitaine', valeur: '25 920 €', categorie: 'montant', peutChanger: true },
+        { libelle: 'Niveau de vie en 2023 : le seuil des 10 % les plus modestes (1er décile)', valeur: '13 200 €', categorie: 'montant', peutChanger: true },
+        { libelle: 'Niveau de vie en 2023 : le seuil des 10 % les plus aisés (9e décile)', valeur: '46 500 €', categorie: 'montant', peutChanger: true }
+      ],
+      phraseGenerale: "Le niveau de vie se calcule à partir du revenu du ménage et de sa composition. L'Insee publie ses chiffres pour chaque territoire : consultez la source officielle pour les montants les plus récents."
+    },
+    relations: [
+      { ficheId: 'mediane', type: 'voir-aussi' }, { ficheId: 'pouvoir-achat', type: 'voir-aussi' }, { ficheId: 'smic', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'mediane', titre: 'Médiane', titreDeTri: 'Médiane', type: 'terme',
+    univers: 'mobilite-budget', registres: ['langage-administratif'],
+    variantesRecherche: ['salaire médian', 'revenu médian', 'moyenne ou médiane'],
+    corps: "La médiane est la valeur qui partage un ensemble de chiffres en deux groupes de même taille : une moitié est en dessous, l'autre moitié au-dessus. Pour un salaire médian, la moitié des salaires se situe sous ce montant et l'autre moitié au-dessus. Elle n'est pas la moyenne : la moyenne est tirée vers le haut par les valeurs très élevées, donc elle est en général plus haute que la médiane. Pour le niveau de vie, le niveau de vie médian est celui au-dessous duquel vit la moitié des personnes les plus modestes. Quand on lit « la médiane », on lit donc le chiffre du milieu, pas celui d'une personne moyenne.",
+    relations: [
+      { ficheId: 'niveau-de-vie', type: 'voir-aussi' }, { ficheId: 'salaire-brut', type: 'voir-aussi' }
     ]
   },
   {
@@ -9741,5 +9788,77 @@ var LEXIQUE_SECOND_NIVEAU = [
       source: { nom: "Direction de l'économie, de l'emploi, du travail et des solidarités de Mayotte, page « Repérer et mobiliser les publics invisibles » (mise à jour le 8 avril 2025)", url: "https://mayotte.deets.gouv.fr/Lancement-d-une-nouvelle-vague-de-l-appel-a-projets-Reperer-et-mobiliser-les" },
       phraseGenerale: "Des appels à projets de l'État financent des actions pour repérer les personnes éloignées de l'emploi qui ne sont suivies par aucun service, notamment des jeunes, en allant à leur rencontre. Les publics visés et les financements changent : consultez la source officielle."
     }
+  },
+  {
+    id: 'second-niveau-estime-de-soi',
+    titre: 'Exemples concrets',
+    fichesEntree: ['estime-de-soi'],
+    corps: "Une même situation peut se lire de deux façons. Après une candidature restée sans réponse, on peut se dire « je ne vaux rien » ; on peut aussi se dire « cette candidature n'a pas abouti, et je sais ce que je sais faire ». La seconde lecture ne nie pas la difficulté : elle ne la transforme pas en jugement sur soi. De même, reconnaître un point faible, par exemple la prise de parole, sans en conclure qu'on est moins bien que les autres, relève d'une estime de soi plus juste. Cette estime n'est pas figée : une expérience qui se passe bien, un retour bienveillant ou un accompagnement peuvent la faire évoluer."
+  },
+  {
+    id: 'second-niveau-confiance-en-soi',
+    titre: 'Exemples concrets',
+    fichesEntree: ['confiance-en-soi'],
+    corps: "Une personne peut être très à l'aise pour préparer une commande en cuisine et beaucoup moins pour téléphoner à un employeur. Ce n'est pas une contradiction : la confiance en soi varie selon la situation. Elle se construit souvent par de petites réussites répétées : passer un premier appel, puis un autre, ou s'entraîner à un entretien avec un proche. Se sentir capable d'agir ne veut pas dire ne ressentir aucune appréhension : on peut agir malgré elle."
+  },
+  {
+    id: 'second-niveau-affirmation-de-soi',
+    titre: 'Exemples concrets',
+    fichesEntree: ['affirmation-de-soi'],
+    corps: "Un responsable demande de rester plus tard que prévu, alors qu'on a un rendez-vous. On peut se taire et accepter, au risque de s'en vouloir ensuite. On peut répondre sèchement « c'est impossible ». Ou on peut dire calmement : « Ce soir, je ne peux pas, j'ai un rendez-vous ; je peux rester jeudi. » Cette dernière réponse exprime un besoin et propose une solution : c'est de l'affirmation de soi. Elle n'oblige pas à refuser tout ce qu'on demande, et elle n'empêche pas de dire oui quand on le peut."
+  },
+  {
+    id: 'second-niveau-estime-confiance-ou-affirmation',
+    titre: 'Exemples concrets',
+    fichesEntree: ['estime-confiance-ou-affirmation'],
+    corps: "Prenons quelqu'un qui a une idée à proposer à son équipe. L'estime de soi, c'est penser que son idée mérite d'être entendue. La confiance en soi, c'est se sentir capable de la présenter devant les autres. L'affirmation de soi, c'est choisir ses mots pour la dire clairement, sans s'excuser et sans couper la parole. On peut avoir l'une sans les autres : penser que son idée est bonne, sans se sentir capable de la dire à voix haute. C'est pourquoi on peut travailler chacune séparément, par petites étapes."
+  },
+  {
+    id: 'second-niveau-croyance-limitante',
+    titre: 'Exemples concrets',
+    fichesEntree: ['croyance-limitante'],
+    corps: "Voici des phrases qu'on se répète parfois : « je n'ai pas le niveau pour ce poste », « à mon âge, personne ne voudra de moi », « je ne sais pas parler en public ». Pour les regarder avec un peu de recul, on peut se demander d'où vient la phrase, si elle a toujours été vraie, et si une expérience passée dit le contraire : une tâche réussie, un compliment reçu. On peut aussi la reformuler avec plus de nuance : « je n'ai pas encore l'habitude de parler en public » laisse une porte ouverte que « je ne sais pas » referme. Il ne s'agit pas de se forcer à penser positif : seulement de vérifier si la phrase décrit un fait ou une habitude de pensée."
+  },
+  {
+    id: 'second-niveau-message-en-je',
+    titre: 'Exemples concrets',
+    fichesEntree: ['message-en-je'],
+    corps: "Une collègue laisse souvent la salle en désordre. « Tu ne ranges jamais rien » est un jugement sur elle, et elle risque de se défendre. Un message en « je » dirait plutôt : « Quand je trouve la salle en désordre, je perds du temps pour m'installer, et ça m'agace. Pourrait-on la ranger en partant ? » On y trouve ce qu'on observe, l'effet que cela a sur soi, et une demande. Autre exemple, avec un conseiller : « Je me sens un peu perdu quand les rendez-vous sont déplacés au dernier moment. » Cette façon de parler ne garantit pas que l'autre réagira bien, mais elle lui laisse plus facilement la possibilité d'écouter."
+  },
+  {
+    id: 'second-niveau-methode-desc',
+    titre: 'Exemples concrets',
+    fichesEntree: ['methode-desc'],
+    corps: "Un collègue arrive plusieurs fois en retard et l'équipe attend pour commencer. Décrire : « Ces derniers jours, tu es arrivé après l'heure prévue, et nous avons commencé en retard. » Exprimer : « Je suis gêné, parce que je dois m'excuser auprès des clients. » Suggérer : « Pourrait-on se retrouver à l'heure, ou me prévenir si tu es retenu ? » Conclure : « Comme ça, nous pourrons démarrer ensemble, et la journée sera plus tranquille pour nous deux. » On peut préparer ces phrases à l'avance, même par écrit, et les adapter avec ses propres mots."
+  },
+  {
+    id: 'second-niveau-critique-ou-reproche',
+    titre: 'Exemples concrets',
+    fichesEntree: ['critique-ou-reproche'],
+    corps: "Le même désaccord peut se dire de deux façons. Critique : « Le dossier est arrivé après l'heure convenue ; la prochaine fois, peux-tu me le remettre la veille ? » Elle décrit un fait précis et demande un changement. Reproche : « Tu te moques de nous, tu ne respectes jamais rien. » Il vise la personne et cherche à la faire se sentir coupable. Avant de parler, on peut se demander : « Est-ce que je peux décrire un fait précis, et dire ce que je demande pour la suite ? » Quand c'est soi qui reçoit une critique, elle porte sur un comportement dans une situation : elle ne dit pas ce qu'on vaut."
+  },
+  {
+    id: 'second-niveau-styles-de-communication',
+    titre: 'Exemples concrets',
+    fichesEntree: ['styles-de-communication'],
+    corps: "Un collègue demande de prendre en plus une partie de ses tâches, alors qu'on est déjà débordé. Style passif : « Oui, pas de souci », en se sentant dépassé ensuite. Style agressif : « Tu te moques de moi ? Débrouille-toi. » Style assertif : « Là, je suis déjà sur mes dossiers, je ne peux pas les prendre aujourd'hui ; je peux t'aider demain matin. » Personne n'a un seul style : on peut être très assertif au travail et plus effacé en famille, ou l'inverse. Ces manières de réagir se travaillent, par petites étapes, en commençant par les situations les moins difficiles."
+  },
+  {
+    id: 'second-niveau-groupe-de-pairs',
+    titre: 'Exemples concrets',
+    fichesEntree: ['groupe-de-pairs'],
+    corps: "Concrètement, ça peut être un atelier où des personnes en recherche d'emploi se retrouvent régulièrement pour se relire leurs CV, s'entraîner aux entretiens et partager des offres. Ou un groupe de personnes en reconversion qui échangent sur les formations qu'elles ont suivies. Ce que cela apporte : entendre que d'autres ont connu la même difficulté, recevoir un regard extérieur sur son CV, repartir avec une piste, et garder un rythme. Dans un groupe, on partage ce qu'on veut, sans obligation de tout dire. Il ne remplace ni un conseiller, ni un professionnel pour des difficultés plus personnelles."
+  },
+  {
+    id: 'second-niveau-aide-materielle',
+    titre: 'Exemples concrets',
+    fichesEntree: ['aide-materielle'],
+    corps: "Voici des situations où cette aide dépanne : une personne qui reprend un emploi et n'a pas de tenue adaptée, un jeune qui s'installe et a besoin de vaisselle ou de linge, une famille qui doit équiper une chambre, des parents qui cherchent du matériel de puériculture. Selon les lieux, on peut s'y rendre directement ou y être orienté par un travailleur social : le plus simple est de téléphoner avant, pour savoir comment cela se passe. Cette aide répond à un besoin précis et immédiat."
+  },
+  {
+    id: 'second-niveau-clause-d-execution-ou-critere-d-attribution',
+    titre: 'Exemples concrets',
+    fichesEntree: ['clause-d-execution-ou-critere-d-attribution'],
+    corps: "Une commune fait construire une école. Avec une clause d'exécution, l'entreprise retenue doit réserver un volume d'heures de travail à des personnes éloignées de l'emploi, quelle que soit l'entreprise choisie. Avec un critère d'attribution, l'engagement social entre dans la notation : l'entreprise qui propose le plus d'heures d'insertion, ou qui travaille avec une structure d'insertion, reçoit une meilleure note, ce qui peut la faire gagner. Les deux peuvent se combiner : un minimum d'heures est exigé, et celles qui en proposent davantage sont mieux notées. Pour une personne en recherche d'emploi, cela veut dire qu'un chantier public peut ouvrir des heures d'insertion : un conseiller ou une structure d'insertion peut l'expliquer."
   }
 ];

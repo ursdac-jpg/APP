@@ -132,6 +132,24 @@ out = ["---", "verifie_le: " + aujourdhui, "sources:"]
 for champ in champs:
     cle, texte = sources[champ]
     out.append('  - "%s | %s"' % (cle, texte))
+# Périodes structurées (consigne 145) : l'application écrit « en 2025 », « entre 2024 et 2025 »... d'après ce bloc, jamais d'après une année écrite dans son code.
+# Mêmes variables que les titres des sources ci-dessus : une seule source de vérité. Format : 2025 | T2 2026 | S2 2025 | 2024 > 2025.
+def trim_court(t):  # "2026-Q2" -> "T2 2026"
+    return "T%s %s" % (t[-1], t[:4])
+def sem_court(t):   # "2026-S2" -> "S2 2026"
+    return "S%s %s" % (t[-1], t[:4])
+PERIODES = {
+    "eurostat-croissance": AN, "eurostat-revenu-menages": AN, "eurostat-evolution-emploi": AN, "eurostat-taux-emploi": AN,
+    "eurostat-evolution-salaire-minimum": "%s > %s" % (sem_court(SEM_P), sem_court(SEM_N)),
+    "eurostat-evolution-remuneration": "%s > %s" % (an_p, AN),
+    "eurostat-creations": AN_ENT, "eurostat-cessations": AN_ENT,
+    "eurostat-faillites": "%s > %s" % (trim_court(str(int(TRIM[:4]) - 1) + TRIM[4:]), trim_court(TRIM)),
+    "eurostat-depenses-alimentation": AN, "eurostat-depenses-logement": AN, "eurostat-depenses-energie": AN_ENERGIE,
+}
+out.append("periodes:")
+for champ in champs:
+    cle = sources[champ][0]
+    out.append('  - "%s | %s"' % (cle, PERIODES[cle]))
 out += ["---", "", "# pays", ""]
 for g, nom in PAYS:
     out.append("## " + nom)

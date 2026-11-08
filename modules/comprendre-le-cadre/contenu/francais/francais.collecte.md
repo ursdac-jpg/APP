@@ -14,6 +14,7 @@ sources:
   - "francetravail-cpf-aif-poec | CPF, AIF, POEC : quel financement de formation choisir en 2026 ? | https://www.francetravail.fr/actualites/a-laffiche/2026/cpf-aif-poec-quel-financement.html | 2026-09-04"
   - "fei-diplomes-tests | France Éducation international : nos diplômes et tests (DILF, DELF, DALF, TCF) | https://www.france-education-international.fr/hub/diplomes-tests | 2026-09-04"
   - "fei-centres-examen | France Éducation international : trouver un centre d'examen | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-04"
+  - "interieur-parcours-integration-republicaine | Ministère de l'Intérieur : le parcours d'intégration républicaine | https://www.immigration.interieur.gouv.fr/lintegration-des-etrangers/parcours-dintegration-republicaine | 2026-11-03"
 structures:
   - "centres-examen-delf-dordogne | Centres d'examen DELF, DILF et TCF de la Dordogne, via l'annuaire de France Éducation international | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-04"
 ---

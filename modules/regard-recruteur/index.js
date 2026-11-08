@@ -34,7 +34,7 @@
    - htmlVerificationDocument / cablerVerificationDocument (data/metiers.js, mode texte)
    - reperesBoutonAncre / reperesBrancherBoutonAncre (modules/reperes/index.js)
    - confirmerAction, echapperAttribut, copierTexteVersPressePapier,
-     trackEvenement, htmlDeclencheurDemoVideo (js/app.js)
+     trackEvenement (js/app.js)
 
    Le contenu metier (interpretation de la reponse, prompt) est dans deux
    fichiers autonomes, deja committes et testes :

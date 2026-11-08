@@ -280,7 +280,7 @@ function _reperesRenduPicker(idPicker, libelleEchappe, avecAstuceDictee) {
     // TACHE (retour utilisateur, 2026-08-25, BUG REEL : "Annuler" ressemble
     // a une ligne de texte cliquable, pas a un bouton") : deja un vrai
     // <button>, mais sans classe stylee (aucun CSS n'existait pour
-    // .reperes-picker-annuler) -- meme classe bordee que les autres
+    // bouton Annuler) -- meme classe bordee que les autres
     // boutons secondaires de l'app (docs/LECONS_A_NE_PAS_REPRODUIRE.md,
     // section 1), jamais un style qui se confond avec un lien. Repris aux
     // 2 endroits qui utilisent ce meme picker (Journal de parcours ET
@@ -1271,6 +1271,7 @@ function _reperesRenduFiltre() {
     '<button type="button" class="' + (_reperesFiltreActuel === 'deuxieme-regard' ? 'is-active' : '') + '" data-repere-filtre="deuxieme-regard">🔬 Deuxième Regard</button>' +
     '</div>' +
     (explication ? '<p class="reperes-filtre-explication">' + explication + '</p>' : '') +
+    (_reperesFiltreActuel === 'deuxieme-regard' && typeof htmlVideoGeste === 'function' ? htmlVideoGeste('deuxieme-regard') : '') +
     legendeBoutons;
 }
 
@@ -1411,6 +1412,7 @@ function _reperesRenduAccueil() {
     multilingueCourte: true,
     detour: enDetour, detourBoutonId: 'btnReperesRevenirModule', detourLogo: 'bi-bookmark-star', detourAttribut: 'data-repere-revenir-module',
     onRevenirExpr: 'reperesRevenirDeLaPresentation()',
+    video: 'reperes',
     ctaId: 'btnReperesIntroCommencer', ctaAttribut: 'data-repere-accueil-continuer', ctaLabel: (estRetour ? 'Je reprends' : 'Je commence'),
     carteRetour: 'boiteaoutils',
     blocsHTML:

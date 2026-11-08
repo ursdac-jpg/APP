@@ -21,6 +21,11 @@ sources:
   - "service-public-treve-hivernale-energie | Service Public : impayés de factures (gaz, électricité, eau, téléphone, internet) | https://www.service-public.gouv.fr/particuliers/vosdroits/F20055 | 2026-11-03"
   - "ecologie-treve-hivernale-2026 | Ministères de la Transition écologique : trêve hivernale 2026, quand commence-t-elle ? | https://www.ecologie.gouv.fr/actualites/treve-hivernale-2026-quand-commence-t-elle-que-prevoit-loi | 2026-11-03"
   - "service-public-heures-creuses-plages | Service Public : heures creuses, de nouvelles plages horaires | https://www.service-public.gouv.fr/particuliers/actualites/A18476 | 2026-11-03"
+  - "service-public-maprimerenov | Service Public : MaPrimeRénov' | https://www.service-public.gouv.fr/particuliers/vosdroits/F35083 | 2026-10-27"
+  - "anah-accueil | Anah : agence nationale de l'habitat | https://www.anah.gouv.fr/ | 2026-10-27"
+  - "actionlogement-pret-travaux | Action Logement : le prêt travaux amélioration | https://www.actionlogement.fr/le-pret-travaux-amelioration | 2026-10-27"
+  - "actionlogement-pret-accession | Action Logement : le prêt accession | https://www.actionlogement.fr/le-pret-accession | 2026-10-27"
+  - "anil-reseau-adil | Anil : le réseau des Adil | https://www.anil.org/qui-sommes-nous/reseau-des-adil/ | 2026-10-27"
 structures:
 ---
 

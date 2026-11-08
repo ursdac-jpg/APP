@@ -234,6 +234,7 @@ function pageIntroMesCompetences() {
     onRevenirExpr: 'mesCompRevenirDeLaPresentation()',
     titre: '<i class="bi bi-compass"></i> Découvrir mes compétences',
     sousTitre: 'Vous avez déjà des compétences. Cet outil les repère dans vos documents, une par une, avec la phrase qui le prouve, et vous aide à les dire.',
+    video: 'competences',
     ctaId: 'btnMesCompCommencer',
     ctaLabel: 'Commencer &#8594;',
     etapes: MESCOMP_NAV_ETAPES,

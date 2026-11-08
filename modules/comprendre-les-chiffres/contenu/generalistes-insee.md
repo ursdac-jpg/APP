@@ -2,6 +2,8 @@
 verifie_le: 2026-11-06
 sources:
   - "insee-medecins-2025 | Insee, Banque de données macroéconomiques, densité des médecins généralistes pour 100 000 habitants par département (séries 2025, relevées par l'interface publique de l'Insee) | https://www.insee.fr/fr/statistiques/serie/010760995 | 2026-11-06"
+periodes:
+  - "insee-medecins-2025 | 2025"
 ---
 
 # departements

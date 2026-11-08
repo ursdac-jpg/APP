@@ -483,3 +483,12 @@ legion-recrute-conditions | https://www.legion-recrute.com/ | 2026-11-03 | natio
 agriculture-gouv-assurance-recolte | https://agriculture.gouv.fr/assurance-recolte-reponses-aux-questions-frequemment-posees | 2026-11-03 | national
 sdis87-pompiers-volontaires | https://sdis-87.fr/sapeurs-pompiers-volontaires/ | 2026-11-03 | 87
 sengager-militaire-du-rang | https://www.sengager.fr/assets/MILITAIRE_DU_RANG_0c06203286.pdf | 2026-11-03 | national
+service-public-ass | https://www.service-public.gouv.fr/particuliers/vosdroits/F12484 | 2026-11-07 | national
+legifrance-loi-2016-1917-article-87 | https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000033760616 | 2026-11-07 | national
+legifrance-decret-2026-547-aah | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054321795 | 2026-11-07 | national
+service-public-complement-ressources | https://www.service-public.gouv.fr/particuliers/vosdroits/F12911 | 2026-11-07 | national
+service-public-actualite-a19128 | https://www.service-public.gouv.fr/particuliers/actualites/A19128 | 2026-11-08 | national
+legifrance-decret-2026-1001-etrangers-travailleurs | https://www.legifrance.gouv.fr/eli/decret/2026/10/26/INTV2619006D/jo/texte | 2026-11-08 | national
+unedic-duree-indemnisation | https://www.unedic.org/la-reglementation/fiches-thematiques/duree-dindemnisation | 2026-11-08 | national
+unedic-parametres-avril-2026 | https://www.unedic.org/storage/uploads/2026/05/27/unedic_parametres_utiles_avril2026_uid_6a17039e9f727.pdf | 2026-11-08 | national
+unedic-ce-qui-change-1er-avril-2025 | https://www.unedic.org/publications/assurance-chomage-qu-est-ce-qui-change-au-1er-avril | 2026-11-08 | national

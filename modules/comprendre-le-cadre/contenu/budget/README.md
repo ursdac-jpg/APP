@@ -25,7 +25,7 @@
    - microcrédit : **8 000 €** max, **6 mois à 7 ans** ;
    - droit au compte : délais 1 jour ouvré / 3 jours ouvrés.
 
-## Les 9 fiches
+## Les 11 fiches
 
 | id | titre |
 |---|---|
@@ -38,6 +38,8 @@
 | `budget-droit-au-compte` | Une banque refuse de m'ouvrir un compte : le droit au compte |
 | `budget-aide-alimentaire-et-aides-urgence` | Aide alimentaire et aides d'urgence : à qui s'adresser (ajoutée le 2026-09-04) |
 | `budget-saisie-sur-salaire` | Un créancier saisit une partie de mon salaire : ce qui est prélevé, ce qui est protégé (ajoutée le 2026-09-06) |
+| `budget-ass-reprise-d-activite-que-devient-mon-allocation` | Je touche l'ASS et je reprends un travail : que devient mon allocation ? |
+| `budget-l-allocation-de-solidarite-specifique-ass-qui-peut-la-toucher-et-comment-ca-se-passe` | L'allocation de solidarité spécifique (ASS) : qui peut la toucher et comment ça se passe ? |
 
 ## Section « à qui s'adresser »
 

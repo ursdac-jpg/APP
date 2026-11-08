@@ -1,0 +1,113 @@
+# Appuis des textes écrits à la main du portrait du territoire (portrait-2026.md).
+# Fichier propre à l'outil de veille, jamais lu par l'application. Format et règles : outils/veilleAppuis.js.
+# Ici, un « texte » est une phrase (ou un paragraphe) du portrait : « texte: <rubrique> | <début de la phrase> ».
+# Un chiffre est adressé par « <début de la phrase>#<adresse> » : #3 = le 3e passage en gras ; #2.1 = le 1er nombre du 2e passage en gras ;
+# #>texte repère = le premier nombre qui suit ce texte (pour un chiffre qui n'est pas en gras).
+# Seules les phrases qui COMPARENT ou qui INTERPRÈTENT un chiffre sont déclarées : le chiffre seul est déjà tenu par la source en fin de ligne.
+
+texte: Les freins à l'emploi sur le territoire | Garde d'enfant
+  valeur: Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#1 | valeur | 60,9
+  valeur: Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#2 | valeur | 59
+  valeur: Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#3 | valeur | 56
+  sens: Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#2 | moins que | Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#1
+  sens: Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#3 | moins que | Les freins à l'emploi sur le territoire | Garde d'enfant (parmi les parents en recherche)#2
+
+texte: Les freins à l'emploi sur le territoire | Logement
+  valeur: Les freins à l'emploi sur le territoire | Logement (instable#1 | valeur | 1,8
+  valeur: Les freins à l'emploi sur le territoire | Logement (instable#2 | valeur | 2,2
+  valeur: Les freins à l'emploi sur le territoire | Logement (instable#>moyenne régionale ( | valeur | 2,2
+  valeur: Les freins à l'emploi sur le territoire | Logement (instable#>moyenne nationale ( | valeur | 4,8
+  sens: Les freins à l'emploi sur le territoire | Logement (instable#1 | moins que | Les freins à l'emploi sur le territoire | Logement (instable#>moyenne régionale (
+  sens: Les freins à l'emploi sur le territoire | Logement (instable#2 | moins que | Les freins à l'emploi sur le territoire | Logement (instable#>moyenne nationale (
+
+texte: Les freins à l'emploi sur le territoire | Santé : la densité
+  valeur: Les freins à l'emploi sur le territoire | Santé : la densité#1 | valeur | 133
+  valeur: Les freins à l'emploi sur le territoire | Santé : la densité#2 | valeur | 166
+  valeur: Les freins à l'emploi sur le territoire | Santé : la densité#3 | valeur | 146
+  valeur: Les freins à l'emploi sur le territoire | Santé : la densité#>où elle était à | valeur | 144
+  sens: Les freins à l'emploi sur le territoire | Santé : la densité#1 | moins que | Les freins à l'emploi sur le territoire | Santé : la densité#3
+  sens: Les freins à l'emploi sur le territoire | Santé : la densité#2 | plus que | Les freins à l'emploi sur le territoire | Santé : la densité#3
+  sens: Les freins à l'emploi sur le territoire | Santé : la densité#1 | moins que | Les freins à l'emploi sur le territoire | Santé : la densité#>où elle était à
+
+texte: Population et densité | Dordogne (24)
+  signe: Population et densité | Dordogne (24) : **417#3 | positif
+  valeur: Population et densité | Dordogne (24) : **417#3 | valeur | 0,2
+
+texte: Population et densité | Haute-Vienne (87)
+  signe: Population et densité | Haute-Vienne (87) : **373#3 | négatif
+  valeur: Population et densité | Haute-Vienne (87) : **373#3 | valeur | -0,1
+
+texte: Population et densité | Naissances et décès
+  sens: Population et densité | Naissances et décès#1.1 | moins que | Population et densité | Naissances et décès#1.2
+  sens: Population et densité | Naissances et décès#2.1 | moins que | Population et densité | Naissances et décès#2.2
+
+texte: L'âge de la population | Part des 65 ans et plus
+  valeur: L'âge de la population | Part des 65 ans et plus#1 | valeur | 31
+  valeur: L'âge de la population | Part des 65 ans et plus#2 | valeur | 26
+  valeur: L'âge de la population | Part des 65 ans et plus#>moyenne française (environ | valeur | 21
+  sens: L'âge de la population | Part des 65 ans et plus#2 | plus que | L'âge de la population | Part des 65 ans et plus#>moyenne française (environ
+
+texte: Comment on est embauché ici | Temps partiel
+  valeur: Comment on est embauché ici | Temps partiel#1 | valeur | 17
+  valeur: Comment on est embauché ici | Temps partiel#2 | valeur | 16
+  valeur: Comment on est embauché ici | Temps partiel#>femmes (environ | valeur | 24
+  valeur: Comment on est embauché ici | Temps partiel#>contre | valeur | 9
+  sens: Comment on est embauché ici | Temps partiel#>femmes (environ | plus que | Comment on est embauché ici | Temps partiel#>contre
+
+texte: Le marché n'est pas le même pour tout le monde | Écart de salaire femmes
+  valeur: Le marché n'est pas le même pour tout le monde | Écart de salaire femmes / hommes en France (2023)#1 | valeur | 14,2
+  valeur: Le marché n'est pas le même pour tout le monde | Écart de salaire femmes / hommes en France (2023)#2 | valeur | 4
+  sens: Le marché n'est pas le même pour tout le monde | Écart de salaire femmes / hommes en France (2023)#2 | moins que | Le marché n'est pas le même pour tout le monde | Écart de salaire femmes / hommes en France (2023)#1
+
+texte: Salaires par secteur | Salaire net mensuel moyen
+  valeur: Salaires par secteur | Salaire net mensuel moyen en équivalent temps plein#3 | valeur | 2 710
+  valeur: Salaires par secteur | Salaire net mensuel moyen en équivalent temps plein#4 | valeur | 1 980
+  sens: Salaires par secteur | Salaire net mensuel moyen en équivalent temps plein#4 | moins que | Salaires par secteur | Salaire net mensuel moyen en équivalent temps plein#3
+
+texte: Le niveau de formation | Population de 15 ans et plus non scolarisée
+  valeur: Le niveau de formation | Population de 15 ans et plus non scolarisée#3 | valeur | 25
+  valeur: Le niveau de formation | Population de 15 ans et plus non scolarisée#4 | valeur | 30
+  sens: Le niveau de formation | Population de 15 ans et plus non scolarisée#3 | moins que | Le niveau de formation | Population de 15 ans et plus non scolarisée#4
+
+texte: Le niveau de formation | Jeunes de 15 à 29 ans
+  valeur: Le niveau de formation | Jeunes de 15 à 29 ans#>femmes (environ | valeur | 14
+  valeur: Le niveau de formation | Jeunes de 15 à 29 ans#>hommes (environ | valeur | 10
+  sens: Le niveau de formation | Jeunes de 15 à 29 ans#>hommes (environ | moins que | Le niveau de formation | Jeunes de 15 à 29 ans#>femmes (environ
+
+texte: Le territoire bouge-t-il | Par département, une source complémentaire
+  valeur: Le territoire bouge-t-il | Par département, une source complémentaire#2 | valeur | 372
+  valeur: Le territoire bouge-t-il | Par département, une source complémentaire#>en Dordogne** ( | valeur | 394
+  valeur: Le territoire bouge-t-il | Par département, une source complémentaire#3 | valeur | 431
+  valeur: Le territoire bouge-t-il | Par département, une source complémentaire#>en Haute-Vienne** ( | valeur | 422
+
+texte: Calendrier de saisonnalité | La saisonnalité est plus marquée
+  valeur: Calendrier de saisonnalité | La saisonnalité est plus marquée en Dordogne#>2026 : environ | valeur | 45
+  valeur: Calendrier de saisonnalité | La saisonnalité est plus marquée en Dordogne#>en Dordogne, environ | valeur | 31
+  sens: Calendrier de saisonnalité | La saisonnalité est plus marquée en Dordogne#>en Dordogne, environ | moins que | Calendrier de saisonnalité | La saisonnalité est plus marquée en Dordogne#>2026 : environ
+
+texte: Métiers en tension | Enquête Besoins en Main d'Œuvre 2026
+  valeur: Métiers en tension | Enquête Besoins en Main d'Œuvre 2026#2 | valeur | 6,5
+  valeur: Métiers en tension | Enquête Besoins en Main d'Œuvre 2026#3 | valeur | 43,8
+  valeur: Métiers en tension | Enquête Besoins en Main d'Œuvre 2026#>contre | valeur | 50,1
+  sens: Métiers en tension | Enquête Besoins en Main d'Œuvre 2026#3 | moins que | Métiers en tension | Enquête Besoins en Main d'Œuvre 2026#>contre
+
+texte: Métiers en tension | Dordogne (24) : environ
+  valeur: Métiers en tension | Dordogne (24) : environ#2 | valeur | 66
+  valeur: Métiers en tension | Dordogne (24) : environ#3 | valeur | 45
+  valeur: Métiers en tension | Dordogne (24) : environ#>niveau national, environ | valeur | 32
+  sens: Métiers en tension | Dordogne (24) : environ#>niveau national, environ | moins que | Métiers en tension | Dordogne (24) : environ#3
+
+texte: Métiers en tension | Haute-Vienne (87) : environ
+  valeur: Métiers en tension | Haute-Vienne (87) : environ#2 | valeur | 52
+  valeur: Métiers en tension | Haute-Vienne (87) : environ#3 | valeur | 31
+  valeur: Métiers en tension | Haute-Vienne (87) : environ#>moins qu'en Dordogne, environ | valeur | 66
+  sens: Métiers en tension | Haute-Vienne (87) : environ#2 | moins que | Métiers en tension | Haute-Vienne (87) : environ#>moins qu'en Dordogne, environ
+  sens: Métiers en tension | Haute-Vienne (87) : environ#3 | moins que | Métiers en tension | Dordogne (24) : environ#3
+
+texte: Métiers en tension | Nouvelle-Aquitaine, enquête
+  valeur: Métiers en tension | Nouvelle-Aquitaine, enquête#2 | valeur | 43
+  valeur: Métiers en tension | Nouvelle-Aquitaine, enquête#3 | valeur | 50
+  valeur: Métiers en tension | Nouvelle-Aquitaine, enquête#>contre | valeur | 32
+  valeur: Métiers en tension | Nouvelle-Aquitaine, enquête#>pourvoir (contre | valeur | 44
+  sens: Métiers en tension | Nouvelle-Aquitaine, enquête#>contre | moins que | Métiers en tension | Nouvelle-Aquitaine, enquête#2
+  sens: Métiers en tension | Nouvelle-Aquitaine, enquête#>pourvoir (contre | moins que | Métiers en tension | Nouvelle-Aquitaine, enquête#3
