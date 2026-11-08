@@ -1340,3 +1340,8 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Symptôme** : en publiant la fiche « Le chômage après 55 ans », l'outil annonce « Rien n'a été enregistré » : le test `veilleChoix` mesure 322/360 sources dans la liste du rayon (89,4 %, seuil 90 %).
 - **Cause** : la liste d'un rayon vient de `<rayon>.collecte.md` ; les fiches publiées au fil des mois avaient ajouté 35 sources absentes de ces listes (déjà 90,2 %, à la limite), et les trois sources de la nouvelle fiche ont fait passer sous le seuil.
 - **Règle** : quand une fiche reçoit une source nouvelle, l'ajouter aussi à la liste `sources:` du `.collecte.md` de son rayon, dans le même passage. Les 35 sources manquantes ont été ajoutées le 08/11/2026 (100 %).
+
+## 9.141 Un réglage posé sur `html` (rem) agrandit aussi les boutons fixes : les compenser (taille du texte, 2026-11-08)
+- **Symptôme** : en entrant dans « Nouveautés » ou un module, les icônes du haut, « Introduction » et le Carnet grossissent avec le texte.
+- **Cause** : leurs tailles de police sont en `rem` ; le palier d'écran (consigne 144) change la taille de `html` sur toutes les pages sauf l'accueil et les présentations.
+- **Règle** : tout bouton fixe de l'interface (hors contenu) multiplie ses `rem` par `var(--echelle-fixe)` (fin de `css/style.css`). Un nouveau bouton fixe s'ajoute à ce bloc et au test `tests/boutonsFixesTaille.test.js`.

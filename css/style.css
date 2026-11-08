@@ -5576,3 +5576,18 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
   .idp-points { display: none; }
   .idp-pied { justify-content: space-between; }
 }
+
+/* Boutons persistants du haut et des cotes : la meme taille sur TOUTES les pages (decision Denis, 08/11/2026 : « quand je clique sur Nouveautes, les icones grossissent,
+   je veux que seul le contenu de la page soit plus grand »). Les paliers de l'ecran (--palier-taille, section LISIBILITE) agrandissent le texte du contenu des modules ;
+   ces boutons gardent la taille qu'ils ont sur l'accueil (--palier-barre). Le reglage « Texte plus grand » de la personne continue de s'y appliquer : seul le palier d'ecran est
+   annule, comme pour la barre du bas (.barre-navigation-fixe). Sous 1000 px de large il n'y a aucun palier : rien a faire (les regles du telephone restent seules). */
+:root { --echelle-fixe: calc(var(--palier-barre, 1) / var(--palier-taille, 1)); }
+@media (min-width: 1000px) {
+  html #btnPreferencesAffichage, html #btnAide, html #btnSessionTransfert, html #btnNouveautes { font-size: calc(1.3rem * var(--echelle-fixe)); }
+  html #btnCarnet, html #btnJournalParcours, html #btnComparerPanier { font-size: calc(1.4rem * var(--echelle-fixe)); }
+  html #btnNouveautes .pastille-nouveau { font-size: calc(.68rem * var(--echelle-fixe)); }
+  html #btnIntroduction { font-size: calc(1rem * var(--echelle-fixe)); padding: 0 calc(.9rem * var(--echelle-fixe)); gap: calc(.45rem * var(--echelle-fixe)); }
+  html #btnIntroduction i { font-size: calc(1.15rem * var(--echelle-fixe)); }
+  html #btnRetourModuleExterne { font-size: calc(.9rem * var(--echelle-fixe)); padding: 0 calc(.9rem * var(--echelle-fixe)); gap: calc(.4rem * var(--echelle-fixe)); }
+  html #btnRetourModuleExterne .bi { font-size: calc(1.2rem * var(--echelle-fixe)); }
+}
