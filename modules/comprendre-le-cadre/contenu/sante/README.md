@@ -16,13 +16,14 @@ maladie, Géoconfluences), consignée dans `sante.collecte.md`.
    coordonnées territoriales) de Dordogne ou de Haute-Vienne ont un site stable dans le temps, pour les
    citer nommément plutôt qu'un renvoi générique à santé.fr - pas fait dans cette première passe.
 
-## Les 3 fiches
+## Les 4 fiches
 
 | id | titre |
 |---|---|
 | `sante-desert-medical` | Pas de médecin près de chez vous ? Comprendre le désert médical |
 | `sante-puma-c2s-et-medecin-traitant` | Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant |
 | `sante-complementaire-sante-solidaire-si-je-touche-l-ass-ou-l-aah` | Complémentaire santé solidaire : ce qui peut m'être proposé si je touche l'ASS ou l'AAH |
+| `sante-mon-soutien-psy-seances-psychologue` | Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy » |
 
 ## Section « à qui s'adresser »
 

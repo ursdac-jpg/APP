@@ -15,8 +15,8 @@ function fn(nom) {
 const iReg = html.indexOf('var SITES_VEILLE_SEMAINE = ['), fReg = html.indexOf('\n  ];', iReg) + 5;
 assert.ok(iReg >= 0 && fReg > iReg, 'registre des sites de la semaine');
 const REGISTRE = html.slice(iReg, fReg);
-const S = new Function(REGISTRE + '\n' + ['deMd', 'semDom', 'semSiteDe', 'semCleDe', 'semLire', 'semCalculer', 'semSections', 'semAssembler', 'analyserReponse'].map(fn).join('\n')
-  + '\nreturn { SITES_VEILLE_SEMAINE: SITES_VEILLE_SEMAINE, semSections: semSections, semAssembler: semAssembler, semLire: semLire, semCalculer: semCalculer, analyserReponse: analyserReponse };')();
+const S = new Function(REGISTRE + '\n' + ['deMd', 'semAvecAjout', 'semEstMain', 'semDom', 'semSiteDe', 'semCleDe', 'semLire', 'semCalculer', 'semSections', 'semAssembler', 'analyserReponse'].map(fn).join('\n')
+  + '\nreturn { SITES_VEILLE_SEMAINE: SITES_VEILLE_SEMAINE, semAvecAjout: semAvecAjout, semEstMain: semEstMain, semCleDe: semCleDe, semSections: semSections, semAssembler: semAssembler, semLire: semLire, semCalculer: semCalculer, analyserReponse: analyserReponse };')();
 const NL = String.fromCharCode(10);
 
 const CHATGPT = [
@@ -104,7 +104,7 @@ test('sites que personne n’a pu lire : un site lu par un assistant disparaît,
 test('les boutons déjà utilisés passent au vert, et le bouton « Pas utile cette semaine » n’existe plus (décision de Denis, 08/11/2026)', () => {
   assert.ok(/\.btn\.fait-ok\s*\{[^}]*var\(--ok\)/.test(html), 'style du bouton utilisé');
   assert.ok(html.includes('✔ Texte collé : le voir'), 'le bouton collé devient vert et permet de voir le texte');
-  assert.ok(html.includes('✔ Réponse de '), 'les boutons ChatGPT et Perplexity passent au vert une fois la réponse ajoutée');
+  assert.ok(html.includes("'✔ ' + plur(nb, 'réponse', 'réponses') + ' de '"), 'les boutons ChatGPT et Perplexity passent au vert une fois la réponse ajoutée');
   assert.ok(!/Pas utile cette semaine|semEcartes|data-sem-site="ecarter"/.test(html), 'plus de bouton « écarter » ni de mémoire des sites écartés');
 });
 
@@ -141,4 +141,79 @@ test('un texte copié à la main reste affiché pour son site, même lu par un a
   const r = S.semCalculer(secs, { unedic: 'texte copié' });
   assert.ok(r.liste.some((v) => v.cle === 'unedic'));
   assert.ok(!r.lues.some((v) => v.cle === 'unedic'));
+});
+
+// Scan du mois (décision de Denis, 09/11/2026) : les 10 messages reçoivent des réponses côte à côte, plusieurs de chaque assistant, comme la veille de la semaine.
+const BRUT_MOIS = 'Ce qui a changé en octobre : le décret n° 2026-1001 du 26 octobre 2026 modifie le délai de décision de la préfecture (https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000000000). '.repeat(4);
+const BRUT_COUPE = 'Premier lot de changements, avec ses sources (https://www.unedic.org/actualites). '.repeat(6) + ' SUITE DISPONIBLE : voulez-vous la suite ?';
+
+test('scan du mois : un texte brut est accepté, un refus ne l’est pas, les autres cartes gardent leur format', () => {
+  assert.notStrictEqual(S.analyserReponse('balayage-3', BRUT_MOIS).niveau, 'inutilisable');
+  assert.strictEqual(S.analyserReponse('balayage-3', 'Je ne peux pas répondre à cette demande : la période n’est pas définie.').niveau, 'inutilisable');
+  assert.strictEqual(S.analyserReponse('chiffres', BRUT_MOIS).niveau, 'inutilisable');
+});
+
+test('scan du mois : plusieurs réponses du même assistant se lisent à la suite, la carte vaut le meilleur assistant', () => {
+  // Une réponse coupée, puis sa suite collée avec le même bouton : plus coupée.
+  const suite = S.semAssembler([{ auteur: 'ChatGPT', heure: '10:00', texte: BRUT_COUPE }, { auteur: 'ChatGPT', heure: '10:03', texte: 'Deuxième lot de changements (https://www.service-public.gouv.fr/actualites). '.repeat(6) }]);
+  assert.strictEqual(S.analyserReponse('balayage-1', suite).coupee, false, 'la suite complète la réponse coupée du même assistant');
+  assert.strictEqual(S.analyserReponse('balayage-1', BRUT_COUPE).coupee, true);
+  // Un assistant qui refuse n’empêche pas l’autre de compter.
+  const mixte = S.semAssembler([{ auteur: 'ChatGPT', heure: '10:00', texte: 'Je ne peux pas répondre à cette demande.' }, { auteur: 'Perplexity', heure: '10:05', texte: BRUT_MOIS }]);
+  assert.notStrictEqual(S.analyserReponse('balayage-1', mixte).niveau, 'inutilisable');
+  // Deux assistants qui refusent : inutilisable.
+  const deux = S.semAssembler([{ auteur: 'ChatGPT', heure: '10:00', texte: 'Je ne peux pas répondre à cette demande.' }, { auteur: 'Perplexity', heure: '10:05', texte: 'Je suis désolé, je ne peux pas répondre.' }]);
+  assert.strictEqual(S.analyserReponse('balayage-1', deux).niveau, 'inutilisable');
+});
+
+test('scan du mois : le bloc « Réponses reçues » est celui de la veille de la semaine, branché sur chaque message, et le message pour Claude demande le tri', () => {
+  assert.ok(html.includes('function semAvecAjout(id)') && /balayage\|rayon/.test(fn('semAvecAjout')), 'les messages du scan utilisent le bloc d’ajout');
+  assert.ok(html.includes("(semAvecAjout(x.id) ? semSquelette(x.id)"), 'chaque carte de message affiche « Ajouter la réponse de ChatGPT / Perplexity »');
+  assert.ok(/data-card="' \+ card \+ '" data-auteur/.test(html) && html.includes("card = b.getAttribute('data-card') || 'hebdo'"), 'les boutons savent à quelle carte ils appartiennent');
+  assert.ok(html.includes("var sections = semSections(_tc.rep[card]);"), 'une carte ne touche que ses propres réponses');
+  assert.ok(html.includes("'fiches-mois-' + id.slice(9)"), 'les fiches proposées pour un message du mois s’affichent sous la carte de ce message');
+  assert.ok(html.includes('MISE À JOUR de cette fiche') && html.includes('RETRAIT ou correction') && html.includes('NOUVELLE fiche'), 'le message pour Claude demande le tri : à jour, périmé, nouvelle');
+  const ret = require('../outils/veilleRetours.js');
+  assert.ok(fs.readFileSync(path.join(__dirname, '..', 'outils', 'veilleRetours.js'), 'utf8').includes('fiches-(?:hebdo|mois-[0-9]{1,2}|'), 'le serveur accepte fiches-mois.md');
+  assert.ok(ret.creerRetours);
+});
+
+// Étape 2 (09/11/2026) : toutes les cartes qui reçoivent la réponse d'un assistant reçoivent aussi plusieurs réponses côte à côte.
+test('étape 2 : rayons, chiffres, réseau, lexique, portrait et UE acceptent plusieurs réponses ; les tableaux copiés à la main et les sites lus à la main gardent la case unique', () => {
+  ['hebdo', 'balayage-3', 'rayon-emploi', 'chiffres', 'reseau', 'lexique', 'portrait', 'ue'].forEach((id) => assert.strictEqual(S.semAvecAjout(id), true, id));
+  ['profil-decoupes', 'medecins', 'main-legifrance', 'main-sem-service-public'].forEach((id) => assert.strictEqual(S.semAvecAjout(id), false, id));
+  const NLL = String.fromCharCode(10);
+  const bloc = (n, c) => '[' + n + ']' + NLL + c + NLL + '[/' + n + ']';
+  // une réponse coupée de ChatGPT et sa suite se lisent à la suite ; l'autre assistant n'est pas mélangé
+  const coupee = '[CHIFFRES periode: T1]' + NLL + 'indicateur: a' + NLL + 'preuve: https://www.insee.fr/fr/statistiques/1';
+  const suite = NLL + 'indicateur: b' + NLL + '[/CHIFFRES]';
+  const deux = S.semAssembler([{ auteur: 'ChatGPT', heure: '10:00', texte: coupee }, { auteur: 'ChatGPT', heure: '10:05', texte: suite }, { auteur: 'Perplexity', heure: '10:10', texte: bloc('CHIFFRES', 'indicateur: c' + NLL + 'preuve: https://www.insee.fr/fr/statistiques/2') }]);
+  assert.strictEqual(S.analyserReponse('chiffres', deux).niveau, 'ok');
+  // l'exigence de format des autres cartes reste : sans son bloc, une réponse longue est inutilisable
+  assert.strictEqual(S.analyserReponse('rayon-emploi', S.semAssembler([{ auteur: 'ChatGPT', heure: '', texte: 'Voici un résumé. ' + 'x'.repeat(300) }])).niveau, 'inutilisable');
+  assert.ok(html.includes('function semFormatLibre(id)'), 'le texte du bloc distingue les cartes à format libre');
+  assert.ok(!/<textarea data-tc-rep="' \+ x\.id[^;]*semAvecAjout/.test(html));
+});
+
+// Sites que personne n'a pu lire, pour chaque carte (09/11/2026) : repérés dans les réponses, texte copié à la main = une section de la carte.
+test('cartes autres que la veille de la semaine : sites non lus repérés sans rapprochement avec le registre, texte copié à la main ajouté aux réponses et jamais refusé', () => {
+  const NLL = String.fromCharCode(10);
+  const chat = '[CHIFFRES periode: T1]' + NLL + 'indicateur: a' + NLL + 'preuve: https://www.insee.fr/fr/statistiques/1' + NLL + '[/CHIFFRES]' + NLL + '[SITES-NON-OUVERTS]' + NLL + 'DARES | https://dares.travail-emploi.gouv.fr/ | bloqué par un robot | taux' + NLL + 'Pôle emploi | non essayé | trop long | stats' + NLL + '[/SITES-NON-OUVERTS]';
+  const sections = [{ auteur: 'ChatGPT', heure: '10:00', texte: chat }];
+  const libre = S.semCalculer(sections, {}, true);
+  assert.strictEqual(libre.liste.length, 2, 'DARES et Pôle emploi : deux sites à ouvrir à la main');
+  assert.strictEqual(libre.liste[0].site, null, 'un sous-domaine n’est pas rapproché d’un site de la semaine');
+  assert.strictEqual(libre.liste[0].domaine, 'dares.travail-emploi.gouv.fr');
+  assert.strictEqual(libre.liste[1].domaine, 'Pôle emploi', 'un site cité sans adresse garde son nom');
+  const cle = S.semCleDe('dares.travail-emploi.gouv.fr', true);
+  assert.notStrictEqual(cle, S.semCleDe('travail-emploi.gouv.fr', true));
+  assert.strictEqual(S.semCalculer(sections, { [cle]: 'texte' }, true).liste.filter((v) => v.cle === cle).length, 1, 'un site dont le texte est collé reste dans la liste, marqué reçu');
+  // le texte copié à la main est une section reconnue ; seule, elle n'est jamais refusée ; avec les réponses, elle ne change pas leur jugement
+  const main = { auteur: 'texte copié à la main sur dares.travail-emploi.gouv.fr', heure: '10:30', texte: 'Taux de chômage : 7,4 %' };
+  assert.strictEqual(S.semEstMain(main.auteur), true);
+  assert.strictEqual(S.semEstMain('ChatGPT'), false);
+  assert.strictEqual(S.analyserReponse('chiffres', S.semAssembler([main])).niveau, 'ok');
+  assert.strictEqual(S.analyserReponse('chiffres', S.semAssembler(sections.concat([main]))).niveau, 'ok');
+  assert.strictEqual(S.analyserReponse('chiffres', S.semAssembler([{ auteur: 'ChatGPT', heure: '', texte: 'Voici un résumé. ' + 'x'.repeat(300) }, main])).niveau, 'inutilisable');
+  assert.ok(html.includes('function semSauverSite(cle, texte, card, dom)') && html.includes("semSquelettesSites(x.id)"), 'chaque carte affiche ses sites non lus et enregistre le texte collé dans ses réponses');
 });

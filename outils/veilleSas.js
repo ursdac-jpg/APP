@@ -12,6 +12,7 @@
 'use strict';
 const L = require('../modules/mon-territoire/logique.js');
 const T = require('./veilleTerritoire.js');
+const E = require('./veilleEcartes.js');
 
 const CHEMINS = { lieux: 'outils/sas/lieux.sas.txt', employeurs: 'outils/sas/employeurs.sas.txt', complements: 'outils/sas/complements.sas.txt', offres: 'outils/sas/offres.sas.txt' };
 const COLONNES = { lieux: T.FICHIERS.lieux.colonnes, employeurs: T.FICHIERS.employeurs.colonnes, complements: ['cible', 'registre', 'telephone', 'source'], offres: T.FICHIERS.offres.colonnes };
@@ -204,6 +205,31 @@ function traduire(message, colonnes, ctx, v) {
   return { champ: '', message: message, suggestions: [] };
 }
 
+// ---------- 4 bis. Historique des employeurs ecartes (consigne du 09/11/2026) ----------
+// Seuls le sas des employeurs et celui des pages d'offres gardent cet historique : une fiche ecartee parce que l'employeur ne repond plus, n'existe pas ici ou a ferme.
+const FICHIERS_EMPLOYEURS = ['employeurs', 'offres'];
+// Ce qui identifie un employeur : son nom, ses communes (noms normalises), ses departements (par les communes, ou par la portee), son site, son telephone.
+function infoEmployeur(v, ctx) {
+  const codes = (ctx && ctx.communesCodes) || {}, communes = [], brutes = [], deps = [];
+  const ajouterDep = function (d) { if (d && deps.indexOf(d) === -1) { deps.push(d); } };
+  const ajouterCommune = function (c) { c = String(c || '').trim(); if (c) { brutes.push(c); communes.push(norm(c)); } };
+  if (v && v.etablissements) { String(v.etablissements).split(';').forEach(function (e) { ajouterCommune(String(e).split(':')[0]); }); }
+  if (v && v.commune) { ajouterCommune(v.commune); }
+  communes.forEach(function (c) { if (codes[c]) { ajouterDep(String(codes[c]).slice(0, 2)); } });
+  [v && v.territoire, v && v.portee].forEach(function (t) { const x = String(t || '').trim(); if (/^\d{2}[a-z]?$/.test(x)) { ajouterDep(x); } });
+  return { nom: (v && v.nom) || '', communes: communes, deps: deps, site: (v && (v.site || v.page || v.recrutement)) || '', tel: (v && v.telephone) || '', brutes: brutes };
+}
+function lieuEmployeur(info) {
+  const noms = info.deps.map(function (d) { const x = L.mtDepartement(d); return x ? x.nom + ' (' + d + ')' : d; });
+  return (info.brutes.slice(0, 3).join(', ') + (info.brutes.length > 3 ? ' et ' + (info.brutes.length - 3) + ' autre(s)' : '')) + (info.brutes.length && noms.length ? ' : ' : '') + noms.join(', ');
+}
+function resumeEcartee(ec) { return { id: ec.id, titre: ec.titre, ecarte_le: ec.ecarte_le, motif: ec.motif, motifLibelle: E.LIBELLES_MOTIFS[ec.motif] || E.LIBELLES_MOTIFS.inconnu, precision: ec.precision || '', lieu: ec.lieu || '' }; }
+function ecarteeDe(fichier, v, ctx) {
+  if (FICHIERS_EMPLOYEURS.indexOf(fichier) === -1 || !ctx || !ctx.ecartes || !ctx.ecartes.length) { return null; }
+  const ec = E.trouver(ctx.ecartes, 'employeur', infoEmployeur(v, ctx));
+  return ec ? ec : null;
+}
+
 // ---------- 5. Index de doublons ----------
 // Lit un fichier du sas : pour les numeros, l'identifiant d'une ligne est la fiche visee (colonne « cible »).
 function lireSas(texte, colonnes) {
@@ -293,6 +319,8 @@ function analyserLigne(fichier, brut, numero, ctx, index, texteRegistre, aujourd
   sortie.avertissements = [];
   const dbl = doublon(index, v, ctx);
   if (dbl) { sortie.statut = 'connue'; sortie.connue = dbl; return sortie; }
+  const ecartee = ecarteeDe(fichier, v, ctx);
+  if (ecartee) { sortie.statut = 'ecartee'; sortie.ecartee = resumeEcartee(ecartee); return sortie; }
   if (!RE_ID.test(v.id || '')) { sortie.problemes.push({ champ: 'id', message: 'L\'identifiant est vide ou invalide (minuscules, chiffres et tirets, 2 caractères au moins).', suggestions: [] }); return sortie; }
   const fin = finDeLigne(texteRegistre);
   const essai = Object.assign({}, v, { date: aujourdhui });
@@ -376,8 +404,8 @@ function analyserLot(fichier, texteColle, registres, texteSas, ctx, aujourdhui) 
     }
     lignes.push(r);
   });
-  const resume = { lues: lignes.length, pretes: 0, connues: 0, acorriger: 0, rien: 0, ignorees: net.ignorees, ignoreesListe: net.ignoreesListe };
-  lignes.forEach(function (r) { if (r.statut === 'prete') { resume.pretes++; } else if (r.statut === 'connue') { resume.connues++; } else if (r.statut === 'rien') { resume.rien++; } else { resume.acorriger++; } });
+  const resume = { lues: lignes.length, pretes: 0, connues: 0, ecartees: 0, acorriger: 0, rien: 0, ignorees: net.ignorees, ignoreesListe: net.ignoreesListe };
+  lignes.forEach(function (r) { if (r.statut === 'prete') { resume.pretes++; } else if (r.statut === 'connue') { resume.connues++; } else if (r.statut === 'ecartee') { resume.ecartees++; } else if (r.statut === 'rien') { resume.rien++; } else { resume.acorriger++; } });
   return { ok: true, fichier: fichier, lignes: lignes, resume: resume, aujourdhui: aujourdhui };
 }
 
@@ -401,6 +429,8 @@ function lister(fichier, texteSas, registres, ctx) {
       const v = Object.assign({}, o.valeurs, { id: o.id });
       const d = doublon(reg, v, ctx) || doublon(dansSas, v, ctx, true);
       if (d) { o.doublon = d; }
+      const ec = ecarteeDe(fichier, v, ctx);
+      if (ec) { o.ecartee = resumeEcartee(ec); }
     });
     // Les contrôles du registre sur chaque fiche, tels qu'ils seront joués à l'enregistrement (même vérificateur que l'import : une seule source de vérité).
     // Une seule passe : le registre publié, puis toutes les fiches du sas à la suite, datées d'aujourd'hui. « problemes » = messages des fiches qui feraient échouer l'enregistrement.
@@ -437,7 +467,8 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
   const colonnes = COLONNES[fichier];
   const fin = finDeLigne(texteSas || '');
   let texte = String(texteSas || '').trim() ? String(texteSas) : EN_TETES[fichier];
-  const resume = { importes: 0, retires: 0, modifies: 0, idsImportes: [] };
+  const resume = { importes: 0, retires: 0, modifies: 0, idsImportes: [], ecartes: [] };
+  const ecarts = { sortis: [], touches: [] };   // historique des employeurs ecartes : ce qui y entre, ce qui a ete ignore parce qu'il y etait deja
   const lignesDe = function (t) { return lireSas(t, colonnes); };
   const retirerLigne = function (t, id) {
     const a = lignesDe(t); let trouve = false;
@@ -451,13 +482,21 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
       if (!Array.isArray(ac.lignes) || !ac.lignes.length) { return { ok: false, erreur: 'Aucune ligne à importer.' }; }
       const r = analyserLot(fichier, ac.lignes.join('\n'), registres, texte, ctx, aujourdhui);
       if (!r.ok) { return { ok: false, erreur: r.erreur }; }
-      const pasPretes = r.lignes.filter(function (l) { return l.statut !== 'prete'; });
+      r.lignes.forEach(function (l) { if (l.statut === 'ecartee') { resume.ecartes.push(l.ecartee); ecarts.touches.push(l.ecartee.id); } });   // deja ecartee : ignoree, et DITE
+      const pasPretes = r.lignes.filter(function (l) { return l.statut !== 'prete' && l.statut !== 'ecartee'; });
       if (pasPretes.length) { return { ok: false, erreur: 'La ligne ' + pasPretes[0].numero + ' n\'est pas prête (« ' + (pasPretes[0].nom || pasPretes[0].brut.slice(0, 40)) + ' ») : rien n\'a été importé.' }; }
-      const ajoutees = r.lignes.map(function (l) {
+      const ajoutees = r.lignes.filter(function (l) { return l.statut === 'prete'; }).map(function (l) {
         return fichier === 'complements' ? [l.valeurs.cible, l.valeurs.registre, l.valeurs.telephone, l.valeurs.source].join(' | ') : T.formater(colonnes, Object.assign({}, l.valeurs, { date: '' }));
       });
-      texte = texte.replace(/\s*$/, '') + fin + ajoutees.join(fin) + fin;
-      resume.importes += ajoutees.length; r.lignes.forEach(function (l) { if (l.valeurs && l.valeurs.id) { resume.idsImportes.push(l.valeurs.id); } }); continue;
+      if (ajoutees.length) { texte = texte.replace(/\s*$/, '') + fin + ajoutees.join(fin) + fin; }
+      resume.importes += ajoutees.length; r.lignes.forEach(function (l) { if (l.statut === 'prete' && l.valeurs && l.valeurs.id) { resume.idsImportes.push(l.valeurs.id); } }); continue;
+    }
+    if (ac.op === 'retablir') {
+      // Remettre dans le sas une fiche ecartee, a l'identique (la ligne d'origine, gardee dans l'historique) : sans nouvelle analyse.
+      const vr = ac.valeurs && typeof ac.valeurs === 'object' ? ac.valeurs : null;
+      if (!vr || !vr.id) { return { ok: false, erreur: 'Fiche à remettre dans le sas : ligne d\'origine absente.' }; }
+      if (lignesDe(texte).lignes.some(function (l) { return l.id === vr.id; })) { return { ok: false, erreur: vr.id + ' : cette fiche est déjà dans le sas.' }; }
+      texte = texte.replace(/\s*$/, '') + fin + T.formater(colonnes, Object.assign({}, vr, { date: '' })) + fin; resume.importes++; continue;
     }
     const id = String(ac.id || '');
     if (!id || vus[id]) { return { ok: false, erreur: 'Identifiant manquant ou répété dans les modifications du sas : ' + id.slice(0, 40) + '.' }; }
@@ -466,6 +505,17 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
       const r = retirerLigne(texte, id);
       if (!r.trouve) { return { ok: false, erreur: id + ' : fiche introuvable dans le sas.' }; }
       texte = r.texte; resume.retires++; continue;
+    }
+    if (ac.op === 'ecarter') {
+      if (FICHIERS_EMPLOYEURS.indexOf(fichier) === -1) { return { ok: false, erreur: 'Seuls le sas des employeurs et celui des pages d\'offres gardent un historique des écartées.' }; }
+      const avant = lignesDe(texte).lignes.filter(function (l) { return l.id === id; })[0];
+      if (!avant) { return { ok: false, erreur: id + ' : fiche introuvable dans le sas.' }; }
+      const nomE = (avant.valeurs && avant.valeurs.nom) || id;
+      if (E.MOTIFS_EMPLOYEUR.indexOf(ac.motif) === -1) { return { ok: false, erreur: 'Dites pourquoi vous écartez « ' + String(nomE).slice(0, 60) + ' ».' }; }
+      if (ac.motif === 'autre' && !String(ac.precision || '').trim()) { return { ok: false, erreur: 'Écrivez votre raison pour « ' + String(nomE).slice(0, 60) + ' ».' }; }
+      const infoE = infoEmployeur(avant.valeurs, ctx);
+      ecarts.sortis.push({ entree: E.creerEmployeur({ fichier: fichier, original: Object.assign({}, avant.valeurs, { id: id }), nom: nomE, info: infoE, lieu: lieuEmployeur(infoE), motif: ac.motif, precision: ac.precision, date: aujourdhui }) });
+      texte = retirerLigne(texte, id).texte; resume.retires++; continue;
     }
     if (ac.op === 'modifier') {
       if (fichier === 'complements') { return { ok: false, erreur: 'Un numéro du sas ne se corrige pas : retirez-le et réimportez-le.' }; }
@@ -487,7 +537,7 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
     }
     return { ok: false, erreur: 'Action inconnue sur le sas (« ' + String(ac.op).slice(0, 20) + ' »).' };
   }
-  return { ok: true, texte: texte.replace(/\s*$/, '') + fin, resume: resume };
+  return { ok: true, texte: texte.replace(/\s*$/, '') + fin, resume: resume, ecarts: ecarts };
 }
 
-module.exports = { CHEMINS: CHEMINS, COLONNES: COLONNES, MAX_LIGNES: MAX_LIGNES, nettoyer: nettoyer, corrigerForme: corrigerForme, formatTelephone: formatTelephone, plusProches: plusProches, analyserLot: analyserLot, lister: lister, appliquer: appliquer, traduire: traduire };
+module.exports = { FICHIERS_EMPLOYEURS: FICHIERS_EMPLOYEURS, infoEmployeur: infoEmployeur, lieuEmployeur: lieuEmployeur, CHEMINS: CHEMINS, COLONNES: COLONNES, MAX_LIGNES: MAX_LIGNES, nettoyer: nettoyer, corrigerForme: corrigerForme, formatTelephone: formatTelephone, plusProches: plusProches, analyserLot: analyserLot, lister: lister, appliquer: appliquer, traduire: traduire };

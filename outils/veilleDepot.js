@@ -28,6 +28,7 @@ const chg = require('./veilleChangements.js');
 const verif = require('./veilleVerification.js');
 const ficheChamps = require('./veilleFiche.js');
 const fichesSas = require('./veilleFichesSas.js');
+const ecartes = require('./veilleEcartes.js');
 const choix = require('./veilleChoix.js');
 const chiffres = require('./veilleChiffres.js');
 const appuis = require('./veilleAppuis.js');
@@ -246,6 +247,11 @@ function validerFichier(racine, f, rayons) {
     if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucun mot à marquer comme vérifié.' }; }
     const cheminV = motsVerifies.CHEMIN.join('/');
     return { ok: true, chemin: cheminV, type: 'mots-verifies', fichier: '', rayon: '', nom: path.basename(cheminV), texte: '', actions: f.actions };
+  }
+  if (type === 'ecartes') {
+    // Historique de ce que Denis a ecarte (jamais lu par l'application) : « remettre » une proposition dans son sas, ou completer la raison.
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification de l\'historique des écartées à enregistrer.' }; }
+    return { ok: true, chemin: ecartes.CHEMIN, type: 'ecartes', fichier: '', rayon: '', nom: path.basename(ecartes.CHEMIN), texte: '', actions: f.actions };
   }
   if (type === 'changements') {
     // Sas des changements du balayage (jamais lu par l'application) : des ACTIONS (importer, retirer, valider) que veilleChangements.js applique ;
@@ -503,6 +509,16 @@ function creerDepot(racine, options) {
     const nouvelles = [];
     const journalAjouts = [];
     let resumeListe = null, motsAjoutes = [], motsRemplaces = [], resumeLiens = null, resumeTerritoire = null, resumeSas = null, resumeSansNumero = null, resumeAttente = null, resumeChangements = null, resumeFichesSas = null;
+    const resumeEcartes = { remis: [] };
+    // Historique des ecartees (jamais lu par l'application) : lu tel qu'il est AU MOMENT de chaque etape de cette publication.
+    const ecartesCourants = function () { const b = courantDe(ecartes.CHEMIN); return b ? ecartes.parser(b.toString('utf8')) : []; };
+    const noterEcarts = function (ec) {
+      if (!ec || (!ec.sortis.length && !ec.touches.length)) { return; }
+      const acts = ec.sortis.map(function (x) { return { op: 'ajouter', entree: x.entree || ecartes.creerEntree(x.sorte, x.original, x.motif, x.precision, aujourdhui()) }; })
+        .concat(ec.touches.map(function (id) { return { op: 'toucher', id: id, date: aujourdhui() }; }));
+      const rE = ecartes.appliquer((courantDe(ecartes.CHEMIN) || Buffer.from('')).toString('utf8'), acts);
+      if (rE.ok) { prevus[ecartes.CHEMIN] = Buffer.from(rE.texte, 'utf8'); }
+    };
     const adresseChangee = {};   // « registre:identifiant » des fiches dont l'adresse du site change dans cette publication (elles sortent de la mise de côté)
     const resumeFiches = [], resumeChiffres = [], resumeLexique = [];
     for (const v of valides) {
@@ -628,9 +644,10 @@ function creerDepot(racine, options) {
       }
       if (v.type === 'sas') {
         const courantS = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
-        const r = sas.appliquer(v.fichier, courantS, v.actions, registresDuDepot(), territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
+        const r = sas.appliquer(v.fichier, courantS, v.actions, registresDuDepot(), Object.assign(territoire.contexteDepuis(racine, aujourdhui()), { ecartes: ecartesCourants() }), aujourdhui());
         if (!r.ok) { return { ok: false, code: 'sas', erreur: r.erreur }; }
-        if (r.texte === courantS) { return { ok: false, code: 'sas-rien', erreur: 'Ces modifications ne changent rien au sas.' }; }
+        if (r.texte === courantS && !(r.resume.ecartes || []).length) { return { ok: false, code: 'sas-rien', erreur: 'Ces modifications ne changent rien au sas.' }; }
+        noterEcarts(r.ecarts);
         prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeSas = r.resume;
         // Les fiches déposées par la prospection avec « coordonnées vérifiées à la main le … » arrivent déjà pré-validées (fichier à part, avec l'empreinte de la fiche telle qu'elle est écrite dans le sas).
         if ((r.resume.idsImportes || []).length && prevalidees.SAS.indexOf(v.fichier) !== -1) {
@@ -676,20 +693,68 @@ function creerDepot(racine, options) {
       }
       if (v.type === 'fiches-sas') {
         const courantFS = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
-        const rFS = fichesSas.appliquer(courantFS, v.actions, { aujourdhui: aujourdhui() });
+        const rFS = fichesSas.appliquer(courantFS, v.actions, { aujourdhui: aujourdhui(), ecartes: ecartesCourants() });
         if (!rFS.ok) { return { ok: false, code: 'fiches-sas', erreur: rFS.erreur }; }
-        if (rFS.texte === courantFS) { return { ok: false, code: 'fiches-sas-rien', erreur: 'Ces modifications ne changent rien au sas des fiches.' }; }
+        noterEcarts(rFS.ecarts);
+        if (rFS.texte === courantFS && !(rFS.resume.ecartes || []).length) { return { ok: false, code: 'fiches-sas-rien', erreur: 'Ces modifications ne changent rien au sas des fiches.' }; }
         prevus[v.chemin] = Buffer.from(rFS.texte, 'utf8'); resumeFichesSas = rFS.resume;
+        continue;
+      }
+      if (v.type === 'ecartes') {
+        for (const a of v.actions) {
+          if (a && a.op === 'remettre') {
+            // Remettre : l'entree quitte l'historique et la proposition d'origine retourne dans son sas, a l'identique, SANS filtre.
+            const rE = ecartes.appliquer((courantDe(ecartes.CHEMIN) || Buffer.from('')).toString('utf8'), [{ op: 'retirer', id: a.id }]);
+            if (!rE.ok) { return { ok: false, code: 'ecartes', erreur: rE.erreur }; }
+            prevus[ecartes.CHEMIN] = Buffer.from(rE.texte, 'utf8');
+            const e = rE.remis[0];
+            if (e.sorte === 'employeur') {
+              // Une fiche ecartee depuis le sas retourne dans son sas, a l'identique ; une note faite a la main (sans fiche) sort seulement de l'historique.
+              if (e.original && e.original.ligne && sas.CHEMINS[e.original.fichier]) {
+                const cheminSE = sas.CHEMINS[e.original.fichier];
+                const rse = sas.appliquer(e.original.fichier, (courantDe(cheminSE) || Buffer.from('')).toString('utf8'), [{ op: 'retablir', valeurs: e.original.ligne }], registresDuDepot(), territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
+                if (!rse.ok) { return { ok: false, code: 'ecartes', erreur: rse.erreur }; }
+                prevus[cheminSE] = Buffer.from(rse.texte, 'utf8');
+              }
+            } else if (e.sorte === 'changement') {
+              const rc = chg.appliquer((courantDe(chg.CHEMIN_SAS) || Buffer.from('')).toString('utf8'), [{ op: 'importer', lignes: [e.original], forcer: true }], { aujourdhui: aujourdhui(), digest: function () { return ''; } });
+              if (!rc.ok) { return { ok: false, code: 'ecartes', erreur: rc.erreur }; }
+              prevus[chg.CHEMIN_SAS] = Buffer.from(rc.texteSas, 'utf8');
+            } else {
+              const rf = fichesSas.appliquer((courantDe(fichesSas.CHEMIN_SAS) || Buffer.from('')).toString('utf8'), [{ op: 'retablir', rec: e.original }], { aujourdhui: aujourdhui() });
+              if (!rf.ok) { return { ok: false, code: 'ecartes', erreur: rf.erreur }; }
+              prevus[fichesSas.CHEMIN_SAS] = Buffer.from(rf.texte, 'utf8');
+            }
+            resumeEcartes.remis.push({ id: e.id, titre: e.titre });
+          } else if (a && a.op === 'noter') {
+            // « Noter un employeur disparu » : sans carte du sas (un employeur dont on ne veut plus entendre parler, ou deja effacé).
+            const nomN = String(a.nom || '').replace(/\s+/g, ' ').trim(), dep = String(a.dep || '').trim(), listeCommunes = String(a.communes || '').split(/[;,]/).map(function (x) { return x.trim(); }).filter(Boolean);
+            if (!nomN) { return { ok: false, code: 'ecartes', erreur: 'Écrivez le nom de l\'employeur.' }; }
+            if (ecartes.MOTIFS_EMPLOYEUR.indexOf(a.motif) === -1) { return { ok: false, code: 'ecartes', erreur: 'Dites pourquoi : fermeture confirmée, absent du territoire, site disparu ou autre raison.' }; }
+            if (a.motif === 'autre' && !String(a.precision || '').trim()) { return { ok: false, code: 'ecartes', erreur: 'Écrivez votre raison.' }; }
+            if (!dep && !listeCommunes.length) { return { ok: false, code: 'ecartes', erreur: 'Dites dans quel territoire : le département (24 ou 87) ou la commune.' }; }
+            const infoN = sas.infoEmployeur({ nom: nomN, etablissements: listeCommunes.join(' ; '), portee: dep, site: a.site || '' }, territoire.contexteDepuis(racine, aujourdhui()));
+            const entreeN = ecartes.creerEmployeur({ fichier: 'employeurs', original: null, nom: nomN, info: infoN, lieu: sas.lieuEmployeur(infoN), motif: a.motif, precision: a.precision, date: aujourdhui() });
+            const rN = ecartes.appliquer((courantDe(ecartes.CHEMIN) || Buffer.from('')).toString('utf8'), [{ op: 'ajouter', entree: entreeN }]);
+            if (!rN.ok) { return { ok: false, code: 'ecartes', erreur: rN.erreur }; }
+            prevus[ecartes.CHEMIN] = Buffer.from(rN.texte, 'utf8');
+          } else if (a && a.op === 'precision') {
+            const rE = ecartes.appliquer((courantDe(ecartes.CHEMIN) || Buffer.from('')).toString('utf8'), [{ op: 'precision', id: a.id, motif: a.motif, precision: a.precision }]);
+            if (!rE.ok) { return { ok: false, code: 'ecartes', erreur: rE.erreur }; }
+            prevus[ecartes.CHEMIN] = Buffer.from(rE.texte, 'utf8');
+          } else { return { ok: false, code: 'ecartes', erreur: 'Action inconnue sur l\'historique des écartées.' }; }
+        }
         continue;
       }
       if (v.type === 'changements') {
         const courantC = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
         const r = chg.appliquer(courantC, v.actions, {
-          aujourdhui: aujourdhui(),
+          aujourdhui: aujourdhui(), ecartes: ecartesCourants(),
           digest: function (mois) { return (lireOuNull(path.resolve(racine, chg.DOSSIER_DIGESTS, mois + '.md')) || Buffer.from('')).toString('utf8'); }
         });
         if (!r.ok) { return { ok: false, code: 'changements', erreur: r.erreur }; }
-        if (r.texteSas === courantC && !Object.keys(r.digests).length) { return { ok: false, code: 'changements-rien', erreur: 'Ces modifications ne changent rien au sas des changements.' }; }
+        if (r.texteSas === courantC && !Object.keys(r.digests).length && !(r.resume.ecartes || []).length) { return { ok: false, code: 'changements-rien', erreur: 'Ces modifications ne changent rien au sas des changements.' }; }
+        noterEcarts(r.ecarts);
         prevus[v.chemin] = Buffer.from(r.texteSas, 'utf8');
         Object.keys(r.digests).forEach(function (mois) { prevus[chg.DOSSIER_DIGESTS + '/' + mois + '.md'] = Buffer.from(r.digests[mois], 'utf8'); });
         resumeChangements = r.resume;
@@ -741,7 +806,7 @@ function creerDepot(racine, options) {
     // Ne jamais ecraser un travail en cours : un fichier cible deja modifie et non enregistre arrete tout.
     const cibles = Object.keys(prevus);
     // Fichiers EXISTANTS qui vont etre remplaces (une fiche mise a jour, un digest refait) : signales dans le bilan.
-    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'lexique-champs' && v.type !== 'lexique-nouveau' && v.type !== 'liens' && v.type !== 'territoire' && v.type !== 'attente' && v.type !== 'sas' && v.type !== 'changements' && v.type !== 'fiches-sas' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
+    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'lexique-champs' && v.type !== 'lexique-nouveau' && v.type !== 'liens' && v.type !== 'territoire' && v.type !== 'attente' && v.type !== 'sas' && v.type !== 'changements' && v.type !== 'fiches-sas' && v.type !== 'ecartes' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
     const st = git(['status', '--porcelain', '--'].concat(cibles));
     if (st.code === 0 && lignesModifiees(st).length) {
       return { ok: false, code: 'travail-en-cours', erreur: 'Un enregistrement précédent a été interrompu : le fichier ' + lignesModifiees(st)[0].slice(3).trim() + ' contient des changements qui ne sont pas rangés dans l\'historique. Par prudence, rien n\'a été écrit. Un bandeau en haut de la page vous propose de terminer cet enregistrement ou de le défaire.' };
@@ -763,7 +828,7 @@ function creerDepot(racine, options) {
     } catch (e) { restaurer(); return { ok: false, code: 'ecriture', erreur: 'Ecriture impossible : ' + (e && e.message) }; }
 
     // Regeneration des copies derivees, puis tests.
-    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'fiches-sas' || v.type === 'mots-liste' || v.type === 'sans-numero' || v.type === 'mots-verifies' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
+    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'fiches-sas' || v.type === 'ecartes' || v.type === 'mots-liste' || v.type === 'sans-numero' || v.type === 'mots-verifies' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
     const etapes = [];
     const base = path.join(racine, 'scripts', 'genererBaseVeille.js');
     if (!seulementSas && fs.existsSync(base)) { etapes.push(lancer(process.execPath, ['scripts/genererBaseVeille.js'])); }
@@ -804,7 +869,7 @@ function creerDepot(racine, options) {
     return {
       ok: true, commit: hash.slice(0, 8), fichiers: valides.map(function (v) { return v.chemin; }),
       nouvelles: nouvelles.map(function (v) { return v.nom.replace(/\.md$/, ''); }),
-      nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens, resumeTerritoire: resumeTerritoire, resumeSas: resumeSas, resumeSansNumero: resumeSansNumero, resumeAttente: resumeAttente, resumeChangements: resumeChangements, resumeFichesSas: resumeFichesSas, resumeFiches: resumeFiches, resumeChiffres: resumeChiffres,
+      nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens, resumeTerritoire: resumeTerritoire, resumeSas: resumeSas, resumeSansNumero: resumeSansNumero, resumeAttente: resumeAttente, resumeChangements: resumeChangements, resumeFichesSas: resumeFichesSas, resumeEcartes: resumeEcartes, resumeFiches: resumeFiches, resumeChiffres: resumeChiffres,
       avertissementsLexique: avertissementsLexique, resumeLexique: resumeLexique, resumeListe: resumeListe, remplaces: remplaces,
       resteAFaire: valides.some(function (v) { return v.type === 'fiche'; }) && !valides.some(function (v) { return v.type === 'liens'; }) ? ['Dater les nouvelles adresses : ouvrez « Les adresses » dans le panneau Dépôt, cliquez chaque lien, puis « Valider » (il faut ouvrir et juger chaque page).'] : []
     };
@@ -865,6 +930,12 @@ function creerDepot(racine, options) {
     return { lieux: lire(territoire.FICHIERS.lieux.chemin), employeurs: lire(territoire.FICHIERS.employeurs.chemin), offres: lire(territoire.FICHIERS.offres.chemin) };
   }
 
+  // Le contexte des controles du module « Qui fait quoi », avec l'historique des employeurs ecartes (jamais lu par l'application).
+  function contexteAvecEcartes() {
+    const t = lireOuNull(path.resolve(racine, ecartes.CHEMIN));
+    return Object.assign(territoire.contexteDepuis(racine, aujourdhui()), { ecartes: ecartes.parser(t ? t.toString('utf8') : '') });
+  }
+
   // Analyse un lot colle (aucune ecriture) : ligne par ligne, prete / deja connue / a corriger.
   function analyserLot(fichier, texte) {
     const f = String(fichier || '');
@@ -872,7 +943,7 @@ function creerDepot(racine, options) {
     if (typeof texte !== 'string' || !texte.trim()) { return { ok: false, erreur: 'Aucun texte colle.' }; }
     if (texte.length > 200000) { return { ok: false, erreur: 'Texte trop long.' }; }
     const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f]));
-    return sas.analyserLot(f, texte, registresDuDepot(), t ? t.toString('utf8') : '', territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
+    return sas.analyserLot(f, texte, registresDuDepot(), t ? t.toString('utf8') : '', contexteAvecEcartes(), aujourdhui());
   }
 
   // ---------- Le pont depuis la prospection : lignes deposees par l'outil de prospection (lecture seule), sans celles que la veille connait deja ----------
@@ -881,13 +952,13 @@ function creerDepot(racine, options) {
     const r = pont.lire(f);
     if (!r.ok) { return r; }
     const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f])), texteSas = t ? t.toString('utf8') : '';
-    const regs = registresDuDepot(), ctx = territoire.contexteDepuis(racine, aujourdhui());
+    const regs = registresDuDepot(), ctx = contexteAvecEcartes();
     const connues = {}; let nbConnues = 0;
     for (let i = 0; i < r.lignes.length; i += sas.MAX_LIGNES) {
       const paquet = r.lignes.slice(i, i + sas.MAX_LIGNES);
       const a = sas.analyserLot(f, paquet.join('\n'), regs, texteSas, ctx, aujourdhui());
       if (!a.ok) { continue; }
-      a.lignes.forEach(function (l) { if (l.statut === 'connue' || l.statut === 'rien') { connues[i + l.numero - 1] = true; nbConnues++; } });
+      a.lignes.forEach(function (l) { if (l.statut === 'connue' || l.statut === 'rien' || l.statut === 'ecartee') { connues[i + l.numero - 1] = true; nbConnues++; } });
     }
     return { ok: true, deposeLe: r.deposeLe, total: r.lignes.length, connues: nbConnues, inconnues: r.lignes.filter(function (l, k) { return !connues[k]; }) };
   }
@@ -917,7 +988,7 @@ function creerDepot(racine, options) {
     const f = String(fichier || '');
     if (!sas.CHEMINS[f]) { return { ok: false, erreur: 'Sas inconnu.' }; }
     const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f]));
-    const regs = registresDuDepot(), r = sas.lister(f, t ? t.toString('utf8') : '', regs, (f === 'complements' || !avecDoublons) ? null : Object.assign({}, territoire.contexteDepuis(racine, aujourdhui()), { aujourdhui: aujourdhui(), pasDoublons: lirePasDoublons() }));   // les doublons coûtent quelques secondes : demandés seulement par la fenêtre du sas, pas par les compteurs
+    const regs = registresDuDepot(), r = sas.lister(f, t ? t.toString('utf8') : '', regs, (f === 'complements' || !avecDoublons) ? null : Object.assign({}, contexteAvecEcartes(), { aujourdhui: aujourdhui(), pasDoublons: lirePasDoublons() }));   // les doublons coûtent quelques secondes : demandés seulement par la fenêtre du sas, pas par les compteurs
     if (r.ok && f === 'complements') {
       // Toutes les fiches publiées sans numéro rejoignent le sas (sauf celles déjà proposées ou confirmées « sans numéro » depuis moins de six mois).
       const tn = lireOuNull(path.resolve(racine, sansNumero.CHEMIN.join('/')));
@@ -1263,6 +1334,16 @@ function creerDepot(racine, options) {
     };
   }
 
+  // L'historique de ce que Denis a ecarte (nom, date, raison, nombre de fois ou la recherche l'a reproposé), du plus recent au plus ancien.
+  function listerEcartes() {
+    const t = lireOuNull(path.resolve(racine, ecartes.CHEMIN));
+    const liste = ecartes.parser(t ? t.toString('utf8') : '').map(function (e) {
+      return { id: e.id, sorte: e.sorte, titre: e.titre, ecarteLe: e.ecarte_le, motif: e.motif, motifLibelle: ecartes.LIBELLES_MOTIFS[e.motif] || ecartes.LIBELLES_MOTIFS.inconnu, precision: e.precision || '',
+        reproposee: e.reproposee || { nb: 0, derniere: '' }, lieu: e.lieu || '', peutRemettre: e.sorte !== 'employeur' || !!(e.original && e.original.ligne),
+        source: e.sorte === 'changement' ? String((e.original && e.original.source_url) || '') : (e.sorte === 'employeur' ? String((e.original && e.original.ligne && (e.original.ligne.site || e.original.ligne.page)) || '') : '') };
+    }).sort(function (a, b) { return String(b.ecarteLe).localeCompare(String(a.ecarteLe)); });
+    return { ok: true, lignes: liste, total: liste.length, motifs: ecartes.LIBELLES_MOTIFS };
+  }
   // Le sas des changements du balayage (proposes, pas encore verifies), avec ce qui est deja publie.
   function listerChangements() {
     const t = lireOuNull(path.resolve(racine, chg.CHEMIN_SAS));
@@ -1481,7 +1562,7 @@ function creerDepot(racine, options) {
     return { ok: true, prompt: fichesSas.construirePrompt(rec, contexteFichesSas(rec.rayon), d && d.socle) };
   }
 
-  return { marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, controlerAppuis: controlerAppuis, relireAppuis: relireAppuis, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
+  return { listerEcartes: listerEcartes, marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, controlerAppuis: controlerAppuis, relireAppuis: relireAppuis, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
 }
 
 module.exports = { analyserCandidatsLexique: analyserCandidatsLexique, integrerCandidatsLexique: integrerCandidatsLexique, creerDepot: creerDepot, validerFichier: validerFichier, ajouterLigneReadme: ajouterLigneReadme, rayonsExistants: rayonsExistants, lancerCommande: lancerCommande, TAILLE_MAX: TAILLE_MAX };

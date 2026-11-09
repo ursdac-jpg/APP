@@ -21,7 +21,7 @@
      `territoire` n'est encore lu nulle part dans `index.js` : la bascule est un marqueur, sans
      effet d'affichage aujourd'hui.
 
-## Les 7 fiches
+## Les 8 fiches
 
 | id | titre |
 |---|---|
@@ -32,6 +32,7 @@
 | `agriculture-bprea-se-former-pour-sinstaller` | Se former pour devenir agriculteur : le BPREA, voies d'accès et conditions (ajoutée le 2026-11-03) |
 | `agriculture-saisonnier-agricole-contrat-et-tesa` | Travailler comme saisonnier agricole : votre contrat et le Tesa (ajoutée le 2026-11-03) |
 | `agriculture-assurance-recolte-subvention` | Agriculteur : l'assurance récolte et la subvention sur la prime (ajoutée le 2026-11-03) |
+| `agriculture-aide-gnr-travaux-agricoles-forestiers` | Entreprise agricole ou forestière : l'aide pour le gazole non routier (GNR) |
 
 ## Section « à qui s'adresser »
 

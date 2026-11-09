@@ -370,3 +370,4 @@
 - 2026-11-08 : Une petite vidéo « Voir comment faire sur ChatGPT » sur l'écran où l'on attend la réponse de l'assistant : coller la demande, l'envoyer, copier la réponse
 - 2026-11-08 : La petite vidéo « Voir comment faire sur Perplexity » sur l'écran où l'on attend la réponse de l'assistant, quand Perplexity est l'assistant choisi
 - 2026-11-08 : Les boutons fixes de l'écran (roue, ampoule, disquette, Nouveautés, Introduction, Carnet...) gardent maintenant la même taille sur toutes les pages : seul le contenu de la page est plus grand sur un grand écran.
+- 2026-11-09 : « Ce qui a changé récemment » (Comprendre le cadre) affiche enfin les derniers changements officiels, mois par mois (novembre, octobre...), au lieu de rester sur septembre ; deux nouvelles fiches (Mon soutien psy, aide GNR) et plusieurs fiches relues.

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : l'historique de ce qui est écarté</title>
+<style>
+  :root { --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9; --text:#1f2937; --text-strong:#0f172a; --text-muted:#5b6472; --border:#d6dce6; --border-strong:#aab4c4;
+    --accent:#0369a1; --accent-bg:#e2f0f8; --ok:#198754; --ok-bg:#d9f4e4; --warn:#b45309; --warn-bg:#fdf1d9; --alert:#b42318; --alert-bg:#fde8e6; --radius:9px; }
+  [data-theme="sombre"] { --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834; --text:#e5e9f0; --text-strong:#fff; --text-muted:#a3adbd; --border:#333c4c; --border-strong:#566178;
+    --accent:#38bdf8; --accent-bg:#16283a; --ok:#35c79a; --ok-bg:#17301f; --warn:#f5a742; --warn-bg:#3a2c14; --alert:#ff8b7e; --alert-bg:#3d1f1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif; background:var(--bg-page); color:var(--text); padding:1rem 1rem 4rem; }
+  .page { max-width:900px; margin:0 auto; }
+  h1 { font-size:1.4rem; margin:.2rem 0 .3rem; color:var(--text-strong); }
+  .intro { color:var(--text-muted); margin:.2rem 0 1rem; }
+  .onglets { display:flex; flex-wrap:wrap; gap:.5rem; margin:.8rem 0 1rem; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  [data-theme="sombre"] .btn.primaire { color:#04202e; }
+  .btn.petit { padding:.35rem .75rem; font-size:.9rem; }
+  .btn.actif { background:var(--accent); border-color:var(--accent); color:#fff; }
+  [data-theme="sombre"] .btn.actif { color:#04202e; }
+  .btn.choisi { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .ecran { display:none; } .ecran.visible { display:block; }
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-left:6px solid var(--accent); border-radius:var(--radius); padding:.8rem 1rem; margin:.8rem 0; }
+  .carte h2 { font-size:1.3rem; line-height:1.25; color:var(--accent); margin:.1rem 0 .3rem; }
+  .sous { color:var(--text-muted); font-size:.92rem; margin:.2rem 0; }
+  .rangee { display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0 .2rem; }
+  .pastille { display:inline-block; border-radius:999px; padding:.05rem .6rem; font-size:.8rem; font-weight:700; background:var(--bg-subtle); border:1px solid var(--border-strong); color:var(--text-muted); }
+  .pastille.ok { background:var(--ok-bg); color:var(--ok); border-color:var(--ok); }
+  .pastille.warn { background:var(--warn-bg); color:var(--warn); border-color:var(--warn); }
+  .note { border-radius:var(--radius); padding:.6rem .8rem; margin:.6rem 0; background:var(--bg-subtle); border:1px solid var(--border); }
+  .note.ok { background:var(--ok-bg); border-color:var(--ok); } .note.warn { background:var(--warn-bg); border-color:var(--warn); }
+  .zone { border:2px solid var(--accent); background:var(--accent-bg); border-radius:var(--radius); padding:.7rem .9rem; margin:.6rem 0; }
+  .zone h3 { margin:.1rem 0 .4rem; font-size:1.05rem; color:var(--text-strong); }
+  input[type=text], select { font:inherit; padding:.5rem .65rem; border:1px solid var(--border-strong); border-radius:9px; background:var(--bg-page); color:var(--text); width:100%; max-width:420px; }
+  .q { border:2px dashed var(--warn); background:var(--warn-bg); border-radius:var(--radius); padding:.6rem .9rem; margin:1rem 0; }
+  .q strong { color:var(--warn); }
+  .item { border-top:1px solid var(--border); padding:.7rem 0; }
+  .item:first-child { border-top:0; }
+  .item h3 { margin:0 0 .2rem; font-size:1.1rem; color:var(--text-strong); }
+  .item.remis { opacity:.65; }
+  pre { white-space:pre-wrap; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:.6rem .8rem; font:.85rem ui-monospace,Consolas,monospace; }
+  .bandeau { position:sticky; top:0; z-index:5; background:var(--bg-page); padding:.4rem 0; display:flex; justify-content:space-between; gap:.5rem; align-items:center; border-bottom:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bandeau"><strong>Maquette de l'historique de ce qui est écarté : DÉJÀ CODÉE dans l'outil de veille le 09/11/2026 (Sas à valider, bloc « Écartées »)</strong><button class="btn petit" id="theme" type="button">Mode sombre</button></div>
+  <h1>Écarter, retrouver, remettre, ne plus reproposer</h1>
+  <p class="intro">Quatre écrans cliquables. Les exemples de l'écran 2 sont <strong>vrais</strong> : ce sont les changements que l'on retrouve (4, dont le mandat électif que vous gardez), dans l'historique de votre dépôt, sortis du sas sans avoir été publiés.</p>
+  <div class="onglets" id="onglets">
+    <button class="btn actif" data-e="1" type="button">1. Écarter une proposition</button>
+    <button class="btn" data-e="2" type="button">2. L'historique « Écartées »</button>
+    <button class="btn" data-e="3" type="button">3. Ce qui se passe ensuite</button>
+    <button class="btn" data-e="4" type="button">4. Les questions pour vous</button>
+  </div>
+
+  <!-- ÉCRAN 1 -->
+  <section class="ecran visible" id="e1">
+    <p class="sous">Dans « Sas à valider », sur une carte de changement ou de fiche. Le bouton « Écarter » existe déjà : aujourd'hui il fait disparaître la carte sans rien garder. Ici, il demande simplement pourquoi.</p>
+    <div class="carte" id="carteChg">
+      <span class="pastille warn">À faire</span>
+      <h2>Formations aux compétences acquises dans un mandat électif local</h2>
+      <p class="sous">Emploi et contrats de travail · décret n° 2026-929 · en vigueur le 08/10/2026</p>
+      <div class="rangee" id="boutonsCarte">
+        <button class="btn primaire petit" type="button">C'est bon, publier (date du jour)</button>
+        <button class="btn petit" type="button" id="btnEcarter">Écarter ce changement</button>
+      </div>
+      <div class="zone" id="zoneMotif" hidden>
+        <h3>Pourquoi l'écarter ?</h3>
+        <div class="rangee" id="motifs">
+          <button class="btn petit" data-m="public" type="button">Ne concerne pas mon public</button>
+          <button class="btn petit" data-m="couvert" type="button">Déjà couvert par une fiche</button>
+          <button class="btn petit" data-m="faux" type="button">Information fausse ou périmée</button>
+          <button class="btn petit" data-m="autre" type="button">Autre raison</button>
+        </div>
+        <div id="autreRaison" hidden><input type="text" placeholder="Votre raison, en quelques mots" id="champAutre"></div>
+        <p class="sous" id="explicationMotif">Choisissez une raison.</p>
+        <div class="rangee"><button class="btn primaire petit" id="btnConfirmer" type="button" disabled>Écarter et garder dans l'historique</button> <button class="btn petit" id="btnAnnulerEcart" type="button">Annuler</button></div>
+      </div>
+      <div class="note ok" id="noteEcartee" hidden><strong>Écartée.</strong> <span id="texteEcartee"></span> <button class="btn petit" id="btnVoirHisto" type="button">Voir l'historique</button></div>
+    </div>
+    <div class="note">Le choix est enregistré avec le bouton « Enregistrer » habituel du sas, comme aujourd'hui : rien ne change dans votre façon de faire, il y a seulement une question de plus.</div>
+  </section>
+
+  <!-- ÉCRAN 2 -->
+  <section class="ecran" id="e2">
+    <p class="sous">Un bloc « Écartées » dans l'outil, à côté de « Sas à valider ». Il garde le nom, la date, la raison, et ce que la recherche a essayé de reproposer depuis.</p>
+    <div class="rangee">
+      <button class="btn petit actif" data-f="tout" type="button">Tout (3)</button>
+      <button class="btn petit" data-f="changement" type="button">Changements (3)</button>
+      <button class="btn petit" data-f="fiche" type="button">Fiches (0)</button>
+      <input type="text" id="recherche" placeholder="Chercher dans les écartées">
+    </div>
+    <div class="note warn"><strong>Reconstitué.</strong> Ces 3 lignes (plus le mandat électif, que vous gardez : il reste dans le sas et ne figure pas ici) ont été retrouvées dans l'historique de votre dépôt (elles sont sorties du sas sans avoir été publiées). Les raisons ne sont pas connues : vous pouvez les compléter. Pour les fiches, la reconstitution est trop incertaine : l'historique des fiches commence aujourd'hui.</div>
+    <div class="carte" id="liste">
+      <div class="item" data-t="changement" data-c="convergence prime activite mayotte">
+        <h3>Convergence de la prime d'activité à Mayotte</h3>
+        <p class="sous"><span class="pastille">Changement</span> écarté le 15/10/2026 · raison : <em>non précisée</em> · jamais reproposé depuis</p>
+        <div class="rangee"><button class="btn petit" data-remettre="1" type="button">Remettre dans le sas</button> <button class="btn petit" type="button">Compléter la raison</button></div>
+        <p class="sous reponse" hidden></p>
+      </div>
+      <div class="item" data-t="changement" data-c="maintien contrat engagement jeune pacea">
+        <h3>Maintien du dispositif du contrat d'engagement jeune et des Pacea</h3>
+        <p class="sous"><span class="pastille">Changement</span> écarté le 15/10/2026 · raison : <em>non précisée</em> · jamais reproposé depuis</p>
+        <div class="rangee"><button class="btn petit" data-remettre="1" type="button">Remettre dans le sas</button> <button class="btn petit" type="button">Compléter la raison</button></div>
+        <p class="sous reponse" hidden></p>
+      </div>
+      <div class="item" data-t="changement" data-c="agrement agence mannequins enfants">
+        <h3>Avis relatif à l'agrément d'une agence de mannequins pour l'engagement d'enfants mannequins</h3>
+        <p class="sous"><span class="pastille">Changement</span> écarté le 06/11/2026 · raison : <em>non précisée</em> · jamais reproposé depuis</p>
+        <div class="rangee"><button class="btn petit" data-remettre="1" type="button">Remettre dans le sas</button> <button class="btn petit" type="button">Compléter la raison</button></div>
+        <p class="sous reponse" hidden></p>
+      </div>
+    </div>
+    <div class="note">« Remettre dans le sas » remet la proposition telle qu'elle était, à valider comme les autres. Elle sort alors de l'historique et peut de nouveau être reproposée.</div>
+  </section>
+
+  <!-- ÉCRAN 3 -->
+  <section class="ecran" id="e3">
+    <p class="sous">Trois endroits où l'historique sert, sans que vous ayez rien à faire.</p>
+    <div class="carte">
+      <h2>A. Au versement dans le sas (le filet de sécurité, toujours actif)</h2>
+      <div class="note ok"><strong>Versé dans le sas :</strong> 5 changements, 3 fiches.<br><strong>1 proposition ignorée parce qu'elle a déjà été écartée</strong> : « Certification des compétences acquises dans un mandat électif local » (écartée le 06/11/2026, raison : ne concerne pas mon public). <button class="btn petit" type="button">Voir dans l'historique</button> <button class="btn petit" type="button">La remettre quand même</button></div>
+      <p class="sous">Rien n'est jamais perdu en silence : ce qui est ignoré est dit, avec un bouton pour le récupérer, et le compteur de l'historique monte (« reproposé 2 fois »).</p>
+    </div>
+    <div class="carte">
+      <h2>B. Quand Claude prépare ses propositions</h2>
+      <p class="sous">Le contrôle que Claude lance avant de vous prévenir signale les propositions déjà écartées, pour qu'il les retire lui-même au lieu de les déposer :</p>
+      <pre>- balayage : 8 changement(s).
+    ATTENTION : « Certification des compétences acquises dans un mandat
+    électif local » a déjà été écarté le 06/11/2026 (ne concerne pas
+    mon public). Ne pas déposer, sauf demande de Denis.
+Rien à corriger.</pre>
+      <p class="sous">Et le message « Copier le message pour Claude » ajoute une courte liste des écartées (nom et date), pour qu'il ne les reprenne pas.</p>
+    </div>
+    <div class="carte">
+      <h2>C. Les messages pour ChatGPT et Perplexity</h2>
+      <p class="sous">On ne leur donne pas la liste : ils cherchent sur Internet et reviendraient quand même avec la même information, en la reformulant. Le tri se fait chez nous, à coup sûr, aux points A et B. (Voir la question 3.)</p>
+    </div>
+  </section>
+
+  <!-- ÉCRAN 4 -->
+  <section class="ecran" id="e4">
+    <p class="sous">Ce que je sais faire sans risque, et ce que je dois vous demander avant de coder.</p>
+    <div class="carte">
+      <h2>Ce qui est simple, risqué, bloquant</h2>
+      <p><strong>Simple (on reprend l'existant) :</strong> le bouton « Écarter » et le fichier du sas existent ; on ajoute un fichier de mémoire du même genre que ceux qui existent déjà (<code>outils/sas/</code>, suivi par Git, jamais lu par l'application), et un bloc « Écartées » construit comme « Sas à valider ».</p>
+      <p><strong>Risqué :</strong> reconnaître que c'est « la même information ». Un même décret revient avec un autre intitulé (c'est exactement ce qui s'est passé pour le mandat électif). Je compare donc plusieurs choses à la fois : l'adresse de la source, le numéro du texte (ex. « n° 2026-929 ») et l'intitulé à peu près identique. Plus on est large, plus on risque de bloquer à tort une vraie nouveauté : c'est pourquoi rien n'est jamais ignoré en silence (écran 3).</p>
+      <p><strong>Bloquant :</strong> rien. Pour les fiches de réponse des assistants, la reconnaissance est moins sûre que pour les changements (leurs identifiants changent d'un jour à l'autre) : je recommande de commencer par les changements et les fiches, avec un test sur des cas réels.</p>
+    </div>
+    <div class="q"><strong>Question 1.</strong> La raison au moment d'écarter : proposée comme sur l'écran 1 (4 boutons)
+      <ul><li><strong>Oui, 4 raisons (recommandé)</strong> : vous retrouvez plus tard pourquoi ; « fausse ou périmée » ne bloque que cette version du texte, les trois autres bloquent l'information elle-même.</li>
+      <li><strong>Aucune raison demandée</strong> : plus rapide, mais l'historique reste muet sur le pourquoi, et on ne peut pas distinguer « pas pour mon public » de « il y avait une erreur ».</li></ul></div>
+    <div class="q"><strong>Question 2.</strong> Les 3 écartées retrouvées dans le dépôt (hors mandat électif) : les mettre dans l'historique dès le départ ?
+      <ul><li><strong>Oui, avec « raison non précisée » (recommandé)</strong> : l'historique n'est pas vide, et ces 3 ne reviennent plus. Le mandat électif, que vous voulez garder, n'y est pas mis.</li>
+      <li><strong>Non, on commence à vide</strong> : ces 3 pourront ressortir aux prochains balayages.</li></ul></div>
+    <div class="q"><strong>Question 3.</strong> Donner la liste des écartées à ChatGPT et Perplexity ?
+      <ul><li><strong>Non, seulement à Claude (recommandé)</strong> : les assistants reformulent et reviennent ; le tri chez nous est fiable.</li>
+      <li><strong>Oui, une courte liste dans leurs messages</strong> : ils perdent un peu moins de temps, mais le message s'allonge et la liste grossit avec le temps.</li></ul></div>
+    <div class="q"><strong>Question 4.</strong> Où mettre le bloc « Écartées » ?
+      <ul><li><strong>Dans l'onglet « Sas à valider », sous les cartes (recommandé)</strong> : tout se passe au même endroit.</li>
+      <li><strong>Dans un onglet à part</strong> : plus visible, mais un onglet de plus à penser.</li></ul></div>
+    <div class="q"><strong>Question 5.</strong> Les autres sas (employeurs, lieux, offres, etc.) : même principe ?
+      <ul><li><strong>Pas maintenant (recommandé)</strong> : ils ont déjà leurs propres mémoires (« déjà regardées », registres) ; on traite d'abord la veille légale, qui est celle qui vous a posé le problème.</li>
+      <li><strong>Tout de suite</strong> : plus complet, mais chantier nettement plus gros.</li></ul></div>
+  </section>
+</div>
+<script>
+  var $ = function (s) { return document.querySelector(s); };
+  function voir(n) {
+    document.querySelectorAll('.ecran').forEach(function (e) { e.classList.toggle('visible', e.id === 'e' + n); });
+    document.querySelectorAll('#onglets .btn').forEach(function (b) { b.classList.toggle('actif', b.getAttribute('data-e') === String(n)); });
+    window.scrollTo(0, 0);
+  }
+  $('#onglets').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { voir(b.getAttribute('data-e')); } });
+  $('#theme').addEventListener('click', function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', s ? '' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair';
+  });
+  /* Écran 1 */
+  var motif = '';
+  var EXPL = { public: 'Elle sera gardée dans l’historique et ne sera plus proposée par les recherches.', couvert: 'Elle sera gardée dans l’historique et ne sera plus proposée, puisqu’une fiche la couvre déjà.',
+    faux: 'Elle sera gardée dans l’historique. Seule cette version du texte ne sera plus proposée : une version corrigée pourra revenir.', autre: 'Écrivez votre raison. Elle sera gardée dans l’historique et ne sera plus proposée.' };
+  var NOMS = { public: 'Ne concerne pas mon public', couvert: 'Déjà couvert par une fiche', faux: 'Information fausse ou périmée', autre: 'Autre raison' };
+  $('#btnEcarter').addEventListener('click', function () { $('#zoneMotif').hidden = false; $('#boutonsCarte').hidden = true; });
+  $('#btnAnnulerEcart').addEventListener('click', function () { $('#zoneMotif').hidden = true; $('#boutonsCarte').hidden = false; });
+  $('#motifs').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    motif = b.getAttribute('data-m');
+    document.querySelectorAll('#motifs .btn').forEach(function (x) { x.classList.toggle('choisi', x === b); });
+    $('#autreRaison').hidden = motif !== 'autre'; $('#explicationMotif').textContent = EXPL[motif]; $('#btnConfirmer').disabled = false;
+  });
+  $('#btnConfirmer').addEventListener('click', function () {
+    var t = NOMS[motif]; if (motif === 'autre' && $('#champAutre').value.trim()) { t = $('#champAutre').value.trim(); }
+    $('#zoneMotif').hidden = true; $('#boutonsCarte').hidden = true; $('#noteEcartee').hidden = false;
+    $('#texteEcartee').textContent = 'Écartée le 09/11/2026, raison : ' + t + '. Elle est dans l’historique.';
+  });
+  $('#btnVoirHisto').addEventListener('click', function () { voir(2); });
+  /* Écran 2 */
+  function filtrer() {
+    var f = (document.querySelector('[data-f].actif') || {}).getAttribute ? document.querySelector('[data-f].actif').getAttribute('data-f') : 'tout';
+    var q = $('#recherche').value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    document.querySelectorAll('#liste .item').forEach(function (it) {
+      var ok = (f === 'tout' || it.getAttribute('data-t') === f) && (!q || (it.getAttribute('data-c') + ' ' + it.textContent.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')).indexOf(q) !== -1);
+      it.style.display = ok ? '' : 'none';
+    });
+  }
+  document.querySelectorAll('[data-f]').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('[data-f]').forEach(function (x) { x.classList.remove('actif'); }); b.classList.add('actif'); filtrer(); }); });
+  $('#recherche').addEventListener('input', filtrer);
+  document.querySelectorAll('[data-remettre]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var it = b.closest('.item'); it.classList.add('remis'); b.disabled = true; b.textContent = 'Remise dans le sas';
+      var r = it.querySelector('.reponse'); r.hidden = false; r.textContent = 'Remise le 09/11/2026 : elle est de nouveau dans « Sas à valider ». Elle quitte l’historique et pourra de nouveau être reproposée.';
+    });
+  });
+</script>
+</body>
+</html>

@@ -23,7 +23,8 @@
      - EXCEPTION ASSUMEE : les dates de dernier passage (/api/passages/...) lisent et ecrivent UN seul fichier, outils/passages.json (chemin fixe, cles et dates
        validees, une date ne recule jamais, rien n'est ecrit si le fichier est illisible) ; ce fichier est suivi par Git mais jamais enregistre ni envoye par l'outil ;
      - EXCEPTION ASSUMEE : les reponses collees dans l'onglet « Travailler avec Claude » (/api/retours/...) s'ecrivent dans outils/retours/AAAA-MM-JJ/<identifiant>.md (jour de
-       l'ordinateur, identifiants valides, 400 Ko au plus par reponse, 80 fichiers au plus par jour) ; dossier prive, ignore par Git, jamais envoye ;
+       l'ordinateur, identifiants valides, 400 Ko au plus par reponse, 80 fichiers au plus par jour) ; dossier prive, ignore par Git, jamais envoye ; les reponses des jours precedents sont
+       DEPLACEES dans le dossier du jour (jamais perdues d'un jour a l'autre) et, une fois traitees, mises de cote dans outils/retours/_traitees/ (/api/retours/archiver), jamais supprimees ;
      - il N'ECRIT RIEN LUI-MEME (a part ce fichier) et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
        veilleDepot.js (« Publier ») et veilleEnvoi.js (lots pour GitHub), sur des listes fermees de destinations. JAMAIS DE PUSH.
    ============================================================ */
@@ -113,6 +114,7 @@ function creerServeur(options) {
   function api(req, res, chemin, donnees) {
     switch (chemin) {
       case '/api/publier': return repondreResultat(res, depot.publier(donnees && donnees.fichiers, { remplacerExistants: !!(donnees && donnees.remplacerExistants) }));
+      case '/api/ecartes/lister': return repondreResultat(res, depot.listerEcartes());
       case '/api/liens/lister': return repondreResultat(res, depot.listerLiens());
       case '/api/territoire/lister': return repondreResultat(res, depot.listerTerritoire(donnees && donnees.fichier));
       case '/api/territoire/controler': return repondreResultat(res, depot.controlerTerritoire(donnees && donnees.fichier));
@@ -130,6 +132,7 @@ function creerServeur(options) {
       case '/api/passages/noter': return repondreResultat(res, passages.noter(donnees));
       case '/api/retours/lister': return repondreResultat(res, retours.lister());
       case '/api/retours/enregistrer': return repondreResultat(res, retours.enregistrer(donnees));
+      case '/api/retours/archiver': return repondreResultat(res, retours.archiver());
       // Les propositions que Claude a déposées aujourd'hui (outils/retours/<jour>/propositions/, noms de fichier fermés) : lecture seule.
       case '/api/propositions/lister': return repondreResultat(res, retours.propositions());
       case '/api/preuve/verifier': return repondreResultat(res, veillePreuveVerif.verifier(donnees && donnees.lignes, { fetch: opt.fetchControle, resoudre: opt.resoudreControle }));

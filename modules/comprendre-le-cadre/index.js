@@ -100,8 +100,8 @@ var _comprendreLeCadreCacheLiensVerifies = null;
 // docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md). Ne reste ici que le Balayage.
 var COMPRENDRE_LE_CADRE_OUTILS = [
   { dossier: 'balayage', icone: 'bi-megaphone', titre: 'Ce qui a changé récemment',
-    quoi: 'Le digest trimestriel des changements officiels (emploi, formation, droits sociaux, séjour). Daté, sourcé.',
-    accroche: 'Les changements officiels du dernier trimestre, en emploi, formation, insertion, droits sociaux et séjour.' }
+    quoi: 'Les derniers changements officiels repérés dans tous les rayons (emploi, formation, droits sociaux, logement, santé, séjour). Daté, sourcé.',
+    accroche: 'Les changements officiels récents, en emploi, formation, insertion, droits sociaux, logement, santé et séjour.' }
 ];
 
 // ============================================================
@@ -750,24 +750,18 @@ function _comprendreLeCadreChargerStructuresRayon(id, onCharge, onErreur) {
   }).catch(function () { onErreur(); });
 }
 
-// Mois (format "AAAA-MM") de fin des n derniers trimestres CIVILS
-// COMPLETS, du plus récent au plus ancien - jamais le trimestre en
-// cours, qui n'est pas encore terminé (VEILLE_PROMPTS.md 5bis : "dernier
-// trimestre civil complet"). Ex. le 2026-09-05, le T3 2026 (juil-sept)
-// n'est pas fini : le premier candidat est 2026-06 (T2, avril-juin).
-function _comprendreLeCadreMoisTrimestresRecents(n) {
+// Mois (format "AAAA-MM") candidats, du plus récent (le mois en cours) au plus ancien, sur n mois. Avant le 09/11/2026 la fonction ne
+// donnait que les fins de trimestre (juin, septembre...) : les fichiers mensuels du balayage (2026-10.md, 2026-11.md...) n'étaient
+// jamais lus et les derniers changements officiels n'apparaissaient pas. Le nom de fichier EST l'information (pas de manifeste) ;
+// un mois sans fichier donne un 404 sans conséquence.
+function _comprendreLeCadreMoisRecents(n) {
   var out = [];
   var d = new Date();
   var mois = d.getMonth() + 1, annee = d.getFullYear();
-  var finTrimestre = Math.ceil(mois / 3) * 3;
-  if (mois <= finTrimestre) {
-    finTrimestre -= 3;
-    if (finTrimestre <= 0) { finTrimestre += 12; annee -= 1; }
-  }
   for (var i = 0; i < n; i++) {
-    out.push(annee + '-' + (finTrimestre < 10 ? '0' : '') + finTrimestre);
-    finTrimestre -= 3;
-    if (finTrimestre <= 0) { finTrimestre += 12; annee -= 1; }
+    out.push(annee + '-' + (mois < 10 ? '0' : '') + mois);
+    mois -= 1;
+    if (mois <= 0) { mois += 12; annee -= 1; }
   }
   return out;
 }
@@ -823,7 +817,7 @@ function _comprendreLeCadreParserSourcesDigest(entete) {
 // onErreur() sinon (aucun digest publié pour l'instant - message honnête
 // côté écran, pas une erreur réseau à faire réessayer).
 function _comprendreLeCadreChargerDigests(dossier, onCharge, onErreur) {
-  var moisCandidats = _comprendreLeCadreMoisTrimestresRecents(COMPRENDRE_LE_CADRE_NB_TRIMESTRES_ARCHIVE);
+  var moisCandidats = _comprendreLeCadreMoisRecents(COMPRENDRE_LE_CADRE_NB_TRIMESTRES_ARCHIVE * 3);
   var base = COMPRENDRE_LE_CADRE_BASE_CONTENU + dossier + '/';
   Promise.all(moisCandidats.map(function (mois) {
     return fetch(base + mois + '.md').then(function (reponse) {
@@ -1034,14 +1028,14 @@ function _comprendreLeCadreRenduDigestCorps(corps) {
   return html;
 }
 
-// Dépliant « Toutes les sources de ce trimestre » : la liste du début du
+// Dépliant « Toutes les sources de cette période » : la liste du début du
 // fichier avec la date de contrôle de chacune. Rien si le trimestre n'en
 // déclare pas.
 function _comprendreLeCadreRenduSourcesDigest(sources) {
   if (!sources || !sources.length) { return ''; }
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); };
   return '<details class="comprendre-le-cadre-depli comprendre-le-cadre-digest-sources mt-3">' +
-    '<summary><span class="comprendre-le-cadre-depli-titre">Toutes les sources de ce trimestre</span>' +
+    '<summary><span class="comprendre-le-cadre-depli-titre">Toutes les sources de cette période</span>' +
     '<span class="comprendre-le-cadre-depli-clic">' + sources.length + (sources.length > 1 ? ' sources consultées' : ' source consultée') + '</span></summary>' +
     '<div class="comprendre-le-cadre-depli-corps"><ul class="comprendre-le-cadre-digest-liste-sources">' +
     sources.map(function (s) {
@@ -2313,9 +2307,9 @@ function _comprendreLeCadreRenduResumeDigest(d) {
   var phrase = r.nbChangements
     ? '<strong>' + r.nbChangements + (r.nbChangements > 1 ? ' changements' : ' changement') + '</strong> dans ' +
       r.nbDomainesAvec + (r.nbDomainesAvec > 1 ? ' domaines' : ' domaine') + '.'
-    : 'Aucun changement retenu ce trimestre.';
+    : 'Aucun changement retenu sur cette période.';
   return '<div class="comprendre-le-cadre-digest-resume mb-3" id="comprendreLeCadreDigestResume">' +
-    '<p class="comprendre-le-cadre-digest-resume-periode mb-1"><i class="bi bi-calendar-event"></i> ' + (d.periode || 'Trimestre non daté') + '</p>' +
+    '<p class="comprendre-le-cadre-digest-resume-periode mb-1"><i class="bi bi-calendar-event"></i> ' + (d.periode || 'Période non datée') + '</p>' +
     '<p class="mb-1">' + phrase + (d.publie_le ? ' Publié en ' + _comprendreLeCadreDateFr(d.publie_le) + '.' : '') + '</p>' +
     (r.nbDomainesAvec > 1
       ? '<p class="small mb-2">Touchez un domaine pour voir ses changements.</p>' +
@@ -2346,7 +2340,7 @@ function _comprendreLeCadreRenduDigest(outil, digests, index) {
     _comprendreLeCadreRenduDigestCorps(d.corps) +
     _comprendreLeCadreRenduSourcesDigest(d.sources) +
     (digests.length > 1
-      ? '<h3 class="h6 text-uppercase text-muted mt-4 mb-2">Les trimestres précédents</h3>' +
+      ? '<h3 class="h6 text-uppercase text-muted mt-4 mb-2">Les périodes précédentes</h3>' +
         '<div class="d-flex flex-wrap gap-2 mb-3">' +
         digests.map(function (dg, i) {
           return i === index ? '' :

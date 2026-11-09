@@ -54,7 +54,7 @@
     --pret:#176b3a; --pret-bord:#2e9b5c; --regard:#b45309; --regard-bg:#fdf1d9; --regard-bord:#d99a00; --jamais:#4b5868; --jamais-bg:#eceff3; --jamais-bord:#9aa5b4;
     --o-mois:#1d5fa8; --o-trim:#6b3fa0; --o-rep:#a15c00; --o-fc-maj:#1b7a3d; --o-fc-nouv:#0e7490; --o-fc-ret:#b3362b; --o-fc-brut:#6b7280;
     --warn:#b45309; --warn-bg:#fdf1d9;
-    --notif:#c2410c; --notif-texte:#ffffff; --sas:#6d28d9; --sas-texte:#ffffff;
+    --notif:#c2410c; --notif-texte:#ffffff; --sas:#6d28d9; --sas-texte:#ffffff; --pourclaude:#be185d; --pourclaude-texte:#ffffff;
     --alert:#a3372b; --alert-bg:#fbe6e3;
     --verif:#c4553a; --verif-bg:#fde5de; --verif-texte:#fff;
     --contenu:#6a4fb3; --contenu-bg:#ebe5f9; --contenu-texte:#fff;
@@ -71,7 +71,7 @@
     --pret:#6fdc9b; --pret-bord:#3fae6e; --regard:#f5a742; --regard-bg:#3a2c14; --regard-bord:#c99a2e; --jamais:#b4bfcf; --jamais-bg:#2a313d; --jamais-bord:#5d6a7d;
     --o-mois:#6fb1f2; --o-trim:#b99af0; --o-rep:#f0b35a; --o-fc-maj:#5fcf86; --o-fc-nouv:#5ec9e6; --o-fc-ret:#f08a80; --o-fc-brut:#a6b0bf;
     --warn:#f5a742; --warn-bg:#3a2c14;
-    --notif:#f59e3a; --notif-texte:#2a1700; --sas:#a78bfa; --sas-texte:#1e1033;
+    --notif:#f59e3a; --notif-texte:#2a1700; --sas:#a78bfa; --sas-texte:#1e1033; --pourclaude:#f472b6; --pourclaude-texte:#2a0a1a;
     --alert:#eda69c; --alert-bg:#3a1f1b;
     --verif:#f0987f; --verif-bg:#40201a; --verif-texte:#2a1209;
     --contenu:#c3b0f5; --contenu-bg:#2a2144; --contenu-texte:#1d1233;
@@ -187,12 +187,23 @@
   .btn-claude .notif-nb { display:inline-block; min-width:1.4rem; margin-left:.45rem; padding:0 .4rem; border-radius:999px; background:var(--notif-texte); color:var(--notif); font-weight:800; text-align:center; }
   /* Bouton « Sas à valider » sous celui de Claude : neutre quand le sas est vide, violet avec le nombre de propositions quand il en reste (violet, pour ne pas le confondre avec l'orange de Claude). */
   .btn-sas { position:fixed; top:3.1rem; left:.6rem; font-size:.8rem; z-index:30; }
+  /* « Envoyer à Claude » sur chaque carte : rose vif, une couleur que rien d'autre n'a dans l'outil, pour le repérer d'un coup d'œil. */
+  .btn.btn-pour-claude { background:var(--pourclaude); border-color:var(--pourclaude); color:var(--pourclaude-texte); font-weight:700; font-size:1rem; padding:.7rem 1.2rem; }
+  .tc-claude-bloc { margin:.8rem 0 .4rem; padding:.7rem .8rem; border:2px solid var(--pourclaude); border-radius:10px; }
   .btn.btn-sas.a-sas { background:var(--sas); border-color:var(--sas); color:var(--sas-texte); font-weight:700; }
   .btn-sas .notif-nb { display:inline-block; min-width:1.4rem; margin-left:.6rem; padding:0 .4rem; border-radius:999px; background:var(--sas-texte); color:var(--sas); text-align:center; }
   #travClaude { display:none; max-width:840px; margin:0 auto; padding:3rem 1rem 4rem; }
   body.vue-claude main { display:none; }
   body.vue-claude #travClaude { display:block; }
-  .tc-groupe { margin:1.4rem 0 .3rem; font-size:1.05rem; }
+  /* Noms des rubriques et des cartes bien visibles : plus grands que les boutons et en couleur (demande de Denis, 09/11/2026). */
+  .btn.choisi { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .zone-ecart { border:2px solid var(--accent); background:var(--accent-bg); border-radius:var(--radius); padding:.6rem .8rem; margin:.5rem 0; }
+  .zone-ecart input { max-width:420px; margin:.3rem 0; }
+  .zone-ecart label { display:block; margin:.35rem 0; }
+  .zone-ecart label input, .zone-ecart label select { display:block; margin-top:.15rem; }
+  .carte-ecartee { border:1px solid var(--border); border-left:6px solid var(--text-muted); border-radius:var(--radius); padding:.6rem .8rem; margin:.5rem 0; background:var(--bg-card); }
+  .tc-groupe { margin:1.6rem 0 .5rem; font-size:1.45rem; color:var(--accent); border-bottom:3px solid var(--accent); padding-bottom:.25rem; }
+  .tc-carte > .tc-tete > strong { font-size:1.3rem; line-height:1.25; color:var(--accent); }
   .tc-carte { margin:.5rem 0; padding:.7rem .85rem; border:1px solid var(--border-strong); border-radius:8px; background:var(--bg-card); }
   .tc-carte.faite { border-left:6px solid var(--ok); }
   .tc-carte.attention { border-left:6px solid var(--warn); }
@@ -1903,17 +1914,21 @@
   <ol class="sous-titre" style="margin:.3rem 0 .6rem 1.2rem">
     <li>Pour chaque prompt : « Copier et ouvrir » ChatGPT ou Perplexity, attendez la réponse, copiez-la.</li>
     <li>Revenez ici et cliquez sur « Coller la réponse » (ou Ctrl+V dans la case). Elle est enregistrée toute seule.</li>
-    <li>Quand vous avez fini (même avec quelques prompts seulement), cliquez sur « Copier le message pour Claude » en bas, et donnez-le à Claude.</li>
+    <li>Quand vous avez ramassé les informations d'une carte, le bouton rose « Envoyer à Claude » de la carte copie un message pour cette seule carte. Quand vous en avez ramassé plusieurs, le bouton « Copier le message pour Claude » en bas donne tout à Claude d'un coup : il se fait un plan, traite un bloc après l'autre dans l'ordre de la page, et enchaîne tout seul.</li>
   </ol>
   <div class="btn-rangee"><button class="btn" type="button" onclick="tcActualiser()">Actualiser la liste</button><button class="btn" type="button" data-tp-sas="1">Ouvrir le sas des fiches (« À valider »)</button></div>
   <div id="tcPropResume"></div>
   <div id="tcNote"></div>
   <div id="tcPropOrphelines"></div>
   <p><strong id="tcCompteur"></strong></p>
+  <div id="tcGarde"></div>
   <div id="tcListe"></div>
   <h2 style="margin-top:1.6rem">Donner la suite à Claude</h2>
-  <p class="sous-titre">Ce message dit à Claude où sont les réponses et ce qu'il doit en faire. Il est prêt dès qu'une réponse est enregistrée.</p>
+  <p class="sous-titre">Ce message dit à Claude où sont les réponses et ce qu'il doit en faire. Il est prêt dès qu'une réponse est enregistrée. Tout ce que vous avez apporté est gardé dans un fichier du jour : vous pouvez fermer l'outil sans rien perdre. Claude écrit un plan, puis traite un bloc après l'autre, dans l'ordre de la page, sans rien sauter, et enchaîne sans attendre.</p>
   <div class="btn-rangee"><button class="btn primaire" id="tcCopierMessage" type="button" onclick="tcCopierMessage(this)">Copier le message pour Claude</button></div>
+  <h3 style="margin-top:1.2rem">Quand Claude a fini de tout traiter</h3>
+  <p class="sous-titre">Cliquez ici pour ranger les réponses déjà traitées : elles sont mises de côté (rien n’est supprimé) et l’onglet repart vide pour la prochaine fois. À ne pas faire avant que Claude ait fini.</p>
+  <div class="btn-rangee"><button class="btn" id="tcArchiver" type="button" onclick="tcArchiver(this)">Mettre de côté les réponses traitées</button></div>
   <div class="code" id="tcMessage" style="display:none"></div>
 </section>
 
@@ -3972,7 +3987,9 @@
       + "4. Réponse en plusieurs fois : si la réponse est trop longue pour tenir en une seule fois, arrête-toi proprement à la fin d'un domaine, termine par les trois blocs de ce que tu as traité, puis par la ligne « SUITE DISPONIBLE : il reste [domaines restants]. Voulez-vous la suite ? ». Je répondrai oui et tu reprendras au domaine suivant, sans répéter ce qui est déjà donné. Ne saute jamais un domaine en silence et ne raccourcis jamais la liste pour la faire tenir.\n"
       + "5. Dates : une mesure entre dans la période si elle est publiée OU si elle entre en vigueur pendant la période. Une mesure publiée pendant la période mais qui n'entre en vigueur qu'après, un projet de loi, une concertation en cours : UNIQUEMENT dans « Annoncé, pas encore en vigueur ». Chaque changement apparaît dans UN SEUL domaine.\n"
       + "6. Territoire : d'abord le niveau national ; ce qui est propre à la région ou au département va dans le domaine « Propre à la région ... » (conseil régional, conseil départemental, préfecture, DREETS ou DDETS). Ne mélange pas les départements.\n"
-      + "7. Ne donne ni avis, ni recommandation, ni classement. Tu listes ce qui a changé.");
+      + "7. Ne donne ni avis, ni recommandation, ni classement. Tu listes ce qui a changé.\n"
+      + "8. Capacité : ne déclare jamais une source « non essayée ». Tu dois avoir tenté d'ouvrir chaque source de la liste « Où chercher » (ou un relais qui la republie) avant de la déclarer non ouverte. Si tu manques de capacité avant d'avoir tout ouvert, arrête-toi à la fin d'un domaine et termine par « SUITE DISPONIBLE : il reste [domaines] et les sources [liste] » : je répondrai oui et tu les ouvriras à la suite. Dire « non couvert » vaut mieux qu'une source survolée.\n"
+      + "9. Une page d'accueil de site (par exemple celle de Légifrance ou de Service-Public) n'est jamais une preuve : la preuve est la page du texte ou de l'article lui-même. Recopie comme date de la preuve celle qui est affichée sur cette page, jamais la date d'un autre texte qu'elle cite.");
     p.push("OÙ CHERCHER (ouvre chacune de ces sources ; si l'une est bloquée ou introuvable, note-la dans le bloc des sites non ouverts et appuie-toi sur un relais)\n" + ou.map(function (o) { return "- " + o; }).join('\n'));
     if (typeof VeillePreuve !== 'undefined') { p.push(VeillePreuve.consigneEntrees("Un changement pour lequel tu n'as ouvert aucune page ne doit pas être écrit.")); }
     p.push("SOURCES : une adresse = une seule URL complète, écrite telle quelle, sans lien cliquable, sans crochets, sans parenthèses, sans paramètre de langue (pas de « ?lang=en »). Une source différente pour chaque changement quand c'est possible ; jamais un discours comme source d'un texte. Si tu n'as pu lire que le relais d'un texte officiel, écris « source primaire non ouverte » à la fin de ce_qui_change.");
@@ -4345,28 +4362,8 @@
   }
   var _balReprise = [];
   function balRendreCouverture(domaines, couv, sites) {
-    var attendus = balNomsDomaines(), reprise = [], lignes = [];
-    attendus.forEach(function (nom) {
-      var decl = couv.filter(function (x) { return balMemeDomaine(x.nom, nom); });
-      var rang = { trouve: 3, rien: 2, non: 1, '': 0 };
-      var d = decl.slice().sort(function (a, b) { return rang[b.statut] - rang[a.statut]; })[0];
-      var nb = 0; domaines.forEach(function (x) { if (balMemeDomaine(x.nom, nom)) { x.items.forEach(function (it) { if (!balEstVide(it)) { nb++; } }); } });
-      var icone = '&#9989;', txt;
-      if (!d || !d.statut) {
-        if (nb) { icone = '&#9888;&#65039;'; txt = nb + ' changement(s) lu(s), mais la couverture de ce domaine n’est pas déclarée.'; }
-        else { icone = '&#10060;'; txt = 'Aucune déclaration : à traiter comme non couvert.'; reprise.push(nom); }
-      } else if (d.statut === 'non') {
-        icone = '&#10060;'; txt = 'Non couvert' + (d.raison ? ' (' + d.raison + ')' : '') + '.'; reprise.push(nom);
-      } else if (d.statut === 'rien') {
-        if (d.pages.length < 3) { icone = '&#9888;&#65039;'; txt = 'Dit « rien trouvé » avec seulement ' + d.pages.length + ' page(s) ouverte(s) (il en faut au moins 3) : à reprendre.'; reprise.push(nom); }
-        else if (nb) { icone = '&#9888;&#65039;'; txt = 'Dit « rien trouvé » mais ' + nb + ' changement(s) lu(s) : vérifiez.'; }
-        else { txt = 'Cherché, rien trouvé (' + d.pages.length + ' pages ouvertes).'; }
-      } else {
-        if (!nb) { icone = '&#9888;&#65039;'; txt = 'Dit avoir trouvé des changements mais aucun n’a été lu : réponse incomplète ?'; reprise.push(nom); }
-        else { txt = nb + ' changement(s), ' + d.pages.length + ' page(s) ouverte(s).'; if (d.pages.length < 2) { icone = '&#9888;&#65039;'; txt += ' Peu de pages ouvertes.'; } }
-      }
-      lignes.push('<div style="margin:.15rem 0">' + icone + ' <strong>' + echap(nom) + '</strong> : ' + txt + '</div>');
-    });
+    var calc = balCalculerCouverture(domaines, couv, balNomsDomaines()), reprise = calc.reprise;
+    var lignes = calc.lignes.map(function (l) { return '<div style="margin:.15rem 0">' + l.icone + ' <strong>' + echap(l.nom) + '</strong> : ' + l.txt + '</div>'; });
     _balReprise = reprise;
     var h = '<div class="note"><span>&#128269;</span><span><strong>Couverture du balayage</strong> (ce que l’assistant dit avoir cherché)</span></div>' + lignes.join('');
     if (reprise.length) {
@@ -4376,31 +4373,28 @@
     $('balCouverture').innerHTML = h;
   }
   // Un message pour les seuls domaines à reprendre : les sources des groupes concernés, sans doublon.
-  window.preparerRepriseBal = function () {
-    if (!_balReprise.length) { return; }
+  // Le message de reprise pour une liste de domaines (écran du balayage ET boutons de l'onglet « Travailler avec Claude » : une seule fabrication).
+  function balMessageReprise(domaines) {
     var ou = [], b = balInfoCourant();
     BAL_GROUPES.forEach(function (g) {
       var noms = balNomsGroupe(g);
-      if (_balReprise.some(function (n) { return noms.some(function (x) { return balMemeDomaine(x, n); }); })) { balOuGroupe(g).forEach(function (o) { if (ou.indexOf(o) === -1) { ou.push(o); } }); }
+      if (domaines.some(function (n) { return noms.some(function (x) { return balMemeDomaine(x, n); }); })) { balOuGroupe(g).forEach(function (o) { if (ou.indexOf(o) === -1) { ou.push(o); } }); }
     });
-    var msg = { titre: 'Reprise : ' + _balReprise.length + ' domaine(s) non couvert(s)', court: 'Reprise', noms: _balReprise, ou: ou,
-      texte: balMessage(_balReprise, ou, b.periode, 'reprise, ' + _balReprise.length + ' domaine(s) non couvert(s) la première fois') };
+    return { titre: 'Reprise : ' + domaines.length + ' domaine(s) non couvert(s)', court: 'Reprise', noms: domaines, ou: ou,
+      texte: balMessage(domaines, ou, b.periode, 'reprise, ' + domaines.length + ' domaine(s) non couvert(s) la première fois') };
+  }
+  window.preparerRepriseBal = function () {
+    if (!_balReprise.length) { return; }
+    var msg = balMessageReprise(_balReprise);
     _balMsgs = _balMsgs.filter(function (x) { return x.court !== 'Reprise'; }); _balMsgs.push(msg); _balMsgCourant = _balMsgs.length - 1;
     balAfficherMessage();
     try { $('balCarnet').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* tant pis */ }
   };
-  function lireBalayage() {
-    var t = $('reponseBal').value, msg = $('msgBal2');
-    var blocs = [], reBloc = /\[BALAYAGE[^\]]*\]([\s\S]*?)\[\/BALAYAGE\]/gi, mb;
-    while ((mb = reBloc.exec(t))) { blocs.push(mb[1]); }
-    var m = blocs.length > 0;
-    var bloc = m ? blocs.join('\n\n') : t;
-    var perM = t.match(/\[BALAYAGE\s*periode\s*:\s*([^\]]+)\]/i);
-    var b = balInfoCourant();
-    var periode = perM ? perM[1].trim() : b.periode;
-    // lecture ligne à ligne : tolère « champ: » avec ou sans « - » devant, et les lignes vides entre les champs
+  // Le texte d'un ou plusieurs blocs [BALAYAGE] -> les domaines et leurs changements. Lecture ligne à ligne : tolère « champ: » avec ou sans « - » devant, et les lignes vides entre les champs.
+  // Fonction pure, utilisée par l'écran du balayage ET par l'onglet « Travailler avec Claude » (une seule lecture).
+  function balParserDomaines(bloc) {
     var domaines = [], curDom = null, curItem = null;
-    bloc.split('\n').forEach(function (ln) {
+    String(bloc || '').split('\n').forEach(function (ln) {
       var dm = ln.match(/^\s*(?:#+\s*)?domaine\s*:\s*(.+?)\s*$/i);
       if (dm) {
         var nomDom = dm[1].trim().replace(/^["']|["']$/g, '');
@@ -4418,7 +4412,54 @@
       if (curItem) curItem[cle] = val;
     });
     domaines.forEach(function (d) { d.items = d.items.filter(function (it) { return it.intitule; }); });
-    domaines = domaines.filter(function (d) { return d.nom && d.items.length; });
+    return domaines.filter(function (d) { return d.nom && d.items.length; });
+  }
+  // Le texte d'une réponse collée -> les blocs [BALAYAGE] joints (ou le texte entier s'il n'y en a pas).
+  function balBlocsDe(t) {
+    var blocs = [], re = /\[BALAYAGE[^\]]*\]([\s\S]*?)\[\/BALAYAGE\]/gi, m;
+    while ((m = re.exec(t))) { blocs.push(m[1]); }
+    return blocs.length ? blocs.join('\n\n') : t;
+  }
+  // Pour chaque domaine attendu : ce que la réponse en dit, et s'il faut le reprendre (non couvert, sans déclaration, « rien trouvé » avec moins de trois pages, « trouvé » sans aucun changement lu).
+  // Fonction pure : l'écran du balayage l'affiche, l'onglet « Travailler avec Claude » en tire le bouton de reprise.
+  function balCalculerCouverture(domaines, couv, attendus) {
+    var reprise = [], lignes = [], rang = { trouve: 3, rien: 2, non: 1, '': 0 };
+    attendus.forEach(function (nom) {
+      var decl = couv.filter(function (x) { return balMemeDomaine(x.nom, nom); });
+      var d = decl.slice().sort(function (a, b) { return rang[b.statut] - rang[a.statut]; })[0];
+      var nb = 0; domaines.forEach(function (x) { if (balMemeDomaine(x.nom, nom)) { x.items.forEach(function (it) { if (!balEstVide(it)) { nb++; } }); } });
+      var icone = '&#9989;', txt;
+      if (!d || !d.statut) {
+        if (nb) { icone = '&#9888;&#65039;'; txt = nb + ' changement(s) lu(s), mais la couverture de ce domaine n’est pas déclarée.'; }
+        else { icone = '&#10060;'; txt = 'Aucune déclaration : à traiter comme non couvert.'; reprise.push(nom); }
+      } else if (d.statut === 'non') {
+        icone = '&#10060;'; txt = 'Non couvert' + (d.raison ? ' (' + d.raison + ')' : '') + '.'; reprise.push(nom);
+      } else if (d.statut === 'rien') {
+        if (d.pages.length < 3) { icone = '&#9888;&#65039;'; txt = 'Dit « rien trouvé » avec seulement ' + d.pages.length + ' page(s) ouverte(s) (il en faut au moins 3) : à reprendre.'; reprise.push(nom); }
+        else if (nb) { icone = '&#9888;&#65039;'; txt = 'Dit « rien trouvé » mais ' + nb + ' changement(s) lu(s) : vérifiez.'; }
+        else { txt = 'Cherché, rien trouvé (' + d.pages.length + ' pages ouvertes).'; }
+      } else {
+        if (!nb) { icone = '&#9888;&#65039;'; txt = 'Dit avoir trouvé des changements mais aucun n’a été lu : réponse incomplète ?'; reprise.push(nom); }
+        else { txt = nb + ' changement(s), ' + d.pages.length + ' page(s) ouverte(s).'; if (d.pages.length < 2) { icone = '&#9888;&#65039;'; txt += ' Peu de pages ouvertes.'; } }
+      }
+      lignes.push({ nom: nom, icone: icone, txt: txt });
+    });
+    return { lignes: lignes, reprise: reprise };
+  }
+  // Les domaines d'un message à reprendre d'après la réponse collée (onglet « Travailler avec Claude »).
+  function balDomainesAReprendre(t, attendus) {
+    return balCalculerCouverture(balParserDomaines(balBlocsDe(t)), balLireCouverture(t), attendus).reprise;
+  }
+  function lireBalayage() {
+    var t = $('reponseBal').value, msg = $('msgBal2');
+    var blocs = [], reBloc = /\[BALAYAGE[^\]]*\]([\s\S]*?)\[\/BALAYAGE\]/gi, mb;
+    while ((mb = reBloc.exec(t))) { blocs.push(mb[1]); }
+    var m = blocs.length > 0;
+    var bloc = m ? blocs.join('\n\n') : t;
+    var perM = t.match(/\[BALAYAGE\s*periode\s*:\s*([^\]]+)\]/i);
+    var b = balInfoCourant();
+    var periode = perM ? perM[1].trim() : b.periode;
+    var domaines = balParserDomaines(bloc);
     var lotsB = [], sansB = 0, nbB = 0;
     domaines.forEach(function (d) { d.items.forEach(function (it) { if (balEstVide(it)) { return; } nbB++; var l = preuveAttacher(it, 'bal', 'b' + nbB, it.preuve); if (l) { lotsB.push(l); } else { sansB++; } }); });
     var couv = balLireCouverture(t), sites = balLireSites(t);
@@ -8648,7 +8689,7 @@
 
   // ---------- Qui fait quoi : le sas (importer plusieurs fiches, puis les verifier une a une) ----------
   // Les fiches proposees par un assistant vont dans un SAS que l'application ne lit jamais ; chacune ne devient publique que quand vous avez ouvert son site et clique « C'est bon ».
-  var sas = { mode: 'coller', fichier: 'lieux', texte: '', analyse: null, coches: {}, fait: null, liste: null, attente: {}, edits: {}, corr: null, nb: 0, page: 1, q: '', fType: '', fPortee: '', fSecteur: '', fEtat: '', fMag: '', fCat: '', fCtl: '', fPrev: '', fOrig: '', fSite: '', tableau: false, tri: { col: '', sens: 1 }, siteOuvert: {}, secteurs: null, pont: null, pontMsg: '' };
+  var sas = { mode: 'coller', fichier: 'lieux', texte: '', analyse: null, coches: {}, fait: null, liste: null, attente: {}, edits: {}, corr: null, nb: 0, page: 1, q: '', fType: '', fPortee: '', fSecteur: '', fEtat: '', fMag: '', fCat: '', fCtl: '', fPrev: '', fOrig: '', fSite: '', tableau: false, tri: { col: '', sens: 1 }, siteOuvert: {}, secteurs: null, pont: null, pontMsg: '', ecart: {} };
   var SAS_NOMS = { lieux: 'des structures (logement, mobilité, accompagnement...)', employeurs: 'des employeurs (par secteur)', complements: 'des numéros de téléphone à ajouter aux fiches déjà connues', offres: 'des pages d’offres des employeurs (fonction publique, grands employeurs, groupements...)' };
   var SAS_SAS = { lieux: 'Structures', employeurs: 'Employeurs', complements: 'Téléphones', offres: 'Pages d’offres' };
   // Noms lisibles des valeurs de « type » (nature d'un employeur, famille d'une page d'offres) et des territoires, pour les filtres et les cartes.
@@ -8706,6 +8747,7 @@
     var h = '<h3>' + r.lues + ' ligne' + (r.lues > 1 ? 's' : '') + ' lue' + (r.lues > 1 ? 's' : '') + '</h3>' +
       '<div class="chiffres"><div class="chiffre" style="background:var(--ok-bg)"><strong>' + r.pretes + '</strong>prête' + (r.pretes > 1 ? 's' : '') + '</div>' +
       '<div class="chiffre" style="background:var(--warn-bg)"><strong>' + (r.connues + r.rien) + '</strong>déjà connue' + (r.connues + r.rien > 1 ? 's' : '') + ' ou sans rien à ajouter</div>' +
+      (r.ecartees ? '<div class="chiffre" style="background:var(--warn-bg)"><strong>' + r.ecartees + '</strong>déjà écartée' + (r.ecartees > 1 ? 's' : '') + ' (historique)</div>' : '') +
       '<div class="chiffre" style="background:var(--alert-bg)"><strong>' + r.acorriger + '</strong>à corriger</div></div>';
     if (r.ignorees) { h += note('warn', '<strong>' + r.ignorees + ' ligne' + (r.ignorees > 1 ? 's' : '') + ' ignorée' + (r.ignorees > 1 ? 's' : '') + '</strong> (du texte, pas des colonnes séparées par « | »). Si l\'une d\'elles devait être une fiche, elle est abîmée : <span class="mono mini">' + (r.ignoreesListe || []).map(esc).join(' ; ') + '</span>'); }
     h += '<table><thead><tr><th>Ligne</th><th>Fiche</th><th>Résultat</th><th>Ce que vous pouvez faire</th></tr></thead><tbody>';
@@ -8718,6 +8760,10 @@
         act = '<label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" data-sas-coche="' + i + '"' + (sas.coches[i] ? ' checked' : '') + ' style="width:auto"> Mettre dans le sas</label>';
       } else if (l.statut === 'rien') {
         res = '<span class="pastille p-neutre">Rien à ajouter</span><br><span class="mini">' + esc(l.message || '') + '</span>';
+      } else if (l.statut === 'ecartee') {
+        var ee = l.ecartee || {};
+        res = '<span class="pastille p-warn">Déjà écartée</span><br><span class="mini">Écartée le ' + esc(dateFr(ee.ecarte_le)) + ' : ' + esc(ee.motifLibelle || '') + (ee.precision ? ' (' + esc(ee.precision) + ')' : '') + (ee.lieu ? ' · ' + esc(ee.lieu) : '') + '. Elle n\'est pas importée.</span>';
+        act = '<span class="mini">Pour la reprendre malgré tout : « Remettre dans le sas » (ou « Retirer de l\'historique » pour une note) dans « Sas à valider », bloc « Écartées », puis recommencez.</span>';
       } else {
         var c = l.connue;
         if (l.statut === 'connue') {
@@ -9162,9 +9208,23 @@
       return '<button type="button" class="etat-case e-' + k + (sas.fPrev === k ? ' actif' : '') + '" data-sas="etat-case" data-valeur="' + k + '" aria-pressed="' + (sas.fPrev === k) + '"><span class="n">' + n[k] + '</span><span class="t">' + SAS_ETATS[k].titre + '</span><span class="d">' + SAS_ETATS[k].desc + '</span></button>';
     }).join('') + '</div>';
   }
+  // Pourquoi on écarte un employeur (consigne du 09/11/2026) : gardé dans l'historique pour ne plus le reproposer. Un simple doublon n'est PAS un employeur disparu : rien n'est noté.
+  var ECART_MOTIFS_EMP = [['ferme', 'Fermeture confirmée'], ['absent', 'Absent du territoire'], ['introuvable', 'Site disparu, entreprise introuvable'], ['autre', 'Autre raison'], ['rien', 'Simple doublon : ne rien noter']];
+  var ECART_EXPL_EMP = { ferme: 'Notez ce qui le prouve (adresse, date) : c’est ce qui permettra de le confirmer plus tard.', absent: 'Non démontré : l’employeur n’a pas été trouvé ici. Il ne sera plus proposé pour ce territoire.',
+    introuvable: 'Le site ne répond plus et l’entreprise reste introuvable. Un site mort seul ne prouve pas une fermeture : cherchez d’abord son vrai site.', autre: 'Écrivez votre raison.', rien: 'Rien n’est gardé : la fiche est simplement retirée du sas (une fiche en double, par exemple).' };
+  function sasEcartAvec(d, l) { return (d.fichier === 'employeurs' || d.fichier === 'offres') && !l.generee; }
+  function sasEcartZoneHtml(d, l) {
+    if (!sasEcartAvec(d, l)) { return ''; }
+    var st = sas.ecart[l.id] || { m: l.doublon ? 'rien' : '' }, h = '<div class="zone-ecart"><strong>Pourquoi l’écarter ?</strong><div class="btn-rangee">';
+    ECART_MOTIFS_EMP.forEach(function (m) { h += '<button class="btn petit' + (st.m === m[0] ? ' choisi' : '') + '" type="button" data-sas-ecart="' + esc(l.id) + '|' + m[0] + '">' + m[1] + '</button> '; });
+    h += '</div>';
+    if (st.m === 'ferme' || st.m === 'autre') { h += '<input type="text" data-sas-ecart-p="' + esc(l.id) + '" value="' + esc(st.p || '') + '" placeholder="' + (st.m === 'ferme' ? 'Ce qui le prouve : adresse de la page, date' : 'Votre raison, en quelques mots') + '" aria-label="Précision">'; }
+    return h + '<p class="mini">' + (st.m ? ECART_EXPL_EMP[st.m] : 'Choisissez une raison : sans elle, « Enregistrer » ne pourra pas écarter.') + '</p></div>';
+  }
   function sasHtmlFiche(l, d) {
     var v = l.valeurs, dec = sas.attente[l.id], c = d.fichier === 'complements', h = '<div class="fiche-sas' + (sasEtatSas(l, d.fichier) ? ' etiquetee e-' + sasEtatSas(l, d.fichier).etat : '') + (dec ? ' choisie choisie-' + (dec === 'ecarter' ? 'ecarter' : 'publier') : '') + '">' + sasHtmlEtiqPrev(l, d.fichier);
     h += '<span style="float:right">' + (!c && d.fichier === 'employeurs' && (v.nature === 'enseigne' || v.nature === 'local') && l.etabs && l.etabs.length ? htmlBoutonsAutresMagasins(l.nom, sasEtabsCourants(l), l.depsEnseigne, v.nature, 'sas|' + l.id) : '') + '</span><strong>' + esc(l.nom) + '</strong> <span class="pastille p-neutre">' + esc(c ? (l.generee ? 'numéro à chercher' : 'numéro à ajouter') : sasLibType(v.type || v.nature || v.famille || '')) + '</span>' + (!c && d.fichier === 'lieux' && sasPetite(v) ? ' <span class="pastille p-neutre">Petite structure</span>' : '') + (sasCtlAvec(d.fichier) ? sasCtlPastille(l) : '');
+    if (l.ecartee) { var ec0 = l.ecartee; h += note('warn', '<strong>Un employeur de ce nom a déjà été écarté</strong> le ' + esc(dateFr(ec0.ecarte_le)) + ' : ' + esc(ec0.motifLibelle || '') + (ec0.precision ? ' (' + esc(ec0.precision) + ')' : '') + (ec0.lieu ? ', ' + esc(ec0.lieu) : '') + '. Est-ce le même ?'); }
     if (c) {
       // Où se trouve la structure : sans cela, impossible de savoir de quelle ville ou de quel département on parle (deux associations de même nom).
       var f = l.fiche || {}, ou = [];
@@ -9210,7 +9270,7 @@
     if (sas.corr === l.id && !c) {
       h += '<input type="text" class="ligne-edit" id="sasCorrLigne" value="' + esc(sasLigneTexte(v, d.colonnes)) + '" aria-label="Ligne à corriger"><div class="btn-rangee"><button class="btn primaire petit" type="button" data-sas-corr-ok="' + esc(l.id) + '">Enregistrer la correction</button> <button class="btn petit" type="button" data-sas-corr-non="1">Annuler</button></div>';
     } else if (dec) {
-      h += '<div class="note ' + (dec === 'ecarter' ? 'alert' : 'ok') + '"><span>' + ({ publier: 'Sera <strong>publiée</strong> avec la date du jour.', sanstel: 'Sera <strong>publiée sans son numéro</strong>, avec la date du jour.', ecarter: 'Sera <strong>écartée</strong> (retirée du sas, jamais publiée).', sansnumero: 'Sera notée <strong>« sans numéro »</strong> avec la date du jour : elle réapparaîtra dans six mois pour être revérifiée.' })[dec] + '</span> <button class="btn petit" type="button" data-sas-dec="' + esc(l.id) + ':annuler">Annuler ce choix</button></div>';
+      h += '<div class="note ' + (dec === 'ecarter' ? 'alert' : 'ok') + '"><span>' + ({ publier: 'Sera <strong>publiée</strong> avec la date du jour.', sanstel: 'Sera <strong>publiée sans son numéro</strong>, avec la date du jour.', ecarter: (sasEcartAvec(d, l) && !l.doublon ? 'Sera <strong>écartée</strong> : retirée du sas, jamais publiée, et gardée dans l’historique « Écartées » avec la raison.' : 'Sera <strong>écartée</strong> (retirée du sas, jamais publiée).'), sansnumero: 'Sera notée <strong>« sans numéro »</strong> avec la date du jour : elle réapparaîtra dans six mois pour être revérifiée.' })[dec] + '</span> <button class="btn petit" type="button" data-sas-dec="' + esc(l.id) + ':annuler">Annuler ce choix</button></div>' + (dec === 'ecarter' ? sasEcartZoneHtml(d, l) : '');
     } else {
       h += '<div class="note"><span>&#128161;</span><span>Ouvrez le site et vérifiez que le nom, la ville et ' + (c ? 'le numéro' : 'l\'adresse') + ' correspondent. Si c\'est bon, la date du jour est inscrite et ' + (c ? 'le numéro s\'ajoute à la fiche' : 'la fiche devient publique') + '.</span></div><div class="btn-rangee">' +
         (!c && d.fichier === 'lieux' && sasPetite(v) ? sasHtmlBoutonsPetite(l) : '<button class="btn primaire petit" type="button" data-sas-dec="' + esc(l.id) + ':publier">' + (c ? (l.generee ? 'J’ai trouvé le numéro, l’ajouter (date du jour)' : 'C\'est bon, ajouter ce numéro (date du jour)') : 'C\'est bon, publier (date du jour)') + '</button>') +
@@ -9586,6 +9646,7 @@
         sasHtmlFiltrePrev(d) + '<button class="btn petit' + (sas.tableau ? ' primaire' : '') + '" type="button" data-sas="tableau-bascule" aria-pressed="' + sas.tableau + '">' + (sas.tableau ? 'Revenir aux fiches' : 'Voir en tableau') + '</button> <button class="btn petit" type="button" data-sas="effacer-filtres">Effacer la recherche</button></div>' + (sasCtlAvec(d.fichier) ? sasHtmlControle() : '');
     }
     h += verBlocGroupeSas();
+    if (d.fichier === 'employeurs' || d.fichier === 'offres') { h += '<div class="btn-rangee"><button class="btn petit" type="button" data-sas="voir-ecartees">Voir les employeurs écartés (historique)</button></div>'; }
     h += '<div id="sasZoneFiches">' + sasHtmlZoneFiches() + '</div>';
     h += '<div class="pied"><span><strong>' + n + '</strong> choix en attente</span> <button class="btn primaire" type="button" data-sas="enregistrer"' + (n ? '' : ' disabled') + '>Enregistrer</button> <button class="btn" type="button" data-sas="tout-annuler"' + (n ? '' : ' disabled') + '>Tout annuler</button> <button class="btn" type="button" id="sasAnnulerPub" style="display:none">Annuler la dernière publication</button></div>';
     return h;
@@ -9617,8 +9678,8 @@
     sasAnalyser(texte).then(function (r) {
       if (!r.ok || !r.lignes.length) { $d('sasResultat').innerHTML = note('warn', esc(r.erreur || 'Ligne illisible.')); return; }
       var n = sas.analyse.lignes[i].numero; r.lignes[0].numero = n; sas.analyse.lignes[i] = r.lignes[0]; sas.coches[i] = r.lignes[0].statut === 'prete';
-      var rs = { lues: 0, pretes: 0, connues: 0, acorriger: 0, rien: 0, ignorees: sas.analyse.resume.ignorees, ignoreesListe: sas.analyse.resume.ignoreesListe };
-      sas.analyse.lignes.forEach(function (l) { rs.lues++; if (l.statut === 'prete') { rs.pretes++; } else if (l.statut === 'connue') { rs.connues++; } else if (l.statut === 'rien') { rs.rien++; } else { rs.acorriger++; } });
+      var rs = { lues: 0, pretes: 0, connues: 0, ecartees: 0, acorriger: 0, rien: 0, ignorees: sas.analyse.resume.ignorees, ignoreesListe: sas.analyse.resume.ignoreesListe };
+      sas.analyse.lignes.forEach(function (l) { rs.lues++; if (l.statut === 'prete') { rs.pretes++; } else if (l.statut === 'connue') { rs.connues++; } else if (l.statut === 'ecartee') { rs.ecartees++; } else if (l.statut === 'rien') { rs.rien++; } else { rs.acorriger++; } });
       sas.analyse.resume = rs; $d('sasResultat').innerHTML = ''; sasRendre();
     });
   }
@@ -9644,14 +9705,18 @@
   }
   function sasEnregistrer() {
     var d = sas.liste, ids = Object.keys(sas.attente); if (!d || !ids.length) { return; }
-    var reg = {}, retirer = [], sansNum = [], manque = [];
+    var reg = {}, retirer = [], sansNum = [], manque = [], sansRaison = [];
     var dejaPub = ids.filter(function (id) { var x = d.lignes.filter(function (y) { return y.id === id; })[0]; return x && x.doublon && x.doublon.ou === 'registre' && x.doublon.raison === 'identifiant' && (sas.attente[id] === 'publier' || sas.attente[id] === 'sanstel'); });
     if (dejaPub.length) { $d('sasResultat').innerHTML = note('warn', '<strong>' + dejaPub.length + ' fiche' + (dejaPub.length > 1 ? 's existent' : ' existe') + ' déjà dans les fiches publiées</strong> (' + esc(dejaPub.slice(0, 3).join(', ')) + (dejaPub.length > 3 ? ' et ' + (dejaPub.length - 3) + ' autre(s)' : '') + '). Rien n’a été enregistré. Écartez-les (état « À regarder », origine « Déjà publiées », bouton « Écarter »), puis enregistrez.'); return; }
     var aCorr = ids.filter(function (id) { var x = d.lignes.filter(function (y) { return y.id === id; })[0]; return x && sasAProblemes(x) && (sas.attente[id] === 'publier' || sas.attente[id] === 'sanstel'); });
     if (aCorr.length) { $d('sasResultat').innerHTML = note('warn', '<strong>' + aCorr.length + ' fiche' + (aCorr.length > 1 ? 's ne passent' : ' ne passe') + ' pas les contrôles</strong> ; rien n’a été enregistré. ' + aCorr.slice(0, 5).map(function (id) { var x = d.lignes.filter(function (y) { return y.id === id; })[0]; return '<br>• ' + esc(x.nom || id) + ' (' + esc(id) + ') : ' + esc(x.problemes.join(' ; ')); }).join('') + (aCorr.length > 5 ? '<br>… et ' + (aCorr.length - 5) + ' autre(s).' : '') + '<br>Corrigez la fiche à l’écran, ou écartez-la, puis enregistrez.'); return; }
     ids.forEach(function (id) {
       var dec = sas.attente[id], l = d.lignes.filter(function (x) { return x.id === id; })[0]; if (!l) { return; }
-      if (!l.generee) { retirer.push({ op: 'retirer', id: id }); }
+      if (!l.generee) {
+        var ee = sas.ecart[id] || {}, avecHisto = dec === 'ecarter' && sasEcartAvec(d, l) && (ee.m || (l.doublon ? 'rien' : '')) !== 'rien';
+        if (avecHisto) { if (!ee.m || (ee.m === 'autre' && !String(ee.p || '').trim())) { sansRaison.push(l.nom); } retirer.push({ op: 'ecarter', id: id, motif: ee.m, precision: ee.p || '' }); }
+        else { retirer.push({ op: 'retirer', id: id }); }
+      }
       if (dec === 'sansnumero') { if (l.generee) { sansNum.push({ op: 'ajouter', registre: l.valeurs.registre, id: l.valeurs.cible }); } return; }
       if (dec === 'ecarter') { return; }
       if (d.fichier === 'complements') {
@@ -9664,6 +9729,7 @@
         reg[d.fichier] = reg[d.fichier] || []; reg[d.fichier].push({ op: 'ajouter', id: id, valeurs: v, dater: true });
       }
     });
+    if (sansRaison.length) { $d('sasResultat').innerHTML = note('warn', '<strong>Rien n’a été enregistré.</strong> Dites pourquoi vous écartez : ' + sansRaison.slice(0, 5).map(function (x) { return '« ' + esc(String(x).slice(0, 70)) + ' »'; }).join(', ') + (sansRaison.length > 5 ? ' et ' + (sansRaison.length - 5) + ' autre(s)' : '') + '.'); return; }
     if (manque.length) { $d('sasResultat').innerHTML = note('warn', 'Aucun numéro saisi pour : ' + esc(manque.slice(0, 3).join(', ')) + (manque.length > 3 ? ' et ' + (manque.length - 3) + ' autre(s)' : '') + '. Saisissez le numéro, ou choisissez « Cette fiche n’a pas de numéro ».'); return; }
     var fichiers = Object.keys(reg).map(function (f) { return { type: 'territoire', fichier: f, actions: reg[f] }; });
     if (retirer.length) { fichiers.push({ type: 'sas', fichier: d.fichier, actions: retirer }); }
@@ -9675,7 +9741,7 @@
       if (r.ok) {
         var rt = r.resumeTerritoire || {}, rs = r.resumeSas || {};
         $d('sasResultat').innerHTML = note('ok', '<strong>Enregistré</strong> (enregistrement ' + esc(r.commit) + ') : ' + ((rt.ajoutes || 0) + (rt.modifies || 0)) + ' fiche' + (((rt.ajoutes || 0) + (rt.modifies || 0)) > 1 ? 's' : '') + ' publiée' + (((rt.ajoutes || 0) + (rt.modifies || 0)) > 1 ? 's' : '') + ' avec la date du jour, ' + (rs.retires || 0) + ' retirée' + ((rs.retires || 0) > 1 ? 's' : '') + ' du sas' + ((r.resumeSansNumero && (r.resumeSansNumero.ajoutes + r.resumeSansNumero.renouveles)) ? ', ' + (r.resumeSansNumero.ajoutes + r.resumeSansNumero.renouveles) + ' fiche(s) notée(s) « sans numéro » avec la date du jour' : '') + '.');
-        sas.attente = {}; sas.edits = {}; $d('depotAnnuler').style.display = 'inline-block'; sasCompter(); sasChargerListe().then(function () { var a = $d('sasAnnulerPub'); if (a) { a.style.display = 'inline-block'; } });
+        sas.attente = {}; sas.edits = {}; sas.ecart = {}; $d('depotAnnuler').style.display = 'inline-block'; sasCompter(); sasChargerListe().then(function () { var a = $d('sasAnnulerPub'); if (a) { a.style.display = 'inline-block'; } });
       } else {
         $d('sasResultat').innerHTML = note('warn', '<strong>Rien n\'a été enregistré.</strong> ' + esc(r.erreur || '') + detailEchec(r) + '<br>Vos choix restent à l\'écran : corrigez puis recommencez, ou prévenez Claude en lui copiant ce message.');
         sasRendre();
@@ -9689,6 +9755,8 @@
       var courants = sasEtabsCourants(le); courants[parseInt(qe[1], 10)].telephone = e.target.value.trim();
       sas.edits[qe[0]] = sas.edits[qe[0]] || {}; sas.edits[qe[0]].etablissements = sasEtabsEnTexte(courants); return;
     }
+    var kp = e.target.getAttribute && e.target.getAttribute('data-sas-ecart-p');
+    if (kp) { sas.ecart[kp] = { m: (sas.ecart[kp] && sas.ecart[kp].m) || 'autre', p: e.target.value }; return; }
     var k = e.target.getAttribute && e.target.getAttribute('data-sas-champ'); if (!k) { return; }
     var q = k.split('|'); sas.edits[q[0]] = sas.edits[q[0]] || {}; sas.edits[q[0]][q[1]] = e.target.value;
     var liens = e.target.parentNode.querySelector('[data-sas-liens="' + q[1] + '"]');
@@ -9705,7 +9773,7 @@
   $d('terrSasOuvrir').addEventListener('click', function () { sasOuvrir('liste'); sas.fichier = sas.fichier || 'lieux'; sasChargerListe(); });
   $d('sasFermer').addEventListener('click', function () {
     if (Object.keys(sas.attente).length && !window.confirm('Vous avez des choix non enregistrés. Fermer quand même (ils seront perdus) ?')) { return; }
-    sas.attente = {}; sas.edits = {}; sas.corr = null; $d('sasFenetre').style.display = 'none'; sasCompter();
+    sas.attente = {}; sas.edits = {}; sas.ecart = {}; sas.corr = null; $d('sasFenetre').style.display = 'none'; sasCompter();
   });
   $d('sasContenu').addEventListener('input', function (e) {
     if (!e.target) { return; }
@@ -9721,6 +9789,9 @@
   });
   $d('sasContenu').addEventListener('click', function (e) {
     var t = e.target; if (!t || !t.getAttribute) { return; }
+    var ecv = t.getAttribute('data-sas-ecart');
+    if (ecv) { var q = ecv.lastIndexOf('|'), idq = ecv.slice(0, q), mq = ecv.slice(q + 1); sas.ecart[idq] = { m: mq, p: (sas.ecart[idq] && sas.ecart[idq].p) || '' }; $d('sasResultat').innerHTML = ''; sasRendre(); return; }
+    if (t.getAttribute('data-sas') === 'voir-ecartees') { chg.versEcartees = true; $d('chgOuvrir').click(); return; }
     /* Les trois grandes cases d'état contiennent des textes (le nombre, le titre, la description) : un clic sur l'un d'eux doit compter comme un clic sur la case (sinon la case ne répondait que sur ses bords : l'outil semblait figé). */
     if (t.closest && t.closest('[data-sas="etat-case"]')) { t = t.closest('[data-sas="etat-case"]'); }
     var a = t.getAttribute('data-sas'), sug = t.getAttribute('data-sas-sug'), rev = t.getAttribute('data-sas-reverifier'), dec = t.getAttribute('data-sas-dec'), co = t.getAttribute('data-sas-corr'), cok = t.getAttribute('data-sas-corr-ok'), cnon = t.getAttribute('data-sas-corr-non');
@@ -9830,7 +9901,7 @@
       }
       sasRendre(); return;
     }
-    if (a === 'tout-annuler') { sas.attente = {}; sasRendre(); return; }
+    if (a === 'tout-annuler') { sas.attente = {}; sas.ecart = {}; sasRendre(); return; }
     if (a === 'enregistrer') { sasEnregistrer(); return; }
     if (t.id === 'sasAnnulerPub') {
       if (!window.confirm('Défaire la dernière publication ? Un nouvel enregistrement remet les fiches et le sas comme avant.')) { return; }
@@ -10822,10 +10893,10 @@
   var CHG_CHAMPS = ['domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url'];
   var CHG_LIBELLES = { domaine: 'Domaine', intitule: 'Intitulé', nature: 'Nature et date du texte', en_vigueur: 'En vigueur le', concerne: 'Public concerné', ce_qui_change: 'Ce qui change', source_titre: 'Titre de la source', source_url: 'Adresse de la source' };
   var CHG_AIDES = { en_vigueur: 'AAAA-MM-JJ, ou « prévu AAAA-MM-JJ » si pas encore en vigueur, ou « sans objet » pour une simple information', nature: 'ex. : décret du 2026-06-12', source_url: 'doit commencer par https://' };
-  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '' };
+  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '', ecart: {}, ecartees: [], ecFiltre: '', ecNote: null, versEcartees: false };
   // ---------- Les fiches du cadre proposées par l'assistant (le sas des fiches : mise à jour, nouvelle fiche, retrait), dans la même fenêtre « À valider » ----------
   // Rien n'est écrit ici : la lecture et le contrôle viennent du serveur (outils/veilleFichesSas.js), la publication passe par le circuit « Publier » qui existe déjà.
-  var fc = { lignes: [], attente: {}, rev: {}, redater: {}, src: {}, texte: {}, msg: {} };
+  var fc = { lignes: [], attente: {}, rev: {}, redater: {}, src: {}, texte: {}, msg: {}, ecart: {} };
   var FC_GENRES = { maj: { k: 'fc-maj', lib: 'Mise à jour d\'une fiche' }, nouv: { k: 'fc-nouv', lib: 'Nouvelle fiche' }, ret: { k: 'fc-ret', lib: 'Retrait' }, brut: { k: 'fc-brut', lib: 'Information brute' } };
   function fcLigne(id) { return fc.lignes.filter(function (x) { return x.id === id; })[0]; }
   function fcPrev(l) { return fc.src[l.id] !== undefined ? !!fc.src[l.id] : !!l.prev; }
@@ -10964,7 +11035,7 @@
       h += '<label class="chg-source"><input type="checkbox" data-fc-redater="' + id + '"' + (fc.redater[l.id] ? ' checked' : '') + (dec ? ' disabled' : '') + '> Redater : la fiche entière et ses sources ont été relues aujourd\'hui (sinon la date de vérification ne change pas)</label>';
     }
     if (dec) {
-      h += '<div class="note ' + (dec === 'valider' ? 'ok' : 'alert') + '"><span>' + (dec === 'valider' ? 'Sera <strong>publié</strong> à « Enregistrer » (fiche écrite, tests lancés, annulation possible).' : 'Sera <strong>écarté</strong> (retiré du sas, jamais publié).') + '</span> <button class="btn petit" type="button" data-fc-annuler="' + id + '">Changer d\'avis</button></div>';
+      h += '<div class="note ' + (dec === 'valider' ? 'ok' : 'alert') + '"><span>' + (dec === 'valider' ? 'Sera <strong>publié</strong> à « Enregistrer » (fiche écrite, tests lancés, annulation possible).' : 'Sera <strong>écarté</strong> : retiré du sas, jamais publié, gardé dans l’historique « Écartées ».') + '</span> <button class="btn petit" type="button" data-fc-annuler="' + id + '">Changer d\'avis</button></div>' + (dec === 'ecarter' ? ecartZoneHtml('f', l.id) : '');
     } else {
       h += '<label class="chg-source"><input type="checkbox" data-fc-src="' + id + '"' + (fcPrev(l) ? ' checked' : '') + '> J\'ai ouvert les sources et je confirme' + (l.genre === 'ret' ? ' que le dispositif a bien disparu' : ' que la fiche dit bien ce qu\'elles disent') + '</label>';
       h += '<div class="chg-verif"><div class="btn-rangee"><button class="btn petit btn-verif" type="button" data-fc-prompt="' + id + '">Faire vérifier par un assistant (copie le message)</button> <span class="mini" data-fc-msg="' + id + '">' + esc(fc.msg[l.id] || '') + '</span></div>'
@@ -11079,7 +11150,7 @@
     if (l.publie) { h += '<details class="chg-publie"><summary>Voir le texte actuellement publié (avant vos corrections)</summary><pre>' + esc(l.publie) + '</pre></details>'; }
     CHG_CHAMPS.forEach(function (c) { h += chgChampHtml(l, c, !!dec); });
     if (dec) {
-      h += '<div class="note ' + (dec === 'valider' ? 'ok' : 'alert') + '"><span>' + (dec === 'valider' ? 'Sera <strong>publié</strong> dans le digest avec la marque « Vérifié le ' + esc(dateFr(chg.aujourdhui)) + ' ».' : 'Sera <strong>écarté</strong> (retiré du sas, jamais publié).') + '</span> <button class="btn petit" type="button" data-chg-annuler="' + id + '">Annuler ce choix</button></div>';
+      h += '<div class="note ' + (dec === 'valider' ? 'ok' : 'alert') + '"><span>' + (dec === 'valider' ? 'Sera <strong>publié</strong> dans le digest avec la marque « Vérifié le ' + esc(dateFr(chg.aujourdhui)) + ' ».' : 'Sera <strong>écarté</strong> : retiré du sas, jamais publié, gardé dans l’historique « Écartées ».') + '</span> <button class="btn petit" type="button" data-chg-annuler="' + id + '">Annuler ce choix</button></div>' + (dec === 'ecarter' ? ecartZoneHtml('c', l.id) : '');
     } else {
       h += chgVerifHtml(l);
       h += '<div class="chg-pb" data-chg-pb="' + id + '">' + (pb.length ? 'À compléter : ' + esc(pb.join(' ; ')) : '') + '</div>';
@@ -11130,6 +11201,93 @@
       return true;
     });
   }
+  // ----- Historique de ce qui est écarté (consigne 185, 09/11/2026) : la raison au moment d’écarter, le bloc « Écartées », « Remettre ». -----
+  var ECART_MOTIFS = [['public', 'Ne concerne pas mon public'], ['couvert', 'Déjà couvert par une fiche'], ['faux', 'Information fausse ou périmée'], ['autre', 'Autre raison']];
+  var ECART_EXPL = { public: 'Elle sera gardée dans l’historique et ne sera plus proposée par les recherches.', couvert: 'Elle sera gardée dans l’historique et ne sera plus proposée, puisqu’une fiche la couvre déjà.',
+    faux: 'Elle sera gardée dans l’historique. Seule cette version du texte ne sera plus proposée : une version corrigée pourra revenir.', autre: 'Écrivez votre raison. Elle sera gardée dans l’historique et ne sera plus proposée.' };
+  function ecartZoneHtml(genre, id) {
+    var st = (genre === 'c' ? chg.ecart : fc.ecart)[id] || {}, k = genre + '|' + id;
+    var h = '<div class="zone-ecart"><strong>Pourquoi l’écarter ?</strong><div class="btn-rangee">';
+    ECART_MOTIFS.forEach(function (m) { h += '<button class="btn petit' + (st.m === m[0] ? ' choisi' : '') + '" type="button" data-ecart-motif="' + esc(k) + '|' + m[0] + '">' + m[1] + '</button> '; });
+    h += '</div>';
+    if (st.m === 'autre') { h += '<input type="text" data-ecart-precision="' + esc(k) + '" value="' + esc(st.p || '') + '" placeholder="Votre raison, en quelques mots" aria-label="Votre raison">'; }
+    return h + '<p class="mini">' + (st.m ? ECART_EXPL[st.m] : 'Choisissez une raison : sans elle, « Enregistrer » ne pourra pas écarter.') + '</p></div>';
+  }
+  // Ce qui est écarté sans raison (ou « autre » sans précision) : « Enregistrer » le refuse en disant lequel.
+  function ecartManques() {
+    var m = [];
+    Object.keys(chg.attente).forEach(function (id) { if (chg.attente[id] === 'ecarter') { var e = chg.ecart[id] || {}; if (!e.m || (e.m === 'autre' && !String(e.p || '').trim())) { m.push(id); } } });
+    Object.keys(fc.attente).forEach(function (id) { var l = fcLigne(id); if (fc.attente[id] === 'ecarter' && l && l.genre !== 'brut') { var e = fc.ecart[id] || {}; if (!e.m || (e.m === 'autre' && !String(e.p || '').trim())) { m.push(id); } } });
+    return m;
+  }
+  function ecartSorteLibelle(sorte) { return sorte === 'fiche' ? 'Fiche du cadre' : (sorte === 'employeur' ? 'Employeur' : 'Changement'); }
+  function ecartNoteHtml() {
+    var n = chg.ecNote; if (!n) { return ''; }
+    var h = '<div class="zone-ecart"><strong>Noter un employeur disparu</strong>'
+      + '<label class="mini">Nom de l’employeur <input type="text" data-ecnote="nom" value="' + esc(n.nom) + '" autocomplete="off"></label> '
+      + '<label class="mini">Département <select data-ecnote="dep"><option value="24"' + (n.dep === '24' ? ' selected' : '') + '>Dordogne (24)</option><option value="87"' + (n.dep === '87' ? ' selected' : '') + '>Haute-Vienne (87)</option><option value=""' + (n.dep === '' ? ' selected' : '') + '>Je donne seulement la commune</option></select></label> '
+      + '<label class="mini">Commune (si vous la connaissez ; plusieurs : séparées par des virgules) <input type="text" data-ecnote="communes" value="' + esc(n.communes) + '" autocomplete="off"></label> '
+      + '<label class="mini">Adresse du site (facultative) <input type="text" data-ecnote="site" value="' + esc(n.site) + '" autocomplete="off" placeholder="https://..."></label>'
+      + '<div class="btn-rangee">';
+    ECART_MOTIFS_EMP.filter(function (m) { return m[0] !== 'rien'; }).forEach(function (m) { h += '<button class="btn petit' + (n.m === m[0] ? ' choisi' : '') + '" type="button" data-ecnote-motif="' + m[0] + '">' + m[1] + '</button> '; });
+    h += '</div>';
+    if (n.m === 'ferme' || n.m === 'autre') { h += '<input type="text" data-ecnote="p" value="' + esc(n.p) + '" autocomplete="off" placeholder="' + (n.m === 'ferme' ? 'Ce qui le prouve : adresse de la page, date' : 'Votre raison, en quelques mots') + '" aria-label="Précision">'; }
+    h += '<p class="mini">' + (n.m ? ECART_EXPL_EMP[n.m] : 'Choisissez une raison.') + '</p>'
+      + '<div class="btn-rangee"><button class="btn primaire petit" type="button" data-ecnote-ok="1">Noter dans l’historique</button> <button class="btn petit" type="button" data-ecnote-annuler="1">Annuler</button></div><div class="mini" data-ecnote-msg="1"></div></div>';
+    return h;
+  }
+  function ecarteesHtml() {
+    var tous = chg.ecartees || [], nbEmp = tous.filter(function (e) { return e.sorte === 'employeur'; }).length;
+    var l = tous.filter(function (e) { return !chg.ecFiltre || (chg.ecFiltre === 'employeur' ? e.sorte === 'employeur' : e.sorte !== 'employeur'); });
+    var h = '<h3 class="fc-titre" id="chgEcartees">Écartées (' + tous.length + ')</h3>';
+    h += '<p class="mini">Ce que vous avez écarté, avec la raison et la date. Une information ou un employeur identique n’est plus proposé par les versements dans les sas ; ce qui est ignoré est compté ici. « Remettre dans le sas » le rend au sas, à valider comme les autres.</p>';
+    h += '<div class="btn-rangee">';
+    [['', 'Tout (' + tous.length + ')'], ['info', 'Informations et fiches (' + (tous.length - nbEmp) + ')'], ['employeur', 'Employeurs (' + nbEmp + ')']].forEach(function (f) { h += '<button class="btn petit' + (chg.ecFiltre === f[0] ? ' choisi' : '') + '" type="button" data-ecart-filtre="' + f[0] + '">' + f[1] + '</button> '; });
+    h += '<button class="btn petit" type="button" data-ecnote-ouvrir="1">Noter un employeur disparu</button></div>';
+    h += ecartNoteHtml();
+    if (!l.length) { return h + '<div class="note"><span>Rien d’écarté ici pour l’instant.</span></div>'; }
+    l.forEach(function (e) {
+      var rep = e.reproposee || { nb: 0 };
+      h += '<div class="carte-ecartee"><strong>' + esc(e.titre) + '</strong><br><span class="pastille p-neutre">' + ecartSorteLibelle(e.sorte) + '</span> écarté le ' + esc(dateFr(e.ecarteLe)) + ' · ' + esc(e.motifLibelle) + (e.precision ? ' : ' + esc(e.precision) : '')
+        + (e.lieu ? ' · ' + esc(e.lieu) : '')
+        + (rep.nb ? ' · <span class="pastille p-fc-ret">reproposé ' + rep.nb + ' fois, ignoré (dernière le ' + esc(dateFr(rep.derniere)) + ')</span>' : ' · jamais reproposé depuis')
+        + (e.source ? ' · <a href="' + esc(e.source) + '" target="_blank" rel="noopener">source</a>' : '')
+        + '<div class="btn-rangee"><button class="btn petit" type="button" data-ecart-remettre="' + esc(e.id) + '">' + (e.peutRemettre === false ? 'Retirer de l’historique' : 'Remettre dans le sas') + '</button>'
+        + (e.motif === 'inconnu' ? ' <button class="btn petit" type="button" data-ecart-completer="' + esc(e.id) + '">Dire pourquoi</button>' : '') + '</div><div class="mini" data-ecart-msg="' + esc(e.id) + '"></div></div>';
+    });
+    return h;
+  }
+  function ecartMsg(id, texte) { var z = document.querySelector('[data-ecart-msg="' + String(id).replace(/"/g, '') + '"]'); if (z) { z.textContent = texte; } }
+  function ecartRemettre(id, bouton) {
+    bouton.disabled = true; ecartMsg(id, 'Remise dans le sas en cours (une vingtaine de secondes)...');
+    appeler('/api/publier', { fichiers: [{ type: 'ecartes', actions: [{ op: 'remettre', id: id }] }] }).then(function (r) {
+      if (!r.ok) { bouton.disabled = false; ecartMsg(id, 'Impossible de la remettre : ' + (r.erreur || 'erreur inconnue')); return; }
+      chgCharger();
+    });
+  }
+  // « Dire pourquoi » sur une écartée retrouvée dans l’historique (raison non précisée) : on choisit une raison, comme à l’écart, sans fenêtre.
+  function ecartCompleter(id) {
+    var z = document.querySelector('[data-ecart-msg="' + String(id).replace(/"/g, '') + '"]'); if (!z) { return; }
+    var e = (chg.ecartees || []).filter(function (x) { return x.id === id; })[0], liste = (e && e.sorte === 'employeur') ? ECART_MOTIFS_EMP.filter(function (m) { return m[0] !== 'rien'; }) : ECART_MOTIFS;
+    var h = ''; liste.forEach(function (m) { h += '<button class="btn petit" type="button" data-ecart-choix="' + esc(id) + '|' + m[0] + '">' + m[1] + '</button> '; });
+    z.innerHTML = h + '<span data-ecart-pre="1"></span>';
+    var enregistrer = function (motif, precision) {
+      appeler('/api/publier', { fichiers: [{ type: 'ecartes', actions: [{ op: 'precision', id: id, motif: motif, precision: precision }] }] }).then(function (r) { if (r.ok) { chgCharger(); } else { z.textContent = 'Non enregistré : ' + (r.erreur || 'erreur inconnue'); } });
+    };
+    Array.prototype.forEach.call(z.querySelectorAll('[data-ecart-choix]'), function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-ecart-choix'), q = v.lastIndexOf('|'), motif = v.slice(q + 1);
+        if (motif === 'autre' || motif === 'ferme') {
+          var zp = z.querySelector('[data-ecart-pre]');
+          zp.innerHTML = '<br><input type="text" placeholder="' + (motif === 'ferme' ? 'Ce qui le prouve : adresse, date (facultatif)' : 'Votre raison, en quelques mots') + '" aria-label="Précision"> <button class="btn primaire petit" type="button">Enregistrer</button>';
+          var champ = zp.querySelector('input'); champ.focus();
+          zp.querySelector('button').addEventListener('click', function () { if (motif === 'autre' && !champ.value.trim()) { champ.focus(); return; } enregistrer(motif, champ.value); });
+          return;
+        }
+        enregistrer(motif, '');
+      });
+    });
+  }
   function chgRendre() {
     var tous = chg.lignes, liste = chgFiltrees(), lf = fcFiltrees(), nb = Object.keys(chg.attente).length + Object.keys(fc.attente).length;
     var pages = Math.max(1, Math.ceil(liste.length / CHG_PAGE)); if (chg.page >= pages) { chg.page = pages - 1; }
@@ -11152,6 +11310,8 @@
     if (!liste.length && !lf.length && (tous.length + fc.lignes.length)) { h += note('warn', '<strong>Rien ne correspond à ce que vous avez demandé de voir</strong> (le filtre ou le mot cherché cache les ' + (tous.length + fc.lignes.length) + ' proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' du sas). <div class="btn-rangee"><button class="btn primaire petit" type="button" id="chgToutAfficher">Tout afficher</button></div>'); }
     liste.slice(chg.page * CHG_PAGE, (chg.page + 1) * CHG_PAGE).forEach(function (l) { h += chgHtmlFiche(l); });
     h += '<div class="barre"><button class="btn petit" type="button" data-chg-page="-1"' + (chg.page === 0 ? ' disabled' : '') + '>Page précédente</button><span>Page ' + (chg.page + 1) + ' sur ' + pages + '</span><button class="btn petit" type="button" data-chg-page="1"' + (chg.page >= pages - 1 ? ' disabled' : '') + '>Page suivante</button></div>';
+    h += ecarteesHtml();
+    if (chg.versEcartees) { setTimeout(function () { chg.versEcartees = false; var z = $d('chgEcartees'); if (z) { z.scrollIntoView({ block: 'start' }); } }, 80); }
     h += '<div class="pied"><strong>' + nb + '</strong> choix en attente <button class="btn primaire" type="button" id="chgEnregistrer"' + (nb ? '' : ' disabled') + '>Enregistrer</button> <button class="btn" type="button" id="chgToutAnnuler"' + (nb ? '' : ' disabled') + '>Tout annuler</button> <button class="btn" type="button" id="chgAnnulerPub" style="display:none">Annuler la dernière publication</button></div>';
     $d('chgContenu').innerHTML = h;
   }
@@ -11162,7 +11322,8 @@
   function chgCharger() {
     return fcCharger().then(function () { return appeler('/api/changements/lister', {}); }).then(function (r) {
       if (!r.ok) { $d('chgContenu').innerHTML = note('warn', '<strong>Lecture impossible.</strong> ' + esc(r.erreur || '')); return; }
-      chg.lignes = r.lignes; chg.aujourdhui = r.aujourdhui || ''; chgCompter(chg.lignes); chgRendre();
+      chg.lignes = r.lignes; chg.aujourdhui = r.aujourdhui || ''; chgCompter(chg.lignes);
+      return appeler('/api/ecartes/lister', {}).then(function (e) { chg.ecartees = (e && e.ok) ? e.lignes : []; chgRendre(); });
     });
   }
   // Met a jour la carte en cours de frappe SANS la redessiner (le curseur reste ou il est).
@@ -11188,7 +11349,13 @@
   }
   function chgEnregistrer() {
     var ids = Object.keys(chg.attente), idsFc = Object.keys(fc.attente); if (!ids.length && !idsFc.length) { return; }
-    var actions = ids.map(function (id) { return chg.attente[id] === 'valider' ? { op: 'valider', id: id, valeurs: chg.edits[id] || {} } : { op: 'retirer', id: id }; });
+    var manques = ecartManques();
+    if (manques.length) {
+      var nomsM = manques.map(function (id) { var lc = chg.lignes.filter(function (x) { return x.id === id; })[0], lf2 = fcLigne(id); return lc ? chgValeur(lc, 'intitule') : (lf2 ? (lf2.titre || lf2.fiche) : id); });
+      $d('chgResultat').innerHTML = note('warn', '<strong>Rien n’a été enregistré.</strong> Dites pourquoi vous écartez : ' + nomsM.map(function (x) { return '« ' + esc(String(x).slice(0, 70)) + ' »'; }).join(', ') + '.');
+      return;
+    }
+    var actions = ids.map(function (id) { var e = chg.ecart[id] || {}; return chg.attente[id] === 'valider' ? { op: 'valider', id: id, valeurs: chg.edits[id] || {} } : { op: 'ecarter', id: id, motif: e.m, precision: e.p || '' }; });
     var fichiers = [];
     if (actions.length) { fichiers.push({ type: 'changements', actions: actions }); }
     var sortisFc = [], nbFcPubliees = 0, ajoutsRegistre = [], dejaAjoutes = {};
@@ -11214,7 +11381,8 @@
         if (d.type === 'fiche-champs' && lf.genre === 'maj') { d.revision = fcRevision(lf); d.datation = fc.redater[id] ? 'redater' : 'garder'; }
         fichiers.push(d); nbFcPubliees++;
       }
-      sortisFc.push({ op: 'retirer', id: id });
+      var eF = fc.ecart[id] || {};
+      sortisFc.push(fc.attente[id] === 'ecarter' && lf.genre !== 'brut' ? { op: 'ecarter', id: id, motif: eF.m, precision: eF.p || '' } : { op: 'retirer', id: id });
     });
     if (sortisFc.length) { fichiers.push({ type: 'fiches-sas', actions: sortisFc }); }
     var b = $d('chgEnregistrer'); if (b) { b.disabled = true; b.textContent = 'Enregistrement...'; }
@@ -11224,7 +11392,7 @@
         var rc = r.resumeChangements || { valides: 0, retires: 0 };
         $d('chgResultat').innerHTML = note('ok', '<strong>Enregistré</strong> (enregistrement ' + esc(r.commit) + ')' + (actions.length ? ' : ' + (rc.valides || 0) + ' changement' + ((rc.valides || 0) > 1 ? 's' : '') + ' publié' + ((rc.valides || 0) > 1 ? 's' : '') + ' dans le digest (marque « Vérifié le »), ' + (rc.retires || 0) + ' écarté' + ((rc.retires || 0) > 1 ? 's' : '') + '. Regardez le résultat dans « Ce qui a changé récemment »' : '') + '.' + (actions.length || nbFcPubliees ? ' Les vérifications automatiques sont vertes.' : ' Rien n\'a été publié : seul le sas a changé.'));
         if (nbFcPubliees) { $d('chgResultat').innerHTML += note('ok', '<strong>' + nbFcPubliees + ' fiche' + (nbFcPubliees > 1 ? 's' : '') + ' du cadre publiée' + (nbFcPubliees > 1 ? 's' : '') + '.</strong> ' + (r.nouvelles && r.nouvelles.length ? 'Nouvelle' + (r.nouvelles.length > 1 ? 's' : '') + ' fiche' + (r.nouvelles.length > 1 ? 's' : '') + ' : ' + esc(r.nouvelles.join(', ')) + '. ' : '') + (r.resteAFaire && r.resteAFaire.length ? esc(r.resteAFaire.join(' ')) : '')); }
-        chg.attente = {}; chg.edits = {}; fc.attente = {}; fc.rev = {}; fc.redater = {}; fc.src = {}; fc.texte = {}; fc.msg = {}; $d('depotAnnuler').style.display = 'inline-block';
+        chg.attente = {}; chg.edits = {}; chg.ecart = {}; fc.ecart = {}; fc.attente = {}; fc.rev = {}; fc.redater = {}; fc.src = {}; fc.texte = {}; fc.msg = {}; $d('depotAnnuler').style.display = 'inline-block';
         chgCharger().then(function () { var a = $d('chgAnnulerPub'); if (a) { a.style.display = 'inline-block'; } });
       } else {
         $d('chgResultat').innerHTML = note('warn', '<strong>Rien n\'a été enregistré.</strong> ' + esc(r.erreur || '') + detailEchec(r) + '<br>Vos choix restent à l\'écran : corrigez puis recommencez, ou prévenez Claude en lui copiant ce message.');
@@ -11236,11 +11404,14 @@
   // Les gestes d'une carte de fiche du cadre (cases, phrase, message pour l'assistant, collage de sa réponse, décision).
   $d('chgFenetre').addEventListener('input', function (e) {
     var t = e.target, a; if (!t.getAttribute) { return; }
+    if ((a = t.getAttribute('data-ecnote'))) { if (chg.ecNote) { chg.ecNote[a] = t.value; } return; }
+    if ((a = t.getAttribute('data-ecart-precision'))) { var pq = a.indexOf('|'), reg = a.slice(0, pq) === 'c' ? chg.ecart : fc.ecart, idq = a.slice(pq + 1); reg[idq] = { m: 'autre', p: t.value }; return; }
     if ((a = t.getAttribute('data-fc-rev'))) { fc.rev[a] = t.value; fcMajCarte(a); return; }
     if ((a = t.getAttribute('data-fc-reponse'))) { fc.texte[a] = t.value; }
   });
   $d('chgFenetre').addEventListener('change', function (e) {
     var t = e.target, a; if (!t.getAttribute) { return; }
+    if ((a = t.getAttribute('data-ecnote'))) { if (chg.ecNote) { chg.ecNote[a] = t.value; } return; }
     if ((a = t.getAttribute('data-fc-redater'))) { fc.redater[a] = t.checked; return; }
     if ((a = t.getAttribute('data-fc-src'))) {
       fc.src[a] = t.checked; fcMajCarte(a);
@@ -11250,7 +11421,24 @@
   });
   $d('chgFenetre').addEventListener('click', function (e) {
     var t = e.target.closest ? e.target.closest('button') : null; if (!t) { return; }
-    var a = t.getAttribute('data-fc-dec');
+    var a = t.getAttribute('data-ecart-motif');
+    if (a) { var p1 = a.indexOf('|'), p2 = a.lastIndexOf('|'), regE = a.slice(0, p1) === 'c' ? chg.ecart : fc.ecart, idE = a.slice(p1 + 1, p2); regE[idE] = { m: a.slice(p2 + 1), p: (regE[idE] && regE[idE].p) || '' }; $d('chgResultat').innerHTML = ''; chgRendre(); return; }
+    if (t.hasAttribute('data-ecart-filtre')) { chg.ecFiltre = t.getAttribute('data-ecart-filtre'); chgRendre(); return; }
+    if (t.hasAttribute('data-ecnote-ouvrir')) { if (!chg.ecNote) { chg.ecNote = { nom: '', dep: '24', communes: '', site: '', m: '', p: '' }; } chgRendre(); var zn = document.querySelector('[data-ecnote="nom"]'); if (zn) { zn.focus(); } return; }
+    if (t.hasAttribute('data-ecnote-annuler')) { chg.ecNote = null; chgRendre(); return; }
+    if ((a = t.getAttribute('data-ecnote-motif'))) { if (chg.ecNote) { chg.ecNote.m = a; chgRendre(); } return; }
+    if (t.hasAttribute('data-ecnote-ok')) {
+      var n = chg.ecNote, zm = document.querySelector('[data-ecnote-msg]'); if (!n) { return; }
+      t.disabled = true; if (zm) { zm.textContent = 'Enregistrement en cours (une vingtaine de secondes)...'; }
+      appeler('/api/publier', { fichiers: [{ type: 'ecartes', actions: [{ op: 'noter', nom: n.nom, dep: n.dep, communes: n.communes, site: n.site, motif: n.m, precision: n.p }] }] }).then(function (r) {
+        if (!r.ok) { t.disabled = false; if (zm) { zm.textContent = 'Non enregistré : ' + (r.erreur || 'erreur inconnue'); } return; }
+        chg.ecNote = null; chg.ecFiltre = 'employeur'; chgCharger();
+      });
+      return;
+    }
+    if ((a = t.getAttribute('data-ecart-remettre'))) { ecartRemettre(a, t); return; }
+    if ((a = t.getAttribute('data-ecart-completer'))) { ecartCompleter(a); return; }
+    a = t.getAttribute('data-fc-dec');
     if (a) { var q = a.lastIndexOf(':'); fc.attente[a.slice(0, q)] = a.slice(q + 1); chgRendre(); return; }
     if ((a = t.getAttribute('data-fc-annuler'))) { delete fc.attente[a]; chgRendre(); return; }
     // Les sources d'une fiche : ajouter au registre des adresses, ajouter à la main, retirer.
@@ -11474,7 +11662,7 @@
       return { ok: !!(a && a.ok), lignes: ((a && a.ok && a.lignes) || []).concat((b && b.ok && b.lignes) || []) };
     });
   };
-  $d('chgFermer').addEventListener('click', function () { chg.attente = {}; $d('chgFenetre').style.display = 'none'; chgCharger(); setTimeout(majRendreBadge, 600); if (window.tcVerifierSas) { setTimeout(window.tcVerifierSas, 800); } });
+  $d('chgFermer').addEventListener('click', function () { chg.attente = {}; chg.ecart = {}; fc.ecart = {}; $d('chgFenetre').style.display = 'none'; chgCharger(); setTimeout(majRendreBadge, 600); if (window.tcVerifierSas) { setTimeout(window.tcVerifierSas, 800); } });
   $d('chgFenetre').addEventListener('input', function (e) {
     var rp = e.target.getAttribute && e.target.getAttribute('data-chg-reponse'); if (rp) { chgV(rp).texte = e.target.value; return; }
     var t = e.target, k = t.getAttribute && t.getAttribute('data-chg-champ'); if (!k) { return; }
@@ -11542,7 +11730,7 @@
     if (t.id === 'chgPrevTous') { chgFiltrees().forEach(function (l) { if (chgPrev(l) && !chgBloquages(l).length && !chg.attente[l.id]) { chg.attente[l.id] = 'valider'; } }); fcFiltrees().forEach(function (l) { if (l.genre !== 'brut' && fcPrev(l) && !fcBloquages(l).length && !fc.attente[l.id]) { fc.attente[l.id] = 'valider'; } }); chgRendre(); return; }
     if (t.id === 'chgToutAfficher') { chg.filtre = ''; chg.dom = ''; chg.q = ''; chg.page = 0; chgRendre(); return; }
     if (t.id === 'chgEnregistrer') { chgEnregistrer(); return; }
-    if (t.id === 'chgToutAnnuler') { chg.attente = {}; fc.attente = {}; chgRendre(); return; }
+    if (t.id === 'chgToutAnnuler') { chg.attente = {}; fc.attente = {}; chg.ecart = {}; fc.ecart = {}; $d('chgResultat').innerHTML = ''; chgRendre(); return; }
     if (t.id === 'chgAnnulerPub') { appeler('/api/annuler', {}).then(function (r) { $d('chgResultat').innerHTML = r.ok ? note('ok', 'Dernière publication annulée (enregistrement ' + esc(r.commit) + ').') : note('warn', esc(r.erreur || 'Annulation impossible.')); chgCharger(); }); }
   });
   // Le balayage ne publie plus tout le fichier d'un coup : « Verser les changements dans le sas » (ex-« Télécharger le digest ») verse chaque changement dans le sas, a verifier un par un.
@@ -11563,7 +11751,7 @@
     if (btn) { btn.disabled = true; }
     appeler('/api/publier', { fichiers: [{ type: 'changements', actions: [{ op: 'importer', lignes: lignes }] }] }).then(function (r) {
       if (btn) { btn.disabled = false; }
-      if (r.ok) { var rc = r.resumeChangements || {}; window.alert((rc.importes || 0) + ' changement(s) versé(s) dans le sas (' + (rc.ignores || 0) + ' déjà présent(s)). Rien n\'est public : ouvrez « 6. Les changements du trimestre » dans le Dépôt pour les vérifier un par un.'); chgCharger(); setTimeout(majRendreBadge, 600); }
+      if (r.ok) { var rc = r.resumeChangements || {}; window.alert((rc.importes || 0) + ' changement(s) versé(s) dans le sas (' + (rc.ignores || 0) + ' déjà présent(s)). Rien n\'est public : ouvrez « 6. Les changements du trimestre » dans le Dépôt pour les vérifier un par un.' + ((rc.ecartes || []).length ? '\n\nIgnoré parce que vous l\'aviez déjà écarté (voir « Écartées ») :\n- ' + rc.ecartes.map(function (x) { return x.titre + ' (écarté le ' + dateFr(x.ecarte_le) + ')'; }).join('\n- ') : '')); chgCharger(); setTimeout(majRendreBadge, 600); }
       else { window.alert('Impossible de verser dans le sas : ' + (r.erreur || 'erreur inconnue')); }
     });
   };
@@ -12541,7 +12729,7 @@
   var JETON = meta ? meta.getAttribute('content') : '';
   var AVEC_SERVEUR = !!meta && /^https?:$/.test(location.protocol);
   var CLE = 'veille_travailler_claude';
-  var _tc = { liste: [], rep: {}, etat: {}, dossier: '', prop: {}, propDossier: '' };
+  var _tc = { liste: [], rep: {}, etat: {}, dossier: '', prop: {}, propDossier: '', meta: {}, reportees: 0 };
 
   function jourLocal() { var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
   function appelerTc(chemin, corps) {
@@ -12549,7 +12737,8 @@
       .then(function (r) { return r.json(); })
       .catch(function () { return { ok: false, erreur: 'Le serveur local ne répond plus. Relancez « Lancer l\'outil de veille » puis rechargez la page.' }; });
   }
-  function lireLocal() { try { var o = JSON.parse(localStorage.getItem(CLE) || '{}'); return o && o.jour === jourLocal() && o.rep ? o.rep : {}; } catch (e) { return {}; } }
+  // Les réponses ne sont plus limitées au jour même (demande de Denis, 09/11/2026) : elles restent d'un jour à l'autre jusqu'à ce qu'on les efface ou qu'on les mette de côté une fois traitées.
+  function lireLocal() { try { var o = JSON.parse(localStorage.getItem(CLE) || '{}'); return o && o.rep ? o.rep : {}; } catch (e) { return {}; } }
   function ecrireLocal() { try { localStorage.setItem(CLE, JSON.stringify({ jour: jourLocal(), rep: _tc.rep })); } catch (e) { /* tant pis */ } }
 
   /* ---------- La veille de la semaine : plusieurs réponses côte à côte et sites que personne n'a pu lire (décision de Denis, 08/11/2026, consigne 180) ---------- */
@@ -12571,7 +12760,8 @@
   }
   function semDom(u) { var m = /https?:\/\/(?:www\.)?([^\/\s|)\]]+)/i.exec(u || ''); return m ? m[1].toLowerCase() : ''; }
   function semSiteDe(d) { return SITES_VEILLE_SEMAINE.filter(function (s) { return d === s.domaine || d.slice(-s.domaine.length - 1) === '.' + s.domaine; })[0] || null; }
-  function semCleDe(d) { var s = semSiteDe(d); return s ? s.cle : d.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40); }
+  // `libre` : pour les cartes autres que la veille de la semaine, les sites ne sont pas rapprochés du registre des sites de la semaine (un sous-domaine reste un site à part).
+  function semCleDe(d, libre) { var s = libre ? null : semSiteDe(d); return s ? s.cle : String(d).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40); }
   // Ce qu'on peut lire d'une réponse sans lui imposer de format : nombre de signaux, sites non ouverts, pages citées comme ouvertes, refus.
   function semLire(texte) {
     var t = deMd(texte).replace(/\r\n/g, '\n'), m = /\[SITES-NON-OUVERTS\]([\s\S]*?)\[\/SITES-NON-OUVERTS\]/i.exec(t), bloc = m ? m[1] : '', dehors = m ? t.replace(m[0], '') : t, sites = [], ouverts = {};
@@ -12579,6 +12769,7 @@
     bloc.replace(lien, '$1').split('\n').forEach(function (ln) {
       var u = /https?:\/\/[^\s|]+/.exec(ln), d = u ? semDom(u[0]) : '';
       if (!d) { var connu = SITES_VEILLE_SEMAINE.filter(function (s) { return ln.toLowerCase().indexOf(s.domaine) !== -1; })[0]; d = connu ? connu.domaine : ''; }
+      if (!d && ln.indexOf('|') !== -1) { var nomSite = ln.split('|')[0].replace(/^\s*[-*]\s*/, '').trim(); if (nomSite && !/^(?:aucun|site)\b/i.test(nomSite)) { d = nomSite; } }
       if (!d) { return; }
       var segs = ln.split('|').map(function (x) { return x.trim(); }).filter(function (x) { return x && !/^[-*]?\s*(?:https?:\/\/|[a-z0-9.-]+\.(?:fr|org|com)\b)/i.test(x); });
       sites.push({ url: u ? u[0] : '', domaine: d, raison: segs[0] || 'raison non précisée' });
@@ -12587,20 +12778,35 @@
     return { signaux: (t.match(/^\s*[-*]?\s*signal\s*:(?!\s*(?:non\s+v[ée]rifi|rien))/gim) || []).length, aBloc: /\[VEILLE-HEBDO[\s\]:]/i.test(t), refus: t.length < 600 && /je ne peux pas (?:r[ée]pondre|acc[ée]der|traiter)|je suis d[ée]sol[ée]|je ne suis pas en mesure/i.test(t), sites: sites, ouverts: ouverts };
   }
   // Sites que PERSONNE n'a pu lire : un site signalé par un assistant disparaît de la liste si au moins un autre assistant l'a ouvert (page citée comme source), sauf si un texte copié à la main existe déjà.
-  function semCalculer(sections, textes) {
+  function semCalculer(sections, textes, libre) {
     var lus = sections.map(function (s) { return { auteur: s.auteur, lu: semLire(s.texte) }; }), vus = {}, ordre = [], liste = [], lues = [];
     lus.forEach(function (r) {
       r.lu.sites.forEach(function (s) {
-        var k = semCleDe(s.domaine);
-        if (!vus[k]) { vus[k] = { cle: k, site: semSiteDe(s.domaine), domaine: s.domaine, urlAssistant: s.url, avis: [] }; ordre.push(k); }
+        var k = semCleDe(s.domaine, libre);
+        if (!vus[k]) { vus[k] = { cle: k, site: libre ? null : semSiteDe(s.domaine), domaine: s.domaine, urlAssistant: s.url, avis: [] }; ordre.push(k); }
         var avis = r.auteur + ' : ' + s.raison; if (vus[k].avis.indexOf(avis) === -1) { vus[k].avis.push(avis); }
       });
     });
     ordre.forEach(function (k) {
-      var v = vus[k], lecteurs = lus.filter(function (r) { return Object.keys(r.lu.ouverts).some(function (d) { return semCleDe(d) === k; }); }).map(function (r) { return r.auteur; });
+      var v = vus[k], lecteurs = lus.filter(function (r) { return Object.keys(r.lu.ouverts).some(function (d) { return semCleDe(d, libre) === k; }); }).map(function (r) { return r.auteur; });
       if (lecteurs.length && !(textes && textes[k])) { lues.push({ cle: k, nom: v.site ? v.site.nom : v.domaine, par: lecteurs }); } else { liste.push(v); }
     });
     return { liste: liste, lues: lues };
+  }
+  // Un texte copié à la main sur un site (que les assistants n'ont pas pu lire) s'ajoute aux réponses de la carte, comme celles de ChatGPT et de Perplexity (décision de Denis, 09/11/2026) :
+  // c'est une section « === Réponse de texte copié à la main sur <site> === » du fichier de la carte, que Claude lit avec les autres. La veille de la semaine garde ses fichiers main-sem-<site>.md.
+  function semEstMain(auteur) { return String(auteur || '').indexOf('texte copié à la main sur ') === 0; }
+  function semAuteurMain(dom) { return 'texte copié à la main sur ' + dom; }
+  function semTextesDe(card) {
+    if (card === 'hebdo') { return { textes: semTextesMains(), doms: {} }; }
+    var r = { textes: {}, doms: {} };
+    semSections(_tc.rep[card]).forEach(function (q) { if (semEstMain(q.auteur)) { var dom = q.auteur.slice('texte copié à la main sur '.length), k = semCleDe(dom, true); r.textes[k] = q.texte; r.doms[k] = dom; } });
+    return r;
+  }
+  // Les sites que personne n'a pu lire sur cette carte et dont je n'ai pas encore copié le texte (noms).
+  function semNonLusDe(card) {
+    var mc = semTextesDe(card);
+    return semCalculer(semSections(_tc.rep[card]).filter(function (q) { return !semEstMain(q.auteur); }), mc.textes, true).liste.filter(function (v) { return !mc.textes[v.cle]; }).map(function (v) { return (v.site ? v.site.nom : v.domaine) + (v.urlAssistant ? ' (' + v.urlAssistant + ')' : ''); });
   }
   function semTextesMains() { var t = {}; Object.keys(_tc.rep).forEach(function (k) { if (/^main-sem-/.test(k) && (_tc.rep[k] || '').trim()) { t[k.slice(9)] = _tc.rep[k]; } }); return t; }
   // Un texte copié à la main sur un site de la semaine est une « réponse » comme les autres (fichier main-sem-<site>.md) : il lui faut une entrée dans la liste.
@@ -12609,108 +12815,136 @@
     if (!x) { x = { id: id, main: true, sem: true, url: url || '', categorie: 'Sites lus à la main (veille de la semaine)', rubrique: 'Veille de la semaine', titre: nom, fait: '', texte: '' }; _tc.liste.push(x); }
     return x;
   }
-  function semSquelette() {
-    var bt = function (auteur, primaire) { return '<button class="btn' + (primaire ? ' primaire' : '') + '" type="button" data-sem="ajouter" data-auteur="' + auteur + '">' + (primaire ? 'Ajouter la réponse de ' + auteur : 'Ajouter un autre texte') + '</button>'; };
-    return '<div class="tc-sem-bloc"><strong>Réponses reçues (<span id="sem_nb">0</span>)</strong>'
-      + '<p class="sous-titre" style="margin:.2rem 0 .4rem">Ajoutez autant de réponses que vous voulez : chacune est gardée telle quelle, l’une à côté de l’autre. Rien n’est remplacé, rien n’est refusé parce que le format n’est pas le bon.</p>'
-      + '<div id="sem_liste"></div>'
+  // Le même bloc « Réponses reçues » sert à chaque carte qui reçoit des réponses d'assistants (la veille de la semaine et les messages du scan du mois) : `card` est l'identifiant de la carte.
+  // Les identifiants de la veille de la semaine restent ceux d'origine (sans suffixe) ; les autres cartes ajoutent « _<carte> ».
+  function semSuf(card) { return !card || card === 'hebdo' ? '' : '_' + card; }
+  // Toutes les cartes qui reçoivent la réponse d'un assistant (étape 2, 09/11/2026) ; seuls « profil des découpes » et « médecins » (tableaux copiés à la main) et les textes copiés sur un site gardent la case unique.
+  function semAvecAjout(id) { return id === 'hebdo' || /^(?:balayage|rayon)-/.test(id) || ['chiffres', 'reseau', 'lexique', 'portrait', 'ue'].indexOf(id) >= 0; }
+  // Les cartes sans format imposé (veille de la semaine, scan du mois) acceptent un texte brut ; les autres signalent l'absence de leur bloc.
+  function semFormatLibre(id) { return id === 'hebdo' || /^balayage-/.test(id); }
+  function semSquelette(card) {
+    card = card || 'hebdo'; var suf = semSuf(card);
+    var bt = function (auteur, primaire) { return '<button class="btn' + (primaire ? ' primaire' : '') + '" type="button" data-sem="ajouter" data-card="' + card + '" data-auteur="' + auteur + '">' + (primaire ? 'Ajouter la réponse de ' + auteur : 'Ajouter un autre texte') + '</button>'; };
+    return '<div class="tc-sem-bloc"><strong>Réponses reçues (<span id="sem_nb' + suf + '">0</span>)</strong>'
+      + '<p class="sous-titre" style="margin:.2rem 0 .4rem">Ajoutez autant de réponses que vous voulez, de ChatGPT comme de Perplexity, plusieurs de chaque si besoin : chacune est gardée telle quelle, l’une à côté de l’autre. Si l’assistant demande « Voulez-vous la suite ? », répondez oui, puis ajoutez sa suite avec le même bouton. Rien n’est remplacé.' + (semFormatLibre(card) ? ' Rien n’est refusé parce que le format n’est pas le bon.' : ' Une réponse qui ne contient pas le bloc demandé est signalée : un message de relance est alors proposé.') + '</p>'
+      + '<div id="sem_liste' + suf + '"></div>'
       + '<div class="btn-rangee">' + bt('ChatGPT', true) + bt('Perplexity', true) + bt('un autre assistant', false) + '</div>'
-      + '<div id="sem_zone" style="display:none"><div class="sous-titre" id="sem_zone_titre"></div><textarea id="sem_zone_texte" placeholder="Collez ici la réponse, telle quelle (Ctrl+V)."></textarea>'
-      + '<div class="btn-rangee"><button class="btn primaire" type="button" data-sem="enregistrer">Enregistrer cette réponse</button><button class="btn" type="button" data-sem="annuler">Annuler</button></div></div></div>';
+      + '<div id="sem_zone' + suf + '" style="display:none"><div class="sous-titre" id="sem_zone_titre' + suf + '"></div><textarea id="sem_zone_texte' + suf + '" placeholder="Collez ici la réponse, telle quelle (Ctrl+V)."></textarea>'
+      + '<div class="btn-rangee"><button class="btn primaire" type="button" data-sem="enregistrer" data-card="' + card + '">Ajouter cette réponse</button><button class="btn" type="button" data-sem="annuler" data-card="' + card + '">Annuler</button></div></div></div>';
   }
-  function semSquelettesSites() {
-    return '<div class="tc-carte" id="tc_sem_sites"><div class="tc-tete"><strong>Sites que personne n’a pu lire (<span id="sem_nb_sites">0</span>)</strong></div>'
-      + '<p class="sous-titre" style="margin:.3rem 0">Ces pages n’ont été lues ni par l’un ni par l’autre des assistants (bloquées, introuvables ou non essayées). Ouvrez-les vous-même, copiez le texte, collez-le ici. Une page lue par au moins un assistant n’apparaît pas.</p>'
-      + '<div id="sem_sites"></div><details id="sem_lues_zone" style="display:none"><summary>Pages déjà lues par un assistant (<span id="sem_nb_lues">0</span>)</summary><div id="sem_lues" class="sous-titre"></div></details></div>';
+  function semSquelettesSites(card) {
+    card = card || 'hebdo'; var suf = semSuf(card), hebdo = card === 'hebdo';
+    var aide = hebdo ? 'Ces pages n’ont été lues ni par l’un ni par l’autre des assistants (bloquées, introuvables ou non essayées). Ouvrez-les vous-même, copiez le texte, collez-le ici. Une page lue par au moins un assistant n’apparaît pas.'
+      : 'Ces pages n’ont été lues ni par l’un ni par l’autre des assistants (bloquées par un robot anti-lecture, introuvables ou non essayées). Ouvrez-les vous-même, copiez le texte, puis collez-le ici : il est ajouté aux réponses de cette carte, à côté de celles de ChatGPT et de Perplexity, et Claude l’analyse avec elles pour voir s’il y a des fiches à faire. Une page lue par au moins un assistant n’apparaît pas.';
+    return '<' + (hebdo ? 'div class="tc-carte"' : 'div class="tc-sem-bloc"') + ' id="tc_sem_sites' + suf + '"><div class="tc-tete"><strong>Sites que personne n’a pu lire (<span id="sem_nb_sites' + suf + '">0</span>)</strong></div>'
+      + '<p class="sous-titre" style="margin:.3rem 0">' + aide + '</p>'
+      + '<div id="sem_sites' + suf + '"></div><details id="sem_lues_zone' + suf + '" style="display:none"><summary>Pages déjà lues par un assistant (<span id="sem_nb_lues' + suf + '">0</span>)</summary><div id="sem_lues' + suf + '" class="sous-titre"></div></details></div>';
   }
-  function semRendre() {
-    var zone = $t('sem_liste'); if (!zone) { return; }
-    var sections = semSections(_tc.rep.hebdo), textes = semTextesMains(), calc = semCalculer(sections, textes), restant = 0, plur = function (n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); };
-    $t('sem_nb').textContent = sections.length;
-    // Les boutons « Ajouter la réponse de ... » passent au vert une fois la réponse ajoutée.
-    Array.prototype.forEach.call(document.querySelectorAll('[data-sem="ajouter"][data-auteur]'), function (bt) {
-      var qui = bt.getAttribute('data-auteur'), primaire = qui === 'ChatGPT' || qui === 'Perplexity', deja = sections.some(function (s) { return s.auteur === qui; });
-      var lib = !primaire ? 'Ajouter un autre texte' : deja ? '✔ Réponse de ' + qui + ' ajoutée (en ajouter une autre)' : 'Ajouter la réponse de ' + qui;
+  function semRendre(card) {
+    card = card || 'hebdo'; var suf = semSuf(card);
+    var zone = $t('sem_liste' + suf); if (!zone) { return; }
+    var sections = semSections(_tc.rep[card]), mc = semTextesDe(card), calc = semCalculer(sections.filter(function (q) { return !semEstMain(q.auteur); }), mc.textes, card !== 'hebdo'), plur = function (n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); };
+    $t('sem_nb' + suf).textContent = sections.length;
+    // Les boutons « Ajouter la réponse de ... » passent au vert une fois la réponse ajoutée (et restent utilisables : une suite, une autre réponse).
+    Array.prototype.forEach.call(document.querySelectorAll('[data-sem="ajouter"][data-auteur][data-card="' + card + '"]'), function (bt) {
+      var qui = bt.getAttribute('data-auteur'), primaire = qui === 'ChatGPT' || qui === 'Perplexity', nb = sections.filter(function (s) { return s.auteur === qui; }).length, deja = nb > 0;
+      var lib = !primaire ? 'Ajouter un autre texte' : deja ? '✔ ' + plur(nb, 'réponse', 'réponses') + ' de ' + qui + ' (en ajouter une autre ou la suite)' : 'Ajouter la réponse de ' + qui;
       bt.setAttribute('data-l', lib); bt.textContent = lib; bt.classList.toggle('fait-ok', primaire && deja);
     });
     zone.innerHTML = sections.map(function (s, i) {
-      var l = semLire(s.texte);
-      var pastille = l.refus ? '<span class="pastille-ver pv-alert">Refus de l’assistant : à relancer</span>' : l.aBloc ? '<span class="pastille-ver pv-ok">Lue : ' + plur(l.signaux, 'signal', 'signaux') + '</span>' : '<span class="pastille-ver pv-warn">Texte brut : gardé tel quel, Claude le lira</span>';
-      return '<div class="tc-sem-ligne"><div class="tete"><span class="qui">' + echap(s.auteur) + '</span> ' + pastille + ' <span class="sous-titre" style="margin:0">' + (s.heure ? 'collée à ' + s.heure + ' · ' : '') + plur(l.sites.length, 'site non ouvert signalé', 'sites non ouverts signalés') + '</span></div>'
-        + '<div class="btn-rangee" style="margin:.4rem 0 0"><button class="btn" type="button" data-sem="voir" data-i="' + i + '">Voir la réponse</button><button class="btn" type="button" data-sem="retirer" data-i="' + i + '">Retirer cette réponse</button></div>'
-        + '<div class="code" id="sem_voir_' + i + '" style="display:none;margin-top:.4rem;white-space:pre-wrap;max-height:16rem;overflow:auto">' + echap(s.texte) + '</div></div>';
+      var estMain = semEstMain(s.auteur), l = semLire(s.texte);
+      // Hors veille de la semaine, « lue » veut dire que le bloc propre à la carte (BALAYAGE, CONTROLE, CHIFFRES, CONFRONTER...) est là.
+      var blocCarte = card !== 'hebdo' && /\[(?:BALAYAGE|CONTROLE|CHIFFRES(?:-UE)?|CONFRONTER|LEXIQUE-BRUT|PORTRAIT)[\s\]:]/i.test(s.texte);
+      var pastille = estMain ? '<span class="pastille-ver pv-ok">Texte copié par vous sur le site</span>' : l.refus ? '<span class="pastille-ver pv-alert">Refus de l’assistant : à relancer</span>' : blocCarte ? '<span class="pastille-ver pv-ok">Bloc reçu</span>' : l.aBloc ? '<span class="pastille-ver pv-ok">Lue : ' + plur(l.signaux, 'signal', 'signaux') + '</span>' : '<span class="pastille-ver pv-warn">Texte brut : gardé tel quel, Claude le lira</span>';
+      return '<div class="tc-sem-ligne"><div class="tete"><span class="qui">' + echap(s.auteur) + '</span> ' + pastille + ' <span class="sous-titre" style="margin:0">' + (s.heure ? 'collée à ' + s.heure : '') + (estMain ? '' : ' · ' + plur(l.sites.length, 'site non ouvert signalé', 'sites non ouverts signalés')) + '</span></div>'
+        + '<div class="btn-rangee" style="margin:.4rem 0 0"><button class="btn" type="button" data-sem="voir" data-card="' + card + '" data-i="' + i + '">Voir la réponse</button><button class="btn" type="button" data-sem="retirer" data-card="' + card + '" data-i="' + i + '">Retirer cette réponse</button></div>'
+        + '<div class="code" id="sem_voir' + suf + '_' + i + '" style="display:none;margin-top:.4rem;white-space:pre-wrap;max-height:16rem;overflow:auto">' + echap(s.texte) + '</div></div>';
     }).join('');
+    semRendreSites(card, calc, mc, sections.filter(function (q) { return !semEstMain(q.auteur); }).length);
+  }
+  // La liste des sites que personne n'a pu lire, pour la veille de la semaine comme pour chaque carte : à ouvrir, copier, coller.
+  function semRendreSites(card, calc, mc, nbReponses) {
+    var suf = semSuf(card), textes = mc.textes, restant = 0, plur = function (n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); };
     // Les textes déjà copiés à la main restent visibles même si leur site n'est plus dans les réponses.
-    Object.keys(textes).forEach(function (k) { if (!calc.liste.some(function (v) { return v.cle === k; }) && !calc.lues.some(function (v) { return v.cle === k; })) { var si = SITES_VEILLE_SEMAINE.filter(function (s) { return s.cle === k; })[0]; calc.liste.push({ cle: k, site: si || null, domaine: k, urlAssistant: '', avis: [] }); } });
-    var zs = $t('sem_sites'); if (!zs) { return; }
+    Object.keys(textes).forEach(function (k) { if (!calc.liste.some(function (v) { return v.cle === k; }) && !calc.lues.some(function (v) { return v.cle === k; })) { var si = card === 'hebdo' ? SITES_VEILLE_SEMAINE.filter(function (q) { return q.cle === k; })[0] : null; calc.liste.push({ cle: k, site: si || null, domaine: mc.doms[k] || k, urlAssistant: '', avis: [] }); } });
+    var zs = $t('sem_sites' + suf); if (!zs) { return; }
     zs.innerHTML = calc.liste.length ? calc.liste.map(function (v) {
-      var k = v.cle, fait = !!textes[k], url = v.site ? v.site.url : v.urlAssistant, nom = v.site ? v.site.nom : v.domaine;
+      var k = v.cle, fait = !!textes[k], url = v.site ? v.site.url : v.urlAssistant, nom = v.site ? v.site.nom : v.domaine, dom = v.site ? v.site.domaine : v.domaine;
       var corrige = v.site && v.urlAssistant && v.urlAssistant.replace(/\/$/, '') !== v.site.url.replace(/\/$/, '');
+      var attr = ' data-card="' + card + '" data-cle="' + k + '" data-dom="' + echap(dom) + '"';
       if (!fait) { restant++; }
       var etat = fait ? '<span class="pastille-ver pv-ok">Texte reçu (' + textes[k].length + ' signes)</span>' : '<span class="pastille-ver pv-warn">À ouvrir par vous</span>';
       // Une fois le texte collé, le bouton « Coller » devient vert (clic = voir le texte collé) ; « Effacer » reste à côté.
-      var actions = fait ? '<button class="btn fait-ok" type="button" data-sem-site="voir" data-cle="' + k + '">✔ Texte collé : le voir</button><button class="btn" type="button" data-sem-site="effacer" data-cle="' + k + '">Effacer ce texte</button>'
-        : '<button class="btn" type="button" data-sem-site="coller" data-cle="' + k + '">Coller le texte copié</button>';
+      var actions = fait ? '<button class="btn fait-ok" type="button" data-sem-site="voir"' + attr + '>✔ Texte collé : le voir</button><button class="btn" type="button" data-sem-site="effacer"' + attr + '>Effacer ce texte</button>'
+        : '<button class="btn" type="button" data-sem-site="coller"' + attr + '>Coller le texte copié</button>';
       return '<div class="tc-sem-ligne' + (fait ? ' fait' : '') + '"><div class="tete"><span class="qui">' + echap(nom) + '</span> ' + etat + (corrige ? ' <span class="pastille-ver pv-ok" title="L’assistant avait écrit : ' + echap(v.urlAssistant) + '">adresse corrigée</span>' : '') + '</div>'
         + (url ? '<div class="adr">' + echap(url) + '</div>' : '') + (v.avis.length ? '<div class="ou">' + v.avis.map(echap).join(' · ') + '</div>' : '')
         + '<div class="btn-rangee" style="margin:.3rem 0 0">' + (url ? '<a class="btn primaire" style="text-decoration:none" href="' + echap(url) + '" target="_blank" rel="noopener noreferrer">Ouvrir le site</a>' : '') + actions + '</div>'
-        + (fait ? '<div class="code" id="sem_vs_' + k + '" style="display:none;margin-top:.4rem;white-space:pre-wrap;max-height:16rem;overflow:auto">' + echap(textes[k]) + '</div>' : '')
-        + '<div id="sem_zs_' + k + '" style="display:none"><textarea id="sem_ts_' + k + '" placeholder="Collez ici le texte copié sur le site (avec la date de la page si elle y est)."></textarea><div class="btn-rangee"><button class="btn primaire" type="button" data-sem-site="enreg" data-cle="' + k + '">Enregistrer ce texte</button><button class="btn" type="button" data-sem-site="annuler" data-cle="' + k + '">Annuler</button></div></div></div>';
-    }).join('') : '<div class="note ok"><span>&#9989;</span><span>' + (sections.length ? 'Tous les sites signalés ont été lus par au moins un assistant.' : 'Ajoutez une première réponse : les sites que personne n’a lus apparaîtront ici.') + '</span></div>';
-    $t('sem_nb_sites').textContent = restant;
-    $t('sem_lues_zone').style.display = calc.lues.length ? '' : 'none';
-    $t('sem_nb_lues').textContent = calc.lues.length;
-    $t('sem_lues').innerHTML = calc.lues.map(function (l) { return '<div>&#9989; ' + echap(l.nom) + ' : lue par ' + echap(l.par.join(' et ')) + '</div>'; }).join('');
+        + (fait ? '<div class="code" id="sem_vs' + suf + '_' + k + '" style="display:none;margin-top:.4rem;white-space:pre-wrap;max-height:16rem;overflow:auto">' + echap(textes[k]) + '</div>' : '')
+        + '<div id="sem_zs' + suf + '_' + k + '" style="display:none"><textarea id="sem_ts' + suf + '_' + k + '" placeholder="Collez ici le texte copié sur le site (avec la date de la page si elle y est)."></textarea><div class="btn-rangee"><button class="btn primaire" type="button" data-sem-site="enreg"' + attr + '>' + (card === 'hebdo' ? 'Enregistrer ce texte' : 'Ajouter ce texte aux réponses') + '</button><button class="btn" type="button" data-sem-site="annuler"' + attr + '>Annuler</button></div></div></div>';
+    }).join('') : '<div class="note ok"><span>&#9989;</span><span>' + (nbReponses ? 'Tous les sites signalés ont été lus par au moins un assistant.' : 'Ajoutez une première réponse : les sites que personne n’a lus apparaîtront ici.') + '</span></div>';
+    $t('sem_nb_sites' + suf).textContent = restant;
+    $t('sem_lues_zone' + suf).style.display = calc.lues.length ? '' : 'none';
+    $t('sem_nb_lues' + suf).textContent = calc.lues.length;
+    $t('sem_lues' + suf).innerHTML = calc.lues.map(function (l) { return '<div>&#9989; ' + echap(l.nom) + ' : lue par ' + echap(l.par.join(' et ')) + '</div>'; }).join('');
   }
-  function semAjouter(auteur, txt, btn, depuisZone) {
+  function semAjouter(auteur, txt, btn, depuisZone, card) {
+    card = card || 'hebdo'; var suf = semSuf(card);
     var t = normaliserTexte(txt); if (!t) { flash(btn, 'Rien à coller : copiez d’abord la réponse'); return; }
     if (_tc.liste.some(function (y) { return y.texte && normaliserTexte(y.texte) === t; })) { flash(btn, 'C’est le prompt, pas la réponse'); return; }
-    var sections = semSections(_tc.rep.hebdo);
+    var sections = semSections(_tc.rep[card]);
     if (sections.some(function (s) { return s.texte.indexOf(t) !== -1; })) { flash(btn, 'Déjà collée'); return; }
     sections.push({ auteur: auteur || 'un assistant', heure: semHeure(), texte: t });
-    _tc.rep.hebdo = semAssembler(sections);
+    _tc.rep[card] = semAssembler(sections);
     flash(btn, 'Ajoutée');
-    if (depuisZone) { $t('sem_zone').style.display = 'none'; $t('sem_zone_texte').value = ''; }
-    sauver('hebdo');
+    if (depuisZone) { $t('sem_zone' + suf).style.display = 'none'; $t('sem_zone_texte' + suf).value = ''; }
+    sauver(card);
   }
-  function semOuvrirZone(auteur, aide) {
-    var z = $t('sem_zone'); z.setAttribute('data-auteur', auteur); $t('sem_zone_titre').textContent = 'Réponse de : ' + auteur + '. ' + (aide || '');
-    $t('sem_zone_texte').value = ''; z.style.display = ''; $t('sem_zone_texte').focus();
+  function semOuvrirZone(auteur, aide, card) {
+    var suf = semSuf(card), z = $t('sem_zone' + suf); z.setAttribute('data-auteur', auteur); $t('sem_zone_titre' + suf).textContent = 'Réponse de : ' + auteur + '. ' + (aide || '');
+    $t('sem_zone_texte' + suf).value = ''; z.style.display = ''; $t('sem_zone_texte' + suf).focus();
   }
-  function semSauverSite(cle, texte) {
-    var si = SITES_VEILLE_SEMAINE.filter(function (s) { return s.cle === cle; })[0], x = semEntree(cle, si ? si.nom : cle, si ? si.url : '');
-    _tc.rep[x.id] = texte; sauver(x.id);
+  function semSauverSite(cle, texte, card, dom) {
+    card = card || 'hebdo';
+    if (card === 'hebdo') {
+      var si = SITES_VEILLE_SEMAINE.filter(function (s) { return s.cle === cle; })[0], x = semEntree(cle, si ? si.nom : cle, si ? si.url : '');
+      _tc.rep[x.id] = texte; sauver(x.id); return;
+    }
+    // Autres cartes : le texte devient une section de la carte, à côté des réponses des assistants (jamais un fichier à part).
+    var sections = semSections(_tc.rep[card]).filter(function (q) { return !(semEstMain(q.auteur) && semCleDe(q.auteur.slice('texte copié à la main sur '.length), true) === cle); });
+    if (texte) { sections.push({ auteur: semAuteurMain(dom || cle), heure: semHeure(), texte: texte }); }
+    _tc.rep[card] = semAssembler(sections); sauver(card);
   }
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest ? e.target.closest('[data-sem],[data-sem-site]') : null; if (!b) { return; }
-    var a = b.getAttribute('data-sem'), s = b.getAttribute('data-sem-site'), cle = b.getAttribute('data-cle'), i = b.getAttribute('data-i');
+    var a = b.getAttribute('data-sem'), s = b.getAttribute('data-sem-site'), cle = b.getAttribute('data-cle'), i = b.getAttribute('data-i'), card = b.getAttribute('data-card') || 'hebdo', suf = semSuf(card);
     if (a === 'ajouter') {
       var auteur = b.getAttribute('data-auteur');
-      if (!navigator.clipboard || !navigator.clipboard.readText) { semOuvrirZone(auteur, 'Faites Ctrl+V dans la case.'); return; }
+      if (!navigator.clipboard || !navigator.clipboard.readText) { semOuvrirZone(auteur, 'Faites Ctrl+V dans la case.', card); return; }
       navigator.clipboard.readText().then(function (txt) {
-        if (!normaliserTexte(txt)) { semOuvrirZone(auteur, 'Rien de copié : copiez la réponse, puis collez-la ici.'); return; }
-        semAjouter(auteur, txt, b, false);
-      }, function () { semOuvrirZone(auteur, 'Faites Ctrl+V dans la case.'); });
-    } else if (a === 'enregistrer') { semAjouter($t('sem_zone').getAttribute('data-auteur'), $t('sem_zone_texte').value, b, true); }
-    else if (a === 'annuler') { $t('sem_zone').style.display = 'none'; }
-    else if (a === 'voir') { var z = $t('sem_voir_' + i); if (z) { z.style.display = z.style.display === 'none' ? '' : 'none'; b.textContent = z.style.display === 'none' ? 'Voir la réponse' : 'Cacher la réponse'; } }
+        if (!normaliserTexte(txt)) { semOuvrirZone(auteur, 'Rien de copié : copiez la réponse, puis collez-la ici.', card); return; }
+        semAjouter(auteur, txt, b, false, card);
+      }, function () { semOuvrirZone(auteur, 'Faites Ctrl+V dans la case.', card); });
+    } else if (a === 'enregistrer') { semAjouter($t('sem_zone' + suf).getAttribute('data-auteur'), $t('sem_zone_texte' + suf).value, b, true, card); }
+    else if (a === 'annuler') { $t('sem_zone' + suf).style.display = 'none'; }
+    else if (a === 'voir') { var z = $t('sem_voir' + suf + '_' + i); if (z) { z.style.display = z.style.display === 'none' ? '' : 'none'; b.textContent = z.style.display === 'none' ? 'Voir la réponse' : 'Cacher la réponse'; } }
     else if (a === 'retirer') {
-      var sections = semSections(_tc.rep.hebdo);
+      var sections = semSections(_tc.rep[card]);
       if (!sections[+i] || !window.confirm('Retirer la réponse de ' + sections[+i].auteur + ' ? Les autres réponses restent.')) { return; }
-      sections.splice(+i, 1); _tc.rep.hebdo = semAssembler(sections); sauver('hebdo');
+      sections.splice(+i, 1); _tc.rep[card] = semAssembler(sections); sauver(card);
     } else if (s === 'coller') {
-      var zs = $t('sem_zs_' + cle), ouvrirSite = function () { if (zs) { zs.style.display = ''; $t('sem_ts_' + cle).focus(); } };
+      var zs = $t('sem_zs' + suf + '_' + cle), dom = b.getAttribute('data-dom'), ouvrirSite = function () { if (zs) { zs.style.display = ''; $t('sem_ts' + suf + '_' + cle).focus(); } };
       if (!navigator.clipboard || !navigator.clipboard.readText) { ouvrirSite(); return; }
       navigator.clipboard.readText().then(function (txt) {
         var t = normaliserTexte(txt);
         if (!t) { flash(b, 'Rien de copié : copiez d’abord le texte du site'); ouvrirSite(); return; }
         if (_tc.liste.some(function (y) { return y.texte && normaliserTexte(y.texte) === t; })) { flash(b, 'C’est le prompt, pas le texte du site'); ouvrirSite(); return; }
-        semSauverSite(cle, t);
+        semSauverSite(cle, t, card, dom);
       }, ouvrirSite);
-    } else if (s === 'voir') { var vz = $t('sem_vs_' + cle); if (vz) { var cache = vz.style.display === 'none'; vz.style.display = cache ? '' : 'none'; b.textContent = cache ? '✔ Texte collé : le cacher' : '✔ Texte collé : le voir'; } }
-    else if (s === 'enreg') { var tx = normaliserTexte($t('sem_ts_' + cle).value); if (tx) { semSauverSite(cle, tx); } else { flash(b, 'Rien à enregistrer'); } }
-    else if (s === 'annuler') { var z2 = $t('sem_zs_' + cle); if (z2) { z2.style.display = 'none'; } }
-    else if (s === 'effacer') { if (window.confirm('Effacer le texte copié pour ce site ?')) { semSauverSite(cle, ''); } }
+    } else if (s === 'voir') { var vz = $t('sem_vs' + suf + '_' + cle); if (vz) { var cache = vz.style.display === 'none'; vz.style.display = cache ? '' : 'none'; b.textContent = cache ? '✔ Texte collé : le cacher' : '✔ Texte collé : le voir'; } }
+    else if (s === 'enreg') { var tx = normaliserTexte($t('sem_ts' + suf + '_' + cle).value); if (tx) { semSauverSite(cle, tx, card, b.getAttribute('data-dom')); } else { flash(b, 'Rien à enregistrer'); } }
+    else if (s === 'annuler') { var z2 = $t('sem_zs' + suf + '_' + cle); if (z2) { z2.style.display = 'none'; } }
+    else if (s === 'effacer') { if (window.confirm('Effacer le texte copié pour ce site ?')) { semSauverSite(cle, '', card, b.getAttribute('data-dom')); } }
   });
 
   // La liste : toujours construite par les mêmes fonctions que les cartes de l'outil (une seule source pour chaque prompt).
@@ -12725,7 +12959,7 @@
       if (m.court === 'Reprise') { return; }
       l.push({ id: 'balayage-' + (k + 1), categorie: 'Chaque mois', rubrique: 'Comprendre le cadre, changements à verser dans le sas',
         titre: 'Ce qui a changé, message ' + (k + 1) + ' sur ' + (_balMsgs.length) + ' : ' + m.titre.replace(/^Message \d+ sur \d+ : /, ''),
-        fait: 'Cherche les changements officiels de la période « ' + periode + ' » pour : ' + m.noms.join(' ; ') + '.', texte: m.texte });
+        fait: 'Cherche les changements officiels de la période « ' + periode + ' » pour : ' + m.noms.join(' ; ') + '.', texte: m.texte, noms: m.noms });
     });
     var deptCourt = ($('selDept').value.split('|')[0] || '').trim();
     var ajouter = function (def, assembler, idPrompt) {
@@ -12771,6 +13005,18 @@
   // Estime si une réponse collée est exploitable : { niveau: 'ok' | 'attention' | 'inutilisable', motif, coupee }.
   // Fonction pure (aucun accès à la page) : un assistant qui refuse, qui n'a rien vérifié ou qui oublie le bloc demandé ne doit pas passer pour un travail fait.
   function analyserReponse(id, texte) {
+    // Plusieurs réponses côte à côte : les parties d'un même assistant se lisent à la suite (une réponse coupée se complète par sa suite), et la carte vaut ce que vaut le meilleur assistant.
+    var parties = semAvecAjout(id) ? semSections(texte) : [];
+    if (parties.some(function (q) { return semEstMain(q.auteur); })) {
+      parties = parties.filter(function (q) { return !semEstMain(q.auteur); });
+      if (!parties.length) { return { niveau: 'ok', motif: '', coupee: false, cause: '' }; }
+      if (parties.length === 1) { texte = parties[0].texte; }
+    }
+    if (parties.length > 1) {
+      var par = {}, ordre = [], rang = function (r) { return r.niveau === 'inutilisable' ? 2 : (r.niveau === 'attention' || r.coupee) ? 1 : 0; };
+      parties.forEach(function (p) { if (!par[p.auteur]) { par[p.auteur] = []; ordre.push(p.auteur); } par[p.auteur].push(p.texte); });
+      return ordre.map(function (k) { return analyserReponse(id, par[k].join('\n\n')); }).sort(function (x, y) { return rang(x) - rang(y); })[0];
+    }
     var t = deMd(texte).replace(/\r\n/g, '\n').replace(/[\u2018\u2019]/g, "'").trim();
     var res = function (niveau, motif, coupee, cause) { return { niveau: niveau, motif: motif || '', coupee: !!coupee, cause: cause || '' }; };
     if (!t) { return res('ok'); }
@@ -12779,6 +13025,8 @@
     var attendu = /^balayage-/.test(id) ? 'BALAYAGE' : /^rayon-/.test(id) ? 'CONTROLE' : (BLOCS[id] || '');
     // Veille de la semaine (décision de Denis, 08/11/2026) : un texte brut, sans le bloc, n'est plus refusé pour son format (seuls un refus ou un texte trop court le sont) : Claude le lit tel quel.
     if (id === 'hebdo' && !/\[VEILLE-HEBDO[\s\]:]/i.test(t)) { attendu = ''; }
+    // Scan du mois (décision de Denis, 09/11/2026) : même règle que la veille de la semaine, un texte brut n'est refusé que s'il est un refus ou trop court.
+    if (/^balayage-/.test(id) && !/\[BALAYAGE[\s\]:]/i.test(t)) { attendu = ''; }
     var ouvre = attendu ? new RegExp('\\[' + attendu + '[\\s\\]:]', 'gi') : null, ferme = attendu ? new RegExp('\\[/' + attendu + '\\]', 'gi') : null;
     var nOuverts = ouvre ? (t.match(ouvre) || []).length : 0, nFermes = ferme ? (t.match(ferme) || []).length : 0;
     var debut = t.slice(0, 600);
@@ -12790,7 +13038,7 @@
     if (attendu && refus && t.length < 600) { return res('inutilisable', 'L\u2019assistant a refusé ou n\u2019a pas compris la demande.', false, 'refus'); }
     if (/signal\s*:\s*non\s+v[ée]rifi/i.test(t) && !/https?:\/\//i.test(t)) { return res('inutilisable', 'L\u2019assistant n\u2019a rien pu vérifier (aucune adresse de source). Allez chercher vous-même, section « À aller chercher vous-même » plus bas.', false, 'rien-verifie'); }
     var suite = t.toUpperCase().lastIndexOf('SUITE DISPONIBLE');
-    if ((suite >= 0 && suite > t.lastIndexOf('[/')) || (attendu && nFermes < nOuverts)) { return res('attention', 'Réponse coupée : répondez « oui » à l\u2019assistant, puis collez la suite à la suite de celle-ci.', true, 'coupee'); }
+    if ((suite >= 0 && suite > t.lastIndexOf('[/') && t.length - suite < 300) || (attendu && nFermes < nOuverts)) { return res('attention', 'Réponse coupée : répondez « oui » à l\u2019assistant, puis collez la suite à la suite de celle-ci.', true, 'coupee'); }
     if ((id === 'hebdo' || /^(?:balayage|rayon)-/.test(id)) && !/https?:\/\//i.test(t)) { return res('attention', 'Aucune adresse de source : Claude ne pourra rien publier sans preuve.', false, 'sans-source'); }
     return res('ok');
   }
@@ -12835,7 +13083,7 @@
   /* ---------- Les propositions de Claude (lot 4a) : Claude les dépose dans outils/retours/<jour>/propositions/, l'onglet les verse dans les sas qui existent déjà ---------- */
   var CLE_VERSEES = 'veille_tc_versees';
   var GENRES_FC = { maj: 'Mise à jour', nouv: 'Nouvelle fiche', ret: 'Retrait', brut: 'Information brute' };
-  function propIdDe(id) { return id === 'hebdo' ? 'fiches-hebdo' : /^rayon-/.test(id) ? 'fiches-' + id : (id === 'chiffres' || id === 'reseau' || id === 'lexique' || id === 'portrait' || id === 'ue') ? id : ''; }
+  function propIdDe(id) { return id === 'hebdo' ? 'fiches-hebdo' : /^balayage-\d+$/.test(id) ? 'fiches-mois-' + id.slice(9) : /^rayon-/.test(id) ? 'fiches-' + id : (id === 'chiffres' || id === 'reseau' || id === 'lexique' || id === 'portrait' || id === 'ue') ? id : ''; }
   function rayonDeProp(pid) { return /^fiches-rayon-/.test(pid) ? pid.slice('fiches-rayon-'.length) : ''; }
   // Une proposition est « versée » pour CE contenu-là : si Claude remplace le fichier du même nom par de nouvelles fiches, elles redeviennent à verser
   // (essai de Denis, 08/11/2026 : la veille du matin, versée sous le nom « fiches-hebdo », cachait les deux fiches du soir, pastille orange absente et sas vide).
@@ -13017,6 +13265,8 @@
   }
 
   function etatDe(id) { return _tc.etat[id] || ''; }
+  // « 2026-11-03 à 10:12 » -> « (le 03/11/2026 à 10:12) » : de quand date l'enregistrement de cette réponse.
+  function quandEnregistre(id) { var le = _tc.meta[id]; return le && /^\d{4}-\d{2}-\d{2} à \d{2}:\d{2}$/.test(le) ? ' (le ' + dateFr(le.slice(0, 10)) + ' à ' + le.slice(-5) + ')' : ''; }
   function majCarte(id) {
     var el = $t('tc_' + id); if (!el) { if (/^main-sem-/.test(id)) { semRendre(); majCompteur(); } return; }
     var texte = (_tc.rep[id] || '').trim(), e = etatDe(id), a = analyserReponse(id, texte);
@@ -13024,18 +13274,37 @@
     el.classList.toggle('attention', !!texte && e !== 'erreur' && a.niveau === 'attention');
     el.classList.toggle('inutilisable', !!texte && e !== 'erreur' && a.niveau === 'inutilisable');
     el.classList.toggle('erreur', e === 'erreur');
-    el.querySelector('.tc-etat').textContent = e === 'erreur' ? 'Non enregistrée' : !texte ? 'À faire' : a.niveau === 'inutilisable' ? 'Réponse inutilisable' : a.coupee ? 'Réponse coupée' : a.niveau === 'attention' ? 'À vérifier' : (AVEC_SERVEUR ? 'Réponse enregistrée' : 'Réponse collée (non enregistrée)');
+    el.querySelector('.tc-etat').textContent = e === 'erreur' ? 'Non enregistrée' : !texte ? 'À faire' : a.niveau === 'inutilisable' ? 'Réponse inutilisable' : a.coupee ? 'Réponse coupée' : a.niveau === 'attention' ? 'À vérifier' : (AVEC_SERVEUR ? 'Réponse enregistrée sur votre ordinateur' + quandEnregistre(id) : 'Réponse collée (non enregistrée)');
     el.querySelector('.tc-motif').textContent = texte && a.niveau !== 'ok' ? a.motif + (a.niveau === 'inutilisable' ? ' Relancez l\u2019assistant (ou essayez l\u2019autre) ou allez chercher vous-même.' : '') : '';
     var zr = el.querySelector('.tc-relance'); if (zr) { zr.innerHTML = texte && e !== 'erreur' && a.niveau !== 'ok' ? htmlRelance(id, a) : ''; }
+    // Scan du mois : les domaines que la réponse n'a pas couverts, et un bouton qui copie le message pour les reprendre (le même message que l'écran du balayage).
+    var zp = $t('trp_' + id), xr = _tc.liste.filter(function (y) { return y.id === id; })[0];
+    if (zp && xr) {
+      var aRep = texte && e !== 'erreur' && xr.noms ? balDomainesAReprendre(texte, xr.noms) : [];
+      zp.innerHTML = aRep.length ? '<div class="note warn" style="display:block"><span>&#9888;&#65039;</span> <strong>' + aRep.length + ' domaine' + (aRep.length > 1 ? 's' : '') + ' sur ' + xr.noms.length + ' ' + (aRep.length > 1 ? 'ne sont pas couverts' : 'n’est pas couvert') + ' par les réponses de cette carte :</strong> ' + aRep.map(echap).join(' ; ') + '.<br>'
+        + '<span class="sous-titre">Ne concluez pas qu’il n’y a « rien » : cela veut dire que personne n’a regardé. Le bouton copie un message pour ' + (aRep.length > 1 ? 'ces domaines seulement' : 'ce domaine seulement') + ' ; collez-le chez ChatGPT ou Perplexity, puis ajoutez la réponse ici.</span></div>'
+        + '<div class="btn-rangee"><button class="btn primaire" type="button" data-tc="reprise" data-id="' + id + '">Copier le message pour reprendre ' + (aRep.length > 1 ? 'ces ' + aRep.length + ' domaines' : 'ce domaine') + '</button></div>' : '';
+    }
     var taRep = el.querySelector('textarea[data-tc-rep]'); if (taRep) { taRep.value = _tc.rep[id] || ''; }
-    if (id === 'hebdo') { semRendre(); }
+    if (semAvecAjout(id)) { semRendre(id); }
+    var zm = $t('tcm_' + id), xm = _tc.liste.filter(function (y) { return y.id === id; })[0]; if (zm && xm) { zm.textContent = texte ? messageCarte(xm) : 'Ajoutez d\u2019abord au moins une réponse : le message pour Claude apparaît ici.'; }
     majCompteur();
+  }
+  // Ce qui est gardé, dit clairement : l'enregistrement est automatique, il reste d'un jour à l'autre, et on sait comment le vider.
+  function majGarde() {
+    var z = $t('tcGarde'); if (!z) { return; }
+    var n = _tc.liste.filter(function (x) { return (_tc.rep[x.id] || '').trim(); }).length, anciennes = Object.keys(_tc.meta).filter(function (k) { return (_tc.rep[k] || '').trim() && (_tc.meta[k] || '').slice(0, 10) !== jourLocal(); }).length;
+    if (!AVEC_SERVEUR) { z.innerHTML = ''; return; }
+    z.innerHTML = '<div class="note ok"><span>&#128190;</span><span><strong>' + (n ? n + ' réponse' + (n > 1 ? 's sont enregistrées' : ' est enregistrée') + ' sur votre ordinateur' : 'Rien n\u2019est encore enregistré') + '</strong> (dossier ' + echap(_tc.dossier || 'outils/retours') + ').'
+      + ' Chaque réponse est enregistrée toute seule dès que vous l\u2019ajoutez. Elle reste là d\u2019un jour à l\u2019autre, même si vous fermez l\u2019outil ou l\u2019ordinateur : vous pouvez ramasser des informations pendant plusieurs jours, puis tout donner à Claude. Une réponse ne disparaît que si vous cliquez sur « Effacer », ou sur « Mettre de côté les réponses traitées » en bas de la page.'
+      + (anciennes ? ' <strong>' + anciennes + ' venai' + (anciennes > 1 ? 'ent' : 't') + ' d\u2019un jour précédent.</strong>' : '') + '</span></div>';
   }
   function majCompteur() {
     var inut = _tc.liste.filter(function (x) { return !x.main && (_tc.rep[x.id] || '').trim() && analyserReponse(x.id, _tc.rep[x.id]).niveau === 'inutilisable'; }).length;
     var n = _tc.liste.filter(function (x) { return !x.main && (_tc.rep[x.id] || '').trim(); }).length - inut, m = _tc.liste.filter(function (x) { return x.main && (_tc.rep[x.id] || '').trim(); }).length, tot = _tc.liste.filter(function (x) { return !x.main; }).length;
     $t('tcCompteur').textContent = n + ' réponse' + (n > 1 ? 's' : '') + ' collée' + (n > 1 ? 's' : '') + ' sur ' + tot + ' prompts' + (m ? ', et ' + m + ' texte' + (m > 1 ? 's' : '') + ' copié' + (m > 1 ? 's' : '') + ' à la main' : '') + (inut ? ' (' + inut + ' réponse' + (inut > 1 ? 's' : '') + ' inutilisable' + (inut > 1 ? 's' : '') + ' à relancer)' : '') + '.';
     $t('tcCopierMessage').style.display = AVEC_SERVEUR ? '' : 'none';
+    majGarde();
     if ($t('tcMessage').style.display !== 'none') { $t('tcMessage').textContent = fabriquerMessage(); }
   }
   function sauver(id) {
@@ -13046,6 +13315,7 @@
     if (!AVEC_SERVEUR) { majCarte(id); return; }
     appelerTc('/api/retours/enregistrer', { id: id, titre: x.titre, categorie: x.categorie, rubrique: x.rubrique, reponse: _tc.rep[id] || '', qualite: a.niveau, motif: a.motif }).then(function (r) {
       _tc.etat[id] = r && r.ok ? '' : 'erreur';
+      if (r && r.ok) { (r.retours || []).forEach(function (q) { _tc.meta[q.id] = q.le; }); if (r.effacee) { delete _tc.meta[id]; } }
       majCarte(id);
       if (!r || !r.ok) { $t('tcNote').innerHTML = '<div class="note warn"><span>&#9888;&#65039;</span><span>' + echap((r && r.erreur) || 'L\'enregistrement a échoué.') + '</span></div>'; }
     });
@@ -13072,21 +13342,25 @@
       }
       h += '<div class="tc-carte" id="tc_' + x.id + '"><div class="tc-tete"><span class="tc-etat">À faire</span><strong>' + echap(x.titre) + '</strong></div><div class="tc-motif"></div>'
         + '<div class="tc-relance" id="tr_' + x.id + '"></div>'
+        + (/^balayage-/.test(x.id) ? '<div class="tc-reprise" id="trp_' + x.id + '"></div>' : '')
         + ((x.id === 'profil-decoupes' || x.id === 'medecins') ? '<div class="note"><span>&#8505;&#65039;</span><span>Pas de lecture automatique pour cette carte : les tableaux copiés sont donnés à Claude dans la conversation, qui prépare la mise à jour des fichiers du module et vous la montre avant de l\u2019appliquer.</span></div>' : '')
         + '<p class="sous-titre" style="margin:.3rem 0">Ce qu\'il fait : ' + echap(x.fait) + '<br>Catégorie : ' + echap(x.categorie) + ' &middot; Rubrique : ' + echap(x.rubrique) + '</p>'
         + '<div class="btn-rangee"><button class="btn primaire" type="button" data-tc="chatgpt" data-id="' + x.id + '">Copier et ouvrir ChatGPT</button>'
         + '<button class="btn primaire" type="button" data-tc="perplexity" data-id="' + x.id + '">Copier et ouvrir Perplexity</button>'
         + '<button class="btn" type="button" data-tc="copier" data-id="' + x.id + '">Copier seulement</button></div>'
         + '<details><summary>Voir le prompt</summary><div class="code" style="max-height:16rem;overflow:auto;white-space:pre-wrap">' + echap(x.texte) + '</div></details>'
-        + (x.id === 'hebdo' ? semSquelette()
+        + (semAvecAjout(x.id) ? semSquelette(x.id) + (x.id === 'hebdo' ? '' : semSquelettesSites(x.id))
           : '<textarea data-tc-rep="' + x.id + '" placeholder="La réponse de l\'assistant s\'affiche ici. Vous pouvez aussi la coller avec Ctrl+V."></textarea>'
             + '<div class="btn-rangee"><button class="btn" type="button" data-tc="coller" data-id="' + x.id + '">Coller la réponse</button>'
             + '<button class="btn" type="button" data-tc="effacer" data-id="' + x.id + '">Effacer cette réponse</button></div>')
+        + ((x.id === 'profil-decoupes' || x.id === 'medecins') ? '' : '<div class="tc-claude-bloc"><button class="btn btn-pour-claude" type="button" data-tc="claude" data-id="' + x.id + '">Envoyer à Claude : trier cette réponse avec nos fiches</button>'
+          + '<p class="sous-titre" style="margin:.4rem 0 0">Quand vous avez ajouté toutes les réponses de cette carte, un clic copie le message pour Claude : il compare ce que disent les assistants à nos fiches (doublons, modifications, sources, précisions, fiches périmées, fiches à créer). Collez-le ensuite dans Claude.</p>'
+          + '<details><summary>Voir le message pour Claude</summary><div class="code" id="tcm_' + x.id + '" style="max-height:16rem;overflow:auto;white-space:pre-wrap"></div></details></div>')
         + (propIdDe(x.id) ? '<div class="tc-prop" id="tp_' + propIdDe(x.id) + '"></div>' : '') + '</div>'
         + (x.id === 'hebdo' ? semSquelettesSites() : '');
       if (x.id === dernierBal) {
         h += '<div class="tc-carte" id="tc_prop-balayage"><div class="tc-tete"><strong>Ce qui a changé ce mois-ci : le tri de Claude</strong></div>'
-          + '<p class="sous-titre" style="margin:.3rem 0">Claude lit les ' + _tc.liste.filter(function (y) { return /^balayage-/.test(y.id); }).length + ' réponses du balayage et dépose ici les changements à verser dans le sas.</p><div class="tc-prop" id="tp_balayage"></div></div>';
+          + '<p class="sous-titre" style="margin:.3rem 0">Claude lit les réponses des ' + _tc.liste.filter(function (y) { return /^balayage-/.test(y.id); }).length + ' messages (ChatGPT et Perplexity côte à côte), les compare à nos fiches publiées, et dépose ici les changements officiels datés. Les fiches à mettre à jour, à retirer ou à créer apparaissent sous la carte de chaque message. Vous versez dans le sas, puis vous validez une par une.</p><div class="tc-prop" id="tp_balayage"></div></div>';
       }
     });
     $t('tcListe').innerHTML = h;
@@ -13094,26 +13368,100 @@
     rendrePropositions();
   }
 
+  // Veille de la semaine : les pages que personne n'a pu lire, et ce que je demande en plus pour cette veille.
+  function blocSemaine() {
+    var secs = semSections(_tc.rep.hebdo), nomsSecs = secs.map(function (s) { return s.auteur; }).join(', ');
+    if (!secs.length) { return ''; }
+    var textesSem = semTextesMains(), nonLus = semCalculer(secs, textesSem).liste.filter(function (v) { return !textesSem[v.cle]; });
+    return "Veille de la semaine : " + secs.length + " réponse" + (secs.length > 1 ? 's' : '') + " d'assistant (" + nomsSecs + ") dans hebdo.md, brutes, sans reformulation"
+      + (Object.keys(textesSem).length ? ", et " + Object.keys(textesSem).length + " texte(s) copié(s) par moi sur des sites (fichiers main-sem-<site>.md)" : '') + ".\n"
+      + (nonLus.length ? "Pages que personne n'a pu lire (je ne les ai pas ; n'invente rien à leur sujet) :\n" + nonLus.map(function (v) { return '- ' + (v.site ? v.site.nom : v.domaine) + (v.site ? ' : ' + v.site.url : (v.urlAssistant ? ' : ' + v.urlAssistant : '')); }).join('\n') + "\n" : "Aucune page ne reste non lue.\n")
+      + "Pour cette veille, en plus : (1) vérifie l'exactitude : une information qui n'a qu'une seule source reste « à vérifier » ; (2) dis-moi précisément ce que je dois encore t'apporter (les articles à ouvrir à la main, avec le lien, et les pages non lues qui comptent) ; (3) dépose des fiches NOUVELLES seulement quand aucune fiche publiée ne couvre le sujet, et des COMPLÉMENTS pour les fiches existantes.\n\n";
+  }
+  // Ce que Claude dépose pour une carte, et dans quel fichier (noms fermés, voir outils/veilleRetours.js).
+  function sortieCarte(x) {
+    var id = x.id;
+    if (/^balayage-/.test(id)) { return "les fiches (mises à jour, retraits [RETRAIT], nouvelles) dans fiches-mois-" + id.slice(9) + ".md, au même format que fiches-hebdo.md, et les changements officiels datés qui ne méritent pas une fiche dans balayage.json"; }
+    if (id === 'hebdo') { return "les fiches (mises à jour, retraits, nouvelles) dans fiches-hebdo.md"; }
+    if (/^rayon-/.test(id)) { return "les fiches (mises à jour, retraits, nouvelles) dans fiches-" + id + ".md"; }
+    var f = { chiffres: 'chiffres.md', reseau: 'reseau.md', lexique: 'lexique.md', portrait: 'portrait.md', ue: 'ue.md' };
+    return f[id] ? "le texte à mettre dans l'écran correspondant, dans " + f[id] + " (format décrit dans .claude/commands/veille.md et par node scripts/veilleProposer.js gabarit)" : '';
+  }
+  // Le plan de travail du message global (décision de Denis, 09/11/2026) : Claude traite UN bloc à la fois, dans l'ordre de la page, et enchaîne sans attendre ; son plan est écrit dans un fichier du jour pour ne rien rater ni perdre le fil.
+  function blocPlan(blocs) {
+    if (!blocs.length) { return ''; }
+    var dossier = _tc.dossier || ('outils/retours/' + jourLocal());
+    return "Méthode de travail, à suivre à la lettre : tu ne traites PAS tout d'un coup, tu avances bloc par bloc.\n"
+      + "Blocs à traiter, dans cet ordre (" + blocs.length + ") :\n"
+      + blocs.map(function (x, i) { var so = sortieCarte(x); return (i + 1) + '. ' + x.id + ' : ' + x.titre + ' (réponses dans ' + x.id + '.md ; ' + (so ? 'à déposer : ' + so : 'aucun fichier à déposer') + ')'; }).join('\n') + "\n"
+      + "(a) Commence par écrire ce plan dans " + dossier + "/_plan.md, une ligne par bloc avec une case à cocher. Ce fichier est ignoré par Git : il te permet de reprendre exactement où tu t'es arrêté si la conversation est coupée. Relis-le au début de chaque bloc.\n"
+      + "(b) Traite le bloc 1 en entier : lis ses réponses, cherche les doublons dans toutes les fiches publiées, compare, tranche, dépose son fichier, lance node scripts/veilleProposer.js controler, coche le bloc dans _plan.md, puis annonce-moi en deux lignes ce que tu as déposé.\n"
+      + "(c) Dès qu'un bloc est fini, enchaîne le suivant sans m'attendre, jusqu'au dernier. Ne t'arrête que si un point demande mon choix : pose alors la question (une recommandation, les bénéfices et les risques de chaque option) et passe au bloc suivant en attendant ma réponse.\n"
+      + "(d) Ne saute aucun bloc. Un bloc sans rien à déposer est coché avec la mention « rien à déposer » et la raison.\n"
+      + "(e) À la fin, relis _plan.md : chaque bloc doit être coché. Dis-moi ce qui reste à m'apporter.\n\n";
+  }
+  // Le message à donner à Claude pour UNE carte (décision de Denis, 09/11/2026) : dès que les réponses de la carte sont ramassées, un clic le copie ; Claude trie ce qu'elles disent avec ce que nous possédons.
+  // Les consignes de tri et de qualité, UNE seule fois pour le bouton rose d'une carte et pour le message global du bas : doublons, tri en cinq cas, qualité rédactionnelle.
+  function consignesTri(n) {
+    return n + ". Doublons : pour chaque sujet de chaque réponse, cherche dans TOUTES les fiches publiées (modules/comprendre-le-cadre/contenu/<rayon>/<id>.md, tous rayons confondus) et lance node scripts/veilleDoublons.js <fichier-réponse> <rayon>. Ouvre et lis le texte des fiches proches.\n"
+      + (n + 1) + ". Tri : pour chaque sujet, tranche et dis-moi en une ligne par sujet : DÉJÀ COUVERTE (rien à faire) ; MISE À JOUR (information changée ou plus récente, précision manquante, source supplémentaire ou meilleure : dépose seulement ce qui change, avec la preuve) ; COMPLÉMENT (un fait qui manque à une fiche existante : ajoute-le à cette fiche, jamais dans une nouvelle) ; RETRAIT ou correction (fiche obsolète, plus à jour ou devenue fausse) ; NOUVELLE (aucune fiche publiée ne couvre le sujet : range-la dans le rayon du sujet). Jamais deux fiches qui disent la même chose : si une nouvelle fiche reprend des passages d'une fiche existante, retire-les d'un des deux côtés et renvoie vers l'autre. Ne dégrade jamais une fiche publiée plus précise ou plus récente que la réponse.\n"
+      + (n + 2) + ". Qualité rédactionnelle, que je veux certaine : français impeccable avec accents, ton simple et rassurant pour des personnes peu à l'aise avec l'informatique, jamais de tiret cadratin, jamais le mot « IA », jamais de diagnostic sur la personne. Pour chaque fiche, une preuve (adresse, date, passage recopié). Une information qui n'a qu'une seule source reste « à vérifier ».\n";
+  }
+  // Ce que Claude doit savoir des textes copiés à la main et des sites que personne n'a lus, pour une carte.
+  function noteMains(card) {
+    var sx = semSections(_tc.rep[card]).filter(function (q) { return semEstMain(q.auteur); }), nonLus = semNonLusDe(card), r = '';
+    if (sx.length) { r += " Parmi elles, " + sx.length + " texte" + (sx.length > 1 ? 's' : '') + " que j'ai copié" + (sx.length > 1 ? 's' : '') + " moi-même sur des sites que les assistants n'ont pas pu lire (sections « === Réponse de texte copié à la main sur <site> === ») : c'est le texte officiel, tel quel. Appuie-toi dessus comme source principale pour les fiches et cite le site."; }
+    if (nonLus.length) { r += " Sites que personne n'a pu lire et dont je n'ai pas copié le texte (n'invente rien à leur sujet, dis-moi s'ils comptent) : " + nonLus.join(' ; ') + "."; }
+    return r;
+  }
+  // Scan du mois : les domaines que les réponses n'ont pas couverts. Claude ne doit jamais en conclure qu'il n'y a « rien » : personne n'a regardé.
+  function noteCouverture(x) {
+    var d = /^balayage-/.test(x.id) && x.noms && (_tc.rep[x.id] || '').trim() ? balDomainesAReprendre(_tc.rep[x.id], x.noms) : [];
+    return d.length ? " Domaines non couverts par les réponses (personne ne les a vraiment regardés : n'en conclus jamais qu'il n'y a rien, signale-les-moi pour que je relance) : " + d.join(' ; ') + "." : '';
+  }
+  function messageCarte(x) {
+    var sx = semAvecAjout(x.id) ? semSections(_tc.rep[x.id]) : [], a = analyserReponse(x.id, _tc.rep[x.id]), sortie = sortieCarte(x);
+    var dossier = _tc.dossier || ('outils/retours/' + jourLocal());
+    return "/veille\nDate : " + dateFr(jourLocal()) + ".\n\n"
+      + "Une seule carte à traiter : « " + x.titre + " » (" + x.categorie + ', ' + x.rubrique + ").\n"
+      + "Ce que l'assistant devait faire : " + x.fait + "\n"
+      + "Ses réponses sont dans " + dossier + "/" + x.id + ".md (ignoré par Git)" + (sx.length > 1 ? " : " + sx.length + " réponses côte à côte (" + sx.map(function (q) { return q.auteur; }).join(', ') + "), séparées par des lignes « === Réponse de ... === ». Lis-les toutes : elles se complètent, et plusieurs parties d'un même assistant se lisent à la suite" : '') + (a.niveau === 'attention' ? ". Attention : " + a.motif : '') + "." + (x.id === 'hebdo' ? '' : noteMains(x.id)) + noteCouverture(x) + "\n\n"
+      + (x.id === 'hebdo' ? blocSemaine() : '') + blocEcartees()
+      + "Ma demande : tu ne cherches rien sur Internet. Tu tries ces informations avec ce que nous possédons déjà, et tu me proposes ce qu'il faut faire, que je validerai une par une.\n"
+      + "1. Lis .claude/commands/veille.md et applique-le pour cette seule carte (CLAUDE.md et git status d'abord).\n"
+      + consignesTri(2)
+      + (sortie ? "5. Dépose " + sortie + ", dans " + dossier + "/propositions/. Tu ne modifies pas les fiches publiées ni outils/sas/. Je verserai dans les sas depuis l'onglet, puis je validerai.\n" : "5. Cette carte n'a pas de fichier à déposer : montre-moi ce que tu calcules ou proposes dans la conversation, avant d'appliquer quoi que ce soit.\n")
+      + "6. Contrôle : node scripts/veilleProposer.js controler, jusqu'à « Rien à corriger ».\n"
+      + "7. Pour finir, dis-moi sans jargon : ce que tu as déposé, ce qui est déjà couvert, ce qui est périmé, et ce que je dois encore t'apporter (articles à ouvrir à la main, avec le lien).\n\n"
+      + "(Si la commande /veille n'existe pas dans cette session : lis .claude/commands/veille.md et applique-le tel quel.)";
+  }
+  // Ce que Denis a déjà écarté (consigne 185) : donné à Claude seulement, jamais aux assistants en ligne. Le contrôle de dépôt le refuse de toute façon.
+  function blocEcartees() {
+    var l = _tc.ecartees || [];
+    if (!l.length) { return ''; }
+    return "Déjà écarté par moi, à ne JAMAIS redéposer (détail et raison dans outils/sas/ecartes.sas.txt ; le contrôle de dépôt le refuse aussi) :\n"
+      + l.map(function (e) { return '- ' + e.titre + ' (écarté le ' + dateFr(e.ecarteLe) + ' : ' + e.motifLibelle + (e.precision ? ', ' + e.precision : '') + (e.lieu ? ' ; ' + e.lieu : '') + ')'; }).join('\n')
+      + "\nSi un fait nouveau te semble justifier d'en reconsidérer une, ne la redépose pas : dis-le-moi, je la remettrai moi-même dans le sas. Pour un employeur, avant de le déposer au sas : node scripts/employeurEcarte.js nom \"<nom>\" <24 ou 87> (ou employeurs <fichier de lignes>).\n\n";
+  }
   function fabriquerMessage() {
     var faits = _tc.liste.filter(function (x) { return (_tc.rep[x.id] || '').trim(); });
     var inutilisables = faits.filter(function (x) { return !x.main && analyserReponse(x.id, _tc.rep[x.id]).niveau === 'inutilisable'; });
     var utiles = faits.filter(function (x) { return inutilisables.indexOf(x) < 0; });
     var assistants = utiles.filter(function (x) { return !x.main; }), mains = utiles.filter(function (x) { return x.main; });
-    var secs = semSections(_tc.rep.hebdo), nomsSecs = secs.map(function (s) { return s.auteur; }).join(', ');
     var ligneDe = function (x) {
-      var a = analyserReponse(x.id, _tc.rep[x.id]);
-      return '- ' + x.id + ' : ' + x.titre + ' (' + x.categorie + ', ' + x.rubrique + ')' + (a.niveau === 'attention' ? ' [à vérifier : ' + a.motif + ']' : '')
-        + (x.id === 'hebdo' && secs.length > 1 ? ' [' + secs.length + ' réponses côte à côte (' + nomsSecs + '), séparées par des lignes « === Réponse de ... === » : lis-les toutes, chacune avec ses signaux et ses sites non ouverts]' : '');
+      var a = analyserReponse(x.id, _tc.rep[x.id]), sx = semAvecAjout(x.id) ? semSections(_tc.rep[x.id]) : [];
+      return '- ' + x.id + ' : ' + x.titre + ' (' + x.categorie + ', ' + x.rubrique + ')' + (a.niveau === 'attention' ? ' [à vérifier : ' + a.motif + ']' : '') + (semAvecAjout(x.id) && x.id !== 'hebdo' ? noteMains(x.id) + noteCouverture(x) : '')
+        + (sx.length > 1 ? ' [' + sx.length + ' réponses côte à côte (' + sx.map(function (q) { return q.auteur; }).join(', ') + '), séparées par des lignes « === Réponse de ... === » : lis-les toutes' + (x.id === 'hebdo' ? ', chacune avec ses signaux et ses sites non ouverts' : ' ; plusieurs parties d\u2019un même assistant se lisent à la suite, c\u2019est sa réponse coupée puis complétée') + ']' : '');
     };
-    // Veille de la semaine : les pages que personne n'a pu lire, et ce que je demande en plus pour cette veille.
-    var semBloc = '';
-    if (secs.length) {
-      var textesSem = semTextesMains(), nonLus = semCalculer(secs, textesSem).liste.filter(function (v) { return !textesSem[v.cle]; });
-      semBloc = "Veille de la semaine : " + secs.length + " réponse" + (secs.length > 1 ? 's' : '') + " d'assistant (" + nomsSecs + ") dans hebdo.md, brutes, sans reformulation"
-        + (Object.keys(textesSem).length ? ", et " + Object.keys(textesSem).length + " texte(s) copié(s) par moi sur des sites (fichiers main-sem-<site>.md)" : '') + ".\n"
-        + (nonLus.length ? "Pages que personne n'a pu lire (je ne les ai pas ; n'invente rien à leur sujet) :\n" + nonLus.map(function (v) { return '- ' + (v.site ? v.site.nom : v.domaine) + (v.site ? ' : ' + v.site.url : (v.urlAssistant ? ' : ' + v.urlAssistant : '')); }).join('\n') + "\n" : "Aucune page ne reste non lue.\n")
-        + "Pour cette veille, en plus : (1) vérifie l'exactitude : une information qui n'a qu'une seule source reste « à vérifier » ; (2) dis-moi précisément ce que je dois encore t'apporter (les articles à ouvrir à la main, avec le lien, et les pages non lues qui comptent) ; (3) dépose des fiches NOUVELLES seulement quand aucune fiche publiée ne couvre le sujet, et des COMPLÉMENTS pour les fiches existantes.\n\n";
+    // Scan du mois (décision de Denis, 09/11/2026) : les réponses des messages, et le tri demandé à Claude entre ce que disent nos fiches et ce que disent les réponses.
+    var balBloc = '', balFaits = _tc.liste.filter(function (x) { return /^balayage-/.test(x.id) && (_tc.rep[x.id] || '').trim(); }), balTous = _tc.liste.filter(function (x) { return /^balayage-/.test(x.id); });
+    if (balFaits.length) {
+      var balSans = balTous.filter(function (x) { return balFaits.indexOf(x) < 0; });
+      balBloc = "Scan du mois (période : " + balInfoCourant().periode + ") : " + balFaits.length + " message" + (balFaits.length > 1 ? 's' : '') + " sur " + balTous.length + " ont une réponse (fichiers balayage-<n>.md). Chaque fichier peut contenir plusieurs réponses de ChatGPT et de Perplexity, parfois en plusieurs parties à la suite, séparées par des lignes « === Réponse de ... === » : lis-les toutes, elles se complètent, sans reformulation.\n"
+        + (balSans.length ? "Messages sans réponse pour l'instant : " + balSans.map(function (x) { return x.id.replace('balayage-', 'message '); }).join(', ') + ".\n" : "Tous les messages ont une réponse.\n")
+        + "Pour ce scan, en plus : (1) trie chaque information entre quatre cas : déjà dite par nos fiches publiées (rien à faire) ; changée ou plus à jour que notre fiche (MISE À JOUR de cette fiche, avec la preuve) ; devenue fausse ou disparue (RETRAIT ou correction de la fiche) ; sans aucune fiche (NOUVELLE fiche, seulement si aucune fiche publiée ne couvre le sujet, tous rayons confondus) ; (2) dépose, pour chaque message, ses fiches dans fiches-mois-<n>.md (blocs [FICHE] et [RETRAIT], comme pour la veille de la semaine ; <n> est le numéro du message) et, dans balayage.json, les changements officiels datés qui ne méritent pas une fiche ; (3) une information qui n'a qu'une seule source reste « à vérifier » ; (4) dis-moi précisément ce que je dois encore t'apporter (messages sans réponse, articles à ouvrir à la main avec le lien, sites non ouverts).\n\n";
     }
+    var semBloc = blocSemaine();
     return "/veille\nDate : " + dateFr(jourLocal()) + ".\n\n"
       + "Les réponses des assistants sont enregistrées dans " + (_tc.dossier || ('outils/retours/' + jourLocal())) + "/ (ignoré par Git) : lis d'abord _index.md.\n\n"
       + "Réponses utilisables (" + assistants.length + " sur " + _tc.liste.filter(function (x) { return !x.main; }).length + " prompts) :\n"
@@ -13122,10 +13470,10 @@
         + inutilisables.map(function (x) { return '- ' + x.id + ' : ' + x.titre + ' (' + analyserReponse(x.id, _tc.rep[x.id]).motif + ')'; }).join('\n') + "\n\n" : '')
       + (mains.length ? "Textes que j'ai copiés moi-même sur des sites (sans reformulation ; des captures d'écran peuvent s'y ajouter dans la conversation) :\n"
         + mains.map(function (x) { return '- ' + x.id + ' : ' + x.titre + ' (' + x.rubrique + ')'; }).join('\n') + "\n\n" : '')
-      + semBloc
+      + semBloc + balBloc + blocEcartees() + blocPlan(assistants)
       + "Contexte : tu travailles sur l'application APP (application web statique) et sur son outil de veille local (outils/veille.html, que je lance). Les fiches publiées de « Comprendre le cadre » sont des fichiers : modules/comprendre-le-cadre/contenu/<rayon>/<id>.md. C'est la référence : ouvre-les, tu y as accès. Les assistants en ligne n'en voient qu'une partie (les fiches d'un seul rayon) : ils peuvent donc proposer comme « nouveau » un sujet déjà traité, parfois dans un autre rayon.\n\n"
-      + "Avant de déposer la moindre fiche, pour chaque sujet de chaque réponse : (1) cherche dans TOUTES les fiches publiées, tous rayons confondus, et lance node scripts/veilleDoublons.js <fichier-réponse> <rayon> ; (2) ouvre et lis le texte des fiches proches ; (3) tranche, et dis-moi en une ligne par sujet : DÉJÀ COUVERTE (rien à déposer), MISE À JOUR (dépose seulement ce qui change, avec la preuve), COMPLÉMENT (un fait qui manque à une fiche existante : ajoute-le à cette fiche, pas dans une nouvelle) ou NOUVELLE (aucune fiche ne traite le sujet : range-la dans le rayon du sujet). Jamais deux fiches qui disent la même chose : si une nouvelle fiche reprend des passages d'une fiche existante, retire-les d'un des deux côtés et renvoie vers l'autre. Ne dégrade jamais une fiche publiée plus précise ou plus récente que la réponse.\n\n"
-      + "Dépose tes propositions dans " + (_tc.dossier ? _tc.dossier + '/propositions' : 'outils/retours/' + jourLocal() + '/propositions') + "/ (balayage.json, fiches-hebdo.md, fiches-rayon-<rayon>.md, chiffres.md, reseau.md, lexique.md, portrait.md, ue.md) : je les verserai dans les sas ou j'ouvrirai les écrans préremplis depuis l'onglet, puis je validerai une par une.\n\n"
+      + "Pour chaque sujet de chaque réponse, avant de déposer la moindre fiche :\n" + consignesTri(1) + "\n"
+      + "Dépose tes propositions dans " + (_tc.dossier ? _tc.dossier + '/propositions' : 'outils/retours/' + jourLocal() + '/propositions') + "/ (balayage.json, fiches-hebdo.md, fiches-mois-<n>.md, fiches-rayon-<rayon>.md, chiffres.md, reseau.md, lexique.md, portrait.md, ue.md) : je les verserai dans les sas ou j'ouvrirai les écrans préremplis depuis l'onglet, puis je validerai une par une.\n\n"
       + "(Si la commande /veille n'existe pas dans cette session : lis .claude/commands/veille.md et applique-le tel quel.)";
   }
 
@@ -13143,10 +13491,13 @@
       lex.then(function () { rendre(); majCompteur(); chargerPropositions(); });
     };
     if (!AVEC_SERVEUR) { fin(); return; }
+    appelerTc('/api/ecartes/lister', {}).then(function (e) { _tc.ecartees = (e && e.ok) ? e.lignes : []; if ($t('tcMessage').style.display !== 'none') { $t('tcMessage').textContent = fabriquerMessage(); } });
     appelerTc('/api/retours/lister', {}).then(function (r) {
       if (r && r.ok) {
-        _tc.dossier = r.dossier;
-        r.retours.forEach(function (x) { if (x.reponse && x.reponse.trim()) { _tc.rep[x.id] = x.reponse; } });
+        _tc.dossier = r.dossier; _tc.reportees = r.reportees || 0; _tc.meta = {};
+        _tc.rep = {};   // le dossier de l'ordinateur fait foi : une réponse mise de côté ou effacée ne revient pas depuis la mémoire du navigateur
+        r.retours.forEach(function (x) { if (x.reponse && x.reponse.trim()) { _tc.rep[x.id] = x.reponse; _tc.meta[x.id] = x.le; } });
+        ecrireLocal();
       }
       fin();
     });
@@ -13220,6 +13571,17 @@
   setInterval(verifierNotifClaude, 30000);
   setTimeout(verifierNotifClaude, 1500);
   window.tcActualiser = function () { charger(); };
+  window.tcArchiver = function (btn) {
+    var n = _tc.liste.filter(function (x) { return (_tc.rep[x.id] || '').trim(); }).length;
+    if (!AVEC_SERVEUR) { flash(btn, 'Lancez l’outil avec le lanceur'); return; }
+    if (!n) { flash(btn, 'Aucune réponse à mettre de côté'); return; }
+    if (!window.confirm('Mettre de côté les ' + n + ' réponses ? À faire seulement quand Claude a fini de les traiter. Elles sont rangées dans outils/retours/_traitees (rien n’est supprimé) et ne reviennent plus dans cet onglet.')) { return; }
+    appelerTc('/api/retours/archiver', {}).then(function (r) {
+      if (!r || !r.ok) { flash(btn, (r && r.erreur) || 'Impossible de mettre de côté'); return; }
+      _tc.rep = {}; _tc.meta = {}; _tc.etat = {}; ecrireLocal(); rendre(); majCompteur();
+      $t('tcNote').innerHTML = '<div class="note ok"><span>&#9989;</span><span>' + r.archivees + ' réponse' + (r.archivees > 1 ? 's mises' : ' mise') + ' de côté dans ' + echap(r.dossier || 'outils/retours/_traitees') + '. L’onglet repart vide pour la prochaine fois.</span></div>';
+    });
+  };
   window.tcCopierMessage = function (btn) {
     $t('tcMessage').textContent = fabriquerMessage(); $t('tcMessage').style.display = 'block';
     copierTexteSur($t('tcMessage').textContent).then(function (ok) { flash(btn, ok ? 'Message copié : donnez-le à Claude' : 'Copie refusée : sélectionnez le texte ci-dessous'); });
@@ -13245,6 +13607,13 @@
         flash(b, avant ? 'Ajoutée à la suite' : 'Collée');
         sauver(id);
       }, function () { flash(b, 'Faites Ctrl+V dans la case'); });
+    } else if (act === 'claude') {
+      if (!(_tc.rep[id] || '').trim()) { flash(b, 'Ajoutez d’abord au moins une réponse'); return; }
+      copierTexteSur(messageCarte(x)).then(function (ok) { flash(b, ok ? 'Message copié : collez-le dans Claude' : 'Copie refusée : ouvrez « Voir le message » et sélectionnez-le'); });
+    } else if (act === 'reprise') {
+      var dr = x.noms ? balDomainesAReprendre(_tc.rep[id] || '', x.noms) : [];
+      if (!dr.length) { flash(b, 'Tous les domaines sont couverts'); return; }
+      copierTexteSur(balMessageReprise(dr).texte).then(function (ok) { flash(b, ok ? 'Copié : collez-le dans une nouvelle conversation' : 'Copie refusée'); });
     } else if (act === 'relancer') {
       var ar = analyserReponse(id, _tc.rep[id]), mr = messageRelance(id, ar);
       if (!mr) { return; }

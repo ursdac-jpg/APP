@@ -12,7 +12,7 @@ function fn(nom) {
   const fin = [j, k].filter((x) => x > 0).sort((a, b) => a - b)[0];
   return html.slice(i, fin);
 }
-const analyser = new Function(fn('deMd') + '\n' + fn('analyserReponse') +'\nreturn analyserReponse;')();
+const analyser = new Function(['deMd', 'semAvecAjout', 'semEstMain', 'semSections', 'analyserReponse'].map(fn).join('\n') + '\nreturn analyserReponse;')();
 const NL = String.fromCharCode(10);
 const bloc = (nom, corps) => '[' + nom + ']' + NL + corps + NL + '[/' + nom + ']';
 const PREUVE = 'preuve: https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000000000';
@@ -80,8 +80,10 @@ const relance = new Function(fn('messageRelance') + '\nreturn messageRelance;')(
 test('chaque cause donne un message de relance, et une réponse correcte n’en donne pas', () => {
   const refus = analyser('hebdo', 'Je ne peux pas répondre à cette demande.');
   assert.strictEqual(refus.cause, 'refus'); assert.match(relance('hebdo', refus), /pages officielles une par une[\s\S]*\[VEILLE-HEBDO\]/);
-  const sans = analyser('balayage-1', 'Voici un résumé, rien de précis. ' + 'x'.repeat(300));
-  assert.strictEqual(sans.cause, 'bloc'); assert.match(relance('balayage-1', sans), /Il manque \[BALAYAGE\]/);
+  const sans = analyser('rayon-emploi', 'Voici un résumé, rien de précis. ' + 'x'.repeat(300));
+  assert.strictEqual(sans.cause, 'bloc'); assert.match(relance('rayon-emploi', sans), /Il manque \[CONTROLE\]/);
+  // Scan du mois (09/11/2026) : un texte brut est accepté ; sans aucune adresse de source il reste « à vérifier ».
+  assert.strictEqual(analyser('balayage-1', 'Voici un résumé, rien de précis. ' + 'x'.repeat(300)).cause, 'sans-source');
   const coupee = analyser('chiffres', '[CHIFFRES periode: T1]' + NL + 'indicateur: a' + NL + 'valeur: 1');
   assert.strictEqual(coupee.cause, 'coupee'); assert.match(relance('chiffres', coupee), /Continue exactement[\s\S]*\[\/CHIFFRES\]/);
   const nonVerifie = analyser('hebdo', bloc('VEILLE-HEBDO', 'signal: Non vérifié'));

@@ -1559,3 +1559,10 @@
 2026-11-08 23:31 | liens | unedic-duree-indemnisation | ajoutée
 2026-11-08 23:31 | liens | unedic-parametres-avril-2026 | ajoutée
 2026-11-08 23:31 | liens | unedic-ce-qui-change-1er-avril-2025 | ajoutée
+2026-11-09 22:38 | liens | impots-gouv-aide-gnr-agricole | ajoutée
+2026-11-09 22:38 | liens | ameli-mon-soutien-psy | ajoutée
+2026-11-09 22:38 | liens | info-gouv-ce-qui-change-octobre-2026 | ajoutée
+2026-11-09 22:38 | liens | service-public-actu-apl-revalorisation-oct-2026 | ajoutée
+2026-11-09 22:38 | cadre | etranger-titre-de-sejour-et-travail | modifiée | 2026-11-09 : durée et conditions de la carte « talent carte bleue européenne » ajoutées d'après la page Service-Public F16922 (vérifiée le 1er juin 2026, signalée « en cours de mise à jour » après le décret du 26 octobre 2026), page ouverte et relue le 2026-11-09 ; le montant du seuil de rémunération n'est pas recopié, il change chaque année
+2026-11-09 22:38 | cadre | logement-aides-au-logement-caf | modifiée | 2026-11-09 : revalorisation du 1er octobre ajoutée d'après l'actualité Service-Public « L'APL revalorisée au 1er octobre » (publiée le 11 septembre 2026, mise à jour le 30 septembre 2026), ouverte et relue le 2026-11-09
+2026-11-09 22:38 | cadre | sante-puma-c2s-et-medecin-traitant | modifiée | 2026-11-09 : plafond annuel des franchises médicales et des participations forfaitaires relevé au 1er octobre 2026, d'après la page « Ce qui change en octobre 2026 » (info.gouv.fr, modifiée le 21 octobre 2026), ouverte et relue le 2026-11-09

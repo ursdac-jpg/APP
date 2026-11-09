@@ -40712,7 +40712,7 @@ var AIDE_PAGES = {
     { selecteur: '#comprendreLeCadrePourNeRienRater', icone: '<i class="bi bi-hourglass-split"></i>', titre: 'Pour ne rien rater',
       texte: 'Deux pages courtes. « Délais à ne pas rater » liste les démarches à faire avant une date limite, avec un bouton vers la fiche qui explique tout. « Alertes arnaques » décrit les arnaques du moment, comment les reconnaître et où les signaler. Chaque page est datée.' },
     { selecteur: '#comprendreLeCadreOutils', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Ce qui a changé récemment',
-      texte: 'La grande carte en haut ouvre le digest trimestriel des changements officiels (emploi, formation, droits sociaux, séjour), daté et sourcé. Le nombre indique combien de changements il contient. À l’intérieur, touchez un domaine pour voir ses changements, et « Ouvrir la source officielle » pour lire le texte d’origine.' }
+      texte: 'La grande carte en haut ouvre les derniers changements officiels repérés dans tous les rayons (emploi, formation, droits sociaux, logement, santé, séjour), datés et sourcés. Le nombre indique combien de changements il contient. À l’intérieur, touchez un domaine pour voir ses changements, et « Ouvrir la source officielle » pour lire le texte d’origine.' }
   ],
   // TACHE (refonte "Mes documents", derniere tache -- aide contextuelle des
   // ecrans neufs, 2026-09-03) : la route 'preparer-lettre-entretien' sert

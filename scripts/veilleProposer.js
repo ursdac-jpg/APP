@@ -8,10 +8,12 @@
    ============================================================ */
 'use strict';
 const path = require('path');
+const fs = require('fs');
 const racine = path.resolve(__dirname, '..');
 const { creerRetours } = require(path.join(racine, 'outils', 'veilleRetours.js'));
 const { creerDepot } = require(path.join(racine, 'outils', 'veilleDepot.js'));
 const chg = require(path.join(racine, 'outils', 'veilleChangements.js'));
+const E = require(path.join(racine, 'outils', 'veilleEcartes.js'));
 
 const GABARIT = [
   '=== balayage.json : un tableau de changements (un objet par changement, tous les champs en texte) ===',
@@ -20,7 +22,7 @@ const GABARIT = [
     en_vigueur: '2026-11-01', concerne: 'Qui est concerné, en une phrase', ce_qui_change: 'Ce qui change concrètement, en une ou deux phrases', source_titre: 'Journal officiel du 07/10/2026', source_url: 'https://www.legifrance.gouv.fr/...'
   }], null, 2),
   '',
-  '=== fiches-hebdo.md ou fiches-rayon-<rayon>.md : des blocs [FICHE] (mise à jour ou nouvelle) et [RETRAIT] ===',
+  '=== fiches-hebdo.md, fiches-mois-<n>.md (n = numéro du message du scan du mois) ou fiches-rayon-<rayon>.md : des blocs [FICHE] (mise à jour ou nouvelle) et [RETRAIT] ===',
   '[FICHE]', 'id: identifiant-de-la-fiche', 'titre: ...', 'pour_qui: ...', 'tags: [mot, mot]', 'sources:', '  - Nom de la source', 'lexique:', '  - terme = définition', 'ce_qui_change_souvent:', '  - ...', 'texte:', '...', '[/FICHE]',
   '',
   '[RETRAIT]', 'fiche: identifiant-de-la-fiche', 'raison: ...', 'remplace_par: ...', '[/RETRAIT]',
@@ -105,6 +107,14 @@ function controler(jour) {
   const depot = creerDepot(donnees);
   const r = retours.propositions();
   let erreurs = 0;
+  // Historique de ce que Denis a ECARTE (consigne 185) : une proposition identique n'est pas redeposee, sauf demande de Denis.
+  let ecartes = [];
+  try { ecartes = E.parser(fs.readFileSync(path.join(donnees, E.CHEMIN), 'utf8')); } catch (e) { ecartes = []; }
+  const dejaEcarte = function (sorte, cand) {
+    const e = ecartes.length ? E.trouver(ecartes, sorte, cand) : null; if (!e) { return false; }
+    console.log('    ATTENTION : déjà écarté le ' + e.ecarte_le + ' (' + (E.LIBELLES_MOTIFS[e.motif] || 'raison non précisée') + (e.precision ? ' : ' + e.precision : '') + '). Ne pas déposer, sauf demande de Denis : « ' + String(e.titre).slice(0, 80) + ' ».');
+    return true;
+  };
   console.log('Propositions du ' + jour + ' (' + r.dossier + ') : ' + r.propositions.length + ' fichier(s).');
   r.propositions.forEach(function (p) {
     if (p.erreur) { console.log('- ' + p.id + ' : ERREUR : ' + p.erreur); erreurs++; return; }
@@ -113,6 +123,7 @@ function controler(jour) {
       p.lignes.forEach(function (l, i) {
         const pb = chg.verifierChangement(l);
         if (pb.length) { console.log('    ligne ' + (i + 1) + ' (' + (l.intitule || 'sans intitulé').slice(0, 50) + ') : à compléter : ' + pb.join(' ')); erreurs++; }
+        if (dejaEcarte('changement', l)) { erreurs++; }
       });
       return;
     }
@@ -125,6 +136,7 @@ function controler(jour) {
       const q = x.proposition || {};
       console.log('    ' + (q.genre || '?') + ' ' + (q.fiche || q.titre || '') + (x.problemes && x.problemes.length ? ' : à corriger : ' + x.problemes.map(function (z) { return typeof z === 'string' ? z : (z.message || z.texte || JSON.stringify(z)); }).join(' ; ') : ' : ok'));
       if (x.problemes && x.problemes.length) { erreurs++; }
+      if (q.genre !== 'brut' && dejaEcarte('fiche', q)) { erreurs++; }
     });
     (l.notes || []).forEach(function (n) { console.log('    note : ' + n); });
   });

@@ -492,3 +492,7 @@ legifrance-decret-2026-1001-etrangers-travailleurs | https://www.legifrance.gouv
 unedic-duree-indemnisation | https://www.unedic.org/la-reglementation/fiches-thematiques/duree-dindemnisation | 2026-11-08 | national
 unedic-parametres-avril-2026 | https://www.unedic.org/storage/uploads/2026/05/27/unedic_parametres_utiles_avril2026_uid_6a17039e9f727.pdf | 2026-11-08 | national
 unedic-ce-qui-change-1er-avril-2025 | https://www.unedic.org/publications/assurance-chomage-qu-est-ce-qui-change-au-1er-avril | 2026-11-08 | national
+impots-gouv-aide-gnr-agricole | https://www.impots.gouv.fr/aide-pour-les-entreprises-realisant-des-travaux-agricoles-et-forestiers-touchees-par-la-hausse-du | 2026-11-09 | national
+ameli-mon-soutien-psy | https://www.ameli.fr/assure/remboursements/rembourse/remboursement-seance-psychologue-mon-soutien-psy | 2026-11-09 | national
+info-gouv-ce-qui-change-octobre-2026 | https://www.info.gouv.fr/actualite/ce-qui-change-en-octobre-2026 | 2026-11-09 | national
+service-public-actu-apl-revalorisation-oct-2026 | https://www.service-public.gouv.fr/particuliers/actualites/A16807 | 2026-11-09 | national

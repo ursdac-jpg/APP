@@ -13,6 +13,7 @@
 const crypto = require('crypto');
 const ficheChamps = require('./veilleFiche.js');
 const ressemblance = require('./veilleRessemblance.js');
+const ecartes = require('./veilleEcartes.js');
 
 const CHEMIN_SAS = 'outils/sas/fiches.sas.txt';
 const GENRES = ['maj', 'nouv', 'ret', 'brut'];
@@ -303,11 +304,13 @@ function evaluer(rec, ctx) {
 }
 
 // ---------- actions du sas (appliquees par le depot) ----------
-// actions : { op: 'importer', items: [propositions] } | { op: 'retirer', id } | { op: 'pas-doublon', id, fiche, retablir? }
+// actions : { op: 'importer', items: [propositions], forcer? } | { op: 'retirer', id } | { op: 'ecarter', id, motif, precision } | { op: 'retablir', rec } | { op: 'pas-doublon', id, fiche, retablir? }
+// ctx.ecartes : l'historique des ecartees (veilleEcartes.js) ; une proposition deja ecartee n'est pas importee (sauf « forcer »), elle est comptee dans resume.ecartes.
 function appliquer(texteSas, actions, ctx) {
   const fin = finDeLigne(texteSas || '\n'), cx = ctx || {};
   let recs = parserSas(texteSas);
-  const resume = { importes: 0, remplaces: 0, retires: 0 };
+  const resume = { importes: 0, remplaces: 0, retires: 0, ecartes: [] };
+  const sortis = [], touches = [];   // historique des ecartees : ce qui quitte le sas par « ecarter », et les entrees dont une proposition identique vient d'etre ignoree
   for (const act of actions) {
     const a = act || {};
     if (a.op === 'importer') {
@@ -319,6 +322,9 @@ function appliquer(texteSas, actions, ctx) {
         const det = detailsPropres(it.sourcesDetail); if (det.length) { rec.sources_detail = det; }
         if (JSON.stringify(rec).length > 120000) { return { ok: false, erreur: 'Une proposition est trop longue.' }; }
         const i = recs.findIndex(function (x) { return x.id === rec.id; });
+        // Deja ECARTE par la personne : on ne le repropose pas, mais on le DIT (et le compteur de l'historique monte). Une proposition deja au sas est simplement remplacee.
+        const dej = (i < 0 && cx.ecartes && !a.forcer && it.genre !== 'brut') ? ecartes.trouver(cx.ecartes, 'fiche', rec) : null;
+        if (dej) { resume.ecartes.push({ id: dej.id, titre: rec.titre || rec.fiche, ecarte_le: dej.ecarte_le, motif: dej.motif }); touches.push(dej.id); continue; }
         if (i >= 0 && Array.isArray(recs[i].sources_detail)) {
           // La réponse qui remplace une proposition garde les sources déjà complètes (titre, adresse) tant qu'elle les cite encore : rien à ressaisir.
           const cites = (rec.champs && rec.champs.sources) || [], deja = (rec.sources_detail || []).map(function (d) { return d.nom; });
@@ -368,13 +374,26 @@ function appliquer(texteSas, actions, ctx) {
       if (!a.retablir) { liste.push(cible); }
       if (liste.length) { recs[i].pas_doublon = liste; } else { delete recs[i].pas_doublon; }
       resume.remplaces++;
+    } else if (a.op === 'ecarter') {
+      const i = recs.findIndex(function (x) { return x.id === a.id; });
+      if (i < 0) { return { ok: false, erreur: 'Proposition introuvable dans le sas des fiches (« ' + String(a.id).slice(0, 60) + ' »).' }; }
+      const nom = String(recs[i].titre || recs[i].fiche || '').slice(0, 60);
+      if (ecartes.MOTIFS_INFO.indexOf(a.motif) === -1) { return { ok: false, erreur: 'Dites pourquoi vous écartez « ' + nom + ' ».' }; }
+      if (a.motif === 'autre' && !String(a.precision || '').trim()) { return { ok: false, erreur: 'Écrivez votre raison pour « ' + nom + ' ».' }; }
+      sortis.push({ sorte: 'fiche', original: recs[i], motif: a.motif, precision: a.precision || '' });
+      recs.splice(i, 1); resume.retires++;
+    } else if (a.op === 'retablir') {
+      // Une proposition ecartee que la personne remet dans le sas : telle qu'elle etait.
+      const r = a.rec; if (!r || !r.id || GENRES.indexOf(r.genre) === -1) { return { ok: false, erreur: 'Proposition à remettre illisible.' }; }
+      const i = recs.findIndex(function (x) { return x.id === r.id; });
+      if (i >= 0) { recs[i] = r; resume.remplaces++; } else { recs.push(r); resume.importes++; }
     } else if (a.op === 'retirer') {
       const n = recs.length; recs = recs.filter(function (x) { return x.id !== a.id; });
       if (recs.length === n) { return { ok: false, erreur: 'Proposition introuvable dans le sas des fiches (« ' + String(a.id).slice(0, 60) + ' »).' }; }
       resume.retires++;
     } else { return { ok: false, erreur: 'Action inconnue sur le sas des fiches.' }; }
   }
-  return { ok: true, texte: ecrireSas(recs, fin), resume: resume };
+  return { ok: true, texte: ecrireSas(recs, fin), resume: resume, ecarts: { sortis: sortis, touches: touches } };
 }
 
 function lister(texteSas, ctx) {
