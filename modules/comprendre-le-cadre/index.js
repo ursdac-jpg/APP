@@ -124,7 +124,9 @@ var COMPRENDRE_LE_CADRE_POUR_NE_RIEN_RATER = [
     accroche: 'Les arnaques du moment, comment les reconnaître et que faire.' }
 ];
 var COMPRENDRE_LE_CADRE_CHEMIN_DELAIS = 'modules/comprendre-le-cadre/donnees/delais.json';
-var COMPRENDRE_LE_CADRE_CHEMIN_ARNAQUES = 'modules/comprendre-le-cadre/donnees/arnaques.txt';
+// Fiches ajoutées ou mises à jour récemment, générées depuis le journal des modifications (scripts/genererFichesRecentes.js, jamais modifié à la main).
+var COMPRENDRE_LE_CADRE_CHEMIN_FICHES_RECENTES = 'modules/comprendre-le-cadre/donnees/fiches-recentes.json';
+var COMPRENDRE_LE_CADRE_CHEMIN_ARNAQUES ='modules/comprendre-le-cadre/donnees/arnaques.txt';
 var COMPRENDRE_LE_CADRE_ARNAQUES_MAX = 10;
 var COMPRENDRE_LE_CADRE_ARNAQUES_MOIS_MAX = 12;
 // État de lecture des deux fichiers : 'inactif' | 'encours' | 'ok' | 'erreur'.
@@ -1020,10 +1022,34 @@ function _comprendreLeCadreVueRecente(liste, aujourdhui) {
     if (_comprendreLeCadreEstNouveau(c, aujourdhui)) { nbNouveaux++; }
   });
   avenir.sort(function (a, b) { return a.date > b.date ? 1 : (a.date < b.date ? -1 : 0); });
-  var f = String(aujourdhui).split('-');
-  var d = new Date(Date.UTC(+f[0], +f[1] - 1, +f[2]) - COMPRENDRE_LE_CADRE_JOURS_RECENT * 86400000);
-  var depuis = d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
-  return { avenir: avenir, mois: mois, nb: nb, nbNouveaux: nbNouveaux, depuis: depuis };
+  return { avenir: avenir, mois: mois, nb: nb, nbNouveaux: nbNouveaux, depuis: _comprendreLeCadreDateMoinsJours(aujourdhui, COMPRENDRE_LE_CADRE_JOURS_RECENT) };
+}
+
+// 'AAAA-MM-JJ' moins n jours.
+function _comprendreLeCadreDateMoinsJours(iso, n) {
+  var f = String(iso).split('-');
+  var d = new Date(Date.UTC(+f[0], +f[1] - 1, +f[2]) - n * 86400000);
+  return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+}
+
+// Bloc « Dans les fiches » : les fiches ajoutées ou mises à jour depuis 60 jours (fichier généré depuis le journal des modifications), la plus récente d'abord.
+// Une fiche ajoutée dans la période est « nouvelle » (date d'ajout) ; sinon elle est « mise à jour » (date de sa dernière modification).
+function _comprendreLeCadreFichesRecentesVue(fiches, aujourdhui) {
+  var limite = _comprendreLeCadreDateMoinsJours(aujourdhui, COMPRENDRE_LE_CADRE_JOURS_RECENT);
+  return (fiches || []).filter(function (f) { return f && f.date && f.date <= aujourdhui && f.date >= limite; }).map(function (f) {
+    var nouvelle = !!(f.ajoutee && f.ajoutee >= limite && f.ajoutee <= aujourdhui);
+    return { id: f.id, rayon: f.rayon, titre: f.titre, date: nouvelle ? f.ajoutee : f.date, nouvelle: nouvelle };
+  }).sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+}
+
+// Les fiches récentes, lues une fois par session (cache mémoire, jamais persisté). Un échec de lecture donne une liste vide : le bloc n'apparaît pas.
+var _comprendreLeCadreFichesRecentes = null;
+function _comprendreLeCadreChargerFichesRecentes(suite) {
+  if (_comprendreLeCadreFichesRecentes) { suite(); return; }
+  fetch(COMPRENDRE_LE_CADRE_CHEMIN_FICHES_RECENTES).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }).then(function (l) {
+    _comprendreLeCadreFichesRecentes = Array.isArray(l) ? l : [];
+    suite();
+  });
 }
 
 function _comprendreLeCadreTrimestreDe(iso) {
@@ -2472,6 +2498,28 @@ function _comprendreLeCadreBoutonToutDeplier() {
     '<i class="bi bi-arrows-expand"></i> Tout déplier</button>';
 }
 
+// Bloc « Dans les fiches » de la vue « Récemment » : une carte par fiche ajoutée ou mise à jour, avec un bouton pour l'ouvrir. Rien si aucune fiche.
+// La marque verte « Nouveau cette semaine » reste réservée aux changements officiels qui viennent de sortir : ici, « Nouvelle fiche » ou « Fiche mise à jour » avec la date.
+function _comprendreLeCadreRenduFichesRecentes(fiches, depuis) {
+  if (!fiches.length) { return ''; }
+  var nb = fiches.length;
+  return '<h2 class="comprendre-le-cadre-chg-groupe">Dans les fiches <span class="comprendre-le-cadre-chg-groupe-nb">(' + nb + ')</span></h2>' +
+    '<p class="small text-muted mb-2">Les fiches des rayons ajoutées ou mises à jour depuis le ' + _comprendreLeCadreDateFr(depuis) + '. Le détail se lit dans la fiche.</p>' +
+    fiches.map(function (f) {
+      var rayon = (RAYON_LABEL[f.rayon] || {}).titre || f.rayon;
+      return '<div class="comprendre-le-cadre-fiche-recente">' +
+        '<span class="comprendre-le-cadre-chg-pastilles">' +
+          '<span class="comprendre-le-cadre-pastille' + (f.nouvelle ? ' comprendre-le-cadre-pastille--v' : '') + '">' + (f.nouvelle ? 'Nouvelle fiche' : 'Fiche mise à jour') + '</span>' +
+          '<span class="comprendre-le-cadre-pastille">' + (f.nouvelle ? 'Ajoutée le ' : 'Mise à jour le ') + _comprendreLeCadreDateFr(f.date) + '</span>' +
+          '<span class="comprendre-le-cadre-pastille">' + rayon + '</span>' +
+        '</span>' +
+        '<span class="comprendre-le-cadre-chg-titre">' + f.titre + '</span>' +
+        '<button type="button" class="btn btn-outline-primary btn-sm mt-2" data-comprendre-le-cadre-fiche-recente="' + f.id + '" data-comprendre-le-cadre-fiche-recente-rayon="' + f.rayon + '">' +
+          '<i class="bi bi-journal-text"></i> Ouvrir la fiche</button>' +
+      '</div>';
+    }).join('');
+}
+
 // Vue « Récemment » : résumé (nombre, nouveautés de la semaine, date de mise à jour calculée), puis « À venir », puis les mois, du plus récent au plus ancien.
 function _comprendreLeCadreRenduVueRecente(liste, aujourdhui) {
   var v = _comprendreLeCadreVueRecente(liste, aujourdhui);
@@ -2494,6 +2542,7 @@ function _comprendreLeCadreRenduVueRecente(liste, aujourdhui) {
     html += '<h2 class="comprendre-le-cadre-chg-groupe">' + nom.charAt(0).toUpperCase() + nom.slice(1) + ' ' + m.cle.slice(0, 4) + ' <span class="comprendre-le-cadre-chg-groupe-nb">(' + m.items.length + ')</span></h2>' +
       m.items.map(function (c) { return _comprendreLeCadreRenduCarteChangement(c, aujourdhui); }).join('');
   });
+  html += _comprendreLeCadreRenduFichesRecentes(_comprendreLeCadreFichesRecentesVue(_comprendreLeCadreFichesRecentes, aujourdhui), v.depuis);
   html += '<p class="mt-4"><button type="button" class="btn btn-outline-primary" data-comprendre-le-cadre-digest-vue="trimestre"><i class="bi bi-calendar3"></i> Voir les changements trimestre par trimestre</button></p>';
   return html;
 }
@@ -2976,6 +3025,11 @@ function _comprendreLeCadreBrancherDigest() {
       window.scrollTo(0, 0);
     });
   });
+  document.querySelectorAll('[data-comprendre-le-cadre-fiche-recente]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      comprendreLeCadreOuvrirFiche(this.dataset.comprendreLeCadreFicheRecenteRayon, this.dataset.comprendreLeCadreFicheRecente);
+    });
+  });
   document.querySelectorAll('[data-comprendre-le-cadre-digest-trimestre]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       _comprendreLeCadreEtat.digestVue = 'trimestre';
@@ -3000,7 +3054,7 @@ function _comprendreLeCadreOuvrirDigest(dossier) {
     _comprendreLeCadreEtat.digests = _comprendreLeCadreDigestAccueil;
     _comprendreLeCadreEtat.digestVue = 'recent';
     _comprendreLeCadreEtat.digestTrimestre = null;
-    pageComprendreLeCadre();
+    _comprendreLeCadreChargerFichesRecentes(function () { pageComprendreLeCadre(); });
     return;
   }
   _comprendreLeCadreAfficherTransitoire(
@@ -3010,7 +3064,7 @@ function _comprendreLeCadreOuvrirDigest(dossier) {
     _comprendreLeCadreEtat.digests = digests;
     _comprendreLeCadreEtat.digestVue = 'recent';
     _comprendreLeCadreEtat.digestTrimestre = null;
-    pageComprendreLeCadre();
+    _comprendreLeCadreChargerFichesRecentes(function () { pageComprendreLeCadre(); });
   }, function () {
     _comprendreLeCadreAfficherTransitoire(_comprendreLeCadreRenduDigestAbsent(), onRetourDigest, 'accueil');
   });
@@ -3246,6 +3300,8 @@ if (typeof module !== 'undefined') {
     _comprendreLeCadreParserDigest: _comprendreLeCadreParserDigest,
     _comprendreLeCadreDateChangement: _comprendreLeCadreDateChangement,
     _comprendreLeCadreAplatirChangements: _comprendreLeCadreAplatirChangements,
+    _comprendreLeCadreFichesRecentesVue: _comprendreLeCadreFichesRecentesVue,
+    _comprendreLeCadreDateMoinsJours: _comprendreLeCadreDateMoinsJours,
     _comprendreLeCadreEstNouveau: _comprendreLeCadreEstNouveau,
     _comprendreLeCadreDatesDuTexte: _comprendreLeCadreDatesDuTexte,
     _comprendreLeCadreVueRecente: _comprendreLeCadreVueRecente,

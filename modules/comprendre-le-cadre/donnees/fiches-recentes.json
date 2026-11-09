@@ -1,0 +1,51 @@
+[
+ {
+  "id": "agriculture-aide-gnr-travaux-agricoles-forestiers",
+  "rayon": "agriculture",
+  "titre": "Entreprise agricole ou forestière : l'aide pour le gazole non routier (GNR)",
+  "date": "2026-11-09",
+  "ajoutee": "2026-11-09"
+ },
+ {
+  "id": "etranger-titre-de-sejour-et-travail",
+  "rayon": "etranger",
+  "titre": "Mon titre de séjour me permet-il de travailler ?",
+  "date": "2026-11-09",
+  "ajoutee": ""
+ },
+ {
+  "id": "logement-aides-au-logement-caf",
+  "rayon": "logement",
+  "titre": "Les aides au logement de la CAF (APL, ALF, ALS) : qui y a droit ?",
+  "date": "2026-11-09",
+  "ajoutee": ""
+ },
+ {
+  "id": "sante-mon-soutien-psy-seances-psychologue",
+  "rayon": "sante",
+  "titre": "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »",
+  "date": "2026-11-09",
+  "ajoutee": "2026-11-09"
+ },
+ {
+  "id": "sante-puma-c2s-et-medecin-traitant",
+  "rayon": "sante",
+  "titre": "Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant",
+  "date": "2026-11-09",
+  "ajoutee": ""
+ },
+ {
+  "id": "budget-ass-reprise-d-activite-que-devient-mon-allocation",
+  "rayon": "budget",
+  "titre": "Je touche l'ASS et je reprends un travail : que devient mon allocation ?",
+  "date": "2026-11-08",
+  "ajoutee": ""
+ },
+ {
+  "id": "handicap-aah-et-travail",
+  "rayon": "handicap",
+  "titre": "L'allocation aux adultes handicapés (AAH) et le travail",
+  "date": "2026-11-08",
+  "ajoutee": ""
+ }
+]

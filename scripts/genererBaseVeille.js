@@ -43,5 +43,8 @@ console.log('outils/base_fiches.js ecrit : ' + fiches.length + ' fiches, ' + Mat
 // Les « Délais à ne pas rater » viennent des mêmes fiches : leur fichier généré se met à jour avec la base de l'outil de veille.
 try { console.log(require('./genererDelais').ecrire() + ' délais mis à jour.'); } catch (e) { console.error('Délais non mis à jour : ' + e.message); process.exitCode = 1; }
 
+// Les fiches ajoutées ou mises à jour récemment (bloc « Dans les fiches » de « Ce qui a changé récemment ») viennent du journal des modifications : leur fichier se met à jour ici aussi.
+try { console.log(require('./genererFichesRecentes').ecrire() + ' fiches récentes mises à jour.'); } catch (e) { console.error('Fiches récentes non mises à jour : ' + e.message); process.exitCode = 1; }
+
 // L'index des fiches lu par la barre de recherche de l'accueil (consigne 101) se met aussi à jour ici.
 try { require('child_process').execFileSync(process.execPath, [require('path').join(__dirname, 'genererIndexFichesCadre.js')], { stdio: 'inherit' }); } catch (e) { console.error('Index de la recherche non mis à jour : ' + e.message); process.exitCode = 1; }

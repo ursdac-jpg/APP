@@ -7566,6 +7566,8 @@
       var btn = document.querySelector('.comprendre-le-cadre-chg a.comprendre-le-cadre-digest-btn-source');
       cas('digest : la source est un vrai bouton vers le texte officiel (nouvel onglet)', !!btn && /^https?:/.test(btn.getAttribute('href')) && btn.target === '_blank' && /Ouvrir la source officielle/.test(btn.textContent));
       cas('digest : la nature et les dates sont en pastilles', document.querySelectorAll('.comprendre-le-cadre-pastille').length >= cartes);
+      var fichesRecentes = document.querySelectorAll('.comprendre-le-cadre-fiche-recente');
+      cas('digest : le bloc « Dans les fiches » liste les fiches ajoutées ou mises à jour, chacune avec un bouton pour l’ouvrir', fichesRecentes.length > 0 && [].slice.call(fichesRecentes).every(function (f) { return /Nouvelle fiche|Fiche mise à jour/.test(f.textContent) && !!f.querySelector('[data-comprendre-le-cadre-fiche-recente]') && !/Nouveau cette semaine/.test(f.textContent); }), fichesRecentes.length);
       var sources = document.querySelectorAll('.comprendre-le-cadre-digest-liste-sources li');
       cas('digest : la liste « Toutes les sources consultées » affiche les sources avec leur date de contrôle', sources.length > 5 && /vérifiée le/.test(sources[0].textContent), sources.length);
       var texteDigest = [].slice.call(document.querySelectorAll('.comprendre-le-cadre-chg')).map(function (e) { return e.textContent; }).join(' ');

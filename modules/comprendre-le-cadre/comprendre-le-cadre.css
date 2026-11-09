@@ -630,7 +630,8 @@ button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signa
 .comprendre-le-cadre-chg-groupe--avenir { color: var(--warning-strong); }
 .comprendre-le-cadre-chg-groupe-nb { font-weight: 400; }
 
-.comprendre-le-cadre-chg {
+.comprendre-le-cadre-chg,
+.comprendre-le-cadre-fiche-recente {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-left: 5px solid var(--accent);
@@ -687,3 +688,6 @@ button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signa
   cursor: pointer;
 }
 .comprendre-le-cadre-chg-trim--actif { border: 2px solid var(--accent); color: var(--accent); font-weight: 700; }
+
+/* Bloc « Dans les fiches » : une carte fixe (pas repliable) par fiche ajoutée ou mise à jour. */
+.comprendre-le-cadre-fiche-recente { padding: .7rem 1rem .8rem; }

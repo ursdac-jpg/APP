@@ -76,7 +76,7 @@ const RAYONS_HORS_FICHES = ['balayage', 'methode'];
 const DOSSIER_CADRE = ['modules', 'comprendre-le-cadre', 'contenu'];
 const DOSSIER_CHIFFRES = ['modules', 'comprendre-les-chiffres', 'contenu'];
 // Tous les fichiers que « genererBaseVeille.js » réécrit : sauvegardés avant, remis en cas d'échec, enregistrés avec la publication (leçon 9.122 : l'index de la recherche et les délais manquaient, un échec les laissait modifiés).
-const FICHIERS_GENERES = [['outils', 'base_fiches.js'], ['data', 'lexique-renvois-cadre.js'], ['data', 'indexFichesCadre.js'], ['modules', 'comprendre-le-cadre', 'donnees', 'delais.json']];
+const FICHIERS_GENERES = [['outils', 'base_fiches.js'], ['data', 'lexique-renvois-cadre.js'], ['data', 'indexFichesCadre.js'], ['modules', 'comprendre-le-cadre', 'donnees', 'delais.json'], ['modules', 'comprendre-le-cadre', 'donnees', 'fiches-recentes.json']];
 
 // Lance une commande avec des arguments fixes (jamais un shell). Rend { code, sortie }.
 function lancerCommande(racine, programme, args, options) {
