@@ -693,9 +693,11 @@ function creerDepot(racine, options) {
       }
       if (v.type === 'fiches-sas') {
         const courantFS = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
-        const rFS = fichesSas.appliquer(courantFS, v.actions, { aujourdhui: aujourdhui(), ecartes: ecartesCourants() });
+        let cxFS = null;   // le contexte de lecture des fiches, construit une seule fois : il sert à refuser les propositions déjà prises en compte (jamais de doublon dans le sas)
+        const rFS = fichesSas.appliquer(courantFS, v.actions, { aujourdhui: aujourdhui(), ecartes: ecartesCourants(), contexteEvaluation: function () { if (!cxFS) { cxFS = contexteFichesSas(''); } return cxFS; } });
         if (!rFS.ok) { return { ok: false, code: 'fiches-sas', erreur: rFS.erreur }; }
         noterEcarts(rFS.ecarts);
+        if (rFS.texte === courantFS && (rFS.resume.dejaPrises || []).length && !(rFS.resume.ecartes || []).length) { return { ok: false, code: 'fiches-sas-deja', erreur: 'Rien à verser : ' + rFS.resume.dejaPrises.length + ' proposition' + (rFS.resume.dejaPrises.length > 1 ? 's sont déjà prises en compte' : ' est déjà prise en compte') + ' (' + rFS.resume.dejaPrises.map(function (d) { return d.raison; }).filter(function (x, i, t) { return t.indexOf(x) === i; }).join(', ') + '). Le sas n’en reçoit pas pour ne pas créer de doublon.' }; }
         if (rFS.texte === courantFS && !(rFS.resume.ecartes || []).length) { return { ok: false, code: 'fiches-sas-rien', erreur: 'Ces modifications ne changent rien au sas des fiches.' }; }
         prevus[v.chemin] = Buffer.from(rFS.texte, 'utf8'); resumeFichesSas = rFS.resume;
         continue;
@@ -753,6 +755,7 @@ function creerDepot(racine, options) {
           digest: function (mois) { return (lireOuNull(path.resolve(racine, chg.DOSSIER_DIGESTS, mois + '.md')) || Buffer.from('')).toString('utf8'); }
         });
         if (!r.ok) { return { ok: false, code: 'changements', erreur: r.erreur }; }
+        if (r.texteSas === courantC && !Object.keys(r.digests).length && !(r.resume.ecartes || []).length && (r.resume.dejaPublies || []).length) { return { ok: false, code: 'changements-deja', erreur: 'Rien à verser : ' + r.resume.dejaPublies.length + ' changement' + (r.resume.dejaPublies.length > 1 ? 's sont déjà publiés' : ' est déjà publié') + ' à l’identique dans « Ce qui a changé récemment ». Le sas n’en reçoit pas pour ne pas créer de doublon.' }; }
         if (r.texteSas === courantC && !Object.keys(r.digests).length && !(r.resume.ecartes || []).length) { return { ok: false, code: 'changements-rien', erreur: 'Ces modifications ne changent rien au sas des changements.' }; }
         noterEcarts(r.ecarts);
         prevus[v.chemin] = Buffer.from(r.texteSas, 'utf8');

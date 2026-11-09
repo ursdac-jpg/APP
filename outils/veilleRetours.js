@@ -145,6 +145,19 @@ function creerRetours(racine, opt) {
     return { ok: true, jour: jour, dossier: 'outils/retours/' + jour, retours: l, reportees: reportees };
   }
 
+  // Les titres des changements déjà publiés dans les fichiers du balayage de « Comprendre le cadre » (lignes « ### Titre »), pour ne pas proposer de verser ce qui y est déjà
+  // (essai de Denis, 09/11/2026 : 8 changements versés dans le sas alors qu'ils étaient publiés depuis le matin, donc des doublons). Correspondance exacte du titre, rien d'approximatif.
+  function normaliserTitre(s) { return String(s || '').replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase(); }
+  function titresDuBalayage() {
+    const d = path.join(racine, 'modules', 'comprendre-le-cadre', 'contenu', 'balayage'), s = {};
+    try {
+      fs.readdirSync(d).filter(function (n) { return /^\d{4}-\d{2}\.md$/.test(n); }).forEach(function (n) {
+        fs.readFileSync(path.join(d, n), 'utf8').replace(/\r\n/g, '\n').split('\n').forEach(function (l) { const m = /^###\s+(.+?)\s*$/.exec(l); if (m) { s[normaliserTitre(m[1])] = true; } });
+      });
+    } catch (e) { /* pas de dossier : rien n'est déjà publié */ }
+    return s;
+  }
+
   // Ce que Claude a préparé aujourd'hui, en LECTURE SEULE : balayage.json (lignes du sas des changements), fiches-<cible>.md (blocs [FICHE] et [RETRAIT],
   // lus ensuite par le lecteur existant du sas des fiches) et chiffres.md / reseau.md / lexique.md (texte à mettre dans l'écran existant, type « ecran »). Rien n'est écrit ici ; le versement passe par les routes qui existent déjà.
   function propositions() {
@@ -164,7 +177,8 @@ function creerRetours(racine, opt) {
             const lignes = liste.slice(0, LIGNES_PROPOSITION_MAX).filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
               const v = {}; COLONNES_CHANGEMENT.forEach(function (k) { v[k] = typeof x[k] === 'string' ? x[k].slice(0, 2000) : ''; }); return v;
             });
-            sortie.push({ id: id, type: 'changements', lignes: lignes });
+            const publies = titresDuBalayage(), nouvelles = lignes.filter(function (x) { return !publies[normaliserTitre(x.intitule)]; });
+            sortie.push({ id: id, type: 'changements', lignes: nouvelles, deja: lignes.length - nouvelles.length });
           } catch (e) { sortie.push({ id: id, type: 'changements', erreur: 'Fichier de propositions illisible (' + (e && e.message) + ').' }); }
         } else { sortie.push({ id: id, type: typeDeProposition(n), texte: t }); }
       });

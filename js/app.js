@@ -3659,6 +3659,9 @@ function naviguerVers(route, sansHistorique) {
   // positionne juste sous elle (voir _reperesPositionnerBoutonJournal(),
   // modules/reperes/index.js) : l'ordre inverse relisait un #btnCarnet
   // pas encore repositionne pour la page courante.
+  // Consigne 187 : sur petit ecran, un message (une seule fois par visite) dit qu'on peut agrandir le texte ou changer la police. Il pousse le titre vers le bas :
+  // il doit donc etre en place AVANT le positionnement des icones du Carnet, du Journal et du panier, qui se calent sur le titre reel de la page.
+  if (route === 'cv' && typeof afficherMessageAffichage === 'function') { afficherMessageAffichage(); }
   if (typeof carnetApresNavigation === 'function') { carnetApresNavigation(); }
   // TACHE (regard critique final, "positionnement du bouton Journal de
   // parcours") : même patron, appelée à chaque navigation pour

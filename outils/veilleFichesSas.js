@@ -28,7 +28,17 @@ const CLES_BLOC = ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'verifie_le
 
 function finDeLigne(t) { return String(t).indexOf('\r\n') !== -1 ? '\r\n' : '\n'; }
 function nettoyer(s) { return String(s === undefined || s === null ? '' : s).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); }
-function retirerGuillemets(s) { return String(s || '').trim().replace(/^[«"'\s]+|[»"'\s]+$/g, '').trim(); }
+// N'enlève des guillemets que s'ils ENTOURENT toute la valeur (« un titre », "un titre") ; un titre qui finit par un mot entre guillemets (... le dispositif « Mon soutien psy ») les garde
+// (09/11/2026 : l'ancienne version coupait le » final de ce titre, et la fiche publiée est restée tronquée jusqu'à ce qu'on la corrige à la main).
+function retirerGuillemets(s) {
+  let t = String(s || '').trim();
+  for (;;) {
+    const f = t.charAt(t.length - 1), o = t.charAt(0), inter = t.slice(1, -1);
+    const entoure = t.length >= 2 && ((o === '«' && f === '»' && inter.indexOf('«') === -1 && inter.indexOf('»') === -1) || ((o === '"' || o === '\'') && f === o && inter.indexOf(o) === -1));
+    if (!entoure) { return t; }
+    t = inter.trim();
+  }
+}
 function slug(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -213,6 +223,18 @@ function problemesDePhrase(phrase, exigee, pb) {
   if (phrase.length > 500) { pb.push('La phrase générale est trop longue : ' + phrase.length + ' caractères (500 au plus).'); }
   if (/[<>&]/.test(phrase)) { pb.push('La phrase générale ne peut pas contenir « < », « > » ni « & ».'); }
 }
+const MESSAGE_RIEN_A_CHANGER = 'Cette proposition ne change rien à la fiche actuelle.';
+// GARDE ANTI-DOUBLON (Denis, 09/11/2026 : 5 fiches déjà écrites avaient été versées dans le sas, « ne change rien à la fiche actuelle ») : une proposition qui n'apporte rien n'entre JAMAIS dans le sas.
+// Rend la raison (texte simple) si la proposition est déjà prise en compte, sinon ''. Sans contexte de lecture des fiches, on ne devine rien : ''.
+function dejaPriseEnCompte(rec, cx) {
+  if (!rec || !cx || typeof cx.trouverFiche !== 'function' || rec.genre === 'brut') { return ''; }
+  const existante = cx.trouverFiche(rec.fiche);
+  if (rec.genre === 'nouv') { return existante ? 'cette fiche existe déjà' : ''; }
+  if (!existante) { return ''; }
+  const pb = evaluer(rec, cx).problemes;
+  if (rec.genre === 'ret') { return pb.indexOf('Cette fiche est déjà retirée.') !== -1 ? 'cette fiche est déjà retirée' : ''; }
+  return pb.indexOf(MESSAGE_RIEN_A_CHANGER) !== -1 ? 'la fiche est déjà à jour' : '';
+}
 function evaluer(rec, ctx) {
   const cx = ctx || {}, pb = [], c = rec.champs || {};
   const sortie = { problemes: pb, exigeRevision: false, demande: null, champsChanges: [], corps: null, sources: [], sourcesAAjouter: [], ressemble: [] };
@@ -291,7 +313,7 @@ function evaluer(rec, ctx) {
     sortie.phrase = { valeur: phraseFinale, exigee: ficheChamps.aChiffres(corpsFinal) };
     problemesDePhrase(phraseFinale, sortie.phrase.exigee, pb);
   }
-  if (!Object.keys(ch).length) { pb.push('Cette proposition ne change rien à la fiche actuelle.'); return sortie; }
+  if (!Object.keys(ch).length) { pb.push(MESSAGE_RIEN_A_CHANGER); return sortie; }
   const clM = sourcesAClasser((ch.sources || []).filter(function (s) { return (actuels.sources || []).indexOf(s) === -1; }), rec, cx);
   sortie.sourcesAAjouter = clM.aAjouter; problemesDeSources(clM, pb);
   // Le contrôle de la fiche connaît déjà ces sources (ajoutées au registre en même temps, ou signalées plus haut) : pas de second message.
@@ -309,7 +331,7 @@ function evaluer(rec, ctx) {
 function appliquer(texteSas, actions, ctx) {
   const fin = finDeLigne(texteSas || '\n'), cx = ctx || {};
   let recs = parserSas(texteSas);
-  const resume = { importes: 0, remplaces: 0, retires: 0, ecartes: [] };
+  const resume = { importes: 0, remplaces: 0, retires: 0, ecartes: [], dejaPrises: [] };
   const sortis = [], touches = [];   // historique des ecartees : ce qui quitte le sas par « ecarter », et les entrees dont une proposition identique vient d'etre ignoree
   for (const act of actions) {
     const a = act || {};
@@ -322,6 +344,9 @@ function appliquer(texteSas, actions, ctx) {
         const det = detailsPropres(it.sourcesDetail); if (det.length) { rec.sources_detail = det; }
         if (JSON.stringify(rec).length > 120000) { return { ok: false, erreur: 'Une proposition est trop longue.' }; }
         const i = recs.findIndex(function (x) { return x.id === rec.id; });
+        // Deja prise en compte (fiche deja a jour, deja existante ou deja retiree) : jamais rangee dans le sas, on le DIT (sauf « forcer »).
+        const dpc = (!a.forcer && typeof cx.contexteEvaluation === 'function') ? dejaPriseEnCompte(rec, cx.contexteEvaluation()) : '';
+        if (dpc) { resume.dejaPrises.push({ fiche: rec.fiche, titre: rec.titre || rec.fiche, raison: dpc }); continue; }
         // Deja ECARTE par la personne : on ne le repropose pas, mais on le DIT (et le compteur de l'historique monte). Une proposition deja au sas est simplement remplacee.
         const dej = (i < 0 && cx.ecartes && !a.forcer && it.genre !== 'brut') ? ecartes.trouver(cx.ecartes, 'fiche', rec) : null;
         if (dej) { resume.ecartes.push({ id: dej.id, titre: rec.titre || rec.fiche, ecarte_le: dej.ecarte_le, motif: dej.motif }); touches.push(dej.id); continue; }
@@ -440,5 +465,5 @@ function empreinteProposition(r) { return empreinte(JSON.stringify([r.genre, r.f
 
 module.exports = {
   empreinteProposition: empreinteProposition, CHEMIN_SAS: CHEMIN_SAS, GENRES: GENRES, EN_TETE: EN_TETE, LIBELLES: LIBELLES, parserSas: parserSas, ecrireSas: ecrireSas, lireBloc: lireBloc, lireReponse: lireReponse,
-  evaluer: evaluer, appliquer: appliquer, lister: lister, lireBlocSources: lireBlocSources, construirePrompt: construirePrompt, construireFicheNouvelle: construireFicheNouvelle, idDe: idDe, slug: slug
+  evaluer: evaluer, dejaPriseEnCompte: dejaPriseEnCompte, MESSAGE_RIEN_A_CHANGER: MESSAGE_RIEN_A_CHANGER, appliquer: appliquer, lister: lister, lireBlocSources: lireBlocSources, construirePrompt: construirePrompt, construireFicheNouvelle: construireFicheNouvelle, idDe: idDe, slug: slug
 };

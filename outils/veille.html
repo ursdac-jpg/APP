@@ -184,6 +184,10 @@
   .btn-claude { position:fixed; top:.6rem; left:.6rem; font-size:.8rem; z-index:30; }
   /* Orange tant que Claude a déposé des propositions qui n'ont pas encore été versées dans les sas ; sinon le bouton reste tel quel. */
   .btn.btn-claude.a-notif { background:var(--notif); border-color:var(--notif); color:var(--notif-texte); font-weight:700; }
+  /* Quand il y a vraiment quelque chose à verser, le bouton orange du haut et les boutons « Verser » des cartes pulsent doucement pour qu'on les voie (demande de Denis, 09/11/2026). Aucun mouvement si le système demande moins d'animations. */
+  @keyframes tc-pulse { 0% { box-shadow:0 0 0 0 rgba(217,119,6,.65); } 70% { box-shadow:0 0 0 .7rem rgba(217,119,6,0); } 100% { box-shadow:0 0 0 0 rgba(217,119,6,0); } }
+  .btn.btn-claude.a-notif, .btn[data-tp-verser]:not([disabled]) { animation:tc-pulse 1.8s ease-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .btn.btn-claude.a-notif, .btn[data-tp-verser]:not([disabled]) { animation:none; } }
   .btn-claude .notif-nb { display:inline-block; min-width:1.4rem; margin-left:.45rem; padding:0 .4rem; border-radius:999px; background:var(--notif-texte); color:var(--notif); font-weight:800; text-align:center; }
   /* Bouton « Sas à valider » sous celui de Claude : neutre quand le sas est vide, violet avec le nombre de propositions quand il en reste (violet, pour ne pas le confondre avec l'orange de Claude). */
   .btn-sas { position:fixed; top:3.1rem; left:.6rem; font-size:.8rem; z-index:30; }
@@ -13095,6 +13099,9 @@
     return out;
   }
   function noterVersee(pid, n) { var o = lireMemoireVersees(); o.ids = o.ids || {}; o.sigs = o.sigs || {}; o.ids[pid] = n; o.sigs[pid] = _tc.prop && _tc.prop[pid] ? _tc.prop[pid].sig : ''; try { localStorage.setItem(CLE_VERSEES, JSON.stringify({ jour: jourLocal(), ids: o.ids, sigs: o.sigs })); } catch (e) { /* tant pis */ } }
+  function itemDejaPrisEnCompte(x) {
+    return !!(x && x.problemes && x.problemes.some(function (q) { return /ne change rien à la fiche actuelle/.test(typeof q === 'string' ? q : ((q && (q.message || q.texte)) || '')); }));
+  }
   function chargerPropositions() {
     if (!AVEC_SERVEUR) { _tc.prop = {}; rendrePropositions(); return Promise.resolve(); }
     return appelerTc('/api/propositions/lister', {}).then(function (r) {
@@ -13105,11 +13112,16 @@
         var e = { id: p.id, type: p.type, erreur: p.erreur || '', items: [], notes: [], coche: [], sig: signatureProp(p.texte || (p.lignes ? JSON.stringify(p.lignes) : '') || p.erreur) };
         _tc.prop[p.id] = e;
         if (p.erreur) { return; }
-        if (p.type === 'changements') { e.items = p.lignes || []; }
+        if (p.type === 'changements') { e.items = p.lignes || []; e.deja = p.deja || 0; }   // « deja » : changements déjà publiés dans le balayage, retirés par le serveur
         else if (p.type === 'ecran') { var rs = resumeEcran(p.id, p.texte || ''); e.texte = p.texte || ''; e.items = rs.labels; e.notes = rs.notes; }
         else if (window.fcAPI) {
           attente.push(window.fcAPI.lire(p.texte, rayonDeProp(p.id), '').then(function (l) {
-            if (l && l.ok) { e.items = l.items || []; e.notes = l.notes || []; } else { e.erreur = (l && l.erreur) || 'Texte illisible.'; }
+            if (l && l.ok) {
+              // Une proposition qui « ne change rien à la fiche actuelle » est déjà prise en compte (fiche écrite directement) : ni comptée, ni à verser (essai de Denis, 09/11/2026 : 5 doublons dans le sas).
+              var tous = l.items || [];
+              e.items = tous.filter(function (x) { return !itemDejaPrisEnCompte(x); });
+              e.deja = tous.length - e.items.length; e.notes = l.notes || [];
+            } else { e.erreur = (l && l.erreur) || 'Texte illisible.'; }
           }));
         } else { e.erreur = 'Lancez l\u2019outil avec le lanceur pour lire ces propositions.'; }
       });
@@ -13221,7 +13233,7 @@
     }
     if (e.erreur) { return '<h3>Propositions de Claude</h3><div class="note warn"><span>&#9888;&#65039;</span><span>' + echap(e.erreur) + '</span></div>'; }
     if (!e.items.length) {
-      return '<h3>Propositions de Claude</h3><p class="sous-titre" style="margin:0">Claude n\u2019a rien à verser pour cette carte.</p>'
+      return '<h3>Propositions de Claude</h3><p class="sous-titre" style="margin:0">' + (e.deja ? '<strong>Déjà pris en compte : ' + e.deja + ' proposition' + (e.deja > 1 ? 's' : '') + '.</strong> Rien n\u2019est à verser pour cette carte (' + (e.type === 'changements' ? 'ces changements sont déjà publiés dans « Ce qui a changé récemment »' : 'ces fiches sont déjà à jour') + ').' : 'Claude n\u2019a rien à verser pour cette carte.') + '</p>'
         + (e.notes || []).map(function (t) { return '<div class="note"><span>&#8505;&#65039;</span><span>' + echap(t) + '</span></div>'; }).join('');
     }
     var n = e.coche.filter(Boolean).length, h = '<h3>Propositions de Claude : ' + e.items.length + '</h3>'

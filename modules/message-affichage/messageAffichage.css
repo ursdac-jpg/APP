@@ -1,0 +1,8 @@
+/* Message « Envie de lire plus confortablement ? » (consigne 187). Couleurs : uniquement des variables de l'application, donc le mode sombre est déjà couvert. */
+.message-affichage { position: relative; background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 1rem; padding: .9rem 3rem .9rem 1rem; margin: 0 0 1rem; color: var(--text-strong); }
+.message-affichage p { margin: 0 0 .5rem; max-width: none; }
+.message-affichage .message-affichage-titre { font-size: 1.05rem; text-wrap: balance; }
+.message-affichage .message-affichage-texte { font-size: .95rem; line-height: 1.5; }
+.message-affichage .message-affichage-bouton { min-height: 44px; }
+.message-affichage .message-affichage-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+@media print { .message-affichage { display: none; } }

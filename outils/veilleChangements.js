@@ -223,7 +223,7 @@ function changementsDuDigest(texteDigest, mois) {
 function appliquer(texteSas, actions, ctx) {
   const fin = finDeLigne(texteSas || '\n');
   let lignes = parserSas(texteSas);
-  const digests = {}; const resume = { importes: 0, ignores: 0, valides: 0, remplaces: 0, retires: 0, ecartes: [] };
+  const digests = {}; const resume = { importes: 0, ignores: 0, valides: 0, remplaces: 0, retires: 0, ecartes: [], dejaPublies: [] };
   const sortis = [], touches = [];   // historique des ecartees : ce qui quitte le sas par « ecarter », et les entrees dont une proposition identique vient d'etre ignoree
   const lireDigest = function (mois) { return Object.prototype.hasOwnProperty.call(digests, mois) ? digests[mois] : ctx.digest(mois); };
   for (let a = 0; a < actions.length; a++) {
@@ -237,6 +237,8 @@ function appliquer(texteSas, actions, ctx) {
         if (!RE_MOIS.test(v.mois) || !v.intitule || !v.domaine) { return { ok: false, erreur: 'Un changement importe n\'a pas de trimestre, de domaine ou d\'intitule.' }; }
         v.id = identifiant(v.mois, v.domaine, v.intitule);
         if (lignes.some(function (x) { return x.id === v.id; })) { resume.ignores++; continue; }
+        // Deja publie a l'identique : jamais range dans le sas, on le DIT (sauf « forcer », utilise pour reprendre un changement ecarte).
+        if (!act.forcer && typeof ctx.digest === 'function' && identiquePublie(lireDigest(v.mois), v)) { resume.dejaPublies.push({ id: v.id, titre: v.intitule }); continue; }
         // Deja ECARTE par la personne : on ne le repropose pas, mais on le DIT (et le compteur de l'historique monte).
         const dej = (ctx.ecartes && !act.forcer) ? ecartes.trouver(ctx.ecartes, 'changement', v) : null;
         if (dej) { resume.ecartes.push({ id: dej.id, titre: v.intitule, ecarte_le: dej.ecarte_le, motif: dej.motif }); touches.push(dej.id); continue; }
@@ -269,6 +271,15 @@ function appliquer(texteSas, actions, ctx) {
     }
   }
   return { ok: true, texteSas: ecrireSas(lignes, fin), digests: digests, resume: resume, ecarts: { sortis: sortis, touches: touches } };
+}
+
+// GARDE ANTI-DOUBLON (Denis, 09/11/2026 : 8 changements deja publies avaient ete verses dans le sas) : vrai si le digest publie deja CE changement, mot pour mot
+// (meme domaine, meme intitule, memes champs ; la date « Verifie le » ne compte pas). Un changement publie dont le texte differe reste une mise a jour possible, a reconfirmer.
+function identiquePublie(texteDigest, v) {
+  const publie = blocPublie(texteDigest, v);
+  if (!publie) { return false; }
+  const sansDate = function (t) { return (Array.isArray(t) ? t.join('\n') : String(t)).split(/\r?\n/).filter(function (l) { return !/^Vérifié le/.test(l); }).map(function (l) { return l.trim(); }).filter(Boolean).join('\n'); };
+  return sansDate(publie) === sansDate(blocChangement(v, ''));
 }
 
 // Le texte du changement tel qu'il est publie aujourd'hui dans le digest (de « ### intitule » jusqu'au suivant), ou '' s'il n'y est pas.
@@ -441,5 +452,5 @@ module.exports = {
   parserSas: parserSas, formaterLigne: formaterLigne, ecrireSas: ecrireSas, verifierChangement: verifierChangement,
   integrerDansDigest: integrerDansDigest, changementsDuDigest: changementsDuDigest, appliquer: appliquer, lister: lister,
   exemplesDeStyle: exemplesDeStyle, construirePrompt: construirePrompt, lireReponse: lireReponse, CHAMPS_VERIF: CHAMPS_VERIF,
-  dejaPublie: dejaPublie, blocPublie: blocPublie, identifiant: identifiant, blocChangement: blocChangement, nouveauDigest: nouveauDigest, RE_MOIS: RE_MOIS
+  dejaPublie: dejaPublie, identiquePublie: identiquePublie, blocPublie: blocPublie, identifiant: identifiant, blocChangement: blocChangement, nouveauDigest: nouveauDigest, RE_MOIS: RE_MOIS
 };

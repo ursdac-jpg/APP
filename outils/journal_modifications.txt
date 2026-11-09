@@ -1568,3 +1568,4 @@
 2026-11-09 22:38 | cadre | sante-puma-c2s-et-medecin-traitant | modifiée | 2026-11-09 : plafond annuel des franchises médicales et des participations forfaitaires relevé au 1er octobre 2026, d'après la page « Ce qui change en octobre 2026 » (info.gouv.fr, modifiée le 21 octobre 2026), ouverte et relue le 2026-11-09
 2026-11-09 22:38 | cadre | sante-mon-soutien-psy-seances-psychologue | ajoutée | 2026-11-09 : nouvelle fiche sur le dispositif « Mon soutien psy » (séances chez un psychologue remboursées en partie par l Assurance maladie)
 2026-11-09 22:38 | cadre | agriculture-aide-gnr-travaux-agricoles-forestiers | ajoutée | 2026-11-09 : nouvelle fiche sur l aide exceptionnelle pour le gazole non routier (entreprises agricoles et forestières)
+2026-11-09 23:35 | cadre | etranger-titre-de-sejour-et-travail | modifiée | 2026-11-09 : deux guillemets fermants rétablis dans « Ce qui change souvent »

@@ -5301,13 +5301,16 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
    Maquette validee par Denis : docs/MAQUETTE_LISIBILITE_ECRAN_COLLAGE_2026-10-31.html ; mesures : docs/CONTROLE_LISIBILITE_PORTABLE_TABLETTE_TELEPHONE_2026-10-31.md.
    Portee : composant « Collez la reponse » (.fc), blocs numerotes des pages « Preparer » (.bilan-preparer), barre des etapes et barre du bas.
    ============================================================ */
-/* Paliers de la taille du texte selon la largeur de l'ecran (consigne 144, choix A de Denis, 07/11/2026 ; maquette docs/MAQUETTE_TAILLE_DU_TEXTE_2026-11-07.html).
-   Ce sont ceux de « Comprendre les chiffres », etendus a toute l'application : base 16 px sous 1000 px, 17 px des 1000 px, 18,7 px des 1100 px, 20,4 px des 1400 px,
-   20,8 px des 1700 px et au-dela (plafond : Denis ne veut pas d'un texte enorme sur tres grand ecran, 07/11/2026). Le telephone, la tablette et l'impression ne changent pas. Le reglage « Texte plus grand » (data-taille) s'y ajoute. */
+/* Paliers de la taille du texte selon la largeur de l'ecran (consigne 187, 09/11/2026, remplace ceux de la consigne 144 : le texte des modules etait « beaucoup trop grand » sur un ecran de 27 pouces,
+   jusqu'a 20,8 px). Taille standard de lecture : 16 px (reference des navigateurs et de Material) sous 1000 px, 17 px des 1000 px, 18 px des 1400 px et au-dela, JAMAIS plus (les sites de reference
+   restent entre 16 et 19 px). Le telephone, la tablette et l'impression gardent 16 px. Le reglage « Texte plus grand » (data-taille) s'y ajoute et reste le recours des personnes qui voient mal ou
+   lisent difficilement. Les boutons permanents et la barre du bas ne bougent pas (compensation par --echelle-fixe et --palier-barre, plus bas). */
 @media (min-width: 1000px) { :root { --palier-taille: 1.0625; } }
-@media (min-width: 1100px) { :root { --palier-taille: 1.16875; } }
-@media (min-width: 1400px) { :root { --palier-taille: 1.275; } }
-@media (min-width: 1700px) { :root { --palier-taille: 1.3; } }
+@media (min-width: 1400px) { :root { --palier-taille: 1.125; } }
+/* Longueur de ligne (consigne 187) : un paragraphe ou un item de liste d'un module ne depasse jamais 34 em (environ 70 caracteres ; le confort de lecture se situe entre 45 et 80).
+   Les cartes, tableaux et graphiques gardent toute la largeur : seul le texte courant est limite. En em, donc la limite suit la taille du texte et la police choisie. */
+.page-catalogue-contenu :is(p, li) { max-width: 34em; }
+.page-catalogue-contenu :is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) > :is(p, li), .page-catalogue-contenu :is(p, li):is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) { margin-left: auto; margin-right: auto; }
 @media print { :root { --palier-taille: 1; --reglage-taille: 1; } }
 /* Accueil (route « cv ») et pages d'introduction (« introduction » et toutes les « ...-intro ») : taille d'AVANT la consigne 144, au retour de Denis du 07/11/2026
    (« les cartes de l'accueil, les sous-cartes et les exemples des introductions sont beaucoup trop gros »). L'intérieur des modules garde les paliers.

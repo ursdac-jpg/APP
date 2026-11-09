@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : taille du texte et longueur des lignes</title>
+<!-- Maquette du 09/11/2026 (consigne 187, option A). Elle utilise les vraies feuilles de style de l'application : les couleurs, les polices et le mode sombre sont les vrais.
+     Rien n'est codé dans l'application. Ouvrez cette page sur votre grand écran : les tailles sont les vraies tailles en pixels. -->
+<link rel="stylesheet" href="../vendor/bootstrap.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body { margin: 0; }
+.maq-page { max-width: 2100px; margin: 0 auto; padding: 1rem 1.5rem 6rem; }
+/* La règle proposée : un paragraphe ou une liste de texte courant ne dépasse jamais une certaine longueur de ligne. Les cartes, tableaux et graphiques gardent la pleine largeur. */
+.maq-page .texte-courant, .maq-page .texte-courant li { max-width: calc(var(--car, 70) * 0.5em); }
+.maq-cartes { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+.maq-carte { background: var(--bg-card, #fff); border: 2px solid var(--border-strong, #bbb); border-radius: 1rem; padding: 1rem 1.2rem; }
+.maq-carte h3 { font-size: 1.1rem; margin: 0 0 .4rem; }
+.maq-tableau { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.maq-tableau th, .maq-tableau td { border: 1px solid var(--border-strong, #bbb); padding: .5rem .7rem; text-align: left; }
+.maq-bouton { min-height: 44px; padding: 0 1rem; border: 2px solid var(--accent, #1d5fa8); background: var(--bg-card, #fff); color: var(--accent, #1d5fa8); border-radius: 6px; font-size: 1rem; cursor: pointer; }
+.maq-bouton[aria-pressed="true"] { background: var(--accent, #1d5fa8); color: var(--bg-card, #fff); }
+/* Panneau de réglages (refermable) */
+#maqReglages { position: fixed; right: 1rem; bottom: 1rem; z-index: 50; width: min(26rem, calc(100vw - 2rem)); background: var(--bg-card, #fff); color: var(--text-strong, #111); border: 2px solid var(--accent, #1d5fa8); border-radius: 12px; padding: .8rem 1rem 1rem; font-size: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+#maqReglages h2 { font-size: 1.05rem; margin: 0 2rem .5rem 0; }
+#maqReglages .fermer { position: absolute; right: .5rem; top: .4rem; width: 40px; height: 40px; border: 0; background: transparent; font-size: 1.6rem; line-height: 1; cursor: pointer; color: inherit; }
+#maqReglages label { display: block; font-weight: 700; margin: .6rem 0 .1rem; font-size: .95rem; }
+#maqReglages input[type=range] { width: 100%; }
+#maqReglages .rangee { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+#maqReglages .rangee .maq-bouton { min-height: 40px; font-size: .9rem; padding: 0 .7rem; }
+#maqReglages textarea { width: 100%; font-size: .85rem; margin-top: .5rem; }
+#maqRouvrir { position: fixed; right: 1rem; bottom: 1rem; z-index: 49; display: none; }
+/* Message petit écran */
+#maqMessagePetit { display: none; background: var(--accent-bg-subtle, #e6f0fb); border: 2px solid var(--accent, #1d5fa8); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; position: relative; }
+#maqMessagePetit.visible { display: block; }
+#maqMessagePetit .fermer { position: absolute; right: .4rem; top: .3rem; width: 40px; height: 40px; border: 0; background: transparent; font-size: 1.5rem; cursor: pointer; color: inherit; }
+#maqMessagePetit p { margin: 0 2.2rem .5rem 0; }
+#maqOptionsTaille { display: none; margin-top: .6rem; gap: .5rem; flex-wrap: wrap; }
+#maqOptionsTaille.visible { display: flex; }
+</style>
+</head>
+<body>
+<div class="maq-page" id="maqPage">
+
+  <div id="maqMessagePetit" role="region" aria-label="Options d'affichage">
+    <button type="button" class="fermer" id="maqFermerMessage" aria-label="Fermer ce message">&times;</button>
+    <p><strong>Envie de lire plus confortablement ?</strong> Vous pouvez agrandir le texte ou changer la police d'écriture. Ces choix sont dans le bouton en forme de roue dentée, en haut de la page (« Préférences d'affichage »), et vous pouvez les changer quand vous voulez.</p>
+    <button type="button" class="maq-bouton" id="maqVoirOptions">Voir les options d'affichage</button>
+    <div id="maqOptionsTaille">
+      <button type="button" class="maq-bouton" data-mult="1" aria-pressed="true">Texte normal</button>
+      <button type="button" class="maq-bouton" data-mult="1.125" aria-pressed="false">Texte plus grand</button>
+      <button type="button" class="maq-bouton" data-mult="1.25" aria-pressed="false">Texte très grand</button>
+      <button type="button" class="maq-bouton" id="maqPoliceArial" aria-pressed="false">Police Arial</button>
+      <button type="button" class="maq-bouton" id="maqConfort" aria-pressed="false">Confort de lecture</button>
+    </div>
+  </div>
+
+  <h1>Exemple de page d'un module</h1>
+
+  <div class="cv-section">
+    <h2>Pourquoi cette étape</h2>
+    <p class="texte-courant">Votre CV n'est pas vous. C'est une photographie de votre parcours, prise à un moment donné, pour une personne qui n'a que quelques instants à lui consacrer. Cette étape vous aide à voir ce que cette personne y lira vraiment, sans jugement sur vous.</p>
+    <p class="texte-courant">Prenez le temps de lire chaque phrase. Rien n'est envoyé tant que vous n'avez pas cliqué sur le bouton d'envoi, et vous pouvez revenir en arrière à tout moment. Si un mot vous semble difficile, le Lexique de l'application l'explique simplement.</p>
+    <ul class="texte-courant">
+      <li>Vous importez votre CV, au format PDF ou Word, ou vous le copiez dans la case prévue.</li>
+      <li>Vous choisissez le type de structure où vous aimeriez travailler, pour que les conseils s'y adaptent.</li>
+      <li>Vous relisez le résultat, puis vous décidez vous-même de ce que vous gardez.</li>
+    </ul>
+  </div>
+
+  <div class="maq-cartes" aria-label="Exemple de cartes, elles gardent toute la largeur">
+    <div class="maq-carte"><h3>Ce qui est solide</h3><p>Vos expériences récentes sont claires et bien datées.</p></div>
+    <div class="maq-carte"><h3>Ce qui peut gagner en clarté</h3><p>Deux missions se ressemblent : on peut les regrouper.</p></div>
+    <div class="maq-carte"><h3>Ce qu'il manque peut-être</h3><p>Aucune formation n'est indiquée : à compléter si vous en avez.</p></div>
+  </div>
+
+  <table class="maq-tableau">
+    <thead><tr><th>Rubrique</th><th>État</th><th>À faire</th></tr></thead>
+    <tbody>
+      <tr><td>Coordonnées</td><td>Complètes</td><td>Rien</td></tr>
+      <tr><td>Expériences</td><td>À relire</td><td>Regrouper deux missions</td></tr>
+      <tr><td>Formations</td><td>À compléter</td><td>Ajouter une ligne</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cv-section">
+    <h2>Un texte plus long</h2>
+    <p class="texte-courant">Ce deuxième bloc sert à juger le confort de lecture sur un vrai paragraphe. Quand les lignes sont trop longues, l'œil a du mal à retrouver le début de la ligne suivante, et la lecture fatigue vite, surtout pour une personne qui n'est pas à l'aise avec l'écrit ou avec l'ordinateur. Quand elles sont trop courtes, le texte est haché et l'on perd le fil. Les recommandations courantes se situent entre 45 et 80 caractères par ligne. Réglez le curseur du panneau jusqu'à ce que la lecture vous soit agréable, puis copiez vos réglages et collez-les dans la conversation.</p>
+  </div>
+</div>
+
+<button type="button" class="maq-bouton" id="maqRouvrir">Réglages de la maquette</button>
+
+<aside id="maqReglages" aria-label="Réglages de la maquette">
+  <button type="button" class="fermer" id="maqFermer" aria-label="Fermer le panneau">&times;</button>
+  <h2>Réglages de la maquette</h2>
+  <label for="maqTaille">Taille du texte : <span id="maqTailleVal"></span></label>
+  <input type="range" id="maqTaille" min="16" max="22" step="0.1" value="18">
+  <label for="maqCar">Longueur de ligne : <span id="maqCarVal"></span></label>
+  <input type="range" id="maqCar" min="45" max="130" step="5" value="70">
+  <div class="rangee">
+    <button type="button" class="maq-bouton" id="maqPropo">Proposition A (18 px, 70 caractères)</button>
+    <button type="button" class="maq-bouton" id="maqAujourdhui">Valeurs d'aujourd'hui (20,8 px, pleine largeur)</button>
+    <button type="button" class="maq-bouton" id="maqSombre" aria-pressed="false">Mode sombre</button>
+    <button type="button" class="maq-bouton" id="maqPetit" aria-pressed="false">Montrer le message petit écran</button>
+  </div>
+  <p id="maqMesure" style="font-size:.85rem;margin:.6rem 0 0"></p>
+  <label for="maqConfig">Mes réglages (à coller dans la conversation)</label>
+  <textarea id="maqConfig" rows="3" readonly></textarea>
+  <button type="button" class="maq-bouton" id="maqCopier" style="margin-top:.4rem">Copier mes réglages</button>
+</aside>
+
+<script>
+(function () {
+  var racine = document.documentElement, mult = 1;
+  var tai = document.getElementById('maqTaille'), car = document.getElementById('maqCar');
+  function appliquer() {
+    var px = parseFloat(tai.value), n = parseInt(car.value, 10);
+    racine.style.fontSize = (px * mult) + 'px';
+    document.getElementById('maqPage').style.setProperty('--car', n >= 130 ? 9999 : n);
+    document.getElementById('maqTailleVal').textContent = px.toString().replace('.', ',') + ' px' + (mult !== 1 ? ' (x ' + mult.toString().replace('.', ',') + ')' : '');
+    document.getElementById('maqCarVal').textContent = n >= 130 ? 'pleine largeur' : 'environ ' + n + ' caractères';
+    var p = document.querySelector('.texte-courant');
+    var lignes = Math.round(p.getBoundingClientRect().width / (px * mult * 0.5));
+    document.getElementById('maqMesure').textContent = 'Votre écran : ' + innerWidth + ' px de large. Lignes mesurées : environ ' + lignes + ' caractères.';
+    document.getElementById('maqConfig').value = 'Taille du texte : ' + px + ' px ; longueur de ligne : ' + (n >= 130 ? 'pleine largeur' : n + ' caractères') + ' ; écran : ' + innerWidth + ' px ; mode sombre : ' + (racine.getAttribute('data-theme') === 'sombre' ? 'oui' : 'non');
+    majMessage();
+  }
+  var petitForce = false;
+  function majMessage() {
+    var m = document.getElementById('maqMessagePetit');
+    if (petitForce || innerWidth < 1000) { if (!m.dataset.ferme) { m.classList.add('visible'); } } else { m.classList.remove('visible'); }
+  }
+  tai.addEventListener('input', appliquer); car.addEventListener('input', appliquer); addEventListener('resize', appliquer);
+  document.getElementById('maqPropo').addEventListener('click', function () { tai.value = 18; car.value = 70; appliquer(); });
+  document.getElementById('maqAujourdhui').addEventListener('click', function () { tai.value = 20.8; car.value = 130; appliquer(); });
+  document.getElementById('maqSombre').addEventListener('click', function () {
+    var s = racine.getAttribute('data-theme') === 'sombre';
+    if (s) { racine.removeAttribute('data-theme'); } else { racine.setAttribute('data-theme', 'sombre'); }
+    this.setAttribute('aria-pressed', String(!s)); appliquer();
+  });
+  document.getElementById('maqPetit').addEventListener('click', function () {
+    petitForce = !petitForce; this.setAttribute('aria-pressed', String(petitForce));
+    var m = document.getElementById('maqMessagePetit'); delete m.dataset.ferme; appliquer();
+  });
+  document.getElementById('maqFermerMessage').addEventListener('click', function () { var m = document.getElementById('maqMessagePetit'); m.dataset.ferme = '1'; m.classList.remove('visible'); });
+  document.getElementById('maqVoirOptions').addEventListener('click', function () { document.getElementById('maqOptionsTaille').classList.toggle('visible'); });
+  document.querySelectorAll('#maqOptionsTaille [data-mult]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      mult = parseFloat(b.getAttribute('data-mult'));
+      document.querySelectorAll('#maqOptionsTaille [data-mult]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      appliquer();
+    });
+  });
+  document.getElementById('maqPoliceArial').addEventListener('click', function () {
+    var on = racine.getAttribute('data-police') === 'arial';
+    if (on) { racine.removeAttribute('data-police'); } else { racine.setAttribute('data-police', 'arial'); }
+    this.setAttribute('aria-pressed', String(!on));
+  });
+  document.getElementById('maqConfort').addEventListener('click', function () {
+    var on = racine.getAttribute('data-confort-lecture') === '1';
+    if (on) { racine.removeAttribute('data-confort-lecture'); } else { racine.setAttribute('data-confort-lecture', '1'); }
+    this.setAttribute('aria-pressed', String(!on));
+  });
+  document.getElementById('maqFermer').addEventListener('click', function () { document.getElementById('maqReglages').style.display = 'none'; document.getElementById('maqRouvrir').style.display = 'block'; });
+  document.getElementById('maqRouvrir').addEventListener('click', function () { document.getElementById('maqReglages').style.display = 'block'; this.style.display = 'none'; });
+  document.getElementById('maqCopier').addEventListener('click', function () {
+    var t = document.getElementById('maqConfig'); t.select();
+    try { document.execCommand('copy'); this.textContent = 'Copié'; } catch (e) { this.textContent = 'Sélectionné : faites Ctrl + C'; }
+  });
+  appliquer();
+})();
+</script>
+</body>
+</html>

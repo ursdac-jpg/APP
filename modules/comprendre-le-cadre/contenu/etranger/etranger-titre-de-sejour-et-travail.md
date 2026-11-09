@@ -35,8 +35,8 @@ ce_qui_change_souvent:
   - "Les règles d'inscription à France Travail selon le titre"
   - "Le délai de décision de la préfecture et le délai supplémentaire pour un dossier complexe"
   - "La période pendant laquelle on ne peut pas changer d'employeur après une première autorisation de travail"
-  - "La durée de chômage tolérée sans perdre son droit au séjour avec une carte « travailleur temporaire"
-  - "Le seuil de rémunération et les conditions de la carte « talent carte bleue européenne"
+  - "La durée de chômage tolérée sans perdre son droit au séjour avec une carte « travailleur temporaire »"
+  - "Le seuil de rémunération et les conditions de la carte « talent carte bleue européenne »"
 revisions:
   - "2026-04 : depuis le décret du 24 avril 2026 (en vigueur le 26 avril), pour s'inscrire comme demandeur d'emploi, il faut un document de séjour, un document provisoire ou une autorisation provisoire de séjour qui autorise à travailler comme salarié ; vérifié sur Légifrance le 2026-10-05"
   - "2026-11-04 : la page Service Public (F2713) ne traite que les étudiants étrangers : la limite d'heures annuelle sans autorisation et l'autorisation au-delà sont confirmées ; la liste des titres, le récépissé, l'inscription à France Travail et le décret d'avril 2026 n'y figurent pas (le décret et les métiers en tension sont retirés ; le reste à confirmer sur la page de l'immigration du ministère de l'Intérieur)"
