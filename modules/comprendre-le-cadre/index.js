@@ -100,8 +100,8 @@ var _comprendreLeCadreCacheLiensVerifies = null;
 // docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md). Ne reste ici que le Balayage.
 var COMPRENDRE_LE_CADRE_OUTILS = [
   { dossier: 'balayage', icone: 'bi-megaphone', titre: 'Ce qui a changé récemment',
-    quoi: 'Les derniers changements officiels repérés dans tous les rayons (emploi, formation, droits sociaux, logement, santé, séjour). Daté, sourcé.',
-    accroche: 'Les changements officiels récents, en emploi, formation, insertion, droits sociaux, logement, santé et séjour.' }
+    quoi: 'Les derniers changements officiels repérés dans tous les rayons, datés et sourcés. À lire récemment, ou trimestre par trimestre.',
+    accroche: 'Les changements officiels récents, en emploi, formation, insertion, droits sociaux, logement, santé et séjour : d’abord les plus récents, puis trimestre par trimestre.' }
 ];
 
 // ============================================================
@@ -769,7 +769,7 @@ function _comprendreLeCadreMoisRecents(n) {
 // Un digest (balayage ou chiffres, même frontmatter) : periode/publie_le
 // dans l'en-tête, le corps est du markdown libre volontairement peu
 // contraint (rédigé à la main par Denis) - voir
-// _comprendreLeCadreRenduDigestCorps() pour son rendu, pas de parseur
+// _comprendreLeCadreRenduDigest() pour son rendu, pas de parseur
 // rigide par champ ici (le format du corps varie d'un digest à l'autre,
 // contrairement au gabarit fixe d'une fiche).
 function _comprendreLeCadreParserDigest(texteMd) {
@@ -915,13 +915,148 @@ function _comprendreLeCadreChangementAVerifier(item) {
   return /à vérifier|a verifier/i.test(texte);
 }
 
-// Totaux d'un digest : nombre de changements, de domaines concernés, de
-// domaines sans nouveauté. Sert à la carte de l'accueil et au résumé.
-function _comprendreLeCadreResumeDigest(digest) {
-  var domaines = _comprendreLeCadreDecouperDigest(digest.corps);
-  var nbChangements = 0, nbAvec = 0;
-  domaines.forEach(function (d) { nbChangements += d.items.length; if (d.items.length) { nbAvec++; } });
-  return { nbChangements: nbChangements, nbDomainesAvec: nbAvec, nbDomaines: domaines.length };
+// ============================================================
+// « Ce qui a changé récemment » : UNE SEULE LISTE de changements, lue de deux façons (consigne 186 de Denis, 09/11/2026, maquette
+// docs/maquettes/maquette-ce-qui-a-change-recemment-2026-11-09.html) : la vue « Récemment » (les 60 derniers jours et ce qui est à venir) et la
+// vue « Par trimestre » (la même liste rangée par trimestre). Chaque changement porte UNE date, celle où il s'applique (la plus tardive entre
+// « en vigueur » et « publié » de sa ligne « Type : »), à défaut sa date de vérification : jamais un fichier « trimestre » à fabriquer,
+// jamais un titre ou une date de publication figés. Les fichiers balayage/AAAA-MM.md ne sont plus qu'un moyen de ranger ce qu'on dépose.
+// ============================================================
+var COMPRENDRE_LE_CADRE_JOURS_RECENT = 60;
+var COMPRENDRE_LE_CADRE_JOURS_NOUVEAU = 7;
+var COMPRENDRE_LE_CADRE_MOIS_LONGS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+// Valeur d'un champ « Nom : valeur » d'un changement (Type, Vérifié le...), '' s'il n'existe pas.
+function _comprendreLeCadreChampBloc(item, champ) {
+  var re = new RegExp('^' + champ + '\\s*:\\s*(.+)$', 'i'), v = '';
+  item.blocs.forEach(function (b) {
+    if (v || b.type !== 'paragraphe') { return; }
+    var m = b.texte.match(re);
+    if (m) { v = m[1].trim(); }
+  });
+  return v;
+}
+
+// Date d'un changement ('AAAA-MM-JJ') : la plus tardive des dates « en vigueur » et « publié » de sa ligne Type ; sinon la première date de cette ligne ;
+// sinon sa date de vérification ; sinon `repli`.
+function _comprendreLeCadreDateChangement(item, repli) {
+  var type = _comprendreLeCadreChampBloc(item, 'Type'), dates = [], m;
+  var re = /(?:en vigueur|publi[ée]e?s?)[^,;]*?(\d{4}-\d{2}-\d{2})/gi;
+  while ((m = re.exec(type)) !== null) { dates.push(m[1]); }
+  if (!dates.length) { m = type.match(/\d{4}-\d{2}-\d{2}/); if (m) { dates.push(m[0]); } }
+  if (!dates.length) { m = _comprendreLeCadreChampBloc(item, 'Vérifié le').match(/\d{4}-\d{2}-\d{2}/); if (m) { dates.push(m[0]); } }
+  if (!dates.length && repli) { dates.push(repli); }
+  return dates.sort().pop() || '';
+}
+
+// Tous les changements de tous les fichiers chargés, en une seule liste, du plus récent au plus ancien. Un même changement déposé dans deux fichiers
+// n'apparaît qu'une fois (le fichier le plus récent l'emporte). Rien d'« à vérifier » (déjà retiré par le découpage).
+function _comprendreLeCadreAplatirChangements(digests) {
+  var vus = {}, liste = [];
+  (digests || []).forEach(function (dg) {
+    var repli = /^\d{4}-\d{2}$/.test(dg.publie_le || '') ? dg.publie_le + '-01' : '';
+    _comprendreLeCadreDecouperDigest(dg.corps).forEach(function (dom) {
+      dom.items.forEach(function (it) {
+        var cle = it.titre.toLowerCase().replace(/\s+/g, ' ').trim();
+        if (vus[cle]) { return; }
+        vus[cle] = true;
+        var v = _comprendreLeCadreChampBloc(it, 'Vérifié le').match(/\d{4}-\d{2}-\d{2}/);
+        liste.push({ domaine: dom.nom || 'Autres changements', titre: it.titre, blocs: it.blocs, date: _comprendreLeCadreDateChangement(it, repli), verifie: v ? v[0] : '',
+          dates: _comprendreLeCadreDatesDuTexte(_comprendreLeCadreChampBloc(it, 'Type')) });
+      });
+    });
+  });
+  liste.sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+  return liste;
+}
+
+// Nombre de jours de `debut` à `fin` (dates 'AAAA-MM-JJ'), négatif si `fin` précède `debut`.
+function _comprendreLeCadreJoursEntre(debut, fin) {
+  var a = String(debut).split('-'), b = String(fin).split('-');
+  return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000);
+}
+
+// Toutes les dates d'une phrase, en 'AAAA-MM-JJ' : « 2026-10-08 », « 09/11/2026 » et « 26 octobre 2026 ». Les mentions « mise à jour le... » et « modifiée le... »
+// sont ignorées : ce ne sont pas des décisions.
+function _comprendreLeCadreDatesDuTexte(texte) {
+  var t = String(texte || '').replace(/(?:mise?\s+à\s+jour|modifi[ée]e?)\s+le\s+[^,;)]*/gi, ' ');
+  var dates = [], m, re;
+  var deux = function (n) { return ('0' + n).slice(-2); };
+  re = /\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  while ((m = re.exec(t)) !== null) { dates.push(m[0]); }
+  re = /\b(\d{1,2})\/(\d{2})\/(\d{4})\b/g;
+  while ((m = re.exec(t)) !== null) { dates.push(m[3] + '-' + m[2] + '-' + deux(m[1])); }
+  re = new RegExp('\\b(1er|\\d{1,2})\\s+(' + COMPRENDRE_LE_CADRE_MOIS_LONGS.join('|') + ')\\s+(\\d{4})\\b', 'gi');
+  while ((m = re.exec(t)) !== null) {
+    var mois = COMPRENDRE_LE_CADRE_MOIS_LONGS.indexOf(m[2].toLowerCase()) + 1;
+    dates.push(m[3] + '-' + deux(mois) + '-' + deux(parseInt(m[1], 10)));
+  }
+  return dates;
+}
+
+// « Nouveau cette semaine » (décision de Denis, 09/11/2026) : uniquement une information qui VIENT DE SORTIR, jamais parce que nous venons de la repérer.
+// Un changement est nouveau quand une des dates de sa ligne « Type » (décision, publication, entrée en vigueur) tombe dans les 7 derniers jours.
+// Une date à venir (entrée en vigueur prévue) ne compte pas. La marque disparaît seule au bout d'une semaine.
+function _comprendreLeCadreEstNouveau(c, aujourdhui) {
+  return (c.dates || []).some(function (d) {
+    var j = _comprendreLeCadreJoursEntre(d, aujourdhui);
+    return j >= 0 && j <= COMPRENDRE_LE_CADRE_JOURS_NOUVEAU;
+  });
+}
+
+// Vue « Récemment » : ce qui est à venir (date après aujourd'hui, le plus proche d'abord) et ce qui s'applique depuis 60 jours ou moins, rangé par mois.
+function _comprendreLeCadreVueRecente(liste, aujourdhui) {
+  var avenir = [], mois = [], index = {}, nb = 0, nbNouveaux = 0;
+  liste.forEach(function (c) {
+    if (!c.date) { return; }
+    var j = _comprendreLeCadreJoursEntre(c.date, aujourdhui);
+    if (j < 0) { avenir.push(c); }
+    else if (j <= COMPRENDRE_LE_CADRE_JOURS_RECENT) {
+      var k = c.date.slice(0, 7);
+      if (!index[k]) { index[k] = { cle: k, items: [] }; mois.push(index[k]); }
+      index[k].items.push(c);
+    } else { return; }
+    nb++;
+    if (_comprendreLeCadreEstNouveau(c, aujourdhui)) { nbNouveaux++; }
+  });
+  avenir.sort(function (a, b) { return a.date > b.date ? 1 : (a.date < b.date ? -1 : 0); });
+  var f = String(aujourdhui).split('-');
+  var d = new Date(Date.UTC(+f[0], +f[1] - 1, +f[2]) - COMPRENDRE_LE_CADRE_JOURS_RECENT * 86400000);
+  var depuis = d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+  return { avenir: avenir, mois: mois, nb: nb, nbNouveaux: nbNouveaux, depuis: depuis };
+}
+
+function _comprendreLeCadreTrimestreDe(iso) {
+  var m = String(iso).match(/^(\d{4})-(\d{2})/);
+  var a = +m[1], t = Math.floor((+m[2] - 1) / 3) + 1;
+  return { cle: a + 'T' + t, annee: a, t: t };
+}
+
+// « 4e trimestre 2026 (octobre à décembre) »
+function _comprendreLeCadreLibelleTrimestre(q) {
+  return (q.t === 1 ? '1er' : q.t + 'e') + ' trimestre ' + q.annee + ' (' + COMPRENDRE_LE_CADRE_MOIS_LONGS[(q.t - 1) * 3] + ' à ' + COMPRENDRE_LE_CADRE_MOIS_LONGS[q.t * 3 - 1] + ')';
+}
+
+// Vue « Par trimestre » : les trimestres où il y a des changements, plus le trimestre en cours (même vide), du plus récent au plus ancien.
+function _comprendreLeCadreTrimestres(liste, aujourdhui) {
+  var par = {}, cles = [];
+  var cour = _comprendreLeCadreTrimestreDe(aujourdhui);
+  liste.forEach(function (c) {
+    if (!c.date) { return; }
+    var q = _comprendreLeCadreTrimestreDe(c.date);
+    if (!par[q.cle]) { par[q.cle] = { cle: q.cle, annee: q.annee, t: q.t, items: [] }; cles.push(q.cle); }
+    par[q.cle].items.push(c);
+  });
+  if (!par[cour.cle]) { par[cour.cle] = { cle: cour.cle, annee: cour.annee, t: cour.t, items: [] }; cles.push(cour.cle); }
+  cles.sort().reverse();
+  return cles.map(function (k) { par[k].enCours = k === cour.cle; par[k].avenir = k > cour.cle; return par[k]; });
+}
+
+// Date du dernier balayage : la plus récente date de vérification de la liste.
+function _comprendreLeCadreDerniereMiseAJour(liste) {
+  var d = '';
+  liste.forEach(function (c) { if (c.verifie && c.verifie > d) { d = c.verifie; } });
+  return d;
 }
 
 // Ligne « Type : décret, publié le 2026-06-12, en vigueur le 2026-09-01. »
@@ -990,42 +1125,72 @@ function _comprendreLeCadreDigestRenduBlocs(blocs) {
   return html;
 }
 
-// Rendu du corps libre d'un digest (balayage) : un domaine avec des
-// changements est un panneau repliable (<details>) dont le résumé affiche
-// son nom et le nombre de changements en vrai bouton tactile (retour Denis
-// 2026-10-15 : sur téléphone, l'infobulle `title` du nombre ne s'affichait
-// jamais). Le premier domaine est ouvert par défaut ; « Tout déplier »
-// ouvre le reste. Un domaine sans nouveauté reste visible sur une ligne.
-function _comprendreLeCadreRenduDigestCorps(corps) {
-  var domaines = _comprendreLeCadreDecouperDigest(corps);
-  var premierOuvert = false, html = '';
-  domaines.forEach(function (d) {
-    var nb = d.items.length;
-    // Décision de Denis (2026-10-15) : « Rien de nouveau retenu ce trimestre » n'est plus affiché (affirmation qu'on ne peut pas vérifier). Seule la
-    // phrase nue est retirée ; une note qui donne une information sourcée (« Dernier changement connu... ») reste affichée.
-    d.notes = d.notes.filter(function (n) { return !(n.type === 'italique' && /^Rien de nouveau retenu ce trimestre.?$/i.test(n.texte.trim())); });
-    if (!d.nom) { html += _comprendreLeCadreDigestRenduBlocs(d.notes); return; }
-    if (!nb && !d.notes.length) { return; }
-    if (!nb) {
-      html += '<div class="comprendre-le-cadre-digest-vide"><span class="comprendre-le-cadre-digest-vide-nom">' + d.nom + '</span>' +
-        _comprendreLeCadreDigestRenduBlocs(d.notes) + '</div>';
-      return;
-    }
-    var ouvert = !premierOuvert; premierOuvert = true;
-    html += '<details class="comprendre-le-cadre-digest-panneau"' + (ouvert ? ' open' : '') + '>' +
+// Rendu de « Ce qui a changé récemment » (les fonctions de calcul sont plus haut, avec la consigne 186). Un changement = une carte repliable, ouverte
+// d'office quand il est nouveau (moins d'une semaine) ; les blocs (nature et dates en pastilles, « Ce qui change » en bandeau, source en bouton,
+// marque verte « Vérifié le ») sont ceux de _comprendreLeCadreDigestRenduBlocs(), inchangés. Décisions de Denis conservées : un changement « à
+// vérifier » n'est jamais affiché (retiré par le découpage), et « Rien de nouveau retenu » n'est plus affiché nulle part.
+
+function _comprendreLeCadrePastilleDate(c, aujourdhui) {
+  var futur = c.date > aujourdhui;
+  return '<span class="comprendre-le-cadre-pastille' + (futur ? ' comprendre-le-cadre-pastille--a' : '') + '">' +
+    (futur ? 'À partir du ' : 'Depuis le ') + _comprendreLeCadreDateFr(c.date) + '</span>';
+}
+
+function _comprendreLeCadrePastilleNouveau(c, aujourdhui) {
+  return _comprendreLeCadreEstNouveau(c, aujourdhui)
+    ? '<span class="comprendre-le-cadre-chg-nouveau"><i class="bi bi-stars"></i> Nouveau cette semaine</span>'
+    : '';
+}
+
+// Carte d'un changement dans la vue « Récemment ».
+function _comprendreLeCadreRenduCarteChangement(c, aujourdhui) {
+  var nouveau = _comprendreLeCadreEstNouveau(c, aujourdhui), futur = c.date > aujourdhui;
+  return '<details class="comprendre-le-cadre-chg' + (nouveau ? ' comprendre-le-cadre-chg--nouveau' : '') + (futur ? ' comprendre-le-cadre-chg--avenir' : '') + '"' + (nouveau ? ' open' : '') + '>' +
+    '<summary class="comprendre-le-cadre-chg-resume">' +
+      '<span class="comprendre-le-cadre-chg-pastilles">' + _comprendreLeCadrePastilleNouveau(c, aujourdhui) + _comprendreLeCadrePastilleDate(c, aujourdhui) +
+        '<span class="comprendre-le-cadre-pastille">' + c.domaine + '</span></span>' +
+      '<span class="comprendre-le-cadre-chg-titre">' + _comprendreLeCadreDigestGras(c.titre) + '</span>' +
+      '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>' +
+    '</summary>' +
+    '<div class="comprendre-le-cadre-chg-corps">' + _comprendreLeCadreDigestRenduBlocs(c.blocs) + '</div>' +
+  '</details>';
+}
+
+// Vue « Par trimestre » : les changements d'un trimestre rangés par domaine (panneaux repliables, le premier ouvert).
+function _comprendreLeCadreRenduChangementsParDomaine(items, aujourdhui) {
+  var ordre = [], par = {};
+  items.forEach(function (c) { if (!par[c.domaine]) { par[c.domaine] = []; ordre.push(c.domaine); } par[c.domaine].push(c); });
+  return ordre.map(function (nom, i) {
+    var l = par[nom];
+    return '<details class="comprendre-le-cadre-digest-panneau"' + (i === 0 ? ' open' : '') + '>' +
       '<summary class="comprendre-le-cadre-digest-domaine">' +
-        '<span class="comprendre-le-cadre-digest-domaine-nom">' + d.nom + '</span>' +
-        '<span class="comprendre-le-cadre-digest-badge">' + nb + (nb > 1 ? ' changements' : ' changement') + '<i class="bi bi-chevron-down"></i></span>' +
-      '</summary>';
-    d.items.forEach(function (it) {
-      html += '<div class="comprendre-le-cadre-digest-item">' +
-        '<p class="comprendre-le-cadre-digest-item-titre fw-semibold mb-2">' + _comprendreLeCadreDigestGras(it.titre) + '</p>' +
-        _comprendreLeCadreDigestRenduBlocs(it.blocs) +
+        '<span class="comprendre-le-cadre-digest-domaine-nom">' + nom + '</span>' +
+        '<span class="comprendre-le-cadre-digest-badge">' + l.length + (l.length > 1 ? ' changements' : ' changement') + '<i class="bi bi-chevron-down"></i></span>' +
+      '</summary>' +
+      l.map(function (c) {
+        return '<div class="comprendre-le-cadre-digest-item">' +
+          '<p class="comprendre-le-cadre-chg-pastilles mb-2">' + _comprendreLeCadrePastilleNouveau(c, aujourdhui) + _comprendreLeCadrePastilleDate(c, aujourdhui) + '</p>' +
+          '<p class="comprendre-le-cadre-digest-item-titre fw-semibold mb-2">' + _comprendreLeCadreDigestGras(c.titre) + '</p>' +
+          _comprendreLeCadreDigestRenduBlocs(c.blocs) +
         '</div>';
+      }).join('') +
+    '</details>';
+  }).join('');
+}
+
+// Sources consultées de tous les fichiers chargés, sans doublon, la plus récemment contrôlée d'abord.
+function _comprendreLeCadreSourcesDesDigests(digests) {
+  var vus = {}, liste = [];
+  (digests || []).forEach(function (dg) {
+    (dg.sources || []).forEach(function (s) {
+      var cle = (s.url || s.titre).toLowerCase();
+      if (vus[cle]) { return; }
+      vus[cle] = true;
+      liste.push(s);
     });
-    html += _comprendreLeCadreDigestRenduBlocs(d.notes) + '</details>';
   });
-  return html;
+  liste.sort(function (a, b) { return (a.date || '') < (b.date || '') ? 1 : ((a.date || '') > (b.date || '') ? -1 : 0); });
+  return liste;
 }
 
 // Dépliant « Toutes les sources de cette période » : la liste du début du
@@ -1035,7 +1200,7 @@ function _comprendreLeCadreRenduSourcesDigest(sources) {
   if (!sources || !sources.length) { return ''; }
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); };
   return '<details class="comprendre-le-cadre-depli comprendre-le-cadre-digest-sources mt-3">' +
-    '<summary><span class="comprendre-le-cadre-depli-titre">Toutes les sources de cette période</span>' +
+    '<summary><span class="comprendre-le-cadre-depli-titre">Toutes les sources consultées</span>' +
     '<span class="comprendre-le-cadre-depli-clic">' + sources.length + (sources.length > 1 ? ' sources consultées' : ' source consultée') + '</span></summary>' +
     '<div class="comprendre-le-cadre-depli-corps"><ul class="comprendre-le-cadre-digest-liste-sources">' +
     sources.map(function (s) {
@@ -1167,16 +1332,19 @@ function _comprendreLeCadreRenduFamilles() {
 // avec les rayons).
 function _comprendreLeCadreRenduCarteDigest() {
   var o = COMPRENDRE_LE_CADRE_OUTILS[0];
-  var nb = (_comprendreLeCadreDigestAccueilEtat === 'ok' && _comprendreLeCadreDigestAccueil)
-    ? _comprendreLeCadreResumeDigest(_comprendreLeCadreDigestAccueil[0]).nbChangements : 0;
-  var periode = (_comprendreLeCadreDigestAccueilEtat === 'ok' && _comprendreLeCadreDigestAccueil && _comprendreLeCadreDigestAccueil[0].periode) || '';
+  // Le nombre et la date de mise à jour sont calculés sur la liste (60 derniers jours et à venir), jamais écrits à la main ni lus dans un titre de fichier.
+  var liste = (_comprendreLeCadreDigestAccueilEtat === 'ok' && _comprendreLeCadreDigestAccueil) ? _comprendreLeCadreAplatirChangements(_comprendreLeCadreDigestAccueil) : null;
+  var vue = liste ? _comprendreLeCadreVueRecente(liste, _comprendreLeCadreAujourdhui()) : null;
+  var nb = vue ? vue.nb : 0, nbNouveaux = vue ? vue.nbNouveaux : 0;
+  var maj = liste ? _comprendreLeCadreDerniereMiseAJour(liste) : '';
   return '<button type="button" class="comprendre-le-cadre-une" data-comprendre-le-cadre-ouvrir-digest="' + o.dossier + '">' +
     '<i class="bi ' + o.icone + ' comprendre-le-cadre-une-icone"></i>' +
     '<span class="comprendre-le-cadre-une-texte">' +
       '<strong>' + o.titre +
         (nb ? ' <span class="comprendre-le-cadre-une-nombre">' + nb + (nb > 1 ? ' changements' : ' changement') + '</span>' : '') +
+        (nbNouveaux ? ' <span class="comprendre-le-cadre-une-nouveau"><i class="bi bi-stars"></i> ' + nbNouveaux + (nbNouveaux > 1 ? ' nouveaux' : ' nouveau') + ' cette semaine</span>' : '') +
       '</strong>' +
-      '<span>' + o.quoi + (periode ? ' Dernier digest : ' + periode + '.' : '') + '</span>' +
+      '<span>' + o.quoi + (maj ? ' Mis à jour le ' + _comprendreLeCadreDateFr(maj) + '.' : '') + '</span>' +
     '</span>' +
     '<span class="comprendre-le-cadre-une-cta">Voir ce qui a changé <i class="bi bi-chevron-right"></i></span>' +
   '</button>';
@@ -1469,7 +1637,7 @@ function _comprendreLeCadreSynchroniserHistorique() {
   if (typeof historiqueInterneSynchroniser !== 'function') { return; }
   var e = _comprendreLeCadreEtat;
   historiqueInterneSynchroniser('comprendre-le-cadre', {
-    cle: JSON.stringify([e.ecran, e.rayon || null, e.ficheId || null, e.digestIndex == null ? null : e.digestIndex]),
+    cle: JSON.stringify([e.ecran, e.rayon || null, e.ficheId || null, e.digestVue || null, e.digestTrimestre || null]),
     etat: _comprendreLeCadreCopierEtat()
   });
 }
@@ -2298,57 +2466,80 @@ function _comprendreLeCadreRenduDigestAbsent() {
     '<div class="comprendre-le-cadre-encart"><i class="bi bi-info-circle"></i> Aucun digest disponible pour le moment. Revenez plus tard.</div>';
 }
 
-// Vue d'ensemble en tête du digest : période, total des changements,
-// nombre de domaines, date de publication, et le bouton « Tout déplier /
-// Tout replier » des domaines (retour Denis 2026-10-15). Le total est
-// calculé depuis le fichier, jamais écrit à la main.
-function _comprendreLeCadreRenduResumeDigest(d) {
-  var r = _comprendreLeCadreResumeDigest(d);
-  var phrase = r.nbChangements
-    ? '<strong>' + r.nbChangements + (r.nbChangements > 1 ? ' changements' : ' changement') + '</strong> dans ' +
-      r.nbDomainesAvec + (r.nbDomainesAvec > 1 ? ' domaines' : ' domaine') + '.'
-    : 'Aucun changement retenu sur cette période.';
-  return '<div class="comprendre-le-cadre-digest-resume mb-3" id="comprendreLeCadreDigestResume">' +
-    '<p class="comprendre-le-cadre-digest-resume-periode mb-1"><i class="bi bi-calendar-event"></i> ' + (d.periode || 'Période non datée') + '</p>' +
-    '<p class="mb-1">' + phrase + (d.publie_le ? ' Publié en ' + _comprendreLeCadreDateFr(d.publie_le) + '.' : '') + '</p>' +
-    (r.nbDomainesAvec > 1
-      ? '<p class="small mb-2">Touchez un domaine pour voir ses changements.</p>' +
-        '<button type="button" class="btn btn-outline-primary btn-sm" data-comprendre-le-cadre-digest-tout aria-pressed="false">' +
-        '<i class="bi bi-arrows-expand"></i> Tout déplier</button>'
-      : '') +
-    '</div>';
+// Bouton « Tout déplier / Tout replier » (cartes de la vue « Récemment » et domaines de la vue « Par trimestre »).
+function _comprendreLeCadreBoutonToutDeplier() {
+  return '<button type="button" class="btn btn-outline-primary btn-sm" data-comprendre-le-cadre-digest-tout aria-pressed="false">' +
+    '<i class="bi bi-arrows-expand"></i> Tout déplier</button>';
 }
 
-// Écran d'un outil « digest » (Balayage ou Chiffres, étape 6). `outil` =
-// l'entrée de COMPRENDRE_LE_CADRE_OUTILS ; `digests` = tableau déjà
-// chargé (le plus récent en position 0) ; `index` = celui affiché
-// (change sans nouveau fetch en cliquant un trimestre précédent, tous
-// les digests candidats étant déjà en mémoire, même principe que
-// l'orienteur).
-function _comprendreLeCadreRenduDigest(outil, digests, index) {
-  // Garde-fou : cet écran n'est atteint normalement que via
-  // _comprendreLeCadreOuvrirDigest(), qui charge `digests` AVANT de poser
-  // l'état. Si on y arrive sans (état forcé, reprise), on montre l'écran
-  // « rien publié » plutôt que de planter.
-  var d = digests && digests[index || 0];
-  if (!d) { return _comprendreLeCadreRenduDigestAbsent(); }
+// Vue « Récemment » : résumé (nombre, nouveautés de la semaine, date de mise à jour calculée), puis « À venir », puis les mois, du plus récent au plus ancien.
+function _comprendreLeCadreRenduVueRecente(liste, aujourdhui) {
+  var v = _comprendreLeCadreVueRecente(liste, aujourdhui);
+  var maj = _comprendreLeCadreDerniereMiseAJour(liste);
+  var nbPluriel = function (n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); };
+  var html = '<div class="comprendre-le-cadre-digest-resume mb-3" id="comprendreLeCadreDigestResume">' +
+    '<p class="mb-1">' + (v.nb
+      ? '<strong>' + nbPluriel(v.nb, 'changement', 'changements') + '</strong> depuis le ' + _comprendreLeCadreDateFr(v.depuis) + (v.avenir.length ? ', dont ' + v.avenir.length + ' à venir' : '') + '.'
+      : 'Aucun changement officiel repéré depuis le ' + _comprendreLeCadreDateFr(v.depuis) + '.') + '</p>' +
+    (v.nbNouveaux ? '<p class="mb-1"><span class="comprendre-le-cadre-chg-nouveau"><i class="bi bi-stars"></i> ' + nbPluriel(v.nbNouveaux, 'nouveau', 'nouveaux') + ' cette semaine</span></p>' : '') +
+    (maj ? '<p class="small text-muted mb-2"><i class="bi bi-clock-history"></i> Mis à jour le ' + _comprendreLeCadreDateFr(maj) + '. Ce qui date de plus longtemps se retrouve dans les rayons, ou trimestre par trimestre.</p>' : '') +
+    (v.nb > 1 ? _comprendreLeCadreBoutonToutDeplier() : '') +
+  '</div>';
+  if (v.avenir.length) {
+    html += '<h2 class="comprendre-le-cadre-chg-groupe comprendre-le-cadre-chg-groupe--avenir"><i class="bi bi-hourglass-split"></i> À venir</h2>' +
+      v.avenir.map(function (c) { return _comprendreLeCadreRenduCarteChangement(c, aujourdhui); }).join('');
+  }
+  v.mois.forEach(function (m) {
+    var nom = COMPRENDRE_LE_CADRE_MOIS_LONGS[parseInt(m.cle.slice(5), 10) - 1];
+    html += '<h2 class="comprendre-le-cadre-chg-groupe">' + nom.charAt(0).toUpperCase() + nom.slice(1) + ' ' + m.cle.slice(0, 4) + ' <span class="comprendre-le-cadre-chg-groupe-nb">(' + m.items.length + ')</span></h2>' +
+      m.items.map(function (c) { return _comprendreLeCadreRenduCarteChangement(c, aujourdhui); }).join('');
+  });
+  html += '<p class="mt-4"><button type="button" class="btn btn-outline-primary" data-comprendre-le-cadre-digest-vue="trimestre"><i class="bi bi-calendar3"></i> Voir les changements trimestre par trimestre</button></p>';
+  return html;
+}
+
+// Vue « Par trimestre » : un bouton par trimestre (le trimestre en cours est annoncé « en cours »), puis ses changements par domaine.
+function _comprendreLeCadreRenduVueTrimestre(liste, aujourdhui, choisi) {
+  var trims = _comprendreLeCadreTrimestres(liste, aujourdhui);
+  var t = trims.filter(function (x) { return x.cle === choisi; })[0] || trims.filter(function (x) { return x.enCours; })[0] || trims[0];
+  var n = t.items.length;
+  return '<p class="mb-1">Choisissez un trimestre :</p>' +
+    '<div class="comprendre-le-cadre-chg-trimestres">' + trims.map(function (x) {
+      return '<button type="button" class="comprendre-le-cadre-chg-trim' + (x.cle === t.cle ? ' comprendre-le-cadre-chg-trim--actif' : '') + '" data-comprendre-le-cadre-digest-trimestre="' + x.cle + '" aria-pressed="' + (x.cle === t.cle) + '">' +
+        'T' + x.t + ' ' + x.annee + (x.enCours ? ' (en cours)' : (x.avenir ? ' (à venir)' : '')) + ' : ' + x.items.length + '</button>';
+    }).join('') + '</div>' +
+    '<div class="comprendre-le-cadre-digest-resume mb-3" id="comprendreLeCadreDigestResume">' +
+      '<p class="comprendre-le-cadre-digest-resume-periode mb-1"><i class="bi bi-calendar-event"></i> ' + _comprendreLeCadreLibelleTrimestre(t) + (t.enCours ? ', en cours' : (t.avenir ? ', à venir' : '')) + '</p>' +
+      '<p class="mb-1">' + (n ? '<strong>' + n + (n > 1 ? ' changements' : ' changement') + '</strong>.' : 'Aucun changement enregistré pour l’instant sur ce trimestre.') +
+        (t.enCours ? ' Ce trimestre n’est pas terminé : la liste se complète au fil des balayages.' : '') + '</p>' +
+      (t.items.length > 1 ? _comprendreLeCadreBoutonToutDeplier() : '') +
+    '</div>' +
+    _comprendreLeCadreRenduChangementsParDomaine(t.items, aujourdhui);
+}
+
+// Écran « Ce qui a changé récemment » : deux onglets sur UNE seule liste (« Récemment » et « Par trimestre »). `outil` = l'entrée de
+// COMPRENDRE_LE_CADRE_OUTILS ; `digests` = les fichiers déjà chargés (plus récent d'abord) ; `vue` = 'recent' (défaut) ou 'trimestre' ;
+// `trimestre` = la clé du trimestre affiché (AAAAT#), par défaut le trimestre en cours. Tous les fichiers sont en mémoire : changer de vue
+// ou de trimestre ne recharge rien.
+function _comprendreLeCadreRenduDigest(outil, digests, vue, trimestre) {
+  // Garde-fou : cet écran n'est atteint normalement que via _comprendreLeCadreOuvrirDigest(), qui charge `digests` AVANT de poser l'état.
+  // Si on y arrive sans (état forcé, reprise), on montre l'écran « rien publié » plutôt que de planter.
+  if (!digests || !digests.length) { return _comprendreLeCadreRenduDigestAbsent(); }
+  var liste = _comprendreLeCadreAplatirChangements(digests);
+  var aujourdhui = _comprendreLeCadreAujourdhui();
+  var enTrimestre = vue === 'trimestre';
+  var onglet = function (cle, icone, texte) {
+    var actif = (cle === 'trimestre') === enTrimestre;
+    return '<button type="button" role="tab" aria-selected="' + actif + '" class="comprendre-le-cadre-chg-onglet' + (actif ? ' comprendre-le-cadre-chg-onglet--actif' : '') + '" data-comprendre-le-cadre-digest-vue="' + cle + '"><i class="bi ' + icone + '"></i> ' + texte + '</button>';
+  };
   return '' +
     _comprendreLeCadreRenduBoutonRetour('Tous les rayons') +
     '<h1><i class="bi ' + outil.icone + '"></i> ' + outil.titre + '</h1>' +
     '<p class="text-muted">' + outil.accroche + '</p>' +
-    _comprendreLeCadreRenduResumeDigest(d) +
-    _comprendreLeCadreRenduDigestCorps(d.corps) +
-    _comprendreLeCadreRenduSourcesDigest(d.sources) +
-    (digests.length > 1
-      ? '<h3 class="h6 text-uppercase text-muted mt-4 mb-2">Les périodes précédentes</h3>' +
-        '<div class="d-flex flex-wrap gap-2 mb-3">' +
-        digests.map(function (dg, i) {
-          return i === index ? '' :
-            '<button type="button" class="btn btn-outline-secondary btn-sm" data-comprendre-le-cadre-digest-index="' + i + '">' + dg.periode + '</button>';
-        }).join('') +
-        '</div>'
-      : '') +
-    '<div class="comprendre-le-cadre-encart small">' +
+    '<div class="comprendre-le-cadre-chg-onglets" role="tablist">' + onglet('recent', 'bi-lightning-charge', 'Récemment') + onglet('trimestre', 'bi-calendar3', 'Par trimestre') + '</div>' +
+    (enTrimestre ? _comprendreLeCadreRenduVueTrimestre(liste, aujourdhui, trimestre) : _comprendreLeCadreRenduVueRecente(liste, aujourdhui)) +
+    _comprendreLeCadreRenduSourcesDigest(_comprendreLeCadreSourcesDesDigests(digests)) +
+    '<div class="comprendre-le-cadre-encart small mt-3">' +
       '<i class="bi bi-exclamation-triangle"></i> Ce n\'est pas une source de droit. Chaque élément renvoie, quand c\'est indiqué, au texte officiel : à recouper avant de vous en servir.' +
     '</div>';
 }
@@ -2772,14 +2963,23 @@ function _comprendreLeCadreBrancherDigest() {
   if (btnTout) {
     btnTout.addEventListener('click', function () {
       var ouvrir = this.getAttribute('aria-pressed') !== 'true';
-      document.querySelectorAll('.comprendre-le-cadre-digest-panneau').forEach(function (p) { p.open = ouvrir; });
+      document.querySelectorAll('.comprendre-le-cadre-digest-panneau, .comprendre-le-cadre-chg').forEach(function (p) { p.open = ouvrir; });
       this.setAttribute('aria-pressed', ouvrir ? 'true' : 'false');
       this.innerHTML = ouvrir ? '<i class="bi bi-arrows-collapse"></i> Tout replier' : '<i class="bi bi-arrows-expand"></i> Tout déplier';
     });
   }
-  document.querySelectorAll('[data-comprendre-le-cadre-digest-index]').forEach(function (btn) {
+  // Onglets « Récemment » / « Par trimestre » et choix du trimestre : tout est déjà en mémoire, on redessine l'écran.
+  document.querySelectorAll('[data-comprendre-le-cadre-digest-vue]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      _comprendreLeCadreEtat.digestIndex = parseInt(this.dataset.comprendreLeCadreDigestIndex, 10);
+      _comprendreLeCadreEtat.digestVue = this.dataset.comprendreLeCadreDigestVue === 'trimestre' ? 'trimestre' : 'recent';
+      pageComprendreLeCadre();
+      window.scrollTo(0, 0);
+    });
+  });
+  document.querySelectorAll('[data-comprendre-le-cadre-digest-trimestre]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _comprendreLeCadreEtat.digestVue = 'trimestre';
+      _comprendreLeCadreEtat.digestTrimestre = this.dataset.comprendreLeCadreDigestTrimestre;
       pageComprendreLeCadre();
     });
   });
@@ -2798,7 +2998,8 @@ function _comprendreLeCadreOuvrirDigest(dossier) {
     // Déjà lu pour la carte de l'accueil : pas de nouvelle lecture.
     _comprendreLeCadreEtat.ecran = dossier;
     _comprendreLeCadreEtat.digests = _comprendreLeCadreDigestAccueil;
-    _comprendreLeCadreEtat.digestIndex = 0;
+    _comprendreLeCadreEtat.digestVue = 'recent';
+    _comprendreLeCadreEtat.digestTrimestre = null;
     pageComprendreLeCadre();
     return;
   }
@@ -2807,7 +3008,8 @@ function _comprendreLeCadreOuvrirDigest(dossier) {
   _comprendreLeCadreChargerDigests(dossier, function (digests) {
     _comprendreLeCadreEtat.ecran = dossier;
     _comprendreLeCadreEtat.digests = digests;
-    _comprendreLeCadreEtat.digestIndex = 0;
+    _comprendreLeCadreEtat.digestVue = 'recent';
+    _comprendreLeCadreEtat.digestTrimestre = null;
     pageComprendreLeCadre();
   }, function () {
     _comprendreLeCadreAfficherTransitoire(_comprendreLeCadreRenduDigestAbsent(), onRetourDigest, 'accueil');
@@ -2964,7 +3166,7 @@ function pageComprendreLeCadre() {
     }
     evenement = 'comprendre_le_cadre_' + _comprendreLeCadreEtat.ecran + '_affiche';
   } else if (outilCourant) {
-    corpsHTML = _comprendreLeCadreRenduDigest(outilCourant, _comprendreLeCadreEtat.digests, _comprendreLeCadreEtat.digestIndex);
+    corpsHTML = _comprendreLeCadreRenduDigest(outilCourant, _comprendreLeCadreEtat.digests, _comprendreLeCadreEtat.digestVue, _comprendreLeCadreEtat.digestTrimestre);
     brancherCorps = function () {
       _comprendreLeCadreBrancherRetour(_comprendreLeCadreAllerVersPrecedent);
       _comprendreLeCadreBrancherDigest();
@@ -3041,6 +3243,15 @@ window.pageComprendreLeCadre = pageComprendreLeCadre;
 if (typeof module !== 'undefined') {
   module.exports = {
     _comprendreLeCadreParserFiche: _comprendreLeCadreParserFiche,
+    _comprendreLeCadreParserDigest: _comprendreLeCadreParserDigest,
+    _comprendreLeCadreDateChangement: _comprendreLeCadreDateChangement,
+    _comprendreLeCadreAplatirChangements: _comprendreLeCadreAplatirChangements,
+    _comprendreLeCadreEstNouveau: _comprendreLeCadreEstNouveau,
+    _comprendreLeCadreDatesDuTexte: _comprendreLeCadreDatesDuTexte,
+    _comprendreLeCadreVueRecente: _comprendreLeCadreVueRecente,
+    _comprendreLeCadreTrimestres: _comprendreLeCadreTrimestres,
+    _comprendreLeCadreMoisRecents: _comprendreLeCadreMoisRecents,
+    _comprendreLeCadreDerniereMiseAJour: _comprendreLeCadreDerniereMiseAJour,
     _comprendreLeCadreParserLiensVerifies: _comprendreLeCadreParserLiensVerifies,
     _comprendreLeCadreParserLigneStructure: _comprendreLeCadreParserLigneStructure,
     _comprendreLeCadreDateFr: _comprendreLeCadreDateFr,

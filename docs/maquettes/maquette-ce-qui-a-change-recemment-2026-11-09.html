@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : Ce qui a changé récemment, récent et par trimestre</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  /* Réservé à cette maquette. */
+  .demo-barre { position: sticky; top: 0; z-index: 900; background: #1b212c; color: #fff; padding: .6rem 1.2rem; display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; font-size: .9rem; }
+  .demo-barre button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 4px; padding: .3rem .9rem; cursor: pointer; }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-page { max-width: 760px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+  .demo-questions { border: 1px dashed var(--border-strong, var(--border)); border-radius: .5rem; padding: .8rem 1rem; margin-top: 2rem; }
+  .demo-questions h2 { font-size: 1.05rem; }
+  .demo-fictif { font-size: .8rem; color: var(--text-muted); font-style: italic; }
+
+  .onglets-vue { display: flex; gap: .5rem; flex-wrap: wrap; margin: 1rem 0; }
+  .onglets-vue button { border: 2px solid var(--accent); background: transparent; color: var(--accent); border-radius: 4px; padding: .5rem 1rem; font-weight: 700; cursor: pointer; }
+  .onglets-vue button.actif { background: var(--accent); color: #fff; }
+  .groupe-titre { font-size: .95rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: 1.4rem 0 .6rem; font-weight: 700; }
+  .groupe-titre.avenir { color: var(--warning-strong, #8a5a00); }
+  .chg-carte { border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: .5rem; padding: .7rem 1rem; margin: 0 0 .7rem; }
+  .chg-carte.avenir { border-left-color: #d89614; }
+  .chg-carte h3 { font-size: 1.05rem; font-weight: 700; margin: .35rem 0 .3rem; color: var(--text-strong); }
+  .chg-pastilles { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .82rem; }
+  .pastille { border: 1px solid var(--border); border-radius: 999px; padding: .05rem .6rem; background: var(--bg-hover, transparent); }
+  .pastille.date { font-weight: 700; }
+  .pastille.avenir { background: var(--warning-bg-subtle, #fff3cd); border-color: #d89614; font-weight: 700; }
+  .pastille.nouvelle { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .chg-carte details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: .92rem; }
+  .btn-rect { border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 4px; padding: .3rem .8rem; font-weight: 600; font-size: .88rem; cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn-rect:hover { background: var(--bg-hover); }
+  .resume-bloc { border: 1px solid var(--border); border-radius: .5rem; padding: .7rem 1rem; }
+  .trimestres { display: flex; gap: .5rem; flex-wrap: wrap; margin: .6rem 0 1rem; }
+  .trimestres button { border: 1px solid var(--border-strong, var(--border)); background: transparent; color: inherit; border-radius: 4px; padding: .4rem .9rem; cursor: pointer; }
+  .trimestres button.actif { border: 2px solid var(--accent); font-weight: 700; color: var(--accent); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="demo-barre">
+  <strong>Maquette (aucun code de l’application modifié)</strong>
+  <span>Cliquez sur les deux onglets et sur les trimestres : tout est câblé.</span>
+  <button type="button" id="btnAujourdhui" class="actif">Aujourd’hui : 9 novembre 2026</button>
+  <button type="button" id="btnDecembre">Voir le 12 décembre 2026 (le titre suit tout seul)</button>
+</div>
+
+<div class="demo-page">
+  <p class="demo-fictif">Les textes des changements sont les vrais textes des fichiers de balayage d’octobre et de novembre (résumés). La liste de septembre et de juin est abrégée pour la démonstration.</p>
+
+  <p><button type="button" class="btn-rect"><i class="bi bi-arrow-left"></i> Tous les rayons</button></p>
+  <h1><i class="bi bi-megaphone"></i> Ce qui a changé récemment</h1>
+  <p class="text-muted">Les derniers changements officiels repérés dans tous les rayons : emploi, formation, droits sociaux, logement, santé, séjour. Daté, sourcé.</p>
+
+  <div class="onglets-vue" role="tablist">
+    <button type="button" role="tab" id="ongRecent" class="actif"><i class="bi bi-lightning-charge"></i> Récemment</button>
+    <button type="button" role="tab" id="ongTrimestre"><i class="bi bi-calendar3"></i> Par trimestre</button>
+  </div>
+
+  <!-- ===================== VUE 1 : RÉCEMMENT ===================== -->
+  <section id="vueRecent">
+    <div class="resume-bloc mb-3" id="resumeRecent"></div>
+    <div id="fil"></div>
+
+    <h2 class="groupe-titre" style="margin-top:1.8rem">Dans les fiches</h2>
+    <p class="small text-muted mb-2" id="phraseFiches"></p>
+    <div id="filFiches"></div>
+
+    <div class="mt-4">
+      <button type="button" class="btn-rect" id="versTrimestre"><i class="bi bi-calendar3"></i> Voir les changements trimestre par trimestre</button>
+    </div>
+  </section>
+
+  <!-- ===================== VUE 2 : PAR TRIMESTRE ===================== -->
+  <section id="vueTrimestre" hidden>
+    <p class="mb-1">Choisissez un trimestre :</p>
+    <div class="trimestres" id="choixTrimestre"></div>
+    <div class="comprendre-le-cadre-digest-resume mb-3" id="resumeTrimestre"></div>
+    <div id="corpsTrimestre"></div>
+  </section>
+
+  <div class="comprendre-le-cadre-encart small mt-4">
+    <i class="bi bi-exclamation-triangle"></i> Ce n’est pas une source de droit. Chaque élément renvoie, quand c’est indiqué, au texte officiel : à recouper avant de vous en servir.
+  </div>
+
+  <div class="demo-questions">
+    <h2>Questions pour Denis</h2>
+    <p class="mb-1"><strong>Comment les deux vues se réconcilient (proposition).</strong> Il n’y a qu’<strong>une seule liste</strong> de changements. Chaque changement porte <strong>une date</strong>. « Récemment » montre cette liste sur les 60 derniers jours (plus ce qui est à venir) ; « Par trimestre » range <strong>la même liste</strong> par trimestre. Aucun fichier « trimestre » à fabriquer : le trimestre est calculé à partir de la date. Le trimestre en cours s’affiche « en cours » et se remplit au fil de vos balayages. Les titres et dates (« mis à jour le… ») se calculent seuls, donc ne peuvent plus rester figés sur septembre.</p>
+    <ol class="mt-2">
+      <li><strong>Quelle date range un changement ? (Recommandé : la date où il s’applique.)</strong> Pour la personne, un changement « récent » est un changement qui s’applique depuis peu ou bientôt (le Smic du 1er décembre est « à venir »). Variante : la date où vous l’avez repéré dans un balayage. Avantage : tout ce que vous ajoutez apparaît en haut ; risque : un texte d’avril repéré en novembre se retrouverait au milieu des nouveautés.</li>
+      <li><strong>Combien de temps « récemment » ? (Recommandé : 60 jours.)</strong> 30 jours : liste courte, parfois presque vide entre deux balayages. 90 jours : liste longue, qui ressemble de nouveau à un trimestre.</li>
+      <li><strong>Les fiches nouvelles ou relues : on les montre ? (Recommandé : oui, en bloc séparé sous les changements.)</strong> Une fiche sait seulement la date où elle a été vérifiée, pas si son contenu a changé. Pour distinguer « nouvelle » de « relue sans changement », il faudrait ajouter une ligne « modifiée le » dans l’en-tête de chaque fiche (petit travail, fait par moi à chaque mise à jour). Sans cela, je ne montrerais que les fiches vraiment nouvelles.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+// Données : une seule liste. Les textes d'octobre et de novembre sont ceux des fichiers de balayage ; le reste est abrégé.
+var CHANGEMENTS = [
+  { quand: '2026-12-01', domaine: 'Emploi et contrats de travail', titre: 'Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026', texte: 'Le Gouvernement annonce l’anticipation de la revalorisation du Smic au 1er décembre 2026, avec une hausse de 1,6 % qui porterait le Smic net mensuel à 1 502 euros. Le décret n’est pas encore publié : les chiffres publiés ne changent qu’avec lui.', source: 'info.gouv.fr, « Conférence sociale : hausse du SMIC de 1,6 % »', repere: '2026-11-09' },
+  { quand: '2026-10-29', domaine: 'Séjour et droit au travail des personnes étrangères', titre: 'Décret sur les droits des étrangers autorisés à travailler en France', texte: 'Le décret n° 2026-1001 du 26 octobre 2026 traite des conditions d’une carte de séjour pluriannuelle pour les travailleurs hautement qualifiés et de la dispense d’autorisation de travail pour des étrangers détachés par un employeur britannique. Le détail n’a pas pu être vérifié sur le texte lui-même.', source: 'JORF n° 0253 du 29 octobre 2026', repere: '2026-11-06' },
+  { quand: '2026-10-22', domaine: 'Emploi et contrats de travail', titre: 'Congé d’accompagnement spécifique après un congé de reclassement (entreprises de presse)', texte: 'L’employeur doit proposer par écrit ce congé 45 jours avant la fin du congé de reclassement ou de mobilité. Le salarié a 15 jours pour signer la convention, sans réponse le congé est refusé.', source: 'Légifrance, décret n° 2026-972 du 20 octobre 2026', repere: '2026-11-09' },
+  { quand: '2026-10-08', domaine: 'Emploi et contrats de travail', titre: 'Formations aux compétences acquises dans un mandat électif local', texte: 'Les compétences acquises dans un mandat électif local peuvent donner lieu à une certification. Les formations qui y préparent comptent comme du temps de travail, avec maintien de la rémunération.', source: 'Légifrance, décret n° 2026-929 du 6 octobre 2026', repere: '2026-11-09' },
+  { quand: '2026-10-01', domaine: 'RSA, prime d’activité, AAH et leurs cumuls', titre: 'Calcul de l’AAH pour les personnes qui travaillent en Esat', texte: 'L’AAH est calculée à partir des ressources du dernier trimestre, et non plus de celles de l’avant-dernière année, à partir du 1er octobre 2026 pour les droits ouverts en janvier, avril, juillet ou octobre.', source: 'Légifrance, décret n° 2026-547 du 25 juin 2026', repere: '2026-11-09' },
+  { quand: '2026-10-01', domaine: 'Logement et aides au logement', titre: 'Aides personnelles au logement revalorisées de 1,15 % au 1er octobre 2026', texte: 'L’APL, l’ALF et l’ALS sont revalorisées de 1,15 %. La Caf ou la MSA applique la hausse automatiquement.', source: 'Service-Public, « L’APL revalorisée au 1er octobre »', repere: '2026-11-09' },
+  { quand: '2026-10-01', domaine: 'Accès aux soins et protection santé', titre: 'Plafond annuel des franchises médicales relevé à 140 euros', texte: 'Le plafond annuel cumulé des franchises médicales et des participations forfaitaires passe de 100 à 140 euros par assuré. Les mineurs, les femmes enceintes et les bénéficiaires de la complémentaire santé solidaire restent exonérés.', source: 'info.gouv.fr, « Ce qui change en octobre 2026 »', repere: '2026-11-09' },
+  { quand: '2026-10-01', domaine: 'Accès aux soins et protection santé', titre: 'Cups et culottes menstruelles remboursées', texte: 'Certaines cups et culottes menstruelles sont remboursées, dans la limite de deux produits par an, pour les assurées de moins de 26 ans et les bénéficiaires de la complémentaire santé solidaire.', source: 'info.gouv.fr, « Ce qui change en octobre 2026 »', repere: '2026-11-09' },
+  { quand: '2026-10-01', domaine: 'Accès aux soins et protection santé', titre: 'Mon bilan prévention ouvert aux masseurs-kinésithérapeutes', texte: 'Les masseurs-kinésithérapeutes peuvent réaliser le rendez-vous Mon bilan prévention, pris en charge à 100 % par l’Assurance maladie.', source: 'info.gouv.fr, « Ce qui change en octobre 2026 »', repere: '2026-11-09' },
+  { quand: '2026-09-01', domaine: 'Emploi et contrats de travail', titre: 'Plafonnement de la durée des arrêts de travail', texte: 'La durée des arrêts de travail est plafonnée depuis le 1er septembre 2026.', source: 'Service-Public', repere: '2026-10-15' },
+  { quand: '2026-09-01', domaine: 'Assurance chômage et France Travail', titre: 'Avenant n° 2 à la convention d’assurance chômage : rupture conventionnelle', texte: 'Plafonnement de l’indemnisation en cas de rupture conventionnelle, à partir du 1er septembre 2026.', source: 'Unedic', repere: '2026-10-15' },
+  { quand: '2026-09-01', domaine: 'Formation, CPF, apprentissage, VAE', titre: 'Référentiel unique des niveaux de prise en charge des contrats d’apprentissage', texte: 'Publication de France compétences à la suite du décret du 29 août 2026.', source: 'France compétences', repere: '2026-10-15' },
+  { quand: '2026-08-08', domaine: 'Emploi et contrats de travail', titre: 'Rupture conventionnelle dans la fonction publique : nouveaux textes', texte: 'Décrets et arrêté du 6 août 2026 : la rupture conventionnelle est pérennisée dans la fonction publique.', source: 'Ministère de la Fonction publique', repere: '2026-10-15' },
+  { quand: '2026-07-01', domaine: 'Assurance chômage et France Travail', titre: 'Pas de revalorisation des allocations chômage au 1er juillet 2026', texte: 'Décision du conseil d’administration de l’Unedic : les allocations ne sont pas revalorisées au 1er juillet.', source: 'Service-Public', repere: '2026-10-15' },
+  { quand: '2026-06-15', domaine: 'Emploi et contrats de travail', titre: 'Dispense de visite de reprise après arrêt de travail', texte: 'Un décret dispense de visite de reprise dans certains cas d’arrêt de travail.', source: 'Légifrance', repere: '2026-10-15' }
+];
+var FICHES = [
+  { quand: '2026-11-09', nouvelle: true, titre: 'Voir un psychologue avec l’Assurance maladie : le dispositif « Mon soutien psy »', rayon: 'Santé' },
+  { quand: '2026-11-09', nouvelle: true, titre: 'Entreprise agricole ou forestière : l’aide pour le gazole non routier (GNR)', rayon: 'Agriculture' },
+  { quand: '2026-11-09', nouvelle: false, titre: 'Titre de séjour et travail', rayon: 'Étranger' },
+  { quand: '2026-11-09', nouvelle: false, titre: 'Les aides au logement de la Caf', rayon: 'Logement' },
+  { quand: '2026-11-09', nouvelle: false, titre: 'Être couvert pour ses frais de santé : la Puma, la C2S et le médecin traitant', rayon: 'Santé' }
+];
+
+var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+var AUJ = new Date(2026, 10, 9);
+function jourDe(iso) { var p = iso.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function dateFr(iso) { var d = jourDe(iso); return (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear(); }
+function trimestreDe(iso) { var d = jourDe(iso); return { a: d.getFullYear(), t: Math.floor(d.getMonth() / 3) + 1 }; }
+function libTrimestre(q) { return (q.t === 1 ? '1er' : q.t + 'e') + ' trimestre ' + q.a + ' (' + MOIS[(q.t - 1) * 3] + ' à ' + MOIS[q.t * 3 - 1] + ')'; }
+function cleTrimestre(q) { return q.a + 'T' + q.t; }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+var FENETRE_JOURS = 60;
+var trimestreChoisi = null;
+
+function carte(c, avenir) {
+  return '<div class="chg-carte' + (avenir ? ' avenir' : '') + '">' +
+    '<div class="chg-pastilles">' +
+      '<span class="pastille ' + (avenir ? 'avenir' : 'date') + '">' + (avenir ? 'À partir du ' : 'Depuis le ') + dateFr(c.quand) + '</span>' +
+      '<span class="pastille">' + esc(c.domaine) + '</span>' +
+    '</div>' +
+    '<h3>' + esc(c.titre) + '</h3>' +
+    '<details><summary>Ce qui change</summary>' +
+      '<p class="mt-2 mb-2">' + esc(c.texte) + '</p>' +
+      '<p class="small text-muted mb-2">Source : ' + esc(c.source) + ' (repéré le ' + dateFr(c.repere) + ')</p>' +
+      '<a class="comprendre-le-cadre-digest-btn-source" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la source officielle</a>' +
+    '</details></div>';
+}
+
+function dessinerRecent() {
+  var limite = new Date(AUJ.getTime() - FENETRE_JOURS * 86400000);
+  var avenir = CHANGEMENTS.filter(function (c) { return jourDe(c.quand) > AUJ; });
+  var recents = CHANGEMENTS.filter(function (c) { var d = jourDe(c.quand); return d <= AUJ && d >= limite; });
+  var fiches = FICHES.filter(function (f) { return jourDe(f.quand) >= limite; });
+  var derniere = CHANGEMENTS.concat(FICHES).map(function (x) { return x.repere || x.quand; }).sort().pop();
+  document.getElementById('resumeRecent').innerHTML =
+    '<p class="mb-1"><strong>' + (avenir.length + recents.length) + ' changements officiels</strong> et <strong>' + fiches.length + ' fiches</strong> depuis le ' + dateFr(limite.getFullYear() + '-' + ('0' + (limite.getMonth() + 1)).slice(-2) + '-' + ('0' + limite.getDate()).slice(-2)) + '.</p>' +
+    '<p class="mb-0 small text-muted"><i class="bi bi-clock-history"></i> Mis à jour le ' + dateFr(derniere) + '. Ce qui date de plus longtemps se retrouve dans les rayons ou dans « Par trimestre ».</p>';
+  var html = '';
+  if (avenir.length) { html += '<h2 class="groupe-titre avenir"><i class="bi bi-hourglass-split"></i> À venir</h2>' + avenir.map(function (c) { return carte(c, true); }).join(''); }
+  var parMois = {};
+  recents.forEach(function (c) { var d = jourDe(c.quand); var k = d.getFullYear() * 100 + d.getMonth(); (parMois[k] = parMois[k] || []).push(c); });
+  Object.keys(parMois).sort().reverse().forEach(function (k) {
+    var a = Math.floor(k / 100), m = k % 100;
+    html += '<h2 class="groupe-titre">' + MOIS[m].charAt(0).toUpperCase() + MOIS[m].slice(1) + ' ' + a + ' <span class="fw-normal">(' + parMois[k].length + ')</span></h2>' + parMois[k].map(function (c) { return carte(c, false); }).join('');
+  });
+  if (!html) { html = '<p>Aucun changement officiel repéré sur cette période. Les trimestres précédents sont consultables dans « Par trimestre ».</p>'; }
+  document.getElementById('fil').innerHTML = html;
+  document.getElementById('phraseFiches').textContent = fiches.length ? 'Fiches nouvelles ou relues depuis le début de la période (le détail se lit dans la fiche).' : 'Aucune fiche nouvelle ou relue sur cette période.';
+  document.getElementById('filFiches').innerHTML = fiches.map(function (f) {
+    return '<div class="chg-carte"><div class="chg-pastilles">' +
+      (f.nouvelle ? '<span class="pastille nouvelle">Nouvelle fiche</span>' : '<span class="pastille">Fiche relue</span>') +
+      '<span class="pastille date">' + dateFr(f.quand) + '</span><span class="pastille">' + esc(f.rayon) + '</span></div>' +
+      '<h3>' + esc(f.titre) + '</h3><a class="btn-rect" href="#" onclick="return false"><i class="bi bi-journal-text"></i> Ouvrir la fiche</a></div>';
+  }).join('');
+}
+
+function dessinerTrimestre() {
+  var parT = {};
+  CHANGEMENTS.forEach(function (c) { var q = trimestreDe(c.quand); var k = cleTrimestre(q); (parT[k] = parT[k] || { q: q, items: [] }).items.push(c); });
+  var cles = Object.keys(parT).sort().reverse();
+  var courant = cleTrimestre(trimestreDe('2026-' + ('0' + (AUJ.getMonth() + 1)).slice(-2) + '-01'));
+  if (!parT[courant]) { parT[courant] = { q: trimestreDe(AUJ.getFullYear() + '-' + ('0' + (AUJ.getMonth() + 1)).slice(-2) + '-01'), items: [] }; cles = Object.keys(parT).sort().reverse(); }
+  if (!trimestreChoisi || !parT[trimestreChoisi]) { trimestreChoisi = courant; }
+  document.getElementById('choixTrimestre').innerHTML = cles.map(function (k) {
+    var q = parT[k].q;
+    return '<button type="button" data-t="' + k + '" class="' + (k === trimestreChoisi ? 'actif' : '') + '">T' + q.t + ' ' + q.a + (k === courant ? ' (en cours)' : '') + ' : ' + parT[k].items.length + '</button>';
+  }).join('');
+  var t = parT[trimestreChoisi];
+  document.getElementById('resumeTrimestre').innerHTML =
+    '<p class="comprendre-le-cadre-digest-resume-periode mb-1"><i class="bi bi-calendar-event"></i> ' + libTrimestre(t.q) + (trimestreChoisi === courant ? ', en cours' : '') + '</p>' +
+    '<p class="mb-1"><strong>' + t.items.length + (t.items.length > 1 ? ' changements' : ' changement') + '</strong>.' + (trimestreChoisi === courant ? ' Ce trimestre n’est pas terminé : la liste se complète au fil des balayages.' : '') + '</p>';
+  var parD = {};
+  t.items.forEach(function (c) { (parD[c.domaine] = parD[c.domaine] || []).push(c); });
+  var premier = true, html = '';
+  Object.keys(parD).forEach(function (nom) {
+    var l = parD[nom];
+    html += '<details class="comprendre-le-cadre-digest-panneau"' + (premier ? ' open' : '') + '><summary class="comprendre-le-cadre-digest-domaine"><span class="comprendre-le-cadre-digest-domaine-nom">' + esc(nom) + '</span><span class="comprendre-le-cadre-digest-badge">' + l.length + (l.length > 1 ? ' changements' : ' changement') + '<i class="bi bi-chevron-down"></i></span></summary>';
+    premier = false;
+    l.forEach(function (c) {
+      html += '<div class="comprendre-le-cadre-digest-item"><p class="comprendre-le-cadre-digest-item-titre fw-semibold mb-2">' + esc(c.titre) + '</p><p class="small text-muted mb-2">' + (jourDe(c.quand) > AUJ ? 'À partir du ' : 'Depuis le ') + dateFr(c.quand) + '</p><p class="mb-2">' + esc(c.texte) + '</p><p class="small text-muted mb-0">Source : ' + esc(c.source) + '</p></div>';
+    });
+    html += '</details>';
+  });
+  document.getElementById('corpsTrimestre').innerHTML = html || '<p>Aucun changement enregistré pour l’instant sur ce trimestre.</p>';
+  document.querySelectorAll('#choixTrimestre button').forEach(function (b) { b.addEventListener('click', function () { trimestreChoisi = this.dataset.t; dessinerTrimestre(); }); });
+}
+
+function montrer(vue) {
+  document.getElementById('vueRecent').hidden = vue !== 'recent';
+  document.getElementById('vueTrimestre').hidden = vue !== 'trimestre';
+  document.getElementById('ongRecent').classList.toggle('actif', vue === 'recent');
+  document.getElementById('ongTrimestre').classList.toggle('actif', vue === 'trimestre');
+  window.scrollTo(0, 0);
+}
+document.getElementById('ongRecent').addEventListener('click', function () { montrer('recent'); });
+document.getElementById('ongTrimestre').addEventListener('click', function () { montrer('trimestre'); });
+document.getElementById('versTrimestre').addEventListener('click', function () { montrer('trimestre'); });
+document.getElementById('btnAujourdhui').addEventListener('click', function () { AUJ = new Date(2026, 10, 9); this.classList.add('actif'); document.getElementById('btnDecembre').classList.remove('actif'); trimestreChoisi = null; dessinerRecent(); dessinerTrimestre(); });
+document.getElementById('btnDecembre').addEventListener('click', function () { AUJ = new Date(2026, 11, 12); this.classList.add('actif'); document.getElementById('btnAujourdhui').classList.remove('actif'); trimestreChoisi = null; dessinerRecent(); dessinerTrimestre(); });
+dessinerRecent(); dessinerTrimestre();
+</script>
+</body>
+</html>
