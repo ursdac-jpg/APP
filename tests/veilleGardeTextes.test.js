@@ -62,12 +62,12 @@ test('garde des textes : un paragraphe qui parle d\'un autre trimestre que la p�
   assert.ok(r.problemes.some((p) => /troisième trimestre 2026/.test(p) && /avril à juin 2026/.test(p)), r.problemes.join(' | '));
 });
 
-test("garde des textes : la part « inscrits depuis plus d'un an » citée doit être la valeur relevée, pas un point plus ancien de la série (cas réel du 07/11 : 46,0 au lieu de 46,5)", () => {
+test("garde des textes : la part « inscrits depuis plus d'un an » citée doit être la valeur relevée, pas un point plus ancien de la série (cas réel du 07/11 : 46,0 au lieu de la valeur relevée)", () => {
   const t = lireFichier(TRIMESTRIELS[TRIMESTRIELS.length - 1]);
-  const faux = t.replace(/\(46,5 %,\s+en\s+hausse depuis un an\)/, '(46,0 %, en hausse depuis un an)');
+  const faux = t.replace(/\(46,8 %,\s+en\s+hausse depuis un an\)/, '(46,0 %, en hausse depuis un an)');
   assert.notEqual(faux, t, 'le texte de départ contient bien la phrase attendue');
   const r = garde.controlerDigest(faux);
-  assert.ok(r.problemes.some((p) => /France entière/.test(p) && /46,0/.test(p) && /46,5/.test(p)), r.problemes.join(' | '));
+  assert.ok(r.problemes.some((p) => /France entière/.test(p) && /46,0/.test(p) && /46,8/.test(p)), r.problemes.join(' | '));
 });
 
 test('garde des textes : aucun tiret long dans les messages de la garde', () => {

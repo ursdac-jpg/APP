@@ -261,7 +261,10 @@ test('aucun tiret long, aucun mot « IA », aucun mot de métier dans les textes
 test('les textes à envoyer à l’assistant (mot « suite », « oui ») sont ceux de la maquette', () => {
   const T = C.COLLAGE_TEXTES;
   assert.ok(/<strong>suite<\/strong>/.test(T.coupe.etapes[1]));
-  assert.ok(/<strong>oui<\/strong>/.test(T.complement.etapes[1]));
+  assert.ok(/<strong>(« )?oui( »)?<\/strong>/.test(T.complement.etapes[1]));
+  // Consigne 205 (10/11/2026) : le texte du complément dit où retourner, quoi répondre, et comment ne pas le prendre.
+  assert.ok(/même fenêtre de discussion, avec le même assistant/.test(T.complement.etapes[0]));
+  assert.ok(/Continuer sans le complément/.test(T.complement.sans));
   assert.equal(C.COLLAGE_MARQUEUR_SUITE, '[SUITE]');
 });
 

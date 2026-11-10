@@ -522,6 +522,14 @@ function _comprendreLeCadreDateFr(s) {
   return d;
 }
 
+// 'AAAA-MM-JJ' en toutes lettres : « 9 novembre 2026 », « 1er décembre 2026 » (la version courte de _comprendreLeCadreDateFr abrège le mois).
+function _comprendreLeCadreDateLongue(s) {
+  var m = String(s || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) { return _comprendreLeCadreDateFr(s); }
+  var j = parseInt(m[3], 10);
+  return (j === 1 ? '1er' : j) + ' ' + COMPRENDRE_LE_CADRE_MOIS_LONGS[parseInt(m[2], 10) - 1] + ' ' + m[1];
+}
+
 // Fiche à chiffres dont la dernière vérification date de six mois ou plus : on ne montre plus ses montants, durées et dates comme sûrs, on
 // renvoie vers les sources officielles (même principe que le suivi à six mois des « En savoir plus » du Lexique). `aujourdhui` : 'AAAA-MM-JJ'.
 var COMPRENDRE_LE_CADRE_SEUIL_MOIS_CHIFFRES = 6;
@@ -818,8 +826,9 @@ function _comprendreLeCadreParserSourcesDigest(entete) {
 // plus ancien. onCharge(digests) seulement si au moins un existe ;
 // onErreur() sinon (aucun digest publié pour l'instant - message honnête
 // côté écran, pas une erreur réseau à faire réessayer).
-function _comprendreLeCadreChargerDigests(dossier, onCharge, onErreur) {
-  var moisCandidats = _comprendreLeCadreMoisRecents(COMPRENDRE_LE_CADRE_NB_TRIMESTRES_ARCHIVE * 3);
+// `nbMois` (facultatif) limite la lecture aux n derniers mois : « Nouveautés » n'a besoin que du récent (voir comprendreLeCadreLireRecent).
+function _comprendreLeCadreChargerDigests(dossier, onCharge, onErreur, nbMois) {
+  var moisCandidats = _comprendreLeCadreMoisRecents(nbMois || COMPRENDRE_LE_CADRE_NB_TRIMESTRES_ARCHIVE * 3);
   var base = COMPRENDRE_LE_CADRE_BASE_CONTENU + dossier + '/';
   Promise.all(moisCandidats.map(function (mois) {
     return fetch(base + mois + '.md').then(function (reponse) {
@@ -2504,7 +2513,7 @@ function _comprendreLeCadreRenduFichesRecentes(fiches, depuis) {
   if (!fiches.length) { return ''; }
   var nb = fiches.length;
   return '<h2 class="comprendre-le-cadre-chg-groupe">Dans les fiches <span class="comprendre-le-cadre-chg-groupe-nb">(' + nb + ')</span></h2>' +
-    '<p class="small text-muted mb-2">Les fiches des rayons ajoutées ou mises à jour depuis le ' + _comprendreLeCadreDateFr(depuis) + '. Le détail se lit dans la fiche.</p>' +
+    '<p class="small text-muted mb-2">Les fiches des rayons ajoutées ou mises à jour récemment. Le détail se lit dans la fiche.</p>' +
     fiches.map(function (f) {
       var rayon = (RAYON_LABEL[f.rayon] || {}).titre || f.rayon;
       return '<div class="comprendre-le-cadre-fiche-recente">' +
@@ -2521,16 +2530,18 @@ function _comprendreLeCadreRenduFichesRecentes(fiches, depuis) {
 }
 
 // Vue « Récemment » : résumé (nombre, nouveautés de la semaine, date de mise à jour calculée), puis « À venir », puis les mois, du plus récent au plus ancien.
-function _comprendreLeCadreRenduVueRecente(liste, aujourdhui) {
+// `sansTrimestre` (page « Nouveautés ») : pas d'invitation à passer à la vue « Par trimestre », qui n'existe que dans le module.
+function _comprendreLeCadreRenduVueRecente(liste, aujourdhui, sansTrimestre) {
   var v = _comprendreLeCadreVueRecente(liste, aujourdhui);
   var maj = _comprendreLeCadreDerniereMiseAJour(liste);
   var nbPluriel = function (n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); };
   var html = '<div class="comprendre-le-cadre-digest-resume mb-3" id="comprendreLeCadreDigestResume">' +
     '<p class="mb-1">' + (v.nb
-      ? '<strong>' + nbPluriel(v.nb, 'changement', 'changements') + '</strong> depuis le ' + _comprendreLeCadreDateFr(v.depuis) + (v.avenir.length ? ', dont ' + v.avenir.length + ' à venir' : '') + '.'
-      : 'Aucun changement officiel repéré depuis le ' + _comprendreLeCadreDateFr(v.depuis) + '.') + '</p>' +
+      ? '<strong>' + nbPluriel(v.nb, 'changement', 'changements') + '</strong> à connaître' + (v.avenir.length ? ', dont ' + v.avenir.length + ' à venir' : '') + '.'
+      : 'Aucun changement officiel repéré pour l’instant.') + '</p>' +
     (v.nbNouveaux ? '<p class="mb-1"><span class="comprendre-le-cadre-chg-nouveau"><i class="bi bi-stars"></i> ' + nbPluriel(v.nbNouveaux, 'nouveau', 'nouveaux') + ' cette semaine</span></p>' : '') +
-    (maj ? '<p class="small text-muted mb-2"><i class="bi bi-clock-history"></i> Mis à jour le ' + _comprendreLeCadreDateFr(maj) + '. Ce qui date de plus longtemps se retrouve dans les rayons, ou trimestre par trimestre.</p>' : '') +
+    (maj ? '<p class="comprendre-le-cadre-maj mb-1"><i class="bi bi-clock-history"></i> <strong>Dernière mise à jour : ' + _comprendreLeCadreDateLongue(maj) + '</strong></p>' +
+      '<p class="small text-muted mb-2">Ce qui date de plus longtemps se retrouve dans les rayons, ou trimestre par trimestre.</p>' : '') +
     (v.nb > 1 ? _comprendreLeCadreBoutonToutDeplier() : '') +
   '</div>';
   if (v.avenir.length) {
@@ -2543,7 +2554,9 @@ function _comprendreLeCadreRenduVueRecente(liste, aujourdhui) {
       m.items.map(function (c) { return _comprendreLeCadreRenduCarteChangement(c, aujourdhui); }).join('');
   });
   html += _comprendreLeCadreRenduFichesRecentes(_comprendreLeCadreFichesRecentesVue(_comprendreLeCadreFichesRecentes, aujourdhui), v.depuis);
-  html += '<p class="mt-4"><button type="button" class="btn btn-outline-primary" data-comprendre-le-cadre-digest-vue="trimestre"><i class="bi bi-calendar3"></i> Voir les changements trimestre par trimestre</button></p>';
+  if (!sansTrimestre) {
+    html += '<p class="mt-4"><button type="button" class="btn btn-outline-primary" data-comprendre-le-cadre-digest-vue="trimestre"><i class="bi bi-calendar3"></i> Voir les changements trimestre par trimestre</button></p>';
+  }
   return html;
 }
 
@@ -2588,9 +2601,65 @@ function _comprendreLeCadreRenduDigest(outil, digests, vue, trimestre) {
     '<div class="comprendre-le-cadre-chg-onglets" role="tablist">' + onglet('recent', 'bi-lightning-charge', 'Récemment') + onglet('trimestre', 'bi-calendar3', 'Par trimestre') + '</div>' +
     (enTrimestre ? _comprendreLeCadreRenduVueTrimestre(liste, aujourdhui, trimestre) : _comprendreLeCadreRenduVueRecente(liste, aujourdhui)) +
     _comprendreLeCadreRenduSourcesDigest(_comprendreLeCadreSourcesDesDigests(digests)) +
-    '<div class="comprendre-le-cadre-encart small mt-3">' +
-      '<i class="bi bi-exclamation-triangle"></i> Ce n\'est pas une source de droit. Chaque élément renvoie, quand c\'est indiqué, au texte officiel : à recouper avant de vous en servir.' +
-    '</div>';
+    _comprendreLeCadreEncartPasUneSourceDeDroit();
+}
+
+// Rappel affiché sous « Ce qui a changé récemment », dans le module comme dans la page « Nouveautés » (une seule phrase, un seul endroit).
+function _comprendreLeCadreEncartPasUneSourceDeDroit() {
+  return '<div class="comprendre-le-cadre-encart small mt-3">' +
+    '<i class="bi bi-exclamation-triangle"></i> Ce n\'est pas une source de droit. Chaque élément renvoie, quand c\'est indiqué, au texte officiel : à recouper avant de vous en servir.' +
+  '</div>';
+}
+
+// ------------------------------------------------------------
+// Pour la page « Nouveautés » (modules/nouveautes/index.js) : la MÊME liste de changements récents, lue une seule fois par session, rendue par les
+// mêmes fonctions que la vue « Récemment » du module (jamais copiée), sans l'invitation « Par trimestre ».
+// ------------------------------------------------------------
+var _comprendreLeCadreRecentNv = { etat: 'inactif', infos: null, attente: [] };
+
+function _comprendreLeCadreInfosRecent(digests) {
+  var liste = _comprendreLeCadreAplatirChangements(digests), aujourdhui = _comprendreLeCadreAujourdhui();
+  var v = _comprendreLeCadreVueRecente(liste, aujourdhui);
+  return { liste: liste, aujourdhui: aujourdhui, nb: v.nb, nbNouveaux: v.nbNouveaux };
+}
+
+// suite(infos) avec infos = { liste, aujourdhui, nb, nbNouveaux } (nbNouveaux = les changements de la semaine) ; suite(null) si rien n'est publié ou si la lecture échoue.
+function comprendreLeCadreLireRecent(suite) {
+  if (_comprendreLeCadreRecentNv.etat === 'ok') { suite(_comprendreLeCadreRecentNv.infos); return; }
+  if (_comprendreLeCadreDigestAccueilEtat === 'ok' && _comprendreLeCadreDigestAccueil) {
+    _comprendreLeCadreRecentNv.infos = _comprendreLeCadreInfosRecent(_comprendreLeCadreDigestAccueil);
+    _comprendreLeCadreRecentNv.etat = 'ok';
+    suite(_comprendreLeCadreRecentNv.infos);
+    return;
+  }
+  _comprendreLeCadreRecentNv.attente.push(suite);
+  if (_comprendreLeCadreRecentNv.etat === 'encours') { return; }
+  _comprendreLeCadreRecentNv.etat = 'encours';
+  var terminer = function (infos) {
+    _comprendreLeCadreRecentNv.etat = infos ? 'ok' : 'inactif';   // un échec peut être retenté à la prochaine ouverture
+    _comprendreLeCadreRecentNv.infos = infos;
+    var l = _comprendreLeCadreRecentNv.attente; _comprendreLeCadreRecentNv.attente = [];
+    l.forEach(function (f) { f(infos); });
+  };
+  _comprendreLeCadreChargerDigests(COMPRENDRE_LE_CADRE_OUTILS[0].dossier, function (digests) {
+    terminer(_comprendreLeCadreInfosRecent(digests));
+  }, function () { terminer(null); }, 6);
+}
+
+// HTML de « Ce qui a changé récemment » pour la page « Nouveautés » (les fiches récentes sont lues d'abord). Brancher ensuite avec comprendreLeCadreBrancherRecent().
+function comprendreLeCadreRenduRecent(infos, suite) {
+  _comprendreLeCadreChargerFichesRecentes(function () {
+    suite(_comprendreLeCadreRenduVueRecente(infos.liste, infos.aujourdhui, true) + _comprendreLeCadreEncartPasUneSourceDeDroit());
+  });
+}
+
+// « Tout déplier » et boutons « Ouvrir la fiche » : exactement les branchements de l'écran du module.
+function comprendreLeCadreBrancherRecent() { _comprendreLeCadreBrancherDigest(); }
+
+// Ouvre le module sur son accueil (fiches, trimestres), depuis la page « Nouveautés ».
+function comprendreLeCadreOuvrirAccueil() {
+  _comprendreLeCadreEtat.ecran = 'accueil';
+  naviguerVers('comprendre-le-cadre');
 }
 
 // ============================================================
@@ -3290,6 +3359,11 @@ function _comprendreLeCadreBrancherChoixTerritoire() {
 // Aucune autre fonction publique tant qu'aucun appelant réel n'existe,
 // même règle que Carnet, Repères et Regard extérieur.
 window.pageComprendreLeCadre = pageComprendreLeCadre;
+// Utilisés par la page « Nouveautés » (modules/nouveautes/index.js).
+window.comprendreLeCadreLireRecent = comprendreLeCadreLireRecent;
+window.comprendreLeCadreRenduRecent = comprendreLeCadreRenduRecent;
+window.comprendreLeCadreBrancherRecent = comprendreLeCadreBrancherRecent;
+window.comprendreLeCadreOuvrirAccueil = comprendreLeCadreOuvrirAccueil;
 
 // Export CommonJS protege -- tests/comprendreLeCadreLogique.test.js (Node),
 // aucun effet sur le chargement navigateur classique (balise <script>,

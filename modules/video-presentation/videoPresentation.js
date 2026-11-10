@@ -52,6 +52,7 @@
     'modele': { fichier: 'videos/gestes/modele.mp4', libelle: 'Voir comment choisir un modèle', duree: '22 s' },
     'mise-en-page': { fichier: 'videos/gestes/mise-en-page.mp4', libelle: 'Voir comment régler la mise en page', duree: '28 s' },
     'rubriques': { fichier: 'videos/gestes/rubriques.mp4', libelle: 'Voir comment choisir ses rubriques', duree: '25 s' },
+    'disquette': { fichier: 'videos/pilotes/disquette.mp4', libelle: 'Voir à quoi sert la disquette', duree: '25 s' },
     'projet': { fichier: 'videos/gestes/projet.mp4', libelle: 'Voir comment remplir cette page', duree: '28 s' }
   };
   var LIBELLE_PAR_DEFAUT = 'Voir la présentation en vidéo';
@@ -156,6 +157,7 @@
   function brancherPanneaux() {
     brancherVideoGestePanneau('panneauPreferencesAffichage', 'zoneVideoAffichage', 'affichage');
     brancherVideoGestePanneau('panneauAide', 'zoneVideoAide', 'aide');
+    brancherVideoGestePanneau('panneauSessionTransfert', 'zoneVideoSession', 'disquette');
   }
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', brancherPanneaux); } else { brancherPanneaux(); }

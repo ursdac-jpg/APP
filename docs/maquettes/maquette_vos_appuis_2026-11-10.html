@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la rubrique « Vos appuis » (consigne 219, version 4)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 980px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: .95rem; }
+
+  /* Même langage que « Quelques précisions » : cadre, pastilles numérotées, boutons ovales, ligne d'état sous chaque partie */
+  .cv-section.rubrique { padding: 0; overflow: hidden; }
+  .rubrique-entete { padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); }
+  .rubrique-entete h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 .3rem; font-size: 1.35rem; font-weight: 800; }
+  .rubrique-entete .bilan { font-size: .85rem; font-weight: 700; padding: .1rem .7rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .rubrique-entete .bilan.complet { background: var(--success-bg-subtle, #d9f4e4); color: var(--success-strong); border-color: var(--success-strong); }
+  .partie { padding: .95rem 1.1rem; border-top: 1px solid var(--border); }
+  .partie:first-of-type { border-top: 0; }
+  .partie-titre { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; font-size: 1.05rem; margin-bottom: .3rem; }
+  .num-rubrique { flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; }
+  .partie-corps { margin-left: 2.5rem; }
+  .etat { margin-left: auto; font-size: .82rem; font-weight: 700; padding: .1rem .65rem; border-radius: 999px; white-space: nowrap; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .etat.fait { background: var(--success-bg-subtle, #d9f4e4); color: var(--success-strong); border-color: var(--success-strong); }
+  .suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+  .suggestion { min-height: 44px; padding: .35rem 1.4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; }
+  .suggestion:hover, .suggestion:focus-visible { border-color: var(--accent); }
+  .suggestion[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .suggestion[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .btn-ouvrir { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--accent-bg-subtle); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .btn-ouvrir.valide { background: var(--success-bg-subtle, #d9f4e4); border-color: var(--success-strong); color: var(--success-strong); }
+  .btn-depot { min-height: 44px; padding: .35rem 1.3rem; border: 2px dashed var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .btn-valider { min-height: 44px; padding: .35rem 1.6rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+  .btn-valider:disabled { background: var(--bg-hover, #e9eef5); border-color: var(--border-strong, var(--border)); color: var(--text-muted); cursor: default; }
+  .btn-aide { min-height: 40px; padding: .25rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; text-align: left; }
+  .btn-aide[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .ligne-dictee { margin-top: .7rem; }
+  .ligne-valider { display: flex; justify-content: flex-end; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .msg-valide { font-size: .9rem; font-weight: 600; color: var(--success-strong); }
+  .encart { margin-top: .6rem; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); }
+  .encart[hidden], .zone[hidden], [hidden] { display: none !important; }
+  .astuce-pas { margin: .6rem 0 0; padding: .6rem .9rem .6rem 2rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); font-size: .92rem; }
+  .astuce-pas ol { margin: 0 0 .4rem; padding-left: 1.1rem; }
+  .touche { display: inline-block; padding: 0 .4rem; border: 1px solid var(--border-strong, var(--border)); border-radius: 5px; background: var(--bg-card); font-weight: 700; }
+  .info-outil { color: var(--accent-texte); font-weight: 600; }
+  .info-outil .bi { font-size: 1.2rem; margin-right: .3rem; vertical-align: -.1rem; }
+  .variante { margin-top: 1.6rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette pour validation (consigne 219, version 4, même présentation que « Quelques précisions »).</strong> Rien n'est codé dans l'application. Les boutons fonctionnent pour que vous puissiez essayer. À valider avant tout code.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label><input type="checkbox" id="compFaites"> Simuler « Découvrir mes compétences » déjà terminé</label>
+    <label>Simuler l'appareil détecté :
+      <select id="appareil" class="form-select form-select-sm d-inline-block w-auto">
+        <option value="windows">Windows</option>
+        <option value="mac">Mac</option>
+        <option value="iphone">iPhone ou iPad</option>
+        <option value="android">Android</option>
+        <option value="autre">Non détecté</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="cv-section rubrique">
+    <div class="rubrique-entete">
+      <h3>&#129309; Vos appuis <span class="bilan" id="bilan">0 appui sur 3</span></h3>
+      <p class="small text-muted mb-0">Des documents et des mots que l'assistant peut lire pour employer les mots justes de votre métier. Plus vous donnez d'appuis, plus votre candidature a de poids. Rien n'est obligatoire : vous pouvez passer à la suite à tout moment.</p>
+    </div>
+
+    <!-- 1. Lettre de recommandation -->
+    <div class="partie" id="p1">
+      <div class="partie-titre"><span class="num-rubrique">1</span><span>Une lettre de recommandation</span><span class="etat" id="etat1">À compléter</span></div>
+      <div class="partie-corps">
+        <p class="small text-muted mb-1">D'un ancien employeur, d'un tuteur de stage, d'un formateur… Elle donne du poids à votre CV.</p>
+        <strong class="small">Avez-vous une lettre de recommandation ?</strong>
+        <div class="suggestions">
+          <button type="button" class="suggestion" aria-pressed="false" data-lettre="oui">Oui</button>
+          <button type="button" class="suggestion" aria-pressed="false" data-lettre="non">Non</button>
+        </div>
+        <div class="encart" id="depotLettre" hidden>
+          <p class="small mb-2">Déposez votre lettre ici : l'assistant la lira pour reprendre les qualités que votre ancien employeur a relevées.</p>
+          <button type="button" class="btn-depot" id="btnDepot">&#128196; Déposer ma lettre</button>
+          <div class="small mt-2" id="lettreDeposee" hidden>&#10003; Lettre déposée : lettre_recommandation.pdf</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Mes compétences -->
+    <div class="partie" id="p2">
+      <div class="partie-titre"><span class="num-rubrique">2</span><span>Votre document « Mes compétences »</span><span class="etat" id="etat2">À compléter</span></div>
+      <div class="partie-corps">
+        <p class="small text-muted mb-1">Le document que vous obtenez à la fin de « Découvrir mes compétences ». Il permet de retrouver des compétences que votre CV ne montrait pas.</p>
+        <div id="compDetecte" hidden>
+          <p class="small mb-0">&#10003; Le document de « Découvrir mes compétences » est retrouvé dans l'application (12 lignes).</p>
+        </div>
+        <strong class="small">Voulez-vous joindre votre document « Mes compétences » ?</strong>
+        <div class="suggestions">
+          <button type="button" class="suggestion" aria-pressed="false" data-comp="oui">Oui</button>
+          <button type="button" class="suggestion" aria-pressed="false" data-comp="non">Non</button>
+        </div>
+        <!-- Oui : même zone de dépôt que la lettre de recommandation -->
+        <div class="encart" id="depotComp" hidden>
+          <p class="small mb-2" id="txtDepotComp">Déposez votre document « Mes compétences » ici : l'assistant le lira avec le reste.</p>
+          <button type="button" class="btn-depot" id="btnDepotComp">&#128196; Déposer mon document « Mes compétences »</button>
+          <div class="small mt-2" id="compDeposee" hidden>&#10003; Document déposé : mes_competences.pdf</div>
+        </div>
+        <!-- Non : une simple ligne qui explique ce qu'est « Découvrir mes compétences », sans bouton ni engagement -->
+        <div class="encart" id="faireComp" hidden>
+          <p class="small mb-0 info-outil"><i class="bi bi-compass" aria-hidden="true"></i> Pour information : « Découvrir mes compétences » est un autre outil de l'application, qui aide à repérer ses compétences à partir de ce qu'on a vécu et qui donne ce document « Mes compétences ». Vous le trouvez sur la page d'accueil, dans la carte « Boîte à outils ».</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Dites-le avec vos mots (fermé par défaut) -->
+    <div class="partie" id="p3">
+      <div class="partie-titre"><span class="num-rubrique">3</span><span>Dites-le avec vos mots</span><span class="etat" id="etat3">À compléter</span></div>
+      <div class="partie-corps">
+        <p class="small text-muted mb-2">Un complément utile, pas la clé du CV : si vous n'avez pas trouvé ailleurs où le dire, écrivez ou dictez ce que vous voudriez mettre en avant.</p>
+        <button type="button" class="btn-ouvrir" id="btnMots" aria-expanded="false">&#9998; Écrire ou dicter mon texte</button>
+        <div class="zone" id="zoneMots" hidden>
+          <p class="small mt-3 mb-1">Quelques lignes suffisent. Évitez les noms, les téléphones et les adresses : ce texte est lu par l'assistant.</p>
+          <textarea class="form-control" rows="4" id="texteMots" placeholder="Quelques lignes suffisent."></textarea>
+
+          <!-- Dictée : à gauche, sur sa propre ligne, loin du bouton Valider ; le libellé suit l'appareil détecté -->
+          <div class="ligne-dictee">
+            <button type="button" class="btn-aide" id="btnDicter" aria-expanded="false"></button>
+            <div class="astuce-pas" id="pasDicter" hidden></div>
+          </div>
+
+          <!-- Valider : seul, en bas à droite -->
+          <div class="ligne-valider">
+            <span class="msg-valide" id="msgValide" hidden>&#10003; Texte bien validé</span>
+            <button type="button" class="btn-valider" id="btnValider" disabled>Valider mon texte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cv-section variante">
+    <h4>Ce que cette maquette change, et ne change pas</h4>
+    <ul class="small mb-0">
+      <li><strong>Bouton de dictée :</strong> à gauche, sur sa propre ligne sous le texte, bien séparé du bouton « Valider mon texte » qui est seul en bas à droite.</li>
+      <li><strong>Libellé selon l'appareil :</strong> on garde la détection actuelle (une seule brique pour toute l'application). Le bouton dit « Dicter à la voix : comment faire sur mon ordinateur Windows ? », ou sur mon Mac, mon iPhone ou mon iPad, mon téléphone Android. Si l'appareil n'est pas reconnu : « Dicter à la voix : comment faire ? », avec les quatre cas listés. Le clic déplie les gestes de l'appareil, comme aujourd'hui. Essayez la liste « Simuler l'appareil détecté » en haut.</li>
+      <li><strong>« Mes compétences » :</strong> si la personne répond « Oui », elle dispose de la même zone de dépôt que pour la lettre (« Déposer mon document « Mes compétences » », puis « Document déposé »), parce que ce document est celui qu'elle obtient à la fin de « Découvrir mes compétences » et qu'elle peut avoir sur son appareil. Si le document est déjà retrouvé dans l'application, un message le dit et « Oui » le joint ; elle peut aussi en déposer un autre. Si elle répond « Non » : un texte bleu, avec la boussole qui est l'icône du parcours, qui explique ce qu'est « Découvrir mes compétences » et où le trouver (page d'accueil, carte « Boîte à outils »), sans bouton ni invitation à le faire (la personne est là pour son CV) ; elle enchaîne.</li>
+      <li><strong>Boutons ovales</strong> partout dans la rubrique (et dans « Quelques précisions »), plus de trombone, bouton « Valider mon texte » avec les étiquettes « À valider » puis « Fait », « Texte bien validé » à la place de « Fermer ce texte » : inchangés depuis la version 3.</li>
+      <li><strong>Où :</strong> sur « Choisissez votre assistant » du récit, et sur les pages qui reprennent ces blocs : un seul composant, jamais recopié.</li>
+    </ul>
+  </div>
+</div>
+<script>
+  var texteValide = '';
+  var APPAREILS = {
+    windows: { nom: 'mon ordinateur Windows', pas: ['Cliquez dans la zone où vous voulez écrire.', 'Appuyez en même temps sur la touche <span class="touche">Windows</span> et la touche <span class="touche">H</span>.', 'Une petite fenêtre avec un micro apparaît : parlez, votre texte s’écrit. Appuyez sur le micro pour arrêter.'], aide: 'Il faut être connecté à internet. Si rien ne se passe, vérifiez que le micro de l’ordinateur est branché.' },
+    mac: { nom: 'mon Mac', pas: ['Cliquez dans la zone où vous voulez écrire.', 'Appuyez <strong>deux fois de suite</strong> sur la touche <span class="touche">fn</span> (en bas à gauche du clavier).', 'Un petit micro apparaît : parlez, votre texte s’écrit. Appuyez sur « Terminé » pour arrêter.'], aide: 'Si rien ne se passe : ouvrez le menu « Édition » en haut de l’écran, puis « Démarrer la dictée ».' },
+    iphone: { nom: 'mon iPhone ou mon iPad', pas: ['Touchez la zone où vous voulez écrire : le clavier apparaît.', 'Touchez le petit <strong>micro</strong> en bas à droite du clavier.', 'Parlez : votre texte s’écrit. Touchez à nouveau le micro pour arrêter.'], aide: 'Si vous ne voyez pas de micro : Réglages, Général, Clavier, puis activez « Activer la dictée ».' },
+    android: { nom: 'mon téléphone Android', pas: ['Touchez la zone où vous voulez écrire : le clavier apparaît.', 'Touchez le petit <strong>micro</strong> sur le clavier (en haut ou à droite, selon le téléphone).', 'Parlez : votre texte s’écrit. Touchez à nouveau le micro pour arrêter.'], aide: 'Si vous ne voyez pas de micro, il peut être à activer dans les réglages du clavier.' }
+  };
+  function majDictee() {
+    var a = APPAREILS[document.getElementById('appareil').value];
+    var b = document.getElementById('btnDicter'), p = document.getElementById('pasDicter');
+    b.innerHTML = '&#127908; Dicter à la voix : ' + (a ? 'comment faire sur ' + a.nom + ' ?' : 'comment faire ?');
+    p.innerHTML = a
+      ? '<ol>' + a.pas.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol><div class="small text-muted">' + a.aide + '</div>'
+      : '<ul class="mb-0"><li><strong>Ordinateur Windows</strong> : touche <span class="touche">Windows</span> + <span class="touche">H</span>, puis parlez.</li><li><strong>Mac</strong> : appuyez deux fois sur la touche <span class="touche">fn</span>, puis parlez.</li><li><strong>iPhone ou iPad</strong> : touchez le micro en bas à droite du clavier.</li><li><strong>Téléphone Android</strong> : touchez le micro sur le clavier.</li></ul>';
+  }
+  function maj() {
+    var n = 0;
+    var lettre = document.querySelector('[data-lettre][aria-pressed="true"]');
+    var deposee = !document.getElementById('lettreDeposee').hidden;
+    var e1 = document.getElementById('etat1');
+    var f1 = deposee || (lettre && lettre.getAttribute('data-lettre') === 'non');
+    e1.textContent = deposee ? 'Fait' : (lettre && lettre.getAttribute('data-lettre') === 'non' ? 'Pas de lettre' : 'À compléter');
+    e1.classList.toggle('fait', !!f1); if (deposee) { n++; }
+
+    var detecte = document.getElementById('compFaites').checked;
+    document.getElementById('compDetecte').hidden = !detecte;
+    var oui = document.querySelector('[data-comp][aria-pressed="true"]');
+    var choix = oui ? oui.getAttribute('data-comp') : '';
+    document.getElementById('depotComp').hidden = choix !== 'oui';
+    document.getElementById('faireComp').hidden = choix !== 'non';
+    document.getElementById('txtDepotComp').textContent = detecte
+      ? "Votre document est déjà retrouvé : il sera joint. Vous pouvez aussi en déposer un autre ici."
+      : "Déposez votre document « Mes compétences » ici : l'assistant le lira avec le reste.";
+    var compDeposee = !document.getElementById('compDeposee').hidden;
+    var joint = choix === 'oui' && (detecte || compDeposee);
+    var e2 = document.getElementById('etat2');
+    e2.textContent = joint ? 'Fait' : (choix === 'oui' ? 'À déposer' : (choix === 'non' ? 'Non joint' : 'À compléter'));
+    e2.classList.toggle('fait', joint || choix === 'non'); if (joint) { n++; }
+
+    var t = document.getElementById('texteMots').value.trim();
+    var valide = t !== '' && t === texteValide;
+    var e3 = document.getElementById('etat3');
+    e3.textContent = valide ? 'Fait' : (t ? 'À valider' : 'À compléter'); e3.classList.toggle('fait', valide); if (valide) { n++; }
+    document.getElementById('btnValider').disabled = !t || valide;
+    document.getElementById('msgValide').hidden = !valide;
+    var bm = document.getElementById('btnMots'), ouvert = !document.getElementById('zoneMots').hidden;
+    bm.classList.toggle('valide', valide);
+    bm.innerHTML = valide ? '&#10003; Texte bien validé (cliquez pour ' + (ouvert ? 'fermer' : 'le relire') + ')' : (ouvert ? '&#10006; Fermer ce texte' : '&#9998; Écrire ou dicter mon texte');
+    var b = document.getElementById('bilan'); b.textContent = n + (n > 1 ? ' appuis' : ' appui') + ' sur 3'; b.classList.toggle('complet', n === 3);
+  }
+  function choisir(sel) {
+    document.querySelectorAll(sel).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var etait = b.getAttribute('aria-pressed') === 'true';
+        document.querySelectorAll(sel).forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        if (!etait) { b.setAttribute('aria-pressed', 'true'); }
+        if (sel === '[data-lettre]') { document.getElementById('depotLettre').hidden = !(b.getAttribute('data-lettre') === 'oui' && !etait); }
+        maj();
+      });
+    });
+  }
+  choisir('[data-lettre]');
+  choisir('[data-comp]');
+  document.getElementById('btnDicter').addEventListener('click', function () {
+    var p = document.getElementById('pasDicter'), ouvrir = p.hidden;
+    p.hidden = !ouvrir; this.setAttribute('aria-expanded', String(ouvrir));
+  });
+  document.getElementById('appareil').addEventListener('change', majDictee);
+  document.getElementById('btnDepot').addEventListener('click', function () { document.getElementById('lettreDeposee').hidden = false; maj(); });
+  document.getElementById('btnDepotComp').addEventListener('click', function () { document.getElementById('compDeposee').hidden = false; maj(); });
+  document.getElementById('compFaites').addEventListener('change', maj);
+  document.getElementById('texteMots').addEventListener('input', maj);
+  document.getElementById('btnValider').addEventListener('click', function () { texteValide = document.getElementById('texteMots').value.trim(); maj(); });
+  document.getElementById('btnMots').addEventListener('click', function () {
+    var z = document.getElementById('zoneMots'), ouvrir = z.hidden;
+    z.hidden = !ouvrir; this.setAttribute('aria-expanded', String(ouvrir));
+    if (ouvrir) { document.getElementById('texteMots').focus(); }
+    maj();
+  });
+  document.getElementById('modeSombre').addEventListener('change', function () {
+    document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair');
+  });
+  majDictee();
+  maj();
+</script>
+</body>
+</html>

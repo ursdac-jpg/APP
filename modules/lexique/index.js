@@ -1985,47 +1985,59 @@ function lexiqueMotsPageSynchroniser() {
   if (!btn) { return; }
   // Bulle au survol (ordinateur) : l'ancienne note refermable, devenue une bulle ; sur téléphone elle n'apparaît pas, la personne ne perd rien.
   if (!btn.getAttribute('title')) { btn.setAttribute('title', 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.'); }
-  var conteneur = btn.closest('.bloc-revoir-module') || btn.parentElement;
   var texte = _lexiqueMotsPageTexte();
   var ancien = app.querySelector('.mots-page-zone');
-  if (ancien && ancien.previousElementSibling === conteneur && ancien.getAttribute('data-longueur') === String(texte.length)) { return; }
+  if (ancien && ancien.getAttribute('data-longueur') === String(texte.length)) { _lexiqueMotsPageEmplacer(ancien); return; }
   var r = _lexiqueMotsDeLaPage(texte, 9999);
   if (ancien) { ancien.remove(); }
   _lexiqueMotsPageResultat = r;
-  if (!r.total) { return; }
+  if (!r.total) { delete _lexiqueMotsPageMemoire[_lexiqueMotsPageCle()]; return; }
   var zone = document.createElement('div');
   zone.className = 'mots-page-zone';
   zone.setAttribute('data-longueur', String(texte.length));
   zone.innerHTML = '<button type="button" class="mots-page-bouton" aria-expanded="false" ' +
     'title="Ces mots sont expliqués dans le Lexique, avec plus de détails que sur cette page."><i class="bi bi-book" aria-hidden="true"></i> <span>Mots de cette page expliqués dans le Lexique</span> <span class="mots-page-nb">' + r.total + (r.total > 1 ? ' mots' : ' mot') + '</span></button>' +
     '<div class="mots-page-panneau" hidden></div>';
-  conteneur.insertAdjacentElement('afterend', zone);
-  _lexiqueMotsPageAligner(zone, btn);
+  _lexiqueMotsPageEmplacer(zone);
+  _lexiqueMotsPageMemoire[_lexiqueMotsPageCle()] = { html: zone.innerHTML, longueur: texte.length, resultat: r };
 }
-// Aligne le bouton « Mots de cette page » sur le bord gauche de « Revoir la présentation », quelle que soit la page : sur certaines pages
-// (ex. « Vos informations » du CV) le bouton « Revoir » n'est pas dans le bloc habituel et la zone retombait au bord de l'écran (vu le 08/11/2026).
-// Garantit aussi un petit espace (10 px) entre les deux boutons : sur la plupart des modules « Revoir » est dans un simple bloc sans marge basse
-// et le décalage négatif de la zone faisait toucher les deux boutons (vu le 08/11/2026, consigne 168).
-function _lexiqueMotsPageAligner(zone, btn) {
-  zone.style.marginLeft = '';
-  zone.style.paddingTop = '';
-  var b = zone.querySelector('.mots-page-bouton');
-  if (!b || !btn) { return; }
-  var dx = btn.getBoundingClientRect().left - b.getBoundingClientRect().left;
-  if (Math.abs(dx) > 1) { zone.style.marginLeft = ((parseFloat(getComputedStyle(zone).marginLeft) || 0) + dx) + 'px'; }
-  var ecart = b.getBoundingClientRect().top - btn.getBoundingClientRect().bottom;
-  if (ecart < 10) { zone.style.paddingTop = (10 - ecart) + 'px'; }
+// Retour Denis 10/11/2026 (« l'écran monte puis redescend au premier clic ») : à chaque redessin de la page, la zone « Mots de cette page » disparaissait avec le reste puis revenait 350 ms
+// plus tard : toute la page remontait d'une ligne, puis redescendait. Cause : le repérage est différé (coûteux). Correctif : la zone déjà connue de CETTE page (même route, même titre)
+// est remise IMMÉDIATEMENT, dans la même passe que le redessin (avant l'affichage), puis le repérage différé la confirme ou la met à jour sans changer la hauteur.
+var _lexiqueMotsPageMemoire = {};
+function _lexiqueMotsPageCle() {
+  return (typeof pageActuelle !== 'undefined' ? pageActuelle : '') + '|' + _lexiqueMotsPageLabel();
 }
-if (typeof window !== 'undefined') {
-  var _lexiqueMotsPageMinuteurAligner = null;
-  window.addEventListener('resize', function () {
-    clearTimeout(_lexiqueMotsPageMinuteurAligner);
-    _lexiqueMotsPageMinuteurAligner = setTimeout(function () {
-      var zone = typeof app !== 'undefined' && app ? app.querySelector('.mots-page-zone') : null;
-      var btn = zone ? [].slice.call(app.querySelectorAll('.btn-revoir-module')).filter(function (x) { return x.getBoundingClientRect().width > 0 && /^\s*Revoir/.test(x.textContent || ''); })[0] : null;
-      if (zone && btn) { _lexiqueMotsPageAligner(zone, btn); }
-    }, 250);
-  });
+function lexiqueMotsPageRemettreVite() {
+  if (typeof app === 'undefined' || !app) { return; }
+  if (typeof pageActuelle !== 'undefined' && pageActuelle === 'lexique') { return; }
+  if (app.querySelector('.mots-page-zone')) { return; }
+  var m = _lexiqueMotsPageMemoire[_lexiqueMotsPageCle()];
+  if (!m) { return; }
+  var btn = [].slice.call(app.querySelectorAll('.btn-revoir-module')).filter(function (b) {
+    return b.getBoundingClientRect().width > 0 && /^\s*Revoir/.test(b.textContent || '');
+  })[0];
+  if (!btn) { return; }
+  var zone = document.createElement('div');
+  zone.className = 'mots-page-zone';
+  zone.setAttribute('data-longueur', String(m.longueur));
+  zone.innerHTML = m.html;
+  _lexiqueMotsPageEmplacer(zone);
+  _lexiqueMotsPageResultat = m.resultat;
+}
+// Consigne 218 (10/11/2026) : le bouton « Mots de cette page » est tout EN BAS de la page (au-dessus de la barre du bas), plus sous « Revoir la présentation » où il
+// repoussait le contenu. On le range à la fin du contenu de la page ; si le contenu grandit ensuite (bloc déplié, étape suivante), le repérage différé le replace en dernier.
+function _lexiqueMotsPageEmplacer(zone) {
+  if (typeof app === 'undefined' || !app || !zone) { return; }
+  var contenus = [].slice.call(app.children).filter(function (c) { return c !== zone && !c.classList.contains('barre-navigation-fixe') && !c.classList.contains('mots-page-zone'); });
+  var dernier = contenus[contenus.length - 1];
+  if (!dernier) { return; }
+  var dansLeContenu = dernier.matches('.page-catalogue-contenu, .page-module, .container, .container-fluid');
+  if (dansLeContenu) {
+    if (zone.parentElement !== dernier || zone.nextElementSibling) { dernier.appendChild(zone); }
+  } else if (zone.previousElementSibling !== dernier || zone.parentElement !== app) {
+    dernier.insertAdjacentElement('afterend', zone);
+  }
 }
 function _lexiqueMotsPageBoutons(mots, attribut) {
   return mots.map(function (m) {
@@ -2094,6 +2106,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
 if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.body) {
   var _lexiqueMotsPageMinuteur = null;
   new MutationObserver(function () {
+    try { lexiqueMotsPageRemettreVite(); } catch (e) { /* le repérage différé prend le relais */ }
     clearTimeout(_lexiqueMotsPageMinuteur);
     _lexiqueMotsPageMinuteur = setTimeout(lexiqueMotsPageSynchroniser, 350);
   }).observe(document.body, { childList: true, subtree: true });

@@ -691,3 +691,6 @@ button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signa
 
 /* Bloc « Dans les fiches » : une carte fixe (pas repliable) par fiche ajoutée ou mise à jour. */
 .comprendre-le-cadre-fiche-recente { padding: .7rem 1rem .8rem; }
+/* Ligne « Dernière mise à jour » de « Ce qui a changé récemment » (module et page Nouveautés) : bien visible, la date en toutes lettres. */
+.comprendre-le-cadre-maj { font-size: 1.05rem; color: var(--text-strong); }
+.comprendre-le-cadre-maj .bi { color: var(--accent-texte); }

@@ -166,6 +166,10 @@ var _decouverteInfosBlocsInitialisees = false;
 // rendu (sinon impossible de refermer/rouvrir manuellement ensuite).
 // Remis a false par fermerDecouverteCompetences().
 var _decouverteCascadeParcoursFaite = false;
+// Signalement utilisateur 10/11/2026 : « impossible d'aller au CV alors que tout était complété ». À l'étape « Vos informations », le bouton
+// « Continuer » restait grisé tant que l'identité n'était pas enregistrée par un clic caché plus bas. Il reste maintenant cliquable : s'il manque
+// quelque chose, ce drapeau fait afficher un message dans la page (jamais seulement une infobulle au survol).
+var _decouverteRappelIdentite = false;
 
 // ------------------------------------------------------------
 // Flèche « Précédent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
@@ -535,6 +539,7 @@ function ouvrirDecouverteCompetences() {
     // élément garde son propre état d'ouverture, indépendamment des autres.
     detailsPliesOuverts: {},
     reponsesQuestionsCiblees: [],
+    choixQuestionsCiblees: {},
     questionsCiblees: [],
     strategie: null,
     typeCVChoisi: null
@@ -628,7 +633,7 @@ function ouvrirDecouverteCompetences() {
       // Vos competences) demande etape.sansCarte pour ne pas empiler
       // carte dans carte.
       '<div' + (etape.sansCarte ? '' : ' class="cv-section"') + ' id="contenuEtapeDecouverte">' + etape.contenuHTML + '</div>' +
-      '<div class="d-flex justify-content-between align-items-center mt-3 pt-3 decouverte-barre-actions">' +
+      '<div class="d-flex justify-content-between align-items-center mt-3 pt-3 decouverte-barre-actions"' + (etape.masquerContinuer || etape.continuerDansBarre ? '' : ' data-barre-bas-zone') + '>' +
       // TACHE (retour Denis, 2026-09-18, point 2) : l'ancien bouton "Retour"
       // dans la page (id="btnRetourDecouverte") est retire -- il faisait
       // doublon avec celui de la barre du bas (avec Accueil), qui reprend
@@ -638,7 +643,8 @@ function ouvrirDecouverteCompetences() {
       '<span></span>' +
       (etape.boutonMilieuHTML || '<span></span>') +
       (etape.masquerContinuer ? '' :
-        '<button type="button" id="btnContinuerDecouverte" class="btn btn-primary"' +
+        '<button type="button" id="btnContinuerDecouverte" class="btn btn-primary" data-barre-bas="1"' +
+        (etape.raisonBlocage ? ' data-barre-bas-message="' + echapperAttribut(etape.raisonBlocage) + '"' : '') +
         (etape.peutContinuer ? '' : ' disabled') +
         // TACHE (retour utilisateur : "le bouton est désactivé, ce n'est
         // pas clair pourquoi -- un message, ou encore mieux les 2 choix
@@ -1233,13 +1239,21 @@ function ouvrirDecouverteCompetences() {
             // encore l'ancien format (chaîne brute) le temps que l’assistant suive
             // pleinement la nouvelle consigne, jamais un plantage si elle
             // ne renvoie pas exactement la forme attendue.
+            // Nouvelles questions = nouvelles réponses : les anciennes (et leurs choix cochés) ne se rapportent plus aux mêmes questions.
+            etat.reponsesQuestionsCiblees = []; etat.choixQuestionsCiblees = {};
             etat.questionsCiblees = (resultat.valeurs.questionsCiblees || []).map(function (q) {
               if (typeof q === 'string') { return { texte: q, fragmentIndex: null, type: 'texte' }; }
-              return {
+              var questionNormalisee = {
                 texte: q.texte || '',
                 fragmentIndex: (typeof q.fragmentIndex === 'number') ? q.fragmentIndex : null,
                 type: (q.type === 'date') ? 'date' : 'texte'
               };
+              // 10/11/2026 (consigne 217) : réponses suggérées, déjà validées par l'analyse.
+              if (questionNormalisee.type === 'texte' && Array.isArray(q.reponses) && q.reponses.length >= 2) {
+                questionNormalisee.choix = (q.choix === 'multiple') ? 'multiple' : 'unique';
+                questionNormalisee.reponses = q.reponses;
+              }
+              return questionNormalisee;
             });
             afficherEtape(6);
           }
@@ -1371,18 +1385,26 @@ function ouvrirDecouverteCompetences() {
     if (toutesValidees && etat.modeRecap === null) { etat.modeRecap = true; }
     if (!etat.ongletFragmentActif && etat.etatsFragments.length) {
       var premierNonValide = etat.etatsFragments.filter(function (ef) { return !fragmentEstValide(ef); })[0];
-      etat.ongletFragmentActif = (premierNonValide || etat.etatsFragments[0]).fragmentId;
+      // Consigne 195 (10/11/2026) : avec plusieurs expériences, l'affichage de départ est « Tout » (toutes les expériences l'une après l'autre) ; un bouton par expérience n'en montre qu'une.
+      etat.ongletFragmentActif = etat.etatsFragments.length > 1 ? 'tout' : (premierNonValide || etat.etatsFragments[0]).fragmentId;
     }
 
     var maxCompetencesParExperience = 5;
 
     var boutons = '', panneaux = '';
+    if (etat.etatsFragments.length > 1) {
+      boutons += '<button type="button" class="onglet-validation-import-btn' + (etat.ongletFragmentActif === 'tout' ? ' actif' : '') + '" data-onglet-fragment="tout">&#128203; Tout (' + etat.etatsFragments.length + ')' + (toutesValidees ? ' &#10003;' : '') + '</button>';
+    }
     etat.etatsFragments.forEach(function (ef, i) {
-      var actif = etat.ongletFragmentActif === ef.fragmentId;
+      var modeTout = etat.ongletFragmentActif === 'tout';
+      var actif = modeTout || etat.ongletFragmentActif === ef.fragmentId;
       var coche = fragmentEstValide(ef) ? ' &#10003;' : '';
-      boutons += '<button type="button" class="onglet-validation-import-btn' + (actif ? ' actif' : '') +
+      boutons += '<button type="button" class="onglet-validation-import-btn' + (etat.ongletFragmentActif === ef.fragmentId ? ' actif' : '') +
         '" data-onglet-fragment="' + ef.fragmentId + '">' + iconeOrigineFragment(ef.origine) + ' Expérience ' + (i + 1) + coche + '</button>';
       panneaux += '<div class="onglet-validation-import-panel' + (actif ? ' actif' : '') + '" data-panel-fragment="' + ef.fragmentId + '">' +
+        // Consigne 215 (10/11/2026) : le titre de chaque expérience est grand, clair, et dit de quelle expérience il s'agit (les mots de la personne), pour ne jamais confondre deux expériences.
+        (modeTout ? '<h3 class="titre-fragment-tout mt-4 mb-2">' + iconeOrigineFragment(ef.origine) + ' Expérience ' + (i + 1) + (fragmentEstValide(ef) ? ' <span class="titre-fragment-valide">&#10003; validée</span>' : '') +
+          (ef.texteOriginal ? '<span class="titre-fragment-nom">' + echapperAttribut(String(ef.texteOriginal).length > 90 ? String(ef.texteOriginal).slice(0, 87).replace(/\s+\S*$/, '') + '…' : String(ef.texteOriginal)) + '</span>' : '') + '</h3>' : '') +
         contenuFragment(ef, i, maxCompetencesParExperience) + '</div>';
     });
 
@@ -1439,6 +1461,14 @@ function ouvrirDecouverteCompetences() {
     };
   }
 
+
+  // Réaffiche l'étape des compétences. En mode « Tout », la personne reste là où elle était dans la page (une validation en bas ne la ramène pas en haut).
+  function reafficherEtapeCompetences() {
+    var tout = etat.ongletFragmentActif === 'tout';
+    var y = window.pageYOffset || 0;
+    afficherEtape(6);
+    if (tout && y) { window.scrollTo(0, y); }
+  }
 
   function cablerEtapeDecouverte() {
     // TACHE (retour utilisateur : "si je retourne sur une expérience
@@ -1554,13 +1584,26 @@ function ouvrirDecouverteCompetences() {
         // récapitulatif à ce moment-là, peu importe l'état précédent.
         if (etat.etatsFragments.every(fragmentEstValide)) {
           etat.modeRecap = true;
-        } else if (!etat.modeRecap) {
+        } else if (!etat.modeRecap && etat.ongletFragmentActif !== 'tout') {
           var suivant = etat.etatsFragments.filter(function (x) { return !fragmentEstValide(x); })[0];
           etat.ongletFragmentActif = suivant ? suivant.fragmentId : id;
         }
-        afficherEtape(6);
+        reafficherEtapeCompetences();
+        allerAExperienceSuivante(id);
       });
     });
+    // Consigne 215 (10/11/2026) : en mode « Tout », après la validation d'une expérience, la page descend d'elle-même jusqu'à la suivante à valider.
+    function allerAExperienceSuivante(idValide) {
+      if (etat.ongletFragmentActif !== 'tout' || etat.etatsFragments.every(fragmentEstValide)) { return; }
+      var ordre = etat.etatsFragments;
+      var pos = ordre.map(function (x) { return x.fragmentId; }).indexOf(idValide);
+      var suivante = ordre.slice(pos + 1).concat(ordre.slice(0, pos + 1)).filter(function (x) { return !fragmentEstValide(x); })[0];
+      if (!suivante) { return; }
+      setTimeout(function () {
+        var panneau = document.querySelector('[data-panel-fragment="' + suivante.fragmentId + '"]');
+        if (panneau && panneau.scrollIntoView) { try { panneau.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { panneau.scrollIntoView(); } }
+      }, 120);
+    }
     document.querySelectorAll('[data-raffiner-fragment]').forEach(function (btn) {
       btn.addEventListener('click', function () { etat.fragmentEnRaffinement = btn.dataset.raffinerFragment; afficherEtape(6); });
     });
@@ -1572,11 +1615,12 @@ function ouvrirDecouverteCompetences() {
         executerValidationFragment(ef, {});
         if (etat.etatsFragments.every(fragmentEstValide)) {
           etat.modeRecap = true;
-        } else {
+        } else if (etat.ongletFragmentActif !== 'tout') {
           var suivant = etat.etatsFragments.filter(function (x) { return !fragmentEstValide(x); })[0];
           etat.ongletFragmentActif = suivant ? suivant.fragmentId : id;
         }
-        afficherEtape(6);
+        reafficherEtapeCompetences();
+        allerAExperienceSuivante(id);
       });
     });
     document.querySelectorAll('[data-copier-precision]').forEach(function (btn) {
@@ -1656,11 +1700,175 @@ function ouvrirDecouverteCompetences() {
     return options;
   }
 
+  // ------------------------------------------------------------
+  // Quelques précisions : numéros, réponses suggérées, état de chaque réponse
+  // (10/11/2026, consignes 217 et 219, maquette validée par Denis)
+  // ------------------------------------------------------------
+  // Règle essentielle (Denis) : TOUTES les questions reçues sont toujours
+  // posées. Les réponses suggérées sont un plus, jamais une condition : une
+  // question sans suggestion garde son champ libre.
+  function questionAvecSuggestions(q) {
+    return !!(q && q.type === 'texte' && Array.isArray(q.reponses) && q.reponses.length >= 2);
+  }
+
+  // « Tout cocher » / « Les deux » : seulement en choix multiple.
+  function libelleToutCocher(q) { return q.reponses.length === 2 ? 'Les deux' : 'Tout cocher'; }
+  function libelleAutre(q) { return q.choix === 'multiple' ? 'Autre chose' : 'Autre'; }
+
+  function enteteQuestionCiblee(q, i, etiquette) {
+    return '<div class="mb-3 qc-bloc" data-qc="' + i + '"><div class="qc-texte">' +
+      '<span class="num-rubrique" aria-hidden="true">' + (i + 1) + '</span>' +
+      '<label class="form-label small fw-semibold mb-0"' + (q.type === 'texte' && !questionAvecSuggestions(q) ? ' for="reponseCiblee_' + i + '"' : '') + '>' +
+      echapperAttribut(q.texte) + (etiquette ? ' <span class="qc-etiquette">' + etiquette + '</span>' : '') + '</label></div>';
+  }
+
+  function ligneEtatQuestionCiblee(i) {
+    return '<div class="qc-etat" data-qc-etat="' + i + '"></div>';
+  }
+
+  function etatChoixQuestion(i) {
+    etat.choixQuestionsCiblees = etat.choixQuestionsCiblees || {};
+    if (!etat.choixQuestionsCiblees[i]) { etat.choixQuestionsCiblees[i] = { sel: [], autre: '', autreOuvert: false }; }
+    return etat.choixQuestionsCiblees[i];
+  }
+
+  // Réponse sous forme de texte (celle que lit finaliserMappingDossier() et qui
+  // part ensuite vers l'assistant) : phrases cochées, puis le texte de « Autre ».
+  function reponseTexteQuestionSuggestions(q, i) {
+    var ch = etatChoixQuestion(i), parts = [];
+    ch.sel.slice().sort(function (a, b) { return a - b; }).forEach(function (k) { if (q.reponses[k]) { parts.push(q.reponses[k]); } });
+    if (ch.autreOuvert && ch.autre.trim()) { parts.push(ch.autre.trim()); }
+    return parts.join(' ; ');
+  }
+
+  function htmlQuestionSuggestions(q, i) {
+    var ch = etatChoixQuestion(i), multiple = q.choix === 'multiple';
+    var boutons = q.reponses.map(function (r, k) {
+      var presse = ch.sel.indexOf(k) !== -1;
+      return '<button type="button" class="qc-ovale' + (r.length > 38 ? ' longue' : '') + '" data-qc-rep="' + i + '" data-k="' + k + '" aria-pressed="' + presse + '">' + echapperAttribut(r) + '</button>';
+    }).join('');
+    if (multiple) {
+      var tousCoches = q.reponses.every(function (r, k) { return ch.sel.indexOf(k) !== -1; });
+      boutons += '<button type="button" class="qc-ovale tout" data-qc-tout="' + i + '" aria-pressed="' + tousCoches + '">' + libelleToutCocher(q) + '</button>';
+    }
+    boutons += '<button type="button" class="qc-ovale autre" data-qc-autre="' + i + '" aria-pressed="' + ch.autreOuvert + '">' + libelleAutre(q) + '</button>';
+    return enteteQuestionCiblee(q, i, multiple ? 'plusieurs choix' : 'un seul choix') +
+      (multiple ? '<p class="qc-consigne">Cochez seulement ce que vous avez réellement fait. Vous pouvez en choisir plusieurs.</p>' : '') +
+      '<div class="qc-suggestions" role="group">' + boutons + '</div>' +
+      '<div class="qc-zone-autre' + (ch.autreOuvert ? ' ouverte' : '') + '"><input type="text" class="form-control form-control-sm" id="reponseCibleeAutre_' + i + '" placeholder="Écrivez votre réponse" value="' + echapperAttribut(ch.autre) + '"></div>' +
+      ligneEtatQuestionCiblee(i) + '</div>';
+  }
+
+  function brancherQuestionSuggestions(q, i) {
+    var ch = etatChoixQuestion(i), multiple = q.choix === 'multiple';
+    var bloc = document.querySelector('[data-qc="' + i + '"]');
+    if (!bloc) { return; }
+    function rafraichir() {
+      bloc.querySelectorAll('[data-qc-rep]').forEach(function (b) {
+        b.setAttribute('aria-pressed', ch.sel.indexOf(parseInt(b.getAttribute('data-k'), 10)) !== -1 ? 'true' : 'false');
+      });
+      var tout = bloc.querySelector('[data-qc-tout]');
+      if (tout) { tout.setAttribute('aria-pressed', q.reponses.every(function (r, k) { return ch.sel.indexOf(k) !== -1; }) ? 'true' : 'false'); }
+      var btnAutre = bloc.querySelector('[data-qc-autre]');
+      if (btnAutre) { btnAutre.setAttribute('aria-pressed', ch.autreOuvert ? 'true' : 'false'); }
+      var zone = bloc.querySelector('.qc-zone-autre');
+      if (zone) { zone.classList.toggle('ouverte', ch.autreOuvert); }
+      etat.reponsesQuestionsCiblees[i] = reponseTexteQuestionSuggestions(q, i);
+      majEtatsQuestionsCiblees();
+    }
+    bloc.querySelectorAll('[data-qc-rep]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = parseInt(this.getAttribute('data-k'), 10), pos = ch.sel.indexOf(k);
+        if (multiple) {
+          if (pos === -1) { ch.sel.push(k); } else { ch.sel.splice(pos, 1); }
+        } else {
+          ch.sel = (pos === -1) ? [k] : [];
+          ch.autreOuvert = false;
+        }
+        rafraichir();
+      });
+    });
+    var btnTout = bloc.querySelector('[data-qc-tout]');
+    if (btnTout) {
+      btnTout.addEventListener('click', function () {
+        var tous = q.reponses.every(function (r, k) { return ch.sel.indexOf(k) !== -1; });
+        ch.sel = tous ? [] : q.reponses.map(function (r, k) { return k; });
+        rafraichir();
+      });
+    }
+    var btnAutre = bloc.querySelector('[data-qc-autre]');
+    if (btnAutre) {
+      btnAutre.addEventListener('click', function () {
+        ch.autreOuvert = !ch.autreOuvert;
+        if (ch.autreOuvert && !multiple) { ch.sel = []; }
+        rafraichir();
+        if (ch.autreOuvert) { var champ = document.getElementById('reponseCibleeAutre_' + i); if (champ) { champ.focus(); } }
+      });
+    }
+    var champAutre = document.getElementById('reponseCibleeAutre_' + i);
+    if (champAutre) {
+      champAutre.addEventListener('input', function () { ch.autre = this.value; rafraichir(); });
+      champAutre.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') { return; }
+        e.preventDefault();
+        passerAuChampSuivantQuestionCiblee(i);
+      });
+    }
+    // Une réponse déjà donnée (retour sur l'écran) est remise dans l'état de la page.
+    etat.reponsesQuestionsCiblees[i] = reponseTexteQuestionSuggestions(q, i);
+  }
+
+  // Touche Entrée : passe au champ de texte de la question suivante (le premier
+  // qui existe et qui est visible) ; à défaut, « Continuer ».
+  function passerAuChampSuivantQuestionCiblee(i) {
+    for (var j = i + 1; j < etat.questionsCiblees.length; j++) {
+      var champ = document.getElementById('reponseCiblee_' + j);
+      if (!champ) {
+        var autre = document.getElementById('reponseCibleeAutre_' + j);
+        if (autre && autre.closest('.qc-zone-autre') && autre.closest('.qc-zone-autre').classList.contains('ouverte')) { champ = autre; }
+      }
+      if (champ) { champ.focus(); return; }
+    }
+    var continuer = document.getElementById('btnContinuerDecouverte');
+    if (continuer) { continuer.click(); }
+  }
+
+  // Texte affiché dans « Votre réponse : … » pour une question, quel que soit son type.
+  function resumeReponseQuestionCiblee(i) {
+    var r = etat.reponsesQuestionsCiblees[i];
+    if (r && typeof r === 'object') {
+      var q = etat.questionsCiblees[i], morceaux = [];
+      if (q && (q.type === 'formation' || q.type === 'engagement') && r.texte && r.texte.trim()) { morceaux.push(r.texte.trim()); }
+      if (r.dateDebut) { morceaux.push(r.dateDebut + ' à ' + (r.dateFin || 'toujours en cours')); }
+      else if (r.dateFin) { morceaux.push('jusqu’en ' + r.dateFin); }
+      if (r.niveau) { morceaux.push(r.niveau); }
+      return morceaux.join(' ; ');
+    }
+    return (typeof r === 'string') ? r.trim() : '';
+  }
+
+  // Met à jour, sans redessiner la page, la ligne « À compléter » / « Votre
+  // réponse : … » sous chaque question et le compteur « n réponses sur N ».
+  function majEtatsQuestionsCiblees() {
+    var total = etat.questionsCiblees.length, faits = 0;
+    etat.questionsCiblees.forEach(function (q, i) {
+      var ligne = document.querySelector('[data-qc-etat="' + i + '"]');
+      var resume = resumeReponseQuestionCiblee(i);
+      if (resume) { faits++; }
+      if (!ligne) { return; }
+      ligne.textContent = resume ? 'Votre réponse : ' + resume : 'À compléter';
+      ligne.classList.toggle('fait', !!resume);
+    });
+    var compteur = document.getElementById('compteurQuestionsCiblees');
+    if (compteur) { compteur.textContent = faits + (faits > 1 ? ' réponses' : ' réponse') + ' sur ' + total; }
+  }
+
   function etapeQuestionsCiblees() {
     return {
       titre: '❓ Quelques précisions',
       contenuHTML:
-        '<p class="text-muted small mb-3">Ces quelques précisions nous aident à mieux orienter votre profil.</p>' +
+        '<p class="text-muted small mb-2">Ces quelques précisions nous aident à mieux orienter votre profil. Cliquez sur les réponses qui vous correspondent, ou écrivez avec vos mots : une question sans réponse ne bloque rien.</p>' +
+        '<p class="qc-compteur" id="compteurQuestionsCiblees" role="status"></p>' +
         etat.questionsCiblees.map(function (q, i) {
           // TACHE (chantier "exp perso", Phase 2) : question de type
           // "date" -- deux sélecteurs d'année, jamais un champ de texte
@@ -1672,14 +1880,14 @@ function ouvrirDecouverteCompetences() {
           if (q.type === 'date') {
             var reponseDate = (etat.reponsesQuestionsCiblees[i] && typeof etat.reponsesQuestionsCiblees[i] === 'object')
               ? etat.reponsesQuestionsCiblees[i] : { dateDebut: '', dateFin: '' };
-            return '<div class="mb-3"><label class="form-label small fw-semibold">' + echapperAttribut(q.texte) + '</label>' +
+            return enteteQuestionCiblee(q, i) +
               '<div class="d-flex gap-2 align-items-center flex-wrap">' +
               '<select class="form-select form-select-sm" style="width:auto;" id="reponseCibleeDebut_' + i + '">' +
               optionsAnnees(reponseDate.dateDebut, 'Année de début') + '</select>' +
               '<span class="small text-muted">à</span>' +
               '<select class="form-select form-select-sm" style="width:auto;" id="reponseCibleeFin_' + i + '">' +
               optionsAnnees(reponseDate.dateFin, 'Toujours en cours') + '</select>' +
-              '</div></div>';
+              '</div>' + ligneEtatQuestionCiblee(i) + '</div>';
           }
           // TACHE (retour utilisateur : "pour la formation... indiquer
           // l'année, même format que les questions sur la durée du
@@ -1709,7 +1917,7 @@ function ouvrirDecouverteCompetences() {
                   return '<span class="pastille' + actif + '" data-niveau-formation-question="' + echapperAttribut(n.label) + '" data-index-question="' + i + '">' + n.label + '</span>';
                 }).join('') + '</div></div>'
               : '';
-            return '<div class="mb-3"><label class="form-label small fw-semibold">' + echapperAttribut(q.texte) + '</label>' +
+            return enteteQuestionCiblee(q, i) +
               '<input type="text" class="form-control form-control-sm mb-2" id="reponseCiblee_' + i + '" value="' + echapperAttribut(reponseCombinee.texte || '') + '">' +
               pastillesNiveauQuestion +
               '<div class="d-flex gap-2 align-items-center flex-wrap">' +
@@ -1718,10 +1926,14 @@ function ouvrirDecouverteCompetences() {
               '<span class="small text-muted">à</span>' +
               '<select class="form-select form-select-sm" style="width:auto;" id="reponseCibleeFin_' + i + '">' +
               optionsAnnees(reponseCombinee.dateFin, 'Toujours en cours') + '</select>' +
-              '</div></div>';
+              '</div>' + ligneEtatQuestionCiblee(i) + '</div>';
           }
-          return '<div class="mb-3"><label class="form-label small fw-semibold">' + echapperAttribut(q.texte) + '</label>' +
-            '<input type="text" class="form-control form-control-sm" id="reponseCiblee_' + i + '" value="' + echapperAttribut(typeof etat.reponsesQuestionsCiblees[i] === 'string' ? etat.reponsesQuestionsCiblees[i] : '') + '"></div>';
+          // 10/11/2026 (consigne 217) : réponses suggérées (un plus). Une question
+          // sans suggestion est quand même posée, avec son champ libre ci-dessous.
+          if (questionAvecSuggestions(q)) { return htmlQuestionSuggestions(q, i); }
+          return enteteQuestionCiblee(q, i) +
+            '<input type="text" class="form-control form-control-sm" id="reponseCiblee_' + i + '" value="' + echapperAttribut(typeof etat.reponsesQuestionsCiblees[i] === 'string' ? etat.reponsesQuestionsCiblees[i] : '') + '">' +
+            ligneEtatQuestionCiblee(i) + '</div>';
         }).join('') +
         // TACHE (retour utilisateur : "la fenêtre Votre stratégie... je
         // n'ai pas besoin de cette fenêtre qui apparaît juste avant de
@@ -1743,6 +1955,7 @@ function ouvrirDecouverteCompetences() {
             var selectFin = document.getElementById('reponseCibleeFin_' + i);
             function majReponseDate() {
               etat.reponsesQuestionsCiblees[i] = { dateDebut: selectDebut.value, dateFin: selectFin.value };
+              majEtatsQuestionsCiblees();
             }
             selectDebut.addEventListener('change', majReponseDate);
             selectFin.addEventListener('change', majReponseDate);
@@ -1764,6 +1977,7 @@ function ouvrirDecouverteCompetences() {
                 dateFin: selectFinCombine.value,
                 niveau: precedent.niveau || ''
               };
+              majEtatsQuestionsCiblees();
             }
             champTexteCombine.addEventListener('input', majReponseCombinee);
             selectDebutCombine.addEventListener('change', majReponseCombinee);
@@ -1781,8 +1995,7 @@ function ouvrirDecouverteCompetences() {
             champTexteCombine.addEventListener('keydown', function (e) {
               if (e.key !== 'Enter') { return; }
               e.preventDefault();
-              var suivant = document.getElementById('reponseCiblee_' + (i + 1));
-              if (suivant) { suivant.focus(); } else { document.getElementById('btnContinuerDecouverte').click(); }
+              passerAuChampSuivantQuestionCiblee(i);
             });
             // TACHE (retour utilisateur : "niveau d'études") : clic sur
             // une pastille = bascule (reclique la même = désélectionne,
@@ -1803,18 +2016,19 @@ function ouvrirDecouverteCompetences() {
             });
             return;
           }
+          if (questionAvecSuggestions(q)) { brancherQuestionSuggestions(q, i); return; }
           var champ = document.getElementById('reponseCiblee_' + i);
-          champ.addEventListener('input', function () { etat.reponsesQuestionsCiblees[i] = this.value; });
+          champ.addEventListener('input', function () { etat.reponsesQuestionsCiblees[i] = this.value; majEtatsQuestionsCiblees(); });
           // TACHE (retour utilisateur : "quand je tape sur Entrée je passe
           // d'une zone de texte à une autre, et pour la dernière =
           // continuer") :
           champ.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter') { return; }
             e.preventDefault();
-            var suivant = document.getElementById('reponseCiblee_' + (i + 1));
-            if (suivant) { suivant.focus(); } else { document.getElementById('btnContinuerDecouverte').click(); }
+            passerAuChampSuivantQuestionCiblee(i);
           });
         });
+        majEtatsQuestionsCiblees();
       },
       // TACHE (retour utilisateur : "l'écran stratégie disparaît, mais
       // pas le calcul lui-même") : calculerStrategieSiBesoin() -- même
@@ -1905,9 +2119,15 @@ function ouvrirDecouverteCompetences() {
       etatBlocsERIPOuverts.complements = true;
       _decouverteCascadeParcoursFaite = true;
     }
+    var rappelIdentiteHTML = '';
+    if (_decouverteRappelIdentite) {
+      rappelIdentiteHTML = '<div id="decouverteRappelIdentite">' + _decouverteEncart('&#9757;', identitePeutEtreEnregistree()
+        ? '<strong>Une dernière chose avant de continuer.</strong> Vérifiez vos coordonnées dans le bloc « Vous » ci-dessous, puis cliquez sur « Enregistrer mon identité ».'
+        : '<strong>Une dernière chose avant de continuer.</strong> Dans le bloc « Vous » ci-dessous, indiquez votre prénom, votre nom et un moyen de contact (téléphone ou courriel), puis cliquez sur « Enregistrer mon identité ».', 'warn') + '</div>';
+    }
     return {
       titre: '📋 Vos informations',
-      contenuHTML:
+      contenuHTML: rappelIdentiteHTML +
         '<p class="text-muted small mb-3">Ces informations complètent votre CV. Seule votre identité (nom, prénom et un moyen de contact) est indispensable : le reste, indiquez-le seulement si vous en avez.</p>' +
         '<div class="mon-projet-plier-tout">' +
         '<button type="button" class="btn btn-sm btn-outline-secondary" data-blocs-tout-decouverte="ouvrir">&#9662; Tout déplier</button>' +
@@ -1925,11 +2145,14 @@ function ouvrirDecouverteCompetences() {
       // nouveau CV" (dossier.identiteEnregistree, posé par le bouton
       // "Enregistrer mon identité" du bloc "Vous"), jamais perdue en
       // route.
-      peutContinuer: !!dossier.identiteEnregistree,
-      raisonBlocage: !dossier.identiteEnregistree
-        ? 'Enregistrez d’abord votre identité, dans le bloc « Vous » (nom, prénom et un moyen de contact).'
-        : null,
+      // Le bouton reste TOUJOURS cliquable (voir _decouverteRappelIdentite) : le grisé sans explication visible bloquait des personnes qui avaient tout rempli.
+      peutContinuer: true,
       onAfficher: function () {
+        if (_decouverteRappelIdentite) {
+          _decouverteRappelIdentite = false;
+          var rappel = document.getElementById('decouverteRappelIdentite');
+          if (rappel && rappel.scrollIntoView) { rappel.scrollIntoView({ block: 'center' }); }
+        }
         wireBlocERIP(CONFIG_BLOC_VOUS, function () { afficherEtape(8); });
         wireBlocERIP(CONFIG_BLOC_PARCOURS, function () { afficherEtape(8); });
         wireBlocERIP(CONFIG_BLOC_EXPERIENCES_PERSO, function () { afficherEtape(8); });
@@ -1947,7 +2170,17 @@ function ouvrirDecouverteCompetences() {
           });
         });
       },
-      onContinuer: function () { afficherEtape(9); }
+      onContinuer: function () {
+        if (!dossier.identiteEnregistree && identitePeutEtreEnregistree() && !Object.keys(_identiteCapteeMarques).length) {
+          // Tout est rempli et saisi par la personne : on enregistre à sa place, comme si elle avait cliqué sur « Enregistrer mon identité ».
+          dossier.identiteEnregistree = true;
+          _identiteCapteeMarques = {};
+        }
+        if (dossier.identiteEnregistree) { afficherEtape(9); return; }
+        _decouverteRappelIdentite = true;
+        etatBlocsERIPOuverts.vous = true;
+        afficherEtape(8);
+      }
     };
   }
 
@@ -2065,7 +2298,10 @@ function ouvrirDecouverteCompetences() {
         // l'assistant, navigue vers l'etape 12 (au lieu du simple
         // re-rendu de cette meme etape, comportement par defaut de
         // wireChoixAssistantIA pour pageResultats()).
-        wireRectangleChoixIA('cv', function () { afficherEtape(12); }, 'decouverteRedaction');
+        // Consigne 198 (10/11/2026, bug majeur) : ce rappel sert aussi quand la personne répond à « Avez-vous une lettre de recommandation ? » (oui ou non) :
+        // il envoyait alors à l'étape 12 sans qu'aucun assistant n'ait été choisi. On ne passe à l'étape 12 que si un assistant vient VRAIMENT d'être choisi.
+        var choixVus = _compteChoixAssistantIA;
+        wireRectangleChoixIA('cv', function () { afficherEtape(_compteChoixAssistantIA !== choixVus ? 12 : 11); }, 'decouverteRedaction');
       }
     };
   }
@@ -2081,7 +2317,10 @@ function ouvrirDecouverteCompetences() {
       // Complément de CV (facultatif, décision de Denis 2026-10-10) : une fois la réponse importée, le parcours ne se termine plus tout seul. La personne peut
       // importer le complément (zone ci-dessous), puis elle clique sur « Continuer vers mon CV ».
       // Retour Denis 2026-10-19 : comme dans « Créer mon CV », le complément a son propre écran (étape 14, importer ou passer) AVANT la page de création ; ni bandeau ni rectangle ici tant que le choix n'est pas fait.
-      contenuHTML: contenuAccordeonImportIA('cv') + ((reponseIAImportee('cv') && !complementCVEnAttente()) ? rectangleComplementCV() : ''),
+      // Consigne 199 (10/11/2026) : un seul « Continuer » (celui de la barre du bas) ; le complément a son écran (étape 14), plus de bouton ni de rectangle « complément » ici.
+      // Quand l'assistant l'a proposé, un message dit que c'est l'étape suivante.
+      contenuHTML: (reponseIAImportee('cv') && complementCVEnAttente() ? '<div class="decouverte-complement-annonce" id="decouverteComplementAnnonce" role="note">' + _decouverteEncart('&#10133;', '<strong>L’assistant vous propose aussi un complément</strong> : ce que vous avez appris et fait pendant vos formations et vos loisirs. C’est l’étape suivante : cliquez sur « Continuer ». Vous pourrez l’ajouter ou passer.', 'info') + '</div>' : '') +
+        contenuAccordeonImportIA('cv', { sansComplement: true, libelleRemplacer: 'Remplacer ma réponse' }),
       masquerContinuer: true,
       continuerDansBarre: reponseIAImportee('cv'),
       libelleContinuer: 'Continuer &#8594;',
@@ -2108,12 +2347,17 @@ function ouvrirDecouverteCompetences() {
             // Réponse importée et appliquée : on reste sur cette étape, qui propose maintenant le complément de CV et « Continuer vers mon CV ».
             if (!terminaisonPlanifiee) {
               terminaisonPlanifiee = true;
-              setTimeout(function () { afficherEtape(12); }, 0);
+              // Consigne 221 (10/11/2026, problème de concept) : l'écran « Collez la réponse » ne revient plus après un collage réussi (personne ne comprenait à quoi il servait) :
+              // on passe directement à l'étape « 2 sur 2 : le complément » (toujours proposé après un CV de l'assistant), sinon au CV.
+              setTimeout(function () { if (complementCVEnAttente()) { afficherEtape(14); } else { terminerParcoursDecouverte(); } }, 0);
             }
             return;
           }
+          // Consigne 220 (10/11/2026, bug bloquant) : « Changer d'assistant » (onChangerAssistant de wireImportIA : choix-ia ouvert, import-ia fermé) ramène au CHOIX de l'assistant
+          // (étape 11), où l'on peut aussi recopier le message ; avant, il redessinait l'étape 12 et la personne restait bloquée.
+          if (etatAccordeon['choix-ia'] && !etatAccordeon['import-ia']) { afficherEtape(11); return; }
           afficherEtape(etatAccordeon['relecture-ia'] ? 13 : 12);
-        }, 'relecture-ia');
+        }, 'relecture-ia', { sansBoutonDansLaFenetre: true });
         // Zone « Compléter mon CV » : bascule du rectangle puis collage du second bloc.
         var btnToggleComplementDec = document.querySelector('[data-assistant-rect-toggle="complement-cv"]');
         if (btnToggleComplementDec) {
@@ -2143,7 +2387,9 @@ function ouvrirDecouverteCompetences() {
         etatAccordeonValide = accordeonValidePourType('cv');
         // Le bouton de la barre du bas est celui de la fenêtre commune (« Continuer sans le complément » puis « Ajouter le complément »).
         wireComplementCV(function () { terminerParcoursDecouverte(); },
-          { dansBarre: true, onPasser: function () { dossier.complementCVPasse = true; terminerParcoursDecouverte(); } });
+          { dansBarre: true, onPasser: function () { dossier.complementCVPasse = true; terminerParcoursDecouverte(); },
+            // Consigne 220 : « Changer d'assistant » ramène au choix de l'assistant du CV (le complément se redemande ensuite dans la nouvelle conversation).
+            onChangerAssistant: function () { etatAccordeon['import-ia'] = false; etatAccordeon['choix-ia'] = true; afficherEtape(11); } });
       }
     };
   }
@@ -2575,18 +2821,34 @@ function ouvrirDecouverteCompetences() {
       'Vous ne partiez pas de rien : regardez tout ce qui ressort.'
     );
     var encartChoix = _decouverteEncart('&#128071;',
+      (nbExp > 1 ? '<strong>Chaque expérience a sa propre carte : passez de l’une à l’autre et choisissez des compétences pour chacune.</strong> ' : '') +
       'Pour chaque expérience, gardez la formulation qui vous ressemble le plus. Vous restez maître du mot juste : si aucune ne va, demandez-en d’autres.');
+    // Consigne 197 (Denis, 10/11/2026) : dire pourquoi cette page, pourquoi les questions, et ce qui se passe ensuite.
+    var texteQuestions = qc
+      ? '<p class="mb-2">Suite à ce que vous avez raconté, l’assistant a repéré vos expériences et vous propose, pour chacune, des compétences à choisir. Il a aussi quelques questions complémentaires.</p>' +
+        '<p class="mb-2">Vos réponses permettent d’avoir des dates précises et des informations exactes : votre CV est votre carte de visite, il doit être le plus précis et le plus exact possible. Si vous ne savez pas, laissez simplement vide.</p>'
+      : '';
+    // Consigne 195 (10/11/2026) : quand « Continuer » est grisé, la raison est écrite dans la page, jamais seulement dans une infobulle au survol.
+    var restantes = [];
+    etat.etatsFragments.forEach(function (ef, i) { if (!fragmentEstValide(ef)) { restantes.push('Expérience ' + (i + 1)); } });
+    var raisonBlocage = restantes.length
+      ? 'Pour continuer, il reste à valider : <strong>' + restantes.join(', ') + '</strong>. Choisissez au moins une compétence, puis cliquez sur « Je valide cette expérience ».'
+      : '';
+    var raisonHTML = raisonBlocage ? '<div id="decouverteRaisonContinuer" role="status">' + _decouverteEncart('&#9757;', raisonBlocage, 'warn') + '</div>' : '';
+    var texteEnsuite = _decouverteEncart('&#128172;',
+      '<strong>Et ensuite ?</strong> Quand vous aurez choisi vos compétences' + (qc ? ' et répondu aux questions' : '') + ', vous complétez vos informations. L’application consulte alors de nouveau l’assistant, avec vos réponses et ces compléments. Vous accédez ensuite à votre CV et à sa mise en page.');
     return {
       titre: dec.titre,
       sansCarte: !!qc,
       contenuHTML: bandeau +
         (qc ? '<div class="cv-section">' + encartChoix + dec.contenuHTML + '</div>' : encartChoix + dec.contenuHTML) +
         (qc
-          ? '<div class="cv-section" style="margin-top:1rem;"><h4>&#10067; Quelques précisions</h4>' +
-            '<p class="text-muted small">À compléter - cela aide à mieux orienter votre profil.</p>' +
+          ? '<div class="cv-section" style="margin-top:1rem;"><h4 class="titre-rubrique">&#10067; Quelques précisions</h4>' +
+            texteQuestions +
             qc.contenuHTML + '</div>'
-          : ''),
+          : '') + raisonHTML + texteEnsuite,
       peutContinuer: dec.peutContinuer,
+      raisonBlocage: raisonBlocage.replace(/<[^>]+>/g, ''),
       libelleContinuer: 'Continuer →',
       onAfficher: function () {
         dec.onAfficher();

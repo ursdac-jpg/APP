@@ -159,6 +159,7 @@
   <div id="panneauSessionTransfert" hidden>
     <h6><i class="bi bi-floppy"></i> Sauvegarder ma session</h6>
     <p class="small text-muted mb-2">Cette application ne garde rien automatiquement : exportez un fichier pour ne pas perdre votre travail. Vous pourrez aussi vous en servir pour reprendre votre session sur un autre appareil, si besoin.</p>
+    <div id="zoneVideoSession"></div>
     <!-- TACHE (retour utilisateur : "message de penser a sauvegarder" apres
          le 2e passage par l’assistant) : masque par defaut, rempli/affiche par
          declencherPulseSessionApresImportIA() (app.js) -- jamais un texte
@@ -615,6 +616,7 @@
   <script src="modules/video-presentation/videoPresentation.js" charset="UTF-8"></script>
   <!-- Nouveautés : données, logique pure, interface ; avant js/app.js (route 'nouveautes'). -->
   <script src="data/nouveautes.js" charset="UTF-8"></script>
+  <script src="data/problemesCorriges.js" charset="UTF-8"></script>
   <script src="modules/nouveautes/logique.js" charset="UTF-8"></script>
   <script src="modules/nouveautes/index.js" charset="UTF-8"></script>
   <!-- Introduction : logique pure puis interface ; après Qui fait quoi (mtOuvert) et avant js/app.js (route introduction). -->

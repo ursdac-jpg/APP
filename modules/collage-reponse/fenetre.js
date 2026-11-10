@@ -59,7 +59,7 @@ function htmlFenetreCollage(m, suffixe, options) {
   if (m.complement.visible) {
     h += '<div class="fc-bande"><p>&#10133; ' + m.complement.intro + '</p><div class="fc-boutons">' + _fcBouton('voir', '&#128269; ' + m.complement.voir, 'btn btn-sm btn-outline-primary') + '</div></div>' +
       '<div class="fc-exemples fc-cache" data-fc="exemples"><ul>' + m.complement.exemples.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
-      _fcListeEtapes(m.complement.etapes);
+      _fcListeEtapes(m.complement.etapes) + (m.complement.sans ? '<p class="fc-sans">' + m.complement.sans + '</p>' : '');
   }
   if (m.coupe.visible) {
     h += '<div class="fc-etat fc-coupe" role="status"><div class="fc-grand">' + m.coupe.titre + '</div><p>' + m.coupe.texte + '</p>' + _fcListeEtapes(m.coupe.etapes) + '</div>';
@@ -100,7 +100,10 @@ function htmlFenetreCollage(m, suffixe, options) {
       '<div class="fc-message" data-fc="message" role="status"></div>' +
       '<div class="fc-ligne fc-centre">' + _fcBouton('verifier', '&#10003; ' + m.zoneMain.verifier, 'btn btn-primary') + _fcBouton('retourAuto', '&#8617; ' + m.zoneMain.retourAuto, 'btn btn-outline-primary') + '</div></div>';
   }
-  if (m.recu.visible) {
+  if (m.recu.visible && m.recu.avertissement) {
+    // Consigne 224 : complément bien lu mais vide = information en jaune (attention), jamais un échec en rouge ; la suite reste possible.
+    h += '<div class="fc-etat fc-coupe fc-vide" role="status"><div class="fc-grand">' + m.recu.avertissement.titre + '</div><p>' + m.recu.avertissement.texte + '</p></div>';
+  } else if (m.recu.visible) {
     h += '<div class="fc-etat fc-recu" role="status"><div class="fc-grand">' + m.recu.titre + '</div>' + (m.recu.morceaux ? '<p>' + m.recu.morceaux + '</p>' : '') +
       '<ul class="fc-verifs">' + m.recu.lignes.filter(function (l) { return l.type === 'ok'; }).map(function (l) { return '<li>&#10003; ' + l.texte + '</li>'; }).join('') + '</ul></div>';
     // « À vérifier » est un conseil, pas une confirmation : une ligne à part, sous le message de réussite.
@@ -113,6 +116,9 @@ function htmlFenetreCollage(m, suffixe, options) {
   // Aperçu sous le décompte : rien d'actif, et pas de « Continuer » (il apparaîtra au retour).
   if (options.apercuHtml) { return h + '</div>'; }
   // Dans une fenêtre (pas de barre du bas à l'écran) : « Continuer » est visible, en bas à droite de la fenêtre.
+  // Consigne 199 (10/11/2026) : réponse déjà importée, le « Continuer » du module reste seul ; la fenêtre ne dessine AUCUN bouton de suite tant qu'il n'y a rien de nouveau à importer
+  // (plus de « Voir mes propositions » grisé en double). Dès qu'une autre réponse est reçue, le bouton de la fenêtre apparaît (« Remplacer ma réponse »).
+  if (options.continuerAbsentSiInactif && !m.continuer.actif) { return h + '</div>'; }
   if (options.continuerVisible) {
     return h + '<div class="fc-continuer"><button type="button" class="btn ' + (m.continuer.discret ? 'btn-outline-secondary' : 'btn-primary') + '" id="btnContinuer' + _fcEchapper(suffixe) + '" data-fc="continuer"' + (m.continuer.actif ? '' : ' disabled') + '>' +
       _fcEchapper(m.continuer.libelle) + ' &#8594;</button></div></div>';
@@ -129,21 +135,21 @@ function activerFenetreCollage(config) {
   var suffixe = config.suffixe || 'Fc';
   var mode = config.mode === 'complement' ? 'complement' : 'reponse';
   var etat = config.etatInitial || (mode === 'complement' ? 'pret' : 'ouvert');
-  var morceaux = [], silencieux = false, echecApresSuite = false, venaitDeCoupe = false, texteFinal = '', echecPerso = null;
+  var morceaux = [], silencieux = false, echecApresSuite = false, venaitDeCoupe = false, texteFinal = '', echecPerso = null, avertissementRecu = '';
   var lirePressePapiers = config.lirePressePapiers || function () {
     return (navigator.clipboard && navigator.clipboard.readText) ? navigator.clipboard.readText() : Promise.reject(new Error('presse-papiers indisponible'));
   };
 
   function entree() {
     return { etat: etat, mode: mode, passage: config.passage || '', silencieux: silencieux, echecApresSuite: echecApresSuite, pieces: morceaux.length,
-      echecPersonnalise: echecPerso, nomAssistant: _fcEchapper(config.nomAssistant || ''), conseilAssistant: config.conseilAssistant || '', module: config.module || {} };
+      echecPersonnalise: echecPerso, avertissement: avertissementRecu, nomAssistant: _fcEchapper(config.nomAssistant || ''), conseilAssistant: config.conseilAssistant || '', module: config.module || {} };
   }
   function el(nom) { return racine.querySelector('[data-fc="' + nom + '"]'); }
   function message(texte) { var z = el('message'); if (z) { z.textContent = texte || ''; } }
   function lier(nom, f) { var e = el(nom); if (e) { e.addEventListener('click', f); } }
 
   function dessiner() {
-    racine.innerHTML = htmlFenetreCollage(modeleFenetreCollage(entree()), suffixe, { continuerVisible: !!config.continuerVisible, apercuHtml: config.apercuHtml || '', peutChanger: typeof config.onChangerAssistant === 'function' });
+    racine.innerHTML = htmlFenetreCollage(modeleFenetreCollage(entree()), suffixe, { continuerVisible: !!config.continuerVisible, continuerAbsentSiInactif: !!config.continuerAbsentSiInactif, apercuHtml: config.apercuHtml || '', peutChanger: typeof config.onChangerAssistant === 'function' });
     if (config.apercuHtml) {
       // Aperçu : tout ce qui porte data-fc est inactif (le bandeau du décompte, lui, garde ses boutons).
       Array.prototype.forEach.call(racine.querySelectorAll('[data-fc]'), function (b) { b.disabled = true; });
@@ -159,7 +165,7 @@ function activerFenetreCollage(config) {
       traiter(valeur, venaitDeCoupe);
     });
     lier('retourAuto', function () { etat = venaitDeCoupe ? 'coupe' : (mode === 'complement' ? 'pret' : 'pret'); dessiner(); });
-    lier('recommencer', function () { echecPerso = null; morceaux = []; silencieux = false; echecApresSuite = false; venaitDeCoupe = false; texteFinal = ''; etat = 'pret'; dessiner(); });
+    lier('recommencer', function () { avertissementRecu = ''; echecPerso = null; morceaux = []; silencieux = false; echecApresSuite = false; venaitDeCoupe = false; texteFinal = ''; etat = 'pret'; dessiner(); });
     lier('echecAction', function () { if (config.onEchecAction) { config.onEchecAction(); } });
     lier('changer', function () { if (config.onChangerAssistant) { config.onChangerAssistant(); } });
     Array.prototype.forEach.call(racine.querySelectorAll('[data-fc-info]'), function (b) {
@@ -199,7 +205,7 @@ function activerFenetreCollage(config) {
     } else if (analyse.statut === 'complete') {
       var verdict = (typeof config.verifier === 'function') ? config.verifier(assemble.texte) : { ok: true };
       if (verdict && verdict.ok === false) { echecApresSuite = estSuite; echecPerso = verdict.personnalise || config.echecParDefaut || null; etat = 'echec'; }
-      else { morceaux = liste; texteFinal = assemble.texte; echecApresSuite = false; etat = 'recu'; }
+      else { morceaux = liste; texteFinal = assemble.texte; echecApresSuite = false; avertissementRecu = (verdict && verdict.avertissement) || ''; etat = 'recu'; }
     } else {
       echecApresSuite = estSuite; echecPerso = config.echecParDefaut || null; etat = 'echec';
     }

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : suggestions de réponses sous « Quelques précisions » (consigne 217, version 2)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 980px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .liste-questions { counter-reset: q; }
+  .question-bloc { counter-increment: q; padding: .9rem 0; border-top: 1px solid var(--border); }
+  .question-bloc:first-of-type { border-top: 0; }
+  /* Numéro devant chaque question : une pastille, pour retrouver « la question 3 » d'un coup d'œil */
+  .question-texte { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; margin-bottom: .4rem; }
+  .question-texte::before { content: counter(q); flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; }
+  .consigne-choix { font-size: .88rem; color: var(--text-muted); margin: 0 0 .5rem 2.5rem; }
+  .corps-question { margin-left: 2.5rem; }
+  .suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .5rem; }
+  .suggestion { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; text-align: left; }
+  .suggestion:hover, .suggestion:focus-visible { border-color: var(--accent); }
+  .suggestion[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .suggestion[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .suggestion.longue { flex: 1 1 100%; border-radius: 26px; padding-left: 1.4rem; }
+  .suggestion.tout { border-style: dashed; }
+  .suggestion.autre { border-style: dashed; }
+  .zone-autre { display: none; margin: .3rem 0 .4rem; }
+  .zone-autre.ouverte { display: block; }
+  .etat-reponse { font-size: .9rem; color: var(--text-muted); margin-top: .3rem; }
+  .etat-reponse.fait { color: var(--success-strong); font-weight: 600; }
+  .barre-outils { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+  .compteur { font-size: .95rem; color: var(--text-muted); }
+  .variante { margin-top: 1.6rem; }
+  .etiquette-type { display: inline-block; margin-left: .5rem; padding: .05rem .55rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); font-size: .75rem; font-weight: 600; white-space: nowrap; }
+  .tableau-types { width: 100%; font-size: .92rem; border-collapse: collapse; }
+  .tableau-types th, .tableau-types td { border-top: 1px solid var(--border); padding: .4rem .5rem; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette validée par Denis, version 3 : boutons de réponse OVALES, comme dans « Vos appuis » (consigne 217, version 2 : questions numérotées, réponses courtes ET longues, choix multiples avec « Tout »).</strong> Rien n'est codé dans l'application. Les boutons fonctionnent pour que vous puissiez essayer. À valider avant tout code.</div>
+
+  <div class="note-maquette" style="background:var(--accent-bg-subtle);border-color:var(--accent);color:var(--text-strong);"><strong>Règle essentielle (précisée par Denis) :</strong> TOUTES les questions de l'assistant sont toujours posées. Les suggestions de réponses sont un plus : quand l'assistant en propose, elles apparaissent sous la question ; quand il n'en propose pas, la question figure quand même, avec son champ libre. Les questions sont la spécificité de ce module (affiner, corriger, apporter plus d'informations) : jamais une question supprimée, cachée ou réduite parce qu'elle n'a pas de suggestion. Voir la question 7.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <span class="compteur" id="compteur"></span>
+  </div>
+
+  <div class="cv-section">
+    <h4>&#10067; Quelques précisions</h4>
+    <p class="text-muted small">Ces questions viennent de l'assistant. Cliquez sur les réponses qui vous correspondent, ou sur « Autre » pour écrire avec vos mots. Une question sans réponse ne bloque rien.</p>
+
+    <div class="liste-questions">
+
+      <!-- 1. Durée : un seul choix -->
+      <div class="question-bloc" data-question data-mode="unique">
+        <div class="question-texte"><span>Pendant combien de temps avez-vous travaillé comme serveur au restaurant ? <span class="etiquette-type">un seul choix</span></span></div>
+        <div class="corps-question">
+          <div class="suggestions">
+            <button type="button" class="suggestion" aria-pressed="false">Moins de 6 mois</button>
+            <button type="button" class="suggestion" aria-pressed="false">De 6 mois à 1 an</button>
+            <button type="button" class="suggestion" aria-pressed="false">De 1 à 3 ans</button>
+            <button type="button" class="suggestion" aria-pressed="false">Plus de 3 ans</button>
+            <button type="button" class="suggestion autre" aria-pressed="false">Autre</button>
+          </div>
+          <div class="zone-autre"><input type="text" class="form-control form-control-sm" placeholder="Écrivez votre réponse"></div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 2. Missions : plusieurs choix, réponses longues -->
+      <div class="question-bloc" data-question data-mode="multiple">
+        <div class="question-texte"><span>Quelles étaient vos missions au restaurant ? <span class="etiquette-type">plusieurs choix</span></span></div>
+        <p class="consigne-choix">Cochez seulement ce que vous avez réellement fait. Vous pouvez en choisir plusieurs.</p>
+        <div class="corps-question">
+          <div class="suggestions">
+            <button type="button" class="suggestion longue" aria-pressed="false">J'accueillais les clients et je les installais à leur table</button>
+            <button type="button" class="suggestion longue" aria-pressed="false">Je prenais les commandes et je les transmettais à la cuisine</button>
+            <button type="button" class="suggestion longue" aria-pressed="false">Je servais les plats et je débarrassais les tables</button>
+            <button type="button" class="suggestion longue" aria-pressed="false">Je tenais la caisse et j'encaissais les clients</button>
+            <button type="button" class="suggestion tout" aria-pressed="false">Tout cocher</button>
+            <button type="button" class="suggestion autre" aria-pressed="false">Autre chose</button>
+          </div>
+          <div class="zone-autre"><textarea class="form-control form-control-sm" rows="2" placeholder="Écrivez ce que vous faisiez d'autre"></textarea></div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 3. Deux possibilités : « Les deux » -->
+      <div class="question-bloc" data-question data-mode="multiple">
+        <div class="question-texte"><span>Utilisiez-vous une caisse enregistreuse ou un logiciel de commande ? <span class="etiquette-type">plusieurs choix</span></span></div>
+        <div class="corps-question">
+          <div class="suggestions">
+            <button type="button" class="suggestion" aria-pressed="false">Une caisse enregistreuse</button>
+            <button type="button" class="suggestion" aria-pressed="false">Un logiciel de commande</button>
+            <button type="button" class="suggestion tout" aria-pressed="false">Les deux</button>
+            <button type="button" class="suggestion autre" aria-pressed="false">Autre</button>
+          </div>
+          <div class="zone-autre"><input type="text" class="form-control form-control-sm" placeholder="Écrivez votre réponse"></div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 4. Oui / non avec précision -->
+      <div class="question-bloc" data-question data-mode="unique">
+        <div class="question-texte"><span>Aviez-vous des responsabilités particulières (clés, fermeture, formation de nouveaux) ? <span class="etiquette-type">un seul choix</span></span></div>
+        <div class="corps-question">
+          <div class="suggestions">
+            <button type="button" class="suggestion" aria-pressed="false">Non, aucune</button>
+            <button type="button" class="suggestion" aria-pressed="false">Oui, j'ouvrais ou je fermais le restaurant</button>
+            <button type="button" class="suggestion" aria-pressed="false">Oui, j'expliquais le travail aux nouveaux</button>
+            <button type="button" class="suggestion autre" aria-pressed="false">Autre</button>
+          </div>
+          <div class="zone-autre"><input type="text" class="form-control form-control-sm" placeholder="Écrivez votre réponse"></div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 5. Orientation : choix entre deux directions -->
+      <div class="question-bloc" data-question data-mode="unique">
+        <div class="question-texte"><span>Aujourd'hui, vers quoi voudriez-vous aller en priorité ? <span class="etiquette-type">un seul choix</span></span></div>
+        <div class="corps-question">
+          <div class="suggestions">
+            <button type="button" class="suggestion" aria-pressed="false">Le service en salle</button>
+            <button type="button" class="suggestion" aria-pressed="false">La cuisine</button>
+            <button type="button" class="suggestion" aria-pressed="false">Je ne sais pas encore</button>
+            <button type="button" class="suggestion autre" aria-pressed="false">Autre</button>
+          </div>
+          <div class="zone-autre"><input type="text" class="form-control form-control-sm" placeholder="Écrivez votre réponse"></div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 6. Date : inchangé -->
+      <div class="question-bloc" data-question data-mode="libre">
+        <div class="question-texte"><span>Sur quelle période avez-vous travaillé au restaurant ? <span class="etiquette-type">années, comme aujourd'hui</span></span></div>
+        <div class="corps-question">
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <label class="small">Début <select class="form-select form-select-sm d-inline-block w-auto" data-annee><option value="">Choisir</option><option>2018</option><option>2019</option><option>2020</option></select></label>
+            <label class="small">Fin <select class="form-select form-select-sm d-inline-block w-auto" data-annee><option value="">Toujours en cours</option><option>2020</option><option>2021</option><option>2022</option></select></label>
+          </div>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+
+      <!-- 7. Question sans suggestion : champ libre comme aujourd'hui -->
+      <div class="question-bloc" data-question data-mode="libre">
+        <div class="question-texte"><span>Y a-t-il autre chose que vous aimeriez que l'assistant sache ? <span class="etiquette-type">sans suggestion : champ libre actuel</span></span></div>
+        <div class="corps-question">
+          <textarea class="form-control form-control-sm" rows="2" placeholder="Écrivez votre réponse" data-libre></textarea>
+          <div class="etat-reponse"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cv-section variante">
+    <h4>Les types de questions couverts, et ce qui change pour l'assistant</h4>
+    <table class="tableau-types">
+      <tr><th>Type de question</th><th>Affichage</th><th>Exemple</th></tr>
+      <tr><td>Durée, quantité, oui / non, orientation</td><td>Un seul choix (le clic remplace le précédent)</td><td>Questions 1, 4 et 5</td></tr>
+      <tr><td>Missions, outils, activités (plusieurs réponses possibles)</td><td>Plusieurs choix, phrases complètes, bouton « Tout cocher » (ou « Les deux » quand il n'y a que deux réponses)</td><td>Questions 2 et 3</td></tr>
+      <tr><td>Dates et périodes</td><td>Années à choisir, comme aujourd'hui, sans suggestion</td><td>Question 6</td></tr>
+      <tr><td>Tout le reste</td><td>Champ libre, comme aujourd'hui</td><td>Question 7</td></tr>
+    </table>
+    <ul class="small mt-3 mb-0">
+      <li><strong>Numéros :</strong> chaque question porte un numéro dans une pastille (1, 2, 3…), dans l'ordre de l'écran. La même numérotation sert dans le message récapitulatif.</li>
+      <li><strong>Réponses longues :</strong> les missions sont des phrases complètes à la première personne, que l'on coche. Les phrases cochées et le texte de « Autre chose » sont assemblés et transmis à l'assistant comme la réponse de la personne, comme le texte libre aujourd'hui.</li>
+      <li><strong>Toujours posées :</strong> le nombre de questions affichées est toujours égal au nombre de questions envoyées par l'assistant. Un essai automatique le vérifiera : une question sans suggestion doit apparaître avec son champ libre.</li>
+      <li><strong>Prompt :</strong> l'assistant ajouterait pour chaque question un mode (un choix, plusieurs choix ou libre) et 2 à 6 réponses courtes, sans nouvelle mission. Coût estimé : 800 à 1 200 caractères de plus sur 22 610, soit environ 5 %. Si l'assistant n'envoie pas de réponses, la question reste un champ libre : rien ne casse.</li>
+      <li><strong>Risque principal :</strong> l'assistant peut proposer des missions que la personne n'a pas faites. Parades : rien n'est coché au départ, la consigne « Cochez seulement ce que vous avez réellement fait » est écrite au-dessus, et le prompt lui interdit d'inventer au-delà du récit.</li>
+      <li><strong>Limite honnête :</strong> les captures de vos précédentes réponses ne sont pas lisibles pour moi en texte ; j'ai donc bâti ces types à partir des règles du prompt (durée, missions, responsabilité, orientation, période). Si une de vos vraies questions ne rentre dans aucun type ci-dessus, dites-la-moi et j'ajoute le type.</li>
+    </ul>
+  </div>
+</div>
+<script>
+  function valeurDe(b) {
+    var mode = b.getAttribute('data-mode'), parts = [];
+    var autre = b.querySelector('.zone-autre input, .zone-autre textarea');
+    b.querySelectorAll('.suggestion[aria-pressed="true"]').forEach(function (s) {
+      if (s.classList.contains('autre')) { if (autre && autre.value.trim()) { parts.push(autre.value.trim()); } }
+      else if (!s.classList.contains('tout')) { parts.push(s.textContent.trim()); }
+    });
+    var libre = b.querySelector('[data-libre]'); if (libre && libre.value.trim()) { parts.push(libre.value.trim()); }
+    if (mode === 'libre' && !libre) {
+      var sel = b.querySelectorAll('[data-annee]'); var an = []; sel.forEach(function (x) { if (x.value) { an.push(x.value); } });
+      if (an.length) { parts.push(an.join(' à ')); }
+    }
+    return parts;
+  }
+  function maj() {
+    var blocs = document.querySelectorAll('[data-question]'), faits = 0;
+    blocs.forEach(function (b) {
+      var v = valeurDe(b), etat = b.querySelector('.etat-reponse');
+      if (v.length) { faits++; etat.textContent = 'Votre réponse : ' + v.join(' ; '); etat.classList.add('fait'); }
+      else { etat.textContent = 'À compléter'; etat.classList.remove('fait'); }
+    });
+    document.getElementById('compteur').textContent = faits + (faits > 1 ? ' réponses' : ' réponse') + ' sur ' + blocs.length;
+  }
+  document.querySelectorAll('[data-question]').forEach(function (b) {
+    var mode = b.getAttribute('data-mode');
+    var boutons = b.querySelectorAll('.suggestion');
+    var zone = b.querySelector('.zone-autre');
+    boutons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var etait = btn.getAttribute('aria-pressed') === 'true';
+        if (btn.classList.contains('tout')) {
+          var cibles = [].filter.call(boutons, function (x) { return !x.classList.contains('tout') && !x.classList.contains('autre'); });
+          var tousCoches = cibles.every(function (x) { return x.getAttribute('aria-pressed') === 'true'; });
+          cibles.forEach(function (x) { x.setAttribute('aria-pressed', tousCoches ? 'false' : 'true'); });
+          btn.setAttribute('aria-pressed', tousCoches ? 'false' : 'true');
+        } else if (mode === 'unique') {
+          boutons.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          if (zone) { zone.classList.remove('ouverte'); }
+          if (!etait) { btn.setAttribute('aria-pressed', 'true'); }
+        } else {
+          btn.setAttribute('aria-pressed', etait ? 'false' : 'true');
+          var t = b.querySelector('.suggestion.tout');
+          if (t) { var c = [].filter.call(boutons, function (x) { return !x.classList.contains('tout') && !x.classList.contains('autre'); }); t.setAttribute('aria-pressed', c.every(function (x) { return x.getAttribute('aria-pressed') === 'true'; }) ? 'true' : 'false'); }
+        }
+        if (btn.classList.contains('autre') && zone) {
+          var ouvert = btn.getAttribute('aria-pressed') === 'true';
+          zone.classList.toggle('ouverte', ouvert);
+          if (ouvert) { zone.querySelector('input, textarea').focus(); }
+        }
+        maj();
+      });
+    });
+    b.querySelectorAll('input[type=text], textarea, select').forEach(function (i) { i.addEventListener('input', maj); i.addEventListener('change', maj); });
+  });
+  document.getElementById('modeSombre').addEventListener('change', function () {
+    document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair');
+  });
+  maj();
+</script>
+</body>
+</html>

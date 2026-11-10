@@ -1209,3 +1209,8 @@
      les comparaisons disparaît (carte « Hommes et femmes », point 1 du plan, 2026-11-07). Sélecteur répété pour passer devant la règle précédente. */
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-encart.comprendre-les-chiffres-encart.comprendre-les-chiffres-encart { grid-column: 2; grid-row: 9; margin-top: .5rem; }
 }
+/* Chômage : encadré du chiffre NATIONAL plus récent que celui de la carte (le taux national paraît avant les taux par région et département). */
+.comprendre-les-chiffres-national-recent { margin-top: .9rem; padding: .7rem .9rem; border: 1px solid var(--accent); border-left-width: 6px; border-radius: 12px; background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-national-titre { margin: 0 0 .3rem; font-weight: 800; color: var(--accent-texte); }
+.comprendre-les-chiffres-national-recent .comprendre-les-chiffres-indic-valeur { margin-bottom: .2rem; }
+.comprendre-les-chiffres-national-date { font-size: .9rem; color: var(--text-muted); }

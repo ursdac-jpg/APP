@@ -93,3 +93,14 @@ test('Mes compétences : section sans nom ni preuves ni envies, rien tant que le
   assert.equal(A.compterLignesMesCompetences(doc), 2);
   assert.equal(A.compterLignesMesCompetences(null), 0);
 });
+
+// Consigne 219 (10/11/2026) : le document « Mes compétences » que la personne dépose elle-même part avec les autres appuis.
+test('document « Mes compétences » déposé : section dédiée, plafonnée, vide si rien', () => {
+  assert.equal(A.sectionMesCompetencesDeposeLettreCo(''), '');
+  assert.equal(A.sectionMesCompetencesDeposeLettreCo('   '), '');
+  const s = A.sectionMesCompetencesDeposeLettreCo('Je sais tenir une caisse.\r\nJe sais accueillir.');
+  assert.match(s, /^COMPÉTENCES RELEVÉES PAR LA PERSONNE/);
+  assert.match(s, /Je sais tenir une caisse\.\nJe sais accueillir\./);
+  const long = A.sectionMesCompetencesDeposeLettreCo('x'.repeat(A.TEXTE_MES_COMPETENCES_DEPOSE_MAX + 500));
+  assert.ok(long.length <= A.TEXTE_MES_COMPETENCES_DEPOSE_MAX + 200, 'le texte déposé est plafonné');
+});

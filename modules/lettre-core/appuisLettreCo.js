@@ -102,6 +102,12 @@ function sectionMesCompetencesLettreCo(doc) {
   });
   return l.join('\n');
 }
+// 10/11/2026 (consigne 219) : le document « Mes competences » que la personne depose elle-meme (relu et masque par elle) : son texte, tel quel, plafonne.
+var TEXTE_MES_COMPETENCES_DEPOSE_MAX = 6000;
+function sectionMesCompetencesDeposeLettreCo(texte) {
+  var t = String(texte || '').replace(/\r\n?/g, '\n').trim().slice(0, TEXTE_MES_COMPETENCES_DEPOSE_MAX);
+  return t ? 'COMPÉTENCES RELEVÉES PAR LA PERSONNE (document « Mes compétences » déposé par elle, relu par elle)\n' + t : '';
+}
 function compterLignesMesCompetences(doc) {
   if (!doc || !doc.sections) { return 0; }
   return doc.sections.reduce(function (n, s) { return n + s.lignes.length; }, 0);
@@ -113,6 +119,8 @@ if (typeof module !== 'undefined') {
     nettoyerTexteLibreAppui: nettoyerTexteLibreAppui,
     sectionTexteLibreLettreCo: sectionTexteLibreLettreCo,
     sectionMesCompetencesLettreCo: sectionMesCompetencesLettreCo,
+    sectionMesCompetencesDeposeLettreCo: sectionMesCompetencesDeposeLettreCo,
+    TEXTE_MES_COMPETENCES_DEPOSE_MAX: TEXTE_MES_COMPETENCES_DEPOSE_MAX,
     compterLignesMesCompetences: compterLignesMesCompetences,
     MAX_RECOMMANDATIONS_LETTRE_CO: MAX_RECOMMANDATIONS_LETTRE_CO,
     ROLES_RECOMMANDATION_LETTRE_CO: ROLES_RECOMMANDATION_LETTRE_CO,

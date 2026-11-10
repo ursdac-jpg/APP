@@ -35,6 +35,13 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
 
 ## Erreurs répertoriées
 
+### « À partir de mon récit » : impossible d'aller vers le CV alors que tout était rempli (étape « Vos informations »)
+
+- **Vu** : 2026-11-10, signalement d'une personne (ordinateur) : « impossible d'aller au CV à partir du récit alors que tout était complété ».
+- **Cause** : à l'étape « Vos informations », le bouton « Continuer » restait grisé tant que l'identité n'était pas enregistrée par un clic sur « Enregistrer mon identité », bouton situé plus bas dans le bloc « Vous ». La seule explication était une infobulle au survol du bouton grisé : invisible pour qui ne survole pas. Reproduit dans le navigateur de test (nom, prénom, téléphone saisis, bouton toujours grisé).
+- **Statut** : **CORRIGÉ** (2026-11-10, `modules/decouverte-competences/decouverteParcours.js`, `etapeVosInformationsDecouverte`). Le bouton reste cliquable : si l'identité est complète et saisie par la personne, elle est enregistrée au clic et le parcours continue ; sinon un message visible s'affiche dans la page et ramène au bloc « Vous ».
+- **Notes** : la même règle « bouton grisé avec infobulle seulement » existe peut-être à d'autres endroits (étape « Compétences » : toutes les expériences doivent être validées). À contrôler lors de la refonte des parcours de « Créer un nouveau CV ».
+
 ### Les mots de votre CV : « Imprimer » imprime des pages blanches
 
 - **Vu** : 2026-09-30, retour de Denis sur l'écran « Ma fiche ».

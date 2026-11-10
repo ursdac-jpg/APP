@@ -206,3 +206,57 @@ test('transitionner : jamais de retour en arriere depuis premierRaffinement vers
   const r = _decouverteTransitionner(etat, DECOUVERTE_ETATS_FRAGMENT.PROPOSITION_INITIALE);
   assert.equal(r.succes, false);
 });
+
+// ---------- Réponses suggérées sous « Quelques précisions » (consigne 217, 10/11/2026) ----------
+// Règle essentielle de Denis : TOUTES les questions reçues sont gardées, avec ou sans suggestions.
+
+const { decouverteReponsesSuggerees } = require('../modules/decouverte-competences/decouverteAnalyse.js');
+
+function reponseAvecQuestions(questions) {
+  return analyserReponseDecouverte(colleJSON({
+    fragments: [{
+      texteBrut: 'Serveur 3 ans', origine: 'proDeclaree', propositions: ['Service en salle'],
+      competencesProposees: [{ texte: 'Accueil client', categorie: 'savoirEtre', preuve: ['3 ans'] }]
+    }],
+    questionsCiblees: questions, reciteNettoye: 'Serveur.'
+  }));
+}
+
+test('questions : les réponses suggérées et le mode (un choix / plusieurs choix) sont conservés pour une question « texte »', () => {
+  const r = reponseAvecQuestions([
+    { texte: 'Quelles étaient vos missions ?', fragmentIndex: null, type: 'texte', choix: 'multiple', reponses: ['Accueillir', 'Servir', 'Encaisser'] },
+    { texte: 'Aviez-vous des responsabilités ?', fragmentIndex: null, type: 'texte', choix: 'unique', reponses: ['Oui', 'Non'] }
+  ]);
+  assert.equal(r.succes, true);
+  const q = r.valeurs.questionsCiblees.filter((x) => x.type === 'texte');
+  assert.equal(q.length, 2);
+  assert.equal(q[0].choix, 'multiple');
+  assert.deepEqual(q[0].reponses, ['Accueillir', 'Servir', 'Encaisser']);
+  assert.equal(q[1].choix, 'unique');
+});
+
+test('questions : une question SANS suggestion est quand même gardée (champ libre), jamais supprimée', () => {
+  const r = reponseAvecQuestions([
+    { texte: 'Autre chose à savoir ?', fragmentIndex: null, type: 'texte' },
+    { texte: 'Une seule suggestion ?', fragmentIndex: null, type: 'texte', choix: 'unique', reponses: ['Seule'] },
+    { texte: 'Suggestions mal formées ?', fragmentIndex: null, type: 'texte', choix: 'unique', reponses: 'pas une liste' }
+  ]);
+  const q = r.valeurs.questionsCiblees.filter((x) => x.type === 'texte');
+  assert.equal(q.length, 3, 'les trois questions reçues sont gardées');
+  q.forEach((x) => { assert.equal(x.reponses, undefined); assert.equal(x.choix, undefined); });
+});
+
+test('questions : les suggestions sont nettoyées (doublons, vides, « Autre » de l’assistant, 6 au plus, mode inconnu = un choix)', () => {
+  const s = decouverteReponsesSuggerees({ choix: 'bizarre', reponses: ['  Oui ', 'oui', '', 42, 'Autre', 'Autre chose', 'A', 'B', 'C', 'D', 'E', 'F'] });
+  assert.equal(s.choix, 'unique');
+  assert.deepEqual(s.reponses, ['Oui', 'A', 'B', 'C', 'D', 'E']);
+  assert.equal(decouverteReponsesSuggerees({ choix: 'multiple', reponses: ['x'.repeat(200), 'ok'] }), null, 'une réponse trop longue est écartée ; il en reste moins de deux');
+  assert.equal(decouverteReponsesSuggerees(null), null);
+});
+
+test('questions : une question de type « date » ne reçoit jamais de suggestions', () => {
+  const r = reponseAvecQuestions([{ texte: 'Quelle période ?', fragmentIndex: 0, type: 'date', choix: 'unique', reponses: ['2019', '2020'] }]);
+  const d = r.valeurs.questionsCiblees.filter((x) => x.type === 'date');
+  assert.equal(d.length, 1);
+  assert.equal(d[0].reponses, undefined);
+});

@@ -316,6 +316,269 @@
     } finally { window.open = ouvrirReel; clearInterval(_intervalleDecompteIA); _etatTransitionIA = null; if (typeof fermerDecouverteCompetences === 'function') { try { fermerDecouverteCompetences(); } catch (e2) {} } naviguerVers('accueil'); }
   }
 
+  // Consigne 198 (10/11/2026, bug majeur) : répondre à « Avez-vous une lettre de recommandation ? » (oui ou non) à l'étape « Choisissez votre assistant » du second échange
+  // renvoyait sur « Collez la réponse » sans qu'aucun assistant n'ait été choisi. La personne doit rester sur le choix ; seul le vrai choix d'un assistant fait avancer.
+  async function parcoursDecouverteChoixAssistantCV() {
+    var ouvrirReel = window.open; window.open = function () { return {}; };
+    try {
+      ouvrirDecouverteCompetences(); await attente(800); clearInterval(_intervalleDecompteIA); _etatTransitionIA = null;
+      _decouverteRenduEtape(11); await attente(800);
+      var rep = function (v) { return Array.prototype.slice.call(document.querySelectorAll('[data-reco-reponse]')).filter(function (e) { return e.getAttribute('data-reco-reponse') === v; })[0]; };
+      // Consigne 199 : la proposition du complément de CV est reconnue même reformulée, avec des espaces insécables ou des accents décomposés.
+      var ins = ' ';
+      // Consigne 219 (10/11/2026) : « Vos appuis » (lettre, Mes compétences, texte avec ses mots) arrivent bien dans le message de rédaction du CV de « À partir de mon récit ».
+      var vraieFenetre = ouvrirFenetreAssistantIA, messagesDec = [], av = { rep: _coLettreRecoReponse, mc: _coLettreAppuiMesComp, dep: _coLettreAppuiMesCompDepose, tx: _coLettreAppuiTexte, rec: _coLettreRecos, me: _mesCompEtat };
+      ouvrirFenetreAssistantIA = function (o) { messagesDec.push(o.construireTexteACopier()); };
+      try {
+        _coLettreRecos = [{ id: 1, texte: 'Camille est ponctuelle et rigoureuse.', role: 'Ancien employeur' }]; _coLettreRecoReponse = 'oui';
+        _coLettreAppuiMesComp = true; _coLettreAppuiMesCompDepose = { texte: 'Je sais tenir une caisse.', nom: 'mes_competences.pdf' };
+        _coLettreAppuiTexte = 'Je me suis occupé de la formation des nouveaux.';
+        _decouverteRenduEtape(11); await attente(900);
+        var pastilleAss = document.querySelector('#contenuEtapeDecouverte [data-assistant]'); if (pastilleAss) { pastilleAss.click(); await attente(400); }
+        var msgDec = messagesDec[0] || '';
+        cas('découverte/appuis : le message de rédaction contient la lettre de recommandation', /LETTRE DE RECOMMANDATION/.test(msgDec) && /ponctuelle et rigoureuse/.test(msgDec), msgDec.slice(-200));
+        cas('découverte/appuis : le message contient le document « Mes compétences » déposé', /Je sais tenir une caisse/.test(msgDec));
+        cas('découverte/appuis : le message contient le texte avec ses mots', /CE QUE LA PERSONNE AJOUTE AVEC SES MOTS/.test(msgDec) && /formation des nouveaux/.test(msgDec));
+      } finally {
+        ouvrirFenetreAssistantIA = vraieFenetre; _coLettreRecoReponse = av.rep; _coLettreAppuiMesComp = av.mc; _coLettreAppuiMesCompDepose = av.dep; _coLettreAppuiTexte = av.tx; _coLettreRecos = av.rec; _mesCompEtat = av.me;
+      }
+      _decouverteRenduEtape(11); await attente(600);
+      cas('découverte/complément : phrase du prompt reconnue', assistantProposeLeComplementCV('Voulez-vous aussi le complément de CV (missions) ? Si oui, répondez : oui'));
+      cas('découverte/complément : espaces insécables reconnus', assistantProposeLeComplementCV('Voulez-vous aussi le complément' + ins + 'de' + ins + 'CV ?'));
+      cas('découverte/complément : accents décomposés reconnus', assistantProposeLeComplementCV('le complément de CV'));
+      cas('découverte/complément : « de votre CV » reconnu', assistantProposeLeComplementCV('Souhaitez-vous le complément de votre CV ?'));
+      cas('découverte/complément : formulation libre avec « répondez oui » reconnue', assistantProposeLeComplementCV('Pour un complément sur vos loisirs, répondez simplement oui.'));
+      cas('découverte/complément : une réponse sans proposition n’est pas prise pour une proposition', !assistantProposeLeComplementCV('Voici votre CV. Bonne chance.') && !assistantProposeLeComplementCV('Une formation en complément de service.'));
+      // Même consigne : phrase d'invitation perdue (seul le bloc de code est copié) -> le contenu dit s'il y a un complément à faire.
+      var bloc = function (reco) { return '```json\n' + JSON.stringify({ titresProposes: ['Agent'], accrochesProposees: ['A'], pointsForts: ['B'], motsCles: ['C'], recommandations: reco }) + '\n```'; };
+      var vieilleReformuler = dossier._origineReformuler; dossier._origineReformuler = false;
+      cas('découverte/complément : une formation sans missions fait proposer le complément même sans la phrase', reponseCVLaisseUnComplementPossible(bloc({ formationRetenue: { intitule: 'BTS Comptabilité', missions: [] } })));
+      cas('découverte/complément : une expérience personnelle sans missions fait proposer le complément', reponseCVLaisseUnComplementPossible(bloc({ experiencePersonnelleAMettreEnAvant: { intitule: 'Bénévolat', missions: [] } })));
+      cas('découverte/complément : « Sans diplôme » et rien d’autre : pas de complément à proposer', !reponseCVLaisseUnComplementPossible(bloc({ formationRetenue: { intitule: 'Sans diplôme', missions: [] }, certificationsAMettreEnAvant: [], experiencePersonnelleAMettreEnAvant: { intitule: '', missions: [] } })));
+      cas('découverte/complément : formation déjà accompagnée de ses missions : pas de complément', !reponseCVLaisseUnComplementPossible(bloc({ formationRetenue: { intitule: 'BTS', missions: ['Réaliser des bilans.'] } })));
+      dossier._origineReformuler = true;
+      cas('découverte/complément : « Reformuler » n’est pas concerné', !reponseCVLaisseUnComplementPossible(bloc({ formationRetenue: { intitule: 'BTS Comptabilité', missions: [] } })));
+      dossier._origineReformuler = vieilleReformuler;
+      cas('découverte/choix de l’assistant : la question des appuis (oui / non) est sur la page', !!rep('oui') && !!rep('non'));
+      if (!rep('non')) { return; }
+      rep('non').click(); await attente(700);
+      cas('découverte/choix de l’assistant : répondre « Non » reste sur le choix de l’assistant', _decouverteNumeroCourant === 11 && !!$('[data-assistant]'), String(_decouverteNumeroCourant));
+      rep('oui').click(); await attente(700);
+      cas('découverte/choix de l’assistant : répondre « Oui » reste sur le choix de l’assistant', _decouverteNumeroCourant === 11 && !!$('[data-assistant]'), String(_decouverteNumeroCourant));
+      $('[data-assistant]').click(); await attente(800);
+      var valider = document.getElementById('validerAssistantIABtn');
+      cas('découverte/choix de l’assistant : choisir un assistant ouvre la fenêtre de validation', !!valider);
+      if (valider) { valider.click(); await attente(1000); clearInterval(_intervalleDecompteIA); }
+      cas('découverte/choix de l’assistant : le vrai choix d’un assistant mène à « Collez la réponse »', _decouverteNumeroCourant === 12, String(_decouverteNumeroCourant));
+    } finally { window.open = ouvrirReel; clearInterval(_intervalleDecompteIA); _etatTransitionIA = null; if (typeof fermerDecouverteCompetences === 'function') { try { fermerDecouverteCompetences(); } catch (e2) {} } naviguerVers('accueil'); }
+  }
+  // Consigne 195 et 204 (10/11/2026) : étape des compétences avec « Tout » + un bouton par expérience, questions conservées, raison du « Continuer » grisé écrite dans la page,
+  // et les compétences retenues + les réponses aux questions arrivent dans le prompt de rédaction du CV.
+  // Consignes 208, 209, 211, 212 (10/11/2026) : « Continuer » toujours dans la barre du bas, années de fin jamais avant le début, page qui ne saute plus au clic, complément toujours ajoutable.
+  async function parcoursDecouverteBarreEtAnnees() {
+    var sauve = { n: dossier.informationsNonClassees, f: dossier.formations, e: dossier.experiences, c: dossier.competences };
+    var barreTexte = function () { return Array.prototype.map.call(document.querySelectorAll('.barre-navigation-fixe button'), function (b) { return b.textContent.trim(); }).join(' | '); };
+    var continuerDansPage = function () { return Array.prototype.filter.call(document.querySelectorAll('#app button'), function (b) { return !b.closest('.barre-navigation-fixe') && !b.closest('.encart-reprise-module') && /^\s*Continuer/.test(b.textContent) && b.offsetParent !== null; }).length; };
+    try {
+      dossier.informationsNonClassees = []; dossier.formations = []; dossier.experiences = []; dossier.competences = [];
+      ouvrirDecouverteCompetences(); await attente(900); _etatTransitionIA = null; clearInterval(_intervalleDecompteIA); _decouverteRenduEtape(5); await attente(900);
+      var rep = { fragments: [{ texteBrut: 'Serveur 3 ans', origine: 'proDeclaree', propositions: ['Service en salle'], competencesProposees: [{ texte: 'Accueillir les clients', categorie: 'savoirEtre', preuve: ['3 ans'] }] }],
+        questionsCiblees: [{ texte: 'Période ?', fragmentIndex: null, type: 'date' }], reciteNettoye: 'Serveur.' };
+      await document.getElementById('fcRacineDecouverte').__collage.coller('```json\n' + JSON.stringify(rep) + '\n```'); await attente(600);
+      Array.prototype.slice.call(document.querySelectorAll('.barre-navigation-fixe button')).pop().click(); await attente(2500);
+      cas('récit, compétences : « Continuer » est dans la barre du bas, plus dans la page', /Continuer/.test(barreTexte()) && continuerDansPage() === 0, barreTexte() + ' / ' + continuerDansPage());
+      var sd = document.getElementById('reponseCibleeDebut_0'), sf = document.getElementById('reponseCibleeFin_0');
+      sf.value = '2018'; sf.dispatchEvent(new Event('change', { bubbles: true })); await attente(100);
+      sd.value = '2022'; sd.dispatchEvent(new Event('change', { bubbles: true })); await attente(200);
+      var valeursFin = Array.prototype.map.call(sf.options, function (o) { return o.value; });
+      cas('années : début 2022 retire de la liste de fin les années avant 2022 (aucune grisée), garde 2022 et remet une fin de 2018 à « Toujours en cours »', sf.value === '' && valeursFin.indexOf('2022') >= 0 && valeursFin.indexOf('2021') === -1 && valeursFin.indexOf('') === 0 && !Array.prototype.some.call(sf.options, function (o) { return o.disabled; }), sf.value + ' / ' + valeursFin.slice(-3).join(','));
+      sd.value = '2018'; sd.dispatchEvent(new Event('change', { bubbles: true })); await attente(200);
+      cas('années : début 2018 remet les années 2018 à aujourd’hui dans la liste de fin', Array.prototype.some.call(sf.options, function (o) { return o.value === '2018'; }) && !Array.prototype.some.call(sf.options, function (o) { return o.value === '2017'; }));
+      var cb = document.querySelector('[data-panel-fragment] input[type=checkbox]'); if (cb && !cb.checked) { cb.click(); await attente(150); }
+      var bv = Array.prototype.filter.call(document.querySelectorAll('[data-valider-fragment]'), function (b) { return !/déjà validés/.test(b.textContent); })[0]; if (bv) { bv.click(); await attente(900); }
+      Array.prototype.slice.call(document.querySelectorAll('.barre-navigation-fixe button')).pop().click(); await attente(2500);
+      cas('récit, vos informations : « Continuer » dans la barre du bas, aucun dans la page', /Vos informations/.test(document.querySelector('h1').textContent) && /Continuer/.test(barreTexte()) && continuerDansPage() === 0, barreTexte() + ' / ' + continuerDansPage());
+      var zoneMots = document.querySelector('.mots-page-zone');
+      cas('récit : le bouton « Mots de cette page » est tout en bas de la page (consigne 218), plus sous « Revoir la présentation »', !!zoneMots && !zoneMots.nextElementSibling && !document.querySelector('.bloc-revoir-module + .mots-page-zone'));
+      window.scrollTo(0, 150); await attente(300);
+      var positions = []; var actif = true;
+      (function boucle() { if (!actif) { return; } var j = document.querySelector('#contenuEtapeDecouverte [data-reco-reponse]'); positions.push(j ? Math.round(j.getBoundingClientRect().top) : null); requestAnimationFrame(boucle); })();
+      var jetons = document.querySelectorAll('#contenuEtapeDecouverte [data-reco-reponse]'); if (jetons[1]) { jetons[1].click(); } await attente(1000); actif = false;
+      var distinctes = positions.filter(function (p, i) { return positions.indexOf(p) === i; });
+      cas('récit : un clic sur un choix ne fait plus monter puis redescendre la page', distinctes.length === 1, JSON.stringify(distinctes));
+    } finally {
+      dossier.informationsNonClassees = sauve.n; dossier.formations = sauve.f; dossier.experiences = sauve.e; dossier.competences = sauve.c;
+      try { fermerDecouverteCompetences(); } catch (e2) { /* rien */ } naviguerVers('accueil');
+    }
+    // Complément : détection élargie au loisir et bouton du bas du CV indépendant de la phrase de l'assistant.
+    var bloc = function (lr) { return '```json\n' + JSON.stringify({ recommandations: { loisirRetenu: lr } }) + '\n```'; };
+    cas('complément : un loisir retenu sans missions fait proposer le complément', reponseCVLaisseUnComplementPossible(bloc({ intitule: 'Football', missions: [] })) === true);
+    cas('complément : un loisir retenu avec missions ne le fait pas proposer', reponseCVLaisseUnComplementPossible(bloc({ intitule: 'Football', missions: ['Jouer en équipe'] })) === false);
+    var avant = { p: dossier.complementCVPropose, a: dossier.complementCVAjoute, o: dossier._origineReformuler };
+    var impOrig = window.reponseIAImportee; window.reponseIAImportee = function (t) { return t === 'cv' ? true : impOrig(t); };
+    try {
+      dossier.complementCVPropose = false; dossier.complementCVAjoute = false; dossier._origineReformuler = false;
+      cas('complément : CV venu de l’assistant, phrase non détectée -> le bouton du bas du CV existe quand même', complementCVAjoutable() === true);
+      dossier._origineReformuler = true;
+      cas('complément : jamais proposé pour une reformulation', complementCVAjoutable() === false);
+      dossier._origineReformuler = false; dossier.complementCVAjoute = true;
+      cas('complément : une fois ajouté, plus de bouton', complementCVAjoutable() === false);
+    } finally { window.reponseIAImportee = impOrig; dossier.complementCVPropose = avant.p; dossier.complementCVAjoute = avant.a; dossier._origineReformuler = avant.o; }
+  }
+  // Consignes 220, 224, 225 (10/11/2026) : « Changer d'assistant » ramène au choix (étapes 12 et 14), un complément au bon format mais vide est un message jaune qui laisse continuer, le bouton du bas du CV disparaît ensuite.
+  async function parcoursDecouverteComplementChanger() {
+    var sauve = { p: dossier.complementCVPropose, a: dossier.complementCVAjoute, v: dossier.complementCVRecuVide, r: dossier.complementCVRefuse, s: dossier.complementCVPasse, ia: dossier.ia };
+    var ouvrirReel = window.open; window.open = function () { return {}; };
+    try {
+      dossier.ia = {}; dossier.complementCVPropose = false; dossier.complementCVAjoute = false; dossier.complementCVRecuVide = false; dossier.complementCVRefuse = false; dossier.complementCVPasse = false;
+      ouvrirDecouverteCompetences(); await attente(900); clearInterval(_intervalleDecompteIA); _etatTransitionIA = null;
+      _decouverteRenduEtape(12); await attente(900);
+      var ch = document.querySelector('#fcRacineActionIA [data-fc=changer]');
+      cas('découverte/220 : « Changer d’assistant » existe sur « Collez la réponse »', !!ch);
+      if (ch) { ch.click(); await attente(900); }
+      cas('découverte/220 : « Changer d’assistant » ramène au choix de l’assistant (étape 12)', _decouverteNumeroCourant === 11 && !!document.querySelector('[data-assistant]'), String(_decouverteNumeroCourant));
+      dossier.complementCVPropose = true;
+      _decouverteRenduEtape(14); await attente(900);
+      var rc = document.getElementById('fcRacineComplement');
+      await rc.__collage.coller('Voici du texte sans rien d’utile'); await attente(700);
+      var ch2 = rc.querySelector('[data-fc=changer]');
+      cas('découverte/220 : l’écran d’échec du complément propose « Changer d’assistant »', !!ch2 && rc.__collage.etat() === 'echec');
+      if (ch2) { ch2.click(); await attente(900); }
+      cas('découverte/220 : « Changer d’assistant » depuis le complément ramène au choix de l’assistant', _decouverteNumeroCourant === 11 && !!document.querySelector('[data-assistant]'), String(_decouverteNumeroCourant));
+      _decouverteRenduEtape(14); await attente(900);
+      rc = document.getElementById('fcRacineComplement');
+      var vide = '{"recommandations":{"formationRetenue":{"intitule":"Sans diplôme","justification":"Aucune formation diplômante indiquée.","missions":[]},"loisirRetenu":{"intitule":"","missions":[],"justification":""}},"couleursEntrepriseSuggerees":[]}';
+      await rc.__collage.coller(vide); await attente(800);
+      cas('découverte/224 : un complément au bon format mais vide donne un message jaune d’information, pas une erreur rouge', !!rc.querySelector('.fc-vide') && !rc.querySelector('.fc-echec'));
+      var cont = Array.prototype.filter.call(document.querySelectorAll('.barre-navigation-fixe button'), function (b) { return /Continuer vers mon CV/.test(b.textContent); })[0];
+      cas('découverte/224 : le bouton du bas devient « Continuer vers mon CV »', !!cont);
+      if (cont) { cont.click(); await attente(1500); }
+      cas('découverte/224 : le complément vide est compté comme traité et la personne arrive sur le CV', location.hash === '#resultats' && dossier.complementCVAjoute === true && dossier.complementCVRecuVide === true, location.hash);
+      cas('découverte/225 : le bouton « Ajouter le complément du CV » n’apparaît plus quand le complément est traité', !document.getElementById('btnMepAjouterComplement') && complementCVAjoutable() === false);
+      var imp = window.reponseIAImportee; window.reponseIAImportee = function (t) { return t === 'cv' ? true : imp(t); };
+      dossier.complementCVAjoute = false; dossier.complementCVRecuVide = false; dossier._origineReformuler = false;
+      cas('découverte/225 : tant que le complément n’est pas collé, le bouton du bas du CV reste proposé', complementCVAjoutable() === true);
+      window.reponseIAImportee = imp;
+    } finally {
+      window.open = ouvrirReel; clearInterval(_intervalleDecompteIA); _etatTransitionIA = null;
+      dossier.complementCVPropose = sauve.p; dossier.complementCVAjoute = sauve.a; dossier.complementCVRecuVide = sauve.v; dossier.complementCVRefuse = sauve.r; dossier.complementCVPasse = sauve.s; dossier.ia = sauve.ia;
+      try { fermerDecouverteCompetences(); } catch (e2) { /* rien */ } naviguerVers('accueil');
+    }
+  }
+  // Consigne 217 (10/11/2026) : « Quelques précisions » avec réponses suggérées. Règle essentielle : TOUTES les questions reçues sont posées, avec ou sans suggestions.
+  async function parcoursDecouverteQuestionsSuggerees() {
+    var sauve = { n: dossier.informationsNonClassees, f: dossier.formations, e: dossier.experiences, c: dossier.competences };
+    try {
+      dossier.informationsNonClassees = []; dossier.formations = []; dossier.experiences = []; dossier.competences = [];
+      ouvrirDecouverteCompetences(); await attente(900); _etatTransitionIA = null; clearInterval(_intervalleDecompteIA); _decouverteRenduEtape(5); await attente(900);
+      var questions = [
+        { texte: 'Pendant combien de temps avez-vous été serveur ?', fragmentIndex: 0, type: 'date' },
+        { texte: 'Quelles étaient vos missions au restaurant ?', fragmentIndex: null, type: 'texte', choix: 'multiple', reponses: ['J’accueillais les clients et je les installais à leur table', 'Je prenais les commandes', 'Je tenais la caisse', 'Autre'] },
+        { texte: 'Utilisiez-vous une caisse ou un logiciel ?', fragmentIndex: null, type: 'texte', choix: 'multiple', reponses: ['Une caisse enregistreuse', 'Un logiciel de commande'] },
+        { texte: 'Aviez-vous des responsabilités ?', fragmentIndex: null, type: 'texte', choix: 'unique', reponses: ['Non, aucune', 'Oui, j’ouvrais le restaurant', 'Oui, je formais les nouveaux'] },
+        { texte: 'Y a-t-il autre chose que l’assistant doit savoir ?', fragmentIndex: null, type: 'texte' },
+        { texte: 'Une question avec une seule suggestion (donc sans suggestion)', fragmentIndex: null, type: 'texte', choix: 'unique', reponses: ['Seule'] }
+      ];
+      var rep = { fragments: [{ texteBrut: 'Serveur en restauration 3 ans', origine: 'proDeclaree', propositions: ['Service en salle'], competencesProposees: [{ texte: 'Accueillir les clients', categorie: 'savoirEtre', preuve: ['3 ans'] }] }], questionsCiblees: questions, reciteNettoye: 'Serveur.' };
+      await document.getElementById('fcRacineDecouverte').__collage.coller('```json\n' + JSON.stringify(rep) + '\n```'); await attente(600);
+      Array.prototype.slice.call(document.querySelectorAll('.barre-navigation-fixe button')).pop().click(); await attente(2500);
+      var blocs = document.querySelectorAll('[data-qc]');
+      cas('questions : toutes les questions reçues sont posées (6 reçues, ' + blocs.length + ' affichées)', blocs.length === 6);
+      cas('questions : un numéro devant chaque question, dans l’ordre', Array.prototype.map.call(document.querySelectorAll('.qc-texte .num-rubrique'), function (n) { return n.textContent; }).join(',') === '1,2,3,4,5,6');
+      cas('questions : les numéros ne sont pas des boutons', !document.querySelector('.num-rubrique').closest('button') && getComputedStyle(document.querySelector('.num-rubrique')).cursor !== 'pointer');
+      cas('questions : le compteur dit « 0 réponse sur 6 »', /0 réponse sur 6/.test(texte(document.getElementById('compteurQuestionsCiblees'))));
+      cas('questions : « Autre » reçu de l’assistant n’est pas en double', document.querySelectorAll('[data-qc="1"] .qc-ovale').length === 3 + 2, String(document.querySelectorAll('[data-qc="1"] .qc-ovale').length));
+      cas('questions : « Les deux » quand il n’y a que deux réponses', !!document.querySelector('[data-qc="2"] [data-qc-tout]') && /Les deux/.test(document.querySelector('[data-qc="2"] [data-qc-tout]').textContent));
+      cas('questions : « Tout cocher » quand il y en a plus de deux', /Tout cocher/.test(document.querySelector('[data-qc="1"] [data-qc-tout]').textContent));
+      cas('questions : une seule suggestion = pas de suggestion, la question garde son champ libre', !!document.getElementById('reponseCiblee_5') && !document.querySelector('[data-qc="5"] .qc-ovale'));
+      cas('questions : la question sans suggestion garde son champ libre', !!document.getElementById('reponseCiblee_4'));
+      cas('questions : rien n’est coché au départ', !document.querySelector('.qc-ovale[aria-pressed="true"]'));
+      var oui = document.querySelectorAll('[data-qc="3"] [data-qc-rep]');
+      oui[1].click(); oui[2].click(); await attente(150);
+      cas('questions : un seul choix, le dernier clic remplace le précédent', oui[1].getAttribute('aria-pressed') === 'false' && oui[2].getAttribute('aria-pressed') === 'true' && /Votre réponse : Oui, je formais les nouveaux/.test(texte(document.querySelector('[data-qc-etat="3"]'))));
+      document.querySelector('[data-qc="1"] [data-qc-tout]').click(); await attente(150);
+      cas('questions : « Tout cocher » coche tout', Array.prototype.every.call(document.querySelectorAll('[data-qc="1"] [data-qc-rep]'), function (b) { return b.getAttribute('aria-pressed') === 'true'; }));
+      document.querySelector('[data-qc="1"] [data-qc-rep]').click(); await attente(150);
+      cas('questions : décocher une réponse décoche « Tout cocher »', document.querySelector('[data-qc="1"] [data-qc-tout]').getAttribute('aria-pressed') === 'false');
+      document.querySelector('[data-qc="1"] [data-qc-autre]').click(); await attente(150);
+      var champAutre = document.getElementById('reponseCibleeAutre_1');
+      cas('questions : « Autre chose » ouvre un champ libre', champAutre.closest('.qc-zone-autre').classList.contains('ouverte'));
+      champAutre.value = 'Je faisais aussi la plonge'; champAutre.dispatchEvent(new Event('input', { bubbles: true })); await attente(150);
+      var champLibre = document.getElementById('reponseCiblee_4'); champLibre.value = 'Rien d’autre'; champLibre.dispatchEvent(new Event('input', { bubbles: true })); await attente(150);
+      var s2 = document.querySelectorAll('[data-qc="2"] [data-qc-rep]'); s2[0].click(); await attente(100);
+      var sel = document.getElementById('reponseCibleeDebut_0'); sel.value = sel.options[sel.options.length - 3].value; sel.dispatchEvent(new Event('change', { bubbles: true })); await attente(150);
+      cas('questions : le compteur suit les réponses (4 sur 6 à ce stade ou plus)', /[4-6] réponses sur 6/.test(texte(document.getElementById('compteurQuestionsCiblees'))), texte(document.getElementById('compteurQuestionsCiblees')));
+      cas('questions : la date donne aussi sa ligne « Votre réponse »', /Votre réponse : \d{4} à/.test(texte(document.querySelector('[data-qc-etat="0"]'))), texte(document.querySelector('[data-qc-etat="0"]')));
+      // retour sur l'écran : l'état est conservé
+      _decouverteRenduEtape(6); await attente(900);
+      cas('questions : après un retour sur l’écran, les choix sont conservés', document.querySelector('[data-qc="3"] [data-k="2"]').getAttribute('aria-pressed') === 'true' && document.getElementById('reponseCibleeAutre_1').value === 'Je faisais aussi la plonge');
+      // transmission : les réponses arrivent au dossier puis au message de rédaction
+      document.querySelectorAll('[data-onglet-fragment]').forEach(function () { });
+      for (var k = 0; k < 3; k++) {
+        var bv = Array.prototype.filter.call(document.querySelectorAll('[data-valider-fragment]'), function (b) { return !/déjà validés/.test(b.textContent); })[0];
+        if (!bv) { break; }
+        var cb = bv.closest('[data-panel-fragment]').querySelector('input[type=checkbox]'); if (cb && !cb.checked) { cb.click(); await attente(150); }
+        bv.click(); await attente(900);
+      }
+      var continuer = document.getElementById('btnContinuerDecouverte');
+      cas('questions : « Continuer » actif sans avoir répondu à tout', !!continuer && !continuer.disabled);
+      continuer.click(); await attente(2500);
+      var prompt = promptCache('decouverteRedaction', texteProfilEffectif('cv')).normalize('NFC');
+      cas('transmission : le choix unique arrive dans le message de rédaction', /responsabilités \? - R.ponse : Oui, je formais les nouveaux/.test(prompt));
+      cas('transmission : les réponses cochées ET le texte de « Autre chose » arrivent ensemble', /missions au restaurant \? - R.ponse : .*Je prenais les commandes.*Je faisais aussi la plonge/.test(prompt));
+      cas('transmission : le champ libre arrive aussi', /Y a-t-il autre chose que l’assistant doit savoir \? - R.ponse : Rien d’autre/.test(prompt));
+    } finally {
+      dossier.informationsNonClassees = sauve.n; dossier.formations = sauve.f; dossier.experiences = sauve.e; dossier.competences = sauve.c;
+      try { fermerDecouverteCompetences(); } catch (e2) { /* rien */ } naviguerVers('accueil');
+    }
+  }
+  async function parcoursDecouverteCompetencesTout() {
+    var sauve = { n: dossier.informationsNonClassees, f: dossier.formations, e: dossier.experiences, c: dossier.competences };
+    try {
+      dossier.informationsNonClassees = []; dossier.formations = []; dossier.experiences = []; dossier.competences = [];
+      ouvrirDecouverteCompetences(); await attente(900); _etatTransitionIA = null; clearInterval(_intervalleDecompteIA); _decouverteRenduEtape(5); await attente(900);
+      var rep = { fragments: [
+        { texteBrut: 'Serveur en restauration 3 ans', origine: 'proDeclaree', propositions: ['Service en salle'], competencesProposees: [{ texte: 'Accueillir les clients', categorie: 'savoirEtre', preuve: ['3 ans'] }, { texte: 'Tenir une caisse', categorie: 'savoirFaire', preuve: ['3 ans'] }] },
+        { texteBrut: 'Aide-cuisinier 1 an', origine: 'proDeclaree', propositions: ['Aide en cuisine'], competencesProposees: [{ texte: 'Respecter l’hygiène', categorie: 'savoirFaire', preuve: ['1 an'] }] }],
+        questionsCiblees: [{ texte: 'Avez-vous un permis de conduire ?', fragmentIndex: null, type: 'texte' }], reciteNettoye: 'Serveur puis aide-cuisinier.' };
+      await document.getElementById('fcRacineDecouverte').__collage.coller('```json\n' + JSON.stringify(rep) + '\n```'); await attente(600);
+      Array.prototype.slice.call(document.querySelectorAll('.barre-navigation-fixe button')).pop().click(); await attente(2500);
+      var boutons = Array.prototype.map.call(document.querySelectorAll('[data-onglet-fragment]'), function (b) { return b.textContent.trim(); });
+      cas('compétences : « Tout » + un bouton par expérience', boutons.length === 3 && /Tout \(2\)/.test(boutons[0]), JSON.stringify(boutons));
+      cas('compétences : « Tout » affiche toutes les expériences l’une après l’autre', document.querySelector('[data-onglet-fragment="tout"]').classList.contains('actif') && Array.prototype.filter.call(document.querySelectorAll('[data-panel-fragment]'), function (x) { return x.offsetParent; }).length === 2);
+      cas('compétences : les questions de l’assistant restent sur la page', /Quelques précisions/.test(document.body.innerText) && /Avez-vous un permis de conduire/.test(document.body.innerText));
+      cas('compétences : « Continuer » grisé, la raison est écrite dans la page', document.getElementById('btnContinuerDecouverte').disabled && /il reste à valider/.test(texte(document.getElementById('decouverteRaisonContinuer'))));
+      document.querySelectorAll('[data-onglet-fragment]')[2].click(); await attente(700);
+      cas('compétences : un bouton d’expérience n’en montre qu’une, les questions restent', Array.prototype.filter.call(document.querySelectorAll('[data-panel-fragment]'), function (x) { return x.offsetParent; }).length === 1 && /Quelques précisions/.test(document.body.innerText));
+      document.querySelector('[data-onglet-fragment="tout"]').click(); await attente(700);
+      // Consigne 215 (10/11/2026) : grands titres qui nomment l'expérience, et descente automatique vers la suivante après une validation.
+      var titresTout = Array.prototype.map.call(document.querySelectorAll('.titre-fragment-tout'), function (h) { return h.textContent; });
+      cas('compétences : en « Tout », chaque expérience a un grand titre qui la nomme (numéro + ses mots)', titresTout.length === 2 && /Expérience 1/.test(titresTout[0]) && /Serveur en restauration/.test(titresTout[0]) && /Expérience 2/.test(titresTout[1]) && /Aide-cuisinier/.test(titresTout[1]), JSON.stringify(titresTout));
+      var premierValider = Array.prototype.filter.call(document.querySelectorAll('[data-valider-fragment]'), function (b) { return !/déjà validés/.test(b.textContent); })[0];
+      var cb1 = premierValider.closest('[data-panel-fragment]').querySelector('input[type=checkbox]'); if (cb1 && !cb1.checked) { cb1.click(); await attente(150); }
+      window.scrollTo(0, 0); await attente(200);
+      premierValider.click(); await attente(1500);
+      var panneauDeux = document.querySelectorAll('[data-panel-fragment]')[1];
+      cas('compétences : après la validation de la première expérience, la page descend d’elle-même à la suivante', !!panneauDeux && panneauDeux.getBoundingClientRect().top < window.innerHeight * 0.5 && window.scrollY > 100, panneauDeux && (Math.round(panneauDeux.getBoundingClientRect().top) + ' / ' + Math.round(window.scrollY)));
+      for (var k = 0; k < 3; k++) {
+        var bv = Array.prototype.filter.call(document.querySelectorAll('[data-valider-fragment]'), function (b) { return !/déjà validés/.test(b.textContent); })[0];
+        if (!bv) { break; }
+        var cb = bv.closest('[data-panel-fragment]').querySelector('input[type=checkbox]'); if (cb && !cb.checked) { cb.click(); await attente(150); }
+        bv.click(); await attente(900);
+      }
+      var champ = Array.prototype.filter.call(document.querySelectorAll('[id^="reponseCiblee_"]'), function (c) { return /permis de conduire/.test(c.parentElement.innerText); })[0]; champ.value = 'Oui, permis B depuis 2015'; champ.dispatchEvent(new Event('input', { bubbles: true })); await attente(300);
+      var continuer = document.getElementById('btnContinuerDecouverte');
+      cas('compétences : tout validé, « Continuer » actif et la raison disparaît', !!continuer && !continuer.disabled && !document.getElementById('decouverteRaisonContinuer'));
+      continuer.click(); await attente(2500);
+      var prompt = promptCache('decouverteRedaction', texteProfilEffectif('cv'));
+      cas('prompt de rédaction : les compétences retenues sont transmises', /Accueillir les clients/.test(prompt) && /Respecter l’hygiène/.test(prompt));
+      cas('prompt de rédaction : la question et la réponse de la personne sont transmises', /permis de conduire\s*\?\s*-\s*R.ponse\s*:\s*Oui, permis B depuis 2015/.test(prompt.normalize('NFC')), prompt.slice(prompt.indexOf('Autres informations transmises par la personne :'), prompt.indexOf('Autres informations transmises par la personne :') + 160));
+      cas('prompt de rédaction : la consigne dit que le récit et les réponses sont la matière principale', /matière factuelle PRINCIPALE/.test(prompt));
+    } finally {
+      dossier.informationsNonClassees = sauve.n; dossier.formations = sauve.f; dossier.experiences = sauve.e; dossier.competences = sauve.c;
+      try { fermerDecouverteCompetences(); } catch (e2) { /* rien */ } naviguerVers('accueil');
+    }
+  }
   async function parcoursDecouverte() {
     dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', email: 'c@ex.fr', telephone: '0600000000', ville: 'Limoges' };
     dossier.experiences = [{ poste: 'Agent', entreprise: 'X', dateDebut: '2020-01', dateFin: '2022-01', missions: 'Accueillir' }];
@@ -325,24 +588,27 @@
     if (!racineImp || !racineImp.__collage) { return; }
     var texteRepDec = JSON.stringify({ titresProposes: ['Agent d’accueil'], accrochesProposees: ['Une accroche.'], accrochesCourtesProposees: ['Courte'], pointsForts: ['Rigueur'], motsCles: ['accueil'], recommandations: { typeCV: { valeur: 'chronologique', justification: 'ok' }, experiencesAMettreEnAvant: [{ poste: 'Agent', entreprise: 'X', justification: 'ok' }], competencesAValoriser: [{ competence: 'Accueil', justification: 'ok' }] } });
     cas('découverte : la réponse collée est lue et reconnue', await collerActionIA(texteRepDec)); await attente(2500);
-    cas('découverte : après l’import, le parcours attend (complément de CV facultatif, bouton « Continuer »)', location.hash !== '#resultats' && !!document.getElementById('btnSuivantNavigation') && !document.getElementById('btnContinuerDecouverte') && !!document.getElementById('btnOuvrirComplementCV') && dossier.titreCV === 'Agent d’accueil');
-    document.getElementById('btnSuivantNavigation').click(); await attente(2000);
-    cas('découverte : « Continuer » aboutit sur « Mon CV » (#resultats), parcours marqué terminé', location.hash === '#resultats' && dossier.decouverteTerminee === true, location.hash);
+    // Consigne 221 (10/11/2026) : plus d'écran « Collez la réponse (déjà importée) » inutile : après l'import réussi, on arrive directement à « Étape 2 sur 2 : le complément ».
+    cas('découverte : après l’import, on arrive directement à l’écran du complément (consigne 221, plus de page « déjà importée » en double)', location.hash !== '#resultats' && /complément de votre CV/i.test(document.querySelector('h1').textContent) && !document.getElementById('fcRacineActionIA') && dossier.titreCV === 'Agent d’accueil' && dossier.complementCVPropose === true, location.hash);
+    cas('découverte : l’écran du complément dit que l’assistant le propose et de revenir dans la même conversation (consigne 222)', /L’assistant vous propose un complément de CV/.test(document.body.innerText) && /même conversation, avec le même assistant/.test(document.body.innerText));
+    document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(2000);
+    cas('découverte : « Continuer sans le complément » aboutit sur « Mon CV » (#resultats), parcours marqué terminé', location.hash === '#resultats' && dossier.decouverteTerminee === true, location.hash);
     // Retour Denis 2026-10-19 : quand l'assistant a proposé le complément, « Continuer » mène d'abord à l'écran du complément (étape 14), jamais directement à la page de création.
     dossier.complementCVPropose = true; dossier.complementCVAjoute = false; dossier.complementCVRefuse = false; dossier.complementCVPasse = false;
     window._decouverteVersResultats = false;
     naviguerVers('decouverte'); await attente(1500); _decouverteRenduEtape(12); await attente(800);
     cas('découverte : avec un complément proposé, la page « Collez la réponse » n’a ni bandeau ni rectangle du complément', !document.querySelector('.complement-cv-banniere') && !document.querySelector('[data-assistant-rect-toggle="complement-cv"]'));
+    cas('découverte : avec un complément proposé, un message dit que le complément est l’étape suivante', !!document.getElementById('decouverteComplementAnnonce') && /étape suivante/.test(document.getElementById('decouverteComplementAnnonce').textContent));
     document.getElementById('btnSuivantNavigation').click(); await attente(1000);
     cas('découverte : « Continuer » mène à l’écran du complément (fenêtre commune, « Continuer sans le complément » dans la barre)', location.hash !== '#resultats' && /complément de votre CV/i.test(document.querySelector('h1').textContent) && /Continuer sans le complément/.test(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]').textContent) && /ajouter plus tard/.test(document.body.innerText) && !!document.getElementById('fcRacineComplement') && !document.getElementById('texteCollageComplement'));
     _decouverteAgirRetour(); await attente(800);
     cas('découverte : « Retour » depuis l’écran du complément revient à « Collez la réponse »', location.hash !== '#resultats' && !!document.getElementById('fcRacineActionIA'));
     // Retour Denis 28/10/2026 : réponse déjà importée = plus de bouton « Importer dans le CV » grisé à côté d'un « Continuer » actif, et la phrase d'orientation dit la vérité.
     var btnImp = document.getElementById('btnContinuerActionIA'); var orient = document.querySelector('.import-ia-orient');
-    cas('découverte : réponse déjà importée, le bouton de la fenêtre est visible mais grisé et la phrase le dit en clair', !!btnImp && btnImp.offsetParent !== null && btnImp.disabled && !!orient && /déjà importée/.test(orient.textContent) && !/cliquez sur «\s*Importer\s*»/.test(orient.textContent), orient && orient.textContent);
+    cas('découverte : réponse déjà importée, aucun second bouton dans la fenêtre (un seul « Continuer » en bas) et la phrase le dit en clair', !btnImp && !!document.getElementById('btnSuivantNavigation') && document.getElementById('btnSuivantNavigation').offsetParent !== null && !!orient && /déjà importée/.test(orient.textContent) && !/cliquez sur «\s*Importer\s*»/.test(orient.textContent), orient && orient.textContent);
     document.getElementById('fcRacineActionIA').__collage.coller(texteRepDec); await attente(400);
-    btnImp = document.getElementById('btnContinuerActionIA');
-    cas('découverte : réponse déjà importée, coller une autre réponse active le bouton de la fenêtre', !!btnImp && btnImp.offsetParent !== null && !btnImp.disabled);
+    var btnRemplace = document.getElementById('btnContinuerActionIA');
+    cas('découverte : réponse déjà importée, coller une autre réponse fait apparaître « Remplacer ma réponse » dans la fenêtre (le « Continuer » du module reste en bas)', !!btnRemplace && /Remplacer ma réponse/.test(btnRemplace.textContent) && !btnRemplace.disabled && btnRemplace.offsetParent !== null && !!document.getElementById('btnSuivantNavigation'));
     document.getElementById('btnSuivantNavigation').click(); await attente(800);
     document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]').click(); await attente(2500);
     cas('découverte : « Continuer sans le complément » aboutit sur la page de création, le complément reste importable plus tard', location.hash === '#resultats' && dossier.complementCVPasse === true && complementCVImportable());
@@ -464,15 +730,33 @@
     var etatMc = (typeof _mesCompEtat !== 'undefined') ? _mesCompEtat : null;
     var redessiner = function () { hote.innerHTML = _coLettreHtmlAppuis({ pourCv: true }); _coLettreBrancherAppuis(redessiner); };
     _mesCompEtat = null; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; redessiner();
-    cas('appuis : sans « Mes compétences » terminé, une ligne l’explique et rien ne bloque', /pas encore terminé/.test(hote.textContent) && !hote.querySelector('[data-appui-mescomp]'));
+    cas('appuis : sans « Mes compétences » terminé, la question est posée quand même, rien n’est retrouvé et rien ne bloque', !!hote.querySelector('[data-appui-mescomp]') && !/retrouvé dans l’application/.test(hote.textContent) && sectionAppuisPourMessage() === '');
+    cas('appuis : trois parties numérotées, avec le bilan « 0 appui sur 3 »', hote.querySelectorAll('.appui-partie .num-rubrique').length === 3 && /0 appui sur 3/.test(hote.querySelector('[data-appui-bilan]').textContent));
+    cas('appuis : les numéros 1, 2, 3 ne sont pas des boutons', !hote.querySelector('.num-rubrique').closest('button') && !hote.querySelector('.num-rubrique').closest('[onclick]'));
+    cas('appuis : « Dites-le avec vos mots » est fermé d’office', hote.querySelector('.appui-zone-mots').hidden === true);
+    hote.querySelector('[data-appui-mescomp="oui"]').click();
+    cas('appuis : « Oui » à Mes compétences propose le dépôt du document, comme pour la lettre', !!hote.querySelector('[data-appui-mescomp-deposer]') && /Déposer mon document/.test(hote.textContent));
+    hote.querySelector('[data-appui-mescomp="non"]').click();
+    cas('appuis : « Non » à Mes compétences = une phrase d’information avec la boussole, sans bouton ni invitation', !!hote.querySelector('.appui-info-outil .bi-compass') && /carte « Boîte à outils »/.test(hote.textContent) && !hote.querySelector('[data-appui-mescomp-deposer]') && !/plus tard/i.test(hote.querySelector('.appui-info-outil').textContent));
+    hote.querySelector('[data-appui-mescomp="non"]').click();
     _mesCompEtat = mesCompEtatInitial(); _mesCompEtat.termine = true;
     _mesCompEtat.lignes = [{ id: 'l1', famille: MESCOMP_FAMILLES[0].id, libelle: 'Accueillir le public', confirmation: 'declaree', geste: 'ok', pourLeCV: 'Accueil du public', preuves: [], pourLOral: '' }];
     redessiner();
-    cas('appuis : « Mes compétences » terminé : proposé, jamais joint d’office', !!hote.querySelector('[data-appui-mescomp]') && sectionAppuisPourMessage() === '');
+    cas('appuis : « Mes compétences » terminé : retrouvé et proposé, jamais joint d’office', !!hote.querySelector('[data-appui-mescomp]') && /retrouvé dans l’application/.test(hote.textContent) && sectionAppuisPourMessage() === '');
     hote.querySelector('[data-appui-mescomp="oui"]').click();
     var zone = hote.querySelector('#coLettreAppuiTexte'); zone.value = 'Je suis ponctuel.'; zone.dispatchEvent(new Event('input', { bubbles: true }));
     cas('appuis : « Mes compétences » joint et texte libre partent dans le message', /COMPÉTENCES RELEVÉES/.test(sectionAppuisPourMessage()) && /Je suis ponctuel/.test(sectionAppuisPourMessage()));
-    hote.remove(); _mesCompEtat = etatMc; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = '';
+    cas('appuis : le texte non validé affiche « À valider », le bilan ne le compte pas encore', /À valider/.test(hote.querySelector('[data-appui-etat="3"]').textContent) && /1 appui sur 3/.test(hote.querySelector('[data-appui-bilan]').textContent));
+    hote.querySelector('[data-appui-valider]').click();
+    cas('appuis : « Valider mon texte » : état « Fait », message, bouton du haut vert, bilan 2 sur 3', /Fait/.test(hote.querySelector('[data-appui-etat="3"]').textContent) && !hote.querySelector('[data-appui-msg-valide]').hidden && /Texte bien validé/.test(hote.querySelector('[data-appui-mots]').textContent) && hote.querySelector('[data-appui-mots]').classList.contains('valide') && /2 appuis sur 3/.test(hote.querySelector('[data-appui-bilan]').textContent));
+    zone.value = 'Je suis ponctuel et soigneux.'; zone.dispatchEvent(new Event('input', { bubbles: true }));
+    cas('appuis : modifier le texte après validation le remet « À valider »', /À valider/.test(hote.querySelector('[data-appui-etat="3"]').textContent) && !hote.querySelector('[data-appui-mots]').classList.contains('valide') && /soigneux/.test(sectionAppuisPourMessage()));
+    cas('appuis : bouton de dictée à gauche, avec l’appareil, et « Valider mon texte » seul à droite', !!hote.querySelector('.astuce-dictee-bouton summary') && /Dicter à la voix : comment faire/.test(hote.querySelector('.astuce-dictee-bouton summary').textContent) && !hote.querySelector('.appui-ligne-valider').contains(hote.querySelector('.astuce-dictee-bouton')) && hote.querySelector('.appui-ligne-valider').children.length === 2);
+    // Document « Mes compétences » déposé : part dans le message avec les autres appuis
+    _coLettreAppuiMesCompDepose = { texte: 'Je sais tenir une caisse.', nom: 'mes_competences.pdf' }; _coLettreAppuiMesComp = true; redessiner();
+    cas('appuis : le document « Mes compétences » déposé part dans le message', /Je sais tenir une caisse/.test(sectionAppuisPourMessage()) && /Document déposé/.test(hote.textContent));
+    _coLettreAppuiMesCompDepose = null;
+    hote.remove(); _mesCompEtat = etatMc; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; _coLettreAppuiTexteValide = ''; _coLettreAppuiMotsOuvert = null; _coLettreAppuiMesCompDepose = null;
     dossier.modeCreation = av.m; dossier.creationSansAssistant = av.s; dossier.objectif = av.o;
   }
 
@@ -3933,7 +4217,7 @@
       // Retour Denis 2026-10-19 : le complément a son propre écran (importer ou passer) AVANT l'éditeur de CV ; pas de bandeau ni de rectangle sur la vue de l'assistant tant que le choix n'est pas fait.
       cas('ucpm p3 : pas de bandeau ni de rectangle du complément sur la vue de l’assistant avant le choix', !$('.complement-cv-banniere') && !$('[data-assistant-rect-toggle="complement-cv"]'));
       ucpmBarreContinuer(); await attente(700);
-      cas('ucpm p3 : « Régler mon CV » mène d’abord à l’écran du complément (importer ou passer), pas à l’éditeur', etat.p3Vue === 'complement' && !!$('.complement-cv-banniere') && /répondez-lui/i.test(document.body.innerText) && /même conversation/.test(document.body.innerText) && /Continuer sans le complément/.test(texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]'))) && /ajouter plus tard/.test(document.body.innerText), [etat.p3Vue, !!$('.complement-cv-banniere'), texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]')), /ajouter plus tard/.test(document.body.innerText)].join(' | '));
+      cas('ucpm p3 : « Régler mon CV » mène d’abord à l’écran du complément (importer ou passer), pas à l’éditeur', etat.p3Vue === 'complement' && !!$('.complement-cv-banniere') && /répondez « oui »/i.test(document.body.innerText) && /même fenêtre de discussion/.test(document.body.innerText) && /Continuer sans le complément/.test(texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]'))) && /ajouter plus tard/.test(document.body.innerText), [etat.p3Vue, !!$('.complement-cv-banniere'), texte(document.querySelector('.barre-navigation-fixe [data-barre-bas-adopte]')), /ajouter plus tard/.test(document.body.innerText)].join(' | '));
       var blocComplement = '```json\n{"recommandations":{"formationsAvecMissions":[{"intitule":"BTS - Maintenance des systèmes (niveau)","missions":["Étudier le fonctionnement des systèmes techniques.","Repérer les causes d’un dysfonctionnement."],"justification":"j"}],"certificationsAvecMissions":[{"certification":"SST (2016)","missions":["Prévenir les risques."],"justification":"j"}],"loisirRetenu":{"intitule":"","missions":[],"justification":""}}}\n```\n\nVoulez-vous le complément de CV ? (missions de vos formations)';
       await colle('Complement', blocComplement); await attente(800);
       cas('ucpm p3 : le complément est ajouté, la phrase de question collée ne gêne pas', dossier.complementCVAjoute === true && dossier.ia.cv.recommandations.formationsAvecMissions.length === 1 && dossier.ia.cv.recommandations.certificationsAvecMissions.length === 1);
@@ -4721,8 +5005,15 @@
       cas('complément : après « Passer », la page de création apparaît avec « Valider le CV » dans la barre', !!$('#zonePdfInlineCV') && /Valider le CV/.test(texte(barre().lastElementChild)) && dossier.complementCVPasse === true);
       cas('complément : la synthèse reste visible sous un titre, sans bouton de validation dans la page', /Résumé de votre CV/.test(texte($('.valider-titre'))) && $('#btnMepValider').style.display === 'none');
       cas('complément : le bouton « Ajouter le complément du CV » est là, à droite de la synthèse', !!$('#btnMepAjouterComplement'));
+      var sondeJaune = document.createElement('div'); sondeJaune.style.background = 'var(--warning-bg-subtle)'; document.body.appendChild(sondeJaune);
+      cas('complément : le bouton « Ajouter le complément du CV » a un fond jaunâtre (consigne 225)', !!$('#btnMepAjouterComplement') && getComputedStyle($('#btnMepAjouterComplement')).backgroundColor === getComputedStyle(sondeJaune).backgroundColor, $('#btnMepAjouterComplement') && getComputedStyle($('#btnMepAjouterComplement')).backgroundColor);
+      sondeJaune.remove();
       w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(3000);
       var modele = _mepModeleCreatifActuel();
+      $('#btnMepAjouterComplement').click(); await attente(800);
+      cas('complément : le bouton du bas du CV ouvre l’écran du complément dans la page, sans fenêtre', !$('#fenetreERIP') && !!$('#fcRacineComplement') && /même fenêtre de discussion/.test(document.body.innerText));
+      barre().firstElementChild.click(); await attente(5000);
+      cas('complément : « Retour » depuis cet écran ramène à la page du CV, le bouton du bas y est toujours', !!$('#zonePdfInlineCV') && !!$('#btnMepAjouterComplement'), location.hash + ' / ' + texte(document.querySelector('h1')));
       $('#btnMepAjouterComplement').click(); await attente(800);
       await colle('Complement', '{"recommandations":{"formationsAvecMissions":[{"intitule":"Agent de prévention","missions":["Surveiller les accès."],"justification":"j"}]}}'); await attente(6000);
       cas('complément : ajouté plus tard, le CV garde son modèle et ses réglages, le bouton disparaît', dossier.complementCVAjoute === true && _mepModeleCreatifActuel() === modele && !$('#btnMepAjouterComplement') && !$('#fenetreERIP'), modele + ' / ' + _mepModeleCreatifActuel());
@@ -9784,7 +10075,7 @@
     } finally { window.open = ouvrirReel; }
   }
 
-  var PARCOURS = { mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteCollage: parcoursDecouverteCollage, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, bilanAmeliorationFenetre: parcoursBilanAmeliorationFenetre, bilanCollageDiagnostic: parcoursBilanCollageDiagnostic, bilanCollageOrganisation: parcoursBilanCollageOrganisation, bilanCollageTitreAccroche: parcoursBilanCollageTitreAccroche, bilanCollageCorrectionLot: parcoursBilanCollageCorrectionLot, bilanCollageAssistanceLot: parcoursBilanCollageAssistanceLot, importActionIA: parcoursImportActionIA, reformulerCollage: parcoursReformulerCollage, lettreCollage: parcoursLettreCollage, prepLECollage: parcoursPrepLECollage, prepLEPassages: parcoursPrepLEPassages, reformulerPassages: parcoursReformulerPassages, modifierSurPlace: parcoursModifierSurPlace, bilanTexteLibre: parcoursBilanTexteLibre, entretienCollage: parcoursEntretienCollage, coherenceCollage: parcoursCoherenceCollage, regardExterieurCollage: parcoursRegardExterieurCollage, regardRecruteurCollage: parcoursRegardRecruteurCollage, regardFondCouleur: parcoursRegardFondCouleur, regardChoixMode: parcoursRegardChoixMode, regardAjoutImage: parcoursRegardAjoutImage, depotPageAts: parcoursDepotPageAts, depotPageModules: parcoursDepotPageModules, atsCollage: parcoursAtsCollage, decompteApercu: parcoursDecompteApercu, comparer: parcoursComparer, comparerAffinage: parcoursComparerAffinage, decouverte: parcoursDecouverte, prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, reformulerInvitation: parcoursReformulerInvitation, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, rappelSauvegarde: parcoursRappelSauvegarde, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, chiffresLecture: parcoursChiffresLecture, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
+  var PARCOURS = { mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteCollage: parcoursDecouverteCollage, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, bilanAmeliorationFenetre: parcoursBilanAmeliorationFenetre, bilanCollageDiagnostic: parcoursBilanCollageDiagnostic, bilanCollageOrganisation: parcoursBilanCollageOrganisation, bilanCollageTitreAccroche: parcoursBilanCollageTitreAccroche, bilanCollageCorrectionLot: parcoursBilanCollageCorrectionLot, bilanCollageAssistanceLot: parcoursBilanCollageAssistanceLot, importActionIA: parcoursImportActionIA, reformulerCollage: parcoursReformulerCollage, lettreCollage: parcoursLettreCollage, prepLECollage: parcoursPrepLECollage, prepLEPassages: parcoursPrepLEPassages, reformulerPassages: parcoursReformulerPassages, modifierSurPlace: parcoursModifierSurPlace, bilanTexteLibre: parcoursBilanTexteLibre, entretienCollage: parcoursEntretienCollage, coherenceCollage: parcoursCoherenceCollage, regardExterieurCollage: parcoursRegardExterieurCollage, regardRecruteurCollage: parcoursRegardRecruteurCollage, regardFondCouleur: parcoursRegardFondCouleur, regardChoixMode: parcoursRegardChoixMode, regardAjoutImage: parcoursRegardAjoutImage, depotPageAts: parcoursDepotPageAts, depotPageModules: parcoursDepotPageModules, atsCollage: parcoursAtsCollage, decompteApercu: parcoursDecompteApercu, comparer: parcoursComparer, comparerAffinage: parcoursComparerAffinage, decouverte: parcoursDecouverte, decouverteChoixAssistantCV: parcoursDecouverteChoixAssistantCV, decouverteCompetencesTout: parcoursDecouverteCompetencesTout, decouverteQuestionsSuggerees: parcoursDecouverteQuestionsSuggerees, decouverteBarreEtAnnees: parcoursDecouverteBarreEtAnnees, decouverteComplementChanger: parcoursDecouverteComplementChanger,prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, reformulerInvitation: parcoursReformulerInvitation, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, rappelSauvegarde: parcoursRappelSauvegarde, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, chiffresLecture: parcoursChiffresLecture, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
 
   // Attend que l'application soit chargee (un eval lance juste apres un rechargement tombe sinon sur une page a moitie prete).
   async function attendreApplication() {

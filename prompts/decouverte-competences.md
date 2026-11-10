@@ -145,7 +145,7 @@ Sauf le cas « aucune activité exploitable » ci-dessus (bloc `analyseImpossibl
   ],
   "questionsCiblees": [
     { "texte": "...", "fragmentIndex": 0, "type": "date" },
-    { "texte": "...", "fragmentIndex": null, "type": "texte" }
+    { "texte": "...", "fragmentIndex": null, "type": "texte", "choix": "unique", "reponses": ["...", "...", "..."] }
   ],
   "reciteNettoye": "..."
 }
@@ -159,6 +159,11 @@ Valeurs possibles pour `"origine"` : `proDeclaree`, `proNonDeclaree`, `personnel
 Valeurs possibles pour `"categorie"` : `technique`, `transferable`, `savoirEtre`, `aptitude`, `centreInteret`.
 **Distinction souvent confondue, à vérifier systématiquement avant d'assigner `"centreInteret"`** : cette catégorie nomme UNIQUEMENT le nom de l'activité elle-même — un mot ou un groupe nominal qu'on pourrait lire tel quel dans une liste de loisirs sur un CV ("football", "randonnée", "lecture", "sports collectifs"). **Test simple à appliquer à chaque fois** : si le texte contient un verbe à l'infinitif ou décrit une qualité/disposition ("goût pour...", "envie de...", "capacité à...", "aisance avec...", "sens de..."), ce n'est **jamais** `"centreInteret"` — c'est `"aptitude"` ou `"savoirEtre"`, même si l'idée provient d'un fragment de loisirs. Exemples de confusions à éviter explicitement : "Goût pour le service aux personnes" (→ `"aptitude"` ou `"savoirEtre"`, jamais `"centreInteret"`), "Apprendre de nouvelles choses" ou "Envie d'apprendre" (→ `"aptitude"`, jamais `"centreInteret"` — le loisir factuel resterait "lecture" ou "formation en ligne" si nommé explicitement, jamais la disposition à apprendre elle-même). L'origine du fragment ne détermine jamais la catégorie de ce qu'on en tire.
 `"questionsCiblees"` : entre 5 et 10 objets `{texte, fragmentIndex, type}`, jamais moins, jamais plus (règle complète plus haut) — jamais de simples chaînes de texte brutes.
+
+**`"choix"` et `"reponses"` : réponses toutes prêtes, uniquement pour les questions de type `"texte"`** (jamais pour `"date"`). Pour faciliter la réponse de la personne, ajoute à chaque question de type `"texte"` où des réponses courtes sont possibles : `"reponses"`, de 2 à 6 réponses courtes (une phrase brève chacune, dans les mots simples de la personne, ton neutre), et `"choix"` :
+- `"unique"` si une seule réponse est possible (« Oui » / « Non » / « Je ne sais pas », une durée, une fréquence...) ;
+- `"multiple"` si plusieurs réponses peuvent être vraies en même temps (tâches faites, outils utilisés, lieux...).
+Les réponses ne font **jamais** apparaître de fait absent du récit : elles reprennent ou prolongent prudemment ce que la personne a écrit, sans rien lui faire affirmer qu'elle n'a pas dit. N'ajoute pas de réponse « Autre » : l'application la propose elle-même. Si aucune réponse courte n'est pertinente, omets simplement `"choix"` et `"reponses"` : la question est alors posée avec une zone de texte libre. Cette consigne ne change ni le nombre de questions, ni leur ordre, ni leur contenu : c'est une aide à la réponse, pas une mission supplémentaire.
 
 ---
 

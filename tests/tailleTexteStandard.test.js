@@ -15,10 +15,10 @@ test('taille du texte : jamais plus de 18 px (palier maximal 1,125), paliers 17 
   paliers.forEach(([, valeur]) => assert.ok(valeur * 16 <= 18, 'le texte ne dépasse jamais 18 px'));
 });
 
-test('longueur de ligne : le texte courant des modules est limité à 34 em, les cartes et tableaux gardent la pleine largeur', () => {
-  assert.match(css, /\.page-catalogue-contenu :is\(p, li\) \{ max-width: 34em; \}/);
+test('longueur de ligne : le texte courant des modules remplit la rubrique avec un garde-fou de 64 em (consigne 216), les cartes et tableaux gardent la pleine largeur', () => {
+  assert.match(css, /\.page-catalogue-contenu :is\(p, li\) \{ max-width: 64em; \}/);
   // la limite ne vise que p et li : aucune règle ne plafonne les cartes, tableaux ou conteneurs
-  assert.doesNotMatch(css, /\.page-catalogue-contenu \{[^}]*max-width: 34em/);
+  assert.doesNotMatch(css, /\.page-catalogue-contenu \{[^}]*max-width: 64em/);
 });
 
 test('message d\'options d\'affichage : seulement sous 1000 px de large, et une seule fois par visite', () => {
@@ -50,4 +50,17 @@ test('message d\'options d\'affichage : branché dans index.html et appelé AVAN
   const appel = app.indexOf("afficherMessageAffichage();");
   const caleIcones = app.indexOf("carnetApresNavigation(); }", appel);
   assert.ok(appel !== -1 && caleIcones > appel, 'le message doit être posé avant carnetApresNavigation');
+});
+
+test('pages de présentation des modules : grille 2 sur 2 dès 1100 px, cartes seules élargies par equilibrerGrilleIntro, une seule colonne en dessous', () => {
+  const m = css.match(/@media \(min-width: 1100px\) \{\s*\.intro-colonnes \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)[^}]*max-width: 1180px/);
+  assert.ok(m, 'la grille 2 sur 2 est définie dans un média 1100 px');
+  assert.match(css, /\.intro-colonnes > \.intro-seule \{ grid-column: 1 \/ -1; \}/);
+  assert.match(css, /\.nv-page \.nv-carte \{ display: grid; grid-template-columns: 10\.5rem minmax\(0, 1fr\) 17rem;/);
+  const app = fs.readFileSync(path.join(RACINE, 'js', 'app.js'), 'utf8');
+  const metiers = fs.readFileSync(path.join(RACINE, 'data', 'metiers.js'), 'utf8');
+  assert.match(app, /function equilibrerGrilleIntro\(\)/);
+  assert.match(app, /'<div class="intro-colonnes">' \+ sectionsHTML \+ '<\/div>'/);
+  assert.match(metiers, /'<div class="intro-colonnes">' \+ config\.blocsHTML \+ '<\/div>'/);
+  assert.ok(app.indexOf('equilibrerGrilleIntro();') > app.indexOf('function naviguerVers'), 'appelée à chaque navigation');
 });

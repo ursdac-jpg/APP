@@ -16,6 +16,9 @@ Ce fichier est **commun à tous les comptes/sessions Claude** (ou toute autre IA
 
 ---
 
+## [À FAIRE - 2026-11-10] `[effort : haut]` Bouton « Nouveautés » : trois entrées (nouveautés de l'application, nouveautés législatives, problèmes signalés et corrigés)
+Consigne 201 de `docs/CONSIGNES_DE_DENIS_A_SUIVRE.md`. Après les pages d'introduction et le correctif du parcours récit. Maquette d'abord. Précision du 10/11/2026 : un numéro (compteur) sur le bouton, puis le nombre propre à chaque entrée (nouveautés, nouveautés législatives, bugs corrigés), une couleur différente par entrée (mode sombre compris).
+
 ## [EN COURS - 2026-10-21] Des chiffres à jour dans le Lexique, revérifiés tous les 6 mois
 Cahier : `docs/CHANTIER_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.md`. **Tout le code est fait (M1 à M6, B1) et 69 propositions de migration sont prêtes (7 lots).** Reste, par Denis :
 - [ ] `[effort : moyen]` M7 (relecture) : relire et valider, une fiche à la fois, les 69 propositions de migration (bouton « Proposition de migration (lot N) » du filtre « Avec un chiffre ou une date dans le texte »). Conseil : commencer par les fiches les plus ouvertes (CPF, RSA, prime d'activité, ACRE, arrêt de travail).

@@ -17,3 +17,11 @@
 .astuce-dictee-ligne .astuce-dictee-detail > summary { display: inline-flex; min-height: 0; font-size: var(--t-petit); padding: 0 0 0 0.3rem; }
 .astuce-dictee-ligne .astuce-dictee-detail[open] { display: block; margin-top: 0.4rem; }
 .astuce-dictee-ligne .astuce-dictee-detail[open] > summary { display: flex; padding-left: 0; }
+/* Forme « bouton » (consigne 219) : bouton ovale qui déplie les gestes de l'appareil, sur sa propre ligne, à gauche. */
+.astuce-dictee-bouton .astuce-dictee-detail { margin-top: 0; }
+.astuce-dictee-bouton .astuce-dictee-detail > summary { display: inline-flex; list-style: none; min-height: 40px; padding: 0.25rem 1.1rem; border: 2px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; font-size: var(--t-moyen); cursor: pointer; }
+.astuce-dictee-bouton .astuce-dictee-detail > summary::-webkit-details-marker { display: none; }
+.astuce-dictee-bouton .astuce-dictee-detail > summary:hover, .astuce-dictee-bouton .astuce-dictee-detail > summary:focus-visible { border-color: var(--accent); }
+.astuce-dictee-bouton .astuce-dictee-detail[open] > summary { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.astuce-dictee-bouton .astuce-dictee-detail[open] { margin-top: 0.4rem; }
+.astuce-dictee-bouton .astuce-dictee-detail > :not(summary) { margin-left: 0.4rem; }

@@ -153,7 +153,7 @@ var COLLAGE_TEXTES = {
     changerExplication: ' À utiliser si l’assistant ne répond pas, est saturé ou refuse votre demande (par exemple parce que vous avez atteint sa limite d’utilisation). Vous revenez au choix de l’assistant pour en prendre un autre : votre travail est gardé.'
   },
   complement: {
-    intro: '<strong>Votre CV est prêt. Le complément le rend plus complet.</strong> Ce n’est pas obligatoire : vous pouvez continuer sans.',
+    intro: '<strong>Votre CV est prêt avec l’essentiel. Le complément le rend plus complet</strong> : il ajoute ce que vous avez appris et fait pendant vos formations, vos certifications et vos loisirs.',
     voir: 'Voir ce que le complément ajoute',
     exemples: [
       '<strong>Vos emplois regroupés</strong> quand il y en a beaucoup, pour un CV plus lisible.',
@@ -162,12 +162,16 @@ var COLLAGE_TEXTES = {
       '<strong>Ce que vous avez appris</strong> pendant vos formations et vos certifications.'
     ],
     etapes: [
-      'Retournez dans <strong>la même conversation</strong>, chez l’assistant.',
-      'Répondez-lui : <strong>oui</strong>.',
+      'Retournez dans <strong>la même fenêtre de discussion, avec le même assistant</strong> : celui qui vient de vous répondre.',
+      'Répondez <strong>« oui »</strong> à la question qu’il vous a posée : « Voulez-vous aussi le complément de CV ? »',
       'Copiez sa nouvelle réponse, revenez ici et cliquez sur <strong>' + _collageGuillemets('Coller le complément') + '</strong>.'
     ],
-    plusTard: '<strong>Vous pourrez l’ajouter plus tard</strong> : le bouton ' + _collageGuillemets('Ajouter le complément du CV') + ' reste disponible sur ' + _collageGuillemets('Vos documents') + ' et au moment de valider la mise en page.',
+    sans: '<strong>Vous n’en voulez pas ?</strong> Cliquez simplement sur ' + _collageGuillemets('Continuer sans le complément') + ', dans la barre du bas. Votre CV est déjà complet.',
+    plusTard: '<strong>Vous pourrez l’ajouter plus tard</strong> : le bouton ' + _collageGuillemets('Ajouter le complément du CV') + ' reste disponible tout en bas de votre CV, dans ' + _collageGuillemets('La mise en page') + ', et sur ' + _collageGuillemets('Vos documents') + '. Il faudra alors refaire les mêmes gestes, dans la même conversation.',
     continuerSans: 'Continuer sans le complément',
+    // Consigne 224 (10/11/2026) : complément au bon format mais sans contenu (pas de formation, de certification ni de loisir à détailler) : information, pas échec.
+    videTitre: 'Complément bien reçu : il n’y a rien à ajouter',
+    continuerVide: 'Continuer vers mon CV',
     ajouter: 'Ajouter le complément'
   }
 };
@@ -227,7 +231,8 @@ function modeleFenetreCollage(entree) {
 
   var lignes = [{ type: 'ok', texte: T.recu.complete },
     { type: 'info', texte: '<strong>À vérifier :</strong> ' + (m.verif || T.recu.verifierDefaut) }];
-  modele.recu = { visible: etat === 'recu', titre: T.recu.titre, morceaux: pieces > 1 ? T.recu.morceaux(pieces) : '', lignes: lignes };
+  modele.recu = { visible: etat === 'recu', titre: T.recu.titre, morceaux: pieces > 1 ? T.recu.morceaux(pieces) : '', lignes: lignes,
+    avertissement: (mode === 'complement' && e.avertissement) ? { titre: T.complement.videTitre, texte: String(e.avertissement) } : null };
 
   modele.coupe = { visible: etat === 'coupe', titre: T.coupe.titre, texte: (e.silencieux ? T.coupe.silencieux : T.coupe.prevenu) + T.coupe.garde(Math.max(pieces, 1)), etapes: T.coupe.etapes };
   // echecPersonnalise : { texte, bouton: { libelle } } quand le module sait dire POURQUOI la réponse est inutilisable (ex. le document déposé n'était pas un CV) ;
@@ -236,7 +241,7 @@ function modeleFenetreCollage(entree) {
   modele.echec = { visible: etat === 'echec', titre: T.echec.titre, texte: perso ? perso.texte : T.echec.texte, apresSuite: apresSuite && enSuite, texteApresSuite: T.echec.apresSuite, etapes: perso ? [] : T.echec.etapes, recommencer: T.echec.recommencer,
     personnalise: perso ? { bouton: perso.bouton || null } : null };
 
-  modele.complement = { visible: mode === 'complement' && (etat === 'pret' || etat === 'main'), intro: T.complement.intro, voir: T.complement.voir, exemples: T.complement.exemples, etapes: T.complement.etapes, plusTard: T.complement.plusTard };
+  modele.complement = { visible: mode === 'complement' && (etat === 'pret' || etat === 'main'), intro: T.complement.intro, voir: T.complement.voir, exemples: T.complement.exemples, etapes: T.complement.etapes, sans: T.complement.sans, plusTard: T.complement.plusTard };
 
   // « Changer d'assistant » : dès l'écran du retour (assistant ouvert, prêt à coller), pour qui trouve l'assistant indisponible (plus de temps d'utilisation...) ;
   // la démonstration vidéo reste réservée à l'échec de la vérification (consignes de Denis, 28/10/2026).
@@ -245,7 +250,7 @@ function modeleFenetreCollage(entree) {
 
   // le bouton « Continuer » de la barre du bas : un seul geste, dit l'action
   // « Continuer sans le complément » est discret (fond blanc, comme Retour et Accueil) : on n'encourage pas à s'en passer (retour de Denis, 28/10/2026).
-  if (etat === 'recu') { modele.continuer = { libelle: libelleSuite, actif: true }; }
+  if (etat === 'recu') { modele.continuer = { libelle: (mode === 'complement' && e.avertissement) ? T.complement.continuerVide : libelleSuite, actif: true }; }
   else if (mode === 'complement' && (etat === 'pret' || etat === 'main')) { modele.continuer = { libelle: T.complement.continuerSans, actif: true, discret: true }; }
   else { modele.continuer = { libelle: libelleSuite, actif: false }; }
   return modele;

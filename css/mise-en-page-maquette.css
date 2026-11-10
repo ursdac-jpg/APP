@@ -301,6 +301,9 @@
 .mep-mq .bloc-valider-mep .avert-page { font-size: 0.875rem; }
 .mep-mq .bloc-valider-mep .valider-titre { margin: 0; font-size: 0.875rem; font-weight: 700; color: var(--text-strong); }
 .mep-mq .bloc-valider-mep .valider-complement { margin-left: auto; flex: 0 0 auto; }
+/* Consigne 225 (10/11/2026) : le bouton « Ajouter le complément du CV » a un fond jaunâtre pour attirer l'attention ; il disparaît dès que le complément est collé. */
+.mep-mq .valider-complement .mep-btn { background: var(--warning-bg-subtle); color: var(--warning-strong); border: 2px solid var(--warning-border); }
+.mep-mq .valider-complement .mep-btn:hover, .mep-mq .valider-complement .mep-btn:focus { border-color: var(--warning-strong); filter: brightness(.96); }
 .mep-mq .bloc-valider-mep .info-page { margin: 0; flex-direction: column; gap: 0.1rem; }
 
 /* ---- Plein ecran (tranche 4) : memes regles que .plein / .plein-corps / .plein-outils / .plein-zone / .plein-tete / .barre-rub / .toast de la maquette

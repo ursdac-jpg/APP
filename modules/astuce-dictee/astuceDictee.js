@@ -6,7 +6,7 @@
    - astuceDicteeDetecterAppareil(nav) : logique pure (testée), renvoie
      'windows' | 'mac' | 'iphone' | 'android' | 'autre'.
    - htmlAstuceDictee(forme, phrase) : 'encart' (carte teintée) ou 'ligne'
-     (petite phrase sous une zone de texte). Les gestes de l'appareil
+     (petite phrase sous une zone de texte) ou 'bouton' (bouton ovale). Les gestes de l'appareil
      reconnu sont dépliés sous un lien « Comment faire sur mon... ? ».
    L'application ne peut pas savoir si la dictée est déjà activée : chaque
    texte dit aussi quoi faire « si rien ne se passe ».
@@ -89,6 +89,12 @@ function htmlAstuceDictee(forme, phrase, appareilForce) {
   var appareil = appareilForce || (typeof navigator !== 'undefined' ? astuceDicteeDetecterAppareil(navigator) : 'autre');
   var detail = '<details class="astuce-dictee-detail"><summary>' + astuceDicteeLibelle(appareil) + '</summary>' +
     astuceDicteeCorps(appareil) + '</details>';
+  // 10/11/2026 (consigne 219, maquette validee) : forme « bouton » = un bouton ovale « Dicter à la voix : comment faire sur mon ordinateur Windows ? » qui deplie les gestes.
+  if (forme === 'bouton') {
+    var a = ASTUCE_DICTEE_APPAREILS[appareil];
+    return '<div class="astuce-dictee-bouton"><details class="astuce-dictee-detail"><summary>&#127908; Dicter à la voix : ' + (a ? 'comment faire sur ' + a.nom + ' ?' : 'comment faire ?') + '</summary>' +
+      astuceDicteeCorps(appareil) + '</details></div>';
+  }
   if (forme === 'encart') {
     return '<div class="astuce-dictee"><p>' + (phrase || '💡 <strong>Astuce : dictez votre texte à la voix</strong> plutôt que de tout taper au clavier.') + '</p>' + detail + '</div>';
   }

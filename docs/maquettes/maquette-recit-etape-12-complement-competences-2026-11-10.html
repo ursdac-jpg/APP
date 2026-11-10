@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : parcours « À partir de mon récit », corrections</title>
+<!-- Maquette du 10/11/2026 (consignes 195, 197 à 200, 203). Elle utilise les vraies feuilles de style de l'application : couleurs, polices et mode sombre sont les vrais.
+     Rien n'est codé dans l'application. Quatre écrans, à choisir avec les boutons en haut. Le bouton « Mode sombre » en bas à droite change le thème. -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+body { margin: 0; background: var(--bg-page); color: var(--text-strong); }
+.maq-onglets { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: .5rem; padding: .6rem 1rem; background: var(--bg-card); border-bottom: 2px solid var(--border-strong); }
+.maq-onglets button { min-height: 44px; padding: 0 .9rem; border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 6px; font-weight: 600; cursor: pointer; }
+.maq-onglets button[aria-pressed="true"] { background: var(--accent); color: var(--bg-card); }
+.maq-ecran { display: none; max-width: 860px; margin: 0 auto; padding: 1rem 1rem 7rem; }
+.maq-ecran.visible { display: block; }
+.maq-note { background: var(--jaune-bg-subtle); border: 2px dashed var(--jaune-border); color: var(--jaune-strong); border-radius: 10px; padding: .6rem .9rem; margin: 0 0 1rem; font-size: .92rem; }
+.maq-cadre { background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 1rem; padding: 1rem 1.2rem; margin: 1rem 0; }
+.maq-recu { background: var(--success-bg-subtle); border: 2px solid var(--success); border-radius: 12px; padding: .8rem 1rem; }
+.maq-recu ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+.maq-info { display: flex; gap: .55rem; background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: .6rem .85rem; margin: .8rem 0; }
+.maq-barre { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: space-between; gap: .5rem; padding: .7rem 1rem; background: var(--bg-card); border-top: 2px solid var(--border-strong); }
+.maq-barre .btn { min-height: 46px; min-width: 7rem; }
+.maq-cv { background: #fff; color: #222; border: 1px solid #bbb; border-radius: 6px; padding: 1.2rem; margin: 1rem 0; }
+.maq-cv .ligne { height: .6rem; background: #dde2ea; border-radius: 3px; margin: .5rem 0; }
+.maq-bandeau { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; justify-content: space-between; background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 10px; padding: .6rem .9rem; }
+.maq-exp-boutons { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0; }
+.maq-exp-boutons button { min-height: 44px; padding: 0 .9rem; border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 6px; font-weight: 600; cursor: pointer; }
+.maq-exp-boutons button[aria-pressed="true"] { background: var(--accent); color: var(--bg-card); }
+.maq-carte-exp { background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 1rem; padding: .9rem 1.1rem; margin: .8rem 0; }
+.maq-carte-exp h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.maq-puces { display: flex; flex-wrap: wrap; gap: .4rem; }
+.maq-puce { border: 2px solid var(--border-strong); background: var(--bg-subtle); border-radius: 999px; padding: .3rem .8rem; cursor: pointer; font-size: .92rem; }
+.maq-puce[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); font-weight: 700; }
+.maq-raison { background: var(--warning-bg-subtle); border: 2px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin: 1rem 0; }
+.maq-sombre { position: fixed; right: .8rem; bottom: 5.4rem; z-index: 45; min-height: 40px; padding: 0 .8rem; border: 2px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="maq-onglets" role="tablist" aria-label="Écrans de la maquette">
+  <button type="button" data-ecran="a" aria-pressed="true">1. Étape 12, complément proposé</button>
+  <button type="button" data-ecran="b" aria-pressed="false">2. Étape 12, pas de complément</button>
+  <button type="button" data-ecran="c" aria-pressed="false">3. L'étape « 2 sur 2 »</button>
+  <button type="button" data-ecran="d" aria-pressed="false">4. Page du CV</button>
+  <button type="button" data-ecran="e" aria-pressed="false">5. Étape des compétences</button>
+</div>
+
+<!-- ÉCRAN 1 -->
+<section class="maq-ecran visible" id="ecran-a">
+  <div class="maq-note"><strong>Ce qui change :</strong> un seul bouton « Continuer », en bas. Le bouton « Voir mes propositions » de la fenêtre disparaît. Un message dit clairement que l'étape suivante est le complément, puisque l'assistant l'a proposé. Aucune zone « Importer le complément » ici : elle est à l'étape suivante.</div>
+  <h1 class="text-center">📥 Collez la réponse de l'assistant</h1>
+  <div class="maq-cadre">
+    <div class="maq-recu" role="status">
+      <strong>✓ Réponse reçue et lue.</strong>
+      <ul>
+        <li>✓ Le titre, l'accroche, les points forts et les mots-clés sont bien là.</li>
+        <li>✓ Aucune information ne semble manquer.</li>
+      </ul>
+    </div>
+    <div class="maq-info"><span aria-hidden="true">➕</span>
+      <span><strong>L'assistant vous propose aussi un complément</strong> : les missions de votre formation et de vos loisirs. C'est l'étape suivante : cliquez sur « Continuer ». Vous pourrez l'ajouter ou passer.</span></div>
+    <p class="small text-muted mb-0">Pour remplacer cette réponse, collez-en une autre ci-dessous.</p>
+  </div>
+</section>
+
+<!-- ÉCRAN 2 -->
+<section class="maq-ecran" id="ecran-b">
+  <div class="maq-note"><strong>Ce qui change :</strong> quand l'assistant n'a pas proposé de complément, il n'y a rien à ce sujet sur cet écran (plus de bouton « Importer le complément de CV » ni de rectangle « Compléter mon CV »). Un seul « Continuer » : on va au CV.</div>
+  <h1 class="text-center">📥 Collez la réponse de l'assistant</h1>
+  <div class="maq-cadre">
+    <div class="maq-recu" role="status">
+      <strong>✓ Réponse reçue et lue.</strong>
+      <ul><li>✓ Le titre, l'accroche, les points forts et les mots-clés sont bien là.</li></ul>
+    </div>
+    <div class="maq-info"><span aria-hidden="true">📥</span>
+      <span>Votre réponse est <strong>déjà importée</strong> : cliquez sur « Continuer », en bas à droite.</span></div>
+  </div>
+</section>
+
+<!-- ÉCRAN 3 -->
+<section class="maq-ecran" id="ecran-c">
+  <div class="maq-note"><strong>Cet écran existe déjà</strong> dans l'application (étape 14 du parcours). Il s'ouvre seul après « Continuer » quand l'assistant a proposé le complément. Je le montre pour que vous voyiez toute la suite. Le bouton du bas dépend de ce que la personne fait : « Continuer sans le complément » au début, « Ajouter le complément » une fois la réponse collée.</div>
+  <div class="text-center"><h1>➕ Le complément de votre CV</h1></div>
+  <div class="complement-cv-banniere" role="note"><p class="complement-cv-etape">Étape 2 sur 2 : le complément</p>
+    <p class="mb-0">Vous avez déjà de quoi créer votre CV avec l'essentiel. Cette deuxième partie ajoute des informations en plus.</p></div>
+  <div class="maq-cadre">
+    <p class="mb-2"><strong>1.</strong> Retournez voir l'assistant et répondez simplement : <strong>oui</strong>.</p>
+    <p class="mb-2"><strong>2.</strong> Il vous renvoie un deuxième bloc. Copiez-le.</p>
+    <p class="mb-3"><strong>3.</strong> Revenez ici et cliquez sur « Coller le complément ».</p>
+    <div class="text-center"><button type="button" class="btn btn-primary btn-lg">📋 Coller le complément</button></div>
+  </div>
+</section>
+
+<!-- ÉCRAN 4 -->
+<section class="maq-ecran" id="ecran-d">
+  <div class="maq-note"><strong>Ce qui change :</strong> si la personne est arrivée au CV sans le complément, une seule ligne discrète l'invite à l'ajouter, en haut. Un clic ouvre l'écran « 2 sur 2 » (écran précédent), dans la page. Pas de gros bloc « Coller » au-dessus du CV. La ligne disparaît une fois le complément ajouté, ou si la personne choisit de passer.</div>
+  <div class="maq-bandeau" role="note">
+    <span>➕ <strong>Le complément de CV</strong> (missions de votre formation et de vos loisirs) n'est pas encore ajouté.</span>
+    <button type="button" class="btn btn-sm btn-complement-cv">Ajouter le complément</button>
+  </div>
+  <h1 class="mt-3">Mon CV</h1>
+  <div class="maq-cv">
+    <div style="font-weight:700;font-size:1.2rem">Alex Dupont</div>
+    <div style="color:#555">Serveur en restauration</div>
+    <div class="ligne" style="width:90%"></div><div class="ligne" style="width:80%"></div><div class="ligne" style="width:85%"></div>
+  </div>
+</section>
+
+<!-- ÉCRAN 5 -->
+<section class="maq-ecran" id="ecran-e">
+  <div class="maq-note"><strong>Ce qui change :</strong> un bouton « Tout » (par défaut) montre toutes les expériences l'une après l'autre ; un bouton par expérience n'en montre qu'une. Les compteurs disent où en est chaque expérience. Quand « Continuer » est grisé, la raison est écrite dans la page (plus seulement dans une infobulle).</div>
+  <h1 class="text-center">💡 Vos compétences</h1>
+  <div class="maq-info"><span aria-hidden="true">💬</span>
+    <span>Suite à votre récit, l'assistant a repéré des expériences et vous propose des compétences. Choisissez celles qui vous ressemblent, jusqu'à 5 par expérience.</span></div>
+  <div class="maq-exp-boutons" role="group" aria-label="Choisir l'affichage">
+    <button type="button" data-exp="tout" aria-pressed="true">Tout (3)</button>
+    <button type="button" data-exp="1" aria-pressed="false">Expérience 1 : Serveur</button>
+    <button type="button" data-exp="2" aria-pressed="false">Expérience 2 : Aide-cuisinier</button>
+    <button type="button" data-exp="3" aria-pressed="false">Expérience 3 : Bénévolat</button>
+  </div>
+  <div class="maq-carte-exp" data-carte="1"><h3>Expérience 1 : Serveur <span class="small text-muted">(3 sur 5 choisies)</span></h3>
+    <div class="maq-puces"><span class="maq-puce" aria-pressed="true">Accueillir les clients</span><span class="maq-puce" aria-pressed="true">Travailler en équipe</span><span class="maq-puce" aria-pressed="true">Gérer le rythme du service</span><span class="maq-puce" aria-pressed="false">Tenir une caisse</span><span class="maq-puce" aria-pressed="false">Conseiller</span></div></div>
+  <div class="maq-carte-exp" data-carte="2"><h3>Expérience 2 : Aide-cuisinier <span class="small text-muted">(0 sur 5 choisies)</span></h3>
+    <div class="maq-puces"><span class="maq-puce" aria-pressed="false">Préparer les ingrédients</span><span class="maq-puce" aria-pressed="false">Respecter l'hygiène</span><span class="maq-puce" aria-pressed="false">Organiser son poste</span></div></div>
+  <div class="maq-carte-exp" data-carte="3"><h3>Expérience 3 : Bénévolat <span class="small text-muted">(2 sur 5 choisies)</span></h3>
+    <div class="maq-puces"><span class="maq-puce" aria-pressed="true">Écouter</span><span class="maq-puce" aria-pressed="true">S'organiser</span><span class="maq-puce" aria-pressed="false">Animer un groupe</span></div></div>
+  <div class="maq-raison" role="status">Pour continuer, il reste une expérience à valider : <strong>Expérience 2 : Aide-cuisinier</strong>. Choisissez au moins une compétence.</div>
+</section>
+
+<button type="button" class="maq-sombre" id="maqSombre" aria-pressed="false">Mode sombre</button>
+
+<div class="maq-barre" aria-label="Barre du bas (comme dans l'application)">
+  <button type="button" class="btn btn-outline-primary">← Retour</button>
+  <button type="button" class="btn btn-outline-primary">⌂ Accueil</button>
+  <button type="button" class="btn btn-primary" id="maqContinuer">Continuer →</button>
+</div>
+
+<script>
+(function () {
+  var onglets = document.querySelectorAll('.maq-onglets button');
+  var libelles = { a: 'Continuer →', b: 'Continuer →', c: 'Continuer sans le complément →', d: 'Continuer →', e: 'Continuer →' };
+  onglets.forEach(function (b) {
+    b.addEventListener('click', function () {
+      onglets.forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      document.querySelectorAll('.maq-ecran').forEach(function (s) { s.classList.toggle('visible', s.id === 'ecran-' + b.dataset.ecran); });
+      var c = document.getElementById('maqContinuer');
+      c.textContent = libelles[b.dataset.ecran];
+      c.disabled = (b.dataset.ecran === 'e');
+      window.scrollTo(0, 0);
+    });
+  });
+  document.querySelectorAll('.maq-exp-boutons button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.maq-exp-boutons button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      document.querySelectorAll('[data-carte]').forEach(function (c) { c.style.display = (b.dataset.exp === 'tout' || c.dataset.carte === b.dataset.exp) ? '' : 'none'; });
+    });
+  });
+  document.querySelectorAll('.maq-puce').forEach(function (p) {
+    p.addEventListener('click', function () { p.setAttribute('aria-pressed', p.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); });
+  });
+  var sombre = document.getElementById('maqSombre');
+  sombre.addEventListener('click', function () {
+    var actif = document.documentElement.getAttribute('data-theme') === 'sombre';
+    if (actif) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); }
+    sombre.setAttribute('aria-pressed', actif ? 'false' : 'true');
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Nouveautés en trois entrées (consigne 201, version 3)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 1100px; margin: 0 auto; padding-bottom: 5rem; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: .95rem; }
+  /* Choix à trois entrées : boutons ovales, comme dans « Quelques précisions » et « Vos appuis » */
+  .trois-entrees { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin: 1rem 0 1.2rem; }
+  @media (min-width: 900px) { .trois-entrees { flex-wrap: nowrap; } .entree { padding-left: 1rem; padding-right: 1rem; } }
+  .entree { min-height: 52px; padding: .45rem 1.5rem; border: 2px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; }
+  .entree:hover, .entree:focus-visible { border-color: var(--accent); }
+  .entree[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .entree .bi { font-size: 1.2rem; }
+  .entree .compte { font-size: .8rem; font-weight: 800; padding: .05rem .6rem; border-radius: 999px; }
+  .compte.orange { background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .compte.bleu { background: var(--accent-bg-subtle); color: var(--accent-texte); border: 1px solid var(--accent); }
+  .compte.vert { background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+  .origine { font-size: .78rem; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .invitation-module { border: 1px dashed var(--accent); border-radius: 12px; padding: .8rem 1rem; text-align: center; background: var(--accent-bg-subtle); margin-top: 1rem; }
+  .panneau[hidden] { display: none; }
+  .intro-entree { text-align: center; color: var(--text-muted); max-width: 46rem; margin: 0 auto 1rem; }
+  /* Entrée 2 : mêmes onglets que « Ce qui a changé récemment » */
+  .sous-onglets { display: flex; gap: .5rem; justify-content: center; margin-bottom: .8rem; }
+  .sous-onglet { padding: .3rem 1rem; border: 2px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; }
+  .sous-onglet[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg-card); }
+  .carte-cadre { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .6rem 0; }
+  .carte-cadre summary { cursor: pointer; font-weight: 700; }
+  .carte-cadre .etiq { font-size: .78rem; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); margin-left: .4rem; }
+  .carte-cadre p { margin: .5rem 0 0; }
+  /* Entrée 3 : problèmes signalés et corrigés */
+  .carte-corrige { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
+  .carte-corrige .tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .4rem; }
+  .badge-corrige { font-size: .78rem; font-weight: 700; padding: .05rem .65rem; border-radius: 999px; background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+  .carte-corrige .lib { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: .5rem 0 .1rem; }
+  .carte-corrige .lib.ok { color: var(--success-strong); }
+  .carte-corrige p { margin: 0; }
+  .merci { border: 2px solid var(--success-strong); background: var(--success-bg-subtle); color: var(--text-strong); border-radius: 14px; padding: 1rem 1.3rem; margin-bottom: 1.2rem; text-align: center; }
+  .merci strong { display: block; font-size: 1.25rem; color: var(--success-strong); margin-bottom: .3rem; }
+  .btn-ovale { min-height: 44px; padding: .35rem 1.4rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .variante { margin-top: 1.6rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette pour validation (consigne 201, version 3 : plus de message ni de cœur sous le titre, remerciement en vert seulement dans « Problèmes corrigés », barre de navigation en bas, trois boutons sur une seule ligne quand l'écran le permet).</strong> Essayez d'élargir ou de rétrécir la fenêtre. Rien n'est codé dans l'application. Les boutons fonctionnent pour que vous puissiez essayer. À valider avant tout code. Les exemples de la deuxième entrée sont des exemples de présentation : dans l'application, ce seront les vraies fiches de « Comprendre le cadre ».</div>
+
+  <div class="barre-outils"><label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label></div>
+
+  <div class="text-center"><h1><i class="bi bi-megaphone" aria-hidden="true"></i> Nouveautés</h1></div>
+
+  <!-- Choix à trois entrées, en haut de la page -->
+  <div class="trois-entrees" role="tablist" aria-label="Que voulez-vous voir ?">
+    <button type="button" class="entree" role="tab" aria-selected="true" data-entree="appli"><i class="bi bi-stars" aria-hidden="true"></i> Nouveautés de l'application <span class="compte orange">2</span></button>
+    <button type="button" class="entree" role="tab" aria-selected="false" data-entree="loi"><i class="bi bi-journal-text" aria-hidden="true"></i> Changements dans les règles <span class="compte bleu">2</span></button>
+    <button type="button" class="entree" role="tab" aria-selected="false" data-entree="corrige"><i class="bi bi-check2-circle" aria-hidden="true"></i> Problèmes corrigés <span class="compte vert">3</span></button>
+  </div>
+
+  <!-- 1. La page actuelle, inchangée -->
+  <div class="panneau" id="p-appli">
+    <p class="intro-entree">Les mises à jour, les ajouts et les améliorations importantes de l'application, du plus récent au plus ancien. Les ajouts des 7 derniers jours portent la mention « Nouveau » et un bouton pour les essayer.</p>
+    <h2 class="nv-mois">novembre 2026</h2>
+    <div class="nv-carte"><div class="nv-tete"><span class="nv-date">10 novembre 2026</span><span class="nv-nouveau">Nouveau</span></div>
+      <div class="nv-titre">Des questions plus faciles à répondre</div>
+      <p class="mb-2">Dans « À partir de mon récit », les questions de l'assistant sont numérotées et proposent des réponses toutes prêtes à cliquer.</p>
+      <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-book" aria-hidden="true"></i> Essayer</button></div>
+    <div class="nv-carte"><div class="nv-tete"><span class="nv-date">9 novembre 2026</span><span class="nv-nouveau">Nouveau</span></div>
+      <div class="nv-titre">Les fiches mises à jour, et ce qui a changé récemment</div>
+      <p class="mb-2">Dans « Comprendre le cadre », deux nouvelles fiches et un écran « Ce qui a changé récemment ».</p>
+      <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-compass" aria-hidden="true"></i> Essayer</button></div>
+    <div class="nv-carte"><div class="nv-tete"><span class="nv-date">8 novembre 2026</span></div>
+      <div class="nv-titre">Une courte vidéo pour présenter chaque module</div>
+      <p class="mb-2">Un bouton « Voir la présentation en vidéo » déplie une vidéo d'une minute, avec des sous-titres.</p>
+      <p class="nv-ou mb-0"><i class="bi bi-signpost-2" aria-hidden="true"></i> Vous trouverez ce module dans la carte « Boîte à outils » de l'accueil.</p></div>
+  </div>
+
+  <!-- 2. Les changements dans les règles : la matière de « Ce qui a changé récemment », directement ici -->
+  <div class="panneau" id="p-loi" hidden>
+    <p class="intro-entree">Les derniers changements dans les règles (emploi, formation, aides, droits) que nous avons répertoriés. Ici, seulement ce qui vient de changer. Pour les fiches complètes et les changements trimestre par trimestre, ouvrez « Comprendre le cadre ».</p>
+    <details class="carte-cadre" open><summary>Exemple de changement récent <span class="etiq">cette semaine</span></summary><p>Ici s'affichera, comme dans « Comprendre le cadre », ce qui a changé, à partir de quand, pour qui, avec le lien vers le texte officiel quand il existe.</p></details>
+    <details class="carte-cadre"><summary>Exemple d'un autre changement <span class="etiq">cette semaine</span></summary><p>Une carte repliable par changement, comme aujourd'hui dans le module.</p></details>
+    <div class="comprendre-le-cadre-encart small mt-3"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Ce n'est pas une source de droit. Chaque élément renvoie, quand c'est indiqué, au texte officiel : à recouper avant de vous en servir.</div>
+    <div class="invitation-module"><p class="mb-2">Envie de voir les fiches, ou les changements des mois précédents, trimestre par trimestre ?</p><button type="button" class="btn-ovale"><i class="bi bi-compass" aria-hidden="true"></i> Ouvrir « Comprendre le cadre »</button></div>
+  </div>
+
+  <!-- 3. Problèmes signalés et corrigés -->
+  <div class="panneau" id="p-corrige" hidden>
+    <div class="merci"><strong>Merci aux personnes qui ont pris la peine de nous signaler ces dysfonctionnements.</strong>Chaque signalement est lu, et c'est grâce à vous que nous les trouvons. Voici ce qui avait été signalé et ce qui a été corrigé, ainsi que ce que nous avons repéré nous-mêmes. Vous n'avez pas besoin de laisser votre nom pour signaler un problème : il sera quand même pris en compte.</div>
+    <h2 class="nv-mois">novembre 2026</h2>
+    <div class="carte-corrige">
+      <div class="tete"><span class="badge-corrige"><i class="bi bi-check2" aria-hidden="true"></i> Corrigé</span><span class="nv-date">10 novembre 2026</span><span class="origine">Signalé par une personne</span></div>
+      <div class="nv-titre">Récit : le bouton « Changer d'assistant »</div>
+      <div class="lib">Ce qui avait été signalé</div><p>Le bouton « Changer d'assistant » ne faisait rien.</p>
+      <div class="lib ok">Ce qui a été corrigé</div><p>Il ramène maintenant au choix de l'assistant.</p>
+    </div>
+    <div class="carte-corrige">
+      <div class="tete"><span class="badge-corrige"><i class="bi bi-check2" aria-hidden="true"></i> Corrigé</span><span class="nv-date">10 novembre 2026</span><span class="origine">Signalé par une personne</span></div>
+      <div class="nv-titre">Récit : les années</div>
+      <div class="lib">Ce qui avait été signalé</div><p>On pouvait choisir une année de fin avant l'année de début.</p>
+      <div class="lib ok">Ce qui a été corrigé</div><p>Les années impossibles ne sont plus proposées.</p>
+    </div>
+    <div class="carte-corrige">
+      <div class="tete"><span class="badge-corrige"><i class="bi bi-check2" aria-hidden="true"></i> Corrigé</span><span class="nv-date">10 novembre 2026</span><span class="origine">Repéré par nous</span></div>
+      <div class="nv-titre">Récit : le complément de CV</div>
+      <div class="lib">Ce qui avait été constaté</div><p>Le complément de CV n'était pas toujours proposé après la rédaction du CV.</p>
+      <div class="lib ok">Ce qui a été corrigé</div><p>Il est maintenant toujours proposé.</p>
+    </div>
+    <div class="text-center mt-3"><button type="button" class="btn-ovale"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Signaler un problème</button></div>
+  </div>
+
+  <div class="cv-section variante">
+    <h4>Ce que cette version change, et les points à trancher</h4>
+    <ul class="small mb-0">
+      <li><strong>Plus de message vert ni de cœur sous le titre.</strong> Le remerciement sobre apparaît seulement quand on ouvre « Problèmes corrigés », en tête, sur un fond vert pour le mettre en valeur, sans icône de cœur.</li>
+      <li><strong>Barre de navigation en bas</strong> (Retour et Accueil), la même que dans les autres pages de l'application.</li>
+      <li><strong>Les trois boutons sur une seule ligne</strong> quand l'écran est assez large ; sur un écran étroit, ils passent à la ligne comme avant.</li>
+      <li><strong>Trois nombres, trois couleurs</strong> : orange pour les nouveautés de l'application, bleu pour les changements dans les règles, vert pour les problèmes corrigés. Chaque nombre est celui des éléments récents de son entrée.</li>
+      <li><strong>Entrée 1 (application)</strong> : les mises à jour, ajouts et améliorations notables, comme la page actuelle. Un module qui n'est pas nouveau n'a pas de ligne ici ; seule la correction d'un dysfonctionnement va dans l'entrée 3.</li>
+      <li><strong>Entrée 2 (règles)</strong> : seulement ce qui vient de changer, répertorié par nous, avec le même écran que « Ce qui a changé récemment » (une seule source). Plus d'onglet « Par trimestre » : un bouton invite à ouvrir « Comprendre le cadre » pour les fiches et les trimestres. Le nom est à choisir (voir plus bas).</li>
+      <li><strong>Entrée 3 (problèmes corrigés)</strong> : une carte par problème (« Ce qui avait été signalé » ou « constaté », puis « Ce qui a été corrigé »), avec la mention « Signalé par une personne » ou « Repéré par nous », donc les deux cas.</li>
+      <li><strong>À trancher (1) : le nom de l'entrée 2.</strong> « Règles » est simple mais flou ; « changements législatifs » est exact mais lourd pour notre public. Recommandation : « Droits et règles : ce qui change » (court, concret, et c'est bien le sujet de « Comprendre le cadre »).</li>
+      <li><strong>À trancher (2) : ce que comptent les nombres de l'entrée 3.</strong> Recommandation : seulement les corrections des 7 derniers jours, comme pour l'application, pour que le nombre dise « il y a du nouveau ». Alternative : le total depuis le début.</li>
+      <li><strong>À trancher (3) : où vit la liste des corrections.</strong> Recommandation : un fichier dédié, `data/problemesCorriges.js`, une ligne par problème (signalé ou repéré), tenu à jour par moi à chaque correction notable, en mots simples. La pastille du bouton en haut à gauche pourrait alors additionner les trois nombres : à décider avec vous (recommandation : oui, pour qu'elle dise « il y a du nouveau quelque part »).</li>
+      <li><strong>Recherche</strong> : les trois entrées sont branchées à la barre de recherche de l'accueil et au Lexique dès leur création.</li>
+    </ul>
+  </div>
+</div>
+<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button class="btn btn-nav-erip btn-lg" type="button">&#8592; Retour</button><button class="btn btn-nav-erip btn-accueil" type="button"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button><span></span></div></div>
+<script>
+  document.querySelectorAll('.entree').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.entree').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+      b.setAttribute('aria-selected', 'true');
+      ['appli', 'loi', 'corrige'].forEach(function (k) { document.getElementById('p-' + k).hidden = (k !== b.getAttribute('data-entree')); });
+    });
+  });
+  document.querySelectorAll('.sous-onglet').forEach(function (b) {
+    b.addEventListener('click', function () { document.querySelectorAll('.sous-onglet').forEach(function (x) { x.setAttribute('aria-selected', 'false'); }); b.setAttribute('aria-selected', 'true'); });
+  });
+  document.getElementById('modeSombre').addEventListener('change', function () {
+    document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair');
+  });
+</script>
+</body>
+</html>

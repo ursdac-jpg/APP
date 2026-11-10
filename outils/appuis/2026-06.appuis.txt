@@ -33,7 +33,7 @@ texte: Lecture du territoire | Dordogne
   valeur: Taux de chômage localisé | Dordogne (24) | valeur | 7,9 %
   valeur: Taux de chômage localisé | Dordogne (24) | il y a un an | 7,1 %
   valeur: Offres d'emploi collectées | Dordogne (24) | valeur | 50 400
-  valeur: Chômage de longue durée | Dordogne (24) | valeur | 47 %
+  valeur: Chômage de longue durée | Dordogne (24) | valeur | 48 %
 
 texte: Lecture du territoire | Haute-Vienne
   sens: Taux de chômage localisé | Haute-Vienne (87) | moins que | Taux de chômage localisé | France entière (hors Mayotte)
@@ -51,13 +51,13 @@ texte: Lecture du territoire | Nouvelle-Aquitaine
   valeur: Taux de chômage localisé | Nouvelle-Aquitaine | valeur | 7,5 %
   valeur: Taux de chômage localisé | Nouvelle-Aquitaine | il y a un an | 6,8 %
   valeur: Offres d'emploi collectées | Nouvelle-Aquitaine | valeur | 870 800
-  valeur: Chômage de longue durée | Nouvelle-Aquitaine | valeur | 46,1 %
+  valeur: Chômage de longue durée | Nouvelle-Aquitaine | valeur | 46,5 %
   valeur: Emploi salarié | Nouvelle-Aquitaine | valeur | -0,2 %
 
 texte: Lecture du territoire | France entière
   evolution: Taux de chômage localisé | France entière (hors Mayotte) | hausse
-  valeur: Taux de chômage localisé | France entière (hors Mayotte) | valeur | 8,3 %
-  valeur: Taux de chômage localisé | France entière (hors Mayotte) | il y a un an | 7,5 %
+  valeur: Taux de chômage localisé | France entière (hors Mayotte) | valeur | 8,2 %
+  valeur: Taux de chômage localisé | France entière (hors Mayotte) | il y a un an | 7,8 %
   valeur: Offres d'emploi collectées | France entière (hors Mayotte) | valeur | 8 983 000
-  valeur: Chômage de longue durée | France entière (hors Mayotte) | valeur | 46,5 %
+  valeur: Chômage de longue durée | France entière (hors Mayotte) | valeur | 46,8 %
   valeur: Emploi salarié | France entière (hors Mayotte) | valeur | -0,1 %

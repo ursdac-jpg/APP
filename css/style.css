@@ -1210,8 +1210,8 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
   margin-left: auto; flex: none; border: none; background: none;
   color: var(--text-muted); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0 0.15rem;
 }
-/* « Mots de cette page » : sous « Revoir la présentation », à la place de l'ancienne note (consignes 155 et 156). Même alignement que le bouton du dessus. */
-.mots-page-zone { margin: -0.3rem 0 0.9rem -28px; }
+/* « Mots de cette page » : tout en bas de la page, au-dessus de la barre du bas (consigne 218, 10/11/2026 ; avant : sous « Revoir la présentation », consignes 155 et 156). */
+.mots-page-zone { margin: 1.6rem 0 1rem; }
 .mots-page-panneau { margin-top: 0.5rem; padding: 0.6rem 0.8rem; max-width: min(40rem, 100%); background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; }
 .mots-page-panneau[hidden] { display: none; }
 .mots-page-panneau .mots-page-mot, .mots-page-autres .mots-page-mot { margin: 0 0.3rem 0.4rem 0; border-left-width: 6px; }
@@ -1227,12 +1227,10 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
 @media (max-width: 1024px) {
   .bloc-revoir-module { margin-left: -8px; }
   .note-revoir-module { margin-left: -8px; }
-  .mots-page-zone { margin-left: -8px; }
 }
 @media (max-width: 768px) {
   .bloc-revoir-module { margin-left: -8px; }
   .note-revoir-module { margin-left: -8px; }
-  .mots-page-zone { margin-left: -8px; }
 }
 /* Bande "bouton + reprise", juste sous la barre d'etapes (chantier "bouton
    presentation", precisions Denis 2026-09-01). Le bouton partage est a
@@ -1984,6 +1982,10 @@ select.form-select.select-type-structure {
    .grille-mon-projet ci-dessus, reutilise pour pageSelectionCatalogue()
    (Expérience/Ce que vous faisiez/Environnement/Attentes) -- meme valeur de
    padding-bottom, pour la meme raison (reserver la place de .barre-navigation-fixe). */
+/* Signalement 10/11/2026 : l'écran « monte puis descend » à chaque choix. Bootstrap impose scroll-behavior: smooth sur toute la page ; or l'application remet la
+   position de lecture avec window.scrollTo(0, y) après chaque nouveau rendu (une dizaine d'endroits). Si la position a bougé un instant, le retour se voyait
+   comme un défilement animé. Défilement instantané partout : l'écran reste fixe. */
+html, :root { scroll-behavior: auto; }
 .page-catalogue-contenu { padding-bottom: 4.5rem; }
 /* « Qui fait quoi » : les employeurs d'un secteur en grille (1 colonne sur téléphone, jusqu'à 4 sur grand écran), lus de gauche à droite puis ligne par ligne. */
 .mt-grille-employeurs { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(14rem, calc((100% - 3rem) / 4)), 1fr)); gap: 1rem; align-items: stretch; margin-bottom: 1rem; }
@@ -2438,8 +2440,7 @@ select.form-select.select-type-structure {
 .synthese-liste { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.92rem; }
 .synthese-jetons { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.25rem 0; }
 .synthese-jeton { background: var(--accent-bg-subtle); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.85rem; }
-.synthese-appuis #coLettreAppuis > hr:first-child, .synthese-appuis #coLettreAppuis > p.fw-bold { display: none; }
-.synthese-appuis [data-reco-deposer] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.synthese-appuis #coLettreAppuis .appuis-entete { display: none; }
 .synthese-lettre #btnPrepaEntretienCollerLettre, .synthese-lettre #btnPrepaEntretienRelectureLettre { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
 .synthese-choix { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.7rem 0.8rem; background: var(--bg-subtle); }
 .synthese-confid { margin-top: 0.7rem; padding: 0.6rem 0.8rem; background: var(--success-bg-subtle); border-radius: 10px; font-size: 0.9rem; }
@@ -3448,6 +3449,10 @@ select.form-select.select-type-structure {
 .onglet-validation-import-btn.actif { color: #fff; background: var(--accent-solide); border-color: var(--accent-solide); }
 .onglet-validation-import-panel { display: none; }
 .onglet-validation-import-panel.actif { display: block; }
+/* Consigne 215 (10/11/2026) : en mode « Tout », chaque expérience a un grand titre qui dit laquelle c'est (numéro + mots de la personne). */
+.titre-fragment-tout { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; font-size: 1.35rem; font-weight: 800; color: var(--accent-texte); padding: .5rem .8rem; border-left: 6px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 8px; scroll-margin-top: 1rem; }
+.titre-fragment-nom { font-size: 1rem; font-weight: 600; color: var(--text-strong); }
+.titre-fragment-valide { font-size: .95rem; font-weight: 700; color: var(--success-strong, var(--accent-texte)); }
 /* TACHE (retour Denis 2026-09-19) : les champs texte/textarea de cet
    ecran restaient sur le .form-control nu de Bootstrap (fond blanc fixe,
    illisible en mode sombre -- meme bug app-wide deja corrige ailleurs
@@ -5066,6 +5071,9 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .complement-cv-banniere { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; color: var(--text-strong); }
 /* Page entière du complément : son titre de page (h1) suffit, la fenêtre commune n'a pas à le répéter. */
 .complement-cv-ecran .fc-titre { display: none; }
+/* Consigne 187 limite les paragraphes à 34 em : la bannière « Étape 2 sur 2 » (bande bleue et texte) doit couvrir toute la ligne (retour de Denis, 10/11/2026). */
+.page-catalogue-contenu .complement-cv-banniere :is(p, li) { max-width: none; }
+.complement-cv-titre-propose { margin: 0 0 .5rem; font-size: 1.05rem; }
 .complement-cv-etape { margin: -.8rem -1rem .7rem; padding: .35rem 1rem; border-radius: 10px 10px 0 0; background: var(--accent-solide, var(--accent)); color: #fff; font-weight: 700; font-size: .95rem; letter-spacing: .02em; }
 
 
@@ -5175,6 +5183,49 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .nv-nouveau { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #1b212c; background: #f59e0b; border-radius: 999px; padding: .05rem .55rem; }
 .nv-ou { font-size: .9rem; color: var(--accent-texte); }
 [data-theme="sombre"] .nv-nouveau { background: #fb923c; color: #1b212c; }
+/* Page « Nouveautés » à trois entrées (consigne 201) : boutons ovales avec un nombre de couleur propre à chaque entrée (orange, bleu, vert) ; couleurs par variables, donc mode sombre déjà prévu. */
+.nv-entrees { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin: 1rem 0 1.2rem; }
+@media (min-width: 900px) { .nv-entrees { flex-wrap: nowrap; } .nv-entree { padding-left: 1rem; padding-right: 1rem; } }   /* les trois sur une seule ligne quand l'écran le permet */
+/* Chaque entrée a sa couleur (application : bleu ; règles : jaune ; problèmes corrigés : vert, comme le remerciement) : fond légèrement teinté, un peu plus foncé au survol, au clic et quand l'entrée est choisie. --nv-fond / --nv-trait / --nv-texte sont posées par la variante de couleur. */
+.nv-entree { --nv-fond: var(--accent-bg-subtle); --nv-trait: var(--accent); --nv-texte: var(--accent-texte);
+  min-height: 52px; padding: .45rem 1.5rem; border: 2px solid var(--nv-trait); border-radius: 999px; background: var(--nv-fond); color: var(--text-strong); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; }
+.nv-entree--bleu { --nv-fond: var(--accent-bg-subtle); --nv-trait: var(--accent); --nv-texte: var(--accent-texte); }
+.nv-entree--vert { --nv-fond: var(--success-bg-subtle); --nv-trait: var(--success-strong); --nv-texte: var(--success-strong); }
+.nv-entree--jaune { --nv-fond: var(--warning-bg-subtle); --nv-trait: var(--warning-border); --nv-texte: var(--warning-strong); }
+.nv-entree:hover, .nv-entree:focus-visible, .nv-entree:active, .nv-entree[aria-selected="true"] { background: color-mix(in srgb, var(--nv-fond) 65%, var(--nv-trait) 35%); }
+.nv-entree:active { background: color-mix(in srgb, var(--nv-fond) 45%, var(--nv-trait) 55%); }
+.nv-entree[aria-selected="true"] { box-shadow: 0 0 0 2px var(--nv-trait); }
+.nv-entree .bi { font-size: 1.2rem; color: var(--nv-texte); }
+/* Page d'arrivée : le fond des trois boutons pulse à tour de rôle (bleu, jaune, vert) jusqu'au premier clic. Une seule durée de 3,6 s : chaque bouton ne bouge que pendant son tiers. */
+@keyframes nvPulseFond {
+  0%, 30%, 100% { background: var(--nv-fond); }
+  15% { background: color-mix(in srgb, var(--nv-fond) 30%, var(--nv-trait) 70%); }
+}
+.nv-pulse .nv-entree { animation: nvPulseFond 3.6s ease-in-out infinite; }
+.nv-pulse .nv-entree--bleu { animation-delay: 0s; }
+.nv-pulse .nv-entree--jaune { animation-delay: 1.2s; }
+.nv-pulse .nv-entree--vert { animation-delay: 2.4s; }
+.nv-pulse .nv-entree:hover, .nv-pulse .nv-entree:focus-visible { animation: none; }
+.nv-compte { font-size: .8rem; font-weight: 800; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-card); }
+.nv-compte[hidden] { display: none; }
+.nv-compte--bleu { color: var(--accent-texte); border: 1px solid var(--accent); }
+.nv-compte--vert { color: var(--success-strong); border: 1px solid var(--success-strong); }
+.nv-compte--jaune { color: var(--warning-strong); border: 1px solid var(--warning-border); }
+.nv-choix-titre { text-align: center; font-size: 1.3rem; margin: .4rem 0 .3rem; }
+.nv-explic { border: 1px solid var(--border-strong); border-left: 6px solid var(--nv-trait); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem auto; max-width: 46rem; }
+.nv-explic-titre { font-weight: 800; margin-bottom: .25rem; }
+.nv-explic-titre .bi { color: var(--nv-texte); }
+.nv-intro { text-align: center; color: var(--text-muted); max-width: 46rem; margin: 0 auto 1rem; }
+.nv-btn-ovale { min-height: 44px; padding: .35rem 1.4rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+.nv-invitation { border: 1px dashed var(--accent); border-radius: 12px; padding: .8rem 1rem; text-align: center; background: var(--accent-bg-subtle); margin-top: 1rem; }
+.nv-merci { border: 2px solid var(--success-strong); background: var(--success-bg-subtle); color: var(--text-strong); border-radius: 14px; padding: 1rem 1.3rem; margin-bottom: 1.2rem; text-align: center; }
+.nv-merci strong { display: block; font-size: 1.25rem; color: var(--success-strong); margin-bottom: .3rem; }
+.nv-carte-corrige { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
+.nv-badge-corrige { font-size: .78rem; font-weight: 700; padding: .05rem .65rem; border-radius: 999px; background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+.nv-origine { font-size: .78rem; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong); }
+.nv-lib { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: .5rem 0 .1rem; }
+.nv-lib--ok { color: var(--success-strong); }
+.nv-carte-corrige p { margin: 0; }
 
 /* ============================================================
    Module « Découvrir mes compétences » (modules/mes-competences/) : relecture et document.
@@ -5259,6 +5310,9 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .fc-exemples ul { margin: 0; padding-left: 1.2rem; line-height: 1.6; }
 .fc-cache { display: none; }
 .fc-plustard { font-size: 0.9rem; color: var(--text-muted); margin: 0.8rem 0; }
+/* Vérification du 10/11/2026 : cet encadré (fond et filet) couvre toute la ligne, la limite de 34 em de la consigne 187 ne vaut que pour le texte courant. */
+.page-catalogue-contenu .fc-sans { max-width: none; }
+.fc-sans { background: var(--bg-subtle); border-left: 3px solid var(--border-strong); border-radius: 8px; padding: 0.6rem 0.85rem; margin: 0.8rem 0; font-size: 0.95rem; color: var(--text-strong); }
 .fc-pied { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: 1.6rem; }
 .fc-continuer { text-align: right; margin-top: 1.4rem; }
 /* Apercu de la fenetre sous le decompte (voir brancherCollageUniquePage) : un filet avec la legende « Voici la fenetre que vous retrouverez... » */
@@ -5307,10 +5361,39 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
    lisent difficilement. Les boutons permanents et la barre du bas ne bougent pas (compensation par --echelle-fixe et --palier-barre, plus bas). */
 @media (min-width: 1000px) { :root { --palier-taille: 1.0625; } }
 @media (min-width: 1400px) { :root { --palier-taille: 1.125; } }
-/* Longueur de ligne (consigne 187) : un paragraphe ou un item de liste d'un module ne depasse jamais 34 em (environ 70 caracteres ; le confort de lecture se situe entre 45 et 80).
-   Les cartes, tableaux et graphiques gardent toute la largeur : seul le texte courant est limite. En em, donc la limite suit la taille du texte et la police choisie. */
-.page-catalogue-contenu :is(p, li) { max-width: 34em; }
+/* Longueur de ligne (consigne 187, revue par la consigne 216 du 10/11/2026) : la limite de 34 em laissait un tiers de la ligne vide et obligeait a defiler (portables a pave tactile).
+   Un paragraphe ou un item de liste remplit maintenant toute la largeur de sa rubrique, avec un garde-fou de 64 em (environ 115 caracteres) pour qu'une ligne ne devienne jamais illisible
+   sur un tres grand ecran (la colonne des modules est deja limitee a 1440 px). En em, donc la limite suit la taille du texte et la police choisie. */
+.page-catalogue-contenu :is(p, li) { max-width: 64em; }
 .page-catalogue-contenu :is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) > :is(p, li), .page-catalogue-contenu :is(p, li):is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) { margin-left: auto; margin-right: auto; }
+/* Colonne des modules (consigne 187, 09/11/2026, retour de Denis : « un texte entasse d'un cote et d'enormes espaces vides, ca me vide »). La colonne est centree et ne depasse pas 1440 px :
+   les blocs ne s'etalent plus sur toute la largeur d'un grand ecran. Sur les pages de presentation des modules (generateur htmlPageIntroModuleParcours, data/metiers.js), les cartes sont
+   disposees en GRILLE 2 SUR 2 des 1100 px (choix de Denis, 10/11/2026) : on lit de gauche a droite, rangee par rangee, et les deux cartes d'une rangee ont la meme hauteur. Restent pleine largeur : la premiere carte (l'accroche),
+   toute carte qui ne contient qu'un seul bloc (bandeau de fin, ex. l'enregistrement par la disquette) et une derniere carte seule sur sa rangee. L'ordre dans la page (HTML) n'est pas modifie. La page Nouveautes a sa propre
+   disposition, une nouveaute par ligne (plus bas). Sous 1100 px : une seule colonne, comme avant. */
+.page-catalogue-contenu { max-width: 1440px; margin-left: auto; margin-right: auto; }
+.intro-colonnes { margin-top: 1.5rem; }
+.intro-colonnes > .cv-section { margin: 0 0 1.5rem; }
+@media (min-width: 1100px) {
+  .intro-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; max-width: 1180px; margin-left: auto; margin-right: auto; }
+  .intro-colonnes > :first-child, .intro-colonnes > :not(.cv-section), .intro-colonnes > .cv-section:has(> :only-child) { grid-column: 1 / -1; }
+  /* carte seule sur sa rangee : pleine largeur (classe posee par equilibrerGrilleIntro, js/app.js) */
+  .intro-colonnes > .intro-seule { grid-column: 1 / -1; }
+  /* carte a longue liste (6 puces ou plus) : pleine largeur, liste sur deux colonnes, pour qu'elle ne laisse pas un grand vide dans la carte voisine. Le remplissage « dense » comble les trous de la grille (une carte plus courte peut alors remonter d'un rang). */
+  .intro-colonnes { grid-auto-flow: row dense; }
+  .intro-colonnes > .cv-section:has(> ul > li:nth-child(6)) { grid-column: 1 / -1; }
+  .intro-colonnes > .cv-section > ul:has(> li:nth-child(6)) { column-count: 2; column-gap: 2.5rem; }
+  .intro-colonnes > .cv-section > ul:has(> li:nth-child(6)) > li { break-inside: avoid; }
+}
+/* Page Nouveautes : UNE NOUVEAUTE PAR LIGNE (demande de Denis, 09/11/2026). Des 900 px, chaque ligne est rangee en trois colonnes : la date et la mention « Nouveau » a gauche, le titre et le texte au milieu,
+   le bouton « Essayer » (ou l'indication de la carte de l'accueil) a droite. Aucune zone vide a droite du texte, et l'oeil suit une seule ligne par nouveaute. Sous 900 px : empile, comme avant. */
+@media (min-width: 900px) {
+  .nv-page .nv-carte { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr) 17rem; column-gap: 1.4rem; align-items: start; padding: 1rem 1.2rem; }
+  .nv-page .nv-carte > .nv-tete { grid-column: 1; grid-row: 1 / span 3; flex-direction: column; align-items: flex-start; margin: 0; gap: .45rem; }
+  .nv-page .nv-titre, .nv-page .nv-carte > p:not(.nv-ou) { grid-column: 2; }
+  .nv-page .nv-carte > .nv-ou, .nv-page .nv-carte > button { grid-column: 3; grid-row: 1 / span 3; align-self: center; margin: 0; }
+  .nv-page .nv-carte > button { justify-self: end; }
+}
 @media print { :root { --palier-taille: 1; --reglage-taille: 1; } }
 /* Accueil (route « cv ») et pages d'introduction (« introduction » et toutes les « ...-intro ») : taille d'AVANT la consigne 144, au retour de Denis du 07/11/2026
    (« les cartes de l'accueil, les sous-cartes et les exemples des introductions sont beaucoup trop gros »). L'intérieur des modules garde les paliers.
@@ -5594,3 +5677,62 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
   html #btnRetourModuleExterne { font-size: calc(.9rem * var(--echelle-fixe)); padding: 0 calc(.9rem * var(--echelle-fixe)); gap: calc(.4rem * var(--echelle-fixe)); }
   html #btnRetourModuleExterne .bi { font-size: calc(1.2rem * var(--echelle-fixe)); }
 }
+
+/* 10/11/2026 (consignes 217 et 219, maquettes validées) : « Quelques précisions » et « Vos appuis ».
+   Les numéros 1, 2, 3 ne sont PAS des boutons : classe à part (jamais .pastille, qui est cliquable). */
+.num-rubrique { flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; cursor: default; user-select: none; }
+.titre-rubrique { font-size: 1.45rem; font-weight: 800; }
+.qc-bloc { padding-top: .9rem; border-top: 1px solid var(--border); }
+.qc-bloc:first-of-type { border-top: 0; }
+.qc-texte { display: flex; gap: .6rem; align-items: flex-start; margin-bottom: .45rem; }
+.qc-texte label { font-weight: 700; font-size: 1rem; }
+.qc-etiquette { display: inline-block; margin-left: .4rem; padding: .05rem .55rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.qc-consigne { font-size: .88rem; color: var(--text-muted); margin: 0 0 .5rem 2.5rem; }
+.qc-suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .5rem 2.5rem; }
+.qc-bloc > .form-control, .qc-bloc > .d-flex, .qc-bloc > .pastilles, .qc-bloc > div:not(.qc-texte):not(.qc-suggestions):not(.qc-zone-autre):not(.qc-etat) { margin-left: 2.5rem; }
+.qc-ovale { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; text-align: left; }
+.qc-ovale:hover, .qc-ovale:focus-visible { border-color: var(--accent); }
+.qc-ovale[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+.qc-ovale[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.qc-ovale.longue { flex: 1 1 100%; border-radius: 26px; padding-left: 1.4rem; }
+.qc-ovale.tout, .qc-ovale.autre { border-style: dashed; }
+.qc-zone-autre { display: none; margin: .3rem 0 .4rem 2.5rem; }
+.qc-zone-autre.ouverte { display: block; }
+.qc-etat { font-size: .9rem; color: var(--text-muted); margin: .3rem 0 0 2.5rem; }
+.qc-etat.fait { color: var(--success-strong); font-weight: 600; }
+.qc-compteur { font-size: .95rem; font-weight: 600; color: var(--text-muted); margin: 0 0 .4rem; }
+[data-theme="sombre"] .num-rubrique { color: var(--bg-card); }
+
+/* 10/11/2026 (consigne 219, maquette validée) : rubrique « Vos appuis » en trois parties numérotées, boutons ovales, état de chaque partie à droite. */
+.appuis-rubrique { margin: 1rem 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); overflow: hidden; }
+.appuis-entete { padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); }
+.appuis-entete .titre-rubrique { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 .3rem; }
+.appuis-bilan { font-size: .85rem; font-weight: 700; padding: .1rem .7rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+.appuis-bilan.complet { background: var(--success-bg-subtle); color: var(--success-strong); border-color: var(--success-strong); }
+.appui-partie { padding: .95rem 1.1rem; border-top: 1px solid var(--border); }
+.appuis-entete + .appui-partie { border-top: 0; }
+.appui-partie-titre { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; font-size: 1.05rem; margin-bottom: .3rem; }
+.appui-partie-corps { margin-left: 2.5rem; }
+.appui-etat { margin-left: auto; font-size: .82rem; font-weight: 700; padding: .1rem .65rem; border-radius: 999px; white-space: nowrap; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+.appui-etat.fait { background: var(--success-bg-subtle); color: var(--success-strong); border-color: var(--success-strong); }
+.appui-ovales { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+.appui-ovale { min-height: 44px; padding: .35rem 1.4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; text-align: left; }
+.appui-ovale:hover, .appui-ovale:focus-visible { border-color: var(--accent); }
+.appui-ovale.is-actif, .appui-ovale[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+.appui-ovale.is-actif::before { content: "\2713\00a0"; }
+.appui-ovale.petit { min-height: 36px; padding: .2rem 1rem; font-size: .9rem; }
+.appui-ovale.depot { border: 2px dashed var(--accent); color: var(--accent-texte); font-weight: 700; }
+.appui-ovale.ouvrir { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); font-weight: 700; }
+.appui-ovale.ouvrir.valide { background: var(--success-bg-subtle); border-color: var(--success-strong); color: var(--success-strong); }
+
+.appui-ovale.valider { padding-left: 1.6rem; padding-right: 1.6rem; border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 700; }
+[data-theme="sombre"] .appui-ovale.valider { color: var(--bg-card); }
+.appui-ovale.valider:disabled { background: var(--bg-hover); border-color: var(--border-strong, var(--border)); color: var(--text-muted); cursor: default; }
+.appui-encart { margin-top: .6rem; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); }
+.appui-info-outil { margin: .6rem 0 0; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); font-size: .92rem; font-weight: 600; color: var(--accent-texte); }
+.appui-info-outil .bi { font-size: 1.2rem; margin-right: .3rem; vertical-align: -.1rem; }
+.appui-ligne-dictee { margin-top: .7rem; }
+.appui-ligne-valider { display: flex; justify-content: flex-end; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+.appui-msg-valide { font-size: .9rem; font-weight: 600; color: var(--success-strong); }
+.appui-zone-mots[hidden], .appui-msg-valide[hidden] { display: none !important; }
+.appui-encart .preparer-detail { margin: .5rem 0 0; font-size: .9rem; color: var(--text-muted); }

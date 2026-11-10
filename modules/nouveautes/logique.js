@@ -51,6 +51,22 @@ function nvGrouperParMois(liste, auj) {
   return groupes;
 }
 
+// Les trois entrées de la page (consigne 201) : 'appli' (nouveautés de l'application), 'regles' (changements dans les règles), 'corriges' (problèmes corrigés).
+var NV_ENTREES = ['appli', 'regles', 'corriges'];
+function nvEntreeValide(cle) { return NV_ENTREES.indexOf(cle) !== -1 ? cle : 'appli'; }
+
+// Origine d'un problème corrigé : 'personne' (signalé par un utilisateur) ou 'nous' (repéré par nous, aussi le défaut). Les mots affichés vont avec.
+function nvOrigine(p) { return p && p.origine === 'personne' ? 'personne' : 'nous'; }
+// Seulement « Signalé par un utilisateur » ; un défaut repéré par nous n'affiche rien (décision de Denis, 10/11/2026 : pas prétentieux).
+function nvLibelleOrigine(p) { return nvOrigine(p) === 'personne' ? 'Signalé par un utilisateur' : ''; }
+function nvLibelleAvant(p) { return nvOrigine(p) === 'personne' ? 'Ce qui avait été signalé' : 'Ce qui avait été constaté'; }
+
+// Nombre affiché sur la pastille du bouton : les trois nombres additionnés (un nombre inconnu ou négatif compte zéro).
+function nvTotalPastille(nAppli, nRegles, nCorriges) {
+  return [nAppli, nRegles, nCorriges].reduce(function (s, n) { return s + (typeof n === 'number' && n > 0 ? n : 0); }, 0);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { NV_JOURS_NOUVEAU: NV_JOURS_NOUVEAU, nvAgeJours: nvAgeJours, nvEstNouveau: nvEstNouveau, nvCompterNouveaux: nvCompterNouveaux, nvDateFr: nvDateFr, nvMoisFr: nvMoisFr, nvGrouperParMois: nvGrouperParMois };
+  module.exports = { NV_JOURS_NOUVEAU: NV_JOURS_NOUVEAU, nvAgeJours: nvAgeJours, nvEstNouveau: nvEstNouveau, nvCompterNouveaux: nvCompterNouveaux, nvDateFr: nvDateFr, nvMoisFr: nvMoisFr, nvGrouperParMois: nvGrouperParMois,
+    NV_ENTREES: NV_ENTREES, nvEntreeValide: nvEntreeValide, nvOrigine: nvOrigine, nvLibelleOrigine: nvLibelleOrigine, nvLibelleAvant: nvLibelleAvant, nvTotalPastille: nvTotalPastille };
 }

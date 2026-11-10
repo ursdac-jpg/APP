@@ -892,7 +892,9 @@ function _comprendreLesChiffresVuesLignesHTML(groupes) {
         return '<div class="comprendre-les-chiffres-ligne' + (l.fort ? ' fort' : '') + '" data-n="' + (typeof l.n === 'number' ? l.n : 0) + '">' +
           '<span class="comprendre-les-chiffres-ligne-lib">' + _comprendreLesChiffresEchappe(l.nom) + '</span>' +
           '<span class="comprendre-les-chiffres-ligne-val">' + sens + '<span class="chiffre"' + src + '>' + _comprendreLesChiffresEchappe(l.texte) + '</span></span></div>';
-      }).join('') + '</div></div>';
+      }).join('') + '</div>' +
+      (g.note ? '<p class="comprendre-les-chiffres-note">' + _comprendreLesChiffresEchappe(g.note) + '</p>' : '') +
+      '</div>';
   }).join('');
 }
 
@@ -1468,6 +1470,22 @@ function _comprendreLesChiffresRenduSource(e) {
 //   les derniers trimestres. Le chômage garde sa courbe d'origine plus bas.
 // - Camembert : seulement quand les chiffres sont les parts d'un même tout
 //   (ancienneté d'inscription, durée des embauches).
+// Phrase sous la comparaison des niveaux (chômage seulement) : les trois chiffres sont du même
+// trimestre pour pouvoir se comparer ; quand la France entière a déjà un trimestre plus récent,
+// on le dit et on renvoie à l'encadré (consigne 229, cohérence de lecture).
+function _comprendreLesChiffresNoteNiveaux(carte, e, entrees) {
+  if (!carte || carte.slug !== 'chomage' || !e || !entrees) { return ''; }
+  var rangE = _comprendreLesChiffresRangTrimestre(e.date);
+  var plusRecent = null;
+  entrees.forEach(function (x) {
+    if (!plusRecent && x.terr === 'fr' && x.valeur && !/m[eé]tropolitaine/i.test(x.labelBrut || '') &&
+        _comprendreLesChiffresRangTrimestre(x.date) > rangE) { plusRecent = x; }
+  });
+  var periode = String(e.date || '').replace(/,.*$/, '').trim();
+  if (!plusRecent || !periode) { return ''; }
+  return 'Ces trois chiffres sont ceux du ' + periode + ', pour pouvoir se comparer entre eux. Le trimestre suivant n’est publié que pour la France entière : voir l’encadré plus haut.';
+}
+
 function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
   var niv = _comprendreLesChiffresNiveauCourant();
   var pourcent = /%/.test(e.valeur || '');
@@ -1492,7 +1510,8 @@ function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
     autres.forEach(function (x) {
       if (x && x.valeur && _comprendreLesChiffresMemeNature(e.valeur, x.valeur)) { lignes.push(ligneDe(x, true)); }
     });
-    groupes.push({ titre: 'Le territoire et les autres niveaux', lignes: lignes.filter(Boolean), signe: signe, territoires: true });
+    var noteNiveaux = _comprendreLesChiffresNoteNiveaux(carte, e, entrees);
+    groupes.push({ titre: 'Le territoire et les autres niveaux', lignes: lignes.filter(Boolean), signe: signe, territoires: true, note: noteNiveaux });
   }
 
   // 2. Les catégories de demandeurs (A seule, puis A + B + C), quand le digest les donne.
@@ -1576,7 +1595,7 @@ function _comprendreLesChiffresVuesCarte(carte, e, entrees, choisirTerr, chiffre
 // Une carte-indicateur (maquette : .indic).
 function _comprendreLesChiffresRenduCarte(carte, entrees) {
   var cible = _comprendreLesChiffresTerritoireDuNiveau();
-  var choisirTerr = function (code, preferMetro) {
+  var choisirTerr = function (code, preferMetro, plusRecent) {
     var trouve = null;
     if (code === 'fr' && preferMetro) {
       entrees.forEach(function (x) {
@@ -1584,9 +1603,18 @@ function _comprendreLesChiffresRenduCarte(carte, entrees) {
       });
     }
     entrees.forEach(function (x) { if (x.terr === code && !trouve) { trouve = x; } });
+    // Au niveau « France entière », la carte principale lit le trimestre le plus récent publié
+    // (consigne 229) : la France métropolitaine du trimestre d'avant ne passe plus devant.
+    if (code === 'fr' && plusRecent && trouve) {
+      var rang = _comprendreLesChiffresRangTrimestre(trouve.date);
+      entrees.forEach(function (x) {
+        var r = x.terr === 'fr' && x.valeur ? _comprendreLesChiffresRangTrimestre(x.date) : 0;
+        if (r > rang) { trouve = x; rang = r; }
+      });
+    }
     return trouve;
   };
-  var e = choisirTerr(cible, cible === 'fr');
+  var e = choisirTerr(cible, cible === 'fr', cible === 'fr');
   var idAttr = ' id="comprendre-les-chiffres-carte-' + carte.slug + '"';
   var d = _comprendreLesChiffresDigest;
 
@@ -1645,6 +1673,8 @@ function _comprendreLesChiffresRenduCarte(carte, entrees) {
   if (rep) {
     chiffres += '<p class="comprendre-les-chiffres-repere">' + _comprendreLesChiffresEchappe(rep) + '</p>';
   }
+
+  chiffres += _comprendreLesChiffresBlocNationalRecent(carte, e, entrees);
 
   if (carte.encart) {
     chiffres += '<div class="comprendre-les-chiffres-encart small"><i class="bi bi-info-circle"></i> ' +
@@ -1720,6 +1750,39 @@ function _comprendreLesChiffresRenduCarte(carte, entrees) {
       smicHTML + evoHTML + srcHTML + '</div>';
   }
   return '<div class="comprendre-les-chiffres-indic"' + idAttr + '>' + corps + smicHTML + evoHTML + srcHTML + '</div>';
+}
+
+// Numéro d'un trimestre cité dans un texte (« 3e trimestre 2026 », « 1er trimestre 2026 ») : année x 4 + trimestre, 0 s'il n'y en a pas. Sert à comparer deux dates.
+function _comprendreLesChiffresRangTrimestre(texte) {
+  var m = String(texte || '').match(/(\d)(?:er|e)\s+trimestre\s+(20\d\d)/i);
+  return m ? parseInt(m[2], 10) * 4 + parseInt(m[1], 10) : 0;
+}
+
+// Chômage : le taux NATIONAL de l'INSEE paraît plus tôt (environ un trimestre) que les taux par région et département. Quand la ligne « France entière »
+// du digest est plus récente que le chiffre de la carte, un encadré le montre, avec son repère, et dit quand les chiffres du territoire seront à jour
+// (prochaine_maj du digest). Le texte du repère vient du digest : il change quand le chiffre change, jamais écrit ici. Rien si la ligne n'est pas plus récente.
+function _comprendreLesChiffresBlocNationalRecent(carte, e, entrees) {
+  if (!carte || carte.slug !== 'chomage' || !e || !entrees) { return ''; }
+  var nat = null;
+  entrees.forEach(function (x) { if (!nat && x.terr === 'fr' && x.valeur && !/m[eé]tropolitaine/i.test(x.labelBrut || '')) { nat = x; } });
+  var rangNat = nat ? _comprendreLesChiffresRangTrimestre(nat.date) : 0;
+  if (!nat || nat === e || !rangNat || rangNat <= _comprendreLesChiffresRangTrimestre(e.date)) { return ''; }
+  var d = _comprendreLesChiffresDigest;
+  var src = nat.sourceNom ? ' data-source="' + _comprendreLesChiffresEchappe(nat.sourceNom + (nat.date ? ' - ' + nat.date : '')) + '"' : '';
+  var cmp = [];
+  if (nat.precedent) { cmp.push('<b>Il y a un trimestre :</b> <span class="chiffre">' + _comprendreLesChiffresEchappe(nat.precedent) + '</span>'); }
+  if (nat.anPrecedent) { cmp.push('<b>il y a un an :</b> <span class="chiffre">' + _comprendreLesChiffresEchappe(nat.anPrecedent) + '</span>'); }
+  var suite = (d && d.prochaine_maj)
+    ? 'Les chiffres par région et par département du même trimestre paraissent plus tard : ils seront ajoutés avec la prochaine mise à jour (' + _comprendreLesChiffresEchappe(d.prochaine_maj) + '). Ceux affichés sur cette carte sont ceux du trimestre précédent.'
+    : 'Les chiffres par région et par département du même trimestre paraissent plus tard.';
+  return '<div class="comprendre-les-chiffres-national-recent">' +
+    '<p class="comprendre-les-chiffres-national-titre"><i class="bi bi-flag"></i> Le plus récent, pour la France entière</p>' +
+    '<p class="comprendre-les-chiffres-indic-valeur"><span class="chiffre"' + src + '>' + _comprendreLesChiffresEchappe(nat.valeur) + '</span> ' +
+      '<span class="comprendre-les-chiffres-national-date">' + _comprendreLesChiffresEchappe(nat.date) + '</span></p>' +
+    (cmp.length ? '<p class="comprendre-les-chiffres-compare">' + cmp.join(' &nbsp;&bull;&nbsp; ') + '</p>' : '') +
+    (nat.repere ? '<p class="comprendre-les-chiffres-repere">' + _comprendreLesChiffresEchappe(nat.repere) + '</p>' : '') +
+    '<p class="small mb-0">' + suite + '</p>' +
+  '</div>';
 }
 
 // Le repère : le « c'est élevé / en baisse / dans la moyenne » en un coup

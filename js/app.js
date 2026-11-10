@@ -1033,6 +1033,7 @@ function ouvrirCibleRechercheApp(cible) {
     if (val === 'carnet' && typeof carnetDemarrer === 'function') { carnetDemarrer(); return; }
     if (val === 'reperes' && typeof reperesDemarrer === 'function') { reperesDemarrer(); return; }
     if (val === 'lexique' && typeof lexiqueDemarrer === 'function') { lexiqueDemarrer(); return; }
+    if (val.indexOf('nouveautes-') === 0 && typeof nvOuvrirEntree === 'function') { nvOuvrirEntree(val.slice('nouveautes-'.length)); return; }   // 'fn:nouveautes-appli' | '-regles' | '-corriges' (page Nouveautés, consigne 201)
     if (val === 'bilan' && typeof demarrerBilanCandidature === 'function') { demarrerBilanCandidature(); return; }
     if (val === 'coherence' && typeof ctDemarrer === 'function') { ctDemarrer(); return; }
     if (val.indexOf('mon-territoire') === 0 && typeof monTerritoireOuvrirDepuisRecherche === 'function') { monTerritoireOuvrirDepuisRecherche(val.slice('mon-territoire'.length + 1)); return; }
@@ -3543,6 +3544,34 @@ var routes = {
   'mon-territoire': pageMonTerritoire
 };
 
+/* Consigne 187 (10/11/2026) : les pages de presentation des modules rangent leurs cartes en grille 2 sur 2 (voir « .intro-colonnes » dans css/style.css). Quand une carte se retrouve
+   seule sur sa rangee (nombre impair de cartes, ou carte a longue liste qui prend toute la largeur), elle passe en pleine largeur pour ne pas laisser de trou. Source unique : cette
+   fonction, appelee a chaque navigation et a chaque changement de taille de fenetre. Sous 1100 px la grille n'existe pas (une seule colonne) : rien a faire. */
+function equilibrerGrilleIntro() {
+  var grille = document.querySelector('.intro-colonnes');
+  if (!grille) { return; }
+  var cartes = Array.prototype.slice.call(grille.children);
+  cartes.forEach(function (c) { c.classList.remove('intro-seule'); });
+  if (window.getComputedStyle(grille).display !== 'grid') { return; }
+  var largeurGrille = grille.getBoundingClientRect().width;
+  var rangees = [];
+  cartes.forEach(function (c) {
+    var r = c.getBoundingClientRect();
+    var rangee = rangees.filter(function (x) { return Math.abs(x.haut - r.top) < 3; })[0];
+    if (!rangee) { rangee = { haut: r.top, cartes: [], largeur: 0 }; rangees.push(rangee); }
+    rangee.cartes.push(c);
+    rangee.largeur += r.width;
+  });
+  rangees.forEach(function (x) {
+    if (x.cartes.length === 1 && x.largeur < largeurGrille - 4) { x.cartes[0].classList.add('intro-seule'); }
+  });
+}
+var _grilleIntroMinuteur = null;
+window.addEventListener('resize', function () {
+  clearTimeout(_grilleIntroMinuteur);
+  _grilleIntroMinuteur = setTimeout(equilibrerGrilleIntro, 150);
+});
+
 function naviguerVers(route, sansHistorique) {
   // Retour à l'accueil : un bloc « Quelques passages à préciser » resté posé ne doit jamais réapparaître dans un autre parcours.
   if ((route === 'cv' || route === 'accueil') && typeof passagesRetirerDePage === 'function') { passagesRetirerDePage(); }
@@ -3661,6 +3690,7 @@ function naviguerVers(route, sansHistorique) {
   // pas encore repositionne pour la page courante.
   // Consigne 187 : sur petit ecran, un message (une seule fois par visite) dit qu'on peut agrandir le texte ou changer la police. Il pousse le titre vers le bas :
   // il doit donc etre en place AVANT le positionnement des icones du Carnet, du Journal et du panier, qui se calent sur le titre reel de la page.
+  equilibrerGrilleIntro();
   if (route === 'cv' && typeof afficherMessageAffichage === 'function') { afficherMessageAffichage(); }
   if (typeof carnetApresNavigation === 'function') { carnetApresNavigation(); }
   // TACHE (regard critique final, "positionnement du bouton Journal de
@@ -4129,6 +4159,16 @@ function _barreBasSource() {
     var visible = !!(cands[i].getAttribute('data-barre-bas-masque') === '1' || cands[i].offsetParent !== null);
     if (visible && zone) { return cands[i]; }
   }
+  // Filet commun (retour Denis 10/11/2026) : un bouton « Continuer » oublié dans une page ne doit JAMAIS y rester, il vit dans la barre du bas. Un écran qui n'a pas posé
+  // data-barre-bas est rattrapé ici : bouton principal dont le texte est exactement « Continuer » (avec ou sans flèche), visible, dans la page (jamais dans une fenêtre).
+  var libres = document.querySelectorAll('#app button.btn-primary');
+  for (var j = 0; j < libres.length; j++) {
+    var libre = libres[j];
+    // L'encart « Continuer / Recommencer » d'une reprise est un choix à deux boutons, pas une navigation : il reste dans la page.
+    if (libre.closest('.barre-navigation-fixe') || libre.closest('.encart-reprise-module') || libre.hasAttribute('data-barre-bas')) { continue; }
+    if (libre.getAttribute('data-barre-bas-masque') !== '1' && libre.offsetParent === null) { continue; }
+    if (/^\s*Continuer\s*(?:→|➜|>)?\s*$/.test(libre.textContent || '')) { return libre; }
+  }
   return null;
 }
 // G1 (regle de Denis, 24/10/2026) : le message qui explique pourquoi « Continuer » est grise s'affiche AU-DESSUS de ce bouton (a droite), jamais ailleurs :
@@ -4208,8 +4248,63 @@ function _barreBasAppliquer() {
   if ((adopte.getAttribute('title') || '') !== message) { if (message) { adopte.setAttribute('title', message); } else { adopte.removeAttribute('title'); } }
   definirRaisonSuivantBarre(adopte, message);
   var zone = source.closest('[data-barre-bas-zone]') || source;
-  if (zone.style.display !== 'none') { zone.style.display = 'none'; }
+  // « important » : une zone en flex (classe d-flex de Bootstrap, display ... !important) restait visible malgré le display:none posé ici (vu sur l'écran des compétences du récit, 10/11/2026).
+  if (zone.style.display !== 'none' || zone.style.getPropertyPriority('display') !== 'important') { zone.style.setProperty('display', 'none', 'important'); }
   source.setAttribute('data-barre-bas-masque', '1');
+}
+// COHÉRENCE DES ANNÉES (retour Denis 10/11/2026 : « je peux choisir de 2022 à 2018, ce n'est pas possible ») : partout où deux sélecteurs « Année de début » / « Toujours en cours »
+// (année de fin) sont côte à côte (récit, catalogues de formations et d'engagements, fenêtres d'ajout), les années de fin AVANT l'année de début disparaissent de la liste (jamais grisées, consigne 214), et une fin devenue
+// incohérente après un changement du début est remise à « Toujours en cours » (valeur vide). Une seule règle commune, jamais à recopier dans chaque écran.
+function appliquerCoherenceAnnees(racine) {
+  var selects = (racine || document).querySelectorAll('select');
+  for (var i = 0; i < selects.length; i++) {
+    var debut = selects[i];
+    var texteDebut = debut.options && debut.options[0] ? String(debut.options[0].textContent).trim() : '';
+    var fin = null;
+    if (/DateDebutAnnee$/.test(debut.id || '')) {
+      // Formulaire d'expérience (selectAnneeSeule) : le début et la fin se retrouvent par leur identifiant.
+      fin = document.getElementById(debut.id.replace(/DateDebutAnnee$/, 'DateFinAnnee'));
+    } else if (texteDebut === 'Année de début') {
+      var voisins = debut.parentElement ? debut.parentElement.querySelectorAll('select') : [];
+      for (var j = 0; j < voisins.length; j++) {
+        if (voisins[j] !== debut && voisins[j].options[0] && String(voisins[j].options[0].textContent).trim() === 'Toujours en cours') { fin = voisins[j]; break; }
+      }
+    }
+    if (!fin) { continue; }
+    var anneeDebut = parseInt(debut.value, 10) || 0;
+    // Les années impossibles n'existent plus dans la liste de fin (consigne 214 : jamais grisées) ; l'année de début elle-même reste possible (début et fin la même année).
+    if (!fin._anneesToutes) {
+      fin._anneesToutes = Array.prototype.map.call(fin.options, function (o) { return { value: o.value, texte: o.textContent }; });
+    }
+    var voulues = fin._anneesToutes.filter(function (a) { return !a.value || !anneeDebut || parseInt(a.value, 10) >= anneeDebut; });
+    var actuelles = Array.prototype.map.call(fin.options, function (o) { return o.value; });
+    if (voulues.map(function (a) { return a.value; }).join('|') !== actuelles.join('|')) {
+      var valeurGardee = fin.value;
+      while (fin.options.length) { fin.remove(0); }
+      voulues.forEach(function (a) {
+        var opt = document.createElement('option');
+        opt.value = a.value; opt.textContent = a.texte;
+        fin.appendChild(opt);
+      });
+      var existe = voulues.some(function (a) { return a.value === valeurGardee; });
+      fin.value = existe ? valeurGardee : '';
+      if (!existe && valeurGardee) { fin.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+  }
+}
+function initCoherenceAnnees() {
+  if (typeof document === 'undefined' || !document.body) { return; }
+  document.addEventListener('change', function (e) {
+    var cible = e.target;
+    if (cible && cible.tagName === 'SELECT') { appliquerCoherenceAnnees(cible.parentElement && cible.parentElement.parentElement ? cible.parentElement.parentElement : document); }
+  });
+  var planifie = false;
+  new MutationObserver(function () {
+    if (planifie) { return; }
+    planifie = true;
+    Promise.resolve().then(function () { planifie = false; try { appliquerCoherenceAnnees(document); } catch (e) { /* les années restent telles quelles */ } });
+  }).observe(document.body, { childList: true, subtree: true });
+  appliquerCoherenceAnnees(document);
 }
 var _barreBasPlanifie = false;
 var _barreBasPasses = 0;
@@ -13052,6 +13147,9 @@ function lignePastillesAssistantsIA(liste, couleurFond, couleurBordure, couleurT
 // tout en gardant type === docActifActuel() === 'cv' (construction du
 // PROFIL inchangee, seules les INSTRUCTIONS envoyees changent). Omis
 // (undefined) partout ailleurs : comportement exactement identique a avant.
+// Consigne 198 (10/11/2026) : compte les vrais choix d'un assistant (validation de la fenêtre). Un appelant dont le rappel NAVIGUE (« À partir de mon récit », étape 11) s'en sert
+// pour ne pas confondre « un assistant vient d'être choisi » avec « une réponse sur les appuis (lettre de recommandation, oui ou non) a changé ».
+var _compteChoixAssistantIA = 0;
 function wireChoixAssistantIA(rerender, clePromptOverride) {
   // E5 : panneau « Vos appuis » (lettres de recommandation) de la page du CV ; sans effet quand il est absent.
   if (typeof _coLettreBrancherAppuis === 'function' && docActifActuel() === 'cv') { _coLettreBrancherAppuis(rerender || pageResultats); }
@@ -13089,6 +13187,7 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
         onApresValidation: function (urlAssistant, nomAssistant) {
           _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: DUREE_DECOMPTE_IA_SECONDES };
           avancerEtape('choix-ia', 'import-ia');
+          _compteChoixAssistantIA++;
           (rerender || pageResultats)();
         }
       });
@@ -13105,14 +13204,19 @@ function sectionRecommandationPourMessage() {
 function sectionAutresAppuisPourMessage() {
   if (typeof sectionMesCompetencesLettreCo !== 'function') { return ''; }
   var parties = [];
-  if (typeof _coLettreAppuiMesComp !== 'undefined' && _coLettreAppuiMesComp) { parties.push(sectionMesCompetencesLettreCo(typeof _coLettreDocMesCompetences === 'function' ? _coLettreDocMesCompetences() : null)); }
+  if (typeof _coLettreAppuiMesComp !== 'undefined' && _coLettreAppuiMesComp) {
+    parties.push(sectionMesCompetencesLettreCo(typeof _coLettreDocMesCompetences === 'function' ? _coLettreDocMesCompetences() : null));
+    // 10/11/2026 (consigne 219) : le document « Mes compétences » que la personne a déposé elle-même (relu et masqué par elle) part avec.
+    if (typeof sectionMesCompetencesDeposeLettreCo === 'function' && typeof _coLettreAppuiMesCompDepose !== 'undefined' && _coLettreAppuiMesCompDepose) { parties.push(sectionMesCompetencesDeposeLettreCo(_coLettreAppuiMesCompDepose.texte)); }
+  }
   if (typeof _coLettreAppuiTexte !== 'undefined') { parties.push(sectionTexteLibreLettreCo(_coLettreAppuiTexte)); }
   return parties.filter(Boolean).join('\n\n');
 }
 // Nombre d'appuis reellement joints (0 a 3) : decide, pour Reformuler version 2, s'il y a un second passage chez l'assistant.
 function nombreAppuisJoints() {
   var n = sectionRecommandationPourMessage() ? 1 : 0;
-  if (typeof _coLettreAppuiMesComp !== 'undefined' && _coLettreAppuiMesComp && typeof sectionMesCompetencesLettreCo === 'function' && typeof _coLettreDocMesCompetences === 'function' && sectionMesCompetencesLettreCo(_coLettreDocMesCompetences())) { n++; }
+  if (typeof _coLettreAppuiMesComp !== 'undefined' && _coLettreAppuiMesComp && typeof sectionMesCompetencesLettreCo === 'function' && typeof _coLettreDocMesCompetences === 'function' &&
+      (sectionMesCompetencesLettreCo(_coLettreDocMesCompetences()) || (typeof _coLettreAppuiMesCompDepose !== 'undefined' && _coLettreAppuiMesCompDepose && typeof sectionMesCompetencesDeposeLettreCo === 'function' && sectionMesCompetencesDeposeLettreCo(_coLettreAppuiMesCompDepose.texte)))) { n++; }
   if (typeof _coLettreAppuiTexte !== 'undefined' && typeof sectionTexteLibreLettreCo === 'function' && sectionTexteLibreLettreCo(_coLettreAppuiTexte)) { n++; }
   return n;
 }
@@ -13765,6 +13869,14 @@ function fusionnerComplementCV(texteColle, verifierSeulement) {
   if (!nb && ['titresProposes', 'accrochesProposees', 'pointsForts', 'motsCles'].some(function (c) { return brut[c] !== undefined; })) {
     return { succes: false, erreur: 'Ce message est la première partie de la réponse, que vous avez déjà importée. Pour avoir le complément : retournez dans la dernière fenêtre de l’assistant en ligne, répondez-lui « oui », puis copiez sa nouvelle réponse et collez-la ici.' };
   }
+  // Consigne 224 (10/11/2026) : un complément au BON format mais vide (ex. « Sans diplôme », aucun loisir, aucune couleur) n'est pas une erreur : l'assistant n'a simplement rien à ajouter.
+  // Le rouge reste pour un texte qui n'a pas la forme d'un complément ; ici, un message d'information et la suite vers le CV.
+  if (!nb && rb && typeof rb === 'object' && (COMPLEMENT_CV_LISTES.concat(COMPLEMENT_CV_OBJETS).some(function (x) { return rb[x.cle] !== undefined; }) || brut.couleursEntrepriseSuggerees !== undefined || rb.couleursEntrepriseSuggerees !== undefined)) {
+    if (verifierSeulement) { return { succes: true, vide: true }; }
+    dossier.complementCVAjoute = true;
+    dossier.complementCVRecuVide = true;
+    return { succes: true, vide: true, listes: {}, objets: [], couleurs: 0 };
+  }
   if (!nb) {
     return { succes: false, erreur: 'Je n’ai trouvé aucun élément du complément de CV dans ce texte. Vérifiez que vous avez collé la réponse à « complément de CV ».' };
   }
@@ -13801,6 +13913,32 @@ function _complementTexteResultat(r) {
   if (r.couleurs) { morceaux.push('les couleurs de l’entreprise'); }
   return 'Ajouté à votre CV : ' + morceaux.join(', ') + '. Vous les retrouvez dans les cartes de réglage de l’éditeur de CV (Formations, Compétences...), où vous choisissez ce qui s’affiche.';
 }
+// Consigne 199 (10/11/2026) : l'assistant a-t-il proposé le complément de CV dans le texte collé ? Avant, seule la phrase exacte « complément de CV » (espaces ordinaires) était
+// reconnue : une reformulation (« le complément de votre CV »), des espaces insécables ou des accents décomposés suffisaient à faire croire qu'il n'y avait rien à importer.
+function assistantProposeLeComplementCV(texte) {
+  var t = String(texte || '').normalize('NFC').replace(/[\u00A0\u2007\u202F\u2009]/g, ' ').replace(/\s+/g, ' ');
+  if (/compl[\u00e9e]ments?\s+(?:de|du|d['\u2019])\s*(?:votre\s+|mon\s+|ton\s+|ce\s+|le\s+|notre\s+)?(?:cv|curriculum)/i.test(t)) { return true; }
+  // Formulation libre : le mot « complément » et l’invitation à répondre « oui » dans la même réponse.
+  return /compl[\u00e9e]ment/i.test(t) && /r[\u00e9e]pond(?:ez|re)[^.?!]{0,40}\boui\b/i.test(t);
+}
+// Consigne 199 (10/11/2026) : la phrase d'invitation est APRÈS le bloc de code ; quand la personne copie seulement le bloc (bouton « copier le code » de l'assistant), elle est perdue
+// et le complément n'était jamais proposé. Le contenu lui-même le dit : la première réponse laisse volontairement vides les missions de la formation, des certifications et de
+// l'expérience personnelle (elles viennent dans le complément). S'il y en a une à compléter, le complément est proposé. Sans effet pour « Reformuler » (autre consigne).
+function reponseCVLaisseUnComplementPossible(texte) {
+  if (typeof dossier !== 'undefined' && dossier && dossier._origineReformuler) { return false; }
+  var brut = (typeof extraireBlocJSONDepuisTexte === 'function') ? extraireBlocJSONDepuisTexte(texte || '') : null;
+  if (!brut) { return false; }
+  var rb = (brut.recommandations && typeof brut.recommandations === 'object') ? brut.recommandations : brut;
+  var vide = function (m) { return !(Array.isArray(m) && m.length); };
+  var nom = function (v) { return v && typeof v.intitule === 'string' ? v.intitule.trim() : ''; };
+  var f = rb.formationRetenue;
+  if (f && nom(f) && !/^sans\s+dipl/i.test(nom(f)) && vide(f.missions)) { return true; }
+  if (Array.isArray(rb.certificationsAMettreEnAvant) && rb.certificationsAMettreEnAvant.some(function (c) { return c && (typeof c === 'string' || nom(c) || c.nom) && vide(c.missions); })) { return true; }
+  var l = rb.loisirRetenu;
+  if (l && nom(l) && vide(l.missions)) { return true; }
+  var e = rb.experiencePersonnelleAMettreEnAvant;
+  return !!(e && nom(e) && vide(e.missions));
+}
 // Bannière : l'assistant a proposé le complément de CV (sa question était dans le texte collé) et la personne ne l'a pas encore ajouté.
 function complementCVEnAttente() {
   return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute && !dossier.complementCVRefuse && !dossier.complementCVPasse);
@@ -13808,6 +13946,12 @@ function complementCVEnAttente() {
 // Le complément reste importable plus tard (bouton « Ajouter le complément du CV » sur « Vos documents ») tant qu'il a été proposé et pas ajouté, qu'on l'ait passé ou non.
 function complementCVImportable() {
   return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute);
+}
+// Retour Denis 10/11/2026 (le bouton du bas du CV manquait) : le bouton « Ajouter le complément du CV » ne dépend plus de la détection de la phrase de l'assistant. Dès qu'un CV vient
+// de l'assistant (et n'est pas une reformulation), la personne peut toujours ajouter le complément plus tard, tant qu'il n'est pas ajouté : jamais un oubli de détection qui le cache.
+function complementCVAjoutable() {
+  if (complementCVImportable()) { return true; }
+  return !!(typeof dossier !== 'undefined' && dossier && !dossier._origineReformuler && !dossier.complementCVAjoute && typeof reponseIAImportee === 'function' && reponseIAImportee('cv'));
 }
 // Libellé du bouton « Continuer » : tant que le complément proposé n'est pas ajouté, il le dit clairement (décision de Denis, 2026-10-10).
 function libelleContinuerComplementCV(libelleHabituel) {
@@ -13843,25 +13987,19 @@ function htmlEcranComplementCV(sansTitre) {
   // Les explications, les étapes, le collage et « Continuer sans le complément » sont dans la fenêtre commune (mode complément, dette B.17, 2026-10-28).
   return (sansTitre ? '' : '<div class="text-center"><h1><i class="bi bi-plus-circle"></i> Le complément de votre CV</h1></div>') +
     '<div class="complement-cv-banniere" role="note"><p class="complement-cv-etape">&Eacute;tape 2 sur 2 : le compl&eacute;ment</p>' +
-    '<p class="mb-0">Vous avez d&eacute;j&agrave; de quoi cr&eacute;er votre CV avec l&rsquo;essentiel. Cette deuxi&egrave;me partie ajoute des informations en plus.</p></div>' +
+    '<p class="complement-cv-titre-propose"><strong>L&rsquo;assistant vous propose un compl&eacute;ment de CV.</strong> Vous avez d&eacute;j&agrave; de quoi cr&eacute;er votre CV avec l&rsquo;essentiel : cette deuxi&egrave;me partie ajoute des informations en plus.</p>' +
+    '<p class="mb-0">Pour l&rsquo;obtenir, retournez dans <strong>la m&ecirc;me conversation, avec le m&ecirc;me assistant</strong>, r&eacute;pondez-lui <strong>&laquo;&nbsp;oui&nbsp;&raquo;</strong>, copiez sa nouvelle r&eacute;ponse, puis revenez la coller ici. Les &eacute;tapes sont d&eacute;taill&eacute;es juste en dessous.</p></div>' +
     htmlCollageUniquePage('Complement');
 }
-function pageComplementCV() {
+// depuisLeCV : ouvert depuis le bouton « Ajouter le complément du CV » tout en bas du CV (« Retour » ramène alors à la page du CV, pas au début du module).
+function pageComplementCV(depuisLeCV) {
   app.innerHTML = '<div class="page-catalogue-contenu complement-cv-ecran">' +
     htmlEcranComplementCV() +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null) + '</div>';
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, depuisLeCV ? { onclickPrecedent: 'pageResultats()' } : null) + '</div>';
   wireComplementCV(pageResultats, { dansBarre: true, onPasser: complementCVPasser });
 }
-// Fenêtre « Ajouter le complément du CV » (page « Vos documents ») : le complément s'ajoute au contenu ; le modèle, la forme et les réglages déjà choisis sont gardés.
-function ouvrirFenetreComplementCV() {
-  ouvrirFenetreERIP({
-    titre: 'Ajouter le complément du CV',
-    taille: 'large',
-    contenuHTML: '<p class="mb-2">Votre CV garde son mod&egrave;le et sa mise en page : seules les informations s&rsquo;ajoutent.</p>' + htmlCollageUniquePage('Complement')
-  });
-  wireComplementCV(function () { try { fermerFenetreERIP(); } catch (e) { /* rien */ } pageResultats(); }, { onPasser: function () { try { fermerFenetreERIP(); } catch (e) { /* rien */ } } });
-}
+// (Consigne 202, 10/11/2026 : l'ancienne fenêtre « Ajouter le complément du CV » est remplacée par l'écran en page pageComplementCV() : seule la fenêtre de départ vers l'assistant est tolérée.)
 function complementCVPasser() {
   if (dossier) { dossier.complementCVPasse = true; }
   if (typeof trackEvenement === 'function') { trackEvenement('complement_cv_passe'); }
@@ -13911,12 +14049,25 @@ function wireComplementCV(rerender, options) {
       racine: racine, suffixe: suffixe, mode: 'complement', etatInitial: 'pret', continuerVisible: !options.dansBarre,
       verifier: function (texte) {
         var v = fusionnerComplementCV(texte, true);
+        if (v.succes && v.vide) { return { ok: true, avertissement: 'L’assistant a bien répondu, mais il n’a rien de plus à ajouter à votre CV : il n’y a pas d’autre information à exploiter (pas de formation, de certification ni de loisir à détailler). Ce n’est pas une erreur : cliquez sur « Continuer vers mon CV ».' }; }
         return v.succes ? { ok: true } : { ok: false, personnalise: { texte: echapperAttribut(v.erreur || '') } };
+      },
+      onChangerAssistant: typeof options.onChangerAssistant === 'function' ? options.onChangerAssistant : function () {
+        // Consigne 220 : même geste que « Changer d'assistant » de l'import : retour au choix de l'assistant (et au message à recopier).
+        clearInterval(_intervalleDecompteIA); _intervalleDecompteIA = null; _etatTransitionIA = null;
+        etatAccordeon['import-ia'] = false; etatAccordeon['complement-cv'] = false; etatAccordeon['choix-ia'] = true;
+        if (typeof rerender === 'function') { rerender(); }
       },
       onContinuer: function (texte) {
         if (texte === null) { if (typeof options.onPasser === 'function') { options.onPasser(); } else { refuser(); } return; }
         var r = fusionnerComplementCV(texte);
         if (!r.succes) { controleur.aller('echec'); return; }
+        if (r.vide) {
+          // Complément reçu mais vide : compté comme traité (le bouton du bas du CV disparaît), on continue vers le CV.
+          etatAccordeon['complement-cv'] = false;
+          if (typeof rerender === 'function') { rerender(); }
+          return;
+        }
         var message = _complementTexteResultat(r);
         if (typeof trackEvenement === 'function') { trackEvenement('complement_cv_ajoute', { elements: Object.keys(r.listes || {}).length + (r.objets || []).length }); }
         // Le rectangle se referme (la zone de collage ne sert plus) ; le résultat est annoncé en bandeau.
@@ -13947,7 +14098,9 @@ function _moduleImportActionIA(docActif) {
     verif: 'regardez que les propositions correspondent bien à votre parcours, sans rien inventer.' };
 }
 
-function contenuAccordeonImportIA(docActif) {
+// options (facultatif) : { sansComplement } (« À partir de mon récit », étape 12 : le complément a son propre écran, aucun bouton « Importer le complément de CV » ici).
+function contenuAccordeonImportIA(docActif, options) {
+  options = options || {};
   var deja = reponseIAImportee(docActif);
   return (
     // Reponse deja importee : on le dit (retour Denis 28/10/2026) ; le « Continuer » de la fenetre est alors visible dans la fenetre (celui de la barre du bas reste celui du module, actif).
@@ -13955,13 +14108,13 @@ function contenuAccordeonImportIA(docActif) {
       ? '<style>.import-ia-orient{display:flex;gap:.55rem;align-items:flex-start;background:var(--accent-bg-subtle);' +
         'border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .85rem;margin:.1rem 0 .9rem;' +
         'font-size:.9rem;color:var(--text-strong);}</style>' +
-        '<div class="import-ia-orient"><span aria-hidden="true">&#128229;</span><span>Votre réponse est <strong>déjà importée</strong> : cliquez sur « Continuer », en bas à droite. Pour la remplacer, collez une autre réponse ci-dessous, puis cliquez sur « ' + _moduleImportActionIA(docActif).libelleSuite + ' ».</span></div>'
+        '<div class="import-ia-orient"><span aria-hidden="true">&#128229;</span><span>Votre réponse est <strong>déjà importée</strong> : cliquez sur « Continuer », en bas à droite. Pour la remplacer, collez une autre réponse ci-dessous, puis cliquez sur « ' + 'Remplacer ma réponse' + ' ».</span></div>'
       : '') +
     // Fenetre unique (decompte et blocage : ancienne banniere ; assistant ouvert / pret a coller : fenetre commune).
     htmlCollageUniquePage('ActionIA') +
     '<div id="messageImportActionIA" role="alert" class="mt-2 small"></div>' +
     // Complément de CV (facultatif) : un petit bouton à côté de l'import, une fois la réponse principale importée (décision de Denis, 2026-10-10).
-    ((docActif === 'cv' && reponseIAImportee('cv') && !complementCVEnAttente()) ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-complement-cv" id="btnOuvrirComplementCV">Importer le complément de CV</button></div>' : '')
+    ((docActif === 'cv' && reponseIAImportee('cv') && !complementCVEnAttente() && !options.sansComplement) ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-complement-cv" id="btnOuvrirComplementCV">Importer le complément de CV</button></div>' : '')
   );
 }
 
@@ -13973,7 +14126,10 @@ function contenuAccordeonImportIA(docActif) {
 // l'etape ouverte apres un import reussi devient idEtapeApres ('apercu-document'
 // pour "Vos documents", 'relecture-ia' pour la page Assistant). Utilise par
 // pageResultats (maj/pret) ET pageAssistant (nouveau).
-function wireImportIA(docActif, rerender, idEtapeApres) {
+// Consigne 199 (10/11/2026), vérification des autres modules : une réponse déjà importée n'ajoute aucun second bouton de suite dans la fenêtre (le « Continuer » du module est seul, en bas) ;
+// la fenêtre ne dessine « Remplacer ma réponse » que lorsqu'une autre réponse vient d'être reçue. Valable pour tous les écrans qui passent par cette fonction.
+function wireImportIA(docActif, rerender, idEtapeApres, options) {
+  options = options || {};
   rerender = rerender || pageResultats;
   idEtapeApres = idEtapeApres || 'apercu-document';
   clearInterval(_intervalleDecompteIA);
@@ -13999,8 +14155,9 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
   }
   var controleurImport = brancherCollageUniquePage({
     suffixe: 'ActionIA', idAncre: 'fcRacineActionIA', rerendre: rerender, evenementBloque: 'action_popup_bloque',
-    module: _moduleImportActionIA(docActif),
+    module: reponseIAImportee(docActif) ? Object.assign({}, _moduleImportActionIA(docActif), { libelleSuite: 'Remplacer ma réponse' }) : _moduleImportActionIA(docActif),
     continuerVisible: reponseIAImportee(docActif),
+    continuerAbsentSiInactif: reponseIAImportee(docActif),
     verifier: function (texte) {
       var type = docActifActuel();
       // Le complement de CV peut aussi etre colle ici une fois la reponse principale importee.
@@ -14040,7 +14197,10 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
       }
       if (type === 'cv') {
         // L'assistant propose-t-il le complément ? (sa question est dans le texte collé, après le bloc) : on le retient pour afficher la consigne.
-        dossier.complementCVPropose = /compl[ée]ment de CV/i.test(texte);
+        // Consigne 213 (10/11/2026) : le prompt impose TOUJOURS à l'assistant de proposer le complément après un CV (sauf reformulation). Se fier à la détection de sa phrase ou du contenu faisait
+        // rater le complément dès que la personne copiait seulement le bloc de code (phrase perdue) ou qu'il n'y avait ni formation ni certification : une personne en difficulté passait à côté.
+        // Le complément est donc toujours proposé après un CV venu de l'assistant ; la détection reste calculée (utile aux essais) mais ne décide plus.
+        dossier.complementCVPropose = !dossier._origineReformuler || assistantProposeLeComplementCV(texte) || reponseCVLaisseUnComplementPossible(texte);
         dossier.complementCVAjoute = false;
         dossier.complementCVRefuse = false;
         dossier.complementCVPasse = false;
@@ -14340,7 +14500,7 @@ function brancherCollageUniquePage(o) {
   return activerFenetreCollage({
     racine: racine, suffixe: o.suffixe, nomAssistant: transition ? transition.nomAssistant : '', passage: o.passage || '', module: o.module || {},
     etatInitial: o.echecInitial ? 'echec' : ((transition && transition.phase === 'ouvert') ? 'ouvert' : 'pret'),
-    exigerFin: !!o.exigerFin, continuerVisible: !!o.continuerVisible, verifier: o.verifier, echecParDefaut: o.echecParDefaut,
+    exigerFin: !!o.exigerFin, continuerVisible: !!o.continuerVisible, continuerAbsentSiInactif: !!o.continuerAbsentSiInactif, verifier: o.verifier, echecParDefaut: o.echecParDefaut,
     // Point commun de TOUS les retours de l'assistant : si la session a change (le retour a ete lu), le rappel de sauvegarde se declenche.
     onContinuer: o.onContinuer ? function (texte) {
       var avant = _signatureSession();
@@ -15802,16 +15962,33 @@ function wireExperiencesProInline(rerender) {
   // saisi -- mise a jour en direct (pas de rerender, pour ne pas perdre le
   // curseur en pleine frappe), meme principe que majEtatBoutonRevelation().
   var champPoste = document.getElementById('xPoste');
+  // Consigne 214 : ici les années se tapent (pas de liste à filtrer) ; une fin avant le début est signalée et bloque « Ajouter » jusqu'à correction.
+  function majCoherenceAnneesExperience() {
+    var d = document.getElementById('xDebut'), f = document.getElementById('xFin'), b = document.getElementById('btnExpProValider');
+    var incoherent = !!(d && f && /^\d{4}$/.test(d.value) && /^\d{4}$/.test(f.value) && parseInt(f.value, 10) < parseInt(d.value, 10));
+    var msg = document.getElementById('msgExpAnnees');
+    if (incoherent && !msg && f.closest('.row')) {
+      msg = document.createElement('p');
+      msg.id = 'msgExpAnnees'; msg.className = 'small mb-2'; msg.setAttribute('role', 'alert'); msg.style.color = 'var(--danger)';
+      msg.textContent = 'L’année de fin ne peut pas être avant l’année de début. Corrigez l’une des deux années.';
+      f.closest('.row').insertAdjacentElement('afterend', msg);
+    }
+    if (!incoherent && msg) { msg.remove(); }
+    if (b) { b.disabled = incoherent || !(champPoste && champPoste.value.trim()); }
+    return incoherent;
+  }
+  ['xDebut', 'xFin'].forEach(function (id) { var el = document.getElementById(id); if (el) { el.addEventListener('input', majCoherenceAnneesExperience); } });
   if (champPoste) {
     champPoste.addEventListener('input', function () {
       var b = document.getElementById('btnExpProValider');
       if (b) {
         var ok = !!this.value.trim();
-        b.disabled = !ok;
+        b.disabled = !ok || majCoherenceAnneesExperience();
         b.title = ok ? '' : 'Renseignez au moins l\'intitulé du poste.';
       }
     });
   }
+  majCoherenceAnneesExperience();
   var btnEnPoste = document.getElementById('btnExpEnPoste');
   if (btnEnPoste) {
     btnEnPoste.addEventListener('click', function () {
@@ -21255,7 +21432,7 @@ function construireMiseEnPageCV(docActif) {
       '<div class="info-page" id="mepInfoPage"></div>' +
       '<div class="info-page" style="font-weight:600;">Le PDF enregistr&eacute; sera identique &agrave; l&rsquo;aper&ccedil;u du CV (la ligne pointill&eacute;e montre o&ugrave; la page 1 se termine).</div></div>' +
       // Retour Denis 2026-10-19 : a droite de la synthese, le bouton pour aller chercher la 2e partie (facultative) quand elle a ete proposee et pas encore ajoutee.
-      (complementCVImportable() ? '<div class="valider-complement"><button type="button" class="mep-btn" id="btnMepAjouterComplement">&#10133; Ajouter le compl&eacute;ment du CV</button></div>' : '') +
+      (complementCVAjoutable() ? '<div class="valider-complement"><button type="button" class="mep-btn" id="btnMepAjouterComplement">&#10133; Ajouter le compl&eacute;ment du CV</button></div>' : '') +
       '</div>'
     : '';
   // TACHE (Denis, 2026-09-23 : "dans la maquette, le panneau il est
@@ -23650,7 +23827,7 @@ function _wireCarteSimpleMiseEnPage() {
     btnMepValider.addEventListener('click', _mepValiderCVEtExporter);
   }
   var btnMepAjouterComplement = document.getElementById('btnMepAjouterComplement');
-  if (btnMepAjouterComplement) { btnMepAjouterComplement.addEventListener('click', ouvrirFenetreComplementCV); }
+  if (btnMepAjouterComplement) { btnMepAjouterComplement.addEventListener('click', function () { pageComplementCV(true); window.scrollTo(0, 0); }); }
   setTimeout(_mepMajInfoPage, 0);
   var btnMepAide = document.getElementById('btnMepAide');
   if (btnMepAide) {
@@ -25131,7 +25308,8 @@ function htmlPageIntroModule(config) {
     '<p class="sousTitre">' + config.sousTitre + '</p></div>' +
     // Vidéo de présentation du module (lot E) : bouton fermé, le lecteur se déplie au clic.
     (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
-    sectionsHTML +
+    // Cartes en grille 2 sur 2 des 1100 px de large (css/style.css, .intro-colonnes ; meme conteneur que htmlPageIntroModuleParcours, data/metiers.js) : consigne 187.
+    '<div class="intro-colonnes">' + sectionsHTML + '</div>' +
     (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue() : '') +
     '</div>' +
     '<div class="barre-navigation-fixe">' + (function () {
@@ -39273,7 +39451,7 @@ function declencherImpressionAvecNomCV(boutonImprimer) {
 }
 function recommencer() {
   // Les lettres de recommandation (donnees d'une tierce personne, jamais enregistrees) ne survivent pas a un nouveau parcours.
-  if (typeof _coLettreRecos !== 'undefined') { _coLettreRecos = []; _coLettreRecoFichiers = {}; _coLettreRecoChoisie = null; _coLettreRecoReponse = null; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; }
+  if (typeof _coLettreRecos !== 'undefined') { _coLettreRecos = []; _coLettreRecoFichiers = {}; _coLettreRecoChoisie = null; _coLettreRecoReponse = null; _coLettreAppuiMesComp = null; _coLettreAppuiTexte = ''; _coLettreAppuiTexteValide = ''; _coLettreAppuiMotsOuvert = null; _coLettreAppuiMesCompDepose = null; _coLettreMesCompDepotOuvert = false; }
   // TACHE (retour utilisateur : "le panneau 'Vous hésitez encore ?' garde
   // toujours le dernier département choisi, même après Réinitialiser") :
   // ce choix est mémorisé dans le navigateur (localStorage, voir
@@ -40690,7 +40868,7 @@ var AIDE_PAGES = {
   // Page Nouveautés (modules/nouveautes/index.js) : ce qui a été ajouté, du plus récent au plus ancien (aide ajoutée le 2026-10-28, le parcours « aide » la réclamait).
   nouveautes: [
     { selecteur: '.nv-page', icone: '&#128226;', titre: 'Ce qui a été ajouté',
-      texte: 'Cette page liste les ajouts de l’application, du plus récent au plus ancien. Les ajouts des 7 derniers jours portent la mention « Nouveau » et un bouton pour les essayer tout de suite ; ensuite, la page vous dit dans quelle carte de l’accueil retrouver le module.' }
+      texte: 'Trois entrées en haut de la page, chacune avec son nombre : les nouveautés de l’application (du plus récent au plus ancien ; les ajouts des 7 derniers jours portent la mention « Nouveau » et un bouton pour les essayer), ce qui vient de changer dans les droits et les règles, et les problèmes corrigés après les signalements.' }
   ],
   lexique: [
     { selecteur: '#lexiqueRechercheInput', icone: '&#128269;', titre: 'Rechercher un mot',
@@ -41988,6 +42166,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initAncrageLexiqueReperes();
   initBulleInfoHoverFlottante();
   initBoutonsBarreBas();
+  initCoherenceAnnees();
 });
 
 // TACHE (chantier tests) : export CommonJS protege -- n'existe que sous

@@ -4098,7 +4098,8 @@ function htmlPageIntroModuleParcours(config) {
     // Vidéo de présentation du module (lot E) : un bouton-ligne fermé, le lecteur se déplie au clic (modules/video-presentation).
     (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
     (config.syntheseHTML || '') +
-    config.blocsHTML +
+    // Les cartes de la presentation sont rangees en grille 2 sur 2 des 1100 px de large (css/style.css, .intro-colonnes ; js/app.js, equilibrerGrilleIntro) : pas de grand vide a droite du texte (consigne 187).
+    '<div class="intro-colonnes">' + config.blocsHTML + '</div>' +
     (config.sansMultilingue ? '' : htmlEncartMultilingue(!!config.multilingueCourte)) +
     // config.ctaMasque : la page porte deja son choix ailleurs (bloc
     // "Continuer / Recommencer" de _introBlocReprise) -> pas de gros bouton
@@ -4382,7 +4383,7 @@ function _coLettreRecommencer() {
   _approfondiViaEncart = false;
   _coLettreSessionHistorique++;
   _coLettreDocument = null;
-  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('coLettre'); reinitialiserDepotCVEnPage('coReco'); }
+  if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('coLettre'); reinitialiserDepotCVEnPage('coReco'); reinitialiserDepotCVEnPage('coMesComp'); }
   _coLettreRecoDepotOuvert = false;
   _coLettreRecos = [];
   _coLettreRecoFichiers = {};
@@ -4390,6 +4391,7 @@ function _coLettreRecommencer() {
   _coLettreRecoReponse = null;
   _coLettreAppuiMesComp = null;
   _coLettreAppuiTexte = '';
+  _coLettreAppuiTexteValide = ''; _coLettreAppuiMotsOuvert = null; _coLettreAppuiMesCompDepose = null; _coLettreMesCompDepotOuvert = false;
   _coLettreCvRelu = false;
   _coLettreEtatDepot = { blocsOuverts: {} };
   _coLettreEcran = 'depot';
@@ -4904,76 +4906,179 @@ function _coLettreMajCta() {
 // deposables (trois au plus), UNE SEULE part chez l'assistant (celle que la personne choisit), relue et masquee comme le CV, nom du signataire
 // surligne. Fonctions pures dans modules/lettre-core/appuisLettreCo.js.
 // options.pourCv (E5) : le meme panneau sert la page « Choisir mon assistant » du CV (deux lettres au plus, toutes deux utilisees, pas de lettre « de reference »).
-function _coLettreHtmlAppuis(options) {
-  var pourCv = !!(options && options.pourCv);
+// 10/11/2026 (consigne 219, maquette validee par Denis, version 4) : la rubrique devient une carte a trois parties numerotees (une lettre de recommandation,
+// le document « Mes competences », un texte avec ses mots), chacune avec son etat a droite (À compléter / Fait), des boutons OVALES, un bilan « n appui(s) sur 3 ».
+// UN SEUL composant pour toutes les pages qui le montrent : jamais recopie.
+
+// Document « Mes competences » retrouve dans l'application (termine, avec au moins une ligne), sinon null.
+function _appuisDocDetecte() {
+  var doc = _coLettreDocMesCompetences();
+  var nb = (typeof compterLignesMesCompetences === 'function') ? compterLignesMesCompetences(doc) : 0;
+  return (doc && nb) ? { doc: doc, nb: nb } : null;
+}
+// Etat des trois parties, recalcule a chaque affichage et a chaque saisie : { e1, e2, e3, n } ; chaque etat = { lib, fait }.
+function _appuisEtats() {
   var reponse = _coLettreRecoReponse;
-  var envoyee = recommandationEnvoyeeLettreCo(_coLettreRecos, _coLettreRecoChoisie);
-  var h = '<div id="coLettreAppuis"><hr class="my-3"><p class="mb-1 fw-bold">&#129309; Vos appuis</p>' +
-    '<p class="text-muted small mb-2">Des documents que l’assistant peut lire pour ' + (options && options.pourEntretien ? 'choisir un cas pratique et des questions qui vous ressemblent' : 'employer les mots justes de votre métier') + '. Une lettre de recommandation (d’un ancien employeur, d’un tuteur de stage, d’un formateur…) donne du poids à ' + (pourCv ? 'votre CV' : (options && options.pourEntretien ? 'votre candidature' : 'votre lettre')) + '. À compléter : plus vous donnez d’appuis, plus votre candidature a de poids.</p>' +
-    '<div class="jetons-ligne"><div class="jetons-lib">Avez-vous une lettre de recommandation ?</div>' +
-    ['oui', 'non'].map(function (v) {
-      var actif = (reponse === v) || (v === 'oui' && reponse !== 'non' && _coLettreRecos.length > 0);
-      return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-reco-reponse="' + v + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + (v === 'oui' ? 'Oui' : 'Non') + '</button>';
-    }).join('') + '</div>';
-  if (reponse === 'non') { return h + _coLettreHtmlAutresAppuis() + '</div>'; }
-  if (reponse === 'oui' || _coLettreRecos.length) {
-    h += '<div class="encart-limite-missions"><strong>&#128274; Protégez la personne qui l’a écrite.</strong> Avant de continuer, supprimez son nom (en bas de la lettre), son téléphone, son e-mail et son adresse. ' +
-      'Ils sont repérés pour vous à l’étape suivante : le nom est surligné en jaune.</div>';
-    if (_coLettreRecos.length > 1) {
-      h += '<p class="small mb-2">&#9757; Une seule lettre sert de référence à l’assistant, pour ' + (pourCv ? 'votre CV comme pour votre lettre de motivation' : 'votre lettre comme pour votre CV') + ' (encadrée en vert) : plus le message est long, moins il est efficace. Choisissez celle qui sert le mieux cette candidature.</p>';
-    }
-    h += _coLettreRecos.map(function (r, i) {
-      var estEnvoyee = envoyee && envoyee.id === r.id;
-      var extrait = r.texte.replace(/\s+/g, ' ').slice(0, 90) + (r.texte.length > 90 ? '…' : '');
-      // Demande de Denis (24/10/2026) : la lettre qui sert de support est encadrée en vert et marquée ; pas de nombre de mots ici (source de confusion).
-      return '<div class="rounded p-2 mb-2" style="border:' + (estEnvoyee ? '2px solid var(--success)' : '1px solid var(--border)') + ';">' +
-        '<div class="d-flex flex-wrap align-items-center gap-2 mb-1"><strong>Lettre ' + (i + 1) + '</strong>' +
-        (estEnvoyee ? '<span class="pilule-etat pe-ok">&#10003; Lettre de référence pour l’assistant</span>' : '') + '</div>' +
-        '<p class="small text-muted mb-2">' + echapperAttribut(extrait) + '</p>' +
-        '<div class="d-flex flex-wrap align-items-center gap-2">' +
-        '<label class="small mb-0" for="coLettreRecoRole' + r.id + '">De la part de :</label>' +
-        '<select class="form-select form-select-sm w-auto" id="coLettreRecoRole' + r.id + '" data-reco-role="' + r.id + '">' +
-        '<option value="">Non précisé</option>' +
-        ROLES_RECOMMANDATION_LETTRE_CO.map(function (ro) { return '<option value="' + echapperAttribut(ro) + '"' + (r.role === ro ? ' selected' : '') + '>' + ro + '</option>'; }).join('') +
-        '</select>' +
-        (_coLettreRecos.length > 1 && !estEnvoyee ? '<button type="button" class="btn btn-outline-primary btn-sm" data-reco-choisir="' + r.id + '">Prendre celle-ci comme référence</button>' : '') +
-        '<button type="button" class="btn btn-outline-secondary btn-sm" data-reco-retirer="' + r.id + '">Retirer</button>' +
-        '</div></div>';
-    }).join('');
-    h += (_coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO && _coLettreRecoDepotOuvert && typeof htmlDepotCVEnPage === 'function')
-      ? '<div id="coLettreRecoDepot">' + htmlDepotCVEnPage(_coLettreRecoDepotCfg()) + '</div>'
-      : _coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO
-      ? '<button type="button" class="btn btn-primary btn-sm" data-reco-deposer="1">' + (_coLettreRecos.length ? 'Ajouter une autre lettre' : 'Déposer une lettre de recommandation') + '</button>' +
-        '<p class="preparer-detail">Fichier (PDF, Word, photo) ou texte collé. <strong>Elle n’est envoyée nulle part</strong> à ce stade, et elle n’est pas gardée avec votre session.</p>'
-      : '<p class="small text-muted mb-0">Trois lettres au plus. Retirez-en une pour en ajouter une autre.</p>';
-  }
-  return h + _coLettreHtmlAutresAppuis() + '</div>';
+  var oui = reponse === 'oui' || (reponse !== 'non' && _coLettreRecos.length > 0);
+  var lettre = reponse !== 'non' && _coLettreRecos.length > 0;
+  var e1 = lettre ? { lib: 'Fait', fait: true }
+    : (reponse === 'non' ? { lib: 'Pas de lettre', fait: true }
+    : (oui ? { lib: 'À déposer', fait: false } : { lib: 'À compléter', fait: false }));
+  var jointMc = _coLettreAppuiMesComp === true && !!(_appuisDocDetecte() || _coLettreAppuiMesCompDepose);
+  var e2 = jointMc ? { lib: 'Fait', fait: true }
+    : (_coLettreAppuiMesComp === true ? { lib: 'À déposer', fait: false }
+    : (_coLettreAppuiMesComp === false ? { lib: 'Non joint', fait: true } : { lib: 'À compléter', fait: false }));
+  var t = String(_coLettreAppuiTexte || '').trim();
+  var valide = t !== '' && t === _coLettreAppuiTexteValide;
+  var e3 = valide ? { lib: 'Fait', fait: true } : (t ? { lib: 'À valider', fait: false } : { lib: 'À compléter', fait: false });
+  return { e1: e1, e2: e2, e3: e3, valide: valide, texte: t, n: (lettre ? 1 : 0) + (jointMc ? 1 : 0) + (valide ? 1 : 0) };
+}
+function _appuisBadge(numero, e) {
+  return '<span class="appui-etat' + (e.fait ? ' fait' : '') + '" data-appui-etat="' + numero + '">' + e.lib + '</span>';
+}
+function _appuisOvale(attribut, valeur, libelle, actif) {
+  return '<button type="button" class="appui-ovale' + (actif ? ' is-actif' : '') + '" ' + attribut + '="' + valeur + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + libelle + '</button>';
+}
+// Le texte « avec ses mots » est ouvert d'office s'il y en a deja un ; sinon ferme tant que la personne ne l'ouvre pas.
+function _appuisMotsOuvert() {
+  return _coLettreAppuiMotsOuvert === null ? String(_coLettreAppuiTexte || '').trim() !== '' : _coLettreAppuiMotsOuvert;
+}
+function _appuisLibelleBoutonMots(etats) {
+  var ouvert = _appuisMotsOuvert();
+  if (etats.valide) { return '&#10003; Texte bien validé (cliquez pour ' + (ouvert ? 'fermer' : 'le relire') + ')'; }
+  return ouvert ? '&#10006; Fermer ce texte' : '&#9998; Écrire ou dicter mon texte';
 }
 
-// Les deux autres appuis du panneau (28/10/2026, maquette validee) : le document « Mes compétences » et un texte libre. Memes endroits que la lettre de recommandation.
+function _coLettreHtmlAppuis(options) {
+  var pourCv = !!(options && options.pourCv);
+  var pourEntretien = !!(options && options.pourEntretien);
+  var etats = _appuisEtats();
+  var h = '<div id="coLettreAppuis" class="appuis-rubrique">' +
+    '<div class="appuis-entete"><h3 class="titre-rubrique">&#129309; Vos appuis <span class="appuis-bilan' + (etats.n === 3 ? ' complet' : '') + '" data-appui-bilan="1">' + etats.n + (etats.n > 1 ? ' appuis' : ' appui') + ' sur 3</span></h3>' +
+    '<p class="small text-muted mb-0">Des documents et des mots que l’assistant peut lire pour ' + (pourEntretien ? 'choisir un cas pratique et des questions qui vous ressemblent' : 'employer les mots justes de votre métier') + '. Plus vous donnez d’appuis, plus votre candidature a de poids. Rien n’est obligatoire : vous pouvez passer à la suite à tout moment.</p></div>' +
+    _appuisHtmlLettre(pourCv, pourEntretien, etats) +
+    _appuisHtmlMesCompetences(etats) +
+    _appuisHtmlMots(etats) +
+    '</div>';
+  return h;
+}
+
+// Partie 1 : la lettre de recommandation (comportements inchanges : jusqu'a trois lettres, une seule de reference, relue et masquee).
+function _appuisHtmlLettre(pourCv, pourEntretien, etats) {
+  var reponse = _coLettreRecoReponse;
+  var envoyee = recommandationEnvoyeeLettreCo(_coLettreRecos, _coLettreRecoChoisie);
+  var h = '<div class="appui-partie"><div class="appui-partie-titre"><span class="num-rubrique" aria-hidden="true">1</span><span>Une lettre de recommandation</span>' + _appuisBadge(1, etats.e1) + '</div><div class="appui-partie-corps">' +
+    '<p class="small text-muted mb-1">D’un ancien employeur, d’un tuteur de stage, d’un formateur… Elle donne du poids à ' + (pourCv ? 'votre CV' : (pourEntretien ? 'votre candidature' : 'votre lettre')) + '.</p>' +
+    '<strong class="small">Avez-vous une lettre de recommandation ?</strong><div class="appui-ovales">' +
+    ['oui', 'non'].map(function (v) {
+      var actif = (reponse === v) || (v === 'oui' && reponse !== 'non' && _coLettreRecos.length > 0);
+      return _appuisOvale('data-reco-reponse', v, v === 'oui' ? 'Oui' : 'Non', actif);
+    }).join('') + '</div>';
+  if (reponse === 'non' || !(reponse === 'oui' || _coLettreRecos.length)) { return h + '</div></div>'; }
+  h += '<div class="encart-limite-missions"><strong>&#128274; Protégez la personne qui l’a écrite.</strong> Avant de continuer, supprimez son nom (en bas de la lettre), son téléphone, son e-mail et son adresse. ' +
+    'Ils sont repérés pour vous à l’étape suivante : le nom est surligné en jaune.</div>';
+  if (_coLettreRecos.length > 1) {
+    h += '<p class="small mb-2">&#9757; Une seule lettre sert de référence à l’assistant, pour ' + (pourCv ? 'votre CV comme pour votre lettre de motivation' : 'votre lettre comme pour votre CV') + ' (encadrée en vert) : plus le message est long, moins il est efficace. Choisissez celle qui sert le mieux cette candidature.</p>';
+  }
+  h += _coLettreRecos.map(function (r, i) {
+    var estEnvoyee = envoyee && envoyee.id === r.id;
+    var extrait = r.texte.replace(/\s+/g, ' ').slice(0, 90) + (r.texte.length > 90 ? '…' : '');
+    // Demande de Denis (24/10/2026) : la lettre qui sert de support est encadrée en vert et marquée ; pas de nombre de mots ici (source de confusion).
+    return '<div class="rounded p-2 mb-2" style="border:' + (estEnvoyee ? '2px solid var(--success)' : '1px solid var(--border)') + ';">' +
+      '<div class="d-flex flex-wrap align-items-center gap-2 mb-1"><strong>Lettre ' + (i + 1) + '</strong>' +
+      (estEnvoyee ? '<span class="pilule-etat pe-ok">&#10003; Lettre de référence pour l’assistant</span>' : '') + '</div>' +
+      '<p class="small text-muted mb-2">' + echapperAttribut(extrait) + '</p>' +
+      '<div class="d-flex flex-wrap align-items-center gap-2">' +
+      '<label class="small mb-0" for="coLettreRecoRole' + r.id + '">De la part de :</label>' +
+      '<select class="form-select form-select-sm w-auto" id="coLettreRecoRole' + r.id + '" data-reco-role="' + r.id + '">' +
+      '<option value="">Non précisé</option>' +
+      ROLES_RECOMMANDATION_LETTRE_CO.map(function (ro) { return '<option value="' + echapperAttribut(ro) + '"' + (r.role === ro ? ' selected' : '') + '>' + ro + '</option>'; }).join('') +
+      '</select>' +
+      (_coLettreRecos.length > 1 && !estEnvoyee ? '<button type="button" class="appui-ovale petit" data-reco-choisir="' + r.id + '">Prendre celle-ci comme référence</button>' : '') +
+      '<button type="button" class="appui-ovale petit" data-reco-retirer="' + r.id + '">Retirer</button>' +
+      '</div></div>';
+  }).join('');
+  h += (_coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO && _coLettreRecoDepotOuvert && typeof htmlDepotCVEnPage === 'function')
+    ? '<div id="coLettreRecoDepot">' + htmlDepotCVEnPage(_coLettreRecoDepotCfg()) + '</div>'
+    : _coLettreRecos.length < MAX_RECOMMANDATIONS_LETTRE_CO
+    ? '<div class="appui-encart"><button type="button" class="appui-ovale depot" data-reco-deposer="1">&#128196; ' + (_coLettreRecos.length ? 'Ajouter une autre lettre' : 'Déposer ma lettre') + '</button>' +
+      '<p class="preparer-detail mb-0">Fichier (PDF, Word, photo) ou texte collé. <strong>Elle n’est envoyée nulle part</strong> à ce stade, et elle n’est pas gardée avec votre session.</p></div>'
+    : '<p class="small text-muted mb-0">Trois lettres au plus. Retirez-en une pour en ajouter une autre.</p>';
+  return h + '</div></div>';
+}
+
+// Document « Mes competences » : retrouve dans l'application, et/ou depose par la personne (meme zone de depot que la lettre).
 function _coLettreDocMesCompetences() {
   try { return (typeof mesCompObtenirDocument === 'function' && typeof _mesCompEtat !== 'undefined') ? mesCompObtenirDocument(_mesCompEtat) : null; } catch (e) { return null; }
 }
-function _coLettreHtmlAutresAppuis() {
-  var doc = _coLettreDocMesCompetences();
-  var nb = compterLignesMesCompetences(doc);
-  var h = '<hr class="my-3"><p class="mb-1 fw-bold">Votre document « Mes compétences »</p>';
-  if (doc && nb) {
-    h += '<p class="text-muted small mb-2">Ce que vous avez relevé et gardé dans « Découvrir mes compétences » (' + nb + (nb > 1 ? ' lignes' : ' ligne') + '). Cela permet de retrouver des compétences que votre CV ne montrait pas.</p>' +
-      '<div class="jetons-ligne"><div class="jetons-lib">Joindre ce document ?</div>' +
-      ['oui', 'non'].map(function (v) {
-        var actif = _coLettreAppuiMesComp !== null && (v === 'oui') === _coLettreAppuiMesComp;
-        return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-appui-mescomp="' + v + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + (v === 'oui' ? 'Oui' : 'Non') + '</button>';
-      }).join('') + '</div>';
-  } else {
-    h += '<p class="text-muted small mb-2">Vous n’avez pas encore terminé « Découvrir mes compétences ». Vous pourrez le faire plus tard : cela ne bloque rien.</p>';
+function _appuisHtmlMesCompetences(etats) {
+  var detecte = _appuisDocDetecte();
+  var h = '<div class="appui-partie"><div class="appui-partie-titre"><span class="num-rubrique" aria-hidden="true">2</span><span>Votre document « Mes compétences »</span>' + _appuisBadge(2, etats.e2) + '</div><div class="appui-partie-corps">' +
+    '<p class="small text-muted mb-1">Le document que vous obtenez à la fin de « Découvrir mes compétences ». Il permet de retrouver des compétences que votre CV ne montrait pas.</p>';
+  if (detecte) {
+    h += '<p class="small mb-1">&#10003; Le document de « Découvrir mes compétences » est retrouvé dans l’application (' + detecte.nb + (detecte.nb > 1 ? ' lignes' : ' ligne') + ').</p>';
   }
-  h += '<hr class="my-3"><p class="mb-1 fw-bold"><label for="coLettreAppuiTexte">Dites-le avec vos mots</label></p>' +
-    '<p class="text-muted small mb-2">Si vous n’avez pas trouvé ailleurs où le dire : qu’est-ce que vous voudriez mettre en avant ? Écrivez-le, ou dictez-le à la voix. Quelques lignes suffisent. ' +
-    'Évitez les noms, les téléphones et les adresses : ce texte est lu par l’assistant.</p>' +
-    '<textarea class="form-control" id="coLettreAppuiTexte" rows="4" maxlength="' + TEXTE_LIBRE_APPUI_MAX + '" placeholder="Quelques lignes suffisent.">' + echapperAttribut(_coLettreAppuiTexte) + '</textarea>';
-  h += htmlAstuceDictee('ligne', 'Pour dicter à la voix :');
-  return h;
+  h += '<strong class="small">Voulez-vous joindre votre document « Mes compétences » ?</strong><div class="appui-ovales">' +
+    ['oui', 'non'].map(function (v) {
+      var actif = _coLettreAppuiMesComp !== null && (v === 'oui') === _coLettreAppuiMesComp;
+      return _appuisOvale('data-appui-mescomp', v, v === 'oui' ? 'Oui' : 'Non', actif);
+    }).join('') + '</div>';
+  if (_coLettreAppuiMesComp === true) {
+    var depose = _coLettreAppuiMesCompDepose;
+    h += '<div class="appui-encart">';
+    if (_coLettreMesCompDepotOuvert && typeof htmlDepotCVEnPage === 'function') {
+      h += '<div id="coMesCompDepot">' + htmlDepotCVEnPage(_coLettreMesCompDepotCfg()) + '</div>';
+    } else {
+      h += '<p class="small mb-2">' + (detecte
+        ? 'Votre document est déjà retrouvé : il sera joint. Vous pouvez aussi en déposer un autre ici.'
+        : 'Déposez votre document « Mes compétences » ici : l’assistant le lira avec le reste.') + '</p>';
+      if (depose) {
+        h += '<p class="small mb-2">&#10003; Document déposé : <strong>' + echapperAttribut(depose.nom || 'texte collé') + '</strong></p>' +
+          '<button type="button" class="appui-ovale petit" data-appui-mescomp-deposer="1">Changer de document</button> ' +
+          '<button type="button" class="appui-ovale petit" data-appui-mescomp-retirer="1">Retirer</button>';
+      } else {
+        h += '<button type="button" class="appui-ovale depot" data-appui-mescomp-deposer="1">&#128196; Déposer mon document « Mes compétences »</button>' +
+          '<p class="preparer-detail mb-0">Fichier (PDF, Word, photo) ou texte collé. <strong>Il n’est envoyé nulle part</strong> à ce stade, et il n’est pas gardé avec votre session.</p>';
+      }
+    }
+    h += '</div>';
+  } else if (_coLettreAppuiMesComp === false) {
+    // Consigne 219 (10/11/2026) : une simple information, ni bouton ni invitation à faire le parcours (la personne est là pour son CV).
+    h += '<p class="appui-info-outil"><i class="bi bi-compass" aria-hidden="true"></i> Pour information : « Découvrir mes compétences » est un autre outil de l’application, qui aide à repérer ses compétences à partir de ce qu’on a vécu et qui donne ce document « Mes compétences ». Vous le trouvez sur la page d’accueil, dans la carte « Boîte à outils ».</p>';
+  }
+  return h + '</div></div>';
+}
+
+// Partie 3 : « Dites-le avec vos mots » : fermee d'office ; le texte est pris en compte des qu'il est ecrit, « Valider mon texte » est une confirmation visible.
+function _appuisHtmlMots(etats) {
+  var ouvert = _appuisMotsOuvert();
+  return '<div class="appui-partie"><div class="appui-partie-titre"><span class="num-rubrique" aria-hidden="true">3</span><span>Dites-le avec vos mots</span>' + _appuisBadge(3, etats.e3) + '</div><div class="appui-partie-corps">' +
+    '<p class="small text-muted mb-2">Un complément utile, pas la clé du CV : si vous n’avez pas trouvé ailleurs où le dire, écrivez ou dictez ce que vous voudriez mettre en avant.</p>' +
+    '<button type="button" class="appui-ovale ouvrir' + (etats.valide ? ' valide' : '') + '" data-appui-mots="1" aria-expanded="' + (ouvert ? 'true' : 'false') + '">' + _appuisLibelleBoutonMots(etats) + '</button>' +
+    '<div class="appui-zone-mots"' + (ouvert ? '' : ' hidden') + '>' +
+    '<p class="small mt-3 mb-1"><label for="coLettreAppuiTexte">Quelques lignes suffisent. Évitez les noms, les téléphones et les adresses : ce texte est lu par l’assistant.</label></p>' +
+    '<textarea class="form-control" id="coLettreAppuiTexte" rows="4" maxlength="' + TEXTE_LIBRE_APPUI_MAX + '" placeholder="Quelques lignes suffisent.">' + echapperAttribut(_coLettreAppuiTexte) + '</textarea>' +
+    '<div class="appui-ligne-dictee">' + htmlAstuceDictee('bouton') + '</div>' +
+    '<div class="appui-ligne-valider"><span class="appui-msg-valide" data-appui-msg-valide="1"' + (etats.valide ? '' : ' hidden') + '>&#10003; Texte bien validé</span>' +
+    '<button type="button" class="appui-ovale valider" data-appui-valider="1"' + (etats.texte && !etats.valide ? '' : ' disabled') + '>Valider mon texte</button></div>' +
+    '</div></div></div>';
+}
+
+// Mise a jour SANS redessiner la page (la saisie ne doit jamais perdre le curseur) : etats, bilan, boutons de la partie 3.
+function _appuisMajEtats() {
+  var etats = _appuisEtats();
+  [[1, etats.e1], [2, etats.e2], [3, etats.e3]].forEach(function (p) {
+    document.querySelectorAll('[data-appui-etat="' + p[0] + '"]').forEach(function (b) { b.textContent = p[1].lib; b.classList.toggle('fait', !!p[1].fait); });
+  });
+  document.querySelectorAll('[data-appui-bilan]').forEach(function (b) { b.textContent = etats.n + (etats.n > 1 ? ' appuis' : ' appui') + ' sur 3'; b.classList.toggle('complet', etats.n === 3); });
+  document.querySelectorAll('[data-appui-valider]').forEach(function (b) { b.disabled = !(etats.texte && !etats.valide); });
+  document.querySelectorAll('[data-appui-msg-valide]').forEach(function (m) { m.hidden = !etats.valide; });
+  document.querySelectorAll('[data-appui-mots]').forEach(function (b) {
+    b.classList.toggle('valide', etats.valide);
+    b.innerHTML = _appuisLibelleBoutonMots(etats);
+    b.setAttribute('aria-expanded', _appuisMotsOuvert() ? 'true' : 'false');
+  });
+  document.querySelectorAll('.appui-zone-mots').forEach(function (z) { z.hidden = !_appuisMotsOuvert(); });
 }
 
 // Lettres de recommandation pouvant etre jointes au PDF (decision 25 du cahier lettre) : seules celles deposees en PDF ou en photo (on a l'original).
@@ -5064,6 +5169,30 @@ function _coLettreDeposerReco(rerender) {
   (rerender || _coLettreRendreDepot)();
 }
 
+// Depot du document « Mes competences » (10/11/2026, consigne 219) : MEME brique que la lettre de recommandation (htmlDepotCVEnPage), jamais recopiee.
+// Le texte relu et masque par la personne est garde ici, en memoire seulement, et part avec les autres appuis.
+function _coLettreMesCompDepotCfg(rerender) {
+  var rr = rerender || _coLettreRendreDepot;
+  return {
+    cle: 'coMesComp',
+    titreDocument: 'Mes compétences',
+    intro: 'Déposez votre document « Mes compétences » : PDF, Word, texte, photo ou capture d’écran. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong>. Vous le relisez ensuite et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre.',
+    avecIdentite: false,
+    ecrireCV: false,
+    nomsInitiaux: function () { return []; },
+    rerender: rr,
+    onFermer: function () { _coLettreMesCompDepotOuvert = false; rr(); },
+    onDocumentPrepare: function (documentPrepare) {
+      if (documentPrepare && documentPrepare.type === 'texte' && String(documentPrepare.valeur || '').trim()) {
+        _coLettreAppuiMesCompDepose = { texte: String(documentPrepare.valeur).trim(), nom: documentPrepare.nomFichier || '' };
+        _coLettreAppuiMesComp = true;
+      }
+      _coLettreMesCompDepotOuvert = false;
+      rr();
+    }
+  };
+}
+
 function _coLettreBrancherAppuis(rerender) {
   var rr = rerender || _coLettreRendreDepot;
   document.querySelectorAll('#coLettreAppuis [data-reco-reponse]').forEach(function (el) {
@@ -5074,10 +5203,30 @@ function _coLettreBrancherAppuis(rerender) {
     });
   });
   document.querySelectorAll('#coLettreAppuis [data-appui-mescomp]').forEach(function (el) {
-    el.addEventListener('click', function () { _coLettreAppuiMesComp = this.getAttribute('data-appui-mescomp') === 'oui'; rr(); });
+    el.addEventListener('click', function () {
+      var voulu = this.getAttribute('data-appui-mescomp') === 'oui';
+      _coLettreAppuiMesComp = (_coLettreAppuiMesComp === voulu) ? null : voulu;   // un second clic sur le bouton choisi l'annule
+      if (_coLettreAppuiMesComp !== true) { _coLettreMesCompDepotOuvert = false; }
+      rr();
+    });
   });
+  document.querySelectorAll('#coLettreAppuis [data-appui-mescomp-deposer]').forEach(function (el) { el.addEventListener('click', function () { _coLettreMesCompDepotOuvert = true; rr(); }); });
+  document.querySelectorAll('#coLettreAppuis [data-appui-mescomp-retirer]').forEach(function (el) { el.addEventListener('click', function () { _coLettreAppuiMesCompDepose = null; rr(); }); });
+  if (_coLettreMesCompDepotOuvert && _coLettreAppuiMesComp === true && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_coLettreMesCompDepotCfg(rr)); }
+  // Partie 3 : le texte est pris en compte des qu'il est ecrit ; « Valider mon texte » le confirme (etat « Fait »), toute modification le remet « À valider ».
   var zoneTexteAppui = document.getElementById('coLettreAppuiTexte');
-  if (zoneTexteAppui) { zoneTexteAppui.addEventListener('input', function () { _coLettreAppuiTexte = this.value.slice(0, TEXTE_LIBRE_APPUI_MAX); }); }
+  if (zoneTexteAppui) { zoneTexteAppui.addEventListener('input', function () { _coLettreAppuiTexte = this.value.slice(0, TEXTE_LIBRE_APPUI_MAX); _appuisMajEtats(); }); }
+  document.querySelectorAll('#coLettreAppuis [data-appui-mots]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      _coLettreAppuiMotsOuvert = !_appuisMotsOuvert();
+      _appuisMajEtats();
+      var zone = document.getElementById('coLettreAppuiTexte');
+      if (_coLettreAppuiMotsOuvert && zone) { zone.focus(); }
+    });
+  });
+  document.querySelectorAll('#coLettreAppuis [data-appui-valider]').forEach(function (el) {
+    el.addEventListener('click', function () { _coLettreAppuiTexteValide = String(_coLettreAppuiTexte || '').trim(); _appuisMajEtats(); });
+  });
   document.querySelectorAll('#coLettreAppuis [data-reco-deposer]').forEach(function (el) { el.addEventListener('click', function () { _coLettreDeposerReco(rr); }); });
   if (_coLettreRecoDepotOuvert && typeof cablerDepotCVEnPage === 'function') { cablerDepotCVEnPage(_coLettreRecoDepotCfg(rr)); }
   document.querySelectorAll('#coLettreAppuis [data-reco-retirer]').forEach(function (el) {
@@ -9536,6 +9685,10 @@ var _coLettreRecoReponse = null;   // 'oui' | 'non' | null
 var _coLettreRecoFichiers = {};    // id de la lettre -> fichier d'origine (PDF ou photo), gardé en memoire seulement : jamais envoye a l'assistant, jamais enregistre
 var _coLettreAppuiMesComp = null;   // null (pas encore répondu) | true | false ; 28/10/2026 : joindre le document « Mes compétences » (seulement s'il est termine) ; choix de la personne, jamais coche d'office
 var _coLettreAppuiTexte = '';       // 28/10/2026 : texte libre « Dites-le avec vos mots » (ecrit ou dicte), garde en memoire seulement
+var _coLettreAppuiTexteValide = '';   // 10/11/2026 : dernier texte « Dites-le avec vos mots » confirme par « Valider mon texte » (le texte part de toute facon des qu'il est ecrit)
+var _coLettreAppuiMotsOuvert = null;  // 10/11/2026 : null = ouvert seulement s'il y a deja un texte ; true / false = choix de la personne
+var _coLettreAppuiMesCompDepose = null;   // 10/11/2026 : document « Mes compétences » deposé, relu et masqué par la personne : { texte, nom } ; mémoire seulement
+var _coLettreMesCompDepotOuvert = false;  // 10/11/2026 : zone de depot du document « Mes compétences » ouverte
 
 var _profilCiviliteSeule = false;   // leve le temps d'assembler le message de la lettre (etape (f)) ; defaut faux : les autres prompts inchanges
 function _coLettreConstruireMessage() {

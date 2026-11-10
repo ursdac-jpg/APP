@@ -241,7 +241,13 @@ function analyserReponseDecouverte(texteColle) {
       // valeur inconnue ou absente, jamais un plantage.
       var TYPES_QUESTION_VALIDES = ['date', 'formation', 'engagement', 'texte'];
       var type = (TYPES_QUESTION_VALIDES.indexOf(q.type) !== -1) ? q.type : 'texte';
-      return { texte: texte, fragmentIndex: fragmentIndex, type: type };
+      var question = { texte: texte, fragmentIndex: fragmentIndex, type: type };
+      // 10/11/2026 (consigne 217, maquette validée) : réponses suggérées, un PLUS
+      // jamais une condition -- la question est toujours posée, avec ou sans
+      // suggestions (zone libre). Seules les questions « texte » en reçoivent.
+      var suggestions = (type === 'texte') ? decouverteReponsesSuggerees(q) : null;
+      if (suggestions) { question.choix = suggestions.choix; question.reponses = suggestions.reponses; }
+      return question;
     })
     .filter(Boolean)
     // TACHE (retour utilisateur : "j'adore cette idée, je veux en avoir 5
@@ -316,6 +322,35 @@ function analyserReponseDecouverte(texteColle) {
   return { succes: true, valeurs: { fragments: fragments, questionsCiblees: questionsCiblees, reciteNettoye: reciteNettoye } };
 }
 
+// 10/11/2026 (consigne 217) : validation des réponses suggérées par l'assistant
+// pour une question de type « texte ». Jamais de confiance aveugle : chaînes
+// non vides, courtes, sans doublon, de 2 à 6 ; au-delà de 6 on garde les 6
+// premières ; en dessous de 2, aucune suggestion (la question reste une zone
+// libre, elle est quand même posée). « choix » vaut « unique » ou « multiple »
+// (repli : « unique »). Une réponse « Autre » est retirée : le bouton « Autre »
+// est ajouté par l'écran, il ne doit pas être en double.
+var DECOUVERTE_REPONSES_MAX = 6;
+var DECOUVERTE_REPONSES_MIN = 2;
+var DECOUVERTE_REPONSE_LONGUEUR_MAX = 140;
+function decouverteReponsesSuggerees(q) {
+  if (!q || !Array.isArray(q.reponses)) { return null; }
+  var vues = {};
+  var liste = [];
+  q.reponses.forEach(function (r) {
+    if (typeof r !== 'string') { return; }
+    var t = r.replace(/\s+/g, ' ').trim();
+    if (!t || t.length > DECOUVERTE_REPONSE_LONGUEUR_MAX) { return; }
+    var cle = t.toLowerCase();
+    if (/^autre( chose)?\.?$/.test(cle)) { return; }
+    if (vues[cle]) { return; }
+    vues[cle] = true;
+    liste.push(t);
+  });
+  liste = liste.slice(0, DECOUVERTE_REPONSES_MAX);
+  if (liste.length < DECOUVERTE_REPONSES_MIN) { return null; }
+  return { choix: (q.choix === 'multiple') ? 'multiple' : 'unique', reponses: liste };
+}
+
 // Export CommonJS protege -- tests/decouverteLogique.test.js (Node),
 // aucun effet sur le chargement navigateur classique (balise <script>,
 // ou `module` n'est jamais defini). Depend des globales
@@ -324,6 +359,7 @@ function analyserReponseDecouverte(texteColle) {
 if (typeof module !== 'undefined') {
   module.exports = {
     analyserReponseDecouverte: analyserReponseDecouverte,
+    decouverteReponsesSuggerees: decouverteReponsesSuggerees,
     decouverteValiderCategorie: decouverteValiderCategorie,
     decouverteValiderCompetenceProposee: decouverteValiderCompetenceProposee
   };

@@ -49,3 +49,18 @@ test('dictée : jamais de tiret long ni de mot « IA » dans les textes', () => 
     });
   });
 });
+
+test('dictée : forme « bouton » (consigne 219) : un bouton ovale qui dit l’appareil et déplie les gestes', () => {
+  const win = htmlAstuceDictee('bouton', null, 'windows');
+  assert.match(win, /astuce-dictee-bouton/);
+  assert.match(win, /<summary>[^<]*Dicter à la voix : comment faire sur mon ordinateur Windows \?/);
+  assert.match(win, /<ol>/);
+  const autre = htmlAstuceDictee('bouton', null, 'autre');
+  assert.match(autre, /Dicter à la voix : comment faire \?/);
+  ['Windows', 'Mac', 'iPhone', 'Android'].forEach((m) => assert.match(autre, new RegExp(m)));
+  ['windows', 'mac', 'iphone', 'android', 'autre'].forEach((a) => {
+    const h = htmlAstuceDictee('bouton', null, a);
+    assert.doesNotMatch(h, /[—–]/);
+    assert.doesNotMatch(h, /\bIA\b/);
+  });
+});
