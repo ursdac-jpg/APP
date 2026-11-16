@@ -25424,7 +25424,7 @@ function _wireCarteSimpleMiseEnPage() {
   var cbOrgReduire = document.querySelector('[data-mep-org-reduire]');
   if (cbOrgReduire) {
     cbOrgReduire.addEventListener('change', function () {
-      _mepConserverApercuPendant(4000);   // l'aperçu n'est plus remplacé par un cadre neuf (plus de clignotement, Lot 8 L8-1)
+      // Pas de « conserver l'aperçu » ici : la densité n'est lue qu'à la reconstruction du CV, un aperçu conservé n'afficherait aucun changement (« Réduire les espaces » restait sans effet).
       _mepReglageTheme('densite', this.checked ? 'compact' : 'normal', ['aere', 'normal', 'compact']);
     });
   }
@@ -42871,6 +42871,27 @@ AIDE_PAGES['fiche-metier'] = [
     texte: 'Quand vous êtes prêt, ce bouton ouvre la préparation de vos documents (CV, lettre ou entretien) pour ce métier. Rien n’est envoyé à quelqu’un.' },
   { selecteur: '.fm-colonnes', icone: '&#127912;', titre: 'Les trois couleurs',
     texte: 'Vert : les qualités personnelles. Bleu : le savoir-faire. Bleu clair : les connaissances. Ce sont des listes à lire, pas des boutons.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant, « Accueil » ramène à l’écran de départ.' }
+];
+// Pages de recherche d'un métier ou d'un secteur (consignes 276 et 277).
+AIDE_PAGES['chercher-metier'] = [
+  { selecteur: '#champChercherMetier', icone: '<i class="bi bi-search"></i>', titre: 'Chercher un métier',
+    texte: 'Tapez quelques lettres du nom du métier : la liste se réduit au fur et à mesure. Vous pouvez écrire une partie du nom seulement.' },
+  { selecteur: '#resultatsChercherMetier', icone: '<i class="bi bi-hand-index-thumb"></i>', titre: 'Les métiers proposés',
+    texte: 'Cliquez sur « Choisir ce métier » pour continuer avec lui. Vous pourrez toujours en changer ensuite.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ.' }
+];
+AIDE_PAGES['changer-secteur'] = [
+  { selecteur: '.grille-resultats-erip', icone: '<i class="bi bi-grid"></i>', titre: 'Les secteurs',
+    texte: 'Chaque carte est un secteur d’activité, avec une courte explication. Cliquez sur « Choisir ce secteur » pour continuer avec lui. Les réponses déjà données sur « Candidater » repartent de zéro.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant sans rien changer, « Accueil » ramène à l’écran de départ.' }
+];
+AIDE_PAGES['metiers-du-secteur'] = [
+  { selecteur: '#listeMetiersSecteur', icone: '<i class="bi bi-list-ul"></i>', titre: 'Les métiers de ce secteur',
+    texte: 'Voici les métiers rangés dans ce secteur. Cliquez sur un métier pour lire sa fiche : ce qu’on y fait, les qualités et les connaissances demandées.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à la page d’avant, « Accueil » ramène à l’écran de départ.' }
 ];

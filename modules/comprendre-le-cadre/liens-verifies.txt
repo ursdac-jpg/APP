@@ -502,3 +502,5 @@ service-public-assistant-familial-agents-publics | https://www.service-public.go
 service-public-decouvert-solvabilite | https://www.service-public.gouv.fr/particuliers/actualites/A18569 | 2026-11-15 | national
 legifrance-decret-2026-1016-cumul-emploi-retraite | https://www.legifrance.gouv.fr/eli/decret/2026/11/2/TRSS2617556D/jo/texte | 2026-11-16 | national
 legifrance-decret-2026-1017-cumul-emploi-retraite | https://www.legifrance.gouv.fr/eli/decret/2026/11/2/TRSS2628484D/jo/texte | 2026-11-16 | national
+caf-fausse-aide-1366-novembre-2026 | https://www.caf.fr/allocataires/actualites/actualites-nationales/attention-aucune-nouvelle-aide-de-1-366-euros-n-est-versee-par-la-caf-en-novembre-2026 | 2026-11-16 | national
+mesdroitssociaux-accueil | https://www.mesdroitssociaux.gouv.fr/accueil | 2026-11-16 | national

@@ -1563,6 +1563,17 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Cause** : le poids de rareté (`_raretePoids`) comptait dans combien de fiches apparaît le texte EXACT de la compétence. Une formulation de CV (« Préparation de commandes ») n'est dans aucune fiche : 0 fiche, donc le poids maximal, plus fort que celui du vrai libellé (« Cuisine », 41 fiches). Les formulations écrasaient les libellés et gonflaient aussi le « meilleur gain possible » (dénominateur).
 - **Règle** : tout poids calculé sur une base fermée (libellés de fiches) doit être ramené au libellé auquel la formulation correspond (le plus fréquent s'il y en a plusieurs) ; sans correspondance, une valeur moyenne, jamais le maximum. Après tout changement qui relie du texte libre à un vocabulaire fermé, relire le CLASSEMENT (top 5) de profils typiques, pas seulement les pourcentages. Test : `tests/rapprochementCompetences.test.js`.
 
+## 9.181 Garder l'aperçu vivant ne convient qu'à un réglage appliqué EN DIRECT dans l'aperçu (2026-11-16)
+
+- **Symptôme** : « Réduire les espaces » ne changeait plus le CV affiché ; l'essai `rubriques` mesurait 669 < 669 < 669 sans que personne ne le voie depuis fin octobre.
+- **Cause** : le mécanisme « plus de clignotement » (`_mepConserverApercuPendant`) garde l'aperçu en place au lieu de le reconstruire. Il a été copié dans un gestionnaire dont le réglage (densité) n'est lu qu'à la reconstruction.
+- **Règle** : avant d'appeler `_mepConserverApercuPendant` dans un gestionnaire, vérifier que ce gestionnaire pousse bien le changement DANS l'aperçu (appel d'une fonction de l'iframe). Sinon, ne pas conserver : l'aperçu doit être reconstruit.
+
+## 9.182 Les essais de parcours périmés se lisent comme du bruit : les rejouer à chaque changement de parcours (2026-11-16)
+
+- **Symptôme** : une trentaine d'essais en échec après les chantiers de novembre (question « Qui choisit les missions ? », « Continuer » exigeant métier et situation, Regard extérieur en page, onglet Composition...), au point de masquer un vrai défaut (9.181).
+- **Règle** : tout changement de parcours ou d'écran se termine par le rejeu des essais qui le traversent (`scripts/parcours/lancerEssais.js <id>`), et la mise à jour de ces essais dans le même commit. Les essais lourds (mise en page du CV) se jouent à 2 travailleurs au plus : à 4, des délais de rendu les font échouer à tort.
+
 ## 9.183 Une fiche nouvelle publiée par l'outil de veille n'entrait pas au journal : elle manquait dans « Dans les fiches » et dans les Nouveautés (2026-11-16, consigne 416)
 
 - **Symptôme** : les trois fiches nouvelles de la veille du 15/11 étaient publiées, indexées et commitées, mais Denis ne les voyait pas dans la page Nouveautés. Seules les deux mises à jour apparaissaient.
