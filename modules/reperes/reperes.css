@@ -666,7 +666,7 @@
   /* TACHE (retour Denis 2026-09-20) : position fixe, EN DESSOUS de
      #btnCarnet (top: calc(var(--hauteur-progression) + 46px), 42px de
      haut, carnet.css) -- jamais recalculee en JS desormais. */
-  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 108px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
+  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 108px); right: 26px; width: 42px; height: 42px; font-size: 1.2rem; }
   /* TACHE (retour Denis 2026-09-20) : redocke a droite (voir la regle de
      base ci-dessus) -- meme repli mobile que #panneauCarnet. */
   #panneauJournalParcours { right: 8px; width: calc(100vw - 16px); max-width: 320px; }

@@ -16,7 +16,7 @@ Ce que fait l'application sans intervention : à la date `prochaine_publication`
 
 À faire à chaque échéance :
 1. Ouvrir la page de l'Insee « Informations rapides, prix à la consommation » (lien dans le fichier JSON, `inflation.sources`).
-2. Reporter dans le fichier : `dernier` (mois, `sur_un_an`, `sur_un_mois`, `provisoire`, `publie_le`, énergie, alimentation, services, etc.), `precedent`, `resultats_definitifs_prevus`, `prochaine_publication`, et `verifie_le`.
+2. Reporter dans le fichier : `dernier` (mois, `sur_un_an`, `sur_un_mois`, `provisoire`, `publie_le`, et les postes : énergie, alimentation, produits frais, autre alimentation, services, produits manufacturés, tabac, prix harmonisés), `precedent` (le mois d'avant, mêmes postes), `il_y_a_un_an` (le même mois un an avant, mêmes postes : colonne de la page Insee « octobre 2025 », qui change chaque mois), `serie_sur_un_an` (ajouter à la fin le chiffre du nouveau mois, pris dans l'onglet « Tableau » de la page Insee ; corriger au passage le mois précédent si l'Insee l'a révisé), `resultats_definitifs_prevus`, `prochaine_publication`, et `verifie_le`. `npm test` contrôle la cohérence (`tests/comprendreLesChiffresInflation.test.js` : la série finit au dernier mois, le mois d'avant et il y a un an sont bien aux bonnes places) : si le test échoue, un chiffre est mal reporté. Sans série valide, le graphique n'est pas affiché.
 3. Mettre à jour la ligne « détails à jour » du mot « Inflation » du Lexique (`data/lexique.js`, `detailsAJour`) avec les mêmes valeurs, puis `node scripts/checkLexique.js` et `npm test`.
 4. Jamais de chiffre écrit de mémoire : seulement une page officielle ouverte.
 
@@ -37,6 +37,8 @@ Ce que fait l'application sans intervention : à la date `prochaine_publication`
 
 Une ligne datée dans `docs/JOURNAL_DES_CHANGEMENTS.md` à chaque mise à jour, et la date de la prochaine échéance corrigée dans ce fichier.
 
+**Les rappels dans l'outil de veille (10/11/2026, consigne 233)** : ces échéances sont aussi dans le bouton « Tâches programmées » de l'outil (`outils/taches_programmees.json`), qui rappelle à la date et prépare le prompt du cloud. Ce fichier-ci garde la marche à suivre ; l'outil garde la date et l'état. Quand une échéance est faite : marquer la tâche faite (`faite` = date du jour) dans le JSON, corriger la date ici, et pour une tâche à rythme (inflation) ajouter la suivante.
+
 ## Les métiers qui recrutent le plus : une fois par an, au printemps
 
 Source unique : `modules/comprendre-les-chiffres/donnees/bmo-metiers.json` (10 métiers par département, Dordogne et Haute-Vienne), produit par `scripts/genereBmoMetiers.js` à partir du fichier ouvert de l'enquête « Besoins en main-d'œuvre » de France Travail. Affiché dans « Comprendre les chiffres », bloc « Ce que les employeurs prévoient d'embaucher cette année ». L'outil de veille l'a déjà dans sa liste de sites à ouvrir (source « Enquête Besoins en Main d'Œuvre (France Travail) »).
@@ -56,3 +58,7 @@ Ce que fait l'application sans intervention : treize mois après `publie_le`, la
 5. Si le fichier change de forme (colonnes renommées), la conversion s'arrête avec « Colonne introuvable » : le dire à Claude, ne rien inventer.
 
 Jamais de chiffre écrit de mémoire : seulement le fichier officiel. Les nombres masqués par France Travail (secret statistique) sont ignorés : tous les chiffres affichés sont des minimums, et l'écran l'annonce.
+
+## Chaque année : l'Union européenne et la zone euro (chômage)
+
+Les lignes « Union européenne » et « Zone euro » du chômage (`modules/comprendre-les-chiffres/contenu/2026-06.md`) sont des moyennes annuelles d'Eurostat (jeu `une_rt_a`, âge 15 à 74 ans, tous sexes, pourcentage de la population active). À renouveler une fois par an, quand Eurostat publie l'année écoulée (début d'année) : relever les deux lignes ensemble (la zone euro est comptée à 21 pays depuis 2026, et Eurostat applique cette composition à tout le passé), mettre la valeur, « il y a un an » et la série annuelle, puis `npm test`.

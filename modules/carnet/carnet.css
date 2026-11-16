@@ -378,7 +378,7 @@
      haut, css/style.css) -- jamais recalculee en JS desormais (voir
      carnetApresNavigation()), donc jamais devinee au hasard : jamais la
      meme valeur qu'un autre bouton persistant sur cette meme colonne. */
-  #btnCarnet { top: calc(var(--hauteur-progression, 5rem) + 58px); right: 8px; width: 42px; height: 42px; font-size: 1.1rem; }
+  #btnCarnet { top: calc(var(--hauteur-progression, 5rem) + 58px); right: 26px; width: 42px; height: 42px; font-size: 1.1rem; }
 }
 
 /* Panneau compact ouvert depuis #btnCarnet -- reste sur la page

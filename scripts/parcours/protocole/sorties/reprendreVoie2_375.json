@@ -1,0 +1,198 @@
+{
+ "nom": "reprendreVoie2",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : les choix suivants sont annoncés bloqués tant que le CV n’est pas déposé"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "choix de la voie 2 : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix de la voie 2 : #reformuler-cv « Préparer votre CV » bouton « Continuer → (grisé) » raison « Il reste à choisir votre situation dans « Votre objectif ». » barre [Préparer] > Assistant > Réponse > Vérifier > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "après l’objectif : bouton « Continuer → (grisé) » raison « Il reste à indiquer le métier visé (ou plusieurs métiers) dans « Votre objectif ». »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : bouton « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage : écran #reformuler-cv « Le reformuler et le présenter » barre Préparer > Assistant > [Réponse] > Vérifier > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "collage de la reformulation : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "Vérifier : bouton du bas « null » (choix de version dans la page)"
+  },
+  {
+   "n": "info",
+   "t": "garde-fou : l’application signale une compétence absente du CV d’origine : true"
+  },
+  {
+   "n": "info",
+   "t": "retirer la compétence : ok"
+  },
+  {
+   "n": "info",
+   "t": "choisir la version 1 : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix de version : #reformuler-cv « Le reformuler et le présenter » bouton « C’est bon, passer à la mise en forme → » barre Préparer > Assistant > Réponse > [Vérifier] > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 2 : ok:C’est bon, passer à la mise en forme → → #reformuler-cv « Le reformuler et le présenter » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > Vérifier > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 2 : ok:Continuer → → #objectif « 🎯 Votre objectif » [bouton : Continuer → (grisé)] [barre : Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 2 : GRISE Continuer → → #objectif « 🎯 Votre objectif » [bouton : Continuer → (grisé)] [barre : Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : reformuler-cv:Le reformuler et le présenter [-] < reprendre-cv:Reprendre mon CV [-]"
+  },
+  {
+   "n": "ok",
+   "t": "voie 2 : les « Retour » successifs rejoignent la page commune en 2 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre mon CV",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre votre CV",
+    "barre": "[Déposer] > Ma voie",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reformuler-cv",
+    "page": "reformuler-cv",
+    "h1": "Le reformuler et le présenter",
+    "barre": "Préparer > Assistant > Réponse > Vérifier > [Vos documents]",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous vous adressez à une entreprise précise ou non.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous vous adressez à une entreprise précise ou non.",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

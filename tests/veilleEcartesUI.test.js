@@ -50,3 +50,13 @@ test('employeurs : la raison est demandée à l\'écart, « Simple doublon » ne
   assert.ok(/scripts\/employeurEcarte\.js/.test(commande) && fs.existsSync(path.join(racine, 'scripts', 'employeurEcarte.js')));
   assert.ok(!/—|–/.test(fs.readFileSync(path.join(racine, 'scripts', 'employeurEcarte.js'), 'utf8')));
 });
+
+test('les écartées ne sont plus sous les propositions : un bouton « Fiches écartées » les affiche à la demande (Denis, 10/11/2026)', () => {
+  const rendu = html.slice(html.indexOf('function chgRendre()'), html.indexOf('function chgCompter('));
+  assert.ok(/data-chg-ecartees="1"/.test(rendu) && /Fiches écartées \(/.test(rendu), 'le bouton est à côté des filtres');
+  assert.strictEqual((rendu.match(/ecarteesHtml\(\)/g) || []).length, 1, 'une seule apparition, dans la vue écartées');
+  assert.ok(/if \(ec\) \{ h \+= ecarteesHtml\(\); \}/.test(rendu), 'affichées seulement dans la vue écartées');
+  assert.ok(/chg\.vueEcartees = !chg\.vueEcartees/.test(html), 'le bouton bascule la vue');
+  assert.ok(/chg\.vueEcartees = !!chg\.versEcartees/.test(html), 'le renvoi « Voir les employeurs écartés » ouvre la vue écartées');
+  assert.ok(/e\.titre, e\.motifLibelle, e\.precision, e\.lieu/.test(html), 'chercher un mot filtre aussi les écartées');
+});

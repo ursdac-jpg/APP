@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : tâches programmées de l'outil de veille</title>
+<style>
+  /* Variables copiées de outils/veille.html (même rendu que l'outil). */
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:860px; margin:0 auto; padding:1.2rem 16px 6rem; }
+  body.tel main { max-width:390px; }
+  h1 { font-size:1.35rem; color:var(--text-strong); margin:.2rem 0 .3rem; }
+  h2 { font-size:1.05rem; color:var(--text-strong); margin:.2rem 0 .3rem; }
+  p { margin:.5rem 0; }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 .8rem; }
+  .mini { color:var(--text-muted); font-size:.82rem; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.petit { padding:.3rem .7rem; font-size:.85rem; }
+  .btn.choisi { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .btn-rangee { display:flex; gap:.5rem; flex-wrap:wrap; margin:.6rem 0; align-items:center; }
+  .note { display:flex; gap:.5rem; align-items:flex-start; background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.88rem; }
+  .note.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .note.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+  .pastille { display:inline-block; border-radius:999px; padding:.1rem .65rem; font-size:.78rem; font-weight:700; white-space:nowrap; background:var(--bg-subtle); color:var(--text-muted); }
+  .p-ok { background:var(--ok-bg); color:var(--ok); } .p-warn { background:var(--warn-bg); color:var(--warn); } .p-alert { background:var(--alert-bg); color:var(--alert); } .p-info { background:var(--accent-bg); color:var(--accent); }
+  input[type=text], input[type=date], textarea { font:inherit; width:100%; padding:.4rem .6rem; border:1px solid var(--border-strong); border-radius:8px; background:var(--bg-card); color:var(--text); }
+  textarea { min-height:5.5rem; resize:vertical; }
+  label { font-size:.82rem; font-weight:700; color:var(--text-strong); display:block; margin:.5rem 0 .15rem; }
+
+  /* Barre de réglages de la MAQUETTE (n'existe pas dans l'outil) */
+  .reglages { background:var(--warn-bg); border:1px dashed var(--warn); border-radius:10px; padding:.6rem .9rem; margin-bottom:1rem; font-size:.85rem; position:relative; }
+  .reglages .fermer-r { position:absolute; right:.5rem; top:.3rem; border:0; background:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted); }
+  .reglages .btn-rangee { margin:.3rem 0 0; }
+  .reglages input[type=date] { width:auto; }
+
+  /* Fausse page de l'outil, pour situer la barre du bas */
+  .faux-outil { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-bottom:1rem; }
+  .faux-bloc { height:2.2rem; background:var(--bg-subtle); border-radius:8px; margin:.5rem 0; }
+
+  /* Barre du bas : « Tâches programmées » à gauche, « Dépôt » à droite (position réelle de #depotPastille : right:14px; bottom:14px) */
+  #tpBouton { position:fixed; left:14px; bottom:14px; z-index:900; }
+  #depotFaux { position:fixed; right:14px; bottom:14px; z-index:900; }
+  #tpBouton .badge { display:inline-block; min-width:1.4rem; text-align:center; border-radius:999px; background:var(--alert); color:#fff; font-size:.78rem; font-weight:800; padding:0 .4rem; margin-left:.4rem; }
+  body.dark #tpBouton .badge { color:#2a0d09; }
+  @keyframes tc-pulse { 0% { box-shadow:0 0 0 0 rgba(217,119,6,.65); } 70% { box-shadow:0 0 0 .7rem rgba(217,119,6,0); } 100% { box-shadow:0 0 0 0 rgba(217,119,6,0); } }
+  .a-notif { animation:tc-pulse 1.8s ease-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .a-notif { animation:none; } }
+
+  #tpPanneau { position:fixed; left:14px; bottom:62px; z-index:901; width:min(560px, calc(100vw - 28px)); max-height:80vh; overflow:auto; display:none;
+    background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow); padding:.9rem 1rem; }
+  #tpPanneau .entete { display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+  .carte-tp { border:1px solid var(--border); border-left:6px solid var(--border-strong); border-radius:10px; padding:.7rem .85rem; margin:.6rem 0; background:var(--bg-card); }
+  .carte-tp.afaire { border-left-color:var(--warn); background:var(--warn-bg); }
+  .carte-tp.retard { border-left-color:var(--alert); background:var(--alert-bg); }
+  .carte-tp.faite { border-left-color:var(--ok); background:var(--bg-subtle); }
+  .carte-tp .tete { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+  .carte-tp .tete strong { flex:1 1 14rem; }
+  .carte-tp dl { margin:.4rem 0; font-size:.86rem; display:grid; grid-template-columns:8.5rem 1fr; gap:.2rem .6rem; }
+  .carte-tp dt { color:var(--text-muted); font-weight:700; }
+  .carte-tp dd { margin:0; }
+  .zone { background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:.55rem .7rem; margin:.5rem 0; }
+  .zone pre { white-space:pre-wrap; font:inherit; font-size:.82rem; margin:.3rem 0; max-height:16rem; overflow:auto; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:.5rem; }
+  @media (max-width:640px) { .carte-tp dl { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+
+<div class="reglages" id="reglages">
+  <button class="fermer-r" type="button" id="reglagesFermer" aria-label="Fermer les réglages de la maquette">&times;</button>
+  <strong>Réglages de la maquette (ils n'existent pas dans l'outil)</strong>
+  <div class="btn-rangee">
+    <label for="dateSim" style="margin:0">Date du jour simulée</label>
+    <input type="date" id="dateSim" value="2026-11-10" aria-label="Date du jour simulée">
+    <button class="btn petit" type="button" data-jour="2026-11-10">10/11/2026 (aujourd'hui)</button>
+    <button class="btn petit" type="button" data-jour="2026-11-14">14/11/2026</button>
+    <button class="btn petit" type="button" data-jour="2026-12-16">16/12/2026</button>
+  </div>
+  <div class="btn-rangee">
+    <button class="btn petit" type="button" id="bascule-sombre">Mode sombre</button>
+    <button class="btn petit" type="button" id="bascule-tel">Largeur téléphone</button>
+    <button class="btn petit" type="button" id="bascule-vide">Remettre les tâches de départ</button>
+  </div>
+  <p class="mini" style="margin:.3rem 0 0">Changez la date pour voir le badge, la pulsation et les états (« À venir », « À faire », « En retard »). Tout est cliquable : le bouton en bas à gauche ouvre la liste.</p>
+</div>
+
+<h1>Outil de veille : tâches programmées</h1>
+<p class="sous-titre">Maquette cliquable. Le bouton « Tâches programmées » est tout en bas à gauche de l'écran, sur la même ligne que « Dépôt » (en bas à droite).</p>
+
+<div class="faux-outil" aria-hidden="true">
+  <strong>Le contenu habituel de l'outil de veille (simulé)</strong>
+  <div class="faux-bloc"></div><div class="faux-bloc"></div><div class="faux-bloc" style="width:70%"></div>
+</div>
+
+<div class="note"><span>&#9432;</span><span><strong>Ce que la maquette montre :</strong> la liste des tâches à date (avec les dates trouvées le 10/11/2026), l'état de chacune, le prompt prêt à coller dans le cloud, l'endroit où coller la réponse du cloud, « C'est fait », « Reporter », « Confirmer la date » et « Ajouter une tâche ». Les rappels ne s'affichent que lorsque l'outil est ouvert.</span></div>
+
+</main>
+
+<button class="btn" id="tpBouton" type="button" aria-expanded="false" aria-controls="tpPanneau">Tâches programmées<span class="badge" id="tpBadge" style="display:none">0</span></button>
+<button class="btn primaire" id="depotFaux" type="button">Dépôt</button>
+
+<div id="tpPanneau" role="dialog" aria-label="Tâches programmées">
+  <div class="entete"><h2>Tâches programmées</h2><button class="btn petit" type="button" id="tpFermer">Fermer</button></div>
+  <p class="mini">Les tâches qui dépendent d'une date de publication. Rien n'est lancé tout seul : à la date, la tâche passe en « À faire », le bouton du bas pulse, et vous copiez le prompt pour le cloud.</p>
+  <div class="btn-rangee" id="tpFiltres"></div>
+  <div id="tpListe"></div>
+  <div class="btn-rangee"><button class="btn" type="button" id="tpAjouterOuvrir">Ajouter une tâche</button></div>
+  <div id="tpAjout" class="zone" style="display:none">
+    <strong>Nouvelle tâche programmée</strong>
+    <label for="ajTitre">Titre</label><input type="text" id="ajTitre" placeholder="Par exemple : Indice des prix de novembre" autocomplete="off">
+    <label for="ajDate">Date à partir de laquelle la tâche est à faire</label><input type="date" id="ajDate">
+    <label style="font-weight:600"><input type="checkbox" id="ajEst"> Date estimée, à confirmer</label>
+    <label for="ajQuoi">Ce qu'il faut relever</label><textarea id="ajQuoi" placeholder="Les chiffres ou les textes à aller chercher, et leur période"></textarea>
+    <label for="ajSource">Adresse de la source officielle (facultatif)</label><input type="text" id="ajSource" placeholder="https://..." autocomplete="off">
+    <div class="btn-rangee"><button class="btn primaire petit" type="button" id="ajOk">Ajouter à la liste</button> <button class="btn petit" type="button" id="ajAnnuler">Annuler</button></div>
+    <div class="mini" id="ajMsg"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DEPART = [
+    { id: 'ecarts-etape2', titre: 'Étape 2 des écarts : reprendre quand l’Insee répond', date: '2026-11-11', estimee: true,
+      pourquoi: 'Les pages « dossier complet » de l’Insee répondaient par une erreur 500 le 10/11/2026. Il manque la part des 65 ans ou plus de 6 départements, tout pour 9 régions, puis les 15 textes sourcés. Un test échoue tant qu’un extrême n’a pas son texte.',
+      quoi: 'Réessayer l’Insee, un seul appel à la fois : dossier complet de DEP-17, 23, 33, 40, 64, 86 (part des 65 ans ou plus) et de REG-84, 27, 24, 94, 44, 11, 28, 76, 93, puis « L’essentiel sur… » de chaque région. Ne rien écrire sans les chiffres exacts.',
+      fichiers: ['modules/comprendre-les-chiffres/contenu/departements-region.md', 'modules/comprendre-les-chiffres/contenu/regions-france.md', 'docs/ETAT_DES_CHANTIERS.md (point de reprise de l’étape 2)'],
+      sources: [{ nom: 'Insee, dossier complet de la Charente-Maritime (modèle des autres)', url: 'https://www.insee.fr/fr/statistiques/2011101?geo=DEP-17' }],
+      reprise: { phrase: 'Reprendre à la deuxième étape', contexte: 'Point de reprise : docs/ETAT_DES_CHANTIERS.md, étape 2 des blocs écarts de « Comprendre les chiffres » (relevés partiels déjà notés pour 6 départements, reste la part des 65 ans ou plus, les 9 régions et les 15 textes sourcés). Réessayer l’Insee un appel à la fois ; si l’erreur 500 persiste, noter l’heure du nouvel essai et ne rien écrire sans chiffres exacts.' } },
+    { id: 'inflation-oct', titre: 'Inflation d’octobre : chiffre définitif', date: '2026-11-13', estimee: false,
+      pourquoi: 'Le bloc « Le Smic et l’inflation » affiche l’inflation de l’Insee. Le chiffre définitif d’octobre paraît le 13/11/2026.',
+      quoi: 'Inflation sur un an (ensemble des prix), puis énergie, alimentation, services, et variation sur un mois, pour octobre 2026, version définitive.',
+      fichiers: ['modules/comprendre-les-chiffres/donnees/smic-inflation.json'],
+      sources: [{ nom: 'Insee, indice des prix à la consommation', url: 'https://www.insee.fr/fr/statistiques/2121597' }] },
+    { id: 'inflation-nov', titre: 'Inflation de novembre : première publication', date: '2026-11-27', estimee: false,
+      pourquoi: 'Prochaine publication mensuelle de l’Insee, le 27/11/2026. Elle sert aussi à savoir si le seuil de 2 % qui déclenche une hausse du Smic est atteint.',
+      quoi: 'Inflation sur un an et sur un mois pour novembre 2026, et si le seuil de 2 % depuis la dernière revalorisation est franchi.',
+      fichiers: ['modules/comprendre-les-chiffres/donnees/smic-inflation.json'],
+      sources: [{ nom: 'Insee, indice des prix à la consommation', url: 'https://www.insee.fr/fr/statistiques/2121597' }] },
+    { id: 'smic-annonce', titre: 'Smic : y a-t-il une annonce de hausse ?', date: '2026-12-01', estimee: true,
+      pourquoi: 'Le plan de reprise note une hausse « au 1er décembre 2026 », le fichier du Smic dit 12,31 euros depuis le 01/06/2026, le web annonce le 1er janvier 2027. Il faut lever ce doute sur un texte officiel.',
+      quoi: 'Montant du Smic horaire brut, date d’effet, texte officiel (décret ou arrêté, date de parution au Journal officiel). Dire clairement si rien n’est encore publié.',
+      fichiers: ['modules/comprendre-les-chiffres/donnees/smic-inflation.json', 'modules/comprendre-les-chiffres/contenu/smic-dares.md', 'les fiches, mots du Lexique et chiffres qui citent le Smic'],
+      sources: [{ nom: 'Service-public.gouv.fr, Smic', url: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F2300' }, { nom: 'Légifrance, Journal officiel', url: 'https://www.legifrance.gouv.fr/jorf' }] },
+    { id: 'smic-decret', titre: 'Smic : décret de revalorisation publié ?', date: '2026-12-15', estimee: true,
+      pourquoi: 'En 2025, le décret est paru le 18/12. Même mission que la tâche précédente, à refaire si rien n’était publié le 1er décembre.',
+      quoi: 'Même relevé que « Smic : y a-t-il une annonce de hausse ? », avec la date d’application.',
+      fichiers: ['modules/comprendre-les-chiffres/donnees/smic-inflation.json', 'modules/comprendre-les-chiffres/contenu/smic-dares.md'],
+      sources: [{ nom: 'Légifrance, Journal officiel', url: 'https://www.legifrance.gouv.fr/jorf' }] },
+    { id: 'chomage-loc', titre: 'Taux de chômage localisés du 3e trimestre 2026', date: '2026-12-10', estimee: true,
+      pourquoi: 'On a le chiffre de la France (8,2 %), pas encore celui des régions, des départements et des territoires. L’Insee les publie en décembre (le 2e trimestre est paru le 18/09/2026). Le jour exact reste à confirmer sur le calendrier de l’Insee.',
+      quoi: 'Taux de chômage du 3e trimestre 2026 : Dordogne, Haute-Vienne, Nouvelle-Aquitaine, France métropolitaine, avec le 2e trimestre et le 3e trimestre 2025 pour comparer. Zones d’emploi si elles sont publiées.',
+      fichiers: ['modules/comprendre-les-chiffres/contenu/2026-06.md (ligne par ligne)', 'la note « Ces trois chiffres sont ceux du 2e trimestre » à retirer'],
+      sources: [{ nom: 'Insee, taux de chômage localisés', url: 'https://www.insee.fr/fr/statistiques/2012804' }] },
+    { id: 'emploi-offres', titre: 'Offres d’emploi et emploi salarié du 3e trimestre', date: '2026-12-15', estimee: true,
+      pourquoi: 'Ces deux séries du 3e trimestre ne sont pas encore publiées. Les dates exactes ne sont pas confirmées.',
+      quoi: 'Offres d’emploi (Data Emploi) pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France ; emploi salarié (Insee) du 3e trimestre 2026.',
+      fichiers: ['modules/comprendre-les-chiffres/contenu/2026-06.md'],
+      sources: [{ nom: 'Data Emploi, France Travail', url: 'https://dataemploi.francetravail.fr/emploi/panorama/DEP/24' }, { nom: 'Insee, emploi salarié', url: 'https://www.insee.fr/fr/statistiques/2134435' }] },
+    { id: 'ft-t4', titre: 'Demandeurs d’emploi du 4e trimestre 2026 (France Travail, Dares)', date: '2027-01-28', estimee: false,
+      pourquoi: 'Publication indiquée par la DREETS le 28/01/2027.',
+      quoi: 'Catégorie A, puis A, B et C, et part des inscrits depuis un an ou plus, pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France.',
+      fichiers: ['modules/comprendre-les-chiffres/contenu/2026-06.md', 'demandeurs-dares.md'],
+      sources: [{ nom: 'Dares, demandeurs d’emploi inscrits', url: 'https://dares.travail-emploi.gouv.fr/' }] }
+  ];
+
+  var etat = { taches: JSON.parse(JSON.stringify(DEPART)), filtre: 'afaire', ouverte: null, zone: {}, aujourdhui: '2026-11-10' };
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function fr(iso) { var p = String(iso).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function jours(a, b) { return Math.round((Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 86400000); }
+  function statut(t) {
+    if (t.faite) { return { cle: 'faite', texte: 'Faite le ' + fr(t.faite), cls: 'p-ok' }; }
+    var d = jours(t.date, etat.aujourdhui);
+    if (d > 0) { return { cle: 'avenir', texte: 'À venir, dans ' + d + ' jour' + (d > 1 ? 's' : ''), cls: 'p-info' }; }
+    if (d >= -7) { return { cle: 'afaire', texte: 'À faire' + (d === 0 ? ' aujourd’hui' : ' (depuis ' + (-d) + ' jour' + (d < -1 ? 's' : '') + ')'), cls: 'p-warn' }; }
+    return { cle: 'retard', texte: 'En retard de ' + (-d) + ' jours', cls: 'p-alert' };
+  }
+  function compte(cle) { return etat.taches.filter(function (t) { var s = statut(t).cle; return cle === 'afaire' ? (s === 'afaire' || s === 'retard') : s === cle; }).length; }
+
+  function libPrompt(t) { return t.reprise ? 'Copier la phrase de reprise' : 'Copier le prompt pour le cloud'; }
+  function prompt(t) {
+    if (t.reprise) { return t.reprise.phrase + '\n\n' + t.reprise.contexte; }
+    var src = t.sources.map(function (s) { return '- ' + s.nom + ' : ' + s.url; }).join('\n');
+    return 'Nous sommes le ' + fr(etat.aujourdhui) + '. Tâche programmée de l’outil de veille de l’application APP : ' + t.titre + '.\n\n'
+      + 'CONTEXTE : ' + t.pourquoi + '\n\n'
+      + 'CE QU’IL FAUT RELEVER : ' + t.quoi + '\n\n'
+      + 'SOURCES À OUVRIR :\n' + src + '\n\n'
+      + 'RÈGLES : n’utilise que des pages réellement ouvertes, jamais de mémoire ni de déduction. Pour chaque valeur, donne : la valeur, la période, la date de publication et l’adresse exacte de la page lue. Si l’information n’est pas encore publiée, dis-le clairement et donne la date annoncée par la source. Ne modifie aucun fichier et ne propose aucun code.\n\n'
+      + 'FORMAT DE LA RÉPONSE : du texte seulement, un bloc par valeur, dans l’ordre ci-dessus, puis une ligne « Ce qui reste incertain ».\n\n'
+      + 'À OUVRIR PAR MOI : pour chaque site que tu n’as pas pu ouvrir (blocage anti-robot ou page absente), donne son nom et son adresse en lien cliquable, pour que j’aille copier le texte à la main.';
+  }
+
+  function carte(t) {
+    var s = statut(t), z = etat.zone[t.id] || {}, ouv = etat.ouverte === t.id;
+    var h = '<div class="carte-tp ' + (s.cle === 'retard' ? 'retard' : (s.cle === 'afaire' ? 'afaire' : (s.cle === 'faite' ? 'faite' : ''))) + '" data-id="' + esc(t.id) + '">';
+    h += '<div class="tete"><strong>' + esc(t.titre) + '</strong><span class="pastille ' + s.cls + '">' + esc(s.texte) + '</span></div>';
+    h += '<div class="mini">Prévu le ' + fr(t.date) + (t.estimee ? ' <span class="pastille p-warn">date estimée, à confirmer</span>' : ' <span class="pastille p-ok">date officielle</span>') + '</div>';
+    if (!ouv) {
+      h += '<div class="btn-rangee"><button class="btn petit" type="button" data-act="ouvrir">Voir le contexte</button>';
+      if (s.cle !== 'faite' && s.cle !== 'avenir') { h += ' <button class="btn primaire petit a-notif" type="button" data-act="prompt">' + libPrompt(t) + '</button>'; }
+      h += '</div></div>'; return h;
+    }
+    h += '<dl><dt>Pourquoi</dt><dd>' + esc(t.pourquoi) + '</dd><dt>À relever</dt><dd>' + esc(t.quoi) + '</dd><dt>Claude mettra à jour</dt><dd>' + t.fichiers.map(esc).join(' ; ') + '</dd></dl>';
+    h += '<div class="btn-rangee">' + t.sources.map(function (x) { return '<a class="btn petit" href="' + esc(x.url) + '" target="_blank" rel="noopener">Ouvrir : ' + esc(x.nom) + '</a>'; }).join(' ') + '</div>';
+    if (s.cle !== 'faite') {
+      h += '<div class="btn-rangee"><button class="btn primaire petit' + (s.cle === 'afaire' || s.cle === 'retard' ? ' a-notif' : '') + '" type="button" data-act="prompt">' + libPrompt(t) + '</button> '
+        + (t.reprise ? '' : '<button class="btn petit" type="button" data-act="coller">Coller la réponse du cloud</button> ')
+        + (t.estimee ? '<button class="btn petit" type="button" data-act="confirmer">Confirmer la date</button> ' : '')
+        + '<button class="btn petit" type="button" data-act="reporter">Reporter</button> '
+        + '<button class="btn petit" type="button" data-act="fait">C’est fait</button></div>';
+    } else {
+      h += '<div class="btn-rangee"><button class="btn petit" type="button" data-act="rouvrir">Remettre à faire</button></div>';
+    }
+    if (z.prompt) { h += '<div class="zone"><strong>' + (t.reprise ? 'Phrase à coller au début d’une fenêtre de travail avec Claude' : 'Prompt à coller dans le cloud') + '</strong><pre>' + esc(prompt(t)) + '</pre><div class="btn-rangee"><button class="btn primaire petit" type="button" data-act="copier">Copier le texte</button> <span class="mini" data-msg="copie"></span></div></div>'; }
+    if (z.coller) { h += '<div class="zone"><strong>Réponse du cloud</strong><label for="rep-' + esc(t.id) + '">Collez ici ce que le cloud a répondu</label><textarea id="rep-' + esc(t.id) + '" data-rep="1">' + esc(t.reponse || '') + '</textarea><div class="btn-rangee"><button class="btn primaire petit" type="button" data-act="enregistrer">Enregistrer la réponse</button> <span class="mini" data-msg="rep">' + (t.reponseLe ? 'Réponse enregistrée sur votre ordinateur le ' + fr(t.reponseLe) + '. Claude la lira à la prochaine séance pour mettre à jour les chiffres.' : 'Rien d’enregistré pour l’instant.') + '</span></div></div>'; }
+    if (z.reporter) { h += '<div class="zone"><label for="rp-' + esc(t.id) + '">Nouvelle date</label><input type="date" id="rp-' + esc(t.id) + '" value="' + esc(t.date) + '"><div class="btn-rangee"><button class="btn primaire petit" type="button" data-act="reporter-ok">Reporter à cette date</button> <button class="btn petit" type="button" data-act="reporter-non">Annuler</button></div></div>'; }
+    h += '<div class="btn-rangee"><button class="btn petit" type="button" data-act="replier">Replier</button></div></div>';
+    return h;
+  }
+
+  function rendre() {
+    var a = compte('afaire'), v = compte('avenir'), f = compte('faite');
+    var b = $('tpBadge'); b.style.display = a ? 'inline-block' : 'none'; b.textContent = a;
+    $('tpBouton').className = 'btn' + (a ? ' primaire a-notif' : '');
+    var chips = [['afaire', 'À faire (' + a + ')'], ['avenir', 'À venir (' + v + ')'], ['faite', 'Faites (' + f + ')']];
+    $('tpFiltres').innerHTML = chips.map(function (c) { return '<button class="btn petit' + (etat.filtre === c[0] ? ' choisi' : '') + '" type="button" data-filtre="' + c[0] + '">' + c[1] + '</button>'; }).join(' ');
+    var liste = etat.taches.filter(function (t) { var s = statut(t).cle; return etat.filtre === 'afaire' ? (s === 'afaire' || s === 'retard') : s === etat.filtre; })
+      .sort(function (x, y) { return x.date < y.date ? -1 : 1; });
+    var vide = { afaire: 'Rien à faire aujourd’hui. La prochaine tâche est dans l’onglet « À venir ».', avenir: 'Aucune tâche à venir.', faite: 'Aucune tâche faite pour l’instant.' };
+    $('tpListe').innerHTML = liste.length ? liste.map(carte).join('') : '<div class="note ok"><span>&#9989;</span><span>' + vide[etat.filtre] + '</span></div>';
+  }
+
+  function tache(id) { return etat.taches.filter(function (t) { return t.id === id; })[0]; }
+  $('tpListe').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    var c = b.closest('.carte-tp'); if (!c) { return; }
+    var t = tache(c.getAttribute('data-id')), a = b.getAttribute('data-act'); if (!t || !a) { return; }
+    var z = etat.zone[t.id] = etat.zone[t.id] || {};
+    if (a === 'ouvrir') { etat.ouverte = t.id; }
+    else if (a === 'replier') { etat.ouverte = null; }
+    else if (a === 'prompt') { etat.ouverte = t.id; z.prompt = true; }
+    else if (a === 'coller') { z.coller = !z.coller; }
+    else if (a === 'copier') {
+      var msg = c.querySelector('[data-msg="copie"]'), txt = prompt(t);
+      var ok = function () { if (msg) { msg.textContent = 'Copié. Collez-le dans le cloud.'; } };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(ok, function () { if (msg) { msg.textContent = 'Copie impossible : sélectionnez le texte à la main.'; } }); } else { ok(); }
+      return;
+    }
+    else if (a === 'enregistrer') { var ta = c.querySelector('[data-rep]'); if (ta && ta.value.trim()) { t.reponse = ta.value; t.reponseLe = etat.aujourdhui; } else { var m = c.querySelector('[data-msg="rep"]'); if (m) { m.textContent = 'Collez d’abord la réponse du cloud.'; } return; } }
+    else if (a === 'confirmer') { t.estimee = false; }
+    else if (a === 'reporter') { z.reporter = true; }
+    else if (a === 'reporter-non') { z.reporter = false; }
+    else if (a === 'reporter-ok') { var d = c.querySelector('input[type=date]'); if (d && d.value) { t.date = d.value; z.reporter = false; } }
+    else if (a === 'fait') { t.faite = etat.aujourdhui; etat.ouverte = null; }
+    else if (a === 'rouvrir') { t.faite = null; etat.filtre = 'afaire'; }
+    rendre();
+  });
+  $('tpFiltres').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.filtre = b.getAttribute('data-filtre'); etat.ouverte = null; rendre(); } });
+
+  function ouvrir(o) { $('tpPanneau').style.display = o ? 'block' : 'none'; $('tpBouton').setAttribute('aria-expanded', o ? 'true' : 'false'); }
+  $('tpBouton').addEventListener('click', function () { ouvrir($('tpPanneau').style.display !== 'block'); });
+  $('tpFermer').addEventListener('click', function () { ouvrir(false); });
+  $('tpAjouterOuvrir').addEventListener('click', function () { $('tpAjout').style.display = 'block'; $('ajDate').value = etat.aujourdhui; $('ajTitre').focus(); });
+  $('ajAnnuler').addEventListener('click', function () { $('tpAjout').style.display = 'none'; $('ajMsg').textContent = ''; });
+  $('ajOk').addEventListener('click', function () {
+    var ti = $('ajTitre').value.trim(), da = $('ajDate').value, q = $('ajQuoi').value.trim(), s = $('ajSource').value.trim();
+    if (!ti || !da || !q) { $('ajMsg').textContent = 'Il faut un titre, une date et ce qu’il faut relever.'; return; }
+    etat.taches.push({ id: 'perso-' + Date.now(), titre: ti, date: da, estimee: $('ajEst').checked, pourquoi: 'Tâche ajoutée à la main.', quoi: q, fichiers: ['à préciser avec Claude'], sources: s ? [{ nom: 'Source indiquée', url: s }] : [] });
+    ['ajTitre', 'ajQuoi', 'ajSource'].forEach(function (i) { $(i).value = ''; }); $('ajEst').checked = false; $('tpAjout').style.display = 'none'; $('ajMsg').textContent = ''; rendre();
+  });
+
+  function jour(iso) { etat.aujourdhui = iso; $('dateSim').value = iso; rendre(); }
+  $('dateSim').addEventListener('change', function () { if (this.value) { jour(this.value); } });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-jour]'), function (b) { b.addEventListener('click', function () { jour(b.getAttribute('data-jour')); }); });
+  $('bascule-sombre').addEventListener('click', function () { document.body.classList.toggle('dark'); });
+  $('bascule-tel').addEventListener('click', function () { document.body.classList.toggle('tel'); });
+  $('bascule-vide').addEventListener('click', function () { etat.taches = JSON.parse(JSON.stringify(DEPART)); etat.ouverte = null; etat.zone = {}; etat.filtre = 'afaire'; rendre(); });
+  $('reglagesFermer').addEventListener('click', function () { $('reglages').style.display = 'none'; });
+  $('depotFaux').addEventListener('click', function () { alert('Le bouton « Dépôt » existe déjà dans l’outil : il n’est là que pour montrer la place.'); });
+  rendre();
+})();
+</script>
+</body>
+</html>

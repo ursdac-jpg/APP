@@ -3,11 +3,11 @@ id: garde-conge-supplementaire-de-naissance
 rayon: garde
 titre: "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant"
 pour_qui: "Utile si vous attendez un enfant, venez d'en avoir un ou d'en adopter un, et que vous voulez savoir si vous pouvez rester auprès de lui plus longtemps."
-tags: [congé supplémentaire de naissance, naissance, adoption, congé parental, indemnités journalières, France Travail, employeur]
+tags: [congé supplémentaire de naissance, naissance, adoption, congé parental, indemnités journalières, France Travail, employeur, Caf, ressources]
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-11-03
+verifie_le: 2026-11-15
 delai:
   - "Famille et enfants | 9 mois au plus tard | Un enfant est né ou arrivé dans votre foyer | Le congé supplémentaire de naissance doit commencer au plus tard 9 mois après la naissance ou l'arrivée de l'enfant."
 lexique:
@@ -20,12 +20,15 @@ voir_aussi_lexique:
 sources:
   - service-public-conge-supplementaire-naissance
   - service-public-conge-supplementaire-naissance-modalites
+  - caf-conge-supplementaire-de-naissance
 ce_qui_change_souvent:
   - "La durée, le taux d'indemnisation et le délai pour commencer le congé"
   - "Les possibilités de cumul avec d'autres aides, notamment le complément de libre choix du mode de garde"
   - "Les démarches en ligne pour les indépendants et les demandeurs d'emploi"
+  - "L'effet des indemnités du congé sur les ressources prises en compte par la Caf"
 revisions:
   - "2026-11-03 : fiche créée d'après la page de Service Public « Congé supplémentaire de naissance d'un salarié du secteur privé » (vérifiée le 03/06/2026, ouverte le 03/11/2026) et l'actualité « Entrée en vigueur du congé supplémentaire de naissance » (publiée le 03/06/2026, mise à jour le 23/06/2026). Le dispositif est récent et a été précisé par plusieurs décrets du 30 mai 2026 : à relire régulièrement"
+  - "2026-11 : 2026-11-15 : COMPLÉMENT d'après la page Caf « Tout savoir sur le congé supplémentaire de naissance » (09/11/2026), relevée par ChatGPT seul, page non relue par nous : deux allocations de plus sont citées parmi celles qui ne se cumulent pas (présence parentale et proche aidant), et les indemnités du congé comptent dans les ressources du RSA, de la prime d'activité et de l'AAH. À VÉRIFIER en ouvrant la page (une seule source) ; le reste de la fiche, plus précis (exception pour le complément de libre choix du mode de garde), n'est pas modifié"
 phrase_generale: "Un congé supplémentaire de naissance, indemnisé, peut s'ajouter aux congés existants après l'arrivée d'un enfant ; c'est un droit personnel de chaque parent. Sa durée, son indemnisation et les démarches sont récents et peuvent évoluer : confirmez-les auprès de votre employeur, de votre caisse ou sur les sources officielles indiquées plus bas."
 collecte: garde.collecte.md
 ---
@@ -44,6 +47,8 @@ Comment faire, si vous êtes salarié ? Prévenez votre employeur au moins 1 moi
 
 Si vous êtes demandeur d'emploi, vous prévenez France Travail (par votre espace personnel ou auprès de votre conseiller) au moins 1 mois avant, et vous déposez aussi une demande en ligne jusqu'à la veille du début du congé. Les allocations chômage sont suspendues pendant le congé, puis reprennent ensuite si les conditions sont remplies. Les indépendants et les personnes qui emploient quelqu'un par le Cesu Pajemploi passent aussi par une démarche en ligne.
 
-Attention aux cumuls : ces indemnités ne se cumulent pas avec celles d'un arrêt maladie, avec les allocations chômage, avec la prestation partagée d'éducation de l'enfant pour la même période, ni avec le complément de libre choix du mode de garde pour l'enfant concerné pendant le congé. Par exception, ce dernier cumul est autorisé pour les parents qui prennent le congé à partir du 1er juillet 2026 pour un enfant né ou adopté entre le 1er janvier et le 30 juin 2026.
+Attention aux cumuls : ces indemnités ne se cumulent pas avec celles d'un arrêt maladie, avec les allocations chômage, avec la prestation partagée d'éducation de l'enfant pour la même période, ni avec le complément de libre choix du mode de garde pour l'enfant concerné pendant le congé. La Caf ajoute à cette liste l'allocation journalière de présence parentale et l'allocation journalière de proche aidant. Par exception, le cumul avec le complément de libre choix du mode de garde est autorisé pour les parents qui prennent le congé à partir du 1er juillet 2026 pour un enfant né ou adopté entre le 1er janvier et le 30 juin 2026.
+
+Pensez aussi à vos autres aides. Les indemnités du congé sont à déclarer à la Caf : elles comptent dans les ressources prises en compte pour le RSA, la prime d'activité et l'allocation aux adultes handicapés. Pendant le congé, le montant de ces aides peut donc changer. En cas de doute, la Caf peut vous répondre.
 
 Une question sur votre cas (statut, dates, fractionnement) ? Votre employeur, votre caisse d'assurance maladie ou la CAF peuvent vous répondre ; sur service-public.gouv.fr, une page détaille chaque statut.

@@ -71,31 +71,31 @@ Chaque page d'intro de module devrait couvrir **à peu près la même quantité 
 
 **Deux familles de modules (Denis 2026-09-01), à trancher pour chaque module futur :**
 - **Famille 1 — espace perso / consultation** (Mes Repères, Mon Carnet, Lexique, Se tenir informé) : **bouton « Revoir la présentation » + note, rien de plus.** Aucun encart « Continuer / Recommencer », aucun gel — rien n'est « une analyse en cours » qu'on pourrait perdre.
-- **Famille 2 — analyse / dépôt de documents** (Analyser ma candidature, Cohérence, Découvrir mes compétences, Comparer mes pistes, Co-construire ma lettre, Préparer un entretien, ATS, Regard recruteur) : bouton + note **+ encart « Continuer / Recommencer » + gel + pulse** sur la reprise.
+- **Famille 2 — analyse / dépôt de documents** (Analyser ma candidature, Cohérence, Découvrir mes compétences, Comparer mes pistes, Co-construire ma lettre, Préparer un entretien, ATS, Regard recruteur) : bouton + note **+ bloc « Reprendre / Recommencer » sur la page de présentation** (sans gel, sans pulsation) quand un travail est engagé.
 
-Le gel laisse **toujours** l'encart cliquable et **ne gèle jamais « Retour » / « Accueil »** (la personne peut fuir sans choisir ; elle retrouvera la question au passage suivant).
+**Depuis le 12/11/2026 (consigne 258), la reprise a UNE seule forme, celle de « Reprendre mon CV »** : un bloc « Vous avez une analyse en cours sur ce module. » avec « Recommencer » à l'intérieur, à gauche et sur toute la largeur de la page de PRÉSENTATION, et « Reprendre » dans la barre du bas, à droite, sur la même ligne que Retour et Accueil. La page de travail n'est jamais grisée. « Recommencer » demande confirmation ; « Annuler » garde le travail, la confirmation efface le travail et la présentation repart à froid. Brique unique : `_introBlocReprise` (`data/metiers.js`). L'ancienne forme (encart en haut à droite d'une page de travail grisée) est supprimée, ne pas la recréer.
 
-**Briques à réutiliser, jamais recopier :** `htmlBoutonRevoirModule(id, logoModule, libelle, surPresentation)` (`js/app.js`) = pilule partagée + note 1re fois (une par personne, `aps_note_revoir_module_vue`, refermable, croix au coin haut droit d'un rectangle compact ; `surPresentation` inverse le texte). CSS partagé (`css/style.css`) : `.btn-revoir-module`, `.bloc-revoir-module` (marge `-28px` / `-8px` : calé au niveau des 3 icônes fixes, jamais dans le flux), `.note-revoir-module`, `.encart-reprise-module` + `.encart-reprise-module-boutons`, `.btn-recommencer-module` (fond saumon, jamais rouge), `.encart-reprise-module-pulse` (≈10 s), gel `.ct-gel-actif > *:not(...)`.
+**Briques à réutiliser, jamais recopier :** `htmlBoutonRevoirModule(id, logoModule, libelle, surPresentation)` (`js/app.js`) = pilule partagée + note 1re fois (une par personne, `aps_note_revoir_module_vue`, refermable, croix au coin haut droit d'un rectangle compact ; `surPresentation` inverse le texte). CSS partagé (`css/style.css`) : `.btn-revoir-module`, `.bloc-revoir-module` (marge `-28px` / `-8px` : calé au niveau des 3 icônes fixes, jamais dans le flux), `.note-revoir-module`, `.btn-recommencer-module` (fond saumon, jamais rouge).
 
 1. **« Retour » ne saute jamais l'intro.** Écran de travail → « Retour » ramène à la **page d'introduction du module**, jamais droit à l'accueil. Seule l'intro elle-même renvoie « Retour » vers la vraie page précédente.
 2. **Bouton permanent, même place / forme / libellé partout** (seule l'icône = logo du module change). Écran de travail : « Revoir la présentation » (ouvre l'intro en **détour non destructif**). Intro en détour : « Revenir au module » (retour exact à l'écran quitté ; **jamais le mot « travail »** = rémunération). Triple retour : ce bouton **+** le CTA du bas **+** le « Retour » de la barre. Le texte de la note d'aide s'adapte au sens du bouton.
-3. **Distinguer deux détours.** *Consultation* (`_xxxVoirIntro` : clic « Revoir la présentation » depuis un écran de travail) → intro affichée par-dessus, **pas d'encart**. *Reprise* (`_xxxReprisePendante` : retour dans le module depuis l'accueil / un autre module, analyse engagée) → on atterrit **au dernier endroit**, **encart « Continuer / Recommencer » à droite** du bouton (même bande, jamais empilé), texte au-dessus des deux boutons, « Recommencer » **fond saumon** (confirmation qui nomme ce qui part, rappelle que Mes Repères / Mon Carnet ne bougent pas, pas d'annulation), encart qui **pulse ≈10 s**, module **gelé** jusqu'au choix ; sans encart le titre remonte. Encart réservé aux modules qui reçoivent un CV / une lettre / une préparation d'entretien ; les espaces perso (Carnet, Lexique, Repères) n'ont que le bouton + la note.
+3. **Distinguer deux détours.** *Consultation* (`_xxxVoirIntro` : clic « Revoir la présentation » depuis un écran de travail) → intro affichée par-dessus, **pas d'encart**. *Reprise* (retour dans le module depuis l'accueil / un autre module, travail engagé) → on atterrit sur la **page de présentation**, qui porte le bloc « Reprendre / Recommencer » (voir ci-dessus, consigne 258) ; « Reprendre » rouvre le dernier endroit, aucun gel, aucune pulsation. Bloc réservé aux modules qui reçoivent un CV / une lettre / une préparation d'entretien ; les espaces perso (Carnet, Lexique, Repères) n'ont que le bouton + la note.
 
 ---
 
 ## État du bouton partagé + reprise (chantier "bouton présentation", 2026-09-01)
 
-| Module | Bouton « Revoir la présentation » + note adaptée | Encart « Continuer / Recommencer » + gel + pulse |
+| Module | Bouton « Revoir la présentation » + note adaptée | Bloc « Reprendre / Recommencer » sur la présentation (consigne 258) |
 |---|---|---|
-| Cohérence de mon dossier | ✅ `ctHtmlBandeReprise` (référence) | ✅ `_ctReprisePendante` |
-| Analyser ma candidature (Bilan) | ✅ `bilanBoutonRevoirPresentation` | ✅ `_etatBilan.reprisePendante` (aligné sur Cohérence 2026-09-01) |
-| Découvrir mes compétences | ✅ | ✅ `_decouverteReprisePendante` |
-| Comparer mes pistes | ✅ | ✅ `_comparerReprisePendante` |
+| Cohérence de mon dossier | ✅ `ctHtmlBandeReprise` (référence) | ✅ `ctTravailEnCours` |
+| Analyser ma candidature (Bilan) | ✅ `bilanBoutonRevoirPresentation` | ✅ `bilanTravailEnCours` |
+| Découvrir mes compétences | ✅ | ✅ `decouverteTravailEnCours` |
+| Comparer mes pistes | ✅ | ✅ `comparerTravailEnCours` |
 | Mon Carnet / Lexique / Mes Repères / Se tenir informé (Comprendre le cadre) | ✅ (famille 1) | ❌ pas d'analyse — normal |
 | Co-construire ma lettre / Préparer un entretien | 🟡 bandeau de reprise `_introBlocReprise` sur la présentation (cascade de fenêtres : pas d'écran de travail routé pour le bouton flip). Bouton flip complet = à la conversion en écrans routés (chantier séparé). | 🟡 « Continuer / Recommencer » sur la présentation |
 | ATS / Regard recruteur | ⏳ câblé dans `htmlPageIntroModuleParcours` (`config.detour` / `config.ctaMasque`), invisible tant que le module n'a pas d'écran de travail | ⏳ idem |
 
-Briques : `htmlBoutonRevoirModule`, `htmlEncartRepriseModule`, `htmlBandeRepriseModule`, `armerFinPulseEncartReprise`, `appliquerGelModule` (`js/app.js`) ; `htmlPageIntroModuleParcours` + `config.detour` (`data/metiers.js`) ; `_introBlocReprise` (`data/metiers.js`).
+Briques : `htmlBoutonRevoirModule`, `htmlBandeRepriseModule` (`js/app.js`) ; `htmlPageIntroModuleParcours` + `config.detour` (`data/metiers.js`) ; `_introBlocReprise` (`data/metiers.js`).
 
 ---
 
@@ -138,3 +138,6 @@ l'implémentation du parcours Découverte consolidé (proposition écrite, à va
 La taille de base suit l'écran par paliers (`--palier-taille`, `css/style.css`) **sauf** sur l'accueil (route `cv`), la page « Introduction » et les présentations de module (routes `...-intro`) : elles restent à la taille d'avant (16 px, 17 px de 1000 à 1600 px). L'attribut `data-route` de `<html>` (posé par `naviguerVers`) porte cette distinction. Toute nouvelle présentation de module dont la route finit par `-intro` en profite sans rien faire.
 
 **Exception : la barre du bas (consigne 158, 07/11/2026).** `.barre-navigation-fixe` (Retour, Accueil, Continuer) a la même taille sur toutes les pages, celle des présentations : elle est ramenée par `zoom: calc(var(--palier-barre) / var(--palier-taille))` à `--palier-barre` (1, ou 1,0625 de 1000 à 1600 px sans « Texte plus grand »). La hauteur tactile de 44 px des boutons est compensée dans la même règle. Ne pas redéfinir la taille de ces boutons en dehors de ce mécanisme.
+
+**Barre du bas : noms des boutons (décisions de Denis, 11/11/2026).** Le bouton de gauche s'appelle toujours « Retour » (jamais « Modifier le CV » ou autre) ; seul le bouton de droite change de nom ou de couleur selon le contexte. Sur une page d'introduction de module déjà commencé, le choix est « Reprendre » (barre du bas ou encart) ou « Recommencer », jamais « Continuer ».
+

@@ -45,6 +45,10 @@
   --success: #198754;
   --success-strong: #157347;
   --success-bg-subtle: #d1f4de;
+  /* Violet doux, fixe (ne suit pas la couleur d'accent choisie) : « Fiche mise à jour » (décision de Denis, 12/11/2026 : un fond légèrement violet, pour la distinguer de la nouvelle fiche, verte) */
+  --maj-strong: #5b3a9e;
+  --maj-bg-subtle: #ece4fa;
+  --maj-border: #9a7bd6;
   --danger: #dc3545;
   --danger-bg-subtle: #fdeaea;
   /* TACHE (consolidation Bilan, Lot 3, 2026-08-30) : rouge brique DOUX de
@@ -93,6 +97,9 @@
   --success: #35c79a;
   --success-strong: #6ee89a;
   --success-bg-subtle: #17301f;
+  --maj-strong: #cdb9f7;
+  --maj-bg-subtle: #2b2248;
+  --maj-border: #9a7bd6;
   /* TACHE (dette B.12, passage dedie 2026-09-13) : --danger n'avait,
      lui non plus, jamais ete redefini ici -- meme piege que --success/
      --success-strong ci-dessus (2026-08-26), repere en convertissant
@@ -570,7 +577,7 @@ summary.pref-affichage-label::marker { color: var(--text-muted); }
      UNE seule ligne, jamais 2 lignes, EN DESSOUS de la barre) reste
      inchangee -- pas assez de largeur sur un petit ecran pour les repartir
      (roue a gauche, ampoule, disquette), au niveau de la barre. */
-  #btnPreferencesAffichage { top: var(--hauteur-progression, 5rem); left: 8px; width: 38px; height: 38px; font-size: 1.1rem; }
+  #btnPreferencesAffichage { top: var(--hauteur-progression, 5rem); left: 26px; width: 38px; height: 38px; font-size: 1.1rem; }
   #panneauPreferencesAffichage { top: calc(var(--hauteur-progression, 5rem) + 44px); left: 8px; width: 200px; padding: 0.8rem; }
 }
 
@@ -615,7 +622,7 @@ summary.pref-affichage-label::marker { color: var(--text-muted); }
 .btn-session-effacer:hover { background: var(--alert-bg); }
 .btn-session-restaurer:hover { background: var(--accent-bg-subtle); }
 @media (max-width: 768px) {
-  #btnSessionTransfert { top: var(--hauteur-progression, 5rem); left: 96px; width: 38px; height: 38px; font-size: 1.1rem; }
+  #btnSessionTransfert { top: var(--hauteur-progression, 5rem); left: 114px; width: 38px; height: 38px; font-size: 1.1rem; }
   #panneauSessionTransfert { top: calc(var(--hauteur-progression, 5rem) + 44px); left: 8px; width: 200px; padding: 0.8rem; }
 }
 
@@ -650,7 +657,7 @@ summary.pref-affichage-label::marker { color: var(--text-muted); }
 }
 #panneauAide h6 { margin-bottom: 0.6rem; color: var(--text-strong); }
 @media (max-width: 768px) {
-  #btnAide { top: var(--hauteur-progression, 5rem); left: 52px; width: 38px; height: 38px; font-size: 1.1rem; }
+  #btnAide { top: var(--hauteur-progression, 5rem); left: 70px; width: 38px; height: 38px; font-size: 1.1rem; }
   #panneauAide { top: calc(var(--hauteur-progression, 5rem) + 44px); left: 8px; width: 200px; padding: 0.8rem; }
 }
 
@@ -1166,6 +1173,13 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
 }
 .sous-carte-accueil strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; }
 .sous-carte-accueil span { display: block; font-size: 0.82rem; color: var(--text-muted); }
+/* Pastille de compte d'une carte (« 17 enseignes ou employeurs ») : interligne serré quand elle passe à la ligne (la règle générale des pastilles est plus bas, `.badge`). */
+.sous-carte-accueil .badge { line-height: 1.25; }
+/* Écrans de secteurs de « Qui fait quoi » (consigne de Denis, 14/11/2026) : la grille occupe toute la largeur disponible au lieu de cartes plafonnées à 220 px ; les cartes d'une même ligne ont la même hauteur et leur pastille est alignée en bas. */
+.grille-sous-cartes-accueil.mt-grille-secteurs { display: grid; grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr)); gap: 0.9rem; justify-content: stretch; }
+.mt-grille-secteurs > .sous-carte-accueil { max-width: none; flex: none; display: flex; flex-direction: column; align-items: center; }
+.mt-grille-secteurs > .sous-carte-accueil .badge { margin-top: auto !important; }
+.mt-grille-secteurs > .sous-carte-accueil span:not(.badge) { margin-bottom: 0.55rem; }
 /* « Qui fait quoi », écran des secteurs : les trois portes d'entrée (offres publiées, intérim, insertion) se distinguent des 21 secteurs sans leur faire concurrence : un peu plus grandes, bordure d'accent. */
 .sous-carte-accueil.mt-porte { flex: 1 1 15rem; max-width: 20rem; padding: 1.4rem 1.1rem; border-color: var(--accent); }
 /* Survol (et clavier) : la carte prend un léger bleu clair, pour voir où se trouve la souris. Valable aussi en mode sombre (mélange de l'accent et du fond de la carte). */
@@ -1234,10 +1248,9 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
 }
 /* Bande "bouton + reprise", juste sous la barre d'etapes (chantier "bouton
    presentation", precisions Denis 2026-09-01). Le bouton partage est a
-   GAUCHE (decale ~120px, a mi-hauteur entre la barre d'etapes et le titre) ;
-   quand on revient dans le module avec une analyse en cours, l'encart
-   "Continuer / Recommencer" apparait a DROITE, sur la meme bande (jamais
-   empile sous le bouton). Le TEXTE au-dessus des deux boutons. */
+   GAUCHE (decale ~120px, a mi-hauteur entre la barre d'etapes et le titre).
+   La reprise « Reprendre / Recommencer » n'est plus sur cette bande : elle vit sur la
+   page de presentation (consigne 258, 12/11/2026). */
 .bande-reprise-module {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 1rem; flex-wrap: wrap; margin: 1.6rem 0 1rem;
@@ -1247,15 +1260,6 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
    le flux du contenu -- il ne doit jamais paraitre rattache a la barre
    d'etapes (retour Denis 2026-09-01). Marge negative = -(padding #app) + 20px. */
 .bande-reprise-module-gauche { margin-left: -28px; flex: 1 1 auto; }
-.bande-reprise-module .bande-reprise-module-droite { flex: 0 1 24rem; text-align: right; }
-.encart-reprise-module {
-  display: inline-block; text-align: left; max-width: 100%;
-  background: var(--accent-bg-subtle); border: 1px solid var(--accent);
-  border-left-width: 3px; border-radius: 10px; padding: 0.6rem 0.85rem;
-}
-.encart-reprise-module p { margin: 0 0 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--text-strong); }
-.encart-reprise-module-boutons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.encart-reprise-module-boutons .btn { flex: none; }
 /* "Recommencer" : fond saumon (jamais rouge dramatique -- ca peut faire
    paniquer le public cible). Meme jeton que les zones d'alerte douces. */
 .btn-recommencer-module {
@@ -1265,23 +1269,14 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
 .btn-recommencer-module:hover { background: var(--alert-bg); filter: brightness(0.97); }
 /* LIM-4 : encart doux (jaune pale des avertissements legers, retour Denis : le saumon etait trop vif) qui previent que le CV n'affiche d'abord que quelques missions. */
 .encart-limite-missions { margin: 0.75rem 0; padding: 0.6rem 0.8rem; border: 1px solid var(--warning-border); border-left-width: 4px; border-radius: 8px; background: var(--warning-bg-subtle); color: var(--text-strong); font-size: 0.9rem; }
-/* Pulse ~10 s : "une decision est attendue". Meme keyframe accent que les
-   autres pulses bornes de l'app. */
-.encart-reprise-module-pulse { animation: pulseAccentPersistant 1.8s ease-in-out 6; border-radius: 10px; }
-@media (prefers-reduced-motion: reduce) { .encart-reprise-module-pulse { animation: none; } }
-/* Gel du module tant que "Continuer / Recommencer" n'est pas tranche :
-   tout est inerte sauf la bande qui porte l'encart (et jamais la barre de
-   navigation du bas -- la personne peut toujours quitter sans choisir). */
-.page-catalogue-contenu.module-gel-actif > *:not(.bande-reprise-module):not(.barre-navigation-fixe) {
-  pointer-events: none; opacity: 0.5; user-select: none;
-}
 @media (max-width: 1024px) {
   .bande-reprise-module-gauche { margin-left: -8px; }
 }
 @media (max-width: 768px) {
   .bande-reprise-module-gauche { margin-left: -8px; }
-  .bande-reprise-module .bande-reprise-module-droite { text-align: left; flex-basis: 100%; }
 }
+/* Largeur des pages (consigne 330, 15/11/2026) : la marge de #app est maintenant de 20 px (comme le bouton « Préférences d'affichage »), le bouton « Revoir la présentation » n'a donc plus rien à rattraper : sans cette règle il dépassait de 8 px à gauche. */
+@media (min-width: 769px) { #app:has(.page-catalogue-contenu) :is(.bande-reprise-module-gauche, .bloc-revoir-module, .note-revoir-module) { margin-left: 0; } }
 
 /* TACHE (retour Denis) : l'icone d'identite d'un module prend TOUJOURS la
    couleur d'accent (celle du theme), partout ou le nom du module apparait --
@@ -1977,6 +1972,8 @@ select.form-select.select-type-structure {
    pas ce regroupement precis). Les blocs pouvant desormais se plier
    (point 5), la hauteur reste maitrisee independamment de cette disposition. */
 .grille-mon-projet { display: flex; flex-direction: column; gap: 0.9rem; padding-bottom: 4.5rem; }
+/* « Vos informations », bloc « Vous » (consigne 355, 15/11/2026) : la question de la photo est une bande sur fond blanc sous les coordonnées, sans cadre coloré (ce n'est pas la partie la plus importante de la page). */
+.vi-photo { max-width: 100%; }
 /* TACHE (retour utilisateur : "je n'arrive pas a voir Continuer sans
    scroller sur le premier ecran, la personne est perdue") : meme motif que
    .grille-mon-projet ci-dessus, reutilise pour pageSelectionCatalogue()
@@ -2309,10 +2306,15 @@ html, :root { scroll-behavior: auto; }
 .nav-fil-lien:hover { background: var(--accent-bg-subtle); border-color: var(--accent-solide); }
 .nav-fil-ici { border: 1px solid var(--accent-solide); background: var(--accent-solide); color: #fff; border-radius: 999px; padding: 0.2rem 0.9rem; font-size: 0.88rem; font-weight: 700; }
 .nav-fil-sep { opacity: 0.6; }
+/* Consigne 331 (15/11/2026) : plus de barre de défilement. Le cadre .barre-etapes-cadre mesure la place disponible ; la barre se resserre toute seule (voir « Barre des étapes » plus bas). */
+.barre-etapes-cadre { container-type: inline-size; margin-bottom: 1rem; }
 .barre-etapes-bilan {
-  flex-wrap: nowrap; overflow-x: auto;
-  gap: 0.3rem; margin-bottom: 1rem; padding: 0.45rem 0.4rem;
+  flex-wrap: nowrap; overflow: hidden;
+  gap: 0; margin-bottom: 0; padding: 0.45rem 0.4rem;
 }
+.barre-etapes-bilan > .pastille-etape-action { margin: 0 0.15rem; }
+.barre-etapes-bilan > .chevron-etape-action { margin: 0 0.3rem; }
+.barre-etapes-tel { display: none; margin: 0; text-align: center; font-weight: 800; font-size: 0.95rem; color: var(--text-strong); padding: 0 3rem 0.1rem; }   /* 3 rem de chaque côté : le bouton flottant « Mots de cette page » reste à droite */
 .barre-etapes-bilan .pastille-etape-action { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
 .barre-etapes-bilan .pastille-etape-action-icone { font-size: 0.95rem; }
 .barre-etapes-bilan .chevron-etape-action { width: 1.4rem; height: 1.4rem; font-size: 0.8rem; }
@@ -2381,6 +2383,30 @@ html, :root { scroll-behavior: auto; }
 .bloc-erip-badge-etat.complet {
   background: var(--success-bg-subtle); color: var(--success); font-weight: 700;
 }
+/* Consigne 371 (15/11/2026) : tous les rectangles de « Vos informations » se ressemblent (meme contour,
+   plus de vert ni de filet colore) ; seule la pastille d'etat change. Petit texte d'introduction sous le titre. */
+.grille-mon-projet .cv-section.bloc-erip.bloc-erip-complet-fond { border-color: var(--border-strong); }
+.bloc-erip-intro { margin: 0 0 0.7rem; color: var(--text-strong); }
+/* Consignes 372, 373, 374, 375, 381, 386 (15/11/2026) : identite, legende des langues, verrou des listes, boutons. */
+.champ-a-completer { border: 2px solid var(--warning) !important; }
+.champ-optionnel { border: 2px solid var(--text-muted) !important; }
+.bandeau-champs-orange { border-left: 5px solid var(--warning); background: var(--warning-bg-subtle); border-radius: 10px; padding: 0.5rem 0.8rem; margin: 0.5rem 0; font-weight: 600; color: var(--text-strong); }
+.legende-niveaux-langue { margin: 0.4rem 0 0.6rem; }
+.legende-niveaux-langue ul { list-style: none; padding: 0; margin: 0.3rem 0 0; display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; }
+.legende-niveaux-langue li { border: 1.5px solid var(--border-strong); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.85rem; background: var(--bg-card); }
+.legende-niveaux-langue li b { color: var(--accent-texte); }
+.catalogue-verrou .pastille-mini-conteneur { opacity: 0.5; pointer-events: none; }
+.catalogue-menu-verrou select, .catalogue-menu-verrou input, .catalogue-menu-verrou button { opacity: 0.55; }
+.catalogue-verrou-note { border-left: 5px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 10px; padding: 0.45rem 0.8rem; margin: 0.5rem 0; font-weight: 600; color: var(--text-strong); }
+.btn-annuler { background: var(--danger-bg-subtle); border: 2px solid var(--danger); color: var(--danger); }
+.btn-annuler:hover { background: var(--danger); border-color: var(--danger); color: var(--bg-card); }
+/* Tous les boutons d'action de « Vos informations » ont la forme et le contour des boutons de « Vos formations et diplomes » (jetons). */
+.grille-mon-projet .btn-primary, .grille-mon-projet .btn-outline-primary, .grille-mon-projet .btn-annuler {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  min-height: 44px; padding: 0.4rem 1.1rem; border-radius: 11px; border-width: 2px; border-style: solid;
+  font-size: 0.875rem; font-weight: 700;
+}
+.grille-mon-projet .btn-outline-primary { border-color: var(--accent); }
 
 /* TACHE (refonte parcours guide, etape 5bis, MAQUETTE_OBJECTIF_RESTRUCTURE) :
    cartes d'objectif compactes -- grille 3 colonnes, texte aligne a gauche,
@@ -2563,57 +2589,74 @@ html, :root { scroll-behavior: auto; }
 }
 .comp-profil-remettre:hover { background: var(--accent-solide); color: #fff; }
 
-/* TACHE (refonte parcours guide, sous-etape 4.4, maquette MAQUETTE_VOTRE_PROFIL) :
-   cartes metier de "Des metiers a regarder" (blocs Metiers + Autres pistes). */
+/* Liste « Métiers qui pourraient vous intéresser » (consignes 402 et 409, maquette docs/MAQUETTE_METIERS_QUI_POURRAIENT_VOUS_INTERESSER_2026-11-16.html, version 2).
+   Grille régulière de deux colonnes égales (une sur téléphone) ; une carte dont une rubrique est ouverte prend toute la largeur. Aucune couleur en dur : le mode sombre suit les variables. */
+.metier-groupe { margin: 1rem 0 0.4rem; }
+.metier-groupe-titre { display: flex; align-items: baseline; gap: 0.6rem; margin: 0 0 0.15rem; font-size: 1rem; font-weight: 800; color: var(--text-strong); }
+.metier-groupe-nb { font-size: 0.8rem; font-weight: 700; color: var(--accent-texte, var(--accent)); background: var(--accent-bg-subtle); border-radius: 999px; padding: 0.05rem 0.55rem; }
+.metier-groupe-aide { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.6rem; }
+.metier-cartes-grille { display: grid; grid-template-columns: 1fr; gap: 0.8rem; align-items: stretch; }
+@media (min-width: 760px) { .metier-cartes-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .metier-carte {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-  padding: 0.7rem 0.85rem; margin-bottom: 0.5rem;
+  display: flex; flex-direction: column; gap: 0.4rem;
+  background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px;
+  padding: 0.8rem 0.9rem 0.9rem; margin: 0;
 }
-.metier-carte-haut { position: relative; display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
-/* TACHE (retour utilisateur 2026-09-13) : "les metiers de ces fiches sont
-   tres difficiles a identifier" -- le nom du metier (titre reel de la
-   carte) avait la meme taille que tout le reste (secteur, etiquette,
-   boutons) : rien ne le distinguait comme titre. Agrandi + legerement
-   espace, seul element de la carte a cette taille. */
-.metier-carte-nom { font-weight: 700; font-size: 1.05rem; color: var(--text-strong); }
-.metier-carte-secteur { font-size: 0.78rem; color: var(--text-muted); }
-.metier-carte-tag {
-  font-size: 0.72rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px;
-  background: var(--accent-bg-subtle); color: var(--accent-texte); cursor: help;
+.metier-carte-large { grid-column: 1 / -1; border-color: var(--accent); }
+.metier-carte-haut { display: flex; align-items: flex-start; gap: 0.5rem; }
+/* Le nom du métier est un titre, jamais une ligne cliquable (retour de Denis, 16/11/2026) : deux lignes réservées pour que tous les noms s'alignent. */
+.metier-carte-nom { flex: 1; margin: 0; font-weight: 800; font-size: 1.05rem; line-height: 1.25; color: var(--text-strong); min-height: 2.5em; cursor: default; }
+.metier-carte-large .metier-carte-nom { min-height: 0; }
+.metier-carte-suppr { flex: none; width: 34px; height: 34px; margin: -0.25rem -0.35rem 0 0; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; border-radius: 8px; color: var(--text-muted); cursor: pointer; }
+.metier-carte-suppr:hover, .metier-carte-suppr:focus-visible { background: var(--bg-subtle); color: var(--danger); }
+.metier-carte-sous-titre { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.metier-carte-secteur { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+.metier-carte-ft { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.76rem; padding: 0.2rem 0.55rem; text-decoration: none; }
+.metier-carte-explique { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.15rem; }
+@media (max-width: 759px) { .metier-carte-explique { grid-template-columns: 1fr; } }
+.metier-carte-bt { min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; text-align: center; font-size: 0.8rem; line-height: 1.15; padding: 0.3rem 0.5rem; font-weight: 700; }
+.metier-carte-bt .bi-chevron-down { transition: transform 0.15s; }
+.metier-carte-bt[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
+.metier-carte-bt.est-ouvert { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte, var(--accent)); }
+/* Rubriques qui s'ouvrent DANS la carte (jamais une fenêtre) */
+.mc-panneau { background: var(--bg-subtle); border-left: 4px solid var(--accent); border-radius: 8px; padding: 0.7rem 0.85rem; margin-top: 0.2rem; }
+.mc-panneau p { margin: 0.15rem 0; font-size: 0.9rem; }
+.mc-panneau ul { margin: 0.2rem 0 0.3rem; padding-left: 1.15rem; font-size: 0.9rem; }
+.mc-panneau li { margin: 0.12rem 0; }
+.mc-panneau-titre { font-weight: 800; font-size: 0.95rem; margin: 0 0 0.4rem; color: var(--text-strong); }
+.mc-sous { font-weight: 700; font-size: 0.85rem; margin: 0.6rem 0 0.25rem; }
+.mc-barre { height: 18px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; margin: 0.3rem 0 0.5rem; }
+.mc-barre span { display: block; height: 100%; background: var(--accent-solide, var(--accent)); color: #fff; font-size: 0.72rem; font-weight: 700; line-height: 16px; padding-left: 0.6rem; white-space: nowrap; }
+.mc-comps { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.mc-comp { font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent-texte, var(--accent)); cursor: pointer; min-height: 36px; }
+.mc-comp[aria-expanded="true"] { background: var(--accent-solide, var(--accent)); color: #fff; }
+.mc-niveau2 { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 0.6rem 0.75rem; margin-top: 0.5rem; }
+.mc-niveau2 p { margin: 0.15rem 0 0.4rem; }
+.mc-badge { display: inline-block; font-size: 0.78rem; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border); margin: 0.1rem 0.15rem 0.1rem 0; }
+.mc-badge-sf { border-color: var(--accent); }
+/* Trois boutons égaux en bas de carte (fiche du métier, Garder comme Repère, Comparer) : même hauteur, au moins 48 px (cible tactile) */
+.metier-carte-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; padding-top: 0.5rem; }
+.metier-carte-actions3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+@media (max-width: 759px) { .metier-carte-actions3 { grid-template-columns: 1fr 1fr; } .metier-carte-actions3 > [data-ouvrir-fiche-metier] { grid-column: 1 / -1; } }
+.metier-carte-actions3 > .btn, .metier-carte-actions3 .btn[data-repere-trigger], .metier-carte-actions3 .cp-btn-panier {
+  min-height: 48px !important; display: flex; align-items: center; justify-content: center; gap: 0.35rem; text-align: center;
+  font-size: 0.8rem !important; line-height: 1.15; padding: 0.3rem 0.45rem !important; width: 100%; margin: 0;
 }
-.metier-carte-tag.actif { box-shadow: 0 0 0 2px var(--accent); }
-.metier-carte-tag-inerte { background: var(--bg-subtle); color: var(--text-muted); cursor: default; }
-.metier-carte-suppr { margin-left: auto; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; padding: 0.1rem 0.3rem; }
-.metier-carte-suppr:hover { color: var(--danger); }
-.metier-carte-bulle {
-  display: none; position: absolute; top: 100%; left: 0; z-index: 20; margin-top: 0.3rem;
-  width: max-content; max-width: min(30rem, 90vw);
-  background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16); padding: 0.6rem 0.75rem;
-}
-.metier-carte-bulle.ouverte { display: block; }
-.mcb-titre { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-strong); margin-bottom: 0.4rem; }
-.mcb-liste { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-.metier-carte-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
-/* TACHE (retour utilisateur 2026-09-13) : les 3 actions de la carte metier
-   se ressemblaient trop ("tous ces boutons pareil, juste les formes qui
-   changent un peu") -- "Garder comme Repere" et "Fiche du metier"
-   partageaient litteralement le meme style gris (btn-outline-secondary).
-   Reduit "Comparer cette piste" et "Fiche du metier" pour les distinguer.
-   "Garder comme Repere" (brique partagee reperesBoutonAncre) N'EST PAS
-   reduit ici : [data-repere-trigger] l'agrandit partout dans l'appli en
-   !important (reperes.css, cible tactile >= 48px, decision deja actee) --
-   le retrecir casserait cette coherence d'accessibilite pour CE bouton
-   precis, partout ou il apparait dans l'appli, pas seulement ici.
-   TACHE (retour utilisateur 2026-09-15) : "Fiche du metier" etait un simple
-   lien souligne sans bordure, a cote de vrais boutons -- lu comme une ligne
-   cliquable, pas un bouton (regle "vrais boutons, jamais des liens texte").
-   Redevient un vrai petit bouton (meme gabarit que "Comparer cette piste"),
-   seul "Garder comme Repere" reste plus grand pour l'accessibilite. */
-.metier-carte-actions .cp-btn-panier,
-.metier-carte-actions .metier-carte-lien-fiche {
-  font-size: 0.72rem; padding: 0.28rem 0.6rem;
-}
+.metier-carte-actions3 .cp-btn-panier { border-radius: 0.375rem !important; }
+.metier-carte-actions3 .reperes-type-picker, .metier-carte-actions3 .reperes-confirmation { grid-column: 1 / -1; }
+.metier-voir-reste { display: flex; justify-content: center; margin: 0.8rem 0 0.2rem; }
+/* Lignes de métiers (« recrutent souvent », « saisonniers ») */
+.metier-ligne { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.45rem 0.6rem 0.45rem 0.8rem; min-height: 52px; }
+.metier-ligne span { font-weight: 700; font-size: 0.95rem; cursor: default; }
+.metier-ligne .btn { flex: none; min-height: 36px; }
+.metier-pourquoi-recrute { background: var(--bg-subtle); border-left: 4px solid var(--accent); border-radius: 8px; padding: 0.7rem 0.85rem; margin: 0.9rem 0 0.2rem; }
+.metier-pourquoi-recrute ul { margin: 0.2rem 0 0.5rem; padding-left: 1.15rem; font-size: 0.9rem; }
+.riasec-lettres { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.riasec-pastille { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent-texte); border: 2px solid var(--accent); font-weight: 800; }
+.riasec-explication summary { display: inline-block; list-style: none; cursor: pointer; }
+.riasec-explication summary::-webkit-details-marker { display: none; }
+.fm-noms-autres summary { display: inline-block; list-style: none; cursor: pointer; }
+.fm-noms-autres summary::-webkit-details-marker { display: none; }
 
 /* TACHE (retour utilisateur 2026-09-13) : "Pourquoi ces metiers ?" -- 2
    colonnes pour optimiser l'espace (auparavant : une carte pleine largeur
@@ -3679,7 +3722,8 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
 }
 .permis-cat.active { background: var(--accent-solide); color: white; border-color: var(--accent-solide); }
 
-.badge { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+/* Une pastille revient à la ligne au lieu de dépasser de sa carte (Bootstrap la force sur une seule ligne : « 17 enseignes ou employeurs » sortait du cadre, consigne de Denis du 14/11/2026). Valable pour toutes les pastilles de l'application. */
+.badge { font-size: 0.9rem; padding: 0.4rem 0.8rem; white-space: normal; max-width: 100%; }
 .suggestion-loisirs .badge { cursor: pointer; }
 .suggestion-loisirs .badge:hover { background: var(--accent-solide); color: white; }
 
@@ -3853,6 +3897,8 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
   background: var(--bg-card, #F9FAFB); border: 1px solid var(--border, #E5E7EB);
   border-radius: 8px; padding: 0.6rem 0.7rem; max-width: 360px;
 }
+/* Consigne 357 : quand la question « citer ou développer » est posée, le rectangle prend toute la largeur (la liste de missions y tient). */
+.pastille-mini-edition--large { max-width: none; }
 .pastille-metier-info .rome-link { color: inherit; text-decoration: none; opacity: 0.85; }
 .pastille-metier-info .rome-link:hover { opacity: 1; }
 /* TACHE (retour utilisateur : pastilles metier harmonisees avec les
@@ -3912,11 +3958,6 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
 #btnPreferencesAffichage.aide-pulse-accent { animation: pulseAccentPersistant 1.8s ease-in-out 6; }
 #btnSessionTransfert.aide-pulse-disquette { animation: pulseAccentPersistant 1.8s ease-in-out 6; }
 #btnSessionTransfert.aide-pulse-disquette-verte { animation: pulseAccentPersistant 1.8s ease-in-out 6; }
-/* TACHE (module Reperes/Carnet/Lexique/Coherence, signal de decouverte
-   unique) : ajoute a la sous-carte concernee par ouvrirCarteAccueil()
-   (data/metiers.js) la 1re fois seulement. Meme pulse accent que les
-   boutons persistants. */
-.sous-carte-accueil.aide-pulse-repere { animation: pulseAccentPersistant 1.8s ease-in-out 6; }
 /* TACHE (retour Denis 2026-09-19, point 1 -- module "Un regard sur mon CV") :
    bouton "Masquer mes images" plus grand + pulse accent 10s (6 x 1.8s) des
    qu'une image vient d'etre ajoutee, pour signaler cette etape obligatoire.
@@ -3966,7 +4007,8 @@ details[open] > .ct-resume-accordeon > p:first-child::before { transform: rotate
      revienne a la ligne avant de les atteindre. Symetrique : reste centre.
      Vaut pour les pages d'introduction de module et pour l'accueil. */
   .page-catalogue-contenu > .text-center > .sousTitre,
-  #app > .text-center > .sousTitre { padding-left: 3.25rem; padding-right: 3.25rem; }
+  #app > .text-center > .sousTitre,
+  #app > .accueil-page > .text-center > .sousTitre { padding-left: 3.25rem; padding-right: 3.25rem; }
   h1 { font-size: 2rem; }
   .carte { min-width: 140px; flex: 1 0 140px; }
   /* TACHE (complement fixation .progression) : sur mobile, les 3 boutons
@@ -4408,11 +4450,13 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .bloc-depli > summary .preparer-oblig {
   font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
 }
+/* Pastille d'état dans l'en-tête d'un bloc (consigne de Denis, 14/11/2026) : elle montre tout son texte et ne dépasse jamais du cadre, quelle que soit la largeur de l'écran ou la taille des caractères. Quand elle ne tient pas à côté du titre, l'en-tête passe à la ligne et elle se place sur sa propre ligne (avant : texte coupé ou sorti du cadre). */
+.bloc-depli > summary { flex-wrap: wrap; }
 .bloc-depli > summary .pilule-etat {
-  margin-left: auto; flex-shrink: 0;
-  font-size: 0.72rem; font-weight: 700;
+  margin-left: auto; flex-shrink: 1; min-width: 0;
+  font-size: 0.72rem; font-weight: 700; line-height: 1.3;
   padding: 0.15rem 0.55rem; border-radius: 999px;
-  max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 100%; white-space: normal;
 }
 .pilule-etat.pe-ok { background: var(--success-bg-subtle); color: var(--success); }
 .pilule-etat.pe-info { background: var(--accent-bg-subtle); color: var(--accent-texte); }
@@ -4562,8 +4606,8 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 }
 
 /* (Ancien bandeau ".bilan-bandeau-detour" retire le 2026-09-01 : le Bilan
-   utilise desormais l'encart partage ".encart-reprise-module" comme
-   "Coherence de mon dossier", chantier "bouton presentation".) */
+   utilise desormais le bloc de reprise de la presentation, comme
+   "Coherence de mon dossier", consigne 258.) */
 
 /* TACHE (retour Denis, 2026-08-31) : refonte visuelle du parcours
    "Decouvrir mes competences", desormais une PAGE (plus une fenetre).
@@ -4859,7 +4903,7 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 #btnComparerPanier:hover { background: var(--bg-hover); }
 [data-theme="sombre"] #btnComparerPanier { border: 2px solid var(--border-strong); box-shadow: none; }
 @media (max-width: 768px) {
-  #btnComparerPanier { top: calc(var(--hauteur-progression, 5rem) + 158px); right: 8px; width: 42px; height: 42px; font-size: 1.1rem; }
+  #btnComparerPanier { top: calc(var(--hauteur-progression, 5rem) + 158px); right: 26px; width: 42px; height: 42px; font-size: 1.1rem; }
 }
 
 /* Panneau ouvert depuis #btnComparerPanier -- meme gabarit que
@@ -5165,15 +5209,15 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 }
 #btnNouveautes:hover { background: var(--bg-hover); }
 [data-theme="sombre"] #btnNouveautes { border: 2px solid var(--border-strong); box-shadow: none; }
-#btnNouveautes .pastille-nouveau {
+#btnNouveautes .pastille-nouveau, .fleche-pastille {
   position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px;
   background: #f59e0b; color: #1b212c; font-size: .68rem; font-weight: 700; line-height: 18px; padding: 0 4px;
 }
 #btnNouveautes .pastille-nouveau[hidden] { display: none; }
-[data-theme="sombre"] #btnNouveautes .pastille-nouveau { background: #fb923c; color: #1b212c; }
+[data-theme="sombre"] #btnNouveautes .pastille-nouveau, [data-theme="sombre"] .fleche-pastille { background: #fb923c; color: #1b212c; }
 @media (max-width: 768px) {
-  #btnNouveautes { top: var(--hauteur-progression, 5rem); left: 140px; width: 38px; height: 38px; font-size: 1.1rem; }
-  .progression { padding-left: 184px; }
+  #btnNouveautes { top: var(--hauteur-progression, 5rem); left: 158px; width: 38px; height: 38px; font-size: 1.1rem; }
+  .progression { padding-left: 202px; }
 }
 .nv-mois { margin-top: 1.6rem; font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: capitalize; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
 .nv-carte { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
@@ -5363,28 +5407,17 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 @media (min-width: 1400px) { :root { --palier-taille: 1.125; } }
 /* Longueur de ligne (consigne 187, revue par la consigne 216 du 10/11/2026) : la limite de 34 em laissait un tiers de la ligne vide et obligeait a defiler (portables a pave tactile).
    Un paragraphe ou un item de liste remplit maintenant toute la largeur de sa rubrique, avec un garde-fou de 64 em (environ 115 caracteres) pour qu'une ligne ne devienne jamais illisible
-   sur un tres grand ecran (la colonne des modules est deja limitee a 1440 px). En em, donc la limite suit la taille du texte et la police choisie. */
-.page-catalogue-contenu :is(p, li) { max-width: 64em; }
+   sur un tres grand ecran (la colonne des modules n'est plus limitee depuis le 15/11/2026, consigne 330). En em, donc la limite suit la taille du texte et la police choisie. */
+.page-catalogue-contenu :is(p, li) { max-width: 52em; }   /* 64 em avant le 15/11/2026 (consigne 330, choix de Denis : texte plafonné, environ 120 caractères par ligne) */
 .page-catalogue-contenu :is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) > :is(p, li), .page-catalogue-contenu :is(p, li):is(.text-center, [style*="text-align:center"], [style*="text-align: center"]) { margin-left: auto; margin-right: auto; }
-/* Colonne des modules (consigne 187, 09/11/2026, retour de Denis : « un texte entasse d'un cote et d'enormes espaces vides, ca me vide »). La colonne est centree et ne depasse pas 1440 px :
-   les blocs ne s'etalent plus sur toute la largeur d'un grand ecran. Sur les pages de presentation des modules (generateur htmlPageIntroModuleParcours, data/metiers.js), les cartes sont
-   disposees en GRILLE 2 SUR 2 des 1100 px (choix de Denis, 10/11/2026) : on lit de gauche a droite, rangee par rangee, et les deux cartes d'une rangee ont la meme hauteur. Restent pleine largeur : la premiere carte (l'accroche),
-   toute carte qui ne contient qu'un seul bloc (bandeau de fin, ex. l'enregistrement par la disquette) et une derniere carte seule sur sa rangee. L'ordre dans la page (HTML) n'est pas modifie. La page Nouveautes a sa propre
-   disposition, une nouveaute par ligne (plus bas). Sous 1100 px : une seule colonne, comme avant. */
-.page-catalogue-contenu { max-width: 1440px; margin-left: auto; margin-right: auto; }
-.intro-colonnes { margin-top: 1.5rem; }
-.intro-colonnes > .cv-section { margin: 0 0 1.5rem; }
-@media (min-width: 1100px) {
-  .intro-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; max-width: 1180px; margin-left: auto; margin-right: auto; }
-  .intro-colonnes > :first-child, .intro-colonnes > :not(.cv-section), .intro-colonnes > .cv-section:has(> :only-child) { grid-column: 1 / -1; }
-  /* carte seule sur sa rangee : pleine largeur (classe posee par equilibrerGrilleIntro, js/app.js) */
-  .intro-colonnes > .intro-seule { grid-column: 1 / -1; }
-  /* carte a longue liste (6 puces ou plus) : pleine largeur, liste sur deux colonnes, pour qu'elle ne laisse pas un grand vide dans la carte voisine. Le remplissage « dense » comble les trous de la grille (une carte plus courte peut alors remonter d'un rang). */
-  .intro-colonnes { grid-auto-flow: row dense; }
-  .intro-colonnes > .cv-section:has(> ul > li:nth-child(6)) { grid-column: 1 / -1; }
-  .intro-colonnes > .cv-section > ul:has(> li:nth-child(6)) { column-count: 2; column-gap: 2.5rem; }
-  .intro-colonnes > .cv-section > ul:has(> li:nth-child(6)) > li { break-inside: avoid; }
-}
+/* Colonne des modules (consigne 187, 09/11/2026) : la colonne etait limitee a 1440 px (limite retiree le 15/11/2026, consigne 330 : les blocs suivent l'ecran, seuls les paragraphes restent plafonnes).
+   Les pages de presentation des modules (« ...-intro ») gardent UNE SEULE COLONNE, comme dans les videos : la grille 2 sur 2 de la consigne 187 a ete retiree le 10/11/2026 sur decision de Denis (consigne 190). */
+.page-catalogue-contenu { margin-left: auto; margin-right: auto; }
+/* Largeur des pages (consigne 330, 15/11/2026, choix de Denis : « maximum de largeur, texte plafonné ») : plus de plafond de 1440 px, la colonne suit l'écran ; les marges de chaque côté sont alignées sur les boutons du haut (20 px) ;
+   seuls les paragraphes et listes gardent un plafond de lecture (52 em, plus haut). Toutes les pages qui utilisent ce cadre, sauf la page d'accueil (elle ne l'utilise pas). Téléphone : marge de 1 rem comme avant. */
+@media (min-width: 769px) { #app:has(.page-catalogue-contenu) { padding-left: 20px; padding-right: 20px; } }
+/* « Vos informations » (consigne 326) : la colonne porte deja la reserve du bas, la grille des blocs ne la double pas. */
+.page-catalogue-contenu > .grille-mon-projet { padding-bottom: 0; }
 /* Page Nouveautes : UNE NOUVEAUTE PAR LIGNE (demande de Denis, 09/11/2026). Des 900 px, chaque ligne est rangee en trois colonnes : la date et la mention « Nouveau » a gauche, le titre et le texte au milieu,
    le bouton « Essayer » (ou l'indication de la carte de l'accueil) a droite. Aucune zone vide a droite du texte, et l'oeil suit une seule ligne par nouveaute. Sous 900 px : empile, comme avant. */
 @media (min-width: 900px) {
@@ -5409,6 +5442,34 @@ html[data-route="cv"], html[data-route="introduction"], html[data-route$="-intro
 .fc-auto, .fc-module, .fc-passage, .barre-raison-suivant, .bloc-depli > summary .pilule-etat, .bloc-depli > summary .preparer-oblig,
 .barre-etapes-bilan .pastille-etape-action, .barre-navigation .btn-accueil { font-size: 0.875rem; }
 @media (max-width: 768px) { .barre-etapes-bilan .pastille-etape-action { font-size: 0.875rem; } }
+/* Barre des étapes (consigne 331, présentation 1 choisie par Denis le 15/11/2026, maquette docs/MAQUETTE_BARRE_ETAPES_2026-11-15.html) : elle se resserre toute seule selon la place du cadre, en rem donc elle suit « Texte plus grand ».
+   Large : comme avant. Moins large : pastilles et flèches resserrées. Encore moins : seule l'étape en cours garde son nom (les autres gardent leur icône, nom au survol). Téléphone : plus de flèches, puis la ligne « Étape x sur y ». */
+@container (max-width: 84rem) {
+  .barre-etapes-bilan .pastille-etape-action { padding: 0.22rem 0.5rem; gap: 0.3rem; margin: 0 0.075rem; }   /* le texte garde 0,875 rem : jamais sous 14 px */
+  .barre-etapes-bilan .chevron-etape-action { width: 1rem; height: 1rem; font-size: 0.65rem; margin: 0 0.075rem; }
+}
+@container (max-width: 75rem) {
+  .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) .pastille-etape-action-label { display: none; }
+  .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) { padding: 0.3rem 0.5rem; }
+  .barre-etapes-bilan .pastille-etape-action-icone { font-size: 1.1rem; }
+}
+@container (max-width: 45rem) {
+  .barre-etapes-bilan .chevron-etape-action { display: none; }
+  .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) { padding: 0.3rem 0.3rem; }
+  .barre-etapes-bilan .pastille-etape-action-courante { white-space: normal; line-height: 1.15; flex-shrink: 1; }
+}
+@container (max-width: 26rem) {
+  .barre-etapes-bilan .pastille-etape-action-courante .pastille-etape-action-label { display: none; }
+  .barre-etapes-bilan .pastille-etape-action-courante { padding: 0.3rem 0.4rem; }
+  .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) { padding: 0.25rem 0.3rem; }
+  .barre-etapes-bilan .pastille-etape-action { gap: 0; }
+  .barre-etapes-bilan .pastille-etape-action-icone { font-size: 1rem; }
+  .barre-etapes-bilan { padding: 0.3rem 0.1rem; }
+  .barre-etapes-tel { display: block; }
+}
+@container (max-width: 18rem) {
+  .barre-etapes-bilan .pastille-etape-action, .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante), .barre-etapes-bilan .pastille-etape-action-courante { padding: 0.2rem 0.1rem; margin: 0; }
+}
 .bilan-preparer .preparer-detail { font-size: 0.875rem; }
 .barre-navigation .btn-lg { font-size: 1rem !important; }
 /* Boutons : 44 px de haut au minimum ; zone cliquable des « i » elargie sans grossir le dessin. */
@@ -5427,6 +5488,14 @@ html[data-route="cv"], html[data-route="introduction"], html[data-route$="-intro
   .bilan-preparer .fc-quoi { margin-bottom: 0.6rem; }
   .bilan-preparer .bloc-depli { margin-bottom: 0.6rem; }
 }
+/* Téléphone + caractères « très grands » (consigne de Denis, 14/11/2026) : trois boutons côte à côte ne tiennent plus (« Commencer → » était écrasé et sortait du bouton). La barre passe sur deux lignes : « Retour » et « Accueil » en haut, le bouton principal sur toute la largeur en dessous. */
+@media (max-width: 480px) {
+  html[data-taille="tres-grand"] .barre-navigation.d-flex { grid-template-columns: 1fr 1fr; row-gap: 0.4rem; }
+  html[data-taille="tres-grand"] .barre-navigation.d-flex > .btn-accueil { justify-self: end; }
+  html[data-taille="tres-grand"] .barre-navigation.d-flex > button.btn-primary,
+  html[data-taille="tres-grand"] .barre-navigation.d-flex > button.btn-success { grid-column: 1 / -1; justify-self: stretch; }
+  html[data-taille="tres-grand"] .page-catalogue-contenu, html[data-taille="tres-grand"] .grille-mon-projet { padding-bottom: 8rem; }
+}
 /* Telephone : la barre du bas ne coupe plus rien (le bouton principal passe sur deux lignes si besoin, le message de blocage prend la premiere ligne de la barre), la barre
    des etapes ne garde que le nom de l'etape en cours et le titre du bloc est un peu plus petit. */
 @media (max-width: 480px) {
@@ -5434,9 +5503,6 @@ html[data-route="cv"], html[data-route="introduction"], html[data-route$="-intro
   .barre-navigation.d-flex > button.btn-primary, .barre-navigation.d-flex > button.btn-success { justify-self: stretch; white-space: normal; line-height: 1.2; min-width: 0; }
   .barre-navigation-fixe .barre-navigation .btn-lg { font-size: 0.95rem !important; }
   .barre-navigation .barre-raison-suivant { position: static; grid-row: 1; grid-column: 1 / -1; max-width: none; text-align: center; background: none; border: 0; box-shadow: none; padding: 0 0 0.1rem; color: var(--text-muted); }
-  .barre-etapes-bilan .pastille-etape-action:not(.pastille-etape-action-courante) .pastille-etape-action-label { display: none; }
-  .barre-etapes-bilan .pastille-etape-action { padding: 0.25rem 0.4rem; }
-  .barre-etapes-bilan .chevron-etape-action { width: 0.8rem; }
   .bilan-preparer h1 { font-size: 1.9rem; }
   .bilan-preparer .preparer-titre { font-size: 1.1rem; }
   .fc-bas-col { flex-basis: 100%; }
@@ -5524,7 +5590,7 @@ html[data-route="cv"], html[data-route="introduction"], html[data-route$="-intro
 #btnIntroduction i { font-size: 1.15rem; }
 [data-theme="sombre"] #btnIntroduction { box-shadow: none; }
 @media (max-width: 768px) {
-  #btnIntroduction { top: var(--hauteur-progression, 5rem); right: 12px; height: 38px; font-size: .95rem; padding: 0 .7rem; }
+  #btnIntroduction { top: var(--hauteur-progression, 5rem); right: 30px; height: 38px; font-size: .95rem; padding: 0 .7rem; }
 }
 .ip-page { margin: 0 auto; } /* meme largeur que les autres pages (consigne 144) : plus de plafond de 860 px */
 .ip-accroche { background: var(--accent-bg-subtle); text-align: center; margin-bottom: 1rem; }
@@ -5590,6 +5656,102 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 @media (max-width: 640px) {
   .ip-figures-deux, .ip-modeles { grid-template-columns: 1fr; }
 }
+
+/* ===== Étape « Vos missions et compétences » (lot 3, 14/11/2026) =====
+   Les règles .vp-question, .vp-fam, .vp-carte, .vp-cartes viennent de _vpStyle() (js/app.js, partagé avec « Votre parcours »).
+   Ci-dessous, seulement les ajouts de cette étape (maquette docs/MAQUETTE_MISSIONS_COMPETENCES_PAR_EXPERIENCE_2026-11-14.html). */
+.vp-carte.vp-longue { display: block; flex: 1 1 auto; border-radius: 12px; padding: .45rem .8rem; text-align: left; line-height: 1.35; }
+.vp-carte.mixte { border-style: dashed; border-color: var(--accent); background: var(--accent-bg-subtle); }
+.vp-fam.fam-sf { border-left-color: var(--bs-primary); } .vp-fam.fam-sf .vp-fam-nb { background: var(--bs-primary); }
+.vp-fam.fam-se { border-left-color: var(--bs-success); } .vp-fam.fam-se .vp-fam-nb { background: var(--bs-success); }
+.vp-fam.fam-sv { border-left-color: var(--bs-info); } .vp-fam.fam-sv .vp-fam-nb { background: var(--bs-info); color: #000; }
+.vp-carte.fixe { cursor: default; } .vp-carte.fixe::before { content: none; }
+.vp-carte.avec-src { border-radius: 14px; line-height: 1.25; }
+.vp-src { display: block; font-size: .75rem; font-weight: 400; color: var(--text-muted); }
+.vp-carte.coche .vp-src { color: rgba(255,255,255,.85); }
+.onglet-validation-import-btn.onglet-global { border-radius: 999px; border-style: dashed; background: var(--accent-bg-subtle); margin-right: .5rem; }
+.onglet-validation-import-btn.onglet-vise { border-radius: .25rem; border-left-width: 7px; border-left-color: var(--accent); background: var(--bg-subtle); }
+.onglets-comp .onglets-validation-import { border-bottom: 0; margin-bottom: .4rem; padding-bottom: 0; }
+.onglets-comp .onglets-validation-import.derniere { border-bottom: 2px solid var(--border); padding-bottom: .5rem; margin-bottom: 1rem; }
+.vp-sous-titre { font-size: .85rem; font-weight: 700; color: var(--text-muted); margin: .5rem 0 .3rem; }
+.onglet-validation-import-btn.onglet-global.actif, .onglet-validation-import-btn.onglet-vise.actif { background: var(--accent-solide); border-color: var(--accent-solide); }
+.onglet-validation-import-btn.onglet-vise.actif { border-left-color: #fff; }
+.vp-cible-bilan { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: .8rem; }
+.vp-cible-bilan .progress { background: var(--border-strong); }
+.vp-cible-bilan .progress-bar { background: var(--accent-solide); }
+.vp-vise { font-size: .75rem; font-weight: 400; font-style: italic; margin-left: .4rem; color: var(--text-muted); }
+.vp-carte.coche .vp-vise { color: rgba(255,255,255,.85); }
+/* Lot 4 : ce qui a été choisi dans « Vos informations » (panneau d'expérience). */
+.vp-panneau { display: block; font-size: .75rem; font-weight: 700; margin-top: .1rem; color: var(--accent-texte); }
+.vp-carte.coche .vp-panneau { color: rgba(255,255,255,.9); }
+/* Lot 5 : « Dans quelle expérience l'avez-vous faite ? » sous une mission du métier visé. */
+.vp-ou { border: 2px solid var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); border-radius: 10px; padding: .55rem .75rem; margin: .1rem 0 .6rem 1rem; }
+.vp-cible { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); border-radius: 12px; padding: .7rem 1rem; margin: .6rem 0; }
+.vp-cible-metier { font-size: 1.15rem; font-weight: 800; color: var(--text-strong); }
+.vp-carte small { font-weight: 400; opacity: .85; margin-left: .25rem; }
+.vp-ligne { display: flex; gap: .4rem; align-items: center; margin: .3rem 0; }
+.vp-ligne .form-control { flex: 1; }
+@media (max-width: 600px) { .vp-ligne { flex-wrap: wrap; } .vp-ligne .vp-carte.vp-longue { flex: 1 1 100%; } .vp-ligne .btn { margin-left: auto; } }
+.vp-cv-liste { margin: .1rem 0 .6rem; padding-left: 1.2rem; font-size: .95rem; }
+.vp-cv-poste { font-weight: 800; color: var(--text-strong); margin-top: .5rem; }
+.vp-vide { color: var(--text-muted); font-style: italic; font-size: .9rem; }
+
+/* ============================================================
+   Bloc « Vos diplômes » (maquette validée le 15/11/2026, consignes 341 à 352, docs/MAQUETTE_VOS_DIPLOMES_2026-11-15.html).
+   Repères visuels : ce qui est à CHOISIR est sur fond bleu (étiquette « À choisir »), ce qui est à ÉCRIRE sur fond ambre, les MISSIONS
+   sur fond violet clair (jamais le bleu des métiers : ils étaient confondus). Les trois fonds ont leur variante en mode sombre.
+   Tout est limité à .fm-bloc : aucun autre écran n'est touché.
+   ============================================================ */
+:root { --fm-miss-bg: #f1ebfd; --fm-miss-bord: #7c5cc4; --fm-miss-texte: #4c2f99; }
+[data-theme="sombre"] { --fm-miss-bg: #2a2140; --fm-miss-bord: #a78bfa; --fm-miss-texte: #cdbdfb; }
+/* Décision de Denis (15/11/2026, consigne 358) : plus de rectangle ni de barre bleus autour des choix ; l'étiquette « À choisir » et les boutons bordés de bleu restent. */
+.fm-bloc .fm-choix { margin: 0.8rem 0; }
+.fm-bloc .fm-ecrire { border-left: 5px solid var(--warning); background: var(--warning-bg-subtle); border-radius: 10px; padding: 0.6rem 0.8rem 0.7rem; margin: 0.8rem 0; }
+.fm-bloc .fm-miss { border-left: 5px solid var(--fm-miss-bord); background: var(--fm-miss-bg); border-radius: 10px; padding: 0.6rem 0.8rem 0.7rem; margin: 1rem 0; }
+.fm-bloc .fm-q { font-weight: 700; font-size: 1rem; margin: 0 0 0.4rem; color: var(--text-strong); display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.fm-bloc .fm-tag { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; border-radius: 999px; padding: 0.12rem 0.55rem; border: 1.5px solid; background: var(--bg-card); }
+.fm-bloc .fm-tag--choix { color: var(--accent-texte); border-color: var(--accent); }
+.fm-bloc .fm-tag--ecrire { color: var(--warning-strong); border-color: var(--warning); }
+.fm-bloc .fm-tag--miss { color: var(--fm-miss-texte); border-color: var(--fm-miss-bord); }
+.fm-bloc .fm-choix .jeton { border-color: var(--accent); background: var(--bg-card); font-size: 0.85rem; }
+.fm-bloc .fm-choix .jeton.is-actif { background: var(--accent-bg-subtle); border-width: 2.5px; }
+.fm-bloc .fm-choix .jeton[disabled] { border-color: var(--border-strong); }
+.fm-bloc .fm-miss .jeton { border-color: var(--fm-miss-bord); background: var(--bg-card); font-size: 0.85rem; }
+.fm-bloc .fm-miss .jeton.is-actif { background: var(--fm-miss-bg); border-width: 2.5px; }
+.fm-bloc .fm-ecrire .form-control { border: 2px solid var(--warning); background: var(--bg-card); color: var(--text-strong); min-height: 2.4rem; }
+.fm-bloc .fm-ecrire .form-control:focus { box-shadow: 0 0 0 3px var(--warning-bg-subtle); border-color: var(--warning-strong); }
+.fm-bloc .fm-ecrire .form-control:disabled { opacity: 0.6; }
+.fm-bloc .small.text-muted, .fm-bloc .small { color: var(--text-strong); }
+.fm-bloc .fm-aide { font-size: 0.85rem; margin: 0.3rem 0 0; color: var(--text-strong); }
+.fm-bloc .fm-note-auto { font-size: 0.85rem; font-weight: 600; color: var(--accent-texte); margin: 0.3rem 0 0; }
+.fm-bloc .fm-fam { font-weight: 700; font-size: 0.9rem; margin: 0.7rem 0 0.2rem; color: var(--text-strong); }
+.fm-bloc .fm-sous { border-top: 2px solid var(--accent); margin-top: 0.6rem; padding-top: 0.5rem; }
+.fm-bloc .btn-sm { font-weight: 600; }
+.fm-bloc .fm-ligne { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.fm-bloc .fm-haut { padding-bottom: 0.4rem; border-bottom: 1px dashed var(--accent); }
+.fm-bloc .fm-limite { margin: 0.6rem 0 0.35rem; }
+.fm-bloc .fm-btn-large { min-width: 12.5rem; }
+.fm-bloc .btn-fm-miss { background: var(--fm-miss-bg); border: 2px solid var(--fm-miss-bord); color: var(--fm-miss-texte); font-weight: 700; }
+.fm-bloc .btn-fm-miss:hover { background: var(--fm-miss-bord); color: #fff; }
+/* Panneau « Ajouter une expérience professionnelle » (consignes 388 à 390, 15/11/2026) : rubriques en plus de celles des diplômes, mêmes variables, mode sombre compris. */
+.fm-bloc .fm-gris { border-left: 5px solid var(--text-muted); background: var(--bg-subtle); border-radius: 10px; padding: 0.6rem 0.8rem 0.7rem; margin: 1rem 0; }
+#mcPanRacine .form-control, #mcPanRacine .form-select { background: var(--bg-card); color: var(--text-strong); min-height: 2.4rem; }
+#mcPanRacine .form-control:disabled, #mcPanRacine .bg-light { background: var(--bg-subtle) !important; color: var(--text-muted); }
+.fm-bloc .fm-garde { border: 2px solid var(--warning); background: var(--warning-bg-subtle); color: var(--text-strong); border-radius: 10px; padding: 0.5rem 0.75rem; margin: 0.4rem 0; font-size: 0.9rem; }
+.fm-bloc .fm-compteur { display: inline-block; font-weight: 800; font-size: 0.9rem; margin: 0.2rem 0; padding: 0.1rem 0.7rem; border-radius: 999px; border: 2px solid var(--accent); color: var(--accent-texte); background: var(--bg-card); }
+.fm-bloc .fm-compteur.trop { border-color: var(--danger); color: var(--danger); background: var(--danger-bg-subtle); }
+.fm-bloc .fm-recap { font-weight: 700; color: var(--text-strong); margin: 0.8rem 0 0.2rem; }
+.fm-bloc .fm-det { margin: 0.4rem 0; }
+.fm-bloc .fm-det > summary { cursor: pointer; font-weight: 700; color: var(--text-strong); margin-bottom: 0.3rem; }
+/* Page « Vos informations » (consigne 359, 15/11/2026) : tous les boutons de choix (Oui / Non, Madame / Monsieur...) sont bordés de bleu, comme « De quoi disposez-vous ? ». */
+.grille-mon-projet .jeton--radio { border-color: var(--accent); }
+.grille-mon-projet .jeton--radio.is-actif { background: var(--accent-bg-subtle); border-width: 2.5px; }
+.grille-mon-projet .jeton--radio[disabled] { border-color: var(--border-strong); }
+/* Missions à cocher d'une certification (« Citer ou développer », consignes 355 à 357) : même fond violet clair que les missions des diplômes. */
+.cd-miss { border-left: 5px solid var(--fm-miss-bord); background: var(--fm-miss-bg); border-radius: 10px; padding: 0.6rem 0.8rem 0.7rem; margin: 0.6rem 0; }
+.cd-miss .cd-miss-titre { font-weight: 700; margin: 0 0 0.3rem; color: var(--text-strong); }
+.cd-miss .jeton { border-color: var(--fm-miss-bord); background: var(--bg-card); font-size: 0.85rem; }
+.cd-miss .jeton.is-actif { background: var(--fm-miss-bg); border-width: 2.5px; }
 
 /* ===== Introduction : diaporama oral (modules/introduction/diaporama.js) =====
    Un cadre 16/9 dont toutes les tailles suivent SA largeur (unité cqw) : lisible à l'écran, au vidéoprojecteur et en plein écran. Maquette : docs/MAQUETTE_DIAPORAMA_INTRODUCTION_2026-11-02.html */
@@ -5674,6 +5836,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
   html #btnNouveautes .pastille-nouveau { font-size: calc(.68rem * var(--echelle-fixe)); }
   html #btnIntroduction { font-size: calc(1rem * var(--echelle-fixe)); padding: 0 calc(.9rem * var(--echelle-fixe)); gap: calc(.45rem * var(--echelle-fixe)); }
   html #btnIntroduction i { font-size: calc(1.15rem * var(--echelle-fixe)); }
+  html .fleche-bouton { font-size: calc(1rem * var(--echelle-fixe)); }
   html #btnRetourModuleExterne { font-size: calc(.9rem * var(--echelle-fixe)); padding: 0 calc(.9rem * var(--echelle-fixe)); gap: calc(.4rem * var(--echelle-fixe)); }
   html #btnRetourModuleExterne .bi { font-size: calc(1.2rem * var(--echelle-fixe)); }
 }
@@ -5688,13 +5851,16 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .qc-texte label { font-weight: 700; font-size: 1rem; }
 .qc-etiquette { display: inline-block; margin-left: .4rem; padding: .05rem .55rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); font-size: .75rem; font-weight: 600; white-space: nowrap; }
 .qc-consigne { font-size: .88rem; color: var(--text-muted); margin: 0 0 .5rem 2.5rem; }
-.qc-suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .5rem 2.5rem; }
+.qc-suggestions { display: grid; grid-template-columns: 1fr; gap: .5rem; margin: 0 0 .5rem 2.5rem; }
+@media (min-width: 576px) { .qc-suggestions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 992px) { .qc-suggestions { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.qc-suggestions-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .5rem 2.5rem; }
 .qc-bloc > .form-control, .qc-bloc > .d-flex, .qc-bloc > .pastilles, .qc-bloc > div:not(.qc-texte):not(.qc-suggestions):not(.qc-zone-autre):not(.qc-etat) { margin-left: 2.5rem; }
 .qc-ovale { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; text-align: left; }
 .qc-ovale:hover, .qc-ovale:focus-visible { border-color: var(--accent); }
 .qc-ovale[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
 .qc-ovale[aria-pressed="true"]::before { content: "\2713\00a0"; }
-.qc-ovale.longue { flex: 1 1 100%; border-radius: 26px; padding-left: 1.4rem; }
+.qc-ovale.longue { border-radius: 26px; padding-left: 1.4rem; }
 .qc-ovale.tout, .qc-ovale.autre { border-style: dashed; }
 .qc-zone-autre { display: none; margin: .3rem 0 .4rem 2.5rem; }
 .qc-zone-autre.ouverte { display: block; }
@@ -5736,3 +5902,179 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .appui-msg-valide { font-size: .9rem; font-weight: 600; color: var(--success-strong); }
 .appui-zone-mots[hidden], .appui-msg-valide[hidden] { display: none !important; }
 .appui-encart .preparer-detail { margin: .5rem 0 0; font-size: .9rem; color: var(--text-muted); }
+
+
+/* Page « Fiche du métier » (consigne 271, 13/11/2026). Aucune forme de bouton pour les listes de compétences : elles se lisent. */
+.fiche-metier .fm-titre { text-align: center; margin: 1.4rem 0 .4rem; }
+.fiche-metier .fm-initiale { font-size: 1.45em; line-height: 1; }
+.fm-secteur { text-align: center; color: var(--text-muted); margin: 0 0 .4rem; }
+.fm-actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .8rem 0 1.4rem; }
+.fm-aide { font-size: var(--t-petit); color: var(--text-muted); margin: 0 0 .5rem; }
+.fm-actions-bas { text-align: center; margin: 1.4rem 0 1rem; }
+.fm-actions-bas .fm-actions { margin: .4rem 0 0; }
+/* « Comparer cette piste » et « Garder comme Repère » côte à côte : même forme (rectangle arrondi), même couleur, même graisse (consigne de Denis, 13/11/2026). */
+.fm-actions-bas .fm-actions .btn { border-radius: var(--bs-btn-border-radius); margin-top: 0; font-weight: 600; }
+/* Écran « Candidater » (consigne 273) : titre avec icône et couleur d'accent, nom du métier d'une seule couleur avec grande initiale, boutons discrets à côté. */
+.candidater-page .cand-titre { color: var(--accent-texte); margin: 2.2rem 0 1.3rem; text-align: center; font-size: 1.8rem; font-weight: 800; }
+/* Carte « Votre métier » (consigne 275, piste 1) : tout ce qui concerne le métier dans un seul cadre */
+.candidater-page .cand-titre { margin-bottom: 1rem; }
+.candidater-page .cand-carte-metier { max-width: 640px; margin: 0 auto 1.6rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 16px; background: var(--bg-card); padding: .9rem 1.1rem 1rem; text-align: center; }
+.candidater-page .cand-carte-etiquette { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .1rem; }
+.candidater-page .cand-metier-nom { font-size: 1.9rem; font-weight: 800; color: var(--text-strong); line-height: 1.15; }
+.candidater-page .cand-lettrine { font-size: 1.25em; font-weight: 800; line-height: 1; }
+.candidater-page .cand-carte-secteur { color: var(--text-muted); font-size: .95rem; margin: .15rem 0 .8rem; }
+.candidater-page .cand-carte-metier .cand-metier-nom + .cand-carte-actions { margin-top: .8rem; }
+.candidater-page .cand-carte-actions { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.candidater-page .cand-carte-aide { font-size: .85rem; color: var(--text-muted); margin: .7rem 0 0; }
+/* Page « Chercher un autre métier » (consigne 276) : barre bien visible et explications tant que rien n'est tapé */
+.cand-recherche-champ { border: 2px solid var(--accent); box-shadow: 0 2px 10px rgba(0, 0, 0, .08); font-size: 1.25rem; padding: .8rem 1rem; }
+.cand-recherche-aide { max-width: 640px; margin: 1.2rem auto 0; padding: .9rem 1.1rem; border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); }
+.cand-recherche-aide-titre { font-weight: 800; color: var(--text-strong); margin: 0 0 .4rem; }
+.cand-recherche-aide ul { margin: 0; padding-left: 1.2rem; color: var(--text); }
+.cand-recherche-aide li { margin-bottom: .3rem; }
+.carte-secteur-actuel { border-color: var(--accent); }
+.candidater-page .bloc-depli-corps > .grille-objectif:first-child { margin-top: .7rem; }
+.fm-liste { margin: 0 0 .4rem; padding-left: 1.2rem; }
+.fm-famille { font-weight: 700; margin: .8rem 0 .2rem; }
+.fm-acces { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .6rem .9rem; }
+.fm-colonnes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.fm-colonne { border: 1px solid var(--border); border-radius: 12px; padding: .6rem .8rem; background: var(--bg-subtle); }
+.fm-colonne-titre { font-size: var(--t-moyen); font-weight: 800; display: flex; align-items: center; gap: .5rem; margin: 0 0 .2rem; }
+.fm-point { width: .95rem; height: .95rem; border-radius: 50%; flex: 0 0 auto; display: inline-block; }
+.fm-bouton-details { display: inline-block; list-style: none; cursor: pointer; margin-top: .5rem; }
+.fm-bouton-details::-webkit-details-marker { display: none; }
+@media (max-width: 720px) { .fm-colonnes { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   Boutons repliables (15/11/2026, modules/boutons-repliables, consignes 332 à 332 sexies ; maquette docs/MAQUETTE_BOUTONS_REPLIABLES_2026-11-15.html).
+   Trois petites flèches collées au bord de l'écran rangent les boutons fixes : celle de gauche (roue, ampoule, disquette, nouveautés), celle d'Introduction (en haut à droite),
+   celle de la colonne Carnet / Journal / Pistes de côté (à la hauteur du Journal, la carte du milieu). Les boutons se posent PAR-DESSUS la page : rien d'autre ne bouge,
+   ni quand un bouton apparaît, ni quand on les range. Au départ tout est sorti (aucune classe sur <body>). Le repli est toujours le choix de la personne.
+   Couleurs : variables seulement (mode sombre automatique, comme les autres boutons fixes).
+   ============================================================ */
+.fleche-bouton {
+  position: fixed; z-index: 2700; width: 20px; height: 44px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte);
+  font-size: 1rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.fleche-bouton:hover { background: var(--bg-hover); }
+[data-theme="sombre"] .fleche-bouton { border: 2px solid var(--border-strong); box-shadow: none; }
+.fleche-bouton i { transition: transform .3s ease; }
+.fleche-bouton--gauche { left: 0; top: 19px; border-left: 0; border-radius: 0 12px 12px 0; }
+.fleche-bouton--droite { right: 0; border-right: 0; border-radius: 12px 0 0 12px; }
+#flecheIntroduction { top: 19px; display: none; }
+#btnIntroduction:not([hidden]) + #flecheIntroduction { display: inline-flex; }
+#flecheBoutonsDroite { top: 165px; }   /* centre de la carte du Journal (161 + 52 / 2) */
+/* Chiffre des Nouveautés recopié sur la flèche de gauche (même aspect que la pastille du bouton, voir plus haut), seulement quand les boutons sont rangés. */
+.fleche-pastille { top: -9px; right: auto; left: 2px; pointer-events: none; }
+.fleche-pastille[hidden], body:not(.repli-gauche) .fleche-pastille { display: none; }
+/* La flèche tourne quand le groupe est rangé. */
+body.repli-gauche #flecheBoutonsGauche i, body.repli-intro #flecheIntroduction i, body.repli-droite #flecheBoutonsDroite i { transform: rotate(180deg); }
+/* Un bouton rangé qui clignote fait clignoter sa flèche (même animation, même rythme). */
+.fleche-bouton.fleche-relais { animation: pulseAccentPersistant 1.8s ease-in-out infinite; }
+
+/* Boutons rangés : ils glissent derrière la flèche, deviennent invisibles et inatteignables au clavier (visibility), sans quitter le rendu (leur clignotement continue, la flèche le relaie). */
+#btnPreferencesAffichage, #btnAide, #btnSessionTransfert, #btnNouveautes, #btnIntroduction, #btnCarnet, #btnJournalParcours, #btnComparerPanier {
+  transition: transform .3s ease, opacity .25s ease, visibility 0s;
+}
+body.repli-gauche :is(#btnPreferencesAffichage, #btnAide, #btnSessionTransfert, #btnNouveautes) { transform: translateX(-320px); }
+body.repli-intro #btnIntroduction, body.repli-droite :is(#btnCarnet, #btnJournalParcours, #btnComparerPanier) { transform: translateX(320px); }
+body.repli-gauche :is(#btnPreferencesAffichage, #btnAide, #btnSessionTransfert, #btnNouveautes),
+body.repli-intro #btnIntroduction,
+body.repli-droite :is(#btnCarnet, #btnJournalParcours, #btnComparerPanier) {
+  opacity: 0; visibility: hidden; pointer-events: none; transition: transform .3s ease, opacity .25s ease, visibility 0s .3s;
+}
+body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTransfert, #btnNouveautes, #btnIntroduction, #btnCarnet, #btnJournalParcours, #btnComparerPanier), body.repli-sans-transition .fleche-bouton i { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  #btnPreferencesAffichage, #btnAide, #btnSessionTransfert, #btnNouveautes, #btnIntroduction, #btnCarnet, #btnJournalParcours, #btnComparerPanier, .fleche-bouton i { transition: none; }
+}
+/* Téléphone : même rangée que les boutons ronds (sous la barre des étapes), flèches un peu plus petites ; les boutons sont décalés de 18 px (voir plus haut) pour laisser la place aux flèches. */
+@media (max-width: 768px) {
+  .fleche-bouton { width: 18px; height: 38px; }
+  .fleche-bouton--gauche, #flecheIntroduction { top: var(--hauteur-progression, 5rem); }
+  #flecheBoutonsDroite { top: calc(var(--hauteur-progression, 5rem) + 110px); }   /* centre de la carte du Journal (108 + 42 / 2) */
+  .fleche-pastille { top: -8px; }
+}
+
+/* Accueil : la page remplit l'écran à toutes les largeurs, et sur grand écran six cartes sur une ligne (consignes 333 à 338, maquettes docs/MAQUETTE_ACCUEIL_SANS_DEFILER_2026-11-15.html et docs/MAQUETTE_ACCUEIL_CARTES_COMPACTES_2026-11-15.html). Aucune écriture ne rapetisse : seuls les espaces changent.
+   #app prend au moins la hauteur de l'écran (ses marges comptent dans cette hauteur) ; quatre ressorts (.accueil-ressort) se partagent la place qui reste. Quand la page déborde, les ressorts restent à leur minimum et la page défile comme avant. */
+#app:has(> .accueil-page) { display: flex; flex-direction: column; min-height: 100vh; }
+.accueil-page { display: flex; flex-direction: column; flex: 1 0 auto; }
+.accueil-ressort { display: block; min-height: 0; }
+.accueil-ressort-haut { flex: 0.35 1 0; }
+.accueil-ressort-titre { flex: 0.6 1 18px; }
+.accueil-ressort-recherche { flex: 0.9 1 30px; }
+.accueil-ressort-pied { flex: 1.1 1 22px; }
+.accueil-page h1 { margin-bottom: 0.25rem; }
+.accueil-page .sousTitre { margin-bottom: 0; }
+.accueil-page .zone-recherche-erip-large { margin: 0 auto; width: 100%; }
+.accueil-page .zone-recherche-erip-large input { padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.accueil-page .cartes-accueil { margin: 0 auto; width: 100%; flex: 1.3 1 auto; }
+.accueil-page .pied-accueil { margin: 0; }
+.carte-tete { display: block; }
+.carte-info-i { display: none; }
+@media (min-width: 1700px) {
+  .accueil-page .cartes-accueil { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: 1fr; max-width: 1900px; }
+  .accueil-page .cartes-accueil .carte { min-width: 0; max-width: none; padding-top: 2.75rem; justify-content: flex-start; }
+}
+/* Réglage « Cartes de l'accueil » (options d'affichage), pour les écrans de moins de 1700 px de large. */
+@media (max-width: 1699.98px) {
+  [data-cartes-accueil] .accueil-page .cartes-accueil .carte { min-height: 0; padding: 0.875rem 1rem 0.75rem; justify-content: center; }
+  [data-cartes-accueil] .accueil-page .carte-tete { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+  [data-cartes-accueil] .accueil-page .carte-tete i { display: inline-block; font-size: 1.75rem; line-height: 1; margin: 0; }
+  [data-cartes-accueil] .accueil-page .carte-tete h3 { margin: 0; text-align: left; }
+  [data-cartes-accueil] .accueil-page .carte-description { margin: 0.5rem 0 0; }
+  [data-cartes-accueil] .accueil-page .carte-puces { margin-top: 0.5rem; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .cartes-accueil { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 1fr; max-width: none; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .cartes-accueil .carte { min-width: 0; max-width: none; flex: none; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-tete { padding: 0 1.1rem; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-description { display: none; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-puces { margin-top: 0.65rem; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-info-i {
+    display: flex; position: absolute; top: 0.6rem; right: 0.6rem; width: 1.65rem; height: 1.65rem; padding: 0; border-radius: 50%;
+    border: 1.5px solid var(--accent); color: var(--accent-texte); background: var(--bg-card); align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 800; font-family: Georgia, serif; line-height: 1; cursor: pointer;
+  }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-info-i:hover, [data-cartes-accueil="tres-compact"] .accueil-page .carte-info-i:focus-visible { background: var(--bg-hover); }
+}
+@media (min-width: 1100px) and (max-width: 1699.98px) {
+  [data-cartes-accueil="tres-compact"] .accueil-page .cartes-accueil { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+.accueil-page .carte { position: relative; }
+.carte-description-bulle p { font-size: 0.9rem; }
+@media (max-width: 639.98px) {   /* téléphone : les cartes défilent, une par ligne ; la description reste affichée (un petit « i » est trop contraignant au doigt) */
+  [data-cartes-accueil="tres-compact"] .accueil-page .cartes-accueil { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-description { display: block; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-info-i { display: none; }
+  [data-cartes-accueil="tres-compact"] .accueil-page .carte-tete { padding: 0; }
+}
+
+
+/* Consigne 399 (16/11/2026) : choix de la langue et du niveau (« Vos informations ») : menus grands, contour bien visible, l'un sous l'autre. Variables existantes : le mode sombre est déjà couvert. */
+.langue-saisie { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; max-width: 34rem; }
+.langue-saisie > div { width: 100%; }
+.langue-saisie .langue-saisie-champ { font-size: 1.05rem; min-height: 3rem; border: 2px solid var(--accent); border-radius: 0.6rem; background-color: var(--bg-card); color: var(--text-strong); }
+.langue-saisie .langue-saisie-champ:focus { border-color: var(--accent); box-shadow: 0 0 0 0.25rem var(--accent-bg-subtle); }
+.langue-saisie #ajouterLangueBtn { width: auto; }
+
+/* Question « Qui choisit les missions et les compétences ? » (consigne 401, maquette validée le 16/11/2026) : variables existantes, mode sombre déjà couvert. */
+.cm-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+@media (max-width: 640px) { .cm-cartes { grid-template-columns: 1fr; } }
+.cm-carte { display: flex; flex-direction: column; gap: .55rem; text-align: left; background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 14px; padding: 1.1rem 1.1rem 1rem; cursor: pointer; color: var(--text-strong); font: inherit; transition: border-color .15s, background .15s, box-shadow .15s; }
+.cm-carte:hover:not([disabled]) { border-color: var(--accent); }
+.cm-carte:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cm-carte[disabled] { cursor: default; }
+.cm-carte:not(.is-actif)[disabled] { opacity: .55; }
+.cm-carte.is-actif { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 5px var(--accent); }
+.cm-ico { font-size: 1.9rem; line-height: 1; color: var(--accent); }
+.cm-titre { font-size: 1.1rem; font-weight: 800; }
+.cm-phrase { font-size: .95rem; }
+.cm-carte ul { margin: .1rem 0 0; padding-left: 1.15rem; font-size: .9rem; }
+.cm-carte ul li { margin: .15rem 0; }
+.cm-coche { margin-top: auto; font-weight: 700; font-size: .9rem; color: var(--accent); min-height: 1.4rem; }
+.cm-verrou { background: var(--bg-card); border: 1px solid var(--border-strong); border-left: 5px solid var(--accent); border-radius: 10px; padding: .7rem .9rem; margin: 1rem 0; font-size: .95rem; color: var(--text-strong); }
+.cm-confirm { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .9rem 1rem; margin: 1rem 0; color: var(--text-strong); }
+.cm-boutons { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .6rem; }
+.cm-lecon { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
+.cm-rappel { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }

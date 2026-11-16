@@ -252,7 +252,12 @@ function modeleFenetreCollage(entree) {
   // « Continuer sans le complément » est discret (fond blanc, comme Retour et Accueil) : on n'encourage pas à s'en passer (retour de Denis, 28/10/2026).
   if (etat === 'recu') { modele.continuer = { libelle: (mode === 'complement' && e.avertissement) ? T.complement.continuerVide : libelleSuite, actif: true }; }
   else if (mode === 'complement' && (etat === 'pret' || etat === 'main')) { modele.continuer = { libelle: T.complement.continuerSans, actif: true, discret: true }; }
-  else { modele.continuer = { libelle: libelleSuite, actif: false }; }
+  else {
+    // Raison affichée sous le bouton grisé de la barre du bas (jamais le texte générique) : dit ce qu'il reste à faire selon l'état.
+    var raisonSuite = etat === 'coupe' ? 'La réponse de l’assistant en ligne est coupée : il reste à coller la suite.'
+      : (etat === 'echec' ? 'La réponse n’a pas pu être lue : il reste à recommencer le collage.' : 'Il reste à coller la réponse de l’assistant en ligne.');
+    modele.continuer = { libelle: libelleSuite, actif: false, raison: raisonSuite };
+  }
   return modele;
 }
 

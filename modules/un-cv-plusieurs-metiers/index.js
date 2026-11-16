@@ -27,7 +27,6 @@ var UCPM_TITRES_PAGES = [
 
 var _ucpmEtat = null;                  // état de session (voir ucpmEtatInitial, logique.js)
 var _ucpmDetourPresentation = false;   // « Revoir la présentation » depuis une page de travail
-var _ucpmReprisePendante = false;      // retour dans le module avec un travail en cours : encart « Continuer / Recommencer » + gel
 
 // Rendus de page enregistrés par les lots suivants : numéro -> { rendre(etat) -> html, cabler(etat), peutContinuer(etat), raisonBlocage(etat), continuer(etat) }.
 var _ucpmPages = {};
@@ -87,9 +86,20 @@ function ucpmRevenirDeLaPresentation() {
   _ucpmDetourPresentation = false;
   if (typeof naviguerVers === 'function') { naviguerVers('un-cv-plusieurs-metiers'); }
 }
+// « Reprendre » (bloc de la présentation, consigne 258) : retour à la page de travail, tout l'état est gardé.
 function ucpmRepriseContinuer() {
-  _ucpmReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('un-cv-plusieurs-metiers'); }
+}
+// « Recommencer » depuis la présentation : confirmation, puis le travail est effacé et la présentation repart à froid.
+function ucpmConfirmerRecommencer() {
+  var faire = function () { ucpmReinitialiser(); if (typeof naviguerVers === 'function') { naviguerVers('un-cv-plusieurs-metiers-intro'); } };
+  if (typeof confirmerAction === 'function') {
+    confirmerAction(
+      'Recommencer « Un CV, plusieurs métiers » ?',
+      'Votre travail dans ce module sera effacé : votre CV déposé, vos métiers, vos accroches et vos lettres. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
+      'Recommencer ce module', 'btn-danger', faire
+    );
+  } else { faire(); }
 }
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
@@ -101,7 +111,6 @@ function ucpmReinitialiser() {
   _ucpmSessionHistorique++;
   _ucpmEtat = null;
   _ucpmDetourPresentation = false;
-  _ucpmReprisePendante = false;
   if (typeof _barreEtapesMaxAtteint !== 'undefined' && _barreEtapesMaxAtteint && typeof _barreEtapesMaxAtteint.delete === 'function') {
     _barreEtapesMaxAtteint.delete(UCPM_NAV_ETAPES);
   }
@@ -115,7 +124,6 @@ function ucpmRestaurerEtatDepuisSauvegarde(brut) {
   _ucpmSessionHistorique++;
   _ucpmEtat = e;
   _ucpmDetourPresentation = false;
-  _ucpmReprisePendante = !!e && ucpmAUnTravailEnCours(e);
 }
 
 // ---------------- Page de travail ----------------
@@ -158,20 +166,14 @@ function ucpmRendrePage() {
   var titre = UCPM_TITRES_PAGES[n - 1] || '';
   var scrollPrecedent = window.scrollY || 0;
 
-  var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_ucpmReprisePendante)
+  var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
     ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
       '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
       '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
     : '';
-  var boutonRevoir = '<div><button type="button" id="btnUcpmRevoirPresentation" class="btn-revoir-module"' +
-    (_ucpmReprisePendante ? ' disabled' : '') + '>' +
+  var boutonRevoir = '<div><button type="button" id="btnUcpmRevoirPresentation" class="btn-revoir-module">' +
     '<i class="bi bi-files"></i> Revoir la présentation</button></div>' + noteHtml;
-  var encart = _ucpmReprisePendante
-    ? htmlEncartRepriseModule({
-        texte: 'Vous avez un travail en cours dans ce module.',
-        idContinuer: 'btnUcpmRepriseContinuer', idRecommencer: 'btnUcpmRepriseRecommencer', pulse: true
-      })
-    : '';
+  var encart = '';
 
   var corps = def
     ? def.rendre(etat)
@@ -191,9 +193,7 @@ function ucpmRendrePage() {
       onclickPrecedent: 'ucpmBarreRetour()',
       onclickSuivant: 'ucpmBarreContinuer()',
       suivantDesactive: !peutContinuer,
-      // D50 : à la reprise, le module est gelé et l'encart du haut porte le vrai « Continuer » ; le bouton grisé de la barre y renvoie.
-      suivantDesactiveMessage: _ucpmReprisePendante ? 'Choisissez d’abord « Continuer » ou « Recommencer » en haut de la page.' : (raison || 'Complétez cette page pour continuer.'),
-      blocCibleId: _ucpmReprisePendante ? 'btnUcpmRepriseContinuer' : undefined,
+      suivantDesactiveMessage: raison || 'Complétez cette page pour continuer.',
       // Page 8 : le bouton vert « Terminer » est toujours actif dans la barre du bas (consigne 66, D49 option A) ; il remplace l'emplacement de « Continuer », qui n'existe pas à la dernière page.
       terminerParcours: n >= UCPM_NB_PAGES,
       onclickTerminer: 'ucpmTerminerParcours()'
@@ -211,25 +211,9 @@ function ucpmRendrePage() {
   var nouvelEcran = cleEcran !== _ucpmEcranRendu;
   _ucpmEcranRendu = cleEcran;
   window.scrollTo(0, (arrivee || nouvelEcran) ? 0 : scrollPrecedent);
-  if (typeof appliquerGelModule === 'function') { appliquerGelModule(_ucpmReprisePendante); }
 
   var btnRevoir = document.getElementById('btnUcpmRevoirPresentation');
   if (btnRevoir) { btnRevoir.addEventListener('click', ucpmRetourVersPresentation); }
-  var btnContinuer = document.getElementById('btnUcpmRepriseContinuer');
-  if (btnContinuer) { btnContinuer.addEventListener('click', ucpmRepriseContinuer); }
-  var btnRecommencer = document.getElementById('btnUcpmRepriseRecommencer');
-  if (btnRecommencer) {
-    btnRecommencer.addEventListener('click', function () {
-      if (typeof confirmerAction !== 'function') { return; }
-      confirmerAction(
-        'Recommencer « Un CV, plusieurs métiers » ?',
-        'Votre travail dans ce module sera effacé : votre CV déposé, vos métiers, vos accroches et vos lettres. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
-        'Recommencer ce module', 'btn-danger',
-        function () { ucpmReinitialiser(); ouvrirUnCvPlusieursMetiers(); if (typeof naviguerVers === 'function') { naviguerVers('un-cv-plusieurs-metiers'); } }
-      );
-    });
-  }
-  if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
   if (def && typeof def.cabler === 'function') { def.cabler(etat); }
   if (typeof trackEvenement === 'function') { trackEvenement('un_cv_plusieurs_metiers_page', { page: n }); }
 }
@@ -237,10 +221,14 @@ function ucpmRendrePage() {
 // ---------------- Page de présentation ----------------
 
 function pageIntroUnCvPlusieursMetiers() {
-  var enCours = ucpmAUnTravailEnCours(_ucpmEtat);
+  // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la présentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
+  var enCours = !_ucpmDetourPresentation && ucpmAUnTravailEnCours(_ucpmEtat);
   var config = {
     carteRetour: 'orientation',
     detour: _ucpmDetourPresentation,
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez un travail en cours dans ce module.', 'btnUcpmRepriseContinuer', 'btnUcpmRepriseRecommencer', 'Reprendre') : '',
+    actionsSynthese: enCours ? [{ id: 'btnUcpmRepriseContinuer', action: ucpmRepriseContinuer }, { id: 'btnUcpmRepriseRecommencer', action: ucpmConfirmerRecommencer }] : [],
+    ctaMasque: enCours,
     detourLogo: 'bi-files',
     detourBoutonId: 'btnUcpmRevenirModuleHaut',
     detourCtaId: 'btnUcpmRevenirModuleBas',
@@ -253,9 +241,8 @@ function pageIntroUnCvPlusieursMetiers() {
     ctaLabel: 'Commencer &#8594;',
     etapes: UCPM_NAV_ETAPES,
     onCta: function () {
-      // Un travail déjà engagé est repris (l'effacement volontaire vit sur l'encart de reprise), jamais remis à zéro ici.
-      if (!enCours) { ucpmReinitialiser(); ouvrirUnCvPlusieursMetiers(); }
-      else { _ucpmReprisePendante = true; }
+      // Aucun travail engagé : on démarre à zéro. Un travail engagé passe par « Reprendre » du bloc de la présentation.
+      ucpmReinitialiser(); ouvrirUnCvPlusieursMetiers();
       if (typeof naviguerVers === 'function') { naviguerVers('un-cv-plusieurs-metiers'); }
     },
     blocsHTML:

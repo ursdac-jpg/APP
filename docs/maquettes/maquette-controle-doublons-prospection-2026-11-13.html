@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : contrôle des doublons avant le sas</title>
+<style>
+  /* Variables et styles repris de l'outil de veille (même rendu). */
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --jamais:#4b5868; --jamais-bg:#eceff3;
+    --diff:#fff3c4;
+    --sas:#6d28d9; --sas-texte:#ffffff;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --jamais:#b4bfcf; --jamais-bg:#2a313d;
+    --diff:#4a3d12;
+    --sas:#a78bfa; --sas-texte:#1e1033;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:860px; margin:0 auto; padding:1.2rem 16px 5rem; }
+  body.tel main { max-width:390px; }
+  h2 { font-size:1.1rem; color:var(--text-strong); margin:0; }
+  h3 { font-size:1rem; color:var(--text-strong); margin:0 0 .3rem; }
+  p { margin:.5rem 0; }
+  a { color:var(--accent); }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 1rem; }
+  .mini { color:var(--text-muted); font-size:.82rem; }
+  .barre-maquette { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; padding:.5rem .7rem; background:var(--bg-subtle); border:1px dashed var(--border-strong); border-radius:10px; font-size:.82rem; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.sas { background:var(--sas); border-color:var(--sas); color:var(--sas-texte); }
+  .btn.petit { padding:.3rem .7rem; font-size:.85rem; }
+  .btn.actif { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-rangee { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.7rem; align-items:center; }
+  .note { display:flex; gap:.5rem; align-items:flex-start; background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.88rem; }
+  .note.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .note.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-bottom:.9rem; box-shadow:var(--shadow); }
+  .entete { display:flex; align-items:center; gap:.6rem; margin-bottom:.2rem; }
+  .entete .pastille { width:2.2rem; height:2.2rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; background:var(--accent-bg); }
+  .pastille-ver { display:inline-block; border-radius:999px; padding:.1rem .6rem; font-size:.78rem; font-weight:600; background:var(--bg-subtle); }
+  .pv-ok { background:var(--ok-bg); color:var(--ok); } .pv-warn { background:var(--warn-bg); color:var(--warn); } .pv-gris { background:var(--jamais-bg); color:var(--jamais); }
+  .compteurs { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0 .3rem; }
+  .compteur { flex:1; min-width:110px; border-radius:var(--radius); padding:.45rem .8rem; border:1px solid var(--border); background:var(--bg-subtle); font-size:.88rem; }
+  .compteur b { font-size:1.4rem; display:block; line-height:1.1; }
+  .compteur.vert { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
+  .compteur.ambre { background:var(--warn-bg); border-color:var(--warn); color:var(--warn); }
+
+  /* Une fiche à trancher : deux colonnes côte à côte, les différences surlignées. */
+  .trancher { border:2px solid var(--warn); border-radius:12px; padding:.8rem .9rem; margin:.7rem 0; background:var(--bg-card); }
+  .trancher.fait { border:1px solid var(--border-strong); background:var(--bg-subtle); }
+  .trancher .nom { font-weight:700; color:var(--text-strong); }
+  .alertes { margin:.3rem 0 .5rem; display:flex; flex-wrap:wrap; gap:.3rem; }
+  table.compare { width:100%; border-collapse:collapse; font-size:.86rem; margin:.4rem 0 .2rem; }
+  table.compare th { text-align:left; color:var(--text-muted); font-weight:600; width:24%; vertical-align:top; padding:.25rem .4rem; }
+  table.compare td { padding:.25rem .4rem; vertical-align:top; border-top:1px solid var(--border); word-break:break-word; }
+  table.compare thead th, table.compare thead td { border-top:none; font-weight:700; color:var(--text-strong); }
+  table.compare td.diff { background:var(--diff); }
+  .choix { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem; margin-top:.6rem; }
+  body.tel .choix { grid-template-columns:1fr; }
+  .choix button { text-align:left; }
+  .choix button small { display:block; font-weight:400; color:var(--text-muted); font-size:.78rem; }
+  .choix button.actif small { color:inherit; }
+  .resultat-choix { margin-top:.5rem; font-size:.86rem; }
+  .phrase { background:var(--bg-subtle); border:1px dashed var(--border-strong); border-radius:8px; padding:.4rem .6rem; font-size:.86rem; margin-top:.3rem; }
+  .fiche { display:flex; gap:.7rem; align-items:flex-start; padding:.65rem 0; border-top:1px solid var(--border); }
+  .fiche:first-child { border-top:none; }
+  .fiche input[type=checkbox] { width:1.2rem; height:1.2rem; margin-top:.25rem; flex-shrink:0; }
+  .fiche .nom { font-weight:700; color:var(--text-strong); font-size:.95rem; }
+  .fiche .infos { color:var(--text-muted); font-size:.85rem; }
+  details { margin-top:.4rem; font-size:.86rem; }
+  details summary { cursor:pointer; color:var(--text-muted); }
+  .barre-sas { position:sticky; bottom:0; background:var(--bg-card); border-top:1px solid var(--border-strong); padding:.7rem 0 .3rem; margin-top:1rem; }
+  .ecart-form { border:1px dashed var(--border-strong); border-radius:10px; padding:.6rem .7rem; margin-top:.6rem; background:var(--bg-subtle); }
+  .raisons { display:flex; flex-wrap:wrap; gap:.4rem; margin:.4rem 0; }
+  .raisons button { font:inherit; font-size:.84rem; border-radius:999px; padding:.25rem .8rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .raisons button.actif { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .ecart-form input[type=text] { font:inherit; width:100%; padding:.4rem .6rem; border:1px solid var(--border-strong); border-radius:8px; background:var(--bg-card); color:var(--text); }
+  .btn.discret { background:none; border-style:dashed; color:var(--text-muted); font-weight:600; }
+  .legende { font-size:.84rem; }
+  .legende dt { font-weight:700; color:var(--text-strong); margin-top:.4rem; }
+  .legende dd { margin:0; color:var(--text-muted); }
+</style>
+</head>
+<body>
+<main>
+  <div class="barre-maquette">
+    <strong>Maquette (données réelles du 13/11/2026)</strong>
+    <button class="btn petit" id="bTheme" type="button">Mode sombre</button>
+    <button class="btn petit" id="bTel" type="button">Largeur téléphone</button>
+    <button class="btn petit" id="bReset" type="button">Tout remettre à zéro</button>
+    <span class="mini">Les boutons fonctionnent : essayez de trancher une fiche.</span>
+  </div>
+
+  <div class="entete"><span class="pastille">&#128269;</span><div><h2>Prospection des structures : contrôle des doublons</h2><p class="sous-titre" style="margin:0">Une fiche n'est « prête pour le sas » que si on a vérifié qu'elle n'existe pas déjà.</p></div></div>
+
+  <div class="carte" style="margin-top:.8rem">
+    <div class="note"><span>&#9432; Avant le sas, <strong>chaque fiche est comparée à vos 995 fiches du registre et à votre sas</strong> : téléphone, site, nom, sigle, SIRET. Si rien ne ressemble, elle est <strong>verte</strong>. Si quelque chose ressemble, elle est <strong>orange</strong> et <strong>bloquée</strong> : vous voyez les deux fiches côte à côte et vous tranchez. Le bouton du sas reste fermé tant qu'une fiche cochée est orange.</span></div>
+    <div class="compteurs" id="compteurs"></div>
+  </div>
+
+  <div class="carte" id="blocOrange">
+    <h3>À trancher avant le sas</h3>
+    <p class="mini">Une fiche ressemble à une fiche que vous avez déjà. Comparez, puis choisissez la réponse qui convient.</p>
+    <div id="listeOrange"></div>
+  </div>
+
+  <div class="carte">
+    <h3>Prêtes pour le sas (contrôlées)</h3>
+    <p class="mini">Aucune ressemblance trouvée dans le registre ni dans le sas. Les fiches que vous venez de trancher comme « antenne » ou « autre structure » viennent s'ajouter ici.</p>
+    <div id="listeVerte"></div>
+  </div>
+
+  <div class="carte" id="blocReport" style="display:none">
+    <h3>À reporter sur une fiche existante</h3>
+    <p class="mini">Ces structures sont déjà chez vous : on n'ajoute rien, mais la fiche existante est ajoutée à « Fiches déjà publiées à revoir » avec ce qui a changé.</p>
+    <div id="listeReport"></div>
+  </div>
+
+  <div class="carte" id="blocEcartees">
+    <h3>Écartées par vous (<span id="nbEcartees">0</span>)</h3>
+    <p class="mini">Une fiche écartée <strong>ne revient plus</strong> aux recherches suivantes. Vous gardez la raison, et vous pouvez la <strong>remettre en jeu</strong> à tout moment si la situation change.</p>
+    <div id="listeEcartees"></div>
+  </div>
+
+  <details class="carte">
+    <summary style="font-weight:700">Écartées d'office par l'outil (2 montrées sur 12)</summary>
+    <p class="mini">Écoles, collèges, comités d'entreprise, établissements fermés : l'outil les écarte seul. Si l'une d'elles vous intéresse, remettez-la en jeu : elle reviendra à la prochaine recherche.</p>
+    <div id="listeOffice"></div>
+  </details>
+
+  <details class="carte">
+    <summary style="font-weight:700">Vos décisions retenues (<span id="nbDecisions">0</span>)</summary>
+    <p class="mini">L'outil retient chaque décision dans un fichier privé : le mois prochain, il ne vous repose pas la même question. Une décision peut toujours être changée ici.</p>
+    <div id="listeDecisions" class="mini"></div>
+  </details>
+
+  <details class="carte">
+    <summary style="font-weight:700">Les quatre réponses, en deux mots</summary>
+    <dl class="legende">
+      <dt>C'est la même structure</dt><dd>Elle est déjà chez vous. La nouvelle fiche n'est pas ajoutée ; la fiche existante passe en « à revoir » si le téléphone ou le site a changé.</dd>
+      <dt>Elle a déménagé</dt><dd>Même structure, nouvelle adresse ou nouveau numéro. Même traitement, avec le motif « déménagée » noté pour la fiche existante.</dd>
+      <dt>C'est une antenne</dt><dd>Un autre lieu de la même structure (autre commune, autre numéro). La fiche est ajoutée, et l'outil prépare la phrase « Antenne de ... » pour la description.</dd>
+      <dt>Écarter pour toujours</dt><dd>Ce n'est pas une réponse de comparaison : c'est « je ne veux pas de cette fiche ». Elle disparaît des listes et ne revient pas aux recherches suivantes.</dd>
+      <dt>Ce n'est pas la même</dt><dd>Deux structures différentes qui se ressemblent par hasard. La fiche est ajoutée.</dd>
+    </dl>
+  </details>
+
+  <div class="barre-sas">
+    <div id="blocage"></div>
+    <div class="btn-rangee">
+      <button class="btn sas" type="button" id="bSas"></button>
+      <button class="btn" type="button" id="bVerifier">Refaire la vérification maintenant</button>
+    </div>
+    <div id="retourSas" aria-live="polite"></div>
+  </div>
+</main>
+
+<script>
+var DONNEES = {"orange":[{"cand":{"id":"cc-isle-vern-salembre-en-perigord-saint-astier-24","nom":"Cc Isle Vern Salembre En Perigord","commune":"Saint-Astier","dep":"24","tel":"05 53 80 86 86","site":"https://www.ccivs.fr/","adresse":"Rue Henri Rebière","type":"inclusion-numerique","etatOfficiel":"aucun SIRET","texteSource":"Toutes les permanences se déroulent dans les mairies du territoire sauf pour les communes de Saint-Astier (Pôle Administratif de la CCIVS) et Neuvic-sur-l'isle (CIAS de la CCIVS).Renseignements et prise de rendez-vous au Pôle Social de la CCIVS 05.53.80.86.86"},"reg":{"id":"communaute-de-communes-isle-vern-salembre-en-perigord-24","type":"collectivite-etat","nom":"Communauté de communes - Isle Vern Salembre en Périgord","desc":"Intercommunalité : regroupement de communes qui peut gérer des services du quotidien (déchets, eau, transports, petite enfance, développement économique).","commune":"Saint-Astier","tel":"05 53 03 45 82","site":"https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/c8fdc588-fa83-4a31-84a9-020a33290c0e","dep":"24"}},{"cand":{"id":"ding-fring-bergerac-24","nom":"Ding Fring Bergerac","commune":"Bergerac","dep":"24","tel":"05 57 95 60 60","site":"","adresse":"92 Avenue du General de Gaulle","type":"siae","etatOfficiel":"actif","texteSource":"LE RELAIS GIRONDE est une entreprise à but socio-économique à fortes valeurs humaines. SCOP SA agréée entreprise d’insertion par l’Etat, membre du Relais France et d'Emmaüs France, sa mission est la lutte contre l’exclusion par la création du plus grand nombre d’emplois possibles, en les destinant e"},"reg":{"id":"inae-ding-fring-le-relais-gironde-24","type":"siae","nom":"Ding Fring (Le Relais Gironde)","desc":"Entreprise d'insertion à Bergerac, avec des antennes à Boulazac Isle Manoire : commerce, déchets et recyclage. On y entre avec l'accord d'un conseiller.","commune":"Bergerac","tel":"05 53 58 91 52","site":"https://lerelais.org/","dep":"24"}},{"cand":{"id":"asso-nat-emploi-formation-en-agriculture-coulounieix-chamiers-24","nom":"ASSO NAT EMPLOI FORMATION EN AGRICULTURE","commune":"Coulounieix-Chamiers","dep":"24","tel":"05 53 35 88 19","site":"","adresse":"Boulevard des Saveurs","type":"","etatOfficiel":"actif","texteSource":""},"reg":{"id":"anefa-dordogne-24","type":"appui-aux-employeurs","nom":"ANEFA Dordogne","desc":"Accompagne les employeurs agricoles dans leurs recrutements et la diffusion de leurs offres d'emploi.","commune":"Coulounieix-Chamiers","tel":"","site":"https://anefa.org/dordogne/contact/","dep":"24"}},{"cand":{"id":"chambre-de-commerce-et-d-industrie-dordogne-coulounieix-chamiers-24","nom":"CHAMBRE DE COMMERCE ET D'INDUSTRIE - DORDOGNE","commune":"Coulounieix-Chamiers","dep":"24","tel":"05 53 35 80 54","site":"","adresse":"POLE INTERCONSULAIRE CRE@VALLEE NORD Boulevard DE","type":"","etatOfficiel":"actif","texteSource":""},"reg":{"id":"cci-dordogne","type":"creation-activite","nom":"Chambre de commerce et d'industrie de la Dordogne","desc":"conseil à la création, au développement et à la reprise d'une activité commerciale ou de services, et conseil aux employeurs du commerce et des services","commune":"","tel":"05 53 35 80 80","site":"https://www.dordogne.cci.fr/","dep":"24"}},{"cand":{"id":"bfm-aurence-limoges-87","nom":"BFM Aurence","commune":"Limoges","dep":"87","tel":"05 55 05 02 85","site":"https://bfm.limoges.fr/bfm-pratique/bfm-aurence","adresse":"29 rue Marcel Vardelle","type":"inclusion-numerique","etatOfficiel":"aucun SIRET","texteSource":"Lieux d'initiation, d'expérimentation et de création, les espaces multimédia de la Bfm proposent d'encourager l'apprentissage et la pratique des outils informatiques et multimédia, que ce soit dans le cadre d'une utilisation personnelle, d'ateliers d'initiation ou thématiques encadrés par des animat"},"reg":{"id":"bibliotheque-francophone-multimedia-limoges-87","type":"inclusion-numerique","nom":"Bibliothèque francophone multimédia (BFM) de Limoges","desc":"Médiathèque de la ville de Limoges : lecture, prêt, accès public à internet et à des ordinateurs. La bibliothèque dépend de la direction de la culture et des arts de la ville.","commune":"Limoges","tel":"05 55 45 96 00","site":"https://bfm.limoges.fr/","dep":"87"}}],"vertes":[{"id":"asd-premieres-heures-en-chantier-perigueux-24","nom":"ASD - premières heures en chantier","commune":"Périgueux","dep":"24","tel":"05 53 08 82 10","site":"","adresse":"61 Rue Lagrange Chancel","type":"siae","etatOfficiel":"actif","texteSource":"PHC est une structure d'accompagnement par le travail de personnes en situation de grande exclusion. L'activité support est le maraîchage et l'aménagement d'un jardin d'agrément."},{"id":"trajectoires-nontron-24","nom":"TRAJECTOIRES","commune":"Nontron","dep":"24","tel":"05 53 56 18 32","site":"","adresse":"Place PAUL BERT","type":"plie","etatOfficiel":"actif","texteSource":"TRAJECTOIRES est une association qui coordonne et anime le dispositif PLIE du Haut Périgord - Plan Local par l'Insertion et l'emploi. Elle accompagne des demandeurs d'emploi (DELD - DETLD - Bénéficiaires des minima sociaux - TH - +50 ans - et/ou rencontrant des freins sociaux et professionnels pour "},{"id":"clotures-et-piquets-saint-yrieix-la-perche-87","nom":"CLÔTURES ET PIQUETS","commune":"Saint-Yrieix-la-Perche","dep":"87","tel":"","site":"https://arediennedeclotures.com/","adresse":"4 Rue des Abeilles","type":"siae","etatOfficiel":"actif","texteSource":"Activité : fabrication mécanisée et vente de piquets, clôtures, bois de chauffage et tous produits en bois finis, semi-finis ou bruts. L'activité proposée peut convenir à un-e travailleur-euse handicapé-e. 3 postes : ouvrier-ère de scierie - façonnage de bois d’œuvre Missions: • remettre à longueur "}]};
+var CHOIX = [
+  ['meme', 'C’est la même structure', 'Déjà chez moi : ne pas l’ajouter'],
+  ['demenage', 'Elle a déménagé', 'Même structure, nouvelle adresse ou nouveau numéro'],
+  ['antenne', 'C’est une antenne', 'Autre lieu de la même structure : l’ajouter'],
+  ['autre', 'Ce n’est pas la même', 'Deux structures différentes : l’ajouter']
+];
+var LIB = { meme: 'c’est la même structure', demenage: 'elle a déménagé', antenne: 'c’est une antenne', autre: 'ce n’est pas la même' };
+var RAISONS = ['Hors de mon public', 'Structure fermée', 'Trop loin du territoire', 'Déjà chez moi sous un autre nom', 'Contact ou site introuvable', 'Pas un lieu d’aide (école, entreprise...)', 'Pas assez sûr pour la publier', 'Autre'];
+var OFFICE = [
+  { id: 'o1', nom: 'COLLEGE BERTRAN DE BORN', commune: 'Périgueux', dep: '24', raison: 'école, collège, lycée ou université' },
+  { id: 'o2', nom: 'COMITE ENTREPRISE UDAF', commune: 'Périgueux', dep: '24', raison: 'comité interne à une entreprise, pas un lieu ouvert au public' }
+];
+var etat = { decisions: {}, coche: {}, ecart: {}, ouvert: '', brouillon: { raison: '', texte: '' }, office: { o1: true, o2: true } };
+function $(i) { return document.getElementById(i); }
+function e(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function hote(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (x) { return ''; } }
+function chiffres(t) { return String(t || '').replace(/\D/g, '').slice(-9); }
+function dateFr(i) { return String(i || '').split('-').reverse().join('/'); }
+
+function raisons(c, r) {
+  var l = [];
+  if (chiffres(c.tel) && chiffres(c.tel) === chiffres(r.tel)) { l.push('même téléphone'); }
+  if (hote(c.site) && hote(c.site) === hote(r.site)) { l.push('même site'); }
+  if (norm(c.commune) === norm(r.commune)) { l.push('même commune'); }
+  l.push('noms qui se recoupent');
+  return l;
+}
+function ligneDiff(libelle, a, b, egalSiMeme) {
+  var diff = norm(a) !== norm(b);
+  return '<tr><th>' + libelle + '</th><td' + (diff ? ' class="diff"' : '') + '>' + (a || '<span class="mini">non renseigné</span>') + '</td><td' + (diff ? ' class="diff"' : '') + '>' + (b || '<span class="mini">non renseigné</span>') + '</td></tr>';
+}
+function lien(u) { return u ? '<a href="' + e(u) + '" target="_blank" rel="noopener noreferrer">' + e(hote(u) || u) + '</a>' : ''; }
+
+function carteOrange(p) {
+  var i = DONNEES.orange.indexOf(p);
+  var c = p.cand, r = p.reg, d = etat.decisions[c.id];
+  var tete = '<div class="nom">' + e(c.nom) + ' <span class="mini">&middot; ' + e(c.commune) + ' (' + e(c.dep) + ')</span></div>';
+  if (d) {
+    return '<div class="trancher fait">' + tete + '<div class="resultat-choix"><span class="pastille-ver pv-ok">Tranché : ' + LIB[d] + '</span> par rapport à « ' + e(r.nom) + ' » ' +
+      '<button class="btn petit" type="button" data-defaire="' + i + '">Changer</button>' + suite(p, d) + '</div></div>';
+  }
+  var past = raisons(c, r).map(function (x) { return '<span class="pastille-ver pv-warn">' + x + '</span>'; }).join('');
+  if (c.etatOfficiel === 'aucun SIRET') { past += '<span class="pastille-ver pv-gris">aucun SIRET : existence à confirmer</span>'; }
+  var tab = '<table class="compare"><thead><tr><th></th><td>Nouvelle fiche (data.inclusion)</td><td>Votre registre</td></tr></thead><tbody>' +
+    ligneDiff('Nom', e(c.nom), e(r.nom)) + ligneDiff('Commune', e(c.commune), e(r.commune)) + ligneDiff('Téléphone', e(c.tel), e(r.tel)) +
+    ligneDiff('Site', lien(c.site), lien(r.site)) +
+    '<tr><th>Adresse</th><td>' + (e(c.adresse) || '<span class="mini">non renseignée</span>') + '</td><td><span class="mini">le registre ne garde pas d’adresse</span></td></tr>' +
+    '<tr><th>Type</th><td>' + e(c.type || 'à choisir') + '</td><td>' + e(r.type) + '</td></tr></tbody></table>';
+  var src = c.texteSource ? '<details><summary>Ce que dit la source</summary><p>' + e(c.texteSource) + '</p></details>' : '';
+  var boutons = '<div class="choix">' + CHOIX.map(function (x) { return '<button type="button" class="btn" data-choix="' + x[0] + '" data-i="' + i + '">' + x[1] + '<small>' + x[2] + '</small></button>'; }).join('') + '</div>';
+  return '<div class="trancher">' + tete + '<div class="alertes">' + past + '</div>' + tab + src + boutons + '<div style="margin-top:.5rem">' + boutonEcarter(c.id) + '</div>' + formEcart(c.id) + '</div>';
+}
+function boutonEcarter(id) { return etat.ouvert === id ? '' : '<button class="btn petit discret" type="button" data-ecarter="' + e(id) + '">Écarter cette fiche pour toujours...</button>'; }
+function formEcart(id) {
+  if (etat.ouvert !== id) { return ''; }
+  var b = etat.brouillon;
+  return '<div class="ecart-form"><strong>Pourquoi l’écarter ?</strong><div class="raisons">' + RAISONS.map(function (x) { return '<button type="button" class="' + (b.raison === x ? 'actif' : '') + '" data-raison="' + e(x) + '">' + e(x) + '</button>'; }).join('') + '</div>' +
+    '<input type="text" id="champEcart" placeholder="' + (b.raison === 'Autre' ? 'Écrivez la raison ici (obligatoire pour « Autre »)' : 'Un mot de plus si vous voulez') + '" value="' + e(b.texte) + '">' +
+    '<div class="btn-rangee"><button class="btn primaire petit" type="button" data-confirmer="' + e(id) + '"' + (b.raison && (b.raison !== 'Autre' || b.texte.trim()) ? '' : ' disabled') + '>Écarter</button><button class="btn petit" type="button" data-annuler="1">Annuler</button></div></div>';
+}
+function suite(p, d) {
+  var c = p.cand, r = p.reg;
+  if (d === 'meme' || d === 'demenage') {
+    var chg = [];
+    if (chiffres(c.tel) && chiffres(c.tel) !== chiffres(r.tel)) { chg.push('téléphone ' + e(c.tel)); }
+    if (hote(c.site) && hote(c.site) !== hote(r.site)) { chg.push('site ' + e(hote(c.site))); }
+    return '<div class="mini" style="margin-top:.3rem">Pas ajoutée. La fiche « ' + e(r.nom) + ' » est reportée à revoir' + (d === 'demenage' ? ' (motif : déménagée)' : '') + (chg.length ? ' avec : ' + chg.join(', ') : ' (aucun changement de téléphone ni de site à signaler)') + '.</div>';
+  }
+  if (d === 'antenne') {
+    return '<div class="phrase">Phrase proposée pour la description : « Antenne de ' + e(r.nom) + ', à ' + e(c.commune) + '. » <span class="mini">(vous la compléterez dans le sas)</span></div>';
+  }
+  return '<div class="mini" style="margin-top:.3rem">Ajoutée à la liste des fiches prêtes.</div>';
+}
+function estVerte(p) { var d = etat.decisions[p.cand.id]; return d === 'antenne' || d === 'autre'; }
+function estReportee(p) { var d = etat.decisions[p.cand.id]; return d === 'meme' || d === 'demenage'; }
+
+function rendre() {
+  var O = DONNEES.orange.filter(function (p) { return !etat.ecart[p.cand.id]; }), V = DONNEES.vertes.filter(function (c) { return !etat.ecart[c.id]; });
+  var nonTranchees = O.filter(function (p) { return !etat.decisions[p.cand.id]; });
+  var vertes = V.concat(O.filter(estVerte).map(function (p) { return p.cand; }));
+  var report = O.filter(estReportee);
+  $('compteurs').innerHTML =
+    '<div class="compteur vert"><b>' + vertes.length + '</b>prêtes (contrôlées)</div>' +
+    '<div class="compteur ambre"><b>' + nonTranchees.length + '</b>à trancher</div>' +
+    '<div class="compteur"><b>' + report.length + '</b>déjà chez vous</div>' +
+    '<div class="compteur"><b>' + Object.keys(etat.ecart).length + '</b>écartées par vous</div>';
+  $('listeOrange').innerHTML = O.map(carteOrange).join('');
+  $('blocOrange').style.display = O.length ? '' : 'none';
+  $('listeVerte').innerHTML = vertes.map(function (c) {
+    var coch = etat.coche[c.id] !== false;
+    var anten = O.filter(function (p) { return p.cand.id === c.id; })[0];
+    var tag = anten ? '<span class="pastille-ver pv-ok">' + (etat.decisions[c.id] === 'antenne' ? 'antenne tranchée par vous' : 'tranchée : autre structure') + '</span>' : '<span class="pastille-ver pv-ok">contrôlée : aucune ressemblance</span>';
+    return '<div class="fiche"><input type="checkbox" data-coche="' + e(c.id) + '"' + (coch ? ' checked' : '') + ' aria-label="Choisir ' + e(c.nom) + '"><div><div class="nom">' + e(c.nom) + '</div><div class="infos">' + e(c.commune) + ' (' + e(c.dep) + ') &middot; ' + e(c.tel) + (c.site ? ' &middot; ' + lien(c.site) : '') + '</div><div class="alertes">' + tag + '</div><div style="margin-top:.3rem">' + boutonEcarter(c.id) + '</div>' + formEcart(c.id) + '</div></div>';
+  }).join('') || '<p class="mini">Aucune fiche prête pour l’instant.</p>';
+  $('blocReport').style.display = report.length ? '' : 'none';
+  $('listeReport').innerHTML = report.map(function (p) { return '<div class="fiche"><div><div class="nom">' + e(p.reg.nom) + '</div><div class="infos">' + suite(p, etat.decisions[p.cand.id]).replace(/<[^>]+>/g, '') + '</div></div></div>'; }).join('');
+  var cles = Object.keys(etat.decisions);
+  $('nbDecisions').textContent = cles.length;
+  $('listeDecisions').innerHTML = cles.length ? cles.map(function (k) { var p = O.filter(function (x) { return x.cand.id === k; })[0]; return '<div>' + e(p.cand.nom) + ' : ' + LIB[etat.decisions[k]] + ' (' + e(p.reg.nom) + ')</div>'; }).join('') : 'Aucune pour l’instant.';
+  var ids = Object.keys(etat.ecart), tous = DONNEES.orange.map(function (p) { return p.cand; }).concat(DONNEES.vertes);
+  $('nbEcartees').textContent = ids.length;
+  $('listeEcartees').innerHTML = ids.length ? ids.map(function (k) {
+    var c = tous.filter(function (x) { return x.id === k; })[0], z = etat.ecart[k];
+    return '<div class="fiche"><div style="flex:1"><div class="nom">' + e(c.nom) + ' <span class="mini">&middot; ' + e(c.commune) + ' (' + e(c.dep) + ')</span></div><div class="infos">Écartée le ' + z.date + ' : <strong>' + e(z.raison) + '</strong>' + (z.texte ? ' (« ' + e(z.texte) + ' »)' : '') + '</div></div><button class="btn petit" type="button" data-remettre="' + e(k) + '">Remettre en jeu</button></div>';
+  }).join('') : '<p class="mini">Aucune pour l’instant. Le bouton « Écarter cette fiche pour toujours... » est sur chaque fiche.</p>';
+  $('listeOffice').innerHTML = OFFICE.map(function (o) {
+    return '<div class="fiche"><div style="flex:1"><div class="nom">' + e(o.nom) + ' <span class="mini">&middot; ' + e(o.commune) + ' (' + e(o.dep) + ')</span></div><div class="infos">' + (etat.office[o.id] ? 'Écartée d’office : ' + e(o.raison) : '<strong>Remise en jeu</strong> : elle reviendra à la prochaine recherche.') + '</div></div>' + (etat.office[o.id] ? '<button class="btn petit" type="button" data-office="' + o.id + '">Remettre en jeu</button>' : '') + '</div>';
+  }).join('');
+  var n = vertes.filter(function (c) { return etat.coche[c.id] !== false; }).length;
+  $('bSas').textContent = 'Mettre les lignes cochées dans le sas (' + n + ')';
+  var bloque = nonTranchees.length > 0;
+  $('bSas').disabled = bloque || n === 0;
+  $('blocage').innerHTML = bloque ? '<div class="note warn"><span>&#9888; <strong>Le sas est fermé :</strong> ' + nonTranchees.length + ' fiche' + (nonTranchees.length > 1 ? 's' : '') + ' à trancher (' + nonTranchees.map(function (p) { return e(p.cand.nom); }).join(' ; ') + '). Tranchez-' + (nonTranchees.length > 1 ? 'les' : 'la') + ' ci-dessus pour ouvrir le sas.</span></div>' : '<div class="note ok"><span>&#10003; Plus rien à trancher : toutes les fiches du sas ont été contrôlées.</span></div>';
+}
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest && ev.target.closest('button'); if (!b) { return; }
+  if (b.id === 'bTheme') { document.body.classList.toggle('dark'); b.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre'; return; }
+  if (b.id === 'bTel') { document.body.classList.toggle('tel'); b.textContent = document.body.classList.contains('tel') ? 'Largeur normale' : 'Largeur téléphone'; return; }
+  if (b.id === 'bReset') { etat = { decisions: {}, coche: {}, ecart: {}, ouvert: '', brouillon: { raison: '', texte: '' }, office: { o1: true, o2: true } }; $('retourSas').innerHTML = ''; rendre(); return; }
+  if (b.id === 'bVerifier') { $('retourSas').innerHTML = '<div class="note ok"><span>&#10003; Vérification refaite à l’instant : 995 fiches du registre et 0 ligne du sas comparées. Rien de nouveau depuis la dernière fois.</span></div>'; return; }
+  if (b.id === 'bSas') { var n = $('bSas').textContent.match(/\((\d+)\)/)[1]; $('retourSas').innerHTML = '<div class="note ok"><span>&#10003; <strong>' + n + ' ligne(s) placée(s) dans la zone de collage du sas.</strong> Rien n’est encore enregistré : écrivez la phrase de chaque fiche, puis « Vérifier mes lignes ».</span></div>'; return; }
+  if (b.getAttribute('data-ecarter')) { etat.ouvert = b.getAttribute('data-ecarter'); etat.brouillon = { raison: '', texte: '' }; rendre(); return; }
+  if (b.getAttribute('data-raison')) { var ch = $('champEcart'); if (ch) { etat.brouillon.texte = ch.value; } etat.brouillon.raison = b.getAttribute('data-raison'); rendre(); var ch2 = $('champEcart'); if (ch2) { ch2.focus(); } return; }
+  if (b.getAttribute('data-annuler')) { etat.ouvert = ''; rendre(); return; }
+  if (b.getAttribute('data-confirmer')) { var id = b.getAttribute('data-confirmer'), d = new Date(); etat.ecart[id] = { raison: etat.brouillon.raison, texte: etat.brouillon.texte.trim(), date: ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear() }; delete etat.decisions[id]; etat.ouvert = ''; rendre(); return; }
+  if (b.getAttribute('data-remettre')) { delete etat.ecart[b.getAttribute('data-remettre')]; rendre(); return; }
+  if (b.getAttribute('data-office')) { etat.office[b.getAttribute('data-office')] = false; rendre(); return; }
+  if (b.getAttribute('data-choix')) { var p = DONNEES.orange[+b.getAttribute('data-i')]; etat.decisions[p.cand.id] = b.getAttribute('data-choix'); rendre(); return; }
+  if (b.getAttribute('data-defaire') !== null) { delete etat.decisions[DONNEES.orange[+b.getAttribute('data-defaire')].cand.id]; rendre(); }
+});
+document.addEventListener('input', function (ev) { if (ev.target.id === 'champEcart') { etat.brouillon.texte = ev.target.value; var c = document.querySelector('[data-confirmer]'); if (c) { c.disabled = !(etat.brouillon.raison && (etat.brouillon.raison !== 'Autre' || etat.brouillon.texte.trim())); } } });
+document.addEventListener('change', function (ev) { var t = ev.target; if (t.getAttribute && t.getAttribute('data-coche')) { etat.coche[t.getAttribute('data-coche')] = !!t.checked; rendre(); } });
+rendre();
+</script>
+</body>
+</html>

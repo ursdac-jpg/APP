@@ -1,0 +1,75 @@
+{
+ "nom": "reprendreRecit",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ voie 2 : ok"
+  },
+  {
+   "n": "info",
+   "t": "récit (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,471 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "récit (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "récit (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "ok",
+   "t": "récit : la reprise a la forme de « Reprendre mon CV » (bloc sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "info",
+   "t": "Reprendre : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "récit (page de travail) : reprise : aucun encart | barre du bas : ← Retour@48,847 | Accueil@144,847 | Continuer →@193,847 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "récit (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "récit : la page de travail est libre après « Reprendre »"
+  },
+  {
+   "n": "ok",
+   "t": "récit : le début de récit est gardé après « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "récit : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "récit : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "récit : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "récit : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "récit : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "récit : après « Recommencer » : #decouverte-intro bas « Commencer → »  À partir de mon récit Partir de ce que vous avez vécu et fait, pour en tirer un CV, même si vous n’en avez jamais eu. ▶ Voir ce parcours en vidéo En images, av"
+  },
+  {
+   "n": "ok",
+   "t": "récit : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": []
+}

@@ -622,6 +622,11 @@ function _mqGlisserOrdre(d, feuille, els, el, poignee, ev, onOrdre) {
   _mqGlisserAvecGarde(d, poignee, ev, bouger, fin, annule);
 }
 
+// Pendant un geste (deplacer, elargir, changer la hauteur) : le texte couvert se pousse tout de suite (cvPdfTemplateMaquette.js, consigne 265).
+function _mqPousserTexte(zone) {
+  try { if (typeof _pdfRectanglesPousserTexte === 'function') { _pdfRectanglesPousserTexte(zone); } } catch (e) { /* un plus : jamais bloquer le geste */ }
+}
+
 function _mqBrancherEntete(d, feuille) {
   Array.prototype.forEach.call(feuille.querySelectorAll('.tete.libre:not(.tete-hors), .rc-boxes.libre'), function (zone) { _mqBrancherZone(d, feuille, zone); });
 }
@@ -642,7 +647,7 @@ function _mqBrancherZone(d, feuille, zone, hote) {
       function mv(e) {
         var dx = (e.clientX - x0) / ech, dy = (e.clientY - y0) / ech; if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { bouge = true; }
         nx = Math.max(0, Math.min(98, g.x + dx / tete.offsetWidth * 100)); ny = Math.max(0, g.y + dy);
-        b.style.left = nx + '%'; b.style.top = ny + 'px'; _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); }
+        b.style.left = nx + '%'; b.style.top = ny + 'px'; if (estRect) { _mqPousserTexte(tete); } _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); }
       }
       function up() {
         b.removeEventListener('pointermove', mv); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up);
@@ -657,7 +662,7 @@ function _mqBrancherZone(d, feuille, zone, hote) {
       ev.preventDefault(); ev.stopPropagation();
       var b = poi.closest('.blc'), bl = b.getAttribute('data-bl'), ech = k(), x0 = ev.clientX, g = _mqGeomDom(bl, hote), w = g.w;
       poi.setPointerCapture(ev.pointerId);
-      function mv(e) { w = Math.max(12, Math.min(100 - g.x, g.w + (e.clientX - x0) / ech / tete.offsetWidth * 100)); b.style.width = w + '%'; _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); } }
+      function mv(e) { w = Math.max(12, Math.min(100 - g.x, g.w + (e.clientX - x0) / ech / tete.offsetWidth * 100)); b.style.width = w + '%'; if (estRect) { _mqPousserTexte(tete); } _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); } }
       function up() {
         poi.removeEventListener('pointermove', mv); poi.removeEventListener('pointerup', up); poi.removeEventListener('pointercancel', up);
         var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent.larg[bl] = Math.round(w); _mqEnteteDefinir(ent, hote);
@@ -685,7 +690,7 @@ function _mqBrancherZone(d, feuille, zone, hote) {
       var b = pb.closest('.blc'), bl = b.getAttribute('data-bl'), boite = b.querySelector('.rc-box'), ech = k(), y0 = ev.clientY;
       var avantMin = boite.style.minHeight; boite.style.minHeight = '0'; var mini = b.offsetHeight; boite.style.minHeight = avantMin;
       var h0 = b.offsetHeight, h = h0; pb.setPointerCapture(ev.pointerId);
-      function mv(e) { h = Math.round(Math.max(mini, h0 + (e.clientY - y0) / ech)); boite.style.minHeight = h + 'px'; _mqVerifierRouge(tete, estRect, hote); }
+      function mv(e) { h = Math.round(Math.max(mini, h0 + (e.clientY - y0) / ech)); boite.style.minHeight = h + 'px'; boite.setAttribute('data-mh', h); if (estRect) { _mqPousserTexte(tete); } _mqVerifierRouge(tete, estRect, hote); }
       function up() {
         pb.removeEventListener('pointermove', mv); pb.removeEventListener('pointerup', up); pb.removeEventListener('pointercancel', up);
         var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent.hautBl = ent.hautBl || {}; ent.hautBl[bl] = h; _mqEnteteDefinir(ent, hote);

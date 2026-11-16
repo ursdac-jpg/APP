@@ -6,7 +6,7 @@
    2. Le moteur de score (rechercherMetiers)
    3. Le générateur d'affichage Bootstrap (genererHTMLMetiers)
 
-   Le vocabulaire (activites, actions, environnement, valeurs,
+   Le vocabulaire (activites, actions, environnement,
    savoirFaire, savoirEtre) est aligné sur les identifiants et
    libellés de l'Assistant Parcours Professionnel :
    - activites : clients, machines, enfants, personnes_agees,
@@ -15,8 +15,8 @@
      nettoyer, former, soigner, cuisiner, construire, analyser, creer
    - environnement : bureau, usine, route, domicile, magasin,
      exterieur, sante, cuisine
-   - valeurs : stabilite, salaire, horaires_fixes, contact_humain,
-     exterieur, evolution, autonomie, proximite
+   (Le champ valeurs des fiches a ete retire le 12/11/2026, consigne 261 :
+   la question sur ce qui compte pour la personne n existe plus.)
 
    Pour ajouter un métier : copier une fiche, adapter les champs.
 
@@ -24,7 +24,7 @@
    étape 6) : avant d'inventer un nouveau libellé de savoirFaire ou de
    savoirEtre, vérifier d'abord dans data/competences.js (categorieCompetence)
    si un terme existant convient déjà -- même discipline que pour les
-   identifiants activites/actions/environnement/valeurs ci-dessus. Mesuré :
+   identifiants activites/actions/environnement ci-dessus. Mesuré :
    129 métiers très variés (21 secteurs) ne génèrent que 70 libellés
    distincts de savoirFaire/savoirEtre au total -- cette économie ne tient
    que si le vocabulaire existant est réutilisé en priorité, faute de quoi
@@ -41,93 +41,83 @@
    viennent de ces anciens fichiers et marquent encore leur origine.
    ============================================================ */
 
-const baseMetiers = [
+const baseMetiersDetaillees = [
   {
-    id: "conseiller_vente", nom: "Conseiller de vente", rome: "D1214", secteur: "Commerce et vente",    activites: ["clients", "magasin", "collegues", "marchandises"],
-    actions: ["vendre", "conseiller"],
+    id: "conseiller_vente", nom: "Conseiller de vente", rome: "D1214", secteur: "Commerce et vente",    activites: ["clients", "collegues", "marchandises", "tissus_vetements"],
+    actions: ["vendre", "conseiller", "expliquer_presenter", "encaisser"],
     environnement: ["magasin"],
-    valeurs: ["contact_humain", "evolution"],
     savoirFaire: ["Merchandising", "Gestion des stocks", "Négociation", "Persuasion", "Conseil"],
     savoirEtre: ["Relation client", "Communication", "Écoute", "Sens du service", "Accueil"],
     savoirs: ["Techniques de vente", "Connaissance des produits", "Encaissement"]
   },
   {
-    id: "agent_accueil", nom: "Agent d'accueil", rome: "M1601", secteur: "Administration, gestion et bureau",    activites: ["clients", "bureau", "ordinateur", "documents"],
+    id: "agent_accueil", nom: "Agent d'accueil", rome: "M1601", secteur: "Administration, gestion et bureau",    activites: ["clients", "ordinateur", "documents", "usagers_public"],
     actions: ["conseiller", "organiser"],
     environnement: ["bureau"],
-    valeurs: ["contact_humain", "horaires_fixes"],
     savoirFaire: ["Bureautique", "Gestion administrative", "Conseil"],
     savoirEtre: ["Accueil", "Communication", "Écoute", "Patience", "Sens du service"],
     savoirs: ["Standard téléphonique", "Procédures d'accueil"]
   },
   {
-    id: "teleconseiller", nom: "Téléconseiller", rome: "D1408", secteur: "Commerce et vente",    activites: ["clients", "bureau", "collegues", "ordinateur", "documents"],
+    id: "teleconseiller", nom: "Téléconseiller", rome: "D1408", secteur: "Commerce et vente",    activites: ["clients", "collegues", "ordinateur", "documents"],
     actions: ["conseiller", "vendre"],
-    environnement: ["bureau"],
-    valeurs: ["contact_humain", "horaires_fixes"],
+    environnement: ["bureau", "centre_appels"],
     savoirFaire: ["Bureautique", "Négociation", "Persuasion", "Conseil"],
     savoirEtre: ["Relation client", "Communication", "Écoute", "Patience"],
     savoirs: ["Outils informatiques", "Scripts d'appel"]
   },
   {
-    id: "employe_libre_service", nom: "Employé libre-service", rome: "D1507", secteur: "Commerce et vente",    activites: ["magasin", "seul", "collegues", "marchandises"],
-    actions: ["organiser", "nettoyer"],
+    id: "employe_libre_service", nom: "Employé libre-service", rome: "D1507", secteur: "Commerce et vente",    activites: ["collegues", "marchandises"],
+    actions: ["organiser", "nettoyer", "manutentionner_emballer"],
     environnement: ["magasin"],
-    valeurs: ["stabilite", "horaires_fixes", "proximite"],
     savoirFaire: ["Merchandising", "Gestion des stocks", "Entretien"],
     savoirEtre: ["Rigueur", "Organisation", "Autonomie", "Endurance"],
     savoirs: ["Rotation des produits", "Règles d'hygiène"]
   },
   {
-    id: "preparateur_commandes", nom: "Préparateur de commandes / Magasinier", rome: "N1103", secteur: "Transport et logistique",    activites: ["machines", "seul", "collegues", "marchandises"],
-    actions: ["organiser", "transporter"],
+    id: "preparateur_commandes", nom: "Préparateur de commandes / Magasinier", rome: "N1103", secteur: "Transport et logistique",    activites: ["machines", "collegues", "marchandises"],
+    actions: ["organiser", "transporter", "gerer_stocks_acheter", "manutentionner_emballer"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "autonomie", "salaire"],
     savoirFaire: ["Logistique", "Gestion des stocks", "Conduite", "Planification"],
     savoirEtre: ["Rigueur", "Organisation", "Autonomie", "Respect des délais"],
     savoirs: ["Logiciels de gestion d'entrepôt"]
   },
   {
-    id: "cariste", nom: "Cariste", rome: "N1101", secteur: "Transport et logistique",    activites: ["machines", "seul", "marchandises"],
+    id: "cariste", nom: "Cariste", rome: "N1101", secteur: "Transport et logistique",    activites: ["machines", "marchandises"],
     actions: ["transporter", "organiser"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "salaire"],
     savoirFaire: ["Conduite", "Logistique", "Gestion des stocks"],
     savoirEtre: ["Rigueur", "Sécurité", "Autonomie"],
     savoirs: ["Règles de sécurité entrepôt"]
   },
   {
-    id: "chauffeur_livreur", nom: "Chauffeur-livreur", rome: "N4105", secteur: "Transport et logistique",    activites: ["deplacement", "seul", "clients", "marchandises", "vehicules"],
-    actions: ["transporter", "organiser"],
+    id: "chauffeur_livreur", nom: "Chauffeur-livreur", rome: "N4105", secteur: "Transport et logistique",    activites: ["clients", "marchandises", "vehicules"],
+    actions: ["transporter", "organiser", "livrer"],
     environnement: ["route"],
-    valeurs: ["autonomie", "proximite"],
     savoirFaire: ["Conduite", "Logistique", "Planification"],
     savoirEtre: ["Autonomie", "Gestion du temps", "Respect des délais", "Sens du service"],
     savoirs: ["Code de la route", "Lecture d'itinéraires"]
   },
   {
-    id: "chauffeur_routier", nom: "Chauffeur routier", rome: "N4101", secteur: "Transport et logistique",    activites: ["deplacement", "seul", "vehicules"],
+    id: "chauffeur_routier", nom: "Chauffeur routier", rome: "N4101", secteur: "Transport et logistique",    activites: ["vehicules"],
     actions: ["transporter"],
     environnement: ["route"],
-    valeurs: ["autonomie", "salaire"],
-    savoirFaire: ["Conduite", "Logistique"],
+    savoirFaire: ["Conduite", "Logistique", "Manutention"],
     savoirEtre: ["Autonomie", "Fiabilité", "Respect des délais"],
     savoirs: ["Code de la route", "Réglementation des transports"]
   },
   {
-    id: "agent_entretien", nom: "Agent d'entretien", rome: "K2204", secteur: "Propreté et gestion des déchets",    activites: ["seul", "outils"],
+    id: "agent_entretien", nom: "Agent d'entretien", rome: "K2204", secteur: "Propreté et gestion des déchets",    activites: ["outils", "produits_dangereux"],
     actions: ["nettoyer", "organiser"],
     environnement: ["bureau", "domicile"],
-    valeurs: ["autonomie", "horaires_fixes", "proximite"],
-    savoirFaire: ["Hygiène", "Entretien"],
+    savoirFaire: ["Hygiène", "Entretien", "Protection de l'environnement"],
     savoirEtre: ["Rigueur", "Autonomie", "Organisation", "Fiabilité"],
     savoirs: ["Protocoles de nettoyage", "Sécurité des produits"]
   },
   {
-    id: "advf", nom: "Assistant de vie aux familles (ADVF)", rome: "K1302", secteur: "Social et services à la personne",    activites: ["personnes_agees", "seul", "deplacement"],
+    id: "advf", nom: "Assistant de vie aux familles (ADVF)", rome: "K1302", secteur: "Social et services à la personne",    activites: ["personnes_agees", "familles"],
     actions: ["soigner", "cuisiner", "nettoyer"],
     environnement: ["domicile"],
-    valeurs: ["contact_humain", "proximite"],
     savoirFaire: ["Soins", "Hygiène", "Cuisine", "Entretien"],
     savoirEtre: ["Empathie", "Aide à la personne", "Écoute", "Patience", "Bienveillance"],
     savoirs: ["Gestes de premiers secours", "Manutention des personnes"]
@@ -135,8 +125,7 @@ const baseMetiers = [
   {
     id: "aide_soignant", nom: "Aide-soignant", rome: "J1501", secteur: "Santé et soins",    activites: ["personnes_agees", "collegues"],
     actions: ["soigner"],
-    environnement: ["sante"],
-    valeurs: ["contact_humain", "stabilite"],
+    environnement: ["sante", "social_creche"],
     savoirFaire: ["Soins", "Hygiène", "Précision"],
     savoirEtre: ["Empathie", "Écoute", "Bienveillance", "Travail en équipe"],
     savoirs: ["Protocoles de soins", "Hygiène hospitalière", "Gestes de premiers secours"]
@@ -145,7 +134,6 @@ const baseMetiers = [
     id: "infirmier", nom: "Infirmier", rome: "J1506", secteur: "Santé et soins",    activites: ["personnes_agees", "collegues"],
     actions: ["soigner", "organiser", "analyser"],
     environnement: ["sante"],
-    valeurs: ["contact_humain", "evolution", "salaire"],
     savoirFaire: ["Soins", "Précision", "Planification"],
     savoirEtre: ["Empathie", "Rigueur", "Responsabilité", "Travail en équipe"],
     savoirs: ["Pharmacologie", "Protocoles médicaux"]
@@ -153,260 +141,231 @@ const baseMetiers = [
   {
     id: "auxiliaire_petite_enfance", nom: "Auxiliaire petite enfance", rome: "K1303", secteur: "Social et services à la personne",    activites: ["enfants", "collegues"],
     actions: ["soigner", "former", "creer"],
-    environnement: ["sante"],
-    valeurs: ["contact_humain", "horaires_fixes"],
+    environnement: ["sante", "social_creche"],
     savoirFaire: ["Soins", "Hygiène", "Transmission"],
     savoirEtre: ["Patience", "Bienveillance", "Pédagogie", "Créativité", "Sécurité"],
     savoirs: ["Développement de l'enfant", "Règles de sécurité"]
   },
   {
-    id: "animateur", nom: "Animateur", rome: "G1202", secteur: "Sport, animation et loisirs",    activites: ["enfants", "collegues", "exterieur"],
-    actions: ["former", "creer", "organiser"],
-    environnement: ["exterieur"],
-    valeurs: ["contact_humain", "evolution"],
+    id: "animateur", nom: "Animateur", rome: "G1202", secteur: "Sport, animation et loisirs",    activites: ["enfants", "collegues", "adolescents"],
+    actions: ["former", "creer", "organiser", "encadrer_animer", "organiser_evenement"],
+    environnement: ["exterieur", "association"],
     savoirFaire: ["Transmission", "Gestion de projet", "Planification"],
     savoirEtre: ["Pédagogie", "Créativité", "Communication", "Adaptabilité", "Esprit d'équipe"],
     savoirs: ["Réglementation ACM", "Techniques d'animation"]
   },
   {
-    id: "formateur", nom: "Formateur / Éducateur", rome: "K2111", secteur: "Éducation et formation",    activites: ["enfants", "collegues", "bureau"],
-    actions: ["former", "conseiller", "organiser"],
+    id: "formateur", nom: "Formateur / Éducateur", rome: "K2111", secteur: "Éducation et formation",    activites: ["enfants", "collegues", "adolescents", "salaries_professionnels"],
+    actions: ["former", "conseiller", "organiser", "expliquer_presenter"],
     environnement: ["bureau"],
-    valeurs: ["contact_humain", "evolution"],
     savoirFaire: ["Formation", "Transmission", "Conseil", "Rédaction"],
     savoirEtre: ["Pédagogie", "Patience", "Communication", "Écoute"],
     savoirs: ["Ingénierie pédagogique", "Techniques d'évaluation"]
   },
   {
     id: "serveur", nom: "Serveur en restauration", rome: "G1803", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "collegues"],
-    actions: ["vendre", "conseiller"],
+    actions: ["servir", "conseiller", "vendre", "encaisser"],
     environnement: ["cuisine"],
-    valeurs: ["contact_humain"],
-    savoirFaire: ["Négociation", "Conseil"],
+    savoirFaire: ["Négociation", "Conseil", "Vente"],
     savoirEtre: ["Sens du service", "Communication", "Endurance", "Adaptabilité", "Accueil"],
     savoirs: ["Hygiène alimentaire (HACCP)", "Techniques de service", "Encaissement"]
   },
   {
-    id: "cuisinier", nom: "Cuisinier / Commis de cuisine", rome: "G1602", secteur: "Hôtellerie, restauration et tourisme",    activites: ["collegues", "machines"],
+    id: "cuisinier", nom: "Cuisinier / Commis de cuisine", rome: "G1602", secteur: "Hôtellerie, restauration et tourisme",    activites: ["collegues", "machines", "aliments"],
     actions: ["cuisiner", "organiser"],
     environnement: ["cuisine"],
-    valeurs: ["evolution"],
     savoirFaire: ["Cuisine", "Hygiène", "Précision", "Planification"],
     savoirEtre: ["Rigueur", "Créativité", "Esprit d'équipe", "Endurance", "Respect des normes"],
     savoirs: ["Techniques culinaires", "Hygiène alimentaire (HACCP)"]
   },
   {
     id: "agent_production", nom: "Agent de production", rome: "H2909", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues"],
-    actions: ["construire", "analyser", "organiser"],
+    actions: ["construire", "analyser", "organiser", "appliquer_consignes_securite", "utiliser_machines_outils"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "horaires_fixes", "salaire"],
     savoirFaire: ["Technique", "Précision", "Maintenance"],
     savoirEtre: ["Rigueur", "Esprit d'équipe", "Respect des normes", "Fiabilité"],
     savoirs: ["Règles de sécurité", "Procédures qualité"]
   },
   {
-    id: "technicien_maintenance", nom: "Technicien de maintenance", rome: "I1304", secteur: "Industrie, production et énergie",    activites: ["machines", "seul", "deplacement", "outils"],
-    actions: ["reparer", "analyser"],
+    id: "technicien_maintenance", nom: "Technicien de maintenance", rome: "I1304", secteur: "Industrie, production et énergie",    activites: ["machines", "outils", "installations_electriques"],
+    actions: ["reparer", "analyser", "entretenir_maintenir"],
     environnement: ["usine"],
-    valeurs: ["autonomie", "evolution", "salaire"],
     savoirFaire: ["Diagnostic", "Réparation", "Maintenance", "Technique", "Lecture de plans"],
     savoirEtre: ["Autonomie", "Rigueur", "Adaptabilité"],
     savoirs: ["Lecture de schémas", "Habilitations électriques"]
   },
   {
-    id: "mecanicien", nom: "Mécanicien automobile", rome: "I1604", secteur: "Mécanique et automobile",    activites: ["machines", "seul", "vehicules", "outils"],
+    id: "mecanicien", nom: "Mécanicien automobile", rome: "I1604", secteur: "Mécanique et automobile",    activites: ["machines", "vehicules", "outils"],
     actions: ["reparer", "analyser"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "autonomie"],
     savoirFaire: ["Diagnostic", "Réparation", "Maintenance", "Technique", "Précision"],
     savoirEtre: ["Rigueur", "Autonomie", "Raisonnement logique"],
     savoirs: ["Mécanique automobile", "Électronique embarquée"]
   },
   {
-    id: "macon", nom: "Maçon", rome: "F1703", secteur: "Bâtiment et travaux publics",    activites: ["exterieur", "collegues", "machines", "outils"],
+    id: "macon", nom: "Maçon", rome: "F1703", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "machines", "outils", "materiaux"],
     actions: ["construire"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "salaire"],
     savoirFaire: ["Bâtiment", "Lecture de plans", "Travail manuel"],
     savoirEtre: ["Endurance", "Esprit d'équipe", "Sécurité", "Rigueur"],
     savoirs: ["Normes de construction", "Sécurité sur chantier"]
   },
   {
-    id: "peintre", nom: "Peintre en bâtiment", rome: "F1606", secteur: "Bâtiment et travaux publics",    activites: ["seul", "exterieur", "outils"],
+    id: "peintre", nom: "Peintre en bâtiment", rome: "F1606", secteur: "Bâtiment et travaux publics",    activites: ["outils", "produits_dangereux"],
     actions: ["construire", "creer"],
     environnement: ["exterieur", "domicile"],
-    valeurs: ["autonomie", "proximite"],
     savoirFaire: ["Bâtiment", "Travail manuel", "Précision"],
     savoirEtre: ["Rigueur", "Autonomie", "Créativité"],
     savoirs: ["Types de peintures", "Préparation des surfaces"]
   },
   {
-    id: "plombier", nom: "Plombier", rome: "F1603", secteur: "Bâtiment et travaux publics",    activites: ["seul", "deplacement", "clients", "outils"],
+    id: "plombier", nom: "Plombier", rome: "F1603", secteur: "Bâtiment et travaux publics",    activites: ["clients", "outils"],
     actions: ["reparer", "construire"],
     environnement: ["domicile", "exterieur"],
-    valeurs: ["autonomie", "proximite", "salaire"],
     savoirFaire: ["Réparation", "Diagnostic", "Lecture de plans", "Travail manuel"],
     savoirEtre: ["Autonomie", "Rigueur", "Sens du service"],
     savoirs: ["Normes de plomberie", "Lecture de plans hydrauliques"]
   },
   {
-    id: "electricien", nom: "Électricien", rome: "F1602", secteur: "Bâtiment et travaux publics",    activites: ["seul", "deplacement", "machines", "outils"],
+    id: "electricien", nom: "Électricien", rome: "F1602", secteur: "Bâtiment et travaux publics",    activites: ["machines", "outils", "installations_electriques"],
     actions: ["reparer", "construire", "analyser"],
     environnement: ["exterieur", "domicile"],
-    valeurs: ["autonomie", "evolution", "salaire"],
     savoirFaire: ["Technique", "Lecture de plans", "Diagnostic", "Précision"],
     savoirEtre: ["Rigueur", "Sécurité", "Autonomie", "Raisonnement logique"],
     savoirs: ["Normes électriques", "Lecture de schémas électriques", "Habilitations"]
   },
   {
-    id: "paysagiste", nom: "Ouvrier paysagiste / Jardinier", rome: "A1203", secteur: "Agriculture, nature et espaces verts",    activites: ["exterieur", "seul", "machines", "outils"],
-    actions: ["creer", "nettoyer", "construire"],
+    id: "paysagiste", nom: "Ouvrier paysagiste / Jardinier", rome: "A1203", secteur: "Agriculture, nature et espaces verts",    activites: ["machines", "outils", "vegetaux"],
+    actions: ["creer", "nettoyer", "construire", "amenager_espace", "cultiver_entretenir_plantes"],
     environnement: ["exterieur", "espaces_verts"],
-    valeurs: ["exterieur", "autonomie", "proximite"],
     savoirFaire: ["Entretien", "Travail manuel", "Conduite"],
     savoirEtre: ["Endurance", "Autonomie", "Créativité", "Adaptabilité"],
     savoirs: ["Végétaux", "Matériel motorisé"]
   },
   {
-    id: "ouvrier_agricole", nom: "Ouvrier agricole / viticole", rome: "A1405", secteur: "Agriculture, nature et espaces verts",    activites: ["exterieur", "collegues", "machines", "outils"],
+    id: "ouvrier_agricole", nom: "Ouvrier agricole / viticole", rome: "A1405", secteur: "Agriculture, nature et espaces verts",    activites: ["collegues", "machines", "outils"],
     actions: ["transporter", "organiser", "nettoyer"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "proximite"],
     savoirFaire: ["Travail manuel", "Conduite", "Entretien"],
     savoirEtre: ["Endurance", "Adaptabilité", "Esprit d'équipe"],
     savoirs: ["Cycle de la vigne", "Matériel agricole"]
   },
   {
-    id: "agent_securite", nom: "Agent de sécurité", rome: "K2503", secteur: "Sécurité",    activites: ["seul", "magasin", "clients"],
-    actions: ["analyser", "organiser"],
-    environnement: ["magasin", "bureau"],
-    valeurs: ["stabilite", "horaires_fixes"],
-    savoirFaire: ["Planification"],
+    id: "agent_securite", nom: "Agent de sécurité", rome: "K2503", secteur: "Sécurité",    activites: ["clients"],
+    actions: ["analyser", "organiser", "appliquer_consignes_securite", "surveiller_securiser", "reagir_urgence"],
+    environnement: ["magasin", "bureau", "securite_penitentiaire"],
+    savoirFaire: ["Planification", "Prévention des risques", "Surveillance"],
     savoirEtre: ["Sécurité", "Rigueur", "Fiabilité", "Responsabilité"],
     savoirs: ["Consignes incendie", "Gestes de premiers secours"]
   },
   {
-    id: "assistant_administratif", nom: "Assistant administratif", rome: "M1607", secteur: "Administration, gestion et bureau",    activites: ["bureau", "seul", "collegues", "ordinateur", "documents"],
+    id: "assistant_administratif", nom: "Assistant administratif", rome: "M1607", secteur: "Administration, gestion et bureau",    activites: ["collegues", "ordinateur", "documents"],
     actions: ["organiser", "analyser"],
     environnement: ["bureau"],
-    valeurs: ["stabilite", "horaires_fixes"],
     savoirFaire: ["Bureautique", "Gestion administrative", "Rédaction", "Planification"],
     savoirEtre: ["Organisation", "Rigueur", "Communication", "Fiabilité"],
     savoirs: ["Outils bureautiques", "Orthographe", "Procédures administratives"]
   },
   {
-    id: "comptable", nom: "Comptable / Assistant comptable", rome: "M1203", secteur: "Administration, gestion et bureau",    activites: ["bureau", "seul", "ordinateur", "documents"],
+    id: "comptable", nom: "Comptable / Assistant comptable", rome: "M1203", secteur: "Administration, gestion et bureau",    activites: ["ordinateur", "documents"],
     actions: ["analyser", "organiser"],
     environnement: ["bureau"],
-    valeurs: ["stabilite", "salaire", "evolution"],
     savoirFaire: ["Analyse de données", "Gestion financière", "Bureautique", "Rédaction"],
     savoirEtre: ["Rigueur", "Organisation", "Raisonnement logique"],
     savoirs: ["Comptabilité générale", "Droit fiscal", "Logiciels comptables"]
   },
   {
     id: "chef_equipe", nom: "Chef d'équipe", rome: "M1302", secteur: "Administration, gestion et bureau",    activites: ["collegues", "machines", "documents"],
-    actions: ["organiser", "former", "analyser"],
+    actions: ["organiser", "former", "analyser", "piloter_projet", "encadrer_animer"],
     environnement: ["usine", "exterieur"],
-    valeurs: ["evolution", "salaire"],
     savoirFaire: ["Management", "Gestion de projet", "Planification", "Formation"],
     savoirEtre: ["Leadership", "Coordination", "Responsabilité", "Travail en équipe"],
     savoirs: ["Règles de sécurité", "Gestion de planning"]
   },
   {
-    id: "developpeur", nom: "Développeur informatique", rome: "M1855", secteur: "Informatique et numérique",    activites: ["bureau", "seul", "collegues", "ordinateur"],
-    actions: ["analyser", "creer"],
+    id: "developpeur", nom: "Développeur informatique", rome: "M1855", secteur: "Informatique et numérique",    activites: ["collegues", "ordinateur"],
+    actions: ["analyser", "creer", "rechercher_tester", "concevoir"],
     environnement: ["bureau"],
-    valeurs: ["evolution", "autonomie", "salaire"],
     savoirFaire: ["Analyse de données", "Innovation", "Rédaction", "Gestion de projet"],
     savoirEtre: ["Raisonnement logique", "Autonomie", "Rigueur", "Apprentissage"],
     savoirs: ["Langages de programmation", "Bases de données", "Méthodes agiles"]
   },
   {
     id: "employe_polyvalent_restauration", nom: "Employé polyvalent de restauration / Aide de cuisine", rome: "G1603", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "collegues"],
-    actions: ["cuisiner", "nettoyer", "organiser"],
+    actions: ["cuisiner", "servir", "nettoyer", "organiser"],
     environnement: ["cuisine"],
-    valeurs: ["contact_humain", "proximite"],
     savoirFaire: ["Cuisine", "Hygiène", "Entretien"],
     savoirEtre: ["Adaptabilité", "Esprit d'équipe", "Endurance", "Sens du service"],
     savoirs: ["Hygiène alimentaire (HACCP)", "Préparation froide et chaude"]
   },
   {
-    id: "plongeur", nom: "Plongeur en restauration", rome: "G1605", secteur: "Hôtellerie, restauration et tourisme",    activites: ["collegues", "seul"],
+    id: "plongeur", nom: "Plongeur en restauration", rome: "G1605", secteur: "Hôtellerie, restauration et tourisme",    activites: ["collegues"],
     actions: ["nettoyer", "organiser"],
     environnement: ["cuisine"],
-    valeurs: ["proximite", "stabilite"],
-    savoirFaire: ["Hygiène", "Entretien"],
+    savoirFaire: ["Hygiène", "Entretien", "Cuisine"],
     savoirEtre: ["Endurance", "Rigueur", "Esprit d'équipe"],
     savoirs: ["Hygiène alimentaire (HACCP)", "Matériel de plonge"]
   },
   {
-    id: "receptionniste", nom: "Réceptionniste en hôtellerie", rome: "G1703", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "bureau", "ordinateur", "documents"],
+    id: "receptionniste", nom: "Réceptionniste en hôtellerie", rome: "G1703", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "ordinateur", "documents"],
     actions: ["conseiller", "organiser"],
     environnement: ["bureau"],
-    valeurs: ["contact_humain", "evolution"],
     savoirFaire: ["Bureautique", "Gestion administrative", "Conseil", "Planification"],
     savoirEtre: ["Accueil", "Communication", "Sens du service", "Adaptabilité"],
     savoirs: ["Anglais et langues étrangères", "Logiciels de réservation", "Encaissement"]
   },
   {
-    id: "employe_etage", nom: "Employé d'étage en hôtellerie", rome: "G1501", secteur: "Hôtellerie, restauration et tourisme",    activites: ["seul", "collegues"],
+    id: "employe_etage", nom: "Employé d'étage en hôtellerie", rome: "G1501", secteur: "Hôtellerie, restauration et tourisme",    activites: ["collegues"],
     actions: ["nettoyer", "organiser"],
     environnement: ["bureau"],
-    valeurs: ["horaires_fixes", "proximite"],
-    savoirFaire: ["Hygiène", "Entretien"],
+    savoirFaire: ["Hygiène", "Entretien", "Manutention"],
     savoirEtre: ["Rigueur", "Autonomie", "Fiabilité"],
     savoirs: ["Protocoles de nettoyage", "Présentation des chambres"]
   },
   {
     id: "barman", nom: "Barman / Employé de café", rome: "G1801", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "collegues"],
-    actions: ["vendre", "conseiller", "cuisiner"],
+    actions: ["preparer_boissons", "servir", "vendre", "conseiller", "encaisser"],
     environnement: ["cuisine"],
-    valeurs: ["contact_humain"],
-    savoirFaire: ["Cuisine", "Négociation"],
+    savoirFaire: ["Cuisine", "Négociation", "Gestion des stocks"],
     savoirEtre: ["Sens du service", "Communication", "Endurance", "Accueil"],
     savoirs: ["Encaissement", "Règles d'hygiène", "Préparation des boissons"]
   },
   {
-    id: "accueil_touristique", nom: "Agent d'accueil touristique", rome: "G1101", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "bureau", "exterieur", "ordinateur"],
+    id: "accueil_touristique", nom: "Agent d'accueil touristique", rome: "G1101", secteur: "Hôtellerie, restauration et tourisme",    activites: ["clients", "ordinateur", "usagers_public"],
     actions: ["conseiller", "organiser"],
     environnement: ["bureau", "exterieur"],
-    valeurs: ["contact_humain", "exterieur"],
     savoirFaire: ["Conseil", "Planification", "Bureautique"],
     savoirEtre: ["Accueil", "Communication", "Adaptabilité", "Écoute"],
     savoirs: ["Patrimoine local", "Anglais et langues étrangères"]
   },
   {
-    id: "ouvrier_chai", nom: "Ouvrier de chai / Agent de cave", rome: "A1413", secteur: "Agriculture, nature et espaces verts",    activites: ["machines", "collegues", "exterieur"],
+    id: "ouvrier_chai", nom: "Ouvrier de chai / Agent de cave", rome: "A1413", secteur: "Agriculture, nature et espaces verts",    activites: ["machines", "collegues"],
     actions: ["organiser", "nettoyer", "analyser"],
     environnement: ["usine", "exterieur"],
-    valeurs: ["proximite", "stabilite"],
     savoirFaire: ["Technique", "Hygiène", "Précision", "Travail manuel"],
     savoirEtre: ["Rigueur", "Esprit d'équipe", "Endurance"],
     savoirs: ["Vinification", "Hygiène alimentaire"]
   },
   {
-    id: "ouvrier_horticole", nom: "Ouvrier horticole / Maraîcher", rome: "A1414", secteur: "Agriculture, nature et espaces verts",    activites: ["exterieur", "seul", "collegues", "outils"],
-    actions: ["creer", "nettoyer", "organiser"],
+    id: "ouvrier_horticole", nom: "Ouvrier horticole / Maraîcher", rome: "A1414", secteur: "Agriculture, nature et espaces verts",    activites: ["collegues", "outils", "vegetaux"],
+    actions: ["creer", "nettoyer", "organiser", "cultiver_entretenir_plantes"],
     environnement: ["exterieur", "espaces_verts"],
-    valeurs: ["exterieur", "proximite"],
-    savoirFaire: ["Travail manuel", "Entretien"],
+    savoirFaire: ["Travail manuel", "Entretien", "Culture et récolte"],
     savoirEtre: ["Endurance", "Rigueur", "Autonomie"],
     savoirs: ["Végétaux et cycles de culture", "Techniques de plantation"]
   },
   {
-    id: "conducteur_engins_agricoles", nom: "Conducteur d'engins agricoles", rome: "A1101", secteur: "Agriculture, nature et espaces verts",    activites: ["machines", "exterieur", "seul", "vehicules"],
+    id: "conducteur_engins_agricoles", nom: "Conducteur d'engins agricoles", rome: "A1101", secteur: "Agriculture, nature et espaces verts",    activites: ["machines", "vehicules"],
     actions: ["transporter", "reparer"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "autonomie"],
     savoirFaire: ["Conduite", "Maintenance", "Travail manuel"],
     savoirEtre: ["Autonomie", "Rigueur", "Adaptabilité"],
     savoirs: ["Matériel agricole", "Règles de sécurité"]
   },
   {
-    id: "operateur_agroalimentaire", nom: "Opérateur de production agroalimentaire", rome: "H2102", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues"],
-    actions: ["cuisiner", "organiser", "analyser"],
+    id: "operateur_agroalimentaire", nom: "Opérateur de production agroalimentaire", rome: "H2102", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues", "aliments"],
+    actions: ["cuisiner", "organiser", "analyser", "manipuler_produits"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "horaires_fixes"],
     savoirFaire: ["Technique", "Hygiène", "Précision"],
     savoirEtre: ["Rigueur", "Esprit d'équipe", "Respect des normes"],
     savoirs: ["Hygiène alimentaire (HACCP)", "Procédures qualité"]
@@ -415,115 +374,102 @@ const baseMetiers = [
     id: "operateur_decoupe", nom: "Opérateur en transformation des viandes / conserverie", rome: "H2101", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues"],
     actions: ["cuisiner", "analyser"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "salaire"],
     savoirFaire: ["Précision", "Hygiène", "Travail manuel", "Technique"],
     savoirEtre: ["Rigueur", "Endurance", "Respect des normes"],
     savoirs: ["Découpe", "Chaîne du froid", "Traçabilité"]
   },
   {
-    id: "operateur_chimie", nom: "Opérateur de production chimique", rome: "H2301", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues"],
-    actions: ["analyser", "organiser"],
+    id: "operateur_chimie", nom: "Opérateur de production chimique", rome: "H2301", secteur: "Industrie, production et énergie",    activites: ["machines", "collegues", "produits_dangereux"],
+    actions: ["analyser", "organiser", "manipuler_produits"],
     environnement: ["usine"],
-    valeurs: ["salaire", "stabilite", "evolution"],
     savoirFaire: ["Technique", "Précision", "Analyse de données"],
     savoirEtre: ["Rigueur", "Sécurité", "Respect des normes"],
     savoirs: ["Procédés chimiques", "Règles de sécurité"]
   },
   {
-    id: "soudeur", nom: "Soudeur", rome: "H2913", secteur: "Industrie, production et énergie",    activites: ["machines", "seul"],
+    id: "soudeur", nom: "Soudeur", rome: "H2913", secteur: "Industrie, production et énergie",    activites: ["machines", "materiaux"],
     actions: ["construire", "reparer"],
     environnement: ["usine", "exterieur"],
-    valeurs: ["salaire", "stabilite"],
     savoirFaire: ["Technique", "Précision", "Travail manuel", "Lecture de plans"],
-    savoirEtre: ["Rigueur", "Autonomie"],
+    savoirEtre: ["Rigueur", "Autonomie", "Esprit d'équipe"],
     savoirs: ["Procédés de soudage", "Lecture de plans", "Règles de sécurité"]
   },
   {
-    id: "usineur", nom: "Opérateur d'usinage (commande numérique)", rome: "H2903", secteur: "Industrie, production et énergie",    activites: ["machines", "seul"],
-    actions: ["construire", "analyser"],
+    id: "usineur", nom: "Opérateur d'usinage (commande numérique)", rome: "H2903", secteur: "Industrie, production et énergie",    activites: ["machines"],
+    actions: ["construire", "analyser", "utiliser_machines_outils"],
     environnement: ["usine"],
-    valeurs: ["salaire", "evolution"],
     savoirFaire: ["Technique", "Précision", "Lecture de plans"],
     savoirEtre: ["Rigueur", "Autonomie", "Raisonnement logique"],
     savoirs: ["Machines à commande numérique", "Métrologie"]
   },
   {
-    id: "ash", nom: "Agent de service hospitalier (ASH)", rome: "J1301", secteur: "Santé et soins",    activites: ["personnes_agees", "collegues", "seul"],
+    id: "ash", nom: "Agent de service hospitalier (ASH)", rome: "J1301", secteur: "Santé et soins",    activites: ["personnes_agees", "collegues"],
     actions: ["nettoyer", "organiser"],
     environnement: ["sante"],
-    valeurs: ["stabilite", "contact_humain"],
-    savoirFaire: ["Hygiène", "Entretien"],
+    savoirFaire: ["Hygiène", "Entretien", "Accompagnement"],
     savoirEtre: ["Rigueur", "Bienveillance", "Esprit d'équipe"],
     savoirs: ["Hygiène hospitalière", "Protocoles de bionettoyage"]
   },
   {
-    id: "aes", nom: "Accompagnant éducatif et social (AES)", rome: "K1301", secteur: "Social et services à la personne",    activites: ["personnes_agees", "collegues"],
+    id: "aes", nom: "Accompagnant éducatif et social (AES)", rome: "K1301", secteur: "Social et services à la personne",    activites: ["personnes_agees", "collegues", "personnes_handicap"],
     actions: ["soigner", "former"],
-    environnement: ["sante", "domicile"],
-    valeurs: ["contact_humain", "stabilite"],
-    savoirFaire: ["Soins", "Transmission"],
+    environnement: ["sante", "domicile", "social_creche"],
+    savoirFaire: ["Soins", "Transmission", "Accompagnement"],
     savoirEtre: ["Empathie", "Aide à la personne", "Patience", "Bienveillance", "Écoute"],
     savoirs: ["Connaissance du handicap", "Gestes de premiers secours"]
   },
   {
-    id: "menage_domicile", nom: "Employé de ménage à domicile", rome: "K1304", secteur: "Social et services à la personne",    activites: ["seul"],
+    id: "menage_domicile", nom: "Employé de ménage à domicile", rome: "K1304", secteur: "Social et services à la personne",    activites: ["familles", "tissus_vetements", "produits_dangereux"],
     actions: ["nettoyer", "organiser"],
     environnement: ["domicile"],
-    valeurs: ["proximite", "autonomie", "horaires_fixes"],
     savoirFaire: ["Entretien", "Hygiène", "Cuisine"],
     savoirEtre: ["Autonomie", "Fiabilité", "Rigueur"],
     savoirs: ["Produits d'entretien", "Repassage"]
   },
   {
-    id: "secretaire_medicale", nom: "Secrétaire médicale", rome: "M1609", secteur: "Santé et soins",    activites: ["bureau", "clients", "ordinateur", "documents"],
+    id: "secretaire_medicale", nom: "Secrétaire médicale", rome: "M1609", secteur: "Santé et soins",    activites: ["clients", "ordinateur", "documents"],
     actions: ["organiser", "conseiller"],
-    environnement: ["sante", "bureau"],
-    valeurs: ["stabilite", "horaires_fixes"],
+    environnement: ["sante", "bureau", "cabinet_pharmacie"],
     savoirFaire: ["Bureautique", "Gestion administrative", "Rédaction", "Planification"],
     savoirEtre: ["Accueil", "Communication", "Écoute", "Organisation"],
     savoirs: ["Terminologie médicale", "Logiciels de gestion de cabinet"]
   },
   {
-    id: "ambulancier", nom: "Ambulancier / Auxiliaire ambulancier", rome: "J1305", secteur: "Santé et soins",    activites: ["deplacement", "personnes_agees", "collegues", "vehicules"],
-    actions: ["transporter", "soigner"],
+    id: "ambulancier", nom: "Ambulancier / Auxiliaire ambulancier", rome: "J1305", secteur: "Santé et soins",    activites: ["personnes_agees", "collegues", "vehicules"],
+    actions: ["transporter", "soigner", "reagir_urgence"],
     environnement: ["route", "sante"],
-    valeurs: ["contact_humain", "autonomie"],
-    savoirFaire: ["Conduite", "Soins"],
+    savoirFaire: ["Conduite", "Soins", "Accompagnement"],
     savoirEtre: ["Empathie", "Sécurité", "Sens du service"],
     savoirs: ["Gestes d'urgence", "Code de la route"]
   },
   {
-    id: "hote_caisse", nom: "Hôte de caisse", rome: "D1505", secteur: "Commerce et vente",    activites: ["clients", "magasin", "marchandises"],
-    actions: ["vendre", "organiser"],
+    id: "hote_caisse", nom: "Hôte de caisse", rome: "D1505", secteur: "Commerce et vente",    activites: ["clients", "marchandises"],
+    actions: ["vendre", "organiser", "encaisser"],
     environnement: ["magasin"],
-    valeurs: ["contact_humain", "horaires_fixes", "proximite"],
-    savoirFaire: ["Conseil"],
+    savoirFaire: ["Conseil", "Gestion financière", "Médiation"],
     savoirEtre: ["Accueil", "Relation client", "Rigueur", "Patience"],
     savoirs: ["Encaissement", "Rendu de monnaie"]
   },
   {
-    id: "vendeur_alimentation", nom: "Vendeur en alimentation", rome: "D1106", secteur: "Commerce et vente",    activites: ["clients", "magasin", "marchandises"],
-    actions: ["vendre", "conseiller"],
+    id: "vendeur_alimentation", nom: "Vendeur en alimentation", rome: "D1106", secteur: "Commerce et vente",    activites: ["clients", "marchandises", "aliments"],
+    actions: ["vendre", "conseiller", "encaisser"],
     environnement: ["magasin"],
-    valeurs: ["contact_humain", "proximite"],
-    savoirFaire: ["Conseil", "Hygiène"],
+    savoirFaire: ["Conseil", "Hygiène", "Gestion des stocks"],
     savoirEtre: ["Accueil", "Sens du service", "Communication"],
     savoirs: ["Hygiène alimentaire", "Encaissement", "Produits du terroir"]
   },
   {
-    id: "boulanger", nom: "Boulanger", rome: "D1102", secteur: "Métiers de bouche (artisanat)",    activites: ["seul", "machines"],
+    id: "boulanger", nom: "Boulanger", rome: "D1102", secteur: "Métiers de bouche (artisanat)",    activites: ["machines", "aliments"],
     actions: ["cuisiner", "creer"],
     environnement: ["cuisine", "magasin"],
-    valeurs: ["autonomie", "proximite"],
     savoirFaire: ["Cuisine", "Précision", "Travail manuel"],
     savoirEtre: ["Rigueur", "Créativité", "Endurance"],
     savoirs: ["Panification", "Hygiène alimentaire", "Fermentation"]
   },
   {
-    id: "boucher", nom: "Boucher", rome: "D1101", secteur: "Métiers de bouche (artisanat)",    activites: ["clients", "magasin", "machines"],
+    id: "boucher", nom: "Boucher", rome: "D1101", secteur: "Métiers de bouche (artisanat)",    activites: ["clients", "machines", "aliments"],
     actions: ["cuisiner", "vendre", "conseiller"],
     environnement: ["magasin"],
-    valeurs: ["proximite", "salaire"],
     savoirFaire: ["Précision", "Travail manuel", "Hygiène", "Conseil"],
     savoirEtre: ["Rigueur", "Relation client", "Sens du service"],
     savoirs: ["Découpe des viandes", "Chaîne du froid", "Traçabilité"]
@@ -532,98 +478,87 @@ const baseMetiers = [
     id: "coiffeur", nom: "Coiffeur", rome: "D1202", secteur: "Coiffure et esthétique",    activites: ["clients"],
     actions: ["creer", "conseiller", "vendre"],
     environnement: ["magasin"],
-    valeurs: ["contact_humain", "proximite"],
-    savoirFaire: ["Précision", "Conseil"],
+    savoirFaire: ["Précision", "Conseil", "Soins"],
     savoirEtre: ["Créativité", "Relation client", "Écoute", "Communication"],
     savoirs: ["Techniques de coiffure", "Colorimétrie", "Hygiène"]
   },
   {
-    id: "manoeuvre_btp", nom: "Manœuvre / Aide de chantier", rome: "F1704", secteur: "Bâtiment et travaux publics",    activites: ["exterieur", "collegues", "outils"],
-    actions: ["construire", "transporter", "nettoyer"],
+    id: "manoeuvre_btp", nom: "Manœuvre / Aide de chantier", rome: "F1704", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "outils"],
+    actions: ["construire", "transporter", "nettoyer", "appliquer_consignes_securite"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "salaire"],
-    savoirFaire: ["Travail manuel", "Bâtiment"],
+    savoirFaire: ["Travail manuel", "Bâtiment", "Assemblage"],
     savoirEtre: ["Endurance", "Esprit d'équipe", "Sécurité"],
     savoirs: ["Sécurité sur chantier", "Outillage"]
   },
   {
-    id: "menuisier_poseur", nom: "Menuisier poseur", rome: "F1607", secteur: "Bâtiment et travaux publics",    activites: ["seul", "deplacement", "clients", "outils"],
+    id: "menuisier_poseur", nom: "Menuisier poseur", rome: "F1607", secteur: "Bâtiment et travaux publics",    activites: ["clients", "outils", "materiaux"],
     actions: ["construire", "reparer"],
     environnement: ["domicile", "exterieur"],
-    valeurs: ["autonomie", "proximite"],
     savoirFaire: ["Travail manuel", "Précision", "Lecture de plans", "Bâtiment"],
     savoirEtre: ["Rigueur", "Autonomie", "Sens du service"],
     savoirs: ["Menuiseries et fermetures", "Prise de mesures"]
   },
   {
-    id: "plaquiste", nom: "Plaquiste", rome: "F1604", secteur: "Bâtiment et travaux publics",    activites: ["seul", "collegues", "outils"],
+    id: "plaquiste", nom: "Plaquiste", rome: "F1604", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "outils"],
     actions: ["construire"],
     environnement: ["exterieur", "domicile"],
-    valeurs: ["autonomie", "salaire"],
     savoirFaire: ["Bâtiment", "Travail manuel", "Précision", "Lecture de plans"],
-    savoirEtre: ["Rigueur", "Autonomie"],
+    savoirEtre: ["Rigueur", "Autonomie", "Esprit d'équipe"],
     savoirs: ["Isolation", "Matériaux de construction sèche"]
   },
   {
-    id: "couvreur", nom: "Couvreur", rome: "F1610", secteur: "Bâtiment et travaux publics",    activites: ["exterieur", "collegues", "outils"],
+    id: "couvreur", nom: "Couvreur", rome: "F1610", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "outils"],
     actions: ["construire", "reparer"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "salaire"],
     savoirFaire: ["Bâtiment", "Travail manuel", "Lecture de plans"],
     savoirEtre: ["Endurance", "Sécurité", "Rigueur"],
     savoirs: ["Matériaux de couverture", "Travail en hauteur", "Zinguerie"]
   },
   {
-    id: "conducteur_engins_chantier", nom: "Conducteur d'engins de chantier", rome: "F1302", secteur: "Bâtiment et travaux publics",    activites: ["machines", "exterieur", "vehicules"],
+    id: "conducteur_engins_chantier", nom: "Conducteur d'engins de chantier", rome: "F1302", secteur: "Bâtiment et travaux publics",    activites: ["machines", "vehicules"],
     actions: ["construire", "transporter"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "salaire"],
     savoirFaire: ["Conduite", "Technique", "Précision"],
     savoirEtre: ["Sécurité", "Rigueur", "Autonomie"],
     savoirs: ["Lecture de plans", "Sécurité sur chantier"]
   },
   {
-    id: "agent_maintenance_batiment", nom: "Agent de maintenance des bâtiments", rome: "I1203", secteur: "Industrie, production et énergie",    activites: ["seul", "deplacement", "machines", "outils"],
-    actions: ["reparer", "construire", "organiser"],
+    id: "agent_maintenance_batiment", nom: "Agent de maintenance des bâtiments", rome: "I1203", secteur: "Industrie, production et énergie",    activites: ["machines", "outils", "installations_electriques"],
+    actions: ["reparer", "construire", "organiser", "entretenir_maintenir"],
     environnement: ["bureau", "domicile"],
-    valeurs: ["autonomie", "stabilite"],
     savoirFaire: ["Réparation", "Maintenance", "Diagnostic", "Travail manuel", "Bâtiment"],
     savoirEtre: ["Autonomie", "Adaptabilité", "Sens du service"],
     savoirs: ["Électricité de base", "Plomberie de base", "Règles de sécurité"]
   },
   {
-    id: "carrossier", nom: "Carrossier-peintre automobile", rome: "I1606", secteur: "Mécanique et automobile",    activites: ["machines", "seul", "vehicules", "outils"],
+    id: "carrossier", nom: "Carrossier-peintre automobile", rome: "I1606", secteur: "Mécanique et automobile",    activites: ["machines", "vehicules", "outils", "produits_dangereux"],
     actions: ["reparer", "creer"],
     environnement: ["usine"],
-    valeurs: ["stabilite", "salaire"],
     savoirFaire: ["Réparation", "Précision", "Travail manuel", "Diagnostic"],
-    savoirEtre: ["Rigueur", "Créativité"],
+    savoirEtre: ["Rigueur", "Créativité", "Autonomie"],
     savoirs: ["Peinture automobile", "Matériaux composites"]
   },
   {
-    id: "conducteur_bus", nom: "Conducteur de transport en commun", rome: "N4103", secteur: "Transport et logistique",    activites: ["clients", "deplacement", "seul", "vehicules"],
+    id: "conducteur_bus", nom: "Conducteur de transport en commun", rome: "N4103", secteur: "Transport et logistique",    activites: ["clients", "vehicules", "usagers_public"],
     actions: ["transporter"],
     environnement: ["route"],
-    valeurs: ["stabilite", "horaires_fixes", "contact_humain"],
-    savoirFaire: ["Conduite"],
+    savoirFaire: ["Conduite", "Intervention", "Assistance"],
     savoirEtre: ["Accueil", "Patience", "Sécurité", "Fiabilité"],
     savoirs: ["Réglementation du transport de personnes"]
   },
   {
-    id: "manutentionnaire", nom: "Manutentionnaire / Agent de quai", rome: "N1105", secteur: "Transport et logistique",    activites: ["collegues", "seul", "marchandises"],
-    actions: ["transporter", "organiser"],
+    id: "manutentionnaire", nom: "Manutentionnaire / Agent de quai", rome: "N1105", secteur: "Transport et logistique",    activites: ["collegues", "marchandises"],
+    actions: ["transporter", "organiser", "manutentionner_emballer"],
     environnement: ["usine"],
-    valeurs: ["salaire", "stabilite"],
-    savoirFaire: ["Logistique", "Travail manuel"],
+    savoirFaire: ["Logistique", "Travail manuel", "Manutention"],
     savoirEtre: ["Endurance", "Esprit d'équipe", "Rigueur"],
     savoirs: ["Gestes et postures", "Règles de sécurité"]
   },
   {
-    id: "agent_proprete_urbaine", nom: "Agent de propreté urbaine / Ripeur", rome: "K2303", secteur: "Propreté et gestion des déchets",    activites: ["exterieur", "collegues"],
-    actions: ["nettoyer", "transporter"],
+    id: "agent_proprete_urbaine", nom: "Agent de propreté urbaine / Ripeur", rome: "K2303", secteur: "Propreté et gestion des déchets",    activites: ["collegues", "produits_dangereux"],
+    actions: ["nettoyer", "transporter", "trier_environnement"],
     environnement: ["exterieur"],
-    valeurs: ["exterieur", "stabilite", "horaires_fixes"],
-    savoirFaire: ["Entretien", "Conduite"],
+    savoirFaire: ["Entretien", "Conduite", "Prévention des risques"],
     savoirEtre: ["Endurance", "Esprit d'équipe", "Fiabilité"],
     savoirs: ["Tri des déchets", "Sécurité sur la voie publique"]
   },
@@ -637,8 +572,8 @@ const baseMetiers = [
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1418/viticulteur-viticultrice
     // ("Vigneron" n'est pas l'intitule ROME officiel mais reste le terme
     // usuel, garde tel quel dans cette base).
-    activites: ['exterieur', 'outils', 'vehicules'], actions: ['construire'],
-    environnement: ['exploitation_agricole', 'exterieur'], valeurs: ['exterieur', 'autonomie', 'metier_sens'],
+    activites: ['outils', 'vehicules', 'vegetaux'], actions: ['construire'],
+    environnement: ['exploitation_agricole', 'exterieur'],
     savoirFaire: ['Travail manuel', 'Technique', 'Entretien', 'Traitement phytosanitaire'], savoirEtre: ['Endurance', 'Autonomie', 'Rigueur', 'Esprit d\'équipe'],
     savoirs: ['Cycle de la vigne', 'Techniques de vinification de base'],
     argumentsCV: ['travailler en extérieur au rythme des saisons viticoles'],
@@ -653,9 +588,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16) : code ROME
     // corrige, A1401 correspond en realite a "Cueilleur de fruits" (verifie
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1405/arboriculteur-arboricultrice).
-    activites: ['exterieur', 'outils'], actions: ['construire'],
-    environnement: ['exploitation_agricole', 'exterieur', 'espaces_verts'], valeurs: ['exterieur', 'autonomie'],
-    savoirFaire: ['Travail manuel', 'Technique', 'Taille et élagage', 'Traitement phytosanitaire'], savoirEtre: ['Endurance', 'Adaptabilité'],
+    activites: ['outils', 'vegetaux'], actions: ['construire', 'cultiver_entretenir_plantes'],
+    environnement: ['exploitation_agricole', 'exterieur', 'espaces_verts'],
+    savoirFaire: ['Travail manuel', 'Technique', 'Taille et élagage', 'Traitement phytosanitaire'], savoirEtre: ['Endurance', 'Adaptabilité', 'Autonomie'],
     savoirs: ['Cycle des arbres fruitiers', 'Techniques de taille et de traitement', 'Botanique'],
     argumentsCV: ['entretenir des vergers dans le respect des cycles naturels'],
     argumentsLettre: ['mettre mon goût du travail en extérieur au service de la production fruitière'],
@@ -668,8 +603,8 @@ const baseMetiers = [
     rome: 'A1429', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1429/apiculteur-apicultrice)
-    activites: ['exterieur', 'outils'], actions: ['construire'],
-    environnement: ['exploitation_agricole', 'exterieur'], valeurs: ['exterieur', 'autonomie', 'metier_sens'],
+    activites: ['outils'], actions: ['construire'],
+    environnement: ['exploitation_agricole', 'exterieur'],
     savoirFaire: ['Travail manuel', 'Extraction du miel', 'Manipulation des ruches'], savoirEtre: ['Patience', 'Autonomie', 'Rigueur'],
     savoirs: ['Cycle des abeilles', 'Techniques d\'apiculture de base'],
     argumentsCV: ['assurer le suivi de ruches et la production de miel'],
@@ -684,8 +619,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Chef / Cheffe de culture responsable d'unite de production agricole",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1420)
-    activites: ['exterieur', 'outils', 'collegues'], actions: ['organiser', 'gerer', 'construire'],
-    environnement: ['exploitation_agricole', 'exterieur'], valeurs: ['responsabilites', 'autonomie', 'metier_sens'],
+    activites: ['outils', 'collegues'], actions: ['organiser', 'gerer', 'construire'],
+    environnement: ['exploitation_agricole', 'exterieur'],
     savoirFaire: ['Planification', 'Gestion de projet', 'Technique', 'Diagnostic'], savoirEtre: ['Responsabilité', 'Organisation', 'Leadership'],
     savoirs: ['Cycle de la vigne', 'Encadrement d\'équipe agricole'],
     argumentsCV: ['coordonner les travaux viticoles sur l\'ensemble d\'une exploitation'],
@@ -701,8 +636,8 @@ const baseMetiers = [
     rome: 'D1104', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/D1104)
-    activites: ['clients', 'outils'], actions: ['cuisiner', 'creer'],
-    environnement: ['cuisine'], valeurs: ['metier_sens', 'fier_metier'],
+    activites: ['clients', 'outils', 'aliments'], actions: ['cuisiner', 'creer'],
+    environnement: ['cuisine'],
     savoirFaire: ['Cuisine', 'Précision', 'Expression artistique'], savoirEtre: ['Créativité', 'Rigueur', 'Respect des normes', 'Autonomie'],
     savoirs: ['Règles d\'hygiène alimentaire (HACCP)', 'Techniques de pâtisserie'],
     argumentsCV: ['réaliser des créations pâtissières dans le respect des normes d\'hygiène'],
@@ -717,7 +652,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1601)
     activites: ['clients', 'collegues', 'outils'], actions: ['cuisiner', 'organiser', 'creer'],
-    environnement: ['cuisine'], valeurs: ['responsabilites', 'fier_metier', 'metier_sens'],
+    environnement: ['cuisine'],
     savoirFaire: ['Cuisine', 'Gestion de projet', 'Gestion des stocks'], savoirEtre: ['Créativité', 'Responsabilité', 'Leadership', 'Réactivité'],
     savoirs: ['Règles d\'hygiène alimentaire (HACCP)', 'Gestion d\'une brigade'],
     argumentsCV: ['encadrer une équipe en cuisine et élaborer les cartes'],
@@ -731,9 +666,9 @@ const baseMetiers = [
     rome: 'G1804', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1804/sommelier-sommeliere)
-    activites: ['clients'], actions: ['conseiller', 'vendre'],
-    environnement: ['cuisine', 'hotel'], valeurs: ['contact_humain', 'metier_sens', 'fier_metier'],
-    savoirFaire: ['Conseil', 'Hygiène'], savoirEtre: ['Relation client', 'Communication', 'Sens du détail', 'Autonomie', 'Créativité'],
+    activites: ['clients'], actions: ['conseiller', 'servir', 'vendre'],
+    environnement: ['cuisine', 'hotel'],
+    savoirFaire: ['Conseil', 'Hygiène', 'Cuisine'], savoirEtre: ['Relation client', 'Communication', 'Sens du détail', 'Autonomie', 'Créativité'],
     savoirs: ['Connaissance des vins et accords mets-vins'],
     argumentsCV: ['conseiller une clientèle sur le choix des vins'],
     argumentsLettre: ['partager ma connaissance des vins avec une clientèle exigeante'],
@@ -748,9 +683,9 @@ const baseMetiers = [
     rome: 'F1503', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/F1503)
-    activites: ['outils', 'exterieur'], actions: ['construire', 'monter'],
-    environnement: ['exterieur'], valeurs: ['exterieur', 'fier_metier'],
-    savoirFaire: ['Bâtiment', 'Lecture de plans', 'Travail manuel', 'Assemblage', 'Traçage de plans'], savoirEtre: ['Précision', 'Sécurité'],
+    activites: ['outils', 'materiaux'], actions: ['construire', 'monter'],
+    environnement: ['exterieur'],
+    savoirFaire: ['Bâtiment', 'Lecture de plans', 'Travail manuel', 'Assemblage', 'Traçage de plans'], savoirEtre: ['Précision', 'Sécurité', 'Autonomie'],
     savoirs: ['Normes de sécurité sur chantier'],
     argumentsCV: ['realiser des ouvrages en bois dans le respect des plans et des normes'],
     argumentsLettre: ['mettre mon savoir-faire manuel au service de projets de construction'],
@@ -764,7 +699,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/F1608)
     activites: ['outils'], actions: ['construire', 'monter'],
-    environnement: ['exterieur'], valeurs: ['fier_metier'],
+    environnement: ['exterieur'],
     savoirFaire: ['Travail manuel', 'Précision', 'Planification'], savoirEtre: ['Rigueur', 'Sens du détail', 'Persévérance'],
     savoirs: ['Techniques de pose de carrelage'],
     argumentsCV: ['réaliser des poses de carrelage soignées'],
@@ -779,8 +714,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Chef / Cheffe de chantier batiment",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/F1202/chef-cheffe-de-chantier-batiment)
-    activites: ['collegues', 'outils'], actions: ['organiser', 'gerer', 'construire'],
-    environnement: ['exterieur'], valeurs: ['responsabilites', 'fier_metier'],
+    activites: ['collegues', 'outils', 'partenaires_fournisseurs'], actions: ['organiser', 'gerer', 'construire', 'piloter_projet', 'encadrer_animer'],
+    environnement: ['exterieur'],
     savoirFaire: ['Planification', 'Bâtiment', 'Lecture de plans', 'Gestion des stocks'], savoirEtre: ['Responsabilité', 'Leadership', 'Organisation'],
     savoirs: ['Normes de sécurité sur chantier', 'Coordination d\'équipe BTP'],
     argumentsCV: ['coordonner une équipe et le suivi d\'un chantier'],
@@ -795,7 +730,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/F1301/grutier-grutiere)
     activites: ['machines', 'outils'], actions: ['conduire'],
-    environnement: ['exterieur'], valeurs: ['autonomie', 'pas_physique'],
+    environnement: ['exterieur'],
     savoirFaire: ['Conduite', 'Technique', 'Levage'], savoirEtre: ['Sécurité', 'Rigueur', 'Autonomie'],
     savoirs: ['Consignes de sécurité de levage', 'Types de grues'],
     argumentsCV: ['assurer la conduite d\'une grue en respectant les consignes de sécurité'],
@@ -810,9 +745,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16) : code ROME
     // corrige, F1608 correspond en realite a "Carreleur / Carreleuse"
     // (verifie https://candidat.francetravail.fr/metierscope/fiche-metier/F1605/monteur-monteuse-de-reseaux-electriques).
-    activites: ['outils', 'exterieur'], actions: ['installer', 'construire'],
-    environnement: ['exterieur'], valeurs: ['exterieur', 'fier_metier'],
-    savoirFaire: ['Technique', 'Réparation', 'Diagnostic', 'Câblage'], savoirEtre: ['Sécurité', 'Rigueur'],
+    activites: ['outils', 'installations_electriques'], actions: ['installer', 'construire'],
+    environnement: ['exterieur'],
+    savoirFaire: ['Technique', 'Réparation', 'Diagnostic', 'Câblage'], savoirEtre: ['Sécurité', 'Rigueur', 'Motivation'],
     savoirs: ['Normes électriques', 'Consignes de sécurité en hauteur'],
     argumentsCV: ['installer et entretenir des réseaux électriques extérieurs'],
     argumentsLettre: ['contribuer au développement des infrastructures énergétiques locales'],
@@ -828,9 +763,9 @@ const baseMetiers = [
     // ("Frigoriste") est l'appellation officielle la plus proche, verifiee
     // https://candidat.francetravail.fr/metierscope/fiche-metier/I1306/frigoriste
     // (nom du metier garde tel quel dans cette base).
-    activites: ['outils', 'machines'], actions: ['installer', 'reparer', 'diagnostiquer'],
-    environnement: ['exterieur', 'usine'], valeurs: ['autonomie', 'missions_variees'],
-    savoirFaire: ['Technique', 'Diagnostic', 'Réparation', 'Installation'], savoirEtre: ['Rigueur', 'Autonomie'],
+    activites: ['outils', 'machines'], actions: ['installer', 'reparer', 'controler'],
+    environnement: ['exterieur', 'usine'],
+    savoirFaire: ['Technique', 'Diagnostic', 'Réparation', 'Installation'], savoirEtre: ['Rigueur', 'Autonomie', 'Réactivité'],
     savoirs: ['Fluides frigorigènes et normes associées', 'Thermodynamique'],
     argumentsCV: ['installer et dépanner des systèmes de froid et de climatisation'],
     argumentsLettre: ['exercer un métier technique en constante évolution'],
@@ -846,8 +781,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Technicien / Technicienne qualite en industrie",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/H1528/technicien-technicienne-qualite-en-industrie)
-    activites: ['documents', 'machines'], actions: ['controler', 'analyser'],
-    environnement: ['usine', 'laboratoire'], valeurs: ['calme', 'missions_variees'],
+    activites: ['documents', 'machines'], actions: ['controler', 'analyser', 'rechercher_tester'],
+    environnement: ['usine', 'laboratoire'],
     savoirFaire: ['Diagnostic', 'Analyse de données', 'Formation'], savoirEtre: ['Rigueur', 'Sens du détail', 'Esprit d\'équipe', 'Réactivité'],
     savoirs: ['Normes qualité industrielle'],
     argumentsCV: ['contrôler la conformité des produits selon les normes en vigueur'],
@@ -862,8 +797,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Regleur / Regleuse d'equipements industriels",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/H2912/regleur-regleuse-equipements-industriels)
-    activites: ['machines', 'outils'], actions: ['programmer', 'reparer', 'diagnostiquer'],
-    environnement: ['usine'], valeurs: ['missions_variees', 'autonomie'],
+    activites: ['machines', 'outils'], actions: ['programmer', 'reparer', 'controler'],
+    environnement: ['usine'],
     savoirFaire: ['Technique', 'Précision', 'Diagnostic'], savoirEtre: ['Rigueur', 'Autonomie', 'Esprit d\'équipe'],
     savoirs: ['Programmation de machines à commande numérique'],
     argumentsCV: ['régler et programmer des machines à commande numérique'],
@@ -873,32 +808,13 @@ const baseMetiers = [
     niveauPertinence: null
   },
   {
-    id: 'conducteur_ligne', nom: 'Conducteur de ligne de production', famille: 'Industrie', secteur: 'Industrie, production et énergie',
-    rome: null, fap: null,
-    // TACHE (chantier competences, enrichissement 2026-09-16) : H2909 (ancien
-    // code) est en realite "Assembleur monteur", retire. Pas de code ROME
-    // generique unique pour ce metier : le ROME classe les conducteurs de
-    // ligne par filiere industrielle (agroalimentaire, bois, chimie,
-    // textile...) -- a trancher avec Denis si un code approximatif
-    // (ex. H3301, conditionnement) doit etre choisi.
-    activites: ['machines'], actions: ['controler', 'diagnostiquer'],
-    environnement: ['usine'], valeurs: ['horaires_fixes', 'stabilite'],
-    savoirFaire: ['Technique', 'Diagnostic', 'Vigilance'], savoirEtre: ['Rigueur', 'Sécurité', 'Esprit d\'équipe'],
-    savoirs: ['Fonctionnement d\'une ligne de production'],
-    argumentsCV: ['assurer le pilotage et la surveillance d\'une ligne de production'],
-    argumentsLettre: ['garantir la continuité et la qualité d\'une production industrielle'],
-    pistesEntretien: ['Décrire une intervention suite à un incident sur une ligne.'],
-    synonymes: [], motsCles: [], conceptsAssocies: [],
-    niveauPertinence: null
-  },
-  {
     id: 'logisticien', nom: 'Logisticien', famille: 'Transport et logistique', secteur: 'Transport et logistique',
     rome: 'N1301', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // affichee "Responsable logistique",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/N1301)
-    activites: ['marchandises', 'documents'], actions: ['organiser', 'gerer'],
-    environnement: ['entrepot_logistique'], valeurs: ['missions_variees', 'responsabilites'],
+    activites: ['marchandises', 'documents', 'partenaires_fournisseurs'], actions: ['organiser', 'gerer', 'gerer_stocks_acheter'],
+    environnement: ['entrepot_logistique'],
     savoirFaire: ['Logistique', 'Gestion des stocks', 'Planification', 'Gestion financière'], savoirEtre: ['Organisation', 'Rigueur', 'Esprit d\'équipe'],
     savoirs: ['Chaîne logistique', 'Gestion des flux'],
     argumentsCV: ['organiser et optimiser les flux logistiques d\'un entrepôt'],
@@ -917,9 +833,9 @@ const baseMetiers = [
     // la fiche la plus proche du tri/rangement en logistique. Nom du metier
     // garde tel quel (choix editorial de cette base) ; POINT A CONFIRMER
     // AVEC DENIS si un renommage est preferable.
-    activites: ['marchandises'], actions: ['controler', 'transporter'],
-    environnement: ['entrepot_logistique'], valeurs: ['horaires_fixes', 'pas_physique'],
-    savoirFaire: ['Gestion des stocks', 'Gestion administrative'], savoirEtre: ['Rigueur', 'Endurance', 'Réactivité'],
+    activites: ['marchandises'], actions: ['controler', 'transporter', 'trier_environnement'],
+    environnement: ['entrepot_logistique'],
+    savoirFaire: ['Gestion des stocks', 'Gestion administrative', 'Manutention'], savoirEtre: ['Rigueur', 'Endurance', 'Réactivité'],
     savoirs: ['Procédures de tri logistique'],
     argumentsCV: ['assurer le tri et l\'acheminement des marchandises'],
     argumentsLettre: ['contribuer à la fluidité d\'une chaîne logistique'],
@@ -935,9 +851,9 @@ const baseMetiers = [
     // "Coursier / Coursiere" precise explicitement les vehicules 2-4 roues
     // motorises OU NON, verifie
     // https://candidat.francetravail.fr/metierscope/fiche-metier/N4104/coursier-coursiere
-    activites: ['vehicules', 'clients'], actions: ['transporter'],
-    environnement: ['route'], valeurs: ['autonomie', 'temps_libre', 'choisir_horaires'],
-    savoirFaire: ['Logistique'], savoirEtre: ['Autonomie', 'Endurance', 'Respect des délais', 'Sens du service', 'Sécurité'],
+    activites: ['vehicules', 'clients'], actions: ['transporter', 'livrer'],
+    environnement: ['route'],
+    savoirFaire: ['Logistique', 'Conduite', 'Maintenance'], savoirEtre: ['Autonomie', 'Endurance', 'Respect des délais', 'Sens du service', 'Sécurité'],
     savoirs: ['Code de la route'],
     argumentsCV: ['assurer des livraisons rapides en autonomie'],
     argumentsLettre: ['exercer une activité physique et autonome au contact de la ville'],
@@ -948,33 +864,13 @@ const baseMetiers = [
 
   // ---------- Administration / RH ----------
   {
-    id: 'gestionnaire_rh', nom: 'Gestionnaire ressources humaines', famille: 'Administration et gestion', secteur: 'Administration, gestion et bureau',
-    rome: null, fap: null,
-    // TACHE (chantier competences, enrichissement 2026-09-16) : M1502 (ancien)
-    // = "Charge de recrutement", trop restreint (le profil ici est gestion
-    // administrative/paie/droit du travail). M1501 serait plus proche mais
-    // deja attribue a "Assistant ressources humaines" dans cette base (pas
-    // de doublon de code ROME sur 2 fiches) -- laisse a null, POINT A
-    // TRANCHER AVEC DENIS (distinction assistant/gestionnaire a clarifier
-    // cote ROME, ou accepter le doublon de code).
-    activites: ['documents', 'collegues', 'ordinateur'], actions: ['gerer', 'organiser', 'communiquer_ecrit'],
-    environnement: ['bureau', 'administration'], valeurs: ['stabilite', 'responsabilites'],
-    savoirFaire: ['Gestion administrative', 'Bureautique', 'Accompagnement'], savoirEtre: ['Rigueur', 'Organisation', 'Communication'],
-    savoirs: ['Droit du travail de base', 'Gestion de la paie'],
-    argumentsCV: ['assurer la gestion administrative du personnel'],
-    argumentsLettre: ['mettre mes compétences administratives au service des ressources humaines'],
-    pistesEntretien: ['Décrire une procédure RH que vous avez gérée.'],
-    synonymes: [], motsCles: [], conceptsAssocies: [],
-    niveauPertinence: null
-  },
-  {
     id: 'assistant_rh', nom: 'Assistant ressources humaines', famille: 'Administration et gestion', secteur: 'Administration, gestion et bureau',
     rome: 'M1501', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/M1501)
-    activites: ['documents', 'collegues', 'ordinateur'], actions: ['classer', 'saisir', 'communiquer_ecrit'],
-    environnement: ['bureau', 'administration'], valeurs: ['stabilite', 'calme'],
-    savoirFaire: ['Bureautique', 'Gestion administrative', 'Accompagnement'], savoirEtre: ['Rigueur', 'Organisation'],
+    activites: ['documents', 'collegues', 'ordinateur', 'salaries_professionnels'], actions: ['classer', 'saisir', 'communiquer_ecrit'],
+    environnement: ['bureau', 'administration'],
+    savoirFaire: ['Bureautique', 'Gestion administrative', 'Accompagnement'], savoirEtre: ['Rigueur', 'Organisation', 'Esprit d\'équipe'],
     savoirs: ['Bases du droit du travail'],
     argumentsCV: ['assister la gestion administrative du personnel'],
     argumentsLettre: ['apporter mon sérieux au sein d\'un service ressources humaines'],
@@ -989,8 +885,8 @@ const baseMetiers = [
     rome: 'K1801', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K1801/conseiller-conseillere-en-insertion-professionnelle)
-    activites: ['clients', 'collegues', 'ordinateur'], actions: ['conseiller', 'accompagner', 'informer'],
-    environnement: ['bureau', 'administration'], valeurs: ['sentir_utile', 'contact_humain', 'metier_sens'],
+    activites: ['clients', 'collegues', 'ordinateur', 'personnes_en_difficulte'], actions: ['conseiller', 'accompagner', 'informer'],
+    environnement: ['bureau', 'administration', 'association'],
     savoirFaire: ['Conseil', 'Accompagnement', 'Animation'], savoirEtre: ['Empathie', 'Écoute', 'Communication', 'Pédagogie', 'Sens du service'],
     savoirs: ['Dispositifs d\'insertion professionnelle', 'Marché de l\'emploi'],
     argumentsCV: ['accompagner des personnes dans leur parcours d\'insertion professionnelle'],
@@ -1004,8 +900,8 @@ const baseMetiers = [
     rome: 'K1207', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K1207/educateur-specialise-educatrice-specialisee)
-    activites: ['enfants', 'personnes_agees', 'patients'], actions: ['accompagner', 'aider', 'former'],
-    environnement: ['sante'], valeurs: ['sentir_utile', 'metier_sens', 'contact_humain'],
+    activites: ['enfants', 'personnes_agees', 'patients', 'adolescents', 'personnes_handicap', 'personnes_en_difficulte'], actions: ['accompagner', 'former'],
+    environnement: ['sante', 'association', 'social_creche'],
     savoirFaire: ['Formation', 'Diagnostic', 'Animation'], savoirEtre: ['Empathie', 'Patience', 'Écoute', 'Bienveillance'],
     savoirs: ['Accompagnement social et educatif'],
     argumentsCV: ['accompagner des personnes en difficulté dans leur parcours de vie'],
@@ -1020,8 +916,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Assistant social / Assistante sociale",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K1201/assistant-social-assistante-sociale)
-    activites: ['clients', 'famille', 'documents'], actions: ['accompagner', 'conseiller', 'informer'],
-    environnement: ['bureau', 'administration'], valeurs: ['sentir_utile', 'metier_sens'],
+    activites: ['clients', 'documents', 'personnes_en_difficulte', 'familles'], actions: ['accompagner', 'conseiller', 'informer'],
+    environnement: ['bureau', 'administration'],
     savoirFaire: ['Conseil', 'Gestion administrative', 'Accompagnement'], savoirEtre: ['Empathie', 'Écoute', 'Bienveillance'],
     savoirs: ['Dispositifs d\'aide sociale', 'Droit social'],
     argumentsCV: ['accompagner des personnes dans leurs démarches sociales'],
@@ -1038,8 +934,8 @@ const baseMetiers = [
     // securite routiere" (metier reglemente, titre professionnel requis),
     // verifie https://candidat.francetravail.fr/metierscope/fiche-metier/K2110/moniteur-monitrice-auto-ecole
     // (nom garde tel quel dans cette base, plus parlant pour ce public).
-    activites: ['eleves_etudiants', 'vehicules'], actions: ['former', 'conduire'],
-    environnement: ['ecole_formation', 'route'], valeurs: ['contact_humain', 'metier_sens', 'autonomie'],
+    activites: ['eleves_etudiants', 'vehicules', 'adolescents'], actions: ['former', 'conduire'],
+    environnement: ['ecole_formation', 'route'],
     savoirFaire: ['Formation', 'Conduite', 'Diagnostic'], savoirEtre: ['Patience', 'Pédagogie', 'Sécurité'],
     savoirs: ['Code de la route', 'Pédagogie de la conduite'],
     argumentsCV: ['former des candidats à la conduite et au code de la route'],
@@ -1055,8 +951,8 @@ const baseMetiers = [
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K2113/accompagnant-accompagnante-des-eleves-en-situation-de-handicap-aesh) :
     // code ROME corrige (K2104 pointe aujourd'hui vers un metier voisin mais
     // distinct, "Surveillant en milieu scolaire").
-    activites: ['enfants', 'eleves_etudiants'], actions: ['accompagner', 'aider'],
-    environnement: ['ecole_formation'], valeurs: ['sentir_utile', 'metier_sens', 'contact_humain'],
+    activites: ['enfants', 'eleves_etudiants', 'personnes_handicap'], actions: ['accompagner'],
+    environnement: ['ecole_formation'],
     savoirFaire: ['Soutien scolaire', 'Accompagnement', 'Collaboration'], savoirEtre: ['Patience', 'Empathie', 'Bienveillance', 'Adaptabilité', 'Organisation'],
     savoirs: ['Accompagnement du handicap en milieu scolaire'],
     argumentsCV: ['accompagner des élèves en situation de handicap dans leur scolarité'],
@@ -1070,8 +966,8 @@ const baseMetiers = [
     rome: 'K1303', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K1303/garde-enfant)
-    activites: ['enfants', 'famille'], actions: ['aider', 'accompagner'],
-    environnement: ['domicile'], valeurs: ['sentir_utile', 'choisir_horaires', 'contact_humain'],
+    activites: ['enfants', 'familles'], actions: ['accompagner'],
+    environnement: ['domicile'],
     savoirFaire: ['Cuisine', 'Soins', 'Entretien'], savoirEtre: ['Patience', 'Bienveillance', 'Responsabilité', 'Organisation', 'Persévérance'],
     savoirs: ['Sécurité et éveil de l\'enfant'],
     argumentsCV: ['assurer la garde et l\'éveil d\'enfants à domicile'],
@@ -1089,8 +985,8 @@ const baseMetiers = [
     // corrige, D1401 (ancien) = "Assistant commercial". D1301 (management
     // de magasin de detail) verifie
     // https://candidat.francetravail.fr/metierscope/fiche-metier/D1301/responsable-de-magasin
-    activites: ['clients', 'collegues', 'marchandises'], actions: ['gerer', 'organiser', 'vendre'],
-    environnement: ['magasin'], valeurs: ['responsabilites', 'evolution'],
+    activites: ['clients', 'collegues', 'marchandises', 'partenaires_fournisseurs'], actions: ['gerer', 'organiser', 'vendre', 'gerer_stocks_acheter'],
+    environnement: ['magasin'],
     savoirFaire: ['Merchandising', 'Gestion des stocks', 'Gestion de projet', 'Négociation'], savoirEtre: ['Leadership', 'Organisation', 'Relation client', 'Rigueur'],
     savoirs: ['Gestion commerciale d\'un point de vente'],
     argumentsCV: ['manager une équipe et piloter l\'activité commerciale d\'un magasin'],
@@ -1105,9 +1001,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Charge / Chargee de merchandising",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/D1506/marchandiseur-marchandiseuse)
-    activites: ['marchandises', 'produits'], actions: ['organiser', 'creer'],
-    environnement: ['magasin'], valeurs: ['missions_variees', 'metier_sens'],
-    savoirFaire: ['Merchandising', 'Négociation'], savoirEtre: ['Créativité', 'Sens du détail', 'Esprit d\'équipe'],
+    activites: ['marchandises', 'produits'], actions: ['organiser', 'creer', 'amenager_espace'],
+    environnement: ['magasin'],
+    savoirFaire: ['Merchandising', 'Négociation', 'Marketing'], savoirEtre: ['Créativité', 'Sens du détail', 'Esprit d\'équipe'],
     savoirs: ['Techniques de merchandising visuel'],
     argumentsCV: ['optimiser la présentation des produits en magasin'],
     argumentsLettre: ['mettre mon sens esthétique au service de la mise en valeur des produits'],
@@ -1123,8 +1019,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16) : code ROME
     // corrige, A1408 (ancien) = "Eleveur d'animaux sauvages", sans rapport.
     // D1209 verifie https://candidat.francetravail.fr/metierscope/fiche-metier/D1209/fleuriste
-    activites: ['clients', 'produits'], actions: ['creer', 'vendre', 'conseiller'],
-    environnement: ['magasin'], valeurs: ['metier_sens', 'fier_metier'],
+    activites: ['clients', 'produits', 'vegetaux'], actions: ['creer', 'vendre', 'conseiller', 'amenager_espace', 'cultiver_entretenir_plantes'],
+    environnement: ['magasin'],
     savoirFaire: ['Merchandising', 'Gestion des stocks', 'Gestion administrative'], savoirEtre: ['Créativité', 'Relation client', 'Sens du détail', 'Esprit d\'équipe', 'Rigueur'],
     savoirs: ['Connaissance des fleurs et compositions florales'],
     argumentsCV: ['réaliser des compositions florales pour une clientèle variée'],
@@ -1139,7 +1035,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/D1208/estheticien-estheticienne)
     activites: ['clients'], actions: ['conseiller', 'vendre'],
-    environnement: ['magasin'], valeurs: ['contact_humain', 'metier_sens'],
+    environnement: ['magasin'],
     savoirFaire: ['Maquillage', 'Épilation', 'Soins', 'Gestion des stocks'], savoirEtre: ['Relation client', 'Sens du détail', 'Écoute', 'Rigueur', 'Créativité'],
     savoirs: ['Techniques de soins esthétiques', 'Connaissance des produits cosmétiques', 'Encaissement'],
     argumentsCV: ['réaliser des soins esthétiques adaptés à chaque cliente'],
@@ -1153,8 +1049,8 @@ const baseMetiers = [
     rome: 'H2207', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/H2207/ebeniste)
-    activites: ['outils'], actions: ['fabriquer', 'creer'],
-    environnement: ['usine'], valeurs: ['fier_metier', 'metier_sens', 'autonomie'],
+    activites: ['outils', 'materiaux', 'instruments_objets_art'], actions: ['fabriquer', 'creer', 'concevoir'],
+    environnement: ['usine'],
     savoirFaire: ['Travail manuel', 'Précision', 'Lecture de plans', 'Finition', 'Marqueterie'], savoirEtre: ['Créativité', 'Sens du détail', 'Patience'],
     savoirs: ['Techniques de menuiserie fine'],
     argumentsCV: ['concevoir et réaliser des meubles sur mesure'],
@@ -1168,8 +1064,8 @@ const baseMetiers = [
     rome: 'B1605', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/B1605/bijoutier-bijoutiere)
-    activites: ['outils', 'clients'], actions: ['fabriquer', 'creer', 'vendre'],
-    environnement: ['magasin'], valeurs: ['fier_metier', 'metier_sens'],
+    activites: ['outils', 'clients', 'instruments_objets_art'], actions: ['fabriquer', 'creer', 'vendre'],
+    environnement: ['magasin'],
     savoirFaire: ['Travail manuel', 'Précision', 'Assemblage'], savoirEtre: ['Créativité', 'Sens du détail', 'Patience'],
     savoirs: ['Techniques de bijouterie', 'Gemmologie'],
     argumentsCV: ['créer et réparer des bijoux avec précision'],
@@ -1184,8 +1080,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1503/toiletteur-toiletteuse-animaux)
     activites: ['clients'], actions: ['soigner'],
-    environnement: ['magasin'], valeurs: ['metier_sens', 'contact_humain'],
-    savoirFaire: ['Soins', 'Observation'], savoirEtre: ['Patience', 'Empathie', 'Sens du détail', 'Autonomie', 'Adaptabilité'],
+    environnement: ['magasin'],
+    savoirFaire: ['Soins', 'Observation', 'Soins aux animaux'], savoirEtre: ['Patience', 'Empathie', 'Sens du détail', 'Autonomie', 'Adaptabilité'],
     savoirs: ['Techniques de toilettage animalier'],
     argumentsCV: ['réaliser le toilettage d\'animaux dans le respect de leur bien-être'],
     argumentsLettre: ['mettre ma patience et mon amour des animaux au service de ce métier'],
@@ -1201,9 +1097,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Technicien / Technicienne reseaux informatiques et telecoms",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/M1816/technicien-technicienne-reseaux-informatiques-et-telecoms)
-    activites: ['ordinateur', 'appareils_numeriques'], actions: ['installer', 'diagnostiquer', 'reparer'],
-    environnement: ['bureau'], valeurs: ['missions_variees', 'autonomie'],
-    savoirFaire: ['Technique', 'Diagnostic', 'Déploiement'], savoirEtre: ['Rigueur', 'Autonomie'],
+    activites: ['ordinateur', 'appareils_numeriques'], actions: ['installer', 'controler', 'reparer'],
+    environnement: ['bureau'],
+    savoirFaire: ['Technique', 'Diagnostic', 'Déploiement'], savoirEtre: ['Rigueur', 'Autonomie', 'Esprit d\'équipe'],
     savoirs: ['Réseaux informatiques', 'Dépannage informatique', 'Protocoles réseau (TCP/IP)'],
     argumentsCV: ['installer et dépanner des infrastructures réseau'],
     argumentsLettre: ['mettre mes compétences techniques au service du bon fonctionnement des réseaux'],
@@ -1213,17 +1109,12 @@ const baseMetiers = [
   },
   {
     id: 'webmaster', nom: 'Webmaster', famille: 'Numérique', secteur: 'Informatique et numérique',
-    rome: null, fap: null,
-    // TACHE (chantier competences, enrichissement 2026-09-16) : POINT A
-    // TRANCHER AVEC DENIS -- "Webmaster" n'existe plus dans le referentiel
-    // ROME actuel, absorbe par M1855 "Developpeur / Developpeuse web", un
-    // profil plus code/programmation que le "gestionnaire de site" generaliste
-    // que ce metier represente probablement pour ce public. Pas de code ROME
-    // assigne pour eviter de deformer le metier ; competences ajoutees
-    // limitees a celles clairement generiques.
-    activites: ['ordinateur'], actions: ['programmer', 'creer'],
-    environnement: ['bureau', 'teletravail_domicile'], valeurs: ['teletravail', 'missions_variees', 'evolution'],
-    savoirFaire: ['Technique', 'Innovation', 'Assistance'], savoirEtre: ['Autonomie', 'Rigueur'],
+    rome: 'M1834', fap: null,
+    // Relie au code M1834 du ROME (appellations « Webmaster concepteur de site web », « Webmaster éditorialiste »,
+    // « Webmaster chargé de communication »), le 13/11/2026. Le profil plus programmation est M1855.
+    activites: ['ordinateur'], actions: ['programmer', 'creer', 'concevoir'],
+    environnement: ['bureau', 'teletravail_domicile', 'medias_studio'],
+    savoirFaire: ['Technique', 'Innovation', 'Assistance'], savoirEtre: ['Autonomie', 'Rigueur', 'Créativité'],
     savoirs: ['Création et maintenance de sites internet'],
     argumentsCV: ['créer et maintenir des sites internet'],
     argumentsLettre: ['mettre mes compétences numériques au service de projets web'],
@@ -1237,9 +1128,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/E1101/community-manager
     // -- competences deja bien couvertes par l'existant, code ROME ajoute seulement)
-    activites: ['ordinateur', 'appareils_numeriques'], actions: ['communiquer_ecrit', 'creer', 'informer'],
-    environnement: ['bureau', 'teletravail_domicile'], valeurs: ['teletravail', 'missions_variees', 'evolution'],
-    savoirFaire: ['Rédaction', 'Innovation'], savoirEtre: ['Créativité', 'Communication', 'Adaptabilité'],
+    activites: ['ordinateur', 'appareils_numeriques'], actions: ['communiquer_ecrit', 'creer', 'informer', 'organiser_evenement'],
+    environnement: ['bureau', 'teletravail_domicile', 'medias_studio'],
+    savoirFaire: ['Rédaction', 'Innovation', 'Veille et recherche'], savoirEtre: ['Créativité', 'Communication', 'Adaptabilité'],
     savoirs: ['Réseaux sociaux et stratégie de contenu'],
     argumentsCV: ['animer les réseaux sociaux et la communauté en ligne d\'une structure'],
     argumentsLettre: ['mettre ma créativité au service de la communication digitale'],
@@ -1253,9 +1144,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Designer graphique" (intitule ROME actualise),
     // https://candidat.francetravail.fr/metierscope/fiche-metier/E1205/graphiste)
-    activites: ['ordinateur'], actions: ['creer', 'dessiner', 'imaginer'],
-    environnement: ['bureau', 'teletravail_domicile'], valeurs: ['teletravail', 'metier_sens', 'fier_metier'],
-    savoirFaire: ['Expression artistique', 'Innovation'], savoirEtre: ['Créativité', 'Sens du détail', 'Adaptabilité'],
+    activites: ['ordinateur'], actions: ['creer', 'dessiner', 'imaginer', 'concevoir'],
+    environnement: ['bureau', 'teletravail_domicile', 'medias_studio'],
+    savoirFaire: ['Expression artistique', 'Innovation', 'Création graphique'], savoirEtre: ['Créativité', 'Sens du détail', 'Adaptabilité'],
     savoirs: ['Logiciels de création graphique'],
     argumentsCV: ['concevoir des supports visuels pour différents supports de communication'],
     argumentsLettre: ['mettre ma créativité graphique au service de vos projets de communication'],
@@ -1268,9 +1159,9 @@ const baseMetiers = [
     rome: 'E1201', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/E1201/photographe-professionnel-photographe-professionnelle)
-    activites: ['appareils_numeriques', 'clients'], actions: ['photographier', 'creer'],
-    environnement: ['route', 'evenementiel'], valeurs: ['metier_sens', 'missions_variees', 'autonomie'],
-    savoirFaire: ['Expression artistique', 'Gestion administrative'], savoirEtre: ['Créativité', 'Sens du détail', 'Adaptabilité', 'Autonomie'],
+    activites: ['appareils_numeriques', 'clients'], actions: ['dessiner', 'creer'],
+    environnement: ['route', 'evenementiel', 'medias_studio'],
+    savoirFaire: ['Expression artistique', 'Gestion administrative', 'Audiovisuel'], savoirEtre: ['Créativité', 'Sens du détail', 'Adaptabilité', 'Autonomie'],
     savoirs: ['Techniques photographiques et retouche d\'image'],
     argumentsCV: ['réaliser des reportages photographiques pour des événements ou des clients'],
     argumentsLettre: ['mettre mon regard artistique au service de vos événements ou projets'],
@@ -1288,9 +1179,9 @@ const baseMetiers = [
     // sedentaire), alors que G1201 "Guide-accompagnateur" correspond mieux
     // a l'accompagnement de groupes deja decrit ici, verifie
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1201/guide-accompagnateur-guide-accompagnatrice
-    activites: ['clients'], actions: ['informer', 'accueillir'],
-    environnement: ['aeroport_gare', 'evenementiel'], valeurs: ['contact_humain', 'metier_sens', 'missions_variees'],
-    savoirFaire: ['Conseil', 'Gestion des réservations'], savoirEtre: ['Communication', 'Accueil', 'Adaptabilité', 'Sens du service', 'Autonomie', 'Coordination'],
+    activites: ['clients'], actions: ['informer', 'accueillir', 'expliquer_presenter'],
+    environnement: ['aeroport_gare', 'evenementiel'],
+    savoirFaire: ['Conseil', 'Gestion des réservations', 'Assistance'], savoirEtre: ['Communication', 'Accueil', 'Adaptabilité', 'Sens du service', 'Autonomie', 'Coordination'],
     savoirs: ['Patrimoine et culture locale'],
     argumentsCV: ['faire découvrir le patrimoine local à des visiteurs variés'],
     argumentsLettre: ['partager ma connaissance du territoire avec des visiteurs'],
@@ -1304,7 +1195,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1701/concierge-hotel)
     activites: ['clients'], actions: ['accueillir', 'informer', 'conseiller'],
-    environnement: ['hotel'], valeurs: ['contact_humain', 'metier_sens'],
+    environnement: ['hotel'],
     savoirFaire: ['Conseil', 'Gestion des réservations', 'Bureautique'], savoirEtre: ['Accueil', 'Sens du service', 'Communication', 'Coordination'],
     savoirs: ['Offre touristique locale'],
     argumentsCV: ['accueillir et conseiller une clientèle hôtelière exigeante'],
@@ -1320,7 +1211,7 @@ const baseMetiers = [
     // "Chef / Cheffe de reception en hotellerie",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1706/chef-cheffe-de-reception-en-hotellerie)
     activites: ['clients', 'collegues'], actions: ['organiser', 'accueillir', 'gerer'],
-    environnement: ['hotel'], valeurs: ['responsabilites', 'contact_humain'],
+    environnement: ['hotel'],
     savoirFaire: ['Gestion administrative', 'Planification', 'Gestion des réservations'], savoirEtre: ['Leadership', 'Accueil', 'Organisation', 'Coordination'],
     savoirs: ['Gestion hôtelière'],
     argumentsCV: ['coordonner l\'équipe de réception et l\'accueil de la clientèle'],
@@ -1336,8 +1227,8 @@ const baseMetiers = [
     rome: 'G1204', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1204/educateur-sportif-educatrice-sportive)
-    activites: ['enfants', 'eleves_etudiants', 'clients'], actions: ['former', 'accompagner'],
-    environnement: ['salle_sport'], valeurs: ['contact_humain', 'metier_sens', 'bonne_ambiance'],
+    activites: ['enfants', 'eleves_etudiants', 'clients', 'sportifs'], actions: ['former', 'accompagner', 'encadrer_animer'],
+    environnement: ['salle_sport'],
     savoirFaire: ['Formation', 'Conseil', 'Surveillance'], savoirEtre: ['Pédagogie', 'Communication', 'Adaptabilité', 'Esprit d\'équipe', 'Motivation', 'Rigueur'],
     savoirs: ['Techniques sportives et pédagogie du sport'],
     argumentsCV: ['encadrer des séances sportives pour des publics variés'],
@@ -1352,8 +1243,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Moniteur / Monitrice en salle de sport",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1217/moniteur-monitrice-en-salle-de-sport)
-    activites: ['clients'], actions: ['former', 'accompagner'],
-    environnement: ['salle_sport'], valeurs: ['contact_humain', 'bonne_ambiance', 'choisir_horaires'],
+    activites: ['clients', 'sportifs'], actions: ['former', 'accompagner'],
+    environnement: ['salle_sport'],
     savoirFaire: ['Coaching', 'Formation', 'Animation'], savoirEtre: ['Communication', 'Adaptabilité', 'Motivation', 'Sécurité'],
     savoirs: ['Techniques de remise en forme'],
     argumentsCV: ['animer des cours collectifs de fitness'],
@@ -1367,8 +1258,8 @@ const baseMetiers = [
     rome: 'G1224', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/G1224/maitre-nageur-sauveteur-maitre-nageuse-sauveteuse)
-    activites: ['clients', 'enfants'], actions: ['former', 'controler'],
-    environnement: ['salle_sport'], valeurs: ['responsabilites', 'contact_humain'],
+    activites: ['clients', 'enfants', 'sportifs'], actions: ['former', 'controler', 'surveiller_securiser', 'reagir_urgence'],
+    environnement: ['salle_sport'],
     savoirFaire: ['Soins', 'Formation', 'Surveillance'], savoirEtre: ['Sécurité', 'Rigueur', 'Communication'],
     savoirs: ['Techniques de sauvetage aquatique', 'Premiers secours', 'Procédures d\'urgence'],
     argumentsCV: ['assurer la surveillance et l\'enseignement de la natation'],
@@ -1385,32 +1276,13 @@ const baseMetiers = [
     // L1104 "Animateur / Animatrice evenementiel" est une correspondance
     // exacte de titre, verifie
     // https://candidat.francetravail.fr/metierscope/fiche-metier/L1104/animateur-animatrice-evenementiel
-    activites: ['clients'], actions: ['organiser', 'informer', 'accueillir'],
-    environnement: ['evenementiel'], valeurs: ['contact_humain', 'missions_variees', 'bonne_ambiance'],
-    savoirFaire: ['Gestion de projet', 'Animation'], savoirEtre: ['Communication', 'Adaptabilité', 'Sens du service', 'Créativité'],
+    activites: ['clients'], actions: ['organiser', 'informer', 'accueillir', 'organiser_evenement'],
+    environnement: ['evenementiel'],
+    savoirFaire: ['Gestion de projet', 'Animation', 'Organisation d\'événements'], savoirEtre: ['Communication', 'Adaptabilité', 'Sens du service', 'Créativité'],
     savoirs: ['Organisation d\'événements'],
     argumentsCV: ['animer et coordonner des événements pour un public varié'],
     argumentsLettre: ['mettre mon dynamisme au service de vos événements'],
     pistesEntretien: ['Décrire un événement que vous avez animé ou organisé.'],
-    synonymes: [], motsCles: [], conceptsAssocies: [],
-    niveauPertinence: null
-  },
-  {
-    id: 'technicien_son_lumiere', nom: 'Technicien son et lumière', famille: 'Sport et animation', secteur: 'Communication, culture et événementiel',
-    rome: null, fap: null,
-    // TACHE (chantier competences, enrichissement 2026-09-16) : pas de fiche
-    // ROME unique combinant son et lumiere -- le referentiel separe
-    // L1504 "Eclairagiste" et L1508 "Ingenieur du son" (qui cite d'ailleurs
-    // "Technicien son du spectacle vivant et de l'evenementiel" comme
-    // appellation rattachee). Laisse a null plutot que de choisir arbitrairement
-    // l'un des deux ; competences ci-dessous couvrent les 2 aspects.
-    activites: ['machines', 'outils'], actions: ['installer', 'controler'],
-    environnement: ['evenementiel'], valeurs: ['missions_variees', 'autonomie'],
-    savoirFaire: ['Technique', 'Installation'], savoirEtre: ['Rigueur', 'Adaptabilité', 'Autonomie', 'Créativité', 'Réactivité'],
-    savoirs: ['Matériel de sonorisation et d\'éclairage'],
-    argumentsCV: ['installer et régler le matériel son et lumière d\'un événement'],
-    argumentsLettre: ['mettre ma maîtrise technique au service de la réussite d\'événements'],
-    pistesEntretien: ['Décrire une installation technique réalisée pour un événement.'],
     synonymes: [], motsCles: [], conceptsAssocies: [],
     niveauPertinence: null
   },
@@ -1421,8 +1293,8 @@ const baseMetiers = [
     rome: 'J1312', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/J1312/assistant-assistante-dentaire)
-    activites: ['patients', 'documents'], actions: ['accueillir', 'aider'],
-    environnement: ['sante'], valeurs: ['sentir_utile', 'contact_humain', 'stabilite'],
+    activites: ['patients', 'documents'], actions: ['accueillir', 'accompagner'],
+    environnement: ['sante', 'cabinet_pharmacie'],
     savoirFaire: ['Assistance', 'Soins', 'Hygiène', 'Gestion administrative'], savoirEtre: ['Rigueur', 'Accueil', 'Empathie', 'Réactivité'],
     savoirs: ['Hygiène et asepsie en cabinet dentaire'],
     argumentsCV: ['assister le praticien et accueillir les patients d\'un cabinet dentaire'],
@@ -1436,8 +1308,8 @@ const baseMetiers = [
     rome: 'J1307', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/J1307/preparateur-preparatrice-en-pharmacie)
-    activites: ['clients', 'produits'], actions: ['conseiller', 'vendre'],
-    environnement: ['sante', 'magasin'], valeurs: ['sentir_utile', 'stabilite', 'contact_humain'],
+    activites: ['clients', 'produits'], actions: ['conseiller', 'vendre', 'manipuler_produits'],
+    environnement: ['sante', 'magasin', 'cabinet_pharmacie'],
     savoirFaire: ['Conseil', 'Gestion des stocks', 'Assistance'], savoirEtre: ['Rigueur', 'Relation client', 'Écoute', 'Organisation'],
     savoirs: ['Connaissance des médicaments courants'],
     argumentsCV: ['délivrer des médicaments et conseiller une clientèle en pharmacie'],
@@ -1451,8 +1323,8 @@ const baseMetiers = [
     rome: 'J1308', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/J1308/brancardier-brancardiere)
-    activites: ['patients'], actions: ['transporter', 'aider'],
-    environnement: ['sante'], valeurs: ['sentir_utile', 'stabilite'],
+    activites: ['patients'], actions: ['transporter', 'accompagner'],
+    environnement: ['sante'],
     savoirFaire: ['Brancardage', 'Manutention', 'Accompagnement', 'Observation'], savoirEtre: ['Empathie', 'Sécurité', 'Endurance', 'Réactivité', 'Adaptabilité'],
     savoirs: ['Manutention et transport de patients'],
     argumentsCV: ['assurer le transport des patients au sein d\'un établissement de santé'],
@@ -1469,7 +1341,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/C1504/agent-immobilier-agente-immobiliere)
     activites: ['clients', 'documents'], actions: ['negocier', 'conseiller', 'vendre'],
-    environnement: ['bureau'], valeurs: ['evolution', 'autonomie', 'salaire'],
+    environnement: ['bureau'],
     savoirFaire: ['Négociation', 'Conseil', 'Analyse de données'], savoirEtre: ['Relation client', 'Communication', 'Autonomie', 'Rigueur'],
     savoirs: ['Droit immobilier de base', 'Marché immobilier local'],
     argumentsCV: ['accompagner des clients dans leurs projets immobiliers'],
@@ -1485,7 +1357,7 @@ const baseMetiers = [
     // "Conseiller / Conseillere de clientele bancaire",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/C1206/conseiller-conseillere-de-clientele-bancaire)
     activites: ['clients', 'documents', 'ordinateur'], actions: ['conseiller', 'vendre', 'gerer'],
-    environnement: ['bureau'], valeurs: ['stabilite', 'evolution', 'contact_humain'],
+    environnement: ['bureau'],
     savoirFaire: ['Conseil', 'Gestion administrative', 'Analyse de données', 'Gestion financière'], savoirEtre: ['Relation client', 'Rigueur', 'Communication'],
     savoirs: ['Produits bancaires et financiers de base', 'Réglementation bancaire'],
     argumentsCV: ['conseiller une clientèle sur ses produits bancaires'],
@@ -1503,7 +1375,7 @@ const baseMetiers = [
     // associee est "Agent commercial en assurances") est le meilleur
     // correspondant, verifie https://candidat.francetravail.fr/metierscope/fiche-metier/C1102/conseiller-conseillere-en-assurances
     activites: ['clients', 'documents'], actions: ['conseiller', 'vendre', 'gerer'],
-    environnement: ['bureau'], valeurs: ['stabilite', 'evolution'],
+    environnement: ['bureau'],
     savoirFaire: ['Conseil', 'Négociation', 'Rédaction', 'Développement commercial'], savoirEtre: ['Relation client', 'Communication', 'Rigueur'],
     savoirs: ['Produits d\'assurance de base', 'Droit des assurances'],
     argumentsCV: ['conseiller et accompagner une clientèle en matière d\'assurance'],
@@ -1517,9 +1389,9 @@ const baseMetiers = [
     rome: 'K1603', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K1603/bibliothecaire)
-    activites: ['clients', 'documents'], actions: ['classer', 'informer', 'conseiller'],
-    environnement: ['administration'], valeurs: ['calme', 'metier_sens', 'stabilite'],
-    savoirFaire: ['Gestion administrative', 'Conseil'], savoirEtre: ['Organisation', 'Sens du service', 'Rigueur', 'Accueil'],
+    activites: ['clients', 'documents', 'usagers_public'], actions: ['classer', 'informer', 'conseiller'],
+    environnement: ['administration'],
+    savoirFaire: ['Gestion administrative', 'Conseil', 'Gestion documentaire'], savoirEtre: ['Organisation', 'Sens du service', 'Rigueur', 'Accueil'],
     savoirs: ['Classification documentaire'],
     argumentsCV: ['gérer les collections et accueillir le public d\'une bibliothèque'],
     argumentsLettre: ['mettre mon organisation et mon goût pour la culture au service du public'],
@@ -1535,8 +1407,8 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Technicien / Technicienne de maintenance d'eoliennes",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/I1321/technicien-technicienne-de-maintenance-eoliennes)
-    activites: ['machines', 'outils'], actions: ['reparer', 'diagnostiquer', 'controler'],
-    environnement: ['exterieur'], valeurs: ['exterieur', 'evolution', 'missions_variees'],
+    activites: ['machines', 'outils', 'installations_electriques'], actions: ['reparer', 'controler'],
+    environnement: ['exterieur'],
     savoirFaire: ['Technique', 'Maintenance', 'Diagnostic', 'Surveillance'], savoirEtre: ['Sécurité', 'Rigueur', 'Autonomie', 'Esprit d\'équipe'],
     savoirs: ['Fonctionnement des éoliennes', 'Travail en hauteur'],
     argumentsCV: ['assurer la maintenance d\'installations éoliennes'],
@@ -1552,8 +1424,8 @@ const baseMetiers = [
     // "Equipier / Equipiere de collecte de dechets" (appellation officielle
     // "Agent / Agente de collecte de dechets" incluse),
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K2303/equipier-equipiere-de-collecte-de-dechets)
-    activites: ['vehicules', 'exterieur'], actions: ['transporter', 'nettoyer'],
-    environnement: ['exterieur', 'route'], valeurs: ['exterieur', 'horaires_fixes', 'metier_sens'],
+    activites: ['vehicules'], actions: ['transporter', 'nettoyer', 'trier_environnement'],
+    environnement: ['exterieur', 'route'],
     savoirFaire: ['Collecte', 'Manutention', 'Vigilance'], savoirEtre: ['Endurance', 'Sécurité', 'Rigueur', 'Sang-froid'],
     savoirs: ['Tri et gestion des déchets'],
     argumentsCV: ['assurer la collecte et le tri des déchets dans le respect des consignes de sécurité'],
@@ -1567,8 +1439,8 @@ const baseMetiers = [
     rome: 'K2322', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K2322/technicien-technicienne-en-traitement-des-eaux)
-    activites: ['machines', 'outils'], actions: ['controler', 'diagnostiquer'],
-    environnement: ['exterieur', 'usine'], valeurs: ['stabilite', 'metier_sens'],
+    activites: ['machines', 'outils', 'produits_dangereux'], actions: ['controler', 'trier_environnement'],
+    environnement: ['exterieur', 'usine'],
     savoirFaire: ['Diagnostic', 'Technique', 'Maintenance', 'Rédaction'], savoirEtre: ['Rigueur', 'Sécurité', 'Autonomie', 'Esprit d\'équipe', 'Réactivité'],
     savoirs: ['Traitement et analyse de l\'eau'],
     argumentsCV: ['assurer le suivi et le contrôle d\'installations de traitement des eaux'],
@@ -1590,8 +1462,8 @@ const baseMetiers = [
     // secteur "Maintenance, entretien et nettoyage", pas "Administration,
     // gestion et bureau" comme ici. Laisse tel quel (choix de classification
     // deja fait pour cette base), a reconsiderer si besoin.
-    activites: ['documents', 'exterieur', 'clients'], actions: ['organiser', 'nettoyer', 'accueillir'],
-    environnement: ['administration', 'exterieur'], valeurs: ['stabilite', 'missions_variees'],
+    activites: ['documents', 'clients'], actions: ['organiser', 'nettoyer', 'accueillir', 'entretenir_maintenir'],
+    environnement: ['administration', 'exterieur'],
     savoirFaire: ['Maintenance', 'Réparation', 'Travail manuel', 'Diagnostic', 'Entretien'], savoirEtre: ['Adaptabilité', 'Organisation', 'Sens du service', 'Autonomie', 'Réactivité'],
     savoirs: ['Fonctionnement des services publics locaux'],
     argumentsCV: ['assurer des missions polyvalentes au service d\'une collectivité'],
@@ -1610,9 +1482,9 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1504/veterinaire
     // -- metier reglemente (diplome d'Etat + inscription a l'Ordre).
-    activites: ['patients', 'outils'], actions: ['soigner', 'diagnostiquer'],
-    environnement: ['sante'], valeurs: ['metier_sens', 'contact_humain'],
-    savoirFaire: ['Diagnostic', 'Soins'], savoirEtre: ['Empathie', 'Rigueur', 'Responsabilité', 'Communication'],
+    activites: ['patients', 'outils'], actions: ['soigner', 'controler'],
+    environnement: ['sante'],
+    savoirFaire: ['Diagnostic', 'Soins', 'Soins aux animaux'], savoirEtre: ['Empathie', 'Rigueur', 'Responsabilité', 'Communication'],
     savoirs: ['Notions médicales de base', 'Pharmacologie'],
     argumentsCV: ['assurer le diagnostic et les soins des animaux dans le respect de leur bien-être'],
     argumentsLettre: ['mettre ma rigueur et mon empathie au service de la santé animale'],
@@ -1626,7 +1498,7 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1501/auxiliaire-veterinaire)
     activites: ['patients', 'clients'], actions: ['soigner', 'accueillir'],
-    environnement: ['sante'], valeurs: ['metier_sens', 'contact_humain'],
+    environnement: ['sante'],
     savoirFaire: ['Soins', 'Assistance', 'Gestion des stocks'], savoirEtre: ['Empathie', 'Patience', 'Rigueur', 'Réactivité', 'Accueil'],
     savoirs: ['Notions médicales de base', 'Hygiène et asepsie en cabinet vétérinaire'],
     argumentsCV: ['assister le vétérinaire et accueillir les propriétaires d\'animaux'],
@@ -1641,33 +1513,14 @@ const baseMetiers = [
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // "Palefrenier soigneur / Palefreniere soigneuse",
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1421/palefrenier-soigneur-palefreniere-soigneuse)
-    activites: ['exterieur', 'outils'], actions: ['soigner', 'nettoyer'],
-    environnement: ['exploitation_agricole', 'exterieur'], valeurs: ['exterieur', 'metier_sens'],
-    savoirFaire: ['Soins', 'Entretien'], savoirEtre: ['Rigueur', 'Endurance', 'Autonomie'],
+    activites: ['outils'], actions: ['soigner', 'nettoyer'],
+    environnement: ['exploitation_agricole', 'exterieur'],
+    savoirFaire: ['Soins', 'Entretien', 'Soins aux animaux'], savoirEtre: ['Rigueur', 'Endurance', 'Autonomie'],
     savoirs: ['Alimentation et santé du cheval', 'Contention animale'],
     argumentsCV: ['assurer les soins quotidiens et l\'entretien des chevaux et de leurs installations'],
     argumentsLettre: ['mettre mon endurance et mon sens du soin au service d\'une structure équestre'],
     pistesEntretien: ['Décrire une journée type auprès des chevaux.'],
     synonymes: ['palefrenier', 'lad'], motsCles: [], conceptsAssocies: [],
-    niveauPertinence: null
-  },
-  {
-    id: 'eleveur', nom: 'Éleveur', famille: 'Agriculture et viticulture', secteur: 'Agriculture, nature et espaces verts',
-    rome: null, fap: null,
-    // TACHE (chantier competences, enrichissement 2026-09-16) : pas de code
-    // ROME generique "Eleveur" -- le referentiel decoupe par espece (A1407
-    // bovins, A1410 ovins/caprins, A1411 porcins, A1439 equides, A1409
-    // volailles/lapins...). Laisse a null plutot que de choisir une espece
-    // au hasard ; POINT A TRANCHER AVEC DENIS si cette fiche doit rester
-    // generique ou etre declinee par filiere.
-    activites: ['exterieur', 'outils'], actions: ['soigner', 'gerer'],
-    environnement: ['exploitation_agricole', 'exterieur'], valeurs: ['exterieur', 'autonomie', 'metier_sens'],
-    savoirFaire: ['Soins', 'Gestion administrative', 'Négociation'], savoirEtre: ['Autonomie', 'Rigueur', 'Endurance', 'Organisation'],
-    savoirs: ['Alimentation et reproduction animale'],
-    argumentsCV: ['assurer le suivi sanitaire et la gestion d\'un cheptel'],
-    argumentsLettre: ['contribuer à la production animale locale, un secteur qui me tient à cœur'],
-    pistesEntretien: ['Décrire une tâche d\'élevage réalisée au fil des saisons.'],
-    synonymes: [], motsCles: [], conceptsAssocies: [],
     niveauPertinence: null
   },
   {
@@ -1677,7 +1530,7 @@ const baseMetiers = [
     // "Soigneur animalier / Soigneuse animaliere" (parcs, refuges, elevages),
     // https://candidat.francetravail.fr/metierscope/fiche-metier/A1506/soigneur-animalier-soigneuse-animaliere)
     activites: ['clients', 'outils'], actions: ['soigner', 'nettoyer', 'accueillir'],
-    environnement: ['espaces_verts', 'exterieur'], valeurs: ['metier_sens', 'contact_humain'],
+    environnement: ['espaces_verts', 'exterieur'],
     savoirFaire: ['Soins', 'Entretien', 'Observation'], savoirEtre: ['Empathie', 'Rigueur', 'Patience', 'Persévérance'],
     savoirs: ['Comportement animalier de base'],
     argumentsCV: ['assurer les soins quotidiens et l\'entretien des espaces d\'un refuge ou d\'un parc animalier'],
@@ -1692,9 +1545,8 @@ const baseMetiers = [
     // TACHE (ajout manuel, verifie) : identifiants reels, confirmes dans
     // les 4 catalogues existants -- pas de mots inventes.
     activites: ['clients', 'vehicules', 'documents', 'collegues'],
-    actions: ['controler', 'aider', 'conduire', 'rediger'],
-    environnement: ['administration', 'exterieur'],
-    valeurs: ['metier_sens', 'responsabilites', 'stabilite', 'travail_equipe'],
+    actions: ['controler', 'accompagner', 'conduire', 'rediger', 'surveiller_securiser'],
+    environnement: ['administration', 'exterieur', 'securite_penitentiaire'],
     savoirFaire: ['Intervention', 'Rédaction de procédures', 'Secourisme'],
     savoirEtre: ['Rigueur', 'Sang-froid', 'Sens du devoir', 'Esprit d\'équipe', 'Discrétion'],
     savoirs: ['Droit pénal', 'Procédure judiciaire', 'Sécurité publique'],
@@ -1704,8 +1556,229 @@ const baseMetiers = [
     synonymes: ['gendarme adjoint', 'sous-officier de gendarmerie', 'militaire de la gendarmerie'],
     motsCles: [], conceptsAssocies: [],
     niveauPertinence: null
+  },
+  {
+    id: 'couturier', nom: 'Couturier', famille: 'Artisanat', secteur: 'Artisanat et création',
+    rome: 'B1803', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/B1803/couturier-couturiere)
+    activites: ['tissus_vetements', 'clients', 'machines', 'outils'], actions: ['fabriquer', 'decouper', 'monter', 'conseiller', 'creer'],
+    environnement: ['magasin'],
+    savoirFaire: ['Travail manuel', 'Précision', 'Assemblage', 'Finition', 'Conseil'], savoirEtre: ['Créativité', 'Sens du détail', 'Patience', 'Relation client'],
+    savoirs: ['Couture manuelle', 'Piqûre à la machine à coudre', 'Caractéristiques des tissus et matières textiles', 'Prise de mesures', 'Lecture de patrons'],
+    argumentsCV: ['réaliser des vêtements et accessoires sur mesure à partir des mesures du client', 'assembler et finir des pièces à la main et à la machine à coudre'],
+    argumentsLettre: ['mettre mon sens du détail et ma patience au service de vêtements bien ajustés'],
+    pistesEntretien: ['Décrire un vêtement que vous avez réalisé ou ajusté, de la prise de mesures à la finition.'],
+    synonymes: ['couturière', 'artisan couturier', 'confectionneur textile', 'première main'], motsCles: ['couture', 'patron', 'machine à coudre', 'sur mesure'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'styliste', nom: 'Styliste', famille: 'Création', secteur: 'Artisanat et création',
+    rome: 'B1805', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/B1805/styliste)
+    activites: ['tissus_vetements', 'clients', 'ordinateur', 'partenaires_fournisseurs'], actions: ['creer', 'imaginer', 'dessiner', 'concevoir', 'analyser'],
+    environnement: ['bureau'],
+    savoirFaire: ['Expression artistique', 'Innovation', 'Gestion de projet', 'Sens du détail'], savoirEtre: ['Créativité', 'Autonomie', 'Adaptabilité'],
+    savoirs: ['Mode et styles vestimentaires', 'Tendances de la mode', 'Propriétés des couleurs et des matières', 'Dessin de mode', 'Caractéristiques des tissus et matières textiles'],
+    argumentsCV: ['imaginer et dessiner des collections de vêtements ou d\'accessoires', 'choisir les tissus, les couleurs et les formes en suivant les tendances'],
+    argumentsLettre: ['mettre ma créativité et mon attention aux tendances au service de vos collections'],
+    pistesEntretien: ['Présenter une création, de l\'idée de départ au dessin final.'],
+    synonymes: ['créateur de mode', 'dessinateur de mode', 'designer textile', 'styliste prêt-à-porter'], motsCles: ['collection', 'croquis', 'tendances', 'mode'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'modeliste', nom: 'Modéliste', famille: 'Création', secteur: 'Artisanat et création',
+    rome: 'B1812', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/B1812/modeliste)
+    activites: ['tissus_vetements', 'ordinateur', 'outils', 'collegues'], actions: ['concevoir', 'dessiner', 'creer', 'controler'],
+    environnement: ['usine', 'bureau'],
+    savoirFaire: ['Précision', 'Sens du détail', 'Innovation', 'Travail manuel', 'Traçage de plans'], savoirEtre: ['Créativité', 'Rigueur', 'Coordination'],
+    savoirs: ['Patronage et gradation', 'Caractéristiques des tissus et matières textiles', 'Techniques de drapage sur mannequin', 'Logiciels de conception assistée par ordinateur', 'Adaptation des modèles aux morphologies'],
+    argumentsCV: ['transformer le croquis d\'un styliste en patron puis en prototype', 'ajuster les modèles aux morphologies et aux contraintes de fabrication'],
+    argumentsLettre: ['mettre ma précision et mon sens du volume au service de modèles fidèles aux créations'],
+    pistesEntretien: ['Expliquer comment vous passez d\'un croquis à un patron utilisable en fabrication.'],
+    synonymes: ['patronnier', 'styliste modéliste', 'modéliste patronnier'], motsCles: ['patron', 'prototype', 'gradation', 'drapage'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'retoucheur', nom: 'Retoucheur', famille: 'Artisanat', secteur: 'Commerce et vente',
+    rome: 'D1207', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/D1207/retoucheur-retoucheuse-en-habillement)
+    activites: ['tissus_vetements', 'clients', 'machines', 'outils'], actions: ['reparer', 'conseiller', 'monter', 'accueillir', 'encaisser'],
+    environnement: ['magasin'],
+    savoirFaire: ['Réparation', 'Précision', 'Finition', 'Travail manuel', 'Conseil'], savoirEtre: ['Sens du détail', 'Relation client', 'Patience', 'Respect des délais'],
+    savoirs: ['Couture manuelle', 'Piqûre à la machine à coudre', 'Techniques de prise de mesures', 'Caractéristiques des tissus et matières textiles', 'Techniques de stoppage et de rapiéçage'],
+    argumentsCV: ['ajuster, raccourcir et réparer des vêtements pour des clients', 'prendre les mesures et conseiller sur les retouches possibles'],
+    argumentsLettre: ['mettre ma minutie et mon sens du contact au service de clients qui veulent des vêtements bien ajustés'],
+    pistesEntretien: ['Décrire une retouche délicate et la façon dont vous avez rassuré le client.'],
+    synonymes: ['retoucheuse', 'essayeur-retoucheur', 'réparateur en habillement'], motsCles: ['ourlet', 'retouche', 'réparation de vêtements'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'cordonnier', nom: 'Cordonnier', famille: 'Artisanat', secteur: 'Commerce et vente',
+    rome: 'D1206', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/D1206/cordonnier-cordonniere)
+    activites: ['tissus_vetements', 'clients', 'machines', 'outils'], actions: ['reparer', 'fabriquer', 'conseiller', 'accueillir', 'encaisser'],
+    environnement: ['magasin'],
+    savoirFaire: ['Réparation', 'Travail manuel', 'Précision', 'Finition', 'Conseil'], savoirEtre: ['Sens du détail', 'Relation client', 'Patience', 'Autonomie'],
+    savoirs: ['Caractéristiques des cuirs et des peaux', 'Techniques de ressemelage', 'Techniques de collage', 'Reproduction de clés', 'Entretien des chaussures et de la maroquinerie'],
+    argumentsCV: ['réparer des chaussures et des articles de maroquinerie', 'reproduire des clés et accueillir la clientèle en boutique'],
+    argumentsLettre: ['mettre mon sens du travail bien fait au service d\'une clientèle de proximité'],
+    pistesEntretien: ['Raconter une réparation difficile et la façon dont vous avez choisi la solution.'],
+    synonymes: ['cordonnier réparateur', 'réparateur en chaussures', 'cordonnier multiservices'], motsCles: ['ressemelage', 'talon', 'maroquinerie', 'clés'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'employe_pressing', nom: 'Employé de pressing', famille: 'Commerce', secteur: 'Commerce et vente',
+    rome: 'D1205', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/D1205/employe-employee-de-pressing)
+    activites: ['tissus_vetements', 'clients', 'machines', 'produits_dangereux'], actions: ['nettoyer', 'accueillir', 'encaisser', 'manipuler_produits', 'entretenir_maintenir'],
+    environnement: ['magasin'],
+    savoirFaire: ['Entretien', 'Technique', 'Précision', 'Finition'], savoirEtre: ['Relation client', 'Sens du service', 'Rigueur', 'Respect des délais'],
+    savoirs: ['Techniques de détachage', 'Techniques de nettoyage à sec', 'Techniques de repassage', 'Caractéristiques des produits d\'entretien textiles', 'Symboles d\'entretien des étiquettes de vêtements'],
+    argumentsCV: ['accueillir les clients et enregistrer le dépôt de leurs vêtements', 'détacher, nettoyer, repasser et mettre en forme les articles'],
+    argumentsLettre: ['mettre mon soin du détail et mon sens du service au service d\'une clientèle exigeante'],
+    pistesEntretien: ['Expliquer comment vous choisissez le traitement d\'un vêtement délicat.'],
+    synonymes: ['réceptionniste de pressing', 'détacheur', 'teinturier pressing', 'repasseur'], motsCles: ['pressing', 'repassage', 'détachage', 'nettoyage à sec'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'lingere', nom: 'Lingère', famille: 'Services', secteur: 'Commerce et vente',
+    rome: 'D1242', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/D1242/linger-lingere)
+    activites: ['tissus_vetements', 'collegues', 'machines', 'outils'], actions: ['nettoyer', 'trier_environnement', 'reparer', 'gerer_stocks_acheter', 'manutentionner_emballer'],
+    environnement: ['hotel', 'sante'],
+    savoirFaire: ['Entretien', 'Hygiène', 'Gestion des stocks', 'Travail manuel', 'Réparation'], savoirEtre: ['Organisation', 'Rigueur', 'Travail en équipe', 'Respect des délais'],
+    savoirs: ['Techniques de repassage et de pliage du linge', 'Couture manuelle', 'Gestion des stocks de linge', 'Caractéristiques des produits d\'entretien textiles', 'Règles d\'hygiène'],
+    argumentsCV: ['trier, laver, repasser, plier et ranger le linge d\'un établissement', 'réparer le linge abîmé et suivre les stocks'],
+    argumentsLettre: ['mettre mon sens de l\'organisation et ma rigueur au service de la propreté du linge de votre établissement'],
+    pistesEntretien: ['Décrire comment vous organisez votre journée pour que le linge soit prêt à temps.'],
+    synonymes: ['lingère d\'hôtel', 'lingère d\'établissement de santé', 'lingère à domicile'], motsCles: ['linge', 'repassage', 'blanchisserie', 'lingerie'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'operateur_confection', nom: 'Couturier industriel', famille: 'Industrie', secteur: 'Industrie, production et énergie',
+    rome: 'H2402', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/H2402/couturier-industriel-couturiere-industrielle-de-l-habillement)
+    activites: ['tissus_vetements', 'machines', 'collegues', 'outils'], actions: ['monter', 'fabriquer', 'utiliser_machines_outils', 'controler', 'appliquer_consignes_securite'],
+    environnement: ['usine'],
+    savoirFaire: ['Assemblage', 'Précision', 'Finition', 'Travail manuel', 'Sens du détail'], savoirEtre: ['Rigueur', 'Respect des délais', 'Esprit d\'équipe', 'Endurance'],
+    savoirs: ['Piqûre sur machine à coudre industrielle', 'Techniques d\'assemblage et de montage en confection', 'Caractéristiques des tissus et matières textiles', 'Réglage de base des machines à coudre', 'Techniques de repassage et de mise en forme'],
+    argumentsCV: ['assembler des pièces de vêtements sur machines à coudre industrielles', 'contrôler la qualité des coutures et des finitions'],
+    argumentsLettre: ['mettre ma dextérité et ma régularité au service de votre production'],
+    pistesEntretien: ['Expliquer comment vous gardez la qualité de vos coutures quand la cadence augmente.'],
+    synonymes: ['piqueur en confection', 'opérateur de confection', 'surjeteur', 'couturière industrielle'], motsCles: ['piqûre', 'surjet', 'confection', 'machine industrielle'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'coupeur_industriel', nom: 'Coupeur industriel', famille: 'Industrie', secteur: 'Industrie, production et énergie',
+    rome: 'H2409', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/H2409/coupeur-coupeuse-en-industrie-textile-et-materiaux-souples)
+    activites: ['tissus_vetements', 'machines', 'outils', 'collegues'], actions: ['decouper', 'utiliser_machines_outils', 'controler', 'trier_environnement', 'appliquer_consignes_securite'],
+    environnement: ['usine'],
+    savoirFaire: ['Précision', 'Technique', 'Sens du détail', 'Travail manuel', 'Maintenance'], savoirEtre: ['Rigueur', 'Sécurité', 'Organisation', 'Esprit d\'équipe'],
+    savoirs: ['Techniques de coupe de textile et de cuir', 'Caractéristiques des tissus et matières textiles', 'Utilisation de ciseaux, de scies à ruban et d\'emporte-pièces', 'Règles de sécurité', 'Logiciels de planification de coupe'],
+    argumentsCV: ['découper des tissus, du cuir ou des matières souples selon des patrons', 'régler et surveiller des machines de coupe en respectant les consignes de sécurité'],
+    argumentsLettre: ['mettre ma précision et mon respect des consignes de sécurité au service de la coupe de vos matières'],
+    pistesEntretien: ['Décrire comment vous limitez les pertes de matière lors d\'une coupe.'],
+    synonymes: ['coupeur textile', 'coupeur en confection', 'matelasseur', 'coupeur cuir'], motsCles: ['coupe', 'matelassage', 'emporte-pièce', 'patron'], conceptsAssocies: [],
+    niveauPertinence: null
+  },
+  {
+    id: 'employe_blanchisserie', nom: 'Employé de blanchisserie industrielle', famille: 'Services', secteur: 'Propreté et gestion des déchets',
+    rome: 'K2201', fap: null,
+    // TACHE (lot textile et mode, 2026-11-12, fiche officielle ROME v62
+    // https://candidat.francetravail.fr/metierscope/fiche-metier/K2201/employe-employee-de-blanchisserie-industrielle)
+    activites: ['tissus_vetements', 'machines', 'collegues', 'produits_dangereux'], actions: ['nettoyer', 'trier_environnement', 'utiliser_machines_outils', 'manutentionner_emballer', 'controler'],
+    environnement: ['usine'],
+    savoirFaire: ['Entretien', 'Hygiène', 'Manutention', 'Technique', 'Vigilance'], savoirEtre: ['Endurance', 'Sécurité', 'Esprit d\'équipe', 'Respect des délais'],
+    savoirs: ['Techniques de lavage et de séchage du textile', 'Techniques de repassage et de pliage à la machine', 'Gestes et postures de manutention', 'Règles d\'hygiène et de sécurité', 'Caractéristiques des produits d\'entretien textiles'],
+    argumentsCV: ['trier, laver, sécher, repasser et plier du linge professionnel en grande quantité', 'conduire des machines de blanchisserie et contrôler la qualité du linge'],
+    argumentsLettre: ['mettre mon endurance et mon sens du travail en équipe au service de vos cadences de production'],
+    pistesEntretien: ['Décrire une journée de forte activité et la façon dont vous avez tenu la cadence en sécurité.'],
+    synonymes: ['blanchisseur industriel', 'laveur en blanchisserie', 'repasseur en blanchisserie', 'agent de production en blanchisserie'], motsCles: ['blanchisserie', 'linge', 'repassage', 'lavage'], conceptsAssocies: [],
+    niveauPertinence: null
   }
 ];
+
+/* ------------------------------------------------------------
+   UNE SEULE BASE (consigne 263, import du ROME, phase 2, 12/11/2026).
+   baseMetiers = les fiches DETAILLEES ci-dessus (ecrites a la main, niveau 'detaillee')
+   + les fiches du ROME generees (data/metiersRome.js, niveau 'rome', fichier genere : ne jamais le modifier a la main).
+   Un code du ROME est soit detaille ici, soit genere, jamais les deux (tests/metiersRome.test.js).
+   Les fiches detaillees sont placees en premier dans le tableau (simple ordre de stockage : aucun avantage au classement, voir comparerMetiersParScore).
+   Les statistiques par secteur restent calculees sur les fiches detaillees seules (baseMetiersDetaillees) tant que les fiches
+   du ROME n'ont pas ete relues : voir competencesFrequentesDuSecteur, secteursDisponibles, exemplesMetiersDuSecteur (js/app.js).
+   Plan : docs/CHANTIER_IMPORT_ROME_BASE_UNIQUE_2026-11-12.md.
+   ------------------------------------------------------------ */
+baseMetiersDetaillees.forEach(function (m) { m.niveau = 'detaillee'; });
+
+var _romeGenere = (typeof METIERS_ROME !== 'undefined')
+  ? { fiches: METIERS_ROME, alias: (typeof METIERS_ROME_ALIAS !== 'undefined' ? METIERS_ROME_ALIAS : {}), signatures: (typeof METIERS_ROME_SIGNATURES !== 'undefined' ? METIERS_ROME_SIGNATURES : {}) }
+  : (typeof require === 'function'
+    ? (function () { try { var r = require('./metiersRome.js'); return { fiches: r.METIERS_ROME, alias: r.METIERS_ROME_ALIAS || {}, signatures: r.METIERS_ROME_SIGNATURES || {} }; } catch (e) { return { fiches: [], alias: {}, signatures: {} }; } })()
+    : { fiches: [], alias: {}, signatures: {} });
+
+const baseMetiers = baseMetiersDetaillees.concat(_romeGenere.fiches);
+
+// Signature du ROME des fiches à la main : les listes que le générateur déduit du ROME pour le même code. Le classement garde la meilleure des deux signatures (calculerScoreMetier).
+baseMetiersDetaillees.forEach(function (m) { var s = _romeGenere.signatures[m.rome]; if (s) { m.signatureRome = s; } });
+
+// Secondes descriptions écrites à la main pour les fiches du ROME (data/descriptionsEcrites.js, consigne 280) : une fiche du ROME qui en possède une est
+// décrite exactement comme une fiche à la main : ses listes de choix sont celles qui ont été écrites, et la signature déduite du ROME devient sa seconde signature.
+// Ainsi, une fiche n'a plus de « statut » : toutes portent deux descriptions, le classement garde la meilleure (calculerScoreMetier).
+var _descriptionsEcrites = (typeof DESCRIPTIONS_ECRITES !== 'undefined') ? DESCRIPTIONS_ECRITES
+  : (typeof require === 'function' ? (function () { try { return require('./descriptionsEcrites.js').DESCRIPTIONS_ECRITES; } catch (e) { return {}; } })() : {});
+_romeGenere.fiches.forEach(function (m) {
+  var d = _descriptionsEcrites[m.id];
+  if (!d || m.signatureRome) { return; }
+  var sig = {};
+  ['actions', 'activites', 'environnement', 'savoirFaire', 'savoirEtre', 'savoirs', 'valeurs'].forEach(function (c) { if (m[c]) { sig[c] = m[c]; } });
+  m.signatureRome = sig;
+  m.actions = d.actions; m.activites = d.activites; m.environnement = d.environnement;
+});
+
+// Tri par score decroissant. A scores egaux : ordre alphabetique des noms, sans aucun avantage pour une fiche (consigne 280 : toutes les fiches portent deux descriptions).
+function comparerMetiersParScore(a, b) {
+  // Consigne 410 : à pourcentage affiché égal, le pourcentage exact (avant arrondi) départage ; puis le nom.
+  return (b.score - a.score) || ((b.scoreExact || 0) - (a.scoreExact || 0)) || String(a.nom || '').localeCompare(String(b.nom || ''), 'fr');
+}
+
+// Fiche de la base pour un code du ROME : la fiche detaillee d'abord, puis la fiche generee, puis la fiche du meme nom (alias).
+function ficheParCodeRome(code) {
+  if (!code) { return null; }
+  var trouvees = baseMetiers.filter(function (m) { return m.rome === code; });
+  if (trouvees.length) { return trouvees[0]; }
+  var idAlias = _romeGenere.alias[code];
+  if (idAlias) {
+    for (var i = 0; i < baseMetiers.length; i++) { if (baseMetiers[i].id === idAlias) { return baseMetiers[i]; } }
+  }
+  return null;
+}
+
+// Metier choisi dans le repertoire elargi (13 800 intitules, js/app.js) : l'intitule garde son code du ROME, ce qui permet de
+// retrouver sa fiche de la base meme quand l'intitule n'est pas le nom de la fiche.
+var _codesRomeIntitulesChoisis = {};
+function enregistrerCodeRomeIntitule(intitule, code) {
+  if (intitule && code) { _codesRomeIntitulesChoisis[normaliserTexte(intitule)] = code; }
+}
+function ficheDeIntituleChoisi(intitule) {
+  var cle = normaliserTexte(intitule || '');
+  var code = _codesRomeIntitulesChoisis[cle];
+  // Apres un rechargement, le registre est vide : le dossier garde le code du ROME du metier saisi (secteurMetierSaisi.rome)
+  if (!code && typeof dossier !== 'undefined' && dossier && dossier.secteurMetierSaisi && dossier.secteurMetierSaisi.rome && normaliserTexte(dossier.secteurMetierSaisi.metier || '') === cle) {
+    code = dossier.secteurMetierSaisi.rome;
+  }
+  return ficheParCodeRome(code);
+}
 
 /* ------------------------------------------------------------
    SECTEURS_APP -- liste controlee des secteurs de metier (chantier
@@ -1752,7 +1825,7 @@ var METIERS_SAISONNIER_ALIMENTAIRE = [
   "ouvrier_horticole", "conducteur_engins_agricoles", "operateur_agroalimentaire",
   "operateur_decoupe", "vendeur_alimentation", "boulanger", "boucher", "arboriculteur",
   "apiculteur", "patissier", "chef_cuisine", "sommelier", "guide_touristique",
-  "concierge_hotel", "chef_reception", "agent_equestre", "eleveur"
+  "concierge_hotel", "chef_reception", "agent_equestre"
 ];
 var METIERS_QUI_RECRUTENT_GENERALEMENT = [
   "employe_libre_service", "preparateur_commandes", "cariste", "chauffeur_livreur",
@@ -1781,10 +1854,25 @@ const PONDERATION = {
   savoirFaire: 20,
   savoirEtre: 15,
   savoirs: 10,
-  valeursEnvironnement: 5
+  valeursEnvironnement: 5,
+  // Consigne 410 (16/11/2026) : les compétences que l'application DÉDUIT des choix de la personne (actions, activités, environnement) ne sont pas une preuve de plus,
+  // c'est la même information dite autrement : elles ne font que renforcer (environ 15 % du total quand la personne n'a pas de CV), jamais à égalité avec le CV.
+  savoirFaireDeduits: 6,
+  savoirEtreDeduits: 4
 };
 
+// Mémoire des textes déjà normalisés : le score compare des milliers de libellés identiques à chaque recherche (1 930 fiches depuis l'import du ROME, phase 3).
+var _memoNormaliser = Object.create(null);
+var _memoMotsCles = Object.create(null);
+var _memoTaille = 0;   // les textes longs d'un CV ne doivent pas faire grossir la mémoire sans fin : on la vide au-delà de 30 000 entrées
 function normaliserTexte(texte) {
+  var cle = String(texte);
+  var deja = _memoNormaliser[cle];
+  if (deja !== undefined) { return deja; }
+  if (++_memoTaille > 30000) { _memoNormaliser = Object.create(null); _memoMotsCles = Object.create(null); _memoTaille = 0; }
+  return (_memoNormaliser[cle] = _normaliserTexteBrut(cle));
+}
+function _normaliserTexteBrut(texte) {
   return String(texte)
     .toLowerCase()
     .normalize("NFD")
@@ -1792,6 +1880,8 @@ function normaliserTexte(texte) {
     // Ligatures : un assistant ecrit souvent \u00ab coeur \u00bb pour \u00ab c\u0153ur \u00bb (test DeepSeek 2026-09-29) ; la comparaison doit les confondre.
     .replace(/\u0153/g, "oe")
     .replace(/\u00e6/g, "ae")
+    // Apostrophe typographique (copiée d'un CV ou d'un assistant) = apostrophe droite : « Esprit d’équipe » et « Esprit d'équipe » sont le même texte.
+    .replace(/[\u2018\u2019]/g, "'")
     .replace(/[_-]/g, " ")
     .trim();
 }
@@ -1799,6 +1889,12 @@ function normaliserTexte(texte) {
 // Découpe un libellé en mots-clés normalisés (le "s" final est retiré
 // pour que "clients" corresponde à "client").
 function motsCles(texte) {
+  var cle = String(texte);
+  var deja = _memoMotsCles[cle];
+  if (deja !== undefined) { return deja.slice(); }
+  return (_memoMotsCles[cle] = _motsClesBrut(cle)).slice();
+}
+function _motsClesBrut(texte) {
   return normaliserTexte(texte)
     .split(/\s+/)
     .filter(function (mot) { return mot.length >= 3; })
@@ -1823,6 +1919,57 @@ function correspond(a, b) {
   return court.every(function (mot) { return long_.indexOf(mot) !== -1; });
 }
 
+/* ------------------------------------------------------------
+   RAPPROCHEMENT DES COMPÉTENCES (consigne 410, 16/11/2026) : les fiches n'utilisent que 126 libellés fermés de savoir-faire et de savoir-être ;
+   une personne écrit « Préparation de commandes », « Entraide », « Word et Excel ». Chaque formulation est reliée à un ou plusieurs GROUPES
+   (le libellé de fiche qui dit la même chose). Deux textes se correspondent s'ils sont égaux, si l'un contient les mots de l'autre (règle d'origine),
+   ou s'ils partagent un groupe. Règle de prudence : une formulation d'UN SEUL mot ne compte que si elle est écrite telle quelle ; une formulation de
+   plusieurs mots compte aussi quand le texte la contient en entier. Aucune formulation connue : rien ne change (donnée absente plutôt qu'erronée).
+   ------------------------------------------------------------ */
+var _rapprochementCompetences = (typeof RAPPROCHEMENT_COMPETENCES !== "undefined") ? RAPPROCHEMENT_COMPETENCES
+  : (typeof require === "function" ? (function () { try { return require("./rapprochementCompetences.js").RAPPROCHEMENT_COMPETENCES; } catch (e) { return {}; } })() : {});
+var _rapprochementIndex = null;
+var _rapprochementMemo = Object.create(null);
+function _rapprochementPreparer() {
+  if (_rapprochementIndex) { return; }
+  var index = { exact: Object.create(null), phrases: [] };
+  _rapprochementIndex = index;
+  Object.keys(_rapprochementCompetences).forEach(function (groupe) {
+    var g = normaliserTexte(groupe);
+    function ajouterExact(texte) {
+      var k = normaliserTexte(texte);
+      if (!index.exact[k]) { index.exact[k] = []; }
+      if (index.exact[k].indexOf(g) === -1) { index.exact[k].push(g); }
+    }
+    ajouterExact(groupe);
+    _rapprochementCompetences[groupe].forEach(function (s) {
+      ajouterExact(s);
+      var n = normaliserTexte(s);
+      if (n.indexOf(" ") !== -1) { index.phrases.push([" " + n + " ", g]); }
+    });
+  });
+}
+// Les groupes (libellés de fiche) dont relève une formulation ; liste vide si elle n'est reliée à rien.
+function competencesProches(texte) {
+  var n = normaliserTexte(texte);
+  var memo = _rapprochementMemo[n];
+  if (memo) { return memo; }
+  _rapprochementPreparer();
+  var groupes = (_rapprochementIndex.exact[n] || []).slice();
+  var entoure = " " + n + " ";
+  _rapprochementIndex.phrases.forEach(function (p) { if (entoure.indexOf(p[0]) !== -1 && groupes.indexOf(p[1]) === -1) { groupes.push(p[1]); } });
+  if (Object.keys(_rapprochementMemo).length > 20000) { _rapprochementMemo = Object.create(null); }
+  return (_rapprochementMemo[n] = groupes);
+}
+function correspondCompetence(a, b) {
+  if (correspond(a, b)) { return true; }
+  var ga = competencesProches(a);
+  if (!ga.length) { return false; }
+  var gb = competencesProches(b);
+  for (var i = 0; i < gb.length; i++) { if (ga.indexOf(gb[i]) !== -1) { return true; } }
+  return false;
+}
+
 // Compare une liste du profil avec une liste du métier.
 // Le taux est calculé par rapport à la plus petite des deux listes :
 // si la personne a coché 2 éléments et que les 2 correspondent,
@@ -1844,47 +1991,332 @@ function comparerListes(listeProfil, listeMetier) {
   };
 }
 
-function calculerScoreMetier(profil, metier) {
+/* ------------------------------------------------------------
+   NOUVELLE FAÇON DE CLASSER (consigne 263, chantier « pertinence des suggestions », 13/11/2026 ; maquettes
+   docs/maquettes/maquette-pertinence-*.html ; analyse : docs/CHANTIER_IMPORT_ROME_BASE_UNIQUE_2026-11-12.md sections 24 à 29).
+   - Rareté : un choix présent dans peu de métiers (« conduire ») compte plus qu'un choix présent partout (« organiser »).
+   - Rang : un choix placé en tête de la liste d'un métier compte plus qu'un choix perdu dans une longue liste.
+   - Précision : la part de la liste du métier que la personne couvre.
+   - Niveau : si le diplôme de la personne ET le niveau d'accès du métier sont connus, un métier qui demande plus de diplôme descend
+     (jamais retiré, jamais de message). Sans diplôme saisi, la personne compte comme « sans diplôme exigé ».
+   - Expérience : un métier du même domaine que ce que la personne a déjà exercé monte, et son expérience réduit l'écart de diplôme.
+   Les champs niveauPersonne et experience du profil sont facultatifs : sans eux (module Découverte, recherche), rien ne change.
+   ------------------------------------------------------------ */
+
+var _niveauxAccesRome = (typeof METIERS_ROME_NIVEAUX !== 'undefined')
+  ? METIERS_ROME_NIVEAUX
+  : (typeof require === 'function'
+    ? (function () { try { return require('./metiersRome.js').METIERS_ROME_NIVEAUX || {}; } catch (e) { return {}; } })()
+    : {});
+
+// Niveau d'accès d'un métier (2 sans diplôme, 3 CAP/BEP, 4 Bac, 5 Bac+2, 6 Bac+3, 7 Bac+5, 8 doctorat) ; null = non précisé.
+function niveauAccesMetier(metier) {
+  var n = metier && metier.rome ? _niveauxAccesRome[metier.rome] : undefined;
+  return typeof n === "number" ? n : null;
+}
+
+// Niveau de la personne d'après ses formations saisies (niveauRNCP, sinon le libellé « Bac +2 », « Niveau 5 »...). 2 si rien n'est saisi.
+function niveauPersonneDepuisFormations(formations) {
+  var meilleur = 2;
+  (Array.isArray(formations) ? formations : []).forEach(function (f) {
+    var n = null;
+    if (f && typeof f.niveauRNCP === "number" && f.niveauRNCP >= 1) { n = f.niveauRNCP; }
+    else if (f) {
+      var l = normaliserTexte(f.niveau || "");
+      var m = l.match(/niveau\s*(\d)/);
+      if (m) { n = parseInt(m[1], 10); }
+      else if (/bac\s*\+\s*5|master|ingenieur|doctorat/.test(l)) { n = 7; }
+      else if (/bac\s*\+\s*[34]|licence|bachelor/.test(l)) { n = 6; }
+      else if (/bac\s*\+\s*2|bts|dut/.test(l)) { n = 5; }
+      else if (/\bbac\b|baccalaureat/.test(l)) { n = 4; }
+      else if (/cap|bep/.test(l)) { n = 3; }
+    }
+    if (n !== null && n > meilleur) { meilleur = n; }
+  });
+  return Math.min(meilleur, 8);
+}
+
+// Intitulé de poste retrouvé dans le répertoire élargi du ROME (13 800 intitulés, chargé à la demande par l'application) : égalité exacte, ou intitulé du ROME (8 lettres au moins)
+// contenu en entier dans le poste saisi (le plus long l'emporte). Sans répertoire chargé, rien n'est deviné. Retourne { code, secteur } ou null.
+var _repertoireNormalise = null;
+function _intituleDuRepertoire(poste) {
+  if (typeof REPERTOIRE_ROME === 'undefined' || !REPERTOIRE_ROME || !REPERTOIRE_ROME.metiers) { return null; }
+  if (!_repertoireNormalise || _repertoireNormalise.source !== REPERTOIRE_ROME) {
+    _repertoireNormalise = { source: REPERTOIRE_ROME, liste: REPERTOIRE_ROME.metiers.map(function (l) { return { nom: normaliserTexte(l[0]), code: l[1], dom: l[2] }; }).filter(function (x) { return x.nom.length >= 5; }) };
+  }
+  var meilleur = null;
+  _repertoireNormalise.liste.forEach(function (x) {
+    var ok = x.nom === poste || (x.nom.length >= 8 && poste.indexOf(x.nom) !== -1);
+    if (ok && (!meilleur || x.nom.length > meilleur.nom.length)) { meilleur = x; }
+  });
+  return meilleur ? { code: meilleur.code, secteur: REPERTOIRE_ROME.domaines[meilleur.dom] || '' } : null;
+}
+
+// Ce que les expériences de la personne disent de ses domaines : codes du ROME des métiers reconnus dans les intitulés de poste,
+// domaines (3 premiers caractères du code), secteurs et nombre d'années. Un poste est reconnu quand son intitulé est un nom de fiche
+// ou le contient, ou est contenu dans un nom de fiche (5 lettres au moins) : jamais de devinette plus large.
+function experienceDepuisPostes(experiences, anneeCourante) {
+  var liste = Array.isArray(experiences) ? experiences : [];
+  var annee = anneeCourante || new Date().getFullYear();
+  var codes = [], domaines = [], secteurs = [], annees = 0;
+  liste.forEach(function (e) {
+    if (!e) { return; }
+    var debut = parseInt(String(e.dateDebut || "").slice(0, 4), 10);
+    var fin = e.dateFin ? parseInt(String(e.dateFin).slice(0, 4), 10) : annee;
+    if (debut && fin >= debut) { annees += Math.min(fin - debut, 40); }
+    var poste = normaliserTexte(e.poste || "");
+    if (poste.length < 5) { return; }
+    var meilleur = null, longueur = 0;
+    baseMetiers.forEach(function (m) {
+      if (!m.rome) { return; }
+      var nom = normaliserTexte(m.nom);
+      if (nom.length < 5) { return; }
+      if ((poste === nom || poste.indexOf(nom) !== -1 || nom.indexOf(poste) !== -1) && nom.length > longueur) { meilleur = m; longueur = nom.length; }
+    });
+    if (meilleur) {
+      if (codes.indexOf(meilleur.rome) === -1) { codes.push(meilleur.rome); }
+      var d = meilleur.rome.slice(0, 3);
+      if (domaines.indexOf(d) === -1) { domaines.push(d); }
+      if (meilleur.secteur && secteurs.indexOf(meilleur.secteur) === -1) { secteurs.push(meilleur.secteur); }
+    } else {
+      // Poste absent des noms de fiches : on cherche son intitulé parmi les 13 800 du ROME (leur code donne le domaine et le secteur)
+      var r = _intituleDuRepertoire(poste);
+      if (r) {
+        if (codes.indexOf(r.code) === -1) { codes.push(r.code); }
+        var d2 = r.code.slice(0, 3);
+        if (domaines.indexOf(d2) === -1) { domaines.push(d2); }
+        var f2 = ficheParCodeRome(r.code);
+        var s2 = (f2 && f2.secteur) || r.secteur;
+        if (s2 && secteurs.indexOf(s2) === -1) { secteurs.push(s2); }
+      }
+    }
+  });
+  return { codes: codes, domaines: domaines, secteurs: secteurs, annees: annees };
+}
+
+// Fréquence de chaque choix dans la base (calculée une fois) : sert à la rareté.
+var _frequencesBase = null;
+var _CATEGORIES_RARETE = ["activites", "actions", "savoirFaire", "savoirEtre", "savoirs"];
+function _frequencesDeLaBase() {
+  if (_frequencesBase && _frequencesBase.taille === baseMetiers.length) { return _frequencesBase; }
+  var f = { taille: baseMetiers.length };
+  _CATEGORIES_RARETE.forEach(function (cat) {
+    f[cat] = Object.create(null);
+    baseMetiers.forEach(function (m) {
+      var vus = {};
+      (m[cat] || []).forEach(function (x) { if (!vus[x]) { vus[x] = true; f[cat][x] = (f[cat][x] || 0) + 1; } });
+    });
+  });
+  _frequencesBase = f;
+  return f;
+}
+// Rareté d'une compétence écrite librement (consigne 410, 16/11/2026) : une formulation de CV n'est pas un libellé de fiche, donc absente du comptage (0 fiche) :
+// elle pesait comme un élément introuvable ailleurs (le plus rare possible) et écrasait les vrais libellés. On lui donne la fréquence du libellé de fiche auquel
+// elle correspond (le plus fréquent s'il y en a plusieurs, par prudence) ; sans libellé reconnu, une fréquence moyenne (ni rare ni banale).
+function _frequenceCompetenceLibre(cat, item, f) {
+  if (!f._libres) { f._libres = Object.create(null); }
+  var cle = cat + "|" + item;
+  if (cle in f._libres) { return f._libres[cle]; }
+  var libelles = Object.keys(f[cat]);
+  var max = 0, trouve = false;
+  libelles.forEach(function (l) {
+    if (correspondCompetence(item, l)) { trouve = true; if (f[cat][l] > max) { max = f[cat][l]; } }
+  });
+  if (!trouve) {
+    var valeurs = libelles.map(function (l) { return f[cat][l]; }).sort(function (x, y) { return x - y; });
+    max = valeurs.length ? valeurs[valeurs.length >> 1] : 0;
+  }
+  return (f._libres[cle] = max);
+}
+function _raretePoids(cat, item) {
+  var f = _frequencesDeLaBase();
+  var n = f[cat][item];
+  if (n === undefined && (cat === "savoirFaire" || cat === "savoirEtre")) { n = _frequenceCompetenceLibre(cat, item, f); }
+  return Math.log((f.taille + 1) / ((n || 0) + 1));
+}
+
+// Compare une liste du profil à celle du métier avec rareté, rang et précision. Retourne { taux, correspondances, vide }.
+function comparerListesPonderees(cat, listeProfil, listeMetier) {
+  // Compétences : les formulations courantes d'un CV sont reliées aux libellés des fiches (consigne 410, data/rapprochementCompetences.js).
+  var correspond_ = (cat === "savoirFaire" || cat === "savoirEtre") ? correspondCompetence : correspond;
+  var profil = Array.isArray(listeProfil) ? listeProfil : [];
+  var metier = Array.isArray(listeMetier) ? listeMetier : [];
+  if (profil.length === 0) { return { taux: 0, correspondances: [], vide: true, nonTrouves: 0 }; }
+  if (metier.length === 0) { return { taux: 0, correspondances: [], vide: false, nonTrouves: 0 }; }   // une fiche muette sur ce point ne permet pas de juger : aucun contresens
+  var poids = profil.map(function (x) { return _raretePoids(cat, x); });
+  var gain = 0, trouves = 0, correspondances = [], nonReconnus = 0;
+  profil.forEach(function (item, k) {
+    var trouve = false;
+    for (var i = 0; i < metier.length; i++) {
+      if (correspond_(item, metier[i])) {
+        gain += poids[k] / (1 + 0.35 * i);
+        trouves++;
+        trouve = true;
+        if (correspondances.indexOf(metier[i]) === -1) { correspondances.push(metier[i]); }
+        break;
+      }
+    }
+    // Un élément ABSENT de la fiche n'est un contresens sûr que si sa formulation est reliée à un libellé de fiche (vocabulaire fermé) : sinon, on ne peut pas juger.
+    if (!trouve && correspond_ === correspondCompetence && competencesProches(item).length > 0) { nonReconnus++; }
+  });
+  // Meilleur gain possible : les choix les plus rares placés en tête, sur autant de places que la liste du métier en offre.
+  var tries = poids.slice().sort(function (a, b) { return b - a; }).slice(0, Math.min(profil.length, metier.length));
+  var meilleur = tries.reduce(function (s, p, j) { return s + p / (1 + 0.35 * j); }, 0);
+  var couverture = meilleur > 0 ? Math.min(1, gain / meilleur) : 0;
+  var precision = Math.min(1, (trouves / metier.length) * 2);
+  return { taux: 0.6 * couverture + 0.4 * precision, correspondances: correspondances, vide: false, nonTrouves: profil.length - trouves, nonTrouvesReconnus: nonReconnus };
+}
+
+var _FACTEUR_ECART_NIVEAU = [1, 0.92, 0.78, 0.6, 0.45];
+function _facteurNiveauEtExperience(profil, metier) {
+  var facteur = 1;
+  var exp = profil.experience;
+  var memeDomaine = !!(exp && metier.rome && exp.domaines && exp.domaines.indexOf(metier.rome.slice(0, 3)) !== -1);
+  var rp = typeof profil.niveauPersonne === "number" ? profil.niveauPersonne : null;
+  var rm = niveauAccesMetier(metier);
+  if (rp !== null && rm !== null) {
+    var ecart = rm - rp;
+    if (ecart > 0 && memeDomaine) { ecart -= (exp.annees >= 5 ? 2 : (exp.annees >= 2 ? 1 : 0)); }
+    if (ecart > 0) { facteur *= _FACTEUR_ECART_NIVEAU[Math.min(4, ecart)]; }
+    // Peu de diplôme et peu d'expérience : un métier accessible sans diplôme ou avec un CAP passe un peu devant.
+    else if (rp <= 3 && rm <= 3 && (!exp || exp.annees < 1)) { facteur *= 1.05; }
+  }
+  if (exp && metier.rome) {
+    var echelle = exp.annees >= 3 ? 1.3 : (exp.annees >= 1 ? 1 : 0.5);
+    var bonus = 0;
+    if (exp.codes && exp.codes.indexOf(metier.rome) !== -1) { bonus = 0.12; }
+    else if (memeDomaine) { bonus = 0.08; }
+    else if (exp.secteurs && metier.secteur && exp.secteurs.indexOf(metier.secteur) !== -1) { bonus = 0.04; }
+    facteur *= 1 + bonus * echelle;
+  }
+  return facteur;
+}
+
+// Une fiche peut porter DEUX signatures de choix : ses listes d'origine et celles que le générateur déduit du ROME pour le même code (metier.signatureRome).
+// Une personne ne coche pas toujours comme l'une ou l'autre : le classement garde la meilleure des deux (mesuré le 13/11/2026 : fusionner les deux listes en une seule
+// faisait perdre 40 % des personnes qui cochent comme le ROME). Les 1 790 autres fiches n'ont qu'une signature.
+function _brutPourListes(profil, l) {
   var points = 0;
   var poidsUtilise = 0;
   var raisons = [];
+  // Ce qui se recoupe, par catégorie (identifiants et libellés de la fiche) : sert à EXPLIQUER le classement à la personne (panneau « Proche de votre profil »).
+  var communes = { activites: [], actions: [], savoirFaire: [], savoirEtre: [], savoirs: [], environnement: [] };
+  var contresens = 0;   // éléments indiqués par la personne qui ne figurent pas dans la fiche (consigne 410)
 
-  function ajouter(resultat, poids, formatRaison) {
+  function ajouter(resultat, poids, formatRaison, cle, compter) {
     if (!resultat.vide) {
       points += resultat.taux * poids;
       poidsUtilise += poids;
-      resultat.correspondances.forEach(function (c) { raisons.push(formatRaison(c)); });
+      if (compter) { contresens += (compter === "reconnus" ? resultat.nonTrouvesReconnus : resultat.nonTrouves) || 0; }
+      // Une catégorie peut être alimentée deux fois (compétences du CV, puis compétences déduites des choix) : on fusionne sans doublon.
+      resultat.correspondances.forEach(function (c) {
+        if (communes[cle].indexOf(c) === -1) { communes[cle].push(c); raisons.push(formatRaison(c)); }
+      });
     }
   }
 
-  ajouter(comparerListes(profil.activites, metier.activites), PONDERATION.activites,
-    function (c) { return "Vous aimez travailler " + libelleActivite(c); });
-  ajouter(comparerListes(profil.actions, metier.actions), PONDERATION.actions,
-    function (c) { return "Vous aimez " + normaliserTexte(c); });
-  ajouter(comparerListes(profil.savoirFaire, metier.savoirFaire), PONDERATION.savoirFaire,
-    function (c) { return "Savoir-faire en commun : " + c; });
-  ajouter(comparerListes(profil.savoirEtre, metier.savoirEtre), PONDERATION.savoirEtre,
-    function (c) { return "Savoir-etre en commun : " + c; });
-  ajouter(comparerListes(profil.savoirs, metier.savoirs), PONDERATION.savoirs,
-    function (c) { return "Connaissance utile : " + c; });
+  ajouter(comparerListesPonderees("activites", profil.activites, l.activites), PONDERATION.activites,
+    function (c) { return "Vous aimez travailler " + libelleActivite(c); }, "activites", true);
+  ajouter(comparerListesPonderees("actions", profil.actions, l.actions), PONDERATION.actions,
+    function (c) { return "Vous aimez " + normaliserTexte(c); }, "actions", true);
+  ajouter(comparerListesPonderees("savoirFaire", profil.savoirFaire, l.savoirFaire), PONDERATION.savoirFaire,
+    function (c) { return "Savoir-faire en commun : " + c; }, "savoirFaire", "reconnus");
+  ajouter(comparerListesPonderees("savoirEtre", profil.savoirEtre, l.savoirEtre), PONDERATION.savoirEtre,
+    function (c) { return "Savoir-être en commun : " + c; }, "savoirEtre", "reconnus");
+  ajouter(comparerListesPonderees("savoirFaire", profil.savoirFaireDeduits, l.savoirFaire), PONDERATION.savoirFaireDeduits,
+    function (c) { return "Savoir-faire en commun : " + c; }, "savoirFaire");
+  ajouter(comparerListesPonderees("savoirEtre", profil.savoirEtreDeduits, l.savoirEtre), PONDERATION.savoirEtreDeduits,
+    function (c) { return "Savoir-être en commun : " + c; }, "savoirEtre");
+  ajouter(comparerListesPonderees("savoirs", profil.savoirs, l.savoirs), PONDERATION.savoirs,
+    function (c) { return "Connaissance utile : " + c; }, "savoirs");
 
-  var rValeurs = comparerListes(profil.valeurs, metier.valeurs);
-  var rEnv = comparerListes(profil.environnement, metier.environnement);
+  var rValeurs = comparerListes(profil.valeurs, l.valeurs);
+  var rEnv = comparerListes(profil.environnement, l.environnement);
   if (!rValeurs.vide || !rEnv.vide) {
     var tauxVE = ((rValeurs.vide ? 0 : rValeurs.taux) + (rEnv.vide ? 0 : rEnv.taux)) /
       ((rValeurs.vide ? 0 : 1) + (rEnv.vide ? 0 : 1));
     points += tauxVE * PONDERATION.valeursEnvironnement;
     poidsUtilise += PONDERATION.valeursEnvironnement;
-    rEnv.correspondances.forEach(function (c) { raisons.push("Environnement souhaite : " + normaliserTexte(c)); });
-    rValeurs.correspondances.forEach(function (c) { raisons.push("Valeur partagee : " + normaliserTexte(c)); });
+    rEnv.correspondances.forEach(function (c) { raisons.push("Environnement souhaité : " + normaliserTexte(c)); });
+    rValeurs.correspondances.forEach(function (c) { raisons.push("Valeur partagée : " + normaliserTexte(c)); });
+    communes.environnement = rEnv.correspondances.slice();
   }
+  // Environnements choisis que la fiche ne cite pas (seulement quand la fiche en cite).
+  if (Array.isArray(profil.environnement) && Array.isArray(l.environnement) && l.environnement.length) {
+    profil.environnement.forEach(function (e) {
+      if (!l.environnement.some(function (m) { return correspond(e, m); })) { contresens++; }
+    });
+  }
+  var taille = ["activites", "actions", "environnement", "savoirFaire", "savoirEtre", "savoirs"].reduce(function (t, k) { return t + (Array.isArray(l[k]) ? l[k].length : 0); }, 0);
 
-  var score = poidsUtilise > 0 ? Math.round((points / poidsUtilise) * 100) : 0;
+  return { brut: poidsUtilise > 0 ? (points / poidsUtilise) * 100 : 0, raisons: raisons, communes: communes, contresens: contresens, taille: taille };
+}
+
+// Consigne 410 : le pourcentage dit à quel point la personne est proche de ce que LA FICHE demande. Une personne qui a tout ce que la fiche demande doit pouvoir atteindre 100 % :
+// le brut est donc rapporté à ce qu'obtiendrait la fiche face à elle-même (calculé une fois par fiche, mémorisé).
+var _brutPropreMemo = new WeakMap();
+function _brutPropre(l) {
+  var v = _brutPropreMemo.get(l);
+  if (v === undefined) {
+    v = _brutPourListes({ activites: l.activites || [], actions: l.actions || [], environnement: l.environnement || [], valeurs: [], savoirFaire: l.savoirFaire || [], savoirEtre: l.savoirEtre || [], savoirs: l.savoirs || [] }, l).brut;
+    _brutPropreMemo.set(l, v);
+  }
+  return v;
+}
+
+// Consigne 410 (16/11/2026, Denis) : le pourcentage est une ÉVALUATION par rapport aux choix faits et à ce que la fiche du métier demande, jamais une mesure scientifique.
+// Trois règles, toutes mesurées sur les fiches du ROME :
+// 1. QUANTITÉ : deux choix qui collent à un métier ne valent pas quinze choix qui y collent. Le facteur monte de 0,45 (un seul élément) à 1 par une courbe douce en haut : de moins en moins vite
+//    à l'approche du plein, qui est la taille de la fiche (au plus 30). Il est le même pour tous les métiers d'une même personne qui ont la même taille de fiche.
+// 2. CONTRESENS : chaque CHOIX de la personne (action, activité, environnement : vocabulaire fermé, donc fiable) que la fiche ne cite pas retire 1 point, 12 au plus. Pas plus : une fiche est parfois
+//    incomplète et un parcours varié n'est pas une faute. Une compétence écrite librement (CV) ne compte comme contresens QUE si sa formulation est reliée à un libellé de fiche
+//    (data/rapprochementCompetences.js) : une formulation inconnue reste neutre (avant ce rapprochement, mesuré le 16/11/2026, elles retiraient jusqu'à 9 points à un vrai cuisinier à tort).
+// 3. 100 % : le pourcentage est rapporté à ce que la fiche obtient face à elle-même, pour qu'une personne qui a tout ce que la fiche demande atteigne 100 %.
+// Compte pour la quantité : actions, activités, environnements, compétences et savoirs écrits (les compétences déduites des choix ne comptent pas : même information).
+var INFORMATION_PLANCHER = 0.45;   // facteur avec un seul élément
+var INFORMATION_PLEIN = 30;        // plein au plus : nombre d'éléments à partir duquel le pourcentage n'est plus réduit
+var INFORMATION_PLEIN_MIN = 12;    // une fiche très courte ne descend pas sous ce plein
+var PERTE_PAR_CONTRESENS = 1;      // points retirés par choix que la fiche ne cite pas
+var PERTE_MAX = 12;                // total retiré au plus
+function nbElementsProfil(profil) {
+  var p = profil || {};
+  return ["activites", "actions", "environnement", "savoirFaire", "savoirEtre", "savoirs"].reduce(function (total, cle) {
+    return total + (Array.isArray(p[cle]) ? p[cle].length : 0);
+  }, 0);
+}
+// pleinDeLaFiche : taille de la fiche comparée (le plein est atteint quand la personne a donné autant d'éléments que la fiche en demande, au plus 30).
+function facteurInformation(profil, pleinDeLaFiche) {
+  var plein = Math.min(INFORMATION_PLEIN, Math.max(INFORMATION_PLEIN_MIN, typeof pleinDeLaFiche === "number" ? pleinDeLaFiche : INFORMATION_PLEIN));
+  var n = nbElementsProfil(profil);
+  if (n >= plein) { return 1; }
+  var x = (Math.max(1, n) - 1) / (plein - 1);
+  return 1 - (1 - INFORMATION_PLANCHER) * (1 - x) * (1 - x);
+}
+
+function calculerScoreMetier(profil, metier) {
+  var r = _brutPourListes(profil, metier);
+  var propre = _brutPropre(metier);
+  var rapporte = propre > 0 ? Math.min(100, (r.brut / propre) * 100) : r.brut;
+  if (metier.signatureRome) {
+    var r2 = _brutPourListes(profil, metier.signatureRome);
+    var propre2 = _brutPropre(metier.signatureRome);
+    var rapporte2 = propre2 > 0 ? Math.min(100, (r2.brut / propre2) * 100) : r2.brut;
+    if (rapporte2 > rapporte) { r = r2; rapporte = rapporte2; }
+  }
+  var raisons = r.raisons;
+  var infoFacteur = facteurInformation(profil, r.taille);
+  // Le niveau et l'expérience ne font jamais apparaître un métier sans rapport avec les choix : ils ne jouent que sur un score déjà positif.
+  var exact = r.brut > 0 ? Math.max(0, rapporte * _facteurNiveauEtExperience(profil, metier) * infoFacteur - Math.min(PERTE_MAX, PERTE_PAR_CONTRESENS * r.contresens)) : 0;
+  var score = r.brut > 0 ? Math.min(100, Math.max(1, Math.round(exact))) : 0;
 
   var copie = {};
   for (var cle in metier) { copie[cle] = metier[cle]; }
   copie.score = score;
+  copie.scoreExact = exact;
   copie.raisons = raisons;
+  copie.communes = r.communes;
+  copie.facteurInformation = infoFacteur;
+  copie.contresens = r.contresens;
   return copie;
 }
 
@@ -1922,7 +2354,11 @@ function rechercherMetiers(profil, nombreMax) {
     valeurs: p.valeurs || [],
     savoirFaire: p.savoirFaire || [],
     savoirEtre: p.savoirEtre || [],
-    savoirs: p.savoirs || []
+    savoirFaireDeduits: p.savoirFaireDeduits || [],
+    savoirEtreDeduits: p.savoirEtreDeduits || [],
+    savoirs: p.savoirs || [],
+    niveauPersonne: p.niveauPersonne,
+    experience: p.experience
   };
 
   // Compatibilité : un champ "competences" non trié est fusionné
@@ -1942,12 +2378,18 @@ function rechercherMetiers(profil, nombreMax) {
         var bonus = 0;
         if (p.accepte.indexOf('alimentaire') !== -1 && METIERS_ALIMENTAIRE.indexOf(metier.id) !== -1) { bonus += 10; }
         if (p.accepte.indexOf('saisonnier') !== -1 && METIERS_SAISONNIERS.indexOf(metier.id) !== -1) { bonus += 10; }
-        if (bonus > 0) { metier.score = Math.min(100, metier.score + bonus); }
+        if (bonus > 0) { metier.score = Math.min(100, metier.score + bonus); metier.scoreExact = Math.min(100, (metier.scoreExact || 0) + bonus); }
       }
       return metier;
     })
     .filter(function (metier) { return metier.score > 0; })
-    .sort(function (a, b) { return b.score - a.score; })
+    .sort(comparerMetiersParScore)
+    // Une même profession ne doit apparaître qu'une fois (fiche à la main et fiche du répertoire de même nom, au sigle près : « Assistant de vie aux familles (ADVF) » et « Assistant de vie aux familles ») : la mieux classée reste.
+    .filter(function (metier, i, liste) {
+      function cle(m) { return normaliserTexte(String(m.nom).replace(/\([^)]*\)/g, "")).replace(/[^a-z0-9]/g, ""); }
+      var k = cle(metier);
+      return liste.findIndex(function (autre) { return cle(autre) === k; }) === i;
+    })
     .slice(0, max);
 }
 
@@ -2042,7 +2484,9 @@ function metierParNom(nom) {
   // 3. Forme feminine (« Assistante de vie aux familles » pour « Assistant de vie aux familles ») : la base est ecrite au masculin
   // (retour Denis 2026-09-30, « Vos savoirs » vide). Essayee seulement si rien n'a ete trouve tel quel.
   var masculin = _nomMetierAuMasculin(nom);
-  return masculin !== normaliserTexte(nom) ? _metierParNomTelQuel(masculin) : null;
+  var feminin = masculin !== normaliserTexte(nom) ? _metierParNomTelQuel(masculin) : null;
+  // 4. Intitule choisi dans le repertoire elargi du ROME (13 800 intitules) : sa fiche se retrouve par le code du ROME (import du ROME, consigne 263)
+  return feminin || ficheDeIntituleChoisi(nom);
 }
 
 // Passe chaque mot d'un intitule de metier a sa forme masculine (trice/teur, euse/eur, ere/er, ienne/ien, e final apres consonne
@@ -2168,7 +2612,7 @@ function rechercherMetiersDebutants(nombreMax) {
 function rienEteChoisi() {
   if (typeof dossier === 'undefined' || !dossier) { return true; }
   var total = (dossier.activites || []).length + (dossier.actions || []).length +
-    (dossier.environnement || []).length + (dossier.valeurs || []).length +
+    (dossier.environnement || []).length +
     (dossier.loisirs || []).length + (dossier.engagements || []).length +
     (dossier.experiencesPerso || []).length;
   return total === 0 && !dossier.cvAnalyse;
@@ -3357,7 +3801,8 @@ function htmlDepotCVEnPage(cfg) {
     (cfg.raccourciTexte ? '<div class="mb-2"><button type="button" class="btn btn-outline-primary btn-sm" id="depotPageRaccourci' + sfx + '">' + (cfg.raccourciLibelle || ('Utiliser mon ' + echapperAttribut(nomDoc) + ' déjà dans l’application')) + '</button></div>' : '') +
     ((cfg.fait || cfg.texteARelire) ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageAnnuler' + sfx + '">Annuler : garder mon ' + echapperAttribut(nomDoc) + ' actuel</button> ' : '') +
     (cfg.optionnel ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPagePasser' + sfx + '">Passer cette étape</button>' : '') +
-    (typeof cfg.onFermer === 'function' ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageFermer' + sfx + '">' + (cfg.libelleFermer || 'Annuler') + '</button>' : '');
+    (typeof cfg.onFermer === 'function' ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageFermer' + sfx + '">' + (cfg.libelleFermer || 'Annuler') + '</button>' : '') +
+    (typeof cfg.jeNaiPasDeCv === 'function' ? '<div class="mt-2"><button type="button" class="btn btn-outline-secondary btn-sm" id="depotPageSansCv' + sfx + '">Je n’ai pas de CV</button></div>' : '');
 }
 // Lecture du fichier : meme analyse que la fenetre (texte lu directement, sinon lecture automatique de l'image).
 function _depotPageLire(cfg, f) {
@@ -3443,6 +3888,8 @@ function cablerDepotCVEnPage(cfg) {
     }
     var fermer = q('depotPageFermer');
     if (fermer) { fermer.addEventListener('click', function () { _depotPageAbandonner(s); s.phase = null; cfg.onFermer(); }); }
+    var sansCv = q('depotPageSansCv');
+    if (sansCv) { sansCv.addEventListener('click', function () { _depotPageAbandonner(s); s.phase = null; cfg.jeNaiPasDeCv(); }); }
     var passer = q('depotPagePasser');
     if (passer) { passer.addEventListener('click', function () { if (typeof cfg.onPasser === 'function') { cfg.onPasser(); } }); }
   } else if (phase === 'collage') {
@@ -4098,8 +4545,7 @@ function htmlPageIntroModuleParcours(config) {
     // Vidéo de présentation du module (lot E) : un bouton-ligne fermé, le lecteur se déplie au clic (modules/video-presentation).
     (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
     (config.syntheseHTML || '') +
-    // Les cartes de la presentation sont rangees en grille 2 sur 2 des 1100 px de large (css/style.css, .intro-colonnes ; js/app.js, equilibrerGrilleIntro) : pas de grand vide a droite du texte (consigne 187).
-    '<div class="intro-colonnes">' + config.blocsHTML + '</div>' +
+    config.blocsHTML +
     (config.sansMultilingue ? '' : htmlEncartMultilingue(!!config.multilingueCourte)) +
     // config.ctaMasque : la page porte deja son choix ailleurs (bloc
     // "Continuer / Recommencer" de _introBlocReprise) -> pas de gros bouton
@@ -4439,7 +4885,7 @@ function _coLettreRendreIntro() {
   } else if (!_coLettreDetour && travailEnCours) {
     syntheseHTML = _introBlocReprise(
       'Vous avez commencé à préparer votre lettre de motivation.',
-      'btnCoLettreContinuer', 'btnCoLettreRecommencer', 'Continuer');
+      'btnCoLettreContinuer', 'btnCoLettreRecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnCoLettreContinuer',
       action: function () {
@@ -4583,6 +5029,7 @@ function _coLettreDepotCfg() {
     texteFait: texteDoc,
     texteARelire: (doc && !_coLettreCvRelu) ? texteDoc : '',
     nomARelire: 'CV déjà dans l’application',
+    jeNaiPasDeCv: (typeof _candBoutonSansCv === 'function') ? _candBoutonSansCv() : undefined,
     rerender: _coLettreRendreDepot,
     onDocumentPrepare: function (documentPrepare) {
       if (!documentPrepare) { return; }
@@ -4664,6 +5111,7 @@ function _coLettreRendreDepot() {
     '<span class="pilule-etat ' + (candidatureRenseignee ? 'pe-ok">Renseigné' : 'pe-attente">À renseigner') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
     '<p>Une lettre de motivation s’adresse à une entreprise précise. Plus vous en dites ici, plus elle sera ciblée.</p>' +
+    (objectifDeCandidaterActif() ? htmlRappelObjectifCandidater() : (
     '<p class="mb-2">Quel type de candidature préparez-vous ?</p>' +
     '<div class="grille-objectif">' +
     OBJECTIF_CHOIX_CANDIDATURE.map(function (o) {
@@ -4673,7 +5121,7 @@ function _coLettreRendreDepot() {
         '<span class="carte-objectif-desc">' + o.desc + '</span>' +
         '</button>';
     }).join('') +
-    '</div>' +
+    '</div>')) +
     (dossier.objectif
       // TACHE (retour utilisateur 2026-09-17, bug reel trouve au test
       // navigateur : "Connaissez-vous la personne..." apparaissait EN
@@ -5389,6 +5837,17 @@ var _prepLEMode = null;  // null (jamais visite) | 'pret' | 'maj' | 'reformuler'
 var _reprendreCvActif = false;
 var _reprendreCvDepuis = false;
 // Les trois voies de « Reprendre mon CV » : source unique du titre, de la phrase et de la pastille, lue par la page de présentation ET par les cartes de la page de dépôt (cohérence demandée par Denis, 25/10/2026).
+// UNE SEULE SOURCE du bloc « voie » des pages de présentation (consigne 192 / 246, 10/11/2026) : pastille, icône, titre, phrase, vidéo, trois repères, bouton de départ éventuel.
+// Lu par « Reprendre mon CV » (_reprendreCvPresVoie), « Lettre et entretien en version rapide » (_htmlParcoursRapidePresentation) et « Créer un nouveau CV » (_creerCvVoiePresentation).
+// o : { pastille, icone, titre, mode, phrase, situation, video (id de vidéo, facultatif), listeHtml, departHTML (facultatif), id (facultatif, pour le repérage) }.
+function _htmlVoiePresentation(o) {
+  return '<div class="voie-presentation"' + (o.id ? ' data-voie="' + o.id + '"' : '') + '>' +
+    '<div class="voie-presentation-tete"><span class="carte-voie-num">' + o.pastille + '</span><i class="bi ' + o.icone + '" aria-hidden="true"></i><strong>' + o.titre + '</strong></div>' +
+    '<p class="voie-presentation-phrase"><strong>' + o.mode + '</strong> ' + o.phrase + ' <span class="small" style="color:var(--text-muted);">' + o.situation + '</span></p>' +
+    (o.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(o.video) : '') +
+    '<ul class="mb-0" style="padding-left:1.25rem;">' + o.listeHtml + '</ul>' +
+    (o.departHTML ? '<div class="mt-3">' + o.departHTML + '</div>' : '') + '</div>';
+}
 var REPRENDRE_CV_VOIES = [
   { id: 'maj', num: 1, icone: 'bi-pencil-square', titre: 'Le garder et le compléter', mode: 'Avec l’assistant.', phrase: 'Il lit mon CV, puis je le mets à jour : j’ajoute, je corrige, je complète.' },
   { id: 'reformuler', num: 2, icone: 'bi-brush', titre: 'Le reformuler et le présenter', mode: 'Avec l’assistant.', phrase: 'Je reformule mes phrases et j’améliore la présentation de mon CV, sans rien y ajouter.' },
@@ -5398,12 +5857,9 @@ function _reprendreCvVoie(id) { return REPRENDRE_CV_VOIES.filter(function (v) { 
 // Une voie dans la page de présentation : même pastille, même titre et même phrase que sa carte de la page de dépôt (lus dans REPRENDRE_CV_VOIES).
 function _reprendreCvPresVoie(id, situation, listeHtml) {
   var v = _reprendreCvVoie(id);
-  return '<div class="voie-presentation">' +
-    '<div class="voie-presentation-tete">' + _reprendreCvPastilleVoie(id) + '<i class="bi ' + v.icone + '" aria-hidden="true"></i><strong>' + v.titre + '</strong></div>' +
-    '<p class="voie-presentation-phrase"><strong>' + v.mode + '</strong> ' + v.phrase + ' <span class="small" style="color:var(--text-muted);">' + situation + '</span></p>' +
-    // Vidéo de cette voie (lot E) : maj -> reprendre-garder, reformuler -> reprendre-reformuler, sans -> reprendre-sans.
-    (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(id === 'maj' ? 'reprendre-garder' : 'reprendre-' + id) : '') +
-    '<ul class="mb-0" style="padding-left:1.25rem;">' + listeHtml + '</ul></div>';
+  // Vidéo de cette voie (lot E) : maj -> reprendre-garder, reformuler -> reprendre-reformuler, sans -> reprendre-sans.
+  return _htmlVoiePresentation({ pastille: 'Voie ' + v.num, icone: v.icone, titre: v.titre, mode: v.mode, phrase: v.phrase, situation: situation,
+    video: id === 'maj' ? 'reprendre-garder' : 'reprendre-' + id, listeHtml: listeHtml });
 }
 function _reprendreCvPastilleVoie(id) { return '<span class="carte-voie-num">Voie ' + _reprendreCvVoie(id).num + '</span>'; }
 // Les deux parcours de « Lettre et entretien en version rapide » : source unique du nom, de la phrase et de la pastille, lue par la page de présentation, les cartes de la page de dépôt et
@@ -5418,12 +5874,9 @@ function _pastilleParcoursRapide(id) { return '<span class="carte-voie-num">Parc
 // Un parcours rapide dans la page de présentation : même pastille, même nom et même phrase que sa carte de la page de dépôt (lus dans PARCOURS_RAPIDES).
 function _htmlParcoursRapidePresentation(id, situation, listeHtml) {
   var p = _parcoursRapideDef(id);
-  return '<div class="voie-presentation">' +
-    '<div class="voie-presentation-tete">' + _pastilleParcoursRapide(id) + '<i class="bi ' + p.icone + '" aria-hidden="true"></i><strong>' + p.titre + '</strong></div>' +
-    '<p class="voie-presentation-phrase"><strong>' + p.mode + '</strong> ' + p.phrase + ' <span class="small" style="color:var(--text-muted);">' + situation + '</span></p>' +
-    // Vidéo de ce parcours (lot E) : pret-lettre, pret-entretien.
-    (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation('pret-' + id) : '') +
-    '<ul class="mb-0" style="padding-left:1.25rem;">' + listeHtml + '</ul></div>';
+  // Vidéo de ce parcours (lot E) : pret-lettre, pret-entretien.
+  return _htmlVoiePresentation({ pastille: 'Parcours ' + p.num, icone: p.icone, titre: p.titre, mode: p.mode, phrase: p.phrase, situation: situation,
+    video: 'pret-' + id, listeHtml: listeHtml });
 }
 function titreParcoursRapide(id) {
   var p = id && _parcoursRapideDef(id);
@@ -5499,29 +5952,43 @@ var CREER_CV_NAV_ETAPES = [
 var CREER_CV_NAV_ETAPES_SANS = CREER_CV_NAV_ETAPES.filter(function (e) { return e.label !== 'Assistant'; });
 // Seulement dans le parcours « Creer un nouveau CV » : le drapeau ne doit jamais changer un autre parcours de la meme session.
 function _creerCvSansAssistant() { return !!(typeof dossier !== 'undefined' && dossier && dossier.modeCreation === 'nouveau' && dossier.creationSansAssistant); }
-function _creerCvEtapes() { return _creerCvSansAssistant() ? CREER_CV_NAV_ETAPES_SANS : CREER_CV_NAV_ETAPES; }
+// Etape « Vos missions et compétences » (chantier du 14/11/2026, plan docs/PLAN_DE_CODAGE_MISSIONS_COMPETENCES_2026-11-14.md, lot 3) : entre « Votre parcours » et « Votre profil ».
+// Elle n'existe QUE tant que l'interrupteur MC_OUVERT (modules/missions-competences/logique.js) est vrai : fermé, les quatre listes ci-dessous donnent exactement le parcours d'avant.
+var CREER_CV_ETAPE_MC = { label: 'Vos missions et compétences', icone: '&#129520;' };
+function _creerCvAvecEtapeMC(liste) { return liste.slice(0, 3).concat([CREER_CV_ETAPE_MC], liste.slice(3)); }
+var CREER_CV_NAV_ETAPES_MC = _creerCvAvecEtapeMC(CREER_CV_NAV_ETAPES);
+var CREER_CV_NAV_ETAPES_SANS_MC = _creerCvAvecEtapeMC(CREER_CV_NAV_ETAPES_SANS);
+// Les quatre listes : _barreEtapesMaxAtteint (js/app.js) range la progression par liste (identite de l'objet), les remises a zero les oublient toutes.
+var CREER_CV_NAV_LISTES = [CREER_CV_NAV_ETAPES, CREER_CV_NAV_ETAPES_SANS, CREER_CV_NAV_ETAPES_MC, CREER_CV_NAV_ETAPES_SANS_MC];
+function _creerCvOublierProgressionBarre() {
+  if (typeof _barreEtapesMaxAtteint === 'undefined') { return; }
+  CREER_CV_NAV_LISTES.forEach(function (l) { _barreEtapesMaxAtteint.delete(l); });
+}
+function _creerCvMcOuvert() { return typeof mcActifPourCeCv === 'function' ? mcActifPourCeCv() : (typeof MC_OUVERT !== 'undefined' && MC_OUVERT === true); }   // consigne 401 : faux si la personne a choisi « l'assistant »
+// Liste des etapes pour « avec » ou « sans » assistant, etape missions et competences comprise si elle est ouverte (introduction du parcours, barre).
+function _creerCvListeEtapes(sans) {
+  if (_creerCvMcOuvert()) { return sans ? CREER_CV_NAV_ETAPES_SANS_MC : CREER_CV_NAV_ETAPES_MC; }
+  return sans ? CREER_CV_NAV_ETAPES_SANS : CREER_CV_NAV_ETAPES;
+}
+function _creerCvEtapes() { return _creerCvListeEtapes(_creerCvSansAssistant()); }
+// Routes dans l'ordre des etapes de la barre (une route par etape) : source unique de l'index ET de la route (plus de tables a tenir en parallele).
+function _creerCvRoutes() {
+  var r = ['objectif', 'projet', 'votre-parcours'];
+  if (_creerCvMcOuvert()) { r.push('missions-competences'); }
+  r.push('revelation');
+  // TACHE (refonte parcours guide, etape 5, sous-etape 5.1) : "Assistant" est une vraie page (route 'assistant', pageAssistant()) pour le parcours 'nouveau' avec assistant.
+  if (!_creerCvSansAssistant()) { r.push('assistant'); }
+  r.push('resultats');
+  return r;
+}
+// Routes voisines de la nouvelle etape : « Continuer » de « Votre parcours » et « Retour » de « Votre profil ».
+function _creerCvRouteApresParcours() { return _creerCvMcOuvert() ? 'missions-competences' : 'revelation'; }
+function _creerCvRouteAvantProfil() { return _creerCvMcOuvert() ? 'missions-competences' : 'votre-parcours'; }
 function _creerCvNavIndex(activeId) {
-  if (_creerCvSansAssistant()) {
-    switch (activeId) {
-      case 'projet': return 1;
-      case 'votre-parcours': return 2;
-      case 'revelation': case 'assistant': return 3;
-      case 'resultats': return 4;
-      default: return 0;
-    }
-  }
-  switch (activeId) {
-    case 'objectif': return 0;
-    case 'projet': return 1;
-    case 'votre-parcours': return 2;
-    case 'revelation': return 3;
-    // TACHE (refonte parcours guide, etape 5, sous-etape 5.1) : "Assistant"
-    // devient une vraie page (route 'assistant', pageAssistant()) pour le
-    // parcours 'nouveau'. Le jalon d'index 4 mene desormais quelque part.
-    case 'assistant': return 4;
-    case 'resultats': return 5;
-    default: return 0;
-  }
+  var routes = _creerCvRoutes(), i = routes.indexOf(activeId);
+  // Sans assistant, la page 'assistant' (si on y arrive) reste sur le repere « Votre profil ».
+  if (i < 0 && activeId === 'assistant') { i = routes.indexOf('revelation'); }
+  return i < 0 ? 0 : i;
 }
 // Inverse de _creerCvNavIndex ci-dessus (index -> route). Source unique
 // partagee entre la barre d'etapes cliquable (afficherProgression() dans
@@ -5537,16 +6004,7 @@ function _creerCvNavIndex(activeId) {
 // entretien restent verrouilles jusqu'a cvTermine/lettreTerminee), donc
 // aucune ambiguite sur le document a rouvrir.
 function _creerCvRouteParIndex(i) {
-  if (_creerCvSansAssistant()) { return ['objectif', 'projet', 'votre-parcours', 'revelation', 'resultats'][i] || null; }
-  switch (i) {
-    case 0: return 'objectif';
-    case 1: return 'projet';
-    case 2: return 'votre-parcours';
-    case 3: return 'revelation';
-    case 4: return 'assistant';
-    case 5: return 'resultats';
-    default: return null;
-  }
+  return _creerCvRoutes()[i] || null;
 }
 // Route de l'ecran d'intro du parcours en cours.
 function _prepLERouteActuelle() {
@@ -5641,6 +6099,8 @@ function pagePreparerLettreEntretien() {
 function pageMettreAJourCv() {
   _prepLEMode = 'maj';
   _reprendreCvActif = false;
+  // Consigne 408 (lot 3) : toute arrivee directe sur la page de depot de la voie 1 passe aussi par la question (une seule fois pour ce parcours).
+  if (!_prepLEDetour && typeof missionsChoixAPoserReprise === 'function' && missionsChoixAPoserReprise()) { if (_cmVoie !== 'maj') { _cmChoix = null; _cmConfirmation = false; } _cmVoie = 'maj'; pageChoixMissions(); return; }
   if (_prepLEDetour) { _majCvRendreIntro(); return; }
   if (_prepLEEcran === 'depot') { _prepLERendreDepot(); return; }
   var cvEnMemoireMaj = !!(_prepLEEtat && _prepLEEtat.cvTexte && _prepLEEtat.relectureFaite);
@@ -5683,7 +6143,7 @@ function _reprendreCvChoisirVoie(voie) {
   if (voie === 'maj') {
     _prepLEMode = 'maj'; _prepLEEcran = 'depot';   // Lot 4a : les cartes d'objectif d'abord, le premier passage chez l'assistant ensuite
     if (typeof trackEvenement === 'function') { trackEvenement('reprendre_cv_voie', { voie: 'garder' }); trackEvenement('mettre_a_jour_cv_vers_assistant'); }
-    naviguerVers('mettre-a-jour-cv');
+    naviguerVers(typeof _reprendreCvRouteVoie1 === 'function' ? _reprendreCvRouteVoie1() : 'mettre-a-jour-cv');   // consigne 408 (lot 3) : la question « qui choisit les missions » vient d'abord
   } else if (voie === 'reformuler') {
     _prepLEMode = 'reformuler'; _prepLEEcran = 'depot';
     if (typeof trackEvenement === 'function') { trackEvenement('reprendre_cv_voie', { voie: 'reformuler' }); }
@@ -5702,7 +6162,7 @@ function _reprendreCvRendreIntro() {
   var syntheseHTML = '';
   var actionsSynthese = [];
   if (!_prepLEDetour && travailEnCours) {
-    syntheseHTML = _introBlocReprise('Vous avez déjà déposé votre CV.', 'btnReprendreCvContinuer', 'btnReprendreCvRecommencer', 'Continuer');
+    syntheseHTML = _introBlocReprise('Vous avez déjà déposé votre CV.', 'btnReprendreCvContinuer', 'btnReprendreCvRecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnReprendreCvContinuer',
       action: function () {
@@ -5839,7 +6299,7 @@ function _prepLERendreIntro() {
     } else {
       syntheseHTML = _introBlocReprise(
         (docActifPret === 'entretien' ? 'Vous avez commencé votre préparation d’entretien.' : 'Vous avez commencé à préparer votre ' + libelleDocPret + '.'),
-        'btnPrepLEReprendreDoc', 'btnPrepLERecommencerDoc', 'Continuer');
+        'btnPrepLEReprendreDoc', 'btnPrepLERecommencerDoc', 'Reprendre');
       actionsSynthese.push({ id: 'btnPrepLEReprendreDoc', action: function () { naviguerVers(_routeRepriseDuParcours('pret', 'resultats')); } });
       actionsSynthese.push({
         id: 'btnPrepLERecommencerDoc',
@@ -5865,7 +6325,7 @@ function _prepLERendreIntro() {
     var pretDejaStructure = !!(dossier.modeCreation === 'pret' && _prepLEMode === 'pret');
     syntheseHTML = _introBlocReprise(
       'Vous avez commencé à préparer votre lettre et votre entretien.',
-      'btnPrepLEReprendre', 'btnPrepLERecommencer', 'Continuer');
+      'btnPrepLEReprendre', 'btnPrepLERecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnPrepLEReprendre',
       action: function () {
@@ -6047,7 +6507,7 @@ function _majCvRendreIntro() {
     } else {
       syntheseHTML = _introBlocReprise(
         'Votre CV a été récupéré. Vous pouvez continuer à le mettre à jour.',
-        'btnMajCvVoirCvReprendre', 'btnMajCvVoirCvRecommencer', 'Continuer');
+        'btnMajCvVoirCvReprendre', 'btnMajCvVoirCvRecommencer', 'Reprendre');
       actionsSynthese.push({ id: 'btnMajCvVoirCvReprendre', action: function () { naviguerVers(_routeRepriseDuParcours('maj', 'resultats')); } });
       actionsSynthese.push({
         id: 'btnMajCvVoirCvRecommencer',
@@ -6077,7 +6537,7 @@ function _majCvRendreIntro() {
     var majDejaStructure = !!(dossier.modeCreation === 'maj' && dossier._modeCreationVia === 'maj');
     syntheseHTML = _introBlocReprise(
       'Vous avez commencé à mettre à jour votre CV.',
-      'btnMajCvReprendre', 'btnMajCvRecommencer', 'Continuer');
+      'btnMajCvReprendre', 'btnMajCvRecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnMajCvReprendre',
       action: function () {
@@ -6112,6 +6572,7 @@ function _majCvRendreIntro() {
   }
   var config = {
     carteRetour: 'mesdocuments',
+    routeRetour: 'reprendre-cv',   // protocole de test 11/11/2026 (D3) : « Retour » ramène à la page commune « Reprendre mon CV », pas à la fenêtre « Mes documents »
     detour: _prepLEDetour,
     detourLogo: 'bi-pencil-square',
     detourBoutonId: 'btnMajCvRevenirModuleHaut',
@@ -6121,7 +6582,7 @@ function _majCvRendreIntro() {
     syntheseHTML: syntheseHTML,
     actionsSynthese: actionsSynthese,
     ctaMasque: (!_prepLEDetour && (travailEnCours || cvMaj)),
-    titre: '<i class="bi bi-pencil-square"></i> Mettre à jour mon CV',
+    titre: '<i class="bi bi-pencil-square"></i> Le garder et le compléter',
     sousTitre: 'On repart de votre CV existant. On en récupère les informations, vous les mettez à jour et les complétez, puis vous choisissez la présentation.',
     etapes: MAJ_CV_NAV_ETAPES,
     video: 'reprendre-garder',
@@ -6139,7 +6600,8 @@ function _majCvRendreIntro() {
         _introBlocEncart('&#128196;', '<strong>La mise en page de votre CV d’origine n’est pas conservée.</strong> L’application en récupère les <strong>informations</strong>, les met à jour et les complète, puis vous les propose dans l’un de nos modèles (PDF ou Word), que vous choisissez. Si aucun ne vous convient, vous pouvez copier le texte et le mettre en forme sur une autre plateforme. Vous n’êtes jamais bloqué.')) +
       _introBlocSection('&#128203; Ce qui va se passer',
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
-        '<li>Vous déposez votre CV (fichier, copier-coller, photo ou scan) puis vous relisez, corrigez si besoin, et masquez ce que vous ne voulez pas transmettre.</li>' +
+        '<li>Vous déposez votre CV une seule fois, dans « Reprendre mon CV » (fichier, copier-coller, photo ou scan), puis vous relisez, corrigez si besoin, et masquez ce que vous ne voulez pas transmettre.</li>' +
+        '<li>Vous dites pourquoi vous faites ce CV (votre objectif) : cela permet d’adapter le vocabulaire de vos compétences.</li>' +
         '<li>Un assistant en ligne en ressort vos informations : expériences, compétences, formations.</li>' +
         '<li>Vous arrivez directement à l’étape de correction du contenu, champ par champ.</li>' +
         '<li>Vous choisissez la mise en forme et vous exportez.</li>' +
@@ -6340,7 +6802,7 @@ function _reformulerCvRendreEchange() {
 
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, etapeBarre) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Préparer', assistantChoisi ? SOUS_TITRE_ECHANGE_ASSISTANT_CHOISI : 'Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.') +
+    htmlTitreEtapeModule('bi-brush', 'Le reformuler et le présenter', 'Préparer', assistantChoisi ? SOUS_TITRE_ECHANGE_ASSISTANT_CHOISI : 'Votre CV part chez l’assistant de votre choix, puis vous revenez coller sa réponse ici. Tout se passe sur cette page.') +
     blocA + blocB +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: '_reformulerCvRetourDepot()' }) + '</div>';
@@ -6920,7 +7382,7 @@ function _reformulerCvRendreVerifier() {
   if (parse.pasUnCv) {
     app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
       barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) +
-      htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Vérifier la réponse de l’assistant') +
+      htmlTitreEtapeModule('bi-brush', 'Le reformuler et le présenter', 'Vérifier la réponse de l’assistant') +
       '<div class="reformuler-encart reformuler-encart-alerte">' +
       '<strong>L’assistant n’a pas reconnu un CV.</strong> Ce qu’il a lu ressemble plutôt à : ' +
       echapperAttribut(parse.pasUnCv) + '.<br>' +
@@ -6973,7 +7435,7 @@ function _reformulerCvRendreVerifier() {
 
     app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
       barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-      htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Choisir une version', 'Le fond est le même dans les deux : mêmes expériences, mêmes dates, mêmes diplômes. ' +
+      htmlTitreEtapeModule('bi-brush', 'Le reformuler et le présenter', 'Choisir une version', 'Le fond est le même dans les deux : mêmes expériences, mêmes dates, mêmes diplômes. ' +
       'Seules la formulation et la mise en ordre changent.') +
       (typeof htmlBlocPassagesDePage === 'function' ? htmlBlocPassagesDePage('reformuler') : '') +
       alerteIncomplet +
@@ -7023,7 +7485,7 @@ function _reformulerCvRendreVerifier() {
 
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 3) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Vérifier la version reformulée', 'Vous avez choisi « ' + (choix === 0 ? 'la plus proche de votre CV' : 'notre version recommandée') + ' ». ' +
+    htmlTitreEtapeModule('bi-brush', 'Le reformuler et le présenter', 'Vérifier la version reformulée', 'Vous avez choisi « ' + (choix === 0 ? 'la plus proche de votre CV' : 'notre version recommandée') + ' ». ' +
     'Le fond n’a pas changé. Vous pouvez tout modifier ici.') +
     (typeof htmlBlocPassagesDePage === 'function' ? htmlBlocPassagesDePage('reformuler') : '') +
     '<div class="reformuler-encart reformuler-encart-resume"><strong>Ce qui a changé</strong><ul>' +
@@ -7430,7 +7892,7 @@ function _reformulerCvRendreSorties() {
   var texte = (_prepLEEtat && _prepLEEtat.cvReformuleFinal) || '';
   app.innerHTML = '<div class="page-catalogue-contenu bilan-preparer">' +
     barreEtapesModule(REFORMULER_CV_NAV_ETAPES, 4) + _prepLEBandeRevoirSurEcran('reformuler-cv') +
-    htmlTitreEtapeModule('bi-brush', 'Reformuler et présenter mon CV', 'Récupérer mon CV', 'Votre CV reformulé est prêt.') +
+    htmlTitreEtapeModule('bi-brush', 'Le reformuler et le présenter', 'Récupérer mon CV', 'Votre CV reformulé est prêt.') +
     '<div class="reformuler-cartes-choix reformuler-cartes-sorties">' +
     // ----- Sortie B (en premier : c'est la suite du parcours) : un de nos modeles, avec le choix du modele comme a la creation du CV -----
     '<div class="reformuler-carte-choix reformuler-carte-suite">' +
@@ -7533,7 +7995,7 @@ function _reformulerCvRendreIntro() {
     syntheseHTML = _introBlocSynthese(
       '&#9999;&#65039; Votre CV reformulé est prêt.',
       [],
-      '<button type="button" id="btnReformulerCvContinuerEtape" class="btn btn-primary">Continuer là où j’en étais</button>' +
+      '<button type="button" id="btnReformulerCvContinuerEtape" class="btn btn-primary">Reprendre là où j’en étais</button>' +
       '<button type="button" id="btnReformulerCvVoirCv" class="btn btn-outline-primary" style="border-radius:12px;">Voir mon CV</button>' +
       '<button type="button" id="btnReformulerCvRecommencerEtape" class="btn btn-recommencer-module">Recommencer</button>'
     );
@@ -7566,7 +8028,7 @@ function _reformulerCvRendreIntro() {
     var reformulerDejaStructure = !!(dossier.modeCreation === 'maj' && dossier._modeCreationVia === 'reformuler');
     syntheseHTML = _introBlocReprise(
       'Vous avez commencé à reformuler votre CV.',
-      'btnReformulerCvReprendre', 'btnReformulerCvRecommencer', 'Continuer');
+      'btnReformulerCvReprendre', 'btnReformulerCvRecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnReformulerCvReprendre',
       action: function () {
@@ -7592,6 +8054,7 @@ function _reformulerCvRendreIntro() {
   }
   var config = {
     carteRetour: 'mesdocuments',
+    routeRetour: 'reprendre-cv',   // protocole de test 11/11/2026 (D3) : « Retour » ramène à la page commune « Reprendre mon CV », pas à la fenêtre « Mes documents »
     detour: _prepLEDetour,
     detourLogo: 'bi-brush',
     detourBoutonId: 'btnReformulerCvRevenirModuleHaut',
@@ -7601,7 +8064,7 @@ function _reformulerCvRendreIntro() {
     syntheseHTML: syntheseHTML,
     actionsSynthese: actionsSynthese,
     ctaMasque: (!_prepLEDetour && (travailEnCours || cvReformule)),
-    titre: '<i class="bi bi-brush"></i> Reformuler et présenter mon CV',
+    titre: '<i class="bi bi-brush"></i> Le reformuler et le présenter',
     sousTitre: 'Votre CV contient tout ce qu’il faut. On garde vos informations telles quelles : on retravaille seulement la formulation, l’ordre et la mise en forme.',
     etapes: REFORMULER_CV_NAV_ETAPES,
     video: 'reprendre-reformuler',
@@ -7619,7 +8082,7 @@ function _reformulerCvRendreIntro() {
         _introBlocEncart('&#128204;', 'La différence avec un assistant en ligne où vous écririez librement : ici, la consigne est <strong>cadrée</strong>. L’assistant n’a pas le droit d’inventer une expérience, un diplôme ou un chiffre. Il reformule ce que vous avez écrit, il ne le remplace pas.')) +
       _introBlocSection('&#128203; Ce qui va se passer',
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
-        '<li>Vous déposez votre CV (fichier, copier-coller, photo ou scan), puis vous relisez et masquez ce que vous ne voulez pas transmettre.</li>' +
+        '<li>Vous déposez votre CV une seule fois, dans « Reprendre mon CV » (fichier, copier-coller, photo ou scan), puis vous relisez et masquez ce que vous ne voulez pas transmettre.</li>' +
         '<li>Vous indiquez <strong>le poste ou le domaine que vous visez</strong> : c’est ce qui permet d’adapter le vocabulaire.</li>' +
         '<li>Un assistant en ligne vous renvoie <strong>deux versions</strong> de votre CV, reformulées et remises en forme : une très proche de votre CV, une autre un peu différente. Vous choisissez.</li>' +
         '<li>Vous relisez la version choisie, en la comparant si besoin avec votre CV d’origine.</li>' +
@@ -7695,11 +8158,8 @@ function _creerCvRecommencer(sansAssistant) {
   // plus bas dans ce fichier) pourrait renvoyer vers une etape avancee
   // (voire "Vos documents") heritee de l'ANCIEN CV termine dans cette meme
   // session, alors que celui-ci recommence de zero.
-  if (typeof _barreEtapesMaxAtteint !== 'undefined' && typeof CREER_CV_NAV_ETAPES !== 'undefined') {
-    _barreEtapesMaxAtteint.delete(CREER_CV_NAV_ETAPES);
-    _barreEtapesMaxAtteint.delete(CREER_CV_NAV_ETAPES_SANS);
-  }
-  naviguerVers('objectif');
+  _creerCvOublierProgressionBarre();
+  naviguerVers(typeof _creerCvRouteDepart === 'function' ? _creerCvRouteDepart() : 'objectif');   // consigne 401 : avec l'assistant, la question « qui choisit les missions » vient d'abord
 }
 // « À partir de mon récit » est le troisième parcours de « Créer un nouveau CV » (F11, 25/10/2026) : un seul parcours à la fois.
 // Fait : le parcours est allé jusqu'au bout (drapeau persistant du module). Commencé : sa session est vivante en mémoire (elle n'est pas dans la disquette).
@@ -7710,10 +8170,7 @@ function _creerCvToutEffacer() {
   if (typeof effacerSauvegarde === 'function') { effacerSauvegarde(); }
   if (typeof viderContenuCVDossier === 'function') { viderContenuCVDossier(); }
   if (typeof fermerDecouverteCompetences === 'function') { fermerDecouverteCompetences(); }
-  if (typeof _barreEtapesMaxAtteint !== 'undefined' && typeof CREER_CV_NAV_ETAPES !== 'undefined') {
-    _barreEtapesMaxAtteint.delete(CREER_CV_NAV_ETAPES);
-    _barreEtapesMaxAtteint.delete(CREER_CV_NAV_ETAPES_SANS);
-  }
+  _creerCvOublierProgressionBarre();
 }
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // « Créer un nouveau CV » (F11, 25/10/2026) : une page des TROIS parcours (route 'creer-cv'), et pour chacun sa page de PRÉSENTATION
@@ -7723,12 +8180,11 @@ function _creerCvToutEffacer() {
 // ---------------------------------------------------------------------------------------------------------------------------------------
 var _creerCvDetour = false;             // la présentation est ouverte par-dessus un écran de travail (consultation : rien n'est perdu, pas d'encart)
 var _creerCvDetourRetourRoute = null;   // l'écran de travail quitté, où « Revenir au module » ramène
-var _creerCvViensDesCartes = false;     // on arrive de la page des trois parcours : le bouton de départ du récit repart d'une page blanche
 function _creerCvRoutePresentation(sans) { return sans ? 'creer-cv-main' : 'creer-cv-assistant'; }
-// « Retour » du premier écran de travail : la présentation du parcours en cours (jamais un détour).
+// « Retour » du premier écran de travail : la page commune des trois façons de faire (consigne 192 / 246 : le départ est direct, la présentation propre à la voie ne s'ouvre que par « Revoir la présentation »).
 function _creerCvAllerPresentation() {
   _creerCvDetour = false; _creerCvDetourRetourRoute = null;
-  naviguerVers(_creerCvRoutePresentation(_creerCvSansAssistant()));
+  naviguerVers('creer-cv');
 }
 // « Revoir la présentation » depuis un écran de travail.
 function _creerCvVoirPresentation(routeEcran) {
@@ -7785,7 +8241,7 @@ function _creerCvSyntheseClassique(sansPour) {
     sortie.actions.push({ id: 'btnCreerCvRecommencerFait', action: function () { _creerCvRecommencerTout('Vous allez repartir d’une page blanche pour ce CV. Votre CV actuel sera perdu.'); } });
   } else if (enCours) {
     sortie.etat = 'cours';
-    sortie.html = _introBlocReprise('Vous avez déjà commencé à créer votre CV.', 'btnCreerCvReprendre', 'btnCreerCvRecommencer', 'Continuer');
+    sortie.html = _introBlocReprise('Vous avez déjà commencé à créer votre CV.', 'btnCreerCvReprendre', 'btnCreerCvRecommencer', 'Reprendre');
     sortie.actions.push({ id: 'btnCreerCvReprendre', action: _creerCvContinuer });
     sortie.actions.push({ id: 'btnCreerCvRecommencer', action: function () { _creerCvRecommencerTout('Vous allez repartir d’une page blanche pour ce CV. Ce que vous avez déjà saisi dans ce parcours sera perdu.'); } });
     if (_creerCvSansAssistant()) {
@@ -7794,6 +8250,72 @@ function _creerCvSyntheseClassique(sansPour) {
     }
   }
   return sortie;
+}
+
+// Les trois façons de faire de « Créer un nouveau CV » : source unique de l'ordre (consigne 246 de Denis : 1 avec l'assistant, 2 à partir de mon récit, 3 à la main, sans assistant),
+// de la pastille, du titre, de la phrase, de la vidéo et du bouton de départ. Lue par la page commune ; les pages propres de chaque voie gardent leurs textes d'origine.
+var CREER_CV_VOIES = [
+  { id: 'assistant', num: 1, icone: 'bi-chat-dots', titre: 'Avec l’assistant en ligne', mode: 'Avec l’assistant.', video: 'creer-assistant',
+    phrase: 'Vous remplissez vos informations, puis l’assistant vous aide à les formuler : phrase d’accroche, missions reformulées.',
+    situation: '« je veux de l’aide pour bien dire les choses »', departId: 'btnCreerCvAvecAssistant', departLibelle: 'Commencer avec l’assistant &#8594;',
+    liste: '<li><strong>Ce que ça fait :</strong> vous remplissez votre objectif, votre parcours et votre projet ; vous copiez un texte, vous le collez chez un assistant en ligne dans un nouvel onglet, puis vous revenez coller sa réponse ici ; vous choisissez un modèle et vous exportez.</li>' +
+      '<li><strong>Pour qui :</strong> pour dire plus clairement ce que vous avez fait, avec une phrase d’accroche et des missions bien formulées.</li>' +
+      '<li><strong>Ce que ça ne fait pas :</strong> rien ne se remplit tout seul : vous validez chaque étape.</li>' },
+  { id: 'recit', num: 2, icone: 'bi-book', titre: 'À partir de mon récit', mode: 'Avec l’assistant.', video: 'creer-recit',
+    phrase: 'Vous racontez ce que vous avez vécu et fait, avec vos mots, et l’assistant en tire vos expériences et vos compétences.',
+    situation: '« je n’ai jamais eu de CV, ou je pars de loin »', departId: 'btnCreerCvRecit', departLibelle: 'Raconter mon parcours &#8594;',
+    liste: '<li><strong>Ce que ça fait :</strong> vous racontez au clavier ou à la voix, sans forme imposée ; l’assistant en tire des expériences et des compétences ; pour chacune, vous choisissez la formulation qui vous ressemble.</li>' +
+      '<li><strong>Pour qui :</strong> un métier, l’aide à des proches, du bénévolat, une passion suivie longtemps : tout cela contient des compétences. Pour qui n’a jamais eu de CV ou repart de loin.</li>' +
+      '<li><strong>Ce que ça ne fait pas :</strong> inventer quoi que ce soit : une compétence n’apparaît que si elle vient de votre récit.</li>' },
+  { id: 'main', num: 3, icone: 'bi-pencil', titre: 'À la main, sans assistant', mode: 'Sans assistant.', video: 'creer-main',
+    phrase: 'Vous écrivez vous-même vos informations, étape par étape. Rien n’est envoyé nulle part.',
+    situation: '« je veux garder la main sur chaque mot »', departId: 'btnCreerCvSansAssistant', departLibelle: 'Commencer à la main &#8594;',
+    liste: '<li><strong>Ce que ça fait :</strong> vous écrivez vous-même votre objectif, votre parcours et votre projet, puis vous choisissez un modèle et vous exportez.</li>' +
+      '<li><strong>Pour qui :</strong> pour celles et ceux qui veulent garder la main sur chaque mot et qui ont le temps de tout écrire : c’est la voie la plus longue.</li>' +
+      '<li><strong>Ce que ça ne fait pas :</strong> aucune phrase d’accroche toute faite, aucune reformulation ; rien n’est envoyé nulle part.</li>' }
+];
+function _creerCvVoie(id) { return CREER_CV_VOIES.filter(function (v) { return v.id === id; })[0]; }
+// Un bloc de voie de la page commune. `depart` : 'bouton' (premier choix), ou une phrase qui remplace le bouton quand un CV est déjà commencé ou terminé (un seul parcours à la fois).
+function _creerCvVoiePresentation(id, depart) {
+  var v = _creerCvVoie(id);
+  var departHTML = (depart === 'bouton')
+    ? '<button type="button" class="btn btn-primary" id="' + v.departId + '">' + v.departLibelle + '</button>'
+    : '<p class="small mb-0" style="color:var(--text-muted);">' + depart + '</p>';
+  return _htmlVoiePresentation({ id: id, pastille: 'Voie ' + v.num, icone: v.icone, titre: v.titre, mode: v.mode, phrase: v.phrase, situation: v.situation,
+    video: v.video, listeHtml: v.liste, departHTML: departHTML });
+}
+// La section des trois voies. `voieEngagee` : l'id de la voie du CV commencé ou terminé (null au premier choix) ; `fait` : ce CV est terminé.
+function _creerCvSectionVoies(voieEngagee, fait) {
+  var blocs = CREER_CV_VOIES.map(function (v) {
+    var depart = 'bouton';
+    if (voieEngagee) {
+      depart = (v.id === voieEngagee)
+        ? (fait ? 'C’est la façon de faire de votre CV actuel.' : 'Vous avez déjà commencé par cette voie : utilisez « Continuer » ci-dessus.')
+        : 'Pour changer de façon de faire, utilisez « Recommencer » ci-dessus.';
+    }
+    return _creerCvVoiePresentation(v.id, depart);
+  }).join('');
+  return _introBlocSection('&#129517; Trois façons de faire, chacune avec sa spécificité',
+    '<p class="mb-2">Choisissez celle qui correspond à votre situation. ' +
+    (voieEngagee ? 'Vous pouvez revoir chaque présentation sans rien changer à votre CV.' : 'Chaque bouton vous mène <strong>directement</strong> dans le parcours.') + '</p>' + blocs);
+}
+// Départ direct de la voie « À partir de mon récit » : une seule fonction pour le bouton de la page commune (page blanche) et le bouton de la page propre de la voie.
+// apres (facultatif) : ce qui suit le demarrage de la session (l'ecran « Candidater » y remet l'objectif deja choisi).
+function _creerCvDemarrerRecit(pageBlanche, apres) {
+  // Un seul parcours à la fois : arrivé par la recherche avec un CV « à la main » commencé, on ne mêle pas les deux (les drapeaux de l'autre parcours sont remis à zéro ; le contenu déjà saisi reste, comme avant).
+  if (pageBlanche && !_creerCvRecitEnCours()) {
+    // Arrivé de la page commune : page blanche pour ce parcours (comme les deux autres départs).
+    _creerCvToutEffacer();
+    if (typeof trackEvenement === 'function') { trackEvenement('mode_creation_choisi', { mode: 'recit' }); }
+  }
+  if (!_creerCvRecitEnCours() && dossier.modeCreation === 'nouveau') { dossier.modeCreation = null; dossier.creationSansAssistant = false; }
+  var demarrer = function () {
+    if (typeof demarrerDecouverteCompetences === 'function') { demarrerDecouverteCompetences(); }
+    if (typeof apres === 'function') { apres(); }
+  };
+  // Consigne 408 (lot 4) : une NOUVELLE session du recit commence par la question « qui choisit les missions » ; elle ne demarre qu'apres la reponse.
+  if (typeof _decouverteRenduEtape !== 'function' && typeof missionsChoixPourRecit === 'function' && missionsChoixPourRecit(demarrer)) { return; }
+  demarrer();
 }
 
 // Deux blocs communs à la présentation du module « Créer un nouveau CV » et à celle de chacun de ses parcours (une seule source, jamais recopiés).
@@ -7814,8 +8336,8 @@ function _creerCvPresentationModuleHaut() {
   return _introBlocAccroche('<strong>Rien n’est jamais envoyé sans votre accord.</strong> Vous verrez chaque étape avant qu’elle se produise, et vous pourrez tout modifier.') +
     _introBlocSection('&#127919; À quoi ça sert',
       '<p class="mb-2">Construire un CV complet à partir d’une page blanche : vos expériences, vos compétences, votre projet. À la fin, vous obtenez un CV prêt à enregistrer en PDF ou en Word.</p>' +
-      '<p class="mb-2">Vous choisissez ensuite <strong>votre façon de faire</strong> : tout écrire vous-même, être aidé par un assistant en ligne, ou raconter votre parcours si vous n’avez jamais eu de CV.</p>' +
-      _introBlocEncart('&#128196;', 'Les modèles de mise en page sont les nôtres (PDF et Word). S’ils ne correspondent pas à ce que vous cherchez, vous pouvez à tout moment <strong>copier le texte de votre CV</strong> et le mettre en forme sur une autre plateforme de création de CV. Vous n’êtes jamais bloqué.'));
+      '<p class="mb-2">Vous choisissez ensuite <strong>votre façon de faire</strong> : être aidé par un assistant en ligne, raconter votre parcours si vous n’avez jamais eu de CV, ou tout écrire vous-même.</p>' +
+      _introBlocEncart('&#128196;', 'Les modèles de mise en page sont les nôtres (PDF et Word). Si vous en gardez un avant de commencer, il sera <strong>utilisé tel quel pour fabriquer votre CV</strong>, avec votre texte : vous pourrez ensuite le modifier si vous le voulez. S’ils ne correspondent pas à ce que vous cherchez, vous pouvez à tout moment <strong>copier le texte de votre CV</strong> et le mettre en forme sur une autre plateforme de création de CV. Vous n’êtes jamais bloqué.'));
 }
 function _creerCvPresentationModuleBas() {
   return _introBlocSection('&#128683; Ce que ce module ne fait pas',
@@ -7872,7 +8394,7 @@ function _creerCvPresentationRendre(sans) {
     titre: sans ? '<i class="bi bi-pencil"></i> Créer mon CV à la main, sans assistant' : '<i class="bi bi-chat-dots"></i> Créer mon CV avec l’assistant en ligne',
     sousTitre: sans ? 'Vous écrivez vous-même vos informations, étape par étape. Rien n’est envoyé nulle part.' : 'Vous remplissez vos informations, puis un assistant en ligne vous aide à les formuler.',
     video: sans ? 'creer-main' : 'creer-assistant',
-    etapes: sans ? CREER_CV_NAV_ETAPES_SANS : CREER_CV_NAV_ETAPES,
+    etapes: _creerCvListeEtapes(sans),
     ctaId: 'btnCreerCvCommencer',
     ctaLabel: 'Commencer mon CV &#8594;',
     ctaMasque: !!synth.etat,
@@ -7888,14 +8410,17 @@ function pageCreerCvMain() { _creerCvPresentationRendre(true); }
 function pageCreerCvAssistant() { _creerCvPresentationRendre(false); }
 
 function pageCreerCv() {
-  _creerCvDetour = false; _creerCvDetourRetourRoute = null; _creerCvViensDesCartes = false;
+  _creerCvDetour = false; _creerCvDetourRetourRoute = null;
   var recitFait = _creerCvRecitFait();
   var recitEnCours = _creerCvRecitEnCours();
   var classique = _creerCvSyntheseClassique(null);
   var syntheseHTML = '';
   var actionsSynthese = [];
+  // La voie du CV commencé ou terminé (un seul parcours à la fois) : null au premier choix.
+  var voieEngagee = null;
   if (recitFait) {
     // « À partir de mon récit » est allé au bout : le CV est prêt (même bandeau que le CV fait à la main).
+    voieEngagee = 'recit';
     syntheseHTML = _introBlocReprise(
       '&#128161; Votre CV est prêt : vous l’avez construit à partir de votre récit.',
       'btnCreerCvRecitVoir', 'btnCreerCvRecitRecommencerFait', 'Voir mon CV');
@@ -7903,41 +8428,32 @@ function pageCreerCv() {
     actionsSynthese.push({ id: 'btnCreerCvRecitRecommencerFait', action: _creerCvRecitRecommencer });
   } else if (recitEnCours) {
     // Session vivante : « Continuer » rouvre l'étape quittée, sans le second encart de reprise du module.
+    voieEngagee = 'recit';
     syntheseHTML = _introBlocReprise(
       'Vous avez déjà commencé à créer votre CV à partir de votre récit.',
-      'btnCreerCvRecitContinuer', 'btnCreerCvRecitRecommencer', 'Continuer');
+      'btnCreerCvRecitContinuer', 'btnCreerCvRecitRecommencer', 'Reprendre');
     actionsSynthese.push({ id: 'btnCreerCvRecitContinuer', action: function () { if (typeof decouverteRepriseContinuer === 'function') { decouverteRepriseContinuer(); } else { naviguerVers('decouverte'); } } });
     actionsSynthese.push({ id: 'btnCreerCvRecitRecommencer', action: _creerCvRecitRecommencer });
   } else if (classique.etat) {
+    voieEngagee = _creerCvSansAssistant() ? 'main' : 'assistant';
     syntheseHTML = classique.html;
     actionsSynthese = classique.actions;
-  } else {
-    // Premier choix : trois parcours. Un clic ouvre la PRÉSENTATION du parcours (le départ est dans la barre du bas de cette page).
-    syntheseHTML = '<div class="cv-section"><h2 style="font-size:1.1rem;">Comment voulez-vous faire votre CV ?</h2>' +
-      '<div class="grille-objectif">' +
-      '<button type="button" class="carte-objectif" id="btnCreerCvSansAssistant"><i class="bi bi-pencil" aria-hidden="true"></i>' +
-      '<span class="carte-objectif-titre">À la main, sans assistant</span><span class="carte-objectif-desc">Vous écrivez vous-même vos informations, étape par étape. Rien n’est envoyé nulle part. Vos textes restent exactement les vôtres.</span></button>' +
-      '<button type="button" class="carte-objectif" id="btnCreerCvAvecAssistant"><i class="bi bi-chat-dots" aria-hidden="true"></i>' +
-      '<span class="carte-objectif-titre">Avec l’assistant en ligne</span><span class="carte-objectif-desc">Vous remplissez vos informations, puis l’assistant vous aide à les formuler : phrase d’accroche, missions reformulées.</span></button>' +
-      '<button type="button" class="carte-objectif" id="btnCreerCvRecit"><i class="bi bi-book" aria-hidden="true"></i>' +
-      '<span class="carte-objectif-titre">À partir de mon récit</span><span class="carte-objectif-desc">Vous racontez ce que vous avez vécu et fait, avec vos mots, au clavier ou à la voix. L’assistant en tire vos expériences et vos compétences. Pour qui n’a jamais eu de CV ou repart de loin.</span></button>' +
-      '</div></div>';
-    actionsSynthese.push({ id: 'btnCreerCvSansAssistant', action: function () { naviguerVers(_creerCvRoutePresentation(true)); } });
-    actionsSynthese.push({ id: 'btnCreerCvAvecAssistant', action: function () { naviguerVers(_creerCvRoutePresentation(false)); } });
-    actionsSynthese.push({ id: 'btnCreerCvRecit', action: function () { _creerCvViensDesCartes = true; naviguerVers('decouverte-intro'); } });
-    // « Voir nos modèles de CV » (modules/cv-modeles-gardes) : sous les cartes, valable pour tous les parcours ; jusqu'à 5 modèles gardés, retrouvés avec le texte de la personne.
+  }
+  var fait = !!(recitFait || classique.etat === 'fait');
+  var haut = _creerCvPresentationModuleHaut();
+  var voies = _creerCvSectionVoies(voieEngagee, fait);
+  var modelesHTML = '';
+  if (!voieEngagee) {
+    // Premier choix : trois façons de faire, chacune avec sa vidéo et son bouton de départ, qui mène DIRECTEMENT dans le parcours (consigne 192 / 246).
+    actionsSynthese.push({ id: 'btnCreerCvAvecAssistant', action: function () { _creerCvRecommencer(false); } });
+    actionsSynthese.push({ id: 'btnCreerCvRecit', action: function () { _creerCvDemarrerRecit(true); } });
+    actionsSynthese.push({ id: 'btnCreerCvSansAssistant', action: function () { _creerCvRecommencer(true); } });
+    // « Voir nos modèles de CV » (modules/cv-modeles-gardes) : sous les trois voies, valable pour toutes ; jusqu'à 5 modèles gardés, retrouvés avec le texte de la personne.
     if (typeof mgHtmlBlocIntro === 'function') {
-      syntheseHTML += mgHtmlBlocIntro();
+      modelesHTML = mgHtmlBlocIntro();
       actionsSynthese = actionsSynthese.concat(mgActionsIntro(pageCreerCv));
     }
   }
-  // Tout en haut : de quoi il s'agit (la personne choisit ensuite une façon de faire).
-  var commentCaSePasse = _introBlocSection('&#128172; Comment ça se passe concrètement',
-    '<ul class="mb-0" style="padding-left:1.25rem;">' +
-    '<li>Vous choisissez une façon de faire : <strong>à la main</strong>, <strong>avec l’assistant en ligne</strong>, ou <strong>à partir de votre récit</strong>. Chacune a sa page de présentation, avec le bouton pour commencer.</li>' +
-    '<li>Si vous le souhaitez, vous commencez par <strong>regarder nos modèles de CV</strong> et vous en gardez jusqu’à 5. Le modèle que vous aurez choisi sera <strong>utilisé tel quel pour fabriquer votre CV</strong>, avec votre texte : vous pourrez ensuite le modifier si vous le voulez.</li>' +
-    '<li>Vous avancez page par page. Une barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez.</li>' +
-    '</ul>');
   var config = {
     carteRetour: 'mesdocuments',
     titre: '<i class="bi bi-stars"></i> Créer un nouveau CV',
@@ -7947,10 +8463,8 @@ function pageCreerCv() {
     ctaLabel: 'Commencer mon CV &#8594;',
     ctaMasque: true,
     sansMultilingue: true,
-    // Un travail déjà commencé ou terminé : son encart « Continuer / Recommencer » reste en tête ; sinon la présentation d'abord, puis le choix des trois façons de faire.
-    syntheseHTML: (recitFait || recitEnCours || classique.etat)
-      ? syntheseHTML + _creerCvPresentationModuleHaut() + commentCaSePasse
-      : _creerCvPresentationModuleHaut() + commentCaSePasse + syntheseHTML,
+    // Un travail déjà commencé ou terminé : son encart « Continuer / Recommencer » reste en tête ; sinon la présentation d'abord, puis les trois façons de faire, puis les modèles.
+    syntheseHTML: voieEngagee ? (syntheseHTML + haut + voies) : (haut + voies + modelesHTML),
     actionsSynthese: actionsSynthese,
     onCta: _creerCvRecommencer,
     blocsHTML: _creerCvPresentationModuleBas()
@@ -8027,6 +8541,7 @@ function _prepLEDepotCfg() {
     texteARelire: (etat.cvTexte && !etat.relectureFaite) ? etat.cvTexte : '',
     nomARelire: 'CV déjà dans l’application',
     raccourciTexte: texteApp,
+    jeNaiPasDeCv: (typeof _candBoutonSansCv === 'function') ? _candBoutonSansCv() : undefined,
     rerender: function () { _prepLERendreDepot(); },
     onDocumentPrepare: function (res) {
       var valeur = res && (res.valeur != null ? res.valeur : res.texte);
@@ -8043,6 +8558,22 @@ function _prepLEDepotCfg() {
   };
 }
 
+// Protocole de test du 11/11/2026 (constat D4) : la raison affichée sous « Continuer » (grisé) dit ce qui manque RÉELLEMENT, avec les mêmes conditions que l'activation du bouton.
+function _prepLERaisonBlocage(c) {
+  var r = [];
+  if (!c.cvPresent) { r.push('déposer votre CV'); } else if (!c.relu) { r.push('relire votre CV'); }
+  if (c.estPret && !c.choixRapide) { r.push('choisir ce que vous voulez préparer'); }
+  if (c.avecObjectif && (!c.estPret || c.choixRapide)) {
+    if (!c.situationConnue) { r.push('choisir votre situation dans la partie « Votre objectif » de cette page'); }
+    else if (c.stageATrancher) { r.push('dire de quel type de stage il s’agit dans la partie « Votre objectif » de cette page'); }
+    else if (!c.reformulerCibleOk) { r.push(c.posteStageManquant ? 'indiquer le métier ou le domaine visé dans la partie « Votre objectif » de cette page' : 'indiquer le métier visé (ou plusieurs métiers) dans la partie « Votre objectif » de cette page'); }
+    else if (c.accesBloque) {
+      // Même condition que celle qui décide, après la réponse de l'assistant, d'envoyer ou non vers l'écran « Votre objectif » (etatAccesRevelation) : le bouton reste grisé tant qu'elle n'est pas remplie, pour éviter ce détour (décision de Denis, 11/11/2026).
+      r.push((typeof metierCibleSaisiSansDomaine === 'function' && metierCibleSaisiSansDomaine()) ? 'choisir le domaine le plus proche de votre métier' : (dossier.typeRecherche || !dossier.modeRecherche ? 'préciser votre recherche dans la partie « Votre objectif » de cette page' : 'dire si vous vous adressez à une entreprise précise ou non'));
+    }
+  }
+  return r.length ? 'Il reste à ' + r.join(' et à ') + '.' : '';
+}
 function htmlPreparerLettreEntretienDepliante() {
   var etat = _prepLEEtat;
   var estReprendre = (_prepLEMode === 'maj' && _reprendreCvActif);   // F9 : entree unique « Reprendre mon CV »
@@ -8070,8 +8601,12 @@ function htmlPreparerLettreEntretienDepliante() {
   var estFormationRef = (objRef === 'formation');
   var stageATrancher = stageFamilleRef && !!dossier._typeStageATrancher;
   var reformulerCibleOk;
-  if (stageFamilleRef) { reformulerCibleOk = !stageATrancher; }
-  else if (objRef === 'alternance') { reformulerCibleOk = true; }
+  // 11/11/2026 (consigne 253) : stage, alternance et immersion exigent le métier ou le domaine visé, saisi ici même (champ « Métier ou domaine visé »), comme sur « Votre objectif » : plus de fenêtre « Aucun métier ciblé » ensuite.
+  var posteStageRequis = !!(stageFamilleRef || objRef === 'alternance');
+  var detailsStageRef = (posteStageRequis && typeof CLE_DETAILS !== 'undefined' && dossier[CLE_DETAILS[objRef]]) || {};
+  var posteStageManquant = posteStageRequis && !stageATrancher && !String(detailsStageRef.poste || '').trim();
+  if (stageFamilleRef) { reformulerCibleOk = !stageATrancher && !posteStageManquant; }
+  else if (objRef === 'alternance') { reformulerCibleOk = !posteStageManquant; }
   else if (estFormationRef) { reformulerCibleOk = true; }  // la formation visee aide l'assistant mais ne bloque pas (comme a la creation de CV)
   else {
     reformulerCibleOk = !!(
@@ -8081,6 +8616,17 @@ function htmlPreparerLettreEntretienDepliante() {
       (rc.reformulerSecteur && rc.reformulerSecteur.trim()));
   }
   var situationConnue = !!(typeof dossier !== 'undefined' && dossier.objectif);
+  // Reformuler n'envoie pas vers « Votre objectif » après l'assistant : seule la mise à jour (Reprendre voie 1) et la version rapide dépendent de etatAccesRevelation().
+  var accesBloque = !estReformuler && avecObjectif && situationConnue && reformulerCibleOk && typeof etatAccesRevelation === 'function' && !etatAccesRevelation().accessible;
+  // Etat de « Continuer » selon que le metier ou le domaine vise (stage, alternance, immersion) est renseigne ou non (source unique du rendu et de la mise a jour en direct).
+  var _prepLEContexteRaison = function (posteManquant) {
+    return { cvPresent: cvPresent, relu: relu, estPret: estPret, choixRapide: choixRapide, avecObjectif: avecObjectif, situationConnue: situationConnue,
+      reformulerCibleOk: reformulerCibleOk || (posteStageManquant && !posteManquant), accesBloque: accesBloque, stageATrancher: stageATrancher, posteStageManquant: posteManquant };
+  };
+  var _prepLEPeutContinuer = function (posteOk) {
+    var cibleOk = posteStageManquant ? (posteOk && true) : reformulerCibleOk;
+    return !!(cvPresent && relu && (!avecObjectif || (cibleOk && situationConnue && !accesBloque)) && (!estPret || choixRapide));
+  };
   var objectifLabel = '';
   if (situationConnue && typeof OBJECTIF_CHOIX_CANDIDATURE !== 'undefined') {
     var o = OBJECTIF_CHOIX_CANDIDATURE.filter(function (x) { return x.id === dossier.objectif; })[0];
@@ -8134,12 +8680,12 @@ function htmlPreparerLettreEntretienDepliante() {
       '<div class="bloc-depli-corps">' +
       // Decision Denis 2026-09-30 : la situation (les six cartes) est choisie ICI, avant le passage a l'assistant, pour qu'il adapte
       // le vocabulaire des competences ; l'ecran « Votre objectif » de la fin du parcours n'est plus montre (voir _reformulerCvVersModele).
-      '<p>Dites pourquoi vous faites ce CV : cela permet à l’assistant d’adapter le vocabulaire de vos compétences. Selon votre choix, quelques questions apparaissent ensuite.</p>' +
-      htmlCartesSituationPartagees('data-prepel-situation') +
+      (objectifDeCandidaterActif() ? '' : '<p>Dites pourquoi vous faites ce CV : cela permet à l’assistant d’adapter le vocabulaire de vos compétences. Selon votre choix, quelques questions apparaissent ensuite.</p>') +
+      htmlCartesSituationOuRappel('data-prepel-situation') +
       // Lot 4a : le composant « Votre candidature » de la lettre, tel quel. Reformuler n'a pas besoin de la civilite du recruteur ni de la couleur de l'entreprise (son prompt ne les lit pas) ;
       // la mise a jour (Reprendre, voie 1) les garde, comme « Votre objectif » du CV. « Vos appuis » n'est plus propose ici (decision de Denis, 28/10/2026) : une seule fois, a « Vos documents ».
       '<div id="prepLEReformulerPanneau" class="mt-3">' +
-      (!objRef ? '' : htmlCandidatureComposant({ sansCiviliteCouleur: estReformuler, avecMetierVise: estReformuler })) +
+      (!objRef ? '' : htmlCandidatureComposant({ sansCiviliteCouleur: estReformuler, avecMetierVise: !(objectifDeCandidaterActif() && posteCibleActuel()) })) +
       '</div>' +
       '</div></details>');
     if (estPret) {
@@ -8267,7 +8813,10 @@ function htmlPreparerLettreEntretienDepliante() {
     // 'reformuler', qui n'ont pas ce choix prealable.
     (estReprendre ? '' :
       '<div class="text-center" style="margin-top:1.4rem;" data-barre-bas-zone>' +
-      '<button type="button" id="btnPrepLEVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="' + (estPret ? 'Déposez et relisez votre CV, choisissez ce que vous voulez préparer, puis renseignez votre objectif.' : (avecObjectif ? 'Déposez et relisez votre CV, puis renseignez votre objectif (l’offre peut rester vide).' : 'Déposez d’abord votre CV, puis relisez-le.')) + '"' + (cvPresent && relu && (!avecObjectif || (reformulerCibleOk && situationConnue)) && (!estPret || choixRapide) ? '' : ' disabled') + '>Continuer &#8594;</button>' +
+      '<button type="button" id="btnPrepLEVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="' + echapperAttribut(_prepLERaisonBlocage(_prepLEContexteRaison(posteStageManquant)) || 'Déposez d’abord votre CV, puis relisez-le.') + '"' +
+        // Stage, alternance, immersion : le bouton suit en direct le champ « Métier ou domaine visé » (voir le câblage plus bas) ; ces attributs donnent l'état « une fois le champ rempli ».
+        (posteStageManquant ? ' data-poste-requis="1" data-peut-si-poste="' + (_prepLEPeutContinuer(true) ? '1' : '0') + '" data-message-si-poste="' + echapperAttribut(_prepLERaisonBlocage(_prepLEContexteRaison(false)) || 'Déposez d’abord votre CV, puis relisez-le.') + '"' : '') +
+        (_prepLEPeutContinuer(!posteStageManquant) ? '' : ' disabled') + '>Continuer &#8594;</button>' +
       '<p class="preparer-detail" style="margin-top:.5rem;">' + (avecObjectif
         ? (estPret ? 'Ce bouton s’active une fois « Votre CV » déposé et relu, votre choix fait, et « Votre objectif » renseigné.' : 'Ce bouton s’active une fois « Votre CV » déposé et relu, et « Votre objectif » renseigné. « L’offre visée » peut rester vide.')
         : 'Ce bouton s’active une fois « Votre CV » déposé et relu.') + '</p>' +
@@ -8366,7 +8915,7 @@ function brancherPreparerLettreEntretienDepliante() {
   // ----- Bloc 3, mode 'reformuler' : panneau Candidature partage (metier ou
   // domaine NECESSAIRE, offre facultative). Ecriture immediate dans les champs
   // globaux ; chaque choix re-rend la page (rendu local, _prepLERendreDepot).
-  if ((_prepLEMode !== 'maj' || !_reprendreCvActif) && typeof wireCandidatureComposant === 'function' && document.querySelector('[data-prepel-situation]')) {
+  if ((_prepLEMode !== 'maj' || !_reprendreCvActif) && typeof wireCandidatureComposant === 'function' && (document.querySelector('[data-prepel-situation]') || document.getElementById('btnModifierObjectif'))) {
     var _objAvant = null;
     if (typeof wireCartesSituationPartagees === 'function') {
       wireCartesSituationPartagees('data-prepel-situation', etat, _prepLERendreDepot,
@@ -8383,6 +8932,17 @@ function brancherPreparerLettreEntretienDepliante() {
   if (bloc4 && typeof bilanCablerCiblageOffre === 'function') { bilanCablerCiblageOffre(bloc4); }
 
   var btnSuite = document.getElementById('btnPrepLEVersAssistant');
+  var champPosteStage = document.getElementById('immPoste');
+  if (btnSuite && champPosteStage && btnSuite.getAttribute('data-poste-requis') === '1') {
+    // La saisie ne re-rend pas la page (le curseur resterait perdu) : le bouton et sa raison se mettent a jour a chaque frappe.
+    var _messageSansPoste = btnSuite.getAttribute('data-barre-bas-message') || '';
+    champPosteStage.addEventListener('input', function () {
+      var rempli = !!champPosteStage.value.trim();
+      var actif = rempli && btnSuite.getAttribute('data-peut-si-poste') === '1';
+      btnSuite.disabled = !actif;
+      btnSuite.setAttribute('data-barre-bas-message', rempli ? (btnSuite.getAttribute('data-message-si-poste') || '') : _messageSansPoste);
+    });
+  }
   if (btnSuite) {
     btnSuite.addEventListener('click', function () {
       if (btnSuite.disabled) { return; }
@@ -8964,24 +9524,7 @@ function ouvrirCarteAccueil(id) {
     var b = document.getElementById(btnId);
     if (b) { b.addEventListener('click', fn); }
   }
-  // TACHE (module Reperes, etape 7 -- signal de decouverte unique) : meme
-  // mecanisme EXACT qu'avant (flag localStorage, jamais redeclenche une fois
-  // vu). Vit ici : c'est l'orchestrateur qui decide de signaler l'existence
-  // d'un module, jamais le module qui le reclame.
-  function pulseDecouverteUneFois(cle, btnId) {
-    try {
-      if (localStorage.getItem(cle)) { return; }
-      var b = document.getElementById(btnId);
-      if (!b) { return; }
-      // Un seul pulse a la fois (relais pt 8) : si une autre sous-carte de
-      // ce panneau pulse deja (1re ouverture avec plusieurs modules
-      // nouveaux), on ne consomme PAS le drapeau -- ce module sera signale
-      // a la prochaine ouverture, un module a la fois.
-      if (document.querySelector('.sous-carte-accueil.aide-pulse-repere')) { return; }
-      localStorage.setItem(cle, '1');
-      b.classList.add('aide-pulse-repere');
-    } catch (e) { /* pas grave */ }
-  }
+  // Aucune tuile de carte ne pulse (decision de Denis, 12/11/2026) : seule la bulle d'information (i) de la carte pulse a la premiere ouverture (brancherInfoCarteAccueil).
 
   // --- Les 6 cartes ouvrent le MEME panneau (fenetre ERIP + sous-cartes),
   // meme quand il n'y a qu'une seule sous-carte : Denis veut une base
@@ -9062,7 +9605,6 @@ function ouvrirCarteAccueil(id) {
   if (overlay) { brancherInfoCarteAccueil(overlay); }
 
   if (id === 'informe') {
-    pulseDecouverteUneFois('aps_mon_territoire_decouverte_vue', 'btnCarteAccueilMonTerritoire');
     brancher('btnCarteAccueilActualites', function () {
       track('se_tenir_informe'); fermerFenetreERIP(); naviguerVers('se-tenir-informe-intro');
     });
@@ -9171,7 +9713,6 @@ function ouvrirCarteAccueil(id) {
   }
 
   if (id === 'preparer') {
-    pulseDecouverteUneFois('aps_employeurs_decouverte_vue', 'btnCarteAccueilEmployeurs');
     brancher('btnCarteAccueilLettre', function () {
       track('co_construire_lettre'); fermerFenetreERIP();
       // TACHE (retour utilisateur 2026-09-17, point 6 : "Continuer/Recommencer
@@ -9205,9 +9746,6 @@ function ouvrirCarteAccueil(id) {
   }
 
   if (id === 'boiteaoutils') {
-    pulseDecouverteUneFois('aps_reperes_decouverte_vue', 'btnCarteAccueilReperes');
-    pulseDecouverteUneFois('aps_carnet_decouverte_vue', 'btnCarteAccueilCarnet');
-    pulseDecouverteUneFois('aps_lexique_decouverte_vue', 'btnCarteAccueilLexique');
     brancher('btnCarteAccueilReperes', function () {
       track('reperes'); fermerFenetreERIP();
       if (typeof reperesDemarrer === 'function') { reperesDemarrer(); }
@@ -9227,8 +9765,6 @@ function ouvrirCarteAccueil(id) {
   }
 
   if (id === 'analyse') {
-    pulseDecouverteUneFois('aps_regard_recruteur_dans_analyse_vue', 'btnCarteAccueilRegardRecruteur');
-    pulseDecouverteUneFois('aps_coherence_transversale_decouverte_vue', 'btnCarteAccueilCoherence');
     brancher('btnCarteAccueilBilan', function () {
       track('bilan_candidature'); fermerFenetreERIP();
       if (typeof demarrerBilanCandidature === 'function') { demarrerBilanCandidature(); }
@@ -9282,6 +9818,15 @@ function ouvrirChoixPreparationAccueil() { ouvrirCarteAccueil('preparer'); }
 // lieu de reafficher silencieusement l'ancien etat -- meme principe deja
 // applique a Decouverte (voir recommencer(), commentaire "reprendre ou
 // repartir de zero"), jamais invente ici pour la premiere fois.
+// Vrai dès qu'un travail est engagé dans « Analyser ma candidature » (candidature déposée, diagnostic reçu, page « Préparer » ou écran de travail ouvert).
+// Source unique : le départ du module (tuile) et le bouton de sa présentation s'y réfèrent, pour reprendre au lieu de repartir de zéro.
+function bilanTravailEnCours() {
+  var candidatureExistante = (typeof bilanObtenirCandidature === 'function') ? bilanObtenirCandidature() : null;
+  var diagnosticExistant = (typeof bilanObtenirDiagnostic === 'function') ? bilanObtenirDiagnostic() : null;
+  var etatEcran = (typeof _etatBilan !== 'undefined' && _etatBilan) ? _etatBilan : {};
+  return !!(candidatureExistante || diagnosticExistant ||
+    etatEcran.preparer || etatEcran.correction || etatEcran.assistance);
+}
 function demarrerBilanCandidature() {
   // TACHE (D5a puis D5b, 2026-08-30, DECISION DE DENIS) : quand un TRAVAIL
   // est en cours (pas seulement une candidature deposee -- inclut l'ecran
@@ -9291,22 +9836,17 @@ function demarrerBilanCandidature() {
   // cours" + boutons "Continuer mon analyse" / "Recommencer a zero"
   // (htmlBilanIntro + brancherEvenementsBilanIntro, js/app.js). Le reset
   // vit dans bilanRecommencerAnalyse() (js/app.js).
-  var candidatureExistante = (typeof bilanObtenirCandidature === 'function') ? bilanObtenirCandidature() : null;
-  var diagnosticExistant = (typeof bilanObtenirDiagnostic === 'function') ? bilanObtenirDiagnostic() : null;
   var etatEcran = (typeof _etatBilan !== 'undefined' && _etatBilan) ? _etatBilan : {};
-  var travailEnCours = !!(candidatureExistante || diagnosticExistant ||
-    etatEcran.preparer || etatEcran.correction || etatEcran.assistance);
-  if (travailEnCours) {
-    // TACHE (chantier "bouton presentation", 2026-09-01, alignement sur
-    // Coherence) : on atterrit au DERNIER ecran de travail, avec l'encart
-    // "Continuer / Recommencer" a droite + module gele (etatEcran.reprise
-    // Pendante) -- plus sur la page de presentation avec un bandeau.
-    if (etatEcran) { etatEcran.reprisePendante = true; etatEcran.voirIntro = null; }
+  if (bilanTravailEnCours()) {
+    // Consigne 258 (12/11/2026) : MEME forme que « Reprendre mon CV ». On atterrit sur la page de
+    // PRESENTATION du module, qui porte le bloc « Reprendre / Recommencer » (htmlBilanIntro, js/app.js) ;
+    // « Reprendre » (barre du bas) rouvre le dernier ecran de travail, sans rien griser.
+    if (etatEcran) { etatEcran.voirIntro = 'normal'; }
     naviguerVers('bilan');
     return;
   }
   // Pas de travail en cours : on nettoie un eventuel detour perime.
-  if (etatEcran) { etatEcran.voirIntro = null; etatEcran.reprisePendante = null; }
+  if (etatEcran) { etatEcran.voirIntro = null; }
   // TACHE (consolidation Bilan, bloc 1.2, Vague 1, 2026-08-30) : premiere
   // entree dans le module (aucune candidature en cours) -> on atterrit sur
   // la page d'introduction (htmlBilanIntro(), js/app.js), dont le bouton
@@ -10178,6 +10718,7 @@ function _prepaEntretienCvDepotCfg() {
     texteFait: texteDoc,
     texteARelire: (doc && !_prepaEntretienCvRelu) ? texteDoc : '',
     nomARelire: 'CV déjà dans l’application',
+    jeNaiPasDeCv: (typeof _candBoutonSansCv === 'function') ? _candBoutonSansCv() : undefined,
     rerender: _prepaEntretienRendrePreparer,
     onDocumentPrepare: function (documentPrepare) {
       if (!documentPrepare) { return; }
@@ -10218,6 +10759,35 @@ function _prepaEntretienLettreDepotCfg(rerender) {
 // candidature, adaptation au metier : 4 blocs deplies, meme mecanique que
 // _coLettreRendreDepot() (auto-avancement par simple re-rendu complet a
 // chaque changement d'etat).
+// Ce qui reste à faire avant de quitter la page « Préparer » (source unique : lue à l'affichage ET à chaque saisie). Même règle que le déverrouillage de « Adaptation au métier » :
+// la partie « Votre candidature » doit être remplie avant que la situation actuelle puisse être indiquée, donc la raison affichée nomme d'abord ce point, jamais une case encore verrouillée.
+function _prepaEntretienRaisonsCta() {
+  var cvPresent = !!_prepaEntretienDocumentCv;
+  var cvRelu = cvPresent && (_prepaEntretienDocumentCv.type === 'image' || _prepaEntretienCvRelu);
+  var lettrePresente = !!(_prepaEntretienDocumentLettre && _prepaEntretienDocumentLettre !== 'skip');
+  var lettreRelue = lettrePresente && _prepaEntretienLettreRelue;
+  var raisons = [];
+  if (!cvPresent) { raisons.push('déposer votre CV'); }
+  else if (!cvRelu) { raisons.push('relire votre CV'); }
+  if (lettrePresente && !lettreRelue) { raisons.push('relire votre lettre de motivation'); }
+  // 25/10/2026 : le type de candidature est nécessaire (la synthèse le montre), comme pour la lettre.
+  if (!dossier.objectif) { raisons.push('choisir le type de candidature dans « Votre candidature »'); }
+  else if ((dossier.objectif === 'stage' || dossier.objectif === 'pmsmp') && dossier._typeStageATrancher) { raisons.push('dire de quel type de stage il s’agit'); }
+  else if (typeof raisonsBlocageObjectifCV === 'function') { raisons = raisons.concat(raisonsBlocageObjectifCV()); }
+  if (!dossier.situationActuelle) { raisons.push('indiquer votre situation actuelle dans « Adaptation au métier »'); }
+  return raisons;
+}
+// Met à jour le bouton « Continuer » (page et barre du bas) sans redessiner la page : appelée à chaque saisie dans « Votre candidature ».
+function _prepaEntretienMajCta() {
+  _prepaEntretienAppliquerVerrous();
+  var b = document.getElementById('btnPrepaVersAssistant');
+  if (!b) { return; }
+  var raisons = _prepaEntretienRaisonsCta();
+  var message = raisons.length ? 'Il reste à ' + raisons.join(' et à ') + '.' : '';
+  b.disabled = raisons.length > 0;
+  b.setAttribute('data-barre-bas-message', message);
+  if (raisons.length) { b.setAttribute('title', message); } else { b.removeAttribute('title'); }
+}
 function _prepaEntretienRendrePreparer() {
   _coLettreNormaliserCarteOffre();   // E1.1 : meme normalisation de la carte « offre » que la page de la lettre (generique)
   var cvPresent = !!_prepaEntretienDocumentCv;
@@ -10283,9 +10853,10 @@ function _prepaEntretienRendrePreparer() {
     '<details class="bloc-depli' + (candidatureRenseignee ? ' bd-ok' : '') + '" id="prepaEntretienBlocCible"' + (ouvertBlocDepliManuel(_prepaEntretienEtatPreparer, 'blocCible', cvPresent && cvRelu && !etapeCleCandidatureFranchie) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">2</span><span class="preparer-titre">Votre candidature</span>' +
     '<span class="preparer-oblig">à compléter</span>' +
-    '<span class="pilule-etat ' + (candidatureRenseignee ? 'pe-ok">Renseigné' : 'pe-info">À compléter &middot; conseillé si vous l’avez') + '</span></summary>' +
+    '<span class="pilule-etat ' + (candidatureRenseignee ? 'pe-ok">Renseigné' : 'pe-info">À compléter &middot; nécessaire pour continuer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    '<p>Un entretien se prépare pour un poste et une entreprise précis. Plus vous en dites ici, plus la préparation sera ciblée ; sans cela, elle reste plus générale. Tout est à compléter, mais rien n’est bloquant.</p>' +
+    '<p>Un entretien se prépare pour un poste et une entreprise précis. Plus vous en dites ici, plus la préparation sera ciblée ; sans cela, elle reste plus générale. Ce qui est nécessaire pour continuer est dit sous le bouton « Continuer » ; tout le reste est à compléter, mais n’est pas bloquant.</p>' +
+    (objectifDeCandidaterActif() ? htmlRappelObjectifCandidater() : (
     '<p class="mb-2">Quel type de candidature préparez-vous ?</p>' +
     '<div class="grille-objectif">' +
     OBJECTIF_CHOIX_CANDIDATURE.map(function (o) {
@@ -10295,7 +10866,7 @@ function _prepaEntretienRendrePreparer() {
         '<span class="carte-objectif-desc">' + o.desc + '</span>' +
         '</button>';
     }).join('') +
-    '</div>' +
+    '</div>')) +
     (dossier.objectif
       // Meme bascule locale que co-lettre (docActifActuel() se rabat sur
       // 'cv' tant que dossier.dernierDocumentPrepare n'a pas ete pose pour
@@ -10323,7 +10894,7 @@ function _prepaEntretienRendrePreparer() {
     '<details class="bloc-depli' + (stylePersonnalise ? ' bd-ok' : '') + '" id="prepaEntretienBlocAdaptation"' + (ouvertBlocDepliManuel(_prepaEntretienEtatPreparer, 'blocAdaptation', etapeCleCandidatureFranchie && !dossier.situationActuelle) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">3</span><span class="preparer-titre">Adaptation au métier</span>' +
     '<span class="preparer-oblig">à compléter</span>' +
-    '<span class="pilule-etat ' + (stylePersonnalise ? 'pe-ok">Personnalisé' : 'pe-info">À compléter &middot; l’assistant s’adapte seul') + '</span></summary>' +
+    '<span class="pilule-etat ' + (stylePersonnalise ? 'pe-ok">Personnalisé' : 'pe-info">À compléter &middot; votre situation actuelle est nécessaire') + '</span></summary>' +
     '<div class="bloc-depli-corps">' + contenuRectangleStyleCV('entretien', true, true) + '</div>' +
     '</details>' +
     // CTA final -- meme gate que co-lettre (CV depose + relu + situation
@@ -10331,13 +10902,7 @@ function _prepaEntretienRendrePreparer() {
     // depart vers l'assistant avec une lettre encore brute). Raison du
     // blocage toujours visible sous le bouton.
     (function () {
-      var raisonsBlocageCta = [];
-      if (!cvPresent) { raisonsBlocageCta.push('déposer votre CV'); }
-      else if (!cvRelu) { raisonsBlocageCta.push('relire votre CV'); }
-      if (lettrePresente && !lettreRelue) { raisonsBlocageCta.push('relire votre lettre de motivation'); }
-      // 25/10/2026 : le type de candidature est nécessaire (la synthèse le montre), comme pour la lettre.
-      if (!dossier.objectif) { raisonsBlocageCta.push('choisir le type de candidature dans « Votre candidature »'); }
-      if (!dossier.situationActuelle) { raisonsBlocageCta.push('indiquer votre situation actuelle dans « Adaptation au métier »'); }
+      var raisonsBlocageCta = _prepaEntretienRaisonsCta();
       var ctaBloque = raisonsBlocageCta.length > 0;
       // F8 (24/10/2026) : le bouton vit dans la barre du bas (avec « Retour » et « Accueil »), comme pour la lettre ; la raison du blocage s'affiche au-dessus, a droite
       // (brique data-barre-bas, definirRaisonSuivantBarre). Le bouton d'origine reste dans la page, cache, et recoit le clic : aucun cablage a refaire.
@@ -10407,7 +10972,7 @@ function _prepaEntretienBrancherPreparer() {
   if (typeof _coLettreBrancherAppuis === 'function') { _coLettreBrancherAppuis(_prepaEntretienRendrePreparer); }
   _prepaEntretienAppliquerVerrous();
   var blocCibleMajEntretien = document.getElementById('prepaEntretienBlocCible');
-  if (blocCibleMajEntretien) { ['input', 'change', 'click'].forEach(function (nom) { blocCibleMajEntretien.addEventListener(nom, function () { setTimeout(_prepaEntretienAppliquerVerrous, 0); }); }); }
+  if (blocCibleMajEntretien) { ['input', 'change', 'click'].forEach(function (nom) { blocCibleMajEntretien.addEventListener(nom, function () { setTimeout(_prepaEntretienMajCta, 0); }); }); }
 
 
   // ----- Bloc 1 : Votre CV (depot, relecture et masquage EN PAGE, brique htmlDepotCVEnPage) -----
@@ -10653,7 +11218,7 @@ function _prepaEntretienRendreIntro() {
   } else if (!_prepaEntretienDetour && travailEnCours) {
     syntheseHTML = _introBlocReprise(
       'Vous avez commencé à préparer un entretien d’embauche.',
-      'btnPrepaEntretienContinuer', 'btnPrepaEntretienRecommencer', 'Continuer');
+      'btnPrepaEntretienContinuer', 'btnPrepaEntretienRecommencer', 'Reprendre');
     actionsSynthese.push({
       id: 'btnPrepaEntretienContinuer',
       action: function () {
@@ -10768,6 +11333,13 @@ function pageDecouverteIntro() {
     });
   }
   var enDetour = (typeof _decouverteDetourPresentation !== 'undefined' && _decouverteDetourPresentation);
+  // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : session vivante (et CV pas fini) = bloc « Reprendre / Recommencer » ici, « Reprendre » dans la barre du bas.
+  var enCours = !enDetour && !termine && (typeof decouverteTravailEnCours === 'function') && decouverteTravailEnCours();
+  if (enCours) {
+    syntheseHTML = _introBlocReprise('Vous avez déjà commencé à créer votre CV à partir de votre récit.', 'btnDecouverteRepriseContinuer', 'btnDecouverteRepriseRecommencer', 'Reprendre');
+    actionsSynthese.push({ id: 'btnDecouverteRepriseContinuer', action: decouverteRepriseContinuer });
+    actionsSynthese.push({ id: 'btnDecouverteRepriseRecommencer', action: decouverteConfirmerRecommencer });
+  }
   var config = {
     carteRetour: 'mesdocuments',
     routeRetour: 'creer-cv',   // « À partir de mon récit » est le troisième parcours de « Créer un nouveau CV » : « Retour » y ramène
@@ -10792,17 +11364,8 @@ function pageDecouverteIntro() {
     ctaLabel: faite ? 'Reprendre / recommencer &#8594;' : 'Raconter mon parcours &#8594;',
     syntheseHTML: syntheseHTML,
     actionsSynthese: actionsSynthese,
-    onCta: function () {
-      // Un seul parcours à la fois : arrivé par la recherche avec un CV « à la main » commencé, on ne mêle pas les deux (les drapeaux de l'autre parcours sont remis à zéro ; le contenu déjà saisi reste, comme avant).
-      if (_creerCvViensDesCartes && !_creerCvRecitEnCours()) {
-        // Arrivé de la page des trois parcours : page blanche pour ce parcours (comme les deux autres départs).
-        _creerCvToutEffacer();
-        if (typeof trackEvenement === 'function') { trackEvenement('mode_creation_choisi', { mode: 'recit' }); }
-      }
-      _creerCvViensDesCartes = false;
-      if (!_creerCvRecitEnCours() && dossier.modeCreation === 'nouveau') { dossier.modeCreation = null; dossier.creationSansAssistant = false; }
-      if (typeof demarrerDecouverteCompetences === 'function') { demarrerDecouverteCompetences(); }
-    },
+    ctaMasque: enCours,
+    onCta: function () { _creerCvDemarrerRecit(false); },
     blocsHTML:
       _introBlocAccroche('<strong>Vous n’avez pas besoin d’un parcours « classique » pour commencer.</strong> Le travail salarié, l’aide à des proches, le bénévolat, le bricolage, une passion suivie longtemps : tout cela contient des compétences. Ici, on les met en mots à partir de votre histoire.') +
       _introBlocSection('&#127919; À quoi ça sert',
@@ -10868,14 +11431,19 @@ var _NOTE_MODULE_EN_PREPARATION =
 // serait un bouton mort, incoherent avec les modules construits (dont la
 // presentation vue a froid n'a pas ce bouton non plus). Le jour ou ATS /
 // Regard recruteur / Se tenir informe sont construits sur le patron
-// (famille 2, docs/LANGAGE_VISUEL_COMMUN.md 5bis), passer config.detour +
-// _xxxReprisePendante comme Decouverte / Comparer : rien d'autre a faire.
+// (famille 2, docs/LANGAGE_VISUEL_COMMUN.md 5bis), passer config.detour + syntheseHTML
+// (_introBlocReprise) comme les autres modules : rien d'autre a faire.
 
 function pageIntroAts() {
   var enDetour = (typeof _atsDetourPresentation !== 'undefined' && _atsDetourPresentation);
+  // Reprise : MEME forme que « Reprendre mon CV » (decision de Denis, 12/11/2026, consigne 258) : l'encart est sur la presentation, « Reprendre » est dans la barre du bas, « Recommencer » dans l'encart.
+  var enCours = !enDetour && (typeof atsTravailEnCours === 'function') && atsTravailEnCours();
   var config = {
     carteRetour: 'analyse',
     detour: enDetour,
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez une comparaison en cours sur ce module.', 'btnAtsRepriseContinuer', 'btnAtsRepriseRecommencer', 'Reprendre') : '',
+    actionsSynthese: enCours ? [{ id: 'btnAtsRepriseContinuer', action: atsRepriseContinuer }, { id: 'btnAtsRepriseRecommencer', action: atsConfirmerRecommencer }] : [],
+    ctaMasque: enCours,
     detourLogo: 'bi-card-checklist',
     detourBoutonId: 'btnAtsRevenirModuleHaut',
     detourCtaId: 'btnAtsRevenirModuleBas',
@@ -10888,13 +11456,8 @@ function pageIntroAts() {
     ctaLabel: 'Comparer les mots de mon CV &#8594;',
     etapes: (typeof ATS_ETAPES !== 'undefined') ? ATS_ETAPES : null,
     onCta: function () {
-      // Si une comparaison existe deja : retour dans le module avec encart
-      // "Continuer / Recommencer" + gel (famille 2). Sinon on demarre.
-      if (typeof _atsEtat !== 'undefined' && _atsEtat) {
-        if (typeof atsMarquerReprisePendante === 'function') { atsMarquerReprisePendante(); }
-      } else if (typeof ouvrirAts === 'function') {
-        ouvrirAts();
-      }
+      // Aucune comparaison commencee : on demarre. Une comparaison commencee passe par « Reprendre » de l'encart (syntheseHTML ci-dessus).
+      if (typeof ouvrirAts === 'function') { ouvrirAts(); }
       if (typeof naviguerVers === 'function') { naviguerVers('ats'); }
     },
     blocsHTML:
@@ -10942,9 +11505,14 @@ function pageIntroAts() {
 
 function pageIntroRegardRecruteur() {
   var enDetour = (typeof _regardRecruteurDetourPresentation !== 'undefined' && _regardRecruteurDetourPresentation);
+  // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la presentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
+  var enCours = !enDetour && (typeof regardRecruteurTravailEnCours === 'function') && regardRecruteurTravailEnCours();
   var config = {
     carteRetour: 'preparer',
     detour: enDetour,
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez une lecture en cours sur ce module.', 'rrBtnRepriseContinuer', 'rrBtnRepriseRecommencer', 'Reprendre') : '',
+    actionsSynthese: enCours ? [{ id: 'rrBtnRepriseContinuer', action: regardRecruteurRepriseContinuer }, { id: 'rrBtnRepriseRecommencer', action: regardRecruteurConfirmerRecommencer }] : [],
+    ctaMasque: enCours,
     detourLogo: 'bi-image',
     detourBoutonId: 'btnRegardRecruteurRevenirModuleHaut',
     detourCtaId: 'btnRegardRecruteurRevenirModuleBas',
@@ -10957,11 +11525,8 @@ function pageIntroRegardRecruteur() {
     ctaLabel: 'Demander un regard sur ma candidature &#8594;',
     etapes: (typeof RR_ETAPES !== 'undefined') ? RR_ETAPES : null,
     onCta: function () {
-      // Session deja engagee : retour dans le module avec encart
-      // « Continuer / Recommencer » + gel (famille 2). Sinon on demarre.
-      var enCours = (typeof _regardRecruteurRenduVue === 'function');
-      if (!enCours && typeof ouvrirRegardRecruteur === 'function') { ouvrirRegardRecruteur(); }
-      else if (enCours) { _regardRecruteurReprisePendante = true; }
+      // Aucune lecture commencee : on demarre. Une lecture commencee passe par « Reprendre » du bloc de la presentation (syntheseHTML ci-dessus).
+      if (typeof ouvrirRegardRecruteur === 'function') { ouvrirRegardRecruteur(); }
       if (typeof naviguerVers === 'function') { naviguerVers('regard-recruteur'); }
     },
     blocsHTML:
@@ -11265,9 +11830,14 @@ function pageIntroEmployeursTerritoire() {
 // "gagnant", de "metier d'avenir/qui disparait", de "metier choisi".
 function pageIntroAideDecision() {
   var cpDetour = (typeof _comparerDetourPresentation !== 'undefined' && _comparerDetourPresentation);
+  // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la presentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
+  var cpEnCours = !cpDetour && (typeof comparerTravailEnCours === 'function') && comparerTravailEnCours();
   var config = {
     carteRetour: 'orientation',
     detour: cpDetour,
+    syntheseHTML: cpEnCours ? _introBlocReprise('Vous avez une comparaison en cours sur ce module.', 'btnComparerRepriseContinuer', 'btnComparerRepriseRecommencer', 'Reprendre') : '',
+    actionsSynthese: cpEnCours ? [{ id: 'btnComparerRepriseContinuer', action: comparerRepriseContinuer }, { id: 'btnComparerRepriseRecommencer', action: comparerConfirmerRecommencer }] : [],
+    ctaMasque: cpEnCours,
     detourLogo: 'bi-signpost-split',
     detourBoutonId: 'btnComparerRevenirModuleHaut',
     detourCtaId: 'btnComparerRevenirModuleBas',
@@ -11280,13 +11850,8 @@ function pageIntroAideDecision() {
     ctaLabel: 'Comparer mes pistes &#8594;',
     etapes: (typeof COMPARER_NAV_ETAPES !== 'undefined') ? COMPARER_NAV_ETAPES : null,
     onCta: function () {
-      // Reprendre une session deja engagee plutot que de la reinitialiser
-      // (la remise a zero volontaire vit sur l'encart de reprise et sur
-      // l'ecran final). Retour dans le module avec une comparaison en cours
-      // -> encart "Continuer / Recommencer" + gel (aligne sur Coherence).
-      var enCours = typeof _comparerRenduEcran === 'function';
-      if (!enCours && typeof ouvrirComparerPistes === 'function') { ouvrirComparerPistes(); }
-      else if (enCours) { _comparerReprisePendante = true; }
+      // Aucune comparaison commencee : on demarre (les pistes deja mises de cote sont gardees). Une comparaison commencee passe par « Reprendre » du bloc de la presentation (syntheseHTML ci-dessus).
+      if (typeof ouvrirComparerPistes === 'function') { ouvrirComparerPistes(); }
       if (typeof naviguerVers === 'function') { naviguerVers('comparer-pistes'); }
     },
     blocsHTML:
@@ -11339,6 +11904,20 @@ function pageIntroAideDecision() {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     baseMetiers: baseMetiers,
+    facteurInformation: facteurInformation,
+    competencesProches: competencesProches,
+    correspondCompetence: correspondCompetence,
+    brutPropreFiche: _brutPropre,
+    nbElementsProfil: nbElementsProfil,
+    baseMetiersDetaillees: baseMetiersDetaillees,
+    comparerMetiersParScore: comparerMetiersParScore,
+    rechercherMetiers: rechercherMetiers,
+    niveauAccesMetier: niveauAccesMetier,
+    niveauPersonneDepuisFormations: niveauPersonneDepuisFormations,
+    experienceDepuisPostes: experienceDepuisPostes,
+    ficheParCodeRome: ficheParCodeRome,
+    enregistrerCodeRomeIntitule: enregistrerCodeRomeIntitule,
+    ficheDeIntituleChoisi: ficheDeIntituleChoisi,
     SECTEURS_APP: SECTEURS_APP,
     normaliserTexte: normaliserTexte,
     motsCles: motsCles,

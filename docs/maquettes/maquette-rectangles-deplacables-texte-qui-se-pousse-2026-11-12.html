@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démonstration rectangles déplaçables</title>
+<style>
+:root {
+  --fond: #eef0f4; --carte: #ffffff; --texte: #1d2433; --discret: #5a6478; --bord: #cfd5e1;
+  --cv: #2f5597; --feuille: #ffffff; --texte-cv: #111111; --alerte-fond: #fff6dc; --alerte-bord: #e0b84a; --alerte-texte: #5c4300; --ok: #1f7a3d;
+}
+:root[data-theme="sombre"] {
+  --fond: #12151c; --carte: #1c212c; --texte: #e8ebf2; --discret: #a3adc2; --bord: #3a4256;
+  --cv: #8db1f0; --feuille: #232a38; --texte-cv: #eef1f8; --alerte-fond: #3a3015; --alerte-bord: #b8962f; --alerte-texte: #f3dfa0; --ok: #6fd28f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--texte); font-family: "Segoe UI", Arial, sans-serif; }
+header, main { max-width: 1000px; margin: 0 auto; padding: 14px 16px; }
+h1 { font-size: 1.2rem; margin: 0 0 6px; }
+p { line-height: 1.5; margin: 0 0 8px; }
+.discret { color: var(--discret); font-size: .93rem; }
+.barre { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+.barre label { background: var(--carte); border: 1px solid var(--bord); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: .93rem; }
+.barre button { background: var(--cv); color: #fff; border: 0; border-radius: 6px; padding: 9px 14px; cursor: pointer; font-size: .93rem; }
+:root[data-theme="sombre"] .barre button { color: #101521; }
+.defilant { overflow-x: auto; padding-bottom: 8px; }
+.feuille { width: 794px; background: var(--feuille); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.25); padding: 22px; }
+.barre-titre { background: #2f5597; color: #fff; font-weight: 700; text-align: center; border-radius: 14px; padding: 5px 12px; font-size: 16px; margin-bottom: 8px; }
+.zone { position: relative; width: 750px; border: 1px dashed var(--bord); border-radius: 6px; touch-action: none; user-select: none; }
+.rc-box { position: absolute; background: var(--feuille); border: 1.5px solid var(--cv); border-radius: 18px; cursor: grab; overflow: hidden; color: var(--texte-cv); font-size: 13.2px; line-height: 20px; }
+.rc-box.tire { cursor: grabbing; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+.rc-box.entierement { border-color: #d9822b; border-style: dashed; }
+.zt { position: absolute; }
+.zt h4 { margin: 0 0 3px; font-size: 13px; color: var(--cv); line-height: 18px; }
+.zt ul { margin: 0; padding: 0; list-style: none; }
+.zt li { break-inside: avoid; }
+.zt li::before { content: "➢ "; font-size: 11px; }
+.poignee { position: absolute; right: 4px; bottom: 4px; width: 18px; height: 18px; cursor: nwse-resize; background: linear-gradient(135deg, transparent 55%, var(--cv) 55%, var(--cv) 62%, transparent 62%, transparent 74%, var(--cv) 74%, var(--cv) 81%, transparent 81%); opacity: .7; }
+.rapport { margin-top: 12px; background: var(--carte); border: 1px solid var(--bord); border-radius: 10px; padding: 10px 14px; font-size: .93rem; line-height: 1.55; }
+.rapport b { color: var(--cv); }
+.avert { background: var(--alerte-fond); border: 1.5px solid var(--alerte-bord); color: var(--alerte-texte); border-radius: 10px; padding: 8px 12px; margin-top: 8px; display: none; }
+.avert.visible { display: block; }
+.mesure { font-weight: 700; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Démonstration : les rectangles se déplacent, le texte couvert se pousse tout seul</h1>
+  <p class="discret">Rien n'est codé dans l'application. Faites glisser un rectangle avec la souris (ou le doigt), tirez le coin en bas à droite pour le redimensionner. Quand un rectangle en couvre un autre, le texte du rectangle couvert se déplace vers sa partie libre : il passe en plusieurs colonnes, se resserre sur un côté, ou le rectangle grandit un peu. Aucune ligne n'est cachée.</p>
+  <div class="barre">
+    <label><input type="checkbox" id="pousser" checked> Pousser le texte couvert</label>
+    <label><input type="checkbox" id="sombre"> Mode sombre</label>
+    <button type="button" id="btnInitial">Remettre les rectangles à leur place de départ</button>
+    <button type="button" id="btnCouvre">Poser « Savoirs » sur « Compétences comportementales »</button>
+  </div>
+</header>
+<main>
+  <div class="defilant">
+    <div class="feuille">
+      <div class="barre-titre">Compétences</div>
+      <div class="zone" id="zone"></div>
+    </div>
+  </div>
+  <div class="mesure" id="mesure"></div>
+  <div class="avert" id="avert"></div>
+  <div class="rapport" id="rapport"></div>
+</main>
+<script>
+(function () {
+  var L = 20, ZW = 750;
+  var DONNEES = [
+    { id: 'b1', titre: 'Compétences professionnelles', items: ['Sens du contact', 'Gestion du stress', 'Ponctualité', 'Consignes incendie', 'Gestes de premiers secours'] },
+    { id: 'b2', titre: 'Compétences comportementales', items: ['Rigueur', 'Travail en équipe', 'Sécurité', 'Fiabilité', 'Responsabilité', 'Sang-froid', 'Discipline', 'Sens de la hiérarchie', 'Discrétion'] },
+    { id: 'b3', titre: 'Savoirs', items: ['Consignes incendie', 'Gestes de premiers secours'] }
+  ];
+  var DEPART = { b1: { x: 0, y: 4, w: 440, h: 135 }, b2: { x: 380, y: 34, w: 370, h: 215 }, b3: { x: 90, y: 150, w: 480, h: 84 } };
+  var zone = document.getElementById('zone'), boites = [];
+  DONNEES.forEach(function (d, i) {
+    var el = document.createElement('div'); el.className = 'rc-box'; el.dataset.id = d.id;
+    el.innerHTML = '<div class="zt"><h4>' + d.titre + '</h4><ul>' + d.items.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div><span class="poignee" data-poignee="1"></span>';
+    zone.appendChild(el);
+    boites.push({ d: d, el: el, zt: el.querySelector('.zt'), ul: el.querySelector('ul'), z: i + 1, x: 0, y: 0, w: 300, h: 100, note: '', entierement: false });
+  });
+  function remettre() { boites.forEach(function (b, i) { var p = DEPART[b.d.id]; b.x = p.x; b.y = p.y; b.w = p.w; b.h = p.h; b.z = i + 1; }); calculer(); }
+
+  function inter(a, b) {
+    var x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y), x2 = Math.min(a.x + a.w, b.x + b.w), y2 = Math.min(a.y + a.h, b.y + b.h);
+    return (x2 > x1 + 1 && y2 > y1 + 1) ? { x: x1 - a.x, y: y1 - a.y, w: x2 - x1, h: y2 - y1 } : null;
+  }
+  function poser(b, zone_, k) {
+    b.zt.style.left = zone_.x + 'px'; b.zt.style.top = zone_.y + 'px'; b.zt.style.width = zone_.w + 'px'; b.zt.style.height = 'auto';
+    b.ul.style.columnCount = k; b.ul.style.columnGap = '14px';
+    return b.zt.offsetHeight;
+  }
+  // Calcule la zone de texte de la boîte b : revient { zone, k, deficit }.
+  function placer(b, pousser) {
+    var W = b.w, H = b.h, P = 12, T = 8;
+    var couv = pousser ? boites.filter(function (o) { return o !== b && o.z > b.z; }).map(function (o) { return inter(b, o); }).filter(Boolean) : [];
+    b.entierement = false;
+    if (!couv.length) {
+      var plein = { x: P + 2, y: T, w: W - 2 * P - 6, h: H - 2 * T };
+      var ch = poser(b, plein, 1);
+      return { zone: plein, k: 1, deficit: Math.max(0, ch - plein.h), libelle: 'texte à sa place, une colonne' };
+    }
+    var cx1 = Math.min.apply(null, couv.map(function (c) { return c.x; })), cy1 = Math.min.apply(null, couv.map(function (c) { return c.y; }));
+    var cx2 = Math.max.apply(null, couv.map(function (c) { return c.x + c.w; })), cy2 = Math.max.apply(null, couv.map(function (c) { return c.y + c.h; }));
+    var aire = 0; couv.forEach(function (c) { aire += c.w * c.h; });
+    if (aire / (W * H) > 0.9) { b.entierement = true; }
+    var bandes = [];
+    var ajouter = function (nom, x, y, w, h) { if (w >= 100 && h >= 44) { bandes.push({ nom: nom, x: x + P, y: y + T, w: w - 2 * P, h: h - 2 * T, aire: w * h }); } };
+    ajouter('en haut', 0, 0, W, cy1);
+    ajouter('à gauche', 0, 0, cx1, H);
+    ajouter('à droite', cx2, 0, W - cx2, H);
+    ajouter('en bas', 0, cy2, W, H - cy2);
+    bandes.sort(function (a, c) { return c.aire - a.aire; });
+    if (!bandes.length) { var rep = { x: P, y: T, w: W - 2 * P, h: H - 2 * T }; poser(b, rep, 1); return { zone: rep, k: 1, deficit: 0, libelle: 'entièrement couvert : à déplacer' }; }
+    // Candidats : chaque bande libre, en 1 à 3 colonnes. On mesure la hauteur réelle du texte et si une ligne se replie.
+    var cands = [];
+    for (var k = 1; k <= 3; k++) {
+      for (var i = 0; i < bandes.length; i++) {
+        var ch2 = poser(b, bandes[i], k), replie = false;
+        [].forEach.call(b.ul.children, function (li) { if (li.offsetHeight > 26) { replie = true; } });
+        cands.push({ zone: bandes[i], k: k, ch: ch2, def: Math.max(0, ch2 - bandes[i].h), replie: replie, grandit: bandes[i].nom !== 'en haut' });
+      }
+    }
+    var nom = function (c) { return 'texte ' + c.zone.nom + (c.k > 1 ? ' sur ' + c.k + ' colonnes' : ' sur une colonne'); };
+    var choix = cands.filter(function (c) { return c.def === 0 && !c.replie; })[0];
+    if (choix) { poser(b, choix.zone, choix.k); return { zone: choix.zone, k: choix.k, deficit: 0, libelle: nom(choix) }; }
+    var grandissant = cands.filter(function (c) { return c.grandit && !c.replie; }).sort(function (a, c) { return a.def - c.def || a.k - c.k; })[0];
+    if (grandissant) { poser(b, grandissant.zone, grandissant.k); return { zone: grandissant.zone, k: grandissant.k, deficit: grandissant.def, libelle: nom(grandissant) + ', rectangle agrandi' }; }
+    var replieOk = cands.filter(function (c) { return c.def === 0; })[0];
+    if (replieOk) { poser(b, replieOk.zone, replieOk.k); return { zone: replieOk.zone, k: replieOk.k, deficit: 0, libelle: nom(replieOk) + ' (lignes repliées)' }; }
+    var derniere = cands.filter(function (c) { return c.grandit; }).sort(function (a, c) { return a.def - c.def; })[0] || cands[0];
+    poser(b, derniere.zone, derniere.k);
+    return { zone: derniere.zone, k: derniere.k, deficit: derniere.grandit ? derniere.def : 0, libelle: nom(derniere) + ', rectangle agrandi (lignes repliées)' };
+  }
+  function calculer() {
+    var pousser = document.getElementById('pousser').checked, resultats = {};
+    for (var passe = 0; passe < 8; passe++) {
+      var change = false;
+      boites.forEach(function (b) {
+        applique(b);
+        var r = placer(b, pousser); resultats[b.d.id] = r;
+        if (r.deficit > 0) { b.h = Math.round(b.h + r.deficit + 6); change = true; applique(b); r = placer(b, pousser); resultats[b.d.id] = r; }
+      });
+      if (!change) { break; }
+    }
+    boites.forEach(function (b) { applique(b); b.el.classList.toggle('entierement', b.entierement); });
+    var bas = 0; boites.forEach(function (b) { bas = Math.max(bas, b.y + b.h); });
+    zone.style.height = (bas + 10) + 'px';
+    document.getElementById('mesure').textContent = 'Hauteur de la zone des rectangles : ' + Math.round(bas + 10) + ' px (dans le CV actuel : 305 px avec ces mêmes rectangles).';
+    var rap = '<b>Ce que fait l\'application pour chaque rectangle :</b><br>';
+    boites.forEach(function (b) { rap += '• ' + b.d.titre + ' : ' + resultats[b.d.id].libelle + '<br>'; });
+    document.getElementById('rapport').innerHTML = rap;
+    var ent = boites.filter(function (b) { return b.entierement; }), av = document.getElementById('avert');
+    if (ent.length) { av.textContent = 'Le rectangle « ' + ent[0].d.titre + ' » est presque entièrement couvert : déplacez l\'un des deux pour que tout soit lisible.'; av.classList.add('visible'); } else { av.classList.remove('visible'); }
+  }
+  function applique(b) {
+    var s = b.el.style; s.left = b.x + 'px'; s.top = b.y + 'px'; s.width = b.w + 'px'; s.height = b.h + 'px'; s.zIndex = b.z;
+  }
+  // Glisser, redimensionner (souris et doigt)
+  var action = null;
+  zone.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest('.rc-box'); if (!el) { return; }
+    var b = boites.filter(function (x) { return x.el === el; })[0];
+    var maxZ = Math.max.apply(null, boites.map(function (x) { return x.z; }));
+    if (b.z < maxZ) { boites.forEach(function (x) { if (x.z > b.z) { x.z -= 1; } }); b.z = maxZ; }
+    action = { b: b, redim: !!e.target.dataset.poignee, px: e.clientX, py: e.clientY, x: b.x, y: b.y, w: b.w, h: b.h };
+    el.classList.add('tire'); el.setPointerCapture(e.pointerId); e.preventDefault(); calculer();
+  });
+  zone.addEventListener('pointermove', function (e) {
+    if (!action) { return; }
+    var dx = e.clientX - action.px, dy = e.clientY - action.py, b = action.b;
+    if (action.redim) { b.w = Math.max(130, Math.min(ZW - b.x, action.w + dx)); b.h = Math.max(70, action.h + dy); }
+    else { b.x = Math.max(0, Math.min(ZW - b.w, action.x + dx)); b.y = Math.max(0, action.y + dy); }
+    calculer();
+  });
+  function fin(e) { if (!action) { return; } action.b.el.classList.remove('tire'); action = null; calculer(); }
+  zone.addEventListener('pointerup', fin); zone.addEventListener('pointercancel', fin);
+  document.getElementById('pousser').addEventListener('change', calculer);
+  document.getElementById('sombre').addEventListener('change', function (e) { document.documentElement.setAttribute('data-theme', e.target.checked ? 'sombre' : 'clair'); });
+  document.getElementById('btnInitial').addEventListener('click', remettre);
+  document.getElementById('btnCouvre').addEventListener('click', function () {
+    remettre(); var b2 = boites[1], b3 = boites[2]; b3.x = b2.x - 60; b3.y = b2.y + 90; b3.w = 440; b3.h = 100; boites[2].z = 3; calculer();
+  });
+  remettre();
+})();
+</script>
+</body>
+</html>

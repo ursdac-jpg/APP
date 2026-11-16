@@ -40,4 +40,35 @@ async function objectifOffre(o) {
   await o.cliquer(p.locator('[data-domaine-metier-confirmer]'), 600); await dormir(0.8);
 }
 
-module.exports = { dormir, URL, R, preparer, ouvrirTuile, deposerCv, objectifOffre };
+// Page commune de « Créer un nouveau CV » (consigne 246) : fait défiler jusqu'au bloc d'une voie ('assistant', 'recit' ou 'main') pour que sa présentation soit à l'écran.
+async function versVoie(o, voie) {
+  const y = await o.p.evaluate(v => { const e = document.querySelector('[data-voie="' + v + '"]'); return e ? Math.max(0, e.getBoundingClientRect().top + window.scrollY - 90) : 0; }, voie);
+  await o.defiler(y, 1400); await dormir(1.0);
+}
+
+// Panneau d'ajout d'une expérience (« Vos informations », 16/11/2026) : intitulé du poste, métier proposé, deux missions et deux compétences cochées, puis « Je valide ».
+async function versElement(o, selecteur, marge) {
+  const y = await o.p.evaluate(([s, m]) => { const e = document.querySelector(s); return e ? Math.max(0, e.getBoundingClientRect().top + window.scrollY - m) : window.scrollY; }, [selecteur, marge || 160]);
+  await o.defiler(y, 800); await dormir(0.3);
+}
+async function panneauExperienceDebut(o) {
+  const p = o.p;
+  await versElement(o, '#btnExpProOuvrir', 240);
+  await o.cliquer(p.locator('#btnExpProOuvrir'), 350); await dormir(0.3);
+  await versElement(o, '#mcPanPoste', 200);
+  await o.cliquer(p.locator('#mcPanPoste'), 350);
+  await p.keyboard.type('Agent de nettoyage', { delay: 45 }); await dormir(0.9);
+  await o.cliquer(p.locator('[data-pan-sugg]', { hasText: 'collectivité' }).first(), 350); await dormir(0.7);
+}
+async function panneauExperienceFin(o) {
+  const p = o.p;
+  await o.cliquer(p.locator('[data-pan-mission]').nth(0), 350); await dormir(0.3);
+  await o.cliquer(p.locator('[data-pan-mission]').nth(1), 350); await dormir(0.3);
+  await versElement(o, '[data-pan-comp]', 240);
+  await o.cliquer(p.locator('[data-pan-comp]').nth(0), 350); await dormir(0.2);
+  await versElement(o, '#mcPanValider', 360);
+  await o.cliquer(p.locator('#mcPanValider'), 350); await dormir(0.7);
+  await versElement(o, '#blocERIP-experiences-pro', 120); await dormir(0.8);   // l'expérience ajoutée apparaît dans la liste
+}
+
+module.exports = { dormir, URL, R, preparer, ouvrirTuile, deposerCv, objectifOffre, versVoie, versElement, panneauExperienceDebut, panneauExperienceFin };

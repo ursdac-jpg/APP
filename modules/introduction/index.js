@@ -107,7 +107,7 @@ function pageIntroduction() {
       '<div class="ip-pas">' +
         _introPas(1, '<strong>Elle choisit comment commencer.</strong> Trois façons de faire, selon qu’elle a déjà un CV ou non.', 'i_cv_1_choix', 'Capture : choix entre créer un CV avec un assistant, à la main, ou à partir de son récit') +
         _introPas(2, '<strong>Elle dit ce qu’elle cherche.</strong> Un métier précis, une présentation générale : quelques clics, pas de page blanche.', 'i_cv_2_objectif', 'Capture : l’étape Votre objectif, avec des choix à cocher') +
-        _introPas(3, '<strong>Elle choisit ce qui compte pour elle.</strong> Des propositions déjà prêtes à cocher : elle garde celles qui lui ressemblent.', 'i_cv_3_parcours', 'Capture : l’étape Votre parcours, avec des choix comme Bon équilibre vie professionnelle et personnelle') +
+        _introPas(3, '<strong>Elle choisit ce qu’elle a déjà fait.</strong> Des propositions déjà prêtes à cocher : les personnes qu’elle a aidées, ses gestes, les lieux où elle a travaillé. Elle garde celles qui lui ressemblent.', 'i_cv_3_parcours', 'Capture : l’étape Votre parcours, avec des choix comme Bureau, À domicile ou En extérieur') +
         _introPas(4, '<strong>Elle découvre son profil.</strong> Un coup d’œil sur ce qu’elle a saisi, ses compétences repérées et des métiers à regarder.', 'i_cv_4_profil', 'Capture : l’étape Votre profil') +
       '</div></div>' +
 

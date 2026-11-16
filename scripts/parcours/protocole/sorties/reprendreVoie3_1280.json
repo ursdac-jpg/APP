@@ -1,0 +1,152 @@
+{
+ "nom": "reprendreVoie3",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : les choix suivants sont annoncés bloqués tant que le CV n’est pas déposé"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "choix de la voie 3 : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix de la voie 3 : #cv-sans-assistant « Le refaire moi-même dans un modèle » bouton « Continuer → » raison «  » barre Déposer > Ma voie > [Classer] > Vérifier > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 3 : ok:Continuer → → #cv-sans-assistant « Le refaire moi-même dans un modèle » [bouton : Continuer →] [barre : Déposer > Ma voie > Classer > [Vérifier] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 3 : ok:Continuer → → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Déposer > Ma voie > Classer > Vérifier > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 3 : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : null] [barre : Déposer > Ma voie > Classer > Vérifier > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 3 : PAS DE BOUTON → #resultats « 📄 Vos documents » [bouton : null] [barre : Déposer > Ma voie > Classer > Vérifier > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : resultats:Vos documents < cv-sans-assistant:Le refaire moimême dans un modèle < cv-sans-assistant:Le refaire moimême dans un modèle < reprendre-cv:Reprendre votre CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 3 : les « Retour » successifs rejoignent la page commune en 4 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre mon CV",
+    "barre": "",
+    "avant": "Déposer mon CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre votre CV",
+    "barre": "[Déposer] > Ma voie",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#cv-sans-assistant",
+    "page": "cv-sans-assistant",
+    "h1": "Le refaire moi-même dans un modèle",
+    "barre": "Déposer > Ma voie > Classer > [Vérifier] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Déposer > Ma voie > Classer > Vérifier > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Déposer > Ma voie > Classer > Vérifier > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Déposer > Ma voie > Classer > Vérifier > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

@@ -939,6 +939,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // qui ne changerait rien vu que les appels restent strictement
 // sequentiels (JS mono-thread, aucun chevauchement reel possible).' +
 'var _cvPdfMiseEnPageEnCours = false;' +
+// Vrai des que la personne a deplace le curseur de taille du texte ; faux apres un calcul automatique (« Mise en page », premier affichage). Voir _pdfResserrerApresChangementOrganisation.
+'var _cvPdfEchelleManuelle = false;' +
 // Meme garde, dediee au bouton Mini CV A5 (_pdfAjusterMiseEnPageA5 plus
 // bas) -- flag distinct plutot que reutiliser le precedent : les 2
 // boutons ne sont jamais visibles/cliquables en meme temps (formats A4/A5
@@ -1179,6 +1181,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 'var _cvPdfMissionsAuto = {};' +
 // Par competences, niveau Automatique : nombre de missions retirees EN BAS de la liste des competences pour que le CV tienne sur une page (calcule a chaque rendu, jamais enregistre).
 'var _cvPdfCompCoupe = 0;' +
+// Missions de reserve ajoutees AUTOMATIQUEMENT en Par competences quand la page a de la place (consigne 414) : textes des missions, jamais un choix de la personne (_cvPdfChoixMq.reservesChoisies).
+'var _cvPdfReservesAuto = [];' +
 // TACHE (P10-bis, retour Denis 2026-09-28, "Proposition B" validee) : cle de la rubrique renvoyee en pleine
 // largeur par _pdfEquilibrerColonnes ci-dessous ('perso'/'form'/'certifs'/'centres') ou null -- jamais
 // persistee (dossier.pdfReglages), recalculee a zero a chaque rafraichissement, meme principe que
@@ -1805,6 +1809,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '    missionsAuto: _cvPdfMissionsAuto,' +
 '    niveauDetail: _pdfNiveauDetail(),' +
 '    compCoupe: _cvPdfCompCoupe,' +
+'    reservesAuto: _cvPdfReservesAuto,' +
 '    missionsDefaut: _pdfMissionsDefautNb()' +
 '  };' +
 // TACHE (retour utilisateur, repete plusieurs fois : "peu importe les
@@ -2107,6 +2112,9 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  try { if (typeof window.parent._lisibiliteGarder === "function") { window.parent._lisibiliteGarder(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* le garde-fou de lisibilité est un plus */ }' +
 // « Regler l'en-tete » sur l'apercu (cvPdfEnteteApercu.js) : pose les gestes sur les textes de l'en-tete quand le reglage est actif.
 '  try { if (typeof window.parent._enteteApercuPoser === "function") { window.parent._enteteApercuPoser(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* un plus */ }' +
+// Hauteur FINALE de l\'en-tete libre (elle grandit apres le rendu, jusqu\'a ~55 px) : sans cela, toutes les mesures « le CV tient-il sur une page ? » des
+// boucles automatiques (missions raccourcies, competences retirees, colonnes) lisaient un CV plus court que celui affiche, qui debordait alors de la page.
+'  try { var cvMesure = document.querySelector("#conteneurPage .cv"); if (cvMesure && typeof window.parent._pdfMqApresRendu === "function") { window.parent._pdfMqApresRendu(cvMesure); } } catch (e) { /* un plus */ }' +
 '}' +
 // Poignees rondes sur l'apercu (cvPdfPoigneesCv.js, cote parent) : epaisseur du bandeau et largeur de la colonne, visibles seulement quand le panneau Bandeau ou Colonne est ouvert. Un plus : toute erreur est ignoree.
 'function _pdfPoserPoigneesCv() {' +
@@ -2238,17 +2246,52 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // missions de la liste (les plus importantes sont en haut), une par une, en mesurant, avant de toucher a quoi que ce soit d\'autre.
 'function _pdfRaccourcirCompetencesAuto(format, resultat) {' +
 '  _cvPdfCompCoupe = 0;' +
-'  if (format !== "A4-detaille" || _cvPdfModePresentation !== "C" || _pdfNiveauDetail() !== "auto") { return resultat; }' +
+'  if (format !== "A4-detaille" || (_cvPdfModePresentation !== "C" && _cvPdfModePresentation !== "B") || _pdfNiveauDetail() !== "auto") { return resultat; }' +
 '  _pdfInjecterResultat(resultat);' +
 '  var essais = 0;' +
+// Mixte (B) : on garde au moins 2 missions dans « Competences en action » (le bloc est l\'interet du mode) ; Par competences (C) : au moins 1.
+'  var minimum = (_cvPdfModePresentation === "B") ? 2 : 1;' +
 '  while (_pdfMesurerHauteurPage() > 1125 && essais < 60) {' +
 '    essais++;' +
 '    var nb = 0; (window.parent._mepGroupesCompTous || []).forEach(function (g) { g.items.forEach(function (it) { if (it.affichee) { nb++; } }); });' +
-'    if (nb <= 1) { break; }' +
+'    if (nb <= minimum) { break; }' +
 '    _cvPdfCompCoupe++;' +
 '    resultat = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
 '    _pdfInjecterResultat(resultat);' +
 '  }' +
+'  return resultat;' +
+'}' +
+// Par competences : avec beaucoup d\'experiences liees, la regle 3/2/1 n\'affiche qu\'UNE mission par experience et le reste attend « en reserve » : la page restait vide en bas
+// (essai du 16/11/2026 : 940 a 1020 px). On ajoute donc, une a une, les missions de reserve des experiences (jamais les phrases proposees par l\'assistant), en mesurant : au plus 2 missions
+// par experience dans le bloc, et on s\'arrete des que la page depasserait environ 92 %. Seulement en niveau Automatique, jamais si la personne a elle-meme choisi ses missions en reserve.
+'function _pdfRemplirMissionsReserveAuto(format, resultat) {' +
+'  _cvPdfReservesAuto = [];' +
+'  window.parent._mepReservesAuto = 0;' +
+'  try {' +
+'    if (format !== "A4-detaille" || _cvPdfModePresentation !== "C" || _pdfNiveauDetail() !== "auto" || _cvPdfCompCoupe > 0) { return resultat; }' +
+'    if ((_cvPdfChoixMq.reservesChoisies || []).length) { return resultat; }' +
+'    var cible = HAUTEUR_CIBLE_PX * 0.92;' +
+'    _pdfInjecterResultat(resultat);' +
+'    if (_pdfMesurerHauteurPage() > cible) { return resultat; }' +
+'    var candidats = [], parExp = {};' +
+'    (window.parent._mepGroupesCompTous || []).forEach(function (g) { g.items.forEach(function (it) {' +
+'      var nom = String(it.source || "").split(", ")[0];' +
+'      if (it.affichee) { parExp[nom] = (parExp[nom] || 0) + 1; }' +
+'      else if (it.reserve && !it.proposition && !it.ecartee) { candidats.push({ texte: it.texte, nom: nom }); }' +
+'    }); });' +
+'    for (var i = 0; i < candidats.length && i < 8; i++) {' +
+'      var c = candidats[i];' +
+'      if ((parExp[c.nom] || 0) >= 2) { continue; }' +
+'      _cvPdfReservesAuto.push(c.texte);' +
+'      var essai = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
+'      _pdfInjecterResultat(essai);' +
+'      if (_pdfMesurerHauteurPage() > cible) { _cvPdfReservesAuto.pop(); break; }' +
+'      parExp[c.nom] = (parExp[c.nom] || 0) + 1;' +
+'      resultat = essai;' +
+'    }' +
+'    if (_cvPdfReservesAuto.length) { resultat = _pdfConstruireResultatCourant(format, _pdfLireOptions()); }' +
+'    window.parent._mepReservesAuto = _cvPdfReservesAuto.length;' +
+'  } catch (errRes) { _cvPdfReservesAuto = []; window.parent._mepReservesAuto = 0; }' +
 '  return resultat;' +
 '}' +
 'function _pdfRaccourcirAutomatiquement(format, resultat) {' +
@@ -2256,7 +2299,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  window.parent._mepMissionsAuto = _cvPdfMissionsAuto;' +
 '  window.parent._mepAutoRaccourcies = 0;' +
 '  _cvPdfCompCoupe = 0;' +
-'  if (!_pdfAutoActif(format)) { return _pdfRaccourcirCompetencesAuto(format, resultat); }' +
+'  if (!_pdfAutoActif(format)) { return _pdfRemplirMissionsReserveAuto(format, _pdfRaccourcirCompetencesAuto(format, resultat)); }' +
 '  _pdfInjecterResultat(resultat);' +
 '  var essais = 0;' +
 '  while (_pdfMesurerHauteurPage() > 1125 && essais < 90) {' +
@@ -2268,7 +2311,10 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '    _pdfInjecterResultat(resultat);' +
 '  }' +
 '  window.parent._mepAutoRaccourcies = Object.keys(_cvPdfMissionsAuto).length;' +
-'  return resultat;' +
+// Mixte : les missions des experiences sont deja au plus court et la page deborde encore (le bloc « Competences en action » prend de la place que
+// le chronologique n\'a pas) : on retire alors les DERNIERES missions de ce bloc, une a une, en mesurant (meme regle que « Par competences »).
+'  if (_cvPdfModePresentation === "B") { resultat = _pdfRaccourcirCompetencesAuto(format, resultat); }' +
+'  return _pdfRemplirMissionsReserveAuto(format, resultat);' +
 '}' +
 // TACHE (P10-bis, retour Denis 2026-09-28, "Quand je choisis 2 colonnes et que j'ai les competences perso
 // developpe, alors cette rubrique sera toujours dans la colonne de droite" -- maquette
@@ -3322,6 +3368,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // qui pourraient se desynchroniser.
 'document.getElementById("regEchelle").addEventListener("input", function () {' +
 '  _cvPdfEchelle = parseFloat(this.value) / 11;' +
+'  _cvPdfEchelleManuelle = true;' +
 '  _pdfAfficherMessageMiseEnPage("");' +
 '  _pdfRafraichir();' +
 '});' +
@@ -4527,6 +4574,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  }' +
 '  var avantMEP = _pdfInstantaneMEP();' +
 '  _cvPdfEchelle = 1;' +
+'  _cvPdfEchelleManuelle = false;' +
 // TACHE (retour utilisateur : "les deux [en-tete et corps] grandissent
 // ensemble, mais en commencant toujours par l'en-tete") : repart d'un
 // etat neutre pour l'en-tete aussi a chaque clic (meme logique que
@@ -5038,8 +5086,26 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // nombre d\'experiences pour le seul compteur de missions).
 'function _pdfDefinirModePresentation(mode) {' +
 '  if (["A", "B", "C"].indexOf(mode) === -1) { return; }' +
+'  var modeAvant = _cvPdfModePresentation;' +
 '  _cvPdfModePresentation = mode;' +
+// Un resserrement automatique leger fait pour l\'organisation d\'avant ne doit pas rester sur la nouvelle (essai du 16/11/2026 : retour a « Par competences » a 10 px avec 160 px libres) :
+// le texte reprend sa taille normale, puis le resserrement est rejoue seulement si la page deborde. Jamais sur une taille choisie a la main ni sous 10 px (reglee par « Mise en page »).
+'  if (mode !== modeAvant && !_cvPdfEchelleManuelle && _cvPdfEchelle < 1 && _cvPdfEchelle >= _PDF_ECHELLE_PLANCHER_INITIAL - 0.001) { _cvPdfEchelle = 1; }' +
 '  _pdfRafraichir();' +
+'  if (mode !== modeAvant) { _pdfResserrerApresChangementOrganisation(); }' +
+'}' +
+// Changer d\'organisation (Chronologique / Par competences / Mixte) change la quantite de contenu : le CV qui tenait sur une page peut maintenant deborder, et c\'est
+// ce que la personne voit juste apres son clic. Meme resserrement LEGER que celui du premier affichage (jamais sous 10 px, rien n\'est retire), lance seulement si la
+// page deborde et jamais sur une taille de texte choisie a la main avec le curseur (consigne 414). Au-dela, le message de la page et le bouton « Mise en page » prennent le relais.
+'function _pdfResserrerApresChangementOrganisation() {' +
+'  try {' +
+'    if (_cvPdfEchelleManuelle || _cvPdfMiseEnPageEnCours) { return; }' +
+'    if (document.getElementById("regFormatCV").value.indexOf("A4") !== 0) { return; }' +
+'    if (_pdfMesurerHauteurPage() <= HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable() + 2) { return; }' +
+'    _cvPdfMiseEnPageEnCours = true;' +
+'    _pdfPlancherEchelleAuto = _PDF_ECHELLE_PLANCHER_INITIAL;' +
+'    try { _pdfActiverEnteteDecale(); _pdfAjusterMiseEnPageCalcul(); } finally { _pdfPlancherEchelleAuto = null; _cvPdfMiseEnPageEnCours = false; }' +
+'  } catch (errOrg) { /* sans effet : le message de la page et le bouton « Mise en page » restent */ }' +
 '}' +
 // TACHE (meme carte) : au 1er passage vers "pertinentes", jamais de
 // retrait silencieux -- tout reste coche (la personne decoche elle-meme
@@ -5214,6 +5280,35 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _cvPdfMissionsChoisies[indexExp] = liste;' +
 '  _pdfRafraichir();' +
 '}' +
+// Propositions de l\'assistant en plus (« La mise en page », lot 4 missions et competences) : memes listes de missions choisies que
+// ci-dessus, mais fixees sans ambiguite (jamais un simple basculement) : une proposition est affichee (voulu vrai) ou non (voulu faux).
+'function _pdfFixerMissionAffichee(indexExp, indexMission, nbMissionsTotal, voulu) {' +
+'  var liste = _cvPdfMissionsChoisies[indexExp];' +
+'  if (!liste) {' +
+'    var n = (_cvPdfMissionsParExperience[indexExp] != null) ? _cvPdfMissionsParExperience[indexExp] : (_cvPdfMissionsGlobal || _pdfMissionsDefautNb());' +
+'    liste = [];' +
+'    for (var i = 0; i < Math.min(n, nbMissionsTotal); i++) { liste.push(i); }' +
+'  }' +
+'  var pos = liste.indexOf(indexMission);' +
+'  if (voulu && pos === -1) { liste.push(indexMission); } else if (!voulu && pos !== -1) { liste.splice(pos, 1); }' +
+'  liste.sort(function (a, b) { return a - b; });' +
+'  _cvPdfMissionsChoisies[indexExp] = liste;' +
+'  _pdfRafraichir();' +
+'}' +
+// Une mission disparait de la liste de l\'experience : son rang quitte le choix precis, et les suivantes remontent d\'un rang.
+'function _pdfRetirerRangMission(indexExp, indexMission) {' +
+'  var liste = _cvPdfMissionsChoisies[indexExp];' +
+'  if (!liste) { return; }' +
+'  _cvPdfMissionsChoisies[indexExp] = liste.filter(function (i) { return i !== indexMission; }).map(function (i) { return i > indexMission ? i - 1 : i; });' +
+'  _pdfRafraichir();' +
+'}' +
+// Mettre en avant (consigne 395) : l\'ordre des missions d\'une experience change (ordre = pour chaque nouveau rang, l\'ancien rang de la ligne). Le choix precis de la personne
+// (liste de rangs) suit ses lignes : une mission choisie reste choisie, quelle que soit sa nouvelle place.
+'function _pdfPermuterMissionsChoisies(indexExp, ordre) {' +
+'  var liste = _cvPdfMissionsChoisies[indexExp];' +
+'  if (!liste || !ordre) { return; }' +
+'  _cvPdfMissionsChoisies[indexExp] = liste.map(function (i) { return ordre.indexOf(i); }).filter(function (i) { return i >= 0; }).sort(function (a, b) { return a - b; });' +
+'}' +
 'function _pdfPositionDatesRubrique(rub) {' +
 '  if (_cvPdfDatesAlignees) { return _cvPdfPositionDatesChoisie ? _cvPdfPositionDates : ""; }' +
 '  return (rub === "formations" ? _cvPdfPositionDatesFormations : _cvPdfPositionDatesPerso) || "";' +
@@ -5287,6 +5382,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  var effectif = !!_cvPdfAfficherMissionsFormation;' +
 '  _cvPdfAfficherMissionsFormation = !effectif;' +
 '  _pdfRafraichir();' +
+// Afficher ces missions allonge le CV : meme resserrement leger que apres un changement d'organisation, seulement si la page deborde (consigne 414).
+'  if (_cvPdfAfficherMissionsFormation) { _pdfResserrerApresChangementOrganisation(); }' +
 '}' +
 'function _pdfMqDefinirMissionsChoisies(indexExp, liste) {' +
 '  _cvPdfMissionsChoisies[indexExp] = liste;' +

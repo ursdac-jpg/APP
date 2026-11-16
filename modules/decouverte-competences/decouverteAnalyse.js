@@ -110,6 +110,14 @@ function _decouverteValiderFragment(fragmentBrut, indexOriginal) {
     .filter(function (e) { return typeof e === 'string' && e.trim().length > 0; })
     .map(function (e) { return e.trim(); });
 
+  // Lot 4 (consigne 408) : intitulés de métier usuels proposés par l'assistant pour cette expérience (4 au plus), quand la personne a choisi de relier elle-même ses expériences aux fiches métier.
+  // Jamais montrés tels quels : le module des missions les rapproche du répertoire des métiers. Tableau vide si absent ou invalide.
+  var metiersProches = (Array.isArray(fragmentBrut.metiersProches) ? fragmentBrut.metiersProches : [])
+    .filter(function (m) { return typeof m === 'string' && m.trim().length > 0 && m.trim().length <= 80; })
+    .map(function (m) { return m.trim(); })
+    .filter(function (m, i, t) { return t.indexOf(m) === i; })
+    .slice(0, 4);
+
   var competencesBrutes = Array.isArray(fragmentBrut.competencesProposees) ? fragmentBrut.competencesProposees : [];
   var competencesProposees = competencesBrutes
     .map(decouverteValiderCompetenceProposee)
@@ -131,6 +139,7 @@ function _decouverteValiderFragment(fragmentBrut, indexOriginal) {
     origine: _decouverteValiderOrigine(fragmentBrut.origine),
     propositions: propositions,
     elementsFactuels: elementsFactuels,
+    metiersProches: metiersProches,
     competencesProposees: competencesProposees
   };
 }

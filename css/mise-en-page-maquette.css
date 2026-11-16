@@ -251,6 +251,12 @@
 .mep-mq .champ .miss-liste label { display: flex; font-weight: 400; font-style: normal; margin-bottom: 0; }
 .mep-mq .miss-liste label em { font-style: normal; font-weight: 400; }
 .mep-mq .miss-liste label:has(input:checked) > span { font-weight: 700; }
+/* Propositions de l'assistant en plus des choix de la personne (consigne 307) : cadre a part, mis en evidence. */
+.mep-mq .miss-liste .miss-en-plus { margin: .45rem 0 .1rem; padding: .35rem .5rem .4rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-left-width: 4px; border-radius: 8px; }
+.mep-mq .miss-liste .miss-en-plus .miss-tete { color: var(--text-strong); font-weight: 700; margin-bottom: .1rem; }
+.mep-mq .miss-liste .miss-en-plus .miss-aide { font-size: .85rem; color: var(--text-muted); margin: 0 0 .2rem; }
+.mep-mq .miss-liste .miss-en-plus label.non { color: var(--text-strong); }
+.mep-mq .miss-liste .miss-sous-titre { font-size: .85rem; font-weight: 700; color: var(--text-muted); margin: .1rem 0 .1rem; }
 .mep-mq .seg-mini button { flex: none; min-width: 0; padding: 0.2188rem 0.525rem; font-size: 0.875rem; }
 .mep-mq .seg-mini button small { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.875rem; line-height: 1.15; margin-top: 0.0875rem; }
 .mep-mq .seg-mini button.on small { color: var(--accent-texte); }
@@ -298,7 +304,9 @@
 .mep-mq .bloc-valider-mep { display: flex; align-items: center; justify-content: flex-start; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.75rem; }
 .mep-mq .bloc-valider-mep .mep-btn { white-space: nowrap; flex: 0 0 auto; }
 .mep-mq .bloc-valider-mep .valider-infos { display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 14rem; min-width: 0; }
-.mep-mq .bloc-valider-mep .avert-page { font-size: 0.875rem; }
+.mep-mq .bloc-valider-mep .avert-page { font-size: 0.875rem; line-height: 1.4; }
+/* Consigne 265 : message jaune de dépassement de la page, avec ses deux boutons (couleurs d'avertissement : jamais de rouge, mode sombre déjà défini). */
+.mep-mq .avert-page .avert-page-boutons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .mep-mq .bloc-valider-mep .valider-titre { margin: 0; font-size: 0.875rem; font-weight: 700; color: var(--text-strong); }
 .mep-mq .bloc-valider-mep .valider-complement { margin-left: auto; flex: 0 0 auto; }
 /* Consigne 225 (10/11/2026) : le bouton « Ajouter le complément du CV » a un fond jaunâtre pour attirer l'attention ; il disparaît dès que le complément est collé. */
@@ -1313,3 +1321,20 @@
   .mep-mq .aide-option::after { content: ""; position: absolute; inset: -9px; }
   .mep-mq .ligne-action .carte-action.retreci b { white-space: normal; overflow: visible; text-overflow: clip; }
 }
+
+/* Compléments de l'assistant (consigne 318, maquette docs/MAQUETTE_COMPLEMENTS_ASSISTANT_2026-11-15.html) : même identité que « Propositions de l'assistant en plus »
+   (fond bleu clair, bord gauche épais) : tout ce que l'assistant ajoute de son côté se reconnaît sans lire. Couleurs par variables : le mode sombre suit. */
+.mep-mq .complement-assistant { margin: .1rem 0 .3rem 1rem; padding: .35rem .55rem .4rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-left-width: 4px; border-radius: 8px; font-size: .875rem; color: var(--text-strong); }
+.mep-mq .complement-assistant p { margin: 0 0 .2rem; }
+.mep-mq .complement-assistant .miss-aide { font-size: .85rem; color: var(--text-muted); }
+.mep-mq .complement-assistant ul { margin: .1rem 0 .3rem 1.1rem; padding: 0; }
+.mep-mq .complement-assistant .actions { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .25rem; }
+.mep-mq .complement-assistant .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.875rem; white-space: normal; text-align: left; cursor: pointer; }
+.mep-mq .complement-assistant .btn-miss:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.mep-mq .miss-liste .ligne-courte { margin: -.05rem 0 .25rem 1.5rem; padding: .15rem .45rem; font-size: .85rem; color: var(--text-muted); border-left: 3px dotted var(--accent); }
+.mep-mq .miss-liste .ligne-courte .btn-miss { margin-left: .3rem; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 7px; padding: 0.0875rem 0.4813rem; font-size: 0.875rem; cursor: pointer; }
+.mep-mq .miss-liste .ligne-courte.active { color: var(--text-strong); border-left-style: solid; }
+.mep-mq .miss-liste label small.pourquoi { display: block; font-size: .8rem; font-weight: 400; color: var(--text-muted); }
+.mep-mq .champ-comp-plus { grid-column: 1 / -1; margin-top: .35rem; }
+.mep-mq .champ-comp-plus .miss-liste { margin-left: 0; }
+.mep-mq .conseil-missions.ok { color: var(--text-strong); }

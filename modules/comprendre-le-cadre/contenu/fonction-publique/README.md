@@ -7,7 +7,7 @@
 1. **Vérifier les adresses** de `../../liens-verifies.txt` pour les sources de `fonction-publique.collecte.md`.
 2. **Fiches à rédiger plus tard** : voir `docs/PLAN_DE_REPRISE_DOSSIER_CLOUD_2026-11-03.md`, section 2.1 (une page officielle lue avant chaque fiche).
 
-## Les 5 fiches
+## Les 6 fiches
 
 | id | titre |
 |---|---|
@@ -16,6 +16,7 @@
 | `emploi-cpf-agents-publics` | Le compte personnel de formation d'un agent public : heures, plafond, refus |
 | `handicap-recrutement-fonction-publique` | Entrer dans la fonction publique avec un handicap : concours aménagé ou contrat |
 | `fonction-publique-bilan-de-competences-agents` | Agent public : faire un bilan de compétences pour changer de voie (ajoutée le 2026-11-03) |
+| `fonction-publique-activite-assistant-familial` | Agent public : exercer aussi une activité d'assistant familial |
 
 ## Section « à qui s'adresser »
 

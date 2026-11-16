@@ -84,7 +84,7 @@ test('les problèmes corrigés : date, titre, deux phrases, origine connue ; auc
     assert.ok(!/[–—]/.test(t) && !/\bIA\b/.test(t), 'tiret long ou « IA » : ' + p.titre);
     assert.ok(!/territoire/i.test(t), 'fonction fermée au public : ' + p.titre);
   });
-  assert.strictEqual(L.nvCompterNouveaux(liste, new Date(2026, 10, 10)), liste.filter((p) => p.date >= '2026-11-04').length);
+  assert.strictEqual(L.nvCompterNouveaux(liste, new Date(2026, 10, 10)), liste.filter((p) => p.date >= '2026-11-04' && p.date <= '2026-11-10').length);   // date de référence fixe : une ligne plus récente (ajoutée plus tard) ne compte pas
 });
 
 test('la page est branchée : script chargé, recherche de l accueil pour les trois entrées, cible gérée par app.js', () => {

@@ -1,0 +1,13 @@
+# Numéros de téléphone de magasins relevés À LA MAIN sur le site officiel de l'enseigne (consigne 303 de Denis, 14/11/2026).
+# Utilisé par scripts/genererMagasinsSirene.js, seulement quand OpenStreetMap ne donne rien pour ce magasin. Le fichier magasins-generes.txt, lui, n'est jamais modifié à la main.
+# Format : identifiant de la fiche | Commune | adresse (celle de magasins-generes.txt) | téléphone | page officielle consultée le jour indiqué
+# Règle : un numéro n'est noté que s'il figure sur la page officielle du MÊME magasin (même rue). Dans le doute, rien n'est noté.
+e-leclerc | Périgueux | 16 rue du Clos Chassaing | 05 53 35 75 75 | https://www.e.leclerc/mag/e-leclerc-perigueux (14/11/2026)
+e-leclerc | Trélissac | Centre commercial La Feuilleraie | 05 53 35 75 75 | https://www.e.leclerc/mag/e-leclerc-trelissac (14/11/2026)
+e-leclerc | Saint-Astier | Boulevard de Lattre de Tassigny | 05 53 02 81 81 | https://www.e.leclerc/mag/e-leclerc-saint-astier (14/11/2026)
+e-leclerc | Ribérac | Route de Périgueux | 05 53 92 48 48 | https://www.e.leclerc/mag/e-leclerc-riberac (14/11/2026)
+e-leclerc | Sarlat-la-Canéda | 402 Avenue Simone Veil | 05 53 31 35 35 | https://www.e.leclerc/mag/e-leclerc-sarlat (14/11/2026)
+e-leclerc | Limoges | Rue Henri Giffard, ZI Nord | 05 55 38 14 28 | https://www.e.leclerc/mag/e-leclerc-limoges (14/11/2026)
+e-leclerc | Saint-Junien | Avenue d'Oradour-sur-Glane | 05 55 02 00 20 | https://www.e.leclerc/mag/e-leclerc-saint-junien (14/11/2026)
+e-leclerc | Castelnaud-la-Chapelle | 63 Place des Gabarriers | 05 53 31 35 58 | https://www.e.leclerc/mag/e-leclerc-castelnaud-la-chapelle (14/11/2026)
+intermarche | Nontron | 60 Route de la Maladrerie | 05 53 56 21 65 | https://www.intermarche.com/magasins/09828/nontron-24300/infos-pratiques (page officielle de « 2 route de la Maladrerie », même route ; numéro rapporté par la recherche web du 14/11/2026)

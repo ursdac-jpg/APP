@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : compléments de l'assistant</title>
+<!-- Maquette construite SUR les feuilles de style réelles de l'application (mêmes fichiers, mêmes classes, même balisage que « La mise en page »).
+     À ouvrir par le serveur de développement : http://localhost:8123/docs/MAQUETTE_COMPLEMENTS_ASSISTANT_2026-11-15.html
+     Composants réels réutilisés : .mep-mq, .mep-carte (cartes Expériences et Compétences), .choix-exp, .ligne-bloc, .ligne-choix, .btn-stage, .pas, .sur, .btn-miss + .rond-btn,
+     .conseil-missions, .miss-liste, .miss-tete, .miss-sous-titre, .miss-en-plus, .champ, .ligne-comp, .ck-marque, .tag-ecart.
+     Parties réelles NON recopiées (inchangées par ce chantier) : les quatre boîtes de réglage de la carte Expériences (mode, expériences à afficher, niveau de détail, position des dates),
+     le bouton « Éditer les expériences », le « ? » d'aide à côté de « Changer l'intitulé », les options de disposition de la carte Compétences. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+/* ===== Seuls ajouts de cette maquette à la feuille réelle (à ajouter à css/mise-en-page-maquette.css au codage) =====
+   Même identité visuelle que le cadre « Propositions de l'assistant en plus » qui existe déjà (fond bleu clair, bord gauche épais) :
+   tout ce que l'assistant ajoute de son côté a le même habillage, la personne le reconnaît sans lire. */
+.mep-mq .complement-assistant { margin: .1rem 0 .3rem 1rem; padding: .35rem .55rem .4rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-left-width: 4px; border-radius: 8px; font-size: .875rem; color: var(--text-strong); }
+.mep-mq .complement-assistant p { margin: 0 0 .2rem; }
+.mep-mq .complement-assistant ul { margin: .1rem 0 .3rem 1.1rem; padding: 0; }
+.mep-mq .complement-assistant .actions { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .25rem; }
+.mep-mq .complement-assistant .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.875rem; white-space: normal; text-align: left; cursor: pointer; }
+.mep-mq .complement-assistant .btn-miss:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.mep-mq .miss-liste .ligne-courte { margin: -.05rem 0 .25rem 1.5rem; padding: .15rem .45rem; font-size: .85rem; color: var(--text-muted); border-left: 3px dotted var(--accent); }
+.mep-mq .miss-liste .ligne-courte q { color: var(--text-strong); font-style: normal; quotes: "\00AB\00A0" "\00A0\00BB"; }
+.mep-mq .miss-liste .ligne-courte .btn-miss { margin-left: .3rem; }
+.mep-mq .miss-liste .ligne-courte.active { color: var(--text-strong); border-left-style: solid; }
+.mep-mq .miss-liste label small.pourquoi { display: block; font-size: .8rem; font-weight: 400; color: var(--text-muted); }
+.mep-mq .champ-comp-plus { grid-column: 1 / -1; margin-top: .35rem; }
+.mep-mq .champ-comp-plus .miss-liste { margin-left: 0; }
+.mep-mq .mention-assistant { font-style: normal; font-size: .8rem; color: var(--text-muted); margin-left: .3rem; }
+.mep-mq .conseil-missions.ok { color: var(--text-strong); }
+/* ===== Outils de la maquette (n'existent pas dans l'application) ===== */
+body { padding-bottom: 5rem; }
+.mq-page { max-width: 1000px; margin: 0 auto; padding: 1rem 16px 0; }
+.mq-note { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); border-radius: 12px; padding: .7rem 1rem; margin: 0 0 1rem; font-size: .92rem; color: var(--text-strong); }
+.mq-note h1 { font-size: 1.25rem; margin: 0 0 .3rem; color: var(--text-strong); }
+.mq-note ol { margin: .3rem 0 .2rem 1.1rem; padding: 0; }
+.mq-num { display: inline-flex; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: .8rem; align-items: center; justify-content: center; margin-right: .3rem; vertical-align: middle; }
+.mq-cv { margin-top: 1rem; border: 1px dashed var(--border-strong); border-radius: 12px; padding: .5rem .9rem; background: var(--bg-card); font-size: .9rem; color: var(--text-strong); }
+.mq-cv summary { cursor: pointer; font-weight: 700; }
+.mq-cv h4 { font-size: .95rem; margin: .5rem 0 .1rem; }
+.mq-cv ul { margin: 0 0 .2rem 1.1rem; padding: 0; }
+#mq-ouvrir { position: fixed; right: 0; bottom: 6rem; z-index: 3000; border-radius: 10px 0 0 10px; font-size: .8rem; padding: .4rem .6rem; }
+#mq-panneau { position: fixed; right: 8px; bottom: 9rem; z-index: 3001; width: 270px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .8rem 1rem; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+#mq-panneau[hidden] { display: none; }
+#mq-panneau .x { position: absolute; right: 6px; top: 2px; border: 0; background: none; font-size: 1.4rem; color: var(--text-muted); }
+#mq-panneau label { display: block; font-size: .8rem; color: var(--text-muted); margin-top: .5rem; }
+#mq-panneau select { width: 100%; }
+#mq-panneau button.reset { margin-top: .7rem; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="mq-page">
+  <div class="mq-note">
+    <h1>Maquette : ce que l'assistant propose en plus</h1>
+    <p style="margin:0 0 .2rem">Vous venez de coller la réponse de l'assistant. Pour chaque expérience dont vous avez choisi les missions, il peut signaler trois choses. Rien ne change sur votre CV sans un clic de votre part, et vos choix ne sont jamais réécrits. À essayer :</p>
+    <ol>
+      <li><span class="mq-num">1</span>Dans « Aide-soignant » : deux de vos lignes disent presque la même chose. Gardez-les ou retirez-en une.</li>
+      <li><span class="mq-num">2</span>Ouvrez « Missions » : une ligne trop longue a une version plus courte, montrée à côté. Utilisez-la ou gardez la vôtre.</li>
+      <li><span class="mq-num">3</span>Dans « Compétences » : trois compétences proposées en plus. Cochez celles qui vous ressemblent.</li>
+    </ol>
+    <p style="margin:.2rem 0 0;font-size:.82rem;color:var(--text-muted)">Le bouton « Maquette » (à droite) permet de montrer l'écran sans compléments, de changer de thème et de tout remettre à zéro.</p>
+  </div>
+  <div class="mep-mq" id="page"></div>
+</div>
+
+<button type="button" id="mq-ouvrir" class="btn btn-nav-erip">Maquette</button>
+<div id="mq-panneau" hidden>
+  <button type="button" class="x" id="mq-fermer" aria-label="Fermer les réglages">×</button>
+  <strong>Réglages de la maquette</strong>
+  <label for="mq-reponse">Réponse de l'assistant</label>
+  <select id="mq-reponse" class="form-select form-select-sm"><option value="avec">Avec les trois compléments</option><option value="sans">Sans complément (écran d'avant)</option></select>
+  <label for="mq-theme">Thème</label>
+  <select id="mq-theme" class="form-select form-select-sm"><option value="clair">Clair</option><option value="sombre">Sombre</option></select>
+  <button type="button" class="btn btn-outline-primary btn-sm reset" id="mq-reset">Tout remettre à zéro</button>
+</div>
+
+<script>
+/* ---------- Données d'exemple (dans l'application : le dossier et la réponse de l'assistant) ---------- */
+var EXPS = [
+  { poste: 'Aide-soignant', entreprise: 'Hôpital de Limoges', periode: '2019 à 2023',
+    missions: [
+      'Aider les patients à la toilette et à l’habillage',
+      'Effectuer les soins d’hygiène et de confort des patients',
+      'Surveiller l’état de santé des patients, alerter l’infirmière dès qu’un changement apparaît et transmettre par écrit les observations de la journée à l’équipe suivante',
+      'Distribuer les repas et aider les patients à manger'
+    ],
+    doublon: [0, 1],
+    courtes: { 2: 'Surveiller l’état de santé des patients et transmettre les observations à l’équipe.' } },
+  { poste: 'Agent d’entretien', entreprise: 'Clinique Saint-Jean', periode: '2016 à 2019',
+    missions: ['Nettoyer et désinfecter les chambres et les couloirs', 'Gérer les stocks de produits d’entretien'],
+    doublon: null, courtes: {} }
+];
+var PRO_BASE = ['Soins d’hygiène et de confort', 'Surveillance de l’état de santé', 'Distribution des repas', 'Entretien des locaux', 'Prise des constantes', 'Utilisation du dossier de soins'];
+var COMP_BASE = ['Rigueur', 'Sens de l’écoute', 'Esprit d’équipe', 'Discrétion', 'Ponctualité'];
+var PLUS = [
+  { nom: 'Transmettre des observations à l’équipe soignante', type: 'savoirFaire', pourquoi: 'Vous écrivez « transmettre par écrit les observations » dans votre expérience à l’hôpital.' },
+  { nom: 'Utiliser un lève-personne', type: 'savoirFaire', pourquoi: 'Vous citez l’aide au transfert des patients.' },
+  { nom: 'Patience', type: 'savoirEtre', pourquoi: 'Vous décrivez un accompagnement de personnes âgées.' }
+];
+
+/* ---------- État ---------- */
+var etat;
+function etatInitial(avec) {
+  return { avec: avec !== false, coche: EXPS.map(function (e) { return e.missions.map(function () { return true; }); }),
+    decision: {}, courteActive: {}, ouvert: {}, plus: {}, pick: { pro: false, comp: false }, masque: { pro: {}, comp: {} },
+    cartes: { exp: true, comp: true } };
+}
+etat = etatInitial(true);
+
+var qs = function (s) { return document.querySelector(s); };
+function echap(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function rond(ouvert) { return '<span class="rond-btn' + (ouvert ? ' ouvert' : '') + '" aria-hidden="true"></span>'; }
+function pl(n, mot) { return n + ' ' + mot + (n > 1 ? 's' : ''); }
+function fr(s) { return '&laquo;&nbsp;' + echap(s) + '&nbsp;&raquo;'; }
+function cle(i, k) { return i + '|' + k; }
+
+var ICONES = {
+  experiences: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  competences: '<circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/>'
+};
+function entete(icone, titre, sous, ouverte) {
+  return '<summary><svg class="ic" viewBox="0 0 24 24">' + ICONES[icone] + '</svg><div><h3>' + titre + ' <span class="sous" style="font-weight:400;margin-left:0.5rem">' + sous + '</span></h3></div><span class="chev">' + (ouverte ? '&#8963;' : '&#8964;') + '</span></summary>';
+}
+
+/* ---------- Carte Expériences ---------- */
+function lignesCochees(i) { return EXPS[i].missions.map(function (m, k) { return k; }).filter(function (k) { return etat.coche[i][k]; }); }
+function htmlDoublon(i) {
+  var e = EXPS[i];
+  if (!etat.avec || !e.doublon) { return ''; }
+  var a = e.missions[e.doublon[0]], b = e.missions[e.doublon[1]], d = etat.decision[i];
+  if (!d) {
+    return '<div class="complement-assistant"><p><b>Deux de vos lignes disent presque la même chose :</b></p>' +
+      '<ul><li>' + fr(a) + '</li><li>' + fr(b) + '</li></ul>' +
+      '<p style="color:var(--text-muted)">L’assistant n’a rien retiré. Vous décidez de ce qui figure sur le CV.</p>' +
+      '<div class="actions"><button type="button" class="btn-miss" data-act="doublon" data-i="' + i + '" data-v="deux">Garder les deux</button>' +
+      '<button type="button" class="btn-miss" data-act="doublon" data-i="' + i + '" data-v="premiere">Garder seulement la première</button>' +
+      '<button type="button" class="btn-miss" data-act="doublon" data-i="' + i + '" data-v="seconde">Garder seulement la seconde</button></div></div>';
+  }
+  var texte = d === 'deux' ? 'Vous gardez les deux lignes.' : (d === 'premiere' ? 'Vous gardez seulement la première ligne. L’autre reste dans votre liste de missions, vous pouvez la recocher.' : 'Vous gardez seulement la seconde ligne. L’autre reste dans votre liste de missions, vous pouvez la recocher.');
+  return '<div class="conseil-missions ok">' + texte + ' <button type="button" class="btn-miss" data-act="doublon" data-i="' + i + '" data-v="rien">Revenir en arrière</button></div>';
+}
+function nbCourtesNonVues(i) {
+  var e = EXPS[i], n = 0;
+  if (!etat.avec) { return 0; }
+  Object.keys(e.courtes).forEach(function (k) { if (!etat.courteActive[cle(i, k)]) { n++; } });
+  return n;
+}
+function htmlInvitationCourtes(i) {
+  if (etat.ouvert[i] || !etat.avec || !Object.keys(EXPS[i].courtes).length) { return ''; }
+  var reste = nbCourtesNonVues(i);
+  return '<div class="conseil-missions">' + (reste > 0
+    ? 'L’assistant propose une version plus courte de ' + (reste > 1 ? reste + ' de vos lignes' : 'l’une de vos lignes') + '. '
+    : 'Vous utilisez les versions plus courtes proposées. ') +
+    '<button type="button" class="btn-miss" data-act="missions" data-i="' + i + '">' + (reste > 0 ? 'La voir' : 'La revoir') + '</button></div>';
+}
+function htmlListeMissions(i) {
+  var e = EXPS[i], coches = lignesCochees(i);
+  var html = '<div class="miss-liste"><div class="miss-tete"><span>' + pl(coches.length, 'mission') + ' ' + (coches.length > 1 ? 'choisies' : 'choisie') + ' sur ' + e.missions.length + ' proposées</span>' +
+    '<button type="button" data-act="raz" data-i="' + i + '">Remettre les premières</button></div>';
+  e.missions.forEach(function (m, k) {
+    var c = etat.coche[i][k], dbl = (etat.avec && e.doublon && e.doublon[1] === k && !etat.decision[i]);
+    html += '<label class="' + (c ? '' : 'non') + '"><input type="checkbox" data-act="coche" data-i="' + i + '" data-k="' + k + '"' + (c ? ' checked' : '') + '><span>' + echap(m) +
+      (dbl ? '<em class="tag-ecart">presque la même chose que la ligne ' + (e.doublon[0] + 1) + '</em>' : '') + '</span></label>';
+    if (etat.avec && e.courtes[k]) {
+      var on = !!etat.courteActive[cle(i, k)];
+      html += '<div class="ligne-courte' + (on ? ' active' : '') + '">' + (on
+        ? 'Sur votre CV : <q>' + echap(e.courtes[k]) + '</q> <button type="button" class="btn-miss" data-act="courte" data-i="' + i + '" data-k="' + k + '">Garder ma phrase d’origine</button>'
+        : 'Version plus courte proposée : <q>' + echap(e.courtes[k]) + '</q> <button type="button" class="btn-miss" data-act="courte" data-i="' + i + '" data-k="' + k + '">Utiliser cette version</button>') + '</div>';
+    }
+  });
+  return html + '</div>';
+}
+function htmlLigneExp(i) {
+  var e = EXPS[i], coches = lignesCochees(i), ouvert = !!etat.ouvert[i], perso = coches.length !== e.missions.length;
+  return '<div class="ligne-bloc' + (ouvert ? ' ouvert' : '') + '"><label class="ligne-choix"><input type="checkbox" checked disabled>' +
+    '<span class="nom"><b>' + echap(e.poste) + '</b> - ' + echap(e.entreprise) + ' <em>(' + echap(e.periode) + ')</em></span>' +
+    '<button type="button" class="btn-stage" aria-pressed="false" title="Cette expérience est un stage : le CV écrira « (stage) » après le poste">Stage</button>' +
+    '<span class="pas"><button type="button" data-act="moins" data-i="' + i + '"' + (coches.length <= 1 ? ' disabled' : '') + '>&minus;</button><span>' + coches.length + '</span>' +
+    '<button type="button" data-act="plus" data-i="' + i + '"' + (coches.length >= e.missions.length ? ' disabled' : '') + '>+</button></span>' +
+    '<span class="sur" title="Missions proposées pour cette expérience">/' + e.missions.length + '</span>' +
+    '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-act="missions" data-i="' + i + '">' + (perso ? 'Choix personnel' : 'Missions') + rond(ouvert) + '</button></label>' +
+    htmlDoublon(i) + htmlInvitationCourtes(i) + (ouvert ? htmlListeMissions(i) : '') + '</div>';
+}
+function htmlCarteExp() {
+  var total = 0, aff = 0;
+  EXPS.forEach(function (e, i) { total += e.missions.length; aff += lignesCochees(i).length; });
+  return '<details class="mep-carte" id="cExp" data-carte="exp"' + (etat.cartes.exp ? ' open' : '') + '>' + entete('experiences', 'Expériences professionnelles', 'Choisissez la façon de présenter vos expériences.', etat.cartes.exp) +
+    '<div class="carte-corps"><details class="choix-exp" id="zoneChoixExp" open><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier &laquo;&nbsp;Expériences professionnelles&nbsp;&raquo;</span><span class="cb-fermer">Refermer &laquo;&nbsp;Expériences professionnelles&nbsp;&raquo;</span></b><small>' + pl(EXPS.length, 'expérience') + ' &middot; ' + aff + ' missions sur ' + total + '</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>' +
+    '<div class="choix-corps"><p class="choix-aide">Toutes vos expériences sont affichées. Pour chacune, choisissez les missions à garder : la 5e à la place de la 4e, c’est possible.</p>' +
+    '<div class="mep-liste-choix-exp">' + EXPS.map(function (e, i) { return htmlLigneExp(i); }).join('') + '</div></div></details></div></details>';
+}
+
+/* ---------- Carte Compétences ---------- */
+function poolListe(cle) {
+  var base = cle === 'pro' ? PRO_BASE : COMP_BASE, type = cle === 'pro' ? 'savoirFaire' : 'savoirEtre', liste = base.map(function (nom) { return { nom: nom, ajoutee: false }; });
+  if (etat.avec) { PLUS.forEach(function (p, j) { if (p.type === type && etat.plus[j]) { liste.push({ nom: p.nom, ajoutee: true }); } }); }
+  return liste;
+}
+function affichees(cle) { return poolListe(cle).filter(function (x) { return !etat.masque[cle][x.nom]; }); }
+function htmlListeChoix(cle) {
+  var pool = poolListe(cle), aff = affichees(cle);
+  var nom = cle === 'pro' ? 'Compétences professionnelles' : 'Compétences comportementales';
+  return '<div class="miss-liste mep-pick-' + cle + '"><div class="miss-tete"><span><b>' + nom + '</b> : ' + aff.length + ' sur ' + pool.length + ' affichées</span><button type="button" data-act="razliste" data-c="' + cle + '">Remettre la sélection automatique</button></div><div class="cols">' +
+    pool.map(function (x) {
+      var c = !etat.masque[cle][x.nom];
+      return '<label class="' + (c ? '' : 'non') + '"><input type="checkbox" data-act="cochecomp" data-c="' + cle + '" data-nom="' + echap(x.nom) + '"' + (c ? ' checked' : '') + '><span class="sg cv" aria-hidden="true">●</span><span>' + echap(x.nom) + '</span>' + (x.ajoutee ? '<em class="mention-assistant">proposée par l’assistant</em>' : '') + '</label>';
+    }).join('') + '</div></div>';
+}
+function htmlChampComp(cle) {
+  var aff = affichees(cle), pool = poolListe(cle), ouvert = etat.pick[cle];
+  var lib = cle === 'pro' ? 'Compétences professionnelles' : 'Compétences comportementales';
+  return '<div class="champ"><label class="ck ck-marque on"><input type="checkbox" checked disabled> Afficher les compétences ' + (cle === 'pro' ? 'professionnelles' : 'comportementales') + '</label>' +
+    '<div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss" aria-expanded="false">&#9998; Changer l’intitulé' + rond(false) + '</button></div>' +
+    '<label>' + lib + ' à afficher</label>' +
+    '<div class="ligne-comp"><div class="pas"><button type="button" data-act="moinscomp" data-c="' + cle + '"' + (aff.length <= 1 ? ' disabled' : '') + '>&minus;</button><span>' + aff.length + '</span><button type="button" data-act="pluscomp" data-c="' + cle + '"' + (aff.length >= pool.length ? ' disabled' : '') + '>+</button></div>' +
+    '<button type="button" class="btn-miss" data-act="pick" data-c="' + cle + '">Les montrer et les choisir' + rond(ouvert) + '</button></div>' +
+    (ouvert ? htmlListeChoix(cle) : '') + '</div>';
+}
+function htmlPlusComp() {
+  if (!etat.avec) { return ''; }
+  var nbAj = PLUS.filter(function (p, j) { return etat.plus[j]; }).length;
+  function groupe(type, titre) {
+    return '<p class="miss-sous-titre">' + titre + '</p>' + PLUS.map(function (p, j) {
+      if (p.type !== type) { return ''; }
+      var c = !!etat.plus[j];
+      return '<label class="' + (c ? '' : 'non') + '"><input type="checkbox" data-act="plus-comp" data-j="' + j + '"' + (c ? ' checked' : '') + '><span>' + echap(p.nom) + '<small class="pourquoi">Pourquoi : ' + echap(p.pourquoi) + '</small></span></label>';
+    }).join('');
+  }
+  return '<div class="champ champ-comp-plus"><div class="miss-liste"><div class="miss-en-plus"><div class="miss-tete"><span>Compétences proposées par l’assistant en plus (' + nbAj + ' ajoutée' + (nbAj > 1 ? 's' : '') + ' sur ' + PLUS.length + ')</span></div>' +
+    '<p class="miss-aide">Cochez ce qui vous ressemble : cela s’ajoute à votre CV. Rien n’est ajouté sans votre clic, et vos propres compétences restent telles quelles.</p>' +
+    groupe('savoirFaire', 'Savoir-faire') + groupe('savoirEtre', 'Savoir-être') + '</div></div></div>';
+}
+function htmlCarteComp() {
+  return '<details class="mep-carte" id="cComp" data-carte="comp"' + (etat.cartes.comp ? ' open' : '') + '>' + entete('competences', 'Compétences', 'Professionnelles et comportementales : lesquelles montrer, et dans quel ordre.', etat.cartes.comp) +
+    '<div class="carte-corps"><div class="grille-el">' + htmlChampComp('pro') + htmlChampComp('comp') + htmlPlusComp() + '</div></div></details>';
+}
+
+/* ---------- Outil : ce qui part sur le CV ---------- */
+function htmlCV() {
+  var h = '<details class="mq-cv"><summary>Outil de la maquette : ce qui part sur le CV</summary>';
+  EXPS.forEach(function (e, i) {
+    h += '<h4>' + echap(e.poste) + ' - ' + echap(e.entreprise) + '</h4><ul>' + e.missions.map(function (m, k) {
+      if (!etat.coche[i][k]) { return ''; }
+      return '<li>' + echap(etat.courteActive[cle(i, k)] ? e.courtes[k] : m) + '</li>';
+    }).join('') + '</ul>';
+  });
+  h += '<h4>Compétences professionnelles</h4><p style="margin:0">' + affichees('pro').map(function (x) { return echap(x.nom); }).join(' &middot; ') + '</p>' +
+    '<h4>Compétences comportementales</h4><p style="margin:0">' + affichees('comp').map(function (x) { return echap(x.nom); }).join(' &middot; ') + '</p></details>';
+  return h;
+}
+
+function rendre() {
+  var y = window.scrollY;
+  qs('#page').innerHTML = htmlCarteExp() + htmlCarteComp() + htmlCV();
+  window.scrollTo(0, y);
+}
+
+/* ---------- Actions ---------- */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-act]'); if (!b || b.tagName === 'INPUT') { return; }
+  var a = b.getAttribute('data-act'), i = +b.getAttribute('data-i'), c = b.getAttribute('data-c');
+  if (a === 'missions') { etat.ouvert[i] = !etat.ouvert[i]; }
+  else if (a === 'doublon') {
+    var v = b.getAttribute('data-v'), d = EXPS[i].doublon;
+    etat.coche[i][d[0]] = true; etat.coche[i][d[1]] = true;
+    if (v === 'premiere') { etat.coche[i][d[1]] = false; }
+    if (v === 'seconde') { etat.coche[i][d[0]] = false; }
+    etat.decision[i] = (v === 'rien') ? null : v;
+  }
+  else if (a === 'courte') { var kk = cle(i, b.getAttribute('data-k')); etat.courteActive[kk] = !etat.courteActive[kk]; }
+  else if (a === 'raz') { EXPS[i].missions.forEach(function (m, k) { etat.coche[i][k] = k < 3; }); }
+  else if (a === 'moins') { var l = lignesCochees(i); if (l.length > 1) { etat.coche[i][l[l.length - 1]] = false; } }
+  else if (a === 'plus') { var k2 = etat.coche[i].indexOf(false); if (k2 >= 0) { etat.coche[i][k2] = true; } }
+  else if (a === 'pick') { etat.pick[c] = !etat.pick[c]; }
+  else if (a === 'razliste') { etat.masque[c] = {}; }
+  else if (a === 'moinscomp') { var af = affichees(c); if (af.length > 1) { etat.masque[c][af[af.length - 1].nom] = true; } }
+  else if (a === 'pluscomp') { var p = poolListe(c).filter(function (x) { return etat.masque[c][x.nom]; })[0]; if (p) { delete etat.masque[c][p.nom]; } }
+  else { return; }
+  ev.preventDefault();
+  rendre();
+});
+document.addEventListener('change', function (ev) {
+  var b = ev.target; if (!b.getAttribute || b.tagName !== 'INPUT') { return; }
+  var a = b.getAttribute('data-act');
+  if (a === 'coche') { etat.coche[+b.getAttribute('data-i')][+b.getAttribute('data-k')] = b.checked; }
+  else if (a === 'cochecomp') { var c = b.getAttribute('data-c'), nom = b.getAttribute('data-nom'); if (b.checked) { delete etat.masque[c][nom]; } else { etat.masque[c][nom] = true; } }
+  else if (a === 'plus-comp') { etat.plus[+b.getAttribute('data-j')] = b.checked; }
+  else { return; }
+  rendre();
+});
+document.addEventListener('toggle', function (ev) {
+  var d = ev.target; if (!d.getAttribute) { return; }
+  var k = d.getAttribute('data-carte'); if (!k) { return; }
+  etat.cartes[k] = d.open;
+  var ch = d.querySelector(':scope > summary > .chev'); if (ch) { ch.innerHTML = d.open ? '&#8963;' : '&#8964;'; }
+}, true);
+
+qs('#mq-ouvrir').addEventListener('click', function () { qs('#mq-panneau').hidden = !qs('#mq-panneau').hidden; });
+qs('#mq-fermer').addEventListener('click', function () { qs('#mq-panneau').hidden = true; });
+qs('#mq-theme').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.value === 'sombre' ? 'sombre' : 'clair'); });
+qs('#mq-reponse').addEventListener('change', function () { etat.avec = (this.value === 'avec'); rendre(); });
+qs('#mq-reset').addEventListener('click', function () { etat = etatInitial(qs('#mq-reponse').value === 'avec'); rendre(); });
+rendre();
+</script>
+</body>
+</html>

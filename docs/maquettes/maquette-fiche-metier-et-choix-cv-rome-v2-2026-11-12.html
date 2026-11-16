@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v2 : fiche du métier et choix des tâches pour le CV (ROME)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 980px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: .95rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .9rem; background: var(--bg-subtle); }
+  .info-denis strong { color: var(--accent-texte); }
+  .onglets-ecrans { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet-ecran { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet-ecran[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+
+  .cv-section.rubrique { padding: 0; overflow: hidden; margin-bottom: 1rem; }
+  .rubrique-entete { padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); }
+  .rubrique-entete h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 .3rem; font-size: 1.35rem; font-weight: 800; }
+  .bilan { font-size: .85rem; font-weight: 700; padding: .1rem .7rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .bilan.complet { background: var(--success-bg-subtle, #d9f4e4); color: var(--success-strong); border-color: var(--success-strong); }
+  .partie { padding: .95rem 1.1rem; border-top: 1px solid var(--border); }
+  .partie:first-of-type { border-top: 0; }
+  .partie-titre { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; font-size: 1.05rem; margin-bottom: .3rem; }
+  .num-rubrique { flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; }
+  .partie-corps { margin-left: 2.5rem; }
+  .lecture p { margin: 0 0 .5rem; }
+  .lecture ul { margin: 0 0 .5rem; padding-left: 1.2rem; }
+  .rassurant { border: 2px solid var(--success-strong); background: var(--success-bg-subtle, #d9f4e4); color: var(--text-strong); border-radius: 12px; padding: .7rem 1rem; margin: .2rem 0 .3rem; font-weight: 600; }
+  .puces { display: flex; flex-wrap: wrap; gap: .4rem; margin: .3rem 0; }
+  .puce { padding: .15rem .8rem; border: 1px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); font-size: .9rem; }
+  .btn-detail { min-height: 40px; padding: .2rem 1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-detail[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .btn-petit { min-height: 36px; padding: .1rem .9rem; font-size: .88rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; }
+
+  .famille { margin: .9rem 0 .3rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .famille .nom { font-weight: 800; color: var(--accent-texte); }
+  .coeur { font-size: .78rem; font-weight: 700; padding: .05rem .55rem; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap; }
+  .tache { display: flex; gap: .7rem; align-items: flex-start; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); padding: .55rem .8rem; margin: .35rem 0; cursor: pointer; min-height: 48px; }
+  .tache input { width: 1.35rem; height: 1.35rem; flex: 0 0 auto; margin-top: .1rem; accent-color: var(--accent); }
+  .tache.coche { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+  .suggestion { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; }
+  .suggestion:hover, .suggestion:focus-visible { border-color: var(--accent); }
+  .suggestion[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .suggestion[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .btn-aucune { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .btn-aucune[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-valider { min-height: 44px; padding: .35rem 1.6rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+  .ligne-valider { display: flex; justify-content: flex-end; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .msg { font-size: .9rem; font-weight: 600; color: var(--success-strong); }
+  .encart { margin-top: .6rem; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); }
+  .apercu-cv { background: #fff; color: #1b1f2a; border: 1px solid var(--border-strong, var(--border)); border-radius: 6px; padding: 1rem 1.2rem; font-size: .95rem; }
+  .apercu-cv h4 { font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid #2f5fb3; padding-bottom: .15rem; margin: .8rem 0 .5rem; color: #2f5fb3; }
+  .apercu-cv h4:first-child { margin-top: 0; }
+  .apercu-cv ul { margin: 0; padding-left: 1.1rem; }
+  .invite-prompt { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; white-space: pre-wrap; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .8rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette version 2, pour validation.</strong> Rien n'est codé dans l'application. Les trois métiers sont de vraies fiches du ROME (France Travail) : toutes leurs tâches, leurs outils et connaissances, leurs appellations et leurs métiers proches sont les vraies données préparées. Les boutons fonctionnent pour que vous puissiez essayer. Nouveautés par rapport à la version 1 : le message d'accès en tête, les tâches cochées une par une (les titres ne sont plus que des intertitres), les outils et connaissances à cocher, les autres noms du métier et les métiers proches.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label>Métier de démonstration :
+      <select id="choixMetier" class="form-select form-select-sm d-inline-block w-auto"></select>
+    </label>
+  </div>
+  <div class="info-denis" id="infoNiveau"></div>
+
+  <div class="onglets-ecrans" role="tablist">
+    <button type="button" class="onglet-ecran" role="tab" id="ong1" aria-selected="true" data-ecran="1">1. La fiche du métier</button>
+    <button type="button" class="onglet-ecran" role="tab" id="ong2" aria-selected="false" data-ecran="2">2. Ce que vous avez déjà fait</button>
+    <button type="button" class="onglet-ecran" role="tab" id="ong3" aria-selected="false" data-ecran="3">3. Ce qui part dans le CV</button>
+  </div>
+
+  <!-- ÉCRAN 1 : lecture seule, dans la fiche d'un métier -->
+  <div id="ecran1">
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#127919; <span id="titreMetier1"></span></h3>
+        <p class="small text-muted mb-0">Fiche du métier, ouverte comme aujourd'hui depuis « Votre profil », « Voir tous les métiers » ou la recherche. Ces blocs s'ajoutent au-dessus des mots déjà affichés.</p>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">1</span><span>Comment y accéder</span></div>
+        <div class="partie-corps"><div class="rassurant" id="acces1"></div></div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">2</span><span>Ce que fait ce métier</span></div>
+        <div class="partie-corps">
+          <p id="presentation1"></p>
+          <p class="small fw-semibold mb-1">Au quotidien :</p>
+          <ul id="missions1"></ul>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">3</span><span>Les tâches concrètes</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted" id="resteTaches1"></p>
+          <div id="taches1"></div>
+          <button type="button" class="btn-detail" id="btnToutesTaches" aria-expanded="false">Voir les autres tâches</button>
+          <div id="toutesTaches" hidden class="mt-2"></div>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">4</span><span>Outils, techniques et connaissances</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted">Ce que les personnes qui font ce métier doivent connaître ou savoir utiliser.</p>
+          <div id="savoirs1"></div>
+          <button type="button" class="btn-detail" id="btnTousSavoirs" aria-expanded="false">Voir tout</button>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">5</span><span>Ce métier s'appelle aussi</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted mb-1">Selon les employeurs, le même métier porte d'autres noms. Vous avez peut-être déjà exercé sous l'un d'eux.</p>
+          <div class="puces" id="appellations1"></div>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">6</span><span>Des métiers proches</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted mb-1">Si vous faites ce métier, une bonne partie de ce que vous savez servirait aussi pour ceux-là.</p>
+          <div class="puces" id="proches1"></div>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">7</span><span>À savoir sur ce métier</span></div>
+        <div class="partie-corps"><p class="small text-muted mb-0">Le bloc « À savoir » qui existe déjà (conditions de travail, statuts possibles) reste tel quel, juste en dessous. Les mots colorés actuels restent aussi, en bas de la fiche.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : choix des tâches et des savoirs, parcours « Créer un nouveau CV » avec un métier visé -->
+  <div id="ecran2" hidden>
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#9989; Ce que vous avez déjà fait <span class="bilan" id="bilan2">0 coché</span></h3>
+        <p class="small text-muted mb-0">Pour le métier visé : <strong id="titreMetier2"></strong>. Cochez ce qui vous ressemble, que ce soit en emploi, en stage, en bénévolat ou chez vous. Ne cochez que ce que vous avez vraiment fait : l'assistant n'ajoutera rien d'autre. Rien n'est obligatoire.</p>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">1</span><span>Les tâches que vous avez déjà faites</span><span class="bilan" id="etatTaches">0 coché</span></div>
+        <div class="partie-corps">
+          <div id="taches2"></div>
+          <button type="button" class="btn-detail mt-2" id="btnAutresTaches2" aria-expanded="false">Voir les autres tâches du métier</button>
+          <div id="autresTaches2" hidden></div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="btn-aucune" id="btnAucune" aria-pressed="false">Aucune de ces tâches ne me ressemble</button>
+          </div>
+          <div class="encart small mt-3" id="msgAucune" hidden>C'est tout à fait possible : ce métier est peut-être nouveau pour vous. L'assistant s'appuiera alors uniquement sur ce que vous avez raconté de votre parcours.</div>
+        </div>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">2</span><span>Les outils, techniques et connaissances que vous avez déjà utilisés</span><span class="bilan" id="etatSavoirs">0 coché</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted mb-1">Ils apparaîtront dans votre CV, parce que les recruteurs les recherchent. Cochez seulement ceux que vous connaissez vraiment, même un peu. Les diplômes, permis et habilitations ne sont pas proposés ici : vous les indiquez déjà dans vos formations et votre permis.</p>
+          <div id="savoirs2"></div>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <button type="button" class="btn-aucune" id="btnAucunSavoir" aria-pressed="false">Aucun de ceux-là</button>
+          </div>
+        </div>
+      </div>
+      <div class="partie">
+        <div class="ligne-valider" style="margin-top:0;border-top:0;padding-top:0">
+          <span class="msg" id="msgValide" hidden>&#10003; Vos choix sont enregistrés.</span>
+          <button type="button" class="btn-valider" id="btnValider">Valider mes choix</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : ce qui part dans le CV et chez l'assistant -->
+  <div id="ecran3" hidden>
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#128196; Ce qui part dans le CV</h3>
+        <p class="small text-muted mb-0">Vous cochez avec des phrases simples. Le CV reprend les mots du métier, pour vous valoriser. Cet écran sert seulement à la maquette : il montre l'effet de vos coches.</p>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">1</span><span>Aperçu dans le CV</span></div>
+        <div class="partie-corps">
+          <div class="apercu-cv" id="apercuCv"></div>
+          <p class="small text-muted mt-2 mb-0">Exemple de rendu : les tâches sont reprises avec les mots du ROME, les outils et connaissances rejoignent les mots-clés du CV. L'assistant peut assembler les tâches en phrases, comme il le fait déjà pour les missions de chaque expérience.</p>
+        </div>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">2</span><span>Ce que reçoit l'assistant (pour information)</span></div>
+        <div class="partie-corps"><div class="invite-prompt" id="invite"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var DONNEES = {"A1101":{"niveau":1,"d":"Réalise des travaux agricoles mécanisés.","m":["Aménage et prépare les terrains, assure le labourage, le désherbage, les semis et récolte la production.","Utilise différentes machines (tracteur, moissonneuse-batteuse, ensileuse) et en assure l’entretien et la maintenance de premier niveau."],"a":"Cet emploi est accessible sans diplôme particulier. Un CAPA ou un Bac pro dans le domaine agricole ou le certificat de spécialisation option \"Tracteurs et machines agricoles\" ainsi que différents CACES sont cependant appréciés, même s’il est possible de les obtenir en cours d’emploi.","app":["Chauffeur / Chauffeuse de machines agricoles","Conducteur / Conductrice de tracteur","Conducteur / Conductrice de machines à vendanger","Conducteur / Conductrice d'engins d'exploitation agricole","Tractoriste agricole","Conducteur / Conductrice d'automoteur de récolte","Conducteur / Conductrice de pulvérisateur"],"proches":["Conducteur / Conductrice d'engins d'exploitation forestière","Ouvrier / Ouvrière d'entretien des espaces naturels","Bûcheron / Bûcheronne","Horticulteur / Horticultrice","Sylviculteur / Sylvicultrice"],"k":[{"simple":"Cultiver et récolter","coeur":3,"rome":["Préparer les sols, les plantations (épandage, semis, etc.)","Récolter un produit à maturité et selon les consignes de calibrage","Effectuer des opérations agricoles (semis, récoltes)","Surveiller l’état d’une plantation"]},{"simple":"Conduire un véhicule sur la route","coeur":1,"rome":["Conduire un véhicule agricole","Conduire un poids lourd"]},{"simple":"Analyser et organiser des données","coeur":0,"rome":["Traiter une information météorologique recueillie"]},{"simple":"Préparer et planifier la production","coeur":1,"rome":["Planifier une opération de semis, de traitement ou de récolte sur un site d’exploitation"]},{"simple":"Mesurer, doser et ajuster","coeur":0,"rome":["Préparer des mélanges de produits de synthèse"]},{"simple":"Appliquer un traitement ou un produit","coeur":1,"rome":["Réaliser des opérations de traitement hydrofuge, insecticide, fongicide, pesticide"]},{"simple":"Utiliser et régler une machine d'impression","coeur":1,"rome":["Régler les systèmes hydrauliques des machines agricoles"]},{"simple":"Aménager et agencer un espace","coeur":0,"rome":["Réaliser des travaux d’aménagement"]},{"simple":"Entretenir un espace naturel ou une forêt","coeur":0,"rome":["Débroussailler une plantation et ses chemins d’accès"]},{"simple":"Entretenir un équipement, une machine ou une installation","coeur":0,"rome":["Entretenir les mécanismes d’un engin motorisé"]},{"simple":"Nettoyer et entretenir du matériel","coeur":0,"rome":["Maintenir le véhicule en bon état de propreté et de fonctionnement"]},{"simple":"Faire une opération de maintenance","coeur":0,"rome":["Assurer la maintenance préventive de base des équipements"]},{"simple":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","coeur":0,"rome":["Contrôler le fonctionnement d’un dispositif de sécurité"]},{"simple":"Repérer, prévenir et gérer les risques","coeur":0,"rome":["Pratiquer des gestes et postures de manutention en toute sécurité"]},{"simple":"Gérer les stocks","coeur":0,"rome":["Stocker un produit"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Méthodes de conservation de la biodiversité","Techniques de pressage","Techniques de fauchage"]},{"cat":"Outils, machines et matières","coeur":1,"libs":["Fonctionnement des engins agricoles","Utilisation de produits phytosanitaires"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Cadre réglementaire environnemental","Règles de sécurité","Réglementation phytosanitaire","Réglementation sur le stockage de produits spécifiques (dangereux, sous température dirigée, phytosanitaire, ...)","Maintenance de base des engins de manutention","Maintenance préventive de matériel agricole","Procédés de préparation des mélanges"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Techniques culturales","Gestes et postures de manutention","Caractéristiques des écosystèmes","Agronomie","Installation de systèmes hydrauliques","Mise à jour des connaissances en mécanique","Pneumatique","Système informatique (embarqué ou fixe)","Techniques de moissonnage","Biologie des végétaux"]},{"cat":"Diplômes, permis et habilitations souvent demandés","coeur":0,"libs":["Tracteur et petits engins de chantiers mobiles (CACES R 372-1)","Engins rail-route à déplacement séquentiel (CACES R482-B3) - Depuis le 01/01/2020","Engins de transport (CACES R 482-E) - Depuis le 01/01/2020","CACES R482 catégorie F - Engins de chantier","CAP agricole métiers de l’agriculture","Bac pro agroéquipement","Certificat de spécialisation option tracteurs et machines agricoles","BP agroéquipement, conduite et maintenance des matériels"]}]},"M1810":{"niveau":2,"d":"Le Technicien d’exploitation informatique assure le bon fonctionnement des systèmes informatiques.","m":["Supervise et maintient l’infrastructure informatique en condition opérationnelle","Assure l’installation, la configuration et la mise à jour des systèmes et logiciels","Gère les sauvegardes et la sécurité des données","Fournit un support technique aux utilisateurs et résout les incidents","Optimise les performances des systèmes informatiques","Documente les procédures techniques et forme les utilisateurs aux nouveaux outils"],"a":"Ce métier est accessible avec un diplôme de niveau Bac + 2 BTS, DUT.","app":["Adjoint / Adjointe d'exploitation informatique","Adjoint(e) technicien(ne) d'exploitation informatique","Agent / Agente de planning informatique","Agent / Agente d'exploitation informatique","Analyste d'exploitation","Assistant / Assistante d'exploitation informatique","Chef / Cheffe d'équipe de production informatique"],"proches":["Spécialiste support","Responsable de la production informatique","Administrateur / Administratrice sécurité informatique","Gestionnaire de parc informatique","Responsable d'exploitation fibre optique"],"k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Installer et intégrer le matériel (station, équipement réseau, périphériques, ...) dans l’environnement de production et configurer les ressources logistiques et physiques","Gérer et déployer des logiciels à distance","Mettre en place des solutions de virtualisation"]},{"simple":"Administrer un système informatique","coeur":2,"rome":["Gérer les droits d’accès des utilisateurs","Planifier les mises à jour systèmes sans interruption de service"]},{"simple":"Trouver l'origine d'une panne","coeur":1,"rome":["Diagnostiquer la nature et l’origine des incidents et mettre en oeuvre les mesures correctives","Agir rapidement en cas de panne pour minimiser les interruptions"]},{"simple":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","coeur":0,"rome":["Surveiller le fonctionnement d’applicatifs et logiciels","Surveiller les systèmes de réseau pour garantir leur fonctionnement optimal"]},{"simple":"Aider les utilisateurs à prendre en main un outil","coeur":0,"rome":["Former les utilisateurs aux nouvelles technologies"]},{"simple":"Analyser un problème et le résoudre","coeur":0,"rome":["Résoudre les problèmes techniques de niveau avancé"]},{"simple":"Se tenir au courant des évolutions de son domaine","coeur":0,"rome":["Assurer la veille technologique pour rester à jour sur les innovations"]},{"simple":"Développer un logiciel ou une application","coeur":0,"rome":["Développer des scripts pour automatiser les tâches"]},{"simple":"Utiliser des solutions d'analyse avancée des données","coeur":0,"rome":["Exploiter l’Intelligence Artificielle"]},{"simple":"Gérer une base de données","coeur":1,"rome":["Mettre en place des solutions de sauvegarde et de récupération des données"]},{"simple":"Gérer un parc de machines, d'équipements ou de locaux","coeur":0,"rome":["Gérer un parc informatique"]},{"simple":"Mettre en place et appliquer des consignes de sécurité","coeur":0,"rome":["Assurer la sécurité des réseaux informatiques"]},{"simple":"Contrôler la qualité des façons de travailler","coeur":1,"rome":["Assurer la conformité des opérations de maintenance"]},{"simple":"Recueillir et comprendre les besoins d'un client","coeur":0,"rome":["Analyser les besoins des utilisateurs pour le système informatique"]},{"simple":"Piloter une activité","coeur":0,"rome":["Superviser et organiser les travaux d’exploitation ou de production informatique"]},{"simple":"Mettre en place des solutions pour mieux travailler","coeur":1,"rome":["Optimiser les performances des réseaux informatiques"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Diagnostic de pannes"]},{"cat":"Outils, machines et matières","coeur":0,"libs":["Installation de composants matériels"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Normes et standards d’exploitation","Protection des données numériques","Mise en place de politiques de sécurité informatique"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Audit de sécurité informatique","Optimisation des performances des serveurs","Gestion des comptes utilisateurs","Surveillance de la performance des systèmes","Analyse de logs système","Configuration de logiciels de réseau","Gestion des sauvegardes et des restaurations"]},{"cat":"Diplômes, permis et habilitations souvent demandés","coeur":0,"libs":["BTS services informatiques aux organisations option B : solutions logicielles et applications métiers","Licence pro mention métiers de l’informatique : conception, développement et test de logiciels","BTS services informatiques aux organisations option A : solutions d’infrastructure, systèmes et réseaux","DUT informatique","Licence pro mention métiers de l’informatique : administration et sécurité des systèmes et des réseaux","Licence pro mention métiers de l’informatique : systèmes d’information et gestion de données","Ingénieur diplômé de l’école nationale supérieure d’informatique pour l’industrie et l’entreprise spécialité informatique","Ingénieur diplômé de l’école supérieure d’informatique, électronique, automatique","Ingénieur diplômé de l’institut d’ingénierie informatique de Limoges","Master mention informatique","Master mention technologies de l’information"]}]},"M1805":{"niveau":3,"d":"Le Développeur informatique conçoit et améliore des systèmes informatiques.","m":["Conçoit et développe des applications informatiques selon les besoins des utilisateurs","Participe à l’analyse des besoins des clients et propose des solutions techniques adaptées","Rédige des documentations techniques et des guides d’utilisation pour les applications développées","Assure la maintenance et la mise à jour des systèmes pour garantir leur efficacité et leur sécurité","Collabore avec des équipes multidisciplinaires pour intégrer de nouvelles technologies et améliorer les processus de développement","Effectue des tests et des validations pour s’assurer de la qualité et de la performance des applications"],"a":"Également avec le TP Développeur web et web mobile (DWWM) si enrichi d’une expérience de la relation client.","app":["Analyste développeur / Analyste développeuse","Analyste-programmeur(se) gestion informatique","Analyste-programmeur / Analyste-programmeuse informatique","Analyste-programmeur(se) scientifique informatique","Développeur / Développeuse informatique","Informaticien / Informaticienne de développement","Programmeur / Programmeuse de maintenance informatique"],"proches":["Expert / Experte systèmes et réseaux informatiques","Directeur / Directrice des systèmes d'information (DSI)","Technicien / Technicienne d'exploitation informatique","Responsable de la Sécurité des Systèmes d'Information (RSSI)","Ingénieur / Ingénieure d'étude informatique"],"k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Tester un logiciel, un système d’informations, une application","Gérer les versions de logiciels et leurs mises à jour","Déployer le code de façon conteneurisée"]},{"simple":"Développer un logiciel ou une application","coeur":2,"rome":["Développer une application en lien avec une base de données","Réaliser des études et développements informatiques","Collaborer avec les développeurs pour améliorer la qualité du logiciel"]},{"simple":"Se tenir au courant des évolutions de son domaine","coeur":0,"rome":["Surveiller les tendances du marché digital"]},{"simple":"Administrer un système informatique","coeur":0,"rome":["Piloter les fonctionnalités des équipements et systèmes de sécurité informatique"]},{"simple":"Concevoir un logiciel ou une application","coeur":1,"rome":["Concevoir une application web"]},{"simple":"Utiliser les données dans le travail de l'entreprise","coeur":0,"rome":["Intégrer des outils intelligence artificielle et Data Science"]},{"simple":"Analyser une situation et en tirer un constat","coeur":1,"rome":["Analyser les besoins informatiques"]},{"simple":"Gérer une base de données","coeur":0,"rome":["Gérer et maitriser des bases de données (SQL/NoSQL)"]},{"simple":"Tenir à jour une documentation technique","coeur":0,"rome":["Maintenir à jour la documentation technique et les manuels d’utilisation"]},{"simple":"Mettre en place et appliquer des consignes de sécurité","coeur":1,"rome":["Concevoir et maintenir un système de cybersécurité"]},{"simple":"Piloter une démarche pour améliorer la qualité","coeur":1,"rome":["Optimiser les processus de qualité pour assurer la fiabilité des logiciels"]},{"simple":"Contrôler le déroulement et le coût d'une prestation","coeur":0,"rome":["Vérifier la conformité d’une réalisation avec un cahier des charges"]},{"simple":"Piloter une activité","coeur":0,"rome":["Superviser, coordonner les réalisations ou développements informatiques (collaborateurs, sous-traitants)"]},{"simple":"Mettre en place des solutions pour mieux travailler","coeur":1,"rome":["Traiter les retours utilisateurs pour améliorer les systèmes"]},{"simple":"Favoriser l'entente et la collaboration","coeur":0,"rome":["Promouvoir la collaboration entre les développeurs et les opérateurs pour une meilleure intégration"]},{"simple":"Présenter et défendre un projet","coeur":0,"rome":["Argumenter les choix technologiques auprès des parties prenantes"]},{"simple":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","coeur":1,"rome":["Respecter les normes de sécurité informatique dans le développement"]},{"simple":"Organiser le partage des informations","coeur":1,"rome":["Documenter les procédures techniques pour les utilisateurs"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Optimisation des performances des applications","Intégration continue et déploiement continu (CI/CD)"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Règles de sécurité Informatique et Télécoms","Modélisation informatique","Méthode AGILE","Conception d’interfaces utilisateur (UI)","Sécurité des données et conformité RGPD"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Langages de programmation informatique","HTML","Intelligence artificielle","Systèmes d’exploitation informatique","Architecture web","Anglais technique","Script Shell","AutoItScript","Programmation en Python","Outils multimédias","Développement d’applications mobiles","Programmation logicielle","Gestion de versions de logiciels de jeux","Application web","Sécurité des applications web","Développement de logiciels embarqués","Gestion de projet informatique"]},{"cat":"Diplômes, permis et habilitations souvent demandés","coeur":0,"libs":["BTS services informatiques aux organisations option B : solutions logicielles et applications métiers","Licence pro mention métiers de l’informatique : conception, développement et test de logiciels","BTS services informatiques aux organisations option A : solutions d’infrastructure, systèmes et réseaux","DUT informatique","Licence pro mention métiers de l’informatique : conduite de projets","Master mention informatique","Licence pro mention métiers de l’informatique : applications web"]}]}};
+var NOMS = { A1101: 'Conducteur / Conductrice d’engins agricoles', M1810: 'Technicien / Technicienne d’exploitation informatique', M1805: 'Développeur / Développeuse informatique' };
+var REGISTRES = {
+  1: 'concret, avec des verbes d’action courts (niveau d’accès : sans diplôme ou CAP à Bac)',
+  2: 'technique mais accessible, avec le vocabulaire de l’outil (niveau d’accès : Bac + 2)',
+  3: 'professionnel et élaboré, avec le vocabulaire du domaine (poste de cadre ou niveau supérieur à Bac + 2)'
+};
+var code = 'A1101';
+var cochesT = {};    // "i-j" -> true (tâches)
+var cochesS = {};    // "i-j" -> true (savoirs)
+var aucuneT = false, aucunS = false;
+
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function f() { return DONNEES[code]; }
+
+(function init() {
+  var sel = el('choixMetier');
+  Object.keys(DONNEES).forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = NOMS[c] + ' (niveau ' + DONNEES[c].niveau + ')'; sel.appendChild(o); });
+  sel.addEventListener('change', function () { code = sel.value; cochesT = {}; cochesS = {}; aucuneT = false; aucunS = false; tout(); });
+  el('modeSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); });
+  document.querySelectorAll('.onglet-ecran').forEach(function (b) { b.addEventListener('click', function () { montrer(b.getAttribute('data-ecran')); }); });
+  basculer('btnToutesTaches', 'toutesTaches', 'Voir les autres tâches', 'Masquer les autres tâches');
+  basculer('btnAutresTaches2', 'autresTaches2', 'Voir les autres tâches du métier', 'Masquer les autres tâches');
+  el('btnTousSavoirs').addEventListener('click', function () { var o = this.getAttribute('data-ouvert') !== '1'; this.setAttribute('data-ouvert', o ? '1' : '0'); this.setAttribute('aria-expanded', o ? 'true' : 'false'); this.textContent = o ? 'Voir moins' : 'Voir tout'; dessinerSavoirs1(); });
+  el('btnAucune').addEventListener('click', function () { aucuneT = !aucuneT; if (aucuneT) { cochesT = {}; } el('msgValide').hidden = true; dessinerChoix(); });
+  el('btnAucunSavoir').addEventListener('click', function () { aucunS = !aucunS; if (aucunS) { cochesS = {}; } el('msgValide').hidden = true; dessinerChoix(); });
+  el('btnValider').addEventListener('click', function () { el('msgValide').hidden = false; });
+  tout();
+})();
+
+function basculer(idBtn, idZone, texteFerme, texteOuvert) {
+  el(idBtn).addEventListener('click', function () {
+    var ouvert = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+    this.textContent = ouvert ? texteFerme : texteOuvert;
+    el(idZone).hidden = ouvert;
+  });
+}
+function montrer(n) {
+  [1, 2, 3].forEach(function (i) { el('ecran' + i).hidden = String(i) !== String(n); el('ong' + i).setAttribute('aria-selected', String(i) === String(n) ? 'true' : 'false'); });
+  if (String(n) === '3') { dessinerSortie(); }
+}
+
+// Familles : celles qui contiennent des tâches « au cœur du métier » d'abord
+function ordreFamilles() {
+  var idx = f().k.map(function (g, i) { return i; });
+  var coeur = idx.filter(function (i) { return f().k[i].coeur > 0; });
+  var autres = idx.filter(function (i) { return f().k[i].coeur === 0; });
+  if (!coeur.length) { coeur = idx.slice(0, 3); autres = idx.slice(3); }
+  return { coeur: coeur, autres: autres };
+}
+
+function tout() {
+  var d = f();
+  el('infoNiveau').innerHTML = '<strong>Information pour vous, Denis (jamais affichée à la personne) :</strong> niveau du poste calculé à partir de la fiche du ROME = <strong>' + d.niveau + ' sur 3</strong>. Registre demandé à l’assistant pour ce poste : ' + REGISTRES[d.niveau] + '.';
+  el('titreMetier1').textContent = NOMS[code]; el('titreMetier2').textContent = NOMS[code];
+  el('acces1').textContent = d.a;
+  el('presentation1').textContent = d.d;
+  el('missions1').innerHTML = d.m.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
+  var o = ordreFamilles();
+  var nb = d.k.reduce(function (a, g) { return a + g.rome.length; }, 0);
+  el('resteTaches1').textContent = 'Le ROME décrit ' + nb + ' tâches pour ce métier, rangées par familles. Les plus importantes d’abord.';
+  function famille1(i) { var g = d.k[i]; return '<p class="mb-1 mt-2"><strong>' + esc(g.simple) + '</strong></p><ul>' + g.rome.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>'; }
+  el('taches1').innerHTML = o.coeur.map(famille1).join('');
+  el('toutesTaches').innerHTML = o.autres.map(famille1).join('');
+  el('toutesTaches').hidden = true; el('btnToutesTaches').setAttribute('aria-expanded', 'false'); el('btnToutesTaches').textContent = 'Voir les autres tâches';
+  el('btnToutesTaches').hidden = !o.autres.length;
+  el('btnTousSavoirs').setAttribute('data-ouvert', '0'); el('btnTousSavoirs').setAttribute('aria-expanded', 'false'); el('btnTousSavoirs').textContent = 'Voir tout';
+  dessinerSavoirs1();
+  el('appellations1').innerHTML = d.app.map(function (a) { return '<span class="puce">' + esc(a) + '</span>'; }).join('');
+  el('proches1').innerHTML = d.proches.map(function (a) { return '<span class="puce">' + esc(a) + '</span>'; }).join('');
+  dessinerChoix();
+}
+
+function dessinerSavoirs1() {
+  var tous = el('btnTousSavoirs').getAttribute('data-ouvert') === '1';
+  el('savoirs1').innerHTML = f().s.map(function (c) {
+    var liste = tous ? c.libs : c.libs.slice(0, 4);
+    return '<p class="mb-1 mt-2"><strong>' + esc(c.cat) + '</strong></p><div class="puces">' + liste.map(function (l) { return '<span class="puce">' + esc(l) + '</span>'; }).join('') + (!tous && c.libs.length > 4 ? '<span class="puce" style="border-style:dashed">+ ' + (c.libs.length - 4) + '</span>' : '') + '</div>';
+  }).join('');
+}
+
+function ligneTache(i, j, texte) {
+  var cle = i + '-' + j, coche = !!cochesT[cle];
+  return '<label class="tache' + (coche ? ' coche' : '') + '"><input type="checkbox" data-t="' + cle + '" ' + (coche ? 'checked' : '') + '><span>' + esc(texte) + '</span></label>';
+}
+function blocFamille(i) {
+  var g = f().k[i];
+  return '<div class="famille"><span class="nom">' + esc(g.simple) + '</span>' + (g.coeur > 0 ? '<span class="coeur">au cœur du métier</span>' : '') +
+    '<button type="button" class="btn-petit" data-groupe="' + i + '">Cocher toute cette famille</button></div>' +
+    g.rome.map(function (r, j) { return ligneTache(i, j, r); }).join('');
+}
+
+function dessinerChoix() {
+  var d = f(), o = ordreFamilles();
+  el('taches2').innerHTML = o.coeur.map(blocFamille).join('');
+  el('autresTaches2').innerHTML = o.autres.map(blocFamille).join('');
+  el('btnAutresTaches2').hidden = !o.autres.length;
+  el('savoirs2').innerHTML = d.s.map(function (c, i) {
+    if (/^Diplômes/.test(c.cat)) { return ''; }   // diplômes, permis et habilitations : déjà saisis dans « Formations » et « Permis », jamais proposés comme des outils
+    return '<p class="mb-1 mt-2"><strong>' + esc(c.cat) + '</strong></p><div class="suggestions">' + c.libs.map(function (l, j) {
+      var cle = i + '-' + j; return '<button type="button" class="suggestion" aria-pressed="' + (cochesS[cle] ? 'true' : 'false') + '" data-s="' + cle + '">' + esc(l) + '</button>';
+    }).join('') + '</div>';
+  }).join('');
+  el('msgAucune').hidden = !aucuneT; el('btnAucune').setAttribute('aria-pressed', aucuneT ? 'true' : 'false');
+  el('btnAucunSavoir').setAttribute('aria-pressed', aucunS ? 'true' : 'false');
+  document.querySelectorAll('input[data-t]').forEach(function (c) {
+    c.addEventListener('change', function () { var k = c.getAttribute('data-t'); if (c.checked) { cochesT[k] = true; aucuneT = false; } else { delete cochesT[k]; } el('msgValide').hidden = true; dessinerChoix(); });
+  });
+  document.querySelectorAll('[data-groupe]').forEach(function (b) {
+    b.addEventListener('click', function () { var i = Number(b.getAttribute('data-groupe')); d.k[i].rome.forEach(function (r, j) { cochesT[i + '-' + j] = true; }); aucuneT = false; el('msgValide').hidden = true; dessinerChoix(); });
+  });
+  document.querySelectorAll('[data-s]').forEach(function (b) {
+    b.addEventListener('click', function () { var k = b.getAttribute('data-s'); if (cochesS[k]) { delete cochesS[k]; } else { cochesS[k] = true; aucunS = false; } el('msgValide').hidden = true; dessinerChoix(); });
+  });
+  var nt = tachesCochees().length, ns = savoirsCoches().length;
+  function libelle(n) { return n === 0 ? '0 coché' : n + ' coché' + (n > 1 ? 's' : ''); }
+  el('etatTaches').textContent = libelle(nt); el('etatTaches').className = 'bilan' + (nt ? ' complet' : '');
+  el('etatSavoirs').textContent = libelle(ns); el('etatSavoirs').className = 'bilan' + (ns ? ' complet' : '');
+  el('bilan2').textContent = (nt + ns) === 0 ? '0 coché' : (nt + ns) + ' coché' + ((nt + ns) > 1 ? 's' : ''); el('bilan2').className = 'bilan' + ((nt + ns) ? ' complet' : '');
+}
+
+function tachesCochees() { var r = []; Object.keys(cochesT).forEach(function (k) { var p = k.split('-'); r.push(f().k[p[0]].rome[p[1]]); }); return r; }
+function savoirsCoches() { var r = []; Object.keys(cochesS).forEach(function (k) { var p = k.split('-'); r.push(f().s[p[0]].libs[p[1]]); }); return r; }
+
+function dessinerSortie() {
+  var t = tachesCochees(), s = savoirsCoches();
+  el('apercuCv').innerHTML = '<h4>Ce que j’ai fait</h4>' + (t.length ? '<ul>' + t.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="mb-0" style="color:#666">' + (aucuneT ? 'Aucune tâche cochée : le CV s’appuie uniquement sur votre parcours.' : 'Cochez des tâches à l’écran 2 pour les voir apparaître ici.') + '</p>') +
+    '<h4>Outils et connaissances</h4>' + (s.length ? '<p class="mb-0">' + s.map(esc).join(' · ') + '</p>' : '<p class="mb-0" style="color:#666">' + (aucunS ? 'Aucun outil coché.' : 'Cochez des outils à l’écran 2 pour les voir apparaître ici.') + '</p>');
+  el('invite').textContent = '- Tâches du métier visé que la personne a elle-même confirmées avoir faites :\n' + (t.length ? t.map(function (x) { return '  * ' + x; }).join('\n') : '  (aucune)') +
+    '\n- Outils, techniques et connaissances que la personne a confirmés connaître :\n' + (s.length ? s.map(function (x) { return '  * ' + x; }).join('\n') : '  (aucun)') +
+    '\n- N’ajoutez aucune autre tâche ni aucun autre outil : ne reprenez que ceux-ci et ce que la personne a raconté.\n- Registre du texte : ' + REGISTRES[f().niveau] + '.';
+}
+</script>
+</body>
+</html>

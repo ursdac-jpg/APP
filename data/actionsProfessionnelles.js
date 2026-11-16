@@ -51,7 +51,8 @@
    fourre-tout "Autres") :
      - "Administration" (calculer, classer, saisir, communiquer_ecrit,
        archiver) -> "Organisation, gestion, administration"
-     - "Cuisine" (cuisiner, 1 seule action) -> "Technique et fabrication"
+     - "Cuisine" (cuisiner, 1 seule action) -> "Technique et fabrication" (famille scindee le 12/11/2026, consigne 262, en 4 : "Fabriquer et construire", "Reparer et entretenir", "Transport et logistique", "Surveiller, manipuler, programmer" ; aucun id ni aucune competence modifie)
+     - 14/11/2026 (consigne 283) : "cuisiner" quitte "Fabriquer et construire" pour la famille "Cuisiner et servir" (cuisiner, servir, preparer_boissons : deux nouvelles actions, Denis ne trouvait ni le service ni la cuisine)
      - "Creation" -> reste seule, renommee "Creation et conception"
      - "Relationnel" -> inchange
    AUCUN id, AUCUN savoirFaire/savoirEtre/savoirs/metiers modifie : seule
@@ -64,18 +65,15 @@ var CATALOGUE_ACTIONS_PRO = [
     categorie: 'Organisation, gestion, administration',
     icone: '📋',
     items: [
-      { id: 'organiser', label: 'Organiser', icon: '📋', categorie: 'Organisation, gestion, administration',
-        savoirFaire: ['Planification', 'Gestion de projet'], savoirEtre: ['Coordination', 'Organisation'],
-        savoirs: [], metiers: ['Chef d\'équipe', 'Assistant administratif'] },
-      { id: 'planifier', label: 'Planifier', icon: '📅', categorie: 'Organisation, gestion, administration',
-        savoirFaire: ['Planification', 'Gestion de projet'], savoirEtre: ['Organisation', 'Gestion du temps'],
+      { id: 'organiser', label: 'Organiser, planifier', icon: '📋', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Planification', 'Gestion de projet'], savoirEtre: ['Coordination', 'Organisation', 'Gestion du temps'],
         savoirs: [], metiers: ['Chef d\'équipe', 'Assistant administratif'] },
       { id: 'gerer', label: 'Gérer', icon: '📊', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Gestion administrative', 'Gestion de projet'], savoirEtre: ['Organisation', 'Responsabilité'],
         savoirs: [], metiers: ['Comptable / Assistant comptable', 'Chef d\'équipe'] },
-      { id: 'controler', label: 'Contrôler', icon: '🔍', categorie: 'Organisation, gestion, administration',
+      { id: 'controler', label: 'Contrôler, diagnostiquer', icon: '🔍', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Diagnostic', 'Analyse de données'], savoirEtre: ['Rigueur'],
-        savoirs: [], metiers: ['Agent de production', 'Technicien de maintenance'] },
+        savoirs: [], metiers: ['Agent de production', 'Technicien de maintenance', 'Mécanicien automobile'] },
       { id: 'analyser', label: 'Analyser', icon: '📈', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Analyse de données', 'Raisonnement logique', 'Rédaction'], savoirEtre: ['Rigueur'],
         savoirs: [], metiers: ['Comptable / Assistant comptable', 'Développeur informatique'] },
@@ -85,7 +83,7 @@ var CATALOGUE_ACTIONS_PRO = [
       { id: 'calculer', label: 'Calculer', icon: '🧮', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Gestion financière'], savoirEtre: ['Rigueur'],
         savoirs: ['Bases de comptabilité'], metiers: ['Comptable / Assistant comptable'] },
-      { id: 'classer', label: 'Classer', icon: '🗂', categorie: 'Organisation, gestion, administration',
+      { id: 'classer', label: 'Classer, archiver', icon: '🗂', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Gestion administrative'], savoirEtre: ['Organisation', 'Rigueur'],
         savoirs: [], metiers: ['Assistant administratif', 'Secrétaire médicale'] },
       { id: 'saisir', label: 'Saisir', icon: '📑', categorie: 'Organisation, gestion, administration',
@@ -94,9 +92,21 @@ var CATALOGUE_ACTIONS_PRO = [
       { id: 'communiquer_ecrit', label: 'Communiquer par écrit', icon: '📧', categorie: 'Organisation, gestion, administration',
         savoirFaire: ['Rédaction', 'Bureautique'], savoirEtre: ['Communication'],
         savoirs: [], metiers: ['Assistant administratif', 'Secrétaire médicale'] },
-      { id: 'archiver', label: 'Archiver', icon: '📂', categorie: 'Organisation, gestion, administration',
-        savoirFaire: ['Gestion administrative'], savoirEtre: ['Organisation', 'Rigueur'],
-        savoirs: [], metiers: ['Assistant administratif'] }
+      { id: 'gerer_stocks_acheter', label: 'Gérer des stocks, acheter', icon: '🏷️', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Gestion des stocks', 'Gestion financière'], savoirEtre: ['Rigueur', 'Organisation'],
+        savoirs: [], metiers: ['Logisticien', 'Responsable de magasin', 'Préparateur de commandes / Magasinier'] },
+      { id: 'piloter_projet', label: 'Piloter un projet ou un chantier', icon: '🚩', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Gestion de projet', 'Planification'], savoirEtre: ['Responsabilité', 'Coordination'],
+        savoirs: [], metiers: ['Chef de chantier', 'Chef d\'équipe'] },
+      { id: 'appliquer_consignes_securite', label: 'Appliquer les règles de sécurité', icon: '🦺', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Vigilance'], savoirEtre: ['Sécurité', 'Respect des règles', 'Respect des normes'],
+        savoirs: ['Règles de sécurité'], metiers: ['Agent de production', 'Manœuvre / Aide de chantier', 'Agent de sécurité'] },
+      { id: 'encadrer_animer', label: 'Encadrer ou animer un groupe', icon: '🧭', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Management', 'Animation'], savoirEtre: ['Leadership', 'Esprit d\'équipe', 'Responsabilité'],
+        savoirs: [], metiers: ['Chef d\'équipe', 'Chef de chantier', 'Animateur', 'Éducateur sportif'] },
+      { id: 'organiser_evenement', label: 'Organiser un événement, communiquer', icon: '🎪', categorie: 'Organisation, gestion, administration',
+        savoirFaire: ['Planification', 'Animation'], savoirEtre: ['Communication', 'Organisation', 'Créativité'],
+        savoirs: [], metiers: ['Animateur evenementiel', 'Community manager', 'Animateur'] }
     ]
   },
   {
@@ -117,8 +127,8 @@ var CATALOGUE_ACTIONS_PRO = [
       // sante" (CATALOGUE_ENVIRONNEMENTS_TRAVAIL). Meme principe deja
       // applique a "Accueillir"/"Aider" ci-dessous : savoirFaire vide,
       // seulement des savoir-etre.
-      { id: 'accompagner', label: 'Accompagner', icon: '🤝', categorie: 'Relationnel',
-        savoirFaire: [], savoirEtre: ['Empathie', 'Aide à la personne', 'Patience'],
+      { id: 'accompagner', label: 'Accompagner, aider', icon: '🤝', categorie: 'Relationnel',
+        savoirFaire: [], savoirEtre: ['Empathie', 'Aide à la personne', 'Patience', 'Entraide'],
         savoirs: [], metiers: ['Assistant de vie aux familles (ADVF)', 'Accompagnant éducatif et social (AES)'] },
       { id: 'vendre', label: 'Vendre', icon: '🛒', categorie: 'Relationnel',
         savoirFaire: ['Négociation', 'Persuasion'], savoirEtre: ['Relation client'],
@@ -132,58 +142,120 @@ var CATALOGUE_ACTIONS_PRO = [
       { id: 'accueillir', label: 'Accueillir', icon: '📞', categorie: 'Relationnel',
         savoirFaire: [], savoirEtre: ['Accueil', 'Communication', 'Sens du service'],
         savoirs: [], metiers: ['Agent d\'accueil', 'Réceptionniste en hôtellerie'] },
-      { id: 'aider', label: 'Aider', icon: '🤲', categorie: 'Relationnel',
-        savoirFaire: [], savoirEtre: ['Empathie', 'Aide à la personne', 'Entraide'],
-        savoirs: [], metiers: ['Assistant de vie aux familles (ADVF)', 'Accompagnant éducatif et social (AES)'] },
       { id: 'informer', label: 'Informer', icon: '📢', categorie: 'Relationnel',
         savoirFaire: ['Rédaction'], savoirEtre: ['Communication', 'Sens du service'],
-        savoirs: [], metiers: ['Agent d\'accueil', 'Agent d\'accueil touristique'] }
+        savoirs: [], metiers: ['Agent d\'accueil', 'Agent d\'accueil touristique'] },
+      { id: 'expliquer_presenter', label: 'Expliquer, présenter à l\'oral', icon: '📽️', categorie: 'Relationnel',
+        savoirFaire: ['Transmission'], savoirEtre: ['Communication', 'Pédagogie'],
+        savoirs: [], metiers: ['Formateur / Éducateur', 'Guide touristique', 'Conseiller de vente'] },
+      { id: 'encaisser', label: 'Encaisser, tenir une caisse', icon: '💶', categorie: 'Relationnel',
+        savoirFaire: ['Gestion financière'], savoirEtre: ['Rigueur', 'Accueil'],
+        savoirs: ['Encaissement'], metiers: ['Hôte de caisse', 'Conseiller de vente', 'Barman / Employé de café', 'Serveur en restauration', 'Vendeur en alimentation'] }
     ]
   },
   {
-    categorie: 'Technique et fabrication',
-    icone: '🔧',
+    categorie: 'Fabriquer et construire',
+    icone: '🏗',
     items: [
-      { id: 'reparer', label: 'Réparer', icon: '🔧', categorie: 'Technique et fabrication',
-        savoirFaire: ['Diagnostic', 'Réparation', 'Maintenance'], savoirEtre: [],
-        savoirs: [], metiers: ['Technicien de maintenance', 'Mécanicien automobile'] },
-      { id: 'transporter', label: 'Transporter', icon: '🚚', categorie: 'Technique et fabrication',
-        savoirFaire: ['Logistique', 'Conduite'], savoirEtre: ['Respect des délais'],
-        savoirs: ['Réglementation du transport routier'], metiers: ['Chauffeur-livreur', 'Cariste'] },
-      { id: 'nettoyer', label: 'Nettoyer', icon: '🧹', categorie: 'Technique et fabrication',
-        savoirFaire: ['Hygiène', 'Entretien'], savoirEtre: ['Rigueur'],
-        savoirs: ['Produits et dosages d\'entretien'], metiers: ['Agent d\'entretien', 'Agent de service hospitalier (ASH)'] },
-      { id: 'construire', label: 'Construire', icon: '🏗', categorie: 'Technique et fabrication',
+      { id: 'construire', label: 'Construire', icon: '🏗', categorie: 'Fabriquer et construire',
         savoirFaire: ['Bâtiment', 'Lecture de plans', 'Travail manuel'], savoirEtre: [],
         savoirs: ['Normes de sécurité sur chantier'], metiers: ['Maçon', 'Manœuvre / Aide de chantier'] },
-      { id: 'fabriquer', label: 'Fabriquer', icon: '⚙️', categorie: 'Technique et fabrication',
+      { id: 'fabriquer', label: 'Fabriquer', icon: '⚙️', categorie: 'Fabriquer et construire',
         savoirFaire: ['Travail manuel', 'Technique', 'Précision'], savoirEtre: ['Rigueur'],
         savoirs: [], metiers: ['Soudeur', 'Opérateur d\'usinage (commande numérique)'] },
-      { id: 'installer', label: 'Installer', icon: '🔌', categorie: 'Technique et fabrication',
-        savoirFaire: ['Technique', 'Réparation'], savoirEtre: ['Sécurité'],
-        savoirs: [], metiers: ['Électricien', 'Plombier'] },
-      { id: 'monter', label: 'Monter', icon: '🔨', categorie: 'Technique et fabrication',
+      { id: 'monter', label: 'Monter', icon: '🔨', categorie: 'Fabriquer et construire',
         savoirFaire: ['Travail manuel', 'Technique', 'Précision'], savoirEtre: [],
         savoirs: [], metiers: ['Menuisier poseur', 'Plaquiste'] },
-      { id: 'decouper', label: 'Découper', icon: '✂️', categorie: 'Technique et fabrication',
+      { id: 'decouper', label: 'Découper', icon: '✂️', categorie: 'Fabriquer et construire',
         savoirFaire: ['Travail manuel', 'Précision'], savoirEtre: ['Sécurité'],
         savoirs: [], metiers: ['Boucher', 'Opérateur en transformation des viandes / conserverie'] },
-      { id: 'preparer_commandes', label: 'Préparer des commandes', icon: '📦', categorie: 'Technique et fabrication',
-        savoirFaire: ['Gestion des stocks', 'Logistique'], savoirEtre: ['Rigueur', 'Organisation'],
-        savoirs: [], metiers: ['Préparateur de commandes / Magasinier', 'Cariste'] },
-      { id: 'conduire', label: 'Conduire / Piloter', icon: '🚜', categorie: 'Technique et fabrication',
+      { id: 'installer', label: 'Installer', icon: '🔌', categorie: 'Fabriquer et construire',
+        savoirFaire: ['Technique', 'Réparation'], savoirEtre: ['Sécurité'],
+        savoirs: [], metiers: ['Électricien', 'Plombier'] },
+      { id: 'amenager_espace', label: 'Aménager un espace', icon: '🪑', categorie: 'Fabriquer et construire',
+        savoirFaire: ['Installation', 'Finition'], savoirEtre: ['Créativité', 'Organisation'],
+        savoirs: [], metiers: ['Merchandiseur', 'Fleuriste', 'Ouvrier paysagiste / Jardinier'] },
+      { id: 'utiliser_machines_outils', label: 'Utiliser des machines, des outils', icon: '🏭', categorie: 'Fabriquer et construire',
+        savoirFaire: ['Technique', 'Précision'], savoirEtre: ['Sécurité', 'Rigueur'],
+        savoirs: [], metiers: ['Agent de production', 'Opérateur d\'usinage (commande numérique)', 'Conducteur de ligne de production'] }
+    ]
+  },
+  {
+    categorie: 'Cuisiner et servir',
+    icone: '🍽️',
+    items: [
+      { id: 'cuisiner', label: 'Cuisiner', icon: '🍳', categorie: 'Cuisiner et servir',
+        savoirFaire: ['Cuisine'], savoirEtre: ['Créativité', 'Respect des normes'],
+        savoirs: ['Règles d\'hygiène alimentaire (HACCP)'], metiers: ['Cuisinier / Commis de cuisine', 'Employé polyvalent de restauration / Aide de cuisine', 'Boulanger'] },
+      { id: 'servir', label: 'Servir à table ou au comptoir', icon: '🍽️', categorie: 'Cuisiner et servir',
+        savoirFaire: ['Service en salle', 'Relation client'], savoirEtre: ['Sens du service', 'Rapidité'],
+        savoirs: ['Règles d\'hygiène alimentaire (HACCP)'], metiers: ['Serveur en restauration', 'Barman / Employé de café'] },
+      { id: 'preparer_boissons', label: 'Préparer des boissons', icon: '☕', categorie: 'Cuisiner et servir',
+        savoirFaire: ['Préparation de boissons'], savoirEtre: ['Sens du service', 'Rapidité'],
+        savoirs: [], metiers: ['Barman / Employé de café'] }
+    ]
+  },
+  {
+    categorie: 'Réparer et entretenir',
+    icone: '🔧',
+    items: [
+      { id: 'reparer', label: 'Réparer', icon: '🔧', categorie: 'Réparer et entretenir',
+        savoirFaire: ['Diagnostic', 'Réparation', 'Maintenance'], savoirEtre: [],
+        savoirs: [], metiers: ['Technicien de maintenance', 'Mécanicien automobile'] },
+      { id: 'entretenir_maintenir', label: 'Entretenir, maintenir', icon: '🧰', categorie: 'Réparer et entretenir',
+        savoirFaire: ['Maintenance', 'Entretien'], savoirEtre: ['Rigueur', 'Fiabilité'],
+        savoirs: [], metiers: ['Technicien de maintenance', 'Agent de maintenance des bâtiments', 'Agent polyvalent de collectivite'] },
+      { id: 'nettoyer', label: 'Nettoyer', icon: '🧹', categorie: 'Réparer et entretenir',
+        savoirFaire: ['Hygiène', 'Entretien'], savoirEtre: ['Rigueur'],
+        savoirs: ['Produits et dosages d\'entretien'], metiers: ['Agent d\'entretien', 'Agent de service hospitalier (ASH)'] },
+      { id: 'trier_environnement', label: 'Trier, protéger l\'environnement', icon: '♻️', categorie: 'Réparer et entretenir',
+        savoirFaire: ['Collecte'], savoirEtre: ['Respect des règles', 'Responsabilité'],
+        savoirs: ['Règles de tri et de recyclage'], metiers: ['Agent de tri', 'Agent de collecte des dechets', 'Agent de propreté urbaine / Ripeur', 'Technicien de traitement des eaux'] },
+      { id: 'cultiver_entretenir_plantes', label: 'Cultiver, entretenir des plantes', icon: '🌱', categorie: 'Réparer et entretenir',
+        savoirFaire: ['Travail manuel', 'Entretien'], savoirEtre: ['Patience', 'Endurance'],
+        savoirs: ['Notions de culture des plantes'], metiers: ['Ouvrier horticole / Maraîcher', 'Ouvrier paysagiste / Jardinier', 'Arboriculteur', 'Fleuriste'] }
+    ]
+  },
+  {
+    categorie: 'Transport et logistique',
+    icone: '🚚',
+    items: [
+      { id: 'transporter', label: 'Transporter', icon: '🚚', categorie: 'Transport et logistique',
+        savoirFaire: ['Logistique', 'Conduite'], savoirEtre: ['Respect des délais'],
+        savoirs: ['Réglementation du transport routier'], metiers: ['Chauffeur-livreur', 'Cariste'] },
+      { id: 'conduire', label: 'Conduire / Piloter', icon: '🚜', categorie: 'Transport et logistique',
         savoirFaire: ['Conduite'], savoirEtre: ['Sécurité', 'Autonomie'],
         savoirs: ['Code de la route'], metiers: ['Chauffeur routier', 'Conducteur d\'engins de chantier'] },
-      { id: 'diagnostiquer', label: 'Diagnostiquer', icon: '🩺', categorie: 'Technique et fabrication',
-        savoirFaire: ['Diagnostic', 'Analyse de données'], savoirEtre: ['Rigueur'],
-        savoirs: [], metiers: ['Technicien de maintenance', 'Mécanicien automobile'] },
-      { id: 'programmer', label: 'Programmer', icon: '💻', categorie: 'Technique et fabrication',
+      { id: 'livrer', label: 'Livrer', icon: '📬', categorie: 'Transport et logistique',
+        savoirFaire: ['Logistique', 'Conduite'], savoirEtre: ['Respect des délais', 'Fiabilité'],
+        savoirs: [], metiers: ['Chauffeur-livreur', 'Livreur à vélo'] },
+      { id: 'preparer_commandes', label: 'Préparer des commandes', icon: '📦', categorie: 'Transport et logistique',
+        savoirFaire: ['Gestion des stocks', 'Logistique'], savoirEtre: ['Rigueur', 'Organisation'],
+        savoirs: [], metiers: ['Préparateur de commandes / Magasinier', 'Cariste'] },
+      { id: 'manutentionner_emballer', label: 'Manutentionner, emballer', icon: '📥', categorie: 'Transport et logistique',
+        savoirFaire: ['Manutention', 'Logistique'], savoirEtre: ['Endurance', 'Rigueur'],
+        savoirs: [], metiers: ['Manutentionnaire / Agent de quai', 'Employé libre-service', 'Préparateur de commandes / Magasinier'] }
+    ]
+  },
+  {
+    categorie: 'Surveiller, manipuler, programmer',
+    icone: '🔬',
+    items: [
+      { id: 'surveiller_securiser', label: 'Surveiller, sécuriser', icon: '🔦', categorie: 'Surveiller, manipuler, programmer',
+        savoirFaire: ['Surveillance', 'Vigilance'], savoirEtre: ['Sang-froid', 'Fiabilité'],
+        savoirs: ['Règles de sécurité'], metiers: ['Agent de sécurité', 'Maître-nageur sauveteur', 'Gendarme'] },
+      { id: 'reagir_urgence', label: 'Réagir à un imprévu, une urgence', icon: '🚨', categorie: 'Surveiller, manipuler, programmer',
+        savoirFaire: ['Intervention'], savoirEtre: ['Sang-froid', 'Réactivité', 'Adaptabilité'],
+        savoirs: ['Gestes de premiers secours'], metiers: ['Ambulancier / Auxiliaire ambulancier', 'Maître-nageur sauveteur', 'Agent de sécurité'] },
+      { id: 'manipuler_produits', label: 'Manipuler, préparer des produits', icon: '🧪', categorie: 'Surveiller, manipuler, programmer',
+        savoirFaire: ['Précision', 'Technique'], savoirEtre: ['Rigueur', 'Respect des normes'],
+        savoirs: ['Règles d\'hygiène'], metiers: ['Opérateur de production chimique', 'Opérateur de production agroalimentaire', 'Préparateur en pharmacie'] },
+      { id: 'rechercher_tester', label: 'Rechercher, tester', icon: '🔬', categorie: 'Surveiller, manipuler, programmer',
+        savoirFaire: ['Analyse de données', 'Raisonnement logique', 'Observation'], savoirEtre: ['Rigueur', 'Persévérance'],
+        savoirs: [], metiers: ['Technicien qualité', 'Développeur informatique'] },
+      { id: 'programmer', label: 'Programmer', icon: '💻', categorie: 'Surveiller, manipuler, programmer',
         savoirFaire: ['Raisonnement logique', 'Technique'], savoirEtre: ['Rigueur', 'Autonomie'],
-        savoirs: ['Langages de programmation'], metiers: ['Développeur informatique'] },
-      { id: 'cuisiner', label: 'Cuisiner', icon: '🍳', categorie: 'Technique et fabrication',
-        savoirFaire: ['Cuisine'], savoirEtre: ['Créativité', 'Respect des normes'],
-        savoirs: ['Règles d\'hygiène alimentaire (HACCP)'],
-        metiers: ['Cuisinier / Commis de cuisine', 'Employé polyvalent de restauration / Aide de cuisine', 'Boulanger'] }
+        savoirs: ['Langages de programmation'], metiers: ['Développeur informatique'] }
     ]
   },
   {
@@ -199,12 +271,12 @@ var CATALOGUE_ACTIONS_PRO = [
       { id: 'imaginer', label: 'Imaginer', icon: '💡', categorie: 'Création et conception',
         savoirFaire: ['Innovation'], savoirEtre: ['Créativité'],
         savoirs: [], metiers: [] },
-      { id: 'photographier', label: 'Photographier', icon: '📷', categorie: 'Création et conception',
+      { id: 'dessiner', label: 'Dessiner, photographier', icon: '✏️', categorie: 'Création et conception',
         savoirFaire: ['Expression artistique'], savoirEtre: ['Créativité'],
         savoirs: [], metiers: [] },
-      { id: 'dessiner', label: 'Dessiner', icon: '✏️', categorie: 'Création et conception',
-        savoirFaire: ['Expression artistique'], savoirEtre: ['Créativité'],
-        savoirs: [], metiers: [] }
+      { id: 'concevoir', label: 'Concevoir', icon: '📐', categorie: 'Création et conception',
+        savoirFaire: ['Innovation', 'Traçage de plans'], savoirEtre: ['Créativité', 'Rigueur'],
+        savoirs: [], metiers: ['Développeur informatique', 'Graphiste', 'Ébéniste', 'Webmaster'] }
     ]
   }
 ];

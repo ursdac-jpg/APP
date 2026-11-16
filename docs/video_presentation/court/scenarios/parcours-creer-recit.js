@@ -9,6 +9,7 @@ module.exports = {
     { id: 'r2', voix: 'Pas besoin d’un parcours classique. Un métier, l’aide à des proches, du bénévolat, une passion suivie longtemps : tout cela contient des compétences.', sous_titre: 'Pas de parcours classique requis : métier, aide aux proches, bénévolat, passion.' },
     { id: 'r3', voix: 'Vous écrivez avec vos mots, au clavier ou à la voix. Aucune forme imposée. Vous pouvez dire ce que vous visez, mais ce n’est pas obligatoire.', sous_titre: 'Vos mots, au clavier ou à la voix. Ce que vous visez : à compléter.' },
     { id: 'r4', voix: 'Un assistant en ligne en tire des expériences et des compétences. Pour chacune, vous choisissez la formulation qui vous ressemble. Il n’invente rien.', sous_titre: 'L’assistant en tire des expériences et compétences. Vous choisissez la formulation.' },
+    { id: 'r4b', voix: 'Vous vérifiez ensuite les expériences retrouvées dans votre récit : vous pouvez en retirer, les remettre, ou en ajouter d’autres, avec le même panneau que dans les autres parcours.', sous_titre: 'Vous vérifiez les expériences retrouvées : retirer, remettre, ou en ajouter.' },
     { id: 'r5', voix: 'Pour repérer vos compétences dans des documents que vous avez déjà, voyez Découvrir mes compétences, dans la Boîte à outils.', sous_titre: 'À partir de documents existants : « Découvrir mes compétences » (Boîte à outils).' }
   ],
   async jouer(o) {
@@ -17,19 +18,21 @@ module.exports = {
     o.commencer();
     await o.bloc('r1');
     await C.ouvrirTuile(o, 'btnCarteAccueilCvNouveau', 0); await dormir(1.2);
-    await o.cliquer(p.locator('#btnCreerCvRecit'), 700); await dormir(1.5);
-    await p.evaluate(() => window.scrollBy(0, 250)); await dormir(1.5);
+    await C.versVoie(o, 'recit');
     await o.finDeVoix(0.3);
     await o.bloc('r2');
-    await o.defiler(300, 1500); await dormir(0.6);
-    await o.cliquer(p.locator('#btnDecouverteCommencer'), 700).catch(async () => { await p.evaluate(() => window.scrollTo(0, 0)); }); await dormir(1.5);
+    await o.defiler((await p.evaluate(() => window.scrollY)) + 260, 1500); await dormir(3.5);   // la suite de la présentation de la voie : ce qu'elle fait, pour qui
+    await o.cliquer(p.locator('#btnCreerCvRecit'), 700); await dormir(1.5);   // départ direct dans le récit
     await o.finDeVoix(0.3);
     await o.bloc('r3');
     await o.cliquer(p.locator('#decouverteRecitTexte'), 600); await p.keyboard.type(RECIT, { delay: 22 }); await dormir(0.6);
     await o.survol(p.locator('[data-civilite="Madame"]'), 700); await dormir(0.4);
     await o.finDeVoix(0.3);
     await o.bloc('r4');
-    await o.survol(p.locator('#btnContinuerDecouverte'), 800); await dormir(1.0);
+    await o.survol(p.locator('#btnSuivantNavigation'), 800); await dormir(1.0);
+    await o.finDeVoix(0.3);
+    await o.bloc('r4b');
+    await dormir(1.5);
     await o.finDeVoix(0.3);
     await o.bloc('r5');
     await dormir(2.0);

@@ -1,0 +1,198 @@
+{
+ "nom": "orientationComparer",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : « Continuer » grisé avec la raison « Commencez par nous parler de vos pistes : racontez, nommez-les, ou collez un texte. »"
+  },
+  {
+   "n": "info",
+   "t": "Je nomme mes pistes : ok"
+  },
+  {
+   "n": "info",
+   "t": "champs visibles : [\"?|Dites ou écrivez ce qui vous fait hésite\",\"?|Nom de la piste (ex. CAP vendeur)\",\"?|Ce qui m’attire dans cette piste, pourqu\",\"?|Nom de la piste (ex. CAP vendeur)\",\"?|Ce qui m’attire dans cette piste, pourqu\",\"?|Collez ici un texte utile à propos d’une\",\"?|Un besoin d’aménagement à ne pas oublier\"]"
+  },
+  {
+   "n": "info",
+   "t": "champs remplis : 7"
+  },
+  {
+   "n": "info",
+   "t": "après les pistes : bas « Continuer → (grisé) » raison « Commencez par nous parler de vos pistes : racontez, nommez-les, ou collez un texte. »"
+  },
+  {
+   "n": "info",
+   "t": "situation : ok"
+  },
+  {
+   "n": "info",
+   "t": "âge : ok"
+  },
+  {
+   "n": "info",
+   "t": "après situation et âge : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : « Continuer » dégrisé"
+  },
+  {
+   "n": "info",
+   "t": "Retour depuis la première page du module : ok → #aide-decision-intro « Comparer mes pistes » bas « Reprendre » fenêtre false"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : « Retour » du premier écran ramène à la présentation, comme les autres modules"
+  },
+  {
+   "n": "info",
+   "t": "tuile : ok"
+  },
+  {
+   "n": "info",
+   "t": "après la tuile : #aide-decision-intro « Comparer mes pistes » bas « Reprendre » encart de reprise false"
+  },
+  {
+   "n": "info",
+   "t": "comparer (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,530 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "comparer (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "comparer (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : la reprise a la forme de « Reprendre mon CV » (bloc sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "info",
+   "t": "bouton de la présentation : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "retour dans le module : #comparer-pistes bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "comparer : reprise : aucun encart | barre du bas : ← Retour@48,847 | Accueil@144,847 | Continuer →@193,847 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "info",
+   "t": "contenu gardé : [\"Aide-soignante\",\"Je suis attirée par le soin et le contact.\",\"Éducatrice spécialisée\",\"Je voudrais accompagner des enfants.\"]"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : les pistes saisies sont gardées"
+  },
+  {
+   "n": "info",
+   "t": "encart de reprise : false"
+  },
+  {
+   "n": "info",
+   "t": "comparer (suite) : ok:Continuer → → #comparer-pistes « Comparer mes pistes » [bouton : Continuer → (grisé)] [barre : [Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens]"
+  },
+  {
+   "n": "info",
+   "t": "comparer (suite) : GRISE Continuer → → #comparer-pistes « Comparer mes pistes » [bouton : Continuer → (grisé)] [barre : [Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens]"
+  },
+  {
+   "n": "info",
+   "t": "suite : #comparer-pistes « Comparer mes pistes » bas « Continuer → (grisé) » barre [Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens"
+  },
+  {
+   "n": "info",
+   "t": "boutons : #btnComparerRevoirPresentation Revoir la présentation ; Aller sur ChatGPT → ; Claude connexion ; Perplexity connexion ; Gemini connexion ; Mistral connexion ; DeepSeek connexion ; 💡 En savoir plus sur ces assistants Cli ; 📋 Ce qui va se passer, et vos données C ; Nommer mes pistes moi-même ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "texte : 📋 Mes pistes 🔍 📄 📑 💡 🔖 Revoir la présentation Comparer mes pistes Les pistes qu’on a comprises Vous n’avez rien catégorisé. On demande à un assistant en ligne de lire ce que vous avez dit et d’en tirer des pistes, que vous validez ensuite. 💬 Choisissez votre assistant Cliquez sur un assistant. L’application prépare et copie tout, puis l’ouvre dans un nouvel onglet : cette page reste ouverte, vous n’avez rien à taper. Le plus simple : ChatGPT Il s’utilise tout de suite, sans compte à créer ni mot de passe à retenir. Aller sur ChatGPT → Vous avez déjà un compte chez un autre assistant ? : choisissez-le ici, seulement si vous avez déjà votre compte Claude connexion Perplexity connexion Gemini connexion Mistral connexion DeepSeek connexion 💡 En savoir plus sur ces assistants Cliquez ic"
+  },
+  {
+   "n": "info",
+   "t": "comparer : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "comparer : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "comparer : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "comparer : après « Recommencer » : #aide-decision-intro bas « Commencer → »  Comparer mes pistes Vous hésitez entre deux ou trois pistes ? Cette comparaison vous aide à mieux comprendre ce que chacune implique, pour décider vous-même. ▶"
+  },
+  {
+   "n": "ok",
+   "t": "comparer : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#comparer-pistes",
+    "page": "comparer-pistes",
+    "h1": "Comparer mes pistes",
+    "barre": "[Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Commencez par nous parler de vos pistes : racontez, nommez-les, ou collez un texte.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comparer-pistes",
+    "page": "comparer-pistes",
+    "h1": "Comparer mes pistes",
+    "barre": "[Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Collez d’abord la réponse de l’assistant, ou nommez vos pistes vous-même.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comparer-pistes",
+    "page": "comparer-pistes",
+    "h1": "Comparer mes pistes",
+    "barre": "[Mes pistes] > Collecter > Fiches > Comparer > Aller plus loin > Ce que je retiens",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Collez d’abord la réponse de l’assistant, ou nommez vos pistes vous-même.",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

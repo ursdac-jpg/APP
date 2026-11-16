@@ -44,7 +44,7 @@ test('Carte : chaque chiffre porte sa source, « au moins », aucun tiret long, 
   assert.ok(h.includes('comprendre-les-chiffres-indic-valeur'), 'chiffre principal : sans lui, pas de bouton « Ma fiche de chiffres »');
   assert.equal(chiffres.length, sources.length);
   assert.ok(h.includes('Au moins '));
-  assert.ok(h.includes('data-comprendre-les-chiffres-fiche-lexique="besoins-en-main-d-oeuvre"'));
+  assert.ok(!h.includes('data-comprendre-les-chiffres-fiche-lexique'), 'aucune invitation à lire le Lexique : le bouton « Mots de cette page » les donne (consigne 240)');
   assert.ok(h.includes('data-signaler-probleme'));
   assert.ok(!/[–—]/.test(h));
   const h87 = M._comprendreLesChiffresRenduCarteBmo(D, { aJour: true }, '87');

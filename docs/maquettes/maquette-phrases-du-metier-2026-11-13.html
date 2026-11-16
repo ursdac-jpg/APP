@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Ce que fait ce métier</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 960px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .92rem; background: var(--bg-subtle); }
+  .onglets { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .ecran { border: 1px solid var(--border); border-radius: 16px; background: var(--bg-page, #fff); padding: 1rem 1.1rem 1.3rem; }
+  .ecran[hidden] { display: none; }
+  .ecran h2 { font-size: 1.2rem; font-weight: 800; margin: .2rem 0 .8rem; }
+  /* deux colonnes égales qui se partagent toute la largeur */
+  .grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+  @media (max-width: 640px) { .grille { grid-template-columns: 1fr; } }
+  .carte { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); padding: .8rem .95rem; text-align: left; display: flex; flex-direction: column; }
+  .carte .nom { font-size: 1.15rem; font-weight: 800; color: var(--text-strong); }
+  .carte .secteur { font-size: .85rem; color: var(--text-muted); margin-bottom: .4rem; }
+  .carte .tag { align-self: flex-start; font-size: .78rem; border: 1px solid var(--border); border-radius: 999px; padding: .05rem .55rem; color: var(--text-muted); margin-bottom: .4rem; }
+  .carte .titre-phrases { font-weight: 700; font-size: .9rem; margin: .3rem 0 .2rem; color: var(--text-strong); }
+  .carte ul, .fiche ul { margin: 0 0 .5rem; padding-left: 1.15rem; font-size: .92rem; }
+  .carte li { margin-bottom: .15rem; }
+  .carte button, .carte summary, .fiche button, .fiche summary { display: inline-flex; flex-direction: row; align-items: center; gap: .35rem; width: auto; min-height: 0; padding: .25rem .6rem; font-size: .85rem; cursor: pointer; list-style: none; }
+  .carte summary::-webkit-details-marker, .fiche summary::-webkit-details-marker { display: none; }
+  .carte .actions button { flex-direction: row !important; width: auto !important; height: auto !important; }
+  .carte .actions button i, .carte .actions button .bi { font-size: 1rem !important; display: inline-block !important; margin: 0 !important; width: auto !important; height: auto !important; background: none !important; }
+  .carte .options { margin-top: auto; padding-top: .5rem; }
+  .carte .actions { display: flex; gap: .4rem; flex-wrap: wrap; margin: .5rem 0; }
+  .riasec { border-top: 1px solid var(--border); margin-top: .6rem; padding-top: .6rem; }
+  .riasec .lettres { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .92rem; }
+  .pastille { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent-texte); border: 2px solid var(--accent); font-weight: 800; }
+  .riasec .explication { font-size: .88rem; margin-top: .4rem; }
+  .riasec .explication dl { margin: .4rem 0 0; }
+  .riasec .explication dt { font-weight: 700; display: inline; }
+  .riasec .explication dd { display: inline; margin: 0; }
+  .riasec .explication div.l { margin-bottom: .2rem; }
+  .fiche { max-width: 640px; margin: 0 auto; }
+  .fiche h3 { font-size: 1.1rem; font-weight: 800; margin: 1rem 0 .3rem; }
+  .noms-visibles, .noms-autres { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 .5rem; padding: 0; list-style: none; }
+  .noms-visibles li, .noms-autres li { border: 1px solid var(--border); border-radius: 999px; padding: .1rem .7rem; font-size: .9rem; background: var(--bg-card); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette, rien n'est codé pour les lettres ni pour les autres noms.</strong> Elle montre, en deux écrans, ce que vous avez demandé : (1) les cartes de « Votre profil » en deux colonnes égales, avec un seul bouton « Voir d'autres options » qui cache comparer, garder comme repère, France Travail, et qui donne aussi les lettres RIASEC avec une courte explication ; (2) la page de fiche d'un métier, avec les autres noms (8 visibles, le reste dans un bouton). Les phrases, les lettres et les noms sont les vrais, tirés du ROME.</div>
+
+  <div class="info-denis">
+    <strong>À quoi sert l'écran 1.</strong> Ce sont les métiers que l'application <em>suggère</em> à la personne à partir de ses choix. Ce ne sont ni ses anciens métiers ni ses candidatures. Les phrases sont à lire, rien n'est à cocher. Le choix des tâches viendra ailleurs, dans les cartes de tâches du CV.<br>
+    <strong>Les lettres RIASEC.</strong> Elles décrivent le métier, pas la personne. Aucun diagnostic, aucun test. Pour l'instant, l'explication n'est que dans ce bouton, pas dans le Lexique.
+  </div>
+
+  <div class="onglets" role="tablist">
+    <button class="onglet" role="tab" aria-selected="true" data-e="e1">1. Votre profil (cartes)</button>
+    <button class="onglet" role="tab" aria-selected="false" data-e="e2">2. Fiche du métier (autres noms)</button>
+  </div>
+
+  <section class="ecran" id="e1">
+    <h2>Votre profil : métiers proches de votre profil</h2>
+    <div class="grille" id="grille"></div>
+    <p class="small text-muted mt-3 mb-0">Cliquez sur « Voir d'autres options » pour déplier. Sur téléphone, les cartes passent sur une seule colonne.</p>
+  </section>
+
+  <section class="ecran" id="e2" hidden>
+    <div class="fiche">
+      <h1 style="font-size:1.8rem;font-weight:800;text-align:center;margin:0">Auxiliaire de vie</h1>
+      <p class="text-center text-muted mb-3">Social et services à la personne</p>
+      <h3>Ce métier s’appelle aussi</h3>
+      <p class="small text-muted mb-2">Selon les employeurs, le même métier porte d’autres noms.</p>
+      <ul class="noms-visibles" id="nomsVisibles"></ul>
+      <details>
+        <summary class="btn btn-sm btn-outline-secondary" id="resumeNoms"></summary>
+        <ul class="noms-autres mt-2" id="nomsAutres"></ul>
+      </details>
+      <p class="small text-muted mt-3">Les noms les plus courants sont affichés d'abord. Tous les noms restent aussi trouvables par la recherche de l'accueil.</p>
+    </div>
+  </section>
+
+  <div class="info-denis mt-3">
+    <strong>Questions pour vous</strong><br>
+    1. Cet écran vous aide-t-il à visualiser ? Sinon, dites-moi ce qui manque.<br>
+    2. Les lettres RIASEC dans « Voir d'autres options » : d'accord, ou plutôt ailleurs ?<br>
+    3. Autres noms : 8 visibles puis « Voir les autres noms (N) » : d'accord ?<br>
+    4. Une fois validé, je régénère les fichiers du ROME avec tous les noms et les lettres (les cartes affichent déjà les phrases et les options).
+  </div>
+</div>
+<script>
+  var RIASEC = { R: ['Réaliste', 'travailler de ses mains, avec des machines, des outils ou des objets concrets'], I: ['Investigateur', 'analyser, chercher, comprendre comment les choses fonctionnent'], A: ['Artistique', 'créer, imaginer, s’exprimer'], S: ['Social', 'aider, soigner, accompagner, enseigner'], E: ['Entreprenant', 'convaincre, vendre, diriger, lancer des projets'], C: ['Conventionnel', 'organiser, classer, suivre des règles et des procédures'] };
+  var DATA = [
+    { nom: 'Boulanger', secteur: 'Métiers de bouche (artisanat)', tag: 'proche de votre profil', lettres: ['R'], p: [
+      'Préparer du pain, des pâtisseries, des viennoiseries et du chocolat',
+      'Respecter les règles de qualité, d’hygiène, de sécurité et d’environnement',
+      'Imaginer des idées nouvelles', 'Mesurer, doser et ajuster',
+      'Utiliser et régler des machines de mécanique, de métal ou de plastique',
+      'Trouver l’origine d’une panne', 'Gérer les stocks', 'Participer à un inventaire'] },
+    { nom: 'Auxiliaire de vie', secteur: 'Social et services à la personne', tag: 'même domaine', lettres: ['S'], p: [
+      'Aider la personne dans les gestes de la vie quotidienne',
+      'Conseiller et accompagner une personne',
+      'Nettoyer et entretenir du matériel', 'Nettoyer et entretenir un lieu ou un local',
+      'Repérer, prévenir et gérer les risques', 'Aider une personne à gagner en autonomie',
+      'Faire le point sur la situation sanitaire et sociale d’une personne',
+      'Informer et accompagner un patient'] },
+    { nom: 'Cariste', secteur: 'Transport et logistique', tag: 'proche de votre profil', lettres: ['R'], p: [
+      'Repérer, prévenir et gérer les risques', 'Aménager un espace de stockage',
+      'Prévoir les dangers, les problèmes et les besoins en matériel',
+      'Mettre en place et appliquer des consignes de sécurité',
+      'Piloter une démarche pour améliorer la qualité',
+      'Charger, décharger et déplacer des produits',
+      'Conduire un engin de manutention ou de chantier',
+      'Réceptionner des produits et vérifier une livraison'] }
+  ];
+  var NOMS = ['Auxiliaire de vie sociale (AVS)', 'Assistant de vie aux familles', 'Assistant de vie auprès de personnes âgées', 'Assistant de vie auprès de personnes handicapées', 'Accueillant familial', 'Aide aux personnes âgées', 'Auxiliaire de gériatrie', 'Auxiliaire de gérontologie', 'Employé à domicile auprès d’adultes', 'Auxiliaire familial et sanitaire', 'Accompagnant éducatif et social (AES)', 'Pair-aidant', 'Garde-malade', 'Employé familial', 'Assistant de convivialité à domicile'];
+  function li(x) { return '<li>' + x + '</li>'; }
+  function dessiner() {
+    document.getElementById('grille').innerHTML = DATA.map(function (m, k) {
+      var riasec = '<div class="riasec"><div class="lettres"><strong>Type d’activités de ce métier :</strong> ' +
+        m.lettres.map(function (l) { return '<span class="pastille" aria-hidden="true">' + l + '</span> ' + RIASEC[l][0]; }).join(' · ') + '</div>' +
+        '<details class="explication"><summary class="btn btn-sm btn-outline-secondary mt-2">Qu’est-ce que le RIASEC ?</summary>' +
+        '<p class="mt-2 mb-1">Le RIASEC est une façon de décrire un métier par le type d’activités qu’on y fait le plus. Il y a six types. Les lettres affichées sont celles que France Travail donne à ce métier : elles décrivent le métier, pas vous.</p>' +
+        '<dl>' + Object.keys(RIASEC).map(function (l) { return '<div class="l"><dt>' + l + ' : ' + RIASEC[l][0] + '.</dt> <dd>' + RIASEC[l][1] + '.</dd></div>'; }).join('') + '</dl></details></div>';
+      return '<div class="carte"><div class="nom">' + m.nom + '</div><div class="secteur">' + m.secteur + '</div><span class="tag">' + m.tag + '</span>' +
+        '<div class="titre-phrases">Ce que fait ce métier</div><ul>' + m.p.slice(0, 3).map(li).join('') + '</ul>' +
+        '<details><summary class="btn btn-sm btn-outline-secondary">Voir les autres tâches</summary><ul class="mt-2">' + m.p.slice(3).map(li).join('') + '</ul></details>' +
+        '<details class="options"' + (k === 0 ? ' open' : '') + '><summary class="btn btn-sm btn-outline-secondary">Voir d’autres options</summary>' +
+        '<div class="actions"><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-person"></i> Voir la fiche du métier</button>' +
+        '<button type="button" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i> Garder comme Repère</button>' +
+        '<button type="button" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left-right"></i> Comparer cette piste</button>' +
+        '<button type="button" class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Fiche du métier (France Travail)</button></div>' + riasec + '</details></div>';
+    }).join('');
+    document.getElementById('nomsVisibles').innerHTML = NOMS.slice(0, 8).map(li).join('');
+    document.getElementById('nomsAutres').innerHTML = NOMS.slice(8).map(li).join('');
+    document.getElementById('resumeNoms').textContent = 'Voir les ' + (NOMS.length - 8) + ' autres noms';
+  }
+  document.querySelectorAll('.onglet').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ['e1', 'e2'].forEach(function (e) { document.getElementById(e).hidden = (e !== b.dataset.e); });
+      document.querySelectorAll('.onglet').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+    });
+  });
+  dessiner();
+</script>
+</body>
+</html>

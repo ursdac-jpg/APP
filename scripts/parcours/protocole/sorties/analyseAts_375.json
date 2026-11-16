@@ -1,0 +1,248 @@
+{
+ "nom": "analyseAts",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "ok",
+   "t": "ats : « Continuer » grisé avec la raison « Déposez et relisez votre CV, puis choisissez la référence (une offre ou un métier). »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "ats : « Continuer » dégrisé"
+  },
+  {
+   "n": "info",
+   "t": "ats : Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "ats : présentation après Retour : #ats-intro « Les mots de votre CV (ATS) » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "ats (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,501 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "ats (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "ats (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "ats : Continuer (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "ats (page de travail) : reprise : aucun encart | barre du bas : ← Retour@48,847 | Accueil@144,847 | Continuer →@193,847 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "ats (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "ats : la reprise a la forme de « Reprendre mon CV » (encart sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "ats : le travail déjà fait est gardé après Retour puis le bouton de la présentation"
+  },
+  {
+   "n": "info",
+   "t": "encart de reprise sur la page Préparer : false | bas « Continuer → »"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "ats : écran de collage : bas « Voir le résultat → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > [Assistant] > Résultat > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "ats : boutons du collage : #btnAtsRevoirPresentation Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automati ; ⓘ ; ✍ Coller à la main (vous collez vous-mêm ; ⓘ ; ↺ Changer d’assistant ; Mots de cette page expliqués dans le Lex ; ← Retour ; Accueil ; #btnContinuerCollage Voir le résultat →"
+  },
+  {
+   "n": "info",
+   "t": "ats : réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "ats : après la réponse coupée : bas « Voir le résultat → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "ats : réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "ats : après la réponse complète : bas « Voir le résultat → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "ats (suite) : ok:Voir le résultat → → #ats « Les mots de votre CV (ATS) » [bouton : Voir ma fiche →] [barre : Préparer > Assistant > [Résultat] > Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "ats : fin : #ats « Les mots de votre CV (ATS) » bas « Voir ma fiche → » barre Préparer > Assistant > [Résultat] > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "ats : boutons de fin : #btnAtsRevoirPresentation Revoir la présentation ; Déjà exprimé dans votre CV ces mots sont ; Peut être formulé autrement vous l’avez  ; Pas retrouvé dans le texte fourni pas vu ; À vérifier l’assistant hésite. À vous de ; ✅ Bon à savoir sur ce résultat ; #btnAtsFenetreForme  ; #btnAtsFenetreFaq  ; Mots de cette page expliqués dans le Lex ; ← Retour ; Accueil ; #btnSuivantNavigation Voir ma fiche →"
+  },
+  {
+   "n": "info",
+   "t": "ats : texte de fin : 📝 📤️ 📄 Résultat ✅ Revoir la présentation Les mots de votre CV (ATS) Le résultat ⚖️ Ni un test ni une note. Ce module n’est pas un logiciel de tri : il en imite la vérification pour vous montrer, en clair, quels mots attendus sont présents dans votre CV et lesquels faire ressortir. Ce sont des pistes, si vous le souhaitez. ⚠️ Ceci n’est pas une accusation. Le texte fourni contient un passage qui ressemble à une liste de mots-clés sans contexte : 2019-2024 - Accueil du public - Standard FORMATION BTS Support a l action manageriale, 2018 LANGUES Anglais B1 Cela peut venir d’une mise en forme perdue lors du copier / coller, ou d’une technique destinée à influencer un logiciel de tri. Si des mots invisibles ont été ajoutés volontairement, nous vous le déconseillons : cela peut entraîner un r"
+  },
+  {
+   "n": "info",
+   "t": "ats : chaîne des « Retour » : ats:Les mots de votre CV ATS < ats:Les mots de votre CV ATS < ats:Les mots de votre CV ATS < ats-intro:Les mots de votre CV ATS < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "ats : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "ats : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "ats : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "ats : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "ats : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "ats : après « Recommencer » : #ats-intro bas « Commencer → »  Les mots de votre CV (ATS) Comparer le vocabulaire de votre CV avec celui d’une offre ou d’un métier, pour mieux faire ressortir votre parcours. ▶ Voir la prés"
+  },
+  {
+   "n": "ok",
+   "t": "ats : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#ats-intro",
+    "page": "ats-intro",
+    "h1": "Les mots de votre CV (ATS)",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#ats",
+    "page": "ats",
+    "h1": "Les mots de votre CV (ATS)",
+    "barre": "[Préparer] > Assistant > Résultat > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez et relisez votre CV, puis choisissez la référence (une offre ou un métier).",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#ats",
+    "page": "ats",
+    "h1": "Les mots de votre CV (ATS)",
+    "barre": "Préparer > [Assistant] > Résultat > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#ats",
+    "page": "ats",
+    "h1": "Les mots de votre CV (ATS)",
+    "barre": "Préparer > Assistant > [Résultat] > Terminé",
+    "avant": "Voir ma fiche →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

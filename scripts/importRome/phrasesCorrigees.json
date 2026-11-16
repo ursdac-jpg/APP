@@ -1,0 +1,738 @@
+{
+ "A partir de visuels, effectuer les différents ajustements avec le client et finaliser le modèle de pièce": "À partir de visuels, effectuer les différents ajustements avec le client et finaliser le modèle de pièce",
+ "A travers une présence régulière sur le terrain sur les missions de garde, il :": [],
+ "Accompagne les projets d’implantation, élabore et anime le projet économique du territoire, sur un mode partenarial": "Accompagner les projets d’implantation, élaborer et animer le projet économique du territoire, sur un mode partenarial",
+ "Accueille le client et le conseille d’un point de vue technique sur son choix, l’utilisation ou le montage de produits et accessoires adaptés aux véhicules, en particulier dans les domaines de technologie complexe": "Accueillir le client et le conseiller sur son choix, l’utilisation ou le montage de produits et d’accessoires adaptés aux véhicules",
+ "Accueille le client ou prospect et identifie ses besoins et ses attentes": "Accueillir le client ou le prospect et identifier ses besoins et ses attentes",
+ "Aide et accompagne les personnes dans les activités de la vie quotidienne (préparation des repas, déplacements, entretien du cadre de vie) et dans les actes essentiels (aide à la toilette, l’alimentation, l’habillement)": [
+  "Aider et accompagner les personnes dans les activités de la vie quotidienne (préparation des repas, déplacements, entretien du cadre de vie)",
+  "Aider aux actes essentiels (toilette, alimentation, habillement)"
+ ],
+ "Aménage et prépare les terrains, assure le labourage, le désherbage, les semis et récolte la production.": "Aménager et préparer les terrains, assurer le labourage, le désherbage, les semis et récolter la production",
+ "Analyse et interprète des données quantitatives pour aider à la prise de décision dans les entreprises et la recherche": "Analyser et interpréter des données quantitatives pour aider à la prise de décision dans les entreprises et la recherche",
+ "Analyse la biologie des espèces (reproduction, croissance, mortalité, alimentation, répartition spatio-temporelle et le fonctionnement des écosystèmes aquatiques et marins dans lesquels elles évoluent": "Analyser la biologie des espèces (reproduction, croissance, mortalité, alimentation, répartition) et le fonctionnement des écosystèmes aquatiques et marins dans lesquels elles évoluent",
+ "Analyse la pièce, les éléments à sertir et le dossier de production (ordre de fabrication, cahier des charges client) afin de comprendre les attentes du client et de l’atelier, en fonction de la gamme du produit": [
+  "Analyser la pièce, les éléments à sertir et le dossier de production (ordre de fabrication, cahier des charges client)",
+  "Comprendre les attentes du client et de l’atelier, en fonction de la gamme du produit"
+ ],
+ "Analyse le besoin fonctionnel du client, les architectures logicielles existantes et participe à la conception des interfaces (charte graphique de l’applicatif, maquette, structure de l’interface..)": "Analyser le besoin du client et les architectures logicielles existantes, et participer à la conception des interfaces (charte graphique, maquette, structure)",
+ "Analyse les performances des campagnes marketing ou commerciales et propose des ajustements de stratégie en fonction des résultats obtenus": "Analyser les performances des campagnes marketing ou commerciales et proposer des ajustements de stratégie en fonction des résultats obtenus",
+ "Analyse les échantillons de sol ou de roche pour déterminer la composition et la structure du terrain": "Analyser les échantillons de sol ou de roche pour déterminer la composition et la structure du terrain",
+ "Applique les niveaux de sûreté (exemple : alerte renforcée) et signale les anomalies à l’ASIP": "Appliquer les niveaux de sûreté (exemple : alerte renforcée) et signaler les anomalies à l’ASIP",
+ "Appréhende, acquiert et entretient les fondamentaux opérationnels du combattant": "Appréhender, acquérir et entretenir les fondamentaux opérationnels du combattant",
+ "Après examen minutieux des pierres ou perles, évalue leur qualité, leur couleur, leur pureté, leur taille et leur forme": "Après examen minutieux des pierres ou des perles, évaluer leur qualité, leur couleur, leur pureté, leur taille et leur forme",
+ "Après sélection et préparation des matériaux (faïence, pâte de verre, pierre ...), applique et fixe les tesselles sur différents types de supports": "Après sélection et préparation des matériaux (faïence, pâte de verre, pierre...), appliquer et fixer les tesselles sur différents types de supports",
+ "Assiste l’accompagnateur du groupe et peut être amené à fournir des explications succinctes sur l’intérêt du parcours": [
+  "Assister l’accompagnateur du groupe",
+  "Fournir des explications succinctes sur l’intérêt du parcours"
+ ],
+ "Assure la collecte et le contrôle des recettes publiques": "Assurer la collecte et le contrôle des recettes publiques",
+ "Assure la gestion administrative : contrats de travail des artistes et techniciens, contrats de cession de droit d’exploitation de spectacles, de prestations annexes, de coproduction, de co-réalisation, d’assurances, ainsi que les déclarations et demandes d’autorisations liées aux spectacles": [
+  "Assurer la gestion administrative des contrats de travail des artistes et des techniciens et des contrats de cession de droits d’exploitation de spectacles",
+  "Gérer les contrats de prestations annexes, de coproduction, de co-réalisation et d’assurances, ainsi que les déclarations et demandes d’autorisations liées aux spectacles"
+ ],
+ "Assure la gestion financière et le contrôle budgétaire de la structure.": "Assurer la gestion financière et le contrôle budgétaire de la structure",
+ "Assure la maintenance préventive (systématique ou conditionnelle) et corrective ainsi que l’installation des lignes électriques aériennes des réseaux ferroviaires : caténaires (supports (mâts), isolateurs, câbles porteurs, fils de contact, consoles..)": [
+  "Assurer la maintenance préventive (systématique ou conditionnelle) et corrective des lignes électriques aériennes des réseaux ferroviaires",
+  "Assurer l’installation des caténaires (supports, isolateurs, câbles porteurs, fils de contact, consoles...)"
+ ],
+ "Assure la maintenance préventive et corrective des installations électriques : opérations de vérification, de dépannage et de réparation des installations électriques, sur les voies ferrées et les postes d’aiguillage": [
+  "Assurer la maintenance préventive et corrective des installations électriques sur les voies ferrées et les postes d’aiguillage",
+  "Effectuer les opérations de vérification, de dépannage et de réparation"
+ ],
+ "Assure la pose et la dépose des affiches selon les campagnes en cours": "Assurer la pose et la dépose des affiches selon les campagnes en cours",
+ "Assure la promotion des auteurs, compositeurs, artistes qu’il représente ainsi qu’il anime et fidélise son réseau de clients": "Assurer la promotion des auteurs, compositeurs et artistes représentés, animer et fidéliser son réseau de clients",
+ "Assure la préparation et le contrôle des matières premières nécessaires à la production": "Assurer la préparation et le contrôle des matières premières nécessaires à la production",
+ "Assure la sécurité de la Présidence de la République, ses ministres et les plus hautes autorités, qu’il s’agisse de personnes publiques françaises ou de personnalités étrangères en visite auprès du Chef de l’État": "Assurer la sécurité de la Présidence de la République, des ministres et des plus hautes autorités, françaises ou étrangères",
+ "Assure la tenue des comptes publics et le contrôle de la régularité des opérations financières": "Assurer la tenue des comptes publics et le contrôle de la régularité des opérations financières",
+ "Assure la tenue, le suivi et la clôture des comptes annuels": "Assurer la tenue, le suivi et la clôture des comptes annuels",
+ "Assure la veille scientifique et réglementaire sur les produits dont il a la charge": "Assurer la veille scientifique et réglementaire sur les produits confiés",
+ "Assure l’accueil des usagers, le contrôle des équipements et contribue à la bonne organisation et à la sécurité des espaces de stationnement.": "Assurer l’accueil des usagers, le contrôle des équipements et contribuer à la bonne organisation et à la sécurité des espaces de stationnement",
+ "Assure l’entretien des installations et le contrôle de la qualité des bains": "Assurer l’entretien des installations et le contrôle de la qualité des bains",
+ "Assure un rôle d’interface entre la direction de la structure et les équipes qu’il encadre": "Assurer un rôle d’interface entre la direction de la structure et les équipes encadrées",
+ "Assure une mission commerciale car il doit être attentif au confort des passagers en garantissant la qualité du service qui leur est rendu.": [
+  "Assurer une mission commerciale",
+  "Être attentif au confort des passagers en garantissant la qualité du service qui leur est rendu"
+ ],
+ "Assure une mission de sécurité, de sûreté, et de secourisme car il veille au respect de ces règles en cabine à bord de l’avion et applique les procédures associées en cas de nécessité ;": [
+  "Assurer une mission de sécurité, de sûreté et de secourisme en cabine à bord de l’avion",
+  "Veiller au respect des règles de sécurité et appliquer les procédures associées en cas de nécessité"
+ ],
+ "Asure la réglage du poste de soudure selon les paramètres de soudage": "Assurer le réglage du poste de soudure selon les paramètres de soudage",
+ "Autonomie et responsabilité sont nécessaires pour la lecture de plans en 3D, l’assemblage des éléments, le report de plan dans l’espace à l’aide de métré laser, avant et pendant l’installation, les travaux d’isolation et d’étanchéité avec le bâtiment existant.": [],
+ "Avec une qualification matelot de quart-passerelle (timonier), peut aussi tenir la barre": "Tenir la barre, avec une qualification de matelot de quart-passerelle (timonier)",
+ "Bien installée et équipée de protection solaire, la véranda est une extension vitrée qui permet l’apport naturel de chaleur, de lumière et contribue aux économies d’énergie du bâtiment.": [],
+ "Calcule les droits et établit les décomptes de redevances dûs aux auteurs, compositeurs, artistes-interprètes et héritiers, labels et éditeurs partenaires (dans le cadre de contrats de licence ou de distribution)": [
+  "Calculer les droits dus aux auteurs, compositeurs, artistes-interprètes et héritiers",
+  "Établir les décomptes de redevances des labels et éditeurs partenaires (contrats de licence ou de distribution)"
+ ],
+ "Ce métier est dit « embarqué » qui s’exerce par périodes d’embarquement en mer plus ou moins longues.": [],
+ "Ce métier s’est fortement complexifié sur le plan technique, notamment avec l’émergence des nouveaux systèmes de propulsion et de l’intelligence artificielle technologique (mais aussi esthétique). Il peut être à amener à engager sa responsabilité ou celle de son employeur compte tenu des enjeux de sécurité.": [],
+ "Cette activité nécessite de veiller à la sécurité des personnes et au respect du règlement": "Veiller à la sécurité des personnes et au respect du règlement",
+ "Choisit les sous-traitants (graveur, illustrateur, graphiste) et conçoit ou fait réaliser des chartes graphiques puis les fait valider par le directeur éditorial et l’auteur": "Choisir les sous-traitants (graveur, illustrateur, graphiste), concevoir ou faire réaliser des chartes graphiques puis les faire valider par le directeur éditorial et l’auteur",
+ "Choisit les tissus, les coupe et les assemble avec soin": "Choisir les tissus, les couper et les assembler avec soin",
+ "Collabore avec les plateformes de streaming pour promouvoir les sorties, améliore la position éditoriale (playlists, bannières, suggestions algorithmiques) et met en place des campagnes ciblées d’acquisition et de fidélisation (publicités intégrées, notifications, recommandations sponsorisées)": [
+  "Collaborer avec les plateformes de streaming pour promouvoir les sorties et améliorer la position éditoriale (playlists, bannières, suggestions algorithmiques)",
+  "Mettre en place des campagnes ciblées d’acquisition et de fidélisation (publicités intégrées, notifications, recommandations sponsorisées)"
+ ],
+ "Collabore avec les équipes métier de l’ingénierie, production, Data, recherche et développement": "Collaborer avec les équipes métier de l’ingénierie, de la production, de la data et de la recherche et développement",
+ "Conduit les engins les plus divers (niveleuses, pelles hydrauliques, chargeuses, etc.) utilisés pour la réalisation des chantiers (extraction, terrassement, nivellement, manutention de charges, dressage de plates-formes, talus et fossés et chargement des engins de transport de matériaux, etc.)": [
+  "Conduire des engins variés (niveleuses, pelles hydrauliques, chargeuses...) pour la réalisation des chantiers",
+  "Réaliser l’extraction, le terrassement, le nivellement, la manutention de charges et le dressage de plates-formes, de talus et de fossés"
+ ],
+ "Conseille le client sur les services Après-Vente et l’informe sur les préconisations d’entretien": "Conseiller le client sur les services après-vente et l’informer sur les préconisations d’entretien",
+ "Conseille les clients, qu’il s’agisse de particuliers, d’entreprises ou d’organisations, dans le choix de véhicules poids lourds adaptés à leurs besoins": "Conseiller les clients (particuliers, entreprises, organisations) dans le choix de véhicules poids lourds adaptés à leurs besoins",
+ "Contrairement au maître-nageur, le surveillant de baignade n’a pas le droit d’enseigner": [],
+ "Contribue au bien-être de toute personne (famille, enfant, personne âgée, adulte ou enfant en situation de handicap, de maladie ou de convalescence) dans l’accomplissement des actes de la vie quotidienne": "Contribuer au bien-être de toute personne (famille, enfant, personne âgée, personne en situation de handicap) dans les actes de la vie quotidienne",
+ "Contribue à la réalisation de diagnostic écologique, et d’études impacts par notamment l’évaluation de l’état de conservation des espèces et habitats naturels et la proposition de mesures d’évitement, de réduction ou de compensation": [
+  "Contribuer aux diagnostics écologiques et aux études d’impact en évaluant l’état de conservation des espèces et des habitats naturels",
+  "Proposer des mesures d’évitement, de réduction ou de compensation"
+ ],
+ "Contribue à l’amélioration des parcours de santé et de vie, de la qualité et de la sécurité des soins et des accompagnements, de l’expérience des personnes, de la formation, de la recherche, de la gouvernance et de l’organisation des secteurs sanitaire, social et médico-social": [
+  "Contribuer à l’amélioration des parcours de santé et de vie, de la qualité et de la sécurité des soins et des accompagnements",
+  "Contribuer à la formation, à la recherche, à la gouvernance et à l’organisation des secteurs sanitaire, social et médico-social"
+ ],
+ "Contrôle les écarts entre les pièces dessinées et l’attendu, les analyse et réalise une rétro-conception si nécessaire": "Contrôler les écarts entre les pièces dessinées et l’attendu, les analyser et réaliser une rétro-conception si nécessaire",
+ "Contrôle l’état de fonctionnement du véhicule et de ses équipements, la présence et la validité des documents obligatoires et signale toute anomalie Respecte la réglementation routière, la sécurité et les procédures de l’entreprise": [
+  "Contrôler l’état de fonctionnement du véhicule et de ses équipements, la présence et la validité des documents obligatoires, et signaler toute anomalie",
+  "Respecter la réglementation routière, la sécurité et les procédures de l’entreprise"
+ ],
+ "Contrôle régulièrement l’avancement des travaux en lien avec le conducteur de travaux et ajuste les plannings si nécessaire": "Contrôler régulièrement l’avancement des travaux en lien avec le conducteur de travaux et ajuster les plannings si nécessaire",
+ "Conçoit des projets et des outils pédagogiques pour sensibiliser les personnes en cohérence avec les politiques éducatives et les enjeux écologiques du territoire et de sa structure en collaboration avec les acteurs du territoire (établissements scolaires, les collectivités et associations)": [
+  "Concevoir des projets et des outils pédagogiques pour sensibiliser les personnes en cohérence avec les politiques éducatives et les enjeux écologiques du territoire",
+  "Collaborer avec les acteurs du territoire (établissements scolaires, collectivités, associations)"
+ ],
+ "Conçoit et anime des activités individuelles et collectives visant la socialisation, l’autonomie, l’intégration ou l’insertion sociale des personnes accompagnées": "Concevoir et animer des activités individuelles et collectives visant la socialisation, l’autonomie, l’intégration ou l’insertion sociale des personnes accompagnées",
+ "Conçoit et anime des séances individuelles ou collectives de formation théorique ou pratique à la sécurité routière et à la conduite d’un véhicule des catégories : B, B1 et BE, AM, A1, A2, C1, C1E, D1, D1E, D et DE": [
+  "Concevoir et animer des séances individuelles ou collectives de formation théorique ou pratique à la sécurité routière et à la conduite d’un véhicule",
+  "Former aux catégories de permis B, B1, BE, AM, A1, A2, C1, C1E, D1, D1E, D et DE"
+ ],
+ "Conçoit et fait évoluer des systèmes d’information, des équipements connectés, des matériels informatiques, des systèmes d’exploitation, des logiciels ou encore des réseaux pour assurer le bon fonctionnement de sites et territoires connectés": [
+  "Concevoir et faire évoluer des systèmes d’information, des équipements connectés, des matériels informatiques, des systèmes d’exploitation, des logiciels ou des réseaux",
+  "Assurer le bon fonctionnement de sites et territoires connectés"
+ ],
+ "Conçoit et réalise les maquillages de chanteurs, musiciens, comédiens, mannequins, présentateurs TV, journalistes pour des spectacles, des concerts, des défilés, des tournages, selon les impératifs de production et de diffusion.": [
+  "Concevoir et réaliser les maquillages de chanteurs, musiciens, comédiens, mannequins, présentateurs TV et journalistes",
+  "Travailler pour des spectacles, des concerts, des défilés et des tournages, selon les impératifs de production et de diffusion"
+ ],
+ "Conçoit, développe et optimise les architectures ainsi que les solutions techniques de réseaux de télécommunications (téléphonie, multimédia, informatique, etc.), en intégrant les enjeux environnementaux et la stratégie numérique de l’entreprise ou du client": [
+  "Concevoir, développer et optimiser les architectures et les solutions techniques de réseaux de télécommunications (téléphonie, multimédia, informatique...)",
+  "Intégrer les enjeux environnementaux et la stratégie numérique de l’entreprise ou du client"
+ ],
+ "Coordonne et contrôle les travaux de l’équipe dont il a la responsabilité": "Coordonner et contrôler les travaux de l’équipe placée sous sa responsabilité",
+ "Coordonne les activités portuaires, logistiques et optimise les flux de marchandises": "Coordonner les activités portuaires et logistiques et optimiser les flux de marchandises",
+ "Coordonne les interventions des artistes et techniciens, négocie et organise leurs plannings et les conditions de leur accueil, de leurs transports et hébergements, pour la période de production (créations, répétitions, résidences, etc.)": [
+  "Coordonner les interventions des artistes et des techniciens",
+  "Négocier et organiser les plannings des artistes et des techniciens, ainsi que leur accueil, leurs transports et leur hébergement"
+ ],
+ "Coordonne les projets au dispositif institutionnel dans lequel il s’inscrit (médico-social, santé mentale, aide sociale à l’enfance, désaffiliation sociale, secteur associatif, loisirs et vacances adaptées...)": "Coordonner les projets avec le dispositif institutionnel (médico-social, santé mentale, aide sociale à l’enfance, secteur associatif, loisirs et vacances adaptées...)",
+ "Cordonne les activités des opérateurs sur les lignes de production": "Coordonner les activités des opérateurs sur les lignes de production",
+ "Crée le patron sur lequel il se basera pour créer sa pièce": "Créer le patron sur lequel s’appuyer pour réaliser sa pièce",
+ "Créée de nouvelles recettes ou optimise les formules existantes pour améliorer la qualité ou réduire les coûts de production": "Créer de nouvelles recettes ou optimiser les formules existantes pour améliorer la qualité ou réduire les coûts de production",
+ "Dans les petites entreprises, il doit faire preuve de polyvalence.": "Faire preuve de polyvalence",
+ "Demonte la batterie et ses composants": "Démonter la batterie et ses composants",
+ "Dessine et modélise les plans de principe et de détails des solutions constructives pouvant servir jusqu’à un niveau de pré-exécution, par la maîtrise des différents logiciels 2D, 3D, certains plans servant en phase de fabrication et de montage.": [
+  "Dessiner et modéliser les plans de principe et de détails des solutions constructives jusqu’au niveau de pré-exécution",
+  "Utiliser des logiciels 2D et 3D pour produire des plans servant en phase de fabrication et de montage"
+ ],
+ "Dispose de compétences techniques avérées dans la collecte et l’analyse des données et s’appuie sur une compréhension très fine du jeu.": "Collecter et analyser des données de jeu et s’appuyer sur une compréhension fine du jeu",
+ "Doit souvent vérifier l’exactitude des données saisies et s’assurer que les informations sont correctement enregistrées dans le système.": "Vérifier l’exactitude des données saisies et s’assurer que les informations sont correctement enregistrées dans le système",
+ "Définit la stratégie du bureau d’étude en fixant les orientations scientifiques et techniques, développant l’offre de services (études d’impact, inventaires, suivi écologique...) par la compréhension et l’analyse des demandes clients": [
+  "Définir la stratégie du bureau d’étude en fixant les orientations scientifiques et techniques",
+  "Développer l’offre de services (études d’impact, inventaires, suivi écologique...) par la compréhension et l’analyse des demandes des clients"
+ ],
+ "Définit les conditions des productions, il supervise leur évaluation financière ainsi que le montage financier des projets, il prospecte leurs financements": [
+  "Définir les conditions des productions",
+  "Superviser l’évaluation financière des productions ainsi que le montage financier des projets",
+  "Prospecter les financements"
+ ],
+ "Démarre, conduit, arrête en sécurité une installation hydrogène et en optimise le fonctionnement": "Démarrer, conduire et arrêter en sécurité une installation hydrogène et en optimiser le fonctionnement",
+ "Démontage et remontage de vitres latérales, lunettes arrières, toit panoramique et autres vitrages": "Démonter et remonter des vitres latérales, lunettes arrière, toit panoramique et autres vitrages",
+ "Développe des solutions de traitement et d’industrialisation de ces données en mobilisant son expertise technique (technologies du Big Data, langages, ..) en lien avec les équipes qui les analysent et les équipes métier": [
+  "Développer des solutions de traitement et d’industrialisation des données en mobilisant son expertise technique (technologies du Big Data, langages...)",
+  "Travailler en lien avec les équipes qui analysent les données et les équipes métier"
+ ],
+ "Développe et met en œuvre des stratégies marketing pour promouvoir le site et l’offre de services": "Développer et mettre en œuvre des stratégies marketing pour promouvoir le site et l’offre de services",
+ "Développe la clientèle et la fidélise en offrant des produits de qualité et en innovant régulièrement": "Développer la clientèle et la fidéliser en offrant des produits de qualité et en innovant régulièrement",
+ "Développe la mise en place de systèmes plus efficaces énergétiquement comme des pompes à chaleur, des systèmes de chauffage solaire ou encore des climatiseurs à haut rendement énergétique afin de réduire les consommations d’énergie et les émissions de carbone": [
+  "Développer la mise en place de systèmes plus efficaces énergétiquement : pompes à chaleur, chauffage solaire, climatiseurs à haut rendement",
+  "Réduire les consommations d’énergie et les émissions de carbone"
+ ],
+ "Effectue des missions d’inspection pour contrôler les conditions de vie et de bien-être des animaux dans les élevages, refuges, abattoirs, ...": "Effectuer des missions d’inspection pour contrôler les conditions de vie et de bien-être des animaux dans les élevages, les refuges, les abattoirs, etc.",
+ "Effectue des prélèvements des échantillons de matières et de produits pour analyse et contrôle": "Effectuer des prélèvements des échantillons de matières et de produits pour analyse et contrôle",
+ "Effectue la maintenance de premier niveau sur les équipements et fait respecter les règles de sécurité et d’hygiène": "Effectuer la maintenance de premier niveau sur les équipements et faire respecter les règles de sécurité et d’hygiène",
+ "Effectue le choix des matériaux, la préparation et la pose des éléments de couverture": "Effectuer le choix des matériaux, la préparation et la pose des éléments de couverture",
+ "Elabore et conduit des programmes d’entraînements sportifs complets afin d’atteindre le meilleur niveau dans la discipline. Joue un rôle essentiel dans la stratégie de performance sportive et la motivation des sportifs.": [
+  "Élaborer et conduire des programmes d’entraînements sportifs complets afin d’atteindre le meilleur niveau dans la discipline",
+  "Contribuer à la stratégie de performance sportive et à la motivation des sportifs"
+ ],
+ "Elabore les documents de gestion et le programme d’action d’un espace naturel protégé sur les différents axes (travaux, éducation, conservation, surveillance, valorisation) en cohérence avec les enjeux écologiques, réglementaires et territoriaux": "Élaborer les documents de gestion et le programme d’action d’un espace naturel protégé (travaux, éducation, conservation, surveillance, valorisation)",
+ "Elabore une politique de logement avec les autorités locales, les associations et les entreprises pour coordonner les efforts de développement et permettre l’accès à des logements adéquats et accessibles": [
+  "Élaborer une politique de logement avec les autorités locales, les associations et les entreprises",
+  "Coordonner les efforts de développement pour permettre l’accès à des logements adéquats et accessibles"
+ ],
+ "Emballe, monte et démonte des meubles et sécurise les objets qui peuvent être fragiles et de valeur, les charge et décharge dans le véhicule": "Emballer, monter et démonter des meubles, sécuriser les objets fragiles et de valeur, les charger et les décharger dans le véhicule",
+ "En acteur de terrain au sein des espaces naturels protégés, est amené à participer aux suivis naturalistes (mesure, suivi) des espaces naturels": "Participer aux suivis naturalistes (mesure, suivi) des espaces naturels protégés",
+ "En adoptant les principes de l’écoconduite, il participe à la protection de l’environnement": "Participer à la protection de l’environnement en adoptant les principes de l’écoconduite",
+ "En adoptant les principes de l’écoconduite, participe à la protection de l’environnement": "Participer à la protection de l’environnement en adoptant les principes de l’écoconduite",
+ "En adoptant les principes d’écoconduite, participe à la protection de l’environnement": "Participer à la protection de l’environnement en adoptant les principes de l’écoconduite",
+ "En amont d’un projet, accompagner un chargé d’affaires sur le terrain ou lors de briefs": "En amont d’un projet, accompagner un chargé d’affaires sur le terrain ou lors de briefs",
+ "En assurant l’isolation et l’étanchéité de la façade, contribue, par l’apport de lumière naturelle, à la performance énergétique du bâtiment et au confort des occupants. Participe directement à la signature des bâtiments, à leur aspect esthétique et à l’allongement de la durée de vie du bâtiment en maintenant en état les façades posées.": [
+  "Assurer l’isolation et l’étanchéité de la façade pour contribuer à la performance énergétique du bâtiment et au confort des occupants",
+  "Maintenir en état les façades pour préserver l’aspect esthétique et la durée de vie du bâtiment"
+ ],
+ "En cas de non conformité, faire cesser l’exposition du consommateur au produit (retrait du produit des rayons des magasins concernés)": "En cas de non-conformité, faire cesser l’exposition du consommateur au produit (retrait du produit des rayons des magasins concernés)",
+ "En collaboration avec le réalisateur ou le metteur en scène chargé de production, détermine les besoins en accessoires": "En collaboration avec le réalisateur ou le metteur en scène chargé de production, déterminer les besoins en accessoires",
+ "En phase d’exécution, coordonne l’intervention des équipes et veille au bon déroulement des opérations dans le respect des exigences réglementaires": "En phase d’exécution, coordonner l’intervention des équipes et veiller au bon déroulement des opérations dans le respect des exigences réglementaires",
+ "En équipage, intervient en soutien de l’ambulancier diplômé d’Etat": "En équipage, intervenir en soutien de l’ambulancier diplômé d’État",
+ "Entretient son poste de travail et alerte et signale tout incident, accident ou anomalie à sa hiérarchie selon les procédures en vigueur": "Entretenir son poste de travail et signaler tout incident, accident ou anomalie à sa hiérarchie selon les procédures en vigueur",
+ "Est affecté à des missions de combat, de recherche et de sauvetage, de transport de troupes ou de matériel, ou de reconnaissance.": "Être affecté à des missions de combat, de recherche et de sauvetage, de transport de troupes ou de matériel, ou de reconnaissance",
+ "Est attentif à la formation professionnelle et aux conditions de travail des intervenants": "Être attentif à la formation professionnelle et aux conditions de travail des intervenants",
+ "Est capable de prendre des décisions rapides et précises sous pression": "Prendre des décisions rapides et précises sous pression",
+ "Est capable de prendre des décisions rapides et précises sous pression.": "Prendre des décisions rapides et précises sous pression",
+ "Est chargé de dossiers techniques au sein d’un état-major ou dans un organisme d’expertise": "Être chargé de dossiers techniques au sein d’un état-major ou dans un organisme d’expertise",
+ "Est chargé de veiller au respect des règlementations et des lois en vigueur dans les eaux territoriales et internationales": "Veiller au respect des réglementations et des lois en vigueur dans les eaux territoriales et internationales",
+ "Est en charge de la gestion administrative et budgétaire de l’agence": "Être en charge de la gestion administrative et budgétaire de l’agence",
+ "Est en charge de la protection juridique du patrimoine mobilier": "Être en charge de la protection juridique du patrimoine mobilier",
+ "Est en charge de saisir avec précision et rapidité divers types d’éléments, tels que des rapports, des factures, des commandes ou d’autres documents.": "Saisir avec précision et rapidité divers types d’éléments, tels que des rapports, des factures, des commandes ou d’autres documents",
+ "Est en charge du suivi des opérations de maintenance": "Être en charge du suivi des opérations de maintenance",
+ "Est en contact permanent avec les fournisseurs de pièces, d’équipements (du cycle et du cycliste) et les commerciaux des constructeurs de cycles": "Rester en contact permanent avec les fournisseurs de pièces et d’équipements et avec les commerciaux des constructeurs de cycles",
+ "Est en contact permanent avec les fournisseurs de pièces, d’équipements (du cycle et du cycliste), les commerciaux des constructeurs de cycles et les partenaires (prescripteurs, prestataires, clients grand compte)": [
+  "Rester en contact permanent avec les fournisseurs de pièces et d’équipements, les commerciaux des constructeurs de cycles",
+  "Travailler avec les partenaires (prescripteurs, prestataires, clients grand compte)"
+ ],
+ "Est en relation avec un technicien de coordination centralisée afin de l’informer en temps réel des dysfonctionnements pouvant impacter l’horaire programmé du départ du vol": "Être en relation avec un technicien de coordination centralisée pour l’informer en temps réel des dysfonctionnements pouvant impacter l’horaire de départ du vol",
+ "Est en supervision de toutes les activités extra-sportives des activités, tout en s’appuyant sur des ressources internes et externes spécialisées (développement de secteur sportif, ressources humaines, juridique, comptabilité, finances, relations publiques)": [
+  "Superviser toutes les activités extra-sportives",
+  "S’appuyer sur des ressources internes et externes spécialisées (développement de secteur sportif, ressources humaines, juridique, comptabilité, finances, relations publiques)"
+ ],
+ "Est garant de la conformité légale et contractuelle": "Garantir la conformité légale et contractuelle",
+ "Est garant de l’hygiène et de la sécurité au sein de l’établissement": "Garantir l’hygiène et la sécurité au sein de l’établissement",
+ "Est l’interlocuteur principal du client sur l’avancement du projet (maître d’ouvrage)": "Être l’interlocuteur principal du client sur l’avancement du projet (maître d’ouvrage)",
+ "Est pleinement intégré aux staffs sportifs au même titre que d’autres spécialistes et agit souvent sous la responsabilité du directeur sportif ou du manager/entraîneur principal": "Travailler au sein des staffs sportifs, sous la responsabilité du directeur sportif ou de l’entraîneur principal",
+ "Est présent sur les lieux de spectacle de la tournée": "Être présent sur les lieux de spectacle de la tournée",
+ "Est responsable de la charte graphique et esthétique des films, vidéos et autres contenus visuels": "Être responsable de la charte graphique et esthétique des films, vidéos et autres contenus visuels",
+ "Est responsable de la conception, de la planification, de l’installation, de la configuration et de la maintenance des réseaux de télécommunications mobiles.": "Être responsable de la conception, de la planification, de l’installation, de la configuration et de la maintenance des réseaux de télécommunications mobiles",
+ "Est responsable de la gestion des alarmes et des avertissements, de la coordination avec d’autres agences et de la fourniture d’informations aux pilotes et aux contrôleurs aériens": [
+  "Gérer les alarmes et les avertissements",
+  "Assurer la coordination avec d’autres agences et fournir des informations aux pilotes et aux contrôleurs aériens"
+ ],
+ "Est responsable de la mise en valeur du projet artistique, de la gestion de l’image de l’artiste, et de la cohérence globale des actions de promotion et de diffusion, dans le respect du budget imparti": [
+  "Être responsable de la mise en valeur du projet artistique et de la gestion de l’image de l’artiste",
+  "Veiller à la cohérence globale des actions de promotion et de diffusion, dans le respect du budget imparti"
+ ],
+ "Est responsable de la planification, de la conception et de l’optimisation des infrastructures de datacenters": "Être responsable de la planification, de la conception et de l’optimisation des infrastructures de datacenters",
+ "Est responsable de la stratégie et du développement foncier sur les opérations majeures.": "Être responsable de la stratégie et du développement foncier sur les opérations majeures",
+ "Est responsable de la validation, depuis la rédaction du plan, jusqu’au rapport final, en passant par la gestion fonctionnelle de l’équipe de test": "Être responsable de la validation, de la rédaction du plan jusqu’au rapport final, y compris la gestion fonctionnelle de l’équipe de test",
+ "Est responsable de l’administration, de la maintenance, de la sécurité et de la logistique des systèmes de communication utilisés dans les opérations militaires ou de sécurité": "Être responsable de l’administration, de la maintenance et de la sécurité des systèmes de communication des opérations militaires ou de sécurité",
+ "Est responsable de l’armement, de la sécurité et de la logistique des drones utilisés dans les opérations militaires.": "Être responsable de l’armement, de la sécurité et de la logistique des drones utilisés dans les opérations militaires",
+ "Est responsable de l’identité musicale et visuelle, et de la direction créative d’un artiste signé ou d’un projet": "Être responsable de l’identité musicale et visuelle et de la direction créative d’un artiste signé ou d’un projet",
+ "Est référent sur l’aménagement des baies informatiques et le choix des technologies afférentes": "Être référent sur l’aménagement des baies informatiques et le choix des technologies associées",
+ "Est spécialiste de l’encadrement de publics ayant des problématiques de santé particulières en lien notamment au vieillissement ou à un handicap, en contribuant à lutter contre la perte d’autonomie et la sédentarité": "Encadrer des publics ayant des problématiques de santé particulières (vieillissement, handicap) et contribuer à lutter contre la perte d’autonomie et la sédentarité",
+ "Est spécialisé dans les opérations de combat maritime, sur un navire de guerre ou un sous-marin": "Mener des opérations de combat maritime, sur un navire de guerre ou un sous-marin",
+ "Est spécialisé dans les opérations de combat terrestre, à pied ou en véhicule": "Mener des opérations de combat terrestre, à pied ou en véhicule",
+ "Est un acteur de la lutte contre l’insécurité routière": "Contribuer à la lutte contre l’insécurité routière",
+ "Est également en charge de l’installation de mobiliers et de systèmes d’irrigation.": "Se charger de l’installation de mobiliers et de systèmes d’irrigation",
+ "Etablit le budget de production, en collaboration avec les différentes parties prenantes du projet, il le suit et le justifie": [
+  "Établir le budget de production en collaboration avec les différentes parties prenantes du projet",
+  "Suivre le budget et le justifier"
+ ],
+ "Etudie les données géologiques, géophysiques de sols, sous-sols, gisements et analyse leurs caractéristiques": "Étudier les données géologiques et géophysiques des sols, des sous-sols et des gisements et analyser leurs caractéristiques",
+ "Exploite un catalogue d’oeuvres ou d’enregistrements, accompagne l’ajustement et négocie des autorisations d’exploitation auprès d’éditeurs, de maisons de disques ou labels étrangers dans le cadre de la cession de droits, ou bien auprès de producteurs audiovisuels, agences, marques pour transposer la musique à l’image dans le cadre de la synchro": [
+  "Exploiter un catalogue d’œuvres ou d’enregistrements",
+  "Négocier des autorisations d’exploitation auprès d’éditeurs, de maisons de disques ou de labels étrangers dans le cadre de la cession de droits",
+  "Négocier des autorisations auprès de producteurs audiovisuels, d’agences et de marques pour transposer la musique à l’image (synchronisation)"
+ ],
+ "Facilite le passage d’un ou plusieurs véhicules dont les dimensions et / ou la masse dépassent les limites réglementaires définies par le code de la route pour que le convoi circule dans des conditions de sécurité optimale": "Faciliter le passage d’un ou plusieurs véhicules hors gabarit pour que le convoi circule dans des conditions de sécurité optimales",
+ "Favorise la pratique artistique et la rencontre de toutes personnes avec l’artiste et ses œuvres": "Favoriser la pratique artistique et la rencontre de toutes personnes avec l’artiste et ses œuvres",
+ "Favorise la vie sociale et relationnelle de la personne accompagnée et son entourage (soutien dans les activités sociales, culturelles, de loisirs, aide aux démarches administratives, accès aux droits, maintien du lien social)": [
+  "Favoriser la vie sociale et relationnelle de la personne accompagnée et de son entourage (soutien dans les activités sociales, culturelles et de loisirs)",
+  "Aider aux démarches administratives, à l’accès aux droits et au maintien du lien social"
+ ],
+ "Garant de la confidentialité, l’intégrité et la disponibilité des données": "Garantir la confidentialité, l’intégrité et la disponibilité des données",
+ "Garant de la performances des systèmes et déploie des stratégies de cybersécurité pour protéger les données": [
+  "Garantir la performance des systèmes",
+  "Déployer des stratégies de cybersécurité pour protéger les données"
+ ],
+ "Garant de la qualité de la production et que chaque lot d’enrobé réponde aux normes strictes de l’industrie": "Garantir la qualité de la production et la conformité de chaque lot d’enrobé aux normes strictes de l’industrie",
+ "Gestion de la confidentialité et de la discrétion": "Gérer la confidentialité et la discrétion",
+ "Gère des opérateurs, conducteurs de machines spécialisés en cuir assurant le déroulement des opérations de tannage, découpe, et assemblage": "Gérer des opérateurs et conducteurs de machines spécialisés en cuir pour le déroulement des opérations de tannage, de découpe et d’assemblage",
+ "Gère et supervise les opérations quotidiennes nécessaires au bon fonctionnement d’éléments matériels ou logiciels (outils, réseaux, bases de données, messagerie..)": "Gérer et superviser les opérations quotidiennes nécessaires au bon fonctionnement d’éléments matériels ou logiciels (outils, réseaux, bases de données, messagerie...)",
+ "Gère le personnel, recrute et forme les nouveaux employés": "Gérer le personnel, recruter et former les nouveaux employés",
+ "Gère les appels et les demandes des copropriétaires et locataires et met à jour les documents administratifs et légaux": "Gérer les appels et les demandes des copropriétaires et des locataires et mettre à jour les documents administratifs et légaux",
+ "Gère les corrections jusqu’à l’épreuve finale à partir de ses remarques, de celles des auteurs et directeurs de collection, veille au respect de la charte de copie musicale de l’entreprise et à la jouabilité des partitions": [
+  "Gérer les corrections jusqu’à l’épreuve finale à partir de ses remarques et de celles des auteurs et des directeurs de collection",
+  "Veiller au respect de la charte de copie musicale de l’entreprise et à la jouabilité des partitions"
+ ],
+ "Identifie les points de contrôle, analyse leurs défaillances et juge leurs niveaux de criticité (défaillances mineures, majeures ou critiques en prenant en compte leurs conséquences sur la sécurité)": [
+  "Identifier les points de contrôle et analyser leurs défaillances",
+  "Juger le niveau de criticité des défaillances (mineures, majeures ou critiques) en tenant compte de leurs conséquences sur la sécurité"
+ ],
+ "Inspectent les véhicules à moteur pour détecter tout défaut éventuel": "Inspecter les véhicules à moteur pour détecter tout défaut éventuel",
+ "Installe des systèmes de production d’énergie solaire, qu’ils soient thermiques ou photovoltaïques": "Installer des systèmes de production d’énergie solaire, thermiques ou photovoltaïques",
+ "Installe le gazon naturel, le revêtement synthétique ou stabilisé et réalise le traçage des terrains": "Installer le gazon naturel, le revêtement synthétique ou stabilisé et réaliser le traçage des terrains",
+ "Intervient avant, pendant et après le match et les entraînements selon les objectifs visés : préparer une rencontre, faire des choix tactiques, améliorer une stratégie de jeu en cours de match, faire évoluer les programmes d’entrainement à venir, améliorer les aspects techniques et tactiques des équipes et des sportifs": [
+  "Préparer une rencontre, faire des choix tactiques et améliorer une stratégie de jeu en cours de match",
+  "Faire évoluer les programmes d’entraînement et améliorer les aspects techniques et tactiques des équipes et des sportifs"
+ ],
+ "Intervient majoritairement sur des chantiers de bâtiment tertiaire et communal, en milieu occupé dans le cadre d’une rénovation ou non-occupé pour la construction neuve. Travaille essentiellement en équipe et à de très grandes hauteurs.": [
+  "Intervenir sur des chantiers de bâtiment tertiaire et communal, en milieu occupé pour une rénovation ou non occupé pour une construction neuve",
+  "Travailler en équipe et à de très grandes hauteurs"
+ ],
+ "Intervient notamment sur les pannes complexes des moteurs thermiques (diesel, gaz et carburants alternatifs), des systèmes d’injection, de suralimentation et de dépollution, des systèmes multiplexés, des systèmes de confort, de sécurité et de liaison au sol, des systèmes mécaniques (les chaines cinématiques, le freinage, les suspensions...), des éléments constitutifs de la chaîne de traction d’un VE/VH, des organes d’équipement des véhicules utilitaires et industriels": [
+  "Intervenir sur les pannes complexes des moteurs thermiques (diesel, gaz et carburants alternatifs) et des systèmes d’injection, de suralimentation et de dépollution",
+  "Intervenir sur les systèmes multiplexés, de confort, de sécurité et de liaison au sol, et sur les systèmes mécaniques (chaînes cinématiques, freinage, suspensions...)",
+  "Intervenir sur la chaîne de traction des véhicules électriques et hybrides et sur les organes d’équipement des véhicules utilitaires et industriels"
+ ],
+ "Intervient rapidement pour résoudre des pannes de premier niveau ou fait appel à des techniciens spécialisés": "Intervenir rapidement pour résoudre des pannes de premier niveau ou faire appel à des techniciens spécialisés",
+ "Intervient selon des protocoles de mesure et contrôle conformes aux normes environnementales et aux spécificités des télécommunications (Green IT, ACV télécoms, directives européennes)": "Intervenir selon des protocoles de mesure et de contrôle conformes aux normes environnementales et aux spécificités des télécommunications (Green IT, ACV télécoms, directives européennes)",
+ "Joue un rôle crucial dans la mise en œuvre réussie des études cliniques, en veillant à ce que les procédures soient suivies de manière rigoureuse, que les données soient collectées de manière précise, et que la sécurité des patients participant à l’étude soit assurée": [
+  "Participer à la mise en œuvre des études cliniques en veillant à ce que les procédures soient suivies rigoureusement",
+  "Veiller à la collecte précise des données et à la sécurité des patients participant à l’étude"
+ ],
+ "Joue un rôle essentiel dans la vie des personnes accueillies en leur offrant un cadre chaleureux et en les aidant à surmonter les difficultés auxquelles elles sont confrontées": "Offrir aux personnes accueillies un cadre chaleureux et les aider à surmonter les difficultés auxquelles elles sont confrontées",
+ "La maitrise de l’anglais et / ou d’une autre langue étrangère est un plus car elle facilite les dialogue avec les touristes étrangers.": [],
+ "La mise à jour des habilitations nécessaires pour les membres d’équipage": "Mettre à jour les habilitations nécessaires pour les membres d’équipage",
+ "Le jardinier peut travailler en création, ou il aménage des jardins privés et d’entreprises, des parcs et des espaces végétalisés publics, selon les plans d’un concepteur. Il assure la préparation des sols, retourne la terre, apporte des engrais. Il réalise des semis, met en place les pelouses, les plantes, les arbres et les arbustes. Il peut réaliser des terrasses, des allées, des murets, et effectuer des travaux de menuiserie pour structurer l’espace. Il peut aussi installer l’éclairage le plus adapté": [
+  "Préparer les sols, retourner la terre et apporter des engrais",
+  "Réaliser des semis et mettre en place les pelouses, les plantes, les arbres et les arbustes",
+  "Réaliser des terrasses, des allées et des murets, et effectuer des travaux de menuiserie pour structurer l’espace",
+  "Installer l’éclairage le plus adapté"
+ ],
+ "Le jardinier peut travailler en entretien, ou il s’assure de la bonne croissance des végétaux de l’aménagement paysager grâce à ses interventions régulières dans les jardins et les parcs, sur les toitures et murs végétalisés. Il intervient régulièrement pour s’assurer que les végétaux ne sont pas victimes de maladies ou de prédateurs. Il veille à la croissance des plantes et supervise l’arrosage automatique. Il désherbe, selon des méthodes respectueuses de la biodiversité. Il tond, bêche les massifs, ramasse les feuilles, effectue la taille des arbustes et des massifs": [
+  "Veiller à la bonne croissance des végétaux et superviser l’arrosage automatique",
+  "Intervenir régulièrement pour s’assurer que les végétaux ne sont pas victimes de maladies ou de prédateurs",
+  "Désherber selon des méthodes respectueuses de la biodiversité",
+  "Tondre, bêcher les massifs, ramasser les feuilles et tailler les arbustes et les massifs"
+ ],
+ "Le travail va de l’étude des besoins du produit, de son polissage, à son contrôle qualité en fonction de la responsabilité confiée.": [],
+ "Lors des opérations de démontage de façade, assure le tri et recyclage des matériaux en boucle fermée.": "Lors des opérations de démontage de façade, assurer le tri et le recyclage des matériaux en boucle fermée",
+ "L’artisan qui effectue ce travail sur le diamant est le diamantaire. Sur les pierres de couleur précieuses, fines ou ornementales, c’est le lapidaire": [],
+ "Maintient en état de fonctionnement les infrastructures électriques (installations de signalisation, les systèmes de détection et d’espacement des trains, les systèmes de contrôle, les aiguillages, les signaux lumineux et les passages à niveau) pour garantir la sécurité et la performance du réseau ferroviaire": [
+  "Maintenir en état de fonctionnement les infrastructures électriques ferroviaires (signalisation, détection et espacement des trains, contrôle, aiguillages, signaux lumineux, passages à niveau)",
+  "Garantir la sécurité et la performance du réseau ferroviaire"
+ ],
+ "Maintient une documentation technique à jour, accessible et teste les engins": "Maintenir une documentation technique à jour, accessible, et tester les engins",
+ "Manipule les matériels et équipements liés à la collecte (bacs et lève conteneur, bras de grue, compacteur, etc.)": "Manipuler les matériels et équipements liés à la collecte (bacs, lève-conteneur, bras de grue, compacteur, etc.)",
+ "Manœuvre et manipule des chariots de manutention pour charger, décharger ou déplacer des marchandises": "Manœuvrer et manipuler des chariots de manutention pour charger, décharger ou déplacer des marchandises",
+ "Manœuvrer des aéronefs sur le point d’envol d’un navire": "Manœuvrer des aéronefs sur le point d’envol d’un navire",
+ "Mesures de sécurité": "Appliquer les mesures de sécurité",
+ "Met en place les politiques de sécurité, la gestion des risques, la veille technologique": "Mettre en place les politiques de sécurité, la gestion des risques et la veille technologique",
+ "Met en place, suit et gère des études sous-traitées": "Mettre en place, suivre et gérer des études sous-traitées",
+ "Met en sécurité, conditionne et stocke la batterie": "Mettre en sécurité, conditionner et stocker la batterie",
+ "Met en œuvre des mesures d’hygiène et de sécurité en tenant compte des risques inhérents à la nature des interventions et à la spécificité des patients, au travail en zone protégée et à l’utilisation de dispositifs médicaux spécifiques.": [
+  "Mettre en œuvre des mesures d’hygiène et de sécurité adaptées à la nature des interventions et aux patients",
+  "Travailler en zone protégée et utiliser des dispositifs médicaux spécifiques"
+ ],
+ "Met en œuvre la stratégie réglementaire en accompagnant le cycle de vie du produit sur toutes les étapes (R&D, essai clinique, enregistrement, publicité, validation des articles de conditionnement, gestion des déchets...)": "Mettre en œuvre la stratégie réglementaire sur le cycle de vie du produit (R&D, essai clinique, enregistrement, publicité, gestion des déchets, etc.)",
+ "Met en œuvre l’action des pouvoirs publics au niveau du territoire (commune, département, région, Union Européenne, etc.) et dans un ou des domaines de compétences spécifiques (développement économique, emploi et insertion, aménagement du territoire, etc.).": [
+  "Mettre en œuvre l’action des pouvoirs publics au niveau du territoire (commune, département, région, Union européenne...)",
+  "Intervenir dans des domaines de compétences spécifiques (développement économique, emploi et insertion, aménagement du territoire...)"
+ ],
+ "Ne gère pas les contrats d’assurance ni le règlement des sinistres.": [],
+ "Opère sur des machines spécialisées pour le traitement, la coupe et l’assemblage des matériaux et respecte les normes de sécurité": "Opérer sur des machines spécialisées pour le traitement, la coupe et l’assemblage des matériaux et respecter les normes de sécurité",
+ "Opère à l’aide de schémas de montage qu’il doit savoir interpréter": "Opérer à l’aide de schémas de montage et savoir les interpréter",
+ "Organisation de la vérification et de la qualité des données en vue des monitorings": "Organiser la vérification de la qualité des données en vue des monitorings",
+ "Organise l’assortiment des produits selon les tendances et la demande des consommateurs": "Organiser l’assortiment des produits selon les tendances et la demande des consommateurs",
+ "Par l’encadrement de ces activités physiques et sportives, concourt généralement à un objectif plus large situé sur le plan social au sein d’une diversité de structures telles que associations sportives, d’animation, d’insertion, sociales et culturelles": [],
+ "Participe au développement commercial de la structure équestre pour laquelle il travaille": "Participer au développement commercial de la structure équestre",
+ "Participe au développement de protocoles scientifiques par la collecte, l’analyse et la diffusion d’informations sur les techniques de conservation": "Participer au développement de protocoles scientifiques : collecter, analyser et diffuser des informations sur les techniques de conservation",
+ "Participe à la conception, à l’animation et à l’évaluation d’actions de formation, d’information et de sensibilisation destinées aux professionnels, aux étudiants, aux patients, aux proches et aux usagers": [
+  "Participer à la conception, à l’animation et à l’évaluation d’actions de formation, d’information et de sensibilisation",
+  "Former et informer les professionnels, les étudiants, les patients, les proches et les usagers"
+ ],
+ "Participe à la construction, la maintenance et l’inspection de structures en hauteur ou d’accès difficile, telles que des bâtiments, des ponts, des ouvrages en milieu naturel, des installations industrielles, des éoliennes": "Participer à la construction, à la maintenance et à l’inspection de structures en hauteur ou d’accès difficile (bâtiments, ponts, éoliennes, etc.)",
+ "Participe à la construction, la maintenance et l’inspection de structures en hauteur ou d’accès difficile, telles que des bâtiments, des ponts, des ouvrages en milieu naturel, des installations industrielles, des éoliennes, etc.": "Participer à la construction, à la maintenance et à l’inspection de structures en hauteur ou d’accès difficile (bâtiments, ponts, éoliennes, etc.)",
+ "Participe à la pêche ou la récolte des produits aquacoles": "Participer à la pêche ou à la récolte des produits aquacoles",
+ "Participe à la stratégie de l’exploitation en assurant la logistique lors des récoltes, les relations avec les fournisseurs et le contrôle des stocks.": "Participer à la stratégie de l’exploitation en assurant la logistique lors des récoltes, les relations avec les fournisseurs et le contrôle des stocks",
+ "Participe à l’animation du lieu de vente (implantation espace de vente, mise en place de campagne promotionnelle)": "Participer à l’animation du lieu de vente (implantation de l’espace de vente, mise en place de campagnes promotionnelles)",
+ "Peur collaborer avec les chefs de chantier pour planifier le montage et démontage des installations": "Collaborer avec les chefs de chantier pour planifier le montage et le démontage des installations",
+ "Peut aussi conseiller les clients de façon individuelle et établir un programme personnalisé basé sur les aptitudes et les objectifs de chacun": "Conseiller les clients de façon individuelle et établir un programme personnalisé basé sur les aptitudes et les objectifs de chacun",
+ "Peut aussi effectuer du remorquage léger, des convoyages ou des missions anti-pollution, sous l’autorité de la capitainerie et participer à des opérations de sauvetage et d’urgence en port": [
+  "Effectuer du remorquage léger, des convoyages ou des missions anti-pollution, sous l’autorité de la capitainerie",
+  "Participer à des opérations de sauvetage et d’urgence en port"
+ ],
+ "Peut gérer la maintenance d’infrastructures spécifiques, telles que des datacenters, afin d’assurer les conditions optimales de température, humidité et qualité de l’air, nécessaires au fonctionnement des équipements informatiques": [
+  "Gérer la maintenance d’infrastructures spécifiques, telles que des datacenters",
+  "Assurer des conditions optimales de température, d’humidité et de qualité de l’air pour le fonctionnement des équipements informatiques"
+ ],
+ "Peut intervenir dans des domaines de compétences spécifiques : urbanisme, état civil, aide sociale, élections.": "Intervenir dans des domaines de compétences spécifiques : urbanisme, état civil, aide sociale, élections",
+ "Peut remplacer le conducteur de travaux dans certaines tâches": "Remplacer le conducteur de travaux dans certaines tâches",
+ "Peut réaliser, majoritairement dans les clubs associatifs, des activités complémentaires de communication, d’évènementiel, de gestion des relations publiques, voire des activités d’encadrement de la pratique physique et sportive en complémentarité des éducateurs sportifs": [
+  "Réaliser des activités complémentaires de communication, d’événementiel et de gestion des relations publiques",
+  "Encadrer la pratique physique et sportive en complémentarité des éducateurs sportifs"
+ ],
+ "Peut se spécialiser dans des secteurs spécifiques comme le maritime ou la recherche et développement (R&D)": "Intervenir dans des secteurs spécifiques comme le maritime ou la recherche et développement (R&D)",
+ "Peut superviser ou organiser un ou plusieurs services d’une collectivité territoriale (commune, conseil général, conseil régional, etc.), d’une administration déconcentrée (direction départementale, direction régionale, direction déléguée, ...).": [
+  "Superviser ou organiser un ou plusieurs services d’une collectivité territoriale (commune, conseil général, conseil régional...)",
+  "Superviser ou organiser un service d’une administration déconcentrée (direction départementale, régionale ou déléguée)"
+ ],
+ "Peut également gérer le transport des chevaux.": "Gérer le transport des chevaux",
+ "Peut également intervenir dans la gestion des ressources humaines (paies, recrutements, etc)": "Intervenir dans la gestion des ressources humaines (paies, recrutements, etc.)",
+ "Peut également participer aux études de création ou d’aménagement, contribuer à la gestion technico-commerciale des chantiers et répondre aux appels d’offres": "Participer aux études de création ou d’aménagement, contribuer à la gestion technico-commerciale des chantiers et répondre aux appels d’offres",
+ "Peut également réaliser des isolations contre le bruit": "Réaliser des isolations contre le bruit",
+ "Peut également vendre des services associés comme des assurances ou des extensions de garantie": "Vendre des services associés comme des assurances ou des extensions de garantie",
+ "Peut être impliqué dans la formation des internes et la recherche médicale dans son domaine d’expertise": "Participer à la formation des internes et à la recherche médicale dans son domaine d’expertise",
+ "Peut être spécialisé dans un domaine (immobilier d’entreprise, commerce, ...)": "Intervenir dans un domaine particulier (immobilier d’entreprise, commerce, etc.)",
+ "Peut-être amené à effectuer des encaissements": "Effectuer des encaissements",
+ "Pilote les actions de lancement commercial (date de sortie, formats, partenaires, etc.) et coordonne l’ensemble des intervenants internes et externes (promotion, distribution, relations médias, direction artistique)": [
+  "Piloter les actions de lancement commercial (date de sortie, formats, partenaires...)",
+  "Coordonner l’ensemble des intervenants internes et externes (promotion, distribution, relations médias, direction artistique)"
+ ],
+ "Pilote l’intégration des environnements numériques en temps réel, des écrans LED, la capture de mouvement et des effets visuels pendant le tournage": "Piloter l’intégration des environnements numériques en temps réel, des écrans LED, la capture de mouvement et des effets visuels pendant le tournage",
+ "Piloter et valider les contenus en coordonnant les échanges avec les influenceurs et la marque": "Piloter et valider les contenus en coordonnant les échanges avec les influenceurs et la marque",
+ "Planifie les opérations techniques (suivi des floraisons, encadrement des opérations d’irrigation, d’arrachage, éclaircissages) et prend les dispositions nécessaires vis-à-vis du climat et du traitement phytosanitaire.": [
+  "Planifier les opérations techniques (suivi des floraisons, encadrement de l’irrigation, de l’arrachage et des éclaircissages)",
+  "Prendre les dispositions nécessaires face au climat et pour le traitement phytosanitaire"
+ ],
+ "Plie le linge propre, le compte et le prépare pour la livraison": "Plier le linge propre, le compter et le préparer pour la livraison",
+ "Pose l’élément porteur (TAN/bois), prépare et réceptionne le support": "Poser l’élément porteur (TAN/bois), préparer et réceptionner le support",
+ "Possède la connaissance des limitations et contre-indications induites en termes d’activités physiques en lien avec l’état de santé des pratiquants, qui est nécessaire pour faire pratiquer en toute sécurité les pratiquants": "Connaître les limitations et contre-indications aux activités physiques liées à l’état de santé des pratiquants pour les faire pratiquer en toute sécurité",
+ "Possède un matériel spécifique personnel (platines vinyles, tables de mixage, contrôleurs, casque audio...)": "Disposer d’un matériel spécifique personnel (platines vinyles, tables de mixage, contrôleurs, casque audio...)",
+ "Pour les gardes républicains cavaliers, prendre soin et gérer son animal": "Pour les gardes républicains cavaliers, prendre soin de son animal et le gérer",
+ "Pour les équipements numériques non-réutilisables, récupère les pièces détachées pour la réparation, il procède au démantèlement et au tri des composants en vue de leur revalorisation matérielle": [
+  "Récupérer les pièces détachées pour la réparation des équipements numériques non réutilisables",
+  "Procéder au démantèlement et au tri des composants en vue de leur revalorisation"
+ ],
+ "Prend en charge les colis, les manutentionne et les arrime": "Prendre en charge les colis, les manutentionner et les arrimer",
+ "Procède à l’étude du dossier de l’usager (adhérent, assuré, allocataire, retraité ou cotisant) et gérer l’ensemble du cycle de traitement (de la demande à l’identification des droits et obligations aux décisions applicables) en se référant aux procédures et en appliquant une législation complexe en évolution permanente": [
+  "Étudier le dossier de l’usager (adhérent, assuré, allocataire, retraité ou cotisant)",
+  "Gérer l’ensemble du cycle de traitement, de la demande à l’identification des droits et obligations, en appliquant une législation complexe en évolution permanente"
+ ],
+ "Produit des supports cartographiques et des statistiques en réponse aux besoins à travers l’identification et l’évaluation des besoins cartographiques, l’intégration les données et la gestion du système d’information géographique et le traitement (mise en forme) des données géographiques": [
+  "Produire des supports cartographiques et des statistiques en réponse aux besoins identifiés",
+  "Intégrer les données, gérer le système d’information géographique et traiter (mettre en forme) les données géographiques"
+ ],
+ "Propose des outils d’aide à la décision et à l’action dans différents domaines d’activités (Aménagement, Biodiversité, télécommunications, Transport et logistique, Énergie...) à travers la gestion et l’analyse des données spatiales": [
+  "Proposer des outils d’aide à la décision et à l’action dans différents domaines (aménagement, biodiversité, télécommunications, transport et logistique, énergie...)",
+  "Gérer et analyser des données spatiales"
+ ],
+ "Propose et présente, éventuellement à l’aide d’outils numériques (configurateur, casque 3D, etc.), des véhicules et autres solutions de mobilité ainsi que des technologies et produits périphériques correspondant aux demandes identifiées": [
+  "Proposer et présenter des véhicules et d’autres solutions de mobilité, éventuellement à l’aide d’outils numériques (configurateur, casque 3D...)",
+  "Présenter les technologies et produits périphériques correspondant aux demandes identifiées"
+ ],
+ "Prospecte des partenaires susceptibles d’être intéressés par l’acquisition des droits (éditeurs étrangers, sociétés de production, etc.) et assure la promotion du catalogue d’oeuvres ou enregistrements qu’il représente, auprès de son réseau de professionnels": [
+  "Prospecter des partenaires susceptibles d’être intéressés par l’acquisition des droits (éditeurs étrangers, sociétés de production...)",
+  "Assurer la promotion du catalogue d’œuvres ou d’enregistrements représenté auprès de son réseau de professionnels"
+ ],
+ "Pré chiffrer l’intervention en carrosserie peinture": "Préchiffrer l’intervention en carrosserie peinture",
+ "Prépare et effectue la livraison ainsi que la mise en main du véhicule : présente au client les différentes parties du véhicule, explique ses fonctionnalités en apportant des conseils personnalisés, l’informe sur les préconisations d’entretien et les services après-vente ; synchronise les appareils mobiles du client avec les systèmes embarqués du véhicule, et active les services connectés du constructeur. Il peut réaliser des ventes additionnelles": [
+  "Préparer et effectuer la livraison du véhicule et sa mise en main",
+  "Présenter au client les différentes parties du véhicule et expliquer ses fonctionnalités avec des conseils personnalisés",
+  "Informer le client sur les préconisations d’entretien et les services après-vente",
+  "Synchroniser les appareils mobiles du client avec les systèmes embarqués du véhicule et activer les services connectés du constructeur",
+  "Réaliser des ventes additionnelles"
+ ],
+ "Prépare la mission en amont (analyse du cahier des charges, définition du protocole d’inspection, organisation du choix du matériel) et veille au respect des normes de sécurité et environnementales lors des interventions": [
+  "Préparer la mission en amont (analyse du cahier des charges, définition du protocole d’inspection, choix du matériel)",
+  "Veiller au respect des normes de sécurité et environnementales lors des interventions"
+ ],
+ "Prépare la pâte, assemble et cuit les produits culinaires dans les règles de l’art": "Préparer la pâte, assembler et cuire les produits culinaires dans les règles de l’art",
+ "Prépare les composants, découpe et met en forme les ensembles de tuyauterie par cintrage, pliage, etc...": "Préparer les composants, découper et mettre en forme les ensembles de tuyauterie par cintrage, pliage, etc.",
+ "Prépare les fichiers graphiques pour qu’ils puissent être imprimés sans erreur et avec la meilleure qualité possible": "Préparer les fichiers graphiques pour qu’ils puissent être imprimés sans erreur et avec la meilleure qualité possible",
+ "Prépare les surfaces, mélange et applique les plâtres selon les spécifications du projet": "Préparer les surfaces, mélanger et appliquer les plâtres selon les spécifications du projet",
+ "Prépare l’espace de baignade en amont de l’arrivée des usagers, surveille la baignade et fait respecter les règles de sécurité et d’hygiène": "Préparer l’espace de baignade en amont de l’arrivée des usagers, surveiller la baignade et faire respecter les règles de sécurité et d’hygiène",
+ "Prépare l’équipement de pêche et le maintient en état": "Préparer l’équipement de pêche et le maintenir en état",
+ "Respecte la réglementation en vigueur notamment relatif à la protection des animaux pendant le transport et les opérations annexes, en matière de temps de conduite et de repos, la réglementation routière et la sécurité": [
+  "Respecter la réglementation en vigueur relative à la protection des animaux pendant le transport et les opérations annexes",
+  "Respecter la réglementation sur le temps de conduite et de repos, la réglementation routière et la sécurité"
+ ],
+ "Respecte les délais de rédaction et les lignes éditoriales des médias pour lesquels il travaille": "Respecter les délais de rédaction et les lignes éditoriales des médias partenaires",
+ "Respecte les délais, la réglementation en vigueur notamment en matière de temps de conduite et de repos, la réglementation routière, sur la sécurité, sur le transport de marchandises dangereuses et les procédures de l’entreprise": [
+  "Respecter les délais et la réglementation en vigueur, notamment sur le temps de conduite et de repos et sur la réglementation routière",
+  "Respecter la réglementation sur le transport de marchandises dangereuses et les procédures de l’entreprise"
+ ],
+ "Réalise des opérations de CND/END utilisant différentes méthodes et techniques selon les composants (visuel, ultrasons, radiographie, ressuage, magnétoscopie, courants de Foucault,..)": "Réaliser des opérations de CND/END avec différentes méthodes et techniques selon les composants (visuel, ultrasons, radiographie, ressuage, magnétoscopie, courants de Foucault...)",
+ "Réalise des opérations de fabrication et d’entretien de voiles (voiles pour voiliers, voiles de kitesurf ...) et tauds dans le respect des règles de qualité, d’hygiène, de sécurité, de santé et de protection de l’environnement": "Réaliser la fabrication et l’entretien de voiles (voiliers, kitesurf, etc.) et de tauds selon les règles de qualité et de sécurité",
+ "Réalise des ouvertures dans une maçonnerie existante (fenêtre, porte, etc.)": "Réaliser des ouvertures dans une maçonnerie existante (fenêtre, porte, etc.)",
+ "Réalise des tests mécaniques, visuels et rédige des fiches techniques pour une traçabilité des matières premières": "Réaliser des tests mécaniques, visuels et rédiger des fiches techniques pour assurer la traçabilité des matières premières",
+ "Réalise des travaux de terrassement et de nivellement pour préparer le site et la pose des tuyaux": "Réaliser des travaux de terrassement et de nivellement pour préparer le site et la pose des tuyaux",
+ "Réalise des études d’impact environnemental et propose des mesures correctives, participe à des recherches scientifiques pour améliorer la gestion des aires protégées et coordonne les observations et apporte son expertise auprès des acteurs locaux et des institutions publiques pour des projets de conservation et restauration du milieu marin": [
+  "Réaliser des études d’impact environnemental et proposer des mesures correctives",
+  "Participer à des recherches scientifiques pour améliorer la gestion des aires protégées",
+  "Coordonner les observations et apporter son expertise aux acteurs locaux et aux institutions publiques pour des projets de conservation et de restauration du milieu marin"
+ ],
+ "Réalise des études naturalistes à travers le choix de la méthode d’inventaire, la récolte des données existantes, la synthèse de l’information et la définition les protocoles appropriés": "Réaliser des études naturalistes : choisir la méthode d’inventaire, récolter les données existantes, synthétiser l’information et définir les protocoles appropriés",
+ "Réalise la prise en charge d’enfants de la naissance à quinze ans, les guide dans les gestes de la vie quotidienne et effectue, en collaboration avec l’équipe infirmière, des soins d’hygiène et de confort": [
+  "Prendre en charge des enfants de la naissance à quinze ans et les guider dans les gestes de la vie quotidienne",
+  "Effectuer, en collaboration avec l’équipe infirmière, des soins d’hygiène et de confort"
+ ],
+ "Réalise le tri, le chargement et le déchargement d’articles textiles sur des machines ou équipements de blanchisserie industrielle selon les règles d’hygiène, de sécurité, les normes environnementales et les impératifs de production": [
+  "Réaliser le tri, le chargement et le déchargement d’articles textiles sur des machines ou équipements de blanchisserie industrielle",
+  "Respecter les règles d’hygiène et de sécurité, les normes environnementales et les impératifs de production"
+ ],
+ "Réalise les opérations de vérification de l’intégrité physique de la batterie (étanchéité, dégradation...) et sa traçabilité de la batterie": "Réaliser les opérations de vérification de l’intégrité physique de la batterie (étanchéité, dégradation...) et de sa traçabilité",
+ "Réalise tout ou partie des opérations de prépresse d’éléments graphiques (préparation de la forme imprimante, mise en page de texte/image, imposition, flashage, photogravure) en fonction des commandes et des impératifs de quantités, délais, qualité": [
+  "Réaliser tout ou partie des opérations de prépresse (forme imprimante, mise en page texte et image, imposition, flashage, photogravure)",
+  "Tenir compte des commandes et des impératifs de quantité, de délais et de qualité"
+ ],
+ "Réalise tout ou partie des opérations de reproduction de documents (prises de commande, conseil, duplication, façonnage), à partir des indications données par le client selon les règles de sécurité et les impératifs de production": [
+  "Réaliser tout ou partie des opérations de reproduction de documents (prises de commande, conseil, duplication, façonnage)",
+  "Travailler à partir des indications données par le client, selon les règles de sécurité et les impératifs de production"
+ ],
+ "Réaliser la maintenance et la pose des organes d’équipements et accessoires,": "Réaliser la maintenance et la pose des organes d’équipements et des accessoires",
+ "Rédaction de rapports de constatation et de conclusions détaillés et rigoureux": "Rédiger des rapports de constatation et de conclusions détaillés et rigoureux",
+ "Rédige des rapports d’inspection, d’incident et tient à jour les registres de sécurité et les documents réglementaires": "Rédiger des rapports d’inspection et d’incident et tenir à jour les registres de sécurité et les documents réglementaires",
+ "Réparation de tous types de pare-brise": "Réparer tous types de pare-brise",
+ "Selon la taille du club, peut participer à la gestion de la structure, au développement de l’activité, à l’organisation d’événements, à la gestion de partenariats": "Participer à la gestion de la structure, au développement de l’activité, à l’organisation d’événements et à la gestion de partenariats",
+ "Selon le chantier, peut avoir à réaliser des activités annexes telles que la pose ou dépose d’éléments (sanitaires, cloisons, sols souples) ou la peinture en extérieur.": [
+  "Réaliser des activités annexes telles que la pose ou la dépose d’éléments (sanitaires, cloisons, sols souples)",
+  "Réaliser la peinture en extérieur"
+ ],
+ "Selon le public et les objectifs visés, assure l’animation pour le divertissement et le loisir.Veille à la sécurité des personnes et au respect du règlement.": [
+  "Assurer l’animation pour le divertissement et le loisir, selon le public et les objectifs visés",
+  "Veiller à la sécurité des personnes et au respect du règlement"
+ ],
+ "Selon sa formation ou son expérience, peut encadrer une activité sportive en club ou structures de loisirs comme initiateur.": "Encadrer une activité sportive en club ou en structure de loisirs comme initiateur",
+ "Selon son statut, peut diriger une étude notariale, encadrer des collaborateurs et assurer la gestion économique et organisationnelle de l’office": [
+  "Diriger une étude notariale",
+  "Encadrer des collaborateurs et assurer la gestion économique et organisationnelle de l’office"
+ ],
+ "Ses activités sont réalisées dans le respect de la réglementation relative à l’environnement, à l’hygiène et à la sécurité": [],
+ "Signale la présence d’un ou plusieurs véhicules dont les dimensions et / ou la masse dépassent les limites réglementaires définies par le code de la route pour que le convoi circule dans des conditions de sécurité optimale": "Signaler la présence d’un ou plusieurs véhicules hors gabarit pour que le convoi circule dans des conditions de sécurité optimales",
+ "Signale les non-conformités, les pannes et participe à leur diagnostic et résolution": "Signaler les non-conformités, les pannes et participer à leur diagnostic et à leur résolution",
+ "Soumettent l’équipement assemblé à des essais, afin de s’assurer que ses performances sont correctes et qu’il est conforme aux normes de qualité": "Soumettre l’équipement assemblé à des essais pour s’assurer que ses performances sont correctes et qu’il est conforme aux normes de qualité",
+ "Sous l’eau, peut participer aux missions": [],
+ "Suit la gestion financière et contractuelle du projet (établit et suit le budget, gère les sous-traitants...)": "Suivre la gestion financière et contractuelle du projet (établir et suivre le budget, gérer les sous-traitants...)",
+ "Suit l’exécution du budget de la tournée : vérifie la recette de billetterie, vérifie, négocie et règle les dépenses, transmet à l’administrateur ou au service comptable les informations nécessaires à l’exécution du budget, établit les comptes d’exploitation des représentations": [
+  "Suivre l’exécution du budget de la tournée : vérifier la recette de billetterie, vérifier, négocier et régler les dépenses",
+  "Transmettre à l’administrateur ou au service comptable les informations nécessaires à l’exécution du budget et établir les comptes d’exploitation des représentations"
+ ],
+ "Suite au bilan clinique, conseille et conduit les entretiens avec les patients et leurs familles": "Conseiller et conduire les entretiens avec les patients et leurs familles à la suite du bilan clinique",
+ "Suite au travail de conception et de fabrication en amont, participe directement à la qualité de l’ouvrage et lors de la livraison finale du chantier.": "Participer directement à la qualité de l’ouvrage, depuis la conception et la fabrication jusqu’à la livraison finale du chantier",
+ "Supervise et anime l’équipe d’un point de vue technique et organisationnel et veille au climat de travail et à la transmission des savoir-faire": "Superviser et animer l’équipe d’un point de vue technique et organisationnel et veiller au climat de travail et à la transmission des savoir-faire",
+ "Supervise et coordonne les activités d’un atelier dédié à la maintenance et à la réparation d’équipements de parcs et jardins tels que tondeuses, tronçonneuses, taille-haies...": "Superviser et coordonner les activités d’un atelier dédié à la maintenance et à la réparation d’équipements de parcs et jardins (tondeuses, tronçonneuses, taille-haies...)",
+ "Supervise la gestion financière et le contrôle budgétaire": "Superviser la gestion financière et le contrôle budgétaire",
+ "Supervise l’activité des collaborateurs pour la partie atelier et magasin et facilite l’échange entre les collaborateurs de l’atelier et du magasin": "Superviser l’activité des collaborateurs pour la partie atelier et magasin et faciliter l’échange entre les collaborateurs de l’atelier et du magasin",
+ "S’assure de la mise en place de mesures de sécurité des gardes dont il a la responsabilité et fait remonter les problèmes de sécurité rencontrées": [
+  "S’assurer de la mise en place de mesures de sécurité pour les gardes placés sous sa responsabilité",
+  "Faire remonter les problèmes de sécurité rencontrés"
+ ],
+ "S’assure du respect du plan de chargement établi par le technicien masse et centrage (chargement des bagages en conteneurs et en vrac, et du fret)": "S’assurer du respect du plan de chargement établi par le technicien masse et centrage (chargement des bagages en conteneurs et en vrac, et du fret)",
+ "S’il travail dans une entreprise du paysage, le professionnel spécialisé dans le reboisement préparera les sols, plantera, assurera le suivi de la croissance des plats, il protègera les plantations de l’attaque d’animaux et entretiendra la fôret, dans le respect de l’environnement et de la biodiversité.": [
+  "Préparer les sols, planter et assurer le suivi de la croissance des plants",
+  "Protéger les plantations de l’attaque d’animaux et entretenir la forêt dans le respect de l’environnement et de la biodiversité"
+ ],
+ "Taille la pierre, de façon à ce qu’elle soit la plus belle et propre, tout en perdant le moins de matière possible": "Tailler la pierre pour qu’elle soit la plus belle et la plus propre possible, en perdant le moins de matière possible",
+ "Travaille étroitement avec l’équipe technique (créateurs lumière et son, régisseurs, décorateurs, costumiers, etc.) et les autres artistes (musiciens, vidéastes, etc.) pour créer l’ambiance et le style visuel de la production": [
+  "Travailler étroitement avec l’équipe technique (créateurs lumière et son, régisseurs, décorateurs, costumiers...) et avec les autres artistes (musiciens, vidéastes...)",
+  "Créer l’ambiance et le style visuel de la production"
+ ],
+ "Travailler dans des environnements hostiles et pour atteindre des objectifs tactiques spécifiques, tels que la reconnaissance, la surveillance, le sabotage, la libération d’otages, la lutte contre le terrorisme et la guerre non conventionnelle.": "Travailler dans des environnements hostiles pour atteindre des objectifs tactiques spécifiques (reconnaissance, surveillance, sabotage, libération d’otages, lutte contre le terrorisme)",
+ "Une part significative de ces professionnels peut également être « coach sportif personnel » dans le cadre d’une activité professionnelle complémentaire et, à ce titre, exercer avec un statut de micro-entrepreneur.": [],
+ "Utilise des outils de surveillance et de gestion des performances pour suivre les métriques clés des serveurs, des systèmes de stockage, des réseaux et des applications, et pour identifier les problèmes et les tendances": [
+  "Utiliser des outils de surveillance et de gestion des performances pour suivre les métriques clés des serveurs, des réseaux et des applications",
+  "Identifier les problèmes et les tendances"
+ ],
+ "Utilise des technologies satellites avancées pour la collecte et l’analyse des données météorologiques": "Utiliser des technologies satellites avancées pour la collecte et l’analyse des données météorologiques",
+ "Veille scientifique et technologique des évolutions en biologie et production industrielle": "Assurer la veille scientifique et technologique des évolutions en biologie et en production industrielle",
+ "Vérifie la pression des pneus et la remet aux normes": "Vérifier la pression des pneus et la remettre aux normes",
+ "climatiques.": [],
+ "individuelle et collective, dans le respect du règlement de l’internat, du projet de l’établissement et construit le": [],
+ "laboratoire": [],
+ "organisationnelle, en garantissant un cadre de vie sécurisant, une qualité de service optimale et une gestion rigoureuse au service des": [],
+ "ou au sein d’une entreprise industrielle ou commerciale qui a des activités à l’import et / ou à l’export ; acteur clé au sein de la chaine internationale de circulation des marchandises, et au centre de la fluidité des échanges, le responsable douane supervise l’ensemble des formalités douanières à l’import et à l’export.": [],
+ "projet éducatif de l’internat en lien avec l’équipe éducative et la direction.": [],
+ "responsables de l’organisation de la collecte": [],
+ "résidents et de leurs familles.": [],
+ "sécurité et d’ordre.": [],
+ "Écrit le synopsis et prépare le scénario ou la structure narrative": "Écrire le synopsis et préparer le scénario ou la structure narrative",
+ "Étudie le cahier des charges pour déterminer les matériaux, dimensions, formes et procédés adéquats pour la construction du navire pour optimiser les performances et la stabilité des navires, dans le respect des normes de sécurité": [
+  "Étudier le cahier des charges pour déterminer les matériaux, dimensions, formes et procédés adéquats pour la construction du navire",
+  "Optimiser les performances et la stabilité des navires dans le respect des normes de sécurité"
+ ],
+ "Travaille à proximité des animaux et peut être amené à les manipuler dans le cadre de ses activités.": "Travailler à proximité des animaux et les manipuler dans le cadre de ses activités",
+ "Gère son atelier, organise son travail et peut former des apprentis à ces techniques traditionnelles": "Gérer son atelier, organiser son travail et former des apprentis à ces techniques traditionnelles",
+ "Réalise les finitions (bordures, coutures, ourlets, etc.) et a le souci de la qualité du produit fini.": "Réaliser les finitions (bordures, coutures, ourlets, etc.) avec le souci de la qualité du produit fini",
+ "Cherche et acquiert des objets anciens ou d’occasion à valeur ajoutée": "Chercher et acquérir des objets anciens ou d’occasion à valeur ajoutée",
+ "Assure la gestion des rendez-vous et a une veille constante des tendances en créativité et bien-être de la clientèle": "Assurer la gestion des rendez-vous et maintenir une veille constante des tendances en créativité et en bien-être de la clientèle",
+ "S’occupe des réclamations client et est également garant des suivis de garanties": "S’occuper des réclamations client et garantir le suivi des garanties",
+ "Mise en place et suivi des taggages, en vue d’analyses statistiques d’audience": "Mettre en place et suivre les taggages, en vue d’analyses statistiques d’audience",
+ "Garantit la qualité de l’ouvrage et est force de proposition pour optimiser les opérations (méthodes, planning, variantes, etc.)": "Garantir la qualité de l’ouvrage et proposer des moyens d’optimiser les opérations (méthodes, planning, variantes, etc.)",
+ "Réalise des ouvrages en appliquant les règles et normes en vigueur, de la prise de cotes jusqu’à la fabrication. Selon la taille de l’entreprise, peut poser des menuiseries.": [
+  "Réaliser des ouvrages en appliquant les règles et normes en vigueur, de la prise de cotes jusqu’à la fabrication",
+  "Poser des menuiseries"
+ ],
+ "Positionner les blocs de pierre sous les machines et assure la programmation informatique du sciage": "Positionner les blocs de pierre sous les machines et assurer la programmation informatique du sciage",
+ "Accueille les clients et peut procéder à l’encaissement des ventes": "Accueillir les clients et procéder à l’encaissement des ventes",
+ "Détermine, et fait évoluer des opérations techniques, des pratiques et des procédés de réalisation (process et produits)": "Déterminer et faire évoluer les opérations techniques, les pratiques et les procédés de réalisation (process et produits)",
+ "Assure la traçabilité de ses interventions et peut conseiller les clients sur l’utilisation et l’entretien des équipements": "Assurer la traçabilité de ses interventions et conseiller les clients sur l’utilisation et l’entretien des équipements",
+ "Conseille un client particulier ou professionnel pour lui présenter les méthodes d’intervention en débosselage sans peinture et peut apporter des éléments techniques dans l’expertise automobile": "Conseiller un client particulier ou professionnel pour lui présenter les méthodes d’intervention en débosselage sans peinture et apporter des éléments techniques dans l’expertise automobile",
+ "L’ensemble de ces activités est réalisé conformément à la réglementation en vigueur, notamment celles relatives à la sécurité, et dans le cadre des procédures prédéfinies d’un système qualité": [],
+ "Elabore le projet de l’ensemble des structures et services, et est garant de sa mise en œuvre": "Élaborer le projet de l’ensemble des structures et services et garantir sa mise en œuvre",
+ "Participe à des opérations militaires pour défendre les intérêts nationaux et peut être déployé à l’étranger pour certaines missions": "Participer à des opérations militaires pour défendre les intérêts nationaux, avec un déploiement possible à l’étranger pour certaines missions",
+ "Gère le budget marketing et promotionnel, en assurant l’équilibre entre ambitions artistiques et contraintes économiques et peut contribuer à la valorisation du catalogue": [
+  "Gérer le budget marketing et promotionnel, en assurant l’équilibre entre ambitions artistiques et contraintes économiques",
+  "Contribuer à la valorisation du catalogue"
+ ],
+ "Assure la sécurité des passagers durant le trajet et peut être amené à gérer des situations d’incidents": "Assurer la sécurité des passagers durant le trajet et gérer des situations d’incidents",
+ "Surveiller l’alimentation continue des installations en fils, ... et procéder au nouage en cas de rupture": "Surveiller l’alimentation continue des installations en fils et procéder au nouage en cas de rupture",
+ "Vérifier les pressions et températures, les échanges de chaleur, ... et ajuster les réglages": "Vérifier les pressions et températures, les échanges de chaleur et ajuster les réglages",
+ "Monter/démonter les cylindres, cadres, ... sur la machine à imprimer, cadrer le motif et alimenter la machine en couleurs": "Monter et démonter les cylindres, les cadres et autres éléments sur la machine à imprimer, cadrer le motif et alimenter la machine en couleurs",
+ "Regrouper les pièces coupées par taille, modèle, coloris, ... pour l’assemblage/montage des articles": "Regrouper les pièces coupées par taille, modèle, coloris, etc. pour l’assemblage et le montage des articles",
+ "Diagnostiquer les pannes, effectuer les réparations nécessaires sur les chaudières, autres équipements de chauffage, de ventilation, de climatisation ( CVC)": "Diagnostiquer les pannes et effectuer les réparations nécessaires sur les chaudières et autres équipements de chauffage, de ventilation et de climatisation (CVC)",
+ "Réceptionner l’appel téléphonique de personnes en détresse, de victimes, ... et leur proposer une écoute": "Réceptionner l’appel téléphonique de personnes en détresse ou de victimes et leur proposer une écoute",
+ "Renseigner les personnels, le commandement, les institutionnels, ... sur les interventions et les évolutions de la situation": "Renseigner les personnels, le commandement et les institutionnels sur les interventions et les évolutions de la situation",
+ "Informer les hiérarchiques, forces de l’ordre, médecins, ... sur les interventions, les risques et les évolutions de la situation": "Informer les hiérarchiques, les forces de l’ordre et les médecins sur les interventions, les risques et les évolutions de la situation",
+ "Réaliser la télésurveillance et la régulation d’équipements d’exploitation (automates, vannes, pompes, etc.) et d’écoulements des pluies, des crues, ... à distance": "Réaliser la télésurveillance et la régulation à distance d’équipements d’exploitation (automates, vannes, pompes, etc.) et d’écoulements des pluies ou des crues",
+ "Relever, analyser des niveaux de pollution visuelle, sonore, chimique... des espaces urbains et les cartographier": "Relever et analyser des niveaux de pollution visuelle, sonore ou chimique des espaces urbains et les cartographier",
+ "Sélectionner et positionner le matériel et les élingues, treuils, ... selon la nature de la cargaison": "Sélectionner et positionner le matériel, les élingues et les treuils selon la nature de la cargaison",
+ "Prélever des échantillons de fil, tissu, ... en vue du contrôle de conformité de couleur, texture, ...": "Prélever des échantillons de fil ou de tissu en vue du contrôle de conformité de couleur et de texture",
+ "Trier des rouleaux de tissu, peaux, ... selon leurs caractéristiques (teinte, dimension, défaut, ...) et constituer des lots à couper": "Trier des rouleaux de tissu ou de peau selon leurs caractéristiques (teinte, dimension, défaut, etc.) et constituer des lots à couper",
+ "Encadre les équipes et participe au développement des ressources humaines : recrutement de personnel d’encadrement, formation et gestion opérationnelle des ressources humaines (congés, absences...)": "Encadrer les équipes et participer au développement des ressources humaines : recrutement du personnel d’encadrement, formation et gestion des ressources humaines (congés, absences, etc.)",
+ "Diagnostique les pannes, effectue les réparations nécessaires sur les chaudières, autres équipements de chauffage, de ventilation, de climatisation ( CVC)": "Diagnostiquer les pannes et effectuer les réparations nécessaires sur les chaudières et autres équipements de chauffage, de ventilation et de climatisation (CVC)",
+ "Travaille la matière, la peint si nécessaire, créant ainsi une sorte de puzzle de grande dimension": "Travailler la matière, la peindre si nécessaire et créer ainsi une sorte de puzzle de grande dimension",
+ "Réalise des bilans de santé réguliers et oriente vers des spécialistes si nécessaire": "Réaliser des bilans de santé réguliers et orienter vers des spécialistes si nécessaire",
+ "Met en œuvre des techniques d’éducation à la santé du patient et l’oriente dans sa future pratique d’activités physiques, sportives ou artistique": "Mettre en œuvre des techniques d’éducation à la santé du patient et l’orienter dans sa future pratique d’activités physiques, sportives ou artistiques",
+ "Peut se spécialiser dans divers domaines tels que les langues, le secourisme, ou l’informatique pour répondre à des besoins spécifiques": "Animer des formations dans des domaines particuliers, comme les langues, le secourisme ou l’informatique",
+ "Peut se spécialiser dans le soin d’animaux domestiques, de ferme ou exotiques": "Soigner des animaux domestiques, de ferme ou exotiques",
+ "Peut se spécialiser dans le traitement de certaines espèces animales": "Traiter certaines espèces animales en particulier",
+ "Peut se spécialiser dans un type d’instrument, comme la guitare électrique ou le violoncelle": "Travailler sur un type d’instrument particulier, comme la guitare électrique ou le violoncelle",
+ "Peut se spécialiser dans le stylisme de certains produits": "Réaliser le stylisme de certains produits en particulier",
+ "Peut se spécialiser dans des produits spécifiques comme les vins, fromages ou produits biologiques": "Vendre des produits spécifiques comme les vins, les fromages ou les produits biologiques",
+ "Peut se spécialiser dans un type d’objet comme les livres, meubles, ou autres antiquités": "Acquérir et vendre un type d’objets particulier, comme les livres, les meubles ou les antiquités",
+ "Peut se spécialiser dans des domaines spécifiques tels que la traduction juridique, technique ou littéraire": "Traduire des textes d’un domaine spécifique : juridique, technique ou littéraire",
+ "Peut se spécialiser dans des domaines spécifiques comme le médical ou le juridique": "Adapter des documents d’un domaine spécifique, comme le médical ou le juridique",
+ "Peut se spécialiser dans un domaine spécifique comme le juridique, médical ou technique": "Intervenir dans un domaine spécifique comme le juridique, le médical ou le technique",
+ "Peut se spécialiser dans un genre ou un domaine particulier comme la bande dessinée, la caricature ou la communication visuelle": "Travailler dans un genre ou un domaine particulier, comme la bande dessinée, la caricature ou la communication visuelle",
+ "Peut se spécialiser dans des projets de rénovation urbaine ou de développement durable à travers des diagnostics urbains": "Réaliser des diagnostics urbains pour des projets de rénovation urbaine ou de développement durable",
+ "Peut se spécialiser dans des techniques spécifiques comme le crépissage ou le sablage": "Utiliser des techniques spécifiques comme le crépissage ou le sablage",
+ "Peut se spécialiser dans un type d’activité ou auprès d’un public particulier": "Intervenir sur un type d’activité ou auprès d’un public particulier",
+ "Peut se spécialiser dans un type d’activité (artistique, sportive) ou pour un public spécifique (enfants)": "Intervenir sur un type d’activité (artistique, sportive) ou auprès d’un public spécifique (enfants)",
+ "Peut se spécialiser sur une zone géographique": "Intervenir sur une zone géographique précise",
+ "Peut se spécialiser dans des domaines spécifiques comme le design automobile ou le design de mobilier": "Concevoir dans un domaine spécifique, comme le design automobile ou le design de mobilier",
+ "Peut se spécialiser dans la réparation ou la restauration de pièces en bois et structures anciennes ou endommagées": "Réparer ou restaurer des pièces en bois et des structures anciennes ou endommagées",
+ "Peut se spécialiser dans la création de pièces uniques ou la restauration de menuiseries anciennes": "Créer des pièces uniques ou restaurer des menuiseries anciennes",
+ "Peut se spécialiser dans le repassage de certains types de vêtements comme les costumes ou les robes": "Repasser certains types de vêtements, comme les costumes ou les robes",
+ "Peut spécialiser dans la maintenance d’avionique, de moteurs ou de systèmes électriques": "Assurer la maintenance d’avionique, de moteurs ou de systèmes électriques",
+ "Peut se spécialiser dans l’une des 3 catégories : véhicules légers (catégorie VL), poids-lourds (catégorie PL) ou moto (catégorie L)": "Intervenir sur une catégorie de véhicules : véhicules légers (catégorie VL), poids lourds (catégorie PL) ou motos (catégorie L)",
+ "Peut se spécialiser dans un domaine particulier comme l’orthodontie, la parodontologie ou la chirurgie maxillo-faciale": "Intervenir dans un domaine particulier comme l’orthodontie, la parodontologie ou la chirurgie maxillo-faciale",
+ "Peut se spécialiser dans un domaine spécifique de la chirurgie pour fournir des soins hautement spécialisés": "Fournir des soins hautement spécialisés dans un domaine spécifique de la chirurgie",
+ "Peut se spécialiser dans des domaines spécifiques comme la pédopsychiatrie ou la psychiatrie gériatrique": "Intervenir dans un domaine spécifique comme la pédopsychiatrie ou la psychiatrie gériatrique",
+ "Peut se spécialiser dans un domaine spécifique, comme les grandes entreprises ou la fiscalité internationale": "Intervenir dans un domaine spécifique, comme les grandes entreprises ou la fiscalité internationale",
+ "Peut se spécialiser dans un type particulier d’objets, comme l’art, les antiquités ou les biens immobiliers": "Travailler sur un type particulier d’objets, comme l’art, les antiquités ou les biens immobiliers",
+ "Peut se spécialiser dans un domaine du droit spécifique pour offrir une expertise pointue": "Apporter une expertise pointue dans un domaine du droit spécifique",
+ "Peut se spécialiser dans des événements spécifiques comme l’e-sport": "Intervenir sur des événements spécifiques comme l’e-sport",
+ "Peut se spécialiser dans un secteur ou une fonction spécifique": "Intervenir dans un secteur ou sur une fonction spécifique",
+ "Peut se spécialiser dans un secteur d’activité ou un type de média spécifique": "Intervenir dans un secteur d’activité ou sur un type de média spécifique",
+ "Peut se spécialiser dans la cartographie pour des secteurs spécifiques comme le BTP, l’environnement ou l’urbanisme": "Réaliser de la cartographie pour des secteurs spécifiques comme le BTP, l’environnement ou l’urbanisme",
+ "Peut se spécialiser dans des domaines spécifiques tels que la sécurité, la performance ou l’expérience utilisateur": "Intervenir dans des domaines spécifiques tels que la sécurité, la performance ou l’expérience utilisateur",
+ "Assure la qualité du service et de l’expérience client en veillant à leur satisfaction": "Assurer la qualité du service et de l’expérience client en veillant à la satisfaction des clients",
+ "Assure leur bon fonctionnement": "Assurer le bon fonctionnement des systèmes mécatroniques",
+ "Assure leur évolution technologique": "Assurer l’évolution technologique des systèmes mécatroniques",
+ "Vérifie leur disponibilité": "Vérifier la disponibilité des matières premières",
+ "Atteste de leur conformité": "Attester de la conformité des appareils vérifiés",
+ "Accompagne à la mise en œuvre de leurs projets de vie": "Accompagner les personnes dans la mise en œuvre de leurs projets de vie",
+ "Mène une action sociale, préventive, éducative et réparatrice visant à favoriser leur autonomie ou leur insertion sociale": "Mener une action sociale, préventive, éducative et réparatrice visant à favoriser l’autonomie ou l’insertion sociale des personnes",
+ "Répond à leurs besoins fondamentaux tels que l’alimentation, le sommeil et l’hygiène": "Répondre aux besoins fondamentaux des personnes accompagnées, tels que l’alimentation, le sommeil et l’hygiène",
+ "Mesure leur efficacité vis-à-vis des objectifs opérationnels fixés et coordonne les activités de RETEX dans l’utilisation des capacités spatiales par les armées": [
+  "Mesurer l’efficacité des actions menées vis-à-vis des objectifs opérationnels fixés",
+  "Coordonner les activités de retour d’expérience (RETEX) dans l’utilisation des capacités spatiales par les armées"
+ ],
+ "Maintient en condition physique et technique son chien pour garantir leur efficacité opérationnelle": "Maintenir en condition physique et technique son chien pour garantir son efficacité opérationnelle",
+ "Participe à la plantation, à l’entretien et à la coupe des arbres et d’autres végétaux dans le respect des normes de qualité et des pratiques de reboisement durable": "Participer à la plantation, à l’entretien et à la coupe des arbres, dans le respect des normes de qualité et du reboisement durable",
+ "Sensibilise et informe le public en organisant des animations pédagogiques, des sorties guidées ou en participant à des évènements pour promouvoir la préservation du milieu marin": "Sensibiliser et informer le public par des animations pédagogiques, des sorties guidées ou des évènements pour préserver le milieu marin",
+ "Coordonne et supervise sa mise en place et évalue les documents de gestion permettant d’assurer la conservation, la restauration et la valorisation durable de l’espace naturel protégé.": "Coordonner, superviser et évaluer la mise en place des documents de gestion de l’espace naturel protégé (conservation, restauration, valorisation durable)",
+ "Assure la gestion des ressources matérielles et humaines et financière nécessaires afin de respecter les délais, coûts et qualité des prestations en lien avec les aspects écologiques": "Assurer la gestion des ressources matérielles, humaines et financières pour respecter les délais, les coûts et la qualité des prestations",
+ "Apporte son expertise aux collectivités territoriales, aux agriculteurs, aux propriétaires fonciers et aux autres acteurs du monde rural sur les questions de gestion et d’utilisation des terres": "Apporter son expertise aux collectivités, aux agriculteurs, aux propriétaires fonciers et aux autres acteurs du monde rural sur la gestion des terres",
+ "Procède au traçage et à la découpe de pièces et réalise l’assemblage, le collage, les coutures et les finitions nécessaires à la confection ou à la réparation des voiles, tauds et capotes": "Réaliser le traçage, la découpe, l’assemblage et les finitions pour la confection ou la réparation des voiles, tauds et capotes",
+ "Assure un bilan complet de la situation du nouveau client, évalue les risques à couvrir et lui conseille les produits de sa compagnie les plus adaptés.": "Réaliser un bilan complet de la situation du nouveau client, évaluer les risques à couvrir et lui conseiller les produits adaptés",
+ "Informe par tout moyen les usagers et les accompagne dans la gestion de leur dossier, les orienter vers l’interlocuteur compétent si nécessaire et leur proposer une offre de services adaptée": "Informer les usagers par tout moyen, les accompagner dans la gestion de leur dossier et les orienter vers l’interlocuteur compétent",
+ "Met en place et réalise, via différents supports comme le toucher relationnel ou encore les soins esthétiques, des accompagnements individuels ou collectifs validés dans le projet socio-esthétique": "Mettre en place et réaliser des accompagnements individuels ou collectifs (toucher relationnel, soins esthétiques) validés dans le projet socio-esthétique",
+ "Peut réaliser ou modifier la mise en forme de documents, conditionner les produits dupliqués pour la livraison, établir un devis et effectuer des encaissements en règlement de commandes": "Réaliser ou modifier la mise en forme de documents, conditionner les produits, établir un devis et encaisser le règlement des commandes",
+ "Visite le chantier tout au long de la construction pour s’assurer que le navire reste conforme aux plans définis au départ (notamment en matière de réglementations environnementales et de sécurité": "Visiter le chantier pendant la construction pour vérifier que le navire reste conforme aux plans (réglementations environnementales et de sécurité)",
+ "Réalise des travaux d’installation et de mise en service des équipements électriques dans des bâtiments à usage domestique, tertiaire ou industriel selon les règles de sécurité": "Réaliser l’installation et la mise en service d’équipements électriques dans des bâtiments domestiques, tertiaires ou industriels, selon les règles de sécurité",
+ "Effectue des opérations d’installation de câblages aériens ou souterrains de réseaux de distribution (électricité, signaux, etc.) selon les règles de sécurité et la règlementation en vigueur": "Installer des câblages aériens ou souterrains de réseaux de distribution (électricité, signaux, etc.) selon les règles de sécurité et la réglementation",
+ "Manage un staff sportif composé de différents professionnels. Travaille en lien constant avec les dirigeants dans la constitution de l’équipe, des objectifs et de leurs évolutions.": "Manager un staff sportif composé de différents professionnels, en lien constant avec les dirigeants pour constituer l’équipe et fixer les objectifs",
+ "Développe de plus en plus de compétences sur l’analyse et le traitement de données en vue de l’optimisation de la performance individuelle et collective via les outils numériques et la vidéo": "Développer ses compétences en analyse et traitement de données pour optimiser la performance individuelle et collective, avec les outils numériques et la vidéo",
+ "Prépare, cuisine et dresse des mets des mets selon un plan de production culinaire, les règles d’hygiène et de sécurité sanitaire des aliments, la charte qualité de l’établissement": "Préparer, cuisiner et dresser des mets selon un plan de production culinaire, les règles d’hygiène et la charte qualité de l’établissement",
+ "Réalise tous les activités liées à l’enregistrement et au maintien des autorisations de mise sur le marché (AMM) de médicament et à leur accès au marché dans le respect de la réglementation": "Réaliser les activités liées à l’enregistrement et au maintien des autorisations de mise sur le marché (AMM) de médicament, selon la réglementation",
+ "Piloter, organiser et coordonner les CND / END avec l’affectation des ressources nécessaires, la tenue à jour du planning, la gestion et le suivi des prestations": "Piloter, organiser et coordonner les CND / END : affectation des ressources, mise à jour du planning, gestion et suivi des prestations",
+ "Assure et met en œuvre, la protection des produits lors de l’emballage, suivant le niveau de protection défini et codifié dans les spécifications techniques du SEI": "Assurer la protection des produits lors de l’emballage, selon le niveau de protection défini dans les spécifications techniques du SEI",
+ "Utilise des machines de production pour la transformation de bois et matériaux, ainsi que les moyens de manutentions adaptés et l’outillage portatif nécessaire aux prestations d’emballage industriel": "Utiliser des machines de production pour transformer le bois et les matériaux, ainsi que l’outillage portatif et les moyens de manutention adaptés",
+ "Gère également les matières et pièces issues de l’atelier, en veillant à la récupération des déchets et des éléments destinés au réemploi, au recyclage ou à la valorisation": "Gérer les matières et pièces issues de l’atelier et veiller au réemploi, au recyclage ou à la valorisation des déchets",
+ "Elabore la stratégie de sécurité routière en définissant les orientations, les plans d’actions et les objectifs à partir de l’analyse de l’accidentologie et des enjeux locaux": "Élaborer la stratégie de sécurité routière : orientations, plans d’actions et objectifs, à partir de l’analyse de l’accidentologie et des enjeux locaux",
+ "Installe et entretient des équipements frigorifiques (froid commercial, froid industriel, ...) ou de conditionnement d’air et de climatisation selon les règles de sécurité et la réglementation": "Installer et entretenir des équipements frigorifiques (froid commercial, froid industriel, etc.) ou de climatisation selon les règles de sécurité",
+ "Réalise les opérations de mise en service, d’essais et de contrôle de conformité dans le respect des préconisations constructeurs, des règles de sécurité et des exigences environnementales": "Réaliser la mise en service, les essais et le contrôle de conformité dans le respect des préconisations constructeurs et des règles de sécurité",
+ "Exerce dans un environnement qui implique un respect scrupuleux des règles de prévention des risques professionnels en matière d’ergonomie, d’hygiène, de sécurité et de protection de l’environnement": "Exercer dans un environnement qui impose un respect scrupuleux des règles d’ergonomie, d’hygiène, de sécurité et de protection de l’environnement",
+ "Contribue à la co-construction, à la mise en œuvre et à l’évaluation des parcours de santé, des pratiques professionnelles, des projets, des services et des organisations": "Contribuer à la co-construction, à la mise en œuvre et à l’évaluation des parcours de santé, des pratiques professionnelles et des projets",
+ "Accompagne l’enfant de 0 à 3 ans dans son développement, ses apprentissages, l’acquisition de l’autonomie et la socialisation, en garantissant son bien-être et sa sécurité physique et affective.": "Accompagner l’enfant de 0 à 3 ans dans son développement, son autonomie et sa socialisation, en garantissant son bien-être et sa sécurité",
+ "Travaille en étroite collaboration avec les services sociaux, les professionnels de santé et les familles d’origine pour assurer le suivi et le soutien appropriés aux personnes placées sous sa garde.": "Travailler avec les services sociaux, les professionnels de santé et les familles d’origine pour assurer le suivi des personnes placées sous sa garde",
+ "Assure le soutien à l’exploitation de la propulsion nucléaire, soit comme formateur ou entraîneur des équipes de conduite, soit comme préparateur ou contrôleur d’activité technique sensible": "Assurer le soutien à l’exploitation de la propulsion nucléaire, comme formateur des équipes de conduite ou comme préparateur d’activité technique sensible",
+ "Conçoit et anime les dispositifs de formation théorique et pratique des enseignants de la sécurité routière et de la conduite automobile ou d’actions de sensibilisation à la sécurité routière.": "Concevoir et animer des formations théoriques et pratiques pour les enseignants de la conduite, et des actions de sensibilisation à la sécurité routière",
+ "Analyse les données chiffrées relatives à la biologie pour en extraire les informations utiles et les interpréter, afin d’aider l’équipe de recherche à prendre des décisions": "Analyser des données chiffrées de biologie, en extraire les informations utiles et les interpréter pour aider l’équipe de recherche à décider",
+ "Elabore et soumet pour approbation le plan de sûreté de l’installation portuaire (PSIP) en intégrant les niveaux de sûreté (1, 2 ou 3) et en le coordonnant avec l’autorité portuaire": "Élaborer et soumettre pour approbation le plan de sûreté de l’installation portuaire (PSIP), en le coordonnant avec l’autorité portuaire",
+ "Veille à ce que le cadre dans lequel sont tournées les scènes d’intimité (protocole de tournage, clauses de nudités) soit conforme à ce qui a été préalablement établi": "Veiller à ce que le cadre des scènes d’intimité (protocole de tournage, clauses de nudité) soit conforme à ce qui a été établi",
+ "Supervise la construction d’un réseau solide composé de tous les professionnels du monde de la musique pour garantir la promotion et la distribution des projets, et pour faire connaître ses artistes": "Superviser la construction d’un réseau de professionnels de la musique pour promouvoir et distribuer les projets et faire connaître ses artistes",
+ "Mène avec le créateur du spectacle une réflexion sur le dimensionnement du spectacle à créer en fonction des moyens financiers humains, matériels mobilisables et des possibilités de diffusion": "Mener avec le créateur du spectacle une réflexion sur son dimensionnement selon les moyens mobilisables et les possibilités de diffusion",
+ "Garantit l’aboutissement d’un projet de spectacle, dans le respect des contraintes et du budget décidés, en relation avec le directeur technique, le créateur du spectacle ou le directeur artistique": "Garantir l’aboutissement d’un projet de spectacle dans le respect des contraintes et du budget, en lien avec la direction technique et artistique",
+ "Collabore avec les réalisateurs et les équipes techniques pour déterminer les angles de prise de vue, la mise au point de l’objectif, les mouvements de caméra et les aspects techniques": "Collaborer avec les réalisateurs et les équipes techniques pour déterminer les angles de prise de vue et les mouvements de caméra",
+ "Gére les aspects de mise en œuvre technique et d’exploitation au cours de productions audiovisuelles pour la captation et la retransmission d’évènements, pour la production, la diffusion et l’édition": "Gérer la mise en œuvre technique et l’exploitation de productions audiovisuelles (captation, retransmission d’évènements, diffusion, édition)",
+ "Conduit et coordonne des projets tels que la réduction des émissions de CO2, la gestion des déchets, ou les initiatives en faveur de la diversité et de l’inclusion": "Conduire et coordonner des projets (réduction des émissions de CO2, gestion des déchets, diversité et inclusion)",
+ "Peut collecter et vérifier les informations nécessaires à l’élaboration des bulletins de salaire et effectuer le suivi des opérations de paie en lien avec le service comptabilité": "Collecter et vérifier les informations nécessaires aux bulletins de salaire et suivre les opérations de paie avec le service comptabilité",
+ "Suit les tendances et les évolutions technologiques dans le domaine du no code pour améliorer continuellement ses compétences et répondre aux besoins de l’utilisateur de manière efficace": "Suivre les évolutions technologiques du no code pour améliorer ses compétences et répondre efficacement aux besoins de l’utilisateur",
+ "Met en place, développe et administre des bases de données thématiques (saisie, intégration et exploitation des données) évalue la disponibilité, l’actualité et la qualité des données": "Mettre en place, développer et administrer des bases de données thématiques (saisie, intégration, exploitation) et évaluer la qualité et l’actualité des données",
+ "Respecte les délais, la réglementation en vigueur notamment en matière de temps de conduite et de repos, la réglementation routière, la sécurité et les procédures de l’entreprise": "Respecter les délais, la réglementation en vigueur (temps de conduite et de repos), la sécurité et les procédures de l’entreprise",
+ "Respecte l’itinéraire, la réglementation en vigueur notamment en matière de temps de conduite et de repos, la réglementation routière, sur la sécurité et les procédures de l’entreprise": "Respecter l’itinéraire, la réglementation en vigueur (temps de conduite et de repos), la sécurité et les procédures de l’entreprise",
+ "Assure les opérations de guidage du convoi tout en veillant à prévenir les risques routiers en circulation et à l’arrêt des personnes, des biens et de l’environnement": "Assurer le guidage du convoi en veillant à prévenir les risques routiers pour les personnes, les biens et l’environnement",
+ "Assure le suivi de la performance dans le cadre des objectifs de coûts, délais, qualité et sécurité fixés par l’entreprise et dans le respect des réglementations en vigueur": "Assurer le suivi de la performance selon les objectifs de coûts, délais, qualité et sécurité fixés par l’entreprise et la réglementation en vigueur",
+ "Organiser les postes de travail et définir les process sur le chantier conformément aux normes de sécurité, de qualité et de budget prévues au cahier des charges": "Organiser les postes de travail et définir les process du chantier selon les normes de sécurité, de qualité et de budget",
+ "Coordonner via les chefs de chantier les différentes équipes intervenant sur le chantier pour veiller au bon déroulement des travaux dans le respect des règles de qualité, sécurité, environnement": "Coordonner les équipes du chantier via les chefs de chantier pour veiller au bon déroulement des travaux (qualité, sécurité, environnement)",
+ "Informer le responsable de l’animal sur la prise en charge thérapeutique (traitement, risques, coût, durée, etc.) ou l’orienter vers un service spécialisé (centre hospitalier vétérinaire, etc.)": "Informer le responsable de l’animal sur la prise en charge thérapeutique (traitement, risques, coût, durée, etc.) ou l’orienter vers un service spécialisé",
+ "Souffler le verre pour le mettre en forme (soufflage, étirement, torsion, etc.) et veiller au maintien de sa température (arche de recuisson, fours de réchauffe, etc.)": "Souffler le verre pour le mettre en forme (soufflage, étirement, torsion, etc.) et veiller au maintien de sa température",
+ "Déterminer les conditions de réfection ou de réalisation de l’article (siège, tenture, etc.) ou d’un ensemble d’ameublement selon l’état, le style de mobilier, le délai, le coût des matériaux": "Déterminer les conditions de réfection ou de réalisation d’un article (siège, tenture, etc.) selon l’état, le style, le délai et le coût",
+ "Appliquer les techniques d’animation collective et de gestion de groupe en prenant en compte les pathologies ou problématiques des participants et les contraintes du lieu d’intervention": "Appliquer les techniques d’animation collective et de gestion de groupe en tenant compte des pathologies des participants et des contraintes du lieu",
+ "Rencontrer les chefs de rayon dans les points de vente de son réseau afin d’optimiser la mise en place de ses produits et obtenir des informations commerciales": "Rencontrer les chefs de rayon de son réseau pour optimiser la mise en place des produits et obtenir des informations commerciales",
+ "Superviser la création de supports destinés aux différents publics de l’entreprise, internes et externes (brochures, plaquettes, kits, affiches, dossiers et communiqués de presse, newsletters, vidéos, podcast, etc.)": "Superviser la création de supports pour les publics internes et externes de l’entreprise (brochures, affiches, communiqués de presse, vidéos, etc.)",
+ "Rédiger des rapports de visite précis et détaillés sur les diagnostics réalisés et les anomalies détectées et les transmettre aux parties prenantes (clients, notaires, agences immobilières, etc.)": "Rédiger des rapports de visite précis sur les diagnostics réalisés et les anomalies détectées, et les transmettre aux parties prenantes (clients, notaires, etc.)",
+ "Constituer le document topographique à différentes échelles : dessins, cartes et plans (de masse, de division, de corps, cadastraux, d’exécution et de récolement pour les travaux)": "Constituer le document topographique à différentes échelles : dessins, cartes et plans (de masse, de division, cadastraux, d’exécution, etc.)",
+ "Apporter un appui aux maîtres d’ouvrage et aux entreprises de construction en fournissant des expertises et recommandations pour améliorer la sécurité et la qualité du bâtiment": "Appuyer les maîtres d’ouvrage et les entreprises de construction par des expertises pour améliorer la sécurité et la qualité du bâtiment",
+ "Vérifier les plans de construction pour assurer la solidité de l’ouvrage, la sécurité des occupants, l’accessibilité aux personnes handicapées, ainsi que les performances énergétique, thermique et acoustique": "Vérifier les plans de construction pour assurer la solidité de l’ouvrage, la sécurité des occupants, l’accessibilité et les performances énergétique, thermique et acoustique",
+ "Contrôler la réalisation et la qualité des plans de récolement (DOE : documents des ouvrages exécutés ; DIUO : documents d’interventions ultérieures sur ouvrage, etc.) et participer à leur actualisation": "Contrôler la réalisation et la qualité des plans de récolement (DOE, DIUO, etc.) et participer à leur actualisation",
+ "Définir et assurer la bonne implantation du chantier sur la zone de travaux selon les plans d’exécution (marquage au sol, traçage de l’ouvrage, identification des réseaux, balisage)": "Définir et assurer l’implantation du chantier sur la zone de travaux selon les plans d’exécution (marquage au sol, traçage, réseaux, balisage)",
+ "Assurer la gestion administrative des incidents et des réajustements concernant l’exécution des travaux (rédaction de rapports, tenue du journal de chantier, envoi de courrier au maître d’œuvre)": "Assurer la gestion administrative des incidents et des réajustements de l’exécution des travaux (rapports, journal de chantier, courriers au maître d’œuvre)",
+ "Veiller à l’application et au respect des règles d’hygiène, de sécurité (port du casque, etc.), et environnement (gestion des déchets, pollution sonore, etc.) sur le chantier": "Veiller à l’application des règles d’hygiène, de sécurité (port du casque, etc.) et d’environnement (déchets, pollution sonore, etc.) sur le chantier",
+ "Fixer au quotidien les objectifs de production (qualité, respect des délais) aux chefs d’équipe et les aider en cas d’incidents (déplacement d’engins, rectification de métrés, etc.)": "Fixer au quotidien les objectifs de production (qualité, délais) aux chefs d’équipe et les aider en cas d’incident (déplacement d’engins, métrés, etc.)",
+ "Garantir le respect global de la réglementation en vigueur et du plan particulier de sécurité et de protection de la santé (PPSPS) sur l’ensemble des installations": "Garantir le respect de la réglementation et du plan particulier de sécurité et de protection de la santé (PPSPS) sur les installations",
+ "Participer aux choix d’investissements en lien avec le directeur d’agence et les services supports (études de prix, matériel, achats) : sélection des fournisseurs ou des prestataires, achats de gros matériel ou de matériaux, etc.": "Participer aux choix d’investissements avec le directeur d’agence et les services supports (études de prix, matériel, achats, sélection des fournisseurs)",
+ "Replier et nettoyer le chantier à la fin des travaux (engins, restes de matériaux, déchets, cabanes de chantier) en respectant les procédures environnementales liées au chantier": "Replier et nettoyer le chantier à la fin des travaux (engins, restes de matériaux, déchets, cabanes) en respectant les procédures environnementales",
+ "Interpréter les données de forage (paramètres de forage, données géologiques, etc.) pour évaluer la performance du puits et fournir des informations utiles aux membres de l’équipe": "Interpréter les données de forage (paramètres, données géologiques, etc.) pour évaluer la performance du puits et informer l’équipe",
+ "Effectuer des inspections régulières des têtes de puits, des vannes, des tubes, du tubage et d’autres composants du puits pour identifier les signes d’usure, de corrosion ou de dommages": "Inspecter régulièrement les têtes de puits, les vannes, les tubes et le tubage pour repérer les signes d’usure, de corrosion ou de dommages",
+ "Analyser les besoins du marché (tendances, profil consommateur, conditions d’utilisation, etc.), le positionnement des produits (gamme de produits, concurrence, etc.) et l’état du marché (modes, santé économique du pays, etc.)": "Analyser les besoins du marché (tendances, profil des consommateurs, etc.), le positionnement des produits (gamme, concurrence, etc.) et l’état du marché",
+ "Intégrer dans son quotidien l’ensemble des éléments juridiques, de conformité et de sécurité relatifs au Règlement Général sur la Protection des Données (RGPD) et à la bonne exploitation des données": "Intégrer au quotidien les éléments juridiques, de conformité et de sécurité du Règlement Général sur la Protection des Données (RGPD)",
+ "Collaborer avec des équipes scientifiques et les autres services de l’entreprise (Recherche et Développement, affaires médicales, affaires réglementaires, qualité, juridique, marketing et finances, filiales / maison mère)": "Collaborer avec les équipes scientifiques et les autres services de l’entreprise (Recherche et Développement, affaires médicales, qualité, juridique, marketing, finances)",
+ "Participer à la rédaction de documents supports à une étude clinique (protocole d’utilisation, brochure investigateur et patient, formulaire de consentement, cahier d’observation et carnet patient, etc.)": "Participer à la rédaction des documents d’une étude clinique (protocole, brochure investigateur et patient, formulaire de consentement, cahier d’observation, etc.)",
+ "Implémenter les dispositifs de sécurité requis par les exigences réglementaires, pour atteindre les caractéristiques de fonctionnement et de performance du besoin ou du cahier des charges": "Implémenter les dispositifs de sécurité exigés par la réglementation pour atteindre les performances du besoin ou du cahier des charges",
+ "Assurer le finissage du cuir : appliquer en surface plusieurs couches d’apprêts afin d’uniformiser la couleur, d’améliorer l’aspect visuel du cuir et de lui conférer ses propriétés de surface": "Assurer le finissage du cuir : appliquer plusieurs couches d’apprêts pour uniformiser la couleur et améliorer l’aspect",
+ "Trier et référencer le pack batterie et ses éléments selon leur nature (éléments électriques, électroniques, plastiques, métalliques), leur état de fonctionnement (fonctionnel ou défaillant), en vue de leur catégorisation": "Trier et référencer le pack batterie et ses éléments selon leur nature (électrique, électronique, plastique, métallique) et leur état de fonctionnement",
+ "Définir et préparer les travaux de maintenance des installations (préventif courant ou à la suite d’incidents, à la mise en conformité réglementaire, à des arrêts programmés)": "Définir et préparer les travaux de maintenance des installations (préventif courant, après incident, mise en conformité, arrêts programmés)",
+ "Contrôler la qualité de polissage de la pièce de bijouterie par l’observation à l’œil nu, à la loupe ou à la lampe et déterminer les gestes techniques de correction": "Contrôler le polissage d’une pièce de bijouterie à l’œil nu, à la loupe ou à la lampe et déterminer les corrections",
+ "Installer les moyens d’accès et de positionnement à un poste de travail (lignes de vie, cordes, etc.) en utilisant les dispositifs ancrage identifiés pour cet usage et selon les consignes du superviseur": "Installer les moyens d’accès et de positionnement à un poste de travail (lignes de vie, cordes, etc.) selon les consignes du superviseur",
+ "Planifier les interventions sur cordes, estimer les besoins en matériel, matériaux et main d’œuvre afin de respecter les contraintes de coûts et les délais de réalisation": "Planifier les interventions sur cordes et estimer les besoins en matériel, matériaux et main d’œuvre pour respecter les coûts et les délais",
+ "Commander les fournitures nécessaires à la maintenance des engins, en échangeant avec son manager, pour garantir le démarrage des opérations de maintenance dans les délais prévus": "Commander les fournitures nécessaires à la maintenance des engins, avec son manager, pour démarrer les opérations dans les délais prévus",
+ "Examiner un vitrage afin de définir si la réparabilité est possible, et le réparer en utilisant les méthodes et les produits appropriés à la nature du vitrage": "Examiner un vitrage pour savoir s’il est réparable, et le réparer avec les méthodes et les produits adaptés à sa nature",
+ "Concevoir le projet de rééducation orthophonique et arrêter les modalités d’intervention (déroulement, part de travail personnel, etc.) selon la situation du patient (âge, pathologie, activité, etc.)": "Concevoir le projet de rééducation orthophonique et arrêter les modalités d’intervention (déroulement, travail personnel, etc.) selon la situation du patient",
+ "Élaborer ou contribuer à l’élaboration du rapport annuel de performances relatif au programme mis en œuvre en signalant le cas échéant les difficultés rencontrées et en proposant des mesures correctrices appropriées": "Élaborer ou contribuer au rapport annuel de performances du programme, en signalant les difficultés rencontrées et en proposant des mesures correctrices",
+ "Établir des argumentaires techniques pour arbitrer et opérer des choix stratégiques en cohérence avec les orientations politiques des élues et élus (modes de gestion, missions, projets, ressources, plans d’actions)": "Établir des argumentaires techniques pour arbitrer et faire des choix stratégiques en cohérence avec les orientations des élues et élus (missions, projets, ressources)",
+ "Veiller à la sécurité, à la salubrité et à la tranquillité publique et mettre en œuvre des opérations de secours en cas d’incident ou de catastrophe naturelle": "Veiller à la sécurité, à la salubrité et à la tranquillité publique, et organiser des secours en cas d’incident ou de catastrophe",
+ "Développer, mettre en œuvre et évaluer des projets visant à améliorer la santé des populations, en particulier pour les publics les plus vulnérables (actions de prévention, promotion de la santé, lutte contre les inégalités sociales de santé, etc.)": "Développer, mettre en œuvre et évaluer des projets pour améliorer la santé des populations, surtout des plus vulnérables (prévention, etc.)",
+ "Rédiger des propositions de rectification ou des actes d’investigation tels que procès-verbal, rapport ou lettres d’observations et des propositions de suites à donner aux irrégularités constatées": "Rédiger des propositions de rectification ou des actes d’investigation (procès-verbal, rapport, lettre d’observations) et proposer des suites aux irrégularités constatées",
+ "Assurer le contrôle et la régulation des flux de marchandises pouvant poser des risques pour la santé publique ou l’environnement, tels que les produits chimiques dangereux et les médicaments": "Assurer le contrôle et la régulation des flux de marchandises à risque pour la santé publique ou l’environnement (produits chimiques dangereux, médicaments)",
+ "Superviser les activités liées à l’application des règles relatives au port, au transport, au lieu de détention des armements, à la formation au tir et au maniement des armes": "Superviser l’application des règles sur le port, le transport et la détention des armements, la formation au tir et le maniement des armes",
+ "Assurer des missions d’ordre public (renfort dans certaines opérations à risques, escortes de détenus, patrouilles de surveillance, missions de sécurité routière, encadrement de manifestations publiques, etc.)": "Assurer des missions d’ordre public (renfort d’opérations à risques, escortes de détenus, patrouilles, sécurité routière, encadrement de manifestations, etc.)",
+ "Assurer les relations avec les organismes sociaux : mutuelle, Urssaf, caisse primaire d’assurance maladie, médecine du travail, caisse d’assurance retraite et de la santé au travail, etc.": "Assurer les relations avec les organismes sociaux : mutuelle, Urssaf, caisse primaire d’assurance maladie, médecine du travail, etc.",
+ "Créer et remettre le livret du stagiaire (programme de formation, suivi des visites en entreprise, édition de l’annexe au plan de formation, emploi du temps, etc)": "Créer et remettre le livret du stagiaire (programme de formation, suivi des visites en entreprise, emploi du temps, etc.)",
+ "Découvrir des vestiges, qui deviennent des objets de sciences, pour reconstituer la manière dont était occupé le territoire, les activités des hommes, leurs modes de vie et comportements sociaux": "Découvrir des vestiges pour reconstituer l’occupation du territoire, les activités des hommes, leurs modes de vie et leurs comportements sociaux",
+ "Mettre en œuvre un enseignement en l’inscrivant dans un parcours de formation et contribuer aux enseignements disciplinaires et de spécialité dans le cadre d’une coopération avec l’équipe pédagogique et éducative": "Mettre en œuvre un enseignement inscrit dans un parcours de formation et contribuer aux enseignements disciplinaires et de spécialité avec l’équipe pédagogique",
+ "Réceptionner, contrôler et traiter les demandes d’hébergement et mettre en œuvre des solutions pour les hébergements hors périmètre gérés par la cellule de gestion des lits": "Réceptionner, contrôler et traiter les demandes d’hébergement et trouver des solutions hors du périmètre de la cellule de gestion des lits",
+ "Saisir les données relatives aux entrées et sorties programmées ou non et mettre à jour les mouvements (programmations, déprogrammations, non venues) dans le logiciel de gestion des lits": "Saisir les entrées et sorties, programmées ou non, et mettre à jour les mouvements dans le logiciel de gestion des lits",
+ "Définir ou faire évoluer les mesures et les normes de sécurité (charte), en cohérence avec la nature de l’activité de l’entreprise et son exposition aux risques informatiques": "Définir ou faire évoluer les mesures et les normes de sécurité (charte) selon l’activité de l’entreprise et son exposition aux risques informatiques",
+ "Appliquer des traitements à des données pour les analyser et les interpréter (avec un tableur, un logiciel de traitement, une requête calcul dans une base de données, etc.)": "Appliquer des traitements aux données pour les analyser et les interpréter (tableur, logiciel de traitement, requête dans une base de données, etc.)",
+ "Mettre en place des indicateurs clés et de tableaux de bord pour mesurer la performance des actions menées : taux de rotation des stocks, délais de livraison, taux de disponibilité, etc.": "Mettre en place des indicateurs clés et des tableaux de bord pour mesurer la performance (rotation des stocks, délais de livraison, etc.)",
+ "Assurer l’interface entre le service commercial, les équipes en charge du conditionnement, le service logistique et les prestataires de services de transport afin de définir des délais réalistes": "Assurer l’interface entre le service commercial, le conditionnement, la logistique et les prestataires de transport pour définir des délais réalistes",
+ "Organiser les activités des membres de l’équipe en tenant compte d’un ensemble de critères : qualité des prestations à réaliser, délais à respecter, consignes de sécurité et de sûreté, contraintes liées à l’exploitation, situations de co-activité, etc.": "Organiser les activités de l’équipe selon la qualité des prestations, les délais, les consignes de sécurité et les contraintes d’exploitation",
+ "Contrôler de la mise en œuvre des procédures en vigueur, des règles de sécurité et de sûreté au cours de la réalisation des opérations et des activités": "Contrôler la mise en œuvre des procédures en vigueur et des règles de sécurité et de sûreté pendant les opérations et les activités",
+ "S’assurer du respect du plan de chargement établi par le technicien masse et centrage : chargement des bagages (en conteneurs et en vrac) et du fret": "S’assurer du respect du plan de chargement (bagages en conteneurs et en vrac, fret)",
+ "Informer, le cas échéant, le médecin régulateur, les services médicaux et les familles de la prestation de transport et le cas échéant, de l’état santé de la personne transportée": "Informer, au besoin, le médecin régulateur, les services médicaux et les familles du transport et de l’état de santé de la personne transportée",
+ "Vérifier la sécurisation des voies et des quais à l’arrivée/départ des trains (signalisation, montée/descente des voyageurs, etc.) et lancer les ordres de départ en fonction de la planification": "Vérifier la sécurisation des voies et des quais au départ et à l’arrivée des trains, et lancer les ordres de départ"
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : propositions de l'assistant en plus</title>
+<!-- Maquette construite SUR les feuilles de style réelles de l'application (mêmes classes que la carte « Expériences » de « La mise en page » :
+     .mep-mq, .mep-liste-choix-exp, .ligne-bloc, .ligne-choix, .btn-miss, .conseil-missions, .miss-liste). Seul le bloc « en plus » (.miss-en-plus) est nouveau :
+     son style est dans le <style> ci-dessous et ira dans css/mise-en-page-maquette.css.
+     À ouvrir par le serveur de développement : http://localhost:8123/docs/MAQUETTE_COMPLEMENTS_ASSISTANT_MISE_EN_PAGE_2026-11-14.html
+     Les contrôles sont câblés : la ligne « L'assistant propose … » ouvre la liste, cocher une proposition l'ajoute (et met à jour les compteurs), décocher la retire. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+body { background: var(--bg-page, var(--bg-card)); padding: 1rem; }
+.cadre { max-width: 760px; margin: 0 auto; }
+.barre-maquette { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .8rem; font-size: .9rem; }
+.barre-maquette select { border: 1px solid var(--border-strong); border-radius: 6px; padding: .15rem .4rem; background: var(--bg-card); color: var(--text-strong); }
+.carte-maquette { border: 1px solid var(--border-strong); border-left: 5px solid var(--accent); border-radius: 10px; background: var(--bg-card); padding: .6rem .8rem; }
+.carte-maquette h3 { font-size: 1.05rem; font-weight: 800; margin: 0 0 .3rem; color: var(--text-strong); }
+.note-maquette { font-size: .85rem; color: var(--text-muted); margin: .4rem 0 0; }
+
+/* ===== NOUVEAU : bloc « Propositions de l'assistant en plus » (à reprendre dans css/mise-en-page-maquette.css) ===== */
+.mep-mq .miss-liste .miss-en-plus { margin: .45rem 0 .1rem; padding: .35rem .5rem .4rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-left-width: 4px; border-radius: 8px; }
+.mep-mq .miss-liste .miss-en-plus .miss-tete { color: var(--text-strong); font-weight: 700; margin-bottom: .1rem; }
+.mep-mq .miss-liste .miss-en-plus .miss-aide { font-size: .85rem; color: var(--text-muted); margin: 0 0 .2rem; }
+.mep-mq .miss-liste .miss-en-plus label.non { color: var(--text-strong); }
+.mep-mq .miss-liste .miss-sous-titre { font-size: .85rem; font-weight: 700; color: var(--text-muted); margin: .1rem 0 .1rem; }
+</style>
+</head>
+<body>
+<div class="cadre">
+  <div class="barre-maquette">
+    <b>Maquette</b>
+    <label>Thème <select id="mq-theme"><option value="clair">Clair</option><option value="sombre">Sombre</option></select></label>
+    <span class="text-muted">Cliquez sur « Les voir » sous « Employé libre-service », puis cochez une proposition.</span>
+  </div>
+
+  <div class="carte-maquette mep-mq">
+    <h3>Expériences</h3>
+    <div class="mep-liste-choix-exp" id="liste"></div>
+    <p class="note-maquette">Dans l'application, ce bloc apparaît seulement pour une expérience où la personne a choisi ses missions dans l'étape « Vos missions et compétences » ET où l'assistant a proposé d'autres missions que les siennes. Sinon, rien ne change.</p>
+  </div>
+</div>
+
+<script>
+// Données de la maquette : deux expériences. La première a des choix de la personne et trois propositions de l'assistant ; la seconde n'a rien de plus.
+var exps = [
+  { poste: 'Employé libre-service', entreprise: 'Carrefour', periode: '2016 à 2018', ouvert: false,
+    choix: ['Approvisionner et organiser les produits en rayon selon la politique du magasin.', 'Veiller à la propreté et à l’ordre de son espace de travail.'],
+    enPlus: [ { t: 'Contrôler les dates limites de vente des produits.', coche: false }, { t: 'Renseigner et orienter les clients dans le magasin.', coche: false }, { t: 'Participer à l’inventaire annuel du magasin.', coche: false } ] },
+  { poste: 'Auxiliaire de vie', entreprise: 'ADMR', periode: '2019 à 2022', ouvert: false,
+    choix: ['Aider la personne à la toilette et à l’habillage.', 'Préparer et servir les repas.'], enPlus: [] }
+];
+function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+function rendre() {
+  var h = '';
+  exps.forEach(function (e, i) {
+    var ajoutees = e.enPlus.filter(function (p) { return p.coche; }).length;
+    var total = e.choix.length + ajoutees;
+    var reste = e.enPlus.length - ajoutees;
+    h += '<div class="ligne-bloc' + (e.ouvert ? ' ouvert' : '') + '"><label class="ligne-choix"><input type="checkbox" checked>' +
+      '<span class="nom"><b>' + esc(e.poste) + '</b> - ' + esc(e.entreprise) + ' <em>(' + esc(e.periode) + ')</em></span>' +
+      '<span class="pas"><button type="button" disabled>&minus;</button><span>' + total + '</span><button type="button" disabled>+</button></span>' +
+      '<span class="sur">/' + total + '</span>' +
+      '<button type="button" class="btn-miss" data-ouvrir="' + i + '">Missions ' + (e.ouvert ? '&#9652;' : '&#9662;') + '</button></label>';
+    if (e.enPlus.length && !e.ouvert) {
+      h += '<div class="conseil-missions">' + (reste > 0
+        ? 'L&rsquo;assistant propose ' + reste + ' mission' + (reste > 1 ? 's' : '') + ' en plus de vos choix. <button type="button" class="btn-miss" data-ouvrir="' + i + '">Les voir</button>'
+        : 'Vous avez ajout&eacute; toutes les propositions de l&rsquo;assistant. <button type="button" class="btn-miss" data-ouvrir="' + i + '">Les revoir</button>') + '</div>';
+    }
+    if (e.ouvert) {
+      h += '<div class="miss-liste"><div class="miss-tete"><span>' + total + ' mission' + (total > 1 ? 's' : '') + ' dans votre CV</span></div>' +
+        '<p class="miss-sous-titre">Vos choix</p>' +
+        e.choix.map(function (m) { return '<label><input type="checkbox" checked disabled><span>' + esc(m) + '</span></label>'; }).join('');
+      if (e.enPlus.length) {
+        h += '<div class="miss-en-plus"><div class="miss-tete"><span>Propositions de l&rsquo;assistant en plus (' + ajoutees + ' ajout&eacute;e' + (ajoutees > 1 ? 's' : '') + ' sur ' + e.enPlus.length + ')</span></div>' +
+          '<p class="miss-aide">Cochez ce qui vous semble valorisant : cela s&rsquo;ajoute &agrave; votre CV. Rien n&rsquo;est ajout&eacute; sans votre clic.</p>' +
+          e.enPlus.map(function (p, k) { return '<label class="' + (p.coche ? '' : 'non') + '"><input type="checkbox" data-plus="' + i + '|' + k + '"' + (p.coche ? ' checked' : '') + '><span>' + esc(p.t) + '</span></label>'; }).join('') + '</div>';
+      }
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  document.getElementById('liste').innerHTML = h;
+}
+document.getElementById('liste').addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-ouvrir]');
+  if (b) { var i = parseInt(b.getAttribute('data-ouvrir'), 10); exps[i].ouvert = !exps[i].ouvert; rendre(); }
+});
+document.getElementById('liste').addEventListener('change', function (ev) {
+  var c = ev.target.closest('[data-plus]');
+  if (c) { var p = c.getAttribute('data-plus').split('|'); exps[+p[0]].enPlus[+p[1]].coche = c.checked; rendre(); }
+});
+document.getElementById('mq-theme').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.value === 'sombre' ? 'sombre' : 'clair'); });
+rendre();
+</script>
+</body>
+</html>

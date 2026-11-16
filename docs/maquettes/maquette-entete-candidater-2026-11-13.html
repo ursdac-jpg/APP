@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : en-tête de Candidater</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 900px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .92rem; background: var(--bg-subtle); }
+  .variantes { display: flex; gap: 1.2rem; flex-wrap: wrap; margin: .4rem 0 1rem; }
+  .variantes label { font-weight: 700; cursor: pointer; }
+  .ecran { border: 1px solid var(--border); border-radius: 16px; background: var(--bg-page, #fff); padding: 1rem 1.1rem 1.3rem; }
+  .barre-demo { display: flex; justify-content: space-between; gap: .6rem; margin-top: 1.2rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .variante[hidden] { display: none; }
+
+  /* Piste 1 : une seule carte « Votre métier » */
+  .carte-metier { max-width: 640px; margin: 1.2rem auto 1.4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 16px; background: var(--bg-card); padding: .9rem 1.1rem 1rem; text-align: center; }
+  .carte-metier .etiquette { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .1rem; }
+  .carte-metier .nom { font-size: 1.9rem; font-weight: 800; color: var(--text-strong); line-height: 1.15; }
+  .carte-metier .nom .lettrine { font-size: 1.25em; }
+  .carte-metier .secteur { color: var(--text-muted); font-size: .95rem; margin: .15rem 0 .8rem; }
+  .carte-metier .actions { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+  .carte-metier .aide { font-size: .85rem; color: var(--text-muted); margin: .7rem 0 0; }
+
+  /* Piste 2 : bande fine */
+  .bande-metier { display: flex; align-items: center; gap: .6rem 1rem; flex-wrap: wrap; margin: 1rem 0 1.3rem; padding: .55rem .9rem; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); }
+  .bande-metier .nom { font-size: 1.35rem; font-weight: 800; color: var(--text-strong); flex: 1 1 auto; }
+  .bande-metier .nom .lettrine { font-size: 1.25em; }
+  .bande-metier .secteur { font-size: .85rem; color: var(--text-muted); font-weight: 400; display: block; }
+  .bande-metier .actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+  .titre-cand { text-align: center; color: var(--accent-texte); font-size: 1.8rem; font-weight: 800; margin: 1.4rem 0 .2rem; }
+  .titre-cand.petit { font-size: 1.25rem; margin: 1rem 0 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette, rien n'est codé.</strong> Elle ne montre que le haut de l'écran Candidater (titre, métier, deux actions). Le reste de l'écran (étapes, blocs « Que voulez-vous préparer ? » et « Votre objectif ») ne change pas. Changez de piste avec les boutons ronds. Essayez aussi de réduire la largeur de la fenêtre pour voir le téléphone.</div>
+
+  <div class="info-denis">
+    <strong>Piste 1 (recommandée) : une seule carte « Votre métier ».</strong> Tout ce qui concerne le métier est dans un seul cadre : nom en grand, secteur en petit, deux boutons côte à côte. La phrase d'explication est raccourcie et passe sous les boutons.<br>
+    <strong>Piste 2 : une bande fine sur une ligne.</strong> Le métier à gauche, les deux boutons à droite. L'écran gagne de la place, mais les boutons sont plus petits et moins mis en avant.
+  </div>
+
+  <div class="variantes">
+    <label><input type="radio" name="var" value="1" checked> Piste 1 : carte « Votre métier » (recommandée)</label>
+    <label><input type="radio" name="var" value="2"> Piste 2 : bande fine</label>
+  </div>
+
+  <div class="ecran">
+    <div class="barre-etapes-bilan d-flex justify-content-center align-items-center" style="opacity:.8"><span class="etape-bilan" style="padding:.2rem .8rem;font-weight:700">1 Préparer</span><span style="padding:0 .5rem">›</span><span style="padding:.2rem .8rem">2 Votre CV</span><span style="padding:0 .5rem">›</span><span style="padding:.2rem .8rem">3 Résultat</span></div>
+
+    <!-- Piste 1 -->
+    <div class="variante" id="v1">
+      <h1 class="titre-cand"><i class="bi bi-send" aria-hidden="true"></i> Candidater</h1>
+      <div class="carte-metier">
+        <div class="etiquette">Votre métier</div>
+        <div class="nom"><span class="lettrine">B</span>oulanger</div>
+        <div class="secteur">Métiers de bouche (artisanat)</div>
+        <div class="actions">
+          <button type="button" class="btn btn-outline-primary"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche du métier</button>
+          <button type="button" class="btn btn-outline-secondary"><i class="bi bi-search" aria-hidden="true"></i> Chercher un autre métier</button>
+        </div>
+        <p class="aide">Si vous changez de métier, les réponses données plus bas repartent de zéro.</p>
+      </div>
+    </div>
+
+    <!-- Piste 2 -->
+    <div class="variante" id="v2" hidden>
+      <h1 class="titre-cand petit"><i class="bi bi-send" aria-hidden="true"></i> Candidater</h1>
+      <div class="bande-metier">
+        <div class="nom"><span class="lettrine">B</span>oulanger<span class="secteur">Métiers de bouche (artisanat)</span></div>
+        <div class="actions">
+          <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary"><i class="bi bi-search" aria-hidden="true"></i> Autre métier</button>
+        </div>
+      </div>
+    </div>
+
+    <details class="bloc-depli" open><summary><span class="preparer-num">1</span><span class="preparer-titre">Que voulez-vous préparer ?</span><span class="pilule-etat pe-ok">Complété</span></summary><div class="bloc-depli-corps"><p class="mb-0">Mon CV, ma lettre de motivation ou mon entretien (inchangé).</p></div></details>
+    <details class="bloc-depli" open><summary><span class="preparer-num">2</span><span class="preparer-titre">Votre objectif</span><span class="pilule-etat pe-attente">À choisir</span></summary><div class="bloc-depli-corps"><p class="mb-0">Les six cartes d'objectif (inchangé).</p></div></details>
+
+    <div class="barre-demo">
+      <button type="button" class="btn btn-outline-secondary">← Retour</button>
+      <button type="button" class="btn btn-primary" disabled>Continuer →</button>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('input[name=var]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      document.getElementById('v1').hidden = (r.value !== '1');
+      document.getElementById('v2').hidden = (r.value !== '2');
+    });
+  });
+</script>
+</body>
+</html>

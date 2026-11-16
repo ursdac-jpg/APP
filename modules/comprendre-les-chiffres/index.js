@@ -279,6 +279,7 @@ function _comprendreLesChiffresClasserTerritoire(label) {
   var n = _comprendreLesChiffresNorm(label);
   if (n.indexOf('dordogne') > -1) { return '24'; }
   if (n.indexOf('haute-vienne') > -1 || n.indexOf('haute vienne') > -1) { return '87'; }
+  if (/\bzone euro\b/.test(n)) { return 'ze'; }
   if (n.indexOf('union europeenne') > -1 || /\bue[- ]?27\b/.test(n) || /\bunion eur/.test(n)) { return 'ue'; }
   if (n.indexOf('nouvelle-aquitaine') > -1 || n.indexOf('nouvelle aquitaine') > -1 || /\bregion\b/.test(n)) { return 'na'; }
   if (n.indexOf('france') > -1) { return 'fr'; }
@@ -465,7 +466,40 @@ function _comprendreLesChiffresParserDigest(md) {
       out.serieAnnuelle[e.terr] = e.serieAnnuelle;
     }
   });
+  // Demandeurs d'emploi et longue durée : la ligne « il y a un an » est calculée à partir de la série (quatre trimestres plus tôt),
+  // jamais écrite à la main : elle ne peut donc pas s'écarter de la série (chantier C.3, 10/11/2026).
+  ['demandeurs', 'longue-duree'].forEach(function (slug) {
+    (out.sections[slug] || []).forEach(function (e) { _comprendreLesChiffresAnPrecedentDepuisSerie(e); });
+  });
   return out;
+}
+
+// Rang d'un trimestre écrit dans une série (« T3 2025 ») : année x 4 + trimestre, 0 si le libellé n'est pas de cette forme.
+function _comprendreLesChiffresRangLibelleSerie(label) {
+  var m = String(label || '').match(/^T([1-4])\s+(20\d\d)$/i);
+  return m ? parseInt(m[2], 10) * 4 + parseInt(m[1], 10) : 0;
+}
+
+// Renseigne `anPrecedent` (« 44,7 % » ou « environ 17 000 personnes ») avec le point de la série situé quatre trimestres avant la valeur affichée.
+// Ne fait rien si la ligne « il y a un an » est déjà écrite dans le digest, si la série ne finit pas au trimestre de la valeur affichée
+// ou si le point d'il y a un an manque : on n'affiche jamais un chiffre deviné. Renvoie true si le champ a été renseigné.
+function _comprendreLesChiffresAnPrecedentDepuisSerie(e) {
+  if (!e || e.anPrecedent || !e.valeur || !e.serie || e.serie.length < 5) { return false; }
+  var dernier = e.serie[e.serie.length - 1];
+  var rang = _comprendreLesChiffresRangLibelleSerie(dernier.label);
+  if (!rang || rang !== _comprendreLesChiffresRangTrimestre(e.date)) { return false; }
+  var avant = null;
+  e.serie.forEach(function (p) { if (_comprendreLesChiffresRangLibelleSerie(p.label) === rang - 4) { avant = p; } });
+  if (!avant) { return false; }
+  if (/%/.test(e.valeur)) {
+    // Toujours une décimale, comme la source (« 44,0 % », pas « 44 % »).
+    e.anPrecedent = avant.v.toFixed(1).replace('.', ',') + ' %';
+  } else {
+    // Même arrondi que le digest pour les effectifs : à la centaine près, au millier près au-delà d'un million.
+    var pas = avant.v >= 1000000 ? 1000 : 100;
+    e.anPrecedent = 'environ ' + _comprendreLesChiffresFormatNombre(Math.round(avant.v / pas) * pas) + ' personnes';
+  }
+  return true;
 }
 
 // Charge le digest courant (premier <mois>.md qui existe parmi les
@@ -607,8 +641,7 @@ function _comprendreLesChiffresRenduCarteBmo(D, etat, dep) {
     '<ul class="comprendre-les-chiffres-liste-metiers">' + d.metiers.map(function (o) { return _comprendreLesChiffresBmoLigne(o, maxi, source); }).join('') + '</ul>' +
     '<p class="comprendre-les-chiffres-legende-barres"><i></i> projets saisonniers &nbsp; <i class="clair"></i> ensemble des projets du métier</p>' +
     '<div class="comprendre-les-chiffres-encart small comprendre-les-chiffres-encart-attention"><i class="bi bi-exclamation-triangle"></i> Ce sont des <b>intentions d’employeurs</b>, pas des embauches garanties, et cela ne veut pas dire qu’un employeur précis recrute. Les nombres sont des <b>minimums</b> : France Travail masque les petits nombres pour protéger les réponses. « Surtout saisonnier » veut dire que plus de la moitié des projets connus durent une saison.</div>' +
-    '<p class="mt-2 mb-0"><button type="button" class="btn btn-sm btn-outline-secondary" data-comprendre-les-chiffres-fiche-lexique="besoins-en-main-d-oeuvre"><i class="bi bi-book"></i> Lire : l’enquête Besoins en main-d’œuvre</button> ' +
-    '<button type="button" class="btn btn-sm btn-outline-secondary" data-signaler-probleme="1" data-signaler-page="Métiers qui recrutent le plus (Comprendre les chiffres)"><i class="bi bi-flag"></i> Signaler un problème</button></p></div>';
+    '<p class="mt-2 mb-0"><button type="button" class="btn btn-sm btn-outline-secondary" data-signaler-probleme="1" data-signaler-page="Métiers qui recrutent le plus (Comprendre les chiffres)"><i class="bi bi-flag"></i> Signaler un problème</button></p></div>';
 }
 
 function _comprendreLesChiffresRenduBlocBmo() {
@@ -681,10 +714,37 @@ function _comprendreLesChiffresSmicSourceLigne(prefixe, src, quand) {
   return '<p class="comprendre-les-chiffres-source">' + prefixe + (quand ? ', ' + quand : '') + '.' + lien + '</p>';
 }
 
-function _comprendreLesChiffresSmicLireAvec(idMot, libelle) {
-  return '<p class="comprendre-les-chiffres-a-lire-avec"><i class="bi bi-link-45deg"></i> À lire avec : ' +
-    '<button type="button" class="comprendre-les-chiffres-lien-interne" data-comprendre-les-chiffres-fiche-lexique="' + idMot + '">' +
-    libelle + '</button></p>';
+// « Ce que cela veut dire, concrètement » sous le Smic (demande de Denis du 10/11/2026 : mieux remplir la colonne de gauche à côté de la rubrique des salaires).
+// Tout est CALCULÉ à partir des montants de donnees/smic-inflation.json, jamais écrit à la main ; chaque chiffre garde sa source au survol.
+// Une ligne dont les montants manquent n'est pas écrite.
+function _comprendreLesChiffresSmicLecture(E, P, verifPhrase) {
+  var r2 = function (x) { return Math.round(x * 100) / 100; };
+  var eur = _comprendreLesChiffresFormatEuros;
+  var nb = function (x) { return typeof x === 'number' && isFinite(x); };
+  var src = 'Service-public.gouv.fr - ' + verifPhrase;
+  var calcul = function (valeur, formule) { return _comprendreLesChiffresSmicChiffre(eur(valeur), 'Calcul : ' + formule + ', à partir des montants de ' + src); };
+  var lignes = [];
+  if (P && nb(P.horaire_brut) && nb(E.horaire_brut) && nb(P.mensuel_brut_35h) && nb(E.mensuel_brut_35h)) {
+    var dh = r2(E.horaire_brut - P.horaire_brut), dm = r2(E.mensuel_brut_35h - P.mensuel_brut_35h);
+    if (dh > 0 && dm > 0) {
+      lignes.push('<b>Ce que la hausse change :</b> ' + calcul(dh, eur(E.horaire_brut) + ' moins ' + eur(P.horaire_brut)) + ' de plus de l’heure, soit ' +
+        calcul(dm, eur(E.mensuel_brut_35h) + ' moins ' + eur(P.mensuel_brut_35h)) + ' brut de plus par mois à temps plein.');
+    }
+  }
+  if (nb(E.mensuel_brut_35h) && nb(E.mensuel_net_indicatif)) {
+    lignes.push('<b>Sur une année à temps plein :</b> ' + calcul(r2(E.mensuel_brut_35h * 12), eur(E.mensuel_brut_35h) + ' × 12') + ' brut, soit ' +
+      calcul(r2(E.mensuel_net_indicatif * 12), eur(E.mensuel_net_indicatif) + ' × 12') + ' net, à titre indicatif.');
+  }
+  if (nb(E.mensuel_brut_35h)) {
+    lignes.push('<b>À mi-temps (17 h 30 par semaine) :</b> environ ' + calcul(r2(E.mensuel_brut_35h / 2), eur(E.mensuel_brut_35h) + ' ÷ 2') + ' brut par mois, car le Smic suit le nombre d’heures travaillées.');
+  }
+  if (nb(E.horaire_net_indicatif)) {
+    lignes.push('<b>Une heure de travail au Smic</b> laisse environ ' +
+      _comprendreLesChiffresSmicChiffre(eur(E.horaire_net_indicatif), 'Service-public.gouv.fr, Smic horaire net, donné à titre indicatif - ' + verifPhrase) + ' net.');
+  }
+  if (!lignes.length) { return ''; }
+  return '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    lignes.map(function (l) { return '<p class="comprendre-les-chiffres-lecture-ligne">' + l + '</p>'; }).join('') + '</div>';
 }
 
 function _comprendreLesChiffresRenduCarteSmic(D, etat) {
@@ -710,6 +770,7 @@ function _comprendreLesChiffresRenduCarteSmic(D, etat) {
     _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatEuros(P.horaire_brut), 'Service-public.gouv.fr, Smic horaire brut du ' + enClair(P.effet) + ' - ' + verifPhrase) + ' de l’heure &nbsp;&bull;&nbsp; ' +
     _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatEuros(P.mensuel_brut_35h), 'Service-public.gouv.fr, Smic mensuel brut du ' + enClair(P.effet) + ' - ' + verifPhrase) + ' par mois</p>';
   corps += '<p class="comprendre-les-chiffres-compare"><b>Décidé le :</b> ' + enClair(E.decision) + ' (arrêté publié au Journal officiel)</p>';
+  corps += _comprendreLesChiffresSmicLecture(E, P, verifPhrase);
   corps += '<details class="comprendre-les-chiffres-depli"><summary><span class="comprendre-les-chiffres-depli-titre">Pourquoi une hausse en cours d’année ?</span>' +
     '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>' +
     '<div class="comprendre-les-chiffres-depli-corps">' +
@@ -717,15 +778,325 @@ function _comprendreLesChiffresRenduCarteSmic(D, etat) {
     '<p class="comprendre-les-chiffres-compare mb-0">Le cumul emploi-retraite et la réduction des cotisations patronales (RGDU) gardent le Smic du ' + enClair(P.effet) + '.</p>' +
     '</div></details>';
   corps += _comprendreLesChiffresSmicSourceLigne('D’après Service-public.gouv.fr', src0, 'vérifié le ' + verifie);
-  corps += _comprendreLesChiffresSmicLireAvec('smic', 'le mot « Smic » du Lexique');
   return '<div class="comprendre-les-chiffres-indic" id="carte-smic">' + corps + '</div>';
 }
 
+// ------------------------------------------------------------
+// Carte « Inflation » (tâche C.4, maquette validée par Denis le 10/11/2026)
+// ------------------------------------------------------------
+// Les postes affichés. `sous` : sous-poste d'un poste (rangé juste dessous, en retrait). Les valeurs viennent de
+// donnees/smic-inflation.json : « dernier » (mois en cours), « precedent » (mois d'avant), « il_y_a_un_an ».
+var COMPRENDRE_LES_CHIFFRES_INFLATION_POSTES = [
+  { cle: 'sur_un_an', nom: 'Ensemble des prix', source: 'prix à la consommation', fort: true },
+  { cle: 'energie', nom: 'Énergie', source: 'énergie' },
+  { cle: 'alimentation', nom: 'Alimentation', source: 'alimentation' },
+  { cle: 'produits_frais', nom: 'dont produits frais', source: 'produits frais', sous: true },
+  { cle: 'autre_alimentation', nom: 'dont autre alimentation', source: 'autre alimentation', sous: true },
+  { cle: 'services', nom: 'Services', source: 'services' },
+  { cle: 'produits_manufactures', nom: 'Produits manufacturés', source: 'produits manufacturés' },
+  { cle: 'tabac', nom: 'Tabac', source: 'tabac' }
+];
+var COMPRENDRE_LES_CHIFFRES_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+var COMPRENDRE_LES_CHIFFRES_MOIS_COURTS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+
+// « 2026-10 » -> « octobre 2026 ».
+function _comprendreLesChiffresInflationNomMois(ym) {
+  var m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
+  return m ? COMPRENDRE_LES_CHIFFRES_MOIS[parseInt(m[2], 10) - 1] + ' ' + m[1] : String(ym || '');
+}
+
+// Mois situé `i` mois après `debut` (« 2017-01 », 117 -> « 2026-10 »).
+function _comprendreLesChiffresInflationMoisPlus(debut, i) {
+  var m = String(debut || '').match(/^(\d{4})-(\d{2})$/);
+  if (!m) { return ''; }
+  var total = parseInt(m[1], 10) * 12 + parseInt(m[2], 10) - 1 + i;
+  var mois = total % 12 + 1;
+  return Math.floor(total / 12) + '-' + (mois < 10 ? '0' : '') + mois;
+}
+
+// Sens d'un chiffre par rapport à une référence : 'hausse', 'baisse' ou 'stable' (au dixième de point près). null si une valeur manque.
+function _comprendreLesChiffresInflationSens(valeur, reference) {
+  if (typeof valeur !== 'number' || typeof reference !== 'number') { return null; }
+  var d = Math.round((valeur - reference) * 10) / 10;
+  return d > 0 ? 'hausse' : (d < 0 ? 'baisse' : 'stable');
+}
+
+// Flèche + mot, dans la couleur du sens (pour l'inflation : hausse en rouge, baisse en vert). Le mot accompagne toujours la flèche : la couleur seule ne suffit pas.
+function _comprendreLesChiffresInflationFleche(sens, titre) {
+  var FL = { hausse: '&#8599;', baisse: '&#8600;', stable: '&#8594;' };
+  var MOT = { hausse: 'en hausse', baisse: 'en baisse', stable: 'stable' };
+  return '<span class="comprendre-les-chiffres-sens-fl comprendre-les-chiffres-sens-fl--' + sens + '"' +
+    (titre ? ' title="' + _comprendreLesChiffresEchappe(titre) + '"' : '') + '>' + FL[sens] + ' ' + MOT[sens] + '</span>';
+}
+
+// Une série mensuelle lisible : un début « AAAA-MM », au moins 12 chiffres, et un dernier mois qui est bien celui de la carte. Sinon, pas de graphique.
+function _comprendreLesChiffresInflationSerieValide(serie, moisDernier) {
+  if (!serie || !Array.isArray(serie.valeurs) || serie.valeurs.length < 12) { return false; }
+  if (!serie.valeurs.every(function (v) { return typeof v === 'number' && isFinite(v); })) { return false; }
+  return _comprendreLesChiffresInflationMoisPlus(serie.debut, serie.valeurs.length - 1) === moisDernier;
+}
+
+// Mois(s) où la série atteint son extrême : « février 2023 », « septembre 2020 et décembre 2020 », ou « plusieurs mois (dont … ) ».
+function _comprendreLesChiffresInflationMoisExtreme(pts, extreme) {
+  var mois = pts.filter(function (p) { return p.v === extreme; }).map(function (p) { return _comprendreLesChiffresInflationNomMois(p.m); });
+  if (mois.length === 1) { return mois[0]; }
+  if (mois.length === 2) { return mois[0] + ' et ' + mois[1]; }
+  return 'plusieurs mois (dont ' + mois[0] + ')';
+}
+
+// Le graphique d'une durée : une ligne, un point par mois, l'axe en %, un repère qui suit la souris ou le doigt.
+function _comprendreLesChiffresInflationGrapheSvg(serie, n, moisDernier) {
+  var vals = serie.valeurs.slice(-n);
+  var debut = _comprendreLesChiffresInflationMoisPlus(serie.debut, serie.valeurs.length - vals.length);
+  var pts = vals.map(function (v, i) { return { m: _comprendreLesChiffresInflationMoisPlus(debut, i), v: v }; });
+  var W = 640, H = 230, G = 40, D = 12, HT = 14, B = 34;
+  var mn = Math.min(0, Math.min.apply(null, vals)), mx = Math.max.apply(null, vals) + 0.5;
+  var X = function (i) { return G + (W - G - D) * (pts.length === 1 ? 0 : i / (pts.length - 1)); };
+  var Y = function (v) { return HT + (H - HT - B) * (1 - (v - mn) / (mx - mn)); };
+  var s = '';
+  var pas = (mx - mn) > 8 ? 2 : 1;
+  for (var t = Math.ceil(mn); t <= mx; t += pas) {
+    s += '<line class="grille" x1="' + G + '" x2="' + (W - D) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '"></line>' +
+      '<text x="' + (G - 6) + '" y="' + (Y(t) + 4).toFixed(1) + '" text-anchor="end">' + t + ' %</text>';
+  }
+  pts.forEach(function (p, i) {
+    var mois = parseInt(p.m.slice(5), 10);
+    var etiquette = '';
+    if (pts.length <= 12) { if (i % 2 === 0 || i === pts.length - 1) { etiquette = COMPRENDRE_LES_CHIFFRES_MOIS_COURTS[mois - 1]; } }
+    else if (mois === 1) { etiquette = p.m.slice(0, 4); }
+    if (etiquette) { s += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 14) + '" text-anchor="middle">' + etiquette + '</text>'; }
+  });
+  s += '<polyline class="courbe" points="' + pts.map(function (p, i) { return X(i).toFixed(1) + ',' + Y(p.v).toFixed(1); }).join(' ') + '"></polyline>';
+  var dernier = pts[pts.length - 1];
+  s += '<circle class="dernier" cx="' + X(pts.length - 1).toFixed(1) + '" cy="' + Y(dernier.v).toFixed(1) + '" r="4.5"></circle>' +
+    '<text class="val" x="' + (X(pts.length - 1) - 6).toFixed(1) + '" y="' + (Y(dernier.v) - 8).toFixed(1) + '" text-anchor="end">' + _comprendreLesChiffresFormatPourcent(dernier.v, 1) + '</text>';
+  s += '<line class="guide" x1="0" x2="0" y1="' + HT + '" y2="' + (H - B) + '"></line><circle class="pointe" r="5" cx="0" cy="0"></circle>';
+  var svg = '<svg class="comprendre-les-chiffres-inflation-graphe" viewBox="0 0 ' + W + ' ' + H + '" role="img" ' +
+    'aria-label="' + _comprendreLesChiffresEchappe('Hausse des prix sur un an, mois par mois, de ' + _comprendreLesChiffresInflationNomMois(debut) + ' à ' + _comprendreLesChiffresInflationNomMois(moisDernier)) + '" ' +
+    'data-debut="' + debut + '" data-valeurs="' + vals.join(',') + '" data-l="' + W + '" data-g="' + G + '" data-d="' + D + '" data-mn="' + mn + '" data-mx="' + mx + '" data-ht="' + HT + '" data-b="' + B + '" data-h="' + H + '" ' +
+    'onmousemove="_comprendreLesChiffresInflationSurvol(event)" ontouchstart="_comprendreLesChiffresInflationSurvol(event)" ontouchmove="_comprendreLesChiffresInflationSurvol(event)" ' +
+    'onmouseleave="_comprendreLesChiffresInflationQuitter(event)">' + s + '</svg>';
+  var hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+  var src = 'Insee, prix à la consommation sur un an, ';
+  var resume = 'Sur cette période, la hausse des prix a été la plus forte en <b>' + _comprendreLesChiffresEchappe(_comprendreLesChiffresInflationMoisExtreme(pts, hi)) + '</b> (' +
+    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(hi, 1), src + 'plus haut de la période affichée') + ') et la plus faible en <b>' +
+    _comprendreLesChiffresEchappe(_comprendreLesChiffresInflationMoisExtreme(pts, lo)) + '</b> (' +
+    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(lo, 1), src + 'plus bas de la période affichée') + ').';
+  return svg + '<p class="comprendre-les-chiffres-inflation-info" aria-live="polite" data-resume="' + _comprendreLesChiffresEchappe(resume) + '">' + resume + '</p>';
+}
+
+// Le suivi dans le temps : trois durées au choix (12 derniers mois, 5 ans, depuis le début de la série), un graphique chacune.
+function _comprendreLesChiffresInflationTemps(I) {
+  var serie = I.serie_sur_un_an;
+  if (!_comprendreLesChiffresInflationSerieValide(serie, I.dernier.mois)) { return ''; }
+  var total = serie.valeurs.length;
+  var durees = [{ n: 12, libelle: '12 derniers mois' }];
+  if (total > 60) { durees.push({ n: 60, libelle: '5 ans' }); }
+  if (total > 60) { durees.push({ n: total, libelle: 'Depuis ' + _comprendreLesChiffresInflationNomMois(serie.debut) }); }
+  var boutons = durees.map(function (d, i) {
+    return '<button type="button" class="' + (i === 0 ? 'actif' : '') + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '" data-duree="' + d.n + '" onclick="_comprendreLesChiffresInflationDuree(this)">' + d.libelle + '</button>';
+  }).join('');
+  var panneaux = durees.map(function (d, i) {
+    return '<div data-panneau-duree="' + d.n + '"' + (i === 0 ? '' : ' hidden') + '>' + _comprendreLesChiffresInflationGrapheSvg(serie, d.n, I.dernier.mois) + '</div>';
+  }).join('');
+  return '<div class="comprendre-les-chiffres-inflation-temps">' +
+    '<h4 class="comprendre-les-chiffres-evolution-titre"><i class="bi bi-graph-up"></i> L’évolution des prix</h4>' +
+    '<div class="comprendre-les-chiffres-bascule-lecture" role="group" aria-label="Durée affichée">' + boutons + '</div>' +
+    panneaux +
+    '<p class="comprendre-les-chiffres-note">Chaque point est la hausse des prix sur un an, pour un mois donné. Survolez ou touchez le graphique pour lire un mois.</p>' +
+    '</div>';
+}
+
+function _comprendreLesChiffresInflationDuree(btn) {
+  var bloc = btn.closest('.comprendre-les-chiffres-inflation-temps');
+  if (!bloc) { return; }
+  var n = btn.getAttribute('data-duree');
+  bloc.querySelectorAll('[data-duree]').forEach(function (b) {
+    var on = b === btn;
+    b.classList.toggle('actif', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  bloc.querySelectorAll('[data-panneau-duree]').forEach(function (p) { p.hidden = p.getAttribute('data-panneau-duree') !== n; });
+}
+
+// Repère qui suit la souris ou le doigt : le mois le plus proche et sa hausse sur un an.
+function _comprendreLesChiffresInflationSurvol(evt) {
+  var svg = evt.currentTarget;
+  if (!svg || typeof svg.createSVGPoint !== 'function') { return; }
+  var ctm = svg.getScreenCTM();
+  if (!ctm) { return; }
+  var src = (evt.touches && evt.touches[0]) ? evt.touches[0] : evt;
+  var pt = svg.createSVGPoint();
+  pt.x = src.clientX; pt.y = src.clientY;
+  var p = pt.matrixTransform(ctm.inverse());
+  var a = function (k) { return parseFloat(svg.getAttribute('data-' + k)); };
+  var vals = svg.getAttribute('data-valeurs').split(',').map(parseFloat);
+  var W = a('l'), G = a('g'), D = a('d'), mn = a('mn'), mx = a('mx'), HT = a('ht'), B = a('b'), H = a('h');
+  var i = Math.round((p.x - G) / (W - G - D) * (vals.length - 1));
+  i = Math.max(0, Math.min(vals.length - 1, i));
+  var x = G + (W - G - D) * (vals.length === 1 ? 0 : i / (vals.length - 1));
+  var y = HT + (H - HT - B) * (1 - (vals[i] - mn) / (mx - mn));
+  var guide = svg.querySelector('.guide'), pointe = svg.querySelector('.pointe');
+  if (guide) { guide.setAttribute('x1', x); guide.setAttribute('x2', x); guide.style.visibility = 'visible'; }
+  if (pointe) { pointe.setAttribute('cx', x); pointe.setAttribute('cy', y); pointe.style.visibility = 'visible'; }
+  var info = svg.parentNode.querySelector('.comprendre-les-chiffres-inflation-info');
+  if (info) {
+    var mois = _comprendreLesChiffresInflationNomMois(_comprendreLesChiffresInflationMoisPlus(svg.getAttribute('data-debut'), i));
+    info.innerHTML = '<b>' + _comprendreLesChiffresEchappe(mois) + ' :</b> les prix ont augmenté de ' +
+      _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(vals[i], 1), 'Insee, prix à la consommation sur un an, ' + mois) + ' sur un an.';
+    _comprendreLesChiffresRendreChiffresAccessibles(info);
+  }
+}
+
+// Quand la souris quitte le graphique : on retrouve le résumé de la période.
+function _comprendreLesChiffresInflationQuitter(evt) {
+  var svg = evt.currentTarget;
+  if (!svg) { return; }
+  var guide = svg.querySelector('.guide'), pointe = svg.querySelector('.pointe');
+  if (guide) { guide.style.visibility = 'hidden'; }
+  if (pointe) { pointe.style.visibility = 'hidden'; }
+  var info = svg.parentNode.querySelector('.comprendre-les-chiffres-inflation-info');
+  if (info && info.getAttribute('data-resume')) {
+    info.innerHTML = info.getAttribute('data-resume');
+    _comprendreLesChiffresRendreChiffresAccessibles(info);
+  }
+}
+window._comprendreLesChiffresInflationDuree = _comprendreLesChiffresInflationDuree;
+window._comprendreLesChiffresInflationSurvol = _comprendreLesChiffresInflationSurvol;
+window._comprendreLesChiffresInflationQuitter = _comprendreLesChiffresInflationQuitter;
+
+// Le tableau « poste par poste » : le chiffre du mois, puis le mois d'avant et il y a un an, chacun avec sa flèche (par rapport au chiffre du mois).
+function _comprendreLesChiffresInflationTableau(I) {
+  var L = I.dernier, Pr = I.precedent, An = I.il_y_a_un_an;
+  var nom = _comprendreLesChiffresInflationNomMois;
+  var maj = function (t) { return t.charAt(0).toUpperCase() + t.slice(1); };
+  var moisAvant = nom(Pr.mois).split(' ')[0] + (Pr.mois.slice(0, 4) !== L.mois.slice(0, 4) ? ' ' + Pr.mois.slice(0, 4) : '');
+  var fmt = function (v) { return _comprendreLesChiffresFormatPourcent(v, 1); };
+  var lignes = COMPRENDRE_LES_CHIFFRES_INFLATION_POSTES.filter(function (p) { return typeof L[p.cle] === 'number'; }).map(function (p) {
+    var src = function (m, prov) { return 'Insee, ' + p.source + ' sur un an, ' + nom(m) + (prov ? ' (provisoire)' : ''); };
+    var cellule = function (ref, quand, etiquette) {
+      if (!ref) { return ''; }
+      if (typeof ref[p.cle] !== 'number') { return '<td class="ref"></td>'; }
+      var sens = _comprendreLesChiffresInflationSens(L[p.cle], ref[p.cle]);
+      return '<td class="ref" data-label="' + _comprendreLesChiffresEchappe(etiquette) + '">' + _comprendreLesChiffresSmicChiffre(fmt(ref[p.cle]), src(ref.mois, false)) + ' ' +
+        _comprendreLesChiffresInflationFleche(sens, 'Le chiffre du mois est ' + (sens === 'stable' ? 'le même' : (sens === 'hausse' ? 'plus haut' : 'plus bas')) + ' que celui ' + quand) + '</td>';
+    };
+    return '<tr' + (p.sous ? ' class="sous"' : '') + '><td class="nom">' + _comprendreLesChiffresEchappe(p.nom) + '</td>' +
+      '<td data-label="' + _comprendreLesChiffresEchappe(maj(nom(L.mois))) + '">' + _comprendreLesChiffresSmicChiffre(fmt(L[p.cle]), src(L.mois, L.provisoire)) + '</td>' +
+      cellule(Pr, 'du mois d’avant', maj(moisAvant)) + cellule(An, 'd’il y a un an', 'Il y a un an') + '</tr>';
+  }).join('');
+  return '<p class="comprendre-les-chiffres-vues-titre">Poste par poste</p>' +
+    '<div class="comprendre-les-chiffres-tableau-postes-zone"><table class="comprendre-les-chiffres-tableau-postes"><thead><tr><th scope="col">Poste</th><th scope="col">' +
+    maj(nom(L.mois)) + '</th><th scope="col">' + maj(moisAvant) + '</th>' + (An ? '<th scope="col">Il y a un an</th>' : '') + '</tr></thead><tbody>' + lignes + '</tbody></table></div>' +
+    '<p class="comprendre-les-chiffres-note">« En hausse » veut dire : les prix montent plus vite qu’avant. Une flèche rouge vers le haut : la hausse des prix s’accélère. Une flèche verte vers le bas : elle ralentit (les prix peuvent quand même monter). Les flèches comparent le chiffre du mois à celui du mois d’avant et à celui d’il y a un an. Les sous-postes (« dont ») détaillent l’alimentation.</p>';
+}
+
+// La phrase sous le gros chiffre : le rythme comparé au mois d'avant et à l'an dernier.
+function _comprendreLesChiffresInflationPhrase(I) {
+  var L = I.dernier, Pr = I.precedent, An = I.il_y_a_un_an;
+  if (typeof L.sur_un_an !== 'number') { return ''; }
+  if (L.sur_un_an <= 0) { return 'Sur un an, les prix ' + (L.sur_un_an < 0 ? 'baissent' : 'n’augmentent pas') + '.'; }
+  var sensMois = Pr ? _comprendreLesChiffresInflationSens(L.sur_un_an, Pr.sur_un_an) : null;
+  var sensAn = An ? _comprendreLesChiffresInflationSens(L.sur_un_an, An.sur_un_an) : null;
+  var comp = function (sens, quand) {
+    return (sens === 'hausse' ? 'plus vite qu’' : (sens === 'baisse' ? 'moins vite qu’' : 'au même rythme qu’')) + quand;
+  };
+  var moisAvant = COMPRENDRE_LES_CHIFFRES_MOIS[parseInt(String(Pr && Pr.mois).slice(5, 7), 10) - 1];
+  if (sensMois && sensAn) {
+    return 'Sur un an, les prix montent ' + comp(sensMois, 'en ' + moisAvant) + (sensMois === sensAn ? ' et ' : ', mais ') + comp(sensAn, 'il y a un an') + '.';
+  }
+  if (sensMois) { return 'Sur un an, les prix montent ' + comp(sensMois, 'en ' + moisAvant) + '.'; }
+  return '';
+}
+
+// Nom d'un poste avec son article, pour les phrases (« l’énergie », « les produits frais »).
+var COMPRENDRE_LES_CHIFFRES_INFLATION_ARTICLES = {
+  energie: 'l’énergie', alimentation: 'l’alimentation', produits_frais: 'les produits frais', autre_alimentation: 'l’autre alimentation',
+  services: 'les services', produits_manufactures: 'les produits manufacturés', tabac: 'le tabac'
+};
+
+// « a, b et c ».
+function _comprendreLesChiffresListeFrancaise(items) {
+  if (items.length < 2) { return items.join(''); }
+  return items.slice(0, -1).join(', ') + ' et ' + items[items.length - 1];
+}
+
+// Le bloc « Ce que cela veut dire, concrètement » (à gauche de la carte, sur écran large ; maquette du 10/11/2026) : TOUT est calculé à partir
+// des chiffres de donnees/smic-inflation.json, jamais écrit à la main, donc il suit les chiffres chaque mois et ne peut pas s'en écarter.
+// Chaque chiffre est un `.chiffre` avec sa source au survol (consigne 237). Une phrase qui manque de donnée n'est simplement pas écrite.
+function _comprendreLesChiffresInflationLecture(I) {
+  var L = I.dernier, Pr = I.precedent;
+  if (!L || typeof L.sur_un_an !== 'number') { return ''; }
+  var nom = _comprendreLesChiffresInflationNomMois;
+  var pct = function (v) { return _comprendreLesChiffresFormatPourcent(v, 1); };
+  var chiffre = function (texte, quoi, mois, provisoire) {
+    return _comprendreLesChiffresSmicChiffre(texte, 'Insee, ' + quoi + ', ' + nom(mois) + (provisoire ? ' (provisoire)' : ''));
+  };
+  var de = function (mot) { return /^[aeiouyàâéèêîôû]/i.test(mot) ? 'd’' + mot : 'de ' + mot; };
+  var lignes = [];
+
+  // 1. 100 euros d'il y a un an.
+  lignes.push('<p class="comprendre-les-chiffres-lecture-ligne">Ce qui coûtait <b>100 €</b> il y a un an coûte en moyenne ' +
+    chiffre(_comprendreLesChiffresFormatEuros(100 + L.sur_un_an), 'prix à la consommation sur un an (100 € augmentés du chiffre du mois)', L.mois, L.provisoire) + ' aujourd’hui.</p>');
+
+  var items = '';
+  // 2. Ce qui monte le plus vite, le moins vite (postes, tous niveaux confondus, sauf l'ensemble des prix).
+  var postes = COMPRENDRE_LES_CHIFFRES_INFLATION_POSTES.filter(function (p) { return p.cle !== 'sur_un_an' && typeof L[p.cle] === 'number'; });
+  var parValeur = postes.slice().sort(function (a, b) { return L[b.cle] - L[a.cle]; });
+  var cite = function (p) {
+    var v = L[p.cle];
+    return COMPRENDRE_LES_CHIFFRES_INFLATION_ARTICLES[p.cle] + ' (' + chiffre(pct(v), p.source + ' sur un an', L.mois, L.provisoire) + (v < 0 ? ', les prix baissent' : '') + ')';
+  };
+  if (parValeur.length >= 5) {
+    var haut = parValeur.slice(0, 3), bas = parValeur.slice(-2).reverse();
+    items += '<li><b>Ce qui monte le plus vite :</b> ' + _comprendreLesChiffresListeFrancaise(haut.map(cite)) + '.</li>';
+    items += '<li><b>Ce qui monte le moins vite :</b> ' + _comprendreLesChiffresListeFrancaise(bas.map(cite)) + '.</li>';
+  }
+  // 3. Ce qui accélère et ce qui ralentit depuis le mois d'avant (un poste principal, avec ses sous-postes qui vont dans le même sens).
+  if (Pr) {
+    var groupes = [];
+    COMPRENDRE_LES_CHIFFRES_INFLATION_POSTES.forEach(function (p) {
+      if (p.cle === 'sur_un_an') { return; }
+      if (!p.sous) { groupes.push({ p: p, subs: [] }); } else if (groupes.length) { groupes[groupes.length - 1].subs.push(p); }
+    });
+    var sensDe = function (p) { return (typeof L[p.cle] === 'number' && typeof Pr[p.cle] === 'number') ? _comprendreLesChiffresInflationSens(L[p.cle], Pr[p.cle]) : null; };
+    var citeGroupe = function (g, sens) {
+      var memes = g.subs.filter(function (s) { return sensDe(s) === sens; }).map(function (s) { return COMPRENDRE_LES_CHIFFRES_INFLATION_ARTICLES[s.cle]; });
+      return COMPRENDRE_LES_CHIFFRES_INFLATION_ARTICLES[g.p.cle] + (memes.length ? ' (dont ' + _comprendreLesChiffresListeFrancaise(memes) + ')' : '');
+    };
+    var acc = groupes.filter(function (g) { return sensDe(g.p) === 'hausse'; }).map(function (g) { return citeGroupe(g, 'hausse'); });
+    var ral = groupes.filter(function (g) { return sensDe(g.p) === 'baisse'; }).map(function (g) { return citeGroupe(g, 'baisse'); });
+    var moisAvant = COMPRENDRE_LES_CHIFFRES_MOIS[parseInt(String(Pr.mois).slice(5, 7), 10) - 1];
+    if (acc.length || ral.length) {
+      items += '<li><b>Depuis ' + _comprendreLesChiffresEchappe(moisAvant) + ' :</b> ' +
+        (acc.length ? 'le rythme s’accélère pour ' + _comprendreLesChiffresListeFrancaise(acc) : '') +
+        (acc.length && ral.length ? ' ; il ' : (ral.length ? 'le rythme ' : '')) +
+        (ral.length ? 'ralentit pour ' + _comprendreLesChiffresListeFrancaise(ral) : '') + '.</li>';
+    }
+  }
+  // 4. Sur un seul mois.
+  if (typeof L.sur_un_mois === 'number') {
+    var m = nom(L.mois).split(' ')[0];
+    var verbe = L.sur_un_mois > 0 ? 'ont monté de ' : (L.sur_un_mois < 0 ? 'ont baissé de ' : 'n’ont pas bougé : ');
+    var enAvant = (Pr && typeof Pr.sur_un_mois === 'number')
+      ? ' (' + COMPRENDRE_LES_CHIFFRES_MOIS[parseInt(String(Pr.mois).slice(5, 7), 10) - 1] + ' : ' + chiffre(pct(Pr.sur_un_mois), 'prix à la consommation sur un mois', Pr.mois, false) + ')' : '';
+    items += '<li><b>Sur un seul mois :</b> en ' + _comprendreLesChiffresEchappe(m) + ', les prix ' + verbe +
+      chiffre(pct(Math.abs(L.sur_un_mois)), 'prix à la consommation sur un mois', L.mois, L.provisoire) + enAvant + '.</li>';
+  }
+  // 5. Comparaison européenne.
+  if (typeof L.harmonise_sur_un_an === 'number') {
+    items += '<li><b>Mesurée comme dans les autres pays de l’Union européenne</b> (prix harmonisés) : ' +
+      chiffre(pct(L.harmonise_sur_un_an), 'indice des prix à la consommation harmonisé sur un an', L.mois, L.provisoire) + '.</li>';
+  }
+  if (!lignes.length) { return ''; }
+  return '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    lignes.join('') + (items ? '<ul class="comprendre-les-chiffres-lecture-liste">' + items + '</ul>' : '') + '</div>';
+}
+
 function _comprendreLesChiffresRenduCarteInflation(D, etat) {
-  var I = D.inflation, L = I.dernier, Pr = I.precedent;
+  var I = D.inflation, L = I.dernier, Pr = I.precedent, An = I.il_y_a_un_an;
   var enClair = _comprendreLesChiffresSmicMoisEnClair;
-  var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  function nomMois(ym) { return MOIS[parseInt(String(ym).slice(5, 7), 10) - 1] + ' ' + String(ym).slice(0, 4); }
+  var nomMois = _comprendreLesChiffresInflationNomMois;
   var corps = '<p class="comprendre-les-chiffres-indic-q">De combien les prix ont-ils augmenté en un an ?</p>';
   var src0 = I.sources[0];
   if (!etat.inflationAJour) {
@@ -736,22 +1107,31 @@ function _comprendreLesChiffresRenduCarteInflation(D, etat) {
   var prov = L.provisoire ? ' (estimation provisoire publiée le ' + enClair(L.publie_le) + ')' : ' (publié le ' + enClair(L.publie_le) + ')';
   corps += '<p class="comprendre-les-chiffres-indic-valeur">' +
     _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(L.sur_un_an, 1), 'Insee, prix à la consommation sur un an, ' + nomMois(L.mois) + prov) + '</p>';
-  var fleche = L.sur_un_an > Pr.sur_un_an ? '&#8599; en hausse' : (L.sur_un_an < Pr.sur_un_an ? '&#8600; en baisse' : '&#8594; stable');
-  corps += '<span class="comprendre-les-chiffres-tendance">' + fleche + '</span>';
-  corps += '<p class="comprendre-les-chiffres-compare"><b>Le mois d’avant (' + nomMois(Pr.mois).split(' ')[0] + ') :</b> ' +
-    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(Pr.sur_un_an, 1), 'Insee, prix à la consommation sur un an, ' + nomMois(Pr.mois)) + '</p>';
-  var srcMois = 'Insee, ';
-  var suffixe = ' sur un an, ' + nomMois(L.mois) + (L.provisoire ? ' (provisoire)' : '');
-  var postesHtml = '<p class="comprendre-les-chiffres-compare"><b>Énergie :</b> ' +
-    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(L.energie, 1), srcMois + 'énergie' + suffixe) + ' &nbsp;&bull;&nbsp; <b>Alimentation :</b> ' +
-    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(L.alimentation, 1), srcMois + 'alimentation' + suffixe) + ' &nbsp;&bull;&nbsp; <b>Services :</b> ' +
-    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(L.services, 1), srcMois + 'services' + suffixe) + '</p>';
-  // Lecture en barres des postes (consigne 119) : sens et ampleur, à partir de zéro.
+  var sensMois = _comprendreLesChiffresInflationSens(L.sur_un_an, Pr.sur_un_an) || 'stable';
+  var MOT = { hausse: '&#8599; en hausse', baisse: '&#8600; en baisse', stable: '&#8594; stable' };
+  corps += '<span class="comprendre-les-chiffres-tendance comprendre-les-chiffres-sens--' + sensMois + '">' + MOT[sensMois] + '</span>';
+  var phrase = _comprendreLesChiffresInflationPhrase(I);
+  if (phrase) { corps += '<p class="comprendre-les-chiffres-indic-phrase">' + _comprendreLesChiffresEchappe(phrase) + '</p>'; }
+  var cmp = '<b>Le mois d’avant (' + nomMois(Pr.mois).split(' ')[0] + ') :</b> ' +
+    _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(Pr.sur_un_an, 1), 'Insee, prix à la consommation sur un an, ' + nomMois(Pr.mois)) + ' ' +
+    _comprendreLesChiffresInflationFleche(_comprendreLesChiffresInflationSens(L.sur_un_an, Pr.sur_un_an) || 'stable', 'Le chiffre du mois est comparé à celui du mois d’avant');
+  if (An && typeof An.sur_un_an === 'number') {
+    cmp += '</p><p class="comprendre-les-chiffres-compare"><b>Il y a un an (' + nomMois(An.mois) + ') :</b> ' +
+      _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresFormatPourcent(An.sur_un_an, 1), 'Insee, prix à la consommation sur un an, ' + nomMois(An.mois)) + ' ' +
+      _comprendreLesChiffresInflationFleche(_comprendreLesChiffresInflationSens(L.sur_un_an, An.sur_un_an) || 'stable', 'Le chiffre du mois est comparé à celui d’il y a un an');
+  }
+  corps += '<p class="comprendre-les-chiffres-compare">' + cmp + '</p>';
+  corps += _comprendreLesChiffresInflationLecture(I);
+  // Poste par poste : le tableau est la lecture « Chiffres » ; « Barres » montre sens et ampleur à partir de zéro (consigne 119).
   var lignesPostes = [];
-  [['Ensemble des prix', L.sur_un_an, 'Insee, prix à la consommation' + suffixe], ['Énergie', L.energie, srcMois + 'énergie' + suffixe], ['Alimentation', L.alimentation, srcMois + 'alimentation' + suffixe], ['Services', L.services, srcMois + 'services' + suffixe]].forEach(function (p) {
-    if (typeof p[1] === 'number') { lignesPostes.push({ nom: p[0], texte: _comprendreLesChiffresFormatPourcent(p[1], 1), n: p[1], source: p[2] }); }
+  COMPRENDRE_LES_CHIFFRES_INFLATION_POSTES.forEach(function (p) {
+    if (typeof L[p.cle] === 'number') {
+      lignesPostes.push({ nom: p.nom, texte: _comprendreLesChiffresFormatPourcent(L[p.cle], 1), n: L[p.cle],
+        source: 'Insee, ' + p.source + ' sur un an, ' + nomMois(L.mois) + (L.provisoire ? ' (provisoire)' : '') });
+    }
   });
-  corps += _comprendreLesChiffresVuesAssembler('inflation-postes', postesHtml, [{ titre: 'Hausse des prix sur un an, par poste', lignes: lignesPostes, signe: true }], null, { sansLignes: true });
+  corps += _comprendreLesChiffresVuesAssembler('inflation-postes', _comprendreLesChiffresInflationTableau(I), [{ titre: 'Hausse des prix sur un an, par poste', lignes: lignesPostes, signe: true }], null, { sansLignes: true });
+  corps += _comprendreLesChiffresInflationTemps(I);
   if (L.provisoire) {
     corps += '<div class="comprendre-les-chiffres-encart small"><i class="bi bi-info-circle"></i> Estimation provisoire. Résultats définitifs prévus le ' + enClair(I.resultats_definitifs_prevus) + '.</div>';
   }
@@ -762,8 +1142,86 @@ function _comprendreLesChiffresRenduCarteInflation(D, etat) {
     '<p class="comprendre-les-chiffres-compare mb-0"><b>Elle ralentit :</b> baisse des cours des matières premières.</p>' +
     '</div></details>';
   corps += _comprendreLesChiffresSmicSourceLigne('D’après l’Insee', src0, 'publié le ' + enClair(L.publie_le));
-  corps += _comprendreLesChiffresSmicLireAvec('inflation', 'le mot « Inflation » du Lexique');
   return '<div class="comprendre-les-chiffres-indic" id="carte-inflation">' + corps + '</div>';
+}
+
+// ------------------------------------------------------------
+// Rubrique « Salaire moyen et salaire médian » (maquette validée par Denis le 10/11/2026, consigne 238)
+// ------------------------------------------------------------
+// À droite de la carte du Smic, sur écran large. Elle LIT les chiffres des cartes salaires (fichier des salaires de l'Insee) :
+// aucune valeur n'est recopiée ni écrite à la main. Le Smic net (indicatif) est mis à côté pour se repérer ; il n'est pas de la même
+// année que les salaires : la rubrique le dit. Les barres s'ouvrent d'abord (lecture validée), « Chiffres » reste au choix.
+// Le salaire médian n'existe que pour la France entière ; le salaire moyen, lui, existe pour le territoire lu (département ou région).
+function _comprendreLesChiffresRubriqueSalaires(D, etat) {
+  var S = _comprendreLesChiffresFicheDoc('salaires');
+  if (!S) { return ''; }
+  var fe = _comprendreLesChiffresFicheEuros;
+  var moyFr = _comprendreLesChiffresFicheFrance(S, 'salaire_net_mensuel');
+  var med = _comprendreLesChiffresFicheFrance(S, 'salaire_mediane');
+  if (!moyFr || !med) { return ''; }
+  var niveau = _comprendreLesChiffresNiveauCourant(), art = _comprendreLesChiffresLibelleNiveau(), terr = null;
+  if (niveau === 'dep') {
+    terr = _comprendreLesChiffresFicheValeur(S, 'departements', COMPRENDRE_LES_CHIFFRES_DEP_NOMS[_comprendreLesChiffresTerritoireDuNiveau()] || '', 'salaire_net_mensuel');
+  } else if (niveau === 'na') {
+    terr = _comprendreLesChiffresFicheValeur(S, 'regions', 'Nouvelle-Aquitaine', 'salaire_net_mensuel');
+  }
+  var srcDe = function (v, quoi) { return v.src ? v.src.titre + ' : ' + quoi + ', ' + v.nom : ''; };
+  var ligne = function (nom, v, quoi, fort) { return { nom: nom, texte: fe(v.n), n: v.n, fort: !!fort, source: srcDe(v, quoi) }; };
+  var chiffre = function (v, quoi) { return _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresEchappe(fe(v.n)), srcDe(v, quoi)); };
+  var lignes = [ligne('Médiane : la moitié gagne moins de', med, 'salaire net mensuel médian', true), ligne('Salaire moyen en France', moyFr, 'salaire net mensuel moyen')];
+  if (terr) { lignes.push(ligne('Salaire moyen dans ' + art, terr, 'salaire net mensuel moyen', true)); }
+
+  // Le Smic net, à titre indicatif : seulement s'il a été vérifié récemment (comme sa propre carte).
+  var E = D && D.smic && D.smic.en_vigueur;
+  var smicNet = (etat && etat.smicAJour && E && typeof E.mensuel_net_indicatif === 'number') ? E.mensuel_net_indicatif : null;
+  if (smicNet != null) {
+    lignes.push({ nom: 'Le Smic net, à titre indicatif', texte: fe(smicNet), n: smicNet, autre: true,
+      source: 'Service-public.gouv.fr, Smic mensuel net, donné à titre indicatif - vérifié le ' + _comprendreLesChiffresSmicMoisEnClair(D.verifie_le) });
+  }
+  lignes.sort(function (a, b) { return a.n - b.n; });
+
+  // « Ce que cela veut dire, concrètement » : calculé à partir des chiffres affichés, jamais écrit à la main.
+  var calcul = function (haut, bas) {
+    var d = Math.round(haut.n) - Math.round(bas.n);
+    return _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresEchappe(fe(Math.abs(d))),
+      'Calcul : ' + fe(Math.max(haut.n, bas.n)) + ' moins ' + fe(Math.min(haut.n, bas.n)) + ', à partir des chiffres de l’Insee');
+  };
+  var phrases = [];
+  if (Math.round(moyFr.n) === Math.round(med.n)) {
+    phrases.push('En France, la moyenne et la médiane sont au même niveau (' + chiffre(med, 'salaire net mensuel médian') + ').');
+  } else {
+    phrases.push('En France, la moyenne (' + chiffre(moyFr, 'salaire net mensuel moyen') + ') est ' + (moyFr.n > med.n ? 'plus haute' : 'plus basse') +
+      ' que la médiane (' + chiffre(med, 'salaire net mensuel médian') + '), de ' + calcul(moyFr, med) + '.');
+  }
+  if (terr) {
+    var e = Math.round(terr.n) - Math.round(moyFr.n);
+    phrases.push('Dans ' + _comprendreLesChiffresEchappe(art) + ', la moyenne est ' + (e === 0 ? 'la même qu’en France' : (e < 0 ? 'inférieure' : 'supérieure') + ' de ' + calcul(terr, moyFr) + ' à celle de la France') + '.');
+  }
+  var lecture = '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    '<p class="comprendre-les-chiffres-lecture-ligne">' + phrases.join(' ') + '</p></div>';
+
+  // La mise en garde : le Smic et les salaires ne sont pas de la même année.
+  var anSmic = E && E.effet ? String(E.effet).slice(0, 4) : '';
+  // L'année des salaires est celle de « … dans le secteur privé en 2024 », pas le numéro de la publication (« Insee Première n° 2079 »).
+  var anSal = ((moyFr.src && moyFr.src.titre || '').match(/\ben (20\d\d)\b/) || (med.src && med.src.titre || '').match(/\ben (20\d\d)\b/) || [])[1] || '';
+  var garde = 'Montants nets par mois, secteur privé, comme si chaque personne avait travaillé à temps plein toute l’année.';
+  if (smicNet != null) {
+    garde = '<b>Attention :</b> le Smic est celui de ' + (anSmic || 'cette année') + ', les salaires sont ceux de ' + (anSal || 'années plus anciennes') +
+      ' (secteur privé, comme si chaque personne avait travaillé à temps plein toute l’année). On les met côte à côte pour se repérer, pas pour calculer un écart exact.';
+  }
+  return _comprendreLesChiffresFicheCarte({
+    id: 'smic-salaires', q: 'Salaire moyen et salaire médian : que gagne-t-on ?',
+    groupes: [{ titre: 'Montants nets par mois, salariés du privé', lignes: lignes }],
+    vues: { defaut: 'barres' },
+    extra: lecture + '<p class="comprendre-les-chiffres-note">' + garde + '</p>',
+    sources: [med.src, moyFr.src, terr && terr.src]
+  });
+}
+
+// Deux cartes sur une même ligne (écran large) ; une seule carte garde toute la largeur (rien à mettre à côté).
+function _comprendreLesChiffresCartesCoteACoteHTML(a, b) {
+  if (!a && !b) { return ''; }
+  return '<div class="comprendre-les-chiffres-cartes-ligne' + ((a && b) ? ' comprendre-les-chiffres-cartes-ligne--deux' : '') + '">' + (a || '') + (b || '') + '</div>';
 }
 
 // Le bloc « Le Smic et l’inflation » : affiché directement dans l'accueil du module,
@@ -792,10 +1250,11 @@ function _comprendreLesChiffresRenduBlocSmic() {
   return '<div class="comprendre-les-chiffres-smic-bloc">' + titre +
     '<p><span class="comprendre-les-chiffres-fraicheur">&#128197; Chiffres vérifiés le ' + _comprendreLesChiffresEchappe(verifie) +
     '. Prochaine mise à jour de l’inflation prévue : ' + _comprendreLesChiffresEchappe(prochaine) + '.</span></p>' +
-    '<div class="comprendre-les-chiffres-smic-deux">' +
-    _comprendreLesChiffresRenduCarteSmic(D, etat) +
+    // Trois lignes sur écran large (maquette validée le 10/11/2026) : Smic et salaires, inflation, salariés concernés et pouvoir d'achat.
+    // Sur téléphone, une carte par ligne dans le même ordre qu'avant, la rubrique des salaires juste après le Smic.
+    _comprendreLesChiffresCartesCoteACoteHTML(_comprendreLesChiffresRenduCarteSmic(D, etat), _comprendreLesChiffresRubriqueSalaires(D, etat)) +
     _comprendreLesChiffresRenduCarteInflation(D, etat) +
-    '</div>' + beneficiaires + pouvoirAchat + signaler + '</div>';
+    _comprendreLesChiffresCartesCoteACoteHTML(beneficiaires, pouvoirAchat) + signaler + '</div>';
 }
 
 // ============================================================
@@ -836,7 +1295,7 @@ function _comprendreLesChiffresVuesLigne(l, pct, signe) {
   var src = l.source ? ' data-source="' + _comprendreLesChiffresEchappe(l.source) + '"' : '';
   var sens = '';
   if (signe && l.n) { sens = l.n < 0 ? '&#8600; ' : '&#8599; '; }
-  return '<div class="comprendre-les-chiffres-zone-ligne' + (l.fort ? ' fort' : '') + (signe && l.n < 0 ? ' baisse' : '') +
+  return '<div class="comprendre-les-chiffres-zone-ligne' + (l.fort ? ' fort' : '') + (l.autre ? ' autre' : '') + (signe && l.n < 0 ? ' baisse' : '') +
     '" data-n="' + (typeof l.n === 'number' ? l.n : 0) + '">' +
     '<span class="comprendre-les-chiffres-zone-nom">' + _comprendreLesChiffresEchappe(l.nom) + '</span>' +
     '<span class="comprendre-les-chiffres-zone-piste" aria-hidden="true"><span class="comprendre-les-chiffres-zone-remplissage" style="width:' + pct + '%"></span></span>' +
@@ -862,7 +1321,8 @@ function _comprendreLesChiffresVuesEnteteHTML(titre, avecOrdre) {
 function _comprendreLesChiffresVuesBarresHTML(groupes) {
   var noteSensDonnee = false;
   return (groupes || []).map(function (g) {
-    var lignes = g.lignes || [];
+    // Les lignes d'une autre période que les autres (chiffre national plus récent, moyennes annuelles européennes) n'entrent pas dans les barres.
+    var lignes = (g.lignes || []).filter(function (l) { return !l.horsBarres; });
     if (lignes.length < 2) { return ''; }
     var max = 0;
     lignes.forEach(function (l) { if (typeof l.n === 'number' && Math.abs(l.n) > max) { max = Math.abs(l.n); } });
@@ -877,22 +1337,64 @@ function _comprendreLesChiffresVuesBarresHTML(groupes) {
   }).join('');
 }
 
+// Les trimestres rangés par année (écran large seulement, la liste reste sur téléphone) : une ligne par année, une colonne par trimestre.
+// Le dernier trimestre est en plein ; le MÊME trimestre un an avant est entouré, pour comparer à la même saison (le chômage et l'emploi
+// varient avec les saisons : on compare un trimestre au même trimestre de l'année d'avant). Les cases sans chiffre restent vides.
+// Rend '' si une étiquette n'est pas de la forme « T3 2025 » : on ne devine jamais une place.
+function _comprendreLesChiffresMatriceTrimestresHTML(g) {
+  var lignes = g.lignes || [];
+  if (lignes.length < 2) { return ''; }
+  var rangs = [], maxRang = 0, i;
+  for (i = 0; i < lignes.length; i++) {
+    var r = _comprendreLesChiffresRangLibelleSerie(lignes[i].nom);
+    if (!r) { return ''; }
+    rangs.push(r);
+    if (r > maxRang) { maxRang = r; }
+  }
+  var parAnnee = {}, annees = [];
+  lignes.forEach(function (l, k) {
+    var an = Math.floor((rangs[k] - 1) / 4), t = rangs[k] - an * 4;
+    if (!parAnnee[an]) { parAnnee[an] = {}; annees.push(an); }
+    parAnnee[an][t] = { l: l, rang: rangs[k] };
+  });
+  annees.sort(function (a, b) { return a - b; });
+  var NOMS = ['1er trimestre', '2e trimestre', '3e trimestre', '4e trimestre'];
+  var tete = '<tr><th scope="col">Année</th>' + NOMS.map(function (n) { return '<th scope="col">' + n + '</th>'; }).join('') + '</tr>';
+  var corps = annees.map(function (an) {
+    var cases = [1, 2, 3, 4].map(function (t) {
+      var c = parAnnee[an][t];
+      if (!c) { return '<td class="vide"><span aria-hidden="true">&middot;</span></td>'; }
+      var src = c.l.source ? ' data-source="' + _comprendreLesChiffresEchappe(c.l.source) + '"' : '';
+      var sens = g.signe && c.l.n ? (c.l.n < 0 ? '&#8600; ' : '&#8599; ') : '';
+      var cls = c.rang === maxRang ? ' class="dernier"' : (c.rang === maxRang - 4 ? ' class="an-avant"' : '');
+      return '<td' + cls + '>' + sens + '<span class="chiffre"' + src + '>' + _comprendreLesChiffresEchappe(c.l.texte) + '</span></td>';
+    }).join('');
+    return '<tr><th scope="row">' + an + '</th>' + cases + '</tr>';
+  }).join('');
+  var avantNom = rangs.indexOf(maxRang - 4) > -1;
+  return '<div class="comprendre-les-chiffres-matrice-zone"><table class="comprendre-les-chiffres-matrice"><thead>' + tete + '</thead><tbody>' + corps + '</tbody></table>' +
+    '<p class="comprendre-les-chiffres-note">En plein : le dernier trimestre connu.' +
+    (avantNom ? ' Entouré : le même trimestre un an avant, pour comparer à la même saison.' : '') + '</p></div>';
+}
+
 // « Chiffres » : les mêmes lignes que les barres, en toutes lettres (nom, puis chiffre),
 // sans barre. Même ordre au choix.
 function _comprendreLesChiffresVuesLignesHTML(groupes) {
   return (groupes || []).map(function (g) {
     var lignes = g.lignes || [];
     if (lignes.length < 2) { return ''; }
-    return '<div class="comprendre-les-chiffres-vues-groupe">' +
-      _comprendreLesChiffresVuesEnteteHTML(g.titre, lignes.length >= 5) +
-      '<div class="comprendre-les-chiffres-lignes" data-comprendre-les-chiffres-liste>' +
+    return '<div class="comprendre-les-chiffres-vues-groupe' + (g.matrice ? ' comprendre-les-chiffres-vues-groupe--trimestres' : '') + '">' +
+      _comprendreLesChiffresVuesEnteteHTML(g.titre, !g.territoires && lignes.length >= 5) +
+      '<div class="comprendre-les-chiffres-lignes' + (g.territoires ? ' comprendre-les-chiffres-lignes--tuiles' : '') + '" data-comprendre-les-chiffres-liste>' +
       lignes.map(function (l) {
         var src = l.source ? ' data-source="' + _comprendreLesChiffresEchappe(l.source) + '"' : '';
         var sens = g.signe && l.n ? (l.n < 0 ? '&#8600; ' : '&#8599; ') : '';
-        return '<div class="comprendre-les-chiffres-ligne' + (l.fort ? ' fort' : '') + '" data-n="' + (typeof l.n === 'number' ? l.n : 0) + '">' +
-          '<span class="comprendre-les-chiffres-ligne-lib">' + _comprendreLesChiffresEchappe(l.nom) + '</span>' +
+        return '<div class="comprendre-les-chiffres-ligne' + (l.fort ? ' fort' : '') + (l.recent ? ' recent' : '') + (l.autre ? ' autre' : '') + '" data-n="' + (typeof l.n === 'number' ? l.n : 0) + '">' +
+          '<span class="comprendre-les-chiffres-ligne-lib">' + _comprendreLesChiffresEchappe(l.nom) +
+          (l.periode ? ' <small class="comprendre-les-chiffres-ligne-periode">' + _comprendreLesChiffresEchappe(l.periode) + '</small>' : '') + '</span>' +
           '<span class="comprendre-les-chiffres-ligne-val">' + sens + '<span class="chiffre"' + src + '>' + _comprendreLesChiffresEchappe(l.texte) + '</span></span></div>';
       }).join('') + '</div>' +
+      (g.matrice ? _comprendreLesChiffresMatriceTrimestresHTML(g) : '') +
       (g.note ? '<p class="comprendre-les-chiffres-note">' + _comprendreLesChiffresEchappe(g.note) + '</p>' : '') +
       '</div>';
   }).join('');
@@ -1475,15 +1977,25 @@ function _comprendreLesChiffresRenduSource(e) {
 // on le dit et on renvoie à l'encadré (consigne 229, cohérence de lecture).
 function _comprendreLesChiffresNoteNiveaux(carte, e, entrees) {
   if (!carte || carte.slug !== 'chomage' || !e || !entrees) { return ''; }
-  var rangE = _comprendreLesChiffresRangTrimestre(e.date);
-  var plusRecent = null;
-  entrees.forEach(function (x) {
-    if (!plusRecent && x.terr === 'fr' && x.valeur && !/m[eé]tropolitaine/i.test(x.labelBrut || '') &&
-        _comprendreLesChiffresRangTrimestre(x.date) > rangE) { plusRecent = x; }
-  });
+  var plusRecent = _comprendreLesChiffresNationalPlusRecent(carte, e, entrees);
   var periode = String(e.date || '').replace(/,.*$/, '').trim();
-  if (!plusRecent || !periode) { return ''; }
-  return 'Ces trois chiffres sont ceux du ' + periode + ', pour pouvoir se comparer entre eux. Le trimestre suivant n’est publié que pour la France entière : voir l’encadré plus haut.';
+  if (!periode) { return ''; }
+  var annuel = entrees.some(function (x) { return (x.terr === 'ue' || x.terr === 'ze') && x.valeur; });
+  if (!plusRecent && !annuel) { return ''; }
+  return 'Le territoire, la région et la France métropolitaine sont comparés au même trimestre (' + periode + ').' +
+    (plusRecent ? ' Le trimestre suivant n’est publié que pour la France entière : voir l’encadré « Le plus récent, pour la France entière ».' : '') +
+    (annuel ? ' L’Union européenne et la zone euro sont des moyennes annuelles : un ordre de grandeur, pas une comparaison au trimestre près.' : '');
+}
+
+// Chômage : la ligne « France entière » du digest quand elle est d'un trimestre PLUS RÉCENT que le chiffre de la carte (le taux national
+// paraît avant les taux par région et département). Renvoie null sinon. Source unique du bloc « Le plus récent » et de la tuile du même nom.
+function _comprendreLesChiffresNationalPlusRecent(carte, e, entrees) {
+  if (!carte || carte.slug !== 'chomage' || !e || !entrees) { return null; }
+  var nat = null;
+  entrees.forEach(function (x) { if (!nat && x.terr === 'fr' && x.valeur && !/m[eé]tropolitaine/i.test(x.labelBrut || '')) { nat = x; } });
+  var rangNat = nat ? _comprendreLesChiffresRangTrimestre(nat.date) : 0;
+  if (!nat || nat === e || !rangNat || rangNat <= _comprendreLesChiffresRangTrimestre(e.date)) { return null; }
+  return nat;
 }
 
 function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
@@ -1492,14 +2004,26 @@ function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
   var signe = !!carte.valeurEstVariation;
   var fmt = function (n, pc) { return _comprendreLesChiffresFormatNombre(n) + (pc ? ' %' : ''); };
   var srcDe = function (x) { return x && x.sourceNom ? x.sourceNom + (x.date ? ' - ' + x.date : '') : ''; };
+  var estChomage = carte.slug === 'chomage';
   var nomDe = function (x) {
     if (x === e) { return _comprendreLesChiffresLibelleNiveauCourt(); }
-    return x.terr === 'na' ? 'Nouvelle-Aquitaine' : 'France';
+    if (x.terr === 'na') { return 'Nouvelle-Aquitaine'; }
+    if (x.terr === 'ue') { return 'Union européenne'; }
+    if (x.terr === 'ze') { return 'Zone euro'; }
+    if (estChomage && /m[eé]tropolitaine/i.test(x.labelBrut || '')) { return 'France métropolitaine'; }
+    if (estChomage && x.terr === 'fr') { return 'France entière'; }
+    return 'France';
+  };
+  // Période écrite sur la tuile (chômage seulement) : « 2e trimestre 2026 », « moyenne de l’année 2025 ».
+  var periodeDe = function (x) {
+    return String((x && x.date) || '').replace(/,.*$/, '').trim().replace(/^moyenne annuelle (\d{4})$/i, 'moyenne de l’année $1');
   };
   var ligneDe = function (x, pc) {
     var n = _comprendreLesChiffresNombre(x && x.valeur);
     if (n === null) { return null; }
-    return { nom: nomDe(x), texte: fmt(n, pc), n: n, fort: x === e, source: srcDe(x) };
+    var l = { nom: nomDe(x), texte: fmt(n, pc), n: n, fort: x === e, source: srcDe(x) };
+    if (estChomage) { l.texte = x.valeur; l.periode = periodeDe(x); }
+    return l;
   };
   var groupes = [], camembert = null;
 
@@ -1507,8 +2031,16 @@ function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
   if (pourcent && (niv === 'dep' || niv === 'na')) {
     var lignes = [ligneDe(e, true)];
     var autres = niv === 'dep' ? [choisirTerr('na'), choisirTerr('fr', true)] : [choisirTerr('fr', true)];
+    // Chômage : le chiffre national du trimestre le plus récent, puis l'Union européenne et la zone euro (moyennes annuelles). Jamais l'autre département suivi.
+    var natRecent = estChomage ? _comprendreLesChiffresNationalPlusRecent(carte, e, entrees) : null;
+    if (estChomage) { autres.push(natRecent, choisirTerr('ue'), choisirTerr('ze')); }
     autres.forEach(function (x) {
-      if (x && x.valeur && _comprendreLesChiffresMemeNature(e.valeur, x.valeur)) { lignes.push(ligneDe(x, true)); }
+      if (x && x.valeur && _comprendreLesChiffresMemeNature(e.valeur, x.valeur)) {
+        var lx = ligneDe(x, true);
+        if (lx && estChomage && (x === natRecent || x.terr === 'ue' || x.terr === 'ze')) { lx.horsBarres = true; }
+        if (lx && x === natRecent) { lx.recent = true; lx.periode += ' (le plus récent)'; }
+        lignes.push(lx);
+      }
     });
     var noteNiveaux = _comprendreLesChiffresNoteNiveaux(carte, e, entrees);
     groupes.push({ titre: 'Le territoire et les autres niveaux', lignes: lignes.filter(Boolean), signe: signe, territoires: true, note: noteNiveaux });
@@ -1534,8 +2066,14 @@ function _comprendreLesChiffresVuesDonnees(carte, e, entrees, choisirTerr) {
   if (carte.slug !== 'chomage' && e.serie && e.serie.length >= 2) {
     groupes.push({
       titre: 'Trimestre par trimestre',
-      lignes: e.serie.map(function (p) { return { nom: p.label, texte: fmt(p.v, pourcent), n: p.v, source: srcDe(e) }; }),
-      signe: signe
+      // Chaque point de la série porte SON trimestre dans sa source (« ... - 3e trimestre 2024 »), pas celui du chiffre principal.
+      lignes: e.serie.map(function (p) {
+        var mT = String(p.label).match(/^T([1-4])\s+(20\d\d)$/i);
+        var src = e.sourceNom ? e.sourceNom + ' - ' + (mT ? (mT[1] === '1' ? '1er' : mT[1] + 'e') + ' trimestre ' + mT[2] : p.label) : '';
+        return { nom: p.label, texte: fmt(p.v, pourcent), n: p.v, source: src };
+      }),
+      signe: signe,
+      matrice: true
     });
   }
 
@@ -1763,10 +2301,8 @@ function _comprendreLesChiffresRangTrimestre(texte) {
 // (prochaine_maj du digest). Le texte du repère vient du digest : il change quand le chiffre change, jamais écrit ici. Rien si la ligne n'est pas plus récente.
 function _comprendreLesChiffresBlocNationalRecent(carte, e, entrees) {
   if (!carte || carte.slug !== 'chomage' || !e || !entrees) { return ''; }
-  var nat = null;
-  entrees.forEach(function (x) { if (!nat && x.terr === 'fr' && x.valeur && !/m[eé]tropolitaine/i.test(x.labelBrut || '')) { nat = x; } });
-  var rangNat = nat ? _comprendreLesChiffresRangTrimestre(nat.date) : 0;
-  if (!nat || nat === e || !rangNat || rangNat <= _comprendreLesChiffresRangTrimestre(e.date)) { return ''; }
+  var nat = _comprendreLesChiffresNationalPlusRecent(carte, e, entrees);
+  if (!nat) { return ''; }
   var d = _comprendreLesChiffresDigest;
   var src = nat.sourceNom ? ' data-source="' + _comprendreLesChiffresEchappe(nat.sourceNom + (nat.date ? ' - ' + nat.date : '')) + '"' : '';
   var cmp = [];
@@ -1777,11 +2313,14 @@ function _comprendreLesChiffresBlocNationalRecent(carte, e, entrees) {
     : 'Les chiffres par région et par département du même trimestre paraissent plus tard.';
   return '<div class="comprendre-les-chiffres-national-recent">' +
     '<p class="comprendre-les-chiffres-national-titre"><i class="bi bi-flag"></i> Le plus récent, pour la France entière</p>' +
+    '<div class="comprendre-les-chiffres-national-corps"><div class="comprendre-les-chiffres-national-chiffre">' +
     '<p class="comprendre-les-chiffres-indic-valeur"><span class="chiffre"' + src + '>' + _comprendreLesChiffresEchappe(nat.valeur) + '</span> ' +
       '<span class="comprendre-les-chiffres-national-date">' + _comprendreLesChiffresEchappe(nat.date) + '</span></p>' +
     (cmp.length ? '<p class="comprendre-les-chiffres-compare">' + cmp.join(' &nbsp;&bull;&nbsp; ') + '</p>' : '') +
+    '</div><div class="comprendre-les-chiffres-national-lecture">' +
     (nat.repere ? '<p class="comprendre-les-chiffres-repere">' + _comprendreLesChiffresEchappe(nat.repere) + '</p>' : '') +
     '<p class="small mb-0">' + suite + '</p>' +
+    '</div></div>' +
   '</div>';
 }
 
@@ -1822,7 +2361,7 @@ function _comprendreLesChiffresRenduOuSeSituer(oss, eDep, eReg) {
   // Une barre : bornes aux extremites, marque a la position du territoire
   // repere (le departement pour la barre departements, la region pour la
   // barre regions).
-  var barre = function (titre, bas, haut, repere) {
+  var barre = function (tete, titre, bas, haut, repere) {
     if (!bas || !haut || !repere || !repere.valeur) { return ''; }
     var vb = _comprendreLesChiffresNombre(bas.valeur);
     var vh = _comprendreLesChiffresNombre(haut.valeur);
@@ -1834,6 +2373,7 @@ function _comprendreLesChiffresRenduOuSeSituer(oss, eDep, eReg) {
         'data-lab="' + _comprendreLesChiffresEchappe(repere.nom + ' ' + repere.valeur) + '"></span>';
     }
     return '<div class="comprendre-les-chiffres-oss-bloc">' +
+      '<p class="comprendre-les-chiffres-oss-tete">Où se situe ' + _comprendreLesChiffresEchappe(tete) + '</p>' +
       '<p class="comprendre-les-chiffres-oss-titre">' + _comprendreLesChiffresEchappe(titre) + '</p>' +
       '<p class="comprendre-les-chiffres-oss-bornes">' +
       '<span>le plus bas<br><b class="chiffre">' + _comprendreLesChiffresEchappe(bas.valeur) + '</b> ' + _comprendreLesChiffresEchappe(bas.nom) + '</span>' +
@@ -1847,9 +2387,8 @@ function _comprendreLesChiffresRenduOuSeSituer(oss, eDep, eReg) {
   var repReg = { nom: 'Nouvelle-Aquitaine', valeur: eReg && eReg.valeur };
 
   return '<aside class="comprendre-les-chiffres-ou-se-situer">' +
-    '<p class="comprendre-les-chiffres-oss-tete">Où se situe ' + _comprendreLesChiffresEchappe(_comprendreLesChiffresLibelleNiveau()) + '</p>' +
-    barre('Départements', oss.depBas, oss.depHaut, repDep) +
-    barre('Régions', oss.regBas, oss.regHaut, repReg) +
+    barre(_comprendreLesChiffresLibelleNiveau(), 'Départements', oss.depBas, oss.depHaut, repDep) +
+    barre('la Nouvelle-Aquitaine', 'Régions', oss.regBas, oss.regHaut, repReg) +
     '<p class="comprendre-les-chiffres-oss-plein">Le gouvernement vise le <b>plein emploi</b> : un chômage autour de <b>' + COMPRENDRE_LES_CHIFFRES_PLEIN_EMPLOI + ' %</b>.</p>' +
     '</aside>';
 }
@@ -2654,18 +3193,73 @@ function _comprendreLesChiffresRenduZonesEmploi() {
 // département/zones d'emploi ci-dessus, même contenu (dossier
 // departements-region.md, groupe unique "na" -- pas de decoupage par
 // region puisqu'il n'y en a qu'une aujourd'hui).
+// Départements et régions que l'application suit toujours (ceux de ses utilisateurs) : ils sont montrés
+// en plus des deux extrêmes, que le code désigne lui-même à partir de TOUS les taux du fichier
+// (chantier du 10/11/2026 : plus aucune phrase de classement écrite à la main).
+var COMPRENDRE_LES_CHIFFRES_DEPARTEMENTS_SUIVIS = ['Dordogne', 'Haute-Vienne'];
+var COMPRENDRE_LES_CHIFFRES_REGIONS_SUIVIES = ['Nouvelle-Aquitaine'];
+
+// Écrit un écart en points, à la française : « 0,5 point », « 1,6 point », « 2,3 points ».
+function _comprendreLesChiffresEcartEnPoints(x) {
+  var a = Math.round(Math.abs(x) * 10) / 10;
+  return String(a).replace('.', ',') + (a < 2 ? ' point' : ' points');
+}
+
+// Choisit, parmi TOUS les territoires du fichier, ceux qu'un bloc « écarts » montre : le ou les taux les plus
+// bas, le ou les taux les plus hauts (une égalité montre les deux), puis les territoires suivis. Chaque
+// territoire reçoit en tête une phrase CALCULÉE (jamais écrite à la main) qui dit sa place. Sans taux lisible
+// pour au moins deux territoires, rend la liste telle quelle. opts : { periode, portee, unite }.
+function _comprendreLesChiffresChoisirEcarts(items, suivis, opts) {
+  var o = opts || {};
+  var lus = (items || []).map(function (z) { return { z: z, n: _comprendreLesChiffresNombre(z.valeur) }; })
+    .filter(function (x) { return x.n != null; });
+  if (lus.length < 2) { return items || []; }
+  var min = Math.min.apply(null, lus.map(function (x) { return x.n; }));
+  var max = Math.max.apply(null, lus.map(function (x) { return x.n; }));
+  var bas = lus.filter(function (x) { return x.n === min; });
+  var haut = lus.filter(function (x) { return x.n === max; });
+  var quand = o.periode ? ' au ' + o.periode : '';
+  var unite = o.unite || 'territoire';
+  var autre = o.feminin ? 'une autre ' + unite + ' présentée aussi ici.' : 'un autre ' + unite + ' présenté aussi ici.';
+  var portee = o.portee || 'de la région';
+  var vus = {}, choisis = [];
+  function ajouter(x, note) {
+    if (vus[x.z.nom]) { return; }
+    vus[x.z.nom] = true;
+    var copie = {};
+    Object.keys(x.z).forEach(function (k) { copie[k] = x.z[k]; });
+    copie.paragraphes = [note].concat(x.z.paragraphes || []);
+    choisis.push(copie);
+  }
+  bas.forEach(function (x) {
+    ajouter(x, 'Taux de chômage le plus bas ' + portee + quand + (bas.length > 1 ? ', à égalité avec ' + autre : '.'));
+  });
+  haut.forEach(function (x) {
+    ajouter(x, 'Taux de chômage le plus haut ' + portee + quand + (haut.length > 1 ? ', à égalité avec ' + autre : '.'));
+  });
+  (suivis || []).forEach(function (nom) {
+    var x = lus.filter(function (y) { return y.z.nom === nom; })[0];
+    if (!x) { return; }
+    ajouter(x, 'Entre les extrêmes ' + portee + ' : ' + _comprendreLesChiffresEcartEnPoints(x.n - min) + ' au-dessus du taux le plus bas et ' +
+      _comprendreLesChiffresEcartEnPoints(max - x.n) + ' en dessous du plus haut' + quand + '.');
+  });
+  return choisis;
+}
+
 function _comprendreLesChiffresRenduDepartementsRegion() {
   if (_comprendreLesChiffresNiveauCourant() !== 'na') { return ''; }
   if (!_comprendreLesChiffresDepartementsRegion) { return ''; }
-  var deps = _comprendreLesChiffresDepartementsRegion.parDep.na;
-  if (!deps || !deps.length) { return ''; }
+  var tous = _comprendreLesChiffresDepartementsRegion.parDep.na;
+  if (!tous || !tous.length) { return ''; }
+  var deps = _comprendreLesChiffresChoisirEcarts(tous, COMPRENDRE_LES_CHIFFRES_DEPARTEMENTS_SUIVIS,
+    { periode: _comprendreLesChiffresDepartementsRegion.periode, portee: 'de la région', unite: 'département' });
   return _comprendreLesChiffresRenduEcartsGenerique(deps, _comprendreLesChiffresDepartementsRegion.sources, {
     titre: 'Les écarts entre départements de la région',
     icone: 'bi-map',
     periode: _comprendreLesChiffresDepartementsRegion.periode,
-    intro: "La Nouvelle-Aquitaine n'est pas uniforme : elle compte 12 départements aux chiffres très " +
-      "différents. Ce qui suit compare les deux départements aux taux les plus extrêmes de la région, et " +
-      "resitue la Dordogne et la Haute-Vienne entre les deux - pas pour dire lequel est « le meilleur », " +
+    intro: "La Nouvelle-Aquitaine n'est pas uniforme : elle compte " + tous.length + " départements aux chiffres très " +
+      "différents. Ce qui suit présente les départements aux taux de chômage les plus bas et les plus hauts de la région, " +
+      "et y ajoute la Dordogne et la Haute-Vienne pour les situer - pas pour dire lequel est « le meilleur », " +
       "mais pour comprendre ce qui explique les écarts."
   });
 }
@@ -2677,15 +3271,17 @@ function _comprendreLesChiffresRenduDepartementsRegion() {
 function _comprendreLesChiffresRenduRegionsFrance() {
   if (_comprendreLesChiffresNiveauCourant() !== 'fr') { return ''; }
   if (!_comprendreLesChiffresRegionsFrance) { return ''; }
-  var regs = _comprendreLesChiffresRegionsFrance.parDep.fr;
-  if (!regs || !regs.length) { return ''; }
+  var toutes = _comprendreLesChiffresRegionsFrance.parDep.fr;
+  if (!toutes || !toutes.length) { return ''; }
+  var regs = _comprendreLesChiffresChoisirEcarts(toutes, COMPRENDRE_LES_CHIFFRES_REGIONS_SUIVIES,
+    { periode: _comprendreLesChiffresRegionsFrance.periode, portee: 'de France métropolitaine', unite: 'région', feminin: true });
   return _comprendreLesChiffresRenduEcartsGenerique(regs, _comprendreLesChiffresRegionsFrance.sources, {
     titre: 'Les écarts entre régions de France',
     icone: 'bi-compass',
     periode: _comprendreLesChiffresRegionsFrance.periode,
-    intro: "La France métropolitaine n'est pas uniforme : elle compte 13 régions aux chiffres très " +
-      "différents. Ce qui suit compare les deux régions aux taux les plus extrêmes, et resitue la " +
-      "Nouvelle-Aquitaine entre les deux - pas pour dire laquelle est « la meilleure », mais pour " +
+    intro: "La France métropolitaine n'est pas uniforme : elle compte " + toutes.length + " régions aux chiffres très " +
+      "différents. Ce qui suit présente les régions aux taux de chômage les plus bas et les plus hauts, et y ajoute la " +
+      "Nouvelle-Aquitaine pour la situer - pas pour dire laquelle est « la meilleure », mais pour " +
       "comprendre ce qui explique les écarts."
   });
 }
@@ -2740,12 +3336,6 @@ var COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC = {
   t: 'Les entreprises ici : ce qui se vend, ce qui ferme',
   d: 'Ouvertures de procédures collectives (liquidation, redressement, sauvegarde), achats de fonds de commerce, annonces légales du département sur douze mois.'
 };
-var COMPRENDRE_LES_CHIFFRES_ENTREPRISES_FICHES = [
-  { id: 'creations-entreprises-micro-entrepreneurs', libelle: 'Créations et micro-entrepreneurs' },
-  { id: 'radiation-d-office-entreprise', libelle: 'Radiation d’office' },
-  { id: 'defaillance-entreprise', libelle: 'Défaillance d’entreprise' },
-  { id: 'vente-fonds-de-commerce', libelle: 'Vente d’un fonds de commerce' }
-];
 var _comprendreLesChiffresEntreprises = null;
 var _comprendreLesChiffresEntreprisesEtat = 'inactif';
 
@@ -2874,46 +3464,27 @@ function _comprendreLesChiffresRenduEntreprises() {
   var lieu = _comprendreLesChiffresLibelleNiveau();
   var source = doc.sources[d.sourcesCles[0]] || null;
   var periode = _comprendreLesChiffresPeriodeEnClair(d.periodeDu, d.periodeAu);
-  var corps = '<p class="comprendre-les-chiffres-section-intro">Ces chiffres décrivent des <b>annonces publiées au registre du commerce</b>, jamais une entreprise en particulier. Ils servent à situer le territoire, pas à décider d’aller ou non vers un employeur.</p>' +
-    _comprendreLesChiffresRenduCarteEntreprises('entreprises-ouvertures', 'Combien de procédures collectives (liquidation, redressement, sauvegarde) ont été ouvertes ?', d.ouvertures, d.ouverturesPrec,
+  var carteOuvertures = _comprendreLesChiffresRenduCarteEntreprises('entreprises-ouvertures', 'Combien de procédures collectives (liquidation, redressement, sauvegarde) ont été ouvertes ?', d.ouvertures, d.ouverturesPrec,
       'C’est le nombre d’annonces de jugement d’ouverture publiées par les tribunaux, extensions à une autre entreprise comprises, dans ' + _comprendreLesChiffresEchappe(lieu) + '.', '', periode, source);
+  var carteVentes = '';
   if (d.ventes != null && d.ventesPrec != null) {
-    corps += _comprendreLesChiffresRenduCarteEntreprises('entreprises-ventes', 'Combien d’annonces d’achat ou de cession d’un fonds de commerce ?', d.ventes, d.ventesPrec,
-      'Annonces d’achat, d’apport ou d’attribution d’un fonds de commerce, dans ' + _comprendreLesChiffresEchappe(lieu) + '.',
+    carteVentes = _comprendreLesChiffresRenduCarteEntreprises('entreprises-ventes', 'Combien d’annonces d’achat ou de cession d’un fonds de commerce ?', d.ventes, d.ventesPrec,
+      'Annonces de vente d’un fonds de commerce (achat, apport ou attribution), dans ' + _comprendreLesChiffresEchappe(lieu) + '.',
       'Une annonce ne dit pas pourquoi le propriétaire vend, ni ce que deviennent les salariés. Une même vente peut être annoncée plus d’une fois.', periode, source);
   }
+  // Deux cartes côte à côte sur écran large (une seule : pleine largeur) ; sur téléphone, l'une sous l'autre.
+  var corps = '<p class="comprendre-les-chiffres-section-intro">Ces chiffres décrivent des <b>annonces publiées au registre du commerce</b>, jamais une entreprise en particulier. Ils servent à situer le territoire, pas à décider d’aller ou non vers un employeur.</p>' +
+    _comprendreLesChiffresCartesCoteACoteHTML(carteOuvertures, carteVentes);
   corps += '<div class="comprendre-les-chiffres-encart small comprendre-les-chiffres-encart-attention"><i class="bi bi-exclamation-triangle"></i> ' +
-    'Ce sont des <b>annonces</b>, pas des entreprises : une même procédure en produit plusieurs (ouverture, liste des créances, clôture). Seules les annonces de <b>jugement d’ouverture</b> sont comptées ici. ' +
-    'Les créations d’entreprises (qui comptent les micro-entrepreneurs) et les radiations ne sont pas comparées d’un département à l’autre : elles ne sont pas publiées de la même façon partout.</div>' +
+    'Ce sont des <b>annonces</b>, pas des entreprises : une même procédure en produit plusieurs (ouverture, liste des créances, clôture). Seules les annonces de <b>jugement d’ouverture</b>, première étape d’une défaillance d’entreprise, sont comptées ici. ' +
+    'Les créations d’entreprises et micro-entrepreneurs et la radiation d’office d’une entreprise ne sont pas comparées d’un département à l’autre : elles ne sont pas publiées de la même façon partout.</div>' +
     '<p class="comprendre-les-chiffres-note"><span class="comprendre-les-chiffres-fraicheur">&#128197; Vérifié le ' + _comprendreLesChiffresEchappe(verifieLe) + '. Mise à jour tous les trimestres.</span></p>';
-  var boutons = COMPRENDRE_LES_CHIFFRES_ENTREPRISES_FICHES.map(function (f) {
-    return '<button type="button" class="btn btn-outline-secondary btn-sm" data-comprendre-les-chiffres-fiche-lexique="' + _comprendreLesChiffresEchappe(f.id) + '"><i class="bi bi-book"></i> ' + _comprendreLesChiffresEchappe(f.libelle) + '</button>';
-  }).join('');
-  corps += '<details class="comprendre-les-chiffres-depli"><summary><span class="comprendre-les-chiffres-depli-titre">Comment lire ces chiffres</span>' +
-    '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>' +
-    '<div class="comprendre-les-chiffres-depli-corps"><p>Quatre fiches du Lexique expliquent les mots qui reviennent dans ces chiffres :</p><div class="d-flex flex-wrap gap-2">' + boutons + '</div></div></details>';
+
   return '<details class="comprendre-les-chiffres-depli" data-bloc="entreprises"' + (_comprendreLesChiffresEstVueEnsemble() ? ' open' : '') + '>' +
     '<summary><span class="comprendre-les-chiffres-depli-titre">' + _comprendreLesChiffresEchappe(COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC.t) + '</span>' +
     '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>' +
     '<span class="comprendre-les-chiffres-depli-desc">' + _comprendreLesChiffresEchappe(COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC.d) + '</span></summary>' +
     '<div class="comprendre-les-chiffres-depli-corps">' + corps + '</div></details>';
-}
-
-// Ouvre une fiche du Lexique depuis le bloc ; « Retour » ramène ici.
-function _comprendreLesChiffresBrancherEntreprises() {
-  document.querySelectorAll('[data-comprendre-les-chiffres-fiche-lexique]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var id = this.getAttribute('data-comprendre-les-chiffres-fiche-lexique');
-      if (typeof lexiqueOuvrirFiche !== 'function') { return; }
-      // Le retour ramène à la même place de la page, pas en haut (consigne 146).
-      var revenirALaPlace = typeof memoriserPositionPourRetour === 'function' ? memoriserPositionPourRetour() : null;
-      lexiqueOuvrirFiche(id, null, 'Comprendre les chiffres', 'comprendre-les-chiffres', function () {
-        _comprendreLesChiffresEtat.ecran = 'accueil';
-        naviguerVers('comprendre-les-chiffres');
-        if (revenirALaPlace) { revenirALaPlace(); }
-      });
-    });
-  });
 }
 
 // Retrouve une section d'un document annuel par titre (comparaison
@@ -3768,7 +4339,8 @@ function _comprendreLesChiffresChargerFiches(cle) {
     .catch(function () { fini(null, 'erreur'); });
 }
 function _comprendreLesChiffresChargerFichesDuNiveau() {
-  var cles = (_comprendreLesChiffresNiveauCourant() === 'ue' ? ['europe', 'europeEconomie'] : ['salaires', 'niveauVie', 'portraitChiffres', 'ageInsee', 'formationInsee', 'secteursInsee', 'tempsPartielInsee', 'medecinsInsee', 'demandeursDares']).concat(['smicDares', 'pouvoirAchat']);
+  // « salaires » aussi à ce niveau : la rubrique « Salaire moyen et salaire médian » du bloc du Smic lit les chiffres nationaux.
+  var cles = (_comprendreLesChiffresNiveauCourant() === 'ue' ? ['europe', 'europeEconomie', 'salaires'] : ['salaires', 'niveauVie', 'portraitChiffres', 'ageInsee', 'formationInsee', 'secteursInsee', 'tempsPartielInsee', 'medecinsInsee', 'demandeursDares']).concat(['smicDares', 'pouvoirAchat']);
   cles.forEach(_comprendreLesChiffresChargerFiches);
 }
 
@@ -3839,16 +4411,6 @@ function _comprendreLesChiffresFicheDepli(titre, corpsHTML) {
     '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>' +
     '<div class="comprendre-les-chiffres-depli-corps">' + corpsHTML + '</div></details>';
 }
-// Boutons « Lire dans le Lexique » d'un dépliant d'aide : un vrai bouton par mot (le clic est branché par _comprendreLesChiffresBrancherEntreprises, « Retour » ramène ici).
-function _comprendreLesChiffresFicheBoutonsLexique(fiches) {
-  return '<div class="d-flex flex-wrap gap-2 mt-2">' + fiches.map(function (f) {
-    return '<button type="button" class="btn btn-outline-secondary btn-sm" data-comprendre-les-chiffres-fiche-lexique="' + _comprendreLesChiffresEchappe(f.id) + '"><i class="bi bi-book"></i> ' + _comprendreLesChiffresEchappe(f.libelle) + '</button>';
-  }).join('') + '</div>';
-}
-// Les mots d'une carte expliqués dans le Lexique : une ligne d'invitation et un vrai bouton par mot (consigne 146 : remplace les dépliants d'aide).
-function _comprendreLesChiffresFicheMotsLexique(fiches) {
-  return '<p class="comprendre-les-chiffres-compare mb-0 mt-2"><i class="bi bi-book"></i> Pour comprendre les mots :</p>' + _comprendreLesChiffresFicheBoutonsLexique(fiches);
-}
 function _comprendreLesChiffresFichePara(texte, dernier) {
   return '<p class="comprendre-les-chiffres-compare ' + (dernier ? 'mb-0' : 'mb-1') + '">' + texte + '</p>';
 }
@@ -3868,7 +4430,7 @@ function _comprendreLesChiffresFicheCarte(o) {
   return '<div class="comprendre-les-chiffres-indic" id="comprendre-les-chiffres-carte-' + o.id + '">' +
     '<p class="comprendre-les-chiffres-indic-q">' + _comprendreLesChiffresEchappe(o.q) + '</p>' + grand +
     (o.tendance ? '<span class="comprendre-les-chiffres-tendance">' + o.tendance + '</span>' : '') +
-    _comprendreLesChiffresVuesAssembler(o.id, '', o.groupes, null) +
+    _comprendreLesChiffresVuesAssembler(o.id, '', o.groupes, null, o.vues) +
     (o.extra || '') + _comprendreLesChiffresFicheSourcesHTML(o.sources || []) + '</div>';
 }
 
@@ -3913,25 +4475,83 @@ function _comprendreLesChiffresSalaireCarteMoyen(S, niveau, nom, art) {
   });
 }
 
+// « Ce que cela veut dire, concrètement » sous « Selon le métier exercé » (consigne 244) : entièrement calculé à partir des chiffres de la carte,
+// chaque chiffre garde sa source ; une phrase sans ses chiffres n'est pas écrite. lus : [{ nom, lu, fr }], maxi et mini : { n, nom, v }.
+function _comprendreLesChiffresSalaireLectureMetiers(lus, maxi, mini, art) {
+  if (!maxi || !mini || lus.length < 2 || maxi.nom === mini.nom) { return ''; }
+  var fe = _comprendreLesChiffresFicheEuros, esc = _comprendreLesChiffresEchappe;
+  var titre = function (v) { return v.src ? v.src.titre : 'Insee'; };
+  var calcul = function (a, b, texte) {
+    var d = Math.round(Math.abs(a.n)) - Math.round(Math.abs(b.n));
+    return _comprendreLesChiffresSmicChiffre(esc(texte != null ? texte : fe(Math.abs(d))),
+      'Calcul : ' + fe(Math.max(a.n, b.n)) + ' moins ' + fe(Math.min(a.n, b.n)) + ', à partir des chiffres de ' + titre(a));
+  };
+  var lignes = [];
+  var ecart = Math.round(maxi.v.n) - Math.round(mini.v.n);
+  if (ecart > 0 && mini.v.n > 0) {
+    var fois = maxi.v.n / mini.v.n;
+    lignes.push('<b>Entre les groupes :</b> dans ' + esc(art) + ', les ' + esc(maxi.nom.toLowerCase()) + ' gagnent en moyenne ' + calcul(maxi.v, mini.v) + ' de plus par mois que les ' + esc(mini.nom.toLowerCase()) +
+      ' (' + _comprendreLesChiffresSmicChiffre(esc(fe(maxi.v.n)), titre(maxi.v) + ' : ' + maxi.nom + ', ' + maxi.v.nom) + ' contre ' +
+      _comprendreLesChiffresSmicChiffre(esc(fe(mini.v.n)), titre(mini.v) + ' : ' + mini.nom + ', ' + mini.v.nom) + ')' +
+      (fois >= 1.05 ? ', soit environ ' + _comprendreLesChiffresSmicChiffre(esc(_comprendreLesChiffresFormatDecimal(fois, 1) + ' fois'), 'Calcul : ' + fe(maxi.v.n) + ' divisé par ' + fe(mini.v.n) + ', à partir des chiffres de ' + titre(maxi.v)) + ' plus' : '') + '.');
+  }
+  var faceFrance = lus.map(function (g) {
+    var d = Math.round(g.lu.n) - Math.round(g.fr.n);
+    return 'les ' + esc(g.nom.toLowerCase()) + ' : ' + (d === 0 ? 'le même niveau' : calcul(g.lu, g.fr) + (d < 0 ? ' de moins' : ' de plus'));
+  });
+  lignes.push('<b>Face à la France entière :</b> par mois, ' + faceFrance.join(' ; ') + '.');
+  return '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    lignes.map(function (l) { return '<p class="comprendre-les-chiffres-lecture-ligne">' + l + '</p>'; }).join('') + '</div>';
+}
+
 // Les quatre grands groupes d'emplois du territoire lu, chacun à côté de la France.
 function _comprendreLesChiffresSalaireCarteMetiers(S, niveau, nom, art) {
-  var groupe = niveau === 'dep' ? 'departements' : 'regions', groupes = [], srcs = [], maxi = null;
+  var groupe = niveau === 'dep' ? 'departements' : 'regions', groupes = [], srcs = [], maxi = null, mini = null, lus = [];
   COMPRENDRE_LES_CHIFFRES_CSP.forEach(function (c) {
     var lu = _comprendreLesChiffresFicheValeur(S, groupe, nom, c.champ), fr = _comprendreLesChiffresFicheFrance(S, c.champ);
     if (!lu || !fr) { return; }
+    lus.push({ nom: c.nom, lu: lu, fr: fr });
+    if (!mini || lu.n < mini.n) { mini = { n: lu.n, nom: c.nom, v: lu }; }
     groupes.push({ titre: c.nom, lignes: [_comprendreLesChiffresFicheLigne(nom, lu, _comprendreLesChiffresFicheEuros, true), _comprendreLesChiffresFicheLigne('France', fr, _comprendreLesChiffresFicheEuros)] });
     srcs.push(lu.src);
     if (!maxi || lu.n > maxi.n) { maxi = { n: lu.n, nom: c.nom, v: lu }; }
   });
   if (!groupes.length) { return ''; }
+  var lecture = _comprendreLesChiffresSalaireLectureMetiers(lus, maxi, mini, art);
   return _comprendreLesChiffresFicheCarte({
     id: 'sal-metiers-' + niveau, q: 'Selon le métier exercé, dans ' + art,
     grand: { texte: _comprendreLesChiffresFicheEuros(maxi.n), src: maxi.v.src ? maxi.v.src.titre + ' : ' + maxi.v.nom : '', unite: 'net par mois, ' + maxi.nom.toLowerCase() },
     tendance: '&#8599; ' + _comprendreLesChiffresEchappe(maxi.nom.toLowerCase()) + ' : le groupe le mieux payé',
     groupes: groupes,
-    extra: _comprendreLesChiffresFicheEncart('Moyennes par grand groupe d’emplois : à l’intérieur d’un groupe, les salaires varient beaucoup selon le métier. Le salaire métier par métier n’est pas publié par les sources consultées.'),
+    extra: lecture + _comprendreLesChiffresFicheEncart('Moyennes par grand groupe d’emplois : à l’intérieur d’un groupe, les salaires varient beaucoup selon le métier. Le salaire métier par métier n’est pas publié par les sources consultées.'),
     sources: srcs
   });
+}
+
+// « Ce que cela veut dire, concrètement » sous « Hommes et femmes » (consigne 245) : calculé à partir des quatre moyennes de la carte, chaque chiffre
+// avec sa source ; jamais un jugement, seulement des écarts en euros. h, f : territoire ; hf, ff : France.
+function _comprendreLesChiffresSalaireLectureSexes(h, f, hf, ff, art) {
+  var fe = _comprendreLesChiffresFicheEuros, esc = _comprendreLesChiffresEchappe;
+  var titre = h.src ? h.src.titre : 'Insee';
+  var ch = function (n, quoi) { return _comprendreLesChiffresSmicChiffre(esc(fe(n)), titre + ' : ' + quoi); };
+  var ecart = function (a, b) {
+    return _comprendreLesChiffresSmicChiffre(esc(fe(Math.abs(Math.round(a) - Math.round(b)))),
+      'Calcul : ' + fe(Math.max(a, b)) + ' moins ' + fe(Math.min(a, b)) + ', à partir des chiffres de ' + titre);
+  };
+  var dLu = Math.round(h.n) - Math.round(f.n), dFr = Math.round(hf.n) - Math.round(ff.n);
+  var lignes = [];
+  if (dLu !== 0) {
+    lignes.push('<b>Par mois :</b> dans ' + esc(art) + ', ' + (dLu > 0 ? 'les hommes gagnent' : 'les femmes gagnent') + ' en moyenne ' + ecart(h.n, f.n) + ' de plus que ' + (dLu > 0 ? 'les femmes' : 'les hommes') +
+      ' (' + ch(Math.max(h.n, f.n), (dLu > 0 ? 'salaire moyen des hommes, ' : 'salaire moyen des femmes, ') + h.nom) + ' contre ' + ch(Math.min(h.n, f.n), (dLu > 0 ? 'salaire moyen des femmes, ' : 'salaire moyen des hommes, ') + h.nom) + '), soit environ ' +
+      _comprendreLesChiffresSmicChiffre(esc(fe(Math.abs(dLu) * 12)), 'Calcul : ' + fe(Math.abs(dLu)) + ' multiplié par 12 mois, à partir des chiffres de ' + titre) + ' sur une année.');
+  } else {
+    lignes.push('<b>Par mois :</b> dans ' + esc(art) + ', les moyennes des hommes et des femmes sont au même niveau (' + ch(h.n, 'salaire moyen des hommes, ' + h.nom) + ').');
+  }
+  if (dFr !== 0 && dLu !== 0) {
+    lignes.push('<b>Face à la France :</b> l’écart y est de ' + ecart(hf.n, ff.n) + ' par mois, ' + (Math.abs(dLu) < Math.abs(dFr) ? 'plus grand qu’ici.' : (Math.abs(dLu) > Math.abs(dFr) ? 'plus petit qu’ici.' : 'le même qu’ici.')));
+  }
+  return '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    lignes.map(function (l) { return '<p class="comprendre-les-chiffres-lecture-ligne">' + l + '</p>'; }).join('') + '</div>';
 }
 
 // Hommes et femmes : les deux moyennes du territoire lu, chacune à côté de la France.
@@ -3949,7 +4569,7 @@ function _comprendreLesChiffresSalaireCarteSexes(S, niveau, nom, art) {
       { titre: 'Hommes', lignes: [_comprendreLesChiffresFicheLigne(nom, h, _comprendreLesChiffresFicheEuros, true), _comprendreLesChiffresFicheLigne('France', hf, _comprendreLesChiffresFicheEuros)] },
       { titre: 'Femmes', lignes: [_comprendreLesChiffresFicheLigne(nom, f, _comprendreLesChiffresFicheEuros, true), _comprendreLesChiffresFicheLigne('France', ff, _comprendreLesChiffresFicheEuros)] }
     ],
-    extra: phrase + _comprendreLesChiffresFicheEncart('Ce sont des moyennes, tous métiers confondus, ramenées à un temps plein. Elles ne disent pas ce que gagnent une femme et un homme à poste égal, ni ce que vous pouvez espérer.'),
+    extra: phrase + _comprendreLesChiffresSalaireLectureSexes(h, f, hf, ff, art) + _comprendreLesChiffresFicheEncart('Ce sont des moyennes, tous métiers confondus, ramenées à un temps plein. Elles ne disent pas ce que gagnent une femme et un homme à poste égal, ni ce que vous pouvez espérer.'),
     sources: [h.src]
   });
 }
@@ -4055,17 +4675,14 @@ function _comprendreLesChiffresSalaireCarteMediane(S) {
     id: 'sal-mediane-fr', q: 'Combien gagne un salarié du privé en France ?',
     grand: { texte: fe(med.n), src: med.src ? med.src.titre + ' : médiane' : '', unite: 'net par mois, la médiane' },
     groupes: [{ lignes: lignes }],
-    // La définition de la médiane vit dans le Lexique (une seule source) : la carte ne garde que ce qui lui est propre et le renvoi.
-    extra: _comprendreLesChiffresFicheEncart('Montants nets par mois, comme si chaque personne avait travaillé à temps plein toute l’année.') +
-      _comprendreLesChiffresFicheMotsLexique([{ id: 'mediane', libelle: 'Lire « Médiane » dans le Lexique' }]),
+    // La définition de la médiane vit dans le Lexique (une seule source) : la carte ne garde que ce qui lui est propre. Aucun renvoi ici : le bouton « Mots de cette page », tout en bas, les donne (consigne 240).
+    extra: _comprendreLesChiffresFicheEncart('Montants nets par mois, comme si chaque personne avait travaillé à temps plein toute l’année.'),
     sources: [med.src]
   });
 }
 
 // ---------- les cartes de niveau de vie (Insee) ----------
-// Le sens de « niveau de vie » et de « médiane » est écrit dans le Lexique (une seule source, consigne 146) : la carte n'en garde que le renvoi.
-var COMPRENDRE_LES_CHIFFRES_NIVEAU_VIE_AIDE =
-  _comprendreLesChiffresFicheMotsLexique([{ id: 'niveau-de-vie', libelle: 'Lire « Niveau de vie » dans le Lexique' }, { id: 'mediane', libelle: 'Lire « Médiane » dans le Lexique' }]);
+// Le sens de « niveau de vie » et de « médiane » est écrit dans le Lexique (une seule source, consigne 146) : aucun renvoi sur les cartes, le bouton « Mots de cette page » les donne (consigne 240).
 
 function _comprendreLesChiffresNiveauVieCarteTerritoire(N, niveau, nom, art) {
   var groupe = niveau === 'dep' ? 'departements' : 'regions';
@@ -4089,7 +4706,7 @@ function _comprendreLesChiffresNiveauVieCarteTerritoire(N, niveau, nom, art) {
     id: 'nv-' + niveau, q: 'Quel est le niveau de vie dans ' + art + ' ?',
     grand: { texte: fe(r.lu.n), src: r.lu.src ? r.lu.src.titre + ' : ' + r.lu.nom : '', unite: 'par an, niveau de vie médian' },
     tendance: _comprendreLesChiffresFicheEcart(r.lu.n, france.n, 'la médiane de la France métropolitaine'),
-    groupes: groupes, extra: COMPRENDRE_LES_CHIFFRES_NIVEAU_VIE_AIDE,
+    groupes: groupes,
     sources: [r.lu.src]
   });
 }
@@ -4129,7 +4746,6 @@ function _comprendreLesChiffresNiveauVieCarteFrance(N) {
       { titre: 'Les cinq départements au niveau de vie le plus haut', lignes: cl.slice(0, 5).map(ligne).concat([lf]).sort(function (a, b) { return b.n - a.n; }) },
       { titre: 'Les cinq départements au niveau de vie le plus bas', lignes: cl.slice(-5).map(ligne).concat([lf]).sort(function (a, b) { return b.n - a.n; }) }
     ],
-    extra: COMPRENDRE_LES_CHIFFRES_NIVEAU_VIE_AIDE,
     sources: [france.src]
   });
 }
@@ -4164,8 +4780,8 @@ function _comprendreLesChiffresPouvoirAchatCarte(D) {
   var sens = an.n < 0 ? 'a baissé' : (an.n > 0 ? 'a augmenté' : 'est resté stable');
   var detail = _comprendreLesChiffresFichePara('Le pouvoir d’achat, c’est ce que les revenus d’un foyer permettent d’acheter une fois les prix pris en compte. Si les revenus montent moins vite que les prix, le pouvoir d’achat baisse, même si le salaire augmente.') +
     _comprendreLesChiffresFichePara('« Par unité de consommation » : l’Insee partage le revenu du foyer selon sa taille (1 pour la première personne adulte, 0,5 pour chaque autre adulte, 0,3 pour chaque enfant), pour comparer des foyers différents.') +
-    _comprendreLesChiffresFichePara('C’est une moyenne pour toute la France : elle ne dit pas ce que vit chaque foyer, ni ce qui se passe dans votre département.', true) +
-    _comprendreLesChiffresFicheBoutonsLexique([{ id: 'pouvoir-achat', libelle: 'Lire « Pouvoir d’achat » dans le Lexique' }, { id: 'inflation', libelle: 'Lire « Inflation » dans le Lexique' }]);
+    // Pas de boutons « Lire … dans le Lexique » ici (décision Denis 2026-11-10, consigne 238) : le bouton « Mots de cette page », tout en bas, les donne déjà.
+    _comprendreLesChiffresFichePara('C’est une moyenne pour toute la France : elle ne dit pas ce que vit chaque foyer, ni ce qui se passe dans votre département.', true);
   return _comprendreLesChiffresFicheCarte({
     id: 'pouvoir-achat', q: 'Le pouvoir d’achat des ménages a-t-il augmenté ou baissé ?',
     grand: { texte: fs(an.n), src: an.src ? an.src.titre + ' : France' : '', unite: 'de pouvoir d’achat en ' + derniere + ' (par unité de consommation, France)' },
@@ -4204,14 +4820,37 @@ function _comprendreLesChiffresSmicCarteBeneficiaires(D) {
   var finAvant = quand('fin {debut}');
   var montants = ancien && nouveau ? ' entre l’ancien Smic (' + _comprendreLesChiffresFormatEuros(ancien.n) + ' brut de l’heure) et le nouveau (' + _comprendreLesChiffresFormatEuros(nouveau.n) + ')' : ' entre l’ancien et le nouveau Smic';
   var detail = (finAvant !== null ? _comprendreLesChiffresFichePara('La Dares compte les salariés dont la rémunération de base, ' + finAvant + ', se trouvait' + montants + '. Certains touchent un peu plus grâce à des primes : ils sont comptés quand même.') : '') +
-    (femmes ? _comprendreLesChiffresFichePara('Parmi ces salariés, <b>' + _comprendreLesChiffresEchappe(fp(femmes.n)) + '</b> sont des femmes' + (femmesPrive ? ' (elles sont ' + fp(femmesPrive.n) + ' des salariés du privé)' : '') + '.') : '') +
     _comprendreLesChiffresFichePara('Ne sont pas comptés : apprentis, stagiaires, intérimaires, agriculture, fonction publique, particuliers employeurs et Mayotte.' + (champ && totalPrive ? ' Le champ couvre ' + _comprendreLesChiffresFormatDecimal(champ.n, 1) + ' million' + (champ.n >= 2 ? 's' : '') + ' des ' + _comprendreLesChiffresFormatDecimal(totalPrive.n, 1) + ' millions de salariés.' : ''), true);
+  // « Ce que cela veut dire, concrètement » (demande de Denis du 10/11/2026 : équilibrer cette carte avec celle du pouvoir d'achat, à sa droite).
+  // Tout est CALCULÉ à partir des chiffres de la Dares ci-dessus ; chaque chiffre garde sa source ; une ligne sans ses chiffres n'est pas écrite.
+  var dares = (tous.src && tous.src.titre) || 'Dares';
+  var chD = function (texte, quoi) { return _comprendreLesChiffresSmicChiffre(_comprendreLesChiffresEchappe(texte), dares + ' : ' + quoi + ', France'); };
+  var unSur = function (x, quoi) {
+    var n = Math.round(100 / x.n);
+    return n >= 2 ? _comprendreLesChiffresSmicChiffre('1 sur ' + n, 'Calcul : 100 divisé par ' + fp(x.n) + ', arrondi, à partir des chiffres de ' + dares) : '';
+  };
+  var lecture = [];
+  if (unSur(tous)) { lecture.push('<b>En chiffres ronds :</b> environ ' + unSur(tous) + ' des salariés du privé est concerné.'); }
+  if (partiel && complet && unSur(partiel) && unSur(complet)) {
+    lecture.push('<b>Selon le temps de travail :</b> environ ' + unSur(partiel) + ' à temps partiel (' + chD(fp(partiel.n), 'part des salariés à temps partiel concernés') + '), contre environ ' +
+      unSur(complet) + ' à temps complet (' + chD(fp(complet.n), 'part des salariés à temps complet concernés') + ').');
+  }
+  if (tpe && autres && unSur(tpe) && unSur(autres)) {
+    lecture.push('<b>Selon la taille de l’entreprise :</b> environ ' + unSur(tpe) + ' dans une entreprise de 1 à 9 salariés (' + chD(fp(tpe.n), 'part des salariés des entreprises de 1 à 9 salariés concernés') + '), contre environ ' +
+      unSur(autres) + ' dans une entreprise de 10 salariés ou plus (' + chD(fp(autres.n), 'part des salariés des entreprises de 10 salariés ou plus concernés') + ').');
+  }
+  if (femmes && femmesPrive) {
+    lecture.push('<b>Les femmes :</b> ' + chD(fp(femmes.n), 'part des femmes parmi les salariés concernés') + ' des salariés concernés sont des femmes, alors qu’elles sont ' +
+      chD(fp(femmesPrive.n), 'part des femmes parmi les salariés du privé') + ' des salariés du privé.');
+  }
+  var lectureHTML = lecture.length ? '<div class="comprendre-les-chiffres-inflation-lecture"><p class="comprendre-les-chiffres-lecture-titre">Ce que cela veut dire, concrètement</p>' +
+    lecture.map(function (l) { return '<p class="comprendre-les-chiffres-lecture-ligne">' + l + '</p>'; }).join('') + '</div>' : '';
   return _comprendreLesChiffresFicheCarte({
     id: 'smic-beneficiaires', q: 'Combien de salariés sont concernés par la hausse du Smic ?',
     grand: { texte: fp(tous.n), src: tous.src ? tous.src.titre + ' : France' : '', unite: 'des salariés du privé' + (millions ? ', environ ' + _comprendreLesChiffresFormatDecimal(millions.n, 1) + ' million' + (millions.n >= 2 ? 's' : '') : '') + ', ' + auDate },
     tendance: tendance,
     groupes: [{ titre: 'Part des salariés qui bénéficient de la revalorisation', lignes: lignes }],
-    extra: _comprendreLesChiffresFicheDepli('Comment lire ce chiffre ?', detail),
+    extra: lectureHTML + _comprendreLesChiffresFicheDepli('Comment lire ce chiffre ?', detail),
     sources: [tous.src]
   });
 }
@@ -4220,8 +4859,7 @@ function _comprendreLesChiffresSmicCarteBeneficiaires(D) {
 // On situe le territoire face au plus haut, au plus bas et à la France métropolitaine, sans rang ni jugement.
 function _comprendreLesChiffresPauvreteAide() {
   return _comprendreLesChiffresFichePara('On parle de pauvreté monétaire quand le niveau de vie d’une personne est inférieur à 60 % du niveau de vie médian de la France métropolitaine. Le taux de pauvreté est la part des habitants dans ce cas : 17 % veut dire environ 17 personnes sur 100.') +
-    _comprendreLesChiffresFichePara('C’est une mesure de revenu, pas un jugement sur les personnes : elle ne dit pas ce que coûtent le logement ou les courses, ni si une aide a été demandée.', true) +
-    _comprendreLesChiffresFicheBoutonsLexique([{ id: 'niveau-de-vie', libelle: 'Lire « Niveau de vie » dans le Lexique' }, { id: 'mediane', libelle: 'Lire « Médiane » dans le Lexique' }]);
+    _comprendreLesChiffresFichePara('C’est une mesure de revenu, pas un jugement sur les personnes : elle ne dit pas ce que coûtent le logement ou les courses, ni si une aide a été demandée.', true);
 }
 function _comprendreLesChiffresPauvreteEcart(n, ref, refLibelle) {
   var e = Math.round((n - ref) * 10) / 10;
@@ -4750,7 +5388,6 @@ function _comprendreLesChiffresRenduAccueil() {
 }
 
 function _comprendreLesChiffresBrancherAccueil() {
-  _comprendreLesChiffresBrancherEntreprises();
   _comprendreLesChiffresBrancherMaFiche();
   _comprendreLesChiffresBrancherBmo();
   _comprendreLesChiffresBrancherVues();
@@ -4837,7 +5474,8 @@ function _comprendreLesChiffresRenduAssistants() {
   return '<div class="comprendre-les-chiffres-assistants">' +
     (listeSans.length ? '<span class="comprendre-les-chiffres-note">Sans compte :</span> ' + listeSans.map(lien).join('') : '') +
     (listeCompte.length ? ' <span class="comprendre-les-chiffres-note">Avec un compte :</span> ' + listeCompte.map(lien).join('') : '') +
-    '</div>';
+    '</div>' +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('chatgpt-recherche-web') : '');
 }
 
 // Encart « ne collez pas d'information personnelle ».
@@ -5170,6 +5808,23 @@ if (typeof module !== 'undefined') {
     _comprendreLesChiffresParserDocAnnuel: _comprendreLesChiffresParserDocAnnuel,
     _comprendreLesChiffresParserFiche: _comprendreLesChiffresParserFiche,
     _comprendreLesChiffresRenduEcartsGenerique: _comprendreLesChiffresRenduEcartsGenerique,
+    _comprendreLesChiffresChoisirEcarts: _comprendreLesChiffresChoisirEcarts,
+    _comprendreLesChiffresAnPrecedentDepuisSerie: _comprendreLesChiffresAnPrecedentDepuisSerie,
+    _comprendreLesChiffresInflationSens: _comprendreLesChiffresInflationSens,
+    _comprendreLesChiffresInflationPhrase: _comprendreLesChiffresInflationPhrase,
+    _comprendreLesChiffresInflationLecture: _comprendreLesChiffresInflationLecture,
+    _comprendreLesChiffresMatriceTrimestresHTML: _comprendreLesChiffresMatriceTrimestresHTML,
+    _comprendreLesChiffresNationalPlusRecent: _comprendreLesChiffresNationalPlusRecent,
+    _comprendreLesChiffresVuesDonnees: _comprendreLesChiffresVuesDonnees,
+    _comprendreLesChiffresVuesLignesHTML: _comprendreLesChiffresVuesLignesHTML,
+    _comprendreLesChiffresClasserTerritoire: _comprendreLesChiffresClasserTerritoire,
+    _comprendreLesChiffresEtat: _comprendreLesChiffresEtat,
+    _comprendreLesChiffresRenduOuSeSituer: _comprendreLesChiffresRenduOuSeSituer,
+    COMPRENDRE_LES_CHIFFRES_CARTES: COMPRENDRE_LES_CHIFFRES_CARTES,
+    _comprendreLesChiffresInflationSerieValide: _comprendreLesChiffresInflationSerieValide,
+    _comprendreLesChiffresInflationMoisPlus: _comprendreLesChiffresInflationMoisPlus,
+    COMPRENDRE_LES_CHIFFRES_DEPARTEMENTS_SUIVIS: COMPRENDRE_LES_CHIFFRES_DEPARTEMENTS_SUIVIS,
+    COMPRENDRE_LES_CHIFFRES_REGIONS_SUIVIES: COMPRENDRE_LES_CHIFFRES_REGIONS_SUIVIES,
     _comprendreLesChiffresRenduGraphe: _comprendreLesChiffresRenduGraphe,
     _comprendreLesChiffresTendance: _comprendreLesChiffresTendance,
     _comprendreLesChiffresNombre: _comprendreLesChiffresNombre,
@@ -5184,6 +5839,15 @@ if (typeof module !== 'undefined') {
     _comprendreLesChiffresFormatEuros: _comprendreLesChiffresFormatEuros,
     _comprendreLesChiffresFormatPourcent: _comprendreLesChiffresFormatPourcent,
     _comprendreLesChiffresRenduCarteSmic: _comprendreLesChiffresRenduCarteSmic,
+    _comprendreLesChiffresRubriqueSalaires: _comprendreLesChiffresRubriqueSalaires,
+    _comprendreLesChiffresSalaireLectureMetiers: _comprendreLesChiffresSalaireLectureMetiers,
+    _comprendreLesChiffresSalaireLectureSexes: _comprendreLesChiffresSalaireLectureSexes,
+    _comprendreLesChiffresSalaireCarteMetiers: _comprendreLesChiffresSalaireCarteMetiers,
+    _comprendreLesChiffresSmicLecture: _comprendreLesChiffresSmicLecture,
+    _comprendreLesChiffresFiches: _comprendreLesChiffresFiches,
+    _comprendreLesChiffresFichesEtat: _comprendreLesChiffresFichesEtat,
+    _comprendreLesChiffresSmicEtat: _comprendreLesChiffresSmicEtat,
+    _comprendreLesChiffresCartesCoteACoteHTML: _comprendreLesChiffresCartesCoteACoteHTML,
     _comprendreLesChiffresRenduCarteInflation: _comprendreLesChiffresRenduCarteInflation,
     _comprendreLesChiffresVuesAssembler: _comprendreLesChiffresVuesAssembler,
     _comprendreLesChiffresVuesBarresHTML: _comprendreLesChiffresVuesBarresHTML,

@@ -103,6 +103,8 @@
   async function rendre(modele, avecWord, reglages) {
     window.__cvPdfSansRemplissageInitial = true;   // pas de remplissage d'office : on compare des rendus a reglages par defaut
     var copie = dossierFixe();
+    // Option d'outil (scripts/rendu/imprimerReel.js) : se comporter comme un CV NEUF de l'application, avec le remplissage d'ouverture (jamais pose par le banc lui-meme).
+    if (window.__bancRemplissage) { copie.miseEnPageAutoFaite = false; copie.pdfReglages = null; }
     var ref = window.dossier; window.dossier = copie;
     var iframe = document.createElement('iframe');
     iframe.setAttribute('aria-hidden', 'true'); iframe.setAttribute('tabindex', '-1');
@@ -128,6 +130,8 @@
         });
         await attente(1800);
       }
+      // Option d'outil (scripts/rendu/essaiRectanglesPousse.js) : une fonction posee par l'outil peut modifier le CV rendu (deplacer des rectangles...) avant la capture.
+      if (typeof window.__bancAvantCapture === 'function') { await window.__bancAvantCapture(w); await attente(1500); }
       var d = w.document;
       var conteneur = d.getElementById('conteneurPage');
       var html = conteneur.innerHTML;

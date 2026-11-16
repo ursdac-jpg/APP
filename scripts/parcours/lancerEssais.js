@@ -38,6 +38,9 @@ if (require.main === module) (async () => {
   p.on('console', m => { if (m.type() === 'error') { errs.push('CONSOLE ' + m.text().slice(0, 160)); } });
   await p.goto('http://app.local/index.html');
   await p.waitForTimeout(3500);
+  // UN VRAI CLIC dans la page avant les essais : sans lui Chrome ignore les entrées d'historique créées par script et les essais des flèches « Précédent » / « Suivant » échouent (leçon 9.45, en-tête de parcours_smoke.js).
+  await p.mouse.click(3, 600);
+  await p.waitForTimeout(300);
   await p.evaluate(fs.readFileSync(path.join(__dirname, 'parcours_smoke.js'), 'utf8'));
   const res = await p.evaluate(async (ids) => { return await window.__parcours(ids.length ? ids : undefined); }, ids);
   fs.writeFileSync(sortie, JSON.stringify({ nbOk: res.nbOk, nbEchecs: res.nbEchecs, echecs: res.echecs, errs }, null, 1));

@@ -19,7 +19,6 @@ var BASE_CONNAISSANCES_ERIP = {
   actionsProfessionnelles: CATALOGUE_ACTIONS_PRO,
   environnementsProfessionnels: CATALOGUE_PERSONNES_MATERIELS_LIEUX,
   environnementsTravail: CATALOGUE_ENVIRONNEMENTS_TRAVAIL,
-  valeursProfessionnelles: CATALOGUE_VALEURS_PROFESSIONNELLES,
   // TACHE 33A : 'competences' (categorieCompetence) et 'certifications'
   // (CATALOGUE_CERTIFICATIONS) sont assignees par app.js (voir js/app.js,
   // BASE_CONNAISSANCES_ERIP.competences = categorieCompetence).
@@ -46,6 +45,9 @@ function aplatirCatalogue(catalogue) {
 var MODULES_RECHERCHABLES = [
   { titre: 'Créer un nouveau CV', desc: 'L’assistant construit votre CV avec vous, pas à pas.',
     motsCles: ['cv', 'creer un cv', 'nouveau cv', 'faire un cv', 'curriculum', 'curriculum vitae', 'mon cv'], cible: 'carte:mesdocuments' },
+  // Lot 7 du panneau des expériences (16/11/2026) : choisir ses missions et ses compétences pour son CV (étape « Vos informations » puis « Vos missions et compétences »).
+  { titre: 'Choisir mes missions et mes compétences pour mon CV', desc: 'Dans « Créer un nouveau CV » : ajoutez chaque expérience, choisissez le métier, puis cochez les missions et les compétences que vous avez vraiment, sans rien écrire.',
+    motsCles: ['mes missions', 'choisir mes missions', 'missions de mon metier', 'missions de mon poste', 'missions et competences', 'mes missions et competences', 'ajouter une experience', 'ajouter une experience professionnelle', 'mes experiences', 'experiences professionnelles', 'que mettre dans mon cv', 'quoi ecrire dans mon cv', 'mettre en premier mes missions', 'mettre en avant mes missions', 'ordre de mes missions', 'missions les plus importantes', 'ce que je faisais au travail'], cible: 'carte:mesdocuments' },
   // TACHE (chantier « Reformuler et presenter mon CV », etape 7, 2026-09-07) :
   // 4e parcours de « Mes documents ». cible 'carte:mesdocuments' comme les
   // autres parcours CV -> la personne clique ensuite la tuile (qui remet
@@ -65,8 +67,10 @@ var MODULES_RECHERCHABLES = [
     motsCles: ['problemes corriges', 'bugs corriges', 'dysfonctionnement', 'dysfonctionnements', 'ce qui a ete corrige', 'corrections', 'signalements', 'probleme signale', 'erreur corrigee', 'panne', 'ca ne marchait pas'], cible: 'fn:nouveautes-corriges' },
   { titre: 'Reprendre mon CV', desc: 'Vous avez déjà un CV : déposez-le une seule fois, puis complétez-le, reformulez-le (avec l’assistant), ou refaites-le vous-même dans un de nos modèles (sans assistant).',
     motsCles: ['reprendre mon cv', 'mettre a jour mon cv', 'mise a jour cv', 'completer mon cv', 'j ai deja un cv', 'deposer mon cv', 'modifier mon cv', 'corriger mon cv', 'cv existant', 'refaire mon cv moi meme', 'mettre mon cv en page', 'mon cv dans un modele', 'sans assistant', 'garder mes mots', 'ne rien changer a mon cv'], cible: 'carte:mesdocuments' },
-  { titre: 'Reformuler et présenter mon CV', desc: 'Un CV déjà complet, remis au bon niveau de langage et de vocabulaire pour le poste visé, sans en changer le fond.',
+  { titre: 'Le reformuler et le présenter (Reprendre mon CV)', desc: 'Un CV déjà complet, remis au bon niveau de langage et de vocabulaire pour le poste visé, sans en changer le fond.',
     motsCles: ['reformuler mon cv', 'presenter mon cv', 'mettre en forme mon cv', 'remettre mon cv au propre', 'rendre mon cv presentable', 'cv mal presente', 'cv pas assez professionnel', 'ameliorer la formulation de mon cv', 'meilleure formulation cv', 'vocabulaire de mon cv', 'reformulation cv'], cible: 'carte:mesdocuments' },
+  { titre: 'Le refaire moi-même dans un modèle (Reprendre mon CV)', desc: 'Sans assistant : vous classez et vous vérifiez les informations de votre CV, puis vous choisissez un de nos modèles. Rien n’est reformulé.',
+    motsCles: ['refaire mon cv moi meme', 'le refaire moi meme dans un modele', 'mon cv dans un modele', 'mettre mon cv en page', 'cv sans assistant', 'sans assistant', 'garder mes mots', 'ne rien changer a mon cv', 'changer la mise en page de mon cv', 'classer mon cv'], cible: 'route:cv-sans-assistant-intro' },
   { titre: 'Écrire ma lettre de motivation avec l’assistant', desc: 'Écrire une lettre de motivation avec un assistant, phrase par phrase.',
     motsCles: ['lettre', 'lettre de motivation', 'motivation', 'co-construire ma lettre'], cible: 'route:co-lettre' },
   { titre: 'M’entraîner à un entretien d’embauche', desc: 'S’entraîner aux questions d’un entretien, à l’écrit ou à l’oral.',
@@ -162,7 +166,9 @@ function rechercherBaseConnaissances(texte) {
   }
 
   // Metiers
-  var metiersTrouves = (BASE_CONNAISSANCES_ERIP.metiers || []).filter(function (m) { return correspond(m.nom); });
+  // Les fiches generees du ROME (niveau 'rome') ne figurent pas ici : leurs intitules arrivent par le repertoire elargi (js/app.js), mieux classes
+  // et en nombre limite ; sinon une recherche comme « agent » afficherait une centaine de cartes (import du ROME, consigne 263).
+  var metiersTrouves = (BASE_CONNAISSANCES_ERIP.metiers || []).filter(function (m) { return m.niveau !== 'rome' && correspond(m.nom); });
   if (metiersTrouves.length) { resultats.push({ categorie: 'Metiers', icone: '💼', resultats: metiersTrouves, type: 'metier' }); }
 
   // Competences (savoir-faire) et Savoir-etre : issues de categorieCompetence
@@ -186,7 +192,7 @@ function rechercherBaseConnaissances(texte) {
       if (correspond(s) && !savoirsSet[s]) { savoirsSet[s] = true; savoirsTrouves.push(s); }
     });
   }
-  (BASE_CONNAISSANCES_ERIP.metiers || []).forEach(function (m) { collecterSavoirs(m.savoirs); });
+  (BASE_CONNAISSANCES_ERIP.metiers || []).forEach(function (m) { if (m.niveau !== 'rome') { collecterSavoirs(m.savoirs); } });   // savoirs des fiches du ROME : pas dans la recherche (des centaines de lignes)
   aplatirCatalogue(BASE_CONNAISSANCES_ERIP.actionsProfessionnelles).forEach(function (a) { collecterSavoirs(a.savoirs); });
   aplatirCatalogue(BASE_CONNAISSANCES_ERIP.environnementsProfessionnels).forEach(function (a) { collecterSavoirs(a.savoirs); });
   aplatirCatalogue(BASE_CONNAISSANCES_ERIP.environnementsTravail).forEach(function (a) { collecterSavoirs(a.savoirs); });
@@ -206,9 +212,8 @@ function rechercherBaseConnaissances(texte) {
 
   // TACHE (retour utilisateur : recherche allegee) : "Valeurs professionnelles"
   // retiree de la recherche -- chapitre juge trop leger pour etre propose
-  // comme categorie de recherche a part entiere (reste utilisable ailleurs,
-  // ex. l'etape "Attentes" du parcours guide, via CATALOGUE_VALEURS_PROFESSIONNELLES
-  // directement, sans passer par cette fonction).
+  // comme categorie de recherche a part entiere ; referentiel
+  // retire le 12/11/2026, consigne 261).
 
   // TACHE (retour utilisateur : "domaine d'activite" dans la recherche) :
   // memes valeurs que la banniere "Domaine cible" (secteursDisponibles(),
@@ -508,9 +513,9 @@ function trouverMetiersAssocies(competence, max) {
 }
 
 // TACHE (amelioration recherche) : meme principe que trouverMetiersAssocies(),
-// mais pour les champs identifies par id (environnement, valeurs) plutot que
-// par correspondance de texte (chaque metier possede deja environnement[] et
-// valeurs[] : ids des catalogues environnementsTravail/valeursProfessionnelles).
+// mais pour les champs identifies par id (environnement) plutot que
+// par correspondance de texte (chaque metier possede deja environnement[] :
+// ids du catalogue environnementsTravail).
 function trouverMetiersParChampId(champ, id, max) {
   max = max || 5;
   return (BASE_CONNAISSANCES_ERIP.metiers || []).filter(function (m) {

@@ -119,12 +119,16 @@ function _mtCharger(onOk, onErreur) {
     // Registre des adresses (liens de l'écran Insertion) : s'il manque, les boutons concernés n'apparaissent pas, le reste du module fonctionne.
     fetch(MT_URL_REGISTRE_LIENS).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
     // Fiches « inaccessibles pour l'instant » : s'il manque, aucune fiche n'est en attente (le reste du module fonctionne).
-    fetch(MT_BASE + 'en-attente.txt').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; })
+    fetch(MT_BASE + 'en-attente.txt').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
+    // Magasins des enseignes relevés dans le registre des entreprises (fichier produit par un script) : s'il manque, seules les adresses saisies à la main s'affichent.
+    fetch(MT_BASE + 'magasins-generes.txt').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; })
   ].concat(communes)).then(function (t) {
     var toutes = [];
-    for (var i = 5; i < t.length; i++) { toutes = toutes.concat(mtParserCommunes(t[i]).lignes); }
+    for (var i = 6; i < t.length; i++) { toutes = toutes.concat(mtParserCommunes(t[i]).lignes); }
     var attente = mtAttenteParCle(mtParserAttente(t[4]).lignes);
-    _mtDonnees = { employeurs: mtAppliquerAttente('employeurs', mtParserEmployeurs(t[0]).lignes, attente), communes: toutes, lieux: mtAppliquerAttente('lieux', mtParserLieux(t[1]).lignes, attente), offres: mtAppliquerAttente('offres', mtParserOffres(t[2]).lignes, attente), liens: mtLiensDepuisRegistre(t[3]) };
+    var fiches = mtParserEmployeurs(t[0]).lignes;
+    mtFusionnerMagasins(fiches, mtParserMagasinsGeneres(t[5]));
+    _mtDonnees = { releveMagasins: mtDateReleveMagasins(t[5]), employeurs: mtAppliquerAttente('employeurs', fiches, attente), communes: toutes, lieux: mtAppliquerAttente('lieux', mtParserLieux(t[1]).lignes, attente), offres: mtAppliquerAttente('offres', mtParserOffres(t[2]).lignes, attente), liens: mtLiensDepuisRegistre(t[3]) };
     _mtChargement = 'ok';
     onOk();
   }).catch(function () { _mtChargement = 'erreur'; onErreur(); });
@@ -559,7 +563,7 @@ function _mtRenduEmploi() {
     _mtRenduChampRecherche('Un secteur ou un métier (exemple : caissier)') +
     _mtPortesPrincipales() +
     '<h2 class="h5 fw-bold text-uppercase text-muted mt-4">Les 21 secteurs</h2><p class="small text-muted">Les secteurs qui ont une liste passent en premier. Chaque secteur a son objet-icône et trois exemples de métiers.</p>' +
-    '<div class="grille-sous-cartes-accueil">' + tuiles + '</div>' +
+    '<div class="grille-sous-cartes-accueil mt-grille-secteurs">' + tuiles + '</div>' +
     '<div class="comprendre-le-cadre-encart mt-4"><i class="bi bi-search"></i> Vous ne trouvez pas ? Chercher par vous-même sur un site officiel. ' + _mtBoutonRegistre('bonne-boite', 'La Bonne Boîte') + '</div>';
 }
 
@@ -1011,14 +1015,16 @@ function _mtRenduFiche() {
   var aff = mtContactAffichable(e, aujourdhui);
   var telsMagasins = e.etablissementsListe.some(function (x) { return x.telephone; });
   var lieux = e.etablissementsListe.map(function (x, i) {
-    return '<span class="d-block"><i class="bi bi-geo-alt"></i> <strong>' + _mtEsc(_mtCommuneCp(x.commune)) + '</strong>' + (x.adresse ? ' : ' + _mtEsc(x.adresse) : '') +
-      (x.telephone && fraicheur === 'recente' ? ' · <i class="bi bi-telephone"></i> ' + mtTelephoneAffiche(x.telephone) : (telsMagasins && !x.telephone && !e.telephone ? ' · <span class="text-muted">numéro en cours de vérification</span>' : '')) +
-      (x.adresse && fraicheur === 'recente' ? ' ' + boutonCarteHtml(mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) : '') + '</span>'; }).join('');
+    // Le numéro du magasin est écrit sur sa propre ligne, sous la commune (consigne 309) ; sur téléphone portable, le bouton « Appeler le ... » compose directement.
+    var ligneTel = x.telephone && fraicheur === 'recente' ? '<span class="d-block ms-4"><i class="bi bi-telephone"></i> Téléphone : ' + mtTelephoneAffiche(x.telephone) + '</span>'
+      : (telsMagasins && !x.telephone && !e.telephone && !x.genere ? '<span class="d-block ms-4 text-muted"><i class="bi bi-telephone"></i> Téléphone : numéro en cours de vérification</span>' : '');
+    return '<span class="d-block mb-1"><span class="d-block"><i class="bi bi-geo-alt"></i> <strong>' + _mtEsc(_mtCommuneCp(x.commune)) + '</strong>' + (x.adresse ? ' : ' + _mtEsc(x.adresse) : '') +
+      (x.adresse && fraicheur === 'recente' ? ' ' + boutonCarteHtml(mtUrlCarte(e.nom + ', ' + x.adresse + ', ' + x.commune)) : '') + '</span>' + ligneTel + '</span>'; }).join('');
   var verifie = fraicheur === 'recente' ? 'Vérifié le ' + _mtDateFr(e.date)
     : fraicheur === 'a-reverifier' ? 'Vérifié le ' + _mtDateFr(e.date) + ' : à revérifier, appelez avant de vous déplacer' : 'Pas encore vérifié';
   var pastilles = e.nature === 'interim' ? '<span class="badge rounded-pill text-bg-light me-1">Inscription à l’agence</span>' : e.modesListe.map(function (m) { return '<span class="badge rounded-pill text-bg-light me-1">' + _mtEsc(MT_MODES[m] || m) + '</span>'; }).join('');
   var infos = '<span class="d-block"><i class="bi bi-building"></i> ' + _mtNatureLibelle(e) + (e.nature === 'interim' ? '' : ' · ' + _mtEsc(_mtLibelleSecteur(e.secteur))) + '</span>' + lieux +
-    (e.telephone ? '<span class="d-block"><i class="bi bi-telephone"></i> <strong>' + (e.nature === 'interim' ? 'Téléphone de l’agence' : (telsMagasins ? 'Numéro général de l’enseigne' : 'Téléphone du standard')) + '</strong> : ' + (aff.telephone ? mtTelephoneAffiche(e.telephone) : 'numéro en cours de vérification') + '</span>' : '') +
+    (e.telephone ? '<span class="d-block"><i class="bi bi-telephone"></i> <strong>' + (e.nature === 'interim' ? 'Téléphone de l’agence' : (e.telephoneUnMagasin ? 'Numéro d’un des magasins de l’enseigne' : telsMagasins ? 'Numéro général de l’enseigne' : 'Téléphone du standard')) + '</strong> : ' + (aff.telephone ? mtTelephoneAffiche(e.telephone) : 'numéro en cours de vérification') + '</span>' : '') +
     '<span class="d-block"><i class="bi bi-clock-history"></i> ' + _mtEsc(verifie) + '</span>';
   var actions = '';
   if (aff.site) { actions += _mtBoutonLienExterne(e.site, 'Voir le site') + ' '; }
@@ -1032,6 +1038,7 @@ function _mtRenduFiche() {
   return _mtTitre('bi-building', e.nom) +
     (viaProspection ? '<p class="text-center">' + _mtPastilleProspection() + '</p>' : '') +
     '<div class="comprendre-le-cadre-encart mb-3">' + infos + '</div>' +
+    (e.nbMagasinsGeneres ? '<p class="small text-muted"><i class="bi bi-info-circle"></i> Les magasins ajoutés viennent du registre officiel des entreprises' + (_mtDonnees.releveMagasins ? ' (relevé du ' + _mtDateFr(_mtDonnees.releveMagasins) + ')' : '') + ' : la liste peut être incomplète ou dépassée. ' + (e.etablissementsListe.some(function (x) { return (x.genere || x.telephoneReleve) && x.telephone; }) ? 'Les numéros ajoutés viennent des sites des enseignes ou des contributeurs d’OpenStreetMap (© OpenStreetMap, licence ODbL) : ils peuvent avoir changé. ' : '') + 'Appelez avant de vous déplacer.</p>' : '') +
     (messageAgences ? _mtEncart('bi-info-circle', _mtEsc(messageAgences)) : '') +
     (viaProspection ? _mtEncart('bi-binoculars', '<strong>Pourquoi cet employeur est ici ?</strong> ' + _mtEsc(_mtPhraseProspection())) : '') +
     '<details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">' + pastilles +

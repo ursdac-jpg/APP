@@ -115,6 +115,7 @@
       e.dossiersCollecte = null; e.collecteSansAssistant = false; _comparerRenduEcran(2); await attente(800);
       var c = $('#contenuEcranComparer');
       cas('comparer/collecter : bouton « Aller sur Perplexity » présent', !!c.querySelector('button[data-cp-assistant="perplexity"].btn-lg'));
+      cas('comparer/collecter : la vidéo « activer la recherche web sur ChatGPT » est posée (consigne 267)', !!c.querySelector('[data-video-presentation="chatgpt-recherche-web"]'));
       cas('comparer/collecter : aucun texte de prompt affiché', !c.querySelector('.cp-prompt'));
       cas('comparer/collecter : « Je n’ai pas d’assistant » présent', !!c.querySelector('[data-cp-sans-assistant]'));
       await validerAssistant('perplexity'); _comparerRenduEcran(2); await attente(600);
@@ -664,7 +665,7 @@
     cas('voie 3 : « Fusionner avec le bloc du dessus » rassemble deux blocs', blocs() === n0, blocs());
     $('.btn-revoir-module').click(); await attente(1000);
     var revenir = [].filter.call(document.querySelectorAll('button'), function (b) { return /Revenir au module/i.test(b.innerText); })[0];
-    cas('voie 3 : « Revoir la présentation » ouvre la présentation de « Reprendre mon CV » avec « Revenir au module »', pageActuelle === 'reprendre-cv' && !!revenir);
+    cas('voie 3 : « Revoir la présentation » ouvre la page propre de la voie (titre exact, vidéo, « Revenir au module »)', pageActuelle === 'cv-sans-assistant-intro' && !!revenir && /Le refaire moi-même dans un modèle/.test(texte($('h1'))) && !!document.querySelector('[data-video-presentation="reprendre-sans"]'), pageActuelle);
     if (revenir) { revenir.click(); await attente(1200); }
     cas('voie 3 : « Revenir au module » ramène au classement, le travail est gardé', pageActuelle === 'cv-sans-assistant' && blocs() === n0, blocs());
     csaRetourMaVoie(); await attente(1000);
@@ -4075,10 +4076,9 @@
       $('#btnUcpmRevenirModuleBas').click(); await attente(700);
       cas('ucpm : « Revenir au module » rend la page de travail', pageActuelle === 'un-cv-plusieurs-metiers');
       _ucpmEtat.texteCV = 'CV de test'; naviguerVers('un-cv-plusieurs-metiers-intro'); await attente(500);
-      $('#btnUcpmCommencer').click(); await attente(700);
-      cas('ucpm : un travail en cours ressort avec « Continuer / Recommencer » et le gel', !!$('#btnUcpmRepriseContinuer') && !!$('#btnUcpmRepriseRecommencer') && !!$('.module-gel-actif'));
-      $('#btnUcpmRepriseContinuer').click(); await attente(600);
-      cas('ucpm : « Continuer » lève le gel et garde le travail', !$('.module-gel-actif') && _ucpmEtat && _ucpmEtat.texteCV === 'CV de test');
+      cas('ucpm : un travail en cours ressort sur la présentation avec « Reprendre / Recommencer », sans gel (consigne 258)', !!$('#btnUcpmRepriseContinuer') && !!$('#btnUcpmRepriseRecommencer') && !$('.module-gel-actif') && !$('#btnUcpmCommencer'));
+      $('#btnUcpmRepriseContinuer').click(); await attente(700);
+      cas('ucpm : « Reprendre » rouvre la page de travail et garde le travail', pageActuelle === 'un-cv-plusieurs-metiers' && !$('.module-gel-actif') && _ucpmEtat && _ucpmEtat.texteCV === 'CV de test');
       cas('ucpm : l’état part dans la disquette', !!collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers);
       ucpmReinitialiser();
       cas('ucpm : « Tout effacer » vide le module', collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers === null);
@@ -4096,7 +4096,8 @@
       cas('ucpm p1 : pas de bouton « Continuer » dans la page (un seul, dans la barre du bas)', !$('#btnUcpmVersAssistant'));
       cas('ucpm p1 : « Continuer » de la barre est bloqué tant que le CV n’est pas relu', $('#btnSuivantNavigation').disabled);
       etat.texteCV = 'Agent d’entretien des bâtiments, dix ans d’expérience.'; etat.cvRelu = true; ucpmRendrePage(); await attente(400);
-      cas('ucpm p1 : le texte relu et masqué est visible avant l’envoi', !!$('details textarea[readonly]'));
+      // Depuis le depot du CV en page (consigne 28, 30/10/2026), le texte relu et masque se revoit dans un bloc depliant (.depot-texte-revu), plus dans une zone de saisie en lecture seule.
+      cas('ucpm p1 : le texte relu et masqué est visible avant l’envoi', !!$('details .depot-texte-revu') && $('details .depot-texte-revu').textContent.indexOf('dix ans') >= 0);
       cas('ucpm p1 : CV relu : « Continuer » de la barre s’active, toujours aucun bouton dans la page', !$('#btnSuivantNavigation').disabled && !$('#btnUcpmVersAssistant'));
       $('#btnSuivantNavigation').click(); await attente(500);
       cas('ucpm p1 : le choix de l’assistant propose les six assistants de l’application', document.querySelectorAll('[data-assistant-ucpm]').length === 6);
@@ -7722,10 +7723,19 @@
       verifierAvantPasserAction('assistant'); await attente(500);
       cas('passer à l’action : une offre sans entreprise affiche un encart dans la page, pas de fenêtre', !!document.getElementById('encartEntrepriseManquante') && !document.querySelector('.fenetre-erip-boite'));
       document.getElementById('btnEncartEntrepriseIndiquer').click(); await attente(1000);
-      cas('passer à l’action : « Indiquer l’entreprise » renvoie sur « Votre objectif », où le champ est en page', pageActuelle === 'objectif' && !!document.getElementById('ciblageEntreprise'), pageActuelle);
+      cas('passer à l’action : « Indiquer l’entreprise » ouvre la zone dans la page (ni fenêtre, ni retour sur « Votre objectif »)', pageActuelle === 'revelation' && !!document.getElementById('zoneEntrepriseProfil') && !!document.getElementById('ciblageEntreprise') && !!document.getElementById('ciblageSite') && !document.getElementById('btnEncartEntrepriseIndiquer') && !document.querySelector('.fenetre-erip-boite'), pageActuelle);
+      champ = document.getElementById('ciblageEntreprise'); champ.value = 'Boulangerie Martin'; champ.dispatchEvent(new Event('input', { bubbles: true })); await attente(300);
+      cas('passer à l’action : le nom saisi est gardé, le message dit « spontanée auprès de » et le bouton redevient « Continuer »', dossier.rechercheCandidature.entreprise === 'Boulangerie Martin' && /spontanée auprès de : Boulangerie Martin/.test(document.getElementById('messageEntrepriseProfil').textContent) && /^Continuer/.test((document.querySelector('.barre-navigation-fixe .btn-primary') || {}).textContent.trim()));
+      document.getElementById('btnValiderEntrepriseProfil').click(); await attente(700);
+      cas('passer à l’action : « Valider » ferme la zone et laisse un rappel avec « Modifier l’entreprise »', !document.getElementById('zoneEntrepriseProfil') && !!document.getElementById('rappelEntrepriseProfil') && !!document.getElementById('btnModifierEntrepriseProfil'));
+      dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: 'Offre : boulanger chez Pain Doré', texteOffre: 'Offre : boulanger chez Pain Doré', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
       naviguerVers('revelation'); await attente(1000);
-      verifierAvantPasserAction('assistant'); await attente(400);
-      document.getElementById('btnEncartEntrepriseSans').click(); await attente(1000);
+      cas('passer à l’action : une offre collée sans nom d’entreprise ne déclenche pas le message', !document.getElementById('encartEntrepriseManquante'));
+      dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+      naviguerVers('revelation'); await attente(1000);
+      cas('passer à l’action : « Votre profil » affiche le message d’emblée et le bouton de droite devient « Continuer sans entreprise »', !!document.getElementById('encartEntrepriseManquante') && /Continuer sans entreprise/.test((document.querySelector('.barre-navigation-fixe .btn-primary') || {}).textContent || ''));
+      var btnSansBarre = [].slice.call(document.querySelectorAll('.barre-navigation-fixe button')).filter(function (b) { return /Continuer sans entreprise/.test(b.textContent); })[0];
+      btnSansBarre.click(); await attente(1000);
       cas('passer à l’action : « Continuer sans » avance et repasse la recherche en « simple »', pageActuelle === 'assistant' && dossier.typeRecherche === 'simple' && dossier.rechercheCandidature.entreprise === '', pageActuelle + ' / ' + dossier.typeRecherche);
     } finally {
       Object.keys(dossier).forEach(function (k) { delete dossier[k]; }); Object.assign(dossier, sauve); rechercheGuidee = rgSauve;
@@ -7899,19 +7909,20 @@
     var h1 = function () { return ((document.querySelector('h1') || {}).textContent || '').trim(); };
     try {
       localStorage.setItem('erip_departement_ressources', '24');
-      cas('accueil : sur la machine locale (localhost) le module « Qui fait quoi » est ouvert, fermé partout ailleurs', mtOuvert() === true && /^(localhost|127\.0\.0\.1)$/.test(location.hostname), location.hostname);
+      cas('accueil : le module « Qui fait quoi » est ouvert au public (interrupteur MT_OUVERT), sur n’importe quelle machine, sans aperçu mémorisé', MT_OUVERT === true && mtOuvert() === true, location.hostname);
       ['aps_employeurs_decouverte_vue', 'aps_mon_territoire_decouverte_vue', 'aps_regard_recruteur_dans_analyse_vue'].forEach(function (k) { localStorage.removeItem(k); });
       await ouvrir('preparer');
-      var halo = function () { return [].slice.call(document.querySelectorAll('.sous-carte-accueil.aide-pulse-repere strong')).map(function (x) { return x.textContent; }); };
-      cas('accueil : le halo de découverte signale « Employeurs près de chez moi » à la première ouverture', JSON.stringify(halo()) === JSON.stringify(['Employeurs près de chez moi']), halo().join(' | '));
+      var halo = function () { return [].slice.call(document.querySelectorAll('.sous-carte-accueil')).filter(function (x) { return getComputedStyle(x).animationName !== 'none'; }).map(function (x) { return (x.querySelector('strong') || x).textContent; }); };   // tuiles qui pulsent (il ne doit y en avoir aucune)
+      cas('accueil : aucune tuile de la carte ne pulse à la première ouverture (seule la bulle d’information pulse, décision de Denis 12/11/2026)', halo().length === 0, halo().join(' | '));
       fermerFenetreERIP(); await ouvrir('preparer');
-      cas('accueil : le halo ne revient pas à la deuxième ouverture', halo().length === 0, halo().join(' | '));
       cas('accueil : « Employeurs près de chez moi » apparaît quand le module est ouvert (ou en aperçu), « Un regard sur mon CV » n’y est plus', noms().length === 3 && noms()[2] === 'Employeurs près de chez moi' && noms().indexOf('Un regard sur mon CV') === -1, noms().join(' | '));
       document.getElementById('btnCarteAccueilEmployeurs').click(); await attente(800);
       cas('accueil : « Employeurs près de chez moi » ouvre d’abord sa propre présentation', location.hash === '#employeurs-intro' && /Beaucoup d’emplois ne sont jamais annoncés/.test(document.body.textContent) && !!document.getElementById('btnEmployeursCommencer'), location.hash);
       document.getElementById('btnEmployeursCommencer').click(); await attente(2500);
       cas('accueil : « Voir les employeurs » ouvre le module directement sur les employeurs par secteur', location.hash === '#mon-territoire' && _mtEtat.ecran === 'emploi' && _mtEntree === 'employeurs', location.hash + ' ' + _mtEtat.ecran);
-      clic('[data-mt-secteur="commerce-vente"]'); await attente(300); clic('[data-mt-fiche]'); await attente(300);
+      clic('[data-mt-secteur="commerce-vente"]'); await attente(300);
+      clic('[data-mt-commune-v="*"]'); await attente(400);   // la liste d'un secteur n'apparaît qu'après le choix d'une commune ou « Voir toute la liste »
+      clic('[data-mt-fiche]'); await attente(300);
       cas('employeurs : « Revenir à la page principale » apparaît dès qu’on a quitté la liste des secteurs', !!document.getElementById('btnMonTerritoirePagePrincipale') && _mtPile.length === 2, String(_mtPile.length));
       history.back(); await attente(500);
       cas('employeurs : la flèche « Précédent » du navigateur revient à l’écran d’avant (la liste), pas à l’accueil', location.hash === '#mon-territoire' && _mtEtat.ecran === 'liste' && /Commerce et vente/.test(h1()), location.hash + ' ' + _mtEtat.ecran);
@@ -7930,14 +7941,14 @@
       _mtAllerVersPrecedent(); await attente(600);
       cas('employeurs : « Retour » depuis les secteurs ramène à la présentation des employeurs', location.hash === '#employeurs-intro', location.hash);
       await ouvrir('analyse');
-      cas('accueil : le halo de découverte signale « Un regard sur mon CV » dans sa nouvelle carte', halo().indexOf('Un regard sur mon CV') !== -1, halo().join(' | '));
+      cas('accueil : aucune tuile de « Outils d’analyse » ne pulse à la première ouverture', halo().length === 0, halo().join(' | '));
       cas('accueil : « Outils d’analyse » a quatre outils, « Un regard sur mon CV » en deuxième', JSON.stringify(noms()) === JSON.stringify(['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']), noms().join(' | '));
       cas('accueil : chaque outil d’analyse commence par sa question', [].slice.call(document.querySelectorAll('.sous-carte-accueil span')).every(function (x) { return /\?/.test(x.textContent); }));
       document.getElementById('btnCarteAccueilRegardRecruteur').click(); await attente(1000);
       cas('accueil : « Un regard sur mon CV » ouvre toujours sa présentation depuis « Outils d’analyse »', location.hash === '#regard-recruteur-intro', location.hash);
       await ouvrir('informe');
       cas('accueil : « Se tenir informé » montre « Qui fait quoi » quand le module est ouvert', noms().indexOf('Qui fait quoi') !== -1, noms().join(' | '));
-      cas('accueil : le halo de découverte signale « Qui fait quoi »', halo().indexOf('Qui fait quoi') !== -1, halo().join(' | '));
+      cas('accueil : aucune tuile de « Se tenir informé » ne pulse à la première ouverture', halo().length === 0, halo().join(' | '));
       fermerFenetreERIP();
       naviguerVers('cv'); await attente(700);
       var textes = {}; (AIDE_PAGES[pageActuelle] || []).forEach(function (e) { textes[e.titre] = String(aideTexte(e)).replace(/<[^>]+>/g, ''); });
@@ -8376,22 +8387,25 @@
     var confirmer = async function () { var b = $('.btn-danger'); if (b) { b.click(); await attente(700); } return !!b; };
     mgReinitialiser(); _creerCvToutEffacer();
     naviguerVers('creer-cv'); await attente(900);
-    cas('créer un CV : trois cartes de départ (à la main, avec l\'assistant, à partir de mon récit)', !!$('#btnCreerCvSansAssistant') && !!$('#btnCreerCvAvecAssistant') && !!$('#btnCreerCvRecit'), 'cartes manquantes');
-    cas('créer un CV : le bloc « Voir nos modèles » est toujours sous les cartes', !!$('#blocMgVoirModeles'), 'bloc absent');
+    cas('créer un CV : trois voies (1 avec l\'assistant, 2 à partir de mon récit, 3 à la main), chacune avec sa vidéo et son bouton de départ', !!$('#btnCreerCvAvecAssistant') && !!$('#btnCreerCvRecit') && !!$('#btnCreerCvSansAssistant') && [].slice.call(document.querySelectorAll('.voie-presentation .carte-voie-num')).map(function (e) { return e.textContent; }).join('|') === 'Voie 1|Voie 2|Voie 3' && document.querySelectorAll('.voie-presentation [data-video-presentation]').length === 3 && !/Comment ça se passe concrètement/.test(texte($('.intro-module-parcours'))), 'voies manquantes ou dans le mauvais ordre');
+    cas('créer un CV : le bloc « Voir nos modèles » est toujours sous les trois voies', !!$('#blocMgVoirModeles'), 'bloc absent');
 
-    $('#btnCreerCvRecit').click(); await attente(900);
-    cas('récit : la carte ouvre la présentation du parcours', pageActuelle === 'decouverte-intro' && /À partir de mon récit/.test(texte($('h1'))), pageActuelle);
+    $('#btnCreerCvRecit').click(); await attente(1200);
+    cas('récit : le bouton de la voie 2 démarre directement le parcours (plus de page de présentation entre les deux)', pageActuelle === 'decouverte' && typeof _decouverteRenduEtape === 'function', pageActuelle);
     var retour = [].slice.call(document.querySelectorAll('.barre-navigation button')).filter(function (b) { return /Retour/.test(b.textContent); })[0];
     retour.click(); await attente(900);
-    cas('récit : « Retour » de la présentation ramène à « Créer un nouveau CV »', pageActuelle === 'creer-cv', pageActuelle);
+    cas('récit : « Retour » du premier écran ramène à la page commune « Créer un nouveau CV »', pageActuelle === 'creer-cv' && !!$('#btnCreerCvRecitContinuer'), pageActuelle);
+    $('#btnCreerCvRecitRecommencer').click(); await attente(700); await confirmer();
+    naviguerVers('decouverte-intro'); await attente(800);
+    cas('récit : la page propre de la voie reste accessible (« Revoir la présentation », recherche, anciens liens)', /À partir de mon récit/.test(texte($('h1'))) && !!$('#btnDecouverteCommencer'), pageActuelle);
+    naviguerVers('creer-cv'); await attente(700);
 
-    $('#btnCreerCvRecit').click(); await attente(700);
-    $('#btnDecouverteCommencer').click(); await attente(1200);
+    $('#btnCreerCvRecit').click(); await attente(1200);
     cas('récit : « Raconter mon parcours » démarre le parcours (route decouverte)', pageActuelle === 'decouverte' && typeof _decouverteRenduEtape === 'function', pageActuelle);
     naviguerVers('creer-cv'); await attente(900);
-    cas('récit commencé : l\'introduction propose « Continuer » et « Recommencer », plus les trois cartes', !!$('#btnCreerCvRecitContinuer') && !!$('#btnCreerCvRecitRecommencer') && !$('#btnCreerCvSansAssistant') && !$('#btnCreerCvRecit'), 'état récit commencé absent');
+    cas('récit commencé : l\'introduction propose « Continuer » et « Recommencer », les trois blocs de voie restent lisibles sans bouton de départ', !!$('#btnCreerCvRecitContinuer') && !!$('#btnCreerCvRecitRecommencer') && !$('#btnCreerCvSansAssistant') && !$('#btnCreerCvRecit') && !$('#btnCreerCvAvecAssistant') && document.querySelectorAll('.voie-presentation [data-video-presentation]').length === 3, 'état récit commencé absent');
     $('#btnCreerCvRecitContinuer').click(); await attente(1200);
-    cas('récit : « Continuer » rouvre le parcours sans second encart de reprise', pageActuelle === 'decouverte' && _decouverteReprisePendante === false, String(_decouverteReprisePendante));
+    cas('récit : « Continuer » rouvre le parcours sans second encart de reprise', pageActuelle === 'decouverte' && !document.querySelector("#app .encart-reprise-module") && !document.querySelector("#app .module-gel-actif"), pageActuelle);
     naviguerVers('creer-cv'); await attente(700);
     $('#btnCreerCvRecitRecommencer').click(); await attente(700);
     var avaitDialogue = await confirmer();
@@ -8405,13 +8419,11 @@
     cas('récit terminé : « Recommencer » vide le CV et rend les trois cartes', !!$('#btnCreerCvRecit') && !dossier.decouverteTerminee && !(dossier.experiences && dossier.experiences.length), 'CV non vidé');
 
     // un seul parcours à la fois : démarrer « à la main » vide la session du récit
-    $('#btnCreerCvRecit').click(); await attente(700);
-    $('#btnDecouverteCommencer').click(); await attente(1000);
+    $('#btnCreerCvRecit').click(); await attente(1000);
     naviguerVers('creer-cv'); await attente(700);
     $('#btnCreerCvRecitRecommencer').click(); await attente(500); await confirmer();
-    $('#btnCreerCvSansAssistant').click(); await attente(700);
-    $('#btnCreerCvCommencer').click(); await attente(900);
-    cas('à la main : le départ remet à zéro la session du récit (un seul parcours à la fois)', typeof _decouverteRenduEtape !== 'function' && dossier.modeCreation === 'nouveau' && dossier.creationSansAssistant === true, 'session récit toujours vivante');
+    $('#btnCreerCvSansAssistant').click(); await attente(900);
+    cas('à la main : le départ mène directement à « Votre objectif » et remet à zéro la session du récit (un seul parcours à la fois)', pageActuelle === 'objectif' && typeof _decouverteRenduEtape !== 'function' && dossier.modeCreation === 'nouveau' && dossier.creationSansAssistant === true, pageActuelle);
     dossier.objectif = 'offre';   // le parcours est « commencé » dès que l'objectif est posé (même règle qu'avant)
     naviguerVers('creer-cv'); await attente(700);
     cas('à la main commencé : « Continuer » et « Recommencer » du parcours classique, jamais ceux du récit', !!$('#btnCreerCvReprendre') && !$('#btnCreerCvRecitContinuer'), 'mauvais état');
@@ -8419,12 +8431,9 @@
     // les deux présentations (à la main, avec l'assistant) : même patron que les autres modules
     _creerCvToutEffacer();
     naviguerVers('creer-cv'); await attente(700);
-    cas('créer un CV : l\'explication « Comment ça se passe concrètement » est en haut, avant les cartes, avec les modèles ; plus de bloc « À quoi ça sert » ni d\'encart de langue',
-      /Comment ça se passe concrètement/.test(texte($('.intro-module-parcours'))) && texte($('.intro-module-parcours')).indexOf('Comment ça se passe') < texte($('.intro-module-parcours')).indexOf('Comment voulez-vous') && /tel quel/.test(texte($('.intro-module-parcours'))) && !/À quoi ça sert/.test(texte($('.intro-module-parcours'))) && !/Ce que ces parcours ne font pas/.test(texte($('.intro-module-parcours'))) && !/traduire cette page/.test(texte($('.intro-module-parcours'))), 'page des trois parcours');
-    $('#btnCreerCvAvecAssistant').click(); await attente(800);
-    cas('avec l\'assistant : la carte ouvre sa présentation, départ dans la barre du bas', pageActuelle === 'creer-cv-assistant' && /Commencer/.test(texte($('.barre-navigation #btnCreerCvCommencer'))) && /Ce qui va se passer/.test(texte($('.intro-module-parcours'))) && /Ce que ce parcours ne fait pas/.test(texte($('.intro-module-parcours'))), pageActuelle);
-    $('#btnCreerCvCommencer').click(); await attente(900);
-    cas('avec l\'assistant : le bouton de départ lance « Votre objectif »', pageActuelle === 'objectif' && dossier.modeCreation === 'nouveau' && dossier.creationSansAssistant === false, pageActuelle);
+    cas('créer un CV : la présentation du module est en haut, puis les trois voies, puis les modèles ; plus de section « Comment ça se passe concrètement »', !/Comment ça se passe concrètement/.test(texte($('.intro-module-parcours'))) && texte($('.intro-module-parcours')).indexOf('Trois façons de faire') < texte($('.intro-module-parcours')).indexOf('Voir nos modèles') && /tel quel/.test(texte($('.intro-module-parcours'))) && !/Comment voulez-vous/.test(texte($('.intro-module-parcours'))), 'ordre ou contenu de la page commune');
+    $('#btnCreerCvAvecAssistant').click(); await attente(900);
+    cas('avec l\'assistant : le bouton de la voie 1 lance directement « Votre objectif »', pageActuelle === 'objectif' && dossier.modeCreation === 'nouveau' && dossier.creationSansAssistant === false, pageActuelle);
     cas('écran de travail : la bande « Revoir la présentation » est là', !!$('.btn-revoir-module'), 'bande absente');
     $('.btn-revoir-module').click(); await attente(800);
     cas('« Revoir la présentation » ouvre la présentation en détour : « Revenir au module », pas de « Commencer »', pageActuelle === 'creer-cv-assistant' && !!$('#btnCreerCvRevenirModuleHaut') && !!$('#btnCreerCvRevenirModuleBas') && !$('#btnCreerCvCommencer') && !$('#btnCreerCvReprendre'), pageActuelle);
@@ -8432,13 +8441,16 @@
     cas('« Revenir au module » ramène à l\'écran quitté', pageActuelle === 'objectif', pageActuelle);
     var retourObj = [].slice.call(document.querySelectorAll('.barre-navigation button')).filter(function (b) { return /Retour/.test(b.textContent); })[0];
     retourObj.click(); await attente(800);
-    cas('« Retour » du premier écran ramène à la présentation du parcours (jamais à l\'accueil)', pageActuelle === 'creer-cv-assistant' && !$('#btnCreerCvRevenirModuleHaut'), pageActuelle);
+    cas('« Retour » du premier écran ramène à la page commune (jamais à l\'accueil)', pageActuelle === 'creer-cv' && !$('#btnCreerCvRevenirModuleHaut'), pageActuelle);
     dossier.objectif = 'offre'; naviguerVers('creer-cv-assistant'); await attente(700);
     cas('présentation d\'un parcours déjà commencé : « Continuer » et « Recommencer », pas de départ qui effacerait', !!$('#btnCreerCvReprendre') && !!$('#btnCreerCvRecommencer') && !$('#btnCreerCvCommencer'), 'état commencé absent');
     _creerCvToutEffacer();
     naviguerVers('creer-cv'); await attente(700);
-    $('#btnCreerCvSansAssistant').click(); await attente(800);
-    cas('à la main : la carte ouvre sa présentation', pageActuelle === 'creer-cv-main' && /à la main/i.test(texte($('h1'))) && !!$('#btnCreerCvCommencer'), pageActuelle);
+    $('#btnCreerCvSansAssistant').click(); await attente(900);
+    cas('à la main : le bouton de la voie 3 lance directement « Votre objectif » (mode sans assistant)', pageActuelle === 'objectif' && dossier.creationSansAssistant === true, pageActuelle);
+    _creerCvToutEffacer();
+    naviguerVers('creer-cv-main'); await attente(800);
+    cas('à la main : la page propre de la voie reste accessible avec son bouton de départ', /à la main/i.test(texte($('h1'))) && !!$('#btnCreerCvCommencer'), pageActuelle);
     _creerCvToutEffacer();
 
     // la Boîte à outils n'a plus l'entrée
@@ -8481,8 +8493,7 @@
     cas('essai : « J\'ai fini » rend le vrai dossier et garde la liste', pageActuelle === 'creer-cv' && window.dossier === vrai && !window._modeEssaiModeles && _mgListe.length === 5, pageActuelle + ' / ' + _mgListe.length);
 
     // le départ d'un parcours vide le CV : la liste doit survivre
-    $('#btnCreerCvSansAssistant').click(); await attente(700);
-    $('#btnCreerCvCommencer').click(); await attente(900);
+    $('#btnCreerCvSansAssistant').click(); await attente(1200);   // départ direct (consigne 246) : plus de page de présentation entre les deux
     cas('départ d\'un parcours : la liste des modèles gardés survit au vidage du CV', _mgListe.length === 5, String(_mgListe.length));
     dossier.identite = { civilite: 'Monsieur', nom: 'Durand', prenom: 'Alex', adresse: '5 rue des Tilleuls', codePostal: '24000', telephone: '0611223344', email: 'alex@mail.fr', ville: 'Périgueux' }; dossier.identiteEnregistree = true;
     dossier.titreCV = 'Cariste'; dossier.metierCible = 'Cariste'; dossier.formatCV = 'pdf';
@@ -9481,10 +9492,10 @@
   // ---------------- Cohérence de mon dossier : deux écrans « Coller la réponse » -> fenêtre unique (dette B.17, 28/10/2026) ----------------
   async function parcoursCoherenceCollage() {
     var ouvrirReel = window.open; var etatStore = ctStoreExporterEtat();
-    var sauve = { collecte: _ctEnCollecte, intro: _ctVoirIntro, reprise: _ctReprisePendante, etape: _ctEtapeEntretienAvance };
+    var sauve = { collecte: _ctEnCollecte, intro: _ctVoirIntro, etape: _ctEtapeEntretienAvance };
     try {
       window.open = function () { return {}; };
-      _ctEnCollecte = false; _ctVoirIntro = false; _ctReprisePendante = false; _ctEtapeEntretienAvance = null; _ctRetourAccueil = false;
+      _ctEnCollecte = false; _ctVoirIntro = false; _ctEtapeEntretienAvance = null; _ctRetourAccueil = false;
       var dossierCt = ctCreerDossierTransversal({ cv: 'Camille Martin. Agent de sécurité chez Sécuritas de 2022 à 2024.', lettre: 'Madame, Monsieur, je souhaite postuler.' });
       ctStoreDefinirDossier(dossierCt);
       ctStoreDefinirDiagnostic(ctCreerDiagnostic({ dossierId: dossierCt.id, promptTexte: 'x' }));
@@ -9540,7 +9551,7 @@
       cas('cohérence collage : aucune erreur', false, e && e.message);
     } finally {
       window.open = ouvrirReel; _etatTransitionIA = null; ctStoreRestaurerEtat(etatStore);
-      _ctEnCollecte = sauve.collecte; _ctVoirIntro = sauve.intro; _ctReprisePendante = sauve.reprise; _ctEtapeEntretienAvance = sauve.etape; naviguerVers('accueil');
+      _ctEnCollecte = sauve.collecte; _ctVoirIntro = sauve.intro; _ctEtapeEntretienAvance = sauve.etape; naviguerVers('accueil');
     }
   }
 
@@ -9741,8 +9752,8 @@
         $('#verifDocBtnEnregistrer').click(); await attente(700);
         return relu;
       };
-      var etatCt = { enCollecte: _ctEnCollecte, intro: _ctVoirIntro, reprise: _ctReprisePendante, store: ctStoreExporterEtat() };
-      _ctCollecteEtat = null; _ctReinitialiserDepots(); _ctEnCollecte = true; _ctVoirIntro = false; _ctReprisePendante = false;
+      var etatCt = { enCollecte: _ctEnCollecte, intro: _ctVoirIntro, store: ctStoreExporterEtat() };
+      _ctCollecteEtat = null; _ctReinitialiserDepots(); _ctEnCollecte = true; _ctVoirIntro = false;
       naviguerVers('coherence-transversale'); await attente(1200);
       cas('dépôt en page cohérence : les points 1, 2 et 3 ont chacun leurs deux cartes, aucune fenêtre, plus de bouton « Déposer »', !!$('#ctCollecteBlocCv #depotPageChoisir-cv') && !!$('#ctCollecteBlocLettre #depotPageColler-lettre') && !!$('#ctCollecteBlocEntretien #depotPageColler-entretien') && !$('#assistantDepotCV') && !$('#fenetreERIP') && !$('#btnCtCollecteDeposerCv') && !$('#btnCtCollecteDeposerLettre') && !$('#btnCtCollecteDeposerEntretien'));
       cas('dépôt en page cohérence : « Continuer » est grisé et la lettre attend le CV', !!$('#btnCtCollecteContinuer').disabled && $('#ctCollecteBlocLettre').classList.contains('bloc-verrouille'));
@@ -9776,7 +9787,7 @@
         cas('dépôt en page cohérence rapport : la nouvelle lettre est en attente (« Modifié, pas encore relancé »), la zone se referme', /Nouvelle version/.test(_ctModificationsEnAttente.lettre || '') && !$('#ctDepotModif') && /Modifié, pas encore relancé/.test(texte($('#app'))), String(_ctModificationsEnAttente.lettre));
       }
       _ctModificationsEnAttente = {}; _ctModifEnCours = null; _ctReinitialiserDepots(); _ctCollecteEtat = null;
-      ctStoreRestaurerEtat(etatCt.store); _ctEnCollecte = etatCt.enCollecte; _ctVoirIntro = etatCt.intro; _ctReprisePendante = etatCt.reprise;
+      ctStoreRestaurerEtat(etatCt.store); _ctEnCollecte = etatCt.enCollecte; _ctVoirIntro = etatCt.intro;
       // ---- Candidater depuis la recherche : « J'ai déjà un CV » mène à la page de dépôt du module, sans fenêtre ----
       var cvDispoReel = window.cvDisponible, rgReel = rechercheGuidee, modeLEReel = _prepLEMode, ecranLEReel = _prepLEEcran, etatLEReel = _prepLEEtat, actifReel = _reprendreCvActif;
       window.cvDisponible = function () { return false; };

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le bloc du Smic, disposition sur écran d'ordinateur</title>
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { background: var(--bg-subtle); color: var(--text-strong); font-family: system-ui, sans-serif; margin: 0; padding: 1rem; }
+  .mq-page { max-width: 1150px; margin: 0 auto; }
+  .mq-page.mq-tel { max-width: 375px; }
+  .mq-bandeau { background: var(--bg-card); border: 1px solid var(--border); border-radius: .5rem; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .92rem; }
+  .mq-bandeau button { margin: .2rem .3rem 0 0; padding: .3rem .8rem; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: .4rem; cursor: pointer; font-weight: 600; }
+  /* les lignes du bloc : deux colonnes sur ordinateur, une colonne sur téléphone (comme aujourd'hui) */
+  .mq-ligne { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; margin-bottom: 1.2rem; align-items: stretch; }
+  .mq-tel .mq-ligne { grid-template-columns: minmax(0, 1fr); }
+  .mq-etiq-ligne { font-size: .78rem; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: .05rem .7rem; display: inline-block; margin: 0 0 .4rem; }
+  .mq-carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: .8rem; padding: 1rem 1.2rem; }
+  .mq-carte h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+  .mq-gros { font-size: 2.2rem; font-weight: 800; color: var(--accent); line-height: 1.1; margin: .1rem 0; }
+  .mq-gros small { font-size: 1rem; font-weight: 600; color: var(--text-strong); }
+  .mq-pastille { display: inline-block; font-size: .86rem; font-weight: 700; border: 1px solid var(--border-strong); border-radius: 999px; padding: .1rem .6rem; color: var(--text-muted); }
+  .mq-petit { font-size: .88rem; color: var(--text-muted); margin: .3rem 0; }
+  .mq-boite { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: .5rem; padding: .6rem .8rem; font-size: .9rem; margin: .6rem 0; }
+  .mq-boite.mq-accent { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .mq-boite h4 { margin: 0 0 .3rem; font-size: .9rem; }
+  .mq-note-maq { font-size: .8rem; color: var(--text-muted); font-style: italic; margin: .3rem 0 0; }
+  .mq-chiffre { border-bottom: 1px dotted var(--accent); cursor: help; }
+  .mq-btns { display: flex; gap: .4rem; margin: .4rem 0; }
+  .mq-btns span { font-size: .8rem; border: 1px solid var(--border-strong); border-radius: .3rem; padding: .1rem .6rem; color: var(--text-muted); }
+  .mq-btns span.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-depli { border: 1px solid var(--border); border-radius: .4rem; padding: .4rem .7rem; font-size: .88rem; color: var(--accent); font-weight: 600; margin: .6rem 0; }
+  .mq-lien { display: inline-block; border: 1px solid var(--accent); color: var(--accent); border-radius: .4rem; padding: .25rem .8rem; font-size: .86rem; font-weight: 600; margin: .3rem .3rem 0 0; }
+  .mq-source { font-size: .8rem; color: var(--text-muted); margin: .6rem 0 .2rem; }
+  /* barres horizontales (mêmes que la vue « Barres » des cartes) */
+  .mq-barres { margin: .3rem 0; }
+  .mq-barre { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; gap: .6rem; align-items: center; padding: .25rem 0; font-size: .88rem; }
+  .mq-tel .mq-barre { grid-template-columns: minmax(0, 1fr) auto; }
+  .mq-tel .mq-barre .mq-piste { grid-column: 1 / -1; order: 3; }
+  .mq-piste { height: .6rem; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; }
+  .mq-piste i { display: block; height: 100%; background: var(--accent); }
+  .mq-barre.mq-vous { font-weight: 700; }
+  .mq-barre.mq-autre .mq-piste i { background: repeating-linear-gradient(45deg, var(--accent) 0 5px, var(--accent-bg-subtle) 5px 9px); }
+  .mq-barre .mq-v { font-weight: 800; color: var(--accent); white-space: nowrap; }
+  .mq-liste { margin: .2rem 0; padding: 0; list-style: none; font-size: .9rem; }
+  .mq-liste li { display: flex; justify-content: space-between; gap: .6rem; padding: .25rem 0; border-bottom: 1px solid var(--border); }
+  .mq-liste li b { color: var(--accent); white-space: nowrap; }
+  .mq-annees { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr)); gap: .4rem; margin: .3rem 0; }
+  .mq-annee { text-align: center; border: 1px solid var(--border); border-radius: .6rem; background: var(--bg-subtle); padding: .3rem .2rem; font-size: .8rem; color: var(--text-muted); }
+  .mq-annee b { display: block; font-size: 1.05rem; color: var(--accent); }
+  .mq-liste.mq-deux { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.2rem; }
+  .mq-tel .mq-liste.mq-deux { grid-template-columns: minmax(0, 1fr); }
+  .mq-liste.mq-deux li { flex-direction: column; gap: 0; }
+  .mq-titre-groupe { margin: .8rem 0 .2rem; font-size: .88rem; font-weight: 700; }
+  .mq-h { color: var(--danger); font-weight: 700; } .mq-b { color: var(--success-strong); font-weight: 700; }
+  .mq-inflation { border: 2px dashed var(--border-strong); border-radius: .8rem; padding: .8rem 1.2rem; margin-bottom: 1.2rem; color: var(--text-muted); font-size: .92rem; text-align: center; }
+  .mq-q-denis { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); border-radius: .5rem; padding: .7rem .9rem; font-size: .92rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau">
+    <b>Maquette du bloc du Smic sur écran d'ordinateur</b> (exemple : Dordogne). Trois lignes : <b>1.</b> le Smic à gauche, une nouvelle rubrique « Salaire moyen et salaire médian » à droite ; <b>2.</b> l'inflation, inchangée, en pleine largeur ; <b>3.</b> « Salariés concernés » à gauche, « Pouvoir d'achat » à droite. Sur téléphone, rien ne change : une carte par ligne, dans le même ordre que maintenant, avec la nouvelle rubrique juste après le Smic. Passez la souris sur un chiffre souligné en pointillé : la source s'affiche, comme dans l'application.
+    <br><button type="button" id="b-pc">Voir sur ordinateur</button><button type="button" id="b-tel">Voir sur téléphone</button><button type="button" id="b-theme">Mode sombre / clair</button>
+  </div>
+
+  <!-- ========= LIGNE 1 : Smic | Salaires ========= -->
+  <span class="mq-etiq-ligne">Ligne 1</span>
+  <div class="mq-ligne">
+    <div class="mq-carte" id="m-smic">
+      <h3>Combien vaut le Smic aujourd’hui ?</h3>
+      <div class="mq-gros"><span class="mq-chiffre" title="Service-public.gouv.fr, vérifié le 5 novembre 2026 : Smic horaire brut depuis le 1er juin 2026">12,31 €</span></div>
+      <span class="mq-pastille">&#8599; + 2,41 % depuis le 1er juin 2026</span>
+      <p>Par mois (35 h) : <b class="mq-chiffre" title="Service-public.gouv.fr, vérifié le 5 novembre 2026 : 12,31 € × 35 h × 52 / 12">1 867,02 € brut</b> • <b class="mq-chiffre" title="Montant net à titre indicatif, calculé sur la base du Smic brut mensuel, vérifié le 5 novembre 2026">1 477,93 € net</b>, à titre indicatif</p>
+      <p class="mq-petit">Avant le 1er juin : 12,02 € de l’heure • 1 823,03 € par mois</p>
+      <p class="mq-petit">Décidé le : 22 mai 2026 (arrêté publié au Journal officiel)</p>
+      <div class="mq-depli">Pourquoi une hausse en cours d’année ? <span style="font-weight:400;color:var(--text-muted)">Cliquez pour ouvrir</span></div>
+      <p class="mq-source">D’après Service-public.gouv.fr, vérifié le 5 novembre 2026.</p>
+      <span class="mq-lien">Ouvrir la page</span><span class="mq-lien">Ajouter à ma fiche</span>
+      <p class="mq-petit">À lire avec : le mot « Smic » du Lexique</p>
+    </div>
+
+    <div class="mq-carte" id="m-sal">
+      <h3>Salaire moyen et salaire médian : que gagne-t-on ?</h3>
+      <p class="mq-petit">Montants nets par mois, salariés du privé.</p>
+      <div class="mq-barres">
+        <div class="mq-barre mq-autre"><span>Le Smic net (indicatif, 2026)</span><span class="mq-piste"><i style="width:54%"></i></span><span class="mq-v mq-chiffre" title="Service-public.gouv.fr, vérifié le 5 novembre 2026 : Smic net mensuel à titre indicatif, 35 h, valable depuis le 1er juin 2026">1 478 €</span></div>
+        <div class="mq-barre"><span><b>Médiane : la moitié gagne moins de</b></span><span class="mq-piste"><i style="width:80%"></i></span><span class="mq-v mq-chiffre" title="Insee, Salaires dans le secteur privé en 2024 : médiane France">2 190 €</span></div>
+        <div class="mq-barre mq-vous"><span>Salaire moyen en Dordogne</span><span class="mq-piste"><i style="width:80.3%"></i></span><span class="mq-v mq-chiffre" title="Insee, Salaires dans le secteur privé en 2024 : salaire net mensuel moyen, Dordogne">2 194 €</span></div>
+        <div class="mq-barre"><span>Salaire moyen en France</span><span class="mq-piste"><i style="width:100%"></i></span><span class="mq-v mq-chiffre" title="Insee, Salaires dans le secteur privé en 2024 : salaire net mensuel moyen, France">2 733 €</span></div>
+      </div>
+      <div class="mq-boite mq-accent"><h4>Ce que cela veut dire, concrètement</h4>
+        En France, la moyenne (<span class="mq-chiffre" title="Insee, Salaires dans le secteur privé en 2024 : France">2 733 €</span>) est plus haute que la médiane (<span class="mq-chiffre" title="Insee, Salaires dans le secteur privé en 2024 : France">2 190 €</span>), de <span class="mq-chiffre" title="Calcul : 2 733 € moins 2 190 €, à partir des chiffres de l’Insee 2024">543 €</span>. En Dordogne, elle est inférieure de <span class="mq-chiffre" title="Calcul : 2 733 € moins 2 194 €, à partir des chiffres de l’Insee 2024">539 €</span> à celle de la France.
+      </div>
+      <p class="mq-petit"><b>Attention :</b> Smic de 2026, salaires de 2024 (à temps plein). Ils servent à se repérer, pas à calculer un écart exact. Source : Insee, Salaires dans le secteur privé en 2024 ; Service-public.gouv.fr.</p>
+      <span class="mq-lien">Lire « Médiane » dans le Lexique</span><span class="mq-lien">Ouvrir la page</span><span class="mq-lien">Ajouter à ma fiche</span>
+      <p class="mq-note-maq">Chiffres lus dans les cartes salaires existantes (aucune copie) ; les déciles restent dans la carte « Combien gagne un salarié du privé en France ? ». En France entière ou Union européenne, la ligne « Dordogne » devient « France » et la phrase sur le département disparaît.</p>
+    </div>
+  </div>
+
+  <!-- ========= LIGNE 2 : Inflation ========= -->
+  <span class="mq-etiq-ligne">Ligne 2</span>
+  <div class="mq-inflation">La carte « De combien les prix ont-ils augmenté en un an ? » reste telle qu'elle est aujourd'hui (la disposition validée du 10 novembre), en pleine largeur.</div>
+
+  <!-- ========= LIGNE 3 : Salariés concernés | Pouvoir d'achat ========= -->
+  <span class="mq-etiq-ligne">Ligne 3</span>
+  <div class="mq-ligne">
+    <div class="mq-carte" id="m-benef">
+      <h3>Combien de salariés sont concernés par la hausse du Smic ?</h3>
+      <div class="mq-gros"><span class="mq-chiffre" title="Dares, La revalorisation du Smic au 1er janvier 2026 (Dares Résultats n° 44, 15 octobre 2026) : part des salariés du privé concernés">11,8 %</span> <small>des salariés du privé, environ <span class="mq-chiffre" title="Dares, Dares Résultats n° 44 : nombre de salariés concernés au 1er janvier 2026">2,1 millions</span>, au 1er janvier 2026</small></div>
+      <span class="mq-pastille">&#8600; 0,6 point sous le niveau de novembre 2024 (12,4 %)</span>
+      <div class="mq-btns"><span class="on">Chiffres</span><span>Barres</span></div>
+      <p class="mq-titre-groupe">Part des salariés qui bénéficient de la revalorisation</p>
+      <ul class="mq-liste mq-deux">
+        <li>Salariés à temps partiel <b class="mq-chiffre" title="Dares Résultats n° 44, 15 octobre 2026 : salariés à temps partiel">25,6 %</b></li>
+        <li>Entreprises de 1 à 9 salariés <b class="mq-chiffre" title="Dares Résultats n° 44, 15 octobre 2026 : entreprises de 1 à 9 salariés">21,9 %</b></li>
+        <li>Ensemble des salariés du privé <b class="mq-chiffre" title="Dares Résultats n° 44, 15 octobre 2026 : ensemble des salariés du privé">11,8 %</b></li>
+        <li>Entreprises de 10 salariés ou plus <b class="mq-chiffre" title="Dares Résultats n° 44, 15 octobre 2026 : entreprises de 10 salariés ou plus">9,5 %</b></li>
+        <li>Salariés à temps complet <b class="mq-chiffre" title="Dares Résultats n° 44, 15 octobre 2026 : salariés à temps complet">8,8 %</b></li>
+      </ul>
+      <div class="mq-depli">Comment lire ce chiffre ? <span style="font-weight:400;color:var(--text-muted)">Cliquez pour ouvrir</span></div>
+      <p class="mq-source">D’après Dares, La revalorisation du Smic au 1er janvier 2026 (Dares Résultats n° 44, 15 octobre 2026), relevé le 6 novembre 2026.</p>
+      <span class="mq-lien">Ouvrir la page</span><span class="mq-lien">Ajouter à ma fiche</span>
+    </div>
+
+    <div class="mq-carte" id="m-achat">
+      <h3>Le pouvoir d’achat des ménages a-t-il augmenté ou baissé ?</h3>
+      <div class="mq-gros"><span class="mq-chiffre" title="Insee, Les comptes de la Nation en 2025 (Insee Première n° 2105, 29 mai 2026), figure 4">-0,7 %</span> <small>de pouvoir d’achat en 2025 (par unité de consommation, France)</small></div>
+      <span class="mq-pastille">&#8600; Le pouvoir d’achat a baissé, après +2,2 % en 2024.</span>
+      <div class="mq-btns"><span class="on">Chiffres</span><span>Barres</span></div>
+      <p class="mq-titre-groupe">Année après année</p>
+      <div class="mq-annees">
+        <div class="mq-annee">2021<b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : année 2021">&#8599; +2,9 %</b></div>
+        <div class="mq-annee">2022<b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : année 2022">&#8600; -0,3 %</b></div>
+        <div class="mq-annee">2023<b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : année 2023">&#8599; +0,4 %</b></div>
+        <div class="mq-annee">2024<b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : année 2024">&#8599; +2,2 %</b></div>
+        <div class="mq-annee">2025<b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : année 2025">&#8600; -0,7 %</b></div>
+      </div>
+      <p class="mq-titre-groupe">Ce qui a joué en 2025 (en points)</p>
+      <ul class="mq-liste mq-deux">
+        <li>Revenus du travail <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : revenus du travail">&#8599; +1,0 point</b></li>
+        <li>Revenus du patrimoine (loyers, placements) <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : revenus du patrimoine">&#8600; -0,9 point</b></li>
+        <li>Prestations sociales <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : prestations sociales">&#8599; +0,9 point</b></li>
+        <li>Impôts <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : impôts">&#8600; -0,6 point</b></li>
+        <li>Hausse des prix <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : hausse des prix">&#8600; -0,8 point</b></li>
+        <li>Évolution de la population <b class="mq-chiffre" title="Insee Première n° 2105, figure 4 : évolution de la population">&#8600; -0,3 point</b></li>
+      </ul>
+      <p class="mq-petit">Les points s’additionnent : ensemble, ils donnent le pouvoir d’achat de l’année.</p>
+      <div class="mq-depli">Comment lire ce chiffre ? <span style="font-weight:400;color:var(--text-muted)">Cliquez pour ouvrir</span></div>
+      <p class="mq-source">D’après Insee, Les comptes de la Nation en 2025 (Insee Première n° 2105, 29 mai 2026), relevé le 6 novembre 2026.</p>
+      <span class="mq-lien">Lire « Pouvoir d’achat » dans le Lexique</span><span class="mq-lien">Lire « Inflation » dans le Lexique</span><span class="mq-lien">Ouvrir la page</span>
+      <p class="mq-note-maq">La ligne 3 compte deux cartes de hauteurs proches : si l'une est un peu plus courte, elle garde simplement un peu d'espace en bas.</p>
+    </div>
+  </div>
+
+  <div class="mq-q-denis"><b>Ce que vous validez :</b> l'ordre (Smic et salaires, puis inflation, puis salariés concernés et pouvoir d'achat), le contenu de la nouvelle rubrique « Salaire moyen et salaire médian », et la mise en garde sur les années différentes. Le titre de la rubrique et la phrase « Ce que cela veut dire » sont à relire.</div>
+</div>
+<script>
+var page = document.getElementById('page');
+document.getElementById('b-pc').onclick = function () { page.classList.remove('mq-tel'); };
+document.getElementById('b-tel').onclick = function () { page.classList.add('mq-tel'); };
+document.getElementById('b-theme').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+</script>
+</body>
+</html>

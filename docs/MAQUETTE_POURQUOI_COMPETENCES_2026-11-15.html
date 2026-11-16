@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : le pourquoi des compétences</title>
+<!-- Maquette construite SUR les feuilles de style réelles de l'application (mêmes fichiers, mêmes classes, même balisage que la carte « Compétences » de « La mise en page »).
+     À ouvrir par le serveur de développement : http://localhost:8123/docs/MAQUETTE_POURQUOI_COMPETENCES_2026-11-15.html
+     Composants réels réutilisés : .mep-mq, .mep-carte, .champ, .ligne-comp, .pas, .btn-miss + .rond-btn, .miss-liste, .miss-tete, .cols, .sg (● et ◇), .pied-legende,
+     .aide-option (le « ? » rond) et .aide-option-texte (la ligne d'explication), .ck-marque.
+     Parties réelles NON recopiées (inchangées) : « Changer l'intitulé », options de disposition et de style, « Éditer les compétences ».
+     Aucun style ajouté : tout vient de la feuille réelle. Seules les petites flèches ▲ ▼ sont montrées sans effet sur l'ordre. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+/* ===== Seuls ajouts de cette maquette à la feuille réelle (à ajouter à css/mise-en-page-maquette.css au codage) ===== */
+.mep-mq .miss-liste .cols label .aide-option { margin-left: .3rem; flex: 0 0 auto; min-width: 1.5rem; align-self: center; }
+.mep-mq .miss-liste .cols .aide-option-texte { margin: .1rem 0 .3rem 1.5rem; }
+.mep-mq .miss-liste .miss-tete .btn-tout { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 7px; padding: 0.0875rem 0.4813rem; font-size: 0.875rem; white-space: nowrap; cursor: pointer; }
+/* ===== Outils de la maquette (n'existent pas dans l'application) ===== */
+body { padding-bottom: 5rem; }
+.mq-page { max-width: 760px; margin: 0 auto; padding: 1rem 16px 0; }
+.mq-note { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); border-radius: 12px; padding: .7rem 1rem; margin: 0 0 1rem; font-size: .92rem; color: var(--text-strong); }
+.mq-note h1 { font-size: 1.25rem; margin: 0 0 .3rem; color: var(--text-strong); }
+.mq-note ol { margin: .3rem 0 .2rem 1.1rem; padding: 0; }
+.mq-num { display: inline-flex; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: .8rem; align-items: center; justify-content: center; margin-right: .3rem; vertical-align: middle; }
+#mq-ouvrir { position: fixed; right: 0; bottom: 6rem; z-index: 3000; border-radius: 10px 0 0 10px; font-size: .8rem; padding: .4rem .6rem; }
+#mq-panneau { position: fixed; right: 8px; bottom: 9rem; z-index: 3001; width: 290px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .8rem 1rem; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+#mq-panneau[hidden] { display: none; }
+#mq-panneau .x { position: absolute; right: 6px; top: 2px; border: 0; background: none; font-size: 1.4rem; color: var(--text-muted); }
+#mq-panneau label { display: block; font-size: .8rem; color: var(--text-muted); margin-top: .5rem; }
+#mq-panneau select { width: 100%; }
+#mq-panneau button.reset { margin-top: .7rem; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="mq-page">
+  <div class="mq-note">
+    <h1>Maquette : le pourquoi de chaque compétence</h1>
+    <p style="margin:0 0 .2rem">Dans « Les montrer et les choisir », chaque compétence peut expliquer d'où elle vient. Le petit « ? » ouvre une ligne, et seulement au clic : rien ne s'affiche d'office. À essayer :</p>
+    <ol>
+      <li><span class="mq-num">1</span>Cliquez sur le « ? » d'une compétence tirée de votre CV (point plein) : elle dit où l'assistant l'a repérée.</li>
+      <li><span class="mq-num">2</span>Cliquez sur celui d'une compétence attendue (losange) : elle dit si elle vient de la fiche du métier, du secteur ou de l'assistant.</li>
+      <li><span class="mq-num">3</span>Dans le bouton « Maquette » (à droite), changez l'affichage du pourquoi pour comparer trois façons de le montrer.</li>
+    </ol>
+  </div>
+  <div class="mep-mq" id="page"></div>
+</div>
+
+<button type="button" id="mq-ouvrir" class="btn btn-nav-erip">Maquette</button>
+<div id="mq-panneau" hidden>
+  <button type="button" class="x" id="mq-fermer" aria-label="Fermer les réglages">×</button>
+  <strong>Réglages de la maquette</strong>
+  <label for="mq-mode">Affichage du pourquoi</label>
+  <select id="mq-mode" class="form-select form-select-sm">
+    <option value="clic">Au clic sur le « ? » (proposé)</option>
+    <option value="toujours">Toujours visible sous chaque compétence</option>
+    <option value="tout">Un bouton « tout voir » dans la liste</option>
+  </select>
+  <label for="mq-theme">Thème</label>
+  <select id="mq-theme" class="form-select form-select-sm"><option value="clair">Clair</option><option value="sombre">Sombre</option></select>
+  <button type="button" class="btn btn-outline-primary btn-sm reset" id="mq-reset">Tout remettre à zéro</button>
+</div>
+
+<script>
+/* ---------- Données d'exemple (dans l'application : le dossier, la fiche du métier, le secteur et la réponse de l'assistant) ----------
+   Les cinq sortes de « pourquoi » correspondent à des informations que le code possède déjà :
+   - cv : compétence tirée du CV, sans ligne précise (c'est déjà le sens du point plein dans la légende) ;
+   - source : compétence repérée par l'assistant dans une ligne précise du CV (champ « source » de la réponse) ;
+   - fiche : attendue d'après la fiche officielle du métier visé (origine 'fiche' de l'assemblage des compétences) ;
+   - secteur : attendue d'après le référentiel du secteur (origine 'secteur') ;
+   - assistant : attendue selon l'assistant, avec sa justification (champ « justification » de la réponse). */
+var METIER = 'Aide-soignant', SECTEUR = 'Santé et social';
+var LISTES = {
+  pro: { nom: 'Compétences professionnelles', items: [
+    { nom: 'Soins d’hygiène et de confort', sg: 'cv', p: { t: 'source', v: 'Aider les patients à la toilette et à l’habillage' } },
+    { nom: 'Surveillance de l’état de santé', sg: 'cv', p: { t: 'source', v: 'Surveiller l’état de santé des patients' } },
+    { nom: 'Distribution des repas', sg: 'cv', p: { t: 'cv' } },
+    { nom: 'Utilisation du dossier de soins', sg: 'cv', p: { t: 'cv' } },
+    { nom: 'Application des protocoles d’hygiène', sg: 'att', p: { t: 'fiche' } },
+    { nom: 'Manutention des patients', sg: 'att', p: { t: 'fiche' } },
+    { nom: 'Règles de sécurité sanitaire', sg: 'att', p: { t: 'secteur' } }
+  ] },
+  comp: { nom: 'Compétences comportementales', items: [
+    { nom: 'Rigueur', sg: 'cv', p: { t: 'source', v: 'Transmettre par écrit les observations' } },
+    { nom: 'Sens de l’écoute', sg: 'cv', p: { t: 'source', v: 'Accompagner des personnes âgées' } },
+    { nom: 'Esprit d’équipe', sg: 'cv', p: { t: 'cv' } },
+    { nom: 'Discrétion', sg: 'att', p: { t: 'assistant', v: 'la confidentialité des soins est attendue auprès des patients.' } },
+    { nom: 'Ponctualité', sg: 'att', p: { t: 'fiche' } },
+    { nom: 'Patience', sg: 'att', p: { t: 'secteur' } }
+  ] }
+};
+function pourquoi(p) {
+  if (p.t === 'source') { return 'repérée par l’assistant dans votre CV, à la ligne &laquo;&nbsp;' + echap(p.v) + '&nbsp;&raquo;.'; }
+  if (p.t === 'cv') { return 'elle est tirée de votre CV.'; }
+  if (p.t === 'fiche') { return 'elle est citée dans la fiche officielle du métier &laquo;&nbsp;' + echap(METIER) + '&nbsp;&raquo;.'; }
+  if (p.t === 'secteur') { return 'elle est attendue dans le secteur &laquo;&nbsp;' + echap(SECTEUR) + '&nbsp;&raquo;.'; }
+  return 'selon l’assistant, ' + echap(p.v);
+}
+
+/* ---------- État ---------- */
+var etat;
+function etatInitial(mode) {
+  var e = { mode: mode || 'clic', ouvertes: {}, tout: { pro: false, comp: false }, pick: { pro: true, comp: true }, off: { pro: {}, comp: {} }, ordre: {}, carte: true };
+  Object.keys(LISTES).forEach(function (c) { e.ordre[c] = LISTES[c].items.map(function (x, k) { return k; }); });
+  return e;
+}
+etat = etatInitial('clic');
+var qs = function (s) { return document.querySelector(s); };
+function echap(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function rond(ouvert) { return '<span class="rond-btn' + (ouvert ? ' ouvert' : '') + '" aria-hidden="true"></span>'; }
+var ICONE = '<circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/>';
+
+function affichees(c) { return etat.ordre[c].filter(function (k) { return !etat.off[c][k]; }); }
+function pourquoiVisible(c, k) { return etat.mode === 'toujours' || (etat.mode === 'tout' && etat.tout[c]) || !!etat.ouvertes[c + '|' + k]; }
+function htmlListe(c) {
+  var L = LISTES[c], aff = affichees(c), ordreAff = etat.ordre[c];
+  var tete = '<div class="miss-tete"><span><b>' + L.nom + '</b> : ' + aff.length + ' sur ' + L.items.length + ' affichées</span>' +
+    (etat.mode === 'tout' ? '<button type="button" class="btn-tout" data-act="tout" data-c="' + c + '">' + (etat.tout[c] ? 'Masquer les pourquoi' : 'Voir tous les pourquoi') + '</button>' : '') +
+    '<button type="button" data-act="raz" data-c="' + c + '">Remettre la sélection automatique</button></div>';
+  var lignes = aff.concat(ordreAff.filter(function (k) { return aff.indexOf(k) === -1; })).map(function (k) {
+    var x = L.items[k], coche = aff.indexOf(k) !== -1, pos = aff.indexOf(k), ouvert = pourquoiVisible(c, k);
+    var html = '<label class="' + (coche ? '' : 'non') + '"><input type="checkbox" data-act="coche" data-c="' + c + '" data-k="' + k + '"' + (coche ? ' checked' : '') + '>' +
+      '<span class="sg ' + x.sg + '" aria-hidden="true">' + (x.sg === 'att' ? '◇' : '●') + '</span><span>' + echap(x.nom) + '</span>' +
+      (etat.mode === 'toujours' ? '' : '<button type="button" class="aide-option" data-act="pq" data-c="' + c + '" data-k="' + k + '" aria-expanded="' + ouvert + '" title="Pourquoi cette compétence" aria-label="Pourquoi cette compétence : ' + echap(x.nom) + '">?</button>') +
+      (coche ? '<button type="button" class="btn-miss" data-act="haut" data-c="' + c + '" data-k="' + k + '" title="Monter"' + (pos === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+        '<button type="button" class="btn-miss" data-act="bas" data-c="' + c + '" data-k="' + k + '" title="Descendre"' + (pos === aff.length - 1 ? ' disabled' : '') + '>&#9660;</button>' : '') + '</label>';
+    if (ouvert) { html += '<p class="aide-option-texte">Pourquoi : ' + pourquoi(x.p) + '</p>'; }
+    return html;
+  }).join('');
+  var pied = '<div class="pied-legende"><button type="button" class="aide-option" data-act="leg" aria-expanded="' + !!etat.leg + '" title="Légende" aria-label="Légende des signes devant les compétences">?</button><span class="sous">Légende</span></div>' +
+    (etat.leg ? '<div class="legende"><div><span class="sg cv" aria-hidden="true">●</span><span>Tirée de votre CV.</span></div><div><span class="sg att" aria-hidden="true">◇</span><span>Attendue dans ce métier ou ce secteur : si vous la reconnaissez, cochez-la.</span></div></div>' : '');
+  return '<div class="miss-liste mep-pick-' + c + '">' + tete + '<div class="cols">' + lignes + '</div>' + pied + '</div>';
+}
+function htmlChamp(c) {
+  var L = LISTES[c], aff = affichees(c);
+  return '<div class="champ"><label class="ck ck-marque on"><input type="checkbox" checked disabled> Afficher les compétences ' + (c === 'pro' ? 'professionnelles' : 'comportementales') + '</label>' +
+    '<div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss" aria-expanded="false">&#9998; Changer l’intitulé' + rond(false) + '</button></div>' +
+    '<label>' + L.nom + ' à afficher</label>' +
+    '<div class="ligne-comp"><div class="pas"><button type="button" data-act="moins" data-c="' + c + '"' + (aff.length <= 1 ? ' disabled' : '') + '>&minus;</button><span>' + aff.length + '</span><button type="button" data-act="plus" data-c="' + c + '"' + (aff.length >= L.items.length ? ' disabled' : '') + '>+</button></div>' +
+    '<button type="button" class="btn-miss' + '" data-act="pick" data-c="' + c + '">Les montrer et les choisir' + rond(etat.pick[c]) + '</button></div>' +
+    (etat.pick[c] ? htmlListe(c) : '') + '</div>';
+}
+function rendre() {
+  var y = window.scrollY;
+  qs('#page').innerHTML = '<details class="mep-carte" id="cComp"' + (etat.carte ? ' open' : '') + '><summary><svg class="ic" viewBox="0 0 24 24">' + ICONE + '</svg><div><h3>Compétences <span class="sous" style="font-weight:400;margin-left:0.5rem">Professionnelles et comportementales : lesquelles montrer, et dans quel ordre.</span></h3></div><span class="chev">' + (etat.carte ? '&#8963;' : '&#8964;') + '</span></summary>' +
+    '<div class="carte-corps"><div class="grille-el">' + htmlChamp('pro') + htmlChamp('comp') + '</div></div></details>';
+  window.scrollTo(0, y);
+}
+
+/* ---------- Actions ---------- */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-act]'); if (!b || b.tagName === 'INPUT') { return; }
+  var a = b.getAttribute('data-act'), c = b.getAttribute('data-c'), k = parseInt(b.getAttribute('data-k'), 10);
+  if (a === 'pq') { var kk = c + '|' + k; etat.ouvertes[kk] = !etat.ouvertes[kk]; }
+  else if (a === 'tout') { etat.tout[c] = !etat.tout[c]; }
+  else if (a === 'pick') { etat.pick[c] = !etat.pick[c]; }
+  else if (a === 'leg') { etat.leg = !etat.leg; }
+  else if (a === 'raz') { etat.off[c] = {}; etat.ordre[c] = LISTES[c].items.map(function (x, i) { return i; }); }
+  else if (a === 'moins') { var af = affichees(c); if (af.length > 1) { etat.off[c][af[af.length - 1]] = true; } }
+  else if (a === 'plus') { var cache = etat.ordre[c].filter(function (i) { return etat.off[c][i]; })[0]; if (cache !== undefined) { delete etat.off[c][cache]; } }
+  else if (a === 'haut' || a === 'bas') {
+    var o = etat.ordre[c], aff = affichees(c), pos = aff.indexOf(k), voisin = aff[pos + (a === 'haut' ? -1 : 1)];
+    if (voisin !== undefined) { var i1 = o.indexOf(k), i2 = o.indexOf(voisin); o[i1] = voisin; o[i2] = k; }
+  }
+  else { return; }
+  ev.preventDefault(); rendre();
+});
+document.addEventListener('change', function (ev) {
+  var b = ev.target; if (!b.getAttribute || b.getAttribute('data-act') !== 'coche') { return; }
+  var c = b.getAttribute('data-c'), k = parseInt(b.getAttribute('data-k'), 10);
+  if (b.checked) { delete etat.off[c][k]; } else { etat.off[c][k] = true; }
+  rendre();
+});
+document.addEventListener('toggle', function (ev) {
+  var d = ev.target; if (d.id !== 'cComp') { return; }
+  etat.carte = d.open; var ch = d.querySelector(':scope > summary > .chev'); if (ch) { ch.innerHTML = d.open ? '&#8963;' : '&#8964;'; }
+}, true);
+
+qs('#mq-ouvrir').addEventListener('click', function () { qs('#mq-panneau').hidden = !qs('#mq-panneau').hidden; });
+qs('#mq-fermer').addEventListener('click', function () { qs('#mq-panneau').hidden = true; });
+qs('#mq-theme').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.value === 'sombre' ? 'sombre' : 'clair'); });
+qs('#mq-mode').addEventListener('change', function () { etat.mode = this.value; rendre(); });
+qs('#mq-reset').addEventListener('click', function () { etat = etatInitial(qs('#mq-mode').value); rendre(); });
+rendre();
+</script>
+</body>
+</html>

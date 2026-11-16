@@ -8,6 +8,9 @@
    Le nombre affiché sur l'entrée compte les corrections des 7 derniers jours (modules/nouveautes/logique.js).
    ============================================================ */
 var PROBLEMES_CORRIGES = [
+  { date: '2026-11-12', origine: 'nous', titre: 'Créer un nouveau CV : langue et permis',
+    signale: 'Le bouton « Continuer » restait grisé tant qu’aucune langue n’était indiquée, même pour une personne qui ne parle pas d’autre langue.',
+    corrige: 'Seule l’identité est demandée. Langues et permis restent proposés, mais ne bloquent plus jamais.' },
   { date: '2026-11-10', origine: 'personne', titre: 'À partir de mon récit : l’écran qui bougeait',
     signale: 'À chaque clic sur une réponse, toute la page montait puis redescendait un instant.',
     corrige: 'La page reste maintenant fixe quand vous répondez.' },

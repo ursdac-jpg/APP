@@ -1,0 +1,64 @@
+{
+ "nom": "tourCartes",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "boiteaoutils : tuiles btnCarteAccueilReperes, btnCarteAccueilCarnet, btnCarteAccueilLexique, btnCarteAccueilMesCompetences"
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : arrivée #carnet « Mon Carnet » [bas : Commencer →] [barre : aucune] [retour true, accueil true]"
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : boutons ▶ Voir la présentation en vidéo En ; Comment faire sur mon ordinateur W ; 🌍 Vous préférez une autre langue  ; ← Retour ; Accueil ; #btnCarnetIntroOuvrir Commencer →"
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : texte  Mon Carnet Un espace entièrement à vous pour poser ce qui vous vient, sans décider tout de suite ce que vous en ferez. ▶ Voir la présentation en vidéo En images, avec des sous-titres. ▾ Rien à préparer, rien à réussir ici. Beaucoup de choses utiles nous viennent au mauvais moment, puis s’oublient. Le Carnet est l’endroit où vous les posez tout de suite, comme elles viennent. 🎯 À quoi ça sert Garder une trace de ce "
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : avance arrêtée (PAS DE BOUTON)"
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : écrans #carnet « Mon Carnet » > #carnet « Mon Carnet » [bas : null]"
+  },
+  {
+   "n": "info",
+   "t": "boiteaoutils > Carnet : chaîne des Retour #carnet « Mon Carnet » < #cv « Par où voulez-vous commencer ? » [FENÊTRE]"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#carnet",
+    "page": "carnet",
+    "h1": "Mon Carnet",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#carnet",
+    "page": "carnet",
+    "h1": "Mon Carnet",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

@@ -76,9 +76,9 @@ function _idpConstruireDiapos() {
       '<div class="idp-images idp-n2">' + _idpFig('i_cv_1_choix', 'Capture : choisir comment commencer', 'Elle choisit comment commencer') +
       _idpFig('i_cv_2_objectif', 'Capture : dire ce que l’on cherche', 'Elle dit ce qu’elle cherche') + '</div>' });
 
-  d.push({ notes: 'Troisième écran : des propositions déjà prêtes à cocher : la personne choisit celles qui lui ressemblent. Quatrième écran : son profil, ses compétences repérées et des métiers à regarder.',
+  d.push({ notes: 'Troisième écran : des propositions déjà prêtes à cocher, sur ce qu’elle a déjà fait (les personnes aidées, les gestes, les lieux de travail) : la personne choisit celles qui lui ressemblent. Quatrième écran : son profil, ses compétences repérées et des métiers à regarder.',
     html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (2/2)</h2>' + _idpBarreEtapes([2, 3]) +
-      '<div class="idp-images idp-n2">' + _idpFig('i_cv_3_parcours', 'Capture : choisir ce qui compte', 'Elle choisit ce qui compte pour elle') +
+      '<div class="idp-images idp-n2">' + _idpFig('i_cv_3_parcours', 'Capture : choisir ce que l’on a déjà fait', 'Elle choisit ce qu’elle a déjà fait') +
       _idpFig('i_cv_4_profil', 'Capture : découvrir son profil', 'Elle découvre son profil') + '</div>' });
 
   d.push({ notes: 'Dire le chiffre, il est lu dans l’application et suit chaque modèle ajouté. Le texte ne change jamais, seule la présentation change.',

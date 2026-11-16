@@ -22,9 +22,14 @@
        PROSPECTION/donnees/pont (chemin fixe calcule a partir du depot, 1 Mo au plus, aucun autre fichier de PROSPECTION, rien n'est ecrit ni supprime) ;
      - EXCEPTION ASSUMEE : les dates de dernier passage (/api/passages/...) lisent et ecrivent UN seul fichier, outils/passages.json (chemin fixe, cles et dates
        validees, une date ne recule jamais, rien n'est ecrit si le fichier est illisible) ; ce fichier est suivi par Git mais jamais enregistre ni envoye par l'outil ;
+     - EXCEPTION ASSUMEE : les taches programmees (/api/taches/...) lisent et ecrivent UN seul fichier, outils/taches_programmees.json (chemin fixe, champs valides, adresses https
+       seulement, ecriture atomique, rien n'est ecrit si le fichier est illisible) ; il est suivi par Git mais jamais enregistre ni envoye par l'outil, et l'application ne le lit pas ;
      - EXCEPTION ASSUMEE : les reponses collees dans l'onglet « Travailler avec Claude » (/api/retours/...) s'ecrivent dans outils/retours/AAAA-MM-JJ/<identifiant>.md (jour de
        l'ordinateur, identifiants valides, 400 Ko au plus par reponse, 80 fichiers au plus par jour) ; dossier prive, ignore par Git, jamais envoye ; les reponses des jours precedents sont
        DEPLACEES dans le dossier du jour (jamais perdues d'un jour a l'autre) et, une fois traitees, mises de cote dans outils/retours/_traitees/ (/api/retours/archiver), jamais supprimees ;
+     - EXCEPTION ASSUMEE : la prospection des structures (/api/prospection/..., veilleProspection.js) ouvre, en lecture et seulement apres un clic, DEUX sites publics fixes (data.gouv.fr pour
+       le fichier ouvert data.inclusion, recherche-entreprises.api.gouv.fr pour verifier les SIRET) ; aucune adresse ne vient de la page ; son seul dossier ecrit est outils/prospection_structures/ (resultat, cache et decisions.json : fiches ecartees ou tranchees par la personne, validees par le code, jamais le registre ni le sas)
+       (ignore par Git) ; elle n'ecrit jamais le registre ni le sas ;
      - il N'ECRIT RIEN LUI-MEME (a part ce fichier) et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
        veilleDepot.js (« Publier ») et veilleEnvoi.js (lots pour GitHub), sur des listes fermees de destinations. JAMAIS DE PUSH.
    ============================================================ */
@@ -42,7 +47,9 @@ const { creerAdresses } = require('./veilleAdresses.js');
 const veilleOfficiels = require('./veilleOfficiels.js');
 const veillePreuveVerif = require('./veillePreuveVerif.js');
 const { creerPassages } = require('./veillePassages.js');
+const { creerTaches } = require('./veilleTaches.js');
 const { creerRetours } = require('./veilleRetours.js');
+const { creerProspection } = require('./veilleProspection.js');
 
 const DOSSIER = __dirname;
 const RACINE_DEPOT = path.resolve(__dirname, '..');
@@ -103,7 +110,9 @@ function creerServeur(options) {
   const controleSas = opt.controleSas || creerControleSas(racine, depot, { fetch: opt.fetchControle, resoudre: opt.resoudreControle });
   const adresses = opt.adresses || creerAdresses(racine, { fetch: opt.fetchControle, controleSas: controleSas });
   const passages = opt.passages || creerPassages(racine);
+  const taches = opt.taches || creerTaches(racine);
   const retours = opt.retours || creerRetours(racine);
+  const prospection = opt.prospection || creerProspection(racine, { fetch: opt.fetchControle });
   const ouvrir = opt.ouvrir || ouvrirParDefaut;
   const jeton = opt.jeton || crypto.randomBytes(24).toString('hex');
 
@@ -130,6 +139,15 @@ function creerServeur(options) {
       // « Retrouver le passage » : l'outil ouvre les pages citees par l'assistant (https public, 40 au plus, lecture seule, rien n'est garde) et rend un verdict par ligne.
       case '/api/passages/lire': return repondreResultat(res, passages.lire());
       case '/api/passages/noter': return repondreResultat(res, passages.noter(donnees));
+      // Les tâches programmées (consigne 233) : lecture et actions sur UN seul fichier, outils/taches_programmees.json (veilleTaches.js).
+      case '/api/taches/lire': return repondreResultat(res, taches.lire());
+      case '/api/taches/agir': return repondreResultat(res, taches.agir(donnees));
+      // La prospection des structures (consigne 270) : chercher (clic), avancement, dernier résultat (veilleProspection.js).
+      case '/api/prospection/chercher': return repondreResultat(res, prospection.chercher(donnees));
+      case '/api/prospection/etat': return repondreResultat(res, prospection.etat());
+      case '/api/prospection/lire': return repondreResultat(res, prospection.lire());
+      case '/api/prospection/decider': return repondreResultat(res, prospection.decider(donnees));
+      case '/api/prospection/verifier': return repondreResultat(res, prospection.verifier(donnees));
       case '/api/retours/lister': return repondreResultat(res, retours.lister());
       case '/api/retours/enregistrer': return repondreResultat(res, retours.enregistrer(donnees));
       case '/api/retours/archiver': return repondreResultat(res, retours.archiver());

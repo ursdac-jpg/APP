@@ -25,15 +25,14 @@
    comme une etape ulterieure, pas un defaut de cette etape.
    ============================================================ */
 
-// Les 4 catalogues de selection deja existants, dont les libelles
+// Les 3 catalogues de selection deja existants (le referentiel des valeurs a ete retire le 12/11/2026, consigne 261), dont les libelles
 // alimentent l'extraction de concepts. Ajouter un futur referentiel
 // (formations, logiciels...) revient a ajouter une ligne ici, sans
 // toucher au reste de la fonction.
 var SOURCES_CONCEPTS_ERIP = [
   { catalogue: function () { return CATALOGUE_ACTIONS_PRO; }, origine: 'actions' },
   { catalogue: function () { return CATALOGUE_PERSONNES_MATERIELS_LIEUX; }, origine: 'activites' },
-  { catalogue: function () { return CATALOGUE_ENVIRONNEMENTS_TRAVAIL; }, origine: 'environnement' },
-  { catalogue: function () { return CATALOGUE_VALEURS_PROFESSIONNELLES; }, origine: 'valeurs' }
+  { catalogue: function () { return CATALOGUE_ENVIRONNEMENTS_TRAVAIL; }, origine: 'environnement' }
 ];
 
 // Mots vides (articles, prepositions, pronoms, verbes tres frequents) a
@@ -88,7 +87,7 @@ function ajouterConceptsCompetencesEtSavoirs(motsRecherche, concepts, idsVus) {
   function collecterSavoirs(liste) {
     (liste || []).forEach(function (s) { if (!savoirsVus[s]) { savoirsVus[s] = true; savoirsListe.push(s); } });
   }
-  if (typeof baseMetiers !== 'undefined') { baseMetiers.forEach(function (m) { collecterSavoirs(m.savoirs); }); }
+  if (typeof baseMetiers !== 'undefined') { baseMetiers.forEach(function (m) { if (m.niveau !== 'rome') { collecterSavoirs(m.savoirs); } }); }
   if (typeof CATALOGUE_ACTIONS_PRO !== 'undefined') { aplatirCatalogue(CATALOGUE_ACTIONS_PRO).forEach(function (a) { collecterSavoirs(a.savoirs); }); }
   if (typeof CATALOGUE_PERSONNES_MATERIELS_LIEUX !== 'undefined') { aplatirCatalogue(CATALOGUE_PERSONNES_MATERIELS_LIEUX).forEach(function (a) { collecterSavoirs(a.savoirs); }); }
   if (typeof CATALOGUE_ENVIRONNEMENTS_TRAVAIL !== 'undefined') { aplatirCatalogue(CATALOGUE_ENVIRONNEMENTS_TRAVAIL).forEach(function (a) { collecterSavoirs(a.savoirs); }); }

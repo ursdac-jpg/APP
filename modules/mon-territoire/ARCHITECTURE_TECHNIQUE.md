@@ -106,6 +106,9 @@ Outil de veille, section 5 « Mon territoire », fenêtre « Mon territoire » :
 - **Aucun appel en ligne à l'usage** : `fetch` de fichiers du site seulement ; la commune reste dans `localStorage` (`erip_mon_territoire_commune`).
 - Types de structure (`MT_TYPES`, 28) et zones : prévus pour la phase de migration des rayons de « Comprendre le cadre » (voir le plan, phases P2 et P3bis).
 
+## Magasins générés des enseignes (consigne 303, 2026-11-14)
+`contenu/magasins-generes.txt` complète les établissements saisis à la main dans `employeurs.txt` : une ligne « identifiant de la fiche enseigne | Commune:adresse ; Commune:adresse ». Il est PRODUIT par `scripts/genererMagasinsSirene.js` (config des alias et des codes d'activité : `scripts/magasinsSireneConfig.js`), d'après le registre des entreprises (Sirene), jamais écrit à la main ; le script se relance sans risque (cache local, `--essai` n'écrit rien). Chargement dans `index.js` (fichier facultatif) puis `mtFusionnerMagasins` (`logique.js`) : la saisie manuelle l'emporte, une adresse déjà connue n'est pas répétée (`mtMemeAdresse`), une commune saisie sans adresse ni numéro reçoit les adresses trouvées. Seules les fiches de nature `enseigne` sont complétées. Le registre des entreprises est incomplet (certains magasins manquent, d'autres sont mal étiquetés) : un magasin absent peut toujours être ajouté à la main. Tests : `tests/magasinsSirene.test.js`.
+
 ## Tests
 `tests/monTerritoire.test.js` (21 essais Node, dont le contrôle des fichiers de données réels et la parité avec l'ancien affichage du rayon Logement) ; parcours navigateur `monTerritoire` (17 contrôles) et `monTerritoireLogement` (14 contrôles) dans `scripts/parcours/parcours_smoke.js` (`await window.__parcours(['monTerritoire','monTerritoireLogement'])`).
 

@@ -11,3 +11,6 @@ outils/controles/
 
 # Reponses des assistants collees dans l'onglet « Travailler avec Claude » (outil de veille, poste de Denis) : jamais envoyees sur GitHub
 outils/retours/
+
+# Resultat de la prospection des structures (outil de veille, poste de Denis) : jamais envoye sur GitHub
+outils/prospection_structures/

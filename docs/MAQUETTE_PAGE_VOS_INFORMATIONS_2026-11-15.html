@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : page Vos informations</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 20px 5rem}
+.mq-page{margin:0 auto;max-width:1000px}
+.mq-page .cv-section{margin:.9rem 0}
+.mq-page .bloc-erip-entete{cursor:default;margin-bottom:.4rem}
+.mq-page .cv-section.bloc-erip{border-color:var(--border-strong);border-left-width:1px}
+.mq-ligne{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.4rem 0}
+.mq-q{font-weight:700;margin:.6rem 0 .3rem}
+.mq-intro{margin:0 0 .6rem;color:var(--text-strong)}
+
+.mq-paire{display:block}
+
+/* Boutons d'action : même forme et même contour que les boutons de « Vos diplômes » (jetons) */
+.mq-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:.4rem 1.1rem;border-radius:11px;border:2px solid var(--accent);background:var(--bg-card);color:var(--accent-texte);font:inherit;font-size:.875rem;font-weight:700;cursor:pointer;transition:background .1s,color .1s,border-color .1s}
+.mq-btn:hover{background:var(--accent-bg-subtle)}
+.mq-btn--plein{background:var(--accent-solide);border-color:var(--accent-solide);color:#fff}
+.mq-btn--plein:hover{background:var(--accent-solide-hover);border-color:var(--accent-solide-hover)}
+.mq-btn--annuler{background:var(--danger-bg-subtle);border-color:var(--danger);color:var(--danger)}
+.mq-btn--annuler:hover{background:var(--danger);border-color:var(--danger);color:var(--bg-card)}
+.mq-btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* Champs à compléter : cadre orange, sans étiquette */
+.mq-lab{font-weight:700;font-size:.9rem;margin:0 0 .2rem}
+.mq-champ,.mq-id input.mq-orange{border:2px solid var(--warning)!important;background:var(--bg-card);color:var(--text-strong)}
+.mq-id input.mq-gris{border:2px solid var(--text-muted)!important;background:var(--bg-card);color:var(--text-strong)}
+/* Boutons de choix : bord bleu partout, comme dans « Vos formations et diplômes » */
+.mq-page .jeton--radio{border-color:var(--accent)}
+.mq-page .jeton--radio.is-actif{background:var(--accent-bg-subtle);border-width:2.5px}
+.mq-id-bandeau{border-left:5px solid var(--warning);background:var(--warning-bg-subtle);border-radius:10px;padding:.5rem .8rem;margin:.5rem 0;font-weight:600}
+.mq-zone-ecrire{border-left:5px solid var(--warning);background:var(--warning-bg-subtle);border-radius:10px;padding:.5rem .7rem .6rem;margin:.6rem 0}
+
+/* Légende des niveaux de langue */
+.mq-niveaux{margin:.4rem 0 .6rem}
+.mq-niveaux ul{list-style:none;padding:0;margin:.3rem 0 0;display:flex;flex-wrap:wrap;gap:.35rem .5rem}
+.mq-niveaux li{border:1.5px solid var(--border-strong);border-radius:999px;padding:.15rem .7rem;font-size:.85rem;background:var(--bg-card)}
+.mq-niveaux li b{color:var(--accent-texte)}
+
+/* Rubriques à choix : verrou tant que l'élément n'est pas validé */
+.mq-rub.verrou .mq-zone-choix{opacity:.5;pointer-events:none}
+.mq-verrou-note{display:none;border-left:5px solid var(--accent);background:var(--accent-bg-subtle);border-radius:10px;padding:.45rem .8rem;margin:.5rem 0;font-weight:600}
+.mq-rub.verrou .mq-verrou-note{display:block}
+.mq-ajoutes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.mq-ajoutes:empty{display:none}
+.mq-ajoutes .mq-element{border:1.5px solid var(--border-strong);background:var(--bg-card);border-radius:999px;padding:.2rem .8rem;font-size:.9rem;font-weight:600}
+.mq-element small{font-weight:400;color:var(--text-muted)}
+.mq-rub.verrou .mq-ajoutes{opacity:.5;pointer-events:none}
+.mq-pending{display:none}
+.mq-rub.verrou .mq-pending{display:block}
+.mq-pending .mq-miss{display:none}
+.mq-pending.developpe .mq-miss{display:block}
+.mq-pending .mq-etat-valider{display:none}
+.mq-pending.choisi .mq-etat-valider{display:inline-flex}
+.mq-pending.choisi .mq-etat-annuler{display:none}
+.mq-aide-valider{font-size:.85rem;color:var(--text-muted);margin:.3rem 0 0}
+.mq-pending.choisi .mq-aide-valider{display:none}
+</style>
+</head>
+<body>
+
+<div class="mq-page fm-bloc" id="mqPage">
+
+ <!-- ============ VOUS ============ -->
+ <div class="cv-section bloc-erip bloc-large">
+  <div class="bloc-erip-entete"><h5>👤 Vous</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+
+  <div class="sous-section-plate">
+    <div class="ss-titre-plate">Identité</div>
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <button type="button" class="jeton jeton--radio jeton--compact">Madame</button>
+      <button type="button" class="jeton jeton--radio jeton--compact">Monsieur</button>
+      <button type="button" class="jeton jeton--radio jeton--compact is-actif">Ne pas préciser</button>
+    </div>
+    <p class="small text-muted mb-2">🔒 Votre nom, votre adresse et vos coordonnées ne sont jamais transmis à l’assistant.</p>
+    <div class="mq-id-bandeau">Les cadres orange sont à remplir.</div>
+
+    <div class="mq-id">
+    <div class="row g-2 align-items-end">
+      <div class="col-5 col-md-4"><label class="mq-lab" for="mqPrenom">Prénom</label>
+        <input type="text" class="form-control form-control-sm mq-orange" id="mqPrenom"   style="height:2.75rem;font-size:1rem"></div>
+      <div class="col-auto"><button type="button" class="mq-btn" id="mqInverser"><span style="font-size:1.15rem;line-height:1">⇄</span> Inverser</button></div>
+      <div class="col-5 col-md-4"><label class="mq-lab" for="mqNom">Nom</label>
+        <input type="text" class="form-control form-control-sm mq-orange" id="mqNom"   style="height:2.75rem;font-size:1rem"></div>
+    </div>
+    <p class="small text-muted mt-1 mb-2">Le nom s’écrit en MAJUSCULES, le prénom avec une majuscule. S’ils sont à l’envers, cliquez sur « Inverser ».</p>
+
+    <div class="row g-2">
+      <div class="col-12 col-md-6"><label class="mq-lab" for="mqTel">Téléphone</label>
+        <input type="tel" class="form-control form-control-sm mq-orange" id="mqTel"   placeholder="06.12.34.56.78" style="height:2.75rem;font-size:1rem"></div>
+      <div class="col-12 col-md-6"><label class="mq-lab" for="mqMail">E-mail</label>
+        <input type="email" class="form-control form-control-sm mq-orange" id="mqMail"   style="height:2.75rem;font-size:1rem"></div>
+    </div>
+    <div class="row g-2 mt-1">
+      <div class="col-12 col-md-6"><label class="mq-lab" for="mqAdresse">Adresse postale</label>
+        <input type="text" class="form-control form-control-sm mq-gris" id="mqAdresse"  style="height:2.75rem;font-size:1rem"></div>
+      <div class="col-5 col-md-2"><label class="mq-lab" for="mqCP">Code postal</label>
+        <input type="text" class="form-control form-control-sm mq-orange" id="mqCP"   style="height:2.75rem;font-size:1rem"></div>
+      <div class="col-7 col-md-4"><label class="mq-lab" for="mqVille">Ville</label>
+        <input type="text" class="form-control form-control-sm mq-orange" id="mqVille"   style="height:2.75rem;font-size:1rem"></div>
+    </div>
+    <div class="row g-2 mt-1">
+      <div class="col-12"><label class="mq-lab" for="mqLien">Lien LinkedIn ou site personnel</label>
+        <input type="text" class="form-control form-control-sm mq-gris" id="mqLien"  style="height:2.75rem;font-size:1rem"></div>
+    </div>
+    </div>
+    <div class="mt-3">
+      <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3"><p class="fw-bold mb-0">Voulez-vous une photo sur votre CV ?</p>
+        <div class="d-flex gap-2"><button type="button" class="jeton jeton--radio jeton--compact">Oui</button><button type="button" class="jeton jeton--radio jeton--compact">Non</button></div></div>
+      <p class="small mb-0 mt-2">Sans réponse de votre part, votre CV sera sans photo.</p>
+    </div>
+    <button type="button" class="mq-btn mq-btn--plein mt-3">💾 Enregistrer mon identité</button>
+  </div>
+
+  <div class="sous-section-plate">
+    <div class="ss-titre-plate">Langues</div>
+    <p class="small mb-1">Indiquer une langue est un vrai atout, surtout dans le commerce, le tourisme et les services.</p>
+    <div class="mq-niveaux"><b class="small">Les niveaux :</b>
+      <ul>
+        <li><b>A1</b> débutant</li><li><b>A2</b> notions</li><li><b>B1</b> je me débrouille</li>
+        <li><b>B2</b> à l’aise</li><li><b>C1</b> très à l’aise</li><li><b>C2</b> langue maternelle ou équivalent</li>
+      </ul></div>
+    <div class="mq-ajoutes" id="mqLangues"></div>
+    <div class="row g-2 mt-1 align-items-center">
+      <div class="col-md-5"><select class="form-select form-select-sm" id="mqLangue"><option value="">Je n’ai pas de langue étrangère à indiquer</option><option>Français</option><option>Anglais</option><option>Espagnol</option><option>Allemand</option><option>Russe</option><option>Arabe</option><option value="__autre">Autre langue…</option></select></div>
+      <div class="col-md-3"><input type="text" class="form-control form-control-sm mq-champ d-none" id="mqLangueAutre" placeholder="Quelle langue ?"></div>
+      <div class="col-md-2 d-none" id="mqNiveauWrap"><select class="form-select form-select-sm" id="mqNiveau"><option value="">Niveau…</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option></select></div>
+      <div class="col-md-2"><button type="button" class="mq-btn mq-btn--plein d-none" id="mqAjLangue">+ Ajouter</button></div>
+    </div>
+    <p class="small text-muted mt-1 mb-0" id="mqLangueInvitation">↑ Vous parlez une langue étrangère ? Choisissez-la ci-dessus pour l’ajouter.</p>
+  </div>
+
+  <div class="sous-section-plate">
+    <div class="ss-titre-plate">Mobilité</div>
+    <p class="mb-2">Avez-vous le permis ?</p>
+    <div class="d-flex gap-2"><button type="button" class="jeton jeton--radio jeton--compact">Oui</button><button type="button" class="jeton jeton--radio jeton--compact">Non</button></div>
+  </div>
+ </div>
+
+ <!-- ============ EXPÉRIENCES PROFESSIONNELLES ============ -->
+ <div class="cv-section bloc-erip bloc-large">
+  <div class="bloc-erip-entete"><h5>💼 Expériences professionnelles</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+  <p class="mq-intro">Emploi, intérim, stage, apprentissage, job d’été : tout ce que vous avez fait pour un employeur, même court, même ancien.</p>
+  <div class="mq-ajoutes" id="mqExpListe"></div>
+  <div class="mq-rub" id="rubExp">
+    <div class="mq-verrou-note">Terminez d’abord cette expérience : validez-la ou annulez, avant d’en ajouter une autre.</div>
+    <div class="mq-zone-choix"><button type="button" class="mq-btn mq-btn--plein" id="mqExpOuvrir">+ Ajouter une expérience</button></div>
+    <div id="mqExpForm" style="display:none">
+      <div class="pastille-mini-edition pastille-mini-edition--large mt-2">
+        <div class="mq-zone-ecrire"><p class="fm-q mb-1">Intitulé du poste</p>
+          <input class="form-control form-control-sm mq-champ" id="mqExpPoste" placeholder="Ex. : Agent de service, Aide à domicile"></div>
+        <div class="mq-zone-ecrire"><p class="fm-q mb-1">Entreprise</p>
+          <input class="form-control form-control-sm mq-champ" placeholder="Nom de l’entreprise ou de l’association"></div>
+        <div class="mq-ligne"><select class="form-select form-select-sm" style="width:auto"><option>2019</option><option>2020</option></select><span class="small text-muted">à</span><select class="form-select form-select-sm" style="width:auto"><option>Toujours en cours</option><option>2023</option></select></div>
+        <div class="mq-zone-ecrire"><p class="fm-q mb-1">Ce que vous y faisiez</p>
+          <textarea class="form-control form-control-sm mq-champ" rows="2" placeholder="Vos missions, avec vos mots"></textarea></div>
+        <p class="small text-muted mb-2">(La suite du parcours, avec les suggestions de métiers, fera l’objet de la maquette suivante.)</p>
+        <button type="button" class="mq-btn mq-btn--annuler px-4" id="mqExpAnnuler">✕ Annuler</button>
+        <button type="button" class="mq-btn mq-btn--plein px-4" id="mqExpValider" style="display:none">✓ Je valide</button>
+        <p class="mq-aide-valider" id="mqExpAide">« Je valide » apparaît dès que l’intitulé du poste est écrit.</p>
+      </div>
+    </div>
+  </div>
+ </div>
+
+ <!-- ============ CE QUE VOUS AVEZ APPRIS AILLEURS ============ -->
+ <div class="cv-section bloc-erip bloc-large">
+  <div class="bloc-erip-entete"><h5>🌱 Ce que vous avez appris ailleurs qu’au travail</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+  <p class="mq-intro">Ce que la vie vous a appris en dehors d’un emploi : s’occuper d’un proche, tenir un foyer, rendre service autour de vous.</p>
+  <div class="mq-rub" data-question="1" data-nom="appris">
+    <div class="mq-verrou-note">Terminez d’abord cet élément : validez-le ou annulez, avant d’en choisir un autre.</div>
+    <div class="mq-ajoutes mq-liste"></div>
+    <div class="mq-zone-choix fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+      <div class="mq-ligne"><select class="form-select form-select-sm mq-sel" style="width:auto;max-width:100%">
+        <option value="">Choisir dans la liste…</option><option>Gestion d’un foyer</option><option>Aide administrative</option><option>Garde d’enfants</option><option>Bricolage et petits travaux</option></select>
+        <button type="button" class="mq-btn mq-btn--plein mq-ajout">+ Ajouter</button></div></div>
+    <div class="mq-pending"></div>
+  </div>
+ </div>
+
+ <div class="mq-paire">
+  <!-- ============ FORMATIONS ET DIPLÔMES ============ -->
+  <div class="cv-section bloc-erip bloc-large">
+   <div class="bloc-erip-entete"><h5>🎓 Formations et diplômes</h5><span class="bloc-erip-badge-etat complet">complété</span><span class="bloc-erip-fleche">▲</span></div>
+   <p class="mq-intro">Le niveau le plus élevé que vous avez atteint, avec ou sans diplôme.</p>
+   <div class="fm-choix"><p class="fm-q">De quoi disposez-vous ? <span class="fm-tag fm-tag--choix">À choisir</span></p>
+     <div class="pastilles d-flex flex-wrap gap-2">
+       <button type="button" class="jeton jeton--radio jeton--compact">Sans diplôme</button>
+       <button type="button" class="jeton jeton--radio jeton--compact is-actif">Diplôme</button>
+       <button type="button" class="jeton jeton--radio jeton--compact">Titre professionnel</button>
+       <button type="button" class="jeton jeton--radio jeton--compact">CQP</button>
+     </div></div>
+  </div>
+
+  <!-- ============ CERTIFICATIONS ============ -->
+  <div class="cv-section bloc-erip bloc-large">
+   <div class="bloc-erip-entete"><h5>📜 Certifications</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+   <p class="mq-intro">Permis, CACES, habilitations, secourisme : tout ce qui se prouve par un document.</p>
+   <p class="mq-q mt-0">Souhaitez-vous indiquer des certifications ?</p>
+   <div class="mq-ligne"><button type="button" class="jeton jeton--radio jeton--compact is-actif">Oui</button><button type="button" class="jeton jeton--radio jeton--compact">Non</button></div>
+   <div class="mq-rub" data-question="1" data-nom="certif">
+     <div class="mq-verrou-note">Terminez d’abord cet élément : validez-le ou annulez, avant d’en choisir un autre.</div>
+     <div class="mq-ajoutes mq-liste"></div>
+     <div class="mq-zone-choix fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+       <div class="mq-ligne"><select class="form-select form-select-sm mq-sel" style="width:auto;max-width:100%">
+         <option value="">Choisir dans la liste…</option><option>CACES</option><option>Habilitation électrique</option><option>Permis B</option><option>Sauveteur secouriste du travail</option></select>
+         <button type="button" class="mq-btn mq-btn--plein mq-ajout">+ Ajouter</button></div></div>
+     <div class="mq-pending"></div>
+   </div>
+  </div>
+ </div>
+
+ <div class="mq-paire">
+  <!-- ============ ENGAGEMENTS ============ -->
+  <div class="cv-section bloc-erip bloc-large">
+   <div class="bloc-erip-entete"><h5>🤝 Engagements</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+   <p class="mq-intro">Association, bénévolat, rôle de représentant : ce que vous faites pour les autres.</p>
+   <div class="mq-rub" data-question="1" data-nom="engagement">
+     <div class="mq-verrou-note">Terminez d’abord cet élément : validez-le ou annulez, avant d’en choisir un autre.</div>
+     <div class="mq-ajoutes mq-liste"></div>
+     <div class="mq-zone-choix fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+       <div class="mq-ligne"><select class="form-select form-select-sm mq-sel" style="width:auto;max-width:100%">
+         <option value="">Choisir dans la liste…</option><option>Bénévolat en association</option><option>Délégué de classe ou de résidence</option><option>Entraîneur bénévole</option></select>
+         <button type="button" class="mq-btn mq-btn--plein mq-ajout">+ Ajouter</button></div></div>
+     <div class="mq-pending"></div>
+   </div>
+  </div>
+
+  <!-- ============ LOISIRS ============ -->
+  <div class="cv-section bloc-erip bloc-large">
+   <div class="bloc-erip-entete"><h5>⚽ Loisirs</h5><span class="bloc-erip-badge-etat">à compléter</span><span class="bloc-erip-fleche">▲</span></div>
+   <p class="mq-intro">Ce que vous aimez faire sur votre temps libre. Un loisir est seulement cité sur le CV.</p>
+   <div class="mq-rub" data-question="0" data-nom="loisir">
+     <div class="mq-ajoutes mq-liste"></div>
+     <div class="mq-zone-choix fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+       <div class="mq-ligne"><select class="form-select form-select-sm mq-sel" style="width:auto;max-width:100%">
+         <option value="">Choisir dans la liste…</option><option>Football</option><option>Cuisine</option><option>Jardinage</option><option>Lecture</option></select>
+         <button type="button" class="mq-btn mq-btn--plein mq-ajout">+ Ajouter</button></div></div>
+   </div>
+  </div>
+ </div>
+
+</div>
+
+<script>
+(function(){
+  var body=document.body;
+  function $(s,r){return (r||document).querySelector(s);}
+  function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+
+
+  /* ---------- Jetons de choix (visuels) ---------- */
+  document.addEventListener('click',function(e){
+    var j=e.target.closest('.jeton--radio'); if(!j||j.closest('.mq-pending')){return;}
+    var p=j.parentElement; $$('.jeton--radio',p).forEach(function(x){x.classList.remove('is-actif');}); j.classList.add('is-actif');
+  });
+  $('#mqInverser').addEventListener('click',function(){ var a=$('#mqPrenom'),b=$('#mqNom'),t=a.value; a.value=b.value; b.value=t; });
+
+  /* ---------- Langues ---------- */
+  /* Même déroulé que la vraie page : la 1re option est « pas de langue étrangère »,
+     le niveau apparaît une fois la langue choisie, « Ajouter » une fois le niveau choisi. */
+  function etatLangue(){
+    var v=$('#mqLangue').value, autre=$('#mqLangueAutre');
+    autre.classList.toggle('d-none',v!=='__autre');
+    var langue=v==='__autre'?autre.value.trim():v;
+    var niveau=langue&&$('#mqNiveau').value;
+    $('#mqNiveauWrap').classList.toggle('d-none',!langue);
+    $('#mqAjLangue').classList.toggle('d-none',!niveau);
+    $('#mqLangueInvitation').textContent=!langue?'↑ Vous parlez une langue étrangère ? Choisissez-la ci-dessus pour l’ajouter.':(!niveau?'Choisissez le niveau, puis « Ajouter ».':'N’oubliez pas de cliquer sur « Ajouter ».');
+  }
+  $('#mqLangue').addEventListener('change',etatLangue);
+  $('#mqLangueAutre').addEventListener('input',etatLangue);
+  $('#mqNiveau').addEventListener('change',etatLangue);
+  $('#mqAjLangue').addEventListener('click',function(){
+    var v=$('#mqLangue').value, l=v==='__autre'?$('#mqLangueAutre').value.trim():v, n=$('#mqNiveau').value; if(!l||!n){return;}
+    var s=document.createElement('span'); s.className='mq-element'; s.innerHTML=l+' <small>niveau '+n+'</small>'; $('#mqLangues').appendChild(s);
+    Array.prototype.forEach.call($('#mqLangue').options,function(o){ if(o.value===l){ o.remove(); } });
+    $('#mqLangue').value=''; $('#mqLangueAutre').value=''; $('#mqNiveau').value=''; etatLangue();
+  });
+
+  /* ---------- Rubriques à choix : verrou, Annuler / Je valide ---------- */
+  var MISSIONS={
+    appris:['Planifier et préparer les repas','Gérer le budget du foyer','Organiser les rendez-vous de la famille'],
+    certif:['Conduire en sécurité un engin de manutention','Appliquer les consignes de sécurité du chantier'],
+    engagement:['Accueillir et orienter le public','Participer à l’organisation d’un événement']
+  };
+  $$('.mq-rub[data-nom]').forEach(function(rub){
+    var question=rub.getAttribute('data-question')==='1', nomRub=rub.getAttribute('data-nom');
+    var sel=$('.mq-sel',rub), liste=$('.mq-liste',rub), pend=$('.mq-pending',rub);
+    function ajouter(texte,suite){ var s=document.createElement('span'); s.className='mq-element'; s.innerHTML=texte+(suite?' <small>'+suite+'</small>':''); liste.appendChild(s); }
+    $('.mq-ajout',rub).addEventListener('click',function(){
+      var v=sel.value; if(!v){return;}
+      if(!question){ ajouter(v,'cité'); sel.value=''; return; }
+      var tics=''; (MISSIONS[nomRub]||[]).forEach(function(m){ tics+='<button type="button" class="jeton jeton--compact mq-tick" style="text-align:left">'+m+'</button> '; });
+      pend.className='mq-pending';
+      pend.innerHTML=
+        '<div class="pastille-mini-edition pastille-mini-edition--large mt-2">'+
+        '<p class="fw-bold mb-2">'+v+'</p>'+
+        '<p class="fw-bold mt-1 mb-1">Voulez-vous développer cet élément sur votre CV ?</p>'+
+        '<div class="mq-ligne"><button type="button" class="jeton jeton--radio jeton--compact" data-ch="cite">Non, seulement le citer</button>'+
+        '<button type="button" class="jeton jeton--radio jeton--compact" data-ch="dev">Oui, le développer</button></div>'+
+        '<div class="fm-miss mq-miss"><p class="fm-q">Ce que vous avez fait <span class="fm-tag fm-tag--miss">À choisir</span></p>'+
+        '<p class="small mb-2">Cochez seulement ce que vous avez réellement fait.</p><div class="d-flex flex-wrap gap-2 mb-1">'+tics+'</div></div>'+
+        '<div class="mq-zone-ecrire mq-miss"><p class="fm-q mb-1">Ou avec vos mots</p>'+
+        '<textarea class="form-control form-control-sm mq-champ" rows="2" placeholder="Une autre mission que vous avez réellement faite"></textarea></div>'+
+        '<div class="mt-2"><button type="button" class="mq-btn mq-btn--annuler px-4 mq-etat-annuler">✕ Annuler</button>'+
+        '<button type="button" class="mq-btn mq-btn--plein px-4 mq-etat-valider">✓ Je valide</button>'+
+        '<p class="mq-aide-valider">Répondez à la question ci-dessus pour pouvoir valider. « Annuler » vous ramène au choix dans la liste.</p></div></div>';
+      rub.classList.add('verrou'); sel.disabled=true;
+      pend.setAttribute('data-nom-element',v);
+    });
+    if(!pend){ return; }
+    pend.addEventListener('click',function(e){
+      var ch=e.target.closest('[data-ch]');
+      if(ch){
+        $$('[data-ch]',pend).forEach(function(x){x.classList.remove('is-actif');}); ch.classList.add('is-actif');
+        pend.classList.add('choisi'); pend.classList.toggle('developpe',ch.getAttribute('data-ch')==='dev');
+        return;
+      }
+      var t=e.target.closest('.mq-tick'); if(t){ t.classList.toggle('is-actif'); return; }
+      if(e.target.closest('.mq-etat-annuler')){
+        rub.classList.remove('verrou'); sel.disabled=false; sel.value=''; pend.className='mq-pending'; pend.innerHTML=''; return;
+      }
+      if(e.target.closest('.mq-etat-valider')){
+        var dev=pend.classList.contains('developpe'); var n=$$('.mq-tick.is-actif',pend).length;
+        ajouter(pend.getAttribute('data-nom-element'), dev?('développé'+(n?' ('+n+' mission'+(n>1?'s':'')+')':'')):'cité');
+        rub.classList.remove('verrou'); sel.disabled=false; sel.value=''; pend.className='mq-pending'; pend.innerHTML='';
+      }
+    });
+  });
+
+  /* ---------- Expériences professionnelles : même principe ---------- */
+  var rubExp=$('#rubExp'), form=$('#mqExpForm'), poste=$('#mqExpPoste');
+  $('#mqExpOuvrir').addEventListener('click',function(){ rubExp.classList.add('verrou'); form.style.display='block'; $('#mqExpAide').style.display='block'; $('#mqExpValider').style.display='none'; $('#mqExpAnnuler').style.display='inline-flex'; poste.value=''; });
+  poste.addEventListener('input',function(){ var ok=poste.value.trim().length>1; $('#mqExpValider').style.display=ok?'inline-flex':'none'; $('#mqExpAnnuler').style.display=ok?'none':'inline-flex'; $('#mqExpAide').style.display=ok?'none':'block'; });
+  function fermerExp(){ rubExp.classList.remove('verrou'); form.style.display='none'; }
+  $('#mqExpAnnuler').addEventListener('click',fermerExp);
+  $('#mqExpValider').addEventListener('click',function(){ var s=document.createElement('span'); s.className='mq-element'; s.textContent=poste.value.trim(); $('#mqExpListe').appendChild(s); fermerExp(); });
+})();
+</script>
+</body>
+</html>

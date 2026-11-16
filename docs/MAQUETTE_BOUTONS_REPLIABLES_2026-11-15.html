@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : boutons du haut repliables</title>
+<style>
+:root{--bg:#eef1f6;--bg-card:#fff;--bg-subtle:#f8fafc;--border:#e2e8f0;--border-strong:#c9d2de;--text-strong:#0b1a33;--text-muted:#4a5b6e;--accent:#0d6efd;--accent-texte:#0a58ca;--accent-bg-subtle:#eef2fd;--success:#198754;--success-bg-subtle:#d1f4de;--warning:#b45309;--warning-bg-subtle:#fdf1d9;--orange:#e8710a;--alert:#a3372b;}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1218;--bg-card:#1b212c;--bg-subtle:#222834;--border:#313a4a;--border-strong:#46516a;--text-strong:#e8edf5;--text-muted:#a8b3c4;--accent:#4d94ff;--accent-texte:#7db0ff;--accent-bg-subtle:#1e2940;--success:#35c79a;--success-bg-subtle:#17301f;--warning:#f5a742;--warning-bg-subtle:#3a2c14;--orange:#fb923c;--alert:#eda69c;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;padding:1rem 16px 3rem}
+.page{max-width:1250px;margin:0 auto}
+h1{font-size:1.35rem;margin:.2rem 0}
+h2{font-size:1.05rem;margin:1.4rem 0 .3rem}
+.intro{color:var(--text-muted);max-width:75rem;margin:.2rem 0 .8rem}
+.regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.regl.ferme{display:none}
+.regl .ligne1{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;align-items:center;margin-bottom:.5rem}
+.regl .ligne1 b{font-size:.95rem}
+.regl label{display:flex;gap:.4rem;align-items:center;font-size:.92rem;cursor:pointer}
+.regl .btns{display:flex;flex-wrap:wrap;gap:.4rem}
+.regl .grp{font-size:.82rem;font-weight:700;color:var(--text-muted);margin:.4rem 0 .2rem}
+.croix{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;width:32px;height:32px;font-size:1.2rem;cursor:pointer;margin-left:auto}
+.rouvrir{display:none;position:fixed;right:12px;top:12px;z-index:70;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer}
+.rouvrir.visible{display:block}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.35rem .7rem;font-weight:700;cursor:pointer;font-size:.88rem}
+.btn.sec{background:var(--bg-subtle);color:var(--text-strong);border-color:var(--border-strong)}
+.etq{display:inline-block;font-weight:800;border-radius:6px;padding:.15rem .6rem;background:var(--accent);color:#fff}
+.etq.reco{background:var(--success)}
+.mesure{font-size:.84rem;font-weight:700;color:var(--success);margin:.3rem 0 0}
+
+/* ---------- L'écran simulé ---------- */
+.ecran{position:relative;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;min-height:330px}
+.bandeau{position:relative;height:84px;border-bottom:1px solid var(--border);background:var(--bg-card)}
+.rail{position:absolute;left:20px;top:0;height:84px;width:210px;overflow:hidden}
+.rond{position:absolute;top:19px;width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);background:var(--bg-card);color:var(--accent-texte);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:transform .35s ease,opacity .25s ease;cursor:pointer;padding:0}
+.rond.p0{left:0}.rond.p1{left:54px}.rond.p2{left:108px}.rond.p3{left:162px}
+.nb{position:absolute;top:-6px;right:-6px;background:var(--orange);color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:0 5px;line-height:16px;pointer-events:none}
+.pulse{animation:pls 1.8s ease-in-out 6}
+.pulse-inf{animation:pls 1.8s ease-in-out infinite}
+@keyframes pls{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 40%,transparent)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
+.fg .rail .rond{transform:translateX(-260px);opacity:0;pointer-events:none}
+.fleche{position:absolute;top:19px;width:20px;height:44px;border:1px solid var(--border-strong);background:var(--bg-card);color:var(--accent-texte);font-size:18px;font-weight:800;line-height:1;cursor:pointer;z-index:6;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:0}
+.fleche:hover{background:var(--accent-bg-subtle)}
+.fleche.g{left:0;border-left:0;border-radius:0 12px 12px 0}
+.fleche.d{right:0;border-right:0;border-radius:12px 0 0 12px}
+.fleche.d.c{top:165px}
+.fleche .nb{top:-9px;left:2px;right:auto;display:none}
+.fg .fleche.g .nb.on{display:block}
+.intro-btn{position:absolute;right:28px;top:19px;height:44px;border-radius:12px;border:2px solid var(--accent);background:var(--accent-bg-subtle);color:var(--accent-texte);font-weight:700;display:flex;align-items:center;padding:0 16px;font-size:14px;transition:transform .35s ease,opacity .25s ease}
+.fi .intro-btn{transform:translateX(220px);opacity:0;pointer-events:none}
+.etapes{position:absolute;top:26px;left:240px;right:190px;display:flex;gap:6px;justify-content:center;overflow:hidden}
+.etp{flex:0 0 auto;border:2px solid var(--success);color:var(--success);background:var(--success-bg-subtle);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:700;white-space:nowrap}
+.etp.c{border-color:#f5dd94;color:#92720c;background:#fffaeb}
+.etp.a{border-color:var(--border-strong);color:var(--text-muted);background:var(--bg-subtle)}
+/* cartes de droite : carrés arrondis de 52 px */
+.carte-b{position:absolute;right:28px;width:52px;height:52px;border-radius:16px;border:1px solid var(--border-strong);background:var(--bg-card);color:var(--accent-texte);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer;transition:transform .35s ease,opacity .25s ease;padding:0;z-index:4}
+.carte-b[data-b=carnet]{top:97px}.carte-b[data-b=journal]{top:161px}.carte-b[data-b=pistes]{top:225px}
+.fc .carte-b{transform:translateX(220px);opacity:0;pointer-events:none}
+.carte-b.cache{display:none}
+.corps{padding:14px 20px 20px 20px;min-height:230px}
+.corps h3{margin:.2rem 0;font-size:1.4rem}
+.ligne{height:10px;border-radius:5px;background:var(--border);margin:.55rem 0}
+.carte{border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;background:var(--bg-subtle)}
+/* panneau Nouveautés simulé */
+.nvp{position:absolute;left:20px;top:72px;width:330px;max-width:calc(100% - 40px);background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:8;padding:.6rem .7rem;display:none}
+.nvp.ouvert{display:block}
+.nvp h4{margin:0 0 .4rem;font-size:.95rem;display:flex;align-items:center}
+.nvp .x{margin-left:auto;border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:1.05rem}
+.nve{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text-strong);border-radius:10px;padding:.45rem .6rem;margin:.3rem 0;font-size:.88rem;cursor:pointer}
+.nve .n{margin-left:auto;background:var(--orange);color:#fff;border-radius:999px;font-weight:800;font-size:.75rem;padding:0 .5rem;line-height:1.35}
+.nve .n.vide{display:none}
+.nve.vu{opacity:.75}
+.nvmsg{font-size:.8rem;color:var(--text-muted);margin:.3rem 0 0}
+/* téléphone */
+.tel{width:375px;max-width:100%}
+.tel .bandeau{height:auto}
+.tel .haut{position:relative;height:50px}
+.tel .etapes{position:static;display:flex;justify-content:center;padding:6px 6px 4px}
+.tel .etapes .etp{font-size:12px;padding:1px 8px}
+.tel .intro-btn{top:6px;height:38px;font-size:12px;padding:0 10px;right:26px}
+.tel .fleche{top:6px;height:38px;width:18px}
+.tel .rangee{position:relative;height:48px;overflow:hidden;transition:height .35s ease}
+.tel .rail{left:8px;top:0;height:48px;width:200px}
+.tel .rond{top:5px;width:38px;height:38px;font-size:16px}
+.tel .rond.p0{left:0}.tel .rond.p1{left:46px}.tel .rond.p2{left:92px}.tel .rond.p3{left:138px}
+.tel .carte-b{right:26px;width:42px;height:42px;border-radius:14px;font-size:18px}
+.tel .carte-b[data-b=carnet]{top:106px}.tel .carte-b[data-b=journal]{top:156px}.tel .carte-b[data-b=pistes]{top:206px}
+.tel .fleche.d.c{top:158px}
+.tel .corps{padding:6px 12px 14px 12px}
+.tel .corps h3{font-size:1.15rem}
+.tel .nvp{left:8px;top:96px;width:300px}
+.note{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .8rem;margin:1rem 0;max-width:75rem}
+.reco-box{background:var(--success-bg-subtle);border-left:3px solid var(--success);border-radius:8px;padding:.6rem .8rem;margin:1rem 0;max-width:75rem}
+.quest li{margin:.35rem 0}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Boutons fixes : trois flèches</h1>
+<p class="intro">Présentation 1 retenue : tout se replie derrière la flèche. Cette maquette ajoute ce que vous avez décrit : le chiffre des Nouveautés qui diminue au fil de ce qui est lu, un repli qui reste au choix de la personne (jamais automatique), la flèche qui clignote comme le bouton caché, et une flèche pour Introduction et une autre, au niveau du Journal, pour la colonne Carnet, Journal et Pistes de côté. Utilisez le panneau « Essais » ci-dessous (il se ferme avec la croix) puis cliquez directement dans les deux écrans.</p>
+
+<button type="button" class="rouvrir" id="rouvrir">Essais</button>
+<div class="regl" id="regl">
+<div class="ligne1"><b>Essais</b>
+<span>Boutons de droite (Journal et Pistes) :</span>
+<label><input type="radio" name="opt" value="A" checked> A : invisibles tant qu’ils ne servent pas (recommandé)</label>
+<label><input type="radio" name="opt" value="B"> B : toujours affichés, derrière la flèche</label>
+<button type="button" class="croix" id="fermer" aria-label="Fermer les essais" title="Fermer les essais">&times;</button></div>
+<div class="grp">Faire clignoter un bouton (6 clignotements de 1,8 s, comme aujourd’hui)</div>
+<div class="btns">
+<button type="button" class="btn sec" data-p="disq">La disquette (rappel de sauvegarde)</button>
+<button type="button" class="btn sec" data-p="aide">L’ampoule (aide)</button>
+<button type="button" class="btn sec" data-p="carnet">Le Carnet (note gardée)</button>
+<button type="button" class="btn sec" data-p="journal">Un repère ajouté au Journal</button>
+<button type="button" class="btn sec" data-p="pistes">Une piste mise de côté</button>
+</div>
+<div class="grp">Autres</div>
+<div class="btns">
+<button type="button" class="btn sec" id="page">Changer de page (le repli reste tel quel)</button>
+<button type="button" class="btn sec" id="razS">Nouvelle session (tout remis à zéro)</button>
+</div>
+</div>
+
+<h2><span class="etq reco">Ordinateur</span></h2>
+<div id="eo"></div>
+<p class="mesure" id="mo"></p>
+<h2><span class="etq">Téléphone</span></h2>
+<div id="et"></div>
+<p class="mesure" id="mt"></p>
+
+<div class="reco-box"><b>Recommandation pour Journal et Pistes de côté : option A.</b> Aujourd’hui ces deux boutons n’existent qu’à partir du premier repère ou de la première piste. En A, rien ne change : la flèche des cartes clignote seulement quand l’un des deux apparaît (ou reçoit un ajout) pendant qu’elle est repliée, et l’ensemble reste léger. En B, la personne verrait dès le début deux boutons vides dont elle ne comprend pas l’usage : plus de questions, et un écran plus chargé quand tout est déplié. Le risque de A : un clignotement dure environ 11 secondes, une personne distraite peut le manquer ; pour cela on peut ajouter, au choix, un petit point fixe sur la flèche des cartes tant que le nouveau bouton n’a pas été vu (question 3).</div>
+
+<div class="note"><b>Ce que vous avez décrit, tel que c’est montré ici :</b>
+<ul>
+<li>Le chiffre des Nouveautés (18) se réduit rubrique par rubrique : ouvrez la mégaphone (flèche dépliée), cliquez « Nouveautés de l’application » : 3 de moins ; « Droits et règles » : 2 de moins ; « Problèmes corrigés » : 13 de moins. À zéro, le chiffre disparaît partout, y compris sur la flèche. « Nouvelle session » le remet comme à l’ouverture (pas de compte, pas de mémoire entre deux sessions).</li>
+<li>Les boutons et les flèches sont toujours posés par-dessus la page : ils ne poussent ni ne déplacent jamais le texte, même quand un bouton apparaît ou se range. Le Journal ou Pistes de côté qui apparaissent ne bougent rien non plus.</li>
+<li>Le repli n’est jamais automatique : c’est la personne qui replie et qui déplie, et le choix tient pendant toute la navigation (« Changer de page »).</li>
+<li>La flèche clignote exactement comme le bouton caché, avec le même rythme et la même durée ; si elle est dépliée, c’est le bouton lui-même qui clignote, pas la flèche.</li>
+<li>Introduction a sa propre flèche (en haut à droite). Une troisième flèche, placée au niveau du Journal de parcours, replie ensemble les trois cartes Carnet, Journal et Pistes de côté.</li>
+</ul></div>
+
+<div class="quest"><strong>Questions pour vous :</strong>
+<ol>
+<li>Journal et Pistes de côté : option A (recommandée) ou B ?</li>
+
+<li>Pour l’option A : un petit point fixe sur la flèche des cartes tant que le nouveau bouton n’a pas été ouvert, en plus du clignotement ?</li>
+<li>Dans la fenêtre Nouveautés, le petit chiffre de chaque rubrique disparaît-il aussi une fois la rubrique regardée (comme dans la maquette) ?</li>
+</ol></div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var ETAPES = [["Objectif", "f"], ["Informations", "f"], ["Parcours", "c"], ["Missions", "a"], ["Profil", "a"]];
+  var TOTAUX = { appli: 3, regles: 2, corriges: 13 };
+  var NOMS = { appli: "Nouveautés de l’application", regles: "Droits et règles", corriges: "Problèmes corrigés" };
+  var S = { fg: false, fi: false, fc: false, opt: "A", journal: false, pistes: false, vu: { appli: 0, regles: 0, corriges: 0 }, jusqu: {}, nv: false, page: 0 };
+
+  function ronds() {
+    return '<button type="button" class="rond p0" data-b="pref" title="Préférences d’affichage" aria-label="Préférences d’affichage">&#9881;</button>' +
+      '<button type="button" class="rond p1" data-b="aide" title="Aide sur cette page" aria-label="Aide">&#128161;</button>' +
+      '<button type="button" class="rond p2" data-b="disq" title="Sauvegarder ma session" aria-label="Sauvegarder">&#128190;</button>' +
+      '<button type="button" class="rond p3" data-b="news" title="Nouveautés" aria-label="Nouveautés">&#128226;<span class="nb" data-nb="news"></span></button>';
+  }
+  function etapesHtml() { return '<div class="etapes">' + ETAPES.map(function (e) { return '<span class="etp ' + (e[1] === "c" ? "c" : (e[1] === "a" ? "a" : "")) + '">' + e[0] + '</span>'; }).join("") + '</div>'; }
+  function cartes() {
+    return '<button type="button" class="carte-b" data-b="carnet" title="Mon Carnet" aria-label="Mon Carnet">&#128211;</button>' +
+      '<button type="button" class="carte-b" data-b="journal" title="Journal de parcours" aria-label="Journal de parcours">&#128214;</button>' +
+      '<button type="button" class="carte-b" data-b="pistes" title="Comparer mes pistes" aria-label="Pistes de côté">&#129695;</button>';
+  }
+  function flG() { return '<button type="button" class="fleche g" data-f="g" aria-expanded="true" aria-label="Replier les boutons de gauche"><span class="nb" data-nb="fleche"></span><span class="gl">&#8249;</span></button>'; }
+  function flI() { return '<button type="button" class="fleche d" data-f="i" aria-expanded="true" aria-label="Replier Introduction"><span class="gl">&#8250;</span></button>'; }
+  function flC() { return '<button type="button" class="fleche d c" data-f="c" aria-expanded="true" aria-label="Replier les boutons de droite"><span class="gl">&#8250;</span></button>'; }
+  function panneau() { return '<div class="nvp" role="dialog" aria-label="Nouveautés"><h4>Nouveautés <button type="button" class="x" data-nvx aria-label="Fermer">&times;</button></h4>' +
+    ["appli", "regles", "corriges"].map(function (k) { return '<button type="button" class="nve" data-nve="' + k + '">' + NOMS[k] + '<span class="n" data-n="' + k + '"></span></button>'; }).join("") + '<p class="nvmsg" data-nvmsg>Cliquez une rubrique pour la regarder.</p></div>'; }
+  function corps() { return '<div class="corps"><h3 data-titre>Votre parcours</h3><div class="ligne" style="width:70%"></div><div class="carte"><div class="ligne" style="width:55%"></div><div class="ligne"></div><div class="ligne" style="width:80%"></div></div><div class="ligne"></div><div class="ligne" style="width:60%"></div></div>'; }
+  function ordi() { return '<div class="ecran"><div class="bandeau"><div class="rail">' + ronds() + '</div>' + flG() + etapesHtml() + '<span class="intro-btn" data-b="intro">&#129517; Introduction</span>' + flI() + '</div>' + cartes() + flC() + corps() + panneau() + '</div>'; }
+  function tel() { return '<div class="ecran tel"><div class="bandeau"><div class="haut">' + flG() + '<span class="intro-btn" data-b="intro">&#129517; Introduction</span>' + flI() + '</div>' + etapesHtml() + '<div class="rangee"><div class="rail">' + ronds() + '</div></div></div>' + cartes() + flC() + corps() + panneau() + '</div>'; }
+  $("eo").innerHTML = ordi();
+  $("et").innerHTML = tel();
+  var ECR = Array.prototype.slice.call(document.querySelectorAll(".ecran"));
+
+  function total() { var t = 0; for (var k in TOTAUX) { t += TOTAUX[k] - S.vu[k]; } return t; }
+  function actif(cle) { return (S.jusqu[cle] || 0) > Date.now(); }
+  function visible(cle) { if (cle === "journal") { return S.opt === "B" || S.journal; } if (cle === "pistes") { return S.opt === "B" || S.pistes; } return true; }
+  function rendre() {
+    var t = total();
+    var pg = actif("disq") || actif("aide");
+    var pd = ["carnet", "journal", "pistes"].some(function (c) { return actif(c) && visible(c); });
+    ECR.forEach(function (e) {
+      e.classList.toggle("fg", S.fg); e.classList.toggle("fi", S.fi); e.classList.toggle("fc", S.fc);
+      Array.prototype.forEach.call(e.querySelectorAll("[data-b]"), function (b) {
+        var c = b.getAttribute("data-b");
+        if (c === "journal" || c === "pistes") { b.classList.toggle("cache", !visible(c)); }
+        b.classList.toggle("pulse", actif(c) && visible(c));
+      });
+      var fg = e.querySelector(".fleche.g"), fi = e.querySelector("[data-f=i]"), fc = e.querySelector("[data-f=c]");
+      [[fg, S.fg, "les boutons de gauche", "&#8250;", "&#8249;", pg], [fi, S.fi, "Introduction", "&#8249;", "&#8250;", false], [fc, S.fc, "les boutons de droite", "&#8249;", "&#8250;", pd]].forEach(function (a) {
+        var f = a[0]; f.setAttribute("aria-expanded", a[1] ? "false" : "true");
+        f.setAttribute("aria-label", (a[1] ? "Déplier " : "Replier ") + a[2]);
+        f.querySelector(".gl").innerHTML = a[1] ? a[3] : a[4];
+        f.classList.toggle("pulse-inf", a[1] && a[5]);
+      });
+      var nb = e.querySelector("[data-nb=news]"); nb.textContent = t; nb.style.display = t > 0 ? "" : "none";
+      var nf = e.querySelector("[data-nb=fleche]"); nf.textContent = t; nf.classList.toggle("on", t > 0);
+      e.querySelector(".nvp").classList.toggle("ouvert", S.nv && !S.fg);
+      Array.prototype.forEach.call(e.querySelectorAll("[data-n]"), function (n) { var k = n.getAttribute("data-n"); var r = TOTAUX[k] - S.vu[k]; n.textContent = r; n.classList.toggle("vide", r <= 0); n.parentNode.classList.toggle("vu", r <= 0); });
+      e.querySelector("[data-titre]").textContent = S.page ? "Vos informations" : "Votre parcours";
+    });
+    var rep = S.fg || S.fi || S.fc;
+    var m = rep ? "Replié : la page ne bouge pas d’un pixel, les boutons étaient seulement posés par-dessus et ne cachent plus rien." : "Déplié : les boutons sont posés par-dessus la page (comme aujourd’hui), ils ne la poussent jamais.";
+    $("mo").textContent = m; $("mt").textContent = m;
+  }
+  function declencher(cle) {
+    if (cle === "journal") { S.journal = true; } if (cle === "pistes") { S.pistes = true; }
+    S.jusqu[cle] = Date.now() + 10800;
+    ECR.forEach(function (e) { var b = e.querySelector('[data-b="' + cle + '"]'); if (b) { b.classList.remove("pulse"); void b.offsetWidth; } });
+    rendre();
+    setTimeout(rendre, 10900);
+  }
+  document.addEventListener("click", function (ev) {
+    var t = ev.target;
+    var f = t.closest(".fleche"); if (f) { var c = f.getAttribute("data-f"); if (c === "g") { S.fg = !S.fg; } else if (c === "i") { S.fi = !S.fi; } else { S.fc = !S.fc; } rendre(); return; }
+    var p = t.closest("[data-p]"); if (p) { declencher(p.getAttribute("data-p")); return; }
+    var b = t.closest(".rond[data-b=news]"); if (b) { S.nv = !S.nv; rendre(); return; }
+    if (t.closest("[data-nvx]")) { S.nv = false; rendre(); return; }
+    var n = t.closest("[data-nve]"); if (n) { var k = n.getAttribute("data-nve"); S.vu[k] = TOTAUX[k]; ECR.forEach(function (e) { e.querySelector("[data-nvmsg]").textContent = "Vous avez regardé « " + NOMS[k] + " »."; }); rendre(); return; }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("input[name=opt]"), function (r) { r.addEventListener("change", function () { S.opt = r.value; rendre(); }); });
+  $("page").addEventListener("click", function () { S.page = S.page ? 0 : 1; rendre(); });
+  $("razS").addEventListener("click", function () { S.vu = { appli: 0, regles: 0, corriges: 0 }; S.journal = false; S.pistes = false; S.jusqu = {}; S.nv = false; S.fg = false; S.fi = false; S.fc = false; ECR.forEach(function (e) { e.querySelector("[data-nvmsg]").textContent = "Cliquez une rubrique pour la regarder."; }); rendre(); });
+  $("fermer").addEventListener("click", function () { $("regl").classList.add("ferme"); $("rouvrir").classList.add("visible"); });
+  $("rouvrir").addEventListener("click", function () { $("regl").classList.remove("ferme"); $("rouvrir").classList.remove("visible"); });
+  rendre();
+  window.__S = S; window.__rendre = rendre; window.__declencher = declencher;
+})();
+</script>
+</body>
+</html>

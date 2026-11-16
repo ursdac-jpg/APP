@@ -1,0 +1,338 @@
+{
+ "nom": "reprendreVoie1",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : les choix suivants sont annoncés bloqués tant que le CV n’est pas déposé"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "choix de la voie 1 : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix de la voie 1 : #mettre-a-jour-cv « Préparer la mise à jour » bouton « Continuer → (grisé) » raison « Il reste à choisir votre situation dans « Votre objectif ». » barre [Préparer] > Assistant > Réponse > Corriger mon CV > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "après l’objectif : bouton « Continuer → (grisé) » raison « Il reste à indiquer le métier visé (ou plusieurs métiers) dans « Votre objectif ». »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : bouton « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage : écran #mettre-a-jour-cv « Préparer la mise à jour » barre Préparer > Assistant > [Réponse] > Corriger mon CV > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "collage de l’extraction : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "après « Vérifier mes informations » : #objectif « 🎯 Votre objectif » bouton « Continuer → (grisé) » raison « Il reste à dire si vous vous adressez à une entreprise précise ou non. »"
+  },
+  {
+   "n": "ok",
+   "t": "voie 1 : « Votre objectif » ne reprend pas les cartes ni le choix du métier déjà faits, seulement ce qui manque"
+  },
+  {
+   "n": "info",
+   "t": "entreprise : ok"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 : ok:Continuer → → #projet « 📋 Vos informations » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 : ok:Continuer → → #revelation « 👤 Votre profil » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 : ok:Continuer → → #resultats « 💬 L’assistant en ligne » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 : ok:Continuer → → #resultats « 💬 L’assistant en ligne » [bouton : null] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage de la rédaction : etat:recu"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 151 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 151 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 (fin) : ok:Voir mes propositions → → #resultats « Le complément de votre CV » [bouton : Continuer sans le complément →] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 (fin) : ok:Continuer sans le complément → → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 (fin) : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 (fin) : ok:← Modifier le CV → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie 1 (fin) : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : revelation:Votre profil < projet:Vos informations < objectif:Votre objectif < mettre-a-jour-cv:Préparer la mise à jour < reprendre-cv:Reprendre votre CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 1 : les « Retour » successifs rejoignent la page commune en 5 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre mon CV",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre votre CV",
+    "barre": "[Déposer] > Ma voie",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#revelation",
+    "page": "revelation",
+    "h1": "👤 Votre profil",
+    "barre": "Préparer > Assistant > Réponse > [Corriger mon CV] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "💬 L’assistant en ligne",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "💬 L’assistant en ligne",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "Le complément de votre CV",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "Continuer sans le complément →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "151 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "151 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Corriger mon CV > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  }
+ ]
+}

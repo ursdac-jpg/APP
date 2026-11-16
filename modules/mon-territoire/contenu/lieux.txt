@@ -9,6 +9,7 @@
 #   site        : adresse https vérifiée à la main (date obligatoire)
 #   portée      : national, region, 24 (Dordogne) ou 87 (Haute-Vienne)
 #   rayons      : les rayons de « Comprendre le cadre » qui affichent cette structure (séparés par une virgule)
+#   mail, adresse : 13e et 14e colonnes, facultatives (une ligne qui n'en a pas garde ses 12 colonnes). mail = adresse de service, jamais celle d'une personne ; adresse = « numéro, rue, code postal, commune ». Comme le téléphone et le site, ils demandent une date de vérification.
 #   source      : d'où vient la ligne
 #   date        : AAAA-MM-JJ, jour où l'adresse a été ouverte et vérifiée. Sans date le site ne s'affiche pas ; plus de 12 mois : « à revérifier ».
 # MIGRATION : rayon Logement, Dordogne (24), national et région, faite le 2026-10-12 et VALIDÉE par Denis le 2026-10-12 : les anciennes lignes ont été retirées de la collecte du rayon Logement. Les lignes de la Haute-Vienne (87) restent dans la collecte jusqu'à leur propre migration.

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : métiers qui pourraient vous intéresser (version 2)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 5rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-note{font-size:.85rem;color:var(--text-muted)}
+
+/* Bloc : même squelette que l'application */
+.mc2-bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.2rem;margin:.6rem 0}
+.mc2-entete{display:flex;align-items:center;gap:.8rem;cursor:pointer;border:0;background:none;width:100%;text-align:left;color:inherit;font:inherit;padding:0}
+.mc2-entete h5{margin:0;font-size:1.1rem;font-weight:800;flex:1}
+.mc2-compteur{font-size:.85rem;font-weight:700;color:var(--text-muted)}
+.mc2-fleche{color:var(--accent);font-size:1rem}
+.mc2-intro{font-size:.92rem;color:var(--text-muted);margin:.7rem 0 .3rem}
+.mc2-groupe{margin:1rem 0 .4rem}
+.mc2-groupe-titre{display:flex;align-items:baseline;gap:.6rem;margin:0 0 .15rem;font-size:1rem;font-weight:800}
+.mc2-groupe-nb{font-size:.8rem;font-weight:700;color:var(--accent-texte,var(--accent));background:var(--accent-bg-subtle);border-radius:999px;padding:.05rem .55rem}
+.mc2-groupe-aide{font-size:.85rem;color:var(--text-muted);margin:0 0 .6rem}
+
+/* Grille régulière */
+.mc2-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;align-items:stretch}
+.tel .mc2-grille{grid-template-columns:1fr}
+.mc2-carte{display:flex;flex-direction:column;gap:.4rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem .9rem .9rem}
+.mc2-carte.large{grid-column:1 / -1;border-color:var(--accent)}
+.mc2-haut{display:flex;align-items:flex-start;gap:.5rem}
+.mc2-nom{flex:1;margin:0;font-size:1.05rem;font-weight:800;line-height:1.25;color:var(--text-strong);min-height:2.5em;cursor:default}
+.tel .mc2-nom,.mc2-carte.large .mc2-nom{min-height:0}
+.mc2-suppr{flex:none;width:34px;height:34px;margin:-.25rem -.35rem 0 0;display:inline-flex;align-items:center;justify-content:center;border:0;background:none;border-radius:8px;color:var(--text-muted);cursor:pointer}
+.mc2-suppr:hover,.mc2-suppr:focus-visible{background:var(--bg-subtle);color:var(--danger)}
+.mc2-sous-titre{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.mc2-secteur{font-size:.82rem;color:var(--text-muted);margin:0}
+.mc2-ft{font-size:.76rem;padding:.2rem .55rem;display:inline-flex;align-items:center;gap:.3rem;text-decoration:none}
+
+/* Les deux boutons « pour comprendre » */
+.mc2-explique{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.15rem}
+.tel .mc2-explique{grid-template-columns:1fr}
+.mc2-bt{min-height:44px;display:flex;align-items:center;justify-content:center;gap:.35rem;text-align:center;font-size:.8rem;line-height:1.15;padding:.3rem .5rem;text-decoration:none;font-weight:700}
+.mc2-bt .bi-chevron-down{transition:transform .15s}
+.mc2-bt[aria-expanded="true"] .bi-chevron-down{transform:rotate(180deg)}
+.mc2-bt.est-ouvert{background:var(--accent-bg-subtle);border-color:var(--accent);color:var(--accent-texte,var(--accent))}
+
+/* Rubriques qui s'ouvrent DANS la carte (jamais une fenêtre) */
+.mc2-panneau{background:var(--bg-subtle);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem .85rem;margin-top:.2rem}
+.mc2-panneau h6{margin:0 0 .4rem;font-size:.95rem;font-weight:800}
+.mc2-panneau p{margin:.15rem 0;font-size:.9rem}
+.mc2-panneau ul{margin:.2rem 0 .3rem;padding-left:1.15rem;font-size:.9rem}
+.mc2-panneau ul li{margin:.12rem 0}
+.mc2-panneau .sous{font-weight:700;font-size:.85rem;margin:.6rem 0 .25rem}
+.mc2-barre{height:18px;border-radius:999px;background:var(--bg-card);border:1px solid var(--border);overflow:hidden;margin:.3rem 0 .5rem}
+.mc2-barre span{display:block;height:100%;background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;line-height:16px;padding-left:.6rem;white-space:nowrap}
+.mc2-comps{display:flex;flex-wrap:wrap;gap:.4rem}
+.mc2-comp{font-size:.82rem;font-weight:700;padding:.3rem .75rem;border-radius:999px;border:1px solid var(--accent);background:var(--bg-card);color:var(--accent-texte,var(--accent));cursor:pointer;min-height:36px}
+.mc2-comp[aria-expanded="true"]{background:var(--accent);color:#fff}
+.mc2-niveau2{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:8px;padding:.6rem .75rem;margin-top:.5rem}
+.mc2-niveau2 p{margin:.15rem 0 .4rem}
+.mc2-badge{display:inline-block;font-size:.78rem;padding:.15rem .55rem;border-radius:999px;background:var(--bg-card);border:1px solid var(--border);margin:.1rem .15rem .1rem 0}
+.mc2-badge.sf{border-color:var(--accent)}
+
+/* Actions */
+.mc2-actions{margin-top:auto;padding-top:.5rem;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.tel .mc2-actions{grid-template-columns:1fr 1fr}
+.tel .mc2-actions .mc2-btn-fiche{grid-column:1 / -1}
+.mc2-btn{min-height:46px;display:flex;align-items:center;justify-content:center;gap:.35rem;text-align:center;font-size:.8rem;line-height:1.15;padding:.3rem .45rem;text-decoration:none}
+.mc2-voir-reste{display:flex;justify-content:center;margin:.8rem 0 .2rem}
+.mc2-vide{border:1px dashed var(--border-strong);border-radius:10px;padding:.7rem .9rem;font-size:.9rem;color:var(--text-muted)}
+
+/* Sous-sections repliables */
+.mc2-acc{border-top:1px solid var(--border);margin-top:1rem}
+.mc2-acc:first-of-type{margin-top:1.2rem}
+.mc2-acc-entete{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;padding:.85rem .1rem;cursor:pointer;font-weight:700;font-size:1.02rem}
+.mc2-acc-entete i{color:var(--accent);transition:transform .15s}
+.mc2-acc-entete[aria-expanded="true"] i{transform:rotate(90deg)}
+.mc2-acc-corps{padding:0 .1rem 1rem}
+.mc2-acc-corps .intro{font-size:.9rem;margin:0 0 .7rem}
+.mc2-acc-corps .pied{font-size:.85rem;color:var(--text-muted);margin:.7rem 0 0}
+.mc2-ligne{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:.45rem .6rem .45rem .8rem;min-height:52px}
+.mc2-ligne span{font-weight:700;font-size:.95rem;cursor:default}
+.mc2-ligne .btn{flex:none;font-size:.78rem;padding:.3rem .6rem;min-height:36px;display:inline-flex;align-items:center;gap:.3rem}
+.mc2-pourquoi-recrute{background:var(--bg-subtle);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem .85rem;margin:.9rem 0 .2rem}
+.mc2-pourquoi-recrute h6{margin:0 0 .3rem;font-size:.95rem;font-weight:800}
+.mc2-pourquoi-recrute ul{margin:.2rem 0 .5rem;padding-left:1.15rem;font-size:.9rem}
+.mc2-pourquoi-recrute .btn{min-height:44px}
+
+/* Écran de destination (module à venir) */
+.mc2-stub{background:var(--bg-card);border:2px dashed var(--border-strong);border-radius:16px;padding:1.4rem 1.3rem;margin:1rem 0}
+.mc2-stub h2{font-size:1.25rem;margin:0 0 .5rem}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Taille d’écran, thème, remise à zéro</b>
+    <div class="boutons" data-groupe="taille">
+      <button type="button" class="btn btn-sm btn-primary" data-v="large">Ordinateur</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="tel">Téléphone</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqTheme">Mode sombre</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqRemettre">Tout remettre à zéro</button>
+    </div>
+  </div>
+  <div class="mq-retient" id="mqRetient"></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+/* Exemples : mêmes intitulés et secteurs que l'écran réel. Le nom d'un métier n'est jamais cliquable : seuls les boutons le sont. */
+var METIERS = [
+  { id: 1, g: 'p', nom: 'Employé polyvalent de restauration / Aide de cuisine', sect: 'Hôtellerie, restauration et tourisme', com: ['Cuisine', 'Endurance', 'Travail en équipe'], sc: 82, rs: ['Vous aimez travailler en équipe', 'Vous aimez préparer, cuisiner'], ms: ['Préparer les ingrédients et les plats simples', 'Dresser et servir les plats', 'Nettoyer le poste de travail et la vaisselle', 'Ranger et contrôler les stocks du jour'] },
+  { id: 2, g: 'p', nom: 'Ouvrier agricole / viticole', sect: 'Agriculture, nature et espaces verts', com: ['Endurance', 'Travail en extérieur'], sc: 76, rs: ['Vous aimez travailler en extérieur', 'Vous aimez le travail de vos mains'], ms: ['Planter, tailler et récolter', 'Entretenir les cultures et les outils', 'Conduire des engins agricoles simples', 'Trier et conditionner la récolte'] },
+  { id: 3, g: 'p', nom: 'Agent de service hospitalier (ASH)', sect: 'Santé et soins', com: ['Rigueur', 'Travail en équipe'], sc: 71, rs: ['Vous aimez le contact avec les gens', 'Vous aimez rendre service'], ms: ['Entretenir les chambres et les locaux', 'Aider à la distribution des repas', 'Respecter les règles d’hygiène', 'Transporter le linge et le matériel'] },
+  { id: 4, g: 'p', nom: 'Téléconseiller', sect: 'Commerce et vente', com: ['Relation client', 'Écoute'], sc: 69, rs: ['Vous aimez travailler avec des clients', 'Vous savez écouter'], ms: ['Répondre aux appels des clients', 'Renseigner et conseiller', 'Noter les demandes dans un logiciel', 'Orienter vers le bon service'] },
+  { id: 5, g: 'p', nom: 'Employé libre-service', sect: 'Commerce et vente', com: ['Relation client', 'Organisation'], sc: 66, rs: ['Vous aimez travailler en magasin', 'Vous aimez ranger, organiser'], ms: ['Mettre les produits en rayon', 'Vérifier les dates et les prix', 'Renseigner les clients', 'Ranger la réserve'] },
+  { id: 6, g: 'p', nom: 'Vendeur en alimentation', sect: 'Commerce et vente', com: ['Relation client', 'Cuisine'], sc: 64, rs: ['Vous aimez travailler avec des clients', 'Vous aimez l’alimentation'], ms: ['Accueillir et conseiller les clients', 'Préparer et présenter les produits', 'Tenir la caisse', 'Respecter les règles d’hygiène'] },
+  { id: 7, g: 'p', nom: 'Préparateur de commandes / Magasinier', sect: 'Transport et logistique', com: ['Organisation', 'Endurance'], sc: 61, rs: ['Vous aimez ranger, organiser', 'Vous avez de l’endurance'], ms: ['Préparer les commandes', 'Ranger les marchandises dans l’entrepôt', 'Conduire un chariot, si formé', 'Contrôler les quantités'] },
+  { id: 8, g: 'p', nom: 'Agent de propreté urbaine / Ripeur', sect: 'Propreté et gestion des déchets', com: ['Endurance', 'Travail en extérieur'], sc: 58, rs: ['Vous aimez travailler en extérieur', 'Vous avez de l’endurance'], ms: ['Collecter les déchets', 'Balayer et nettoyer les rues', 'Utiliser le matériel de nettoyage', 'Respecter les consignes de sécurité'] },
+  { id: 9, g: 'p', nom: 'Agent d’entretien des locaux', sect: 'Propreté et gestion des déchets', com: ['Rigueur', 'Autonomie'], sc: 55, rs: ['Vous aimez le travail soigné', 'Vous aimez travailler seul'], ms: ['Nettoyer les sols et les surfaces', 'Entretenir les sanitaires', 'Choisir les bons produits', 'Gérer le matériel et les stocks'] },
+  { id: 10, g: 'p', nom: 'Opérateur de conditionnement', sect: 'Industrie', com: ['Rigueur', 'Organisation'], sc: 52, rs: ['Vous aimez le travail régulier', 'Vous aimez ranger, organiser'], ms: ['Emballer les produits', 'Surveiller la machine', 'Contrôler la qualité', 'Étiqueter et palettiser'] },
+  { id: 11, g: 'm', nom: 'Ouvrier de chai / Agent de cave', sect: 'Agriculture, nature et espaces verts', com: ['Cuisine', 'Rigueur'], sc: 0, rs: [], ms: ['Transvaser et filtrer les vins', 'Nettoyer les cuves et le matériel', 'Étiqueter et ranger les bouteilles', 'Suivre les consignes du chef de cave'] },
+  { id: 12, g: 'm', nom: 'Hôte de caisse', sect: 'Commerce et vente', com: ['Relation client'], sc: 0, rs: [], ms: ['Accueillir les clients', 'Scanner les articles', 'Encaisser les paiements', 'Tenir la caisse propre et juste'] },
+  { id: 13, g: 'm', nom: 'Agent de sécurité', sect: 'Sécurité', com: ['Rigueur', 'Endurance'], sc: 0, rs: [], ms: ['Surveiller les lieux', 'Contrôler les accès', 'Faire des rondes', 'Alerter en cas de problème'] },
+  { id: 14, g: 'm', nom: 'Plongeur en restauration', sect: 'Hôtellerie, restauration et tourisme', com: ['Endurance', 'Travail en équipe'], sc: 0, rs: [], ms: ['Laver la vaisselle et les ustensiles', 'Nettoyer la cuisine', 'Ranger le matériel', 'Aider l’équipe en cuisine'] },
+  { id: 15, g: 'm', nom: 'Serveur en restauration', sect: 'Hôtellerie, restauration et tourisme', com: ['Relation client', 'Travail en équipe'], sc: 0, rs: [], ms: ['Accueillir et placer les clients', 'Prendre les commandes', 'Servir les plats et les boissons', 'Débarrasser et dresser les tables'] }
+];
+/* Compétences que le métier demande (exemple simple, par secteur) */
+var SECT_COMP = {
+  'Hôtellerie, restauration et tourisme': { sf: ['Cuisine', 'Service'], se: ['Rapidité', 'Travail en équipe'] },
+  'Agriculture, nature et espaces verts': { sf: ['Conduite d’engins', 'Soins aux cultures'], se: ['Endurance', 'Autonomie'] },
+  'Santé et soins': { sf: ['Hygiène', 'Entretien des locaux'], se: ['Rigueur', 'Discrétion'] },
+  'Commerce et vente': { sf: ['Accueil', 'Encaissement'], se: ['Relation client', 'Écoute'] },
+  'Transport et logistique': { sf: ['Préparation de commandes', 'Conduite de chariot'], se: ['Organisation', 'Endurance'] },
+  'Propreté et gestion des déchets': { sf: ['Nettoyage', 'Utilisation de produits'], se: ['Rigueur', 'Autonomie'] },
+  'Industrie': { sf: ['Conditionnement', 'Contrôle qualité'], se: ['Rigueur', 'Régularité'] },
+  'Sécurité': { sf: ['Surveillance', 'Contrôle d’accès'], se: ['Vigilance', 'Sang-froid'] }
+};
+/* Pour le deuxième niveau : combien de métiers partagent la compétence, et quelques exemples. */
+var PARTAGENT = {
+  'Relation client': { n: 75, ex: ['Conseiller de vente', 'Agent d’accueil', 'Hôtesse de caisse', 'Réceptionniste', 'Serveur en restauration'] },
+  'Écoute': { n: 58, ex: ['Aide à domicile', 'Conseiller en insertion', 'Agent d’accueil', 'Auxiliaire de vie', 'Standardiste'] },
+  'Endurance': { n: 64, ex: ['Manutentionnaire', 'Ouvrier du bâtiment', 'Aide de cuisine', 'Ouvrier agricole', 'Agent de tri'] },
+  'Cuisine': { n: 31, ex: ['Cuisinier', 'Boulanger', 'Pâtissier', 'Traiteur', 'Employé de self'] },
+  'Travail en équipe': { n: 112, ex: ['Aide-soignant', 'Équipier polyvalent', 'Ouvrier de production', 'Animateur', 'Cariste'] },
+  'Rigueur': { n: 98, ex: ['Magasinier', 'Agent de contrôle', 'Opérateur de production', 'Employé administratif', 'Agent de sécurité'] },
+  'Organisation': { n: 87, ex: ['Gestionnaire de stock', 'Assistant administratif', 'Employé de rayon', 'Agent logistique', 'Secrétaire'] },
+  'Autonomie': { n: 69, ex: ['Agent d’entretien', 'Livreur', 'Gardien', 'Jardinier', 'Aide à domicile'] },
+  'Travail en extérieur': { n: 41, ex: ['Jardinier', 'Maçon', 'Agent de voirie', 'Éleveur', 'Facteur'] }
+};
+var RECRUTENT = ['Agent de manutention', 'Conducteur livreur', 'Aide à domicile', 'Ouvrier du bâtiment', 'Employé de rayon', 'Chauffeur-livreur', 'Aide-soignant', 'Agent de tri'];
+var SAISON = ['Cueilleur de fruits et légumes', 'Employé de vente en alimentation', 'Serveur en saison', 'Employé d’étage', 'Aide de cuisine en saison', 'Animateur de séjour'];
+
+var ETAT = { taille: 'large', ouvert: true, retires: {}, reperes: {}, compar: {}, plus: {}, acc: {}, pA: {}, pB: {}, comp: {}, autres: {}, ecran: 'liste', stub: null, y: 0 };
+var LIMITE = 6;
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function vivants(g) { return METIERS.filter(function (m) { return (!g || m.g === g) && !ETAT.retires[m.id]; }); }
+function limiter(liste, cle) {
+  if (ETAT.plus[cle] || liste.length <= LIMITE) { return { vus: liste, reste: 0 }; }
+  return { vus: liste.slice(0, LIMITE), reste: liste.length - LIMITE };
+}
+function urlFT(nom) { return 'https://candidat.francetravail.fr/metierscope/recherche?motscles=' + encodeURIComponent(nom); }
+
+function btnRepere(m) {
+  var ok = !!ETAT.reperes[m.id];
+  return '<button type="button" class="btn ' + (ok ? 'btn-primary' : 'btn-outline-secondary') + ' mc2-btn" data-act="repere" data-id="' + m.id + '"><i class="bi ' + (ok ? 'bi-bookmark-check-fill' : 'bi-bookmark-star') + '"></i> ' + (ok ? 'Repère gardé' : 'Garder comme Repère') + '</button>';
+}
+function btnComparer(m) {
+  var ok = !!ETAT.compar[m.id];
+  return '<button type="button" class="btn ' + (ok ? 'btn-primary' : 'btn-outline-primary') + ' mc2-btn" data-act="comparer" data-id="' + m.id + '"><i class="bi ' + (ok ? 'bi-check2-circle' : 'bi-signpost-split') + '"></i> ' + (ok ? 'Dans ma comparaison' : 'Comparer cette piste') + '</button>';
+}
+function btnFiche(m) {
+  return '<button type="button" class="btn btn-outline-secondary mc2-btn mc2-btn-fiche" data-act="fiche" data-id="' + m.id + '"><i class="bi bi-file-earmark-person"></i> Fiche du métier</button>';
+}
+
+/* Niveau 2 : la compétence choisie, les autres métiers qui la partagent, UN seul bouton vers le module */
+function niveau2(m) {
+  var c = ETAT.comp[m.id]; if (!c) { return ''; }
+  var d = PARTAGENT[c] || { n: 20, ex: [] };
+  return '<div class="mc2-niveau2" role="region" aria-label="Métiers qui partagent la compétence ' + esc(c) + '">' +
+    '<p><b>' + esc(c) + '</b> : cette compétence se retrouve dans <b>' + d.n + ' métiers</b>. Par exemple : ' + d.ex.map(esc).join(', ') + '.</p>' +
+    '<button type="button" class="btn btn-primary" data-act="stub" data-type="metiers" data-detail="' + esc(c) + '"><i class="bi bi-compass"></i> Voir les métiers</button></div>';
+}
+/* Niveau 1 : pourquoi ce métier est proche (dans la page, jamais une fenêtre) */
+function panneauA(m) {
+  var comps = '<div class="mc2-comps" role="group" aria-label="Compétences en commun">' + m.com.map(function (c) {
+    return '<button type="button" class="mc2-comp" data-act="comp" data-id="' + m.id + '" data-c="' + esc(c) + '" aria-expanded="' + (ETAT.comp[m.id] === c) + '">' + esc(c) + '</button>';
+  }).join('') + '</div>';
+  var h = '<div class="mc2-panneau" role="region">';
+  if (m.g === 'p') {
+    h += '<h6>Pourquoi ce métier est proche de votre profil</h6>' +
+      '<div class="mc2-barre" role="img" aria-label="' + m.sc + ' pour cent de cohérence"><span style="width:' + m.sc + '%">' + m.sc + ' % de cohérence</span></div>' +
+      '<p class="sous">Ce que vous avez indiqué</p><ul>' + m.rs.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>' +
+      '<p class="sous">Compétences en commun (touchez-en une pour voir quels autres métiers la demandent)</p>' + comps;
+  } else {
+    h += '<h6>Pourquoi ce métier est proposé</h6>' +
+      '<p>Il est du même domaine que votre métier visé : <b>' + esc(m.sect) + '</b>.</p>' +
+      '<p class="sous">Compétences en commun avec votre métier visé (touchez-en une pour voir quels autres métiers la demandent)</p>' + comps;
+  }
+  return h + niveau2(m) + '</div>';
+}
+/* Missions et compétences du métier */
+function panneauB(m) {
+  var sc = SECT_COMP[m.sect] || { sf: [], se: [] };
+  var tout = !!ETAT.autres[m.id];
+  var h = '<div class="mc2-panneau" role="region"><h6>Ce que fait ce métier</h6><ul>' +
+    m.ms.slice(0, 3).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + (tout ? '<li>' + esc(m.ms[3]) + '</li>' : '') + '</ul>' +
+    (tout ? '' : '<button type="button" class="btn btn-sm btn-outline-secondary" data-act="autres" data-id="' + m.id + '">Voir les autres tâches</button>') +
+    '<p class="sous">Compétences que le métier demande</p><div>' +
+    sc.sf.map(function (x) { return '<span class="mc2-badge sf">' + esc(x) + '</span>'; }).join('') +
+    sc.se.map(function (x) { return '<span class="mc2-badge">' + esc(x) + '</span>'; }).join('') + '</div></div>';
+  return h;
+}
+
+function carte(m) {
+  var a = !!ETAT.pA[m.id], b = !!ETAT.pB[m.id];
+  var libA = m.g === 'p' ? 'Proche de votre profil' : 'Même domaine que votre métier';
+  return '<div class="mc2-carte' + ((a || b) ? ' large' : '') + '" data-carte="' + m.id + '">' +
+    '<div class="mc2-haut"><h6 class="mc2-nom">' + esc(m.nom) + '</h6>' +
+    '<button type="button" class="mc2-suppr" data-act="suppr" data-id="' + m.id + '" title="Retirer de la liste" aria-label="Retirer ' + esc(m.nom) + ' de la liste"><i class="bi bi-x-lg"></i></button></div>' +
+    '<div class="mc2-sous-titre"><p class="mc2-secteur">' + esc(m.sect) + '</p>' +
+    '<a class="btn btn-outline-secondary mc2-ft" href="' + urlFT(m.nom) + '" target="_blank" rel="noopener" title="Ouvre la fiche de ce métier sur le site de France Travail"><i class="bi bi-box-arrow-up-right"></i> France Travail</a></div>' +
+    '<div class="mc2-explique">' +
+    '<button type="button" class="btn btn-outline-primary mc2-bt' + (a ? ' est-ouvert' : '') + '" data-act="pA" data-id="' + m.id + '" aria-expanded="' + a + '">' + libA + ' <i class="bi bi-chevron-down"></i></button>' +
+    '<button type="button" class="btn btn-outline-primary mc2-bt' + (b ? ' est-ouvert' : '') + '" data-act="pB" data-id="' + m.id + '" aria-expanded="' + b + '">Ce que fait ce métier <i class="bi bi-chevron-down"></i></button></div>' +
+    (a ? panneauA(m) : '') + (b ? panneauB(m) : '') +
+    '<div class="mc2-actions">' + btnFiche(m) + btnRepere(m) + btnComparer(m) + '</div></div>';
+}
+
+function listeCartes(liste, cle, videTexte) {
+  if (!liste.length) { return '<div class="mc2-vide">' + videTexte + '</div>'; }
+  var l = limiter(liste, cle);
+  return '<div class="mc2-grille">' + l.vus.map(carte).join('') + '</div>' +
+    (l.reste ? '<div class="mc2-voir-reste"><button type="button" class="btn btn-outline-primary" data-act="plus" data-cle="' + cle + '"><i class="bi bi-chevron-down"></i> Voir les ' + l.reste + ' autres</button></div>' : '');
+}
+function accordeon(cle, titre, contenu) {
+  var ouv = !!ETAT.acc[cle];
+  return '<div class="mc2-acc"><button type="button" class="mc2-acc-entete" data-act="acc" data-cle="' + cle + '" aria-expanded="' + ouv + '"><i class="bi bi-chevron-right"></i> ' + titre + '</button>' +
+    (ouv ? '<div class="mc2-acc-corps">' + contenu + '</div>' : '') + '</div>';
+}
+function lignesMetiers(noms, intro) {
+  return '<p class="intro">' + intro + '</p><div class="mc2-grille">' + noms.map(function (n) {
+    return '<div class="mc2-ligne"><span>' + esc(n) + '</span><button type="button" class="btn btn-outline-secondary" data-act="stub" data-type="fiche" data-detail="' + esc(n) + '"><i class="bi bi-file-earmark-person"></i> Fiche</button></div>';
+  }).join('') + '</div>';
+}
+function contenuRecrutent() {
+  return lignesMetiers(RECRUTENT, 'Certains secteurs recrutent assez régulièrement (logistique, grande distribution, bâtiment, aide à la personne). Voici quelques exemples.') +
+    '<div class="mc2-pourquoi-recrute"><h6>Pourquoi ces métiers recrutent souvent</h6><ul>' +
+    '<li>Il y a des postes à pourvoir toute l’année : magasins, entrepôts, aide à la personne, chantiers.</li>' +
+    '<li>Le travail est physique ou en horaires décalés : des salariés changent de poste, il faut les remplacer.</li>' +
+    '<li>Certains métiers suivent les saisons : les besoins reviennent chaque année.</li>' +
+    '<li>Dans plusieurs métiers, beaucoup de salariés partent bientôt à la retraite.</li></ul>' +
+    '<p class="mq-note">Ce sont des explications générales, pas des chiffres. Les chiffres de votre territoire (besoins en main-d’œuvre, enquête de France Travail) seront dans le module « Comprendre les métiers ».</p>' +
+    '<button type="button" class="btn btn-primary" data-act="stub" data-type="bmo" data-detail=""><i class="bi bi-graph-up"></i> Comprendre pourquoi ils recrutent</button></div>';
+}
+function contenuSaison() {
+  return lignesMetiers(SAISON, 'En complément, des métiers saisonniers ou de l’alimentaire (agriculture, restauration, hôtellerie, tourisme) : des solutions parfois plus rapides à trouver, en attendant ou en parallèle d’un projet plus précis.'); +
+    '<div class="mc2-pourquoi-recrute"><h6>Comprendre ce que c’est</h6><ul>' +
+    '<li><b>Un métier saisonnier</b> dépend d’une période de l’année : les récoltes, les vendanges, la saison touristique d’été ou d’hiver. Le contrat dure quelques semaines ou quelques mois, et le besoin revient chaque année.</li>' +
+    '<li><b>Un métier de l’alimentaire</b> tourne autour de la nourriture : la cultiver, la transformer, la préparer, la vendre ou la servir.</li>' +
+    '<li><b>À quoi cela peut servir :</b> entrer vite dans l’emploi, gagner une première expérience, faire connaître votre travail à un employeur qui peut vous rappeler la saison suivante.</li></ul>' +
+    '<button type="button" class="btn btn-primary" data-act="stub" data-type="saisonniers" data-detail=""><i class="bi bi-compass"></i> Comprendre ces métiers</button></div>';
+}
+
+function ecranListe() {
+  var p = vivants('p'), m = vivants('m'), total = p.length + m.length;
+  var h = '<div class="mq-note" style="text-transform:uppercase;font-weight:800;font-size:.8rem;letter-spacing:.04em;margin:0 0 .2rem">Des métiers à regarder</div>';
+  h += '<section class="mc2-bloc"><button type="button" class="mc2-entete" data-act="bloc" aria-expanded="' + ETAT.ouvert + '"><h5>&#128188; Métiers qui pourraient vous intéresser</h5><span class="mc2-compteur">' + total + ' métiers</span><span class="mc2-fleche">' + (ETAT.ouvert ? '&#9650;' : '&#9660;') + '</span></button>';
+  if (ETAT.ouvert) {
+    h += '<p class="mc2-intro">Des pistes pour réfléchir, jamais des métiers « certains ». Touchez « Proche de votre profil » pour comprendre pourquoi un métier est proposé. Si vous changez de métier visé, la partie « même domaine » change aussi.</p>';
+    h += '<div class="mc2-groupe"><h3 class="mc2-groupe-titre">Proches de votre profil <span class="mc2-groupe-nb">' + p.length + '</span></h3><p class="mc2-groupe-aide">Ces métiers ressemblent à ce que vous avez indiqué.</p>' +
+      listeCartes(p, 'p', 'Vous avez retiré tous les métiers de cette liste.') + '</div>';
+    h += '<div class="mc2-groupe"><h3 class="mc2-groupe-titre">Du même domaine que votre métier visé <span class="mc2-groupe-nb">' + m.length + '</span></h3><p class="mc2-groupe-aide">D’autres métiers voisins du vôtre.</p>' +
+      listeCartes(m, 'm', 'Vous avez retiré tous les métiers de cette liste.') + '</div>';
+    h += accordeon('recrutent', 'Des métiers qui recrutent souvent', contenuRecrutent());
+    h += accordeon('saison', 'Métiers saisonniers et alimentaires', contenuSaison());
+  }
+  return h + '</section>';
+}
+
+var STUBS = {
+  metiers: function (d) { return { titre: 'Comprendre les métiers', texte: 'Ici s’ouvrira le futur module « Comprendre les métiers », déjà réglé sur la compétence « ' + esc(d) + ' » : la liste des métiers qui la demandent, pour en choisir ou en connaître d’autres.' }; },
+  saisonniers: function () { return { titre: 'Comprendre les métiers saisonniers et alimentaires', texte: 'Ici s’ouvrira le futur module « Comprendre les métiers », réglé sur les métiers saisonniers et alimentaires : ce que font ces métiers, comment y entrer, quand ils recrutent.' }; },
+  bmo: function () { return { titre: 'Comprendre les métiers : pourquoi ils recrutent', texte: 'Ici s’ouvrira le futur module « Comprendre les métiers », avec les chiffres de recrutement de votre territoire (besoins en main-d’œuvre) et leur explication simple.' }; },
+  fiche: function (d) { return { titre: 'Fiche du métier : ' + esc(d), texte: 'La fiche du métier s’ouvre ici, dans l’application : ce que fait le métier, comment y accéder, les compétences. Un bouton « France Travail » en haut mène à la fiche officielle.' }; }
+};
+function ecranStub() {
+  var s = ETAT.stub, d = STUBS[s.type](s.detail);
+  return '<div class="mc2-stub" role="region"><p class="mq-note mb-1">Écran de destination, montré seulement pour le parcours de la maquette</p><h2>' + d.titre + '</h2><p>' + d.texte + '</p>' +
+    '<button type="button" class="btn btn-outline-secondary" data-act="retour"><i class="bi bi-arrow-left"></i> Retour à la liste des métiers</button></div>';
+}
+
+function rendre() {
+  var page = document.getElementById('mqPage');
+  page.className = 'mq-page' + (ETAT.taille === 'tel' ? ' tel' : '');
+  page.innerHTML = ETAT.ecran === 'stub' ? ecranStub() : ecranListe();
+  var r = document.getElementById('mqRetient');
+  r.innerHTML = '<p><b>Réglages retenus par Denis :</b> deux groupes titrés, trois boutons égaux, six cartes puis « Voir les autres ».</p>' +
+    '<p><b>Nouveau dans cette version :</b> le nom du métier n’est pas cliquable ; « France Travail » en haut de chaque carte ; « Proche de votre profil » et « Ce que fait ce métier » ouvrent une rubrique DANS la carte (la carte s’élargit) ; dans la première, chaque compétence ouvre un deuxième niveau avec un seul bouton « Voir les métiers » ; sous « Des métiers qui recrutent souvent », une explication et un bouton vers le module.</p>' +
+    '<p class="mb-0">Les trois boutons de destination (« Fiche du métier », « Voir les métiers », « Comprendre pourquoi ils recrutent ») ouvrent ici un écran d’attente : le module « Comprendre les métiers » n’existe pas encore. La sous-section « Pourquoi ces métiers ? » disparaît : son contenu est maintenant dans chaque carte.</p>';
+}
+document.getElementById('mqPage').addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]'); if (!el) { return; }
+  var act = el.getAttribute('data-act'), id = +el.getAttribute('data-id'), cle = el.getAttribute('data-cle');
+  var garder = true;
+  if (act === 'bloc') { ETAT.ouvert = !ETAT.ouvert; }
+  else if (act === 'suppr') { ETAT.retires[id] = true; }
+  else if (act === 'repere') { ETAT.reperes[id] = !ETAT.reperes[id]; }
+  else if (act === 'comparer') { ETAT.compar[id] = !ETAT.compar[id]; }
+  else if (act === 'plus') { ETAT.plus[cle] = true; }
+  else if (act === 'acc') { ETAT.acc[cle] = !ETAT.acc[cle]; }
+  else if (act === 'pA') { ETAT.pA[id] = !ETAT.pA[id]; if (!ETAT.pA[id]) { delete ETAT.comp[id]; } }
+  else if (act === 'pB') { ETAT.pB[id] = !ETAT.pB[id]; }
+  else if (act === 'autres') { ETAT.autres[id] = true; }
+  else if (act === 'comp') { var c = el.getAttribute('data-c'); ETAT.comp[id] = ETAT.comp[id] === c ? null : c; }
+  else if (act === 'fiche') { ETAT.y = window.scrollY; ETAT.ecran = 'stub'; ETAT.stub = { type: 'fiche', detail: METIERS.filter(function (x) { return x.id === id; })[0].nom }; garder = false; }
+  else if (act === 'stub') { ETAT.y = window.scrollY; ETAT.ecran = 'stub'; ETAT.stub = { type: el.getAttribute('data-type'), detail: el.getAttribute('data-detail') }; garder = false; }
+  else if (act === 'retour') { ETAT.ecran = 'liste'; rendre(); window.scrollTo(0, ETAT.y); return; }
+  var y = window.scrollY; rendre(); window.scrollTo(0, garder ? y : 0);
+});
+function majReglages() {
+  document.querySelectorAll('.mq-regl [data-groupe]').forEach(function (g) {
+    var cle = g.getAttribute('data-groupe');
+    g.querySelectorAll('button[data-v]').forEach(function (b) {
+      b.className = 'btn btn-sm ' + (ETAT[cle] === b.getAttribute('data-v') ? 'btn-primary' : 'btn-outline-primary');
+    });
+  });
+}
+document.querySelectorAll('.mq-regl [data-groupe] button[data-v]').forEach(function (b) {
+  b.addEventListener('click', function () { ETAT[b.parentElement.getAttribute('data-groupe')] = b.getAttribute('data-v'); majReglages(); rendre(); });
+});
+document.getElementById('mqRemettre').addEventListener('click', function () {
+  ETAT.retires = {}; ETAT.reperes = {}; ETAT.compar = {}; ETAT.plus = {}; ETAT.acc = {}; ETAT.pA = {}; ETAT.pB = {}; ETAT.comp = {}; ETAT.autres = {}; ETAT.ecran = 'liste'; rendre();
+});
+document.getElementById('mqTheme').addEventListener('click', function () {
+  var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+  if (sombre) { document.documentElement.removeAttribute('data-theme'); this.textContent = 'Mode sombre'; }
+  else { document.documentElement.setAttribute('data-theme', 'sombre'); this.textContent = 'Mode clair'; }
+});
+document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'inline-block'; });
+document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+majReglages(); rendre();
+</script>
+</body>
+</html>

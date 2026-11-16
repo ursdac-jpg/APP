@@ -1,0 +1,230 @@
+{
+ "nom": "preparerLettre",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "ok",
+   "t": "lettre : « Continuer » grisé avec la raison « Il reste à choisir le type de candidature et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "type : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le type : « Continuer → (grisé) » raison « Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : « Continuer → (grisé) » raison « Il reste à dire si vous vous adressez à une entreprise précise ou non et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "entreprise : ok"
+  },
+  {
+   "n": "info",
+   "t": "champs de la candidature : ciblageEntreprise[text] ; ciblageSite[url] ; ciblageTypeStructure[select-one]"
+  },
+  {
+   "n": "info",
+   "t": "« Adaptation au métier » verrouillé avant le nom de l’entreprise : true"
+  },
+  {
+   "n": "info",
+   "t": "après le nom de l’entreprise : « Continuer → (grisé) » raison « Il reste à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "situation : ok"
+  },
+  {
+   "n": "info",
+   "t": "après la situation : « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "lettre : « Continuer » dégrisé quand tout est renseigné"
+  },
+  {
+   "n": "ok",
+   "t": "lettre (page Préparer) : Retour vers #co-lettre « Écrire ma lettre de motivation avec l’assistant », puis Continuer revient bien ici"
+  },
+  {
+   "n": "info",
+   "t": "réponses gardées après Retour puis Continuer : {\"entreprise\":\"Mairie de Bergerac\",\"situation\":\"true\"}"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran de l’assistant : #co-lettre « Écrire ma lettre de motivation avec l’assistant » bas « Voir ma lettre → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > Assistant > [Réponse] > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "boutons de l’assistant : #btnCoLettreRevoirPres Revoir la présentation ; #btnRecopierMessageLettreV1 📋 Copier de nouveau le message complet ; Rouvrir ChatGPT (texte à envoyer recopié) ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automatique) ; ⓘ ; ✍ Coller à la main (vous collez vous-même) ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir ma lettre →"
+  },
+  {
+   "n": "info",
+   "t": "collage d’une réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse coupée : bas « Voir ma lettre → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "réponse coupée : signalée"
+  },
+  {
+   "n": "info",
+   "t": "collage de la réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse complète : bas « Voir ma lettre → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "lettre (suite) : ok:Voir ma lettre → → #resultats « 📄 Vos documents » [bouton : null] [barre : Préparer > Assistant > Réponse > [Terminé]]"
+  },
+  {
+   "n": "info",
+   "t": "lettre (suite) : PAS DE BOUTON → #resultats « 📄 Vos documents » [bouton : null] [barre : Préparer > Assistant > Réponse > [Terminé]]"
+  },
+  {
+   "n": "info",
+   "t": "fin : #resultats « 📄 Vos documents » bas « null » barre Préparer > Assistant > Réponse > [Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : co-lettre:Écrire ma lettre de motivation < co-lettre:Écrire ma lettre de motivation < co-lettre:Écrire ma lettre de motivation < co-lettre:Écrire ma lettre de motivation < cv:Par où voulezvous commencer[fenêtre]"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#co-lettre",
+    "page": "co-lettre",
+    "h1": "Écrire ma lettre de motivation avec l’assistant",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#co-lettre",
+    "page": "co-lettre",
+    "h1": "Écrire ma lettre de motivation avec l’assistant",
+    "barre": "[Préparer] > Assistant > Réponse > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à déposer votre CV et à indiquer votre situation actuelle dans « Adaptation au métier ».",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#co-lettre",
+    "page": "co-lettre",
+    "h1": "Écrire ma lettre de motivation avec l’assistant",
+    "barre": "Préparer > [Assistant] > Réponse > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > [Terminé]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > [Terminé]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

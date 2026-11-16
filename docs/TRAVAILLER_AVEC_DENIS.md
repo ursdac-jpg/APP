@@ -217,6 +217,7 @@ Et, s'il existe un doc de conception dédié pour ce chantier (`docs/CHANTIER_*.
 - **Français impeccable** : accents partout, aucun tiret long. (LECONS 0bis)
 - **`tel:` / liens externes** : un numéro affiché est-il cliquable sur mobile ? un lien externe prévient-il « vous quittez l'application » ?
 - **Territoire** : l'explication dépend-elle du département ? Si oui, filtrer via `demanderDepartementSiInconnu(cb)` (`js/app.js`), jamais un contenu 87 montré à quelqu'un du 24.
+- **Présentations, vidéos et diaporama** (décision de Denis, 12/11/2026) : quand un écran, un texte ou un comportement visible change, se demander à la fin du chantier si une capture, une vidéo ou une phrase d'introduction le montre ou en parle : vidéo d'introduction (`video/presentation.mp4` et `.vtt`), diaporama et page d'introduction (`modules/introduction/`, `images/introduction/`), vidéos des modules (`videos/modules/`, scénarios dans `docs/video_presentation/court/scenarios/`), textes d'aide et visite guidée. Si oui, la corriger dans le même chantier ou la noter dans `docs/TACHES_VALIDEES.md` avec la liste de ce qui est touché. Méthode d'audit : extraire des images des vidéos avec ffmpeg et les comparer à l'écran actuel. Cas d'origine : `docs/PLAN_MISE_A_JOUR_PRESENTATIONS_ET_VIDEOS_2026-11-12.md`.
 - **Node vs navigateur** : `js/app.js` et les `modules/*/index.js` (DOM) ne passent pas les tests Node → test navigateur obligatoire. (LECONS 9.23)
 
 ## Git - workflow de ce dépôt (validé avec Denis le 2026-08-28)

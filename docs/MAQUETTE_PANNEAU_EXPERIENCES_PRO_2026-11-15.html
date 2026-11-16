@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Vos expériences professionnelles (version 1)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../data/repertoireRome.js"></script>
+<script src="../data/metiersRome.js"></script>
+<script src="../data/conditionsRome.js"></script>
+<script src="../data/descriptionsEcrites.js"></script>
+<script src="../data/metiers.js"></script>
+<script src="../modules/missions-competences/logique.js"></script>
+<script src="../modules/missions-competences/rechercheFiche.js"></script>
+<script src="../modules/missions-competences/etape.js"></script>
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 4rem}
+.mq-page{max-width:860px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.4rem}
+.mq-retient p{margin:.1rem 0}
+.mq-titre{font-size:1.25rem;margin:.2rem 0 .1rem;color:var(--text-strong)}
+.mq-intro{color:var(--text-muted);font-size:.9rem;margin:0 0 .6rem}
+.mq-onglets{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .8rem}
+
+/* ---- Repères visuels : à choisir (bleu), missions et compétences (violet) ---- */
+#mqCorps .mq-choix{border-left:5px solid var(--accent);background:var(--accent-bg-subtle);border-radius:10px;padding:.6rem .8rem .7rem;margin:.8rem 0}
+#mqCorps .mq-q{font-weight:700;font-size:1rem;margin:0 0 .4rem;color:var(--text-strong);display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+#mqCorps .mq-tag{font-size:.7rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.12rem .55rem;border:1.5px solid}
+#mqCorps .mq-tag--choix{color:var(--accent-texte);border-color:var(--accent);background:var(--bg-card)}
+#mqCorps .mq-choix .jeton{border-color:var(--accent);background:var(--bg-card);font-size:.85rem}
+#mqCorps .mq-choix .jeton.is-actif{background:var(--accent-bg-subtle);border-width:2.5px}
+#mqCorps .mq-choix .jeton[disabled]{border-color:var(--border-strong)}
+#mqCorps .small,#mqCorps .small.text-muted{color:var(--text-strong)}
+#mqCorps .mq-aide{font-size:.85rem;margin:.3rem 0 0;color:var(--text-strong)}
+#mqCorps .mq-fam{font-weight:700;font-size:.9rem;margin:.7rem 0 .2rem;color:var(--text-strong)}
+#mqCorps .mq-sous{border-top:2px solid var(--accent);margin-top:.6rem;padding-top:.5rem}
+:root{--mq-miss-bg:#f1ebfd;--mq-miss-bord:#7c5cc4;--mq-miss-texte:#4c2f99}
+[data-theme="sombre"]{--mq-miss-bg:#2a2140;--mq-miss-bord:#a78bfa;--mq-miss-texte:#cdbdfb}
+#mqCorps .mq-miss{border-left:5px solid var(--mq-miss-bord);background:var(--mq-miss-bg);border-radius:10px;padding:.6rem .8rem .7rem;margin:1rem 0}
+#mqCorps .mq-tag--miss{color:var(--mq-miss-texte);border-color:var(--mq-miss-bord);background:var(--bg-card)}
+#mqCorps .mq-miss .jeton{border-color:var(--mq-miss-bord);background:var(--bg-card);font-size:.85rem}
+#mqCorps .mq-miss .jeton.is-actif{background:var(--mq-miss-bg);border-width:2.5px}
+#mqCorps .mq-ligne{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem}
+#mqCorps .mq-colonne{display:flex;flex-direction:column;gap:.4rem;align-items:stretch}
+#mqCorps .mq-btn-large{min-width:12.5rem}
+#mqCorps .mq-ligne .btn{white-space:nowrap}
+#mqCorps .mq-limite{margin:.6rem 0 .35rem}
+#mqCorps .mq-haut{padding-bottom:.4rem;border-bottom:1px dashed var(--accent)}
+#mqCorps .btn-mq-miss{background:var(--mq-miss-bg);border:2px solid var(--mq-miss-bord);color:var(--mq-miss-texte);font-weight:700}
+#mqCorps .btn-mq-miss:hover{background:var(--mq-miss-bord);color:#fff}
+/* garde-fou : toujours visible, sur sa propre ligne */
+#mqCorps .mq-garde{border:2px solid var(--mq-miss-bord);background:var(--bg-card);border-radius:10px;padding:.5rem .7rem;margin:.4rem 0 .6rem;font-size:.9rem;color:var(--text-strong)}
+#mqCorps .mq-garde b{color:var(--mq-miss-texte)}
+#mqCorps .mq-compteur{font-weight:700;font-size:.9rem;margin:.3rem 0}
+#mqCorps .mq-compteur.trop{color:var(--warning-strong)}
+#mqCorps details.mq-det{border:1.5px solid var(--mq-miss-bord);border-radius:10px;background:var(--bg-card);padding:.3rem .6rem;margin:.5rem 0}
+#mqCorps details.mq-det>summary{font-weight:700;cursor:pointer;font-size:.9rem;padding:.2rem 0}
+#mqCorps .mq-gris{border-left:5px solid var(--text-muted);background:var(--bg-subtle);border-radius:10px;padding:.6rem .8rem .7rem;margin:.8rem 0}
+#mqCorps .mq-recap{border:2px solid var(--accent);border-radius:10px;padding:.5rem .8rem;margin:.8rem 0;font-weight:700;background:var(--bg-card)}
+#mqCorps .mq-sugg{margin:.3rem 0 .2rem}
+#mqCorps .mq-carte{border:2px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.8rem 0;background:var(--bg-card)}
+#mqCorps .mq-carte h3{font-size:1.02rem;margin:0 0 .2rem}
+#mqCorps .mq-etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+#mqCorps .mq-etape{border:2px solid var(--border-strong);border-radius:999px;padding:.25rem .8rem;font-size:.85rem;font-weight:600;background:var(--bg-card)}
+#mqCorps .mq-etape.ici{border-color:var(--accent);background:var(--accent-bg-subtle);color:var(--accent-texte)}
+#mqCorps .mq-etape.verif{border-color:var(--mq-miss-bord);background:var(--mq-miss-bg);color:var(--mq-miss-texte)}
+#mqCorps .mq-liste{margin:.2rem 0 .4rem 1.1rem;padding:0;font-size:.9rem}
+#mqCorps .mq-liste li{margin:.15rem 0}
+#mqCorps .mq-origine{font-size:.78rem;font-weight:700;color:var(--mq-miss-texte);border:1.5px solid var(--mq-miss-bord);border-radius:999px;padding:.05rem .5rem;margin-left:.3rem;background:var(--bg-card)}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir">Réglages de la maquette</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2>Maquette : « Vos expériences professionnelles », version 1
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages">&#10005;</button>
+  </h2>
+  <p class="mb-1" style="font-size:.85rem">Tout est cliquable, avec les vraies fiches de métiers. Bleu = à choisir le métier, violet = à choisir les missions et les compétences, cadre orange = à remplir, cadre gris foncé = à compléter si vous le souhaitez. Trois vues : le panneau, la page de vérification, le parcours.</p>
+  <div class="grp"><b>Vue</b>
+    <div class="boutons">
+      <button type="button" class="btn btn-sm btn-primary" data-vue="panneau">1. Le panneau d'expérience</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-vue="verif">2. La page de vérification</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-vue="parcours">3. Le parcours</button>
+    </div>
+  </div>
+  <div class="grp"><b>Exemples</b>
+    <div class="boutons" id="mqExemples">
+      <button type="button" class="btn btn-sm btn-outline-primary" data-ex="serveur">Taper « Serveur »</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-ex="aide">Taper « Aide-soignant »</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-ex="rare">Un poste qui n'est pas dans la liste</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-ex="dossier">Charger un dossier d'exemple (2 expériences)</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-ex="vider">Tout effacer</button>
+    </div>
+  </div>
+  <div class="grp"><b>Affichage</b>
+    <div class="boutons">
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqSombre">Mode sombre</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqTel">Largeur téléphone</button>
+    </div>
+  </div>
+  <div class="grp"><b>Ce que l'application retient (en direct)</b>
+    <div class="mq-retient" id="mqRetient"></div>
+  </div>
+</div>
+
+<div class="mq-page grille-mon-projet" id="mqPage">
+  <h1 class="mq-titre" id="mqTitre">Vos informations</h1>
+  <p class="mq-intro" id="mqIntro"></p>
+  <div id="mqCorps"></div>
+</div>
+
+<script>
+/* ============================================================
+   MAQUETTE : panneau « Vos expériences professionnelles » (consignes 365, 388, 389)
+   Vraies données : fiches du ROME (missions mi, activités k) et compétences de la base des métiers (sf, se, sv).
+   ============================================================ */
+var DOMAINES = REPERTOIRE_ROME.domaines;
+var FAMILLES = {};
+var MAX_METIERS = 5;
+var NB_PROPOSES = 6;
+var NB_VISIBLES = 12;
+var MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+var CONSEIL_MISSIONS_MIN = 5, CONSEIL_MISSIONS_MAX = 8, ALERTE_MISSIONS = 10;
+var CONSEIL_COMP_MIN = 6, CONSEIL_COMP_MAX = 10, ALERTE_COMP = 12;
+/* Compétences que la personne a déjà choisies dans « Votre parcours » (exemple pour la maquette) */
+var ACTIONS_EXEMPLE = ['Accueillir et renseigner les clients', 'Travailler en équipe', 'Gérer les stocks', 'Encaisser'];
+
+var PAR_CODE = {};
+REPERTOIRE_ROME.metiers.forEach(function (l) { if (!PAR_CODE[l[1]]) { PAR_CODE[l[1]] = { code: l[1], nom: l[0], d: l[2], fam: l[1].slice(0, 3) }; } });
+var PAR_DOMAINE = DOMAINES.map(function () { return []; });
+Object.keys(PAR_CODE).forEach(function (c) { PAR_DOMAINE[PAR_CODE[c].d].push(PAR_CODE[c]); });
+PAR_DOMAINE.forEach(function (t) { t.sort(function (a, b) { return a.fam < b.fam ? -1 : a.fam > b.fam ? 1 : a.nom.localeCompare(b.nom, 'fr'); }); });
+function nomMetier(code) { return PAR_CODE[code] ? PAR_CODE[code].nom : code; }
+
+var FICHES_CHARGEES = {};
+function chargerFiche(code, cb) {
+  if (window.FICHES_ROME && window.FICHES_ROME[code]) { cb(window.FICHES_ROME[code]); return; }
+  var l = code.charAt(0);
+  if (FICHES_CHARGEES[l] === 'en-cours') { setTimeout(function () { chargerFiche(code, cb); }, 100); return; }
+  FICHES_CHARGEES[l] = 'en-cours';
+  var s = document.createElement('script');
+  s.src = '../data/rome/fiche_' + l + '.js';
+  s.onload = function () { FICHES_CHARGEES[l] = 'ok'; cb(window.FICHES_ROME && window.FICHES_ROME[code]); };
+  s.onerror = function () { FICHES_CHARGEES[l] = 'erreur'; cb(null); };
+  document.head.appendChild(s);
+}
+function ficheNorm(code) {
+  if (!(window.FICHES_ROME && window.FICHES_ROME[code])) { return null; }
+  return mcFicheNormalisee(code, window.FICHES_ROME, baseMetiers, nomMetier(code));
+}
+
+var vue = 'panneau';
+var liste = [];
+var editIndex = null;
+var nf = null;
+
+function nouveauBrouillon() {
+  return { poste: '', metiers: [], secteurIdx: null, choixSecteur: false, panneauOuvert: false, filtre: '', filtreTous: false, deploye: {}, detOuvert: {},
+    missions: [], missionsLibres: [], comp: { sf: [], se: [], sv: [], k: [] }, compLibres: [], kDeploye: false, texteAncien: '',
+    entreprise: '', debut: '', fin: '', enPoste: false, avecMois: false, moisDebut: '', moisFin: '' };
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function jeton(attr, val, actif, label, radio, desactive) {
+  return '<button type="button" class="jeton' + (radio ? ' jeton--radio' : '') + ' jeton--compact' + (actif ? ' is-actif' : '') + '" ' + attr + '="' + esc(val) + '" aria-pressed="' + (actif ? 'true' : 'false') + '"' + (desactive ? ' disabled' : '') + '>' + label + '</button>';
+}
+function etiquette() { return '<span class="mq-tag mq-tag--choix">À choisir</span>'; }
+function maj1(t) { return t.length && t.charAt(0) !== t.charAt(0).toUpperCase() ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
+function periode(e) {
+  var d = (e.avecMois && e.moisDebut ? e.moisDebut.toLowerCase() + ' ' : '') + (e.debut || '');
+  var f = e.enPoste ? 'aujourd’hui' : ((e.avecMois && e.moisFin ? e.moisFin.toLowerCase() + ' ' : '') + (e.fin || ''));
+  return (d || f) ? ' (' + (d || '?') + ' à ' + (f || '?') + ')' : '';
+}
+function libelleListe(e) { return (e.poste || 'Expérience') + (e.entreprise ? ' · ' + e.entreprise : '') + periode(e); }
+function nbMissions(e) { return e.missions.length + e.missionsLibres.length; }
+function nbComp(e) { return e.comp.sf.length + e.comp.se.length + e.comp.sv.length + e.comp.k.length + e.compLibres.length; }
+
+/* ---- Suggestions pendant la frappe : même moteur de rapprochement que le reste de l'application ---- */
+/* Dans l'application, ce sont exactement les suggestions de la barre de recherche de l'accueil (rechercherMetiersPourAjout).
+   Ici, approximation avec les 13 844 noms du répertoire : noms qui commencent par ce qui est tapé d'abord, puis ceux qui contiennent chaque mot. */
+function suggestions() {
+  if (!nf || nf.poste.trim().length < 3) { return []; }
+  var q = mcNormaliser(nf.poste), mq = q.split(' ').filter(function (x) { return x; });
+  var vus = {}, debut = [], contient = [];
+  REPERTOIRE_ROME.metiers.forEach(function (l) {
+    var n = mcNormaliser(l[0]);
+    if (vus[n]) { return; }
+    var item = { code: l[1], nom: l[0], d: l[2], fam: l[1].slice(0, 3) };
+    if (n.indexOf(q) === 0) { vus[n] = 1; debut.push(item); return; }
+    var mn = n.split(' ');
+    if (mq.every(function (w) { return mn.some(function (x) { return x.indexOf(w) === 0; }); })) { vus[n] = 1; contient.push(item); }
+  });
+  var tri = function (a, b) { return a.nom.length - b.nom.length; };
+  var res = debut.sort(tri).concat(contient.sort(tri));
+  if (res.length < 3) {
+    mcChercherFiche(nf.poste, REPERTOIRE_ROME, {}).fiches.forEach(function (f) { if (!vus[mcNormaliser(f.nom)]) { vus[mcNormaliser(f.nom)] = 1; res.push({ code: f.code, nom: f.nom, d: f.domaine || 0, fam: f.code.slice(0, 3) }); } });
+  }
+  return res.slice(0, NB_PROPOSES + 2);
+}
+function htmlSuggestions() {
+  if (!nf) { return ''; }
+  var s = suggestions();
+  var principal = nf.metiers[0];
+  if (nf.poste.trim().length < 3) { return '<p class="mq-aide">Tapez les premières lettres : des métiers vous sont proposés.</p>'; }
+  if (!s.length) { return '<p class="mq-aide">Aucun métier ne ressemble à ce que vous avez écrit. Ce n’est pas grave : votre intitulé est gardé tel quel, et vous pouvez choisir un secteur plus bas pour trouver des missions.</p>'; }
+  return '<p class="mq-aide" style="margin-top:.2rem">Cliquez sur le métier qui correspond à votre poste :</p><div class="pastilles mq-sugg">' +
+    s.map(function (m) { return jeton('data-sugg', m.code, principal && principal.code === m.code && principal.nom === m.nom, esc(m.nom), true).replace('data-sugg=', 'data-nom="' + esc(m.nom) + '" data-sugg='); }).join('') + '</div>';
+}
+function majSuggestions() { var z = document.getElementById('zoneSugg'); if (z) { z.innerHTML = htmlSuggestions(); } }
+
+/* ---- Métiers ---- */
+function estChoisi(code) { return nf.metiers.some(function (x) { return x.code === code; }); }
+function secteurCourant() {
+  if (nf.secteurIdx !== null) { return nf.secteurIdx; }
+  var p = nf.metiers[0]; if (p && PAR_CODE[p.code]) { return PAR_CODE[p.code].d; }
+  var s = suggestions(); return s.length ? s[0].d : null;
+}
+function metiersProches() {
+  var p = nf.metiers[0]; if (!p) { return []; }
+  var f = window.FICHES_ROME && window.FICHES_ROME[p.code];
+  var codes = ((f && f.p) || []).filter(function (c) { return PAR_CODE[c] && c !== p.code; }).slice(0, NB_PROPOSES);
+  if (codes.length < NB_PROPOSES) {
+    var pris = {}; codes.forEach(function (c) { pris[c] = 1; }); pris[p.code] = 1;
+    (PAR_DOMAINE[PAR_CODE[p.code].d] || []).forEach(function (m) { if (codes.length < NB_PROPOSES && m.fam === PAR_CODE[p.code].fam && !pris[m.code]) { pris[m.code] = 1; codes.push(m.code); } });
+  }
+  return codes.map(function (c) { return PAR_CODE[c]; });
+}
+function jetonMetier(m, avecSecteur) {
+  var choisi = estChoisi(m.code);
+  var plein = !choisi && nf.metiers.length >= MAX_METIERS;
+  var principal = nf.metiers[0] && nf.metiers[0].code === m.code;
+  return jeton('data-metier', m.code, choisi, esc(m.nom) + (principal ? ' <span style="font-weight:400">(principal)</span>' : '') + (avecSecteur ? ' <span style="font-weight:400">(' + esc(DOMAINES[m.d]) + ')</span>' : ''), false, plein);
+}
+function nettoyer() {
+  var mi = {}, sf = {}, se = {}, sv = {}, k = {};
+  nf.metiers.forEach(function (m) {
+    var f = ficheNorm(m.code); if (!f) { return; }
+    f.m.forEach(function (x) { mi[x] = 1; }); f.sf.forEach(function (x) { sf[x] = 1; }); f.se.forEach(function (x) { se[x] = 1; }); f.sv.forEach(function (x) { sv[x] = 1; }); f.k.forEach(function (x) { k[x] = 1; });
+  });
+  nf.missions = nf.missions.filter(function (x) { return mi[x]; });
+  nf.comp.sf = nf.comp.sf.filter(function (x) { return sf[x]; }); nf.comp.se = nf.comp.se.filter(function (x) { return se[x]; });
+  nf.comp.sv = nf.comp.sv.filter(function (x) { return sv[x]; }); nf.comp.k = nf.comp.k.filter(function (x) { return k[x]; });
+}
+function mots(t) { return mcNormaliser(t).split(' ').filter(function (x) { return x.length > 1; }); }
+function htmlListeSecteur() {
+  var idx = secteurCourant();
+  if (idx === null) { return ''; }
+  var h = '';
+  var exclus = {}; metiersProches().forEach(function (m) { exclus[m.code] = 1; }); nf.metiers.forEach(function (m) { exclus[m.code] = 1; });
+  var filtre = nf.filtre.trim();
+  var tous = PAR_DOMAINE[idx].filter(function (m) { return !exclus[m.code]; });
+  var visibles = tous;
+  if (filtre) { var mf = mots(filtre); visibles = tous.filter(function (m) { var n = mcNormaliser(m.nom); return mf.every(function (w) { return n.indexOf(w) !== -1; }); }); }
+  if (filtre && !visibles.length && !nf.filtreTous) {
+    h += '<p class="mq-aide">Aucun métier de ce secteur ne contient ces mots.</p><button type="button" class="btn btn-sm btn-outline-primary" data-filtre-tous="1">Chercher dans tous les secteurs</button>';
+  }
+  if (filtre && nf.filtreTous) {
+    var r = mcChercherFiche(filtre, REPERTOIRE_ROME).fiches.filter(function (f) { return !exclus[f.code]; });
+    h += '<p class="mq-fam">Résultats dans tous les secteurs</p>';
+    if (!r.length) { h += '<p class="mq-aide">Aucune fiche trouvée avec ces mots. Essayez un autre mot.</p>'; }
+    else { h += '<div class="pastilles mb-1">' + r.map(function (f) { return jetonMetier(PAR_CODE[f.code] || { code: f.code, nom: f.nom, d: 0 }, true); }).join('') + '</div>'; }
+  }
+  var familles = [], parFam = {};
+  visibles.forEach(function (m) { if (!parFam[m.fam]) { parFam[m.fam] = []; familles.push(m.fam); } parFam[m.fam].push(m); });
+  familles.forEach(function (fam) {
+    var t = parFam[fam];
+    var plie = !filtre && t.length > NB_VISIBLES && !nf.deploye[fam];
+    var affiches = plie ? t.slice(0, NB_VISIBLES) : t;
+    h += '<p class="mq-fam">Famille ' + esc(fam) + ' <span style="font-weight:400">(' + t.length + ')</span></p><div class="pastilles mb-1">' + affiches.map(function (m) { return jetonMetier(m); }).join('') + '</div>';
+    if (plie) { h += '<button type="button" class="btn btn-sm btn-outline-primary" data-deploye="' + esc(fam) + '">Voir les ' + (t.length - NB_VISIBLES) + ' autres métiers de cette famille</button>'; }
+  });
+  return h;
+}
+function majListeSecteur() { var z = document.getElementById('zoneListeSecteur'); if (z) { z.innerHTML = htmlListeSecteur(); } }
+function htmlChoixSecteur() {
+  var idx = secteurCourant();
+  var h = '<div class="mq-sous"><p class="mq-q">' + (idx === null ? 'Choisissez un secteur' : 'Changer de secteur') + ' ' + etiquette() + '</p>';
+  if (idx !== null) { h += '<div class="mb-2"><button type="button" class="btn btn-sm btn-outline-primary" data-garder-secteur="1">Garder le secteur « ' + esc(DOMAINES[idx]) + ' »</button></div>'; }
+  h += '<div class="pastilles mb-1">' + DOMAINES.map(function (n, i) { return i === idx ? '' : jeton('data-secteur-idx', i, false, esc(n), true); }).join('') + '</div></div>';
+  return h;
+}
+
+/* ---- Rubrique bleue : le métier, son secteur, les autres métiers ---- */
+function htmlRubriqueMetiers() {
+  var idx = secteurCourant();
+  var h = '<div class="mq-choix"><p class="mq-q">Votre métier et son secteur ' + etiquette() + '</p>';
+  var texteSecteur = idx === null ? 'Aucun secteur pour l’instant. Choisissez-en un pour trouver des métiers et des missions.' : (nf.secteurIdx === null ? 'Ce métier fait partie du secteur : <b>' + esc(DOMAINES[idx]) + '</b>' : 'Secteur de recherche : <b>' + esc(DOMAINES[idx]) + '</b>');
+  h += '<div class="mq-ligne mq-haut"><p class="mq-aide" style="margin:0;flex:1 1 14rem">' + texteSecteur + '</p><div class="mq-colonne">' +
+    '<button type="button" class="btn btn-sm btn-outline-primary" data-changer-secteur="1">' + (idx === null ? 'Choisir un secteur' : 'Changer de secteur') + '</button></div></div>';
+  if (nf.choixSecteur) { h += htmlChoixSecteur(); }
+  h += '<div class="mq-ligne mq-limite"><p class="mq-aide" style="margin:0;flex:1 1 14rem"><b>Vous pouvez choisir jusqu’à ' + MAX_METIERS + ' métiers.</b> Le premier est votre métier principal, les autres complètent : certaines de leurs missions peuvent aussi être les vôtres.' + (nf.metiers.length >= MAX_METIERS ? ' Décochez-en un pour en choisir un autre.' : '') + '</p>' +
+    (idx !== null ? '<button type="button" class="btn btn-sm btn-outline-primary mq-btn-large" data-chercher="1" aria-expanded="' + (nf.panneauOuvert ? 'true' : 'false') + '">Chercher un autre métier</button>' : '') + '</div>';
+  var prox = metiersProches();
+  if (nf.metiers.length) {
+    h += '<p class="mq-aide mb-1">Métiers choisis : <b>' + nf.metiers.map(function (m, i) { return esc(m.nom) + (i === 0 ? ' (principal)' : ''); }).join(' · ') + '</b></p>';
+  }
+  if (prox.length) {
+    h += '<p class="mq-aide mb-1">Métiers proches, dans le même secteur :</p><div class="pastilles mb-1">' + prox.map(function (m) { return jetonMetier(m); }).join('') + '</div>';
+  }
+  var codesAff = {}; prox.forEach(function (m) { codesAff[m.code] = 1; });
+  var supp = nf.metiers.filter(function (m, i) { return i > 0 && !codesAff[m.code]; });
+  if (supp.length) {
+    h += '<p class="mq-aide mb-1">Autres métiers choisis :</p><div class="pastilles mb-1">' + supp.map(function (m) { return jetonMetier(PAR_CODE[m.code] || { code: m.code, nom: m.nom, d: 0 }, true); }).join('') + '</div>';
+  }
+  if (nf.panneauOuvert && idx !== null && !nf.choixSecteur) {
+    h += '<div class="mq-sous"><div class="mq-ligne"><p class="mq-q" style="margin:0">Chercher un métier dans ce secteur</p>' +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" data-fermer-panneau="1">✕ Fermer</button></div>' +
+      '<div style="margin:.4rem 0"><input type="text" class="form-control form-control-sm champ-optionnel" id="fFiltre" placeholder="Tapez un mot (ex. : cuisine, caissier, réseau)" value="' + esc(nf.filtre) + '"></div>' +
+      '<p class="mq-aide" style="margin-top:0">Ou parcourez les métiers du secteur et cochez ceux qui vous correspondent :</p>' +
+      '<div id="zoneListeSecteur">' + htmlListeSecteur() + '</div></div>';
+  }
+  return h + '</div>';
+}
+
+/* ---- Rubriques violettes : missions, puis compétences ---- */
+function htmlGardeFou(nom, n, min, max, alerte) {
+  var trop = n > alerte;
+  var h = '<div class="mq-garde"><b>Il ne faut pas tout cocher.</b> Choisissez les ' + min + ' à ' + max + ' ' + nom + ' les plus importantes : ce sont elles qui apparaîtront sur votre CV. ' +
+    'Un CV lisible met en valeur peu de choses, bien choisies.</div>' +
+    '<p class="mq-compteur' + (trop ? ' trop' : '') + '">' + n + ' ' + (nom === 'missions' ? (n > 1 ? 'missions choisies' : 'mission choisie') : (n > 1 ? 'compétences choisies' : 'compétence choisie')) + '</p>';
+  if (trop) { h += '<p class="mq-aide" style="margin-top:0;font-weight:700">Au-delà de ' + max + ', votre CV risque d’être long et vos meilleures missions se perdent. Gardez les plus importantes.</p>'; }
+  return h;
+}
+function htmlRubriqueMissions() {
+  if (!nf.metiers.length) { return ''; }
+  var n = nf.missions.length + nf.missionsLibres.length;
+  var h = '<div class="mq-miss"><p class="mq-q">Vos missions ' + '<span class="mq-tag mq-tag--miss">À choisir</span></p>' +
+    '<p class="mq-aide" style="margin-top:0">Cochez seulement ce que vous avez réellement fait dans ce poste.</p>' + htmlGardeFou('missions', n, CONSEIL_MISSIONS_MIN, CONSEIL_MISSIONS_MAX, ALERTE_MISSIONS);
+  nf.metiers.forEach(function (m, i) {
+    var f = ficheNorm(m.code);
+    var ouvert = i === 0 || nf.detOuvert[m.code];
+    h += '<details class="mq-det" data-det="' + esc(m.code) + '"' + (ouvert ? ' open' : '') + '><summary>Missions du métier : ' + esc(m.nom) + (i === 0 ? ' (principal)' : '') + '</summary>';
+    if (!f) { h += '<p class="mq-aide">Chargement de la fiche...</p>'; }
+    else if (!f.m.length) { h += '<p class="mq-aide">Aucune mission prête pour cette fiche : écrivez les vôtres plus bas.</p>'; }
+    else { h += '<div class="pastilles mb-1">' + f.m.map(function (x) { return jeton('data-mission', x, nf.missions.indexOf(x) !== -1, esc(x), false); }).join('') + '</div>'; }
+    h += '</details>';
+  });
+  if (nf.texteAncien) {
+    h += '<div class="mq-gris" style="border-left-color:var(--mq-miss-bord)"><p class="mq-q" style="margin:0 0 .3rem">Ce que vous aviez écrit avant (conservé)</p>' +
+      '<textarea class="form-control form-control-sm champ-optionnel" id="fAncien" rows="2">' + esc(nf.texteAncien) + '</textarea>' +
+      '<p class="mq-aide">Votre texte d’origine n’est jamais perdu : retrouvez ici vos mots et recopiez ce que vous voulez garder dans vos propres missions.</p></div>';
+  }
+  h += '<p class="mq-fam">Une mission qui n’est pas dans la liste ?</p>' +
+    '<div class="mq-ligne" style="justify-content:flex-start;flex-wrap:nowrap"><input type="text" class="form-control form-control-sm champ-optionnel" id="fMissionLibre" placeholder="Écrivez-la avec vos mots (ex. : Préparer 80 couverts par service)" style="flex:1 1 auto">' +
+    '<button type="button" class="btn btn-sm btn-outline-primary" data-ajout-mission="1">+ Ajouter</button></div>';
+  if (nf.missionsLibres.length) {
+    h += '<p class="mq-aide mb-1">Vos propres missions :</p><div class="pastilles mb-1">' + nf.missionsLibres.map(function (x, i) {
+      return '<span class="pastille-mini-conteneur"><span class="pastille-mini-texte">' + esc(x) + '</span><span class="pastille-mini-croix" data-suppr-mission="' + i + '">&#10005;</span></span>';
+    }).join('') + '</div>';
+  }
+  return h + '</div>';
+}
+var TYPES = [['sf', 'Savoir-faire'], ['se', 'Savoir-être'], ['sv', 'Savoirs']];
+function listeFamille(type) {
+  var tout = [];
+  nf.metiers.forEach(function (m) { var f = ficheNorm(m.code); if (f) { tout = tout.concat(f[type]); } });
+  return mcSansDoublon(tout);
+}
+function htmlRubriqueCompetences() {
+  if (!nf.metiers.length) { return ''; }
+  var n = nbComp(nf);
+  var h = '<div class="mq-miss"><p class="mq-q">Vos compétences <span class="mq-tag mq-tag--miss">À choisir</span></p>' +
+    '<p class="mq-aide" style="margin-top:0">Les compétences liées à votre métier. Une compétence n’apparaît qu’une seule fois, même si plusieurs métiers la partagent.</p>' + htmlGardeFou('compétences', n, CONSEIL_COMP_MIN, CONSEIL_COMP_MAX, ALERTE_COMP);
+  TYPES.forEach(function (t) {
+    var l = listeFamille(t[0]);
+    h += '<p class="mq-fam">' + t[1] + (t[0] === 'se' ? ' (ce qui vous caractérise au travail)' : t[0] === 'sv' ? ' (ce que vous savez)' : ' (ce que vous savez faire)') + '</p>';
+    if (!l.length) { h += '<p class="mq-aide">Aucune proposition pour ce métier : ajoutez les vôtres plus bas.</p>'; }
+    else { h += '<div class="pastilles mb-1">' + l.map(function (x) { return jeton('data-comp-' + t[0], x, nf.comp[t[0]].indexOf(x) !== -1, esc(x), false); }).join('') + '</div>'; }
+    if (t[0] === 'sf') {
+      var kl = listeFamille('k').filter(function (x) { return l.indexOf(x) === -1; });
+      if (kl.length) {
+        if (nf.kDeploye) { h += '<p class="mq-aide mb-1">Activités plus précises :</p><div class="pastilles mb-1">' + kl.map(function (x) { return jeton('data-comp-k', x, nf.comp.k.indexOf(x) !== -1, esc(x), false); }).join('') + '</div>'; }
+        else { h += '<button type="button" class="btn btn-sm btn-outline-primary mb-1" data-k-deployer="1">Voir les ' + kl.length + ' activités plus précises</button>'; }
+      }
+    }
+  });
+  h += '<p class="mq-fam">Une compétence qui n’est pas dans la liste ?</p>' +
+    '<div class="mq-ligne" style="justify-content:flex-start;flex-wrap:nowrap"><input type="text" class="form-control form-control-sm champ-optionnel" id="fCompLibre" placeholder="Écrivez-la avec vos mots (ex. : Gérer une file d’attente)" style="flex:1 1 auto">' +
+    '<button type="button" class="btn btn-sm btn-outline-primary" data-ajout-comp="1">+ Ajouter</button></div>';
+  if (nf.compLibres.length) {
+    h += '<p class="mq-aide mb-1">Vos propres compétences :</p><div class="pastilles mb-1">' + nf.compLibres.map(function (x, i) {
+      return '<span class="pastille-mini-conteneur"><span class="pastille-mini-texte">' + esc(x) + '</span><span class="pastille-mini-croix" data-suppr-comp="' + i + '">&#10005;</span></span>';
+    }).join('') + '</div>';
+  }
+  return h + '</div>';
+}
+
+/* ---- Entreprise, période, mois ---- */
+function htmlRubriqueDates() {
+  var h = '<div class="mq-gris"><p class="mq-q">Où et quand ?</p>' +
+    '<div class="mb-2"><label class="small mb-1" for="fEntreprise">Entreprise ou employeur</label><input type="text" class="form-control form-control-sm champ-optionnel" id="fEntreprise" placeholder="Ex. Boulangerie Martin, Intérim Adecco" value="' + esc(nf.entreprise) + '"></div>' +
+    '<div class="row g-2 mb-2"><div class="col-6"><label class="small mb-1" for="fDebut">Année de début</label><input type="text" inputmode="numeric" maxlength="4" class="form-control form-control-sm champ-optionnel" id="fDebut" placeholder="Ex. 2021" value="' + esc(nf.debut) + '"></div>' +
+    '<div class="col-6"><label class="small mb-1" for="fFin">Année de fin</label>' + (nf.enPoste ? '<div class="form-control form-control-sm bg-light text-muted">En poste actuellement</div>' : '<input type="text" inputmode="numeric" maxlength="4" class="form-control form-control-sm champ-optionnel" id="fFin" placeholder="Ex. 2023" value="' + esc(nf.fin) + '">') + '</div></div>' +
+    '<div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="fEnPoste"' + (nf.enPoste ? ' checked' : '') + '><label class="form-check-label small" for="fEnPoste">Je suis toujours en poste</label></div>' +
+    '<div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="fAvecMois"' + (nf.avecMois ? ' checked' : '') + '><label class="form-check-label small" for="fAvecMois">Indiquer aussi le mois sur mon CV</label></div>';
+  if (nf.avecMois) {
+    var opt = function (sel) { return '<option value="">Mois</option>' + MOIS.map(function (m) { return '<option' + (m === sel ? ' selected' : '') + '>' + m + '</option>'; }).join(''); };
+    h += '<div class="row g-2"><div class="col-6"><select class="form-select form-select-sm champ-optionnel" id="fMoisDebut" aria-label="Mois de début">' + opt(nf.moisDebut) + '</select></div>' +
+      '<div class="col-6">' + (nf.enPoste ? '' : '<select class="form-select form-select-sm champ-optionnel" id="fMoisFin" aria-label="Mois de fin">' + opt(nf.moisFin) + '</select>') + '</div></div>';
+  }
+  return h + '</div>';
+}
+
+/* ---- Boutons : « Annuler » (rouge) puis « Je valide » (bleu) ---- */
+function peutValider() {
+  var aPoste = !!nf.poste.trim();
+  if (editIndex !== null) { return aPoste; }   // décision de Denis : une expérience déjà dans le CV se modifie dès que l'intitulé est là
+  return aPoste && nbComp(nf) >= 1;
+}
+function manque() {
+  var m = [];
+  if (!nf.poste.trim()) { m.push('l’intitulé du poste'); }
+  if (editIndex === null && nbComp(nf) < 1) { m.push('au moins une compétence'); }
+  return m;
+}
+function htmlBoutons() {
+  var ok = peutValider();
+  var estEdit = editIndex !== null;
+  var h = '<div class="mq-recap" id="mqRecap">Sur votre CV : ' + nbMissions(nf) + (nbMissions(nf) > 1 ? ' missions' : ' mission') + ', ' + nbComp(nf) + (nbComp(nf) > 1 ? ' compétences' : ' compétence') + '</div>' +
+    '<div class="mt-2 d-flex gap-2 flex-wrap align-items-center">' +
+    '<button type="button" class="btn btn-primary btn-sm fw-bold px-4" id="mqValider"' + (ok ? '' : ' style="display:none"') + '>' + (estEdit ? 'Valider ces modifications' : '&#10003; Je valide') + '</button>' +
+    '<button type="button" class="btn btn-annuler btn-sm fw-bold px-4" id="mqAnnuler"' + ((estEdit || !ok) ? '' : ' style="display:none"') + '>&#10005; Annuler</button></div>' +
+    '<p class="mq-aide" id="mqAideValider"' + (ok ? ' style="display:none"' : '') + '>Pour valider, il manque : <b>' + manque().join(' et ') + '</b>. « Annuler » referme sans rien ajouter.</p>';
+  return h;
+}
+function majBoutons() {
+  var ok = peutValider(), estEdit = editIndex !== null;
+  var v = document.getElementById('mqValider'), a = document.getElementById('mqAnnuler'), aide = document.getElementById('mqAideValider'), rc = document.getElementById('mqRecap');
+  if (v) { v.style.display = ok ? '' : 'none'; }
+  if (a) { a.style.display = (estEdit || !ok) ? '' : 'none'; }
+  if (aide) { aide.style.display = ok ? 'none' : ''; aide.innerHTML = 'Pour valider, il manque : <b>' + manque().join(' et ') + '</b>. « Annuler » referme sans rien ajouter.'; }
+  if (rc) { rc.textContent = 'Sur votre CV : ' + nbMissions(nf) + (nbMissions(nf) > 1 ? ' missions' : ' mission') + ', ' + nbComp(nf) + (nbComp(nf) > 1 ? ' compétences' : ' compétence'); }
+  majRetient();
+}
+
+/* ============ VUE 1 : le panneau ============ */
+function vuePanneau() {
+  document.getElementById('mqTitre').textContent = 'Vos informations';
+  document.getElementById('mqIntro').textContent = 'Extrait : le rectangle « Expériences professionnelles », tel qu’il serait avec la proposition.';
+  var h = '<details class="bloc-depli" open><summary>Expériences professionnelles</summary><div class="bloc-depli-corps">' +
+    '<p class="bloc-erip-intro">Vos emplois, y compris courts, saisonniers, en intérim ou en contrat aidé. Les stages longs comptent aussi. C’est le cœur de votre CV.</p>';
+  if (liste.length) {
+    h += '<div class="mb-2' + (nf ? ' catalogue-verrou' : '') + '"><p class="mq-aide mb-1">Cliquez sur une expérience pour la modifier, sur la croix pour la supprimer.</p>' +
+      liste.map(function (e, i) {
+        return '<span class="pastille-mini-conteneur"><span class="pastille-mini-texte' + (editIndex === i ? ' pastille-mini-active' : '') + '" data-edit="' + i + '">' + esc(libelleListe(e)) + '</span><span class="pastille-mini-croix" data-suppr="' + i + '">&#10005;</span></span>';
+      }).join('') + '</div>';
+  } else if (!nf) {
+    h += '<p class="mq-aide">Aucune expérience pour l’instant.</p>';
+  }
+  if (!nf) {
+    h += '<button type="button" class="btn btn-primary btn-sm mt-2" id="mqOuvrir">+ Ajouter une expérience</button>';
+    h += '</div></details>';
+    document.getElementById('mqCorps').innerHTML = h; majRetient(); return;
+  }
+  /* formulaire */
+  h += '<div class="mq-choix"><p class="mq-q">Quel poste avez-vous occupé ?</p>' +
+    '<input type="text" class="form-control form-control-sm champ-a-completer" id="fPoste" placeholder="Ex. Serveur, Agent de production, Aide-soignant" value="' + esc(nf.poste) + '" autocomplete="off">' +
+    '<div id="zoneSugg">' + htmlSuggestions() + '</div>' +
+    '<p class="mq-aide">Votre intitulé reste tel que vous l’écrivez : c’est lui qui sera sur votre CV. Le métier choisi sert seulement à vous proposer des missions et des compétences.</p></div>';
+  if (nf.metiers.length || nf.poste.trim().length >= 3) { h += htmlRubriqueMetiers(); }
+  h += htmlRubriqueMissions() + htmlRubriqueCompetences();
+  if (nf.poste.trim()) { h += htmlRubriqueDates(); }
+  h += htmlBoutons();
+  h += '</div></details>';
+  document.getElementById('mqCorps').innerHTML = h;
+  majRetient();
+}
+
+/* ============ VUE 2 : la page de vérification ============ */
+function cle(t) { return mcNormaliser(t); }
+function resumeGlobal() {
+  var vus = {}, doublons = [], nM = 0, nC = 0;
+  function ajoute(t, source) { var c = cle(t); if (vus[c]) { doublons.push({ t: t, c: c }); } else { vus[c] = source; nC++; } }
+  liste.forEach(function (e) {
+    nM += nbMissions(e);
+    ['sf', 'se', 'sv', 'k'].forEach(function (k) { e.comp[k].forEach(function (x) { ajoute(x, e.poste); }); });
+    e.compLibres.forEach(function (x) { ajoute(x, e.poste); });
+  });
+  ACTIONS_EXEMPLE.forEach(function (x) { ajoute(x, 'actions'); });
+  return { missions: nM, comp: nC, doublons: doublons };
+}
+function vueVerif() {
+  document.getElementById('mqTitre').textContent = 'Vos missions et compétences';
+  document.getElementById('mqIntro').textContent = 'Page de vérification : elle vient après « Votre parcours ». Rien à ressaisir ici, seulement à contrôler et à retoucher.';
+  var h = '<div class="mq-etapes"><span class="mq-etape">Votre objectif</span><span class="mq-etape">Vos informations</span><span class="mq-etape">Votre parcours</span><span class="mq-etape verif">Vos missions et compétences</span><span class="mq-etape">Votre profil</span><span class="mq-etape">Assistant</span><span class="mq-etape">Vos documents</span></div>';
+  h += '<div class="mq-choix"><p class="mq-q" style="margin:0">Voici ce que contiendra votre CV</p><p class="mq-aide" style="margin-top:.2rem">Vérifiez chaque expérience. Pour changer quelque chose, cliquez sur « Modifier cette expérience » : vous retrouvez le même panneau que dans « Vos informations ».</p></div>';
+  if (!liste.length) {
+    h += '<p class="mq-aide">Aucune expérience dans ce dossier. Utilisez « Charger un dossier d’exemple » dans les réglages, ou créez-en une dans la vue 1.</p>';
+    document.getElementById('mqCorps').innerHTML = h; majRetient(); return;
+  }
+  var r = resumeGlobal();
+  liste.forEach(function (e, i) {
+    h += '<div class="mq-carte"><div class="mq-ligne"><h3>' + esc(libelleListe(e)) + '</h3><button type="button" class="btn btn-sm btn-outline-primary" data-verif-modifier="' + i + '">Modifier cette expérience</button></div>';
+    h += '<p class="mq-aide" style="margin-top:0">Métiers : ' + (e.metiers.length ? esc(e.metiers.map(function (m) { return m.nom; }).join(' · ')) : 'aucun métier choisi (vos propres mots)') + '</p>';
+    var ms = e.missions.concat(e.missionsLibres);
+    h += '<p class="mq-fam" style="margin-top:.4rem">Missions (' + ms.length + ')</p>' + (ms.length ? '<ul class="mq-liste">' + ms.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="mq-aide">Aucune mission choisie. Elles seront décrites avec le texte que vous aviez écrit.</p>');
+    var cs = e.comp.sf.concat(e.comp.k, e.comp.se, e.comp.sv, e.compLibres);
+    h += '<p class="mq-fam" style="margin-top:.4rem">Compétences (' + cs.length + ')</p>' + (cs.length ? '<ul class="mq-liste">' + cs.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="mq-aide">Aucune compétence choisie.</p>');
+    if (nbMissions(e) > CONSEIL_MISSIONS_MAX) { h += '<p class="mq-aide" style="font-weight:700;color:var(--warning-strong)">Cette expérience a ' + nbMissions(e) + ' missions : pensez à ne garder que les plus importantes.</p>'; }
+    h += '</div>';
+  });
+  h += '<div class="mq-carte"><h3>Compétences venues de « Votre parcours » <span class="mq-origine">vos actions</span></h3><p class="mq-aide" style="margin-top:0">Exemple pour la maquette : ce que vous avez choisi dans « Votre parcours » (avec qui, quelle action, quel environnement).</p><ul class="mq-liste">' +
+    ACTIONS_EXEMPLE.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+  h += '<div class="mq-miss"><p class="mq-q">Les doublons retirés pour vous</p>';
+  if (!r.doublons.length) { h += '<p class="mq-aide" style="margin-top:0">Aucun doublon : chaque compétence n’apparaît qu’une fois.</p>'; }
+  else {
+    h += '<p class="mq-aide" style="margin-top:0">Ces compétences étaient présentes plusieurs fois. Elles ne seront écrites qu’une seule fois sur votre CV :</p><ul class="mq-liste">' +
+      r.doublons.map(function (d) { return '<li>' + esc(d.t) + '</li>'; }).join('') + '</ul>';
+  }
+  h += '</div><div class="mq-recap">Votre CV contiendra : ' + r.missions + ' mission' + (r.missions > 1 ? 's' : '') + ' et ' + r.comp + ' compétence' + (r.comp > 1 ? 's' : '') + ' (doublons retirés : ' + r.doublons.length + ')</div>';
+  h += '<div class="mt-2 d-flex gap-2 flex-wrap"><button type="button" class="btn btn-outline-primary btn-sm">&larr; Retour</button><button type="button" class="btn btn-primary btn-sm fw-bold px-4 ms-auto">Passer à l’étape suivante &rarr;</button></div>';
+  document.getElementById('mqCorps').innerHTML = h;
+  majRetient();
+}
+
+/* ============ VUE 3 : le parcours ============ */
+function vueParcours() {
+  document.getElementById('mqTitre').textContent = 'Où se place chaque écran';
+  document.getElementById('mqIntro').textContent = 'Le trajet complet de la personne, de la saisie jusqu’au CV.';
+  var h = '<div class="mq-carte"><h3>Créer un nouveau CV</h3><div class="mq-etapes"><span class="mq-etape">Votre objectif</span><span class="mq-etape ici">Vos informations</span><span class="mq-etape">Votre parcours</span><span class="mq-etape verif">Vos missions et compétences</span><span class="mq-etape">Votre profil</span><span class="mq-etape">Assistant</span><span class="mq-etape">Vos documents</span></div>' +
+    '<ul class="mq-liste">' +
+    '<li><b>Vos informations</b> (bleu) : pour chaque expérience, la personne choisit son métier, ses missions et ses compétences, avec ses propres mots en plus. C’est ici que tout se saisit, une seule fois.</li>' +
+    '<li><b>Votre parcours</b> : les actions et l’environnement ajoutent des compétences.</li>' +
+    '<li><b>Vos missions et compétences</b> (violet) : page de vérification. Elle récapitule, retire les doublons entre expériences et actions, signale les expériences trop chargées. Aucun nouveau choix à faire : un bouton « Modifier cette expérience » rouvre le panneau.</li>' +
+    '<li><b>Assistant</b> : il reçoit les choix de la personne et ne rajoute rien qu’elle ne voie pas.</li></ul></div>';
+  h += '<div class="mq-carte"><h3>Mettre à jour mon CV</h3><p class="mq-aide" style="margin-top:0">La page de vérification n’existe pas dans ce parcours. Dans « Corriger mon CV », le bouton « Compléter avec la fiche du métier » est remplacé par le même panneau d’expérience : même métier, mêmes missions à cocher, mêmes compétences. Les missions déjà dans le CV de la personne restent cochées en haut.</p></div>';
+  h += '<div class="mq-carte"><h3>Ce qui part vers l’assistant (prompt, à écrire après)</h3><ul class="mq-liste">' +
+    '<li>Les missions et compétences choisies, expérience par expérience, avec le métier principal.</li>' +
+    '<li>Les propres mots de la personne, repérés comme tels.</li>' +
+    '<li><b>Nouveau :</b> l’assistant met en avant, parmi ces choix, les missions et compétences les plus recherchées pour le métier, et celles qui répondent le mieux à l’offre d’emploi s’il y en a une.</li>' +
+    '<li>Il ne remplace rien et n’ajoute rien d’invisible : tout ce qu’il propose en plus se voit et se choisit.</li>' +
+    '<li>Ce prompt sera légèrement différent de <code>cv.md</code>, dans le même esprit que le bloc déjà ajouté pour les choix de la personne.</li></ul></div>';
+  document.getElementById('mqCorps').innerHTML = h;
+  majRetient();
+}
+
+function rendu() {
+  document.querySelectorAll('[data-vue]').forEach(function (b) { var on = b.getAttribute('data-vue') === vue; b.classList.toggle('btn-primary', on); b.classList.toggle('btn-outline-secondary', !on); });
+  if (vue === 'panneau') { vuePanneau(); } else if (vue === 'verif') { vueVerif(); } else { vueParcours(); }
+}
+
+function majRetient() {
+  var el = document.getElementById('mqRetient');
+  var l = [];
+  liste.forEach(function (e) {
+    l.push('<p><b>' + esc(libelleListe(e)) + '</b> : ' + (e.metiers.length ? 'métiers ' + esc(e.metiers.map(function (m) { return m.nom; }).join(', ')) : 'sans métier') + ' · ' + nbMissions(e) + ' mission(s) · ' + nbComp(e) + ' compétence(s)</p>');
+  });
+  if (nf) { l.push('<p><i>En cours :</i> ' + esc(nf.poste || '(intitulé vide)') + ' · ' + nf.metiers.length + ' métier(s) · ' + nbMissions(nf) + ' mission(s) · ' + nbComp(nf) + ' compétence(s) · bouton ' + (peutValider() ? '« Je valide »' : '« Annuler »') + '</p>'); }
+  if (!l.length) { l.push('<p class="text-muted">Aucune expérience validée pour l’instant.</p>'); }
+  el.innerHTML = l.join('');
+}
+
+/* ============ événements ============ */
+var corps = document.getElementById('mqCorps');
+corps.addEventListener('toggle', function (e) {
+  var d = e.target; if (!d || !d.getAttribute || !d.getAttribute('data-det') || !nf) { return; }
+  nf.detOuvert[d.getAttribute('data-det')] = d.open;
+}, true);
+corps.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-sugg],[data-metier],[data-mission],[data-comp-sf],[data-comp-se],[data-comp-sv],[data-comp-k],[data-edit],[data-suppr],[data-chercher],[data-fermer-panneau],[data-secteur-idx],[data-changer-secteur],[data-garder-secteur],[data-deploye],[data-filtre-tous],[data-ajout-mission],[data-ajout-comp],[data-suppr-mission],[data-suppr-comp],[data-k-deployer],[data-verif-modifier],#mqOuvrir,#mqValider,#mqAnnuler');
+  if (!b) { return; }
+  if (b.id === 'mqOuvrir') { nf = nouveauBrouillon(); editIndex = null; rendu(); var p = document.getElementById('fPoste'); if (p) { p.focus(); } return; }
+  if (b.id === 'mqAnnuler') { nf = null; editIndex = null; rendu(); return; }
+  if (b.id === 'mqValider') {
+    if (!peutValider()) { return; }
+    var copie = JSON.parse(JSON.stringify(nf));
+    if (editIndex !== null) { liste[editIndex] = copie; } else { liste.push(copie); }
+    nf = null; editIndex = null; rendu(); return;
+  }
+  if (b.hasAttribute('data-verif-modifier')) { editIndex = parseInt(b.getAttribute('data-verif-modifier'), 10); nf = JSON.parse(JSON.stringify(liste[editIndex])); nf.metiers.forEach(function (m) { chargerFiche(m.code, function () { rendu(); }); }); vue = 'panneau'; rendu(); return; }
+  if (b.hasAttribute('data-edit')) {
+    editIndex = parseInt(b.getAttribute('data-edit'), 10); nf = JSON.parse(JSON.stringify(liste[editIndex]));
+    nf.metiers.forEach(function (m) { chargerFiche(m.code, function () { rendu(); }); });
+    rendu(); return;
+  }
+  if (b.hasAttribute('data-suppr')) { liste.splice(parseInt(b.getAttribute('data-suppr'), 10), 1); nf = null; editIndex = null; rendu(); return; }
+  if (b.hasAttribute('data-sugg')) {
+    var code = b.getAttribute('data-sugg');
+    var autres = nf.metiers.filter(function (x, i) { return i > 0 && x.code !== code; });
+    var choisiS = suggestions().filter(function (s) { return s.code === code && s.nom === b.getAttribute('data-nom'); })[0] || { nom: nomMetier(code) };
+    nf.metiers = [{ code: code, nom: choisiS.nom }].concat(autres).slice(0, MAX_METIERS);
+    nf.poste = choisiS.nom;
+    nf.secteurIdx = null;
+    chargerFiche(code, function () { rendu(); });
+    nettoyer(); rendu(); return;
+  }
+  if (b.hasAttribute('data-metier')) {
+    var c = b.getAttribute('data-metier'), k = -1;
+    nf.metiers.forEach(function (x, j) { if (x.code === c) { k = j; } });
+    if (k !== -1) { nf.metiers.splice(k, 1); nettoyer(); }
+    else if (nf.metiers.length < MAX_METIERS) { nf.metiers.push({ code: c, nom: nomMetier(c) }); chargerFiche(c, function () { rendu(); }); }
+    rendu(); return;
+  }
+  if (b.hasAttribute('data-mission')) { var m = b.getAttribute('data-mission'), i = nf.missions.indexOf(m); if (i === -1) { nf.missions.push(m); } else { nf.missions.splice(i, 1); } rendu(); return; }
+  ['sf', 'se', 'sv', 'k'].forEach(function (t) {
+    if (b.hasAttribute('data-comp-' + t)) { var x = b.getAttribute('data-comp-' + t), j = nf.comp[t].indexOf(x); if (j === -1) { nf.comp[t].push(x); } else { nf.comp[t].splice(j, 1); } rendu(); }
+  });
+  if (b.hasAttribute('data-comp-sf') || b.hasAttribute('data-comp-se') || b.hasAttribute('data-comp-sv') || b.hasAttribute('data-comp-k')) { return; }
+  if (b.hasAttribute('data-k-deployer')) { nf.kDeploye = true; rendu(); return; }
+  if (b.hasAttribute('data-ajout-mission')) { var im = document.getElementById('fMissionLibre'); var tm = im ? maj1(im.value.trim()) : ''; if (tm) { nf.missionsLibres.push(tm); rendu(); } return; }
+  if (b.hasAttribute('data-ajout-comp')) { var ic = document.getElementById('fCompLibre'); var tc = ic ? maj1(ic.value.trim()) : ''; if (tc) { nf.compLibres.push(tc); rendu(); } return; }
+  if (b.hasAttribute('data-suppr-mission')) { nf.missionsLibres.splice(parseInt(b.getAttribute('data-suppr-mission'), 10), 1); rendu(); return; }
+  if (b.hasAttribute('data-suppr-comp')) { nf.compLibres.splice(parseInt(b.getAttribute('data-suppr-comp'), 10), 1); rendu(); return; }
+  if (b.hasAttribute('data-chercher')) { nf.panneauOuvert = !nf.panneauOuvert; if (nf.panneauOuvert) { nf.choixSecteur = false; } rendu(); return; }
+  if (b.hasAttribute('data-fermer-panneau')) { nf.panneauOuvert = false; nf.choixSecteur = false; rendu(); return; }
+  if (b.hasAttribute('data-secteur-idx')) { nf.secteurIdx = parseInt(b.getAttribute('data-secteur-idx'), 10); nf.choixSecteur = false; nf.panneauOuvert = true; nf.filtre = ''; nf.filtreTous = false; nf.deploye = {}; rendu(); return; }
+  if (b.hasAttribute('data-changer-secteur')) { nf.choixSecteur = !nf.choixSecteur; if (nf.choixSecteur) { nf.panneauOuvert = false; } rendu(); return; }
+  if (b.hasAttribute('data-garder-secteur')) { nf.choixSecteur = false; rendu(); return; }
+  if (b.hasAttribute('data-deploye')) { nf.deploye[b.getAttribute('data-deploye')] = true; majListeSecteur(); return; }
+  if (b.hasAttribute('data-filtre-tous')) { nf.filtreTous = true; majListeSecteur(); return; }
+});
+corps.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') { return; }
+  if (e.target.id === 'fMissionLibre') { e.preventDefault(); var t = maj1(e.target.value.trim()); if (t) { nf.missionsLibres.push(t); rendu(); document.getElementById('fMissionLibre').focus(); } }
+  if (e.target.id === 'fCompLibre') { e.preventDefault(); var t2 = maj1(e.target.value.trim()); if (t2) { nf.compLibres.push(t2); rendu(); document.getElementById('fCompLibre').focus(); } }
+});
+corps.addEventListener('input', function (e) {
+  var id = e.target.id;
+  if (id === 'fPoste') {
+    var v = e.target.value;
+    if (v.length && v.charAt(0) !== v.charAt(0).toUpperCase()) { var p0 = e.target.selectionStart; v = maj1(v); e.target.value = v; e.target.setSelectionRange(p0, p0); }
+    var avant = nf.poste.trim().length >= 3 || nf.metiers.length > 0, avantOk = peutValider();
+    nf.poste = v;
+    var apres = nf.poste.trim().length >= 3 || nf.metiers.length > 0;
+    var avaitDates = !!document.getElementById('fEntreprise');
+    if (avant !== apres || avaitDates !== !!nf.poste.trim()) { var pos = e.target.selectionStart; rendu(); var n = document.getElementById('fPoste'); n.focus(); n.setSelectionRange(pos, pos); }
+    else { majSuggestions(); if (avantOk !== peutValider() || true) { majBoutons(); } }
+    return;
+  }
+  if (id === 'fFiltre') { nf.filtre = e.target.value; nf.filtreTous = false; majListeSecteur(); return; }
+  if (id === 'fEntreprise' || id === 'fDebut' || id === 'fFin') {
+    var val = e.target.value;
+    if (id === 'fEntreprise' && val.length && val.charAt(0) !== val.charAt(0).toUpperCase()) { var p1 = e.target.selectionStart; val = maj1(val); e.target.value = val; e.target.setSelectionRange(p1, p1); }
+    if (id === 'fEntreprise') { nf.entreprise = val; } else if (id === 'fDebut') { nf.debut = val; } else { nf.fin = val; }
+    majRetient(); return;
+  }
+  if (id === 'fAncien') { nf.texteAncien = e.target.value; }
+});
+corps.addEventListener('change', function (e) {
+  var id = e.target.id;
+  if (id === 'fEnPoste') { nf.enPoste = e.target.checked; rendu(); }
+  else if (id === 'fAvecMois') { nf.avecMois = e.target.checked; rendu(); }
+  else if (id === 'fMoisDebut') { nf.moisDebut = e.target.value; majRetient(); }
+  else if (id === 'fMoisFin') { nf.moisFin = e.target.value; majRetient(); }
+});
+
+/* ---- Réglages ---- */
+function dossierExemple() {
+  var e1 = nouveauBrouillon(); e1.poste = 'Serveur en brasserie'; e1.entreprise = 'Brasserie du Centre'; e1.debut = '2021'; e1.fin = '2023';
+  e1.metiers = [{ code: 'G1803', nom: 'Serveur' }]; e1.compLibres = ['Gérer une file d’attente', 'Travailler en équipe']; e1.missionsLibres = ['Préparer 80 couverts par service'];
+  var e2 = nouveauBrouillon(); e2.poste = 'Agent de service'; e2.entreprise = 'Hôpital de Limoges'; e2.debut = '2019'; e2.fin = '2021'; e2.texteAncien = 'Nettoyage des chambres, distribution des repas, aide au brancardage.';
+  return [e1, e2];
+}
+document.getElementById('mqExemples').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-ex]'); if (!b) { return; }
+  var k = b.getAttribute('data-ex');
+  vue = 'panneau';
+  if (k === 'vider') { liste = []; nf = null; editIndex = null; rendu(); return; }
+  if (k === 'dossier') {
+    liste = dossierExemple(); nf = null; editIndex = null;
+    var codes = ['G1803']; var restants = codes.length;
+    chargerFiche('G1803', function () { rendu(); });
+    // le premier exemple choisit quelques éléments des vraies fiches, une fois chargées
+    chargerFiche('G1803', function () {
+      var f = ficheNorm('G1803'); if (!f) { return; }
+      liste[0].missions = f.m.slice(0, 3); liste[0].comp.sf = f.sf.slice(0, 2); liste[0].comp.se = f.se.slice(0, 2); rendu();
+    });
+    rendu(); return;
+  }
+  nf = nouveauBrouillon(); editIndex = null;
+  nf.poste = k === 'serveur' ? 'Serveur' : k === 'aide' ? 'Aide-soignant' : 'Responsable des bonnes ambiances';
+  rendu();
+  var p = document.getElementById('fPoste'); if (p) { p.focus(); }
+});
+document.querySelectorAll('[data-vue]').forEach(function (b) { b.addEventListener('click', function () { vue = b.getAttribute('data-vue'); rendu(); }); });
+document.getElementById('mqSombre').addEventListener('click', function () {
+  var h = document.documentElement;
+  if (h.getAttribute('data-theme') === 'sombre') { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); }
+});
+document.getElementById('mqTel').addEventListener('click', function () { document.getElementById('mqPage').classList.toggle('tel'); });
+document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+rendu();
+</script>
+</body>
+</html>

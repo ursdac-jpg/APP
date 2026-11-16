@@ -468,6 +468,9 @@ function _lexiqueSecondNiveauDe(ficheId) {
 // donnees -- un simple confort de navigation, reconstruit a chaque
 // chargement de page.
 var _lexiqueRetourFiche = null;
+// _lexiqueRechercheMemo (consigne 266, 12/11/2026) : le mot tape dans la recherche, retenu pour que « Retour » depuis une fiche (ou une liste)
+// retrouve la recherche et ses resultats au lieu d'un champ vide. Remis a vide a chaque arrivee dans le Lexique (pageLexique). Jamais ecrit dans dossier.
+var _lexiqueRechercheMemo = '';
 var _lexiqueModeLivrePosition = 0;
 
 // _lexiqueBibliothequeFicheOrigine (etape 11) : identifiant de la fiche
@@ -1366,6 +1369,7 @@ function _lexiqueBrancherRecherche() {
   // pas melanger deux signaux differents -- voir ARCHITECTURE_TECHNIQUE.md.
   var minuteurTrackRechercheLexique = null;
   champ.addEventListener('input', function () {
+    _lexiqueRechercheMemo = champ.value;
     zone.innerHTML = _lexiqueRenduResultats(champ.value);
     var texteRecherche = champ.value;
     if (minuteurTrackRechercheLexique) { clearTimeout(minuteurTrackRechercheLexique); }
@@ -1787,6 +1791,12 @@ function _lexiqueAfficherRecherche() {
   app.innerHTML = _lexiqueRenduEcran();
   _lexiqueNoter('recherche', function () { _lexiqueAfficherRecherche(); });
   _lexiqueBrancherRecherche();
+  // Retour depuis une fiche : on retrouve le mot tape et ses resultats (consigne 266).
+  if (_lexiqueRechercheMemo) {
+    var champMemo = document.getElementById('lexiqueRechercheInput');
+    var zoneMemo = document.getElementById('lexiqueResultats');
+    if (champMemo && zoneMemo) { champMemo.value = _lexiqueRechercheMemo; zoneMemo.innerHTML = _lexiqueRenduResultats(_lexiqueRechercheMemo); }
+  }
   window.scrollTo(0, 0);
 }
 
@@ -1870,6 +1880,7 @@ function pageLexique() {
   }
   // Retour par la fleche « Precedent » du navigateur : on rejoue l'ecran note (fiche, collection...) au lieu de la recherche.
   if (typeof _lexiqueRejeu === 'function') { var rejeu = _lexiqueRejeu; _lexiqueRejeu = null; rejeu(); return; }
+  _lexiqueRechercheMemo = '';   // arrivee neuve dans le Lexique : recherche vide (consigne 266)
   _lexiqueAfficherRecherche();
 }
 
@@ -2124,6 +2135,7 @@ function lexiqueOuvrirRecherche(texte) {
   _lexiqueAfficherRecherche();
   var champ = document.getElementById('lexiqueRechercheInput');
   var zone = document.getElementById('lexiqueResultats');
+  _lexiqueRechercheMemo = texte || '';
   if (champ) { champ.value = texte || ''; }
   if (zone) { zone.innerHTML = _lexiqueRenduResultats(texte || ''); }
   if (champ) { champ.focus(); }

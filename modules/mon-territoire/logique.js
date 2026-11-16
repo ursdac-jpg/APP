@@ -282,6 +282,81 @@ function mtEtablissementsEnTexte(liste) {
   return (liste || []).map(function (e) { return e.commune + ':' + (e.adresse || '') + (e.telephone ? ':' + e.telephone : ''); }).join(' ; ');
 }
 
+// ---------- Magasins générés (consigne 303) ----------
+// Le fichier contenu/magasins-generes.txt est PRODUIT par scripts/genererMagasinsSirene.js (jamais écrit à la main) : « identifiant de l'enseigne | Commune:adresse ; Commune:adresse ».
+// Il complète les établissements saisis à la main dans employeurs.txt : la saisie manuelle l'emporte toujours, sans doublon.
+var MT_MOTS_VOIE_NEUTRES = { rue: 1, avenue: 1, av: 1, ave: 1, route: 1, rte: 1, chemin: 1, che: 1, boulevard: 1, bd: 1, place: 1, pl: 1, impasse: 1, allee: 1, de: 1, du: 1, des: 1, la: 1, le: 1, les: 1, l: 1, d: 1, et: 1, en: 1, sur: 1,
+  cedex: 1, centre: 1, commercial: 1, cc: 1, c: 1, cial: 1, ccial: 1, zone: 1, za: 1, zi: 1, zac: 1, lieu: 1, dit: 1, lieudit: 1, ld: 1, bp: 1 };
+function _mtCleAdresse(adresse, commune) {
+  var mots = mtNormaliser(adresse).split(' ').filter(Boolean), nomsCommune = {};
+  mtNormaliser(commune).split(' ').forEach(function (m) { if (m) { nomsCommune[m] = true; } });
+  var nombres = [], noms = [];
+  mots.forEach(function (m) {
+    if (/^\d{5}$/.test(m) || MT_MOTS_VOIE_NEUTRES[m] || nomsCommune[m]) { return; }
+    if (/^\d+$/.test(m)) { nombres.push(m); } else { noms.push(m); }
+  });
+  return { nombres: nombres, noms: noms };
+}
+// Deux adresses désignent-elles le même magasin ? Mêmes numéros s'il y en a des deux côtés, et assez de mots de rue en commun (ni l'un ni l'autre ne doit être vide de mots).
+function mtMemeAdresse(a, b, commune) {
+  var x = _mtCleAdresse(a, commune), y = _mtCleAdresse(b, commune);
+  if (!x.noms.length && !x.nombres.length) { return false; }
+  if (!y.noms.length && !y.nombres.length) { return false; }
+  if (x.nombres.length && y.nombres.length && !x.nombres.some(function (n) { return y.nombres.indexOf(n) !== -1; })) { return false; }
+  if (!x.noms.length || !y.noms.length) { return x.nombres.length > 0 && y.nombres.length > 0; }
+  var commun = x.noms.filter(function (m) { return y.noms.indexOf(m) !== -1; }).length;
+  return commun / Math.min(x.noms.length, y.noms.length) >= 0.6;
+}
+function mtParserMagasinsGeneres(texte) {
+  var parId = {};
+  String(texte || '').split(/\r?\n/).forEach(function (ligne) {
+    if (!ligne.trim() || ligne.charAt(0) === '#') { return; }
+    var k = ligne.indexOf(' | ');
+    if (k < 0) { return; }
+    var id = ligne.slice(0, k).trim();
+    if (id) { parId[id] = mtParserEtablissements(ligne.slice(k + 3)); }
+  });
+  return parId;
+}
+// Date du relevé (AAAA-MM-JJ), lue dans l'en-tête du fichier « Relevé du AAAA-MM-JJ » ; vide si absente.
+function mtDateReleveMagasins(texte) {
+  var m = /Relevé du (\d{4}-\d{2}-\d{2})/.exec(String(texte || ''));
+  return m ? m[1] : '';
+}
+// Ajoute les magasins générés aux enseignes du registre (mêmes objets, établissements complétés). Retourne le nombre de magasins ajoutés.
+function mtFusionnerMagasins(employeurs, parId) {
+  var ajoutes = 0;
+  (employeurs || []).forEach(function (e) {
+    var gen = parId && parId[e.id];
+    if (!gen || !gen.length || e.nature !== 'enseigne') { return; }
+    var liste = (e.etablissementsListe || []).slice(), communesGen = {};
+    gen.forEach(function (g) { communesGen[mtNormaliser(g.commune)] = true; });
+    // Une commune connue sans adresse ni numéro est remplacée par les adresses trouvées ; avec un numéro, elle reste.
+    liste = liste.filter(function (x) { return !(communesGen[mtNormaliser(x.commune)] && !String(x.adresse || '').trim() && !String(x.telephone || '').trim()); });
+    var ajoutesFiche = 0;
+    gen.forEach(function (g) {
+      var cle = mtNormaliser(g.commune);
+      var connu = liste.filter(function (x) { return mtNormaliser(x.commune) === cle && mtMemeAdresse(x.adresse, g.adresse, g.commune); })[0];
+      var deja = !!connu;
+      // Un magasin saisi à la main sans numéro reçoit celui du relevé ; un numéro saisi à la main n'est jamais remplacé.
+      if (connu && !connu.telephone && g.telephone) { connu.telephone = g.telephone; connu.telephoneReleve = true; }
+      if (!deja) { liste.push({ commune: g.commune, adresse: g.adresse, telephone: g.telephone || '', genere: true }); ajoutes++; ajoutesFiche++; }
+    });
+    if (ajoutesFiche) {
+      // Le numéro de la fiche est celui du ou des magasins saisis à la main : il ne doit pas passer pour celui de tous les magasins ajoutés.
+      var manuels = liste.filter(function (x) { return !x.genere; });
+      if (e.telephone) {
+        // Un seul magasin saisi : le numéro lui revient. Plusieurs : le numéro reste sur la fiche, présenté comme celui d'UN magasin (jamais de tous).
+        if (manuels.length === 1 && !manuels[0].telephone) { manuels[0].telephone = e.telephone; e.telephone = ''; }
+        else { e.telephoneUnMagasin = true; }
+      }
+      e.nbMagasinsGeneres = ajoutesFiche;
+    }
+    e.etablissementsListe = liste;
+  });
+  return ajoutes;
+}
+
 function mtParserModes(champ) {
   return String(champ || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
 }
@@ -929,6 +1004,7 @@ if (typeof module !== 'undefined') {
     MT_VALIDITE_MOIS: MT_VALIDITE_MOIS, MT_PAGE_TAILLE: MT_PAGE_TAILLE,
     mtNormaliser: mtNormaliser, mtMoisEcoules: mtMoisEcoules, mtFraicheur: mtFraicheur, mtContactAffichable: mtContactAffichable,
     mtParserRegistre: mtParserRegistre, mtParserEtablissements: mtParserEtablissements, mtEtablissementsEnTexte: mtEtablissementsEnTexte, mtParserModes: mtParserModes, mtParserEmployeurs: mtParserEmployeurs,
+    mtMemeAdresse: mtMemeAdresse, mtParserMagasinsGeneres: mtParserMagasinsGeneres, mtFusionnerMagasins: mtFusionnerMagasins, mtDateReleveMagasins: mtDateReleveMagasins,
     mtParserCommunes: mtParserCommunes, mtTrouverCommune: mtTrouverCommune, mtDansMonIntercommunalite: mtDansMonIntercommunalite,
     mtTrierAlphabetique: mtTrierAlphabetique, mtEmployeursDuSecteur: mtEmployeursDuSecteur, mtCompterParSecteur: mtCompterParSecteur, mtPaginer: mtPaginer,
     MT_RAYONS: MT_RAYONS, MT_PORTEES: MT_PORTEES, MT_RAYONS_MIGRES: MT_RAYONS_MIGRES, MT_SOUS_BRANCHES: MT_SOUS_BRANCHES, MT_COLONNES_LIEUX: MT_COLONNES_LIEUX,

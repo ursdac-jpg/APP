@@ -15,8 +15,8 @@ function fn(nom) {
 const iReg = html.indexOf('var SITES_VEILLE_SEMAINE = ['), fReg = html.indexOf('\n  ];', iReg) + 5;
 assert.ok(iReg >= 0 && fReg > iReg, 'registre des sites de la semaine');
 const REGISTRE = html.slice(iReg, fReg);
-const S = new Function(REGISTRE + '\n' + ['deMd', 'semAvecAjout', 'semEstMain', 'semDom', 'semSiteDe', 'semCleDe', 'semLire', 'semCalculer', 'semSections', 'semAssembler', 'analyserReponse'].map(fn).join('\n')
-  + '\nreturn { SITES_VEILLE_SEMAINE: SITES_VEILLE_SEMAINE, semAvecAjout: semAvecAjout, semEstMain: semEstMain, semCleDe: semCleDe, semSections: semSections, semAssembler: semAssembler, semLire: semLire, semCalculer: semCalculer, analyserReponse: analyserReponse };')();
+const S = new Function(REGISTRE + '\n' + ['deMd', 'repSections', 'repAssembler', 'repFusionner', 'veilleHebdoAdresse', 'veilleHebdoRapprocher', 'semAvecAjout', 'semEstMain', 'semDom', 'semSiteDe', 'semCleDe', 'semLire', 'semCalculer', 'semSections', 'semAssembler', 'analyserReponse'].map(fn).join('\n')
+  + '\nreturn { SITES_VEILLE_SEMAINE: SITES_VEILLE_SEMAINE, deMd: deMd, repSections: repSections, repAssembler: repAssembler, repFusionner: repFusionner, veilleHebdoRapprocher: veilleHebdoRapprocher, semAvecAjout: semAvecAjout, semEstMain: semEstMain, semCleDe: semCleDe, semSections: semSections, semAssembler: semAssembler, semLire: semLire, semCalculer: semCalculer, analyserReponse: analyserReponse };')();
 const NL = String.fromCharCode(10);
 
 const CHATGPT = [
@@ -216,4 +216,36 @@ test('cartes autres que la veille de la semaine : sites non lus repérés sans r
   assert.strictEqual(S.analyserReponse('chiffres', S.semAssembler(sections.concat([main]))).niveau, 'ok');
   assert.strictEqual(S.analyserReponse('chiffres', S.semAssembler([{ auteur: 'ChatGPT', heure: '', texte: 'Voici un résumé. ' + 'x'.repeat(300) }, main])).niveau, 'inutilisable');
   assert.ok(html.includes('function semSauverSite(cle, texte, card, dom)') && html.includes("semSquelettesSites(x.id)"), 'chaque carte affiche ses sites non lus et enregistre le texte collé dans ses réponses');
+});
+
+// Deux assistants dans une même zone de l'ancien écran (demande de Denis, 15/11/2026).
+test('deMd : crochets, tirets bas protégés, liens entre chevrons et marque de suivi ChatGPT', () => {
+  assert.strictEqual(S.deMd('\[VEILLE-HEBDO\] ce\_qui\_change: x'), '[VEILLE-HEBDO] ce_qui_change: x');
+  assert.strictEqual(S.deMd('[a](<https://x.fr/p?utm_source=chatgpt.com>)'), '[a](https://x.fr/p)');
+  assert.strictEqual(S.deMd('[a](<https://x.fr/p?lang=fr&utm_source=chatgpt.com>)'), '[a](https://x.fr/p?lang=fr)');
+});
+
+test('repFusionner : les blocs de même nom des deux réponses sont réunis en un seul', () => {
+  const deux = S.repAssembler([
+    { auteur: 'ChatGPT', heure: '10:00', texte: 'Intro\n[CONFRONTER periode: x]\nsignal: A\n[/CONFRONTER]' },
+    { auteur: 'Perplexity', heure: '10:05', texte: '[CONFRONTER periode: y]\nsignal: B\n[/CONFRONTER]\n[SITES-NON-OUVERTS]\na | b\n[/SITES-NON-OUVERTS]' }]);
+  const f = S.repFusionner(deux);
+  assert.strictEqual((f.match(/\[CONFRONTER/g) || []).length, 1);
+  assert.ok(f.indexOf('signal: A') !== -1 && f.indexOf('signal: B') !== -1);
+  assert.ok(f.indexOf('[SITES-NON-OUVERTS]') !== -1 && f.indexOf('Intro') !== -1);
+  assert.strictEqual(S.repFusionner('texte seul'), 'texte seul');
+  assert.strictEqual(S.repSections(deux).length, 2);
+});
+
+test('veilleHebdoRapprocher : même page citée chez les deux = confirmé ; sinon à confirmer', () => {
+  const e = (par, signal, preuve, extra) => Object.assign({ signal, rayon: 'seniors', ce_qui_change: 'x', date_effet: '', source: '', preuve, par: [par] }, extra || {});
+  const r = S.veilleHebdoRapprocher([
+    e('Perplexity', 'A', 'https://www.service-public.gouv.fr/actu/A1 | 10/11/2026 | ...', { ce_qui_change: 'court' }),
+    e('Perplexity', 'B', 'https://www.service-public.gouv.fr/actu/B2 | 10/11/2026 | ...'),
+    e('ChatGPT', 'A bis', 'https://www.service-public.gouv.fr/actu/A1?utm_source=chatgpt.com | 10/11/2026 | ...', { ce_qui_change: 'beaucoup plus détaillé' })]);
+  assert.strictEqual(r.length, 2);
+  assert.deepStrictEqual(r[0].par, ['Perplexity', 'ChatGPT']);
+  assert.strictEqual(r[0].ce_qui_change, 'beaucoup plus détaillé');
+  assert.ok(/Perplexity : court/.test(r[0].complement));
+  assert.deepStrictEqual(r[1].par, ['Perplexity']);
 });

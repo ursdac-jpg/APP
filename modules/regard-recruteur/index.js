@@ -19,12 +19,11 @@
    session n'est en cours.
 
    Famille 2 (depot d'un document + passage assistant) : bouton « Revoir la
-   presentation » sur tous les ecrans de travail, encart « Continuer /
-   Recommencer » + gel a la reprise (LANGAGE_VISUEL_COMMUN section 5bis).
+   presentation » sur tous les ecrans de travail ; la reprise a la forme de « Reprendre mon CV »
+   (bloc « Reprendre / Recommencer » sur la presentation, consigne 258).
 
    Briques partagees reutilisees telles quelles (jamais recopiees) :
    - barreEtapesModule, barreNavigation, htmlBandeRepriseModule,
-     htmlEncartRepriseModule, appliquerGelModule, armerFinPulseEncartReprise,
      noteRevoirModuleDejaVue (js/app.js)
    - htmlChoixAssistantBilanCorps, ASSISTANTS_IA, ETAPES_DETAIL_CHOIX_IA (js/app.js)
    - ouvrirFenetreAssistantIA + recopierTexteAssistantPuisOuvrir (js/app.js)
@@ -179,7 +178,6 @@ function regardRecruteurEtatNeuf() {
 var _regardRecruteurEtat = null;
 var _regardRecruteurRenduVue = null;
 var _regardRecruteurDetourPresentation = false;
-var _regardRecruteurReprisePendante = false;
 // TACHE (retour Denis 2026-09-19, point 1 -- bouton "Masquer mes images" trop
 // discret pour une etape obligatoire) : meme principe que
 // _pulseGrandApercuWordJusquA/_pulseExperiencesJusquA (js/app.js) -- horodatage
@@ -253,10 +251,24 @@ function regardRecruteurRetour() {
   _regardRecruteurDetourPresentation = false;
   if (typeof naviguerVers === 'function') { naviguerVers('regard-recruteur-intro'); }
 }
-// « Continuer » de l'encart de reprise : leve le gel, garde tout l'etat.
+// « Reprendre » (consigne 258, 12/11/2026 : meme forme que « Reprendre mon CV ») : retour au dernier ecran de travail, tout l'etat est garde.
 function regardRecruteurRepriseContinuer() {
-  _regardRecruteurReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('regard-recruteur'); }
+}
+// Une lecture est-elle commencee ? (meme regle que la sauvegarde : une session sans image, sans texte, sans reponse ni ciblage ne compte pas.) Lu par la presentation pour proposer « Reprendre / Recommencer ».
+function regardRecruteurTravailEnCours() {
+  return !!regardRecruteurExporterEtatPourSauvegarde();
+}
+// « Recommencer » depuis la presentation : confirmation, puis la session est effacee et la presentation repart a froid.
+function regardRecruteurConfirmerRecommencer() {
+  var faire = function () { regardRecruteurReinitialiser(); if (typeof naviguerVers === 'function') { naviguerVers('regard-recruteur-intro'); } };
+  if (typeof confirmerAction === 'function') {
+    confirmerAction(
+      'Recommencer « Un regard sur mon CV »&nbsp;?',
+      'Votre image, la lecture reçue et vos réponses seront effacées. Vos autres modules et Mes Repères ne sont pas touchés.',
+      'Recommencer ce module', 'btn-danger', faire
+    );
+  } else { faire(); }
 }
 
 // Detruit la session (seul endroit qui remet l'etat a null).
@@ -266,7 +278,6 @@ function regardRecruteurReinitialiser() {
   _regardRecruteurEtat = null;
   _regardRecruteurRenduVue = null;
   _regardRecruteurDetourPresentation = false;
-  _regardRecruteurReprisePendante = false;
   _rrPulseMasquerJusquA = null;
   if (typeof _intervalleDecompteIA !== 'undefined' && _intervalleDecompteIA) {
     clearInterval(_intervalleDecompteIA);
@@ -1384,18 +1395,14 @@ function ouvrirRegardRecruteur() {
     // position. Vraie navigation entre vues : on remonte en haut.
     var scrollCible = memeVue ? (window.scrollY || window.pageYOffset || 0) : 0;
     var idxEtape = _regardRecruteurRenduVue ? _rrEtapeIndex(vue) : -1;
-    var reprise = _regardRecruteurReprisePendante;
 
-    var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !reprise)
+    var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
       : '';
-    var bouton = '<div><button type="button" id="rrBtnRevoirPresentation" class="btn-revoir-module"' +
-      (reprise ? ' disabled' : '') + '><i class="bi bi-image"></i> Revoir la présentation</button></div>' + noteHtml;
-    var encart = reprise
-      ? htmlEncartRepriseModule({ idContinuer: 'rrBtnRepriseContinuer', idRecommencer: 'rrBtnRepriseRecommencer', pulse: true, texte: 'Vous avez une lecture en cours sur ce module.' })
-      : '';
+    var bouton = '<div><button type="button" id="rrBtnRevoirPresentation" class="btn-revoir-module"><i class="bi bi-image"></i> Revoir la présentation</button></div>' + noteHtml;
+    var encart = '';
 
     // TACHE (retour utilisateur 2026-09-17, coherence inter-modules) : barre
     // d'etapes AVANT le titre (comme co-lettre/prepa-entretien et tous les
@@ -1419,29 +1426,9 @@ function ouvrirRegardRecruteur() {
 
     window.scrollTo(0, scrollCible);
 
-    if (typeof appliquerGelModule === 'function') { appliquerGelModule(reprise); }
 
     var btnRevoir = document.getElementById('rrBtnRevoirPresentation');
     if (btnRevoir) { btnRevoir.addEventListener('click', regardRecruteurRetourVersPresentation); }
-    var btnReprC = document.getElementById('rrBtnRepriseContinuer');
-    if (btnReprC) { btnReprC.addEventListener('click', regardRecruteurRepriseContinuer); }
-    var btnReprR = document.getElementById('rrBtnRepriseRecommencer');
-    if (btnReprR) {
-      btnReprR.addEventListener('click', function () {
-        if (typeof confirmerAction !== 'function') { return; }
-        confirmerAction(
-          'Recommencer « Un regard sur mon CV »&nbsp;?',
-          'Votre image, la lecture reçue et vos réponses seront effacées. Vos autres modules et Mes Repères ne sont pas touchés.',
-          'Recommencer ce module', 'btn-danger',
-          function () {
-            regardRecruteurReinitialiser();
-            ouvrirRegardRecruteur();
-            if (typeof naviguerVers === 'function') { naviguerVers('regard-recruteur'); }
-          }
-        );
-      });
-    }
-    if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
 
     brancherVue(vue);
 
@@ -1469,6 +1456,8 @@ if (typeof window !== 'undefined') {
   window.regardRecruteurRetour = regardRecruteurRetour;
   window.regardRecruteurRevenirDeLaPresentation = regardRecruteurRevenirDeLaPresentation;
   window.regardRecruteurRepriseContinuer = regardRecruteurRepriseContinuer;
+  window.regardRecruteurTravailEnCours = regardRecruteurTravailEnCours;
+  window.regardRecruteurConfirmerRecommencer = regardRecruteurConfirmerRecommencer;
   window.regardRecruteurReinitialiser = regardRecruteurReinitialiser;
   window.regardRecruteurExporterEtatPourSauvegarde = regardRecruteurExporterEtatPourSauvegarde;
   window.regardRecruteurRestaurerEtatDepuisSauvegarde = regardRecruteurRestaurerEtatDepuisSauvegarde;

@@ -30,9 +30,11 @@ function _vdBarre(s) {
   }
   if (s.modeCreation === 'pret') { return { famille: 'pret', barre: 'PREPARER_LETTRE_ENTRETIEN', indexBarre: 4 }; }
   if (s.modeCreation === 'nouveau') {
+    // Consigne 398 (16/11/2026) : quand l'etape « Vos missions et compétences » existe dans la barre, « Vos documents » est un repere plus loin (sinon « Assistant » restait allume apres l'export).
+    var decalageMissions = s.etapeMissions ? 1 : 0;
     return s.creationSansAssistant
-      ? { famille: 'creer-main', barre: 'CREER_CV_SANS', indexBarre: 4 }
-      : { famille: 'creer-assistant', barre: 'CREER_CV', indexBarre: 5 };
+      ? { famille: 'creer-main', barre: 'CREER_CV_SANS', indexBarre: 4 + decalageMissions }
+      : { famille: 'creer-assistant', barre: 'CREER_CV', indexBarre: 5 + decalageMissions };
   }
   if (s.origineCoLettre && s.docActif !== 'cv') { return { famille: 'co-lettre', barre: 'CO_LETTRE', indexBarre: 3 }; }
   return { famille: s.origine === 'bilan' ? 'bilan' : 'direct', barre: 'ANCIENNE', indexBarre: null };   // ancienne barre a 9 reperes (constat C10)

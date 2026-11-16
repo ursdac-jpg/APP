@@ -2024,6 +2024,7 @@ function _comprendreLeCadreRenduCollageRecherche(cfg) {
     '<p class="small text-muted mb-1"><strong>1.</strong> Copiez le texte, ouvrez un assistant en ligne, collez.</p>' +
     liens(assistantsSans, 'Sans compte :') +
     liens(assistantsCompte, 'Avec un compte :') +
+    (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('chatgpt-recherche-web') : '') +
     '<p class="small text-muted mb-1 mt-2"><strong>2.</strong> Copiez sa réponse et collez-la ici :</p>' +
     '<textarea id="' + cfg.reponseId + '" class="comprendre-le-cadre-textarea" rows="5" ' +
       'placeholder="Collez ici la réponse de l\'assistant..."></textarea>' +
@@ -2518,7 +2519,7 @@ function _comprendreLeCadreRenduFichesRecentes(fiches, depuis) {
       var rayon = (RAYON_LABEL[f.rayon] || {}).titre || f.rayon;
       return '<div class="comprendre-le-cadre-fiche-recente">' +
         '<span class="comprendre-le-cadre-chg-pastilles">' +
-          '<span class="comprendre-le-cadre-pastille' + (f.nouvelle ? ' comprendre-le-cadre-pastille--v' : '') + '">' + (f.nouvelle ? 'Nouvelle fiche' : 'Fiche mise à jour') + '</span>' +
+          '<span class="comprendre-le-cadre-pastille ' + (f.nouvelle ? 'comprendre-le-cadre-pastille--v' : 'comprendre-le-cadre-pastille--m') + '">' + (f.nouvelle ? 'Nouvelle fiche' : 'Fiche mise à jour') + '</span>' +
           '<span class="comprendre-le-cadre-pastille">' + (f.nouvelle ? 'Ajoutée le ' : 'Mise à jour le ') + _comprendreLeCadreDateFr(f.date) + '</span>' +
           '<span class="comprendre-le-cadre-pastille">' + rayon + '</span>' +
         '</span>' +

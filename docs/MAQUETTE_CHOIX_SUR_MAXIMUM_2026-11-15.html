@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : nombre de choix sur « Votre parcours »</title>
+<style>
+:root{--bg:#f4f6fa;--bg-card:#fff;--bg-subtle:#f8fafc;--border:#e2e8f0;--border-strong:#d5dbe4;--text-strong:#0b1a33;--text-muted:#4a5b6e;--accent:#0d6efd;--accent-texte:#0a58ca;--accent-bg-subtle:#eef2fd;--success:#198754;--success-strong:#157347;--success-bg-subtle:#d1f4de;--warning:#b45309;--warning-bg-subtle:#fdf1d9;}
+@media (prefers-color-scheme:dark){:root{--bg:#12161d;--bg-card:#1b212c;--bg-subtle:#222834;--border:#313a4a;--border-strong:#3d4759;--text-strong:#e8edf5;--text-muted:#a8b3c4;--accent:#4d94ff;--accent-texte:#7db0ff;--accent-bg-subtle:#1e2940;--success:#35c79a;--success-strong:#6ee89a;--success-bg-subtle:#17301f;--warning:#f5a742;--warning-bg-subtle:#3a2c14;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;padding:1rem 16px 3rem}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.4rem;margin:.4rem 0}
+.intro{color:var(--text-muted);margin:.2rem 0 1rem}
+.variante{margin:1.4rem 0}
+.etiquette{display:inline-block;font-weight:800;border-radius:6px;padding:.15rem .6rem;background:var(--accent);color:#fff;margin-bottom:.4rem}
+.etiquette.reco{background:var(--success)}
+.quand{color:var(--text-muted);font-size:.9rem;margin:.2rem 0 .5rem}
+/* Reprise fidèle de la page */
+.vp-question{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;background:var(--bg-card);overflow:hidden}
+.vp-qhead{padding:.6rem 1rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.vp-qnum{flex:0 0 auto;width:30px;height:30px;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.vp-qtitre{font-weight:800;font-size:1.18rem}
+.vp-qpil{margin-left:auto;font-size:.875rem;font-weight:800;border-radius:999px;padding:.18rem .7rem;border:1px solid var(--success);color:var(--success-strong);background:var(--success-bg-subtle);white-space:nowrap}
+.jauge{display:inline-block;width:90px;height:8px;border-radius:999px;background:var(--border-strong);vertical-align:middle;margin-left:.5rem;overflow:hidden}
+.jauge>i{display:block;height:100%;background:var(--success)}
+.vp-qcorps{padding:.25rem .85rem .7rem;border-top:1px solid var(--border)}
+.vp-fam{border:1px solid var(--border-strong);border-left:5px solid var(--accent);border-radius:6px;background:var(--bg-subtle);margin:.3rem 0;padding:.45rem .8rem}
+.vp-fam-tete{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.vp-fam-nom{font-weight:800;font-size:.95rem}
+.vp-fam-nb{font-size:.875rem;font-weight:800;color:#fff;background:var(--accent);border-radius:999px;padding:.12rem .55rem}
+.vp-fam-ligne{flex:1 1 100%;margin-top:.25rem;padding-left:1.7rem;font-size:.875rem;color:var(--text-muted)}
+.vp-fam-ligne strong{color:var(--text-strong);font-weight:700}
+.note{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .8rem;margin:1rem 0}
+.questions li{margin:.35rem 0}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Nombre de choix sur « Votre parcours »</h1>
+<p class="intro">Exemple : la question 2 « Ce que vous faisiez souvent » (16 choix au maximum), avec 3 choix faits. Trois présentations pour dire « combien j'ai choisi, sur combien au maximum », sans les pastilles bleues des choix. Dans les trois, les familles n'affichent plus « 8 choix » (le nombre de cartes disponibles) : elles disent ce que vous y avez choisi.</p>
+
+<div class="variante">
+<span class="etiquette reco">Présentation 1 (recommandée)</span>
+<p class="quand">En haut : « 3 choisis sur 16 maximum ». Famille : « 2 choisis » seulement si vous avez coché dedans ; la ligne grise du dessous nomme ces choix en texte simple (plus de pastilles bleues). Une famille sans choix garde son aperçu gris habituel.</p>
+<div class="vp-question">
+ <div class="vp-qhead"><span class="vp-qnum">2</span><span class="vp-qtitre">Ce que vous faisiez souvent</span><span class="vp-qpil">&#10003; 3 choisis sur 16 maximum</span></div>
+ <div class="vp-qcorps">
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128222;</span><span class="vp-fam-nom">Accueillir et orienter</span><span class="vp-fam-nb">2 choisis</span><span class="vp-fam-ligne"><strong>Accueillir le public, Renseigner les clients</strong></span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#129657;</span><span class="vp-fam-nom">Soigner et accompagner</span><span class="vp-fam-nb">1 choisi</span><span class="vp-fam-ligne"><strong>Aider à la toilette</strong></span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128722;</span><span class="vp-fam-nom">Vendre et encaisser</span><span class="vp-fam-ligne">Conseiller les clients, Tenir la caisse, Mettre en rayon…  (+6)</span></div></div>
+ </div>
+</div>
+</div>
+
+<div class="variante">
+<span class="etiquette">Présentation 2</span>
+<p class="quand">En haut : « complété · 3 choisis sur 16 ». Famille : « 2 choisis » seulement, sans ligne grise de rappel : la page est la plus calme, mais il faut ouvrir la famille pour revoir ses choix.</p>
+<div class="vp-question">
+ <div class="vp-qhead"><span class="vp-qnum">2</span><span class="vp-qtitre">Ce que vous faisiez souvent</span><span class="vp-qpil">complété &middot; 3 choisis sur 16</span></div>
+ <div class="vp-qcorps">
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128222;</span><span class="vp-fam-nom">Accueillir et orienter</span><span class="vp-fam-nb">2 choisis</span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#129657;</span><span class="vp-fam-nom">Soigner et accompagner</span><span class="vp-fam-nb">1 choisi</span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128722;</span><span class="vp-fam-nom">Vendre et encaisser</span></div></div>
+ </div>
+</div>
+</div>
+
+<div class="variante">
+<span class="etiquette">Présentation 3</span>
+<p class="quand">En haut : « 3 sur 16 » avec une petite jauge. Famille comme la présentation 1. Attention : une jauge peut donner l'impression qu'il faut la remplir, alors que 16 est un plafond et qu'une seule case suffit.</p>
+<div class="vp-question">
+ <div class="vp-qhead"><span class="vp-qnum">2</span><span class="vp-qtitre">Ce que vous faisiez souvent</span><span class="vp-qpil">&#10003; 3 choisis sur 16<span class="jauge"><i style="width:19%"></i></span></span></div>
+ <div class="vp-qcorps">
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128222;</span><span class="vp-fam-nom">Accueillir et orienter</span><span class="vp-fam-nb">2 choisis</span><span class="vp-fam-ligne"><strong>Accueillir le public, Renseigner les clients</strong></span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#129657;</span><span class="vp-fam-nom">Soigner et accompagner</span><span class="vp-fam-nb">1 choisi</span><span class="vp-fam-ligne"><strong>Aider à la toilette</strong></span></div></div>
+  <div class="vp-fam"><div class="vp-fam-tete"><span>&#128722;</span><span class="vp-fam-nom">Vendre et encaisser</span><span class="vp-fam-ligne">Conseiller les clients, Tenir la caisse, Mettre en rayon…  (+6)</span></div></div>
+ </div>
+</div>
+</div>
+
+<div class="note"><strong>Dans les trois :</strong> sans aucun choix, la question garde « à compléter » (pastille orange) ; au maximum, la pastille dit « 16 choisis sur 16 maximum » et la phrase sous la consigne explique de décocher pour changer. La question 3 (« Où vous travailliez ») affiche « sur 12 ». Le fonctionnement des cartes ne change pas.</div>
+
+<div class="questions">
+<strong>Questions pour vous :</strong>
+<ol>
+<li>Quelle présentation (1, 2 ou 3) ?</li>
+<li>« Retirer les choix en bleu » : voulez-vous bien dire les pastilles bleues sur la ligne de chaque famille refermée, et non les cartes cochées en bleu quand une famille est ouverte ?</li>
+<li>« Les fiches en rond n'apparaissent nulle part » : de quelles fiches parlez-vous ? Les cartes rondes à cocher sont toujours là.</li>
+</ol>
+</div>
+</div>
+</body>
+</html>

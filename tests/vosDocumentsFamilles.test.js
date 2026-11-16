@@ -5,6 +5,12 @@ const { familleVosDocuments } = require('../modules/vos-documents/familles.js');
 // Valeurs MESUREES dans le navigateur le 26/10/2026 (docs/mesures_2026-10-26/matrice_vos_documents.REFERENCE.json) :
 // chaque cas = les signaux de la famille (comme poses par la sonde) et ce que « Vos documents » affichait.
 // Etape 0 de docs/CONCEPTION_REGISTRE_FAMILLES_VOS_DOCUMENTS_2026-10-26.md : le registre decrit l'existant, il ne le change pas.
+// Consigne 398 : avec l'etape « Vos missions et compétences » dans la barre, « Vos documents » est le dernier repere (6 avec l'assistant, 5 sans).
+test('creer un nouveau CV : le repere « Vos documents » suit l’etape missions et competences', () => {
+  assert.equal(familleVosDocuments({ modeCreation: 'nouveau', creationSansAssistant: false, docActif: 'cv', origine: 'cv', etapeMissions: true }).indexBarre, 6);
+  assert.equal(familleVosDocuments({ modeCreation: 'nouveau', creationSansAssistant: true, docActif: 'cv', origine: 'cv', etapeMissions: true }).indexBarre, 5);
+});
+
 const CAS = [
   { nom: '01 creer a la main', s: { modeCreation: 'nouveau', creationSansAssistant: true, docActif: 'cv', origine: 'cv' },
     attendu: { famille: 'creer-main', barre: 'CREER_CV_SANS', indexBarre: 4, titre: 'Vos documents', retour: { type: 'route', cible: 'cv' }, fin: 'accueil' } },

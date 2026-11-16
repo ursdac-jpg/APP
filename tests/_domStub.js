@@ -72,7 +72,7 @@ function installerStubDom() {
     'pageIntroComprendreLesChiffres', 'pageComprendreLesChiffres',
     'pageIntroMonTerritoire', 'pageIntroEmployeursTerritoire', 'pageMonTerritoire',
     'pagePreparerLettreEntretien', 'pageMettreAJourCv', 'pageCreerCv', 'pageCreerCvMain', 'pageCreerCvAssistant',
-    'pageReformulerCv', 'pageReprendreCv'].forEach(function (nom) {
+    'pageReformulerCv', 'pageReprendreCv', 'pageMissionsCompetences', 'pageChoixMissions'].forEach(function (nom) {
     if (typeof global[nom] === 'undefined') {
       global[nom] = function () { return ''; };
     }

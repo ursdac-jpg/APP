@@ -1,0 +1,278 @@
+{
+ "nom": "analyseBilan",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "après le dépôt : bas « Continuer → » raison «  » barre [Préparer] > Assistant > Résultat > Corriger > Terminé"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : « Continuer » actif dès que le CV est déposé et relu"
+  },
+  {
+   "n": "info",
+   "t": "Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "présentation après Retour : #bilan « Analyser ma candidature » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "présentation : encart de reprise false | boutons ▶ Voir la présentation en vidéo En image ; #btnBilanRepriseRecommencer Recommencer ; En savoir plus sur les critères ; 🌍 Vous préférez une autre langue ? Cliq ; ← Retour ; Accueil ; #btnSuivantNavigation Reprendre |  Analyser ma candidature Avant de modifier un CV, il est souvent utile de comprendre ce qui fonctionne déjà. ▶ Voir la présentation en vidéo En images, avec des sous-titres. ▾ Vous avez une analyse en cours sur ce module. Recommencer Votre CV n’est pas vous. C’est un document qui se retravaille auta"
+  },
+  {
+   "n": "info",
+   "t": "bilan (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,471 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "bilan (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "bilan (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : la reprise a la forme de « Reprendre mon CV » (bloc sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : le bouton de la présentation dit « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "Reprendre (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "page Préparer retrouvée : pastille du CV « Déposé et relu · vous pouvez le changer »"
+  },
+  {
+   "n": "info",
+   "t": "bilan (page de travail) : reprise : aucun encart | barre du bas : ← Retour@48,847 | Accueil@144,847 | Continuer →@193,847 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "bilan (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "info",
+   "t": "page Préparer retrouvée : bas « Continuer → »"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : la page de travail est libre après « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran de collage : bas « Voir mon analyse → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > [Assistant] > Résultat > Corriger > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "collage d’une réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse coupée : bas « Voir mon analyse → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "collage de la réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse complète : bas « Voir mon analyse → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "bilan (suite) : ok:Voir mon analyse → → #bilan « Analyser ma candidature » [bouton : null] [barre : Préparer > Assistant > [Résultat] > Corriger > Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "bilan (suite) : PAS DE BOUTON → #bilan « Analyser ma candidature » [bouton : null] [barre : Préparer > Assistant > [Résultat] > Corriger > Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "fin : #bilan « Analyser ma candidature » bas « null » barre Préparer > Assistant > [Résultat] > Corriger > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "boutons de fin : #btnRevoirPresentationBilan Revoir la présentation ; ⚠️ À vérifier avant tout envoi 2 Cliquez ; ★ Synthèse À ajuster Cliquez pour lire L ; 👤 Première lecture du recruteur Cliquez ; 📊 Analyse par dimension Cliquez pour dé ; 💡 Recommandations 1 Cliquez pour voir l ; 🎓 Des formations courtes pour étoffer v ; #btnBilanFicheSynthese 🖨️ Imprimer une fiche de synthèse ; #btnAgirOrganiserCV Organiser mon CV ; Sauvegarder ma session ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "boutons sans nom sur le résultat : [\"<button type=\\\"button\\\" class=\\\"btn btn-outline-secondary btn-sm\\\" data-alerte-structurelle-modifier=\\\"titre_accroche\\\">Modifier moi-même</button>\",\"<button type=\\\"button\\\" class=\\\"btn btn-sm triage-btn\\\" data-alerte-structurelle-ignorer=\\\"titre_accroche\\\">J’en ai déjà pris connaissance</button>\",\"<button type=\\\"button\\\" class=\\\"btn btn-sm triage-btn\\\" data-alerte-structurelle-pas-daccord=\\\"titre_accroche\\\">Je ne suis pas d’accord</button>\",\"<button type=\\\"button\\\" class=\\\"btn btn-outline-secondary btn-sm\\\" data-alerte-structurelle-modifier=\\\"coordonnees\\\">Modifier moi-même</button>\"]"
+  },
+  {
+   "n": "info",
+   "t": "texte de fin : 📝 📤️ 📄 Résultat ✏️ ✅ Revoir la présentation Analyser ma candidature ⚠️ À vérifier avant tout envoi 2 Cliquez ici pour voir Des éléments que l’application n’a pas retrouvés dans votre CV : le titre et la phrase d’accroche, vos coordonnées. À confirmer ou à compléter en quelques secondes. ★ Synthèse À ajuster Cliquez pour lire L’avis d’ensemble sur votre candidature et la conclusion de l’analyse, en quelques phrases. 👤 Première lecture du recruteur Cliquez pour en savoir plus Ce qu’un recruteur perçoit en quelques secondes, regardé sous trois angles : sa première impression, ce qui lui donne envie, ce qui peut le freiner. 📊 Analyse par dimension Cliquez pour découvrir le détail de l’analyse Chaque dimension de votre candidature, classée par niveau : 1 convaincant · 0 à ajuster. 💡 Recommandations 1 Cliquez pour voir le détail Des pistes concrètes pour renforcer les points repérés, de "
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : bilan:Analyser ma candidature() < cv:Par où voulezvous commencer()[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "bilan (retour par la tuile) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,471 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "bilan (retour par la tuile) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "bilan (retour par la tuile) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : retour par la tuile = présentation avec le bloc « Reprendre / Recommencer »"
+  },
+  {
+   "n": "info",
+   "t": "bilan : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "bilan : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "bilan : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "bilan : après « Recommencer » : #bilan bas « Commencer → »  Analyser ma candidature Avant de modifier un CV, il est souvent utile de comprendre ce qui fonctionne déjà. ▶ Voir la présentation en vidéo En images, avec des"
+  },
+  {
+   "n": "ok",
+   "t": "bilan : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#bilan",
+    "page": "bilan",
+    "h1": "Analyser ma candidature",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#bilan",
+    "page": "bilan",
+    "h1": "Analyser ma candidature",
+    "barre": "[Préparer] > Assistant > Résultat > Corriger > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez d’abord votre CV, puis relisez-le et masquez ce que vous ne voulez pas transmettre (partie 1).",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#bilan",
+    "page": "bilan",
+    "h1": "Analyser ma candidature",
+    "barre": "Préparer > [Assistant] > Résultat > Corriger > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#bilan",
+    "page": "bilan",
+    "h1": "Analyser ma candidature",
+    "barre": "Préparer > Assistant > [Résultat] > Corriger > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#bilan",
+    "page": "bilan",
+    "h1": "Analyser ma candidature",
+    "barre": "Préparer > Assistant > [Résultat] > Corriger > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

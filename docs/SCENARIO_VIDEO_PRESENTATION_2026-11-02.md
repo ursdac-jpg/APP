@@ -66,7 +66,7 @@ Chaque bloc tient en deux lignes de 44 signes au plus (la barre « / » sépare 
 
 1. Voici Camille, un personnage inventé.
 2. Elle indique ce qu'elle cherche.
-3. Elle coche ce qui compte pour elle : / les propositions sont déjà là, elle choisit.
+3. Elle coche ce qu'elle a déjà fait : / les propositions sont déjà là, elle choisit.
 4. Puis elle découvre son profil.
 5. La barre en haut de l'écran lui / montre toujours où elle en est.
 
@@ -122,7 +122,7 @@ Chaque bloc tient en deux lignes de 44 signes au plus (la barre « / » sépare 
 | 1 | 0:00 à 0:12 | Titre « APP, Accompagnement de Parcours Professionnel », puis l'accueil de l'application. | « Voici APP, l'Accompagnement de Parcours Professionnel. Une application pour avancer dans votre recherche d'emploi, à votre rythme, sans que personne ne vous juge. » |
 | 2 | 0:12 à 0:30 | L'accueil : la souris passe lentement sur les grandes cartes. | « Sur l'accueil, de grandes cartes. Vous choisissez celle qui vous parle : écrire un CV, préparer une lettre, vous entraîner à l'entretien, mieux comprendre le monde du travail. Rien n'est obligatoire. » |
 | 3 | 0:30 à 0:55 | Clic sur « Créer un nouveau CV ». Texte à l'écran, un par un : « 1. Vous choisissez », « 2. Vous collez chez l'assistant en ligne », « 3. Vous revenez coller sa réponse ». | « Trois temps. Vous choisissez un point de départ. L'application prépare une demande toute prête, que vous collez chez l'assistant en ligne de votre choix. Puis vous revenez coller sa réponse. Vous relisez, vous modifiez, vous téléchargez. Vous gardez toujours la main. » |
-| 4 | 0:55 à 1:25 | Camille crée son CV : les quatre étapes (choisir comment commencer, dire ce qu'elle cherche, choisir ce qui compte, découvrir son profil), avec la barre des étapes visible en haut. | « Prenons Camille, un personnage inventé. Elle choisit comment commencer. Elle dit ce qu'elle cherche. Elle coche ce qui compte pour elle : les propositions sont déjà là, elle choisit. Puis elle découvre son profil. La barre en haut de l'écran lui montre toujours où elle en est. » |
+| 4 | 0:55 à 1:25 | Camille crée son CV : les quatre étapes (choisir comment commencer, dire ce qu'elle cherche, choisir ce qu'elle a déjà fait, découvrir son profil), avec la barre des étapes visible en haut. | « Prenons Camille, un personnage inventé. Elle choisit comment commencer. Elle dit ce qu'elle cherche. Elle coche ce qu'elle a déjà fait : les propositions sont déjà là, elle choisit. Puis elle découvre son profil. La barre en haut de l'écran lui montre toujours où elle en est. » |
 | 5 | 1:25 à 1:45 | La galerie des modèles de CV, puis un modèle en grand. | « Son CV existe dans de nombreux modèles, sobres ou créatifs. Elle choisit les couleurs et la mise en page. Son texte, lui, ne change jamais. Elle le télécharge en PDF ou en Word. » |
 | 6 | 1:45 à 2:05 | Montage rapide de trois écrans : la lettre mise en page, l'entraînement à l'entretien, le résultat de l'analyse de candidature. | « L'application aide aussi à écrire une lettre de motivation, à s'entraîner à l'entretien, et à vérifier que sa candidature est solide, avant de postuler. » |
 | 7 | 2:05 à 2:20 | La ligne du haut : la souris s'arrête sur l'ampoule, sur la disquette, puis sur « Introduction ». | « En haut de l'écran, quelques boutons aident à circuler. L'ampoule explique la page où l'on est. La disquette enregistre son travail. Et le bouton Introduction ramène à cette présentation, quand on veut. » |
@@ -214,7 +214,7 @@ Chaque bloc tient en deux lignes de 42 signes au plus (la barre « / » sépare 
 1. Prenons Camille, un personnage inventé.
 2. Elle choisit comment commencer.
 3. Elle dit ce qu'elle cherche.
-4. Elle coche ce qui compte pour elle : / les propositions sont déjà là, elle choisit.
+4. Elle coche ce qu'elle a déjà fait : / les propositions sont déjà là, elle choisit.
 5. Puis elle découvre son profil.
 6. La barre en haut de l'écran lui / montre toujours où elle en est.
 

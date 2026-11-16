@@ -1,0 +1,218 @@
+{
+ "nom": "orientationUcpm",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "après le dépôt : #un-cv-plusieurs-metiers bas « Continuer → » raison «  » barre [Mon CV] > Métiers > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : « Continuer » actif dès que le CV est déposé et relu"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : présentation après Retour : #un-cv-plusieurs-metiers-intro « Un CV, plusieurs métiers » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (16,597 343 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@48,847 | Accueil@144,847 | Reprendre@193,847 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : Continuer (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers (page de travail) : reprise : aucun encart | barre du bas : ← Retour@48,847 | Accueil@144,847 | Continuer →@193,847 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : la reprise a la forme de « Reprendre mon CV » (encart sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : le travail déjà fait est gardé après Retour puis le bouton de la présentation"
+  },
+  {
+   "n": "info",
+   "t": "après la reprise : bas « Continuer → » raison «  » encart false"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : écran de collage : bas « Voir les métiers → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre [Mon CV] > Métiers > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : boutons du collage : #btnUcpmRevoirPresentation Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automati ; ⓘ ; ✍ Coller à la main (vous collez vous-mêm ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir les métiers →"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : après la réponse coupée : bas « Voir les métiers → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : après la réponse complète : bas « Voir les métiers → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers (suite) : ok:Voir les métiers → → #un-cv-plusieurs-metiers « Un CV, plusieurs métiers » [bouton : Continuer → (grisé)] [barre : Mon CV > [Métiers] > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens]"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : fin : #un-cv-plusieurs-metiers « Un CV, plusieurs métiers » bas « Continuer → (grisé) » barre Mon CV > [Métiers] > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : boutons de fin : #btnUcpmRevoirPresentation Revoir la présentation ; Vos expériences ; #btnUcpmChoisirObjectif Choisir mon objectif ; Modifier cet intitulé ; Retirer cet intitulé ; Modifier cet intitulé ; Retirer cet intitulé ; #btnUcpmEcrire ✎ Écrire mon propre intitulé ; Offres pour mon métier, appelé autrement ; Offres pour d’autres métiers ; Mots de cette page expliqués dans le Lex ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : texte de fin : 📄 🧭 Métiers ✏️ 💬 🗂️ ✉️ ✅ 📝 Revoir la présentation Un CV, plusieurs métiers Les métiers que je vise 📄 Ce que l’assistant a retenu de votre CV Votre métier : Agent d’accueil Vos compétences clés Accueil du publicGestion du standard Vos expériences Agent d’accueil, mairie de Bergerac Accueillir et orienter les habitants Compétences qu’on en retire : Écoute, Organisation. Ces propositions servent uniquement à adapter votre candidature. Elles ne rajoutent aucune expérience à votre CV. Chaque CV peut avoir son propre objectif. Vous pouvez adapter l’objectif de chaque métier à vos besoins : candidature, stage, formation… Le CV et les lettres en tiennent compte. 🎯 Votre objectif Dites ce que vous cherchez : un emploi, un stage, une alternance, une formation… Il est demandé pour chaque métie"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : chaîne des « Retour » : un-cv-plusieurs-metiers:Un CV plusieurs métiers < un-cv-plusieurs-metiers-intro:Un CV plusieurs métiers < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "un CV plusieurs métiers : après « Recommencer » : #un-cv-plusieurs-metiers-intro bas « Commencer → »  Un CV, plusieurs métiers Vous pouvez viser plusieurs métiers ? Partez d’un seul CV : l’application vous aide à préparer un CV et une lettre de motivation pour "
+  },
+  {
+   "n": "ok",
+   "t": "un CV plusieurs métiers : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#un-cv-plusieurs-metiers-intro",
+    "page": "un-cv-plusieurs-metiers-intro",
+    "h1": "Un CV, plusieurs métiers",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#un-cv-plusieurs-metiers",
+    "page": "un-cv-plusieurs-metiers",
+    "h1": "Un CV, plusieurs métiers",
+    "barre": "[Mon CV] > Métiers > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez votre CV pour continuer.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#un-cv-plusieurs-metiers",
+    "page": "un-cv-plusieurs-metiers",
+    "h1": "Un CV, plusieurs métiers",
+    "barre": "Mon CV > [Métiers] > Référence > Accroches > Mes CV > Lettres > Mes documents > Entretiens",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Cochez au moins 2 métiers pour continuer.",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

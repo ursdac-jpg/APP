@@ -91,5 +91,14 @@ test('Le prompt du CV propose le complément de CV : question après le bloc, se
   assert.ok(prompt.indexOf('Copiez ce message dans l') !== -1);
   assert.ok(prompt.indexOf('couleursEntrepriseSuggerees') !== -1, 'les couleurs d entreprise sont dans le complément');
   assert.ok(prompt.indexOf('"formationsAvecMissions"') !== -1 && prompt.indexOf('"certificationsAvecMissions"') !== -1 && prompt.indexOf('"loisirRetenu"') !== -1);
-  assert.ok(prompt.indexOf('Aucune mission pour un Baccalauréat général') !== -1);
+  // Consigne 357 (15/11/2026) : plus de missions inventées pour les formations et certifications ; seules celles que la personne a choisies sont reformulées.
+  // Un Baccalauréat général (ou tout diplôme non développé) est « À CITER SEULEMENT » : aucune entrée.
+  assert.ok(prompt.indexOf('À CITER SEULEMENT') !== -1);
+  assert.ok(prompt.indexOf('sans mission dans le profil, n\'a aucune entrée') !== -1);
+  assert.ok(prompt.indexOf('Missions de la personne') !== -1);
+  assert.ok(prompt.indexOf('`loisirRetenu` reste toujours vide') !== -1);
+  // Consigne 362 (15/11/2026) : les missions écrites ou cochées par la personne sont corrigées, accordées et mises au format d'une mission de CV.
+  assert.ok(prompt.indexOf('Règle de rédaction des missions de la personne') !== -1);
+  assert.ok(prompt.indexOf('corrige les fautes de frappe, d\'orthographe, de grammaire et de syntaxe') !== -1);
+  assert.ok(prompt.indexOf('un élément écrit librement par la personne') !== -1);
 });

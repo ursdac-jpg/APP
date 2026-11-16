@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : barre des étapes du parcours</title>
+<style>
+:root{--bg:#eef1f6;--bg-card:#fff;--bg-subtle:#f8fafc;--border:#e2e8f0;--border-strong:#c9d2de;--text-strong:#0b1a33;--text-muted:#4a5b6e;--accent:#0d6efd;--accent-bg-subtle:#eef2fd;--success:#198754;--success-strong:#157347;--success-bg-subtle:#d1f4de;--warning:#b45309;--warning-bg-subtle:#fdf1d9;--cour-bg:#fffaeb;--cour-bd:#f5dd94;--cour-tx:#92720c;--ok:#198754;--ko:#a3372b;}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1218;--bg-card:#1b212c;--bg-subtle:#222834;--border:#313a4a;--border-strong:#46516a;--text-strong:#e8edf5;--text-muted:#a8b3c4;--accent:#4d94ff;--accent-bg-subtle:#1e2940;--success:#35c79a;--success-strong:#6ee89a;--success-bg-subtle:#17301f;--warning:#f5a742;--warning-bg-subtle:#3a2c14;--cour-bg:rgba(245,221,148,.14);--cour-bd:#7a6a35;--cour-tx:#f2dd9a;--ok:#6ee89a;--ko:#eda69c;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;padding:1rem 16px 3rem}
+.page{max-width:1500px;margin:0 auto}
+h1{font-size:1.35rem;margin:.2rem 0}
+.intro{color:var(--text-muted);max-width:75rem;margin:.2rem 0 .8rem}
+.regl{position:sticky;top:0;z-index:20;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.6rem .9rem;display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;align-items:center;margin-bottom:1rem}
+.regl.ferme{display:none}
+.regl .gr{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.regl b{font-size:.9rem}
+.regl button.p{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;padding:.3rem .6rem;font-size:.85rem;cursor:pointer}
+.regl button.p.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.regl input[type=range]{width:260px}
+.regl output{font-weight:800;min-width:4.5rem;font-variant-numeric:tabular-nums}
+.croix{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;width:32px;height:32px;font-size:1.2rem;cursor:pointer;margin-left:auto}
+.rouvrir{display:none;position:fixed;right:12px;top:12px;z-index:50;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer}
+.rouvrir.visible{display:block}
+.var{margin:1.2rem 0}
+.etq{display:inline-block;font-weight:800;border-radius:6px;padding:.15rem .6rem;background:var(--accent);color:#fff}
+.etq.reco{background:var(--success)}
+.quand{color:var(--text-muted);font-size:.92rem;margin:.3rem 0 .5rem;max-width:75rem}
+.verdict{font-size:.85rem;margin:.3rem 0 0;font-weight:700}
+.ok{color:var(--ok)}.ko{color:var(--ko)}
+.piste{width:var(--w);max-width:100%;border:1px dashed var(--border-strong);border-radius:10px;padding:8px;background:var(--bg-card)}
+/* Pastilles : mêmes règles que l'application */
+.pe{display:inline-flex;align-items:center;gap:.4rem;flex-shrink:0;padding:.3rem .7rem;border-radius:999px;border:2px solid;font-size:.875rem;font-weight:700;white-space:nowrap;cursor:pointer;background:var(--bg-card);color:var(--text-muted);border-color:var(--border-strong)}
+.pe.fait{background:var(--success-bg-subtle);border-color:var(--success);color:var(--success-strong)}
+.pe.cour{background:var(--cour-bg);border-color:var(--cour-bd);color:var(--cour-tx);box-shadow:0 0 0 3px var(--accent-bg-subtle),0 0 0 5px var(--accent)}
+.pe.avenir{opacity:.6}
+.pe .ic{font-size:.95rem;line-height:1}
+.ch{display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:6px;flex-shrink:0;background:var(--accent);color:#fff;font-size:.8rem;margin:0 .15rem}
+.ch.avenir{opacity:.4}
+/* ====== Présentation 1 : la barre se resserre toute seule ====== */
+.v1{container-type:inline-size}
+.v1 .bar{display:flex;flex-wrap:nowrap;align-items:center;justify-content:safe center;gap:.3rem;overflow-x:auto;padding:.45rem .4rem}
+@container (max-width:1330px){
+  .v1 .pe{padding:.22rem .5rem;font-size:.8rem;gap:.3rem}
+  .v1 .ch{width:1rem;height:1rem;font-size:.65rem;margin:0}
+  .v1 .bar{gap:.15rem}
+}
+@container (max-width:1060px){
+  .v1 .pe:not(.cour) .lb{display:none}
+  .v1 .pe:not(.cour){padding:.3rem .5rem}
+  .v1 .pe .ic{font-size:1.1rem}
+}
+@container (max-width:720px){
+  .v1 .ch{display:none}
+  .v1 .bar{gap:.3rem}
+  .v1 .pe:not(.cour){padding:.3rem .4rem}
+  .v1 .pe.cour{padding:.22rem .5rem;font-size:.8rem;white-space:normal;line-height:1.15;flex:0 1 auto}
+  .v1 .pe:not(.cour){padding:.3rem .3rem}
+}
+@container (max-width:420px){
+  .v1 .pe.cour .lb{display:none}
+  .v1 .pe.cour{padding:.3rem .4rem}
+  .v1 .pe:not(.cour){padding:.25rem .3rem}
+  .v1 .tel{display:block}
+  .v1 .bar{gap:.1rem;padding:.3rem .1rem}
+  .v1 .pe .ic{font-size:1rem}
+  .v1 .pe{gap:0}
+}
+.v1 .tel{display:none;text-align:center;font-weight:800;font-size:.95rem;color:var(--cour-tx);padding:.1rem .3rem .3rem}
+/* ====== Présentation 2 : fil continu ====== */
+.v2{container-type:inline-size}
+.v2 .fil{position:relative;display:flex;align-items:flex-start;padding:.3rem .2rem}
+.v2 .fil::before{content:"";position:absolute;left:calc(100%/14);right:calc(100%/14);top:calc(.3rem + 18px);height:4px;background:var(--border-strong);border-radius:4px;z-index:0}
+.v2 .st{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:pointer;text-align:center}
+.v2 .rond{width:40px;height:40px;border-radius:999px;border:3px solid var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-size:1.15rem}
+.v2 .st.fait .rond{border-color:var(--success);background:var(--success-bg-subtle)}
+.v2 .st.cour .rond{border-color:var(--cour-bd);background:var(--cour-bg);box-shadow:0 0 0 3px var(--accent-bg-subtle),0 0 0 5px var(--accent)}
+.v2 .st.avenir .rond{opacity:.6}
+.v2 .nom{font-size:.8rem;font-weight:700;line-height:1.2;color:var(--text-muted);padding:0 .15rem;overflow-wrap:anywhere}
+.v2 .st.fait .nom{color:var(--success-strong)}
+.v2 .st.cour .nom{color:var(--cour-tx);font-size:.85rem}
+@container (max-width:760px){ .v2 .st:not(.cour) .nom{display:none} .v2 .st.cour .nom{position:absolute;top:46px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--bg-card);padding:0 .3rem} .v2 .st.cour:last-child .nom{left:auto;right:0;transform:none} .v2 .st.cour:first-child .nom{left:0;transform:none} .v2 .fil{padding-bottom:1.6rem} }
+@container (max-width:480px){ .v2 .st.cour .nom{white-space:normal;max-width:70vw;text-align:center} }
+@container (max-width:480px){ .v2 .rond{width:32px;height:32px;font-size:.95rem;border-width:2px} .v2 .fil::before{top:calc(.3rem + 14px)} }
+/* ====== Présentation 3 : « Étape 3 sur 7 » ====== */
+.v3{container-type:inline-size}
+.v3 .ligne{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.2rem .3rem}
+.v3 .num{font-size:.85rem;font-weight:800;color:var(--text-muted);white-space:nowrap}
+.v3 .titre{font-size:1.1rem;font-weight:800;color:var(--cour-tx);background:var(--cour-bg);border:2px solid var(--cour-bd);border-radius:999px;padding:.2rem .9rem;box-shadow:0 0 0 3px var(--accent-bg-subtle),0 0 0 5px var(--accent);min-width:0}
+.v3 .segs{display:flex;gap:4px;margin:.5rem .3rem .2rem}
+.v3 .seg{flex:1 1 0;height:12px;border-radius:6px;background:var(--border-strong);cursor:pointer}
+.v3 .seg.fait{background:var(--success)}
+.v3 .seg.cour{background:var(--cour-bd);outline:2px solid var(--accent);outline-offset:1px}
+.v3 .liens{font-size:.82rem;color:var(--text-muted);margin:.2rem .3rem 0}
+.note{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .8rem;margin:1rem 0;max-width:75rem}
+.quest li{margin:.35rem 0}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Barre des étapes du parcours : tout doit tenir, sans barre de défilement</h1>
+<p class="intro">Aujourd'hui, la barre des 7 étapes a besoin d'environ 1300 px de large. Sur un écran plus petit, elle reçoit une barre de défilement et la première étape est coupée à gauche. Voici trois présentations qui tiennent à toute largeur. Réglez la largeur disponible et l'étape en cours avec la barre du haut : c'est ce qui change d'un écran à l'autre. Les pastilles gardent leurs couleurs actuelles (vert = fait, jaune = en cours, grisé = à venir) et chaque étape déjà faite reste cliquable pour revenir en arrière.</p>
+
+<button type="button" class="rouvrir" id="rouvrir">Réglages</button>
+<div class="regl" id="regl">
+<div class="gr"><b>Largeur disponible :</b><span id="pres"></span></div>
+<div class="gr"><input type="range" id="lr" min="320" max="1400" step="10"><output id="lo"></output></div>
+<div class="gr"><b>Étape en cours :</b><span id="cours"></span></div>
+<button type="button" class="croix" id="fermer" aria-label="Fermer les réglages" title="Fermer les réglages">&times;</button>
+</div>
+
+<div class="var"><span class="etq reco">Présentation 1 (recommandée) : la barre se resserre toute seule</span>
+<p class="quand">Large : comme aujourd'hui. Un peu moins large : les pastilles et les flèches se resserrent. Encore moins : seule l'étape en cours garde son nom, les autres gardent leur icône (cliquable, avec le nom au survol). Sur téléphone : les flèches disparaissent. C'est le même langage visuel qu'aujourd'hui, donc le moins de surprise pour les personnes qui le connaissent.</p>
+<div class="piste v1" id="p1" style="--w:1300px"><div id="b1"></div></div><p class="verdict" id="r1"></p></div>
+
+<div class="var"><span class="etq">Présentation 2 : un fil continu</span>
+<p class="quand">Un fil avec 7 ronds égaux répartis sur toute la largeur, le nom de chaque étape en dessous tant qu'il y a la place. Plus moderne et plus aéré, mais c'est un nouveau dessin à apprendre : les pastilles allongées disparaissent. Quand la place manque, seul le nom de l'étape en cours reste affiché.</p>
+<div class="piste v2" id="p2" style="--w:1300px"><div id="b2"></div></div><p class="verdict" id="r2"></p></div>
+
+<div class="var"><span class="etq">Présentation 3 : « Étape 3 sur 7 »</span>
+<p class="quand">Une phrase simple (« Étape 3 sur 7 ») et le nom de l'étape en cours, sous une réglette de 7 segments (verts = faits, jaune = en cours). Tient partout, très calme, mais les noms des autres étapes ne sont plus visibles d'un coup d'œil ; on revient en arrière en cliquant un segment vert.</p>
+<div class="piste v3" id="p3" style="--w:1300px"><div id="b3"></div></div><p class="verdict" id="r3"></p></div>
+
+<div class="note"><b>À savoir :</b> cette barre est la même pour tous les parcours qui l'utilisent (création de CV, Bilan, lettre, entretien, etc.). Le changement se fait donc à un seul endroit du code et s'applique partout ; je vérifierai chacun de ces parcours avant de vous le montrer.</div>
+
+<div class="quest"><strong>Questions pour vous :</strong>
+<ol>
+<li>Quelle présentation (1, 2 ou 3) ?</li>
+<li>Pour la présentation 1 : sur écran moyen, êtes-vous d'accord que seul le nom de l'étape en cours reste écrit (les autres gardent l'icône) ?</li>
+<li>Souhaitez-vous que la barre aille aussi loin à gauche et à droite que les boutons « Préférences d'affichage » et « Introduction » (voir la maquette de largeur des pages) ?</li>
+</ol></div>
+</div>
+
+<script>
+(function () {
+  var ETAPES = [['🎯', 'Votre objectif'], ['📋', 'Vos informations'], ['🧭', 'Votre parcours'], ['🧰', 'Vos missions et compétences'], ['🔍', 'Votre profil'], ['💬', 'Assistant'], ['📄', 'Vos documents']];
+  var etat = { w: 1300, cour: 3 };
+  var $ = function (id) { return document.getElementById(id); };
+  var PRES = [['Téléphone', 343], ['Tablette', 700], ['Petite fenêtre', 960], ['Petit portable', 1250], ['Grand écran', 1377]];
+  $('pres').innerHTML = PRES.map(function (p) { return '<button type="button" class="p" data-w="' + p[1] + '">' + p[0] + ' ' + p[1] + '</button>'; }).join('');
+  $('cours').innerHTML = ETAPES.map(function (e, i) { return '<button type="button" class="p" data-c="' + i + '">' + (i + 1) + '</button>'; }).join('');
+  function etatDe(i) { return i < etat.cour ? 'fait' : (i === etat.cour ? 'cour' : 'avenir'); }
+  function v1() {
+    var h = '<div class="bar">';
+    ETAPES.forEach(function (e, i) {
+      var s = etatDe(i);
+      if (i > 0) { h += '<span class="ch' + (s === 'avenir' ? ' avenir' : '') + '">&raquo;</span>'; }
+      h += '<span class="pe ' + s + '" title="' + e[1] + '"><span class="ic">' + e[0] + '</span><span class="lb">' + e[1] + '</span></span>';
+    });
+    return h + '</div><div class="tel">Étape ' + (etat.cour + 1) + ' sur 7 : ' + ETAPES[etat.cour][1] + '</div>';
+  }
+  function v2() {
+    var h = '<div class="fil">';
+    ETAPES.forEach(function (e, i) { var s = etatDe(i); h += '<div class="st ' + s + '" title="' + e[1] + '"><span class="rond">' + e[0] + '</span><span class="nom">' + e[1] + '</span></div>'; });
+    return h + '</div>';
+  }
+  function v3() {
+    var h = '<div class="ligne"><span class="num">Étape ' + (etat.cour + 1) + ' sur 7</span><span class="titre">' + ETAPES[etat.cour][0] + ' ' + ETAPES[etat.cour][1] + '</span></div><div class="segs">';
+    ETAPES.forEach(function (e, i) { h += '<span class="seg ' + etatDe(i) + '" title="' + e[1] + '"></span>'; });
+    h += '</div>';
+    return h;
+  }
+  function verifier(idBarre, idRes, sel) {
+    var b = $(idBarre).querySelector(sel);
+    var deborde = b.scrollWidth > b.clientWidth + 1;
+    var r = $(idRes);
+    r.className = 'verdict ' + (deborde ? 'ko' : 'ok');
+    r.textContent = deborde ? 'Défilement présent à cette largeur : à corriger' : 'Aucune barre de défilement, tout est visible à cette largeur';
+  }
+  function rendre() {
+    ['p1', 'p2', 'p3'].forEach(function (id) { $(id).style.setProperty('--w', etat.w + 'px'); });
+    $('b1').innerHTML = v1(); $('b2').innerHTML = v2(); $('b3').innerHTML = v3();
+    $('lr').value = etat.w; $('lo').textContent = etat.w + ' px';
+    document.querySelectorAll('#pres button').forEach(function (b) { b.classList.toggle('on', parseInt(b.getAttribute('data-w'), 10) === etat.w); });
+    document.querySelectorAll('#cours button').forEach(function (b) { b.classList.toggle('on', parseInt(b.getAttribute('data-c'), 10) === etat.cour); });
+    verifier('b1', 'r1', '.bar'); verifier('b2', 'r2', '.fil'); verifier('b3', 'r3', '.ligne');
+    // la présentation 2 : vérifie aussi que les noms ne se chevauchent pas
+    var chev = false; var noms = [].slice.call($('b2').querySelectorAll('.nom')).filter(function (n) { return n.offsetParent; });
+    for (var i = 0; i + 1 < noms.length; i++) { var a = noms[i].getBoundingClientRect(), c = noms[i + 1].getBoundingClientRect(); if (a.right > c.left + 1) { chev = true; } }
+    if (chev) { $('r2').className = 'verdict ko'; $('r2').textContent = 'Des noms se touchent à cette largeur : à corriger'; }
+  }
+  $('pres').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.w = parseInt(b.getAttribute('data-w'), 10); rendre(); } });
+  $('cours').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.cour = parseInt(b.getAttribute('data-c'), 10); rendre(); } });
+  $('lr').addEventListener('input', function () { etat.w = parseInt(this.value, 10); rendre(); });
+  $('fermer').addEventListener('click', function () { $('regl').classList.add('ferme'); $('rouvrir').classList.add('visible'); });
+  $('rouvrir').addEventListener('click', function () { $('regl').classList.remove('ferme'); $('rouvrir').classList.remove('visible'); });
+  rendre();
+  window.__etat = etat; window.__rendre = rendre;
+})();
+</script>
+</body>
+</html>

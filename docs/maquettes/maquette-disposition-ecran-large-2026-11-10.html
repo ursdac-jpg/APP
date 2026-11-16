@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : cartes de Comprendre les chiffres, disposition sur écran d'ordinateur</title>
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { background: var(--bg-subtle); color: var(--text-strong); font-family: system-ui, sans-serif; margin: 0; padding: 1rem; }
+  .mq-page { max-width: 1100px; margin: 0 auto; transition: max-width .2s; }
+  .mq-page.tel { max-width: 375px; }
+  .mq-bandeau { background: var(--bg-card); border: 1px solid var(--border); border-radius: .5rem; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .92rem; }
+  .mq-bandeau button { margin: .2rem .3rem 0 0; padding: .3rem .8rem; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: .4rem; cursor: pointer; font-weight: 600; }
+  .mq-carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: .8rem; padding: 1rem 1.2rem; margin-bottom: 1.4rem; }
+  .mq-carte h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+  .mq-etiquette { display: inline-block; font-size: .78rem; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: .05rem .6rem; margin-bottom: .6rem; }
+  /* grille de la carte : 2 colonnes sur ordinateur, 1 colonne sur téléphone (comme aujourd'hui) */
+  .mq-zone { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: .8rem 1.6rem; align-items: start; }
+  .mq-tel .mq-zone { grid-template-columns: minmax(0, 1fr); }
+  .mq-pleine { grid-column: 1 / -1; }
+  .mq-gros { font-size: 2.2rem; font-weight: 800; color: var(--accent); line-height: 1.1; margin: .1rem 0; }
+  .mq-pastille { display: inline-block; font-size: .86rem; font-weight: 700; border: 1px solid var(--border-strong); border-radius: 999px; padding: .1rem .6rem; color: var(--text-muted); }
+  .mq-pastille.rouge { color: var(--danger); border-color: var(--danger); background: var(--danger-bg-subtle); }
+  .mq-petit { font-size: .88rem; color: var(--text-muted); margin: .25rem 0; }
+  .mq-boite { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: .5rem; padding: .6rem .8rem; font-size: .9rem; margin: .5rem 0; }
+  .mq-boite.accent { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .mq-boite h4 { margin: 0 0 .3rem; font-size: .9rem; }
+  .mq-tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .6rem; }
+  .mq-tuile { text-align: center; border: 1px solid var(--border); border-radius: .7rem; background: var(--bg-subtle); padding: .5rem .6rem; }
+  .mq-tuile.fort { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .mq-tuile .mq-n { display: block; font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+  .mq-tuile .mq-q { display: block; font-size: .76rem; color: var(--text-muted); }
+  .mq-tuile.recent { border-style: dashed; border-color: var(--accent); }
+  /* trimestres rangés par année */
+  .mq-matrice { width: 100%; border-collapse: separate; border-spacing: .35rem; font-size: .95rem; }
+  .mq-matrice th { font-weight: 600; color: var(--text-muted); font-size: .82rem; text-align: center; }
+  .mq-matrice th.mq-an { text-align: left; color: var(--text-strong); font-size: 1rem; }
+  .mq-matrice td { text-align: center; border: 1px solid var(--border); background: var(--bg-subtle); border-radius: .5rem; padding: .45rem .3rem; font-weight: 700; color: var(--accent); }
+  .mq-matrice td.mq-vide { background: transparent; border-style: dashed; color: var(--text-muted); font-weight: 400; }
+  .mq-matrice td.mq-dernier { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-matrice td.mq-an-dernier { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .mq-tuiles-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mq-tel .mq-tuiles-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mq-tuile.mq-autre { border-style: dotted; }
+  .mq-oss { border: 1px solid var(--border); background: var(--bg-subtle); border-radius: .6rem; padding: .7rem 1rem 1rem; }
+  .mq-oss-tete { margin: 0 0 .5rem; font-size: .8rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); }
+  .mq-oss-deux { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2.4rem; }
+  .mq-tel .mq-oss-deux { grid-template-columns: minmax(0, 1fr); }
+  .mq-oss-titre { margin: 0 0 .2rem; font-weight: 700; font-size: .9rem; }
+  .mq-oss-bornes { display: flex; justify-content: space-between; gap: .6rem; margin: 0 0 .3rem; font-size: .8rem; color: var(--text-muted); }
+  .mq-oss-bornes b { color: var(--accent); }
+  .mq-oss-piste { position: relative; height: .7rem; border-radius: 999px; background: linear-gradient(90deg, var(--success-strong), #e0b030, var(--danger)); margin-bottom: 1.6rem; }
+  .mq-oss-marque { position: absolute; top: -.25rem; width: 3px; height: 1.2rem; background: var(--text-strong); transform: translateX(-50%); }
+  .mq-oss-etiq { position: absolute; top: 1.05rem; transform: translateX(-50%); font-size: .78rem; font-weight: 700; white-space: nowrap; }
+  .mq-tel .mq-matrice { font-size: .8rem; }
+  .mq-liste-tel { display: none; }
+  .mq-tel .mq-liste-tel { display: block; }
+  .mq-tel .mq-matrice-zone { display: none; }
+  table.mq-postes { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.mq-postes th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: .8rem; padding: .25rem .4rem; border-bottom: 1px solid var(--border-strong); }
+  table.mq-postes td { padding: .4rem; border-bottom: 1px solid var(--border); }
+  table.mq-postes td.mq-nom { font-weight: 600; } table.mq-postes tr.mq-sous td.mq-nom { font-weight: 400; color: var(--text-muted); padding-left: 1.2rem; }
+  .mq-h { color: var(--danger); font-weight: 700; } .mq-b { color: var(--success-strong); font-weight: 700; }
+  .mq-liste-m { margin: .2rem 0 .2rem 1.1rem; padding: 0; font-size: .9rem; }
+  .mq-liste-m li { margin: .15rem 0; }
+  .mq-q-denis { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); border-radius: .5rem; padding: .7rem .9rem; font-size: .92rem; }
+  .mq-note-maq { font-size: .8rem; color: var(--text-muted); font-style: italic; margin: .3rem 0 0; }
+</style>
+</head>
+<body>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau">
+    <b>Maquette de la disposition sur écran d'ordinateur</b> (trois cartes en exemple : « La difficulté est-elle passagère ou installée ? », « Hausse des prix », « Combien de personnes sont au chômage ici ? »). Sur téléphone, rien ne change : la même lecture qu'aujourd'hui, en une seule colonne.<br>
+    <button type="button" id="b-pc">Voir sur ordinateur</button><button type="button" id="b-tel">Voir sur téléphone (inchangé)</button><button type="button" id="b-theme">Mode sombre / clair</button>
+  </div>
+
+  <!-- ========= 1. LONGUE DURÉE ========= -->
+  <div class="mq-carte">
+    <h3>La difficulté est-elle passagère ou installée ?</h3>
+    <div class="mq-zone">
+      <div>
+        <div class="mq-gros">environ 48 %</div>
+        <span class="mq-pastille">&#8599; en légère hausse</span>
+        <p>Parmi les personnes qui cherchent un emploi, <b class="mq-chiffre">environ 48 %</b> sont inscrites depuis plus d'un an.</p>
+        <p class="mq-petit"><b>Il y a un an (3e trimestre 2025) :</b> <span class="mq-chiffre">44,7 %</span></p>
+        <div class="mq-boite">C'est élevé : près d'une personne sur deux, et en hausse depuis un an.</div>
+      </div>
+      <div>
+        <p class="mq-petit" style="font-weight:700;color:var(--text-strong)">Le territoire et les autres niveaux</p>
+        <div class="mq-tuiles">
+          <div class="mq-tuile mq-fort"><span class="mq-n">48 %</span><span class="mq-q">Dordogne</span></div>
+          <div class="mq-tuile"><span class="mq-n">46,5 %</span><span class="mq-q">Nouvelle-Aquitaine</span></div>
+          <div class="mq-tuile"><span class="mq-n">46,8 %</span><span class="mq-q">France</span></div>
+        </div>
+        <div class="mq-boite" style="margin-top:.8rem"><h4>Ce que « longue durée » veut dire</h4>
+          <b>Un an et plus</b> : on parle de chômage de longue durée. Plus l'inscription dure, plus le retour à l'emploi demande du temps et un accompagnement adapté. Ce n'est pas une fatalité.</div>
+      </div>
+      <div class="mq-pleine">
+        <p class="mq-petit" style="font-weight:700;color:var(--text-strong);margin-bottom:0">Trimestre par trimestre, année par année</p>
+        <div class="mq-matrice-zone"><table class="mq-matrice" id="m-ld"></table></div>
+        <div class="mq-liste-tel"><p class="mq-note-maq">(Sur téléphone : la liste des trimestres d'aujourd'hui, inchangée.)</p></div>
+        <p class="mq-note-maq">Lecture : une ligne par année, une colonne par trimestre. Le dernier trimestre est en plein, le même trimestre un an avant est entouré. Les cases vides sont les trimestres qu'on ne connaît pas encore (ou pas assez loin dans le passé).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= 2. INFLATION ========= -->
+  <div class="mq-carte">
+    <h3>De combien les prix ont-ils augmenté en un an ?</h3>
+    <div class="mq-zone">
+      <div>
+        <div class="mq-gros">3,4 %</div>
+        <span class="mq-pastille mq-rouge">&#8599; en hausse</span>
+        <p>Sur un an, les prix montent plus vite qu'en septembre et plus vite qu'il y a un an.</p>
+        <p class="mq-petit"><b>Le mois d'avant (septembre) :</b> <span class="mq-chiffre">3,1 %</span> <span class="mq-h">&#8599; en hausse</span></p>
+        <p class="mq-petit"><b>Il y a un an (octobre 2025) :</b> <span class="mq-chiffre">0,9 %</span> <span class="mq-h">&#8599; en hausse</span></p>
+        <div class="mq-boite mq-accent"><h4>Ce que cela veut dire, concrètement</h4>
+          Ce qui coûtait <b>100 €</b> il y a un an coûte en moyenne <b>103,40 €</b> aujourd'hui.
+          <ul class="mq-liste-m">
+            <li><b>Ce qui monte le plus vite :</b> l'énergie (24,1 %), les produits frais (8,0 %), le tabac (3,3 %).</li>
+            <li><b>Ce qui monte le moins vite :</b> les produits manufacturés (−0,2 %, ils baissent), l'autre alimentation (0,3 %).</li>
+            <li><b>Depuis septembre, la hausse s'accélère pour</b> l'énergie, les services et les produits manufacturés ; <b>elle ralentit pour</b> l'alimentation, dont les produits frais.</li>
+            <li><b>Sur un seul mois :</b> les prix ont monté de 0,4 % en octobre (septembre : −0,3 %).</li>
+            <li><b>Comparaison européenne</b> (prix harmonisés) : 3,8 %.</li>
+          </ul>
+          <p class="mq-note-maq">Tout est calculé par le code à partir des chiffres de l'Insee affichés à droite : rien n'est écrit à la main, donc le texte suit les chiffres chaque mois.</p>
+        </div>
+      </div>
+      <div>
+        <p class="mq-petit" style="font-weight:700;color:var(--text-strong)">Poste par poste</p>
+        <table class="mq-postes">
+          <thead><tr><th>Poste</th><th>Octobre 2026</th><th>Septembre</th><th>Il y a un an</th></tr></thead>
+          <tbody>
+            <tr><td class="mq-nom">Ensemble des prix</td><td><b class="mq-chiffre">3,4 %</b></td><td>3,1 % <span class="mq-h">&#8599; en hausse</span></td><td>0,9 % <span class="mq-h">&#8599; en hausse</span></td></tr>
+            <tr><td class="mq-nom">Énergie</td><td><b class="mq-chiffre">24,1 %</b></td><td>21,3 % <span class="mq-h">&#8599; en hausse</span></td><td>−5,6 % <span class="mq-h">&#8599; en hausse</span></td></tr>
+            <tr><td class="mq-nom">Alimentation</td><td><b class="mq-chiffre">1,2 %</b></td><td>1,4 % <span class="mq-b">&#8600; en baisse</span></td><td>1,3 % <span class="mq-b">&#8600; en baisse</span></td></tr>
+            <tr class="mq-sous"><td class="mq-nom">dont produits frais</td><td><b class="mq-chiffre">8,0 %</b></td><td>9,5 % <span class="mq-b">&#8600; en baisse</span></td><td>−2,2 % <span class="mq-h">&#8599; en hausse</span></td></tr>
+            <tr class="mq-sous"><td class="mq-nom">dont autre alimentation</td><td><b class="mq-chiffre">0,3 %</b></td><td>0,4 % <span class="mq-b">&#8600; en baisse</span></td><td>1,8 % <span class="mq-b">&#8600; en baisse</span></td></tr>
+            <tr><td class="mq-nom">Services</td><td><b class="mq-chiffre">2,7 %</b></td><td>2,4 % <span class="mq-h">&#8599; en hausse</span></td><td>2,4 % <span class="mq-h">&#8599; en hausse</span></td></tr>
+            <tr><td class="mq-nom">Produits manufacturés</td><td><b class="mq-chiffre">−0,2 %</b></td><td>−0,3 % <span class="mq-h">&#8599; en hausse</span></td><td>−0,5 % <span class="mq-h">&#8599; en hausse</span></td></tr>
+            <tr><td class="mq-nom">Tabac</td><td><b class="mq-chiffre">3,3 %</b></td><td>3,3 % &#8594; stable</td><td>4,1 % <span class="mq-b">&#8600; en baisse</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mq-pleine"><p class="mq-note-maq">Dessous, en pleine largeur comme aujourd'hui : « L'évolution des prix », le graphique sur 12 mois, 5 ans ou depuis 2017 (inchangé).</p></div>
+    </div>
+  </div>
+
+  <!-- ========= 3. CHÔMAGE ========= -->
+  <div class="mq-carte">
+    <h3>Combien de personnes sont au chômage ici ?</h3>
+    <div class="mq-zone">
+      <div>
+        <div class="mq-gros">7,9 %</div>
+        <span class="mq-pastille">&#8599; en légère hausse</span>
+        <p>Sur 100 personnes qui travaillent ou cherchent un travail, environ <b class="mq-chiffre">8 sont au chômage</b>.</p>
+        <p class="mq-petit"><b>Il y a un trimestre :</b> <span class="mq-chiffre">7,8 %</span> &nbsp;&bull;&nbsp; <b>il y a un an :</b> <span class="mq-chiffre">7,1 %</span></p>
+        <div class="mq-boite">Un peu en dessous de la moyenne française, un peu au-dessus de la Nouvelle-Aquitaine. En hausse depuis un an.</div>
+      </div>
+      <div>
+        <p class="mq-petit" style="font-weight:700;color:var(--text-strong)">Le territoire et les autres niveaux</p>
+        <div class="mq-tuiles mq-tuiles-3">
+          <div class="mq-tuile mq-fort"><span class="mq-n">7,9 %</span><span class="mq-q">Dordogne<br>2e trimestre 2026</span></div>
+          <div class="mq-tuile"><span class="mq-n">7,5 %</span><span class="mq-q">Nouvelle-Aquitaine<br>2e trimestre 2026</span></div>
+          <div class="mq-tuile"><span class="mq-n">8,1 %</span><span class="mq-q">France métropolitaine<br>2e trimestre 2026</span></div>
+          <div class="mq-tuile mq-recent"><span class="mq-n">8,2 %</span><span class="mq-q"><b>France entière<br>3e trimestre 2026</b><br>le plus récent</span></div>
+          <div class="mq-tuile"><span class="mq-n">7,6 %</span><span class="mq-q">Haute-Vienne<br>2e trimestre 2026</span></div>
+          <div class="mq-tuile mq-autre"><span class="mq-n">6,0 %</span><span class="mq-q">Union européenne<br><b>moyenne de l'année 2025</b></span></div>
+        </div>
+        <p class="mq-note-maq">Les six cases se remplissent à partir des chiffres déjà relevés (digest). La zone euro n'y est pas encore : il faudrait relever son chiffre sur Eurostat (voir les questions).</p>
+      </div>
+      <div class="mq-pleine">
+        <div class="mq-boite mq-accent" style="margin-top:0"><h4>Le plus récent, pour la France entière</h4>
+          <b>8,2 %</b> au 3e trimestre 2026 (provisoire). Il y a un trimestre : 8,3 % &nbsp;&bull;&nbsp; il y a un an : 7,8 %.<br>
+          Quasi stable sur le trimestre (−0,1 point, dans la marge d'incertitude de 0,3 point de l'Insee), mais plus élevé qu'il y a un an (+0,4 point).<br>
+          <span class="mq-petit">Le 3e trimestre de la Dordogne, de la région et des départements est publié en décembre 2026 : les trois premières tuiles passeront alors au 3e trimestre.</span></div>
+      </div>
+      <div class="mq-pleine">
+        <div class="mq-oss">
+          <p class="mq-oss-tete">Où se situe la Dordogne</p>
+          <div class="mq-oss-deux">
+            <div>
+              <p class="mq-oss-titre">Départements</p>
+              <p class="mq-oss-bornes"><span>le plus bas<br><b>4,8 %</b> Cantal</span><span style="text-align:right">le plus haut<br><b>12,8 %</b> Pyrénées-Orientales</span></p>
+              <div class="mq-oss-piste"><span class="mq-oss-marque" style="left:38.8%"></span><span class="mq-oss-etiq" style="left:38.8%">Dordogne 7,9 %</span></div>
+            </div>
+            <div>
+              <p class="mq-oss-titre">Régions</p>
+              <p class="mq-oss-bornes"><span>le plus bas<br><b>6,8 %</b> Pays de la Loire</span><span style="text-align:right">le plus haut<br><b>10,0 %</b> Hauts-de-France</span></p>
+              <div class="mq-oss-piste"><span class="mq-oss-marque" style="left:21.9%"></span><span class="mq-oss-etiq" style="left:21.9%">Nouvelle-Aquitaine 7,5 %</span></div>
+            </div>
+          </div>
+          <p class="mq-petit" style="margin:.8rem 0 0">Le gouvernement vise le <b>plein emploi</b> : un chômage autour de <b>5 %</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mq-q-denis"><b>Questions pour Denis :</b> (1) trimestres rangés par année (une ligne par année, une colonne par trimestre) : cela vous convient-il ? (2) pour l'inflation, le texte « Ce que cela veut dire, concrètement » à gauche vous convient-il, et faut-il garder « 100 € deviennent 103,40 € » ? (3) pour le chômage, les six tuiles (Dordogne, Nouvelle-Aquitaine, France métropolitaine, France entière du 3e trimestre, Haute-Vienne, Union européenne en moyenne annuelle) vous conviennent-elles ? La zone euro serait à relever sur Eurostat : à ajouter ? (4) « Où se situe la Dordogne » est conservé, avec les deux barres côte à côte au lieu d'être l'une sous l'autre : cela vous convient-il ? (5) voulez-vous la même chose sur les autres cartes (demandeurs d'emploi, emploi salarié, etc.), à appliquer carte par carte ?</div>
+</div>
+
+<script>
+var LD = { '2024': { 3: '45,5 %', 4: '45,3 %' }, '2025': { 1: '43,6 %', 2: '44,8 %', 3: '44,7 %', 4: '45,5 %' }, '2026': { 1: '46,9 %', 2: '47,4 %', 3: '48,1 %' } };
+var h = '<thead><tr><th class="mq-an"></th><th>1er trimestre</th><th>2e trimestre</th><th>3e trimestre</th><th>4e trimestre</th></tr></thead><tbody>';
+Object.keys(LD).forEach(function (an) {
+  h += '<tr><th class="mq-an">' + an + '</th>';
+  [1, 2, 3, 4].forEach(function (t) {
+    var v = LD[an][t];
+    if (!v) { h += '<td class="mq-vide">&middot;</td>'; return; }
+    var cls = (an === '2026' && t === 3) ? 'mq-dernier' : ((an === '2025' && t === 3) ? 'mq-an-dernier' : '');
+    h += '<td class="' + cls + '">' + v + '</td>';
+  });
+  h += '</tr>';
+});
+document.getElementById('m-ld').innerHTML = h + '</tbody>';
+var page = document.getElementById('page');
+document.getElementById('b-pc').onclick = function () { page.classList.remove('mq-tel'); };
+document.getElementById('b-tel').onclick = function () { page.classList.add('mq-tel'); };
+document.getElementById('b-theme').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+</script>
+</body>
+</html>

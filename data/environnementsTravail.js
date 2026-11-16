@@ -65,7 +65,25 @@ var CATALOGUE_ENVIRONNEMENTS_TRAVAIL = [
         savoirs: [], metiers: ['Assistant administratif', 'Secrétaire médicale'] },
       { id: 'laboratoire', label: 'Laboratoire', icon: '🧪', categorie: 'En intérieur',
         savoirFaire: ['Précision', 'Technique'], savoirEtre: ['Rigueur'],
-        savoirs: ['Normes d\'hygiène et de sécurité en laboratoire'], metiers: ['Opérateur de production chimique'] }
+        savoirs: ['Normes d\'hygiène et de sécurité en laboratoire'], metiers: ['Opérateur de production chimique'] },
+      { id: 'association', label: 'Association', icon: '📎', categorie: 'En intérieur',
+        savoirFaire: [], savoirEtre: ['Esprit d\'équipe', 'Entraide', 'Adaptabilité'],
+        savoirs: [], metiers: ['Animateur', 'Conseiller en insertion professionnelle', 'Éducateur spécialisé'] },
+      { id: 'cabinet_pharmacie', label: 'Cabinet médical / Pharmacie', icon: '⚕️', categorie: 'En intérieur',
+        savoirFaire: ['Gestion administrative'], savoirEtre: ['Discrétion', 'Rigueur', 'Accueil'],
+        savoirs: ['Notions médicales de base'], metiers: ['Secrétaire médicale', 'Préparateur en pharmacie', 'Assistant dentaire'] },
+      { id: 'medias_studio', label: 'Studio / Médias / Édition', icon: '🎬', categorie: 'En intérieur',
+        savoirFaire: ['Expression artistique'], savoirEtre: ['Créativité', 'Respect des délais'],
+        savoirs: [], metiers: ['Photographe', 'Graphiste', 'Technicien son et lumière', 'Community manager', 'Webmaster'] },
+      { id: 'social_creche', label: 'Établissement social, médico-social ou crèche', icon: '🧸', categorie: 'En intérieur',
+        savoirFaire: [], savoirEtre: ['Empathie', 'Bienveillance', 'Patience'],
+        savoirs: [], metiers: ['Auxiliaire petite enfance', 'Éducateur spécialisé', 'Accompagnant éducatif et social (AES)', 'Aide-soignant'] },
+      { id: 'securite_penitentiaire', label: 'Sécurité / Établissement pénitentiaire', icon: '🛡️', categorie: 'En intérieur',
+        savoirFaire: ['Surveillance', 'Vigilance'], savoirEtre: ['Sang-froid', 'Respect des règles'],
+        savoirs: ['Règles de sécurité'], metiers: ['Agent de sécurité', 'Gendarme'] },
+      { id: 'centre_appels', label: 'Centre d\'appels', icon: '🎧', categorie: 'En intérieur',
+        savoirFaire: ['Bureautique'], savoirEtre: ['Communication', 'Écoute', 'Patience'],
+        savoirs: [], metiers: ['Téléconseiller'] }
     ]
   },
   {

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : question de la photo sur « Vos informations »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 20px 4rem}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-avis{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin:.4rem 0 0}
+.mq-avis p{margin:.1rem 0}
+
+/* Page simulée : même largeur utile que « Vos informations » sur ordinateur. */
+.mq-page{margin:0 auto;max-width:1385px}
+.mq-page.tel{max-width:390px}
+.mq-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:14px;padding:.9rem 1.1rem 1.1rem}
+.mq-bloc-tete{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
+.mq-bloc-tete b{font-size:1.05rem}
+.mq-pastille{font-size:.75rem;border-radius:999px;padding:.1rem .6rem;border:1px solid var(--border-strong);background:var(--bg-subtle)}
+.mq-ss{font-weight:700;margin:.2rem 0 .5rem}
+.mq-suite{opacity:.55;margin-top:1rem;font-size:.95rem}
+
+/* La question de la photo : même cadre bleu « À CHOISIR » que dans le bloc Vos diplômes. */
+.mq-photo{background:var(--accent-bg-subtle);border-left:5px solid var(--accent);border-radius:10px;padding:.5rem .8rem}
+.mq-photo .mq-q{font-weight:700;font-size:.95rem;margin:0 0 .35rem;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+.mq-tag{font-size:.7rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.12rem .55rem;border:1.5px solid var(--accent);color:var(--accent-texte);background:var(--bg-card)}
+.mq-photo .jeton{border-color:var(--accent);background:var(--bg-card);font-size:.85rem}
+.mq-photo .jeton.is-actif{background:var(--accent-bg-subtle);border-width:2.5px}
+.mq-photo .mq-depot{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.5rem}
+.mq-photo .mq-apercu{width:56px;height:56px;border-radius:8px;border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:.75rem;text-align:center;color:var(--text-muted)}
+.mq-photo .mq-note{font-size:.85rem;margin:.35rem 0 0}
+.mq-photo .mq-rangee{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+
+/* Variante A : dans la place vide à droite du courriel */
+.mq-A .mq-photo{display:inline-block;max-width:100%}
+/* Variante B : sur la ligne de l'identité */
+.mq-ligne-id{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1.6rem;margin-bottom:.5rem}
+.mq-ligne-id .mq-photo{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .8rem;padding:.35rem .8rem}
+.mq-ligne-id .mq-photo .mq-q{margin:0}
+.mq-ligne-id .mq-photo .mq-depot{margin-top:0}
+/* Variante C : bande sous les coordonnées */
+.mq-C .mq-photo{margin:.7rem 0 .2rem}
+
+/* Téléphone : les colonnes se rangent comme sur un petit écran. */
+.tel .col-md-3{width:50%}
+.tel .col-md-6{width:100%}
+.tel .mq-photo{display:block}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir">Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2>Maquette : où poser la question de la photo ?
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages">&#10005; Fermer</button>
+  </h2>
+  <div class="grp"><b>Emplacement</b>
+    <div class="boutons" id="gpVar">
+      <button type="button" class="btn btn-sm btn-primary" data-v="A">A : à droite du courriel (Recommandé)</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-v="B">B : sur la ligne Madame / Monsieur</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-v="C">C : bande sous les coordonnées</button>
+    </div>
+  </div>
+  <div class="grp"><b>Réponse de la personne</b>
+    <div class="boutons" id="gpRep">
+      <button type="button" class="btn btn-sm btn-primary" data-r="">Pas encore répondu</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-r="oui">Oui</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-r="non">Non</button>
+    </div>
+  </div>
+  <div class="grp"><b>Écran</b>
+    <div class="boutons" id="gpEcr">
+      <button type="button" class="btn btn-sm btn-primary" data-e="pc">Ordinateur</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-e="tel">Téléphone</button>
+    </div>
+  </div>
+  <div class="mq-avis" id="mqAvis"></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+var etat = { v: 'A', r: '', e: 'pc' };
+
+var AVIS = {
+  A: '<p><b>A (recommandée).</b> La question prend la place vide à droite du courriel : elle comble le trou sans rien déplacer et reste à côté des champs. Sur téléphone, elle passe sous le courriel. Une seule ligne de plus quand la réponse est « Oui ».</p>',
+  B: '<p><b>B.</b> La question est sur la même ligne que Madame / Monsieur, séparée par un grand espace. Elle est tout en haut du bloc et se lit avant les champs, mais la ligne devient longue et le dépôt de la photo la fait déborder.</p>',
+  C: '<p><b>C.</b> Bande bleue pleine largeur sous le lien LinkedIn, juste avant « Enregistrer mon identité » : ordre très logique (d’abord les coordonnées, ensuite la photo), mais elle ne comble aucun vide, elle ajoute une ligne et laisse la grande zone de droite vide.</p>'
+};
+
+function jetonsOuiNon() {
+  return '<button type="button" class="jeton jeton--radio jeton--compact' + (etat.r === 'oui' ? ' is-actif' : '') + '" data-rep="oui" aria-pressed="' + (etat.r === 'oui') + '">Oui</button>' +
+         '<button type="button" class="jeton jeton--radio jeton--compact' + (etat.r === 'non' ? ' is-actif' : '') + '" data-rep="non" aria-pressed="' + (etat.r === 'non') + '">Non</button>';
+}
+function depot() {
+  if (etat.r === 'oui') {
+    return '<div class="mq-depot"><div class="mq-apercu">Aucune<br>photo</div><button type="button" class="btn btn-sm btn-outline-secondary">&#128444;&#65039; Déposer une photo</button></div>';
+  }
+  return '';
+}
+function noteNon() {
+  return etat.r === 'non' ? '<p class="mq-note mb-0">Aucune photo ne sera ajoutée à votre CV.</p>' : '';
+}
+function questionComplete() {
+  return '<div class="mq-photo"><p class="mq-q">Voulez-vous une photo sur votre CV ? <span class="mq-tag">À choisir</span></p>' +
+    '<div class="mq-rangee">' + jetonsOuiNon() + '</div>' + depot() + noteNon() + '</div>';
+}
+function questionEnLigne() {
+  return '<div class="mq-photo"><p class="mq-q">Voulez-vous une photo sur votre CV ? <span class="mq-tag">À choisir</span></p>' +
+    '<div class="mq-rangee">' + jetonsOuiNon() + '</div>' + depot() + (etat.r === 'non' ? '<span class="small">Aucune photo ne sera ajoutée.</span>' : '') + '</div>';
+}
+
+function civilites() {
+  return '<button type="button" class="jeton jeton--radio jeton--compact" aria-pressed="false">Madame</button>' +
+         '<button type="button" class="jeton jeton--radio jeton--compact" aria-pressed="false">Monsieur</button>' +
+         '<button type="button" class="jeton jeton--radio jeton--compact is-actif" aria-pressed="true">Ne pas préciser</button>';
+}
+function champ(ph, extra) { return '<input type="text" class="form-control form-control-sm" placeholder="' + ph + '" style="height:2.75rem;font-size:1rem;padding:.5rem .75rem;' + (extra || '') + '">'; }
+
+function rendre() {
+  var v = etat.v;
+  var ligneId = (v === 'B')
+    ? '<div class="mq-ligne-id"><div class="d-flex flex-wrap gap-2">' + civilites() + '</div>' + questionEnLigne() + '</div>'
+    : '<div class="d-flex flex-wrap gap-2 mb-2">' + civilites() + '</div>';
+  var colPhotoA = (v === 'A') ? '<div class="col-12 col-md-6">' + questionComplete() + '</div>' : '';
+  var bandeC = (v === 'C') ? questionComplete() : '';
+  var html =
+    '<div class="mq-bloc mq-' + v + '">' +
+      '<div class="mq-bloc-tete"><span aria-hidden="true">&#128100;</span><b>Vous</b><span class="mq-pastille ms-auto">recommandé</span><span class="mq-pastille">à compléter</span></div>' +
+      '<p class="mq-ss">Identité</p>' +
+      ligneId +
+      '<p class="small text-muted mb-2">&#128274; Votre nom, votre adresse et vos coordonnées ne sont jamais transmis à l’assistant.</p>' +
+      '<div class="row g-2 align-items-end">' +
+        '<div class="col-5 col-md-3"><label class="form-label small fw-semibold mb-1">Prénom</label>' + champ('Ex. : Camille') + '</div>' +
+        '<div class="col-auto"><button type="button" class="btn btn-outline-secondary btn-sm">&#8644;</button></div>' +
+        '<div class="col-5 col-md-3"><label class="form-label small fw-semibold mb-1">Nom</label>' + champ('Ex. : MARTIN') + '</div>' +
+        '<div class="col-6 col-md-3">' + champ('Téléphone : 06.12.34.56.78') + '</div>' +
+      '</div>' +
+      '<div class="row g-2 align-items-start mt-0">' +
+        '<div class="col-12 col-md-6">' + champ('E-mail') + '</div>' +
+        colPhotoA +
+      '</div>' +
+      '<p class="small text-muted mt-1 mb-2">Le nom s’écrit en MAJUSCULES, le prénom avec une majuscule. S’ils sont à l’envers, cliquez sur la flèche &#8644; : ils s’échangent et s’écrivent comme il faut.</p>' +
+      '<div class="row g-2">' +
+        '<div class="col-12 col-md-6">' + champ('Adresse postale (à compléter)') + '</div>' +
+        '<div class="col-6 col-md-3">' + champ('Code postal') + '</div>' +
+        '<div class="col-6 col-md-3">' + champ('Ville') + '</div>' +
+      '</div>' +
+      '<div class="row g-2 mt-1"><div class="col-12">' + champ('Lien LinkedIn ou site personnel (à compléter)') + '</div></div>' +
+      bandeC +
+      '<p class="small text-muted mt-1 mb-0">Sur un CV, le code postal et la ville suffisent. L’adresse précise n’est plus attendue ; ne la renseignez que si c’est utile (proximité avec l’entreprise).</p>' +
+      '<button type="button" class="btn btn-primary btn-sm mt-2">&#128190; Enregistrer mon identité</button>' +
+      '<p class="mq-suite mb-0">Langues, Mobilité (permis) : la suite du bloc, inchangée.</p>' +
+    '</div>';
+  var page = document.getElementById('mqPage');
+  page.className = 'mq-page' + (etat.e === 'tel' ? ' tel' : '');
+  page.innerHTML = html;
+  page.querySelectorAll('[data-rep]').forEach(function (b) {
+    b.addEventListener('click', function () { etat.r = this.getAttribute('data-rep'); majBoutons(); rendre(); });
+  });
+  document.getElementById('mqAvis').innerHTML = AVIS[v];
+}
+function majBoutons() {
+  [['gpVar', 'v'], ['gpRep', 'r'], ['gpEcr', 'e']].forEach(function (g) {
+    var cle = g[1];
+    document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) {
+      var val = b.getAttribute('data-' + cle);
+      var actif = (val === etat[cle]);
+      b.className = 'btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-secondary');
+    });
+  });
+}
+document.getElementById('gpVar').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.v = b.getAttribute('data-v'); majBoutons(); rendre(); } });
+document.getElementById('gpRep').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.r = b.getAttribute('data-r'); majBoutons(); rendre(); } });
+document.getElementById('gpEcr').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.e = b.getAttribute('data-e'); majBoutons(); rendre(); } });
+document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

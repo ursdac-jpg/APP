@@ -1,0 +1,70 @@
+{
+ "nom": "exploreDepot",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ECART",
+   "t": "#mes-competences « Découvrir mes compétences » : page attendue #mes-competences-intro mais #mes-competences"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ABSENT #depotPageColler "
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ABSENT #depotPageLireTexte "
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ABSENT  Retirer toutes les informations"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ABSENT #verifDocBtnEnregistrer "
+  },
+  {
+   "n": "ECART",
+   "t": "dépôt : après « Enregistrer », la page n’indique pas « Déposé et relu »"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#mes-competences-intro",
+    "page": "mes-competences-intro",
+    "h1": "Découvrir mes compétences",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#mes-competences",
+    "page": "mes-competences",
+    "h1": "Découvrir mes compétences",
+    "barre": "[Préparer] > Assistant > Relecture > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez au moins un document pour continuer.",
+    "fenetre": false
+   },
+   "anomalies": [
+    "page attendue #mes-competences-intro mais #mes-competences"
+   ]
+  }
+ ]
+}

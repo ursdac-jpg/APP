@@ -1,0 +1,230 @@
+{
+ "nom": "creerAlaMain",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ direct voie 3 : ok"
+  },
+  {
+   "n": "ok",
+   "t": "objectif : « Continuer » grisé au départ, raison « Choisissez d’abord un objectif ci-dessus. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "ok",
+   "t": "Vos informations : « Continuer » grisé au départ, raison « Il reste à remplir l’identité de la partie « Vous » et à renseigner au moins un de ces deux blocs : « Vos expériences professionnelles » ou « Ce que vous avez appris ailleurs qu’au travail ». »"
+  },
+  {
+   "n": "ok",
+   "t": "Vos informations : « Vous » rempli, raison « Il reste à renseigner au moins un de ces deux blocs : « Vos expériences professionnelles » ou « Ce que vous avez appris ailleurs qu’au travail ». »"
+  },
+  {
+   "n": "ok",
+   "t": "Vos informations : « Continuer » actif une fois « Vous » et une expérience remplis"
+  },
+  {
+   "n": "ok",
+   "t": "Votre parcours : « Continuer » grisé sans case cochée, raison « Chaque question a besoin d’au moins une case cochée. »"
+  },
+  {
+   "n": "info",
+   "t": "Votre profil : message « entreprise non indiquée » affiché dès l’arrivée : true, bouton de droite « Continuer sans entreprise »"
+  },
+  {
+   "n": "info",
+   "t": "« Continuer sans entreprise » (barre du bas) : ok:Continuer sans entreprise"
+  },
+  {
+   "n": "info",
+   "t": "après le profil : #resultats « 📄 Vos documents » bouton « Valider le CV → »"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : null] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : PAS DE BOUTON → #resultats « 📄 Vos documents » [bouton : null] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "arrivée : #resultats « 📄 Vos documents » barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : resultats:Vos documents < revelation:Votre profil < votre-parcours:Votre parcours < projet:Vos informations < objectif:Votre objectif < creer-cv:Créer un nouveau CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 3 : les « Retour » successifs rejoignent la page commune en 6 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#creer-cv",
+    "page": "creer-cv",
+    "h1": "Créer un nouveau CV",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Choisissez d’abord un objectif ci-dessus.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à remplir l’identité de la partie « Vous » et à renseigner au moins un de ces deux blocs : « Vos expériences professionnelles » ou « Ce que vous avez appris ailleurs qu’au travail ».",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à renseigner au moins un de ces deux blocs : « Vos expériences professionnelles » ou « Ce que vous avez appris ailleurs qu’au travail ».",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Chaque question a besoin d’au moins une case cochée.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#revelation",
+    "page": "revelation",
+    "h1": "👤 Votre profil",
+    "barre": "Votre objectif > Vos informations > Votre parcours > [Votre profil] > Vos documents",
+    "avant": "Continuer sans entreprise",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

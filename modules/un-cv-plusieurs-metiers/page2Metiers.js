@@ -531,7 +531,8 @@ function ucpmHtmlPanneauOffres(etat, cochees, ui, opt) {
       return '<option value="' + a.id + '"' + (a.id === choisi ? ' selected' : '') + '>' + _ucpmEsc(a.nom + note) + '</option>';
     }).join('') + '</select>';
   if (choisi === 'chatgpt') {
-    h += '<p class="small mb-0 mt-1" style="color:var(--text-strong);"><strong>Avec ChatGPT :</strong> activez d’abord l’option de recherche sur le web, sinon il répondra sans consulter les offres du moment.</p>';
+    h += '<p class="small mb-0 mt-1" style="color:var(--text-strong);"><strong>Avec ChatGPT :</strong> activez d’abord l’option de recherche sur le web, sinon il répondra sans consulter les offres du moment.</p>' +
+      (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('chatgpt-recherche-web') : '');
   }
   h += '</div>';
   var pret = ucpmOffresPret(etat, cochees);

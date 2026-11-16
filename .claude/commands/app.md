@@ -10,8 +10,11 @@ Recharge le contexte du projet **APP**. Fais, dans l'ordre :
 4. **Ne lis PAS** les 4 fichiers de référence (LECONS / TACHES_VALIDEES / IDEES_A_RECLASSER / BRIQUES_COMMUNES) en entier : tu les consulteras en lecture ciblée (`grep`) au moment de démarrer un bloc concret, comme l'impose `CLAUDE.md`.
 5. **Contrôle croisé** : lance `git log -1` et compare avec ce que dit `docs/ETAT_DES_CHANTIERS.md` (dernier chantier clos/en cours, date). Si ça ne correspond pas, signale-le avant de faire ton point de situation - ne suppose jamais que le fichier est à jour.
 
-Puis, en 8 lignes maximum, réponds :
+6. **Tâches programmées** (consigne 233) : lis `outils/taches_programmees.json`. Une tâche est « à faire » quand sa date est atteinte (la date système réelle fait foi) et que `faite` est vide ; une date `estimee` reste à confirmer. Ne les lance pas sans l'accord de Denis. Les marches à suivre sont dans `docs/VERIFICATIONS_A_DATE_FIXE.md` et dans `.claude/commands/veille.md` (étape 11).
+
+Puis, en 9 lignes maximum, réponds :
 - le chantier actif et où il en est (2 lignes) ;
+- les tâches programmées à faire ou en retard, en une ligne (titre, date, « estimée » si besoin, et la phrase de reprise pour une tâche de type reprise) ; « aucune » sinon ;
 - le **mode recommandé** (A / B / C / D / Nuit) et l'effort recommandé pour la suite, et pourquoi ;
 - ce dont tu as besoin de Denis pour reprendre.
 

@@ -15,8 +15,7 @@ module.exports = {
     await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await p.reload(); await p.waitForFunction(() => typeof naviguerVers !== 'undefined'); await dormir(1.5);
     await p.click('[data-carte-accueil="mesdocuments"]'); await dormir(0.6);
     await p.click('#btnCarteAccueilCvNouveau'); await dormir(1.5);
-    await p.click('#btnCreerCvSansAssistant'); await dormir(1.5);
-    await p.click('#btnCreerCvCommencer'); await dormir(1.5);
+    await p.click('#btnCreerCvSansAssistant'); await dormir(1.5);   // départ direct sur « Votre objectif » (consigne 246)
     await p.click('[data-action="objectif"][data-value="offre"]'); await dormir(0.8);
     await p.evaluate(() => naviguerVers('projet')); await dormir(2.0);
     await p.locator('[data-blocs-tout="fermer"]').click(); await dormir(0.6);

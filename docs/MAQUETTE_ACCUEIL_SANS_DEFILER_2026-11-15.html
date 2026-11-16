@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : accueil sans défiler</title>
+<style>
+:root{--bg:#eef1f6;--bg-card:#fff;--bg-subtle:#f8fafc;--border:#e2e8f0;--border-strong:#c9d2de;--text-strong:#0b1a33;--text-muted:#4a5b6e;--accent:#0d6efd;--accent-texte:#0a58ca;--accent-bg-subtle:#eef2fd;--success:#198754;--success-bg-subtle:#d1f4de;--warning:#b45309;--warning-bg-subtle:#fdf1d9;--alert:#a3372b;--page:#f0f4fa;--puce:#edf4ff;--alert-bg:#fbe9e6}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1218;--bg-card:#1b212c;--bg-subtle:#222834;--border:#313a4a;--border-strong:#46516a;--text-strong:#e8edf5;--text-muted:#a8b3c4;--accent:#4d94ff;--accent-texte:#7db0ff;--accent-bg-subtle:#1e2940;--success:#35c79a;--success-bg-subtle:#17301f;--warning:#f5a742;--warning-bg-subtle:#3a2c14;--alert:#eda69c;--page:#141a24;--puce:#243049;--alert-bg:#3a1f1b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;line-height:1.45;padding:1rem 16px 3rem}
+.page{max-width:1250px;margin:0 auto}
+h1.t{font-size:1.35rem;margin:.2rem 0}
+h2{font-size:1.05rem;margin:1.3rem 0 .3rem}
+.intro{color:var(--text-muted);max-width:75rem;margin:.2rem 0 .8rem}
+.regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.regl.ferme{display:none}
+.regl .l{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;align-items:center;margin:.25rem 0}
+.regl b{font-size:.92rem}
+.regl label{display:flex;gap:.4rem;align-items:center;font-size:.92rem;cursor:pointer}
+.croix{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;width:32px;height:32px;font-size:1.2rem;cursor:pointer;margin-left:auto}
+.rouvrir{display:none;position:fixed;right:12px;top:12px;z-index:70;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer}
+.rouvrir.visible{display:block}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.35rem .7rem;font-weight:700;cursor:pointer;font-size:.88rem}
+.btn.sec{background:var(--bg-subtle);color:var(--text-strong);border-color:var(--border-strong)}
+.verdict{display:inline-block;font-weight:800;border-radius:8px;padding:.3rem .8rem;margin:.4rem 0}
+.verdict.ok{background:var(--success-bg-subtle);color:var(--success)}
+.verdict.ko{background:var(--alert-bg);color:var(--alert)}
+.note{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .8rem;margin:1rem 0;max-width:75rem}
+.reco-box{background:var(--success-bg-subtle);border-left:3px solid var(--success);border-radius:8px;padding:.6rem .8rem;margin:1rem 0;max-width:75rem}
+table.r{border-collapse:collapse;width:100%;max-width:75rem;font-size:.92rem;background:var(--bg-card)}
+table.r th,table.r td{border:1px solid var(--border);padding:.4rem .6rem;text-align:left}
+table.r th{background:var(--bg-subtle)}
+td.ok{color:var(--success);font-weight:800}
+td.ko{color:var(--alert);font-weight:800}
+.zoomnote{font-size:.82rem;color:var(--text-muted);margin:.2rem 0}
+/* cadre d'écran */
+.cadre{position:relative;border:2px solid var(--border-strong);border-radius:8px;overflow:hidden;background:var(--page)}
+.vp{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;container-type:inline-size;background:var(--page)}
+.ligne-bas{position:absolute;left:0;right:0;bottom:0;border-top:3px dashed var(--alert);pointer-events:none;z-index:9}
+.ligne-bas span{position:absolute;right:8px;bottom:4px;background:var(--alert);color:#fff;font-weight:800;font-size:12px;padding:1px 8px;border-radius:6px}
+.coupe{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(transparent,rgba(163,55,43,.35));z-index:8;pointer-events:none}
+
+/* ---------- la page d'accueil simulée (valeurs mesurées dans l'application) ---------- */
+.sim{padding:76px 56px 48px;position:relative}
+.sim .fx{position:absolute;top:19px;width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);background:var(--bg-card);color:var(--accent-texte);display:flex;align-items:center;justify-content:center;font-size:19px}
+.sim .intro-b{position:absolute;right:28px;top:19px;height:44px;border-radius:8px;border:2px solid var(--accent);background:var(--bg-card);color:var(--accent-texte);font-weight:700;display:flex;align-items:center;padding:0 14px}
+.ban{position:relative;border:2px solid var(--accent);border-radius:16px;background:var(--accent-bg-subtle);padding:8.8px 48px 8.8px 14.4px;margin-bottom:12.8px}
+.ban p{margin:0 0 4.8px}
+.ban .tt{font-size:16px;font-weight:700}
+.ban .tx{font-size:14.4px}
+.ban .ac{display:flex;gap:8px;flex-wrap:wrap}
+.bb{height:44px;border:1px solid var(--accent);color:var(--accent-texte);background:transparent;border-radius:6px;padding:6px 12px;font-size:16px}
+.bb.g{border-color:var(--text-muted);color:var(--text-muted)}
+.ban.mince{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 14px;border-radius:12px}
+.ban.mince p{margin:0}
+.ban.mince .bb{height:34px;padding:3px 10px;font-size:14px}
+.ban.mince .ac{margin-left:auto}
+.sim h1{margin:0 0 8px;text-align:center;font-weight:900;font-size:44.8px;line-height:53.76px;color:var(--text-strong)}
+.sim .sous{text-align:center;font-size:19.2px;color:var(--text-muted);margin:0 auto 24px;max-width:760px}
+.sim .rech{margin:12px auto 24px;width:640px;max-width:100%;height:60px;border:2px solid var(--border);border-radius:32px;background:var(--bg-card);box-shadow:0 4px 14px rgba(0,0,0,.05);display:flex;align-items:center;padding-left:24px;color:var(--text-muted);font-size:16px}
+.sim .cartes{display:flex;flex-wrap:wrap;gap:17.6px;justify-content:center;max-width:980px;margin:32px auto 0}
+.sim .carte{flex:1 1 260px;min-width:190px;max-width:300px;min-height:250px;border:3px solid var(--border);border-radius:24px;background:var(--bg-card);padding:25.6px 19.2px;text-align:center;display:flex;flex-direction:column}
+.sim .carte .ic{font-size:32px;color:var(--accent-texte);line-height:1.5;margin-bottom:8px}
+.sim .carte h3{margin:8px 0;font-size:20px;line-height:24px;font-weight:700}
+.sim .carte p{margin:0 0 16px;font-size:15.2px;line-height:23.56px;color:var(--text-muted)}
+.sim .puces{display:flex;gap:5.6px;margin-top:11.2px;padding-bottom:12px;justify-content:center;flex-wrap:wrap}
+.sim .puce{font-size:14px;font-weight:600;padding:5.5px 9.92px;line-height:20px;border-radius:999px;background:var(--puce);color:var(--text-muted)}
+.sim .pied{display:flex;gap:11.2px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+.sim .pb{height:44px;display:inline-flex;align-items:center;border:1px solid var(--accent);border-radius:999px;background:var(--bg-card);color:var(--accent-texte);padding:8.8px 16.8px;font-size:14.4px}
+/* Piste 1 : six cartes sur une ligne quand l'écran est large */
+.sim.p1 .cartes-large-ok{}
+@container (min-width:1700px){
+  .sim.p1 .cartes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));max-width:none}
+  .sim.p1 .carte{min-width:0;max-width:none}
+}
+/* Remplir l'écran : l'espace restant se répartit (mêmes tailles de texte) */
+.sim.rempli{display:flex;flex-direction:column;min-height:100%}
+.sim.rempli .sous{margin-bottom:0}
+.sim.rempli .rech{margin:0 auto}
+.sim.rempli .cartes{margin-top:0;flex:1.3 1 auto;width:100%}
+.sim.rempli .carte{justify-content:flex-start;padding-top:44px}
+.sim.rempli .pied{margin-top:0}
+@container (min-width:1700px){.sim.rempli.p1 .cartes{grid-template-rows:1fr}}
+/* Piste 2 : espaces resserrés */
+.sim.p2 h1{margin-bottom:4px}
+.sim.p2:not(.rempli) .sous{margin-bottom:10px}
+.sim.p2 .rech{height:50px}
+.sim.p2:not(.rempli) .rech{margin:8px auto 14px}
+.sim.p2:not(.rempli) .cartes{margin-top:16px}
+.sim.p2:not(.rempli) .pied{margin-top:22px}
+</style>
+</head>
+<body>
+<div class="page">
+<h1 class="t">Accueil : tout voir sans défiler, à 100 %</h1>
+<p class="intro">Sur un grand écran, le bandeau « Envie de lire plus confortablement ? » n’apparaît pas (il ne s’affiche que sous 1000 px de large) : il est donc retiré de cette maquette. <b>Piste 1</b> : les six cartes sur une seule ligne à partir de 1700 px de large. <b>Piste 2</b> : espaces resserrés, aucun texte ne rétrécit. <b>Nouveau : remplir l’écran</b> : le reste de la hauteur est réparti avec soin (respiration en haut, entre le titre et la recherche, autour des cartes, et les quatre boutons du bas descendus au bas de l’écran). La ligne rouge est le bas de votre écran.</p>
+
+<button type="button" class="rouvrir" id="rouvrir">Réglages</button>
+<div class="regl" id="regl">
+<div class="l"><b>Écran :</b>
+<label><input type="radio" name="ec" value="0" checked> 1920 × 1080</label>
+<label><input type="radio" name="ec" value="1"> 1536 × 864</label>
+<label><input type="radio" name="ec" value="2"> 1366 × 768</label>
+<label><input type="radio" name="ec" value="3"> 1280 × 720</label>
+<label><input type="radio" name="ec" value="4"> 1920 × 1200</label>
+<button type="button" class="croix" id="fermer" aria-label="Fermer les réglages" title="Fermer les réglages">&times;</button></div>
+<div class="l"><b>Pistes :</b>
+<label><input type="checkbox" id="p1" checked> Piste 1 : six cartes sur une ligne (écrans larges)</label>
+<label><input type="checkbox" id="p2" checked> Piste 2 : espaces resserrés (texte inchangé)</label></div>
+<div class="l"><b>Répartition :</b><label><input type="checkbox" id="rem" checked> Remplir l’écran (répartir l’espace restant)</label></div>
+<div class="l"><button type="button" class="btn" id="copier">Copier mon choix</button><span id="copie" class="zoomnote"></span></div>
+</div>
+
+<h2 id="titreEcran">Ce que l’on voit</h2>
+<div id="verdict"></div>
+<p class="zoomnote" id="zoomnote"></p>
+<div class="cadre" id="cadre"><div class="vp" id="vp"></div></div>
+
+<h2>Résultat sur chaque taille d’écran (avec vos réglages)</h2>
+<table class="r" id="tab"></table>
+<p class="zoomnote">Hauteur disponible = hauteur de l’écran moins les barres du navigateur (estimation : 130 px).</p>
+
+<div class="reco-box"><b>Ce que cela montre :</b> la piste 1 fait tenir l’accueil sur les grands écrans, la piste 2 gagne environ 60 px partout (elle ne touche qu’aux espaces, jamais à la taille des lettres) mais ne suffit pas sur un portable ni sur une tablette. Pour les petits écrans, il faudrait en plus alléger les cartes (piste 3, à voir ensuite avec vous). Ni l’une ni l’autre ne retire une information ni ne rapetisse un texte : seuls la largeur des cartes (287 px au lieu de 300) et les espaces changent.</div>
+
+<div class="note"><b>Ce que la maquette garantit :</b> les mesures utilisent les vraies tailles de l’application (titre, cartes, boutons, marges relevés sur l’accueil). La piste 1 ne s’active qu’à partir de 1700 px de large ; en dessous, les cartes restent par trois comme aujourd’hui. Les boutons du haut restent posés par-dessus la page, comme décidé. Les hauteurs de la maquette sont à environ 10 px près de celles de l’application réelle (comparées à l’accueil actuel : 1368 px contre 1378 px).</div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var ECRANS = [[1920, 1080], [1536, 864], [1366, 768], [1280, 720], [1920, 1200]];
+  var BARRES = 130;
+  var CARTES = [
+    ["&#128194;", "Mes documents", "Le point de départ pour votre CV, votre lettre de motivation et votre préparation d’entretien d’embauche.", ["Créer un nouveau CV", "Reprendre mon CV", "Lettre et entretien en version rapide"]],
+    ["&#128100;", "Me préparer à candidater", "Écrire votre lettre avec un assistant et vous entraîner à l’entretien, puis trouver où envoyer votre candidature.", ["Écrire ma lettre avec l’assistant", "M’entraîner à un entretien", "Employeurs près de chez moi"]],
+    ["&#128188;", "Boîte à outils", "Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.", ["Mes Repères", "Mon Carnet", "Lexique", "Découvrir mes compétences"]],
+    ["&#128200;", "Outils d’analyse", "Vérifier la solidité de votre candidature avant de postuler.", ["Analyser ma candidature", "Un regard sur mon CV", "Les mots de votre CV (ATS)", "Cohérence de mon dossier"]],
+    ["&#128240;", "Se tenir informé", "Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, et à qui vous adresser : expliqués simplement, à consulter quand vous en avez besoin.", ["Comprendre le cadre", "Comprendre les chiffres", "Qui fait quoi"]],
+    ["&#129517;", "Vous hésitez encore ?", "Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.", ["Comparer mes pistes", "Un CV, plusieurs métiers"]]
+  ];
+  var PIED = ["Confidentialité de vos données", "Liens utiles", "Partager une information", "Signaler un problème"];
+  function sp(poids, min) { return '<div class="sp" style="flex:' + poids + ' 1 ' + min + 'px"></div>'; }
+  function page(o) {
+    var R = !!o.rem;
+    return '<div class="sim' + (o.p1 ? ' p1' : '') + (o.p2 ? ' p2' : '') + (R ? ' rempli' : '') + '">' +
+      '<span class="fx" style="left:20px">&#9881;</span><span class="fx" style="left:74px">&#128161;</span><span class="fx" style="left:128px">&#128190;</span><span class="fx" style="left:182px">&#128226;</span><span class="intro-b">&#129517; Introduction</span>' +
+      (R ? sp(0.35, 0) : '') + '<h1>Par où voulez-vous commencer ?</h1><p class="sous">Choisissez votre point de départ.</p>' + (R ? sp(0.6, 10) : '') + '<div class="rech">&#128269; Un métier, comme aide-soignant…</div>' + (R ? sp(0.9, 14) : '') +
+      '<div class="cartes">' + CARTES.map(function (c) { return '<div class="carte"><div class="ic">' + c[0] + '</div><h3>' + c[1] + '</h3><p>' + c[2] + '</p><div class="puces">' + c[3].map(function (p) { return '<span class="puce">' + p + '</span>'; }).join("") + '</div></div>'; }).join("") + '</div>' +
+      (R ? sp(1.1, 22) : '') + '<div class="pied">' + PIED.map(function (p) { return '<span class="pb">' + p + '</span>'; }).join("") + '</div></div>';
+  }
+  function etat() {
+    return { ec: +document.querySelector("input[name=ec]:checked").value, p1: $("p1").checked, p2: $("p2").checked, rem: $("rem").checked };
+  }
+  // Hauteur réelle de la page pour une largeur donnée (mesure dans un cadre caché).
+  function mesurer(largeur, o) {
+    var h = document.createElement("div");
+    h.style.cssText = "position:absolute;left:-99999px;top:0;visibility:hidden;width:" + largeur + "px;container-type:inline-size";
+    h.innerHTML = page(o); document.body.appendChild(h);
+    var v = h.firstChild.offsetHeight; document.body.removeChild(h); return v;
+  }
+  function rendre() {
+    var o = etat(), L = ECRANS[o.ec][0], H = ECRANS[o.ec][1] - BARRES;
+    var vp = $("vp"), cadre = $("cadre");
+    vp.style.width = L + "px"; vp.style.height = H + "px"; vp.innerHTML = page(o) + '<div class="coupe" id="coupe"></div><div class="ligne-bas"><span>Bas de l’écran</span></div>';
+    var hauteur = mesurer(L, o), manque = hauteur - H;
+    var dispo = cadre.parentNode.clientWidth - 4, s = Math.min(1, dispo / L);
+    vp.style.transform = "scale(" + s + ")";
+    cadre.style.width = Math.round(L * s) + 4 + "px"; cadre.style.height = Math.round(H * s) + 4 + "px";
+    $("coupe").style.display = manque > 0 ? "block" : "none";
+    $("titreEcran").textContent = "Ce que l’on voit sur un écran de " + L + " × " + ECRANS[o.ec][1];
+    $("verdict").innerHTML = manque <= 0 ? '<span class="verdict ok">Tout tient sans défiler' + (o.rem ? ' et la page remplit l’écran' : ' (marge de ' + (-manque) + ' px)') + '</span>' : '<span class="verdict ko">Il manque ' + manque + ' px : il faut défiler</span>';
+    $("zoomnote").textContent = "Hauteur de la page : " + hauteur + " px ; hauteur disponible : " + H + " px." + (s < 1 ? " Affichage réduit à " + Math.round(s * 100) + " % pour tenir dans la fenêtre (les mesures restent en taille réelle)." : "");
+    var lignes = ECRANS.map(function (e) { var hp = mesurer(e[0], o), hd = e[1] - BARRES, m = hp - hd; return '<tr><td>' + e[0] + ' × ' + e[1] + '</td><td>' + hp + ' px</td><td>' + hd + ' px</td><td class="' + (m <= 0 ? 'ok' : 'ko') + '">' + (m <= 0 ? (o.rem ? 'Tient et remplit l’écran' : 'Tient (marge ' + (-m) + ' px)') : 'Manque ' + m + ' px : défile') + '</td></tr>'; });
+    $("tab").innerHTML = '<tr><th>Écran</th><th>Hauteur de la page</th><th>Hauteur disponible</th><th>Résultat</th></tr>' + lignes.join("");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("input"), function (i) { i.addEventListener("change", rendre); });
+  window.addEventListener("resize", rendre);
+  $("fermer").addEventListener("click", function () { $("regl").classList.add("ferme"); $("rouvrir").classList.add("visible"); });
+  $("rouvrir").addEventListener("click", function () { $("regl").classList.remove("ferme"); $("rouvrir").classList.remove("visible"); });
+  $("copier").addEventListener("click", function () {
+    var o = etat(), t = "Accueil sans défiler : écran " + ECRANS[o.ec].join(" x ") + " ; piste 1 (six cartes sur une ligne) : " + (o.p1 ? "oui" : "non") + " ; piste 2 (espaces resserrés) : " + (o.p2 ? "oui" : "non") + " ; remplir l’écran : " + (o.rem ? "oui" : "non");
+    try { navigator.clipboard.writeText(t); $("copie").textContent = "Copié : " + t; } catch (e) { $("copie").textContent = t; }
+  });
+  rendre();
+})();
+</script>
+</body>
+</html>

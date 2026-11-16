@@ -61,11 +61,92 @@ function csaRetourMaVoie() {
   _prepLEMode = 'maj'; _reprendreCvActif = true; _prepLEEcran = 'depot'; _prepLEDetour = false;
   naviguerVers('reprendre-cv');
 }
-// « Revoir la présentation » : détour de consultation vers la présentation de « Reprendre mon CV » ; « Revenir au module » ramène ici (_prepLERevenirModule).
+// « Revoir la présentation » : détour de consultation vers la page PROPRE de la voie (A.3, 11/11/2026 ; avant, la présentation commune de « Reprendre mon CV ») ;
+// « Revenir au module » ramène ici (_prepLERevenirModule).
 function csaVoirPresentation() {
-  _prepLEMode = 'maj'; _reprendreCvActif = true; _prepLEEcran = 'intro'; _prepLEDetour = true;
+  _prepLEMode = 'maj'; _reprendreCvActif = false; _prepLEDetour = true;
   _prepLEDetourRetourRoute = 'cv-sans-assistant';
-  naviguerVers('reprendre-cv');
+  naviguerVers('cv-sans-assistant-intro');
+}
+// Recommencer la voie 3 : on repart d'une page blanche pour tout « Reprendre mon CV » (le CV déposé aussi), comme les deux autres voies.
+function csaRecommencer() {
+  if (typeof _reprendreCvRecommencer !== 'function') { return; }
+  if (typeof confirmerAction !== 'function') { _reprendreCvRecommencer(); return; }
+  confirmerAction('Recommencer depuis le début ?', 'Vous allez repartir d’une page blanche. Ce que vous avez déjà déposé et classé dans cette voie sera perdu.', 'Recommencer', 'btn-danger', _reprendreCvRecommencer);
+}
+
+/* ---------- Page propre de la voie (présentation) ----------
+   Même patron que les pages propres des deux autres voies (mettre-a-jour-cv, reformuler-cv) : titre = nom exact de la voie, sa vidéo, ses blocs, et en détour
+   « Revenir au module ». Ouverte par « Revoir la présentation » dans la voie, la recherche ou un ancien lien (route 'cv-sans-assistant-intro'). */
+function pageCvSansAssistantIntro() {
+  var enDetour = !!_prepLEDetour;
+  var depose = !!(_prepLEEtat && _prepLEEtat.cvTexte);
+  var engagee = csaVoieEngagee();
+  var syntheseHTML = '';
+  var actionsSynthese = [];
+  if (!enDetour && engagee) {
+    syntheseHTML = _introBlocReprise('Vous avez déjà commencé à refaire votre CV dans un modèle.', 'btnCsaReprendre', 'btnCsaRecommencer', 'Reprendre');
+    actionsSynthese.push({ id: 'btnCsaReprendre', action: function () { naviguerVers('cv-sans-assistant'); } });
+    actionsSynthese.push({ id: 'btnCsaRecommencer', action: csaRecommencer });
+  }
+  var config = {
+    carteRetour: 'mesdocuments',
+    routeRetour: 'reprendre-cv',   // « Retour » : « Reprendre mon CV » (dépôt et choix de la voie)
+    detour: enDetour,
+    detourLogo: 'bi-grid-3x3-gap',
+    detourBoutonId: 'btnCsaRevenirModuleHaut',
+    detourCtaId: 'btnCsaRevenirModuleBas',
+    onRevenir: _prepLERevenirModule,
+    onRevenirExpr: '_prepLERevenirModule()',
+    titre: '<i class="bi bi-grid-3x3-gap"></i> Le refaire moi-même dans un modèle',
+    sousTitre: 'Votre CV est déjà complet : vous en refaites seulement la mise en page, sans assistant en ligne.',
+    etapes: CSA_NAV_ETAPES,
+    video: 'reprendre-sans',
+    ctaId: 'btnCsaCommencer',
+    ctaLabel: depose ? 'Classer mon CV &#8594;' : 'Déposer mon CV &#8594;',
+    ctaMasque: (!enDetour && engagee),
+    syntheseHTML: syntheseHTML,
+    actionsSynthese: actionsSynthese,
+    onCta: function () {
+      // CV déjà déposé et relu : on entre directement dans la voie ; sinon, le dépôt commun aux trois voies d'abord.
+      if (depose) { _reprendreCvChoisirVoie('sans'); return; }
+      _prepLEMode = 'maj'; _reprendreCvActif = true; _prepLEEcran = 'depot'; _prepLEDetour = false;
+      naviguerVers('reprendre-cv');
+    },
+    blocsHTML:
+      _introBlocAccroche('<strong>Rien n’est jamais envoyé sans votre accord.</strong> Dans cette voie, aucun assistant en ligne n’intervient : rien n’est reformulé et vos mots restent les vôtres.') +
+      _introBlocSection('&#127919; À quoi ça sert',
+        '<p class="mb-2">Refaire la mise en page de votre CV dans l’un de nos modèles, sans rien changer à vos mots. L’application reprend les informations de votre CV déposé ; vous les classez et vous les vérifiez vous-même, puis vous choisissez un modèle et vous exportez.</p>' +
+        _introBlocEncart('&#128196;', '<strong>La mise en page de votre CV d’origine n’est pas conservée.</strong> L’application en récupère les <strong>informations</strong>, puis vous les propose dans l’un de nos modèles (PDF ou Word). Si aucun ne vous convient, vous pouvez copier le texte et le mettre en forme sur une autre plateforme. Vous n’êtes jamais bloqué.')) +
+      _introBlocSection('&#128203; Ce qui va se passer',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Vous déposez votre CV une seule fois, dans « Reprendre mon CV » (fichier, copier-coller, photo ou scan), puis vous le relisez et vous masquez ce que vous ne voulez pas garder.</li>' +
+        '<li>Vous choisissez cette voie : « Le refaire moi-même dans un modèle ».</li>' +
+        '<li><strong>Classer</strong> : votre CV est découpé en blocs. Ce qui est sûr est déjà classé ; pour le reste, c’est vous qui choisissez la rubrique de chaque bloc.</li>' +
+        '<li><strong>Vérifier</strong> : une fiche par rubrique, déjà remplie. Les cases marquées « à vérifier » ont été lues d’après leur place dans votre CV : vous les corrigez si besoin.</li>' +
+        '<li>Vous choisissez l’un de nos modèles et vous exportez votre CV (PDF ou Word).</li>' +
+        '</ul>') +
+      _introBlocSection('&#128683; Ce que ce parcours ne fait pas',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Il ne reformule rien et ne corrige rien à votre place : vos mots restent les vôtres.</li>' +
+        '<li>Il n’ajoute rien à votre CV : ni expérience, ni diplôme, ni compétence.</li>' +
+        '<li>Il ne porte pas de regard critique sur votre CV.</li>' +
+        '<li>Il ne crée pas de CV à partir de rien : il lui faut un CV de départ.</li>' +
+        '</ul>') +
+      _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Mettre votre CV en forme : plusieurs modèles, PDF ou Word.</li>' +
+        '<li>Préparer votre lettre de motivation.</li>' +
+        '<li>Vous entraîner aux questions d’un entretien d’embauche.</li>' +
+        '</ul>') +
+      _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
+        '<p class="mb-0">À tout moment, une réflexion utile sur votre parcours peut être mise de côté dans Mes Repères, pour vous ou votre conseiller.</p>') +
+      _introBlocSection('&#128172; Comment ça se passe concrètement',
+        '<p class="mb-0">Vous avancez page par page, sans copier-coller chez un assistant : tout se passe ici. La barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez. Votre CV déposé reste en mémoire : vous pouvez changer de voie sans le redéposer.</p>')
+  };
+  app.innerHTML = htmlPageIntroModuleParcours(config);
+  brancherPageIntroModuleParcours(config);
+  if (typeof trackEvenement === 'function') { trackEvenement('reprendre_sans_assistant_intro_affichee'); }
 }
 function csaContinuer() {
   if (!_csaEtat) { return; }
@@ -109,7 +190,7 @@ function pageCvSansAssistant() {
     return;
   }
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 2) +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1><p class="sousTitre"><strong>Lecture de votre CV</strong><br>Un instant, nous lisons les lignes de votre CV sur votre appareil.</p></div></div>';
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Le refaire moi-même dans un modèle</h1><p class="sousTitre"><strong>Lecture de votre CV</strong><br>Un instant, nous lisons les lignes de votre CV sur votre appareil.</p></div></div>';
   _csaPreparerTexte().then(function (r) {
     if (pageActuelle !== 'cv-sans-assistant') { return; }
     _csaEtat = { signature: sig, texte: r.texte, perdu: r.perdu, blocs: csaDecouper(r.texte), ecran: 'classer', engage: true, ouvertId: null };
@@ -128,7 +209,7 @@ function _csaRendre() {
     : '';
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 2) +
     _htmlBandeRevoirModule('bi-pencil-square', 'csaVoirPresentation()') +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Le refaire moi-même dans un modèle</h1>' +
     '<p class="sousTitre"><strong>Classer les informations</strong><br>Nous avons découpé votre CV en blocs. Ce qui est sûr est déjà classé. Pour le reste, <strong>c’est vous qui choisissez</strong> : touchez la pastille d’un bloc pour changer sa rubrique. ' +
     'Les ciseaux, à droite d’une ligne, coupent le bloc après cette ligne. Quand nous avons une idée pour un bloc encore incertain, elle est proposée sous la forme « Peut-être : ... ? » : un toucher pour l’accepter.</p></div>' +
     alerte + '<div class="csa-legende">' + legende + '</div><div class="csa-resume" id="csaResume"></div><div id="csaBlocs"></div>' +
@@ -327,7 +408,9 @@ function _csaHtmlFiches() {
   h += _csaBlocFiche(F, 'experience', F.experience.map(function (e, n) {
     return '<div class="csa-carte"><div class="csa-fiche-champs">' + c('experience.' + n + '.poste', 'Poste') + c('experience.' + n + '.entreprise', 'Entreprise') + c('experience.' + n + '.lieu', 'Lieu') +
       c('experience.' + n + '.debut', 'Début') + c('experience.' + n + '.fin', 'Fin') + c('experience.' + n + '.enCours', 'Poste toujours en cours', 'case') +
-      c('experience.' + n + '.missions', 'Missions (une par ligne, toutes gardées)', 'multi') + '</div>' + _csaBoutonRetirer('experience', n) + '</div>';
+      c('experience.' + n + '.missions', 'Missions (une par ligne, toutes gardées)', 'multi') + '</div>' +
+      // Lot 6 (consigne 312) : « Compléter avec la fiche du métier », seulement si une fiche proche existe (modules/missions-competences/ui.js).
+      (typeof mcHtmlComplementVoie3 === 'function' ? mcHtmlComplementVoie3(n, e) : '') + _csaBoutonRetirer('experience', n) + '</div>';
   }).join('') + (F.experience.length ? '' : '<p class="small text-muted">Aucune expérience classée.</p>') +
     '<button type="button" class="btn btn-sm btn-outline-secondary" data-csa-ajouter="experience" style="border-radius:8px;"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter une expérience</button>', F.experience.length);
   h += _csaBlocFiche(F, 'formation', F.alertes.filter(function (a) { return a.cle === 'formation'; }).map(function (a) { return '<div class="csa-alerte"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> ' + _csaEchap(a.texte) + '</div>'; }).join('') +
@@ -351,7 +434,7 @@ function _csaRendreVerifier() {
   _csaConstruireFiches();
   app.innerHTML = '<div class="page-catalogue-contenu csa-parcours">' + barreEtapesModule(CSA_NAV_ETAPES, 3) +
     _htmlBandeRevoirModule('bi-pencil-square', 'csaVoirPresentation()') +
-    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Créer mon CV à la main, sans assistant</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-grid-3x3-gap"></i> Le refaire moi-même dans un modèle</h1>' +
     '<p class="sousTitre"><strong>Vérifier mes fiches</strong><br>Les mots sont les vôtres, rien n’est reformulé. Les cases marquées <span class="csa-devine">à vérifier</span> ont été lues d’après leur place dans votre CV : corrigez-les si besoin.</p></div>' +
     '<div class="csa-resume" id="csaCompteur"></div><div id="csaFiches"></div>' +
     '<div class="csa-alerte" id="csaErreur" hidden></div></div>' +
@@ -361,6 +444,9 @@ function _csaRendreVerifier() {
   zone.addEventListener('input', _csaSaisieFiches);
   zone.addEventListener('change', _csaChangementFiches);
   zone.addEventListener('click', _csaClicFiches);
+  zone.addEventListener('keydown', function (ev) {
+    if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.classList && ev.target.classList.contains('vp-carte') && !ev.target.classList.contains('fixe')) { ev.preventDefault(); ev.target.click(); }
+  });
   _csaSynchroniserHistorique();
   if (typeof trackEvenement === 'function') { trackEvenement('csa_verifier_affiche'); }
 }
@@ -399,6 +485,7 @@ function _csaChangementFiches(ev) {
 function _csaClicFiches(ev) {
   var F = _csaEtat && _csaEtat.fiches;
   if (!F) { return; }
+  if (typeof mcClicComplementVoie3 === 'function' && mcClicComplementVoie3(ev, F, function () { _csaConserverDefilement(_csaRendreFichesZone); })) { return; }
   var r = ev.target.closest('[data-csa-retirer]');
   if (r) {
     var rp = r.dataset.csaRetirer.split(':');

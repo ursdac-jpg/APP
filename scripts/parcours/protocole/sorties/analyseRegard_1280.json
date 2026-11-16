@@ -1,0 +1,208 @@
+{
+ "nom": "analyseRegard",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "regard : « Continuer » grisé avec la raison « Choisissez d’abord comment faire lire votre CV (les deux cartes en haut de page). »"
+  },
+  {
+   "n": "info",
+   "t": "choix « contenu seul » : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix : bas « Continuer → (grisé) » raison « Déposez et relisez le texte de votre CV (partie 1) pour continuer. »"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le dépôt : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "regard : « Continuer » dégrisé après le dépôt"
+  },
+  {
+   "n": "info",
+   "t": "regard : Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "regard : présentation après Retour : #regard-recruteur-intro « Un regard sur mon CV » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "regard (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (51,334 1178 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@51,843 | Accueil@593,845 | Reprendre@1081,843 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "regard (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "regard (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "regard : Continuer (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "regard (page de travail) : reprise : aucun encart | barre du bas : ← Retour@51,843 | Accueil@593,845 | Continuer →@1066,843 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "regard (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "regard : la reprise a la forme de « Reprendre mon CV » (encart sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "regard : le travail déjà fait est gardé après Retour puis le bouton de la présentation"
+  },
+  {
+   "n": "info",
+   "t": "avant l’assistant : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "regard : écran de collage : bas « Voir mon regard → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > [Assistant] > Résultat > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "regard : boutons du collage : #rrBtnRevoirPresentation Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automati ; ⓘ ; ✍ Coller à la main (vous collez vous-mêm ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir mon regard →"
+  },
+  {
+   "n": "info",
+   "t": "regard : réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "regard : après la réponse coupée : bas « Voir mon regard → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "regard : réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "regard : après la réponse complète : bas « Voir mon regard → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "regard (suite) : ok:Voir mon regard → → #regard-recruteur « Un regard sur mon CV » [bouton : Préparer ma fiche à garder →] [barre : Préparer > Assistant > [Résultat] > Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "regard : fin : #regard-recruteur « Un regard sur mon CV » bas « Préparer ma fiche à garder → » barre Préparer > Assistant > [Résultat] > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "regard : boutons de fin : #rrBtnRevoirPresentation Revoir la présentation ; 👍 Ce qui attire l’attention de façon po ; Garder comme Repère ; 🔗 La cohérence d’ensemble PRIORITAIRE ; Garder comme Repère ; 🎯 Le message que votre CV envoie PRIORI ; ⏱️ Ce qui saute aux yeux (les 5 à 10 pre ; 💭 Décoder les questions d’un recruteur  ; ← Retour ; Accueil ; #btnSuivantNavigation Préparer ma fiche à garder →"
+  },
+  {
+   "n": "info",
+   "t": "regard : texte de fin : 📝 Préparer 📤️ Assistant 📄 Résultat ✅ Terminé Revoir la présentation Un regard sur mon CV Ce qu’on voit sur votre CV Une lecture, pas un échange. Chaque partie est repliée : ouvrez ce que vous voulez, à votre rythme. Lecture sur le texte seul : 4 parties. La présentation et les couleurs demandent une image. Votre CV montre un parcours d’accueil clair et régulier. Notre lecture est limitée : on part de ce que vous nous montrez, pas de votre CV complet en main. Et tous les recruteurs ne réagissent pas de la même façon. Ce sont des pistes, pas des vérités. Les parties les plus importantes pour votre candidature sont en premier. 👍 Ce qui attire l’attention de façon positive Cinq ans au même poste d’accueil. Garder comme Repère 🔗 La cohérence d’ensemble PRIORITAIRE Un fil conducteur SUR VOT"
+  },
+  {
+   "n": "info",
+   "t": "regard : chaîne des « Retour » : regard-recruteur:Un regard sur mon CV < regard-recruteur:Un regard sur mon CV < regard-recruteur:Un regard sur mon CV < regard-recruteur-intro:Un regard sur mon CV < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "regard : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "regard : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "regard : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "regard : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "regard : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "regard : après « Recommencer » : #regard-recruteur-intro bas « Demander un regard sur ma candidature → »  Un regard sur mon CV Vous préparer au regard qu’un recruteur porte sur votre dossier : ce qui ressort, ce qui peut faire hésiter, les questions probables. ▶ Vo"
+  },
+  {
+   "n": "ok",
+   "t": "regard : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#regard-recruteur",
+    "page": "regard-recruteur",
+    "h1": "Un regard sur mon CV",
+    "barre": "[Préparer] > Assistant > Résultat > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Choisissez d’abord comment faire lire votre CV (les deux cartes en haut de page).",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#regard-recruteur",
+    "page": "regard-recruteur",
+    "h1": "Un regard sur mon CV",
+    "barre": "Préparer > Assistant > [Résultat] > Terminé",
+    "avant": "Préparer ma fiche à garder →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

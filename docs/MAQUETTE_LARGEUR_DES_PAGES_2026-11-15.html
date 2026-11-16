@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : largeur des pages</title>
+<style>
+:root{--bg:#eef1f6;--bg-card:#fff;--bg-subtle:#f8fafc;--border:#e2e8f0;--border-strong:#c9d2de;--text-strong:#0b1a33;--text-muted:#4a5b6e;--accent:#0d6efd;--accent-bg-subtle:#eef2fd;--success:#198754;--success-strong:#157347;--success-bg-subtle:#d1f4de;--warning:#b45309;--warning-bg-subtle:#fdf1d9;--alert:#a3372b;--alert-bg:#fbe6e3;--vide:#e9edf3;--repere:#d6336c;}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1218;--bg-card:#1b212c;--bg-subtle:#222834;--border:#313a4a;--border-strong:#46516a;--text-strong:#e8edf5;--text-muted:#a8b3c4;--accent:#4d94ff;--accent-bg-subtle:#1e2940;--success:#35c79a;--success-strong:#6ee89a;--success-bg-subtle:#17301f;--warning:#f5a742;--warning-bg-subtle:#3a2c14;--alert:#eda69c;--alert-bg:#3a1f1b;--vide:#161b24;--repere:#ff7aa8;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+.haut{padding:.8rem 16px .4rem}
+.haut h1{font-size:1.3rem;margin:0 0 .2rem}
+.haut p{margin:0;color:var(--text-muted);max-width:70rem}
+.zone{display:flex;gap:16px;padding:8px 16px 40px;align-items:flex-start}
+.scene{flex:1 1 auto;min-width:0}
+.legende{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.85rem;color:var(--text-muted);margin:0 0 .5rem}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:.3rem}
+.cadre{overflow:hidden;border:1px solid var(--border-strong);border-radius:10px;background:var(--vide)}
+.ecran{transform-origin:0 0;background:var(--bg-card);position:relative;font-size:17px}
+/* La page simulée */
+.barre-haut{position:relative;height:74px;border-bottom:1px solid var(--border);background:var(--bg-card)}
+.bt{position:absolute;top:14px;width:44px;height:44px;border-radius:999px;border:2px solid var(--accent);background:var(--accent-bg-subtle);display:flex;align-items:center;justify-content:center;font-size:18px}
+.bt-intro{position:absolute;top:14px;height:44px;border-radius:999px;border:2px solid var(--accent);background:var(--accent-bg-subtle);display:flex;align-items:center;padding:0 18px;font-weight:700;color:var(--accent)}
+.etapes{position:absolute;top:20px;height:34px;display:flex;gap:8px;overflow:hidden;align-items:center}
+.etape{flex:0 0 auto;border:2px solid var(--success);color:var(--success-strong);background:var(--success-bg-subtle);border-radius:999px;padding:2px 12px;font-size:14px;font-weight:700;white-space:nowrap}
+.etape.cour{border-color:var(--accent);color:var(--accent);background:var(--accent-bg-subtle)}
+.etape.a{border-color:var(--border-strong);color:var(--text-muted);background:var(--bg-subtle)}
+.appz{padding-top:22px;padding-bottom:30px}
+.col{margin:0 auto}
+.col h2{text-align:center;font-size:2.2em;margin:.1em 0 .1em;font-weight:900}
+.sous{text-align:center;color:var(--text-muted);font-size:1.15em;margin:0 auto 1em}
+.q{border:1px solid var(--border);border-radius:12px;background:var(--bg-card);margin:.6em 0;overflow:hidden}
+.qt{display:flex;align-items:center;gap:.7em;padding:.6em .9em;flex-wrap:wrap}
+.qn{width:30px;height:30px;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.qtt{font-weight:800;font-size:1.15em}
+.pil{margin-left:auto;font-size:.85em;font-weight:800;border-radius:999px;padding:.15em .7em;border:1px solid var(--success);color:var(--success-strong);background:var(--success-bg-subtle);white-space:nowrap}
+.qc{padding:.3em .8em .8em;border-top:1px solid var(--border)}
+.texte{margin:.5em 0}
+.fams{display:grid;gap:.5em;margin-top:.5em}
+.fam{border:1px solid var(--border-strong);border-left:5px solid var(--accent);border-radius:6px;background:var(--bg-subtle);padding:.5em .8em}
+.fam b{font-size:.95em}.fam span{display:block;font-size:.85em;color:var(--text-muted)}
+.champs{display:grid;gap:.6em;margin-top:.5em}
+.champ{border:1px solid var(--border-strong);border-radius:8px;padding:.5em .7em;background:var(--bg-card);color:var(--text-muted);font-size:.95em}
+.champ small{display:block;font-weight:700;color:var(--text-strong);font-size:.8em;margin-bottom:.15em}
+.bas{height:58px;border-top:1px solid var(--border);background:var(--bg-card);position:relative}
+.bas .b1,.bas .b2{position:absolute;top:8px;height:42px;border-radius:999px;border:2px solid var(--accent);display:flex;align-items:center;padding:0 22px;font-weight:700}
+.bas .b1{left:20px;color:var(--accent);background:var(--accent-bg-subtle)}
+.bas .b2{background:var(--accent);color:#fff}
+/* repères posés sur l'écran simulé */
+.repere{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--repere);pointer-events:none;z-index:5}
+.repere em{position:absolute;top:2px;left:4px;font-style:normal;font-size:11px;background:var(--repere);color:#fff;border-radius:3px;padding:0 4px;white-space:nowrap}
+.repere.d em{left:auto;right:4px}
+.colorée{outline:2px dashed var(--accent);outline-offset:-2px}
+/* Panneau de réglages */
+.panneau{flex:0 0 360px;position:sticky;top:8px;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem 1rem;max-height:calc(100vh - 16px);overflow:auto}
+.panneau.ferme{display:none}
+.pt{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
+.pt b{font-size:1.05rem}
+.croix{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;width:32px;height:32px;font-size:1.2rem;cursor:pointer}
+.rouvrir{display:none;position:fixed;right:12px;top:12px;z-index:50;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer}
+.rouvrir.visible{display:block}
+fieldset{border:0;border-top:1px solid var(--border);margin:.6rem 0 0;padding:.5rem 0 0}
+legend{font-weight:800;padding:0 .3rem 0 0;font-size:.95rem}
+.aide{color:var(--text-muted);font-size:.82rem;margin:.1rem 0 .3rem}
+label.ch{display:flex;gap:.45rem;align-items:flex-start;margin:.25rem 0;font-size:.92rem;cursor:pointer}
+label.ch input{margin-top:.25rem}
+.rg{display:flex;align-items:center;gap:.6rem;margin:.3rem 0 .2rem}
+.rg input[type=range]{flex:1}
+.rg output{min-width:5.2rem;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem}
+.tailles{display:flex;flex-wrap:wrap;gap:.35rem;margin:.3rem 0}
+.tailles button{border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:8px;padding:.35rem .6rem;font-size:.85rem;cursor:pointer}
+.tailles button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.mesures{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.5rem .7rem;font-size:.88rem;margin:.6rem 0}
+.mesures div{display:flex;justify-content:space-between;gap:.5rem}
+.mesures strong{font-variant-numeric:tabular-nums}
+.conf-bon{color:var(--success-strong);font-weight:800}.conf-moy{color:var(--warning);font-weight:800}.conf-mauv{color:var(--alert);font-weight:800}
+.note{background:var(--warning-bg-subtle);border-left:3px solid var(--warning);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin:.6rem 0}
+textarea{width:100%;min-height:150px;font:inherit;font-size:.82rem;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg-subtle);color:var(--text-strong);padding:.4rem}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:.4rem .8rem;font-weight:700;cursor:pointer;margin-top:.3rem}
+.btn.sec{background:var(--bg-subtle);color:var(--text-strong);border-color:var(--border-strong)}
+@media (max-width:900px){.zone{flex-direction:column}.panneau{flex:1 1 auto;position:static;max-height:none;width:100%}}
+h2.lt{font-size:1.05rem;margin:1.2rem 0 .2rem}
+.lect{margin:.6rem 0}
+.lect .titre{display:flex;flex-wrap:wrap;gap:.3rem .9rem;align-items:baseline;margin-bottom:.3rem}
+.lect .titre b{font-size:.98rem}
+.lect .nb{font-size:.88rem;font-weight:700}
+.lect .ecran2{transform-origin:0 0;background:var(--bg-card);font-size:17px}
+.lect .carte{border:1px solid var(--border);border-radius:12px;background:var(--bg-card);margin:0 auto;padding:.7em .9em 1em;box-shadow:0 0 0 1px var(--border)}
+.lect .carte h3{margin:.1em 0 .3em;font-size:1.15em}
+.lect .carte p{margin:.4em 0}
+.lect .reste{background:repeating-linear-gradient(45deg,transparent 0 6px,var(--vide) 6px 12px);border-radius:6px}
+</style>
+</head>
+<body>
+<div class="haut">
+<h1>Largeur des pages de l'application</h1>
+<p>L'écran simulé ci-dessous reproduit une page de création (barre du haut, titre, questions, champs, barre du bas). À droite, vous réglez : la largeur de l'écran, la largeur de la colonne, les marges, la longueur des lignes de texte et le rangement en colonnes. Les traits roses pointillés marquent la place des boutons du haut (« Préférences d'affichage » à gauche, « Introduction » à droite).</p>
+</div>
+<button type="button" class="rouvrir" id="rouvrir">Réglages</button>
+<div class="zone">
+<div class="scene">
+<button type="button" class="btn sec" id="reel" style="margin:0 0 .5rem">Voir en taille réelle (avec défilement)</button>
+<div class="legende" id="legende"></div>
+<div class="cadre" id="cadre"><div class="ecran" id="ecran"></div></div>
+<h2 class="lt">Comprendre la différence : lire le même paragraphe</h2>
+<p class="quand" style="margin:.2rem 0 .6rem">Mêmes écran, colonne et marges que ci-dessus. Seule la longueur des lignes de texte change. « Texte plafonné » : les cadres prennent toute la largeur, mais le paragraphe s'arrête à 52 em (environ 120 caractères par ligne), et le reste du cadre reste vide à droite du texte. « Texte libre » : le paragraphe va jusqu'au bout du cadre, donc plus de place utilisée, mais des lignes très longues (l'œil doit parcourir toute la largeur de l'écran, puis retrouver le début de la ligne suivante).</p>
+<div id="lectures"></div>
+</div>
+<div class="panneau" id="panneau">
+<div class="pt"><b>Réglages</b><button type="button" class="croix" id="fermer" aria-label="Fermer les réglages" title="Fermer les réglages">&times;</button></div>
+
+<fieldset style="border-top:0;margin-top:0"><legend>Réglages rapides</legend>
+<p class="aide">Chaque bouton règle d'un coup les quatre choix ci-dessous (colonne, marges, texte, listes). Vous pouvez ensuite les retoucher un par un.</p>
+<div class="tailles" id="rapides"><button type="button" data-r="auj">Comme aujourd'hui</button><button type="button" data-r="max">Maximum de largeur : tout suit l'écran, texte compris</button><button type="button" data-r="lisible">Maximum de largeur, texte plafonné à 52 em</button></div>
+</fieldset>
+<fieldset><legend>1. Taille de l'écran simulé</legend>
+<div class="tailles" id="tailles"></div>
+<div class="rg"><input type="range" id="ecranR" min="320" max="2800" step="10"><output id="ecranO"></output></div>
+<p class="aide">Les écrans d'ordinateur courants : 1366 (petit portable), 1536, 1920 (le plus répandu), 2560 (grand écran).</p>
+</fieldset>
+
+<fieldset><legend>2. Largeur de la colonne</legend>
+<label class="ch"><input type="radio" name="col" value="1440" checked><span><b>Comme aujourd'hui</b> : 1440 px au plus</span></label>
+<label class="ch"><input type="radio" name="col" value="1800"><span><b>Plus large</b> : 1800 px au plus</span></label>
+<label class="ch"><input type="radio" name="col" value="2200"><span><b>Très large</b> : 2200 px au plus</span></label>
+<label class="ch"><input type="radio" name="col" value="0"><span><b>Toute la largeur</b> : la colonne suit l'écran, sans maximum</span></label>
+<label class="ch"><input type="radio" name="col" value="perso"><span><b>Mon choix</b> :</span></label>
+<div class="rg"><input type="range" id="colR" min="900" max="2800" step="20" value="1600"><output id="colO"></output></div>
+</fieldset>
+
+<fieldset><legend>3. Marges de chaque côté</legend>
+<label class="ch"><input type="radio" name="marge" value="54" checked><span><b>Comme aujourd'hui</b> : 54 px</span></label>
+<label class="ch"><input type="radio" name="marge" value="20"><span><b>Alignées sur les boutons du haut</b> : 20 px (le contenu commence sous « Préférences » et finit sous « Introduction »)</span></label>
+<label class="ch"><input type="radio" name="marge" value="96"><span><b>Plus aérées</b> : 96 px</span></label>
+<label class="ch"><input type="radio" name="marge" value="perso"><span><b>Mon choix</b> :</span></label>
+<div class="rg"><input type="range" id="margeR" min="0" max="240" step="2" value="40"><output id="margeO"></output></div>
+<p class="aide">Sur téléphone (moins de 768 px), la marge reste de 16 px, comme aujourd'hui.</p>
+</fieldset>
+
+<fieldset><legend>4. Longueur des lignes de texte</legend>
+<label class="ch"><input type="radio" name="txt" value="64" checked><span><b>Comme aujourd'hui</b> : 64 em (environ 145 caractères par ligne)</span></label>
+<label class="ch"><input type="radio" name="txt" value="40"><span><b>Confortable</b> : 40 em (environ 90 caractères)</span></label>
+<label class="ch"><input type="radio" name="txt" value="52"><span><b>Intermédiaire</b> : 52 em (environ 120 caractères)</span></label>
+<label class="ch"><input type="radio" name="txt" value="90"><span><b>Large</b> : 90 em (environ 205 caractères)</span></label>
+<label class="ch"><input type="radio" name="txt" value="0"><span><b>Sans limite</b> : le texte suit la colonne</span></label>
+<p class="aide">Ne concerne que les paragraphes et listes. Les cadres, questions et champs gardent la largeur de la colonne.</p>
+</fieldset>
+
+<fieldset><legend>5. Rangement des listes et des champs</legend>
+<label class="ch"><input type="radio" name="rang" value="1" checked><span><b>Une seule colonne</b> (comme aujourd'hui)</span></label>
+<label class="ch"><input type="radio" name="rang" value="auto"><span><b>Plusieurs colonnes quand la place le permet</b> (familles, champs côte à côte)</span></label>
+<div class="rg"><input type="range" id="minR" min="260" max="700" step="10" value="420"><output id="minO"></output></div>
+<p class="aide">Largeur minimale d'une colonne : en dessous, les éléments repassent l'un sous l'autre tout seuls.</p>
+</fieldset>
+
+<div class="mesures" id="mesures"></div>
+<div class="note" id="note"></div>
+
+<fieldset><legend>Votre choix</legend>
+<textarea id="sortie" readonly></textarea>
+<button type="button" class="btn" id="copier">Copier mon choix</button>
+<button type="button" class="btn sec" id="reinit">Revenir à aujourd'hui</button>
+</fieldset>
+</div>
+</div>
+
+<script>
+(function () {
+  var TAILLES = [['Téléphone', 375], ['Tablette', 768], ['Petit portable', 1366], ['Portable', 1536], ['Ordinateur', 1920], ['Grand écran', 2560]];
+  var etat = { ecran: 1920, col: '1440', colPerso: 1600, marge: '54', margePerso: 40, txt: '64', rang: '1', min: 420, reel: false };
+  var $ = function (id) { return document.getElementById(id); };
+  var ecran = $('ecran'), cadre = $('cadre');
+
+  var LOREM = 'Repensez à vos expériences, professionnelles ou personnelles : ce que vous faisiez souvent, les gestes que vous maîtrisiez, les lieux où vous travailliez. Cochez ce qui vous ressemble, sans chercher à tout dire. Vous pourrez modifier vos choix à tout moment avant de passer à la suite, et l\'assistant en ligne s\'appuiera sur eux pour rédiger votre CV.';
+  var FAMILLES = [['Accueillir et orienter', 'Accueillir le public, Renseigner les clients'], ['Soigner et accompagner', 'Aider à la toilette, Surveiller l\'état de santé'], ['Vendre et encaisser', 'Conseiller les clients, Tenir la caisse'], ['Préparer et servir', 'Dresser les tables, Servir les repas'], ['Nettoyer et entretenir', 'Entretenir les locaux, Trier les déchets'], ['Transporter et livrer', 'Conduire un véhicule, Livrer des colis'], ['Animer et transmettre', 'Animer un atelier, Expliquer une consigne'], ['Organiser et classer', 'Classer des documents, Saisir des données']];
+  var CHAMPS = ['Prénom', 'Nom', 'Téléphone', 'Adresse e-mail', 'Ville', 'Code postal', 'Date de naissance', 'Permis de conduire'];
+
+  function construire() {
+    var etapes = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Vos missions et compétences', 'Votre profil', 'Assistant', 'Vos documents'];
+    var h = '<div class="barre-haut" id="bh">' +
+      '<div class="bt" style="left:20px">&#9881;</div><div class="bt" style="left:74px">&#128161;</div><div class="bt" style="left:128px">&#128190;</div><div class="bt" style="left:182px">&#128226;</div>' +
+      '<div class="etapes" id="etapes" style="left:240px;right:200px">' + etapes.map(function (e, i) { return '<span class="etape' + (i === 2 ? ' cour' : (i > 2 ? ' a' : '')) + '">' + e + '</span>'; }).join('') + '</div>' +
+      '<div class="bt-intro" id="intro" style="right:15px">Introduction</div></div>' +
+      '<div class="appz" id="appz"><div class="col" id="col">' +
+      '<h2>&#129517; Votre parcours</h2><p class="sous" id="sous">Trois questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.</p>' +
+      '<div class="q"><div class="qt"><span class="qn">2</span><span class="qtt">Ce que vous faisiez souvent</span><span class="pil">&#10003; 3 choisis sur 16 maximum</span></div><div class="qc">' +
+      '<p class="texte" id="para">' + LOREM + '</p><div class="fams" id="fams">' + FAMILLES.map(function (f) { return '<div class="fam"><b>' + f[0] + '</b><span>' + f[1] + '</span></div>'; }).join('') + '</div></div></div>' +
+      '<div class="q"><div class="qt"><span class="qn">&#128203;</span><span class="qtt">Vos informations</span></div><div class="qc">' +
+      '<p class="texte">Ces informations personnaliseront votre candidature. Elles restent sur cet appareil.</p><div class="champs" id="champs">' + CHAMPS.map(function (c) { return '<div class="champ"><small>' + c + '</small>à compléter</div>'; }).join('') + '</div></div></div>' +
+      '</div></div>' +
+      '<div class="bas"><div class="b1">&larr; Retour</div><div class="b2" id="b2" style="right:15px">Continuer &rarr;</div></div>' +
+      '<div class="repere" id="rg"><em>boutons du haut : début</em></div><div class="repere d" id="rd"><em>boutons du haut : fin</em></div>';
+    ecran.innerHTML = h;
+  }
+
+  function colEffective() {
+    if (etat.col === '0') { return 0; }
+    if (etat.col === 'perso') { return etat.colPerso; }
+    return parseInt(etat.col, 10);
+  }
+  function margeEffective() {
+    if (etat.ecran < 768) { return 16; }
+    return etat.marge === 'perso' ? etat.margePerso : parseInt(etat.marge, 10);
+  }
+
+  function metriqueCaracteres(px) {
+    var c = document.createElement('canvas').getContext('2d');
+    c.font = '17px system-ui, "Segoe UI", Roboto, sans-serif';
+    var s = 'Repensez à vos expériences, professionnelles ou personnelles : ce que vous faisiez souvent, les gestes';
+    return c.measureText(s).width / s.length;
+  }
+
+  function remplirLectures(W, M, C, k) {
+    var colW = C ? Math.min(C, W - 2 * M) : W - 2 * M;
+    var opts = [['Texte plafonné', 52], ['Texte libre', 0]];
+    var h = '';
+    opts.forEach(function (o, i) {
+      var pw = o[1] ? Math.min(o[1] * 17, colW - 34) : colW - 34;
+      var car = Math.round(pw / metriqueCaracteres());
+      var cls = car <= 90 ? 'conf-bon' : (car <= 125 ? 'conf-moy' : 'conf-mauv');
+      var lib = car <= 90 ? 'confortable' : (car <= 125 ? 'acceptable' : 'fatigant à lire');
+      h += '<div class="lect"><div class="titre"><b>' + o[0] + (o[1] ? ' (' + o[1] + ' em)' : ' (toute la largeur)') + '</b><span class="nb ' + cls + '">environ ' + car + ' caractères par ligne : ' + lib + '</span></div>' +
+        '<div class="cadre" id="cl' + i + '"><div class="ecran2" id="el' + i + '" style="width:' + W + 'px;padding:14px ' + M + 'px 18px">' +
+        '<div class="carte" style="max-width:' + (C || 99999) + 'px"><h3>Ce que vous faisiez souvent</h3>' +
+        '<p' + (o[1] ? ' class="lim"' : '') + ' style="max-width:' + (o[1] ? (o[1] * 17) + 'px' : 'none') + '">' + LOREM + '</p>' +
+        '<p' + ' style="max-width:' + (o[1] ? (o[1] * 17) + 'px' : 'none') + '">Vos choix restent modifiables jusqu’à la validation de l’étape. Rien n’est envoyé sans votre accord, et vous pouvez revenir en arrière avec le bouton Retour.</p></div></div></div></div>';
+    });
+    $('lectures').innerHTML = h;
+    [0, 1].forEach(function (i) {
+      var e = $('el' + i), c = $('cl' + i); e.style.transform = 'scale(' + k + ')'; c.style.height = Math.ceil(e.offsetHeight * k) + 'px'; c.style.overflowX = etat.reel ? 'auto' : 'hidden';
+    });
+  }
+  function appliquer() {
+    var W = etat.ecran, M = margeEffective(), C = colEffective();
+    ecran.style.width = W + 'px';
+    var appz = $('appz'), col = $('col');
+    appz.style.paddingLeft = M + 'px'; appz.style.paddingRight = M + 'px';
+    col.style.maxWidth = C ? C + 'px' : 'none';
+    var t = parseInt(etat.txt, 10);
+    var emPx = 17;
+    ['para', 'sous'].forEach(function (id) {
+      var e = $(id); if (!e) { return; }
+      e.style.maxWidth = t ? (t * emPx * (id === 'sous' ? 1.15 : 1)) + 'px' : 'none';
+    });
+    document.querySelectorAll('.texte').forEach(function (e) { e.style.maxWidth = t ? (t * emPx) + 'px' : 'none'; e.style.marginLeft = '0'; });
+    var fams = $('fams'), champs = $('champs');
+    if (etat.rang === 'auto' && W >= 768) {
+      fams.style.gridTemplateColumns = 'repeat(auto-fit,minmax(' + etat.min + 'px,1fr))';
+      champs.style.gridTemplateColumns = 'repeat(auto-fit,minmax(' + Math.round(etat.min * 0.6) + 'px,1fr))';
+    } else { fams.style.gridTemplateColumns = '1fr'; champs.style.gridTemplateColumns = '1fr'; }
+    // zone des étapes de la barre du haut : de 240 px à W - 200 px
+    // repères : début et fin des boutons du haut
+    $('rg').style.left = '20px';
+    $('rd').style.left = (W - 15) + 'px';
+    // échelle
+    var dispo = cadre.clientWidth;
+    var k = etat.reel ? 1 : Math.min(1, dispo / W);
+    cadre.style.overflowX = etat.reel ? 'auto' : 'hidden';
+    $('reel').textContent = etat.reel ? 'Revenir à l\'aperçu réduit (tout l\'écran visible)' : 'Voir en taille réelle (avec défilement)';
+    ecran.style.transform = 'scale(' + k + ')';
+    cadre.style.height = Math.ceil(ecran.offsetHeight * k) + 'px';
+    remplirLectures(W, M, C, k);
+    // mesures réelles
+    var cb = col.getBoundingClientRect(), eb = ecran.getBoundingClientRect();
+    var largCol = Math.round(cb.width / k), gaucheCol = Math.round((cb.left - eb.left) / k);
+    var pb = $('para').getBoundingClientRect();
+    var largPara = Math.round(pb.width / k);
+    var car = Math.round(largPara / metriqueCaracteres());
+    var pct = Math.round(largCol / W * 100);
+    var vide = gaucheCol;
+    var cls = car <= 90 ? 'conf-bon' : (car <= 120 ? 'conf-moy' : 'conf-mauv');
+    var lib = car <= 90 ? 'confortable' : (car <= 120 ? 'limite' : 'fatigant à lire');
+    $('mesures').innerHTML = '<div><span>Largeur de l\'écran</span><strong>' + W + ' px</strong></div>' +
+      '<div><span>Largeur de la colonne</span><strong>' + largCol + ' px (' + pct + ' % de l\'écran)</strong></div>' +
+      '<div><span>Place vide de chaque côté</span><strong>' + vide + ' px</strong></div>' +
+      '<div><span>Lignes de texte</span><strong>environ ' + car + ' caractères</strong></div>' +
+      '<div><span>Confort de lecture</span><span class="' + cls + '">' + lib + '</span></div>';
+    var n = '';
+    if (car > 120) { n = 'Au-delà d\'environ 100 caractères par ligne, l\'œil se perd au retour à la ligne : pour un public peu à l\'aise, mieux vaut garder une limite de lecture (réglage 4) et réserver la pleine largeur aux cadres, cartes et champs.'; }
+    else if (vide > 120 && W >= 768) { n = 'Il reste ' + vide + ' px vides de chaque côté : vous pouvez élargir la colonne ou réduire les marges.'; }
+    else { n = 'Réglage équilibré : les cadres occupent l\'écran, les lignes de texte restent lisibles.'; }
+    $('note').textContent = n;
+    $('legende').innerHTML = '<span><i style="background:var(--bg-card);border:1px solid var(--border-strong)"></i>page (colonne et marges)</span><span><i style="background:var(--vide)"></i>fond de la maquette</span><span><i style="border:2px dashed var(--repere)"></i>emplacement des boutons du haut</span><span>Affichage réduit à ' + Math.round(k * 100) + ' % pour tenir dans la fenêtre</span>';
+    $('colO').textContent = etat.colPerso + ' px'; $('margeO').textContent = etat.margePerso + ' px'; $('minO').textContent = etat.min + ' px'; $('ecranO').textContent = W + ' px';
+    document.querySelectorAll('#tailles button').forEach(function (b) { b.classList.toggle('on', parseInt(b.getAttribute('data-w'), 10) === W); });
+    // Choix à recopier
+    var lignes = ['Largeur des pages : mon choix',
+      '- Écran simulé : ' + W + ' px (pour information)',
+      '- Colonne : ' + (C ? C + ' px au plus' : 'toute la largeur, sans maximum'),
+      '- Marges de chaque côté : ' + (etat.marge === 'perso' ? etat.margePerso : etat.marge) + ' px' + (etat.marge === '20' ? ' (alignées sur les boutons du haut)' : ''),
+      '- Lignes de texte : ' + (t ? t + ' em au plus' : 'sans limite'),
+      '- Listes et champs : ' + (etat.rang === 'auto' ? 'plusieurs colonnes quand la place le permet, colonne de ' + etat.min + ' px au minimum' : 'une seule colonne')];
+    $('sortie').value = lignes.join('\n');
+  }
+
+  // boutons de taille
+  $('tailles').innerHTML = TAILLES.map(function (t) { return '<button type="button" data-w="' + t[1] + '">' + t[0] + ' ' + t[1] + '</button>'; }).join('');
+  $('tailles').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) { return; } etat.ecran = parseInt(b.getAttribute('data-w'), 10); $('ecranR').value = etat.ecran; appliquer(); });
+  $('ecranR').addEventListener('input', function () { etat.ecran = parseInt(this.value, 10); appliquer(); });
+  document.querySelectorAll('input[name=col]').forEach(function (r) { r.addEventListener('change', function () { etat.col = this.value; appliquer(); }); });
+  document.querySelectorAll('input[name=marge]').forEach(function (r) { r.addEventListener('change', function () { etat.marge = this.value; appliquer(); }); });
+  document.querySelectorAll('input[name=txt]').forEach(function (r) { r.addEventListener('change', function () { etat.txt = this.value; appliquer(); }); });
+  document.querySelectorAll('input[name=rang]').forEach(function (r) { r.addEventListener('change', function () { etat.rang = this.value; appliquer(); }); });
+  function choisir(nom, val) { var r = document.querySelector('input[name=' + nom + '][value="' + val + '"]'); if (r) { r.checked = true; } }
+  $('colR').addEventListener('input', function () { etat.colPerso = parseInt(this.value, 10); etat.col = 'perso'; choisir('col', 'perso'); appliquer(); });
+  $('margeR').addEventListener('input', function () { etat.margePerso = parseInt(this.value, 10); etat.marge = 'perso'; choisir('marge', 'perso'); appliquer(); });
+  $('minR').addEventListener('input', function () { etat.min = parseInt(this.value, 10); etat.rang = 'auto'; choisir('rang', 'auto'); appliquer(); });
+  $('fermer').addEventListener('click', function () { $('panneau').classList.add('ferme'); $('rouvrir').classList.add('visible'); appliquer(); });
+  $('rouvrir').addEventListener('click', function () { $('panneau').classList.remove('ferme'); $('rouvrir').classList.remove('visible'); appliquer(); });
+  $('copier').addEventListener('click', function () { var s = $('sortie'); s.select(); try { document.execCommand('copy'); this.textContent = 'Copié'; } catch (e) { this.textContent = 'Sélectionné : faites Ctrl+C'; } var b = this; setTimeout(function () { b.textContent = 'Copier mon choix'; }, 1800); });
+  $('reel').addEventListener('click', function () { etat.reel = !etat.reel; appliquer(); });
+  $('rapides').addEventListener('click', function (e) {
+    var bt = e.target.closest('button'); if (!bt) { return; }
+    var r = bt.getAttribute('data-r');
+    if (r === 'auj') { etat.col = '1440'; etat.marge = '54'; etat.txt = '64'; etat.rang = '1'; }
+    if (r === 'max') { etat.col = '0'; etat.marge = '20'; etat.txt = '0'; etat.rang = 'auto'; }
+    if (r === 'lisible') { etat.col = '0'; etat.marge = '20'; etat.txt = '52'; etat.rang = 'auto'; }
+    choisir('col', etat.col); choisir('marge', etat.marge); choisir('txt', etat.txt); choisir('rang', etat.rang);
+    appliquer();
+  });
+  $('reinit').addEventListener('click', function () {
+    etat.col = '1440'; etat.marge = '54'; etat.txt = '64'; etat.rang = '1'; choisir('col', '1440'); choisir('marge', '54'); choisir('txt', '64'); choisir('rang', '1'); appliquer();
+  });
+  window.addEventListener('resize', appliquer);
+  $('ecranR').value = etat.ecran;
+  construire();
+  appliquer();
+  if (window.ResizeObserver) { new ResizeObserver(function () { appliquer(); }).observe(cadre); }
+})();
+</script>
+</body>
+</html>

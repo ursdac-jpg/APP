@@ -224,4 +224,23 @@ function appliquer(fichier, texte, actions, aujourdhui, ctx) {
   return { ok: true, texte: nouveauTexte, resume: resume };
 }
 
-module.exports = { FICHIERS: FICHIERS, contexteDepuis: contexteDepuis, analyser: analyser, formater: formater, lister: lister, appliquer: appliquer, problemeDeValeur: problemeDeValeur };
+// Magasins RELEVÉS (scripts/genererMagasinsSirene.js, fichier magasins-generes.txt) qu'une fiche d'enseigne du registre n'a pas encore validés (consigne 310 de Denis, 14/11/2026).
+// valeurs : les valeurs de la fiche publiée ; generes : [{ commune, adresse, telephone }] relevés pour cette fiche.
+// Rend { nouveaux: [{ commune, adresse, telephone }], complements: [{ commune, adresse (celle de la fiche), telephone }] } :
+//   nouveaux    = magasins relevés absents de la fiche (autre commune, ou autre rue dans la même commune) ;
+//   complements = magasins déjà saisis sans numéro dont le relevé donne un numéro (même commune, même adresse).
+// Même règle de rapprochement que l'application (mtMemeAdresse) : une seule source de vérité. Rien n'est jamais écrit ici : l'écriture passe par « OK » dans la fenêtre Modifier.
+function magasinsReleves(valeurs, generes) {
+  const sortie = { nouveaux: [], complements: [] };
+  const v = valeurs || {};
+  if (v.nature !== 'enseigne' || !generes || !generes.length) { return sortie; }
+  const saisis = L.mtParserEtablissements(v.etablissements || '');
+  generes.forEach(function (g) {
+    const connu = saisis.filter(function (s) { return L.mtNormaliser(s.commune) === L.mtNormaliser(g.commune) && s.adresse && (L.mtNormaliser(s.adresse) === L.mtNormaliser(g.adresse) || L.mtMemeAdresse(s.adresse, g.adresse, g.commune)); })[0];
+    if (!connu) { sortie.nouveaux.push({ commune: g.commune, adresse: g.adresse, telephone: g.telephone || '' }); }
+    else if (!connu.telephone && g.telephone) { sortie.complements.push({ commune: connu.commune, adresse: connu.adresse, telephone: g.telephone }); }
+  });
+  return sortie;
+}
+
+module.exports = { magasinsReleves: magasinsReleves, FICHIERS: FICHIERS, contexteDepuis: contexteDepuis, analyser: analyser, formater: formater, lister: lister, appliquer: appliquer, problemeDeValeur: problemeDeValeur };

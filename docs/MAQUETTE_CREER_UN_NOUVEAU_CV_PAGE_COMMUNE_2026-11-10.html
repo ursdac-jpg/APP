@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Créer un nouveau CV, une page commune aux trois façons de faire</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--ret:#a12b2b;--retbg:#fbe9e9}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--ret:#ff9b9b;--retbg:#3c1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 110px}
+.page{max-width:940px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.12rem;margin:.6rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;color:inherit;cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.5rem 1rem 1rem}
+.accroche{background:var(--accbg);border:1px solid var(--bord);border-radius:14px;padding:.7rem 1rem;text-align:center;margin:.9rem 0}
+.voie{border:2px solid var(--bord);border-radius:14px;background:var(--card);padding:.9rem 1rem;margin:.9rem 0}
+.voie .tete{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:1.1rem;margin-bottom:.4rem}
+.pastille{background:var(--acc);color:#fff;border-radius:999px;padding:.05rem .7rem;font-size:.8rem;font-weight:700}
+.video{display:flex;align-items:center;gap:.8rem;border:2px solid var(--acc);border-radius:12px;background:var(--accbg);padding:.5rem .8rem;margin:.5rem 0;max-width:420px}
+.video .vig{width:84px;height:48px;border-radius:8px;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.voie ul{margin:.3rem 0 .6rem;padding-left:1.25rem}
+.depart{border:2px solid var(--acc);background:var(--acc);color:#fff;border-radius:12px;padding:.55rem 1.1rem;font-weight:700}
+.depart.grise{background:var(--card);color:var(--muted);border-color:var(--bord);cursor:default}
+.encart{background:var(--sub);border:1px solid var(--bord);border-left:4px solid var(--acc);border-radius:10px;padding:.5rem .8rem;margin:.6rem 0;font-size:.92rem}
+.reprise{background:var(--warnbg);border:2px solid var(--warn);border-radius:14px;padding:.7rem 1rem;margin:.9rem 0;text-align:center}
+.reprise .boutons{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem}
+.bouton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.bouton.plein{background:var(--acc);border-color:var(--acc);color:#fff}
+.bande{display:flex;justify-content:flex-end;margin:.5rem 0}
+.etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0;justify-content:center}
+.etape{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.2rem .8rem;font-size:.85rem}
+.etape.ici{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:940px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}.tag.r{background:var(--retbg);color:var(--ret)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:1.5rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.7rem 0}
+.ec{display:none}.ec.vu{display:block}
+.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.carte{border:2px solid var(--bord);border-radius:12px;background:var(--card);padding:.6rem .8rem;text-align:left}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (10/11/2026) : « Créer un nouveau CV », une page commune</strong> <span class="tag g">ordre des voies validé par Denis : 1 assistant, 2 récit, 3 à la main</span>
+  <span style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <button class="mini actif" data-ec="commune" type="button">1. La page commune</button>
+    <button class="mini" data-ec="direct" type="button">2. Après un clic</button>
+    <button class="mini" data-ec="reprise" type="button">3. Un CV déjà commencé</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+  </span>
+</div>
+
+<!-- ÉCRAN 1 : la page commune -->
+<div class="ec vu" id="ec-commune">
+  <h1>✨ Créer un nouveau CV</h1>
+  <p class="muted" style="text-align:center">On part d’une page blanche. Trois façons de faire : choisissez celle qui vous convient. Vous pourrez toujours recommencer autrement.</p>
+  <div class="accroche"><strong>Rien n’est jamais envoyé sans votre accord.</strong> Vous verrez chaque étape avant qu’elle se produise, et vous pourrez tout modifier.</div>
+
+  <div class="sec">
+    <h2>🎯 À quoi ça sert</h2>
+    <p>Construire un CV complet à partir d’une page blanche : vos expériences, vos compétences, votre projet. À la fin, vous obtenez un CV prêt à enregistrer en PDF ou en Word.</p>
+    <div class="encart">📄 Les modèles de mise en page sont les nôtres (PDF et Word). Vous pouvez à tout moment <strong>copier le texte de votre CV</strong> et le mettre en forme ailleurs. Vous n’êtes jamais bloqué.</div>
+    <div class="note"><span class="tag g">GARDÉ</span> Accroche et « À quoi ça sert » : identiques à aujourd’hui.</div>
+  </div>
+
+  <div class="sec">
+    <h2>🧭 Trois façons de faire, chacune avec sa spécificité <span class="tag e">NOUVEAU : même présentation que « Reprendre mon CV »</span></h2>
+    <p>Choisissez celle qui correspond à votre situation. Chaque bouton vous mène <strong>directement</strong> dans le parcours.</p>
+
+    <div class="voie">
+      <div class="tete"><span class="pastille">Voie 1</span><span>💬</span><strong>Avec l’assistant en ligne</strong></div>
+      <p><strong>Vous remplissez vos informations, puis l’assistant vous aide à les formuler.</strong> Phrase d’accroche, missions reformulées. <span class="muted small">« je veux de l’aide pour bien dire les choses »</span></p>
+      <div class="video"><span class="vig">▶</span><span><strong>Voir la présentation en vidéo</strong><br><span class="small muted">creer-assistant.mp4, environ 1 minute</span></span></div>
+      <ul>
+        <li><strong>Ce que ça fait :</strong> vous copiez un texte, vous le collez chez un assistant en ligne, puis vous collez sa réponse ici.</li>
+        <li><strong>Pour qui :</strong> pour formuler plus clairement ce que vous avez fait.</li>
+        <li><strong>Ce que ça ne fait pas :</strong> rien ne se remplit tout seul, vous validez chaque étape.</li>
+      </ul>
+      <button class="depart" type="button">Commencer avec l’assistant →</button>
+    </div>
+
+    <div class="voie">
+      <div class="tete"><span class="pastille">Voie 2</span><span>📖</span><strong>À partir de mon récit</strong></div>
+      <p><strong>Vous racontez ce que vous avez vécu et fait, avec vos mots</strong>, au clavier ou à la voix. L’assistant en tire vos expériences et vos compétences. <span class="muted small">« je n’ai jamais eu de CV, ou je pars de loin »</span></p>
+      <div class="video"><span class="vig">▶</span><span><strong>Voir la présentation en vidéo</strong><br><span class="small muted">creer-recit.mp4, environ 1 minute</span></span></div>
+      <ul>
+        <li><strong>Ce que ça fait :</strong> du récit, l’assistant en tire des expériences et des compétences ; pour chacune, vous choisissez la formulation.</li>
+        <li><strong>Pour qui :</strong> métier, aide aux proches, bénévolat, passion suivie longtemps : tout cela contient des compétences.</li>
+        <li><strong>Ce que ça ne fait pas :</strong> inventer quoi que ce soit.</li>
+      </ul>
+      <button class="depart" type="button">Raconter mon parcours →</button>
+    </div>
+    <div class="voie">
+      <div class="tete"><span class="pastille">Voie 3</span><span>✏️</span><strong>À la main, sans assistant</strong></div>
+      <p><strong>Vous écrivez tout vous-même.</strong> Étape par étape, rien n’est envoyé nulle part. Vos textes restent exactement les vôtres. <span class="muted small">« je veux garder la main sur chaque mot »</span></p>
+      <div class="video"><span class="vig">▶</span><span><strong>Voir la présentation en vidéo</strong><br><span class="small muted">creer-main.mp4, environ 1 minute</span></span></div>
+      <ul>
+        <li><strong>Ce que ça fait :</strong> vous remplissez objectif, parcours et projet ; vous choisissez un modèle et vous exportez.</li>
+        <li><strong>Pour qui :</strong> pour celles et ceux qui préfèrent écrire seuls.</li>
+        <li><strong>Ce que ça ne fait pas :</strong> aucune phrase d’accroche toute faite, aucune reformulation.</li>
+      </ul>
+      <button class="depart" type="button">Commencer à la main →</button>
+      <div class="note"><span class="tag e">NOUVEAU</span> Le bouton de départ est dans le bloc de la voie, juste sous la vidéo. Il remplace la carte « À la main, sans assistant » et la page de présentation intermédiaire.</div>
+    </div>
+
+    <div class="note"><span class="tag d">DÉPLACÉ</span> Les textes « Ce que ça fait / Pour qui / Ce que ça ne fait pas » viennent des trois pages de présentation actuelles (une seule source : les pages propres de chaque voie restent la référence, les mêmes phrases sont lues aux deux endroits).</div>
+  </div>
+
+  <div class="sec">
+    <h2>🎨 Voir nos modèles de CV <span class="tag g">GARDÉ</span></h2>
+    <p class="small">Si vous le souhaitez, vous commencez par regarder nos modèles et vous en gardez jusqu’à 5. Le modèle choisi sera utilisé tel quel pour fabriquer votre CV avec votre texte. (Bloc actuel inchangé, valable pour les trois voies.)</p>
+    <div class="note"><span class="tag r">RETIRÉ</span> La section « Comment ça se passe concrètement » de la page actuelle disparaît : ses trois lignes sont désormais dites par les blocs des voies, le bloc des modèles et la barre d’étapes de chaque voie. Voir question 3.</div>
+  </div>
+
+  <div class="sec">
+    <h2>🚫 Ce que ce module ne fait pas, ✏️ ce que vous pourrez faire ensuite, 🔖 Mes Repères <span class="tag g">GARDÉ</span></h2>
+    <p class="small muted">Blocs du bas de page actuels, inchangés.</p>
+  </div>
+</div>
+
+<!-- ÉCRAN 2 : après un clic -->
+<div class="ec" id="ec-direct">
+  <h1>Ce qui se passe quand on choisit une voie</h1>
+  <div class="sec">
+    <h2>1. Un clic sur « Commencer à la main » (ou avec l’assistant, ou le récit)</h2>
+    <p>La personne arrive <strong>directement sur le premier écran de travail</strong> du parcours (« Votre objectif » pour les deux premières, « Préparer » pour le récit). Plus de page de présentation entre la page commune et le parcours.</p>
+    <div class="etapes"><span class="etape ici">1 Objectif</span><span class="etape">2 Parcours</span><span class="etape">3 Projet</span><span class="etape">4 Mise en forme</span><span class="etape">5 Vos documents</span></div>
+    <div class="bande"><button class="bouton" type="button">⌂ Revoir la présentation</button></div>
+    <div class="note"><span class="tag g">GARDÉ</span> La bande « Revoir la présentation » des écrans de travail existe déjà.</div>
+  </div>
+  <div class="sec">
+    <h2>2. « Revoir la présentation » dans un parcours <span class="tag g">GARDÉ</span></h2>
+    <p>Ouvre la <strong>page propre de la voie</strong> (celle d’aujourd’hui : titre de la voie, sa vidéo, ses blocs, barre d’étapes), en consultation : bouton « Revenir au module » en haut et en bas, rien n’est perdu.</p>
+    <div class="note">Ces trois pages existent déjà (<code>creer-cv-main</code>, <code>creer-cv-assistant</code>, <code>decouverte-intro</code>). Elles gardent leur vidéo : la même que celle de la page commune (une vidéo par voie, jamais partagée entre deux voies).</div>
+  </div>
+  <div class="sec">
+    <h2>3. « Retour » depuis le premier écran de travail <span class="tag e">CHANGE</span></h2>
+    <p>Aujourd’hui : ramène à la page de présentation de la voie. Demain : ramène à la <strong>page commune</strong> (c’est l’écran d’avant).</p>
+    <div class="barre" style="position:static;border:2px solid var(--bord);border-radius:12px"><div class="in"><button class="nav" type="button">← Retour</button><button class="nav" type="button">⌂ Accueil</button><button class="nav suivant" type="button">Continuer →</button></div></div>
+    <div class="note">Si la personne a déjà un travail commencé dans une voie, « Retour » ne l’efface pas : c’est la page commune qui montre l’encart « Continuer / Recommencer » (écran 3).</div>
+  </div>
+</div>
+
+<!-- ÉCRAN 3 : un CV déjà commencé -->
+<div class="ec" id="ec-reprise">
+  <h1>✨ Créer un nouveau CV <span class="tag g">comme aujourd’hui</span></h1>
+  <div class="reprise">
+    <strong>Vous avez déjà commencé à créer votre CV.</strong>
+    <div class="boutons"><button class="bouton plein" type="button">Continuer</button><button class="bouton" type="button">Recommencer</button></div>
+  </div>
+  <div class="note"><span class="tag g">GARDÉ</span> « Un seul parcours à la fois » : tant qu’un CV est commencé ou terminé, l’encart de reprise reste en tête de page (« Votre CV est prêt : Voir mon CV / Recommencer » si terminé). Recommencer vide tout et revient à la page commune.</div>
+  <div class="sec">
+    <h2>🧭 Trois façons de faire</h2>
+    <div class="voie"><div class="tete"><span class="pastille">Voie 1</span><span>💬</span><strong>Avec l’assistant en ligne</strong></div>
+      <div class="video"><span class="vig">▶</span><span><strong>Voir la présentation en vidéo</strong></span></div>
+      <button class="depart grise" type="button" disabled>Pour changer de façon de faire : « Recommencer »</button></div>
+    <div class="voie"><div class="tete"><span class="pastille">Voie 3</span><span>✏️</span><strong>À la main, sans assistant</strong> <span class="tag d">voie en cours</span></div>
+      <div class="video"><span class="vig">▶</span><span><strong>Voir la présentation en vidéo</strong></span></div>
+      <button class="depart grise" type="button" disabled>Vous avez déjà commencé ce CV : utilisez « Continuer » ci-dessus</button></div>
+    <div class="note"><span class="tag e">NOUVEAU</span> Les trois blocs (avec leurs vidéos) restent lisibles, mais leurs boutons de départ sont remplacés par une phrase : on ne mélange jamais deux parcours. C’est le point à valider (question 2).</div>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:2rem">
+<h2>Inventaire : ce qui existe aujourd’hui et ce que la maquette en fait</h2>
+<table>
+<tr><th>Élément actuel</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+<tr><td>Accroche « Rien n’est jamais envoyé », « À quoi ça sert » et son encart modèles</td><td>Identiques</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Trois cartes de choix (<code>btnCreerCvSansAssistant</code>, <code>btnCreerCvAvecAssistant</code>, <code>btnCreerCvRecit</code>) qui ouvrent la page de présentation de la voie</td><td>Trois blocs de voie avec vidéo et un bouton de départ qui mène directement au parcours</td><td><span class="tag e">REMPLACÉ</span></td></tr>
+<tr><td>Pages de présentation propres (<code>creer-cv-main</code>, <code>creer-cv-assistant</code>, <code>decouverte-intro</code>) avec leur vidéo et leur bouton « Commencer »</td><td>Gardées, ouvertes seulement par « Revoir la présentation » (et par la recherche, le Lexique, les anciens liens)</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>« Retour » du premier écran de travail = présentation de la voie (<code>_creerCvAllerPresentation</code>)</td><td>= page commune</td><td><span class="tag e">CHANGE</span></td></tr>
+<tr><td>Section « Comment ça se passe concrètement » de la page commune</td><td>Retirée (redite des blocs de voie et des modèles)</td><td><span class="tag r">RETIRÉ ?</span></td></tr>
+<tr><td>Bloc « Voir nos modèles de CV » (jusqu’à 5 modèles gardés)</td><td>Gardé, placé après les trois voies</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Encarts « Continuer / Recommencer » et « Votre CV est prêt »</td><td>Gardés en tête de page ; départs grisés dans les blocs de voie</td><td><span class="tag g">GARDÉ</span> <span class="tag e">ENRICHI</span></td></tr>
+<tr><td>Blocs du bas : ne fait pas, ensuite, Mes Repères</td><td>Gardés</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Vidéos <code>creer-main</code>, <code>creer-assistant</code>, <code>creer-recit</code></td><td>Une par bloc de voie sur la page commune, et la même sur la page propre de la voie</td><td><span class="tag d">DÉPLACÉ</span></td></tr>
+<tr><td>Barre du bas de la page commune (aujourd’hui sans bouton de départ)</td><td>Inchangée : « Retour » et « Accueil » seulement (le départ est dans chaque bloc)</td><td><span class="tag g">GARDÉ</span></td></tr>
+</table>
+</div>
+
+<div class="sec">
+<h2>Faisabilité : GO</h2>
+<ul class="small">
+<li><b>Simple</b> : la page est déjà composée de blocs (<code>pageCreerCv</code>), les pages propres existent, la présentation par voie avec vidéo existe déjà dans « Reprendre mon CV » (<code>_reprendreCvPresVoie</code>) : on en tire un constructeur commun plutôt que de le recopier (dette B.1 du même genre, à noter dans BRIQUES_COMMUNES).</li>
+<li><b>Risqué</b> : modéré. Le départ direct appelle les mêmes fonctions que les boutons « Commencer » des pages propres (<code>_creerCvRecommencer</code>, démarrage du récit) ; il faut vérifier que « Retour », « Revoir la présentation » et la reprise (« Continuer ») restent justes pour les trois voies. Les essais automatiques de <code>parcours_smoke.js</code> (cas « la carte ouvre sa présentation ») sont à réécrire.</li>
+<li><b>À refaire après le code</b> : les trois vidéos <code>creer-*</code> (leur scénario part d’un clic sur une carte qui n’existera plus), l’aide contextuelle de la page, la recherche d’accueil si elle cite les cartes.</li>
+<li><b>Bloquant</b> : aucun.</li>
+</ul>
+</div>
+
+<div class="questions">
+<h2>Questions pour Denis</h2>
+<ol>
+<li><b>Où mettre le bouton de départ de chaque voie</b> : dans le bloc de la voie, sous la vidéo (<b>recommandé</b> ; bénéfice : on choisit là où l’on vient de comprendre, un seul geste ; risque : la page est longue, trois boutons à des hauteurs différentes) ou trois cartes de choix gardées en bas de page, après les trois présentations (bénéfice : choix groupé, comme aujourd’hui ; risque : retour en arrière après lecture, un clic de plus).</li>
+<li><b>Quand un CV est déjà commencé</b> : les blocs de voie restent lisibles (avec leurs vidéos) mais leurs départs sont remplacés par une phrase (<b>recommandé</b> ; bénéfice : on peut revoir une présentation sans risquer de mélanger deux parcours ; risque : un peu plus de texte) ou on cache les trois blocs tant que le CV est commencé (bénéfice : page courte ; risque : on ne retrouve plus les vidéos).</li>
+<li><b>Section « Comment ça se passe concrètement »</b> : la retirer, ses trois idées sont redites ailleurs (<b>recommandé</b> ; bénéfice : page plus courte, comme « Reprendre mon CV » ; risque : perdre la phrase sur « une barre en haut montre où vous en êtes ») ou la garder telle quelle (bénéfice : aucun changement ; risque : redite).</li>
+<li><b>Pages propres de chaque voie</b> : elles gardent leur vidéo, la même que sur la page commune (<b>recommandé</b> ; bénéfice : une voie = une vidéo, partout où on la présente ; risque : la vidéo est visible à deux endroits du même module) ou la vidéo ne reste que sur la page commune (bénéfice : un seul endroit ; risque : une page propre sans vidéo, contraire à ce qui est fait pour « Reprendre mon CV »).</li>
+<li><b>Ordre de travail proposé</b> : (1) constructeur commun d’un bloc de voie, repris par « Reprendre mon CV » et « Lettre et entretien en version rapide » sans changer leur rendu (test d’identité), (2) nouvelle page commune de « Créer », (3) départ direct, « Retour » et reprise, essais automatiques réécrits, (4) vidéos <code>creer-*</code> rejouées. Un commit par étape. Effort haut.</li>
+</ol>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <button class="nav" type="button">← Retour</button>
+  <button class="nav" type="button">⌂ Accueil</button>
+  <span></span>
+</div></div>
+
+<script>
+document.querySelectorAll('[data-ec]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.ec').forEach(function (e) { e.classList.remove('vu'); });
+    document.getElementById('ec-' + b.getAttribute('data-ec')).classList.add('vu');
+    document.querySelectorAll('[data-ec]').forEach(function (x) { x.classList.toggle('actif', x === b); });
+  });
+});
+document.getElementById('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', this.checked); });
+document.getElementById('tSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); });
+</script>
+</body>
+</html>

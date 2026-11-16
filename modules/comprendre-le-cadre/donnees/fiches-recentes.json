@@ -1,5 +1,19 @@
 [
  {
+  "id": "garde-conge-supplementaire-de-naissance",
+  "rayon": "garde",
+  "titre": "Le congé supplémentaire de naissance : du temps en plus après l'arrivée d'un enfant",
+  "date": "2026-11-15",
+  "ajoutee": ""
+ },
+ {
+  "id": "seniors-cumul-emploi-retraite",
+  "rayon": "seniors",
+  "titre": "Le cumul emploi-retraite : travailler après avoir liquidé sa pension",
+  "date": "2026-11-15",
+  "ajoutee": ""
+ },
+ {
   "id": "agriculture-aide-gnr-travaux-agricoles-forestiers",
   "rayon": "agriculture",
   "titre": "Entreprise agricole ou forestière : l'aide pour le gazole non routier (GNR)",

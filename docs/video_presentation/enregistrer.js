@@ -157,8 +157,7 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
 
   // ----- Plan 4 : Camille crée son CV
   await bloc('p4_01');
-  await cliquer(p, p.locator('#btnCreerCvSansAssistant'), 700);
-  await cliquer(p, parTexte(p, 'Commencer mon CV'), 700); await dormir(0.4);
+  await cliquer(p, p.locator('#btnCreerCvSansAssistant'), 700); await dormir(0.4);   // départ direct sur « Votre objectif » (consigne 246)
   await bloc('p4_02');
   await cliquer(p, parTexte(p, 'Candidature spontanée'), 700);
   await cliquer(p, parTexte(p, 'Un métier précis'), 600);
@@ -179,7 +178,7 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
     await cliquer(p, p.locator('#btnSuivantNavigation'), 700); await dormir(0.5);
   });
   await bloc('p4_03');
-  for (const champ of ['activites', 'actions', 'environnement', 'valeurs']) { await cliquer(p, p.locator('.vp-carte[data-vp-champ="' + champ + '"]').first(), 650); await dormir(0.25); }
+  for (const champ of ['activites', 'actions', 'environnement']) { await cliquer(p, p.locator('.vp-carte[data-vp-champ="' + champ + '"]').first(), 650); await dormir(0.25); }
   await cliquer(p, p.locator('#btnSuivantNavigation'), 700); await dormir(0.6);
   await bloc('p4_04'); await dormir(2.4);
   await bloc('p4_05');

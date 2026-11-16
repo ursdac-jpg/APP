@@ -226,7 +226,7 @@ function classerCompetencesParPertinence(competencesObjetCV, recommandationsComp
   // remplace une comparaison stricte (m.nom === metierCible) -- evite une
   // correspondance manquee si l'un des deux cote est accentue et l'autre
   // pas encore mis a jour.
-  var metierRef = ((typeof baseMetiers !== 'undefined' && baseMetiers) || []).filter(function (m) { return motsEquivalentsSansAccentERIP(m.nom, metierCible); })[0] || null;
+  var metierRef = ((typeof baseMetiers !== 'undefined' && baseMetiers) || []).filter(function (m) { return motsEquivalentsSansAccentERIP(m.nom, metierCible); })[0] || (typeof ficheDeIntituleChoisi === 'function' ? ficheDeIntituleChoisi(metierCible) : null) || null;
 
   function ordonnerCategorie(sousCle) {
     var elements = (competencesObjetCV[sousCle] || []).slice();
@@ -278,7 +278,7 @@ function classerCompetencesParPertinence(competencesObjetCV, recommandationsComp
 // 6 gabarits) -- aucune modification necessaire de leur cote, la fusion
 // se fait silencieusement en amont.
 function unifierEtPlafonnerCompetences(competencesObjetCV, recommandationsCompetences, metierCible, plafondTotal) {
-  var metierRef = ((typeof baseMetiers !== 'undefined' && baseMetiers) || []).filter(function (m) { return motsEquivalentsSansAccentERIP(m.nom, metierCible); })[0] || null;
+  var metierRef = ((typeof baseMetiers !== 'undefined' && baseMetiers) || []).filter(function (m) { return motsEquivalentsSansAccentERIP(m.nom, metierCible); })[0] || (typeof ficheDeIntituleChoisi === 'function' ? ficheDeIntituleChoisi(metierCible) : null) || null;
   var pool = []
     .concat((competencesObjetCV && competencesObjetCV.savoirFaire) || [])
     .concat((competencesObjetCV && competencesObjetCV.savoirEtre) || [])
@@ -335,6 +335,53 @@ function recommandationsIAPresentes(recommandations) {
     (recommandations.experiencesAMettreEnAvant || []).length > 0 ||
     (recommandations.competencesAValoriser || []).length > 0 ||
     (recommandations.rubriquesMasquables || []).length > 0;
+}
+
+// Remplace, dans un texte de missions (une mission par ligne), chaque ligne d'origine par sa version plus courte. Ponctuation finale et casse ignorées pour retrouver la ligne ;
+// le point final de la ligne d'origine est repris sur la version courte. Un texte sans retour à la ligne (ancien paragraphe) est traité comme une seule ligne.
+function appliquerVersionsCourtesCV(texteMissions, entrees) {
+  if (typeof texteMissions !== 'string' || !(entrees || []).length) { return texteMissions; }
+  var cle = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); };
+  var table = {};
+  (entrees || []).forEach(function (c) { if (c && cle(c.ligne) && String(c.plusCourte || '').trim()) { table[cle(c.ligne)] = String(c.plusCourte).trim(); } });
+  return texteMissions.split('\n').map(function (ligne) {
+    var courte = table[cle(ligne)];
+    if (!courte) { return ligne; }
+    var avecPoint = /\.\s*$/.test(ligne.trim());
+    return courte.replace(/\.+\s*$/, '') + (avecPoint ? '.' : '');
+  }).join('\n');
+}
+
+// Mettre en avant (lot 6, consigne 395) : l'assistant indique, parmi les lignes que la personne a choisies, celles qui comptent le plus pour le métier visé.
+// Quand la personne clique « Oui » (entree.utilisee), le CV ne fait QUE réordonner : ces lignes passent en premier, dans l'ordre indiqué ; aucun texte n'est modifié,
+// rien n'est ajouté, une ligne qui ne correspond pas exactement à une ligne du CV est ignorée.
+var MAX_MISSIONS_EN_AVANT = 3;
+function _cleLigneEnAvant(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+// Rangs (dans segments) des lignes à mettre en avant : sans doublon, trois au plus, dans l'ordre demandé. Les lignes absentes de segments sont ignorées.
+function rangsMissionsEnAvant(segments, lignes) {
+  var rangs = [];
+  (lignes || []).forEach(function (l) {
+    var cle = _cleLigneEnAvant(l);
+    if (!cle || rangs.length >= MAX_MISSIONS_EN_AVANT) { return; }
+    for (var k = 0; k < (segments || []).length; k++) {
+      if (_cleLigneEnAvant(segments[k]) === cle) { if (rangs.indexOf(k) === -1) { rangs.push(k); } return; }
+    }
+  });
+  return rangs;
+}
+// Nouvel ordre des lignes : liste des anciens rangs, les lignes mises en avant d'abord puis toutes les autres dans leur ordre. null quand rien ne change.
+function ordreMissionsEnAvant(segments, lignes) {
+  var tete = rangsMissionsEnAvant(segments, lignes);
+  if (!tete.length) { return null; }
+  var ordre = tete.slice();
+  (segments || []).forEach(function (x, k) { if (tete.indexOf(k) === -1) { ordre.push(k); } });
+  return ordre.every(function (v, i) { return v === i; }) ? null : ordre;
+}
+function mettreEnAvantMissionsCV(texteMissions, entrees) {
+  if (typeof texteMissions !== 'string' || !(entrees || []).length) { return texteMissions; }
+  var lignes = texteMissions.split('\n'), ordre = null;
+  for (var i = 0; i < entrees.length && !ordre; i++) { ordre = ordreMissionsEnAvant(lignes, entrees[i] && entrees[i].lignes); }
+  return ordre ? ordre.map(function (k) { return lignes[k]; }).join('\n') : texteMissions;
 }
 
 function appliquerMoteurDecisionCV(objetCV, recommandationsIA, capacitesModele) {
@@ -837,6 +884,39 @@ function appliquerMoteurDecisionCV(objetCV, recommandationsIA, capacitesModele) 
     });
   }
 
+  // Mettre en avant (consigne 395) : seulement après le clic « Oui » de la personne (reco.missionsEnAvant[].utilisee) ; avant les versions courtes, qui retrouvent leur ligne par son texte.
+  if (objetDecide.experiences && objetDecide.experiences.length && (reco.missionsEnAvant || []).some(function (c) { return c && c.utilisee === true; })) {
+    objetDecide.experiences = objetDecide.experiences.map(function (e) {
+      var entrees = (reco.missionsEnAvant || []).filter(function (c) {
+        return c && c.utilisee === true && (estDoublonProbable(e, c, ['poste', 'entreprise']) || !!(e.poste && c.poste && typeof correspond === 'function' && correspond(e.poste, c.poste)));
+      });
+      if (!entrees.length) { return e; }
+      var texte = mettreEnAvantMissionsCV(e.missions, entrees);
+      if (texte === e.missions) { return e; }
+      var copie = {};
+      Object.keys(e).forEach(function (k) { copie[k] = e[k]; });
+      copie.missions = texte;
+      return copie;
+    });
+  }
+
+  // Versions plus courtes (consigne 318) : une ligne que la personne a choisi de raccourcir (reco.missionsPlusCourtes[].utilisee, posé par son clic dans « La mise en page »)
+  // est remplacée dans le CV par la version courte. Sa phrase d'origine reste dans le dossier et dans la réponse de l'assistant : jamais effacée.
+  if (objetDecide.experiences && objetDecide.experiences.length && (reco.missionsPlusCourtes || []).some(function (c) { return c && c.utilisee === true; })) {
+    objetDecide.experiences = objetDecide.experiences.map(function (e) {
+      var entrees = (reco.missionsPlusCourtes || []).filter(function (c) {
+        return c && c.utilisee === true && (estDoublonProbable(e, c, ['poste', 'entreprise']) || !!(e.poste && c.poste && typeof correspond === 'function' && correspond(e.poste, c.poste)));
+      });
+      if (!entrees.length) { return e; }
+      var texte = appliquerVersionsCourtesCV(e.missions, entrees);
+      if (texte === e.missions) { return e; }
+      var copie = {};
+      Object.keys(e).forEach(function (k) { copie[k] = e[k]; });
+      copie.missions = texte;
+      return copie;
+    });
+  }
+
   // TACHE (retour utilisateur : "s'il y a une question sur les années,
   // pourquoi cette information ne figure pas sur le CV ?") : trouvé --
   // le schéma demandé à l’assistant n'avait jusqu'ici aucun champ de date pour
@@ -944,5 +1024,7 @@ function appliquerMoteurDecisionCV(objetCV, recommandationsIA, capacitesModele) 
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { appliquerMoteurDecisionCV: appliquerMoteurDecisionCV, decider: decider, estDoublonProbable: estDoublonProbable, texteExisteDeja: texteExisteDeja,
-    normaliserPourComparaison: normaliserPourComparaison, classerCompetencesParPertinence: classerCompetencesParPertinence };
+    normaliserPourComparaison: normaliserPourComparaison, classerCompetencesParPertinence: classerCompetencesParPertinence,
+    appliquerVersionsCourtesCV: appliquerVersionsCourtesCV, rangsMissionsEnAvant: rangsMissionsEnAvant, ordreMissionsEnAvant: ordreMissionsEnAvant,
+    mettreEnAvantMissionsCV: mettreEnAvantMissionsCV };
 }

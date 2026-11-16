@@ -210,11 +210,8 @@ function pageDecouverte() {
 // Coherence) :
 //  - _decouverteDetourPresentation : detour de CONSULTATION ("Revoir la
 //    presentation" depuis un ecran de travail) -- pas d'encart.
-//  - _decouverteReprisePendante : on REVIENT dans le module (accueil /
-//    autre module) avec une session en cours -- encart "Continuer /
-//    Recommencer" a droite + module gele jusqu'au choix.
+//  - Reprise (consigne 258, 12/11/2026) : meme forme que « Reprendre mon CV ». Une session vivante = la presentation (route 'decouverte-intro') porte le bloc « Reprendre / Recommencer » ; « Reprendre » vit dans la barre du bas ; la page de travail n'est jamais grisee.
 var _decouverteDetourPresentation = false;
-var _decouverteReprisePendante = false;
 
 // TACHE (correctif boucle Retour, 2026-09-09 -- LECONS section 2,
 // "Variante boucle infinie"). "Retour" de la barre du bas (et du bouton
@@ -226,7 +223,8 @@ var _decouverteReprisePendante = false;
 // pointaient l'un l'autre, plus aucun moyen de reculer jusqu'a l'accueil.
 function decouverteRetour() {
   _decouverteDetourPresentation = false;
-  if (typeof naviguerVers === 'function') { naviguerVers('decouverte-intro'); }
+  // Consigne 192 / 246 : le départ du récit est direct depuis la page commune de « Créer un nouveau CV » ; « Retour » y ramène (l'encart « Continuer / Recommencer » y attend si la session est vivante).
+  if (typeof naviguerVers === 'function') { naviguerVers('creer-cv'); }
 }
 
 // "Revoir la presentation" (bouton contextuel en tete d'ecran) -> page de
@@ -244,10 +242,24 @@ function decouverteRevenirDeLaPresentation() {
   if (typeof naviguerVers === 'function') { naviguerVers('decouverte'); }
 }
 
-// "Continuer" de l'encart de reprise -> leve le gel, garde tout l'etat.
+// "Reprendre" (bloc de la presentation) -> retour au dernier ecran de travail, tout l'etat est garde.
 function decouverteRepriseContinuer() {
-  _decouverteReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('decouverte'); }
+}
+// Une session « A partir de mon recit » est-elle vivante ? (elle vit en memoire, pas dans la disquette.) Lu par la presentation pour proposer « Reprendre / Recommencer ».
+function decouverteTravailEnCours() {
+  return typeof _decouverteRenduEtape === 'function';
+}
+// "Recommencer" depuis la presentation : confirmation, puis la session est effacee et la presentation repart a froid.
+function decouverteConfirmerRecommencer() {
+  var faire = function () { fermerDecouverteCompetences(); if (typeof naviguerVers === 'function') { naviguerVers('decouverte-intro'); } };
+  if (typeof confirmerAction === 'function') {
+    confirmerAction(
+      'Recommencer « À partir de mon récit » ?',
+      'Votre récit et les compétences déjà retenues pour ce parcours seront effacés. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
+      'Recommencer ce module', 'btn-danger', faire
+    );
+  } else { faire(); }
 }
 
 function fermerDecouverteCompetences() {
@@ -263,7 +275,6 @@ function fermerDecouverteCompetences() {
   _decouverteInfosBlocsInitialisees = false;
   _decouverteCascadeParcoursFaite = false;
   _decouverteDetourPresentation = false;
-  _decouverteReprisePendante = false;
   window._decouverteVersResultats = false;
   // TACHE (retour Denis, 2026-08-31, Chantier 2+3) : "recommencer" Decouverte
   // efface aussi le fait persistant -- le nouveau parcours n'est plus "termine"
@@ -453,10 +464,7 @@ function ouvrirDecouverteCompetences() {
   // on ne reconstruit jamais, on renavigue simplement vers la route --
   // pageDecouverte() redessine la derniere etape.
   if (typeof _decouverteRenduEtape === 'function') {
-    // Reprise : on revient dans le module avec une session vivante. On
-    // atterrit au dernier ecran, avec l'encart "Continuer / Recommencer"
-    // + module gele (aligne sur Coherence / Bilan).
-    _decouverteReprisePendante = true;
+    // Session vivante : on retombe sur le dernier ecran (consigne 258 : la reprise se choisit sur la presentation, voir pageDecouverteIntro).
     _decouverteDetourPresentation = false;
     if (typeof naviguerVers === 'function') { naviguerVers('decouverte'); }
     return;
@@ -591,17 +599,14 @@ function ouvrirDecouverteCompetences() {
     // Bande partagee "bouton + reprise" (chantier "bouton presentation") :
     // "Revoir la presentation" a gauche ; a la reprise (retour dans le
     // module), l'encart "Continuer / Recommencer" a droite + gel.
-    var _decNoteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_decouverteReprisePendante)
+    var _decNoteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
       : '';
-    var _decBouton = '<div><button type="button" id="btnDecouverteRevoirPresentation" class="btn-revoir-module"' +
-      (_decouverteReprisePendante ? ' disabled' : '') + '>' +
+    var _decBouton = '<div><button type="button" id="btnDecouverteRevoirPresentation" class="btn-revoir-module">' +
       '<i class="bi bi-stars"></i> Revoir la présentation</button></div>' + _decNoteHtml;
-    var _decEncart = _decouverteReprisePendante
-      ? htmlEncartRepriseModule({ idContinuer: 'btnDecouverteRepriseContinuer', idRecommencer: 'btnDecouverteRepriseRecommencer', pulse: true })
-      : '';
+    var _decEncart = '';
 
     app.innerHTML =
       '<div class="page-catalogue-contenu decouverte-parcours">' +
@@ -681,33 +686,10 @@ function ouvrirDecouverteCompetences() {
     window.scrollTo(0, scrollPrecedent);
     _decouverteEtapeRendueDom = numero;
 
-    // Gel du module tant que la reprise n'est pas tranchee (brique
-    // partagee) -- l'encart et la barre du bas restent actifs.
-    if (typeof appliquerGelModule === 'function') { appliquerGelModule(_decouverteReprisePendante); }
-
     // Bouton partage "Revoir la presentation" (detour de consultation, non
     // destructif : la session reste vivante dans la closure).
     var btnRevoirDec = document.getElementById('btnDecouverteRevoirPresentation');
     if (btnRevoirDec) { btnRevoirDec.addEventListener('click', decouverteRetourVersPresentation); }
-    // Encart de reprise "Continuer / Recommencer".
-    var btnDecReprC = document.getElementById('btnDecouverteRepriseContinuer');
-    if (btnDecReprC) { btnDecReprC.addEventListener('click', decouverteRepriseContinuer); }
-    var btnDecReprR = document.getElementById('btnDecouverteRepriseRecommencer');
-    if (btnDecReprR) {
-      btnDecReprR.addEventListener('click', function () {
-        if (typeof confirmerAction !== 'function') { return; }
-        confirmerAction(
-          'Recommencer « À partir de mon récit » ?',
-          'Votre récit et les compétences déjà retenues pour ce parcours seront effacés. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
-          'Recommencer ce module', 'btn-danger',
-          function () {
-            fermerDecouverteCompetences();
-            if (typeof demarrerDecouverteCompetences === 'function') { demarrerDecouverteCompetences(); }
-          }
-        );
-      });
-    }
-    if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
     // TACHE (retour Denis, 2026-09-18, point 2 : "un seul bouton Retour,
     // celui de la barre du bas, qui reprend le comportement 'page arriere'")
     // : ex-gestionnaire de clic de l'ancien bouton dans la page
@@ -776,6 +758,10 @@ function ouvrirDecouverteCompetences() {
         return;
       }
       if (numero === 14) { afficherEtape(12); return; }
+      // Protocole de test du 11/11/2026 (constat D1) : les étapes 2, 3 et 7 sont fusionnées (jamais affichées à l'aller). « Retour » ne doit pas les traverser :
+      // depuis « Choisissez votre assistant » (4) on revient à « Préparer » (1), depuis « Vos informations » (8) aux compétences (6).
+      if (numero === 4) { afficherEtape(1); return; }
+      if (numero === 8) { afficherEtape(6); return; }
       if (numero <= 1) { decouverteRetour(); } else { afficherEtape(numero - 1); }
     }
     _decouverteAgirRetour = agirRetourDecouverte;
@@ -855,7 +841,10 @@ function ouvrirDecouverteCompetences() {
     var objectifChoisi = !!dossier.objectif;
     // TACHE : memes classes que pageObjectif() (js/app.js, .grille-objectif/
     // .carte-objectif) -- meme rendu visuel, aucun CSS a dupliquer ici.
-    var html = '<p class="text-muted mb-2">Le poste ou le type de démarche que vous visez.</p>' +
+    // Consigne 273 : l'objectif choisi sur l'écran Candidater n'est pas redemandé (rappel + « Modifier mon objectif »).
+    var depuisCandidater = objectifChoisi && typeof objectifDeCandidaterActif === 'function' && objectifDeCandidaterActif();
+    var html = (depuisCandidater ? htmlRappelObjectifCandidater() :
+      '<p class="text-muted mb-2">Le poste ou le type de démarche que vous visez.</p>' +
       '<div class="grille-objectif">' +
       OBJECTIF_CHOIX_CANDIDATURE.filter(function (o) { return CARTES_OBJECTIF_DECOUVERTE.indexOf(o.id) !== -1; }).map(function (o) {
         return '<button type="button" class="carte-objectif' + ((typeof carteObjectifActive === 'function' ? carteObjectifActive(o.id) : dossier.objectif === o.id) ? ' carte-objectif--actif' : '') + '" data-action="objectif-decouverte" data-value="' + o.id + '">' +
@@ -864,18 +853,19 @@ function ouvrirDecouverteCompetences() {
           '<span class="carte-objectif-desc">' + o.desc + '</span>' +
           '</button>';
       }).join('') +
-      '</div>' +
+      '</div>') +
       (objectifChoisi
         ? '<div class="objectif-cadrage" style="margin-top:16px">' +
           // E1.4 (24/10/2026) : meme logique que la lettre pour « offre » et « spontanee » (offre sans offre = spontanee) ; « stage » inchange.
           // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (plus de bloc repliable ni de « Le poste que vous recherchez »).
-          '<div id="decouverteComposantCandidature">' + htmlCandidatureComposant() + '</div>' +
-          resumeObjectifLigne() +
+          '<div id="decouverteComposantCandidature">' + htmlCandidatureComposant({ dejaRepondu: !!depuisCandidater }) + '</div>' +
+          (depuisCandidater ? '' : resumeObjectifLigne()) +   // venu de Candidater : le résumé est déjà en haut, dans le rappel
           '</div>'
         : '<p class="sousTitre text-center" style="margin-top:14px">Choisissez un objectif ci-dessus pour préciser votre candidature.</p>');
 
     return {
       titre: '🔍 Découverte de vos compétences',
+      depuisCandidater: !!depuisCandidater,
       contenuHTML: html,
       onAfficher: function () {
         document.querySelectorAll('[data-action="objectif-decouverte"]').forEach(function (el) {
@@ -1117,7 +1107,10 @@ function ouvrirDecouverteCompetences() {
                 // diverger de ce que lit déjà le reste de l'application.
                 var offreCibleDecouverte = (typeof lienOffreCibleActuel === 'function') ? lienOffreCibleActuel() : '';
                 if (offreCibleDecouverte) { contexteCible += 'Offre précise visée par la personne (texte ou lien) : ' + offreCibleDecouverte + '\n\n'; }
-                return instructions + '\n\n' + contexteCible + etat.recit;
+                // Lot 4 (consigne 408) : seulement si la personne a choisi de relier elle-même ses expériences aux fiches métier.
+                var blocMetiers = (typeof mcRecitDemandeLesMetiers === 'function' && mcRecitDemandeLesMetiers() && typeof promptsExternesCharges !== 'undefined' && promptsExternesCharges['decouverte-metiers'])
+                  ? '\n\n' + promptsExternesCharges['decouverte-metiers'] : '';
+                return instructions + blocMetiers + '\n\n' + contexteCible + etat.recit;
               },
               // TACHE (chantier "ecran tampon avant l’assistant", volet
               // Decouverte) : l'URL/le nom voyagent jusqu'a l'etape "Collez
@@ -1594,7 +1587,15 @@ function ouvrirDecouverteCompetences() {
     });
     // Consigne 215 (10/11/2026) : en mode « Tout », après la validation d'une expérience, la page descend d'elle-même jusqu'à la suivante à valider.
     function allerAExperienceSuivante(idValide) {
-      if (etat.ongletFragmentActif !== 'tout' || etat.etatsFragments.every(fragmentEstValide)) { return; }
+      // Consigne 403 (16/11/2026) : la derniere experience validee, on arrive au DEBUT de « Quelques précisions » (ou en haut du recapitulatif s'il n'y a pas de question), jamais en bas de la page.
+      if (etat.etatsFragments.every(fragmentEstValide)) {
+        setTimeout(function () {
+          var cible = document.getElementById('decouvertePrecisions') || document.getElementById('contenuEtapeDecouverte');
+          if (cible && typeof revenirALaRubrique === 'function') { revenirALaRubrique(cible); }
+        }, 60);
+        return;
+      }
+      if (etat.ongletFragmentActif !== 'tout') { return; }
       var ordre = etat.etatsFragments;
       var pos = ordre.map(function (x) { return x.fragmentId; }).indexOf(idValide);
       var suivante = ordre.slice(pos + 1).concat(ordre.slice(0, pos + 1)).filter(function (x) { return !fragmentEstValide(x); })[0];
@@ -1747,14 +1748,17 @@ function ouvrirDecouverteCompetences() {
       var presse = ch.sel.indexOf(k) !== -1;
       return '<button type="button" class="qc-ovale' + (r.length > 38 ? ' longue' : '') + '" data-qc-rep="' + i + '" data-k="' + k + '" aria-pressed="' + presse + '">' + echapperAttribut(r) + '</button>';
     }).join('');
+    // Consigne 404 (16/11/2026) : les propositions sont sur une grille reguliere (1 colonne sur telephone, 2 sur tablette, 3 sur ordinateur) ; « Tout cocher » et « Autre chose » ont leur propre ligne.
+    var boutonsActions = '';
     if (multiple) {
       var tousCoches = q.reponses.every(function (r, k) { return ch.sel.indexOf(k) !== -1; });
-      boutons += '<button type="button" class="qc-ovale tout" data-qc-tout="' + i + '" aria-pressed="' + tousCoches + '">' + libelleToutCocher(q) + '</button>';
+      boutonsActions += '<button type="button" class="qc-ovale tout" data-qc-tout="' + i + '" aria-pressed="' + tousCoches + '">' + libelleToutCocher(q) + '</button>';
     }
-    boutons += '<button type="button" class="qc-ovale autre" data-qc-autre="' + i + '" aria-pressed="' + ch.autreOuvert + '">' + libelleAutre(q) + '</button>';
+    boutonsActions += '<button type="button" class="qc-ovale autre" data-qc-autre="' + i + '" aria-pressed="' + ch.autreOuvert + '">' + libelleAutre(q) + '</button>';
     return enteteQuestionCiblee(q, i, multiple ? 'plusieurs choix' : 'un seul choix') +
       (multiple ? '<p class="qc-consigne">Cochez seulement ce que vous avez réellement fait. Vous pouvez en choisir plusieurs.</p>' : '') +
       '<div class="qc-suggestions" role="group">' + boutons + '</div>' +
+      '<div class="qc-suggestions-actions">' + boutonsActions + '</div>' +
       '<div class="qc-zone-autre' + (ch.autreOuvert ? ' ouverte' : '') + '"><input type="text" class="form-control form-control-sm" id="reponseCibleeAutre_' + i + '" placeholder="Écrivez votre réponse" value="' + echapperAttribut(ch.autre) + '"></div>' +
       ligneEtatQuestionCiblee(i) + '</div>';
   }
@@ -2068,7 +2072,7 @@ function ouvrirDecouverteCompetences() {
   // partagés que "Vos informations" (pageProjet(), js/app.js) :
   // CONFIG_BLOC_VOUS (identité/langues/mobilité), CONFIG_BLOC_PARCOURS
   // (formations/certifications), CONFIG_BLOC_EXPERIENCES_PERSO
-  // (savoir-faire personnel), CONFIG_BLOC_COMPLEMENTS (loisirs/
+  // (savoir-faire personnel), CONFIG_BLOC_CERTIFICATIONS, CONFIG_BLOC_ENGAGEMENTS et CONFIG_BLOC_LOISIRS (loisirs/
   // engagements) -- jamais un fork, jamais une 2e copie de ces
   // composants. CONFIG_BLOC_EXPERIENCES_PRO (expériences
   // professionnelles) est volontairement EXCLU de cette étape : il a
@@ -2083,7 +2087,8 @@ function ouvrirDecouverteCompetences() {
   // civilité déjà choisie à "Préparer" (dossier.identite.civilite) y est
   // déjà pré-remplie, jamais redemandée à vide.
   function etapeVosInformationsDecouverte() {
-    var configsInfosDecouverte = [CONFIG_BLOC_VOUS, CONFIG_BLOC_PARCOURS, CONFIG_BLOC_EXPERIENCES_PERSO, CONFIG_BLOC_COMPLEMENTS];
+    // Consigne 378 (15/11/2026) : meme liste et meme ordre de rectangles que « Vos informations » (source unique : configsVosInformations, js/app.js).
+    var configsInfosDecouverte = configsVosInformations({ experiencesPro: false });
     // TACHE : même état d'ouverture par défaut que pageProjet() (Vous et
     // Formations ouverts, Savoir-faire perso et Compléments fermés),
     // appliqué UNE seule fois -- drapeau propre à Découverte
@@ -2093,8 +2098,10 @@ function ouvrirDecouverteCompetences() {
     if (!_decouverteInfosBlocsInitialisees) {
       etatBlocsERIPOuverts.vous = true;
       etatBlocsERIPOuverts.parcours = true;
+      etatBlocsERIPOuverts.certifications = true;
       etatBlocsERIPOuverts['experiences-perso'] = false;
-      etatBlocsERIPOuverts.complements = false;
+      etatBlocsERIPOuverts.engagements = false;
+      etatBlocsERIPOuverts.loisirs = false;
       _decouverteInfosBlocsInitialisees = true;
     }
     // TACHE : ouvre le bandeau suivant encore incomplet des que le
@@ -2114,9 +2121,10 @@ function ouvrirDecouverteCompetences() {
     // au 1er repondu de "Ce que vous avez appris ailleurs", ce dernier au 1er
     // repondu de "Complements") sont retirees -- plus aucun bloc ne se
     // referme sans un clic explicite de la personne sur son titre.
-    if (!_decouverteCascadeParcoursFaite && compteurBlocERIP(CONFIG_BLOC_PARCOURS).complet > 0) {
+    if (!_decouverteCascadeParcoursFaite && (compteurBlocERIP(CONFIG_BLOC_PARCOURS).complet > 0 || compteurBlocERIP(CONFIG_BLOC_CERTIFICATIONS).complet > 0)) {
       etatBlocsERIPOuverts['experiences-perso'] = true;
-      etatBlocsERIPOuverts.complements = true;
+      etatBlocsERIPOuverts.engagements = true;
+      etatBlocsERIPOuverts.loisirs = true;
       _decouverteCascadeParcoursFaite = true;
     }
     var rappelIdentiteHTML = '';
@@ -2134,10 +2142,7 @@ function ouvrirDecouverteCompetences() {
         '<button type="button" class="btn btn-sm btn-outline-secondary" data-blocs-tout-decouverte="fermer">&#9656; Tout replier</button>' +
         '</div>' +
         '<div class="grille-mon-projet">' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_VOUS) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_PARCOURS) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_EXPERIENCES_PERSO) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_COMPLEMENTS) + '</div>' +
+        configsInfosDecouverte.map(function (c) { return '<div class="rangee-mon-projet">' + blocERIP(c) + '</div>'; }).join('') +
         '</div>',
       // TACHE (zéro régression fonctionnelle) : "Préparer" exigeait avant
       // nom+prénom pour continuer (etapeIdentite().peutContinuer) -- cette
@@ -2153,18 +2158,15 @@ function ouvrirDecouverteCompetences() {
           var rappel = document.getElementById('decouverteRappelIdentite');
           if (rappel && rappel.scrollIntoView) { rappel.scrollIntoView({ block: 'center' }); }
         }
-        wireBlocERIP(CONFIG_BLOC_VOUS, function () { afficherEtape(8); });
-        wireBlocERIP(CONFIG_BLOC_PARCOURS, function () { afficherEtape(8); });
-        wireBlocERIP(CONFIG_BLOC_EXPERIENCES_PERSO, function () { afficherEtape(8); });
-        wireBlocERIP(CONFIG_BLOC_COMPLEMENTS, function () { afficherEtape(8); });
+        configsInfosDecouverte.forEach(function (c) { wireBlocERIP(c, function () { afficherEtape(8); }); });
         // TACHE : équivalent Découverte de "Tout déplier/replier"
         // (pageProjet(), js/app.js) -- attribut data- propre, jamais
         // partagé avec la vraie page "Vos informations".
         document.querySelectorAll('[data-blocs-tout-decouverte]').forEach(function (b) {
           b.addEventListener('click', function () {
             var ouvrir = this.getAttribute('data-blocs-tout-decouverte') === 'ouvrir';
-            ['vous', 'parcours', 'experiences-perso', 'complements'].forEach(function (id) {
-              etatBlocsERIPOuverts[id] = ouvrir;
+            configsInfosDecouverte.forEach(function (c) {
+              etatBlocsERIPOuverts[c.id] = ouvrir;
             });
             afficherEtape(8);
           });
@@ -2199,7 +2201,50 @@ function ouvrirDecouverteCompetences() {
   // SEUL bloc, jamais deux vues dupliquees du meme contenu. Aucune
   // dependance a dossier.modeCreation (verifie), donc rien a adapter pour
   // Decouverte.
+  // Consigne 396 : « Ce que l'assistant a retrouvé dans votre récit ». Décocher retire l'expérience du CV (sa copie reste ici), recocher la remet telle que la personne l'avait laissée.
+  function _decouverteHtmlExperiencesRecit() {
+    var liste = etat.experiencesRecit || [];
+    if (!liste.length) { return ''; }
+    var presentes = {};
+    (dossier.experiences || []).forEach(function (e) { if (e && e.idRecit) { presentes[e.idRecit] = true; } });
+    var lignes = liste.map(function (x) {
+      var e = x.exp || {}, periode = [e.dateDebut, e.dateFin].filter(Boolean).join(' - ');
+      return '<label class="d-flex align-items-start gap-2 mb-2" style="cursor:pointer;"><input type="checkbox" class="form-check-input mt-1" data-decouv-recit="' + echapperAttribut(x.id) + '"' + (presentes[x.id] ? ' checked' : '') + '>' +
+        '<span><strong>' + echapperAttribut(e.poste || 'Expérience') + '</strong>' + (e.entreprise ? ' · ' + echapperAttribut(e.entreprise) : '') + (periode ? ' <small class="text-muted">(' + echapperAttribut(periode) + ')</small>' : '') + '</span></label>';
+    }).join('');
+    return '<div class="cv-section mb-3" style="border-left:3px solid var(--accent);border-radius:8px;"><p class="mb-1"><strong>Ce que l’assistant a retrouvé dans votre récit</strong></p>' +
+      '<p class="text-muted small mb-2">Gardez ce qui est juste. Une expérience décochée n’ira pas dans votre CV, et vous pouvez la remettre quand vous voulez.</p>' + lignes + '</div>';
+  }
+  function _decouverteBrancherExperiencesRecit() {
+    document.querySelectorAll('[data-decouv-recit]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var id = this.getAttribute('data-decouv-recit'), entree = (etat.experiencesRecit || []).filter(function (x) { return x.id === id; })[0];
+        if (!entree) { return; }
+        var idx = (dossier.experiences || []).findIndex(function (e) { return e && e.idRecit === id; });
+        if (this.checked) {
+          if (idx === -1) { dossier.experiences.push(JSON.parse(JSON.stringify(entree.exp))); }
+        } else if (idx !== -1) {
+          entree.exp = JSON.parse(JSON.stringify(dossier.experiences[idx]));
+          dossier.experiences.splice(idx, 1);
+        }
+        // Les rangs changent : la photo de « Compléter la fiche », le brouillon du panneau et l'édition en cours sont relus depuis le dossier.
+        if (typeof mcValiderReprise === 'function') { mcValiderReprise(); }
+        if (typeof _mcPan !== 'undefined') { _mcPan.brouillon = null; }
+        if (typeof _expInlineReset === 'function') { _expInlineReset(); }
+        afficherEtape(9);
+      });
+    });
+  }
   function etapeVosExperiences() {
+    // Consigne 406 (16/11/2026) : a l'arrivee sur cette etape, le panneau d'ajout d'une experience est FERME (c'est la personne qui decide d'en ajouter une) ;
+    // un formulaire laisse ouvert par une etape d'avant (« Vos informations ») ne doit pas s'y retrouver. Un re-rendu de cette meme etape ne referme rien.
+    if (_decouverteEtapeRendueDom !== 9) {
+      // Lot 4 (consigne 408) : si la personne choisit elle-même, les expériences du récit sont reliées aux métiers proposés par l'assistant.
+      if (typeof mcRecitRattacherMetiers === 'function') { mcRecitRattacherMetiers(function () { if (_decouverteNumeroCourant === 9 && document.getElementById('contenuEtapeDecouverte')) { afficherEtape(9); } }); }
+      if (typeof mcAnnulerReprise === 'function') { mcAnnulerReprise(); }
+      if (typeof _mcPan !== 'undefined') { _mcPan.brouillon = null; }
+      if (typeof _expInlineReset === 'function') { _expInlineReset(); }
+    }
     // TACHE (retour Denis, 2026-09-19, point 4) : ouvre le bloc une seule
     // fois, a la premiere arrivee sur cette etape (voir _decouverteExperiencesBlocAmorce
     // plus haut) -- un re-rendu ulterieur (ajout/suppression d'une
@@ -2223,10 +2268,16 @@ function ouvrirDecouverteCompetences() {
       // informations" garde son bouton standard.
       contenuHTML:
         '<p class="text-muted small mb-3">Dernière occasion de vérifier ou compléter vos expériences avant de passer à la rédaction de votre CV. Ajoutez ce qui manque, corrigez ce qui ne va pas : rien n’est figé.</p>' +
+        _decouverteHtmlExperiencesRecit() +
+        // Lot 4 : phrase d'aide seulement si des expériences ont réellement été reliées à un métier proposé.
+        ((typeof mcRecitNbReliees === 'function' && mcRecitNbReliees() > 0)
+          ? '<p class="text-muted small mb-2">L’assistant a repéré un métier pour ' + (mcRecitNbReliees() > 1 ? 'plusieurs de vos expériences' : 'une de vos expériences') + '. Cliquez sur une expérience pour le vérifier, le changer, puis choisir ses missions et ses compétences.</p>' : '') +
+        '<p class="text-muted small mb-2">Vous avez d’autres expériences professionnelles à ajouter, en plus de celles de votre récit ? Le bouton « Ajouter une expérience » vous aide à choisir le métier, les missions et les compétences.</p>' +
         '<div class="decouverte-experiences-mise-en-avant">' + blocERIP(CONFIG_BLOC_EXPERIENCES_PRO) + '</div>',
       peutContinuer: true,
       onAfficher: function () {
         wireBlocERIP(CONFIG_BLOC_EXPERIENCES_PRO, function () { afficherEtape(9); });
+        _decouverteBrancherExperiencesRecit();
       },
       onContinuer: function () { afficherEtape(10); }
     };
@@ -2402,6 +2453,12 @@ function ouvrirDecouverteCompetences() {
       titre: '📋 Choisir ce qui ira sur votre CV',
       contenuHTML: contenuRectangleRelectureIA(),
       masquerContinuer: true,
+      // Consigne 407 (16/11/2026, bug critique) : depuis le 30/09/2026 les propositions de l'assistant s'appliquent des l'import, donc cet ecran ne porte plus de bouton « Je valide ces choix ».
+      // S'il s'affiche quand meme (retour, historique du navigateur...), la personne ne doit JAMAIS etre bloquee : « Continuer » est dans la barre du bas des qu'une reponse est importee et appliquee.
+      // Sans double bouton : tant que les propositions ne sont pas appliquees, le bouton « Continuer » de la page existe deja (contenuRectangleRelectureIA).
+      continuerDansBarre: !!(reponseIAImportee('cv') && typeof _relectureIAValideeParType !== 'undefined' && _relectureIAValideeParType[docActifActuel()]),
+      libelleContinuer: 'Continuer &#8594;',
+      onContinuer: function () { if (complementCVEnAttente()) { afficherEtape(14); } else { terminerParcoursDecouverte(); } },
       onAfficher: function () {
         // TACHE : _onValiderRelectureIACV a deja ete pose par
         // wireImportIA (etape 12), avec un onValider "generique" (celui
@@ -2562,6 +2619,11 @@ function ouvrirDecouverteCompetences() {
       }
       return false;
     }
+    // Consigne 396 (Denis, 15/11/2026) : on garde une copie de ce que l'assistant a retrouvé dans le récit, pour que la personne puisse retirer une expérience
+    // à l'étape « Vos expériences » puis la remettre. Chaque expérience portera un repère (idRecit), qui survit aux modifications faites dans le formulaire.
+    etat.experiencesRecit = (resultatMapping.valeurs.misesAJour.experiences || [])
+      .filter(function (x) { return (dossier.experiences || []).indexOf(x) !== -1; })
+      .map(function (x, k) { x.idRecit = 'r' + (k + 1); return { id: x.idRecit, exp: JSON.parse(JSON.stringify(x)) }; });
     // TACHE (retour Denis, 2026-09-19, point 6) : seule la civilite reste
     // saisie a "Preparer" (etat.identite) -- nom/prenom/telephone/email/
     // ville/codePostal se renseignent desormais sur "Vos informations"
@@ -2771,7 +2833,10 @@ function ouvrirDecouverteCompetences() {
     // --- Section 2, enrichie : dire pourquoi, et que c'est vraiment ok de passer ---
     var viseeEnrichi =
       '<p class="mb-2">Si vous avez un métier ou un secteur en tête, indiquez-le : votre CV emploiera alors le bon vocabulaire, et pourra être aligné sur une offre précise.</p>' +
-      _decouverteEncart('&#128077;', '<strong>Vous ne savez pas encore quoi viser ?</strong> C’est très fréquent, et ce n’est pas un problème. Laissez cette partie de côté : l’assistant restera général, vous préciserez plus tard.', 'ok') +
+      // Venu de « Candidater », la personne a déjà choisi : la phrase « Vous ne savez pas encore quoi viser ? » n'aurait plus de sens (consigne 273, retour Denis 13/11/2026).
+      (acc.depuisCandidater
+        ? _decouverteEncart('&#128221;', '<strong>Ce que vous avez indiqué sur « Candidater » est repris ici.</strong> Complétez-le si vous le souhaitez : l’assistant en tient compte pour adapter le vocabulaire de votre CV.', 'ok')
+        : _decouverteEncart('&#128077;', '<strong>Vous ne savez pas encore quoi viser ?</strong> C’est très fréquent, et ce n’est pas un problème. Laissez cette partie de côté : l’assistant restera général, vous préciserez plus tard.', 'ok')) +
       acc.contenuHTML;
 
     return {
@@ -2843,7 +2908,7 @@ function ouvrirDecouverteCompetences() {
       contenuHTML: bandeau +
         (qc ? '<div class="cv-section">' + encartChoix + dec.contenuHTML + '</div>' : encartChoix + dec.contenuHTML) +
         (qc
-          ? '<div class="cv-section" style="margin-top:1rem;"><h4 class="titre-rubrique">&#10067; Quelques précisions</h4>' +
+          ? '<div class="cv-section" id="decouvertePrecisions" style="margin-top:1rem;"><h4 class="titre-rubrique">&#10067; Quelques précisions</h4>' +
             texteQuestions +
             qc.contenuHTML + '</div>'
           : '') + raisonHTML + texteEnsuite,

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : boutons identiques et rubriques de saisie</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 20px 4rem}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto;max-width:1100px}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-page{margin:0 auto;max-width:760px}
+.mq-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:14px;padding:.9rem 1.1rem 1.1rem;margin:.8rem 0}
+.mq-titre{font-weight:700;margin:0 0 .6rem}
+.mq-q{font-weight:700;margin:.6rem 0 .3rem}
+.mq-ligne{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.4rem 0}
+#mqPage .pastille-mini-edition{max-width:none}
+/* Réglage « agencement » : regrouper pour réduire les espaces vides */
+.mq-grille{display:block}
+.mq-ligne-liste{display:block}
+.mq-ligne-liste>*{display:block;width:100%;margin:.35rem 0}
+.mq-ligne-liste .btn{width:auto}
+.mq-ligne-liste>.mq-num,.v-compact .mq-ligne-liste>.mq-num{display:inline-flex;width:1.3rem;flex:0 0 1.3rem;margin:0 .35rem 0 0}
+.mq-ligne-liste>.mq-num{margin-top:.35rem}
+.v-compact .mq-page{max-width:1000px}
+.v-compact .mq-bloc{padding:.6rem .85rem .75rem;margin:.5rem 0}
+.v-compact .mq-grille{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.v-compact .mq-grille .mq-bloc{margin:.5rem 0}
+.v-compact .mq-ligne-liste{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.v-compact .mq-ligne-liste>*{width:auto;margin:0;flex:1 1 9rem;min-width:0}
+.v-compact .mq-ligne-liste .btn{flex:0 0 auto}
+.v-compact .fm-choix{margin:.4rem 0}
+.v-compact .mq-q{margin:.4rem 0 .2rem}
+.v-compact .mq-titre{margin:0 0 .35rem}
+@media (max-width:700px){.v-compact .mq-grille{grid-template-columns:1fr}}
+.mq-num{display:inline-flex;align-items:center;justify-content:center;width:1.3rem;height:1.3rem;border-radius:50%;background:var(--text-strong);color:var(--bg-card);font-size:.75rem;font-weight:800;margin-right:.35rem;flex:none}
+.mq-ligne{align-items:center}
+/* Réglage « champs à saisir » */
+.mq-etiquette-ecrire{display:none}
+.v-saisie-cadre .mq-etiquette-ecrire,.v-saisie-etiquette .mq-etiquette-ecrire{display:inline-block}
+.v-saisie-cadre .mq-champ{border:2px solid var(--warning);background:var(--bg-card);color:var(--text-strong)}
+.v-saisie-cadre .mq-zone-ecrire{border-left:5px solid var(--warning);background:var(--warning-bg-subtle);border-radius:10px;padding:.5rem .7rem .6rem;margin:.6rem 0}
+.mq-zone-ecrire{margin:.6rem 0}
+/* Réglage « choix » : bord bleu sur tous les boutons de choix */
+.v-choix-bleu .jeton{border-color:var(--accent)}
+.v-choix-bleu .jeton.is-actif{background:var(--accent-bg-subtle);border-width:2.5px}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir">Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2>Maquette : boutons identiques et rubriques de saisie (page « Vos informations »)
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages">&#10005; Fermer</button>
+  </h2>
+  <div class="grp"><b>1. Les boutons d’action (Ajouter, Ajouter une expérience, Enregistrer, Je valide)</b>
+    <div class="boutons" data-groupe="act">
+      <button type="button" class="btn btn-sm btn-primary" data-v="plein">A : tous pleins, même taille (recommandé)</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="cadre">B : tous avec cadre bleu, même taille</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="actuel">Aujourd’hui (mélange)</button>
+    </div></div>
+  <div class="grp"><b>2. Les boutons de choix (Oui / Non, diplôme, niveau...)</b>
+    <div class="boutons" data-groupe="choix">
+      <button type="button" class="btn btn-sm btn-primary" data-v="bleu">A : tous bordés de bleu (recommandé)</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="actuel">Aujourd’hui (gris tant qu’ils ne sont pas choisis)</button>
+    </div></div>
+  <div class="grp"><b>3. Les rubriques où la personne écrit</b>
+    <div class="boutons" data-groupe="saisie">
+      <button type="button" class="btn btn-sm btn-primary" data-v="cadre">A : étiquette « À écrire » et cadre ambre (recommandé)</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="etiquette">B : étiquette « À écrire » seule</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="actuel">Aujourd’hui (champ gris sans repère)</button>
+    </div></div>
+  <div class="grp"><b>4. L’agencement de la page : moins d’espaces vides, rubriques regroupées</b>
+    <div class="boutons" data-groupe="agenc">
+      <button type="button" class="btn btn-sm btn-primary" data-v="compact">A : regroupé (recommandé)</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="actuel">Aujourd’hui (tout en colonne, un champ par ligne)</button>
+    </div></div>
+  <p class="small mb-0">Les petits chiffres noirs sur la page (1, 2, 3) montrent ce que chaque réglage ci-dessus change. Le fond bleu autour des choix est retiré dans tous les cas (décision du 15/11/2026). Les étiquettes « À choisir » restent.</p>
+</div>
+
+<div class="mq-page" id="mqPage">
+ <div class="fm-bloc">
+
+  <div class="mq-bloc">
+    <p class="mq-titre">Vos formations et diplômes</p>
+    <div class="fm-choix"><p class="fm-q">De quoi disposez-vous ? <span class="fm-tag fm-tag--choix">À choisir</span></p>
+      <div class="pastilles">
+        <button type="button" class="jeton jeton--radio jeton--compact">Sans diplôme</button>
+        <button type="button" class="jeton jeton--radio jeton--compact is-actif">Diplôme</button>
+        <button type="button" class="jeton jeton--radio jeton--compact">Titre professionnel</button>
+        <button type="button" class="jeton jeton--radio jeton--compact">CQP</button>
+      </div></div>
+    <p class="mq-q">Souhaitez-vous indiquer des certifications ?</p>
+    <div class="mq-ligne"><button type="button" class="jeton jeton--radio jeton--compact is-actif">Oui</button><button type="button" class="jeton jeton--radio jeton--compact">Non</button></div>
+    <div class="mq-ligne"><button type="button" class="btn btn-outline-primary btn-sm mq-act">➕ Ajouter</button><button type="button" class="btn btn-primary btn-sm mq-act">📝 Ajouter une expérience</button></div>
+  </div>
+
+  <div class="mq-bloc">
+    <p class="mq-titre">Ce que vous avez appris ailleurs qu’au travail</p>
+    <div class="fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+      <div class="mq-ligne"><select class="form-select form-select-sm" style="width:auto;max-width:100%"><option>Gestion d’un foyer</option></select>
+        <button type="button" class="btn btn-outline-primary btn-sm mq-act">➕ Ajouter</button></div></div>
+
+    <div class="pastille-mini-edition pastille-mini-edition--large mt-1 mb-2">
+      <p class="fw-bold mb-2">Gestion d’un foyer</p>
+      <div class="mq-ligne"><select class="form-select form-select-sm" style="width:auto"><option>2010</option></select><span class="small text-muted">à</span><select class="form-select form-select-sm" style="width:auto"><option>Toujours en cours</option></select></div>
+      <p class="fw-bold mt-2 mb-1">Voulez-vous développer cet élément sur votre CV ?</p>
+      <div class="mq-ligne"><button type="button" class="jeton jeton--radio jeton--compact">Non, seulement le citer</button><button type="button" class="jeton jeton--radio jeton--compact is-actif">Oui, le développer</button></div>
+      <div class="fm-miss"><p class="fm-q">Ce que vous avez fait <span class="fm-tag fm-tag--miss">À choisir</span></p>
+        <p class="small mb-2">Cochez seulement ce que vous avez réellement fait.</p>
+        <div class="pastilles mb-1"><button type="button" class="jeton jeton--compact is-actif" style="text-align:left">Planifier et préparer les repas pour la famille</button><button type="button" class="jeton jeton--compact" style="text-align:left">Gérer le budget du foyer</button><button type="button" class="jeton jeton--compact" style="text-align:left">Organiser les rendez-vous</button></div></div>
+      <div class="mq-zone-ecrire"><p class="fm-q mb-1">Ou écrivez avec vos mots <span class="fm-tag fm-tag--ecrire mq-etiquette-ecrire">À écrire</span></p>
+        <textarea class="form-control form-control-sm mq-champ" rows="2" placeholder="Une autre mission que vous avez réellement faite (à compléter)"></textarea></div>
+      <div class="mq-zone-ecrire"><p class="fm-q mb-1">Contexte <span class="fm-tag fm-tag--ecrire mq-etiquette-ecrire">À écrire</span></p>
+        <textarea class="form-control form-control-sm mq-champ" rows="2" placeholder="Dans quel cadre ? Un chiffre si possible."></textarea></div>
+      <button type="button" class="btn btn-primary btn-sm fw-bold px-4 mq-act">&#10003; Je valide</button>
+    </div>
+    <p class="small mb-0">Plus de bouton « Afficher dans l’expérience professionnelle » ici.</p>
+  </div>
+
+  <div class="mq-grille">
+   <div class="mq-bloc">
+    <p class="mq-titre">Loisirs</p>
+    <div class="fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+      <div class="mq-ligne-liste"><select class="form-select form-select-sm"><option>Choisir dans la liste...</option></select>
+        <input class="form-control form-control-sm mq-champ" placeholder="Autre : précisez">
+        <button type="button" class="btn btn-outline-primary btn-sm mq-act">➕ Ajouter</button></div></div>
+   </div>
+   <div class="mq-bloc">
+    <p class="mq-titre">Engagements</p>
+    <div class="fm-choix"><p class="fm-q">Choisir dans la liste <span class="fm-tag fm-tag--choix">À choisir</span></p>
+      <div class="mq-ligne-liste"><select class="form-select form-select-sm"><option>Choisir dans la liste...</option></select>
+        <input class="form-control form-control-sm mq-champ" placeholder="Autre : précisez">
+        <button type="button" class="btn btn-outline-primary btn-sm mq-act">➕ Ajouter</button></div></div>
+   </div>
+  </div>
+
+  <div class="mq-bloc">
+    <p class="mq-titre">Votre identité</p>
+    <div class="mq-zone-ecrire"><p class="fm-q mb-1">Prénom et nom <span class="fm-tag fm-tag--ecrire mq-etiquette-ecrire">À écrire</span></p>
+      <input class="form-control form-control-sm mq-champ" placeholder="Prénom (à compléter)"></div>
+    <div class="mq-ligne"><button type="button" class="btn btn-primary btn-sm mq-act">💾 Enregistrer mon identité</button></div>
+  </div>
+
+ </div>
+</div>
+
+<script>
+(function () {
+  var page = document.getElementById('mqPage');
+  function actions(v) {
+    page.querySelectorAll('.mq-act').forEach(function (b) {
+      b.classList.remove('btn-primary', 'btn-outline-primary', 'fw-bold', 'px-4');
+      if (v === 'plein') { b.classList.add('btn-primary'); }
+      else if (v === 'cadre') { b.classList.add('btn-outline-primary'); }
+      else {
+        // « Aujourd'hui » : le mélange réel de la page
+        var t = b.textContent;
+        if (/Ajouter une exp|Enregistrer/.test(t)) { b.classList.add('btn-primary'); } else { b.classList.add('btn-outline-primary'); }
+      }
+      if (/Je valide/.test(b.textContent) && v !== 'actuel') { b.classList.add('fw-bold', 'px-4'); }
+      if (/Je valide/.test(b.textContent) && v === 'actuel') { b.classList.remove('btn-primary'); b.classList.add('btn-outline-primary'); }
+    });
+  }
+  function regler(groupe, v) {
+    if (groupe === 'act') { actions(v); }
+    if (groupe === 'agenc') { page.classList.toggle('v-compact', v === 'compact'); }
+    if (groupe === 'choix') { page.classList.toggle('v-choix-bleu', v === 'bleu'); }
+    if (groupe === 'saisie') { page.classList.remove('v-saisie-cadre', 'v-saisie-etiquette'); if (v === 'cadre') { page.classList.add('v-saisie-cadre'); } if (v === 'etiquette') { page.classList.add('v-saisie-etiquette'); } }
+    document.querySelectorAll('[data-groupe="' + groupe + '"] button').forEach(function (b) {
+      var on = b.getAttribute('data-v') === v;
+      b.classList.toggle('btn-primary', on); b.classList.toggle('btn-outline-primary', !on);
+    });
+  }
+  document.querySelectorAll('.mq-regl [data-groupe]').forEach(function (g) {
+    g.addEventListener('click', function (e) { var b = e.target.closest('button[data-v]'); if (b) { regler(g.getAttribute('data-groupe'), b.getAttribute('data-v')); } });
+  });
+  // Les jetons de la maquette se cochent vraiment
+  page.addEventListener('click', function (e) {
+    var j = e.target.closest('.jeton'); if (!j) { return; }
+    if (j.classList.contains('jeton--radio') && !j.closest('.fm-miss')) {
+      j.parentNode.querySelectorAll('.jeton').forEach(function (x) { x.classList.remove('is-actif'); });
+      j.classList.add('is-actif');
+    } else { j.classList.toggle('is-actif'); }
+  });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+  document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+  // Repères : un numéro sur chaque élément concerné par un réglage (1, 2 ou 3), pour voir tout de suite ce que chaque ligne du haut change.
+  function repere(el, n) { var s = document.createElement('span'); s.className = 'mq-num'; s.textContent = n; el.parentNode.insertBefore(s, el); }
+  page.querySelectorAll('.mq-act').forEach(function (b) { if (!b.parentNode.classList.contains('mq-ligne-liste')) { repere(b, '1'); } });
+  page.querySelectorAll('.jeton--radio').forEach(function (b) { if (!b.previousElementSibling || !b.previousElementSibling.classList.contains('jeton')) { repere(b, '2'); } });
+  page.querySelectorAll('.mq-zone-ecrire').forEach(function (z) { var p = z.querySelector('.fm-q'); if (p) { var s = document.createElement('span'); s.className = 'mq-num'; s.textContent = '3'; p.insertBefore(s, p.firstChild); } });
+  regler('act', 'plein'); regler('choix', 'bleu'); regler('saisie', 'cadre'); regler('agenc', 'compact');
+})();
+</script>
+</body>
+</html>

@@ -580,8 +580,8 @@ function _mepHtmlOptionsActionMq() {
   var choix = _mepEtatChoixMq(), mode = _mepEtatExperiences().mode;
   if (mode === 'A') { return ''; }
   var c = dossier.reglagesMiseEnPageCV || {};
-  // Sans choix, la disposition suit le style des competences : en pastilles (hors deux colonnes) le bloc est deja sur la ligne des comportementales.
-  var coteActuel = (typeof choix.actionCote === 'boolean') ? (choix.actionCote ? 'cote' : 'large') : ((_mepStyleCompGeneral() !== 'texte' && String(c.colonnes) !== '2') ? 'cote' : 'large');
+  // Sans choix : pleine largeur, en lignes (decision Denis 2026-11-16). « A cote des comportementales » n'existe que si la personne le choisit.
+  var coteActuel = (choix.actionCote === true) ? 'cote' : 'large';
   var dispo = [['large', 'Pleine largeur'], ['cote', '&Agrave; c&ocirc;t&eacute; des comportementales']];
   var aideDispo = (mode === 'B')
     ? 'Indisponible ici : en Mixte, les comp&eacute;tences comportementales sont d&eacute;j&agrave; avec les comp&eacute;tences professionnelles ; &laquo;&nbsp;Comp&eacute;tences en action&nbsp;&raquo; a sa propre ligne.'
@@ -604,24 +604,150 @@ function _mepSegMq(attr, options, actuel, classeSeg) {
     return '<button type="button" data-' + attr + '="' + o[0] + '"' + (String(actuel) === String(o[0]) ? ' class="on"' : '') + '>' + o[1] + (o[2] ? '<small>' + o[2] + '</small>' : '') + '</button>';
   }).join('') + '</div>';
 }
+// ----- Compléments de l'assistant (consigne 318, maquette docs/MAQUETTE_COMPLEMENTS_ASSISTANT_2026-11-15.html) -----
+// Doublons de sens, versions plus courtes : montrés par expérience ; compétences en plus : dans la carte Compétences. Jamais rien d'appliqué sans un clic,
+// jamais un choix de la personne réécrit. Les décisions sont gardées sur les entrées de la réponse (decision, utilisee) : elles suivent le dossier.
+function _mepComplementsActifs() {
+  return typeof MC_OUVERT !== 'undefined' && MC_OUVERT === true && !(typeof mcActifPourCeCv === 'function' && !mcActifPourCeCv()) && typeof mcRangsDoublon === 'function' && typeof trouverEntreeExperienceIA === 'function';
+}
+function _mepRecoCompl() { return (dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations) || {}; }
+// Les entrées (avec leur numéro dans la liste d'origine) qui concernent cette expérience.
+function _mepEntreesPourExperience(liste, e) {
+  var r = [];
+  (liste || []).forEach(function (s, idx) { if (s && trouverEntreeExperienceIA([s], e.poste, e.entreprise)) { r.push({ idx: idx, entree: s }); } });
+  return r;
+}
+// { doublons : [{ idx, entree, rangs, decision }], courtes : { rang : { origine, courte, utilisee, idx } }, nbCourtes, nbAVoir } ou null s'il n'y a rien à montrer.
+function _mepComplementsExperience(e, segments) {
+  if (!_mepComplementsActifs()) { return null; }
+  var reco = _mepRecoCompl(), doublons = [], courtes = {}, nbAVoir = 0, nbCourtes = 0;
+  _mepEntreesPourExperience(reco.doublonsMissions, e).forEach(function (x) {
+    var rangs = mcRangsDoublon(x.entree, segments);
+    if (rangs) { doublons.push({ idx: x.idx, entree: x.entree, rangs: rangs, decision: x.entree.decision || '' }); }
+  });
+  var liste = _mepEntreesPourExperience(reco.missionsPlusCourtes, e);
+  var parRang = mcVersionsCourtesParRang(liste.map(function (x) { return x.entree; }), segments);
+  Object.keys(parRang).forEach(function (r) {
+    var v = parRang[r];
+    courtes[r] = { origine: v.origine, courte: v.courte, utilisee: v.utilisee, idx: reco.missionsPlusCourtes.indexOf(v.entree) };
+    nbCourtes++; if (!v.utilisee) { nbAVoir++; }
+  });
+  // Mettre en avant (consigne 395) : les lignes que l'assistant juge les plus utiles pour le métier visé. Montré seulement si au moins une ligne correspond exactement
+  // à une ligne du CV et qu'il y a quelque chose à changer (ou déjà changé, pour pouvoir revenir en arrière).
+  var enAvant = null;
+  _mepEntreesPourExperience(reco.missionsEnAvant, e).forEach(function (x) {
+    if (enAvant || typeof rangsMissionsEnAvant !== 'function') { return; }
+    var rangs = rangsMissionsEnAvant(segments, x.entree.lignes);
+    if (!rangs.length) { return; }
+    if (x.entree.utilisee === true || ordreMissionsEnAvant(segments, x.entree.lignes)) { enAvant = { idx: x.idx, entree: x.entree, rangs: rangs, utilisee: x.entree.utilisee === true }; }
+  });
+  if (!doublons.length && !nbCourtes && !enAvant) { return null; }
+  return { doublons: doublons, courtes: courtes, nbCourtes: nbCourtes, nbAVoir: nbAVoir, enAvant: enAvant };
+}
+function _mepHtmlDoublonsExperience(indexExp, compl, segments) {
+  if (!compl) { return ''; }
+  return compl.doublons.map(function (d) {
+    var a = echapperAttribut(segments[d.rangs[0]]), b = echapperAttribut(segments[d.rangs[1]]), pref = 'data-mep-exp-doublon="' + indexExp + '|' + d.idx + '|';
+    if (!d.decision) {
+      return '<div class="complement-assistant"><p><b>Deux de vos lignes disent presque la m&ecirc;me chose :</b></p>' +
+        '<ul><li>&laquo;&nbsp;' + a + '&nbsp;&raquo;</li><li>&laquo;&nbsp;' + b + '&nbsp;&raquo;</li></ul>' +
+        '<p class="miss-aide">L&rsquo;assistant n&rsquo;a rien retir&eacute;. Vous d&eacute;cidez de ce qui figure sur le CV.</p>' +
+        '<div class="actions"><button type="button" class="btn-miss" ' + pref + 'deux">Garder les deux</button>' +
+        '<button type="button" class="btn-miss" ' + pref + 'premiere">Garder seulement la premi&egrave;re</button>' +
+        '<button type="button" class="btn-miss" ' + pref + 'seconde">Garder seulement la seconde</button></div></div>';
+    }
+    var texte = d.decision === 'deux' ? 'Vous gardez les deux lignes.' : 'Vous gardez seulement la ' + (d.decision === 'premiere' ? 'premi&egrave;re' : 'seconde') + ' ligne. L&rsquo;autre reste dans votre liste de missions, vous pouvez la recocher.';
+    return '<div class="conseil-missions ok">' + texte + ' <button type="button" class="btn-miss" ' + pref + 'rien">Revenir en arri&egrave;re</button></div>';
+  }).join('');
+}
+// Mettre en avant : « Ces missions comptent le plus pour ce métier : les mettre en premier ? » Oui = le CV réordonne seulement ; un clic pour revenir en arrière.
+function _mepHtmlEnAvantExperience(indexExp, compl, segments) {
+  var d = compl && compl.enAvant;
+  if (!d) { return ''; }
+  var attr = 'data-mep-exp-enavant="' + indexExp + '|' + d.idx + '"';
+  var lignes = '<ul>' + d.rangs.map(function (r) { return '<li>&laquo;&nbsp;' + echapperAttribut(segments[r]) + '&nbsp;&raquo;</li>'; }).join('') + '</ul>';
+  var raison = String(d.entree.raison || '').trim();
+  if (d.utilisee) {
+    return '<div class="conseil-missions ok">Vous avez mis ' + (d.rangs.length > 1 ? 'ces missions' : 'cette mission') + ' en premier sur le CV. Rien n&rsquo;a &eacute;t&eacute; chang&eacute; dans vos phrases. ' +
+      '<button type="button" class="btn-miss" ' + attr + '>Revenir en arri&egrave;re</button></div>';
+  }
+  return '<div class="complement-assistant"><p><b>' + (d.rangs.length > 1 ? 'Ces missions comptent le plus' : 'Cette mission compte le plus') + ' pour le m&eacute;tier que vous visez. Les mettre en premier&nbsp;?</b></p>' + lignes +
+    (raison ? '<p class="miss-aide">' + echapperAttribut(raison) + '</p>' : '') +
+    '<p class="miss-aide">Seul l&rsquo;ordre change : vos phrases restent exactement les m&ecirc;mes, et rien n&rsquo;est ajout&eacute; ni retir&eacute;.</p>' +
+    '<div class="actions"><button type="button" class="btn-miss" ' + attr + '>Oui, les mettre en premier</button></div></div>';
+}
+function _mepHtmlInvitationCourtes(indexExp, compl, ouvert) {
+  if (!compl || ouvert || !compl.nbCourtes) { return ''; }
+  return '<div class="conseil-missions">' + (compl.nbAVoir > 0
+    ? 'L&rsquo;assistant propose une version plus courte de ' + (compl.nbAVoir > 1 ? compl.nbAVoir + ' de vos lignes' : 'l&rsquo;une de vos lignes') + '. '
+    : 'Vous utilisez les versions plus courtes propos&eacute;es. ') +
+    '<button type="button" class="btn-miss" data-mep-exp-choisir-missions="' + indexExp + '">' + (compl.nbAVoir > 0 ? (compl.nbAVoir > 1 ? 'Les voir' : 'La voir') : 'Les revoir') + '</button></div>';
+}
+// Propositions de l'assistant en plus (lot 4 missions et competences, consigne 307) : pour une experience dont la personne a choisi les missions dans
+// l'etape « Vos missions et competences », ce que l'assistant propose d'autre (sans doublon avec ses lignes). Rien n'est ajoute sans son clic.
+// null quand il n'y a rien a proposer : l'ecran reste alors exactement celui d'avant. segments = missions de l'experience telles que le moteur les donne.
+function _mepPropositionsEnPlus(e, segments, choisieListe, n) {
+  if (typeof mcComplementsAssistant !== 'function' || typeof trouverEntreeExperienceIA !== 'function' || !dossier.etapeMC) { return null; }
+  var lignes = mcMissionsPersonne(dossier.etapeMC, trouverEntreeExperienceIA(dossier.experiences || [], e.poste, e.entreprise));
+  if (!lignes.length) { return null; }
+  var reco = (dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations) || {};
+  var pool = trouverEntreeExperienceIA(reco.savoirFaireParExperienceProposees || [], e.poste, e.entreprise);
+  if (!pool || !(pool.missions || []).length) { return null; }
+  var gardees = (trouverEntreeExperienceIA(reco.savoirFaireParExperience || [], e.poste, e.entreprise) || {}).missions || [];
+  var items = mcComplementsAssistant(lignes, pool.missions, gardees);
+  if (!items.length) { return null; }
+  items.forEach(function (it) {
+    var cle = mcCleTexte(it.texte);
+    it.rang = -1;
+    segments.forEach(function (s, k) { if (it.rang < 0 && mcCleTexte(s) === cle) { it.rang = k; } });
+    it.retenue = it.rang >= 0;
+    it.affichee = it.retenue && (choisieListe ? choisieListe.indexOf(it.rang) !== -1 : it.rang < n);
+  });
+  return { items: items, ajoutees: items.filter(function (it) { return it.affichee; }).length };
+}
+function _mepHtmlBlocEnPlus(indexExp, plus, nbSegments) {
+  return '<div class="miss-en-plus"><div class="miss-tete"><span>Propositions de l&rsquo;assistant en plus (' + plus.ajoutees + ' ajout&eacute;e' + (plus.ajoutees > 1 ? 's' : '') + ' sur ' + plus.items.length + ')</span></div>' +
+    '<p class="miss-aide">Cochez ce qui vous semble valorisant : cela s&rsquo;ajoute &agrave; votre CV. Rien n&rsquo;est ajout&eacute; sans votre clic.</p>' +
+    plus.items.map(function (it, j) {
+      return '<label class="' + (it.affichee ? '' : 'non') + '"><input type="checkbox" data-mep-exp-plus="' + indexExp + '|' + j + '" data-rang="' + it.rang + '" data-retenue="' + (it.retenue ? 1 : 0) +
+        '" data-affichee="' + (it.affichee ? 1 : 0) + '" data-nseg="' + nbSegments + '" data-texte="' + echapperAttribut(it.texte) + '"' + (it.affichee ? ' checked' : '') + '><span>' + echapperAttribut(it.texte) + '</span></label>';
+    }).join('') + '</div>';
+}
 // TACHE (retour Denis 2026-09-28, point 13 : "je dois pouvoir choisir laquelle mission je
 // garde, pas juste combien") : bouton "Missions / Choix personnel" + liste a cocher, PARTAGE
 // entre Experiences, Formations et Experience personnelle -- meme markup exact, seul le
 // prefixe data-mep-<prefixe>-... change. "cle" est l'index (Experiences, nombre) ou le texte
 // normalise de l'item (Formations/Experience personnelle, _mepCleExpPerso/_pdfCleFormation) ;
 // jamais 3 implementations paralleles a maintenir en parallele (LECONS, regle 13).
-function _mepHtmlMissionsPickerMq(prefixe, cle, segments, choisieListe, n, ouvert) {
+// « plus » (facultatif, Experiences seulement) : les propositions de l'assistant en plus des choix de la personne (voir _mepPropositionsEnPlus).
+// Celles deja retenues sont retirees de la liste principale (une mission, une seule place) et montrees dans leur propre cadre, sous « Vos choix ».
+// « extras » (facultatif, Experiences seulement, consigne 318) : { courtes : { rang : version plus courte proposee }, doublons : { rang : numero de la ligne jumelle } }
+// (voir _mepComplementsExperience). Le texte montre dans la liste est toujours celui de la personne ; la version courte se montre A COTE, jamais a la place.
+function _mepHtmlMissionsPickerMq(prefixe, cle, segments, choisieListe, n, ouvert, plus, extras) {
   var perso = !!choisieListe;
   var cleAttr = echapperAttribut(String(cle));
   var htmlMissions = '';
   if (ouvert) {
     var coches = perso ? choisieListe : segments.slice(0, n).map(function (m, k) { return k; });
+    var masques = {};
+    if (plus) { plus.items.forEach(function (it) { if (it.retenue) { masques[it.rang] = true; } }); }
+    var courtes = (extras && extras.courtes) || {}, doublons = (extras && extras.doublons) || {}, numero = {}, vus = 0;
+    segments.forEach(function (m, k) { if (!masques[k]) { vus++; numero[k] = vus; } });
     htmlMissions = '<div class="miss-liste"><div class="miss-tete"><span>' + coches.length + ' mission' + (coches.length > 1 ? 's' : '') + ' choisie' + (coches.length > 1 ? 's' : '') + ' sur ' + segments.length + ' propos&eacute;es</span>' +
       '<button type="button" data-mep-' + prefixe + '-raz="' + cleAttr + '">Remettre les premi&egrave;res</button></div>' +
+      (plus ? '<p class="miss-sous-titre">Vos choix</p>' : '') +
       segments.map(function (m, k) {
-        var coche = coches.indexOf(k) !== -1;
-        return '<label class="' + (coche ? '' : 'non') + '"><input type="checkbox" data-mep-' + prefixe + '-mission="' + cleAttr + '|' + k + '"' + (coche ? ' checked' : '') + '><span>' + echapperAttribut(m) + '</span></label>';
-      }).join('') + '</div>';
+        if (masques[k]) { return ''; }
+        var coche = coches.indexOf(k) !== -1, ct = courtes[k];
+        var tag = (doublons[k] && numero[doublons[k] - 1]) ? '<em class="tag-ecart">presque la m&ecirc;me chose que la ligne ' + numero[doublons[k] - 1] + '</em>' : '';
+        var courte = '';
+        if (ct) {
+          courte = '<div class="ligne-courte' + (ct.utilisee ? ' active' : '') + '">' + (ct.utilisee
+            ? 'Sur votre CV : &laquo;&nbsp;' + echapperAttribut(ct.courte) + '&nbsp;&raquo; <button type="button" class="btn-miss" data-mep-exp-courte="' + cleAttr + '|' + ct.idx + '">Garder ma phrase d&rsquo;origine</button>'
+            : 'Version plus courte propos&eacute;e : &laquo;&nbsp;' + echapperAttribut(ct.courte) + '&nbsp;&raquo; <button type="button" class="btn-miss" data-mep-exp-courte="' + cleAttr + '|' + ct.idx + '">Utiliser cette version</button>') + '</div>';
+        }
+        return '<label class="' + (coche ? '' : 'non') + '"><input type="checkbox" data-mep-' + prefixe + '-mission="' + cleAttr + '|' + k + '"' + (coche ? ' checked' : '') + '><span>' + echapperAttribut(ct ? ct.origine : m) + tag + '</span></label>' + courte;
+      }).join('') + (plus ? _mepHtmlBlocEnPlus(cle, plus, segments.length) : '') + '</div>';
   }
   var bouton = '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-mep-' + prefixe + '-choisir-missions="' + cleAttr + '">' + (perso ? 'Choix personnel' : 'Missions') + _mepRondBtn(ouvert) + '</button>';
   return { html: htmlMissions, bouton: bouton };
@@ -913,8 +1039,25 @@ function _htmlSecExperiencesMiseEnPage() {
     // rien (4-1=3, deja la valeur affichee/plafonnee), donnant l'impression
     // fausse que le bouton "ne marche pas". Ce data-attribut transmet le "n"
     // REELLEMENT affiche pour que l'iframe reparte de la bonne base.
-    var picker = _mepHtmlMissionsPickerMq('exp', i, segments, choisieListe, n, ouvert);
+    var plus = _mepPropositionsEnPlus(e, segments, choisieListe, n);
+    // Doublons de sens et versions plus courtes proposes par l'assistant (consigne 318) : null quand il n'y a rien, l'ecran reste alors celui d'avant.
+    var compl = _mepComplementsExperience(e, segments), extras = null;
+    if (compl) {
+      extras = { courtes: {}, doublons: {} };
+      Object.keys(compl.courtes).forEach(function (r) { extras.courtes[r] = compl.courtes[r]; });
+      compl.doublons.forEach(function (d) { if (!d.decision) { extras.doublons[d.rangs[1]] = d.rangs[0] + 1; } });
+    }
+    var picker = _mepHtmlMissionsPickerMq('exp', i, segments, choisieListe, n, ouvert, plus, extras);
     var htmlMissions = picker.html;
+    // Ligne d'invitation (liste fermee) : sans elle, personne n'ouvrirait « Missions » pour decouvrir les propositions de l'assistant.
+    var htmlPlus = '';
+    if (plus && !ouvert) {
+      var resteAAjouter = plus.items.length - plus.ajoutees;
+      htmlPlus = '<div class="conseil-missions">' + (resteAAjouter > 0
+        ? 'L&rsquo;assistant propose ' + resteAAjouter + ' mission' + (resteAAjouter > 1 ? 's' : '') + ' en plus de vos choix. '
+        : 'Vous avez ajout&eacute; toutes les propositions de l&rsquo;assistant. ') +
+        '<button type="button" class="btn-miss" data-mep-exp-choisir-missions="' + i + '">' + (resteAAjouter > 0 ? 'Les voir' : 'Les revoir') + '</button></div>';
+    }
     var conseille = Math.min(segments.length, _mepNombreConseilleMissions(e)), htmlConseil = '';
     if (!perso && conseille > 0 && conseille !== n) {
       htmlConseil = '<div class="conseil-missions">L&rsquo;assistant conseille ' + conseille + ' mission' + (conseille > 1 ? 's' : '') + ' pour cette exp&eacute;rience (vous en montrez ' + n + '). ' +
@@ -940,7 +1083,7 @@ function _htmlSecExperiencesMiseEnPage() {
       '<span class="pas"><button type="button" data-mep-exp-missions-moins="' + i + '" data-mep-exp-missions-n="' + n + '"' + (n <= 1 ? ' disabled' : '') + '>&minus;</button><span>' + n + '</span>' +
       '<button type="button" data-mep-exp-missions-plus="' + i + '" data-mep-exp-missions-n="' + n + '"' + (n >= segments.length ? ' disabled' : '') + '>+</button></span>' +
       '<span class="sur" title="Missions propos&eacute;es pour cette exp&eacute;rience">/' + segments.length + '</span>' +
-      picker.bouton + '</label>' + htmlConseil + _mepHtmlRappelSansMissions(e, estCochee, segments.length) +
+      picker.bouton + '</label>' + htmlConseil + htmlPlus + _mepHtmlDoublonsExperience(i, compl, segments) + _mepHtmlEnAvantExperience(i, compl, segments) + _mepHtmlInvitationCourtes(i, compl, ouvert) + _mepHtmlRappelSansMissions(e, estCochee, segments.length) +
       htmlMissions + (_mepEditionExp ? _htmlEditionExperienceMq(e, i) : '') + '</div>';
   }).join('');
 
@@ -1579,6 +1722,28 @@ function _mepCablerEditionCompetences(racine) {
   });
 }
 
+// Compétences proposées par l'assistant en plus (consigne 318) : savoir-faire (professionnelles) et savoir-être (comportementales), chacune avec son « Pourquoi ».
+// Cocher l'ajoute au CV par le mécanisme existant « compétences ajoutées pour ce CV » (choixMq.competencesAjoutees) ; décocher la retire. Rien sans clic.
+function _mepHtmlCompetencesEnPlus() {
+  if (!_mepComplementsActifs() || typeof mcCompetencesEnPlusAffichables !== 'function') { return ''; }
+  var reco = _mepRecoCompl();
+  if (!(reco.competencesEnPlus || []).length) { return ''; }
+  var aff = window._mepCompetencesAffichees || {};
+  var liste = mcCompetencesEnPlusAffichables(reco.competencesEnPlus, aff.poolPro, aff.poolComp, _mepEtatChoixMq().competencesAjoutees || {}, mcNomsDejaCites(reco));
+  var total = liste.pro.length + liste.comp.length;
+  if (!total) { return ''; }
+  var nbAjoutees = liste.pro.concat(liste.comp).filter(function (x) { return x.ajoutee; }).length;
+  function groupe(famille, titre) {
+    if (!liste[famille].length) { return ''; }
+    return '<p class="miss-sous-titre">' + titre + '</p>' + liste[famille].map(function (x) {
+      return '<label class="' + (x.ajoutee ? '' : 'non') + '"><input type="checkbox" data-mep-comp-plus="1" data-famille="' + famille + '" data-nom="' + echapperAttribut(x.nom) + '"' + (x.ajoutee ? ' checked' : '') + '>' +
+        '<span>' + echapperAttribut(x.nom) + (x.pourquoi ? '<small class="pourquoi">Pourquoi : ' + echapperAttribut(x.pourquoi) + '</small>' : '') + '</span></label>';
+    }).join('');
+  }
+  return '<div class="champ champ-comp-plus"><div class="miss-liste"><div class="miss-en-plus"><div class="miss-tete"><span>Comp&eacute;tences propos&eacute;es par l&rsquo;assistant en plus (' + nbAjoutees + ' ajout&eacute;e' + (nbAjoutees > 1 ? 's' : '') + ' sur ' + total + ')</span></div>' +
+    '<p class="miss-aide">Cochez ce qui vous ressemble : cela s&rsquo;ajoute &agrave; votre CV. Rien n&rsquo;est ajout&eacute; sans votre clic, et vos propres comp&eacute;tences restent telles quelles.</p>' +
+    groupe('pro', 'Savoir-faire') + groupe('comp', 'Savoir-&ecirc;tre') + '</div></div></div>';
+}
 function _htmlSecCompetencesMiseEnPage() {
   if (!_cvEcranUniqueMiseEnPage()) { return ''; }
   var choix = _mepEtatChoixMq();
@@ -1614,7 +1779,7 @@ function _htmlSecCompetencesMiseEnPage() {
     '<div class="grille-el">' +
     bloc('pro', 'Comp&eacute;tences professionnelles &agrave; afficher', 'data-mep-comp-pro-moins', 'data-mep-comp-pro-plus', aff.pro.length) +
     bloc('comp', 'Comp&eacute;tences comportementales &agrave; afficher', 'data-mep-comp-comportementales-moins', 'data-mep-comp-comportementales-plus', aff.comp.length) +
-    '</div>' +
+    '</div>' + _mepHtmlCompetencesEnPlus() +
     // Disposition des deux blocs (retour Denis 2026-10-03) : avec les options de disposition, sous les deux colonnes.
     _mepHtmlProCompDispoMq() +
     '<div id="mepZoneEditComp">' + _mepHtmlEditionCompetences() + '</div>' +
@@ -1964,6 +2129,34 @@ function _mepRemettreCompetencesAuto(cle) {
   setTimeout(_mepRerendre, 30);
 }
 
+// Sous l'aperçu du CV : « Vos certifications ont des missions, elles ne sont pas affichées » avec un bouton qui active la case de la carte « Formations ». Décision de Denis (16/11/2026) :
+// les missions de certification ne s'affichent jamais d'office (peu de personnes les valorisent, le CV paraîtrait trop chargé) ; la personne les active si elle le veut.
+function _mepMajAvisMissionsFormation() {
+  var apercu = document.getElementById('zonePdfInlineCV');
+  if (!apercu || !apercu.parentNode) { return; }
+  var dispo = window._mepMissionsFormationDispo || { certifs: 0, formations: 0, affichees: true };
+  var zone = document.getElementById('mepAvisMissionsFormation');
+  if (dispo.affichees || (!dispo.certifs && !dispo.formations)) { if (zone) { zone.parentNode.removeChild(zone); } return; }
+  var quoi = (dispo.certifs && dispo.formations) ? 'de vos certifications et de vos formations' : (dispo.certifs ? 'de vos certifications' : 'de vos formations');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'mepAvisMissionsFormation';
+    zone.className = 'info-auto';
+    zone.style.cssText = 'margin-top:0.6rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.8rem;';
+    apercu.parentNode.insertBefore(zone, apercu.nextSibling);
+  }
+  zone.innerHTML = '<span>Les missions ' + quoi + ' ne sont pas affichées sur le CV. Elles sont surtout utiles si vous avez peu d’expérience.</span>' +
+    '<button type="button" class="mep-btn" data-mep-avis-missions-formation>Les afficher sur le CV</button>';
+  var bouton = zone.querySelector('[data-mep-avis-missions-formation]');
+  if (bouton) {
+    bouton.addEventListener('click', function () {
+      _mepPousserHistorique('formMissions');
+      _mepAppelerIframePdf('_pdfBasculerAfficherMissionsFormation');
+      setTimeout(_mepRerendre, 30);
+    });
+  }
+}
+
 // Message sous les options de détail (maquette : #infoAuto), lu APRÈS le rendu, à partir de faits mesurés
 // (nombre de pages) : jamais une promesse « les missions ont été raccourcies » sans preuve.
 function _mepMajInfoAutoMq(pages) {
@@ -1982,10 +2175,13 @@ function _mepMajInfoAutoMq(pages) {
     else if (nbFixes) { texte = 'Le CV d\u00e9passe une page : vous avez fix\u00e9 le nombre de missions de certaines exp\u00e9riences, elles ne sont pas raccourcies.'; }
     else if (complet) { texte = 'Votre CV est complet : format A4, sur plusieurs pages.'; }
     else { texte = 'M\u00eame avec une mission par exp\u00e9rience, le CV d\u00e9passe une page : choisissez 2 colonnes ou r\u00e9duisez le nombre d\u2019exp\u00e9riences.'; }
+  } else if (niveau === 'auto' && (window._mepReservesAuto || 0) > 0) {
+    texte = 'Pour remplir la page, ' + window._mepReservesAuto + (window._mepReservesAuto > 1 ? ' missions de vos expériences ont été ajoutées' : ' mission de vos expériences a été ajoutée') + ' à « Compétences en action ». Vous pouvez les retirer dans la carte « Expériences ».';
   } else if (niveau === 'resume') { texte = 'Pour tout faire tenir, les exp\u00e9riences sont r\u00e9sum\u00e9es : une seule mission par exp\u00e9rience.'; }
   else if (pages >= 2 && etat.tout === 'toutes') {
     texte = complet ? 'Votre CV est complet : format A4, sur plusieurs pages.' : 'Le CV occupe environ 2 pages. Vous pouvez passer en \u00ab R\u00e9sum\u00e9 \u00bb pour tout faire tenir sur une page : aucune exp\u00e9rience ne sera retir\u00e9e.';
   }
+  _mepMajAvisMissionsFormation();
   var caseSrc = document.querySelector('[data-mep-src-exp]');
   var aideSrc = document.getElementById('mepSrcAide');
   if (caseSrc && aideSrc) {

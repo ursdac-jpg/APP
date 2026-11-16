@@ -23,7 +23,7 @@ async function experience(p, L) {
 }
 module.exports.experience = experience;
 async function parcoursQuatreQuestions(p, L) {
-  const champs = ['activites', 'actions', 'environnement', 'valeurs'];
+  const champs = ['activites', 'actions', 'environnement'];   // la 4e question « valeurs » a été retirée le 12/11/2026 (consigne 261)
   for (const champ of champs) {
     const carte = p.locator('.vp-carte[data-vp-champ="' + champ + '"]').first();
     await carte.scrollIntoViewIfNeeded().catch(() => {});

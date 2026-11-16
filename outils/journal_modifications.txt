@@ -1569,3 +1569,46 @@
 2026-11-09 22:38 | cadre | sante-mon-soutien-psy-seances-psychologue | ajoutée | 2026-11-09 : nouvelle fiche sur le dispositif « Mon soutien psy » (séances chez un psychologue remboursées en partie par l Assurance maladie)
 2026-11-09 22:38 | cadre | agriculture-aide-gnr-travaux-agricoles-forestiers | ajoutée | 2026-11-09 : nouvelle fiche sur l aide exceptionnelle pour le gazole non routier (entreprises agricoles et forestières)
 2026-11-09 23:35 | cadre | etranger-titre-de-sejour-et-travail | modifiée | 2026-11-09 : deux guillemets fermants rétablis dans « Ce qui change souvent »
+2026-11-14 19:25 | employeurs | aldi | modifiée
+2026-11-14 19:25 | employeurs | carrefour-market | modifiée
+2026-11-14 19:25 | employeurs | intermarche | modifiée
+2026-11-14 19:25 | employeurs | lidl | modifiée
+2026-11-14 19:25 | employeurs | netto | modifiée
+2026-11-14 19:43 | employeurs | leroy-merlin-dordogne | modifiée
+2026-11-14 19:43 | employeurs | brico-depot-dordogne | modifiée
+2026-11-14 19:43 | employeurs | mr-bricolage-dordogne | modifiée
+2026-11-14 19:43 | employeurs | jardiland-dordogne | modifiée
+2026-11-14 19:43 | employeurs | les-briconautes-dordogne | modifiée
+2026-11-14 19:43 | employeurs | super-u-dordogne | modifiée
+2026-11-14 19:43 | employeurs | u-express-dordogne | modifiée
+2026-11-14 19:43 | employeurs | gifi-dordogne | modifiée
+2026-11-14 19:43 | employeurs | centrakor | modifiée
+2026-11-14 19:43 | employeurs | intersport | modifiée
+2026-11-14 19:43 | employeurs | decathlon | modifiée
+2026-11-14 19:43 | employeurs | kiabi | modifiée
+2026-11-14 19:43 | employeurs | but | modifiée
+2026-11-14 19:43 | employeurs | conforama | modifiée
+2026-11-14 19:43 | employeurs | boulanger | modifiée
+2026-11-14 19:43 | employeurs | bricomarche | modifiée
+2026-11-14 19:43 | employeurs | truffaut-haute-vienne | modifiée
+2026-11-14 19:43 | employeurs | chaussea-haute-vienne | modifiée
+2026-11-14 19:43 | employeurs | fnac | modifiée
+2026-11-14 19:43 | employeurs | noz-dordogne | modifiée
+2026-11-14 19:43 | employeurs | darty | modifiée
+2026-11-14 19:43 | employeurs | ibis | modifiée
+2026-11-14 19:43 | employeurs | b-b-hotels | modifiée
+2026-11-14 19:43 | employeurs | e-leclerc | modifiée
+2026-11-14 19:43 | employeurs | weldom | modifiée
+2026-11-15 00:21 | employeurs | action-dordogne | modifiée
+2026-11-15 00:21 | employeurs | franck-provost | modifiée
+2026-11-15 00:21 | employeurs | jean-louis-david | modifiée
+2026-11-15 00:21 | employeurs | coiff-co | modifiée
+2026-11-15 00:21 | employeurs | camille-albane-limoges | modifiée
+2026-11-15 00:21 | employeurs | dessange-limoges | modifiée
+2026-11-15 00:21 | employeurs | carrefour | modifiée
+2026-11-15 22:08 | liens | caf-conge-supplementaire-de-naissance | ajoutée
+2026-11-15 22:08 | liens | caf-prime-de-noel | ajoutée
+2026-11-15 22:08 | liens | service-public-assistant-familial-agents-publics | ajoutée
+2026-11-15 22:08 | liens | service-public-decouvert-solvabilite | ajoutée
+2026-11-15 22:08 | cadre | seniors-cumul-emploi-retraite | modifiée | 2026-11-15 : la page Service Public A18914 est datée du 10/11/2026 (relevé de ChatGPT et de Perplexity, page non relue par nous) : le seuil de 7 000 euros bruts par année civile y est donné sans la mention « annoncé » et s'applique aux revenus d'activité et de remplacement ; la phrase « décret non publié » est donc retirée du texte. À VÉRIFIER en ouvrant la page : Perplexity seul cite deux décrets du Journal officiel du 3 novembre 2026 (numéros non donnés) ; ChatGPT seul ajoute une réduction plafonnée à un tiers avant l'âge légal et de nouveaux droits à retraite à partir de 67 ans (non repris ici, sans preuve suffisante)
+2026-11-15 22:08 | cadre | garde-conge-supplementaire-de-naissance | modifiée | 2026-11-15 : COMPLÉMENT d'après la page Caf « Tout savoir sur le congé supplémentaire de naissance » (09/11/2026), relevée par ChatGPT seul, page non relue par nous : deux allocations de plus sont citées parmi celles qui ne se cumulent pas (présence parentale et proche aidant), et les indemnités du congé comptent dans les ressources du RSA, de la prime d'activité et de l'AAH. À VÉRIFIER en ouvrant la page (une seule source) ; le reste de la fiche, plus précis (exception pour le complément de libre choix du mode de garde), n'est pas modifié

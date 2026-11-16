@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette Rectangles arrondis et message de dépassement</title>
+<style>
+:root {
+  --fond: #eef0f4; --carte: #ffffff; --texte: #1d2433; --discret: #5a6478; --bord: #cfd5e1;
+  --cv: #2f5597; --info-fond: #fff6dc; --info-bord: #e0b84a; --info-texte: #5c4300; --ok: #1f7a3d; --alerte: #a23b00;
+  --btn: #2f5597; --btn-texte: #ffffff;
+}
+:root[data-theme="sombre"] {
+  --fond: #12151c; --carte: #1c212c; --texte: #e8ebf2; --discret: #a3adc2; --bord: #3a4256;
+  --cv: #6f9be0; --info-fond: #3a3015; --info-bord: #b8962f; --info-texte: #f3dfa0; --ok: #6fd28f; --alerte: #ff9a66;
+  --btn: #6f9be0; --btn-texte: #101521;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--texte); font-family: "Segoe UI", Arial, sans-serif; }
+header { padding: 14px 16px 6px; max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 1.25rem; margin: 0 0 4px; }
+p.aide { margin: 0; color: var(--discret); font-size: .95rem; line-height: 1.45; }
+.cadre { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px; display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+@media (max-width: 860px) { .cadre { grid-template-columns: 1fr; } }
+.reglages { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; position: sticky; top: 8px; }
+.reglages h2 { font-size: 1rem; margin: 0 0 8px; }
+.reglages fieldset { border: 0; padding: 0; margin: 0 0 14px; }
+.reglages legend { font-weight: 700; font-size: .92rem; margin-bottom: 6px; padding: 0; }
+.reglages label { display: block; padding: 7px 8px; border: 1px solid var(--bord); border-radius: 8px; margin-bottom: 6px; cursor: pointer; font-size: .92rem; line-height: 1.35; }
+.reglages label:has(input:checked) { border-color: var(--cv); outline: 2px solid var(--cv); }
+.reglages input { margin-right: 6px; }
+.mesure { font-size: .95rem; padding: 10px; border-radius: 8px; border: 1px solid var(--bord); line-height: 1.4; }
+.mesure b.ok { color: var(--ok); } .mesure b.ko { color: var(--alerte); }
+.zone-cv { min-width: 0; }
+.message-depasse { background: var(--info-fond); border: 1.5px solid var(--info-bord); color: var(--info-texte); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: none; }
+.message-depasse.visible { display: block; }
+.message-depasse strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+.message-depasse p { margin: 0 0 10px; line-height: 1.45; font-size: .95rem; }
+.message-depasse .rangee { display: flex; gap: 8px; flex-wrap: wrap; }
+.message-depasse button { background: var(--btn); color: var(--btn-texte); border: 0; border-radius: 6px; padding: 9px 14px; font-size: .92rem; cursor: pointer; }
+.message-depasse button.second { background: transparent; color: var(--info-texte); border: 1.5px solid var(--info-bord); }
+.propositions { margin: 10px 0 0; padding: 10px 12px; background: var(--carte); color: var(--texte); border-radius: 8px; border: 1px solid var(--info-bord); display: none; font-size: .92rem; line-height: 1.5; }
+.propositions.visible { display: block; }
+.propositions li { margin-bottom: 4px; }
+.echelle-feuille { transform-origin: top left; }
+/* La feuille A4 (794 x 1123 px), même aspect que le modèle Rectangles arrondis */
+.feuille { width: 794px; min-height: 1123px; background: #fff; color: #111; padding: 22.7px; font-size: 13.2px; line-height: 1.55; box-shadow: 0 2px 10px rgba(0,0,0,.25); position: relative; }
+.feuille * { box-sizing: border-box; }
+.rc-haut { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px 24px; align-items: start; margin-bottom: 14px; }
+.rc-nom { background: var(--cv-feuille, #2f5597); color: #fff; font-weight: 700; text-align: center; border-radius: 16px; padding: 6px 12px; font-size: 14px; }
+.rc-metier { background: #2f5597; color: #fff; font-weight: 700; text-align: center; border-radius: 16px; padding: 4px 12px; font-size: 12px; }
+.rc-coord { grid-column: 1; border: 1.5px solid #2f5597; border-radius: 18px; padding: 8px 12px; font-size: 11px; line-height: 1.45; }
+.rc-barre { background: #2f5597; color: #fff; font-weight: 700; text-align: center; font-size: 16px; border-radius: 14px; padding: 5px 12px; margin: 22px 0 14px; }
+.rc-box { background: #fff; border: 1.5px solid #2f5597; border-radius: 18px; padding: 10px 16px 10px 14px; position: relative; }
+.rc-box h4 { margin: 0 0 3px; font-size: 13px; color: #2f5597; }
+.rc-box ul { margin: 0; padding: 0; list-style: none; }
+.rc-box li::before { content: "➢ "; font-size: 11px; }
+.rc-box li { line-height: 1.38; }
+/* Disposition 0 : décalée, celle d'aujourd'hui */
+.disp-decalee { display: grid; grid-template-columns: 100%; padding: 4px 0 6px; min-height: 305px; align-content: start; /* hauteur relevée dans l'application avec le CV très rempli */ }
+.disp-decalee .b1 { grid-column: 1; grid-row: 1; width: 62%; justify-self: start; align-self: start; z-index: 1; }
+.disp-decalee .b2 { grid-column: 1; grid-row: 1; width: 52%; justify-self: end; align-self: start; margin-top: 28px; z-index: 2; }
+.disp-decalee .b3 { grid-column: 1; grid-row: 2; width: 66%; justify-self: start; margin-left: 12%; margin-top: -16px; z-index: 3; }
+/* Proposition 1 : trois rectangles côte à côte, de même hauteur, sans chevauchement */
+.disp-cote { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 4px 0 6px; align-items: stretch; }
+.disp-cote.deux { grid-template-columns: repeat(2, 1fr); }
+/* Proposition 3 : la liste longue en deux colonnes, les savoirs remontés dans la colonne de gauche */
+.disp-colonnes { display: grid; grid-template-columns: 1fr 1.25fr; gap: 12px; padding: 4px 0 6px; align-items: start; }
+.disp-colonnes .b1 { grid-column: 1; grid-row: 1; }
+.disp-colonnes .b3 { grid-column: 1; grid-row: 2; }
+.disp-colonnes .b2 { grid-column: 2; grid-row: 1 / span 2; align-self: stretch; }
+.disp-colonnes .b2 ul { column-count: 2; column-gap: 14px; }
+.disp-colonnes .b2 li { break-inside: avoid; }
+/* Proposition 2 : décalée resserrée, deux rectangles en haut qui se recouvrent à peine, le troisième remonté */
+.disp-serre { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; padding: 4px 0 6px; }
+.disp-serre .b1 { grid-column: 1; }
+.disp-serre .b2 { grid-column: 2; margin-top: 14px; }
+.disp-serre .b3 { grid-column: 1 / span 2; width: 70%; margin: -10px auto 0; z-index: 3; }
+.item-exp { margin-bottom: 6px; } .item-exp .m { color: #444; }
+.liste-puces { margin: 0; padding: 0; list-style: none; } .liste-puces li::before { content: "❖ "; font-size: 10px; } .liste-puces li { line-height: 1.55; }
+.sans-cert .cert { display: none; }
+.reduit .exp-3, .reduit .cert-3, .reduit .cert-4 { display: none; }
+.note-bas { margin: 14px 0 0; font-size: .85rem; color: var(--discret); line-height: 1.45; }
+.note-bas b { color: var(--texte); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Modèle « Rectangles arrondis » : trois rectangles de compétences plus compacts, et un message quand le CV dépasse</h1>
+  <p class="aide">Rien n'est codé. Choisissez une disposition à gauche : la feuille de droite se recalcule et dit si le CV tient sur une page. Le message jaune s'affiche seulement quand le CV dépasse.</p>
+</header>
+<div class="cadre">
+  <aside class="reglages" aria-label="Réglages de la maquette">
+    <h2>Réglages de la maquette</h2>
+    <fieldset>
+      <legend>Disposition des trois rectangles</legend>
+      <label><input type="radio" name="disp" value="decalee">Décalée (celle d'aujourd'hui)</label>
+      <label><input type="radio" name="disp" value="colonnes" checked><b>Proposition 3 (idée de Denis) :</b> la liste la plus longue en deux colonnes, les savoirs remontés sous les compétences professionnelles</label>
+      <label><input type="radio" name="disp" value="cote"><b>Proposition 1 :</b> côte à côte, trois colonnes de même hauteur, sans chevauchement</label>
+      <label><input type="radio" name="disp" value="serre"><b>Proposition 2 :</b> décalée mais resserrée (garde l'effet « rectangles superposés »)</label>
+    </fieldset>
+    <fieldset>
+      <legend>Contenu du CV</legend>
+      <label><input type="radio" name="cv" value="plein" checked>Très rempli : 3 expériences, 4 certifications</label>
+      <label><input type="radio" name="cv" value="reduit">Plus léger : 2 expériences, 2 certifications</label>
+    </fieldset>
+    <fieldset>
+      <legend>Message de dépassement</legend>
+      <label><input type="checkbox" id="forcer">Le montrer même si le CV tient (pour voir son aspect)</label>
+      <label><input type="checkbox" id="sombre">Mode sombre (le message et le cadre)</label>
+    </fieldset>
+    <div class="mesure" id="mesure" aria-live="polite"></div>
+  </aside>
+  <section class="zone-cv">
+    <div class="message-depasse" id="message" role="status">
+      <strong>Votre CV est un peu trop long pour une page.</strong>
+      <p>À l'impression, une deuxième page apparaîtrait avec quelques lignes seulement. Rien n'est perdu : voici comment le faire tenir.</p>
+      <div class="rangee">
+        <button type="button" id="btnVoir">Voir les propositions</button>
+        <button type="button" class="second" id="btnLaisser">Je le laisse tel quel</button>
+      </div>
+      <ul class="propositions" id="propositions">
+        <li><b>Passer en deux colonnes</b> : le CV se range sur la largeur, sans rien retirer.</li>
+        <li><b>Garder les deux certifications les plus utiles</b> : les autres restent dans votre dossier.</li>
+        <li><b>Resserrer encore la mise en page</b> : les espaces se réduisent, le texte reste lisible.</li>
+      </ul>
+    </div>
+    <div id="boite"><div class="echelle-feuille" id="echelle">
+      <div class="feuille" id="feuille">
+        <div class="rc-haut">
+          <div class="rc-nom">Camille MARTIN</div>
+          <div class="rc-metier">Agent de sécurité</div>
+          <div class="rc-coord">06.00.00.00.00<br>camille@ex.fr<br>Limoges, 87000</div>
+        </div>
+        <div class="rc-barre">Compétences</div>
+        <div id="boites" class="disp-cote">
+          <div class="rc-box b1"><h4>Compétences professionnelles</h4><ul><li>Sens du contact</li><li>Gestion du stress</li><li>Ponctualité</li><li>Consignes incendie</li><li>Gestes de premiers secours</li></ul></div>
+          <div class="rc-box b2"><h4>Compétences comportementales</h4><ul><li>Rigueur</li><li>Travail en équipe</li><li>Sécurité</li><li>Fiabilité</li><li>Responsabilité</li><li>Sang-froid</li><li>Discipline</li><li>Sens de la hiérarchie</li><li>Discrétion</li></ul></div>
+          <div class="rc-box b3"><h4>Savoirs</h4><ul><li>Consignes incendie</li><li>Gestes de premiers secours</li></ul></div>
+        </div>
+        <div class="rc-barre">Expériences professionnelles</div>
+        <div class="item-exp">2022 - 2024 : <b>Agent de sécurité</b> - Sécuritas - <i>Limoges</i><div class="m">Surveiller les accès.</div></div>
+        <div class="item-exp">2019 - 2021 : <b>Vendeuse</b> - Boulangerie Dupont - <i>Limoges</i><div class="m">Accueillir les clients.</div></div>
+        <div class="item-exp exp-3">2017 - 2018 : <b>Employée polyvalente</b> - Café du centre - <i>Limoges</i><div class="m">Servir en salle.</div></div>
+        <div class="rc-barre">Formations</div>
+        <div>2021 : <b>CAP - Agent de prévention</b> - AFPA<br>2018 : <b>BEP - Vente</b> - Lycée Turgot</div>
+        <div class="rc-barre">Certifications</div>
+        <ul class="liste-puces"><li>2026 : Sensibilisation amiante</li><li>2026 : Habilitation échafaudage fixe &amp; roulant</li><li class="cert-3">2026 : Module travail en hauteur</li><li class="cert-4">2026 : Habilitation électrique BS/BEM</li></ul>
+        <div class="rc-barre">Expérience personnelle</div>
+        <ul class="liste-puces"><li>Bricolage</li><li>Bénévole aux Restos du Coeur</li></ul>
+        <div class="rc-barre">Langues</div>
+        <ul class="liste-puces"><li>Anglais (B1)</li></ul>
+        <div class="rc-barre">Centres d'intérêt</div>
+        <ul class="liste-puces"><li>Course à pied</li><li>Cuisine</li></ul>
+      </div>
+    </div></div>
+    <p class="note-bas"><b>Ce que la maquette montre :</b> la hauteur de la feuille est mesurée en direct (une page A4 fait 1 123 px). <b>Proposition 3</b> reprend votre idée : le rectangle des compétences comportementales passe en deux colonnes (le réglage existe déjà, rectangle par rectangle) et les savoirs remontent sous les compétences professionnelles ; aucun chevauchement. <b>Proposition 1</b> range les trois rectangles en une seule ligne : le CV très rempli tient, les rectangles ne se chevauchent plus (aujourd'hui le texte du rectangle du milieu passe sous le troisième). <b>Proposition 2</b> garde l'effet de rectangles superposés, mais gagne moins de place. Le message jaune ne s'affiche que si le CV dépasse, avec le mode sombre prévu.</p>
+  </section>
+</div>
+<script>
+(function () {
+  var boite = document.getElementById('boite'), feuille = document.getElementById('feuille'), echelle = document.getElementById('echelle');
+  var boites = document.getElementById('boites'), mesure = document.getElementById('mesure');
+  var message = document.getElementById('message'), forcer = document.getElementById('forcer');
+  var laisse = false;
+  function valeur(nom) { return document.querySelector('input[name="' + nom + '"]:checked').value; }
+  function recalculer() {
+    boites.className = ({ decalee: 'disp-decalee', cote: 'disp-cote', serre: 'disp-serre', colonnes: 'disp-colonnes' })[valeur('disp')];
+    feuille.className = 'feuille' + (valeur('cv') === 'reduit' ? ' reduit' : '');
+    feuille.style.minHeight = '0';
+    var h = Math.round(feuille.getBoundingClientRect().height / (parseFloat(echelle.dataset.s) || 1));
+    feuille.style.minHeight = '1123px';
+    var tient = h <= 1124;
+    mesure.innerHTML = 'Hauteur du CV : <b class="' + (tient ? 'ok' : 'ko') + '">' + h + ' px</b> sur 1 123 px.<br>' +
+      (tient ? '<b class="ok">Le CV tient sur une page.</b>' : '<b class="ko">Le CV dépasse de ' + (h - 1123) + ' px : il passerait sur 2 pages.</b>');
+    message.classList.toggle('visible', (!tient && !laisse) || forcer.checked);
+    var dispo = boite.clientWidth || 700, s = Math.min(1, dispo / 794);
+    echelle.dataset.s = '1'; echelle.style.transform = 'scale(' + s + ')'; boite.style.height = Math.ceil(Math.max(h, 1123) * s + 10) + 'px';
+  }
+  document.querySelectorAll('input').forEach(function (i) { i.addEventListener('change', function () { laisse = false; recalculer(); }); });
+  document.getElementById('sombre').addEventListener('change', function (e) { document.documentElement.setAttribute('data-theme', e.target.checked ? 'sombre' : 'clair'); });
+  document.getElementById('btnVoir').addEventListener('click', function () { document.getElementById('propositions').classList.toggle('visible'); });
+  document.getElementById('btnLaisser').addEventListener('click', function () { laisse = true; forcer.checked = false; recalculer(); });
+  window.addEventListener('resize', recalculer);
+  recalculer();
+})();
+</script>
+</body>
+</html>

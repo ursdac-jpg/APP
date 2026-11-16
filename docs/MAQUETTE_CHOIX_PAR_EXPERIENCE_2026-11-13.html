@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : choix par expérience (Votre parcours)</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#ffffff; --bg-subtle:#eef2f8;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#2563eb; --accent-bg:#e8effc;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --radius:10px;
+  }
+  body.sombre {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222a37;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:800px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.5rem; color:var(--text-strong); margin:.2rem 0; }
+  p { margin:.4rem 0; }
+  .sous-titre { color:var(--text-muted); margin:.2rem 0 1rem; }
+  .centre { text-align:center; }
+  .detail { color:var(--text-muted); font-size:.85rem; }
+
+  .barre-haut { position:sticky; top:0; z-index:5; background:var(--bg-page); border-bottom:1px solid var(--border);
+    padding:.5rem 1rem; display:flex; gap:.5rem; align-items:center; font-size:.9rem; }
+  .espace { flex:1 1 auto; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.55rem 1.1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .btn.primaire:disabled { opacity:.5; cursor:not-allowed; }
+  .btn.large { font-size:1.05rem; padding:.7rem 1.5rem; }
+  .btn.sm { padding:.3rem .7rem; font-size:.82rem; }
+
+  .etapes { display:flex; flex-wrap:wrap; align-items:center; gap:.1rem; justify-content:center; margin:.2rem 0 1rem; }
+  .etape { display:inline-flex; align-items:center; gap:.3rem; border:1px solid var(--border); border-radius:999px;
+    padding:.12rem .6rem; font-size:.72rem; color:var(--text-muted); background:var(--bg-card); }
+  .etape.faite::before { content:"\2713"; color:#fff; background:var(--ok); border-radius:999px; width:13px; height:13px;
+    font-size:.6rem; display:inline-flex; align-items:center; justify-content:center; margin-right:.1rem; }
+  .etape.courante { color:var(--warn); border-color:var(--accent); background:var(--warn-bg); font-weight:700;
+    box-shadow:0 0 0 2px var(--accent-bg),0 0 0 3px var(--accent); }
+  .etape.avenir { opacity:.4; }
+  .chevron { color:var(--border-strong); font-size:.75rem; }
+
+  .barre-detour { display:flex; gap:.5rem; align-items:center; background:var(--bg-subtle);
+    border:1px solid var(--border); border-radius:10px; padding:.4rem .7rem; margin-bottom:.6rem; font-size:.85rem; }
+  .encart { display:flex; gap:.6rem; align-items:flex-start; background:var(--accent-bg);
+    border-left:3px solid var(--accent); border-radius:8px; padding:.65rem .9rem; margin:.6rem 0 1.2rem; font-size:.92rem; }
+
+  /* ---------- QUESTION (niveau 1) ---------- */
+  .question { border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:12px;
+    margin:.7rem 0; overflow:hidden; background:var(--bg-card); }
+  .question > summary { list-style:none; cursor:pointer; padding:.85rem 1rem; display:flex; align-items:center; gap:.7rem; }
+  .question > summary::-webkit-details-marker { display:none; }
+  .question > summary::before { content:"\25B8"; color:var(--accent); font-size:.9em; transition:transform .15s; flex:0 0 auto; }
+  .question[open] > summary::before { transform:rotate(90deg); }
+  .q-num { flex:0 0 auto; width:28px; height:28px; border-radius:999px; background:var(--accent); color:#fff;
+    font-weight:800; font-size:.9rem; display:flex; align-items:center; justify-content:center; }
+  .q-titre { font-weight:800; color:var(--text-strong); font-size:1.02rem; }
+  .q-pilule { margin-left:auto; flex:0 0 auto; font-size:.74rem; font-weight:800; border-radius:999px; padding:.18rem .7rem;
+    border:1px solid var(--border-strong); color:var(--text-muted); background:var(--bg-subtle); white-space:nowrap; }
+  .q-pilule.ok { color:var(--ok-strong); border-color:var(--ok); background:var(--ok-bg); }
+  .q-pilule.vide { color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+  .q-corps { padding:.3rem 1rem 1rem; border-top:1px solid var(--border); }
+  .q-consigne { font-size:.85rem; color:var(--text-muted); margin:.4rem 0 .7rem; }
+
+  /* ---------- FAMILLE = un "tiroir" large ---------- */
+  .cat { border:1px solid var(--border-strong); border-left:5px solid var(--accent);
+    border-radius:6px; background:var(--bg-subtle); margin:.5rem 0; overflow:hidden; }
+  .cat > summary { list-style:none; cursor:pointer; padding:.6rem .85rem; display:flex; align-items:center; gap:.55rem; flex-wrap:wrap; }
+  .cat > summary::-webkit-details-marker { display:none; }
+  .cat > summary::after { content:"\25BE"; margin-left:.2rem; color:var(--accent); transition:transform .15s; flex:0 0 auto; font-size:.8em; }
+  .cat[open] > summary::after { transform:rotate(180deg); }
+  .cat-ico { flex:0 0 auto; font-size:1.15rem; }
+  .cat-nom { font-weight:800; color:var(--text-strong); font-size:.95rem; }
+  .cat-nb { flex:0 0 auto; font-size:.72rem; font-weight:800; color:#fff; background:var(--accent);
+    border-radius:999px; padding:.12rem .55rem; }
+  .cat-ligne { flex:1 1 100%; margin-top:.3rem; padding-left:1.7rem; }
+  .cat[open] .cat-ligne { display:none; }
+  .cat-apercu { font-size:.8rem; color:var(--text-muted); }
+  .cat-choisis { display:flex; flex-wrap:wrap; gap:.3rem; }
+  .cat-choisis .mini { background:var(--accent); color:#fff; border-radius:999px; padding:.12rem .55rem; font-size:.76rem; font-weight:700; }
+  .cat-corps { padding:.4rem .85rem .8rem; background:var(--bg-card); border-top:1px solid var(--border); }
+
+  /* ---------- CARTE = une petite pastille ronde a cocher ---------- */
+  .cartes { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .carte { border:1.5px solid var(--border-strong); border-radius:999px; padding:.35rem .8rem; font-size:.85rem;
+    background:var(--bg-card); color:var(--text); cursor:pointer; user-select:none; }
+  .carte:hover { border-color:var(--accent); }
+  .carte.coche { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .carte.coche::before { content:"\2713  "; }
+
+  .nav-bas { border-top:1px solid var(--border); margin-top:1.6rem; padding-top:.8rem; display:flex; gap:.6rem; align-items:center; }
+  .nav-bas .fil { flex:1 1 auto; font-size:.78rem; color:var(--text-muted); }
+
+  .panneau { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-top:2rem; }
+  .panneau h2 { font-size:1rem; color:var(--text-strong); margin:.1rem 0 .5rem; }
+  .panneau ul { margin:.3rem 0; padding-left:1.2rem; }
+  .panneau li { margin:.35rem 0; font-size:.9rem; }
+  code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:5px; padding:.05rem .3rem; font-size:.85em; }
+
+  /* ---------- SÉLECTEUR D'EXPÉRIENCE (nouveau) ---------- */
+  .exps { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.5rem; margin:.4rem 0 .9rem; }
+  .exp { text-align:left; font:inherit; cursor:pointer; border:1.5px solid var(--border-strong); border-radius:var(--radius);
+    background:var(--bg-card); color:var(--text); padding:.55rem .75rem; display:flex; flex-direction:column; gap:.2rem; }
+  .exp:hover { border-color:var(--accent); }
+  .exp.actif { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-bg),0 0 0 3px var(--accent); background:var(--accent-bg); }
+  .exp-poste { font-weight:800; color:var(--text-strong); font-size:.95rem; }
+  .exp-detail { font-size:.8rem; color:var(--text-muted); }
+  .exp-pil { align-self:flex-start; font-size:.74rem; font-weight:800; border-radius:999px; padding:.14rem .6rem; border:1px solid var(--border-strong); color:var(--text-muted); background:var(--bg-subtle); }
+  .exp-pil.ok { color:var(--ok-strong); border-color:var(--ok); background:var(--ok-bg); }
+  .exp-pil.vide { color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+  .exp-pil.part { color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+  .titre-exp { font-size:1.05rem; font-weight:800; color:var(--text-strong); margin:.6rem 0 .1rem; }
+  .regle { color:var(--accent); font-weight:600; background:var(--accent-bg); border-radius:8px; padding:.4rem .6rem; font-size:.85rem; }
+  .reglages { border:1px dashed var(--border-strong); border-radius:12px; padding:.2rem .9rem; margin-top:1.6rem; background:var(--bg-subtle); }
+  .reglages > summary { cursor:pointer; font-weight:700; padding:.5rem 0; }
+  .reglages label { display:block; margin:.4rem 0; font-size:.9rem; }
+</style></head>
+<body>
+<div class="barre-haut"><strong>MAQUETTE (rien n'est enregistré) : « Votre parcours », choix expérience par expérience</strong><span class="espace"></span>
+<button class="btn sm" id="basculeSombre" type="button">Mode sombre</button></div>
+<main>
+  <div class="etapes" aria-hidden="true"><span class="etape faite">Vos informations</span><span class="chevron">›</span><span class="etape courante">Votre parcours</span><span class="chevron">›</span><span class="etape avenir">Votre profil</span></div>
+  <div class="centre"><h1>🧭 Votre parcours</h1>
+  <p class="sous-titre" id="sousTitre"></p></div>
+  <div id="zone"></div>
+  <div class="nav-bas"><button class="btn" type="button">← Retour</button><span class="fil" id="fil"></span><button class="btn primaire large" id="continuer" type="button">Continuer →</button></div>
+
+  <details class="reglages"><summary>Réglages de la maquette (refermable)</summary>
+    <label><input type="radio" name="sc" value="exp" checked> Personne qui a 3 expériences saisies dans « Vos informations »</label>
+    <label><input type="radio" name="sc" value="une"> Personne qui a 1 seule expérience</label>
+    <label><input type="radio" name="sc" value="aucune"> Personne sans aucune expérience (écran inchangé, une seule liste)</label>
+    <label>Maximum de choix par expérience : actions <input id="lA" type="number" min="3" max="16" value="8" style="width:3.5rem"> avec qui, avec quoi <input id="lP" type="number" min="3" max="16" value="8" style="width:3.5rem"> lieux <input id="lL" type="number" min="3" max="12" value="6" style="width:3.5rem"> (une seule liste, sans expérience : 16 / 16 / 12 comme aujourd'hui)</label>
+  </details>
+</main>
+<script>
+var CAT = {"activites":[{"categorie":"Personnes","icone":"👥","items":[{"id":"clients","label":"Des clients"},{"id":"collegues","label":"Des collègues"},{"id":"enfants","label":"Des enfants"},{"id":"personnes_agees","label":"Des personnes âgées"},{"id":"patients","label":"Des patients"},{"id":"eleves_etudiants","label":"Des élèves / étudiants"},{"id":"adolescents","label":"Des adolescents"},{"id":"personnes_handicap","label":"Des personnes en situation de handicap"},{"id":"personnes_en_difficulte","label":"Des personnes en difficulté"},{"id":"familles","label":"Des familles"},{"id":"salaries_professionnels","label":"Des salariés ou professionnels à accompagner"},{"id":"partenaires_fournisseurs","label":"Des partenaires, des fournisseurs"},{"id":"sportifs","label":"Des sportifs"},{"id":"usagers_public","label":"Un public varié (usagers, voyageurs)"}]},{"categorie":"Matériels","icone":"📦","items":[{"id":"machines","label":"Des machines"},{"id":"ordinateur","label":"Un ordinateur"},{"id":"documents","label":"Des documents"},{"id":"marchandises","label":"Des marchandises"},{"id":"vehicules","label":"Des véhicules"},{"id":"outils","label":"Des outils"},{"id":"appareils_numeriques","label":"Des appareils numériques"},{"id":"produits","label":"Des produits à vendre ou à stocker"},{"id":"materiaux","label":"Des matériaux (bois, métal, béton...)"},{"id":"tissus_vetements","label":"Des tissus, des vêtements"},{"id":"aliments","label":"Des aliments, des denrées"},{"id":"instruments_objets_art","label":"Des instruments, des objets d'art"},{"id":"vegetaux","label":"Des plantes, des végétaux"},{"id":"produits_dangereux","label":"Des produits chimiques ou dangereux"},{"id":"installations_electriques","label":"Des installations électriques"}]},{"categorie":"Animaux","icone":"🐾","items":[{"id":"animaux_compagnie","label":"Des animaux de compagnie"},{"id":"chevaux","label":"Des chevaux"},{"id":"elevage_ferme","label":"Des animaux d'élevage / de ferme"},{"id":"abeilles","label":"Des abeilles"},{"id":"soins_veterinaires","label":"Des soins vétérinaires"}]}],"actions":[{"categorie":"Organisation, gestion, administration","icone":"📋","items":[{"id":"organiser","label":"Organiser, planifier"},{"id":"gerer","label":"Gérer"},{"id":"controler","label":"Contrôler, diagnostiquer"},{"id":"analyser","label":"Analyser"},{"id":"negocier","label":"Négocier"},{"id":"calculer","label":"Calculer"},{"id":"classer","label":"Classer, archiver"},{"id":"saisir","label":"Saisir"},{"id":"communiquer_ecrit","label":"Communiquer par écrit"},{"id":"gerer_stocks_acheter","label":"Gérer des stocks, acheter"},{"id":"piloter_projet","label":"Piloter un projet ou un chantier"},{"id":"appliquer_consignes_securite","label":"Appliquer les règles de sécurité"},{"id":"encadrer_animer","label":"Encadrer ou animer un groupe"},{"id":"organiser_evenement","label":"Organiser un événement, communiquer"}]},{"categorie":"Relationnel","icone":"🤝","items":[{"id":"conseiller","label":"Conseiller"},{"id":"accompagner","label":"Accompagner, aider"},{"id":"vendre","label":"Vendre"},{"id":"former","label":"Former"},{"id":"soigner","label":"Soigner"},{"id":"accueillir","label":"Accueillir"},{"id":"informer","label":"Informer"},{"id":"expliquer_presenter","label":"Expliquer, présenter à l'oral"},{"id":"encaisser","label":"Encaisser, tenir une caisse"}]},{"categorie":"Fabriquer et construire","icone":"🏗","items":[{"id":"construire","label":"Construire"},{"id":"fabriquer","label":"Fabriquer"},{"id":"monter","label":"Monter"},{"id":"decouper","label":"Découper"},{"id":"installer","label":"Installer"},{"id":"cuisiner","label":"Cuisiner"},{"id":"amenager_espace","label":"Aménager un espace"},{"id":"utiliser_machines_outils","label":"Utiliser des machines, des outils"}]},{"categorie":"Réparer et entretenir","icone":"🔧","items":[{"id":"reparer","label":"Réparer"},{"id":"entretenir_maintenir","label":"Entretenir, maintenir"},{"id":"nettoyer","label":"Nettoyer"},{"id":"trier_environnement","label":"Trier, protéger l'environnement"},{"id":"cultiver_entretenir_plantes","label":"Cultiver, entretenir des plantes"}]},{"categorie":"Transport et logistique","icone":"🚚","items":[{"id":"transporter","label":"Transporter"},{"id":"conduire","label":"Conduire / Piloter"},{"id":"livrer","label":"Livrer"},{"id":"preparer_commandes","label":"Préparer des commandes"},{"id":"manutentionner_emballer","label":"Manutentionner, emballer"}]},{"categorie":"Surveiller, manipuler, programmer","icone":"🔬","items":[{"id":"surveiller_securiser","label":"Surveiller, sécuriser"},{"id":"reagir_urgence","label":"Réagir à un imprévu, une urgence"},{"id":"manipuler_produits","label":"Manipuler, préparer des produits"},{"id":"rechercher_tester","label":"Rechercher, tester"},{"id":"programmer","label":"Programmer"}]},{"categorie":"Création et conception","icone":"🎨","items":[{"id":"creer","label":"Créer"},{"id":"rediger","label":"Rédiger"},{"id":"imaginer","label":"Imaginer"},{"id":"dessiner","label":"Dessiner, photographier"},{"id":"concevoir","label":"Concevoir"}]}],"environnement":[{"categorie":"En intérieur","icone":"🏢","items":[{"id":"bureau","label":"Bureau"},{"id":"usine","label":"Usine / Atelier / Site industriel"},{"id":"magasin","label":"Magasin / Commerce"},{"id":"sante","label":"Établissement de santé"},{"id":"ecole_formation","label":"École / Centre de formation"},{"id":"cuisine","label":"Restaurant / Cuisine"},{"id":"hotel","label":"Hôtel"},{"id":"administration","label":"Administration / Collectivité"},{"id":"laboratoire","label":"Laboratoire"},{"id":"association","label":"Association"},{"id":"cabinet_pharmacie","label":"Cabinet médical / Pharmacie"},{"id":"medias_studio","label":"Studio / Médias / Édition"},{"id":"social_creche","label":"Établissement social, médico-social ou crèche"},{"id":"securite_penitentiaire","label":"Sécurité / Établissement pénitentiaire"},{"id":"centre_appels","label":"Centre d'appels"}]},{"categorie":"À domicile","icone":"🏠","items":[{"id":"domicile","label":"Au domicile des particuliers"},{"id":"teletravail_domicile","label":"À votre domicile (télétravail)"}]},{"categorie":"En extérieur","icone":"🌳","items":[{"id":"exterieur","label":"Extérieur / Chantier"},{"id":"exploitation_agricole","label":"Exploitation agricole"},{"id":"espaces_verts","label":"Espaces verts / Nature"},{"id":"evenementiel","label":"Salle de spectacle / Événementiel"},{"id":"salle_sport","label":"Salle de sport / Loisirs"}]},{"categorie":"En déplacement","icone":"🚛","items":[{"id":"aeroport_gare","label":"Aéroport / Gare"},{"id":"port","label":"Port / Zone portuaire"},{"id":"route","label":"Route / Transport"},{"id":"entrepot_logistique","label":"Entrepôt / Plateforme logistique"}]}]};
+var QUESTIONS = [
+  { champ:'activites', titre:'Avec qui, avec quoi', consigne:'Repensez à cette expérience : avec quelles personnes et avec quels outils ou matières travailliez-vous ?' },
+  { champ:'actions', titre:'Ce que vous faisiez souvent', consigne:'Dans cette expérience, choisissez les actions que vous réalisiez régulièrement.' },
+  { champ:'environnement', titre:'Où vous travailliez', consigne:'Dans cette expérience, choisissez les lieux qui correspondent le mieux.' }
+];
+var EXPS = [
+  { poste:'Aide à domicile', detail:'Association Les Tilleuls · 2019 à 2023' },
+  { poste:'Employée de rayon', detail:'Supermarché · 2016 à 2018' },
+  { poste:'Bénévole, distribution alimentaire', detail:'Association · depuis 2023' }
+];
+var etat = { sc:'exp', actif:0, choix:{}, ouvert:{} };
+function lim(champ) {
+  if (etat.sc === 'aucune') { return {activites:16, actions:16, environnement:12}[champ]; }
+  return {activites:+document.getElementById('lP').value, actions:+document.getElementById('lA').value, environnement:+document.getElementById('lL').value}[champ];
+}
+function liste() { return etat.sc === 'aucune' ? [{ poste:'Vos expériences', detail:'' }] : (etat.sc === 'une' ? EXPS.slice(0,1) : EXPS); }
+function choixDe(i) { var k = 'e' + i; if (!etat.choix[k]) { etat.choix[k] = { activites:[], actions:[], environnement:[] }; } return etat.choix[k]; }
+function nbVides(i) { var c = choixDe(i); return QUESTIONS.filter(function (q) { return c[q.champ].length === 0; }).length; }
+function nbChoix(i) { var c = choixDe(i); return c.activites.length + c.actions.length + c.environnement.length; }
+function pilule(i) {
+  var v = nbVides(i), n = nbChoix(i);
+  if (v === 0) { return '<span class="exp-pil ok">complété · ' + n + ' choix</span>'; }
+  if (n === 0) { return '<span class="exp-pil vide">à compléter</span>'; }
+  return '<span class="exp-pil part">en cours · ' + (3 - v) + ' question' + (3 - v > 1 ? 's' : '') + ' sur 3</span>';
+}
+function rendre() {
+  var L = liste();
+  if (etat.actif >= L.length) { etat.actif = 0; }
+  var seul = etat.sc === 'aucune';
+  document.getElementById('sousTitre').textContent = seul
+    ? 'Trois questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.'
+    : 'Trois questions courtes pour chacune de vos expériences. Répondez pour une expérience à la fois.';
+  var h = '';
+  if (!seul) {
+    h += '<div class="encart"><span>👉</span><span><strong>Une expérience complète suffit pour continuer.</strong> Plus vous en décrivez, plus les métiers proposés vous ressemblent. Vous pourrez toujours revenir ici.</span></div>';
+    h += '<div class="exps" role="tablist">' + L.map(function (e, i) {
+      return '<button type="button" class="exp' + (i === etat.actif ? ' actif' : '') + '" data-exp="' + i + '" role="tab" aria-selected="' + (i === etat.actif) + '"><span class="exp-poste">' + e.poste + '</span><span class="exp-detail">' + e.detail + '</span>' + pilule(i) + '</button>';
+    }).join('') + '</div>';
+    h += '<p class="titre-exp">Vos réponses pour : ' + L[etat.actif].poste + '</p>';
+  } else {
+    h += '<div class="encart"><span>👉</span><span>Chaque question contient plusieurs <strong>familles de choix</strong>. Ouvrez une famille, cochez ce qui vous ressemble. <strong>Une seule case suffit</strong> par question.</span></div>';
+  }
+  var c = choixDe(etat.actif);
+  h += QUESTIONS.map(function (q, qi) {
+    var sel = c[q.champ], n = sel.length, max = lim(q.champ);
+    var pil = n ? '<span class="q-pilule ok">complété · ' + n + ' choix fait' + (n > 1 ? 's' : '') + '</span>' : '<span class="q-pilule vide">à compléter</span>';
+    var fams = CAT[q.champ].map(function (g, fi) {
+      var coches = g.items.filter(function (it) { return sel.indexOf(it.id) !== -1; });
+      var ligne = coches.length ? '<span class="cat-choisis">' + coches.map(function (it) { return '<span class="mini">' + it.label + '</span>'; }).join('') + '</span>'
+        : '<span class="cat-apercu">' + g.items.slice(0, 3).map(function (it) { return it.label; }).join(', ') + (g.items.length > 3 ? '…  (+' + (g.items.length - 3) + ')' : '') + '</span>';
+      var cles = etat.actif + '-' + qi + '-' + fi;
+      var ouvert = etat.ouvert[cles];
+      return '<details class="cat" data-cle="' + cles + '"' + (ouvert ? ' open' : '') + '><summary><span class="cat-ico">' + g.icone + '</span><span class="cat-nom">' + g.categorie + '</span><span class="cat-nb">' + g.items.length + ' choix</span><span class="cat-ligne">' + ligne + '</span></summary><div class="cat-corps"><div class="cartes">' +
+        g.items.map(function (it) { return '<span class="carte' + (sel.indexOf(it.id) !== -1 ? ' coche' : '') + '" data-champ="' + q.champ + '" data-id="' + it.id + '">' + it.label + '</span>'; }).join('') + '</div></div></details>';
+    }).join('');
+    var qOuv = etat.ouvert['q' + etat.actif + '-' + qi];
+    if (qOuv === undefined) { qOuv = (qi === 0); }
+    var msg = etat.plafond === q.champ ? '<strong>Maximum atteint : ' + max + ' choix.</strong> Décochez une carte pour en choisir une autre.' : 'Vous pouvez cocher jusqu’à <strong>' + max + ' choix</strong> dans cette question' + (n >= max ? ' (maximum atteint)' : '') + '.';
+    return '<details class="question" data-q="q' + etat.actif + '-' + qi + '"' + (qOuv ? ' open' : '') + '><summary><span class="q-num">' + (qi + 1) + '</span><span class="q-titre">' + q.titre + '</span>' + pil + '</summary><div class="q-corps"><p class="q-consigne">' + (seul ? 'Repensez à vos expériences passées, professionnelles ou personnelles.' : q.consigne) + '</p><p class="q-consigne regle">👉 Une seule case suffit pour valider cette question : une seule famille peut suffire.</p><p class="q-consigne" role="status">' + msg + '</p>' + fams + '</div></details>';
+  }).join('');
+  document.getElementById('zone').innerHTML = h;
+  // état du bouton Continuer : au moins une expérience complète
+  var complete = L.some(function (e, i) { return nbVides(i) === 0; });
+  var b = document.getElementById('continuer');
+  b.disabled = !complete;
+  document.getElementById('fil').textContent = complete
+    ? (seul ? 'Les 3 questions ont au moins une case cochée.' : L.filter(function (e, i) { return nbVides(i) === 0; }).length + ' expérience' + (L.filter(function (e, i) { return nbVides(i) === 0; }).length > 1 ? 's' : '') + ' complète' + (L.filter(function (e, i) { return nbVides(i) === 0; }).length > 1 ? 's' : '') + ' sur ' + L.length + '.')
+    : (seul ? 'Il reste ' + nbVides(0) + ' question' + (nbVides(0) > 1 ? 's' : '') + ' sans aucune case cochée.' : 'Complétez les 3 questions d’au moins une expérience pour continuer.');
+  document.querySelectorAll('.exp').forEach(function (el) { el.onclick = function () { etat.actif = +el.dataset.exp; etat.plafond = null; rendre(); }; });
+  document.querySelectorAll('details.question, details.cat').forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.dataset.q) { etat.ouvert[d.dataset.q] = d.open; } else { etat.ouvert[d.dataset.cle] = d.open; } });
+  });
+  document.querySelectorAll('.carte').forEach(function (el) {
+    el.onclick = function () {
+      var arr = choixDe(etat.actif)[el.dataset.champ], idx = arr.indexOf(el.dataset.id);
+      if (idx !== -1) { arr.splice(idx, 1); etat.plafond = null; }
+      else { if (arr.length >= lim(el.dataset.champ)) { etat.plafond = el.dataset.champ; rendre(); return; } arr.push(el.dataset.id); etat.plafond = null;
+        // ouverture en cascade : première case d'une question -> la suivante s'ouvre
+        var qi = QUESTIONS.map(function (q) { return q.champ; }).indexOf(el.dataset.champ);
+        if (arr.length === 1 && qi < 2) { etat.ouvert['q' + etat.actif + '-' + (qi + 1)] = true; }
+      }
+      rendre();
+    };
+  });
+}
+document.querySelectorAll('input[name=sc]').forEach(function (r) { r.onchange = function () { etat.sc = r.value; etat.actif = 0; etat.choix = {}; etat.ouvert = {}; etat.plafond = null; rendre(); }; });
+['lA','lP','lL'].forEach(function (id) { document.getElementById(id).onchange = rendre; });
+document.getElementById('basculeSombre').onclick = function () { document.body.classList.toggle('sombre'); };
+rendre();
+</script></body></html>

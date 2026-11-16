@@ -1,0 +1,240 @@
+{
+ "nom": "preparerEntretien",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt : aucune mention de blocage avant le dépôt du CV"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "ok",
+   "t": "entretien : « Continuer » grisé avec la raison « Il reste à choisir le type de candidature dans « Votre candidature » et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "type : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le type : « Continuer → (grisé) » raison « Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "« Adaptation au métier » après le seul type de candidature : {\"verrouille\":true,\"message\":\"🔒 Complétez d’abord la partie 2 : Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.\"}"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : « Continuer → (grisé) » raison « Il reste à dire si vous vous adressez à une entreprise précise ou non et à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "présentation générale : ok"
+  },
+  {
+   "n": "info",
+   "t": "après la présentation générale : « Continuer → (grisé) » raison « Il reste à indiquer votre situation actuelle dans « Adaptation au métier ». »"
+  },
+  {
+   "n": "info",
+   "t": "« Adaptation au métier » après le métier : {\"verrouille\":false,\"message\":\"\"}"
+  },
+  {
+   "n": "info",
+   "t": "situation : ok"
+  },
+  {
+   "n": "info",
+   "t": "après la situation : « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "entretien : « Continuer » dégrisé quand tout est renseigné"
+  },
+  {
+   "n": "ok",
+   "t": "entretien (page Préparer) : Retour vers #prepa-entretien « M’entraîner à un entretien d’embauche », puis Continuer revient bien ici"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran de l’assistant : #prepa-entretien « M’entraîner à un entretien d’embauche » bas « Voir ma préparation → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > Assistant > [Réponse] > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "boutons de l’assistant : #btnPrepaEntretienRevoirPres Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié) ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automatique) ; ⓘ ; ✍ Coller à la main (vous collez vous-même) ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir ma préparation →"
+  },
+  {
+   "n": "info",
+   "t": "collage d’une réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse coupée : bas « Voir ma préparation → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "collage de la réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "après la réponse complète : bas « Voir ma préparation → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "entretien (suite) : ok:Voir ma préparation → → #resultats « 📄 Votre préparation d’entretien » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > [Terminé]]"
+  },
+  {
+   "n": "info",
+   "t": "entretien (suite) : ok:Continuer → → #resultats « 📄 Votre préparation d’entretien » [bouton : null] [barre : Préparer > Assistant > Réponse > [Terminé]]"
+  },
+  {
+   "n": "info",
+   "t": "entretien (suite) : PAS DE BOUTON → #resultats « 📄 Votre préparation d’entretien » [bouton : null] [barre : Préparer > Assistant > Réponse > [Terminé]]"
+  },
+  {
+   "n": "info",
+   "t": "fin : #resultats « 📄 Votre préparation d’entretien » bas « null » barre Préparer > Assistant > Réponse > [Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : resultats:Votre préparation d’entretien < prepa-entretien:M’entraîner à un entretien d’e < cv:Par où voulezvous commencer[fenêtre]"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#prepa-entretien",
+    "page": "prepa-entretien",
+    "h1": "M’entraîner à un entretien d’embauche",
+    "barre": "",
+    "avant": "Commencer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#prepa-entretien",
+    "page": "prepa-entretien",
+    "h1": "M’entraîner à un entretien d’embauche",
+    "barre": "[Préparer] > Assistant > Réponse > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à déposer votre CV et à choisir le type de candidature dans « Votre candidature » et à indiquer votre situation actuelle dans « Adaptation au métier ».",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#prepa-entretien",
+    "page": "prepa-entretien",
+    "h1": "M’entraîner à un entretien d’embauche",
+    "barre": "Préparer > [Assistant] > Réponse > Terminé",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Votre préparation d’entretien",
+    "barre": "Préparer > Assistant > Réponse > [Terminé]",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Votre préparation d’entretien",
+    "barre": "Préparer > Assistant > Réponse > [Terminé]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Votre préparation d’entretien",
+    "barre": "Préparer > Assistant > Réponse > [Terminé]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

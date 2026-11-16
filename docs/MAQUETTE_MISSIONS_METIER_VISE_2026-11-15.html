@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : missions du métier visé (version 1)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 4rem}
+.mq-page{max-width:860px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;margin:.3rem 0}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-regl p{font-size:.85rem;margin:.2rem 0}
+.mq-titre{font-size:1.4rem;margin:.2rem 0 .1rem;text-align:center}
+.mq-sous{color:var(--text-muted);text-align:center;font-size:.95rem;margin:0 0 .8rem}
+.mq-cible{background:var(--bg-subtle);border:1px solid var(--border-strong);border-left:4px solid var(--accent);border-radius:12px;padding:.7rem 1rem;margin:.6rem 0}
+.mq-cible b.m{display:block;font-size:1.15rem;font-weight:800}
+.mq-bilan{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.mq-bilan .progress{height:.5rem;background:var(--border-strong)}
+.mq-bilan .progress-bar{background:var(--accent-solide)}
+.mq-rub{border-left:5px solid var(--fm-miss-bord);background:var(--fm-miss-bg);border-radius:10px;padding:.6rem .8rem .7rem;margin:1rem 0}
+.mq-rub h3{font-size:1rem;font-weight:700;margin:0 0 .15rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.mq-rub .nb{font-size:.75rem;font-weight:800;border:1.5px solid var(--fm-miss-bord);color:var(--fm-miss-texte);background:var(--bg-card);border-radius:999px;padding:.1rem .55rem}
+.mq-aide{font-size:.85rem;margin:.2rem 0 .5rem}
+.mq-carte{display:block;width:100%;text-align:left;border:2px solid var(--fm-miss-bord);background:var(--bg-card);color:var(--text-strong);border-radius:12px;padding:.5rem .75rem;margin:.35rem 0;font-size:.9rem;cursor:pointer}
+.mq-carte.coche{background:var(--accent-solide);border-color:var(--accent-solide);color:#fff}
+.mq-carte .src{display:block;font-size:.78rem;opacity:.9;margin-top:.1rem}
+.mq-carte.fixe{cursor:default}
+.mq-ou{border:2px solid var(--accent);background:var(--accent-bg-subtle);border-radius:10px;padding:.55rem .75rem;margin:-.1rem 0 .5rem 1.2rem}
+.mq-ou p{margin:0 0 .35rem;font-size:.9rem}
+.mq-ou .pastilles{display:flex;flex-wrap:wrap;gap:.4rem}
+.mq-ou .jeton{border-color:var(--accent);background:var(--bg-card);font-size:.85rem}
+.mq-ou .jeton.is-actif{background:var(--accent-bg-subtle);border-width:2.5px}
+.mq-ou .non{margin-top:.5rem;border-top:1px dashed var(--accent);padding-top:.45rem;font-size:.85rem}
+.mq-cv{border:1px solid var(--border);border-radius:12px;background:var(--bg-card);padding:.7rem 1rem;margin:1.2rem 0}
+.mq-cv h3{font-size:1rem;margin:0 0 .4rem}
+.mq-cv .poste{font-weight:700;margin-top:.5rem}
+.mq-cv ul{margin:.15rem 0 0;padding-left:1.2rem;font-size:.9rem}
+.mq-cv .ajout{font-size:.75rem;font-weight:700;color:var(--accent-texte);margin-left:.4rem}
+.mq-decide{background:var(--warning-bg-subtle);border:2px solid var(--warning);border-radius:10px;padding:.6rem .8rem;margin:1rem 0;font-size:.9rem}
+.mq-decide b{display:block;margin-bottom:.2rem}
+</style>
+</head>
+<body>
+<div class="mq-regl" id="regl">
+  <h2>Maquette du lot 5 : missions du métier visé <button class="btn btn-sm btn-outline-secondary" id="btnTel">Version téléphone</button></h2>
+  <p>Exemple : la personne a deux expériences et vise le métier « Serveur en restauration ». Les cartes sont cliquables, le compteur et le CV en bas suivent vos clics.</p>
+  <div class="boutons">
+    <button class="btn btn-sm btn-outline-primary" data-vue="0">1. Départ</button>
+    <button class="btn btn-sm btn-outline-primary" data-vue="1">2. Une mission, « Où l’avez-vous faite ? »</button>
+    <button class="btn btn-sm btn-outline-primary" data-vue="2">3. Après le choix</button>
+    <button class="btn btn-sm btn-outline-primary" data-vue="3">4. « Dans aucune de ces expériences »</button>
+  </div>
+</div>
+
+<div class="mq-page" id="page">
+  <h1 class="mq-titre">&#129520; Vos missions et compétences</h1>
+  <p class="mq-sous">Onglet « Métier visé » : ce que demande le métier, et ce que vous avez déjà fait.</p>
+  <div id="corps"></div>
+</div>
+
+<script>
+var EXPS = [
+  { id: 'x1', poste: 'Caissière', ent: 'Supermarché du centre', per: '2019 à 2022', miss: ['Réaliser les encaissements'] },
+  { id: 'x2', poste: 'Employée polyvalente', ent: 'Snack du port', per: '2022 à 2023', miss: ['Accueillir et installer les clients à leur table avec courtoisie'] }
+];
+var MISSIONS_CIBLE = [
+  'Accueillir et installer les clients à leur table avec courtoisie',
+  'Conseiller les clients sur la carte, les différents plats et les boissons',
+  'Prendre les commandes et servir les clients avec efficacité',
+  'Réaliser les encaissements',
+  'Nettoyer et mettre en place les espaces de restauration',
+  'Contribuer au suivi des stocks de nourriture et de boissons',
+  'Effectuer le service lors d’événements spéciaux ou de banquets'
+];
+var AJOUTS = {};      // texte -> [ids d'expérience] ajoutées depuis le métier visé
+var OUVERTE = null;   // texte de la mission dont la question « Où ? » est ouverte
+var AUCUNE = null;    // texte de la mission pour laquelle la personne a dit « dans aucune »
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function expDe(id) { return EXPS.filter(function (e) { return e.id === id; })[0]; }
+function couvertePar(t) {   // expériences qui ont déjà cette mission, depuis le panneau/la page ou depuis le métier visé
+  var r = EXPS.filter(function (e) { return e.miss.indexOf(t) >= 0; }).map(function (e) { return e.id; });
+  (AJOUTS[t] || []).forEach(function (id) { if (r.indexOf(id) < 0) { r.push(id); } });
+  return r;
+}
+function nomCourt(e) { return e.poste + ' · ' + e.ent; }
+
+function rendre() {
+  var couv = MISSIONS_CIBLE.filter(function (t) { return couvertePar(t).length; });
+  var reste = MISSIONS_CIBLE.filter(function (t) { return !couvertePar(t).length; });
+  var n = couv.length, total = MISSIONS_CIBLE.length, pc = Math.round(100 * n / total);
+  var h = '<div class="mq-cible"><div class="text-muted small">&#127919; Le métier que vous visez</div><b class="m">Serveur en restauration</b>' +
+    '<p class="mb-0 mt-1">Votre CV s’appuie sur vos <strong>2 expériences</strong> pour raconter un parcours cohérent avec ce métier. Choisissez en priorité ce qui s’en rapproche.</p></div>';
+  h += '<div class="mq-bilan"><p class="mb-1">Vous avez déjà <strong>' + n + ' des ' + total + ' missions</strong> que demande ce métier (' + pc + '&nbsp;%).</p>' +
+    '<div class="progress" role="progressbar" aria-valuenow="' + pc + '"><div class="progress-bar" style="width:' + pc + '%"></div></div></div>';
+  h += '<p class="mq-aide">Voici les missions que demande le métier « <strong>Serveur en restauration</strong> » (fiche France Travail). <strong>Cochez seulement ce que vous avez réellement fait.</strong> Pour chaque mission, vous dites dans quelle expérience vous l’avez faite : c’est là qu’elle sera écrite sur votre CV.</p>';
+
+  if (couv.length) {
+    h += '<div class="mq-rub"><h3>Déjà dans votre CV <span class="nb">' + couv.length + ' mission' + (couv.length > 1 ? 's' : '') + '</span></h3><p class="mq-aide">Avec l’expérience où vous l’avez écrite.</p>';
+    couv.forEach(function (t) {
+      var noms = couvertePar(t).map(function (id) { return nomCourt(expDe(id)); }).join(' et ');
+      h += '<span class="mq-carte coche fixe">' + esc(t) + '<span class="src">Dans : ' + esc(noms) + '</span></span>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="mq-rub"><h3>À cocher si vous les avez déjà faites <span class="nb">' + reste.length + ' mission' + (reste.length > 1 ? 's' : '') + '</span></h3><p class="mq-aide">Cliquez sur une mission que vous avez déjà faite, puis dites où.</p>';
+  reste.forEach(function (t, i) {
+    var ouvert = OUVERTE === t;
+    h += '<button type="button" class="mq-carte" data-m="' + i + '" aria-expanded="' + ouvert + '">' + esc(t) + '</button>';
+    if (ouvert) {
+      h += '<div class="mq-ou"><p><strong>Dans quelle expérience l’avez-vous faite ?</strong> Vous pouvez en cocher plusieurs.</p><div class="pastilles">' +
+        EXPS.map(function (e) { return '<button type="button" class="jeton jeton--compact" data-e="' + e.id + '" data-m="' + i + '" aria-pressed="false">' + esc(nomCourt(e)) + ' <span style="font-weight:400">(' + e.per + ')</span></button>'; }).join('') + '</div>' +
+        '<div class="non"><button type="button" class="btn btn-sm btn-outline-secondary" data-aucune="' + i + '">Je l’ai faite ailleurs, pas dans ces expériences</button></div></div>';
+    }
+    if (AUCUNE === t) {
+      h += '<div class="mq-ou"><p><strong>Elle ne sera pas écrite sur votre CV.</strong> Un CV raconte des expériences précises : une mission faite en dehors d’un emploi ne peut pas y être rattachée sans l’inventer. Si c’était du bénévolat, une association, un service rendu, vous pouvez la décrire dans « Ce que vous avez appris ailleurs qu’au travail » (étape « Vos informations »).</p>' +
+        '<button type="button" class="btn btn-sm btn-outline-primary" data-fermer="1">Compris</button></div>';
+    }
+  });
+  h += '</div>';
+
+  h += '<div class="mq-cv"><h3>&#128196; Votre CV, tel qu’il se construit</h3>';
+  EXPS.forEach(function (e) {
+    var l = [];
+    e.miss.forEach(function (t) { l.push({ t: t, nouveau: false }); });
+    Object.keys(AJOUTS).forEach(function (t) { if (AJOUTS[t].indexOf(e.id) >= 0 && e.miss.indexOf(t) < 0) { l.push({ t: t, nouveau: true }); } });
+    h += '<div class="poste">' + esc(e.poste) + ' <span class="text-muted" style="font-weight:400">(' + e.per + ')</span></div><ul>' +
+      (l.length ? l.map(function (x) { return '<li>' + esc(x.t) + (x.nouveau ? '<span class="ajout">ajoutée depuis le métier visé</span>' : '') + '</li>'; }).join('') : '<li class="text-muted">Aucune mission choisie pour le moment.</li>') + '</ul>';
+  });
+  h += '</div>';
+  document.getElementById('corps').innerHTML = h;
+}
+
+document.getElementById('corps').addEventListener('click', function (ev) {
+  var t = ev.target.closest('[data-m],[data-e],[data-aucune],[data-fermer]'); if (!t) { return; }
+  var reste = MISSIONS_CIBLE.filter(function (x) { return !couvertePar(x).length; });
+  if (t.hasAttribute('data-fermer')) { AUCUNE = null; rendre(); return; }
+  if (t.hasAttribute('data-aucune')) { AUCUNE = reste[parseInt(t.getAttribute('data-aucune'), 10)]; OUVERTE = null; rendre(); return; }
+  if (t.hasAttribute('data-e')) {
+    var m = reste[parseInt(t.getAttribute('data-m'), 10)], id = t.getAttribute('data-e');
+    AJOUTS[m] = AJOUTS[m] || [];
+    if (AJOUTS[m].indexOf(id) < 0) { AJOUTS[m].push(id); }
+    OUVERTE = null; rendre(); return;
+  }
+  var mm = reste[parseInt(t.getAttribute('data-m'), 10)];
+  OUVERTE = (OUVERTE === mm) ? null : mm; AUCUNE = null; rendre();
+});
+document.querySelectorAll('[data-vue]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    AJOUTS = {}; OUVERTE = null; AUCUNE = null;
+    var v = parseInt(b.getAttribute('data-vue'), 10);
+    var reste = MISSIONS_CIBLE.filter(function (x) { return !couvertePar(x).length; });
+    if (v === 1) { OUVERTE = reste[0]; }
+    if (v === 2) { AJOUTS[reste[1]] = ['x2']; AJOUTS[reste[0]] = ['x1', 'x2']; }
+    if (v === 3) { AUCUNE = reste[2]; }
+    rendre();
+  });
+});
+document.getElementById('btnTel').addEventListener('click', function () { document.getElementById('page').classList.toggle('tel'); });
+rendre();
+</script>
+</body>
+</html>

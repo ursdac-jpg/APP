@@ -1,0 +1,364 @@
+{
+ "nom": "creerAlaMain",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ direct voie 3 : ok"
+  },
+  {
+   "n": "ok",
+   "t": "objectif : « Continuer » grisé au départ, raison « Choisissez d’abord un objectif ci-dessus. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "ok",
+   "t": "Votre parcours : « Continuer » grisé sans case cochée, raison « Chaque question a besoin d’au moins une case cochée. »"
+  },
+  {
+   "n": "info",
+   "t": "Votre profil : encart « entreprise non indiquée » après un clic sur Continuer : true"
+  },
+  {
+   "n": "info",
+   "t": "Votre profil : un second « Continuer » ne fait rien tant que l’encart est là (il faut cliquer « Continuer sans » ou « Indiquer l’entreprise »)"
+  },
+  {
+   "n": "info",
+   "t": "« Continuer sans » : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le profil : #resultats « 📄 Vos documents » bouton « Valider le CV → »"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : pas de bouton Retour dans la barre du bas"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:← Modifier le CV → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:← Modifier le CV → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:← Modifier le CV → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : ← Modifier le CV] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "à la main : ok:← Modifier le CV → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "arrivée : #resultats « 📄 Vos documents » barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : revelation:Votre profil < votre-parcours:Votre parcours < projet:Vos informations < objectif:Votre objectif < creer-cv:Créer un nouveau CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 3 : les « Retour » successifs rejoignent la page commune en 5 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#creer-cv",
+    "page": "creer-cv",
+    "h1": "Créer un nouveau CV",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Choisissez d’abord un objectif ci-dessus.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Chaque question a besoin d’au moins une case cochée.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#revelation",
+    "page": "revelation",
+    "h1": "👤 Votre profil",
+    "barre": "Votre objectif > Vos informations > Votre parcours > [Votre profil] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "← Modifier le CV",
+    "retour": false,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "pas de bouton Retour dans la barre du bas"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : plus aucun renvoi vers Votre objectif</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--warnbord:#e9c46a;--new:#7a2e8a;--newbg:#f3e6f7;--dis:#9aa4b5}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--warnbord:#8a6d20;--new:#e3a8f2;--newbg:#3a2342;--dis:#6b7589}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:1180px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.2rem;margin:.2rem 0}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:20;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.onglets{display:flex;flex-wrap:wrap;gap:.4rem}
+.onglet{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.3rem .9rem;font-weight:600;font-size:.9rem}
+.onglet.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.intro{background:var(--newbg);border:2px solid var(--new);border-radius:14px;padding:.6rem 1rem;margin:.8rem 0}
+.intro b{color:var(--new)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+.appareil{background:var(--card);border:2px solid var(--bord);border-radius:16px;overflow:hidden}
+.pastilles{display:flex;gap:.3rem;flex-wrap:wrap;padding:.5rem .7rem;background:var(--sub);border-bottom:1px solid var(--bord);font-size:.78rem}
+.past{border:1px solid var(--bord);border-radius:999px;padding:.1rem .6rem;background:var(--card);color:var(--muted)}
+.past.ok{border-color:var(--ok);color:var(--ok);background:var(--okbg)}
+.past.cour{border-color:var(--acc);color:var(--acc);background:var(--accbg);font-weight:700}
+.ecran{padding:.6rem 1rem 1rem}
+.ecran h3{text-align:center;font-size:1.5rem;margin:.4rem 0 .1rem}
+.ecran .sous{text-align:center;color:var(--muted);margin-bottom:.8rem}
+.barre{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.7rem 1rem;border-top:1px solid var(--bord);background:var(--sub)}
+.btn{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.5rem 1.1rem;font-weight:600}
+.btn.prim{background:var(--acc);border-color:var(--acc);color:#fff}
+[data-theme="sombre"] .btn.prim{color:#0b1220}
+.btn.dis{background:var(--sub);border-color:var(--bord);color:var(--dis);cursor:not-allowed}
+.btn.petit{padding:.25rem .8rem;font-size:.88rem}
+.carte{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.7rem .9rem;margin:.7rem 0}
+.carte.warn{background:var(--warnbg);border-color:var(--warnbord)}
+.carte.ok{background:var(--okbg);border-color:var(--ok)}
+.carte h4{margin:.1rem 0 .3rem;font-size:1.02rem}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:.5rem 0}
+.cobj{background:var(--card);border:2px solid var(--bord);border-radius:12px;padding:.5rem;text-align:center;font-size:.9rem}
+.cobj:hover{border-color:var(--acc)}.cobj.actif{border-color:var(--acc);background:var(--accbg)}
+.cobj b{display:block}.cobj span{font-size:.78rem;color:var(--muted)}
+.jetons{display:flex;flex-wrap:wrap;gap:.45rem;margin:.3rem 0;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.35rem .8rem;font-weight:600;font-size:.92rem}
+.jeton:hover{border-color:var(--acc)}.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.champ{display:block;width:100%;border:2px solid var(--bord);background:var(--card);border-radius:10px;padding:.45rem .7rem;margin:.2rem 0 .5rem}
+.champ:focus{outline:2px solid var(--acc);border-color:var(--acc)}
+label.l{font-weight:700;font-size:.92rem;display:block;margin-top:.3rem}
+.sugg{border:1px solid var(--bord);border-radius:10px;background:var(--card);margin:-.3rem 0 .5rem;overflow:hidden}
+.sugg button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--bord);background:transparent;padding:.4rem .7rem}
+.sugg button:last-child{border-bottom:0}.sugg button:hover{background:var(--accbg)}
+.ligne{display:flex;justify-content:space-between;gap:.6rem;border-bottom:1px dashed var(--bord);padding:.25rem 0;font-size:.92rem}
+.ligne b{text-align:right}
+.msgbas{background:var(--warnbg);border:2px solid var(--warnbord);border-radius:10px;padding:.4rem .7rem;margin:.5rem 0;font-weight:700;font-size:.92rem}
+.panneau{background:var(--card);border:2px solid var(--ok);border-radius:14px;padding:.6rem .9rem;position:sticky;top:64px}
+.panneau h4{margin:.1rem 0 .4rem;color:var(--ok)}
+.panneau .vide{color:var(--muted);font-style:italic}
+.note{background:var(--sub);border-left:5px solid var(--acc);border-radius:8px;padding:.5rem .8rem;margin:.6rem 0;font-size:.9rem}
+.flash{animation:fl 1.2s}@keyframes fl{0%,60%{box-shadow:0 0 0 4px var(--warnbord)}100%{box-shadow:none}}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--txt);color:var(--bg);padding:.6rem 1.1rem;border-radius:12px;z-index:50;max-width:90vw;display:none}
+details.fold{border:2px solid var(--bord);border-radius:14px;margin:.7rem 0;background:var(--card)}
+details.fold>summary{cursor:pointer;padding:.6rem .9rem;font-weight:700;list-style:none;display:flex;gap:.5rem;align-items:center}
+details.fold[open]>summary{border-bottom:1px solid var(--bord)}
+details.fold>.corps{padding:.3rem .9rem .8rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}td,th{border:1px solid var(--bord);padding:.3rem .5rem;text-align:left;vertical-align:top}
+</style>
+</head>
+<body data-theme="clair">
+<div class="page">
+<div class="haut">
+  <div class="onglets" id="onglets"></div>
+  <button class="mini" id="btnTheme" type="button">Mode sombre</button>
+</div>
+
+<h1>Plus aucun renvoi vers « Votre objectif »</h1>
+<div class="intro">
+  <p><b>Le principe.</b> Tout ce qui manque se complète <b>sur la page où la personne se trouve</b>. Elle ne repasse jamais par une étape déjà faite.</p>
+  <p><b>Les mêmes choix, les mêmes données.</b> Les zones ci-dessous sont les <b>mêmes composants</b> que « Votre objectif » : mêmes cartes, mêmes questions, même enregistrement. L'assistant en ligne reçoit donc exactement la même chose que si la personne était revenue sur cette page (voir le cadre vert à droite, qui se met à jour en direct).</p>
+  <p class="small muted">Tous les boutons de cette maquette fonctionnent. Essayez-les.</p>
+</div>
+
+<div id="vue"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  'use strict';
+  // ---------- Données d'exemple ----------
+  var SITUATIONS = [
+    { id: 'offre', t: 'Répondre à une offre', i: '📄', d: 'Adapter vos documents à une offre.' },
+    { id: 'spontanee', t: 'Candidature spontanée', i: '🏢', d: 'Vous vous adressez à une entreprise sans offre.' },
+    { id: 'reconversion', t: 'Changer de métier', i: '🔄', d: 'Valoriser vos compétences vers un autre métier.' },
+    { id: 'stage', t: 'Stage', i: '🎓', d: 'Une recherche de stage.' },
+    { id: 'alternance', t: 'Alternance', i: '🤝', d: 'Une recherche d\'alternance.' },
+    { id: 'formation', t: 'Formation', i: '📘', d: 'Une demande de formation.' }
+  ];
+  var METIERS = ['Boulanger', 'Vendeur en boulangerie', 'Aide-soignant', 'Magasinier', 'Secrétaire', 'Agent d\'accueil', 'Cariste', 'Plaquiste', 'Cuisinier'];
+  var DOMAINES = { 'Commerce': ['Vendeur', 'Conseiller de vente', 'Employé de commerce'], 'Bâtiment': ['Maçon', 'Plaquiste', 'Peintre en bâtiment'], 'Logistique': ['Cariste', 'Magasinier', 'Préparateur de commandes'], 'Restauration': ['Cuisinier', 'Serveur', 'Commis de cuisine'] };
+  var TYPES_STRUCTURE = ['Non précisé', 'Entreprise privée', 'Association', 'Collectivité', 'Autre'];
+
+  // ---------- État partagé (comme le dossier de l'application) ----------
+  var S;
+  function etatInitial() {
+    return { onglet: 1, sit: 'stage', mode: 'metier', metier: '', domaine: '', intitule: '', forme: '', entreprise: '', site: '', offre: '', structure: 'Non précisé', civ: '', nomRec: '', couleur: 'non', stageStructure: '', stageDates: '',
+      zoneMetier: false, zoneEntreprise: false, blocObjectif: false, recherche: '',
+      // point 3 et 4
+      expOk: false, formOk: true, cvDepose: true, sitChoisie: false, metierChoisi: false, flash4: false };
+  }
+  S = etatInitial();
+
+  var PRESETS = {
+    1: function () { S = etatInitial(); S.onglet = 1; S.sit = 'stage'; },
+    2: function () { S = etatInitial(); S.onglet = 2; S.sit = 'spontanee'; S.mode = 'metier'; S.metier = 'Boulanger'; S.forme = 'generale'; S.blocObjectif = true; },
+    3: function () { S = etatInitial(); S.onglet = 3; },
+    4: function () { S = etatInitial(); S.onglet = 4; }
+  };
+  var TITRES = { 1: '1. Aucun métier ciblé', 2: '2. Modifier mon objectif', 3: '3. Informations manquantes', 4: '4. Raison sous le bouton grisé' };
+
+  // ---------- Outils ----------
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sitObj() { return SITUATIONS.filter(function (x) { return x.id === S.sit; })[0]; }
+  function familleStage() { return S.sit === 'stage' || S.sit === 'alternance'; }
+  function metierManque() {
+    if (S.sit === 'formation') { return false; }
+    if (!familleStage() && S.mode === 'domaine') { return !(S.domaine && S.intitule); }
+    return !S.metier;
+  }
+  function entrepriseManque() {
+    if (S.sit === 'offre') { return !S.offre.trim() && !S.entreprise.trim(); }
+    if (S.sit === 'spontanee' || S.sit === 'reconversion') { return S.forme === 'entreprise' && !S.entreprise.trim(); }
+    return false;
+  }
+  function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.m); toast.m = setTimeout(function () { e.style.display = 'none'; }, 3200); }
+
+  // ---------- Ce que reçoit l'assistant (même texte, quel que soit le chemin) ----------
+  function lignesAssistant() {
+    var l = [];
+    var s = sitObj();
+    l.push(['Votre situation', s.t]);
+    if (S.sit === 'formation') { if (S.metier) { l.push(['Formation visée', S.metier]); } }
+    else if (!familleStage() && S.mode === 'domaine') {
+      if (S.domaine) { l.push(['Domaine visé', S.domaine]); }
+      if (S.intitule) { l.push(['Intitulé mis en avant', S.intitule]); }
+    } else if (S.metier) { l.push(['Métier visé', S.metier]); }
+    var forme = '';
+    if (S.sit === 'offre') { forme = S.offre.trim() ? 'En réponse à une offre' : (S.entreprise.trim() ? 'Candidature spontanée auprès de l\'entreprise (pas d\'offre collée)' : 'De façon générale (ni offre, ni entreprise)'); }
+    else if (S.sit === 'spontanee' || S.sit === 'reconversion') { forme = S.forme === 'entreprise' ? 'Vers une entreprise précise' : (S.forme === 'offre' ? 'En réponse à une offre' : (S.forme === 'generale' ? 'De façon générale' : '')); }
+    if (forme) { l.push(['Façon de candidater', forme]); }
+    if (S.entreprise.trim()) { l.push(['Entreprise', S.entreprise.trim()]); }
+    if (S.site.trim()) { l.push(['Site de l\'entreprise', S.site.trim()]); }
+    if (S.offre.trim()) { l.push(['Offre d\'emploi', S.offre.trim().slice(0, 60) + (S.offre.trim().length > 60 ? '…' : '')]); }
+    if (S.entreprise.trim() && S.structure && S.structure !== 'Non précisé') { l.push(['Type de structure', S.structure]); }
+    if (S.civ) { l.push(['Personne qui recrute', S.civ + (S.nomRec ? ' ' + S.nomRec : '')]); }
+    if (familleStage()) {
+      if (S.stageStructure.trim()) { l.push(['Structure d\'accueil', S.stageStructure.trim()]); }
+      if (S.stageDates.trim()) { l.push(['Dates', S.stageDates.trim()]); }
+    }
+    return l;
+  }
+  function htmlPanneau() {
+    var l = lignesAssistant();
+    return '<div class="panneau" aria-live="polite"><h4>✅ Ce que reçoit l\'assistant en ligne</h4>' +
+      '<p class="small muted">Identique à ce que donnerait la page « Votre objectif ». Mise à jour en direct.</p>' +
+      l.map(function (x) { return '<div class="ligne"><span>' + esc(x[0]) + '</span><b>' + esc(x[1]) + '</b></div>'; }).join('') +
+      (l.length < 2 ? '<p class="vide">Rien d\'autre pour l\'instant : l\'assistant s\'appuiera sur l\'ensemble du parcours.</p>' : '') +
+      '</div>';
+  }
+
+  // ---------- Briques réutilisées ----------
+  function htmlRechercheMetier(pourDomaineAussi) {
+    var h = '';
+    if (pourDomaineAussi) {
+      h += '<label class="l">Visez-vous un métier précis ou plusieurs métiers d\'un domaine ?</label><div class="jetons">' +
+        '<button type="button" class="jeton' + (S.mode === 'metier' ? ' actif' : '') + '" data-act="mode" data-v="metier">Un métier précis</button>' +
+        '<button type="button" class="jeton' + (S.mode === 'domaine' ? ' actif' : '') + '" data-act="mode" data-v="domaine">Plusieurs métiers d\'un domaine</button></div>';
+    }
+    if (pourDomaineAussi && S.mode === 'domaine') {
+      h += '<label class="l">Quel domaine ?</label><div class="jetons">' + Object.keys(DOMAINES).map(function (d) {
+        return '<button type="button" class="jeton' + (S.domaine === d ? ' actif' : '') + '" data-act="domaine" data-v="' + esc(d) + '">' + esc(d) + '</button>';
+      }).join('') + '</div>';
+      if (S.domaine) {
+        h += '<label class="l">Quel intitulé de poste voulez-vous mettre en avant ?</label><div class="jetons">' + DOMAINES[S.domaine].map(function (n) {
+          return '<button type="button" class="jeton' + (S.intitule === n ? ' actif' : '') + '" data-act="intitule" data-v="' + esc(n) + '">' + esc(n) + '</button>';
+        }).join('') + '</div>';
+      }
+    } else {
+      var q = (S.recherche || '').trim().toLowerCase();
+      var prop = q.length >= 2 ? METIERS.filter(function (m) { return m.toLowerCase().indexOf(q) !== -1; }).slice(0, 5) : [];
+      h += '<label class="l" for="rech">Quel métier visez-vous ? <span class="muted">(à compléter)</span></label>' +
+        '<input class="champ" id="rech" data-act="recherche" autocomplete="off" placeholder="Tapez quelques lettres : bou, mag, cui…" value="' + esc(S.recherche) + '">';
+      if (prop.length || q.length >= 2) {
+        h += '<div class="sugg">' + prop.map(function (m) { return '<button type="button" data-act="metier" data-v="' + esc(m) + '">' + esc(m) + '</button>'; }).join('') +
+          '<button type="button" data-act="metier" data-v="' + esc(S.recherche.trim()) + '">Utiliser « ' + esc(S.recherche.trim()) + ' » tel quel</button></div>';
+      }
+      if (S.metier) { h += '<p class="small">Métier retenu : <b>' + esc(S.metier) + '</b></p>'; }
+    }
+    return h;
+  }
+  function htmlZoneEntreprise() {
+    return '<label class="l">🏢 Entreprise ciblée <span class="muted">(à compléter)</span></label><input class="champ" data-act="champ" data-k="entreprise" placeholder="Ex. Boulangerie Dupont" value="' + esc(S.entreprise) + '">' +
+      '<label class="l">🌐 Site internet de l\'entreprise <span class="muted">(à compléter)</span></label><input class="champ" data-act="champ" data-k="site" placeholder="https://..." value="' + esc(S.site) + '">' +
+      '<label class="l">🏷️ Type de structure</label><select class="champ" data-act="champ" data-k="structure">' + TYPES_STRUCTURE.map(function (t) { return '<option' + (S.structure === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select>' +
+      '<label class="l">Connaissez-vous la personne en charge du recrutement ?</label><div class="jetons">' +
+      ['', 'Monsieur', 'Madame'].map(function (c) { return '<button type="button" class="jeton' + (S.civ === c ? ' actif' : '') + '" data-act="civ" data-v="' + c + '">' + (c || 'Je ne sais pas') + '</button>'; }).join('') + '</div>' +
+      (S.civ ? '<input class="champ" data-act="champ" data-k="nomRec" placeholder="Son nom" value="' + esc(S.nomRec) + '">' : '');
+  }
+  function messageSansOffre() {
+    if (S.sit !== 'offre') { return ''; }
+    if (S.offre.trim()) { return ''; }
+    var nom = S.entreprise.trim();
+    return '<div class="msgbas" id="msgSansOffre">' + (nom ? 'Comme vous n\'avez pas saisi d\'offre d\'emploi, votre candidature sera traitée comme une candidature spontanée auprès de : ' + esc(nom) + '.' : 'Sans offre d\'emploi ni nom d\'entreprise, votre candidature sera présentée de façon générale, sans viser d\'entreprise.') + '</div>';
+  }
+  // Le bloc « Votre objectif » complet : mêmes cartes et même composant « Votre candidature » que la page d'origine
+  function htmlBlocObjectif() {
+    var h = '<p class="small muted">Ce bloc est le même que la page « Votre objectif » (mêmes cartes, mêmes questions). Ce que vous changez ici est pris en compte tout de suite.</p>' +
+      '<div class="grille">' + SITUATIONS.map(function (x) {
+        return '<button type="button" class="cobj' + (S.sit === x.id ? ' actif' : '') + '" data-act="sit" data-v="' + x.id + '"><b>' + x.i + ' ' + x.t + '</b><span>' + x.d + '</span></button>';
+      }).join('') + '</div><div class="carte"><h4>📝 Votre candidature</h4>';
+    if (S.sit === 'formation') {
+      h += '<label class="l">Formation visée <span class="muted">(à compléter)</span></label><input class="champ" data-act="champ" data-k="metier" placeholder="Ex : Titre professionnel plaquiste" value="' + esc(S.metier) + '">';
+    } else if (familleStage()) {
+      h += htmlRechercheMetier(false) +
+        '<label class="l">Nom de la structure <span class="muted">(à compléter, laissez vide pour une candidature générale)</span></label><input class="champ" data-act="champ" data-k="stageStructure" placeholder="Ex : Boulangerie Martin" value="' + esc(S.stageStructure) + '">' +
+        '<label class="l">Dates <span class="muted">(à compléter)</span></label><input class="champ" data-act="champ" data-k="stageDates" placeholder="Ex : Octobre à décembre" value="' + esc(S.stageDates) + '">';
+    } else {
+      h += htmlRechercheMetier(S.sit !== 'offre');
+      if (S.sit === 'offre') {
+        h += '<hr><p class="mb-1"><b>💼 L\'offre et l\'entreprise</b></p><label class="l">📄 Offre d\'emploi <span class="muted">(à compléter)</span></label><textarea class="champ" rows="2" data-act="champ" data-k="offre" placeholder="Collez ici le texte de l\'offre, ou son lien">' + esc(S.offre) + '</textarea>' + htmlZoneEntreprise() + messageSansOffre();
+      } else {
+        var formes = S.sit === 'reconversion' ? [['offre', 'Je réponds à une offre'], ['entreprise', 'Je m\'adresse à une entreprise précise, sans offre'], ['generale', 'Je me présente de façon générale']] : [['generale', 'Je me présente de façon générale, sans viser une entreprise'], ['entreprise', 'Je m\'adresse à une entreprise précise']];
+        h += '<hr><p><b>Comment présentez-vous votre candidature ?</b></p><div class="jetons">' + formes.map(function (f) { return '<button type="button" class="jeton' + (S.forme === f[0] ? ' actif' : '') + '" data-act="forme" data-v="' + f[0] + '">' + f[1] + '</button>'; }).join('') + '</div>';
+        if (S.forme === 'offre') { h += '<label class="l">📄 Offre d\'emploi <span class="muted">(à compléter)</span></label><textarea class="champ" rows="2" data-act="champ" data-k="offre">' + esc(S.offre) + '</textarea>' + htmlZoneEntreprise(); }
+        if (S.forme === 'entreprise') { h += htmlZoneEntreprise(); }
+      }
+    }
+    return h + '</div>';
+  }
+
+  // ---------- Écran « Votre profil » (points 1 et 2) ----------
+  function barreEtapes(cour) {
+    var n = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Votre profil', 'Assistant', 'Vos documents'];
+    return '<div class="pastilles">' + n.map(function (x, i) { return '<span class="past ' + (i < cour ? 'ok' : (i === cour ? 'cour' : '')) + '">' + x + '</span>'; }).join('') + '</div>';
+  }
+  function etiquetteDroite() {
+    if (metierManque()) { return 'Continuer sans métier précis'; }
+    if (entrepriseManque()) { return 'Continuer sans entreprise'; }
+    return 'Continuer →';
+  }
+  function ecranProfil() {
+    var h = '<div class="appareil">' + barreEtapes(3) + '<div class="ecran"><h3>👤 Votre profil</h3><div class="sous">Un coup d\'œil sur ce que vous avez saisi, les compétences repérées, et des métiers à regarder.</div>';
+    // Métier
+    if (metierManque() || S.zoneMetier) {
+      h += '<div class="carte warn" id="carteMetier"><h4>🎯 Aucun métier précis visé</h4>';
+      if (S.zoneMetier) {
+        h += htmlRechercheMetier(!familleStage() && S.sit !== 'offre') + '<div class="mt"><button type="button" class="btn prim petit" data-act="validerMetier">Valider</button></div>';
+      } else {
+        h += '<p>Vous n\'avez pas indiqué ' + (!familleStage() && S.mode === 'domaine' ? 'de domaine' : 'de métier') + '. Il personnalise votre CV, votre lettre et votre entretien.</p><p><b>Si vous continuez sans, l\'assistant s\'appuiera sur l\'ensemble de votre parcours.</b></p>' +
+          '<button type="button" class="btn prim petit" data-act="ouvrirMetier">Indiquer ' + (!familleStage() && S.mode === 'domaine' ? 'le domaine' : 'le métier') + '</button>';
+      }
+      h += '</div>';
+    } else {
+      var texteM = (!familleStage() && S.mode === 'domaine') ? ('Domaine visé : <b>' + esc(S.domaine) + '</b>, intitulé : <b>' + esc(S.intitule) + '</b>') : ('Métier visé : <b>' + esc(S.metier) + '</b>');
+      h += '<div class="carte ok"><h4>🎯 ' + texteM + '</h4><button type="button" class="btn petit" data-act="ouvrirMetier">Changer de métier</button></div>';
+    }
+    // Entreprise
+    if (entrepriseManque() || S.zoneEntreprise) {
+      h += '<div class="carte warn" id="carteEntreprise"><h4>🏢 Entreprise non indiquée</h4>';
+      if (S.zoneEntreprise) { h += htmlZoneEntreprise() + (S.sit === 'offre' ? messageSansOffre() : '') + '<button type="button" class="btn prim petit" data-act="validerEntreprise">Valider</button>'; }
+      else { h += '<p>Le nom de l\'entreprise personnalise votre CV, votre lettre et votre entretien. <b>Si vous continuez sans, votre candidature sera présentée de façon générale.</b></p><button type="button" class="btn prim petit" data-act="ouvrirEntreprise">Indiquer l\'entreprise</button>'; }
+      h += '</div>';
+    }
+    // En bref
+    var l = lignesAssistant().slice(0, 4);
+    h += '<div class="carte"><h4>📝 Votre profil en bref</h4>' + l.map(function (x) { return '<div class="ligne"><span>' + esc(x[0]) + '</span><b>' + esc(x[1]) + '</b></div>'; }).join('') +
+      '<p class="small muted">Pour corriger une information, utilisez le bouton ci-dessous : tout se fait ici, sans quitter cette page.</p>' +
+      '<button type="button" class="btn petit" data-act="basculerObjectif">' + (S.blocObjectif ? 'Fermer « Votre objectif »' : '✏️ Modifier mon objectif') + '</button></div>';
+    h += '<details class="fold" id="blocObjectif"' + (S.blocObjectif ? ' open' : '') + '><summary>🎯 Votre objectif <span class="muted small">(le même que la page d\'origine)</span></summary><div class="corps">' + (S.blocObjectif ? htmlBlocObjectif() : '') + '</div></details>';
+    h += '<p class="small muted">(Plus bas : les métiers à regarder et les compétences repérées, inchangés.)</p></div>' +
+      '<div class="barre"><button type="button" class="btn" data-act="retour">← Retour</button><button type="button" class="btn prim" data-act="continuer">' + etiquetteDroite() + '</button></div></div>';
+    return h;
+  }
+
+  // ---------- Écran point 3 ----------
+  function ecranManque() {
+    var manque = [];
+    if (!S.expOk) { manque.push('Aucune expérience saisie'); }
+    if (!S.formOk) { manque.push('Aucune formation saisie'); }
+    var h = '<div class="appareil">' + barreEtapes(4) + '<div class="ecran"><h3>💬 L\'assistant en ligne</h3><div class="sous">Vous avez collé la réponse de l\'assistant.</div>';
+    if (manque.length) {
+      h += '<div class="carte warn"><h4>Il manque encore des informations pour construire votre CV</h4><p>Ce n\'est pas un souci de copier-coller : l\'assistant n\'a pas reçu assez d\'éléments. Il manque :</p><ul>' + manque.map(function (m) { return '<li>' + m + '</li>'; }).join('') + '</ul>' +
+        '<p>Ces informations se complètent à la page <b>« Vos informations »</b>, là où l\'on saisit les expériences et la formation. Vos réponses sont gardées.</p>' +
+        '<button type="button" class="btn prim" data-act="versInfos">Compléter mes informations</button></div>';
+    } else { h += '<div class="carte ok"><h4>Votre profil contient assez d\'éléments</h4><p>Le bouton « Continuer » est actif.</p></div>'; }
+    h += '</div><div class="barre"><button type="button" class="btn" data-act="retour">← Retour</button><button type="button" class="btn prim' + (manque.length ? ' dis' : '') + '" data-act="continuer3">Continuer →</button></div></div>';
+    return h;
+  }
+
+  // ---------- Écran point 4 ----------
+  function raisons4() {
+    var r = [];
+    if (!S.cvDepose) { r.push('déposer votre CV'); }
+    if (!S.sitChoisie) { r.push('choisir votre situation, dans la partie « Votre objectif » ci-dessous'); }
+    else if (!S.metierChoisi) { r.push('indiquer le métier visé, dans la partie « Votre objectif » ci-dessous'); }
+    return r;
+  }
+  function ecranRaison() {
+    var r = raisons4();
+    var phrase = r.length ? 'Il reste à ' + r.join(' et à ') + '.' : '';
+    var h = '<div class="appareil"><div class="pastilles"><span class="past cour">Préparer</span><span class="past">Assistant</span><span class="past">Réponse</span></div><div class="ecran"><h3>📋 Reformuler mon CV</h3><div class="sous">Cette page se complète de haut en bas.</div>' +
+      '<div class="carte"><h4>Pour essayer</h4><label><input type="checkbox" data-act="c4" data-k="cvDepose"' + (S.cvDepose ? ' checked' : '') + '> CV déposé</label><br><label><input type="checkbox" data-act="c4" data-k="sitChoisie"' + (S.sitChoisie ? ' checked' : '') + '> Situation choisie</label><br><label><input type="checkbox" data-act="c4" data-k="metierChoisi"' + (S.metierChoisi ? ' checked' : '') + '> Métier indiqué</label></div>' +
+      '<details class="fold' + (S.flash4 ? ' flash' : '') + '" id="blocObj4"' + (S.flash4 ? ' open' : '') + '><summary><span class="past">3</span> Votre objectif <span class="past">nécessaire</span></summary><div class="corps"><p class="small muted">Les six cartes de situation, puis « Votre candidature » : le même composant que partout.</p></div></details>' +
+      '</div><div class="barre"><button type="button" class="btn" data-act="retour">← Retour</button><div style="text-align:right"><button type="button" class="btn prim' + (r.length ? ' dis' : '') + '" data-act="continuer4">Continuer →</button>' + (phrase ? '<div class="small" style="margin-top:.3rem;font-weight:700;color:var(--warn)">' + esc(phrase) + '</div>' : '') + '</div></div></div>' +
+      '<p class="small muted">Au clic sur le bouton grisé, le bloc « Votre objectif » s\'ouvre et se met en évidence : la personne voit tout de suite où compléter.</p>';
+    return h;
+  }
+
+  // ---------- Rendu ----------
+  function note(t) { return '<div class="note">' + t + '</div>'; }
+  var NOTES = {
+    1: 'Remplace la fenêtre « Aucun métier ciblé » : le message est dans la page dès l\'arrivée, avec une seule action. Un clic ouvre la recherche de métier <b>à la place du bouton</b> (même recherche, mêmes suggestions, mêmes confirmations que « Votre objectif »). Pour une candidature spontanée ou un changement de métier, le choix « plusieurs métiers d\'un domaine » et l\'intitulé sont proposés aussi : <b>aucun choix n\'est perdu</b>. Le bouton de droite s\'appelle « Continuer sans métier précis » tant que rien n\'est indiqué. <b>Essayez :</b> changez de situation dans « Modifier mon objectif », ou tapez « bou » dans la recherche.',
+    2: 'Remplace les phrases « revenez à l\'étape Votre objectif » : un bouton « Modifier mon objectif » ouvre, sur la même page, le <b>bloc complet</b> (six cartes et « Votre candidature » : métier ou domaine, offre, entreprise, disponibilités…). Aucune question n\'est enlevée, aucune n\'est ajoutée. Changer de carte efface ce qu\'il faut, exactement comme sur la page d\'origine. <b>Essayez :</b> cliquez sur une autre carte, puis regardez le cadre vert.',
+    3: 'Après un échec de l\'assistant faute d\'éléments, le bouton ne renvoie plus sur « Votre objectif » (la mauvaise page) : le message dit <b>ce qui manque</b> et mène à « Vos informations », où l\'on saisit les expériences et la formation. <b>Essayez :</b> cochez ce qui est saisi, le bouton « Continuer » s\'active.',
+    4: 'La raison affichée sous « Continuer » dit où compléter (« dans la partie Votre objectif ci-dessous ») au lieu de nommer une autre page. Le bouton grisé ouvre et met en évidence le bloc. <b>Essayez :</b> cochez et décochez les trois cases, puis cliquez sur « Continuer » quand il est grisé.'
+  };
+  function render() {
+    var on = document.getElementById('onglets');
+    on.innerHTML = [1, 2, 3, 4].map(function (i) { return '<button type="button" class="onglet' + (S.onglet === i ? ' actif' : '') + '" data-act="onglet" data-v="' + i + '">' + TITRES[i] + '</button>'; }).join('');
+    var corps = S.onglet <= 2 ? ecranProfil() : (S.onglet === 3 ? ecranManque() : ecranRaison());
+    var focus = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-act');
+    var focusK = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-k');
+    var pos = document.activeElement && document.activeElement.selectionStart;
+    var cols = '<div class="cols"><div>' + note(NOTES[S.onglet]) + corps + '</div><div>' + (S.onglet === 4 ? '<div class="panneau"><h4>À noter</h4><p class="small">Ce point est une question de formulation : aucune donnée ne change.</p></div>' : (S.onglet === 3 ? '<div class="panneau"><h4>À noter</h4><p class="small">Rien n\'est effacé : les réponses déjà données restent en place.</p></div>' : htmlPanneau())) + '</div></div>';
+    document.getElementById('vue').innerHTML = cols;
+    if (focus) {
+      var sel = '[data-act="' + focus + '"]' + (focusK ? '[data-k="' + focusK + '"]' : '');
+      var el = document.querySelector(sel);
+      if (el && el.focus && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} }
+    }
+  }
+
+  // ---------- Actions ----------
+  document.addEventListener('input', function (e) {
+    var a = e.target.getAttribute('data-act');
+    if (a === 'recherche') { S.recherche = e.target.value; render(); }
+    else if (a === 'champ') {
+      var k = e.target.getAttribute('data-k'); S[k] = e.target.value;
+      // le cadre vert et les messages suivent la saisie (sans perdre le curseur)
+      var vert = document.querySelector('.panneau'); if (vert && S.onglet <= 2) { vert.outerHTML = htmlPanneau(); }
+      var m = document.getElementById('msgSansOffre'); if (m && k !== 'offre') { m.outerHTML = messageSansOffre(); }
+      var b = document.querySelector('[data-act="continuer"]'); if (b) { b.textContent = etiquetteDroite(); }
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var a = e.target.getAttribute('data-act');
+    if (a === 'champ' && e.target.tagName === 'SELECT') { S[e.target.getAttribute('data-k')] = e.target.value; render(); }
+    if (a === 'c4') { S[e.target.getAttribute('data-k')] = e.target.checked; if (!S.sitChoisie) { S.metierChoisi = S.metierChoisi; } render(); }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]'); if (!t) { return; }
+    var a = t.getAttribute('data-act'), v = t.getAttribute('data-v');
+    if (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA') { return; }
+    if (a === 'onglet') { PRESETS[+v](); render(); window.scrollTo(0, 0); return; }
+    if (a === 'sit') { var avant = S.sit; S.sit = v; S.recherche = ''; if ((avant === 'offre' || avant === 'spontanee' || avant === 'reconversion') && (v === 'offre' || v === 'spontanee' || v === 'reconversion') && avant !== v) { S.metier = ''; S.domaine = ''; S.intitule = ''; S.entreprise = ''; S.site = ''; S.offre = ''; S.forme = ''; toast('Comme sur « Votre objectif » : changer de carte remet à zéro ce qui était saisi.'); } if (v === 'offre') { S.mode = 'metier'; } render(); return; }
+    if (a === 'mode') { S.mode = v; render(); return; }
+    if (a === 'domaine') { S.domaine = v; S.intitule = ''; render(); return; }
+    if (a === 'intitule') { S.intitule = v; render(); return; }
+    if (a === 'metier') { S.metier = v; S.recherche = ''; S.zoneMetier = false; render(); return; }
+    if (a === 'forme') { S.forme = v; render(); return; }
+    if (a === 'civ') { S.civ = v; if (!v) { S.nomRec = ''; } render(); return; }
+    if (a === 'ouvrirMetier') { S.zoneMetier = true; render(); var c = document.getElementById('carteMetier'); if (c) { c.scrollIntoView({ block: 'center' }); } return; }
+    if (a === 'validerMetier') { S.zoneMetier = false; render(); return; }
+    if (a === 'ouvrirEntreprise') { S.zoneEntreprise = true; render(); return; }
+    if (a === 'validerEntreprise') { S.zoneEntreprise = false; render(); return; }
+    if (a === 'basculerObjectif') { S.blocObjectif = !S.blocObjectif; render(); return; }
+    if (a === 'retour') { toast('« Retour » revient toujours à l\'étape d\'avant, avec le même nom partout.'); return; }
+    if (a === 'continuer') { toast(metierManque() ? 'On continue sans métier précis : l\'assistant s\'appuie sur l\'ensemble du parcours.' : (entrepriseManque() ? 'On continue sans entreprise : candidature présentée de façon générale.' : 'On continue vers l\'assistant.')); return; }
+    if (a === 'versInfos') { toast('On va à « Vos informations » (pas à « Votre objectif »). Les réponses sont gardées.'); S.expOk = true; S.formOk = true; render(); return; }
+    if (a === 'continuer3') { if (!S.expOk || !S.formOk) { toast('Il reste à compléter les informations manquantes.'); } else { toast('On continue.'); } return; }
+    if (a === 'continuer4') { if (raisons4().length) { S.flash4 = true; render(); setTimeout(function () { S.flash4 = false; }, 1300); var b = document.getElementById('blocObj4'); if (b) { b.scrollIntoView({ block: 'center' }); } } else { toast('On continue vers l\'assistant.'); } return; }
+  });
+  document.getElementById('btnTheme').addEventListener('click', function () {
+    var sombre = document.body.getAttribute('data-theme') === 'sombre';
+    document.body.setAttribute('data-theme', sombre ? 'clair' : 'sombre'); document.documentElement.setAttribute('data-theme', sombre ? 'clair' : 'sombre');
+    this.textContent = sombre ? 'Mode sombre' : 'Mode clair';
+  });
+  PRESETS[1]();
+  render();
+})();
+</script>
+</body>
+</html>

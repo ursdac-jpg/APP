@@ -1,0 +1,206 @@
+{
+ "nom": "informer",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "cadre : commencer : ok"
+  },
+  {
+   "n": "info",
+   "t": "cadre : arrivée : bas « null » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "cadre : choisir le département : ok"
+  },
+  {
+   "n": "info",
+   "t": "cadre : fenêtre :  Votre département ✕ Pour vous montrer les bonnes indications locales, dans quel département consultez-vous cette application ? Dordogne (24) Région Nouvelle-Aquitaine Haute-Vienne (87) Région Nouvelle-Aquitaine Un autre département Ou je ne sais pas encore"
+  },
+  {
+   "n": "info",
+   "t": "cadre : Dordogne : ok"
+  },
+  {
+   "n": "info",
+   "t": "cadre : après le choix : #comprendre-le-cadre « Comprendre le cadre » fenêtre false bas « null » texte : Vous êtes ici Comprendre le cadre Revoir la présentation Comprendre le cadre Des fiches courtes et des liens officiels, à consulter quand vous en avez besoin. Votre département : Dordogne (24) Changer de département Ce qui a changé récemment 11 changements 1 nouveau cette semaine Les derniers changements officiels repérés dans tous les rayons, datés et sourcés. À lire récemment, ou trimestre par trimestre. Mis à jour le 9 nov. 2026. Voir ce qui a changé POUR NE RIEN RATER Délais à ne pas rater Les démarches à faire avant une date limite, avec le nombre de jours ou de mois. Alertes arnaques Les fausses propositions qui visent les personnes en recherche d'emploi ou de formation. Comment sont f"
+  },
+  {
+   "n": "info",
+   "t": "cadre : boutons : #btnComprendreLeCadreRevoirIntro Revoir la présentation ; Changer de département ; Ce qui a changé récemment 11 changements ; Délais à ne pas rater Les démarches à fa ; Alertes arnaques Les fausses proposition ; Comment sont faites ces fiches ? Cliquez ; Affiner ma recherche ; Emploi et contrats Période d'essai, rupt ; Se former et se reconvertir Compte perso ; L'accompagnement et les structures de l' ; Créer son activité Micro-entreprise, soc ; Employeurs et entrepreneurs Ce que repré ; Armées S'engager dans l'armée, volontari ; Fonction publique Concours, recrutement  ; Agriculture S'installer en agriculture,  ; Moins de 26 ans Mission Locale et contra ; Travailler après 50 ans et retraite Amén ; Handicap et emploi Reconnaissance (RQTH) ; Venir de l'étranger Droit au travail sel ; Justice : sortie de détention Service pé ; Budget, dettes, droits sociaux Surendett ; Accès aux soins Trou"
+  },
+  {
+   "n": "info",
+   "t": "cadre : ouvrir « Emploi et contrats » : ok"
+  },
+  {
+   "n": "info",
+   "t": "cadre : sujet : #comprendre-le-cadre « Emploi et contrats » bas « null » texte : Vous êtes ici Comprendre le cadre › Emploi et contrats Revoir la présentation Tous les rayons Emploi et contrats Près de chez moi La période d'essai : combien de temps, qui peut y mettre fin, avec quel délai ? Utile au début d'un contrat, pour connaître ses droits, des deux côtés. La rupture conventionnelle, comment ça marche ? Utile si vous ou votre employeur envisagez de mettre fin à un CDI d'un commun accord. CDD, CDI, contrat saisonnier : quelles différences concrètes ? Utile pour comprendre"
+  },
+  {
+   "n": "info",
+   "t": "cadre : boutons du sujet : Comprendre le cadre ; #btnComprendreLeCadreRevoirIntro Revoir la présentation ; Tous les rayons ; Près de chez moi ; La période d'essai : combien de temps, q ; La rupture conventionnelle, comment ça m ; CDD, CDI, contrat saisonnier : quelles d ; L'intérim : comment ça marche, et qu'est ; Les contrats de l'insertion : CDD d'inse ; Quand un contrat se termine : les docume ; Le licenciement : la procédure, l'indemn ; Démissionner d'un CDI : le préavis, et c ; Le contrat de sécurisation professionnel ; L'abandon de poste : ce que ça change vr ; QPV et zones rurales fragiles (FRR) : de ; Travailler chez un particulier avec le C ; L'arrêt maladie : combien de temps, quel ; Mots de cette page expli"
+  },
+  {
+   "n": "info",
+   "t": "cadre : chaîne des Retour : #comprendre-le-cadre « Comprendre le cadre » < #se-tenir-informe-intro « Comprendre le cadre » < #cv « Par où voulez-vous commencer » [FENÊTRE]"
+  },
+  {
+   "n": "ok",
+   "t": "cadre : la chaîne des Retour ramène à l’accueil"
+  },
+  {
+   "n": "info",
+   "t": "cadre : rouvrir : ok"
+  },
+  {
+   "n": "info",
+   "t": "cadre : réouverture : #comprendre-le-cadre département redemandé : false texte : Vous êtes ici Comprendre le cadre Revoir la présentation Comprendre le cadre Des fiches courtes et des liens officiels, à consulter quand vous en avez besoin. Votre département : Dordogne (24) Changer de département Ce qui a changé récemment 11 changements 1 nouveau cette semaine Les derniers change"
+  },
+  {
+   "n": "ok",
+   "t": "cadre : le département choisi est gardé"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : commencer : ok"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : arrivée : bas « null » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : choisir le département : ABSENT  Choisir mon département"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : fenêtre :  Se tenir informé ✕ Comprendre le cadre Des fiches courtes et des liens officiels sur l’emploi, la formation et les dispositifs, à consulter quand vous en avez besoin. Comprendre les chiffres Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés. Qui fait quoi À qui vous adresser dans votre département, et où : des structures pour vous aider et des employeurs, avec leurs coordonnées et la date de vérification. ← Retour"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : Dordogne : ABSENT #fenetreERIP.visible button, .fenetre-erip-overlay.visible button, .modal.show button Dordogne"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : après le choix : #comprendre-les-chiffres « Comprendre les chiffres » fenêtre true bas « null » texte : Vous êtes ici Comprendre les chiffres Revoir la présentation Comprendre les chiffres Vue simple Vue d’ensemble Votre département : la Dordogne (24) Changer de département À quel niveau voulez-vous lire les chiffres ? Mon département Ma région (Nouvelle-Aquitaine) France entière Union européenne Vous lisez les chiffres pour : la Dordogne. Tout ce qui suit s’adapte à ce choix. Touchez un chiffre en bleu pour voir d’où il vient (sa source). Touchez-le encore, ou touchez ailleurs, pour fermer. Les 5 chiffres clés du trimestre Commencez par ces cinq chiffres. Le reste (portrait du territoire, projets d’embauche, outil de comparaison) est plus bas, à ouvrir seulement si vous le souhaitez. 📅 Donné"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : boutons : #btnComprendreLesChiffresRevoirIntro Revoir la présentation ; Vue simple ; Vue d’ensemble ; Changer de département ; Mon département ; Ma région (Nouvelle-Aquitaine) ; France entière ; Union européenne ; Chiffres ; Barres ; Pourquoi une hausse en cours d’année ? C ; Ajouter à ma fiche ; Chiffres ; Barres ; Ajouter à ma fiche ; Chiffres ; Barres ; 12 derniers mois ; 5 ans ; Depuis janvier 2017 ; Qu’est-ce qui la fait monter ou baisser  ; Ajouter à ma fiche ; Chiffres ; Barres ; Comme la source ; Plus haut d’abord ; Plus bas d’abord ; Comment lire ce chiffre ? Cliquez pour o ; Ajouter à ma fiche ; Chiffres ; Barres ; Comme la source ; Plus haut d’abord ; Plus bas d’abord ; Comme la source ; Plus haut d’abord ; Plus bas d’abord ; Comment lire ce chiffre ? Cliquez pour o ; Ajouter à ma fiche ; Signaler une erreur ou un changement ; Département ; Région ; France ; Union européenne ; Ajouter à"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : chaîne des Retour : #comprendre-les-chiffres-intro « Comprendre les chiffres » [FENÊTRE] < #cv « Par où voulez-vous commencer » [FENÊTRE]"
+  },
+  {
+   "n": "ok",
+   "t": "chiffres : la chaîne des Retour ramène à l’accueil"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : rouvrir : ok"
+  },
+  {
+   "n": "info",
+   "t": "chiffres : réouverture : #comprendre-les-chiffres département redemandé : false texte : Vous êtes ici Comprendre les chiffres Revoir la présentation Comprendre les chiffres Vue simple Vue d’ensemble Votre département : la Dordogne (24) Changer de département À quel niveau voulez-vous lire les chiffres ? Mon département Ma région (Nouvelle-Aquitaine) France entière Union européenne Vous"
+  },
+  {
+   "n": "ok",
+   "t": "chiffres : le département choisi est gardé"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : commencer : ok"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : arrivée : bas « null » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : choisir le département : ABSENT  Choisir mon département"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : fenêtre :  Se tenir informé ✕ Comprendre le cadre Des fiches courtes et des liens officiels sur l’emploi, la formation et les dispositifs, à consulter quand vous en avez besoin. Comprendre les chiffres Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés. Qui fait quoi À qui vous adresser dans votre département, et où : des structures pour vous aider et des employeurs, avec leurs coordonnées et la date de vérification. ← Retour"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : Dordogne : ABSENT #fenetreERIP.visible button, .fenetre-erip-overlay.visible button, .modal.show button Dordogne"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : après le choix : #mon-territoire « Qui fait quoi en Dordogne ? » fenêtre true bas « null » texte : Vous êtes ici Qui fait quoi Votre département : Dordogne (24) Changer de département Revoir la présentation Qui fait quoi en Dordogne ? À qui vous adresser, et où ? Choisissez un domaine, ou tapez ce que vous cherchez. Votre commune (à compléter) Valider Cette information reste sur votre appareil. Sans commune, nous affichons tout le département. Rechercher Emploi Les employeurs, par secteur Formation Se former, se reconvertir, jeunes Social Logement, mobilité, accompagnement Vie pratique Garde d’enfant, santé, retraite Fonction publique Offres publiques, concours, qui peut m’aider Armées Information et recrutement Appui aux employeurs Aides et organismes Créer son activité Aide à la créatio"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : boutons : Changer de département ; #btnMonTerritoireRevoirIntro Revoir la présentation ; Valider ; Rechercher ; Emploi Les employeurs, par secteur ; Formation Se former, se reconvertir, jeu ; Social Logement, mobilité, accompagnemen ; Vie pratique Garde d’enfant, santé, retr ; Fonction publique Offres publiques, conc ; Armées Information et recrutement ; Appui aux employeurs Aides et organismes ; Créer son activité Aide à la création ; Accueil et langue Français, venir de l’é ; Droits et justice Accès au droit, justic ; Comment les fiches sont choisies ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : chaîne des Retour : #mon-territoire-intro « Qui fait quoi » [FENÊTRE] < #cv « Par où voulez-vous commencer » [FENÊTRE]"
+  },
+  {
+   "n": "ok",
+   "t": "qui fait quoi : la chaîne des Retour ramène à l’accueil"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : rouvrir : ok"
+  },
+  {
+   "n": "info",
+   "t": "qui fait quoi : réouverture : #mon-territoire département redemandé : false texte : Vous êtes ici Qui fait quoi Votre département : Dordogne (24) Changer de département Revoir la présentation Qui fait quoi en Dordogne ? À qui vous adresser, et où ? Choisissez un domaine, ou tapez ce que vous cherchez. Votre commune (à compléter) Valider Cette information reste sur votre appareil. S"
+  },
+  {
+   "n": "ok",
+   "t": "qui fait quoi : le département choisi est gardé"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#comprendre-le-cadre",
+    "page": "comprendre-le-cadre",
+    "h1": "Comprendre le cadre",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comprendre-les-chiffres",
+    "page": "comprendre-les-chiffres",
+    "h1": "Comprendre les chiffres",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": true
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#mon-territoire",
+    "page": "mon-territoire",
+    "h1": "Qui fait quoi en Dordogne ?",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": true
+   },
+   "anomalies": []
+  }
+ ]
+}

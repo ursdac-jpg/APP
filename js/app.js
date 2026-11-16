@@ -118,6 +118,11 @@ function creerDossierIAVide() {
         // bien ecrite et concise. Rapprochement avec dossier.experiences
         // par poste/entreprise, meme mecanisme que experiencesAMettreEnAvant.
         savoirFaireParExperience: [],   // [{ poste, entreprise, missions: [...] }]
+        // Lot 7 « Vos missions et compétences » (consigne 313) : renvoyés par l'assistant seulement quand la personne a fait des choix dans l'étape (chemin a).
+        doublonsMissions: [],           // [{ poste, entreprise, lignes: [2 lignes de la personne qui disent la même chose] }]
+        competencesEnPlus: [],          // [{ competence, type: 'savoirFaire' | 'savoirEtre', justification }]
+        missionsPlusCourtes: [],        // [{ poste, entreprise, ligne, plusCourte }]
+        missionsEnAvant: [],            // Lot 6 (consigne 395) : [{ poste, entreprise, lignes: [3 au plus, de la personne], raison, utilisee, ordreAvant }]
         postesRecommandes: [],
         postesRecommandesProposes: [],
         competencesPersonnellesProposees: [],
@@ -255,6 +260,26 @@ function signatureExpPersoEtEngagements(d) {
     return [(e && e.texte) || '', (e && e.missions) || ''].join('|');
   });
   return expPerso.concat(engagements).join('~~');
+}
+
+// Page « L'assistant en ligne » (consigne 324) : empreinte de ce que la personne a saisi AVANT l'assistant (parcours, expériences, formations, choix de
+// « Vos missions et compétences »), prise à chaque import de réponse. Si elle change ensuite (la personne est revenue en arrière et a modifié ses informations),
+// la réponse de l'assistant ne correspond plus à son profil : la page réaffiche alors les rubriques pour en demander une nouvelle. Ne regarde JAMAIS ce que la
+// personne modifie sur la page de création du CV (propositions de l'assistant, mise en page, cartes) : ces retouches ne rendent pas la réponse périmée.
+function signatureProfilAssistant(d) {
+  d = d || {};
+  var exp = (d.experiences || []).map(function (e) {
+    e = e || {};
+    return [e.poste || '', e.entreprise || '', e.dateDebut || '', e.dateFin || '', String(e.missions || '').trim()].join('|');
+  });
+  var form = (d.formations || []).map(function (f) {
+    f = f || {};
+    return Object.keys(f).sort().map(function (k) { return typeof f[k] === 'string' ? f[k] : ''; }).join('|');
+  });
+  var mc = d.etapeMC || {};
+  var choixMC = JSON.stringify([mc.fiches || {}, mc.miss || {}, mc.modif || {}, mc.perso || {}, mc.comp || {}, mc.compPerso || {}]);
+  var cible = d.metierCible ? JSON.stringify(d.metierCible) : '';
+  return [exp.join('~~'), form.join('~~'), signatureExpPersoEtEngagements(d), choixMC, cible].join('###');
 }
 
 var dossier = {
@@ -544,10 +569,6 @@ var _pageOrigineAvantResultats = null;
 // ci-dessus, applique a 'projet' -- remplace le repli fixe 'valeurs' que
 // pageProjet() utilisait jusqu'ici pour TOUT point d'entree.
 var _pageOrigineAvantProjet = null;
-// Retour Denis 2026-09-30 (C17) : page d'ou l'on est arrive sur la presentation de « Comparer mes pistes » ('aide-decision-intro'). Le
-// « Retour » du premier ecran du module y ramene la personne, jamais sur la presentation elle-meme. Non capturee quand on vient du
-// module lui-meme (detour « Revoir la presentation »).
-var _pageOrigineAvantAideDecision = null;
 // TACHE (retour utilisateur 2026-09-16, "je saute une etape via la barre de
 // navigation du haut, Retour ne me ramene pas la ou j'etais vraiment") :
 // _pageOrigineAvantResultats/_pageOrigineAvantProjet ci-dessus ne couvrent
@@ -704,6 +725,13 @@ var dataActions = [
 // mon CV, Bilan "Corriger mon CV", Decouverte).
 var LANGUES_COURANTES = ['Français', 'Anglais', 'Espagnol', 'Allemand', 'Russe', 'Arabe'];
 var NIVEAUX_LANGUE = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+// Libelles simples des niveaux du cadre europeen (consigne 373, a valider par Denis).
+var LIBELLES_NIVEAU_LANGUE = { A1: 'débutant', A2: 'notions', B1: 'je me débrouille', B2: 'à l’aise', C1: 'très à l’aise', C2: 'langue maternelle ou équivalent' };
+function htmlLegendeNiveauxLangue() {
+  return '<div class="legende-niveaux-langue"><b class="small">Les niveaux :</b><ul>' + NIVEAUX_LANGUE.map(function (n) {
+    return '<li><b>' + n + '</b> ' + LIBELLES_NIVEAU_LANGUE[n] + '</li>';
+  }).join('') + '</ul></div>';
+}
 var CATEGORIES_PERMIS = ['A', 'B', 'C', 'D', 'E'];
 // Etape 7 : classification RNCP actuelle (remplace les anciennes classifications V/IV/III...)
 // TACHE (refonte Formations et diplomes) : remplace NIVEAUX_RNCP (libelles
@@ -754,7 +782,7 @@ var EQUIVALENCE_RNCP_REPERE = 'Repères indicatifs : niveau 3 ≈ CAP/BEP · niv
 
 // TACHE (retour utilisateur : "est-ce que le catalogue de secteurs -- BTP,
 // Hôtellerie, Commerce... -- s'applique à tous les niveaux, ou juste à la
-// filière professionnelle ?") : CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR
+// filière professionnelle ?") : l'ancien catalogue de missions par secteur (retiré le 15/11/2026, chantier « Vos diplômes »)
 // (missions de terrain : pose de matériaux, tenue de caisse, aide à la
 // toilette...) n'a de sens que jusqu'à Bac inclus -- Sans diplôme/CAP-BEP/
 // Bac restent la filière professionnelle, très représentée sur le
@@ -1163,6 +1191,28 @@ function carteMetierRepertoireElargiHTML(m) {
     '</div>';
 }
 
+// CARTE UNIQUE d'un métier dans les résultats de la recherche (consigne 275, bloc C) : la même pour un nom trouvé tel quel, un métier trouvé par le sens et un intitulé du répertoire élargi.
+// Nom, secteur, une petite description (première phrase de la présentation du ROME, chargée à la demande) et un bouton vers la fiche. Ni code ROME, ni « Comparer cette piste » (dans la fiche).
+function carteMetierUniqueHTML(m, libelleBouton, sansSecteur) {
+  var elargi = m.depuisRepertoireElargi ? ' data-metier-repertoire-domaine="' + echapperAttribut(m.secteur) + '" data-metier-repertoire-rome="' + echapperAttribut(m.rome) + '"' : '';
+  return '<div class="carte-resultat-erip carte-resultat-cliquable" data-metier-nom="' + echapperAttribut(m.nom) + '"' + elargi + '>' +
+    '<h5>' + echapperAttribut(m.nom) + '</h5>' +
+    (m.secteur && !sansSecteur ? '<p class="text-muted small mb-1">' + echapperAttribut(m.secteur) + '</p>' : '') +
+    (m.rome ? '<p class="small mb-1 carte-metier-descr" data-descr-rome="' + echapperAttribut(m.rome) + '"></p>' : '') +
+    '<button type="button" class="btn btn-sm btn-outline-primary mt-1">' + (libelleBouton || 'Voir la fiche du métier') + '</button>' +
+    '</div>';
+}
+// Première phrase de la présentation, remplie une fois la fiche du ROME chargée (un fichier par lettre de code, partagé par tous les résultats).
+function remplirDescriptionsCartesMetier(zone) {
+  zone.querySelectorAll('[data-descr-rome]').forEach(function (p) {
+    chargerFicheRome(p.getAttribute('data-descr-rome'), function (fiche) {
+      if (!fiche || !fiche.d || !p.isConnected) { return; }
+      var phrase = String(fiche.d).split(/(?<=[.!?])\s/)[0];
+      p.textContent = phrase.length > 190 ? phrase.slice(0, 187).replace(/\s+\S*$/, '') + '…' : phrase;
+    });
+  });
+}
+
 function rendreResultatsRechercheERIP(texte) {
   var zone = document.getElementById('resultatsRechercheERIP');
   var overlay = document.getElementById('overlayRechercheERIP');
@@ -1234,6 +1284,7 @@ function rendreResultatsRechercheERIP(texte) {
   zone.innerHTML = groupes.map(function (groupe) {
     var cartes = groupe.resultats.map(function (r, rang) {
       if (groupe.type === 'cadre') { return carteFicheCadreHTML(r, rang); }
+      if (ficheRomeCompleteActive() && (groupe.type === 'metier' || groupe.type === 'metier_suggere')) { return carteMetierUniqueHTML(r); }
       if (groupe.type === 'metier') { return r.depuisRepertoireElargi ? carteMetierRepertoireElargiHTML(r) : carteMetierHTML(r); }
       if (groupe.type === 'secteur') { return carteSecteurHTML(r); }
       if (groupe.type === 'metier_suggere') { return carteMetierSuggereHTML(r); }
@@ -1281,6 +1332,7 @@ function rendreResultatsRechercheERIP(texte) {
   if (groupeMetiers && !groupeMetiers.resultats.some(function (m) { return normaliserTexte(m.nom) === normaliserTexte(texte).trim(); })) {
     zone.innerHTML += htmlFiletMetierLibre(texte);
   }
+  if (ficheRomeCompleteActive()) { remplirDescriptionsCartesMetier(zone); }
   activerOverlay(true);
 }
 
@@ -1338,7 +1390,7 @@ function ouvrirPanneauMetiersAssociesGenerique(titre, texteIntro, metiers) {
   panneau.querySelectorAll('[data-metier-nom]').forEach(function (el) {
     el.addEventListener('click', function (e) {
       if (e.target.closest('a')) { return; } // clic sur le trombone ROME : ne pas enchainer
-      ouvrirPanneauChoixParcours(this.dataset.metierNom);
+      ouvrirFicheMetierOuCandidater(this.dataset.metierNom);
     });
   });
 }
@@ -1399,9 +1451,15 @@ function ouvrirPanneauChoixParcours(cibleNom, opts) {
   // TACHE (ameliorations parcours recherche, point 1) : une nouvelle cible
   // efface tout historique du parcours precedent. Meme modele de donnees que
   // le bloc Candidature de Mon Projet (rechercheCandidature / typeRecherche).
-  rechercheGuidee = { metier: cibleNom, cible: cibleNom, estSecteur: estSecteur, parcours: null, cvExiste: null, maj: null };
-  dossier.typeRecherche = null;
-  dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+  // Nouvel écran (consigne 273) : le même métier retapé garde tous les choix (retour depuis la fiche, retour depuis l'accueil) ; un autre métier repart de zéro.
+  var memeCible = ficheRomeCompleteActive() && !!rechercheGuidee && rechercheGuidee.parcoursNouveau === true && rechercheGuidee.cible === cibleNom && !!rechercheGuidee.estSecteur === estSecteur;
+  if (!memeCible) {
+    _objectifDeCandidater = null;
+    rechercheGuidee = { metier: cibleNom, cible: cibleNom, estSecteur: estSecteur, parcours: null, maniere: null, cvExiste: null, maj: null, voie: null, parcoursNouveau: ficheRomeCompleteActive() };
+    dossier.typeRecherche = null;
+    dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+    if (ficheRomeCompleteActive()) { _candReinitialiserReponses(); }
+  }
   if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }
   naviguerVers('candidater');
 }
@@ -1431,6 +1489,7 @@ function _candEncart(cls, ico, corps) {
   return '<div class="cand-encart' + (cls ? ' ' + cls : '') + '"><span class="cand-encart-ico">' + ico + '</span><div>' + corps + '</div></div>';
 }
 function pageCandidaterDepuisRecherche() {
+  if (ficheRomeCompleteActive()) { pageCandidaterNouvelle(); return; }   // nouvel écran (consigne 273), derrière l'interrupteur de la fiche
   var rg = rechercheGuidee || {};
   var estSecteur = !!rg.estSecteur;
   var cible = rg.cible || rg.metier || '';
@@ -1577,6 +1636,7 @@ function _wireCandidater() {
 // Transition finale : fusionne l'ancien validerEntrepriseGuidee + ouvrirPanneauCvExistant
 // + ouvrirPanneauMajCv + lancerParcoursGuide. Memes ecritures, memes destinations.
 function _candidaterFinaliser() {
+  if (ficheRomeCompleteActive()) { _candFinaliserNouveau(); return; }
   var rg = rechercheGuidee || {};
   var estSecteur = !!rg.estSecteur;
   dossier.modeRecherche = estSecteur ? 'domaine' : 'metier';
@@ -1614,7 +1674,11 @@ function _candidaterFinaliser() {
     dossier.competencesCV = undefined;
     dossier.savoirsCV = undefined;
     dossier.decouverteTerminee = false;
-    naviguerVers('objectif');
+    // Consigne 408 (lot 2) : cet ecran ne propose pas les trois facons de creer, c'est l'assistant. La question « qui choisit les missions »
+    // est donc posee ici, AVANT « Votre objectif » (valeurs d'un CV precedent remises a zero).
+    dossier.creationSansAssistant = false;
+    dossier.missionsChoisiesPar = null;
+    naviguerVers(typeof _creerCvRouteDepart === 'function' ? _creerCvRouteDepart() : 'objectif');
     return;
   }
   // rg.cvExiste === 'oui' -> import obligatoire, destination selon "mise a jour"
@@ -1625,6 +1689,279 @@ function _candidaterFinaliser() {
   // Depot, relecture et rangement du CV EN PAGE (consigne 28, 30/10/2026) : la page de depot du module qui correspond au mode,
   // « Reprendre mon CV » pour une mise a jour, « Preparer ma lettre et mon entretien » sinon. Plus de fenetre.
   var miseAJour = (rg.maj === 'oui');
+  if (typeof _prepLEEcran !== 'undefined') {
+    _prepLEEcran = 'depot'; _prepLEDetour = false; _prepLEMode = miseAJour ? 'maj' : 'pret'; _reprendreCvActif = miseAJour;
+  }
+  naviguerVers(miseAJour ? 'reprendre-cv' : 'preparer-lettre-entretien');
+}
+
+// ------------------------------------------------------------
+// NOUVEL ÉCRAN « CANDIDATER » (consigne 273, 13/11/2026, maquette docs/maquettes/maquette-fiche-page-et-candidater-2026-11-13.html, option « le mélange » de Denis).
+// Derrière l'interrupteur de la fiche du métier (ficheRomeCompleteActive) : tant qu'il est fermé, l'ancien écran ci-dessous reste celui du public.
+// Principe : les réponses (objectif et ses questions) sont écrites dans le dossier PARTAGÉ (dossier.objectif...), avec les mêmes cartes et le même composant que
+// « Votre objectif » ; les modules qui suivent les retrouvent donc déjà remplies. Aucun effacement du dossier au départ (comme l'ancien écran).
+// ------------------------------------------------------------
+var CANDIDATER_ETAPES_AVEC_CV = [{ label: 'Préparer', icone: '&#128221;' }, { label: 'Objectif', icone: '&#127919;' }, { label: 'Votre CV', icone: '&#128196;' }, { label: 'Assistant', icone: '&#128172;' }];
+var CANDIDATER_ETAPES_SANS_CV = [{ label: 'Préparer', icone: '&#128221;' }, { label: 'Objectif', icone: '&#127919;' }, { label: 'Assistant', icone: '&#128172;' }];
+var CANDIDATER_VOIES_CREER = [
+  ['assistant', 'bi-chat-dots', 'Avec l’assistant', 'Vous remplissez vos informations, l’assistant en ligne vous aide à les formuler.'],
+  ['recit', 'bi-journal-text', 'À partir de mon récit', 'Vous racontez votre parcours, le CV en est tiré. Pour qui n’a jamais eu de CV.'],
+  ['main', 'bi-pencil', 'À la main', 'Vous écrivez tout vous-même. Rien n’est envoyé nulle part.']
+];
+// Un autre métier : les choix de cet écran repartent de zéro (un même métier retapé garde tout).
+function _candReinitialiserReponses() {
+  dossier.objectif = null;
+  dossier.formeChoisie = null;
+  dossier._typeStageATrancher = false;
+  dossier.civiliteRecruteurDemandee = false;
+  dossier.typeRecherche = null;
+  dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+}
+// Le métier (ou le secteur) cherché devient la cible du dossier : mêmes écritures que l'ancien écran, sans effet quand elles sont déjà faites.
+function _candAppliquerCible() {
+  var rg = rechercheGuidee || {};
+  dossier.modeRecherche = rg.estSecteur ? 'domaine' : 'metier';
+  if (rg.estSecteur) {
+    viderMetiersCandidats();
+    dossier.secteurCible = rg.cible;
+    dossier.metierCible = null;
+  } else if (typeof metierParNom === 'function' && !metierParNom(rg.metier)) {
+    ajouterMetierHorsRepertoire(rg.metier);
+  } else {
+    ajouterMetierCandidat(rg.metier);
+  }
+  dossier.typeCV = typeCVDepuisTypeRecherche();
+}
+// L'état de l'écran : ce qui est complété, la phrase qui explique pourquoi « Continuer » reste grisé.
+// « Je n'ai pas de CV » sur les pages de dépôt du CV de la lettre et de l'entretien (consigne 273) : seulement quand la personne arrive du nouvel écran Candidater pour la lettre ou l'entretien.
+// Le bouton conduit à la page des trois façons de créer un CV ; undefined = pas de bouton (les autres modules gardent leur dépôt tel quel).
+function _candBoutonSansCv() {
+  var rg = rechercheGuidee || {};
+  if (!ficheRomeCompleteActive() || rg.parcoursNouveau !== true || (rg.parcours !== 'lettre' && rg.parcours !== 'entretien')) { return undefined; }
+  return function () { naviguerVers('creer-cv'); };
+}
+// Un CV « dans l'application » : celui qui existe vraiment. Une création commencée depuis cet écran (« Non, je pars de zéro » déjà choisi) n'en est pas un : la personne y revient pour la reprendre.
+function _candCvDansApplication() {
+  var rg = rechercheGuidee || {};
+  if (dossier.modeCreation === 'nouveau' && rg.parcoursNouveau === true && rg.parcours === 'cv' && rg.cvExiste === 'non') { return false; }
+  return (typeof cvDisponible === 'function') && cvDisponible();
+}
+function _candEtatNouveau() {
+  var rg = rechercheGuidee || {};
+  var p = rg.parcours, estCv = (p === 'cv'), estLE = (p === 'lettre' || p === 'entretien');
+  var cvDispo = _candCvDansApplication();
+  var ok3 = true;
+  if (estCv && !cvDispo) { ok3 = (rg.cvExiste === 'non' && !!rg.voie) || (rg.cvExiste === 'oui' && !!rg.maj); }
+  // Consigne 413 : les questions du CV sont sous la carte « Mon CV », dans le premier bloc : il n'est complété que lorsqu'elles ont leur réponse.
+  var ok1 = !!p && (estCv ? ok3 : !!rg.maniere);
+  var obj = dossier.objectif;
+  var raisons = [];
+  if (obj) {
+    var avecMetierStage = ['stage', 'alternance', 'pmsmp'].indexOf(obj) !== -1 && !posteCibleActuel();
+    raisons = (['offre', 'spontanee', 'reconversion'].indexOf(obj) !== -1) ? raisonsBlocageObjectifCV() : raisonsBlocageObjectifStageEtc(avecMetierStage);
+  }
+  var ok2 = !!obj && raisons.length === 0;
+  var message = '';
+  if (!ok1) {
+    if (!p) { message = 'Il reste à choisir ce que vous voulez préparer.'; }
+    else if (estCv) { message = !rg.cvExiste ? 'Il reste à dire si vous avez déjà un CV.' : (rg.cvExiste === 'non' ? 'Il reste à choisir comment créer votre CV.' : 'Il reste à dire si vous voulez le mettre à jour.'); }
+    else { message = 'Il reste à choisir la façon de faire.'; }
+  }
+  else if (!ok2) { message = obj ? phraseBlocageLettreCo(raisons) : 'Il reste à choisir votre objectif.'; }
+  return { ok1: ok1, ok2: ok2, ok3: ok3, tout: ok1 && ok2, message: message, estCv: estCv, estLE: estLE, cvDispo: cvDispo };
+}
+function _candCartesHtml(attr, liste, actuel) {
+  return liste.map(function (o) {
+    var actif = (actuel === o[0]);
+    return '<button type="button" id="' + attr.replace('data-', '') + '-' + o[0] + '" class="carte-objectif' + (actif ? ' carte-objectif--actif' : '') + '" ' + attr + '="' + o[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
+      '<i class="bi ' + o[1] + '" aria-hidden="true"></i><span class="carte-objectif-titre">' + o[2] + '</span><span class="carte-objectif-desc">' + o[3] + '</span></button>';
+  }).join('');
+}
+function _candPilule(ok, id) { return '<span id="' + id + '" class="pilule-etat ' + (ok ? 'pe-ok' : 'pe-info') + '">' + (ok ? 'Complété' : 'À choisir') + '</span>'; }
+function _candLiaison(texte) { return '<div class="liaison-blocs"><span class="liaison-blocs-fleche" aria-hidden="true">&#8595;</span><p><strong>Ce qui se passe ensuite.</strong> ' + texte + '</p></div>'; }
+function pageCandidaterNouvelle() {
+  var rg = rechercheGuidee || {};
+  var estSecteur = !!rg.estSecteur;
+  var cible = rg.cible || rg.metier || '';
+  _candAppliquerCible();
+  var e = _candEtatNouveau();
+  var p = rg.parcours;
+  var ce = estSecteur ? 'ce secteur' : 'ce métier';
+  var fiche = (!estSecteur && typeof metierParNom === 'function') ? metierParNom(cible) : null;
+  var aFiche = !!(fiche && fiche.rome && ficheRomeCompleteActive());
+  var aff = cible.charAt(0).toUpperCase() + cible.slice(1);
+
+  // BLOC 1 : ce qui se prépare, puis (lettre, entretien) la façon de faire
+  var corps1 = '<div class="grille-objectif">' + _candCartesHtml('data-cand-prep', [
+    ['cv', 'bi-file-earmark-person', 'Mon CV', 'Créer votre CV ou reprendre celui que vous avez.'],
+    ['lettre', 'bi-envelope', 'Ma lettre de motivation', 'Une lettre adaptée à ' + ce + '.'],
+    ['entretien', 'bi-mic', 'Mon entretien', 'Vous préparer à passer l’entretien.']
+  ], p) + '</div>';
+  if (e.estLE) {
+    corps1 += '<p class="mt-3 mb-2"><strong>' + (p === 'lettre' ? 'Comment voulez-vous écrire votre lettre ?' : 'Comment voulez-vous vous préparer ?') + '</strong></p>' +
+      '<div class="grille-objectif grille-objectif--deux">' + _candCartesHtml('data-cand-maniere', [
+        ['rapide', 'bi-lightning-charge', 'Version rapide', p === 'lettre' ? 'Deux lettres proposées en une fois : le papier tout de suite.' : 'Une fiche de synthèse : votre présentation, les questions probables, les questions à poser.'],
+        ['assistant', 'bi-chat-dots', 'Avec l’assistant', p === 'lettre' ? 'Vous échangez avec l’assistant : vous choisissez le ton et les points forts. Plus complet, plus long.' : 'Vous vous entraînez en échangeant : questions plus pointues, conseils pour vous présenter. Plus long.']
+      ], rg.maniere) + '</div>';
+  }
+
+  // BLOC 2 : l'objectif (les six cartes), puis ses questions (même composant que « Votre objectif »)
+  var corps2 = htmlCartesSituationPartagees('data-cand-objectif');
+  if (dossier.objectif) {
+    var avecMetierStage = ['stage', 'alternance', 'pmsmp'].indexOf(dossier.objectif) !== -1 && !posteCibleActuel();
+    corps2 += '<div id="candBlocCandidature" class="mt-3">' + htmlCandidatureComposant({ dejaRepondu: true, avecMetierVise: avecMetierStage }) + '</div>';
+  }
+
+  // Consigne 413 : les choix du CV viennent tout de suite sous la carte « Mon CV », comme la façon de faire de la lettre et de l'entretien (plus de troisième bloc).
+  var encartCvLE = '';
+  if (e.estCv) {
+    if (e.cvDispo) {
+      corps1 += '<div class="mt-3">' + _candEncart('cand-encart-ok', '&#9989;', 'Vous avez déjà un CV dans l’application. Vous passez directement à la préparation.') + '</div>';
+    } else {
+      corps1 += '<p class="mt-3 mb-2"><strong>Avez-vous déjà un CV ?</strong></p><div class="grille-objectif grille-objectif--deux">' + _candCartesHtml('data-cand-cv', [
+        ['oui', 'bi-file-earmark-check', 'Oui, j’ai un CV', 'Vous le déposez à l’étape suivante.'],
+        ['non', 'bi-pencil-square', 'Non, je pars de zéro', 'Vous le créez pas à pas, à partir de vos activités et de votre parcours.']
+      ], rg.cvExiste) + '</div>';
+      if (rg.cvExiste === 'non') {
+        corps1 += '<p class="mt-3 mb-2"><strong>Comment voulez-vous créer votre CV ?</strong></p><div class="grille-objectif">' + _candCartesHtml('data-cand-voie', CANDIDATER_VOIES_CREER, rg.voie) + '</div>';
+      } else if (rg.cvExiste === 'oui') {
+        corps1 += '<p class="mt-3 mb-2"><strong>Voulez-vous le mettre à jour ?</strong></p><div class="grille-objectif grille-objectif--deux">' + _candCartesHtml('data-cand-maj', [
+          ['oui', 'bi-pencil', 'Oui, le compléter', 'Vous corrigez et complétez vos informations avant de générer le CV.'],
+          ['non', 'bi-check2-circle', 'Non, il est prêt tel quel', 'Vous passez directement à la préparation.']
+        ], rg.maj) + '</div>';
+        if (rg.maj === 'oui') {
+          corps1 += _candEncart('', '&#8505;&#65039;', 'Après le dépôt de votre CV, vous choisirez comment le reprendre : le garder et le compléter, le reformuler, ou refaire seulement sa mise en page sans l’assistant. Vous pourrez en changer sans le redéposer.');
+        }
+      }
+    }
+  } else if (e.estLE && !e.cvDispo) {
+    encartCvLE = _candEncart('', '&#128196;', '<strong>Votre CV vous sera demandé à l’étape suivante.</strong> Si vous n’en avez pas encore, vous pourrez le créer d’abord : un bouton « Je n’ai pas de CV » vous y conduira.');
+  }
+
+  app.innerHTML =
+    '<div class="page-catalogue-contenu bilan-preparer candidater-page">' +
+    barreEtapesModule((!p || e.estCv) ? CANDIDATER_ETAPES_AVEC_CV : CANDIDATER_ETAPES_SANS_CV, 1) +
+    '<h1 class="cand-titre"><i class="bi bi-send" aria-hidden="true"></i> ' + (estSecteur ? 'Candidater dans un secteur' : 'Candidater') + '</h1>' +
+    // Consigne 275 (piste 1 de la maquette docs/maquettes/maquette-entete-candidater-2026-11-13.html) : une seule carte « Votre métier » (nom, secteur, les deux actions, une phrase d'aide).
+    '<div class="cand-carte-metier"><div class="cand-carte-etiquette">' + (estSecteur ? 'Votre secteur' : 'Votre métier') + '</div>' +
+    '<div class="cand-metier-nom"><span class="cand-lettrine">' + echapperAttribut(aff.charAt(0)) + '</span>' + echapperAttribut(aff.slice(1)) + '</div>' +
+    ((fiche && fiche.secteur) ? '<div class="cand-carte-secteur">' + echapperAttribut(fiche.secteur) + '</div>' : '') +
+    ((estSecteur && _secteurExplication(cible)) ? '<div class="cand-carte-secteur">' + echapperAttribut(_secteurPremierePhrase(_secteurExplication(cible))) + '</div>' : '') +
+    '<div class="cand-carte-actions">' +
+    (aFiche ? '<button type="button" class="btn btn-outline-primary" id="candVoirFiche"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche du métier</button>' : '') +
+    (estSecteur ? '<button type="button" class="btn btn-outline-primary" id="candMetiersSecteur"><i class="bi bi-list-ul" aria-hidden="true"></i> Voir les métiers de ce secteur</button>' : '') +
+    '<button type="button" class="btn btn-outline-secondary" id="candChanger"><i class="bi bi-search" aria-hidden="true"></i> ' + (estSecteur ? 'Changer de secteur' : 'Chercher un autre métier') + '</button></div>' +
+    '<p class="cand-carte-aide">' + (estSecteur ? 'Si vous changez de secteur, les réponses données plus bas repartent de zéro.' : 'Si vous changez de métier, les réponses données plus bas repartent de zéro.') + '</p></div>' +
+    '<details class="bloc-depli" open><summary><span class="preparer-num">1</span><span class="preparer-titre">Que voulez-vous préparer ?</span>' + _candPilule(e.ok1, 'candPil1') + '</summary><div class="bloc-depli-corps">' + corps1 + '</div></details>' +
+    encartCvLE +
+    _candLiaison('Votre objectif sert à cibler le document que vous venez de choisir.') +
+    '<details class="bloc-depli" open id="candBlocObjectif"><summary><span class="preparer-num">2</span><span class="preparer-titre">Votre objectif</span>' + _candPilule(e.ok2, 'candPil2') + '</summary><div class="bloc-depli-corps">' + corps2 + '</div></details>' +
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'cv', 'Continuer &#8594;', { onclickSuivant: '_candidaterFinaliser()', suivantDesactive: !e.tout, suivantDesactiveMessage: e.message, blocCibleId: 'candBlocObjectif' }) + '</div>' +
+    '</div>';
+  _candCablerNouveau();
+}
+// « Continuer » et les pastilles se mettent à jour à la saisie, sans redessiner la page (le curseur ne saute pas).
+function _candMajNouveau() {
+  var e = _candEtatNouveau();
+  [['candPil1', e.ok1], ['candPil2', e.ok2]].forEach(function (x) {
+    var z = document.getElementById(x[0]);
+    if (z) { z.className = 'pilule-etat ' + (x[1] ? 'pe-ok' : 'pe-info'); z.textContent = x[1] ? 'Complété' : 'À choisir'; }
+  });
+  var bouton = document.getElementById('btnSuivantNavigation');
+  if (bouton) {
+    bouton.disabled = !e.tout;
+    if (e.tout) { bouton.removeAttribute('title'); } else { bouton.setAttribute('title', e.message); }
+    if (typeof definirRaisonSuivantBarre === 'function') { definirRaisonSuivantBarre(bouton, e.tout ? '' : e.message); }
+  }
+}
+function _candCablerNouveau() {
+  var rg = rechercheGuidee || {};
+  function sur(attr, action) {
+    var dataset = attr.replace(/^data-/, '').replace(/-([a-z])/g, function (m, c) { return c.toUpperCase(); });
+    document.querySelectorAll('[' + attr + ']').forEach(function (b) { b.addEventListener('click', function () { action(this.dataset[dataset]); pageCandidaterNouvelle(); }); });
+  }
+  sur('data-cand-prep', function (v) { rg.parcours = v; rg.maniere = null; });
+  sur('data-cand-maniere', function (v) { rg.maniere = v; });
+  sur('data-cand-cv', function (v) { rg.cvExiste = v; rg.maj = null; rg.voie = null; });
+  sur('data-cand-maj', function (v) { rg.maj = v; });
+  sur('data-cand-voie', function (v) { rg.voie = v; });
+  sur('data-cand-objectif', function (v) {
+    // Changer de carte entre offre, spontanée et changer de métier remet à zéro la candidature (comme « Votre objectif ») : le métier cherché, lui, est remis aussitôt.
+    var avant = dossier.objectif;
+    definirObjectifCandidature(v);
+    if (typeof changementCarteEffaceLettreCo === 'function' && changementCarteEffaceLettreCo(avant, v)) { _coLettreEffacerCandidature(); _candAppliquerCible(); }
+  });
+  var zone = document.getElementById('candBlocCandidature');
+  if (dossier.objectif && zone) {
+    wireCandidatureComposant(pageCandidaterDepuisRecherche, 'candBlocCandidature');
+    ['input', 'change', 'click'].forEach(function (nom) { zone.addEventListener(nom, function () { setTimeout(_candMajNouveau, 0); }); });
+  }
+  var voir = document.getElementById('candVoirFiche');
+  if (voir) {
+    voir.addEventListener('click', function () {
+      _ficheMetierNom = rg.cible || rg.metier; _ficheMetierCandidater = false; _ficheMetierChoix = false; _ficheMetierRerender = null; _ficheMetierDepuisCandidater = true;
+      naviguerVers('fiche-metier');
+    });
+  }
+  var changer = document.getElementById('candChanger');
+  if (changer) { changer.addEventListener('click', function () { naviguerVers(rg.estSecteur ? 'changer-secteur' : 'chercher-metier'); }); }
+  var metiersSecteur = document.getElementById('candMetiersSecteur');
+  if (metiersSecteur) { metiersSecteur.addEventListener('click', function () { _secteurListeLibelle = rg.cible || rg.metier; _secteurListeSans = null; _secteurListeFlags = null; naviguerVers('metiers-du-secteur'); }); }
+  if (rg.parcours && typeof invitationCartesObjectif === 'function') { invitationCartesObjectif(); }
+}
+// Objectif choisi sur le nouvel écran Candidater et gardé pour « Créer un CV » : {objectif} tant que la personne n'a pas cliqué sur « Modifier » (consigne 273).
+var _objectifDeCandidater = null;
+// « Continuer » : le document choisi et la façon de faire décident de la page d'arrivée. Les réponses sont déjà dans le dossier : le module ne les redemande pas.
+function _candFinaliserNouveau() {
+  var rg = rechercheGuidee || {};
+  var p = rg.parcours, rapide = (rg.maniere === 'rapide');
+  _candAppliquerCible();
+  _objectifDeCandidater = dossier.objectif ? { objectif: dossier.objectif } : null;   // les pages d'arrivée affichent l'objectif en rappel (consigne 273)
+  if (dossier.typeRecherche === 'offre') { dossier.civiliteRecruteurDemandee = true; }
+  // Un CV déjà présent dans l'application : pas de question sur le CV.
+  if (_candCvDansApplication()) {
+    if (p === 'entretien') { ouvrirParcoursEntretien(); return; }
+    if (p === 'lettre' && !rapide) { ouvrirModuleCoLettre(); return; }
+    if (p === 'lettre') { dossier.dernierDocumentPrepare = 'lettre'; }
+    naviguerVers('resultats');
+    return;
+  }
+  if (p === 'cv' && rg.cvExiste === 'non') {
+    // Les trois façons de créer partent comme l'ancien « Non, je pars de zéro » : sans effacer le dossier (les réponses de cet écran sont déjà dedans).
+    dossier.dernierDocumentPrepare = 'cv';
+    if (typeof trackEvenement === 'function') { trackEvenement('mode_creation_choisi', { mode: rg.voie === 'recit' ? 'recit' : 'nouveau', sansAssistant: rg.voie === 'main' }); }
+    if (rg.voie === 'recit') {
+      // Le départ d'une nouvelle session « À partir de mon récit » remet à zéro métier, objectif et candidature (valeurs périmées d'un autre parcours, voir ouvrirDecouverteCompetences) :
+      // ici ils viennent d'être choisis sur cet écran, donc remis juste après.
+      var garde = JSON.parse(JSON.stringify({ metierCible: dossier.metierCible, objectif: dossier.objectif, secteurCible: dossier.secteurCible, rechercheCandidature: dossier.rechercheCandidature }));
+      // Lot 4 de la consigne 408 : la question « qui choisit les missions » peut passer avant le demarrage ; l'objectif n'est donc remis qu'APRES le demarrage de la session.
+      _creerCvDemarrerRecit(false, function () {
+        Object.keys(garde).forEach(function (k) { dossier[k] = garde[k]; });
+        // La page du récit a été dessinée avec le dossier vidé : on la redessine avec l'objectif remis (rappel au lieu des six cartes).
+        if (pageActuelle === 'decouverte') { naviguerVers('decouverte', true); }
+      });
+      return;
+    }
+    dossier.modeCreation = 'nouveau';
+    dossier.creationSansAssistant = (rg.voie === 'main');
+    dossier.missionsChoisiesPar = null;   // un nouveau CV : la question « qui choisit les missions » est reposée (consigne 401)
+    dossier._origineReformuler = false;
+    dossier.cvAnalyse = false;
+    dossier.competencesCV = undefined;
+    dossier.savoirsCV = undefined;
+    dossier.decouverteTerminee = false;
+    if (typeof _creerCvOublierProgressionBarre === 'function') { _creerCvOublierProgressionBarre(); }
+    naviguerVers(typeof _creerCvRouteDepart === 'function' ? _creerCvRouteDepart() : 'objectif');
+    return;
+  }
+  if (p === 'lettre' && !rapide) { ouvrirModuleCoLettre(); return; }
+  if (p === 'entretien' && !rapide) { ouvrirParcoursEntretien(); return; }
+  // Reprendre un CV (« mon CV »), ou version rapide de la lettre ou de l'entretien : le CV se dépose sur la page du module.
+  var miseAJour = (p === 'cv' && rg.maj === 'oui');
+  dossier.modeCreation = miseAJour ? 'maj' : 'pret';
+  if (miseAJour) { dossier.dernierDocumentPrepare = 'cv'; }
+  if (rapide && (p === 'lettre' || p === 'entretien')) { dossier.pretChoixPremier = p; dossier.dernierDocumentPrepare = p; }
+  dossier.decouverteTerminee = false;
   if (typeof _prepLEEcran !== 'undefined') {
     _prepLEEcran = 'depot'; _prepLEDetour = false; _prepLEMode = miseAJour ? 'maj' : 'pret'; _reprendreCvActif = miseAJour;
   }
@@ -1711,138 +2048,8 @@ var CATALOGUE_FORMATIONS_COURANTES = [
 // affiche une zone de missions.
 var CONSEIL_CHIFFRES_MISSIONS = '💡 Si possible, précisez un chiffre réel : combien de personnes/pièces/clients, combien de temps, quel résultat obtenu ?';
 
-// TACHE (retour utilisateur : "quand la personne choisit une formation, je
-// veux qu'elle puisse dire ce qu'elle a fait pendant ce parcours -- des
-// missions génériques à cocher, plus une zone de texte") : catalogue de
-// missions GENERIQUES par secteur (pas par diplôme précis -- décision
-// explicite, plus simple à maintenir et couvre un intitulé tapé hors
-// catalogue). Mêmes 7 clés de secteur exactement que CATALOGUE_FORMATIONS_COURANTES
-// ci-dessus, jamais une 2e nomenclature de secteurs à maintenir en
-// parallèle. Utilisé par contenuFormations() (js/app.js) -- ces missions
-// ne sont JAMAIS affichées telles quelles sans passage par l’assistant (voir
-// texteProfil()/prompts/cv.md) : ce ne sont que des suggestions que la
-// personne coche, jamais un fait inventé sur elle tant qu'elle ne les a
-// pas choisies elle-même.
-var CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR = {
-  'Bâtiment / Travaux publics': [
-    'Lecture de plans et de consignes de chantier',
-    'Pose de matériaux (briques, carrelage, revêtements...)',
-    'Utilisation d’outils et d’engins de chantier',
-    'Application des règles de sécurité sur chantier'
-  ],
-  'Hôtellerie / Restauration': [
-    'Préparation et dressage de plats',
-    'Application des règles d’hygiène alimentaire (HACCP)',
-    'Service et relation client',
-    'Gestion des stocks et du matériel de cuisine'
-  ],
-  'Aide à la personne / Santé': [
-    'Accompagnement dans les gestes du quotidien',
-    'Aide à la toilette et aux repas',
-    'Stimulation et activités avec les bénéficiaires',
-    'Transmission d’informations à l’équipe'
-  ],
-  'Logistique / Transport': [
-    'Réception et rangement de marchandises',
-    'Préparation de commandes',
-    'Utilisation d’engins de manutention (chariot, transpalette...)',
-    'Respect des consignes de sécurité et de circulation'
-  ],
-  'Sécurité / Propreté': [
-    'Rondes de surveillance et contrôle d’accès',
-    'Nettoyage et entretien de locaux',
-    'Application des protocoles d’hygiène et de sécurité',
-    'Utilisation de matériel professionnel de nettoyage'
-  ],
-  'Commerce / Vente': [
-    'Accueil et conseil client',
-    'Mise en rayon et gestion des stocks',
-    'Tenue de caisse et encaissement',
-    'Mise en valeur des produits en vitrine'
-  ],
-  'Numérique / Bureautique': [
-    'Rédaction de documents (courriers, tableaux...)',
-    'Utilisation des outils bureautiques (Word, Excel)',
-    'Classement et gestion de documents',
-    'Recherche d’informations en ligne'
-  ],
-  // TACHE (retour Denis 2026-09-28, point 1 : "on couvre pas tout... il y a des trous") :
-  // catalogue limité à 7 secteurs, alors que SECTEURS_APP (data/metiers.js, 21 secteurs, socle
-  // déjà utilisé par les 129 fiches métiers) en couvre bien plus - complété avec les secteurs
-  // manquants, même convention (4 missions courtes par secteur), même style que ceux du dessus.
-  'Sport / Animation sportive': [
-    'Encadrement de séances ou d’activités sportives',
-    'Application des règles de sécurité et de surveillance',
-    'Adaptation des exercices au niveau et aux besoins des participants',
-    'Organisation du matériel et de l’espace d’activité'
-  ],
-  'Animation sociale et socioculturelle': [
-    'Animation d’ateliers ou d’activités collectives',
-    'Accueil et accompagnement de différents publics',
-    'Organisation d’événements ou de sorties',
-    'Création de lien social entre les participants'
-  ],
-  'Agriculture / Espaces verts': [
-    'Entretien des sols, plantations et espaces verts',
-    'Utilisation d’outils et de matériel agricole ou horticole',
-    'Soin et suivi des cultures ou des animaux',
-    'Respect des consignes de sécurité et des saisons'
-  ],
-  'Industrie / Production': [
-    'Conduite ou surveillance d’une ligne de production',
-    'Contrôle qualité des pièces ou produits fabriqués',
-    'Respect des consignes de sécurité en atelier',
-    'Maintenance de premier niveau des équipements'
-  ],
-  'Artisanat / Métiers de bouche': [
-    'Fabrication ou transformation de produits (cuisine, boulangerie...)',
-    'Respect des règles d’hygiène et de traçabilité',
-    'Vente ou présentation des produits',
-    'Gestion des stocks de matières premières'
-  ],
-  'Mécanique / Automobile': [
-    'Diagnostic et réparation de pannes',
-    'Entretien courant de véhicules ou d’engins',
-    'Utilisation d’outillage spécialisé',
-    'Respect des consignes de sécurité en atelier'
-  ],
-  'Coiffure / Esthétique': [
-    'Réalisation de prestations de coiffure ou de soins esthétiques',
-    'Accueil et conseil personnalisé de la clientèle',
-    'Respect des règles d’hygiène et de stérilisation',
-    'Gestion des rendez-vous et du poste de travail'
-  ],
-  'Administration / Gestion': [
-    'Accueil physique et téléphonique',
-    'Suivi de dossiers administratifs',
-    'Saisie et mise à jour de données',
-    'Classement et archivage de documents'
-  ],
-  'Communication / Culture / Événementiel': [
-    'Organisation logistique d’un événement',
-    'Accueil et orientation du public',
-    'Rédaction de supports de communication',
-    'Coordination avec différents intervenants'
-  ],
-  'Éducation / Formation': [
-    'Transmission de savoirs ou de consignes à un groupe',
-    'Adaptation du contenu au niveau des apprenants',
-    'Suivi de la progression et des besoins individuels',
-    'Préparation de supports pédagogiques'
-  ],
-  'Métiers animaliers': [
-    'Soin, nourrissage et surveillance des animaux',
-    'Entretien des espaces et du matériel',
-    'Application des règles d’hygiène et de sécurité',
-    'Observation et transmission d’informations sur les animaux'
-  ],
-  'Banque / Assurance / Immobilier': [
-    'Accueil et renseignement de la clientèle',
-    'Constitution et suivi de dossiers',
-    'Présentation de produits ou de biens',
-    'Respect des procédures et de la confidentialité'
-  ]
-};
+// (Chantier « Vos diplômes », 15/11/2026 : le catalogue de 19 secteurs x 4 missions génériques qui se trouvait ici est retiré ; les missions viennent
+// désormais des fiches du ROME, voir modules/formations-metiers/logique.js et contenuMissionsFormationBrouillon.)
 
 // TACHE (retour utilisateur : "un centre d'intérêt mis en avant -- gagné
 // un tournoi, fait le tour du monde... ça vaut le coup d'être valorisé,
@@ -2017,6 +2224,8 @@ function appliquerMajusculePremiereLettre(champ) {
   });
 }
 var _catalogueEditionOuverte = {};
+// Consigne 374 (15/11/2026) : index de l'element qui vient d'etre choisi dans la liste et n'est pas encore valide (par rubrique).
+var _catalogueNouveauElement = {};
 // TACHE (retour utilisateur : "clic sur la pastille verte = suppression
 // directe, je veux rouvrir le panneau pour corriger", chantier "formations
 // editables") : Formations n'entre pas dans le mecanisme generique
@@ -2072,27 +2281,67 @@ function construireBrouillonDepuisFormation(f) {
   if (!f) { return null; }
   var typeDeduit = f.typeCredential || _inferTypeCredentialDepuisIntitule(f.intitule, f.niveau);
   var niveauDeduit = _inferNiveauDepuisFormation(f, typeDeduit);
-  return {
+  var brouillon = {
     typeCredential: typeDeduit,
     niveauRNCP: niveauDeduit ? niveauDeduit.rncp : null,
     niveauVisible: niveauDeduit ? niveauDeduit.visible : null,
     intitule: f.intitule || '', annee: f.annee || '',
     // TACHE (Denis, 2026-09-25) : centre de formation et lieu (facultatifs), comme le lieu d'une experience.
     centre: f.etablissement || '', lieu: f.lieu || '',
-    secteurMissions: null, missionsChoisies: [], missionsTexteLibre: f.missions || ''
+    missionsChoisies: [], missionsTexteLibre: f.missions || ''
   };
+  // Chantier « Vos diplômes » : détail de la formation. Une formation enregistrée avec ce chantier garde ses métiers, ses missions cochées
+  // et son texte libre séparés ; une formation plus ancienne (missions en un seul texte) garde ce texte comme texte libre, « Oui » coché
+  // si elle avait des missions. Toujours « choix fait par la personne » : le préréglage ne la contredit jamais.
+  var champsDetail = _fmChampsDetailVides();
+  Object.keys(champsDetail).forEach(function (k) { brouillon[k] = champsDetail[k]; });
+  brouillon.detailManuel = true;
+  if (f.detailFormation === 'oui' || f.detailFormation === 'non') {
+    brouillon.detail = f.detailFormation;
+    brouillon.metiers = (f.metiersRome || []).map(function (m) { return { code: m.code, nom: m.nom }; });
+    brouillon.missionsChoisies = (f.missionsChoisies || []).slice();
+    brouillon.missionsTexteLibre = f.missionsTexteLibre || '';
+    brouillon.vueMissions = brouillon.metiers.length > 0 && brouillon.missionsChoisies.length > 0;
+  } else {
+    brouillon.detail = (f.missions && String(f.missions).trim()) ? 'oui' : null;
+    brouillon.detailManuel = !!brouillon.detail;
+  }
+  brouillon.texteOuvert = !!(brouillon.missionsTexteLibre || '').trim();
+  return brouillon;
+}
+// « Citer ou développer » (consigne 357, modules/citer-developper/logique.js). Les missions d'une certification vivent dans dossier.certificationsAvecMissions
+// (entrée `manuel`, la MÊME que la fenêtre « Modifier mes certifications » de l'aperçu du CV) : une seule source de vérité pour ce que le CV affiche.
+function _cdMissionsManuellesCertification(valeur) {
+  var t = String(valeur || '').trim();
+  var e = (dossier.certificationsAvecMissions || []).filter(function (x) { return x && x.manuel && String(x.certification || '').trim() === t; })[0];
+  return e ? (Array.isArray(e.missions) ? e.missions.join('\n') : String(e.missions || '')) : null;
+}
+// Remet le magasin du CV d'accord avec la réponse : développé = les missions de la personne ; cité (ou rien d'écrit) = aucune entrée manuelle.
+function _cdSynchroniserCertification(valeur) {
+  if (typeof cdModeEffectif !== 'function') { return; }
+  var t = String(valeur || '').trim();
+  var det = (dossier.detailsCatalogue && dossier.detailsCatalogue.certifications && dossier.detailsCatalogue.certifications[valeur]) || {};
+  var mode = cdModeEffectif(det.developper, det.missions);
+  dossier.certificationsAvecMissions = (dossier.certificationsAvecMissions || []).filter(function (e) { return !(e && e.manuel && String(e.certification || '').trim() === t); });
+  var missions = (mode === 'dev') ? cdMissionsEnListe(det.missions) : [];
+  if (missions.length) { dossier.certificationsAvecMissions.push({ certification: t, missions: missions, manuel: true }); }
 }
 function detailPastilleEditable(config, item) {
   if (config.avecDates) {
     return {
       dateDebut: item.dateDebut || '', dateFin: item.dateFin || '', missions: item.missions || '',
-      detail: item.detail || '', contexte: item.contexte || ''
+      detail: item.detail || '', contexte: item.contexte || '', developper: item.developper || null
     };
   }
   var parDetail = (dossier.detailsCatalogue && dossier.detailsCatalogue[config.cle] && dossier.detailsCatalogue[config.cle][item]) || {};
+  var missionsDetail = parDetail.missions || '';
+  if (config.cle === 'certifications') {
+    var manuelles = _cdMissionsManuellesCertification(item);
+    if (manuelles !== null) { missionsDetail = manuelles; }
+  }
   return {
-    dateDebut: parDetail.dateDebut || '', dateFin: parDetail.dateFin || '', missions: parDetail.missions || '',
-    detail: '', contexte: parDetail.contexte || ''
+    dateDebut: parDetail.dateDebut || '', dateFin: parDetail.dateFin || '', missions: missionsDetail,
+    detail: '', contexte: parDetail.contexte || '', developper: parDetail.developper || null
   };
 }
 function ecrireDetailPastilleEditable(config, index, champ, valeur) {
@@ -2105,6 +2354,7 @@ function ecrireDetailPastilleEditable(config, index, champ, valeur) {
   dossier.detailsCatalogue[config.cle] = dossier.detailsCatalogue[config.cle] || {};
   dossier.detailsCatalogue[config.cle][cleValeur] = dossier.detailsCatalogue[config.cle][cleValeur] || {};
   dossier.detailsCatalogue[config.cle][cleValeur][champ] = valeur;
+  if (config.cle === 'certifications' && (champ === 'missions' || champ === 'developper')) { _cdSynchroniserCertification(cleValeur); }
 }
 function optionsAnneesPastilleEditable(valeurSelectionnee, libellePremiereOption) {
   var anneeCourante = new Date().getFullYear();
@@ -2141,7 +2391,9 @@ function blocPastillesEditables(config, liste) {
   // (pastille-mini-edition, plus bas) n'apparait qu'une fois l'edition
   // deja ouverte -- trop tard pour servir de decouverte. Toujours visible
   // des qu'il y a au moins un element, jamais seulement apres coup.
-  return '<div class="mt-2">' +
+  // Consigne 374 : tant qu'un element est ouvert (ajoute ou modifie) sans etre valide, les autres sont figes.
+  var verrouListe = (typeof indexOuvert === 'number') && !!liste[indexOuvert];
+  return '<div class="mt-2' + (verrouListe ? ' catalogue-verrou' : '') + '">' +
     '<p class="small text-muted mb-1">Cliquez sur un élément pour le modifier, sur la croix pour le supprimer.</p>' +
     liste.map(function (item, i) {
     var valeur = config.avecDates ? item[config.champValeur] : item;
@@ -2157,27 +2409,80 @@ function blocPastillesEditables(config, liste) {
       '</span>' +
       ((config.avecRemonteeEnPro && item.remonteeEnPro === true) ? '<span class="small text-muted ms-1" title="Cette expérience figure dans l’expérience professionnelle du CV">&#8599; en expérience professionnelle</span>' : '');
     if (ouvert) {
-      html += '<div class="pastille-mini-edition mt-1 mb-2">' +
-        '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">' +
-        '<select class="form-select form-select-sm" style="width:auto;" data-catalogue-edition-debut="' + config.cle + '" data-index="' + i + '">' + optionsAnneesPastilleEditable(detail.dateDebut, 'Année de début') + '</select>' +
-        '<span class="small text-muted">à</span>' +
-        '<select class="form-select form-select-sm" style="width:auto;" data-catalogue-edition-fin="' + config.cle + '" data-index="' + i + '">' + optionsAnneesPastilleEditable(detail.dateFin, 'Toujours en cours') + '</select>' +
-        '</div>' +
+      // Consigne 357 : nom complet du sigle en première ligne du rectangle ; question « seulement le citer ou le développer » là où des missions sont possibles.
+      var nomCompletSigle = (config.cle === 'certifications' && typeof cdNomCompletCertification === 'function') ? cdNomCompletCertification(valeur) : '';
+      var questionCD = (typeof cdQuestionPossible === 'function') && cdQuestionPossible(config.cle, valeur);
+      var modeCD = questionCD ? cdModeEffectif(detail.developper, detail.missions) : null;
+      var reponseCD = questionCD ? (detail.developper || (modeCD === 'dev' ? 'dev' : null)) : null;
+      var estLoisir = (config.cle === 'loisirs');
+      var zoneMissionsCD = '<textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Ce que vous avez fait (une mission par ligne, à compléter)" data-catalogue-edition-missions="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.missions) + '</textarea>';
+      // Certification avec missions proposées : cases à cocher (fond violet, comme les missions des diplômes) puis zone « avec vos mots ».
+      // Le texte enregistré reste unique : les cases cochées sont les lignes qui sont des missions proposées, le reste est écrit par la personne.
+      var missionsProposeesCD = (questionCD && typeof cdMissionsProposees === 'function') ? cdMissionsProposees(valeur, config.cle) : [];
+      if (missionsProposeesCD.length) {
+        var cocheesCD = cdMissionsCochees(detail.missions, missionsProposeesCD);
+        zoneMissionsCD = '<div class="cd-miss"><p class="cd-miss-titre">Ce que vous avez fait</p>' +
+          '<p class="small mb-2">Cochez seulement ce que vous avez réellement fait.</p>' +
+          '<div class="pastilles mb-2">' + missionsProposeesCD.map(function (m) {
+            return '<button type="button" class="jeton jeton--compact' + (cocheesCD.indexOf(m) !== -1 ? ' is-actif' : '') + '" data-catalogue-edition-mission-coche="' + config.cle + '" data-index="' + i + '" data-mission="' + echapperAttribut(m) + '" aria-pressed="' + (cocheesCD.indexOf(m) !== -1) + '">' + echapperAttribut(m) + '</button>';
+          }).join('') + '</div>' +
+          '<p class="small mb-1">Ou écrivez avec vos mots (une mission par ligne, à compléter) :</p>' +
+          '<textarea class="form-control form-control-sm" rows="2" placeholder="Une autre mission que vous avez réellement faite" data-catalogue-edition-missions-libres="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(cdMissionsLibres(detail.missions, missionsProposeesCD).join('\n')) + '</textarea></div>';
+      }
+      var zoneContexteCD = config.avecContexte
+        ? '<textarea class="form-control form-control-sm mb-1" rows="2" placeholder="Dans quel cadre ? Qu’avez-vous fait concrètement ? Un chiffre si possible." data-catalogue-edition-contexte="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.contexte) + '</textarea>' +
+          htmlAstuceDictee('ligne', 'Vous pouvez dicter à la voix, l’assistant remettra en forme.') +
+          '<p class="small text-muted mb-2">Ce texte est transmis à l’assistant, jamais affiché tel quel sur le CV. La croix retire l’élément et son contexte.</p>'
+        : '';
+      var corpsCD;
+      if (questionCD) {
+        corpsCD = '<p class="fw-bold mt-2 mb-1">Voulez-vous développer cet élément sur votre CV ?</p>' +
+          '<div class="d-flex gap-2 flex-wrap mb-2">' +
+          '<button type="button" class="jeton jeton--radio jeton--compact' + (reponseCD === 'cite' ? ' is-actif' : '') + '" data-catalogue-edition-developper="' + config.cle + '" data-index="' + i + '" data-rep="cite" aria-pressed="' + (reponseCD === 'cite') + '">Non, seulement le citer</button>' +
+          '<button type="button" class="jeton jeton--radio jeton--compact' + (reponseCD === 'dev' ? ' is-actif' : '') + '" data-catalogue-edition-developper="' + config.cle + '" data-index="' + i + '" data-rep="dev" aria-pressed="' + (reponseCD === 'dev') + '">Oui, le développer</button>' +
+          '</div>' +
+          (modeCD === 'dev'
+            ? '<p class="small mb-1">' + (missionsProposeesCD.length ? 'Choisissez ou écrivez' : 'Écrivez') + ' ce que vous avez réellement fait. L’assistant ne fera que reformuler et accorder vos missions (féminin ou masculin), il n’ajoutera rien.</p>' + zoneMissionsCD + zoneContexteCD
+            : '<p class="small mb-2">' + (reponseCD === 'cite'
+                ? 'Il apparaîtra sur votre CV sans détail, et l’assistant n’écrira aucune mission pour cet élément.'
+                : 'Sans réponse de votre part, il sera seulement cité, sans mission.') + '</p>');
+      } else if (estLoisir) {
+        corpsCD = '<p class="small mb-2">Un loisir apparaît tel quel sur votre CV : aucune mission à écrire.</p>' + zoneContexteCD;
+      } else {
+        corpsCD = '<p class="small mb-2">' + (config.cle === 'certifications'
+          ? 'Une certification de ce type (niveau ou score) apparaît telle quelle sur votre CV : il n’y a rien à développer.'
+          : 'Cet élément apparaîtra tel quel sur votre CV.') + '</p>' + zoneContexteCD;
+      }
+      // Une certification a une seule année, celle de son obtention : pas de « à » ni de « Toujours en cours ».
+      var ligneAnneesCD = (config.cle === 'certifications')
+        ? '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">' +
+          '<select class="form-select form-select-sm" style="width:auto;" data-catalogue-edition-debut="' + config.cle + '" data-index="' + i + '">' + optionsAnneesPastilleEditable(detail.dateDebut || detail.dateFin, 'Année d’obtention (à compléter)') + '</select>' +
+          '</div>'
+        : '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">' +
+          '<select class="form-select form-select-sm" style="width:auto;" data-catalogue-edition-debut="' + config.cle + '" data-index="' + i + '">' + optionsAnneesPastilleEditable(detail.dateDebut, 'Année de début') + '</select>' +
+          '<span class="small text-muted">à</span>' +
+          '<select class="form-select form-select-sm" style="width:auto;" data-catalogue-edition-fin="' + config.cle + '" data-index="' + i + '">' + optionsAnneesPastilleEditable(detail.dateFin, 'Toujours en cours') + '</select>' +
+          '</div>';
+      html += '<div class="pastille-mini-edition' + (questionCD ? ' pastille-mini-edition--large' : '') + ' mt-1 mb-2">' +
+        (nomCompletSigle ? '<p class="fw-bold mb-2">' + valeur + ' : ' + nomCompletSigle + '</p>' : '') +
+        (estLoisir ? '<p class="small mb-1">Années (à compléter) : utile si vous le pratiquez depuis longtemps.</p>' : '') +
+        ligneAnneesCD +
         (config.avecDetail
           ? '<input type="text" class="form-control form-control-sm mb-2" placeholder="Détail (optionnel)" data-catalogue-edition-detail="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(detail.detail) + '">'
           : '') +
-        '<textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Ce que vous avez fait (une mission par ligne, à compléter)" data-catalogue-edition-missions="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.missions) + '</textarea>' +
-        (config.avecContexte
-          ? '<textarea class="form-control form-control-sm mb-1" rows="2" placeholder="Dans quel cadre ? Qu’avez-vous fait concrètement ? Un chiffre si possible." data-catalogue-edition-contexte="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.contexte) + '</textarea>' +
-            htmlAstuceDictee('ligne', 'Vous pouvez dicter à la voix, l’assistant remettra en forme.') +
-            '<p class="small text-muted mb-2">Ce texte est transmis à l’assistant, jamais affiché tel quel sur le CV. La croix retire l’élément et son contexte.</p>'
-          : '') +
+        corpsCD +
         (config.avecRemonteeEnPro ? htmlRemonteeEnPro(config, item, i) : '') +
         // TACHE (retour utilisateur : "je ne sais pas si c'est validé ou
         // pas") : bouton explicite qui referme le panneau d'edition --
         // les champs s'enregistrent deja au fil de la saisie (input/change),
         // ce clic confirme visuellement la fin de la correction.
-        '<button type="button" class="btn btn-outline-primary btn-sm" data-catalogue-edition-valider="' + config.cle + '" data-index="' + i + '">Je valide</button>' +
+        // Consigne 363 (Denis) : « Je valide » bien visible, plein et large comme les autres boutons d'action de la page.
+        // Consignes 374 et 375 : « Je valide » seulement apres la reponse « citer » ou « developper » (pour les elements qui ont la question) ;
+        // tant que la personne n'a pas repondu, le bouton est « Annuler » (retire l'element qui vient d'etre choisi, ou referme la modification).
+        ((questionCD && !reponseCD)
+          ? '<div class="mt-2"><button type="button" class="btn btn-annuler btn-sm fw-bold px-4" data-catalogue-edition-annuler="' + config.cle + '" data-index="' + i + '">&#10005; Annuler</button>' +
+            '<p class="small text-muted mb-0 mt-1">Répondez à la question ci-dessus pour pouvoir valider. « Annuler » vous ramène au choix dans la liste.</p></div>'
+          : '<div class="mt-2"><button type="button" class="btn btn-primary btn-sm fw-bold px-4" data-catalogue-edition-valider="' + config.cle + '" data-index="' + i + '">&#10003; Je valide</button></div>') +
         '</div>';
     }
     return html;
@@ -2204,6 +2509,41 @@ function wireCataloguePastillesEditables(config, rerender) {
   document.querySelectorAll('[data-catalogue-edition-missions="' + config.cle + '"]').forEach(function (el) {
     appliquerMajusculePremiereLettre(el);
     el.addEventListener('input', function () { ecrireDetailPastilleEditable(config, parseInt(this.dataset.index, 10), 'missions', this.value); });
+  });
+  // Certifications, engagements, expériences personnelles : cases à cocher et zone libre écrivent dans le même texte de missions (voir missionsCertifications.js).
+  function _cdMissionsDeLaPastille(idx) { return detailPastilleEditable(config, dossier[config.cle][idx]).missions; }
+  function _cdPropositionsDeLaPastille(idx) {
+    var item = dossier[config.cle][idx];
+    return cdMissionsProposees(config.avecDates ? (item && item[config.champValeur]) : item, config.cle);
+  }
+  document.querySelectorAll('[data-catalogue-edition-mission-coche="' + config.cle + '"]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var idx = parseInt(this.dataset.index, 10);
+      var mission = this.getAttribute('data-mission');
+      var propositions = _cdPropositionsDeLaPastille(idx);
+      var texte = _cdMissionsDeLaPastille(idx);
+      var cochees = cdMissionsCochees(texte, propositions);
+      var pos = cochees.indexOf(mission);
+      if (pos === -1) { cochees.push(mission); } else { cochees.splice(pos, 1); }
+      cochees = propositions.filter(function (p) { return cochees.indexOf(p) !== -1; });
+      ecrireDetailPastilleEditable(config, idx, 'missions', cdAssemblerMissions(cochees, cdMissionsLibres(texte, propositions)));
+      rerender();
+    });
+  });
+  document.querySelectorAll('[data-catalogue-edition-missions-libres="' + config.cle + '"]').forEach(function (el) {
+    appliquerMajusculePremiereLettre(el);
+    el.addEventListener('input', function () {
+      var idx = parseInt(this.dataset.index, 10);
+      var propositions = _cdPropositionsDeLaPastille(idx);
+      var cochees = cdMissionsCochees(_cdMissionsDeLaPastille(idx), propositions);
+      ecrireDetailPastilleEditable(config, idx, 'missions', cdAssemblerMissions(cochees, this.value.split(/\r?\n/)));
+    });
+  });
+  document.querySelectorAll('[data-catalogue-edition-developper="' + config.cle + '"]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      ecrireDetailPastilleEditable(config, parseInt(this.dataset.index, 10), 'developper', this.getAttribute('data-rep'));
+      rerender();
+    });
   });
   document.querySelectorAll('[data-catalogue-edition-contexte="' + config.cle + '"]').forEach(function (el) {
     appliquerMajusculePremiereLettre(el);
@@ -2238,6 +2578,23 @@ function wireCataloguePastillesEditables(config, rerender) {
   document.querySelectorAll('[data-catalogue-edition-valider="' + config.cle + '"]').forEach(function (el) {
     el.addEventListener('click', function () {
       _catalogueEditionOuverte[config.cle] = null;
+      _catalogueNouveauElement[config.cle] = null;
+      rerender();
+    });
+  });
+  // Consigne 375 : « Annuler » (avant toute reponse) retire l'element qui vient d'etre choisi ; sur un element deja enregistre, il referme seulement le panneau.
+  document.querySelectorAll('[data-catalogue-edition-annuler="' + config.cle + '"]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var idx = parseInt(this.dataset.index, 10);
+      if (_catalogueNouveauElement[config.cle] === idx) {
+        var valeurRetiree = dossier[config.cle][idx];
+        if (typeof valeurRetiree === 'string' && dossier.detailsCatalogue && dossier.detailsCatalogue[config.cle]) {
+          delete dossier.detailsCatalogue[config.cle][valeurRetiree];
+        }
+        dossier[config.cle].splice(idx, 1);
+      }
+      _catalogueEditionOuverte[config.cle] = null;
+      _catalogueNouveauElement[config.cle] = null;
       rerender();
     });
   });
@@ -2326,9 +2683,17 @@ function selectCatalogueInline(config, liste) {
     if (v) { dejaPris[v] = true; }
   });
   var plein = (liste || []).length >= LIMITE_CATALOGUE_RESUME;
+  // Consigne 374 : un element ouvert et non valide fige le menu (choix et ligne « Autre »).
+  var indexOuvertMenu = _catalogueEditionOuverte[config.cle];
+  var verrouMenu = (typeof indexOuvertMenu === 'number') && !!(liste || [])[indexOuvertMenu];
+  plein = plein || verrouMenu;
   var groupes = (config.catalogue || []).map(function (grp) {
     var opts = (grp.items || []).filter(function (it) { return !dejaPris[it]; })
-      .map(function (it) { return '<option value="' + echapperAttribut(it) + '">' + it + '</option>'; }).join('');
+      .map(function (it) {
+        // Consigne 357 : le nom complet d'un sigle de certification s'affiche dans la liste (la valeur enregistrée reste le sigle).
+        var nomComplet = (config.cle === 'certifications' && typeof cdNomCompletCertification === 'function') ? cdNomCompletCertification(it) : '';
+        return '<option value="' + echapperAttribut(it) + '">' + it + (nomComplet ? ' : ' + nomComplet : '') + '</option>';
+      }).join('');
     return opts ? '<optgroup label="' + echapperAttribut(grp.categorie) + '">' + opts + '</optgroup>' : '';
   }).join('');
   var sel = '<select class="form-select form-select-sm" data-catalogue-select="' + config.cle + '"' +
@@ -2338,12 +2703,14 @@ function selectCatalogueInline(config, liste) {
   var autre = '<div class="d-flex gap-2 flex-wrap align-items-center mt-2">' +
     '<input type="text" class="form-control form-control-sm" style="flex:1 1 200px;min-width:0;" ' +
     'data-catalogue-autre="' + config.cle + '" placeholder="Autre : précisez"' + (plein ? ' disabled' : '') + '>' +
-    '<button type="button" class="btn btn-outline-primary btn-sm" data-catalogue-autre-ajouter="' + config.cle + '"' +
-    (plein ? ' disabled' : '') + '>&#10133; Ajouter</button>' +
+    '<button type="button" class="btn btn-primary btn-sm" data-catalogue-autre-ajouter="' + config.cle + '"' +
+    (plein ? ' disabled' : '') + '>+ Ajouter</button>' +
     '</div>';
-  return '<div class="mt-2" style="max-width:520px;">' + sel + autre +
-    (plein ? '<p class="small text-muted mt-1 mb-0">Maximum atteint (' + LIMITE_CATALOGUE_RESUME + '). Retirez un élément pour en ajouter un autre.</p>' : '') +
-    '</div>';
+  return '<div class="fm-bloc mt-2' + (verrouMenu ? ' catalogue-menu-verrou' : '') + '"><div style="max-width:520px;">' +
+    (verrouMenu ? '<p class="catalogue-verrou-note">Terminez d’abord l’élément ci-dessus : validez-le avant d’en choisir un autre.</p>' : '') +
+    '<p class="fm-q">Choisir dans la liste ' + _fmEtiquette('choix') + '</p>' + sel + autre +
+    ((plein && !verrouMenu) ? '<p class="small text-muted mt-1 mb-0">Maximum atteint (' + LIMITE_CATALOGUE_RESUME + '). Retirez un élément pour en ajouter un autre.</p>' : '') +
+    '</div></div>';
 }
 
 function contenuCatalogueOuiNon(config) {
@@ -2416,17 +2783,13 @@ function contenuCatalogueOuiNon(config) {
       // Etape 6d : menu deroulant inline + ligne « Autre », plus de fenetre.
       ? selectCatalogueInline(config, liste)
       : '<div class="mt-2 d-flex gap-2 flex-wrap">' +
-        '<button class="btn btn-outline-primary btn-sm" data-catalogue-ajouter="' + config.cle + '">&#10133; ' + (config.labelAjouter || 'Ajouter') + '</button>' +
+        '<button class="btn btn-outline-primary btn-sm" data-catalogue-ajouter="' + config.cle + '">+ ' + (config.labelAjouter || 'Ajouter') + '</button>' +
         '<button type="button" class="btn btn-outline-secondary btn-etape-suivante btn-sm ms-auto" data-catalogue-etape-suivante="' + config.cle + '"' +
         (completOuiNonAvecContenu(config.cle) ? '' : ' disabled') +
         '>Je passe à l’étape suivante &rarr;</button>' +
         '</div>') +
-      // TACHE (refonte parcours guide, sous-etape 3.10, 2026-09-02) : la
-      // phrase discrete "en cliquant sur un choix deja fait..." devient
-      // l'astuce forte de la maquette "Mes informations" (verte + en gras,
-      // meme texte que INCITATION_CTX de MAQUETTE_MES_INFORMATIONS). Visible
-      // des qu'au moins un element existe (sinon rien a cliquer).
-      (liste.length ? '<p class="mt-2 mb-0" style="font-weight:700;color:var(--success-strong)">&#128161; Astuce : cliquez sur un élément ajouté pour préciser le contexte (à compléter, c’est fortement conseillé). Ces détails peuvent faire ressortir une compétence recherchée pour le poste que vous visez.</p>' : '');
+      // Consigne 376 (15/11/2026) : la ligne verte « Astuce : cliquez sur un element ajoute... » est supprimee.
+      '';
   }
   return html;
 }
@@ -2449,7 +2812,7 @@ function blocCatalogueOuiNon(config) {
       html += config.avecDates ? blocPastillesAvecDatesEtDetail(config, liste)
         : (config.avecDetail ? blocPastillesAvecDetail(config, liste) : blocPastillesSimples(config, liste));
     }
-    html += '<div class="mt-2"><button class="btn btn-outline-primary btn-sm" data-catalogue-ajouter="' + config.cle + '">&#10133; Ajouter</button></div>';
+    html += '<div class="mt-2"><button class="btn btn-primary btn-sm" data-catalogue-ajouter="' + config.cle + '">+ Ajouter</button></div>';
   }
   html += '</div>';
   return html;
@@ -2805,6 +3168,33 @@ function ajouterAuCatalogue(config, choisis) {
 // profil -- jamais un snapshot fige a l'ajout (l'ancien mecanisme via
 // dossier.informationsNonClassees devenait perime des qu'on editait le
 // contexte apres coup, via le panneau d'edition de la pastille).
+// Période d'un élément pour l'assistant : « 2018-2020 », « depuis 2011 » ou « jusqu'en 2020 » ; vide si rien n'est indiqué.
+function _cdPeriodeTexte(debut, fin) {
+  debut = String(debut || '').trim(); fin = String(fin || '').trim();
+  if (debut && fin) { return debut + '-' + fin; }
+  if (debut) { return 'depuis ' + debut; }
+  return fin ? 'jusqu’en ' + fin : '';
+}
+// Ligne « Certifications » du profil : chaque élément avec son année si elle est indiquée, puis soit « Missions de la personne », soit « À CITER SEULEMENT ».
+// L'intitulé reste exactement celui du dossier (l'assistant le reprend tel quel, voir prompts/cv.md) ; le nom complet d'un sigle n'est jamais envoyé.
+function _cdProfilCertifications() {
+  var liste = dossier.certifications || [];
+  var infos = liste.map(function (c) {
+    var det = (dossier.detailsCatalogue && dossier.detailsCatalogue.certifications && dossier.detailsCatalogue.certifications[c]) || {};
+    var extra = '';
+    if (typeof cdQuestionPossible === 'function' && cdQuestionPossible('certifications', c)) {
+      var d = detailPastilleEditable(CONFIG_CERTIFICATIONS, c);
+      extra = cdEstCite(d.developper, d.missions) ? CD_MARQUEUR_CITE : (CD_MARQUEUR_DEVELOPPE + ' : ' + cdMissionsEnListe(d.missions).join(' ; '));
+    }
+    // Une certification a une seule année, celle de son obtention (« obtenue en 2023 ») : jamais « depuis 2023 ».
+    var anneeObtention = String(det.dateDebut || det.dateFin || '').trim();
+    return { c: c, periode: anneeObtention ? 'obtenue en ' + anneeObtention : '', extra: extra };
+  });
+  if (!infos.some(function (x) { return x.periode || x.extra; })) { return '- Certifications : ' + liste.join(', ') + '\n'; }
+  return '- Certifications :\n' + infos.map(function (x) {
+    return '   . ' + x.c + (x.periode ? ' - ' + x.periode : '') + (x.extra ? ' - ' + x.extra : '');
+  }).join('\n') + '\n';
+}
 function texteContextesCatalogues() {
   var lignes = [];
   [CONFIG_LOISIRS, CONFIG_ENGAGEMENTS, CONFIG_CERTIFICATIONS, CONFIG_EXPERIENCES_PERSO].forEach(function (config) {
@@ -2817,6 +3207,11 @@ function texteContextesCatalogues() {
       var contexte = utiliseObjet
         ? (item.contexte || '')
         : (((dossier.detailsCatalogue && dossier.detailsCatalogue[config.cle] && dossier.detailsCatalogue[config.cle][item]) || {}).contexte || '');
+      // Consigne 357 : le contexte libre d'un élément seulement cité n'est pas transmis (il donnerait de quoi écrire des missions).
+      if (contexte && typeof cdQuestionPossible === 'function' && cdQuestionPossible(config.cle, valeur)) {
+        var detCD = detailPastilleEditable(config, item);
+        if (cdModeEffectif(detCD.developper, detCD.missions) === 'cite') { contexte = ''; }
+      }
       if (contexte) { lignes.push(titre + ' - ' + valeur + ' - Contexte : ' + contexte); }
     });
   });
@@ -2844,7 +3239,14 @@ function wireCatalogueAjouterEtRetrait(config, rerender) {
   function ajouterValeurInline(valeur) {
     valeur = (valeur || '').trim();
     if (!valeur) { return; }
+    var nbAvant = (dossier[config.cle] || []).length;
     ajouterAuCatalogue(config, [entreeEnrichie ? { valeur: valeur } : valeur]);
+    // Consigne 374 : un element qui pose la question « citer ou developper » s'ouvre tout de suite et reste « en attente » tant qu'il n'est pas valide.
+    var listeApres = dossier[config.cle] || [];
+    if (config.avecEditionPastille && listeApres.length > nbAvant && typeof cdQuestionPossible === 'function' && cdQuestionPossible(config.cle, valeur)) {
+      _catalogueEditionOuverte[config.cle] = listeApres.length - 1;
+      _catalogueNouveauElement[config.cle] = listeApres.length - 1;
+    }
     rerender();
   }
   var selCat = document.querySelector('[data-catalogue-select="' + config.cle + '"]');
@@ -3028,11 +3430,12 @@ function experiencesQuiDemontrent(competenceTexte, listeExperiences) {
   });
 }
 
-function deduireCompetences() {
+// seulementChoix (consigne 410) : ne rend QUE les compétences que les catalogues déduisent des choix (actions, activités, environnement), sans loisirs, sans CV ni filet de secours.
+function deduireCompetences(seulementChoix) {
   var set = {};
   var ordre = [];
   function ajouter(c) { if (!set[c]) { set[c] = true; ordre.push(c); } }
-  var tous = dossier.activites.concat(dossier.actions, dossier.environnement, dossier.valeurs);
+  var tous = dossier.activites.concat(dossier.actions, dossier.environnement);   // consigne 261 : plus de dossier.valeurs (une préférence n'est pas une compétence)
   tous.forEach(function (item) {
     if (mappingCompetences[item]) { mappingCompetences[item].forEach(ajouter); }
   });
@@ -3049,7 +3452,7 @@ function deduireCompetences() {
       (dossier.competences && dossier.competences.savoirFaire) || [], (dossier.competences && dossier.competences.savoirEtre) || [], dossier.competencesCV || []
     ).map(normLoisir);
   }
-  (dossier.loisirs || []).forEach(function (loisir) {
+  (seulementChoix ? [] : (dossier.loisirs || [])).forEach(function (loisir) {
     if (!mappingLoisirsCompetences[loisir]) { return; }
     mappingLoisirsCompetences[loisir].forEach(function (c) {
       if (motsAutorisesLoisirs && motsAutorisesLoisirs.indexOf(normLoisir(c)) === -1) { return; }
@@ -3085,12 +3488,8 @@ function deduireCompetences() {
       (refEnv.savoirEtre || []).forEach(ajouter);
     }
   });
-  // TACHE 24B : meme principe pour "Qu'est-ce qui est important pour vous
-  // dans un travail ?" (referentiel valeurs professionnelles - savoir-etre uniquement).
-  (dossier.valeurs || []).forEach(function (idValeur) {
-    var refValeur = trouverItemParId(CATALOGUE_VALEURS_PROFESSIONNELLES, idValeur);
-    if (refValeur) { (refValeur.savoirEtre || []).forEach(ajouter); }
-  });
+  // Consigne 261 (12/11/2026) : l'ancien bloc « valeurs professionnelles » (savoir-etre deduits de ce que la personne souhaite) est retire : une preference n'est pas une qualite du CV.
+  if (seulementChoix) { return ordre; }
   if (dossier.competencesCV) { dossier.competencesCV.forEach(ajouter); }
   // TACHE (retour utilisateur : "quel est le lien entre le BTP et ces
   // compétences ?") : bug réel et confirmé, trouvé en traçant le JSON réel
@@ -3108,12 +3507,24 @@ function deduireCompetences() {
   return ordre;
 }
 
+// Consigne 410 : sépare ce que la personne a ÉCRIT (CV, module Découverte, loisirs) de ce que les catalogues DÉDUISENT de ses choix. Les secondes comptent à petit poids dans le classement des métiers :
+// c'est la même information que les actions et les activités, jamais une preuve de plus. Une compétence déduite qui figure aussi dans le CV ou la Découverte compte comme écrite.
+function _separerCompetencesDeduites(liste, ecrites, deduitesChoix) {
+  var dedupe = [], autres = [];
+  liste.forEach(function (c) { if (deduitesChoix.indexOf(c) !== -1 && ecrites.indexOf(c) === -1) { dedupe.push(c); } else { autres.push(c); } });
+  return { ecrites: autres, deduites: dedupe };
+}
 function construireProfil() {
+  preparerRepertoirePourExperience();
+  var deduitesChoix = deduireCompetences(true);
+  var ecrites = [].concat(dossier.competencesCV || [], (dossier.competences && dossier.competences.savoirFaire) || [], (dossier.competences && dossier.competences.savoirEtre) || []);
+  var sf = _separerCompetencesDeduites(savoirFaireActuels(), ecrites, deduitesChoix);
+  var se = _separerCompetencesDeduites(savoirEtreActuels(), ecrites, deduitesChoix);
   return {
     activites: dossier.activites,
     actions: dossier.actions,
     environnement: dossier.environnement,
-    valeurs: dossier.valeurs,
+    // Consigne 261 : plus de `valeurs` dans le profil des metiers.
     // TACHE (dette technique, chantier 2) : utilise desormais les fonctions
     // canoniques savoirFaireActuels()/savoirEtreActuels() (definies plus
     // bas) au lieu de reimplementer localement la meme regle -- une
@@ -3121,11 +3532,20 @@ function construireProfil() {
     // (typiquement importee depuis un vrai CV) est rattachee par defaut a
     // "Savoir-faire" plutot que d'etre silencieusement exclue du score de
     // recommandation.
-    savoirFaire: savoirFaireActuels(),
-    savoirEtre: savoirEtreActuels(),
+    savoirFaire: sf.ecrites,
+    savoirEtre: se.ecrites,
+    savoirFaireDeduits: sf.deduites,
+    savoirEtreDeduits: se.deduites,
     savoirs: dossier.savoirsCV || [],
-    accepte: dossier.accepte || []
+    accepte: dossier.accepte || [],
+    // Chantier « pertinence des suggestions » (13/11/2026) : niveau de diplôme (2 = aucun diplôme saisi) et expérience (domaines déjà exercés, années) : un métier qui demande beaucoup plus de diplôme descend, un métier du domaine déjà exercé monte. Jamais de métier retiré.
+    niveauPersonne: niveauPersonneDepuisFormations(dossier.formations),
+    experience: experienceDepuisPostes(dossier.experiences)
   };
+}
+// Chantier pertinence (13/11/2026) : un poste qui n'est le nom d'aucune fiche est cherché parmi les 13 800 intitulés du ROME ; le fichier se charge à la demande, jamais pour rien.
+function preparerRepertoirePourExperience() {
+  if (Array.isArray(dossier.experiences) && dossier.experiences.length && typeof chargerRepertoireElargi === 'function') { chargerRepertoireElargi(); }
 }
 
 // TACHE (retour utilisateur : suggestions != metiers vises) : suggererMetiers()
@@ -3137,10 +3557,15 @@ function construireProfil() {
 // R.5 (2026-09-29, decision Denis) : personne qui vise un SECTEUR sans metier precis. Au lieu de deviner des metiers (defaut B) ou de
 // ne rien ajouter, on prend les competences que partagent le plus de metiers de ce secteur dans la base (au moins 2 metiers, 4 par
 // categorie au plus) : sur, sans jugement d'un assistant. Le secteur est rapproche par son libelle, comme celui des fiches.
+// Statistiques par secteur : calculées sur les fiches DÉTAILLÉES seules tant que les fiches générées du ROME n'ont pas été relues (import du ROME, consigne 263).
+function fichesPourStatistiquesSecteur() {
+  if (typeof baseMetiersDetaillees !== 'undefined') { return baseMetiersDetaillees; }
+  return (typeof baseMetiers !== 'undefined') ? baseMetiers : [];
+}
 function competencesFrequentesDuSecteur(secteur, max) {
   var norm = function (t) { return (typeof normaliserTexte === 'function') ? normaliserTexte(t || '') : String(t || '').toLowerCase(); };
   var cible = norm(secteur);
-  var base = (typeof baseMetiers !== 'undefined') ? baseMetiers : [];
+  var base = fichesPourStatistiquesSecteur();
   var fiches = cible ? base.filter(function (m) { return norm(m.secteur) === cible; }) : [];
   var limite = max || 4;
   function top(champ) {
@@ -3325,7 +3750,6 @@ var ETAPES = [
   { id: 'activites', label: '🤝 Expérience' },
   { id: 'actions', label: '⭐ Ce que vous faisiez' },
   { id: 'environnement', label: '🌍 Environnement' },
-  { id: 'valeurs', label: '⚖️ Attentes' },
   { id: 'projet', label: '📋 Vos informations' },
   { id: 'revelation', label: '🧭 Votre profil' },
   { id: 'resultats', label: '✨ Action' }
@@ -3345,7 +3769,7 @@ function afficherProgression(activeId) {
     }
     if (dossier.modeCreation === 'nouveau' && typeof CREER_CV_NAV_ETAPES !== 'undefined' &&
         typeof _creerCvNavIndex === 'function' &&
-        ['objectif', 'votre-parcours', 'projet', 'revelation', 'assistant'].indexOf(activeId) !== -1) {
+        ['objectif', 'votre-parcours', 'missions-competences', 'projet', 'revelation', 'assistant'].indexOf(activeId) !== -1) {
       return _barreCreerCv(_creerCvNavIndex(activeId));
     }
     // « Vos documents » ('resultats') ne passe plus par ici : sa barre vient du registre (barreHautVosDocuments), pour tous les parcours.
@@ -3417,6 +3841,9 @@ var routes = {
   // pageSelectionCatalogue() ont ete retirees a l'etape 4.
   'votre-parcours': pageVotreParcours,
   'projet': pageProjet, 'revelation': pageRevelation,
+  // Etape « Vos missions et compétences » (lot 3, 14/11/2026) : entre « Votre parcours » et « Votre profil », atteinte seulement si MC_OUVERT (modules/missions-competences/).
+  'missions-competences': pageMissionsCompetences,
+  'choix-missions': pageChoixMissions,   // consigne 401 : « Avant de commencer », qui choisit les missions et les compétences
   // TACHE (refonte parcours guide, etape 5, sous-etape 5.1) : "Assistant" =
   // vraie page pleine largeur (parcours 'nouveau' uniquement), entre
   // "Votre profil" et "Vos documents".
@@ -3428,6 +3855,11 @@ var routes = {
   // uniquement via ouvrirPanneauChoixParcours() -- les 4 points d'entree de
   // la barre de recherche de l'accueil ; jamais une etape du parcours guide.
   'candidater': pageCandidaterDepuisRecherche,
+  // Fiche d'un métier EN PAGE (consigne 271, 13/11/2026) : atteinte par ouvrirFicheMetierOuCandidater() quand la fiche complète est ouverte.
+  'fiche-metier': pageFicheMetier,
+  'chercher-metier': pageChercherAutreMetier,
+  'changer-secteur': pageChangerSecteur,
+  'metiers-du-secteur': pageMetiersDuSecteur,
   // TACHE (integration module Bilan de candidature) : outil independant,
   // atteint depuis la Boite a outils -- jamais une etape du parcours guide
   // (absent de ETAPES, voir afficherProgression()).
@@ -3483,6 +3915,7 @@ var routes = {
   'nouveautes': typeof pageNouveautes === 'function' ? pageNouveautes : function () { naviguerVers('cv'); },
   // Voie 3 de « Reprendre mon CV » (Lot 7) : classer les informations du CV deja depose, sans assistant (modules/cv-sans-assistant/index.js).
   'cv-sans-assistant': typeof pageCvSansAssistant === 'function' ? pageCvSansAssistant : function () { naviguerVers('reprendre-cv'); },
+  'cv-sans-assistant-intro': typeof pageCvSansAssistantIntro === 'function' ? pageCvSansAssistantIntro : function () { naviguerVers('reprendre-cv'); },
   'complement-cv': pageComplementCV,
   // TACHE (retour Denis, 2026-08-31) : pages de presentation de 3 modules
   // PAS ENCORE CONSTRUITS (ATS, Regard recruteur, Se tenir informe),
@@ -3544,35 +3977,8 @@ var routes = {
   'mon-territoire': pageMonTerritoire
 };
 
-/* Consigne 187 (10/11/2026) : les pages de presentation des modules rangent leurs cartes en grille 2 sur 2 (voir « .intro-colonnes » dans css/style.css). Quand une carte se retrouve
-   seule sur sa rangee (nombre impair de cartes, ou carte a longue liste qui prend toute la largeur), elle passe en pleine largeur pour ne pas laisser de trou. Source unique : cette
-   fonction, appelee a chaque navigation et a chaque changement de taille de fenetre. Sous 1100 px la grille n'existe pas (une seule colonne) : rien a faire. */
-function equilibrerGrilleIntro() {
-  var grille = document.querySelector('.intro-colonnes');
-  if (!grille) { return; }
-  var cartes = Array.prototype.slice.call(grille.children);
-  cartes.forEach(function (c) { c.classList.remove('intro-seule'); });
-  if (window.getComputedStyle(grille).display !== 'grid') { return; }
-  var largeurGrille = grille.getBoundingClientRect().width;
-  var rangees = [];
-  cartes.forEach(function (c) {
-    var r = c.getBoundingClientRect();
-    var rangee = rangees.filter(function (x) { return Math.abs(x.haut - r.top) < 3; })[0];
-    if (!rangee) { rangee = { haut: r.top, cartes: [], largeur: 0 }; rangees.push(rangee); }
-    rangee.cartes.push(c);
-    rangee.largeur += r.width;
-  });
-  rangees.forEach(function (x) {
-    if (x.cartes.length === 1 && x.largeur < largeurGrille - 4) { x.cartes[0].classList.add('intro-seule'); }
-  });
-}
-var _grilleIntroMinuteur = null;
-window.addEventListener('resize', function () {
-  clearTimeout(_grilleIntroMinuteur);
-  _grilleIntroMinuteur = setTimeout(equilibrerGrilleIntro, 150);
-});
-
 function naviguerVers(route, sansHistorique) {
+  if (route === 'cv' || route === 'accueil') { _objectifDeCandidater = null; }   // l'objectif choisi sur Candidater ne survit pas à un retour à l'accueil
   // Retour à l'accueil : un bloc « Quelques passages à préciser » resté posé ne doit jamais réapparaître dans un autre parcours.
   if ((route === 'cv' || route === 'accueil') && typeof passagesRetirerDePage === 'function') { passagesRetirerDePage(); }
   // « Voir nos modèles » : quitter l'essai (autrement que par « J'ai fini de regarder ») rend aussi le vrai dossier, avant tout le reste.
@@ -3628,7 +4034,6 @@ function naviguerVers(route, sansHistorique) {
   // Meme garde-fou pour « Votre parcours » (boucle reelle trouvee le 2026-09-30 : Objectif -> Vos informations -> Votre parcours, puis « Retour »
   // deux fois tournait indefiniment entre les deux, car reculer depuis « Votre parcours » ecrasait la vraie origine de « Vos informations »).
   if (route === 'projet' && pageActuelle !== 'projet' && pageActuelle !== 'revelation' && pageActuelle !== 'votre-parcours') { _pageOrigineAvantProjet = pageActuelle; }
-  if (route === 'aide-decision-intro' && pageActuelle && pageActuelle !== 'aide-decision-intro' && pageActuelle !== 'comparer-pistes') { _pageOrigineAvantAideDecision = pageActuelle; }
   // TACHE (retour utilisateur 2026-09-16, meme mecanisme generalise) :
   // consomme des qu'on quitte REELLEMENT la route pour laquelle ce point de
   // depart a ete capture -- jamais avant (une page qui se re-rend seule,
@@ -3650,7 +4055,7 @@ function naviguerVers(route, sansHistorique) {
   if (pageActuelle === 'projet' && route !== 'projet') { _depuisBilanVersProjet = false; }
   // Retour Denis 2026-09-30 : quitter un ecran du parcours CV pour l'accueil, puis revenir au module, doit ramener sur cet ecran (et
   // non sur la page finale). On retient la derniere page de travail quittee vers l'accueil.
-  if (route === 'cv' && pageActuelle && ['objectif', 'projet', 'votre-parcours', 'revelation', 'assistant', 'resultats'].indexOf(pageActuelle) !== -1) {
+  if (route === 'cv' && pageActuelle && ['objectif', 'projet', 'votre-parcours', 'missions-competences', 'revelation', 'assistant', 'resultats'].indexOf(pageActuelle) !== -1) {
     window._routeRepriseParcoursCV = pageActuelle;
     window._routeRepriseParcoursVia = (typeof dossier !== 'undefined' && dossier) ? (dossier._modeCreationVia || null) : null;
   }
@@ -3690,7 +4095,6 @@ function naviguerVers(route, sansHistorique) {
   // pas encore repositionne pour la page courante.
   // Consigne 187 : sur petit ecran, un message (une seule fois par visite) dit qu'on peut agrandir le texte ou changer la police. Il pousse le titre vers le bas :
   // il doit donc etre en place AVANT le positionnement des icones du Carnet, du Journal et du panier, qui se calent sur le titre reel de la page.
-  equilibrerGrilleIntro();
   if (route === 'cv' && typeof afficherMessageAffichage === 'function') { afficherMessageAffichage(); }
   if (typeof carnetApresNavigation === 'function') { carnetApresNavigation(); }
   // TACHE (regard critique final, "positionnement du bouton Journal de
@@ -4132,9 +4536,7 @@ function _barreAdopterBoutonEtape() {
   if (ancien) { ancien.remove(); }
   // Retour Denis 2026-09-30 : quand la barre n'avait pas de bouton « suivant », elle garde un <span> vide pour tenir la
   // 3e place ; le bouton ajouté s'y ajoutait au lieu de le remplacer, et « Accueil » n'était plus au centre.
-  Array.prototype.slice.call(bar.children).forEach(function (enfant) {
-    if (enfant.tagName === 'SPAN' && !enfant.textContent.trim() && enfant !== bar.firstElementChild) { enfant.remove(); }
-  });
+  _barreRetirerPlacesVides(bar);
   var bouton = document.createElement('button');
   bouton.type = 'button';
   bouton.id = 'btnSuivantNavigation';
@@ -4150,6 +4552,13 @@ function _barreAdopterBoutonEtape() {
 // (Retour / Accueil), quand la barre n'a pas de bouton à cette place ; le bouton d'origine reste dans la page, caché avec sa zone (data-barre-bas-zone, sinon lui seul), et
 // c'est lui qui reçoit le clic : AUCUN câblage à refaire. L'état « désactivé » est suivi en direct. Attributs facultatifs : data-barre-bas-message (infobulle quand il est
 // désactivé), data-barre-bas-libelle (texte de la barre, sinon celui du bouton). Une seule source de vérité : jamais un 2e bouton « Continuer » à écrire dans les modules.
+// La barre du bas tient ses trois places avec un <span> vide quand elle n'a pas de bouton a droite. Tout bouton ajoute a droite doit d'abord retirer ces places vides (sinon la grille a 3 colonnes
+// renvoie le bouton sur une seconde ligne : vu sur « Reprendre » du module ATS, retour de Denis 12/11/2026). Source unique pour les endroits qui posent un bouton a droite.
+function _barreRetirerPlacesVides(bar) {
+  Array.prototype.slice.call(bar.children).forEach(function (enfant) {
+    if (enfant.tagName === 'SPAN' && !enfant.textContent.trim() && enfant !== bar.firstElementChild) { enfant.remove(); }
+  });
+}
 function _barreBasSource() {
   var cands = document.querySelectorAll('#app [data-barre-bas]');
   for (var i = 0; i < cands.length; i++) {
@@ -4164,10 +4573,10 @@ function _barreBasSource() {
   var libres = document.querySelectorAll('#app button.btn-primary');
   for (var j = 0; j < libres.length; j++) {
     var libre = libres[j];
-    // L'encart « Continuer / Recommencer » d'une reprise est un choix à deux boutons, pas une navigation : il reste dans la page.
-    if (libre.closest('.barre-navigation-fixe') || libre.closest('.encart-reprise-module') || libre.hasAttribute('data-barre-bas')) { continue; }
+    if (libre.closest('.barre-navigation-fixe') || libre.hasAttribute('data-barre-bas')) { continue; }
     if (libre.getAttribute('data-barre-bas-masque') !== '1' && libre.offsetParent === null) { continue; }
-    if (/^\s*Continuer\s*(?:→|➜|>)?\s*$/.test(libre.textContent || '')) { return libre; }
+    // Décision de Denis (11/11/2026) : sur la page d'introduction d'un module déjà commencé, le choix est « Reprendre » ou « Recommencer » (jamais « Continuer ») ; « Reprendre » vit dans la barre du bas comme « Continuer » le faisait.
+    if (/^\s*(?:Continuer|Reprendre)\s*(?:→|➜|>)?\s*$/.test(libre.textContent || '')) { return libre; }
   }
   return null;
 }
@@ -4231,9 +4640,7 @@ function _barreBasAppliquer() {
   var libelle = source.getAttribute('data-barre-bas-libelle') || source.innerHTML;
   var message = source.disabled ? (source.getAttribute('data-barre-bas-message') || source.getAttribute('title') || 'Complétez cette page pour continuer.') : '';
   if (!adopte) {
-    Array.prototype.slice.call(bar.children).forEach(function (enfant) {
-      if (enfant.tagName === 'SPAN' && !enfant.textContent.trim() && enfant !== bar.firstElementChild) { enfant.remove(); }
-    });
+    _barreRetirerPlacesVides(bar);
     adopte = document.createElement('button');
     adopte.type = 'button'; adopte.id = remplace ? 'btnContinuerCollage' : 'btnSuivantNavigation'; adopte.className = 'btn btn-primary btn-lg';
     adopte.setAttribute('data-barre-bas-adopte', '1');
@@ -4373,7 +4780,7 @@ function libelleSuivantBarre(libelle) {
 }
 function barreNavigation(precedent, suivant, labelSuivant, options) {
   options = options || {};
-  labelSuivant = libelleSuivantBarre(labelSuivant);
+  labelSuivant = options.libelleExact ? labelSuivant : libelleSuivantBarre(labelSuivant);   // libelleExact : le bouton de droite garde son nom (ex. « Continuer sans entreprise »)
   var html = '<div class="d-flex justify-content-between align-items-center mt-4 barre-navigation">';
   // TACHE (retour utilisateur : "Retour" depuis la page Action doit
   // rouvrir la fenêtre "Informations complémentaires" du parcours
@@ -4408,7 +4815,7 @@ function barreNavigation(precedent, suivant, labelSuivant, options) {
     html += '<button class="btn btn-nav-erip btn-accueil" onclick="naviguerVers(\'cv\')"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>';
   }
   if (options.terminerParcours) {
-    html += '<button class="btn btn-success btn-lg" onclick="' + (options.onclickTerminer || 'terminerParcours()') + '">&#9989; <span class="lib-intro-long">Merci bien, j\'ai fini</span><span class="lib-intro-court">Terminé</span></button>';
+    html += '<button class="btn btn-success btn-lg" onclick="' + (options.onclickTerminer || 'terminerParcours()') + '">&#9989; <span class="lib-intro-long">Merci bien, j’ai fini</span><span class="lib-intro-court">Terminé</span></button>';
   } else if (suivant) {
     // TACHE 43bis : bouton "suivant" desactivable (ex. selection minimale requise),
     // sans impact sur les appelants qui ne passent pas cette option.
@@ -4818,14 +5225,75 @@ var _minuteurExemplesRechercheAccueil = null;
 // ouvrirCarteAccueil() (data/metiers.js) : soit ouvrir un panneau, soit
 // naviguer directement pour les cartes a destination unique.
 function htmlCarteAccueil(id, icone, titre, description, puces) {
+  // Réglage « Cartes de l'accueil » (consignes 336 à 338) : l'icône et le titre sont réunis dans .carte-tete (côte à côte en cartes compactes) ;
+  // le petit bouton « i » (visible seulement en cartes « très compactes ») montre la description dans une bulle.
   return '<div class="carte" data-carte-accueil="' + id + '" role="button" tabindex="0">' +
-    '<i class="bi ' + icone + '"></i>' +
-    '<h3>' + titre + '</h3>' +
-    '<p>' + description + '</p>' +
+    '<button type="button" class="carte-info-i" data-info-carte="' + id + '" aria-expanded="false" aria-label="Lire la description de la carte ' + titre.replace(/"/g, '&quot;') + '"><span aria-hidden="true">i</span></button>' +
+    '<div class="carte-tete"><i class="bi ' + icone + '"></i>' +
+    '<h3>' + titre + '</h3></div>' +
+    '<p class="carte-description">' + description + '</p>' +
     '<div class="carte-puces">' +
       puces.map(function (p) { return '<span class="carte-puce">' + p + '</span>'; }).join('') +
     '</div>' +
   '</div>';
+}
+
+// Bulle « i » des cartes de l'accueil (réglage « Très compactes ») : montre la description de la carte. Une seule bulle, posée sur <body>, par-dessus la page.
+// Ouverture au survol et au clic (le clic l'épingle, comme le « i » des panneaux) ; Échap ou un clic ailleurs la ferme. Le « i » ne déclenche jamais l'ouverture de la carte.
+function brancherInfosCartesAccueil() {
+  var ancienne = document.getElementById('bulleDescriptionCarte');
+  if (ancienne) { ancienne.remove(); }
+  var boutons = document.querySelectorAll('.carte-info-i');
+  if (!boutons.length) { return; }
+  var bulle = document.createElement('div');
+  bulle.className = 'carte-accueil-info-bulle carte-description-bulle';
+  bulle.id = 'bulleDescriptionCarte';
+  bulle.setAttribute('role', 'tooltip');
+  bulle.innerHTML = '<button type="button" class="carte-accueil-info-fermer" aria-label="Fermer">&#10005;</button><p class="mb-0"></p>';
+  document.body.appendChild(bulle);
+  var texte = bulle.querySelector('p');
+  var courant = null, epinglee = false;
+  function fermer() {
+    bulle.classList.remove('ouverte');
+    if (courant) { courant.setAttribute('aria-expanded', 'false'); }
+    courant = null; epinglee = false;
+  }
+  function ouvrir(bouton) {
+    if (courant && courant !== bouton) { courant.setAttribute('aria-expanded', 'false'); }
+    courant = bouton;
+    var description = bouton.closest('.carte').querySelector('.carte-description');
+    texte.textContent = description ? description.textContent : '';
+    bulle.classList.add('ouverte');
+    bouton.setAttribute('aria-expanded', 'true');
+    var r = bouton.getBoundingClientRect();
+    var largeur = bulle.offsetWidth || 300;
+    bulle.style.left = Math.max(12, Math.min(r.right - largeur, window.innerWidth - largeur - 12)) + 'px';
+    var dessous = r.bottom + 8;
+    if (window.innerHeight - dessous - 16 >= bulle.offsetHeight) { bulle.style.top = dessous + 'px'; }
+    else { bulle.style.top = Math.max(12, r.top - 8 - bulle.offsetHeight) + 'px'; }
+  }
+  boutons.forEach(function (b) {
+    b.addEventListener('mouseenter', function () { if (!epinglee) { ouvrir(b); } });
+    b.addEventListener('mouseleave', function () { if (!epinglee) { fermer(); } });
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();   // jamais d'ouverture de la carte par ce bouton
+      if (epinglee && courant === b) { fermer(); } else { ouvrir(b); epinglee = true; }
+    });
+    b.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Escape') { fermer(); } });
+  });
+  bulle.addEventListener('click', function (e) { e.stopPropagation(); });
+  bulle.querySelector('button').addEventListener('click', function (e) { e.stopPropagation(); fermer(); });
+  // les écouteurs du document sont retirés avant d'être reposés : aucun cumul d'un affichage de l'accueil à l'autre
+  if (window._infosCartesAccueilEcouteurs) {
+    document.removeEventListener('click', window._infosCartesAccueilEcouteurs.clic);
+    document.removeEventListener('keydown', window._infosCartesAccueilEcouteurs.touche);
+  }
+  window._infosCartesAccueilEcouteurs = {
+    clic: function () { if (bulle.classList.contains('ouverte')) { fermer(); } },
+    touche: function (e) { if (e.key === 'Escape' && bulle.classList.contains('ouverte')) { fermer(); } }
+  };
+  document.addEventListener('click', window._infosCartesAccueilEcouteurs.clic);
+  document.addEventListener('keydown', window._infosCartesAccueilEcouteurs.touche);
 }
 
 function pageChoixCV() {
@@ -4840,7 +5308,10 @@ function pageChoixCV() {
   // par module et "Tout effacer sur cet appareil" dans le panneau disquette.
   // Reprise d'une session exportee : toujours possible via la disquette
   // ("Importer une session").
-  app.innerHTML =
+  // TACHE (consignes 333 a 334, 2026-11-15 -- maquette docs/MAQUETTE_ACCUEIL_SANS_DEFILER_2026-11-15.html) :
+  // la page est enveloppee dans .accueil-page (espaces resserres partout ; sur grand ecran, six cartes sur
+  // une ligne et page qui remplit l'ecran grace aux 4 ressorts .accueil-ressort). Aucun texte ne rapetisse.
+  app.innerHTML = '<div class="accueil-page">' +
     // TACHE (retour utilisateur : "commençons par votre CV" n'est plus
     // d'actualité, ce n'est plus que du CV -- lettre, entretien,
     // ateliers aussi") : titre neutre, ne présuppose plus que le CV --
@@ -4849,8 +5320,10 @@ function pageChoixCV() {
     // TACHE (maquette validee : titre sans emoji) -- l'ancien &#128075;
     // (main qui salue) n'est pas dans la maquette et chevauchait la pilule
     // "Sauvegarder" en haut a gauche.
+    '<div class="accueil-ressort accueil-ressort-haut" aria-hidden="true"></div>' +
     '<div class="text-center"><h1>Par où <span style="white-space:nowrap">voulez-vous</span> commencer&nbsp;?</h1>' +
     '<p class="sousTitre">Choisissez votre point de départ.</p></div>' +
+    '<div class="accueil-ressort accueil-ressort-titre" aria-hidden="true"></div>' +
     // TACHE 33A / chantier accueil Bloc 3 : Explorateur de la Base de
     // connaissances ERIP, remonte en haut de page (juste sous le titre),
     // comme la maquette validee. Le moteur (rendreResultatsRechercheERIP /
@@ -4863,6 +5336,7 @@ function pageChoixCV() {
       '<div id="resultatsRechercheERIP" class="resultats-erip-dropdown"></div>' +
     '</div>' +
     '<div id="overlayRechercheERIP" class="overlay-recherche-erip"></div>' +
+    '<div class="accueil-ressort accueil-ressort-recherche" aria-hidden="true"></div>' +
     // TACHE (chantier "Reorganisation de la page d'accueil", Bloc 2,
     // 2026-08-31 -- docs/CHANTIER_ACCUEIL_DECISIONS_2026-08-31.md) : 6 cartes
     // de meme famille (maquette MAQUETTE_ACCUEIL_PORTE_ENTREE_VALIDEE). Les 3
@@ -4906,11 +5380,13 @@ function pageChoixCV() {
     // Bootstrap coherentes (meme trait, couleur d'accent), aucune ne
     // reprend une icone des boutons du haut (l'engrenage servait deja aux
     // reglages d'affichage).
+    '<div class="accueil-ressort accueil-ressort-pied" aria-hidden="true"></div>' +
     '<div class="pied-accueil">' +
       '<button type="button" id="btnConfidentialite"><i class="bi bi-shield-check"></i> Confidentialité de vos données</button>' +
       '<button type="button" id="btnLiensUtiles"><i class="bi bi-link-45deg"></i> Liens utiles</button>' +
       '<button type="button" id="btnRetourExperience"><i class="bi bi-chat-square-text"></i> Partager une information</button>' +
       '<button type="button" id="btnSignalerProbleme" data-signaler-probleme="1"><i class="bi bi-exclamation-triangle"></i> Signaler un problème</button>' +
+    '</div>' +
     '</div>';
 
   // TACHE (chantier accueil, Bloc 2) : ouvrir le panneau d'une carte n'est
@@ -4923,6 +5399,8 @@ function pageChoixCV() {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrirCarteAccueil(this.dataset.carteAccueil); }
     });
   });
+
+  brancherInfosCartesAccueil();
 
   document.getElementById('btnConfidentialite').addEventListener('click', ouvrirModaleConfidentialite);
   // Module « Qui fait quoi » : prechargement discret des donnees pour la recherche de l'accueil (seulement si le module est ouvert).
@@ -5168,8 +5646,9 @@ function pageChoixCV() {
         // Intitulé du répertoire élargi : son domaine est connu, il est gardé pour la suite du parcours (aucune question à poser).
         if (carteMetier.dataset.metierRepertoireDomaine) {
           _metiersRepertoireElargiChoisis[carteMetier.dataset.metierNom] = { secteur: carteMetier.dataset.metierRepertoireDomaine, rome: carteMetier.dataset.metierRepertoireRome || '' };
+          if (typeof enregistrerCodeRomeIntitule === 'function') { enregistrerCodeRomeIntitule(carteMetier.dataset.metierNom, carteMetier.dataset.metierRepertoireRome); }
         }
-        ouvrirPanneauChoixParcours(carteMetier.dataset.metierNom);
+        ouvrirFicheMetierOuCandidater(carteMetier.dataset.metierNom);
       } else if (carteCompetence) {
         if (inputRechercheERIP) { inputRechercheERIP.value = ''; }
         rendreResultatsRechercheERIP('');
@@ -5299,7 +5778,8 @@ function rappelCibleRechercheHTML() {
   }
   return '';
 }
-function resumeObjectifLigne() {
+// visible = true : la ligne en haut de page, bien lisible (rappel de l'objectif venu de Candidater) ; sinon la petite ligne du bas des pages d'objectif.
+function resumeObjectifLigne(visible) {
   if (!dossier.objectif) { return ''; }
   var items = [];
   try { items = items.concat(resumeCandidature() || []); } catch (e) {}
@@ -5308,6 +5788,7 @@ function resumeObjectifLigne() {
     return (it && it.label) ? ((it.icone ? it.icone + ' ' : '') + echapperAttribut(it.label)) : '';
   }).filter(Boolean);
   if (!libelles.length) { return ''; }
+  if (visible) { return '<div class="objectif-rappel-cible"><p class="mb-0"><strong>Votre candidature</strong> : ' + libelles.join(' &middot; ') + '</p></div>'; }
   return '<p class="objectif-recap">En résumé : ' + libelles.join(' &middot; ') + '</p>';
 }
 
@@ -5361,6 +5842,26 @@ function wireChoixTypeStage(rerender) {
 function carteObjectifActive(id) {
   return dossier.objectif === id || (id === 'stage' && dossier.objectif === 'pmsmp');
 }
+// Objectif déjà choisi sur le nouvel écran Candidater (consigne 273) : les pages d'arrivée l'affichent en rappel au lieu de le redemander.
+function objectifDeCandidaterActif() {
+  return ficheRomeCompleteActive() && !!_objectifDeCandidater && !!dossier.objectif && _objectifDeCandidater.objectif === dossier.objectif;
+}
+function htmlRappelObjectifCandidater() {
+  var choix = OBJECTIF_CHOIX_CANDIDATURE.filter(function (o) { return carteObjectifActive(o.id); })[0];
+  return '<p class="text-center" id="objectifDejaChoisi">Votre objectif : <strong>' + (choix ? choix.title : '') + '</strong>. Vous l’avez choisi sur la page « Candidater ».</p>' +
+    resumeObjectifLigne(true) +
+    '<p class="text-center"><button type="button" class="btn btn-outline-secondary" id="btnModifierObjectif">Modifier mon objectif</button></p>';
+}
+// Les six cartes, ou le rappel quand l'objectif vient de Candidater.
+function htmlCartesSituationOuRappel(attrCarte) {
+  return objectifDeCandidaterActif() ? htmlRappelObjectifCandidater() : htmlCartesSituationPartagees(attrCarte);
+}
+document.addEventListener('click', function (e) {
+  var b = e.target && e.target.closest ? e.target.closest('#btnModifierObjectif') : null;
+  if (!b) { return; }
+  _objectifDeCandidater = null;
+  naviguerVers(pageActuelle, true);
+}, true);   // phase de capture : certaines pages arrêtent la propagation des clics avant le document
 function htmlCartesSituationPartagees(attrCarte) {
   return '<div class="grille-objectif">' +
     OBJECTIF_CHOIX_CANDIDATURE.map(function (o) {
@@ -5507,6 +6008,30 @@ function memoriserFormeCandidatureAuClic(zone) {
     }
   }, true);
 }
+// Source unique : les champs « entreprise, site, offre, type de structure » d'une zone s'ecrivent dans dossier.rechercheCandidature a chaque saisie (sans re-rendu, pour ne jamais perdre le focus).
+// Sert au panneau « Votre candidature » (wireModeRecherche) et a la zone « Indiquer l'entreprise » de « Votre profil ». apresSaisie (facultatif) : appele apres chaque ecriture.
+function cablerSaisieEntrepriseDansDossier(zone, apresSaisie) {
+  bilanCablerCiblageOffre(zone, function () {
+    var ciblage = bilanLireCiblageOffre(zone);
+    dossier.rechercheCandidature = dossier.rechercheCandidature || { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+    // Seuls les champs presents dans le rendu sont ecrits (rendu « offre seule »
+    // de Reformuler : entreprise, site et type de structure ne sont pas touches).
+    if (zone.querySelector('#ciblageEntreprise')) { dossier.rechercheCandidature.entreprise = ciblage.entrepriseCiblee || ''; }
+    if (zone.querySelector('#ciblageSite')) { dossier.rechercheCandidature.site = ciblage.siteEntreprise || ''; }
+    // Sans champ « offre » dans le rendu (zone « Indiquer l'entreprise »), l'offre deja memorisee n'est jamais effacee.
+    if (zone.querySelector('#ciblageOffre')) {
+      dossier.rechercheCandidature.lienOffre = ciblage.offreEmploi || '';
+      // Meme valeur dans texteOffre : c'est ce champ que lisent le Bilan, la
+      // Coherence et le re-remplissage du champ (avant, l'offre saisie ici
+      // n'atteignait jamais le Bilan et disparaissait a l'ecran au re-rendu).
+      dossier.rechercheCandidature.texteOffre = ciblage.offreEmploi || '';
+    }
+    if (zone.querySelector('#ciblageTypeStructure')) {
+      dossier.rechercheCandidature.typeStructure = (ciblage.typeStructure === 'Autre' && ciblage.typeStructureAutre) ? ciblage.typeStructureAutre : ciblage.typeStructure;
+    }
+    if (typeof apresSaisie === 'function') { apresSaisie(); }
+  });
+}
 function wirePanneauCandidaturePartage(rerender, options) {
   options = options || {};
   wireBlocERIP(options.sansSituation ? CONFIG_BLOC_CANDIDATURE_ANALYSE : CONFIG_BLOC_CANDIDATURE, rerender);
@@ -5547,6 +6072,19 @@ function raisonsBlocageObjectifCV() {
   });
 }
 
+// Phrase unique pour dire comment changer d'objectif ou de metier une fois passe l'ecran « Votre objectif » (11/11/2026, consigne 253 : plus de renvoi vers cet ecran). Source unique.
+var TEXTE_POUR_RECOMMENCER = 'recommencez : bouton « Retour » jusqu’à la présentation, puis « Recommencer »';
+// Stage, alternance, immersion (11/11/2026, decision Denis, consigne 253) : « Continuer » reste grise tant que le type de stage n'est pas dit et que le metier ou le domaine vise n'est pas
+// indique (champ « Metier ou domaine vise » de ce meme ecran). Plus de fenetre « Aucun metier cible » ni de renvoi vers cet ecran. avecChamp : le champ est affiche (sinon le metier est deja connu).
+function raisonsBlocageObjectifStageEtc(avecChamp) {
+  var o = dossier.objectif;
+  if (o !== 'stage' && o !== 'alternance' && o !== 'pmsmp') { return []; }
+  if ((o === 'stage' || o === 'pmsmp') && dossier._typeStageATrancher) { return ['dire de quel type de stage il s’agit']; }
+  if (!avecChamp) { return []; }
+  var im = dossier[CLE_DETAILS[o]] || {};
+  return String(im.poste || '').trim() ? [] : ['indiquer le métier ou le domaine visé'];
+}
+
 // Ce qui reste a faire dans la partie « Votre candidature » avant de passer a la suivante (deverrouillage progressif, Lot 5) : liste de phrases, vide quand la partie est remplie.
 function raisonsCandidatureAvantSuite() {
   if (!dossier.objectif) { return ['Choisissez d’abord le type de candidature (partie 2) : ce point s’active ensuite.']; }
@@ -5568,7 +6106,7 @@ function htmlCandidatureComposant(options) {
   try {
     if (objectifEstStageFamille(dossier.objectif)) { return contenuCandidature(true); }
     if (typeof _coLettreNormaliserCarteOffre === 'function') { _coLettreNormaliserCarteOffre(); }
-    return contenuModeRecherche(false, { modeUnifie: true, sansDisponibilites: !!options.sansDisponibilites, formeCandidature: formeCandidatureActuelle() });
+    return contenuModeRecherche(false, { modeUnifie: true, sansDisponibilites: !!options.sansDisponibilites, formeCandidature: formeCandidatureActuelle(), dejaRepondu: !!options.dejaRepondu });
   } finally {
     _candidatureCalendrierIci = false;
     _panneauSansCiviliteCouleur = avantCivilite;
@@ -5593,11 +6131,19 @@ function wireCandidatureComposant(rerender, conteneurId, options) {
 }
 
 function pageObjectif() {
+  // Consigne 401 : un nouveau CV avec l'assistant commence par la question « qui choisit les missions » (garde pour toute arrivee directe sur cet ecran).
+  if (typeof missionsChoixAPoser === 'function' && missionsChoixAPoser()) { if (_cmVoie !== 'nouveau') { _cmChoix = null; _cmConfirmation = false; } _cmVoie = 'nouveau'; pageChoixMissions(); return; }
   // TACHE (sous-etape 4.4) : "Votre objectif" est le seul ecran ou l'on
   // choisit / change le metier vise -> "Choisir ce metier" y reste possible.
   _choixMetierCibleMasque = false;
   var items = OBJECTIF_CHOIX_CANDIDATURE;
   var objectifChoisi = !!dossier.objectif;
+  // Protocole de test du 11/11/2026 (constat D2, décision Denis) : en Reprendre (voies 1 et 2) et en version rapide, la situation et le métier ont déjà été choisis sur la page de préparation.
+  // On ne les redemande pas : un rappel, puis seulement ce qui manque (par exemple « entreprise précise ou non »). « Retour » permet de les changer.
+  // Consigne 273 : en « Créer », l'objectif choisi sur le nouvel écran Candidater n'est pas redemandé (rappel + bouton « Modifier »).
+  var depuisCandidater = objectifChoisi && dossier.modeCreation === 'nouveau' && objectifDeCandidaterActif();
+  var dejaRepondu = objectifChoisi && (depuisCandidater || (['maj', 'pret', 'reformuler'].indexOf(dossier.modeCreation) !== -1 &&
+    (objectifEstStageFamille(dossier.objectif) || dossier.objectif === 'alternance' || dossier.objectif === 'formation' || !!dossier.metierCible || !!dossier.secteurCible)));
   // TACHE (5bis Objectif, retour utilisateur 2026-09-13) : ouverture par
   // defaut + auto-fermeture. Les 2 blocs sont desormais blocMultiOuvert
   // (etatBlocsERIPOuverts), donc "Candidature" ET "Le poste que vous
@@ -5635,7 +6181,9 @@ function pageObjectif() {
   // deja toujours vrai a ce stade), rien a changer pour eux.
   var routeSuivante = (dossier.modeCreation === 'nouveau') ? 'projet' : (dossier.cvAnalyse ? 'projet' : 'votre-parcours');
   var acces = etatAccesRevelation();
-  var raisonsUnifie = (objectifChoisi && ['offre', 'spontanee', 'reconversion'].indexOf(dossier.objectif) !== -1) ? raisonsBlocageObjectifCV() : [];
+  var avecMetierStage = objectifChoisi && ['stage', 'alternance', 'pmsmp'].indexOf(dossier.objectif) !== -1 && !(dejaRepondu && posteCibleActuel());
+  var raisonsUnifie = (objectifChoisi && ['offre', 'spontanee', 'reconversion'].indexOf(dossier.objectif) !== -1) ? raisonsBlocageObjectifCV()
+    : (objectifChoisi ? raisonsBlocageObjectifStageEtc(avecMetierStage) : []);
   var suivantDesactive = !objectifChoisi || !acces.accessible || raisonsUnifie.length > 0;
   var suivantMessage = !objectifChoisi
     ? 'Choisissez d’abord un objectif ci-dessus.'
@@ -5644,20 +6192,27 @@ function pageObjectif() {
     '<div class="page-catalogue-contenu">' +
     '<div class="text-center"><h1>&#127919; Votre objectif</h1>' +
     '<p class="sousTitre">Le poste ou le type de démarche que vous visez.</p></div>' +
-    rappelCibleRechercheHTML() +
+    (dejaRepondu ? '' : rappelCibleRechercheHTML()) +
     // TACHE (5bis Objectif, MAQUETTE_OBJECTIF_RESTRUCTURE) : cartes compactes,
     // grille 3 colonnes, texte aligne a gauche + petit descriptif -- classe
     // DEDIEE (.grille-objectif / .carte-objectif), jamais .carte / .objectifs
     // partages avec Activites / Actions / Environnement / Attentes.
-    '<div class="grille-objectif">';
-  items.forEach(function (o) {
+    (dejaRepondu ? '' : '<div class="grille-objectif">');
+  if (!dejaRepondu) { items.forEach(function (o) {
     html += '<button type="button" class="carte-objectif' + (carteObjectifActive(o.id) ? ' carte-objectif--actif' : '') + '" data-action="objectif" data-value="' + o.id + '">' +
       '<i class="bi ' + o.icon + '" aria-hidden="true"></i>' +
       '<span class="carte-objectif-titre">' + o.title + '</span>' +
       '<span class="carte-objectif-desc">' + o.desc + '</span>' +
       '</button>';
-  });
-  html += '</div>';
+  }); }
+  if (dejaRepondu) {
+    var choixDeja = items.filter(function (o) { return o.id === dossier.objectif; })[0];
+    if (depuisCandidater) {
+      html += htmlRappelObjectifCandidater();
+    } else {
+      html += '<p class="text-center" id="objectifDejaChoisi">Votre situation : <strong>' + (choixDeja ? choixDeja.title : '') + '</strong>. Vous l’avez déjà choisie sur la page précédente (« Retour » permet de la changer).</p>';
+    }
+  } else { html += '</div>'; }
   // TACHE (retour utilisateur 2026-09-13, points 10/11 puis fusion) : le
   // choix du metier/domaine cible se fait desormais DANS le rectangle
   // Candidature lui-meme (contenuModeRecherche() -> contenuRechercheMetierCorps()/
@@ -5671,14 +6226,14 @@ function pageObjectif() {
   var objectifUnifie = objectifChoisi && ['offre', 'spontanee', 'reconversion'].indexOf(dossier.objectif) !== -1;
   var objectifStageEtc = objectifChoisi && ['stage', 'alternance', 'pmsmp', 'formation'].indexOf(dossier.objectif) !== -1;
   if (objectifChoisi) {
-    var corpsCandidature = htmlCandidatureComposant();
+    var corpsCandidature = htmlCandidatureComposant({ dejaRepondu: dejaRepondu, avecMetierVise: avecMetierStage });
     html += '<div class="objectif-cadrage" style="margin-top:16px">' +
       '<div class="cv-section" id="objectifBlocCandidature"><h2 style="font-size:1.15rem;margin-bottom:0.5rem;">&#128221; Votre candidature</h2>' +
       corpsCandidature +
       // « Vos appuis » (lettre de recommandation...) n'est plus propose ici : il n'a d'usage qu'avant le second passage de l'assistant,
       // donc une seule fois, a « Vos documents » (decision de Denis, 28/10/2026).
       '</div>' +
-      resumeObjectifLigne() +
+      (depuisCandidater ? '' : resumeObjectifLigne()) +   // venu de Candidater : le résumé est déjà en haut, dans le rappel
       '</div>';
   } else {
     html += '<p class="sousTitre text-center" style="margin-top:14px">Choisissez un objectif ci-dessus pour préciser votre candidature.</p>';
@@ -5720,7 +6275,7 @@ function pageObjectif() {
     // Les champs ne re-rendent pas la page : le bouton et la phrase se mettent a jour a la saisie.
     if (dossier.modeCreation !== 'pret' && !_creerCvSansAssistant() && typeof _coLettreBrancherAppuis === 'function') { _coLettreBrancherAppuis(pageObjectif); }
     var majContinuerObjectif = function () {
-      var raisons = objectifUnifie ? raisonsBlocageObjectifCV() : [];
+      var raisons = objectifUnifie ? raisonsBlocageObjectifCV() : raisonsBlocageObjectifStageEtc(avecMetierStage);
       var bouton = document.getElementById('btnSuivantNavigation');
       if (bouton) { bouton.disabled = raisons.length > 0 || !etatAccesRevelation().accessible; if (raisons.length) { bouton.setAttribute('title', phraseBlocageLettreCo(raisons)); } else { bouton.removeAttribute('title'); } definirRaisonSuivantBarre(bouton, raisons.length ? phraseBlocageLettreCo(raisons) : ''); }
       var phrase = document.getElementById('objectifRaisonBlocage');
@@ -6024,7 +6579,7 @@ function wireContratTemps(rerender) {
    - Reutilise les 4 memes catalogues et les 4 memes champs du dossier
      (dossier.activites / .actions / .environnement / .valeurs = tableaux
      d'identifiants). Rien de fonctionnel change : meme minimum de 1 choix
-     par question, memes limites (12 / 12 / 9 / 6).
+     par question ; limites relevees a 16 / 16 / 12 le 12/11/2026 (consigne 262, apres l'elargissement des listes : 55 actions, 32 choix avec qui / avec quoi, 26 lieux).
    - "Famille de choix" = un tiroir large (icone + nombre de choix + apercu
      gris du contenu quand ferme, ou les choix faits en pastilles bleues).
      "Carte" = une pastille ronde a cocher. Formes franchement differentes.
@@ -6035,18 +6590,16 @@ function wireContratTemps(rerender) {
 // qu'a l'execution de pageVotreParcours().
 function _vpQuestions() {
   return [
-    { champ: 'activites', limite: 12, titre: 'Vos expériences : avec qui, avec quoi',
+    { champ: 'activites', limite: 16, titre: 'Vos expériences : avec qui, avec quoi',
       consigne: 'Repensez à vos expériences passées, professionnelles ou personnelles.',
       catalogue: CATALOGUE_PERSONNES_MATERIELS_LIEUX },
-    { champ: 'actions', limite: 12, titre: 'Ce que vous faisiez souvent',
+    { champ: 'actions', limite: 16, titre: 'Ce que vous faisiez souvent',
       consigne: 'En repensant à vos expériences passées, choisissez les actions que vous réalisiez régulièrement.',
       catalogue: CATALOGUE_ACTIONS_PRO },
-    { champ: 'environnement', limite: 9, titre: 'Où vous travailliez',
+    { champ: 'environnement', limite: 12, titre: 'Où vous travailliez',
       consigne: 'Toujours en pensant à vos expériences passées, choisissez les environnements qui vous correspondent le mieux.',
-      catalogue: CATALOGUE_ENVIRONNEMENTS_TRAVAIL },
-    { champ: 'valeurs', limite: 6, titre: 'Ce qui compte pour vous aujourd’hui',
-      consigne: 'Pensez cette fois à ce que vous recherchez aujourd’hui, et choisissez ce qui compte le plus pour vous.',
-      catalogue: CATALOGUE_VALEURS_PROFESSIONNELLES }
+      catalogue: CATALOGUE_ENVIRONNEMENTS_TRAVAIL }
+    // Consigne 261 (Denis, 12/11/2026) : la 4e question « Ce qui compte pour vous aujourd'hui » (champ `valeurs`) est retirée : aucun de ses choix n'avait de résultat réel pour la personne.
   ];
 }
 // Etat transitoire d'ouverture des <details> (jamais sauvegarde, remis a
@@ -6063,6 +6616,8 @@ var _vpOuvert = {};
 // famille de la question suivante une fois ouverte).
 var _vpDejaComplete = {};
 var _vpInitialise = false;
+// Consigne 261 : champ de la question dont la personne vient de tenter un choix au-dela du maximum (message affiche dans cette question), sinon null.
+var _vpMessagePlafond = null;
 function _vpOuvrirQuestionEnEntier(qi) {
   _vpOuvert['q-' + qi] = true;
   var q = _vpQuestions()[qi];
@@ -6092,8 +6647,10 @@ function _vpStyle() {
     // Passe densite (Denis 2026-09-04) : marges et rembourrages resserres
     // sur "Votre parcours" (jusqu'a 16 familles ouvertes = page tres longue).
     // Aucune modif de structure, seulement de l'espace.
-    '.vp-question{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;margin:.45rem 0;overflow:hidden;background:var(--bg-card);}' +
-    '.vp-question>summary{list-style:none;cursor:pointer;padding:.6rem 1rem;display:flex;align-items:center;gap:.7rem;}' +
+    // Consigne 329 (Denis, 15/11/2026) : plus de grand trait bleu à gauche de chaque question : avec le trait bleu de chaque famille, cela faisait une double ligne.
+    '.vp-question{border:1px solid var(--border);border-radius:12px;margin:.45rem 0;overflow:hidden;background:var(--bg-card);}' +
+    // flex-wrap : sur téléphone, le bouton « Tout désélectionner » et la pastille passent sur la ligne du dessous au lieu de déborder (consigne 328).
+    '.vp-question>summary{list-style:none;cursor:pointer;padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem .7rem;flex-wrap:wrap;}' +
     '.vp-question>summary::-webkit-details-marker{display:none;}' +
     '.vp-question>summary::before{content:"\\25B8";color: var(--accent-texte);font-size:.9em;transition:transform .15s;flex:0 0 auto;}' +
     '.vp-question[open]>summary::before{transform:rotate(90deg);}' +
@@ -6107,22 +6664,31 @@ function _vpStyle() {
     '.vp-qpil{margin-left:auto;flex:0 0 auto;font-size:0.875rem;font-weight:800;border-radius:999px;padding:.18rem .7rem;border:1px solid var(--border-strong);color:var(--text-muted);background:var(--bg-subtle);white-space:nowrap;}' +
     '.vp-qpil.ok{color:var(--success-strong);border-color:var(--success);background:var(--success-bg-subtle);}' +
     '.vp-qpil.vide{color:var(--warning);border-color:var(--warning);background:var(--warning-bg-subtle);}' +
+    // Bouton « Tout désélectionner » (consigne 328) : rectangle à coins arrondis, à gauche de la pastille ; la pastille qui le suit perd sa marge automatique.
+    '.vp-qvider{margin-left:auto;flex:0 0 auto;font-size:0.875rem;font-weight:700;border:1px solid var(--alert);border-radius:8px;padding:.25rem .7rem;background:var(--alert-bg);color:var(--alert);cursor:pointer;white-space:nowrap;}' +
+    // Fond saumon : le même jeton que « Recommencer » (css/style.css, .btn-recommencer-module), jamais rouge vif. Dit « effacement » sans inquiéter (retour Denis, 15/11/2026).
+    '.vp-qvider:hover{filter:brightness(0.97);}' +
+    '.vp-qvider+.vp-qpil{margin-left:0;}' +
     '.vp-qcorps{padding:.25rem .85rem .7rem;border-top:1px solid var(--border);}' +
+    // Consigne 330 (15/11/2026) : sur écran large, les familles se rangent en plusieurs colonnes (minimum 26 rem chacune) ; en dessous, une seule colonne comme avant. Les phrases d'explication gardent toute la ligne.
+    '.vp-qcorps{display:grid;grid-template-columns:repeat(auto-fit,minmax(26rem,1fr));gap:0 .8rem;align-items:start;}' +
+    '.vp-qcorps>*{grid-column:1/-1;}.vp-qcorps>.vp-fam{grid-column:auto;min-width:0;}' +
     '.vp-consigne{font-size:0.875rem;color:var(--text-muted);margin:.3rem 0 .45rem;}' +
     '.vp-regle{color: var(--accent-texte);font-weight:600;background:var(--accent-bg-subtle);border-radius:8px;padding:.4rem .6rem;}' +
     '.vp-fam{border:1px solid var(--border-strong);border-left:5px solid var(--accent);border-radius:6px;background:var(--bg-subtle);margin:.3rem 0;overflow:hidden;}' +
     '.vp-fam>summary{list-style:none;cursor:pointer;padding:.45rem .8rem;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}' +
     '.vp-fam>summary::-webkit-details-marker{display:none;}' +
-    '.vp-fam>summary::after{content:"\\25BE";margin-left:.2rem;color: var(--accent-texte);transition:transform .15s;flex:0 0 auto;font-size:.8em;}' +
+    // La flèche reste sur la 1re ligne, à droite (order), au lieu de tomber seule sous la ligne des choix.
+    '.vp-fam>summary::after{content:"\\25BE";margin-left:auto;color: var(--accent-texte);transition:transform .15s;flex:0 0 auto;font-size:.8em;order:4;}' +
     '.vp-fam[open]>summary::after{transform:rotate(180deg);}' +
     '.vp-fam-ico{flex:0 0 auto;font-size:1.1rem;}' +
     '.vp-fam-nom{font-weight:800;color:var(--text-strong);font-size:.95rem;}' +
     '.vp-fam-nb{flex:0 0 auto;font-size:0.875rem;font-weight:800;color:#fff;background:var(--accent);border-radius:999px;padding:.12rem .55rem;}' +
-    '.vp-fam-ligne{flex:1 1 100%;margin-top:.25rem;padding-left:1.7rem;}' +
+    '.vp-fam-ligne{flex:1 1 100%;margin-top:.25rem;padding-left:1.7rem;order:5;}' +
     '.vp-fam[open] .vp-fam-ligne{display:none;}' +
     '.vp-apercu{font-size:0.875rem;color:var(--text-muted);}' +
-    '.vp-choisis{display:flex;flex-wrap:wrap;gap:.3rem;}' +
-    '.vp-choisis .vp-mini{background:var(--accent);color:#fff;border-radius:999px;padding:.12rem .55rem;font-size:0.875rem;font-weight:700;}' +
+    // Consigne 325 (Denis, 15/11/2026, présentation 1 de docs/MAQUETTE_CHOIX_SUR_MAXIMUM_2026-11-15.html) : les choix d'une famille refermée se lisent en texte simple, plus en pastilles bleues.
+    '.vp-choisis{font-size:0.875rem;font-weight:700;color:var(--text-strong);}' +
     '.vp-fam-corps{padding:.35rem .8rem .55rem;background:var(--bg-card);border-top:1px solid var(--border);}' +
     '.vp-cartes{display:flex;flex-wrap:wrap;gap:.32rem;}' +
     '.vp-carte{border:1.5px solid var(--border-strong);border-radius:999px;padding:.3rem .7rem;font-size:0.875rem;background:var(--bg-card);color:var(--text-strong);cursor:pointer;user-select:none;}' +
@@ -6148,17 +6714,15 @@ function pageVotreParcours() {
   var questionsHTML = _vpQuestions().map(function (q, qi) {
     var sel = dossier[q.champ];
     var n = sel.length;
-    // TACHE (retour utilisateur 2026-09-13) : "X sur Y" laissait croire qu'il
-    // fallait atteindre la limite (Y = plafond, pas un objectif) -- pastille
-    // simplifiee au meme vocabulaire "a completer / complete" que le reste
-    // de l'application, nombre de choix rappele a cote plutot que "sur Y".
+    // Le 13/09/2026, « X sur Y » avait été retiré : il laissait croire qu'il fallait atteindre Y (le plafond, pas un objectif). Consigne 325 (Denis, 15/11/2026) :
+    // le nombre choisi est de nouveau dit avec son maximum, avec le mot « maximum » pour que ce soit clair (« 3 choisis sur 16 maximum »).
     var pil = n
-      ? '<span class="vp-qpil ok">complété &middot; ' + n + ' choix fait' + (n > 1 ? 's' : '') + '</span>'
+      ? '<span class="vp-qpil ok">&#10003; ' + n + ' choisi' + (n > 1 ? 's' : '') + ' sur ' + q.limite + ' maximum</span>'
       : '<span class="vp-qpil vide">à compléter</span>';
     var famillesHTML = q.catalogue.map(function (groupe, fi) {
       var choisisFamille = groupe.items.filter(function (it) { return sel.indexOf(it.id) !== -1; });
       var ligne = choisisFamille.length
-        ? '<span class="vp-choisis">' + choisisFamille.map(function (it) { return '<span class="vp-mini">' + it.label + '</span>'; }).join('') + '</span>'
+        ? '<span class="vp-choisis">' + choisisFamille.map(function (it) { return it.label; }).join(', ') + '</span>'
         : '<span class="vp-apercu">' + apercuFamille(groupe.items) + '</span>';
       var cartesHTML = groupe.items.map(function (it) {
         var coche = sel.indexOf(it.id) !== -1;
@@ -6168,7 +6732,8 @@ function pageVotreParcours() {
       return '<details class="vp-fam"' + (ouvert ? ' open' : '') + ' data-vpq="' + qi + '" data-vpf="' + fi + '">' +
         '<summary><span class="vp-fam-ico">' + (groupe.icone || '') + '</span>' +
         '<span class="vp-fam-nom">' + groupe.categorie + '</span>' +
-        '<span class="vp-fam-nb">' + groupe.items.length + ' choix</span>' +
+        // Plus de « 8 choix » (cartes disponibles) : la famille dit ce que la personne y a choisi, et seulement si elle y a choisi quelque chose.
+        (choisisFamille.length ? '<span class="vp-fam-nb">' + choisisFamille.length + ' choisi' + (choisisFamille.length > 1 ? 's' : '') + '</span>' : '') +
         '<span class="vp-fam-ligne">' + ligne + '</span></summary>' +
         '<div class="vp-fam-corps"><div class="vp-cartes">' + cartesHTML + '</div></div></details>';
     }).join('');
@@ -6179,9 +6744,15 @@ function pageVotreParcours() {
     // haut. Toujours visible (pas seulement quand vide) : rassure aussi une
     // fois un 1er choix fait, qu'il n'y a rien d'autre a faire ici.
     var consigneRegle = '<p class="vp-consigne vp-regle">&#128073; Une seule case suffit pour valider cette question : ' +
-      'inutile de cocher dans chaque famille ci-dessous, une seule famille peut suffire.</p>';
+      'inutile de cocher dans chaque famille ci-dessous, une seule famille peut suffire.</p>' +
+      // Consigne 261 : le nombre maximum de choix est dit a la personne (avant, elle ne voyait que le nombre deja choisi) ; au plafond, un clic sur une autre carte explique pourquoi rien ne se passe.
+      '<p class="vp-consigne vp-plafond" role="status">' + (_vpMessagePlafond === q.champ
+        ? '<strong>Maximum atteint : ' + q.limite + ' choix.</strong> Décochez une carte pour en choisir une autre.'
+        : 'Vous pouvez cocher jusqu’à <strong>' + q.limite + ' choix</strong> dans cette question' + (n >= q.limite ? ' (maximum atteint)' : '') + '.') + '</p>';
     return '<details class="vp-question"' + (qOuvert ? ' open' : '') + ' data-vpq="' + qi + '">' +
-      '<summary><span class="vp-qnum">' + (qi + 1) + '</span><span class="vp-qtitre">' + q.titre + '</span>' + pil + '</summary>' +
+      // Consigne 328 (Denis, 15/11/2026) : un bouton, à gauche de la pastille, qui retire d'un clic tous les choix de la question (seulement quand il y en a).
+      '<summary><span class="vp-qnum">' + (qi + 1) + '</span><span class="vp-qtitre">' + q.titre + '</span>' +
+      (n ? '<button type="button" class="vp-qvider" data-vp-vider="' + q.champ + '" title="Retire tous vos choix de cette question">Tout désélectionner</button>' : '') + pil + '</summary>' +
       '<div class="vp-qcorps"><p class="vp-consigne">' + q.consigne + '</p>' + consigneRegle + famillesHTML + '</div></details>';
   }).join('');
 
@@ -6189,14 +6760,14 @@ function pageVotreParcours() {
     afficherProgression('votre-parcours') + (typeof _creerCvBandeRevoirSurEcran === 'function' ? _creerCvBandeRevoirSurEcran('votre-parcours') : '') +
     _vpStyle() +
     '<div class="text-center"><h1>&#129517; Votre parcours</h1>' +
-    '<p class="sousTitre">Quatre questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.</p></div>' +
+    '<p class="sousTitre">Trois questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.</p></div>' +
     // TACHE (5bis "Votre parcours") : l'accordeon "Competences deja identifiees"
     // (afficherCompetencesDetectees) est retire ici -- report des 4 anciens
     // ecrans separes, absent de MAQUETTE_VOTRE_PARCOURS_FUSION. La deduction
     // des competences reste utilisee en aval ("Votre profil", assistant).
     // Decision Denis 2026-09-03.
     '<div class="cv-section" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;">' +
-    '<p class="mb-0">&#128073; Chaque question contient plusieurs <strong>familles de choix</strong> (les grandes lignes, avec le nombre de choix). Ouvrez une famille, cochez ce qui vous ressemble : vos choix restent visibles sur la ligne même quand la famille est refermée. <strong>Une seule case suffit</strong> par question.</p></div>' +
+    '<p class="mb-0">&#128073; Chaque question contient plusieurs <strong>familles de choix</strong> (les grandes lignes). Ouvrez une famille, cochez ce qui vous ressemble : vos choix restent écrits sur la ligne même quand la famille est refermée. <strong>Une seule case suffit</strong> par question.</p></div>' +
     questionsHTML +
     // TACHE (5bis "Votre parcours", MAQUETTE_VOTRE_PARCOURS_FUSION #etatContinuer) :
     // phrase d'etat VISIBLE (pas seulement l'infobulle du bouton grise) --
@@ -6204,7 +6775,7 @@ function pageVotreParcours() {
     '<p class="text-center small text-muted mt-3 mb-0">' +
     (vides > 0
       ? 'Il reste ' + vides + ' question' + (vides > 1 ? 's' : '') + ' sans aucune case cochée.'
-      : 'Les 4 questions ont au moins une case cochée.') +
+      : 'Les 3 questions ont au moins une case cochée.') +
     '</p>' +
     '</div>' +
     // TACHE (retour Denis 2026-09-19) : "Votre parcours" suit desormais
@@ -6212,7 +6783,7 @@ function pageVotreParcours() {
     // "Votre profil" (suivant 'projet' -> 'revelation') -- cette page reste
     // exclusive a 'nouveau' (jamais atteinte par les autres parcours,
     // verifie), aucun garde-fou de mode necessaire ici.
-    '<div class="barre-navigation-fixe">' + barreNavigation('projet', 'revelation', 'Continuer &#8594;', {
+    '<div class="barre-navigation-fixe">' + barreNavigation('projet', _creerCvRouteApresParcours(), 'Continuer &#8594;', {
       suivantDesactive: vides > 0,
       suivantDesactiveMessage: 'Chaque question a besoin d’au moins une case cochée.'
     }) + '</div>';
@@ -6229,6 +6800,18 @@ function pageVotreParcours() {
     });
   });
 
+  // « Tout désélectionner » (consigne 328) : vide la question d'un clic. Il est dans l'en-tête repliable : sans preventDefault, le clic refermerait la question.
+  document.querySelectorAll('[data-vp-vider]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var champ = this.getAttribute('data-vp-vider');
+      if (!Array.isArray(dossier[champ])) { return; }
+      dossier[champ] = [];
+      _vpMessagePlafond = null;
+      pageVotreParcours();
+    });
+  });
+
   // Clic sur une carte -> ajoute / retire l'identifiant dans dossier[champ]
   // (respect de la limite), puis re-render. Meme ecriture que
   // pageSelectionCatalogue(), aucune nouvelle structure de donnees.
@@ -6240,7 +6823,8 @@ function pageVotreParcours() {
       var arr = dossier[champ];
       var idx = arr.indexOf(id);
       if (idx !== -1) { arr.splice(idx, 1); }
-      else { if (arr.length >= q.limite) { return; } arr.push(id); }
+      else { if (arr.length >= q.limite) { _vpMessagePlafond = champ; pageVotreParcours(); return; } arr.push(id); }
+      _vpMessagePlafond = null;
       pageVotreParcours();
     });
   });
@@ -6262,7 +6846,7 @@ function metiersProchesDe(nom) {
   if (!fiche) { return []; }
   var profil = {
     activites: fiche.activites, actions: fiche.actions, environnement: fiche.environnement,
-    valeurs: fiche.valeurs, savoirFaire: fiche.savoirFaire, savoirEtre: fiche.savoirEtre, savoirs: fiche.savoirs
+    savoirFaire: fiche.savoirFaire, savoirEtre: fiche.savoirEtre, savoirs: fiche.savoirs
   };
   return rechercherMetiers(profil, 6).filter(function (m) { return m.nom !== fiche.nom; }).slice(0, 5);
 }
@@ -6345,6 +6929,9 @@ function contenuModeRecherche(depuisBilan, options) {
   // precis et une offre), puis directement le metier et « L'offre et l'entreprise ». Les autres appelants (Mon projet, Bilan,
   // Decouverte, Preparer l'entretien) ne passent jamais cette option : rendu strictement inchange.
   var offreUnifiee = !!(options && options.modeUnifie) && dossier.objectif === 'offre';
+  // Protocole de test du 11/11/2026 (constat D2, décision Denis) : options.dejaRepondu (« Votre objectif » après la page de préparation de Reprendre, de la mise à jour et de la version rapide) :
+  // le choix « métier précis ou plusieurs métiers » et la question « quel métier » ne sont pas reposés quand la réponse est déjà là.
+  var dejaRepondu = !!(options && options.dejaRepondu) && ((dossier.modeRecherche === 'metier' && !!dossier.metierCible) || (dossier.modeRecherche === 'domaine' && !!dossier.secteurCible));
   // Etape c3 (24/10/2026) : meme principe pour la carte « Candidature spontanee » : deux choix explicites au lieu de « Je cherche
   // simplement un emploi / Je reponds a une offre », et jamais de champ « offre » (une offre collee en ferait autre chose).
   var spontaneeUnifiee = !!(options && options.modeUnifie) && dossier.objectif === 'spontanee';
@@ -6496,7 +7083,9 @@ function contenuModeRecherche(depuisBilan, options) {
 
   var html;
   if (offreUnifiee) {
-    html = metierDonne ? '' : '<p class="mb-2">Quel métier cherchez-vous ?</p>';
+    html = (metierDonne || dejaRepondu) ? '' : '<p class="mb-2">Quel métier cherchez-vous ?</p>';
+  } else if (jetons && dejaRepondu) {
+    html = '';
   } else if (jetons) {
     html = '<div class="jetons-ligne">' +
       '<div class="jetons-lib">Votre recherche porte sur :</div>' +
@@ -6542,11 +7131,11 @@ function contenuModeRecherche(depuisBilan, options) {
   var enEvidenceMetier = (typeof metierCibleEnEvidence !== 'undefined' && metierCibleEnEvidence &&
     !(dossier.metierCible || dossier.secteurCible));
   if (mode === 'metier') {
-    html += '<hr class="my-3"><div id="banniereMetierCibleZone"' +
+    html += (dejaRepondu ? '' : '<hr class="my-3">') + '<div id="banniereMetierCibleZone"' +
       (enEvidenceMetier ? ' class="a-completer"' : '') + '>' +
       (metierDonne ? '<p class="small text-muted mb-0">Le métier de chaque CV est repris tel quel : pas besoin de l’écrire ici.</p>' : contenuRechercheMetierCorps()) + '</div>';
   } else if (mode === 'domaine') {
-    html += '<hr class="my-3"><div id="banniereMetierCibleZone"' +
+    html += (dejaRepondu ? '' : '<hr class="my-3">') + '<div id="banniereMetierCibleZone"' +
       (enEvidenceMetier ? ' class="a-completer"' : '') + '>' + contenuRechercheDomaineCorps() + '</div>';
     // Etape c5 : une fois le domaine choisi, l'intitule de poste a mettre en avant (page « Preparer » de la lettre seulement).
     if ((spontaneeUnifiee || reconversionUnifiee) && dossier.secteurCible) { html += htmlIntituleDomaineUnifie(); }
@@ -6753,22 +7342,7 @@ function wireModeRecherche(rerender, depuisBilan) {
     // onChange relit et ecrit dans dossier.rechercheCandidature a chaque
     // saisie utile (meme comportement "sauvegarde a la frappe, sans
     // re-rendu" qu'avant -- ne jamais casser le focus).
-    bilanCablerCiblageOffre(zone, function () {
-      var ciblage = bilanLireCiblageOffre(zone);
-      dossier.rechercheCandidature = dossier.rechercheCandidature || { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
-      // Seuls les champs presents dans le rendu sont ecrits (rendu « offre seule »
-      // de Reformuler : entreprise, site et type de structure ne sont pas touches).
-      if (zone.querySelector('#ciblageEntreprise')) { dossier.rechercheCandidature.entreprise = ciblage.entrepriseCiblee || ''; }
-      if (zone.querySelector('#ciblageSite')) { dossier.rechercheCandidature.site = ciblage.siteEntreprise || ''; }
-      dossier.rechercheCandidature.lienOffre = ciblage.offreEmploi || '';
-      // Meme valeur dans texteOffre : c'est ce champ que lisent le Bilan, la
-      // Coherence et le re-remplissage du champ (avant, l'offre saisie ici
-      // n'atteignait jamais le Bilan et disparaissait a l'ecran au re-rendu).
-      dossier.rechercheCandidature.texteOffre = ciblage.offreEmploi || '';
-      if (zone.querySelector('#ciblageTypeStructure')) {
-        dossier.rechercheCandidature.typeStructure = (ciblage.typeStructure === 'Autre' && ciblage.typeStructureAutre) ? ciblage.typeStructureAutre : ciblage.typeStructure;
-      }
-    });
+    cablerSaisieEntrepriseDansDossier(zone);
     wireCiviliteEtCouleurRecruteurCandidature(rerender, true);
   } else if (zone && zone.querySelector('#ciblageTypeStructureReduit')) {
     // TACHE (retour utilisateur 2026-09-16) : variante reduite (spontanee/
@@ -7152,6 +7726,8 @@ function contenuCouleurEntrepriseCandidature() {
   // TACHE (6conv-3b-1) : jetons quand _renduInfosUnifie. Cablage inchange
   // (data-cand-couleur-entreprise).
   return '<div class="mb-2 mt-2"><label class="form-label small d-block">Voulez-vous mettre en avant les couleurs de l’entreprise sur votre CV ?</label>' +
+    // Décision de Denis (13/11/2026) : une suggestion honnête, jamais une promesse. Le choix est manuel ; l'assistant peut parfois reconnaître les couleurs, c'est un bonus (voir le prompt du complément de CV), jamais annoncé comme acquis.
+    '<p class="text-muted small mb-2">Si vous repérez les couleurs de cette entreprise (son logo, son site), vous pourrez les choisir vous-même après avoir répondu « Oui ». L’assistant peut parfois les reconnaître et les proposer, mais il ne faut pas compter dessus.</p>' +
     '<div class="d-flex flex-wrap gap-2">' +
     choixRadioVosInfos('data-cand-couleur-entreprise', '0', !actif, 'Non') +
     choixRadioVosInfos('data-cand-couleur-entreprise', '1', actif, 'Oui') +
@@ -7299,7 +7875,7 @@ function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire, options)
   _ciblageSansOffre = sansOffreAvant;
   var html = '<hr class="my-3">' +
     (unifie
-      ? (sansOffreOpt
+      ? ((options && options.introHtml !== undefined) ? options.introHtml : sansOffreOpt
         ? '<p class="mb-1 fw-bold" style="font-size:1.1rem;">&#127970; L’entreprise visée</p><p class="text-muted small mb-2">Le nom de l’entreprise est nécessaire pour continuer ; son site est conseillé : il aide l’assistant à comprendre ce qu’elle fait.</p>'
         : '<p class="mb-2 fw-bold" style="font-size:1.1rem;">&#128188; L’offre et l’entreprise</p>')
       : '<p class="mb-2 fw-bold small">L’offre et l’entreprise <span class="text-muted fw-normal">(' + (nomNecessaire ? 'le nom de l’entreprise est nécessaire pour continuer, le reste est à compléter' : 'à compléter') + ')</span></p>') +
@@ -7434,6 +8010,16 @@ var NOM_SECTION = { stage: 'Stage', alternance: 'Alternance', pmsmp: 'Immersion 
 // Retour Denis 2026-10-01 : « la carte Formation ne fait rien ». Cause : une session (disquette ou sauvegarde) faite avant l'ajout de la carte
 // n'avait pas de dossier.formation ; contenuCandidature() plantait en ecrivant dans un objet absent. Les quatre jeux de details existent donc
 // TOUJOURS : verifies au chargement d'une session, au choix d'une carte et au rendu des champs.
+// Consigne 262 (12/11/2026) : cinq paires d actions en doublon ont ete fusionnees dans le catalogue (planifier -> organiser, diagnostiquer -> controler,
+// archiver -> classer, aider -> accompagner, photographier -> dessiner). Une session sauvegardee ou un fichier exporte AVANT la fusion peut encore contenir
+// les anciens identifiants : on les remplace (sans doublon) pour que la carte reste cochee et que les competences soient retrouvees.
+function migrerIdsChoixParcours() {
+  if (!dossier || !Array.isArray(dossier.actions)) { return; }
+  var table = { planifier: 'organiser', diagnostiquer: 'controler', archiver: 'classer', aider: 'accompagner', photographier: 'dessiner' };
+  var ids = dossier.actions.map(function (id) { return table[id] || id; });
+  dossier.actions = ids.filter(function (id, i) { return ids.indexOf(id) === i; });
+}
+
 function assurerDetailsObjectifs() {
   if (typeof dossier === 'undefined' || !dossier) { return; }
   Object.keys(CLE_DETAILS).forEach(function (o) {
@@ -7936,8 +8522,12 @@ function wireFormationTypeEtape1(rerender) {
       brouillonFormationEnCours = {
         typeCredential: type, niveauRNCP: null, niveauVisible: null,
         intitule: intituleConserve, annee: anneeConservee, centre: centreConserve, lieu: lieuConserve,
-        secteurMissions: null, missionsChoisies: [], missionsTexteLibre: ''
+        missionsChoisies: [], missionsTexteLibre: ''
       };
+      // Détail de la formation (chantier « Vos diplômes ») : question « détailler ? » préréglée d'après le diplôme et le dossier.
+      var champsDetail = _fmChampsDetailVides();
+      Object.keys(champsDetail).forEach(function (k) { brouillonFormationEnCours[k] = champsDetail[k]; });
+      _fmRecalculerDetail(brouillonFormationEnCours);
       rerender();
     });
   });
@@ -8025,43 +8615,108 @@ function wireFormation(rerender) {
       rerender();
     });
   });
-  // TACHE (retour utilisateur : "quand la personne choisit une formation,
-  // je veux qu'elle puisse dire ce qu'elle a fait pendant ce parcours") :
-  // secteur = simple filtre d'affichage pour piocher dans
-  // CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR -- reclic sur le meme
-  // secteur = le referme (comportement bascule, comme le niveau de
-  // diplome plus haut). Changer de secteur NE VIDE PAS les missions deja
-  // cochees d'un autre secteur (une personne peut hesiter entre 2
-  // secteurs proches sans perdre sa premiere selection).
-  document.querySelectorAll('[data-secteur-missions-formation]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      if (!brouillonFormationEnCours) { return; }
-      var secteur = this.dataset.secteurMissionsFormation;
-      brouillonFormationEnCours.secteurMissions = (brouillonFormationEnCours.secteurMissions === secteur) ? null : secteur;
-      rerender();
+  // CHANTIER « Vos diplômes » (consignes 341 à 352, maquette docs/MAQUETTE_VOS_DIPLOMES_2026-11-15.html) : tous les clics du détail de la
+  // formation passent par UN écouteur posé sur #fmDetailFormation (la zone est refaite à chaque rendu). Le répertoire du ROME et les
+  // fiches des métiers choisis se chargent à la demande (_fmChargerDonnees). Remplace l'ancien catalogue de 19 secteurs x 4 missions.
+  var zoneDetailFormation = document.getElementById('fmDetailFormation');
+  if (zoneDetailFormation) {
+    var SELECTEUR_DETAIL_FORMATION = '[data-fm-detail],[data-fm-metier],[data-fm-mission],[data-fm-chercher],[data-fm-fermer-panneau],[data-fm-secteur-idx],' +
+      '[data-fm-changer-secteur],[data-fm-garder-secteur],[data-fm-voir-missions],[data-fm-modifier-metiers],[data-fm-deploye],[data-fm-filtre-tous],' +
+      '[data-fm-ouvrir-texte],[data-fm-fermer-texte]';
+    zoneDetailFormation.addEventListener('click', function (e) {
+      var nfc = brouillonFormationEnCours;
+      var b = e.target && e.target.closest ? e.target.closest(SELECTEUR_DETAIL_FORMATION) : null;
+      if (!nfc || !b || !zoneDetailFormation.contains(b)) { return; }
+      if (b.hasAttribute('data-fm-detail')) { nfc.detail = b.getAttribute('data-fm-detail'); nfc.detailManuel = true; rerender(); return; }
+      if (b.hasAttribute('data-fm-metier')) {
+        var code = b.getAttribute('data-fm-metier');
+        var rang = -1;
+        nfc.metiers.forEach(function (x, j) { if (x.code === code) { rang = j; } });
+        if (rang !== -1) { nfc.metiers.splice(rang, 1); _fmNettoyerMissions(nfc); }
+        else if (nfc.metiers.length < FM_MAX_METIERS) {
+          var idxM = _fmIndex();
+          nfc.metiers.push({ code: code, nom: (idxM && idxM.parCode[code]) ? idxM.parCode[code].nom : code });
+        }
+        rerender(); return;
+      }
+      if (b.hasAttribute('data-fm-mission')) {
+        var mission = b.getAttribute('data-fm-mission');
+        var pos = nfc.missionsChoisies.indexOf(mission);
+        if (pos === -1) { nfc.missionsChoisies.push(mission); } else { nfc.missionsChoisies.splice(pos, 1); }
+        rerender(); return;
+      }
+      if (b.hasAttribute('data-fm-chercher')) { nfc.panneauOuvert = !nfc.panneauOuvert; if (nfc.panneauOuvert) { nfc.choixSecteur = false; } rerender(); return; }
+      if (b.hasAttribute('data-fm-fermer-panneau')) { nfc.panneauOuvert = false; nfc.choixSecteur = false; rerender(); return; }
+      if (b.hasAttribute('data-fm-secteur-idx')) {
+        nfc.secteurIdx = parseInt(b.getAttribute('data-fm-secteur-idx'), 10);
+        nfc.choixSecteur = false; nfc.panneauOuvert = true; nfc.filtre = ''; nfc.filtreTous = false; nfc.deploye = {};
+        rerender(); return;
+      }
+      if (b.hasAttribute('data-fm-changer-secteur')) { nfc.choixSecteur = !nfc.choixSecteur; if (nfc.choixSecteur) { nfc.panneauOuvert = false; } rerender(); return; }
+      if (b.hasAttribute('data-fm-garder-secteur')) { nfc.choixSecteur = false; rerender(); return; }
+      if (b.hasAttribute('data-fm-voir-missions')) {
+        nfc.vueMissions = true; nfc.panneauOuvert = false; nfc.choixSecteur = false;
+        rerender();
+        var zoneMissions = document.querySelector('.fm-miss');
+        if (zoneMissions && zoneMissions.scrollIntoView) { zoneMissions.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        return;
+      }
+      if (b.hasAttribute('data-fm-modifier-metiers')) { nfc.vueMissions = false; rerender(); return; }
+      if (b.hasAttribute('data-fm-deploye')) { nfc.deploye[b.getAttribute('data-fm-deploye')] = true; rerender(); return; }
+      if (b.hasAttribute('data-fm-filtre-tous')) { nfc.filtreTous = true; rerender(); return; }
+      if (b.hasAttribute('data-fm-ouvrir-texte')) {
+        nfc.texteOuvert = true; rerender();
+        var zoneTexte = document.getElementById('missionsFormationTexteLibre');
+        if (zoneTexte) { zoneTexte.focus(); }
+        return;
+      }
+      if (b.hasAttribute('data-fm-fermer-texte')) { nfc.texteOuvert = false; rerender(); return; }
     });
-  });
-  document.querySelectorAll('[data-mission-formation-catalogue]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      if (!brouillonFormationEnCours) { return; }
-      var mission = this.dataset.missionFormationCatalogue;
-      var liste = brouillonFormationEnCours.missionsChoisies;
-      var idx = liste.indexOf(mission);
-      if (idx === -1) { liste.push(mission); } else { liste.splice(idx, 1); }
-      rerender();
-    });
-  });
+    // Recherche dans le secteur : seule la liste se met à jour (jamais tout le bloc : le champ garderait sinon le focus perdu à chaque lettre).
+    var champFiltreMetier = document.getElementById('fmFiltre');
+    if (champFiltreMetier) {
+      champFiltreMetier.addEventListener('input', function () {
+        var nff = brouillonFormationEnCours;
+        if (!nff) { return; }
+        nff.filtre = this.value; nff.filtreTous = false;
+        var indexF = _fmIndex();
+        var zoneListe = document.getElementById('fmZoneListeSecteur');
+        if (indexF && zoneListe) { zoneListe.innerHTML = _fmHtmlListeSecteur(nff, indexF, fmProposes(nff.intitule, indexF)); }
+      });
+    }
+  }
   var champMissionsTexteLibre = document.getElementById('missionsFormationTexteLibre');
   if (champMissionsTexteLibre) {
     champMissionsTexteLibre.addEventListener('input', function () {
       if (brouillonFormationEnCours) { brouillonFormationEnCours.missionsTexteLibre = this.value; }
     });
   }
+  _fmChargerDonnees(brouillonFormationEnCours, rerender);
   var champIntituleNiveau = document.getElementById('niveauFormationIntitule');
   if (champIntituleNiveau) {
     champIntituleNiveau.addEventListener('input', function () {
       if (!brouillonFormationEnCours) { return; }
       brouillonFormationEnCours.intitule = this.value;
+      // Chantier « Vos diplômes » : le préréglage de la question « détailler ? » suit l'intitulé tapé (jamais si la personne a déjà
+      // répondu). Le bloc n'est refait que si la question apparaît, disparaît ou change de réponse : le focus et le curseur sont rendus.
+      (function (champ) {
+        var nfi = brouillonFormationEnCours;
+        var avant = nfi.detail;
+        var affichait = !!document.getElementById('fmDetailFormation');
+        // Les métiers proposés dépendent de l'intitulé : le bloc est aussi refait quand ils changent (jamais à chaque lettre).
+        var indexI = _fmIndex();
+        var propositionsAvant = nfi._fmPropositions || '';
+        var propositionsApres = indexI ? fmProposes(nfi.intitule, indexI).map(function (m) { return m.code; }).join(',') : '';
+        nfi._fmPropositions = propositionsApres;
+        _fmRecalculerDetail(nfi);
+        var doitAfficher = (nfi.niveauRNCP !== null || !!nfi.niveauInconnu) && nfi.intitule.trim().length >= 3;
+        if (avant !== nfi.detail || doitAfficher !== affichait || (affichait && propositionsAvant !== propositionsApres)) {
+          var curseur = champ.selectionStart;
+          rerender();
+          var champApres = document.getElementById('niveauFormationIntitule');
+          if (champApres) { champApres.focus(); try { champApres.setSelectionRange(curseur, curseur); } catch (err) { /* champ sans curseur : rien à rendre */ } }
+        }
+      })(this);
       // TACHE (retour utilisateur, bug réel trouvé : "je tape l'intitulé du
       // titre professionnel mais le bouton + Ajouter reste grisé") : mise à
       // jour DIRECTE du bouton (jamais rerender() ici, qui ferait perdre le
@@ -8136,6 +8791,10 @@ function wireFormation(rerender) {
   }
   var champCentreFormation = document.getElementById('niveauFormationCentre');
   var champLieuFormation = document.getElementById('niveauFormationLieu');
+  // Centre de formation et ville : première lettre toujours en majuscule (consigne 348). L'écouteur de majuscule est posé AVANT celui qui
+  // enregistre la valeur : il lit donc déjà la valeur corrigée.
+  appliquerMajusculePremiereLettre(champCentreFormation);
+  appliquerMajusculePremiereLettre(champLieuFormation);
   if (champCentreFormation) {
     champCentreFormation.addEventListener('input', function () { if (brouillonFormationEnCours) { brouillonFormationEnCours.centre = this.value; } });
     champCentreFormation.addEventListener('keydown', function (e) {
@@ -8198,8 +8857,11 @@ function wireFormation(rerender) {
         // experiences[].missions (une ligne par mission, \n comme
         // separateur), jamais un format different a apprendre par
         // texteProfil()/composeurRender.js.
-        var missionsChoisies = brouillonFormationEnCours.missionsChoisies || [];
-        var texteLibre = (brouillonFormationEnCours.missionsTexteLibre || '').trim();
+        // Chantier « Vos diplômes » : « Non, le diplôme suffit » (ou question sans réponse) = aucune mission sur cette formation ; seul
+        // « Oui » garde les métiers, les missions cochées et le texte libre.
+        var detaille = brouillonFormationEnCours.detail === 'oui';
+        var missionsChoisies = detaille ? (brouillonFormationEnCours.missionsChoisies || []) : [];
+        var texteLibre = detaille ? (brouillonFormationEnCours.missionsTexteLibre || '').trim() : '';
         var missionsFinal = missionsChoisies.concat(texteLibre ? [texteLibre] : []).join('\n');
         var entreeFormation = {
           // TACHE (retour utilisateur : "titre professionnel/CQP -- comment
@@ -8219,7 +8881,13 @@ function wireFormation(rerender) {
           // uniquement pour permettre une vraie reedition plus tard (voir
           // construireBrouillonDepuisFormation()/contenuFormations()).
           typeCredential: brouillonFormationEnCours.typeCredential,
-          niveauRNCP: brouillonFormationEnCours.niveauRNCP
+          niveauRNCP: brouillonFormationEnCours.niveauRNCP,
+          // Chantier « Vos diplômes » : champs ADDITIFS (jamais lus par le CV, qui ne lit que « missions »), pour rouvrir la formation
+          // telle que la personne l'a laissée : réponse à « détailler ? », métiers choisis (code du ROME + nom), missions cochées, texte libre.
+          detailFormation: (brouillonFormationEnCours.detail === 'oui' || brouillonFormationEnCours.detail === 'non') ? brouillonFormationEnCours.detail : null,
+          metiersRome: detaille ? (brouillonFormationEnCours.metiers || []).map(function (m) { return { code: m.code, nom: m.nom }; }) : [],
+          missionsChoisies: missionsChoisies.slice(),
+          missionsTexteLibre: texteLibre
         };
         // TACHE (chantier "formations editables") : met a jour l'entree
         // existante en place si on etait en train de la corriger, plutot
@@ -8553,7 +9221,9 @@ var CONFIG_EXPERIENCES_PERSO = {
   // (intitulé) et contexte (voir blocPastillesEditables).
   avecEditionPastille: true,
   // R8-3 (2026-09-29) : bouton « Afficher dans l'expérience professionnelle » par expérience (jamais automatique).
-  avecRemonteeEnPro: true
+  // RETIRÉ le 2026-11-15 (consigne 360, Denis) : ce bloc est pour ce qu'on a appris AILLEURS qu'au travail ; un emploi se saisit dans
+  // « Vos expériences professionnelles ». Le code du bouton reste dans htmlRemonteeEnPro, désormais jamais appelé.
+  avecRemonteeEnPro: false
 };
 
 // Etape 8 : configuration du catalogue Certifications (variante directe,
@@ -8608,6 +9278,24 @@ var _renduInfosUnifie = false;
 // stade).
 var _blocEditionCvBilanEnCours = false;
 var _editionCvBlocsOuverts = {};
+// « Creer un nouveau CV », parcours a la main ET parcours avec l'assistant (consigne 255 de Denis, etendue a l'assistant le 11/11/2026) : « Continuer » reste grise sur « Vos informations » tant que l'IDENTITE de la partie « Vous » (langues et permis ne bloquent jamais, consigne 261) n'est pas
+// remplie ET qu'aucun des deux blocs « Vos experiences professionnelles » / « Ce que vous avez appris ailleurs qu'au travail » (pour qui n'a pas d'experience professionnelle) n'a de contenu.
+// Renvoie la liste des raisons (groupes nominaux, assembles par phraseBlocageLettreCo) ; vide = on peut continuer. Hors de ce parcours : toujours vide (la page ne bloque rien ailleurs).
+function raisonsBlocageVosInformations() {
+  // « Reprendre mon CV », voie 1 (mode 'maj', decision de Denis du 11/11/2026) : seulement les experiences, car l'identite et la mobilite ne sont pas remplies par la lecture du CV.
+  var reprise = !!dossier && dossier.modeCreation === 'maj';
+  if (!dossier || (dossier.modeCreation !== 'nouveau' && !reprise) || _depuisBilanVersProjet) { return []; }
+  var raisons = [];
+  // Consigne 261 (Denis, 12/11/2026) : seule l'identité est obligatoire. Les langues et le permis (Mobilité) ne bloquent JAMAIS : personne n'est obligé d'avoir une langue étrangère ou un permis.
+  var identiteManquante = !reprise && !dossier.identiteEnregistree;
+  if (identiteManquante) { raisons.push('remplir l’identité de la partie « Vous »'); }
+  // Consigne 400 (16/11/2026) : pour un stage (dont les stages de découverte des adolescents), une alternance, une immersion ou une formation, personne n'est tenu d'avoir une expérience : rien ne bloque.
+  var objectifSansExperienceRequise = ['stage', 'alternance', 'pmsmp', 'formation'].indexOf(dossier.objectif) !== -1;
+  if (!objectifSansExperienceRequise && !(dossier.experiences || []).length && !(dossier.experiencesPerso || []).length) {
+    raisons.push('renseigner au moins un de ces deux blocs : « Vos expériences professionnelles » ou « Ce que vous avez appris ailleurs qu’au travail »');
+  }
+  return raisons;
+}
 function pageProjet() {
   _renduInfosUnifie = true;
   // TACHE (refonte parcours guide, etape 2c, 2026-09-02) : les blocs
@@ -8630,7 +9318,7 @@ function pageProjet() {
     // remplis ou non.
     etatBlocsERIPOuverts = {
       'vous': true, 'parcours': true, 'experiences-pro': true,
-      'experiences-perso': true, 'complements': true
+      'experiences-perso': true, 'certifications': true, 'engagements': true, 'loisirs': true
     };
     _vosInfosBlocsInitialises = true;
   }
@@ -8641,16 +9329,17 @@ function pageProjet() {
   verifierTransitionsCompletionBlocs(
     modeAllege
       ? [CONFIG_BLOC_VOUS]
-      : [CONFIG_BLOC_VOUS, CONFIG_BLOC_PARCOURS, CONFIG_BLOC_EXPERIENCES_PRO, CONFIG_BLOC_EXPERIENCES_PERSO, CONFIG_BLOC_COMPLEMENTS],
+      : configsVosInformations(),
     modeAllege
   );
   // Clé du bloc « Quelques passages à préciser » attendu ici : un module la pose après son import (voir modules/passages-a-preciser/) ; une clé sans bloc posé n'affiche rien.
   var cleHotePassages = (_pageOrigineAvantProjet === 'un-cv-plusieurs-metiers' && typeof ucpmBarreDepuisInfos === 'function') ? 'ucpm' : 'prepLE';
   var depuisUcpm = (_pageOrigineAvantProjet === 'un-cv-plusieurs-metiers' && typeof ucpmBarreDepuisInfos === 'function');   // module « Un CV, plusieurs métiers » : sa barre d'étapes et sa barre du bas
-  var html = (depuisUcpm ? ucpmBarreEtapesInfos() : afficherProgression('projet')) +
+  // Consigne 326 (15/11/2026) : cadre commun des pages de création (colonne centrée de 1440 px, sous-titre et paragraphes comme les autres pages).
+  var html = '<div class="page-catalogue-contenu">' + (depuisUcpm ? ucpmBarreEtapesInfos() : afficherProgression('projet')) +
     (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('projet') : '') +
     '<div class="text-center"><h1>&#128203; Vos informations</h1>' +
-    '<p class="sousTitre">Les informations qui personnaliseront votre candidature.</p></div>' +
+    '<p class="sousTitre">Les informations qui personnaliseront votre candidature.</p>' + (typeof htmlRappelChoixMissions === 'function' ? htmlRappelChoixMissions() : '') + '</div>' +
     (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('projet') : '') +
     // Module « Un CV, plusieurs métiers » seulement (retour 42 de Denis, validé le 2026-10-15) : dire ce qu'on regarde et ce qu'il reste à faire après le rangement du CV.
     (depuisUcpm ? '<div class="cv-section" id="ucpmInviteInfos" role="note" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;"><p class="mb-0">Voici ce que l’application a repéré dans votre CV. Relisez, corrigez ou complétez, puis cliquez sur <strong>« Continuer »</strong> en bas.</p></div>' : '') +
@@ -8666,7 +9355,7 @@ function pageProjet() {
     // TACHE (refonte parcours guide, etape 3, 2026-09-02) : encart video
     // retire -- la page allegee est assez legere (decision Denis). L'entree
     // (L'ancienne video de cette page est retiree ; la nouvelle, projet.mp4, sera branchee plus tard.)
-    _projetGrilleHTML(modeAllege) +
+    _projetGrilleHTML(modeAllege) + '</div>' +
     // TACHE (complement) : barre de navigation fixee en bas de l'ecran,
     // toujours visible sans avoir a defiler, quel que soit le nombre de
     // blocs ouverts/replies. Uniquement sur cette page (classe dediee) :
@@ -8702,8 +9391,10 @@ function pageProjet() {
       var routeSuivanteProjet = (estNouveauPourNav && !dossier.cvAnalyse) ? 'votre-parcours' : 'revelation';
       var labelSuivantProjet = (estNouveauPourNav && !dossier.cvAnalyse) ? '&#129517; Votre parcours' : '&#129517; Votre profil';
       if (depuisUcpm) { return '<div class="barre-navigation-fixe">' + ucpmBarreDepuisInfos() + '</div>'; }
+      var raisonsProjet = raisonsBlocageVosInformations();
       return '<div class="barre-navigation-fixe">' + barreNavigation(routePrecedenteProjet, routeSuivanteProjet, labelSuivantProjet,
         { onclickPrecedent: _depuisBilanVersProjet ? "naviguerVers('bilan')" : null,
+          suivantDesactive: raisonsProjet.length > 0, suivantDesactiveMessage: phraseBlocageLettreCo(raisonsProjet),
           // Questions « Quelques passages à préciser » posées ici : « Continuer » valide la page, le bloc n'est plus modifiable.
           onclickSuivant: (typeof passagesEtatDePage === 'function' && passagesEtatDePage(cleHotePassages)) ? "passagesValiderPage('" + cleHotePassages + "'); naviguerVers('" + routeSuivanteProjet + "')" : null }) + '</div>';
     })();
@@ -8716,7 +9407,8 @@ function pageProjet() {
     document.querySelectorAll('[data-blocs-tout]').forEach(function (b) {
       b.addEventListener('click', function () {
         var ouvrir = this.getAttribute('data-blocs-tout') === 'ouvrir';
-        ['vous', 'parcours', 'experiences-pro', 'experiences-perso', 'complements'].forEach(function (id) {
+        configsVosInformations().forEach(function (c) {
+          var id = c.id;
           etatBlocsERIPOuverts[id] = ouvrir;
         });
         pageProjet();
@@ -8725,6 +9417,19 @@ function pageProjet() {
   }
   // Bloc « Quelques passages à préciser » (module Un CV, plusieurs métiers) : câblé une fois la page dessinée.
   if (typeof brancherBlocPassagesDePage === 'function') { brancherBlocPassagesDePage(cleHotePassages); }
+  // Troisieme parcours : le bouton et sa raison suivent les reponses en direct (certaines ne redessinent pas la page).
+  if (!depuisUcpm && (dossier.modeCreation === 'nouveau' || dossier.modeCreation === 'maj') && !_depuisBilanVersProjet) {
+    var majContinuerProjet = function () {
+      var raisons = raisonsBlocageVosInformations();
+      var bouton = document.getElementById('btnSuivantNavigation');
+      if (!bouton) { return; }
+      bouton.disabled = raisons.length > 0;
+      if (raisons.length) { bouton.setAttribute('title', phraseBlocageLettreCo(raisons)); } else { bouton.removeAttribute('title'); }
+      definirRaisonSuivantBarre(bouton, raisons.length ? phraseBlocageLettreCo(raisons) : '');
+    };
+    var grilleProjet = document.querySelector('.grille-mon-projet');
+    ['input', 'change', 'click'].forEach(function (nom) { if (grilleProjet) { grilleProjet.addEventListener(nom, function () { setTimeout(majContinuerProjet, 0); }); } });
+  }
 }
 
 // « Vos informations » : la grille des cinq blocs, dessinée (_projetGrilleHTML) et câblée (_projetCablerGrille) à part pour pouvoir être redessinée seule :
@@ -8737,11 +9442,8 @@ function _projetGrilleHTML(modeAllege) {
     // ('pret'), il ne reste que "Vous".
     (modeAllege
       ? '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_VOUS) + '</div>'
-      : '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_VOUS) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_PARCOURS) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_EXPERIENCES_PRO) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_EXPERIENCES_PERSO) + '</div>' +
-        '<div class="rangee-mon-projet">' + blocERIP(CONFIG_BLOC_COMPLEMENTS) + '</div>') +
+      // Consigne 378 (15/11/2026) : un rectangle par rubrique, dans l'ordre de configsVosInformations().
+      : configsVosInformations().map(function (c) { return '<div class="rangee-mon-projet">' + blocERIP(c) + '</div>'; }).join('')) +
     '</div>';
 }
 function _projetCablerGrille(modeAllege) {
@@ -8750,10 +9452,7 @@ function _projetCablerGrille(modeAllege) {
     // TACHE (Paquet B, decision de Denis 2026-09-26) : le changement de
     // rubrique ne range plus les autres bandeaux (ancien comportement,
     // retour Denis 2026-09-19, explicitement remplace -- voir blocERIP()).
-    wireBlocERIP(CONFIG_BLOC_PARCOURS, pageProjet);
-    wireBlocERIP(CONFIG_BLOC_EXPERIENCES_PRO, pageProjet);
-    wireBlocERIP(CONFIG_BLOC_EXPERIENCES_PERSO, pageProjet);
-    wireBlocERIP(CONFIG_BLOC_COMPLEMENTS, pageProjet);
+    configsVosInformations().forEach(function (c) { if (c !== CONFIG_BLOC_VOUS) { wireBlocERIP(c, pageProjet); } });
   }
 }
 // Redessine seulement les blocs de « Vos informations » (après une réponse du bloc « Quelques passages à préciser »).
@@ -9024,6 +9723,7 @@ function chargerRepertoireElargi(quandPret) {
     var dejaDansLaBase = {};
     if (typeof baseMetiers !== 'undefined') {
       baseMetiers.forEach(function (m) {
+        if (m.niveau === 'rome') { return; }   // les intitulés des fiches générées du ROME arrivent par ce répertoire ; le code du ROME retrouve leur fiche (enregistrerCodeRomeIntitule)
         var norm = normaliserTexte(m.nom);
         dejaDansLaBase[norm] = true;
         dejaDansLaBase[norm.replace(/\s*\([^)]*\)\s*$/, '')] = true;   // « Assistant de vie aux familles (ADVF) » couvre aussi « Assistant de vie aux familles »
@@ -9076,6 +9776,7 @@ function rechercherDansRepertoireElargi(texte, nomsDejaProposes, limite) {
 function choisirMetierPropose(m, rerender) {
   if (m && m.depuisRepertoireElargi) {
     _metiersRepertoireElargiChoisis[m.nom] = { secteur: m.secteur, rome: m.rome };
+    if (typeof enregistrerCodeRomeIntitule === 'function') { enregistrerCodeRomeIntitule(m.nom, m.rome); }   // retrouve la fiche de la base par le code du ROME
     // Même chemin que « Valider » : le métier remplace le précédent (avec la confirmation habituelle) ; son domaine est enregistré à la finalisation.
     ajouterMetierHorsRepertoire(m.nom, rerender);
     return;
@@ -9097,8 +9798,7 @@ function metierCibleSaisiSansDomaine() {
   return !_metiersRepertoireElargiChoisis[dossier.metierCible];
 }
 function exemplesMetiersDuSecteur(nomSecteur) {
-  if (typeof baseMetiers === 'undefined') { return []; }
-  return baseMetiers.filter(function (m) { return m.secteur === nomSecteur; }).slice(0, 3).map(function (m) { return String(m.nom).split(' / ')[0]; });
+  return fichesPourStatistiquesSecteur().filter(function (m) { return m.secteur === nomSecteur; }).slice(0, 3).map(function (m) { return String(m.nom).split(' / ')[0]; });
 }
 function domaineMetierSaisiHTML() {
   if (!dossier.metierCible || !metierEstHorsRepertoire(dossier.metierCible) || typeof COMPETENCES_SECTEURS === 'undefined') { return ''; }
@@ -9291,7 +9991,7 @@ function _verifierCoordonneesAvantPasserAction(routeCible) {
   // "Je reponds a une offre d'emploi" a ete choisi et qu'aucune entreprise
   // n'est encore connue, on la demande maintenant -- une seule fois, le
   // metier etant desormais fixe.
-  if (dossier.typeRecherche === 'offre' && !(dossier.rechercheCandidature && dossier.rechercheCandidature.entreprise)) {
+  if (entrepriseManquantePourLaSuite()) {
     afficherEncartEntrepriseManquante(routeCible);
     return;
   }
@@ -9318,34 +10018,100 @@ function _verifierCoordonneesAvantPasserAction(routeCible) {
 // Un encart dans la page (juste au-dessus de la barre « Passer a l'action ») propose « Indiquer l'entreprise » (renvoie sur
 // « Votre objectif », ou le bloc entreprise/offre est deja en page) ou « Continuer sans » (meme regle qu'avant : la recherche
 // redevient « simple », l'entreprise est videe).
-function afficherEncartEntrepriseManquante(routeCible) {
-  var ancien = document.getElementById('encartEntrepriseManquante');
-  if (ancien) { ancien.parentNode.removeChild(ancien); }
-  var conteneur = document.querySelector('.page-catalogue-contenu') || document.getElementById('app');
-  if (!conteneur) { naviguerVers('objectif'); return; }
-  var encart = document.createElement('div');
-  encart.id = 'encartEntrepriseManquante';
-  encart.className = 'cand-encart cand-encart-warn';
-  encart.setAttribute('role', 'alert');
-  encart.innerHTML = '<span class="cand-encart-ico">&#127970;</span><div>' +
-    '<p class="mb-2">Vous avez choisi de répondre à une offre, mais le nom de l’entreprise n’est pas indiqué. Il personnalise votre CV, votre lettre et votre entretien.</p>' +
-    '<div class="d-flex flex-wrap gap-2">' +
-    '<button type="button" class="btn btn-primary" id="btnEncartEntrepriseIndiquer">Indiquer l’entreprise</button>' +
-    '<button type="button" class="btn btn-outline-secondary" id="btnEncartEntrepriseSans">Continuer sans</button>' +
-    '</div></div>';
-  conteneur.appendChild(encart);
-  document.getElementById('btnEncartEntrepriseIndiquer').addEventListener('click', function () {
-    etatBlocsERIPOuverts.candidature = true;
-    naviguerVers('objectif');
-  });
-  document.getElementById('btnEncartEntrepriseSans').addEventListener('click', function () {
+// Source unique (11/11/2026) : « une offre » ou « une entreprise précise » a été choisie, mais aucun nom d'entreprise n'est indiqué.
+// Décision de Denis (11/11/2026) : seulement quand il n'y a NI nom d'entreprise NI offre (une offre collée peut contenir le nom de l'entreprise : on ne l'efface jamais et on ne bloque pas).
+function entrepriseManquantePourLaSuite() {
+  var rc = dossier.rechercheCandidature || {};
+  return dossier.typeRecherche === 'offre' && !rc.entreprise && !aUneOffreLettreCo(rc);
+}
+// « Une offre » ou « une entreprise précise » choisie, sans offre collée : la page « Votre profil » parle de l'entreprise (message, zone de saisie ou rappel).
+function entrepriseConcerneeSansOffre() {
+  return dossier.typeRecherche === 'offre' && !aUneOffreLettreCo(dossier.rechercheCandidature || {});
+}
+// Ce que fait « Continuer sans entreprise » : candidature présentée de façon générale, puis la suite habituelle (le contrôle du métier reste fait par verifierAvantPasserAction).
+function continuerSansEntreprise(routeCible) {
+  // Si le nom vient d'être saisi dans la zone (sans cliquer « Valider »), on le garde : on continue normalement.
+  if (entrepriseManquantePourLaSuite()) {
     dossier.civiliteRecruteurDemandee = true;
     dossier.typeRecherche = 'simple';
     dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
     dossier.typeCV = typeCVDepuisTypeRecherche();
-    naviguerVers(routeCible);
-  });
-  encart.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  verifierAvantPasserAction(routeCible || 'resultats');
+}
+// Décision de Denis (11/11/2026) : sur « Votre profil », le message est affiché d'emblée avec UNE seule action dans la page (« Indiquer l'entreprise ») ;
+// un clic ouvre, à la place du bouton, la zone de saisie (nom, site, type de structure, civilité, couleur) : ni fenêtre, ni retour sur « Votre objectif ».
+// Le bouton de droite de la barre du bas s'appelle « Continuer sans entreprise » tant que le nom manque.
+var _zoneEntrepriseProfilOuverte = false;
+function texteSansOffreEntreprise(nom) {
+  nom = String(nom || '').trim();
+  return nom ? messageSansOffreLettreCo(nom) : 'Sans offre d’emploi ni nom d’entreprise, votre candidature sera présentée de façon générale, sans viser d’entreprise.';
+}
+function htmlZoneEntrepriseProfil() {
+  var rc = dossier.rechercheCandidature || {};
+  return '<div id="zoneEntrepriseProfil" class="mt-2">' +
+    contenuCoordonneesEntrepriseBilanInline(true, false, { modeUnifie: true, sansOffre: true, introHtml: '<p class="mb-1 fw-bold" style="font-size:1.1rem;">&#127970; L’entreprise visée</p><p class="text-muted small mb-2">Tout est à compléter, rien n’est obligatoire. Le site de l’entreprise aide l’assistant à comprendre ce qu’elle fait.</p>' }) +
+    '<div id="messageEntrepriseProfil" class="encart-limite-missions" role="status"><strong>' + texteSansOffreEntreprise(rc.entreprise) + '</strong></div>' +
+    '<div class="mt-3"><button type="button" class="btn btn-primary" id="btnValiderEntrepriseProfil">Valider</button></div></div>';
+}
+function htmlBlocEntrepriseProfil() {
+  var rc = dossier.rechercheCandidature || {};
+  if (entrepriseManquantePourLaSuite() || _zoneEntrepriseProfilOuverte) {
+    var choixFait = visaUneEntreprisePrecise() ? 'vous adresser à une entreprise précise' : 'répondre à une offre';
+    return '<div id="encartEntrepriseManquante" class="cand-encart cand-encart-warn" role="alert"><span class="cand-encart-ico">&#127970;</span><div>' +
+      (rc.entreprise
+        ? '<p class="mb-2">Vous avez choisi de ' + choixFait + '. Vérifiez ou complétez l’entreprise, puis cliquez sur « Valider ».</p>'
+        : '<p class="mb-2">Vous avez choisi de ' + choixFait + ', mais le nom de l’entreprise n’est pas indiqué. Il personnalise votre CV, votre lettre et votre entretien.</p>' +
+          '<p class="mb-2"><strong>Si vous continuez sans, votre candidature sera présentée de façon générale, sans viser d’entreprise.</strong></p>') +
+      (_zoneEntrepriseProfilOuverte ? htmlZoneEntrepriseProfil()
+        : '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" id="btnEncartEntrepriseIndiquer">Indiquer l’entreprise</button></div>') +
+      '</div></div>';
+  }
+  if (rc.entreprise) {
+    return '<div id="rappelEntrepriseProfil" class="encart-limite-missions" role="status"><strong>' + texteSansOffreEntreprise(rc.entreprise) + '</strong> ' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="btnModifierEntrepriseProfil">Modifier l’entreprise</button></div>';
+  }
+  return '';
+}
+// Libellé du bouton de droite : suit le nom en direct, sans re-rendre la page.
+function majBoutonSuiteEntrepriseProfil() {
+  var b = document.getElementById('btnSuivantNavigation');
+  if (b) { b.innerHTML = entrepriseManquantePourLaSuite() ? 'Continuer sans entreprise' : 'Continuer &#8594;'; }
+}
+function brancherBlocEntrepriseProfil(rerender, routeCible) {
+  var indiquer = document.getElementById('btnEncartEntrepriseIndiquer') || document.getElementById('btnModifierEntrepriseProfil');
+  if (indiquer) { indiquer.addEventListener('click', function () { _zoneEntrepriseProfilOuverte = true; rerender(); }); }
+  var zone = document.getElementById('zoneEntrepriseProfil');
+  if (zone) {
+    cablerSaisieEntrepriseDansDossier(zone, function () {
+      var m = document.getElementById('messageEntrepriseProfil');
+      if (m) { m.innerHTML = '<strong>' + texteSansOffreEntreprise((dossier.rechercheCandidature || {}).entreprise) + '</strong>'; }
+      majBoutonSuiteEntrepriseProfil();
+    });
+    wireCiviliteEtCouleurRecruteurCandidature(rerender, false);
+    var valider = document.getElementById('btnValiderEntrepriseProfil');
+    if (valider) { valider.addEventListener('click', function () { _zoneEntrepriseProfilOuverte = false; rerender(); }); }
+  }
+}
+function brancherEncartEntrepriseManquante(routeCible) {
+  var enPage = (typeof pageActuelle !== 'undefined' && pageActuelle === 'revelation');
+  var indiquer = document.getElementById('btnEncartEntrepriseIndiquer');
+  if (indiquer) { indiquer.addEventListener('click', function () { if (enPage) { _zoneEntrepriseProfilOuverte = true; pageRevelation(true); } else { etatBlocsERIPOuverts.candidature = true; naviguerVers('objectif'); } }); }
+}
+// Source unique (11/11/2026) : la personne vise-t-elle « une entreprise précise » (candidature spontanée, ou changer de métier vers une entreprise) plutôt que « une offre » ?
+function visaUneEntreprisePrecise() {
+  var forme = (typeof formeCandidatureActuelle === 'function') ? formeCandidatureActuelle() : null;
+  return forme === 'entreprise' || dossier.objectif === 'spontanee';
+}
+function afficherEncartEntrepriseManquante(routeCible) {
+  // Sur « Votre profil », le message est déjà dans la page : on le montre, sans en ajouter un second.
+  var dejaLa = document.getElementById('encartEntrepriseManquante');
+  if (dejaLa) { dejaLa.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  var conteneur = document.querySelector('.page-catalogue-contenu') || document.getElementById('app');
+  if (!conteneur) { naviguerVers('objectif'); return; }
+  if (pageActuelle === 'revelation') { pageRevelation(true); } else { conteneur.insertAdjacentHTML('beforeend', htmlBlocEntrepriseProfil()); brancherEncartEntrepriseManquante(routeCible); }
+  var apres = document.getElementById('encartEntrepriseManquante');
+  if (apres) { apres.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 }
 
 // TACHE (migration Design System, chantier "Fenetre ERIP", 4e migration) :
@@ -9430,9 +10196,8 @@ function wireEvidenceMetierCible() {
 var LIMITE_RACCOURCIS_DOMAINES = 8;
 
 function secteursDisponibles() {
-  if (typeof baseMetiers === 'undefined') { return []; }
   var comptes = {};
-  baseMetiers.forEach(function (m) {
+  fichesPourStatistiquesSecteur().forEach(function (m) {
     if (!m.secteur) { return; }
     comptes[m.secteur] = (comptes[m.secteur] || 0) + 1;
   });
@@ -9839,6 +10604,381 @@ function metiersAvecScorePourNoms(noms) {
 // pastilleMetierHorsRepertoireHTML(), plus haut) reste volontairement simple
 // (nom + croix seulement) : le metier y est deja la cible, ce descriptif n'a
 // de sens qu'AVANT de choisir, pas apres.
+// « À savoir sur ce métier » (décision Denis 12/11/2026) : conditions de travail du ROME (data/conditionsRome.js), seulement affichées, jamais demandées ni comptées dans un score.
+// Les statuts d'emploi possibles (identifiants en « s_ ») sont réunis sur une seule ligne.
+function aSavoirSurLeMetierHTML(fiche, sansTitre) {
+  if (!fiche || !fiche.rome || typeof CONDITIONS_ROME === 'undefined') { return ''; }
+  var ids = CONDITIONS_ROME.parCode[fiche.rome] || [];
+  var phrases = ids.filter(function (id) { return id.indexOf('s_') !== 0; }).slice(0, 6).map(function (id) { return CONDITIONS_ROME.libelles[id]; });
+  var statuts = ids.filter(function (id) { return id.indexOf('s_') === 0; }).map(function (id) { return CONDITIONS_ROME.libelles[id].replace(/^Possible /, ''); });
+  if (!phrases.length && !statuts.length) { return ''; }
+  return '<div' + (sansTitre ? '' : ' class="mt-3"') + ' data-a-savoir-metier="1">' + (sansTitre ? '' : '<p class="fw-semibold small mb-1">À savoir sur ce métier</p>') +
+    (phrases.length ? '<ul class="small mb-1 ps-3">' + phrases.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ul>' : '') +
+    (statuts.length ? '<p class="small mb-1">Possible ' + statuts.join(', ') + '.</p>' : '') +
+    '<p class="small text-muted mb-0">D’après la fiche du métier de France Travail. Selon les employeurs, cela peut varier.</p></div>';
+}
+// FICHE COMPLÈTE DU ROME (consigne 263, 13/11/2026, maquette docs/maquettes/maquette-fiche-metier-et-choix-cv-rome-v2-2026-11-12.html).
+// Pour tous les métiers de la base : accès, ce que fait le métier, tâches concrètes par familles, outils et connaissances, autres noms, métiers proches.
+// Les chiffres qui changent souvent (salaires, difficulté de recrutement, conditions détaillées) restent chez France Travail, par le lien en bas de la fiche.
+// OUVERTE le 16/11/2026 (décision de Denis : tout reste en interne, rien n'est encore publié). Pour la refermer : remettre faux ici ; l'adresse ?fiche_rome=1 l'ouvre toujours pour un essai.
+var FICHE_ROME_COMPLETE_OUVERTE = true;
+function ficheRomeCompleteActive() {
+  return FICHE_ROME_COMPLETE_OUVERTE || /[?&]fiche_rome=1(&|$)/.test((typeof window !== 'undefined' && window.location && window.location.search) || '');
+}
+// Chargement À LA DEMANDE (jamais par index.html) : les phrases communes (data/competencesRome.js) puis le fichier de la lettre du code (data/rome/fiche_X.js). Chaque fichier n'est demandé qu'une fois.
+var _ficheRomeScripts = {};
+function _chargerScriptUneFois(src, rappel) {
+  var etat = _ficheRomeScripts[src];
+  if (etat && etat.fini) { rappel(etat.ok); return; }
+  if (etat) { etat.attente.push(rappel); return; }
+  etat = _ficheRomeScripts[src] = { fini: false, ok: false, attente: [rappel] };
+  function terminer(ok) { etat.fini = true; etat.ok = ok; etat.attente.splice(0).forEach(function (r) { r(ok); }); }
+  var script = document.createElement('script');
+  script.src = src; script.charset = 'UTF-8';
+  script.onload = function () { terminer(true); };
+  script.onerror = function () { delete _ficheRomeScripts[src]; terminer(false); };
+  document.head.appendChild(script);
+}
+function chargerFicheRome(code, rappel) {
+  if (!code) { rappel(null); return; }
+  _chargerScriptUneFois('data/competencesRome.js', function (ok1) {
+    if (!ok1 || typeof COMPETENCES_ROME === 'undefined') { rappel(null); return; }
+    _chargerScriptUneFois('data/rome/fiche_' + code.charAt(0) + '.js', function (ok2) {
+      rappel(ok2 && window.FICHES_ROME && window.FICHES_ROME[code] ? window.FICHES_ROME[code] : null);
+    });
+  });
+}
+// Données de la fiche du ROME prêtes à afficher : source unique de la fenêtre (ficheRomeCompleteHTML) et de la page (pageFicheMetier).
+function ficheRomeDonnees(f, fiche) {
+  var CP = COMPETENCES_ROME;
+  var D = { acces: f.a || '', presentation: f.d || '', missions: f.m || [], coeur: [], autres: [], nb: 0, savoirs: [], noms: f.n || [], proches: [] };
+  function famille(i) { var g = f.k[i]; return { titre: CP.phrases[g[0]], items: g[2] }; }
+  if (f.k && f.k.length) {
+    var c = [], a = [];
+    f.k.forEach(function (g, i) { (g[1] > 0 ? c : a).push(i); });
+    if (!c.length) { c = a.splice(0, 3); }
+    D.coeur = c.map(famille);
+    D.autres = a.map(famille);
+    D.nb = f.k.reduce(function (s, g) { return s + g[2].length; }, 0);
+  }
+  D.savoirs = (f.s || []).filter(function (g) { return g[2].length; }).map(function (g) { return { titre: CP.categories[g[0]] || '', items: g[2] }; });
+  D.proches = (f.p || []).map(function (code) { var m = ficheParCodeRome(code); return m && m.nom !== fiche.nom ? m.nom : null; })
+    .filter(function (x, i, l) { return x && l.indexOf(x) === i; }).slice(0, 6);
+  return D;
+}
+function ficheRomeCompleteHTML(f, fiche) {
+  var e = echapperAttribut, D = ficheRomeDonnees(f, fiche);
+  function liste(items, cl) { return '<ul class="small mb-1 ps-3' + (cl ? ' ' + cl : '') + '">' + items.map(function (x) { return '<li>' + e(x) + '</li>'; }).join('') + '</ul>'; }
+  function familles(l) {
+    return l.map(function (g) { return '<p class="fw-semibold small mb-1 mt-2">' + e(g.titre) + '</p>' + liste(g.items); }).join('');
+  }
+  function bouton(texte) { return '<summary class="btn btn-sm btn-outline-secondary mt-2" style="display:inline-block;list-style:none;">' + texte + '</summary>'; }
+  var h = '<div data-fiche-rome-complete="1">';
+  if (D.acces) {
+    h += '<div class="mb-3" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .8rem;"><p class="fw-semibold small mb-1">Comment y accéder</p><p class="small mb-0">' + e(D.acces) + '</p></div>';
+  }
+  if (D.presentation || D.missions.length) {
+    h += '<p class="fw-semibold small mb-1">Ce que fait ce métier</p>' + (D.presentation ? '<p class="small mb-1">' + e(D.presentation) + '</p>' : '') + (D.missions.length ? liste(D.missions) : '');
+  }
+  if (D.coeur.length || D.autres.length) {
+    h += '<p class="fw-semibold small mb-0 mt-3">Les tâches concrètes</p><p class="small text-muted mb-0">Le ROME décrit ' + D.nb + ' tâches pour ce métier, rangées par familles. Les plus importantes d’abord.</p>' + familles(D.coeur) +
+      (D.autres.length ? '<details>' + bouton('Voir les autres tâches') + familles(D.autres) + '</details>' : '');
+  }
+  if (D.savoirs.length) {
+    h += '<p class="fw-semibold small mb-0 mt-3">Outils, techniques et connaissances</p><p class="small text-muted mb-1">Ce que les personnes qui font ce métier doivent connaître ou savoir utiliser.</p>';
+    D.savoirs.forEach(function (g) {
+      function puces(l) { return l.map(function (x) { return '<span class="badge bg-info me-1 mb-1" style="white-space:normal;text-align:left;max-width:100%;">' + e(x) + '</span>'; }).join(''); }
+      h += '<p class="small fw-semibold mb-1 mt-2">' + e(g.titre) + '</p><div>' + puces(g.items.slice(0, 6)) + '</div>' +
+        (g.items.length > 6 ? '<details>' + bouton('+ ' + (g.items.length - 6) + (g.items.length - 6 > 1 ? ' autres' : ' autre')) + '<div class="mt-1">' + puces(g.items.slice(6)) + '</div></details>' : '');
+    });
+  }
+  if (D.noms.length) {
+    h += '<p class="fw-semibold small mb-0 mt-3">Ce métier s’appelle aussi</p><p class="small text-muted mb-1">Selon les employeurs, le même métier porte d’autres noms.</p><div>' +
+      D.noms.slice(0, 8).map(function (x) { return '<span class="badge bg-secondary me-1 mb-1" style="white-space:normal;text-align:left;max-width:100%;">' + e(x) + '</span>'; }).join('') + '</div>';
+  }
+  if (D.proches.length) {
+    h += '<p class="fw-semibold small mb-0 mt-3">Des métiers proches</p><p class="small text-muted mb-1">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p><div>' +
+      D.proches.map(function (x) { return '<span class="badge bg-secondary me-1 mb-1" style="white-space:normal;text-align:left;max-width:100%;">' + e(x) + '</span>'; }).join('') + '</div>';
+  }
+  if (f && f.ri && riasecHTML(f.ri)) { h += '<p class="fw-semibold small mb-1 mt-3">Le type d’activités de ce métier (RIASEC)</p>' + riasecHTML(f.ri); }
+  h += '<div class="mt-3"><a href="' + lienFicheROME(fiche) + '" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">&#128196; Voir la fiche complète sur France Travail</a>' +
+    '<p class="small text-muted mt-1 mb-0">Pour les salaires, les conditions de travail détaillées et la difficulté de recrutement.</p></div></div><hr>';
+  return h;
+}
+
+// PAGE « Fiche du métier » (consigne 271, maquette docs/maquettes/maquette-fiche-page-et-candidater-2026-11-13.html, onglet 2).
+// Atteinte depuis la recherche de l'accueil (et le panneau « métiers associés ») : un clic sur un métier ouvre sa fiche EN PAGE, avec un bouton « Candidater pour ce métier »
+// qui mène à l'écran Candidater. Fermée au public tant que ficheRomeCompleteActive() est faux : la recherche garde alors son chemin direct vers Candidater.
+// Aucun texte souligné cliquable : des boutons ; les trois listes de compétences sont à lire, pas à cliquer.
+var _ficheMetierNom = null;
+var _ficheMetierCandidater = false;   // vrai quand la fiche est ouverte depuis la recherche de l'accueil : le bouton « Candidater pour ce métier » existe
+var _ficheMetierChoix = false;        // vrai quand le métier peut se choisir depuis la fiche (« Votre objectif ») : le bouton « Choisir ce métier » existe
+var _ficheMetierRerender = null;      // redessin de la page d'où l'on vient, appelé après « Choisir ce métier »
+var _ficheMetierDepuisCandidater = false;   // vrai quand la fiche est ouverte depuis l'écran Candidater : un bouton visible en haut y ramène (consigne 273)
+var _retourDeFicheMetier = false;     // vrai juste après « Retour » depuis la fiche : « Votre profil » garde alors ses métiers proposés (ne retire pas son tirage)
+function ouvrirFicheMetierOuCandidater(nom) {
+  var fiche = (typeof metierParNom === 'function') ? metierParNom(nom) : null;
+  if (fiche && fiche.rome && ficheRomeCompleteActive()) {
+    _ficheMetierNom = nom; _ficheMetierCandidater = true; _ficheMetierChoix = false; _ficheMetierRerender = null; _ficheMetierDepuisCandidater = false;
+    naviguerVers('fiche-metier');
+    return;
+  }
+  ouvrirPanneauChoixParcours(nom);
+}
+function ficheMetierCandidater() { if (_ficheMetierNom) { ouvrirPanneauChoixParcours(_ficheMetierNom); } }
+// « Retour » de la fiche : page d'avant (pile de navigation). Vers « Votre profil », ses métiers proposés ne sont pas retirés au tirage.
+function ficheMetierRetour() {
+  if (pagePrecedenteDansPile() === 'revelation') { _retourDeFicheMetier = true; }
+  retourPagePrecedente();
+}
+// « Choisir ce métier » : on revient d'abord à la page d'origine, puis le métier est choisi et la page se redessine (même ordre qu'avec l'ancienne fenêtre).
+function ficheMetierChoisir() {
+  var nom = _ficheMetierNom, rerender = _ficheMetierRerender;
+  ficheMetierRetour();
+  if (pageActuelle === 'metiers-du-secteur') { retourPagePrecedente(); }   // fiche atteinte par la liste d'un secteur : on remonte jusqu'à la page d'origine
+  if (!nom) { return; }
+  ajouterMetierCandidat(nom, rerender);
+  if (typeof rerender === 'function') { rerender(); }
+}
+function _fmListe(items) { return '<ul class="fm-liste">' + items.map(function (x) { return '<li>' + echapperAttribut(x) + '</li>'; }).join('') + '</ul>'; }
+function _fmFamilles(l) { return l.map(function (g) { return '<p class="fm-famille">' + echapperAttribut(g.titre) + '</p>' + _fmListe(g.items); }).join(''); }
+// Autres noms du métier : les 8 premiers (les plus courants) puis un bouton qui déplie tous les autres (consigne 263, 13/11/2026). Les noms ne sont pas cliquables : tous restent trouvables par la recherche de l'accueil.
+function _fmNoms(noms) {
+  var visibles = noms.slice(0, 8), autres = noms.slice(8);
+  return _fmListe(visibles) + (autres.length
+    ? '<details class="fm-noms-autres">' + _fmBoutonDetails('Voir les ' + autres.length + (autres.length > 1 ? ' autres noms' : ' autre nom')) + _fmListe(autres) + '</details>'
+    : '');
+}
+function _fmBoutonDetails(texte) { return '<summary class="btn btn-sm btn-outline-secondary fm-bouton-details">' + texte + '</summary>'; }
+function _fmColonne(titre, aide, classeCouleur, liste) {
+  if (!liste || !liste.length) { return ''; }
+  return '<div class="fm-colonne"><h3 class="fm-colonne-titre"><span class="fm-point ' + classeCouleur + '" aria-hidden="true"></span>' + titre + '</h3>' +
+    '<p class="fm-aide">' + aide + '</p>' + _fmListe(liste) + '</div>';
+}
+function ficheMetierCorpsHTML(fiche, f) {
+  var n = 0, h = '', e = echapperAttribut;
+  function bloc(titre, corps) {
+    n++;
+    h += '<details class="bloc-depli" open><summary><span class="preparer-num">' + n + '</span><span class="preparer-titre">' + titre + '</span></summary><div class="bloc-depli-corps">' + corps + '</div></details>';
+  }
+  var D = f ? ficheRomeDonnees(f, fiche) : null;
+  if (D && D.acces) { bloc('Comment y accéder', '<div class="fm-acces">' + e(D.acces) + '</div>'); }
+  if (D && (D.presentation || D.missions.length)) {
+    bloc('Ce que fait ce métier', (D.presentation ? '<p>' + e(D.presentation) + '</p>' : '') + (D.missions.length ? _fmListe(D.missions) : ''));
+  }
+  if (D && (D.coeur.length || D.autres.length)) {
+    bloc('Les tâches concrètes', '<p class="fm-aide">Le ROME décrit ' + D.nb + ' tâches pour ce métier, rangées par familles. Les plus importantes d’abord.</p>' + _fmFamilles(D.coeur) +
+      (D.autres.length ? '<details class="fm-autres">' + _fmBoutonDetails('Voir les autres tâches') + _fmFamilles(D.autres) + '</details>' : ''));
+  }
+  var colonnes = _fmColonne('Qualités personnelles', 'Votre façon d’être au travail', 'bg-success', fiche.savoirEtre) +
+    _fmColonne('Savoir-faire', 'Les gestes à maîtriser', 'bg-primary', fiche.savoirFaire) +
+    _fmColonne('Connaissances', 'Ce qu’il faut avoir appris', 'bg-info', fiche.savoirs);
+  if (colonnes) {
+    bloc('Ce que ce métier demande', '<p class="fm-aide">Ce sont les mêmes couleurs que dans « Votre profil ». Ces listes sont là pour vous renseigner : elles ne sont pas à cliquer.</p><div class="fm-colonnes">' + colonnes + '</div>');
+  }
+  if (D && D.savoirs.length) {
+    bloc('Outils, techniques et connaissances', '<p class="fm-aide">Ce que les personnes qui font ce métier doivent connaître ou savoir utiliser.</p>' + D.savoirs.map(function (g) {
+      var reste = g.items.length - 6;
+      return '<p class="fm-famille">' + e(g.titre) + '</p>' + _fmListe(g.items.slice(0, 6)) +
+        (reste > 0 ? '<details class="fm-autres">' + _fmBoutonDetails('+ ' + reste + (reste > 1 ? ' autres' : ' autre')) + _fmListe(g.items.slice(6)) + '</details>' : '');
+    }).join(''));
+  }
+  if (D && D.noms.length) { bloc('Ce métier s’appelle aussi', '<p class="fm-aide">Selon les employeurs, le même métier porte d’autres noms.</p>' + _fmNoms(D.noms)); }
+  if (D && D.proches.length) { bloc('Des métiers proches', '<p class="fm-aide">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p>' + _fmListe(D.proches)); }
+  var savoir = aSavoirSurLeMetierHTML(fiche, true);
+  if (savoir) { bloc('À savoir sur ce métier', savoir); }
+  // Tout en bas (demande de Denis, 13/11/2026) : les lettres RIASEC du métier et ce qu'elles veulent dire. Elles décrivent le métier, jamais la personne.
+  if (f && f.ri && riasecHTML(f.ri)) { bloc('Le type d’activités de ce métier (RIASEC)', riasecHTML(f.ri)); }
+  return h;
+}
+// PAGE « Chercher un autre métier » (consigne 275, bloc B, maquette docs/maquettes/maquette-chercher-un-autre-metier-2026-11-13.html) : même moteur que la barre de recherche de l'accueil, mêmes cartes, sans quitter Candidater.
+// Choisir un métier le met à la place de celui de Candidater (les réponses repartent de zéro) ; « Retour » revient sans rien changer.
+var _chercherMetierTexte = '';
+// Quelques mots simples tant que rien n'est tapé (consigne 276) : ils laissent la place aux résultats dès les premières lettres.
+function _chercherMetierAideHTML() {
+  return '<div class="cand-recherche-aide"><p class="cand-recherche-aide-titre"><i class="bi bi-lightbulb" aria-hidden="true"></i> Comment chercher ?</p><ul>' +
+    '<li>Tapez le nom d’un métier, ou seulement le début : « boul », « char », « aide ».</li>' +
+    '<li>La liste se réduit à mesure que vous tapez, avec une courte description de chaque métier.</li>' +
+    '<li>Choisissez un métier : il prend la place de celui de « Candidater », et les réponses données plus bas repartent de zéro.</li>' +
+    '<li>Le bouton « Retour » vous ramène à « Candidater » sans rien changer.</li></ul></div>';
+}
+function _chercherMetierResultats(texte) {
+  var groupes = rechercherBaseConnaissances(texte);
+  ajouterMetiersRepertoireElargiAuxGroupes(texte, groupes);
+  var vus = {}, liste = [];
+  groupes.forEach(function (g) {
+    if (g.type !== 'metier' && g.type !== 'metier_suggere') { return; }
+    g.resultats.forEach(function (m) { if (!vus[m.nom]) { vus[m.nom] = true; liste.push(m); } });
+  });
+  return liste.slice(0, 30);
+}
+function pageChercherAutreMetier() {
+  app.innerHTML =
+    '<div class="page-catalogue-contenu bilan-preparer">' +
+    '<h1 class="text-center">Chercher un autre métier</h1>' +
+    '<p class="text-center text-muted mb-1">Tapez le nom du métier : la liste se réduit dès les premières lettres.</p>' +
+    '<div style="max-width:560px;margin:.8rem auto 1rem"><input type="search" class="form-control form-control-lg cand-recherche-champ" id="champChercherMetier" placeholder="Ex : boulanger, charpentier, aide-soignant" autocomplete="off" value="' + echapperAttribut(_chercherMetierTexte) + '"></div>' +
+    '<div id="resultatsChercherMetier"></div>' +
+    '<div class="barre-navigation-fixe">' + barreNavigation('candidater', null, '', { onclickPrecedent: 'retourPagePrecedente()' }) + '</div>' +
+    '</div>';
+  var champ = document.getElementById('champChercherMetier'), zone = document.getElementById('resultatsChercherMetier');
+  function dessiner() {
+    _chercherMetierTexte = champ.value;
+    var texte = champ.value.trim();
+    if (texte.length < 2) { zone.innerHTML = _chercherMetierAideHTML(); return; }
+    var liste = _chercherMetierResultats(texte);
+    zone.innerHTML = liste.length
+      ? '<div class="grille-resultats-erip">' + liste.map(function (m) { return carteMetierUniqueHTML(m, 'Choisir ce métier'); }).join('') + '</div>'
+      : '<p class="text-center text-muted mt-3">Aucun métier ne correspond. Essayez un autre mot, ou une partie du nom.</p>';
+    remplirDescriptionsCartesMetier(zone);
+  }
+  champ.addEventListener('input', dessiner);
+  zone.addEventListener('click', function (e) {
+    var carte = e.target.closest('[data-metier-nom]');
+    if (!carte) { return; }
+    var nom = carte.dataset.metierNom;
+    if (carte.dataset.metierRepertoireDomaine) {
+      _metiersRepertoireElargiChoisis[nom] = { secteur: carte.dataset.metierRepertoireDomaine, rome: carte.dataset.metierRepertoireRome || '' };
+      if (typeof enregistrerCodeRomeIntitule === 'function') { enregistrerCodeRomeIntitule(nom, carte.dataset.metierRepertoireRome); }
+    }
+    _chercherMetierTexte = '';
+    ouvrirPanneauChoixParcours(nom);
+    // Naviguer vers Candidater (déjà dans la pile) a dépilé la page de recherche : on la remet, pour que « Retour » ramène ici et non à l'accueil (retour Denis 2026-11-13).
+    pileNavigation.push('candidater', 'chercher-metier');
+  });
+  dessiner();
+  champ.focus();
+}
+// PAGES DU SECTEUR (consigne 276) : « Changer de secteur » (tous les secteurs, comme « Chercher un autre métier » pour les métiers) et « Voir les métiers de ce secteur » (tous les métiers de la base rangés dans ce secteur).
+function _secteurPremierePhrase(texte) { return String(texte || '').split(/(?<=[.!?])\s/)[0]; }
+function _secteurExplication(libelle) {
+  var s = (typeof SECTEURS_APP !== 'undefined' ? SECTEURS_APP : []).filter(function (x) { return x.libelle === libelle; })[0];
+  var d = (s && typeof SECTEURS_DETAIL !== 'undefined' && SECTEURS_DETAIL) ? SECTEURS_DETAIL.filter(function (x) { return x.cle === s.cle; })[0] : null;
+  return (d && d.explication) ? d.explication : '';
+}
+function pageChangerSecteur() {
+  var actuel = (rechercheGuidee && rechercheGuidee.estSecteur) ? (rechercheGuidee.cible || rechercheGuidee.metier) : '';
+  var cartes = (typeof SECTEURS_APP !== 'undefined' ? SECTEURS_APP : []).map(function (s) {
+    var expl = _secteurPremierePhrase(_secteurExplication(s.libelle));
+    var estActuel = s.libelle === actuel;
+    return '<div class="carte-resultat-erip carte-resultat-cliquable' + (estActuel ? ' carte-secteur-actuel' : '') + '" data-secteur-libelle="' + echapperAttribut(s.libelle) + '">' +
+      '<h5>' + echapperAttribut(s.libelle) + '</h5>' +
+      (expl ? '<p class="small text-muted mb-1">' + echapperAttribut(expl) + '</p>' : '') +
+      (estActuel ? '<span class="pilule-etat pe-ok">Secteur actuel</span>' : '<button type="button" class="btn btn-sm btn-outline-primary mt-1">Choisir ce secteur</button>') +
+      '</div>';
+  }).join('');
+  app.innerHTML =
+    '<div class="page-catalogue-contenu bilan-preparer">' +
+    '<h1 class="text-center">Changer de secteur</h1>' +
+    '<p class="text-center text-muted mb-3">Choisissez le secteur qui vous intéresse. Les réponses données sur « Candidater » repartent de zéro.</p>' +
+    '<div class="grille-resultats-erip">' + cartes + '</div>' +
+    '<div class="barre-navigation-fixe">' + barreNavigation('candidater', null, '', { onclickPrecedent: 'retourPagePrecedente()' }) + '</div>' +
+    '</div>';
+  document.querySelector('.grille-resultats-erip').addEventListener('click', function (e) {
+    var carte = e.target.closest('[data-secteur-libelle]');
+    if (!carte) { return; }
+    if (carte.dataset.secteurLibelle === actuel) { retourPagePrecedente(); return; }
+    ouvrirPanneauChoixParcours(carte.dataset.secteurLibelle, { estSecteur: true });
+    pileNavigation.push('candidater', 'changer-secteur');
+  });
+}
+// Liste d'un secteur : atteinte depuis Candidater (tous les métiers du secteur choisi) ou depuis une fiche (les autres métiers du secteur de ce métier, consigne 277).
+var _secteurListeLibelle = null;   // secteur à lister (sinon celui de Candidater)
+var _secteurListeSans = null;      // métier de la fiche d'où l'on vient : il n'est pas répété dans la liste
+var _secteurListeFlags = null;     // réglages de cette fiche (candidater / choisir / redessin), repris pour la fiche suivante
+function pageMetiersDuSecteur() {
+  var libelle = _secteurListeLibelle || (rechercheGuidee && (rechercheGuidee.cible || rechercheGuidee.metier)) || '';
+  var sans = _secteurListeSans;
+  var liste = (typeof baseMetiers !== 'undefined' ? baseMetiers : []).filter(function (m) { return m.secteur === libelle && m.nom !== sans; })
+    .sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); });
+  var expl = _secteurExplication(libelle);
+  app.innerHTML =
+    '<div class="page-catalogue-contenu bilan-preparer">' +
+    '<h1 class="text-center">' + (sans ? 'Les autres métiers de ce secteur' : 'Les métiers de ce secteur') + '</h1>' +
+    '<p class="text-center mb-1"><strong>' + echapperAttribut(libelle) + '</strong></p>' +
+    (expl ? '<p class="text-center text-muted mb-1">' + echapperAttribut(expl) + '</p>' : '') +
+    '<p class="text-center text-muted mb-3">' + (liste.length ? liste.length + (sans ? (liste.length > 1 ? ' autres métiers' : ' autre métier') : (liste.length > 1 ? ' métiers' : ' métier')) + ' : choisissez-en un pour lire sa fiche.' : 'Aucun autre métier de ce secteur dans la liste pour le moment.') + '</p>' +
+    '<div class="grille-resultats-erip" id="listeMetiersSecteur">' + liste.map(function (m) { return carteMetierUniqueHTML(m, 'Voir la fiche du métier', true); }).join('') + '</div>' +
+    '<div class="barre-navigation-fixe">' + barreNavigation('candidater', null, '', { onclickPrecedent: 'retourPagePrecedente()' }) + '</div>' +
+    '</div>';
+  var zone = document.getElementById('listeMetiersSecteur');
+  zone.addEventListener('click', function (e) {
+    var carte = e.target.closest('[data-metier-nom]');
+    if (!carte) { return; }
+    var nomChoisi = carte.dataset.metierNom;
+    var pileAvant = pileNavigation.slice();
+    if (_secteurListeFlags) {
+      // Venue d'une fiche : la fiche suivante garde ses réglages (« Choisir ce métier », « Candidater pour ce métier ») et remplace la précédente dans l'historique.
+      var fl = _secteurListeFlags;
+      _ficheMetierNom = nomChoisi; _ficheMetierCandidater = fl.c; _ficheMetierChoix = fl.ch; _ficheMetierRerender = fl.re; _ficheMetierDepuisCandidater = false;
+      _secteurListeSans = nomChoisi;
+      while (pileAvant.length && (pileAvant[pileAvant.length - 1] === 'fiche-metier' || pileAvant[pileAvant.length - 1] === 'metiers-du-secteur')) { pileAvant.pop(); }
+      naviguerVers('fiche-metier');
+    } else {
+      ouvrirFicheMetierOuCandidater(nomChoisi);
+    }
+    // Aller à une fiche déjà passée a dépilé l'historique : on le remet, avec cette liste juste avant la fiche, pour que « Retour » y ramène.
+    pileNavigation.length = 0;
+    Array.prototype.push.apply(pileNavigation, pileAvant.concat(['metiers-du-secteur']));
+  });
+  remplirDescriptionsCartesMetier(zone);
+}
+function pageFicheMetier() {
+  var nom = _ficheMetierNom;
+  var fiche = (nom && typeof metierParNom === 'function') ? metierParNom(nom) : null;
+  if (!fiche) { naviguerVers('cv'); return; }
+  var aff = nom.charAt(0).toUpperCase() + nom.slice(1);
+  var lien = fiche.rome ? lienFicheROME(fiche) : '';
+  var ancre = (typeof reperesBoutonAncre === 'function') ? reperesBoutonAncre({ libelle: 'Métier : ' + nom, classeBouton: 'btn-outline-primary' }) : '';
+  var panier = (typeof comparerBoutonPanier === 'function') ? comparerBoutonPanier(nom) : '';
+  var bandeRetourCandidater = (_ficheMetierDepuisCandidater && typeof htmlBandeRepriseModule === 'function')
+    ? htmlBandeRepriseModule('<div><button type="button" class="btn-revoir-module" id="btnFicheRevenirCandidater"><i class="bi bi-arrow-left-circle"></i> Revenir à Candidater</button></div>', '')
+    : '';
+  app.innerHTML =
+    bandeRetourCandidater +
+    '<div class="page-catalogue-contenu bilan-preparer fiche-metier">' +
+    '<h1 class="fm-titre"><span class="fm-initiale">' + echapperAttribut(aff.charAt(0)) + '</span>' + echapperAttribut(aff.slice(1)) + '</h1>' +
+    (fiche.secteur ? '<p class="fm-secteur">' + echapperAttribut(fiche.secteur) + '</p>' : '') +
+    '<div class="fm-actions">' +
+    (_ficheMetierCandidater ? '<button type="button" class="btn btn-primary" id="btnFicheCandidater"><i class="bi bi-send" aria-hidden="true"></i> Candidater pour ce métier</button>' : '') +
+    (_ficheMetierChoix ? '<button type="button" class="btn btn-primary" id="btnFicheChoisir"><i class="bi bi-check2-circle" aria-hidden="true"></i> Choisir ce métier</button>' : '') +
+    (lien ? '<a class="btn btn-outline-secondary" href="' + lien + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Fiche complète sur France Travail</a>' : '') +
+    (fiche.secteur ? '<button type="button" class="btn btn-outline-secondary" id="btnFicheSecteur"><i class="bi bi-grid" aria-hidden="true"></i> Voir les autres métiers du secteur</button>' : '') +
+    '</div>' +
+    '<div id="ficheMetierCorps"><p class="text-muted text-center">Chargement de la fiche du métier…</p></div>' +
+    // En bas de page, les actions de l'application hors de l'action principale (décision de Denis, 13/11/2026) : en haut, seulement « Candidater » et la fiche France Travail.
+    '<div class="fm-actions-bas"><p class="fm-aide">Pas encore décidé ? Mettez ce métier de côté ou comparez-le à d’autres pistes.</p><div class="fm-actions">' + panier + ancre + '</div></div>' +
+    '<div class="barre-navigation-fixe">' + // Consigne 276 : bouton « Accueil » rétabli (sans lui, plusieurs « Retour » pour quitter ; le même métier retapé retrouve ses réponses). « Continuer » : retour à Candidater si la fiche en vient, « Candidater pour ce métier » si elle vient de la recherche, rien ailleurs.
+    barreNavigation('cv', (_ficheMetierCandidater || _ficheMetierDepuisCandidater) ? 'candidater' : null, 'Continuer &#8594;',
+      { onclickPrecedent: 'ficheMetierRetour()', onclickSuivant: _ficheMetierDepuisCandidater ? "naviguerVers('candidater')" : 'ficheMetierCandidater()' }) + '</div>' +
+    '</div>';
+  var btn = document.getElementById('btnFicheCandidater');
+  if (btn) { btn.addEventListener('click', ficheMetierCandidater); }
+  var btnRevenir = document.getElementById('btnFicheRevenirCandidater');
+  if (btnRevenir) { btnRevenir.addEventListener('click', function () { naviguerVers('candidater'); }); }
+  var btnSecteurFiche = document.getElementById('btnFicheSecteur');
+  if (btnSecteurFiche) {
+    btnSecteurFiche.addEventListener('click', function () {
+      _secteurListeLibelle = fiche.secteur; _secteurListeSans = nom;
+      _secteurListeFlags = { c: _ficheMetierCandidater || _ficheMetierDepuisCandidater, ch: _ficheMetierChoix, re: _ficheMetierRerender };
+      var pileAvantFiche = pileNavigation.slice();
+      naviguerVers('metiers-du-secteur');
+      // La liste a déjà pu être passée plus tôt (fiche, liste, fiche...) : naviguer vers elle a dépilé l'historique, on le remet avec cette fiche juste avant.
+      pileNavigation.length = 0;
+      Array.prototype.push.apply(pileNavigation, pileAvantFiche.concat(['fiche-metier']));
+    });
+  }
+  var btnChoisir = document.getElementById('btnFicheChoisir');
+  if (btnChoisir) { btnChoisir.addEventListener('click', ficheMetierChoisir); }
+  if (typeof reperesBrancherBoutonAncre === 'function') { reperesBrancherBoutonAncre(); }
+  chargerFicheRome(fiche.rome, function (f) {
+    if (pageActuelle !== 'fiche-metier' || _ficheMetierNom !== nom) { return; }   // la personne a quitté la page entre-temps
+    var zone = document.getElementById('ficheMetierCorps');
+    if (!zone) { return; }
+    zone.innerHTML = ficheMetierCorpsHTML(fiche, f) +
+      (f ? '' : '<p class="small text-muted">La fiche détaillée n’a pas pu être chargée. Vous pouvez la consulter sur France Travail.</p>');
+  });
+}
 function ouvrirDescriptifMetier(nom, rerender) {
   // TACHE (chantier Umami) : point d'entree UNIQUE de la fiche descriptive
   // d'un metier (recherche, metiers recommandes, autres pistes, metiers
@@ -9847,6 +10987,18 @@ function ouvrirDescriptifMetier(nom, rerender) {
   // appelants, jamais un par site d'appel.
   trackEvenement('metier_consulte', { metier: nom });
   var fiche = metierParNom(nom);
+  // Fiche EN PAGE (décision de Denis, 13/11/2026 : « même page ») : tous les accès à la fiche d'un métier mènent à la même page ; la fenêtre ci-dessous ne sert plus
+  // que tant que la fiche complète est fermée au public. Le bouton « Choisir ce métier » n'existe que là où le métier se choisit (« Votre objectif »).
+  if (fiche && fiche.rome && ficheRomeCompleteActive()) {
+    _ficheMetierNom = nom;
+    _ficheMetierCandidater = false;
+    _ficheMetierDepuisCandidater = false;
+    _ficheMetierChoix = !((typeof _choixMetierCibleMasque !== 'undefined') && _choixMetierCibleMasque);
+    _ficheMetierRerender = (typeof rerender === 'function') ? rerender : null;
+    if (typeof fermerPanneauGuide === 'function') { fermerPanneauGuide(); }
+    naviguerVers('fiche-metier');
+    return;
+  }
   function badgesListe(liste, classeBadge) {
     return (liste || []).map(function (s) { return '<span class="badge ' + classeBadge + ' me-1 mb-1">' + s + '</span>'; }).join('');
   }
@@ -9859,11 +11011,14 @@ function ouvrirDescriptifMetier(nom, rerender) {
   // se change uniquement a "Votre objectif"). _choixMetierCibleMasque est
   // pose par pageRevelation() et retire par pageObjectif().
   var choixMasque = (typeof _choixMetierCibleMasque !== 'undefined') && _choixMetierCibleMasque;
-  var contenu = (fiche && ((fiche.savoirEtre && fiche.savoirEtre.length) || (fiche.savoirFaire && fiche.savoirFaire.length) || (fiche.savoirs && fiche.savoirs.length))
+  var ficheComplete = !!(fiche && fiche.rome && ficheRomeCompleteActive());
+  var contenu = (ficheComplete ? '<div id="ficheRomeEmplacement"><p class="small text-muted">Chargement de la fiche du métier…</p></div>' : '') +
+    (fiche && ((fiche.savoirEtre && fiche.savoirEtre.length) || (fiche.savoirFaire && fiche.savoirFaire.length) || (fiche.savoirs && fiche.savoirs.length))
     ? (fiche.savoirEtre && fiche.savoirEtre.length ? '<div class="mb-1">' + badgesListe(fiche.savoirEtre, 'bg-success') + '</div>' : '') +
       (fiche.savoirFaire && fiche.savoirFaire.length ? '<div class="mb-1">' + badgesListe(fiche.savoirFaire, 'bg-primary') + '</div>' : '') +
       (fiche.savoirs && fiche.savoirs.length ? '<div class="mb-1">' + badgesListe(fiche.savoirs, 'bg-info') + '</div>' : '')
     : '<p class="text-muted small">Aucune information complémentaire disponible pour ce métier.</p>') +
+    aSavoirSurLeMetierHTML(fiche) +
     // TACHE (retour Denis 2026-09-20) : point d'entree UNIQUE de cette
     // fiche (voir commentaire de ouvrirDescriptifMetier() ci-dessus) --
     // couvre d'un coup tous ses appelants, notamment les panneaux "metier(s)
@@ -9871,9 +11026,17 @@ function ouvrirDescriptifMetier(nom, rerender) {
     // mettre le metier suggere de cote.
     (typeof comparerBoutonPanier === 'function' ? '<div class="mt-2">' + comparerBoutonPanier(nom) + '</div>' : '') +
     (choixMasque
-      ? '<p class="small text-muted mt-3 mb-0">Pour viser ce métier, revenez à l\'étape « Votre objectif », en haut de la page.</p>'
+      ? '<p class="small text-muted mt-3 mb-0">Pour viser ce métier, ' + TEXTE_POUR_RECOMMENCER + '.</p>'
       : '<div class="mt-3"><button type="button" class="btn btn-primary w-100" id="btnChoisirCeMetierDescriptif">&#127919; Choisir ce métier</button></div>');
   var panneau = ouvrirPanneauGuide(titre, contenu, 'descriptif-metier');
+  if (ficheComplete) {
+    chargerFicheRome(fiche.rome, function (f) {
+      var zone = panneau.querySelector('#ficheRomeEmplacement');
+      if (!zone) { return; }   // la fenêtre a été refermée entre-temps
+      zone.innerHTML = f ? ficheRomeCompleteHTML(f, fiche)
+        : '<p class="small text-muted mb-2">La fiche détaillée n’a pas pu être chargée. Vous pouvez la consulter sur France Travail.</p><a href="' + lienFicheROME(fiche) + '" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">&#128196; Fiche du métier (France Travail)</a><hr>';
+    });
+  }
   var btnChoisir = panneau.querySelector('#btnChoisirCeMetierDescriptif');
   if (btnChoisir) {
     btnChoisir.addEventListener('click', function () {
@@ -9892,11 +11055,6 @@ function ouvrirDescriptifMetier(nom, rerender) {
 // comparerBoutonPanier), "Fiche du metier (France Travail)". Etiquette
 // "proche de votre profil" / "meme domaine" : au survol, infobulle des
 // competences en commun avec le metier vise, colorees par famille.
-function _revelationFamilleCompetenceFiche(fiche, c) {
-  if ((fiche.savoirFaire || []).indexOf(c) !== -1) { return 'bg-primary'; }
-  if ((fiche.savoirEtre || []).indexOf(c) !== -1) { return 'bg-success'; }
-  return 'bg-info';
-}
 function competencesCommunesAvecMetierVise(fiche) {
   var cibleFiche = dossier.metierCible ? metierParNom(dossier.metierCible) : null;
   if (!cibleFiche || !fiche) { return []; }
@@ -9915,42 +11073,221 @@ function competencesCommunesAvecMetierVise(fiche) {
   });
   return res;
 }
-function carteMetierResumeHTML(nom, blocId, index, tagTexteOverride) {
-  var fiche = metierParNom(nom);
-  // TACHE (5bis "Votre profil", lot 2) : "Autres pistes" est fusionne dans le
-  // bloc "metiers" -> les cartes "meme domaine" sont rendues avec blocId
-  // 'metiers' (pour que leur croix soit cablee par le meme wireBlocERIP) mais
-  // gardent leur libelle de tag via tagTexteOverride.
-  var tagTexte = tagTexteOverride || ((blocId === 'pistes') ? 'même domaine' : 'proche de votre profil');
-  var communes = fiche ? competencesCommunesAvecMetierVise(fiche) : [];
-  var bulle = communes.length
-    ? '<span class="metier-carte-bulle"><span class="mcb-titre">Compétences en commun avec votre métier visé</span>' +
-      '<span class="mcb-liste">' + communes.map(function (c) {
-        return '<span class="badge ' + _revelationFamilleCompetenceFiche(fiche, c) + '">' + echapperAttribut(c) + '</span>';
-      }).join(' ') + '</span></span>'
-    : '';
-  var tag = communes.length
-    ? '<span class="metier-carte-tag" data-metier-carte-tag="' + echapperAttribut(nom) + '" tabindex="0" role="button" title="Voir les compétences en commun">' + tagTexte + '</span>' + bulle
-    : '<span class="metier-carte-tag metier-carte-tag-inerte">' + tagTexte + '</span>';
-  var lienFiche = (fiche && fiche.rome)
-    ? lienFicheROME(fiche)
-    : 'https://candidat.francetravail.fr/metierscope/recherche?motscles=' + encodeURIComponent(nom);
-  var libelleFiche = (fiche && fiche.rome) ? 'Fiche du métier (France Travail)' : 'Chercher ce métier sur France Travail';
+// Bouton « Fiche du métier » des cartes : ouvre la fiche (page de l'application) ; « Retour » ramène à la page d'où l'on vient.
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('[data-ouvrir-fiche-metier]');
+  if (b) { ouvrirDescriptifMetier(b.getAttribute('data-ouvrir-fiche-metier'), null); }
+}, true);
+// Lettres RIASEC d'un métier (ROME), dans « Voir d'autres options » : elles décrivent le métier, jamais la personne. Chargées à l'ouverture. Les lettres sont affichées une par une, jamais accolées.
+var RIASEC_TYPES = {
+  R: ['Réaliste', 'travailler de ses mains, avec des machines, des outils ou des objets concrets'],
+  I: ['Investigateur', 'analyser, chercher, comprendre comment les choses fonctionnent'],
+  A: ['Artistique', 'créer, imaginer, s’exprimer'],
+  S: ['Social', 'aider, soigner, accompagner, enseigner'],
+  E: ['Entreprenant', 'convaincre, vendre, diriger, lancer des projets'],
+  C: ['Conventionnel', 'organiser, classer, suivre des règles et des procédures']
+};
+function riasecHTML(lettres) {
+  var l = String(lettres || '').split('').filter(function (x) { return RIASEC_TYPES[x]; });
+  if (!l.length) { return ''; }
+  return '<div class="riasec-lettres"><strong>Type d’activités de ce métier :</strong> ' +
+    l.map(function (x) { return '<span class="riasec-pastille" aria-hidden="true">' + x + '</span> ' + RIASEC_TYPES[x][0]; }).join(' · ') + '</div>' +
+    '<details class="riasec-explication"><summary class="btn btn-sm btn-outline-secondary mt-2">Qu’est-ce que le RIASEC ?</summary>' +
+    '<p class="mt-2 mb-1">Le RIASEC est une façon de décrire un métier par le type d’activités qui y tient le plus de place. Il y a six types. Les lettres affichées sont celles que France Travail donne à ce métier : elles décrivent le métier, pas vous.</p>' +
+    Object.keys(RIASEC_TYPES).map(function (k) { return '<p class="mb-1"><strong>' + k + ' : ' + RIASEC_TYPES[k][0] + '.</strong> ' + RIASEC_TYPES[k][1] + '.</p>'; }).join('') + '</details>';
+}
+// LISTE « Métiers qui pourraient vous intéresser » (consignes 402 et 409, maquette validée docs/MAQUETTE_METIERS_QUI_POURRAIENT_VOUS_INTERESSER_2026-11-16.html, version 2).
+// Une grille régulière de cartes de même largeur ; sur chaque carte : le nom (jamais cliquable), le secteur, un bouton « France Travail », deux boutons qui ouvrent une rubrique
+// DANS la carte (« Proche de votre profil » avec ses compétences en commun, puis « Ce que fait ce métier »), et trois boutons égaux (fiche du métier, Garder comme Repère, Comparer).
+// Le module « Comprendre les métiers » (consigne 411) n'existe pas encore : tant que cet interrupteur est faux, ses deux boutons de destination restent cachés.
+var MODULE_COMPRENDRE_METIERS_OUVERT = false;
+var _CM_LIMITE = 6;
+var _cmEtat = { a: {}, b: {}, comp: {}, autres: {}, plus: {} };
+function _cmReinit() { _cmEtat = { a: {}, b: {}, comp: {}, autres: {}, plus: {} }; }
+function _cmLibelleDans(catalogue, id) {
+  var res = null;
+  (catalogue || []).some(function (g) {
+    return (g.items || []).some(function (it) { if (it.id === id) { res = it.label; return true; } return false; });
+  });
+  return res;
+}
+// Libellé lisible d'un choix de la personne (action, activité, environnement) : les catalogues du parcours de création, jamais l'identifiant brut.
+function _cmLibelleChoix(type, id) {
+  var cat = null;
+  if (type === 'actions' && typeof CATALOGUE_ACTIONS_PRO !== 'undefined') { cat = CATALOGUE_ACTIONS_PRO; }
+  else if (type === 'activites' && typeof CATALOGUE_PERSONNES_MATERIELS_LIEUX !== 'undefined') { cat = CATALOGUE_PERSONNES_MATERIELS_LIEUX; }
+  else if (type === 'environnement' && typeof CATALOGUE_ENVIRONNEMENTS_TRAVAIL !== 'undefined') { cat = CATALOGUE_ENVIRONNEMENTS_TRAVAIL; }
+  var l = _cmLibelleDans(cat, id);
+  if (l) { return l; }
+  if (type === 'activites' && typeof libelleActivite === 'function') { return libelleActivite(id); }
+  return String(id).replace(/_/g, ' ');
+}
+// Index « compétence -> métiers qui la demandent » (calculé une fois) : alimente le deuxième niveau de lecture.
+var _cmIndexCompetences = null;
+function _cmMetiersAvecCompetence(competence, nomExclu) {
+  if (typeof baseMetiers === 'undefined') { return []; }
+  if (!_cmIndexCompetences || _cmIndexCompetences.taille !== baseMetiers.length) {
+    var detailles = {};
+    if (typeof baseMetiersDetaillees !== 'undefined') { baseMetiersDetaillees.forEach(function (m) { detailles[m.nom] = true; }); }
+    var idx = Object.create(null);
+    baseMetiers.forEach(function (m) {
+      var vus = {};
+      [].concat(m.savoirFaire || [], m.savoirEtre || [], m.savoirs || []).forEach(function (c) {
+        var k = normaliserTexte(c);
+        if (vus[k]) { return; }
+        vus[k] = true;
+        (idx[k] = idx[k] || []).push(m);
+      });
+    });
+    // Les fiches écrites à la main d'abord : leurs noms sont les plus parlants.
+    Object.keys(idx).forEach(function (k) { idx[k].sort(function (a, b) { return (detailles[b.nom] ? 1 : 0) - (detailles[a.nom] ? 1 : 0); }); });
+    _cmIndexCompetences = { taille: baseMetiers.length, idx: idx };
+  }
+  var vusNoms = {};
+  return (_cmIndexCompetences.idx[normaliserTexte(competence)] || []).filter(function (m) {
+    if (m.nom === nomExclu || vusNoms[m.nom]) { return false; }
+    vusNoms[m.nom] = true;
+    return true;
+  });
+}
+function _cmUnique(liste) {
+  var vus = {};
+  return liste.filter(function (c) { var k = normaliserTexte(c); if (vus[k]) { return false; } vus[k] = true; return true; });
+}
+function _cmBoutonModule(type, detail, libelle, icone) {
+  if (!MODULE_COMPRENDRE_METIERS_OUVERT) { return ''; }
+  return '<button type="button" class="btn btn-primary" data-mc-act="module" data-mc-type="' + type + '" data-mc-detail="' + echapperAttribut(detail || '') + '"><i class="bi ' + icone + '" aria-hidden="true"></i> ' + libelle + '</button>';
+}
+// Deuxième niveau : la compétence touchée, le nombre de métiers qui la demandent et quelques exemples.
+function _cmNiveau2HTML(nom) {
+  var c = _cmEtat.comp[nom];
+  if (!c) { return ''; }
+  var liste = _cmMetiersAvecCompetence(c, nom);
+  var e = echapperAttribut;
+  if (!liste.length) { return '<div class="mc-niveau2"><p class="mb-0"><strong>' + e(c) + '</strong> : aucun autre métier de la liste n’est repéré avec cette compétence.</p></div>'; }
+  return '<div class="mc-niveau2" role="region" aria-label="Métiers qui demandent aussi ' + e(c) + '"><p><strong>' + e(c) + '</strong> : cette compétence se retrouve dans <strong>' + liste.length + (liste.length > 1 ? ' autres métiers' : ' autre métier') + '</strong>. Par exemple : ' +
+    liste.slice(0, 5).map(function (m) { return e(m.nom); }).join(', ') + '.</p>' + _cmBoutonModule('metiers', c, 'Voir les métiers', 'bi-compass') + '</div>';
+}
+// Premier niveau : pourquoi ce métier est proposé (dans la page, jamais une fenêtre).
+function _cmPanneauA(nom, fiche, groupe, scoreFiche) {
+  var e = echapperAttribut, h = '<div class="mc-panneau" role="region">', comps = [];
+  if (groupe === 'p') {
+    h += '<p class="mc-panneau-titre">Pourquoi ce métier est proche de votre profil</p>';
+    if (!scoreFiche || scoreFiche.sansScore) {
+      h += '<p>Vous n’avez encore rien indiqué : ce métier est proposé parce qu’il est ouvert aux débutants, sans expérience exigée.</p>';
+    } else {
+      var cm = scoreFiche.communes || {};
+      var pct = Math.max(0, Math.min(100, scoreFiche.score || 0));
+      h += '<div class="mc-barre" role="img" aria-label="' + pct + ' pour cent de cohérence avec ce que vous avez indiqué"><span style="width:' + Math.max(pct, 12) + '%">' + pct + ' % de cohérence</span></div>';
+      // Consigne 410 : ce pourcentage est une évaluation, jamais une mesure scientifique (demande de Denis, 16/11/2026).
+      h += '<p class="mc-sous">Ce pourcentage est une évaluation : il compare ce que vous avez indiqué à ce que demande ce métier. Les conditions de travail, l’équipe et bien d’autres choses comptent aussi.' +
+        ((typeof scoreFiche.facteurInformation === 'number' && scoreFiche.facteurInformation < 0.95) ? ' Plus vous indiquez de choix et de compétences, plus il est précis et peut monter.' : '') + '</p>';
+      var lignes = [];
+      [['actions', 'Ce que vous aimez faire'], ['activites', 'Avec qui ou avec quoi vous aimez travailler'], ['environnement', 'Où vous aimez travailler']].forEach(function (t) {
+        var l = (cm[t[0]] || []).map(function (id) { return e(_cmLibelleChoix(t[0], id)); });
+        if (l.length) { lignes.push('<li><strong>' + t[1] + ' :</strong> ' + l.join(', ') + '</li>'); }
+      });
+      if (lignes.length) { h += '<p class="mc-sous">Ce que vous avez indiqué</p><ul>' + lignes.join('') + '</ul>'; }
+      comps = _cmUnique([].concat(cm.savoirFaire || [], cm.savoirEtre || [], cm.savoirs || []));
+    }
+  } else {
+    h += '<p class="mc-panneau-titre">Pourquoi ce métier est proposé</p>';
+    h += '<p>Il est du même domaine que votre métier visé' + (fiche && fiche.secteur ? ' : <strong>' + e(fiche.secteur) + '</strong>' : '') + '.</p>';
+    comps = competencesCommunesAvecMetierVise(fiche);
+  }
+  if (comps.length) {
+    h += '<p class="mc-sous">Compétences en commun' + (groupe === 'm' ? ' avec votre métier visé' : '') + ' (touchez-en une pour voir quels autres métiers la demandent)</p><div class="mc-comps" role="group" aria-label="Compétences en commun">' +
+      comps.map(function (c) {
+        return '<button type="button" class="mc-comp" data-mc-act="comp" data-mc-nom="' + e(nom) + '" data-mc-c="' + e(c) + '" aria-expanded="' + (_cmEtat.comp[nom] === c) + '">' + e(c) + '</button>';
+      }).join('') + '</div>' + _cmNiveau2HTML(nom);
+  } else if (groupe === 'm') {
+    h += '<p class="text-muted mb-0">Aucune compétence en commun n’est repérée avec votre métier visé.</p>';
+  }
+  return h + '</div>';
+}
+// Ce que fait le métier (tâches du ROME) et les compétences qu'il demande. Les tâches se chargent à la demande.
+function _cmPanneauB(nom, fiche) {
+  var e = echapperAttribut, code = fiche && fiche.rome, h = '<div class="mc-panneau" role="region"><p class="mc-panneau-titre">Ce que fait ce métier</p>';
+  if (!code) {
+    return h + '<p class="mb-0">Le détail de ce métier n’est pas encore disponible ici. Le bouton « France Travail » en haut de la carte mène à sa fiche officielle.</p></div>';
+  }
+  if (typeof COMPETENCES_ROME === 'undefined') {
+    _chargerScriptUneFois('data/competencesRome.js', function (ok) { if (ok && pageActuelle === 'revelation') { var y = window.scrollY; pageRevelation(true); window.scrollTo(0, y); } });
+    return h + '<p class="text-muted mb-0">Chargement des tâches du métier…</p></div>';
+  }
+  var ids = (COMPETENCES_ROME.parCode[code] || []).slice(0, 10);
+  function li(i) { return '<li>' + e(COMPETENCES_ROME.phrases[i]) + '</li>'; }
+  if (ids.length) {
+    var tout = !!_cmEtat.autres[nom];
+    h += '<ul>' + ids.slice(0, 3).map(li).join('') + (tout ? ids.slice(3).map(li).join('') : '') + '</ul>' +
+      ((!tout && ids.length > 3) ? '<button type="button" class="btn btn-sm btn-outline-secondary" data-mc-act="autres" data-mc-nom="' + e(nom) + '">Voir les autres tâches</button>' : '');
+  } else {
+    h += '<p>Les tâches de ce métier ne sont pas encore détaillées ici.</p>';
+  }
+  var sf = (fiche.savoirFaire || []).slice(0, 6), se = (fiche.savoirEtre || []).slice(0, 6);
+  if (sf.length || se.length) {
+    h += '<p class="mc-sous">Compétences que le métier demande</p><div>' +
+      sf.map(function (x) { return '<span class="mc-badge mc-badge-sf">' + e(x) + '</span>'; }).join('') +
+      se.map(function (x) { return '<span class="mc-badge">' + e(x) + '</span>'; }).join('') + '</div>';
+  }
+  return h + '</div>';
+}
+function carteMetierResumeHTML(nom, blocId, index, groupe, scoreFiche) {
+  var fiche = metierParNom(nom), e = echapperAttribut;
+  var a = !!_cmEtat.a[nom], b = !!_cmEtat.b[nom];
+  var libA = groupe === 'p' ? 'Proche de votre profil' : 'Même domaine que votre métier';
+  var lienFiche = (fiche && fiche.rome) ? lienFicheROME(fiche) : 'https://candidat.francetravail.fr/metierscope/recherche?motscles=' + encodeURIComponent(nom);
   var ancre = (typeof reperesBoutonAncre === 'function') ? reperesBoutonAncre({ libelle: 'Métier : ' + nom }) : '';
   var panier = (typeof comparerBoutonPanier === 'function') ? comparerBoutonPanier(nom) : '';
-  return '<div class="metier-carte">' +
-    '<div class="metier-carte-haut">' +
-    '<span class="metier-carte-nom">' + echapperAttribut(nom) + '</span>' +
-    (fiche && fiche.secteur ? '<span class="metier-carte-secteur">' + echapperAttribut(fiche.secteur) + '</span>' : '') +
-    tag +
-    '<span class="metier-carte-suppr" data-metier-resume-suppr="' + blocId + '" data-resume-index="' + index + '" title="Retirer de la liste">&#10005;</span>' +
-    '</div>' +
-    '<div class="metier-carte-actions">' + ancre +
-    (panier ? ' ' + panier : '') +
-    ' <a href="' + lienFiche + '" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary metier-carte-lien-fiche">&#128196; ' + libelleFiche + '</a>' +
-    '</div>' +
-    '</div>';
+  return '<div class="metier-carte' + ((a || b) ? ' metier-carte-large' : '') + '">' +
+    '<div class="metier-carte-haut"><p class="metier-carte-nom">' + e(nom) + '</p>' +
+    '<button type="button" class="metier-carte-suppr" data-metier-resume-suppr="' + blocId + '" data-resume-index="' + index + '" title="Retirer de la liste" aria-label="Retirer ' + e(nom) + ' de la liste"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>' +
+    '<div class="metier-carte-sous-titre">' + (fiche && fiche.secteur ? '<p class="metier-carte-secteur">Secteur : ' + e(fiche.secteur) + '</p>' : '<p class="metier-carte-secteur"></p>') +
+    '<a href="' + lienFiche + '" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary metier-carte-ft" title="Ouvre la fiche de ce métier sur le site de France Travail"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> France Travail</a></div>' +
+    '<div class="metier-carte-explique">' +
+    '<button type="button" class="btn btn-outline-primary metier-carte-bt' + (a ? ' est-ouvert' : '') + '" data-mc-act="a" data-mc-nom="' + e(nom) + '" aria-expanded="' + a + '">' + libA + ' <i class="bi bi-chevron-down" aria-hidden="true"></i></button>' +
+    '<button type="button" class="btn btn-outline-primary metier-carte-bt' + (b ? ' est-ouvert' : '') + '" data-mc-act="b" data-mc-nom="' + e(nom) + '" aria-expanded="' + b + '">Ce que fait ce métier <i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>' +
+    (a ? _cmPanneauA(nom, fiche, groupe, scoreFiche) : '') + (b ? _cmPanneauB(nom, fiche) : '') +
+    '<div class="metier-carte-actions metier-carte-actions3">' +
+    (fiche && fiche.rome ? '<button type="button" class="btn btn-outline-secondary" data-ouvrir-fiche-metier="' + e(nom) + '"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Fiche du métier</button>' : '') +
+    ancre + (panier || '') + '</div></div>';
 }
+// Un groupe titré de cartes, six d'abord puis « Voir les autres ».
+function _cmGroupeHTML(titre, aide, noms, groupe, decalage, scores, cle) {
+  var h = '<div class="metier-groupe"><h3 class="metier-groupe-titre">' + titre + ' <span class="metier-groupe-nb">' + noms.length + '</span></h3><p class="metier-groupe-aide">' + aide + '</p>';
+  if (!noms.length) { return h + '<p class="text-muted small mb-0">Aucun métier dans cette liste pour le moment.</p></div>'; }
+  var tout = !!_cmEtat.plus[cle] || noms.length <= _CM_LIMITE;
+  var vus = tout ? noms : noms.slice(0, _CM_LIMITE);
+  h += '<div class="metier-cartes-grille">' + vus.map(function (nom, i) {
+    var f = metierParNom(nom);
+    return carteMetierResumeHTML(nom, 'metiers', decalage + i, groupe, (f && scores[f.nom]) || null);
+  }).join('') + '</div>';
+  if (!tout) { h += '<div class="metier-voir-reste"><button type="button" class="btn btn-outline-primary" data-mc-act="plus" data-mc-cle="' + cle + '"><i class="bi bi-chevron-down" aria-hidden="true"></i> Voir les ' + (noms.length - _CM_LIMITE) + ' autres</button></div>'; }
+  return h + '</div>';
+}
+// Lignes de métiers (« recrutent souvent », « saisonniers ») : le nom n'est jamais cliquable, seul le bouton « Fiche » l'est.
+function _cmLignesMetiersHTML(noms) {
+  return '<div class="metier-cartes-grille">' + noms.map(function (nom) {
+    var fiche = metierParNom(nom);
+    return '<div class="metier-ligne"><span>' + echapperAttribut(nom) + '</span>' +
+      (fiche && fiche.rome ? '<button type="button" class="btn btn-sm btn-outline-secondary" data-ouvrir-fiche-metier="' + echapperAttribut(nom) + '"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Fiche</button>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+// Clics sur les rubriques des cartes : un seul écouteur pour toute la page (la page se redessine à chaque clic, sans perdre l'endroit où l'on est).
+document.addEventListener('click', function (ev) {
+  var el = ev.target.closest && ev.target.closest('[data-mc-act]');
+  if (!el || pageActuelle !== 'revelation') { return; }
+  var act = el.getAttribute('data-mc-act'), nom = el.getAttribute('data-mc-nom'), cle = el.getAttribute('data-mc-cle');
+  if (act === 'a') { _cmEtat.a[nom] = !_cmEtat.a[nom]; if (!_cmEtat.a[nom]) { delete _cmEtat.comp[nom]; } }
+  else if (act === 'b') { _cmEtat.b[nom] = !_cmEtat.b[nom]; }
+  else if (act === 'comp') { var c = el.getAttribute('data-mc-c'); _cmEtat.comp[nom] = (_cmEtat.comp[nom] === c) ? null : c; }
+  else if (act === 'autres') { _cmEtat.autres[nom] = true; }
+  else if (act === 'plus') { _cmEtat.plus[cle] = true; }
+  else { return; }
+  var y = window.scrollY;
+  pageRevelation(true);
+  window.scrollTo(0, y);
+});
 // Cablage global (une seule fois par rendu) : bascule metier cible, valable
 // pour n'importe quel [data-metier-cible] present sur la page.
 function wireMetierCibleGlobal(rerender) {
@@ -9966,57 +11303,6 @@ function wireMetierCibleGlobal(rerender) {
 // n'affiche pas "Choisir ce metier". Pose par pageRevelation(), retire par
 // pageObjectif() (le seul ecran ou l'on choisit/change le metier vise).
 var _choixMetierCibleMasque = false;
-
-// TACHE (sous-etape 4.4) : infobulle "competences en commun" de l'etiquette
-// d'une carte metier. Une seule ouverte a la fois : survol -> apparait, la
-// souris s'eloigne -> disparait ; clic -> epinglee ; clic ailleurs ou sur
-// une autre etiquette -> bascule/ferme. Le handler "clic ailleurs" n'est
-// installe qu'une fois (re-rendus de pageRevelation).
-var _metierCarteBulleFigee = null;
-var _metierCarteBulleDocInstalle = false;
-function _metierCarteFermerBulles() {
-  document.querySelectorAll('.metier-carte-bulle.ouverte').forEach(function (b) { b.classList.remove('ouverte'); });
-  document.querySelectorAll('[data-metier-carte-tag].actif').forEach(function (t) { t.classList.remove('actif'); });
-}
-function wireMetierCarteBulles() {
-  if (!_metierCarteBulleDocInstalle) {
-    _metierCarteBulleDocInstalle = true;
-    document.addEventListener('click', function (e) {
-      if (_metierCarteBulleFigee && !e.target.closest('[data-metier-carte-tag]') && !e.target.closest('.metier-carte-bulle')) {
-        _metierCarteBulleFigee = null;
-        _metierCarteFermerBulles();
-      }
-    });
-  }
-  document.querySelectorAll('[data-metier-carte-tag]').forEach(function (el) {
-    var bulle = (el.nextElementSibling && el.nextElementSibling.classList.contains('metier-carte-bulle'))
-      ? el.nextElementSibling : null;
-    if (!bulle) { return; }
-    el.addEventListener('mouseenter', function () {
-      if (_metierCarteBulleFigee) { return; }
-      _metierCarteFermerBulles();
-      bulle.classList.add('ouverte'); el.classList.add('actif');
-    });
-    el.addEventListener('mouseleave', function () {
-      if (_metierCarteBulleFigee) { return; }
-      bulle.classList.remove('ouverte'); el.classList.remove('actif');
-    });
-    el.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (_metierCarteBulleFigee === el) {
-        _metierCarteBulleFigee = null; _metierCarteFermerBulles();
-      } else {
-        _metierCarteFermerBulles();
-        _metierCarteBulleFigee = el;
-        bulle.classList.add('ouverte'); el.classList.add('actif');
-      }
-    });
-  });
-}
-
-function contenuPourquoiMetiers() {
-  return genererHTMLMetiers(metiersAvecScorePourNoms(metiersRecommandes()));
-}
 
 // TACHE (retour utilisateur : "'Voir tous les métiers' est un doublon --
 // aucune richesse par rapport au résumé juste au-dessus -- à transformer
@@ -10036,16 +11322,16 @@ function metiersQuiRecrutentGeneralement() {
 }
 function contenuMetiersQuiRecrutent() {
   var noms = metiersQuiRecrutentGeneralement();
-  var intro = '<p class="small mb-2">Certains secteurs recrutent assez régulièrement, de façon générale (logistique, grande distribution, BTP, aide à la personne...). Ce n’est pas une statistique précise du marché de l’emploi, juste une connaissance courante - voici quelques métiers de ces secteurs, à titre d’exemple.</p>';
-  if (!noms.length) { return intro + '<p class="text-muted small mb-0">Aucun métier disponible avec ces critères pour le moment.</p>'; }
-  return intro + noms.map(function (nom) {
-    var fiche = metierParNom(nom);
-    var lienRome = fiche
-      ? '<a href="' + lienFicheROME(fiche) + '" target="_blank" rel="noopener" class="rome-link" title="Fiche ROME ' + fiche.rome + '">&#128279;</a>'
-      : '';
-    return '<span class="pastille-metier-info">' + nom + ' ' + lienRome + '</span>';
-  }).join(' ') +
-    '<p class="small text-muted mt-2 mb-0">N’hésitez pas à consulter la fiche de ces métiers : ça pourrait vous intéresser.</p>';
+  var intro = '<p class="small mb-2">Certains secteurs recrutent assez régulièrement, de façon générale (logistique, grande distribution, bâtiment, aide à la personne). Ce n’est pas une statistique précise du marché de l’emploi, juste une connaissance courante : voici quelques métiers de ces secteurs, à titre d’exemple.</p>';
+  var pourquoi = '<div class="metier-pourquoi-recrute"><p class="mc-panneau-titre">Pourquoi ces métiers recrutent souvent</p><ul>' +
+    '<li>Il y a des postes à pourvoir toute l’année : magasins, entrepôts, aide à la personne, chantiers.</li>' +
+    '<li>Le travail est physique ou en horaires décalés : des salariés changent de poste, il faut les remplacer.</li>' +
+    '<li>Certains métiers suivent les saisons : les besoins reviennent chaque année.</li>' +
+    '<li>Dans plusieurs métiers, beaucoup de salariés partent bientôt à la retraite.</li></ul>' +
+    '<p class="small text-muted">Ce sont des explications générales, pas des chiffres.' + (MODULE_COMPRENDRE_METIERS_OUVERT ? ' Les chiffres de votre territoire (besoins en main-d’œuvre, enquête de France Travail) sont dans le module « Comprendre les métiers ».' : '') + '</p>' +
+    _cmBoutonModule('bmo', '', 'Comprendre pourquoi ils recrutent', 'bi-graph-up') + '</div>';
+  if (!noms.length) { return intro + '<p class="text-muted small mb-0">Aucun métier disponible avec ces critères pour le moment.</p>' + pourquoi; }
+  return intro + _cmLignesMetiersHTML(noms) + pourquoi;
 }
 // Sous-section 3 : "Ajouter un metier" -- moteur de recherche intelligent
 // (rechercherMetiersPourAjout, meme moteur que la barre de recherche ERIP).
@@ -10142,10 +11428,13 @@ var CONFIG_BLOC_METIERS = {
   resumeHTML: function () {
     var m = metiersRecommandes(), p = pistesRecommandees();
     if (!m.length && !p.length) { return ''; }
-    var intro = '<p class="small text-muted mb-2">D\'abord des métiers proches de votre profil, puis d\'autres du même domaine que le métier visé. Des pistes de réflexion, jamais des métiers « certains ». Si vous changez de métier visé, la partie « même domaine » change aussi.</p>';
+    var intro = '<p class="small text-muted mb-2">Des pistes pour réfléchir, jamais des métiers « certains ». Touchez « Proche de votre profil » pour comprendre pourquoi un métier est proposé. Si vous changez de métier visé, la partie « même domaine » change aussi.</p>';
+    // Pourcentage et éléments en commun, calculés une fois pour les métiers proches du profil (le calcul du classement, sans rien changer).
+    var scores = {};
+    metiersAvecScorePourNoms(m).forEach(function (f) { scores[f.nom] = f; });
     return intro +
-      m.map(function (nom, i) { return carteMetierResumeHTML(nom, 'metiers', i); }).join('') +
-      p.map(function (nom, i) { return carteMetierResumeHTML(nom, 'metiers', m.length + i, 'même domaine'); }).join('');
+      _cmGroupeHTML('Proches de votre profil', 'Ces métiers ressemblent à ce que vous avez indiqué.', m, 'p', 0, scores, 'p') +
+      _cmGroupeHTML('Du même domaine que votre métier visé', 'D’autres métiers voisins du vôtre.', p, 'm', m.length, scores, 'm');
   },
   resumeOnSuppression: function (idx) {
     var nbM = metiersRecommandes().length;
@@ -10174,12 +11463,6 @@ var CONFIG_BLOC_METIERS = {
   sousSections: function () {
     var sections = [
       {
-        id: 'pourquoi', titre: 'Pourquoi ces métiers ?',
-        complet: function () { return metiersRecommandes().length > 0; },
-        contenuHTML: contenuPourquoiMetiers,
-        masquerIndicateurCompletion: true
-      },
-      {
         // TACHE (retour utilisateur : doublon supprimé, transformé en vraie
         // fonction) : voir contenuMetiersQuiRecrutent() plus haut.
         id: 'recrutent', titre: 'Des métiers qui recrutent souvent',
@@ -10195,7 +11478,7 @@ var CONFIG_BLOC_METIERS = {
     // s'il y a reellement des metiers a montrer.
     if (metiersSaisonnierAlimentaire().length) {
       sections.push({
-        id: 'saisonnier-alimentaire', titre: 'Jobs saisonniers et alimentaires',
+        id: 'saisonnier-alimentaire', titre: 'Métiers saisonniers et alimentaires',
         complet: function () { return true; },
         contenuHTML: contenuMetiersSaisonnierAlimentaire,
         masquerIndicateurCompletion: true
@@ -10265,7 +11548,7 @@ function metiersTriesParPertinence(metiers, max) {
   if (rienEteChoisi()) { return metiers.slice(0, max); }
   var profil = construireProfil();
   var avecScore = metiers.map(function (m) { return calculerScoreMetier(profil, m); });
-  avecScore.sort(function (a, b) { return b.score - a.score; });
+  avecScore.sort(comparerMetiersParScore);   // à score égal : ordre alphabétique, aucun avantage pour une fiche
   return avecScore.slice(0, max);
 }
 // TACHE (correction, fonction retrouvee) : clic sur une competence (Analyse
@@ -10534,7 +11817,7 @@ var CONFIG_BLOC_PROFIL = {
   // pastilles vivent desormais dans les 3 sous-sections, avec la croix de
   // retrait reversible. Rappel du retrait sous la legende.
   resumeHTML: function () {
-    var intro = '<p class="small mb-2">Ces informations viennent de vos réponses au questionnaire (avec qui/quoi vous aimez travailler, ce que vous aimez faire, votre environnement de travail préféré, ce qui compte pour vous), et de votre CV si vous en avez déposé un. Beaucoup de ces compétences sont transférables : on les retrouve d’un métier à l’autre.</p>';
+    var intro = '<p class="small mb-2">Ces informations viennent de vos réponses au questionnaire (avec qui/quoi vous aimez travailler, ce que vous aimez faire, votre environnement de travail préféré), et de votre CV si vous en avez déposé un. Beaucoup de ces compétences sont transférables : on les retrouve d’un métier à l’autre.</p>';
     var legende = '<div class="comp-profil-legende">' +
       '<span class="badge bg-primary">Savoir-faire</span>' +
       '<span class="badge bg-success">Savoir-être</span>' +
@@ -11016,16 +12299,15 @@ function metiersSaisonnierAlimentaire() {
 }
 function contenuMetiersSaisonnierAlimentaire() {
   var noms = metiersSaisonnierAlimentaire();
-  var intro = '<p class="small mb-2">En complément, voici des métiers saisonniers ou dans l’alimentaire (agriculture, restauration, hôtellerie, tourisme...) : des solutions parfois plus rapides à trouver, en attendant ou en parallèle d’un projet plus ciblé.</p>';
-  if (!noms.length) { return intro + '<p class="text-muted small mb-0">Aucun métier disponible avec ces critères pour le moment.</p>'; }
-  return intro + noms.map(function (nom) {
-    var fiche = metierParNom(nom);
-    var lienRome = fiche
-      ? '<a href="' + lienFicheROME(fiche) + '" target="_blank" rel="noopener" class="rome-link" title="Fiche ROME ' + fiche.rome + '">&#128279;</a>'
-      : '';
-    return '<span class="pastille-metier-info">' + nom + ' ' + lienRome + '</span>';
-  }).join(' ') +
-    '<p class="small text-muted mt-2 mb-0">N’hésitez pas à consulter la fiche de ces métiers : ça pourrait vous intéresser.</p>';
+  var intro = '<p class="small mb-2">En complément, voici des métiers saisonniers ou dans l’alimentaire (agriculture, restauration, hôtellerie, tourisme) : des solutions parfois plus rapides à trouver, en attendant ou en parallèle d’un projet plus précis.</p>';
+  // « Comprendre ce que c'est » : explication simple, puis (quand le module existera) le bouton qui y mène (consigne 409, demande de Denis du 16/11/2026).
+  var comprendre = '<div class="metier-pourquoi-recrute"><p class="mc-panneau-titre">Comprendre ce que c’est</p><ul>' +
+    '<li><strong>Un métier saisonnier</strong> dépend d’une période de l’année : les récoltes, les vendanges, la saison touristique d’été ou d’hiver. Le contrat dure quelques semaines ou quelques mois, et le besoin revient chaque année.</li>' +
+    '<li><strong>Un métier de l’alimentaire</strong> tourne autour de la nourriture : la cultiver, la transformer, la préparer, la vendre ou la servir.</li>' +
+    '<li><strong>À quoi cela peut servir :</strong> entrer vite dans l’emploi, gagner une première expérience, faire connaître votre travail à un employeur qui peut vous rappeler la saison suivante.</li></ul>' +
+    _cmBoutonModule('saisonniers', '', 'Comprendre ces métiers', 'bi-compass') + '</div>';
+  if (!noms.length) { return intro + '<p class="text-muted small mb-0">Aucun métier disponible avec ces critères pour le moment.</p>' + comprendre; }
+  return intro + _cmLignesMetiersHTML(noms) + comprendre;
 }
 function resumePistes() {
   return pistesRecommandees().map(function (nom) { return { label: nom }; });
@@ -11068,14 +12350,14 @@ function revelationCarteMetierVise() {
     return '<div class="revelation-carte-fixe revelation-carte-accent">' +
       '<div class="revelation-mv-ligne"><span class="revelation-mv-ico">&#127919;</span>' +
       '<span class="revelation-mv-nom">Pas de métier précis visé</span></div>' +
-      '<p class="revelation-mv-txt">Vous n\'avez pas ciblé de métier à l\'étape « Votre objectif ». L\'assistant s\'appuiera sur l\'ensemble de votre parcours. Pour cibler un métier, revenez à l\'étape « Votre objectif », en haut de la page.</p>' +
+      '<p class="revelation-mv-txt">Vous n\'avez pas ciblé de métier. L\'assistant s\'appuiera sur l\'ensemble de votre parcours. Pour cibler un métier, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
       '</div>';
   }
   if (domaine && !cible) {
     return '<div class="revelation-carte-fixe revelation-carte-accent">' +
       '<div class="revelation-mv-ligne"><span class="revelation-mv-ico">&#127919;</span>' +
       '<span class="revelation-mv-nom">Domaine visé : ' + echapperAttribut(domaine) + '</span></div>' +
-      '<p class="revelation-mv-txt">Choisi à l\'étape « Votre objectif ». Pour choisir un autre domaine, ou un métier précis, revenez à l\'étape « Votre objectif », en haut de la page.</p>' +
+      '<p class="revelation-mv-txt">Pour choisir un autre domaine, ou un métier précis, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
       '</div>';
   }
   var fiche = (typeof metierParNom === 'function') ? metierParNom(cible) : null;
@@ -11085,8 +12367,8 @@ function revelationCarteMetierVise() {
     : 'https://candidat.francetravail.fr/metierscope/recherche?motscles=' + encodeURIComponent(cible);
   var libelleBouton = reconnu ? 'Consulter la fiche du métier (France Travail)' : 'Chercher ce métier sur France Travail';
   var txt = reconnu
-    ? 'Choisi à l\'étape « Votre objectif ». En cliquant, vous ouvrez sa fiche complète sur France Travail. Pour choisir un autre métier, revenez à l\'étape « Votre objectif », en haut de la page.'
-    : 'Choisi à l\'étape « Votre objectif », saisi tel quel (l\'assistant le remettra en forme). Il n\'est pas dans notre répertoire : pour en savoir plus, cherchez-le dans le répertoire des métiers de France Travail. Pour choisir un autre métier, revenez à l\'étape « Votre objectif », en haut de la page.';
+    ? 'En cliquant, vous ouvrez sa fiche complète sur France Travail. Pour choisir un autre métier, ' + TEXTE_POUR_RECOMMENCER + '.'
+    : 'Saisi tel quel (l\'assistant le remettra en forme). Il n\'est pas dans notre répertoire : pour en savoir plus, cherchez-le dans le répertoire des métiers de France Travail. Pour choisir un autre métier, ' + TEXTE_POUR_RECOMMENCER + '.';
   return '<div class="revelation-carte-fixe revelation-carte-accent">' +
     '<div class="revelation-mv-ligne"><span class="revelation-mv-ico">&#127919;</span>' +
     '<span class="revelation-mv-nom">' + echapperAttribut(cible) + '</span></div>' +
@@ -11119,8 +12401,9 @@ function revelationProfilEnBref() {
   else if (dossier.secteurCible) { ajouter('Domaine visé', dossier.secteurCible); }
 
   if (!estImmersion) {
-    if (dossier.typeRecherche === 'offre') { ajouter('Recherche', 'En réponse à une offre'); }
-    else if (dossier.typeRecherche === 'simple') { ajouter('Recherche', 'Recherche simple'); }
+    // 11/11/2026 : « En réponse à une offre » était affiché même pour une candidature spontanée vers une entreprise précise ; « Recherche simple » est remplacé par une phrase claire.
+    if (dossier.typeRecherche === 'offre') { ajouter('Recherche', visaUneEntreprisePrecise() ? 'Vers une entreprise précise' : 'En réponse à une offre'); }
+    else if (dossier.typeRecherche === 'simple') { ajouter('Recherche', 'De façon générale, sans entreprise visée'); }
     ajouter('Entreprise ou offre visée', rc.entreprise || rc.site || rc.lienOffre || objDetail.structure);
     var poste = [
       (dossier.contrat || []).join(', '),
@@ -11171,12 +12454,13 @@ function revelationProfilEnBref() {
   return '<div class="revelation-carte-fixe">' +
     '<div class="revelation-bref-titre">&#128221; Votre profil en bref</div>' +
     '<div class="revelation-bref-grille">' + grille + '</div>' +
-    '<p class="revelation-bref-note">Ces informations viennent de vos étapes précédentes. Pour en corriger une, retournez à l\'étape concernée (barre en haut) : « Votre objectif » ou « Vos informations ».</p>' +
+    '<p class="revelation-bref-note">Ces informations viennent de vos étapes précédentes. Pour corriger vos informations, retournez à « Vos informations » (barre en haut). Pour changer d\'objectif, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
     '</div>';
 }
 
 function pageRevelation(conserverTirage) {
-  if (!conserverTirage) { invaliderCacheMetiersRecommandes(); invaliderCachePistes(); }
+  if (_retourDeFicheMetier) { conserverTirage = true; _retourDeFicheMetier = false; }   // retour depuis la fiche d'un métier : les métiers proposés restent les mêmes
+  if (!conserverTirage) { invaliderCacheMetiersRecommandes(); invaliderCachePistes(); _zoneEntrepriseProfilOuverte = false; _cmReinit(); }
   // TACHE (sous-etape 4.4) : sur "Votre profil", ouvrirDescriptifMetier()
   // n'affiche plus "Choisir ce metier".
   _choixMetierCibleMasque = true;
@@ -11189,7 +12473,7 @@ function pageRevelation(conserverTirage) {
   // ("En bref + metiers + competences + reperes = la page est complete").
   // Ce sont des recaps d'affichage : les donnees (activites/actions/
   // environnement/valeurs) alimentent toujours les suggestions de metiers,
-  // et `valeurs` va a l'assistant via texteProfil(). Rien perdu cote CV.
+  // (la question `valeurs` a ete retiree le 12/11/2026, consigne 261).
   // Decision Denis 2026-09-03.
   // TACHE (retour utilisateur : le choix du bloc Candidature determine
   // ENTIEREMENT le comportement de Potentiel -- dernier point fonctionnel
@@ -11201,6 +12485,9 @@ function pageRevelation(conserverTirage) {
   // entierement masques. Un clic ne peut donc plus jamais remplacer
   // silencieusement un domaine deja choisi -- en mode "metier", rien ne change.
   var modeDomaineEffectif = modeRechercheEffectif() === 'domaine';
+  // Décision de Denis (11/11/2026) : nom d'entreprise manquant (offre ou entreprise précise) -> message affiché d'emblée, bouton de droite « Continuer sans entreprise ». Seulement quand un métier ou un domaine est choisi (sinon l'avertissement du métier passe d'abord).
+  var entrepriseManquePourSuite = entrepriseManquantePourLaSuite();
+  var entrepriseConcernee = entrepriseConcerneeSansOffre();
   var html = afficherProgression('revelation') +
     (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('revelation') : '') +
     // TACHE (retour utilisateur : "cohérence générale -- même chose pour
@@ -11243,6 +12530,7 @@ function pageRevelation(conserverTirage) {
     // precise, CONFIG_BLOC_METIERS) -- jamais touche ici.
     '<p class="revelation-et-apres">' + (_creerCvSansAssistant() ? 'À l’étape suivante, vous voyez votre CV et vous le mettez en page : les textes sont les vôtres.' : 'À l\'étape suivante, l\'assistant en ligne rédige votre CV à partir de tout ceci.') + '</p>' +
     (_creerCvSansAssistant() ? '<div class="text-center mb-3"><button type="button" class="btn btn-outline-secondary btn-sm" id="btnCreerCvChangerAvecAssistantProfil">Changer : être aidé par l’assistant</button></div>' : '') +
+    (entrepriseConcernee ? htmlBlocEntrepriseProfil() : '') +
     '</div>' +
     // TACHE (refonte parcours guide, etape 5, sous-etape 5.1) : le parcours
     // 'nouveau' passe par la page 'assistant' ; 'maj'/'pret'/domaine vont
@@ -11251,11 +12539,14 @@ function pageRevelation(conserverTirage) {
       // « A la main, sans assistant » : « Votre profil » mene directement a « Vos documents ».
       var routeApres = (dossier.modeCreation === 'nouveau' && !_creerCvSansAssistant()) ? 'assistant' : 'resultats';
       // « Retour » revient à l'écran d'où l'on vient : en création (« nouveau ») sans CV déposé, « Votre profil » vient de « Votre parcours » (même règle que le « Continuer » de « Vos informations »).
-      var routeAvant = (dossier.modeCreation === 'nouveau' && !dossier.cvAnalyse) ? 'votre-parcours' : 'projet';
-      return '<div class="barre-navigation-fixe">' + barreNavigation(routeAvant, routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
+      var routeAvant = (dossier.modeCreation === 'nouveau' && !dossier.cvAnalyse) ? _creerCvRouteAvantProfil() : 'projet';
+      var optionsSuite = { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' };
+      if (entrepriseConcernee) { optionsSuite.onclickSuivant = 'continuerSansEntreprise(\'' + routeApres + '\')'; optionsSuite.libelleExact = true; }
+      return '<div class="barre-navigation-fixe">' + barreNavigation(routeAvant, routeApres, entrepriseConcernee ? (entrepriseManquePourSuite ? 'Continuer sans entreprise' : 'Continuer &#8594;') : (_creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action'), optionsSuite) + '</div>';
     })();
   app.innerHTML = html;
 
+  if (entrepriseConcernee) { brancherBlocEntrepriseProfil(function () { pageRevelation(true); }, (dossier.modeCreation === 'nouveau' && !_creerCvSansAssistant()) ? 'assistant' : 'resultats'); }
   wireBlocERIP(CONFIG_BLOC_PROFIL, function () { pageRevelation(true); });
   var btnChangerAssistant = document.getElementById('btnCreerCvChangerAvecAssistantProfil');
   if (btnChangerAssistant) { btnChangerAssistant.addEventListener('click', function () { dossier.creationSansAssistant = false; pageRevelation(true); }); }
@@ -11290,12 +12581,8 @@ function pageRevelation(conserverTirage) {
   // wireRechercheMetierCible / wireEvidenceMetierCible retires -- sans effet
   // depuis 4.1 (banniereMetierCible() n'est plus rendue sur cette page).
   wireAccordeon(function () { pageRevelation(true); });
-  // TACHE (sous-etape 4.4) : infobulles "competences en commun" des cartes
-  // metier de "Des metiers a regarder".
-  wireMetierCarteBulles();
   // TACHE (Contrat d'ancrage ERIP v1, chantier 2) : branche les boutons
-  // d'ancrage inseres par genererHTMLMetiers() (sous-section "Pourquoi ces
-  // metiers ?", visible seulement une fois deplooyee). pageRevelation() se
+  // d'ancrage « Garder comme Repère » des cartes de métier. pageRevelation() se
   // re-rend elle-meme a chaque interaction (voir les wireXxx ci-dessus,
   // tous rappeles a l'identique a chaque fois) -- meme garantie de
   // non-duplication : innerHTML remplace integralement les anciens
@@ -11570,6 +12857,7 @@ function wireRectangleStyleCV(docActif, rerender) {
     btnOk.addEventListener('click', function () {
       avancerEtape('adaptation-metier', 'choix-ia');
       rerender();
+      revenirALaRubrique('[data-assistant-rect="choix-ia"]');   // consigne 397 : on voit « Vos appuis » en haut de la rubrique, pas le bas de la page
     });
   }
 }
@@ -11604,6 +12892,16 @@ function _dossierIaContientDesChoix(type) {
 // le dossier masquait l'ecran de choix pile apres « Importer » : page vide (retour Denis 2026-09-30).
 function reponseIAImportee(type) {
   return !!(_dossierIaContientDesChoix(type) || (type === 'cv' && _brouillonRelectureIACV));
+}
+// Consigne 324 : que montre la page « L'assistant en ligne » quand une réponse est déjà importée et appliquée ? 'synthese' = « Ce que l'assistant a préparé » seul,
+// ouvert ; 'perimee' = les informations ont changé depuis l'import, les rubriques reviennent (sur le choix de l'assistant) ; '' = rien de particulier (pas encore
+// de réponse, ou réponse pas encore appliquée). Une session sans empreinte (enregistrée avant ce changement) compte comme à jour.
+function _assistantModeApresImport(type) {
+  if (!reponseIAImportee(type) || !_relectureIAValideeParType[type]) { return ''; }
+  var d = dossier.ia && dossier.ia[type];
+  var signe = d && d.signatureProfilAssistant;
+  if (signe && signe !== signatureProfilAssistant(dossier)) { return 'perimee'; }
+  return 'synthese';
 }
 function pageAssistant() {
   // Filet : cette route ne concerne que le parcours 'nouveau' (decision
@@ -11667,9 +12965,20 @@ function pageAssistant() {
     _relectureIAValideeParType[docActif] = true;
   }
 
+  // Consigne 324 (Denis, 15/11/2026) : une fois la réponse importée et ses propositions appliquées, la page montre « Ce que l'assistant a préparé », ouvert, et
+  // plus les trois rubriques qui ont servi à l'obtenir (style, assistant, import) : la personne ne refait presque jamais la manipulation. Seule exception : ses
+  // informations ont changé depuis l'import (elle est revenue en arrière) : les rubriques reviennent, sur le choix de l'assistant, avec une phrase calme.
+  // « Retour » ne dépend pas de ces rubriques (il part de la route, voir barreNavigation plus bas).
+  var modeSynthese = _assistantModeApresImport(docActif);
+  if (modeSynthese) {
+    RECTANGLES_ASSISTANT.forEach(function (id) { etatAccordeon[id] = false; });
+    etatAccordeon[modeSynthese === 'synthese' ? 'relecture-ia' : 'choix-ia'] = true;
+  }
+  var rubriquesDeDepart = (modeSynthese !== 'synthese');
+
   var html = afficherProgression('assistant') + (typeof _creerCvBandeRevoirSurEcran === 'function' ? _creerCvBandeRevoirSurEcran('assistant') : '') +
     '<div class="page-catalogue-contenu">' +
-    '<div class="text-center"><h1>&#128172; L\'assistant en ligne</h1>' +
+    '<div class="text-center"><h1>&#128172; L’assistant en ligne</h1>' +
     '<p class="sousTitre">L\'application prépare et copie tout pour vous. Vous échangez avec l\'assistant, puis vous revenez coller sa réponse. Vous n\'avez rien à taper.</p></div>' +
     // TACHE (retour utilisateur 2026-09-15, suite) : message explicite,
     // visible uniquement dans ce cas precis (arrivee sur la lettre juste
@@ -11692,6 +13001,11 @@ function pageAssistant() {
       '<p class="assistant-groupe-titre"><span aria-hidden="true">&#128193;</span>Vos informations sont déjà enregistrées</p>' +
       '<p class="assistant-groupe-aide">Les informations que vous avez saisies jusqu\'ici (parcours, projet, expériences...) sont conservées : elles serviront directement à préparer votre entretien. Réglez ci-dessous le style d\'écriture, ou reprenez directement celui utilisé précédemment.</p>' +
       '</div>' : '') +
+    (modeSynthese === 'perimee'
+      ? '<div class="assistant-groupe"><p class="assistant-groupe-titre"><span aria-hidden="true">&#128193;</span>Vos informations ont changé</p>' +
+        '<p class="assistant-groupe-aide">Elles ne sont plus tout à fait les mêmes que lorsque l\'assistant a répondu. Si vous voulez que sa réponse en tienne compte, demandez-lui-en une nouvelle ci-dessous. Sinon, vous pouvez continuer.</p></div>'
+      : '') +
+    (rubriquesDeDepart ?
     rectangleAssistant('adaptation-metier',
       '&#127898;&#65039;', 'Réglez le style d\'écriture',
       resumeRectangleStyleCV(docActif),
@@ -11703,7 +13017,7 @@ function pageAssistant() {
     rectangleAssistant('import-ia',
       '&#128229;', 'Importer la réponse',
       (reponseIAImportee(docActif) ? 'réponse importée' : ''),
-      contenuAccordeonImportIA(docActif)) +
+      contenuAccordeonImportIA(docActif)) : '') +
     // Decision Denis 2026-09-29 : ce rectangle n'apparait qu'APRES l'import de la reponse de
     // l'assistant (avant, il n'avait aucune valeur ajoutee).
     (reponseIAImportee(docActif) ? rectangleAssistant('relecture-ia',
@@ -11826,13 +13140,15 @@ function contenuLangues() {
   // jugement) -- l'ancienne pastille separee "Aucune langue etrangere" est
   // retiree. Invitation visible sous la barre tant qu'aucune langue n'est
   // en cours de saisie.
-  return htmlListeLanguesExistantes + '<p class="mb-2">Indiquer une langue est un vrai atout, surtout dans le commerce, ' +
-    'le tourisme et les services. Niveaux du cadre européen : A1 débutant à C2 langue maternelle.</p>' +
-    '<div class="row g-2 mt-2 align-items-center">' +
-    '<div class="col-md-5"><select class="form-select form-select-sm" id="langueSelect"><option value="">Je n’ai pas de langue étrangère à indiquer</option>' + options + '<option value="__autre">Autre langue…</option></select></div>' +
-    '<div class="col-md-3"><input type="text" class="form-control form-control-sm d-none" id="langueAutre" placeholder="Quelle langue ? (Entrée pour valider)"></div>' +
-    '<div class="col-md-2 d-none" id="langueNiveauWrap"><select class="form-select form-select-sm" id="langueNiveau"><option value="">Niveau…</option>' + niveaux + '</select></div>' +
-    '<div class="col-md-2"><button class="btn btn-primary btn-sm d-none" id="ajouterLangueBtn">+ Ajouter cette langue</button></div>' +
+  // Consigne 373 (15/11/2026) : la legende des niveaux (A1 a C2) a sa propre ligne, une pastille par niveau.
+  return htmlListeLanguesExistantes + '<p class="small mb-1">Indiquer une langue est un vrai atout, surtout dans le commerce, ' +
+    'le tourisme et les services.</p>' + htmlLegendeNiveauxLangue() +
+    // Consigne 399 (16/11/2026) : menus de la langue et du niveau plus grands, bien contourés, l'un sous l'autre (le niveau n'apparaît plus tout seul à l'autre bout de la ligne).
+    '<div class="langue-saisie mt-2">' +
+    '<div><select class="form-select langue-saisie-champ" id="langueSelect" aria-label="Langue"><option value="">Je n’ai pas de langue étrangère à indiquer</option>' + options + '<option value="__autre">Autre langue…</option></select></div>' +
+    '<div><input type="text" class="form-control langue-saisie-champ d-none" id="langueAutre" placeholder="Quelle langue ? (Entrée pour valider)" aria-label="Quelle langue ?"></div>' +
+    '<div class="d-none" id="langueNiveauWrap"><select class="form-select langue-saisie-champ" id="langueNiveau" aria-label="Niveau"><option value="">Niveau…</option>' + niveaux + '</select></div>' +
+    '<div><button class="btn btn-primary d-none" id="ajouterLangueBtn">+ Ajouter cette langue</button></div>' +
     '</div>' +
     // Invitation / rappel, ajuste par recalculerEtatAjouterLangue() au fil de
     // la saisie (jamais via rerender() -- perdrait le focus).
@@ -11946,15 +13262,15 @@ function htmlVerificationIdentiteCaptee() {
 }
 // Identite seule (sans photo ni permis) : le rectangle de « Vos documents » et la rubrique « Identité » de
 // « Vos informations » s'appuient sur la MEME fonction (une seule source de verite).
-function contenuIdentiteChamps() {
+function contenuIdentiteChamps(htmlApresCoordonnees) {
   // Meme style que le reste de l'application (jetons rectangulaires de la brique commune), partout ou ce
   // formulaire apparait : rectangle de « Vos documents », boite de Decouverte, « Vos informations »
   // (retour de Denis 2026-09-29 : Madame / Monsieur / Ne pas preciser n'avaient pas la forme des autres boutons).
   var _rendu = _renduInfosUnifie;
   _renduInfosUnifie = true;
-  try { return contenuIdentiteChampsInterne(); } finally { _renduInfosUnifie = _rendu; }
+  try { return contenuIdentiteChampsInterne(htmlApresCoordonnees); } finally { _renduInfosUnifie = _rendu; }
 }
-function contenuIdentiteChampsInterne() {
+function contenuIdentiteChampsInterne(htmlApresCoordonnees) {
   appliquerIdentiteCapteeAuDossier();
   var id = dossier.identite || {};
   var civiliteVal = id.civilite || '';
@@ -11976,6 +13292,7 @@ function contenuIdentiteChampsInterne() {
       (bouts.length ? '<span class="text-muted small">' + echapperAttribut(bouts.join(' · ')) + '</span>' : '') +
       '</div>' +
       '<button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="btnModifierIdentite">Modifier</button>' +
+      (htmlApresCoordonnees || '') +
       '</div>';
   } else {
     var pretPourEnregistrer = identitePeutEtreEnregistree();
@@ -11993,20 +13310,25 @@ function contenuIdentiteChampsInterne() {
       // parcours -- rien ici, au moment meme de la saisie, ou la confiance se
       // joue le plus. Meme message court, reutilise mot pour mot (source unique).
       '<p class="small text-muted mb-2">&#128274; Votre nom, votre adresse et vos coordonnées ne sont jamais transmis à l’assistant.</p>' +
+      // Consignes 372 et 386 (15/11/2026) : un libelle au-dessus de chaque champ ; cadre orange pour les champs indispensables (prenom, nom,
+      // telephone, e-mail, code postal, ville), gris fonce pour les champs optionnels (adresse, lien).
+      '<div class="bandeau-champs-orange">Les cadres orange sont à remplir.</div>' +
       '<div class="row g-2 align-items-end">' +
       // ordre Prenom puis Nom (maquette v10) ; etiquettes visibles et fleche d'inversion (retour Denis 2026-10-01).
       champsPrenomNomHTML('identitePrenom', 'identiteNom', id.prenom, id.nom) +
-      '<div class="col-6 col-md-3"><input type="tel" inputmode="tel" maxlength="18" class="form-control form-control-sm" id="identiteTelephone" placeholder="Téléphone : 06.12.34.56.78" value="' + echapperAttribut(formaterTelephone(id.telephone)) + '"></div>' +
-      // Retour de Denis (2026-10-10) : le courriel ne doit pas être coupé (une adresse longue s'affichait « josiane.bekono@g »), il a donc sa propre place, plus large.
-      '<div class="col-12 col-md-6"><input type="email" class="form-control form-control-sm" id="identiteEmail" placeholder="E-mail" value="' + echapperAttribut(id.email) + '"></div>' +
       '</div>' + notePrenomNomHTML() +
-      // adresse postale marquee facultative + phrase. Code postal / Ville sans mention.
       '<div class="row g-2 mt-1">' +
-      '<div class="col-6"><input type="text" class="form-control form-control-sm" id="identiteAdresse" placeholder="Adresse postale (à compléter)" value="' + echapperAttribut(id.adresse) + '"></div>' +
-      '<div class="col-3"><input type="text" inputmode="numeric" maxlength="5" class="form-control form-control-sm" id="identiteCodePostal" placeholder="Code postal" value="' + echapperAttribut(id.codePostal) + '"></div>' +
-      '<div class="col-3"><input type="text" class="form-control form-control-sm" id="identiteVille" placeholder="Ville" value="' + echapperAttribut(id.ville) + '"></div>' +
+      '<div class="col-12 col-md-6"><label class="form-label small fw-semibold mb-1" for="identiteTelephone">Téléphone</label><input type="tel" inputmode="tel" maxlength="18" class="form-control form-control-sm champ-a-completer" id="identiteTelephone" placeholder="06.12.34.56.78" value="' + echapperAttribut(formaterTelephone(id.telephone)) + '"></div>' +
+      // Retour de Denis (2026-10-10) : le courriel ne doit pas être coupé (une adresse longue s'affichait « josiane.bekono@g »), il a donc sa propre place, plus large.
+      '<div class="col-12 col-md-6"><label class="form-label small fw-semibold mb-1" for="identiteEmail">E-mail</label><input type="email" class="form-control form-control-sm champ-a-completer" id="identiteEmail" value="' + echapperAttribut(id.email) + '"></div>' +
       '</div>' +
-      '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteLien" placeholder="Lien LinkedIn ou site personnel (à compléter)" value="' + echapperAttribut(id.lien || '') + '"></div></div>' +
+      '<div class="row g-2 mt-1">' +
+      '<div class="col-12 col-md-6"><label class="form-label small fw-semibold mb-1" for="identiteAdresse">Adresse postale</label><input type="text" class="form-control form-control-sm champ-optionnel" id="identiteAdresse" value="' + echapperAttribut(id.adresse) + '"></div>' +
+      '<div class="col-5 col-md-2"><label class="form-label small fw-semibold mb-1" for="identiteCodePostal">Code postal</label><input type="text" inputmode="numeric" maxlength="5" class="form-control form-control-sm champ-a-completer" id="identiteCodePostal" value="' + echapperAttribut(id.codePostal) + '"></div>' +
+      '<div class="col-7 col-md-4"><label class="form-label small fw-semibold mb-1" for="identiteVille">Ville</label><input type="text" class="form-control form-control-sm champ-a-completer" id="identiteVille" value="' + echapperAttribut(id.ville) + '"></div>' +
+      '</div>' +
+      '<div class="row g-2 mt-1"><div class="col-12"><label class="form-label small fw-semibold mb-1" for="identiteLien">Lien LinkedIn ou site personnel</label><input type="text" class="form-control form-control-sm champ-optionnel" id="identiteLien" value="' + echapperAttribut(id.lien || '') + '"></div></div>' +
+      (htmlApresCoordonnees || '') +
       '<p class="small text-muted mt-1 mb-0">Sur un CV, le code postal et la ville suffisent. L\'adresse précise n\'est plus attendue ; ne la renseignez que si c\'est utile (proximité avec l\'entreprise).</p>' +
       '<button type="button" class="btn btn-primary btn-sm mt-2" id="btnEnregistrerIdentite"' + (pretPourEnregistrer ? '' : ' disabled title="' + phraseMinimum + '"') + '>&#128190; Enregistrer mon identité</button>' +
       (pretPourEnregistrer ? '' : '<p class="small text-muted mt-1 mb-0">' + phraseMinimum + '</p>');
@@ -12036,14 +13358,15 @@ function contenuIdentite() {
   // retiree (la question la remplace).
   var souhaitPhoto = photo.souhaitee || null;
   var blocQuestionPhoto =
-    '<div class="p-2" style="background:var(--bg-subtle);border-radius:8px;">' +
-    '<p class="small fw-bold mb-1">Voulez-vous une photo sur votre CV ?</p>' +
-    '<div class="d-flex gap-2 mb-1 flex-wrap">' +
+    '<div class="vi-photo mt-3">' +
+    '<div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">' +
+    '<p class="fw-bold mb-0">Voulez-vous une photo sur votre CV ?</p>' +
+    '<div class="d-flex gap-2 flex-wrap">' +
     choixRadioVosInfos('data-photo', 'oui', souhaitPhoto === 'oui', 'Oui') +
     choixRadioVosInfos('data-photo', 'non', souhaitPhoto === 'non', 'Non') +
-    '</div>' +
+    '</div></div>' +
     (souhaitPhoto === 'oui'
-      ? '<div class="d-flex flex-column align-items-center gap-2 mt-2">' +
+      ? '<div class="d-flex flex-wrap align-items-center gap-2 gap-md-3 mt-2">' +
         apercuPhoto +
         '<label class="btn btn-sm btn-outline-secondary" for="inputPhotoIdentite">' + (photo.url ? 'Changer la photo' : '&#128444;&#65039; Déposer une photo') + '</label>' +
         '<input type="file" accept="image/*" id="inputPhotoIdentite" class="visually-hidden">' +
@@ -12054,8 +13377,9 @@ function contenuIdentite() {
         (etatVenantDePhotoAction
           ? '<button type="button" class="btn btn-primary btn-sm" id="btnValiderPhotoRetourApercu">&#10003; Valider et revenir à l’aperçu du CV</button>'
           : '') +
-        '</div>'
-      : (souhaitPhoto === 'non' ? '<p class="small text-muted mb-0 mt-1">Aucune photo ne sera ajoutée à votre CV.</p>' : '')) +
+        '</div>' +
+        (photo.url ? '' : '<p class="small mb-0 mt-2"><strong>Aucune photo déposée :</strong> votre CV sera sans photo. Déposez-en une pour qu’elle apparaisse.</p>')
+      : '<p class="small mb-0 mt-2">' + (souhaitPhoto === 'non' ? 'Aucune photo ne sera ajoutée à votre CV.' : 'Sans réponse de votre part, votre CV sera sans photo.') + '</p>') +
     '</div>';
   // TACHE (refonte parcours guide, etape 3, maquette MES_INFORMATIONS v10) :
   // "Enregistrer mon identite" + repli en resume. Tant que la personne n'a
@@ -12063,14 +13387,10 @@ function contenuIdentite() {
   // (dossier.identiteEnregistree), la partie identite se replie sur une
   // ligne de resume + un bouton "Modifier" (meme motif que Mobilite). Le
   // bloc photo, lui, reste toujours visible dessous (independant).
-  var champsOuResume = contenuIdentiteChamps();
+  // Consigne 355 (15/11/2026) : la question de la photo est une bande sur fond blanc sous les coordonnées (emplacement C de la maquette).
+  var champsOuResume = contenuIdentiteChamps(blocQuestionPhoto);
   _identiteMontreeEnVosInfos = true;
-  return '<div id="zoneIdentiteChamps">' +
-    '<div class="d-flex flex-wrap gap-3 align-items-start">' +
-    '<div style="flex:1 1 320px;min-width:260px">' + champsOuResume + '</div>' +
-    '<div style="flex:0 0 190px;max-width:190px">' + blocQuestionPhoto + '</div>' +
-    '</div>' +
-    '</div>';
+  return '<div id="zoneIdentiteChamps">' + champsOuResume + '</div>';
 }
 
 // TACHE (refonte Mon projet, Etape B) : contenu pur (sans enveloppe carte/
@@ -12150,61 +13470,206 @@ function blocMobilite() {
 // pas ici -- meme principe que les experiences.
 // TACHE (retour utilisateur : "quand la personne choisit une formation, je
 // veux qu'elle puisse dire ce qu'elle a fait pendant ce parcours") : bloc
-// missions du brouillon -- secteur (pour piocher dans CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR)
-// + missions cochees + zone de texte libre. Fonction PARTAGEE, appelee a
+// missions du brouillon -- depuis le 15/11/2026 (chantier « Vos diplômes ») : question « détailler ? », métiers, missions des fiches du ROME
+// + zone de texte libre. Fonction PARTAGEE, appelee a
 // la fois par contenuFormations() (Mon projet) et par le bloc Formation du
 // panneau Decouverte (voir decouverteParcours.js) -- un seul rendu, jamais
 // deux implementations paralleles a maintenir. N'affiche rien tant
 // qu'aucun brouillon n'existe (meme garde-fou que le reste du formulaire).
 function contenuMissionsFormationBrouillon(nf) {
   if (!nf) { return ''; }
-  // TACHE (etape 6b-4) : brique .jeton, scope au parcours guide
-  // (_renduInfosUnifie). Decouverte garde .pastille. Cablage
-  // inchange : [data-secteur-missions-formation] / [data-mission-formation-catalogue].
-  var _jetonsVosInfos = !!_renduInfosUnifie;
-  function _jetonSecteurMission(dataAttr, valeur, actif, radio) {
-    var v = echapperAttribut(valeur);
-    if (_jetonsVosInfos) {
-      return '<button type="button" class="jeton' + (radio ? ' jeton--radio' : '') + ' jeton--compact' +
-        (actif ? ' is-actif' : '') + '" ' + dataAttr + '="' + v + '" aria-pressed="' +
-        (actif ? 'true' : 'false') + '">' + valeur + '</button>';
+  // CHANTIER « Vos diplômes » (maquette validée par Denis le 15/11/2026, consignes 341 à 352, docs/MAQUETTE_VOS_DIPLOMES_2026-11-15.html) :
+  // une question d'intention (« détailler ou pas »), préréglée d'après le diplôme et le dossier mais toujours modifiable ; si « Oui »,
+  // métiers proposés pour le diplôme, secteur, missions prêtes à cocher des fiches du ROME, texte libre derrière un bouton. Fin de
+  // l'ancien catalogue de 19 secteurs x 4 missions (retiré). Logique pure : modules/formations-metiers/logique.js.
+  // Fonction PARTAGÉE (contenuFormations, parcours Découverte) : un seul rendu, jamais deux implémentations.
+  var h = '<div id="fmDetailFormation">';
+  h += '<div class="fm-choix"><p class="fm-q">Voulez-vous détailler cette formation sur votre CV ? ' + _fmEtiquette('choix') + '</p>' +
+    '<div class="pastilles mb-1">' +
+    _fmJeton('data-fm-detail', 'non', nf.detail === 'non', 'Non, le diplôme suffit', true) +
+    _fmJeton('data-fm-detail', 'oui', nf.detail === 'oui', 'Oui, avec ce que j’y ai pratiqué', true) + '</div>' +
+    '<p class="fm-aide" style="margin-top:0">« Oui » : ce que vous avez pratiqué en atelier, en stage ou en alternance.</p>' +
+    (nf.detailAuto && !nf.detailManuel ? '<p class="fm-note-auto">Coché d’après votre diplôme et votre dossier. Changez-le si vous le souhaitez.</p>' : '') +
+    '</div>';
+  if (nf.detail === 'non') {
+    h += '<p class="fm-aide mb-2">Rien d’autre à renseigner pour cette formation. Vous pourrez changer d’avis plus tard.</p>';
+  } else if (nf.detail === 'oui') {
+    h += _fmRubriqueMetiers(nf) + _fmRubriqueMissions(nf);
+    if (nf.texteOuvert) {
+      h += '<div class="fm-ecrire"><div class="fm-ligne"><p class="fm-q" style="margin:0">Vos propres mots : ce que vous avez accompli en plus ' + _fmEtiquette('ecrire') + '</p>' +
+        '<button type="button" class="btn btn-sm btn-outline-secondary" data-fm-fermer-texte="1">✕ Fermer</button></div><div style="height:.4rem"></div>' +
+        '<textarea class="form-control form-control-sm mb-1" id="missionsFormationTexteLibre" rows="3" placeholder="Décrivez avec vos mots...">' + echapperAttribut(nf.missionsTexteLibre || '') + '</textarea>' +
+        '<p class="fm-aide">' + CONSEIL_CHIFFRES_MISSIONS + '</p></div>';
+    } else {
+      h += '<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-primary" data-fm-ouvrir-texte="1">' +
+        ((nf.missionsTexteLibre || '').trim() ? 'Revoir mes propres mots (texte conservé)' : 'Décrire avec mes propres mots d’autres missions accomplies') + '</button></div>';
     }
-    return '<span class="pastille' + (actif ? ' actif' : '') + '" ' + dataAttr + '="' + v + '">' + valeur + '</span>';
   }
-  var secteurs = Object.keys(CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR);
-  // TACHE (retour Denis 2026-09-28, point J2 : revirement sur le point 1
-  // ci-dessus) : "la personne arrive, voit tout d'un bloc, elle choisit,
-  // c'est mieux" -- les 19 secteurs s'affichent desormais tous d'emblee,
-  // plus de repli derriere un bouton "Afficher d'autres secteurs".
-  var pastillesSecteurs = secteurs.map(function (s) {
-    return _jetonSecteurMission('data-secteur-missions-formation', s, nf.secteurMissions === s, true);
-  }).join('');
-  var missionsChoisies = nf.missionsChoisies || [];
-  // TACHE (retour utilisateur : "une fois le secteur choisi, les missions
-  // qui apparaissent juste en dessous donnent l'impression de faire partie
-  // du meme choix -- il faut separer clairement les 2 etapes") : chaque
-  // sous-etape (secteur -> exemples de missions -> texte libre) a desormais
-  // son propre titre ET un separateur visuel (bordure en pointilles),
-  // jamais juste une div qui s'enchaine sans rien pour la distinguer.
-  var blocMissionsExemples = '';
-  if (nf.secteurMissions && CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR[nf.secteurMissions]) {
-    var pastillesMissions = CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR[nf.secteurMissions].map(function (m) {
-      return _jetonSecteurMission('data-mission-formation-catalogue', m, missionsChoisies.indexOf(m) !== -1, false);
-    }).join('');
-    blocMissionsExemples = '<div class="mt-3 pt-2" style="border-top:1px dashed #D1D5DB;">' +
-      '<p class="mb-1 small fw-semibold">Exemples de missions pour ce secteur (cliquez pour sélectionner) :</p>' +
-      '<div class="pastilles mb-2">' + pastillesMissions + '</div></div>';
+  return h + '</div>';
+}
+
+// ---- Briques du bloc « Vos diplômes » (détail de la formation) ----
+// Consigne 379 (15/11/2026) : plus aucune etiquette « A ecrire » (les cadres orange suffisent) ; « A choisir » reste.
+function _fmEtiquette(type) { return type === 'ecrire' ? '' : '<span class="fm-tag fm-tag--' + type + '">À choisir</span>'; }
+function _fmJeton(attr, valeur, actif, libelleHtml, radio, desactive) {
+  return '<button type="button" class="jeton' + (radio ? ' jeton--radio' : '') + ' jeton--compact' + (actif ? ' is-actif' : '') + '" ' + attr + '="' + echapperAttribut(valeur) +
+    '" aria-pressed="' + (actif ? 'true' : 'false') + '"' + (desactive ? ' disabled' : '') + '>' + libelleHtml + '</button>';
+}
+function _fmIndex() { return (typeof REPERTOIRE_ROME !== 'undefined' && typeof fmIndexRepertoire === 'function') ? fmIndexRepertoire(REPERTOIRE_ROME) : null; }
+function _fmMetierChoisi(nf, code) { return (nf.metiers || []).some(function (x) { return x.code === code; }); }
+function _fmSecteurCourant(nf, props) {
+  if (nf.secteurIdx !== null && nf.secteurIdx !== undefined) { return nf.secteurIdx; }
+  return props.length ? props[0].d : null;
+}
+function _fmJetonMetier(nf, m, avecSecteur, index) {
+  var choisi = _fmMetierChoisi(nf, m.code);
+  var plein = !choisi && (nf.metiers || []).length >= (nf.maxMetiers || FM_MAX_METIERS);   // maxMetiers : le panneau des expériences en autorise cinq (consigne 388)
+  var nomSecteur = (avecSecteur && index && index.domaines[m.d]) ? ' <span style="font-weight:400">(' + echapperAttribut(index.domaines[m.d]) + ')</span>' : '';
+  return _fmJeton('data-fm-metier', m.code, choisi, echapperAttribut(m.nom) + nomSecteur, false, plein);
+}
+
+// Liste de tous les métiers du secteur, rangés par famille, SANS les métiers déjà proposés plus haut (jamais de doublon).
+function _fmHtmlListeSecteur(nf, index, props) {
+  var idx = _fmSecteurCourant(nf, props);
+  if (idx === null) { return ''; }
+  var h = '';
+  var codesProposes = props.map(function (m) { return m.code; });
+  var filtre = (nf.filtre || '').trim();
+  var familles = fmListeSecteur(index, idx, codesProposes, filtre);
+  var dejaAffiches = {};
+  if (filtre && !familles.length && !nf.filtreTous) {
+    h += '<p class="fm-aide">Aucun métier de ce secteur ne contient ces mots.</p>' +
+      '<button type="button" class="btn btn-sm btn-outline-primary" data-fm-filtre-tous="1">Chercher dans tous les secteurs</button>';
   }
-  return '<p class="mb-1 small text-muted">Qu’avez-vous fait pendant cette formation ? (à compléter - utilisé pour enrichir votre CV, jamais affiché tel quel)</p>' +
-    '<p class="mb-1 small">Secteur le plus proche :</p>' +
-    '<div class="pastilles mb-2">' + pastillesSecteurs + '</div>' +
-    blocMissionsExemples +
-    '<div class="mt-3 pt-2" style="border-top:1px dashed #D1D5DB;">' +
-    '<p class="mb-1 small fw-semibold">Ou décrivez avec vos propres mots d’autres missions accomplies :</p>' +
-    '<textarea class="form-control form-control-sm mb-1" id="missionsFormationTexteLibre" rows="2" ' +
-    'placeholder="Décrivez avec vos mots...">' + echapperAttribut(nf.missionsTexteLibre || '') + '</textarea>' +
-    '</div>' +
-    '<p class="small text-muted mb-2">' + CONSEIL_CHIFFRES_MISSIONS + '</p>';
+  if (filtre && nf.filtreTous && typeof mcChercherFiche === 'function') {
+    var trouvees = mcChercherFiche(filtre, REPERTOIRE_ROME).fiches.filter(function (f) { return codesProposes.indexOf(f.code) === -1; });
+    h += '<p class="fm-fam">Résultats dans tous les secteurs</p>';
+    if (!trouvees.length) { h += '<p class="fm-aide">Aucune fiche trouvée avec ces mots. Essayez un autre mot.</p>'; }
+    else {
+      h += '<div class="pastilles mb-1">' + trouvees.map(function (f) {
+        dejaAffiches[f.code] = true;
+        return _fmJetonMetier(nf, index.parCode[f.code] || { code: f.code, nom: f.nom, d: 0 }, true, index);
+      }).join('') + '</div>';
+    }
+  }
+  familles.forEach(function (fam) {
+    var t = fam.metiers;
+    var replie = !filtre && t.length > FM_NB_VISIBLES && !(nf.deploye && nf.deploye[fam.code]);
+    var affiches = replie ? t.slice(0, FM_NB_VISIBLES) : t;
+    h += '<p class="fm-fam">' + echapperAttribut(fam.nom) + ' <span style="font-weight:400">(' + t.length + ')</span></p><div class="pastilles mb-1">' +
+      affiches.map(function (m) { dejaAffiches[m.code] = true; return _fmJetonMetier(nf, m, false, index); }).join('') + '</div>';
+    if (replie) { h += '<button type="button" class="btn btn-sm btn-outline-primary" data-fm-deploye="' + echapperAttribut(fam.code) + '">Voir les ' + (t.length - FM_NB_VISIBLES) + ' autres métiers de cette famille</button>'; }
+  });
+  var ailleurs = (nf.metiers || []).filter(function (m) { return codesProposes.indexOf(m.code) === -1 && index.parCode[m.code] && index.parCode[m.code].d !== idx && !dejaAffiches[m.code]; });
+  if (ailleurs.length) {
+    h += '<p class="fm-fam">Déjà choisis dans un autre secteur</p><div class="pastilles mb-1">' + ailleurs.map(function (m) { return _fmJetonMetier(nf, index.parCode[m.code], true, index); }).join('') + '</div>';
+  }
+  return h;
+}
+
+// Choix du secteur : « Garder le secteur » seul sur sa ligne, puis les autres secteurs.
+function _fmHtmlChoixSecteur(nf, index, idx) {
+  var h = '<div class="fm-sous"><p class="fm-q">' + (idx === null ? 'Choisissez un secteur' : 'Changer de secteur') + ' ' + _fmEtiquette('choix') + '</p>';
+  if (idx !== null) { h += '<div class="mb-2"><button type="button" class="btn btn-sm btn-outline-primary" data-fm-garder-secteur="1">Garder le secteur « ' + echapperAttribut(index.domaines[idx]) + ' »</button></div>'; }
+  h += '<div class="pastilles mb-1">' + index.domaines.map(function (n, i) { return i === idx ? '' : _fmJeton('data-fm-secteur-idx', i, false, echapperAttribut(n), true); }).join('') + '</div></div>';
+  return h;
+}
+
+// Rubrique des métiers (fond bleu) : 1) le secteur, 2) les métiers proposés et la recherche, 3) Voir les missions.
+function _fmRubriqueMetiers(nf) {
+  var index = _fmIndex();
+  var h = '<div class="fm-choix"><p class="fm-q">Métiers auxquels mène ce diplôme ' + _fmEtiquette('choix') + '</p>';
+  if (!index) {
+    var echec = (typeof _repertoireRomeEtat !== 'undefined' && _repertoireRomeEtat === 'echec');
+    return h + '<p class="fm-aide" style="margin-top:0">' + (echec ? 'Les métiers n’ont pas pu être chargés pour le moment. Vous pouvez décrire avec vos propres mots ce que vous avez pratiqué.' : 'Chargement des métiers...') + '</p></div>';
+  }
+  var props = fmProposes(nf.intitule, index);
+  var idx = _fmSecteurCourant(nf, props);
+  var metiers = nf.metiers || [];
+  if (nf.vueMissions) {
+    return h + '<p class="fm-aide" style="margin-top:0">Métiers choisis : <b>' + metiers.map(function (m) { return echapperAttribut(m.nom); }).join(' · ') + '</b></p>' +
+      '<button type="button" class="btn btn-sm btn-outline-primary" data-fm-modifier-metiers="1">Modifier mes métiers</button></div>';
+  }
+  var ds = fmSecteursDesPropositions(props);
+  var texteSecteur;
+  if (idx === null) { texteSecteur = 'Aucun secteur choisi pour l’instant.'; }
+  else if ((nf.secteurIdx === null || nf.secteurIdx === undefined) && ds.length) { texteSecteur = 'Ces métiers font partie du secteur : <b>' + ds.map(function (x) { return echapperAttribut(index.domaines[x]); }).join(' · ') + '</b>'; }
+  else { texteSecteur = 'Secteur de recherche : <b>' + echapperAttribut(index.domaines[idx]) + '</b>'; }
+  h += '<div class="fm-ligne fm-haut"><p class="fm-aide" style="margin:0;flex:1 1 14rem">' + texteSecteur + '</p>' +
+    '<button type="button" class="btn btn-sm btn-outline-primary fm-btn-large" data-fm-changer-secteur="1">' + (idx === null ? 'Choisir un secteur' : 'Changer de secteur') + '</button></div>';
+  if (nf.choixSecteur) { h += _fmHtmlChoixSecteur(nf, index, idx); }
+  h += '<div class="fm-ligne fm-limite"><p class="fm-aide" style="margin:0;flex:1 1 14rem"><b>Vous pouvez choisir jusqu’à ' + FM_MAX_METIERS + ' métiers</b>' +
+    (metiers.length >= FM_MAX_METIERS ? ' : décochez-en un pour en choisir un autre.' : '.') + '</p>' +
+    (idx !== null ? '<button type="button" class="btn btn-sm btn-outline-primary fm-btn-large" data-fm-chercher="1" aria-expanded="' + (nf.panneauOuvert ? 'true' : 'false') + '">Chercher un autre métier</button>' : '') + '</div>';
+  h += '<div class="pastilles mb-1">' + props.map(function (m) { return _fmJetonMetier(nf, m, false, index); }).join('') + '</div>';
+  if (!props.length) { h += '<p class="fm-aide" style="margin-top:0">Aucun métier n’est proposé pour ce diplôme : choisissez d’abord un secteur, puis cherchez le vôtre.</p>'; }
+  var codesProposes = props.map(function (m) { return m.code; });
+  var supp = metiers.filter(function (m) { return codesProposes.indexOf(m.code) === -1; });
+  if (supp.length && !nf.panneauOuvert) {
+    h += '<p class="fm-aide mb-1">Métiers choisis en plus :</p><div class="pastilles mb-1">' + supp.map(function (m) { return _fmJetonMetier(nf, index.parCode[m.code] || { code: m.code, nom: m.nom, d: 0 }, true, index); }).join('') + '</div>';
+  }
+  if (nf.panneauOuvert && idx !== null && !nf.choixSecteur) {
+    h += '<div class="fm-sous"><div class="fm-ligne"><p class="fm-q" style="margin:0">Chercher un métier dans ce secteur ' + _fmEtiquette('ecrire') + '</p>' +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" data-fm-fermer-panneau="1">✕ Fermer</button></div>' +
+      '<div class="fm-ecrire" style="margin:.4rem 0"><input type="text" class="form-control form-control-sm" id="fmFiltre" placeholder="Tapez un mot (ex. : cuisine, caissier, réseau)" value="' + echapperAttribut(nf.filtre || '') + '"></div>' +
+      '<p class="fm-aide" style="margin-top:0">Ou parcourez les métiers du secteur et cochez ceux qui vous correspondent :</p>' +
+      '<div id="fmZoneListeSecteur">' + _fmHtmlListeSecteur(nf, index, props) + '</div></div>';
+  }
+  if (metiers.length) {
+    h += '<p class="fm-aide" style="margin:.7rem 0 .3rem">Avec les métiers que vous avez choisis, l’étape suivante vous propose des missions : vous pourrez cocher celles qui enrichiront votre CV.</p>' +
+      '<div><button type="button" class="btn btn-sm btn-fm-miss" data-fm-voir-missions="1">Voir les missions de ' + (metiers.length > 1 ? 'ces métiers' : 'ce métier') + ' &rarr;</button></div>';
+  }
+  return h + '</div>';
+}
+
+// Rubrique des missions : sur un fond violet clair à part, jamais le bleu des métiers. Les missions décrivent le métier, pas la formation.
+function _fmRubriqueMissions(nf) {
+  var metiers = nf.metiers || [];
+  if (!nf.vueMissions || !metiers.length) { return ''; }
+  var choisies = nf.missionsChoisies || [];
+  var h = '<div class="fm-miss"><p class="fm-q">Ce que vous avez pratiqué ' + _fmEtiquette('miss') + '</p>' +
+    '<p class="fm-aide" style="margin-top:0">Cochez seulement ce qui vous correspond : ces phrases décrivent le métier, pas votre formation.</p>';
+  metiers.forEach(function (m) {
+    var fiche = (typeof window !== 'undefined' && window.FICHES_ROME) ? window.FICHES_ROME[m.code] : null;
+    h += '<p class="fm-fam">Missions du métier : ' + echapperAttribut(m.nom) + '</p>';
+    if (!fiche) { h += '<p class="fm-aide">' + (_fmFichesEchec[m.code] ? 'La fiche de ce métier n’a pas pu être chargée : décrivez avec vos mots plus bas.' : 'Chargement de la fiche...') + '</p>'; return; }
+    var mi = fiche.mi || [];
+    if (!mi.length) { h += '<p class="fm-aide">Aucune mission prête pour cette fiche : décrivez avec vos mots plus bas.</p>'; return; }
+    h += '<div class="pastilles mb-1">' + mi.map(function (x) { return _fmJeton('data-fm-mission', x, choisies.indexOf(x) !== -1, echapperAttribut(x), false); }).join('') + '</div>';
+  });
+  return h + '</div>';
+}
+
+// Champs du détail de la formation, à poser sur chaque nouveau brouillon (création, réédition d'une formation enregistrée).
+function _fmChampsDetailVides() {
+  return { detail: null, detailAuto: false, detailManuel: false, metiers: [], panneauOuvert: false, vueMissions: false, secteurIdx: null, choixSecteur: false,
+    filtre: '', filtreTous: false, deploye: {}, texteOuvert: false };
+}
+// Préréglage de la question « détailler ? » (jamais une décision : ignoré dès que la personne a répondu elle-même).
+function _fmRecalculerDetail(nf) {
+  if (!nf || nf.detailManuel) { return; }
+  var aExperience = !!(dossier.experiences && dossier.experiences.length);
+  nf.detail = (typeof fmPresetDetail === 'function') ? fmPresetDetail(nf.intitule, nf.typeCredential, aExperience) : null;
+  nf.detailAuto = !!nf.detail;
+}
+// Chargement à la demande (jamais par index.html) : le répertoire du ROME quand la personne détaille, puis la fiche de chaque métier choisi.
+var _fmFichesEchec = {};
+function _fmChargerDonnees(nf, rerender) {
+  if (!nf || nf.detail !== 'oui') { return; }
+  if (!_fmIndex()) { chargerRepertoireElargi(function () { rerender(); }); return; }
+  (nf.metiers || []).forEach(function (m) {
+    if ((window.FICHES_ROME && window.FICHES_ROME[m.code]) || _fmFichesEchec[m.code]) { return; }
+    _chargerScriptUneFois('data/rome/fiche_' + m.code.charAt(0) + '.js', function (ok) {
+      if (!(ok && window.FICHES_ROME && window.FICHES_ROME[m.code])) { _fmFichesEchec[m.code] = true; }
+      rerender();
+    });
+  });
+}
+// Retire les missions cochées qui ne dépendent plus d'aucun métier choisi.
+function _fmNettoyerMissions(nf) {
+  var fiches = (typeof window !== 'undefined') ? window.FICHES_ROME : null;
+  if ((nf.metiers || []).some(function (m) { return !(fiches && fiches[m.code]); })) { return; }   // une fiche pas encore chargée : on ne retire rien
+  nf.missionsChoisies = fmNettoyerMissions(nf.missionsChoisies, nf.metiers, fiches);
 }
 
 // TACHE (retour utilisateur : "je veux la même logique et cohérence dans
@@ -12242,11 +13707,19 @@ function formationBrouillonPeutAjouter(nf) {
 function _formationBrouillonModifie(nf, editIndex) {
   if (editIndex === null || editIndex === undefined || !dossier.formations[editIndex]) { return true; }
   var f = dossier.formations[editIndex];
-  var missionsChoisies = nf.missionsChoisies || [];
-  var texteLibre = (nf.missionsTexteLibre || '').trim();
+  // Chantier « Vos diplômes » : même règle que l'enregistrement (seul « Oui » garde missions et métiers), et la réponse à « détailler ? »
+  // ainsi que les métiers choisis comptent comme des modifications.
+  var detaille = nf.detail === 'oui';
+  var missionsChoisies = detaille ? (nf.missionsChoisies || []) : [];
+  var texteLibre = detaille ? (nf.missionsTexteLibre || '').trim() : '';
   var missionsFinal = missionsChoisies.concat(texteLibre ? [texteLibre] : []).join('\n');
   var niveauRNCPOriginal = (typeof f.niveauRNCP === 'number') ? f.niveauRNCP : null;
-  return (nf.intitule || '') !== (f.intitule || '')
+  var detailOriginal = (f.detailFormation === 'oui' || f.detailFormation === 'non') ? f.detailFormation : ((f.missions && String(f.missions).trim()) ? 'oui' : null);
+  var metiersActuels = detaille ? (nf.metiers || []).map(function (m) { return m.code; }).join(',') : '';
+  var metiersOriginaux = (f.metiersRome || []).map(function (m) { return m.code; }).join(',');
+  return (nf.detail || null) !== detailOriginal
+    || metiersActuels !== metiersOriginaux
+    || (nf.intitule || '') !== (f.intitule || '')
     || (nf.annee || '') !== (f.annee || '')
     || (nf.centre || '').trim() !== (f.etablissement || '')
     || (nf.lieu || '').trim() !== (f.lieu || '')
@@ -12363,15 +13836,15 @@ function contenuFormations() {
   var libelleQuestionType = (dossier.formations.length && !nf && editIndex === null)
     ? 'Une autre formation ou diplôme à ajouter ?'
     : 'De quoi disposez-vous ?';
-  var html = htmlListeExistantes + bannerEdition + '<p class="mb-2">' + libelleQuestionType + '</p><div class="pastilles mb-2">' + pastillesType + '</div>';
+  var html = htmlListeExistantes + bannerEdition + '<div class="fm-choix"><p class="fm-q">' + libelleQuestionType + ' ' + _fmEtiquette('choix') + '</p><div class="pastilles mb-1">' + pastillesType + '</div></div>';
 
   if (!nf) {
     // Rien choisi pour l'instant (ou "Sans diplôme" vient d'etre traite en
     // ajout direct) -- pas de brouillon a completer.
-    return html +
+    return '<div class="fm-bloc">' + html +
       '<div class="mt-2 d-flex"><button type="button" class="btn btn-outline-secondary btn-etape-suivante btn-sm ms-auto" id="formationsEtapeSuivanteBtn"' +
       (dossier.formations.length > 0 ? '' : ' disabled') +
-      '>Je passe à l’étape suivante &rarr;</button></div>';
+      '>Je passe à l’étape suivante &rarr;</button></div></div>';
   }
 
   // ---- Etape 2 : niveau, adapte au type choisi en etape 1 ----
@@ -12417,7 +13890,9 @@ function contenuFormations() {
   // qui aurait exclu a tort un Titre pro/CQP de niveau equivalent).
   // TACHE (retour Denis 2026-09-28, point G1) : "Je ne sais pas" donne acces aux missions aussi
   // -- Denis veut pouvoir les dicter/saisir meme sans avoir choisi ni le niveau ni le domaine.
-  var contenuMissions = ((nf.niveauRNCP !== null && nf.niveauRNCP <= 4) || nf.niveauInconnu) ? contenuMissionsFormationBrouillon(nf) : '';
+  // Chantier « Vos diplômes » : plus de seuil de niveau (la vraie distinction est la pratique, pas le diplôme) ; la question « détailler ? » apparaît
+  // dès que le niveau est choisi et que l'intitulé compte au moins 3 caractères.
+  var contenuMissions = ((nf.niveauRNCP !== null || nf.niveauInconnu) && (nf.intitule || '').trim().length >= 3) ? contenuMissionsFormationBrouillon(nf) : '';
 
   // TACHE (retour utilisateur : "la personne clique sur un niveau, mais ne
   // remarque pas que le champ nom du diplôme apparaît AU-DESSUS de son
@@ -12437,11 +13912,12 @@ function contenuFormations() {
   // niveau choisi pour deverrouiller le reste du formulaire (voir formationBrouillonPeutAjouter,
   // meme regle).
   var niveauChoisi = nf.niveauRNCP !== null || !!nf.niveauInconnu;
-  return html +
-    '<p class="mb-2">Quel est le niveau ?</p>' +
-    '<div class="pastilles mb-2">' + pastillesNiveau + boutonNiveauInconnu + '</div>' +
-    messageEquivalence +
-    '<div class="row g-2 mb-3' + (doitPulserZoneDiplome ? ' zone-diplome-pulse' : '') + '" id="zoneDiplomeIntituleAnnee">' +
+  return '<div class="fm-bloc">' + html +
+    '<div class="fm-choix"><p class="fm-q">Quel est le niveau ? ' + _fmEtiquette('choix') + '</p>' +
+    '<div class="pastilles mb-1">' + pastillesNiveau + boutonNiveauInconnu + '</div>' +
+    messageEquivalence + '</div>' +
+    '<div class="fm-ecrire"><p class="fm-q">Nom exact du diplôme et année ' + _fmEtiquette('ecrire') + '</p>' +
+    '<div class="row g-2 mb-2' + (doitPulserZoneDiplome ? ' zone-diplome-pulse' : '') + '" id="zoneDiplomeIntituleAnnee">' +
     '<div class="col-8">' +
     '<input type="text" class="form-control form-control-sm" id="niveauFormationIntitule" placeholder="' + echapperAttribut(placeholderIntitule) + '"' +
     (niveauChoisi ? '' : ' disabled') + ' value="' + echapperAttribut(nf.intitule) + '"></div>' +
@@ -12451,12 +13927,12 @@ function contenuFormations() {
     '</div>' +
     // TACHE (Denis, 2026-09-25) : centre de formation et lieu, facultatifs : la personne choisira ensuite, dans « La mise en page »,
     // de les afficher ou non sur le CV.
-    '<div class="row g-2 mb-3" id="zoneFormationCentreLieu">' +
+    '<div class="row g-2" id="zoneFormationCentreLieu">' +
     '<div class="col-7"><input type="text" class="form-control form-control-sm" id="niveauFormationCentre" placeholder="Centre de formation ou école (à compléter)"' +
     (niveauChoisi ? '' : ' disabled') + ' value="' + echapperAttribut(nf.centre || '') + '"></div>' +
     '<div class="col-5"><input type="text" class="form-control form-control-sm" id="niveauFormationLieu" placeholder="Ville (à compléter)"' +
     (niveauChoisi ? '' : ' disabled') + ' value="' + echapperAttribut(nf.lieu || '') + '"></div>' +
-    '</div>' +
+    '</div></div>' +
     contenuMissions +
     // TACHE (retour utilisateur : "notamment pour les diplômes... je passe
     // à l'étape suivante") : plusieurs diplômes possibles -- seul ce
@@ -12488,7 +13964,7 @@ function contenuFormations() {
     // ecran tactile, ou l'info-bulle au survol n'existe pas). Affichee
     // seulement quand un niveau est choisi mais l'intitule/l'annee manquent.
     '<p class="small text-muted mt-1 mb-0' + ((niveauChoisi && !formationBrouillonPeutAjouter(nf)) ? '' : ' d-none') + '" id="formationValiderHint">' +
-    'Renseignez l\'intitulé exact et l\'année d\'obtention pour valider.</p>';
+    'Renseignez l\'intitulé exact et l\'année d\'obtention pour valider.</p></div>';
 }
 
 // Conservee pour compatibilite (plus appelee par pageProjet depuis l'Etape C).
@@ -12862,7 +14338,6 @@ function bilanReinitialiserEtatBilan() {
   _etatBilan.preparer = null;
   _etatBilan.preparerRetour = null;
   _etatBilan.voirIntro = null;
-  _etatBilan.reprisePendante = null;
 }
 
 // TACHE (correctif boucle Retour, 2026-09-09 -- LECONS section 2,
@@ -12919,10 +14394,10 @@ function bilanRevenirDeLaPresentation() {
   pageBilanCandidature();
 }
 
-// "Continuer" de l'encart de reprise (on revient dans le module avec une
-// analyse engagee) -- leve le gel, garde tout l'etat de travail.
+// « Reprendre » du bloc de la presentation (consigne 258, 12/11/2026) : retour au dernier
+// ecran de travail, tout l'etat est garde.
 function bilanRepriseContinuer() {
-  if (typeof _etatBilan !== 'undefined' && _etatBilan) { _etatBilan.reprisePendante = null; }
+  if (typeof _etatBilan !== 'undefined' && _etatBilan) { _etatBilan.voirIntro = null; }
   pageBilanCandidature();
 }
 
@@ -12938,7 +14413,8 @@ function bilanRecommencerAnalyse() {
   _bilanPropositionsParRecommandation = {};
   _bilanDernierAssistantAmeliorationId = null;
   if (typeof dossier !== 'undefined') { dossier.bilanAvancementCorrection = {}; }
-  if (typeof demarrerBilanCandidatureAvecDepot === 'function') { demarrerBilanCandidatureAvecDepot(); }
+  // Consigne 258 : apres « Recommencer », la presentation repart a froid (plus de depot directement).
+  pageBilanCandidature();
 }
 
 // TACHE (consolidation Bilan, bloc 3.3, 2026-08-30) : point d'entree unique
@@ -13018,17 +14494,15 @@ function bilanMarquerCvModifie() {
 //                cvTexte: string|null } -- ecran "Preparer" (bloc 3.3),
 //                actif tant qu'aucune candidature n'est deposee ni aucun
 //                diagnostic lance. Voir bilanEntrerPreparation().
-// voirIntro : detour de CONSULTATION ("Revoir la presentation" depuis un
-// ecran de travail) -- pas d'encart. reprisePendante : on REVIENT dans le
-// module (accueil / autre module) avec une analyse engagee -- on atterrit
-// au dernier ecran, encart "Continuer / Recommencer" a droite + module
-// gele (aligne sur "Coherence de mon dossier", chantier "bouton
-// presentation" 2026-09-01).
+// voirIntro : 'detour' = CONSULTATION ("Revoir la presentation" depuis un
+// ecran de travail) ; 'normal' = presentation du module, avec le bloc
+// « Reprendre / Recommencer » quand une analyse est engagee (consigne 258,
+// meme forme que « Reprendre mon CV »).
 // organisation : sous-etat de "Organiser mon CV" (retour Denis 2026-09-19,
 // remplace l'ancien structurerTexteExistant()/ouvrirAssistantDepotCV() en
 // fenetre) -- { ecran: 'choix-assistant' | 'coller' }, meme principe que
 // correction/assistance ci-dessus (sous-etat du rapport, jamais une route).
-var _etatBilan = { correction: null, assistance: null, organisation: null, preparer: null, preparerRetour: null, voirIntro: null, reprisePendante: null };
+var _etatBilan = { correction: null, assistance: null, organisation: null, preparer: null, preparerRetour: null, voirIntro: null };
 
 // TACHE (meme chantier) : destinationRegistry.js parle en 'candidature'
 // (vocabulaire metier, partage avec les tests) -- ce petit dictionnaire
@@ -13175,7 +14649,10 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
           // 25/10/2026 : dans « Vos documents », l'entretien est TOUJOURS la fiche rapide (aussi dans « Créer un nouveau CV », où il donnait avant l'entraînement approfondi) ;
           // l'entraînement par échanges vit dans le module « M'entraîner à un entretien ».
           var cleP = clePromptOverride || (type === 'entretien' ? 'entretien-accueil' : type);
-          var messageAssistant = promptCache(cleP, texteProfilEffectif(type));
+          // Lot 7 « Vos missions et compétences » (consigne 313) : si la personne a fait des choix dans l'étape, le message du CV porte le bloc du chemin (a) ;
+          // sinon (ou module fermé, bloc pas chargé) c'est le message d'avant, sans changement.
+          var messageAssistant = (type === 'cv' && !clePromptOverride && typeof mcMessageCVChemin === 'function' && mcMessageCVChemin(texteProfilEffectif(type))) ||
+            promptCache(cleP, texteProfilEffectif(type));
           // E5 (24/10/2026) : lettres de recommandation du CV (deux au plus), relues et masquees par la personne, apres le profil ; rien si « Non » ou aucune.
           // 25/10/2026 (décision Denis) : la lettre de motivation rapide et la fiche d'entretien rapide vont vite, sans lettre de recommandation ; elle reste pour le CV et pour les deux modules approfondis (leurs propres messages).
           if (type === 'cv') {
@@ -13189,6 +14666,7 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
           avancerEtape('choix-ia', 'import-ia');
           _compteChoixAssistantIA++;
           (rerender || pageResultats)();
+          revenirALaRubrique('[data-assistant-rect="import-ia"]');
         }
       });
     });
@@ -13985,7 +15463,7 @@ function injecterBanniereComplementCV(rerender) {
 // Contenu de l'écran « Étape 2 sur 2 » (titre, bandeau, importer, passer), partagé par la page « Vos documents » et le module « Un CV, plusieurs métiers » : une seule source.
 function htmlEcranComplementCV(sansTitre) {
   // Les explications, les étapes, le collage et « Continuer sans le complément » sont dans la fenêtre commune (mode complément, dette B.17, 2026-10-28).
-  return (sansTitre ? '' : '<div class="text-center"><h1><i class="bi bi-plus-circle"></i> Le complément de votre CV</h1></div>') +
+  return (sansTitre ? '' : '<div class="text-center"><h1>&#10133; Le complément de votre CV</h1></div>') +
     '<div class="complement-cv-banniere" role="note"><p class="complement-cv-etape">&Eacute;tape 2 sur 2 : le compl&eacute;ment</p>' +
     '<p class="complement-cv-titre-propose"><strong>L&rsquo;assistant vous propose un compl&eacute;ment de CV.</strong> Vous avez d&eacute;j&agrave; de quoi cr&eacute;er votre CV avec l&rsquo;essentiel : cette deuxi&egrave;me partie ajoute des informations en plus.</p>' +
     '<p class="mb-0">Pour l&rsquo;obtenir, retournez dans <strong>la m&ecirc;me conversation, avec le m&ecirc;me assistant</strong>, r&eacute;pondez-lui <strong>&laquo;&nbsp;oui&nbsp;&raquo;</strong>, copiez sa nouvelle r&eacute;ponse, puis revenez la coller ici. Les &eacute;tapes sont d&eacute;taill&eacute;es juste en dessous.</p></div>' +
@@ -13993,7 +15471,10 @@ function htmlEcranComplementCV(sansTitre) {
 }
 // depuisLeCV : ouvert depuis le bouton « Ajouter le complément du CV » tout en bas du CV (« Retour » ramène alors à la page du CV, pas au début du module).
 function pageComplementCV(depuisLeCV) {
-  app.innerHTML = '<div class="page-catalogue-contenu complement-cv-ecran">' +
+  // Protocole de test du 11/11/2026 (constat D7) : l'écran du complément reste dans « Vos documents », il porte donc la même barre d'étapes (registre des familles, comme pageInvitationCvDeveloppe).
+  var barreHaut = (typeof barreHautVosDocuments === 'function' && typeof familleVosDocuments === 'function')
+    ? barreHautVosDocuments(familleVosDocuments(Object.assign(signauxVosDocuments(docActifActuel(), false), { decouverteVersResultats: false }))) : '';
+  app.innerHTML = barreHaut + '<div class="page-catalogue-contenu complement-cv-ecran">' +
     htmlEcranComplementCV() +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, depuisLeCV ? { onclickPrecedent: 'pageResultats()' } : null) + '</div>';
@@ -14175,7 +15656,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
       if (!r.succes) { trackEvenement('erreur_import', { document: type, raison: raisonErreurImport(r.erreur) }); return { ok: false }; }
       return { ok: true };
     },
-    onEchecAction: function () { naviguerVers('objectif'); },
+    onEchecAction: function () { naviguerVers('projet'); },
     // Rouvre l'etape « choix-ia » sans passer par avancerEtape() (qui validerait a tort « import-ia ») : rien n'est perdu dans le dossier.
     onChangerAssistant: function () {
       clearInterval(_intervalleDecompteIA);
@@ -14282,6 +15763,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
           // en changer la selection, sans nouvelle analyse du contenu
           // actuel du dossier).
           dossier.ia.cv.signatureExpPersoAnalyse = signatureExpPersoEtEngagements(dossier);
+          dossier.ia.cv.signatureProfilAssistant = signatureProfilAssistant(dossier);   // page « L'assistant en ligne » (consigne 324)
           if (typeof rafraichirApercuCVSiOuvert === 'function') { rafraichirApercuCVSiOuvert(); }
           messageImportIA.style.color = 'inherit';
           // TACHE (phase 3.8(b)) : avertissements calcules a l'analyse du JSON
@@ -14298,6 +15780,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
               : '');
           avancerEtape('import-ia', idEtapeApres);
           rerender();
+          revenirALaRubrique('[data-assistant-rect="' + idEtapeApres + '"]');
           trackEvenement('cv_genere');
           // TACHE (chantier "remplissage automatique par defaut") :
           // declenche l'optimisation automatique ICI -- vraie regeneration
@@ -14325,6 +15808,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
         dossier.ia.lettre.versions = resultatLettre.valeurs.versions;
         dossier.ia.lettre.versionActive = 0;
         dossier.ia.lettre.lettre = { objet: resultatLettre.valeurs.versions[0].objet, texte: resultatLettre.valeurs.versions[0].texte, texteCourt: resultatLettre.valeurs.versions[0].texteCourt || '' };
+        dossier.ia.lettre.signatureProfilAssistant = signatureProfilAssistant(dossier);   // page « L'assistant en ligne » (consigne 324)
         messageImportIA.style.color = 'inherit';
         messageImportIA.innerHTML = genererResumeGeneriqueImportIA(
           { accroche: resultatLettre.valeurs.accroche, arguments: resultatLettre.valeurs.arguments, texteLettre: dossier.ia.lettre.lettre.texte },
@@ -14340,6 +15824,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
         dossier.ia.entretien.pointsAPreparer = resultatEntretien.valeurs.pointsAPreparer;
         dossier.ia.entretien.questionsAnticipees = resultatEntretien.valeurs.questionsAnticipees;
         dossier.ia.entretien.questionsDuCandidat = resultatEntretien.valeurs.questionsDuCandidat;
+        dossier.ia.entretien.signatureProfilAssistant = signatureProfilAssistant(dossier);   // page « L'assistant en ligne » (consigne 324)
         messageImportIA.style.color = 'inherit';
         messageImportIA.innerHTML = genererResumeGeneriqueImportIA(resultatEntretien.valeurs, SPEC_AFFICHAGE_ENTRETIEN);
         trackEvenement('entretien_genere');
@@ -14348,6 +15833,7 @@ function wireImportIA(docActif, rerender, idEtapeApres, options) {
       // "return" plus tot en cas d'echec) -> avance automatiquement.
       avancerEtape('import-ia', idEtapeApres);
       rerender();
+      revenirALaRubrique('[data-assistant-rect="' + idEtapeApres + '"]');
     }
   });
 }
@@ -14518,6 +16004,14 @@ function brancherCollageUniquePage(o) {
 // etape et ouvre la suivante, reutilise par tous les parcours en accordeons
 // (pas seulement la page Action). Ne supprime rien : l'etape fermee reste
 // visible et rouvrable (etatAccordeon ne fait que basculer un booleen).
+// Consigne 397 (16/11/2026) : apres une validation qui redessine la page, la page raccourcit (la rubrique qu'on vient de remplir se referme) et le navigateur laisse la
+// personne trop bas, parfois tout en bas. On la ramene en haut de la rubrique qu'elle vient de completer (ou de celle qui s'ouvre). Une seule fonction pour tous les ecrans.
+function revenirALaRubrique(selecteur, marge) {
+  var cible = typeof selecteur === 'string' ? document.querySelector(selecteur) : selecteur;
+  if (!cible || !cible.getBoundingClientRect) { return; }
+  var y = cible.getBoundingClientRect().top + (window.pageYOffset || 0) - (typeof marge === 'number' ? marge : 80);
+  window.scrollTo(0, Math.max(0, y));
+}
 function avancerEtape(idActuel, idSuivant) {
   etatAccordeon[idActuel] = false;
   // TACHE (retour utilisateur) : SEUL avancerEtape() (donc un vrai clic sur
@@ -14809,7 +16303,7 @@ var etatBlocDejaComplet = {};
 // le bandeau "le plus proche" a ouvrir automatiquement -- doit rester
 // coherent avec l'ordre d'affichage reel dans pageProjet() (grille 2
 // colonnes lue ligne par ligne : gauche puis droite, rangee par rangee).
-var ORDRE_BLOCS_MON_PROJET = ['vous', 'parcours', 'experiences-perso', 'projet', 'complements', 'candidature'];
+var ORDRE_BLOCS_MON_PROJET = ['vous', 'experiences-pro', 'experiences-perso', 'parcours', 'certifications', 'engagements', 'loisirs', 'projet', 'candidature'];
 var ORDRE_BLOCS_MON_PROJET_ALLEGE = ['vous', 'projet', 'candidature'];
 // Detecte, pour chaque bandeau fourni, la transition incomplet -> complet
 // depuis le dernier rendu, et ouvre alors automatiquement le bandeau suivant
@@ -15018,17 +16512,16 @@ function blocERIP(config) {
   // ("a completer" -> "complete"), et pose un filet gauche accent (recommande)
   // ou gris (facultatif). config.accordNiveau ('e' ou 'es') accorde « recommandé » avec le titre du bloc (29/10/2026, audit D32). Toutes les autres pages (aucun config.niveau) sont
   // strictement inchangees.
-  var estFacultatif = config.niveau === 'facultatif';
-  var htmlTagNiveau = config.niveau
-    ? '<span class="bloc-erip-tag bloc-erip-tag-' + (estFacultatif ? 'fac' : 'rec') + '">' + (estFacultatif ? 'à compléter' : 'recommandé' + (config.accordNiveau || '')) + '</span>'
-    : '';
+  // Consigne 371 (15/11/2026) : plus d'etiquette « recommande » / « facultatif » : tous les
+  // rectangles se ressemblent, seule la pastille d'etat (« a completer » / « complete ») change.
+  var htmlTagNiveau = '';
   var htmlEtatNiveau = config.niveau
     ? '<span class="bloc-erip-badge-etat' + (blocComplet ? ' complet' : '') + '">' + (blocComplet ? 'complété' : 'à compléter') + '</span>'
     : '';
   var htmlCompteurOuEtat = config.niveau
     ? htmlTagNiveau + htmlEtatNiveau
     : '<span class="bloc-erip-compteur' + (appliquerPulseCompteur ? ' bloc-erip-compteur-incomplet ' + classeCompteurCours : '') + '">' + texteCompteur + '</span>' + indicateurComplet;
-  var classeNiveau = config.niveau ? ' bloc-erip-' + (estFacultatif ? 'facultatif' : 'recommande') : '';
+  var classeNiveau = ''; // plus de filet colore (consigne 371)
   var afficherMessageIncomplet = blocIncomplet && !config.niveau;
 
   if (!blocOuvert) {
@@ -15218,6 +16711,7 @@ function blocERIP(config) {
     (_blocEditionCvBilanEnCours ? '' : htmlCompteurOuEtat) +
     '<span class="bloc-erip-fleche">&#9650;</span>' +
     '</div>' +
+    (config.introBloc && !_blocEditionCvBilanEnCours ? '<p class="bloc-erip-intro">' + config.introBloc + '</p>' : '') +
     (blocComplet && !config.niveau ? '<p class="bloc-erip-message-complet">&#9989; Ce bloc est complet, merci ! Pensez à compléter les autres si ce n\'est pas déjà fait.</p>' : '') +
     (config.boutonsSpeciaux ? config.boutonsSpeciaux() : '') +
     htmlConfirmation +
@@ -15625,29 +17119,24 @@ var CONFIG_BLOC_VOUS = {
 // bloc "Vous".
 function resumeParcours() {
   var items = [];
-  // TACHE (Tache 1 : formations en tableau) : meme motif que certifications
-  // juste en dessous -- une entree par element du tableau, avec son index
-  // pour permettre la suppression ciblee.
+  // TACHE (Tache 1 : formations en tableau) : une entree par element du
+  // tableau, avec son index pour permettre la suppression ciblee.
+  // Consigne 378 (15/11/2026) : les certifications ont leur propre rectangle
+  // (resumeCertifications) -- plus melangees aux formations.
   (dossier.formations || []).forEach(function (f, i) {
     var label = libelleFormation(f) + (f.annee ? ' (' + f.annee + ')' : '');
     items.push({ label: label, source: 'formation', index: i });
   });
-  (dossier.certifications || []).forEach(function (c, i) { items.push({ label: c, source: 'certification', index: i }); });
   return items;
 }
 function resumeOnSuppressionParcours(idx) {
   var item = resumeParcours()[idx];
   if (!item) { return; }
   if (item.source === 'formation') { dossier.formations.splice(item.index, 1); }
-  else if (item.source === 'certification') { dossier.certifications.splice(item.index, 1); }
 }
 // TACHE (retour utilisateur : "clic sur la pastille verte = suppression
-// directe, je veux rouvrir le panneau pour corriger") : Certifications
-// reutilise le panneau d'edition deja existant (CONFIG_CERTIFICATIONS,
-// avecEditionPastille -- meme mecanisme EXACT que Loisirs/Engagements/
-// Experience perso, _catalogueEditionOuverte). Formations n'a, lui, pas
-// encore de panneau d'edition par element existant -- voir contenuFormations()
-// plus bas (chantier "formations editables"), qui l'ajoute.
+// directe, je veux rouvrir le panneau pour corriger") : Formations ouvre son
+// panneau d'edition (contenuFormations).
 function resumeOnEditerParcours(idx) {
   var item = resumeParcours()[idx];
   if (!item) { return; }
@@ -15656,10 +17145,21 @@ function resumeOnEditerParcours(idx) {
     _editionFormationExistanteIndex = item.index;
     brouillonFormationEnCours = construireBrouillonDepuisFormation(dossier.formations[item.index]);
   }
-  else if (item.source === 'certification') {
-    ouvrirBlocEtSousSection('parcours', 'certifications');
-    _catalogueEditionOuverte['certifications'] = item.index;
-  }
+}
+// Rectangle « Certifications » (consigne 378) : meme panneau d'edition que
+// avant (CONFIG_CERTIFICATIONS, avecEditionPastille), juste sorti de Formations.
+function resumeCertifications() {
+  return (dossier.certifications || []).map(function (c, i) { return { label: c, source: 'certification', index: i }; });
+}
+function resumeOnSuppressionCertifications(idx) {
+  var item = resumeCertifications()[idx];
+  if (item) { dossier.certifications.splice(item.index, 1); }
+}
+function resumeOnEditerCertifications(idx) {
+  var item = resumeCertifications()[idx];
+  if (!item) { return; }
+  ouvrirBlocEtSousSection('certifications', 'certifications');
+  _catalogueEditionOuverte['certifications'] = item.index;
 }
 // TACHE (retour utilisateur : bloc "Experiences et savoir-faire personnels"
 // autonome) : extrait de Parcours, meme donnees (dossier.experiencesPerso),
@@ -15691,7 +17191,8 @@ function resumeOnEditerExperiencesPerso(idx) {
   }
 }
 var CONFIG_BLOC_PARCOURS = {
-  id: 'parcours', icone: '&#127891;', titre: 'Vos formations et diplômes', accordNiveau: 'es',
+  id: 'parcours', icone: '&#127891;', titre: 'Formations et diplômes', accordNiveau: 'es',
+  introBloc: 'Le niveau le plus élevé que vous avez atteint, avec ou sans diplôme.',
   niveau: 'recommande', // TACHE 3.12 : voir CONFIG_BLOC_VOUS
   masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true, // TACHE 5bis : voir CONFIG_BLOC_VOUS
   resume: resumeParcours,
@@ -15699,9 +17200,6 @@ var CONFIG_BLOC_PARCOURS = {
   resumeOnEditer: resumeOnEditerParcours,
   onResetTout: function () {
     dossier.formations = [];
-    dossier.certifications = [];
-    dossier.catalogueActif = dossier.catalogueActif || {};
-    delete dossier.catalogueActif.certifications;
     // TACHE (chantier "formations editables") : evite un brouillon
     // d'edition orphelin (index d'une formation qui vient d'etre effacee)
     // qui reapparaitrait/se repousserait par erreur au prochain rendu.
@@ -15714,12 +17212,8 @@ var CONFIG_BLOC_PARCOURS = {
     // complet a deja ete depose ("J'ai deja un CV"), les formations y figurent deja.
     if (dossier.modeCreation !== 'pret') {
       sections.push({
-        // TACHE (retour utilisateur : "pour chaque petit accordéon, dès
-        // que les infos sont renseignées, un clic 'je passe à l'étape
-        // suivante'... notamment pour les diplômes") : liste ouverte
-        // (plusieurs diplômes possibles), meme principe que Langues
-        // juste au-dessus -- fermetureManuelleUniquement, jamais fermee
-        // par le simple ajout d'une formation.
+        // Liste ouverte (plusieurs diplomes possibles) -- fermetureManuelleUniquement,
+        // jamais fermee par le simple ajout d'une formation.
         id: 'formations', titre: 'Formations et diplômes',
         complet: function () { return dossier.formations.length > 0; },
         contenuHTML: contenuFormations,
@@ -15729,42 +17223,50 @@ var CONFIG_BLOC_PARCOURS = {
         fermetureManuelleUniquement: true,
         // TACHE (retour Denis, 2026-09-11, bug reel) : plus d'apercu "recupere
         // depuis votre CV" ici -- contenuFormations() affiche DEJA sa PROPRE
-        // liste modifiable (htmlListeExistantes, tout en haut de ce bloc),
-        // strictement superieure (elle permet de MODIFIER, pas seulement de
-        // supprimer). Les 2 pastilles empilees, quasi identiques, avaient
-        // cree exactement le bug remonte : cliquer sur l'apercu (pas la
-        // "vraie" liste juste en dessous) supprimait sans recours. Jamais 2
-        // mecanismes pour la meme donnee -- une seule source de verite,
-        // celle qui sait deja modifier ET supprimer. "revenir" (ci-dessous)
-        // reste inchange, independant de l'apercu.
+        // liste modifiable ; jamais 2 mecanismes pour la meme donnee.
         revenir: function () {
           var photo = dossier.bilanInstantaneAvantCorrections;
           if (photo) { dossier.formations = photo.formations.map(function (f) { return Object.assign({}, f); }); }
         }
       });
     }
-    sections.push({
-      id: 'certifications', titre: 'Certifications',
-      // TACHE (complement) : "complet" ne depend plus de la presence d'au
-      // moins un element, mais du fait d'avoir REPONDU (Oui ou Non) --
-      // repondre "Non" est une reponse valide, pas une case a completer.
-      complet: function () { return completOuiNonAvecContenu('certifications'); },
-      contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_CERTIFICATIONS); },
-      wire: function (rerender) { wireCatalogueOuiNon(CONFIG_CERTIFICATIONS, rerender, 'parcours'); },
-      fermetureManuelleUniquement: true,
-      apercu: function () {
-        return apercuListe(dossier.certifications, null, function (item) {
-          var idx = dossier.certifications.indexOf(item);
-          if (idx !== -1) { dossier.certifications.splice(idx, 1); }
-        });
-      },
-      revenir: function () {
-        var photo = dossier.bilanInstantaneAvantCorrections;
-        if (photo) { dossier.certifications = photo.certifications.slice(); }
-      }
-    });
     return sections;
   }
+};
+
+// Consigne 378 (15/11/2026) : « Certifications » a son propre rectangle (avant,
+// sous-section de « Formations et diplomes »). Meme contenu, meme panneau.
+var CONFIG_BLOC_CERTIFICATIONS = {
+  id: 'certifications', icone: '&#128220;', titre: 'Certifications', accordNiveau: 'es',
+  introBloc: 'Permis, CACES, habilitations, secourisme : tout ce qui se prouve par un document.',
+  niveau: 'recommande',
+  masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true,
+  resume: resumeCertifications,
+  resumeOnSuppression: resumeOnSuppressionCertifications,
+  resumeOnEditer: resumeOnEditerCertifications,
+  onResetTout: function () {
+    dossier.certifications = [];
+    dossier.catalogueActif = dossier.catalogueActif || {};
+    delete dossier.catalogueActif.certifications;
+  },
+  sousSections: [{
+    id: 'certifications', titre: 'Certifications',
+    // "complet" = avoir REPONDU (Oui ou Non) : repondre "Non" est une reponse valide.
+    complet: function () { return completOuiNonAvecContenu('certifications'); },
+    contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_CERTIFICATIONS); },
+    wire: function (rerender) { wireCatalogueOuiNon(CONFIG_CERTIFICATIONS, rerender, 'certifications'); },
+    fermetureManuelleUniquement: true,
+    apercu: function () {
+      return apercuListe(dossier.certifications, null, function (item) {
+        var idx = dossier.certifications.indexOf(item);
+        if (idx !== -1) { dossier.certifications.splice(idx, 1); }
+      });
+    },
+    revenir: function () {
+      var photo = dossier.bilanInstantaneAvantCorrections;
+      if (photo) { dossier.certifications = photo.certifications.slice(); }
+    }
+  }]
 };
 
 // TACHE (retour utilisateur : bloc autonome) : "Experiences et savoir-faire
@@ -15773,6 +17275,7 @@ var CONFIG_BLOC_PARCOURS = {
 // juste sorti dans son propre bloc du tableau de bord.
 var CONFIG_BLOC_EXPERIENCES_PERSO = {
   id: 'experiences-perso', icone: '&#127793;', titre: 'Ce que vous avez appris ailleurs qu’au travail',
+  introBloc: 'Ce que la vie vous a appris en dehors d’un emploi : s’occuper d’un proche, tenir un foyer, rendre service autour de vous.',
   niveau: 'facultatif', // TACHE 3.12 : voir CONFIG_BLOC_VOUS
   masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true, // TACHE 5bis : voir CONFIG_BLOC_VOUS
   resume: resumeExperiencesPerso,
@@ -15785,7 +17288,7 @@ var CONFIG_BLOC_EXPERIENCES_PERSO = {
   },
   sousSections: function () {
     return [{
-      id: 'experiencesPerso', titre: 'Expériences et savoir-faire personnels',
+      id: 'experiencesPerso', titre: 'Ce que vous avez appris ailleurs qu’au travail',
       complet: function () { return completOuiNonAvecContenu('experiencesPerso'); },
       contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_EXPERIENCES_PERSO); },
       wire: function (rerender) { wireCatalogueOuiNon(CONFIG_EXPERIENCES_PERSO, rerender, 'experiences-perso'); },
@@ -15855,6 +17358,7 @@ function resumeExperiencesPro() {
   });
 }
 function resumeOnSuppressionExperiencesPro(idx) {
+  if (typeof mcValiderReprise === 'function') { mcValiderReprise(); }   // les rangs changent : la photo de la voie 1 ne vaut plus
   if (dossier.experiences && dossier.experiences[idx]) {
     dossier.experiences.splice(idx, 1);
     if (_expInlineEditIndex === idx) { _expInlineReset(); }
@@ -15862,6 +17366,7 @@ function resumeOnSuppressionExperiencesPro(idx) {
   }
 }
 function resumeOnEditerExperiencesPro(idx) {
+  if (typeof mcAnnulerReprise === 'function') { mcAnnulerReprise(); }
   _expInlineEditIndex = idx;
   _expInlineFormOuvert = true;
   _expInlineBrouillon = null;
@@ -15875,7 +17380,7 @@ function contenuExperiencesProInline() {
   // AUTRES experiences ne s'affichent -- seule la rubrique de l'experience
   // ciblee, comme si sa pastille avait ete cliquee directement. Empeche
   // tout melange d'informations entre deux experiences.
-  var h = _expInlineModeUnique ? '' : '<p class="text-muted small mb-2">Vos emplois, y compris courts, saisonniers, en intérim ou en contrat aidé. Les stages longs comptent aussi. C\'est le cœur de votre CV.</p>';
+  var h = (_expInlineModeUnique || !_blocEditionCvBilanEnCours) ? '' : '<p class="text-muted small mb-2">Vos emplois, y compris courts, saisonniers, en intérim ou en contrat aidé. Les stages longs comptent aussi. C\'est le cœur de votre CV.</p>';
   if (liste.length && !_expInlineModeUnique) {
     // TACHE (retour utilisateur 2026-09-13) : la pastille grise + boutons
     // sans style propre (jamais de regle CSS pour .pastille-cliquable/
@@ -15883,7 +17388,7 @@ function contenuExperiencesProInline() {
     // de l'ecran -- reprend desormais EXACTEMENT le patron des formations
     // juste au-dessus (.pastille-mini-conteneur/-texte/-croix, toujours
     // bleu), meme message d'indice, memes attributs data- (cablage inchange).
-    h += '<div class="mb-2">' +
+    h += '<div class="mb-2' + (_expInlineFormOuvert ? ' catalogue-verrou' : '') + '">' +
       '<p class="small text-muted mb-1">Cliquez sur une expérience pour la modifier, sur la croix pour la supprimer.</p>';
     liste.forEach(function (e, i) {
       h += '<span class="pastille-mini-conteneur">' +
@@ -15892,6 +17397,8 @@ function contenuExperiencesProInline() {
     });
     h += '</div>';
   }
+  // Consignes 388 à 390 : dans « Vos informations » (Créer un nouveau CV), le formulaire est remplacé par le panneau des expériences (modules/missions-competences/panneau.js).
+  if (typeof mcPanneauActif === 'function' && mcPanneauActif()) { return mcPanneauHtml(h); }
   if (_expInlineFormOuvert) {
     var estEdit = _expInlineEditIndex !== null;
     h += '<div class="border rounded p-3 mt-2">' +
@@ -15914,8 +17421,11 @@ function contenuExperiencesProInline() {
       '<div class="mb-2"><label class="small text-muted mb-1">Ce que vous y faisiez</label>' +
       '<textarea class="form-control form-control-sm" id="xMissions" rows="3" placeholder="Décrivez vos tâches principales. Un chiffre si possible : combien de clients, de pièces, de personnes ?">' + echapperAttribut(v.missions) + '</textarea>' +
       '<p class="small text-muted mt-1 mb-0">' + CONSEIL_CHIFFRES_MISSIONS + '</p>' + htmlAstuceDictee('ligne', 'Vous pouvez dicter à la voix, l\'assistant remettra en forme.') + '</div>' +
-      '<button type="button" class="btn btn-primary btn-sm" id="btnExpProValider"' + (v.poste.trim() ? '' : ' disabled title="Renseignez au moins l\'intitulé du poste."') + '>' +
-      (estEdit ? 'Valider ces modifications' : '&#128221; Ajouter cette expérience') + '</button>' +
+      // Lot 5 (consigne 311) : « Compléter avec la fiche du métier », seulement pour « Corriger mon CV » (mode maj) et si une fiche proche existe (modules/missions-competences/ui.js).
+      (estEdit && typeof mcHtmlComplementReprise === 'function' ? mcHtmlComplementReprise(_expInlineEditIndex) : '') +
+      // Consignes 374 et 375 (15/11/2026) : tant que l'intitule du poste n'est pas ecrit, seul « Annuler » (rouge) est visible ; des qu'il l'est, « Je valide » (bleu) le remplace.
+      '<button type="button" class="btn btn-primary btn-sm fw-bold px-4" id="btnExpProValider"' + (v.poste.trim() ? '' : ' style="display:none"') + '>' +
+      (estEdit ? 'Valider ces modifications' : '&#10003; Je valide') + '</button>' +
       // TACHE (retour Denis 2026-09-19, 5e vague) : "Annuler" retire en mode
       // unique a l'origine -- raisonnement caduc depuis le 2026-09-20 (voir
       // TACHE juste en dessous) : ce mode s'affichait alors UNIQUEMENT dans
@@ -15928,11 +17438,11 @@ function contenuExperiencesProInline() {
       // une ligne de texte cliquable, jamais un vrai bouton (regle deja
       // appliquee a "Passer cette etape") -- corrige en "btn-outline-secondary",
       // meme style que les autres boutons secondaires de ce formulaire.
-      (estEdit ? ' <button type="button" class="btn btn-outline-secondary btn-sm" id="btnExpProAnnuler">Annuler</button>' : '') +
-      (v.poste.trim() ? '' : '<p class="small text-muted mt-1 mb-0">Renseignez au moins l\'intitulé du poste pour ajouter.</p>') +
+      '<button type="button" class="btn btn-annuler btn-sm fw-bold px-4" id="btnExpProAnnuler"' + ((estEdit || !v.poste.trim()) ? '' : ' style="display:none"') + '>&#10005; Annuler</button>' +
+      '<p class="small text-muted mt-1 mb-0" id="aideExpProValider"' + (v.poste.trim() ? ' style="display:none"' : '') + '>Écrivez l\'intitulé du poste pour pouvoir valider. « Annuler » referme sans rien ajouter.</p>' +
       '</div>';
   } else {
-    h += '<button type="button" class="btn btn-primary btn-sm mt-2" id="btnExpProOuvrir">&#128221; Ajouter une expérience</button>';
+    h += '<button type="button" class="btn btn-primary btn-sm mt-2" id="btnExpProOuvrir">+ Ajouter une expérience</button>';
   }
   return h;
 }
@@ -15952,12 +17462,14 @@ function wireExperiencesProInline(rerender) {
   var bloc = document.getElementById('blocERIP-experiences-pro');
   if (!bloc) { return; }
   activerChampsStandardises(bloc);
+  if (typeof mcPanneauActif === 'function' && mcPanneauActif()) { mcPanneauBrancher(rerender); _expInlineBrancherListe(bloc, rerender); return; }
   ['xDebut', 'xFin'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) { el.addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 4); }); }
   });
+  if (typeof mcBrancherComplementReprise === 'function') { mcBrancherComplementReprise(rerender); }
   var btnOuvrir = document.getElementById('btnExpProOuvrir');
-  if (btnOuvrir) { btnOuvrir.addEventListener('click', function () { _expInlineFormOuvert = true; _expInlineEditIndex = null; _expInlineBrouillon = null; rerender(); }); }
+  if (btnOuvrir) { btnOuvrir.addEventListener('click', function () { if (typeof mcAnnulerReprise === 'function') { mcAnnulerReprise(); } _expInlineFormOuvert = true; _expInlineEditIndex = null; _expInlineBrouillon = null; rerender(); }); }
   // Le bouton "Ajouter / Valider" s'active des que l'intitule du poste est
   // saisi -- mise a jour en direct (pas de rerender, pour ne pas perdre le
   // curseur en pleine frappe), meme principe que majEtatBoutonRevelation().
@@ -15985,6 +17497,12 @@ function wireExperiencesProInline(rerender) {
         var ok = !!this.value.trim();
         b.disabled = !ok || majCoherenceAnneesExperience();
         b.title = ok ? '' : 'Renseignez au moins l\'intitulé du poste.';
+        b.style.display = ok ? '' : 'none';
+        var ann = document.getElementById('btnExpProAnnuler');
+        // En ajout, « Annuler » laisse la place a « Je valide » ; en modification, il reste toujours visible.
+        if (ann && _expInlineEditIndex === null) { ann.style.display = ok ? 'none' : ''; }
+        var aide = document.getElementById('aideExpProValider');
+        if (aide) { aide.style.display = ok ? 'none' : ''; }
       }
     });
   }
@@ -16010,6 +17528,8 @@ function wireExperiencesProInline(rerender) {
       } else {
         dossier.experiences.push(obj);
       }
+      if (_expInlineEditIndex !== null && typeof mcApresValidationExperience === 'function') { mcApresValidationExperience(_expInlineEditIndex); }
+      if (typeof mcValiderReprise === 'function') { mcValiderReprise(); }   // les changements du panneau « fiche du métier » sont gardés : plus rien à annuler
       // TACHE (retour Denis 2026-09-20) : trace qu'une vraie modification a
       // eu lieu pendant cette ouverture du panneau -- consomme par
       // htmlBilanCorrectionLibre() pour savoir si le bouton de fin doit
@@ -16025,6 +17545,8 @@ function wireExperiencesProInline(rerender) {
   var btnAnnuler = document.getElementById('btnExpProAnnuler');
   if (btnAnnuler) {
     btnAnnuler.addEventListener('click', function () {
+      // Voie 1 de la reprise (consigne 340) : « Annuler » remet aussi le dossier comme avant l'ouverture (missions, compétences ajoutées par le panneau « fiche du métier »).
+      if (typeof mcAnnulerReprise === 'function') { mcAnnulerReprise(); }
       _expInlineReset();
       // TACHE (retour Denis 2026-09-20) : en mode unique dans l'ecran
       // Corriger du Bilan, aucune liste ne peut prendre le relais --
@@ -16042,8 +17564,13 @@ function wireExperiencesProInline(rerender) {
       rerender();
     });
   }
+  _expInlineBrancherListe(bloc, rerender);
+}
+// Les pastilles des expériences déjà ajoutées : cliquer pour modifier, croix pour supprimer (partagé par le formulaire d'avant et le panneau).
+function _expInlineBrancherListe(bloc, rerender) {
   bloc.querySelectorAll('[data-exp-pro-editer]').forEach(function (el) {
     el.addEventListener('click', function () {
+      if (typeof mcAnnulerReprise === 'function') { mcAnnulerReprise(); }   // changer d'expérience abandonne les clics non validés de la précédente
       _expInlineEditIndex = parseInt(this.dataset.expProEditer, 10);
       _expInlineFormOuvert = true;
       _expInlineBrouillon = null;
@@ -16053,7 +17580,9 @@ function wireExperiencesProInline(rerender) {
   bloc.querySelectorAll('[data-exp-pro-supprimer]').forEach(function (el) {
     el.addEventListener('click', function () {
       var i = parseInt(this.dataset.expProSupprimer, 10);
+      if (typeof mcValiderReprise === 'function') { mcValiderReprise(); }   // les rangs changent : la photo de la voie 1 ne vaut plus
       if (dossier.experiences && dossier.experiences[i]) { dossier.experiences.splice(i, 1); }
+      if (typeof _mcPan !== 'undefined') { _mcPan.brouillon = null; }   // les rangs changent : le brouillon du panneau est relu depuis le dossier
       if (_expInlineEditIndex === i) { _expInlineReset(); }
       else if (_expInlineEditIndex !== null && i < _expInlineEditIndex) { _expInlineEditIndex -= 1; }
       if (typeof _etatBilan !== 'undefined' && _etatBilan && _etatBilan.correction && _etatBilan.correction.editionExperience) {
@@ -16064,7 +17593,8 @@ function wireExperiencesProInline(rerender) {
   });
 }
 var CONFIG_BLOC_EXPERIENCES_PRO = {
-  id: 'experiences-pro', icone: '&#128188;', titre: 'Vos expériences professionnelles', accordNiveau: 'es',
+  id: 'experiences-pro', icone: '&#128188;', titre: 'Expériences professionnelles', accordNiveau: 'es',
+  introBloc: 'Emploi, intérim, stage, apprentissage, job d’été : tout ce que vous avez fait pour un employeur, même court, même ancien.',
   niveau: 'recommande', // TACHE 3.12 : voir CONFIG_BLOC_VOUS
   masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true, // TACHE 5bis : voir CONFIG_BLOC_VOUS
   // TACHE (retour utilisateur 2026-09-14) : "complet" ici veut seulement
@@ -16078,7 +17608,7 @@ var CONFIG_BLOC_EXPERIENCES_PRO = {
   resumeOnEditer: resumeOnEditerExperiencesPro,
   onResetTout: function () { dossier.experiences = []; _expInlineReset(); },
   sousSections: [{
-    id: 'liste', titre: 'Vos emplois',
+    id: 'liste', titre: 'Expériences professionnelles',
     complet: function () { return (dossier.experiences || []).length > 0; },
     contenuHTML: contenuExperiencesProInline,
     wire: function (rerender) { wireExperiencesProInline(rerender); },
@@ -16266,8 +17796,8 @@ function resumeCandidature() {
   if (!estImmersion) {
     if (dossier.modeRecherche === 'metier') { items.push({ label: 'Un métier précis', source: 'modeRecherche' }); }
     else if (dossier.modeRecherche === 'domaine') { items.push({ label: 'Plusieurs métiers d’un même domaine', source: 'modeRecherche' }); }
-    if (dossier.typeRecherche === 'simple') { items.push({ label: 'Recherche simple', source: 'typeRecherche' }); }
-    else if (dossier.typeRecherche === 'offre') { items.push({ label: 'Réponse à une offre', source: 'typeRecherche' }); }
+    if (dossier.typeRecherche === 'simple') { items.push({ label: 'De façon générale, sans entreprise visée', source: 'typeRecherche' }); }
+    else if (dossier.typeRecherche === 'offre') { items.push({ label: visaUneEntreprisePrecise() ? 'Vers une entreprise précise' : 'Réponse à une offre', source: 'typeRecherche' }); }
     var rc = dossier.rechercheCandidature || {};
     if (rc.entreprise) { items.push({ label: rc.entreprise, source: 'rc-entreprise' }); }
     if (rc.site) { items.push({ label: rc.site, source: 'rc-site' }); }
@@ -16435,20 +17965,14 @@ var CONFIG_BLOC_CANDIDATURE_ANALYSE = Object.assign({}, CONFIG_BLOC_CANDIDATURE,
 // contenuModeRecherche(true) / contenuCandidature() directement, sans
 // l'habillage accordeon qui ajoutait un 2e bouton de validation.
 
-// TACHE (refonte Mon projet, Etape F) : configuration reelle du bloc
-// "Compléments" (Loisirs, Engagements) — dernier bloc du tableau de bord.
-// Meme logique de resume unifie + suppression ciblee que les blocs precedents.
-function resumeComplements() {
+// Consigne 378 (15/11/2026) : l'ancien bloc « Complements » est separe en deux
+// rectangles, « Engagements » et « Loisirs », chacun avec son propre resume.
+function resumeEngagements() {
   var items = [];
-  (dossier.loisirs || []).forEach(function (l, i) { items.push({ label: l, source: 'loisir', index: i }); });
   // TACHE (chantier "exp perso" puis "autres parcours" : engagements
-  // structurés) : un engagement est une chaîne (donnée ancienne, avant ce
-  // chantier) ou un objet {texte, dateDebut, dateFin} (Découverte ET,
-  // désormais, ce parcours manuel aussi -- même schéma partout) -- le
-  // libellé affiché reste le texte dans les deux cas, jamais un
-  // "[object Object]". La période, quand elle existe, apparaît en
-  // infobulle (au survol), même principe que pour les expériences
-  // personnelles (resumeExperiencesPerso ci-dessus).
+  // structurés) : un engagement est une chaîne (donnée ancienne) ou un objet
+  // {texte, dateDebut, dateFin} -- le libellé affiché reste le texte dans les
+  // deux cas, jamais un "[object Object]". La période apparaît en infobulle.
   (dossier.engagements || []).forEach(function (e, i) {
     var texteEngagementResume = (typeof e === 'string' ? e : (e && e.texte) || '');
     var periodeEngagementResume = (e && typeof e === 'object' && e.dateDebut) ? (e.dateDebut + (e.dateFin ? ' - ' + e.dateFin : ' - en cours')) : '';
@@ -16456,73 +17980,90 @@ function resumeComplements() {
   });
   return items;
 }
-function resumeOnSuppressionComplements(idx) {
-  var item = resumeComplements()[idx];
-  if (!item) { return; }
-  if (item.source === 'loisir') { dossier.loisirs.splice(item.index, 1); }
-  else if (item.source === 'engagement') { dossier.engagements.splice(item.index, 1); }
+function resumeOnSuppressionEngagements(idx) {
+  var item = resumeEngagements()[idx];
+  if (item) { dossier.engagements.splice(item.index, 1); }
 }
-// TACHE (retour utilisateur : "clic sur la pastille verte = suppression
-// directe, je veux rouvrir le panneau pour corriger") : reutilise les
-// panneaux d'edition deja existants (CONFIG_LOISIRS/CONFIG_ENGAGEMENTS,
-// avecEditionPastille).
-function resumeOnEditerComplements(idx) {
-  var item = resumeComplements()[idx];
+function resumeOnEditerEngagements(idx) {
+  var item = resumeEngagements()[idx];
   if (!item) { return; }
-  if (item.source === 'loisir') {
-    ouvrirBlocEtSousSection('complements', 'loisirs');
-    _catalogueEditionOuverte['loisirs'] = item.index;
-  }
-  else if (item.source === 'engagement') {
-    ouvrirBlocEtSousSection('complements', 'engagements');
-    _catalogueEditionOuverte['engagements'] = item.index;
-  }
+  ouvrirBlocEtSousSection('engagements', 'engagements');
+  _catalogueEditionOuverte['engagements'] = item.index;
 }
-var CONFIG_BLOC_COMPLEMENTS = {
-  id: 'complements', icone: '&#129513;', titre: 'Compléments',
-  niveau: 'facultatif', // TACHE 3.12 : voir CONFIG_BLOC_VOUS
-  masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true, // TACHE 5bis : voir CONFIG_BLOC_VOUS
-  resume: resumeComplements,
-  resumeOnSuppression: resumeOnSuppressionComplements,
-  resumeOnEditer: resumeOnEditerComplements,
+function resumeLoisirs() {
+  return (dossier.loisirs || []).map(function (l, i) { return { label: l, source: 'loisir', index: i }; });
+}
+function resumeOnSuppressionLoisirs(idx) {
+  var item = resumeLoisirs()[idx];
+  if (item) { dossier.loisirs.splice(item.index, 1); }
+}
+function resumeOnEditerLoisirs(idx) {
+  var item = resumeLoisirs()[idx];
+  if (!item) { return; }
+  ouvrirBlocEtSousSection('loisirs', 'loisirs');
+  _catalogueEditionOuverte['loisirs'] = item.index;
+}
+var CONFIG_BLOC_ENGAGEMENTS = {
+  id: 'engagements', icone: '&#129309;', titre: 'Engagements',
+  introBloc: 'Association, bénévolat, rôle de représentant : ce que vous faites pour les autres.',
+  niveau: 'facultatif',
+  masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true,
+  resume: resumeEngagements,
+  resumeOnSuppression: resumeOnSuppressionEngagements,
+  resumeOnEditer: resumeOnEditerEngagements,
   onResetTout: function () {
-    dossier.loisirs = [];
     dossier.engagements = [];
     dossier.catalogueActif = dossier.catalogueActif || {};
-    delete dossier.catalogueActif.loisirs;
     delete dossier.catalogueActif.engagements;
   },
-  sousSections: [
-    {
-      id: 'loisirs', titre: 'Loisirs',
-      complet: function () { return completOuiNonAvecContenu('loisirs'); },
-      contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_LOISIRS); },
-      wire: function (rerender) { wireCatalogueOuiNon(CONFIG_LOISIRS, rerender, 'complements'); },
-      fermetureManuelleUniquement: true,
-      // TACHE (retour Denis, 2026-09-11, meme bug/correctif que Formations) :
-      // plus d'apercu -- CONFIG_LOISIRS a avecEditionPastille (blocPastillesEditables),
-      // sa propre liste modifiable est deja affichee par contenuHTML().
-      revenir: function () {
-        var photo = dossier.bilanInstantaneAvantCorrections;
-        if (photo) { dossier.loisirs = photo.loisirs.slice(); }
-      }
-    },
-    {
-      id: 'engagements', titre: 'Engagements',
-      complet: function () { return completOuiNonAvecContenu('engagements'); },
-      contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_ENGAGEMENTS); },
-      wire: function (rerender) { wireCatalogueOuiNon(CONFIG_ENGAGEMENTS, rerender, 'complements'); },
-      fermetureManuelleUniquement: true,
-      // TACHE (retour Denis, 2026-09-11, meme bug/correctif que Formations) :
-      // plus d'apercu -- CONFIG_ENGAGEMENTS a avecEditionPastille (blocPastillesEditables),
-      // sa propre liste modifiable est deja affichee par contenuHTML().
-      revenir: function () {
-        var photo = dossier.bilanInstantaneAvantCorrections;
-        if (photo) { dossier.engagements = photo.engagements.map(function (e) { return (typeof e === 'string') ? e : Object.assign({}, e); }); }
-      }
+  sousSections: [{
+    id: 'engagements', titre: 'Engagements',
+    complet: function () { return completOuiNonAvecContenu('engagements'); },
+    contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_ENGAGEMENTS); },
+    wire: function (rerender) { wireCatalogueOuiNon(CONFIG_ENGAGEMENTS, rerender, 'engagements'); },
+    fermetureManuelleUniquement: true,
+    // Plus d'apercu : CONFIG_ENGAGEMENTS a avecEditionPastille, sa liste modifiable est deja affichee.
+    revenir: function () {
+      var photo = dossier.bilanInstantaneAvantCorrections;
+      if (photo) { dossier.engagements = photo.engagements.map(function (e) { return (typeof e === 'string') ? e : Object.assign({}, e); }); }
     }
-  ]
+  }]
 };
+var CONFIG_BLOC_LOISIRS = {
+  id: 'loisirs', icone: '&#9917;', titre: 'Loisirs',
+  introBloc: 'Ce que vous aimez faire sur votre temps libre. Un loisir est seulement cité sur le CV.',
+  niveau: 'facultatif',
+  masquerReset: true, sansResumeBloc: true, blocMultiOuvert: true, sousSectionsPlates: true,
+  resume: resumeLoisirs,
+  resumeOnSuppression: resumeOnSuppressionLoisirs,
+  resumeOnEditer: resumeOnEditerLoisirs,
+  onResetTout: function () {
+    dossier.loisirs = [];
+    dossier.catalogueActif = dossier.catalogueActif || {};
+    delete dossier.catalogueActif.loisirs;
+  },
+  sousSections: [{
+    id: 'loisirs', titre: 'Loisirs',
+    complet: function () { return completOuiNonAvecContenu('loisirs'); },
+    contenuHTML: function () { return contenuCatalogueOuiNon(CONFIG_LOISIRS); },
+    wire: function (rerender) { wireCatalogueOuiNon(CONFIG_LOISIRS, rerender, 'loisirs'); },
+    fermetureManuelleUniquement: true,
+    revenir: function () {
+      var photo = dossier.bilanInstantaneAvantCorrections;
+      if (photo) { dossier.loisirs = photo.loisirs.slice(); }
+    }
+  }]
+};
+// Source UNIQUE de la liste (et de l'ordre) des rectangles de « Vos informations » :
+// la page elle-meme (pageProjet) et l'etape « Vos informations » de Decouvrir
+// (decouverteParcours.js) la lisent ici. options.experiencesPro === false :
+// Decouvrir a deja sa propre etape pour les experiences professionnelles.
+function configsVosInformations(options) {
+  var liste = [CONFIG_BLOC_VOUS];
+  if (!options || options.experiencesPro !== false) { liste.push(CONFIG_BLOC_EXPERIENCES_PRO); }
+  liste.push(CONFIG_BLOC_EXPERIENCES_PERSO, CONFIG_BLOC_PARCOURS, CONFIG_BLOC_CERTIFICATIONS, CONFIG_BLOC_ENGAGEMENTS, CONFIG_BLOC_LOISIRS);
+  return liste;
+}
 
 // TACHE (retour utilisateur : "je ne veux pas que les choix du CV passent
 // automatiquement dans la lettre, mais je veux un bouton pour les reprendre
@@ -16982,13 +18523,13 @@ function ouvrirFenetreModifierExperienceUnique(index, liste) {
 // utilisee par les trois formulaires d'identite ; le clic est gere par un ecouteur commun (ecouterIdentiteFormat).
 function champsPrenomNomHTML(idPrenom, idNom, prenom, nom) {
   return '<div class="col-5 col-md-3"><label class="form-label small fw-semibold mb-1" for="' + idPrenom + '">Prénom</label>' +
-      '<input type="text" class="form-control form-control-sm" id="' + idPrenom + '" placeholder="Ex. : Camille" value="' + echapperAttribut(prenom || '') + '"></div>' +
-    '<div class="col-auto"><button type="button" class="btn btn-outline-secondary btn-sm" data-inverser-nom-prenom title="Le nom et le prénom sont à l’envers ? Cliquez pour les échanger" aria-label="Inverser le nom et le prénom">&#8644;</button></div>' +
+      '<input type="text" class="form-control form-control-sm champ-a-completer" id="' + idPrenom + '" value="' + echapperAttribut(prenom || '') + '"></div>' +
+    '<div class="col-auto"><button type="button" class="btn btn-outline-primary btn-sm fw-bold text-nowrap" data-inverser-nom-prenom title="Le nom et le prénom sont à l’envers ? Cliquez pour les échanger" aria-label="Inverser le nom et le prénom"><span style="font-size:1.15rem;line-height:1;vertical-align:-0.1em">&#8644;</span> Inverser</button></div>' +
     '<div class="col-5 col-md-3"><label class="form-label small fw-semibold mb-1" for="' + idNom + '">Nom</label>' +
-      '<input type="text" class="form-control form-control-sm" id="' + idNom + '" placeholder="Ex. : MARTIN" value="' + echapperAttribut(nom || '') + '"></div>';
+      '<input type="text" class="form-control form-control-sm champ-a-completer" id="' + idNom + '" value="' + echapperAttribut(nom || '') + '"></div>';
 }
 function notePrenomNomHTML() {
-  return '<p class="small text-muted mt-1 mb-0">Le nom s’écrit en MAJUSCULES, le prénom avec une majuscule. S’ils sont à l’envers, cliquez sur la flèche &#8644; : ils s’échangent et s’écrivent comme il faut.</p>';
+  return '<p class="small text-muted mt-1 mb-0">Le nom s’écrit en MAJUSCULES, le prénom avec une majuscule. S’ils sont à l’envers, cliquez sur « Inverser » : ils s’échangent et s’écrivent comme il faut.</p>';
 }
 // Ecouteurs communs (une seule fois) : la fleche d'inversion, et le telephone qui se met en « 06.12.34.56.78 » en quittant le champ, partout.
 var _identiteFormatEcoute = false;
@@ -21428,7 +22969,7 @@ function construireMiseEnPageCV(docActif) {
     ? '<details class="corrections-cv" id="mepCorrections" style="display:none"></details>' +
       // Retour Denis 2026-10-19 : « Valider le CV » vit dans la barre du bas, a droite (data-barre-bas, brique commune) ; la synthese reste ici, visible et non cliquable, sous un titre informatif.
       '<div class="bloc-valider-mep"><button type="button" class="mep-btn principal" id="btnMepValider" data-barre-bas="1" data-barre-bas-libelle="Valider le CV &#8594;">Valider le CV &rarr;</button>' +
-      '<div class="valider-infos"><p class="valider-titre">R&eacute;sum&eacute; de votre CV</p><span class="avert-page" id="mepAvertPage" style="display:none" role="alert"></span>' +
+      '<div class="valider-infos"><p class="valider-titre">R&eacute;sum&eacute; de votre CV</p><div class="avert-page alerte-masquees" id="mepAvertPage" style="display:none" role="alert"></div>' +
       '<div class="info-page" id="mepInfoPage"></div>' +
       '<div class="info-page" style="font-weight:600;">Le PDF enregistr&eacute; sera identique &agrave; l&rsquo;aper&ccedil;u du CV (la ligne pointill&eacute;e montre o&ugrave; la page 1 se termine).</div></div>' +
       // Retour Denis 2026-10-19 : a droite de la synthese, le bouton pour aller chercher la 2e partie (facultative) quand elle a ete proposee et pas encore ajoutee.
@@ -21453,7 +22994,7 @@ function construireMiseEnPageCV(docActif) {
     // apercu suit le defilement, comme la maquette (.apercu,
     // "position:sticky;top:.5rem"). PDF uniquement (estPdfMep) -- jamais
     // touche pour le Word, hors perimetre de ce chantier.
-    (estPdfMep ? '.mep-2col-apercu{position:sticky;top:0.5rem;max-height:calc(100vh - 6.5rem);overflow-y:auto;overflow-x:hidden;}@media (max-width:699px){.mep-2col-apercu{position:static;max-height:none;overflow:visible;}}' : '') +
+    (estPdfMep ? '.mep-2col-apercu{position:sticky;top:0.5rem;max-height:calc(100vh - 6.5rem);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}.mep-2col-apercu::-webkit-scrollbar{display:none;}@media (max-width:699px){.mep-2col-apercu{position:static;max-height:none;overflow:visible;}}' : '') +
     '</style>' +
     '<div class="mep-2col mep-mq">' +
     htmlEnteteMepPdf +
@@ -21554,12 +23095,36 @@ function _mepMajInfoPage() {
   var avert = document.getElementById('mepAvertPage');
   if (avert) {
     var formatComplet = (dossier.reglagesMiseEnPageCV && dossier.reglagesMiseEnPageCV.format === 'a4-integral');
-    if (pages >= 2 && !formatComplet) {
+    // Consigne 265 (12/11/2026) : un message jaune (jamais rouge), en mots simples, avec deux boutons, des que le CV dépasse encore la page apres le resserrage de
+    // l'application ; « Je le laisse tel quel » le masque tant que le CV ne grandit pas de plus de 40 px.
+    var hauteurFeuille = pagesA4[0].scrollHeight, laisse = _mepDepasseLaisseHauteur > 0 && hauteurFeuille <= _mepDepasseLaisseHauteur + 40;
+    if (pages >= 2 && !formatComplet && !laisse) {
+      var peutProposer = (_mepSuggestions || []).length > 0;
       avert.style.display = '';
-      avert.textContent = 'Le CV dépasse une page. Cliquez sur « Mise en page » pour le faire tenir, ou choisissez Format : A4 complet si c’est voulu.';
-    } else { avert.style.display = 'none'; avert.textContent = ''; }
+      avert.innerHTML = '<p style="margin:0 0 0.4rem"><strong>&#9888;&#65039; Votre CV dépasse un peu la page.</strong> La fin serait imprimée sur une deuxième page. ' +
+        (peutProposer ? 'Des propositions existent pour le faire tenir sur une seule page.' : 'Le bouton « Mise en page » peut encore le resserrer.') + '</p>' +
+        '<div class="avert-page-boutons">' + (peutProposer ? '<button type="button" class="mep-btn" data-mep-depasse-voir>Voir les propositions</button>' : '') +
+        '<button type="button" class="mep-btn" data-mep-depasse-laisser>Je le laisse tel quel</button></div>';
+    } else { avert.style.display = 'none'; avert.innerHTML = ''; }
   }
 }
+// Hauteur de la feuille au moment où la personne a choisi « Je le laisse tel quel » (message de dépassement de la page) ; 0 = jamais choisi.
+var _mepDepasseLaisseHauteur = 0;
+// Les deux boutons du message : un seul écouteur sur le document (le panneau est reconstruit à chaque changement, un écouteur posé sur le bouton se perdrait).
+document.addEventListener('click', function (ev) {
+  var bouton = ev.target && ev.target.closest ? ev.target.closest('[data-mep-depasse-voir], [data-mep-depasse-laisser]') : null;
+  if (!bouton) { return; }
+  if (bouton.hasAttribute('data-mep-depasse-voir')) {
+    var ouvrir = document.querySelector('[data-mep-sugg-ouvrir]');
+    if (!ouvrir) { return; }
+    if (!_mepSuggestionsOuvert) { ouvrir.click(); }
+    setTimeout(function () { var cible = document.querySelector('[data-mep-sugg-ouvrir]'); if (cible && cible.scrollIntoView) { cible.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }, 80);
+    return;
+  }
+  try { _mepDepasseLaisseHauteur = document.querySelector('#zonePdfInlineCV iframe').contentDocument.querySelector('.page-a4').scrollHeight; } catch (e) { _mepDepasseLaisseHauteur = 1; }
+  var avert = document.getElementById('mepAvertPage');
+  if (avert) { avert.style.display = 'none'; avert.innerHTML = ''; }
+}, true);
 
 function _mepSyncMiroirAllure() {
   // relit l'allure depuis l'etat moteur -> modele canonique (traducteur
@@ -23482,6 +25047,112 @@ function _wireCarteSimpleMiseEnPage() {
       setTimeout(rerendre, 30);
     });
   });
+  // Propositions de l'assistant en plus des choix de la personne (lot 4 missions et competences, consigne 307) : cocher ajoute la mission a la liste
+  // retenue de l'experience (reponse de l'assistant, dossier.ia.cv.recommandations.savoirFaireParExperience) ET dans l'affichage ; decocher la retire.
+  // Les choix de la personne ne sont jamais touches (voir mcReglerComplement).
+  document.querySelectorAll('[data-mep-exp-plus]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var indexExp = parseInt(this.getAttribute('data-mep-exp-plus').split('|')[0], 10);
+      var texte = this.getAttribute('data-texte') || '';
+      var rang = parseInt(this.getAttribute('data-rang'), 10);
+      var nbSeg = parseInt(this.getAttribute('data-nseg'), 10) || 0;
+      var retenue = this.getAttribute('data-retenue') === '1', affichee = this.getAttribute('data-affichee') === '1';
+      var expMoteur = _mepListeExperiencesMoteur()[indexExp];
+      if (!expMoteur || !texte || !dossier.ia || !dossier.ia.cv) { return; }
+      var reco = dossier.ia.cv.recommandations = dossier.ia.cv.recommandations || {};
+      reco.savoirFaireParExperience = reco.savoirFaireParExperience || [];
+      var entree = trouverEntreeExperienceIA(reco.savoirFaireParExperience, expMoteur.poste, expMoteur.entreprise);
+      var lignes = mcMissionsPersonne(dossier.etapeMC, trouverEntreeExperienceIA(dossier.experiences || [], expMoteur.poste, expMoteur.entreprise));
+      _mepPousserHistorique('missionsChoisies' + indexExp);
+      if (!retenue) {
+        var avecAjout = mcReglerComplement(entree && entree.missions, lignes, texte, true);
+        if (entree) { entree.missions = avecAjout; } else { reco.savoirFaireParExperience.push({ poste: expMoteur.poste, entreprise: expMoteur.entreprise || '', missions: avecAjout }); }
+        _mepAppelerIframePdf('_pdfFixerMissionAffichee', indexExp, nbSeg, nbSeg + 1, true);
+      } else if (!affichee) {
+        _mepAppelerIframePdf('_pdfFixerMissionAffichee', indexExp, rang, nbSeg, true);
+      } else {
+        if (entree) { entree.missions = mcReglerComplement(entree.missions, lignes, texte, false); }
+        _mepAppelerIframePdf('_pdfRetirerRangMission', indexExp, rang);
+      }
+      setTimeout(rerendre, 30);
+    });
+  });
+  // Compléments de l'assistant (consigne 318, maquette validée par Denis le 15/11/2026) : les clics ne touchent QUE l'affichage et les décisions notées sur la réponse
+  // de l'assistant (decision, utilisee) ; les choix de la personne et le dossier ne sont jamais réécrits.
+  // Doublons de sens : « Garder les deux / seulement la première / seulement la seconde », et « Revenir en arrière ».
+  document.querySelectorAll('[data-mep-exp-doublon]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = this.getAttribute('data-mep-exp-doublon').split('|'), indexExp = parseInt(p[0], 10), idx = parseInt(p[1], 10), voulu = p[2];
+      var expMoteur = _mepListeExperiencesMoteur()[indexExp], reco = dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations;
+      var entree = reco && (reco.doublonsMissions || [])[idx];
+      if (!expMoteur || !entree) { return; }
+      var segments = (typeof _pdfDecouperMissions === 'function') ? _pdfDecouperMissions(expMoteur.missions || '') : String(expMoteur.missions || '').split('\n').filter(function (m) { return m.trim(); });
+      var rangs = mcRangsDoublon(entree, segments);
+      if (!rangs) { return; }
+      var avant = mcRangsARetirer(entree.decision || '', rangs), apres = mcRangsARetirer(voulu === 'rien' ? '' : voulu, rangs);
+      _mepPousserHistorique('missionsChoisies' + indexExp);
+      avant.forEach(function (r) { if (apres.indexOf(r) === -1) { _mepAppelerIframePdf('_pdfFixerMissionAffichee', indexExp, r, segments.length, true); } });
+      apres.forEach(function (r) { if (avant.indexOf(r) === -1) { _mepAppelerIframePdf('_pdfFixerMissionAffichee', indexExp, r, segments.length, false); } });
+      if (voulu === 'rien') { delete entree.decision; } else { entree.decision = voulu; }
+      setTimeout(rerendre, 30);
+    });
+  });
+  // Version plus courte : « Utiliser cette version » / « Garder ma phrase d'origine ». La phrase d'origine reste partout ; le moteur du CV applique la version courte
+  // seulement quand utilisee est vrai (moteurDecisionCV.js, appliquerVersionsCourtesCV).
+  document.querySelectorAll('[data-mep-exp-courte]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = this.getAttribute('data-mep-exp-courte').split('|'), idx = parseInt(p[1], 10);
+      var reco = dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations, entree = reco && (reco.missionsPlusCourtes || [])[idx];
+      if (!entree) { return; }
+      _mepPousserHistorique('missionsChoisies' + p[0]);
+      entree.utilisee = entree.utilisee !== true;
+      // L'aperçu recalcule d'abord le contenu du CV (le moteur applique la version courte), puis la carte se redessine avec ces missions.
+      _mepAppelerIframePdf('_pdfRafraichir');
+      setTimeout(rerendre, 60);
+    });
+  });
+  // Mettre en avant (consigne 395) : « Oui » pose utilisee sur la proposition, le moteur du CV réordonne alors les lignes (jamais un texte changé). Les choix précis de missions
+  // de la personne (liste de rangs) suivent leurs lignes : on les convertit avec la même permutation, dans un sens puis dans l'autre.
+  document.querySelectorAll('[data-mep-exp-enavant]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = this.getAttribute('data-mep-exp-enavant').split('|'), indexExp = parseInt(p[0], 10), idx = parseInt(p[1], 10);
+      var reco = dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations, entree = reco && (reco.missionsEnAvant || [])[idx];
+      var expMoteur = _mepListeExperiencesMoteur()[indexExp];
+      if (!entree || !expMoteur) { return; }
+      var segments = (typeof _pdfDecouperMissions === 'function') ? _pdfDecouperMissions(expMoteur.missions || '') : String(expMoteur.missions || '').split('\n').filter(function (m) { return m.trim(); });
+      _mepPousserHistorique('missionsChoisies' + indexExp);
+      var ordre = null;
+      if (entree.utilisee !== true) {
+        ordre = ordreMissionsEnAvant(segments, entree.lignes);
+        if (!ordre) { return; }
+        entree.ordreAvant = ordre.slice();
+        entree.utilisee = true;
+      } else {
+        ordre = (Array.isArray(entree.ordreAvant) && entree.ordreAvant.length === segments.length) ? entree.ordreAvant : null;
+        entree.utilisee = false;
+        delete entree.ordreAvant;
+        if (ordre) {
+          // retour : la ligne qui est maintenant au rang j était au rang ordre[j]
+          ordre = segments.map(function (x, j) { return j; }).sort(function (a, b) { return ordre[a] - ordre[b]; });
+        }
+      }
+      if (ordre) { _mepAppelerIframePdf('_pdfPermuterMissionsChoisies', indexExp, ordre); }
+      _mepAppelerIframePdf('_pdfRafraichir');
+      setTimeout(rerendre, 60);
+    });
+  });
+  // Compétences en plus : cocher ajoute au CV par « compétences ajoutées pour ce CV » (même mécanisme que « Éditer les compétences »), décocher retire.
+  document.querySelectorAll('[data-mep-comp-plus]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var famille = this.getAttribute('data-famille'), nom = this.getAttribute('data-nom') || '';
+      if ((famille !== 'pro' && famille !== 'comp') || !nom) { return; }
+      var cur = Object.assign({}, _mepEtatChoixMq().competencesAjoutees || {});
+      var liste = (cur[famille] || []).filter(function (x) { return x !== nom; });
+      if (this.checked) { liste.push(nom); }
+      if (liste.length) { cur[famille] = liste; } else { delete cur[famille]; }
+      _mepDefinirChoixMq('competencesAjoutees', Object.keys(cur).length ? cur : null);
+    });
+  });
   document.querySelectorAll('[data-mep-afficher-comp]').forEach(function (b) {
     b.addEventListener('click', function () {
       _mepPousserHistorique('afficherComp');
@@ -25157,7 +26828,11 @@ function barreEtapesModule(etapes, indexCourant, options) {
     maxAtteint = (typeof maxAtteint === 'number' && maxAtteint > idx) ? maxAtteint : idx;
     _barreEtapesMaxAtteint.set(etapes, maxAtteint);
   }
-  return '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center"' +
+  // Consigne 331 (Denis, 15/11/2026, présentation 1) : le cadre mesure la place disponible, la barre se resserre toute seule (voir css/style.css, « Barre des étapes »), jamais de barre de défilement.
+  // Sur téléphone, les noms disparaissent des pastilles : la ligne « Étape 3 sur 7 : ... » dit où l'on en est.
+  var phraseEtapeTel = (!horsParcours && etapes && etapes[idx])
+    ? '<p class="barre-etapes-tel">Étape ' + (idx + 1) + ' sur ' + etapes.length + ' : ' + etapes[idx].label + '</p>' : '';
+  return '<div class="barre-etapes-cadre"><div class="barre-etapes-bilan d-flex justify-content-center align-items-center"' +
     (horsParcours ? ' style="opacity:0.55;"' : '') + '>' +
     (etapes || []).map(function (etape, i) {
       var estFait = !horsParcours && i !== idx && i <= maxAtteint;
@@ -25202,7 +26877,7 @@ function barreEtapesModule(etapes, indexCourant, options) {
         contenu +
         '</span>';
     }).join('') +
-    '</div>';
+    '</div>' + phraseEtapeTel + '</div>';
 }
 
 // ============================================================
@@ -25308,8 +26983,9 @@ function htmlPageIntroModule(config) {
     '<p class="sousTitre">' + config.sousTitre + '</p></div>' +
     // Vidéo de présentation du module (lot E) : bouton fermé, le lecteur se déplie au clic.
     (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
-    // Cartes en grille 2 sur 2 des 1100 px de large (css/style.css, .intro-colonnes ; meme conteneur que htmlPageIntroModuleParcours, data/metiers.js) : consigne 187.
-    '<div class="intro-colonnes">' + sectionsHTML + '</div>' +
+    // syntheseHTML : le bloc « Reprendre / Recommencer » d'un module commence (meme forme que « Reprendre mon CV », consigne 258) ; « Reprendre » est repris dans la barre du bas.
+    (config.syntheseHTML || '') +
+    sectionsHTML +
     (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue() : '') +
     '</div>' +
     '<div class="barre-navigation-fixe">' + (function () {
@@ -25319,25 +26995,11 @@ function htmlPageIntroModule(config) {
 }
 
 // ============================================================
-// Encart "Continuer / Recommencer" + bande "bouton + reprise" -- PARTAGE
-// par les modules de la famille 2 (dépôt / analyse : Cohérence, Bilan,
-// Découverte, Comparer mes pistes...). Voir docs/LANGAGE_VISUEL_COMMUN.md
-// 5bis. Les modules de la famille 1 (Carnet, Lexique, Repères, Se tenir
-// informé) n'utilisent QUE htmlBoutonRevoirModule ci-dessus.
+// Bande "bouton + reprise" -- PARTAGEE par les modules de la famille 2 (dépôt / analyse).
+// La reprise « Reprendre / Recommencer » n'est plus ici : elle vit sur la page de présentation de chaque module
+// (_introBlocReprise, data/metiers.js), comme « Reprendre mon CV » (consigne 258). Voir docs/LANGAGE_VISUEL_COMMUN.md 5bis.
+// Les modules de la famille 1 (Carnet, Lexique, Repères, Se tenir informé) n'utilisent QUE htmlBoutonRevoirModule ci-dessus.
 // ============================================================
-
-// `opts` : { texte?, idContinuer, idRecommencer, pulse? }. Rendu a DROITE
-// de la bande, jamais empile sous le bouton. Le texte est au-dessus des
-// deux boutons ; "Recommencer" en fond saumon (.btn-recommencer-module).
-function htmlEncartRepriseModule(opts) {
-  return '<div class="bande-reprise-module-droite">' +
-    '<div class="encart-reprise-module' + (opts.pulse ? ' encart-reprise-module-pulse' : '') + '">' +
-    '<p>' + (opts.texte || 'Vous avez une analyse en cours sur ce module.') + '</p>' +
-    '<div class="encart-reprise-module-boutons">' +
-    '<button type="button" class="btn btn-primary btn-sm" id="' + opts.idContinuer + '">Continuer</button>' +
-    '<button type="button" class="btn btn-sm btn-recommencer-module" id="' + opts.idRecommencer + '">Recommencer</button>' +
-    '</div></div></div>';
-}
 
 // Enveloppe "bouton partage a gauche + encart eventuel a droite", juste
 // sous la barre d'etapes. `encartHTML` vide => la bande se resserre
@@ -25354,26 +27016,6 @@ function htmlBandeRepriseModule(boutonHTML, encartHTML) {
     (encartHTML || '') + '</div>';
 }
 
-// Coupe la pulsation de l'encart apres ~10 s (l'encart reste, sans pulser).
-// A appeler une fois apres chaque rendu qui contient un encart qui pulse.
-function armerFinPulseEncartReprise() {
-  if (typeof document === 'undefined') { return; }
-  if (!document.querySelector('.encart-reprise-module-pulse')) { return; }
-  setTimeout(function () {
-    var e = document.querySelector('.encart-reprise-module-pulse');
-    if (e) { e.classList.remove('encart-reprise-module-pulse'); }
-  }, 10800);
-}
-
-// Pose le gel sur .page-catalogue-contenu (tout inerte sauf la bande et la
-// barre du bas). `actif` faux => retire le gel.
-function appliquerGelModule(actif) {
-  if (typeof document === 'undefined' || typeof app === 'undefined' || !app) { return; }
-  var pc = app.querySelector('.page-catalogue-contenu');
-  if (!pc) { return; }
-  pc.classList.toggle('module-gel-actif', !!actif);
-}
-
 // TACHE (D5c, 2026-08-30) : bouton permanent "Revoir la presentation",
 // sur TOUS les ecrans de travail -- jamais sur la presentation elle-meme
 // (on y est deja) ni en mode detour. Non destructif :
@@ -25387,29 +27029,20 @@ function bilanBoutonRevoirPresentation(diagnostic) {
   // .preparer).
   if (etat.voirIntro) { return ''; }
   if (bilanIntroEnCours(diagnostic) && !etat.preparer) { return ''; }
-  var reprise = !!etat.reprisePendante;
   // TACHE (retour Denis 2026-09-19, point 15 puis retour arriere) : la
   // bulle "Editer mon CV" ajoutee ici a ete retiree -- malentendu sur sa
   // place/fonction reelle (Denis : "je pense que c'etait un malentendu...
   // il faudra le supprimer"). Le vrai bouton "Editer mon CV" vit desormais
   // dans le bloc de fin de la Carte 3 (htmlBilanFinaliserCVBloc(), voir
   // plus bas), un role et un emplacement completement differents.
-  var bouton = '<div><button type="button" id="btnRevoirPresentationBilan" class="btn-revoir-module"' +
-    (reprise ? ' disabled' : '') + '>' +
+  var bouton = '<div><button type="button" id="btnRevoirPresentationBilan" class="btn-revoir-module">' +
     '<i class="bi bi-graph-up"></i> Revoir la présentation</button></div>' +
-    (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !reprise
+    (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue()
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
       : '');
-  var encart = reprise
-    ? htmlEncartRepriseModule({
-        idContinuer: 'btnBilanRepriseContinuer',
-        idRecommencer: 'btnBilanRepriseRecommencer',
-        pulse: true
-      })
-    : '';
-  return htmlBandeRepriseModule(bouton, encart);
+  return htmlBandeRepriseModule(bouton, '');
 }
 
 // ------------------------------------------------------------
@@ -25491,7 +27124,6 @@ function _bilanRestaurerHistorique(instantane) {
   _etatBilan.voirIntro = r.voirIntro;
   // Revenir a « Preparer » alors que le CV est deja depose : meme reprise que le « Retour » de « Choisir mon assistant » (voir bilanRetour).
   if (_etatBilan.preparer && !diagnostic && candidatureActuelle) { _etatBilan.preparerRetour = true; }
-  // reprisePendante n'est jamais restauree : le choix « Continuer / Recommencer » se fait une fois, il ne revient pas par la fleche du navigateur.
 }
 if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('bilan', _bilanRestaurerHistorique); }
 
@@ -25576,11 +27208,6 @@ function pageBilanCandidature() {
   app.innerHTML = html;
   // La fleche « Precedent » du navigateur retrouve cet ecran (brique B.24, voir _bilanSynchroniserHistorique).
   _bilanSynchroniserHistorique(diagnostic);
-  // Reprise en attente (retour dans le module avec une analyse engagee) :
-  // tout gele sauf l'encart et la barre du bas, jusqu'au choix
-  // "Continuer / Recommencer" (brique partagee). Jamais sur la presentation
-  // en detour (pas d'encart la-bas).
-  appliquerGelModule(_etatBilan.reprisePendante && !_etatBilan.voirIntro);
   brancherEvenementsBilanCandidature(diagnostic);
 }
 
@@ -25629,22 +27256,21 @@ function htmlBilanIntro() {
   // le drapeau et rend exactement l'ecran d'ou on venait.
   // detour = CONSULTATION uniquement (bouton "Revoir la presentation" /
   // "Retour" d'un ecran de travail). La reprise avec une analyse engagee
-  // (retour dans le module via l'accueil) n'atterrit plus ici : elle va au
-  // dernier ecran, avec l'encart "Continuer / Recommencer" a droite
-  // (aligne sur Coherence, chantier "bouton presentation" 2026-09-01).
+  // (retour dans le module via l'accueil) atterrit ICI, avec le bloc
+  // « Reprendre / Recommencer » (syntheseHTML), comme « Reprendre mon CV » (consigne 258).
   // TACHE (correctif boucle Retour, 2026-09-09) : detour = SEULEMENT le
   // vrai detour de consultation ('detour', pose par bilanRetourVersPresentation()).
   // Un "Retour" de barre du bas pose 'normal' (bilanRetour()) : la
   // presentation s'affiche alors comme a froid, son "Retour" va a la carte
   // d'accueil, plus de boucle.
   var detour = !!(typeof _etatBilan !== 'undefined' && _etatBilan && _etatBilan.voirIntro === 'detour');
-  // Analyse deja engagee (diagnostic OU candidature deposee) : meme si on
-  // n'est pas en detour, le bouton du bas doit ramener au module, jamais
-  // relancer un depot -- aligne sur ctHtmlExplication() (Coherence).
-  var diagnosticIntro = (typeof bilanObtenirDiagnostic === 'function') ? bilanObtenirDiagnostic() : null;
-  var analyseEngageeIntro = (typeof bilanIntroEnCours === 'function') ? !bilanIntroEnCours(diagnosticIntro) : false;
+  // Travail engage (candidature deposee, diagnostic recu, page « Preparer » ou ecran de travail) : la presentation
+  // porte le bloc « Reprendre / Recommencer », MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) ;
+  // « Reprendre » est repris dans la barre du bas, jamais « Analyser mon CV » qui relancerait un depot.
+  var enCours = !detour && (typeof bilanTravailEnCours === 'function') && bilanTravailEnCours();
   return htmlPageIntroModule({
     classeExtra: 'bilan-intro',
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez une analyse en cours sur ce module.', 'btnBilanRepriseContinuer', 'btnBilanRepriseRecommencer', 'Reprendre') : '',
     // En detour : le bouton partage, meme place / forme / libelle que tous
     // les modules -- "Revenir au module", ramene exactement a l'ecran de
     // travail quitte. La note s'adapte (chantier "bouton presentation").
@@ -25710,9 +27336,9 @@ function htmlBilanIntro() {
     // qu'une analyse est engagee (detour OU diagnostic/candidature deja la),
     // jamais "Analyser mon CV" qui relancerait un depot -- meme logique que
     // ctHtmlExplication() (Coherence).
-    boutonBasHTML: (detour || analyseEngageeIntro)
+    boutonBasHTML: detour
       ? '<button type="button" id="btnBilanIntroRevenir" class="btn btn-primary btn-lg">Revenir au module &#8594;</button>'
-      : '<button type="button" id="btnBilanIntroCommencer" class="btn btn-primary btn-lg">Analyser mon CV &#8594;</button>',
+      : (enCours ? '' : '<button type="button" id="btnBilanIntroCommencer" class="btn btn-primary btn-lg">Analyser mon CV &#8594;</button>'),
     // TACHE (retour Denis, 2026-08-31) : "Retour" de la presentation du
     // module ramene a sa carte de l'accueil (ici "Outils d'analyse"), jamais
     // a l'accueil nu (bouton "Accueil" de la barre pour ca). Les ecrans de
@@ -30618,10 +32244,9 @@ function brancherEvenementsBilanIntro() {
   if (typeof trackEvenement === 'function') { trackEvenement('bilan_intro_affichee'); }
   var btn = document.getElementById('btnBilanIntroCommencer');
   if (btn) {
+    // Ce bouton n'existe qu'a froid (aucun travail engage) : un travail engage passe par « Reprendre » du bloc de la presentation.
     btn.addEventListener('click', function () {
-      if (typeof demarrerBilanCandidatureAvecDepot === 'function') {
-        demarrerBilanCandidatureAvecDepot();
-      }
+      if (typeof demarrerBilanCandidatureAvecDepot === 'function') { demarrerBilanCandidatureAvecDepot(); }
     });
   }
   // Detour de CONSULTATION : "Revenir au module" (bouton du haut + CTA du
@@ -30766,9 +32391,7 @@ function brancherEvenementsBilanCandidature(diagnostic) {
   // ou getElementById renvoie null, aucun effet.
   var btnRevoirPres = document.getElementById('btnRevoirPresentationBilan');
   if (btnRevoirPres) { btnRevoirPres.addEventListener('click', bilanRetourVersPresentation); }
-  // Encart "Continuer / Recommencer" (retour dans le module avec une
-  // analyse engagee -- _etatBilan.reprisePendante). Module gele jusqu'au
-  // choix. Meme brique que "Coherence de mon dossier".
+  // Bloc « Reprendre / Recommencer » de la presentation (analyse engagee, consigne 258).
   var btnReprC = document.getElementById('btnBilanRepriseContinuer');
   if (btnReprC) { btnReprC.addEventListener('click', bilanRepriseContinuer); }
   var btnReprR = document.getElementById('btnBilanRepriseRecommencer');
@@ -30781,7 +32404,6 @@ function brancherEvenementsBilanCandidature(diagnostic) {
       );
     });
   }
-  if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
   // TACHE (D5c/D5d) : detour "voir la presentation" -- meme garde en tete
   // que le rendu HTML (LECONS 9.28.1).
   if (_etatBilan.voirIntro) {
@@ -32364,6 +33986,7 @@ function signauxVosDocuments(docActif, essaiModeles) {
     origineReformuler: !!(dossier._origineReformuler && dossier._modeCreationVia === 'reformuler'),   // passage reel par Reformuler (pas le seul drapeau, qui survit)
     decouverteVersResultats: !!window._decouverteVersResultats || !!dossier.decouverteTerminee,
     cvTermine: !!dossier.cvTermine,
+    etapeMissions: typeof _creerCvMcOuvert === 'function' && _creerCvMcOuvert(),   // consigne 398 : la barre de « Créer un nouveau CV » compte une étape de plus
     aspectUcpm: !!window._modeAspectUcpm,
     importDirect: !!window._importVersResultats,
     pageAvantImport: window._pageAvantImportSession
@@ -32424,7 +34047,6 @@ function texteProfil(type, sectionsSeulement) {
   var savoirEtre = filtrerCompetencesGardees(savoirEtreActuels()).join(', ');
   var savoirFaire = filtrerCompetencesGardees(savoirFaireActuels()).join(', ');
   var savoirs = filtrerCompetencesGardees(obtenirSavoirs()).join(', ');
-  var valeurs = dossier.valeurs.map(function (v) { var d = trouverItemParId(CATALOGUE_VALEURS_PROFESSIONNELLES, v); return d ? d.label : v; }).join(', ');
 
   var langues = dossier.langues.map(function (l) { return l.langue + ' (' + l.niveau + ')'; }).join(', ');
   var permis = '';
@@ -32791,9 +34413,12 @@ function texteProfil(type, sectionsSeulement) {
     // convention que les autres rendus du CV (voir les fichiers
     // modules/cv-editor, modules/cv-composeur, modules/cv-pdf-html).
     profil += '- Formations :\n' + dossier.formations.map(function (f) {
+      // « Citer ou développer » (consigne 357) : un diplôme dont la personne n'a pas voulu les missions (ou sans réponse et sans mission) est marqué, aucune mission n'est demandée pour lui.
+      var formationCitee = (typeof cdEstCite === 'function') && !/sans dipl/i.test(libelleFormation(f)) &&
+        cdEstCite((f.detailFormation === 'oui') ? 'dev' : (f.detailFormation === 'non' ? 'cite' : null), (f.detailFormation === 'non') ? '' : f.missions);
       return '   . ' + libelleFormation(f) + (f.annee ? ', obtenu en ' + f.annee : '') +
         (f.etablissement ? ' - Centre de formation : ' + f.etablissement : '') + (f.lieu ? ' - Lieu de la formation : ' + f.lieu : '') +
-        (f.missions ? ' - Missions : ' + f.missions : '');
+        (formationCitee ? ' - ' + CD_MARQUEUR_CITE : ((f.missions && f.detailFormation !== 'non') ? ' - Missions : ' + f.missions : ''));
     }).join('\n') + '\n';
   }
 
@@ -32826,14 +34451,18 @@ function texteProfil(type, sectionsSeulement) {
   competences += '- Savoir-être : ' + (savoirEtre || 'non renseigné') + '\n';
   competences += '- Savoir-faire : ' + (savoirFaire || 'non renseigné') + '\n';
   competences += '- Savoirs : ' + (savoirs || 'non renseigné') + '\n';
-  competences += '- Valeurs : ' + (valeurs || 'non renseigné') + '\n';
 
   // ---- SECTION : INFORMATIONS COMPLÉMENTAIRES ----
   var complements = '';
   if (langues) { complements += '- Langues : ' + langues + '\n'; }
   if (permis) { complements += '- Mobilité : ' + permis + '\n'; }
   if (dossier.loisirs.length) {
-    complements += '- Loisirs : ' + dossier.loisirs.join(', ') + '\n';
+    // Consigne 357 : les années d'un loisir (« depuis 15 ans ») comptent, elles sont transmises quand la personne les a indiquées.
+    complements += '- Loisirs : ' + dossier.loisirs.map(function (l) {
+      var det = (dossier.detailsCatalogue && dossier.detailsCatalogue.loisirs && dossier.detailsCatalogue.loisirs[l]) || {};
+      var periode = _cdPeriodeTexte(det.dateDebut, det.dateFin);
+      return l + (periode ? ' (' + periode + ')' : '');
+    }).join(', ') + '\n';
   }
   if (dossier.engagements && dossier.engagements.length) {
     // TACHE (chantier "exp perso", Phase 4 : engagements structurés) :
@@ -32848,7 +34477,7 @@ function texteProfil(type, sectionsSeulement) {
     complements += _cvProfilEngagements(dossier.engagements);
   }
   if (dossier.certifications && dossier.certifications.length) {
-    complements += '- Certifications : ' + dossier.certifications.join(', ') + '\n';
+    complements += _cdProfilCertifications();
   }
   // TACHE (retour utilisateur : verification transmission IA) : ces deux
   // champs sont alimentes par le moteur d'import (voir extraction-cv.md,
@@ -32861,6 +34490,9 @@ function texteProfil(type, sectionsSeulement) {
   if (infosNonClasseesEtContextes.length) {
     complements += '- Autres informations transmises par la personne : ' + infosNonClasseesEtContextes.join(', ') + '\n';
   }
+
+  // Consigne 357 : la règle des éléments « à citer seulement » est écrite une seule fois, dès qu'un élément est marqué.
+  if (typeof CD_MARQUEUR_CITE !== 'undefined' && (profil + complements).indexOf(CD_MARQUEUR_CITE) !== -1) { complements += '- ' + CD_REGLE_CITE + '\n'; }
 
   // ---- SECTION : CONTRAINTES ----
   var contraintes = '';
@@ -33003,6 +34635,11 @@ var FICHIERS_PROMPTS_EXTERNES = {
   decouverteRedaction: 'prompts/decouverte-redaction.md',
   lettre: 'prompts/lettre.md',
   entretien: 'prompts/entretien.md',
+  // Lot 7 « Vos missions et compétences » (consigne 313) : bloc ajouté au CV seulement si la personne a fait des choix dans l'étape (modules/missions-competences).
+  'cv-choix-personne': 'prompts/cv-choix-personne.md',
+  'cv-missions-sans-lien': 'prompts/cv-missions-sans-lien.md',
+  // Lot 4 de la consigne 408 : complément du premier échange du récit, seulement si la personne a choisi de relier elle-même ses expériences aux fiches métier.
+  'decouverte-metiers': 'prompts/decouverte-metiers.md',
   // TACHE (prompt allege, carte accueil) : fichier distinct de entretien.md
   // -- manquait ici, ce qui faisait retomber silencieusement sur le texte
   // de secours (promptParDefaut) meme quand le vrai fichier existait.
@@ -33066,7 +34703,7 @@ var FICHIERS_PROMPTS_EXTERNES = {
   'ucpm-offres': 'prompts/ucpm-offres.md'
 };
 var promptsExternesCharges = {
-  cv: null, decouverteRedaction: null, lettre: null, entretien: null, 'entretien-accueil': null, 'extraction-cv': null,
+  cv: null, 'cv-choix-personne': null, 'cv-missions-sans-lien': null, 'decouverte-metiers': null, decouverteRedaction: null, lettre: null, entretien: null, 'entretien-accueil': null, 'extraction-cv': null,
   'reformuler-cv': null,
   'lettre-co': null, decouverte: null, 'regard-exterieur': null, 'regard-exterieur-approfondissement': null,
   'comparer-detection': null, 'comparer-collecte': null, 'comparer-meme-categorie': null,
@@ -33312,6 +34949,19 @@ var SPEC_AFFICHAGE_LETTRE = [
 // appliquerBrouillonChoixIACV plus bas). "garder" (true par defaut) porte
 // la case a cocher ; l'ORDRE du tableau porte le classement (modifie par
 // les fleches ▲▼, jamais par un champ separe).
+// L'entree d'une liste (reponse de l'assistant ou experiences du dossier) qui correspond a un poste : poste ET entreprise identiques, sinon poste proche.
+// Meme regle que celle du moteur (appliquerMoteurDecisionCV) ; partagee par l'ecran de choix et par « La mise en page » (propositions de l'assistant en plus).
+function trouverEntreeExperienceIA(liste, poste, entreprise) {
+  liste = liste || [];
+  var stricte = liste.filter(function (s) {
+    return normaliserTexte(s.poste || '') === normaliserTexte(poste || '') &&
+      normaliserTexte(s.entreprise || '') === normaliserTexte(entreprise || '');
+  })[0];
+  if (!stricte && poste) {
+    stricte = liste.filter(function (s) { return s.poste && correspond(poste, s.poste); })[0];
+  }
+  return stricte;
+}
 function creerBrouillonChoixIACV(valeursIA) {
   var reco = valeursIA.recommandations || {};
   function versListe(items, mapper) {
@@ -33428,16 +35078,7 @@ function creerBrouillonChoixIACV(valeursIA) {
       var poolMissions = (reco.savoirFaireParExperienceProposees && reco.savoirFaireParExperienceProposees.length)
         ? reco.savoirFaireParExperienceProposees : savoirFaireParExperience;
       var restaureEtatMissions = !!(reco.savoirFaireParExperienceProposees && reco.savoirFaireParExperienceProposees.length);
-      function trouverDans(liste, poste, entreprise) {
-        var stricte = liste.filter(function (s) {
-          return normaliserTexte(s.poste || '') === normaliserTexte(poste || '') &&
-            normaliserTexte(s.entreprise || '') === normaliserTexte(entreprise || '');
-        })[0];
-        if (!stricte && poste) {
-          stricte = liste.filter(function (s) { return s.poste && correspond(poste, s.poste); })[0];
-        }
-        return stricte;
-      }
+      function trouverDans(liste, poste, entreprise) { return trouverEntreeExperienceIA(liste, poste, entreprise); }
       // TACHE (retour utilisateur : missions retravaillées invisibles
       // -- même bug que celui corrigé dans appliquerMoteurDecisionCV,
       // trouvé une 3e fois ici, pour l'aperçu affiché sur cet écran)
@@ -33451,8 +35092,25 @@ function creerBrouillonChoixIACV(valeursIA) {
         if (!restaureEtatMissions) { return null; }
         return (trouverDans(savoirFaireParExperience, poste, entreprise) || {}).missions || [];
       }
+      // Etape « Vos missions et competences » (lot 4, consigne 299) : l'experience du dossier qui correspond a ce poste, et les missions que
+      // la personne y a choisies. Si elle en a, ses lignes passent TOUJOURS en premier et gardees, jamais remplacees ; ce que l'assistant
+      // propose en plus (sans doublon) reste dans le pool, decoche par defaut : la personne decide de l'ajouter.
+      function missionsDeLaPersonne(poste, entreprise) {
+        if (typeof mcMissionsPersonne !== 'function' || !dossier.etapeMC) { return []; }
+        return mcMissionsPersonne(dossier.etapeMC, trouverEntreeExperienceIA(dossier.experiences || [], poste, entreprise));
+      }
       function construireMissions(poste, entreprise) {
         var gardeesListe = missionsGardeesPour(poste, entreprise);
+        var lignesPersonne = missionsDeLaPersonne(poste, entreprise);
+        if (lignesPersonne.length) {
+          var fusion = mcFusionnerMissionsAssistant(lignesPersonne, correspondanceMissions(poste, entreprise));
+          var gardeesCles = {};
+          (gardeesListe || []).forEach(function (m) { gardeesCles[normaliserPourComparaison(String(m))] = true; });
+          return fusion.choix.map(function (m) { return { texte: m, garder: true, origine: 'personne' }; }).concat(
+            fusion.complements.map(function (m) {
+              return { texte: m, garder: gardeesListe === null ? false : !!gardeesCles[normaliserPourComparaison(String(m))], origine: 'assistant' };
+            }));
+        }
         return correspondanceMissions(poste, entreprise).map(function (m) {
           return { texte: m, garder: gardeesListe === null ? true : gardeesListe.indexOf(m) !== -1 };
         });
@@ -33647,6 +35305,11 @@ function creerBrouillonChoixIACV(valeursIA) {
     // Oubli corrige le 2026-10-04 : sans ces 2 lignes, ils disparaissaient de dossier.ia.cv.recommandations au « Je valide ».
     competencesGroupeesParTheme: reco.competencesGroupeesParTheme || [],
     missionsEnActionProposees: reco.missionsEnActionProposees || [],
+    // Lot 7 (consigne 313) : jamais lus par cet écran, repris tels quels pour ne pas les perdre au « Je valide ».
+    doublonsMissions: reco.doublonsMissions || [],
+    competencesEnPlus: reco.competencesEnPlus || [],
+    missionsPlusCourtes: reco.missionsPlusCourtes || [],
+    missionsEnAvant: reco.missionsEnAvant || [],
     // TACHE (cv.md, point 17 -- "je veux aussi des missions pour engagement") :
     // meme principe EXACT que le bloc "experiences" plus haut (pool complet
     // pour ne jamais perdre un decochage), mais une VRAIE liste (pas 0 ou 1
@@ -33872,6 +35535,10 @@ function appliquerBrouillonChoixIACV(brouillon) {
       },
       competencesGroupeesParTheme: brouillon.competencesGroupeesParTheme || [],
       missionsEnActionProposees: brouillon.missionsEnActionProposees || [],
+      doublonsMissions: brouillon.doublonsMissions || [],
+      competencesEnPlus: brouillon.competencesEnPlus || [],
+      missionsPlusCourtes: brouillon.missionsPlusCourtes || [],
+      missionsEnAvant: brouillon.missionsEnAvant || [],
       // TACHE (cv.md, point 17) : meme logique EXACTE que savoirFaireParExperience
       // plus haut (liste complete, pas 0/1 element) -- "kept-only" ET pool
       // complet, memes 2 champs que le reste de cet ecran.
@@ -34332,20 +35999,89 @@ function normaliserSavoirFaireParExperienceIA(brut) {
   }).filter(function (e) { return e.poste && e.missions.length; });
 }
 
+// Lot 7 « Vos missions et compétences » (consigne 313, prompts/cv-choix-personne.md) : trois champs que l'assistant ne renvoie que dans le chemin (a),
+// lus avec la même tolérance que le reste (champ absent ou mal formé : liste vide, jamais d'erreur). Ils ne remplacent rien : ils sont gardés à part,
+// la personne les verra à côté de ses choix (écran à venir, maquette d'abord).
+function normaliserDoublonsMissionsIA(brut) {
+  return (Array.isArray(brut) ? brut : []).map(function (item) {
+    return {
+      poste: normaliserTexteIA(item ? item.poste : ''),
+      entreprise: normaliserTexteIA(item ? item.entreprise : ''),
+      lignes: normaliserListeTextesIA(item ? item.lignes : [])
+    };
+  }).filter(function (d) { return d.lignes.length >= 2; });
+}
+function normaliserCompetencesEnPlusIA(brut) {
+  return (Array.isArray(brut) ? brut : []).map(function (item) {
+    var type = normaliserTexteIA(item ? item.type : '');
+    return {
+      competence: normaliserTexteIA(item ? item.competence : ''),
+      type: type === 'savoirEtre' ? 'savoirEtre' : 'savoirFaire',
+      justification: normaliserTexteIA(item ? item.justification : '')
+    };
+  }).filter(function (c) { return c.competence; });
+}
+// Lot 6 (consigne 395) : une entrée par expérience, trois lignes au plus (copiées mot pour mot : le moteur ignore toute ligne qui ne correspond pas exactement), une raison courte.
+function normaliserMissionsEnAvantIA(brut) {
+  return (Array.isArray(brut) ? brut : []).map(function (item) {
+    var lignes = (item && Array.isArray(item.lignes) ? item.lignes : []).map(normaliserTexteIA).filter(Boolean).slice(0, 3);
+    return { poste: normaliserTexteIA(item ? item.poste : ''), entreprise: normaliserTexteIA(item ? item.entreprise : ''), lignes: lignes, raison: normaliserTexteIA(item ? item.raison : '') };
+  }).filter(function (m) { return m.lignes.length > 0; });
+}
+function normaliserMissionsPlusCourtesIA(brut) {
+  return (Array.isArray(brut) ? brut : []).map(function (item) {
+    return {
+      poste: normaliserTexteIA(item ? item.poste : ''),
+      entreprise: normaliserTexteIA(item ? item.entreprise : ''),
+      ligne: normaliserTexteIA(item ? item.ligne : ''),
+      plusCourte: normaliserTexteIA(item ? item.plusCourte : '')
+    };
+  }).filter(function (m) { return m.ligne && m.plusCourte && m.plusCourte !== m.ligne; });
+}
+
 // TACHE (cv.md, point 17 -- "je veux aussi des missions pour engagement") :
 // meme forme EXACTE que normaliserSavoirFaireParExperienceIA juste au-dessus
 // (liste de {identifiant, missions}), identifiant = texte de l'engagement
 // (pas poste/entreprise) -- une entree par engagement du profil, jamais un
 // seul choisi (a la difference de experiencePersonnelleAMettreEnAvant).
+// « Citer ou développer » (consigne 357) : le CODE garantit la règle. Une proposition de l'assistant pour un élément qui n'est pas développé par la personne
+// est retirée ici, quoi que l'assistant ait répondu (modules/citer-developper/logique.js).
+function _cdNomsDeveloppes(rubrique) {
+  var noms = [];
+  function ajouter(n) { n = String(n || '').trim(); if (n) { noms.push(n); } }
+  if (rubrique === 'formations') {
+    (dossier.formations || []).forEach(function (f) {
+      var rep = (f.detailFormation === 'oui') ? 'dev' : (f.detailFormation === 'non' ? 'cite' : null);
+      if (!cdEstCite(rep, f.detailFormation === 'non' ? '' : f.missions)) { ajouter(libelleFormation(f)); ajouter(f.intitule); }
+    });
+  } else if (rubrique === 'certifications') {
+    (dossier.certifications || []).forEach(function (c) {
+      var d = detailPastilleEditable(CONFIG_CERTIFICATIONS, c);
+      if (cdQuestionPossible('certifications', c) && !cdEstCite(d.developper, d.missions)) { ajouter(c); }
+    });
+  } else if (rubrique === 'engagements' || rubrique === 'experiencesPerso') {
+    var source = (rubrique === 'engagements') ? (dossier.engagements || []) : (dossier.experiencesPerso || []);
+    source.forEach(function (e) {
+      if (typeof e === 'string') { return; }
+      var nom = (rubrique === 'engagements') ? e.texte : e.intitule;
+      if (cdQuestionPossible(rubrique, nom) && !cdEstCite(e.developper, e.missions)) { ajouter(nom); }
+    });
+  }
+  return noms;
+}
+function _cdFiltrerImport(rubrique, liste, champId) {
+  if (typeof cdGarderSeulementDeveloppes !== 'function') { return liste; }
+  return cdGarderSeulementDeveloppes(liste, champId, _cdNomsDeveloppes(rubrique));
+}
 function normaliserEngagementsAvecMissionsIA(brut) {
   var liste = Array.isArray(brut) ? brut : [];
-  return liste.map(function (item) {
+  return _cdFiltrerImport('engagements', liste.map(function (item) {
     return {
       texte: normaliserTexteIA(item ? item.texte : ''),
       missions: normaliserListeTextesIA(item ? item.missions : []),
       justification: normaliserTexteIA(item ? item.justification : '')
     };
-  }).filter(function (e) { return e.texte && e.missions.length; });
+  }).filter(function (e) { return e.texte && e.missions.length; }), 'texte');
 }
 
 // TACHE (cv.md, point 18 -- chantier "Formations", meme comportement que
@@ -34354,26 +36090,26 @@ function normaliserEngagementsAvecMissionsIA(brut) {
 // lieu de "texte" (identifiant d'une formation).
 function normaliserFormationsAvecMissionsIA(brut) {
   var liste = Array.isArray(brut) ? brut : [];
-  return liste.map(function (item) {
+  return _cdFiltrerImport('formations', liste.map(function (item) {
     return {
       intitule: normaliserTexteIA(item ? item.intitule : ''),
       missions: normaliserListeTextesIA(item ? item.missions : []),
       justification: normaliserTexteIA(item ? item.justification : '')
     };
-  }).filter(function (e) { return e.intitule && e.missions.length; });
+  }).filter(function (e) { return e.intitule && e.missions.length; }), 'intitule');
 }
 
 // Point 19 de cv.md : missions proposees pour chaque certification. Meme forme que formations, avec "certification" comme identifiant
 // (texte exact de la certification du profil, rapproche par moteurDecisionCV.js).
 function normaliserCertificationsAvecMissionsIA(brut) {
   var liste = Array.isArray(brut) ? brut : [];
-  return liste.map(function (item) {
+  return _cdFiltrerImport('certifications', liste.map(function (item) {
     return {
       certification: normaliserTexteIA(item ? item.certification : ''),
       missions: normaliserListeTextesIA(item ? item.missions : []),
       justification: normaliserTexteIA(item ? item.justification : '')
     };
-  }).filter(function (e) { return e.certification && e.missions.length; });
+  }).filter(function (e) { return e.certification && e.missions.length; }), 'certification');
 }
 
 // TACHE (cv.md, points 11-14) : normalisation d'un objet recommandation
@@ -34399,11 +36135,14 @@ function normaliserObjetRecommandationIA(brut, champs) {
 // (missions) en plus des champs texte.
 function normaliserExperiencePersonnelleAMettreEnAvantIA(brut) {
   var b = (brut && typeof brut === 'object') ? brut : {};
-  return {
+  var e = {
     intitule: normaliserTexteIA(b.intitule),
     missions: normaliserListeTextesIA(b.missions),
     justification: normaliserTexteIA(b.justification)
   };
+  // Consigne 357 : une expérience personnelle seulement citée ne peut pas être mise en avant avec des missions de l'assistant.
+  if (e.intitule && _cdFiltrerImport('experiencesPerso', [e], 'intitule').length === 0) { return { intitule: '', missions: [], justification: '' }; }
+  return e;
 }
 
 // TACHE (missions de formation) : formationRetenue -- meme esprit que
@@ -34425,6 +36164,8 @@ function normaliserFormationRetenueIA(brut) {
 // schema different pour le meme genre de recommandation.
 function normaliserLoisirRetenuIA(brut) {
   var b = (brut && typeof brut === 'object') ? brut : {};
+  // Consigne 357 : un loisir n'a jamais de mission, quoi que l'assistant ait répondu (seulement quand le module est chargé : les tests Node isolés gardent l'ancien comportement).
+  if (typeof cdQuestionPossible === 'function') { return { intitule: '', justification: '', missions: [] }; }
   return {
     intitule: normaliserTexteIA(b.intitule),
     justification: normaliserTexteIA(b.justification),
@@ -34562,7 +36303,8 @@ var CHAMPS_ATTENDUS_CV_RACINE = ['titresProposes', 'accrochesProposees', 'accroc
 var CHAMPS_ATTENDUS_CV_RECOMMANDATIONS = ['typeCV', 'postesRecommandes', 'experiencesAMettreEnAvant', 'competencesAValoriser',
   'competencesPersonnelles', 'competencesAttenduesMetier', 'secteurProche', 'rubriquesMasquables', 'savoirFaireParExperience', 'formationRetenue',
   'certificationsAMettreEnAvant', 'experiencePersonnelleAMettreEnAvant', 'regroupementExperiences',
-  'competencesGroupeesParTheme', 'missionsEnActionProposees', 'loisirRetenu', 'engagementsAvecMissions', 'formationsAvecMissions', 'certificationsAvecMissions'];
+  'competencesGroupeesParTheme', 'missionsEnActionProposees', 'loisirRetenu', 'engagementsAvecMissions', 'formationsAvecMissions', 'certificationsAvecMissions',
+  'doublonsMissions', 'competencesEnPlus', 'missionsPlusCourtes', 'missionsEnAvant'];
 function _clesInconnues(objet, attendues) {
   if (!objet || typeof objet !== 'object') { return []; }
   return Object.keys(objet).filter(function (c) { return attendues.indexOf(c) === -1; });
@@ -34753,6 +36495,11 @@ function analyserReponseIACV(texteColle) {
       secteurProche: normaliserTexteIA(recoBrut.secteurProche),
       rubriquesMasquables: normaliserListeRecommandationsIA(recoBrut.rubriquesMasquables, ['rubrique', 'justification']),
       savoirFaireParExperience: normaliserSavoirFaireParExperienceIA(recoBrut.savoirFaireParExperience),
+      // Lot 7 (consigne 313) : seulement renvoyés dans le chemin (a) ; vides sinon.
+      doublonsMissions: normaliserDoublonsMissionsIA(recoBrut.doublonsMissions),
+      competencesEnPlus: normaliserCompetencesEnPlusIA(recoBrut.competencesEnPlus),
+      missionsPlusCourtes: normaliserMissionsPlusCourtesIA(recoBrut.missionsPlusCourtes),
+      missionsEnAvant: normaliserMissionsEnAvantIA(recoBrut.missionsEnAvant),
       // TACHE (cv.md, points 11-14) : 4 nouveaux champs, meme tolerance que
       // le reste -- un champ absent du JSON colle retombe sur sa valeur
       // neutre (scaffold de creerDossierIAVide()), jamais une erreur de
@@ -39614,18 +41361,15 @@ function _htmlEncartVersApprofondi(docActif, deepLettreEnCours, venantDeEntretie
     '</div>';
 }
 
-// Barre du bas de la lettre (decision de Denis, 24/10/2026) : une fois la lettre validee et « Exporter » ouvert, « Retour » devient
-// « Modifier la lettre » et rouvre la mise en page ; « Merci bien, j'ai fini » (terminerParcours) apparait apres un telechargement ou une copie.
+// Barre du bas de la lettre (decision de Denis, 24/10/2026) : une fois la lettre validee et « Exporter » ouvert, « Retour » rouvre la mise en page.
+// Decision de Denis, 11/11/2026 : le bouton de gauche s'appelle TOUJOURS « Retour » (jamais « Modifier la lettre », « Modifier le CV »...) : seul le bouton de droite change de nom ou de couleur ; « Merci bien, j'ai fini » (terminerParcours) apparait apres un telechargement ou une copie.
 function _optionsRetourModifierLettre(options) {
   if (docActifActuel() === 'lettre' && dossier.lettreTerminee && _rectDocOuvert === 'exporter') {
-    options.libellePrecedent = '&#8592; Modifier la lettre';
     options.onclickPrecedent = 'retourModifierLettre()';
   } else if (docActifActuel() === 'entretien' && dossier.entretienTermine && _rectDocOuvert === 'exporter') {
-    options.libellePrecedent = (dossier.modeCreation === 'pret' || dossier.modeCreation === 'maj') ? '&#8592; Modifier la fiche' : '&#8592; Modifier l’entretien';
     options.onclickPrecedent = 'retourModifierLettre()';
   } else if (docActifActuel() === 'cv' && dossier.cvTermine && _rectDocOuvert === 'exporter' && !window._modeModuleUcpm) {
-    // Retour de Denis, 25/10/2026 : sur « Exporter », la mise en page n'existe plus (elle est validee) ; « Retour » la rouvre.
-    options.libellePrecedent = '&#8592; Modifier le CV';
+    // Retour de Denis, 25/10/2026 : sur « Exporter », la mise en page n'existe plus (elle est validee) ; « Retour » la rouvre (libelle inchange, decision du 11/11/2026).
     options.onclickPrecedent = 'retourModifierLettre()';
   }
   return options;
@@ -39866,6 +41610,7 @@ function restaurerSession() {
       if (!s) { return; }
       dossier = JSON.parse(JSON.stringify(s.dossier));
       assurerDetailsObjectifs();
+      migrerIdsChoixParcours();
       // TACHE (V2 IA, etape 1 : robustesse) : garantit que dossier.ia existe
       // toujours apres une restauration, meme dans le cas limite d'une
       // sauvegarde anterieure a l'ajout de cette structure -- dossier.ia
@@ -40036,6 +41781,7 @@ function importerSessionFichierSelectionne(input) {
       function () {
         dossier = donnees.dossier;
         assurerDetailsObjectifs();
+        migrerIdsChoixParcours();
         if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
         restaurerEtatsModules(donnees.modulesEtat);
         historiquePages = (donnees.historique || ['cv']).slice();
@@ -40466,7 +42212,7 @@ var CLE_PREFERENCES_AFFICHAGE = 'erip_preferences_affichage';
 var ACCENTS_ALTERNATIFS = ['orange', 'vert', 'violet', 'turquoise', 'framboise'];
 
 function preferencesAffichageActuelles() {
-  var defaut = { theme: 'clair', accent: 'bleu', daltonien: '0', taille: 'normal', police: 'defaut', confortLecture: '0', grandsBoutons: '0' };
+  var defaut = { theme: 'clair', accent: 'bleu', daltonien: '0', taille: 'normal', police: 'defaut', confortLecture: '0', grandsBoutons: '0', cartesAccueil: 'normal' };
   try {
     var brut = localStorage.getItem(CLE_PREFERENCES_AFFICHAGE);
     if (!brut) { return defaut; }
@@ -40487,7 +42233,9 @@ function preferencesAffichageActuelles() {
       // aucune exception).
       police: (['arial', 'times'].indexOf(lu.police) !== -1) ? lu.police : 'defaut',
       confortLecture: (lu.confortLecture === '1') ? '1' : '0',
-      grandsBoutons: (lu.grandsBoutons === '1') ? '1' : '0'
+      grandsBoutons: (lu.grandsBoutons === '1') ? '1' : '0',
+      // Cartes de l'accueil (consignes 336 a 338) : normales (defaut), compactes ou tres compactes ; toute valeur inconnue retombe sur « normal ».
+      cartesAccueil: (lu.cartesAccueil === 'compact' || lu.cartesAccueil === 'tres-compact') ? lu.cartesAccueil : 'normal'
     };
   } catch (e) { return defaut; }
 }
@@ -40506,7 +42254,8 @@ function appliquerPreferencesAffichage(prefs) {
   // precedents, contrairement a daltonien qui devait adapter ses teintes
   // en mode sombre.
   if (prefs.confortLecture === '1') { racine.setAttribute('data-confort-lecture', '1'); } else { racine.removeAttribute('data-confort-lecture'); }
-  // Grands boutons (2026-10-03) : attribut sur la racine, lu par css/mise-en-page-maquette.css (ecran « La mise en page »).
+  // Grands boutons (2026-10-03) : attribut sur la racine, lu par css/mise-en-page-maquette.css (ecran « La mise en page »). Depuis le 13/11/2026 (consigne 272), le SEUL bouton qui le règle est « Boutons plus grands » de cet écran : plus de ligne dans le panneau d'affichage (un réglage permanent qui n'agissait que sur une page). Le jour où il agira partout (chantier Accessibilité), il reviendra dans le panneau.
+  if (prefs.cartesAccueil === 'compact' || prefs.cartesAccueil === 'tres-compact') { racine.setAttribute('data-cartes-accueil', prefs.cartesAccueil); } else { racine.removeAttribute('data-cartes-accueil'); }
   if (prefs.grandsBoutons === '1') { racine.setAttribute('data-grands-boutons', '1'); } else { racine.removeAttribute('data-grands-boutons'); }
   var zoneCoul = document.getElementById('zoneCouleurs'); if (zoneCoul) { zoneCoul.open = (prefs.grandsBoutons !== '1'); }
   document.querySelectorAll('[data-mep-grands-boutons]').forEach(function (bt) { bt.setAttribute('aria-pressed', prefs.grandsBoutons === '1' ? 'true' : 'false'); bt.classList.toggle('on', prefs.grandsBoutons === '1'); });
@@ -40518,7 +42267,7 @@ function appliquerPreferencesAffichage(prefs) {
   panneau.querySelectorAll('[data-pref-daltonien]').forEach(function (b) { b.classList.toggle('actif', b.dataset.prefDaltonien === prefs.daltonien); });
   panneau.querySelectorAll('[data-pref-taille]').forEach(function (b) { b.classList.toggle('actif', b.dataset.prefTaille === prefs.taille); });
   panneau.querySelectorAll('[data-pref-confort]').forEach(function (b) { b.classList.toggle('actif', b.dataset.prefConfort === prefs.confortLecture); });
-  panneau.querySelectorAll('[data-pref-boutons]').forEach(function (b) { b.classList.toggle('actif', b.dataset.prefBoutons === prefs.grandsBoutons); });
+  panneau.querySelectorAll('[data-pref-cartes]').forEach(function (b) { b.classList.toggle('actif', b.dataset.prefCartes === (prefs.cartesAccueil || 'normal')); });
   // TACHE (retour utilisateur : "griser Police pendant que Confort de
   // lecture est actif -- jamais une illusion de choix") : Confort de
   // lecture impose deja Verdana (voir css/style.css) -- choisir Arial/
@@ -40585,9 +42334,9 @@ function initPreferencesAffichage() {
       var p = preferencesAffichageActuelles(); p.confortLecture = this.dataset.prefConfort; appliquerPreferencesAffichage(p);
     });
   });
-  panneau.querySelectorAll('[data-pref-boutons]').forEach(function (b) {
+  panneau.querySelectorAll('[data-pref-cartes]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var p = preferencesAffichageActuelles(); p.grandsBoutons = this.dataset.prefBoutons; appliquerPreferencesAffichage(p);
+      var p = preferencesAffichageActuelles(); p.cartesAccueil = this.dataset.prefCartes; appliquerPreferencesAffichage(p);
     });
   });
 }
@@ -40642,7 +42391,7 @@ var AIDE_PAGES = {
     // fidelement les 6 reglages reels du panneau (voir index.html,
     // #panneauPreferencesAffichage), en expliquant a qui ils profitent.
     { selecteur: '#btnPreferencesAffichage', icone: '<i class="bi bi-gear"></i>', titre: 'Affichage',
-      texte: 'Ce bouton ajuste le confort visuel de toute l’application, à tout moment : thème clair ou sombre, mode daltonien, confort de lecture (pour les personnes dyslexiques ou fatiguées par la lecture à l’écran), couleur d’accent, taille du texte (jusqu’à très grand, utile en cas de vue fatiguée) et police (dont une plus lisible, Arial). Ces réglages sont pensés pour rendre l’application accessible au plus grand nombre.' },
+      texte: 'Ce bouton ajuste le confort visuel de toute l’application, à tout moment : thème clair ou sombre, mode daltonien, confort de lecture (pour les personnes dyslexiques ou fatiguées par la lecture à l’écran), couleur d’accent, taille du texte (jusqu’à très grand, utile en cas de vue fatiguée), police (dont une plus lisible, Arial) et cartes de l’accueil (normales, compactes ou très compactes, pour les écrans moyens et petits). Ces réglages sont pensés pour rendre l’application accessible au plus grand nombre.' },
     // TACHE (retour utilisateur : "le bouton d'aide doit mettre en avant
     // la disquette -- dire qu'on peut sauvegarder sa session et la
     // reprendre sur n'importe quelle machine") : la disquette vit hors de
@@ -40670,7 +42419,7 @@ var AIDE_PAGES = {
   // suivante ».
   objectif: [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'Cette barre en haut de page suit les six étapes du parcours : objectif, informations, parcours, profil, assistant, documents. L’étape en cours est mise en avant. Aux étapes suivantes, vous pourrez cliquer sur une étape déjà faite pour y revenir, sans rien perdre.' },
+      texte: 'Cette barre en haut de page suit les étapes du parcours, de votre objectif jusqu’à vos documents. L’étape en cours est mise en avant. Aux étapes suivantes, vous pourrez cliquer sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '.grille-objectif', icone: '&#127919;', titre: 'Votre objectif',
       texte: 'Cliquez sur la carte qui correspond le mieux à votre situation (répondre à une offre, candidature spontanée, changement de métier, stage (de formation ou d’immersion), alternance, formation). Une fois choisie, deux bandeaux apparaissent en dessous pour préciser votre recherche.' },
     { selecteur: '#blocERIP-candidature', icone: '&#128221;', titre: 'Votre candidature',
@@ -40684,11 +42433,11 @@ var AIDE_PAGES = {
   // valeurs ont fusionne dans « Votre parcours » (route votre-parcours).
   'votre-parcours': [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les six étapes du parcours. Vous êtes à « Votre parcours ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
-    { selecteur: '.vp-question', icone: '&#128221;', titre: 'Vos expériences en quatre questions',
-      texte: 'Quatre questions repliables sur ce que vous avez fait, avec qui et avec quoi, où vous travailliez, et ce qui compte pour vous aujourd’hui. Chaque question s’ouvre au clic ; cochez au moins une carte par question, autant que vous voulez.' },
+      texte: 'La barre en haut suit les étapes du parcours. Vous êtes à « Votre parcours ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
+    { selecteur: '.vp-question', icone: '&#128221;', titre: 'Vos expériences en trois questions',
+      texte: 'Trois questions repliables sur ce que vous avez fait, avec qui et avec quoi, et où vous travailliez. Chaque question s’ouvre au clic ; cochez au moins une carte par question. Le nombre maximum de choix est écrit sous chaque question.' },
     { selecteur: '.barre-navigation', icone: '&#128640;', titre: 'Continuer',
-      texte: 'Une fois les quatre questions renseignées, la navigation vous mène à la suite. « Retour » et « Accueil » ne perdent jamais vos réponses.' }
+      texte: 'Une fois les trois questions renseignées, la navigation vous mène à la suite. « Retour » et « Accueil » ne perdent jamais vos réponses.' }
   ],
   // TACHE (etape 8, refonte parcours guide) : ecran « Vos informations »
   // restructure -- 5 bandeaux .bloc-erip (vous / parcours / experiences-pro /
@@ -40700,9 +42449,11 @@ var AIDE_PAGES = {
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
       texte: 'La barre en haut suit les étapes de votre parcours. Vous êtes à « Vos informations ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '.grille-mon-projet', icone: '&#128203;', titre: 'Vos informations',
-      texte: 'Cinq bandeaux (Vous, Parcours, Expériences professionnelles, Expériences personnelles, Compléments) se déplient au clic, indépendamment les uns des autres. Complétez ce qui vous concerne : tout est à compléter, rien n’est obligatoire.' },
+      texte: 'Sept rectangles (Vous, Expériences professionnelles, Ce que vous avez appris ailleurs qu’au travail, Formations et diplômes, Certifications, Engagements, Loisirs) se déplient au clic, indépendamment les uns des autres. Complétez ce qui vous concerne : tout est à compléter, rien n’est obligatoire.' },
+    { selecteur: '#blocERIP-experiences-pro', icone: '<i class="bi bi-briefcase"></i>', titre: 'Ajouter une expérience',
+      texte: 'Tapez l’intitulé de votre poste : des métiers vous sont proposés. Choisissez celui qui ressemble le plus à ce que vous faisiez (jusqu’à cinq), puis cochez les missions et les compétences que vous avez vraiment. Vous pouvez aussi écrire les vôtres. Rien n’est ajouté à votre CV avant « Je valide », et « Annuler » ne garde rien.' },
     { selecteur: '[data-blocs-tout]', icone: '&#128194;', titre: 'Tout déplier ou tout replier',
-      texte: '« Tout déplier » ouvre les cinq bandeaux d’un coup pour un survol rapide, « Tout replier » referme tout. Dans un bandeau, cliquez un jeton pour cocher ou décocher un choix ; pour les listes (loisirs, certifications, expériences...), un menu déroulant ajoute un élément, et un clic sur un élément déjà ajouté permet de le préciser ou de le retirer.' },
+      texte: '« Tout déplier » ouvre tous les rectangles d’un coup pour un survol rapide, « Tout replier » referme tout. Dans un bandeau, cliquez un jeton pour cocher ou décocher un choix ; pour les listes (loisirs, certifications, expériences...), un menu déroulant ajoute un élément, et un clic sur un élément déjà ajouté permet de le préciser ou de le retirer.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#129517;', titre: 'Votre profil',
       texte: 'Ce bouton vous mène à la découverte de votre profil : compétences repérées et métiers à explorer, à partir de ce que vous venez de renseigner.' }
   ],
@@ -40756,7 +42507,7 @@ var AIDE_PAGES = {
   // l'assistant, import de la reponse, choix de ce qui ira sur le CV.
   assistant: [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les six étapes du parcours. Vous êtes à « Assistant ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
+      texte: 'La barre en haut suit les étapes du parcours. Vous êtes à « Assistant ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '.assistant-rect', icone: '&#128172;', titre: 'Quatre étapes avec l’assistant',
       texte: 'De haut en bas : réglez le style d’écriture (ces jetons orientent seulement l’assistant, ils n’apparaissent jamais sur le CV), choisissez votre assistant, importez sa réponse, puis choisissez ce qui ira sur le CV. Chaque encadré s’ouvre au clic et se remplit à votre rythme ; les réglages par défaut conviennent à la plupart des situations.' },
     { selecteur: '.barre-navigation', icone: '&#128640;', titre: 'Continuer',
@@ -40935,6 +42686,15 @@ var AIDE_PAGES = {
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent sans rien perdre, « Accueil » ramène à l’écran de départ. Votre CV déposé reste là : vous pouvez changer de voie.' }
   ],
+  // Page propre de la voie 3 (A.3, 11/11/2026) : sa présentation, ouverte par « Revoir la présentation » dans la voie.
+  'cv-sans-assistant-intro': [
+    { selecteur: 'h1', icone: '<i class="bi bi-grid-3x3-gap"></i>', titre: 'Le refaire moi-même dans un modèle',
+      texte: 'Votre CV est déjà complet : vous en refaites seulement la mise en page, sans assistant en ligne. Vous classez ses informations, vous les vérifiez, puis vous choisissez un modèle. Rien n’est reformulé : vos mots restent les vôtres.' },
+    { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+      texte: 'La barre en haut suit les étapes de cette voie : déposer, ma voie, classer, vérifier, puis vos documents.' },
+    { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+      texte: '« Retour » revient à « Reprendre mon CV », « Accueil » ramène à l’écran de départ. Votre CV déposé n’est pas perdu.' }
+  ],
   'mettre-a-jour-cv': [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
       texte: 'La barre en haut suit les étapes de ce parcours : préparer, choisir l’assistant, coller sa réponse, corriger le contenu de votre CV, puis vos documents. Une étape déjà faite reste cliquable pour y revenir, sans rien perdre.' },
@@ -40966,7 +42726,7 @@ var AIDE_PAGES = {
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
   'reformuler-cv': [
-    { selecteur: 'h1', icone: '<i class="bi bi-brush"></i>', titre: 'Reformuler et présenter mon CV',
+    { selecteur: 'h1', icone: '<i class="bi bi-brush"></i>', titre: 'Le reformuler et le présenter',
       texte: 'Votre CV est complet mais mal présenté : on met à jour sa formulation et son vocabulaire pour le poste visé, sans rien ajouter ni corriger sur le fond. Un assistant vous renvoie deux versions, vous choisissez.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
       texte: 'La barre en haut suit les étapes : préparer, choisir l’assistant, coller sa réponse, vérifier, puis vos documents. L’étape en cours est mise en avant.' },
@@ -41026,6 +42786,28 @@ AIDE_PAGES['mes-competences-intro'] = [
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos choix ne sont pas perdus.' }
 ];
+// Question « Qui choisit les missions et les compétences ? » (consignes 401 et 408, 16/11/2026).
+AIDE_PAGES['choix-missions'] = [
+  { selecteur: '.cm-cartes', icone: '<i class="bi bi-hand-index-thumb"></i>', titre: 'Qui choisit ?',
+    texte: 'Pour chaque expérience, il faut dire ce que vous y faisiez. Soit vous le cochez vous-même, soit l’assistant vous le propose et vous relisez. Les deux mènent à un bon CV. Une fois confirmé, le choix ne change plus pour ce CV : pour faire autrement, vous commencez un nouveau CV.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la présentation du parcours. « Continuer » s’active quand vous avez cliqué sur une carte, puis vous demande de confirmer.' }
+];
+// Etape « Vos missions et compétences » (lot 9, 15/11/2026, consigne 315) : entre « Votre parcours » et « Votre profil », derrière MC_OUVERT. Aucune aide n'existait pour cette route.
+AIDE_PAGES['missions-competences'] = [
+  { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'La barre en haut suit les étapes du parcours. Vous êtes à « Vos missions et compétences ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
+  { selecteur: 'details.vp-question:nth-of-type(1)', icone: '<i class="bi bi-list-check"></i>', titre: 'Vos missions',
+    texte: 'Pour chaque expérience, des phrases viennent de la fiche officielle du métier (France Travail). Ce que vous avez déjà choisi dans « Vos informations » est repris et porte la mention « Choisi dans Vos informations » : vous n’avez rien à refaire, seulement à vérifier. Cliquez sur les phrases qui correspondent à ce que vous avez réellement fait : elles sont cochées et iront dans votre CV. Un onglet par expérience ; vous pouvez modifier une phrase ou ajouter la vôtre.' },
+  { selecteur: 'details.vp-question:nth-of-type(2)', icone: '<i class="bi bi-tools"></i>', titre: 'Vos compétences',
+    texte: 'Même principe : cliquez sur les compétences que vous avez vraiment, sans vous limiter à ce qui est proposé. Une ligne grise sous chaque compétence dit de quelle expérience elle vient. Entre 8 et 12 conviennent bien.' },
+  { selecteur: '.vp-cible', icone: '<i class="bi bi-bullseye"></i>', titre: 'Le métier que vous visez',
+    texte: 'Dans l’onglet « Métier visé », vous voyez les missions et les compétences que demande ce métier. Pour une mission que vous avez déjà faite, vous choisissez dans quelle expérience l’écrire. Si vous l’avez faite ailleurs que dans ces expériences, elle n’entre pas dans le CV.' },
+  { selecteur: 'details.vp-question:nth-of-type(3)', icone: '<i class="bi bi-file-earmark-text"></i>', titre: 'Votre CV, tel qu’il se construit',
+    texte: 'Ce cadre montre ce qui ira dans votre CV avec vos choix. Rien ne s’ajoute sans votre clic, et tout reste modifiable plus tard.' },
+  { selecteur: '.barre-navigation', icone: '&#128640;', titre: 'Continuer',
+    texte: '« Passer cette étape » continue sans rien choisir ici : le parcours se déroule comme avant. « Retour » et « Accueil » ne perdent jamais vos réponses.' }
+];
 AIDE_PAGES['mes-competences'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Découvrir mes compétences',
     texte: 'Vous déposez vos documents, l’assistant en ligne en tire des compétences avec leur preuve, vous relisez chaque ligne et vous gardez ce qui vous ressemble.' },
@@ -41076,12 +42858,22 @@ AIDE_PAGES['un-cv-plusieurs-metiers'] = [
 AIDE_PAGES['un-cv-plusieurs-metiers-intro'] = AIDE_PAGES['un-cv-plusieurs-metiers'];
 // Page « Le complément de votre CV » (route complement-cv) : une aide guidee, comme toutes les pages routees (essai « aide »).
 AIDE_PAGES['complement-cv'] = [
-  { selecteur: 'h1', icone: '<i class="bi bi-plus-circle"></i>', titre: 'Le complément de votre CV',
+  { selecteur: 'h1', icone: '&#10133;', titre: 'Le complément de votre CV',
     texte: 'L’assistant propose parfois de compléter votre CV (missions de vos formations, de vos certifications). Vous pouvez importer sa réponse maintenant, ou passer : votre CV est déjà prêt.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Le complément reste importable plus tard depuis la page de création du CV.' }
 ];
 // Pages qui n'avaient aucune aide (inventaire du 2026-10-15, docs/CHANTIER_AIDE_A_JOUR.md).
+AIDE_PAGES['fiche-metier'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-file-earmark-person"></i>', titre: 'La fiche du métier',
+    texte: 'Cette page présente le métier que vous avez choisi : comment y accéder, ce qu’on y fait au quotidien, les qualités et les connaissances demandées. Rien n’est à remplir ici.' },
+  { selecteur: '#btnFicheCandidater', icone: '<i class="bi bi-send"></i>', titre: 'Candidater pour ce métier',
+    texte: 'Quand vous êtes prêt, ce bouton ouvre la préparation de vos documents (CV, lettre ou entretien) pour ce métier. Rien n’est envoyé à quelqu’un.' },
+  { selecteur: '.fm-colonnes', icone: '&#127912;', titre: 'Les trois couleurs',
+    texte: 'Vert : les qualités personnelles. Bleu : le savoir-faire. Bleu clair : les connaissances. Ce sont des listes à lire, pas des boutons.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant, « Accueil » ramène à l’écran de départ.' }
+];
 AIDE_PAGES['candidater'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-send"></i>', titre: 'Candidater',
     texte: 'Cet écran prépare vos documents pour le métier ou le secteur que vous venez de choisir. Trois petits blocs à remplir, dans l’ordre, puis on passe à la préparation. Rien n’est envoyé à quelqu’un.' },
@@ -41098,17 +42890,34 @@ AIDE_PAGES['candidater'] = [
   { selecteur: '[data-cand-continuer]', icone: '&#9193;', titre: 'Continuer',
     texte: 'Ce bouton s’active quand les trois blocs sont complétés. Son nom s’adapte à votre situation : « Continuer », « Créer mon CV » ou « Mettre à jour mon CV ».' },
   { selecteur: '[data-cand-retour]', icone: '&#8617;&#65039;', titre: 'Retour à la recherche',
-    texte: 'Revient à votre recherche sans perdre ce que vous venez de choisir. « Changer », à côté du métier, permet d’en prendre un autre.' }
+    texte: 'Revient à votre recherche sans perdre ce que vous venez de choisir. « Changer », à côté du métier, permet d’en prendre un autre.' },
+  // Nouvel écran (consigne 273) : ces éléments n'existent que sur lui ; les entrées ci-dessus, propres à l'ancien écran, sont ignorées là.
+  { selecteur: '.candidater-page .barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'Cette ligne montre les temps du parcours : ce que vous préparez, votre objectif, votre CV, puis l’assistant.' },
+  { selecteur: '#candVoirFiche', icone: '<i class="bi bi-file-earmark-person"></i>', titre: 'Voir la fiche du métier',
+    texte: 'Ouvre la description du métier. « Retour » vous ramène ici, avec tous vos choix gardés.' },
+  { selecteur: '#candMetiersSecteur', icone: '<i class="bi bi-list-ul"></i>', titre: 'Voir les métiers de ce secteur',
+    texte: 'Ouvre la liste de tous les métiers du secteur. Vous lisez la fiche de celui qui vous intéresse, puis « Retour » vous ramène ici.' },
+  { selecteur: '#candChanger', icone: '&#128260;', titre: 'Chercher un autre métier',
+    texte: 'Ouvre une page de recherche : vous tapez le nom, la liste se réduit dès les premières lettres. Vos choix sont alors remis à zéro.' },
+  { selecteur: '[data-cand-prep]', icone: '&#128221;', titre: 'Ce que vous préparez',
+    texte: 'Choisissez le document dont vous avez besoin maintenant : votre CV, votre lettre de motivation ou votre entretien. Pour la lettre et l’entretien, vous dites aussi si vous voulez la version rapide ou l’échange avec l’assistant.' },
+  { selecteur: '[data-cand-cv]', icone: '&#128196;', titre: 'Votre CV',
+    texte: 'Dites si vous avez déjà un CV. Sans CV, choisissez comment le créer. Avec un CV, dites si vous voulez le mettre à jour : la façon de le reprendre se choisit après son dépôt.' },
+  { selecteur: '#candBlocObjectif', icone: '&#127919;', titre: 'Votre objectif',
+    texte: 'Dites pourquoi vous préparez ce document : une offre, une candidature spontanée, un changement de métier, un stage, une alternance ou une formation. Les questions qui s’affichent ensuite sont les mêmes que dans la suite du parcours : vous n’aurez pas à les redonner.' },
+  { selecteur: '#btnSuivantNavigation', icone: '&#9193;', titre: 'Continuer',
+    texte: 'Ce bouton s’active quand tout est choisi. La phrase à côté dit ce qui reste à faire.' }
 ];
 AIDE_PAGES['creer-cv'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'Créer un nouveau CV',
     texte: 'On part d’une page blanche. Trois façons de faire : à la main, avec l’assistant en ligne, ou à partir de votre récit. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
-  { selecteur: '#btnCreerCvSansAssistant', icone: '<i class="bi bi-pencil"></i>', titre: 'Les trois parcours',
-    texte: '« À la main » : vous écrivez tout vous-même, rien n’est envoyé. « Avec l’assistant en ligne » : il vous aide à formuler vos informations. « À partir de mon récit » : vous racontez ce que vous avez vécu, l’assistant en tire vos expériences et vos compétences. Un clic sur une carte ouvre la présentation du parcours, avec le bouton pour commencer.' },
+  { selecteur: '#btnCreerCvAvecAssistant, #btnCreerCvRecit, #btnCreerCvSansAssistant', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Les trois façons de faire',
+    texte: 'Voie 1, « Avec l’assistant en ligne » : il vous aide à formuler vos informations. Voie 2, « À partir de mon récit » : vous racontez ce que vous avez vécu, l’assistant en tire vos expériences et vos compétences. Voie 3, « À la main » : vous écrivez tout vous-même, rien n’est envoyé. Chaque voie a sa vidéo, et son bouton vous mène directement dans le parcours ; « Revoir la présentation », dans le parcours, rouvre la page de la voie.' },
   { selecteur: '#blocMgVoirModeles', icone: '<i class="bi bi-grid-1x2"></i>', titre: 'Voir nos modèles',
     texte: 'Regardez nos modèles de CV avant de remplir quoi que ce soit, et gardez jusqu’à 5 modèles : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.' },
-  { selecteur: '#btnCreerCvRecitContinuer, #btnCreerCvContinuer, #btnCreerCvReprendre', icone: '&#9193;', titre: 'Continuer ou recommencer',
-    texte: 'Si vous avez déjà commencé un parcours, il n’y en a qu’un à la fois : « Continuer » reprend là où vous en étiez, « Recommencer » repart de zéro après confirmation, et les trois parcours reviennent.' },
+  { selecteur: '#btnCreerCvRecitContinuer, #btnCreerCvContinuer, #btnCreerCvReprendre', icone: '&#9193;', titre: 'Reprendre ou recommencer',
+    texte: 'Si vous avez déjà commencé un parcours, il n’y en a qu’un à la fois : « Reprendre » reprend là où vous en étiez, « Recommencer » repart de zéro après confirmation, et les trois parcours reviennent.' },
   { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Les étapes',
     texte: 'Cette barre montre le chemin complet. Elle sert de repère : on avance avec « Continuer », sans rien envoyer sans votre accord.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
@@ -41118,7 +42927,7 @@ AIDE_PAGES['creer-cv-main'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-pencil"></i>', titre: 'Créer mon CV à la main',
     texte: 'Vous écrivez vous-même vos informations, étape par étape, sans assistant en ligne : rien n’est envoyé nulle part et vos textes restent exactement les vôtres. Cette page explique ce qui va se passer.' },
   { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
-    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Reprendre » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
 ];
@@ -41126,7 +42935,7 @@ AIDE_PAGES['creer-cv-assistant'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Créer mon CV avec l’assistant en ligne',
     texte: 'Vous remplissez vos informations, puis un assistant en ligne vous aide à les formuler : phrase d’accroche, missions reformulées. Cette page explique ce qui va se passer.' },
   { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
-    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Reprendre » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
 ];
@@ -41492,12 +43301,15 @@ var _visiteGuideeEtapes = [];
 function aideTexte(e) { return typeof e.texte === 'function' ? e.texte() : e.texte; }
 
 function demarrerVisiteGuideePage() {
+  // Boutons repliables (consigne 332) : la visite doit pouvoir montrer les boutons du haut ; ils sortent le temps de la visite, puis le choix de la personne est remis.
+  if (typeof boutonsRepliablesPreparerVisite === 'function') { boutonsRepliablesPreparerVisite(); }
   var contexteFenetre = detecterFenetreAideActive();
   var source = contexteFenetre ? (AIDE_FENETRES[contexteFenetre] || []) : (AIDE_PAGES[pageActuelle] || []);
   var etapes = source.filter(function (e) {
     return e.selecteur && document.querySelector(e.selecteur);
   });
   if (!etapes.length) {
+    if (typeof boutonsRepliablesRestaurerApresVisite === 'function') { boutonsRepliablesRestaurerApresVisite(); }
     // TACHE (retour utilisateur : bug -- "rien a proposer" effacait la
     // fenetre deja ouverte (choix metier/pistes...) au lieu de ne rien
     // faire") : ouvrirFenetreERIP() remplace TOUJOURS la fenetre existante
@@ -41643,6 +43455,7 @@ function terminerVisiteGuidee() {
     if (el) { el.remove(); }
   });
   _visiteGuideeEtapes = [];
+  if (typeof boutonsRepliablesRestaurerApresVisite === 'function') { boutonsRepliablesRestaurerApresVisite(); }
 }
 
 // TACHE (retour utilisateur : bouton d'aide toujours visible, meme
@@ -41883,8 +43696,10 @@ function _ajusterBoutonRetourModuleExterne() {
   // avec 16 px d'espace entre les deux (sur téléphone, la feuille de style le place ailleurs : on ne touche pas à `right`).
   var intro = document.getElementById('btnIntroduction');
   bouton.style.left = '';
-  if (window.innerWidth > 768 && intro && !intro.hidden && intro.getBoundingClientRect().width > 0) {
-    bouton.style.right = Math.round(document.documentElement.clientWidth - intro.getBoundingClientRect().left + 16) + 'px';
+  // Boutons repliables (consigne 332) : quand « Introduction » est rangé derrière sa flèche, le bouton se place à côté de la flèche (qui reste en place).
+  var repere = (document.body.classList.contains('repli-intro') && document.getElementById('flecheIntroduction')) || intro;
+  if (window.innerWidth > 768 && intro && !intro.hidden && repere.getBoundingClientRect().width > 0) {
+    bouton.style.right = Math.round(document.documentElement.clientWidth - repere.getBoundingClientRect().left + 16) + 'px';
   } else {
     bouton.style.right = ''; bouton.style.left = '';
     // Téléphone : quand la bande « Autres mots de la page » est en haut de la fiche (Lexique, modules/lexique), le bouton se place juste sous « Introduction » au lieu de recouvrir la bande ; sans bande, sa place habituelle.
@@ -42175,6 +43990,7 @@ document.addEventListener('DOMContentLoaded', function () {
 if (typeof module !== 'undefined') {
   module.exports = {
     signatureExpPersoEtEngagements: signatureExpPersoEtEngagements,
+    signatureProfilAssistant: signatureProfilAssistant,
     hslVersHex: hslVersHex,
     // TACHE (module Bilan de candidature, couche diagnostic/) : reutilisee
     // par diagnosticResponseParser.js -- exportee ici pour que les tests

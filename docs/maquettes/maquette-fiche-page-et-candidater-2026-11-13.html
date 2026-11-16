@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la fiche du métier sur la page et l'écran Candidater</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 960px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: .8rem; font-size: .92rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .92rem; background: var(--bg-subtle); }
+  .info-denis strong { color: var(--accent-texte); }
+  .info-denis ul { margin: .3rem 0 0; padding-left: 1.1rem; }
+  .onglets-ecrans { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet-ecran { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet-ecran[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .ecran { border: 1px solid var(--border); border-radius: 16px; background: var(--bg-page, #fff); padding: 1rem 1.1rem 1.3rem; }
+  .ecran h1 { font-size: 1.8rem; font-weight: 800; text-align: center; margin: .3rem 0 .2rem; }
+  .lettrine { font-size: 1.45em; font-weight: 800; color: inherit; line-height: 1; }
+  #ecran3 h1 { color: var(--accent-texte); margin: 2.2rem 0 1.3rem; }
+  #ecran3 .metier-ligne { margin: 0 0 1.6rem; }
+  #ecran3 .metier-ligne .nom { color: var(--text-strong); }
+  .sous-titre-page { text-align: center; color: var(--text-muted); margin-bottom: 1rem; }
+  .rubrique { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); margin-bottom: .9rem; overflow: hidden; }
+  .rubrique-tete { display: flex; gap: .6rem; align-items: center; padding: .65rem 1rem; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.1rem; }
+  .rubrique-corps { padding: .8rem 1rem; }
+  .num { flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; }
+  .rassurant { border-left: 4px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .6rem .9rem; }
+  .rangee-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 1rem; justify-content: center; }
+  .trois-colonnes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+  @media (max-width: 720px) { .trois-colonnes { grid-template-columns: 1fr; } }
+  .colonne-comp { border: 1px solid var(--border); border-radius: 12px; padding: .6rem .8rem; background: var(--bg-subtle); }
+  .colonne-comp h4 { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: .5rem; margin: 0 0 .3rem; }
+  .colonne-comp .aide { font-size: .85rem; color: var(--text-muted); margin-bottom: .3rem; }
+  .colonne-comp ul { margin: 0; padding-left: 1.1rem; }
+  .point-couleur { width: .95rem; height: .95rem; border-radius: 50%; display: inline-block !important; padding: 0 !important; flex: 0 0 auto; }
+  .liste-simple { margin: 0; padding-left: 1.2rem; }
+  .barre-navigation-maq { margin-top: 1rem; }
+  .champ-recherche { max-width: 560px; margin: .5rem auto; display: flex; align-items: center; gap: .6rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; padding: .55rem 1rem; background: var(--bg-card); }
+  .resultats { max-width: 560px; margin: .4rem auto; border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); overflow: hidden; }
+  .resultats .groupe { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); padding: .5rem 1rem .2rem; }
+  .resultats button.ligne { display: block; width: 100%; text-align: left; padding: .6rem 1rem; border: 0; border-top: 1px solid var(--border); background: transparent; color: var(--text-strong); font-weight: 600; min-height: 46px; }
+  .resultats button.ligne:hover, .resultats button.ligne:focus-visible { background: var(--accent-bg-subtle); }
+  .jeton-m { min-height: 44px; padding: .3rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; }
+  .jeton-m[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .encart { margin-top: .7rem; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); }
+  .metier-ligne { display: flex; align-items: center; justify-content: center; gap: .8rem; flex-wrap: wrap; margin: .2rem 0 1rem; }
+  .metier-ligne .nom { font-size: 1.5rem; font-weight: 800; }
+  .encart-maq { display: flex; gap: .7rem; align-items: flex-start; padding: .7rem .9rem; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--accent-bg-subtle); }
+  .encart-maq > .bi { font-size: 1.2rem; color: var(--accent-texte); margin-top: .1rem; }
+  #ecran3 .bloc-depli-corps > .grille-objectif:first-child { margin-top: .7rem; }
+  .fm-aide-maq { font-size: .875rem; color: var(--text-muted); margin: 0; }
+  .variantes label { display: block; padding: .3rem .5rem; border-radius: 8px; cursor: pointer; }
+  .variantes label:has(input:checked) { background: var(--accent-bg-subtle); }
+  .recap-ligne { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding: .45rem 0; border-top: 1px solid var(--border); }
+  .recap-ligne:first-of-type { border-top: 0; }
+  .recap-ligne .texte { flex: 1 1 14rem; }
+  .bloc-arrivee { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); padding: .8rem 1rem; margin-bottom: .9rem; }
+  .bloc-arrivee h2 { font-size: 1.1rem; font-weight: 800; margin: 0 0 .4rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette pour validation.</strong> Rien n'est codé dans l'application. Elle montre le parcours complet : <strong>1.</strong> la recherche, <strong>2.</strong> la fiche du métier sur une page, <strong>3.</strong> l'écran « Candidater » mis à jour, <strong>4.</strong> comment revenir depuis l'accueil. Les boutons fonctionnent pour que vous puissiez essayer. Les fiches sont les vraies données.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Mode sombre</label>
+    <label>Métier de démonstration :
+      <select id="choixMetier" class="form-select form-select-sm d-inline-block w-auto"></select>
+    </label>
+  </div>
+
+  <div class="onglets-ecrans" role="tablist">
+    <button type="button" class="onglet-ecran" role="tab" data-ecran="1" aria-selected="true">1. La recherche</button>
+    <button type="button" class="onglet-ecran" role="tab" data-ecran="2" aria-selected="false">2. La fiche du métier</button>
+    <button type="button" class="onglet-ecran" role="tab" data-ecran="3" aria-selected="false">3. Candidater</button>
+    <button type="button" class="onglet-ecran" role="tab" data-ecran="4" aria-selected="false">4. Revenir depuis l’accueil</button>
+    <button type="button" class="onglet-ecran" role="tab" data-ecran="5" aria-selected="false">5. Arrivée dans le module</button>
+  </div>
+  <div class="info-denis" id="infoEcran"></div>
+
+  <!-- 1. LA RECHERCHE -->
+  <div class="ecran" id="ecran1">
+    <h1>Par où voulez-vous commencer ?</h1>
+    <p class="sous-titre-page">Choisissez votre point de départ.</p>
+    <div class="champ-recherche"><i class="bi bi-search" aria-hidden="true"></i><span id="texteTape" class="text-muted"></span></div>
+    <div class="resultats" id="resultats"></div>
+  </div>
+
+  <!-- 2. LA FICHE DU MÉTIER -->
+  <div class="ecran" id="ecran2" hidden>
+    <h1><span id="titreFiche"></span></h1>
+    <div class="rangee-actions">
+      <button type="button" class="btn btn-primary" id="btnCandidaterFiche"><i class="bi bi-send" aria-hidden="true"></i> Candidater pour ce métier</button>
+      <a class="btn btn-outline-secondary" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Fiche complète sur France Travail</a>
+    </div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">1</span> Comment y accéder</div><div class="rubrique-corps"><div class="rassurant" id="acces"></div></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">2</span> Ce que fait ce métier</div><div class="rubrique-corps"><p id="presentation"></p><ul class="liste-simple" id="missions"></ul></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">3</span> Les tâches concrètes</div><div class="rubrique-corps">
+      <p class="small text-muted" id="resteTaches"></p><div id="taches"></div>
+      <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="btnAutres" aria-expanded="false">Voir les autres tâches</button>
+      <div id="autres" hidden></div></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">4</span> Ce que ce métier demande</div><div class="rubrique-corps">
+      <p class="small text-muted mb-2">Les couleurs sont les mêmes partout dans l’application. Ces listes sont là pour vous renseigner : elles ne sont pas à cliquer.</p>
+      <div class="trois-colonnes" id="troisCol"></div></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">5</span> Outils, techniques et connaissances</div><div class="rubrique-corps"><div id="savoirsRome"></div></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">6</span> Ce métier s’appelle aussi</div><div class="rubrique-corps"><ul class="liste-simple" id="appellations"></ul></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">7</span> Des métiers proches</div><div class="rubrique-corps"><p class="small text-muted mb-1">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p><ul class="liste-simple" id="proches"></ul></div></div>
+    <div class="rubrique"><div class="rubrique-tete"><span class="num">8</span> À savoir sur ce métier</div><div class="rubrique-corps"><p class="small text-muted mb-0">Le bloc « À savoir » qui existe déjà (conditions de travail, statuts possibles) s’affiche ici, tel quel.</p></div></div>
+    <div class="text-center mt-3"><p class="fm-aide-maq">Pas encore décidé ? Mettez ce métier de côté ou comparez-le à d’autres pistes.</p><div class="rangee-actions" style="margin-top:.3rem"><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-signpost-split" aria-hidden="true"></i> Comparer cette piste</button><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-bookmark-star" aria-hidden="true"></i> Garder comme Repère</button></div></div>
+    <div class="d-flex justify-content-between align-items-center barre-navigation-maq">
+      <button class="btn btn-nav-erip btn-lg" id="retourFiche">&#8592; Retour</button>
+      <button class="btn btn-nav-erip btn-accueil" id="accueilFiche"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>
+      <button class="btn btn-primary btn-lg" id="candidaterBas">Continuer &#8594;</button>
+    </div>
+  </div>
+
+  <!-- 3. CANDIDATER -->
+  <div class="ecran bilan-preparer" id="ecran3" hidden>
+    <div class="info-denis variantes" id="choixVariante"><strong>Pour comparer (maquette seulement) :</strong> les quatre options ne changent que le bloc « CV » plus bas. Choisissez « Mon CV », puis essayez chaque option, et regardez l’onglet 5 pour voir où la personne arrive.
+      <div class="mt-2">
+        <label><input type="radio" name="variante" value="D" checked> <strong>Mélange (recommandé)</strong> : pour créer, les trois façons de faire se choisissent ici ; pour reprendre, la voie se choisit après le dépôt du CV.</label>
+        <label><input type="radio" name="variante" value="A"> <strong>Option 3</strong> : seuls les objectifs sont préremplis ; tout le reste du CV se choisit dans le module.</label>
+        <label><input type="radio" name="variante" value="B"> <strong>Option 1</strong> : « avec » ou « sans l’assistant » ici ; la variante fine se choisit dans le module.</label>
+        <label><input type="radio" name="variante" value="C"> <strong>Option 2</strong> : toutes les voies se choisissent ici, pour créer comme pour reprendre.</label>
+      </div>
+      <div id="resumeVariante" class="mt-2"></div>
+    </div>
+    <div class="barre-etapes-bilan d-flex justify-content-center align-items-center" id="barreEtapes"></div>
+    <h1><i class="bi bi-send" aria-hidden="true"></i> Candidater</h1>
+    <div class="metier-ligne"><span class="nom" id="nomCandidater"></span><button type="button" class="btn btn-sm btn-outline-primary" id="btnVoirFiche"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche du métier</button><button type="button" class="btn btn-sm btn-outline-secondary" id="btnChangerMetier">Changer de métier</button></div>
+
+    <details class="bloc-depli" open>
+      <summary><span class="preparer-num">1</span><span class="preparer-titre">Que voulez-vous préparer ?</span><span class="pilule-etat pe-info" id="pil1">À choisir</span></summary>
+      <div class="bloc-depli-corps">
+        <div class="grille-objectif" id="cartesPrepare"></div>
+        <div id="zoneManiere" hidden>
+          <p class="mt-3 mb-2"><strong id="questManiere"></strong></p>
+          <div class="grille-objectif grille-objectif--deux" id="cartesManiere"></div>
+        </div>
+      </div>
+    </details>
+    <div class="liaison-blocs"><span class="liaison-blocs-fleche" aria-hidden="true">&#8595;</span><p><strong>Ce qui se passe ensuite.</strong> Votre objectif sert à cibler le document que vous venez de choisir.</p></div>
+
+    <details class="bloc-depli" open>
+      <summary><span class="preparer-num">2</span><span class="preparer-titre">Votre objectif</span><span class="pilule-etat pe-info" id="pil2">À choisir</span></summary>
+      <div class="bloc-depli-corps">
+        <div class="grille-objectif" id="cartesObjectif"></div>
+        <div id="cadrageObjectif" hidden></div>
+      </div>
+    </details>
+
+    <div id="zoneCv" hidden>
+      <div class="liaison-blocs"><span class="liaison-blocs-fleche" aria-hidden="true">&#8595;</span><p><strong>Ce qui se passe ensuite.</strong> Première question : avez-vous déjà un CV ? La réponse décide par où commencer.</p></div>
+      <details class="bloc-depli" open>
+        <summary><span class="preparer-num">3</span><span class="preparer-titre">Avez-vous déjà un CV ?</span><span class="pilule-etat pe-info" id="pil3">À choisir</span></summary>
+        <div class="bloc-depli-corps">
+          <div class="grille-objectif grille-objectif--deux" id="cartesCv"></div>
+          <div id="zoneVoieCreer" hidden><p class="mt-3 mb-2"><strong id="questVoieCreer"></strong></p><div class="grille-objectif" id="cartesVoieCreer"></div></div><div id="zoneMaj" hidden>
+            <p class="mt-3 mb-2"><strong id="questMaj">Voulez-vous le mettre à jour ?</strong></p>
+            <div class="grille-objectif grille-objectif--deux" id="cartesMaj"></div><div id="zoneVoieMaj" hidden><p class="mt-3 mb-2"><strong id="questVoieMaj"></strong></p><div class="grille-objectif grille-objectif--deux" id="cartesVoieMaj"></div></div><div class="encart-maq mt-3" id="noteVoieApres" hidden><i class="bi bi-info-circle" aria-hidden="true"></i><div>Après le dépôt de votre CV, vous choisirez comment le reprendre : le garder et le compléter, le reformuler, ou refaire seulement sa mise en page sans l’assistant. Vous pourrez en changer sans le redéposer.</div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="encart-maq mt-3" id="noteCv" hidden><i class="bi bi-file-earmark-person" aria-hidden="true"></i><div><strong>Votre CV vous sera demandé à l’étape suivante.</strong> Si vous n’en avez pas encore, vous pourrez le créer d’abord : un bouton « Je n’ai pas de CV » vous y conduira.</div></div>
+
+    <div class="d-flex justify-content-between align-items-center barre-navigation-maq" style="position:relative">
+      <button class="btn btn-nav-erip btn-lg">&#8592; Retour</button>
+      <button class="btn btn-primary btn-lg" id="continuerCand" disabled>Continuer &#8594;</button>
+      <span class="barre-raison-suivant" id="raisonCand" role="status" style="position:absolute;right:0;bottom:3.6rem;">Il reste à choisir ce que vous voulez préparer et votre objectif.</span>
+    </div>
+  </div>
+
+  <!-- 5. ARRIVÉE DANS LE MODULE -->
+  <div class="ecran bilan-preparer" id="ecran5" hidden>
+    <h1>Arrivée dans le module</h1>
+    <p class="sous-titre-page">Ce que la personne voit après « Continuer », avec l’option choisie dans l’onglet 3.</p>
+    <div id="contenuArrivee"></div>
+  </div>
+
+  <!-- 4. REVENIR DEPUIS L'ACCUEIL -->
+  <div class="ecran" id="ecran4" hidden>
+    <h1>Par où voulez-vous commencer ?</h1>
+    <p class="sous-titre-page">Choisissez votre point de départ.</p>
+    <div class="champ-recherche"><i class="bi bi-search" aria-hidden="true"></i><span class="text-muted">Rechercher un métier, un domaine d’activité, une compétence...</span></div>
+    <div class="cv-section mt-3" style="background:var(--accent-bg-subtle);border-left:4px solid var(--accent);border-radius:12px;padding:1.1rem 1.3rem;max-width:760px;margin-left:auto;margin-right:auto;">
+      <p class="mb-2" style="font-size:1.05rem;"><strong>Vous avez commencé à préparer une candidature : <span id="nomReprise"></span>.</strong></p>
+      <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-primary" id="btnReprendreMaq">Reprendre</button><button type="button" class="btn btn-recommencer-module">Recommencer</button></div>
+    </div>
+    <p class="small text-muted text-center mt-3">Les six cartes de l’accueil s’affichent en dessous, comme aujourd’hui.</p>
+  </div>
+</div>
+
+<script>
+var DONNEES = {"A1101":{"nom":"Conducteur d'engins agricoles","niveau":1,"d":"Réalise des travaux agricoles mécanisés.","m":["Aménage et prépare les terrains, assure le labourage, le désherbage, les semis et récolte la production.","Utilise différentes machines (tracteur, moissonneuse-batteuse, ensileuse) et en assure l’entretien et la maintenance de premier niveau."],"a":"Cet emploi est accessible sans diplôme particulier. Un CAPA ou un Bac pro dans le domaine agricole ou le certificat de spécialisation option \"Tracteurs et machines agricoles\" ainsi que différents CACES sont cependant appréciés, même s’il est possible de les obtenir en cours d’emploi.","app":["Chauffeur / Chauffeuse de machines agricoles","Conducteur / Conductrice de tracteur","Conducteur / Conductrice de machines à vendanger","Conducteur / Conductrice d'engins d'exploitation agricole","Tractoriste agricole","Conducteur / Conductrice d'automoteur de récolte","Conducteur / Conductrice de pulvérisateur"],"proches":["Conducteur / Conductrice d'engins d'exploitation forestière","Ouvrier / Ouvrière d'entretien des espaces naturels","Bûcheron / Bûcheronne","Horticulteur / Horticultrice","Sylviculteur / Sylvicultrice"],"k":[{"simple":"Cultiver et récolter","coeur":3,"rome":["Préparer les sols, les plantations (épandage, semis, etc.)","Récolter un produit à maturité et selon les consignes de calibrage","Effectuer des opérations agricoles (semis, récoltes)","Surveiller l’état d’une plantation"]},{"simple":"Conduire un véhicule sur la route","coeur":1,"rome":["Conduire un véhicule agricole","Conduire un poids lourd"]},{"simple":"Analyser et organiser des données","coeur":0,"rome":["Traiter une information météorologique recueillie"]},{"simple":"Préparer et planifier la production","coeur":1,"rome":["Planifier une opération de semis, de traitement ou de récolte sur un site d’exploitation"]},{"simple":"Mesurer, doser et ajuster","coeur":0,"rome":["Préparer des mélanges de produits de synthèse"]},{"simple":"Appliquer un traitement ou un produit","coeur":1,"rome":["Réaliser des opérations de traitement hydrofuge, insecticide, fongicide, pesticide"]},{"simple":"Utiliser et régler une machine d'impression","coeur":1,"rome":["Régler les systèmes hydrauliques des machines agricoles"]},{"simple":"Aménager et agencer un espace","coeur":0,"rome":["Réaliser des travaux d’aménagement"]},{"simple":"Entretenir un espace naturel ou une forêt","coeur":0,"rome":["Débroussailler une plantation et ses chemins d’accès"]},{"simple":"Entretenir un équipement, une machine ou une installation","coeur":0,"rome":["Entretenir les mécanismes d’un engin motorisé"]},{"simple":"Nettoyer et entretenir du matériel","coeur":0,"rome":["Maintenir le véhicule en bon état de propreté et de fonctionnement"]},{"simple":"Faire une opération de maintenance","coeur":0,"rome":["Assurer la maintenance préventive de base des équipements"]},{"simple":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","coeur":0,"rome":["Contrôler le fonctionnement d’un dispositif de sécurité"]},{"simple":"Repérer, prévenir et gérer les risques","coeur":0,"rome":["Pratiquer des gestes et postures de manutention en toute sécurité"]},{"simple":"Gérer les stocks","coeur":0,"rome":["Stocker un produit"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Méthodes de conservation de la biodiversité","Techniques de pressage","Techniques de fauchage"]},{"cat":"Outils, machines et matières","coeur":1,"libs":["Fonctionnement des engins agricoles","Utilisation de produits phytosanitaires"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Cadre réglementaire environnemental","Règles de sécurité","Réglementation phytosanitaire","Réglementation sur le stockage de produits spécifiques (dangereux, sous température dirigée, phytosanitaire, ...)","Maintenance de base des engins de manutention","Maintenance préventive de matériel agricole","Procédés de préparation des mélanges"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Techniques culturales","Gestes et postures de manutention","Caractéristiques des écosystèmes","Agronomie","Installation de systèmes hydrauliques","Mise à jour des connaissances en mécanique","Pneumatique","Système informatique (embarqué ou fixe)","Techniques de moissonnage","Biologie des végétaux"]}],"savoirEtre":["Autonomie","Rigueur","Adaptabilité"],"savoirFaire":["Conduite","Maintenance","Travail manuel"],"savoirs":["Matériel agricole","Règles de sécurité"]},"M1810":{"nom":"Technicien d'exploitation informatique","niveau":2,"d":"Le Technicien d’exploitation informatique assure le bon fonctionnement des systèmes informatiques.","m":["Supervise et maintient l’infrastructure informatique en condition opérationnelle","Assure l’installation, la configuration et la mise à jour des systèmes et logiciels","Gère les sauvegardes et la sécurité des données","Fournit un support technique aux utilisateurs et résout les incidents","Optimise les performances des systèmes informatiques","Documente les procédures techniques et forme les utilisateurs aux nouveaux outils"],"a":"Ce métier est accessible avec un diplôme de niveau Bac + 2 BTS, DUT.","app":["Adjoint / Adjointe d'exploitation informatique","Adjoint(e) technicien(ne) d'exploitation informatique","Agent / Agente de planning informatique","Agent / Agente d'exploitation informatique","Analyste d'exploitation","Assistant / Assistante d'exploitation informatique","Chef / Cheffe d'équipe de production informatique"],"proches":["Spécialiste support","Responsable de la production informatique","Administrateur / Administratrice sécurité informatique","Gestionnaire de parc informatique","Responsable d'exploitation fibre optique"],"k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Installer et intégrer le matériel (station, équipement réseau, périphériques, ...) dans l’environnement de production et configurer les ressources logistiques et physiques","Gérer et déployer des logiciels à distance","Mettre en place des solutions de virtualisation"]},{"simple":"Administrer un système informatique","coeur":2,"rome":["Gérer les droits d’accès des utilisateurs","Planifier les mises à jour systèmes sans interruption de service"]},{"simple":"Trouver l'origine d'une panne","coeur":1,"rome":["Diagnostiquer la nature et l’origine des incidents et mettre en oeuvre les mesures correctives","Agir rapidement en cas de panne pour minimiser les interruptions"]},{"simple":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","coeur":0,"rome":["Surveiller le fonctionnement d’applicatifs et logiciels","Surveiller les systèmes de réseau pour garantir leur fonctionnement optimal"]},{"simple":"Aider les utilisateurs à prendre en main un outil","coeur":0,"rome":["Former les utilisateurs aux nouvelles technologies"]},{"simple":"Analyser un problème et le résoudre","coeur":0,"rome":["Résoudre les problèmes techniques de niveau avancé"]},{"simple":"Se tenir au courant des évolutions de son domaine","coeur":0,"rome":["Assurer la veille technologique pour rester à jour sur les innovations"]},{"simple":"Développer un logiciel ou une application","coeur":0,"rome":["Développer des scripts pour automatiser les tâches"]},{"simple":"Utiliser des solutions d'analyse avancée des données","coeur":0,"rome":["Exploiter l’Intelligence Artificielle"]},{"simple":"Gérer une base de données","coeur":1,"rome":["Mettre en place des solutions de sauvegarde et de récupération des données"]},{"simple":"Gérer un parc de machines, d'équipements ou de locaux","coeur":0,"rome":["Gérer un parc informatique"]},{"simple":"Mettre en place et appliquer des consignes de sécurité","coeur":0,"rome":["Assurer la sécurité des réseaux informatiques"]},{"simple":"Contrôler la qualité des façons de travailler","coeur":1,"rome":["Assurer la conformité des opérations de maintenance"]},{"simple":"Recueillir et comprendre les besoins d'un client","coeur":0,"rome":["Analyser les besoins des utilisateurs pour le système informatique"]},{"simple":"Piloter une activité","coeur":0,"rome":["Superviser et organiser les travaux d’exploitation ou de production informatique"]},{"simple":"Mettre en place des solutions pour mieux travailler","coeur":1,"rome":["Optimiser les performances des réseaux informatiques"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Diagnostic de pannes"]},{"cat":"Outils, machines et matières","coeur":0,"libs":["Installation de composants matériels"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Normes et standards d’exploitation","Protection des données numériques","Mise en place de politiques de sécurité informatique"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Audit de sécurité informatique","Optimisation des performances des serveurs","Gestion des comptes utilisateurs","Surveillance de la performance des systèmes","Analyse de logs système","Configuration de logiciels de réseau","Gestion des sauvegardes et des restaurations"]}],"savoirEtre":["Autonomie","Organisation","Rigueur","Esprit d'analyse"],"savoirFaire":["Informatique","Maintenance","Diagnostic","Utilisation de machines","Gestion de projet","Pilotage d'activité"],"savoirs":["Diagnostic de pannes","Normes et standards d'exploitation","Protection des données numériques","Mise en place de politiques de sécurité informatique","Audit de sécurité informatique","Optimisation des performances des serveurs"]},"M1805":{"nom":"Développeur informatique","niveau":3,"d":"Le Développeur informatique conçoit et améliore des systèmes informatiques.","m":["Conçoit et développe des applications informatiques selon les besoins des utilisateurs","Participe à l’analyse des besoins des clients et propose des solutions techniques adaptées","Rédige des documentations techniques et des guides d’utilisation pour les applications développées","Assure la maintenance et la mise à jour des systèmes pour garantir leur efficacité et leur sécurité","Collabore avec des équipes multidisciplinaires pour intégrer de nouvelles technologies et améliorer les processus de développement","Effectue des tests et des validations pour s’assurer de la qualité et de la performance des applications"],"a":"Également avec le TP Développeur web et web mobile (DWWM) si enrichi d’une expérience de la relation client.","app":["Analyste développeur / Analyste développeuse","Analyste-programmeur(se) gestion informatique","Analyste-programmeur / Analyste-programmeuse informatique","Analyste-programmeur(se) scientifique informatique","Développeur / Développeuse informatique","Informaticien / Informaticienne de développement","Programmeur / Programmeuse de maintenance informatique"],"proches":["Expert / Experte systèmes et réseaux informatiques","Directeur / Directrice des systèmes d'information (DSI)","Technicien / Technicienne d'exploitation informatique","Responsable de la Sécurité des Systèmes d'Information (RSSI)","Ingénieur / Ingénieure d'étude informatique"],"k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Tester un logiciel, un système d’informations, une application","Gérer les versions de logiciels et leurs mises à jour","Déployer le code de façon conteneurisée"]},{"simple":"Développer un logiciel ou une application","coeur":2,"rome":["Développer une application en lien avec une base de données","Réaliser des études et développements informatiques","Collaborer avec les développeurs pour améliorer la qualité du logiciel"]},{"simple":"Se tenir au courant des évolutions de son domaine","coeur":0,"rome":["Surveiller les tendances du marché digital"]},{"simple":"Administrer un système informatique","coeur":0,"rome":["Piloter les fonctionnalités des équipements et systèmes de sécurité informatique"]},{"simple":"Concevoir un logiciel ou une application","coeur":1,"rome":["Concevoir une application web"]},{"simple":"Utiliser les données dans le travail de l'entreprise","coeur":0,"rome":["Intégrer des outils intelligence artificielle et Data Science"]},{"simple":"Analyser une situation et en tirer un constat","coeur":1,"rome":["Analyser les besoins informatiques"]},{"simple":"Gérer une base de données","coeur":0,"rome":["Gérer et maitriser des bases de données (SQL/NoSQL)"]},{"simple":"Tenir à jour une documentation technique","coeur":0,"rome":["Maintenir à jour la documentation technique et les manuels d’utilisation"]},{"simple":"Mettre en place et appliquer des consignes de sécurité","coeur":1,"rome":["Concevoir et maintenir un système de cybersécurité"]},{"simple":"Piloter une démarche pour améliorer la qualité","coeur":1,"rome":["Optimiser les processus de qualité pour assurer la fiabilité des logiciels"]},{"simple":"Contrôler le déroulement et le coût d'une prestation","coeur":0,"rome":["Vérifier la conformité d’une réalisation avec un cahier des charges"]},{"simple":"Piloter une activité","coeur":0,"rome":["Superviser, coordonner les réalisations ou développements informatiques (collaborateurs, sous-traitants)"]},{"simple":"Mettre en place des solutions pour mieux travailler","coeur":1,"rome":["Traiter les retours utilisateurs pour améliorer les systèmes"]},{"simple":"Favoriser l'entente et la collaboration","coeur":0,"rome":["Promouvoir la collaboration entre les développeurs et les opérateurs pour une meilleure intégration"]},{"simple":"Présenter et défendre un projet","coeur":0,"rome":["Argumenter les choix technologiques auprès des parties prenantes"]},{"simple":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","coeur":1,"rome":["Respecter les normes de sécurité informatique dans le développement"]},{"simple":"Organiser le partage des informations","coeur":1,"rome":["Documenter les procédures techniques pour les utilisateurs"]}],"s":[{"cat":"Techniques du métier","coeur":0,"libs":["Optimisation des performances des applications","Intégration continue et déploiement continu (CI/CD)"]},{"cat":"Règles et méthodes à connaître","coeur":0,"libs":["Règles de sécurité Informatique et Télécoms","Modélisation informatique","Méthode AGILE","Conception d’interfaces utilisateur (UI)","Sécurité des données et conformité RGPD"]},{"cat":"Domaines de connaissance","coeur":0,"libs":["Langages de programmation informatique","HTML","Intelligence artificielle","Systèmes d’exploitation informatique","Architecture web","Anglais technique","Script Shell","AutoItScript","Programmation en Python","Outils multimédias","Développement d’applications mobiles","Programmation logicielle","Gestion de versions de logiciels de jeux","Application web","Sécurité des applications web","Développement de logiciels embarqués","Gestion de projet informatique"]}],"savoirEtre":["Raisonnement logique","Autonomie","Rigueur","Apprentissage"],"savoirFaire":["Analyse de données","Innovation","Rédaction","Gestion de projet"],"savoirs":["Langages de programmation","Bases de données","Méthodes agiles"]}};
+var code = 'A1101';
+var etat = { prepare: null, maniere: null, objectif: null, cv: null, maj: null, voieCreer: null, voieMaj: null };
+var OBJECTIFS = [
+  { id: 'offre', icon: 'bi-file-earmark-text', title: 'Répondre à une offre', desc: 'Adapter vos documents à une offre.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : l’entreprise, le lien de l’offre, la personne qui recrute.' },
+  { id: 'spontanee', icon: 'bi-building', title: 'Candidature spontanée', desc: 'Préparer une candidature pour une entreprise.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : l’entreprise visée, ce que vous savez d’elle.' },
+  { id: 'reconversion', icon: 'bi-arrow-repeat', title: 'Changer de métier', desc: 'Valoriser vos compétences.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : le métier que vous exerciez, ce qui vous attire dans le nouveau.' },
+  { id: 'stage', icon: 'bi-mortarboard', title: 'Stage', desc: 'Documents adaptés à une recherche de stage.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : la durée, la période, la structure.' },
+  { id: 'alternance', icon: 'bi-people', title: 'Alternance', desc: 'Documents adaptés à une alternance.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : le rythme, la formation visée.' },
+  { id: 'formation', icon: 'bi-journal-bookmark', title: 'Formation', desc: 'Documents adaptés à une demande de formation.', cadrage: 'Les questions de « Votre objectif » s’affichent ici, telles quelles : la formation, l’organisme, le financement.' }
+];
+var ETAPES = [{ icone: '&#128221;', label: 'Préparer' }, { icone: '&#127919;', label: 'Objectif' }, { icone: '&#128196;', label: 'Votre CV' }, { icone: '&#128172;', label: 'Assistant' }];
+var INFOS = {
+  1: ['<strong>Ce qui change :</strong>', '<ul><li>Aujourd’hui, un clic sur un métier ouvre <strong>directement « Candidater »</strong> : la personne ne voit jamais la fiche.</li><li>Demain, il ouvre <strong>la fiche du métier sur une page</strong>, avec un bouton « Candidater pour ce métier ». La recherche reste telle quelle (liste, saisie).</li><li>Même chemin pour les métiers trouvés par une compétence ou un domaine, et pour une carte de secteur.</li></ul>'],
+  2: ['<strong>La fiche, sur une page (plus de fenêtre) :</strong>', '<ul><li><strong>Plus de titre souligné.</strong> Le nom du métier est un titre simple. Les actions sont des boutons : « Candidater pour ce métier », « Fiche complète sur France Travail » (en haut). « Comparer cette piste » et « Garder comme Repère » sont en bas de la page, de même forme et de même couleur.</li><li><strong>Les trois couleurs de compétences</strong> deviennent trois colonnes avec un titre qui dit ce qu’elles sont : le point de couleur et le titre servent de légende. Ni forme de bouton ni clic : une liste à lire.</li><li>Autres noms et métiers proches : listes simples, plus d’étiquettes grises.</li><li>Question pour vous : les blocs 4 (liste courte actuelle) et 5 (liste détaillée du ROME) disent en partie la même chose. Les garder tous les deux, ou n’en garder qu’un ?</li></ul>'],
+  3: ['<strong>L’écran « Candidater » mis à niveau, avec les vrais éléments de l’application :</strong>', '<ul><li><strong>Même aspect que « Lettre et entretien en version rapide » et « Votre objectif »</strong> : blocs numérotés qui se replient, pastille d’état (« À choisir », « Complété »), cartes de choix avec icône, barre d’étapes standard, barre du bas standard.</li><li><strong>Le titre « Candidater »</strong> a son icône et la couleur de l’application. <strong>Le métier</strong> : plus d’icône ; la première lettre en grand, de la même couleur que le reste du nom ; un bouton « Changer de métier » plus petit.</li><li><strong>Plus de « Comparer cette piste » ici</strong> : il est en bas de la fiche du métier, avec « Garder comme Repère ». Jamais aux deux endroits.</li><li><strong>Nouveau, à valider : « Voir la fiche du métier ».</strong> Un bouton à côté de « Changer de métier » rouvre la fiche (le nom du métier reste un simple titre, jamais un texte cliquable). « Retour » ramène ici, avec tous les choix gardés.</li><li><strong>Nouveau, à valider : rapide ou avec l’assistant.</strong> Quand vous choisissez « Ma lettre » ou « Mon entretien », deux cartes apparaissent dessous : « Version rapide » ou « Avec l’assistant ». Pour le CV, la suite dépend de l’option choisie en haut de l’écran (voir le cadre « Pour comparer »).</li><li><strong>Nouveau, à valider : le bloc « Avez-vous déjà un CV ? » n’existe que pour « Mon CV ».</strong> Pour la lettre et l’entretien, une note dit que le CV sera demandé à l’étape suivante, avec « Je n’ai pas de CV » pour le créer d’abord.</li><li><strong>« Votre cible » devient « Votre objectif »</strong> avec les six cartes d’objectif ; la carte choisie fait apparaître les questions de « Votre objectif », un seul composant.</li><li><strong>Barre du bas : « Retour » et « Continuer » seulement.</strong> « Retour » ramène déjà à l’accueil et à la barre de recherche : un bouton Accueil ferait doublon.</li><li>Essayez : choisissez Ma lettre, puis une version, un objectif, et « Continuer » s’allume.</li></ul>'],
+  5: ['<strong>Où la personne arrive, sans rien redonner :</strong>', '<ul><li>Cet écran montre le premier écran du module et ce qui est déjà rempli grâce à Candidater.</li><li>Chaque ligne « Déjà rempli » a un bouton « Modifier » : la personne corrige sans revenir en arrière.</li><li>Changez l’option dans l’onglet 3, puis revenez ici pour comparer.</li></ul>'],
+  4: ['<strong>Revenir à une candidature commencée (solution écartée : le bouton Accueil est retiré de l’écran Candidater) :</strong>', '<ul><li>Cet onglet montre l’autre option : un encart « Reprendre / Recommencer » sous la barre de recherche, de même forme que « Reprendre mon CV ». Il ne servirait que si l’écran Candidater gardait un bouton Accueil.</li><li>Avec la solution recommandée (pas de bouton Accueil sur cet écran), rien ne s’ajoute à l’accueil et l’interface ne bouge pas.</li></ul>']
+};
+
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function d() { return DONNEES[code]; }
+function titreAvecLettrine(nom) { var n = nom.charAt(0).toUpperCase() + nom.slice(1); return '<span class="lettrine">' + esc(n.charAt(0)) + '</span>' + esc(n.slice(1)); }
+function montrer(n) {
+  [1, 2, 3, 4, 5].forEach(function (i) { el('ecran' + i).hidden = String(i) !== String(n); });
+  if (String(n) === '5') { dessinerArrivee(); }
+  document.querySelectorAll('.onglet-ecran').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-ecran') === String(n) ? 'true' : 'false'); });
+  el('infoEcran').innerHTML = INFOS[n][0] + INFOS[n][1];
+  window.scrollTo(0, 0);
+}
+function listeTaches(indices) { return indices.map(function (i) { var g = d().k[i]; return '<p class="mb-1 mt-2"><strong>' + esc(g.simple) + '</strong></p><ul class="liste-simple">' + g.rome.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>'; }).join(''); }
+
+function dessinerRecherche() {
+  el('texteTape').textContent = 'conducteur';
+  el('resultats').innerHTML = '<div class="groupe">Métiers</div>' + Object.keys(DONNEES).map(function (c) { return '<button type="button" class="ligne" data-code="' + c + '">' + esc(DONNEES[c].nom) + '</button>'; }).join('') +
+    '<div class="groupe" style="border-top:1px solid var(--border)">Autres résultats</div><div class="px-3 pb-2 small text-muted">Les compétences, les domaines et les secteurs se présentent comme aujourd’hui.</div>';
+  el('resultats').querySelectorAll('button.ligne').forEach(function (b) { b.addEventListener('click', function () { code = b.getAttribute('data-code'); el('choixMetier').value = code; remplir(); montrer(2); }); });
+}
+function dessinerFiche() {
+  var m = d();
+  el('titreFiche').innerHTML = titreAvecLettrine(m.nom);
+  el('acces').textContent = m.a; el('presentation').textContent = m.d;
+  el('missions').innerHTML = m.m.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+  var idx = m.k.map(function (g, i) { return i; }), coeur = idx.filter(function (i) { return m.k[i].coeur > 0; }), autres = idx.filter(function (i) { return m.k[i].coeur === 0; });
+  if (!coeur.length) { coeur = idx.slice(0, 3); autres = idx.slice(3); }
+  var nb = m.k.reduce(function (a, g) { return a + g.rome.length; }, 0);
+  el('resteTaches').textContent = 'Le ROME décrit ' + nb + ' tâches pour ce métier, rangées par familles. Les plus importantes d’abord.';
+  el('taches').innerHTML = listeTaches(coeur); el('autres').innerHTML = listeTaches(autres); el('autres').hidden = true; el('btnAutres').setAttribute('aria-expanded', 'false'); el('btnAutres').textContent = 'Voir les autres tâches'; el('btnAutres').hidden = !autres.length;
+  function col(titre, aide, cl, liste) { return '<div class="colonne-comp"><h4><span class="point-couleur badge ' + cl + '"></span>' + titre + '</h4><div class="aide">' + aide + '</div><ul>' + liste.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>'; }
+  el('troisCol').innerHTML = col('Qualités personnelles', 'Votre façon d’être au travail', 'bg-success', m.savoirEtre) + col('Savoir-faire', 'Les gestes à maîtriser', 'bg-primary', m.savoirFaire) + col('Connaissances', 'Ce qu’il faut avoir appris', 'bg-info', m.savoirs);
+  el('savoirsRome').innerHTML = m.s.map(function (c) { return '<p class="mb-1 mt-2"><strong>' + esc(c.cat) + '</strong></p><ul class="liste-simple">' + c.libs.slice(0, 5).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + (c.libs.length > 5 ? '<li class="text-muted">et ' + (c.libs.length - 5) + ' autres</li>' : '') + '</ul>'; }).join('');
+  el('appellations').innerHTML = m.app.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+  el('proches').innerHTML = m.proches.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+}
+function dessinerBarre(courant) {
+  var liste = ETAPES.filter(function (e) { return e.label !== 'Votre CV' || etat.prepare === 'cv' || !etat.prepare; });
+  el('barreEtapes').innerHTML = liste.map(function (e, i) {
+    var cl = i < courant ? ' pastille-etape-action-validee' : (i === courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+    var chev = i > 0 ? '<span class="chevron-etape-action" aria-hidden="true"' + (i > courant ? ' style="opacity:.4"' : '') + '><i class="bi bi-chevron-double-right"></i></span>' : '';
+    return chev + '<span class="pastille-etape-action' + cl + '"><span class="pastille-etape-action-icone">' + e.icone + '</span><span class="pastille-etape-action-label">' + e.label + '</span></span>';
+  }).join('');
+}
+function carteHtml(cle, o, actif) {
+  return '<button type="button" class="carte-objectif' + (actif ? ' carte-objectif--actif' : '') + '" data-v="' + o[0] + '" aria-pressed="' + (!!actif) + '"><i class="bi ' + o[1] + '" aria-hidden="true"></i><span class="carte-objectif-titre">' + o[2] + '</span><span class="carte-objectif-desc">' + o[3] + '</span></button>';
+}
+function cartes(zoneId, cle, liste) {
+  var z = el(zoneId);
+  z.innerHTML = liste.map(function (o) { return carteHtml(cle, o, etat[cle] === o[0]); }).join('');
+  z.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      etat[cle] = b.getAttribute('data-v');
+      if (cle === 'prepare') { etat.maniere = null; }
+      if (cle === 'cv') { etat.maj = null; etat.voieCreer = null; etat.voieMaj = null; }
+      if (cle === 'maj') { etat.voieMaj = null; }
+      dessinerCandidater();
+    });
+  });
+}
+function pilule(id, ok) { var p = el(id); p.className = 'pilule-etat ' + (ok ? 'pe-ok' : 'pe-info'); p.textContent = ok ? 'Complété' : 'À choisir'; }
+var variante = 'D';
+var COMPLET = false;
+var RESUMES = {
+  D: ['Pour créer, la personne arrive directement dans le bon parcours. Pour reprendre, l’écran reste léger. Les explications détaillées de chaque voie restent dans les modules (aucune copie).', 'Une petite asymétrie entre créer et reprendre, expliquée par une phrase sur l’écran. Deux écrans à modifier dans le code (Candidater et l’entrée de « Créer un nouveau CV »).'],
+  A: ['Le plus simple et le moins risqué : rien de neuf à construire pour le CV.', 'Pour le CV, la personne choisit son mode ici, puis sa voie dans le module : elle peut avoir l’impression de refaire un choix.'],
+  B: ['Une seule logique pour les trois documents (avec ou sans l’assistant).', 'La question revient en partie dans le module : assistant ou récit pour créer, garder ou reformuler pour reprendre.'],
+  C: ['Arrivée directe dans le bon parcours, pour créer comme pour reprendre.', 'Écran plus lourd. Pour reprendre, le choix se ferait avant le dépôt, alors qu’aujourd’hui il suit le dépôt et peut changer sans redéposer. Risque de choisir sans avoir vu la vidéo de la voie.']
+};
+var VOIES_CREER = [
+  ['assistant', 'bi-chat-dots', 'Avec l’assistant', 'Vous remplissez vos informations, l’assistant en ligne vous aide à les formuler.'],
+  ['recit', 'bi-journal-text', 'À partir de mon récit', 'Vous racontez votre parcours, le CV en est tiré. Pour qui n’a jamais eu de CV.'],
+  ['main', 'bi-pencil', 'À la main', 'Vous écrivez tout vous-même. Rien n’est envoyé nulle part.']
+];
+var VOIES_AVEC_SANS = [
+  ['avec', 'bi-chat-dots', 'Avec l’assistant', 'Un assistant en ligne vous aide à formuler.'],
+  ['sans', 'bi-pencil', 'Sans l’assistant', 'Vous écrivez tout vous-même. Rien n’est envoyé nulle part.']
+];
+var VOIES_REPRENDRE = [
+  ['garder', 'bi-pencil-square', 'Le garder et le compléter', 'Vous corrigez et complétez vos informations, champ par champ.'],
+  ['reformuler', 'bi-arrow-repeat', 'Le reformuler', 'L’assistant reformule le CV et propose deux versions. Rien n’est ajouté.'],
+  ['sans', 'bi-layout-text-window', 'Refaire la mise en page', 'Sans assistant : vos mots restent les vôtres, dans un de nos modèles.'],
+  ['pret', 'bi-check2-circle', 'Il est prêt tel quel', 'Vous passez directement à la préparation.']
+];
+function dessinerCandidater() {
+  el('nomCandidater').innerHTML = titreAvecLettrine(d().nom);
+  var p = etat.prepare, estCv = (p === 'cv'), estLE = (p === 'lettre' || p === 'entretien');
+  dessinerBarre(1);
+  cartes('cartesPrepare', 'prepare', [
+    ['cv', 'bi-file-earmark-person', 'Mon CV', 'Créer votre CV ou reprendre celui que vous avez.'],
+    ['lettre', 'bi-envelope', 'Ma lettre de motivation', 'Une lettre adaptée à ce métier.'],
+    ['entretien', 'bi-mic', 'Mon entretien', 'Vous préparer à passer l’entretien.']
+  ]);
+  el('zoneManiere').hidden = !estLE;
+  if (estLE) {
+    el('questManiere').textContent = (p === 'lettre') ? 'Comment voulez-vous écrire votre lettre ?' : 'Comment voulez-vous vous préparer ?';
+    cartes('cartesManiere', 'maniere', [
+      ['rapide', 'bi-lightning-charge', 'Version rapide', (p === 'lettre') ? 'Deux lettres proposées en une fois : le papier tout de suite.' : 'Une fiche de synthèse : votre présentation, les questions probables, les questions à poser.'],
+      ['assistant', 'bi-chat-dots', 'Avec l’assistant', (p === 'lettre') ? 'Vous échangez avec l’assistant : vous choisissez le ton et les points forts. Plus complet, plus long.' : 'Vous vous entraînez en échangeant : questions plus pointues, conseils pour vous présenter. Plus long.']
+    ]);
+  }
+  var ok1 = !!p && (estCv || !!etat.maniere);
+  pilule('pil1', ok1);
+
+  cartes('cartesObjectif', 'objectif', OBJECTIFS.map(function (o) { return [o.id, o.icon, o.title, o.desc]; }));
+  var o = OBJECTIFS.filter(function (x) { return x.id === etat.objectif; })[0];
+  el('cadrageObjectif').hidden = !o;
+  if (o) { el('cadrageObjectif').innerHTML = '<div class="encart-maq mt-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>' + o.cadrage + '</div></div>'; }
+  pilule('pil2', !!o);
+
+  el('zoneCv').hidden = !estCv;
+  el('noteCv').hidden = !estLE;
+  var ok3 = true;
+  el('zoneVoieCreer').hidden = true; el('zoneVoieMaj').hidden = true; el('noteVoieApres').hidden = true;
+  if (estCv) {
+    cartes('cartesCv', 'cv', [
+      ['oui', 'bi-file-earmark-check', 'Oui, j’ai un CV', 'Vous le déposez à l’étape suivante.'],
+      ['non', 'bi-pencil-square', 'Non, je pars de zéro', 'Vous le créez pas à pas, à partir de vos activités et de votre parcours.']
+    ]);
+    el('zoneMaj').hidden = (etat.cv !== 'oui');
+    if (etat.cv === 'non') {
+      if (variante === 'B') {
+        el('questVoieCreer').textContent = 'Voulez-vous être aidé par l’assistant ?';
+        cartes('cartesVoieCreer', 'voieCreer', VOIES_AVEC_SANS);
+        el('zoneVoieCreer').hidden = false;
+        ok3 = !!etat.voieCreer;
+      } else if (variante === 'C' || variante === 'D') {
+        el('questVoieCreer').textContent = 'Comment voulez-vous créer votre CV ?';
+        cartes('cartesVoieCreer', 'voieCreer', VOIES_CREER);
+        el('zoneVoieCreer').hidden = false;
+        ok3 = !!etat.voieCreer;
+      }
+    } else if (etat.cv === 'oui') {
+      if (variante === 'C') {
+        el('questMaj').textContent = 'Que voulez-vous faire de votre CV ?';
+        cartes('cartesMaj', 'maj', VOIES_REPRENDRE);
+        ok3 = !!etat.maj;
+      } else {
+        el('questMaj').textContent = 'Voulez-vous le mettre à jour ?';
+        cartes('cartesMaj', 'maj', [
+          ['oui', 'bi-pencil', 'Oui, le compléter', 'Vous corrigez et complétez vos informations avant de générer le CV.'],
+          ['non', 'bi-check2-circle', 'Non, il est prêt tel quel', 'Vous passez directement à la préparation.']
+        ]);
+        ok3 = !!etat.maj;
+        if (variante === 'B' && etat.maj === 'oui') {
+          el('questVoieMaj').textContent = 'Voulez-vous être aidé par l’assistant ?';
+          cartes('cartesVoieMaj', 'voieMaj', VOIES_AVEC_SANS);
+          el('zoneVoieMaj').hidden = false;
+          ok3 = !!etat.voieMaj;
+        }
+        el('noteVoieApres').hidden = !(etat.maj === 'oui' && (variante === 'A' || variante === 'D'));
+      }
+    } else { ok3 = false; }
+    pilule('pil3', ok3);
+  }
+  var tout = ok1 && !!o && ok3;
+  COMPLET = tout;
+  el('continuerCand').disabled = !tout;
+  el('raisonCand').hidden = tout;
+  el('resumeVariante').innerHTML = '<div class="small"><strong>Bénéfice :</strong> ' + RESUMES[variante][0] + '</div><div class="small mt-1"><strong>Risque :</strong> ' + RESUMES[variante][1] + '</div>';
+}
+function libVoie(liste, id) { var r = liste.filter(function (x) { return x[0] === id; })[0]; return r ? r[2].toLowerCase() : ''; }
+function dessinerArrivee() {
+  var z = el('contenuArrivee');
+  if (!COMPLET) { z.innerHTML = '<div class="encart-maq"><i class="bi bi-info-circle" aria-hidden="true"></i><div>Faites d’abord vos choix dans l’onglet 3 (Candidater), jusqu’à ce que « Continuer » s’allume : cet écran montre alors où la personne arrive.</div></div>'; return; }
+  var p = etat.prepare, o = OBJECTIFS.filter(function (x) { return x.id === etat.objectif; })[0], nom = d().nom, v = variante;
+  var deja = [], reste = [], titre = '', premier = '';
+  if (p === 'lettre' || p === 'entretien') {
+    var rap = etat.maniere === 'rapide';
+    deja.push('Le document : ' + (p === 'lettre' ? 'ma lettre de motivation' : 'mon entretien') + ', ' + (rap ? 'version rapide' : 'avec l’assistant'));
+    titre = (p === 'lettre' ? 'Lettre de motivation' : 'Entretien') + (rap ? ' en version rapide' : ' avec l’assistant');
+    premier = 'Le dépôt de votre CV (le bouton « Je n’ai pas de CV » permet de le créer d’abord)';
+    reste.push('Déposer votre CV');
+    reste.push(rap ? (p === 'lettre' ? 'Obtenir vos deux lettres' : 'Obtenir votre fiche de synthèse') : 'Échanger avec l’assistant');
+  } else {
+    deja.push('Le document : mon CV');
+    if (etat.cv === 'non') {
+      deja.push('Votre situation : vous partez de zéro');
+      if (v === 'A') {
+        titre = 'Créer mon CV'; premier = 'Le choix de la façon de faire (trois voies, chacune avec sa vidéo)';
+        reste.push('Choisir la façon de faire : avec l’assistant, à partir du récit ou à la main'); reste.push('Raconter votre parcours');
+      } else if (v === 'B') {
+        if (etat.voieCreer === 'avec') {
+          deja.push('Façon de faire : avec l’assistant'); titre = 'Créer mon CV avec l’assistant'; premier = 'Le choix entre l’assistant et le récit';
+          reste.push('Choisir entre l’assistant et votre récit'); reste.push('Raconter votre parcours');
+        } else {
+          deja.push('Façon de faire : sans l’assistant'); titre = 'Créer mon CV à la main'; premier = 'Votre parcours, page 1';
+          reste.push('Raconter votre parcours, étape par étape');
+        }
+      } else {
+        deja.push('Façon de faire : ' + libVoie(VOIES_CREER, etat.voieCreer));
+        titre = 'Créer mon CV ' + libVoie(VOIES_CREER, etat.voieCreer);
+        premier = etat.voieCreer === 'recit' ? 'Votre récit' : 'Votre parcours, page 1';
+        reste.push(etat.voieCreer === 'recit' ? 'Raconter votre parcours à votre rythme' : 'Raconter votre parcours, étape par étape');
+      }
+    } else {
+      deja.push('Votre situation : vous avez un CV');
+      var pret = (v === 'C') ? (etat.maj === 'pret') : (etat.maj === 'non');
+      if (pret) {
+        deja.push('Votre CV : prêt tel quel'); titre = 'Lettre et entretien en version rapide'; premier = 'Le dépôt de votre CV';
+        reste.push('Déposer votre CV'); reste.push('Obtenir la lettre et la fiche d’entretien');
+      } else if (v === 'C') {
+        deja.push('Voie : ' + libVoie(VOIES_REPRENDRE, etat.maj)); titre = 'Reprendre mon CV : ' + libVoie(VOIES_REPRENDRE, etat.maj); premier = 'Le dépôt de votre CV';
+        reste.push('Déposer votre CV une seule fois'); reste.push('Continuer dans la voie choisie');
+      } else if (v === 'B') {
+        deja.push('Façon de faire : ' + (etat.voieMaj === 'avec' ? 'avec l’assistant' : 'sans l’assistant')); titre = 'Reprendre mon CV'; premier = 'Le dépôt de votre CV';
+        reste.push('Déposer votre CV une seule fois');
+        reste.push(etat.voieMaj === 'avec' ? 'Choisir entre le garder et le compléter, ou le reformuler' : 'Classer et vérifier vous-même vos informations');
+      } else {
+        deja.push('Votre CV : à compléter'); titre = 'Reprendre mon CV'; premier = 'Le dépôt de votre CV';
+        reste.push('Déposer votre CV une seule fois'); reste.push('Choisir la voie : le garder et le compléter, le reformuler, ou refaire la mise en page sans assistant');
+      }
+    }
+  }
+  deja.splice(1, 0, 'Le métier : ' + nom);
+  deja.push('Votre objectif : ' + o.title + ', avec ses questions déjà remplies');
+  var lignes = deja.map(function (x) { return '<div class="recap-ligne"><span class="pilule-etat pe-ok">Rempli</span><span class="texte">' + esc(x) + '</span><button type="button" class="btn btn-sm btn-outline-secondary btn-modifier">Modifier</button></div>'; }).join('');
+  var aFaire = reste.map(function (x) { return '<div class="recap-ligne"><span class="pilule-etat pe-info">À faire</span><span class="texte">' + esc(x) + '</span></div>'; }).join('');
+  z.innerHTML = '<div class="bloc-arrivee"><h2><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Premier écran : ' + esc(titre) + '</h2><p class="mb-0">' + esc(premier) + '</p></div>' +
+    '<div class="bloc-arrivee"><h2>Déjà rempli grâce à Candidater</h2>' + lignes + '</div>' +
+    '<div class="bloc-arrivee"><h2>Reste à faire dans le module</h2>' + aFaire + '<p class="small text-muted mt-2 mb-0">Aucune des lignes « Rempli » n’est redemandée.</p></div>';
+  z.querySelectorAll('.btn-modifier').forEach(function (b) { b.addEventListener('click', function () { montrer(3); }); });
+}
+function remplir() { dessinerRecherche(); dessinerFiche(); dessinerCandidater(); el('nomReprise').textContent = d().nom; }
+
+(function init() {
+  var sel = el('choixMetier');
+  Object.keys(DONNEES).forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = DONNEES[c].nom; sel.appendChild(o); });
+  sel.addEventListener('change', function () { code = sel.value; etat = { prepare: null, maniere: null, objectif: null, cv: null, maj: null, voieCreer: null, voieMaj: null }; remplir(); });
+  el('modeSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); });
+  document.querySelectorAll('.onglet-ecran').forEach(function (b) { b.addEventListener('click', function () { montrer(b.getAttribute('data-ecran')); }); });
+  el('btnAutres').addEventListener('click', function () { var o = this.getAttribute('aria-expanded') === 'true'; this.setAttribute('aria-expanded', o ? 'false' : 'true'); this.textContent = o ? 'Voir les autres tâches' : 'Masquer les autres tâches'; el('autres').hidden = o; });
+  el('btnCandidaterFiche').addEventListener('click', function () { montrer(3); });
+  el('candidaterBas').addEventListener('click', function () { montrer(3); });
+  el('retourFiche').addEventListener('click', function () { montrer(1); });
+  el('accueilFiche').addEventListener('click', function () { montrer(1); });
+  el('btnChangerMetier').addEventListener('click', function () { montrer(1); });
+  el('btnVoirFiche').addEventListener('click', function () { montrer(2); });
+  document.querySelectorAll('input[name=variante]').forEach(function (r) { r.addEventListener('change', function () { variante = r.value; etat.maj = null; etat.voieCreer = null; etat.voieMaj = null; dessinerCandidater(); }); });
+  el('btnReprendreMaq').addEventListener('click', function () { montrer(3); });
+  remplir(); montrer(1);
+})();
+</script>
+</body>
+</html>

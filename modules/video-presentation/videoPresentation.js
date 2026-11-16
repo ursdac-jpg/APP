@@ -48,6 +48,7 @@
     'deuxieme-regard': { fichier: 'videos/gestes/deuxieme-regard.mp4', libelle: 'Voir comment demander un deuxième regard', duree: '25 s' },
     'lexique-recherche': { fichier: 'videos/gestes/lexique.mp4', libelle: 'Voir comment chercher un mot', duree: '23 s' },
     'chatgpt-demande': { fichier: 'videos/gestes/chatgpt-demande.mp4', libelle: 'Voir comment faire sur ChatGPT', duree: '33 s' },
+    'chatgpt-recherche-web': { fichier: 'videos/gestes/chatgpt-recherche-web.mp4', libelle: 'Voir comment activer la recherche web sur ChatGPT', duree: '25 s' },
     'perplexity-demande': { fichier: 'videos/gestes/perplexity-demande.mp4', libelle: 'Voir comment faire sur Perplexity', duree: '31 s' },
     'modele': { fichier: 'videos/gestes/modele.mp4', libelle: 'Voir comment choisir un modèle', duree: '22 s' },
     'mise-en-page': { fichier: 'videos/gestes/mise-en-page.mp4', libelle: 'Voir comment régler la mise en page', duree: '28 s' },

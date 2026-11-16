@@ -27,10 +27,10 @@ function messageAffichageMarquerVu() {
 function htmlMessageAffichage() {
   return '<div class="message-affichage" id="messageAffichage" role="region" aria-label="Options d’affichage">' +
     '<p class="message-affichage-titre"><strong>Envie de lire plus confortablement ?</strong></p>' +
-    '<p class="message-affichage-texte">Vous pouvez agrandir le texte ou changer la police d’écriture. Ces choix sont dans le bouton en forme de roue dentée, en haut de la page (« Préférences d’affichage »), et vous pouvez les changer quand vous voulez.</p>' +
+    '<p class="message-affichage-texte">Vous pouvez agrandir le texte ou changer la police, avec la roue dentée en haut de la page.</p>' +
     '<div class="message-affichage-actions">' +
-    '<button type="button" class="btn btn-outline-primary message-affichage-bouton" id="messageAffichageOuvrir"><i class="bi bi-gear" aria-hidden="true"></i> Voir les options d’affichage</button>' +
-    '<button type="button" class="btn btn-outline-secondary message-affichage-bouton" id="messageAffichageFermer">Fermer ce message</button>' +
+    '<button type="button" class="btn btn-outline-primary message-affichage-bouton" id="messageAffichageOuvrir"><i class="bi bi-gear" aria-hidden="true"></i> Options d’affichage</button>' +
+    '<button type="button" class="btn btn-outline-secondary message-affichage-bouton" id="messageAffichageFermer">Fermer</button>' +
     '</div>' +
     '</div>';
 }

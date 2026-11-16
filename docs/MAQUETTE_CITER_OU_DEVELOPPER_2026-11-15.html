@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : citer ou développer un élément</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 20px 4rem}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-avis{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin:.4rem 0 0}
+.mq-avis p{margin:.15rem 0}
+.mq-page{margin:0 auto;max-width:1100px}
+.mq-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:14px;padding:.9rem 1.1rem 1.1rem}
+.mq-titre{font-weight:700;margin:0 0 .6rem}
+.mq-sortie{margin:1rem auto 0;max-width:1100px;border:1px solid var(--border-strong);border-radius:10px;background:var(--bg-card);padding:.6rem .8rem;font-size:.85rem}
+.mq-sortie b{display:block;margin-bottom:.2rem}
+.mq-sortie code{display:block;white-space:pre-wrap;background:var(--bg-subtle);border-radius:6px;padding:.4rem .5rem;font-size:.8rem;color:var(--text-strong)}
+.mq-q{font-weight:700;margin:.6rem 0 .3rem}
+.mq-ex{font-size:.8rem;color:var(--text-strong);margin:.3rem 0 0}
+/* Dans l'application le panneau d'un élément fait 360 px au plus : pour les missions à cocher il passe à toute la largeur. */
+#mqPage .pastille-mini-edition{max-width:none}
+#mqPage .fm-miss .jeton{width:auto;max-width:100%;text-align:left}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir">Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2>Maquette : « Seulement le citer » ou « Le développer »
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages">&#10005; Fermer</button>
+  </h2>
+  <div class="grp"><b>Élément choisi dans « Vos informations »</b>
+    <div class="boutons" id="gpEl">
+      <button type="button" class="btn btn-sm btn-primary" data-el="sst">Certification : SST</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-el="pix">Certification : PIX (pas de missions possibles)</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-el="pres">Engagement : Président d'association</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-el="foyer">Ce que vous avez appris : Gestion d'un foyer</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-el="libre">Élément écrit par la personne</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-el="foot">Loisir : Football</button>
+    </div>
+  </div>
+  <div class="grp"><b>Réponse de la personne</b>
+    <div class="boutons" id="gpRep">
+      <button type="button" class="btn btn-sm btn-primary" data-r="">Pas encore répondu</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-r="cite">Seulement le citer</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-r="dev">Le développer</button>
+    </div>
+  </div>
+  <div class="mq-avis" id="mqAvis"></div>
+</div>
+
+<div class="mq-page fm-bloc" id="mqPage"></div>
+<div class="mq-sortie" id="mqSortie"></div>
+
+<script>
+var etat = { el: 'sst', r: '', coche: {} };
+
+/* Les missions ci-dessous sont des EXEMPLES de maquette, à valider avec Denis avant tout codage. */
+var ELEMENTS = {
+  sst: { rubrique: 'Certifications', nom: 'SST', complet: 'Sauveteur Secouriste du Travail', missions: true,
+    liste: [
+      'Protéger la zone d’accident pour éviter un nouvel accident',
+      'Examiner la victime et repérer les signes d’une urgence vitale',
+      'Alerter ou faire alerter les secours selon la procédure de l’entreprise',
+      'Arrêter un saignement abondant par compression',
+      'Porter secours à une personne qui s’étouffe',
+      'Mettre une victime inconsciente qui respire en position latérale de sécurité',
+      'Réaliser une réanimation cardio-pulmonaire avec un défibrillateur',
+      'Surveiller la victime jusqu’à l’arrivée des secours',
+      'Repérer les situations dangereuses de son poste et en informer la hiérarchie',
+      'Contribuer à la prévention des risques dans l’entreprise'
+    ] },
+  pix: { rubrique: 'Certifications', nom: 'PIX', complet: 'certification des compétences numériques', missions: false, liste: [] },
+  pres: { rubrique: 'Engagements', nom: 'Président d’association', missions: true,
+    liste: [
+      'Représenter l’association auprès des partenaires et des financeurs',
+      'Animer le bureau, le conseil d’administration et l’assemblée générale',
+      'Suivre le budget avec le trésorier',
+      'Coordonner les bénévoles et répartir les tâches',
+      'Organiser des événements et des actions de l’association',
+      'Veiller au respect des statuts et des obligations légales',
+      'Gérer les relations avec la mairie et les autres associations',
+      'Recruter et accueillir de nouveaux bénévoles'
+    ] },
+  foyer: { rubrique: 'Ce que vous avez appris ailleurs qu’au travail', nom: 'Gestion d’un foyer', missions: true,
+    liste: [
+      'Planifier et suivre le budget du foyer',
+      'Organiser les repas et les courses de la semaine',
+      'Gérer les démarches administratives de la famille',
+      'Assurer l’entretien du logement et du linge',
+      'Organiser l’emploi du temps de chacun (école, rendez-vous, activités)',
+      'Accompagner les enfants dans leurs devoirs',
+      'Comparer les prix et négocier des contrats (énergie, assurance)'
+    ] },
+  libre: { rubrique: 'Certifications', nom: 'Habilitation de mon ancien employeur', missions: true, liste: [], libre: true },
+  foot: { rubrique: 'Loisirs', nom: 'Football', missions: false, liste: [], loisir: true }
+};
+
+var AVIS = {
+  defaut: '<p><b>Règle.</b> Là où des missions sont possibles, la personne choisit entre <b>citer</b> et <b>développer</b>. Là où il n’y en a pas, <b>aucune question</b> : l’élément apparaît simplement sur le CV.</p>' +
+    '<p><b>Sans réponse = cité</b> (même principe que la photo) : l’assistant n’écrit alors aucune mission pour cet élément.</p>'
+};
+
+function echapper(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+function selectAnnee(libelle) { var o = '<option>' + libelle + '</option>'; for (var a = 2026; a >= 2010; a--) { o += '<option>' + a + '</option>'; } return '<select class="form-select form-select-sm" style="width:auto;">' + o + '</select>'; }
+
+function nbCoches() { var n = 0; Object.keys(etat.coche).forEach(function (k) { if (etat.coche[k]) { n++; } }); return n; }
+
+function panneau() {
+  var e = ELEMENTS[etat.el];
+  var h = '<div class="pastille-mini-edition mt-1 mb-2">';
+  /* Validé par Denis le 15/11/2026 : le nom complet du sigle en première ligne du rectangle, avant les années. */
+  if (e.complet) { h += '<p class="fw-bold mb-2" style="font-size:.95rem">' + echapper(e.nom) + ' : ' + echapper(e.complet) + '</p>'; }
+  h += '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">' + selectAnnee('Année de début') + '<span class="small text-muted">à</span>' + selectAnnee('Toujours en cours') + '</div>';
+  if (e.loisir) {
+    h += '<p class="small mb-2">Un loisir apparaît tel quel sur le CV : aucune question, aucune mission.</p>';
+    h += '<button type="button" class="btn btn-outline-primary btn-sm">Je valide</button></div>';
+    return h;
+  }
+  if (!e.missions) {
+    h += '<p class="small mb-2">Cet élément apparaîtra tel quel sur votre CV : aucune question à vous poser.</p>';
+    h += '<button type="button" class="btn btn-outline-primary btn-sm">Je valide</button></div>';
+    return h;
+  }
+  /* La question */
+  h += '<p class="mq-q">Voulez-vous développer cet élément sur votre CV ?</p>';
+  h += '<div class="d-flex gap-2 flex-wrap">' +
+    '<button type="button" class="jeton jeton--radio jeton--compact' + (etat.r === 'cite' ? ' is-actif' : '') + '" data-rep="cite" aria-pressed="' + (etat.r === 'cite') + '">Non, seulement le citer</button>' +
+    '<button type="button" class="jeton jeton--radio jeton--compact' + (etat.r === 'dev' ? ' is-actif' : '') + '" data-rep="dev" aria-pressed="' + (etat.r === 'dev') + '">Oui, le développer</button></div>';
+  if (etat.r === '') {
+    h += '<p class="small mb-2 mt-2">Sans réponse de votre part, il sera seulement cité, sans mission.</p>';
+  } else if (etat.r === 'cite') {
+    h += '<p class="small mb-2 mt-2">Il apparaîtra sur votre CV sans détail, et l’assistant n’écrira aucune mission pour cet élément.</p>';
+  } else {
+    h += '<div class="fm-miss mt-2"><p class="fm-q" style="font-weight:700;margin:0 0 .4rem">Cochez ce que vous avez réellement fait <span class="fm-tag fm-tag--miss">Missions à cocher</span></p>';
+    if (e.liste.length) {
+      h += '<p class="mq-ex">Vous cochez, l’assistant ne fera que reformuler et accorder (féminin ou masculin). Il n’ajoutera rien.</p>';
+      h += '<div class="d-flex flex-wrap gap-2 mt-2">' + e.liste.map(function (m, i) {
+        return '<button type="button" class="jeton jeton--compact' + (etat.coche[etat.el + i] ? ' is-actif' : '') + '" data-m="' + etat.el + i + '" aria-pressed="' + !!etat.coche[etat.el + i] + '">' + echapper(m) + '</button>';
+      }).join('') + '</div>';
+    } else {
+      h += '<p class="mq-ex">Pas de liste proposée pour cet élément : écrivez avec vos mots ce que vous avez fait.</p>';
+    }
+    h += '<p class="mq-q" style="margin-top:.8rem">Ou écrivez avec vos mots <span class="fm-tag" style="font-size:.7rem">À écrire</span></p>';
+    h += '<textarea class="form-control form-control-sm" rows="2" placeholder="Ce que vous avez fait (une mission par ligne)"></textarea></div>';
+  }
+  h += '<button type="button" class="btn btn-outline-primary btn-sm mt-2">Je valide</button></div>';
+  return h;
+}
+
+function sortieAssistant() {
+  var e = ELEMENTS[etat.el];
+  var libelle = e.rubrique + ' : ' + e.nom;
+  if (e.loisir) { return 'Loisirs : ' + e.nom; }
+  if (!e.missions) { return e.rubrique + ' : ' + e.nom; }
+  if (etat.r === 'dev') {
+    var m = []; e.liste.forEach(function (t, i) { if (etat.coche[etat.el + i]) { m.push(t); } });
+    return e.rubrique + ' : ' + e.nom + ' - Missions de la personne (à reformuler et accorder, sans rien ajouter) : ' + (m.length ? m.join(' ; ') : '(aucune cochée pour l’instant)');
+  }
+  return e.rubrique + ' : ' + e.nom + ' - À CITER SEULEMENT : la personne ne souhaite pas le développer, n’écris aucune mission pour cet élément.';
+}
+
+function rendre() {
+  var e = ELEMENTS[etat.el];
+  document.getElementById('mqPage').innerHTML =
+    '<div class="mq-bloc"><p class="mq-titre">' + e.rubrique + '</p>' +
+    '<p class="small text-muted mb-1">Cliquez sur un élément pour le modifier, sur la croix pour le supprimer.</p>' +
+    '<span class="pastille-mini-conteneur"><span class="pastille-mini-texte pastille-mini-active">' + echapper(e.nom) + '</span><span class="pastille-mini-croix">&#10005;</span></span>' +
+    panneau() + '</div>';
+  document.getElementById('mqSortie').innerHTML = '<b>Ce que reçoit l’assistant pour cet élément</b><code>' + echapper(sortieAssistant()) + '</code>';
+  document.getElementById('mqAvis').innerHTML = AVIS.defaut;
+  document.querySelectorAll('[data-rep]').forEach(function (b) { b.addEventListener('click', function () { etat.r = this.getAttribute('data-rep'); majBoutons(); rendre(); }); });
+  document.querySelectorAll('[data-m]').forEach(function (b) { b.addEventListener('click', function () { var k = this.getAttribute('data-m'); etat.coche[k] = !etat.coche[k]; rendre(); }); });
+}
+function majBoutons() {
+  [['gpEl', 'el'], ['gpRep', 'r']].forEach(function (g) {
+    document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) {
+      var val = b.getAttribute('data-' + g[1]);
+      b.className = 'btn btn-sm ' + (val === etat[g[1]] ? 'btn-primary' : 'btn-outline-secondary');
+    });
+  });
+}
+document.getElementById('gpEl').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.el = b.getAttribute('data-el'); majBoutons(); rendre(); } });
+document.getElementById('gpRep').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { etat.r = b.getAttribute('data-r'); majBoutons(); rendre(); } });
+document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

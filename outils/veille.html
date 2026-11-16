@@ -191,6 +191,10 @@
   .btn-claude .notif-nb { display:inline-block; min-width:1.4rem; margin-left:.45rem; padding:0 .4rem; border-radius:999px; background:var(--notif-texte); color:var(--notif); font-weight:800; text-align:center; }
   /* Bouton « Sas à valider » sous celui de Claude : neutre quand le sas est vide, violet avec le nombre de propositions quand il en reste (violet, pour ne pas le confondre avec l'orange de Claude). */
   .btn-sas { position:fixed; top:3.1rem; left:.6rem; font-size:.8rem; z-index:30; }
+  /* Bouton « Prospection » sous celui du sas (consigne 280) : ouvre directement la recherche de nouvelles structures. Bleu (la couleur d'accent de l'outil) avec le nombre de fiches à regarder quand il y en a ; sinon neutre. */
+  .btn-prosp { position:fixed; top:5.6rem; left:.6rem; font-size:.8rem; z-index:30; }
+  .btn.btn-prosp.a-prosp { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); font-weight:700; }
+  .btn-prosp .notif-nb { display:inline-block; min-width:1.4rem; margin-left:.6rem; padding:0 .4rem; border-radius:999px; background:var(--accent); color:var(--bg-card); text-align:center; }
   /* « Envoyer à Claude » sur chaque carte : rose vif, une couleur que rien d'autre n'a dans l'outil, pour le repérer d'un coup d'œil. */
   .btn.btn-pour-claude { background:var(--pourclaude); border-color:var(--pourclaude); color:var(--pourclaude-texte); font-weight:700; font-size:1rem; padding:.7rem 1.2rem; }
   .tc-claude-bloc { margin:.8rem 0 .4rem; padding:.7rem .8rem; border:2px solid var(--pourclaude); border-radius:10px; }
@@ -316,6 +320,51 @@
   .pastille-ver.pv-jamais { background:var(--jamais-bg); color:var(--jamais); }
   .adr-barre { height:.7rem; border-radius:999px; background:var(--bg-subtle); border:1px solid var(--border); overflow:hidden; }
   .adr-barre > div { height:100%; width:0; background:var(--accent); transition:width .2s; }
+  /* « Prospection des structures » (consigne 270) : une ligne par structure, avec case, pastilles et texte de la source. */
+  .prosp-fiche { display:flex; gap:.7rem; align-items:flex-start; padding:.7rem 0; border-top:1px solid var(--border); }
+  .prosp-fiche:first-child { border-top:none; }
+  .prosp-fiche input[type=checkbox] { width:1.2rem; height:1.2rem; margin-top:.25rem; flex-shrink:0; }
+  .prosp-fiche .prosp-vide { width:1.2rem; flex-shrink:0; }
+  .prosp-fiche .corps { flex:1; min-width:0; }
+  .prosp-fiche .nom { font-weight:700; color:var(--text-strong); font-size:.95rem; word-break:break-word; }
+  .prosp-fiche .infos { color:var(--text-muted); font-size:.85rem; margin-top:.1rem; }
+  .prosp-fiche .prosp-coord { margin-top:.35rem; font-size:.88rem; line-height:1.5; word-break:break-word; }
+  .prosp-fiche .alertes { margin-top:.3rem; display:flex; flex-wrap:wrap; gap:.3rem; }
+  .prosp-fiche details { margin-top:.35rem; font-size:.84rem; }
+  .prosp-fiche details summary { cursor:pointer; color:var(--text-muted); }
+  .prosp-fiche.decoche { opacity:.6; }
+  /* Une couleur par état (demande de Denis, 15/11/2026) : vert = prête pour le sas, orange = à trancher, violet = à classer à la main, sans cadre = écartée. */
+  .prosp-fiche.f-pret, .prosp-fiche.f-aclasser { border:2px solid var(--ok); border-radius:12px; padding:.7rem .8rem; margin:.5rem 0; background:var(--bg-card); }
+  .prosp-fiche.f-pret { border-color:var(--ok); }
+  .prosp-fiche.f-aclasser { border-color:var(--contenu); }
+  .pastille-ver.pv-classer { background:var(--contenu-bg); color:var(--contenu); }
+  #sasFenetre .p-prosp { background:var(--action-bg); color:var(--action); }
+  .pastille-ver.pv-attention { background:var(--action-bg); color:var(--action); }
+  .btn.f-bleu { border:2px solid var(--action); }
+  button.mt-compteur { font:inherit; text-align:left; cursor:pointer; color:inherit; }
+  button.mt-compteur:disabled { cursor:default; opacity:.55; }
+  button.mt-compteur.vert { color:var(--ok); } button.mt-compteur.ambre { color:var(--warn); } button.mt-compteur.violet { color:var(--contenu); }
+  button.mt-compteur.choisi { outline:3px solid currentColor; outline-offset:2px; }
+  button.mt-compteur small { display:block; font-size:.72rem; font-weight:600; text-decoration:underline; margin-top:.15rem; }
+  .btn.f-vert { border:2px solid var(--ok); } .btn.f-violet { border:2px solid var(--contenu); } .btn.f-orange { border:2px solid var(--warn); }
+  .prosp-trancher { border:2px solid var(--warn); border-radius:12px; padding:.8rem .9rem; margin:.7rem 0; background:var(--bg-card); }
+  .prosp-compare { width:100%; border-collapse:collapse; font-size:.86rem; margin:.4rem 0 .2rem; }
+  .prosp-compare th { text-align:left; color:var(--text-muted); font-weight:600; width:22%; vertical-align:top; padding:.25rem .4rem; }
+  .prosp-compare td { padding:.25rem .4rem; vertical-align:top; border-top:1px solid var(--border); word-break:break-word; }
+  .prosp-compare thead th, .prosp-compare thead td { border-top:none; font-weight:700; color:var(--text-strong); }
+  .prosp-compare td.prosp-diff { background:var(--warn-bg); }
+  .prosp-choix { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem; margin-top:.5rem; }
+  .prosp-choix-btn { text-align:left; }
+  .prosp-choix-btn small { display:block; font-weight:400; color:var(--text-muted); font-size:.78rem; }
+  .prosp-rapproche { border-top:1px solid var(--border); margin-top:.4rem; }
+  .prosp-rapproche:first-of-type { border-top:none; }
+  .prosp-form { border:1px dashed var(--border-strong); border-radius:10px; padding:.6rem .7rem; margin-top:.6rem; background:var(--bg-subtle); }
+  .prosp-raisons { display:flex; flex-wrap:wrap; gap:.4rem; margin:.4rem 0; }
+  .prosp-raisons button { font:inherit; font-size:.84rem; border-radius:999px; padding:.25rem .8rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .prosp-raisons button.actif { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+  .prosp-form input[type=text] { font:inherit; width:100%; padding:.4rem .6rem; border:1px solid var(--border-strong); border-radius:8px; background:var(--bg-card); color:var(--text); }
+  .btn.prosp-discret { background:none; border-style:dashed; color:var(--text-muted); }
+  @media (max-width:520px) { .prosp-choix { grid-template-columns:1fr; } }
   .adr-famille { display:flex; gap:.7rem; align-items:flex-start; padding:.55rem 0; border-bottom:1px solid var(--border); }
   .adr-famille:last-child { border-bottom:0; }
   .adr-famille input { width:auto; margin-top:.35rem; }
@@ -575,6 +624,7 @@
 <button class="btn toggle-theme" onclick="document.body.classList.toggle('dark');memoire()">Mode sombre</button>
 <button class="btn btn-claude" id="btnTravClaude" type="button" onclick="tcBasculer()">Travailler avec Claude</button>
 <button class="btn btn-sas" id="btnSas" type="button" onclick="tcOuvrirSas()">Sas à valider</button>
+<button class="btn btn-prosp" id="btnProsp" type="button" onclick="ouvrirProspectionDirect()" aria-label="Prospection des structures">Prospection</button>
 
 <main>
   <h1>Outil de veille</h1>
@@ -691,6 +741,73 @@
     </div>
   </div>
 
+  <div id="vueProspectionGuide" style="display:none">
+    <button class="lien-retour-guide" onclick="fermerProspectionGuide()" style="background:none;border:none;color:var(--text-muted);font:inherit;font-weight:600;cursor:pointer;padding:.3rem 0;margin-bottom:.6rem">&#8592; Chaque mois</button>
+    <div class="entete-module-guide">
+      <span class="pastille">&#128269;</span>
+      <div><h2 style="margin:0">Prospection des structures</h2><p class="sous-titre" style="margin:0">Des structures récentes, à regarder avant de les mettre au sas.</p></div>
+    </div>
+    <div class="carte" style="margin-top:.8rem">
+      <div class="note"><span>&#9432; Le bouton ci-dessous <strong>va chercher lui-même</strong> deux fichiers ouverts de data.gouv.fr : <strong>data.inclusion</strong> (structures d'insertion et d'accompagnement) et <strong>FINESS</strong> (établissements sociaux et médico-sociaux : hébergement, ESAT, entreprises adaptées, addictologie...). Il garde la Dordogne et la Haute-Vienne, les fiches mises à jour depuis moins de 12 mois avec un téléphone ou un site, vérifie chacune auprès de la <strong>base officielle des entreprises</strong>, et retire ce que vous avez déjà. <strong>Rien n'est publié ici</strong> : vous cochez, vous mettez au sas, puis vous vérifiez chaque site à la main avant le « C'est bon ».</span></div>
+      <div class="btn-rangee">
+        <button class="btn primaire" type="button" id="prospChercher" data-prosp-act="chercher">Chercher de nouvelles structures</button>
+        <span class="mini" id="prospDerniere"></span>
+      </div>
+      <div id="prospAvancement" style="display:none;margin-top:.7rem" aria-live="polite">
+        <div class="adr-barre"><div id="prospBarre"></div></div>
+        <p class="mini" id="prospEtape"></p>
+      </div>
+      <div id="prospFinessNote" aria-live="polite"></div>
+      <div id="prospMessage" aria-live="polite"></div>
+      <div id="prospDepBloc" style="display:none;margin-top:.8rem">
+        <p class="mini" style="margin:0 0 .3rem"><strong>Département affiché</strong> (pour les structures nouvelles et pour les fiches à revoir)</p>
+        <div class="btn-rangee" id="prospDeps"></div>
+      </div>
+      <div id="prospChiffres" style="display:none">
+        <div class="mt-compteurs" id="prospCompteurs"></div>
+        <div id="prospSansSiret"></div>
+      </div>
+    </div>
+    <div id="prospOrangeBloc" style="display:none" class="carte">
+      <h3 style="margin:0 0 .3rem">À trancher avant le sas</h3>
+      <p class="mini">Une fiche ressemble à une fiche que vous avez déjà (dans le registre ou dans le sas). Comparez, puis choisissez la réponse qui convient : <strong>le sas reste fermé tant qu'il en reste une</strong>.</p>
+      <div id="prospOrangeListe"></div>
+    </div>
+    <div id="prospRecoupe" style="display:none" class="carte">
+      <h3 style="margin:0 0 .3rem">Fiches déjà publiées à revoir</h3>
+      <p class="mini" id="prospRecoupeResume"></p>
+      <div id="prospRecoupeListe"></div>
+    </div>
+    <div id="prospResultat" style="display:none">
+      <div class="carte" id="prospResultatListe">
+        <p class="mini" style="margin:0 0 .3rem">Ces boutons sont des <strong>filtres</strong> : ils changent seulement ce que la liste montre, rien n'est modifié. Toutes ces fiches ont déjà été comparées à votre registre et à votre sas (aucune ressemblance). Les fiches <strong style="color:var(--warn)">à trancher</strong> (cadre orange) sont plus haut, dans leur bloc.</p>
+        <ul class="mini" style="margin:0 0 .6rem;padding-left:1.2rem">
+          <li><strong style="color:var(--ok)">Prêtes pour le sas</strong> (cadre vert) : l'outil a pu proposer un type de structure, donc une ligne est prête à mettre au sas.</li>
+          <li><strong style="color:var(--contenu)">À classer à la main</strong> (cadre violet) : l'outil n'a pas pu deviner le type, vous le choisirez vous-même.</li>
+          <li><strong style="color:var(--action)">Existence à confirmer</strong> (pastille bleue) : un regard de plus, pas un groupe à part. Ce sont des fiches vertes ou violettes sans numéro SIRET : la base officielle ne peut pas confirmer qu'elles existent. Elles sont décochées au départ.</li>
+          <li><strong>Toutes les contrôlées</strong> : les vertes et les violettes ensemble (rien de masqué).</li>
+        </ul>
+        <div class="btn-rangee" id="prospFiltres" style="margin:.2rem 0 .8rem"></div>
+        <div id="prospListe"></div>
+        <div id="prospBlocage" aria-live="polite"></div>
+        <div class="btn-rangee">
+          <button class="btn primaire" type="button" id="prospSas" data-prosp-act="sas"></button>
+          <button class="btn" type="button" data-prosp-act="tout">Tout cocher</button>
+          <button class="btn" type="button" data-prosp-act="rien">Tout décocher</button>
+        </div>
+        <div id="prospRetourSas" aria-live="polite"></div>
+      </div>
+      <div class="carte" id="prospEcarteesCarte">
+        <h3 style="margin:0 0 .3rem">Écartées par vous (<span id="prospEcarteesVousNb">0</span>)</h3>
+        <p class="mini">Une fiche écartée <strong>ne revient plus</strong> aux recherches suivantes. Vous gardez la raison, et vous pouvez la <strong>remettre en jeu</strong> à tout moment si la situation change.</p>
+        <div id="prospEcarteesVous"></div>
+      </div>
+      <details class="carte"><summary style="cursor:pointer;font-weight:700">Écartées d'office par l'outil (<span id="prospNbEcartees">0</span>)</summary><p class="mini" style="margin-top:.4rem">Écoles, collèges, comités d'entreprise, établissements fermés : l'outil les écarte seul. Si l'une d'elles vous intéresse, remettez-la en jeu : elle reviendra à la prochaine recherche.</p><div id="prospEcartees" class="mini" style="margin-top:.5rem"></div></details>
+      <details class="carte"><summary style="cursor:pointer;font-weight:700">Vos décisions retenues (<span id="prospDecisionsNb">0</span>)</summary><p class="mini" style="margin-top:.4rem">L'outil retient chaque décision dans un fichier privé : le mois prochain, il ne vous repose pas la même question. « Changer » remet la fiche à trancher.</p><div id="prospDecisions" class="mini" style="margin-top:.5rem"></div></details>
+      <p class="mini" id="prospLicence"></p>
+    </div>
+  </div>
+
   <div id="vueMenuMajGuide" style="display:none">
     <button class="lien-retour-guide" id="majRetour" onclick="majRetour()" style="background:none;border:none;color:var(--text-muted);font:inherit;font-weight:600;cursor:pointer;padding:.3rem 0;margin-bottom:.6rem">&#8592; Tous les modules</button>
     <div class="tete-maj">
@@ -739,6 +856,7 @@
         <div class="carte-tache" onclick="majVersBalayage('mois')"><div><div class="titre-tache">Ce qui a changé ce mois-ci</div><div class="sous-tache">10 messages, un par groupe de domaines, avec la couverture et les sites non ouverts</div></div><span class="fleche">&#8250;</span></div>
         <div class="carte-tache" onclick="majVers(entrerFocusVeilleHebdo)"><div><div class="titre-tache">La veille rapide de la semaine</div><div class="sous-tache">Un passage court sur les dispositifs</div></div><span class="fleche">&#8250;</span></div>
         <div class="carte-tache" onclick="majVers(function () { ouvrirImportManuel('cadre'); })"><div><div class="titre-tache">Coller un texte trouvé à la main</div><div class="sous-tache">Un site qui bloque les robots, un document, un mail</div></div><span class="fleche">&#8250;</span></div>
+        <div class="carte-tache" onclick="ouvrirProspectionGuide()"><div><div class="titre-tache">Prospection des structures</div><div class="sous-tache">Des structures récentes (data.inclusion et FINESS), vérifiées auprès de la base officielle, à regarder avant de les mettre au sas</div></div><span class="etat-tache du" id="prospEtatCarte" style="display:none"></span><span class="fleche">&#8250;</span></div>
       </div>
       <p class="sous-titre">Les changements trouvés arrivent dans « À valider », en haut à droite.</p>
     </div>
@@ -1356,7 +1474,7 @@
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
-        <span><strong>Où aller :</strong> ChatGPT ou Perplexity, l'un des deux suffit. Collez, validez,
+        <span><strong>Où aller :</strong> ChatGPT <strong>et</strong> Perplexity : lancez le prompt sur les deux et collez les deux réponses ci-dessous, elles se confirment et se complètent (un seul suffit si vous êtes pressé). Collez, validez,
           attendez la réponse en entier, puis revenez ici la coller ci-dessous.</span>
       </div>
       <label for="reponseCtrl" style="margin-top:.8rem">Le rapport de contrôle (bloc [CONTROLE])</label>
@@ -1391,7 +1509,7 @@
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
-        <span><strong>Où aller :</strong> ChatGPT ou Perplexity, l'un des deux suffit. Collez, validez,
+        <span><strong>Où aller :</strong> ChatGPT <strong>et</strong> Perplexity : lancez le prompt sur les deux et collez les deux réponses ci-dessous, elles se confirment et se complètent (un seul suffit si vous êtes pressé). Collez, validez,
           attendez la réponse en entier, puis revenez ici la coller ci-dessous.</span>
       </div>
       <label for="reponseVeilleHebdo" style="margin-top:.8rem">La réponse de ChatGPT ou Perplexity (bloc [VEILLE-HEBDO])</label>
@@ -1614,7 +1732,7 @@
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
-        <span><strong>Où aller :</strong> ChatGPT ou Perplexity, l'un des deux suffit. Collez, validez,
+        <span><strong>Où aller :</strong> ChatGPT <strong>et</strong> Perplexity : lancez le prompt sur les deux et collez les deux réponses ci-dessous, elles se confirment et se complètent (un seul suffit si vous êtes pressé). Collez, validez,
           attendez la réponse en entier, puis revenez ici la coller ci-dessous.</span>
       </div>
       <label for="reponseChi" style="margin-top:.8rem">Le digest de ChatGPT ou Perplexity (bloc [CHIFFRES])</label>
@@ -1778,7 +1896,7 @@
   <details class="avance" data-mode="entretenir" id="detProfilDecoupes">
     <summary>Le profil des découpes (âge, diplôme des zones d'emploi, départements et régions comparés)</summary>
     <div class="corps">
-      <p class="sous-titre" style="margin-top:.4rem">Alimente les chiffres secondaires (population, logement, niveau de vie, âge, diplôme...) des 3 blocs « écarts » de la Vue d'ensemble : <span class="mono">zones-emploi.md</span> (zones de Dordogne et Haute-Vienne), <span class="mono">departements-region.md</span> (Deux-Sèvres, Lot-et-Garonne, Dordogne, Haute-Vienne) et <span class="mono">regions-france.md</span> (Pays de la Loire, Hauts-de-France, Nouvelle-Aquitaine). Cadence <strong>annuelle</strong> (le recensement INSEE se met à jour chaque été) ou quand un nouveau territoire rejoint le suivi - pas à chaque trimestre comme les 5 chiffres clés. Pas de recherche web ici : ce sont des pages INSEE précises à ouvrir et deux tableaux à copier, l'outil ne fait que préparer la liste des liens.</p>
+      <p class="sous-titre" style="margin-top:.4rem">Alimente les chiffres secondaires (population, logement, niveau de vie, âge, diplôme...) des 3 blocs « écarts » de la Vue d'ensemble : <span class="mono">zones-emploi.md</span> (zones de Dordogne et Haute-Vienne), <span class="mono">departements-region.md</span> (les 12 départements ; textes sourcés pour Charente, Corrèze, Deux-Sèvres, Lot-et-Garonne, Dordogne et Haute-Vienne) et <span class="mono">regions-france.md</span> (les 13 régions ; textes sourcés pour Bretagne, Hauts-de-France, Nouvelle-Aquitaine et Pays de la Loire). Cadence <strong>annuelle</strong> (le recensement INSEE se met à jour chaque été) ou quand un nouveau territoire rejoint le suivi - pas à chaque trimestre comme les 5 chiffres clés. Pas de recherche web ici : ce sont des pages INSEE précises à ouvrir et deux tableaux à copier, l'outil ne fait que préparer la liste des liens.</p>
       <div class="btn-rangee"><button class="btn" onclick="assemblerProfilDecoupes()">Afficher les liens et les consignes</button></div>
       <div class="code" id="promptProfilDecoupes" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="profilDecoupesBoutons" style="display:none">
@@ -2542,7 +2660,7 @@
     return { texte: interne, origine: 'bloc' };
   }
   function lireCollecte() {
-    var t = $('reponse1').value;
+    var t = repTexte('reponse1');
     var m = t.match(/\[COLLECTE\]([\s\S]*?)\[\/COLLECTE\]/i);
     var msg = $('msg1');
     var parties = blocsJoints(t, 'COLLECTE'), vusS = {}, vusT = {}, brutsTexte = [];
@@ -3058,8 +3176,8 @@
         var ouvert = ta.classList.toggle('reponse-ouverte');
         b.textContent = ouvert ? 'Cacher la réponse collée' : 'Voir la réponse collée';
       } else if (act === 'refaire') {
-        if (REPONSES_CUMULEES.indexOf(id) !== -1 && !window.confirm('Cela efface TOUTES les réponses déjà collées dans cette case, pas seulement la dernière. Continuer ?')) { return; }
-        ta.value = ''; ta.classList.remove('reponse-repliee', 'reponse-ouverte');
+        if ((REPONSES_CUMULEES.indexOf(id) !== -1 || repEstZone(id)) && !window.confirm('Cela efface TOUTES les réponses déjà collées dans cette case (ChatGPT et Perplexity), pas seulement la dernière. Continuer ?')) { return; }
+        ta.value = ''; ta.classList.remove('reponse-repliee', 'reponse-ouverte'); repMajEtat(id);
         if (msg) { msg.innerHTML = ''; }
         if (id === 'reponseBal') { balRendreCarnet(); }
         if (s.parentNode) { s.parentNode.removeChild(s); }
@@ -3070,11 +3188,97 @@
   // Cases où l'on colle PLUSIEURS réponses (un message par groupe de domaines) : « Coller ici et lire » ajoute à la suite au lieu de remplacer.
   var REPONSES_CUMULEES = ['reponseBal'];
   // Un seul bouton : il lit la reponse copiee ; si rien d'utilisable n'est copie mais que la case contient deja une reponse, il lit celle-ci.
-  function collerDans(id, btn, apres) {
+  /* ---------- Deux assistants, une même zone (demande de Denis, 15/11/2026) ----------
+     Dans chaque zone où l'on colle la réponse de ChatGPT ou de Perplexity, on peut coller LES DEUX : chaque réponse s'ajoute à la suite, sous une ligne
+     « === Réponse de ChatGPT (collée à 21:27) === » (même format que l'onglet des retours). Rien n'est remplacé. Les lecteurs de chaque écran reçoivent
+     le texte FUSIONNÉ (repTexte) : les blocs de même nom ([VEILLE-HEBDO], [CONFRONTER]...) sont réunis en un seul, donc ils lisent les deux réponses. */
+  var ZONES_DEUX_ASSISTANTS = ['reponse1', 'reponseCtrl', 'reponseVeilleHebdo', 'reponseTriage', 'reponseConf', 'reponseChi', 'reponseLexiqueVerif', 'reponseLexiqueMots'];
+  function repEstZone(id) { return ZONES_DEUX_ASSISTANTS.indexOf(id) !== -1; }
+  function repHeure() { var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; }; return p(d.getHours()) + ':' + p(d.getMinutes()); }
+  function repSections(texte) {
+    var t = String(texte || '').replace(/\r\n/g, '\n'), re = /^=== Réponse de (.+?)(?: \(collée à (\d{2}:\d{2})\))? ===[ \t]*$/gm, res = [], m, cur = null, debut = 0;
+    while ((m = re.exec(t))) {
+      if (cur) { cur.texte = t.slice(debut, m.index).trim(); res.push(cur); }
+      else if (t.slice(0, m.index).trim()) { res.push({ auteur: 'un assistant', heure: '', texte: t.slice(0, m.index).trim() }); }
+      cur = { auteur: m[1], heure: m[2] || '', texte: '' }; debut = m.index + m[0].length;
+    }
+    if (cur) { cur.texte = t.slice(debut).trim(); res.push(cur); }
+    else if (t.trim()) { res.push({ auteur: 'un assistant', heure: '', texte: t.trim() }); }
+    return res.filter(function (s) { return s.texte; });
+  }
+  function repAssembler(sections) {
+    return sections.map(function (s) { return '=== Réponse de ' + s.auteur + (s.heure ? ' (collée à ' + s.heure + ')' : '') + ' ===\n' + s.texte; }).join('\n\n');
+  }
+  // Les blocs de même nom sont réunis en un seul (le premier mot entre crochets, en majuscules) ; le texte hors blocs de chaque réponse est gardé.
+  function repFusionner(texte) {
+    var sections = repSections(texte);
+    if (!sections.length) { return ''; }
+    if (sections.length === 1) { return deMd(sections[0].texte); }
+    var re = /\[([A-Z][A-Z0-9-]*)(?:[ :][^\]]*)?\]([\s\S]*?)\[\/\1\]/g, ordre = [], contenus = {}, ouvertures = {}, hors = [];
+    sections.forEach(function (s) {
+      var reste = deMd(s.texte).replace(re, function (tout, tag, interieur) {
+        if (!contenus[tag]) { contenus[tag] = []; ordre.push(tag); ouvertures[tag] = tout.slice(0, tout.indexOf(']') + 1); }
+        contenus[tag].push(interieur.trim());
+        return '';
+      }).trim();
+      if (reste) { hors.push(reste); }
+    });
+    return hors.concat(ordre.map(function (tag) { return ouvertures[tag] + '\n' + contenus[tag].join('\n\n') + '\n[/' + tag + ']'; })).join('\n\n');
+  }
+  function repTexte(id) { var el = $(id); return el ? repFusionner(el.value) : ''; }
+  function repDeviner(t) { return /utm_source=chatgpt/i.test(t) ? 'ChatGPT' : 'un assistant'; }
+  // Ajoute une réponse à la suite de celles déjà là. Renvoie 'vide', 'deja' ou 'ajoutee'.
+  function repAjouter(id, texte, auteur) {
+    var el = $(id), t = normaliserTexte(texte); if (!el || !t) { return 'vide'; }
+    var sections = repSections(el.value);
+    if (sections.some(function (s) { return s.texte.indexOf(t) !== -1; })) { return 'deja'; }
+    sections.push({ auteur: auteur || repDeviner(t), heure: repHeure(), texte: t });
+    el.value = repAssembler(sections);
+    return 'ajoutee';
+  }
+  // La ligne qui dit, sous la zone, quelles réponses sont déjà là ; et les deux boutons passent au vert une fois leur réponse ajoutée.
+  function repMajEtat(id) {
+    var el = $(id), z = $('repEtat_' + id); if (!el || !z) { return; }
+    var sections = repSections(el.value), de = function (qui) { return sections.filter(function (s) { return s.auteur === qui; }).length; };
+    var autres = sections.length - de('ChatGPT') - de('Perplexity');
+    var morceau = function (qui) { var n = de(qui); return qui + ' : ' + (n ? '&#10004; ' + (n > 1 ? n + ' réponses' : 'collée') : 'pas encore'); };
+    z.innerHTML = sections.length ? '<strong>Réponses reçues (' + sections.length + ')</strong> : ' + morceau('ChatGPT') + ' · ' + morceau('Perplexity') + (autres ? ' · ' + autres + ' sans nom d’assistant' : '') + '. Les deux ensemble se confirment et se complètent.'
+      : 'Aucune réponse collée. Vous pouvez coller celle de ChatGPT <strong>et</strong> celle de Perplexity : elles s’ajoutent l’une à la suite de l’autre.';
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-rep-zone="' + id + '"]'), function (b) {
+      var qui = b.getAttribute('data-rep-auteur'), n = de(qui);
+      b.classList.toggle('fait-ok', n > 0);
+      var lib = (n ? '✔ ' : '') + 'Coller la réponse de ' + qui + (n ? ' (en ajouter une autre)' : '') + ' et lire';
+      b.setAttribute('data-l', lib); b.textContent = lib;
+    });
+  }
+  // Remplace le bouton unique « Coller ici et lire » de chaque zone par deux boutons (ChatGPT, Perplexity) et ajoute la ligne d'état.
+  function repInitZones() {
+    ZONES_DEUX_ASSISTANTS.forEach(function (id) {
+      var ta = $(id); if (!ta || ta.getAttribute('data-rep-init')) { return; }
+      var b = document.querySelector('button[onclick*="collerDans(\'' + id + '\'"]'); if (!b) { return; }
+      var m = /collerDans\('(\w+)',\s*this,\s*'(\w+)'/.exec(b.getAttribute('onclick') || ''); if (!m) { return; }
+      ta.setAttribute('data-rep-init', '1');
+      ['ChatGPT', 'Perplexity'].forEach(function (qui, i) {
+        var bt = i === 0 ? b : b.cloneNode(false);
+        bt.setAttribute('onclick', 'collerDans(\'' + id + '\', this, \'' + m[2] + '\', \'' + qui + '\')');
+        bt.setAttribute('data-rep-zone', id); bt.setAttribute('data-rep-auteur', qui); bt.removeAttribute('data-l');
+        bt.textContent = 'Coller la réponse de ' + qui + ' et lire';
+        if (i === 1) { b.parentNode.insertBefore(bt, b.nextSibling); }
+      });
+      var etat = document.createElement('div'); etat.id = 'repEtat_' + id; etat.className = 'sous-titre'; etat.style.margin = '.3rem 0';
+      b.parentNode.parentNode.insertBefore(etat, b.parentNode);
+      ta.addEventListener('input', function () { repMajEtat(id); });
+      repMajEtat(id);
+    });
+  }
+  function repMajToutes() { ZONES_DEUX_ASSISTANTS.forEach(repMajEtat); }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', repInitZones); } else { repInitZones(); }
+  function collerDans(id, btn, apres, auteur) {
     var el = $(id);
     var fini = function () {
       memoire();
       try { _lectureAuto.derniere = normaliserTexte(el.value); } catch (e) { /* tant pis */ }
+      repMajEtat(id);
       if (apres && typeof window[apres] === 'function') { window[apres](); }
       replierReponse(id);
       montrerResultat(id);
@@ -3085,6 +3289,12 @@
     if (navigator.clipboard && navigator.clipboard.readText) {
       navigator.clipboard.readText().then(function (txt) {
         txt = deMd(txt); var t = normaliserTexte(txt);
+        if (repEstZone(id)) {
+          // Deux assistants : la réponse copiée s'ajoute à la suite, jamais à la place de l'autre.
+          if (t.length > 0 && !estUnPromptConnu(t)) { var r = repAjouter(id, txt, auteur); flash(btn, r === 'deja' ? 'Déjà collée' : 'Ajoutée'); fini(); }
+          else { sansPresse('Rien à lire : copiez d\'abord la réponse'); }
+          return;
+        }
         var cumul = REPONSES_CUMULEES.indexOf(id) !== -1;
         var utilisable = t.length > 0 && !estUnPromptConnu(t) && (cumul || !mq || t.indexOf('[' + mq[1]) !== -1 || !dejaLa());
         if (utilisable) {
@@ -3140,12 +3350,16 @@
   var _lectureAuto = { derniere: '', dernierPassage: 0 };
   function lectureAutoActive() { try { return localStorage.getItem('veille_lecture_auto') !== 'non'; } catch (e) { return true; } }
   // Copiée depuis l'affichage de ChatGPT, une réponse arrive parfois avec des crochets « protégés » (\[VEILLE-HEBDO\]) : l'outil ne reconnaissait plus ses blocs et jugeait la réponse inutilisable.
-  function deMd(t) { return String(t === undefined || t === null ? '' : t).replace(/\\([\[\]])/g, '$1'); }
+  // Les tirets bas « protégés » (ce\_qui\_change, date\_effet) viennent du même affichage : ils sont aussi remis d'aplomb.
+  // Les liens écrits [texte](<adresse>) et les marques de suivi « ?utm_source=chatgpt.com » sont aussi nettoyés : l'adresse reste celle de la page.
+  function deMd(t) {
+    return String(t === undefined || t === null ? '' : t).replace(/\\([\[\]_])/g, '$1').replace(/\]\(<(https?:\/\/[^>\s]+)>\)/g, ']($1)').replace(/[?&]utm_source=chatgpt\.com/g, '');
+  }
   function normaliserTexte(t) { return deMd(t).replace(/\r\n/g, '\n').trim(); }
   // Tout collage (Ctrl+V) dans une zone de texte : même nettoyage, une fois pour toutes les zones de l'outil.
   document.addEventListener('paste', function (e) {
     var z = e.target; if (!z || z.tagName !== 'TEXTAREA' || !e.clipboardData) { return; }
-    var brut = e.clipboardData.getData('text'); if (!/\\[\[\]]/.test(brut)) { return; }
+    var brut = e.clipboardData.getData('text'); if (!/\\[\[\]_]/.test(brut)) { return; }
     e.preventDefault();
     var propre = deMd(brut), d = z.selectionStart, f = z.selectionEnd;
     z.value = z.value.slice(0, d) + propre + z.value.slice(f); z.selectionStart = z.selectionEnd = d + propre.length;
@@ -3155,7 +3369,8 @@
   function reponsesAttendues() {
     var res = [];
     Array.prototype.forEach.call(document.querySelectorAll('button[onclick*="collerDans("]'), function (b) {
-      var m = /collerDans\('(\w+)',\s*this,\s*'(\w+)'\)/.exec(b.getAttribute('onclick') || ''); if (!m) { return; }
+      var m = /collerDans\('(\w+)',\s*this,\s*'(\w+)'[,)]/.exec(b.getAttribute('onclick') || ''); if (!m) { return; }
+      if (res.some(function (r) { return r.id === m[1]; })) { return; }   // deux boutons (ChatGPT, Perplexity) pour la même zone : une seule entrée
       var ta = $(m[1]); if (!ta || ta.offsetParent === null || ta.value.trim()) { return; }
       var lab = document.querySelector('label[for="' + m[1] + '"]'), mq = lab && /\[([A-Z][A-Z0-9-]*)\]/.exec(lab.textContent);
       if (!mq) { return; }
@@ -3181,7 +3396,8 @@
       var a = ok[0], ta = $(a.id);
       if (ta.value.trim() || typeof window[a.fn] !== 'function') { return; }
       _lectureAuto.derniere = txt;
-      ta.value = brut; memoire();
+      if (repEstZone(a.id)) { repAjouter(a.id, brut); repMajEtat(a.id); } else { ta.value = brut; }
+      memoire();
       window[a.fn]();
       replierReponse(a.id);
       montrerResultat(a.id);
@@ -3496,7 +3712,7 @@
     return h;
   }
   function lireControle() {
-    var t = $('reponseCtrl').value, msg = $('msgCtrl2');
+    var t = repTexte('reponseCtrl'), msg = $('msgCtrl2');
     var blocs = [], reB = /\[CONTROLE[^\]]*\]([\s\S]*?)\[\/CONTROLE\]/gi, mB;
     while ((mB = reB.exec(t))) { blocs.push(mB[1]); }   // une réponse coupée donne plusieurs blocs, collés à la suite
     var bloc = blocs.length ? blocs.join('\n') : t;
@@ -3516,7 +3732,7 @@
       var prv = typeof VeillePreuve !== 'undefined' ? VeillePreuve.lire(e) : null, evp = prv ? VeillePreuve.evaluer(prv) : null;
       var vf = _verifPreuves[rayon + '|' + id]; if (vf && prv && (vf.adresse !== prv.adresse || vf.passage !== prv.passage)) { vf = null; }
       var ret = evp ? VeillePreuve.etatRetenu(etatBrut, evp, vf) : { etat: etatBrut, declasse: false };
-      parId[id] = {
+      var nouvelle = {
         etat: ret.etat,
         declasse: ret.declasse,
         depuis: depM ? depM[1] : '',
@@ -3527,6 +3743,10 @@
         preuveProblemes: evp ? evp.problemes : [],
         verif: vf ? { verdict: vf.verdict, detail: vf.detail } : null
       };
+      // Si ChatGPT et Perplexity ont chacun jugé cette fiche, on garde le jugement le plus prudent (obsolète > changement > incertain > à jour) : jamais un « à jour » qui en efface un autre.
+      var GRAVITE_ETAT = { PRINCIPE_OBSOLETE: 4, CHANGEMENT: 3, INCERTAIN: 2 };
+      if (parId[id] && (GRAVITE_ETAT[parId[id].etat] || 1) > (GRAVITE_ETAT[nouvelle.etat] || 1)) { nouvelle = parId[id]; }
+      parId[id] = nouvelle;
       n++;
     });
     if (!n) { msg.innerHTML = '<div class="note warn"><span>&#9888;&#65039;</span><span>Aucune entrée « fiche: » trouvée dans le rapport.</span></div>'; return; }
@@ -3792,11 +4012,10 @@
   var VH_CLES = ['signal', 'rayon', 'ce_qui_change', 'date_effet', 'source', 'preuve'];
   var _veilleHebdo = [];
   function veilleHebdoItemVide() { return { signal: '', rayon: '', ce_qui_change: '', date_effet: '', source: '', preuve: '' }; }
-  function lireVeilleRapide() {
-    var t = deMd($('reponseVeilleHebdo').value), msg = $('msgVeilleHebdo2');
-    var m = t.match(/\[VEILLE-HEBDO[^\]]*\]([\s\S]*?)\[\/VEILLE-HEBDO\]/i);
-    var bloc = m ? m[1] : t;
-    var entrees = [], cur = null;
+  // Les entrées d'UNE réponse (le bloc [VEILLE-HEBDO], ou le texte entier s'il n'y a pas de bloc).
+  function veilleHebdoEntreesDe(texte) {
+    var t = deMd(texte), m = t.match(/\[VEILLE-HEBDO[^\]]*\]([\s\S]*?)\[\/VEILLE-HEBDO\]/i);
+    var bloc = m ? m[1] : t, entrees = [], cur = null;
     bloc.split('\n').forEach(function (ln) {
       var km = ln.match(/^\s*[-*]?\s*([a-zA-Zéèêà_]+)\s*:\s*(.*)$/);
       if (!km) return;
@@ -3806,9 +4025,43 @@
       if (cle === 'signal') { cur = veilleHebdoItemVide(); cur.signal = val; entrees.push(cur); return; }
       if (cur) cur[cle] = val;
     });
+    return entrees;
+  }
+  // Adresse de la page citée, sans les ajouts de suivi (?utm_source=...) ni la barre finale : sert à reconnaître le même changement chez les deux assistants.
+  function veilleHebdoAdresse(e) {
+    var u = /https?:\/\/[^\s|)\]>]+/.exec((e.preuve || '') + ' ' + (e.source || '')); if (!u) { return ''; }
+    return u[0].replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^https?:\/\/(?:www\.)?/i, '').toLowerCase();
+  }
+  // Deux assistants : le même changement vu par les deux est gardé UNE fois, marqué « confirmé par les deux » (la version la plus détaillée est gardée, l'autre est mise de côté en complément) ; un changement vu par un seul est marqué « à confirmer ».
+  function veilleHebdoRapprocher(entrees) {
+    var res = [];
+    entrees.forEach(function (e) {
+      var adr = veilleHebdoAdresse(e), jumeau = res.filter(function (r) {
+        if (r.par.indexOf(e.par[0]) !== -1) { return false; }
+        var ra = veilleHebdoAdresse(r);
+        return (adr && ra && adr === ra) || (!adr && !ra && r.rayon && r.rayon === e.rayon && r.date_effet && r.date_effet === e.date_effet);
+      })[0];
+      if (!jumeau) { res.push(e); return; }
+      var gardee = (e.ce_qui_change || '').length > (jumeau.ce_qui_change || '').length ? e : jumeau, autre = gardee === e ? jumeau : e;
+      var i = res.indexOf(jumeau), fusion = Object.assign({}, gardee);
+      fusion.par = jumeau.par.concat(e.par);
+      if (!fusion.preuve && autre.preuve) { fusion.preuve = autre.preuve; }
+      if (!fusion.date_effet && autre.date_effet) { fusion.date_effet = autre.date_effet; }
+      if (autre.ce_qui_change && autre.ce_qui_change !== gardee.ce_qui_change) { fusion.complement = autre.par[0] + ' : ' + autre.ce_qui_change; }
+      res[i] = fusion;
+    });
+    return res;
+  }
+  function lireVeilleRapide() {
+    var t = repTexte('reponseVeilleHebdo'), msg = $('msgVeilleHebdo2');
+    var sectionsVH = repSections($('reponseVeilleHebdo').value), entrees = [];
+    sectionsVH.forEach(function (s) { veilleHebdoEntreesDe(s.texte).forEach(function (e) { e.par = [s.auteur]; entrees.push(e); }); });
+    var plusieurs = sectionsVH.length > 1;
     // « signal: Non vérifié » peut être écrit hors du bloc (bloc laissé vide) : on le cherche dans tout le texte collé.
     var nonVerifie = entrees.some(function (e) { return /^non\s+v[ée]rifi/i.test(e.signal); }) || /^\s*[-*]?\s*signal\s*:\s*non\s+v[ée]rifi/im.test(t);
     entrees = entrees.filter(function (e) { return e.signal && !/^rien\b/i.test(e.signal) && !/^non\s+v[ée]rifi/i.test(e.signal); });
+    var avantRapprochement = entrees.length;
+    entrees = veilleHebdoRapprocher(entrees);
     var sitesVH = balLireSites(t), lotsH = [], sansH = 0;
     entrees.forEach(function (e, i) { var l = preuveAttacher(e, 'hebdo', 'h' + (i + 1), e.preuve); if (l) { lotsH.push(l); } else { sansH++; } });
     if (nonVerifie && !entrees.length) {
@@ -3816,7 +4069,9 @@
     } else if (!entrees.length) {
       msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>Rien de notable signalé cette semaine.</span></div>';
     } else {
-      msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>' + entrees.length + ' signal(aux) cette semaine.</span></div>';
+      var nbDeux = entrees.filter(function (e) { return e.par.length > 1; }).length;
+      msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>' + entrees.length + ' signal(aux) cette semaine'
+        + (plusieurs ? ' (sur ' + sectionsVH.length + ' réponses, ' + avantRapprochement + ' entrées) : ' + nbDeux + ' confirmé' + (nbDeux > 1 ? 's' : '') + ' par les deux assistants, ' + (entrees.length - nbDeux) + ' vu' + (entrees.length - nbDeux > 1 ? 's' : '') + ' par un seul, à confirmer.' : '.') + '</span></div>';
     }
     _veilleHebdo = entrees;
     if (entrees.length) { msg.innerHTML += preuveBlocLot('hebdo', lotsH, lireVeilleRapide, sansH); }
@@ -3832,8 +4087,9 @@
       var esc = function (s) { return String(s).replace(/'/g, '\\\''); };
       return '<div class="carte-tache" style="cursor:default;align-items:flex-start">'
         + '<div><div class="titre-tache">&#9888; ' + echap(e.signal) + '</div>'
+        + (e.par && e.par.length ? '<div style="margin:.25rem 0">' + (e.par.length > 1 ? '<span class="pastille-ver pv-ok">Confirmé par ' + echap(e.par.join(' et ')) + '</span>' : '<span class="pastille-ver pv-warn">Vu seulement par ' + echap(e.par[0]) + ' : à confirmer</span>') + '</div>' : '')
         + '<div class="sous-tache">' + echap(RAYONS[e.rayon] || e.rayon) + ' &mdash; ' + echap(e.ce_qui_change)
-        + (e.date_effet ? ' (effet : ' + echap(e.date_effet) + ')' : '') + (e.pv ? '<br>' + preuveHtml(e.pv).replace(/^<br>/, '') : '') + '</div>'
+        + (e.date_effet ? ' (effet : ' + echap(e.date_effet) + ')' : '') + (e.complement ? '<br><em>Complément (' + echap(e.complement) + ')</em>' : '') + (e.pv ? '<br>' + preuveHtml(e.pv).replace(/^<br>/, '') : '') + '</div>'
         + '<button class="btn primaire" style="margin-top:.6rem" onclick="demarrerFicheDepuisSignal(\'' + esc(e.rayon) + '\',\'' + esc(e.signal) + '\')">Créer ou compléter la fiche</button>'
         + '</div></div>';
     }).join('');
@@ -4138,7 +4394,7 @@
   // principe que traiter() (Controle mensuel) et demarrerFicheDepuisSignal() (veille hebdo).
   var _triage = [];
   function lireTriage() {
-    var t = $('reponseTriage').value;
+    var t = repTexte('reponseTriage');
     var m = t.match(/\[TRIAGE\]([\s\S]*?)\[\/TRIAGE\]/i);
     var bloc = m ? m[1] : t;
     _triage = bloc.split('\n').map(function (l) { return l.replace(/^\s*[-*]\s*/, '').trim(); }).filter(Boolean)
@@ -4356,7 +4612,10 @@
       m[1].replace(/\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/g, '$1').split('\n').forEach(function (ln) {
         ln = ln.replace(/^\s*[-*]\s*/, '').trim();
         if (!ln || ln.indexOf('|') === -1) { return; }
-        var p = ln.split('|').map(function (x) { return x.trim(); }), u = (p[1] || '').match(/https?:\/\/\S+/), cle = balNorm(p[0]) + '|' + (u ? u[0] : '');
+        var p = ln.split('|').map(function (x) { return x.trim(); }), u = (p[1] || '').match(/https?:\/\/\S+/);
+        if (/^site$/i.test(p[0]) && /^adresse/i.test(p[1] || '')) { return; }   // ligne d'en-tête du tableau (« site | adresse | raison | ce que je cherchais »)
+        // Le même site signalé par les deux assistants n'est listé qu'une fois (même page, sans les ajouts de suivi).
+        var cle = u ? u[0].replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^https?:\/\/(?:www\.)?/i, '').toLowerCase() : balNorm(p[0]);
         if (vus[cle]) { return; }
         vus[cle] = true;
         res.push({ site: p[0], url: u ? u[0] : '', raison: p[2] || '', cherchait: p[3] || '' });
@@ -4652,19 +4911,25 @@
       + "« département »). Donne le nom de chaque zone et sa valeur au même trimestre. Sert à alimenter le "
       + "bloc « Les écarts à l'intérieur du département » de la Vue d'ensemble - jamais un classement, une "
       + "donnée brute à mettre à jour.\n"
-      + "8. Départements suivis dans le bloc « Les écarts entre départements de la région » : le même "
-      + "taux de chômage localisé que l'indicateur 1 (même tableau INSEE département/région que "
-      + "l'indicateur 6), pour ces 4 départements précis de Nouvelle-Aquitaine : Deux-Sèvres, "
-      + "Lot-et-Garonne, Dordogne et Haute-Vienne. Juste la valeur trimestrielle de chacun, une donnée "
-      + "brute à mettre à jour - le texte d'explication de `departements-region.md` est structurel et "
-      + "n'a pas besoin d'être refait à chaque trimestre, sauf si l'écart entre eux change nettement.\n"
-      + "9. Régions suivies dans le bloc « Les écarts entre régions de France » : le même taux de chômage "
-      + "localisé que l'indicateur 1, mais dans l'onglet « Région » du même tableau INSEE (pas « "
-      + "Département »), pour ces 3 régions précises : Pays de la Loire, Hauts-de-France et "
-      + "Nouvelle-Aquitaine. Juste la valeur trimestrielle de chacune, une donnée brute à mettre à jour - "
-      + "le texte d'explication de `regions-france.md` est structurel et n'a pas besoin d'être refait à "
-      + "chaque trimestre, sauf si l'écart entre elles change nettement (par exemple si Pays de la Loire "
-      + "ou Hauts-de-France perdent leur position d'extrême).\n\n"
+      + "8. TOUS les départements de Nouvelle-Aquitaine, pour le bloc « Les écarts entre départements de la "
+      + "région » : le même taux de chômage localisé que l'indicateur 1 (même tableau INSEE département/région "
+      + "que l'indicateur 6), pour les 12 départements : Charente, Charente-Maritime, Corrèze, Creuse, "
+      + "Dordogne, Deux-Sèvres, Gironde, Haute-Vienne, Landes, Lot-et-Garonne, Pyrénées-Atlantiques et "
+      + "Vienne. Juste la valeur trimestrielle de chacun, une donnée brute à mettre à jour. IMPORTANT : le "
+      + "site désigne LUI-MÊME le département au taux le plus bas et celui au taux le plus haut à partir de "
+      + "ces 12 valeurs ; il faut donc les 12, jamais seulement quelques-uns. Si deux départements ont le "
+      + "même taux au plus bas ou au plus haut, dis-le. Si le plus bas ou le plus haut n'est plus un "
+      + "département qui a un texte dans `departements-region.md` (Charente, Corrèze, Deux-Sèvres, "
+      + "Lot-et-Garonne, Dordogne, Haute-Vienne), signale-le clairement : un texte sourcé est à rédiger.\n"
+      + "9. TOUTES les régions de France métropolitaine, pour le bloc « Les écarts entre régions de France » : "
+      + "le même taux de chômage localisé que l'indicateur 1, mais dans l'onglet « Région » du même tableau "
+      + "INSEE (pas « Département »), pour les 13 régions : Auvergne-Rhône-Alpes, Bourgogne-Franche-Comté, "
+      + "Bretagne, Centre-Val de Loire, Corse, Grand Est, Hauts-de-France, Île-de-France, Normandie, "
+      + "Nouvelle-Aquitaine, Occitanie, Pays de la Loire et Provence-Alpes-Côte d'Azur. Juste la valeur "
+      + "trimestrielle de chacune, une donnée brute à mettre à jour. Même consigne que pour les départements : "
+      + "les 13 valeurs, les égalités dites, et un signalement si la région au taux le plus bas ou le plus "
+      + "haut n'a pas de texte dans `regions-france.md` (Bretagne, Hauts-de-France, Nouvelle-Aquitaine, "
+      + "Pays de la Loire).\n\n"
       + socleRecherche() + " Cherche sur : l'INSEE (taux de chômage localisés, estimations trimestrielles "
       + "d'emploi), la DARES et France Travail (STMT, offres collectées, statistiques.francetravail.org), "
       + "l'Observatoire des territoires pour la part de longue durée.\n\n"
@@ -4700,12 +4965,12 @@
       + "[ZONES-EMPLOI]\nzone: " + "<nom de la 1ère zone>" + "\nvaleur: 7,8 %\n\nzone: " + "<nom de la 2e zone>"
       + "\nvaleur: 8,1 %\n(etc., une entrée par zone du département)\n[/ZONES-EMPLOI]\n\n"
       + "Puis le bloc départements de la région (indicateur 8, une entrée par département) :\n"
-      + "[DEPARTEMENTS-REGION]\ndepartement: Deux-Sèvres\nvaleur: 6,0 %\n\ndepartement: Lot-et-Garonne\n"
-      + "valeur: 8,2 %\n\ndepartement: Dordogne\nvaleur: 7,8 %\n\ndepartement: Haute-Vienne\nvaleur: 7,4 %\n"
+      + "[DEPARTEMENTS-REGION]\ndepartement: Charente\nvaleur: 8,4 %\n\ndepartement: Charente-Maritime\n"
+      + "valeur: 7,9 %\n\n(etc., une entrée par département, les 12)\n"
       + "[/DEPARTEMENTS-REGION]\n\n"
       + "Puis le bloc régions de France (indicateur 9, une entrée par région) :\n"
-      + "[REGIONS-FRANCE]\nregion: Pays de la Loire\nvaleur: 6,6 %\n\nregion: Hauts-de-France\nvaleur: 9,8 %\n\n"
-      + "region: Nouvelle-Aquitaine\nvaleur: 7,3 %\n[/REGIONS-FRANCE]\n\n"
+      + "[REGIONS-FRANCE]\nregion: Auvergne-Rhône-Alpes\nvaleur: 7,2 %\n\nregion: Bourgogne-Franche-Comté\nvaleur: 7,4 %\n\n"
+      + "(etc., une entrée par région, les 13)\n[/REGIONS-FRANCE]\n\n"
       + blocSitesNonOuvertsTexte("Pour finir, à la fin de CHAQUE réponse, les sites que tu n'as pas pu ouvrir (pour que je les ouvre moi-même)");
     $('promptChi').textContent = t;
     $('promptChi').style.display = 'block';
@@ -4718,7 +4983,7 @@
     return m[region] || ('le CARIF-OREF de ' + region);
   }
   function lireChiffres() {
-    var t = $('reponseChi').value, msg = $('msgChi2');
+    var t = repTexte('reponseChi'), msg = $('msgChi2');
     var mb = blocsJoints(t, 'CHIFFRES');
     var bloc = mb.length ? mb.join('\n\n') : t;
     var perM = t.match(/\[CHIFFRES\s*periode\s*:\s*([^\]]+)\]/i);
@@ -5168,12 +5433,15 @@
     ] },
     { groupe: 'Départements (departements-region.md)', items: [
       ['Deux-Sèvres', 'DEP-79'],
+      ['Charente', 'DEP-16'],
+      ['Corrèze', 'DEP-19'],
       ['Lot-et-Garonne', 'DEP-47'],
       ['Dordogne', 'DEP-24'],
       ['Haute-Vienne', 'DEP-87']
     ] },
     { groupe: 'Régions (regions-france.md)', items: [
       ['Nouvelle-Aquitaine', 'REG-75'],
+      ['Bretagne', 'REG-53'],
       ['Pays de la Loire', 'REG-52'],
       ['Hauts-de-France', 'REG-32']
     ] }
@@ -5535,7 +5803,7 @@
   function confItemVide() { return { signal: '', d_ou: '', rayon: '', confrontation: '', statut: '', a_recouper: '', preuve: '' }; }
   function confEstVide(it) { return /^rien\b/i.test(it.signal); }
   function lireConfronter() {
-    var t = $('reponseConf').value, msg = $('msgConf2');
+    var t = repTexte('reponseConf'), msg = $('msgConf2');
     var m = t.match(/\[CONFRONTER[^\]]*\]([\s\S]*?)\[\/CONFRONTER\]/i);
     var bloc = m ? m[1] : t;
     var perM = t.match(/\[CONFRONTER\s*periode\s*:\s*([^\]]+)\]/i);
@@ -5867,6 +6135,7 @@
     if (o.tri && o.tri.length) _triage = o.tri;
     CHAMPS.forEach(function (c) { var e = $(c); if (e && typeof o[c] === 'string') e.value = o[c]; });
     if ($('fIdFige') && o.fIdFige) $('fIdFige').checked = true;
+    repMajToutes();
     if (!$('fVerifie').value) $('fVerifie').value = jourCourant();
     // Réaffiche les résultats déjà lus avant le rechargement (demande de Denis, 2026-09-26,
     // "corrige le point mineur des boutons après rechargement, importe toute la correction
@@ -5901,6 +6170,7 @@
     $('vueMenuLexiqueGuide').style.display = 'none';
     $('vueMenuChiffresGuide').style.display = 'none';
     $('vueAdressesGuide').style.display = 'none';
+    $('vueProspectionGuide').style.display = 'none';
   }
   /* ---------- Rubrique « Mise à jour » : un seul endroit pour garder les fiches à jour (maquette docs/MAQUETTE_MISE_A_JOUR_2026-10-31.html) ---------- */
   // Elle ne réécrit rien : chaque porte ouvre l'écran qui existait déjà. « À valider » ouvre le sas des changements (fenêtre #chgFenetre).
@@ -5932,7 +6202,7 @@
     $('majRetour').innerHTML = _majPanneau === 'racine' ? '&#8592; Tous les modules' : (_majPanneau === 'fiches' ? '&#8592; Par rayon' : '&#8592; Mise à jour');
     if (_majPanneau === 'rayon') { $('majListeRayons').innerHTML = htmlRayonsGuide(true); }
     if (_majPanneau === 'fiches') { majRendreFiches(); }
-    if (_majPanneau === 'mois') { majTestRendre(); }
+    if (_majPanneau === 'mois') { majTestRendre(); prospMajBadge(); }
     window.scrollTo(0, 0);
   }
   // Ouvre un écran existant en gardant « Mise à jour » comme point de retour.
@@ -6510,6 +6780,292 @@
   document.addEventListener('input', function (ev) {
     var t = ev.target; if (t && t.hasAttribute && t.hasAttribute('data-adr-note')) { _adr.saisie[t.getAttribute('data-adr-note')] = t.value; }
   });
+  /* ---------- « Prospection des structures » (consigne 270, maquette docs/maquettes/maquette-prospection-structures-veille-2026-11-12.html) ----------
+     Le travail est dans scripts/prospectionStructures.js, lancé par le serveur local (outils/veilleProspection.js) ; ici, seulement l'écran.
+     Il n'écrit ni le registre ni le sas : « Mettre dans le sas » remplit la zone de collage du sas, puis tout passe par « Vérifier mes lignes » et « C'est bon ». */
+  var _prosp = { d: null, filtre: 'pretes', dep: '', coche: {}, minuteur: null, ouvert: '', brouillon: { raison: '', texte: '' } };
+  var PROSP_DEPS = [['', 'Les deux'], ['24', 'Dordogne (24)'], ['87', 'Haute-Vienne (87)']];
+  function prospDepOk(x) { return !_prosp.dep || x.dep === _prosp.dep; }
+  var PROSP_DECOCHEES = /existence à confirmer|même site|réseau social|formations|ressemble à/;
+  function prospDateFr(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
+  function prospAttr(s) { return echap(s).replace(/"/g, '&quot;'); }
+  function prospNote(classe, html) { return '<div class="note ' + classe + '"><span>' + html + '</span></div>'; }
+  function prospArreter() { if (_prosp.minuteur) { clearInterval(_prosp.minuteur); _prosp.minuteur = null; } }
+  function ouvrirProspectionGuide() {
+    _fermerVuesGuidees();
+    _menuMajOuvert = false;
+    _dernierSousMenu = 'prospection';
+    $('vueProspectionGuide').style.display = 'block';
+    prospCharger(true);
+    window.scrollTo(0, 0);
+  }
+  // Le bouton « Chaque mois » revient au panneau d'où l'on vient.
+  function fermerProspectionGuide() { prospArreter(); _majPanneau = 'mois'; ouvrirMenuMajGuide(); }
+  window.prospRafraichir = function () { if ($('vueProspectionGuide').style.display === 'block') { prospCharger(false); } };
+  // Le nombre de structures à regarder, sur la carte de « Chaque mois ».
+  function prospMajBadge() {
+    var e = $('prospEtatCarte'); if (!e || typeof window.prospAPI !== 'object') { return; }
+    window.prospAPI.lire().then(function (r) {
+      var n = r && r.ok && !r.absent ? r.candidates.length + (r.recoupement ? r.recoupement.aRevoir.length : 0) : 0;
+      if (n) { e.textContent = n + ' à regarder'; e.style.display = ''; } else { e.style.display = 'none'; }
+    });
+  }
+  function prospCharger(reprendre) {
+    if (typeof window.prospAPI !== 'object') { $('prospMessage').innerHTML = prospNote('warn', '&#9888; Cet écran ne s\'ouvre que depuis le lanceur : fermez cette page, puis double-cliquez sur « Lancer l\'outil de veille » dans le dossier outils.'); $('prospChercher').disabled = true; return; }
+    window.prospAPI.lire().then(function (r) {
+      if (!r || !r.ok) { $('prospMessage').innerHTML = prospNote('alert', '&#9888; ' + echap((r && r.erreur) || 'Le serveur local ne répond pas.')); return; }
+      _prosp.d = r; if (window.majBoutonProsp) { window.majBoutonProsp(r); }
+      if (!r.absent) { r.candidates.forEach(function (c) { if (_prosp.coche[c.id] === undefined) { _prosp.coche[c.id] = !c.avertissements.some(function (a) { return PROSP_DECOCHEES.test(a); }); } }); }
+      prospRendre();
+    });
+    // Une recherche déjà en cours (page rechargée en route) : on reprend le suivi.
+    if (reprendre) { window.prospAPI.etat().then(function (e) { if (e && e.ok && e.enCours) { prospEnCours(true); prospSuivre(); } }); }
+  }
+  function prospOrange(c) { return c.controle === 'orange'; }
+  function prospLignes() {
+    var d = _prosp.d; if (!d || d.absent) { return []; }
+    return d.candidates.filter(function (c) { return !prospOrange(c) && c.ligne && _prosp.coche[c.id] && prospDepOk(c); });
+  }
+  function prospVisible(c) {
+    var f = _prosp.filtre;
+    if (!prospDepOk(c) || prospOrange(c)) { return false; }
+    return f === 'toutes' || (f === 'pretes' && c.ligne) || (f === 'aclasser' && !c.ligne) || (f === 'confirmer' && c.etatOfficiel === 'aucun SIRET');
+  }
+  var PROSP_RAISONS = ['Hors de mon public', 'Structure fermée', 'Trop loin du territoire', 'Déjà chez moi sous un autre nom', 'Contact ou site introuvable', 'Pas un lieu d’aide (école, entreprise...)', 'Pas assez sûr pour la publier', 'Autre'];
+  var PROSP_CHOIX = [['meme', 'C’est la même structure', 'Déjà chez moi : ne pas l’ajouter'], ['demenage', 'Elle a déménagé', 'Même structure, nouvelle adresse ou nouveau numéro'], ['antenne', 'C’est une antenne', 'Autre lieu de la même structure : l’ajouter'], ['autre', 'Ce n’est pas la même', 'Deux structures différentes : l’ajouter']];
+  var PROSP_LIB = { meme: 'c’est la même structure', demenage: 'elle a déménagé', antenne: 'c’est une antenne', autre: 'ce n’est pas la même' };
+  function prospNorm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+  function prospBoutonEcarter(id) { return _prosp.ouvert === id ? '' : '<button class="btn adr-petit prosp-discret" type="button" data-prosp-ecarter="' + prospAttr(id) + '">Écarter cette fiche pour toujours...</button>'; }
+  function prospFormEcart(id) {
+    if (_prosp.ouvert !== id) { return ''; }
+    var b = _prosp.brouillon, ok = b.raison && (b.raison !== 'Autre' || b.texte.trim());
+    return '<div class="prosp-form"><strong>Pourquoi l’écarter ?</strong><div class="prosp-raisons">' + PROSP_RAISONS.map(function (x) { return '<button type="button" class="' + (b.raison === x ? 'actif' : '') + '" data-prosp-raison="' + prospAttr(x) + '">' + echap(x) + '</button>'; }).join('') + '</div>' +
+      '<input type="text" id="prospChampEcart" maxlength="200" placeholder="' + (b.raison === 'Autre' ? 'Écrivez la raison ici (obligatoire pour « Autre »)' : 'Un mot de plus si vous voulez') + '" value="' + prospAttr(b.texte) + '">' +
+      '<div class="btn-rangee"><button class="btn primaire adr-petit" type="button" data-prosp-confirmer="' + prospAttr(id) + '"' + (ok ? '' : ' disabled') + '>Écarter</button><button class="btn adr-petit" type="button" data-prosp-annuler="1">Annuler</button></div></div>';
+  }
+  function prospLienSite(u) { return u ? '<a href="' + prospAttr(u) + '" target="_blank" rel="noopener noreferrer">' + echap(String(u).replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a>' : '<span class="mini">non renseigné</span>'; }
+  // Les deux fiches côte à côte : ce qui diffère est surligné.
+  function prospTable(c, g) {
+    var cl = function (a, b) { return prospNorm(a) !== prospNorm(b) ? ' class="prosp-diff"' : ''; };
+    var tel = function (t) { return t ? echap(t) : '<span class="mini">non renseigné</span>'; };
+    return '<table class="prosp-compare"><thead><tr><th></th><td>Nouvelle fiche (' + (c.origine === 'finess' ? 'FINESS' : 'data.inclusion') + ')</td><td>Votre registre</td></tr></thead><tbody>' +
+      '<tr><th>Nom</th><td' + cl(c.nom, g.nom) + '>' + echap(c.nom) + '</td><td' + cl(c.nom, g.nom) + '>' + echap(g.nom) + '</td></tr>' +
+      '<tr><th>Commune</th><td' + cl(c.commune, g.commune) + '>' + echap(c.commune) + '</td><td' + cl(c.commune, g.commune) + '>' + (echap(g.commune) || '<span class="mini">non renseignée</span>') + '</td></tr>' +
+      '<tr><th>Téléphone</th><td' + cl((c.tel || '').replace(/\D/g, ''), (g.tel || '').replace(/\D/g, '')) + '>' + tel(c.tel) + '</td><td' + cl((c.tel || '').replace(/\D/g, ''), (g.tel || '').replace(/\D/g, '')) + '>' + tel(g.tel) + '</td></tr>' +
+      '<tr><th>Site</th><td' + cl(c.site, g.site) + '>' + prospLienSite(c.site) + '</td><td' + cl(c.site, g.site) + '>' + prospLienSite(g.site) + '</td></tr>' +
+      '<tr><th>Adresse</th><td>' + (echap(c.adresseRegistre || c.adresse) || '<span class="mini">non renseignée</span>') + '</td><td>' + (echap(g.adresse) || '<span class="mini">non renseignée</span>') + '</td></tr>' +
+      '<tr><th>Type</th><td>' + echap(c.type || 'à choisir') + '</td><td>' + echap(g.type || '') + '</td></tr></tbody></table>';
+  }
+  // Une fiche à trancher : pour chaque fiche à laquelle elle ressemble, la comparaison et les quatre réponses.
+  function prospOrangeFiche(c) {
+    var blocs = (c.rapprochements || []).map(function (g) {
+      var past = g.motifs.map(function (m) { return '<span class="pastille-ver pv-warn">' + echap(m) + '</span>'; }).join('');
+      var boutons = PROSP_CHOIX.map(function (x) { return '<button type="button" class="btn prosp-choix-btn" data-prosp-trancher="' + x[0] + '" data-id="' + prospAttr(c.id) + '" data-reg="' + prospAttr(g.id) + '">' + echap(x[1]) + '<small>' + echap(x[2]) + '</small></button>'; }).join('');
+      return '<div class="prosp-rapproche"><div class="mini" style="margin:.4rem 0 .1rem"><strong>Ressemble à :</strong> ' + echap(g.nom) + (g.commune ? ' (' + echap(g.commune) + ')' : '') + '</div><div class="alertes">' + past + '</div>' + prospTable(c, g) + '<div class="prosp-choix">' + boutons + '</div></div>';
+    }).join('');
+    var autres = c.etatOfficiel === 'aucun SIRET' ? '<span class="pastille-ver pv-gris">aucun SIRET : existence à confirmer</span>' : '';
+    return '<div class="prosp-trancher"><div class="nom" style="font-weight:700;color:var(--text-strong)">' + echap(c.nom) + ' <span class="mini">&middot; ' + echap(c.commune) + ' (' + echap(c.dep) + ')</span></div>' + (autres ? '<div class="alertes">' + autres + '</div>' : '') + blocs +
+      (c.texteSource ? '<details><summary>Ce que dit la source</summary><p>' + echap(c.texteSource) + '</p></details>' : '') +
+      '<div style="margin-top:.5rem">' + prospBoutonEcarter(c.id) + '</div>' + prospFormEcart(c.id) + '</div>';
+  }
+  function prospFiche(c) {
+    var past = [c.etatOfficiel === 'actif' ? '<span class="pastille-ver pv-ok">Active (base officielle)</span>' : '<span class="pastille-ver pv-attention">Existence à confirmer</span>'];
+    if (c.origine === 'finess') { past.push('<span class="pastille-ver">FINESS : ' + echap(c.categorie || '') + '</span>'); }
+    if (c.decision) { past.push('<span class="pastille-ver pv-ok">Tranchée par vous : ' + echap(PROSP_LIB[c.decision.choix] || '') + ' (' + echap(c.decision.regNom) + ')</span>'); }
+    else { past.push('<span class="pastille-ver pv-ok">Contrôlée : aucune ressemblance</span>'); }
+    past.push(c.ligne ? '<span class="pastille-ver">Type proposé : ' + echap(c.type) + '</span>' : '<span class="pastille-ver pv-classer">Type à choisir à la main</span>');
+    c.avertissements.filter(function (a) { return !/existence à confirmer|ressemble à une fiche/.test(a); }).forEach(function (a) { past.push('<span class="pastille-ver pv-attention">' + echap(a) + '</span>'); });
+    return '<div class="prosp-fiche ' + (c.ligne ? 'f-pret' : 'f-aclasser') + (c.ligne && !_prosp.coche[c.id] ? ' decoche' : '') + '">' +
+      (c.ligne ? '<input type="checkbox" data-prosp-id="' + prospAttr(c.id) + '"' + (_prosp.coche[c.id] ? ' checked' : '') + ' aria-label="Choisir ' + prospAttr(c.nom) + '">' : '<span class="prosp-vide"></span>') +
+      '<div class="corps"><div class="nom">' + echap(c.nom) + '</div>' +
+      '<div class="infos">' + echap(c.commune) + ' (' + echap(c.dep) + ')' + (c.origine === 'finess' ? ' &middot; fichier FINESS du ' : ' &middot; fiche du ') + prospDateFr(c.majFiche) + '</div>' +
+      '<div class="prosp-coord"><div><strong>Adresse :</strong> ' + (c.adresseRegistre ? echap(c.adresseRegistre) : '<span class="mini">non donnée par le fichier</span>') + (c.ligne && c.adresseRegistre ? ' <span class="mini">(partira au sas)</span>' : '') + '</div>' +
+      '<div><strong>Téléphone :</strong> ' + (c.tel ? echap(c.tel) : '<span class="mini">non donné par le fichier</span>') + '</div>' +
+      '<div><strong>Site :</strong> ' + (c.site ? prospLienSite(c.site) : '<span class="mini">aucun site dans le fichier : à chercher avant le « C\'est bon »</span>') + '</div></div>' +
+      '<div class="alertes">' + past.join('') + '</div>' +
+      (c.texteSource ? '<details><summary>Ce que dit la source (pour écrire votre phrase)</summary><p>' + echap(c.texteSource) + '</p></details>' : '') +
+      '<div style="margin-top:.35rem">' + prospBoutonEcarter(c.id) + '</div>' + prospFormEcart(c.id) +
+      '</div></div>';
+  }
+  // Fiches déjà publiées que le fichier contredit (fermée selon la base officielle, autre téléphone, autre site) ou que vous avez confirmées « même structure » / « déménagée ». Rien n'est modifié ici : on vérifie à la main, puis on corrige la fiche par « Contrôler un rayon ».
+  function prospRecoupeFiche(x) {
+    var lignes = '<div class="infos">' + echap(x.commune) + ' (' + echap(x.dep) + ') &middot; fiche du registre : ' + [x.telRegistre ? echap(x.telRegistre) : '', x.siteRegistre ? '<a href="' + prospAttr(x.siteRegistre) + '" target="_blank" rel="noopener noreferrer">Ouvrir le site du registre</a>' : ''].filter(Boolean).join(' &middot; ') + '</div>';
+    var source = '<div class="infos">Dans la source (' + echap(x.sourceNom) + ', fiche du ' + prospDateFr(x.sourceMaj) + ', retrouvée par ' + (x.retrouveParLe === 'votre décision' ? 'votre décision' : 'le ' + echap(x.retrouveParLe)) + ') : ' + [x.sourceTel ? echap(x.sourceTel) : '', x.sourceSite ? '<a href="' + prospAttr(x.sourceSite) + '" target="_blank" rel="noopener noreferrer">Ouvrir le site de la source</a>' : ''].filter(Boolean).join(' &middot; ') + '</div>';
+    var past = x.raisons.map(function (z) { return '<span class="pastille-ver ' + (/fermé/.test(z) ? 'pv-jamais' : 'pv-warn') + '">' + echap(z) + '</span>'; }).join('');
+    return '<div class="prosp-fiche"><span class="prosp-vide"></span><div class="corps"><div class="nom">' + echap(x.nom) + '</div>' + lignes + source + '<div class="alertes">' + past + '</div></div></div>';
+  }
+  function prospRecoupeRendre() {
+    var d = _prosp.d, z = $('prospRecoupe'); if (!d || d.absent) { z.style.display = 'none'; return; }
+    var rc = d.recoupement;
+    z.style.display = 'block';
+    if (!rc) { $('prospRecoupeResume').innerHTML = 'Cette recherche a été faite avant l\'ajout de ce contrôle : cliquez sur « Chercher de nouvelles structures », puis « Chercher quand même » si l\'outil dit « Rien de nouveau ».'; $('prospRecoupeListe').innerHTML = ''; return; }
+    $('prospRecoupeResume').innerHTML = '<strong>' + rc.recoupees + ' fiche' + (rc.recoupees > 1 ? 's' : '') + ' de votre registre sur ' + rc.total + '</strong> (Dordogne et Haute-Vienne) retrouvée' + (rc.recoupees > 1 ? 's' : '') + ' dans le fichier, dont ' + rc.sansEcart + ' sans aucun écart. <strong>Les ' + (rc.total - rc.recoupees) + ' autres ne sont pas couvertes</strong> : le fichier ne les contient pas, elles restent à contrôler comme avant. Une alerte est un signal à vérifier, pas une preuve : le fichier peut lui-même être en retard.';
+    var aff = rc.aRevoir.filter(prospDepOk);
+    $('prospRecoupeListe').innerHTML = aff.length ? aff.map(prospRecoupeFiche).join('') : '<p class="mini">Aucun écart relevé' + (_prosp.dep ? ' pour ce département' : '') + '.</p>';
+  }
+  // Un chiffre cliquable : il ouvre la liste qu'il compte (prêtes et à classer = filtre de la liste ; à trancher et écartées = on descend à leur bloc).
+  function prospCompteurBouton(couleur, cible, n, libelle) {
+    var choisi = (cible === 'pretes' || cible === 'aclasser') && _prosp.filtre === cible;
+    return '<button type="button" class="mt-compteur cliquable ' + couleur + (choisi ? ' choisi' : '') + '" data-prosp-compteur="' + cible + '"' + (n ? '' : ' disabled') + ' aria-label="Voir les ' + n + ' ' + libelle + '"><b>' + n + '</b>' + libelle + (n ? '<small>Voir la liste</small>' : '') + '</button>';
+  }
+  function prospAller(id) { var e = $(id); if (e && e.scrollIntoView) { e.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+  function prospRendre() {
+    var d = _prosp.d; if (!d) { return; }
+    prospRecoupeRendre();
+    if (d.absent) {
+      $('prospDerniere').textContent = 'Aucune recherche faite pour l\'instant.';
+      $('prospChiffres').style.display = 'none'; $('prospResultat').style.display = 'none'; $('prospOrangeBloc').style.display = 'none'; $('prospDepBloc').style.display = 'none';
+      return;
+    }
+    var nn = {}, na = {};
+    d.candidates.forEach(function (c) { nn[c.dep] = (nn[c.dep] || 0) + 1; });
+    ((d.recoupement && d.recoupement.aRevoir) || []).forEach(function (x) { na[x.dep] = (na[x.dep] || 0) + 1; });
+    $('prospDepBloc').style.display = 'block';
+    $('prospDeps').innerHTML = PROSP_DEPS.map(function (x) {
+      var n1 = x[0] ? (nn[x[0]] || 0) : d.candidates.length, n2 = x[0] ? (na[x[0]] || 0) : ((d.recoupement && d.recoupement.aRevoir) || []).length;
+      return '<button type="button" class="btn adr-petit' + (_prosp.dep === x[0] ? ' actif' : '') + '" data-prosp-dep="' + x[0] + '">' + x[1] + ' : ' + n1 + ' nouvelle' + (n1 > 1 ? 's' : '') + ', ' + n2 + ' à revoir</button>';
+    }).join('');
+    var tous = d.candidates, toutesOranges = tous.filter(prospOrange);
+    var cands = tous.filter(prospDepOk), oranges = cands.filter(prospOrange), vertes = cands.filter(function (c) { return !prospOrange(c); });
+    var nPretes = vertes.filter(function (c) { return c.ligne; }).length, nAClasser = vertes.length - nPretes;
+    var nConfirmer = vertes.filter(function (c) { return c.etatOfficiel === 'aucun SIRET'; }).length;
+    var ecartVous = (d.ecarteesParVous || []).filter(prospDepOk);
+    $('prospDerniere').textContent = 'Dernière recherche : ' + prospDateFr(d.jour) + (d.fichierDu ? ' (fichier de data.inclusion du ' + d.fichierDu + (d.finess && d.finess.fichierDu ? ', fichier FINESS du ' + d.finess.fichierDu : '') + ')' : '') + '.';
+    $('prospFinessNote').innerHTML = d.finess && d.finess.avertissement ? prospNote('warn', '&#9888; ' + echap(d.finess.avertissement)) : '';
+    $('prospChiffres').style.display = 'block'; $('prospResultat').style.display = 'block';
+    $('prospCompteurs').innerHTML =
+      (_prosp.dep ? '' : '<div class="mt-compteur"><b>' + d.compte.recentes + '</b>fiches récentes</div>' +
+      '<div class="mt-compteur"><b>' + (d.compte.dejaConnues + (d.dejaMaintenant || 0)) + '</b>déjà chez vous</div>') +
+      prospCompteurBouton('vert', 'pretes', nPretes, 'prêtes pour le sas (contrôlées)') +
+      prospCompteurBouton('ambre', 'trancher', oranges.length, 'à trancher') +
+      prospCompteurBouton('violet', 'aclasser', nAClasser, 'à classer à la main') +
+      prospCompteurBouton('', 'ecartees', ecartVous.length, 'écartées par vous');
+    $('prospSansSiret').innerHTML = nConfirmer ? prospNote('warn', '&#9888; <strong>' + nConfirmer + ' fiche' + (nConfirmer > 1 ? 's n\'ont' : ' n\'a') + ' aucun SIRET</strong> : la base officielle ne peut pas confirmer qu\'elle' + (nConfirmer > 1 ? 's existent' : ' existe') + '. ' + (nConfirmer > 1 ? 'Elles sont repérées' : 'Elle est repérée') + ' « existence à confirmer » et décochée' + (nConfirmer > 1 ? 's' : '') + ' au départ.') : '';
+    // À trancher avant le sas
+    $('prospOrangeBloc').style.display = oranges.length ? 'block' : 'none';
+    $('prospOrangeListe').innerHTML = oranges.map(prospOrangeFiche).join('');
+    var defs = [['pretes', 'Prêtes pour le sas (' + nPretes + ')', ' f-vert'], ['aclasser', 'À classer à la main (' + nAClasser + ')', ' f-violet'], ['confirmer', 'Existence à confirmer (' + nConfirmer + ')', ' f-bleu'], ['toutes', 'Toutes les contrôlées (' + vertes.length + ')', '']];
+    $('prospFiltres').innerHTML = defs.map(function (x) { return '<button type="button" class="btn adr-petit' + x[2] + (_prosp.filtre === x[0] ? ' actif' : '') + '" data-prosp-f="' + x[0] + '">' + x[1] + '</button>'; }).join('');
+    var vis = cands.filter(prospVisible);
+    $('prospListe').innerHTML = vis.length ? vis.map(prospFiche).join('') : '<p class="mini">Rien dans ce choix.</p>';
+    var n = prospLignes().length;
+    $('prospSas').textContent = 'Mettre les lignes cochées dans le sas (' + n + ')';
+    $('prospSas').disabled = n === 0 || toutesOranges.length > 0;
+    $('prospBlocage').innerHTML = toutesOranges.length ? prospNote('warn', '&#9888; <strong>Le sas est fermé :</strong> ' + toutesOranges.length + ' fiche' + (toutesOranges.length > 1 ? 's' : '') + ' à trancher (' + toutesOranges.slice(0, 4).map(function (c) { return echap(c.nom); }).join(' ; ') + (toutesOranges.length > 4 ? ' ; ...' : '') + '). Tranchez-' + (toutesOranges.length > 1 ? 'les' : 'la') + ' ou écartez-' + (toutesOranges.length > 1 ? 'les' : 'la') + ' pour ouvrir le sas.' + (_prosp.dep ? ' (Le contrôle porte sur les deux départements.)' : '')) : (n ? prospNote('ok', '&#10003; Plus rien à trancher : toutes les fiches cochées ont été contrôlées.') : '');
+    // Écartées par vous
+    $('prospEcarteesVousNb').textContent = ecartVous.length;
+    $('prospEcarteesVous').innerHTML = ecartVous.length ? ecartVous.map(function (e) {
+      return '<div class="prosp-fiche"><span class="prosp-vide"></span><div class="corps"><div class="nom">' + echap(e.nom) + ' <span class="mini">&middot; ' + echap(e.commune) + ' (' + echap(e.dep) + ')</span></div><div class="infos">Écartée le ' + prospDateFr(e.date) + ' : <strong>' + echap(e.raison) + '</strong>' + (e.texte ? ' (« ' + echap(e.texte) + ' »)' : '') + '</div></div><button class="btn adr-petit" type="button" data-prosp-remettre="' + prospAttr(e.cle) + '">Remettre en jeu</button></div>';
+    }).join('') : '<p class="mini">Aucune pour l’instant. Le bouton « Écarter cette fiche pour toujours... » est sur chaque fiche.</p>';
+    // Écartées d'office
+    var office = d.ecartees.filter(prospDepOk);
+    $('prospNbEcartees').textContent = office.length;
+    $('prospEcartees').innerHTML = office.map(function (e) {
+      return '<div class="prosp-fiche"><span class="prosp-vide"></span><div class="corps">' + echap(e.nom) + ' (' + echap(e.commune || '') + ') : ' + (e.remise ? '<strong>remise en jeu</strong>, elle reviendra à la prochaine recherche.' : echap(e.raison)) + '</div>' +
+        (e.remise ? '<button class="btn adr-petit" type="button" data-prosp-reprendre-office="' + prospAttr(e.cle) + '">Écarter de nouveau</button>' : '<button class="btn adr-petit" type="button" data-prosp-office="' + prospAttr(e.cle) + '">Remettre en jeu</button>') + '</div>';
+    }).join('');
+    // Décisions retenues
+    var dr = d.decisionsRetenues || [];
+    $('prospDecisionsNb').textContent = dr.length;
+    $('prospDecisions').innerHTML = dr.length ? dr.map(function (x) {
+      return '<div class="prosp-fiche"><span class="prosp-vide"></span><div class="corps">' + echap(x.nom) + ' (' + echap(x.commune) + ') : <strong>' + echap(PROSP_LIB[x.choix] || '') + '</strong> par rapport à « ' + echap(x.regNom) + ' », le ' + prospDateFr(x.date) + '.</div><button class="btn adr-petit" type="button" data-prosp-detrancher="' + prospAttr(x.cle) + '">Changer</button></div>';
+    }).join('') : 'Aucune pour l’instant.';
+    $('prospLicence').textContent = 'Sources : data.inclusion, ' + (d.licence || '') + (d.finess ? ' ; FINESS (ministère de la Santé, ANS), Licence Ouverte 2.0' : '') + '. Vérifications : base officielle des entreprises (recherche-entreprises.api.gouv.fr).';
+  }
+  function prospEnCours(oui) {
+    $('prospChercher').disabled = !!oui;
+    $('prospAvancement').style.display = oui ? 'block' : 'none';
+    if (oui) { $('prospBarre').style.width = '1%'; $('prospEtape').textContent = 'Démarrage...'; $('prospMessage').innerHTML = ''; }
+  }
+  function prospChercher(force) {
+    if (typeof window.prospAPI !== 'object') { return; }
+    prospEnCours(true);
+    window.prospAPI.chercher({ force: !!force }).then(function (r) {
+      if (!r || !r.ok) { prospEnCours(false); $('prospMessage').innerHTML = prospNote('alert', '&#9888; ' + echap((r && r.erreur) || 'La recherche n\'a pas pu démarrer.')); return; }
+      prospSuivre();
+    });
+  }
+  function prospSuivre() {
+    prospArreter();
+    _prosp.minuteur = setInterval(function () {
+      window.prospAPI.etat().then(function (e) {
+        if (!e || !e.ok) { return; }
+        $('prospBarre').style.width = e.pourcent + '%'; $('prospEtape').textContent = e.etape;
+        if (e.termine && !e.enCours) { prospArreter(); prospFini(e); }
+      });
+    }, 1000);
+  }
+  function prospFini(e) {
+    prospEnCours(false);
+    if (e.erreur) { $('prospMessage').innerHTML = prospNote('alert', '&#9888; <strong>La recherche n\'a pas abouti.</strong> ' + echap(e.erreur) + ' Rien n\'a été changé.'); return; }
+    window.prospAPI.noterPassage();   // la tâche mensuelle de la liste « Que faire aujourd'hui » est faite
+    if (e.pasDeNouveau) {
+      $('prospMessage').innerHTML = prospNote('ok', '&#10003; <strong>Rien de nouveau.</strong> Le fichier de data.inclusion' + (e.fichierDu ? ' (du ' + echap(e.fichierDu) + ')' : '') + ' n\'a pas changé depuis la dernière recherche et la liste FINESS date de moins de 30 jours : les résultats ci-dessous sont toujours les bons.') +
+        '<div class="btn-rangee"><button class="btn adr-petit" type="button" data-prosp-act="force">Chercher quand même</button></div>';
+      prospCharger(false); return;
+    }
+    prospCharger(false);
+    window.prospAPI.lire().then(function (r) {
+      if (r && r.ok && !r.absent) { $('prospMessage').innerHTML = prospNote('ok', '&#10003; <strong>Recherche terminée.</strong> ' + r.candidates.length + ' structure' + (r.candidates.length > 1 ? 's' : '') + ' à regarder, ' + (r.compte.dejaConnues + (r.dejaMaintenant || 0)) + ' déjà chez vous, ' + r.ecartees.length + ' écartée' + (r.ecartees.length > 1 ? 's' : '') + ' d\'office.' + (function () { var nf = r.candidates.filter(function (c) { return c.origine === 'finess'; }).length; return nf ? ' Dont ' + nf + ' venant de FINESS.' : ''; })()); }
+    });
+  }
+  // Les décisions de Denis (écarter, trancher, remettre en jeu) : le serveur contrôle et écrit decisions.json, puis on relit tout.
+  function prospDecider(o) {
+    window.prospAPI.decider(o).then(function (r) {
+      if (!r || !r.ok) { $('prospMessage').innerHTML = prospNote('alert', '&#9888; ' + echap((r && r.erreur) || 'Le serveur local ne répond pas.')); window.scrollTo(0, 0); return; }
+      _prosp.ouvert = ''; _prosp.brouillon = { raison: '', texte: '' }; $('prospMessage').innerHTML = '';
+      prospCharger(false);
+    });
+  }
+  // Le verrou : le serveur refait le contrôle à cet instant et rend les lignes, ou dit ce qui reste à trancher.
+  function prospDeposer() {
+    var ids = prospLignes().map(function (c) { return c.id; }); if (!ids.length) { return; }
+    window.prospAPI.verifier({ ids: ids }).then(function (r) {
+      if (!r || !r.ok) { $('prospRetourSas').innerHTML = prospNote('alert', '&#9888; ' + echap((r && r.erreur) || 'Le serveur local ne répond pas.')); return; }
+      if (r.bloque) { $('prospRetourSas').innerHTML = prospNote('alert', '&#9888; <strong>Le sas reste fermé :</strong> ' + r.aTrancher.length + ' fiche' + (r.aTrancher.length > 1 ? 's' : '') + ' à trancher (' + r.aTrancher.slice(0, 4).map(echap).join(' ; ') + ').'); prospCharger(false); return; }
+      var refus = r.refuses.length ? prospNote('warn', '&#9888; ' + r.refuses.length + ' fiche' + (r.refuses.length > 1 ? 's' : '') + ' non envoyée' + (r.refuses.length > 1 ? 's' : '') + ' : ' + r.refuses.slice(0, 4).map(function (x) { return echap(x.nom || x.id) + ' (' + echap(x.raison) + ')'; }).join(' ; ') + '.') : '';
+      var l = r.lignes; if (!l.length) { $('prospRetourSas').innerHTML = refus || prospNote('warn', 'Aucune ligne à envoyer.'); prospCharger(false); return; }
+      var n = l.length; if (n > 100) { l = l.slice(0, 100); }
+      window.prospAPI.deposerDansSas(l);
+      $('prospRetourSas').innerHTML = prospNote('ok', '&#10003; <strong>' + l.length + ' ligne' + (l.length > 1 ? 's' : '') + ' placée' + (l.length > 1 ? 's' : '') + ' dans la zone de collage du sas</strong> (la fenêtre du sas vient de s\'ouvrir). Chaque fiche a été contrôlée à l\'instant contre le registre et le sas. Rien n\'est encore enregistré : relisez, écrivez la phrase de chaque fiche, puis cliquez sur « Vérifier mes lignes ».' + (n > l.length ? ' <strong>' + (n - l.length) + ' ligne' + (n - l.length > 1 ? 's' : '') + ' attend' + (n - l.length > 1 ? 'ent' : '') + ' encore</strong> (100 lignes au plus par import).' : '')) + refus;
+    });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('#vueProspectionGuide button') : null; if (!b) { return; }
+    var f = b.getAttribute('data-prosp-f');
+    if (f) { _prosp.filtre = f; prospRendre(); return; }
+    var cpt = b.getAttribute('data-prosp-compteur');
+    if (cpt) {
+      if (cpt === 'pretes' || cpt === 'aclasser') { _prosp.filtre = cpt; prospRendre(); prospAller('prospResultatListe'); }
+      else if (cpt === 'trancher') { prospAller('prospOrangeBloc'); }
+      else if (cpt === 'ecartees') { prospAller('prospEcarteesCarte'); }
+      return;
+    }
+    var g = b.getAttribute('data-prosp-ecarter'); if (g) { _prosp.ouvert = g; _prosp.brouillon = { raison: '', texte: '' }; prospRendre(); return; }
+    var rz = b.getAttribute('data-prosp-raison'); if (rz) { var ch = $('prospChampEcart'); if (ch) { _prosp.brouillon.texte = ch.value; } _prosp.brouillon.raison = rz; prospRendre(); var ch2 = $('prospChampEcart'); if (ch2) { ch2.focus(); } return; }
+    if (b.getAttribute('data-prosp-annuler')) { _prosp.ouvert = ''; prospRendre(); return; }
+    var cf = b.getAttribute('data-prosp-confirmer'); if (cf) { prospDecider({ op: 'ecarter', id: cf, raison: _prosp.brouillon.raison, texte: _prosp.brouillon.texte }); return; }
+    var rm = b.getAttribute('data-prosp-remettre'); if (rm) { prospDecider({ op: 'remettre', cle: rm }); return; }
+    var tr = b.getAttribute('data-prosp-trancher'); if (tr) { prospDecider({ op: 'trancher', id: b.getAttribute('data-id'), regId: b.getAttribute('data-reg'), choix: tr }); return; }
+    var dt = b.getAttribute('data-prosp-detrancher'); if (dt) { prospDecider({ op: 'detrancher', cle: dt }); return; }
+    var of = b.getAttribute('data-prosp-office'); if (of) { prospDecider({ op: 'remettre-office', cle: of }); return; }
+    var ro = b.getAttribute('data-prosp-reprendre-office'); if (ro) { prospDecider({ op: 'reprendre-office', cle: ro }); return; }
+    if (b.getAttribute('data-prosp-dep') !== null) { _prosp.dep = b.getAttribute('data-prosp-dep'); prospRendre(); return; }
+    var a = b.getAttribute('data-prosp-act');
+    if (a === 'chercher') { prospChercher(false); }
+    else if (a === 'force') { prospChercher(true); }
+    else if (a === 'sas') { prospDeposer(); }
+    else if (a === 'tout' || a === 'rien') {
+      if (_prosp.d && !_prosp.d.absent) { _prosp.d.candidates.forEach(function (c) { if (c.ligne && prospVisible(c)) { _prosp.coche[c.id] = a === 'tout'; } }); prospRendre(); }
+    }
+  });
+  document.addEventListener('input', function (ev) {
+    if (ev.target && ev.target.id === 'prospChampEcart') { _prosp.brouillon.texte = ev.target.value; var c = document.querySelector('[data-prosp-confirmer]'); if (c) { c.disabled = !(_prosp.brouillon.raison && (_prosp.brouillon.raison !== 'Autre' || _prosp.brouillon.texte.trim())); } }
+  });
+  document.addEventListener('change', function (ev) {
+    var t = ev.target; if (!t || !t.getAttribute || t.getAttribute('data-prosp-id') === null) { return; }
+    _prosp.coche[t.getAttribute('data-prosp-id')] = !!t.checked; prospRendre();
+  });
   function ouvrirMenuChiffresGuide() {
     _fermerVuesGuidees();
     _menuMajOuvert = false;
@@ -7041,6 +7597,7 @@
     { id: 'adresses', icone: '&#128279;', titre: 'Le test des adresses', sous: 'Les sites de vos structures, employeurs et pages d\'offres répondent-ils encore ?', duree: '5 min', rythme: 30, groupe: 'Chaque mois', menu: true, ouvrir: function () { ouvrirMenuMajGuide(); majMontrer('mois'); } },
     { id: 'adressesapp', icone: '&#128279;', titre: 'Les adresses de l\'application', sous: 'Les pages citées par les fiches, le Lexique et les chiffres répondent-elles encore ?', duree: '10 min', rythme: 30, groupe: 'Chaque mois', menu: true, ouvrir: function () { ouvrirAdressesGuide(); } },
     { id: 'mois', icone: '&#128197;', titre: 'Ce qui a changé ce mois-ci', sous: 'Sept messages, un par groupe de domaines', duree: '25 min', rythme: 30, groupe: 'Chaque mois', ouvrir: function () { entrerFocusBalayage(); if ($('balMode')) { $('balMode').value = 'mois'; assemblerBalayage(); } } },
+    { id: 'prospection', icone: '&#128269;', titre: 'La prospection des structures', sous: 'Nouvelles structures à regarder et fiches déjà publiées à revoir (data.inclusion et FINESS)', duree: '20 min', rythme: 30, groupe: 'Chaque mois', ouvrir: function () { ouvrirProspectionGuide(); } },
     { id: 'rayon', icone: '&#128450;', titre: 'Contrôler un rayon', sous: '', duree: '20 min', rythme: 30, groupe: 'Chaque mois', rythmeFixe: true, guide: 'detControle', cacher: ['.bloc-cycle', '.titre-rayon-isole'], ouvrir: function (t) { if (t.arg) { entrerFocusControleRayon(t.arg); } else { entrerFocusMaBase(); } } },
     { id: 'chiffres', icone: '&#128202;', titre: 'Les chiffres clés du trimestre', sous: 'Les 5 chiffres et la lecture du territoire', duree: '20 min', rythme: 91, groupe: 'Chaque trimestre', guide: 'detChiffres', ouvrir: function () { entrerFocusChiffres(); } },
     { id: 'reseau', icone: '&#128478;', titre: 'Ce qui circule dans le réseau', sous: 'Le non officiel, comparé aux sources officielles', duree: '15 min', rythme: 91, groupe: 'Chaque trimestre', guide: 'detConfronter', ouvrir: function () { entrerFocusConfronter(); } },
@@ -7294,6 +7851,35 @@
      =================================================================== -->
 <style>
   #depotPastille { position:fixed; right:14px; bottom:14px; z-index:900; display:none; }
+  /* Tâches programmées (consigne 233) : tout en bas à gauche, sur la même ligne que « Dépôt » ; affiché seulement quand l'outil est ouvert avec le lanceur. */
+  #tpBouton { position:fixed; left:14px; bottom:14px; z-index:900; display:none; }
+  body { padding-bottom:4.5rem; }   /* la barre du bas (Tâches programmées à gauche, Dépôt à droite) ne cache plus la fin de la page */
+  #tpBouton .tp-badge { display:inline-block; min-width:1.4rem; text-align:center; border-radius:999px; background:var(--alert); color:#fff; font-size:.78rem; font-weight:800; padding:0 .4rem; margin-left:.45rem; }
+  body.dark #tpBouton .tp-badge { color:#2a0d09; }
+  #tpBouton.a-notif { animation:tc-pulse 1.8s ease-out infinite; }
+  @media (prefers-reduced-motion: reduce) { #tpBouton.a-notif { animation:none; } }
+  #tpPanneau { position:fixed; left:14px; bottom:62px; z-index:901; width:min(560px, calc(100vw - 28px)); max-height:80vh; overflow:auto; display:none;
+    background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow); padding:.9rem 1rem; }
+  #tpPanneau .tp-entete { display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+  #tpPanneau h2 { margin:.2rem 0 .3rem; }
+  .carte-tp { border:1px solid var(--border); border-left:6px solid var(--border-strong); border-radius:10px; padding:.7rem .85rem; margin:.6rem 0; background:var(--bg-card); }
+  .carte-tp.afaire { border-left-color:var(--warn); background:var(--warn-bg); }
+  .carte-tp.retard { border-left-color:var(--alert); background:var(--alert-bg); }
+  .carte-tp.faite { border-left-color:var(--ok); background:var(--bg-subtle); }
+  .carte-tp .tp-tete { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+  .carte-tp .tp-tete strong { flex:1 1 14rem; }
+  .carte-tp dl { margin:.4rem 0; font-size:.86rem; display:grid; grid-template-columns:8.5rem 1fr; gap:.2rem .6rem; }
+  .carte-tp dt { color:var(--text-muted); font-weight:700; }
+  .carte-tp dd { margin:0; }
+  .tp-past { display:inline-block; border-radius:999px; padding:.1rem .65rem; font-size:.78rem; font-weight:700; white-space:nowrap; background:var(--bg-subtle); color:var(--text-muted); }
+  .tp-past.tp-ok { background:var(--ok-bg); color:var(--ok); } .tp-past.tp-warn { background:var(--warn-bg); color:var(--warn); } .tp-past.tp-alert { background:var(--alert-bg); color:var(--alert); } .tp-past.tp-info { background:var(--accent-bg); color:var(--accent); }
+  .tp-zone { background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:.55rem .7rem; margin:.5rem 0; }
+  .tp-zone pre { white-space:pre-wrap; font:inherit; font-size:.82rem; margin:.3rem 0; max-height:16rem; overflow:auto; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:.5rem; }
+  .tp-rub { margin:.1rem 0 0; padding-left:1.1rem; }
+  .tp-zone label { font-size:.82rem; font-weight:700; display:block; margin:.5rem 0 .15rem; }
+  .tp-zone input[type=text], .tp-zone input[type=date], .tp-zone textarea { width:100%; max-width:none; }
+  .tp-zone textarea { min-height:5.5rem; resize:vertical; }
+  @media (max-width:640px) { .carte-tp dl { grid-template-columns:1fr; } }
   #depotPanneau { position:fixed; right:14px; bottom:62px; z-index:901; width:min(460px, calc(100vw - 28px)); max-height:78vh; overflow:auto; display:none;
     background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow); padding:.9rem 1rem; }
   #depotPanneau h2 { margin:.2rem 0 .4rem; }
@@ -7433,6 +8019,24 @@
 </style>
 <div id="repriseBandeau" role="alert"></div>
 <button class="btn primaire" id="depotPastille" type="button" aria-expanded="false" aria-controls="depotPanneau">Dépôt</button>
+<button class="btn" id="tpBouton" type="button" aria-expanded="false" aria-controls="tpPanneau">Tâches programmées<span class="tp-badge" id="tpBadge" style="display:none">0</span></button>
+<div id="tpPanneau" role="dialog" aria-label="Tâches programmées">
+  <div class="tp-entete"><h2>Tâches programmées</h2><button class="btn petit" type="button" id="tpFermer">Fermer</button></div>
+  <p class="mini">Les tâches qui dépendent d'une date de publication, ou à reprendre plus tard. Rien n'est lancé tout seul : à la date, la tâche passe en « À faire », le bouton du bas pulse, et vous copiez le prompt pour le cloud (ou la phrase de reprise pour Claude).</p>
+  <div class="btn-rangee" id="tpFiltres"></div>
+  <div id="tpListe" aria-live="polite"></div>
+  <div class="btn-rangee"><button class="btn" type="button" id="tpAjouterOuvrir">Ajouter une tâche</button></div>
+  <div id="tpAjout" class="tp-zone" style="display:none">
+    <strong>Nouvelle tâche programmée</strong>
+    <label for="tpAjTitre">Titre</label><input type="text" id="tpAjTitre" placeholder="Par exemple : Indice des prix de décembre" autocomplete="off">
+    <label for="tpAjDate">Date à partir de laquelle la tâche est à faire</label><input type="date" id="tpAjDate">
+    <label style="font-weight:600"><input type="checkbox" id="tpAjEst"> Date estimée, à confirmer</label>
+    <label for="tpAjQuoi">Ce qu'il faut relever</label><textarea id="tpAjQuoi" placeholder="Les chiffres ou les textes à aller chercher, et leur période"></textarea>
+    <label for="tpAjSource">Adresse de la source officielle (à compléter plus tard si besoin)</label><input type="text" id="tpAjSource" placeholder="https://..." autocomplete="off">
+    <div class="btn-rangee"><button class="btn primaire petit" type="button" id="tpAjOk">Ajouter à la liste</button> <button class="btn petit" type="button" id="tpAjAnnuler">Annuler</button></div>
+    <div class="mini" id="tpAjMsg"></div>
+  </div>
+</div>
 <div id="depotPanneau" role="dialog" aria-label="Dépôt : publier et envoyer sur GitHub">
   <div style="display:flex;justify-content:space-between;align-items:center"><strong>Dépôt</strong><button class="btn" type="button" id="depotFermer" aria-label="Fermer">Fermer</button></div>
 
@@ -7597,6 +8201,7 @@
     <button class="btn" type="button" id="terrFermer">Fermer</button>
   </div>
   <p class="mini" id="terrStats"></p>
+  <div class="note ok" id="terrBandePublie" style="font-weight:bold"><span>&#9989;</span><span>Tout ce qui est listé ici est DÉJÀ PUBLIÉ : le public le voit dans l'application. Ce qui attend votre « C'est bon » n'est pas ici : c'est dans « Le sas » (bouton ci-dessous). <span id="terrBandeReleves"></span></span></div>
   <div class="note"><span>&#128161;</span><span>Cliquez sur l'adresse : elle s'ouvre dans un nouvel onglet. Si la page est bonne, « Valider » (date du jour). Si le site a changé, « Modifier » (collez la nouvelle adresse et cochez « j'ai ouvert l'adresse »). Si la fiche n'a plus lieu d'être, « Supprimer ». Les structures du rayon Logement se mettent à jour ici, plus dans la collecte du rayon.</span></div>
   <div class="barre fen-collant-bande">
     <select id="terrFichier" aria-label="Registre">
@@ -7609,6 +8214,7 @@
       <option value="tout">Toutes les fiches</option>
       <option value="averifier" id="terrOptionAVerifier">À vérifier (sans date ou plus de 12 mois)</option>
       <option value="sansdate">Jamais vérifiées</option>
+      <option value="releves" id="terrOptionReleves" style="display:none">Magasins relevés à valider</option>
       <option value="ctlnon" id="terrOptionCtl" style="display:none">Contrôle : pas tout retrouvé</option>
       <option value="lot" id="terrOptionLot" style="display:none">Le lot du jour</option>
       <option value="inacc">Inaccessibles pour l'instant</option>
@@ -8325,8 +8931,9 @@
     return h || '<span class="mini">pas d\'adresse</span>';
   }
   // Une ligne « commune + adresse » d'un établissement.
+  // e = [commune, adresse, numéro, relevé] ; relevé = true : magasin relevé dans le registre officiel des entreprises, pas encore validé (consigne 310). Il devient un magasin validé quand on clique « OK ».
   function terrLigneEtab(e) {
-    return '<div data-terr-etab style="display:flex;gap:.4rem;margin:.2rem 0;flex-wrap:wrap"><input type="text" data-terr-etab-commune value="' + esc(e[0]) + '" list="terrListeCommunes" placeholder="Commune" autocomplete="off" style="flex:1 1 11rem">' +
+    return '<div data-terr-etab' + (e[3] ? ' data-terr-etab-releve' : '') + ' style="display:flex;gap:.4rem;margin:.2rem 0;flex-wrap:wrap' + (e[3] ? ';background:#fff6d6;padding:.2rem .3rem;border-radius:4px' : '') + '">' + '<input type="text" data-terr-etab-commune value="' + esc(e[0]) + '" list="terrListeCommunes" placeholder="Commune" autocomplete="off" style="flex:1 1 11rem">' +
       '<input type="text" data-terr-etab-adresse value="' + esc(e[1]) + '" placeholder="Adresse (numéro et rue)" autocomplete="off" style="flex:2 1 16rem"><input type="text" data-terr-etab-tel value="' + esc(e[2] || '') + '" placeholder="Numéro du magasin (facultatif)" aria-label="Numéro de téléphone de ce magasin" inputmode="tel" autocomplete="off" style="flex:1 1 11rem"><button class="btn petit" type="button" data-terr-etab-moins aria-label="Retirer cet établissement">&times;</button></div>';
   }
   document.addEventListener('click', function (ev) {
@@ -8341,7 +8948,8 @@
     if (!dl) { dl = document.createElement('datalist'); dl.id = 'terrListeCommunes'; document.body.appendChild(dl); }
     dl.innerHTML = ((terr.donnees && terr.donnees.communesNoms) || []).map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
   }
-  function terrChamps(valeurs, ajout) {
+  // releves (facultatif) : { nouveaux, complements } relevés par le serveur pour cette fiche ; ajoutés à la liste des magasins, marqués « relevé », sauf si un brouillon de la liste existe déjà (il les contient).
+  function terrChamps(valeurs, ajout, releves) {
     return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.4rem .8rem">' + terr.donnees.colonnes.filter(function (c) { return c.cle !== 'date' && !c.cachee && (ajout || c.cle !== 'id'); }).map(function (c) {
       var v = (valeurs && valeurs[c.cle]) || '', champ;
       if (c.cle === 'rayons' && terr.donnees.rayonsLibelles) {
@@ -8353,8 +8961,15 @@
       }
       if (c.cle === 'etablissements') {
         var lignesE = v.split(';').map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) { var e1 = etablissementsRecherche({ etablissements: x })[0]; return e1 ? [e1.commune, e1.adresse, e1.telephone] : [x, '', '']; });
+        if (releves) {
+          var normE = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); };
+          (releves.complements || []).forEach(function (x) { lignesE.forEach(function (r) { if (normE(r[0]) === normE(x.commune) && normE(r[1]) === normE(x.adresse) && !r[2]) { r[2] = x.telephone; r[3] = true; } }); });
+          var communesReleves = {}; (releves.nouveaux || []).forEach(function (x) { communesReleves[normE(x.commune)] = true; });
+          lignesE = lignesE.filter(function (r) { return !(communesReleves[normE(r[0])] && !r[1] && !r[2]); });   // une commune saisie sans adresse ni numéro est remplacée par les magasins relevés (même règle que l'application)
+          (releves.nouveaux || []).forEach(function (x) { lignesE.push([x.commune, x.adresse, x.telephone || '', true]); });
+        }
         if (!lignesE.length) { lignesE = [['', '', '']]; }
-        return '<div class="mini" style="display:block;grid-column:1/-1">' + esc(c.libelle.replace(/ \(.*\)$/, '')) + ' <span class="mini">(commune à choisir dans la liste proposée, puis adresse)</span><br><div data-terr-champ="etablissements" data-terr-etabs>' +
+        return '<div class="mini" style="display:block;grid-column:1/-1">' + esc(c.libelle.replace(/ \(.*\)$/, '')) + ' <span class="mini">(commune à choisir dans la liste proposée, puis adresse)</span>' + (lignesE.some(function (r) { return r[3]; }) ? '<br><span class="mini" style="background:#fff6d6;padding:.1rem .3rem;border-radius:4px">Les lignes en jaune sont relevées dans le registre officiel des entreprises : vérifiez l\'adresse et le numéro, corrigez-les ou retirez-les avec la croix. Elles deviennent des magasins validés quand vous cliquez « OK » puis « Enregistrer les modifications ».</span>' : '') + '<br><div data-terr-champ="etablissements" data-terr-etabs>' +
           lignesE.map(terrLigneEtab).join('') + '<button class="btn petit" type="button" data-terr-etab-plus>+ Ajouter un établissement</button></div></div>';
       }
       if (c.cle === 'commune') {
@@ -8413,6 +9028,7 @@
       if (filtre === 'averifier') { return l.fraicheur !== 'recente'; }
       if (filtre === 'controle') { var cc = terr.controle[l.id]; return !!cc && cc.etat !== 'repond'; }
       if (filtre === 'sansdate') { return l.fraicheur === 'sans-date'; }
+      if (filtre === 'releves') { return !!l.magasinsReleves; }
       if (filtre === 'inacc') { return !!l.attente; }
       if (filtre === 'lot') { return !!(terr.lot && terr.lot[terr.fichier] && terr.lot[terr.fichier][l.id]); }
       if (filtre === 'ctlnon') { var gv = regCtlVerdictDe(l); return gv === 'partiel' || gv === 'chercher' || gv === 'ouvrir'; }
@@ -8445,13 +9061,17 @@
       if (!ac) { actions += ' ' + (l.attente ? '<button class="btn petit" type="button" data-terr-reafficher="' + esc(l.id) + '">Il est revenu : réafficher le lien</button> <button class="btn petit" type="button" data-terr-garder="' + esc(l.id) + '">Garder en attente</button>' : '<button class="btn petit" type="button" data-terr-inacc="' + esc(l.id) + '">Inaccessible pour l\'instant</button>'); }
       if (!ac) { actions += ' ' + verBoutonCarte('terr', l.id); }
       if (terr.fichier === 'employeurs' && (v.nature === 'enseigne' || v.nature === 'local') && l.etabs && l.etabs.length) { actions = '<div style="margin-bottom:.3rem">' + htmlBoutonsAutresMagasins(v.nom, l.etabs, l.depsEnseigne, v.nature, 'pub|' + l.id) + '</div>' + actions; }
+      if (l.magasinsReleves && !ac && terr.modif !== l.id) {
+        var nbRel = (l.magasinsReleves.nouveaux || []).length, nbCompl = (l.magasinsReleves.complements || []).length;
+        actions = '<div class="mini" style="margin-bottom:.3rem;background:#fff6d6;padding:.2rem .3rem;border-radius:4px">' + (nbRel ? nbRel + ' magasin' + (nbRel > 1 ? 's' : '') + ' relevé' + (nbRel > 1 ? 's' : '') + ' à valider' : '') + (nbRel && nbCompl ? ', ' : '') + (nbCompl ? nbCompl + ' numéro' + (nbCompl > 1 ? 's' : '') + ' relevé' + (nbCompl > 1 ? 's' : '') + ' à valider' : '') + ' <button class="btn petit" type="button" data-terr-modifier="' + esc(l.id) + '">Voir et valider</button></div>' + actions;
+      }
       var ligne = '<tr class="' + (ac ? 'attente att-' + ac.op : '') + '"><td><strong>' + esc(v.nom) + '</strong><br><span class="mono mini">' + esc(l.id) + '</span></td><td>' + detail + '</td><td class="adresse">' + terrAdresses(v, l.id) + (d.controleRegistre ? regCtlHtml(l) : '') + '</td><td class="' + cetat + '">' + esc(etat) + (l.modifieLe ? '<br><span class="mini">modifiée le ' + esc(dateFr(l.modifieLe.slice(0, 10))) + ' à ' + esc(l.modifieLe.slice(11)) + '</span>' : '') + '</td><td>' + actions + '</td></tr>';
       if (ver.etat['terr|' + l.id] && ver.etat['terr|' + l.id].ouvert) { ligne += '<tr><td colspan="5">' + verPanneau('terr|' + l.id) + '</td></tr>'; }
       if (terr.inacc === l.id) {
         ligne += '<tr class="attente att-modifier"><td colspan="5"><strong>Inaccessible pour l\'instant</strong><br><span class="mini">La fiche reste ; le lien n\'est plus montré au public (message neutre, téléphone conservé). Date du constat : aujourd\'hui. L\'outil retestera le site chaque mois.</span><br><label class="mini">Raison <select data-terr-inacc-motif><option value="maintenance">maintenance</option><option value="securite">fermé pour raison de sécurité</option><option value="panne">panne</option><option value="autre">autre raison</option></select></label> <button class="btn petit primaire" type="button" data-terr-inacc-ok="' + esc(l.id) + '">OK</button> <button class="btn petit" type="button" data-terr-non="1">Annuler</button></td></tr>';
       }
       if (terr.modif === l.id) {
-        ligne += '<tr class="attente att-modifier"><td colspan="5">' + terrChamps(Object.assign({}, v, (terr.brouillon && terr.brouillon[l.id]) || {}), false) + '<label style="display:flex;gap:.4rem;align-items:center;margin:.4rem 0"><input type="checkbox" data-terr-dater style="width:auto"> J\'ai ouvert l\'adresse, la page est bonne (la fiche sera datée d\'aujourd\'hui)</label>' + (terr.fichier === 'offres' ? '' : '<label style="display:flex;gap:.4rem;align-items:center;margin:.4rem 0"><input type="checkbox" data-terr-tel-verifie style="width:auto"> J\'ai vérifié le numéro de téléphone : il est bon (case indépendante de la précédente ; non cochée, rien ne change)</label>') + '<button class="btn petit primaire" type="button" data-terr-ok="' + esc(l.id) + '">OK</button> <button class="btn petit" type="button" data-terr-non="1">Annuler</button></td></tr>';
+        ligne += '<tr class="attente att-modifier"><td colspan="5">' + terrChamps(Object.assign({}, v, (terr.brouillon && terr.brouillon[l.id]) || {}), false, (l.magasinsReleves && !(terr.brouillon && terr.brouillon[l.id] && terr.brouillon[l.id].etablissements !== undefined)) ? l.magasinsReleves : null) + '<label style="display:flex;gap:.4rem;align-items:center;margin:.4rem 0"><input type="checkbox" data-terr-dater style="width:auto"> J\'ai ouvert l\'adresse, la page est bonne (la fiche sera datée d\'aujourd\'hui)</label>' + (terr.fichier === 'offres' ? '' : '<label style="display:flex;gap:.4rem;align-items:center;margin:.4rem 0"><input type="checkbox" data-terr-tel-verifie style="width:auto"> J\'ai vérifié le numéro de téléphone : il est bon (case indépendante de la précédente ; non cochée, rien ne change)</label>') + '<button class="btn petit primaire" type="button" data-terr-ok="' + esc(l.id) + '">OK</button> <button class="btn petit" type="button" data-terr-non="1">Annuler</button></td></tr>';
       }
       return ligne;
     }).join('');
@@ -8498,6 +9118,12 @@
     $d('terrNoteOffres').style.display = offres ? 'flex' : 'none';
     $d('terrControler').style.display = d.controlable ? '' : 'none';
     $d('terrCtlReg').style.display = d.controleRegistre ? '' : 'none'; $d('terrCtlRegTout').style.display = d.controleRegistre ? '' : 'none';
+    // Magasins relevés à valider : une option de filtre et une phrase dans le bandeau « déjà publié » (seulement pour les employeurs, quand il y en a).
+    var nbReleves = d.lignes.filter(function (l) { return !!l.magasinsReleves; }).length;
+    var orl = $d('terrOptionReleves'); orl.style.display = nbReleves ? '' : 'none'; orl.disabled = !nbReleves; orl.textContent = 'Magasins relevés à valider (' + nbReleves + ' enseigne' + (nbReleves > 1 ? 's' : '') + ')';
+    if (!nbReleves && $d('terrFiltre').value === 'releves') { $d('terrFiltre').value = 'tout'; }
+    $d('terrBandeReleves').innerHTML = nbReleves ? 'À valider aussi : les magasins relevés de <strong>' + nbReleves + ' enseigne' + (nbReleves > 1 ? 's' : '') + '</strong> <button class="btn petit" type="button" id="terrVoirReleves">Les voir</button>' : '';
+    var bvr = $d('terrVoirReleves'); if (bvr) { bvr.onclick = function () { $d('terrFiltre').value = 'releves'; $d('terrRecherche').value = ''; terrRendre(); }; }
     $d('terrOptionLot').style.display = terr.lot ? '' : 'none'; if (!terr.lot && $d('terrFiltre').value === 'lot') { $d('terrFiltre').value = 'tout'; }
     var oc = $d('terrOptionCtl'); oc.style.display = d.controleRegistre ? '' : 'none'; oc.disabled = !d.controleRegistre; if (!d.controleRegistre && $d('terrFiltre').value === 'ctlnon') { $d('terrFiltre').value = 'tout'; }
     $d('terrImporter').style.display = offres ? 'none' : ''; $d('terrSasOuvrir').style.display = offres ? 'none' : '';
@@ -8693,7 +9319,7 @@
 
   // ---------- Qui fait quoi : le sas (importer plusieurs fiches, puis les verifier une a une) ----------
   // Les fiches proposees par un assistant vont dans un SAS que l'application ne lit jamais ; chacune ne devient publique que quand vous avez ouvert son site et clique « C'est bon ».
-  var sas = { mode: 'coller', fichier: 'lieux', texte: '', analyse: null, coches: {}, fait: null, liste: null, attente: {}, edits: {}, corr: null, nb: 0, page: 1, q: '', fType: '', fPortee: '', fSecteur: '', fEtat: '', fMag: '', fCat: '', fCtl: '', fPrev: '', fOrig: '', fSite: '', tableau: false, tri: { col: '', sens: 1 }, siteOuvert: {}, secteurs: null, pont: null, pontMsg: '', ecart: {} };
+  var sas = { mode: 'coller', fichier: 'lieux', texte: '', analyse: null, coches: {}, fait: null, liste: null, attente: {}, edits: {}, corr: null, nb: 0, page: 1, q: '', fType: '', fPortee: '', fSecteur: '', fEtat: '', fMag: '', fLot: '', fCat: '', fCtl: '', fPrev: '', fOrig: '', fSite: '', tableau: false, tri: { col: '', sens: 1 }, siteOuvert: {}, secteurs: null, pont: null, pontMsg: '', ecart: {} };
   var SAS_NOMS = { lieux: 'des structures (logement, mobilité, accompagnement...)', employeurs: 'des employeurs (par secteur)', complements: 'des numéros de téléphone à ajouter aux fiches déjà connues', offres: 'des pages d’offres des employeurs (fonction publique, grands employeurs, groupements...)' };
   var SAS_SAS = { lieux: 'Structures', employeurs: 'Employeurs', complements: 'Téléphones', offres: 'Pages d’offres' };
   // Noms lisibles des valeurs de « type » (nature d'un employeur, famille d'une page d'offres) et des territoires, pour les filtres et les cartes.
@@ -9227,7 +9853,7 @@
   }
   function sasHtmlFiche(l, d) {
     var v = l.valeurs, dec = sas.attente[l.id], c = d.fichier === 'complements', h = '<div class="fiche-sas' + (sasEtatSas(l, d.fichier) ? ' etiquetee e-' + sasEtatSas(l, d.fichier).etat : '') + (dec ? ' choisie choisie-' + (dec === 'ecarter' ? 'ecarter' : 'publier') : '') + '">' + sasHtmlEtiqPrev(l, d.fichier);
-    h += '<span style="float:right">' + (!c && d.fichier === 'employeurs' && (v.nature === 'enseigne' || v.nature === 'local') && l.etabs && l.etabs.length ? htmlBoutonsAutresMagasins(l.nom, sasEtabsCourants(l), l.depsEnseigne, v.nature, 'sas|' + l.id) : '') + '</span><strong>' + esc(l.nom) + '</strong> <span class="pastille p-neutre">' + esc(c ? (l.generee ? 'numéro à chercher' : 'numéro à ajouter') : sasLibType(v.type || v.nature || v.famille || '')) + '</span>' + (!c && d.fichier === 'lieux' && sasPetite(v) ? ' <span class="pastille p-neutre">Petite structure</span>' : '') + (sasCtlAvec(d.fichier) ? sasCtlPastille(l) : '');
+    h += '<span style="float:right">' + (!c && d.fichier === 'employeurs' && (v.nature === 'enseigne' || v.nature === 'local') && l.etabs && l.etabs.length ? htmlBoutonsAutresMagasins(l.nom, sasEtabsCourants(l), l.depsEnseigne, v.nature, 'sas|' + l.id) : '') + '</span><strong>' + esc(l.nom) + '</strong> <span class="pastille p-neutre">' + esc(c ? (l.generee ? 'numéro à chercher' : 'numéro à ajouter') : sasLibType(v.type || v.nature || v.famille || '')) + '</span>' + (!c && d.fichier === 'lieux' && sasPetite(v) ? ' <span class="pastille p-neutre">Petite structure</span>' : '') + (sasVientDeProspection(d.fichier, v) ? ' <span class="pastille p-prosp">Vient de la prospection</span>' : '') + (sasCtlAvec(d.fichier) ? sasCtlPastille(l) : '');
     if (l.ecartee) { var ec0 = l.ecartee; h += note('warn', '<strong>Un employeur de ce nom a déjà été écarté</strong> le ' + esc(dateFr(ec0.ecarte_le)) + ' : ' + esc(ec0.motifLibelle || '') + (ec0.precision ? ' (' + esc(ec0.precision) + ')' : '') + (ec0.lieu ? ', ' + esc(ec0.lieu) : '') + '. Est-ce le même ?'); }
     if (c) {
       // Où se trouve la structure : sans cela, impossible de savoir de quelle ville ou de quel département on parle (deux associations de même nom).
@@ -9341,6 +9967,7 @@
       if (sas.fCat === 'petites' && !sasPetite(v)) { return false; }
       if (sas.fCat === 'autres' && sasPetite(v)) { return false; }
       if (sas.fCat === 'sanscontact' && (v.telephone || v.mail)) { return false; }
+      if (sas.fLot === 'prospection' && !sasVientDeProspection(d.fichier, v)) { return false; }
       if (sas.fMag === 'undep' && (!l.depsEnseigne || l.depsEnseigne.length !== 1)) { return false; }
       if (sas.fMag && sas.fMag !== 'undep') {
         var em = l.etabs && l.etabs.length ? sasEtabsCourants(l) : [];
@@ -9627,6 +10254,21 @@
     }
   });
 
+  // Filtre « proposées par le registre des entreprises » : les fiches d'enseignes écrites à partir de Sirene (Montpon-Ménestérol et découverte des chaînes, 14/11/2026), faciles à retrouver parmi toutes celles du sas.
+  // Une fiche « vient de la prospection » quand l'outil l'a proposée lui-même (jamais saisie à la main) : structures du fichier data.inclusion ou FINESS (écran « Prospection des structures »,
+  // la source commence par « data.inclusion (... » ou « FINESS, ... »), enseignes du registre des entreprises (découverte des chaînes et de Montpon-Ménestérol). Elles demandent une vérification à part.
+  function sasVientDeProspection(fichier, v) {
+    var s = String((v || {}).source || '');
+    if (fichier === 'employeurs') { return s.indexOf('Registre des entreprises (Sirene)') !== -1; }
+    if (fichier === 'lieux') { return /^(data\.inclusion \(|FINESS, )/.test(s); }
+    return false;
+  }
+  function sasHtmlFiltreLot(d) {
+    var nb = d.lignes.filter(function (l) { return sasVientDeProspection(d.fichier, l.valeurs); }).length;
+    if (d.fichier !== 'employeurs' && d.fichier !== 'lieux') { return ''; }   // toujours affiché pour ces deux sas, même à zéro : on voit qu'il existe
+    var libelle = d.fichier === 'employeurs' ? 'Venant de la prospection : enseignes du registre des entreprises (' + nb + ')' : 'Venant de la prospection des structures (' + nb + ')';
+    return '<select id="sasFiltreLot" aria-label="Filtrer par origine de la proposition"><option value="">Toutes les propositions</option><option value="prospection"' + (sas.fLot === 'prospection' ? ' selected' : '') + '>' + libelle + '</option></select> ';
+  }
   function sasHtmlFiltrePrev(d) {
     if (!sasEtatsAvec(d.fichier)) { return ''; }
     var o = function (v, t, cur) { return '<option value="' + v + '"' + (cur === v ? ' selected' : '') + '>' + t + '</option>'; };
@@ -9644,8 +10286,8 @@
         '<select id="sasFiltreType" aria-label="Filtrer par type">' + sasOptionsFiltre(sasValeursDistinctes(d, 'type'), sas.fType, 'Tous les types') + '</select>' +
         (d.fichier === 'lieux' || d.fichier === 'offres' ? '<select id="sasFiltrePortee" aria-label="Filtrer par portée">' + sasOptionsFiltre(sasValeursDistinctes(d, 'portee'), sas.fPortee, 'Toutes les portées') + '</select>' : '') +
         (d.fichier === 'employeurs' || d.fichier === 'offres' ? sasHtmlFiltreSecteur(d) : '') +
-        (d.fichier === 'employeurs' ? '<select id="sasFiltreMag" aria-label="Filtrer par nombre de magasins"><option value="">Tous les employeurs</option><option value="plusieurs"' + (sas.fMag === 'plusieurs' ? ' selected' : '') + '>Plusieurs magasins (pour vérifier chaque numéro)</option><option value="telmanquant"' + (sas.fMag === 'telmanquant' ? ' selected' : '') + '>Plusieurs magasins dont un numéro manque</option><option value="undep"' + (sas.fMag === 'undep' ? ' selected' : '') + '>Enseigne présente dans un seul département (à chercher dans l’autre)</option></select>' : '') +
-        (d.fichier === 'lieux' ? sasHtmlFiltreCat(d) : '') +
+        (d.fichier === 'employeurs' ? sasHtmlFiltreLot(d) + '<select id="sasFiltreMag" aria-label="Filtrer par nombre de magasins"><option value="">Tous les employeurs</option><option value="plusieurs"' + (sas.fMag === 'plusieurs' ? ' selected' : '') + '>Plusieurs magasins (pour vérifier chaque numéro)</option><option value="telmanquant"' + (sas.fMag === 'telmanquant' ? ' selected' : '') + '>Plusieurs magasins dont un numéro manque</option><option value="undep"' + (sas.fMag === 'undep' ? ' selected' : '') + '>Enseigne présente dans un seul département (à chercher dans l’autre)</option></select>' : '') +
+        (d.fichier === 'lieux' ? sasHtmlFiltreLot(d) + sasHtmlFiltreCat(d) : '') +
         '<select id="sasFiltreEtat" aria-label="Filtrer par choix"><option value="">Toutes les fiches</option><option value="sans"' + (sas.fEtat === 'sans' ? ' selected' : '') + '>Sans choix pour l\'instant</option><option value="choisies"' + (sas.fEtat === 'choisies' ? ' selected' : '') + '>Avec un choix en attente</option></select>' +
         sasHtmlFiltrePrev(d) + '<button class="btn petit' + (sas.tableau ? ' primaire' : '') + '" type="button" data-sas="tableau-bascule" aria-pressed="' + sas.tableau + '">' + (sas.tableau ? 'Revenir aux fiches' : 'Voir en tableau') + '</button> <button class="btn petit" type="button" data-sas="effacer-filtres">Effacer la recherche</button></div>' + (sasCtlAvec(d.fichier) ? sasHtmlControle() : '');
     }
@@ -9787,8 +10429,8 @@
   $d('sasContenu').addEventListener('change', function (e) {
     var t = e.target; if (!t) { return; }
     if (t.id === 'sasFichier') { sas.fichier = t.value; sas.analyse = null; sasRendre(); }
-    else if (t.id === 'sasFichierListe') { if (Object.keys(sas.attente).length && !window.confirm('Vous avez des choix non enregistrés dans ce sas. Changer quand même (ils seront perdus) ?')) { t.value = sas.fichier; return; } sas.fichier = t.value; sas.attente = {}; sas.corr = null; sas.page = 1; sas.q = ''; sas.fType = ''; sas.fPortee = ''; sas.fSecteur = ''; sas.fEtat = ''; sas.fMag = ''; sas.fCat = ''; sas.fCtl = ''; sas.fPrev = ''; sas.fOrig = ''; sas.tri = { col: '', sens: 1 }; sas.fSite = ''; sasChargerListe(); }
-    else if (t.id === 'sasFiltreType' || t.id === 'sasFiltrePortee' || t.id === 'sasFiltreSecteur' || t.id === 'sasFiltreEtat' || t.id === 'sasFiltreMag' || t.id === 'sasFiltreCat' || t.id === 'sasFiltrePrev' || t.id === 'sasFiltreOrig') { if (t.id === 'sasFiltreType') { sas.fType = t.value; } else if (t.id === 'sasFiltreCat') { sas.fCat = t.value; } else if (t.id === 'sasFiltreMag') { sas.fMag = t.value; } else if (t.id === 'sasFiltrePortee') { sas.fPortee = t.value; } else if (t.id === 'sasFiltreSecteur') { sas.fSecteur = t.value; } else if (t.id === 'sasFiltrePrev') { sas.fPrev = t.value; sas.fOrig = ''; } else if (t.id === 'sasFiltreOrig') { sas.fOrig = t.value; } else { sas.fEtat = t.value; } sas.page = 1; sasRendre(); }
+    else if (t.id === 'sasFichierListe') { if (Object.keys(sas.attente).length && !window.confirm('Vous avez des choix non enregistrés dans ce sas. Changer quand même (ils seront perdus) ?')) { t.value = sas.fichier; return; } sas.fichier = t.value; sas.attente = {}; sas.corr = null; sas.page = 1; sas.q = ''; sas.fType = ''; sas.fPortee = ''; sas.fSecteur = ''; sas.fEtat = ''; sas.fMag = ''; sas.fLot = ''; sas.fCat = ''; sas.fCtl = ''; sas.fPrev = ''; sas.fOrig = ''; sas.tri = { col: '', sens: 1 }; sas.fSite = ''; sasChargerListe(); }
+    else if (t.id === 'sasFiltreType' || t.id === 'sasFiltrePortee' || t.id === 'sasFiltreSecteur' || t.id === 'sasFiltreEtat' || t.id === 'sasFiltreMag' || t.id === 'sasFiltreLot' || t.id === 'sasFiltreCat' || t.id === 'sasFiltrePrev' || t.id === 'sasFiltreOrig') { if (t.id === 'sasFiltreType') { sas.fType = t.value; } else if (t.id === 'sasFiltreCat') { sas.fCat = t.value; } else if (t.id === 'sasFiltreMag') { sas.fMag = t.value; } else if (t.id === 'sasFiltreLot') { sas.fLot = t.value; } else if (t.id === 'sasFiltrePortee') { sas.fPortee = t.value; } else if (t.id === 'sasFiltreSecteur') { sas.fSecteur = t.value; } else if (t.id === 'sasFiltrePrev') { sas.fPrev = t.value; sas.fOrig = ''; } else if (t.id === 'sasFiltreOrig') { sas.fOrig = t.value; } else { sas.fEtat = t.value; } sas.page = 1; sasRendre(); }
     else if (t.getAttribute('data-sas-coche') !== null) { sas.coches[t.getAttribute('data-sas-coche')] = t.checked; sasRendre(); }
   });
   $d('sasContenu').addEventListener('click', function (e) {
@@ -9851,7 +10493,7 @@
     if (a === 'recommencer') { sas.texte = ''; sas.analyse = null; sas.mode = 'coller'; sas.pontMsg = ''; $d('sasResultat').innerHTML = ''; sasRendre(); sasPontCharger(); return; }
     if (a === 'ecarter-publiees') { if (sas.liste) { sasFiltrer(sas.liste).forEach(function (l) { if (l.doublon && l.doublon.ou === 'registre' && l.doublon.raison === 'identifiant') { sas.attente[l.id] = 'ecarter'; } }); } sasRendre(); return; }
     if (a === 'etat-case') { var ve = t.getAttribute('data-valeur'); sas.fPrev = sas.fPrev === ve ? '' : ve; sas.fOrig = ''; sas.page = 1; sasRendre(); return; }
-    if (a === 'effacer-filtres') { sas.q = ''; sas.fType = ''; sas.fPortee = ''; sas.fSecteur = ''; sas.fEtat = ''; sas.fMag = ''; sas.fCat = ''; sas.fCtl = ''; sas.fPrev = ''; sas.fOrig = ''; sas.tri = { col: '', sens: 1 }; sas.fSite = ''; sas.page = 1; sasRendre(); return; }
+    if (a === 'effacer-filtres') { sas.q = ''; sas.fType = ''; sas.fPortee = ''; sas.fSecteur = ''; sas.fEtat = ''; sas.fMag = ''; sas.fLot = ''; sas.fCat = ''; sas.fCtl = ''; sas.fPrev = ''; sas.fOrig = ''; sas.tri = { col: '', sens: 1 }; sas.fSite = ''; sas.page = 1; sasRendre(); return; }
     if (t.getAttribute('data-sas-page') !== null) { sas.page += +t.getAttribute('data-sas-page'); sasRendre(); $d('sasFenetre').scrollTop = 0; return; }
     if (a === 'liste') { sas.mode = 'liste'; $d('sasResultat').innerHTML = ''; sasChargerListe(); return; }
     if (a === 'copier') { sasCopierTexte(sasMessageCorrection()).then(function (ok) { $d('sasResultat').innerHTML = ok ? note('ok', 'Copié. Collez-le dans ChatGPT : il corrigera uniquement ces lignes.') : note('warn', 'La copie automatique a échoué : sélectionnez le texte à la main.'); }); return; }
@@ -10897,7 +11539,7 @@
   var CHG_CHAMPS = ['domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url'];
   var CHG_LIBELLES = { domaine: 'Domaine', intitule: 'Intitulé', nature: 'Nature et date du texte', en_vigueur: 'En vigueur le', concerne: 'Public concerné', ce_qui_change: 'Ce qui change', source_titre: 'Titre de la source', source_url: 'Adresse de la source' };
   var CHG_AIDES = { en_vigueur: 'AAAA-MM-JJ, ou « prévu AAAA-MM-JJ » si pas encore en vigueur, ou « sans objet » pour une simple information', nature: 'ex. : décret du 2026-06-12', source_url: 'doit commencer par https://' };
-  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '', ecart: {}, ecartees: [], ecFiltre: '', ecNote: null, versEcartees: false };
+  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '', ecart: {}, ecartees: [], ecFiltre: '', ecNote: null, versEcartees: false, vueEcartees: false };
   // ---------- Les fiches du cadre proposées par l'assistant (le sas des fiches : mise à jour, nouvelle fiche, retrait), dans la même fenêtre « À valider » ----------
   // Rien n'est écrit ici : la lecture et le contrôle viennent du serveur (outils/veilleFichesSas.js), la publication passe par le circuit « Publier » qui existe déjà.
   var fc = { lignes: [], attente: {}, rev: {}, redater: {}, src: {}, texte: {}, msg: {}, ecart: {} };
@@ -11242,14 +11884,15 @@
   }
   function ecarteesHtml() {
     var tous = chg.ecartees || [], nbEmp = tous.filter(function (e) { return e.sorte === 'employeur'; }).length;
-    var l = tous.filter(function (e) { return !chg.ecFiltre || (chg.ecFiltre === 'employeur' ? e.sorte === 'employeur' : e.sorte !== 'employeur'); });
-    var h = '<h3 class="fc-titre" id="chgEcartees">Écartées (' + tous.length + ')</h3>';
+    var mot = String(chg.q || '').trim().toLowerCase();
+    var l = tous.filter(function (e) { return (!chg.ecFiltre || (chg.ecFiltre === 'employeur' ? e.sorte === 'employeur' : e.sorte !== 'employeur')) && (!mot || [e.titre, e.motifLibelle, e.precision, e.lieu].join(' ').toLowerCase().indexOf(mot) !== -1); });
+    var h = '<h3 class="fc-titre" id="chgEcartees">Fiches écartées (' + (mot || chg.ecFiltre ? l.length + ' sur ' + tous.length : tous.length) + ')</h3>';
     h += '<p class="mini">Ce que vous avez écarté, avec la raison et la date. Une information ou un employeur identique n’est plus proposé par les versements dans les sas ; ce qui est ignoré est compté ici. « Remettre dans le sas » le rend au sas, à valider comme les autres.</p>';
     h += '<div class="btn-rangee">';
     [['', 'Tout (' + tous.length + ')'], ['info', 'Informations et fiches (' + (tous.length - nbEmp) + ')'], ['employeur', 'Employeurs (' + nbEmp + ')']].forEach(function (f) { h += '<button class="btn petit' + (chg.ecFiltre === f[0] ? ' choisi' : '') + '" type="button" data-ecart-filtre="' + f[0] + '">' + f[1] + '</button> '; });
     h += '<button class="btn petit" type="button" data-ecnote-ouvrir="1">Noter un employeur disparu</button></div>';
     h += ecartNoteHtml();
-    if (!l.length) { return h + '<div class="note"><span>Rien d’écarté ici pour l’instant.</span></div>'; }
+    if (!l.length) { return h + '<div class="note"><span>' + (tous.length ? 'Aucune fiche écartée ne correspond à ce que vous cherchez.' : 'Rien d’écarté ici pour l’instant.') + '</span></div>'; }
     l.forEach(function (e) {
       var rep = e.reproposee || { nb: 0 };
       h += '<div class="carte-ecartee"><strong>' + esc(e.titre) + '</strong><br><span class="pastille p-neutre">' + ecartSorteLibelle(e.sorte) + '</span> écarté le ' + esc(dateFr(e.ecarteLe)) + ' · ' + esc(e.motifLibelle) + (e.precision ? ' : ' + esc(e.precision) : '')
@@ -11301,21 +11944,24 @@
     fc.lignes.forEach(function (x) { var d = 'rayon:' + x.rayon; if (x.rayon && doms.indexOf(d) === -1) { doms.push(d); } });
     var h = '<div class="chg-collant-bande"><div class="barre"><span><strong>' + (tous.length + fc.lignes.length) + '</strong> proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' dans le sas (' + fc.lignes.length + ' fiche' + (fc.lignes.length > 1 ? 's' : '') + ' du cadre, ' + tous.length + ' changement' + (tous.length > 1 ? 's' : '') + ' du balayage), dont <strong>' + nbPrev + '</strong> pré-vérifié' + (nbPrev > 1 ? 's' : '') + ' et <strong>' + aCompleter + '</strong> à compléter</span></div>';
     var legendeH = '<div class="legende-chg"><strong>D\'où ça vient :</strong> <span class="pastille p-o-mois">Balayage du mois</span> <span class="pastille p-o-trim">Balayage du trimestre</span> <span class="pastille p-o-rep">Déjà publié, à reconfirmer</span> <span class="pastille p-fc-maj">Mise à jour d\'une fiche</span> <span class="pastille p-fc-nouv">Nouvelle fiche</span> <span class="pastille p-fc-ret">Retrait</span> <span class="badge-prev" style="position:static">&#9733; PRÉ-VÉRIFIÉ</span> = source ouverte et confirmée par vous, il reste « C\'est bon »</div>';
-    h += '<div class="filtres-chg"><div><label for="chgFiltre">Ce que je veux voir</label><select id="chgFiltre" aria-label="Filtrer"><option value="">Tout</option>' + '<option value="fiches"' + (chg.filtre === 'fiches' ? ' selected' : '') + '>Fiches du cadre (toutes)</option><option value="f-maj"' + (chg.filtre === 'f-maj' ? ' selected' : '') + '>Mises à jour de fiches</option><option value="f-nouv"' + (chg.filtre === 'f-nouv' ? ' selected' : '') + '>Nouvelles fiches</option><option value="f-ret"' + (chg.filtre === 'f-ret' ? ' selected' : '') + '>Retraits</option><option value="f-brut"' + (chg.filtre === 'f-brut' ? ' selected' : '') + '>Informations brutes en réserve</option>' + '<option value="mois"' + (chg.filtre === 'mois' ? ' selected' : '') + '>Balayage du mois</option>' + '<option value="trim"' + (chg.filtre === 'trim' ? ' selected' : '') + '>Balayage du trimestre</option>' + '<option value="rep"' + (chg.filtre === 'rep' ? ' selected' : '') + '>Déjà publié, à reconfirmer</option>' + '<option value="prev"' + (chg.filtre === 'prev' ? ' selected' : '') + '>Pré-vérifiés</option>' + '<option value="averifier"' + (chg.filtre === 'averifier' ? ' selected' : '') + '>À vérifier</option>' + '<option value="completer"' + (chg.filtre === 'completer' ? ' selected' : '') + '>À compléter (date manquante...)</option>' + '<option value="nouveaux"' + (chg.filtre === 'nouveaux' ? ' selected' : '') + '>Nouveaux</option>' + '</select></div>'
-      + '<div><label for="chgDom">Domaine ou rayon</label><select id="chgDom"><option value="">Tous</option>' + doms.map(function (d) { var rv = d.indexOf('rayon:') === 0; return '<option value="' + esc(d) + '"' + (chg.dom === d ? ' selected' : '') + '>' + esc(rv ? 'Rayon : ' + libelleRayonFic(d.slice(6)) : d) + '</option>'; }).join('') + '</select></div>'
-      + '<div><label for="chgRech">Chercher un mot</label><input type="search" id="chgRech" value="' + esc(chg.q) + '" placeholder="Nom, domaine..."></div></div>';
+    var ec = chg.vueEcartees;
+    h += '<div class="filtres-chg">' + (ec ? '' : '<div><label for="chgFiltre">Ce que je veux voir</label><select id="chgFiltre" aria-label="Filtrer"><option value="">Tout</option>' + '<option value="fiches"' + (chg.filtre === 'fiches' ? ' selected' : '') + '>Fiches du cadre (toutes)</option><option value="f-maj"' + (chg.filtre === 'f-maj' ? ' selected' : '') + '>Mises à jour de fiches</option><option value="f-nouv"' + (chg.filtre === 'f-nouv' ? ' selected' : '') + '>Nouvelles fiches</option><option value="f-ret"' + (chg.filtre === 'f-ret' ? ' selected' : '') + '>Retraits</option><option value="f-brut"' + (chg.filtre === 'f-brut' ? ' selected' : '') + '>Informations brutes en réserve</option>' + '<option value="mois"' + (chg.filtre === 'mois' ? ' selected' : '') + '>Balayage du mois</option>' + '<option value="trim"' + (chg.filtre === 'trim' ? ' selected' : '') + '>Balayage du trimestre</option>' + '<option value="rep"' + (chg.filtre === 'rep' ? ' selected' : '') + '>Déjà publié, à reconfirmer</option>' + '<option value="prev"' + (chg.filtre === 'prev' ? ' selected' : '') + '>Pré-vérifiés</option>' + '<option value="averifier"' + (chg.filtre === 'averifier' ? ' selected' : '') + '>À vérifier</option>' + '<option value="completer"' + (chg.filtre === 'completer' ? ' selected' : '') + '>À compléter (date manquante...)</option>' + '<option value="nouveaux"' + (chg.filtre === 'nouveaux' ? ' selected' : '') + '>Nouveaux</option>' + '</select></div>')
+      + (ec ? '' : '<div><label for="chgDom">Domaine ou rayon</label><select id="chgDom"><option value="">Tous</option>' + doms.map(function (d) { var rv = d.indexOf('rayon:') === 0; return '<option value="' + esc(d) + '"' + (chg.dom === d ? ' selected' : '') + '>' + esc(rv ? 'Rayon : ' + libelleRayonFic(d.slice(6)) : d) + '</option>'; }).join('') + '</select></div>')
+      + '<div><label for="chgRech">Chercher un mot</label><input type="search" id="chgRech" value="' + esc(chg.q) + '" placeholder="' + (ec ? 'Nom, raison, lieu...' : 'Nom, domaine...') + '"></div>'
+      + '<div><label>&nbsp;</label><button class="btn' + (ec ? ' primaire' : '') + '" type="button" data-chg-ecartees="1">' + (ec ? 'Retour aux propositions' : 'Fiches écartées (' + (chg.ecartees || []).length + ')') + '</button></div></div>';
     var prevAff = liste.filter(function (l) { return chgPrev(l) && !chgBloquages(l).length && !chg.attente[l.id]; });
     var prevFc = lf.filter(function (l) { return l.genre !== 'brut' && fcPrev(l) && !fcBloquages(l).length && !fc.attente[l.id]; });
     var nbPrevAff = prevAff.length + prevFc.length;
-    h += '<div class="btn-rangee"><button class="btn petit" type="button" id="chgPrevTous"' + (nbPrevAff ? '' : ' disabled') + '>C\'est bon pour les ' + nbPrevAff + ' pré-vérifié' + (nbPrevAff > 1 ? 's' : '') + ' affiché' + (nbPrevAff > 1 ? 's' : '') + '</button> <span class="mini">Rien n\'est public avant « Enregistrer ».</span></div>';
-    h += '</div>' + legendeH;
+    if (!ec) { h += '<div class="btn-rangee"><button class="btn petit" type="button" id="chgPrevTous"' + (nbPrevAff ? '' : ' disabled') + '>C\'est bon pour les ' + nbPrevAff + ' pré-vérifié' + (nbPrevAff > 1 ? 's' : '') + ' affiché' + (nbPrevAff > 1 ? 's' : '') + '</button> <span class="mini">Rien n\'est public avant « Enregistrer ».</span></div>'; }
+    h += '</div>' + (ec ? '' : legendeH);
+    if (ec) { h += ecarteesHtml(); }
+    else {
     if (lf.length) { h += '<h3 class="fc-titre">Fiches du cadre (' + lf.length + ')</h3>'; lf.forEach(function (l) { h += fcHtmlCarte(l); }); if (liste.length) { h += '<h3 class="fc-titre">Changements du balayage (' + liste.length + ')</h3>'; } }
     if (!tous.length && !fc.lignes.length) { h += '<div class="note ok"><span>&#9989;</span><span>Le sas est vide : rien en attente de vérification. Les prochains changements arrivent ici quand vous cliquez « Verser les changements dans le sas » à la fin du balayage (Mise à jour, Chaque mois).</span></div>'; }
     if (!liste.length && !lf.length && (tous.length + fc.lignes.length)) { h += note('warn', '<strong>Rien ne correspond à ce que vous avez demandé de voir</strong> (le filtre ou le mot cherché cache les ' + (tous.length + fc.lignes.length) + ' proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' du sas). <div class="btn-rangee"><button class="btn primaire petit" type="button" id="chgToutAfficher">Tout afficher</button></div>'); }
     liste.slice(chg.page * CHG_PAGE, (chg.page + 1) * CHG_PAGE).forEach(function (l) { h += chgHtmlFiche(l); });
     h += '<div class="barre"><button class="btn petit" type="button" data-chg-page="-1"' + (chg.page === 0 ? ' disabled' : '') + '>Page précédente</button><span>Page ' + (chg.page + 1) + ' sur ' + pages + '</span><button class="btn petit" type="button" data-chg-page="1"' + (chg.page >= pages - 1 ? ' disabled' : '') + '>Page suivante</button></div>';
-    h += ecarteesHtml();
-    if (chg.versEcartees) { setTimeout(function () { chg.versEcartees = false; var z = $d('chgEcartees'); if (z) { z.scrollIntoView({ block: 'start' }); } }, 80); }
+    }
     h += '<div class="pied"><strong>' + nb + '</strong> choix en attente <button class="btn primaire" type="button" id="chgEnregistrer"' + (nb ? '' : ' disabled') + '>Enregistrer</button> <button class="btn" type="button" id="chgToutAnnuler"' + (nb ? '' : ' disabled') + '>Tout annuler</button> <button class="btn" type="button" id="chgAnnulerPub" style="display:none">Annuler la dernière publication</button></div>';
     $d('chgContenu').innerHTML = h;
   }
@@ -11427,6 +12073,7 @@
     var t = e.target.closest ? e.target.closest('button') : null; if (!t) { return; }
     var a = t.getAttribute('data-ecart-motif');
     if (a) { var p1 = a.indexOf('|'), p2 = a.lastIndexOf('|'), regE = a.slice(0, p1) === 'c' ? chg.ecart : fc.ecart, idE = a.slice(p1 + 1, p2); regE[idE] = { m: a.slice(p2 + 1), p: (regE[idE] && regE[idE].p) || '' }; $d('chgResultat').innerHTML = ''; chgRendre(); return; }
+    if (t.hasAttribute('data-chg-ecartees')) { chg.vueEcartees = !chg.vueEcartees; chg.q = ''; chg.page = 0; chgRendre(); return; }
     if (t.hasAttribute('data-ecart-filtre')) { chg.ecFiltre = t.getAttribute('data-ecart-filtre'); chgRendre(); return; }
     if (t.hasAttribute('data-ecnote-ouvrir')) { if (!chg.ecNote) { chg.ecNote = { nom: '', dep: '24', communes: '', site: '', m: '', p: '' }; } chgRendre(); var zn = document.querySelector('[data-ecnote="nom"]'); if (zn) { zn.focus(); } return; }
     if (t.hasAttribute('data-ecnote-annuler')) { chg.ecNote = null; chgRendre(); return; }
@@ -11552,7 +12199,7 @@
     });
   });
   // À l'ouverture, on repart de « Tout » : un ancien filtre (domaine, mot cherché, « Pré-vérifiés »...) ne doit jamais cacher les changements annoncés par le compteur.
-  $d('chgOuvrir').addEventListener('click', function () { chg.filtre = ''; chg.dom = ''; chg.q = ''; chg.page = 0; $d('chgFenetre').style.display = 'block'; $d('chgResultat').innerHTML = ''; chgCharger(); });
+  $d('chgOuvrir').addEventListener('click', function () { chg.filtre = ''; chg.dom = ''; chg.q = ''; chg.page = 0; chg.vueEcartees = !!chg.versEcartees; chg.versEcartees = false; $d('chgFenetre').style.display = 'block'; $d('chgResultat').innerHTML = ''; chgCharger(); });
   // Le test des adresses du mois (les trois registres de « Qui fait quoi »).
   // Les adresses de l'application (consigne 92) : l'écran est dans le premier script, l'accès au lanceur ici.
   window.adrAPI = {
@@ -12467,7 +13114,7 @@
       + preuveBlocLot('lex', lots, lxRendreLecture, sans) + d.suivi;
   }
   function lxLireReponse() {
-    var t = $d('reponseLexiqueMots').value, m = blocsJoints(t, 'LEXIQUE-BRUT'), bloc = m.length ? m.join('\n\n') : t, entrees = [], cur = null;
+    var t = repTexte('reponseLexiqueMots'), m = blocsJoints(t, 'LEXIQUE-BRUT'), bloc = m.length ? m.join('\n\n') : t, entrees = [], cur = null;
     var suivi = htmlSuiteEnAttente(t, 'LEXIQUE-BRUT') + (/\[SITES-NON-OUVERTS\]/i.test(t) ? htmlSitesNonOuverts(balLireSites(t), 'À ouvrir par vous : les termes qui en dépendent ne sont pas dans la liste.') : '');
     bloc.split('\n').forEach(function (ln) {
       var km = ln.match(/^\s*[-*]?\s*([a-zA-Zéè_]+)\s*:\s*(.*)$/); if (!km) { return; }
@@ -12612,7 +13259,7 @@
   });
   window.lexLireVerif = function () {
     $d('lexLotResultat').innerHTML = note('', 'Lecture...');
-    appeler('/api/lexique/verification-lire', { texte: $d('reponseLexiqueVerif').value }).then(function (r) {
+    appeler('/api/lexique/verification-lire', { texte: repTexte('reponseLexiqueVerif') }).then(function (r) {
       if (!r.ok) { lx.lot = null; $d('lexLotResultat').innerHTML = note('warn', esc(r.erreur || 'Lecture impossible.') + (r.inconnues && r.inconnues.length ? '<br><span class="mini">Lignes non reconnues : ' + r.inconnues.map(esc).join(' ; ') + '</span>' : '')); return; }
       lx.lot = r.fiches;
       $d('lexLotResultat').innerHTML = '<p class="mini"><strong>Propositions de l\'assistant (rien n\'est enregistré).</strong> Ouvrez chaque fiche : les valeurs proposées y sont déjà mises, vous ouvrez la source officielle vous-même, puis vous enregistrez.</p>'
@@ -12672,7 +13319,144 @@
   $d('lexSources').addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('button[data-lx-source]') : null; if (b) { lxPanneau(b.getAttribute('data-lx-source')); } });
   ['lexVueListe', 'lexVueEdition', 'lexVuePropose'].forEach(function (id) { $d(id).addEventListener('input', lxSurSaisie); $d(id).addEventListener('change', lxSurSaisie); $d(id).addEventListener('click', lxSurClic); });
 
+  // ---------- Tâches programmées (consigne 233) : la liste vit dans outils/taches_programmees.json, l'état et le texte à copier sont calculés par le serveur (veilleTaches.js) ----------
+  var tp = { liste: [], compte: { afaire: 0, avenir: 0, faite: 0 }, filtre: 'afaire', ouverte: null, zone: {}, saisie: {}, repEnreg: {}, erreur: '' };
+  var TP_CLASSE_ETAT = { faite: 'tp-ok', avenir: 'tp-info', afaire: 'tp-warn', retard: 'tp-alert' };
+  function tpAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
+  function tpCarte(t) {
+    var z = tp.zone[t.id] || {}, ouv = tp.ouverte === t.id, reprise = t.genre === 'reprise', cls = t.etat === 'retard' ? 'retard' : (t.etat === 'afaire' ? 'afaire' : (t.etat === 'faite' ? 'faite' : ''));
+    var lib = reprise ? 'Copier la phrase de reprise' : 'Copier le prompt pour le cloud', id = tpAttr(t.id);
+    var b = function (act, texte, classe) { return '<button class="btn ' + (classe || 'petit') + '" type="button" data-tp-act="' + act + '" data-tp-id="' + id + '">' + texte + '</button> '; };
+    var h = '<div class="carte-tp ' + cls + '"><div class="tp-tete"><strong>' + esc(t.titre) + '</strong><span class="tp-past ' + TP_CLASSE_ETAT[t.etat] + '">' + esc(t.etatTexte) + '</span></div>';
+    h += '<div class="mini">Prévu le ' + esc(t.dateFr) + (t.estimee ? ' <span class="tp-past tp-warn">date estimée, à confirmer</span>' : ' <span class="tp-past tp-ok">date officielle</span>') + '</div>';
+    var urgent = t.etat === 'afaire' || t.etat === 'retard';
+    if (!ouv) {
+      h += '<div class="btn-rangee">' + b('ouvrir', 'Voir le contexte') + ((t.etat !== 'faite' && t.etat !== 'avenir') ? b('prompt', lib, 'primaire petit') : '') + '</div></div>';
+      return h;
+    }
+    h += '<dl><dt>Pourquoi</dt><dd>' + esc(t.pourquoi) + '</dd><dt>À relever</dt><dd>' + esc(t.quoi) + '</dd><dt>Module à nourrir</dt><dd>' + esc((t.miseAJour && t.miseAJour.module) || 'à préciser avec Claude') + '</dd><dt>Rubriques à mettre à jour ou à créer</dt><dd>' + ((t.miseAJour && t.miseAJour.rubriques && t.miseAJour.rubriques.length) ? '<ul class="tp-rub">' + t.miseAJour.rubriques.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>' : 'à préciser avec Claude') + '</dd><dt>Fichiers concernés</dt><dd>' + t.fichiers.map(esc).join(' ; ') + '</dd></dl>';
+    if (t.sources.length) { h += '<div class="btn-rangee">' + t.sources.map(function (s) { return '<a class="btn petit" href="' + tpAttr(s.url) + '" target="_blank" rel="noopener">Ouvrir : ' + esc(s.nom) + '</a>'; }).join(' ') + '</div>'; }
+    if (t.etat !== 'faite') {
+      h += '<div class="btn-rangee">' + b('prompt', lib, 'primaire petit') + (reprise ? '' : b('coller', 'Coller la réponse du cloud') + b('consigne', 'Consigne pour Claude')) + (t.estimee ? b('confirmer', 'Confirmer la date') : '') + b('reporter', 'Reporter') + b('fait', 'C’est fait') + '</div>';
+    } else { h += '<div class="btn-rangee">' + b('rouvrir', 'Remettre à faire') + '</div>'; }
+    if (z.prompt) {
+      h += '<div class="tp-zone"><strong>' + (reprise ? 'Phrase à coller au début d’une fenêtre de travail avec Claude' : 'Prompt à coller dans le cloud') + '</strong><pre>' + esc(t.texteACopier) + '</pre><div class="btn-rangee">' + b('copier', 'Copier le texte', 'primaire petit') + '<span class="mini" data-tp-msg="copie-' + id + '"></span></div></div>';
+    }
+    if (z.consigne && t.consigneClaude) {
+      h += '<div class="tp-zone"><strong>Consigne à donner à Claude une fois la réponse du cloud en main</strong><div class="mini">À coller dans une fenêtre de travail avec Claude, avec la réponse du cloud (ou en lui disant que la réponse est enregistrée ici). Elle lui demande de nourrir les rubriques du module, puis de signaler la nouveauté.</div><pre>' + esc(t.consigneClaude) + '</pre><div class="btn-rangee">' + b('copier-consigne', 'Copier la consigne', 'primaire petit') + '<span class="mini" data-tp-msg="consigne-' + id + '"></span></div></div>';
+    }
+    if (z.coller) {
+      var saved = tp.repEnreg[t.id];
+      h += '<div class="tp-zone"><strong>Réponse du cloud</strong><label for="tpRep-' + id + '">Collez ici ce que le cloud a répondu</label><textarea id="tpRep-' + id + '" data-tp-rep="' + id + '">' + esc(tp.saisie[t.id] || '') + '</textarea><div class="btn-rangee">' + b('enregistrer', 'Enregistrer la réponse', 'primaire petit')
+        + '<span class="mini" data-tp-msg="rep-' + id + '">' + (saved ? 'Réponse enregistrée sur votre ordinateur (le ' + esc(String(saved).replace(/^(\d{4})-(\d{2})-(\d{2})/, '$3/$2/$1')) + '). Pour que Claude nourrisse le module, copiez aussi la « Consigne pour Claude ».': 'Rien d’enregistré pour l’instant.') + '</span></div></div>';
+    }
+    if (z.reporter) {
+      h += '<div class="tp-zone"><label for="tpRp-' + id + '">Nouvelle date</label><input type="date" id="tpRp-' + id + '" value="' + tpAttr(t.date) + '"><div class="btn-rangee">' + b('reporter-ok', 'Reporter à cette date', 'primaire petit') + b('reporter-non', 'Annuler') + '</div></div>';
+    }
+    return h + '<div class="btn-rangee">' + b('replier', 'Replier') + '</div></div>';
+  }
+  function tpRendre() {
+    var c = tp.compte, a = c.afaire, bt = $d('tpBouton'), bd = $d('tpBadge');
+    bt.style.display = 'inline-block'; bd.style.display = a ? 'inline-block' : 'none'; bd.textContent = a;
+    bt.className = 'btn' + (a ? ' primaire a-notif' : '');
+    var chips = [['afaire', 'À faire (' + a + ')'], ['avenir', 'À venir (' + c.avenir + ')'], ['faite', 'Faites (' + c.faite + ')']];
+    $d('tpFiltres').innerHTML = chips.map(function (x) { return '<button class="btn petit' + (tp.filtre === x[0] ? ' choisi' : '') + '" type="button" data-tp-filtre="' + x[0] + '">' + x[1] + '</button>'; }).join(' ');
+    if (tp.erreur) { $d('tpListe').innerHTML = note('warn', '<strong>Lecture impossible.</strong> ' + esc(tp.erreur)); return; }
+    var l = tp.liste.filter(function (t) { return tp.filtre === 'afaire' ? (t.etat === 'afaire' || t.etat === 'retard') : t.etat === tp.filtre; });
+    var vide = { afaire: 'Rien à faire aujourd’hui. La prochaine tâche est dans « À venir ».', avenir: 'Aucune tâche à venir.', faite: 'Aucune tâche faite pour l’instant.' };
+    $d('tpListe').innerHTML = l.length ? l.map(tpCarte).join('') : note('ok', '&#9989; ' + vide[tp.filtre]);
+  }
+  function tpAppliquer(r) {
+    if (r && r.ok) { tp.liste = r.taches; tp.compte = r.compte; tp.aujourdhui = r.aujourdhui; tp.erreur = ''; } else { tp.erreur = (r && r.erreur) || 'erreur inconnue'; }
+    tpRendre();
+  }
+  function tpCharger() {
+    return appeler('/api/taches/lire', {}).then(function (r) {
+      tpAppliquer(r);
+      return appeler('/api/retours/lister', {}).then(function (q) {
+        tp.repEnreg = {};
+        if (q && q.ok && Array.isArray(q.retours)) { q.retours.forEach(function (e) { if (/^tache-/.test(e.id)) { tp.repEnreg[e.id.slice(6)] = e.le; } }); }
+        tpRendre();
+      });
+    });
+  }
+  function tpAgir(corps) { return appeler('/api/taches/agir', corps).then(function (r) { tpAppliquer(r); return r; }); }
+  function tpTache(id) { return tp.liste.filter(function (t) { return t.id === id; })[0]; }
+  function tpMsg(nom, texte) { var z = document.querySelector('[data-tp-msg="' + String(nom).replace(/"/g, '') + '"]'); if (z) { z.textContent = texte; } }
+  function tpBasculer(ouvrir) {
+    var p = $d('tpPanneau'), o = (ouvrir === undefined) ? p.style.display !== 'block' : ouvrir;
+    p.style.display = o ? 'block' : 'none'; $d('tpBouton').setAttribute('aria-expanded', o ? 'true' : 'false');
+    if (o) { tpCharger(); }
+  }
+  $d('tpBouton').addEventListener('click', function () { tpBasculer(); });
+  $d('tpFermer').addEventListener('click', function () { tpBasculer(false); });
+  $d('tpFiltres').addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('button') : null; if (b && b.hasAttribute('data-tp-filtre')) { tp.filtre = b.getAttribute('data-tp-filtre'); tp.ouverte = null; tpRendre(); } });
+  $d('tpPanneau').addEventListener('input', function (e) { var id = e.target.getAttribute && e.target.getAttribute('data-tp-rep'); if (id) { tp.saisie[id] = e.target.value; } });
+  $d('tpListe').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button[data-tp-act]') : null; if (!b) { return; }
+    var id = b.getAttribute('data-tp-id'), a = b.getAttribute('data-tp-act'), t = tpTache(id); if (!t) { return; }
+    var z = tp.zone[id] = tp.zone[id] || {};
+    if (a === 'ouvrir') { tp.ouverte = id; }
+    else if (a === 'replier') { tp.ouverte = null; }
+    else if (a === 'prompt') { tp.ouverte = id; z.prompt = true; }
+    else if (a === 'coller') { z.coller = !z.coller; }
+    else if (a === 'consigne') { z.consigne = !z.consigne; }
+    else if (a === 'copier-consigne') {
+      var fin2 = function (ok) { tpMsg('consigne-' + id, ok ? 'Copié. Collez-le dans une fenêtre de travail avec Claude.' : 'Copie impossible : sélectionnez le texte à la main.'); };
+      if (typeof copierTexteSur === 'function') { Promise.resolve(copierTexteSur(t.consigneClaude)).then(function (ok) { fin2(ok !== false); }, function () { fin2(false); }); } else { fin2(false); }
+      return;
+    }
+    else if (a === 'reporter') { z.reporter = true; }
+    else if (a === 'reporter-non') { z.reporter = false; }
+    else if (a === 'copier') {
+      var fin = function (ok) { tpMsg('copie-' + id, ok ? 'Copié. Collez-le dans ' + (t.genre === 'reprise' ? 'une fenêtre de travail avec Claude.' : 'le cloud.') : 'Copie impossible : sélectionnez le texte à la main.'); };
+      if (typeof copierTexteSur === 'function') { Promise.resolve(copierTexteSur(t.texteACopier)).then(function (ok) { fin(ok !== false); }, function () { fin(false); }); } else { fin(false); }
+      return;
+    }
+    else if (a === 'enregistrer') {
+      var txt = tp.saisie[id] || '';
+      if (!txt.trim()) { tpMsg('rep-' + id, 'Collez d’abord la réponse du cloud.'); return; }
+      b.disabled = true;
+      appeler('/api/retours/enregistrer', { id: 'tache-' + id, titre: t.titre, categorie: 'Tâche programmée', rubrique: t.titre, reponse: txt, qualite: 'ok' }).then(function (r) {
+        if (!r.ok) { b.disabled = false; tpMsg('rep-' + id, 'Non enregistrée : ' + (r.erreur || 'erreur inconnue')); return; }
+        tpCharger();
+      });
+      return;
+    }
+    else if (a === 'confirmer') { tpAgir({ op: 'confirmer', id: id }); return; }
+    else if (a === 'reporter-ok') { var d = document.getElementById('tpRp-' + id); if (d && d.value) { z.reporter = false; tpAgir({ op: 'reporter', id: id, date: d.value }); } return; }
+    else if (a === 'fait') { tp.ouverte = null; tpAgir({ op: 'fait', id: id }); return; }
+    else if (a === 'rouvrir') { tp.filtre = 'afaire'; tpAgir({ op: 'rouvrir', id: id }); return; }
+    tpRendre();
+  });
+  $d('tpAjouterOuvrir').addEventListener('click', function () { $d('tpAjout').style.display = 'block'; $d('tpAjDate').value = tp.aujourdhui || ''; $d('tpAjTitre').focus(); });
+  $d('tpAjAnnuler').addEventListener('click', function () { $d('tpAjout').style.display = 'none'; $d('tpAjMsg').textContent = ''; });
+  $d('tpAjOk').addEventListener('click', function () {
+    var titre = $d('tpAjTitre').value.trim(), date = $d('tpAjDate').value, quoi = $d('tpAjQuoi').value.trim();
+    if (!titre || !date || !quoi) { $d('tpAjMsg').textContent = 'Il faut un titre, une date et ce qu’il faut relever.'; return; }
+    tpAgir({ op: 'ajouter', titre: titre, date: date, estimee: $d('tpAjEst').checked, quoi: quoi, source: $d('tpAjSource').value.trim() }).then(function (r) {
+      if (!r.ok) { $d('tpAjMsg').textContent = 'Non ajoutée : ' + (r.erreur || 'erreur inconnue'); return; }
+      ['tpAjTitre', 'tpAjQuoi', 'tpAjSource'].forEach(function (i) { $d(i).value = ''; }); $d('tpAjEst').checked = false; $d('tpAjout').style.display = 'none'; $d('tpAjMsg').textContent = '';
+    });
+  });
+  // Au démarrage, au retour sur la page et toutes les 10 minutes (le jour change) : le bouton du bas à gauche reste à jour.
+  setTimeout(tpCharger, 700);
+  setInterval(tpCharger, 10 * 60 * 1000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { tpCharger(); } });
+
   chgCharger();
+  /* Pont vers l'écran « Prospection des structures » (guide, plus haut) : il appelle le serveur local et remplit la zone de collage du sas. Il n'enregistre rien. */
+  window.prospAPI = {
+    lire: function () { return appeler('/api/prospection/lire', {}); },
+    chercher: function (d) { return appeler('/api/prospection/chercher', d || {}); },
+    etat: function () { return appeler('/api/prospection/etat', {}); },
+    decider: function (d) { return appeler('/api/prospection/decider', d || {}); },
+    verifier: function (d) { return appeler('/api/prospection/verifier', d || {}); },
+    noterPassage: function () { var d = new Date(); noterPassage('prospection', d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2)); afmRendre(); },
+    deposerDansSas: function (lignes) { sas.fichier = 'lieux'; sas.texte = lignes.join('\n'); sas.analyse = null; sas.pontMsg = ''; sasOuvrir('coller'); }
+  };
+  // Quand on referme le sas, la liste de la prospection se remet à jour : ce qui est entré au sas n'y figure plus.
+  $d('sasFermer').addEventListener('click', function () { if (typeof window.prospRafraichir === 'function') { window.prospRafraichir(); } });
   // Au demarrage, un chargement silencieux de la liste donne le compte du rappel « chiffres a revérifier » de la liste du trimestre (sans ouvrir la fenetre).
   setTimeout(function () { appeler('/api/lexique/lister').then(function (r) { if (r && r.ok) { lx.mots = r.mots; lx.aujourdhui = r.aujourdhui; lxCompterARevoir(); } }, function () { }); }, 600);
 })();
@@ -12690,7 +13474,8 @@
   function niveauMaj() { return 1 + (_majPanneau !== 'racine' ? 1 : 0) + (_majPanneau === 'fiches' ? 1 : 0); }
   function profondeur() {
     var d = 0, outil = document.getElementById('outilClassique');
-    if (visible('vueMenuMajGuide')) { d = niveauMaj(); }
+    if (visible('vueProspectionGuide')) { d = 3; }
+    else if (visible('vueMenuMajGuide')) { d = niveauMaj(); }
     else if (MENUS.some(visible)) { d = 1; }
     else if ((outil && outil.classList.contains('visible')) || document.body.classList.contains('focus-guide')) { d = (_dernierSousMenu === 'maj' ? niveauMaj() : (_dernierSousMenu === 'accueil' ? 0 : 1)) + 1; }
     FENETRES.forEach(function (f) { if (visible(f[0])) { d++; } });
@@ -12701,6 +13486,7 @@
     for (var i = FENETRES.length - 1; i >= 0; i--) { if (visible(FENETRES[i][0])) { document.getElementById(FENETRES[i][1]).click(); return; } }
     var outil = document.getElementById('outilClassique');
     if ((outil && outil.classList.contains('visible')) || document.body.classList.contains('focus-guide')) { fermerFocusGuide(); return; }
+    if (visible('vueProspectionGuide')) { fermerProspectionGuide(); return; }
     if (visible('vueMenuMajGuide')) { majRetour(); return; }
     if (visible('vueMenuCadreGuide')) { fermerMenuCadreGuide(); return; }
     if (visible('vueMenuLexiqueGuide')) { fermerMenuLexiqueGuide(); return; }
@@ -12748,20 +13534,9 @@
   /* ---------- La veille de la semaine : plusieurs réponses côte à côte et sites que personne n'a pu lire (décision de Denis, 08/11/2026, consigne 180) ---------- */
   // Les réponses s'ajoutent dans UN seul fichier (hebdo.md), chacune sous une ligne « === Réponse de ChatGPT (collée à 21:27) === » : jamais remplacées, jamais refusées pour leur format.
   function semHeure() { var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; }; return p(d.getHours()) + ':' + p(d.getMinutes()); }
-  function semSections(texte) {
-    var t = String(texte || '').replace(/\r\n/g, '\n'), re = /^=== Réponse de (.+?)(?: \(collée à (\d{2}:\d{2})\))? ===[ \t]*$/gm, res = [], m, cur = null, debut = 0;
-    while ((m = re.exec(t))) {
-      if (cur) { cur.texte = t.slice(debut, m.index).trim(); res.push(cur); }
-      else if (t.slice(0, m.index).trim()) { res.push({ auteur: 'un assistant', heure: '', texte: t.slice(0, m.index).trim() }); }
-      cur = { auteur: m[1], heure: m[2] || '', texte: '' }; debut = m.index + m[0].length;
-    }
-    if (cur) { cur.texte = t.slice(debut).trim(); res.push(cur); }
-    else if (t.trim()) { res.push({ auteur: 'un assistant', heure: '', texte: t.trim() }); }
-    return res.filter(function (s) { return s.texte; });
-  }
-  function semAssembler(sections) {
-    return sections.map(function (s) { return '=== Réponse de ' + s.auteur + (s.heure ? ' (collée à ' + s.heure + ')' : '') + ' ===\n' + s.texte; }).join('\n\n');
-  }
+  // Le découpage en réponses est défini une seule fois (repSections / repAssembler, script principal) : les écrans à une case et cet onglet partagent le même format.
+  function semSections(texte) { return repSections(texte); }
+  function semAssembler(sections) { return repAssembler(sections); }
   function semDom(u) { var m = /https?:\/\/(?:www\.)?([^\/\s|)\]]+)/i.exec(u || ''); return m ? m[1].toLowerCase() : ''; }
   function semSiteDe(d) { return SITES_VEILLE_SEMAINE.filter(function (s) { return d === s.domaine || d.slice(-s.domaine.length - 1) === '.' + s.domaine; })[0] || null; }
   // `libre` : pour les cartes autres que la veille de la semaine, les sites ne sont pas rapprochés du registre des sites de la semaine (un sous-domaine reste un site à part).
@@ -13383,10 +14158,19 @@
   // Veille de la semaine : les pages que personne n'a pu lire, et ce que je demande en plus pour cette veille.
   function blocSemaine() {
     var secs = semSections(_tc.rep.hebdo), nomsSecs = secs.map(function (s) { return s.auteur; }).join(', ');
-    if (!secs.length) { return ''; }
-    var textesSem = semTextesMains(), nonLus = semCalculer(secs, textesSem).liste.filter(function (v) { return !textesSem[v.cle]; });
-    return "Veille de la semaine : " + secs.length + " réponse" + (secs.length > 1 ? 's' : '') + " d'assistant (" + nomsSecs + ") dans hebdo.md, brutes, sans reformulation"
-      + (Object.keys(textesSem).length ? ", et " + Object.keys(textesSem).length + " texte(s) copié(s) par moi sur des sites (fichiers main-sem-<site>.md)" : '') + ".\n"
+    var textesSem = semTextesMains(), cles = Object.keys(textesSem);
+    if (!secs.length && !cles.length) { return ''; }
+    var nonLus = semCalculer(secs, textesSem).liste.filter(function (v) { return !textesSem[v.cle]; });
+    var dossierSem = _tc.dossier || ('outils/retours/' + jourLocal());
+    // Les textes que j'ai copiés moi-même sur les sites que les assistants n'ont pas pu lire : nommés un par un, avec leur fichier, et à lire AVANT de trier (consigne de Denis, 15/11/2026 : ils doivent arriver dans le message pour Claude).
+    var blocMains = cles.length
+      ? "Textes que j'ai copiés MOI-MÊME sur les sites que les assistants n'ont pas pu lire (" + cles.length + ") : c'est le texte officiel, tel quel (les menus et pieds de page de la page sont collés autour : ignore-les). Chacun est dans son propre fichier, dans " + dossierSem + "/ :\n"
+        + cles.map(function (k) { var si = SITES_VEILLE_SEMAINE.filter(function (s) { return s.cle === k; })[0]; return '- ' + (si ? si.nom : k) + (si ? ' (' + si.url + ')' : '') + ' : main-sem-' + k + '.md (' + textesSem[k].length + ' signes)'; }).join('\n') + "\n"
+        + "Lis-les TOUS, un par un, AVANT de trier : ce sont tes sources principales pour cette veille. (a) Compare-les aux signaux des assistants : confirme, complète ou contredis. (b) Cherche-y toi-même les changements de la période que personne n'a vus (un droit, une aide, un montant, une condition, une date). (c) Dis-moi, site par site et en une ligne, ce que tu y as trouvé, même si c'est « rien qui change un droit ». (d) Pour chaque fiche qui en découle, mets dans la preuve l'adresse du site, la date de la page et un passage recopié. Un chiffre ou une annonce sans effet sur un droit ne fait pas une fiche : range-le dans « à surveiller » ou « chiffres à vérifier », avec sa source.\n"
+      : '';
+    return "Veille de la semaine : " + (secs.length ? secs.length + " réponse" + (secs.length > 1 ? 's' : '') + " d'assistant (" + nomsSecs + ") dans hebdo.md, brutes, sans reformulation" : "aucune réponse d'assistant pour l'instant")
+      + (cles.length ? ", et " + cles.length + " texte" + (cles.length > 1 ? 's' : '') + " copié" + (cles.length > 1 ? 's' : '') + " par moi sur des sites (fichiers main-sem-<site>.md, détaillés plus bas)" : '') + ".\n"
+      + blocMains
       + (nonLus.length ? "Pages que personne n'a pu lire (je ne les ai pas ; n'invente rien à leur sujet) :\n" + nonLus.map(function (v) { return '- ' + (v.site ? v.site.nom : v.domaine) + (v.site ? ' : ' + v.site.url : (v.urlAssistant ? ' : ' + v.urlAssistant : '')); }).join('\n') + "\n" : "Aucune page ne reste non lue.\n")
       + "Pour cette veille, en plus : (1) vérifie l'exactitude : une information qui n'a qu'une seule source reste « à vérifier » ; (2) dis-moi précisément ce que je dois encore t'apporter (les articles à ouvrir à la main, avec le lien, et les pages non lues qui comptent) ; (3) dépose des fiches NOUVELLES seulement quand aucune fiche publiée ne couvre le sujet, et des COMPLÉMENTS pour les fiches existantes.\n\n";
   }
@@ -13555,6 +14339,27 @@
       if (change && !sansRendu) { rendrePropositions(); }
     });
   }
+  // Le bouton « Prospection » (consigne 280) : ouvre l'écran de la prospection depuis n'importe où, y compris l'onglet « Travailler avec Claude ». Le nombre est celui de la carte « Chaque mois » : fiches à regarder plus fiches publiées à revoir.
+  window.ouvrirProspectionDirect = function () {
+    if (document.body.classList.contains('vue-claude')) { window.tcBasculer(); }
+    if (typeof window.ouvrirProspectionGuide === 'function') { window.ouvrirProspectionGuide(); }
+  };
+  window.majBoutonProsp = function (r) {
+    var b = $t('btnProsp'); if (!b) { return; }
+    b.style.display = AVEC_SERVEUR ? '' : 'none';
+    var fin = function (res) {
+      var n = res && res.ok && !res.absent ? res.candidates.length + (res.recoupement && res.recoupement.aRevoir ? res.recoupement.aRevoir.length : 0) : 0;
+      b.classList.toggle('a-prosp', n > 0);
+      b.innerHTML = 'Prospection' + (n > 0 ? '<span class="notif-nb" aria-hidden="true">' + n + '</span>' : '');
+      b.title = n > 0 ? n + ' structure' + (n > 1 ? 's' : '') + ' à regarder' : 'Chercher de nouvelles structures';
+      b.setAttribute('aria-label', n > 0 ? 'Prospection des structures : ' + n + ' à regarder' : 'Prospection des structures');
+    };
+    if (r) { fin(r); return; }
+    if (!AVEC_SERVEUR || typeof window.prospAPI !== 'object') { return; }
+    window.prospAPI.lire().then(fin);
+  };
+  setInterval(function () { if (!document.hidden) { window.majBoutonProsp(); } }, 30000);
+  setTimeout(function () { window.majBoutonProsp(); }, 1500);
   window.tcVerifierSas = function () { if (AVEC_SERVEUR && !document.hidden) { compterSas(false); } };
   window.tcOuvrirSas = function () {
     if (document.body.classList.contains('vue-claude')) { window.tcBasculer(); }

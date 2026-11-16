@@ -1,0 +1,667 @@
+{
+  "taches": [
+    {
+      "id": "smic-limite-mai-2027",
+      "titre": "Smic : revérifier avant le retrait automatique du 05/05/2027",
+      "date": "2027-04-28",
+      "estimee": false,
+      "pourquoi": "Six mois après la vérification du 05/11/2026, l'application retire le montant du Smic si rien n'a été revérifié (limite du 05/05/2027, voir `docs/VERIFICATIONS_A_DATE_FIXE.md`). La date de la tâche est une semaine avant la limite. Si le Smic a été revérifié à la revalorisation de janvier, cette tâche est déjà faite.",
+      "quoi": "Montant du Smic horaire brut en vigueur, date d'effet, texte officiel, et les règles qui gardent la valeur du 1er janvier (cumul emploi-retraite, RGDU).",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/smic-inflation.json (verifie_le)",
+        "modules/comprendre-les-chiffres/contenu/smic-dares.md"
+      ],
+      "sources": [
+        {
+          "nom": "Service-public.gouv.fr, Smic",
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F2300"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Bloc « Le Smic et l’inflation » : montant, date d’effet, date de vérification (smic-inflation.json)",
+          "Mot « Smic » et mot « RGDU » du Lexique, et tout texte qui cite un montant du Smic",
+          "Si une règle liée au Smic a changé (cumul emploi-retraite, RGDU) : la rubrique correspondante"
+        ],
+        "nouveaute": "Seulement si le montant ou une règle a changé : ajouter une ligne"
+      }
+    },
+    {
+      "id": "metiers-qui-recrutent-2027",
+      "titre": "Métiers qui recrutent le plus : nouvelle enquête BMO (printemps 2027)",
+      "date": "2027-04-21",
+      "estimee": true,
+      "pourquoi": "L'enquête « Besoins en main-d'œuvre » de France Travail paraît chaque printemps (celle de 2026 le 21/04/2026). Treize mois après la publication, soit le 21/05/2027, l'application retire la liste si rien n'est renouvelé. Il faut télécharger un fichier .xlsx : un assistant en ligne ne peut pas le faire, c'est une reprise avec Claude.",
+      "quoi": "Télécharger le fichier ouvert (.xlsx) de la nouvelle enquête, le déposer dans PROSPECTION/donnees_externes/bmo, lancer « Mettre a jour les metiers qui recrutent.bat » avec la date de publication, puis vérifier la carte pour la Dordogne et la Haute-Vienne.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/bmo-metiers.json",
+        "docs/JOURNAL_DES_CHANGEMENTS.md (une ligne datée)"
+      ],
+      "sources": [
+        {
+          "nom": "France Travail, enquête Besoins en main-d'œuvre",
+          "url": "https://www.francetravail.org/statistiques-analyses/enquete-besoins-main-oeuvre.html"
+        }
+      ],
+      "reprise": {
+        "phrase": "Mettre à jour les métiers qui recrutent (nouvelle enquête BMO)",
+        "contexte": "Marche à suivre : docs/VERIFICATIONS_A_DATE_FIXE.md, section « Les métiers qui recrutent le plus ». Je télécharge moi-même le fichier .xlsx de la nouvelle enquête et je te le dis quand il est déposé dans PROSPECTION/donnees_externes/bmo. Ne rien inventer si les colonnes ont changé."
+      },
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Bloc « Ce que les employeurs prévoient d’embaucher cette année » : les 10 métiers de la Dordogne et de la Haute-Vienne (bmo-metiers.json)",
+          "Si l’enquête apporte une information utile non affichée (métiers en tension, difficulté de recrutement) : proposer à Denis une rubrique de plus"
+        ],
+        "nouveaute": "Une nouvelle enquête change la liste affichée : ajouter une ligne"
+      }
+    },
+    {
+      "id": "portrait-territoire-2027",
+      "titre": "Portrait du territoire : mise à jour annuelle (été 2027)",
+      "date": "2027-06-21",
+      "estimee": true,
+      "pourquoi": "Le fichier du portrait indique « prochaine mise à jour : été 2027 ». L'outil de veille ne suit pas encore de date de passage pour ce document annuel. La date choisie est le début de l'été : à confirmer ou à reporter selon les publications de l'Insee.",
+      "quoi": "Les chiffres du portrait (garde d'enfant, logement, densité de médecins, population, âge, temps partiel, écart de salaire, formation, entreprises, saisonnalité, métiers en tension) pour la Dordogne, la Haute-Vienne et la Nouvelle-Aquitaine, avec la période de chaque source.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/portrait-2026.md",
+        "modules/comprendre-les-chiffres/contenu/portrait-chiffres.md",
+        "outils/appuis/portrait-2026.appuis.txt (les textes écrits à la main à relire)"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, statistiques locales",
+          "url": "https://www.insee.fr/fr/statistiques"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Portrait du territoire : chaque chiffre et sa période pour la Dordogne, la Haute-Vienne et la Nouvelle-Aquitaine",
+          "Les textes écrits à la main qui commentent ces chiffres (fichier d’appuis) : à relire avec les nouveaux chiffres",
+          "Si un thème n’a plus de chiffre récent ou si un nouveau thème devient disponible : le dire à Denis avant de créer ou retirer une rubrique"
+        ],
+        "nouveaute": "Le portrait est mis à jour : ajouter une ligne"
+      }
+    },
+    {
+      "id": "union-europeenne-2027",
+      "titre": "La France dans l'Union européenne : mise à jour annuelle (2027)",
+      "date": "2027-10-01",
+      "estimee": true,
+      "pourquoi": "Le fichier de l'Union européenne indique « prochaine mise à jour : 2027 » (publié en novembre 2026). Le jour exact n'est pas connu : la date choisie est à confirmer ou à reporter.",
+      "quoi": "Les chiffres Eurostat du fichier (chômage, chômage des jeunes, emploi, temps partiel, diplômés, pouvoir d'achat, croissance, salaire minimum, entreprises créées et cessées), avec la période de chaque donnée.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/ue-2026.md",
+        "modules/comprendre-les-chiffres/contenu/europe-economie-eurostat.md",
+        "outils/appuis/ue-2026.appuis.txt (les textes écrits à la main à relire)"
+      ],
+      "sources": [
+        {
+          "nom": "Eurostat, Data Browser",
+          "url": "https://ec.europa.eu/eurostat/databrowser/"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Vue « La France dans l’Union européenne » : chaque chiffre Eurostat et sa période",
+          "Les textes écrits à la main qui commentent ces chiffres (fichier d’appuis) : à relire",
+          "Si un indicateur nouveau ou disparu change la vue : proposer à Denis la rubrique à créer ou à retirer"
+        ],
+        "nouveaute": "Les chiffres européens sont mis à jour : ajouter une ligne"
+      }
+    },
+    {
+      "id": "ecarts-etape2",
+      "titre": "Étape 2 des écarts : reprendre quand l'Insee répond",
+      "date": "2026-11-11",
+      "estimee": true,
+      "pourquoi": "Les pages « dossier complet » de l'Insee répondaient par une erreur 500 le 10/11/2026. Il manque la part des 65 ans ou plus de 6 départements, tout pour 9 régions, puis les 15 textes sourcés. Un test échoue tant qu'un extrême n'a pas son texte.",
+      "quoi": "Réessayer l'Insee, un seul appel à la fois : dossier complet de DEP-17, 23, 33, 40, 64, 86 (part des 65 ans ou plus) et de REG-84, 27, 24, 94, 44, 11, 28, 76, 93, puis « L'essentiel sur… » de chaque région. Ne rien écrire sans les chiffres exacts.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/departements-region.md",
+        "modules/comprendre-les-chiffres/contenu/regions-france.md",
+        "docs/ETAT_DES_CHANTIERS.md (point de reprise de l'étape 2)"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, dossier complet de la Charente-Maritime (modèle des autres)",
+          "url": "https://www.insee.fr/fr/statistiques/2011101?geo=DEP-17"
+        }
+      ],
+      "reprise": {
+        "phrase": "Reprendre à la deuxième étape",
+        "contexte": "Point de reprise : docs/ETAT_DES_CHANTIERS.md, étape 2 des blocs écarts de « Comprendre les chiffres » (relevés partiels déjà notés pour 6 départements, reste la part des 65 ans ou plus, les 9 régions et les 15 textes sourcés). Réessayer l'Insee un appel à la fois ; si l'erreur 500 persiste, noter l'heure du nouvel essai et ne rien écrire sans chiffres exacts."
+      },
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Blocs « écarts » des départements (part des 65 ans ou plus des 6 départements restants)",
+          "Blocs « écarts » des 9 régions restantes",
+          "Les 15 textes sourcés des extrêmes (un test échoue tant qu’un extrême n’a pas son texte)"
+        ],
+        "nouveaute": "Quand l’étape 2 est terminée, vérifiée et ouverte au public : ajouter une ligne"
+      }
+    },
+    {
+      "id": "inflation-octobre",
+      "titre": "Inflation d'octobre : chiffre définitif",
+      "date": "2026-11-13",
+      "estimee": false,
+      "pourquoi": "Le bloc « Le Smic et l'inflation » affiche l'inflation de l'Insee. Le chiffre définitif d'octobre paraît le 13/11/2026.",
+      "quoi": "Inflation sur un an (ensemble des prix), puis énergie, alimentation, services, et variation sur un mois, pour octobre 2026, version définitive.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/smic-inflation.json"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, indice des prix à la consommation",
+          "url": "https://www.insee.fr/fr/statistiques/2121597"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Carte « Inflation » : chiffre définitif d’octobre, le mois d’avant, il y a un an, la série du graphique (smic-inflation.json)",
+          "Ligne « détails à jour » du mot « Inflation » du Lexique"
+        ],
+        "nouveaute": "Inutile pour une mise à jour mensuelle courante : aucune ligne, sauf si une rubrique nouvelle est créée (alors ajouter une ligne)"
+      }
+    },
+    {
+      "id": "inflation-novembre",
+      "titre": "Inflation de novembre : première publication",
+      "date": "2026-11-27",
+      "estimee": false,
+      "pourquoi": "Prochaine publication mensuelle de l'Insee, le 27/11/2026. Elle sert aussi à savoir si le seuil de 2 % qui déclenche une hausse du Smic est atteint.",
+      "quoi": "Inflation sur un an et sur un mois pour novembre 2026, et si le seuil de 2 % depuis la dernière revalorisation est franchi.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/smic-inflation.json"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, indice des prix à la consommation",
+          "url": "https://www.insee.fr/fr/statistiques/2121597"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Carte « Inflation » : estimation de novembre, le mois d’avant, il y a un an, la série du graphique (smic-inflation.json)",
+          "Ligne « détails à jour » du mot « Inflation » du Lexique",
+          "Dire à Denis si le seuil de 2 % qui déclenche une hausse du Smic est franchi : alors ouvrir aussitôt la tâche Smic"
+        ],
+        "nouveaute": "Inutile pour une mise à jour mensuelle courante : aucune ligne, sauf si une rubrique nouvelle est créée (alors ajouter une ligne)"
+      }
+    },
+    {
+      "id": "smic-annonce",
+      "titre": "Smic : y a-t-il une annonce de hausse ?",
+      "date": "2026-12-01",
+      "estimee": true,
+      "pourquoi": "Le plan de reprise note une hausse « au 1er décembre 2026 », le fichier du Smic dit 12,31 euros depuis le 01/06/2026, le web et `docs/VERIFICATIONS_A_DATE_FIXE.md` annoncent une revalorisation annuelle au 1er janvier 2027 (annonce en décembre 2026). Il faut lever ce doute sur un texte officiel. Marche à suivre : `docs/VERIFICATIONS_A_DATE_FIXE.md`.",
+      "quoi": "Montant du Smic horaire brut, date d'effet, texte officiel (décret ou arrêté, date de parution au Journal officiel). Dire clairement si rien n'est encore publié.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/smic-inflation.json",
+        "modules/comprendre-les-chiffres/contenu/smic-dares.md",
+        "les fiches, mots du Lexique et chiffres qui citent le Smic"
+      ],
+      "sources": [
+        {
+          "nom": "Service-public.gouv.fr, Smic",
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F2300"
+        },
+        {
+          "nom": "Légifrance, Journal officiel",
+          "url": "https://www.legifrance.gouv.fr/jorf"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Bloc « Le Smic et l’inflation » : montant, date d’effet, texte officiel (smic-inflation.json et smic-dares.md)",
+          "Mots « Smic » et « RGDU » du Lexique, et toutes les fiches qui citent un montant",
+          "Si une hausse est annoncée : une rubrique « Ce qui change au prochain Smic » (montant à venir et date d’effet), à proposer à Denis avec maquette"
+        ],
+        "nouveaute": "Une hausse annoncée ou appliquée est visible par les personnes : ajouter une ligne"
+      }
+    },
+    {
+      "id": "smic-decret",
+      "titre": "Smic : décret de revalorisation publié ?",
+      "date": "2026-12-15",
+      "estimee": true,
+      "pourquoi": "En 2025, le décret est paru le 18/12. Même mission que la tâche précédente, à refaire si rien n'était publié le 1er décembre.",
+      "quoi": "Même relevé que « Smic : y a-t-il une annonce de hausse ? », avec la date d'application.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/donnees/smic-inflation.json",
+        "modules/comprendre-les-chiffres/contenu/smic-dares.md"
+      ],
+      "sources": [
+        {
+          "nom": "Légifrance, Journal officiel",
+          "url": "https://www.legifrance.gouv.fr/jorf"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Bloc « Le Smic et l’inflation » : montant, date d’effet, référence du décret (smic-inflation.json et smic-dares.md)",
+          "Mots « Smic » et « RGDU » du Lexique, et toutes les fiches qui citent un montant",
+          "Si le décret est publié : retirer toute mention « annoncé » devenue fausse"
+        ],
+        "nouveaute": "Une hausse publiée est visible par les personnes : ajouter une ligne"
+      }
+    },
+    {
+      "id": "chomage-localise-t3",
+      "titre": "Taux de chômage localisés du 3e trimestre 2026",
+      "date": "2026-12-10",
+      "estimee": true,
+      "pourquoi": "On a le chiffre de la France (8,2 %), pas encore celui des régions, des départements et des territoires. L'Insee les publie en décembre (le 2e trimestre est paru le 18/09/2026). Le jour exact reste à confirmer sur le calendrier de l'Insee.",
+      "quoi": "Taux de chômage du 3e trimestre 2026 : Dordogne, Haute-Vienne, Nouvelle-Aquitaine, France métropolitaine, avec le 2e trimestre et le 3e trimestre 2025 pour comparer. Zones d'emploi si elles sont publiées.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/2026-06.md (ligne par ligne)",
+        "la note « Ces trois chiffres sont ceux du 2e trimestre » à retirer"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, taux de chômage localisés",
+          "url": "https://www.insee.fr/fr/statistiques/2012804"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Carte du chômage : taux du 3e trimestre 2026 de la Dordogne, de la Haute-Vienne, de la Nouvelle-Aquitaine et de la France métropolitaine, avec comparaison (2026-06.md, ligne par ligne)",
+          "Retirer la note « Ces trois chiffres sont ceux du 2e trimestre »",
+          "Zones d’emploi, si elles sont publiées : proposer à Denis une rubrique de plus"
+        ],
+        "nouveaute": "Les taux de chômage locaux changent : ajouter une ligne"
+      }
+    },
+    {
+      "id": "offres-emploi-salarie-t3",
+      "titre": "Offres d'emploi et emploi salarié du 3e trimestre",
+      "date": "2026-12-15",
+      "estimee": true,
+      "pourquoi": "Ces deux séries du 3e trimestre ne sont pas encore publiées. Les dates exactes ne sont pas confirmées.",
+      "quoi": "Offres d'emploi (Data Emploi) pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France ; emploi salarié (Insee) du 3e trimestre 2026.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/2026-06.md"
+      ],
+      "sources": [
+        {
+          "nom": "Data Emploi, France Travail",
+          "url": "https://dataemploi.francetravail.fr/emploi/panorama/DEP/24"
+        },
+        {
+          "nom": "Insee, emploi salarié",
+          "url": "https://www.insee.fr/fr/statistiques/2134435"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Offres d’emploi » et « Emploi salarié » : valeurs du 3e trimestre 2026 pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France (2026-06.md)",
+          "Retirer toute note qui signale un trimestre plus ancien"
+        ],
+        "nouveaute": "Les chiffres affichés changent : ajouter une ligne"
+      }
+    },
+    {
+      "id": "demandeurs-t4-2026",
+      "titre": "Demandeurs d'emploi du 4e trimestre 2026 (France Travail, Dares)",
+      "date": "2027-01-28",
+      "estimee": false,
+      "pourquoi": "Publication indiquée par la DREETS le 28/01/2027.",
+      "quoi": "Catégorie A, puis A, B et C, et part des inscrits depuis un an ou plus, pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/2026-06.md",
+        "modules/comprendre-les-chiffres/contenu/demandeurs-dares.md"
+      ],
+      "sources": [
+        {
+          "nom": "Dares, demandeurs d'emploi inscrits",
+          "url": "https://dares.travail-emploi.gouv.fr/"
+        }
+      ],
+      "faite": null,
+      "creee_le": "2026-11-10",
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Carte « Demandeurs d’emploi » : catégorie A, puis A, B et C, part des inscrits depuis un an ou plus, pour les quatre territoires (2026-06.md et demandeurs-dares.md)",
+          "Retirer toute note qui signale un trimestre plus ancien"
+        ],
+        "nouveaute": "Les chiffres affichés changent : ajouter une ligne"
+      }
+    },
+    {
+      "id": "entreprises-departements-t1-2027",
+      "titre": "Entreprises par département : mise à jour trimestrielle (janvier 2027)",
+      "date": "2027-01-20",
+      "estimee": true,
+      "pourquoi": "Le dépliant « Les entreprises ici : ce qui se vend, ce qui ferme » (Dordogne et Haute-Vienne) affiche des chiffres sur 12 mois glissants, relevés le 20/10/2026 pour la période du 01/11/2025 au 18/10/2026 (annonces du BODACC). Ils sont à rafraîchir chaque trimestre : prochaine fois vers le 20/01/2027. La date est estimée : à confirmer ou à reporter.",
+      "quoi": "Pour la Dordogne et la Haute-Vienne : ouvertures de procédure (jugements d'ouverture), ventes et cessions de fonds de commerce, sur les 12 derniers mois, avec la même période un an plus tôt pour comparer.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/entreprises-departements.md (chiffres, périodes, verifie_le)",
+        "la phrase du portrait du territoire qui reprend le chiffre des défaillances par département",
+        "docs/JOURNAL_DES_CHANGEMENTS.md (une ligne datée)"
+      ],
+      "sources": [
+        {
+          "nom": "BODACC, annonces commerciales (données ouvertes)",
+          "url": "https://bodacc-datadila.opendatasoft.com/explore/dataset/annonces-commerciales/table/"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Dépliant « Les entreprises ici : ce qui se vend, ce qui ferme » : ouvertures, ventes, mêmes chiffres un an plus tôt, période en toutes lettres, date de relevé (entreprises-departements.md)",
+          "Phrase du portrait du territoire qui reprend le chiffre des défaillances par département, et les mots « Défaillance d'entreprise » et « Vente d'un fonds de commerce » du Lexique si un chiffre y est cité",
+          "Si les chiffres montent ou baissent nettement : le dire à Denis pour qu'il décide d'une phrase d'explication, sans poser de diagnostic"
+        ],
+        "nouveaute": "Inutile pour une mise à jour trimestrielle courante : aucune ligne, sauf si une rubrique nouvelle est créée (alors ajouter une ligne)"
+      },
+      "reprise": {
+        "phrase": "Mettre à jour les entreprises par département (BODACC)",
+        "contexte": "Fichier : modules/comprendre-les-chiffres/contenu/entreprises-departements.md (relevé du 20/10/2026, période du 01/11/2025 au 18/10/2026, 12 mois glissants). Méthode : docs/TACHES_VALIDEES.md (ligne « Mise à jour trimestrielle du fichier entreprises-departements.md », période saisie en jour/mois/année) et contrôle par échantillon d'une semaine dans docs/CONTROLE_ECHANTILLON_BODACC_2026-10-19.md. Les chiffres viennent des annonces du BODACC comptées par l'outil de prospection : vérifier avec Denis où lancer le relevé, ne pas démarrer de prospection d'entreprises pour autant (elle est reportée à la fin du sas). Ne rien écrire sans chiffres exacts et sans la période."
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "recensement-2023-formation-temps-partiel",
+      "titre": "Niveau de diplôme et temps partiel : passer au recensement 2023 ?",
+      "date": "2026-11-10",
+      "estimee": false,
+      "pourquoi": "Les fichiers de formation et de temps partiel utilisent le recensement 2022. D'après une recherche du 10/11/2026, l'Insee a diffusé les résultats du recensement 2023 en juin 2026 : une version plus récente existe peut-être déjà. À vérifier sur les pages de l'Insee avant toute mise à jour.",
+      "quoi": "Dire si les deux tableaux (niveau de diplôme des 16 ans ou plus ; actifs occupés à temps partiel) existent pour le recensement 2023, par département, avec leur date de parution. Si oui : les valeurs pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/formation-insee.md",
+        "modules/comprendre-les-chiffres/contenu/temps-partiel-insee.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, niveau de diplôme (recensement)",
+          "url": "https://www.insee.fr/fr/statistiques/1893149"
+        },
+        {
+          "nom": "Insee, caractéristiques de l'emploi (recensement)",
+          "url": "https://www.insee.fr/fr/statistiques/8581424"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Niveau de formation » (formation-insee.md) : valeurs et année du recensement",
+          "Cartes « Temps partiel » (temps-partiel-insee.md) : valeurs et année du recensement",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": "2026-11-12",
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "salaires-departements-2025",
+      "titre": "Salaires par département : chiffres de 2025",
+      "date": "2026-12-04",
+      "estimee": true,
+      "pourquoi": "Le fichier affiche les salaires de 2024 (comparaisons départementales parues le 04/12/2025). D'après une recherche du 10/11/2026, l'Insee Première sur les salaires de 2025 est paru le 22/10/2026 (niveau national) ; les comparaisons par département sortent d'ordinaire début décembre. Date estimée : à confirmer.",
+      "quoi": "Salaire net mensuel moyen en équivalent temps plein (secteur privé) pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France, par sexe et catégorie socioprofessionnelle, pour 2025, avec la date de parution.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/salaires-insee.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, salaires, comparaisons départementales",
+          "url": "https://www.insee.fr/fr/statistiques/2012733"
+        },
+        {
+          "nom": "Insee, salaires dans le secteur privé (Insee Première)",
+          "url": "https://www.insee.fr/fr/statistiques/8657156"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Salaires » (salaires-insee.md) : valeurs, année et sources",
+          "L'écart de salaire entre femmes et hommes du portrait du territoire",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "zones-emploi-t3-2026",
+      "titre": "Chômage par zone d'emploi : 3e trimestre 2026",
+      "date": "2026-12-10",
+      "estimee": true,
+      "pourquoi": "La rubrique des zones d'emploi affiche le 2e trimestre 2026. Les taux par zone d'emploi sortent avec les taux de chômage localisés du trimestre (tâche voisine du même jour). Le jour exact reste à confirmer sur le calendrier de l'Insee.",
+      "quoi": "Taux de chômage du 3e trimestre 2026 pour les zones d'emploi de Bergerac, Périgueux, Sarlat-la-Canéda, Limoges et Saint-Junien, avec le 2e trimestre 2026 pour comparer.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/zones-emploi.md (période : 2e trimestre 2026)"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, taux de chômage localisés par zone d'emploi",
+          "url": "https://www.insee.fr/fr/statistiques/1893230"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Rubrique des zones d'emploi (zones-emploi.md) : taux, période en toutes lettres, date de relevé",
+          "Retirer toute note qui signale le 2e trimestre",
+          "Se faire en même temps que la tâche « Taux de chômage localisés du 3e trimestre 2026 »"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "etablissements-secteur-2025",
+      "titre": "Établissements par secteur d'activité : fin 2025",
+      "date": "2026-12-15",
+      "estimee": true,
+      "pourquoi": "Le fichier affiche les établissements actifs au 31/12/2024. Le chiffre de fin 2025 n'était pas encore trouvé le 10/11/2026 ; il paraît d'ordinaire à la fin de l'année suivante. Date estimée : regarder d'abord s'il est déjà paru.",
+      "quoi": "Établissements actifs par secteur d'activité pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France, au 31/12/2025, avec la date de parution. Dire clairement si rien n'est encore publié.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/secteurs-insee.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, établissements selon le secteur d'activité",
+          "url": "https://www.insee.fr/fr/statistiques/2012712"
+        },
+        {
+          "nom": "Insee, base du comparateur de territoires",
+          "url": "https://www.insee.fr/fr/statistiques/2521169"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Secteurs d'activité » (secteurs-insee.md) : valeurs, année et sources",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "population-age-2027",
+      "titre": "Population par âge : estimation au 1er janvier 2027",
+      "date": "2027-01-14",
+      "estimee": true,
+      "pourquoi": "Le fichier d'âge utilise l'estimation au 1er janvier 2023. L'Insee a publié le 13/01/2026 l'estimation au 1er janvier 2026 (provisoire : le découpage par département des années 2024 à 2026 est calculé au prorata de 2023). Celle du 1er janvier 2027 sort mi-janvier : date estimée. À la mise à jour, dire à Denis s'il vaut mieux garder 2023 (données plus solides) ou passer à l'estimation la plus récente.",
+      "quoi": "Population par tranche d'âge pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France : année la plus récente disponible, son caractère provisoire ou définitif, et la date de parution.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/age-insee.md",
+        "modules/comprendre-les-chiffres/contenu/departements-region.md (part des 65 ans ou plus, si concerné)"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, estimation de population au 1er janvier 2026",
+          "url": "https://www.insee.fr/fr/statistiques/8721456"
+        },
+        {
+          "nom": "Insee, estimation de population au 1er janvier 2023",
+          "url": "https://www.insee.fr/fr/statistiques/1893198"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Âge de la population » (age-insee.md) : valeurs, année, statut provisoire ou définitif",
+          "Blocs « écarts » qui citent la part des 65 ans ou plus",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "sante-densites-2027",
+      "titre": "Médecins, dentistes, pharmaciens : densités mises à jour",
+      "date": "2027-01-15",
+      "estimee": true,
+      "pourquoi": "Les fichiers de santé (généralistes, spécialistes, dentistes, pharmaciens) affichent l'année 2025, relevée en septembre et novembre 2026. L'Insee publie chaque année les professionnels de santé au 1er janvier ; celui de 2026 n'était pas encore trouvé le 10/11/2026. Date estimée : regarder d'abord s'il est déjà paru.",
+      "quoi": "Densité pour 100 000 habitants des médecins généralistes, des médecins spécialistes, des chirurgiens-dentistes et des pharmaciens, pour tous les départements et régions déjà affichés, au 1er janvier 2026, avec la date de parution. Dire clairement si rien n'est encore publié.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/generalistes-insee.md",
+        "modules/comprendre-les-chiffres/contenu/medecins-departements-region.md",
+        "modules/comprendre-les-chiffres/contenu/medecins-regions-france.md",
+        "modules/comprendre-les-chiffres/contenu/specialistes-departements-region.md",
+        "modules/comprendre-les-chiffres/contenu/specialistes-regions-france.md",
+        "modules/comprendre-les-chiffres/contenu/dentistes-departements-region.md",
+        "modules/comprendre-les-chiffres/contenu/dentistes-regions-france.md",
+        "modules/comprendre-les-chiffres/contenu/pharmaciens-departements-region.md",
+        "modules/comprendre-les-chiffres/contenu/pharmaciens-regions-france.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, professionnels de santé, comparaisons départementales",
+          "url": "https://www.insee.fr/fr/statistiques/2012677"
+        },
+        {
+          "nom": "Insee, densité des médecins généralistes (série)",
+          "url": "https://www.insee.fr/fr/statistiques/serie/010760995"
+        },
+        {
+          "nom": "Insee, densité des chirurgiens-dentistes (série)",
+          "url": "https://www.insee.fr/fr/statistiques/serie/010761463"
+        },
+        {
+          "nom": "Insee, densité des pharmaciens (série)",
+          "url": "https://www.insee.fr/fr/statistiques/serie/010760878"
+        },
+        {
+          "nom": "Insee, densité des médecins spécialistes (série)",
+          "url": "https://www.insee.fr/fr/statistiques/serie/010761346"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Rubriques « Accès aux soins » : densités des généralistes, spécialistes, dentistes et pharmaciens, classement des départements et régions, année",
+          "Les textes sourcés des extrêmes (départements les mieux et les moins bien dotés) : à vérifier avec les nouveaux chiffres",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "niveau-de-vie-2024",
+      "titre": "Niveau de vie et pauvreté : millésime 2024",
+      "date": "2027-05-11",
+      "estimee": true,
+      "pourquoi": "Le fichier affiche le niveau de vie de 2023 (paru le 11/05/2026). D'après une recherche du 10/11/2026, le millésime 2023 est le dernier disponible ; le suivant sort au printemps. Date estimée : un an après la dernière parution.",
+      "quoi": "Niveau de vie médian et taux de pauvreté (tous âges et par tranche d'âge) pour la Dordogne, la Haute-Vienne, la Nouvelle-Aquitaine et la France, millésime 2024, avec la date de parution. Dire clairement si rien n'est encore publié.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/niveau-de-vie-insee.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, niveau de vie, comparaisons départementales",
+          "url": "https://www.insee.fr/fr/statistiques/2012717"
+        },
+        {
+          "nom": "Insee, taux de pauvreté par tranche d'âge",
+          "url": "https://www.insee.fr/fr/statistiques/2012803"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Cartes « Niveau de vie » et « Pauvreté » (niveau-de-vie-insee.md) : valeurs, année et sources",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    },
+    {
+      "id": "pouvoir-achat-2027",
+      "titre": "Pouvoir d'achat des ménages : comptes de la Nation 2026",
+      "date": "2027-05-28",
+      "estimee": true,
+      "pourquoi": "Le fichier affiche les comptes de la Nation de 2025 (Insee Première n° 2105, paru le 29/05/2026). Les comptes de 2026 sortent fin mai 2027 : date estimée.",
+      "quoi": "Évolution du pouvoir d'achat du revenu disponible brut des ménages par unité de consommation pour 2026, et les années précédentes du graphique, avec la date de parution.",
+      "fichiers": [
+        "modules/comprendre-les-chiffres/contenu/pouvoir-achat-insee.md"
+      ],
+      "sources": [
+        {
+          "nom": "Insee, comptes de la Nation en 2025 (modèle de la page)",
+          "url": "https://www.insee.fr/fr/statistiques/8996855"
+        }
+      ],
+      "miseAJour": {
+        "module": "Comprendre les chiffres",
+        "rubriques": [
+          "Carte « Pouvoir d'achat » (pouvoir-achat-insee.md) : valeur, année et source",
+          "Vue de l'Union européenne si elle reprend ce chiffre",
+          "Le portrait du territoire et les cartes de croisement qui reprennent le même chiffre (recherche dans tout le dépôt)"
+        ],
+        "nouveaute": "Si les chiffres affichés changent pour les personnes : ajouter une ligne ; aucune si rien ne se voit"
+      },
+      "faite": null,
+      "creee_le": "2026-11-10"
+    }
+  ]
+}

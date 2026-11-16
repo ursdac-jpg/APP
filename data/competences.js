@@ -39,6 +39,7 @@ var categorieCompetence = {
   'Esprit d\'équipe': 'Savoir-etre', 'Sens du service': 'Savoir-etre', 'Gestion de projet': 'Savoir-faire',
   'Gestion financière': 'Savoir-faire', 'Management': 'Savoir-faire', 'Leadership': 'Savoir-etre',
   'Stabilité': 'Savoir-etre', 'Fiabilité': 'Savoir-etre',
+  'Service en salle': 'Savoir-faire', 'Préparation de boissons': 'Savoir-faire', 'Rapidité': 'Savoir-etre',
   // Etape 3 : nouveaux termes introduits par les exemples d'enrichissement loisirs
   'Persévérance': 'Savoir-etre', 'Respect des règles': 'Savoir-etre', 'Sens du détail': 'Savoir-faire',
   // Chantier competences 2026-09-16 : termes reels des fiches metier absents
@@ -75,7 +76,10 @@ var categorieCompetence = {
   'Surveillance': 'Savoir-faire', 'Développement commercial': 'Savoir-faire', 'Levage': 'Savoir-faire',
   'Taille et élagage': 'Savoir-faire', 'Traitement phytosanitaire': 'Savoir-faire',
   'Extraction du miel': 'Savoir-faire', 'Manipulation des ruches': 'Savoir-faire',
-  'Traçage de plans': 'Savoir-faire'
+  'Traçage de plans': 'Savoir-faire',
+  // Chantier import du ROME, phase 4 (12/11/2026) : mots ajoutés pour traduire les macro-compétences du ROME (scripts/importRome/tablesCompetences.js).
+  'Informatique': 'Savoir-faire', 'Contrôle qualité': 'Savoir-faire', 'Prévention des risques': 'Savoir-faire', 'Comptabilité': 'Savoir-faire', 'Conception': 'Savoir-faire', 'Veille et recherche': 'Savoir-faire', 'Création graphique': 'Savoir-faire', 'Audiovisuel': 'Savoir-faire', 'Marketing': 'Savoir-faire', 'Vente': 'Savoir-faire', 'Réglementation': 'Savoir-faire', 'Ressources humaines': 'Savoir-faire', 'Conduite de chantier': 'Savoir-faire', 'Soins aux animaux': 'Savoir-faire', 'Culture et récolte': 'Savoir-faire', 'Médiation': 'Savoir-faire', 'Organisation d\'événements': 'Savoir-faire', 'Fabrication': 'Savoir-faire', 'Utilisation de machines': 'Savoir-faire', 'Protection de l\'environnement': 'Savoir-faire', 'Achats': 'Savoir-faire', 'Pilotage d\'activité': 'Savoir-faire', 'Gestion documentaire': 'Savoir-faire',
+  'Esprit d\'analyse': 'Savoir-etre', 'Curiosité': 'Savoir-etre', 'Concentration': 'Savoir-etre', 'Esprit d\'initiative': 'Savoir-etre', 'Sens de l\'éthique': 'Savoir-etre', 'Sens du dialogue': 'Savoir-etre'
 };
 
 // TACHE (refonte parcours guide, etape 4, sous-etape 4.3, maquette
@@ -151,6 +155,9 @@ var DESCRIPTIFS_COMPETENCES = {
   'Apprentissage': 'Aimer apprendre du nouveau et progresser.',
   'Esprit d\'équipe': 'Penser au collectif, encourager le groupe.',
   'Sens du service': 'Chercher à rendre service et à satisfaire la personne en face.',
+  'Service en salle': 'Accueillir les clients à table ou au comptoir, prendre leur commande et les servir.',
+  'Préparation de boissons': 'Préparer des boissons chaudes ou froides, cafés, cocktails, selon les demandes.',
+  'Rapidité': 'Travailler vite et bien, même quand il y a beaucoup de monde.',
   'Leadership': 'Entraîner un groupe, donner une direction, donner envie de suivre.',
   'Stabilité': 'Être présent et régulier dans la durée : une personne sur qui on peut compter.',
   'Fiabilité': 'Faire ce qu\'on a dit, de façon constante.',
@@ -198,7 +205,37 @@ var DESCRIPTIFS_COMPETENCES = {
   'Traitement phytosanitaire': 'Protéger une plante ou une culture contre les maladies et les parasites.',
   'Extraction du miel': 'Récolter le miel des ruches sans nuire aux abeilles.',
   'Manipulation des ruches': 'Ouvrir, inspecter et entretenir une ruche en toute sécurité.',
-  'Traçage de plans': 'Reporter sur le terrain ou la matière les mesures indiquées sur un plan.'
+  'Traçage de plans': 'Reporter sur le terrain ou la matière les mesures indiquées sur un plan.',
+  // --- Chantier import du ROME, phase 4 (12/11/2026) ---
+  'Informatique': 'Développer, installer ou administrer des logiciels, des applications ou des réseaux.',
+  'Contrôle qualité': 'Vérifier qu\'un produit, un travail ou un service respecte ce qui était demandé.',
+  'Prévention des risques': 'Repérer les dangers d\'une situation et agir pour éviter les accidents.',
+  'Comptabilité': 'Enregistrer et vérifier les opérations d\'argent : factures, paiements, comptes.',
+  'Conception': 'Imaginer et dessiner un produit, un équipement ou un projet avant de le réaliser.',
+  'Veille et recherche': 'Chercher, trier et suivre des informations pour rester à jour ou résoudre un problème.',
+  'Création graphique': 'Réaliser des visuels, des images ou des supports de communication.',
+  'Audiovisuel': 'Filmer, photographier, enregistrer ou monter des images et des sons.',
+  'Marketing': 'Étudier les attentes du public et faire connaître un produit ou un service.',
+  'Vente': 'Présenter un produit ou un service et conclure la vente.',
+  'Réglementation': 'Connaître et appliquer les lois et les règles qui encadrent une activité.',
+  'Ressources humaines': 'Recruter, accueillir et suivre les personnes d\'une équipe.',
+  'Conduite de chantier': 'Organiser et suivre les travaux d\'un chantier, de la préparation à la fin.',
+  'Soins aux animaux': 'Nourrir, soigner et surveiller des animaux.',
+  'Culture et récolte': 'Faire pousser, entretenir et récolter des plantes ou des cultures.',
+  'Médiation': 'Aider des personnes à se comprendre et à trouver un accord.',
+  'Organisation d\'événements': 'Préparer et faire se dérouler une manifestation : lieu, programme, accueil.',
+  'Fabrication': 'Fabriquer, transformer ou façonner des produits à partir de matières premières.',
+  'Utilisation de machines': 'Régler et faire fonctionner des machines ou des outils de production.',
+  'Protection de l\'environnement': 'Limiter les déchets et les pollutions : trier, recycler, économiser l\'énergie.',
+  'Achats': 'Choisir des fournisseurs, comparer les prix et passer des commandes.',
+  'Pilotage d\'activité': 'Fixer des objectifs, suivre les résultats et améliorer le fonctionnement d\'une activité.',
+  'Gestion documentaire': 'Classer, mettre à jour et retrouver des documents, des dossiers ou des bases de données.',
+  'Esprit d\'analyse': 'Examiner une situation avec méthode pour comprendre ce qui se passe.',
+  'Curiosité': 'Avoir envie d\'apprendre, de chercher et de se tenir au courant.',
+  'Concentration': 'Rester attentif longtemps, sans se laisser distraire.',
+  'Esprit d\'initiative': 'Proposer et agir sans attendre qu\'on le demande.',
+  'Sens de l\'éthique': 'Respecter les règles de conduite de son métier et agir avec honnêteté.',
+  'Sens du dialogue': 'Savoir discuter calmement, même quand on n\'est pas d\'accord.'
 };
 
 if (typeof module !== "undefined" && module.exports) {

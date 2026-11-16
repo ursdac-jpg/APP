@@ -34,10 +34,11 @@ var SECTEURS_DETAIL = [
     libelle: 'Industrie, production et énergie',
     explication: "L'industrie fabrique et transforme des produits : pièces, aliments, matériaux, énergie. On y conduit des machines, on surveille une ligne de production, on assemble ou on contrôle la qualité, le plus souvent en atelier ou en usine, parfois en horaires décalés. Les employeurs sont des usines de toutes tailles, des sites agroalimentaires, des entreprises de maintenance et de l'énergie. Les débuts se font souvent comme opérateur, avec une formation courte.",
     metiersPhares: [
-      'agent_production', 'technicien_maintenance', 'soudeur', 'conducteur_ligne',
+      'agent_production', 'technicien_maintenance', 'soudeur',
       'operateur_agroalimentaire', 'operateur_decoupe', 'usineur', 'regleur_cn',
       'operateur_chimie', 'agent_maintenance_batiment', 'monteur_reseaux_electriques',
-      'technicien_froid_climatisation', 'technicien_qualite', 'technicien_eolien'
+      'technicien_froid_climatisation', 'technicien_qualite', 'technicien_eolien',
+      'operateur_confection', 'coupeur_industriel'
     ]
   },
   {
@@ -57,7 +58,7 @@ var SECTEURS_DETAIL = [
     explication: "Ces métiers s'exercent dehors, au contact du vivant : cultiver, élever des animaux, entretenir des jardins et des espaces verts, travailler la vigne. Le travail suit les saisons et demande de l'endurance. Les employeurs sont des exploitations agricoles, des domaines viticoles, des entreprises de paysage, des communes et des coopératives. Certains postes sont saisonniers, d'autres à l'année.",
     metiersPhares: [
       'ouvrier_agricole', 'paysagiste', 'ouvrier_horticole', 'conducteur_engins_agricoles',
-      'ouvrier_chai', 'vigneron', 'eleveur', 'arboriculteur', 'apiculteur', 'chef_de_culture'
+      'ouvrier_chai', 'vigneron', 'arboriculteur', 'apiculteur', 'chef_de_culture'
     ]
   },
   {
@@ -94,7 +95,8 @@ var SECTEURS_DETAIL = [
     explication: "Le commerce vend des produits et conseille les clients : accueil en magasin, mise en rayon, encaissement, vente par téléphone. Le travail se fait au contact du public, souvent debout, avec des horaires qui peuvent inclure le samedi. Les employeurs sont les magasins et grandes surfaces, les boutiques spécialisées, les centres d'appels et la distribution. De nombreux postes sont ouverts pour un premier emploi, avec une progression possible ensuite.",
     metiersPhares: [
       'conseiller_vente', 'hote_caisse', 'employe_libre_service', 'vendeur_alimentation',
-      'teleconseiller', 'merchandiseur', 'responsable_magasin'
+      'teleconseiller', 'merchandiseur', 'responsable_magasin',
+      'retoucheur', 'cordonnier', 'employe_pressing', 'lingere'
     ]
   },
   {
@@ -103,7 +105,7 @@ var SECTEURS_DETAIL = [
     explication: "Ces métiers font fonctionner une organisation depuis un bureau : accueil, courrier, dossiers, comptabilité, gestion du personnel. Le travail se fait surtout sur ordinateur, assis, en journée, avec de la rigueur et de l'organisation. Les employeurs sont des entreprises de tous secteurs, des administrations, des collectivités et des associations. Une formation en secrétariat, en gestion ou en comptabilité ouvre la plupart de ces postes.",
     metiersPhares: [
       'agent_accueil', 'assistant_administratif', 'comptable', 'assistant_rh',
-      'gestionnaire_rh', 'chef_equipe', 'agent_polyvalent_collectivite'
+      'chef_equipe', 'agent_polyvalent_collectivite'
     ]
   },
   {
@@ -112,7 +114,7 @@ var SECTEURS_DETAIL = [
     explication: "Ce secteur informe, met en valeur et anime : création de visuels, animation des réseaux, photographie, organisation d'événements, accueil du public dans une bibliothèque. Le travail mêle créativité et technique, parfois en horaires irréguliers lors des événements. Les employeurs sont des agences, des collectivités, des associations culturelles, des entreprises et des lieux de spectacle. Certains postes demandent une formation spécialisée, d'autres se construisent avec l'expérience et des réalisations à montrer.",
     metiersPhares: [
       'graphiste', 'community_manager', 'photographe', 'animateur_evenementiel',
-      'technicien_son_lumiere', 'bibliothecaire'
+      'bibliothecaire'
     ]
   },
   {
@@ -129,7 +131,8 @@ var SECTEURS_DETAIL = [
     libelle: 'Propreté et gestion des déchets',
     explication: "Ce secteur nettoie et entretient les locaux et les espaces publics, et gère la collecte et le traitement des déchets et des eaux. Le travail est physique, souvent tôt le matin ou en horaires décalés, seul ou en petite équipe. Les employeurs sont des entreprises de propreté, des collectivités, des syndicats de traitement des déchets et des bailleurs. La plupart des postes sont accessibles sans diplôme, avec une formation à l'entrée.",
     metiersPhares: [
-      'agent_entretien', 'agent_proprete_urbaine', 'agent_collecte_dechets', 'technicien_eaux'
+      'agent_entretien', 'agent_proprete_urbaine', 'agent_collecte_dechets', 'technicien_eaux',
+      'employe_blanchisserie'
     ]
   },
   {
@@ -154,7 +157,7 @@ var SECTEURS_DETAIL = [
     cle: 'artisanat',
     libelle: 'Artisanat et création',
     explication: "Ces métiers fabriquent ou arrangent des objets à la main, avec un savoir-faire précis : compositions florales, travail du bois, bijouterie. Le travail est manuel et minutieux, souvent en atelier ou en boutique, avec un contact clientèle. Les employeurs sont des artisans, des ateliers, des boutiques et des entreprises de création. L'apprentissage et le CAP sont les voies d'entrée les plus courantes.",
-    metiersPhares: ['fleuriste', 'ebeniste', 'bijoutier']
+    metiersPhares: ['fleuriste', 'ebeniste', 'bijoutier', 'couturier', 'styliste', 'modeliste']
   },
   {
     cle: 'artisanat-bouche',

@@ -88,6 +88,8 @@ function initialiserEtatFragment(fragment) {
     // propositionsActuelles/competencesActuelles), un loisir factuel ne
     // se "raffine" pas de la même façon qu'une formulation professionnelle.
     elementsFactuels: fragment.elementsFactuels || [],
+    // Lot 4 (consigne 408) : métiers usuels proposés pour cette expérience, transportés tels quels jusqu'au mapping.
+    metiersProches: fragment.metiersProches || [],
     // Rempli uniquement une fois l'état "valide" atteint (voir validerFragment).
     texteRetenu: null,
     competencesValidees: null

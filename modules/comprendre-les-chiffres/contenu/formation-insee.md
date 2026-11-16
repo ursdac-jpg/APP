@@ -1,5 +1,5 @@
 ---
-verifie_le: 2026-11-06
+verifie_le: 2026-11-12
 sources:
   - "insee-diplomes-2022 | Insee, Population des 16 ans ou plus ayant terminé leurs études selon le niveau de diplôme, recensement de la population 2022 (base historique, exploitation complémentaire) | https://www.insee.fr/fr/statistiques/1893149 | 2026-11-06"
 periodes:

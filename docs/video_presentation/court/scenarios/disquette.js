@@ -16,8 +16,7 @@ module.exports = {
     // Préparation hors caméra : un début de CV (Camille, personnage inventé), pour que « Exporter » soit disponible.
     await p.click('[data-carte-accueil="mesdocuments"]'); await dormir(0.6);
     await p.click('#btnCarteAccueilCvNouveau'); await dormir(0.8);
-    await p.click('#btnCreerCvSansAssistant'); await dormir(0.6);
-    await p.getByText('Commencer mon CV', { exact: false }).first().click(); await dormir(0.6);
+    await p.click('#btnCreerCvSansAssistant'); await dormir(1.0);   // départ direct sur « Votre objectif » (consigne 246)
     await p.getByText('Candidature spontanée', { exact: false }).first().click(); await dormir(0.4);
     await p.getByText('Un métier précis', { exact: false }).first().click(); await dormir(0.4);
     await p.click('#rechercheMetierCibleInput'); await p.locator('#rechercheMetierCibleInput').pressSequentially('agent d', { delay: 40 }); await dormir(1.0);

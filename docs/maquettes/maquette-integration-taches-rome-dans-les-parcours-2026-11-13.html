@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : où s'insère le choix des tâches dans les parcours CV</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 900px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: .8rem; font-size: .92rem; }
+  .bloc { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); padding: .9rem 1.1rem; margin-bottom: 1rem; }
+  .bloc h2 { font-size: 1.2rem; font-weight: 800; margin: 0 0 .5rem; }
+  .bloc h3 { font-size: 1.1rem; font-weight: 800; margin: 0 0 .3rem; }
+  .bloc ul, .bloc ol { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .schema { display: flex; align-items: stretch; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+  .schema .case { flex: 1 1 170px; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .55rem .75rem; background: var(--bg-subtle); font-size: .92rem; }
+  .schema .case strong { display: block; color: var(--accent-texte); }
+  .schema .fleche { align-self: center; font-size: 1.4rem; color: var(--text-muted); }
+  .onglets { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet { min-height: 46px; padding: .35rem 1.4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .voie { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); margin-bottom: 1.1rem; overflow: hidden; }
+  .voie-tete { padding: .8rem 1.1rem; border-bottom: 1px solid var(--border); display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  .voie-tete h3 { margin: 0; font-size: 1.2rem; font-weight: 800; flex: 1 1 auto; }
+  .badge-r { font-size: .8rem; font-weight: 700; padding: .1rem .65rem; border-radius: 999px; border: 1px solid var(--border-strong, var(--border)); background: var(--bg-subtle); white-space: nowrap; }
+  .badge-r.ok { background: var(--success-bg-subtle, #d9f4e4); color: var(--success-strong); border-color: var(--success-strong); }
+  .badge-r.dec { background: var(--warning-bg-subtle); color: var(--warning-strong); border-color: var(--warning-border); }
+  .voie-corps { padding: .9rem 1.1rem; }
+  .etapes { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 .8rem; }
+  .etape { display: inline-flex; align-items: center; gap: .4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; padding: .2rem .8rem .2rem .3rem; font-size: .88rem; font-weight: 600; background: var(--bg-subtle); color: var(--text-strong); }
+  .etape .n { min-width: 1.5rem; height: 1.5rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--border-strong, var(--border)); color: var(--bg-card); font-size: .8rem; font-weight: 800; }
+  .etape.nouvelle { border: 2px dashed var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .etape.nouvelle .n { background: var(--accent); color: #fff; }
+  .etape.hote { border: 2px solid var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .etape.hote .n { background: var(--accent); color: #fff; }
+  .legende { font-size: .82rem; color: var(--text-muted); margin: -.4rem 0 .7rem; }
+  .vu { border: 2px dashed var(--border-strong, var(--border)); border-radius: 12px; padding: .7rem .9rem; margin: .5rem 0; background: var(--bg-subtle); }
+  .vu .etiquette { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin-bottom: .3rem; }
+  .grand-choix { text-align: left; border: 2px solid var(--border-strong, var(--border)); border-radius: 14px; background: var(--bg-card); color: var(--text-strong); padding: .7rem .9rem; flex: 1 1 220px; }
+  .grand-choix strong { display: block; }
+  .grand-choix span { font-size: .88rem; color: var(--text-muted); }
+  .rangee { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .btn-rond { min-height: 42px; padding: .3rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; }
+  .btn-principal { min-height: 42px; padding: .3rem 1.3rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; }
+  dl.fiche { display: grid; grid-template-columns: 170px 1fr; gap: .3rem .8rem; margin: .6rem 0 0; font-size: .93rem; }
+  dl.fiche dt { font-weight: 800; }
+  dl.fiche dd { margin: 0; }
+  @media (max-width: 640px) { dl.fiche { grid-template-columns: 1fr; } dl.fiche dt { margin-top: .4rem; } }
+  .question { border-left: 4px solid var(--warning-border); padding: .4rem .8rem; margin: .6rem 0; background: var(--bg-subtle); border-radius: 0 10px 10px 0; }
+  .question .reco { color: var(--success-strong); font-weight: 700; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette d'intégration, pour validation.</strong> Rien n'est codé dans l'application. Elle montre, parcours par parcours, <strong>où</strong> s'insère le choix des tâches du métier visé (les cartes de la maquette v3), <strong>qui</strong> travaille à ce moment (la personne ou l'assistant) et <strong>ce qui part ensuite</strong>. Les barres d'étapes sont celles de votre application, relues dans le code le 13/11/2026.</div>
+  <div class="barre-outils"><label><input type="checkbox" id="modeSombre"> Mode sombre</label></div>
+
+  <div class="bloc">
+    <h2>L'idée en une image : un seul composant, six portes</h2>
+    <div class="schema">
+      <div class="case"><strong>1. Les données</strong>Les fiches du ROME : tâches, outils, niveau du poste. Déjà prêtes.</div>
+      <div class="fleche">&#8594;</div>
+      <div class="case"><strong>2. Le composant « cartes »</strong>La maquette v3 : une famille par carte, pause, outils, mots libres, récapitulatif. <em>Construit une seule fois.</em></div>
+      <div class="fleche">&#8594;</div>
+      <div class="case"><strong>3. Les portes</strong>Six endroits des parcours où on ouvre ce composant (ci-dessous). Chaque porte ne fait que l'ouvrir et recevoir le résultat.</div>
+    </div>
+    <p class="mb-0 small text-muted">Vous n'avez donc pas six chantiers : un composant, puis six branchements courts. On construit une porte à la fois, en commençant par la plus simple.</p>
+  </div>
+
+  <div class="bloc">
+    <h2>Ce que j'ai compris de votre message, et ce que j'ai corrigé</h2>
+    <ul>
+      <li><strong>Créer un nouveau CV : trois voies.</strong> Avec l'assistant, à partir de mon récit, à la main. Exact.</li>
+      <li><strong>À la main : on bascule directement sur les cartes.</strong> Exact, et c'est même la voie qui en profite le plus : aujourd'hui elle écrit toutes ses missions sans aide.</li>
+      <li><strong>Avec l'assistant : la personne choisit entre « l'assistant me propose » et « je choisis moi-même ».</strong> Exact. Dans la voie classique, je place ce choix juste après « Votre parcours ».</li>
+      <li><strong>Reprendre mon CV : trois voies après le dépôt.</strong> Exact. Correction d'un détail : dans « garder et compléter », un assistant relit déjà le CV pour en sortir les informations, puis la personne les complète champ par champ. C'est à ce moment-là qu'on peut ajouter les tâches.</li>
+      <li><strong>Reprendre sans assistant : même base de données, sans prompt.</strong> Exact.</li>
+    </ul>
+  </div>
+
+  <div class="bloc">
+    <h2>La fiche du métier : ce qu'on garde chez nous, ce qui reste chez France Travail</h2>
+    <p class="mb-2">Votre idée, reformulée : pour <strong>tous les métiers de la base</strong>, la personne lit chez nous ce qui sert à construire un CV, et le lien officiel reste pour tout le reste.</p>
+    <dl class="fiche">
+      <dt>Chez nous, dans la fiche</dt><dd>Comment y accéder, ce que fait le métier, les tâches concrètes (par familles), les outils et connaissances, les autres noms du métier, les métiers proches. C'est la fiche de la maquette v2, ouverte depuis « Votre profil », « Voir tous les métiers » ou la recherche.</dd>
+      <dt>Chez France Travail, par le lien</dt><dd>Les conditions de travail détaillées, les chiffres du marché (difficulté de recrutement, offres), les salaires, les évolutions. Un bouton « Voir la fiche complète (France Travail) » en bas de la fiche. Le bouton existe déjà dans l'application pour les métiers qui ont un code, et il fonctionne pour les 1 923 codes.</dd>
+      <dt>Pourquoi c'est sain</dt><dd>Ces chiffres changent souvent : les recopier chez nous les rendrait faux au bout de quelques mois. Le lien reste toujours à jour sans aucun travail de notre part.</dd>
+    </dl>
+  </div>
+
+  <div class="onglets" role="tablist">
+    <button type="button" class="onglet" role="tab" id="ongCreer" aria-selected="true">Créer un nouveau CV</button>
+    <button type="button" class="onglet" role="tab" id="ongReprendre" aria-selected="false">Reprendre mon CV</button>
+  </div>
+  <div id="zoneVoies"></div>
+
+  <div class="bloc">
+    <h2>Ordre de construction que je propose</h2>
+    <ol>
+      <li><strong>Le composant « cartes » + la porte « À la main »</strong> (créer). La plus simple : pas de prompt, les choix vont directement dans les missions. On voit si les cartes fonctionnent vraiment.</li>
+      <li><strong>La porte « Avec l'assistant »</strong> (créer), avec le choix de départ et le second prompt, après vos essais réels sur trois profils.</li>
+      <li><strong>« Reprendre sans assistant » puis « garder et compléter »</strong>, qui réutilisent le même composant.</li>
+      <li><strong>« À partir de mon récit » et « reformuler »</strong> en dernier : ce sont les deux cas où il reste une vraie décision à prendre (voir ci-dessous).</li>
+    </ol>
+  </div>
+
+  <div class="bloc">
+    <h2>Les décisions qui restent pour vous</h2>
+    <div class="question"><strong>1. « À partir de mon récit » : complément léger ou choix complet ?</strong><br>Le récit est déjà la matière de la personne, et l'assistant en tire des compétences. <span class="reco">Recommandé : un complément léger, proposé après que l'assistant a lu le récit</span> (« voulez-vous ajouter des tâches du métier visé ? »). Bénéfice : on ne double pas le récit. Risque : la personne ne le voit pas si elle va vite. L'autre option, les cartes complètes, risque de répéter ce qu'elle vient de raconter.</div>
+    <div class="question"><strong>2. « Reformuler » : a-t-on le droit d'ajouter des tâches ?</strong><br>Cette voie promet de reformuler ce qui existe, pas d'ajouter. <span class="reco">Recommandé : un bloc facultatif, nommé « ajouter des tâches que mon CV ne dit pas », jamais présenté comme de la reformulation.</span> Bénéfice : la promesse reste vraie. Risque : une étape de plus dans un parcours qui se voulait court. Vous pouvez aussi décider que cette voie n'ajoute rien.</div>
+    <div class="question"><strong>3. Reprendre : comment éviter les doublons avec ce que le CV dit déjà ?</strong><br><span class="reco">Recommandé : une première version avec seulement une phrase d'avertissement</span> (« cochez ce que votre CV ne dit pas encore »). Une comparaison automatique entre le CV et les tâches est possible plus tard, mais c'est du code plus délicat : je ne la promets pas aujourd'hui.</div>
+    <div class="question"><strong>4. Combien de prompts ?</strong><br>Un second prompt pour la voie classique est acquis. Pour les autres voies avec assistant (récit, mise à jour), je ne sais pas encore s'il faut un prompt de plus ou un petit bloc ajouté à celui qui existe. <span class="reco">Recommandé : décider après vos essais réels</span>, pas avant.</div>
+  </div>
+</div>
+
+<script>
+var VOIES = {
+  creer: [
+    {
+      titre: 'Créer avec l’assistant en ligne', assistant: true, statut: ['ok', 'Placement clair'],
+      barre: ['Votre objectif', 'Vos informations', 'Votre parcours', '*Vos tâches', 'Votre profil', 'Assistant', 'Vos documents'],
+      legende: 'Barre actuelle : Votre objectif, Vos informations, Votre parcours, Votre profil, Assistant, Vos documents. Une étape s’ajoute après « Votre parcours », seulement quand un métier est visé.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Comment préférez-vous raconter ce que vous avez fait ?</strong></p><div class="rangee"><div class="grand-choix"><strong>&#128221; L’assistant me propose des idées</strong><span>Rien ne change : le parcours continue comme aujourd’hui.</span></div><div class="grand-choix"><strong>&#9989; Je choisis moi-même ce que j’ai fait</strong><span>Les cartes de tâches du métier visé s’ouvrent, une famille à la fois.</span></div></div>',
+      suite: ['Si « l’assistant me propose » : l’étape se referme, on passe à « Votre profil ». Le prompt actuel n’est pas modifié.', 'Si « je choisis » : les tâches cochées partent dans un <strong>second prompt</strong>, choisi automatiquement. Il n’invente aucune autre tâche.'],
+      absente: 'Aucun métier visé : l’étape n’apparaît pas.'
+    },
+    {
+      titre: 'Créer à partir de mon récit', assistant: true, statut: ['dec', 'Une décision à prendre (n° 1)'],
+      barre: ['Préparer', 'Assistant', 'Réponse', 'Compétences', '*Vos tâches', 'Compléter', 'Rédiger mon CV'],
+      legende: 'Barre actuelle du module « Découvrir mes compétences » : Préparer, Assistant, Réponse, Compétences, Compléter, Rédiger mon CV. L’étape s’ajoute après « Compétences », une fois que l’assistant a lu le récit.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Votre récit a permis de repérer vos compétences.</strong> Pour le métier visé (<em>Conducteur d’engins agricoles</em>), voulez-vous les compléter avec des tâches que vous avez peut-être faites sans y penser ?</p><div class="rangee"><button type="button" class="btn-principal">Oui, voir les tâches</button><button type="button" class="btn-rond">Non, continuer</button></div>',
+      suite: ['Si oui : les cartes s’ouvrent. Les tâches cochées s’ajoutent à ce que l’assistant a repéré dans le récit.', 'Elles sont transmises au moment de « Rédiger mon CV », qui utilise déjà son propre prompt (<code>decouverte-redaction</code>). À vérifier au moment du codage : un petit bloc suffit-il, ou faut-il une variante ?'],
+      absente: 'Aucun métier visé (la personne explore) : l’étape n’apparaît pas.'
+    },
+    {
+      titre: 'Créer à la main, sans assistant', assistant: false, statut: ['ok', 'Placement clair, voie prioritaire'],
+      barre: ['Votre objectif', 'Vos informations', 'Votre parcours', '*Vos tâches', 'Votre profil', 'Vos documents'],
+      legende: 'Barre actuelle : la même, sans « Assistant ». La personne arrive directement sur les cartes.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Pas de choix de départ :</strong> aucun assistant n’intervient, donc on ouvre directement la première carte.</p><div class="rangee"><div class="grand-choix"><strong>&#128204; Carte 1 sur 6 : Cultiver et récolter</strong><span>Quatre tâches à cocher, puis « Suivant ».</span></div></div>',
+      suite: ['Les tâches cochées vont <strong>directement dans les missions</strong> du CV, avec les mots du ROME. Aucun prompt, rien n’est envoyé nulle part.', 'La personne peut retoucher chaque phrase ensuite, comme tout ce qu’elle écrit à la main.'],
+      absente: 'Aucun métier visé : l’étape n’apparaît pas, et la personne écrit ses missions comme aujourd’hui.'
+    }
+  ],
+  reprendre: [
+    {
+      titre: 'Reprendre : « mon CV est à mettre à jour » (garder et compléter)', assistant: true, statut: ['ok', 'Placement clair'],
+      barre: ['Préparer', 'Assistant', 'Réponse', '+Corriger mon CV', 'Vos documents'],
+      legende: 'Barre actuelle : Préparer, Assistant, Réponse, Corriger mon CV, Vos documents. Pas de nouvelle étape : un bloc s’ajoute dans « Corriger mon CV », là où la personne complète ses missions.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Il manque peut-être des choses ?</strong> Cochez ce que votre CV ne dit pas encore, pour le métier visé.</p><div class="rangee"><button type="button" class="btn-rond">Ajouter des tâches de mon métier</button></div>',
+      suite: ['Les cartes s’ouvrent, avec un rappel : « Cochez seulement ce que votre CV ne dit pas encore ».', 'Les tâches cochées s’ajoutent aux missions du champ, que la personne relit et corrige. Pas de prompt supplémentaire à cette étape (à confirmer au codage).'],
+      absente: 'Aucun métier visé : le bloc n’apparaît pas.'
+    },
+    {
+      titre: 'Reprendre : « reformuler et présenter »', assistant: true, statut: ['dec', 'Une décision à prendre (n° 2)'],
+      barre: ['+Préparer', 'Assistant', 'Réponse', 'Vérifier', 'Vos documents'],
+      legende: 'Barre actuelle : Préparer, Assistant, Réponse, Vérifier, Vos documents. Un bloc facultatif s’ajoute dans « Préparer », avant d’aller chez l’assistant.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Faisiez-vous des choses que votre CV ne dit pas ?</strong> C’est facultatif : l’assistant reformule votre CV tel qu’il est, et n’ajoute que ce que vous cochez ici.</p><div class="rangee"><button type="button" class="btn-rond">Ajouter des tâches de mon métier</button><button type="button" class="btn-rond">Non, reformuler tel quel</button></div>',
+      suite: ['Les tâches cochées sont transmises à l’assistant avec la consigne de ne rien ajouter d’autre.', 'La promesse de la voie (« je reformule, je n’invente pas ») reste vraie, car l’ajout vient de la personne.'],
+      absente: 'Aucun métier visé : le bloc n’apparaît pas. La voie reste exactement celle d’aujourd’hui.'
+    },
+    {
+      titre: 'Reprendre : sans assistant (dans un modèle)', assistant: false, statut: ['ok', 'Placement clair'],
+      barre: ['Déposer', 'Ma voie', 'Classer', '+Vérifier', 'Vos documents'],
+      legende: 'Barre actuelle : Déposer, Ma voie, Classer, Vérifier, Vos documents. Le bloc s’ajoute dans « Vérifier », là où la personne relit et complète son CV classé.',
+      vu: '<div class="etiquette">Ce que la personne voit à cet endroit</div><p class="mb-2"><strong>Vous voulez compléter votre CV ?</strong> Cochez des tâches du métier visé que votre CV ne dit pas encore.</p><div class="rangee"><button type="button" class="btn-rond">Ajouter des tâches de mon métier</button></div>',
+      suite: ['Pas de choix de départ : aucun assistant.', 'Les tâches cochées sont ajoutées directement aux missions, sans prompt.'],
+      absente: 'Aucun métier visé : le bloc n’apparaît pas.'
+    }
+  ]
+};
+var onglet = 'creer';
+function el(id) { return document.getElementById(id); }
+function puce(t, i) {
+  var nouvelle = t.charAt(0) === '*', hote = t.charAt(0) === '+', lib = (nouvelle || hote) ? t.slice(1) : t;
+  return '<span class="etape' + (nouvelle ? ' nouvelle' : '') + (hote ? ' hote' : '') + '"><span class="n">' + (i + 1) + '</span>' + lib + (nouvelle ? ' (nouvelle étape)' : '') + (hote ? ' (reçoit un bloc)' : '') + '</span>';
+}
+function dessiner() {
+  el('zoneVoies').innerHTML = VOIES[onglet].map(function (v) {
+    return '<div class="voie"><div class="voie-tete"><h3>' + v.titre + '</h3><span class="badge-r">' + (v.assistant ? 'Avec l’assistant' : 'Sans assistant') + '</span><span class="badge-r ' + v.statut[0] + '">' + v.statut[1] + '</span></div>' +
+      '<div class="voie-corps"><div class="etapes">' + v.barre.map(puce).join('') + '</div><p class="legende">' + v.legende + '</p>' +
+      '<div class="vu">' + v.vu + '</div>' +
+      '<dl class="fiche"><dt>Ce qui part ensuite</dt><dd><ul class="mb-0">' + v.suite.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ul></dd><dt>Quand rien ne s’affiche</dt><dd>' + v.absente + '</dd></dl></div></div>';
+  }).join('');
+  el('ongCreer').setAttribute('aria-selected', onglet === 'creer'); el('ongReprendre').setAttribute('aria-selected', onglet === 'reprendre');
+}
+el('ongCreer').addEventListener('click', function () { onglet = 'creer'; dessiner(); });
+el('ongReprendre').addEventListener('click', function () { onglet = 'reprendre'; dessiner(); });
+el('modeSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); });
+dessiner();
+</script>
+</body>
+</html>

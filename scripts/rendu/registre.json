@@ -157,11 +157,11 @@
   "couverture": 0
  },
  "creatif:rectangles": {
-  "html": "e4e74e50:7796",
+  "html": "44554364:7823",
   "css": "5507174f:5324",
-  "xml": "35c66578:42377",
+  "xml": "3306432a:42376",
   "pages": 1,
-  "couverture": 28
+  "couverture": 27
  },
  "creatif:rubanDiagonal": {
   "html": "903779ca:11955",
@@ -272,9 +272,9 @@
   "couverture": 0
  },
  "sobre:mq-rectangles": {
-  "html": "c5655ff8:7802",
+  "html": "f74ebcb0:7829",
   "css": "6de8bc8b:5840",
-  "xml": "b84278be:33011",
+  "xml": "679e8ac8:33010",
   "pages": 1,
   "couverture": 0
  },

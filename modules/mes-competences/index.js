@@ -22,7 +22,6 @@ var MESCOMP_TITRES = { documents: 'Mes documents', assistant: 'L’assistant en 
 
 var _mesCompEtat = null;                  // état de session (voir logique.js, mesCompEtatInitial)
 var _mesCompDetourPresentation = false;   // « Revoir la présentation » depuis une page de travail
-var _mesCompReprisePendante = false;      // retour dans le module avec un travail en cours : encart « Continuer / Recommencer » + gel
 var _mesCompSessionHistorique = 1;
 var _mesCompEcranRendu = '';
 
@@ -83,9 +82,20 @@ function mesCompRevenirDeLaPresentation() {
   _mesCompDetourPresentation = false;
   if (typeof naviguerVers === 'function') { naviguerVers('mes-competences'); }
 }
+// « Reprendre » (bloc de la présentation, consigne 258) : retour à la page de travail, tout l'état est gardé.
 function mesCompRepriseContinuer() {
-  _mesCompReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('mes-competences'); }
+}
+// « Recommencer » depuis la présentation : confirmation, puis le travail est effacé et la présentation repart à froid.
+function mesCompConfirmerRecommencer() {
+  var faire = function () { mesCompReinitialiser(); if (typeof naviguerVers === 'function') { naviguerVers('mes-competences-intro'); } };
+  if (typeof confirmerAction === 'function') {
+    confirmerAction(
+      'Recommencer « Découvrir mes compétences » ?',
+      'Votre travail dans ce module sera effacé : vos documents déposés, les lignes relevées et vos choix. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
+      'Recommencer ce module', 'btn-danger', faire
+    );
+  } else { faire(); }
 }
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
@@ -95,7 +105,6 @@ function mesCompReinitialiser() {
   _mesCompSessionHistorique++;
   _mesCompEtat = null;
   _mesCompDetourPresentation = false;
-  _mesCompReprisePendante = false;
   _mesCompSecondEnCours = false;
   _mesCompNoteRetour = '';
   _mesCompSousOuverts = {};
@@ -118,9 +127,8 @@ function mesCompRestaurerEtatDepuisSauvegarde(brut) {
   _mesCompSessionHistorique++;
   _mesCompDetourPresentation = false;
   _mesCompSecondEnCours = false;
-  if (!brut) { _mesCompEtat = null; _mesCompReprisePendante = false; return; }
+  if (!brut) { _mesCompEtat = null; return; }
   _mesCompEtat = mesCompNormaliserEtat(brut);
-  _mesCompReprisePendante = mesCompAUnTravailEnCours(_mesCompEtat);
 }
 
 // ---------------- Flèche « Précédent » du navigateur (brique B.24, docs/BRIQUES_COMMUNES.md) ----------------
@@ -150,20 +158,14 @@ function mesCompRendrePage() {
   var titre = MESCOMP_TITRES[etat.ecran] || '';
   var scrollPrecedent = window.scrollY || 0;
 
-  var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_mesCompReprisePendante)
+  var noteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
     ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
       '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
       '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
     : '';
-  var boutonRevoir = '<div><button type="button" id="btnMesCompRevoirPresentation" class="btn-revoir-module"' +
-    (_mesCompReprisePendante ? ' disabled' : '') + '>' +
+  var boutonRevoir = '<div><button type="button" id="btnMesCompRevoirPresentation" class="btn-revoir-module">' +
     '<i class="bi bi-compass"></i> Revoir la présentation</button></div>' + noteHtml;
-  var encart = _mesCompReprisePendante
-    ? htmlEncartRepriseModule({
-        texte: 'Vous avez un travail en cours dans ce module.',
-        idContinuer: 'btnMesCompRepriseContinuer', idRecommencer: 'btnMesCompRepriseRecommencer', pulse: true
-      })
-    : '';
+  var encart = '';
 
   var corps = def ? def.rendre(etat) : '<div class="cv-section"><p class="mb-0">Cette page est en cours de construction.</p></div>';
   var peutContinuer = def && typeof def.peutContinuer === 'function' ? !!def.peutContinuer(etat) : !!def;
@@ -197,25 +199,9 @@ function mesCompRendrePage() {
   var nouvelEcran = cleEcran !== _mesCompEcranRendu;
   _mesCompEcranRendu = cleEcran;
   window.scrollTo(0, (arrivee || nouvelEcran) ? 0 : scrollPrecedent);
-  if (typeof appliquerGelModule === 'function') { appliquerGelModule(_mesCompReprisePendante); }
 
   var btnRevoir = document.getElementById('btnMesCompRevoirPresentation');
   if (btnRevoir) { btnRevoir.addEventListener('click', mesCompRetourVersPresentation); }
-  var btnContinuer = document.getElementById('btnMesCompRepriseContinuer');
-  if (btnContinuer) { btnContinuer.addEventListener('click', mesCompRepriseContinuer); }
-  var btnRecommencer = document.getElementById('btnMesCompRepriseRecommencer');
-  if (btnRecommencer) {
-    btnRecommencer.addEventListener('click', function () {
-      if (typeof confirmerAction !== 'function') { return; }
-      confirmerAction(
-        'Recommencer « Découvrir mes compétences » ?',
-        'Votre travail dans ce module sera effacé : vos documents déposés, les lignes relevées et vos choix. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
-        'Recommencer ce module', 'btn-danger',
-        function () { mesCompReinitialiser(); mesCompOuvrir(); if (typeof naviguerVers === 'function') { naviguerVers('mes-competences'); } }
-      );
-    });
-  }
-  if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
   if (def && typeof def.cabler === 'function') { def.cabler(etat); }
   if (typeof trackEvenement === 'function') { trackEvenement('mes_competences_ecran', { ecran: etat.ecran }); }
 }
@@ -223,10 +209,14 @@ function mesCompRendrePage() {
 // ---------------- Page de présentation ----------------
 
 function pageIntroMesCompetences() {
-  var enCours = mesCompAUnTravailEnCours(_mesCompEtat);
+  // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la présentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
+  var enCours = !_mesCompDetourPresentation && mesCompAUnTravailEnCours(_mesCompEtat);
   var config = {
     carteRetour: 'boiteaoutils',
     detour: _mesCompDetourPresentation,
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez un travail en cours dans ce module.', 'btnMesCompRepriseContinuer', 'btnMesCompRepriseRecommencer', 'Reprendre') : '',
+    actionsSynthese: enCours ? [{ id: 'btnMesCompRepriseContinuer', action: mesCompRepriseContinuer }, { id: 'btnMesCompRepriseRecommencer', action: mesCompConfirmerRecommencer }] : [],
+    ctaMasque: enCours,
     detourLogo: 'bi-compass',
     detourBoutonId: 'btnMesCompRevenirModuleHaut',
     detourCtaId: 'btnMesCompRevenirModuleBas',
@@ -239,9 +229,8 @@ function pageIntroMesCompetences() {
     ctaLabel: 'Commencer &#8594;',
     etapes: MESCOMP_NAV_ETAPES,
     onCta: function () {
-      // Un travail déjà engagé est repris (l'effacement volontaire vit sur l'encart de reprise), jamais remis à zéro ici.
-      if (!enCours) { mesCompReinitialiser(); mesCompOuvrir(); }
-      else { _mesCompReprisePendante = true; }
+      // Aucun travail engagé : on démarre à zéro. Un travail engagé passe par « Reprendre » du bloc de la présentation.
+      mesCompReinitialiser(); mesCompOuvrir();
       if (typeof naviguerVers === 'function') { naviguerVers('mes-competences'); }
     },
     blocsHTML:

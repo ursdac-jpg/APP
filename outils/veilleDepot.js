@@ -1451,6 +1451,16 @@ function creerDepot(racine, options) {
       if (v.nature === 'enseigne' && v.nom) { l.depsEnseigne = Object.keys(parNom[logiqueTerritoire.mtNormaliser(v.nom)] || {}).sort(); }
     });
   }
+  // Magasins relevés dans le registre officiel des entreprises (magasins-generes.txt) que la fiche publiée n'a pas encore : l.magasinsReleves = { nouveaux, complements }.
+  // Lecture seule : l'outil les montre dans la fenêtre « Modifier » de la fiche ; ils ne deviennent des magasins validés que quand la personne clique « OK » (consigne 310).
+  function annoterMagasinsReleves(lignes) {
+    let parId = {};
+    try { const t = lireOuNull(path.resolve(racine, 'modules', 'mon-territoire', 'contenu', 'magasins-generes.txt')); if (t) { parId = logiqueTerritoire.mtParserMagasinsGeneres(t.toString('utf8')); } } catch (e) { parId = {}; }
+    (lignes || []).forEach(function (l) {
+      const r = territoire.magasinsReleves(l.valeurs, parId[l.id]);
+      if (r.nouveaux.length || r.complements.length) { l.magasinsReleves = r; }
+    });
+  }
   function annoterEtablissements(lignes) {
     let codes = {};
     try { codes = territoire.contexteDepuis(racine, aujourdhui()).communesCodes || {}; } catch (e) { codes = {}; }
@@ -1478,7 +1488,7 @@ function creerDepot(racine, options) {
     const t = lireOuNull(path.resolve(racine, f.chemin));
     if (!t) { return { ok: false, erreur: 'Registre introuvable (' + f.chemin + ').' }; }
     const r = territoire.lister(String(fichier), t.toString('utf8'), aujourdhui(), territoire.contexteDepuis(racine, aujourdhui()));
-    if (r.ok) { const m = dernieresModifications(String(fichier)); r.lignes.forEach(function (l) { if (m[l.id]) { l.modifieLe = m[l.id]; } }); annoterEtablissements(r.lignes); if (String(fichier) === 'employeurs') { annoterPresenceEnseignes(r.lignes); } annoterAttente(String(fichier), r.lignes); }
+    if (r.ok) { const m = dernieresModifications(String(fichier)); r.lignes.forEach(function (l) { if (m[l.id]) { l.modifieLe = m[l.id]; } }); annoterEtablissements(r.lignes); if (String(fichier) === 'employeurs') { annoterPresenceEnseignes(r.lignes); annoterMagasinsReleves(r.lignes); } annoterAttente(String(fichier), r.lignes); }
     return r;
   }
 

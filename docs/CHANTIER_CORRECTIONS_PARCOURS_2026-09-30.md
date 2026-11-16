@@ -190,7 +190,7 @@ Rien n'est regardé ni modifié pour l'instant. À traiter avec C14 et C15 (mêm
 
 - [x] **Règle de Denis** : le bouton « Retour » doit **toujours** amener à la page précédente, jamais à la page de présentation du module.
 - [x] **Fait pour « Comparer mes pistes »** : l'application mémorise la page d'où la personne arrive sur la présentation (`_pageOrigineAvantAideDecision`, `naviguerVers()` dans `js/app.js`, même patron que `_pageOrigineAvantProjet`). Depuis le premier écran du module, « Retour » y ramène. Le détour « Revoir la présentation » ne remplace pas cette origine. Repli si l'origine est inconnue (après une restauration) : la présentation, comme avant. Vérifié : départ du Lexique, arrivée sur la présentation, entrée dans le module, « Retour » ramène au Lexique.
-- [ ] **Reste ouvert (général)** : l'application n'a pas d'historique de navigation commun ; chaque page a sa propre logique de « Retour ». Appliquer la règle « toujours la page précédente » à tous les modules demande une décision de conception (Mode A) et la liste des parcours où Denis constate le défaut. Non commencé.
+- [x] **ANNULÉ le 12/11/2026 (décision de Denis, consigne 256)** : « Retour » du premier écran de « Comparer mes pistes » repasse par la présentation, comme les autres modules ; la mémoire `_pageOrigineAvantAideDecision` n'existe plus. Le point « général » (appliquer « Retour = page précédente » partout) n'est plus d'actualité : le comportement commun est « Retour = le pas d'avant, présentation comprise ».
 
 ## C18. « Comparer mes pistes », premier écran : titre du premier point, trois façons repliées, une icône à changer (retour de Denis, 2026-09-30)
 

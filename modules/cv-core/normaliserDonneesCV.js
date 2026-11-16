@@ -176,8 +176,11 @@ function _cvProfilLignesExperiencesPerso(experiencesPerso) {
     var lieu = e.lieu ? e.lieu : '';
     var entreprise = e.entreprise ? e.entreprise : '';
     var parenthese = [entreprise, lieu, periode].filter(Boolean).join(', ');
+    // « Citer ou développer » (consigne 357, modules/citer-developper) : un élément seulement cité est marqué, ses missions ne sont pas transmises.
+    // Sans le module (tests Node de cette seule fonction), rien ne change.
+    var cite = (typeof cdQuestionPossible === 'function') && cdQuestionPossible('experiencesPerso', e.intitule) && cdEstCite(e.developper, e.missions);
     return '   . ' + e.intitule + (parenthese ? ' (' + parenthese + ')' : '') + (e.detail ? ' : ' + e.detail : '') +
-      (e.missions ? ' - Missions : ' + e.missions : '');
+      (cite ? ' - ' + CD_MARQUEUR_CITE : (e.missions ? ' - ' + ((typeof CD_MARQUEUR_DEVELOPPE !== 'undefined') ? CD_MARQUEUR_DEVELOPPE : 'Missions') + ' : ' + e.missions : ''));
   });
 }
 // Engagements : l'ancien format d'une seule ligne (« texte (periode), texte ») est CONSERVE tant qu'aucun engagement n'a de missions
@@ -186,13 +189,21 @@ function _cvProfilEngagements(engagements) {
   var liste = (engagements || []).filter(Boolean);
   if (!liste.length) { return ''; }
   var periodeDe = function (e) { return (typeof e === 'string' || !e.dateDebut) ? '' : (' (' + e.dateDebut + (e.dateFin ? '-' + e.dateFin : ' - en cours') + ')'); };
-  var aDesMissions = liste.some(function (e) { return typeof e !== 'string' && e.missions && String(e.missions).trim(); });
-  if (!aDesMissions) {
+  // « Citer ou développer » (consigne 357) : sans le module, aucun élément n'est marqué et le format d'avant est gardé tel quel.
+  var citeE = function (e) {
+    if (typeof cdQuestionPossible !== 'function') { return false; }
+    var nom = (typeof e === 'string') ? e : (e.texte || '');
+    return cdQuestionPossible('engagements', nom) && ((typeof e === 'string') ? true : cdEstCite(e.developper, e.missions));
+  };
+  var aDesMissions = liste.some(function (e) { return typeof e !== 'string' && e.missions && String(e.missions).trim() && !citeE(e); });
+  var aDesMarques = liste.some(citeE);
+  if (!aDesMissions && !aDesMarques) {
     return '- Engagements : ' + liste.map(function (e) { return (typeof e === 'string') ? e : ((e.texte || '') + periodeDe(e)); }).filter(Boolean).join(', ') + String.fromCharCode(10);
   }
   return '- Engagements :' + String.fromCharCode(10) + liste.map(function (e) {
-    if (typeof e === 'string') { return '   . ' + e; }
-    return '   . ' + (e.texte || '') + periodeDe(e) + ((e.missions && String(e.missions).trim()) ? ' - Missions : ' + e.missions : '');
+    if (typeof e === 'string') { return '   . ' + e + (citeE(e) ? ' - ' + CD_MARQUEUR_CITE : ''); }
+    if (citeE(e)) { return '   . ' + (e.texte || '') + periodeDe(e) + ' - ' + CD_MARQUEUR_CITE; }
+    return '   . ' + (e.texte || '') + periodeDe(e) + ((e.missions && String(e.missions).trim()) ? ' - ' + ((typeof CD_MARQUEUR_DEVELOPPE !== 'undefined') ? CD_MARQUEUR_DEVELOPPE : 'Missions') + ' : ' + e.missions : '');
   }).join(String.fromCharCode(10)) + String.fromCharCode(10);
 }
 

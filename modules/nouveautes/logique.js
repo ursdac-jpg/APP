@@ -66,7 +66,18 @@ function nvTotalPastille(nAppli, nRegles, nCorriges) {
   return [nAppli, nRegles, nCorriges].reduce(function (s, n) { return s + (typeof n === 'number' && n > 0 ? n : 0); }, 0);
 }
 
+// Rubriques regardées (décision de Denis, 15/11/2026) : le nombre d'une rubrique que la personne a ouverte est retiré du total ; il revient à zéro pour cette rubrique.
+// `vus` : { appli: true, regles: false, corriges: false } ; un nombre inconnu (null) reste inconnu.
+function nvNombreRestant(nombre, cle, vus) { return vus && vus[cle] === true ? 0 : nombre; }
+// Relit les rubriques regardées depuis un texte enregistré (JSON) ; tout ce qui n'est pas clair = rien de regardé.
+function nvLireVus(texte) {
+  var vus = { appli: false, regles: false, corriges: false }, obj = null;
+  if (typeof texte === 'string' && texte) { try { obj = JSON.parse(texte); } catch (e) { obj = null; } }
+  if (obj && typeof obj === 'object') { NV_ENTREES.forEach(function (c) { vus[c] = obj[c] === true; }); }
+  return vus;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { NV_JOURS_NOUVEAU: NV_JOURS_NOUVEAU, nvAgeJours: nvAgeJours, nvEstNouveau: nvEstNouveau, nvCompterNouveaux: nvCompterNouveaux, nvDateFr: nvDateFr, nvMoisFr: nvMoisFr, nvGrouperParMois: nvGrouperParMois,
+  module.exports = { nvNombreRestant: nvNombreRestant, nvLireVus: nvLireVus, NV_JOURS_NOUVEAU: NV_JOURS_NOUVEAU, nvAgeJours: nvAgeJours, nvEstNouveau: nvEstNouveau, nvCompterNouveaux: nvCompterNouveaux, nvDateFr: nvDateFr, nvMoisFr: nvMoisFr, nvGrouperParMois: nvGrouperParMois,
     NV_ENTREES: NV_ENTREES, nvEntreeValide: nvEntreeValide, nvOrigine: nvOrigine, nvLibelleOrigine: nvLibelleOrigine, nvLibelleAvant: nvLibelleAvant, nvTotalPastille: nvTotalPastille };
 }

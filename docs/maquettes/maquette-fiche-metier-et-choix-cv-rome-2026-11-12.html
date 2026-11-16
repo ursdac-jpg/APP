@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : fiche du métier et choix des tâches pour le CV (ROME)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 980px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: .95rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .9rem; background: var(--bg-subtle); }
+  .info-denis strong { color: var(--accent-texte); }
+
+  .onglets-ecrans { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet-ecran { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet-ecran[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+
+  .cv-section.rubrique { padding: 0; overflow: hidden; margin-bottom: 1rem; }
+  .rubrique-entete { padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); }
+  .rubrique-entete h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 .3rem; font-size: 1.35rem; font-weight: 800; }
+  .bilan { font-size: .85rem; font-weight: 700; padding: .1rem .7rem; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .bilan.complet { background: var(--success-bg-subtle, #d9f4e4); color: var(--success-strong); border-color: var(--success-strong); }
+  .partie { padding: .95rem 1.1rem; border-top: 1px solid var(--border); }
+  .partie:first-of-type { border-top: 0; }
+  .partie-titre { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; font-size: 1.05rem; margin-bottom: .3rem; }
+  .num-rubrique { flex: 0 0 auto; min-width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 800; }
+  .partie-corps { margin-left: 2.5rem; }
+  .lecture p { margin: 0 0 .5rem; }
+  .lecture ul { margin: 0 0 .5rem; padding-left: 1.2rem; }
+
+  .groupe { border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); margin: .55rem 0; overflow: hidden; }
+  .groupe.coche { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .groupe-tete { display: flex; gap: .7rem; align-items: center; padding: .55rem .8rem; min-height: 52px; cursor: pointer; }
+  .groupe-tete input { width: 1.4rem; height: 1.4rem; flex: 0 0 auto; accent-color: var(--accent); }
+  .groupe-tete .titre { font-weight: 700; flex: 1 1 auto; }
+  .btn-detail { min-height: 40px; padding: .2rem 1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-detail[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .groupe-detail { padding: .2rem .8rem .7rem 3.1rem; font-size: .93rem; }
+  .groupe-detail label { display: flex; gap: .6rem; align-items: flex-start; padding: .25rem 0; cursor: pointer; }
+  .groupe-detail input { width: 1.2rem; height: 1.2rem; margin-top: .15rem; accent-color: var(--accent); flex: 0 0 auto; }
+  .groupe-detail .reste { color: var(--text-muted); font-size: .85rem; margin-top: .3rem; }
+  .coeur { font-size: .78rem; font-weight: 700; padding: .05rem .55rem; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap; }
+
+  .btn-aucune { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .btn-aucune[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-valider { min-height: 44px; padding: .35rem 1.6rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+  .ligne-valider { display: flex; justify-content: flex-end; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .msg { font-size: .9rem; font-weight: 600; color: var(--success-strong); }
+  .encart { margin-top: .6rem; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); }
+  .apercu-cv { background: #fff; color: #1b1f2a; border: 1px solid var(--border-strong, var(--border)); border-radius: 6px; padding: 1rem 1.2rem; font-size: .95rem; }
+  [data-theme="sombre"] .apercu-cv { background: #fff; color: #1b1f2a; }
+  .apercu-cv h4 { font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid #2f5fb3; padding-bottom: .15rem; margin: 0 0 .5rem; color: #2f5fb3; }
+  .apercu-cv ul { margin: 0; padding-left: 1.1rem; }
+  .invite-prompt { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; white-space: pre-wrap; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .8rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette pour validation.</strong> Rien n'est codé dans l'application. Les trois métiers ci-dessous sont de vraies fiches du ROME (France Travail) : les textes, les tâches et les phrases simples sont ceux des données déjà préparées. Les boutons fonctionnent pour que vous puissiez essayer.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label>Métier de démonstration :
+      <select id="choixMetier" class="form-select form-select-sm d-inline-block w-auto"></select>
+    </label>
+  </div>
+
+  <div class="info-denis" id="infoNiveau"></div>
+
+  <div class="onglets-ecrans" role="tablist">
+    <button type="button" class="onglet-ecran" role="tab" id="ong1" aria-selected="true" data-ecran="1">1. La fiche du métier</button>
+    <button type="button" class="onglet-ecran" role="tab" id="ong2" aria-selected="false" data-ecran="2">2. Ce que vous avez déjà fait</button>
+    <button type="button" class="onglet-ecran" role="tab" id="ong3" aria-selected="false" data-ecran="3">3. Ce qui part dans le CV</button>
+  </div>
+
+  <!-- ÉCRAN 1 : lecture seule, dans la fiche d'un métier (panneau « fiche du métier » existant) -->
+  <div id="ecran1">
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#127919; <span id="titreMetier1"></span></h3>
+        <p class="small text-muted mb-0">Fiche du métier. Elle s'ouvre depuis « Votre profil », « Voir tous les métiers » ou la recherche, comme aujourd'hui. Ce bloc vient s'ajouter au-dessus des mots déjà affichés.</p>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">1</span><span>Ce que fait ce métier</span></div>
+        <div class="partie-corps">
+          <p id="presentation1"></p>
+          <p class="small fw-semibold mb-1">Au quotidien :</p>
+          <ul id="missions1"></ul>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">2</span><span>Les tâches concrètes</span></div>
+        <div class="partie-corps">
+          <p class="small text-muted">Les plus importantes d'abord. <span id="resteTaches1"></span></p>
+          <ul id="taches1"></ul>
+          <button type="button" class="btn-detail" id="btnToutesTaches" aria-expanded="false">Voir toutes les tâches du métier</button>
+          <div id="toutesTaches" hidden class="small mt-2"></div>
+        </div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">3</span><span>Comment y accéder</span></div>
+        <div class="partie-corps"><p id="acces1" class="mb-0"></p></div>
+      </div>
+      <div class="partie lecture">
+        <div class="partie-titre"><span class="num-rubrique">4</span><span>À savoir sur ce métier</span></div>
+        <div class="partie-corps"><p class="small text-muted mb-0">Le bloc « À savoir » qui existe déjà (conditions de travail, statuts possibles) reste tel quel, juste en dessous. Les mots colorés actuels (savoir-être, savoir-faire, savoirs) restent aussi, en bas de la fiche.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : choix des tâches, pour la personne qui crée son CV et a un métier visé -->
+  <div id="ecran2" hidden>
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#9989; Ce que vous avez déjà fait <span class="bilan" id="bilan2">0 coché</span></h3>
+        <p class="small text-muted mb-0">Pour le métier visé : <strong id="titreMetier2"></strong>. Cochez ce qui vous ressemble, que ce soit en emploi, en stage, en bénévolat ou chez vous. Ne cochez que ce que vous avez vraiment fait : l'assistant n'ajoutera rien d'autre. Rien n'est obligatoire.</p>
+      </div>
+      <div class="partie">
+        <div class="partie-corps" style="margin-left:0">
+          <div id="groupes2"></div>
+          <div class="encart small" id="resteGroupes2"></div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="btn-aucune" id="btnAucune" aria-pressed="false">Aucune de ces tâches ne me ressemble</button>
+          </div>
+          <div class="encart small mt-3" id="msgAucune" hidden>C'est tout à fait possible : ce métier est peut-être nouveau pour vous. L'assistant s'appuiera alors uniquement sur ce que vous avez raconté de votre parcours.</div>
+          <div class="ligne-valider">
+            <span class="msg" id="msgValide" hidden>&#10003; Vos choix sont enregistrés.</span>
+            <button type="button" class="btn-valider" id="btnValider">Valider mes choix</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : ce que reçoit l'assistant et ce qui apparaît dans le CV -->
+  <div id="ecran3" hidden>
+    <div class="cv-section rubrique">
+      <div class="rubrique-entete">
+        <h3>&#128196; Ce qui part dans le CV</h3>
+        <p class="small text-muted mb-0">Vous choisissez avec des phrases simples. Le CV, lui, reprend les mots du métier, pour vous valoriser. Cet écran sert à la maquette : il montre l'effet de vos coches.</p>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">1</span><span>Aperçu dans le CV</span></div>
+        <div class="partie-corps">
+          <div class="apercu-cv" id="apercuCv"></div>
+          <p class="small text-muted mt-2 mb-0">Exemple de rendu. Ici, les tâches sont reprises avec les mots du ROME. L'assistant peut les assembler en phrases, comme il le fait déjà pour les missions de chaque expérience.</p>
+        </div>
+      </div>
+      <div class="partie">
+        <div class="partie-titre"><span class="num-rubrique">2</span><span>Ce que reçoit l'assistant (pour information)</span></div>
+        <div class="partie-corps">
+          <div class="invite-prompt" id="invite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var DONNEES = {"A1101":{"niveau":1,"d":"Réalise des travaux agricoles mécanisés.","m":["Aménage et prépare les terrains, assure le labourage, le désherbage, les semis et récolte la production.","Utilise différentes machines (tracteur, moissonneuse-batteuse, ensileuse) et en assure l’entretien et la maintenance de premier niveau."],"a":"Cet emploi est accessible sans diplôme particulier. Un CAPA ou un Bac pro dans le domaine agricole ou le certificat de spécialisation option \"Tracteurs et machines agricoles\" ainsi que différents CACE","k":[{"simple":"Cultiver et récolter","coeur":3,"rome":["Préparer les sols, les plantations (épandage, semis, etc.)","Récolter un produit à maturité et selon les consignes de calibrage","Effectuer des opérations agricoles (semis, récoltes)"],"nb":4},{"simple":"Conduire un véhicule sur la route","coeur":1,"rome":["Conduire un véhicule agricole","Conduire un poids lourd"],"nb":2},{"simple":"Analyser et organiser des données","coeur":0,"rome":["Traiter une information météorologique recueillie"],"nb":1},{"simple":"Préparer et planifier la production","coeur":1,"rome":["Planifier une opération de semis, de traitement ou de récolte sur un site d’exploitation"],"nb":1},{"simple":"Mesurer, doser et ajuster","coeur":0,"rome":["Préparer des mélanges de produits de synthèse"],"nb":1},{"simple":"Appliquer un traitement ou un produit","coeur":1,"rome":["Réaliser des opérations de traitement hydrofuge, insecticide, fongicide, pesticide"],"nb":1}],"nbk":15,"nbComp":19,"s":[["Méthodes de conservation de la biodiversité","Techniques de pressage","Techniques de fauchage"],["Fonctionnement des engins agricoles","Utilisation de produits phytosanitaires"]]},"M1810":{"niveau":2,"d":"Le Technicien d’exploitation informatique assure le bon fonctionnement des systèmes informatiques.","m":["Supervise et maintient l’infrastructure informatique en condition opérationnelle","Assure l’installation, la configuration et la mise à jour des systèmes et logiciels","Gère les sauvegardes et la sécurité des données","Fournit un support technique aux utilisateurs et résout les incidents","Optimise les performances des systèmes informatiques","Documente les procédures techniques et forme les utilisateurs aux nouveaux outils"],"a":"Ce métier est accessible avec un diplôme de niveau Bac + 2 BTS, DUT.","k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Installer et intégrer le matériel (station, équipement réseau, périphériques, ...) dans l’environnement de production et configurer les ressources logistiques et physiques","Gérer et déployer des logiciels à distance","Mettre en place des solutions de virtualisation"],"nb":3},{"simple":"Administrer un système informatique","coeur":2,"rome":["Gérer les droits d’accès des utilisateurs","Planifier les mises à jour systèmes sans interruption de service"],"nb":2},{"simple":"Trouver l'origine d'une panne","coeur":1,"rome":["Diagnostiquer la nature et l’origine des incidents et mettre en oeuvre les mesures correctives","Agir rapidement en cas de panne pour minimiser les interruptions"],"nb":2},{"simple":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","coeur":0,"rome":["Surveiller le fonctionnement d’applicatifs et logiciels","Surveiller les systèmes de réseau pour garantir leur fonctionnement optimal"],"nb":2},{"simple":"Aider les utilisateurs à prendre en main un outil","coeur":0,"rome":["Former les utilisateurs aux nouvelles technologies"],"nb":1},{"simple":"Analyser un problème et le résoudre","coeur":0,"rome":["Résoudre les problèmes techniques de niveau avancé"],"nb":1}],"nbk":16,"nbComp":21,"s":[["Diagnostic de pannes"],["Installation de composants matériels"]]},"M1805":{"niveau":3,"d":"Le Développeur informatique conçoit et améliore des systèmes informatiques.","m":["Conçoit et développe des applications informatiques selon les besoins des utilisateurs","Participe à l’analyse des besoins des clients et propose des solutions techniques adaptées","Rédige des documentations techniques et des guides d’utilisation pour les applications développées","Assure la maintenance et la mise à jour des systèmes pour garantir leur efficacité et leur sécurité","Collabore avec des équipes multidisciplinaires pour intégrer de nouvelles technologies et améliorer les processus de développement","Effectue des tests et des validations pour s’assurer de la qualité et de la performance des applications"],"a":"Également avec le TP Développeur web et web mobile (DWWM) si enrichi d’une expérience de la relation client.","k":[{"simple":"Installer et mettre en service un logiciel","coeur":0,"rome":["Tester un logiciel, un système d’informations, une application","Gérer les versions de logiciels et leurs mises à jour","Déployer le code de façon conteneurisée"],"nb":3},{"simple":"Développer un logiciel ou une application","coeur":2,"rome":["Développer une application en lien avec une base de données","Réaliser des études et développements informatiques","Collaborer avec les développeurs pour améliorer la qualité du logiciel"],"nb":3},{"simple":"Se tenir au courant des évolutions de son domaine","coeur":0,"rome":["Surveiller les tendances du marché digital"],"nb":1},{"simple":"Administrer un système informatique","coeur":0,"rome":["Piloter les fonctionnalités des équipements et systèmes de sécurité informatique"],"nb":1},{"simple":"Concevoir un logiciel ou une application","coeur":1,"rome":["Concevoir une application web"],"nb":1},{"simple":"Utiliser les données dans le travail de l'entreprise","coeur":0,"rome":["Intégrer des outils intelligence artificielle et Data Science"],"nb":1}],"nbk":18,"nbComp":22,"s":[["Optimisation des performances des applications","Intégration continue et déploiement continu (CI/CD)"],["Règles de sécurité Informatique et Télécoms","Modélisation informatique","Méthode AGILE","Conception d’interfaces utilisateur (UI)"]]}};
+var NOMS = { A1101: 'Conducteur / Conductrice d’engins agricoles', M1810: 'Technicien / Technicienne d’exploitation informatique', M1805: 'Développeur / Développeuse informatique' };
+var REGISTRES = {
+  1: 'concret, avec des verbes d’action courts (niveau d’accès : sans diplôme ou CAP à Bac)',
+  2: 'technique mais accessible, avec le vocabulaire de l’outil (niveau d’accès : Bac + 2)',
+  3: 'professionnel et élaboré, avec le vocabulaire du domaine (poste de cadre ou niveau supérieur à Bac + 2)'
+};
+var code = 'A1101';
+var coches = {};   // numéro de groupe -> { total, lignes cochées }
+var aucune = false;
+
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+(function init() {
+  var sel = el('choixMetier');
+  Object.keys(DONNEES).forEach(function (c) {
+    var o = document.createElement('option'); o.value = c; o.textContent = NOMS[c] + ' (niveau ' + DONNEES[c].niveau + ')'; sel.appendChild(o);
+  });
+  sel.addEventListener('change', function () { code = sel.value; coches = {}; aucune = false; tout(); });
+  el('modeSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); });
+  document.querySelectorAll('.onglet-ecran').forEach(function (b) {
+    b.addEventListener('click', function () { montrer(b.getAttribute('data-ecran')); });
+  });
+  el('btnToutesTaches').addEventListener('click', function () {
+    var ouvert = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+    this.textContent = ouvert ? 'Voir toutes les tâches du métier' : 'Masquer les autres tâches';
+    el('toutesTaches').hidden = ouvert;
+  });
+  el('btnAucune').addEventListener('click', function () {
+    aucune = !aucune;
+    if (aucune) { coches = {}; }
+    el('msgValide').hidden = true;
+    dessinerChoix();
+  });
+  el('btnValider').addEventListener('click', function () { el('msgValide').hidden = false; });
+  tout();
+})();
+
+function montrer(n) {
+  [1, 2, 3].forEach(function (i) {
+    el('ecran' + i).hidden = String(i) !== String(n);
+    el('ong' + i).setAttribute('aria-selected', String(i) === String(n) ? 'true' : 'false');
+  });
+  if (String(n) === '3') { dessinerSortie(); }
+}
+
+function tout() {
+  var f = DONNEES[code];
+  el('infoNiveau').innerHTML = '<strong>Information pour vous, Denis (jamais affichée à la personne) :</strong> niveau du poste calculé à partir de la fiche du ROME = <strong>' + f.niveau + ' sur 3</strong>. Registre demandé à l’assistant pour ce poste : ' + REGISTRES[f.niveau] + '.';
+  el('titreMetier1').textContent = NOMS[code]; el('titreMetier2').textContent = NOMS[code];
+  el('presentation1').textContent = f.d;
+  el('missions1').innerHTML = f.m.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
+  el('acces1').textContent = f.a;
+  var vedette = f.k.filter(function (g) { return g.coeur > 0; });
+  if (!vedette.length) { vedette = f.k.slice(0, 3); }
+  el('taches1').innerHTML = vedette.map(function (g) { return '<li><strong>' + esc(g.simple) + '</strong> : ' + g.rome.slice(0, 2).map(esc).join(' ; ') + '</li>'; }).join('');
+  el('resteTaches1').textContent = 'Le ROME en décrit ' + f.nbComp + ' au total pour ce métier.';
+  el('toutesTaches').innerHTML = f.k.filter(function (g) { return vedette.indexOf(g) === -1; }).map(function (g) { return '<p class="mb-1"><strong>' + esc(g.simple) + '</strong> : ' + g.rome.map(esc).join(' ; ') + '</p>'; }).join('') + '<p class="text-muted mb-0">(Dans l’application, toute la liste des ' + f.nbk + ' familles de tâches s’affiche ici.)</p>';
+  el('btnToutesTaches').setAttribute('aria-expanded', 'false'); el('btnToutesTaches').textContent = 'Voir toutes les tâches du métier'; el('toutesTaches').hidden = true;
+  dessinerChoix();
+}
+
+function dessinerChoix() {
+  var f = DONNEES[code];
+  var html = '';
+  f.k.forEach(function (g, i) {
+    var etat = coches[i];
+    var coche = !!etat && etat.lignes.length > 0;
+    html += '<div class="groupe' + (coche ? ' coche' : '') + '" data-i="' + i + '">' +
+      '<div class="groupe-tete"><input type="checkbox" id="g' + i + '" ' + (coche ? 'checked' : '') + ' aria-label="' + esc(g.simple) + '">' +
+      '<label class="titre mb-0" for="g' + i + '">' + esc(g.simple) + '</label>' +
+      (g.coeur > 0 ? '<span class="coeur">au cœur du métier</span>' : '') +
+      '<button type="button" class="btn-detail" data-detail="' + i + '" aria-expanded="' + (etat && etat.ouvert ? 'true' : 'false') + '">' + (etat && etat.ouvert ? 'Masquer le détail' : 'Voir le détail') + '</button></div>' +
+      '<div class="groupe-detail" ' + (etat && etat.ouvert ? '' : 'hidden') + '>' +
+      g.rome.map(function (r, j) { return '<label><input type="checkbox" data-l="' + i + '-' + j + '" ' + (etat && etat.lignes.indexOf(j) !== -1 ? 'checked' : '') + '><span>' + esc(r) + '</span></label>'; }).join('') +
+      (g.nb > g.rome.length ? '<div class="reste">+ ' + (g.nb - g.rome.length) + ' autre(s) dans l’application</div>' : '') +
+      '</div></div>';
+  });
+  el('groupes2').innerHTML = html;
+  el('resteGroupes2').textContent = 'Maquette : ' + f.k.length + ' familles de tâches sur ' + f.nbk + ' sont montrées. Dans l’application, toutes sont proposées, celles du cœur du métier en premier.';
+  el('msgAucune').hidden = !aucune;
+  el('btnAucune').setAttribute('aria-pressed', aucune ? 'true' : 'false');
+  document.querySelectorAll('#groupes2 .groupe').forEach(function (bloc) {
+    var i = Number(bloc.getAttribute('data-i'));
+    bloc.querySelector('.groupe-tete input').addEventListener('change', function () {
+      var g = DONNEES[code].k[i];
+      if (this.checked) { coches[i] = { ouvert: coches[i] && coches[i].ouvert, lignes: g.rome.map(function (r, j) { return j; }) }; aucune = false; }
+      else { delete coches[i]; }
+      el('msgValide').hidden = true; dessinerChoix();
+    });
+    bloc.querySelector('[data-detail]').addEventListener('click', function () {
+      coches[i] = coches[i] || { lignes: [] };
+      coches[i].ouvert = !coches[i].ouvert;
+      if (!coches[i].ouvert && !coches[i].lignes.length) { delete coches[i]; }
+      dessinerChoix();
+    });
+    bloc.querySelectorAll('.groupe-detail input').forEach(function (c) {
+      c.addEventListener('change', function () {
+        var j = Number(c.getAttribute('data-l').split('-')[1]);
+        coches[i] = coches[i] || { ouvert: true, lignes: [] };
+        var pos = coches[i].lignes.indexOf(j);
+        if (c.checked && pos === -1) { coches[i].lignes.push(j); aucune = false; }
+        if (!c.checked && pos !== -1) { coches[i].lignes.splice(pos, 1); }
+        coches[i].ouvert = true;
+        el('msgValide').hidden = true; dessinerChoix();
+      });
+    });
+  });
+  var n = nbTaches();
+  el('bilan2').textContent = n === 0 ? '0 coché' : (n + ' tâche' + (n > 1 ? 's' : '') + ' cochée' + (n > 1 ? 's' : ''));
+  el('bilan2').className = 'bilan' + (n > 0 ? ' complet' : '');
+}
+
+function lignesCochees() {
+  var f = DONNEES[code], res = [];
+  Object.keys(coches).forEach(function (i) { coches[i].lignes.slice().sort(function (a, b) { return a - b; }).forEach(function (j) { res.push(f.k[i].rome[j]); }); });
+  return res;
+}
+function nbTaches() { return lignesCochees().length; }
+
+function dessinerSortie() {
+  var l = lignesCochees(), f = DONNEES[code];
+  el('apercuCv').innerHTML = '<h4>Ce que j’ai fait</h4>' + (l.length ? '<ul>' + l.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' : '<p class="mb-0" style="color:#666">' + (aucune ? 'Aucune tâche cochée : le CV s’appuie uniquement sur votre parcours.' : 'Cochez des tâches à l’écran 2 pour les voir apparaître ici.') + '</p>');
+  el('invite').textContent = '- Tâches du métier visé que la personne a elle-même confirmées avoir faites :\n' +
+    (l.length ? l.map(function (t) { return '  * ' + t; }).join('\n') : '  (aucune)') +
+    '\n- N’ajoutez aucune autre tâche : ne reprenez que celles-ci et ce que la personne a raconté.\n- Registre du texte : ' + REGISTRES[f.niveau] + '.';
+}
+</script>
+</body>
+</html>

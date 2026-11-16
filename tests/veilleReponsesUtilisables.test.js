@@ -12,7 +12,7 @@ function fn(nom) {
   const fin = [j, k].filter((x) => x > 0).sort((a, b) => a - b)[0];
   return html.slice(i, fin);
 }
-const analyser = new Function(['deMd', 'semAvecAjout', 'semEstMain', 'semSections', 'analyserReponse'].map(fn).join('\n') + '\nreturn analyserReponse;')();
+const analyser = new Function(['deMd', 'repSections', 'semAvecAjout', 'semEstMain', 'semSections', 'analyserReponse'].map(fn).join('\n') + '\nreturn analyserReponse;')();
 const NL = String.fromCharCode(10);
 const bloc = (nom, corps) => '[' + nom + ']' + NL + corps + NL + '[/' + nom + ']';
 const PREUVE = 'preuve: https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000000000';

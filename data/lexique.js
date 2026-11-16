@@ -519,7 +519,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['compétences techniques', 'compétences pratiques', 'savoir faire un métier'],
     corps: "Le savoir-faire désigne les compétences techniques concrètes qu'une personne sait mettre en œuvre dans son métier, acquises par la formation ou l'expérience. C'est ce qu'un employeur cherche à vérifier à travers un CV ou une mise en situation.",
     relations: [
-      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }
+      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }, { ficheId: 'fiche-metier-rome', type: 'voir-aussi' }
     ]
   },
   {
@@ -529,6 +529,15 @@ var LEXIQUE_FICHES = [
     corps: "Les savoirs, ce sont les connaissances qu'une personne possède : des règles, des produits, des procédures, un logiciel, une langue. On les distingue du savoir-faire (ce que l'on sait faire avec ses mains ou son outil) et du savoir-être (la façon de travailler). Un savoir se montre par ce que l'on en dit ou par l'usage qu'on en fait : par exemple, lire des notices en anglais ou connaître les consignes de sécurité d'un entrepôt.",
     relations: [
       { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'fiche-metier-rome', titre: 'Fiche du métier (ROME)', titreDeTri: 'Fiche du metier ROME', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-france-travail'],
+    variantesRecherche: ['ROME', 'fiche métier', 'fiche officielle du métier', 'missions de mon métier'],
+    corps: "France Travail décrit chaque métier dans une fiche officielle, appelée fiche ROME (Répertoire opérationnel des métiers et des emplois). On y trouve les missions du métier, les compétences attendues et les conditions d'accès. Les propositions de missions et de compétences de l'application viennent de ces fiches : elles servent de point de départ, et c'est vous qui gardez seulement ce que vous avez réellement fait.",
+    relations: [
+      { ficheId: 'savoir-faire', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
     ]
   },
   {

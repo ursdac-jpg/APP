@@ -294,7 +294,7 @@ function _reperesRenduPicker(idPicker, libelleEchappe, avecAstuceDictee) {
 // bouton + picker prêts à être insérés dans le rendu d'un AUTRE module.
 // Ne fait confiance à rien : un contratSource absent ou mal formé
 // donne une chaîne vide plutôt qu'un bouton cassé, jamais une erreur.
-function _reperesRenduBoutonAncre(contratSource) {
+function _reperesRenduBoutonAncre(contratSource) { var classeBouton = (contratSource && contratSource.classeBouton === 'btn-outline-primary') ? 'btn-outline-primary' : 'btn-outline-secondary';   // classeBouton (facultatif) : même couleur que le bouton voisin, ex. « Comparer cette piste » en bas de la fiche du métier
   var libelle = contratSource && typeof contratSource.libelle === 'string' ? contratSource.libelle.trim() : '';
   if (!libelle) { return ''; }
   var idPicker = 'reperesPickerAncre' + _reperesGenererId();
@@ -306,7 +306,7 @@ function _reperesRenduBoutonAncre(contratSource) {
   // protection réelle : si echapperAttribut() disparaissait un jour,
   // ces 3 autres appels échoueraient de toute façon.
   var libelleEchappe = echapperAttribut(libelle);
-  return '<button type="button" class="btn btn-outline-secondary btn-sm aide-repere-ancre" data-repere-trigger="' + idPicker + '" ' +
+  return '<button type="button" class="btn ' + classeBouton + ' btn-sm aide-repere-ancre" data-repere-trigger="' + idPicker + '" ' +
     'title="' + echapperAttribut(texteAideRepere()) + '" ' +
     'aria-expanded="false" aria-controls="' + idPicker + '"><i class="bi bi-bookmark-star"></i> Garder comme Repère</button>' +
     _reperesRenduPicker(idPicker, libelleEchappe);
@@ -2588,6 +2588,10 @@ function reperesCreerAvecTexte(texte, onCree) {
     titre: 'Transformer en Repère',
     contenuHTML: _reperesRenduPicker(idPicker)
   });
+  // Dans cette fenêtre, le choix du type est la seule chose à faire : il est ouvert d'emblée
+  // (le style de base le masque, il n'est déplié que par le bouton « Garder une réflexion » des pages).
+  var pickerFenetre = overlay.querySelector('.reperes-type-picker');
+  if (pickerFenetre) { pickerFenetre.classList.add('is-open'); }
   overlay.querySelectorAll('[data-repere-type]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var repere = _reperesConstruire(btn.getAttribute('data-repere-type'), null);

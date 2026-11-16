@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  baseMetiers,
+  baseMetiersDetaillees,
   SECTEURS_APP,
   METIERS_SAISONNIER_ALIMENTAIRE,
   METIERS_QUI_RECRUTENT_GENERALEMENT
@@ -12,13 +12,15 @@ const { SECTEURS_DETAIL } = require('../data/secteurs.js');
 // fiches (avant, elles etaient reparties sur 3 fichiers assembles au seul
 // chargement navigateur -- data/referentielMetiersERIP.js et
 // data/metiersComplementaires.js ont disparu, absorbes dans data/metiers.js).
-const tousMetiers = baseMetiers;
+// Phase 2 de l'import du ROME (consigne 263) : ces controles portent sur les fiches DETAILLEES (ecrites a la main) ; les fiches generees
+// du ROME sont verifiees dans tests/metiersRome.test.js.
+const tousMetiers = baseMetiersDetaillees;
 
 // Chantier "Candidater depuis la recherche + secteurs", sous-lot 1 :
 // `secteur` de chaque fiche est une VALEUR CONTROLEE = un libelle de SECTEURS_APP.
 
-test('baseMetiers contient bien les 129 fiches', () => {
-  assert.equal(tousMetiers.length, 129);
+test('baseMetiersDetaillees contient bien les 135 fiches', () => {
+  assert.equal(tousMetiers.length, 135);
 });
 
 test('SECTEURS_APP : 21 entrees, cles et libelles uniques', () => {
@@ -53,21 +55,21 @@ test('chaque secteur de SECTEURS_APP a au moins 2 fiches', () => {
 test('repartition conforme au plan (docs/PLAN_SECTEURS_2026-09-04.md)', () => {
   const attendu = {
     'Bâtiment et travaux publics': 13,
-    'Industrie, production et énergie': 14,
+    'Industrie, production et énergie': 15,
     'Hôtellerie, restauration et tourisme': 13,
-    'Agriculture, nature et espaces verts': 10,
+    'Agriculture, nature et espaces verts': 9,
     'Transport et logistique': 9,
     'Santé et soins': 8,
     'Social et services à la personne': 8,
-    'Commerce et vente': 7,
-    'Administration, gestion et bureau': 7,
-    'Communication, culture et événementiel': 6,
+    'Commerce et vente': 11,
+    'Administration, gestion et bureau': 6,
+    'Communication, culture et événementiel': 5,
     'Métiers animaliers': 5,
-    'Propreté et gestion des déchets': 4,
+    'Propreté et gestion des déchets': 5,
     'Sport, animation et loisirs': 4,
     'Informatique et numérique': 3,
     'Banque, assurance et immobilier': 3,
-    'Artisanat et création': 3,
+    'Artisanat et création': 6,
     'Métiers de bouche (artisanat)': 3,
     'Éducation et formation': 3,
     'Mécanique et automobile': 2,
@@ -79,11 +81,11 @@ test('repartition conforme au plan (docs/PLAN_SECTEURS_2026-09-04.md)', () => {
   assert.deepEqual(comptes, attendu);
 });
 
-test('METIERS_SAISONNIER_ALIMENTAIRE : 26 ids, tous valides', () => {
+test('METIERS_SAISONNIER_ALIMENTAIRE : 25 ids, tous valides', () => {
   const ids = new Set(tousMetiers.map((f) => f.id));
   assert.deepEqual(METIERS_SAISONNIER_ALIMENTAIRE.filter((i) => !ids.has(i)), []);
-  assert.equal(METIERS_SAISONNIER_ALIMENTAIRE.length, 26);
-  assert.equal(new Set(METIERS_SAISONNIER_ALIMENTAIRE).size, 26, 'doublons');
+  assert.equal(METIERS_SAISONNIER_ALIMENTAIRE.length, 25);
+  assert.equal(new Set(METIERS_SAISONNIER_ALIMENTAIRE).size, 25, 'doublons');
 });
 
 test('METIERS_QUI_RECRUTENT_GENERALEMENT : 39 ids, tous valides', () => {

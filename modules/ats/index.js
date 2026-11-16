@@ -26,7 +26,7 @@
    Briques partagees appelees, jamais recopiees :
      htmlDepotCVEnPage / cablerDepotCVEnPage, htmlVerificationDocument, bilanCorpsCiblageOffreHTML,
      htmlChoixAssistantBilanCorps, htmlCollageUniquePage / brancherCollageUniquePage,
-     reperesBoutonAncre, htmlEncartRepriseModule / appliquerGelModule,
+     reperesBoutonAncre, _introBlocReprise (bloc de reprise de la presentation),
      barreEtapesModule, barreNavigation, extraireBlocJSONDepuisTexte.
    Logique pure (testee) : modules/ats/detectionTexteCache.js,
    modules/ats/resultatParser.js.
@@ -90,10 +90,8 @@ function atsEtatNeuf() {
   };
 }
 
-// FAMILLE 2 : detour de consultation (pas d'encart) vs reprise (encart +
-// gel jusqu'au choix). Memes noms que Coherence / Comparer.
+// Detour de consultation de la presentation (« Revoir la presentation »). La reprise, elle, vit sur la presentation (consigne 258).
 var _atsDetourPresentation = false;
-var _atsReprisePendante = false;
 
 // -- Route 'ats'. Le session persiste : on rouvre des qu'elle existe.
 function pageAts() {
@@ -112,9 +110,8 @@ function atsRevenirDeLaPresentation() {
   _atsDetourPresentation = false;
   if (typeof naviguerVers === 'function') { naviguerVers('ats'); }
 }
-// « Continuer » de l'encart de reprise -> leve le gel, garde tout l'etat.
+// « Reprendre » du bloc de la presentation -> retour a la page de travail, garde tout l'etat.
 function atsRepriseContinuer() {
-  _atsReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('ats'); }
 }
 // « Recommencer » : detruit la comparaison (seul endroit qui remet a null).
@@ -122,12 +119,12 @@ function atsReinitialiser() {
   _atsEtat = null;
   if (typeof reinitialiserDepotCVEnPage === 'function') { reinitialiserDepotCVEnPage('ats'); }
   _atsDetourPresentation = false;
-  _atsReprisePendante = false;
 }
-// Appele par le CTA de pageIntroAts quand on revient dans le module
-// depuis l'accueil / un autre module alors qu'une comparaison existe.
-function atsMarquerReprisePendante() {
-  if (_atsEtat) { _atsReprisePendante = true; }
+// Une comparaison est-elle commencee ? (meme regle que la sauvegarde : une session sans CV, sans reponse et sans resultat ne compte pas.) Lu par pageIntroAts pour proposer « Reprendre / Recommencer » sur la presentation.
+function atsTravailEnCours() {
+  if (!_atsEtat) { return false; }
+  var e = _atsEtat;
+  return !!((e.cvTexte || '').trim() || e.resultat || e.reponseCollee);
 }
 
 // -- Pont disquette. _atsEtat EST l'etat a sauvegarder.
@@ -144,7 +141,6 @@ function atsRestaurerEtatDepuisSauvegarde(snap) {
   } else {
     _atsEtat = null;
   }
-  _atsReprisePendante = false;
   _atsDetourPresentation = false;
 }
 
@@ -195,8 +191,6 @@ function ouvrirAts() {
   })[ecran];
   if (typeof brancher === 'function') { brancher(); }
 
-  if (typeof appliquerGelModule === 'function') { appliquerGelModule(_atsReprisePendante); }
-  if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
   // On ne remonte en haut que pour un VRAI changement d'ecran. Un re-rendu du
   // meme ecran (clic dans le panneau Candidature, bloc replie...) garde la
   // position : avant, chaque clic renvoyait la page en haut.
@@ -230,33 +224,22 @@ function atsAllerA(ecran) {
   ouvrirAts();
 }
 
-// -- Bande sous la barre d'etapes : bouton partage a gauche, encart de
-// reprise a droite (seulement si _atsReprisePendante). Meme forme que
-// Coherence / Comparer.
+// -- Bande sous la barre d'etapes : le bouton partage « Revoir la presentation » (ou « Revenir au module »).
 function _atsBandeReprise() {
   var libelle = _atsDetourPresentation ? 'Revenir au module' : 'Revoir la présentation';
   var texteNote = _atsDetourPresentation
     ? 'Ce bouton vous ramène à l’endroit où vous en étiez dans le module. Vous ne perdez rien.'
     : 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.';
   var noteVue = (typeof noteRevoirModuleDejaVue === 'function') ? noteRevoirModuleDejaVue() : true;
-  var bouton = '<div><button type="button" id="btnAtsRevoirPresentation" class="btn-revoir-module"' +
-    (_atsReprisePendante ? ' disabled' : '') + '>' +
+  var bouton = '<div><button type="button" id="btnAtsRevoirPresentation" class="btn-revoir-module">' +
     '<i class="bi bi-card-checklist"></i> ' + libelle + '</button></div>' +
-    ((!noteVue && !_atsReprisePendante)
+    (!noteVue
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>' + texteNote + '</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button>' +
         '</div>'
       : '');
-  var encart = _atsReprisePendante
-    ? htmlEncartRepriseModule({
-        texte: 'Vous avez une comparaison en cours sur ce module.',
-        idContinuer: 'btnAtsRepriseContinuer',
-        idRecommencer: 'btnAtsRepriseRecommencer',
-        pulse: true
-      })
-    : '';
-  return htmlBandeRepriseModule(bouton, encart);
+  return htmlBandeRepriseModule(bouton, '');
 }
 
 function _atsBrancherCommun() {
@@ -264,10 +247,6 @@ function _atsBrancherCommun() {
   if (b) {
     b.addEventListener('click', _atsDetourPresentation ? atsRevenirDeLaPresentation : atsRetourVersPresentation);
   }
-  var c = document.getElementById('btnAtsRepriseContinuer');
-  if (c) { c.addEventListener('click', atsRepriseContinuer); }
-  var r = document.getElementById('btnAtsRepriseRecommencer');
-  if (r) { r.addEventListener('click', _atsConfirmerRecommencer); }
 }
 
 function _atsConfirmerRecommencer() {
@@ -276,7 +255,7 @@ function _atsConfirmerRecommencer() {
     confirmerAction(
       'Recommencer une comparaison ?',
       'La comparaison en cours sera effacée. Ce que vous avez gardé dans Mes Repères ne bouge pas. Cette action ne s’annule pas.',
-      faire, { texteConfirmer: 'Recommencer', danger: true }
+      'Recommencer', 'btn-danger', faire
     );
   } else { faire(); }
 }
@@ -1084,7 +1063,8 @@ if (typeof window !== 'undefined') {
   window.atsRevenirDeLaPresentation = atsRevenirDeLaPresentation;
   window.atsRepriseContinuer = atsRepriseContinuer;
   window.atsReinitialiser = atsReinitialiser;
-  window.atsMarquerReprisePendante = atsMarquerReprisePendante;
+  window.atsTravailEnCours = atsTravailEnCours;
+  window.atsConfirmerRecommencer = _atsConfirmerRecommencer;
   window.atsExporterEtatPourSauvegarde = atsExporterEtatPourSauvegarde;
   window.atsRestaurerEtatDepuisSauvegarde = atsRestaurerEtatDepuisSauvegarde;
 }

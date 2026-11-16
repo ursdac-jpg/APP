@@ -181,7 +181,8 @@ test('périodes : un mois (2025-12) et un jour (2026-01-01) se lisent et s’éc
 
 test('Smic (Dares) : les dates et les montants de la carte viennent du fichier, et suivent un fichier plus récent', () => {
   const { _comprendreLesChiffresSmicCarteBeneficiaires: carte, _comprendreLesChiffresFormatEuros } = require('../modules/comprendre-les-chiffres/index.js');
-  const texte = (D) => espaces(carte(D).replace(/<[^>]+>/g, ' '));
+  // Les chiffres de l'encadré « concrètement » sont des <span> : on lit le texte avec des espaces simples, comme à l'écran.
+  const texte = (D) => espaces(carte(D).replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').replace(/ ([,.)])/g, '$1');
   const D = lireFiche('smic-dares.md');
   const t = texte(D);
   assert.match(t, /au 1er janvier 2026/);

@@ -25,7 +25,7 @@
    - microcrédit : **8 000 €** max, **6 mois à 7 ans** ;
    - droit au compte : délais 1 jour ouvré / 3 jours ouvrés.
 
-## Les 11 fiches
+## Les 13 fiches
 
 | id | titre |
 |---|---|
@@ -40,6 +40,8 @@
 | `budget-saisie-sur-salaire` | Un créancier saisit une partie de mon salaire : ce qui est prélevé, ce qui est protégé (ajoutée le 2026-09-06) |
 | `budget-ass-reprise-d-activite-que-devient-mon-allocation` | Je touche l'ASS et je reprends un travail : que devient mon allocation ? |
 | `budget-l-allocation-de-solidarite-specifique-ass-qui-peut-la-toucher-et-comment-ca-se-passe` | L'allocation de solidarité spécifique (ASS) : qui peut la toucher et comment ça se passe ? |
+| `budget-prime-de-noel` | La prime de Noël : une aide versée en décembre à certains allocataires |
+| `budget-decouvert-bancaire-verification-solvabilite` | Découvert bancaire : la banque doit vérifier votre situation avant de l'accorder |
 
 ## Section « à qui s'adresser »
 

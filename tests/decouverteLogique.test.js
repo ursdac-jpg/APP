@@ -260,3 +260,16 @@ test('questions : une question de type « date » ne reçoit jamais de suggestio
   assert.equal(d.length, 1);
   assert.equal(d[0].reponses, undefined);
 });
+
+test('lot 4 : l\u2019analyse garde les metiers proposes (4 au plus, sans doublon) et ignore le reste', () => {
+  const reponse = 'Voici ce que j\u2019ai compris.\n```json\n' + JSON.stringify({
+    fragments: [{ texteBrut: 'J\u2019ai travaille en cuisine', origine: 'proDeclaree', propositions: ['Travail en cuisine'], elementsFactuels: [],
+      competencesProposees: [{ texte: 'Preparer des plats', categorie: 'technique', preuve: ['cuisine'] }],
+      metiersProches: ['Aide-cuisinier', ' Aide-cuisinier ', 'Plongeur', 12, '', 'A', 'B', 'C'] }],
+    questionsCiblees: [], reciteNettoye: 'x' }) + '\n```';
+  const r = analyserReponseDecouverte(reponse);
+  assert.equal(r.succes, true);
+  assert.deepEqual(r.valeurs.fragments[0].metiersProches, ['Aide-cuisinier', 'Plongeur', 'A', 'B'], 'quatre au plus, sans doublon, texte seulement');
+  const sans = analyserReponseDecouverte('```json\n' + JSON.stringify({ fragments: [{ texteBrut: 'x', origine: 'proDeclaree', propositions: ['a'], competencesProposees: [] }], questionsCiblees: [] }) + '\n```');
+  assert.deepEqual((sans.valeurs || { fragments: [{}] }).fragments[0].metiersProches || [], [], 'champ absent : liste vide');
+});

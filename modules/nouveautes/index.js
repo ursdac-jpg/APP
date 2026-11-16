@@ -18,8 +18,20 @@ var _nvEntree = 'choix';
 // Vrai dès que la personne a cliqué sur l'une des trois entrées : les boutons arrêtent alors de pulser (pour le reste de la visite).
 var _nvPulseFini = false;
 
-function _nvNbAppli() { return typeof NOUVEAUTES !== 'undefined' ? nvCompterNouveaux(NOUVEAUTES, new Date()) : 0; }
-function _nvNbCorriges() { return typeof PROBLEMES_CORRIGES !== 'undefined' ? nvCompterNouveaux(PROBLEMES_CORRIGES, new Date()) : 0; }
+// Rubriques déjà regardées pendant cette session : leur nombre est retiré du total de la pastille (consigne 332 ter). Pas de compte : à la fermeture de la session (de l'onglet), tout revient.
+var _NV_CLE_VUS = 'aps_nouveautes_vues';
+var _nvVus = (function () { var t = null; try { t = sessionStorage.getItem(_NV_CLE_VUS); } catch (e) { t = null; } return nvLireVus(t); })();
+function _nvMarquerVue(cle) {
+  _nvVus[cle] = true;
+  if (cle === 'regles') { _nvNbRegles = 0; }
+  try { sessionStorage.setItem(_NV_CLE_VUS, JSON.stringify(_nvVus)); } catch (e) { /* pas grave : valable jusqu'à l'actualisation */ }
+  nvMajPastille();
+  var c = document.querySelector('[data-nv-compte="' + cle + '"]');
+  if (c) { c.outerHTML = _nvCompteHtml(cle, 0); }
+}
+
+function _nvNbAppli() { return nvNombreRestant(typeof NOUVEAUTES !== 'undefined' ? nvCompterNouveaux(NOUVEAUTES, new Date()) : 0, 'appli', _nvVus); }
+function _nvNbCorriges() { return nvNombreRestant(typeof PROBLEMES_CORRIGES !== 'undefined' ? nvCompterNouveaux(PROBLEMES_CORRIGES, new Date()) : 0, 'corriges', _nvVus); }
 
 // Pastille du bouton : les trois nombres additionnés (application, règles, problèmes corrigés), cachée à zéro.
 function nvMajPastille() {
@@ -35,7 +47,7 @@ function nvMajPastille() {
 function _nvLireNombreRegles() {
   if (typeof comprendreLeCadreLireRecent !== 'function') { return; }
   comprendreLeCadreLireRecent(function (infos) {
-    _nvNbRegles = infos ? infos.nbNouveaux : 0;
+    _nvNbRegles = nvNombreRestant(infos ? infos.nbNouveaux : 0, 'regles', _nvVus);
     nvMajPastille();
     var c = document.querySelector('[data-nv-compte="regles"]');
     if (c) { c.outerHTML = _nvCompteHtml('regles', _nvNbRegles); }
@@ -159,6 +171,7 @@ function _nvAfficherEntree(cle) {
   _nvEntree = cle === 'choix' ? 'choix' : nvEntreeValide(cle);
   if (_nvEntree !== 'choix') {   // la personne a choisi : le pulse s'arrête
     _nvPulseFini = true;
+    _nvMarquerVue(_nvEntree);   // rubrique regardée : son nombre quitte le total
     var rangee = document.querySelector('.nv-entrees');
     if (rangee) { rangee.classList.remove('nv-pulse'); }
   }

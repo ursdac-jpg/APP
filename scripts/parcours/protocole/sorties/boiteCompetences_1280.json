@@ -1,0 +1,248 @@
+{
+ "nom": "boiteCompetences",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : « Continuer » grisé avec la raison « Déposez au moins un document pour continuer. »"
+  },
+  {
+   "n": "info",
+   "t": "déposer un CV : ok"
+  },
+  {
+   "n": "info",
+   "t": "après « Déposer un CV » : #mes-competences fenêtre false boutons : #btnMesCompRevoirPresentation Revoir la présentation ; #btnMcVersCreerCv Aller à « Créer un nouveau CV » ; #btnMcVersRecit Aller à « À partir de mon récit » ; ▶ Voir comment importer son CV 27 s ▾ ; #depotPageChoisir Choisir un fichier ; #depotPageColler Coller le texte ; #depotPageFermer Annuler ; #btnMcDeposer_lettreMotivation Déposer une lettre de motivation ; #btnMcDeposer_recommandation Déposer une lettre de recommandation ; Ouvrier ou employé ; Technicien ou agent de maîtrise ; Cadre ou direction ; Je ne sais pas : l’outil propose ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "coller le texte : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le dépôt : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : « Continuer » dégrisé après le dépôt d’un CV"
+  },
+  {
+   "n": "info",
+   "t": "compétences : Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "compétences : présentation après Retour : #mes-competences-intro « Découvrir mes compétences » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "compétences (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (51,366 1178 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@51,843 | Accueil@593,845 | Reprendre@1081,843 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "compétences (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "compétences (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "compétences : Continuer (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "compétences (page de travail) : reprise : aucun encart | barre du bas : ← Retour@51,843 | Accueil@593,845 | Continuer →@1066,843 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "compétences (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : la reprise a la forme de « Reprendre mon CV » (encart sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : le travail déjà fait est gardé après Retour puis le bouton de la présentation"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "après Continuer : #mes-competences bas « Continuer → (grisé) » raison « Collez la réponse de l’assistant pour continuer. » barre Préparer > [Assistant] > Relecture > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "compétences : écran de collage : bas « Voir mes compétences → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > [Assistant] > Relecture > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "compétences : boutons du collage : #btnMesCompRevoirPresentation Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automati ; ⓘ ; ✍ Coller à la main (vous collez vous-mêm ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir mes compétences →"
+  },
+  {
+   "n": "info",
+   "t": "compétences : réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "compétences : après la réponse coupée : bas « Voir mes compétences → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "compétences : réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "compétences : après la réponse complète : bas « Voir mes compétences → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "compétences (suite) : ok:Voir mes compétences → → #mes-competences « Découvrir mes compétences » [bouton : Continuer → (grisé)] [barre : Préparer > Assistant > [Relecture] > Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "compétences : fin : #mes-competences « Découvrir mes compétences » bas « Continuer → (grisé) » barre Préparer > Assistant > [Relecture] > Terminé"
+  },
+  {
+   "n": "info",
+   "t": "compétences : boutons de fin : #btnMesCompRevoirPresentation Revoir la présentation ; #btnMcChangerNiveau Changer ; 🛠️ Ce que je sais faire 1 ligne ; Accueillir et orienter le public Relevée ; Pour mon CV ; Pour le dire à l’oral ; D’autres façons de le dire ; Pour aller plus loin ; C’est exact ; En partie exact ; Je retire ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "compétences : texte de fin : 📝 Préparer 💬 Assistant 🔍 Relecture ✅ Terminé Revoir la présentation Découvrir mes compétences Je relis mes compétences Voici ce que vos documents montrent. Pour chaque ligne, c’est vous qui décidez. Niveau proposé : ouvrier ou employé. Accueil du public et standard. Changer Changer le niveau se fait à l’étape « Documents », puis l’assistant relit vos documents. Vos gestes actuels sont gardés tant que vous ne collez pas une nouvelle réponse. 🛠️ Ce que je sais faire 1 ligne Accueillir et orienter le public Relevée dans vos documents En mots simples : Recevoir les gens et leur dire où aller. Votre CV dit : « Accueil du public » Pour mon CV Pour le dire à l’oral D’autres façons de le dire Pour aller plus loin C’est exact En partie exact Je retire Gardez au moins une ligne pour continuer. ←"
+  },
+  {
+   "n": "info",
+   "t": "relecture : bas « Continuer → (grisé) » raison « Gardez au moins une ligne pour continuer. » boutons #btnMesCompRevoirPresentation Revoir la présentation ; #btnMcChangerNiveau Changer ; 🛠️ Ce que je sais faire 1 ligne ; Accueillir et orienter le public Relevée ; Pour mon CV ; Pour le dire à l’oral ; D’autres façons de le dire ; Pour aller plus loin ; C’est exact ; En partie exact ; Je retire ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "compétences (relecture) : « Continuer » grisé avec la raison « Gardez au moins une ligne pour continuer. »"
+  },
+  {
+   "n": "info",
+   "t": "relecture : ok"
+  },
+  {
+   "n": "info",
+   "t": "après « C’est exact » : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "ok",
+   "t": "compétences (relecture) : « Continuer » actif"
+  },
+  {
+   "n": "info",
+   "t": "vers Terminé : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "Terminé : #mes-competences « Découvrir mes compétences » bas « ✅ Merci bien, j’ai fini » barre Préparer > Assistant > Relecture > [Terminé]"
+  },
+  {
+   "n": "info",
+   "t": "boutons Terminé : #btnMesCompRevoirPresentation Revoir la présentation ; #btnMcPdf Télécharger en PDF ; #btnMcCopierTexte Copier le texte ; #btnMcWord Télécharger en Word ; Sauvegarder ma session ; Mots de cette page expliqués dans le Lex ; ← Retour ; Accueil ; ✅ Merci bien, j’ai fini"
+  },
+  {
+   "n": "info",
+   "t": "Retour depuis Terminé : ok → #mes-competences barre Préparer > Assistant > [Relecture] > Terminé bas « Continuer → »"
+  },
+  {
+   "n": "info",
+   "t": "compétences : chaîne des « Retour » : mes-competences:Découvrir mes compétences < mes-competences:Découvrir mes compétences < mes-competences-intro:Découvrir mes compétences < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "compétences : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "compétences : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "compétences : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "compétences : après « Recommencer » : #mes-competences-intro bas « Commencer → »  Découvrir mes compétences Vous avez déjà des compétences. Cet outil les repère dans vos documents, une par une, avec la phrase qui le prouve, et vous aide à le"
+  },
+  {
+   "n": "ok",
+   "t": "compétences : après « Recommencer », la présentation repart à froid"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre finale : aucune"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#mes-competences",
+    "page": "mes-competences",
+    "h1": "Découvrir mes compétences",
+    "barre": "[Préparer] > Assistant > Relecture > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez au moins un document pour continuer.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#mes-competences",
+    "page": "mes-competences",
+    "h1": "Découvrir mes compétences",
+    "barre": "Préparer > Assistant > [Relecture] > Terminé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Gardez au moins une ligne pour continuer.",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

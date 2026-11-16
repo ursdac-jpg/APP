@@ -1,0 +1,219 @@
+{
+ "nom": "boiteOutils",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "Carnet : ouvrir : ABSENT #btnCarnetIntroOuvrir "
+  },
+  {
+   "n": "info",
+   "t": "Carnet : noter sans texte : ok"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : « Noter » sans texte ne crée rien"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : noter : ok"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : la note apparaît dans la liste"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : le champ est vidé après « Noter »"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : boutons : #btnCarnetRevoirIntro Revoir la présentation ; Comment faire sur mon ordinateur Windows ; #btnCarnetGarder + Noter ; Modifier ; Transformer en Repère ; Supprimer ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : Retour : ok → #carnet « Mon Carnet » bas « Ouvrir mon Carnet → »"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : rouvrir : ok:Ouvrir mon Carnet →"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : la note est gardée après Retour et réouverture"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : supprimer : ok"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : confirmation : Supprimer cette note ? ✕ Elle disparaît de votre liste. Vous aurez quelques secondes pour annuler. Annuler Supprimer | boutons : #fenetreERIPFermerBtn ✕ ; Annuler ; Supprimer"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : après suppression : 0 note(s), bouton annuler 1, texte Revoir la présentation Mon Carnet Un espace entièrement à vous, jamais lu ni analysé automatiquement. vos notes, comme elles viennent Vos notes sont gardées ici aussi longtemps que vous voulez. Rien à trier, rien à finir. 💡 Astuce : dictez votre texte à la voix plutôt que de tout taper au clavier. "
+  },
+  {
+   "n": "info",
+   "t": "Carnet : annuler la suppression : ok"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : la suppression peut être annulée"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : transformer en Repère : ok"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : après « Transformer en Repère » : #carnet « Mon Carnet » fenêtre true texte Revoir la présentation Mon Carnet Un espace entièrement à vous, jamais lu ni analysé automatiquement. vos notes, comme elles viennent Vos notes sont gardées ici aussi longtemps que vous voulez. Rien à trier, rien à finir. 💡 Astuce : dictez votre texte à la voix plutôt que de tout taper au clavier. "
+  },
+  {
+   "n": "info",
+   "t": "Carnet : fenêtre : Transformer en Repère ✕ Quel type de Repère est-ce ? 📌 Question Une question à poser à un professionnel, un CIP, un assistant... ou à vous-même. 💡 Idée Une idée liée à votre recherche d'emploi, une reconversion, ou au monde professionnel. 🔍 À approfondir Un sujet à mieux comprendre : une fiche de paie, une posture professionnelle... 💬 À discuter Un sujet à aborder avec un assistant, un profess | boutons : #fenetreERIPFermerBtn ✕ ; 📌 Question Une question à poser à un pr ; 💡 Idée Une idée liée à votre recherche  ; 🔍 À approfondir Un sujet à mieux compre ; 💬 À discuter Un sujet à aborder avec un ; Annuler"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : la fenêtre « Transformer en Repère » montre les 4 types"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : choix du type « Question » : ok"
+  },
+  {
+   "n": "ok",
+   "t": "carnet : la fenêtre se ferme après le choix du type"
+  },
+  {
+   "n": "info",
+   "t": "Carnet : note après transformation : Revoir la présentation Mon Carnet Un espace entièrement à vous, jamais lu ni analysé automatiquement. vos notes, comme elles viennent Vos notes sont gardées ici aussi longtemps que vous voulez. Rien à trier, rien à finir. 💡 Astuce : dictez votre texte à la voix plutôt que de tout taper au clavier. Comment faire sur mon ordinateur Windows ? + Noter Penser à demander une attestation à mon ancien employeur. Gardée le 12 novembre 2026 Déjà transformée en Repère Modifier Transformer en Repère Supprimer ← Retour Accueil"
+  },
+  {
+   "n": "info",
+   "t": "Repères : commencer : ok:Je commence"
+  },
+  {
+   "n": "info",
+   "t": "Repères : 1 Repère(s) en arrivant, texte : Revoir la présentation Mes Repères + Garder une réflexion Les réflexions que vous avez choisi de garder, pour les retrouver quand vous en aurez besoin. ⏳ Non analysés 🔭 Déjà analysés 🔬 Deuxième Regard ⏳ Ces Repères n'ont pas encore été envoyés à un assistant pour un Regard Extérieur : c'est vous qui choisissez lesquels envoyer, et quand. 📌 QUESTION (1) + 📌 Penser à demander une … Question du 1"
+  },
+  {
+   "n": "info",
+   "t": "Repères : garder une réflexion : ok"
+  },
+  {
+   "n": "ok",
+   "t": "repères : « Garder une réflexion » montre les 4 types"
+  },
+  {
+   "n": "info",
+   "t": "Repères : choix du type « Idée » : ok"
+  },
+  {
+   "n": "info",
+   "t": "Repères : fenêtre de saisie : 💡 Idée ✕ Titre du Repère (à compléter) Votre réflexion (à compléter) 💡 Astuce : dictez votre texte à la voix plutôt que de tout taper au clavier. Comment faire sur mon ordinateur Windows ? Annuler ✓ C'est noté | boutons : #fenetreERIPFermerBtn ✕ ; #reperesSaisieAnnuler Annuler ; #reperesSaisieTerminer ✓ C'est noté"
+  },
+  {
+   "n": "info",
+   "t": "Repères : titre proposé : « Je voudrais essayer l’accueil … »"
+  },
+  {
+   "n": "info",
+   "t": "Repères : « C’est noté » : ok"
+  },
+  {
+   "n": "ok",
+   "t": "repères : le Repère noté apparaît dans la liste (2)"
+  },
+  {
+   "n": "info",
+   "t": "Repères : liste : Revoir la présentation Mes Repères + Garder une réflexion Les réflexions que vous avez choisi de garder, pour les retrouver quand vous en aurez besoin. ⏳ Non analysés 🔭 Déjà analysés 🔬 Deuxième Regard ⏳ Ces Repères n'ont pas encore été envoyés à un assistant pour un Regard Extérieur : c'est vous qui choisissez lesquels envoyer, et quand. 📌 QUESTION (1) + 📌 Penser à demander une … Question du 12/11 Cliquez pour modifier ou supprimer › 💡 IDÉE (1) + 💡 Je voudrais essayer l’accueil … Idée du 12/11 Cliquez pour modifier ou supprimer › 🔍 À APPROFONDIR (0) + Aucun pour l’instant. 💬 À DISCUTER"
+  },
+  {
+   "n": "info",
+   "t": "Repères : Retour : ok → #reperes « Mes Repères » bas « Je reprends »"
+  },
+  {
+   "n": "info",
+   "t": "Repères : rouvrir : ok:Je reprends"
+  },
+  {
+   "n": "ok",
+   "t": "repères : les Repères sont gardés après Retour et réouverture"
+  },
+  {
+   "n": "info",
+   "t": "repères : chaîne des « Retour » : reperes:Mes Repères < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : ouvrir : ABSENT #btnLexiqueIntroOuvrir "
+  },
+  {
+   "n": "info",
+   "t": "Lexique : champs : [\"lexiqueRechercheInput|Un mot, un sigle, une question…\"]"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : recherche sans résultat : Aucun résultat pour « zzzqqxx »."
+  },
+  {
+   "n": "info",
+   "t": "Lexique : « alternance » : 4 résultat(s) : Alternance Mobili-Jeune : une aide pour payer son loyer en alternance Contrat d'apprentissage Période de reconversion"
+  },
+  {
+   "n": "ok",
+   "t": "lexique : la recherche donne des résultats"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : ouvrir la première fiche : ok"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : fiche : #lexique « Alternance » bas « null » boutons : #lexiqueRetourRecherche ← Retour à la recherche ; Contrats et statuts d'emploi ; langage RH ; langage administratif ; Inscrit en apprentissage mais sans emplo ; En savoir plus ; École de production ; Stage ; Le rôle de la Mission Locale ; Contrat de valorisation de l'expérience  ; GEIQ (groupement d'employeurs pour l'ins ; Mobilité internationale ; Mobili-Jeune : une aide pour payer son l ; Centre de formation d'apprentis (CFA) ; OPCO (opérateur de compétences) ; Apprentissage ou professionnalisation ? ; PACTE (entrer dans la fonction publique  ; 🖊️ Comprendre un contrat de travail ; 🎒 Les repères des 16-25 ans ; #lexiqueBoutonFavori Ajouter aux favoris ; Garder comme Repère ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : bouton favori : lexiqueBoutonFavori|Ajouter aux favoris"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : mettre en favori : ok"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : après favori : Dans mes favoris pressed=true"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : Retour depuis la fiche : ok → #lexique « Lexique » champ «  » résultats 0"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : mes favoris : ok"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : favoris : ← Retour à la recherche Mes favoris Alternance ← Retour Accueil | fiches 1"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : Retour 1 : ok → #lexique « Lexique » fenêtre true :  Boîte à outils ✕ Mes Repères Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller. Mon Carnet Notez librement ce qui vous passe par la tête, sans rien décider tout de suite. Lexique Cherchez un mot du monde du travail dès qu’il vous bloque, expliqué simplement. Découvrir mes compétences Ce que vos documents montrent déjà que vous savez faire, avec la phrase qui le prouve, | #btnInfoCarteAccueil En savoir plus sur cette carte ; #fenetreERIPFermerBtn ✕ ; #btnCarteAccueilReperes Mes Repères Gardez les réflexions utiles ; #btnCarteAccueilCarnet Mon Carnet Notez librement ce qui vous p ; #btnCarteAccueilLexique Lexique Cherchez un mot du monde du trav ; #btnCarteAccueilMesCompetences Découvrir mes compétences Ce que vos doc ; #btnRetourCarteAccueil ← Retour"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : Retour 2 : ok → #lexique « Lexique » fenêtre true :  Boîte à outils ✕ Mes Repères Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller. Mon Carnet Notez librement ce qui vous passe par la tête, sans rien décider tout de suite. Lexique Cherchez un mot du monde du travail dès qu’il vous bloque, expliqué simplement. Découvrir mes compétences Ce que vos documents montrent déjà que vous savez faire, avec la phrase qui le prouve, | #btnInfoCarteAccueil En savoir plus sur cette carte ; #fenetreERIPFermerBtn ✕ ; #btnCarteAccueilReperes Mes Repères Gardez les réflexions utiles ; #btnCarteAccueilCarnet Mon Carnet Notez librement ce qui vous p ; #btnCarteAccueilLexique Lexique Cherchez un mot du monde du trav ; #btnCarteAccueilMesCompetences Découvrir mes compétences Ce que vos doc ; #btnRetourCarteAccueil ← Retour"
+  },
+  {
+   "n": "info",
+   "t": "Lexique : Retour 3 : ok → #cv « Par où voulez-vous commencer ? » fenêtre true :  Boîte à outils ✕ Mes Repères Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller. Mon Carnet Notez librement ce qui vous passe par la tête, sans rien décider tout de suite. Lexique Cherchez un mot du monde du travail dès qu’il vous bloque, expliqué simplement. Découvrir mes compétences Ce que vos documents montrent déjà que vous savez faire, avec la phrase qui le prouve, | #btnInfoCarteAccueil En savoir plus sur cette carte ; #fenetreERIPFermerBtn ✕ ; #btnCarteAccueilReperes Mes Repères Gardez les réflexions utiles ; #btnCarteAccueilCarnet Mon Carnet Notez librement ce qui vous p ; #btnCarteAccueilLexique Lexique Cherchez un mot du monde du trav ; #btnCarteAccueilMesCompetences Découvrir mes compétences Ce que vos doc ; #btnRetourCarteAccueil ← Retour"
+  }
+ ],
+ "ecrans": []
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Chercher un autre métier</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem; background: var(--bg-page, #f4f6fb); }
+  .page { max-width: 900px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .95rem; }
+  .onglets-ecrans { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .onglet-ecran { min-height: 44px; padding: .35rem 1.2rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .onglet-ecran[aria-selected="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent-texte); }
+  .ecran { border: 1px solid var(--border); border-radius: 16px; background: var(--bg-page, #fff); padding: 1rem 1.1rem 1.3rem; }
+  .ecran[hidden] { display: none; }
+  .ecran h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .2rem; }
+  .info-denis { border: 2px dashed var(--border-strong, var(--border)); border-radius: 10px; padding: .55rem .9rem; margin-bottom: 1rem; font-size: .92rem; background: var(--bg-subtle); }
+  .variantes { display: flex; gap: 1rem; flex-wrap: wrap; margin: .6rem 0 1rem; }
+  .variantes label { font-weight: 700; cursor: pointer; }
+  .ligne-metier { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem 1rem; margin: .4rem 0 .2rem; }
+  .ligne-metier .nom { font-size: 1.6rem; font-weight: 800; }
+  .aide-bouton { font-size: .85rem; color: var(--text-muted); margin: .25rem 0 .8rem; }
+  .barre-demo { display: flex; justify-content: space-between; gap: .6rem; margin-top: 1.2rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .champ-recherche { max-width: 560px; margin: .8rem auto 1rem; }
+  .grille-demo { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .7rem; }
+  .carte-demo { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); padding: .7rem .85rem; }
+  .carte-demo h5 { margin: 0 0 .15rem; font-size: 1.05rem; }
+  .vide { text-align: center; color: var(--text-muted); margin: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette, rien n'est codé.</strong> Deux écrans : l'écran Candidater avec le bouton renommé (deux emplacements à comparer), puis la nouvelle page de recherche. Tapez « bou », « char » ou « aide » dans le champ de la page de recherche : la liste se réduit dès les premières lettres.</div>
+
+  <div class="onglets-ecrans" role="tablist">
+    <button class="onglet-ecran" role="tab" aria-selected="true" data-ecran="e1">1. Écran Candidater</button>
+    <button class="onglet-ecran" role="tab" aria-selected="false" data-ecran="e2">2. Page « Chercher un autre métier »</button>
+  </div>
+
+  <section class="ecran" id="e1">
+    <div class="info-denis"><strong>À choisir.</strong> Option A (recommandée) : le bouton reste en haut, sur sa propre ligne, séparé de « Voir la fiche du métier », avec une phrase qui dit où il mène. Option B : le bouton descend en bas de l'écran, au-dessus de la barre « Retour / Continuer ».</div>
+    <div class="variantes">
+      <label><input type="radio" name="var" value="A" checked> Option A : en haut, sur sa ligne (recommandée)</label>
+      <label><input type="radio" name="var" value="B"> Option B : en bas de l'écran</label>
+    </div>
+
+    <h1><i class="bi bi-send" aria-hidden="true"></i> Candidater</h1>
+    <div class="ligne-metier">
+      <span class="nom">Boulanger</span>
+      <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-text" aria-hidden="true"></i> Voir la fiche du métier</button>
+    </div>
+    <div id="zoneA">
+      <div><button type="button" class="btn btn-outline-secondary btn-sm" data-vers="e2"><i class="bi bi-search" aria-hidden="true"></i> Chercher un autre métier</button></div>
+      <p class="aide-bouton">Vous choisissez un autre métier dans la liste. Les réponses données plus bas repartent de zéro.</p>
+    </div>
+
+    <details class="bloc-depli" open><summary><span class="preparer-num">1</span><span class="preparer-titre">Que voulez-vous préparer ?</span><span class="pilule-etat pe-ok">Complété</span></summary><div class="bloc-depli-corps"><p class="mb-0">Mon CV, ma lettre de motivation ou mon entretien (inchangé).</p></div></details>
+    <details class="bloc-depli" open><summary><span class="preparer-num">2</span><span class="preparer-titre">Votre objectif</span><span class="pilule-etat pe-attente">À choisir</span></summary><div class="bloc-depli-corps"><p class="mb-0">Les six cartes d'objectif (inchangé).</p></div></details>
+
+    <div id="zoneB" hidden>
+      <div class="info-denis" style="margin-top:.8rem">Vous n'aimez pas ce métier ? <button type="button" class="btn btn-outline-secondary btn-sm" data-vers="e2"><i class="bi bi-search" aria-hidden="true"></i> Chercher un autre métier</button>
+        <div class="aide-bouton mb-0">Vous choisissez un autre métier dans la liste. Les réponses données plus haut repartent de zéro.</div></div>
+    </div>
+
+    <div class="barre-demo">
+      <button type="button" class="btn btn-outline-secondary">← Retour</button>
+      <button type="button" class="btn btn-primary" disabled>Continuer →</button>
+    </div>
+    <p class="aide-bouton mt-2">Pas de bouton « Accueil » sur cet écran, comme décidé.</p>
+  </section>
+
+  <section class="ecran" id="e2" hidden>
+    <div class="info-denis"><strong>Nouvelle page.</strong> Même moteur de recherche que la barre de l'accueil, mêmes cartes de métier, mais sans quitter le parcours. Choisir un métier remplace celui de Candidater et vous ramène à l'écran Candidater. « Retour » revient à l'écran sans rien changer. Pas de bouton « Accueil ».</div>
+    <h1 class="text-center">Chercher un autre métier</h1>
+    <p class="text-center text-muted mb-1">Tapez le nom du métier : la liste se réduit dès les premières lettres.</p>
+    <div class="champ-recherche"><input type="search" class="form-control form-control-lg" id="champ" placeholder="Ex : boulanger, charpentier, aide-soignant" autocomplete="off"></div>
+    <p class="vide" id="vide" hidden>Aucun métier ne correspond. Essayez un autre mot, ou une partie du nom.</p>
+    <div class="grille-demo" id="grille"></div>
+    <div class="barre-demo">
+      <button type="button" class="btn btn-outline-secondary" data-vers="e1">← Retour</button>
+      <span></span>
+    </div>
+  </section>
+</div>
+
+<script>
+  var METIERS = [
+    ['Boulanger', 'Métiers de bouche (artisanat)', 'Le Boulanger, artisan essentiel de notre quotidien, transforme et valorise les matières premières pour régaler nos papilles.'],
+    ['Boulanger-pâtissier', 'Métiers de bouche (artisanat)', 'Le Boulanger, artisan essentiel de notre quotidien, transforme et valorise les matières premières pour régaler nos papilles.'],
+    ['Boulanger industriel', 'Industrie, production et énergie', 'Le Boulanger pâtissier industriel crée des produits boulangers à grande échelle selon les règles d’hygiène et de sécurité alimentaire.'],
+    ['Aide-boulanger', 'Métiers de bouche (artisanat)', 'Le Boulanger, artisan essentiel de notre quotidien, transforme et valorise les matières premières pour régaler nos papilles.'],
+    ['Charpentier', 'Bâtiment et travaux publics', 'Le Charpentier est un professionnel spécialisé dans la construction, la réparation ou la rénovation de charpentes ou structures en bois.'],
+    ['Aide-soignant', 'Santé et social', 'L’aide-soignant accompagne les personnes dans les gestes de la vie quotidienne et participe à leurs soins, sous la responsabilité de l’infirmier.'],
+    ['Agent de propreté', 'Services aux entreprises', 'L’agent de propreté nettoie et entretient des locaux, selon des protocoles précis et du matériel adapté.']
+  ];
+  function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function dessiner() {
+    var q = norm(document.getElementById('champ').value.trim());
+    var liste = METIERS.filter(function (m) { return !q || norm(m[0]).indexOf(q) !== -1 || norm(m[0]).split(/[\s-]+/).some(function (mot) { return mot.indexOf(q) === 0; }); });
+    document.getElementById('grille').innerHTML = liste.map(function (m) {
+      return '<div class="carte-demo"><h5>' + m[0] + '</h5><p class="text-muted small mb-1">' + m[1] + '</p><p class="small mb-1">' + m[2] + '</p><button type="button" class="btn btn-sm btn-outline-primary mt-1" data-vers="e1">Choisir ce métier</button></div>';
+    }).join('');
+    document.getElementById('vide').hidden = liste.length > 0;
+  }
+  function montrer(id) {
+    ['e1', 'e2'].forEach(function (e) { document.getElementById(e).hidden = (e !== id); });
+    document.querySelectorAll('.onglet-ecran').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.ecran === id ? 'true' : 'false'); });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-vers],[data-ecran]');
+    if (b) { montrer(b.dataset.vers || b.dataset.ecran); }
+  });
+  document.querySelectorAll('input[name=var]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      document.getElementById('zoneA').hidden = (r.value === 'B' && r.checked);
+      document.getElementById('zoneB').hidden = (r.value !== 'B');
+    });
+  });
+  document.getElementById('champ').addEventListener('input', dessiner);
+  dessiner();
+</script>
+</body>
+</html>

@@ -394,3 +394,19 @@ test('API : les dates de dernier passage sont reservees au bon jeton et passent 
     assert.deepStrictEqual(appels, [['lire'], ['noter', { passages: { mois: '2026-10-31' } }]]);
   } finally { await s.fermer(); }
 });
+
+test('API : les taches programmees sont reservees au bon jeton et passent par le seul module des taches', async () => {
+  const f = faux();
+  const appels = [];
+  const taches = { lire: () => { appels.push(['lire']); return { ok: true, taches: [] }; }, agir: (d) => { appels.push(['agir', d]); return { ok: true, taches: [] }; } };
+  const s = await lancer({ depot: f.depot, envoi: f.envoi, ouvrir: f.ouvrir, taches });
+  try {
+    assert.strictEqual((await requete(s.port, '/api/taches/lire', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.strictEqual((await requete(s.port, '/api/taches/agir', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.deepStrictEqual(appels, [], 'rien sans jeton');
+    const l = await requete(s.port, '/api/taches/lire', { method: 'POST', headers: entetesJson(s.jeton) }, '{}');
+    assert.strictEqual(JSON.parse(l.corps.toString('utf8')).ok, true);
+    await requete(s.port, '/api/taches/agir', { method: 'POST', headers: entetesJson(s.jeton) }, json({ op: 'fait', id: 'smic-annonce' }));
+    assert.deepStrictEqual(appels, [['lire'], ['agir', { op: 'fait', id: 'smic-annonce' }]]);
+  } finally { await s.fermer(); }
+});

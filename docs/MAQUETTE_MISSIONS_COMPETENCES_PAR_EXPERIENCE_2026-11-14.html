@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette : Vos missions et compétences</title>
+<!-- Maquette construite SUR la feuille de style réelle de l'application (mêmes fichiers, mêmes classes, mêmes composants) : aucun patch visuel.
+     À ouvrir par le serveur de développement : http://localhost:8123/docs/MAQUETTE_MISSIONS_COMPETENCES_PAR_EXPERIENCE_2026-11-14.html
+     Composants réels réutilisés : barre d'étapes (barreEtapesModule), bouton « Revoir la présentation », titre h1 + .sousTitre, encart .cv-section,
+     blocs numérotés .vp-question et familles .vp-fam (Votre parcours), pastilles .vp-carte, onglets .onglets-validation-import, barre du bas .barre-navigation-fixe,
+     boutons .btn-nav-erip / .btn-primary / .btn-outline-primary, blocs .bloc-erip (Vos informations). -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* ===== Règles de « Votre parcours » reprises à l'identique de _vpStyle() (js/app.js) : dans le code, la même fonction servira ===== */
+.vp-question{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;margin:.45rem 0;overflow:hidden;background:var(--bg-card);}
+.vp-question>summary{list-style:none;cursor:pointer;padding:.6rem 1rem;display:flex;align-items:center;gap:.7rem;}
+.vp-question>summary::-webkit-details-marker{display:none;}
+.vp-question>summary::before{content:"\25B8";color: var(--accent-texte);font-size:.9em;transition:transform .15s;flex:0 0 auto;}
+.vp-question[open]>summary::before{transform:rotate(90deg);}
+.vp-qnum{flex:0 0 auto;width:30px;height:30px;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.vp-qtitre{font-weight:800;color:var(--text-strong);font-size:1.18rem;}
+.vp-qpil{margin-left:auto;flex:0 0 auto;font-size:0.875rem;font-weight:800;border-radius:999px;padding:.18rem .7rem;border:1px solid var(--border-strong);color:var(--text-muted);background:var(--bg-subtle);white-space:nowrap;}
+.vp-qpil.ok{color:var(--success-strong);border-color:var(--success);background:var(--success-bg-subtle);}
+.vp-qpil.vide{color:var(--warning);border-color:var(--warning);background:var(--warning-bg-subtle);}
+.vp-qcorps{padding:.25rem .85rem .7rem;border-top:1px solid var(--border);}
+.vp-consigne{font-size:0.875rem;color:var(--text-muted);margin:.3rem 0 .45rem;}
+.vp-regle{color: var(--accent-texte);font-weight:600;background:var(--accent-bg-subtle);border-radius:8px;padding:.4rem .6rem;}
+.vp-fam{border:1px solid var(--border-strong);border-left:5px solid var(--accent);border-radius:6px;background:var(--bg-subtle);margin:.3rem 0;overflow:hidden;}
+.vp-fam>summary{list-style:none;cursor:pointer;padding:.45rem .8rem;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+.vp-fam>summary::-webkit-details-marker{display:none;}
+.vp-fam>summary::after{content:"\25BE";margin-left:.2rem;color: var(--accent-texte);transition:transform .15s;flex:0 0 auto;font-size:.8em;}
+.vp-fam[open]>summary::after{transform:rotate(180deg);}
+.vp-fam-ico{flex:0 0 auto;font-size:1.1rem;}
+.vp-fam-nom{font-weight:800;color:var(--text-strong);font-size:.95rem;}
+.vp-fam-nb{flex:0 0 auto;font-size:0.875rem;font-weight:800;color:#fff;background:var(--accent);border-radius:999px;padding:.12rem .55rem;}
+.vp-fam-ligne{flex:1 1 100%;margin-top:.25rem;padding-left:1.7rem;}
+.vp-fam[open] .vp-fam-ligne{display:none;}
+.vp-apercu{font-size:0.875rem;color:var(--text-muted);}
+.vp-fam-corps{padding:.35rem .8rem .55rem;background:var(--bg-card);border-top:1px solid var(--border);}
+.vp-cartes{display:flex;flex-wrap:wrap;gap:.32rem;}
+.vp-carte{border:1.5px solid var(--border-strong);border-radius:999px;padding:.3rem .7rem;font-size:0.875rem;background:var(--bg-card);color:var(--text-strong);cursor:pointer;user-select:none;}
+.vp-carte:hover{border-color:var(--accent);}
+.vp-carte.coche{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.vp-carte.coche::before{content:"\2713  ";}
+/* ===== Seuls ajouts de cette page (à ajouter à _vpStyle) : une variante pleine largeur pour les phrases longues, et l'état « coché pour une partie des expériences » ===== */
+.vp-carte.vp-longue{display:block;flex:1 1 auto;border-radius:12px;padding:.45rem .8rem;text-align:left;line-height:1.35;}
+.vp-carte.mixte{border-style:dashed;border-color:var(--accent);background:var(--accent-bg-subtle);}
+/* Les trois familles de compétences gardent les couleurs déjà utilisées dans « Votre profil » (badges Bootstrap bg-primary, bg-success, bg-info) : plus d'émoticônes */
+.vp-fam.fam-sf{border-left-color:var(--bs-primary);} .vp-fam.fam-sf .vp-fam-nb{background:var(--bs-primary);}
+.vp-fam.fam-se{border-left-color:var(--bs-success);} .vp-fam.fam-se .vp-fam-nb{background:var(--bs-success);}
+.vp-fam.fam-sv{border-left-color:var(--bs-info);} .vp-fam.fam-sv .vp-fam-nb{background:var(--bs-info);color:#000;}
+/* Pastilles neutres : seul le bleu de l'application (coché) ressort. La couleur de famille reste sur les titres de blocs. */
+.vp-carte.fixe{cursor:default;} .vp-carte.fixe::before{content:none;}
+.vp-carte.avec-src{border-radius:14px;line-height:1.25;}
+.vp-src{display:block;font-size:.75rem;font-weight:400;color:var(--text-muted);}
+.vp-carte.coche .vp-src{color:rgba(255,255,255,.85);}
+/* Les deux onglets « spéciaux » se distinguent des onglets d'expériences : forme et fond différents (consigne 294). */
+.onglet-validation-import-btn.onglet-global{border-radius:999px;border-style:dashed;background:var(--accent-bg-subtle);margin-right:.5rem;}
+.onglet-validation-import-btn.onglet-vise{border-radius:.25rem;border-left-width:7px;border-left-color:var(--accent);background:var(--bg-subtle);}
+.onglets-comp .onglets-validation-import{border-bottom:0;margin-bottom:.4rem;padding-bottom:0;}
+.onglets-comp .onglets-validation-import.derniere{border-bottom:2px solid var(--border);padding-bottom:.5rem;margin-bottom:1rem;}
+.vp-sous-titre{font-size:.85rem;font-weight:700;color:var(--text-muted);margin:.5rem 0 .3rem;}
+.onglet-validation-import-btn.onglet-global.actif,.onglet-validation-import-btn.onglet-vise.actif{background:var(--accent-solide);border-color:var(--accent-solide);}
+.onglet-validation-import-btn.onglet-vise.actif{border-left-color:#fff;}
+.vp-cible-bilan{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.6rem .9rem;margin-bottom:.8rem;}
+.vp-vise{font-size:.75rem;font-weight:400;font-style:italic;margin-left:.4rem;color:var(--text-muted);}
+.vp-carte.coche .vp-vise{color:rgba(255,255,255,.85);}
+.vp-cible{background:var(--bg-subtle);border:1px solid var(--border-strong);border-left:4px solid var(--accent);border-radius:12px;padding:.7rem 1rem;margin:.6rem 0;}
+.vp-cible-metier{font-size:1.15rem;font-weight:800;color:var(--text-strong);}
+.vp-carte small{font-weight:400;opacity:.85;margin-left:.25rem;}
+.vp-ligne{display:flex;gap:.4rem;align-items:center;margin:.3rem 0;}
+.vp-ligne .form-control{flex:1;}
+@media (max-width:600px){ .vp-ligne{flex-wrap:wrap;} .vp-ligne .vp-carte.vp-longue{flex:1 1 100%;} .vp-ligne .btn{margin-left:auto;} }
+.vp-cv-liste{margin:.1rem 0 .6rem;padding-left:1.2rem;font-size:.95rem;}
+.vp-cv-poste{font-weight:800;color:var(--text-strong);margin-top:.5rem;}
+.vp-vide{color:var(--text-muted);font-style:italic;font-size:.9rem;}
+/* ===== Outils de la maquette (n'existent pas dans l'application) ===== */
+#mq-ouvrir{position:fixed;right:0;bottom:6rem;z-index:3000;border-radius:10px 0 0 10px;font-size:.8rem;padding:.4rem .6rem;}
+#mq-panneau{position:fixed;right:8px;bottom:9rem;z-index:3001;width:260px;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem;box-shadow:0 6px 24px rgba(0,0,0,.2);}
+#mq-panneau[hidden]{display:none;}
+#mq-panneau .x{position:absolute;right:6px;top:2px;border:0;background:none;font-size:1.4rem;color:var(--text-muted);}
+#mq-panneau label{display:block;font-size:.8rem;color:var(--text-muted);margin-top:.5rem;}
+#mq-panneau select{width:100%;}
+</style>
+</head>
+<body>
+
+<!-- Les 5 boutons fixes du haut, tels que dans index.html -->
+<button type="button" id="btnPreferencesAffichage" aria-label="Préférences d'affichage" title="Préférences d'affichage"><i class="bi bi-gear" aria-hidden="true"></i></button>
+<button type="button" id="btnSessionTransfert" aria-label="Sauvegarder ma session" title="Sauvegarder ma session"><i class="bi bi-floppy" aria-hidden="true"></i></button>
+<button type="button" id="btnNouveautes" aria-label="Nouveautés" title="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i></button>
+<button type="button" id="btnAide" aria-label="Aide sur cette page" title="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
+<button type="button" id="btnIntroduction" aria-label="Introduction" title="Introduction"><i class="bi bi-compass" aria-hidden="true"></i> Introduction</button>
+
+<div id="app"><div class="page-catalogue-contenu" id="page"></div></div>
+
+<!-- Outils de la maquette -->
+<button type="button" id="mq-ouvrir" class="btn btn-nav-erip">Maquette</button>
+<div id="mq-panneau" hidden>
+  <button type="button" class="x" id="mq-fermer" aria-label="Fermer les réglages">×</button>
+  <strong>Réglages de la maquette</strong>
+  <label for="mq-ecran">Parcours montré</label>
+  <select id="mq-ecran" class="form-select form-select-sm"><option value="creation">Créer un nouveau CV</option><option value="reprise">Mettre à jour mon CV</option></select>
+  <label for="mq-theme">Thème</label>
+  <select id="mq-theme" class="form-select form-select-sm"><option value="clair">Clair</option><option value="sombre">Sombre</option></select>
+  <label for="mq-apercu">Bloc « Votre CV »</label>
+  <select id="mq-apercu" class="form-select form-select-sm"><option value="ouvert">Déplié</option><option value="ferme">Replié</option></select>
+</div>
+
+<script>
+var DONNEES = [{"poste":"Auxiliaire de vie","employeur":"Association d’aide à domicile, Limoges","dates":"2019 à 2023","code":"K1302","actuelles":["Aide au lever, à la toilette et aux repas","Courses et ménage chez les personnes"],"fiche":{"code":"K1302","nom":"Assistant de vie aux familles (ADVF)","d":"L’assistant de vie dépendance facilite la vie quotidienne de personnes fragiles en leur apportant une aide dans les actes essentiels de la vie courante.","m":["Favoriser l’autonomie des personnes accompagnées dans le respect de leurs habitudes de vie","Accompagner les personnes dans les actes de la vie quotidienne et la réalisation des travaux ménagers afin de maintenir leur autonomie","Assurer un rôle d’écoute active ainsi qu’une présence rassurante et contribuer ainsi à l’amélioration de la qualité de vie","Participer à des activités de coordination et de liaison avec d’autres services de soins ou d’aide","Maintenir un environnement sécurisé et confortable"],"sf":["Soins","Hygiène","Cuisine","Entretien"],"se":["Empathie","Aide à la personne","Écoute","Patience","Bienveillance"],"sv":["Gestes de premiers secours","Manutention des personnes"],"k":["Vérifier la prise de médicaments par la personne en fonction de la prescription médicale","Préparer des repas","Accompagner une personne lors d’un déplacement","Aider des personnes dans leur cadre de vie","Aider une personne à s’habiller","Accompagner les personnes dans les gestes de la vie quotidienne","Veiller à l’hygiène corporelle des personnes","Informer, conseiller le patient ou la personne accompagnée dans la gestion de son environnement","Accueillir, rassurer, orienter, informer une personne et son entourage","Entretenir les espaces de vie et le linge de la personne accompagnée","Maintenir un environnement propre et sécurisé","Participer à la conception et au suivi d’un projet individualisé","Adapter les recettes pour des besoins spécifiques (allergies, régimes alimentaires, préférences)","Effectuer les courses d’une personne"],"ri":"S","proches":[{"code":"K1306","nom":"Accompagnant Educatif et Social (AES)","d":"L’accompagnant éducatif et social (AES) réalise des interventions sociales au quotidien visant à accompagner les personnes en perte d’autonomie ou les personnes en situation de handicap, qu’elle qu’en soit l’origine ou la nature.","m":["Participer à la conception, à la mise en œuvre et au suivi du projet individualisé","Aider et accompagner les personnes dans les activités de la vie quotidienne (préparation des repas, déplacements, entretien du cadre de vie) et dans les actes essentiels (aide à la toilette, l’alimentation, l’habillement)","Contribuer au maintien et au développement de l’autonomie de la personne accompagnée","Favoriser la vie sociale et relationnelle de la personne accompagnée et son entourage (soutien dans les activités sociales, culturelles, de loisirs, aider aux démarches administratives, accès aux droits, maintien du lien social)","Assurer le lien avec l’entourage des personnes accompagnées et l’ensemble des professionnels"],"sf":["Accompagnement","Assistance","Médiation","Observation","Conseil","Prévention des risques"],"se":["Écoute","Empathie","Motivation","Rigueur"],"sv":["Techniques de levage et de transfert","Techniques de gestion de conflits","Techniques de communication non verbale","Techniques de communication interpersonnelle","Techniques de gestion du stress","Techniques de manipulation de la personne âgée ou accompagnée"],"k":["Veiller à l’hygiène corporelle des personnes","Assurer une présence et un environnement sécurisant pour les personnes accompagnées","Maintenir, favoriser le lien social de la personne","Encourager l’autonomie dans les activités quotidiennes","Coconstruire et adapter le mode d’intervention socio-éducatif avec la personne accompagnée","Contribuer à maintenir et développer l’autonomie des personnes","Apporter un soutien émotionnel aux personnes accompagnées et à leur entourage","Conseiller la personne ou la famille dans l’organisation de ses activités de la vie quotidienne","Etablir une relation de confiance et faciliter la communication avec la personne accompagnée","Organiser des activités de divertissement selon les participants et le contexte","Prévenir les risques et la sécurité de la personne accompagnée","Collaborer avec des équipes multidisciplinaires","Accompagner une personne lors d’un déplacement","Contribuer au bien-être physique d’une personne"],"ri":"S","proches":[]},{"code":"K1205","nom":"Agent d'accueil social","d":"L’agent d’accueil social facilite l’accès aux droits et services pour les personnes en difficulté ou en situation de précarité, au sein des structures d’aide sociale.","m":["Accueillir, recueillir la demande et apporter un premier niveau d’information au public","Orienter vers les services, les structures sociales ou administratives concernés","Assister les personnes dans la constitution de dossiers administratifs ou sociaux","Organiser et animer des actions de prévention et d’information","Intervenir dans des domaines spécifiques comme le planning familial ou les droits des femmes","Contribuer à l’amélioration des dispositifs d’accueil et d’information au sein de son établissement"],"sf":["Accompagnement","Conseil","Observation","Assistance","Planification"],"se":["Écoute","Empathie","Autonomie","Sang-froid"],"sv":["Techniques de communication orales, écrites et numériques","Techniques d'écoute active et de médiation","Gestion des dossiers sociaux","Techniques d'entretien individuel","Techniques de médiation sociale","Droit social"],"k":["Guider, accompagner une personne ou une famille dans ses démarches","Conseiller les usagers sur leurs droits sociaux","Faciliter l’inclusion sociale des personnes accueillies","Adapter ses pratiques d’accueil et d’accompagnement selon les besoins particuliers des personnes","Actualiser l’affichage, les informations mises à la disposition d’un public","Organiser un espace d’accueil","Faciliter l’accès aux dispositifs d’aide","Orienter une personne vers des partenaires relais","Analyser les besoins des usagers","Créer une relation de confiance","Se coordonner avec d’autres services pour l’aide sociale","Faciliter l’accès aux droits par des explications claires","Faciliter la résolution de questions et démarches administratives","Assister les personnes en difficulté"],"ri":"SC","proches":[]},{"code":"K1301","nom":"Accompagnant éducatif et social (AES)","d":"L’éducateur en locomotion joue un rôle crucial dans la rééducation et l’autonomie des personnes à mobilité réduite.","m":["Évaluer les capacités de locomotion des patients","Concevoir des programmes de rééducation personnalisés","Accompagner les patients dans la réalisation des exercices de locomotion","Adapter les séances en fonction de l’évolution des patients","Informer et former les familles sur les aides techniques à la locomotion","Assurer le suivi des progrès et ajuster les objectifs de rééducation"],"sf":["Soins","Transmission","Accompagnement"],"se":["Empathie","Aide à la personne","Patience","Bienveillance","Écoute"],"sv":["Connaissance du handicap","Gestes de premiers secours"],"k":["Assurer le suivi avec les familles","Contribuer au bien-être physique d’une personne","Accompagner les personnes dans les gestes de la vie quotidienne","Analyser le contexte de vie d’une personne ou d’une famille","Encourager la participation sociale des personnes isolées","Collaborer avec les équipes multidisciplinaires pour le suivi des patients","Accompagner les patients dans les gestes de la vie quotidienne","Echanger avec la personne sur son ressenti (mal-être, satisfaction, etc.) et l’orienter vers le professionnel concerné (médecin, assistant de service social, etc.)","Repérer les modifications de l’état de santé d’une personne","Présenter à la personne les activités d’aide ou d’éveil et définir les modalités de mise en oeuvre et d’accompagnement","Adapter ses pratiques à l’accompagnement de l’enfant en situation de handicap","Evaluer régulièrement les besoins de la personne ou de la famille","Former des personnes malvoyantes, non-voyantes","Conseiller la personne sur des aides techniques (aides visuelles, déambulateur) ou installer le matériel (pose de barrière de protection, réglage de hauteur de table)"],"ri":"SI","proches":[]},{"code":"K1305","nom":"Technicien d'Intervention Sociale et Familiale (TISF)","d":"Le Technicien d’Intervention Sociale et Familiale (TISF) est un travailleur social qui accompagne, principalement à leur domicile, des publics en situation de vulnérabilité ou lors de circonstances particulières (naissance, parentalité, divorce, signalement, placement, longue maladie, décès, etc.).","m":["Identifier des risques sociaux, éducatifs, sanitaires et repère des situations de vulnérabilité","Participer à l’évaluation des besoins des familles et des personnes accompagnées","Mener une action sociale, préventive, éducative et réparatrice visant à favoriser leur autonomie ou leur insertion sociale","Participer à la définition du projet personnalisé, sa mise en œuvre, son suivi et son évaluation","Contribuer au développement de la dynamique familiale (accompagner l’éducation et ler développement de l’enfant, soutenir la famille dans les changements rencontrés, etc.)","Accompagner les familles et les personnes dans les actes de la vie quotidienne","Collaborer dans un contexte pluriprofessionnel et partenarial pour coordonner les interventions"],"sf":["Accompagnement","Conseil","Médiation","Assistance","Diagnostic","Analyse de données"],"se":["Écoute","Empathie","Motivation","Rigueur"],"sv":["Techniques de gestion de conflits","Techniques de communication non verbale","Techniques d'écoute active et de médiation","Techniques de communication interpersonnelle","Techniques de gestion du stress","Techniques de transmission de savoirs"],"k":["Accompagner les parents dans leur rôle éducatif et parental","Apporter un soutien émotionnel aux personnes accompagnées et à leur entourage","Conseiller la personne ou la famille dans l’organisation de ses activités de la vie quotidienne","Concevoir et mettre en oeuvre des activités d’acquisition ou de maintien de l’autonomie et de la vie sociale","Evaluer régulièrement les besoins de la personne ou de la famille","Se coordonner avec des professionnels et développer le réseau d’intervenants adapté","Détecter des situations à risques (troubles du comportement alimentaire, dénutrition, etc.) et orienter vers les personnes compétentes","Rédiger un écrit professionnel","Assurer la confidentialité des informations familiales","Guider, accompagner une personne ou une famille dans ses démarches","Accompagner ou participer au suivi d’un budget courant","Réaliser des actions de développement ou de maintien du lien social ou familial","Analyser le contexte de vie d’une personne ou d’une famille","Accompagner l’appropriation d’un outil numérique ou digital courant par ses utilisateurs"],"ri":"SC","proches":[]},{"code":"K1312","nom":"Accueillant familial thérapeutique auprès d'adultes","d":"L’Accueillant familial thérapeutique auprès d’adultes est un professionnel qui accueille à son domicile des adultes en situation de fragilité ou de handicap, souvent à la suite de troubles psychiques, leur offrant ainsi un cadre stable et sécurisant.","m":["Accueillir des adultes nécessitant un soutien psychologique ou physique dans un environnement familial","Assurer le bien-être quotidien des adultes accueillis en veillant à leur confort et à leur sécurité","Organiser des activités thérapeutiques adaptées pour favoriser le développement personnel et social","Collaborer avec des professionnels de santé pour élaborer et suivre les plans de soins personnalisés","Maintenir une communication régulière avec les familles des accueillis pour les tenir informés de l’évolution","Gérer les aspects administratifs liés à l’accueil familial thérapeutique"],"sf":["Accompagnement","Assistance","Soins","Médiation","Conseil","Observation"],"se":["Écoute","Empathie","Motivation","Sang-froid"],"sv":["Techniques d'écoute active","Evaluation des besoins individuels","Méthodes de réadaptation sociale","Planification des activités quotidiennes","Normes d'hygiène et de propreté","Règles de sécurité domestique"],"k":["Vérifier la prise de médicaments par la personne en fonction de la prescription médicale","Aider des personnes dans leur cadre de vie","Aider à la préparation des repas équilibrés","Informer, conseiller le patient ou la personne accompagnée dans la gestion de son environnement","Encourager l’autonomie dans les activités quotidiennes","Ecouter activement les besoins spécifiques","Organiser des activités thérapeutiques adaptées","Observer l’état de santé psychique et physique de la personne accompagnée","Organiser les activités thérapeutiques quotidiennes","Renseigner les documents de suivi d’une personne","Adapter les espaces de vie aux besoins spécifiques","Prévenir les situations de crise","Rédiger des rapports détaillés sur les incidents et les activités quotidiennes","Gérer des situations de crise ou d’urgence"],"ri":"S","proches":[]}]}},{"poste":"Employé libre-service","employeur":"Supermarché, Panazol","dates":"2016 à 2019","code":"D1507","actuelles":["Mise en rayon des produits","Réception des palettes"],"fiche":{"code":"D1507","nom":"Employé libre-service","d":"L’Employé de rayon libre-service est en charge de la présentation, la mise en rayon des produits et la gestion de l’espace de vente dans un magasin.","m":["Approvisionner et organiser les produits en rayon selon la politique du magasin","Veiller à la propreté et à l’ordre de son espace de travail pour garantir un environnement agréable","Contrôler les dates de péremption, la signalétique des prix et retire les produits non conformes","Renseigner et orienter les clients dans le magasin pour faciliter leurs achats","Participer aux inventaires et à la gestion des stocks pour optimiser la disponibilité des produits","Effectuer des opérations de caisse et contribuer à l’accueil des clients"],"sf":["Merchandising","Gestion des stocks","Entretien"],"se":["Rigueur","Organisation","Autonomie","Endurance"],"sv":["Rotation des produits","Règles d'hygiène"],"k":["Réaliser le réassort","Définir des besoins en approvisionnement","Organiser le stockage des denrées, en les triant par dates de péremption par exemple","Contrôler le balisage et l’étiquetage des produits en rayon","Réaliser la mise en rayon","Accueillir, informer et orienter les clients","Assurer la propreté du rayon selon les normes sanitaires","Vérifier la température des réfrigérateurs, des chambres froides en réserve et en rayon","Retirer des produits non conformes","Réaliser l’étiquetage de produits","Assurer le suivi des stocks en temps réel","Vérifier le réassort d’un rayon","Surveiller les dates de péremption et retirer les produits obsolètes","Contrôler la mise en rayon des articles"],"ri":"CR","proches":[{"code":"D1506","nom":"Merchandiseur","d":"Le chargé de merchandising s’occupe de la mise en place des produits afin de les rendre visibles, attractifs et faciles à acheter.","m":["Optimiser la disposition des produits pour accroître la visibilité et l’attractivité","Collaborer avec les équipes de vente et marketing pour planifier les campagnes et stratégies promotionnelles","Mettre à jour régulièrement les plans de merchandising en fonction des tendances du marché et des retours clients","Coordonner la conception et l’installation de vitrines ou d’espaces promotionnels spéciaux","Assurer la formation du personnel de vente sur les techniques de merchandising efficaces"],"sf":["Merchandising","Négociation","Marketing"],"se":["Créativité","Sens du détail","Esprit d'équipe"],"sv":["Techniques de merchandising visuel"],"k":["Participer à la définition de la politique globale de marchandisage de l’entreprise","Contrôler le balisage et l’étiquetage des produits en rayon","Vérifier la bonne disponibilité et la bonne disposition des produits en point de vente","Négocier l’emplacement d’un produit","Optimiser l’agencement de l’espace de vente","Evaluer l’efficacité des campagnes","Concevoir l’identité visuelle de la marque","Analyser les indicateurs pertinents sur les tendances et les usages des clients","Optimiser l’organisation des rayons","Superviser la mise en œuvre de campagnes promotionnelles","Négocier avec les fournisseurs de services","Maitriser les caractéristiques des produits mis en vente (caractéristiques, packaging, merchandising...)","Effectuer un reporting régulier à la hiérarchie","Définir des stratégies de positionnement"],"ri":"EC","proches":[]},{"code":"D1510","nom":"Chef de secteur magasin","d":"Le Chef de secteur magasin gère et anime une équipe de vendeurs au sein d’un secteur spécifique d’un magasin.","m":["Optimiser la disponibilité des produits en assurant une connaissance des stocks et des approvisionnements","Superviser et coordonner les activités du secteur pour garantir l’atteinte des objectifs commerciaux","Encadrer les équipes, assurer leur formation et veiller à leur motivation","Analyser les indicateurs de performance et mettre en place des actions correctives si nécessaire","Développer des stratégies pour améliorer l’expérience client et augmenter les ventes","Collaborer avec d’autres chefs de secteur et la direction pour aligner les stratégies commerciales","Assurer le respect des normes et réglementations en vigueur dans le secteur"],"sf":["Pilotage d'activité","Conseil","Gestion des stocks","Management","Formation","Marketing"],"se":["Sang-froid","Organisation","Leadership","Sens du service"],"sv":["Techniques de gestion de conflits","Techniques commerciales","Techniques d'analyse de marché","Communication interpersonnelle","Techniques de motivation d'équipe","Adaptabilité et flexibilité"],"k":["Manager son équipe à l’aide des indicateurs de performance","Superviser la gestion des stocks","Garantir le référencement, la disponibilité et le renouvellement des produits, en conformité avec les accords commerciaux","Assurer la conformité des pratiques commerciales","Former les nouveaux employés aux techniques de vente","Analyser les indicateurs pertinents sur les tendances et les usages des clients","Vérifier la mise en rayon des produits afin de les mettre en valeur et augmenter les ventes","Appliquer des techniques de vente efficaces","Surveiller les indicateurs de vente","Optimiser les processus de vente pour maximiser les profits","Rendre compte des informations récoltées sur le terrain à sa direction","Maintenir la cohésion et la motivation de l’équipe","Etablir des critères de performance pour les équipes de vente","Optimiser la gestion des stocks en fonction des prévisions de vente"],"ri":"EC","proches":[]},{"code":"D1502","nom":"Chef de rayon produits alimentaires","d":"Le Chef de rayon produits alimentaires supervise les flux de vente des produits de son rayon pour satisfaire la clientèle.","m":["Gérer l’approvisionnement et l’assortiment des produits en rayon en s’assurant de la disponibilité des stocks","Optimiser la présentation des produits par des animations et promotions en veillant à leur bonne visibilité","Contrôler la qualité et la fraîcheur des produits alimentaires","Superviser et former l’équipe de vente du rayon","Analyser les indicateurs de performance du rayon pour ajuster les stratégies commerciales","Assurer le respect des normes d’hygiène et de sécurité alimentaire"],"sf":["Gestion des stocks","Marketing","Développement commercial","Contrôle qualité","Gestion de projet","Pilotage d'activité"],"se":["Adaptabilité","Organisation","Leadership","Rigueur"],"sv":["Techniques de découpe de produits frais","Techniques de mise en rayon","Techniques commerciales","Gestion des inventaires","Prévention des pertes et gestion des vols","Règles d'hygiène et de sécurité alimentaire"],"k":["Définir des besoins en approvisionnement","Analyser les données de vente pour identifier les opportunités de croissance","Organiser des actions de formation au poste de travail (périodes, conditions, évaluations...)","Contrôler l’état de conservation d’un produit périssable","Retirer des produits non conformes","Contrôler la mise en rayon des articles","Réaliser la mise en rayon","Assurer le respect des normes sanitaires","Optimiser l’agencement des produits pour maximiser les ventes","Assurer le suivi des stocks en temps réel","Identifier et gérer des invendus","Superviser le stockage des produits","Contrôler l’état des stocks","Suivre et analyser les résultats des ventes"],"ri":"EC","proches":[]},{"code":"D1503","nom":"Chef de rayon de produits non alimentaires","d":"Le Chef de rayon de produits non alimentaires gère et optimise les ventes au sein d’un magasin.","m":["Organiser l’assortiment des produits selon les tendances et la demande des consommateurs","Superviser et former l’équipe de vente pour garantir un service client de qualité","Analyser les performances de vente et ajuster les stratégies commerciales en conséquence","Assurer la mise en place des promotions attractives et des opérations commerciales spéciales","Veiller au respect des normes de merchandising et de présentation des produits","Collaborer avec les fournisseurs pour assurer un approvisionnement continu et adapté en anticipant les besoins"],"sf":["Gestion des stocks","Marketing","Achats","Management","Veille et recherche","Négociation"],"se":["Organisation","Leadership","Rigueur","Coordination"],"sv":["Techniques de gestion de conflits","Techniques commerciales","Techniques de motivation d'équipe","Planification stratégique des ventes","Prévention des pertes et gestion des vols","Merchandising / Marchandisage"],"k":["Assurer le suivi des stocks en temps réel","Motiver et former l’équipe pour améliorer le service client","Etablir des relations durables avec les fournisseurs","Analyser les tendances de consommation des clients","Tenir compte des compétences des collaborateurs dans la répartition des tâches","Contrôler la mise en rayon des articles","Gérer les commandes et les livraisons","Adapter le plan d’implantation des articles","Maintenir un haut niveau de service client","Analyser les données de vente pour identifier les opportunités de croissance","Identifier et gérer des invendus","Superviser le stockage des produits","Définir des besoins en approvisionnement","Superviser une équipe en magasin"],"ri":"EC","proches":[]},{"code":"D1301","nom":"Responsable de magasin","d":"Le gérant de magasin d’alimentation générale orchestre la gestion quotidienne et la performance globale du magasin","m":["Superviser l’organisation du magasin et l’agencement des produits","Assurer le respect des normes d’hygiène et de sécurité alimentaire","Recruter et encadrer une équipe de vente en planifiant les activités quotidiennes","Développer des stratégies de vente pour atteindre les objectifs commerciaux et satisfaire la clientèle","Gérer les stocks et approvisionnements pour garantir la disponibilité des produits","Maintenir une relation de qualité avec les fournisseurs et négocier les achats"],"sf":["Merchandising","Gestion des stocks","Gestion de projet","Négociation"],"se":["Leadership","Organisation","Relation client","Rigueur"],"sv":["Gestion commerciale d'un point de vente"],"k":["Assurer le suivi des commandes et la gestion des stocks","Encadrer et coordonner une équipe","Assurer la gestion administrative d’une activité","Analyser les tendances de vente pour ajuster les commandes","Recruter et intégrer les nouveaux arrivants","Assurer un rôle de conseil en marketing opérationnel auprès de ses interlocuteurs (mise en place en rayon, qualité des produits) afin d’optimiser les ventes","Assurer le respect des normes sanitaires","Gérer les réclamations clients de manière efficace et professionnelle","Analyser les données de performance de l’entreprise","Identifier et gérer des invendus","Stocker un produit","Définir des besoins en approvisionnement","Effectuer le suivi des stocks via des systèmes informatisés","Contrôler l’état des stocks"],"ri":"EC","proches":[]}]}},{"poste":"Serveuse","employeur":"Restaurant, Saint-Junien","dates":"2014 à 2016","code":"G1803","actuelles":["Service en salle et à la terrasse","Prise de commandes et encaissement"],"fiche":{"code":"G1803","nom":"Serveur en restauration","d":"Le serveur en restauration joue un rôle clé dans l’accueil et la réalisation d’un service à table de qualité.","m":["Accueillir et installer les clients à leur table avec courtoisie","Conseiller les clients sur la carte, les différents plats et les boissons","Prendre les commandes et servir les clients avec efficacité","Réaliser les encaissements","Nettoyer et mettre en place les espaces de restauration","Contribuer au suivi des stocks de nourriture et de boissons","Effectuer le service lors d’événements spéciaux ou de banquets"],"sf":["Négociation","Conseil","Vente"],"se":["Sens du service","Communication","Endurance","Adaptabilité","Accueil"],"sv":["Hygiène alimentaire (HACCP)","Techniques de service","Encaissement"],"k":["Accueillir le client et l’installer","Effectuer le service des plats à table","Réaliser la mise en place de la salle et de l’office","Assister et aider les personnes en attendant les secours","Prendre une commande client","Maintenir un environnement de travail propre et organisé","Renseigner le client sur la composition des produits, allergènes, provenance","Conseiller le client dans ses choix de boissons ou plats selon ses goûts","Proposer des produits additionnels","Garantir la satisfaction du client","S’exprimer avec politesse et courtoisie","Maintenir une communication claire et professionnelle","Préparer des boissons chaudes ou froides","Préparer, assembler des plats simples"],"ri":"RS","proches":[{"code":"G1801","nom":"Barman / Employé de café","d":"Le Barman, créateur d’ambiance et de saveurs, est au cœur de l’animation d’un bar.","m":["Accueillir, conseiller et fidéliser la clientèle en offrant un service personnalisé et attentionné","Préparer et servir des boissons, notamment des cocktails, en respectant les recettes et les normes d’hygiène","Entretenir le bar et son environnement de travail pour assurer une atmosphère agréable et propre","Gérer l’approvisionnement et ler stock des boissons pour garantir une offre variée et de qualité","Organiser des événements et des animations pour dynamiser l’établissement et attirer une clientèle diversifiée","Veiller à la bonne application des règles de sécurité et des normes légales en vigueur dans le secteur"],"sf":["Cuisine","Négociation","Gestion des stocks"],"se":["Sens du service","Communication","Endurance","Accueil"],"sv":["Encaissement","Règles d'hygiène","Préparation des boissons"],"k":["Maintenir une hygiène irréprochable du bar et des équipements","Créer une ambiance accueillante et conviviale au bar","Définir des besoins en approvisionnement","Procéder à l’encaissement","Assurer la maintenance de premier niveau des équipements","Ranger des produits ou marchandises selon leurs dates de validité et les conditions de conservation","Appliquer la réglementation en vigueur des bars et restaurants","Respecter les règles de sécurité","Respecter les règles d’hygiène et de sécurité alimentaire","Respecter les standards qualité de l’établissement","Accueillir le client et l’installer","Renseigner le client sur la composition des produits, allergènes, provenance","Assurer le suivi des commandes et la gestion des stocks","Réaliser la facturation"],"ri":"RS","proches":[]},{"code":"G1603","nom":"Employé polyvalent de restauration / Aide de cuisine","d":"L’équipier polyvalent de restauration rapide travaille principalement en fast-food, garantissant un service rapide et de qualité.","m":["Assurer la préparation et la vente de produits alimentaires selon les normes d’hygiène","Participer aux inventaires et au suivi des stocks","Maintenir la propreté des équipements et du lieu de travail","Effectuer des livraisons en respectant les délais promis","Fournir un service clientèle rapide et courtois","Participer à l’activité quotidienne du restaurant ou du point de vente"],"sf":["Cuisine","Hygiène","Entretien"],"se":["Adaptabilité","Esprit d'équipe","Endurance","Sens du service"],"sv":["Hygiène alimentaire (HACCP)","Préparation froide et chaude"],"k":["Remettre la commande au client (service à l’assiette, emballage à emporter, plateau, ...)","Préparer des boissons chaudes ou froides","Préparer, assembler des plats simples","Préparer ou réchauffer des pains et des viennoiseries","Assurer le nettoyage des équipements et du lieu de travail","Gérer les situations de stress en heure de pointe","Procéder à l’encaissement","Appliquer les promotions et les offres spéciales","Communiquer efficacement avec l’équipe et les clients","Réaliser un service en salle","Assurer un service client rapide et courtois","Réagir rapidement aux changements de volume de commande","Utiliser des équipements de cuisine spécifiques","Réaliser la plonge"],"ri":"R","proches":[]},{"code":"G1502","nom":"Employé d'hôtel","d":"L’employé d’hôtel est naturellement polyvalent pour garantir un séjour agréable et sans souci aux clients.","m":["Assurer un accueil chaleureux et professionnel aux clients","Effectuer des tâches variées telles que le nettoyage des chambres, la gestion de la réception et l’assistance en cuisine","Contribuer à la préparation et au service des repas et des boissons","Maintenir les standards de propreté et d’hygiène dans l’établissement"],"sf":["Hygiène","Assistance","Conseil","Installation","Entretien","Manutention"],"se":["Esprit d'équipe","Organisation","Sens du service","Accueil"],"sv":["Maintenance de premier niveau","Accueil et réception en hôtellerie","Service en chambre","Normes d'hygiène et de sécurité","Normes d'exploitation hôtelière","Utilisation de logiciels de réservation"],"k":["Adapter le service en fonction des préférences du client","Accueillir, informer et orienter les clients","Réaliser la mise en place de la salle et de l’office","Traiter les demandes et réclamations des clients selon la procédure établie et en proposant des solutions adaptées","Assurer la propreté des chambres et des espaces publics","Assurer un service ponctuel selon les horaires convenus","Assurer une communication claire et efficace avec l’équipe","Fournir des informations touristiques et locales aux clients","Informer, renseigner, orienter une personne sur les prestations et services proposés","Renseigner le client sur la composition des produits, allergènes, provenance","Réaliser le service des petits-déjeuners en salle ou en chambre, selon l’établissement","Réaliser un service en salle","Garantir la satisfaction du client","Traiter les demandes spéciales des clients"],"ri":"R","proches":[]},{"code":"G1602","nom":"Cuisinier / Commis de cuisine","d":"Le Commis de cuisine, un acteur essentiel dans la préparation des mets et la production en cuisine.","m":["Assister les cuisiniers, chefs de partie dans la préparation des plats","Préparer les ingrédients nécessaires à la confection des recettes","Maintenir la propreté des plans de travail, des ustensiles de cuisine et des locaux","Participer à la réception et au stockage des marchandises","Appliquer les normes d’hygiène et de sécurité sanitaire des aliments","Participer à l’envoi des plats pendant le service"],"sf":["Cuisine","Hygiène","Précision","Planification"],"se":["Rigueur","Créativité","Esprit d'équipe","Endurance","Respect des normes"],"sv":["Techniques culinaires","Hygiène alimentaire (HACCP)"],"k":["Maintenir un environnement de travail propre et organisé","Respecter les règles d’hygiène et de sécurité alimentaire","Préparer des ustensiles de cuisine","Découper et tailler les légumes, fruits et condiments","Manipuler des équipements de cuisine","Assurer la propreté de la zone de travail","Ranger des produits ou marchandises selon leurs dates de validité et les conditions de conservation","Préparer les viandes et les poissons","Cuisiner des sauces pour accompagner les produits","Cuire des viandes, poissons ou légumes","Dresser des plats pour le service","Eplucher des légumes et des fruits","Préparer et réaliser les pâtes, appareils et crèmes pour les desserts","Assurer le suivi des stocks en temps réel"],"ri":"R","proches":[]},{"code":"G1607","nom":"Employé de restauration collective","d":"Un employé de restauration collective est une personne qui travaille dans une cantine, un restaurant scolaire, un hôpital ou une entreprise pour aider à la préparation et au service des repas.","m":["Participer aux activités de production culinaire (préparation, assemblage, dressage) selon les règles d’hygiène et de sécurité sanitaire des aliments et la charte qualité de l’établissement","Assurer la mise en place des espaces de restauration ainsi que la distribution et ler service des repas","Accueillir les clients et peut procéder à l’encaissement des ventes","Réceptionner et stocke les produits alimentaires","Assurer le rangement, nettoyage et entretien des matériels de restauration et des espaces"],"sf":["Cuisine","Entretien","Conseil","Technique","Planification"],"se":["Esprit d'équipe","Adaptabilité","Sens du service","Créativité"],"sv":["Techniques de liaison chaude et froide","Techniques de service à l'assiette","Techniques de service des plats","Procédures d'encaissement","Règles d'hygiène et de sécurité alimentaire","Chaîne du froid"],"k":["Préparer, assembler des plats simples","Remettre la commande au client (service à l’assiette, emballage à emporter, plateau, ...)","Entretenir des équipements de cuisine professionnelle","Disposer des produits sur le lieu de vente","Cuire des viandes, poissons ou légumes","Réaliser un service en salle","Réaliser des techniques de préparation culinaire en collectivité","Planifier une production selon les flux de vente prévisionnels","Préparer des boissons chaudes ou froides","Préparer ou réchauffer des pains et des viennoiseries","Réaliser la plonge","Livrer une commande","Procéder à l’encaissement"],"ri":"R","proches":[]},{"code":"M1616","nom":"Auxiliaire de gestion des écoles de conduite","d":"L’Auxiliaire de gestion des écoles de conduite joue un rôle clé dans la coordination et l’administration des activités d’une école de conduite, grâce à sa collaboration avec les différents acteurs d’une école de conduite (enseignants, formateurs, directeurs pédagogiques ou encore responsables d’unités).","m":["Assurer l’accueil et ler renseignement de la clientèle d’une école de conduite","Constituer les dossiers administratifs et financiers des candidats sur les plateformes et logiciels dédiés","Accompagner le parcours administratif des candidats aux examens du permis de conduire","Organiser et superviser les plannings des sessions de formations et d’examens","Veiller au respect des réglementations en vigueur dans le domaine de la conduite.","Accompagner physiquement les candidats aux examens du permis de conduire"],"sf":["Assistance","Gestion financière","Formation","Planification","Conseil"],"se":["Esprit d'équipe","Rigueur","Sens du service","Esprit d'analyse"],"sv":["Planification de sessions de formation","Communication avec les clients","Gestion des inscriptions et des présences","Suivi des progrès des élèves","Techniques de publicité locale","Gestion administrative d'une école de conduite"],"k":["Accueillir, informer et orienter les clients","Organiser la gestion des plannings des instructeurs","Organiser des sessions de formation pratique","Gérer les inscriptions et les paiements des cours","Mettre en place des procédures pour optimiser le fonctionnement de l’école","Assurer une veille réglementaire et législative","Superviser le suivi administratif des élèves","Effectuer la facturation","Qualifier la nature des demandes d’un client","Faciliter des sessions de formation en utilisant des outils interactifs","Utiliser des équipements de paiement électronique","Planifier les sessions d’examen et gérer leur logistique","Gérer les réclamations et assurer un suivi de qualité","Renseigner le client à distance"],"ri":"SC","proches":[]}]}},{"poste":"Soins aux chevaux d’un voisin","employeur":"Particulier","dates":"2020 à 2021","code":null,"actuelles":[],"fiche":null,"propositions":[{"code":"A1416","nom":"Exploitant agricole","d":"L’Exploitant agricole assure la gestion et le développement de son exploitation afin de produire et commercialiser des denrées alimentaires, des matières premières et des produits agricoles.","m":["Cultiver diverses plantes (céréales, légumes, fruits, etc.) selon les saisons et les conditions climatiques","Éléver des animaux pour la production de viande, de lait, ou d’autres produits","Maintenir et réparer le matériel et les infrastructures agricoles","Commercialiser les produits de l’exploitation, en respectant les normes de qualité et de sécurité alimentaire","Adapter les méthodes de culture et d’élevage aux évolutions technologiques et environnementales"],"sf":["Culture et récolte","Soins aux animaux","Protection de l'environnement","Gestion financière","Négociation","Marketing"],"se":["Autonomie","Organisation","Persévérance","Endurance"],"sv":["Techniques d'approche et de manipulation des animaux","Techniques d'irrigation","Gestion des cultures","Gestion des déchets agricoles","Gestion des récoltes","Règles de sécurité"],"k":["Surveiller l’état d’une plantation","Effectuer des opérations agricoles (semis, récoltes)","Veiller au respect des réglementations techniques et environnementales","Assurer le suivi des commandes et la gestion des stocks","Assurer la maintenance préventive de base des équipements","Assurer la traçabilité des produits","Négocier les contrats de vente des produits agricoles","Commercialiser les produits d’une exploitation","Analyser les données de production et ajuster les processus","Respecter les règles d’hygiène et de sécurité alimentaire","Gérer les rotations de cultures pour optimiser les rendements","Analyser les sols pour déterminer les besoins en nutriments des cultures","Appliquer les écogestes dans sa pratique","Développer et mettre en place des pratiques agricoles durables"],"ri":"RC","proches":[]},{"code":"A1101","nom":"Conducteur d'engins agricoles","d":"Réalise des travaux agricoles mécanisés.","m":["Aménager et préparer les terrains, assurer le labourage, ler désherbage, les semis et récolter la production.","Utiliser différentes machines (tracteur, moissonneuse-batteuse, ensileuse) et en assure l’entretien et la maintenance de premier niveau."],"sf":["Conduite","Maintenance","Travail manuel"],"se":["Autonomie","Rigueur","Adaptabilité"],"sv":["Matériel agricole","Règles de sécurité"],"k":["Préparer les sols, les plantations (épandage, semis, etc.)","Récolter un produit à maturité et selon les consignes de calibrage","Effectuer des opérations agricoles (semis, récoltes)","Conduire un véhicule agricole","Planifier une opération de semis, de traitement ou de récolte sur un site d’exploitation","Réaliser des opérations de traitement hydrofuge, insecticide, fongicide, pesticide","Régler les systèmes hydrauliques des machines agricoles","Surveiller l’état d’une plantation","Conduire un poids lourd","Traiter une information météorologique recueillie","Préparer des mélanges de produits de synthèse","Réaliser des travaux d’aménagement","Débroussailler une plantation et ses chemins d’accès","Entretenir les mécanismes d’un engin motorisé"],"ri":"R","proches":[]},{"code":"A1202","nom":"Ouvrier d'entretien des espaces naturels","d":"L’ouvrier d’entretien des espaces naturels joue un rôle important dans la préservation et la mise en valeur des espaces naturels, préservant la biodiversité et les écosystèmes.","m":["Entretenir les espaces naturels","Effectuer des travaux d’aménagement de milieux naturels","Participer à l’aménagement des zones accessibles au public","Effectuer des interventions régulières pour prévenir la dégradation des sites naturels"],"sf":["Culture et récolte","Entretien","Réparation","Technique"],"se":["Autonomie","Esprit d'équipe","Organisation","Endurance"],"sv":["Techniques de taille de végétaux","Méthodes de conservation de la biodiversité","Techniques de taille des arbustes","Techniques de fauchage","Techniques de débroussaillage","Techniques de faucardage"],"k":["Installer un élément de protection d’espace naturel","Poser et entretenir le mobilier extérieur ou la signalétique","Réaliser des travaux d’aménagement et d’entretien d’un espace naturel","Effectuer l’entretien de végétaux","Préparer et utiliser le matériel, les matériaux et les outillages prévus pour la tâche","Fabriquer et installer des aménagements extérieurs (bancs, tables, passerelles, observatoires)","Effectuer la maintenance de premier niveau des outillages et des équipements","Appliquer les normes environnementales en vigueur","Analyser l’état de santé des arbres et des plantes","Rendre compte de son action, de risques ou d’anomalies au responsable","Réaliser les opérations d’ouverture et d’aménagement de sentiers pour le public","Réaliser la restauration écologique de milieux naturels (lande, marais, mare, ...)","Réaliser la pose et l’entretien de filets, murets de soutènement pour la stabilisation des dunes","Créer et entretenir des pistes"],"ri":"R","proches":[]}]}];
+var etat = { ecran:'creation', expM:0, expC:0, filtreC:0, ouvert:{}, plus:{}, fiches:{}, miss:{}, perso:{}, comp:{}, compPerso:{}, edit:{}, modif:{}, autres:{}, ouvertReprise:{} };
+function echap(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+var qs = function(s){ return document.querySelector(s); };
+function pluriel(n, mot, f){ return n + ' ' + mot + (n > 1 ? 's' : '') + (f === false ? '' : ' choisie' + (n > 1 ? 's' : '')); }
+
+/* ---------- Données de l'expérience ---------- */
+function ficheActive(i){
+  var code = etat.fiches[i], d = DONNEES[i];
+  if (code === undefined) return d.fiche;
+  if (code === null) return null;
+  if (d.fiche && d.fiche.code === code) return d.fiche;
+  var tous = (d.fiche ? d.fiche.proches : []).concat(d.propositions || []);
+  return tous.filter(function(x){ return x.code === code; })[0] || null;
+}
+function missionsCochees(i){ return etat.miss[i] || []; }
+function persoMissions(i){ return etat.perso[i] || []; }
+function compCochees(i, t){ return (etat.comp[i] || {})[t] || []; }
+function basculer(tab, i, valeur, sousCle){
+  var cible = sousCle ? (tab[i] = tab[i] || {}, tab[i][sousCle] = tab[i][sousCle] || []) : (tab[i] = tab[i] || []);
+  var k = cible.indexOf(valeur); if (k >= 0) cible.splice(k, 1); else cible.push(valeur);
+}
+function actuellesCochees(i){ return DONNEES[i].actuelles.filter(function(a, k){ return !(etat.modif[i] && etat.modif[i]['act' + k] === false); }); }
+function nbMissionsExp(i, enReprise){ return missionsCochees(i).length + persoMissions(i).length + (enReprise ? actuellesCochees(i).length : 0); }
+function nbMissionsTotal(enReprise){ var n = 0; DONNEES.forEach(function(d, i){ n += nbMissionsExp(i, enReprise); }); return n; }
+
+var TYPES_COMP = [['sf','','Savoir-faire','ce que vous savez faire'], ['se','','Savoir-être','vos qualités au travail'], ['sv','','Savoirs','ce que vous connaissez'], ['k','','Activités plus précises','à cocher si elles vous concernent']];
+/* Le métier que la personne vise (choisi à l'étape « Votre objectif ») : ici, une fiche d'exemple. Dans l'application : la fiche du métier cible du dossier. */
+var CIBLE = DONNEES[0].fiche.proches.filter(function(p){ return p.code === 'K1306'; })[0];
+function estVise(cle, v){ return !!CIBLE && (CIBLE[cle] || []).indexOf(v) >= 0; }
+function marqueVise(cle, v){ return estVise(cle, v) ? '<span class="vp-vise">métier visé</span>' : ''; }
+function viseDabord(cle, vals){ return vals.filter(function(v){ return estVise(cle, v); }).concat(vals.filter(function(v){ return !estVise(cle, v); })); }
+function nbViseesProposees(){ var o = offresComp(), n = 0; ['sf','se','sv'].forEach(function(c){ Object.keys(o[c]).forEach(function(v){ if (estVise(c, v)) n++; }); }); return n; }
+/* 'g' = ajoutée par la personne pour toutes ses expériences ; 'h' = cochée dans « Métier visé » : déjà pratiquée, mais hors des expériences listées */
+function indicesComp(){ return DONNEES.map(function(d, i){ return i; }).concat(['g', 'h']); }
+function nbExpAvecFiche(){ return DONNEES.filter(function(d, i){ return !!ficheActive(i); }).length; }
+/* valeur -> expériences dont la fiche (ou l'ajout de la personne) la propose */
+function offresComp(){
+  var o = { sf:{}, se:{}, sv:{}, k:{} };
+  function ajouter(t, v, i){ (o[t][v] = o[t][v] || []); if (o[t][v].indexOf(i) < 0) o[t][v].push(i); }
+  DONNEES.forEach(function(d, i){ var f = ficheActive(i); if (f) ['sf','se','sv','k'].forEach(function(t){ (f[t] || []).forEach(function(v){ ajouter(t, v, i); }); }); });
+  indicesComp().forEach(function(i){ var p = etat.compPerso[i] || {}; Object.keys(p).forEach(function(t){ p[t].forEach(function(v){ ajouter(t, v, i); }); }); });
+  return o;
+}
+/* « Commune » = proposée par au moins deux expériences (ou ajoutée pour toutes). Calculé sur ce que les fiches proposent, jamais sur les coches. */
+function estCommun(o, cle, v){ var ix = o[cle][v] || []; return ix.indexOf('g') >= 0 || ix.filter(function(x){ return x !== 'g'; }).length >= 2; }
+function toutesComp(){
+  var r = { sf:[], se:[], sv:[] };
+  indicesComp().forEach(function(i){ ['sf','se','sv','k'].forEach(function(t){ compCochees(i, t).forEach(function(c){ var cl = t === 'k' ? 'sf' : t; if (r[cl].indexOf(c) < 0) r[cl].push(c); }); }); });
+  return r;
+}
+function nbCompTotal(){ var r = toutesComp(); return r.sf.length + r.se.length + r.sv.length; }
+function nbCompExp(i){ var n = 0; ['sf','se','sv','k'].forEach(function(t){ n += compCochees(i, t).length; }); return n; }
+
+/* ---------- Petites briques d'affichage (mêmes classes que l'application) ---------- */
+function chip(attrs, texte, etatCoche, extra){
+  var c = etatCoche === true ? ' coche' : (etatCoche === 'mixte' ? ' mixte' : '');
+  return '<span class="vp-carte' + (extra ? ' ' + extra : '') + c + '" role="checkbox" aria-checked="' + (etatCoche === true ? 'true' : (etatCoche === 'mixte' ? 'mixed' : 'false')) + '" tabindex="0" ' + attrs + '>' + texte + '</span>';
+}
+function details(cle, classe, ouvertParDefaut, entete, corps){
+  var ouvert = etat.ouvert[cle] !== undefined ? etat.ouvert[cle] : ouvertParDefaut;
+  return '<details class="' + classe + '" data-k="' + cle + '"' + (ouvert ? ' open' : '') + '><summary>' + entete + '</summary>' + corps + '</details>';
+}
+function onglets(groupe, items, courant, classes){
+  var h = '<div class="onglets-validation-import" role="tablist">';
+  items.forEach(function(it, k){ h += '<button type="button" class="onglet-validation-import-btn' + ((classes && classes[k]) ? ' ' + classes[k] : '') + (k === courant ? ' actif' : '') + '" role="tab" aria-selected="' + (k === courant) + '" data-onglet="' + groupe + '" data-v="' + k + '">' + it + '</button>'; });
+  return h + '</div>';
+}
+function libOnglet(d, nb){ return echap(d.poste) + (nb ? '<span class="badge-onglet-nb">' + nb + '</span>' : '') + '<small class="d-block" style="font-weight:400;font-size:.8rem">' + echap(d.dates) + '</small>'; }
+function ajoutTexte(id, attrCle, attrVal, placeholder){
+  return '<div class="d-flex gap-2 mt-2"><input type="text" class="form-control" id="' + id + '" placeholder="' + placeholder + '" aria-label="' + placeholder + '"><button type="button" class="btn btn-outline-primary text-nowrap" ' + attrCle + '="' + attrVal + '">+ Ajouter</button></div>';
+}
+function famille(cle, ico, nom, items, ouvertParDefaut){
+  var apercu = items.slice(0, 3).map(function(x){ return x.label; }).join(', ') + (items.length > 3 ? '…  (+' + (items.length - 3) + ')' : '');
+  var entete = '<span class="vp-fam-nom">' + nom + '</span><span class="vp-fam-nb">' + items.length + ' choix</span><span class="vp-fam-ligne"><span class="vp-apercu">' + echap(apercu) + '</span></span>';
+  return details(cle, 'vp-fam fam-' + cle.split('-').pop(), ouvertParDefaut, entete, '<div class="vp-fam-corps"><div class="vp-cartes">' + items.map(function(x){ return x.html; }).join('') + '</div></div>');
+}
+
+/* ---------- BRIQUE 1 : missions d'une expérience ---------- */
+function htmlMissions(i, enReprise){
+  var d = DONNEES[i], f = ficheActive(i), h = '';
+  if (!f) {
+    h += '<p class="vp-consigne vp-regle">Aucune fiche de métier ne correspond à ce poste. Ce n’est pas un problème : écrivez vos missions vous-même, ou cherchez une fiche proche.</p>';
+    if (d.propositions && d.propositions.length) {
+      h += '<p class="vp-consigne">Fiches qui pourraient s’en approcher :</p><div class="vp-cartes">' + d.propositions.map(function(p){ return chip('data-fiche="' + p.code + '" data-i="' + i + '"', echap(p.nom), false); }).join('') + '</div>';
+    }
+    return h + htmlMissionsPerso(i, true);
+  }
+  h += '<p class="vp-consigne">Pour cette expérience, nous avons retrouvé la fiche du métier : <strong>' + echap(f.nom) + '</strong> <button type="button" class="btn btn-sm btn-nav-erip ms-1" data-autres="' + i + '">Ce n’est pas le bon métier ?</button></p>';
+  if (etat.autres[i]) {
+    var base = d.fiche ? d.fiche.proches : (d.propositions || []);
+    var choix = [];
+    if (d.fiche && f.code !== d.fiche.code) choix.push(chip('data-fiche="' + d.fiche.code + '" data-i="' + i + '"', echap(d.fiche.nom) + ' (fiche d’origine)', false));
+    base.forEach(function(p){ if (p.code !== f.code) choix.push(chip('data-fiche="' + p.code + '" data-i="' + i + '"', echap(p.nom), false)); });
+    choix.push(chip('data-fiche="aucune" data-i="' + i + '"', 'Aucune ne convient : j’écris moi-même', false));
+    h += '<p class="vp-consigne">Fiches proches :</p><div class="vp-cartes mb-2">' + choix.join('') + '</div>';
+  }
+  if (enReprise) {
+    h += '<p class="vp-consigne"><strong>Vos missions actuelles</strong> (reprises de votre CV)</p>';
+    d.actuelles.forEach(function(a, k){
+      var coche = !(etat.modif[i] && etat.modif[i]['act' + k] === false);
+      h += '<div class="vp-ligne">' + chip('data-actuelle="act' + k + '" data-i="' + i + '"', echap(a), coche, 'vp-longue') + '</div>';
+    });
+    h += '<p class="vp-consigne mt-2"><strong>Missions que vous pouvez ajouter</strong>, d’après la fiche</p>';
+  }
+  (f.m || []).forEach(function(m, k){
+    var coche = missionsCochees(i).indexOf(m) >= 0, texte = (etat.modif[i] && etat.modif[i]['m' + m]) || m;
+    if (etat.edit[i + 'm' + k]) {
+      h += '<div class="vp-ligne"><input type="text" class="form-control" data-edit-m="' + k + '" data-i="' + i + '" value="' + echap(texte) + '" aria-label="Modifier la mission"><button type="button" class="btn btn-sm btn-primary" data-ok-m="' + k + '" data-i="' + i + '">Valider</button></div>';
+    } else {
+      h += '<div class="vp-ligne">' + chip('data-m="' + k + '" data-i="' + i + '"', echap(texte), coche, 'vp-longue') + '<button type="button" class="btn btn-sm btn-nav-erip" data-modifier-m="' + k + '" data-i="' + i + '">Modifier</button></div>';
+    }
+  });
+  return h + htmlMissionsPerso(i, false);
+}
+function htmlMissionsPerso(i, seul){
+  var h = '';
+  persoMissions(i).forEach(function(m){ h += '<div class="vp-ligne">' + chip('data-perso-m="' + echap(m) + '" data-i="' + i + '"', echap(m) + ' <small>(la vôtre)</small>', true, 'vp-longue') + '</div>'; });
+  return h + ajoutTexte('ajout-m-' + i, 'data-ajout-m', i, seul ? 'Écrivez une mission que vous avez faite' : 'Ajouter une mission qui vous est propre');
+}
+
+/* ---------- BRIQUE 2 : compétences ---------- */
+/* Une seule liste, rangée par type (savoir-faire, savoir-être, savoirs). Un filtre par expérience remplace les onglets et la liste globale : rien n'est perdu, tout reste atteignable. */
+function estPerso(cle, v){ return indicesComp().some(function(i){ return ((etat.compPerso[i] || {})[cle] || []).indexOf(v) >= 0; }); }
+function libSources(ix){
+  if (ix.indexOf('g') >= 0) return 'toutes vos expériences';
+  var noms = ix.map(function(x){ return DONNEES[x].poste; });
+  return noms.length > 2 ? noms.length + ' expériences' : noms.join(', ');
+}
+function etatPuce(ix, cle, v){
+  var nb = ix.filter(function(i){ return compCochees(i, cle).indexOf(v) >= 0; }).length;
+  return nb === 0 ? false : (nb === ix.length ? true : 'mixte');
+}
+/* filtre = null : vue d'ensemble (un clic coche pour toutes les expériences qui la proposent) ; filtre = i : un clic ne concerne que l'expérience i */
+function chipComp(o, cle, v, filtre){
+  var ix = o[cle][v];
+  var texte = echap(v) + marqueVise(cle, v) + '<span class="vp-src">' + echap(libSources(ix)) + (estPerso(cle, v) ? ' · la vôtre' : '') + '</span>';
+  var cl = 'avec-src' + (cle === 'k' ? ' vp-longue' : '');
+  if (filtre === null || ix.indexOf('g') >= 0) return chip('data-g="' + cle + '" data-v="' + echap(v) + '"', texte, etatPuce(ix, cle, v), cl);
+  return chip('data-c="' + cle + '" data-i="' + filtre + '" data-v="' + echap(v) + '"', texte, compCochees(filtre, cle).indexOf(v) >= 0, cl);
+}
+/* Ordre : le métier visé d'abord, puis ce qui revient dans plusieurs expériences, puis le reste (ordre de la fiche conservé) */
+function rangerComp(o, cle, vals){
+  return vals.map(function(v, k){ return { v: v, r: estVise(cle, v) ? 0 : (estCommun(o, cle, v) ? 1 : 2), k: k }; })
+    .sort(function(a, b){ return a.r - b.r || a.k - b.k; }).map(function(x){ return x.v; });
+}
+/* Les familles d'une vue : filtre = null (toutes les expériences) ou i (une expérience). Les activités précises sont dans les deux vues, repliées par défaut. */
+function htmlFamillesComp(filtre, prefixe){
+  var o = offresComp(), h = '';
+  TYPES_COMP.forEach(function(t){
+    var cle = t[0];
+    var vals = Object.keys(o[cle]).filter(function(v){ var ix = o[cle][v]; return filtre === null || ix.indexOf(filtre) >= 0 || ix.indexOf('g') >= 0; });
+    if (!vals.length) return;
+    vals = rangerComp(o, cle, vals);
+    h += famille(prefixe + cle, t[1], t[2], vals.map(function(v){ return { label: v, html: chipComp(o, cle, v, filtre) }; }), cle !== 'k');
+  });
+  return h;
+}
+function htmlCompetencesExp(i){
+  var f = ficheActive(i), h = '';
+  if (!f) h += '<p class="vp-consigne vp-regle">Aucune fiche pour cette expérience : ajoutez vos compétences vous-même.</p>';
+  return h + htmlFamillesComp(i, 'ce-' + i + '-') + ajoutTexte('ajout-comp-' + i, 'data-ajout-comp', i, 'Ajouter une compétence propre à ce métier');
+}
+/* ---------- Métier visé : ce qu'il demande, ce que les choix de la personne couvrent déjà ---------- */
+function nomsExp(ix){ return ix.map(function(x){ return DONNEES[x].poste; }).join(', '); }
+/* État d'une compétence du métier visé : choisie pour des expériences, cochée hors expériences, proposée mais pas choisie, ou absente de leurs fiches */
+function etatCible(o, cle, v){
+  var ix = (o[cle][v] || []).filter(function(x){ return x !== 'g'; }), ex = ix.filter(function(x){ return compCochees(x, cle).indexOf(v) >= 0; });
+  var hors = compCochees('h', cle).indexOf(v) >= 0 || compCochees('g', cle).indexOf(v) >= 0;
+  return { ix: ix, ex: ex, hors: hors, couverte: ex.length > 0 || hors };
+}
+function bilanCible(){
+  var o = offresComp(), b = { total: 0, exp: 0, hors: 0, k: 0, kCouv: 0, manque: [] };
+  ['sf', 'se', 'sv', 'k'].forEach(function(cle){
+    (CIBLE[cle] || []).forEach(function(v){
+      var e = etatCible(o, cle, v);
+      if (cle === 'k') { b.k++; if (e.couverte) b.kCouv++; return; }
+      b.total++;
+      if (e.ex.length) b.exp++; else if (e.hors) b.hors++; else b.manque.push(v);
+    });
+  });
+  return b;
+}
+/* Nombre de fiches du ROME (sur 1 790) qui portent la compétence : mesure du 14/11/2026 pour le métier d'exemple. Dans l'application : index calculé à la génération des données. Sert à présenter les compétences courantes d'abord. */
+var FREQ_CIBLE = {'Accompagnement':98,'Assistance':145,'Médiation':87,'Observation':160,'Conseil':225,'Prévention des risques':251,'Écoute':279,'Empathie':273,'Motivation':427,'Rigueur':1138,'Techniques de levage et de transfert':6,'Techniques de gestion de conflits':56,'Techniques de communication non verbale':19,'Techniques de communication interpersonnelle':27,'Techniques de gestion du stress':47,'Techniques de manipulation de la personne âgée ou accompagnée':2};
+function chipCible(o, cle, v){
+  var e = etatCible(o, cle, v), src, attrs, etatChip;
+  if (e.ix.length) {
+    attrs = 'data-g="' + cle + '" data-v="' + echap(v) + '"'; etatChip = etatPuce(e.ix, cle, v);
+    src = e.ex.length ? 'Choisie pour : ' + nomsExp(e.ex) : 'Proposée pour : ' + nomsExp(e.ix) + ' (pas encore choisie)';
+  } else {
+    attrs = 'data-h="' + cle + '" data-v="' + echap(v) + '"'; etatChip = compCochees('h', cle).indexOf(v) >= 0;
+    src = cle === 'k' ? (etatChip ? 'Hors de vos expériences listées' : 'À cocher si vous l’avez déjà pratiquée') : '';
+  }
+  return { couverte: e.couverte, deLExp: e.ix.length > 0, html: chip(attrs, echap(v) + (src ? '<span class="vp-src">' + echap(src) + '</span>' : ''), etatChip, (src ? 'avec-src' : '') + (cle === 'k' ? ' vp-longue' : '')) };
+}
+function htmlCompetencesCible(){
+  var o = offresComp(), h = htmlBilanCible();
+  h += '<p class="vp-consigne">Voici ce que demande le métier « <strong>' + echap(CIBLE.nom) + '</strong> » (fiche France Travail). Ce que vos choix couvrent déjà est coché, avec l’expérience d’origine. Pour le reste, <strong>cochez seulement ce que vous avez déjà pratiqué</strong>, même en dehors des expériences listées (autre emploi, bénévolat, vie quotidienne) : cela sera ajouté à votre CV.</p>';
+  /* Deux rubriques à place STABLE (une compétence cochée ne change pas de rubrique), chacune rangée par type. */
+  var rub = { exp: { nb: 0, corps: '' }, hors: { nb: 0, corps: '' } };
+  [['sf', 'Savoir-faire'], ['se', 'Savoir-être'], ['sv', 'Savoirs']].forEach(function(t){
+    var cle = t[0], vals = CIBLE[cle] || [], lesCartes = vals.map(function(v){ var c = chipCible(o, cle, v); return { v: v, c: c }; });
+    var deExp = lesCartes.filter(function(x){ return x.c.deLExp; }), hors = lesCartes.filter(function(x){ return !x.c.deLExp; });
+    hors.sort(function(a, b){ return (FREQ_CIBLE[b.v] || 0) - (FREQ_CIBLE[a.v] || 0); });
+    if (deExp.length) { rub.exp.nb += deExp.length; rub.exp.corps += '<p class="vp-sous-titre">' + t[1] + '</p><div class="vp-cartes">' + deExp.map(function(x){ return x.c.html; }).join('') + '</div>'; }
+    if (hors.length) { rub.hors.nb += hors.length; rub.hors.corps += '<p class="vp-sous-titre">' + t[1] + '</p><div class="vp-cartes">' + hors.map(function(x){ return x.c.html; }).join('') + '</div>'; }
+  });
+  if (rub.exp.nb) h += details('cv-exp', 'vp-fam', true, '<span class="vp-fam-nom">Proposées par vos expériences</span><span class="vp-fam-nb">' + rub.exp.nb + ' choix</span><span class="vp-fam-ligne"><span class="vp-apercu">Cochées ou à cocher, avec l’expérience d’origine</span></span>', '<div class="vp-fam-corps">' + rub.exp.corps + '</div>');
+  if (rub.hors.nb) h += details('cv-hors', 'vp-fam', true, '<span class="vp-fam-nom">À cocher si vous les avez déjà pratiquées</span><span class="vp-fam-nb">' + rub.hors.nb + ' choix</span><span class="vp-fam-ligne"><span class="vp-apercu">En dehors de vos expériences listées : les plus courantes dans ce métier d’abord</span></span>', '<div class="vp-fam-corps">' + rub.hors.corps + '</div>');
+  var tk = TYPES_COMP[3], valsK = CIBLE.k || [];
+  if (valsK.length) {
+    var itemsK = valsK.map(function(v){ var c = chipCible(o, 'k', v); return { label: v, html: c.html, couverte: c.couverte }; });
+    itemsK = itemsK.filter(function(x){ return x.couverte; }).concat(itemsK.filter(function(x){ return !x.couverte; }));
+    h += famille('cv-k', tk[1], tk[2], itemsK, false);
+  }
+  return h;
+}
+/* Bilan : en haut de l'onglet « Métier visé » (décision Denis 14/11/2026 : plus sous « Votre CV, tel qu'il se construit »). */
+function htmlBilanCible(){
+  if (!CIBLE) return '';
+  var b = bilanCible(), couv = b.exp + b.hors, pc = b.total ? Math.round(100 * couv / b.total) : 0;
+  var h = '<div class="vp-cible-bilan">';
+  h += '<p class="vp-consigne mb-1">Vous avez déjà choisi <strong>' + couv + ' des ' + b.total + ' compétences</strong> que demande ce métier (' + pc + '&nbsp;%)'
+    + (couv ? ' : ' + [b.exp ? b.exp + ' grâce à vos expériences' : '', b.hors ? b.hors + ' cochée' + (b.hors > 1 ? 's' : '') + ' hors de vos expériences listées' : ''].filter(Boolean).join(', ') : '') + '.</p>';
+  h += '<div class="progress mb-1" style="height:.5rem" role="progressbar" aria-label="Part des compétences du métier visé déjà choisies" aria-valuenow="' + pc + '" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:' + pc + '%"></div></div>';
+  if (b.k) h += '<p class="vp-consigne text-muted small mb-0">Activités plus précises du métier : ' + b.kCouv + ' sur ' + b.k + ' déjà choisies.</p>';
+  return h + '</div>';
+}
+function htmlCompetencesBloc(){
+  var n = nbCompTotal(), fi = etat.filtreC, h = '';
+  h += '<p class="vp-consigne">Cliquez sur une compétence pour la choisir : elle est cochée (✓) et ira dans votre CV. Cliquez de nouveau pour l’enlever. Sous chaque compétence, une ligne grise indique de quelle expérience elle vient.</p>';
+  h += '<p class="vp-consigne text-muted small"><strong>Savoir-faire</strong> : ce que vous savez faire. <strong>Savoir-être</strong> : vos qualités au travail. <strong>Savoirs</strong> : ce que vous connaissez.</p>';
+  h += n > 12 ? '<div class="encart-limite-missions">' + pluriel(n, 'compétence') + ' : un CV se lit mieux avec 8 à 12 compétences au total.</div>'
+    : '<p class="vp-consigne vp-plafond" role="status"><strong>' + pluriel(n, 'compétence') + '</strong> au total (8 à 12 conviennent bien).</p>';
+  h += '<p class="vp-consigne mb-1"><strong>Afficher les compétences de :</strong></p>';
+  var lesOnglets = ['🗂️ Toutes mes expériences<small class="d-block" style="font-weight:400;font-size:.8rem">vue d’ensemble</small>'].concat(DONNEES.map(function(d, k){ return libOnglet(d, nbCompExp(k)); }));
+  if (CIBLE) { var bc = bilanCible(); lesOnglets.push('🎯 Métier visé<span class="badge-onglet-nb">' + (bc.exp + bc.hors) + '/' + bc.total + '</span><small class="d-block" style="font-weight:400;font-size:.8rem">ce qu’il demande</small>'); }
+  var clsOnglets = ['onglet-global']; DONNEES.forEach(function(){ clsOnglets.push(''); }); if (CIBLE) clsOnglets.push('onglet-vise');
+  /* Deux lignes (décision Denis 14/11/2026) : 1) « Toutes mes expériences » et « Métier visé » côte à côte ; 2) les expériences professionnelles. */
+  var btn = function(k){ return '<button type="button" class="onglet-validation-import-btn' + (clsOnglets[k] ? ' ' + clsOnglets[k] : '') + (k === fi ? ' actif' : '') + '" role="tab" aria-selected="' + (k === fi) + '" data-onglet="filtreC" data-v="' + k + '">' + lesOnglets[k] + '</button>'; };
+  h += '<div class="onglets-comp"><div class="onglets-validation-import" role="tablist">' + btn(0) + (CIBLE ? btn(DONNEES.length + 1) : '') + '</div>';
+  h += '<p class="vp-consigne mb-1"><strong>Expériences professionnelles :</strong></p><div class="onglets-validation-import derniere" role="tablist">';
+  DONNEES.forEach(function(d, k){ h += btn(k + 1); });
+  h += '</div></div>';
+  if (CIBLE && fi === DONNEES.length + 1) {
+    h += htmlCompetencesCible();
+  } else if (fi === 0) {
+    h += '<p class="vp-consigne">Toutes les compétences proposées pour vos expériences, <strong>sans doublon</strong>. Celles qui reviennent dans plusieurs expériences passent en premier : un clic les rattache à chacune d’elles.</p>';
+    h += htmlFamillesComp(null, 'ct-');
+    h += ajoutTexte('ajout-comp-g', 'data-ajout-comp', 'g', 'Ajouter une compétence pour toutes mes expériences');
+  } else {
+    var i = fi - 1;
+    h += '<p class="vp-consigne text-muted small">Ici, un clic ne concerne que « ' + echap(DONNEES[i].poste) + ' ». Pour une compétence qui revient dans plusieurs expériences, passez par « Toutes mes expériences ».</p>';
+    h += htmlCompetencesExp(i);
+  }
+  return h;
+}
+
+/* ---------- Aperçu du CV (même source que les deux blocs) ---------- */
+function htmlApercu(enReprise){
+  var h = '<p class="vp-consigne">Rien ne s’ajoute à votre CV sans votre clic.</p>';
+  DONNEES.forEach(function(d, i){
+    var ms = [];
+    if (enReprise) actuellesCochees(i).forEach(function(a){ ms.push(a); });
+    missionsCochees(i).forEach(function(m){ ms.push((etat.modif[i] && etat.modif[i]['m' + m]) || m); });
+    persoMissions(i).forEach(function(m){ ms.push(m); });
+    h += '<div class="vp-cv-poste">' + echap(d.poste) + ' <span class="text-muted" style="font-weight:400">(' + echap(d.dates) + ')</span></div>';
+    h += ms.length ? '<ul class="vp-cv-liste">' + ms.map(function(m){ return '<li>' + echap(m) + '</li>'; }).join('') + '</ul>' : '<p class="vp-vide">Aucune mission choisie pour le moment.</p>';
+  });
+  h += '<div class="vp-cv-poste">Compétences</div>';
+  var t = toutesComp(), vide = true;
+  [['sf','Savoir-faire'], ['se','Savoir-être'], ['sv','Savoirs']].forEach(function(x){
+    if (t[x[0]].length) { vide = false; h += '<p class="vp-consigne mb-1 mt-2"><strong>' + x[1] + '</strong></p><div class="vp-cartes mb-2">' + t[x[0]].map(function(c){ return '<span class="vp-carte fixe coche">' + echap(c) + '</span>'; }).join('') + '</div>'; }
+  });
+  if (vide) h += '<p class="vp-vide">Aucune compétence choisie pour le moment.</p>';
+  return h;
+}
+function blocApercu(enReprise){
+  var nm = nbMissionsTotal(enReprise), nc = nbCompTotal();
+  var defaut = qs('#mq-apercu').value === 'ouvert';
+  return details('cv', 'vp-question', defaut, '<span class="vp-fam-ico" style="font-size:1.5rem">📄</span><span class="vp-qtitre">Votre CV, tel qu’il se construit</span><span class="vp-qpil">' + pluriel(nm, 'mission', false) + ', ' + pluriel(nc, 'compétence', false) + '</span>', '<div class="vp-qcorps">' + htmlApercu(enReprise) + '</div>');
+}
+
+/* ---------- ÉCRAN 1 : étape « Vos missions et compétences » (Créer un nouveau CV) ---------- */
+var ETAPES_CREER = [['🎯','Votre objectif'], ['📋','Vos informations'], ['🧭','Votre parcours'], ['🛠️','Vos missions et compétences'], ['🔍','Votre profil'], ['💬','Assistant'], ['📄','Vos documents']];
+function htmlBarreEtapes(etapes, courant){
+  return '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">' + etapes.map(function(e, i){
+    var cl = i < courant ? ' pastille-etape-action-validee' : (i === courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+    var a = i > courant ? ' style="cursor:default;opacity:0.4;"' : (i === courant ? ' style="cursor:default;"' : ' style="cursor:pointer;"');
+    var chev = i > 0 ? '<span class="chevron-etape-action' + (i === courant + 1 ? ' chevron-pulse' : '') + '"' + (i > courant ? ' style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>' : '';
+    return chev + '<span class="pastille-etape-action' + cl + '"' + a + '><span class="pastille-etape-action-icone">' + e[0] + '</span><span class="pastille-etape-action-label">' + e[1] + '</span></span>';
+  }).join('') + '</div>';
+}
+/* Bandeau « le métier que vous visez » : rappelle que toutes les expériences servent ce métier */
+function htmlCible(){
+  var nbV = nbViseesProposees();
+  return '<div class="vp-cible"><div class="text-muted small">🎯 Le métier que vous visez</div><div class="vp-cible-metier">' + echap(CIBLE.nom) + '</div>'
+    + '<p class="mb-1 mt-1">Votre CV s’appuie sur vos <strong>' + DONNEES.length + ' expériences</strong> et sur les compétences que vous y avez acquises, pour raconter un parcours cohérent avec ce métier. Choisissez en priorité ce qui s’en rapproche.</p>'
+    + '<p class="mb-1 small text-muted">' + (nbV ? 'Dans les fiches de vos expériences, <strong>' + nbV + ' compétence' + (nbV > 1 ? 's' : '') + '</strong> sont aussi demandées par ce métier : elles portent la mention <span class="vp-vise">métier visé</span> et passent en premier.' : 'Aucune compétence des fiches de vos expériences n’est demandée telle quelle par ce métier : choisissez ce qui s’en rapproche le plus.') + '</p>'
+    + '<button type="button" class="btn btn-sm btn-nav-erip" data-nav="objectif">Changer de métier</button></div>';
+}
+function rendreCreation(){
+  var nm = nbMissionsTotal(false), nc = nbCompTotal(), i = etat.expM, h = '';
+  h += htmlBarreEtapes(ETAPES_CREER, 3);
+  h += '<div class="bande-reprise-module seule"><div class="bande-reprise-module-gauche"><div><button type="button" class="btn-revoir-module"><i class="bi bi-chat-dots"></i> Revoir la présentation</button></div></div></div>';
+  h += '<div class="text-center"><h1>🛠️ Vos missions et compétences</h1><p class="sousTitre">Cochez ce que vous avez réellement fait. Rien ne s’ajoute à votre CV sans votre clic.</p></div>';
+  h += '<div class="cv-section" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;"><p class="mb-0">👉 <strong>Pour choisir, cliquez</strong> sur ce qui correspond à ce que vous avez réellement fait : c’est coché (✓) et cela ira dans votre CV. Cliquez de nouveau pour l’enlever. <strong>Ne cochez que ce que vous avez réellement fait</strong> : tout reste modifiable, et vous pouvez ajouter les vôtres. Les propositions viennent de la fiche officielle de chaque métier (France Travail).</p></div>';
+  h += htmlCible();
+  /* Bloc 1 : missions */
+  var nbI = nbMissionsExp(i, false);
+  var corps1 = '<p class="vp-consigne">Cliquez sur une phrase pour la choisir : elle est cochée (✓) et ira dans votre CV. Cliquez de nouveau pour l’enlever. Faites-le expérience par expérience, avec les onglets.</p>';
+  corps1 += nbI > 7 ? '<div class="encart-limite-missions">' + pluriel(nbI, 'mission') + ' pour cette expérience : un CV se lit mieux avec 4 à 6 missions par expérience.</div>'
+    : '<p class="vp-consigne vp-plafond" role="status"><strong>' + pluriel(nbI, 'mission') + '</strong> pour cette expérience (4 à 6 conviennent bien).</p>';
+  corps1 += onglets('expM', DONNEES.map(function(d, k){ return libOnglet(d, nbMissionsExp(k, false)); }), i) + htmlMissions(i, false);
+  h += details('q1', 'vp-question', true, '<span class="vp-qnum">1</span><span class="vp-qtitre">Vos missions</span><span class="vp-qpil ' + (nm ? 'ok' : 'vide') + '">' + (nm ? pluriel(nm, 'mission', true) : 'à compléter') + '</span>', '<div class="vp-qcorps">' + corps1 + '</div>');
+  /* Bloc 2 : compétences */
+  h += details('q2', 'vp-question', true, '<span class="vp-qnum">2</span><span class="vp-qtitre">Vos compétences</span><span class="vp-qpil ' + (nc ? 'ok' : 'vide') + '">' + (nc ? pluriel(nc, 'compétence', true) : 'à compléter') + '</span>', '<div class="vp-qcorps">' + htmlCompetencesBloc() + '</div>');
+  /* Aperçu */
+  h += blocApercu(false);
+  /* Barre du bas, identique aux autres pages du parcours */
+  h += '<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg" data-nav="retour">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil" data-nav="accueil"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg" data-nav="suite">Continuer →</button></div></div>';
+  return h;
+}
+
+/* ---------- ÉCRAN 2 : « Mettre à jour mon CV » (Corriger mon CV) : même brique, bouton par expérience ---------- */
+var ETAPES_MAJ = [['📝','Préparer'], ['💬','Assistant'], ['📥','Réponse'], ['✏️','Corriger mon CV'], ['📄','Vos documents']];
+function rendreReprise(){
+  var h = htmlBarreEtapes(ETAPES_MAJ, 3);
+  h += '<div class="text-center"><h1>✏️ Corriger mon CV</h1><p class="sousTitre">Votre CV a été lu. Vérifiez ce qui a été retrouvé, et complétez-le si vous le souhaitez.</p></div>';
+  h += '<div class="cv-section bloc-erip bloc-erip-recommande"><div class="bloc-erip-entete"><h5>💼 Vos expériences professionnelles</h5><span class="bloc-erip-tag bloc-erip-tag-rec">recommandées</span></div><div class="sous-section-plate">';
+  h += '<p class="text-muted small mb-2">Pour chaque expérience, gardez vos missions telles quelles ou complétez-les avec les missions et compétences de la fiche du métier.</p>';
+  DONNEES.forEach(function(d, i){
+    var f = ficheActive(i), ouvert = !!etat.ouvertReprise[i];
+    h += '<div class="cv-section cv-section-compact"><div class="d-flex flex-wrap justify-content-between align-items-center gap-2"><div><div class="ss-titre-plate">' + echap(d.poste) + '</div><div class="text-muted small">' + echap(d.employeur) + ', ' + echap(d.dates) + '</div></div>';
+    h += f ? '<button type="button" class="btn btn-sm btn-nav-erip" data-ouvrir="' + i + '">' + (ouvert ? 'Fermer' : 'Compléter avec la fiche du métier') + '</button>' : '<span class="text-muted small">Pas de fiche proche : rien à proposer</span>';
+    h += '</div>';
+    if (!ouvert) h += '<ul class="vp-cv-liste mb-0 mt-2">' + (d.actuelles.length ? d.actuelles.map(function(a){ return '<li>' + echap(a) + '</li>'; }).join('') : '<li class="vp-vide">Aucune mission écrite dans votre CV</li>') + '</ul>';
+    if (ouvert) {
+      h += '<div class="mt-2">' + htmlMissions(i, true) + '<p class="vp-consigne mt-3"><strong>Compétences</strong> de la fiche</p>' + htmlCompetencesExp(i, false) + '</div>';
+    }
+    h += '</div>';
+  });
+  h += '</div></div>';
+  h += blocApercu(true);
+  h += '<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button type="button" class="btn btn-nav-erip btn-lg" data-nav="retour">← Retour</button><button type="button" class="btn btn-nav-erip btn-accueil" data-nav="accueil"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button><button type="button" class="btn btn-primary btn-lg" data-nav="suite">Continuer →</button></div></div>';
+  return h;
+}
+
+function tout(){
+  var y = window.scrollY;
+  qs('#page').innerHTML = etat.ecran === 'creation' ? rendreCreation() : rendreReprise();
+  window.scrollTo(0, y);
+}
+
+/* ---------- Évènements ---------- */
+document.addEventListener('toggle', function(e){ var k = e.target && e.target.getAttribute && e.target.getAttribute('data-k'); if (k) etat.ouvert[k] = e.target.open; }, true);
+function agir(t){
+  var i = t.dataset.i !== undefined ? parseInt(t.dataset.i, 10) : null;
+  if (t.dataset.nav) { alert('Maquette : « ' + t.dataset.nav + ' » mènerait à l’écran voisin du parcours.'); return true; }
+  if (t.dataset.onglet !== undefined) {
+    var g = t.dataset.onglet, v = parseInt(t.dataset.v, 10);
+    etat[g] = v;
+    tout(); return true;
+  }
+  if (t.dataset.autres !== undefined) { var k = parseInt(t.dataset.autres, 10); etat.autres[k] = !etat.autres[k]; tout(); return true; }
+  if (t.dataset.fiche !== undefined) {
+    etat.fiches[i] = t.dataset.fiche === 'aucune' ? null : t.dataset.fiche; etat.miss[i] = [];
+    var pp = etat.compPerso[i] || {}; etat.comp[i] = {}; Object.keys(pp).forEach(function(c){ etat.comp[i][c] = pp[c].slice(); });
+    etat.autres[i] = false; tout(); return true;
+  }
+  if (t.dataset.ouvrir !== undefined) { var o = parseInt(t.dataset.ouvrir, 10); etat.ouvertReprise[o] = !etat.ouvertReprise[o]; tout(); return true; }
+  if (t.dataset.m !== undefined) { var f = ficheActive(i); if (f) basculer(etat.miss, i, f.m[parseInt(t.dataset.m, 10)]); tout(); return true; }
+  if (t.dataset.modifierM !== undefined) { etat.edit[i + 'm' + t.dataset.modifierM] = true; tout(); return true; }
+  if (t.dataset.okM !== undefined) {
+    var kk = parseInt(t.dataset.okM, 10), champ = document.querySelector('[data-edit-m="' + kk + '"][data-i="' + i + '"]'), orig = ficheActive(i).m[kk];
+    etat.modif[i] = etat.modif[i] || {}; etat.modif[i]['m' + orig] = champ.value; delete etat.edit[i + 'm' + kk]; tout(); return true;
+  }
+  if (t.dataset.actuelle !== undefined) { etat.modif[i] = etat.modif[i] || {}; etat.modif[i][t.dataset.actuelle] = !(etat.modif[i][t.dataset.actuelle] !== false); tout(); return true; }
+  if (t.dataset.persoM !== undefined) { var p = etat.perso[i]; p.splice(p.indexOf(t.dataset.persoM), 1); tout(); return true; }
+  if (t.dataset.h !== undefined) { basculer(etat.comp, 'h', t.dataset.v, t.dataset.h); tout(); return true; }
+  if (t.dataset.aller !== undefined) { etat.filtreC = DONNEES.length + 1; etat.ouvert.q2 = true; tout(); var q2 = document.querySelector('[data-k=q2]'); if (q2) q2.scrollIntoView(); return true; }
+  if (t.dataset.g !== undefined) {
+    var tg = t.dataset.g, vg = t.dataset.v, ix = offresComp()[tg][vg] || [];
+    var toutes = ix.every(function(x){ return compCochees(x, tg).indexOf(vg) >= 0; });
+    ix.forEach(function(x){ var deja = compCochees(x, tg).indexOf(vg) >= 0; if (toutes === deja) basculer(etat.comp, x, vg, tg); });
+    tout(); return true;
+  }
+  if (t.dataset.c !== undefined) { basculer(etat.comp, i, t.dataset.v, t.dataset.c); tout(); return true; }
+  if (t.dataset.ajoutM !== undefined) { var n = parseInt(t.dataset.ajoutM, 10), ch = qs('#ajout-m-' + n); if (ch.value.trim()) (etat.perso[n] = etat.perso[n] || []).push(ch.value.trim()); tout(); return true; }
+  if (t.dataset.ajoutComp !== undefined) {
+    var n2 = t.dataset.ajoutComp === 'g' ? 'g' : parseInt(t.dataset.ajoutComp, 10), ch2 = qs('#ajout-comp-' + n2);
+    if (ch2.value.trim()) { var val = ch2.value.trim(); etat.compPerso[n2] = etat.compPerso[n2] || {}; (etat.compPerso[n2].sf = etat.compPerso[n2].sf || []).push(val); basculer(etat.comp, n2, val, 'sf'); }
+    tout(); return true;
+  }
+  return false;
+}
+document.addEventListener('click', function(e){ var t = e.target.closest('[data-onglet],[data-autres],[data-fiche],[data-ouvrir],[data-m],[data-modifier-m],[data-ok-m],[data-actuelle],[data-perso-m],[data-g],[data-h],[data-aller],[data-c],[data-ajout-m],[data-ajout-comp],[data-nav]'); if (t) agir(t); });
+document.addEventListener('keydown', function(e){
+  var c = e.target;
+  if (e.key === 'Enter' || e.key === ' ') { if (c.classList && c.classList.contains('vp-carte') && c.getAttribute('role') === 'checkbox') { e.preventDefault(); agir(c); return; } }
+  if (e.key !== 'Enter') return;
+  if (c.id && c.id.indexOf('ajout-m-') === 0) qs('[data-ajout-m="' + c.id.slice(8) + '"]').click();
+  if (c.id && c.id.indexOf('ajout-comp-') === 0) qs('[data-ajout-comp="' + c.id.slice(11) + '"]').click();
+});
+
+/* Outils de la maquette */
+qs('#mq-ouvrir').addEventListener('click', function(){ qs('#mq-panneau').hidden = !qs('#mq-panneau').hidden; });
+qs('#mq-fermer').addEventListener('click', function(){ qs('#mq-panneau').hidden = true; });
+qs('#mq-ecran').addEventListener('change', function(){ etat.ecran = this.value; tout(); window.scrollTo(0, 0); });
+qs('#mq-theme').addEventListener('change', function(){ document.documentElement.setAttribute('data-theme', this.value === 'sombre' ? 'sombre' : 'clair'); });
+qs('#mq-apercu').addEventListener('change', function(){ delete etat.ouvert.cv; tout(); });
+tout();
+</script>
+</body>
+</html>

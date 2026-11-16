@@ -1,0 +1,562 @@
+{
+ "nom": "creerAssistant",
+ "largeur": 375,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "Départ : bouton de la voie 1 : ok"
+  },
+  {
+   "n": "ok",
+   "t": "objectif : « Continuer » grisé au départ"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "ok",
+   "t": "Vos informations : Retour vers #objectif « 🎯 Votre objectif », puis Continuer revient bien ici"
+  },
+  {
+   "n": "ok",
+   "t": "reprise voie 1 : « Accueil » ramène à l’accueil"
+  },
+  {
+   "n": "info",
+   "t": "page commune après être sorti en cours de voie 1 (depuis #votre-parcours) : [\"btnCreerCvRecommencer:Recommencer\",\"▶ Voir ce parcours en vidéo En images, a\",\"▶ Voir ce parcours en vidéo En images, a\",\"▶ Voir ce parcours en vidéo En images, a\",\"← Retour\",\"Accueil\",\"btnSuivantNavigation:Continuer\"]"
+  },
+  {
+   "n": "ok",
+   "t": "reprise voie 1 : « Continuer » ramène à #votre-parcours"
+  },
+  {
+   "n": "ok",
+   "t": "Votre parcours : « Continuer » grisé sans case cochée, raison : « Chaque question a besoin d’au moins une case cochée. »"
+  },
+  {
+   "n": "ok",
+   "t": "Votre parcours : Retour vers #projet « 📋 Vos informations », puis Continuer revient bien ici"
+  },
+  {
+   "n": "ok",
+   "t": "Votre profil : Retour vers #votre-parcours « 🧭 Votre parcours », puis Continuer revient bien ici"
+  },
+  {
+   "n": "info",
+   "t": "Votre profil : un clic sur « Continuer » fait apparaître l’encart « entreprise non indiquée » : true"
+  },
+  {
+   "n": "info",
+   "t": "« Continuer sans » : ok"
+  },
+  {
+   "n": "ok",
+   "t": "assistant : une réponse coupée est signalée (etat:coupe)"
+  },
+  {
+   "n": "info",
+   "t": "après une réponse coupée : {\"fc\":[\"coller:📋 Coller la suite\\n(opération \",\"message:\",\"main:✍ Coller à la main (vous colle\",\"continuer:Voir mes propositions →\"],\"texte\":\"➕ La suite de la réponse ⚠️ Il manque la fin de la réponse La réponse s’arrête en plein milieu : l’assistant l’a coupée sans vous prévenir. Ce que vous avez collé est gardé (1 morceau) : il reste à aller chercher la fin. Retournez dans la même conversation, ch\"}"
+  },
+  {
+   "n": "info",
+   "t": "texte affiché après collage d’une réponse complète sur une réponse coupée : {\"t\":\"📥 Collez la réponse de l’assistant Cette réponse n’a pas pu être utilisée Rien n’a été ajouté à votre travail, vous n’avez rien perdu. Le texte collé ne contient pas les informations attendues : l’assistant a peut-être répondu à autre chose, ou la copie est incomplète. La suite n’a pas pu être jointe à la première partie. Si vous recommencez, le premier morceau est effacé aussi : tout repart de zéro. Cliquez sur « Recommencer le collage » (il efface tout ce qui a été collé) et collez de nouveau, en copiant bien toute la réponse. Si cela recommence, essayez un autre assistant ou regardez la démonstration : c’est peut-être l’assistant qui bloque, pas vous. ↻ Recommencer le collage ▶ Voir comment coller la réponse 25 s ▾ ↺ Changer d’assistant\",\"fc\":[\"recommencer:↻ Recommencer le collage\",\"changer:↺ Changer d’assistant\",\"continuer:Voir mes propositions →\"]}"
+  },
+  {
+   "n": "ECART",
+   "t": "assistant : coller une réponse COMPLÈTE après une réponse coupée échoue (la suite « n’a pas pu être jointe ») ; amélioration possible : utiliser le texte collé tel quel s’il est complet à lui seul"
+  },
+  {
+   "n": "info",
+   "t": "reprise après échec : recommencer"
+  },
+  {
+   "n": "info",
+   "t": "nouveau collage de la réponse complète : etat:recu"
+  },
+  {
+   "n": "ECART",
+   "t": "« Le complément de votre CV » : la barre d’étapes du parcours est absente à cet écran (tous les autres écrans du parcours en ont une)"
+  },
+  {
+   "n": "ok",
+   "t": "Complément : Retour vers #assistant « 💬 L'assistant en ligne », puis Continuer revient bien ici"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "info",
+   "t": "écran suivant : ok:Voir mes propositions → → #assistant « 💬 L'assistant en ligne » [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "écran suivant : ok:Continuer → → #assistant « 💬 L'assistant en ligne » [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "écran suivant : ok:Continuer → → #resultats « Le complément de votre CV » [barre : aucune]"
+  },
+  {
+   "n": "info",
+   "t": "écran suivant : ok:Continuer sans le complément → → #resultats « 📄 Vos documents » [barre : Votre objectif > Vos informations > Votre parcours > Votre profil > Assistant > [Vos documents]]"
+  },
+  {
+   "n": "ECART",
+   "t": "#resultats « 📄 Vos documents » : 150 bouton(s) visible(s) sans texte ni icône"
+  },
+  {
+   "n": "info",
+   "t": "Vos documents : {\"exp\":\"1 expérience affichée sur 1\",\"titre\":true}"
+  },
+  {
+   "n": "info",
+   "t": "boutons sans texte ni icône sur « Vos documents », par type : {\"btn-miss | title=non\":27,\"(sans.classe) | title=non\":43,\"on | title=non\":16,\"btn-stage | title=oui\":1,\"btn-g-i | title=oui\":4,\"btn-g-i.on | title=non\":1,\"btn-g-i | title=non\":1,\"on.sans-objet | title=oui\":1,\"sans-objet | title=oui\":1,\"mep-btn.principal | title=non\":1,\"mep-btn | title=non\":1,\"btn-miss | title=oui\":1,\"on | title=oui\":1,\"(sans.classe) | title=oui\":2,\"fmt-tuile.on | title=non\":1,\"fmt-tuile | title=non\":4,\"vm-bouton | title=non\":1,\"mep-simple-opt.sans-objet | title=oui\":6,\"mep-simple-opt.actif | title=oui\":5,\"mep-simple-opt | title=non\":18,\"mep-simple-opt.actif | title=non\":14}"
+  },
+  {
+   "n": "info",
+   "t": "Vos documents (CV non validé) : bouton « Valider le CV → »"
+  },
+  {
+   "n": "info",
+   "t": "CV validé : bouton « ← Modifier le CV », boutons visibles : [\"Revoir la présentation\",\"📤 Exporter ▾\",\"📑 Télécharger en Word\",\"📄 Enregistrer en PDF\",\"📋 Copier le texte\",\"🎨 Envoyer vers Canva (le remplissage avec le fichier fourni est une fonction payante de Canva)\",\"🗎 Version ODT (LibreOffice)\",\"← Modifier le CV\",\"Accueil\"]"
+  },
+  {
+   "n": "info",
+   "t": "CV validé : texte : 🎯 📋 🧭 🔍 💬 📄 Vos documents Revoir la présentation 📄 Vos documents 📤 Exporter ▾ Votre CV est prêt. Imprimable en A4 ou en Mini CV (A5) selon ce que vous avez choisi dans « La mise en page ». Choisissez maintenant le format du fichier. 📑 Télécharger en Word 📄 Enregistrer en PDF 📋 Copier le texte Pour le PDF : dans la fenêtre qui s'ouvre, choisissez « Enregistrer au format PDF », puis « Enregistrer ». Pour Word : des lignes pointillées peuvent apparaître à l'écran autour des blocs. Ce sont des repères d'affichage de Word : elles ne s'impriment pas et ne sont pas dans le PDF. Pour les masquer, cliquez dans un bloc, puis onglet « Disposition », bouton « Afficher le quadrillage ». « Copi"
+  },
+  {
+   "n": "info",
+   "t": "CV validé : la barre du bas n’a PAS de « Retour » (remplacé par « ← Modifier le CV »)"
+  },
+  {
+   "n": "info",
+   "t": "CV validé : « Modifier le CV » : ok:← Modifier le CV"
+  },
+  {
+   "n": "ok",
+   "t": "« Modifier le CV » ramène à l’écran avant validation"
+  },
+  {
+   "n": "info",
+   "t": "arrivée : #resultats « 📄 Vos documents »"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » depuis Vos documents : assistant:L'assistant en ligne < revelation:Votre profil < votre-parcours:Votre parcours < projet:Vos informations < objectif:Votre objectif < creer-cv:Créer un nouveau CV"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Répondre à une offre » : bouton « Continuer → (grisé) », raison « Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Candidature spontanée » : bouton « Continuer → (grisé) », raison « Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Changer de métier » : bouton « Continuer → (grisé) », raison « Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Stage » : bouton « Continuer → », raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Alternance » : bouton « Continuer → », raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "objectif « Formation » : bouton « Continuer → », raison «  »"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#creer-cv",
+    "page": "creer-cv",
+    "h1": "Créer un nouveau CV",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Choisissez d’abord un objectif ci-dessus.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#projet",
+    "page": "projet",
+    "h1": "📋 Vos informations",
+    "barre": "Votre objectif > [Vos informations] > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Chaque question a besoin d’au moins une case cochée.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#votre-parcours",
+    "page": "votre-parcours",
+    "h1": "🧭 Votre parcours",
+    "barre": "Votre objectif > Vos informations > [Votre parcours] > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#revelation",
+    "page": "revelation",
+    "h1": "👤 Votre profil",
+    "barre": "Votre objectif > Vos informations > Votre parcours > [Votre profil] > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#assistant",
+    "page": "assistant",
+    "h1": "💬 L'assistant en ligne",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "Importez d'abord la réponse de l'assistant : ses propositions s'appliquent alors toutes seules.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#assistant",
+    "page": "assistant",
+    "h1": "💬 L'assistant en ligne",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents",
+    "avant": "Voir mes propositions →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#assistant",
+    "page": "assistant",
+    "h1": "💬 L'assistant en ligne",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#assistant",
+    "page": "assistant",
+    "h1": "💬 L'assistant en ligne",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > [Assistant] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "Le complément de votre CV",
+    "barre": "",
+    "avant": "Continuer sans le complément →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > Assistant > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Votre objectif > Vos informations > Votre parcours > Votre profil > Assistant > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": [
+    "150 bouton(s) visible(s) sans texte ni icône"
+   ]
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#objectif",
+    "page": "objectif",
+    "h1": "🎯 Votre objectif",
+    "barre": "[Votre objectif] > Vos informations > Votre parcours > Votre profil > Assistant > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à dire si vous visez un métier précis ou plusieurs métiers d’un domaine.",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

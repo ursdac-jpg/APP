@@ -203,6 +203,8 @@ function mapperFragmentsVersDossier(fragmentsValides, infosComplementairesParFra
         // le seul point d'accès prévu à cette relation.
         competencesDemontrees: (etatFragment.competencesValidees || []).map(function (c) { return c.texte; })
       };
+      // Lot 4 (consigne 408) : les métiers usuels proposés ne sont posés que s'il y en a (la forme d'une expérience ne change pas autrement).
+      if ((etatFragment.metiersProches || []).length) { experience.metiersProches = etatFragment.metiersProches.slice(); }
       misesAJour.experiences.push(experience);
       tracer('experiences[].poste', experience.poste, origineTexte, etatFragment.fragmentId);
       tracer('experiences[].missions', experience.missions, 'calcul', etatFragment.fragmentId);
@@ -221,8 +223,26 @@ function mapperFragmentsVersDossier(fragmentsValides, infosComplementairesParFra
       var texteLoisir = etatFragment.elementsFactuels.length
         ? etatFragment.elementsFactuels.join(', ')
         : etatFragment.texteRetenu;
-      misesAJour.loisirs.push(texteLoisir);
-      tracer('loisirs[]', texteLoisir, origineTexte, etatFragment.fragmentId);
+      // Consigne 405 (16/11/2026) : un loisir = une pastille. Les elements factuels d'un meme fragment (« sport », « randonnee », « natation »...) ne sont plus colles
+      // dans une seule chaine : chacun devient son propre loisir. Sans element factuel, le texte retenu reste un seul loisir, comme avant.
+      // Un element qui contient lui-meme une liste (« sport, randonnee, natation ») est separe aussi, sauf entre parentheses.
+      var separerListeLoisirs = function (texte) {
+        var morceaux = [], courant = '', profondeur = 0;
+        String(texte || '').split('').forEach(function (c) {
+          if (c === '(') { profondeur++; } else if (c === ')') { profondeur = Math.max(0, profondeur - 1); }
+          if ((c === ',' || c === ';') && profondeur === 0) { morceaux.push(courant); courant = ''; } else { courant += c; }
+        });
+        morceaux.push(courant);
+        return morceaux.map(function (m) { return m.trim(); }).filter(Boolean);
+      };
+      var loisirsSepares = etatFragment.elementsFactuels.length
+        ? etatFragment.elementsFactuels.reduce(function (acc, e) { return acc.concat(separerListeLoisirs(e)); }, [])
+        : [texteLoisir];
+      if (!loisirsSepares.length) { loisirsSepares = [texteLoisir]; }
+      loisirsSepares.forEach(function (unLoisir) {
+        misesAJour.loisirs.push(unLoisir);
+        tracer('loisirs[]', unLoisir, origineTexte, etatFragment.fragmentId);
+      });
       // La reformulation professionnelle (texteRetenu) ne disparaît pas
       // pour autant -- elle devient une compétence personnelle candidate,
       // avec le loisir factuel comme source tracée.

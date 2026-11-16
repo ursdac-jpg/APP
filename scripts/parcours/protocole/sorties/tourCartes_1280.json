@@ -1,0 +1,192 @@
+{
+ "nom": "tourCartes",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "informe : tuiles btnCarteAccueilActualites, btnCarteAccueilChiffres, btnCarteAccueilMonTerritoire"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : arrivée #se-tenir-informe-intro « Comprendre le cadre » [bas : Je commence →] [barre : aucune] [retour true, accueil true]"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : boutons ▶ Voir la présentation en vidéo En ; 🌍 Vous préférez une autre langue  ; ← Retour ; Accueil ; #btnSeTenirInformeCommencer Je commence →"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : texte  Comprendre le cadre Savoir ce qui a changé dans l’emploi, la formation et les dispositifs, avant de décider ou d’accompagner. ▶ Voir la présentation en vidéo En images, avec des sous-titres. 1 min ▾ Ce n’est pas un fil d’actualités. Rien ne clignote, rien ne vous presse. Vous venez quand une question précise vous bloque, vous trouvez un repère fiable et le lien officiel, vous repartez. 🎯 À quoi ça sert Pour vous : "
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : détail écran 2 boutons : #btnComprendreLeCadreRevoirIntro Revoir la présentation ; Choisir mon département ; Emploi et contrats Période d'essai, rupt ; Se former et se reconvertir Compte perso ; L'accompagnement et les structures de l' ; Créer son activité Micro-entreprise, soc ; Employeurs et entrepreneurs Ce que repré ; Armées S'engager dans l'armée, volontari ; Fonction publique Concours, recrutement  ; Agriculture S'installer en agriculture,  ; Moins de 26 ans Mission Locale et contra ; Travailler après 50 ans et retraite Amén ; Handicap et emploi Reconnaissance (RQTH) ; Venir de l'étranger Droit au travail sel ; Justice : sortie de détention Service pé ; Budget, dettes, droits sociaux Surendett ; Accès aux soins Trouver un médecin trait ; Mobilité Permis, permis annulé et récupé ; Logement Action Logement, garantie Visal ; Garde d'enfant Crèche à vocation d'inser ; Parents séparés Pension alimentaire non  ; Apprendre le français Formation de franç ; Questions juridiques Conseil de prud'hom ; Ce qui a changé récemment Les derniers c ; Mots de cette page expliqués dans le Lex ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : détail écran 2 texte : Vous êtes ici Comprendre le cadre Revoir la présentation Comprendre le cadre Avant de commencer, indiquez votre département Certaines aides et beaucoup de structures dépendent de votre département. Sans cette information, les indications locales risquent de ne pas vous concerner. Choisir mon département Choisissez votre département pour ouvrir ces sujets. EMPLOI ET PARCOURS Emploi et contrats Période d'essai, rupture conventionnelle, CDD, CDI, intérim et intérim d'insertion. Se former et se reconvertir Compte personnel de formation, préparation à l'emploi, validation des acquis, démission-reconversion, période de reconversion. L'accompagnement et les structures de l'insertion France Travail,"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : avance arrêtée (PAS DE BOUTON)"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : écrans #se-tenir-informe-intro « Comprendre le cadre » > #comprendre-le-cadre « Comprendre le cadre » [bas : null]"
+  },
+  {
+   "n": "info",
+   "t": "informe > Actualites : chaîne des Retour #se-tenir-informe-intro « Comprendre le cadre » < #cv « Par où voulez-vous commencer ? » [FENÊTRE]"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : arrivée #comprendre-les-chiffres-intro « Comprendre les chiffres » [bas : Je commence →] [barre : aucune] [retour true, accueil true]"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : boutons ▶ Voir la présentation en vidéo En ; 🌍 Vous préférez une autre langue  ; ← Retour ; Accueil ; #btnComprendreLesChiffresCommencer Je commence →"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : texte  Comprendre les chiffres Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés. ▶ Voir la présentation en vidéo En images, avec des sous-titres. 1 min ▾ Beaucoup de données existent déjà, gratuites et publiques. Le problème, c’est que peu de gens savent les lire. Ici, on les explique en langage simple. 🎯 À quoi ça sert Pour vous : savoir où en est l’e"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : détail écran 2 boutons : #btnComprendreLesChiffresRevoirIntro Revoir la présentation ; Choisir mon département ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : détail écran 2 texte : Vous êtes ici Comprendre les chiffres Revoir la présentation Comprendre les chiffres Avant de commencer, indiquez votre département Les chiffres du chômage, de l’emploi et des recrutements changent d’un département à l’autre. Sans cette information, les chiffres affichés ne vous concerneraient pas. Choisir mon département Choisissez votre département pour débloquer ces chiffres. Les cinq chiffres clés du territoire Combien de personnes sont au chômage ici ? Combien de personnes cherchent un emploi sans en avoir ? La difficulté est-elle passagère ou installée ? Le territoire crée ou perd des emplois ? Y a-t-il des offres visibles ? Pour aller plus loin Le portrait de fond de l’économie locale"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : avance arrêtée (PAS DE BOUTON)"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : écrans #comprendre-les-chiffres-intro « Comprendre les chiffres » > #comprendre-les-chiffres « Comprendre les chiffres » [bas : null]"
+  },
+  {
+   "n": "info",
+   "t": "informe > Chiffres : chaîne des Retour #comprendre-les-chiffres-intro « Comprendre les chiffres » < #cv « Par où voulez-vous commencer ? » [FENÊTRE]"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : arrivée #mon-territoire-intro « Qui fait quoi » [bas : Je commence →] [barre : aucune] [retour true, accueil true]"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : boutons ▶ Voir la présentation en vidéo En ; 🌍 Vous préférez une autre langue  ; ← Retour ; Accueil ; #btnMonTerritoireCommencer Je commence →"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : texte  Qui fait quoi Vous cherchez à qui vous adresser dans votre département ? Ici, on vous montre où aller et qui contacter. ▶ Voir la présentation en vidéo En images, avec des sous-titres. 1 min ▾ Les adresses utiles existent, mais elles sont dispersées. Ici, on les rassemble par territoire, avec la date de leur dernière vérification. 🎯 À quoi ça sert Retrouver, sur votre territoire, des employeurs où vous présenter, d"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : détail écran 2 boutons : #btnMonTerritoireRevoirIntro Revoir la présentation ; Choisir mon département ; ← Retour ; Accueil"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : détail écran 2 texte : Vous êtes ici Qui fait quoi Revoir la présentation Qui fait quoi Pour vous montrer les bonnes adresses, dites-nous dans quel département vous cherchez. Choisir mon département ← Retour Accueil"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : avance arrêtée (PAS DE BOUTON)"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : écrans #mon-territoire-intro « Qui fait quoi » > #mon-territoire « Qui fait quoi » [bas : null]"
+  },
+  {
+   "n": "info",
+   "t": "informe > MonTerritoire : chaîne des Retour #mon-territoire-intro « Qui fait quoi » < #cv « Par où voulez-vous commencer ? » [FENÊTRE]"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#se-tenir-informe-intro",
+    "page": "se-tenir-informe-intro",
+    "h1": "Comprendre le cadre",
+    "barre": "",
+    "avant": "Je commence →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comprendre-le-cadre",
+    "page": "comprendre-le-cadre",
+    "h1": "Comprendre le cadre",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comprendre-les-chiffres-intro",
+    "page": "comprendre-les-chiffres-intro",
+    "h1": "Comprendre les chiffres",
+    "barre": "",
+    "avant": "Je commence →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#comprendre-les-chiffres",
+    "page": "comprendre-les-chiffres",
+    "h1": "Comprendre les chiffres",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#mon-territoire-intro",
+    "page": "mon-territoire-intro",
+    "h1": "Qui fait quoi",
+    "barre": "",
+    "avant": "Je commence →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#mon-territoire",
+    "page": "mon-territoire",
+    "h1": "Qui fait quoi",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

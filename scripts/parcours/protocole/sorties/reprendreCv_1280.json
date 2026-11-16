@@ -1,0 +1,122 @@
+{
+ "nom": "reprendreCv",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : les choix suivants sont annoncés bloqués tant que le CV n’est pas déposé"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "choix de la voie undefined : ABSENT  VOIE undefined"
+  },
+  {
+   "n": "info",
+   "t": "après le choix de la voie undefined : #reprendre-cv « Reprendre votre CV » bouton « null » raison «  » barre [Déposer] > Ma voie"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ABSENT .carte-objectif Candidature spontanée"
+  },
+  {
+   "n": "info",
+   "t": "après l’objectif : bouton « null » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ABSENT  ^Un métier précis$"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ABSENT #btnValiderMetierSaisi "
+  },
+  {
+   "n": "info",
+   "t": "domaine : ABSENT .carte-domaine-metier Administration / ABSENT [data-domaine-metier-confirmer] "
+  },
+  {
+   "n": "info",
+   "t": "après le métier : bouton « null » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "reprendre voie undefined : PAS DE BOUTON → #reprendre-cv « Reprendre votre CV » [bouton : null] [barre : [Déposer] > Ma voie]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : reprendre-cv:Reprendre mon CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 3 : les « Retour » successifs rejoignent la page commune en 1 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre mon CV",
+    "barre": "",
+    "avant": "Déposer mon CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre votre CV",
+    "barre": "[Déposer] > Ma voie",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#reprendre-cv",
+    "page": "reprendre-cv",
+    "h1": "Reprendre votre CV",
+    "barre": "[Déposer] > Ma voie",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

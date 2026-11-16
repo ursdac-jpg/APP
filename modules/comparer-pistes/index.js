@@ -709,11 +709,9 @@ function pageComparerPistes() {
 
 // TACHE (chantier "bouton presentation", 2026-09-01, alignement sur
 // Coherence) : _comparerDetourPresentation = detour de CONSULTATION
-// ("Revoir la presentation" depuis un ecran de travail, pas d'encart) ;
-// _comparerReprisePendante = retour dans le module avec une comparaison en
-// cours (encart "Continuer / Recommencer" a droite + gel jusqu'au choix).
+// ("Revoir la presentation" depuis un ecran de travail, pas de bloc de reprise).
+// Reprise (consigne 258, 12/11/2026) : revenir dans le module avec une comparaison en cours affiche la PRESENTATION avec le bloc « Reprendre / Recommencer », comme « Reprendre mon CV ».
 var _comparerDetourPresentation = false;
-var _comparerReprisePendante = false;
 var _dernierEcranComparerRendu = null;   // pour ouvrir un nouvel ecran en haut (D41)
 
 // TACHE (correctif boucle Retour, 2026-09-09 -- LECONS section 2,
@@ -735,10 +733,9 @@ function comparerBarreContinuer() {
 
 function comparerRetour() {
   _comparerDetourPresentation = false;
-  // Retour Denis 2026-09-30 (C17) : depuis le premier ecran, « Retour » ramene a la page d'ou la personne est venue, pas a la
-  // presentation du module. Repli (origine inconnue, par ex. apres une restauration) : la presentation, comme avant.
-  var origine = (typeof _pageOrigineAvantAideDecision !== 'undefined') ? _pageOrigineAvantAideDecision : null;
-  if (typeof naviguerVers === 'function') { naviguerVers(origine || 'aide-decision-intro'); }
+  // Decision de Denis, 12/11/2026 : comme tous les autres modules, « Retour » depuis le premier ecran revient a la presentation du module (le pas d'avant), jamais directement a l'accueil.
+  // (Il avait demande l'inverse le 30/09/2026, C17 ; il est revenu dessus pour que tous les modules se comportent pareil.)
+  if (typeof naviguerVers === 'function') { naviguerVers('aide-decision-intro'); }
 }
 
 // "Revoir la presentation" (bouton contextuel en tete d'ecran) -> page de
@@ -757,10 +754,28 @@ function comparerRevenirDeLaPresentation() {
   if (typeof naviguerVers === 'function') { naviguerVers('comparer-pistes'); }
 }
 
-// "Continuer" de l'encart de reprise -> leve le gel, garde tout l'etat.
+// "Reprendre" (bloc de la presentation) -> retour au dernier ecran de travail, tout l'etat est garde.
 function comparerRepriseContinuer() {
-  _comparerReprisePendante = false;
   if (typeof naviguerVers === 'function') { naviguerVers('comparer-pistes'); }
+}
+// Une comparaison est-elle commencee ? Oui si le module a deja ete dessine avec des pistes, un recit ou des documents, ou si la personne a depasse le premier ecran. Un simple panier de pistes mises de cote depuis une fiche metier n'en est pas une : la presentation propose alors « Comparer mes pistes ».
+function comparerTravailEnCours() {
+  var e = _comparerEtat;
+  if (!e) { return false; }
+  if (e.ecran > 0 || (e.recit || '').trim() || (e.documentsTexte || '').trim()) { return true; }
+  if ((e.pistesNommees || []).some(function (p) { return (p.nom || '').trim() || (p.attrait || '').trim(); })) { return true; }
+  return typeof _comparerRenduEcran === 'function' && !!comparerPistesExporterEtatPourSauvegarde();
+}
+// "Recommencer" depuis la presentation : confirmation, puis la comparaison est effacee et la presentation repart a froid.
+function comparerConfirmerRecommencer() {
+  var faire = function () { comparerReinitialiser(); if (typeof naviguerVers === 'function') { naviguerVers('aide-decision-intro'); } };
+  if (typeof confirmerAction === 'function') {
+    confirmerAction(
+      'Recommencer « Comparer mes pistes » ?',
+      'Vos pistes et la comparaison en cours seront effacées. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
+      'Recommencer ce module', 'btn-danger', faire
+    );
+  } else { faire(); }
 }
 
 // Detruit la comparaison (appele par "Recommencer" et "Tout effacer").
@@ -771,7 +786,6 @@ function comparerReinitialiser() {
   _comparerRenduEcran = null;
   _comparerEcranCourant = 0;
   _comparerDetourPresentation = false;
-  _comparerReprisePendante = false;
 }
 
 // ---- Pont disquette (LECONS 7ter) : ce module garde son etat hors de
@@ -1627,7 +1641,8 @@ function ouvrirComparerPistes() {
         (etat.collecteAlertes.length
           ? '<strong>&#9888;&#65039; Cette réponse n’a pas l’air fiable.</strong><ul style="margin:.3rem 0 0;">' +
             etat.collecteAlertes.map(function (a) { return '<li>' + echapperTexte(a) + '</li>'; }).join('') +
-            '</ul><p style="margin:.4rem 0 0;">Vous pouvez recommencer avec l’assistant recommandé (recherche web activée), ou apporter cette recherche à votre conseiller. Ce qui est exploitable est gardé, le reste sera marqué « à vérifier ».</p>'
+            '</ul><p style="margin:.4rem 0 0;">Vous pouvez recommencer avec l’assistant recommandé (recherche web activée), ou apporter cette recherche à votre conseiller. Ce qui est exploitable est gardé, le reste sera marqué « à vérifier ».</p>' +
+            (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('chatgpt-recherche-web') : '')
           : '<strong>&#9989; Réponse reçue</strong> pour ' + dossiers.pistes.length + ' piste(s). Vous pouvez continuer.') +
         '</div>' +
         '<button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-cp-collecte-recommencer>Coller une autre réponse</button>';
@@ -1760,7 +1775,8 @@ function ouvrirComparerPistes() {
       '<p class="text-muted small mb-2">Cliquez sur un assistant. L’application prépare et copie tout, puis l’ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, vous n’avez rien à taper.</p>' +
       // Retour Denis 2026-09-30 : pour la recherche sur internet, un bouton direct vers Perplexity, en plus de la liste habituelle.
       (cfg.web ? '<div class="text-center my-3"><button type="button" class="btn btn-primary btn-lg" data-cp-assistant="perplexity">&#11088; Aller sur Perplexity <span class="small">(recommandé pour cette recherche)</span></button>' +
-        '<p class="preparer-detail mt-1 mb-0">Ou choisissez un autre assistant ci-dessous, par exemple celui que vous utilisez d’habitude.</p></div>' : '') +
+        '<p class="preparer-detail mt-1 mb-0">Ou choisissez un autre assistant ci-dessous, par exemple celui que vous utilisez d’habitude.</p>' +
+        (typeof htmlVideoGeste === 'function' ? htmlVideoGeste('chatgpt-recherche-web') : '') + '</div>' : '') +
       (typeof htmlChoixAssistantBilanCorps === 'function'
         ? htmlChoixAssistantBilanCorps({
             idErreur: 'cpErreurChoixIA', attrAssistant: 'data-cp-assistant', recapContexte: null,
@@ -2694,7 +2710,7 @@ function ouvrirComparerPistes() {
     var rc = racine.querySelector('[data-cp-recommencer]');
     if (rc && typeof confirmerAction === 'function') {
       rc.addEventListener('click', function () {
-        confirmerAction('Recommencer', 'Repartir de zéro avec d’autres pistes ? Ce qui n’est pas gardé dans Mes Repères sera perdu.', function () {
+        confirmerAction('Recommencer', 'Repartir de zéro avec d’autres pistes ? Ce qui n’est pas gardé dans Mes Repères sera perdu.', 'Recommencer', 'btn-danger', function () {
           comparerReinitialiser();
           ouvrirComparerPistes();
         });
@@ -2811,17 +2827,14 @@ function ouvrirComparerPistes() {
     }
     var navIndex = _comparerRenduEcran ? _comparerNavIndex(ecran) : -1;
 
-    var _cpNoteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_comparerReprisePendante)
+    var _cpNoteHtml = (typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button></div>'
       : '';
-    var _cpBouton = '<div><button type="button" id="btnComparerRevoirPresentation" class="btn-revoir-module"' +
-      (_comparerReprisePendante ? ' disabled' : '') + '>' +
+    var _cpBouton = '<div><button type="button" id="btnComparerRevoirPresentation" class="btn-revoir-module">' +
       '<i class="bi bi-signpost-split"></i> Revoir la présentation</button></div>' + _cpNoteHtml;
-    var _cpEncart = _comparerReprisePendante
-      ? htmlEncartRepriseModule({ idContinuer: 'btnComparerRepriseContinuer', idRecommencer: 'btnComparerRepriseRecommencer', pulse: true })
-      : '';
+    var _cpEncart = '';
 
     app.innerHTML =
       '<div class="page-catalogue-contenu comparer-pistes-parcours">' +
@@ -2871,25 +2884,9 @@ function ouvrirComparerPistes() {
     var _arriveeComparer = (typeof consommerArriveeDepuisPresentation === 'function') && consommerArriveeDepuisPresentation();
     window.scrollTo(0, _arriveeComparer ? 0 : scrollPrecedent);
 
-    if (typeof appliquerGelModule === 'function') { appliquerGelModule(_comparerReprisePendante); }
 
     var btnRevoirCp = document.getElementById('btnComparerRevoirPresentation');
     if (btnRevoirCp) { btnRevoirCp.addEventListener('click', comparerRetourVersPresentation); }
-    var btnCpReprC = document.getElementById('btnComparerRepriseContinuer');
-    if (btnCpReprC) { btnCpReprC.addEventListener('click', comparerRepriseContinuer); }
-    var btnCpReprR = document.getElementById('btnComparerRepriseRecommencer');
-    if (btnCpReprR) {
-      btnCpReprR.addEventListener('click', function () {
-        if (typeof confirmerAction !== 'function') { return; }
-        confirmerAction(
-          'Recommencer « Comparer mes pistes » ?',
-          'Vos pistes et la comparaison en cours seront effacées. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
-          'Recommencer ce module', 'btn-danger',
-          function () { comparerReinitialiser(); ouvrirComparerPistes(); if (typeof naviguerVers === 'function') { naviguerVers('comparer-pistes'); } }
-        );
-      });
-    }
-    if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
 
     // Les deux actions de la barre du bas (voir comparerBarreRetour / comparerBarreContinuer, plus haut dans ce fichier).
     _comparerActionsBarre.retour = function () {

@@ -1,0 +1,366 @@
+# Échantillon de relecture : formulations de CV reliées aux libellés des fiches (16/11/2026)
+
+Consigne 410. Chaque ligne relie une formulation qu'une personne écrit sur son CV au libellé employé par les fiches métiers. Il y a 125 groupes ; 250 lignes tirées au hasard (2 par groupe). Denis : repérez les lignes fausses (la formulation ne dit pas la même chose que le libellé). Une ligne fausse est retirée ; en cas de doute, la formulation n'est pas gardée.
+
+- « travail en équipe » veut dire « Esprit d'équipe »
+- « entraide » veut dire « Esprit d'équipe »
+- « esprit d'équipe » veut dire « Collaboration »
+- « coopération » veut dire « Collaboration »
+- « écoute des clients » veut dire « Écoute »
+- « écoute active » veut dire « Écoute »
+- « rigoureux » veut dire « Rigueur »
+- « méticuleux » veut dire « Rigueur »
+- « souci du détail » veut dire « Sens du détail »
+- « minutie » veut dire « Sens du détail »
+- « exactitude » veut dire « Précision »
+- « précis » veut dire « Précision »
+- « autonome » veut dire « Autonomie »
+- « capacité à travailler seul » veut dire « Autonomie »
+- « adaptable » veut dire « Adaptabilité »
+- « capacité d'adaptation » veut dire « Adaptabilité »
+- « réactive » veut dire « Réactivité »
+- « rapidité » veut dire « Réactivité »
+- « initiative » veut dire « Esprit d'initiative »
+- « débrouillardise » veut dire « Esprit d'initiative »
+- « volonté » veut dire « Persévérance »
+- « détermination » veut dire « Persévérance »
+- « capacité physique » veut dire « Endurance »
+- « endurance physique » veut dire « Endurance »
+- « sens de la patience » veut dire « Patience »
+- « patient » veut dire « Patience »
+- « empathique » veut dire « Empathie »
+- « sens de l'humain » veut dire « Empathie »
+- « bienveillante » veut dire « Bienveillance »
+- « gentillesse » veut dire « Bienveillance »
+- « discret » veut dire « Discrétion »
+- « discrète » veut dire « Discrétion »
+- « sérieux et fiabilité » veut dire « Fiabilité »
+- « régularité » veut dire « Fiabilité »
+- « sens des responsabilités » veut dire « Responsabilité »
+- « prise de responsabilité » veut dire « Responsabilité »
+- « gestion du stress » veut dire « Sang-froid »
+- « gestion des situations d'urgence » veut dire « Sang-froid »
+- « vigilante » veut dire « Vigilance »
+- « attention » veut dire « Vigilance »
+- « motivée » veut dire « Motivation »
+- « investissement » veut dire « Motivation »
+- « capacité d'apprendre » veut dire « Apprentissage »
+- « envie d'apprendre » veut dire « Apprentissage »
+- « soif d'apprendre » veut dire « Curiosité »
+- « goût d'apprendre » veut dire « Curiosité »
+- « créative » veut dire « Créativité »
+- « imagination » veut dire « Créativité »
+- « service à table » veut dire « Sens du service »
+- « service de table » veut dire « Sens du service »
+- « sens du devoir accompli » veut dire « Sens du devoir »
+- « conscience professionnelle » veut dire « Sens du devoir »
+- « bon relationnel » veut dire « Sens du dialogue »
+- « sens du contact » veut dire « Sens du dialogue »
+- « sens du leadership » veut dire « Leadership »
+- « meneuse » veut dire « Leadership »
+- « force de conviction » veut dire « Persuasion »
+- « argumentation commerciale » veut dire « Persuasion »
+- « respect du règlement » veut dire « Respect des règles »
+- « respect des règles de sécurité » veut dire « Respect des règles »
+- « conformité » veut dire « Respect des normes »
+- « application des normes » veut dire « Respect des normes »
+- « ponctualité des livraisons » veut dire « Respect des délais »
+- « tenir les délais » veut dire « Respect des délais »
+- « intégrité » veut dire « Sens de l'éthique »
+- « éthique » veut dire « Sens de l'éthique »
+- « esprit critique » veut dire « Esprit d'analyse »
+- « sens de l'analyse » veut dire « Esprit d'analyse »
+- « sens de la logique » veut dire « Raisonnement logique »
+- « capacité à résoudre les problèmes » veut dire « Raisonnement logique »
+- « esprit d'innovation » veut dire « Innovation »
+- « sens de l'innovation » veut dire « Innovation »
+- « résolution de conflits » veut dire « Médiation »
+- « résolution de conflit » veut dire « Médiation »
+- « accueil physique et téléphonique » veut dire « Accueil »
+- « accueil clientèle » veut dire « Accueil »
+- « relation clientèle » veut dire « Relation client »
+- « suivi de clientèle » veut dire « Relation client »
+- « passage en caisse » veut dire « Vente »
+- « techniques de vente » veut dire « Vente »
+- « prospection commerciale » veut dire « Développement commercial »
+- « chiffre d'affaires » veut dire « Développement commercial »
+- « négocier » veut dire « Négociation »
+- « négociation avec les fournisseurs » veut dire « Négociation »
+- « conseil client » veut dire « Conseil »
+- « conseiller » veut dire « Conseil »
+- « gestion des rayons » veut dire « Merchandising »
+- « gamme de produits » veut dire « Merchandising »
+- « suivi de stock » veut dire « Gestion des stocks »
+- « réception des marchandises » veut dire « Gestion des stocks »
+- « tri des colis » veut dire « Logistique »
+- « expéditions » veut dire « Logistique »
+- « chargement » veut dire « Manutention »
+- « port de charges lourdes » veut dire « Manutention »
+- « nacelle » veut dire « Levage »
+- « chariots élévateurs » veut dire « Levage »
+- « conduite de voiture » veut dire « Conduite »
+- « conduite d'autocar » veut dire « Conduite »
+- « machines-outils » veut dire « Utilisation de machines »
+- « utilisation des machines » veut dire « Utilisation de machines »
+- « boulangerie » veut dire « Cuisine »
+- « cuisine de collectivité » veut dire « Cuisine »
+- « bonnes pratiques d'hygiène » veut dire « Hygiène »
+- « hygiène et sécurité » veut dire « Hygiène »
+- « agent d'entretien » veut dire « Entretien »
+- « lavage » veut dire « Entretien »
+- « maintenance technique » veut dire « Maintenance »
+- « maintenance des machines » veut dire « Maintenance »
+- « réparation mécanique » veut dire « Réparation »
+- « mécanique » veut dire « Réparation »
+- « installation électrique » veut dire « Installation »
+- « pose de revêtements » veut dire « Installation »
+- « montage de pièces » veut dire « Assemblage »
+- « câblage et assemblage » veut dire « Assemblage »
+- « production » veut dire « Fabrication »
+- « fabrication de produits » veut dire « Fabrication »
+- « travaux de finition » veut dire « Finition »
+- « vernissage » veut dire « Finition »
+- « charpente » veut dire « Bâtiment »
+- « carrelage » veut dire « Bâtiment »
+- « plans techniques » veut dire « Lecture de plans »
+- « lecture de plans de construction » veut dire « Lecture de plans »
+- « dextérité manuelle » veut dire « Travail manuel »
+- « adresse manuelle » veut dire « Travail manuel »
+- « compétences techniques » veut dire « Technique »
+- « connaissances techniques » veut dire « Technique »
+- « contrôle de conformité » veut dire « Contrôle qualité »
+- « démarche qualité » veut dire « Contrôle qualité »
+- « gardiennage » veut dire « Surveillance »
+- « sécurité des biens et des personnes » veut dire « Surveillance »
+- « sécurité des personnes » veut dire « Sécurité »
+- « sécurité des biens » veut dire « Sécurité »
+- « prévention des risques et sécurité » veut dire « Prévention des risques »
+- « prévention des accidents » veut dire « Prévention des risques »
+- « sst » veut dire « Secourisme »
+- « prévention et secours civiques » veut dire « Secourisme »
+- « soins de confort » veut dire « Soins »
+- « aide à la toilette » veut dire « Soins »
+- « aide aux actes essentiels » veut dire « Aide à la personne »
+- « aide à l'habillage » veut dire « Aide à la personne »
+- « accompagnement des élèves » veut dire « Accompagnement »
+- « accompagnement personnalisé » veut dire « Accompagnement »
+- « assistance aux familles » veut dire « Assistance »
+- « assistance aux clients » veut dire « Assistance »
+- « nourrissage des animaux » veut dire « Soins aux animaux »
+- « soins au bétail » veut dire « Soins aux animaux »
+- « tutorat » veut dire « Soutien scolaire »
+- « accompagnement scolaire » veut dire « Soutien scolaire »
+- « pédagogie adaptée » veut dire « Pédagogie »
+- « animation pédagogique » veut dire « Pédagogie »
+- « transmission des consignes » veut dire « Transmission »
+- « transmission aux nouveaux arrivants » veut dire « Transmission »
+- « formateur » veut dire « Formation »
+- « formation du personnel » veut dire « Formation »
+- « animation d'événements » veut dire « Animation »
+- « animation d'activités » veut dire « Animation »
+- « développement personnel » veut dire « Coaching »
+- « coaching individuel » veut dire « Coaching »
+- « méthodique » veut dire « Organisation »
+- « rigueur et organisation » veut dire « Organisation »
+- « gestion de planning » veut dire « Planification »
+- « planification du travail » veut dire « Planification »
+- « respect des horaires » veut dire « Gestion du temps »
+- « optimisation du temps » veut dire « Gestion du temps »
+- « coordination de services » veut dire « Coordination »
+- « coordination de projets » veut dire « Coordination »
+- « encadrement d'équipes » veut dire « Management »
+- « supervision d'équipe » veut dire « Management »
+- « tableaux de bord » veut dire « Pilotage d'activité »
+- « suivi des indicateurs » veut dire « Pilotage d'activité »
+- « chef de projet » veut dire « Gestion de projet »
+- « gestion de projets » veut dire « Gestion de projet »
+- « gestion de chantiers » veut dire « Conduite de chantier »
+- « organisation de chantier » veut dire « Conduite de chantier »
+- « classement et archivage » veut dire « Gestion administrative »
+- « suivi des dossiers » veut dire « Gestion administrative »
+- « classement des documents » veut dire « Gestion documentaire »
+- « gestion des documents » veut dire « Gestion documentaire »
+- « contrôle de gestion » veut dire « Gestion financière »
+- « gestion de caisse et de trésorerie » veut dire « Gestion financière »
+- « comptable » veut dire « Comptabilité »
+- « comptabilité fournisseurs » veut dire « Comptabilité »
+- « relations fournisseurs » veut dire « Achats »
+- « passation des commandes » veut dire « Achats »
+- « rh » veut dire « Ressources humaines »
+- « gestion de la paie » veut dire « Ressources humaines »
+- « marketing direct » veut dire « Marketing »
+- « campagnes de communication » veut dire « Marketing »
+- « contact avec le public » veut dire « Communication »
+- « expression orale » veut dire « Communication »
+- « comptes rendus » veut dire « Rédaction »
+- « rédaction de courriers » veut dire « Rédaction »
+- « rédaction de protocoles » veut dire « Rédaction de procédures »
+- « rédaction de fiches de procédure » veut dire « Rédaction de procédures »
+- « utilisation de logiciels de bureautique » veut dire « Bureautique »
+- « outils bureautiques » veut dire « Bureautique »
+- « erp » veut dire « Informatique »
+- « administration réseau » veut dire « Informatique »
+- « data analyse » veut dire « Analyse de données »
+- « reporting » veut dire « Analyse de données »
+- « veille réglementaire » veut dire « Veille et recherche »
+- « recherche et développement » veut dire « Veille et recherche »
+- « diagnostic électronique » veut dire « Diagnostic »
+- « diagnostic mécanique » veut dire « Diagnostic »
+- « observation et analyse » veut dire « Observation »
+- « observation du comportement » veut dire « Observation »
+- « conception graphique » veut dire « Conception »
+- « conception de dispositifs » veut dire « Conception »
+- « conception graphique » veut dire « Création graphique »
+- « création de visuels » veut dire « Création graphique »
+- « montage audio » veut dire « Audiovisuel »
+- « cadrage » veut dire « Audiovisuel »
+- « activités artistiques » veut dire « Expression artistique »
+- « expression scénique » veut dire « Expression artistique »
+- « gestion d'événements » veut dire « Organisation d'événements »
+- « événementiel » veut dire « Organisation d'événements »
+- « standard et réservations » veut dire « Gestion des réservations »
+- « réservations » veut dire « Gestion des réservations »
+- « collecte des déchets » veut dire « Collecte »
+- « relevé de compteurs » veut dire « Collecte »
+- « économies d'énergie » veut dire « Protection de l'environnement »
+- « écoresponsabilité » veut dire « Protection de l'environnement »
+- « droit des affaires » veut dire « Réglementation »
+- « droit social » veut dire « Réglementation »
+- « intervention éducative » veut dire « Intervention »
+- « intervention technique » veut dire « Intervention »
+- « déploiement de systèmes » veut dire « Déploiement »
+- « mise en production » veut dire « Déploiement »
+- « raccordement électrique » veut dire « Câblage »
+- « installation électrique et câblage » veut dire « Câblage »
+- « viticulture » veut dire « Culture et récolte »
+- « semis et plantations » veut dire « Culture et récolte »
+- « abattage » veut dire « Taille et élagage »
+- « travaux d'élagage » veut dire « Taille et élagage »
+- « phytosanitaire » veut dire « Traitement phytosanitaire »
+- « traitement des cultures » veut dire « Traitement phytosanitaire »
+- « maquillage événementiel » veut dire « Maquillage »
+- « soins du visage et maquillage » veut dire « Maquillage »
+- « soins esthétiques et épilation » veut dire « Épilation »
+- « soins du visage » veut dire « Épilation »
+- « transports sanitaires » veut dire « Brancardage »
+- « brancardier » veut dire « Brancardage »
+- « traçage » veut dire « Traçage de plans »
+- « tracé de plans » veut dire « Traçage de plans »
+- « ébéniste » veut dire « Marqueterie »
+- « marqueteur » veut dire « Marqueterie »
+- « extraction de miel » veut dire « Extraction du miel »
+- « apiculture » veut dire « Extraction du miel »
+- « ruches » veut dire « Manipulation des ruches »
+- « conduite du rucher » veut dire « Manipulation des ruches »
+
+## Retraits décidés après la première relecture (16/11/2026)
+
+- « chiffre d'affaires », « développement personnel », « cadrage » (seul), « abattage » (seul), « soins du visage », « soins du corps » et « coiffure » (rattachés à « Épilation ») : retirés, trop ambigus.
+- « boulangerie » / « pâtisserie » (vers « Cuisine ») et « ébéniste » (vers « Marqueterie ») : gardés, car c'est le seul libellé des fiches Boulanger, Pâtissier et Ébéniste.
+
+## Formulations ajoutées le 16/11/2026 pour compléter (même méthode)
+
+Source : les compétences attendues par secteur (`data/competencesSecteurs.js`, 316 phrases). Avant : 75 % reconnues ; après : 90 %. Les phrases restantes n'ont pas de libellé équivalent dans les fiches, elles restent neutres (aucun point perdu).
+
+- « facturation » veut dire « Comptabilité »
+- « facturation et suivi des paiements » veut dire « Comptabilité »
+- « gestion des fournitures » veut dire « Achats »
+- « gestion des fournitures et des commandes » veut dire « Achats »
+- « orientation du public » veut dire « Accueil »
+- « renseignement du public » veut dire « Accueil »
+- « gestion des priorités » veut dire « Gestion du temps »
+- « capacité à gérer les priorités » veut dire « Gestion du temps »
+- « récolte » veut dire « Culture et récolte »
+- « récolte et conditionnement » veut dire « Culture et récolte »
+- « cueillette » veut dire « Culture et récolte »
+- « encadrement d'une équipe » veut dire « Management »
+- « encadrement d'une petite équipe » veut dire « Management »
+- « analyse financière » veut dire « Gestion financière »
+- « analyse d'une situation financière » veut dire « Gestion financière »
+- « suivi de budget » veut dire « Gestion financière »
+- « suivi d'un budget » veut dire « Gestion financière »
+- « gestion de budget » veut dire « Gestion financière »
+- « gestion de budgets » veut dire « Gestion financière »
+- « montage de dossiers » veut dire « Gestion administrative »
+- « montage de dossier » veut dire « Gestion administrative »
+- « montage et suivi d'un dossier » veut dire « Gestion administrative »
+- « tenue des dossiers » veut dire « Gestion administrative »
+- « tenue de dossiers » veut dire « Gestion administrative »
+- « suivi d'un portefeuille client » veut dire « Relation client »
+- « traitement des réclamations » veut dire « Relation client »
+- « gestion des réclamations » veut dire « Relation client »
+- « sens commercial » veut dire « Vente »
+- « sens de la vente » veut dire « Vente »
+- « traçage et prise de mesures » veut dire « Traçage de plans »
+- « résistance à la station debout » veut dire « Endurance »
+- « station debout prolongée » veut dire « Endurance »
+- « résistance physique » veut dire « Endurance »
+- « condition physique » veut dire « Endurance »
+- « bonne condition physique » veut dire « Endurance »
+- « étiquetage » veut dire « Merchandising »
+- « étiquetage des produits » veut dire « Merchandising »
+- « contrôle des prix » veut dire « Merchandising »
+- « étiquetage et contrôle des prix » veut dire « Merchandising »
+- « préparation de supports pédagogiques » veut dire « Pédagogie »
+- « supports pédagogiques » veut dire « Pédagogie »
+- « création de supports pédagogiques » veut dire « Pédagogie »
+- « évaluation des acquis » veut dire « Pédagogie »
+- « évaluation des apprenants » veut dire « Pédagogie »
+- « gestion d'un groupe » veut dire « Animation »
+- « gestion de groupe » veut dire « Animation »
+- « préparation des plats » veut dire « Cuisine »
+- « préparation de plats » veut dire « Cuisine »
+- « préparation et dressage des plats » veut dire « Cuisine »
+- « dressage des plats » veut dire « Cuisine »
+- « cuisson » veut dire « Cuisine »
+- « préparation et cuisson » veut dire « Cuisine »
+- « préparation des aliments » veut dire « Cuisine »
+- « soudage » veut dire « Assemblage »
+- « usinage » veut dire « Utilisation de machines »
+- « conditionnement » veut dire « Logistique »
+- « préparation et contrôle de commandes » veut dire « Logistique »
+- « contrôle de commandes » veut dire « Logistique »
+- « logiciel d'entrepôt » veut dire « Logistique »
+- « gestion d'entrepôt » veut dire « Logistique »
+- « étiquetage des colis » veut dire « Logistique »
+- « tri et étiquetage des colis » veut dire « Logistique »
+- « suivi des livraisons » veut dire « Logistique »
+- « suivi de livraison » veut dire « Logistique »
+- « petite mécanique » veut dire « Réparation »
+- « remplacement de pièces » veut dire « Réparation »
+- « changement de pièces » veut dire « Réparation »
+- « dépannage d'un poste » veut dire « Informatique »
+- « dépannage de postes » veut dire « Informatique »
+- « administration d'un réseau » veut dire « Informatique »
+- « administration et dépannage d'un poste ou d'un réseau » veut dire « Informatique »
+- « application de peinture » veut dire « Finition »
+- « préparation et application de peinture » veut dire « Finition »
+- « gestion des pièces » veut dire « Gestion des stocks »
+- « gestion du matériel » veut dire « Gestion des stocks »
+- « nourrissage et suivi de l'alimentation » veut dire « Soins aux animaux »
+- « désinfection » veut dire « Hygiène »
+- « désinfection du matériel » veut dire « Hygiène »
+- « désinfection des locaux » veut dire « Hygiène »
+- « asepsie » veut dire « Hygiène »
+- « protocoles d'hygiène » veut dire « Hygiène »
+- « gestion des rendez-vous » veut dire « Gestion des réservations »
+- « douceur » veut dire « Bienveillance »
+- « traçabilité » veut dire « Contrôle qualité »
+- « matériel d'entretien » veut dire « Entretien »
+- « produits d'entretien » veut dire « Entretien »
+- « utilisation des produits d'entretien » veut dire « Entretien »
+- « respect des protocoles » veut dire « Respect des règles »
+- « respect des procédures » veut dire « Respect des règles »
+- « aide à la prise des repas » veut dire « Aide à la personne »
+- « aide aux repas » veut dire « Aide à la personne »
+- « aide au repas » veut dire « Aide à la personne »
+- « respect de la dignité » veut dire « Sens de l'éthique »
+- « vidéosurveillance » veut dire « Surveillance »
+- « système d'alarme » veut dire « Surveillance »
+- « prévention incendie » veut dire « Prévention des risques »
+- « sécurité incendie » veut dire « Sécurité »
+- « gestion des conflits » veut dire « Médiation »
+- « gestion de conflits » veut dire « Médiation »
+- « gestion d'un conflit » veut dire « Médiation »
+- « construction d'un projet avec la personne » veut dire « Accompagnement »
+- « préparation d'un programme » veut dire « Planification »

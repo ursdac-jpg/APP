@@ -1,0 +1,286 @@
+{
+ "nom": "lettreRapide",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : les choix suivants sont annoncés bloqués tant que le CV n’est pas déposé"
+  },
+  {
+   "n": "info",
+   "t": "texte collé : ok"
+  },
+  {
+   "n": "info",
+   "t": "relire et masquer : ok"
+  },
+  {
+   "n": "info",
+   "t": "retirer les informations sensibles : ok"
+  },
+  {
+   "n": "info",
+   "t": "enregistrer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "dépôt : « Déposé et relu » affiché"
+  },
+  {
+   "n": "info",
+   "t": "après le dépôt : #preparer-lettre-entretien « Lettre et entretien en version rapide » bouton « Continuer → (grisé) » raison « Il reste à choisir ce que vous voulez préparer. » barre [Préparer] > Assistant > Réponse > Vos informations > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "boutons : #btnPrepLERevoirPres Revoir la présentation ; 1 Votre CV Déposé · vous pouvez le changer ; #depotPageChanger Changer de CV ; Revoir le texte relu et masqué ; 2 Que voulez-vous préparer en premier ? conseillé  ; PARCOURS 1 Ma lettre de motivation rapide Version  ; PARCOURS 2 Ma fiche de préparation à l’entretien V ; 3 Votre objectif Choisissez d’abord ce que vous vo ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "parcours 1 : ok"
+  },
+  {
+   "n": "info",
+   "t": "après le choix du parcours : bouton « Continuer → (grisé) » raison « Il reste à choisir votre situation dans la partie « Votre objectif » de cette page. »"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "après l’objectif : bouton « Continuer → (grisé) » raison « Il reste à indiquer le métier visé (ou plusieurs métiers) dans la partie « Votre objectif » de cette page. »"
+  },
+  {
+   "n": "info",
+   "t": "métier précis : ok"
+  },
+  {
+   "n": "info",
+   "t": "métier saisi : ok"
+  },
+  {
+   "n": "info",
+   "t": "domaine : ok / ok"
+  },
+  {
+   "n": "info",
+   "t": "après le métier : bouton « Continuer → (grisé) » raison « Il reste à dire si vous vous adressez à une entreprise précise ou non. »"
+  },
+  {
+   "n": "ok",
+   "t": "version rapide : « Continuer » reste grisé tant que « entreprise précise ou non » n’a pas de réponse"
+  },
+  {
+   "n": "info",
+   "t": "réponse sur la page de préparation : ok"
+  },
+  {
+   "n": "info",
+   "t": "boutons : #btnPrepLERevoirPres Revoir la présentation ; 1 Votre CV Déposé · vous pouvez le changer ; #depotPageChanger Changer de CV ; Revoir le texte relu et masqué ; 2 Que voulez-vous préparer en premier ? conseillé  ; PARCOURS 1 Ma lettre de motivation rapide Version  ; PARCOURS 2 Ma fiche de préparation à l’entretien V ; 3 Votre objectif nécessaire Renseigné ; Répondre à une offre Adapter vos documents à une o ; Candidature spontanée Préparer une candidature pou ; Changer de métier Valoriser vos compétences. ; Stage Documents adaptés à une recherche de stage. ; Alternance Documents adaptés à une alternance. ; Formation Documents adaptés à une demande de forma ; Un métier précis ; Plusieurs métiers d’un même domaine ; Changer de domaine ; Je me présente de façon générale, sans viser une e ; Je m’adresse à une entreprise précise ; CDD ; CDI ; Remplacements ; Intérim ; Tout ; Temps plein ; Temps partiel ; Tout ; Immédiatement ; Sous 15 jours ; Dans un mois ; Sans préférence ; Journée ; Tôt le matin ; Soirée ; Week-end ; Jours fériés ; Nuit ; Horaires fractionnés (avec une coupure) ; Tous les horaires ; Mots de cette page expliqués dans le Lexique 6 mot ; ← Retour ; Accueil ; #btnSuivantNavigation Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage : écran #preparer-lettre-entretien « Ma lettre de motivation rapide » barre Préparer > Assistant > [Réponse] > Vos informations > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "collage de l’extraction : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "rapide : ok:Continuer → → #revelation « 👤 Votre profil » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > [Vos informations] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "rapide : ok:Continuer → → #resultats « 📄 Ma lettre de motivation rapide » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "rapide : ok:Continuer → → #resultats « 📄 Ma lettre de motivation rapide » [bouton : null] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "rapide : PAS DE BOUTON → #resultats « 📄 Ma lettre de motivation rapide » [bouton : null] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage de la réponse (parcours 1) : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "rapide (résultat) : ok:Voir ma lettre → → #resultats « 📄 Ma lettre de motivation rapide » [bouton : Valider la lettre →] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "rapide (résultat) : ok:Valider la lettre → → #resultats « 📄 Ma lettre de motivation rapide » [bouton : null] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "rapide (résultat) : PAS DE BOUTON → #resultats « 📄 Ma lettre de motivation rapide » [bouton : null] [barre : Préparer > Assistant > Réponse > Vos informations > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » : resultats:Ma lettre de motivation rapide < revelation:Votre profil < projet:Vos informations < preparer-lettre-entretien:Ma lettre de motivation rapide < preparer-lettre-entretien:Lettre et entretien en version rapide"
+  },
+  {
+   "n": "ok",
+   "t": "version rapide parcours 1 : les « Retour » successifs rejoignent la page commune en 5 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#preparer-lettre-entretien",
+    "page": "preparer-lettre-entretien",
+    "h1": "Lettre et entretien en version rapide",
+    "barre": "",
+    "avant": "Déposer mon CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#preparer-lettre-entretien",
+    "page": "preparer-lettre-entretien",
+    "h1": "Lettre et entretien en version rapide",
+    "barre": "[Préparer] > Assistant > Réponse > Vos informations > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à déposer votre CV et à choisir ce que vous voulez préparer.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#revelation",
+    "page": "revelation",
+    "h1": "👤 Votre profil",
+    "barre": "Préparer > Assistant > Réponse > [Vos informations] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": "Valider la lettre →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Ma lettre de motivation rapide",
+    "barre": "Préparer > Assistant > Réponse > Vos informations > [Vos documents]",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

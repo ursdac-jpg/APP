@@ -74,6 +74,14 @@
       <button type="button" data-pref-daltonien="0">Désactivé</button>
       <button type="button" data-pref-daltonien="1">Activé</button>
     </div>
+    <!-- Cartes de l'accueil (consignes 336 a 338) : reglage facultatif pour les ecrans de moins de 1700 px de large. Defaut = normales. -->
+    <div class="pref-affichage-groupe">
+      <span class="pref-affichage-label">Cartes de l’accueil</span>
+      <button type="button" data-pref-cartes="normal">Normales</button>
+      <button type="button" data-pref-cartes="compact">Compactes</button>
+      <button type="button" data-pref-cartes="tres-compact">Très compactes</button>
+      <small class="d-block text-muted mt-1">Utile sur les écrans moyens et petits.</small>
+    </div>
     <!-- TACHE (retour utilisateur : "Confort de lecture" separe de
          "Police", pour ne pas stigmatiser en nommant "dyslexique" tout en
          restant reconnaissable) : reglage independant et combinable
@@ -83,12 +91,6 @@
       <span class="pref-affichage-label">Confort de lecture</span>
       <button type="button" data-pref-confort="0">Désactivé</button>
       <button type="button" data-pref-confort="1">Activé</button>
-    </div>
-    <!-- Grands boutons (retour Denis 2026-10-03) : cibles d'au moins 44 px et texte plus grand sur l'ecran « La mise en page », sans toucher au CV. Reglage d'interface, par appareil. -->
-    <div class="pref-affichage-groupe">
-      <span class="pref-affichage-label">Grands boutons</span>
-      <button type="button" data-pref-boutons="0">Désactivé</button>
-      <button type="button" data-pref-boutons="1">Activé</button>
     </div>
     <!-- TACHE (retour utilisateur, meme demande que ci-dessus) : <details>/
          <summary> natifs (deja utilises ailleurs dans l'appli pour ce
@@ -192,10 +194,13 @@
        jamais une 3e logique de panneau flottant. Contenu adapte a CHAQUE
        page affichee (pageActuelle), pas seulement l'accueil. -->
   <!-- Nouveautés (26/10/2026, docs/CHANTIER_NOUVEAUTES_2026-10-26.md) : 4e icône de la ligne du haut, même forme, visible sur toutes les pages ; la pastille compte les ajouts des 30 derniers jours. -->
+  <!-- Boutons repliables (15/11/2026, modules/boutons-repliables, consignes 332 à 332 sexies) : trois flèches rangent les boutons fixes ; au départ tout est sorti, comme avant. -->
+  <button type="button" id="flecheBoutonsGauche" class="fleche-bouton fleche-bouton--gauche" aria-label="Cacher les boutons du haut" title="Cacher les boutons du haut" aria-expanded="true"><i class="bi bi-chevron-left" aria-hidden="true"></i><span class="fleche-pastille" id="flechePastille" hidden></span></button>
   <button type="button" id="btnNouveautes" aria-label="Nouveautés : voir ce qui a été ajouté" title="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i><span class="pastille-nouveau" id="nvPastille" hidden></span></button>
   <button type="button" id="btnAide" aria-label="Aide sur cette page" title="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
   <!-- Introduction (02/11/2026, modules/introduction) : bouton rectangulaire tout à droite de la ligne du haut, visible sur toutes les pages une fois le module ouvert (caché sinon). -->
   <button type="button" id="btnIntroduction" hidden aria-label="Introduction : présentation de l’application" title="Introduction"><i class="bi bi-compass" aria-hidden="true"></i> Introduction</button>
+  <button type="button" id="flecheIntroduction" class="fleche-bouton fleche-bouton--droite" aria-label="Cacher Introduction" title="Cacher Introduction" aria-expanded="true"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
   <div id="panneauAide" hidden>
     <h6><i class="bi bi-lightbulb"></i> Besoin d'aide ?</h6>
     <p class="small text-muted mb-2">Comprendre à quoi sert chaque outil de cette page.</p>
@@ -230,6 +235,8 @@
        defaut, jamais de comportement ecrit ici. -->
   <button type="button" id="btnComparerPanier" hidden aria-label="Comparer mes pistes" title="Comparer mes pistes"><i class="bi bi-signpost-split" aria-hidden="true"></i></button>
   <div id="panneauComparerPanier" hidden></div>
+  <!-- Flèche de la colonne Carnet / Journal / Pistes de côté : à la hauteur du Journal (carte du milieu). -->
+  <button type="button" id="flecheBoutonsDroite" class="fleche-bouton fleche-bouton--droite" aria-label="Cacher les boutons de droite" title="Cacher les boutons de droite" aria-expanded="true"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
 
   <!-- Message ephemere generique (afficherToast(), js/app.js) : apparait,
        reste lisible, disparait tout seul. Un seul a la fois pour toute
@@ -240,12 +247,18 @@
   <!-- charset UTF-8 explicite : garantit un affichage correct des accents en ouverture locale -->
   <script src="data/certificationsConnues.js" charset="UTF-8"></script>
   <script src="data/incoherencesImport.js" charset="UTF-8"></script>
+  <!-- Fiches du ROME generees (consigne 263) : doit etre charge AVANT data/metiers.js, qui en fait une seule base avec les fiches detaillees -->
+  <script src="data/metiersRome.js" charset="UTF-8"></script>
+  <script src="data/conditionsRome.js" charset="UTF-8"></script>
+  <!-- Secondes descriptions des fiches du ROME, ecrites a la main (consigne 280) : avant data/metiers.js -->
+  <script src="data/descriptionsEcrites.js" charset="UTF-8"></script>
+  <!-- Formulations courantes d'un CV reliees aux libelles des fiches (consigne 410) : avant data/metiers.js -->
+  <script src="data/rapprochementCompetences.js" charset="UTF-8"></script>
   <script src="data/metiers.js" charset="UTF-8"></script>
   <script src="data/competences.js" charset="UTF-8"></script>
   <script src="data/actionsProfessionnelles.js" charset="UTF-8"></script>
   <script src="data/personnesMaterielsLieux.js" charset="UTF-8"></script>
   <script src="data/environnementsTravail.js" charset="UTF-8"></script>
-  <script src="data/valeursProfessionnelles.js" charset="UTF-8"></script>
   <script src="data/baseConnaissancesERIP.js" charset="UTF-8"></script>
   <!-- Index des fiches de « Comprendre le cadre » pour la recherche de l'accueil (genere, consigne 101). -->
   <script src="data/indexFichesCadre.js" charset="UTF-8"></script>
@@ -555,6 +568,18 @@
   <!-- Module « Un CV, plusieurs métiers » (rangé dans « Vous hésitez encore ? »), pages routées, famille 2. Logique pure (logique.js)
        chargée avant index.js, tout avant js/app.js (routes 'un-cv-plusieurs-metiers' et 'un-cv-plusieurs-metiers-intro'). Plan :
        docs/PLAN_IMPLEMENTATION_UN_CV_PLUSIEURS_METIERS_2026-10-08.md. -->
+  <!-- Étape « Vos missions et compétences » (fermée au public, MC_OUVERT) : logique pure. Plan : docs/PLAN_DE_CODAGE_MISSIONS_COMPETENCES_2026-11-14.md. -->
+  <script src="modules/missions-competences/logique.js" charset="UTF-8"></script>
+  <script src="modules/missions-competences/rechercheFiche.js" charset="UTF-8"></script>
+  <!-- Bloc « Vos diplômes » : logique pure des propositions de métiers et de missions. Maquette : docs/MAQUETTE_VOS_DIPLOMES_2026-11-15.html -->
+  <script src="modules/formations-metiers/logique.js" charset="UTF-8"></script>
+  <script src="modules/citer-developper/logique.js" charset="UTF-8"></script>
+  <script src="modules/citer-developper/missionsCertifications.js" charset="UTF-8"></script>
+  <script src="modules/citer-developper/missionsEngagementsExperiences.js" charset="UTF-8"></script>
+  <script src="modules/missions-competences/etape.js" charset="UTF-8"></script>
+  <script src="modules/missions-competences/ui.js" charset="UTF-8"></script>
+  <script src="modules/missions-competences/panneau.js" charset="UTF-8"></script>
+  <script src="modules/missions-competences/choix.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logique.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueMetiers.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueObjectifDossier.js" charset="UTF-8"></script>
@@ -624,6 +649,9 @@
   <script src="modules/introduction/index.js" charset="UTF-8"></script>
 <script src="modules/introduction/diaporama.js" charset="UTF-8"></script>
 <script src="modules/introduction/video.js" charset="UTF-8"></script>
+  <!-- Boutons repliables : logique pure puis interface ; avant js/app.js (la visite guidée les sort le temps de la visite). -->
+  <script src="modules/boutons-repliables/logique.js" charset="UTF-8"></script>
+  <script src="modules/boutons-repliables/index.js" charset="UTF-8"></script>
   <script src="js/app.js" charset="UTF-8"></script>
 
 </body>

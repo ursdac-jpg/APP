@@ -563,6 +563,7 @@
   color: var(--text-muted);
 }
 .comprendre-le-cadre-pastille--v { background: var(--success-bg-subtle); border-color: var(--success); color: var(--success-strong); }
+.comprendre-le-cadre-pastille--m { background: var(--maj-bg-subtle); border-color: var(--maj-border); color: var(--maj-strong); }   /* fiche mise à jour : violet doux (Denis, 12/11/2026), comme le vert marque la nouvelle fiche */
 .comprendre-le-cadre-pastille--a { background: var(--warning-bg-subtle); border-color: var(--warning-border); color: var(--warning-strong); }
 
 /* Source : un vrai bouton, jamais un lien-texte. */

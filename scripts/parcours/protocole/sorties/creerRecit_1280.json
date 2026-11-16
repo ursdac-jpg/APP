@@ -1,0 +1,374 @@
+{
+ "nom": "creerRecit",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ direct voie 2 : ok"
+  },
+  {
+   "n": "ok",
+   "t": "Préparer : « Continuer » grisé sans récit, raison « Racontez d’abord votre parcours (partie 1). »"
+  },
+  {
+   "n": "info",
+   "t": "récit d’un mot : bouton « Continuer → »"
+  },
+  {
+   "n": "info",
+   "t": "civilité : ok"
+  },
+  {
+   "n": "info",
+   "t": "objectif : ok"
+  },
+  {
+   "n": "info",
+   "t": "Assistant : bouton du bas « null » (aucun « Continuer » : on passe par un assistant)"
+  },
+  {
+   "n": "ok",
+   "t": "Assistant : Retour vers #decouverte « 📝 Préparer », puis Continuer revient bien ici"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage complet : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "après réponse reçue : étape « Réponse », bouton « Voir mes expériences → »"
+  },
+  {
+   "n": "info",
+   "t": "expérience 1 : cochées 2"
+  },
+  {
+   "n": "info",
+   "t": "expérience 2 : cochées 2"
+  },
+  {
+   "n": "info",
+   "t": "expérience 3 : cochées 2"
+  },
+  {
+   "n": "info",
+   "t": "expérience 4 : cochées 0"
+  },
+  {
+   "n": "info",
+   "t": "après validation des 4 expériences : bouton « Continuer → »"
+  },
+  {
+   "n": "ok",
+   "t": "Vos informations : sans identité, « Continuer » affiche le rappel « Une dernière chose avant de continuer » (volontaire)"
+  },
+  {
+   "n": "info",
+   "t": "après saisie de l’identité : #decouverte « 📝 Vos expériences » bouton « Continuer → »"
+  },
+  {
+   "n": "info",
+   "t": "récit (réglages) : ok:Continuer → → #decouverte « 🎨 Réglez le style d’écriture » [bouton : Continuer →] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "récit (réglages) : ok:Continuer → → #decouverte « 💬 Choisissez votre assistant » [bouton : null] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "collage de la rédaction : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "récit (fin) : ok:Voir mes propositions → → #decouverte « ➕ Le complément de votre CV » [bouton : Continuer sans le complément →] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "récit (fin) : ok:Continuer sans le complément → → #resultats « 📄 Vos documents » [bouton : Valider le CV →] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > [Vos documents]]"
+  },
+  {
+   "n": "info",
+   "t": "récit (fin) : ok:Valider le CV → → #resultats « 📄 Vos documents » [bouton : null] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "récit (fin) : PAS DE BOUTON → #resultats « 📄 Vos documents » [bouton : null] [barre : Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents]"
+  },
+  {
+   "n": "info",
+   "t": "arrivée : #resultats « 📄 Vos documents » barre : Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents"
+  },
+  {
+   "n": "info",
+   "t": "chaîne des « Retour » depuis Vos documents : resultats:Vos documents < decouverte:Le complément de votre CV < decouverte:Collez la réponse de l’assistant < decouverte:Choisissez votre assistant < decouverte:Réglez le style d’écriture < decouverte:Vos expériences < decouverte:Vos informations < decouverte:Découverte de vos compétences < decouverte:Collez la réponse de l’assistant < decouverte:Choisissez votre assistant < decouverte:Préparer < decouverte:Préparer < creer-cv:Créer un nouveau CV"
+  },
+  {
+   "n": "ok",
+   "t": "voie 2 : les « Retour » successifs rejoignent la page commune en 13 pas"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#creer-cv",
+    "page": "creer-cv",
+    "h1": "Créer un nouveau CV",
+    "barre": "",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📝 Préparer",
+    "barre": "[Préparer] > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Racontez d’abord votre parcours (partie 1).",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📝 Préparer",
+    "barre": "[Préparer] > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "💬 Choisissez votre assistant",
+    "barre": "Préparer > [Assistant] > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📥 Collez la réponse de l’assistant",
+    "barre": "Préparer > Assistant > [Réponse] > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": "Voir mes expériences → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à coller la réponse de l’assistant en ligne.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📥 Collez la réponse de l’assistant",
+    "barre": "Préparer > Assistant > [Réponse] > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": "Voir mes expériences →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "💡 Découverte de vos compétences",
+    "barre": "Préparer > Assistant > Réponse > [Compétences] > Compléter > Rédiger mon CV > Vos documents",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Pour continuer, il reste à valider : Expérience 1, Expérience 2, Expérience 3, Expérience 4. Choisissez au moins une compétence, puis cliquez sur « Je valide cette expérience ».",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📋 Vos informations",
+    "barre": "Préparer > Assistant > Réponse > Compétences > [Compléter] > Rédiger mon CV > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "🎨 Réglez le style d’écriture",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": "Continuer →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "💬 Choisissez votre assistant",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "💬 Choisissez votre assistant",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📥 Collez la réponse de l’assistant",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": "Voir mes propositions → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Il reste à coller la réponse de l’assistant en ligne.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "📥 Collez la réponse de l’assistant",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": "Voir mes propositions →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#decouverte",
+    "page": "decouverte",
+    "h1": "➕ Le complément de votre CV",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > [Rédiger mon CV] > Vos documents",
+    "avant": "Continuer sans le complément →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > [Vos documents]",
+    "avant": "Valider le CV →",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#resultats",
+    "page": "resultats",
+    "h1": "📄 Vos documents",
+    "barre": "Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Vos documents",
+    "avant": null,
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

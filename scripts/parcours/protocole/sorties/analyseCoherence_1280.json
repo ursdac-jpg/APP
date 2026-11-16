@@ -1,0 +1,236 @@
+{
+ "nom": "analyseCoherence",
+ "largeur": 1280,
+ "lignes": [
+  {
+   "n": "info",
+   "t": "départ : ok"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : « Continuer » grisé avec la raison « Déposez d’abord votre CV et votre lettre pour lancer l’analyse. »"
+  },
+  {
+   "n": "info",
+   "t": "dépôt cv : coller ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt cv : champ texte depotPageTexte-cv"
+  },
+  {
+   "n": "info",
+   "t": "dépôt cv : lire depotPageLireTexte-cv"
+  },
+  {
+   "n": "info",
+   "t": "dépôt cv : retirer ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt cv : enregistrer verifDocBtnEnregistrer"
+  },
+  {
+   "n": "info",
+   "t": "après le CV : bas « Continuer → (grisé) » raison « Déposez d’abord votre CV et votre lettre pour lancer l’analyse. »"
+  },
+  {
+   "n": "info",
+   "t": "dépôt lettre : coller ok"
+  },
+  {
+   "n": "info",
+   "t": "dépôt lettre : champ texte depotPageTexte-lettre"
+  },
+  {
+   "n": "info",
+   "t": "dépôt lettre : lire depotPageLireTexte-lettre"
+  },
+  {
+   "n": "info",
+   "t": "dépôt lettre : retirer ABSENT  Retirer toutes les informations"
+  },
+  {
+   "n": "info",
+   "t": "dépôt lettre : enregistrer verifDocBtnEnregistrer"
+  },
+  {
+   "n": "info",
+   "t": "après la lettre : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "pas d’entretien : ok"
+  },
+  {
+   "n": "info",
+   "t": "après « Je n’en ai pas » : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "bloc 3 après « Je n’en ai pas » : 3 Votre préparation d’entretien d’embauche à compléter Non fournie Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici. Sinon, cliquez sur « Je n’en ai pas » : ce n’est pas obligatoire. 📄 Un fichier PDF Word Texte "
+  },
+  {
+   "n": "info",
+   "t": "cohérence : Retour : ok"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : présentation après Retour : #coherence-transversale « Cohérence de mon dossier » bas « Reprendre »"
+  },
+  {
+   "n": "info",
+   "t": "cohérence (présentation) : reprise : encart (forme « Reprendre mon CV », sur la présentation) à gauche (51,334 1178 px) [Reprendre + Recommencer], page non grisée | barre du bas : ← Retour@51,843 | Accueil@593,845 | Reprendre@1081,843 | éléments : button:← Retour button:Accueil button:Reprendre"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence (présentation) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence (présentation) : reprise : « Reprendre » est calé à droite de la barre du bas"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : Continuer (présentation) : ok:Reprendre"
+  },
+  {
+   "n": "info",
+   "t": "cohérence (page de travail) : reprise : aucun encart | barre du bas : ← Retour@51,843 | Accueil@593,845 | Continuer →@1066,843 | éléments : button:← Retour button:Accueil button:Continuer →"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence (page de travail) : reprise : les boutons de la barre du bas sont sur une seule ligne"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : la reprise a la forme de « Reprendre mon CV » (encart sur la présentation, « Recommencer » seul, « Reprendre » en bas à droite)"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : le travail déjà fait est gardé après Retour puis le bouton de la présentation"
+  },
+  {
+   "n": "info",
+   "t": "avant l’assistant : bas « Continuer → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "vers l’assistant : ok:Continuer →"
+  },
+  {
+   "n": "info",
+   "t": "choix de l’assistant : ok"
+  },
+  {
+   "n": "info",
+   "t": "fenêtre : ok"
+  },
+  {
+   "n": "info",
+   "t": "écran d’attente : ok"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : écran de collage : bas « Voir mon rapport → (grisé) » raison « Il reste à coller la réponse de l’assistant en ligne. » barre Préparer > [Assistant] > Résultat > Entretien avancé"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : boutons du collage : #btnCoherenceRevoirPresentation Revoir la présentation ; Rouvrir ChatGPT (texte à envoyer recopié ; ↩ Je suis de retour ; ▶ Voir comment faire sur ChatGPT 33 s ▾ ; 📋 Coller la réponse (opération automati ; ⓘ ; ✍ Coller à la main (vous collez vous-mêm ; ⓘ ; ↺ Changer d’assistant ; ← Retour ; Accueil ; #btnContinuerCollage Voir mon rapport →"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : réponse coupée : etat:coupe"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : après la réponse coupée : bas « Voir mon rapport → (grisé) » raison « La réponse de l’assistant en ligne est coupée : il reste à coller la suite. »"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : réponse complète : etat:recu"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : après la réponse complète : bas « Voir mon rapport → » raison «  »"
+  },
+  {
+   "n": "info",
+   "t": "cohérence (suite) : ok:Voir mon rapport → → #coherence-transversale « Cohérence de mon dossier » [bouton : ✅ Merci bien, j’ai fini] [barre : Préparer > Assistant > [Résultat] > Entretien avancé]"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : fin : #coherence-transversale « Cohérence de mon dossier » bas « ✅ Merci bien, j’ai fini » barre Préparer > Assistant > [Résultat] > Entretien avancé"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : boutons de fin : #btnCoherenceRevoirPresentation Revoir la présentation ; 🔍 Synthèse Cliquez pour en savoir plus  ; 🔴 À corriger (1) Cliquez pour en savoir ; 📋 Voir le résumé ; ✏ Changer ce document ; 📋 Voir le résumé ; ✏ Changer ce document ; ➕ Ajouter ; #ctBoutonVoirLettre 📄 Voir/imprimer votre lettre ; #ctBoutonRelancerAnalyse 🔄 Relancer l’analyse ; #ctBoutonEntretienAvance 🎯 Aller plus loin : mon entretien ; Sauvegarder ma session ; ← Retour ; Accueil ; ✅ Merci bien, j’ai fini"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : texte de fin : 📄 Préparer 💬 Assistant ✅ Résultat 🎯 Entretien avancé Revoir la présentation Cohérence de mon dossier Résultat 🔍 Synthèse Cliquez pour en savoir plus Vos documents se tiennent bien. 📋 Ce que l’analyse montre Cliquez sur une catégorie pour voir le détail. Commencez par où vous préférez. 🔴 À corriger (1) Cliquez pour en savoir plus ✏️ Modifier et relancer Si vous changez un document ou ce que vous visez, vous pouvez relancer l’analyse pour voir si le résultat change. Votre CVEnregistré Agent d’accueil 📋 Voir le résumé ✏ Changer ce document Votre lettre de motivationEnregistrée Agent d’accueil 📋 Voir le résumé ✏ Changer ce document Préparation d’entretien d’embaucheÀ compléter ➕ Ajouter 💼 Ce que vous visez Ces informations aident l’analyse à juger si vos documents correspondent à ce p"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : chaîne des « Retour » : coherence-transversale:Cohérence de mon dossier < cv:Par où voulezvous commencer[fenêtre]"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : Recommencer : ok"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : « Recommencer » demande une confirmation"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : Annuler : ok"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : « Annuler » garde le travail et la reprise"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : confirmer : ok"
+  },
+  {
+   "n": "info",
+   "t": "cohérence : après « Recommencer » : #coherence-transversale bas « Je commence → »  Cohérence de mon dossier Vérifier que votre CV, votre lettre de motivation et votre préparation d’entretien d’embauche racontent la même histoire. ▶ Voir la pr"
+  },
+  {
+   "n": "ok",
+   "t": "cohérence : après « Recommencer », la présentation repart à froid"
+  }
+ ],
+ "ecrans": [
+  {
+   "e": {
+    "hash": "#coherence-transversale",
+    "page": "coherence-transversale",
+    "h1": "Cohérence de mon dossier",
+    "barre": "[Préparer] > Assistant > Résultat > Entretien avancé",
+    "avant": "Continuer → (grisé)",
+    "retour": true,
+    "accueil": true,
+    "raison": "Déposez d’abord votre CV et votre lettre pour lancer l’analyse.",
+    "fenetre": false
+   },
+   "anomalies": []
+  },
+  {
+   "e": {
+    "hash": "#coherence-transversale",
+    "page": "coherence-transversale",
+    "h1": "Cohérence de mon dossier",
+    "barre": "Préparer > Assistant > [Résultat] > Entretien avancé",
+    "avant": "✅ Merci bien, j’ai fini",
+    "retour": true,
+    "accueil": true,
+    "raison": "",
+    "fenetre": false
+   },
+   "anomalies": []
+  }
+ ]
+}

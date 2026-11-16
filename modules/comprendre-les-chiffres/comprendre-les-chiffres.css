@@ -242,6 +242,47 @@
   padding: .1rem .6rem;
 }
 
+/* ---- Sens d'un chiffre dont la HAUSSE est défavorable (inflation) : rouge vers le haut, vert vers le bas.
+   Une carte dont la hausse est favorable (emploi salarié, Smic) n'utilise pas ces classes. Le mot accompagne
+   toujours la flèche : la couleur ne suffit pas (variables theme-aware, valeur en mode sombre déjà définie). ---- */
+.comprendre-les-chiffres-sens--hausse { color: var(--danger); border-color: var(--danger); background: var(--danger-bg-subtle); }
+.comprendre-les-chiffres-sens--baisse { color: var(--success-strong); border-color: var(--success); background: var(--success-bg-subtle); }
+.comprendre-les-chiffres-sens-fl { font-weight: 700; font-size: .84rem; white-space: nowrap; }
+.comprendre-les-chiffres-sens-fl--hausse { color: var(--danger); }
+.comprendre-les-chiffres-sens-fl--baisse { color: var(--success-strong); }
+.comprendre-les-chiffres-sens-fl--stable { color: var(--text-muted); }
+
+/* ---- Inflation : tableau poste par poste ---- */
+.comprendre-les-chiffres-tableau-postes-zone { overflow-x: auto; }
+.comprendre-les-chiffres-tableau-postes { width: 100%; border-collapse: collapse; font-size: .92rem; margin: .4rem 0; }
+.comprendre-les-chiffres-tableau-postes th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: .8rem; padding: .25rem .4rem; border-bottom: 1px solid var(--border-strong); }
+.comprendre-les-chiffres-tableau-postes td { padding: .4rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.comprendre-les-chiffres-tableau-postes td.nom { font-weight: 600; }
+.comprendre-les-chiffres-tableau-postes tr.sous td.nom { font-weight: 400; color: var(--text-muted); padding-left: 1.2rem; }
+.comprendre-les-chiffres-tableau-postes td.ref { color: var(--text-muted); }
+.comprendre-les-chiffres-tableau-postes td.ref .comprendre-les-chiffres-sens-fl { display: inline-block; }
+/* Téléphone : chaque poste devient un petit bloc (le nom, puis une ligne par période), rien ne se coupe sur le côté. */
+@media (max-width: 520px) {
+  .comprendre-les-chiffres-tableau-postes thead { position: absolute; left: -9999px; }
+  .comprendre-les-chiffres-tableau-postes tr { display: block; padding: .3rem 0; border-bottom: 1px solid var(--border); }
+  .comprendre-les-chiffres-tableau-postes td { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; border: none; padding: .15rem .25rem; }
+  .comprendre-les-chiffres-tableau-postes td.nom { display: block; padding-top: .3rem; font-size: .95rem; }
+  .comprendre-les-chiffres-tableau-postes tr.sous td.nom { padding-left: 1.2rem; }
+  .comprendre-les-chiffres-tableau-postes td[data-label]::before { content: attr(data-label); color: var(--text-muted); font-size: .8rem; font-weight: 600; }
+}
+
+/* ---- Inflation : suivi dans le temps (une ligne, un point par mois) ---- */
+.comprendre-les-chiffres-inflation-temps { margin-top: .8rem; border-top: 1px solid var(--border); padding-top: .6rem; }
+.comprendre-les-chiffres-inflation-graphe { width: 100%; height: auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: .4rem; touch-action: pan-y; }
+.comprendre-les-chiffres-inflation-graphe text { fill: var(--text-muted); font-size: 11px; font-family: inherit; }
+.comprendre-les-chiffres-inflation-graphe text.val { fill: var(--text-strong); font-size: 12px; font-weight: 700; }
+.comprendre-les-chiffres-inflation-graphe .grille { stroke: var(--border); stroke-width: 1; }
+.comprendre-les-chiffres-inflation-graphe .courbe { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.comprendre-les-chiffres-inflation-graphe .dernier { fill: var(--accent); }
+.comprendre-les-chiffres-inflation-graphe .guide { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; visibility: hidden; }
+.comprendre-les-chiffres-inflation-graphe .pointe { fill: var(--bg-card); stroke: var(--accent); stroke-width: 2.4; visibility: hidden; }
+.comprendre-les-chiffres-inflation-info { min-height: 2.6rem; font-size: .92rem; margin: .4rem 0 .2rem; }
+
 /* ---- Tous les chiffres : couleur d'accent, gras, infobulle de source ---- */
 .comprendre-les-chiffres-contenu .chiffre {
   color: var(--accent);
@@ -1019,9 +1060,16 @@
   .comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-valeur { text-align: left; }
 }
 
-/* Page « Le Smic et l’inflation » : deux cartes côte à côte, une seule colonne sur téléphone. */
-.comprendre-les-chiffres-smic-deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .9rem; }
-.comprendre-les-chiffres-smic-deux .comprendre-les-chiffres-indic { margin: 0; }
+/* Page « Le Smic et l’inflation » : une carte par ligne sur téléphone ; sur écran large, deux cartes par ligne (Smic et salaires, puis salariés concernés et pouvoir d'achat)
+   et l'inflation en pleine largeur (le tableau poste par poste et son graphique ont besoin de la place ; tâches C.4 et consigne 238, 2026-11-10). */
+.comprendre-les-chiffres-cartes-ligne { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 1.2rem 0; }
+.comprendre-les-chiffres-cartes-ligne > .comprendre-les-chiffres-indic { margin: 0; }
+.comprendre-les-chiffres-smic-bloc > .comprendre-les-chiffres-indic { margin: 1.2rem 0; }
+@media (min-width: 1000px) {
+  .comprendre-les-chiffres-cartes-ligne--deux { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
+  /* Une carte à moitié de largeur reste en une colonne (la disposition « chiffre à gauche, lecture à droite » serait trop étroite). */
+  .comprendre-les-chiffres-cartes-ligne--deux > .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) { display: block; }
+}
 .comprendre-les-chiffres-smic-bloc { margin: 1rem 0; }
 .comprendre-les-chiffres-smic-titre { margin: 0 0 .4rem; font-size: 1.1rem; }
 
@@ -1072,7 +1120,8 @@
   border-radius: 4px; padding: .2rem .65rem; font: inherit; font-size: .78rem; cursor: pointer;
 }
 .comprendre-les-chiffres-vues-ordre button.actif { border-color: var(--accent); color: var(--accent); font-weight: 700; background: var(--accent-bg-subtle); }
-.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne { grid-template-columns: minmax(8.5rem, 40%) 1fr 5rem; padding: .18rem 0; }
+/* Colonne du montant : au moins 5 rem, plus large si le montant l'exige (caractères « très grands » sur téléphone : « 1 478 € » sortait de la carte). Colonne du nom : 4,5 rem minimum au lieu de 8,5 pour laisser de la place à la barre. */
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne { grid-template-columns: minmax(4.5rem, 40%) minmax(0, 1fr) minmax(5rem, max-content); padding: .18rem 0; }
 .comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-nom { font-size: .8rem; line-height: 1.2; font-weight: 400; color: var(--text-muted); }
 .comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne.fort .comprendre-les-chiffres-zone-nom { color: var(--text-strong); font-weight: 700; }
 .comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-valeur { white-space: nowrap; font-weight: 800; }
@@ -1139,7 +1188,9 @@
 .comprendre-les-chiffres-vues-entete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .1rem .8rem; }
 .comprendre-les-chiffres-vues-entete .comprendre-les-chiffres-vues-titre { margin: .1rem 0; }
 .comprendre-les-chiffres-vues-entete .comprendre-les-chiffres-vues-ordre { margin: .1rem 0; }
-.comprendre-les-chiffres-smic-deux { align-items: start; }
+/* Une valeur d'une autre période que les autres (le Smic net de cette année, à côté des salaires d'une année plus ancienne) : barre hachurée, case en pointillé. */
+.comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne.autre .comprendre-les-chiffres-zone-remplissage { background: repeating-linear-gradient(45deg, var(--accent) 0 5px, var(--accent-bg-subtle) 5px 9px); opacity: 1; }
+.comprendre-les-chiffres-ligne.autre { border-style: dotted; }
 .comprendre-les-chiffres-indic .comprendre-les-chiffres-depli { margin: .4rem 0; }
 .comprendre-les-chiffres-indic .comprendre-les-chiffres-depli > summary { padding: .5rem .8rem; }
 
@@ -1154,6 +1205,13 @@
    (de 1 à 4 lignes = tuiles ; 5 lignes ou plus = puces serrées), l'encart « Ce que… veut dire »
    sous le bandeau au lieu d'une colonne à part qui laisse du vide. Aucune règle ici
    sous 1000 px : téléphone et tablette gardent leur disposition. Couleurs : variables du thème (clair et sombre). */
+.comprendre-les-chiffres-inflation-lecture { margin: .5rem 0; padding: .6rem .8rem; border: 1px solid var(--accent); border-radius: .6rem; background: var(--accent-bg-subtle); font-size: .92rem; }
+.comprendre-les-chiffres-lecture-titre { margin: 0 0 .3rem; font-weight: 800; color: var(--accent-texte, var(--text-strong)); }
+.comprendre-les-chiffres-lecture-ligne { margin: .2rem 0; }
+.comprendre-les-chiffres-lecture-liste { margin: .3rem 0 0; padding-left: 1.1rem; }
+.comprendre-les-chiffres-lecture-liste li { margin: .25rem 0; }
+.comprendre-les-chiffres-matrice-zone { display: none; }
+.comprendre-les-chiffres-ligne-periode { font-size: .78em; font-weight: 400; color: var(--text-muted); }
 @media (min-width: 1000px) {
   .comprendre-les-chiffres-indic--avec-cote .comprendre-les-chiffres-indic-grille,
   .comprendre-les-chiffres-indic--maigre .comprendre-les-chiffres-indic-grille { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
@@ -1164,8 +1222,32 @@
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 1.6rem; align-items: start;
   }
   .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > :not(.comprendre-les-chiffres-vues-groupe) { grid-column: 1; }
-  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe { grid-column: 2; grid-row: 9; margin-top: 0; }
-  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe:first-of-type { grid-row: 1 / span 8; }
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe { grid-column: 2; grid-row: 1 / span 8; margin-top: 0; }
+  /* Le premier groupe est à droite du texte, sur les huit premières lignes (avant, « :first-of-type » le perdait dès qu'un encadré <div> le précédait :
+     tuiles du chômage poussées tout en bas, grand vide à droite, retour de Denis le 10/11/2026) ; le deuxième groupe passe dessous. */
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe { grid-row: 9; }
+  /* La hauteur d'un groupe à droite est absorbée par la dernière des huit lignes : le texte de gauche ne s'étire pas. */
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) { grid-template-rows: repeat(7, auto) minmax(0, 1fr); }
+  /* Un deuxième groupe « trimestre par trimestre » occupe toute la largeur (tableau année par année) ; seul, il reste à droite. */
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe--trimestres { grid-column: 1 / -1; }
+  /* Chômage : l'encadré du chiffre national le plus récent s'étend sous le texte ET les tuiles (il comblait mal la colonne de gauche). */
+  .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"]:has(> .comprendre-les-chiffres-vues-groupe):has(> :not(.comprendre-les-chiffres-vues-groupe)) > .comprendre-les-chiffres-national-recent { grid-column: 1 / -1; grid-row: 10; }
+  .comprendre-les-chiffres-national-corps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 1.6rem; align-items: start; }
+  .comprendre-les-chiffres-national-recent .comprendre-les-chiffres-repere { margin-top: 0; }
+
+  /* Tableau des trimestres, une ligne par année, et liste d'origine cachée (elle reste sur téléphone). */
+  .comprendre-les-chiffres-matrice-zone { display: block; }
+  .comprendre-les-chiffres-vues-groupe.comprendre-les-chiffres-vues-groupe--trimestres:has(.comprendre-les-chiffres-matrice-zone) > .comprendre-les-chiffres-lignes.comprendre-les-chiffres-lignes,
+  .comprendre-les-chiffres-vues-groupe.comprendre-les-chiffres-vues-groupe--trimestres:has(.comprendre-les-chiffres-matrice-zone) .comprendre-les-chiffres-vues-ordre { display: none; }
+  .comprendre-les-chiffres-matrice { width: 100%; border-collapse: separate; border-spacing: .35rem; }
+  .comprendre-les-chiffres-matrice th { font-weight: 600; color: var(--text-muted); font-size: .82rem; text-align: center; }
+  .comprendre-les-chiffres-matrice th[scope="row"] { text-align: left; color: var(--text-strong); font-size: 1rem; }
+  .comprendre-les-chiffres-matrice th:first-child { text-align: left; }
+  .comprendre-les-chiffres-matrice td { text-align: center; border: 1px solid var(--border); background: var(--bg-subtle); border-radius: .5rem; padding: .45rem .3rem; font-weight: 700; }
+  .comprendre-les-chiffres-matrice td.vide { background: transparent; border-style: dashed; color: var(--text-muted); font-weight: 400; }
+  .comprendre-les-chiffres-matrice td.an-avant { border: 2px solid var(--accent); }
+  .comprendre-les-chiffres-matrice td.dernier { background: var(--accent-solide); border-color: var(--accent-solide); color: #fff; }
+  .comprendre-les-chiffres-matrice td.dernier .chiffre { color: #fff; border-bottom-color: #fff; }
 
   /* Cartes « fiche » (chiffre principal hors du panneau) : chiffre à gauche, lecture à droite */
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) {
@@ -1175,22 +1257,47 @@
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-indic-valeur,
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-tendance { grid-column: 1; justify-self: start; }
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues { grid-column: 2; grid-row: 2 / span 2; }
+  /* Inflation : le tableau (haut) est à droite, le chiffre, la flèche, la phrase et les comparaisons restent ensemble à gauche. */
+  #carte-inflation:has(> .comprendre-les-chiffres-indic-valeur) { grid-template-rows: auto auto auto auto auto auto 1fr; }
+  #carte-inflation:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues { grid-row: 2 / span 6; }
+  #carte-inflation:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-indic-phrase,
+  #carte-inflation:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-compare,
+  #carte-inflation:has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-inflation-lecture { grid-column: 1; }
+
+  /* « Où se situe… » : les deux barres (départements, régions) côte à côte au lieu de l'une sous l'autre (maquette du 10/11/2026). */
+  .comprendre-les-chiffres-ou-se-situer:has(> .comprendre-les-chiffres-oss-bloc) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 2.4rem; align-items: start; }
+  .comprendre-les-chiffres-ou-se-situer:has(> .comprendre-les-chiffres-oss-bloc) > .comprendre-les-chiffres-oss-plein { grid-column: 1 / -1; }
+  .comprendre-les-chiffres-ou-se-situer:has(> .comprendre-les-chiffres-oss-bloc) > .comprendre-les-chiffres-oss-bloc { margin-top: 0; }
 
   /* Comparaisons : 1 à 4 lignes = tuiles */
   .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .6rem; }
-  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne {
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne,
+  .comprendre-les-chiffres-lignes--tuiles > .comprendre-les-chiffres-ligne {
     flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: .1rem;
     padding: .55rem .7rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--bg-subtle);
   }
-  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne.fort { border-color: var(--accent); background: var(--accent-bg-subtle); }
-  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-val { font-size: 1.6rem; }
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne.fort,
+  .comprendre-les-chiffres-lignes--tuiles > .comprendre-les-chiffres-ligne.fort { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .comprendre-les-chiffres-lignes:not(:has(> :nth-child(5))) > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-val,
+  .comprendre-les-chiffres-lignes--tuiles > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-val { font-size: 1.6rem; }
+  /* Tuiles du « territoire et autres niveaux » (chômage) : trois par ligne, le trimestre écrit sous le nom ; la tuile du chiffre le plus récent est en tirets. */
+  .comprendre-les-chiffres-lignes--tuiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+  .comprendre-les-chiffres-lignes--tuiles > .comprendre-les-chiffres-ligne.recent { border-style: dashed; border-color: var(--accent); }
+  .comprendre-les-chiffres-lignes--tuiles > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-periode { display: block; }
   .comprendre-les-chiffres-lignes > .comprendre-les-chiffres-ligne { min-width: 0; }
   .comprendre-les-chiffres-lignes > .comprendre-les-chiffres-ligne .comprendre-les-chiffres-ligne-lib { min-width: 0; overflow-wrap: anywhere; }
   /* 5 lignes ou plus (trimestres, années...) = puces serrées */
-  .comprendre-les-chiffres-lignes:has(> :nth-child(5)) { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .4rem; }
-  .comprendre-les-chiffres-lignes:has(> :nth-child(5)) > .comprendre-les-chiffres-ligne {
+  .comprendre-les-chiffres-lignes:has(> :nth-child(5)):not(.comprendre-les-chiffres-lignes--tuiles) { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .4rem; }
+  .comprendre-les-chiffres-lignes:has(> :nth-child(5)):not(.comprendre-les-chiffres-lignes--tuiles) > .comprendre-les-chiffres-ligne {
     padding: .3rem .6rem; border: 1px solid var(--border-strong); border-radius: .5rem; background: var(--bg-subtle);
   }
+  /* Portrait du territoire : six repères = deux lignes de trois (avant : cinq puis un seul, vide à droite) ; cinq repères restent sur une ligne.
+     Limité aux cartes du portrait : ailleurs la colonne est étroite (consigne 243). */
+  [id^="comprendre-les-chiffres-carte-portrait"] .comprendre-les-chiffres-lignes:has(> :nth-child(6)):not(:has(> :nth-child(7))):not(.comprendre-les-chiffres-lignes--tuiles) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Les groupes seuls sous les listes (Bénéficiaires du RSA, Travailleurs handicapés reconnus) : côte à côte au lieu d'un bandeau pleine largeur chacun. */
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 1.2rem; align-items: start; }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > :not(.comprendre-les-chiffres-vues-groupe) { grid-column: 1 / -1; }
+  .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-vues-groupe { margin-top: .5rem; }
 
   /* Cartes hautes (deux séries de comparaisons à droite) : la phrase d'évolution reste collée sous le chiffre, et la note,
      « Comment lire ce chiffre ? » et la source remontent dans la colonne de gauche, au lieu de laisser un grand vide sous le chiffre
@@ -1208,6 +1315,14 @@
   /* L'encart (« Ce sont des moyennes... ») passe sous les comparaisons, à droite : la colonne de gauche s'allège et le vide sous
      les comparaisons disparaît (carte « Hommes et femmes », point 1 du plan, 2026-11-07). Sélecteur répété pour passer devant la règle précédente. */
   .comprendre-les-chiffres-indic:has(> .comprendre-les-chiffres-indic-valeur):has(> .comprendre-les-chiffres-vues .comprendre-les-chiffres-vues-groupe ~ .comprendre-les-chiffres-vues-groupe) > .comprendre-les-chiffres-encart.comprendre-les-chiffres-encart.comprendre-les-chiffres-encart { grid-column: 2; grid-row: 9; margin-top: .5rem; }
+  /* Hommes et femmes : avec le texte « Ce que cela veut dire », la colonne de gauche compte une ligne de plus. Les deux groupes (à droite) descendent donc jusqu'en bas
+     de la carte, répartis sur toute la hauteur, et l'encart « Ce sont des moyennes » reste à gauche : plus de trou entre les groupes et l'encart (consigne 245). */
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues { grid-row: 2 / span 9; align-self: stretch; display: flex; flex-direction: column; }
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues > .comprendre-les-chiffres-bascule-lecture { align-self: flex-start; }
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"] { flex: 1; display: flex; flex-direction: column; }
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"] > .comprendre-les-chiffres-vues-groupe { flex: 1; display: flex; flex-direction: column; }
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-vues > [data-comprendre-les-chiffres-panneau="chiffres"] > .comprendre-les-chiffres-vues-groupe > .comprendre-les-chiffres-lignes { flex: 1; }
+  :is(#comprendre-les-chiffres-carte-sal-sexes-dep, #comprendre-les-chiffres-carte-sal-sexes-na):has(> .comprendre-les-chiffres-indic-valeur) > .comprendre-les-chiffres-encart { grid-column: 1; grid-row: auto; margin-top: .5rem; }
 }
 /* Chômage : encadré du chiffre NATIONAL plus récent que celui de la carte (le taux national paraît avant les taux par région et département). */
 .comprendre-les-chiffres-national-recent { margin-top: .9rem; padding: .7rem .9rem; border: 1px solid var(--accent); border-left-width: 6px; border-radius: 12px; background: var(--accent-bg-subtle); }

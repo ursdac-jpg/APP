@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : qui choisit les missions et les compétences (version 1)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 5rem}
+.mq-page{max-width:980px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:60;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:70;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+
+/* Les deux cartes de choix */
+.qc-cartes{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.2rem 0}
+.tel .qc-cartes{grid-template-columns:1fr}
+.qc-carte{display:flex;flex-direction:column;gap:.55rem;text-align:left;background:var(--bg-card);border:2px solid var(--border-strong);border-radius:14px;padding:1.1rem 1.1rem 1rem;cursor:pointer;color:var(--text-strong);font:inherit;transition:border-color .15s,background .15s,box-shadow .15s}
+.qc-carte:hover{border-color:var(--accent)}
+.qc-carte:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.qc-carte.is-actif{border-color:var(--accent);background:var(--accent-bg-subtle);box-shadow:0 0 0 3px var(--accent-bg-subtle),0 0 0 5px var(--accent)}
+.qc-carte .qc-ico{font-size:1.9rem;line-height:1;color:var(--accent)}
+.qc-carte .qc-titre{font-size:1.1rem;font-weight:800;margin:0}
+.qc-carte .qc-phrase{margin:0;font-size:.95rem}
+.qc-carte ul{margin:.1rem 0 0;padding-left:1.15rem;font-size:.9rem}
+.qc-carte ul li{margin:.15rem 0}
+.qc-carte .qc-coche{margin-top:auto;font-weight:700;font-size:.9rem;color:var(--accent-texte,var(--accent));min-height:1.4rem}
+.qc-verrou{background:var(--bg-card);border:1px solid var(--border-strong);border-left:5px solid var(--accent);border-radius:10px;padding:.7rem .9rem;margin:1rem 0;font-size:.95rem}
+.qc-verrou p{margin:.15rem 0}
+.qc-confirm{background:var(--accent-bg-subtle);border:2px solid var(--accent);border-radius:12px;padding:.9rem 1rem;margin:1rem 0}
+.qc-confirm .boutons{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem}
+.qc-barre-bas{display:flex;justify-content:space-between;align-items:center;gap:.6rem;border-top:1px solid var(--border-strong);margin-top:1.2rem;padding-top:.9rem}
+.qc-barre-bas .btn[disabled]{opacity:.5}
+.qc-lecon{font-size:.85rem;color:var(--text-muted);margin:.3rem 0 0}
+.qc-ecran-titre{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin:1.4rem 0 .4rem}
+.qc-bloc-barre{margin:.8rem 0 1.2rem}
+.qc-bloc-barre .qc-etiq{font-weight:700;font-size:.9rem;margin:0 0 .2rem}
+.qc-reponse{border:1px dashed var(--border-strong);border-radius:10px;padding:.6rem .8rem;margin:.4rem 0;font-size:.92rem;background:var(--bg-card)}
+.qc-reponse b{display:block;margin-bottom:.15rem}
+.mq-sombre-note{font-size:.8rem}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Où la question apparaît</b>
+    <div class="boutons" data-groupe="parcours">
+      <button type="button" class="btn btn-sm btn-primary" data-v="assistant">Créer avec l’assistant</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="recit">À partir de mon récit</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="corriger">Corriger mon CV</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="main">À la main (pas de question)</button>
+    </div>
+  </div>
+  <div class="grp"><b>Écran à voir</b>
+    <div class="boutons" data-groupe="ecran">
+      <button type="button" class="btn btn-sm btn-primary" data-v="question">1. La question</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="etapes">2. Ce que ça change dans les étapes</button>
+    </div>
+  </div>
+  <div class="grp"><b>Taille d’écran et thème</b>
+    <div class="boutons" data-groupe="taille">
+      <button type="button" class="btn btn-sm btn-primary" data-v="large">Ordinateur</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-v="tel">Téléphone</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqTheme">Mode sombre</button>
+    </div>
+  </div>
+  <div class="mq-retient" id="mqRetient"></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+var ETAT = { parcours: 'assistant', ecran: 'question', taille: 'large', choix: null, confirmation: false, verrouille: false };
+
+var PARCOURS = {
+  assistant: { nom: 'Créer un nouveau CV, avec l’assistant', etapes: ['Votre objectif', 'Vos informations', 'Votre parcours', 'Vos missions et compétences', 'Votre profil', 'Assistant', 'Vos documents'], icones: ['bi-bullseye', 'bi-card-checklist', 'bi-compass', 'bi-tools', 'bi-search', 'bi-chat-dots', 'bi-file-earmark-text'], placeQuestion: 0 },
+  recit: { nom: 'Écrire mon CV à partir de mon récit', etapes: ['Préparer', 'Assistant', 'Réponse', 'Compétences', 'Compléter', 'Rédiger mon CV', 'Mon CV'], icones: ['bi-pencil-square', 'bi-chat-dots', 'bi-inbox', 'bi-lightbulb', 'bi-card-checklist', 'bi-pencil', 'bi-file-earmark-text'], placeQuestion: 0 },
+  corriger: { nom: 'Corriger mon CV', etapes: ['Préparer', 'Assistant', 'Réponse', 'Corriger mon CV', 'Vos documents'], icones: ['bi-pencil-square', 'bi-chat-dots', 'bi-inbox', 'bi-pencil', 'bi-file-earmark-text'], placeQuestion: 0 },
+  main: { nom: 'Créer un nouveau CV, à la main', etapes: ['Votre objectif', 'Vos informations', 'Votre parcours', 'Vos missions et compétences', 'Votre profil', 'Vos documents'], icones: ['bi-bullseye', 'bi-card-checklist', 'bi-compass', 'bi-tools', 'bi-search', 'bi-file-earmark-text'], placeQuestion: -1 }
+};
+
+function barreEtapes(etapes, icones, courant) {
+  var h = '<div class="barre-etapes-cadre"><div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+  etapes.forEach(function (e, i) {
+    if (i > 0) { h += '<span class="chevron-etape-action" aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+    var cl = i < courant ? ' pastille-etape-action-validee' : (i === courant ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+    h += '<span class="pastille-etape-action' + cl + '"><span class="pastille-etape-action-icone"><i class="bi ' + icones[i] + '"></i></span><span class="pastille-etape-action-label">' + e + '</span></span>';
+  });
+  return h + '</div></div>';
+}
+
+function carte(id, ico, titre, phrase, points) {
+  var actif = ETAT.choix === id;
+  return '<button type="button" class="qc-carte' + (actif ? ' is-actif' : '') + '" role="radio" aria-checked="' + actif + '" data-choix="' + id + '"' + (ETAT.verrouille ? ' disabled' : '') + '>' +
+    '<span class="qc-ico"><i class="bi ' + ico + '"></i></span>' +
+    '<p class="qc-titre">' + titre + '</p><p class="qc-phrase">' + phrase + '</p><ul>' + points.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ul>' +
+    '<span class="qc-coche">' + (actif ? '<i class="bi bi-check-circle-fill"></i> Votre choix' : '') + '</span></button>';
+}
+
+function ecranQuestion() {
+  var p = PARCOURS[ETAT.parcours];
+  if (p.placeQuestion < 0) {
+    return '<div class="text-center"><h1>' + p.nom + '</h1></div>' +
+      '<div class="qc-verrou"><p><b>Pas de question ici.</b> À la main, c’est toujours vous qui choisissez vos missions et vos compétences : il n’y a rien à demander.</p></div>' +
+      '<p class="qc-lecon">Le panneau d’ajout d’une expérience et la page « Vos missions et compétences » s’ouvrent directement.</p>';
+  }
+  var h = '<div class="text-center"><h1>Avant de commencer</h1>' +
+    '<p class="sousTitre">Une seule question, importante pour la suite de ce CV.</p></div>';
+  h += '<div class="cv-section"><h2 style="font-size:1.2rem;margin-bottom:.3rem">Qui choisit les missions et les compétences de vos expériences ?</h2>' +
+    '<p class="mb-1">Pour chaque métier que vous avez fait, il faut choisir ce que vous y faisiez et ce que vous savez faire. Vous décidez comment on s’y prend.</p>' +
+    '<div class="qc-cartes" role="radiogroup" aria-label="Qui choisit les missions et les compétences ?">' +
+    carte('moi', 'bi-hand-index-thumb', 'Je les choisis moi-même', 'Vous cochez, expérience par expérience, ce que vous avez vraiment fait.', ['Plus précis : chaque mot est le vôtre', 'Un peu plus long', 'Vous gardez la main sur tout']) +
+    carte('assistant', 'bi-chat-left-text', 'L’assistant me les propose', 'Vous donnez vos informations, l’assistant propose, puis vous relisez.', ['Plus rapide', 'Vous pouvez corriger ensuite', 'Pratique si vous manquez de temps']) +
+    '</div>' +
+    '<p class="qc-lecon">Les deux mènent à un bon CV. Il n’y a pas de bon ou de mauvais choix : prenez celui qui vous met le plus à l’aise.</p></div>';
+  if (!ETAT.verrouille) {
+    h += '<div class="qc-verrou" role="note"><p><i class="bi bi-info-circle"></i> <b>À savoir :</b> une fois confirmé, ce choix ne change plus pour ce CV. Pour faire autrement, vous commencez un nouveau CV.</p></div>';
+  }
+  if (ETAT.confirmation && ETAT.choix && !ETAT.verrouille) {
+    var mot = ETAT.choix === 'moi' ? 'choisir vous-même vos missions et vos compétences' : 'laisser l’assistant vous proposer vos missions et vos compétences';
+    h += '<div class="qc-confirm" role="alertdialog" aria-live="polite"><p class="mb-0"><b>Vous confirmez : ' + mot + ' ?</b><br>Ce choix ne pourra plus être changé pour ce CV.</p>' +
+      '<div class="boutons"><button type="button" class="btn btn-primary" id="qcOui">Oui, je confirme</button><button type="button" class="btn btn-outline-secondary" id="qcNon">Je reviens au choix</button></div></div>';
+  }
+  if (ETAT.verrouille) {
+    h += '<div class="qc-verrou"><p><i class="bi bi-lock"></i> <b>Choix enregistré :</b> ' + (ETAT.choix === 'moi' ? 'vous choisissez vous-même vos missions et vos compétences.' : 'l’assistant vous propose vos missions et vos compétences.') + '</p>' +
+      '<p class="mb-0 small">Dans la suite du parcours, un rappel discret en haut des pages le rappelle, sans bouton pour le changer.</p></div>';
+  }
+  h += '<div class="qc-barre-bas"><button type="button" class="btn btn-outline-secondary">&larr; Retour</button>' +
+    '<button type="button" class="btn btn-primary" id="qcContinuer"' + (ETAT.choix && !ETAT.verrouille ? '' : (ETAT.verrouille ? '' : ' disabled')) + '>' + (ETAT.verrouille ? 'Continuer vers Votre objectif &rarr;' : 'Continuer &rarr;') + '</button></div>';
+  if (!ETAT.choix) { h += '<p class="qc-lecon text-end">« Continuer » s’active dès que vous avez cliqué sur l’une des deux cartes.</p>'; }
+  return h;
+}
+
+function ecranEtapes() {
+  var p = PARCOURS[ETAT.parcours];
+  var etapesMoi = p.etapes, iconesMoi = p.icones;
+  var iMiss = etapesMoi.indexOf('Vos missions et compétences');
+  var etapesAss = etapesMoi.filter(function (e) { return e !== 'Vos missions et compétences'; });
+  var iconesAss = iconesMoi.filter(function (e, i) { return i !== iMiss; });
+  var h = '<div class="text-center"><h1>Ce que le choix change</h1><p class="sousTitre">' + p.nom + '</p></div>';
+  if (p.placeQuestion < 0) {
+    return h + '<div class="qc-bloc-barre"><p class="qc-etiq">Barre d’étapes (toujours la même, à la main)</p>' + barreEtapes(etapesMoi, iconesMoi, 1) + '</div>';
+  }
+  h += '<div class="qc-bloc-barre"><p class="qc-etiq">Si la personne choisit « Je les choisis moi-même »</p>' + barreEtapes(etapesMoi, iconesMoi, 1) +
+    '<div class="qc-reponse"><b>Dans « Vos informations »</b>Le panneau riche d’ajout d’une expérience : intitulé du poste, métier proposé, missions et compétences à cocher.</div>' +
+    (iMiss >= 0 ? '<div class="qc-reponse"><b>Page « Vos missions et compétences »</b>Elle existe : vérifier, ajouter, voir ce que demande le métier visé.</div>' : '<div class="qc-reponse"><b>Barre d’étapes</b>Elle ne change pas dans ce parcours : seul le panneau d’ajout d’une expérience est concerné.</div>') +
+    '<div class="qc-reponse"><b>L’assistant, plus tard</b>Il peut seulement proposer de « mettre en premier » les missions qui comptent le plus. La personne décide.</div></div>';
+  h += '<div class="qc-bloc-barre"><p class="qc-etiq">Si la personne choisit « L’assistant me les propose »</p>' + barreEtapes(etapesAss, iconesAss, 1) +
+    '<div class="qc-reponse"><b>Dans « Vos informations »</b>L’ancien formulaire simple d’une expérience : poste, entreprise, dates, et un texte libre sur ce que la personne faisait.</div>' +
+    (iMiss >= 0 ? '<div class="qc-reponse"><b>Page « Vos missions et compétences »</b>Elle n’apparaît pas : la barre est plus courte d’une étape.</div>' : '') +
+    '<div class="qc-reponse"><b>L’assistant, plus tard</b>Il écrit lui-même les missions et les compétences, comme jusqu’ici (ancien message), puis la personne relit et corrige dans « La mise en page ».</div></div>';
+  h += '<div class="qc-verrou"><p class="mb-0"><b>Ce qui ne change pas :</b> les informations de la personne (identité, parcours, formations), la mise en page, les modèles et l’export.</p></div>';
+  return h;
+}
+
+function rendre() {
+  var page = document.getElementById('mqPage');
+  page.className = 'mq-page' + (ETAT.taille === 'tel' ? ' tel' : '');
+  var p = PARCOURS[ETAT.parcours];
+  var h = '';
+  if (ETAT.ecran === 'question') {
+    h += '<div class="qc-bloc-barre">' + barreEtapes(p.etapes, p.icones, 0) + '</div>';
+    h += ecranQuestion();
+  } else { h += ecranEtapes(); }
+  page.innerHTML = h;
+  document.querySelectorAll('[data-choix]').forEach(function (b) {
+    b.addEventListener('click', function () { if (ETAT.verrouille) { return; } ETAT.choix = b.getAttribute('data-choix'); ETAT.confirmation = false; rendre(); });
+  });
+  var c = document.getElementById('qcContinuer');
+  if (c) { c.addEventListener('click', function () {
+    if (ETAT.verrouille) { ETAT.ecran = 'etapes'; majReglages(); rendre(); return; }
+    if (!ETAT.choix) { return; }
+    ETAT.confirmation = true; rendre(); var z = document.querySelector('.qc-confirm'); if (z) { z.scrollIntoView({ block: 'center' }); }
+  }); }
+  var oui = document.getElementById('qcOui'); if (oui) { oui.addEventListener('click', function () { ETAT.verrouille = true; ETAT.confirmation = false; rendre(); }); }
+  var non = document.getElementById('qcNon'); if (non) { non.addEventListener('click', function () { ETAT.confirmation = false; rendre(); }); }
+  var r = document.getElementById('mqRetient');
+  r.innerHTML = '<p><b>Ce que la maquette montre :</b> ' + (ETAT.ecran === 'question' ? 'la question posée avant « Votre objectif », deux cartes, une confirmation calme (pas de fenêtre), puis le choix enregistré et verrouillé.' : 'l’effet du choix sur la barre d’étapes, le panneau d’expérience et le rôle de l’assistant.') + '</p>' +
+    '<p>Essayez : cliquez une carte, « Continuer », puis « Oui, je confirme » ou « Je reviens au choix ».</p>';
+}
+
+function majReglages() {
+  document.querySelectorAll('.mq-regl [data-groupe]').forEach(function (g) {
+    var cle = g.getAttribute('data-groupe');
+    g.querySelectorAll('button[data-v]').forEach(function (b) {
+      var on = ETAT[cle] === b.getAttribute('data-v');
+      b.className = 'btn btn-sm ' + (on ? 'btn-primary' : 'btn-outline-primary');
+    });
+  });
+}
+document.querySelectorAll('.mq-regl [data-groupe] button[data-v]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var cle = b.parentElement.getAttribute('data-groupe');
+    ETAT[cle] = b.getAttribute('data-v');
+    if (cle === 'parcours') { ETAT.choix = null; ETAT.confirmation = false; ETAT.verrouille = false; }
+    majReglages(); rendre();
+  });
+});
+document.getElementById('mqTheme').addEventListener('click', function () {
+  var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+  if (sombre) { document.documentElement.removeAttribute('data-theme'); this.textContent = 'Mode sombre'; }
+  else { document.documentElement.setAttribute('data-theme', 'sombre'); this.textContent = 'Mode clair'; }
+});
+document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'inline-block'; });
+document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; });
+majReglages(); rendre();
+</script>
+</body>
+</html>

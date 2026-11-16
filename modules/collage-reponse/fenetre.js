@@ -126,7 +126,7 @@ function htmlFenetreCollage(m, suffixe, options) {
   // « Continuer » : le bouton d'origine reste caché dans la page, la brique de la barre du bas le recopie et c'est lui qui reçoit le clic (voir _barreBasAppliquer).
   // data-barre-bas-discret : la barre le dessine sur fond blanc (comme Retour et Accueil) quand on ne veut pas encourager à continuer ainsi.
   h += '<div data-barre-bas-zone style="display:none;"><button type="button" class="btn btn-primary" id="btnContinuer' + _fcEchapper(suffixe) + '" data-fc="continuer" data-barre-bas="1" data-barre-bas-masque="1" data-barre-bas-remplace="1"' + (m.continuer.discret ? ' data-barre-bas-discret="1"' : '') + ' ' +
-    'data-barre-bas-libelle="' + _fcEchapper(m.continuer.libelle) + ' &#8594;"' + (m.continuer.actif ? '' : ' disabled') + '>' + _fcEchapper(m.continuer.libelle) + ' &#8594;</button></div>';
+    'data-barre-bas-libelle="' + _fcEchapper(m.continuer.libelle) + ' &#8594;"' + (m.continuer.actif ? '' : ' disabled' + (m.continuer.raison ? ' data-barre-bas-message="' + _fcEchapper(m.continuer.raison) + '"' : '')) + '>' + _fcEchapper(m.continuer.libelle) + ' &#8594;</button></div>';
   return h + '</div>';
 }
 
@@ -199,7 +199,16 @@ function activerFenetreCollage(config) {
     var assemble = assemblerMorceaux(liste);
     var analyse = analyserCompletude(assemble.texte, { exigerFin: !!config.exigerFin });
     if (!estSuite) { morceaux = []; }
-    if (estSuite && assemble.repete) { echecApresSuite = true; etat = 'echec'; dessiner(); return; }
+    if (estSuite && assemble.repete) {
+      // Protocole de test du 11/11/2026 (constat D6) : l'assistant a recommencé au début au lieu de continuer. Si ce nouveau texte est complet à lui seul, on l'utilise tel quel (le premier morceau, coupé, est mis de côté) ; sinon, échec comme avant.
+      var seul = String(texte);
+      var analyseSeul = analyserCompletude(seul, { exigerFin: !!config.exigerFin });
+      var verdictSeul = (analyseSeul.statut === 'complete' && typeof config.verifier === 'function') ? config.verifier(seul) : { ok: true };
+      if (analyseSeul.statut === 'complete' && !(verdictSeul && verdictSeul.ok === false)) {
+        morceaux = [seul]; texteFinal = seul; echecApresSuite = false; avertissementRecu = (verdictSeul && verdictSeul.avertissement) || ''; etat = 'recu'; dessiner(); return;
+      }
+      echecApresSuite = true; etat = 'echec'; dessiner(); return;
+    }
     if (analyse.statut === 'coupee') {
       morceaux = liste; silencieux = analyse.silencieuse; echecApresSuite = false; etat = 'coupe';
     } else if (analyse.statut === 'complete') {

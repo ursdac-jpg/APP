@@ -27,6 +27,12 @@
 // ne declenche plus directement la collecte -- navigue vers la route, qui
 // affiche desormais un ecran d'explication (ctHtmlExplication()) tant
 // qu'aucun dossier n'existe, avec son propre bouton "Je commence".
+// Une analyse est-elle commencee ? Oui des qu'un dossier ou un diagnostic existe, ou qu'au moins un document est deja depose dans l'ecran de collecte. Lu par la presentation pour proposer « Reprendre / Recommencer ».
+function ctTravailEnCours() {
+  if (ctObtenirDossier() || ctObtenirDiagnostic()) { return true; }
+  var c = (typeof _ctCollecteEtat !== 'undefined') ? _ctCollecteEtat : null;
+  return !!(c && ((c.cv && c.cv.texte) || (c.lettre && c.lettre.texte) || (c.entretien && c.entretien.texte)));
+}
 function ctDemarrer() {
   if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_ouvert'); }
   // TACHE (chantier "bouton presentation", 2026-09-01, precisions Denis) :
@@ -36,7 +42,8 @@ function ctDemarrer() {
   // encart "Continuer / Recommencer" apparait (a droite, il pulse ~10 s).
   // Jamais pendant un simple aller-retour "Revoir la presentation" (detour).
   _ctVoirIntro = false;
-  _ctReprisePendante = !!(ctObtenirDossier() || ctObtenirDiagnostic());
+  // Consigne 258 (12/11/2026) : meme forme que « Reprendre mon CV ». Une analyse engagee : on arrive sur la PRESENTATION, qui porte le bloc « Reprendre / Recommencer » ; « Reprendre » est dans la barre du bas, la page de travail n'est jamais grisee.
+  _ctRetourAccueil = ctTravailEnCours();
   naviguerVers('coherence-transversale');
 }
 
@@ -134,9 +141,7 @@ function ctHtmlBarreEtapes() {
 //  - a GAUCHE, a mi-distance entre la barre et le titre, LE bouton partage.
 //    Il change de nom + de fonction : "Revoir la presentation" sur un ecran
 //    du module, "Revenir au module" sur la presentation en detour.
-//  - a DROITE, seulement quand _ctReprisePendante (on revient dans le
-//    module apres etre passe par l'accueil / un autre module) : l'encart
-//    "Continuer / Recommencer" qui pulse ~10 s. Jamais le mot "travail".
+//  - Plus d'encart a droite (consigne 258, 12/11/2026) : la reprise vit sur la presentation (voir ctHtmlExplication).
 function ctHtmlBandeReprise() {
   var analyseEngagee = !!ctObtenirDossier() || !!ctObtenirDiagnostic();
   if (!analyseEngagee) { return ''; }
@@ -147,25 +152,15 @@ function ctHtmlBandeReprise() {
   var texteNote = _ctVoirIntro
     ? 'Ce bouton vous ramène à l’endroit où vous en étiez dans le module. Vous ne perdez rien.'
     : 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.';
-  // Tant que la reprise n'est pas tranchee, le bouton du haut est gele lui
-  // aussi (le seul choix possible est "Continuer" ou "Recommencer").
-  var bouton = '<div><button type="button" id="btnCoherenceRevoirPresentation" class="btn-revoir-module"' +
-    (_ctReprisePendante ? ' disabled' : '') + '>' +
+  var bouton = '<div><button type="button" id="btnCoherenceRevoirPresentation" class="btn-revoir-module">' +
     '<i class="bi bi-check2-circle"></i> ' + libelle + '</button></div>' +
-    ((typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue() && !_ctReprisePendante)
+    ((typeof noteRevoirModuleDejaVue === 'function' && !noteRevoirModuleDejaVue())
       ? '<div class="note-revoir-module" id="noteRevoirModule" style="margin-left:0;">' +
         '<span>' + texteNote + '</span>' +
         '<button type="button" aria-label="J’ai compris" data-fermer-note-revoir>&#10005;</button>' +
         '</div>'
       : '');
-  var encart = _ctReprisePendante
-    ? htmlEncartRepriseModule({
-        idContinuer: 'ctRepriseContinuer',
-        idRecommencer: 'ctRepriseRecommencer',
-        pulse: true
-      })
-    : '';
-  return htmlBandeRepriseModule(bouton, encart);
+  return htmlBandeRepriseModule(bouton, '');
 }
 
 // ---------- Ecran d'explication (etat 1 de la page "Vue d'ensemble") ----------
@@ -173,8 +168,7 @@ function ctHtmlBandeReprise() {
 // `detour` : true quand on arrive ici par "Revoir la presentation" depuis un
 // ecran du module (consultation). Le bouton "Revenir au module" (haut, via
 // la bande de ctHtmlBarreEtapes ; bas, ci-dessous) ramene au travail.
-// L'encart "Continuer / Recommencer" n'est PAS ici : il vit sur l'ecran de
-// travail quand _ctReprisePendante (retour dans le module via l'accueil).
+// Consigne 258 : une analyse engagee (hors detour) = bloc « Reprendre / Recommencer » sur cette page, comme « Reprendre mon CV » ; « Reprendre » vit dans la barre du bas.
 // TACHE (dette B.5, BRIQUES_COMMUNES.md, resorption, 2026-09-04) : le rendu
 // est desormais porte par htmlPageIntroModule(config) (js/app.js), commun
 // avec htmlBilanIntro() -- ctHtmlExplication() ne fournit plus que son
@@ -189,8 +183,11 @@ function ctHtmlBandeReprise() {
 // Recommencer") reste seule : c'est elle qui compte sur cette page,
 // jamais la barre.
 function ctHtmlExplication(detour) {
+  var enCours = !detour && ctTravailEnCours();
   return htmlPageIntroModule({
-    boutonHautHTML: ctHtmlBandeReprise(),
+    // Le bouton du haut n'existe que pour « Revenir au module » (detour) : sur la presentation normale il n'y a rien a « revoir ».
+    boutonHautHTML: detour ? ctHtmlBandeReprise() : '',
+    syntheseHTML: enCours ? _introBlocReprise('Vous avez une analyse en cours sur ce module.', 'ctRepriseContinuer', 'ctRepriseRecommencer', 'Reprendre') : '',
     icone: 'bi-check2-circle',
     video: 'coherence',
     titre: 'Cohérence de mon dossier',
@@ -241,9 +238,9 @@ function ctHtmlExplication(detour) {
     // presentation = "Revenir au module" (meme fonction que le bouton du
     // haut et que "Retour").
     boutonBasClasse: 'text-center mt-3',
-    boutonBasHTML: (detour || !!ctObtenirDossier() || !!ctObtenirDiagnostic())
+    boutonBasHTML: detour
       ? '<button type="button" id="ctBoutonRevenirModule" class="btn btn-primary btn-lg">Revenir au module &#8594;</button>'
-      : '<button type="button" id="ctBoutonJeCommence" class="btn btn-primary btn-lg">Je commence &#8594;</button>',
+      : (enCours ? '' : '<button type="button" id="ctBoutonJeCommence" class="btn btn-primary btn-lg">Je commence &#8594;</button>'),
     // TACHE (retour Denis, 2026-08-31) : "Retour" de la presentation du
     // module ramene a sa carte de l'accueil ("Outils d'analyse"), jamais a
     // l'accueil nu. TACHE (chantier "bouton presentation", 2026-09-01) :
@@ -596,11 +593,6 @@ function pageCoherenceTransversale() {
     html = ctHtmlRapport(diagnostic);
   }
   app.innerHTML = html;
-  // TACHE (chantier "bouton presentation", 2026-09-01) : quand on revient
-  // dans le module avec une analyse en cours, tout est GELE tant que la
-  // personne n'a pas tranche "Continuer / Recommencer" -- sauf l'encart
-  // lui-meme et la barre du bas. Brique partagee (js/app.js).
-  appliquerGelModule(_ctReprisePendante);
   ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance);
 }
 
@@ -1401,11 +1393,8 @@ var _ctAfficherRapportPrincipal = false;
 //  - _ctVoirIntro : detour de CONSULTATION ("Revoir la presentation" depuis
 //    un ecran du module). On affiche la presentation par-dessus le travail,
 //    sans encart. Retour via "Revenir au module" (haut, bas, "Retour").
-//  - _ctReprisePendante : on REVIENT dans le module (accueil / autre module)
-//    alors qu'une analyse est engagee. Encart "Continuer / Recommencer" a
-//    droite (pulse ~10 s), module GELE tant que le choix n'est pas fait.
+//  - Reprise (consigne 258, 12/11/2026) : revenir dans le module avec une analyse engagee affiche la PRESENTATION (via _ctRetourAccueil) avec le bloc « Reprendre / Recommencer ».
 var _ctVoirIntro = false;
-var _ctReprisePendante = false;
 // TACHE (correctif boucle Retour, 2026-09-09 -- LECONS section 2,
 // "Variante boucle infinie"). Drapeau distinct de _ctVoirIntro : "reculer
 // d'un cran" depuis "Choisissez votre assistant" / le rapport vers la
@@ -1428,7 +1417,12 @@ function ctFermerDetourIntro() { _ctVoirIntro = false; pageCoherenceTransversale
 // gardee comme reference du mecanisme detour (_ctVoirIntro = true), a
 // n'utiliser QUE pour un bouton "Revoir la presentation", jamais un "Retour".
 function ctRevenirALaPresentation() { _ctVoirIntro = true; pageCoherenceTransversale(); }
-function ctRepriseContinuer() { _ctReprisePendante = false; pageCoherenceTransversale(); }
+// « Reprendre » : retour au dernier ecran de travail. Sans dossier ni diagnostic, c'est l'ecran de collecte (documents deja deposes).
+function ctRepriseContinuer() {
+  if (!ctObtenirDossier() && !ctObtenirDiagnostic()) { _ctEnCollecte = true; }
+  window.scrollTo(0, 0);
+  pageCoherenceTransversale();
+}
 function ctRecommencerDepuisIntro() {
   if (typeof ctStoreReinitialiser === 'function') { ctStoreReinitialiser(); }
   _ctModificationsEnAttente = {};
@@ -1439,7 +1433,9 @@ function ctRecommencerDepuisIntro() {
   _ctEtapeEntretienAvance = null;
   _ctAfficherRapportPrincipal = false;
   _ctVoirIntro = false;
-  _ctReprisePendante = false;
+  _ctRetourAccueil = false;
+  _ctEnCollecte = false;
+  _ctCollecteEtat = null;
   pageCoherenceTransversale();
 }
 
@@ -2251,9 +2247,7 @@ function ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance) {
   var btnRevenirBas = document.getElementById('ctBoutonRevenirModule');
   if (btnRevenirBas) { btnRevenirBas.addEventListener('click', ctFermerDetourIntro); }
 
-  // Encart "Continuer / Recommencer" (affiche a droite quand on revient dans
-  // le module avec une analyse en cours -- _ctReprisePendante). Le module
-  // reste gele tant que la personne n'a pas tranche.
+  // Bloc « Reprendre / Recommencer » de la presentation (analyse engagee, consigne 258).
   var btnRepriseContinuer = document.getElementById('ctRepriseContinuer');
   if (btnRepriseContinuer) { btnRepriseContinuer.addEventListener('click', ctRepriseContinuer); }
   var btnRepriseRecommencer = document.getElementById('ctRepriseRecommencer');
@@ -2266,9 +2260,6 @@ function ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance) {
       );
     });
   }
-  // La pulsation de l'encart signale "une decision est attendue" ~10 s,
-  // puis s'arrete (brique partagee, js/app.js).
-  armerFinPulseEncartReprise();
 
   if (!dossierExistant && !diagnostic) {
     var btnJeCommence = document.getElementById('ctBoutonJeCommence');

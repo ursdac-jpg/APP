@@ -735,7 +735,18 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var sep = (texte && _SIGNES_COMP[(opts.separateurCompetences || {})[nom]]) ? ' style="--sep:\'' + _SIGNES_COMP[opts.separateurCompetences[nom]] + '\'"' : '';
     return '<div' + (nom === 'pro' && texte && !dispoCompChoisie.pro ? ' class="pills-auto"' : '') + sep + '>' + pills(liste, nom) + '</div>';
   }
-  function blocPro() { return (!bandeauCles && !modeParCompC && competencesPro.length) ? encadre(sec(_PDF_INTITULES.competencesPro, titreH2(_PDF_INTITULES.competencesPro) + pillsSelonDisposition(competencesPro, dispositionComp('pro'), 'pro'))) : ''; }
+  // Mixte : une competence deja ecrite dans « Competences en action » (le bloc est complete par les competences professionnelles quand l'assistant en regroupe moins de 4)
+  // n'est pas repetee en pastilles juste au-dessus : meme information deux fois, et de la hauteur perdue (consigne 414).
+  function competencesProSansDoublonAction() {
+    if (!modeMixteB) { return competencesPro; }
+    var dejaEcrites = {};
+    groupesAffiches().forEach(function (g) { g.items.forEach(function (it) { dejaEcrites[cleTexte(it.texte)] = true; }); });
+    return competencesPro.filter(function (x) { return !dejaEcrites[cleTexte(x)]; });
+  }
+  function blocPro() {
+    var liste = competencesProSansDoublonAction();
+    return (!bandeauCles && !modeParCompC && liste.length) ? encadre(sec(_PDF_INTITULES.competencesPro, titreH2(_PDF_INTITULES.competencesPro) + pillsSelonDisposition(liste, dispositionComp('pro'), 'pro'))) : '';
+  }
   function blocComp() { return (!bandeauCles && competencesComp.length) ? encadre(sec(_PDF_INTITULES.competencesComp, titreH2(_PDF_INTITULES.competencesComp) + pillsSelonDisposition(competencesComp, dispositionComp('comp'), 'comp'))) : ''; }
   function blocListe(titre, items) {
     if (!items || !items.length) { return ''; }
@@ -921,6 +932,16 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     window._mepRubriquesTronquees = (composition && composition.rubriquesTronquees) || [];
     window._mepRubriquesMasquees = (objetCV && objetCV.rubriquesMasqueesParAssistant) || [];
     window._mepGroupesCompetences = groupesCompetences.length;
+    // Missions de certifications / de formations qui EXISTENT (ecrites par l'assistant ou la personne) : le panneau les signale sous l'aperçu tant que l'option « Afficher les missions
+    // des formations et des certifications » est fermee (elle l'est par defaut : tres peu de personnes valorisent leurs certifications, consigne 414).
+    window._mepMissionsFormationDispo = {
+      certifs: (contenu.certificationsBrutes || []).filter(function (b) {
+        var e = (objetCV.certificationsAvecMissions || []).filter(function (x) { return x && x.certification === b; })[0];
+        return !!(e && (Array.isArray(e.missions) ? e.missions.length : String(e.missions || '').trim()));
+      }).length,
+      formations: (contenu.formations || []).filter(function (f) { return f && String(f.missions || '').trim(); }).length,
+      affichees: !!opts.afficherMissionsFormation
+    };
     window._mepLiensCompetences = groupesCompetences.reduce(function (t, g) {
       return t + (g.items || []).filter(function (it) { return it.illustrePar && it.illustrePar.length; }).length;
     }, 0);
@@ -946,11 +967,9 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var _clesProVues = competencesPro.filter(function (x) { return retirees.indexOf(x) === -1; }).map(cleTexte);
     window._mepProSansEffetC = !!(modeParCompC && !groupesCompetences.some(function (g) { return (g.items || []).some(function (it) { return _clesProVues.indexOf(cleTexte(it.texte)) !== -1; }); }));
   }
-  // Bouton « Competences en pastilles » (Organisation du CV, Denis 2026-10-01) : coche, en « Par competences » sur une colonne, les competences professionnelles
-  // (le texte des themes, sur deux lignes si besoin) passent EN PASTILLES, en haut, et partagent la place avec les comportementales : les deux ont la meme forme.
-  // Decoche : chaque rubrique garde son comportement (themes en texte au-dessus des experiences, comportementales seules).
-  // Un choix explicite de disposition (opts.actionCote vrai ou faux) l'emporte sur le placement automatique en pastilles (retour Denis 2026-10-03).
-  var themesEnHaut = !!(modeParCompC && pill !== 'texte' && !deux && typeof opts.actionCote !== 'boolean');
+  // « Par competences » : les missions de « Competences en action » sont ecrites en lignes, sur toute la largeur, au-dessus des experiences (decision Denis 2026-11-16 :
+  // des pastilles les faisaient ressembler a des mots-cles et ne laissaient pas de place a l'experience entre parentheses). Le choix « A cote des comportementales »
+  // (opts.actionCote vrai) reste possible, toujours en texte. Plus de placement automatique en pastilles.
   if (!proVisible) { competencesPro = []; }
   if (!compVisible) { competencesComp = []; }
   function groupesAffiches() {
@@ -973,7 +992,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
         var cle = cleStable('gi', it.texte), ancienne = textesEdites['gi:' + gi + ':' + ii];
         if (!textesEdites[cle] && ancienne && ancienne.t === it.texte) { textesEdites = Object.assign({}, textesEdites); textesEdites[cle] = ancienne; }
         return { texte: it.texte, illustrePar: it.illustrePar, cle: cle, reserve: !!it.reserve, proposition: !!it.proposition, etiquette: it.etiquette || '',
-          retiree: retirees.indexOf(it.texte) !== -1 || (!!it.reserve && (opts.reservesChoisies || []).indexOf(it.texte) === -1),
+          retiree: retirees.indexOf(it.texte) !== -1 || (!!it.reserve && (opts.reservesChoisies || []).indexOf(it.texte) === -1 && (opts.reservesAuto || []).indexOf(it.texte) === -1),
           ecartee: !!(recoupe && autorisees.indexOf(cleTexte(it.texte)) === -1) };
       });
       var cleTheme = g.theme ? cleStable('th', g.theme) : 'th:' + gi, ancienneTheme = textesEdites['th:' + gi];
@@ -1003,7 +1022,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       return liste.filter(function (g) { return g.items.length; });
     }
     if (opts.niveauDetail === 'resume' && (modeParCompC || modeMixteB)) { groupes = plafonner(groupes, 3, 'resume'); }
-    if (modeParCompC && opts.niveauDetail !== 'complet' && opts.compCoupe > 0) {
+    if ((modeParCompC || modeMixteB) && opts.niveauDetail !== 'complet' && opts.compCoupe > 0) {
       var totalAvantCoupe = groupes.reduce(function (t, g) { return t + g.items.length; }, 0);
       groupes = plafonner(groupes, Math.max(1, totalAvantCoupe - opts.compCoupe), 'auto');
     }
@@ -1084,19 +1103,10 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var nbLignes = groupesAffiches().reduce(function (t, g) { return t + g.items.length; }, 0);
     return sec(intitule, titreH2(intitule) + ((modeMixteB && nbLignes >= 5) ? '<div class="themes-2col">' + html + '</div>' : html));
   }
-  // Les competences professionnelles de « Par competences » en PASTILLES (une par competence, toutes themes confondus), pour le haut du CV.
-  function blocProMissionsEnPastilles() {
-    var items = [];
-    groupesAffiches().forEach(function (g) { g.items.forEach(function (it) { items.push(it); }); });
-    if (!items.length) { return ''; }
-    return encadre(sec(_PDF_INTITULES.competencesEnAction, titreH2(_PDF_INTITULES.competencesEnAction) + '<div>' + items.map(function (it) {
-      return '<span class="pill ' + pill + '">' + ed(it.cle, it.texte) + '<button type="button" class="x" data-ret="' + _pdfEscaperHtml(it.texte) + '" title="Retirer">×</button></span>';
-    }).join('') + '</div>'));
-  }
-  var actionCoteC = !!(modeParCompC && opts.actionCote === true && !themesEnHaut && !deux);
+  var actionCoteC = !!(modeParCompC && opts.actionCote === true && !deux);
   function blocParCompetences(exps, ligneUnique) {
     // « A cote des comportementales » (retour Denis 2026-10-03) : le bloc est alors place sur la ligne des competences comportementales (voir blocs.comp), pas au-dessus des experiences.
-    var themes = ((themesEnHaut && blocProMissionsEnPastilles()) || actionCoteC) ? '' : blocThemes();
+    var themes = actionCoteC ? '' : blocThemes();
     var histo = sec(_PDF_INTITULES.experience, titreH2(_PDF_INTITULES.experience) + exps.map(function (e) {
       var i = (e.__idxBrut !== undefined) ? e.__idxBrut : (objetCV.experiences || []).indexOf(e);
       if (ligneUnique) {
@@ -1560,7 +1570,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       '<span class="poi-h" title="Tirer pour changer la hauteur de l’en-tête"></span></div>';
     var boiteLibre = function (bl, cls, titre, liste, prefixe, z) {
       // Hauteur choisie par la personne = hauteur MINIMALE : le rectangle grandit tout seul si son texte en a besoin (jamais de texte coupe).
-      return blcR(bl, '<div class="rc-box ' + cls + '" data-rub="' + escR(titre) + '" style="' + (hautBlE[bl] ? 'min-height:' + hautBlE[bl] + 'px;' : '') + styBl(bl) + '">' + titreBoite(titre) + listeR(liste, prefixe, titre, bl) + '</div>', z, poiB);
+      return blcR(bl, '<div class="rc-box ' + cls + '" data-rub="' + escR(titre) + '" data-mh="' + (hautBlE[bl] || 0) + '" style="' + (hautBlE[bl] ? 'min-height:' + hautBlE[bl] + 'px;' : '') + styBl(bl) + '">' + titreBoite(titre) + listeR(liste, prefixe, titre, bl) + '</div>', z, poiB);
     };
     // TACHE (P11, audit "La mise en page" 2026-09-28, retour Denis : "pouvoir poser
     // rectangle sur rectangle mais sans cacher le texte -- il faut rajouter quel
@@ -2229,9 +2239,8 @@ cssPuces +
     var blocs = {
       // Retour Denis 2026-10-01 : en « Par competences », les competences professionnelles sont deja dans le bloc des experiences (blocThemes) ;
       // les competences comportementales prennent alors TOUTE la largeur (plus de demi-colonne vide a gauche).
-      comp: (themesEnHaut && blocProMissionsEnPastilles()) ? paireCompetences(blocProMissionsEnPastilles(), blocComp())
-        : (actionCoteC ? ((blocComp() && blocThemes()) ? '<div class="paire"><div>' + blocThemes() + '</div><div>' + blocComp() + '</div></div>' : blocThemes() + blocComp())
-          : (blocPro() ? paireCompetences(blocPro(), blocComp()) : blocComp())),
+      comp: actionCoteC ? ((blocComp() && blocThemes()) ? '<div class="paire"><div>' + blocThemes() + '</div><div>' + blocComp() + '</div></div>' : blocThemes() + blocComp())
+        : (blocPro() ? paireCompetences(blocPro(), blocComp()) : blocComp()),
       exp: blocExperiences(),
       // Decision Denis 2026-10-01 : sur une colonne, Certifications vient TOUJOURS juste apres les Formations (« ce point est important »).
       form: (opts.formCertifsCoteACote && blocForm() && blocCertifs()) ? '<div class="paire"><div>' + blocForm() + '</div><div>' + blocCertifs() + '</div></div>' : blocForm() + blocCertifs(),
@@ -2631,9 +2640,162 @@ function _pdfCssTypoCommune(opts) {
   if (opts.separateurExp === 'espace') { css += '  .cv .item + .item, .cv .rc-item + .rc-item, .cv .ph-item + .ph-item, .cv .fr-item + .fr-item { margin-top: 14px; }'; }
   return css;
 }
+// ============================================================
+// Rectangles arrondis, zone libre (consigne 265, Denis, 12/11/2026 ; demonstration validee :
+// docs/maquettes/maquette-rectangles-deplacables-texte-qui-se-pousse-2026-11-12.html).
+// Les trois rectangles de competences se deplacent et se chevauchent librement ; mais le TEXTE d'un rectangle recouvert par un autre
+// n'est jamais cache : il se pousse tout seul vers la partie libre du rectangle (en haut, a gauche, a droite ou en bas du recouvrement),
+// en une a trois colonnes, et le rectangle grandit au besoin. Rien n'est enregistre : tout est recalcule a chaque rendu et a chaque geste.
+// Ordre de preference : texte qui tient sans retour a la ligne > texte qui tient en agrandissant le rectangle (jamais « en haut », qui ne peut
+// pas grandir sans passer sous le recouvrement) > texte avec lignes repliees > moindre depassement. Un rectangle recouvert a plus de 90 %
+// reste a sa place et recoit data-couvert="1" (le cadre rouge du plein ecran previent deja la personne).
+// Utilise seulement des mesures du DOM (offset*, plages de texte) : marche telle quelle dans l'apercu, le plein ecran et l'impression.
+// ============================================================
+function _pdfRectanglesPousserTexte(zb) {
+  if (!zb) { return 0; }
+  var doc = zb.ownerDocument, boites = [], BASE = { t: 10, r: 16, b: 10, l: 14 }, P = 12, T = 8;
+  Array.prototype.forEach.call(zb.children, function (blc, i) {
+    if (!blc.classList || !blc.classList.contains('blc')) { return; }
+    var box = blc.querySelector('.rc-box'), ul = box && box.querySelector('ul.rc-fl');
+    if (!box || !ul) { return; }
+    boites.push({ blc: blc, box: box, ul: ul, idx: i, z: parseInt(blc.style.zIndex, 10) || 0, mh: parseFloat(box.getAttribute('data-mh')) || 0,
+      kmin: ul.classList.contains('rc-2col') ? 2 : 1, base: [], pousse: false });
+  });
+  if (boites.length < 2) { return 0; }
+  var remettre = function (o) {
+    var s = o.box.style;
+    s.paddingTop = s.paddingRight = s.paddingBottom = s.paddingLeft = '';
+    s.minHeight = o.mh ? o.mh + 'px' : '';
+    o.ul.style.columnCount = ''; o.ul.style.columnGap = '';
+    Array.prototype.forEach.call(o.ul.children, function (li) { li.style.breakInside = ''; });
+  };
+  var rang = function (a, b) { return a.z !== b.z ? a.z - b.z : a.idx - b.idx; };
+  var inter = function (a, b) {   // intersection de b avec a, en coordonnees locales de a
+    var x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y), x2 = Math.min(a.x + a.w, b.x + b.w), y2 = Math.min(a.y + a.h, b.y + b.h);
+    return (x2 > x1 + 1 && y2 > y1 + 1) ? { x: x1 - a.x, y: y1 - a.y, w: x2 - x1, h: y2 - y1 } : null;
+  };
+  var rectDe = function (o) { return { x: o.blc.offsetLeft, y: o.blc.offsetTop, w: o.blc.offsetWidth, h: o.blc.offsetHeight }; };
+  var texteCouvert = function (o, couv) {
+    var zr = o.blc.getBoundingClientRect(), k = zr.width / (o.blc.offsetWidth || 1) || 1, trouve = false;
+    Array.prototype.forEach.call(o.box.querySelectorAll('.rc-boxt, li'), function (el) {
+      if (trouve) { return; }
+      var plage = doc.createRange(); plage.selectNodeContents(el);
+      Array.prototype.forEach.call(plage.getClientRects(), function (q) {
+        if (trouve || q.width <= 0) { return; }
+        var l = (q.left - zr.left) / k, h = (q.top - zr.top) / k, r = (q.right - zr.left) / k, b = (q.bottom - zr.top) / k;
+        couv.forEach(function (c) { if (!(r <= c.x + 1 || l >= c.x + c.w - 1 || b <= c.y + 1 || h >= c.y + c.h - 1)) { trouve = true; } });
+      });
+    });
+    return trouve;
+  };
+  var poser = function (o, bande, k) {
+    var W = o.W, H = o.H, bw = o.bw, s = o.box.style;
+    var l = Math.max(BASE.l, Math.round(bande.x - bw)), r = Math.max(BASE.r, Math.round(W - (bande.x + bande.w) - bw));
+    var t = Math.max(BASE.t, Math.round(bande.y - bw)), b = Math.max(BASE.b, Math.round(H - (bande.y + bande.h) - bw));
+    s.paddingLeft = l + 'px'; s.paddingRight = r + 'px'; s.paddingTop = t + 'px'; s.paddingBottom = b + 'px'; s.minHeight = '0';
+    o.ul.style.columnCount = k; o.ul.style.columnGap = '14px';
+    Array.prototype.forEach.call(o.ul.children, function (li) { li.style.breakInside = k > 1 ? 'avoid' : ''; });
+    var contenu = o.box.clientHeight - t - b, extra = 0;
+    Array.prototype.forEach.call(o.ul.children, function (li, i) { extra += Math.max(0, li.offsetHeight - (o.base[i] || 0)); });   // hauteur ajoutee par les lignes qui se replient
+    return { ch: contenu, def: Math.max(0, contenu - bande.h), replie: extra > 3, extra: extra };
+  };
+  var placer = function (o) {
+    o.pousse = false;
+    var moi = rectDe(o), couv = [];
+    boites.forEach(function (a) { if (a !== o && rang(a, o) > 0) { var ra = rectDe(a), c = inter(moi, ra); if (c) { c.bas = ra.y + ra.h - moi.y; couv.push(c); } } });   // c.bas : vrai bas du rectangle qui couvre (meme s'il depasse le notre)
+    o.blc.removeAttribute('data-couvert');
+    if (!couv.length || !texteCouvert(o, couv)) { return; }
+    var W = moi.w, H = moi.h;
+    o.W = W; o.H = H; o.bw = o.box.clientLeft || 1;
+    var cx1 = Math.min.apply(null, couv.map(function (c) { return c.x; })), cy1 = Math.min.apply(null, couv.map(function (c) { return c.y; }));
+    var cx2 = Math.max.apply(null, couv.map(function (c) { return c.x + c.w; })), cy2 = Math.max.apply(null, couv.map(function (c) { return c.y + c.h; }));
+    var cyBas = Math.max.apply(null, couv.map(function (c) { return c.bas; }));
+    var aire = 0; couv.forEach(function (c) { aire += c.w * c.h; });
+    if (aire / (W * H) > 0.9) { o.blc.setAttribute('data-couvert', '1'); }   // presque entierement couvert : le texte passe quand meme dessous (le rectangle grandit), le cadre rouge previent
+    var bandes = [];
+    // La bande « en bas » existe toujours, meme etroite : c'est la garantie que le texte trouve une place visible (le rectangle grandit vers le bas).
+    var ajouter = function (nom, x, y, w, h, toujours) { if (w >= 100 && (h >= 44 || toujours)) { bandes.push({ nom: nom, x: x + P, y: y + T, w: w - 2 * P, h: Math.max(0, h - 2 * T), aire: w * h }); } };
+    if (aire / (W * H) <= 0.9) { ajouter('haut', 0, 0, W, cy1); ajouter('gauche', 0, 0, cx1, H); ajouter('droite', cx2, 0, W - cx2, H); }
+    ajouter('bas', 0, cyBas, W, H - cyBas, true);
+    bandes.sort(function (a, b) { return b.aire - a.aire; });
+    var cands = [], choix = null;
+    for (var k = o.kmin; k <= 3 && !choix; k++) {
+      for (var i = 0; i < bandes.length && !choix; i++) {
+        // Une colonne de moins de 125 px (une quinzaine de lettres) casserait les mots : jamais proposee (sauf le nombre de colonnes de depart).
+        if (k > o.kmin && (bandes[i].w - 14 * (k - 1)) / k < 125) { continue; }
+        var m = poser(o, bandes[i], k), c = { bande: bandes[i], k: k, def: m.def, replie: m.replie, extra: m.extra, grandit: bandes[i].nom !== 'haut' };
+        cands.push(c);
+        if (c.def === 0 && !c.replie) { choix = c; }
+      }
+    }
+    if (!choix) {
+      // Rien ne tient tel quel. On garde ce qui peut se faire (le texte tient sans grandir, ou la bande peut grandir : jamais « en haut », qui ne peut pas grandir sans passer
+      // sous le recouvrement) et on prend le moins couteux : la croissance du rectangle en pixels + deux fois la hauteur ajoutee par les lignes qui se replient. Eviter une grande
+      // croissance evite qu'un rectangle qui en couvre un autre fasse grandir toute la zone de proche en proche (essai reel au pointeur du 12/11/2026 : 939 px de haut).
+      var cout = function (c) { return c.def + 2 * c.extra; };
+      choix = cands.filter(function (c) { return c.def === 0 || c.grandit; }).sort(function (a, b) { return cout(a) - cout(b) || a.k - b.k; })[0] || cands[0];
+    }
+    poser(o, choix.bande, choix.k);
+    (zb.__rcInfo = zb.__rcInfo || {})[o.blc.getAttribute('data-bl')] = { bande: choix.bande.nom, k: choix.k, def: choix.def, replie: choix.replie, W: W, H: H, cands: cands.map(function (c) { return c.bande.nom + '/' + c.k + '/d' + c.def + '/x' + c.extra + '/h' + Math.round(c.bande.h) + '/w' + Math.round(c.bande.w); }), couv: couv.map(function (c) { return [Math.round(c.x), Math.round(c.y), Math.round(c.w), Math.round(c.h), Math.round(c.bas)]; }) };   // trace de diagnostic (propriete JS, jamais ecrite dans le document)
+    o.box.style.minHeight = Math.round(H) + 'px';   // le rectangle garde sa hauteur de depart et grandit seulement si son texte en a besoin
+    o.pousse = true;
+  };
+  var signature = function () { return boites.map(function (o) { return o.box.style.cssText + '|' + o.blc.offsetHeight + '|' + o.ul.style.columnCount; }).join(';'); };
+  boites.forEach(remettre);
+  var avant = '';
+  for (var passe = 0; passe < 6; passe++) {
+    boites.forEach(function (o) {
+      remettre(o);
+      Array.prototype.forEach.call(o.ul.children, function (li, i) { o.base[i] = li.offsetHeight; });
+      placer(o);
+    });
+    var apres = signature();
+    if (apres === avant) { break; }
+    avant = apres;
+  }
+  if (zb.getAttribute('data-hfixe') !== '1') {
+    var maxB = 0;
+    boites.forEach(function (o) { maxB = Math.max(maxB, o.blc.offsetTop + o.blc.offsetHeight); });
+    zb.style.height = (maxB + 8) + 'px';
+  }
+  return boites.filter(function (o) { return o.pousse; }).length;
+}
+// Disposition de depart des trois rectangles (grille « en escalier », avant que la personne les deplace) : meme regle que la zone libre, texte jamais cache (consigne 265).
+// Le deuxieme rectangle (a droite) ne doit pas cacher le texte du premier : il se retrecit par la gauche s'il le faut ; le troisieme (« Savoirs »), qui recouvre
+// un peu le bas des deux autres, descend juste assez pour ne cacher aucune ligne. Rien ne bouge quand rien n'est cache (les CV deja corrects restent identiques).
+function _pdfRectanglesGrilleSansCacher(feuille) {
+  var g = feuille.querySelector('.rc-boxes:not(.libre)');
+  if (!g) { return; }
+  var b1 = g.querySelector('.rc-b1'), b2 = g.querySelector('.rc-b2'), b3 = g.querySelector('.rc-b3');
+  var rectsTexte = function (bloc) {
+    var liste = [];
+    Array.prototype.forEach.call(bloc.querySelectorAll('.rc-boxt, li'), function (el) {
+      var plage = el.ownerDocument.createRange(); plage.selectNodeContents(el);
+      Array.prototype.forEach.call(plage.getClientRects(), function (q) { if (q.width > 0) { liste.push(q); } });
+    });
+    return liste;
+  };
+  var gr = g.getBoundingClientRect(), k = gr.width / (g.offsetWidth || 1) || 1;
+  if (b1 && b2) {
+    var r2 = b2.getBoundingClientRect(), fin = 0, cache = false;
+    rectsTexte(b1).forEach(function (q) { if (q.right > r2.left + 1 && q.bottom > r2.top + 1 && q.top < r2.bottom - 1) { cache = true; } fin = Math.max(fin, q.right - gr.left); });
+    var largeurMin = 150, nouvelle = g.offsetWidth - (fin / k + 14);
+    if (cache && nouvelle >= largeurMin) { b2.style.width = (Math.round(nouvelle / g.offsetWidth * 1000) / 10) + '%'; }
+  }
+  if (b3) {
+    var r3 = b3.getBoundingClientRect(), delta = 0;
+    [b1, b2].forEach(function (b) {
+      if (!b) { return; }
+      rectsTexte(b).forEach(function (q) {
+        if (q.right > r3.left + 1 && q.left < r3.right - 1 && q.bottom > r3.top + 1 && q.top < r3.bottom - 1) { delta = Math.max(delta, q.bottom + 3 - r3.top); }
+      });
+    });
+    if (delta > 0) { b3.style.marginTop = (-16 + Math.ceil(delta / k)) + 'px'; }
+  }
+}
 function _pdfMqApresRenduRectangles(feuille) {
   var zb = feuille.querySelector('.rc-boxes.libre');
-  if (!zb) { return; }
+  if (!zb) { try { _pdfRectanglesGrilleSansCacher(feuille); } catch (e) { /* un plus : jamais bloquer le rendu */ } return; }
   var qz = function (k) { return zb.querySelector('.blc[data-bl="' + k + '"]'); };
   // Disposition de depart : le rectangle des competences comportementales (a droite) ne doit jamais cacher le texte du premier. S'il le
   // ferait, il commence juste apres la fin de ce texte (et se rétrécit d'autant) ; tant que la personne ne l'a pas place ou elargi elle-meme.
@@ -2655,6 +2817,16 @@ function _pdfMqApresRenduRectangles(feuille) {
     ['b1', 'b2'].forEach(function (k) { var e = qz(k); if (e) { bas = Math.max(bas, e.offsetTop + e.offsetHeight); } });
     qz('b3').style.top = Math.max(0, bas - 8) + 'px';
   }
+  // Le texte d'un rectangle recouvert par un autre se pousse vers sa partie libre (consigne 265). Si le troisieme rectangle n'a jamais ete deplace
+  // et qu'un des deux autres a grandi, il se replace sous eux, puis on recalcule une derniere fois.
+  try {
+    _pdfRectanglesPousserTexte(zb);
+    if (zb.getAttribute('data-posb3') !== '1' && qz('b3')) {
+      var bas2 = 0, avant3 = qz('b3').offsetTop;
+      ['b1', 'b2'].forEach(function (k) { var e = qz(k); if (e) { bas2 = Math.max(bas2, e.offsetTop + e.offsetHeight); } });
+      if (Math.max(0, bas2 - 8) !== avant3) { qz('b3').style.top = Math.max(0, bas2 - 8) + 'px'; _pdfRectanglesPousserTexte(zb); }
+    }
+  } catch (e) { /* le texte pousse est un plus : jamais bloquer le rendu */ }
   if (zb.getAttribute('data-hfixe') === '1') { return; }
   var maxB = 0;
   Array.prototype.forEach.call(zb.querySelectorAll('.blc'), function (b) { maxB = Math.max(maxB, b.offsetTop + b.offsetHeight); });
