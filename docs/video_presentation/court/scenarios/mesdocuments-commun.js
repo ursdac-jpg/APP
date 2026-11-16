@@ -35,9 +35,15 @@ async function objectifOffre(o) {
   await o.cliquer(p.locator('[data-action="objectif"][data-value="offre"]'), 600); await dormir(0.6);
   await o.cliquer(p.locator('#rechercheMetierCibleInput'), 500).catch(() => {});
   await p.keyboard.type('Agent d’entretien', { delay: 40 }); await dormir(0.5);
-  await o.cliquer(p.locator('#btnValiderMetierSaisi'), 500).catch(() => {}); await dormir(0.6);
-  await o.cliquer(p.locator('[data-domaine-metier]').first(), 600); await dormir(0.6);
-  await o.cliquer(p.locator('[data-domaine-metier-confirmer]'), 600); await dormir(0.8);
+  // Depuis la fiche complète du ROME : le métier se choisit dans les propositions (data-metier-cible-direct). Sinon, ancien chemin : « Valider » puis le domaine.
+  const direct = p.locator('[data-metier-cible-direct="Agent d\'entretien"]');
+  if (await direct.count()) {
+    await o.cliquer(direct.first(), 600); await dormir(0.8);
+  } else {
+    await o.cliquer(p.locator('#btnValiderMetierSaisi'), 500).catch(() => {}); await dormir(0.6);
+    await o.cliquer(p.locator('[data-domaine-metier]').first(), 600); await dormir(0.6);
+    await o.cliquer(p.locator('[data-domaine-metier-confirmer]'), 600); await dormir(0.8);
+  }
 }
 
 // Page commune de « Créer un nouveau CV » (consigne 246) : fait défiler jusqu'au bloc d'une voie ('assistant', 'recit' ou 'main') pour que sa présentation soit à l'écran.
@@ -71,4 +77,15 @@ async function panneauExperienceFin(o) {
   await versElement(o, '#blocERIP-experiences-pro', 120); await dormir(0.8);   // l'expérience ajoutée apparaît dans la liste
 }
 
-module.exports = { dormir, URL, R, preparer, ouvrirTuile, deposerCv, objectifOffre, versVoie, versElement, panneauExperienceDebut, panneauExperienceFin };
+// Écran « Avant de commencer » (qui choisit les missions et les compétences) : choix d'une carte, demande de confirmation, « Oui, je confirme », puis « Continuer ».
+async function questionMissions(o, choix, suivreContinuer) {
+  const p = o.p;
+  await dormir(1.5);
+  await o.survol(p.locator('[data-cm-choix="' + (choix === 'moi' ? 'assistant' : 'moi') + '"]'), 800); await dormir(0.6);
+  await o.cliquer(p.locator('[data-cm-choix="' + choix + '"]'), 700); await dormir(0.8);
+  await o.cliquer(p.locator('#btnSuivantNavigation'), 700); await dormir(1.0);
+  await o.cliquer(p.locator('#cmOui'), 700); await dormir(1.0);
+  if (suivreContinuer !== false) { await o.cliquer(p.locator('#btnSuivantNavigation'), 700); await dormir(1.5); }
+}
+
+module.exports = { dormir, URL, R, preparer, ouvrirTuile, deposerCv, objectifOffre, versVoie, versElement, panneauExperienceDebut, panneauExperienceFin, questionMissions };
