@@ -776,6 +776,14 @@ function creerDepot(racine, options) {
         fichesTouchees(v.fichier, courantT, r.texte).forEach(function (x) { journalAjouts.push(maintenant() + ' | ' + v.fichier + ' | ' + x.id + ' | ' + (x.nouvelle ? 'ajoutée' : 'modifiée')); });
         continue;
       }
+      // Une fiche du cadre créée ou changée par ce chemin entre au journal, comme celles de « fiche-champs » : c'est le journal qui alimente le bloc « Dans les fiches »
+      // de « Ce qui a changé récemment » et de la page Nouveautés (consigne 416 : une fiche créée ou mise à jour doit TOUJOURS y apparaître).
+      if (v.type === 'fiche') {
+        const avantF = lireOuNull(path.resolve(racine, v.chemin));
+        const idF = v.nom.replace(/\.md$/, '');
+        if (avantF === null) { journalAjouts.push(maintenant() + ' | cadre | ' + idF + ' | ajoutée | nouvelle fiche'); }
+        else if (avantF.toString('utf8').replace(/\r\n/g, '\n') !== String(v.texte).replace(/\r\n/g, '\n')) { journalAjouts.push(maintenant() + ' | cadre | ' + idF + ' | modifiée | fiche mise à jour'); }
+      }
       prevus[v.chemin] = Buffer.from(v.texte, 'utf8');
       if (v.type === 'fiche' && !fs.existsSync(path.resolve(racine, v.chemin))) { nouvelles.push(v); }
     }

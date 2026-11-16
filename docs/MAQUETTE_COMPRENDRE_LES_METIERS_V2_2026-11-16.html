@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Comprendre les métiers (version 2)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* Couleurs des six lettres : valeur claire ET sombre. À ajouter dans css/style.css au moment du code. Jamais la couleur seule : la lettre est toujours écrite. */
+:root{--ri-R:#b4540a;--ri-I:#1f7a4d;--ri-A:#b4233c;--ri-S:#6d4aa8;--ri-E:#0f6f8f;--ri-C:#7a6a00;--ri-txt:#fff}
+[data-theme="sombre"]{--ri-R:#e8944f;--ri-I:#4cc38a;--ri-A:#f27a8f;--ri-S:#b79cf0;--ri-E:#52bfe0;--ri-C:#d6c24a;--ri-txt:#101418}
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 7rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button,.mq-regl select{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-note{font-size:.85rem;color:var(--text-muted)}
+
+.fil{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;border:1px solid var(--border-strong);border-radius:12px;padding:.45rem .7rem;background:var(--bg-card);margin-bottom:.8rem;font-size:var(--t-petit,.875rem)}
+.fil .pas{padding:.1rem .6rem;border-radius:999px;background:var(--accent-bg-subtle);border:1px solid var(--border);color:var(--accent-texte,var(--accent));font-weight:600}
+.fil .ici{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.2rem;margin:.7rem 0}
+.bloc h2,.bloc h3{font-size:var(--t-grand,1.25rem);font-weight:800;margin:0 0 .5rem}
+.titre-page{font-size:var(--t-titre-page,1.9rem);font-weight:800;margin:.2rem 0 .4rem}
+.encart{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.7rem .9rem;margin:.7rem 0;display:flex;gap:.7rem;align-items:flex-start}
+.encart.warn{background:var(--warning-bg-subtle);border-left-color:var(--warning-border)}
+.encart i{color:var(--accent);font-size:1.3rem;margin-top:.1rem}
+.encart.warn i{color:var(--warning-strong)}
+.encart p{margin:0}
+.grille3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.tel .grille3{grid-template-columns:1fr}
+.entree{display:flex;flex-direction:column;gap:.5rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.9rem 1rem}
+.entree .ico{font-size:1.7rem;color:var(--accent)}
+.entree h3{font-size:var(--t-moyen,1rem);font-weight:800;margin:0}
+.entree p{font-size:var(--t-petit,.875rem);margin:0;color:var(--text-muted);flex:1}
+.entree .btn{min-height:44px}
+.six{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem .9rem;margin-top:.4rem}
+.tel .six{grid-template-columns:1fr}
+.six div{display:flex;gap:.5rem;align-items:flex-start;font-size:var(--t-petit,.875rem)}
+
+.ri-p{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--ri-c);color:var(--ri-txt);font-weight:800;font-size:.95rem;flex:none}
+.ri-p.gros{width:56px;height:56px;font-size:1.6rem}
+.ri-R{--ri-c:var(--ri-R)}.ri-I{--ri-c:var(--ri-I)}.ri-A{--ri-c:var(--ri-A)}.ri-S{--ri-c:var(--ri-S)}.ri-E{--ri-c:var(--ri-E)}.ri-C{--ri-c:var(--ri-C)}
+
+.etapes{display:grid;gap:.35rem;margin:.3rem 0 .2rem}
+.etapes span{height:8px;border-radius:999px;background:var(--border)}
+.etapes span.fait{background:var(--accent)}
+.etapes span.en-cours{background:var(--accent);opacity:.55}
+.q-compteur{font-size:var(--t-petit,.875rem);color:var(--text-muted);display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.q-ligne{display:flex;align-items:center;justify-content:space-between;gap:.8rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);padding:.6rem .8rem;margin:.45rem 0;flex-wrap:wrap}
+.q-ligne .txt{flex:1 1 260px;font-size:var(--t-moyen,1rem);font-weight:600}
+.q-rep{display:flex;gap:.4rem;flex-wrap:wrap}
+.q-rep .btn{min-height:44px;min-width:88px;font-weight:700}
+.q-rep .btn.choisi{background:var(--accent);border-color:var(--accent);color:#fff}
+.q-reste{font-size:var(--t-petit,.875rem);color:var(--text-muted);margin:.6rem 0 0}
+
+.hex-zone{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1rem;align-items:center}
+.tel .hex-zone{grid-template-columns:1fr}
+.hex-zone svg{width:100%;height:auto;max-width:460px;margin:0 auto;display:block}
+.hex-zone svg text{fill:var(--text-strong);font-family:inherit}
+.hex-fond{fill:var(--bg-subtle);stroke:var(--border-strong);stroke-width:2}
+.hex-axe{stroke:var(--border-strong);stroke-width:1}
+.hex-opp{stroke:var(--accent);stroke-width:2;stroke-dasharray:6 5;opacity:.75}
+.hex-profil{fill:var(--accent);fill-opacity:.28;stroke:var(--accent);stroke-width:3;stroke-linejoin:round}
+.hex-pt{fill:var(--accent)}
+
+.barre-l{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:.6rem;margin:.35rem 0}
+.barre-l .piste{height:16px;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);overflow:hidden}
+.barre-l .piste span{display:block;height:100%;background:var(--ri-c);border-radius:999px}
+.barre-l .nom{font-size:var(--t-petit,.875rem);color:var(--text-muted);min-width:5.5rem;text-align:right}
+.barre-l.haut .nom{color:var(--text-strong);font-weight:700}
+
+.ff{border:1px solid var(--border);border-radius:12px;padding:.7rem .85rem;margin:.55rem 0;background:var(--bg-card)}
+.ff-tete{display:flex;justify-content:space-between;align-items:center;gap:.5rem;font-weight:700;font-size:var(--t-petit,.875rem)}
+.ff-tete .cote{display:flex;align-items:center;gap:.4rem}
+.ff-piste{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,var(--g),var(--d));margin:.7rem 0 .5rem}
+.ff-piste i{position:absolute;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--bg-card);border:4px solid var(--accent)}
+.ff p{margin:0;font-size:var(--t-petit,.875rem)}
+
+.m-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.tel .m-grille{grid-template-columns:1fr}
+.m-carte{display:flex;flex-direction:column;gap:.45rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem .9rem}
+.m-carte.premier{grid-column:1 / -1;border-color:var(--accent);border-width:2px}
+.m-carte h4{margin:0;font-size:var(--t-moyen,1rem);font-weight:800}
+.m-carte .let{display:flex;gap:.35rem;align-items:center;font-size:var(--t-petit,.875rem);color:var(--text-muted);flex-wrap:wrap}
+.m-carte .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem;margin-top:auto}
+.m-carte .actions .btn{min-height:44px;font-size:.8rem;display:flex;align-items:center;justify-content:center;gap:.3rem;text-align:center;line-height:1.15}
+.m-carte .actions .large{grid-column:1 / -1}
+.pill{display:inline-block;font-size:.78rem;padding:.12rem .55rem;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);color:var(--text-muted)}
+.pct{display:flex;align-items:center;gap:.6rem}
+.pct .piste{flex:1;height:16px;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);overflow:hidden}
+.pct .piste span{display:block;height:100%;background:var(--accent);border-radius:999px}
+.pct b{font-size:1rem;min-width:3.2rem;text-align:right}
+
+details.bloc-depli-m{border-left:4px solid var(--accent);border-radius:8px;background:var(--bg-card);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);margin:.5rem 0}
+details.bloc-depli-m summary{cursor:pointer;padding:.7rem .9rem;font-weight:700;display:flex;gap:.6rem;align-items:center;background:var(--accent-bg-subtle);border-radius:0 8px 8px 0;list-style:none}
+details.bloc-depli-m summary::-webkit-details-marker{display:none}
+details.bloc-depli-m summary::before{content:"\f285";font-family:"bootstrap-icons";transition:transform .15s}
+details.bloc-depli-m[open] summary::before{transform:rotate(90deg)}
+details.bloc-depli-m .corps{padding:.7rem .9rem}
+
+
+.secteurs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.tel .secteurs{grid-template-columns:1fr}
+.secteurs .btn{min-height:46px;display:flex;justify-content:space-between;align-items:center;gap:.5rem;text-align:left;font-weight:600}
+.secteurs .btn .nb{font-size:.78rem;font-weight:700;background:var(--accent-bg-subtle);color:var(--accent-texte,var(--accent));border-radius:999px;padding:.05rem .5rem;flex:none}
+.secteurs .btn.actif{background:var(--accent);color:#fff;border-color:var(--accent)}
+.secteurs .btn.actif .nb{background:rgba(255,255,255,.25);color:#fff}
+.ligne{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:.45rem .6rem .45rem .8rem;min-height:52px;margin:.35rem 0;flex-wrap:wrap}
+.ligne .btn{min-height:40px;font-size:.8rem}
+.ligne .sub{font-size:.8rem;color:var(--text-muted)}
+.bandeau-choix{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;border:1px solid var(--border-strong);border-radius:12px;padding:.55rem .8rem;background:var(--bg-card)}
+.bandeau-choix .n{font-size:1.1rem;font-weight:800}
+.coche{color:var(--success,#1f7a4d)}
+.btn-recommencer{background:#f6d9cf;border-color:#e6b8a6;color:#5b2a1a}
+[data-theme="sombre"] .btn-recommencer{background:#4a2c22;border-color:#7a4a3a;color:#f3d6cb}
+.m-carte .actions.trois{grid-template-columns:repeat(3,minmax(0,1fr))}
+.m-carte .actions.trois .btn{padding:.3rem .35rem}
+@media (max-width:640px){.m-carte .actions.trois .btn{font-size:.7rem}.hex-zone,.grille3,.six,.m-grille,.secteurs{grid-template-columns:1fr}.mq-page{padding-top:.4rem}}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Aller directement à un écran</b>
+    <select id="mqEcran" class="form-select form-select-sm" aria-label="Choisir l’écran à voir"></select>
+  </div>
+  <div class="grp"><b>Taille d’écran, thème</b>
+    <div class="boutons">
+      <button type="button" class="btn btn-sm btn-primary" id="mqLarge">Ordinateur</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="mqTel">Téléphone</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqTheme">Mode sombre</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqZero">Tout remettre à zéro</button>
+    </div>
+  </div>
+  <div class="grp"><b>Points encore à trancher</b>
+    <div class="boutons" id="mqVar"></div>
+  </div>
+  <div class="mq-retient" id="mqRetient"></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+<div id="mqBas"></div>
+
+<script>
+/* ===== Données réelles de l'application (extraites de data/*.js), mises en forme pour la maquette ===== */
+var CAT = {"qui":[["Personnes",["Des clients","Des collègues","Des enfants","Des personnes âgées","Des patients","Des élèves / étudiants","Des adolescents","Des personnes en situation de handicap","Des personnes en difficulté","Des familles","Des salariés ou professionnels à accompagner","Des partenaires, des fournisseurs","Des sportifs","Un public varié (usagers, voyageurs)"]],["Matériels",["Des machines","Un ordinateur","Des documents","Des marchandises","Des véhicules","Des outils","Des appareils numériques","Des produits à vendre ou à stocker","Des matériaux (bois, métal, béton...)","Des tissus, des vêtements","Des aliments, des denrées","Des instruments, des objets d'art","Des plantes, des végétaux","Des produits chimiques ou dangereux","Des installations électriques"]],["Animaux",["Des animaux de compagnie","Des chevaux","Des animaux d'élevage / de ferme","Des abeilles","Des soins vétérinaires"]]],"actions":[["Organisation, gestion, administration",["Organiser, planifier","Gérer","Contrôler, diagnostiquer","Analyser","Négocier","Calculer","Classer, archiver","Saisir","Communiquer par écrit","Gérer des stocks, acheter","Piloter un projet ou un chantier","Appliquer les règles de sécurité","Encadrer ou animer un groupe","Organiser un événement, communiquer"]],["Relationnel",["Conseiller","Accompagner, aider","Vendre","Former","Soigner","Accueillir","Informer","Expliquer, présenter à l'oral","Encaisser, tenir une caisse"]],["Fabriquer et construire",["Construire","Fabriquer","Monter","Découper","Installer","Aménager un espace","Utiliser des machines, des outils"]],["Cuisiner et servir",["Cuisiner","Servir à table ou au comptoir","Préparer des boissons"]],["Réparer et entretenir",["Réparer","Entretenir, maintenir","Nettoyer","Trier, protéger l'environnement","Cultiver, entretenir des plantes"]],["Transport et logistique",["Transporter","Conduire / Piloter","Livrer","Préparer des commandes","Manutentionner, emballer"]],["Surveiller, manipuler, programmer",["Surveiller, sécuriser","Réagir à un imprévu, une urgence","Manipuler, préparer des produits","Rechercher, tester","Programmer"]],["Création et conception",["Créer","Rédiger","Imaginer","Dessiner, photographier","Concevoir"]]],"env":[["En intérieur",["Bureau","Usine / Atelier / Site industriel","Magasin / Commerce","Établissement de santé","École / Centre de formation","Restaurant / Cuisine","Hôtel","Administration / Collectivité","Laboratoire","Association","Cabinet médical / Pharmacie","Studio / Médias / Édition","Établissement social, médico-social ou crèche","Sécurité / Établissement pénitentiaire","Centre d'appels"]],["À domicile",["Au domicile des particuliers","À votre domicile (télétravail)"]],["En extérieur",["Extérieur / Chantier","Exploitation agricole","Espaces verts / Nature","Salle de spectacle / Événementiel","Salle de sport / Loisirs"]],["En déplacement",["Aéroport / Gare","Port / Zone portuaire","Route / Transport","Entrepôt / Plateforme logistique"]]],"secteurs":{"Administration, gestion et bureau":{"n":158,"noms":["Acheteur","Adjoint de contrôle de la concurrence, de la consommation et de la répression des fraudes","Administrateur de l'Etat","Agent d'administration principal(e) des douanes","Agent de conservation des hypothèques","Agent de liaison courrier","Agent recenseur","Aide-comptable","Ambassadeur","Analyste financier","Animateur de réseau d'entreprises","Animateur qualité services"]},"Agriculture, nature et espaces verts":{"n":86,"noms":["Agent d'aires marines protégées","Agent de diagnostic et de contrôle en agriculture","Aide agricole en production fruitière","Aide agricole en production végétale","Aide d'élevage agricole","Algoculteur","Aquaculteur","Aviculteur","Bûcheron","Capitaine de pêche","Caviste de chai","Champignonniste"]},"Artisanat et création":{"n":50,"noms":["Artisan démonstrateur","Artiste peintre","Artiste Plasticien","Assistant styliste","Brodeur","Canneur rempailleur","Céramiste","Concepteur numérique en bijouterie joaillerie","Coutelier d'art","Décorateur d'objets d'art","Directeur de collection","Etalagiste"]},"Banque, assurance et immobilier":{"n":61,"noms":["Actuaire en assurances","Agent administratif banque ou assurance","Agent général d'assurance","Agent technique des régimes de retraite complémentaire et de prévoyance","Analyste de crédits et risques bancaires","Assistant de gestion syndic immobilier","Assureur maritime","Cadre technique de la banque","Chargé d'accueil et de services clientèle bancaire","Chargé d'affaires bancaires","Chargé d'affaires en assurances","Chargé d'affaires immobilières"]},"Bâtiment et travaux publics":{"n":109,"noms":["Acousticien du bâtiment","Agent d'entretien des piscines","Agent d'exploitation de la voirie","Agent d'exploitation de stationnement","Agent de maintenance de mobilier urbain et publicitaire","Agent de maintenance qualifié en camping","Agent de préfabrication de l'industrie du béton","Agent technique d'affichage","Animateur QSE - Qualité Sécurité Environnement BTP","Architecte d'intérieur","Architecte du bâtiment","Architecte du patrimoine national"]},"Commerce et vente":{"n":133,"noms":["Acheteur vendeur d'or, de métaux précieux","Acheteur vendeur en dépôt-vente","Agent de billetterie","Agent de péage","Agent de soins en hydrothérapie","Agent technico-commercial en location de véhicules","Animateur de vente","Assistant achat","Assistant administration des ventes","Assistant commercial","Assistant de régulation médicale (ARM)","Assistant e-commerce"]},"Communication, culture et événementiel":{"n":141,"noms":["Accessoiriste","Acheteur média","Acteur de complément","Administrateur de tournées","Agent de talent","Animateur 2D 3D - films d'animation","Animateur d'antenne","Archiviste","Artificier spectacle","Artiste de cirque","Artiste-interprète","Assistant en publicité"]},"Éducation et formation":{"n":66,"noms":["Animateur de stages permis à points","Animateur-coordinateur de formation","Anthropologue","Archéologue","Assistant pédagogique en milieu scolaire","Astronome","Astrophysicien","Attaché de recherche clinique en milieu hospitalier","Biostatisticien","Botaniste","Chargé de bilan professionnel","Chargé de recherche en industrie pharmaceutique"]},"Hôtellerie, restauration et tourisme":{"n":56,"noms":["Adjoint de la direction en hôtellerie-restauration","Agent d'accueil et de prévention en camping","Agent de réservation en hôtellerie","Animateur du patrimoine","Assistant chef de produit tourisme","Bagagiste en établissement hôtelier","Barista","Billettiste voyages","Chargé de promotion touristique","Chef barman","Chef concierge d'hôtel","Chef de produit touristique"]},"Industrie, production et énergie":{"n":366,"noms":["Administrateur solution IT","Affûteur d'outillage industriel","Agent d'encadrement en ameublement","Agent d'encadrement en industrie du bois","Agent d'encadrement en industrie graphique","Agent de conditionnement","Agent de fabrication du verre","Agent de façonnage et routage","Agent de finissage couleurs et effets cuirs et peaux","Agent de laboratoire de recherche industrielle","Agent de maintenance en bureautique","Agent de montage en ameublement"]},"Informatique et numérique":{"n":93,"noms":["Administrateur de messagerie","Administrateur de serveurs","Administrateur de systèmes d'information (SI)","Administrateur réseaux - télécoms","Administrateur sécurité informatique","Analyste Concepteur","Analyste cycle de vie dans les télécoms","Analyste d'application informatique","Analyste d'étude informatique","Analyste décisionnel - Business Intelligence","Analyste SOC (Security Operations Center)","Architecte base de données"]},"Mécanique et automobile":{"n":36,"noms":["Accastilleur","Agent de maintenance nautique","Aménageur de véhicules","Conseiller client après-vente des véhicules","Conseiller technique cycles","Contrôleur de moteurs d'avions","Contrôleur technique de véhicules","Débosseleur sans peinture","Démonteur de véhicules hors d'usage","Dépanneur-remorqueur de véhicules","Mécanicien avion","Mécanicien cabine"]},"Métiers animaliers":{"n":8,"noms":["Animalier de laboratoire","Comportementaliste animalier","Dentiste équin","Dresseur animalier","Gardien d'animaux","Maréchal-ferrant","Ostéopathe animalier","Préparateur d'équidés"]},"Métiers de bouche (artisanat)":{"n":12,"noms":["Charcutier-traiteur","Chef boucher","Chef boulanger","Chef charcutier-traiteur","Chef de laboratoire en charcuterie","Chef pâtissier","Chocolatier","Glacier","Mareyeur","Poissonnier","Torréfacteur","Tourier"]},"Propreté et gestion des déchets":{"n":27,"noms":["Agent d'exploitation des réseaux d'assainissement","Agent de déchèterie","Agent de désinsectisation","Agent de mise en fourrière animale","Agent de propreté de locaux","Agent de propreté urbaine","Agent de tri des déchets","Ambassadeur du tri","Chargé du traitement des déchets","Egoutier","Ferrailleur de métal","Ingénieur responsable propreté nettoiement"]},"Santé et soins":{"n":79,"noms":["Agent de stérilisation de service hospitalier","Allergologue","Angiologue","Assistant médico-technique","Audioprothésiste","Auxiliaire ambulancier","Auxiliaire de puériculture","Biologiste médical","Cadre de santé d'unité de soins ou de service paramédical","Cardiologue","Chiropracteur","Chirurgien"]},"Sécurité":{"n":61,"noms":["Agent cynophile de sécurité","Agent cynotechnique en détection des explosifs","Agent d'exploitation et de sûreté aéroportuaire","Agent de protection rapprochée","Agent de sécurité événementielle","Agent de sûreté ferroviaire","Agent de sûreté portuaire","Agent de surveillance de la voie publique (ASVP)","Architecte système de force, d'arme ou équipement militaire","Chargé de navigation maritime sur navire militaire","Chargé du guidage d'aéronef militaire","Chef de centre d'incendie et de secours"]},"Social et services à la personne":{"n":75,"noms":["Accompagnant Educatif et Social (AES)","Accueillant familial thérapeutique auprès d'adultes","Addictologue","Agent d'accueil social","Agent de crématorium","Agent de développement d'habitat social","Agent territorial spécialisé des écoles maternelles (ATSEM)","Animateur coordinateur socioculturel","Animateur de développement régional","Animateur petite enfance","Animateur socioéducatif","Art thérapeute"]},"Sport, animation et loisirs":{"n":49,"noms":["Accompagnateur en moyenne montagne","Accompagnateur nature","Agent d'accueil en cinéma","Analyste de la performance sportive","Animateur d'atelier multimédia","Animateur de club de vacances","Animateur de loisirs sportifs","Animateur de séjour de vacances","Animateur en site de divertissement","Animateur jeunesse","Animateur mobilité à vélo","Animateur socio-sportif"]},"Transport et logistique":{"n":124,"noms":["Affréteur","Agent d'accompagnement des trains","Agent d'accompagnement du transport","Agent d'Escale Commerciale aéroportuaire (AEC)","Agent d'exploitation du réseau ferré","Agent d'exploitation en transport routier de marchandises","Agent d'exploitation transport routier de personnes","Agent d'opérations sur piste","Agent de contrôle du réseau ferré","Agent de port de plaisance","Agent de service général maritime","Agent de trafic aérien"]}}};
+
+var NOMS = { R: 'Réaliste', I: 'Investigateur', A: 'Artistique', S: 'Social', E: 'Entreprenant', C: 'Conventionnel' };
+var ORDRE = ['R', 'I', 'A', 'S', 'E', 'C'];
+var PROFIL = { R: 30, I: 62, A: 70, S: 88, E: 45, C: 25 };
+var OPPOSES = [
+  { a: 'R', b: 'S', ga: 'les choses, le concret', gb: 'les personnes, la relation' },
+  { a: 'I', b: 'E', ga: 'comprendre, chercher', gb: 'convaincre, mener' },
+  { a: 'A', b: 'C', ga: 'créer librement', gb: 'suivre des méthodes claires' }
+];
+
+/* Explications des sous-catégories (nouveau : l'application ne les expliquait pas) */
+var EXPL = {
+  'Personnes': 'Les personnes avec qui vous aimeriez être en contact dans votre travail : un public, des collègues, des personnes à accompagner.',
+  'Matériels': 'Ce que vous aimeriez manipuler, utiliser ou préparer : des outils, des machines, des documents, des aliments, des matériaux.',
+  'Animaux': 'Les animaux ou le vivant dont vous aimeriez vous occuper.',
+  'Organisation, gestion, administration': 'Mettre de l’ordre, planifier, suivre des chiffres ou des dossiers, coordonner une équipe ou un projet.',
+  'Relationnel': 'Être en contact avec les gens : conseiller, accueillir, soigner, former, vendre.',
+  'Fabriquer et construire': 'Faire ou assembler quelque chose de ses mains : construire, monter, installer.',
+  'Cuisiner et servir': 'Préparer des repas ou des boissons, puis les servir.',
+  'Réparer et entretenir': 'Remettre en état, entretenir, nettoyer, s’occuper des plantes ou de l’environnement.',
+  'Transport et logistique': 'Déplacer, conduire, livrer, préparer des commandes, manutentionner.',
+  'Surveiller, manipuler, programmer': 'Veiller à la sécurité, réagir vite, tester, manipuler des produits, programmer.',
+  'Création et conception': 'Imaginer, dessiner, rédiger, concevoir quelque chose de nouveau.',
+  'En intérieur': 'Dans un lieu fermé : bureau, atelier, magasin, établissement de santé, cuisine, école…',
+  'À domicile': 'Chez des particuliers ou chez vous.',
+  'En extérieur': 'Dehors ou sur un lieu de plein air : chantier, champs, espaces verts, salles de spectacle ou de sport.',
+  'En déplacement': 'Sur la route, dans les gares, les aéroports, les ports ou les entrepôts.'
+};
+var PAGES_CHOIX = {
+  qui: { cle: 'qui', titre: 'Avec qui ou avec quoi aimeriez-vous travailler ?', consigne: 'Choisissez ce qui vous attire, sans vous demander si vous en êtes capable. Trois familles : les personnes, les matériels, les animaux.', lim: 16, catalogue: 'qui', retour: 'intro', suite: 'actions2', n: 1 },
+  actions: { cle: 'actions', titre: 'Qu’aimeriez-vous faire ?', consigne: 'Choisissez les actions qui vous donnent envie. Huit familles d’actions : ouvrez-les une à une, chacune est expliquée.', lim: 16, catalogue: 'actions', retour: 'actions1', suite: 'actions3', n: 2 },
+  env: { cle: 'env', titre: 'Où aimeriez-vous travailler ?', consigne: 'Choisissez les lieux où vous vous verriez travailler. Quatre familles de lieux.', lim: 12, catalogue: 'env', retour: 'actions2', suite: 'actions4', n: 3 }
+};
+var ECRAN_CHOIX = { actions1: 'qui', actions2: 'actions', actions3: 'env' };
+
+/* Quelques métiers d'exemple (la vraie recherche porte sur les 1 929 fiches). tags = choix du parcours que ce métier retrouve. */
+var MET = [
+  { nom: 'Aide-soignant', sect: 'Santé et soins', l: 'SR', sig: ['AS'], aut: ['Aide-soignante', 'Aide-soignant en gériatrie', 'Aide-soignant à domicile'],
+    tags: ['Des patients', 'Des personnes âgées', 'Soigner', 'Accompagner, aider', 'Établissement de santé', 'Appliquer les règles de sécurité', 'Au domicile des particuliers'], pro: ['Agent de service hospitalier', 'Auxiliaire de puériculture', 'Accompagnant éducatif et social'] },
+  { nom: 'Agent de service hospitalier', sect: 'Santé et soins', l: 'RS', sig: ['ASH'], aut: ['Agent hospitalier', 'Agent de service en établissement de santé'],
+    tags: ['Nettoyer', 'Entretenir, maintenir', 'Établissement de santé', 'Des patients', 'Appliquer les règles de sécurité', 'Trier, protéger l\'environnement'], pro: ['Aide-soignant', 'Agent d’entretien', 'Agent de stérilisation'] },
+  { nom: 'Accompagnant éducatif et social', sect: 'Social et services à la personne', l: 'SR', sig: ['AES', 'AMP'], aut: ['Auxiliaire de vie sociale', 'Aide médico-psychologique'],
+    tags: ['Des personnes âgées', 'Des personnes en situation de handicap', 'Accompagner, aider', 'Au domicile des particuliers', 'Établissement social, médico-social ou crèche', 'Nettoyer', 'Cuisiner'], pro: ['Assistant de vie aux familles', 'Aide-soignant', 'Éducateur de jeunes enfants'] },
+  { nom: 'Assistant de vie aux familles', sect: 'Social et services à la personne', l: 'SC', sig: ['ADVF'], aut: ['Auxiliaire de vie', 'Aide à domicile'],
+    tags: ['Des personnes âgées', 'Des familles', 'Accompagner, aider', 'Cuisiner', 'Nettoyer', 'Au domicile des particuliers'], pro: ['Accompagnant éducatif et social', 'Employé de ménage', 'Garde d’enfants'] },
+  { nom: 'Éducateur de jeunes enfants', sect: 'Social et services à la personne', l: 'SA', sig: ['EJE'], aut: ['Éducatrice de jeunes enfants'],
+    tags: ['Des enfants', 'Des familles', 'Accompagner, aider', 'Établissement social, médico-social ou crèche', 'Former', 'Encadrer ou animer un groupe', 'Organiser un événement, communiquer'], pro: ['Auxiliaire de puériculture', 'Animateur auprès d’enfants', 'Assistant maternel'] },
+  { nom: 'Animateur auprès d’enfants', sect: 'Sport, animation et loisirs', l: 'SE', sig: [], aut: ['Animateur de loisirs', 'Animateur périscolaire'],
+    tags: ['Des enfants', 'Des adolescents', 'Encadrer ou animer un groupe', 'Organiser un événement, communiquer', 'École / Centre de formation', 'Association', 'Former'], pro: ['Éducateur de jeunes enfants', 'Animateur sportif', 'Éducateur spécialisé'] },
+  { nom: 'Agent territorial spécialisé des écoles maternelles', sect: 'Éducation et formation', l: 'SR', sig: ['ATSEM'], aut: ['Assistant des enseignants en maternelle'],
+    tags: ['Des enfants', 'Accompagner, aider', 'Nettoyer', 'École / Centre de formation', 'Encadrer ou animer un groupe', 'Administration / Collectivité'], pro: ['Animateur auprès d’enfants', 'Auxiliaire de puériculture', 'Agent d’entretien'] },
+  { nom: 'Conseiller en insertion professionnelle', sect: 'Social et services à la personne', l: 'SE', sig: ['CIP'], aut: ['Conseiller emploi', 'Conseiller en insertion'],
+    tags: ['Des personnes en difficulté', 'Des salariés ou professionnels à accompagner', 'Conseiller', 'Accompagner, aider', 'Former', 'Association', 'Informer'], pro: ['Formateur pour adultes', 'Éducateur spécialisé', 'Chargé de recrutement'] },
+  { nom: 'Employé de commerce', sect: 'Commerce et vente', l: 'ES', sig: [], aut: ['Employé de libre-service', 'Vendeur en magasin'],
+    tags: ['Des clients', 'Des produits à vendre ou à stocker', 'Vendre', 'Accueillir', 'Encaisser, tenir une caisse', 'Magasin / Commerce', 'Conseiller'], pro: ['Vendeur en alimentation', 'Hôte de caisse', 'Employé libre-service'] },
+  { nom: 'Cuisinier', sect: 'Hôtellerie, restauration et tourisme', l: 'RE', sig: [], aut: ['Cuisinier en restauration collective', 'Commis de cuisine'],
+    tags: ['Des aliments, des denrées', 'Cuisiner', 'Restaurant / Cuisine', 'Hôtel', 'Préparer des boissons', 'Servir à table ou au comptoir', 'Des clients'], pro: ['Serveur en restauration', 'Aide de cuisine', 'Pâtissier'] },
+  { nom: 'Cariste', sect: 'Transport et logistique', l: 'RC', sig: [], aut: ['Conducteur de chariot élévateur', 'Cariste en entrepôt'],
+    tags: ['Des marchandises', 'Des véhicules', 'Conduire / Piloter', 'Manutentionner, emballer', 'Entrepôt / Plateforme logistique', 'Préparer des commandes', 'Gérer des stocks, acheter'], pro: ['Préparateur de commandes', 'Magasinier', 'Chauffeur-livreur'] },
+  { nom: 'Ouvrier d’espaces verts', sect: 'Agriculture, nature et espaces verts', l: 'RI', sig: [], aut: ['Jardinier', 'Agent d’entretien des espaces verts'],
+    tags: ['Des plantes, des végétaux', 'Cultiver, entretenir des plantes', 'Entretenir, maintenir', 'Espaces verts / Nature', 'Extérieur / Chantier', 'Des outils'], pro: ['Jardinier paysagiste', 'Ouvrier agricole', 'Élagueur'] },
+  { nom: 'Assistant administratif', sect: 'Administration, gestion et bureau', l: 'CE', sig: [], aut: ['Secrétaire administratif', 'Assistant de gestion'],
+    tags: ['Des documents', 'Un ordinateur', 'Classer, archiver', 'Saisir', 'Bureau', 'Communiquer par écrit', 'Organiser, planifier', 'Accueillir'], pro: ['Secrétaire', 'Gestionnaire de paie', 'Agent d’accueil'] },
+  { nom: 'Représentant commercial', sect: 'Commerce et vente', l: 'EC', sig: ['VRP'], aut: ['Commercial itinérant', 'Attaché commercial'],
+    tags: ['Des clients', 'Des partenaires, des fournisseurs', 'Vendre', 'Négocier', 'Conseiller', 'Route / Transport'], pro: ['Conseiller commercial', 'Vendeur automobile', 'Acheteur'] },
+  { nom: 'Guide-conférencier', sect: 'Communication, culture et événementiel', l: 'SI', sig: [], aut: ['Guide interprète', 'Guide conférencière'],
+    tags: ['Un public varié (usagers, voyageurs)', 'Expliquer, présenter à l\'oral', 'Informer', 'Accueillir', 'Extérieur / Chantier', 'Organiser un événement, communiquer'], pro: ['Médiateur scientifique', 'Animateur du patrimoine', 'Agent d’accueil touristique'] }
+];
+var ECHANTILLON = { qui: ['Des enfants', 'Des personnes âgées'], actions: ['Accompagner, aider', 'Soigner', 'Accueillir', 'Former', 'Organiser un événement, communiquer'], env: ['Au domicile des particuliers', 'Établissement de santé', 'Établissement social, médico-social ou crèche'], cond: ['Travail de nuit possible'] };
+
+/* Variantes encore à trancher */
+var P3_ORIGINE = ['Faible', 'Moyen', 'Fort'];
+var P3_DOUX = ['Pas encore', 'En progrès', 'À l’aise'];
+var P4_ORIGINE = ['Je suis conformiste, je me plie aux règlements.', 'Généralement, j’évite de me faire remarquer.', 'Je suis d’un caractère impulsif.', 'Il m’arrive souvent de me montrer autoritaire.', 'Je suis timide, je garde pour moi mes émotions.', 'Mes amis me trouvent compliqué.', 'Dans mes activités, je manque souvent d’ordre.', 'Je suis plutôt réservé : on doit me demander mon avis.', 'Je suis sûr de moi.', 'Je suis d’un naturel serviable.'];
+var PARTIES = [
+  { n: 1, titre: 'Ce que vous aimez faire', total: 90, page: 'énoncés 11 à 20', type: 'oui-non',
+    consigne: 'Répondez « Oui » pour ce que vous aimez ou aimeriez faire. Répondez « Non » si cela ne vous plaît pas ou vous laisse indifférent. Ne pensez ni à vos diplômes, ni à vos capacités : seulement à vos goûts.',
+    items: ['Réparer un appareil électrique ou électronique.', 'Lire un article scientifique pour comprendre un sujet.', 'Écrire un texte, une histoire ou un article.', 'Accompagner quelqu’un qui a un souci personnel.', 'Vendre un produit à des clients.', 'Classer des dossiers dans l’ordre.', 'Planter et entretenir un jardin.', 'Animer un groupe ou une activité de loisirs.', 'Créer une affiche ou une décoration.', 'Tenir une caisse ou un registre de comptes.'] },
+  { n: 2, titre: 'Les métiers qui pourraient vous plaire', total: 90, page: 'métiers 21 à 30', type: 'oui-non',
+    consigne: 'Répondez « Oui » pour les métiers qui pourraient vous plaire. Ne pensez ni au salaire, ni aux études, ni à vos chances de réussir : demandez-vous seulement si ce travail pourrait vous plaire.',
+    items: ['Mécanicien / mécanicienne automobile', 'Technicien / technicienne de laboratoire', 'Décorateur / décoratrice d’intérieur', 'Éducateur / éducatrice de jeunes enfants', 'Responsable de rayon', 'Gestionnaire de paie', 'Plombier / plombière', 'Journaliste', 'Agent / agente d’accueil', 'Éleveur / éleveuse'] },
+  { n: 3, titre: 'Ce que vous sentez savoir faire', total: 60, page: 'énoncés 11 à 20', type: 'trois',
+    consigne: 'Pour chaque phrase, dites ce que vous ressentez aujourd’hui. Il n’y a pas de bonne réponse, et une aptitude se travaille : ce qui compte, c’est votre ressenti du moment.',
+    items: ['Lire un plan ou un schéma.', 'Utiliser des outils avec précision.', 'Analyser une situation compliquée.', 'Rédiger un texte clair.', 'Imaginer des idées nouvelles.', 'Écouter quelqu’un et le comprendre.', 'Expliquer les choses simplement.', 'Prendre la parole devant un groupe.', 'Organiser mon travail et mes dossiers.', 'Travailler avec des chiffres.'] },
+  { n: 4, titre: 'Votre façon d’agir', total: 60, page: 'phrases 11 à 20', type: 'oui-non',
+    consigne: 'Répondez « Oui » aux phrases qui vous ressemblent aujourd’hui. Ce ne sont pas des qualités ou des défauts : ce sont des préférences, et elles peuvent changer.',
+    items: ['Je préfère agir plutôt que discuter longtemps.', 'J’aime comprendre avant de décider.', 'J’ai besoin de liberté pour faire les choses à ma façon.', 'Je suis à l’aise pour aider et écouter les autres.', 'Je prends facilement l’initiative.', 'J’aime savoir exactement ce qu’on attend de moi.', 'J’aime les choses concrètes que l’on peut toucher.', 'J’aime chercher une solution originale.', 'J’aime travailler en équipe.', 'J’aime que mon travail soit bien rangé et soigné.'] }
+];
+
+var ETAT = { ecran: 'accueil', taille: 'large', p3: 'doux', p4: 'doux', score: 'plafond', rep: {}, reperes: {}, compar: {}, choix: { qui: {}, actions: {}, env: {}, cond: {} }, fiche: null, depuis: 'metier', rech: 'AS', secteur: null, filtreSecteur: '', plusRes: false, proches: {}, secteurVoirTout: false, partieFinie: 1, cacher: {} };
+
+var ECRANS = [
+  ['accueil', 'Accueil : carte « Vous hésitez encore ? »'],
+  ['intro', 'Présentation du module'],
+  ['metier', 'Entrée 1 : par le métier (recherche, sigles, secteurs)'],
+  ['fiche', 'Entrée 1 : fiche d’un métier'],
+  ['actions1', 'Entrée 2, page 1 : avec qui ou avec quoi'],
+  ['actions2', 'Entrée 2, page 2 : ce que vous aimeriez faire'],
+  ['actions3', 'Entrée 2, page 3 : où vous aimeriez travailler'],
+  ['actions4', 'Entrée 2, page 4 : conditions de travail (nouveau)'],
+  ['resultats2', 'Entrée 2, page 5 : les métiers proposés'],
+  ['q-intro', 'Entrée 3 : présentation du questionnaire'],
+  ['q1', 'Questionnaire, partie 1 sur 4 (activités)'],
+  ['q2', 'Questionnaire, partie 2 sur 4 (métiers)'],
+  ['q3', 'Questionnaire, partie 3 sur 4 (aptitudes)'],
+  ['q4', 'Questionnaire, partie 4 sur 4 (façon d’agir)'],
+  ['fin1', 'Fin d’une partie (sans résultat)'],
+  ['resultat', 'Résultat final du questionnaire']
+];
+
+/* ===== Outils ===== */
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+function past(l, gros) { return '<span class="ri-p ri-' + l + (gros ? ' gros' : '') + '" aria-hidden="true">' + l + '</span>'; }
+function lettres(s) { return s.split('').map(function (l) { return past(l); }).join(''); }
+function top3() { return ORDRE.slice().sort(function (a, b) { return PROFIL[b] - PROFIL[a] || ORDRE.indexOf(a) - ORDRE.indexOf(b); }).slice(0, 3); }
+function urlFT(nom) { return 'https://candidat.francetravail.fr/metierscope/recherche?motscles=' + encodeURIComponent(nom); }
+function trouverMet(nom) { return MET.filter(function (m) { return m.nom === nom; })[0] || null; }
+function fil(derniers) {
+  var pas = ['Accueil', 'Vous hésitez encore ?', 'Comprendre les métiers'].concat(derniers || []);
+  return '<nav class="fil" aria-label="Vous êtes ici"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> ' + pas.map(function (p, i) {
+    return '<span class="pas' + (i === pas.length - 1 ? ' ici' : '') + '">' + esc(p) + '</span>';
+  }).join('') + '</nav>';
+}
+function btnRevoir() { return '<button type="button" class="btn btn-outline-primary btn-sm" data-go="intro"><i class="bi bi-compass"></i> Revoir la présentation</button>'; }
+function nbChoix(cle) { return Object.keys(ETAT.choix[cle]).filter(function (k) { return ETAT.choix[cle][k]; }).length; }
+function selection() {
+  var sel = [];
+  ['qui', 'actions', 'env'].forEach(function (c) { Object.keys(ETAT.choix[c]).forEach(function (l) { if (ETAT.choix[c][l]) { sel.push({ type: c, label: l }); } }); });
+  return sel;
+}
+function echantillonSiVide() {
+  if (selection().length) { return; }
+  Object.keys(ECHANTILLON).forEach(function (c) { ECHANTILLON[c].forEach(function (l) { ETAT.choix[c][l] = true; }); });
+}
+
+/* ===== Hexagone SVG ===== */
+function hexagone(profil, avecOpposes) {
+  var cx = 290, cy = 212, R = 118;
+  var ang = { R: -90, I: -30, A: 30, S: 90, E: 150, C: 210 };
+  function pt(l, r) { var a = ang[l] * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+  var poly = ORDRE.map(function (l) { return pt(l, R).join(','); }).join(' ');
+  var axes = ORDRE.map(function (l) { var p = pt(l, R); return '<line class="hex-axe" x1="' + cx + '" y1="' + cy + '" x2="' + p[0] + '" y2="' + p[1] + '"/>'; }).join('');
+  var opp = avecOpposes ? OPPOSES.map(function (o) { var a = pt(o.a, R), b = pt(o.b, R); return '<line class="hex-opp" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>'; }).join('') : '';
+  var radar = '', desc = '';
+  if (profil) {
+    radar = '<polygon class="hex-profil" points="' + ORDRE.map(function (l) { return pt(l, R * profil[l] / 100).join(','); }).join(' ') + '"/>' +
+      ORDRE.map(function (l) { var p = pt(l, R * profil[l] / 100); return '<circle class="hex-pt" cx="' + p[0] + '" cy="' + p[1] + '" r="5"/>'; }).join('');
+    desc = ' Niveaux : ' + ORDRE.map(function (l) { return NOMS[l] + ' ' + profil[l] + ' pour cent'; }).join(', ') + '.';
+  }
+  var marques = ORDRE.map(function (l) {
+    var p = pt(l, R + 34), t = pt(l, R + 66), ancre = (l === 'R' || l === 'S') ? 'middle' : (l === 'I' || l === 'A' ? 'start' : 'end');
+    var ty = t[1] + (l === 'R' ? -4 : (l === 'S' ? 14 : 4));
+    return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="19" style="fill:var(--ri-' + l + ')"/><text x="' + p[0] + '" y="' + (p[1] + 7) + '" text-anchor="middle" font-size="20" font-weight="800" style="fill:var(--ri-txt)">' + l + '</text>' +
+      '<text x="' + (l === 'R' || l === 'S' ? t[0] : (ancre === 'start' ? p[0] + 24 : p[0] - 24)) + '" y="' + (l === 'R' || l === 'S' ? ty : p[1] + 5) + '" text-anchor="' + ancre + '" font-size="18" font-weight="700">' + NOMS[l] + '</text>';
+  }).join('');
+  return '<svg viewBox="0 0 580 440" role="img" aria-label="Hexagone des six types de Holland. Les types opposés sont face à face : réaliste et social, investigateur et entreprenant, artistique et conventionnel.' + esc(desc) + '">' +
+    '<polygon class="hex-fond" points="' + poly + '"/>' + axes + opp + radar + marques + '</svg>';
+}
+
+/* ===== Boutons de carte de métier ===== */
+function boutonsMetier(nom, avecFiche) {
+  var rep = !!ETAT.reperes[nom], cmp = !!ETAT.compar[nom];
+  return '<div class="actions' + (avecFiche ? '' : ' trois') + '">' +
+    (avecFiche ? '<button type="button" class="btn btn-outline-secondary" data-fiche="' + esc(nom) + '"><i class="bi bi-file-earmark-person"></i> Fiche du métier</button>' : '') +
+    '<a class="btn btn-outline-secondary" href="' + urlFT(nom) + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> France Travail</a>' +
+    '<button type="button" class="btn ' + (rep ? 'btn-primary' : 'btn-outline-secondary') + '" data-bascule="reperes" data-nom="' + esc(nom) + '"><i class="bi ' + (rep ? 'bi-bookmark-check-fill' : 'bi-bookmark-star') + '"></i> ' + (rep ? 'Repère gardé' : 'Garder comme Repère') + '</button>' +
+    '<button type="button" class="btn ' + (cmp ? 'btn-primary' : 'btn-outline-primary') + '" data-bascule="compar" data-nom="' + esc(nom) + '"><i class="bi ' + (cmp ? 'bi-check2-circle' : 'bi-signpost-split') + '"></i> ' + (cmp ? 'Dans ma comparaison' : 'Comparer') + '</button></div>';
+}
+
+/* ===== Les six types en détail (mots à nous, d'après le modèle de Holland ; jamais un portrait de la personne) ===== */
+var OPP = { R: 'S', S: 'R', I: 'E', E: 'I', A: 'C', C: 'A' };
+var LETTRES = {
+  R: { court: 'le concret, les outils, le plein air',
+    bref: 'Vous aimez le concret : des outils, des machines, du terrain, un résultat que l’on voit.',
+    attire: 'Réparer, construire, conduire, travailler dehors, bouger, utiliser son corps.',
+    forts: 'Sens pratique, habileté des mains, patience, constance, fiabilité.',
+    attention: 'Dire ce que vous faites et ce que vous attendez des autres, suivre les nouveautés techniques, accepter de ne pas tout faire seul.',
+    univers: 'Ateliers, chantiers, extérieur, exploitations, entrepôts. Des consignes claires et des résultats mesurables.',
+    metiers: 'Mécanicien, électricien, conducteur, jardinier, menuisier, cariste.' },
+  I: { court: 'comprendre, chercher, analyser',
+    bref: 'Vous aimez comprendre, chercher et analyser avant de décider.',
+    attire: 'Résoudre des problèmes, lire, expérimenter, comprendre pourquoi les choses fonctionnent.',
+    forts: 'Curiosité, esprit critique, méthode, indépendance d’esprit, précision.',
+    attention: 'Passer de l’analyse à l’action, partager ses idées avec les autres, accepter qu’une réponse parfaite n’existe pas toujours.',
+    univers: 'Laboratoires, santé, informatique, études. Du temps pour réfléchir et de l’autonomie.',
+    metiers: 'Technicien de laboratoire, infirmier, développeur informatique, géomètre, analyste.' },
+  A: { court: 'créer, imaginer, s’exprimer',
+    bref: 'Vous aimez créer, imaginer et vous exprimer à votre façon.',
+    attire: 'Dessiner, écrire, composer, décorer, inventer de nouvelles façons de faire.',
+    forts: 'Imagination, sensibilité, originalité, ouverture d’esprit.',
+    attention: 'Tenir les délais, s’organiser, supporter un cadre fixé par d’autres, faire connaître son travail.',
+    univers: 'Ateliers, studios, scènes, agences. Des projets variés, avec de la liberté.',
+    metiers: 'Décorateur, graphiste, photographe, coiffeur, musicien, fleuriste.' },
+  S: { court: 'aider, écouter, enseigner',
+    bref: 'Vous aimez aider, écouter, expliquer et travailler avec les autres.',
+    attire: 'Accompagner, soigner, enseigner, animer un groupe, rendre service.',
+    forts: 'Écoute, patience, bienveillance, sens de l’équipe.',
+    attention: 'Garder du temps pour vous, savoir dire non, ne pas porter tous les soucis des autres.',
+    univers: 'Santé, éducation, social, accueil, animation. Du contact humain et du travail d’équipe.',
+    metiers: 'Aide-soignant, éducateur, animateur, enseignant, conseiller en insertion.' },
+  E: { court: 'convaincre, mener, décider',
+    bref: 'Vous aimez convaincre, mener et relever des défis.',
+    attire: 'Vendre, négocier, diriger une équipe, lancer des projets, prendre des responsabilités.',
+    forts: 'Énergie, confiance, aisance à parler, goût d’entreprendre.',
+    attention: 'Prendre le temps d’écouter et de soigner les détails, accepter de ne pas tout décider seul, mesurer les risques.',
+    univers: 'Commerce, vente, gestion d’équipe, création d’entreprise. Des objectifs et un rythme soutenu.',
+    metiers: 'Vendeur, commercial, chef d’équipe, responsable de magasin, agent immobilier.' },
+  C: { court: 'organiser, classer, suivre des règles',
+    bref: 'Vous aimez l’ordre, la méthode et le travail soigné.',
+    attire: 'Classer, organiser, vérifier, suivre des procédures, tenir des comptes.',
+    forts: 'Fiabilité, précision, sens de l’organisation, ponctualité.',
+    attention: 'S’adapter quand les règles changent, prendre des initiatives, demander de l’aide plutôt que d’attendre des consignes.',
+    univers: 'Bureaux, administrations, banques, gestion. Des consignes claires.',
+    metiers: 'Assistant administratif, comptable, gestionnaire de paie, secrétaire, agent d’accueil.' }
+};
+function fichesLettres(liste, premierOuvert) {
+  return liste.map(function (l, i) {
+    var d = LETTRES[l];
+    return '<details class="bloc-depli-m"' + (premierOuvert && i === 0 ? ' open' : '') + '><summary>' + past(l) + ' <span>' + NOMS[l] + ' <span class="mq-note" style="font-weight:400">: ' + d.court + '</span></span></summary><div class="corps">' +
+      '<p><b>En bref.</b> ' + d.bref + '</p>' +
+      '<p><b>Ce qui vous attire souvent.</b> ' + d.attire + '</p>' +
+      '<p><b>Points forts fréquents.</b> ' + d.forts + '</p>' +
+      '<p><b>Ce qui demande parfois un peu d’attention.</b> ' + d.attention + '</p>' +
+      '<p><b>Univers de travail qui conviennent souvent.</b> ' + d.univers + '</p>' +
+      '<p><b>Métiers fréquents.</b> ' + d.metiers + '</p>' +
+      '<p class="mq-note mb-0">Face à face sur l’hexagone : ' + past(OPP[l]) + ' ' + NOMS[OPP[l]] + '.</p></div></details>';
+  }).join('') + '<p class="mq-note">Ce sont des tendances observées chez des groupes de personnes, pas votre portrait. Tout le monde porte un peu de chaque type.</p>';
+}
+
+/* ===== Page 4 : conditions de travail (libellés réels de data/conditionsRome.js, jamais comptées dans le pourcentage) ===== */
+var CONDLIB = { nuit: 'Travail de nuit possible', weekend: 'Travail le week-end ou les jours fériés possible', horaires: 'Horaires variables ou décalés (astreintes, roulement)', saisonnier: 'Travail saisonnier ou pendant les vacances scolaires', repetitif: 'Gestes répétitifs ou cadence à tenir', charges: 'Port de charges', debout: 'Longtemps debout ou dans des positions fatigantes', assis: 'Longtemps assis', bruit: 'Environnement bruyant', deplacements: 'Déplacements professionnels', isole: 'Moments de travail seul ou isolé' };
+var COND_GROUPES = [
+  ['Horaires et rythme', 'Les moments où vous travaillez et la cadence à tenir.', ['nuit', 'weekend', 'horaires', 'saisonnier', 'repetitif']],
+  ['Le corps et la fatigue', 'Ce que le travail demande physiquement.', ['charges', 'debout', 'assis', 'bruit']],
+  ['Déplacements et solitude', 'Rouler pour travailler, ou se retrouver seul.', ['deplacements', 'isole']]
+];
+var COND = { 'Aide-soignant': ['nuit', 'weekend', 'horaires', 'charges', 'debout'], 'Agent de service hospitalier': ['weekend', 'horaires', 'charges', 'debout', 'repetitif'], 'Accompagnant éducatif et social': ['weekend', 'horaires', 'charges', 'deplacements'], 'Assistant de vie aux familles': ['weekend', 'horaires', 'deplacements', 'isole', 'charges'], 'Éducateur de jeunes enfants': ['debout', 'bruit'], 'Animateur auprès d’enfants': ['weekend', 'saisonnier', 'horaires', 'bruit'], 'Agent territorial spécialisé des écoles maternelles': ['debout', 'bruit'], 'Conseiller en insertion professionnelle': ['deplacements'], 'Employé de commerce': ['weekend', 'debout', 'charges', 'repetitif', 'horaires'], 'Cuisinier': ['weekend', 'horaires', 'debout', 'bruit', 'charges'], 'Cariste': ['horaires', 'charges', 'bruit', 'repetitif'], 'Ouvrier d’espaces verts': ['saisonnier', 'charges', 'debout', 'isole'], 'Assistant administratif': ['assis', 'repetitif'], 'Représentant commercial': ['deplacements', 'isole'], 'Guide-conférencier': ['weekend', 'saisonnier', 'debout', 'deplacements'] };
+var NIV = { 'Aide-soignant': 'diplôme d’État (environ 1 an de formation)', 'Agent de service hospitalier': 'sans diplôme exigé', 'Accompagnant éducatif et social': 'diplôme d’État', 'Assistant de vie aux familles': 'titre professionnel', 'Éducateur de jeunes enfants': 'bac + 3', 'Animateur auprès d’enfants': 'BAFA ou équivalent', 'Agent territorial spécialisé des écoles maternelles': 'CAP accompagnant éducatif petite enfance', 'Conseiller en insertion professionnelle': 'titre de niveau bac + 2', 'Employé de commerce': 'sans diplôme exigé', 'Cuisinier': 'CAP cuisine', 'Cariste': 'CACES (permis de conduire les chariots)', 'Ouvrier d’espaces verts': 'sans diplôme exigé', 'Assistant administratif': 'bac pro à bac + 2', 'Représentant commercial': 'bac à bac + 2', 'Guide-conférencier': 'licence et carte professionnelle' };
+function minus1(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+function condChoisies() { return Object.keys(ETAT.choix.cond || {}).filter(function (k) { return ETAT.choix.cond[k]; }); }
+function demande(m) { var cs = condChoisies(); return (COND[m.nom] || []).map(function (k) { return CONDLIB[k]; }).filter(function (l) { return cs.indexOf(l) !== -1; }); }
+function ligneCond(m) {
+  if (!condChoisies().length) { return ''; }
+  var d = demande(m);
+  return d.length ? '<p class="mb-0" style="font-size:.875rem"><i class="bi bi-exclamation-triangle" style="color:var(--warning-strong)"></i> <b>À vérifier :</b> ce métier peut demander ' + d.map(minus1).join(' ; ') + '.</p>'
+    : '<p class="mb-0 mq-note"><i class="bi bi-check2 coche"></i> Rien de ce que vous avez indiqué comme difficile.</p>';
+}
+function ligneNiveau(m) { return NIV[m.nom] ? '<p class="mq-note mb-0"><i class="bi bi-mortarboard"></i> Accès : ' + NIV[m.nom] + '.</p>' : ''; }
+function condFiche(m) {
+  var l = COND[m.nom] || [];
+  return '<details class="bloc-depli-m"><summary>À savoir sur ce métier (conditions de travail)</summary><div class="corps">' + (l.length ? '<ul class="mb-1">' + l.map(function (k) { return '<li>' + CONDLIB[k] + '</li>'; }).join('') + '</ul><p class="mq-note mb-0">Repris de la fiche du ROME : ce sont des possibilités, pas une obligation dans tous les postes.</p>' : 'Aucune condition particulière indiquée.') + '</div></details>';
+}
+function blocCondResultat() {
+  var cs = condChoisies();
+  return '<div class="bloc" style="margin:.5rem 0 0"><h3 style="font-size:1rem">Vos conditions de travail</h3>' +
+    (cs.length ? '<p class="mb-2">Difficile pour vous : ' + cs.map(function (s) { return '<span class="pill">' + esc(s) + '</span>'; }).join(' ') + '</p>' +
+      '<p class="mq-note mb-2">Elles ne changent pas le pourcentage : chaque métier vous dit seulement s’il peut les demander.</p>' +
+      '<button type="button" class="btn ' + (ETAT.cacher['1'] ? 'btn-primary' : 'btn-outline-primary') + ' btn-sm" data-bascule="cacher" data-nom="1" aria-pressed="' + !!ETAT.cacher['1'] + '"><i class="bi bi-eye-slash"></i> ' + (ETAT.cacher['1'] ? 'Métiers masqués : cliquez pour les montrer' : 'Masquer les métiers qui peuvent demander ces conditions') + '</button>'
+      : '<p class="mq-note mb-1">Vous n’avez rien indiqué. Vous pouvez le faire pour être prévenu quand un métier demande ce qui serait difficile pour vous.</p>') + '</div>';
+}
+function vConditions() {
+  var n = condChoisies().length;
+  return fil(['Par ce que vous aimez faire', 'Page 4 sur 4']) + '<div class="etapes" style="grid-template-columns:repeat(4,1fr)" aria-label="Page 4 sur 4">' + [1, 2, 3, 4].map(function (k) { return '<span class="' + (k < 4 ? 'fait' : 'en-cours') + '"></span>'; }).join('') + '</div>' +
+    '<div class="titre-page" style="font-size:var(--t-tres-grand,1.5rem)">Ce qui serait difficile pour vous ? <span class="pill" style="vertical-align:middle">à compléter</span></div>' + btnRevoir() +
+    '<p class="mt-2">Certains métiers demandent de travailler la nuit, le week-end, de porter des charges ou de beaucoup se déplacer. Indiquez ce qui serait difficile pour vous en ce moment : cela dépend de votre situation, pas de vos capacités.</p>' +
+    '<div class="encart"><i class="bi bi-shield-check"></i><p><b>Ces choix ne changent pas vos pourcentages.</b> Ils servent à vous prévenir, métier par métier, quand il peut demander ce que vous avez indiqué. Vous pouvez passer cette page sans rien choisir.</p></div>' +
+    '<div class="bandeau-choix" role="status"><div><span class="n">' + n + '</span> choix</div><button type="button" class="btn btn-outline-secondary btn-sm" data-vider="cond"' + (n ? '' : ' disabled') + '><i class="bi bi-x-circle"></i> Tout désélectionner</button></div>' +
+    COND_GROUPES.map(function (g) {
+      var nbg = g[2].filter(function (k) { return ETAT.choix.cond[CONDLIB[k]]; }).length;
+      return '<div class="bloc"><h3>' + g[0] + ' <span class="pill">' + nbg + ' choisi' + (nbg > 1 ? 's' : '') + ' sur ' + g[2].length + '</span></h3><p class="mq-note">' + g[1] + '</p><div class="jetons-ligne" role="group" aria-label="' + g[0] + '">' +
+        g[2].map(function (k) { var l = CONDLIB[k], on = !!ETAT.choix.cond[l]; return '<button type="button" class="jeton' + (on ? ' is-actif' : '') + '" data-choix="cond|' + esc(l) + '" aria-pressed="' + on + '">' + esc(l) + '</button>'; }).join('') + '</div></div>';
+    }).join('') +
+    '<p class="mq-note">Les lieux (extérieur, au domicile, contact avec le public) sont déjà demandés à la page précédente : ils ne sont pas répétés ici.</p>';
+}
+
+/* ===== Écrans ===== */
+function vAccueil() {
+  return '<div class="titre-page">Accueil</div>' +
+    '<div class="bloc"><div style="display:flex;gap:.8rem;align-items:flex-start"><i class="bi bi-signpost-split" style="font-size:2rem;color:var(--accent)"></i><div><h2>Vous hésitez encore ?</h2>' +
+    '<p>Vous n’êtes pas sûr de la direction à prendre ? Découvrez des métiers, voyez ce qui vous attire, et comparez vos pistes, à votre rythme.</p>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:.5rem"><button type="button" class="btn btn-outline-primary" style="min-height:46px"><i class="bi bi-signpost-split"></i> Comparer mes pistes</button>' +
+    '<button type="button" class="btn btn-primary" style="min-height:46px" data-go="intro"><i class="bi bi-compass"></i> Comprendre les métiers</button></div></div></div></div>' +
+    '<p class="mq-note">Le bouton « Comprendre les métiers » s’ajoute à la carte existante, à côté de « Comparer mes pistes ». Le texte de la carte est réécrit pour parler aussi de découvrir des métiers.</p>';
+}
+function vIntro() {
+  var six = [['R', 'Réaliste', 'le concret, les outils, le plein air'], ['I', 'Investigateur', 'comprendre, chercher, analyser'], ['A', 'Artistique', 'créer, imaginer, s’exprimer'], ['S', 'Social', 'aider, écouter, enseigner'], ['E', 'Entreprenant', 'convaincre, mener, décider'], ['C', 'Conventionnel', 'organiser, classer, suivre des règles']];
+  return fil() + '<div class="titre-page">Comprendre les métiers</div>' +
+    '<p>Pour les personnes qui ont du temps et de la curiosité : mieux connaître un métier, ses tâches et ses conditions de travail, ou découvrir des métiers qui ressemblent à ce que vous aimez. Il n’y a rien d’obligatoire et aucune réponse n’est mauvaise.</p>' +
+    '<div class="bloc"><h3>À quoi ça sert</h3><p>À vous aider à y voir plus clair quand vous ne savez pas encore quel métier vous irait, ou quand vous voulez comprendre un métier que vous connaissez mal. Ce module ne choisit rien à votre place : il vous donne des pistes à explorer.</p></div>' +
+    '<h3 class="mt-3" style="font-size:var(--t-grand,1.25rem);font-weight:800">Ce que vous pouvez faire ici : trois entrées</h3>' +
+    '<div class="grille3">' +
+    '<div class="entree"><i class="bi bi-search ico"></i><h3>Par un métier</h3><p>Vous avez déjà un métier en tête ? Cherchez-le par son nom, un autre nom, un sigle (AS, ASH, CIP…) ou son secteur, puis lisez sa fiche.</p><button type="button" class="btn btn-primary" data-go="metier">Chercher un métier</button></div>' +
+    '<div class="entree"><i class="bi bi-list-check ico"></i><h3>Par ce que vous aimez faire</h3><p>Quatre pages : avec qui ou quoi, ce que vous aimeriez faire, où, et vos conditions de travail. Chaque famille de choix est expliquée. Des métiers vous sont proposés d’après vos goûts.</p><button type="button" class="btn btn-primary" data-go="actions1">Choisir mes envies</button></div>' +
+    '<div class="entree"><i class="bi bi-hexagon ico"></i><h3>Par un questionnaire d’intérêts</h3><p>Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années pour décrire les goûts professionnels. Rien n’est obligatoire.</p><button type="button" class="btn btn-primary" data-go="q-intro">Voir le questionnaire</button></div></div>' +
+    '<div class="bloc"><h3>Le RIASEC, c’est quoi ?</h3>' +
+    '<p>Le RIASEC est une façon de décrire un métier selon l’activité qui y tient le plus de place. Il y a six types, et chaque lettre est l’initiale d’un type :</p>' +
+    '<div class="six">' + six.map(function (s) { return '<div>' + past(s[0]) + '<span><b>' + s[1] + '</b> : ' + s[2] + '</span></div>'; }).join('') + '</div>' +
+    '<div class="encart"><i class="bi bi-building"></i><p><b>Nous n’avons rien inventé.</b> Ce modèle existe depuis une quarantaine d’années. France Travail donne à chaque métier du ROME une ou deux de ces lettres. Ici, nous le rendons simple et accessible à tous : vous répondez en cliquant, puis vous retrouvez des métiers qui portent vos lettres.</p></div></div>' +
+    '<div class="bloc"><h3>Les six types en détail</h3><p class="mq-note">Ouvrez un type pour le découvrir. Rien à retenir par cœur : ce sont des repères.</p>' + fichesLettres(['R', 'I', 'A', 'S', 'E', 'C'], false) + '</div>' +
+    '<div class="bloc"><h3>Ce que vous pourrez faire ensuite</h3><p>Lire la fiche d’un métier, le garder comme Repère, le comparer avec une autre piste, ou ouvrir sa fiche sur le site de France Travail.</p></div>' +
+    '<div class="bloc"><h3>Ce que ce module ne fait pas</h3><p>Il ne dit pas si vous êtes « fait pour » un métier, ne juge pas vos capacités et ne donne aucun verdict. Un conseiller peut compléter ce que vous découvrez ici.</p></div>' +
+    '<div class="encart"><i class="bi bi-save"></i><p><b>Bon à savoir.</b> Rien n’est conservé dans cet ordinateur sans votre accord. Pour garder vos choix ou votre résultat, utilisez la disquette de l’application.</p></div>';
+}
+
+/* --- Entrée 1 : recherche, sigles, secteurs --- */
+function contient(s, n) { var t = norm(s); if (n.length > 3) { return t.indexOf(n) !== -1; } return (' ' + t.replace(/-/g, ' ')).indexOf(' ' + n) !== -1; }
+function rechercher(q) {
+  var n = norm(q).trim(); if (n.length < 2) { return []; }
+  var res = [];
+  MET.forEach(function (m) {
+    var rang = 9, raison = '';
+    if (m.sig.some(function (s) { return norm(s) === n; })) { rang = 0; raison = 'Sigle « ' + m.sig.filter(function (s) { return norm(s) === n; })[0] + ' » : ' + m.nom; }
+    else if (norm(m.nom).indexOf(n) === 0) { rang = 1; raison = 'Nom du métier'; }
+    else if (contient(m.nom, n)) { rang = 2; raison = 'Nom du métier'; }
+    else {
+      var a = m.aut.filter(function (x) { return contient(x, n); })[0];
+      if (a) { rang = 3; raison = 'Autre nom : ' + a; }
+      else if (m.sig.some(function (s) { return norm(s).indexOf(n) === 0; })) { rang = 4; raison = 'Sigle : ' + m.sig.join(', '); }
+      else if (contient(m.sect, n)) { rang = 5; raison = 'Secteur : ' + m.sect; }
+    }
+    if (rang < 9) { res.push({ m: m, rang: rang, raison: raison }); }
+  });
+  return res.sort(function (a, b) { return a.rang - b.rang; });
+}
+function htmlResultatsRech() {
+  var q = ETAT.rech || '';
+  if (norm(q).trim().length < 2) { return '<p class="mq-note">Tapez au moins deux lettres.</p>'; }
+  var r = rechercher(q);
+  if (!r.length) { return '<div class="encart warn"><i class="bi bi-info-circle"></i><p>Aucun métier trouvé pour « ' + esc(q) + ' ». Essayez un autre nom, un sigle, ou choisissez un secteur ci-dessous.</p></div>'; }
+  return '<p class="mq-note mb-1">' + r.length + ' métier' + (r.length > 1 ? 's' : '') + ' trouvé' + (r.length > 1 ? 's' : '') + ' pour « ' + esc(q) + ' ».</p>' + r.map(function (x) {
+    return '<div class="ligne"><div><b>' + esc(x.m.nom) + '</b><div class="sub">' + esc(x.raison) + ' · <span class="pill">' + esc(x.m.sect) + '</span></div></div><button type="button" class="btn btn-outline-primary" data-fiche="' + esc(x.m.nom) + '"><i class="bi bi-file-earmark-person"></i> Voir la fiche</button></div>';
+  }).join('');
+}
+function vMetier() {
+  var secs = Object.keys(CAT.secteurs);
+  var s = ETAT.secteur, h = '';
+  if (s) {
+    var d = CAT.secteurs[s], f = norm(ETAT.filtreSecteur || '');
+    var noms = d.noms.filter(function (x) { return !f || norm(x).indexOf(f) !== -1; });
+    h = '<div class="bloc"><h3>Métiers du secteur « ' + esc(s) + ' »</h3><p class="mq-note">' + d.n + ' métiers dans ce secteur. Voici les premiers, par ordre alphabétique (exemple de 12 sur ' + d.n + ').</p>' +
+      '<input id="filtreSecteur" class="form-control mb-2" style="min-height:44px" placeholder="Chercher dans ce secteur" aria-label="Chercher dans ce secteur" value="' + esc(ETAT.filtreSecteur) + '">' +
+      noms.map(function (x) { return '<div class="ligne"><b>' + esc(x) + '</b><button type="button" class="btn btn-outline-primary" data-fiche="' + esc(x) + '"><i class="bi bi-file-earmark-person"></i> Voir la fiche</button></div>'; }).join('') +
+      (d.n > 12 ? '<div style="text-align:center;margin-top:.6rem"><button type="button" class="btn btn-outline-secondary"><i class="bi bi-chevron-down"></i> Voir les ' + (d.n - 12) + ' autres métiers</button></div>' : '') + '</div>';
+  }
+  var sigles = MET.filter(function (m) { return m.sig.length; });
+  return fil(['Par un métier']) + '<div class="titre-page">Chercher un métier</div>' + btnRevoir() +
+    '<div class="bloc"><label for="rech" class="fw-bold mb-1">Le nom d’un métier, un autre nom, un sigle ou un mot</label>' +
+    '<input id="rech" class="form-control" style="min-height:46px" value="' + esc(ETAT.rech) + '" aria-label="Rechercher un métier" autocomplete="off">' +
+    '<p class="mq-note mt-1">Essayez : « AS », « ASH », « CIP », « auxiliaire de vie », « cariste ».</p><div id="resRech">' + htmlResultatsRech() + '</div></div>' +
+    '<details class="bloc-depli-m"><summary>Sigles et abréviations courants (catalogue)</summary><div class="corps"><p class="mq-note">Beaucoup de métiers sont connus par leur sigle. Ce catalogue est à construire (le ROME n’en contient que 2 sur près de 14 000 autres noms) ; il serait relu par Denis.</p>' +
+    sigles.map(function (m) { return '<div class="ligne"><div><b>' + esc(m.sig.join(', ')) + '</b> : ' + esc(m.nom) + '</div><button type="button" class="btn btn-outline-primary" data-fiche="' + esc(m.nom) + '">Voir la fiche</button></div>'; }).join('') + '</div></details>' +
+    '<div class="bloc"><h3>Ou choisissez un secteur</h3><p class="mq-note">Un clic sur un secteur affiche tous ses métiers.</p><div class="secteurs" role="group" aria-label="Secteurs">' +
+    secs.map(function (x) { return '<button type="button" class="btn btn-outline-primary' + (x === s ? ' actif' : '') + '" data-secteur="' + esc(x) + '" aria-pressed="' + (x === s) + '"><span>' + esc(x) + '</span><span class="nb">' + CAT.secteurs[x].n + '</span></button>'; }).join('') + '</div></div>' + h;
+}
+
+/* --- Fiche d'un métier (entrée 1 ou entrée 2) --- */
+function vFiche() {
+  var nom = ETAT.fiche || 'Aide-soignant', m = trouverMet(nom) || { nom: nom, sect: 'Secteur du métier', l: 'SR', sig: [], aut: ['Autre nom du métier', 'Autre appellation'], tags: [], pro: ['Métier proche 1', 'Métier proche 2', 'Métier proche 3'] };
+  var prof = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 }; prof[m.l.charAt(0)] = 95; if (m.l.charAt(1)) { prof[m.l.charAt(1)] = 60; }
+  var depuisActions = ETAT.depuis === 'resultats2';
+  var h = fil([depuisActions ? 'Métiers proposés' : 'Par un métier', 'Fiche']) + '<div class="titre-page">' + esc(m.nom) + '</div>' + btnRevoir() +
+    '<div class="let" style="display:flex;gap:.4rem;align-items:center;margin:.6rem 0;flex-wrap:wrap">' + lettres(m.l) + '<span class="mq-note">Lettres que France Travail donne à ce métier</span> <span class="pill">' + esc(m.sect) + '</span></div>' +
+    '<p class="mq-note">Fiche à lire pour comprendre. Texte d’exemple : le vrai contenu vient de la fiche du ROME déjà dans l’application.</p>';
+  if (depuisActions) {
+    var sel = selection(), N = sel.length, set = {}; sel.forEach(function (s) { set[s.label] = 1; });
+    var got = m.tags.filter(function (t) { return set[t]; });
+    h += '<details class="bloc-depli-m" open><summary>Pourquoi ce métier est proche de vos choix</summary><div class="corps"><p>Ce métier retrouve <b>' + got.length + ' de vos ' + N + ' choix</b> : ' + got.map(function (g) { return '<span class="pill"><i class="bi bi-check2 coche"></i> ' + esc(g) + '</span>'; }).join(' ') + '</p></div></details>';
+  }
+  h += '<details class="bloc-depli-m" open><summary>Ce que fait ce métier</summary><div class="corps">Principales missions du métier, en langage courant (repris de la fiche du ROME).</div></details>' +
+    '<details class="bloc-depli-m"><summary>Compétences</summary><div class="corps">Savoir-faire, savoir-être et savoirs de la fiche du ROME.</div></details>' +
+    '<details class="bloc-depli-m"><summary>Comment y accéder</summary><div class="corps">Formations, titres et conditions d’accès de la fiche du ROME.</div></details>' +
+    condFiche(m) +
+    '<details class="bloc-depli-m" open><summary>Autres noms et sigles de ce métier</summary><div class="corps">' +
+    (m.sig.length ? '<p class="mb-1"><b>Sigles :</b> ' + m.sig.map(function (x) { return '<span class="pill">' + esc(x) + '</span>'; }).join(' ') + '</p>' : '') +
+    '<p class="mb-0"><b>Autres noms :</b> ' + m.aut.map(function (x) { return '<span class="pill">' + esc(x) + '</span>'; }).join(' ') + ' <span class="mq-note">(la fiche réelle en liste jusqu’à plusieurs dizaines)</span></p></div></details>' +
+    '<details class="bloc-depli-m"><summary>Le type d’activités de ce métier (RIASEC)</summary><div class="corps"><div class="hex-zone"><div>' + hexagone(prof, true) + '</div><div><p>Les lettres décrivent le métier, jamais vous. Elles viennent de France Travail.</p></div></div></div></details>' +
+    '<div class="bloc"><h3>Métiers proches de celui-ci</h3><div class="m-grille">' + m.pro.map(function (p) { return '<div class="ligne"><b>' + esc(p) + '</b><button type="button" class="btn btn-outline-primary" data-fiche="' + esc(p) + '">Voir la fiche</button></div>'; }).join('') + '</div></div>' +
+    '<div class="m-carte" style="border:0;padding:0">' + boutonsMetier(m.nom, false) + '</div>';
+  return h;
+}
+
+/* --- Entrée 2 : trois pages de choix --- */
+function vChoix(ecran) {
+  var cle = ECRAN_CHOIX[ecran], P = PAGES_CHOIX[cle], n = nbChoix(cle), plein = n >= P.lim;
+  var groupes = CAT[P.catalogue];
+  return fil(['Par ce que vous aimez faire', 'Page ' + P.n + ' sur 4']) + '<div class="etapes" style="grid-template-columns:repeat(4,1fr)" aria-label="Page ' + P.n + ' sur 4">' + [1, 2, 3, 4].map(function (k) { return '<span class="' + (k < P.n ? 'fait' : (k === P.n ? 'en-cours' : '')) + '"></span>'; }).join('') + '</div>' +
+    '<div class="titre-page" style="font-size:var(--t-tres-grand,1.5rem)">' + P.titre + '</div>' + btnRevoir() +
+    '<p class="mt-2">' + P.consigne + '</p>' +
+    '<div class="bandeau-choix" role="status"><div><span class="n">' + n + '</span> choix sur <b>' + P.lim + '</b> au maximum</div>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" data-vider="' + cle + '"' + (n ? '' : ' disabled') + '><i class="bi bi-x-circle"></i> Tout désélectionner</button></div>' +
+    (plein ? '<div class="encart warn"><i class="bi bi-info-circle"></i><p>Vous avez atteint le maximum de ' + P.lim + ' choix. Retirez-en un pour en ajouter un autre.</p></div>' : '') +
+    groupes.map(function (g) {
+      var nbg = g[1].filter(function (l) { return ETAT.choix[cle][l]; }).length;
+      return '<div class="bloc"><h3>' + esc(g[0]) + ' <span class="pill">' + nbg + ' choisi' + (nbg > 1 ? 's' : '') + ' sur ' + g[1].length + '</span></h3><p class="mq-note">' + esc(EXPL[g[0]] || '') + '</p><div class="jetons-ligne" role="group" aria-label="' + esc(g[0]) + '">' +
+        g[1].map(function (l) { var on = !!ETAT.choix[cle][l]; return '<button type="button" class="jeton' + (on ? ' is-actif' : '') + '" data-choix="' + cle + '|' + esc(l) + '" aria-pressed="' + on + '"' + (plein && !on ? ' disabled' : '') + '>' + esc(l) + '</button>'; }).join('') + '</div></div>';
+    }).join('');
+}
+
+/* --- Entrée 2 : métiers proposés --- */
+function evaluer(m, sel) {
+  var set = {}; sel.forEach(function (s) { set[s.label] = 1; });
+  var got = m.tags.filter(function (t) { return set[t]; });
+  var plafond = Math.min(sel.length, m.tags.length);
+  var pct = ETAT.score === 'simple' ? Math.round(100 * got.length / (sel.length || 1)) : (plafond ? Math.round(100 * got.length / plafond) : 0);
+  return { m: m, got: got, pct: Math.min(100, pct) };
+}
+function carteRes(e, N, premier) {
+  var m = e.m, h = '<div class="m-carte' + (premier ? ' premier' : '') + '"><h4>' + (premier ? '<span class="pill" style="background:var(--accent);color:#fff;border-color:var(--accent)">Première proposition</span> ' : '') + esc(m.nom) + '</h4>' +
+    '<div class="let">' + lettres(m.l) + '<span class="pill">' + esc(m.sect) + '</span></div>' +
+    '<div class="pct" role="img" aria-label="Compatibilité : ' + e.pct + ' pour cent"><span class="mq-note">Compatibilité</span><div class="piste"><span style="width:' + e.pct + '%"></span></div><b>' + e.pct + ' %</b></div>' +
+    '<p class="mq-note mb-0">' + e.got.length + ' de vos ' + N + ' choix retrouvés dans ce métier.</p>' + ligneNiveau(m) + ligneCond(m);
+  if (premier) {
+    var sel = selection(), par = { qui: [], actions: [], env: [] };
+    sel.forEach(function (s) { if (e.got.indexOf(s.label) !== -1) { par[s.type].push(s.label); } });
+    var manque = m.tags.filter(function (t) { return e.got.indexOf(t) === -1; });
+    var ligne = function (ic, titre, liste) { return liste.length ? '<p class="mb-1"><i class="bi ' + ic + ' coche"></i> <b>' + titre + ' :</b> ' + liste.map(function (x) { return '<span class="pill">' + esc(x) + '</span>'; }).join(' ') + '</p>' : ''; };
+    h += '<div class="encart" style="margin:.3rem 0"><i class="bi bi-lightbulb"></i><div><p><b>Pourquoi ce métier vous est proposé.</b> Il réunit ' + e.got.length + ' de vos ' + N + ' choix.</p>' +
+      ligne('bi-people', 'Avec qui ou quoi', par.qui) + ligne('bi-hammer', 'Ce que vous aimeriez faire', par.actions) + ligne('bi-geo-alt', 'Où', par.env) +
+      (manque.length ? '<p class="mb-0 mq-note">Ce métier demande aussi : ' + manque.slice(0, 4).map(function (x) { return esc(x); }).join(', ') + '. Vous ne l’avez pas choisi, mais vous pouvez le découvrir dans la fiche.</p>' : '') + '</div></div>' +
+      (ETAT.proches[m.nom] ? '<div class="bloc" style="margin:.3rem 0"><b>Métiers proches de « ' + esc(m.nom) + ' »</b><div class="m-grille mt-2">' + m.pro.map(function (p) { return '<div class="ligne"><b>' + esc(p) + '</b><button type="button" class="btn btn-outline-primary" data-fiche="' + esc(p) + '">Voir la fiche</button></div>'; }).join('') + '</div></div>' : '') +
+      '<button type="button" class="btn btn-outline-primary" data-proches="' + esc(m.nom) + '"><i class="bi bi-diagram-3"></i> ' + (ETAT.proches[m.nom] ? 'Masquer les métiers proches' : 'Voir les métiers proches de celui-ci') + '</button>';
+  }
+  return h + boutonsMetier(m.nom, true) + '</div>';
+}
+function blocGarder() {
+  return '<div class="bloc"><h3>Garder mes pistes</h3><p>Pour retrouver vos choix et ces métiers plus tard, ou pour en parler avec un conseiller, gardez-les dans la disquette de l’application. Sans cela, rien n’est conservé.</p><button type="button" class="btn btn-outline-primary" style="min-height:46px"><i class="bi bi-save"></i> Garder mon résultat</button></div>';
+}
+function vResultats2() {
+  echantillonSiVide();
+  var sel = selection(), N = sel.length;
+  var evals = MET.map(function (m) { return evaluer(m, sel); }).filter(function (e) { return e.got.length > 0 && !(ETAT.cacher['1'] && demande(e.m).length); }).sort(function (a, b) { return b.pct - a.pct || b.got.length - a.got.length; });
+  var premier = evals[0] || null; if (!premier) { return fil(['Par ce que vous aimez faire', 'Vos métiers']) + '<div class="encart warn"><i class="bi bi-info-circle"></i><p>Aucun métier ne reste avec ces réglages. Montrez de nouveau les métiers masqués ou modifiez vos choix.</p></div>' + blocCondResultat(); }
+  var reste = evals.slice(1), vus = ETAT.plusRes ? reste : reste.slice(0, 6);
+  return fil(['Par ce que vous aimez faire', 'Vos métiers']) + '<div class="titre-page">Des métiers qui ressemblent à vos choix</div>' + btnRevoir() +
+    '<div class="encart"><i class="bi bi-compass"></i><p>Ces métiers viennent <b>uniquement de ce que vous avez choisi</b> (' + N + ' choix). Ce sont des pistes à explorer, pas une réponse unique. Le pourcentage montre à quel point un métier retrouve vos choix.</p></div>' +
+    '<div class="bloc"><h3>Vos choix</h3><p class="mb-2">' + selection().map(function (s) { return '<span class="pill">' + esc(s.label) + '</span>'; }).join(' ') + '</p>' +
+    '<div style="display:flex;gap:.4rem;flex-wrap:wrap"><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions1">Modifier avec qui ou quoi</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions2">Modifier ce que je fais</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions3">Modifier où</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions4">Modifier mes conditions</button></div></div>' + blocCondResultat() +
+    '<div class="m-grille">' + carteRes(premier, N, true) + '</div>' +
+    '<div class="bloc"><h3>Les autres métiers qui retrouvent le plus de vos choix</h3><div class="m-grille">' + vus.map(function (e) { return carteRes(e, N, false); }).join('') + '</div>' +
+    (!ETAT.plusRes && reste.length > 6 ? '<div style="text-align:center;margin-top:.7rem"><button type="button" class="btn btn-outline-secondary" data-plus="1"><i class="bi bi-chevron-down"></i> Voir les autres</button></div>' : '') + '</div>' + blocGarder();
+}
+
+/* --- Entrée 3 : questionnaire --- */
+function vQIntro() {
+  return fil(['Questionnaire d’intérêts']) + '<div class="titre-page">Questionnaire d’intérêts</div>' + btnRevoir() +
+    '<div class="bloc"><div class="hex-zone"><div>' + hexagone(null, true) + '</div><div>' +
+    '<h2>Six façons d’aimer travailler</h2><p>Ce questionnaire repose sur le modèle du psychologue John Holland. Il classe les <b>métiers</b> en six types, selon l’activité qui y tient le plus de place. Les types opposés sont face à face sur l’hexagone : on les aime rarement tous les deux au même degré.</p>' +
+    '<p class="mq-note">Réaliste face à Social, Investigateur face à Entreprenant, Artistique face à Conventionnel.</p></div></div></div>' +
+    '<div class="encart"><i class="bi bi-building"></i><p><b>Ce n’est pas une invention de l’application.</b> France Travail donne à chaque métier du ROME une ou deux de ces lettres. Ici, ce questionnaire vous aide à trouver vos propres lettres pour retrouver des métiers qui leur ressemblent.</p></div>' +
+    '<div class="bloc"><h3>Comment ça se passe</h3><ol><li><b>Quatre parties</b> : ce que vous aimez faire, les métiers qui pourraient vous plaire, ce que vous sentez savoir faire, votre façon d’agir.</li><li>Vous répondez en cliquant, environ <b>10 minutes par partie</b>.</li><li>Votre résultat s’affiche une seule fois, à la fin des quatre parties : rien n’est montré avant, pour que vos réponses ne soient pas influencées. Vous pouvez vous arrêter quand vous voulez.</li></ol></div>' +
+    '<div class="bloc"><h3>Ce que ce questionnaire n’est pas</h3><p>Ce n’est pas un test de capacités, ni un verdict, ni une étiquette. Ce que vous cochez décrit vos goûts d’aujourd’hui : ils peuvent changer avec l’expérience. Rien n’est obligatoire.</p></div>' +
+    '<div class="encart"><i class="bi bi-save"></i><p><b>Rien n’est conservé sans votre accord.</b> Si vous fermez la page, vos réponses sont perdues : la disquette de l’application garde votre résultat.</p></div>';
+}
+function lignesQ(partie) {
+  var p = PARTIES[partie - 1], h = '', items = p.items;
+  if (partie === 4 && ETAT.p4 === 'origine') { items = P4_ORIGINE; }
+  var noms3 = ETAT.p3 === 'origine' ? P3_ORIGINE : P3_DOUX;
+  items.forEach(function (t, i) {
+    var cle = partie + '-' + i, v = ETAT.rep[cle], rep = '';
+    if (p.type === 'trois') {
+      rep = noms3.map(function (nom, k) { return '<button type="button" class="btn btn-outline-primary' + (v === k + 1 ? ' choisi' : '') + '" data-rep="' + cle + '" data-v="' + (k + 1) + '" aria-pressed="' + (v === k + 1) + '">' + nom + '</button>'; }).join('');
+      t = 'Ma capacité à : ' + t.charAt(0).toLowerCase() + t.slice(1).replace(/\.$/, '');
+    } else {
+      rep = ['o', 'n'].map(function (x) { return '<button type="button" class="btn btn-outline-primary' + (v === x ? ' choisi' : '') + '" data-rep="' + cle + '" data-v="' + x + '" aria-pressed="' + (v === x) + '">' + (x === 'o' ? 'Oui' : 'Non') + '</button>'; }).join('');
+    }
+    h += '<div class="q-ligne"><div class="txt">' + esc(t) + '</div><div class="q-rep" role="group" aria-label="Réponse">' + rep + '</div></div>';
+  });
+  return h;
+}
+function vQuestion(n) {
+  var p = PARTIES[n - 1], repondu = 0; for (var i = 0; i < 10; i++) { if (ETAT.rep[n + '-' + i]) { repondu++; } }
+  return fil(['Questionnaire', 'Partie ' + n + ' sur 4']) + '<div class="etapes" style="grid-template-columns:repeat(4,1fr)" aria-label="Partie ' + n + ' sur 4">' + [1, 2, 3, 4].map(function (k) { return '<span class="' + (k < n ? 'fait' : (k === n ? 'en-cours' : '')) + '"></span>'; }).join('') + '</div>' +
+    '<div class="q-compteur"><span><b>Partie ' + n + ' sur 4</b> : ' + p.titre + '</span><span>' + p.page + ' sur ' + p.total + '</span></div>' +
+    '<div class="titre-page" style="font-size:var(--t-tres-grand,1.5rem)">' + p.titre + '</div>' +
+    '<div class="encart"><i class="bi bi-info-circle"></i><p>' + p.consigne + '</p></div>' + lignesQ(n) +
+    '<p class="q-reste">' + (repondu < 10 ? (10 - repondu) + ' énoncé' + (10 - repondu > 1 ? 's' : '') + ' sans réponse sur cette page : ' + (p.type === 'trois' ? 'ils ne compteront pas.' : 'ils compteront comme « Non ».') : 'Page complète.') + '</p>';
+}
+function vFin1() {
+  var n = ETAT.partieFinie || 1, reste = 4 - n;
+  return fil(['Questionnaire', 'Partie ' + n + ' sur 4 terminée']) + '<div class="etapes" style="grid-template-columns:repeat(4,1fr)">' + [1, 2, 3, 4].map(function (k) { return '<span class="' + (k <= n ? 'fait' : '') + '"></span>'; }).join('') + '</div>' +
+    '<div class="titre-page" style="font-size:var(--t-tres-grand,1.5rem)">Partie ' + n + ' terminée</div>' +
+    '<div class="bloc"><h3>Vous avez répondu aux questions de cette partie</h3><p class="mb-1">Il reste ' + reste + ' partie' + (reste > 1 ? 's' : '') + ', d’environ 10 minutes chacune.</p></div>' +
+    '<div class="encart"><i class="bi bi-hourglass-split"></i><p><b>Pas de résultat pour l’instant.</b> Votre résultat s’affichera une seule fois, quand les quatre parties seront terminées. Rien n’est montré avant, pour que vos réponses restent libres et ne soient pas influencées.</p></div>' +
+    '<p class="mq-note">Si vous vous arrêtez ici, aucun résultat ne sera affiché ni conservé.</p>';
+}
+function vResultat() {
+  var t = top3();
+  var barres = ORDRE.map(function (l) {
+    var v = PROFIL[l], mot = v >= 70 ? 'Beaucoup' : (v >= 40 ? 'Moyennement' : 'Un peu');
+    return '<div class="barre-l ri-' + l + (t.indexOf(l) >= 0 ? ' haut' : '') + '">' + past(l) + '<div class="piste" role="img" aria-label="' + NOMS[l] + ' : ' + mot.toLowerCase() + '"><span style="width:' + v + '%"></span></div><div class="nom">' + NOMS[l] + '</div></div>';
+  }).join('');
+  var ff = OPPOSES.map(function (o) {
+    var d = PROFIL[o.b] - PROFIL[o.a], pos = Math.max(6, Math.min(94, 50 + d / 2));
+    var phrase = Math.abs(d) < 12 ? 'Vos réponses sont équilibrées entre les deux : vous pouvez aimer l’un comme l’autre.' : 'Vos réponses penchent ' + (Math.abs(d) > 35 ? 'nettement' : 'un peu') + ' du côté « ' + (d > 0 ? o.gb : o.ga) + ' ».';
+    return '<div class="ff"><div class="ff-tete"><span class="cote">' + past(o.a) + NOMS[o.a] + '</span><span class="cote">' + NOMS[o.b] + past(o.b) + '</span></div>' +
+      '<div class="ff-piste" style="--g:var(--ri-' + o.a + ');--d:var(--ri-' + o.b + ')" role="img" aria-label="' + NOMS[o.a] + ' contre ' + NOMS[o.b] + '"><i style="left:' + pos + '%"></i></div><p>' + phrase + '</p></div>';
+  }).join('');
+  var texte = {
+    S: 'Vous aimez aider, écouter, expliquer et travailler avec les autres. Les métiers d’accompagnement, d’éducation, de soin ou d’accueil partent souvent de ce goût.',
+    A: 'Vous aimez créer, imaginer et vous exprimer à votre façon. Écriture, image, musique, décoration, mode : beaucoup de métiers laissent de la place à cette envie.',
+    I: 'Vous aimez comprendre, chercher et analyser. Sciences, santé, informatique, enquêtes : ces métiers demandent de la curiosité.'
+  };
+  var metiers = [MET[4], MET[5], MET[14], MET[0], MET[2], MET[7]];
+  return fil(['Questionnaire', 'Votre résultat']) + '<div class="etapes" style="grid-template-columns:repeat(4,1fr)"><span class="fait"></span><span class="fait"></span><span class="fait"></span><span class="fait"></span></div>' +
+    '<div class="titre-page">Votre résultat</div>' +
+    '<div class="encart"><i class="bi bi-compass"></i><p>Voici ce que vos réponses mettent en avant <b>aujourd’hui</b> (questionnaire passé le 16/11/2026). Ce n’est ni un verdict ni une étiquette : c’est un point de départ pour explorer. Tout le monde a un peu de chaque lettre, et elles évoluent avec l’expérience.</p></div>' +
+    '<div class="bloc"><h2>Vos trois lettres</h2><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">' + t.map(function (l) { return '<div style="display:flex;gap:.4rem;align-items:center">' + past(l, true) + '<b>' + NOMS[l] + '</b></div>'; }).join('') + '</div></div>' +
+    '<div class="bloc"><div class="hex-zone"><div>' + hexagone(PROFIL, true) + '</div><div><h2>Vos réponses sur l’hexagone</h2><div role="group" aria-label="Vos six lettres">' + barres + '</div></div></div></div>' +
+    '<div class="bloc"><h2>Les types face à face</h2><p class="mq-note">Sur l’hexagone, chaque type a son opposé. Voici de quel côté penchent vos réponses.</p>' + ff + '</div>' +
+    '<div class="bloc"><h2>Ce que veulent dire vos lettres</h2>' + fichesLettres(t, true) + '</div>' +
+    '<div class="bloc"><h2>Des métiers qui partagent vos lettres</h2>' +
+    '<div class="encart"><i class="bi bi-building"></i><p>France Travail donne à chaque métier du ROME une ou deux lettres. Ces métiers portent les vôtres : ce sont des pistes qui ressemblent à ce que vous aimez, pas une liste de métiers « faits pour vous ».</p></div>' +
+    '<div class="m-grille">' + metiers.map(function (m) { return '<div class="m-carte"><h4>' + esc(m.nom) + '</h4><div class="let">' + lettres(m.l) + '<span class="pill">' + esc(m.sect) + '</span></div>' + boutonsMetier(m.nom, true) + '</div>'; }).join('') + '</div></div>' +
+    '<div class="encart"><i class="bi bi-people"></i><p>Parler de ce résultat avec un conseiller ou un professionnel complète utilement cette exploration.</p></div>' +
+    '<div class="bloc"><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button type="button" class="btn btn-outline-primary" style="min-height:46px"><i class="bi bi-save"></i> Garder mon résultat</button><button type="button" class="btn btn-recommencer" style="min-height:46px" data-go="q-intro"><i class="bi bi-arrow-counterclockwise"></i> Refaire le questionnaire</button></div></div>';
+}
+var VUES = { accueil: vAccueil, intro: vIntro, metier: vMetier, fiche: vFiche, actions1: function () { return vChoix('actions1'); }, actions2: function () { return vChoix('actions2'); }, actions3: function () { return vChoix('actions3'); }, actions4: vConditions, resultats2: vResultats2, 'q-intro': vQIntro, q1: function () { return vQuestion(1); }, q2: function () { return vQuestion(2); }, q3: function () { return vQuestion(3); }, q4: function () { return vQuestion(4); }, fin1: vFin1, resultat: vResultat };
+
+/* ===== Barre du bas : la vraie barre de l'application (barreNavigation, js/app.js), mêmes classes ===== */
+function barreBas() {
+  var e = ETAT.ecran, retour = null, suite = null, desactive = null;
+  var retourFiche = ETAT.depuis;
+  var R = { intro: 'accueil', metier: 'intro', fiche: retourFiche, actions1: 'intro', actions2: 'actions1', actions3: 'actions2', actions4: 'actions3', resultats2: 'actions4', 'q-intro': 'intro', q1: 'q-intro', q2: 'q1', q3: 'q2', q4: 'q3', fin1: 'q1', resultat: 'q4' };
+  var S = { actions1: 'actions2', actions2: 'actions3', actions3: 'actions4', actions4: 'resultats2', q1: 'fin1', q2: 'fin1', q3: 'fin1', q4: 'resultat' };
+  retour = R[e] || null; suite = S[e] || null;
+  if (e === 'fin1') { retour = 'q' + (ETAT.partieFinie || 1); suite = 'q' + ((ETAT.partieFinie || 1) + 1); }
+  if (ECRAN_CHOIX[e] && nbChoix(ECRAN_CHOIX[e]) === 0) { desactive = 'Choisissez au moins un élément pour continuer.'; }
+  var h = '<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation">';
+  h += retour ? '<button class="btn btn-nav-erip btn-lg" data-go="' + retour + '">&#8592; Retour</button>' : '<span></span>';
+  h += '<button class="btn btn-nav-erip btn-accueil" data-go="accueil"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>';
+  if (suite) {
+    h += '<button class="btn btn-primary btn-lg"' + (desactive ? ' disabled title="' + desactive + '"' : ' data-go="' + suite + '"') + '>' + (e === 'q4' ? 'Voir mon résultat' : 'Continuer') + ' &#8594;</button>' + (desactive ? '<span class="barre-raison-suivant" role="status">' + desactive + '</span>' : '');
+  } else { h += '<span></span>'; }
+  return h + '</div></div>';
+}
+
+var RETIENT = {
+  accueil: ['Décision de Denis : le module va dans la carte « Vous hésitez encore ? ».', 'Le module reste FERMÉ au public : le bouton n’apparaît pas tant que l’interrupteur est fermé.'],
+  intro: ['Page de présentation selon le patron commun, avec une section « Le RIASEC, c’est quoi ? » qui dit ce que le module fait et que le modèle n’est pas inventé par l’application.', 'La barre du bas est la vraie barre de l’application (Retour, Accueil, Continuer), même code.'],
+  metier: ['Recherche par nom, autre nom, sigle ou mot, comme la barre de l’accueil. Les 13 852 autres noms du ROME sont déjà dans les fiches. Les sigles (AS, ASH, CIP…) sont presque absents du ROME (2 seulement) : il faut un petit catalogue de sigles, à écrire et à faire relire par Denis (tâche ajoutée).', 'Un clic sur un secteur affiche TOUS ses métiers (aujourd’hui l’application n’en montre que 3 en exemple) : les 20 secteurs et leurs nombres sont réels.', 'Les 12 métiers montrés par secteur sont les 12 premiers par ordre alphabétique : données réelles.'],
+  fiche: ['Fiche à lire pour comprendre, jamais pour choisir. Section « Autres noms et sigles » ajoutée. Les lettres RIASEC et « Comparer cette piste » sont les deux informations clés.', 'Depuis l’entrée 2, la fiche ajoute « Pourquoi ce métier est proche de vos choix ».', 'Métiers proches : champ `p` des fiches du ROME (déjà là).'],
+  actions1: ['Trois pages (pas une) : chaque page détaille ses sous-catégories et les explique (explications nouvelles, à relire par Denis). Les listes sont les vraies (34 choix « avec qui ou quoi »).', 'Maximum affiché (16), nombre de choix, « Tout désélectionner », avertissement au maximum, au moins un choix pour continuer (le « Continuer » est grisé avec sa raison, comme dans l’application).'],
+  actions2: ['Huit familles d’actions, chacune expliquée en une phrase. Maximum 16, comme dans la création du CV.'],
+  actions3: ['Quatre familles de lieux. Maximum 12. Le dernier « Continuer » mène aux métiers proposés.'],
+  resultats2: ['Les métiers viennent UNIQUEMENT des choix de la personne. Première proposition mise en avant, avec le pourcentage et « x de vos N choix retrouvés ».', 'Pourcentage : une fiche de métier ne porte que 5 à 9 choix, donc un pourcentage « part de vos choix » plafonne bas (jamais 100 % avec 10 choix). Réglage ci-dessus : le plafond tient compte de la taille de la fiche (recommandé) ou la part simple de vos choix.', 'Interprétation plus riche : choix retrouvés rangés par famille, ce que le métier demande en plus, métiers proches. Puis tous les métiers à score élevé, six puis « Voir les autres ».', 'Ce pourcentage est une troisième définition (la liste des métiers proches d’un CV en a une autre) : il faudra l’appeler autrement dans le code (« Compatibilité avec vos choix ») pour ne pas mélanger.'],
+  'q-intro': ['L’hexagone est dessiné en SVG (couleurs et mode sombre de l’application). Les types opposés sont face à face, reliés par un trait pointillé.', 'Origine dite clairement : lettres données par France Travail aux métiers du ROME.', 'Facultatif, quatre parties, rien n’est conservé sans accord.'],
+  q1: ['Même méthode que celle en usage depuis 40 ans : « Oui » ou « Non » pour chaque énoncé. 90 énoncés, 9 pages de 10, lettres mélangées sur chaque page.', 'Un énoncé sans réponse compte comme « Non » : la page n’est jamais bloquée.'],
+  q2: ['Partie 2 : 90 métiers. À trancher (point 4) : les métiers viennent de la base du ROME plutôt que de la liste du polycopié, datée.'],
+  q3: ['Partie 3 : 60 énoncés, trois réponses. À trancher (point 2) : mots doux ou d’origine (réglage ci-dessus).', 'Chaque partie est ramenée en pourcentage de son maximum avant d’être additionnée.'],
+  q4: ['Partie 4 : 60 phrases. À trancher (point 1) : adoucies ou proches de l’original (réglage ci-dessus). Aucun portrait n’est produit à partir de cette partie.'],
+  fin1: ['Résultat provisoire à la fin de chaque partie. La personne continue, voit son résultat ou s’arrête. Rien n’est conservé : la disquette garde le résultat.'],
+  resultat: ['Un score par lettre (barres), jamais une note sur 100 ni un classement de personnes.', 'Face à face : de quel côté penchent les réponses sur chaque paire d’opposés, en phrases de préférence.', 'Interprétations : celles du polycopié jugées bonnes par Denis, reformulées et adoucies.', 'Métiers : lettres `ri` du ROME. « Garder mon résultat » et « Refaire le questionnaire » sont dans la page, pas dans la barre du bas.']
+};
+
+/* Textes « ce que cet écran retient » mis à jour le 16/11/2026 (retours de Denis) */
+RETIENT.intro = ['Page de présentation selon le patron commun, avec « Le RIASEC, c’est quoi ? » et les six types en détail (mots à nous, d’après le modèle de Holland : en bref, ce qui attire, points forts, ce qui demande parfois un peu d’attention, univers de travail, métiers fréquents).', 'Les parties du polycopié écrites pour des responsables qui dirigent des équipes (comment les diriger, déléguer) ne sont PAS reprises : elles ne concernent pas notre public.', 'La barre du bas est la vraie barre de l’application.'];
+RETIENT.fiche = ['Les trois boutons (France Travail, Repère, Comparer) tiennent sur UNE ligne, jamais en pleine largeur (retour de Denis 16/11/2026).', 'Les conditions de travail de la fiche viennent de data/conditionsRome.js (déjà dans l’application).', 'Depuis l’entrée 2, la fiche ajoute « Pourquoi ce métier est proche de vos choix ».'];
+RETIENT.actions3 = ['Quatre familles de lieux. Maximum 12. Le « Continuer » mène maintenant à la page des conditions de travail (nouveau).'];
+RETIENT.actions4 = ['NOUVEAU, à valider : une quatrième page « Ce qui serait difficile pour vous ». Les 11 conditions viennent des libellés réels du ROME déjà dans l’application ; les lieux (extérieur, domicile, public) ne sont pas répétés.', 'Les conditions NE CHANGENT PAS le pourcentage : le pourcentage dit « ce métier ressemble à ce que vous aimez ». Les conditions disent « attention, ce métier peut demander ce qui serait difficile pour vous ». Mélanger les deux ferait baisser un métier qui vous plaît sans que vous sachiez pourquoi.', 'Page à compléter, jamais obligatoire : le « Continuer » reste actif sans rien choisir.', 'Cela change la décision du 12/11/2026 (conditions « jamais demandées, jamais comptées ») : à confirmer par Denis.'];
+RETIENT.resultats2 = ['Les métiers viennent UNIQUEMENT des choix de la personne (pages 1 à 3). Première proposition mise en avant, avec le pourcentage, « x de vos N choix retrouvés », l’interprétation, ce que le métier demande en plus et ses métiers proches.', 'POURCENTAGE : pas de nouveau calcul. Le moteur qui existe déjà (consigne 410, « Métiers qui pourraient vous intéresser ») est réutilisé tel quel, alimenté par les pages 1 à 3 : choix rares plus pesants, couverture et précision, un point en moins par choix absent de la fiche, 100 % atteignable. Les chiffres de cette maquette sont des EXEMPLES ; les chiffres réels mesurés sont dans le fichier du chantier.', 'Nouveau : chaque carte indique le niveau d’accès (diplôme) et, si la personne a rempli la page 4, un « À vérifier » avec les conditions qui peuvent poser problème. Un bouton permet de masquer ces métiers.'];
+RETIENT.fin1 = ['PAS DE RÉSULTAT en cours de questionnaire (décision de Denis 16/11/2026) : ni provisoire, ni partiel. Le résultat n’apparaît qu’une fois, à la fin des quatre parties, pour ne pas influencer les réponses suivantes.', 'Cet écran dit seulement que la partie est terminée et combien il en reste. Si la personne s’arrête, aucun résultat n’est affiché ni conservé.'];
+RETIENT.resultat = ['Un score par lettre (barres), jamais une note sur 100 ni un classement de personnes.', 'Face à face : de quel côté penchent les réponses sur chaque paire d’opposés, en phrases de préférence.', 'Explication de chacune des trois lettres : en bref, ce qui attire, points forts, ce qui demande un peu d’attention, univers, métiers (mots à nous, tendances de groupe, pas un portrait).', 'Métiers : lettres `ri` du ROME. « Garder mon résultat » et « Refaire le questionnaire » sont dans la page, pas dans la barre du bas.'];
+RETIENT['q-intro'] = ['L’hexagone est dessiné en SVG (couleurs et mode sombre de l’application). Les types opposés sont face à face, reliés par un trait pointillé.', 'Origine dite clairement : lettres données par France Travail aux métiers du ROME.', 'Le résultat s’affiche une seule fois, à la fin : rien n’est montré avant. Rien n’est conservé sans accord.'];
+
+RETIENT.resultats2.push('Nouveau : « Garder mon résultat » (disquette) aussi à la fin de l’entrée 2. Décision de Denis 16/11/2026 : on garde le RÉSULTAT FINAL avec les métiers proposés, jamais l’avancement en cours de route (tout ou rien).');
+RETIENT.resultat.push('Le résultat gardé dans la disquette servira plus tard à une synthèse réunissant tous les tests (chantier à part, voir le fichier du chantier).');
+/* ===== Rendu et événements ===== */
+function rendre() {
+  var page = document.getElementById('mqPage');
+  page.className = 'mq-page' + (ETAT.taille === 'tel' ? ' tel' : '');
+  page.innerHTML = VUES[ETAT.ecran]();
+  document.getElementById('mqBas').innerHTML = barreBas();
+  document.getElementById('mqEcran').value = ETAT.ecran;
+  var r = RETIENT[ETAT.ecran] || [];
+  document.getElementById('mqRetient').innerHTML = '<b>Ce que cet écran retient</b>' + r.map(function (x) { return '<p>' + x.replace(/`([^`]+)`/g, '<code>$1</code>') + '</p>'; }).join('');
+  document.getElementById('mqVar').innerHTML = [
+    ['p3', 'doux', 'Partie 3 : mots doux', 'origine', 'Partie 3 : faible, moyen, fort'],
+    ['p4', 'doux', 'Partie 4 : phrases adoucies', 'origine', 'Partie 4 : proches de l’original']
+  ].map(function (c) {
+    return '<button type="button" class="btn btn-sm ' + (ETAT[c[0]] === c[1] ? 'btn-primary' : 'btn-outline-primary') + '" data-var="' + c[0] + '" data-val="' + c[1] + '">' + c[2] + '</button>' +
+      '<button type="button" class="btn btn-sm ' + (ETAT[c[0]] === c[3] ? 'btn-primary' : 'btn-outline-primary') + '" data-var="' + c[0] + '" data-val="' + c[3] + '">' + c[4] + '</button>';
+  }).join('');
+  var rech = document.getElementById('rech');
+  if (rech) { rech.addEventListener('input', function () { ETAT.rech = rech.value; document.getElementById('resRech').innerHTML = htmlResultatsRech(); }); }
+  var fs = document.getElementById('filtreSecteur');
+  if (fs) { fs.addEventListener('input', function () { ETAT.filtreSecteur = fs.value; var pos = fs.selectionStart; rendre(); var n = document.getElementById('filtreSecteur'); n.focus(); n.setSelectionRange(pos, pos); }); }
+}
+function aller(e) { var m = /^q([1-3])$/.exec(ETAT.ecran); if (e === 'fin1' && m) { ETAT.partieFinie = parseInt(m[1], 10); } ETAT.ecran = e; if (e === 'metier' || e === 'resultats2') { ETAT.depuis = e; } rendre(); window.scrollTo(0, 0); }
+(function init() {
+  var s = document.getElementById('mqEcran');
+  s.innerHTML = ECRANS.map(function (e) { return '<option value="' + e[0] + '">' + e[1] + '</option>'; }).join('');
+  s.addEventListener('change', function () { aller(s.value); });
+  document.getElementById('mqLarge').onclick = function () { ETAT.taille = 'large'; rendre(); };
+  document.getElementById('mqTel').onclick = function () { ETAT.taille = 'tel'; rendre(); };
+  document.getElementById('mqZero').onclick = function () { ETAT.choix = { qui: {}, actions: {}, env: {}, cond: {} }; ETAT.rep = {}; ETAT.reperes = {}; ETAT.compar = {}; ETAT.proches = {}; ETAT.cacher = {}; ETAT.partieFinie = 1; ETAT.secteur = null; ETAT.plusRes = false; ETAT.rech = 'AS'; ETAT.fiche = null; rendre(); };
+  document.getElementById('mqTheme').onclick = function () {
+    var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+    if (sombre) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); }
+    this.textContent = sombre ? 'Mode sombre' : 'Mode clair';
+  };
+  document.getElementById('mqFermer').onclick = function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'inline-block'; };
+  document.getElementById('mqRouvrir').onclick = function () { document.getElementById('mqRegl').style.display = ''; this.style.display = 'none'; };
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest('[data-go],[data-rep],[data-var],[data-secteur],[data-choix],[data-bascule],[data-fiche],[data-vider],[data-plus],[data-proches]');
+    if (!el || el.disabled) { return; }
+    var y = window.scrollY;
+    var d = el.dataset;
+    if (d.go) { aller(d.go); return; }
+    if (d.fiche) { ETAT.fiche = d.fiche; ETAT.depuis = (ETAT.ecran === 'resultats2' || ETAT.ecran === 'metier') ? ETAT.ecran : ETAT.depuis; if (ETAT.ecran === 'fiche') { rendre(); window.scrollTo(0, 0); return; } aller('fiche'); return; }
+    if (d.rep) { var v = d.v; ETAT.rep[d.rep] = (v === 'o' || v === 'n') ? v : parseInt(v, 10); }
+    else if (d.var) { ETAT[d.var] = d.val; }
+    else if (d.secteur) { ETAT.secteur = (ETAT.secteur === d.secteur) ? null : d.secteur; ETAT.filtreSecteur = ''; }
+    else if (d.choix) { var p = d.choix.split('|'), c = p.shift(), l = p.join('|'); ETAT.choix[c][l] = !ETAT.choix[c][l]; }
+    else if (d.vider) { ETAT.choix[d.vider] = {}; }
+    else if (d.plus) { ETAT.plusRes = true; }
+    else if (d.proches) { ETAT.proches[d.proches] = !ETAT.proches[d.proches]; }
+    else if (d.bascule) { ETAT[d.bascule][d.nom] = !ETAT[d.bascule][d.nom]; }
+    rendre(); window.scrollTo(0, y);
+  });
+  rendre();
+})();
+</script>
+</body>
+</html>

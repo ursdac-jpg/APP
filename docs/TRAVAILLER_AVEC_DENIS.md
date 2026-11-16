@@ -164,6 +164,15 @@ Cinq gestes, à faire pendant le travail, jamais « plus tard » :
 
 Une tâche n'est pas finie tant que ses fichiers de suivi ne sont pas à jour.
 
+## Toute fiche et tout changement législatif doivent apparaître dans les Nouveautés (décision de Denis, 16/11/2026, très important)
+
+Dès qu'une fiche de « Comprendre le cadre » est **créée** ou **mise à jour**, et dès qu'un **changement législatif** est répertorié, il doit apparaître dans la page Nouveautés, entrée « Droits et règles : ce qui change ». Ce n'est jamais optionnel.
+
+- **Fiches** : le bloc « Dans les fiches » lit `modules/comprendre-le-cadre/donnees/fiches-recentes.json`, généré (`node scripts/genererFichesRecentes.js`) depuis `outils/journal_modifications.txt`. L'outil de veille écrit au journal toute fiche créée (« ajoutée ») ou changée (« modifiée »). Une fiche écrite hors de l'outil exige sa ligne `cadre` au journal à la main, puis la régénération du fichier, dans le même commit.
+- **Changements législatifs** : ils passent par le sas des changements puis les fichiers `contenu/balayage/AAAA-MM.md`, que la page lit directement.
+- **Contrôle** : à la fin de toute séance de veille (ou d'édition de fiches), vérifier que `tests/fichesRecentes.test.js` est vert (il refuse une fiche révisée absente du bloc) et regarder le bloc à l'écran. Leçon 9.183, consigne 416.
+- Cette règle ne remplace pas la ligne de `data/nouveautes.js` d'un chantier terminé (voir `CLAUDE.md`) : les deux existent.
+
 ## À chaque décision que Denis prend
 
 Claude répond systématiquement avec : sa recommandation, ses critiques / axes d'amélioration, et les zones d'ombre qui pourraient échapper au raisonnement de Denis. En une ou deux phrases (sauf `[détaillé]`). Jamais un simple "d'accord" sans ce retour.

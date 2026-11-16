@@ -78,3 +78,26 @@ test('aucun tiret long dans ce qui a été écrit', () => {
   const src = fs.readFileSync(path.join(RACINE, 'scripts/genererFichesRecentes.js'), 'utf8');
   assert.ok(!/[–—]/.test(src));
 });
+
+// Consigne 416 (Denis, 16/11/2026) : une fiche créée ou mise à jour doit TOUJOURS apparaître dans « Dans les fiches » (donc dans la page Nouveautés).
+// Garde-fou : toute fiche dont la dernière révision est datée du 15/11/2026 ou après doit figurer dans le fichier généré. Si ce test échoue, la fiche a été écrite
+// sans passer par l'outil de veille (ou le journal a été oublié) : ajouter sa ligne « cadre » au journal, puis node scripts/genererFichesRecentes.js.
+test('toute fiche révisée depuis le 15/11/2026 figure dans « Dans les fiches »', () => {
+  const contenu = path.join(RACINE, 'modules', 'comprendre-le-cadre', 'contenu');
+  const presentes = new Set(JSON.parse(fs.readFileSync(G.SORTIE, 'utf8')).map(function (f) { return f.id; }));
+  const absentes = [];
+  fs.readdirSync(contenu).forEach(function (rayon) {
+    const dossier = path.join(contenu, rayon);
+    if (!fs.statSync(dossier).isDirectory() || rayon === 'balayage' || rayon === 'methode') { return; }
+    fs.readdirSync(dossier).forEach(function (nom) {
+      if (!/\.md$/.test(nom) || /^README\.md$/i.test(nom) || /\.collecte\.md$/.test(nom)) { return; }
+      const texte = fs.readFileSync(path.join(dossier, nom), 'utf8').replace(/\r\n/g, '\n');
+      const bloc = texte.match(/^revisions:\n((?:  - .*\n?)+)/m);
+      if (!bloc) { return; }
+      const dates = Array.from(bloc[1].matchAll(/^  - "?(?:\d{4}-\d{2} : )?(\d{4}-\d{2}-\d{2})/gm)).map(function (m) { return m[1]; }).sort();
+      const derniere = dates[dates.length - 1];
+      if (derniere && derniere >= '2026-11-15' && !presentes.has(nom.replace(/\.md$/, ''))) { absentes.push(nom.replace(/\.md$/, '')); }
+    });
+  });
+  assert.deepStrictEqual(absentes, [], 'fiches absentes du bloc « Dans les fiches » : ' + absentes.join(', '));
+});

@@ -119,6 +119,16 @@ test('retours : une fois traitées, les réponses sont mises de côté (jamais s
   });
 });
 
+test('retours : on peut ne mettre de côté que les réponses citées (celles que Claude a traitées)', () => {
+  essaiJours((d, r) => {
+    r.enregistrer(Object.assign({ id: 'hebdo', reponse: 'a' }, ENTETE));
+    r.enregistrer(Object.assign({ id: 'balayage-2', reponse: 'b' }, ENTETE));
+    const a = r.archiver(['hebdo']);
+    assert.ok(a.ok && a.archivees === 1, a.erreur);
+    assert.deepEqual(r.lister().retours.map((x) => x.id), ['balayage-2'], 'les autres restent dans l\'onglet');
+  });
+});
+
 test('retours : une réponse de plus de 90 jours n\'est pas reprise, mais n\'est pas supprimée', () => {
   essaiJours((d, r, hor) => {
     r.enregistrer(Object.assign({ id: 'reseau', reponse: 'très ancienne' }, ENTETE));

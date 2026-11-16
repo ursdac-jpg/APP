@@ -136,6 +136,8 @@ test('publier : une fiche nouvelle est ecrite, listee dans le README, enregistre
     assert.strictEqual(git(d, 'remote').sortie.trim(), '');
     assert.ok(r.resteAFaire.length === 1 && /Les adresses/.test(r.resteAFaire[0]));
     assert.deepStrictEqual(r.nouvelles, ['emploi-trois']);
+    // Consigne 416 : une fiche créée entre au journal (c'est lui qui alimente « Dans les fiches » et la page Nouveautés).
+    assert.match(fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8'), /\d{4}-\d{2}-\d{2} \d{2}:\d{2} \| cadre \| emploi-trois \| ajoutée \|/);
   } finally { nettoyer(d); }
 });
 
@@ -153,6 +155,10 @@ test('publier : une fiche existante est mise a jour sans toucher au README ; bal
     assert.ok(fs.existsSync(path.join(d, 'modules/comprendre-le-cadre/contenu/balayage/2026-09.md')));
     assert.ok(fs.existsSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/2026-09.md')));
     assert.deepStrictEqual(r.nouvelles, []);
+    // Une fiche existante dont le texte change entre aussi au journal ; les autres types (balayage, chiffres) n'y ajoutent pas de ligne « cadre ».
+    const journalMaj = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
+    assert.match(journalMaj, /\| cadre \| emploi-un \| modifiée \|/);
+    assert.ok(journalMaj.indexOf('| cadre | 2026-09') === -1);
   } finally { nettoyer(d); }
 });
 

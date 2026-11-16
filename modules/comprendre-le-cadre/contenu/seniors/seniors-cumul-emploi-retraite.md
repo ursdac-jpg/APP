@@ -7,7 +7,7 @@ tags: [cumul emploi-retraite, retraite, reprise d'activité, taux plein, seconde
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-11-15
+verifie_le: 2026-11-16
 lexique:
   - terme: "cumul intégral"
     definition: "Possibilité de percevoir sa pension de retraite en entier en même temps qu'un revenu d'activité, sans limite de montant. Il faut avoir liquidé toutes ses retraites et remplir une condition d'âge ou de durée."
@@ -20,14 +20,18 @@ sources:
   - travail-emploi-cumul-emploi-retraite
   - lassuranceretraite
   - service-public-cumul-emploi-retraite-2027
+  - legifrance-decret-2026-1016-cumul-emploi-retraite
+  - legifrance-decret-2026-1017-cumul-emploi-retraite
 ce_qui_change_souvent:
   - "Les conditions du cumul intégral"
   - "Les règles de la seconde pension ouverte par l'activité reprise"
+  - "Le seuil annuel de revenus entre l'âge légal et 67 ans, revalorisé chaque année"
 revisions:
   - "2026-11-03 : relu sur service-public.gouv.fr (actualité du 22/05/2026) : entre l'âge légal et 67 ans, le cumul est possible jusqu'à 7 000 euros bruts par an, au-delà la pension est réduite de la moitié du dépassement ; la page précise que le décret fixant ce montant n'était pas encore publié à cette date"
   - "2026-10 : la loi de financement de la Sécurité sociale pour 2026 change le cumul emploi-retraite pour les retraites qui démarrent à partir du 1er janvier 2027 (l'âge devient le critère principal, plafond entre l'âge légal et 67 ans, cumul libre à partir de 67 ans) ; ceux dont la retraite a démarré avant ne sont pas concernés ; vérifié sur service-public.fr le 2026-10-05"
   - "2026-11-04 : la page Service Public (A18914) confirme les règles à partir du 1er janvier 2027 (l'âge seul compte, déduction avant l'âge légal, seuil de 7 000 euros bruts annoncé et réduction de la moitié du dépassement entre l'âge légal et 67 ans, cumul libre à partir de 67 ans, décret non publié) ; la seconde pension de la réforme de 2023 n'y figure pas (paragraphe retiré)"
-  - "2026-11 : 2026-11-15 : la page Service Public A18914 est datée du 10/11/2026 (relevé de ChatGPT et de Perplexity, page non relue par nous) : le seuil de 7 000 euros bruts par année civile y est donné sans la mention « annoncé » et s'applique aux revenus d'activité et de remplacement ; la phrase « décret non publié » est donc retirée du texte. À VÉRIFIER en ouvrant la page : Perplexity seul cite deux décrets du Journal officiel du 3 novembre 2026 (numéros non donnés) ; ChatGPT seul ajoute une réduction plafonnée à un tiers avant l'âge légal et de nouveaux droits à retraite à partir de 67 ans (non repris ici, sans preuve suffisante)"
+  - "2026-11 : 2026-11-15 : la page Service Public A18914 est datée du 10/11/2026 (relevé de ChatGPT et de Perplexity) : le seuil de 7 000 euros bruts par année civile y est donné sans la mention « annoncé » et s'applique aux revenus d'activité et de remplacement ; la phrase « décret non publié » est donc retirée du texte. Page relue et vérifiée le 16/11/2026 (ligne suivante) : décrets, réduction plafonnée à un tiers et nouveaux droits à partir de 67 ans confirmés."
+  - "2026-11 : 2026-11-16 : page Service Public A18914 (mise à jour le 10/11/2026) ouverte et relue : les deux décrets attendus (2026-1016 et 2026-1017) sont parus au Journal officiel du 3 novembre 2026 ; seuil de 7 000 euros bruts par année civile, revalorisé chaque année comme le plafond de la Sécurité sociale ; avant l'âge légal, déduction dès le premier euro sans réduire la pension de plus d'un tiers ; à partir de 67 ans, cumul libre et nouveaux droits à retraite ; dérogations pour certaines activités ; la réforme ne vise que les premières pensions à partir de 2027"
 phrase_generale: "Le cumul emploi-retraite permet de continuer à travailler, ou de reprendre une activité, après avoir demandé sa retraite, avec des règles différentes selon la situation. Les plafonds, les conditions et les effets sur la pension changent régulièrement : renseignez-vous auprès de votre caisse de retraite ou consultez les sources officielles indiquées plus bas."
 collecte: seniors.collecte.md
 ---
@@ -38,6 +42,16 @@ Deux situations. Si vous avez liquidé toutes vos pensions (de base et compléme
 
 Si ces conditions ne sont pas réunies, le cumul est plafonné : le total de votre pension et de votre salaire ne doit pas dépasser un certain montant. Au-delà, votre pension est réduite d'autant. En pratique, il faut alors souvent attendre un délai avant de reprendre chez le même employeur.
 
-À savoir : ces règles vont changer pour les retraites qui démarrent à partir du 1er janvier 2027. L'âge deviendra le critère principal. Avant l'âge légal, votre revenu d'activité sera déduit de votre pension. Entre l'âge légal et 67 ans, le cumul sera possible tant que vos revenus, d'activité comme de remplacement, ne dépassent pas 7 000 euros bruts par année civile ; au-delà, votre pension sera réduite de la moitié du dépassement. À partir de 67 ans, le cumul sera libre. Si votre retraite a démarré avant 2027, rien ne change pour vous. La page officielle de Service Public a été mise à jour le 10 novembre 2026 : relisez-la, et vérifiez votre cas sur le site de l'Assurance retraite avant de décider de votre date de départ.
+À savoir : ces règles changent pour les personnes qui obtiennent leur première pension de retraite à partir du 1er janvier 2027. Il n'y aura plus de distinction entre cumul intégral et cumul plafonné : seul l'âge compte, avec trois situations.
+
+Avant l'âge minimum légal de départ, votre revenu d'activité (et vos revenus de remplacement, comme les indemnités journalières de maladie) est déduit de votre pension dès le premier euro. Cette déduction se fait progressivement et ne peut pas réduire votre pension de plus d'un tiers.
+
+Entre l'âge légal et 67 ans, vous pouvez cumuler votre pension et vos revenus tant qu'ils ne dépassent pas 7 000 euros bruts par année civile. Ce seuil sera revalorisé chaque année au 1er janvier, comme le plafond de la Sécurité sociale. Au-delà, votre pension est diminuée de la moitié du dépassement.
+
+À partir de 67 ans, le cumul est libre, sans plafond, et les cotisations versées pendant cette activité vous ouvrent de nouveaux droits à retraite.
+
+Certaines activités peuvent déroger à la réduction de pension, notamment celles pour lesquelles il est difficile de recruter et les activités d'intérêt général ou qui participent à un service public. Si vous avez obtenu une retraite avant 2027 et que vous reprenez une activité en 2027, les anciennes règles continuent de s'appliquer.
+
+Les deux décrets qui fixent ces modalités sont parus au Journal officiel du 3 novembre 2026. Vérifiez votre cas sur le site de l'Assurance retraite avant de décider de votre date de départ.
 
 Dans tous les cas, prévenez votre caisse de retraite de votre reprise d'activité. Pour vérifier votre situation exacte, voyez la fiche « Où m'informer sur ma retraite, à qui m'adresser ».

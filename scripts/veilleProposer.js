@@ -147,4 +147,10 @@ function controler(jour) {
 const cmd = process.argv[2] || '';
 if (cmd === 'gabarit') { console.log(GABARIT); }
 else if (cmd === 'controler') { process.exitCode = controler(process.argv[3] || jourDuJour()); }
-else { console.log('Usage : node scripts/veilleProposer.js gabarit | controler [AAAA-MM-JJ]'); process.exitCode = 2; }
+else if (cmd === 'ranger') {
+  // Une fois les réponses traitées : les mettre de côté (outils/retours/_traitees/), comme le bouton de l'onglet, mais seulement celles qu'on cite (sans liste : toutes).
+  const ids = process.argv.slice(3), r = creerRetours(process.env.VEILLE_RACINE || racine).archiver(ids.length ? ids : undefined);
+  console.log(r.ok ? (r.archivees + ' réponse(s) mise(s) de côté' + (r.dossier ? ' dans ' + r.dossier : '') + '.') : r.erreur);
+  process.exitCode = r.ok ? 0 : 1;
+}
+else { console.log('Usage : node scripts/veilleProposer.js gabarit | controler [AAAA-MM-JJ] | ranger [identifiant...]'); process.exitCode = 2; }

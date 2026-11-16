@@ -119,10 +119,11 @@ function creerRetours(racine, opt) {
     return n;
   }
   // Une fois les réponses traitées par Claude : elles sont mises de côté (outils/retours/_traitees/<jour>/), jamais supprimées, et ne reviennent plus dans l'onglet.
-  function archiver() {
+  // `ids` (facultatif) : ne mettre de côté que ces réponses-là (celles que Claude vient de traiter) ; sans liste, toutes (bouton de l'onglet).
+  function archiver(ids) {
     try {
       reporter();
-      const d = dossierDuJour(), l = entrees();
+      const d = dossierDuJour(), l = Array.isArray(ids) ? entrees().filter(function (e) { return ids.indexOf(e.id) !== -1; }) : entrees();
       if (!l.length) { return { ok: true, archivees: 0, retours: [] }; }
       const dest = path.join(base, '_traitees', jourLocal(maintenant()) + '-' + heureLocale(maintenant()).replace(':', 'h'));
       fs.mkdirSync(dest, { recursive: true });
