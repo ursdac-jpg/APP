@@ -4,7 +4,7 @@ Nous sommes le {DATE}. Je cherche des offres en ce moment dans le département s
 Voici les métiers qui m'intéressent, avec mon objectif pour chacun :
 {METIERS}
 
-Je ne suis pas à l'aise avec l'informatique : réponds en français simple, clair et facile à comprendre, sans jargon (explique les sigles et les mots techniques).
+Réponds en français simple, clair et facile à comprendre, sans jargon, pour que tout le monde puisse suivre : explique brièvement les sigles et les mots techniques.
 
 Pour chaque métier, donne le plus d'informations utiles possible :
 - D'ABORD, les offres actuellement publiées pour ce métier dans le département, avec leurs liens et leurs dates, quel que soit mon objectif : une offre publiée est toujours une piste, même pour une candidature spontanée. Cherche-les en premier. Reste dans le département indiqué : ne cite une offre d'un autre département que si tu l'écris clairement. Si une offre semble récente mais que sa date ou son état n'est pas certain, ne l'écarte pas : place-la dans une petite liste « Offres à vérifier » en disant ce qui manque ;

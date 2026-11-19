@@ -44,6 +44,7 @@ revisions:
   - "2026-11 : 2026-11-08 : nouveautés du 30 octobre 2026 ajoutées d'après l'actualité Service-Public du 6 novembre 2026 (délai de décision de la préfecture, changement d'employeur, chômage avec une carte travailleur temporaire, carte bleue européenne) ; texte complet du décret n° 2026-1001 du 26 octobre 2026 (Journal officiel du 29 octobre 2026) et de l'actualité Service-Public relus par Claude sur les copies collées par Denis le 2026-11-08"
   - "2026-11 : 2026-11-09 : durée et conditions de la carte « talent carte bleue européenne » ajoutées d'après la page Service-Public F16922 (vérifiée le 1er juin 2026, signalée « en cours de mise à jour » après le décret du 26 octobre 2026), page ouverte et relue le 2026-11-09 ; le montant du seuil de rémunération n'est pas recopié, il change chaque année"
 phrase_generale: "Le droit de travailler dépend du titre de séjour que l'on détient. Plusieurs règles ont changé récemment : les délais et les conditions se vérifient sur la fiche officielle et auprès de la préfecture."
+maj_resume: "2026-11-09 : Les nouveautés du décret du 26 octobre 2026 sont ajoutées : le délai de décision de la préfecture, le changement d’employeur et le chômage avec une carte de travailleur temporaire. La durée et les conditions de la carte « talent carte bleue européenne » sont aussi précisées."
 collecte: etranger.collecte.md
 ---
 

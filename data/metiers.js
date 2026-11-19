@@ -507,7 +507,7 @@ const baseMetiersDetaillees = [
     savoirs: ["Isolation", "Matériaux de construction sèche"]
   },
   {
-    id: "couvreur", nom: "Couvreur", rome: "F1610", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "outils"],
+    id: "couvreur", nom: "Couvreur", rome: "F1619", secteur: "Bâtiment et travaux publics",    activites: ["collegues", "outils"],
     actions: ["construire", "reparer"],
     environnement: ["exterieur"],
     savoirFaire: ["Bâtiment", "Travail manuel", "Lecture de plans"],
@@ -945,7 +945,7 @@ const baseMetiersDetaillees = [
     niveauPertinence: null
   },
   {
-    id: 'aesh', nom: 'Accompagnant d\'eleves en situation de handicap (AESH)', famille: 'Social et formation', secteur: 'Éducation et formation',
+    id: 'aesh', nom: 'Accompagnant d\'élèves en situation de handicap (AESH)', famille: 'Social et formation', secteur: 'Éducation et formation',
     rome: 'K2113', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16, fiche officielle
     // https://candidat.francetravail.fr/metierscope/fiche-metier/K2113/accompagnant-accompagnante-des-eleves-en-situation-de-handicap-aesh) :
@@ -1269,7 +1269,7 @@ const baseMetiersDetaillees = [
     niveauPertinence: null
   },
   {
-    id: 'animateur_evenementiel', nom: 'Animateur evenementiel', famille: 'Sport et animation', secteur: 'Communication, culture et événementiel',
+    id: 'animateur_evenementiel', nom: 'Animateur événementiel', famille: 'Sport et animation', secteur: 'Communication, culture et événementiel',
     rome: 'L1104', fap: null,
     // TACHE (chantier competences, enrichissement 2026-09-16) : code ROME
     // corrige, G1203 (ancien) = "Animateur jeunesse" (socio-educatif),
@@ -2009,9 +2009,17 @@ var _niveauxAccesRome = (typeof METIERS_ROME_NIVEAUX !== 'undefined')
     ? (function () { try { return require('./metiersRome.js').METIERS_ROME_NIVEAUX || {}; } catch (e) { return {}; } })()
     : {});
 
+// Niveaux lus sur MétierScope pour les codes dont le ROME ne donne rien (data/niveauxAccesVerifies.js, généré). Le niveau du ROME passe toujours avant.
+var _niveauxAccesVerifies = (typeof METIERS_ROME_NIVEAUX_VERIFIES !== 'undefined')
+  ? METIERS_ROME_NIVEAUX_VERIFIES
+  : (typeof require === 'function'
+    ? (function () { try { return require('./niveauxAccesVerifies.js').METIERS_ROME_NIVEAUX_VERIFIES || {}; } catch (e) { return {}; } })()
+    : {});
+
 // Niveau d'accès d'un métier (2 sans diplôme, 3 CAP/BEP, 4 Bac, 5 Bac+2, 6 Bac+3, 7 Bac+5, 8 doctorat) ; null = non précisé.
 function niveauAccesMetier(metier) {
   var n = metier && metier.rome ? _niveauxAccesRome[metier.rome] : undefined;
+  if (typeof n !== "number" && metier && metier.rome) { n = _niveauxAccesVerifies[metier.rome]; }
   return typeof n === "number" ? n : null;
 }
 
@@ -2216,7 +2224,7 @@ function _brutPourListes(profil, l) {
   }
 
   ajouter(comparerListesPonderees("activites", profil.activites, l.activites), PONDERATION.activites,
-    function (c) { return "Vous aimez travailler " + libelleActivite(c); }, "activites", true);
+    function (c) { return "Vous vous verriez travailler " + libelleActivite(c); }, "activites", true);
   ajouter(comparerListesPonderees("actions", profil.actions, l.actions), PONDERATION.actions,
     function (c) { return "Vous aimez " + normaliserTexte(c); }, "actions", true);
   ajouter(comparerListesPonderees("savoirFaire", profil.savoirFaire, l.savoirFaire), PONDERATION.savoirFaire,
@@ -2285,15 +2293,22 @@ function nbElementsProfil(profil) {
   }, 0);
 }
 // pleinDeLaFiche : taille de la fiche comparée (le plein est atteint quand la personne a donné autant d'éléments que la fiche en demande, au plus 30).
-function facteurInformation(profil, pleinDeLaFiche) {
-  var plein = Math.min(INFORMATION_PLEIN, Math.max(INFORMATION_PLEIN_MIN, typeof pleinDeLaFiche === "number" ? pleinDeLaFiche : INFORMATION_PLEIN));
+// pleinMax (facultatif) : autre plafond que 30. Seule l'entrée « Par actions » du module « Explorer les métiers » le passe (16, le maximum d'une page de choix) : voir profil.reglages.
+function facteurInformation(profil, pleinDeLaFiche, pleinMax) {
+  var plafond = typeof pleinMax === "number" && pleinMax >= INFORMATION_PLEIN_MIN ? pleinMax : INFORMATION_PLEIN;
+  var plein = Math.min(plafond, Math.max(INFORMATION_PLEIN_MIN, typeof pleinDeLaFiche === "number" ? pleinDeLaFiche : plafond));
   var n = nbElementsProfil(profil);
   if (n >= plein) { return 1; }
   var x = (Math.max(1, n) - 1) / (plein - 1);
   return 1 - (1 - INFORMATION_PLANCHER) * (1 - x) * (1 - x);
 }
 
+// Réglages facultatifs d'un appel (profil.reglages), absents de tous les appels existants : le calcul est alors strictement celui d'avant.
+//   pleinMax : plafond du « plein » de la quantité (30 par défaut).
+// Aujourd'hui seule l'entrée « Par actions » du module « Explorer les métiers » le passe (modules/comprendre-les-metiers/logique.js, CM_REGLAGES_ENTREE_2).
+// Une réduction des fiches courtes a été essayée le 17/11/2026 et abandonnée : voir docs/CALIBRATION_POURCENTAGE_ENTREE_2_2026-11-16.md, section « Mesure du 17/11/2026 ».
 function calculerScoreMetier(profil, metier) {
+  var reglages = (profil && profil.reglages) || null;
   var r = _brutPourListes(profil, metier);
   var propre = _brutPropre(metier);
   var rapporte = propre > 0 ? Math.min(100, (r.brut / propre) * 100) : r.brut;
@@ -2304,7 +2319,7 @@ function calculerScoreMetier(profil, metier) {
     if (rapporte2 > rapporte) { r = r2; rapporte = rapporte2; }
   }
   var raisons = r.raisons;
-  var infoFacteur = facteurInformation(profil, r.taille);
+  var infoFacteur = facteurInformation(profil, r.taille, reglages && reglages.pleinMax);
   // Le niveau et l'expérience ne font jamais apparaître un métier sans rapport avec les choix : ils ne jouent que sur un score déjà positif.
   var exact = r.brut > 0 ? Math.max(0, rapporte * _facteurNiveauEtExperience(profil, metier) * infoFacteur - Math.min(PERTE_MAX, PERTE_PAR_CONTRESENS * r.contresens)) : 0;
   var score = r.brut > 0 ? Math.min(100, Math.max(1, Math.round(exact))) : 0;
@@ -2358,7 +2373,8 @@ function rechercherMetiers(profil, nombreMax) {
     savoirEtreDeduits: p.savoirEtreDeduits || [],
     savoirs: p.savoirs || [],
     niveauPersonne: p.niveauPersonne,
-    experience: p.experience
+    experience: p.experience,
+    reglages: p.reglages
   };
 
   // Compatibilité : un champ "competences" non trié est fusionné
@@ -9396,6 +9412,7 @@ function itemsInfoCarteAccueil(id) {
   var qfqOuvert = typeof mtOuvert === 'function' && mtOuvert();
   if (qfqOuvert && id === 'preparer') { source.push(['Employeurs près de chez moi', 'bi-geo-alt', 'Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée.']); }
   if (id === 'boiteaoutils' && typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) { source.push(['Découvrir mes compétences', 'bi-compass', 'Vos documents montrent déjà ce que vous savez faire : l’outil le repère, avec la phrase qui le prouve, et vous aide à le dire.']); }
+  if (id === 'orientation' && typeof cmvOuvert === 'function' && cmvOuvert()) { source.push(['Explorer les métiers', 'bi-compass', 'Découvrir des métiers par leur nom, par ce que vous aimez faire ou par un questionnaire de préférences, voir ce que les employeurs de votre département veulent embaucher, puis rassembler vos résultats dans une synthèse.']); }
   if (id === 'orientation' && typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) { source.push(['Un CV, plusieurs métiers', 'bi-files', 'Quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun, sans rien inventer.']); }
   if (qfqOuvert && id === 'informe') { source.push(['Qui fait quoi', 'bi-geo-alt', 'À qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification.']); }
   return source;
@@ -9582,6 +9599,10 @@ function ouvrirCarteAccueil(id) {
       // Module « Un CV, plusieurs métiers » : la tuile n'apparait que lorsque le module est ouvert au public (UCPM_OUVERT, modules/un-cv-plusieurs-metiers/logique.js).
       tuile('btnCarteAccueilUnCvPlusieursMetiers', 'bi-files', 'Un CV, plusieurs métiers',
         'Un seul CV de départ, plusieurs métiers visés : vos CV, vos phrases d’accroche et vos lettres, préparés pour chacun.')
+    ] : []).concat((typeof cmvOuvert === 'function' && cmvOuvert()) ? [
+      // Module « Explorer les métiers » : la tuile n'apparait que lorsque le module est ouvert (CMV_OUVERT, modules/comprendre-les-metiers/index.js ; en local seulement pour l'instant).
+      tuile('btnCarteAccueilComprendreMetiers', 'bi-compass', 'Explorer les métiers',
+        'Cherchez un métier, découvrez ceux qui ressemblent à ce que vous aimez faire, ou répondez à un questionnaire de préférences.')
     ] : []) }
   };
   var conf = CONFIGS[id];
@@ -9622,6 +9643,9 @@ function ouvrirCarteAccueil(id) {
     });
     brancher('btnCarteAccueilUnCvPlusieursMetiers', function () {
       track('un_cv_plusieurs_metiers'); fermerFenetreERIP(); naviguerVers('un-cv-plusieurs-metiers-intro');
+    });
+    brancher('btnCarteAccueilComprendreMetiers', function () {
+      track('comprendre_les_metiers'); fermerFenetreERIP(); naviguerVers('comprendre-les-metiers-intro');
     });
     return;
   }

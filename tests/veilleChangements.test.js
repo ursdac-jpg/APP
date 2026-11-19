@@ -275,3 +275,199 @@ test('listerChangements : fournit des modèles de style pris dans le digest publ
     assert.ok(depot.lireReponseChangement({ texte: '[VERIFICATION]\nen_vigueur: 2026-08-08\n[/VERIFICATION]', actuel: {} }).ok);
   } finally { try { fs.rmSync(d, { recursive: true, force: true }); } catch (e) { /* tant pis */ } }
 });
+
+// ---------- consignes 425 et 426 : fiche liée et texte complet (« Lire plus d'informations ») ----------
+test('fiche liée et texte complet : écrits dans le digest, relus à la reprise, jamais perdus à la revalidation', () => {
+  const detail = '# Ce qui est annoncé ¶ Un paragraphe simple. ¶ > Smic horaire brut = 12,31 euros ¶ ! Situation vérifiée le 17 novembre 2026.';
+  const v = Object.assign({}, bon, { fiche_liee: 'emploi/emploi-arret-maladie', detail: detail, en_vigueur: 'prévu 2026-12-01' });
+  assert.deepStrictEqual(C.verifierChangement(v), []);
+  const t = C.integrerDansDigest(DIGEST, v, AUJ, bon.periode).texte;
+  assert.match(t, /\nFiche liée : emploi\/emploi-arret-maladie\n/);
+  assert.match(t, /\nDétail : # Ce qui est annoncé\nDétail : Un paragraphe simple\.\nDétail : > Smic horaire brut = 12,31 euros\nDétail : ! Situation vérifiée/);
+  const lus = C.changementsDuDigest(t, '2026-09');
+  const b = lus.find((x) => x.intitule === 'Changement B');
+  assert.strictEqual(b.fiche_liee, 'emploi/emploi-arret-maladie');
+  assert.strictEqual(b.detail, detail, 'la reprise relit exactement le texte complet');
+  const sas = C.ecrireSas([Object.assign({}, b)], '\n');
+  assert.strictEqual(C.parserSas(sas)[0].detail, detail, 'aller-retour du sas');
+  assert.ok(/^(?:[^|]*\|){13}[^|]*$/m.test(sas.split('\n').find((l) => l && l[0] !== '#')), '14 colonnes');
+});
+test('sas ancien (12 colonnes) reste lisible, sans fiche liée ni texte complet', () => {
+  const ancien = Object.assign({}, bon, { id: C.identifiant(bon.mois, bon.domaine, bon.intitule) });
+  const ligne = C.COLONNES.slice(0, 12).map((n) => ancien[n] || '').join(' | ');
+  const lu = C.parserSas(C.EN_TETE + '\n' + ligne + '\n');
+  assert.strictEqual(lu.length, 1);
+  assert.strictEqual(lu[0].fiche_liee, '');
+  assert.strictEqual(lu[0].detail, '');
+});
+test('texte complet : refus du mot IA, des assistants, des lignes trop longues, d\'une ligne de rappel mal écrite, d\'une fiche liée mal écrite', () => {
+  const pb = (extra) => C.verifierChangement(Object.assign({}, bon, extra));
+  assert.ok(pb({ detail: 'Une réponse de l\'IA' }).some((x) => /IA/.test(x)));
+  assert.ok(pb({ detail: 'Selon ChatGPT, rien' }).some((x) => /assistant/.test(x)));
+  assert.ok(pb({ detail: 'x'.repeat(701) }).some((x) => /trop longue/.test(x)));
+  assert.ok(pb({ detail: '> sans signe égal' }).some((x) => /libelle = valeur/.test(x)));
+  assert.ok(pb({ detail: 'a \u2014 b' }).length > 0, 'tiret long refusé');
+  assert.ok(pb({ fiche_liee: 'Emploi Arrêt' }).some((x) => /fiche liee/.test(x)));
+  assert.deepStrictEqual(pb({ fiche_liee: 'emploi/emploi-arret-maladie', detail: '# Titre ¶ Texte.' }), []);
+});
+test('appliquer : une fiche liée qui n\'existe pas est refusée quand le dépôt sait le vérifier', () => {
+  const ctx = { aujourdhui: AUJ, digest: () => DIGEST, ficheExiste: (r) => r === 'emploi/emploi-arret-maladie' };
+  const idB = C.identifiant('2026-09', bon.domaine, 'Changement B');
+  const imp = C.appliquer(C.ecrireSas([], '\n'), [{ op: 'importer', lignes: [bon] }], ctx);
+  const non = C.appliquer(imp.texteSas, [{ op: 'valider', id: idB, valeurs: { fiche_liee: 'emploi/n-existe-pas' } }], ctx);
+  assert.ok(!non.ok && /n'existe pas/.test(non.erreur));
+  const oui = C.appliquer(imp.texteSas, [{ op: 'valider', id: idB, valeurs: { fiche_liee: 'emploi/emploi-arret-maladie' } }], ctx);
+  assert.ok(oui.ok && /Fiche liée : emploi\/emploi-arret-maladie/.test(oui.digests['2026-09']));
+});
+test('identiquePublie : ajouter une fiche liée ou un texte complet n\'est pas pris pour un changement du texte publié', () => {
+  const t = C.integrerDansDigest(DIGEST, bon, AUJ, bon.periode).texte;
+  const avec = Object.assign({}, bon, { fiche_liee: 'emploi/emploi-arret-maladie', detail: 'Un texte.' });
+  assert.strictEqual(C.identiquePublie(t, avec), C.identiquePublie(t, bon));
+});
+test('publier (type changements) : la fiche liée doit exister dans le dépôt ; le texte complet et la fiche liée arrivent dans le digest', () => {
+  const d = depotJetable();
+  try {
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/fiche-x.md', '---\nid: fiche-x\nrayon: emploi\ntitre: "X"\n---\nTexte.\n');
+    const depot = creerDepot(d, { aujourdhui: () => AUJ });
+    assert.ok(depot.publier([{ type: 'changements', actions: [{ op: 'importer', lignes: [bon] }] }]).ok);
+    const id = depot.listerChangements().lignes[0].id;
+    const non = depot.publier([{ type: 'changements', actions: [{ op: 'valider', id: id, valeurs: { fiche_liee: 'emploi/fiche-absente' } }] }]);
+    assert.ok(!non.ok && /n'existe pas/.test(non.erreur), JSON.stringify(non));
+    assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/contenu/balayage/2026-09.md'), 'utf8'), DIGEST, 'refus : rien n\'est écrit');
+    const oui = depot.publier([{ type: 'changements', actions: [{ op: 'valider', id: id, valeurs: { fiche_liee: 'emploi/fiche-x', detail: '# Titre ¶ Un texte.' } }] }]);
+    assert.ok(oui.ok, JSON.stringify(oui));
+    const digest = fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/contenu/balayage/2026-09.md'), 'utf8');
+    assert.match(digest, /Fiche liée : emploi\/fiche-x\nDétail : # Titre\nDétail : Un texte\.\nSource :/);
+  } finally { try { fs.rmSync(d, { recursive: true, force: true }); } catch (e) { /* tant pis */ } }
+});
+
+// ---------- consigne 426, second temps : « Créer la fiche à partir de ce changement » (lien de la fiche à la publication) ----------
+test('lierFicheDansDigest : insère la fiche liée après « Ce qui change », la remplace sans doublon, ne touche ni « Vérifié le » ni le reste', () => {
+  const avecDate = DIGEST.replace('Source : [Titre A]', 'Détail : Un texte.\nSource : [Titre A]') + '\nVérifié le : 2026-09-18\n';
+  const r = C.lierFicheDansDigest(avecDate, 'Emploi et contrats de travail', 'Changement A', 'emploi/fiche-x');
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.match(r.texte, /Ce qui change : texte A\.\nFiche liée : emploi\/fiche-x\nDétail : Un texte\./);
+  const r2 = C.lierFicheDansDigest(r.texte, 'Emploi et contrats de travail', 'Changement A', 'emploi/fiche-y');
+  assert.strictEqual((r2.texte.match(/Fiche liée :/g) || []).length, 1);
+  assert.match(r2.texte, /Fiche liée : emploi\/fiche-y/);
+  assert.strictEqual(r2.texte.replace(/Fiche liée : [^\n]+\n/, ''), avecDate, 'rien d\'autre ne bouge');
+  assert.ok(!C.lierFicheDansDigest(avecDate, 'Emploi et contrats de travail', 'Inconnu', 'emploi/fiche-x').ok);
+  assert.ok(!C.lierFicheDansDigest(avecDate, 'Emploi et contrats de travail', 'Changement A', 'Mauvais Nom').ok);
+});
+test('publier : une nouvelle fiche et le lien vers son changement sont écrits dans UN enregistrement ; sans la fiche, le lien est refusé', () => {
+  const d = depotJetable();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => AUJ });
+    const lier = { op: 'lier', mois: '2026-09', domaine: 'Emploi et contrats de travail', intitule: 'Changement A', fiche_liee: 'emploi/fiche-nouvelle' };
+    const non = depot.publier([{ type: 'changements', actions: [lier] }]);
+    assert.ok(!non.ok && /n'existe pas/.test(non.erreur), JSON.stringify(non));
+    const fiche = '---\nid: fiche-nouvelle\nrayon: emploi\ntitre: "T"\n---\nTexte.\n';
+    const oui = depot.publier([{ type: 'fiche', rayon: 'emploi', nom: 'fiche-nouvelle.md', texte: fiche }, { type: 'changements', actions: [lier] }]);
+    assert.ok(oui.ok, JSON.stringify(oui));
+    const digest = fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/contenu/balayage/2026-09.md'), 'utf8');
+    assert.match(digest, /Fiche liée : emploi\/fiche-nouvelle/);
+    assert.ok(fs.existsSync(path.join(d, 'modules/comprendre-le-cadre/contenu/emploi/fiche-nouvelle.md')));
+  } finally { try { fs.rmSync(d, { recursive: true, force: true }); } catch (e) { /* tant pis */ } }
+});
+test('sas des fiches : une nouvelle fiche garde le changement d\'où elle vient, et le lister le rend', () => {
+  const F = require('../outils/veilleFichesSas.js');
+  const prop = (extra) => Object.assign({ genre: 'nouv', rayon: 'emploi', fiche: 'fiche-nouvelle', titre: 'T', champs: { titre: 'T', texte: 'x' } }, extra);
+  const dc = { mois: '2026-09', domaine: 'Emploi et contrats de travail', intitule: 'Changement A' };
+  const r = F.appliquer(F.ecrireSas([], '\n'), [{ op: 'importer', items: [prop({ depuis_changement: dc })] }], { aujourdhui: AUJ });
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.deepStrictEqual(F.parserSas(r.texte)[0].depuis_changement, dc);
+  assert.deepStrictEqual(F.lister(r.texte, {}).lignes[0].depuisChangement, dc);
+  const sans = F.appliquer(F.ecrireSas([], '\n'), [{ op: 'importer', items: [prop({ depuis_changement: { mois: 'mauvais', domaine: 'D', intitule: 'I' } })] }], { aujourdhui: AUJ });
+  assert.strictEqual(F.parserSas(sans.texte)[0].depuis_changement, undefined, 'un changement mal désigné est ignoré');
+  const maj = F.appliquer(F.ecrireSas([], '\n'), [{ op: 'importer', items: [prop({ genre: 'maj', depuis_changement: dc })] }], { aujourdhui: AUJ });
+  assert.strictEqual(F.parserSas(maj.texte)[0].depuis_changement, undefined, 'seule une nouvelle fiche porte ce lien');
+});
+
+// ---------- Rediger le texte complet avec l'assistant (consigne 426, dernier point) ----------
+const CHG_A_VENIR = { domaine: 'Emploi et contrats de travail', intitule: 'Hausse du Smic', nature: 'annonce', en_vigueur: 'prévu 2026-12-01', concerne: 'salariés', ce_qui_change: 'hausse annoncée.', source_titre: 'info.gouv.fr', source_url: 'https://www.info.gouv.fr/x' };
+const REPONSE_TEXTE = (extra) => [
+  '[TEXTE_COMPLET]', 'statut: confirmé', 'page: https://www.info.gouv.fr/x', 'citation: le Smic augmente de 1,6 %',
+  'element: # Ce qui est annoncé', 'element: Le Smic augmente de 1,6 %.', 'element: # Où on en est aujourd\'hui',
+  'element: > Smic horaire brut = 12,31 euros', 'element: ! Situation vérifiée le 17 novembre 2026, d\'après info.gouv.fr.',
+  'remarque: rien à signaler'
+].concat(extra || [], ['[/TEXTE_COMPLET]']).join('\n');
+
+test('texte complet : le message est à part, daté, et adapté à un changement à venir ou déjà en vigueur', () => {
+  const avenir = C.construirePromptTexteComplet(CHG_A_VENIR, '2026-11-17', 'SOCLE');
+  assert.match(avenir, /^SOCLE/);
+  assert.match(avenir, /TEXTE COMPLET/);
+  assert.match(avenir, /Hausse du Smic/);
+  assert.match(avenir, /17 novembre 2026/, 'la date du jour sert au rappel « Où on en est aujourd\'hui »');
+  ['Ce qui est annoncé', 'Où on en est aujourd\'hui', 'Ce qui n\'est pas encore décidé', 'Qui est concerné', 'Que faire d\'ici là'].forEach((x) => assert.ok(avenir.indexOf(x) !== -1, x));
+  assert.match(avenir, /\[TEXTE_COMPLET\][\s\S]*\[\/TEXTE_COMPLET\]/);
+  assert.match(avenir, /page où tu l'as lu/);
+  const enVigueur = C.construirePromptTexteComplet(Object.assign({}, CHG_A_VENIR, { en_vigueur: '2026-09-01' }), '2026-11-17', '');
+  assert.ok(enVigueur.indexOf('Ce qui n\'est pas encore décidé') === -1 && enVigueur.indexOf('Que faire d\'ici là') === -1, 'un changement en vigueur ne demande pas les parties « à venir »');
+  assert.ok(enVigueur.indexOf('Où on en est aujourd\'hui') !== -1);
+  assert.ok(!/\u2013|\u2014/.test(avenir + enVigueur), 'aucun tiret long dans le message');
+});
+test('texte complet : un changement est « à venir » s\'il est prévu ou encore dans le futur', () => {
+  assert.strictEqual(C.changementAVenir('prévu 2026-12-01', '2026-11-17'), true);
+  assert.strictEqual(C.changementAVenir('2026-12-01', '2026-11-17'), true);
+  assert.strictEqual(C.changementAVenir('2026-09-01', '2026-11-17'), false);
+  assert.strictEqual(C.changementAVenir('sans objet', '2026-11-17'), false);
+  assert.strictEqual(C.dateEnLettres('2026-12-01'), '1er décembre 2026');
+  assert.strictEqual(C.dateEnLettres('2026-11-17'), '17 novembre 2026');
+});
+test('texte complet : la réponse est rangée élément par élément, avec ses pages et ses citations', () => {
+  const r = C.lireTexteComplet(REPONSE_TEXTE(), '');
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.strictEqual(r.statut, 'confirmé');
+  assert.strictEqual(r.elements.length, 5);
+  assert.strictEqual(r.elements[3], '> Smic horaire brut = 12,31 euros');
+  assert.deepStrictEqual(r.pages, ['https://www.info.gouv.fr/x']);
+  assert.strictEqual(r.citations.length, 1);
+  assert.strictEqual(r.detail.split(' ¶ ').length, 5, 'les éléments sont joints comme dans le sas');
+  assert.deepStrictEqual(r.problemes, []);
+  assert.strictEqual(r.identique, false);
+  assert.deepStrictEqual(C.elementsDuDetail(r.detail), r.elements);
+  assert.deepStrictEqual(C.verifierChangement(Object.assign({ mois: '2026-11', periode: 'Novembre 2026', origine: 'balayage' }, CHG_A_VENIR, { detail: r.detail })), [], 'ce qui se lit sans problème se publie sans problème');
+});
+test('texte complet : la comparaison reconnaît un texte déjà identique à la case', () => {
+  const premier = C.lireTexteComplet(REPONSE_TEXTE(), '');
+  const deux = C.lireTexteComplet(REPONSE_TEXTE(), premier.detail);
+  assert.strictEqual(deux.identique, true);
+  assert.strictEqual(deux.actuel, premier.detail);
+});
+test('texte complet : les refus (mot interdit, tiret long, sans page, trop long, rappel mal écrit, bloc illisible)', () => {
+  const sans = (clef) => REPONSE_TEXTE().split('\n').filter((l) => l.indexOf(clef) !== 0).join('\n');
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: Demandez à l\'IA']), '').problemes.some((x) => /IA/.test(x)), 'le mot IA est refusé');
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: Demandez à ChatGPT']), '').problemes.length > 0, 'un nom d\'assistant est refusé');
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: Une phrase \u2014 avec un tiret long']), '').problemes.some((x) => /tiret/.test(x)));
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: > un rappel sans valeur']), '').problemes.some((x) => /libelle = valeur/.test(x)));
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: a'.padEnd(800, 'a')]), '').problemes.some((x) => /trop longue/.test(x)));
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: <b>gras</b>']), '').problemes.some((x) => /</.test(x)));
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['element: à vérifier']), '').problemes.some((x) => /vérifier/.test(x)));
+  assert.ok(C.lireTexteComplet(sans('page:'), '').problemes.some((x) => /aucune page/.test(x)), 'des montants sans page lue sont signalés');
+  assert.ok(C.lireTexteComplet(sans('citation:'), '').problemes.some((x) => /aucune citation/.test(x)), 'des montants sans citation sont signalés');
+  assert.ok(C.lireTexteComplet(REPONSE_TEXTE(['citation: un deux trois quatre cinq six sept huit neuf dix onze douze treize quatorze quinze seize']), '').problemes.some((x) => /15 mots/.test(x)), 'citation trop longue');
+  const sansChiffres = '[TEXTE_COMPLET]\nstatut: partiel\nelement: # Qui est concerné\nelement: Les salariés.\n[/TEXTE_COMPLET]';
+  assert.deepStrictEqual(C.lireTexteComplet(sansChiffres, '').problemes, [], 'sans montant ni date, pas besoin de page');
+  assert.strictEqual(C.lireTexteComplet('rien de tout ça', '').ok, false);
+  assert.strictEqual(C.lireTexteComplet('[TEXTE_COMPLET]\nstatut: confirmé\n[/TEXTE_COMPLET]', '').ok, false, 'aucun élément : refusé');
+  assert.strictEqual(C.lireTexteComplet('', '').ok, false);
+});
+test('texte complet : les contrôles du texte sont ceux de la publication (une seule source)', () => {
+  const mauvais = 'Un texte \u2014 avec un tiret ¶ > rappel mal écrit';
+  assert.ok(C.problemesDuDetail('# Titre ¶ > Libellé = valeur ¶ ! Note datée.').length === 0);
+  assert.ok(C.problemesDuDetail('> rappel mal écrit').length > 0);
+  assert.ok(C.verifierChangement(Object.assign({ mois: '2026-11', periode: 'x', origine: 'balayage' }, CHG_A_VENIR, { detail: '> rappel mal écrit' })).some((x) => /libelle = valeur/.test(x)));
+  assert.ok(mauvais.length > 0);
+});
+test('texte complet : routes et gestes de l\'écran de la veille', () => {
+  const srv = fs.readFileSync(path.join(__dirname, '..', 'outils', 'serveur_veille.js'), 'utf8');
+  assert.match(srv, /\/api\/changements\/prompt-texte/);
+  assert.match(srv, /\/api\/changements\/lire-texte/);
+  const dep = fs.readFileSync(path.join(__dirname, '..', 'outils', 'veilleDepot.js'), 'utf8');
+  assert.match(dep, /promptTexteComplet: promptTexteComplet/);
+  assert.match(dep, /lireTexteCompletChangement: lireTexteCompletChangement/);
+  const html = fs.readFileSync(path.join(__dirname, '..', 'outils', 'veille.html'), 'utf8');
+  ['data-chg-prompt-texte', 'data-chg-reponse-texte', 'data-chg-lire-texte', 'data-chg-remplir-texte', 'Texte actuel', 'Texte proposé'].forEach((x) => assert.ok(html.indexOf(x) !== -1, x));
+  assert.ok(/vrt\.remplis\.detail = true; vrt\.sourceOk = false/.test(html), 'la proposition remplit la case et demande la confirmation de la source');
+  assert.ok(/problemes\.length \|\| chgTexteIdentique\(lrt, tr\.analyse\)\) \{ return; \}/.test(html), 'une proposition avec problème ne se range pas');
+});

@@ -310,7 +310,12 @@ function mcMetierParCode(metiers, code) {
     metiers.forEach(function (m) { if (m && m.rome && !idx[m.rome]) { idx[m.rome] = m; } });
     _mcIndexMetiers = { source: metiers, parCode: idx };
   }
-  return _mcIndexMetiers.parCode[code] || null;
+  var trouve = _mcIndexMetiers.parCode[code];
+  if (trouve) { return trouve; }
+  // Un code du ROME devenu alias d'une autre fiche (même nom, ex. K1306 -> « aes ») : on prend les compétences de cette fiche.
+  var alias = (typeof METIERS_ROME_ALIAS !== 'undefined' && METIERS_ROME_ALIAS) ? METIERS_ROME_ALIAS[code] : '';
+  if (alias) { for (var i = 0; i < metiers.length; i++) { if (metiers[i] && metiers[i].id === alias) { return metiers[i]; } } }
+  return null;
 }
 
 // Fiche prête pour l'étape : missions (mi), compétences courtes (base des métiers), activités plus précises (k, les tâches du cœur d'abord).

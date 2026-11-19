@@ -296,6 +296,11 @@ function monTerritoireOuvrirDepuisRecherche(idEmployeur) {
 // Raccourci « Employeurs près de chez moi » (carte « Me préparer à candidater ») : ouvre le module directement sur les employeurs par secteur.
 // C'est la « page principale » de cette porte d'entrée ; le « Retour » de la barre ramène à sa présentation, puis à l'accueil d'ERIP.
 function monTerritoireOuvrirEmployeurs() { _mtOuvrirSurChemin('employeurs', [], { ecran: 'emploi' }); }
+// Depuis « Explorer les métiers » (chemin « Les emplois en demande ») : la liste des enseignes d'un secteur, avec le bouton « Revenir à ... » (definirRetourModuleExterne) vers le module d'origine.
+function monTerritoireOuvrirSecteur(cle, libelleRetour, retour, routeRetour) {
+  _mtOuvrirSurChemin('employeurs', [{ ecran: 'emploi' }], { ecran: 'liste', secteur: cle, nature: '', nbAffiches: 0 });
+  if (typeof retour === 'function' && typeof definirRetourModuleExterne === 'function') { definirRetourModuleExterne(libelleRetour, retour, routeRetour, 'mon-territoire'); }
+}
 
 // Ouvre directement la liste d'un rayon (depuis une fenêtre ou une fiche d'un autre module), sans bouton « Revenir à ... » : le « Retour » de la barre ramène à l'accueil du module.
 function monTerritoireOuvrirListe(rayon) {

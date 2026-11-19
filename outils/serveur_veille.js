@@ -199,6 +199,8 @@ function creerServeur(options) {
       case '/api/verification/prompt': return repondreResultat(res, depot.promptVerification(donnees));
       case '/api/verification/lire': return repondreResultat(res, depot.lireVerification(donnees));
       case '/api/changements/lire': return repondreResultat(res, depot.lireReponseChangement(donnees));
+      case '/api/changements/prompt-texte': return repondreResultat(res, depot.promptTexteComplet(donnees));
+      case '/api/changements/lire-texte': return repondreResultat(res, depot.lireTexteCompletChangement(donnees));
       case '/api/annuler': return repondreResultat(res, depot.annuler());
       case '/api/depot/reprendre': return repondreResultat(res, depot.reprendre(donnees && donnees.action));
       case '/api/depot/etat': return repondreResultat(res, Object.assign({ ok: true }, depot.etat()));

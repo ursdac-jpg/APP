@@ -221,13 +221,13 @@ var LEXIQUE_FICHES = [
     corps: "L'inflation est la hausse générale des prix des biens et des services : avec la même somme d'argent, on peut acheter un peu moins de choses qu'avant. En France, l'Insee la mesure chaque mois avec l'indice des prix à la consommation : il suit un grand panier de produits et de services, relevés mois après mois, chacun compté selon son poids dans les dépenses des ménages, et compare avec un an plus tôt. Elle monte, par exemple, quand le prix du pétrole ou celui de produits alimentaires frais augmente (à cause du climat ou de tensions dans le monde), ou quand une taxe est relevée. Elle ralentit quand les cours internationaux des matières premières baissent. Elle sert de repère pour revaloriser certains montants, comme le Smic, certaines pensions ou les loyers.",
     detailsAJour: {
       verifieLe: '2026-11-05',
-      source: { nom: 'Insee, Informations rapides n° 266 : prix à la consommation, octobre 2026 (estimation provisoire publiée le 30 octobre 2026)', url: 'https://www.insee.fr/fr/statistiques/9107965' },
+      source: { nom: 'Insee, Informations rapides n° 271 : prix à la consommation, octobre 2026 (résultats définitifs publiés le 13 novembre 2026)', url: 'https://www.insee.fr/fr/statistiques/9131332' },
       lignes: [
-        { libelle: 'Inflation sur un an, octobre 2026 (estimation provisoire)', valeur: '+ 3,4 % (septembre 2026 : + 3,1 %)', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Inflation sur un an, octobre 2026', valeur: '+ 3,4 % (septembre 2026 : + 3,1 %)', categorie: 'pourcent', peutChanger: true },
         { libelle: 'Énergie sur un an', valeur: '+ 24,1 %', categorie: 'pourcent', peutChanger: true },
         { libelle: 'Alimentation sur un an', valeur: '+ 1,2 %', categorie: 'pourcent', peutChanger: true },
-        { libelle: 'Services sur un an', valeur: '+ 2,7 %', categorie: 'pourcent', peutChanger: true },
-        { libelle: 'Prochaine publication de l\'Insee', valeur: '27 novembre 2026 (résultats définitifs d\'octobre : 13 novembre 2026)', categorie: 'date', peutChanger: true }
+        { libelle: 'Services sur un an', valeur: '+ 2,6 %', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Prochaine publication de l\'Insee', valeur: '27 novembre 2026 (estimation de novembre)', categorie: 'date', peutChanger: true }
       ],
       phraseGenerale: "L'inflation est la hausse générale des prix. L'Insee publie son chiffre chaque mois : consultez la source officielle pour le taux le plus récent."
     },
@@ -5926,10 +5926,107 @@ var LEXIQUE_FICHES = [
     relations: [
       { ficheId: 'microcredit-personnel', type: 'voir-aussi' }
     ]
+  },
+
+  // -- Module « Explorer les métiers » (17/11/2026) : deux mots du module, expliqués simplement. Textes proposés par Claude, à relire par Denis. --
+
+  {
+    id: 'riasec', titre: "RIASEC (les six types d'activités)", titreDeTri: 'RIASEC', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip', 'langage-france-travail'],
+    variantesRecherche: ['les six types de métiers', 'code Holland', "questionnaire d'intérêts professionnels", 'lettres de mon métier'],
+    corps: "Le RIASEC est une façon de décrire un métier selon le type d'activité qui y tient le plus de place. Il y a six types, et chaque lettre est l'initiale de l'un d'eux : Réaliste (le concret, les outils, le plein air), Investigateur (comprendre, chercher, analyser), Artistique (créer, imaginer), Social (aider, écouter, enseigner), Entreprenant (convaincre, mener, décider) et Conventionnel (organiser, classer, suivre des règles). Ce modèle est utilisé depuis une quarantaine d'années en orientation. France Travail donne à chaque métier de son répertoire (le ROME) une ou deux de ces lettres. Les lettres décrivent un métier ; elles ne disent jamais qui est une personne ni si elle est faite pour un métier.",
+    relations: [
+      { ficheId: 'projet-professionnel', type: 'voir-aussi' }, { ficheId: 'sigle-de-metier', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'sigle-de-metier', titre: 'Sigle de métier', titreDeTri: 'Sigle de metier', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['AS', 'CIP', "abréviation d'un métier", 'que veut dire ce sigle'],
+    corps: "Beaucoup de métiers sont connus par un sigle, c'est-à-dire les initiales de leur nom : AS pour aide-soignant, AES pour accompagnant éducatif et social, VRP pour voyageur, représentant, placier. Un même sigle peut désigner deux métiers différents : CIP veut dire conseiller en insertion professionnelle, mais aussi, plus rarement, conseiller d'insertion et de probation. Dans le module « Explorer les métiers », taper un sigle montre tous les métiers qu'il désigne, chacun avec son nom complet. En cas de doute, le nom complet du métier, lu sur sa fiche, lève l'ambiguïté.",
+    relations: [
+      { ficheId: 'riasec', type: 'voir-aussi' }, { ficheId: 'projet-professionnel', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'turnover', titre: 'Turnover (rotation du personnel)', titreDeTri: 'Turnover', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-rh', 'langage-france-travail'],
+    variantesRecherche: ['rotation du personnel', 'les salariés partent vite', 'taux de rotation'],
+    corps: "Le turnover, ou rotation du personnel, désigne le fait que des salariés quittent une entreprise ou un métier et sont remplacés. On le mesure souvent en comparant le nombre de départs sur une année à l'effectif. Quand il est élevé, l'employeur recrute souvent, même si son activité ne grandit pas : ce sont des postes qui reviennent, pas forcément des postes nouveaux. Cela explique en partie pourquoi certains métiers apparaissent très souvent dans les projets de recrutement. Un turnover élevé peut venir de contrats courts, d'horaires difficiles, d'un travail physique, de salaires modestes ou d'un départ vers un autre métier.",
+    relations: [
+      { ficheId: 'metier-en-tension', type: 'voir-aussi' },
+      { ficheId: 'besoins-en-main-d-oeuvre', type: 'voir-aussi' },
+      { ficheId: 'emploi-saisonnier', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'emploi-saisonnier', titre: 'Emploi saisonnier', titreDeTri: 'Emploi saisonnier', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-rh', 'langage-france-travail'],
+    variantesRecherche: ['métier de saison', 'poste de saison', 'travail qui dépend des saisons'],
+    corps: "Un emploi saisonnier est un emploi dont le besoin revient chaque année à la même période, au rythme des saisons : les récoltes et les vendanges, l'été sur un lieu touristique, l'hiver en station. Dans l'enquête Besoins en main-d'œuvre de France Travail, un projet de recrutement est dit saisonnier quand l'employeur le prévoit pour une période limitée de l'année. Un métier peut donc être très demandé sans offrir de poste toute l'année. Le contrat qui encadre ce type de travail s'appelle le contrat saisonnier.",
+    relations: [
+      { ficheId: 'contrat-saisonnier', type: 'voir-aussi' },
+      { ficheId: 'besoins-en-main-d-oeuvre', type: 'voir-aussi' },
+      { ficheId: 'turnover', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'secteur-d-activite', titre: "Secteur d'activité", titreDeTri: 'Secteur d activite', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-cip', 'langage-france-travail'],
+    variantesRecherche: ["domaine d'activité", 'famille de métiers', 'dans quel domaine travailler', 'branche professionnelle'],
+    corps: "Un secteur d'activité regroupe les métiers qui travaillent dans un même domaine : la santé, le bâtiment, le commerce, l'hôtellerie et la restauration, par exemple. Deux métiers très différents peuvent se trouver dans le même secteur : dans un hôpital, il y a des soignants, mais aussi des agents d'accueil et des cuisiniers. Choisir un secteur est une façon de repérer des métiers proches de ce qui vous attire, sans rien vous imposer.",
+    relations: [
+      { ficheId: 'sigle-de-metier', type: 'voir-aussi' }, { ficheId: 'projet-professionnel', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'conditions-de-travail', titre: 'Conditions de travail', titreDeTri: 'Conditions de travail', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-cip', 'langage-rh'],
+    variantesRecherche: ['travail le week-end', 'horaires décalés', 'rester debout', 'porter des charges'],
+    corps: "Les conditions de travail décrivent comment le travail se passe au quotidien, au-delà du métier lui-même : les horaires (nuit, week-end, horaires qui changent), l'effort physique (rester debout, porter des charges), l'environnement (bruit, extérieur, tenue de protection) et le contact avec les autres (public, travail seul). Elles ne disent pas si un métier est bon ou mauvais : ce qui est facile pour une personne peut être difficile pour une autre. Les connaître avant de candidater évite les mauvaises surprises.",
+    relations: [
+      { ficheId: 'horaires-travail', type: 'voir-aussi' }, { ficheId: 'emploi-saisonnier', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'valider-son-projet-professionnel', titre: 'Valider son projet professionnel', titreDeTri: 'Valider son projet professionnel', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['vérifier mon projet', 'mon projet est-il réaliste', 'tester un métier', 'me voir exercer ce métier'],
+    corps: "Valider un projet professionnel, c'est vérifier qu'il tient la route avant de s'y engager. Cela se fait en trois regards. Est-il réaliste : mes compétences se rapprochent-elles de celles que le métier demande, et si l'écart est grand, une formation peut-elle le réduire ? Est-il faisable : y a-t-il des offres près de chez moi, et ma vie de tous les jours (garde d'enfants, logement, déplacements) permet-elle ce métier ? Est-il connu du terrain : ai-je parlé à des personnes qui l'exercent, ou observé le métier sur place pendant quelques jours, de façon à me voir y travailler ? Un projet peut être validé, ajusté ou mis de côté : dans les trois cas, vous avez avancé.",
+    relations: [
+      { ficheId: 'projet-professionnel', type: 'voir-aussi' }, { ficheId: 'pmsmp', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'competence-transferable', titre: 'Compétence transférable', titreDeTri: 'Competence transferable', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-cip', 'langage-rh'],
+    variantesRecherche: ['compétence qui sert dans un autre métier', 'ce que je sais déjà faire', 'changer de métier avec mes acquis', 'savoir-faire utile ailleurs'],
+    corps: "Une compétence transférable est un savoir-faire ou une connaissance acquis dans un métier, une activité ou une vie de famille, et qui sert aussi dans un autre métier. Accueillir des personnes, tenir une caisse, organiser un planning ou lire un plan en sont des exemples. Quand vous regardez un métier qui vous attire, les compétences transférables sont celles que vous avez déjà et que ce métier demande : elles réduisent le chemin à parcourir.",
+    relations: [
+      { ficheId: 'competence-transversale', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-faire', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'competence-transversale', titre: 'Compétence transversale', titreDeTri: 'Competence transversale', type: 'terme',
+    univers: 'emploi-recrutement', registres: ['langage-cip', 'langage-rh'],
+    variantesRecherche: ['qualités qui servent partout', 'savoir-être utile dans tous les métiers', 'compétence comportementale', 'soft skills'],
+    corps: "Une compétence transversale est une façon d'être ou de faire qui sert dans presque tous les métiers : être ponctuel, rester calme, travailler avec les autres, s'adapter, être attentif au détail. Elle ne dépend pas d'un métier précis. Elle se rapproche du savoir-être, et elle se montre surtout dans la manière de travailler. Quand un métier demande une qualité que vous pratiquez déjà, c'est une compétence transversale qui se retrouve d'un métier à l'autre.",
+    relations: [
+      { ficheId: 'competence-transferable', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-etre', type: 'voir-aussi' }
+    ]
   }
 ];
 
 var LEXIQUE_COLLECTIONS = [
+  {
+    id: 'collection-comprendre-les-metiers',
+    titre: 'Explorer les métiers',
+    icone: '🧭',
+    mode: 'collection',
+    fichesOrdonnees: [
+      'riasec', 'sigle-de-metier', 'secteur-d-activite', 'conditions-de-travail', 'savoir-faire', 'savoir-etre', 'savoirs-connaissances', 'competence-transferable', 'competence-transversale', 'zone-d-emploi', 'metier-en-tension', 'turnover', 'emploi-saisonnier', 'projet-professionnel', 'valider-son-projet-professionnel'
+    ]
+  },
   {
     id: 'collection-iae',
     titre: "Comprendre l'insertion par l'activité économique",
@@ -6205,7 +6302,7 @@ var LEXIQUE_COLLECTIONS = [
     fichesOrdonnees: [
       'demandeur-emploi-categories', 'chomage-au-sens-du-bit', 'inscrit-a-france-travail-ou-chomeur-bit',
       'inscription-automatique-france-travail-2025',
-      'demandeur-emploi-longue-duree', 'besoins-en-main-d-oeuvre', 'metier-en-tension',
+      'demandeur-emploi-longue-duree', 'besoins-en-main-d-oeuvre', 'metier-en-tension', 'turnover',
       'metier-en-tension-ou-metier-qui-recrute', 'neet', 'zone-d-emploi', 'bassin-emploi',
       'economie-presentielle',
       'chomage-recensement', 'taux-d-emploi', 'population-active', 'correction-variations-saisonnieres'
@@ -6312,7 +6409,7 @@ var LEXIQUE_COLLECTIONS = [
     icone: '📄',
     mode: 'collection',
     fichesOrdonnees: [
-      'cdd', 'cddi', 'cdd-classique-ou-cdd-d-insertion', 'cdd-tremplin', 'contrat-saisonnier',
+      'cdd', 'cddi', 'cdd-classique-ou-cdd-d-insertion', 'cdd-tremplin', 'contrat-saisonnier', 'emploi-saisonnier',
       'prime-de-precarite', 'prime-de-precarite-ou-indemnite-de-licenciement', 'entretien-prealable',
       'delais-qui-protegent', 'portabilite-mutuelle', 'demission-legitime', 'solde-tout-compte'
     ]
@@ -8682,6 +8779,30 @@ var LEXIQUE_SECOND_NIVEAU = [
     titre: "Exemples concrets",
     fichesEntree: ['contrat-emploi-penitentiaire'],
     corps: "Avant de signer, la personne obtient une autorisation de travailler, appelée classement, décidée par le chef d'établissement, qui ne peut la refuser que pour des raisons de sécurité. Elle passe ensuite un entretien professionnel avec l'entreprise ou le service qui offre le poste, appelé donneur d'ordre. Le contrat est signé avec ce donneur d'ordre et précise s'il est à durée déterminée ou indéterminée. La gestion des paies et des déclarations aux organismes sociaux est assurée par l'administration."
+  },
+  {
+    id: 'second-niveau-riasec',
+    titre: "Précisions",
+    fichesEntree: ['riasec'],
+    corps: "Les six lettres sont placées sur un hexagone : les types qui se font face sont les plus éloignés, et les types voisins sont proches. Réaliste fait face à Social, Investigateur à Entreprenant, Artistique à Conventionnel. La plupart des métiers combinent deux lettres, rarement une seule. Un questionnaire d'intérêts donne des tendances, par exemple ce que vous aimez faire le plus souvent. Il ne mesure ni votre valeur ni vos capacités, et il ne remplace pas une rencontre avec un conseiller ni un essai sur le terrain, comme un stage d'observation."
+  },
+  {
+    id: 'second-niveau-sigle-de-metier',
+    titre: "Précisions",
+    fichesEntree: ['sigle-de-metier'],
+    corps: "Un sigle est pratique à l'oral et dans les offres d'emploi, mais il peut tromper. Un même sigle peut désigner deux métiers, et un même métier peut avoir plusieurs sigles. Dans une offre d'emploi, le contexte aide : le secteur, l'employeur, les missions décrites. Le répertoire des métiers de France Travail (le ROME) utilise le nom complet du métier. Quand le sens d'un sigle n'est pas clair, le plus sûr est de demander son nom complet à la personne qui l'emploie."
+  },
+  {
+    id: 'second-niveau-turnover',
+    titre: "Nuance utile",
+    fichesEntree: ['turnover'],
+    corps: "Un turnover élevé ne veut pas dire qu'un métier est mauvais ni qu'on y est mal accueilli. Dans certains secteurs, il vient surtout de la nature des postes : contrats courts, activité qui varie selon les périodes, personnes qui font ce métier comme première étape avant un autre. Il ne signale pas non plus à lui seul une pénurie de candidats : un métier peut recruter souvent parce que les postes tournent, sans que les employeurs aient du mal à trouver quelqu'un. Pour juger un poste précis, mieux vaut regarder le type de contrat, les horaires et les possibilités d'évolution proposés."
+  },
+  {
+    id: 'second-niveau-emploi-saisonnier',
+    titre: "Précisions",
+    fichesEntree: ['emploi-saisonnier'],
+    corps: "Dans l'enquête de France Travail, une part importante des projets de recrutement est saisonnière dans certains territoires, notamment là où l'agriculture, la viticulture et le tourisme pèsent beaucoup. Cette part varie fortement d'un département à l'autre. Un emploi saisonnier peut être une première expérience, un complément ou une porte d'entrée vers un poste à l'année chez le même employeur. Il demande de bien regarder la période, la durée prévue et le logement éventuel, souvent éloigné du lieu de vie habituel."
   },
   {
     id: 'second-niveau-contrat-saisonnier',

@@ -48,6 +48,9 @@
   /* Violet doux, fixe (ne suit pas la couleur d'accent choisie) : « Fiche mise à jour » (décision de Denis, 12/11/2026 : un fond légèrement violet, pour la distinguer de la nouvelle fiche, verte) */
   --maj-strong: #5b3a9e;
   --maj-bg-subtle: #ece4fa;
+  --chf: #0e7490;   /* turquoise des fiches « Chiffres » de la page Nouveautés (consigne 440) */
+  --chf-fond: #e3f4f8;
+  --chf-bord: #67b8cc;
   --maj-border: #9a7bd6;
   --danger: #dc3545;
   --danger-bg-subtle: #fdeaea;
@@ -99,6 +102,9 @@
   --success-bg-subtle: #17301f;
   --maj-strong: #cdb9f7;
   --maj-bg-subtle: #2b2248;
+  --chf: #4fc3dc;
+  --chf-fond: #10303a;
+  --chf-bord: #2a6f82;
   --maj-border: #9a7bd6;
   /* TACHE (dette B.12, passage dedie 2026-09-13) : --danger n'avait,
      lui non plus, jamais ete redefini ici -- meme piege que --success/
@@ -5219,7 +5225,10 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
   #btnNouveautes { top: var(--hauteur-progression, 5rem); left: 158px; width: 38px; height: 38px; font-size: 1.1rem; }
   .progression { padding-left: 202px; }
 }
-.nv-mois { margin-top: 1.6rem; font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: capitalize; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
+/* Titres de rubriques (« À venir », un mois) : un bandeau net qui sépare les groupes, sans prendre le pas sur les cartes. « À venir » a sa propre couleur. */
+.nv-mois { margin: 1.8rem 0 .7rem; font-size: 1.05rem; font-weight: 800; color: var(--text-strong); text-transform: capitalize; background: var(--accent-bg-subtle); border-left: 5px solid var(--accent); border-radius: 0 8px 8px 0; padding: .35rem .8rem; }
+.nv-mois--avenir { text-transform: none; background: var(--warning-bg-subtle); border-left-color: var(--warning-border); color: var(--warning-strong); }
+.nv-mois .bi { margin-right: .4rem; }
 .nv-carte { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
 .nv-tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .3rem; }
 .nv-date { font-size: .82rem; color: var(--text-muted); }
@@ -5235,20 +5244,44 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
   min-height: 52px; padding: .45rem 1.5rem; border: 2px solid var(--nv-trait); border-radius: 999px; background: var(--nv-fond); color: var(--text-strong); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; }
 .nv-entree--bleu { --nv-fond: var(--accent-bg-subtle); --nv-trait: var(--accent); --nv-texte: var(--accent-texte); }
 .nv-entree--vert { --nv-fond: var(--success-bg-subtle); --nv-trait: var(--success-strong); --nv-texte: var(--success-strong); }
+.nv-entree--turquoise { --nv-fond: var(--chf-fond); --nv-trait: var(--chf); --nv-texte: var(--chf); }
+.nv-compte--turquoise { color: var(--chf); border: 1px solid var(--chf); }
+/* Fiche « Chiffres » : exactement la carte de « Droits et règles » (classes comprendre-le-cadre-chg), seul le fond est turquoise (consigne 440). À venir garde son bord jaune. */
+.comprendre-le-cadre-chg--chiffres { background: var(--chf-fond); border-color: var(--chf-bord); border-left-color: var(--chf); }
+.comprendre-le-cadre-chg--chiffres.comprendre-le-cadre-chg--avenir { border-left-color: var(--warning-border); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-chg-fleche { color: var(--chf); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille { background: var(--bg-card); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille--v { background: var(--success-bg-subtle); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille--m { background: var(--maj-bg-subtle); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille--a { background: var(--warning-bg-subtle); }
+.comprendre-le-cadre-chg--chiffres.comprendre-le-cadre-chg--avenir .comprendre-le-cadre-digest-cle { background: var(--warning-bg-subtle); border-left-color: var(--warning-border); }
+.comprendre-le-cadre-chg--chiffres.comprendre-le-cadre-chg--avenir .comprendre-le-cadre-digest-cle strong { color: var(--warning-strong); }
+.nv-chf-terr { margin: .2rem 0 .6rem; }
+.nv-chf-tab { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .92rem; }
+.nv-chf-tab td { padding: .3rem .4rem; border-top: 1px solid var(--chf-bord); }
+.nv-chf-tab td.v { text-align: right; font-weight: 800; color: var(--chf); white-space: nowrap; }
+.nv-chf-src { font-size: .85rem; color: var(--text-muted); margin: .4rem 0; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.nv-chf-srcb { display: inline-flex; gap: .3rem; align-items: center; border: 1px solid var(--chf-bord); background: var(--bg-card); color: var(--chf); border-radius: 999px; padding: .12rem .7rem; font-size: .8rem; font-weight: 700; text-decoration: none; }
+.nv-chf-srcb:hover, .nv-chf-srcb:focus-visible { border-color: var(--chf); box-shadow: 0 0 0 2px var(--chf-bord); outline: none; }
+.nv-chf-vers { display: inline-flex; gap: .5rem; align-items: center; background: var(--chf); color: #fff; border: 0; border-radius: 999px; padding: .5rem 1.15rem; font-weight: 700; font-size: .9rem; cursor: pointer; }
+[data-theme="sombre"] .nv-chf-vers { color: #06222a; }
+.nv-chf-vers:hover, .nv-chf-vers:focus-visible { box-shadow: 0 0 0 3px var(--chf-bord); outline: none; }
+@media print { .nv-chf-terr, .nv-chf-vers { display: none; } }
 .nv-entree--jaune { --nv-fond: var(--warning-bg-subtle); --nv-trait: var(--warning-border); --nv-texte: var(--warning-strong); }
 .nv-entree:hover, .nv-entree:focus-visible, .nv-entree:active, .nv-entree[aria-selected="true"] { background: color-mix(in srgb, var(--nv-fond) 65%, var(--nv-trait) 35%); }
 .nv-entree:active { background: color-mix(in srgb, var(--nv-fond) 45%, var(--nv-trait) 55%); }
 .nv-entree[aria-selected="true"] { box-shadow: 0 0 0 2px var(--nv-trait); }
 .nv-entree .bi { font-size: 1.2rem; color: var(--nv-texte); }
-/* Page d'arrivée : le fond des trois boutons pulse à tour de rôle (bleu, jaune, vert) jusqu'au premier clic. Une seule durée de 3,6 s : chaque bouton ne bouge que pendant son tiers. */
+/* Page d'arrivée : le fond des quatre boutons pulse à tour de rôle (bleu, jaune, turquoise, vert) jusqu'au premier clic. Une seule durée de 4,8 s : chaque bouton ne bouge que pendant son quart (1,2 s), décalé de 1,2 s sur le précédent. */
 @keyframes nvPulseFond {
-  0%, 30%, 100% { background: var(--nv-fond); }
-  15% { background: color-mix(in srgb, var(--nv-fond) 30%, var(--nv-trait) 70%); }
+  0%, 25%, 100% { background: var(--nv-fond); }
+  12.5% { background: color-mix(in srgb, var(--nv-fond) 30%, var(--nv-trait) 70%); }
 }
-.nv-pulse .nv-entree { animation: nvPulseFond 3.6s ease-in-out infinite; }
+.nv-pulse .nv-entree { animation: nvPulseFond 4.8s ease-in-out infinite; }
 .nv-pulse .nv-entree--bleu { animation-delay: 0s; }
 .nv-pulse .nv-entree--jaune { animation-delay: 1.2s; }
-.nv-pulse .nv-entree--vert { animation-delay: 2.4s; }
+.nv-pulse .nv-entree--turquoise { animation-delay: 2.4s; }
+.nv-pulse .nv-entree--vert { animation-delay: 3.6s; }
 .nv-pulse .nv-entree:hover, .nv-pulse .nv-entree:focus-visible { animation: none; }
 .nv-compte { font-size: .8rem; font-weight: 800; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-card); }
 .nv-compte[hidden] { display: none; }
@@ -5267,6 +5300,69 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .nv-carte-corrige { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
 .nv-badge-corrige { font-size: .78rem; font-weight: 700; padding: .05rem .65rem; border-radius: 999px; background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
 .nv-origine { font-size: .78rem; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong); }
+/* Barre de filtres de la page « Nouveautés » (consigne 418) : collée sous la barre du haut, repliable par un bouton en haut à droite (replié : titre, une ligne de résumé et le nombre d'éléments). Couleurs par variables : mode sombre déjà prévu. */
+/* Une fiche qui se replie (bouton du bas) : l'écran remonte sur son titre, sous la barre du haut (consigne 442). */
+.comprendre-le-cadre-chg { scroll-margin-top: calc(var(--hauteur-progression, 5rem) + .5rem); }
+.nv-filtres { scroll-margin-top: calc(var(--hauteur-progression, 5rem) + .5rem); background: var(--bg-card); border: 2px solid var(--accent); border-radius: 14px; padding: .7rem .9rem .8rem; margin: .4rem 0 1rem; box-shadow: 0 4px 10px rgba(0,0,0,.08); }
+.nv-filtres.nv-plie { padding-bottom: .55rem; }
+/* Le rectangle entier se plie / se déplie au clic (consigne 441) : le curseur le dit ; la barre de recherche garde son curseur de saisie. */
+.nv-filtres { cursor: pointer; }
+.nv-f-recherche { cursor: text; }
+.nv-f-tete { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+/* Le bouton « Replier » reste visible : il ne passe jamais sous le bouton flottant du carnet, collé au bord droit de l'écran */
+.nv-f-tete { padding-right: 3rem; }
+.nv-filtres-titre { font-weight: 800; display: flex; align-items: center; gap: .4rem; }
+.nv-f-plier { min-height: 38px; padding: .1rem .9rem; border: 1.5px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.nv-f-resume { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
+.nv-f-corps[hidden] { display: none; }
+.nv-f-rang { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .35rem 0; }
+.nv-f-lib { font-size: .82rem; font-weight: 700; color: var(--text-muted); min-width: 6.2rem; }
+.nv-f-btn { min-height: 38px; padding: .15rem .8rem; border: 1.5px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-size: .88rem; cursor: pointer; }
+.nv-f-btn .nv-f-n { font-weight: 800; color: var(--accent-texte); margin-left: .25rem; }
+.nv-f-btn[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); font-weight: 700; }
+.nv-f-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.nv-f-resultat { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .4rem; margin-top: .5rem; padding-top: .45rem; border-top: 1px solid var(--border); font-size: .9rem; }
+.nv-filtres.nv-plie .nv-f-resultat { margin-top: .35rem; padding-top: .35rem; }
+.nv-f-reinit { min-height: 36px; padding: .1rem .9rem; border: 1.5px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+.nv-f-reinit[hidden] { display: none; }
+/* Droits et règles : compte à gauche, recherche TOUJOURS au milieu, « Tout réinitialiser » à droite ; le bouton absent garde sa place (invisible), la recherche ne bouge donc jamais. Sur téléphone, tout s'empile. */
+.nv-f-resultat--3 { display: grid; grid-template-columns: 1fr minmax(12rem, 24rem) 1fr; gap: .5rem; }
+.nv-f-resultat--3 .nv-f-recherche { max-width: none; width: 100%; grid-column: 2; }
+.nv-f-resultat--3 .nv-f-reinit { grid-column: 3; justify-self: end; }
+.nv-f-resultat--3 .nv-f-reinit[hidden] { display: inline-block; visibility: hidden; }
+@media (max-width: 760px) {
+  .nv-f-resultat--3 { grid-template-columns: 1fr; }
+  .nv-f-resultat--3 .nv-f-recherche, .nv-f-resultat--3 .nv-f-reinit { grid-column: 1; }
+  .nv-f-resultat--3 .nv-f-reinit { justify-self: start; }
+  .nv-f-resultat--3 .nv-f-reinit[hidden] { display: none; }
+}
+/* Droits et règles : recherche à hauteur du compte (consigne 418, lot 3) */
+.nv-f-recherche { display: inline-flex; align-items: center; gap: .4rem; flex: 1 1 14rem; max-width: 24rem; border: 1.5px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); padding: 0 .4rem 0 .8rem; min-height: 40px; }
+.nv-f-recherche:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nv-f-recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-strong); font-size: .95rem; }
+.nv-f-effacer { border: 0; background: transparent; color: var(--text-muted); min-width: 32px; min-height: 32px; cursor: pointer; }
+.nv-vide { border: 1px dashed var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); padding: 1rem; text-align: center; margin: 1rem 0; }
+.nv-neuf { border: 1px dashed var(--border-strong); border-radius: 12px; padding: .8rem 1rem; text-align: center; margin: 1.2rem auto 0; max-width: 46rem; color: var(--text-muted); }
+.nv-vu-badge { font-size: .72rem; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .02rem .5rem; }
+.nv-carte--vue { opacity: .9; }
+@media (max-width: 600px) { .nv-f-lib { min-width: 100%; } }
+/* Les filtres restent FIGÉS en haut de la page (ils ne suivent plus le défilement : ils cachaient une partie de l'écran). Une flèche, en bas à droite, ramène d'un clic au filtre dès qu'on l'a dépassé (consigne 422). */
+.fleche-remonter { position: fixed; right: 1rem; bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px)); z-index: 60; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent-texte); box-shadow: 0 4px 12px rgba(0,0,0,.25); font-size: 1.5rem; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.fleche-remonter[hidden] { display: none; }
+.fleche-remonter:hover, .fleche-remonter:focus-visible { background: var(--accent-bg-subtle); }
+@media print { .fleche-remonter { display: none; } }
+/* Téléphone (consigne 418, lot 4, maquette validée) : trois pastilles seules (icône + nombre), le nom de l'entrée choisie s'écrit au-dessus de la liste ; le nom reste lu par les lecteurs d'écran. */
+.nv-titre-entree { display: none; text-align: center; font-size: 1.15rem; font-weight: 800; margin: .2rem 0 .7rem; color: var(--nv-texte, var(--text-strong)); }
+.nv-titre-entree[hidden] { display: none !important; }
+.nv-titre-entree .bi { margin-right: .3rem; }
+@media (max-width: 600px) {
+  .nv-entrees { flex-wrap: nowrap; gap: 1.1rem; justify-content: center; }
+  .nv-entree { width: 68px; height: 68px; min-height: 68px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .nv-entree .nv-entree-lib { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .nv-entree .bi { font-size: 1.7rem; margin: 0; }
+  .nv-entree .nv-compte { position: absolute; top: -6px; right: -6px; }
+  .nv-titre-entree { display: block; }
+}   /* téléphone : ouverte, la barre défile avec la page (elle est haute) ; repliée, elle reste en haut */
 .nv-lib { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: .5rem 0 .1rem; }
 .nv-lib--ok { color: var(--success-strong); }
 .nv-carte-corrige p { margin: 0; }
@@ -5753,6 +5849,293 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .cd-miss .jeton { border-color: var(--fm-miss-bord); background: var(--bg-card); font-size: 0.85rem; }
 .cd-miss .jeton.is-actif { background: var(--fm-miss-bg); border-width: 2.5px; }
 
+/* ============================================================
+   Module « Explorer les métiers » (modules/comprendre-les-metiers/) : préfixe .cml-
+   Couleurs des six lettres RIASEC : valeur claire ET sombre. Jamais la couleur seule : la lettre est toujours écrite.
+   ============================================================ */
+:root { --ri-R: #b4540a; --ri-I: #1f7a4d; --ri-A: #b4233c; --ri-S: #6d4aa8; --ri-E: #0f6f8f; --ri-C: #7a6a00; --ri-txt: #fff; }
+[data-theme="sombre"] { --ri-R: #e8944f; --ri-I: #4cc38a; --ri-A: #f27a8f; --ri-S: #b79cf0; --ri-E: #52bfe0; --ri-C: #d6c24a; --ri-txt: #101418; }
+.cml-p { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ri-c); color: var(--ri-txt); font-weight: 800; font-size: .95rem; flex: none; }
+.cml-p.gros { width: 56px; height: 56px; font-size: 1.6rem; }
+.cml-ri-R { --ri-c: var(--ri-R); } .cml-ri-I { --ri-c: var(--ri-I); } .cml-ri-A { --ri-c: var(--ri-A); }
+.cml-ri-S { --ri-c: var(--ri-S); } .cml-ri-E { --ri-c: var(--ri-E); } .cml-ri-C { --ri-c: var(--ri-C); }
+.cml-bloc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.2rem; margin: .7rem 0; }
+.cml-bloc h2, .cml-bloc h3 { font-size: var(--t-grand, 1.25rem); font-weight: 800; margin: 0 0 .5rem; }
+.cml-note { font-size: .85rem; color: var(--text-muted); }
+.cml-encart { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: .7rem .9rem; margin: .7rem 0; display: flex; gap: .7rem; align-items: flex-start; }
+.cml-encart.warn { background: var(--warning-bg-subtle); border-left-color: var(--warning-border); }
+.cml-encart > i { color: var(--accent); font-size: 1.3rem; margin-top: .1rem; }
+.cml-encart.warn > i { color: var(--warning-strong); }
+.cml-encart p { margin: 0; }
+.cml-grille3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.cml-grille3.cml-grille4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cml-entree { display: flex; flex-direction: column; gap: .5rem; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .9rem 1rem; }
+.cml-entree .ico { font-size: 1.7rem; color: var(--accent); }
+.cml-entree h3 { font-size: var(--t-moyen, 1rem); font-weight: 800; margin: 0; }
+.cml-entree p { font-size: var(--t-petit, .875rem); margin: 0; color: var(--text-muted); flex: 1; }
+.cml-entree .btn { min-height: 44px; }
+.cml-six { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem .9rem; margin-top: .4rem; }
+.cml-six > div { display: flex; gap: .5rem; align-items: flex-start; font-size: var(--t-petit, .875rem); }
+.cml-hex-zone { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: center; }
+.cml-hex-zone svg { width: 100%; height: auto; max-width: 460px; margin: 0 auto; display: block; }
+.cml-hex-zone svg text { fill: var(--text-strong); font-family: inherit; }
+.cml-hex-fond { fill: var(--bg-subtle); stroke: var(--border-strong); stroke-width: 2; }
+.cml-hex-axe { stroke: var(--border-strong); stroke-width: 1; }
+.cml-hex-profil { fill: var(--accent); fill-opacity: .28; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; }
+.cml-hex-pt { fill: var(--accent); }
+.cml-barre-l { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: .6rem; margin: .35rem 0; }
+.cml-barre-l .piste { height: 16px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; }
+.cml-barre-l .piste span { display: block; height: 100%; background: var(--ri-c); border-radius: 999px; }
+.cml-barre-l .nom { font-size: var(--t-petit, .875rem); color: var(--text-muted); min-width: 10rem; text-align: right; }
+.cml-barre-l.haut .nom { color: var(--text-strong); font-weight: 700; }
+.cml-hex-opp { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 5; opacity: .75; }
+.cml-let { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; }
+@media (max-width: 759px) { .metier-carte-actions3 > [data-cml="fiche"] { grid-column: 1 / -1; } }
+.cml-pill { display: inline-block; font-size: .78rem; padding: .12rem .55rem; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); }
+.cml-pct { display: flex; align-items: center; gap: .6rem; }
+.cml-pct .piste { flex: 1; height: 16px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; }
+.cml-pct .piste span { display: block; height: 100%; background: var(--accent-solide, var(--accent)); border-radius: 999px; }
+.cml-pct b { font-size: 1rem; min-width: 3.2rem; text-align: right; }
+.cml-depli { border-left: 4px solid var(--accent); border-radius: 8px; background: var(--bg-card); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: .5rem 0; }
+.cml-depli > summary { cursor: pointer; padding: .7rem .9rem; font-weight: 700; display: flex; gap: .6rem; align-items: center; background: var(--accent-bg-subtle); border-radius: 0 8px 8px 0; list-style: none; }
+.cml-depli > summary::-webkit-details-marker { display: none; }
+.cml-depli > summary::before { content: "\f285"; font-family: "bootstrap-icons"; transition: transform .15s; }
+.cml-depli[open] > summary::before { transform: rotate(90deg); }
+.cml-depli .corps { padding: .7rem .9rem; }
+.cml-secteurs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.cml-secteurs .btn { min-height: 46px; display: flex; justify-content: space-between; align-items: center; gap: .5rem; text-align: left; font-weight: 600; }
+.cml-secteurs .btn .nb { font-size: .78rem; font-weight: 700; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); border-radius: 999px; padding: .05rem .5rem; flex: none; }
+.cml-secteurs .btn.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cml-secteurs .btn.actif .nb { background: rgba(255, 255, 255, .25); color: #fff; }
+.cml-ligne { display: flex; align-items: center; justify-content: space-between; gap: .6rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: .45rem .6rem .45rem .8rem; min-height: 52px; margin: .35rem 0; flex-wrap: wrap; }
+.cml-ligne .btn { min-height: 40px; font-size: .8rem; }
+.cml-ligne .sub { font-size: .8rem; color: var(--text-muted); }
+.cml-coche { color: var(--success, #1f7a4d); }
+.cml-ff { border: 1px solid var(--border); border-radius: 12px; padding: .7rem .85rem; margin: .55rem 0; background: var(--bg-card); }
+
+/* ===== Chemins 2 et 3 : fil des parties, bandeau de partie, suivi des choix, familles, jetons pleins.
+   Maquette validée le 18/11/2026 (docs/MAQUETTE_CHEMINS_2_3_4_EXPLORER_LES_METIERS_2026-11-18.html, consignes 476 à 479).
+   TOUT reprend l'accent choisi par la personne (data-accent) : --accent (bords, jauge), --accent-bg-subtle (fonds teintés), --accent-solide (fonds pleins sous texte blanc),
+   --accent-texte (texte sur fond de page). Jamais la couleur seule : le numéro, le titre et l'état sont écrits. ===== */
+.cml-num { flex: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong); }
+.cml-fil { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin: .6rem 0; }
+.cml-fil-t { display: flex; gap: .55rem; align-items: center; text-align: left; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); padding: .45rem .6rem; min-height: 56px; font-size: var(--t-petit, .875rem); line-height: 1.15; }
+.cml-fil-t .cml-num { width: 32px; height: 32px; border-radius: 8px; font-size: 1.05rem; }
+.cml-fil-t small { display: block; color: var(--text-muted); font-size: var(--t-petit, .875rem); }
+.cml-fil-t.fait { border-color: var(--accent); background: var(--accent-bg-subtle); }
+button.cml-fil-t.fait { cursor: pointer; }
+.cml-fil-t.fait .cml-num, .cml-fil-t.encours .cml-num { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-fil-t.encours { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 4px var(--accent); font-weight: 800; }
+.cml-fil-t.avenir { opacity: .85; }
+.cml-bandeau { display: flex; gap: .9rem; align-items: center; border: 2px solid var(--accent); border-left-width: 8px; border-radius: 14px; background: var(--accent-bg-subtle); padding: .8rem 1rem; margin: .6rem 0; }
+.cml-bandeau .cml-num { width: 52px; height: 52px; border-radius: 12px; font-size: 1.8rem; background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-bandeau h2 { font-size: var(--t-grand, 1.25rem); font-weight: 800; margin: 0 0 .15rem; }
+.cml-bandeau p { margin: 0; }
+.cml-suivi { border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-card); padding: .7rem .9rem; margin: .6rem 0; }
+.cml-suivi .haut { display: flex; gap: .6rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.cml-suivi .n { font-size: 1.5rem; font-weight: 800; color: var(--accent-texte, var(--accent)); margin-right: .2rem; }
+.cml-jauge { height: 12px; border-radius: 7px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; margin: .45rem 0; }
+.cml-jauge i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+.cml-plateau { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .3rem; min-height: 36px; }
+.cml-plateau .vide { font-size: var(--t-petit, .875rem); color: var(--text-muted); }
+.cml-chip-x { display: inline-flex; align-items: center; gap: .3rem; background: var(--accent-bg-subtle); border: 1px solid var(--accent); color: var(--text-strong); border-radius: 999px; padding: .15rem .25rem .15rem .7rem; font-size: var(--t-petit, .875rem); }
+.cml-chip-x button { border: 0; background: transparent; color: var(--text-strong); min-width: 32px; min-height: 32px; border-radius: 50%; font-size: 1rem; line-height: 1; }
+.cml-chip-x button:hover { background: var(--bg-subtle); }
+.cml-famille { background: var(--bg-card); border: 1px solid var(--border); border-left: 8px solid var(--accent); border-radius: 14px; padding: .9rem 1rem; margin: .7rem 0; }
+.cml-famille .tete { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; }
+.cml-famille .ico { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid var(--accent); }
+.cml-famille h3 { font-size: var(--t-grand, 1.25rem); font-weight: 800; margin: 0; }
+.cml-famille .compte { margin-left: auto; font-size: var(--t-petit, .875rem); font-weight: 700; padding: .1rem .6rem; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-muted); }
+.cml-famille .compte.a { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-famille .expl { margin: .4rem 0 .6rem; }
+.cml-jetons { display: flex; flex-wrap: wrap; gap: .45rem; }
+/* Une ligne de boutons : toujours espacés (19/11/2026, retour de Denis : les boutons de « Ma lecture » se touchaient). */
+.boutons-ligne { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: center; }
+.boutons-ligne .btn { min-height: 46px; }
+/* « Mon parcours » (étape B de Ma synthèse, 19/11/2026) : lignes de métiers exercés, suggestions de recherche, groupes de compétences à cocher. */
+.cml-ligne-metier { display: flex; gap: .75rem 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; border-top: 1px solid var(--border); padding: .7rem 0; }
+.cml-ligne-metier:first-of-type { border-top: 0; }
+.cml-liste-simple { margin: .3rem 0 .6rem; padding-left: 1.2rem; }
+.cml-liste-simple li { margin: .15rem 0; }
+.cml-sugg-zone:empty { display: none; }
+.cml-sugg { border: 2px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); margin-top: .5rem; overflow: hidden; }
+.cml-sugg button { display: flex; width: 100%; text-align: left; gap: .75rem; align-items: center; justify-content: space-between; border: 0; border-top: 1px solid var(--border); background: transparent; color: var(--text-strong); padding: .55rem .9rem; min-height: 48px; }
+.cml-sugg button:first-child { border-top: 0; }
+.cml-sugg button:hover, .cml-sugg button:focus-visible { background: var(--accent-bg-subtle); }
+.cml-groupe-comp { border-top: 1px solid var(--border); padding-top: .8rem; margin-top: .9rem; }
+.cml-groupe-comp h3 { font-size: var(--t-moyen, 1rem); font-weight: 800; margin: 0 0 .2rem; display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+.cml-groupe-comp h3 small { font-weight: 600; color: var(--text-muted); }
+.cml-groupe-comp .cml-jetons { margin: .4rem 0 .7rem; }
+.cml-jt { border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); padding: .35rem .8rem; min-height: 44px; font-size: var(--t-moyen, 1rem); display: inline-flex; align-items: center; gap: .4rem; text-align: left; }
+.cml-jt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.cml-jt .bi { display: none; }
+.cml-jt.is-actif { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; font-weight: 700; }
+.cml-jt.is-actif .bi { display: inline; }
+.cml-jt:disabled { opacity: .45; }
+.cml-jt:focus-visible, button.cml-fil-t:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cml-pill-fd { display: inline-flex; align-items: center; gap: .3rem; font-size: var(--t-petit, .875rem); font-weight: 700; padding: .15rem .7rem; border-radius: 999px; border: 2px solid; color: var(--text-strong); margin: .1rem .15rem .1rem 0; }
+.cml-pill-fd.fac { background: var(--success-bg-subtle); border-color: var(--success); }
+.cml-pill-fd.dif { background: var(--warning-bg-subtle); border-color: var(--warning); }
+.cml-pill-fd .bi { font-size: .8rem; }
+/* Page « Facile ou difficile » : une ligne par condition, deux boutons (vert pour facile, ambre pour difficile, toujours écrits et cochés) */
+.cml-cond-ligne { display: flex; gap: .7rem; align-items: center; justify-content: space-between; flex-wrap: wrap; border-top: 1px solid var(--border); padding: .5rem 0; }
+.cml-cond-ligne:first-of-type { border-top: 0; }
+.cml-fd { display: inline-flex; gap: .35rem; }
+.cml-fd button { border: 2px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; min-height: 44px; padding: .3rem .9rem; font-weight: 600; display: inline-flex; gap: .35rem; align-items: center; }
+.cml-fd button .bi { display: none; }
+.cml-fd button.fac.is-actif { background: var(--success-bg-subtle); border-color: var(--success); font-weight: 800; }
+.cml-fd button.dif.is-actif { background: var(--warning-bg-subtle); border-color: var(--warning); font-weight: 800; }
+.cml-fd button.is-actif .bi { display: inline; }
+.cml-fd button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Résultats : « Vos choix » en lignes numérotées, « Pourquoi ce métier » en trois lignes */
+.cml-ligne-choix { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--border); padding: .5rem 0; }
+.cml-ligne-choix:first-of-type { border-top: 0; }
+.cml-ligne-choix .lib { flex: none; min-width: 11rem; font-weight: 800; display: flex; gap: .45rem; align-items: center; }
+.cml-ligne-choix .lib .cml-num { width: 26px; height: 26px; border-radius: 7px; font-size: .85rem; background: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-ligne-choix .pills { flex: 1; }
+.cml-pill.pc { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--text-strong); font-weight: 600; }
+.cml-pourquoi { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; padding: .55rem .75rem; margin: .3rem 0; }
+.cml-pourquoi p { margin: .2rem 0; font-size: .92rem; }
+.cml-pourquoi .bi { margin-right: .3rem; color: var(--accent-texte, var(--accent)); }
+/* Chemin 3 (questionnaire) : « Avant de commencer », parties, énoncés numérotés, réponses cochées */
+.cml-rassure { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; margin: .6rem 0; }
+.cml-rassure .r { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .65rem .8rem; display: flex; gap: .65rem; align-items: flex-start; }
+.cml-rassure .r .ico { flex: none; width: 38px; height: 38px; border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid var(--accent); }
+.cml-rassure .r b { display: block; }
+.cml-rassure .r .t { font-size: var(--t-petit, .875rem); color: var(--text-muted); }
+.cml-parties { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.cml-partie-t { display: flex; gap: .7rem; align-items: flex-start; border: 2px solid var(--accent); border-left-width: 8px; border-radius: 12px; background: var(--accent-bg-subtle); padding: .65rem .8rem; }
+.cml-partie-t .cml-num { width: 40px; height: 40px; border-radius: 10px; font-size: 1.4rem; background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-partie-t b { display: block; }
+.cml-partie-t .t { font-size: var(--t-petit, .875rem); color: var(--text-muted); }
+.cml-bandeau.petit { padding: .5rem .8rem; }
+.cml-bandeau.petit .cml-num { width: 40px; height: 40px; font-size: 1.4rem; border-radius: 10px; }
+.cml-bandeau.petit h2 { font-size: 1.05rem; margin: 0; }
+.cml-avancee { display: flex; gap: .6rem; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: .4rem 0 .2rem; font-size: var(--t-petit, .875rem); }
+.cml-segments { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin: .2rem 0 .6rem; }
+.cml-segments i { height: 8px; border-radius: 4px; background: var(--bg-subtle); border: 1px solid var(--border); }
+.cml-segments i.r { background: var(--accent); border-color: var(--accent); }
+.cml-q { display: grid; grid-template-columns: auto 1fr; gap: .5rem .8rem; align-items: start; background: var(--bg-card); border: 1px solid var(--border); border-left: 6px solid var(--border-strong); border-radius: 12px; padding: .65rem .8rem; margin: .5rem 0; }
+.cml-q.fait { border-left-color: var(--accent); background: var(--accent-bg-subtle); }
+.cml-q .cml-num { width: 34px; height: 34px; border-radius: 9px; color: var(--text-strong); }
+.cml-q.fait .cml-num { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-q .txt { align-self: center; font-weight: 500; }
+.cml-q .ex { display: block; font-weight: 400; font-size: .85rem; color: var(--text-muted); margin-top: .15rem; }
+.cml-q .reps { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .4rem; }
+.cml-rep { flex: 1 1 9rem; border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); min-height: 46px; padding: .3rem .6rem; font-weight: 600; display: inline-flex; gap: .35rem; align-items: center; justify-content: center; }
+.cml-rep .bi { display: none; }
+button.cml-rep:hover { border-color: var(--accent); }
+button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cml-rep.is-actif { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; font-weight: 800; }
+.cml-rep.is-actif .bi { display: inline; }
+.cml-rep.nsp { border-style: dashed; }
+.cml-rep.nsp.is-actif { background: var(--bg-subtle); border-style: solid; border-color: var(--text-muted); color: var(--text-strong); }
+.cml-reps-exemple { display: flex; flex-wrap: wrap; gap: .4rem; }
+.cml-reps-exemple .cml-rep { flex: 0 1 auto; min-height: 40px; }
+.cml-etat-page { border: 1px dashed var(--border-strong); border-radius: 10px; padding: .5rem .8rem; margin: .6rem 0; background: var(--bg-subtle); }
+/* Chemin 4 (« Les emplois en demande ») : en-tête, chiffres clés, sommaire, rubriques à bandeau d'accent, filtre, part saisonnière, onglets de familles */
+.cml-hero { border: 2px solid var(--accent); border-radius: 16px; background: var(--accent-bg-subtle); padding: 1rem 1.1rem; margin: .6rem 0; }
+.cml-dep { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin: .3rem 0 .6rem; }
+.cml-dep button { border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); min-height: 46px; padding: .3rem .9rem; font-weight: 700; display: inline-flex; gap: .4rem; align-items: center; }
+.cml-dep button.on { border-color: var(--accent-solide, var(--accent)); background: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-cles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.cml-cle { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .8rem; }
+.cml-cle b { display: block; font-size: 1.7rem; line-height: 1.1; font-weight: 800; color: var(--accent-texte, var(--accent)); }
+.cml-cle span { font-size: var(--t-petit, .875rem); color: var(--text-muted); }
+.cml-sommaire { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .55rem; margin: .7rem 0; }
+.cml-sommaire button { display: flex; gap: .55rem; align-items: center; text-align: left; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); color: var(--text-strong); padding: .45rem .6rem; min-height: 60px; font-weight: 700; font-size: var(--t-petit, .875rem); line-height: 1.15; }
+.cml-sommaire button:focus-visible, .cml-dep button:focus-visible, .cml-filtre button:focus-visible, .cml-tabs button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cml-sommaire .ico { flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--accent-solide, var(--accent)); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+.cml-rub { background: var(--bg-card); border: 1px solid var(--border); border-top: 8px solid var(--accent); border-radius: 14px; padding: .9rem 1.1rem 1rem; margin: .9rem 0; }
+.cml-rub:focus { outline: none; }
+.cml-rub .tete { display: flex; gap: .7rem; align-items: center; margin-bottom: .4rem; }
+.cml-rub .tete .ico { flex: none; width: 44px; height: 44px; border-radius: 11px; background: var(--accent-solide, var(--accent)); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+.cml-rub h2 { font-size: var(--t-grand, 1.25rem); font-weight: 800; margin: 0; }
+.cml-rub h3 { font-size: 1.05rem; font-weight: 800; margin: .8rem 0 .3rem; }
+.cml-rub .sous { font-size: var(--t-petit, .875rem); color: var(--text-muted); }
+.cml-filtre, .cml-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin: .5rem 0; }
+.cml-filtre button, .cml-tabs button { border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); min-height: 44px; padding: .3rem .8rem; font-weight: 600; }
+.cml-filtre button.on { border-color: var(--accent); background: var(--accent-bg-subtle); font-weight: 800; }
+.cml-tabs button.on { border-color: var(--accent-solide, var(--accent)); background: var(--accent-solide, var(--accent)); color: #fff; font-weight: 800; }
+.cml-met { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .6rem .8rem; margin: .5rem 0; }
+.cml-met .nom { font-weight: 800; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.cml-part { display: flex; height: 12px; border-radius: 7px; overflow: hidden; border: 1px solid var(--border); margin: .35rem 0 .25rem; background: var(--bg-subtle); }
+.cml-part i.s { background: var(--accent-solide, var(--accent)); }
+.cml-part i.a { background: var(--accent-bg-subtle); }
+.cml-legende { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-petit, .875rem); color: var(--text-muted); margin: .3rem 0; }
+.cml-legende i { display: inline-block; width: 13px; height: 13px; border-radius: 4px; margin-right: .35rem; vertical-align: -2px; }
+.cml-legende i.s { background: var(--accent-solide, var(--accent)); }
+.cml-legende i.a { background: var(--accent-bg-subtle); border: 1px solid var(--accent); }
+.cml-fiches { display: flex; flex-wrap: wrap; gap: .45rem; margin: .3rem 0; }
+.cml-fiches .btn { min-height: 44px; }
+.cml-grille-fiches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+.cml-grille-fiches .btn { min-height: 44px; }
+/* Téléphone : dans les graphiques de ce chemin (composant partagé « Comprendre les chiffres », laissé tel quel), le nom, la barre et le texte long se rangent l'un sous l'autre au lieu de déborder */
+@media (max-width: 640px) {
+  #cmrGraphique .comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-ligne { grid-template-columns: minmax(0, 1fr); gap: .15rem; padding: .35rem 0; }
+  #cmrGraphique .comprendre-les-chiffres-vues-liste .comprendre-les-chiffres-zone-valeur { white-space: normal; text-align: left; }
+}
+@media (max-width: 640px) { .cml-rassure, .cml-parties, .cml-cles, .cml-sommaire, .cml-grille-fiches { grid-template-columns: 1fr; } }
+/* « Ma synthèse » : bouton « Retenir pour ma synthèse » sous les cartes de métiers des trois passages */
+.cml-retenir { margin-top: .5rem; }
+.cml-retenir .btn { width: 100%; min-height: 44px; font-weight: 700; }
+/* « Ma synthèse » : page des trois passages (syntheseVue.js). Accent du site pour les repères, jetons de succès et d'alerte pour l'état d'un passage. */
+.cml-etat { display: inline-block; vertical-align: middle; margin-left: .4rem; font-size: .8rem; font-weight: 700; padding: .12rem .6rem; border-radius: 999px; border: 2px solid var(--border-strong); color: var(--text-strong); background: var(--bg-subtle); }
+.cml-etat.fait { border-color: var(--success); background: var(--success-bg-subtle); }
+.cml-etat.afaire { border-color: var(--warning); background: var(--warning-bg-subtle); }
+.cml-invite { display: flex; gap: .7rem; align-items: flex-start; border: 2px dashed var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); padding: .8rem 1rem; }
+.cml-invite > i { color: var(--accent-texte, var(--accent)); font-size: 1.4rem; }
+.cml-invite p { margin: 0 0 .5rem; }
+.cml-invite .btn { min-height: 44px; }
+.cml-retenu-ligne { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border: 2px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); padding: .5rem .8rem; margin: .6rem 0; }
+.cml-retenu-ligne > i { color: var(--accent-texte, var(--accent)); font-size: 1.2rem; }
+.cml-retenu-ligne .btn { min-height: 44px; }
+.cml-fiche-retenue { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-subtle); padding: .7rem .9rem; margin: .5rem 0; }
+.cml-fiche-retenue .nom { font-weight: 800; }
+.cml-fiche-retenue ul { list-style: none; margin: .3rem 0 0; padding: 0; font-size: var(--t-petit, .875rem); }
+.cml-fiche-retenue li { margin: .15rem 0; }
+.cml-ligne-m { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .6rem .8rem; margin: .5rem 0; }
+.cml-ligne-m .nom { font-weight: 800; margin-bottom: .25rem; }
+.cml-ligne-m .cml-let { display: inline-flex; gap: .25rem; margin-right: .4rem; vertical-align: middle; }
+.cml-barre-l.fort .nom { color: var(--text-strong); font-weight: 800; }
+.cml-barre-l.moyen .nom { color: var(--text-strong); font-weight: 600; }
+.cml-barre-l.discret .piste span { opacity: .45; }
+.cml-bloc-synthese { border: 2px solid var(--accent); background: var(--accent-bg-subtle); margin-top: 1rem; }
+.cml-table-croisee { width: 100%; border-collapse: collapse; font-size: var(--t-petit, .875rem); background: var(--bg-card); }
+.cml-table-croisee th, .cml-table-croisee td { border: 1px solid var(--border-strong); padding: .4rem .55rem; text-align: left; vertical-align: top; }
+.cml-table-croisee thead th { background: var(--bg-subtle); color: var(--text-strong); }
+.cml-quatre { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; }
+.cml-lecture-mini { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .8rem; }
+.cml-lecture-mini p { margin: .25rem 0 0; font-size: var(--t-petit, .875rem); }
+/* Passage 3 de « Ma synthèse » : départage des métiers aux mêmes lettres (A1b, A1d). */
+.cml-affiner { border: 1px dashed var(--accent); border-radius: 12px; padding: .7rem .9rem; margin: .8rem 0; background: var(--accent-bg-subtle); }
+.cml-affiner h3 { font-size: var(--t-grand, 1.125rem); font-weight: 800; margin: 0 0 .3rem; display: flex; gap: .5rem; align-items: center; }
+.cml-affiner h3 .bi { color: var(--accent); }
+.cml-aff-q { font-weight: 700; margin: .7rem 0 .3rem; }
+.cml-aff-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.cml-egalite { border: 1px dashed var(--border-strong); border-radius: 10px; padding: .4rem .8rem; margin: .5rem 0; }
+.cml-raisons { list-style: none; margin: .35rem 0 0; padding: 0; font-size: var(--t-petit, .875rem); }
+.cml-raisons li { display: flex; gap: .4rem; align-items: baseline; }
+/* « Ma lecture » (19/11/2026) : pistes, camembert « déjà pratiquées / à construire » (dessiné en CSS, l'état est aussi écrit), noms de sites en bleu sans lien */
+.cml-pistes { display: grid; gap: .6rem; }
+.cml-piste { border: 1px solid var(--border-strong); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-card); }
+.cml-pie-ligne { display: flex; gap: .9rem; align-items: center; margin: .5rem 0; flex-wrap: wrap; }
+.cml-pie { width: 84px; height: 84px; border-radius: 50%; background: conic-gradient(var(--accent) 0 var(--part), var(--accent-bg-subtle) 0); border: 2px solid var(--accent); flex: 0 0 auto; }
+.cml-pie-leg { list-style: none; margin: 0; padding: 0; }
+.cml-pie-leg .pt { display: inline-block; width: .85rem; height: .85rem; border-radius: 50%; margin-right: .45rem; border: 2px solid var(--accent); vertical-align: -1px; }
+.cml-pie-leg .pt.a { background: var(--accent); }
+.cml-pie-leg .pt.b { background: var(--accent-bg-subtle); }
+.cml-filtre { border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .8rem; margin: .6rem 0; }
+.cml-mot-bleu { color: var(--accent-texte, var(--accent)); font-weight: 700; }
+.cml-raisons .bi { color: var(--success-strong, var(--success)); flex: none; }
+
+@media (max-width: 640px) { .cml-fil { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .cml-hex-zone, .cml-grille3, .cml-grille3.cml-grille4, .cml-six, .cml-secteurs { grid-template-columns: 1fr; }
+  .cml-barre-l { grid-template-columns: 40px 1fr; }
+  .cml-barre-l .nom { grid-column: 1 / -1; min-width: 0; text-align: left; }
+}
+
 /* ===== Introduction : diaporama oral (modules/introduction/diaporama.js) =====
    Un cadre 16/9 dont toutes les tailles suivent SA largeur (unité cqw) : lisible à l'écran, au vidéoprojecteur et en plein écran. Maquette : docs/MAQUETTE_DIAPORAMA_INTRODUCTION_2026-11-02.html */
 /* Consigne 157 : le cadre (16/9, largeur donnée) ne dépasse jamais la hauteur de l'écran : 12 rem pour l'en-tête de l'application, la ligne d'outils et la barre du bas. */
@@ -6078,3 +6461,186 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 .cm-boutons { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .6rem; }
 .cm-lecon { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
 .cm-rappel { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
+
+/* Les pastilles d'une carte de « Droits et règles » filtrent la liste d'un clic ; un deuxième clic retire le filtre (consigne 422). */
+.nv-pastille-filtre { cursor: pointer; transition: box-shadow .12s ease; }
+.nv-pastille-filtre:hover, .nv-pastille-filtre:focus-visible { box-shadow: 0 0 0 2px var(--accent); outline: none; }
+.nv-pastille-actif { box-shadow: 0 0 0 2px var(--accent); font-weight: 700; }
+.nv-pastille-actif::after { content: " \2715"; font-weight: 700; }
+.nv-f-btn--jour { font-weight: 700; }
+
+/* ============================================================
+   Module « Explorer les métiers », entrée « Par un métier » (modules/comprendre-les-metiers/parMetierEcran.js) : tout est limité à #pmRacine.
+   Repris de la maquette validée du 17/11/2026 ; n'emploie que les variables de couleur de l'application (mode sombre compris).
+   ============================================================ */
+#pmRacine .note{font-size:.85rem;color:var(--text-muted)}
+#pmRacine .sous-titre{text-align:center;color:var(--text-muted);margin-bottom:.8rem}
+#pmRacine .bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin:.7rem 0}
+#pmRacine .bloc h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+#pmRacine .bloc h3 .bi{color:var(--accent)}
+#pmRacine .bloc h3 .pm-fermer{margin-left:auto;font-weight:600;min-height:40px}
+#pmRacine .bloc h3 .pm-fermer .bi{color:inherit}
+#pmRacine .recherche{border:3px solid var(--accent);border-radius:14px;padding:.8rem .9rem;background:var(--bg-card);box-shadow:0 0 0 4px var(--accent-bg-subtle)}
+#pmRacine .recherche label{font-weight:800;font-size:1.05rem;display:flex;gap:.5rem;align-items:center;margin-bottom:.4rem}
+#pmRacine .recherche label .bi{color:var(--accent);font-size:1.3rem}
+#pmRacine .recherche input{min-height:54px;font-size:1.1rem;border:2px solid var(--border-strong);border-radius:10px;padding:.4rem .8rem;width:100%;background:var(--bg-page);color:var(--text-strong)}
+#pmRacine .recherche input:focus{outline:3px solid var(--accent);border-color:var(--accent)}
+#pmRacine .filtres-boutons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:.8rem 0}
+#pmRacine.tel .filtres-boutons{grid-template-columns:1fr}
+#pmRacine .fb{border:2px solid var(--border-strong);border-radius:12px;background:var(--bg-card);color:var(--text-strong);padding:.6rem .8rem;text-align:left;min-height:64px;display:flex;gap:.6rem;align-items:center;cursor:pointer}
+#pmRacine .fb .bi{font-size:1.5rem;color:var(--accent)}
+#pmRacine .fb b{display:block}
+#pmRacine .fb small{color:var(--text-muted);display:block}
+#pmRacine .fb.actif{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .fb .pm-pastille{margin-left:auto;background:var(--accent);color:var(--bg-card);border-radius:999px;font-weight:800;font-size:.85rem;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;padding:0 .4rem}
+#pmRacine .mes-filtres{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}
+#pmRacine .chip{display:inline-flex;align-items:center;gap:.35rem;background:var(--accent-bg-subtle);border:1px solid var(--accent);color:var(--text-strong);border-radius:999px;padding:.2rem .3rem .2rem .7rem;font-size:.88rem}
+#pmRacine .chip .t{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em}
+#pmRacine .chip button{border:0;background:transparent;color:var(--text-strong);min-width:32px;min-height:32px;border-radius:50%;font-size:1rem;line-height:1}
+#pmRacine .chip button:hover{background:var(--bg-subtle)}
+#pmRacine .compteur{font-weight:800;font-size:1.15rem;margin:.5rem 0}
+#pmRacine .onglets{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+#pmRacine .onglets button{border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.45rem .8rem;min-height:44px;font-weight:700}
+#pmRacine .onglets button.actif{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .legende{font-size:.88rem;color:var(--text-muted);margin:.2rem 0 .6rem}
+#pmRacine .suggest{border:1px solid var(--border-strong);border-radius:10px;margin:.4rem 0;background:var(--bg-card)}
+#pmRacine .suggest button{display:flex;justify-content:space-between;gap:.5rem;width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text-strong);padding:.5rem .8rem;min-height:44px;text-align:left}
+#pmRacine .suggest button:last-child{border-bottom:0}
+#pmRacine .suggest button:hover{background:var(--bg-subtle)}
+#pmRacine details.fam{border:1px solid var(--border);border-radius:10px;margin:.4rem 0;background:var(--bg-card)}
+#pmRacine details.fam>summary{cursor:pointer;padding:.55rem .8rem;font-weight:700;min-height:44px;display:flex;align-items:center;gap:.5rem}
+#pmRacine details.fam>summary .pm-nb{margin-left:auto;font-weight:400;font-size:.82rem;color:var(--text-muted)}
+#pmRacine details.fam .pm-corps{padding:.2rem .8rem .8rem;display:flex;flex-wrap:wrap;gap:.4rem}
+#pmRacine .cp{border:1px solid var(--border-strong);border-radius:999px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .8rem;min-height:40px;font-size:.9rem;display:inline-flex;gap:.4rem;align-items:center}
+#pmRacine .cp small{color:var(--text-muted)}
+#pmRacine .cp[aria-pressed="true"]{background:var(--accent);color:var(--bg-card);border-color:var(--accent)}
+#pmRacine .cp[aria-pressed="true"] small{color:var(--bg-card)}
+#pmRacine .cp:disabled{opacity:.45}
+#pmRacine .niveaux{display:flex;flex-wrap:wrap;gap:.4rem}
+#pmRacine .niveaux button,#pmRacine .secteurs button{border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.4rem .8rem;min-height:44px}
+#pmRacine .niveaux button[aria-pressed="true"],#pmRacine .secteurs button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+#pmRacine .secteurs{display:flex;flex-wrap:wrap;gap:.4rem}
+#pmRacine .secteurs small{color:var(--text-muted);margin-left:.3rem}
+#pmRacine .grille{display:grid;gap:.6rem;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))}
+#pmRacine.tel .grille{grid-template-columns:1fr}
+#pmRacine .carte-m{border:1px solid var(--border-strong);border-radius:12px;background:var(--bg-card);padding:.7rem .8rem;display:flex;flex-direction:column;gap:.3rem}
+#pmRacine .carte-m h4{font-size:1rem;font-weight:800;margin:0}
+#pmRacine .carte-m .acces{font-size:.82rem;color:var(--text-muted)}
+#pmRacine .carte-m .pill{display:inline-block;font-size:.78rem;padding:.08rem .55rem;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);align-self:flex-start}
+#pmRacine .carte-m .retrouve{font-size:.8rem}
+#pmRacine .carte-m .retrouve span{display:inline-block;background:var(--accent-bg-subtle);border-radius:999px;padding:.05rem .5rem;margin:.1rem .15rem .1rem 0}
+#pmRacine .carte-m .manque{font-size:.82rem;color:var(--warning-strong)}
+#pmRacine .carte-m .btn{margin-top:auto;min-height:44px}
+#pmRacine .vide{border:2px dashed var(--border-strong);border-radius:12px;padding:1rem;text-align:center}
+#pmRacine .filtres-boutons{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){
+#pmRacine .filtres-boutons{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+#pmRacine.tel .filtres-boutons{grid-template-columns:1fr}
+#pmRacine .zone{border:2px solid var(--border-strong);border-radius:18px;padding:.9rem 1rem 1.1rem;margin:1rem 0;background:var(--bg-page)}
+#pmRacine .zone-choix{border-color:var(--accent)}
+#pmRacine .zone-res{border-style:dashed}
+#pmRacine .zone-titre{font-size:1.25rem;font-weight:800;margin:0 0 .7rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+#pmRacine .zone-titre .num{background:var(--accent);color:var(--bg-card);border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center}
+#pmRacine .zone-sous{font-size:.88rem;font-weight:400;color:var(--text-muted)}
+#pmRacine .aller-res{text-align:center;margin-top:.8rem}
+#pmRacine .aller-res .btn{min-height:48px}
+#pmRacine .zone-res.pm-flash{border-style:solid;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)}
+#pmRacine .zone-titre:focus{outline:none}
+#pmRacine .bouton-fixe-tel{position:fixed;left:0;right:0;bottom:64px;display:flex;justify-content:center;z-index:520;padding:0 16px}
+#pmRacine .bouton-fixe-tel .btn{min-height:52px;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:390px;width:100%}
+#pmRacine .entonnoir{margin:.4rem 0 .6rem}
+#pmRacine .bande{display:grid;grid-template-columns:150px 1fr 60px;gap:.5rem;align-items:center;font-size:.88rem;margin:.2rem 0}
+#pmRacine.tel .bande{grid-template-columns:110px 1fr 46px}
+#pmRacine .bande .barre-e{height:16px;border-radius:999px;background:var(--bg-subtle);overflow:hidden;display:block}
+#pmRacine .bande .barre-e>span{display:block;height:100%;background:var(--accent)}
+#pmRacine .bande b{text-align:right}
+#pmRacine details.mes-choix{border:1px solid var(--border);border-radius:10px;margin:.6rem 0;background:var(--bg-card);padding:.3rem .7rem}
+#pmRacine details.mes-choix>summary{cursor:pointer;min-height:40px;display:flex;align-items:center}
+#pmRacine details.comment{margin:.3rem 0 .6rem;font-size:.9rem}
+#pmRacine details.comment>summary{cursor:pointer;min-height:40px;display:flex;align-items:center;color:var(--accent);font-weight:600}
+#pmRacine.tel .cml-cond-ligne{flex-direction:column;align-items:stretch}
+/* Les deux boutons « Facile pour moi » / « Difficile pour moi » des suggestions de recherche : mêmes couleurs que les lignes des conditions (vert, ambre). */
+#pmRacine .duo{display:inline-flex;gap:.3rem;flex-shrink:0}
+#pmRacine .duo button{border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .8rem;min-height:44px}
+#pmRacine .duo button.fac[aria-pressed="true"]{border-color:var(--success);background:var(--success-bg-subtle);font-weight:800}
+#pmRacine .duo button.dif[aria-pressed="true"]{border-color:var(--warning);background:var(--warning-bg-subtle);font-weight:800}
+#pmRacine .jauge-zone{display:flex;align-items:center;gap:.6rem;margin:.2rem 0}
+#pmRacine .jauge{position:relative;flex:1;display:flex;height:30px}
+#pmRacine .j-plein,#pmRacine .j-vide{display:block;border:0;padding:0;height:100%;min-width:0}
+#pmRacine .j-plein{background:var(--accent);border-radius:999px 0 0 999px;border:2px solid var(--accent);border-right:0}
+#pmRacine .j-plein.tout{border-radius:999px;border-right:2px solid var(--accent)}
+#pmRacine .j-vide{flex:1 1 auto;background:repeating-linear-gradient(135deg,var(--bg-subtle) 0 6px,var(--bg-card) 6px 12px);border:2px solid var(--border-strong);border-left:0;border-radius:0 999px 999px 0}
+#pmRacine .j-vide.rien{border-left:2px solid var(--border-strong);border-radius:999px}
+#pmRacine .jauge{height:34px}
+#pmRacine .j-titre{font-size:.82rem;color:var(--text-muted);margin:.1rem 0 .5rem}
+#pmRacine .j-pct{position:absolute;top:50%;transform:translateY(-50%);font-size:1.15rem;font-weight:800;pointer-events:none;z-index:2}
+#pmRacine .j-pct.dedans{color:var(--bg-card)}
+#pmRacine .j-pct.dehors{color:var(--text-strong)}
+#pmRacine .pg{margin:.25rem 0}
+#pmRacine .pt{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);margin-right:.3rem}
+#pmRacine .pc{display:inline-block;background:var(--accent-bg-subtle);border:1px solid var(--accent);border-radius:999px;padding:.05rem .5rem;margin:.1rem .15rem .1rem 0}
+#pmRacine .pill-btn{align-self:flex-start;border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:999px;padding:.1rem .65rem;font-size:.78rem;min-height:32px;display:inline-flex;gap:.3rem;align-items:center;cursor:pointer;text-align:left}
+#pmRacine .pill-btn:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .cond-carte{font-size:.78rem;color:var(--text-muted)}
+#pmRacine .rang-boutons{display:flex;gap:.4rem;margin-top:auto}
+#pmRacine .rang-boutons .btn{margin-top:0;min-height:44px}
+#pmRacine .rang-boutons .b-fiche{flex:3 1 0}
+#pmRacine .carte-m{position:relative}
+#pmRacine .suggestions{border:2px solid var(--accent);border-radius:12px;margin:.5rem 0;background:var(--bg-card);overflow:hidden}
+#pmRacine .sg-groupe+.sg-groupe{border-top:1px solid var(--border-strong)}
+#pmRacine .sg-titre{background:var(--bg-subtle);padding:.35rem .8rem;font-weight:800;font-size:.9rem;display:flex;gap:.4rem;align-items:center}
+#pmRacine .sg-titre small{font-weight:400;color:var(--text-muted);margin-left:auto}
+#pmRacine .sg{display:flex;justify-content:space-between;align-items:center;gap:.6rem;width:100%;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text-strong);padding:.45rem .8rem;min-height:44px;text-align:left}
+#pmRacine .sg:hover{background:var(--accent-bg-subtle)}
+#pmRacine .sg small{color:var(--text-muted)}
+#pmRacine .sg.plus{color:var(--accent);font-weight:700;justify-content:center}
+#pmRacine .sg-cond{cursor:default}
+#pmRacine .sg-cond:hover{background:transparent}
+#pmRacine .sg-vide{padding:.7rem .9rem}
+#pmRacine .tout-decocher{margin-left:auto;min-height:44px}
+#pmRacine h4.ft{font-size:1rem;font-weight:800;margin:.8rem 0 .3rem}
+#pmRacine h4.ft small{font-weight:400;color:var(--text-muted)}
+#pmRacine .lab{display:block;font-weight:700;margin:.7rem 0 .25rem}
+#pmRacine select.form-select,#pmRacine input.form-control{min-height:46px}
+#pmRacine .fil{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;font-size:.85rem;margin:.2rem 0 .6rem}
+#pmRacine .fil button{border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:999px;padding:.2rem .7rem;min-height:36px}
+#pmRacine .fil button:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .fil .ici{font-weight:800;border:2px solid var(--accent);background:var(--accent-bg-subtle);border-radius:999px;padding:.2rem .7rem}
+#pmRacine .rang-boutons .b-fiche{flex:1 1 auto}
+#pmRacine .zone .zone-titre .bi{color:var(--accent)}
+/* « Par un métier » : fiche enrichie, pages compétence et secteur, demande d'offres (maquette du 17/11/2026) */
+#pmRacine .fiche-tete{border-color:var(--accent);border-width:2px}
+#pmRacine .fm-titre{font-size:1.7rem;font-weight:800;margin:.1rem 0 .4rem}
+#pmRacine .fm-ligne{margin-bottom:.4rem}
+#pmRacine .fm-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+#pmRacine .fm-actions .btn{min-height:46px}
+#pmRacine .pastilles{display:flex;flex-wrap:wrap;gap:.4rem}
+#pmRacine .cond-pastille{border:1px solid var(--border-strong);border-radius:999px;padding:.25rem .8rem;font-size:.88rem;background:var(--bg-subtle)}
+#pmRacine .lab.check{font-weight:400;display:flex;gap:.5rem;align-items:flex-start}
+#pmRacine .demande-boite textarea{font-size:.85rem}
+#pmRacine .fil .sep{color:var(--text-muted)}
+#pmRacine .rang-retour{display:flex;flex-wrap:wrap;gap:.5rem}
+#pmRacine .rang-retour .btn{min-height:44px}
+#pmRacine .bloc-cond{border-color:var(--accent);border-width:2px}
+#pmRacine .cond-familles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+#pmRacine.tel .cond-familles{grid-template-columns:1fr}
+#pmRacine .cond-fam{border:1px solid var(--border);border-radius:12px;padding:.5rem .6rem;background:var(--bg-page)}
+#pmRacine .cond-fam-titre{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:.35rem}
+#pmRacine .cond-tuiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.45rem}
+#pmRacine .cond-tuile{border:1px solid var(--border-strong);border-radius:10px;background:var(--bg-card);padding:.5rem .6rem;display:flex;flex-direction:column;gap:.2rem;font-size:.85rem;line-height:1.25}
+#pmRacine .cond-tuile .bi{font-size:1.5rem;color:var(--accent)}
+#pmRacine .cond-tuile small{font-weight:700}
+#pmRacine .cond-tuile.est-facile{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .cond-tuile.est-difficile{border-color:var(--warning-border);background:var(--warning-bg-subtle)}
+
+/* « Chercher des offres » (Mes tests / Ma lecture / Les emplois en demande) : deux rubriques encadrées, métiers en tuiles sur deux colonnes */
+#pmfCandidater .pmf-rubrique { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; }
+#pmfCandidater .pmf-rub-titre { font-size: var(--t-moyen, 1.05rem); font-weight: 800; margin: 0 0 .5rem; display: flex; align-items: center; gap: .5rem; }
+#pmfCandidater .pmf-rub-titre .bi { color: var(--accent); }
+#pmfCandidater .pmf-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem .7rem; margin: .5rem 0; padding: 0; }
+#pmfCandidater .pmf-grille li { border: 2px solid var(--border-strong, var(--border)); border-radius: 10px; background: var(--bg-card); }
+#pmfCandidater .pmf-grille li:hover { border-color: var(--accent); }
+#pmfCandidater .pmf-grille li:has(input:checked) { border-color: var(--accent); background: var(--accent-bg-subtle); }
+#pmfCandidater .pmf-grille .lab.check { margin: 0; padding: .6rem .8rem; min-height: 44px; display: flex; align-items: flex-start; gap: .55rem; width: 100%; cursor: pointer; }
+@media (max-width: 575px) { #pmfCandidater .pmf-grille { grid-template-columns: 1fr; } }

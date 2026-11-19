@@ -56,6 +56,7 @@
         "module": "Comprendre les chiffres",
         "rubriques": [
           "Bloc « Ce que les employeurs prévoient d’embaucher cette année » : les 10 métiers de la Dordogne et de la Haute-Vienne (bmo-metiers.json)",
+          "Module « Explorer les métiers », chemin « Les emplois en demande » : même fichier, mêmes 10 métiers par département. Ajouter les métiers nouveaux dans CMR_FICHES_ENQUETE (modules/comprendre-les-metiers/recrute.js) ; le test tests/recrute.test.js échoue tant qu’un métier n’a pas ses fiches",
           "Si l’enquête apporte une information utile non affichée (métiers en tension, difficulté de recrutement) : proposer à Denis une rubrique de plus"
         ],
         "nouveaute": "Une nouvelle enquête change la liste affichée : ajouter une ligne"
@@ -143,7 +144,7 @@
         "phrase": "Reprendre à la deuxième étape",
         "contexte": "Point de reprise : docs/ETAT_DES_CHANTIERS.md, étape 2 des blocs écarts de « Comprendre les chiffres » (relevés partiels déjà notés pour 6 départements, reste la part des 65 ans ou plus, les 9 régions et les 15 textes sourcés). Réessayer l'Insee un appel à la fois ; si l'erreur 500 persiste, noter l'heure du nouvel essai et ne rien écrire sans chiffres exacts."
       },
-      "faite": null,
+      "faite": "2026-11-17",
       "creee_le": "2026-11-10",
       "miseAJour": {
         "module": "Comprendre les chiffres",
@@ -171,7 +172,7 @@
           "url": "https://www.insee.fr/fr/statistiques/2121597"
         }
       ],
-      "faite": null,
+      "faite": "2026-11-17",
       "creee_le": "2026-11-10",
       "miseAJour": {
         "module": "Comprendre les chiffres",
@@ -662,6 +663,41 @@
       },
       "faite": null,
       "creee_le": "2026-11-10"
+    },
+    {
+      "id": "niveaux-acces-metierscope-reprise",
+      "titre": "Niveaux d’accès des métiers : reprendre quand MétierScope répond de nouveau",
+      "date": "2026-11-24",
+      "estimee": true,
+      "pourquoi": "Le 17/11/2026, le site de France Travail (donc MétierScope) ne répond plus : ni le navigateur intégré ni Chrome ne chargent les fiches. 533 niveaux sont déjà lus et rangés dans docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json (intégrés le 17/11/2026). Restent : le niveau du Couvreur (F1619), le choix pour deux fiches écrites à la main au mauvais code ROME, et l’intégration. Date estimée : à confirmer selon le retour du site.",
+      "quoi": "1) Vérifier à la main que le site candidat.francetravail.fr répond. 2) Lire la fiche F1619 (Couvreur), rubrique « Comment y accéder », et noter le niveau le plus bas qui permet d’entrer. 3) Trancher pour « Ouvrier agricole / viticole » (code A1405 à corriger en A1419) et « Ouvrier de chai / Agent de cave » (A1413 à corriger en A1422) : A1419 et A1422 existent déjà comme fiches générées du ROME, donc remplacer ou non les fiches écrites à la main (alias METIERS_ROME_ALIAS + identifiants dans data/metiers.js et data/secteurs.js). 4) Quand le niveau de F1619 est lu : l'ajouter au fichier docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json puis lancer node scripts/importRome/genererNiveauxVerifies.js. (Les 532 autres niveaux sont déjà intégrés depuis le 17/11/2026.)",
+      "fichiers": [
+        "docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json",
+        "scripts/importRome/genererNiveauxVerifies.js",
+        "data/metiers.js",
+        "data/secteurs.js",
+        "docs/ERREURS_ET_BUGS.md (section des fiches au mauvais code ROME)"
+      ],
+      "sources": [
+        {
+          "nom": "France Travail, MétierScope, fiche Couvreur F1619",
+          "url": "https://candidat.francetravail.fr/metierscope/fiche-metier/F1619/m"
+        }
+      ],
+      "reprise": {
+        "phrase": "Reprendre les niveaux d’accès des métiers (MétierScope)",
+        "contexte": "État : docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json (533 niveaux, 131 sans niveau de diplôme, tous doutes tranchés par Denis le 17/11/2026). Couvreur recodé F1619 (commit ca05d1f5). Les deux fiches agricoles restent aux anciens codes en attendant la décision de Denis. Vérifier d’abord avec Denis que MétierScope répond."
+      },
+      "faite": null,
+      "creee_le": "2026-11-17",
+      "miseAJour": {
+        "module": "Explorer les métiers",
+        "rubriques": [
+          "Niveau d’accès affiché sur les fiches métiers (scripts/importRome/niveauxAcces.js puis données régénérées)",
+          "Fiches Ouvrier agricole / viticole, Ouvrier de chai et Couvreur"
+        ],
+        "nouveaute": "Une ligne dans data/nouveautes.js si le niveau d’accès devient visible sur de nouveaux métiers"
+      }
     }
   ]
 }

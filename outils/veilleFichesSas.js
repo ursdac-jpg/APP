@@ -22,9 +22,9 @@ const RE_ID = /^[a-z0-9][a-z0-9-]{2,100}$/;
 const TERRITOIRES = ['national', 'region', '24', '87'];
 const EN_TETE = ['# Sas des fiches du cadre : propositions de l\'assistant (mise a jour, nouvelle fiche, retrait), PAS ENCORE verifiees. L\'application NE LIT PAS ce fichier.',
   '# Une proposition par ligne (JSON). Elle sort d\'ici quand elle est validee (outil de veille, « Mise a jour », « A valider », bouton « C\'est bon »).', ''].join('\n');
-const LIBELLES = { titre: 'Titre', pour_qui: 'Utile si', tags: 'Mots de recherche', territoire: 'Territoire', lexique: 'Mots expliqués', sources: 'Sources', ce_qui_change_souvent: 'Ce qui change souvent', phrase_generale: 'Phrase générale (affichée après six mois)' };
+const LIBELLES = { titre: 'Titre', pour_qui: 'Utile si', tags: 'Mots de recherche', territoire: 'Territoire', lexique: 'Mots expliqués', sources: 'Sources', ce_qui_change_souvent: 'Ce qui change souvent', phrase_generale: 'Phrase générale (affichée après six mois)', maj_resume: 'Ce qui change (affiché dans Nouveautés)' };
 const CLES_LISTES = ['tags', 'sources', 'ce_qui_change_souvent'];
-const CLES_BLOC = ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'verifie_le', 'tags', 'lexique', 'sources', 'ce_qui_change_souvent', 'revisions', 'texte', 'resume', 'fiche', 'structures', 'voir_aussi_lexique', 'phrase_generale'];
+const CLES_BLOC = ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'verifie_le', 'tags', 'lexique', 'sources', 'ce_qui_change_souvent', 'revisions', 'texte', 'resume', 'fiche', 'structures', 'voir_aussi_lexique', 'phrase_generale', 'maj_resume'];
 
 function finDeLigne(t) { return String(t).indexOf('\r\n') !== -1 ? '\r\n' : '\n'; }
 function nettoyer(s) { return String(s === undefined || s === null ? '' : s).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); }
@@ -72,7 +72,7 @@ function ecrireSas(recs, fin) {
 // ---------- lire ce que l'assistant a repondu ----------
 // Un bloc [FICHE] comme celui du prompt de redaction (cles « id: », « titre: »..., listes a tirets, « texte: » suivi de la prose).
 function lireBloc(bloc) {
-  const out = { id: '', rayon: '', titre: '', pour_qui: '', territoire: '', verifie_le: '', tags: [], lexique: [], sources: [], ce_qui_change_souvent: [], revisions: [], texte: '', phrase_generale: '', presents: {} };
+  const out = { id: '', rayon: '', titre: '', pour_qui: '', territoire: '', verifie_le: '', tags: [], lexique: [], sources: [], ce_qui_change_souvent: [], revisions: [], texte: '', phrase_generale: '', maj_resume: '', presents: {} };
   const lignes = String(bloc || '').replace(/\r\n/g, '\n').split('\n'), prose = [];
   let cur = null;
   for (const ln of lignes) {
@@ -88,6 +88,7 @@ function lireBloc(bloc) {
         continue;
       }
       if (cle === 'phrase_generale') { out.phrase_generale = retirerGuillemets(val); out.presents.phrase_generale = true; cur = 'phrase_generale'; continue; }
+      if (cle === 'maj_resume') { out.maj_resume = retirerGuillemets(val); out.presents.maj_resume = true; cur = 'maj_resume'; continue; }
       if (CLES_LISTES.indexOf(cle) !== -1 || cle === 'lexique' || cle === 'revisions') { out.presents[cle] = true; cur = cle; continue; }
       cur = null; continue;   // une cle inconnue (collecte:, structures:...) coupe la liste en cours
     }
@@ -96,6 +97,7 @@ function lireBloc(bloc) {
     const item = ln.replace(/^\s*[-*]\s*/, '').trim();
     if (!item) { continue; }
     if (cur === 'phrase_generale') { out.phrase_generale = (out.phrase_generale + ' ' + retirerGuillemets(item)).trim(); }
+    else if (cur === 'maj_resume') { out.maj_resume = (out.maj_resume + ' ' + retirerGuillemets(item)).trim(); }
     else if (cur === 'tags') { out.tags.push(retirerGuillemets(item)); }
     else if (cur === 'sources' || cur === 'ce_qui_change_souvent' || cur === 'revisions') { out[cur].push(retirerGuillemets(item)); }
     else if (cur === 'lexique') {
@@ -134,7 +136,7 @@ function lireReponse(texte, ctx) {
     const rayonBloc = b.rayon && (cx.rayons || []).indexOf(b.rayon) !== -1 ? b.rayon : '';
     if (!id) { id = slug((rayonBloc || cx.rayon || '') + '-' + titre).slice(0, 100); }
     const existante = id ? (cx.trouverFiche ? cx.trouverFiche(id) : null) : null;
-    const champs = { titre: titre, pour_qui: b.pour_qui, tags: b.tags, territoire: b.territoire, lexique: b.lexique, sources: b.sources, ce_qui_change_souvent: b.ce_qui_change_souvent, texte: b.texte, revisions: b.revisions, phrase_generale: b.phrase_generale };
+    const champs = { titre: titre, pour_qui: b.pour_qui, tags: b.tags, territoire: b.territoire, lexique: b.lexique, sources: b.sources, ce_qui_change_souvent: b.ce_qui_change_souvent, texte: b.texte, revisions: b.revisions, phrase_generale: b.phrase_generale, maj_resume: b.maj_resume };
     let revision = '';
     if (existante) {
       const actuel = ficheChamps.lire(existante.texte), anciennes = actuel.ok ? (ficheChamps.champs(actuel).revisions || []) : [];
@@ -297,10 +299,12 @@ function evaluer(rec, ctx) {
   ['tags', 'sources', 'ce_qui_change_souvent'].forEach(function (k) { if ((c[k] || []).length) { ch[k] = c[k]; } });
   if ((c.lexique || []).length) { ch.lexique = c.lexique; }
   if (String(c.phrase_generale || '').trim()) { ch.phrase_generale = String(c.phrase_generale).trim(); }
+  if (String(c.maj_resume || '').trim()) { ch.maj_resume = String(c.maj_resume).trim().replace(/^\d{4}-\d{2}-\d{2}\s*:\s*/, ''); }
   if (String(c.texte || '').trim()) { ch.corps = String(c.texte).replace(/\r\n/g, '\n').replace(/^\n+/, '').replace(/\s+$/, ''); }
   const avantCorps = ficheChamps.corpsDe(fi).replace(/\r\n/g, '\n');
   Object.keys(ch).forEach(function (k) {
     if (k === 'corps') { return; }
+    if (k === 'maj_resume') { if (ficheChamps.phraseDeMajResume(actuels[k]) === ch[k]) { delete ch[k]; return; } sortie.champsChanges.push({ cle: k, libelle: LIBELLES[k], avant: ficheChamps.phraseDeMajResume(actuels[k]), apres: ch[k] }); return; }
     if (JSON.stringify(actuels[k]) === JSON.stringify(ch[k])) { delete ch[k]; return; }
     sortie.champsChanges.push({ cle: k, libelle: LIBELLES[k] || k, avant: formaterValeur(k, actuels[k]), apres: formaterValeur(k, ch[k]) });
   });
@@ -342,6 +346,9 @@ function appliquer(texteSas, actions, ctx) {
         if (!it || GENRES.indexOf(it.genre) === -1) { return { ok: false, erreur: 'Une proposition n\'a pas de genre connu.' }; }
         const rec = { id: idDe(it.genre, nettoyer(it.fiche), nettoyer(it.champs && it.champs.texte)), genre: it.genre, rayon: nettoyer(it.rayon), fiche: nettoyer(it.fiche), titre: nettoyer(it.titre), cree_le: cx.aujourdhui || '', origine: nettoyer(it.origine) || 'assistant', revision: nettoyer(it.revision), champs: (it.champs && typeof it.champs === 'object') ? it.champs : {} };
         const det = detailsPropres(it.sourcesDetail); if (det.length) { rec.sources_detail = det; }
+        // Nouvelle fiche creee depuis un changement du balayage (consigne 426) : on garde de quel changement elle vient, pour lui lier la fiche a la publication.
+        const dc = it.depuis_changement;
+        if (it.genre === 'nouv' && dc && typeof dc === 'object' && /^\d{4}-\d{2}$/.test(String(dc.mois || '')) && nettoyer(dc.domaine) && nettoyer(dc.intitule)) { rec.depuis_changement = { mois: String(dc.mois), domaine: nettoyer(dc.domaine), intitule: nettoyer(dc.intitule) }; }
         if (JSON.stringify(rec).length > 120000) { return { ok: false, erreur: 'Une proposition est trop longue.' }; }
         const i = recs.findIndex(function (x) { return x.id === rec.id; });
         // Deja prise en compte (fiche deja a jour, deja existante ou deja retiree) : jamais rangee dans le sas, on le DIT (sauf « forcer »).
@@ -424,7 +431,7 @@ function appliquer(texteSas, actions, ctx) {
 function lister(texteSas, ctx) {
   const lignes = parserSas(texteSas).map(function (r) {
     const ev = evaluer(r, ctx);
-    return { id: r.id, genre: r.genre, rayon: r.rayon, fiche: r.fiche, titre: r.titre, creeLe: r.cree_le, origine: r.origine, prev: (ctx && ctx.prevDe) ? ctx.prevDe(r) : '', revision: r.revision || '', problemes: ev.problemes, sourcesAAjouter: ev.sourcesAAjouter, phrase: ev.phrase || null, exigeRevision: ev.exigeRevision, demande: ev.demande, ressemble: ev.ressemble || [], champsChanges: ev.champsChanges, corps: ev.corps, sources: ev.sources.map(function (nom) {
+    return { id: r.id, genre: r.genre, rayon: r.rayon, fiche: r.fiche, titre: r.titre, creeLe: r.cree_le, depuisChangement: r.depuis_changement || null, origine: r.origine, prev: (ctx && ctx.prevDe) ? ctx.prevDe(r) : '', revision: r.revision || '', problemes: ev.problemes, sourcesAAjouter: ev.sourcesAAjouter, phrase: ev.phrase || null, exigeRevision: ev.exigeRevision, demande: ev.demande, ressemble: ev.ressemble || [], champsChanges: ev.champsChanges, corps: ev.corps, sources: ev.sources.map(function (nom) {
       const d = (r.sources_detail || []).filter(function (x) { return x.nom === nom; })[0] || {}, reg = (ctx && ctx.adresseDe) ? ctx.adresseDe(nom) : '';
       // adresse : celle du registre quand la source y est ; adressePropose : celle donnée par la collecte, à ajouter au registre après vérification
       return { nom: nom, adresse: reg || d.url || '', auRegistre: !!reg, titre: d.titre || '', adressePropose: reg ? '' : (d.url || ''), aAjouter: ev.sourcesAAjouter.some(function (x) { return x.nom === nom; }) };
@@ -440,7 +447,7 @@ function construirePrompt(rec, ctx, socle) {
   const bloc = ['[FICHE]', 'id: ' + rec.fiche, 'titre: ' + (c.titre || ''), 'pour_qui: ' + (c.pour_qui || ''), 'tags: [' + (c.tags || []).join(', ') + ']', 'sources:'].concat((c.sources || []).map(function (s) { return '  - ' + s; }))
     .concat(['lexique:']).concat((c.lexique || []).map(function (x) { return '  - ' + x.terme + ' = ' + x.definition; }))
     .concat(['ce_qui_change_souvent:']).concat((c.ce_qui_change_souvent || []).map(function (s) { return '  - ' + s; }))
-    .concat(['phrase_generale: ' + (c.phrase_generale || ''), 'texte:', c.texte || '', '[/FICHE]']).join('\n');
+    .concat(['phrase_generale: ' + (c.phrase_generale || '')]).concat(rec.genre === 'maj' ? ['maj_resume: ' + (c.maj_resume || '')] : []).concat(['texte:', c.texte || '', '[/FICHE]']).join('\n');
   const adr = (c.sources || []).map(function (s) { const a = cx.adresseDe ? cx.adresseDe(s) : ''; return '- ' + s + (a ? ' : ' + a : ''); }).join('\n') || '(aucune source indiquée)';
   const quoi = rec.genre === 'nouv' ? 'une NOUVELLE fiche' : (rec.genre === 'ret' ? 'le RETRAIT d\'une fiche' : 'une MISE À JOUR de fiche');
   const retrait = rec.genre === 'ret' ? ['', 'Fiche à retirer : ' + rec.fiche + ' (' + rec.titre + ')', 'Raison proposée : ' + (c.raison || '(aucune)'), 'Fiche de remplacement proposée : ' + (c.remplace_par || '(aucune)')].join('\n') : '';
@@ -457,7 +464,7 @@ function construirePrompt(rec, ctx, socle) {
     '5. Si une correction est nécessaire, termine par la fiche COMPLÈTE corrigée, dans un seul bloc [FICHE] ... [/FICHE] au même format que ci-dessus, sans rien d\'autre dans ce bloc.',
     '6. Si la fiche corrigée cite une source qui ne figure pas dans la liste « Adresses des sources citées » ci-dessus, donne-la APRÈS le bloc [FICHE], dans un bloc [SOURCES] ... [/SOURCES], une ligne par source nouvelle : nom-court | titre complet de la page | https://adresse exacte de la page que tu as ouverte. Le nom-court est celui écrit dans le champ « sources » de la fiche (lettres minuscules sans accent, chiffres et tirets). Toute adresse commence par https://.',
     '7. Dans le bloc [FICHE], garde la ligne « phrase_generale: » : une ou deux phrases SANS AUCUN chiffre (ni en chiffres, ni en lettres devant une unité comme « deux ans » ou « trente jours »), 500 caractères au plus, qui résument la règle et disent où trouver les montants et les dates. Elle remplace le texte de la fiche quand celle-ci a six mois ou plus. Elle est obligatoire si le texte de la fiche cite un chiffre, une date ou une durée.'
-  ].join('\n');
+  ].concat(rec.genre === 'maj' ? ['8. Pour cette mise à jour, garde aussi la ligne « maj_resume: » : une ou deux phrases simples, comme on le dirait à voix haute, qui disent ce qui est nouveau dans la fiche pour la personne qui la lit (sans date, 450 caractères au plus, jamais le mot « IA » ni le nom d\'un assistant en ligne).'] : []).join('\n');
 }
 
 // Empreinte d'une proposition : le repere « pre-verifie » (garde sur le poste, hors Git) ne vaut que pour CETTE version de la proposition.

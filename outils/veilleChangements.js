@@ -7,7 +7,9 @@
    la personne a ouvert la source, rempli ce qui manquait et clique « C'est bon ». Il entre alors dans contenu/balayage/<mois>.md avec la ligne
    « Verifie le : <date du jour> » (marque verte dans l'application). Une information « a verifier » ne peut JAMAIS etre validee.
    Format du sas (une ligne = un changement, colonnes separees par « | ») :
-     id | mois | domaine | intitule | nature | en_vigueur | concerne | ce_qui_change | source_titre | source_url | origine
+     id | mois | domaine | intitule | nature | en_vigueur | concerne | ce_qui_change | source_titre | source_url | origine | periode | fiche_liee | detail
+   fiche_liee (facultatif, consigne 425) : « rayon/identifiant » de la fiche qui developpe ce changement ; detail (facultatif, consigne 426) : le texte complet lu dans
+   « Lire plus d'informations », un element par « ¶ » (« # » intertitre, « > libelle = valeur » rappel, « ! » note datee, rien = paragraphe). Les sas ecrits avant (12 colonnes) restent lisibles.
    origine : « balayage » (propose par l'assistant) ou « reprise » (deja publie avant la regle, a reconfirmer).
    ============================================================ */
 'use strict';
@@ -15,12 +17,17 @@ const crypto = require('crypto');
 const ecartes = require('./veilleEcartes.js');
 const CHEMIN_SAS = 'outils/sas/changements.sas.txt';
 const DOSSIER_DIGESTS = 'modules/comprendre-le-cadre/contenu/balayage';
-const COLONNES = ['id', 'mois', 'domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url', 'origine', 'periode'];
+const COLONNES = ['id', 'mois', 'domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url', 'origine', 'periode', 'fiche_liee', 'detail'];
+const NB_COLONNES_ANCIENNES = 12;   // un sas ecrit avant « fiche_liee » et « detail » reste lisible
+const LONGUEUR_MAX_DETAIL = 3000, LONGUEUR_MAX_ELEMENT_DETAIL = 700;
+const RE_FICHE_LIEE = /^[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/;
+// Mots qui n'ont rien a faire dans un texte lu par les personnes : le mot « IA » et les noms des assistants en ligne.
+const MOTS_INTERDITS_PUBLIC = /\bIA\b|ChatGPT|Perplexity|Claude|Gemini|Copilot|Mistral|OpenAI|Anthropic/i;
 const RE_MOIS = /^\d{4}-(0[1-9]|1[0-2])$/;
 const RE_DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 const TIRET_LONG = new RegExp(String.fromCharCode(0x2013) + '|' + String.fromCharCode(0x2014));
 const EN_TETE = ['# Sas des changements : changements du balayage PROPOSES, pas encore verifies. L\'application NE LIT PAS ce fichier.',
-  '# Format : id | mois | domaine | intitule | nature | en_vigueur | concerne | ce_qui_change | source_titre | source_url | origine | periode',
+  '# Format : id | mois | domaine | intitule | nature | en_vigueur | concerne | ce_qui_change | source_titre | source_url | origine | periode | fiche_liee | detail',
   '# Un changement sort d\'ici quand il est valide (outil de veille, bouton « C\'est bon ») : il entre alors dans contenu/balayage/<mois>.md avec « Verifie le ».', ''].join('\n');
 
 function finDeLigne(texte) { return String(texte).indexOf('\r\n') !== -1 ? '\r\n' : '\n'; }
@@ -42,7 +49,7 @@ function parserSas(texte) {
     const l = brut.trim();
     if (!l || l.charAt(0) === '#') { return; }
     const c = l.split('|').map(function (x) { return x.trim(); });
-    if (c.length < COLONNES.length) { return; }
+    if (c.length < NB_COLONNES_ANCIENNES) { return; }
     const v = {}; COLONNES.forEach(function (nom, i) { v[nom] = c[i] || ''; });
     lignes.push(v);
   });
@@ -55,8 +62,53 @@ function ecrireSas(lignes, fin) {
   return (EN_TETE + lignes.map(formaterLigne).join('\n') + '\n').replace(/\n/g, fin || '\n');
 }
 
+// Les elements du texte complet : « un element ¶ un element ». Rend la liste des elements non vides.
+function elementsDuDetail(detail) {
+  return String(detail || '').split('¶').map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+}
+
+// Lie une fiche a un changement DEJA publie (consigne 426, second temps) : insere ou remplace la ligne « Fiche liée : rayon/identifiant » juste apres « Ce qui change »,
+// SANS toucher au reste du changement (la date « Vérifié le » n'est pas renouvelee : on n'a rien reverifie). Rend { ok, texte } ou { ok: false, erreur }.
+function lierFicheDansDigest(texteDigest, domaine, intitule, ref) {
+  const r = String(ref || '').trim();
+  if (!RE_FICHE_LIEE.test(r)) { return { ok: false, erreur: 'La fiche liee s\'ecrit « rayon/identifiant ».' }; }
+  const texte = String(texteDigest || ''), fin = finDeLigne(texte), lignes = texte.split(/\r?\n/);
+  const cleDomaine = normaliser(domaine), cleItem = normaliser(intitule);
+  let dom = '', debut = -1;
+  for (let i = 0; i < lignes.length; i++) {
+    const l = lignes[i];
+    if (/^##\s+/.test(l) && !/^###/.test(l)) { dom = normaliser(l.replace(/^##\s+/, '')); continue; }
+    if (/^###\s+/.test(l) && dom === cleDomaine && normaliser(l.replace(/^###\s+/, '')) === cleItem) { debut = i; break; }
+  }
+  if (debut < 0) { return { ok: false, erreur: 'Changement introuvable dans le digest (« ' + String(intitule).slice(0, 60) + ' »).' }; }
+  let fin2 = debut + 1;
+  while (fin2 < lignes.length && !/^##/.test(lignes[fin2])) { fin2++; }
+  const bloc = lignes.slice(debut, fin2).filter(function (l) { return !/^Fiche li[ée]e\s*:/.test(l); });
+  const k = bloc.findIndex(function (l) { return /^Ce qui change\s*:/.test(l); });
+  if (k < 0) { return { ok: false, erreur: 'Le changement n\'a pas de ligne « Ce qui change ».' }; }
+  bloc.splice(k + 1, 0, 'Fiche liée : ' + r);
+  return { ok: true, texte: lignes.slice(0, debut).concat(bloc, lignes.slice(fin2)).join(fin) };
+}
+
 // ---------- controle d'un changement avant publication ----------
 // Rend la liste des problemes (vide = le changement peut etre valide).
+// Controles du texte complet (le detail d'un changement). Une seule source : verifierChangement() et lireTexteComplet() s'en servent toutes les deux.
+function problemesDuDetail(detail) {
+  const e = [];
+  const elements = elementsDuDetail(detail);
+  if (elements.length) {
+    if (String(detail).length > LONGUEUR_MAX_DETAIL) { e.push('Le texte complet est trop long : ' + String(detail).length + ' caracteres (' + LONGUEUR_MAX_DETAIL + ' au plus).'); }
+    elements.forEach(function (el) {
+      if (el.length > LONGUEUR_MAX_ELEMENT_DETAIL) { e.push('Une ligne du texte complet est trop longue (' + el.length + ' caracteres, ' + LONGUEUR_MAX_ELEMENT_DETAIL + ' au plus) : coupez-la en deux paragraphes.'); }
+      if (/^>/.test(el) && !/^>\s*.+?\s+=\s+.+$/.test(el)) { e.push('Une ligne du rappel doit s\'ecrire « > libelle = valeur » : « ' + el.slice(0, 50) + ' ».'); }
+      if (/^#\s*$/.test(el) || /^!\s*$/.test(el)) { e.push('Une ligne du texte complet est vide apres son signe (« # » ou « ! »).'); }
+    });
+    if (MOTS_INTERDITS_PUBLIC.test(String(detail))) { e.push('Le texte complet ne peut citer ni le mot « IA » ni le nom d\'un assistant en ligne : dites « l\'assistant en ligne ».'); }
+    if (/[<]/.test(String(detail))) { e.push('Le texte complet ne peut pas contenir « < ».'); }
+  }
+  return e;
+}
+
 function verifierChangement(v) {
   const e = [];
   const exige = function (cle, libelle) { if (!String(v[cle] || '').trim()) { e.push(libelle + ' : obligatoire.'); } };
@@ -69,7 +121,10 @@ function verifierChangement(v) {
     e.push('La date d\'entree en vigueur doit s\'ecrire AAAA-MM-JJ (ou « prevu AAAA-MM-JJ », ou « sans objet » pour une information qui n\'est pas un texte).');
   }
   if (!/^https:\/\/[^\s|)\]]+$/.test(String(v.source_url || '').trim())) { e.push('L\'adresse de la source doit commencer par https:// (sans espace).'); }
-  ['intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'domaine'].forEach(function (cle) {
+  const fl = String(v.fiche_liee || '').trim();
+  if (fl && !RE_FICHE_LIEE.test(fl)) { e.push('La fiche liee s\'ecrit « rayon/identifiant » (lettres minuscules, chiffres, traits d\'union), ou reste vide.'); }
+  problemesDuDetail(v.detail).forEach(function (p) { e.push(p); });
+  ['intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'domaine', 'detail'].forEach(function (cle) {
     if (aVerifier(v[cle])) { e.push('Le champ « ' + cle + ' » contient « a verifier » : une information possiblement fausse ne se valide pas.'); }
     if (TIRET_LONG.test(String(v[cle] || ''))) { e.push('Le champ « ' + cle + ' » contient un tiret cadratin ou demi-cadratin (interdit).'); }
   });
@@ -87,9 +142,12 @@ function blocChangement(v, date) {
   return ['### ' + nettoyerChamp(v.intitule),
     'Type : ' + nettoyerChamp(nature) + (/^sans objet$/i.test(String(v.en_vigueur).trim()) ? '' : ', ' + formeVigueur(v.en_vigueur)) + '.',
     'Concerne : ' + nettoyerChamp(v.concerne),
-    'Ce qui change : ' + nettoyerChamp(v.ce_qui_change),
+    'Ce qui change : ' + nettoyerChamp(v.ce_qui_change)].concat(
+    String(v.fiche_liee || '').trim() ? ['Fiche liée : ' + String(v.fiche_liee).trim()] : [],
+    elementsDuDetail(v.detail).map(function (el) { return 'Détail : ' + nettoyerChamp(el); }),
+    [
     'Source : [' + nettoyerChamp(v.source_titre) + '](' + String(v.source_url).trim() + ')',
-    'Vérifié le : ' + date];
+    'Vérifié le : ' + date]);
 }
 function entreeSource(v, date) {
   let hote = '';
@@ -191,7 +249,7 @@ function changementsDuDigest(texteDigest, mois) {
   const pousser = function () { if (cur) { out.push(cur); cur = null; } };
   lignes.forEach(function (l) {
     if (/^##\s+/.test(l) && !/^###/.test(l)) { pousser(); domaine = l.replace(/^##\s+/, '').trim(); return; }
-    if (/^###\s+/.test(l)) { pousser(); cur = { mois: mois, domaine: domaine, intitule: l.replace(/^###\s+/, '').trim(), nature: '', en_vigueur: '', concerne: '', ce_qui_change: '', source_titre: '', source_url: '', origine: 'reprise' }; return; }
+    if (/^###\s+/.test(l)) { pousser(); cur = { mois: mois, domaine: domaine, intitule: l.replace(/^###\s+/, '').trim(), nature: '', en_vigueur: '', concerne: '', ce_qui_change: '', source_titre: '', source_url: '', origine: 'reprise', fiche_liee: '', detail: '' }; return; }
     if (!cur) { return; }
     let m;
     if ((m = /^Type\s*:\s*(.+)$/.exec(l))) {
@@ -209,6 +267,8 @@ function changementsDuDigest(texteDigest, mois) {
     } else if ((m = /^Concerne\s*:\s*(.+)$/.exec(l))) { cur.concerne = m[1].trim(); }
     else if ((m = /^Ce qui change\s*:\s*(.+)$/.exec(l))) { cur.ce_qui_change = m[1].trim(); }
     else if ((m = /^Source\s*:\s*\[(.+?)\]\((https?:\/\/[^\s)]+)\)/.exec(l))) { cur.source_titre = m[1].trim(); cur.source_url = m[2].trim(); }
+    else if ((m = /^Fiche li[ée]e\s*:\s*(.+)$/.exec(l))) { cur.fiche_liee = m[1].trim(); }
+    else if ((m = /^D[ée]tail\s*:\s*(.+)$/.exec(l))) { cur.detail = (cur.detail ? cur.detail + ' ¶ ' : '') + m[1].trim(); }
   });
   pousser();
   out.forEach(function (c) { c.id = identifiant(mois, c.domaine, c.intitule); });
@@ -255,12 +315,23 @@ function appliquer(texteSas, actions, ctx) {
       if (act.motif === 'autre' && !String(act.precision || '').trim()) { return { ok: false, erreur: 'Écrivez votre raison pour « ' + lignes[i].intitule.slice(0, 60) + ' ».' }; }
       sortis.push({ sorte: 'changement', original: lignes[i], motif: act.motif, precision: act.precision || '' });
       lignes.splice(i, 1); resume.retires++;
+    } else if (act.op === 'lier') {
+      const ref = String(act.fiche_liee || '').trim();
+      if (!RE_MOIS.test(String(act.mois || '')) || !String(act.domaine || '').trim() || !String(act.intitule || '').trim()) { return { ok: false, erreur: 'Le changement a lier n\'est pas bien designe (trimestre, domaine, intitule).' }; }
+      if (!RE_FICHE_LIEE.test(ref)) { return { ok: false, erreur: 'La fiche liee s\'ecrit « rayon/identifiant ».' }; }
+      const existe = (typeof ctx.ficheExiste === 'function' && ctx.ficheExiste(ref)) || (Array.isArray(ctx.fichesPrevues) && ctx.fichesPrevues.indexOf(ref) !== -1);
+      if (!existe) { return { ok: false, erreur: 'La fiche liee « ' + ref + ' » n\'existe pas.' }; }
+      const rl = lierFicheDansDigest(lireDigest(act.mois), act.domaine, act.intitule, ref);
+      if (!rl.ok) { return { ok: false, erreur: rl.erreur }; }
+      digests[act.mois] = rl.texte;
+      resume.lies = (resume.lies || 0) + 1;
     } else if (act.op === 'valider') {
       const i = lignes.findIndex(function (x) { return x.id === act.id; });
       if (i < 0) { return { ok: false, erreur: 'Changement introuvable dans le sas (« ' + String(act.id).slice(0, 60) + ' »).' }; }
       const v = Object.assign({}, lignes[i]);
       const corr = act.valeurs || {};
-      ['domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url'].forEach(function (c) { if (corr[c] !== undefined) { v[c] = nettoyerChamp(corr[c]); } });
+      ['domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url', 'fiche_liee', 'detail'].forEach(function (c) { if (corr[c] !== undefined) { v[c] = nettoyerChamp(corr[c]); } });
+      if (String(v.fiche_liee || '').trim() && typeof ctx.ficheExiste === 'function' && !ctx.ficheExiste(String(v.fiche_liee).trim())) { return { ok: false, erreur: '« ' + v.intitule.slice(0, 60) + ' » : la fiche liee « ' + v.fiche_liee + ' » n\'existe pas.' }; }
       const r = integrerDansDigest(lireDigest(v.mois), v, ctx.aujourdhui, v.periode);
       if (!r.ok) { return { ok: false, erreur: '« ' + v.intitule.slice(0, 60) + ' » : ' + r.erreur }; }
       digests[v.mois] = r.texte;
@@ -278,7 +349,7 @@ function appliquer(texteSas, actions, ctx) {
 function identiquePublie(texteDigest, v) {
   const publie = blocPublie(texteDigest, v);
   if (!publie) { return false; }
-  const sansDate = function (t) { return (Array.isArray(t) ? t.join('\n') : String(t)).split(/\r?\n/).filter(function (l) { return !/^Vérifié le/.test(l); }).map(function (l) { return l.trim(); }).filter(Boolean).join('\n'); };
+  const sansDate = function (t) { return (Array.isArray(t) ? t.join('\n') : String(t)).split(/\r?\n/).filter(function (l) { return !/^(Vérifié le|Fiche liée|Détail)/.test(l); }).map(function (l) { return l.trim(); }).filter(Boolean).join('\n'); };
   return sansDate(publie) === sansDate(blocChangement(v, ''));
 }
 
@@ -447,10 +518,116 @@ function lireReponse(texte, actuel) {
   return { ok: true, statut: brut.statut || '', remarque: brut.remarque || '', propositions: propositions };
 }
 
+// ---------- rediger le texte complet avec un assistant (consigne 426, dernier point) ----------
+// Un message A PART de la verification des champs : il demande le texte complet (le detail) d'un changement, partie par partie, avec la page et une
+// courte citation pour chaque montant et chaque date. La reponse est lue par lireTexteComplet(), qui applique les memes controles que la publication.
+const MOIS_LETTRES = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function dateEnLettres(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  if (!m || +m[2] < 1 || +m[2] > 12) { return String(iso || ''); }
+  return (+m[3] === 1 ? '1er' : String(+m[3])) + ' ' + MOIS_LETTRES[+m[2] - 1] + ' ' + m[1];
+}
+// Un changement est « à venir » quand sa date est annoncée (« prévu ... ») ou encore dans le futur : la règle n'est pas acquise.
+function changementAVenir(enVigueur, aujourdhui) {
+  const ev = String(enVigueur || '').trim();
+  if (/^pr[ée]vu/i.test(ev)) { return true; }
+  return /^\d{4}-\d{2}-\d{2}$/.test(ev) && RE_DATE.test(aujourdhui || '') && ev > aujourdhui;
+}
+
+function construirePromptTexteComplet(v, aujourdhui, socle) {
+  const val = function (c) { return String(v[c] || '').trim() || '(vide)'; };
+  const avenir = changementAVenir(v.en_vigueur, aujourdhui);
+  const jour = dateEnLettres(aujourdhui);
+  const parties = avenir
+    ? ['« Ce qui est annoncé »', '« Où on en est aujourd\'hui » (la situation actuelle, à la date d\'aujourd\'hui : ' + jour + ')', '« Ce qui n\'est pas encore décidé »', '« Qui est concerné »', '« Que faire d\'ici là »']
+    : ['« Ce qui change »', '« Où on en est aujourd\'hui » (la situation actuelle, à la date d\'aujourd\'hui : ' + jour + ')', '« Qui est concerné »'];
+  const lignes = [
+    String(socle || '').trim(),
+    '',
+    'Je tiens une page « Nouveautés » pour des personnes en insertion professionnelle. Un changement officiel ' + (avenir ? 'est annoncé' : 'est en vigueur') + '. Rédige son TEXTE COMPLET, que la personne lira en grand. Voici ce qui est déjà écrit :',
+    '',
+    'Domaine : ' + val('domaine'),
+    'Intitulé : ' + val('intitule'),
+    'Nature et date du texte : ' + val('nature'),
+    'En vigueur le : ' + val('en_vigueur'),
+    'Public concerné : ' + val('concerne'),
+    'Ce qui change (résumé déjà écrit) : ' + val('ce_qui_change'),
+    'Source : ' + val('source_titre') + ', ' + val('source_url'),
+    '',
+    'Ta mission :',
+    '1. Ouvre la source indiquée (si elle est illisible, trouve la page officielle précise). N\'écris que ce que tu as lu sur une page que tu as ouverte, et donne la page.',
+    '2. Écris ces parties, dans cet ordre : ' + parties.join(', ') + '.',
+    '3. Phrases courtes, mots du quotidien, un fait par phrase, aucun jugement sur la personne, accents corrects, aucun tiret long, jamais le mot « IA » ni le nom d\'un assistant en ligne (dis « l\'assistant en ligne »).',
+    '4. Chaque montant et chaque date vient avec la page où tu l\'as lu (ligne « page: ») et une courte citation de ce que tu as lu (ligne « citation: », 15 mots au plus).',
+    '5. Si une information est introuvable, ne l\'invente pas : écris-le dans « remarque: ».',
+    '',
+    'Écris le texte complet ligne par ligne, avec une ligne « element: » par élément :',
+    '- un titre de partie : « element: # Titre de la partie »',
+    '- une phrase de texte : « element: la phrase »',
+    '- un chiffre à rappeler : « element: > libellé = valeur » (par exemple « element: > Smic horaire brut = 12,31 euros »)',
+    '- une note datée : « element: ! Situation vérifiée le ' + jour + ', d\'après le nom du site. »',
+    '',
+    'Réponds UNIQUEMENT par ce bloc, rien avant ni après :',
+    '',
+    '[TEXTE_COMPLET]',
+    'statut: confirmé | partiel | introuvable',
+    'page: adresse complète d\'une page lue (une ligne « page: » par page)',
+    'citation: courte citation lue (une ligne « citation: » par citation)',
+    'element: # Titre de la première partie',
+    'element: première phrase',
+    '(... une ligne « element: » par élément ...)',
+    'remarque: une phrase au plus sur ce que tu n\'as pas pu confirmer',
+    '[/TEXTE_COMPLET]'
+  ];
+  return lignes.join('\n');
+}
+
+// Lit le bloc [TEXTE_COMPLET] colle par la personne. actuel = le texte complet deja ecrit dans la carte (ou vide).
+// Rend { ok, statut, remarque, elements, detail, pages, citations, problemes, identique, actuel } ou { ok:false, erreur }.
+function lireTexteComplet(texte, actuel) {
+  const t = String(texte || '');
+  const m = /\[TEXTE_COMPLET\]([\s\S]*?)(?:\[\/TEXTE_COMPLET\]|$)/i.exec(t);
+  if (!m || !/:/.test(m[1])) {
+    return { ok: false, erreur: 'Je ne trouve pas le bloc [TEXTE_COMPLET] dans cette réponse. Redemandez à l\'assistant de répondre UNIQUEMENT par ce bloc, puis collez-le ici.' };
+  }
+  const brut = { statut: '', remarque: '' };
+  const elements = [], pages = [], citations = [];
+  m[1].split(/\r?\n/).forEach(function (ligne) {
+    const k = /^\s*(?:[-*•]\s*)?\**\s*(statut|page|citation|element|remarque)\s*\**\s*:\s*(.*)$/i.exec(ligne);
+    if (!k) { return; }
+    const cle = k[1].toLowerCase(), valeur = k[2].replace(/\s+/g, ' ').trim();
+    if (cle === 'element') { if (valeur) { elements.push(valeur.replace(/^`|`$/g, '').trim()); } }
+    else if (cle === 'page') { const u = /https:\/\/[^\s|)\]>]+/.exec(valeur); if (u) { pages.push(u[0].replace(/[.,;]+$/, '')); } }
+    else if (cle === 'citation') { const c = nettoyerValeurReponse(valeur); if (c) { citations.push(c); } }
+    else { brut[cle] = nettoyerValeurReponse(valeur); }
+  });
+  if (!elements.length) {
+    return { ok: false, erreur: 'Le bloc [TEXTE_COMPLET] ne contient aucune ligne « element: ». Redemandez à l\'assistant d\'écrire le texte, une ligne « element: » par élément.' };
+  }
+  const detail = elements.join(' ¶ ');
+  const problemes = problemesDuDetail(detail);
+  if (aVerifier(detail)) { problemes.push('Le texte contient « à vérifier » : une information possiblement fausse ne se publie pas.'); }
+  if (TIRET_LONG.test(detail)) { problemes.push('Le texte contient un tiret cadratin ou demi-cadratin (interdit).'); }
+  // Chaque montant et chaque date doit venir avec sa page et une courte citation (une phrase d'intertitre ou de note n'en demande pas).
+  const chiffres = elements.some(function (el) { return !/^[#!]/.test(el) && /\d/.test(el); });
+  if (chiffres && !pages.length) { problemes.push('Des montants ou des dates sont donnés, mais l\'assistant n\'indique aucune page lue.'); }
+  if (chiffres && !citations.length) { problemes.push('Des montants ou des dates sont donnés, mais l\'assistant ne donne aucune citation.'); }
+  citations.forEach(function (c) {
+    if (c.split(/\s+/).length > 15) { problemes.push('Une citation dépasse 15 mots : « ' + c.slice(0, 50) + '... ».'); }
+  });
+  const courant = String(actuel || '').trim();
+  return {
+    ok: true, statut: brut.statut || '', remarque: brut.remarque || '', elements: elements, detail: detail,
+    pages: pages, citations: citations, problemes: problemes,
+    identique: !!courant && normaliser(courant) === normaliser(detail), actuel: courant
+  };
+}
+
 module.exports = {
   CHEMIN_SAS: CHEMIN_SAS, DOSSIER_DIGESTS: DOSSIER_DIGESTS, COLONNES: COLONNES, EN_TETE: EN_TETE,
   parserSas: parserSas, formaterLigne: formaterLigne, ecrireSas: ecrireSas, verifierChangement: verifierChangement,
   integrerDansDigest: integrerDansDigest, changementsDuDigest: changementsDuDigest, appliquer: appliquer, lister: lister,
   exemplesDeStyle: exemplesDeStyle, construirePrompt: construirePrompt, lireReponse: lireReponse, CHAMPS_VERIF: CHAMPS_VERIF,
-  dejaPublie: dejaPublie, identiquePublie: identiquePublie, blocPublie: blocPublie, identifiant: identifiant, blocChangement: blocChangement, nouveauDigest: nouveauDigest, RE_MOIS: RE_MOIS
+  construirePromptTexteComplet: construirePromptTexteComplet, lireTexteComplet: lireTexteComplet, problemesDuDetail: problemesDuDetail, changementAVenir: changementAVenir, dateEnLettres: dateEnLettres,
+  elementsDuDetail: elementsDuDetail, lierFicheDansDigest: lierFicheDansDigest, MOTS_INTERDITS_PUBLIC: MOTS_INTERDITS_PUBLIC, dejaPublie: dejaPublie, identiquePublie: identiquePublie, blocPublie: blocPublie, identifiant: identifiant, blocChangement: blocChangement, nouveauDigest: nouveauDigest, RE_MOIS: RE_MOIS
 };

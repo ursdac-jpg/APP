@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Mon parcours, version 1 du 19/11/2026</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 7rem}
+.mq-page{max-width:980px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.6rem .9rem;margin:.6rem auto 1rem;max-width:980px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.mq-regl b{margin-right:.3rem}
+.mq-regl .ferme{margin-left:auto}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.note{font-size:.85rem;color:var(--text-muted)}
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.2rem;margin:.9rem 0}
+.bloc h2,.bloc h3{font-size:var(--t-grand,1.25rem);font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.bloc h2 .bi,.bloc h3 .bi{color:var(--accent)}
+.ecran{border:2px dashed var(--border-strong);border-radius:18px;padding:.6rem .9rem 1rem;margin:1.6rem 0 .4rem}
+.ecran>.etiquette{display:inline-block;background:var(--accent-solide,var(--accent));color:#fff;font-weight:800;border-radius:8px;padding:.15rem .7rem;margin:-1.3rem 0 .5rem;font-size:.9rem}
+.titre-page{font-size:var(--t-titre-page,1.7rem);font-weight:800;margin:.2rem 0 .4rem;text-align:center}
+.sous-titre{text-align:center;color:var(--text-muted);margin-bottom:.6rem}
+.encart{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.7rem .9rem;margin:.7rem 0;display:flex;gap:.7rem;align-items:flex-start}
+.encart.warn{background:var(--warning-bg-subtle);border-left-color:var(--warning-border)}
+.encart i{color:var(--accent);font-size:1.3rem;margin-top:.1rem}
+.encart p{margin:0}
+.etat-pastille{font-size:.8rem;font-weight:700;padding:.12rem .6rem;border-radius:999px;margin-left:auto}
+.etat-pastille.fait{background:var(--success-bg-subtle,#e6f4ea);color:var(--success,#1e6b3a);border:1px solid var(--success,#1e6b3a)}
+.etat-pastille.afaire{background:var(--warning-bg-subtle);color:var(--warning-strong);border:1px solid var(--warning-border)}
+.boutons-ligne{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+.boutons-ligne .btn{min-height:44px}
+.ligne{display:flex;gap:.7rem;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--border);padding:.6rem 0}
+.ligne:first-of-type{border-top:0}
+.ligne .nom{font-weight:700}
+.ligne .sub{font-size:.85rem;color:var(--text-muted)}
+.jetons{display:flex;flex-wrap:wrap;gap:.45rem;margin:.4rem 0 .6rem}
+.groupe{border-top:1px solid var(--border);padding-top:.6rem;margin-top:.7rem}
+.groupe h4{font-size:1rem;font-weight:800;margin:0 0 .15rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.groupe h4 small{font-weight:600;color:var(--text-muted)}
+.groupe .aide{font-size:.85rem;color:var(--text-muted);margin:0 0 .3rem}
+.mini{font-size:.85rem}
+.rech{position:relative}
+.rech input{width:100%;min-height:46px;border:2px solid var(--border-strong);border-radius:10px;padding:.4rem .8rem;background:var(--bg-card);color:var(--text-strong)}
+.sugg{border:1px solid var(--border-strong);border-radius:10px;background:var(--bg-card);margin-top:.3rem;overflow:hidden}
+.sugg button{display:flex;width:100%;text-align:left;gap:.6rem;align-items:center;justify-content:space-between;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text-strong);padding:.5rem .8rem;min-height:44px}
+.sugg button:first-child{border-top:0}
+.sugg button:hover{background:var(--accent-bg-subtle)}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
+.tel .cols3{grid-template-columns:1fr}
+.col{border:1px solid var(--border-strong);border-radius:12px;padding:.6rem .8rem;background:var(--bg-card)}
+.col h4{font-size:1rem;font-weight:800;margin:0 0 .2rem}
+.col ul{margin:.3rem 0 0;padding-left:1.1rem}
+.col li{margin:.1rem 0}
+.cmp-tete{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.pre{white-space:pre-wrap;font-family:Consolas,monospace;font-size:.82rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;max-height:340px;overflow:auto}
+.questions .q{border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem 0;background:var(--bg-card)}
+.questions .q h4{font-size:1rem;font-weight:800;margin:0 0 .3rem}
+.questions .q p{margin:.2rem 0}
+.reco{color:var(--success,#1e6b3a);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="mq-regl" id="regl">
+  <b><i class="bi bi-sliders" aria-hidden="true"></i> Réglages</b>
+  <button type="button" class="btn btn-sm btn-outline-primary" id="bOrdi" aria-pressed="true">Ordinateur</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" id="bTel" aria-pressed="false">Téléphone</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="bSombre" aria-pressed="false">Mode sombre</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary ferme" id="bFerme" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+</div>
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="bRouvre"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages</button>
+
+<div class="mq-page" id="page">
+
+<h1 class="titre-page">Maquette : Mon parcours (étape B de Ma synthèse)</h1>
+<p class="sous-titre">Version 1 du 19/11/2026. Les fiches, les compétences et les calculs viennent des vraies données de l'application : cochez, ajoutez, retirez, tout est câblé. Seuls huit métiers sont chargés dans cette maquette ; l'application aura les 1 920.</p>
+
+<div class="encart"><i class="bi bi-info-circle" aria-hidden="true"></i><p><b>Ce que cette maquette ne fait pas :</b> aucun écran « D'un métier à un autre » (décidé), aucun dépôt de CV (plus tard), aucune date ni durée d'emploi. Le parcours dit seulement <b>ce que vous avez réellement pratiqué</b>, métier par métier.</p></div>
+
+<!-- ============ ÉCRAN 1 ============ -->
+<div class="ecran"><span class="etiquette">Écran 1 : sur la page « Ma synthèse »</span>
+<div class="bloc" id="e1"></div>
+</div>
+
+<!-- ============ ÉCRAN 2 ============ -->
+<div class="ecran"><span class="etiquette">Écran 2 : la page « Mon parcours » (liste et ajout d'un métier)</span>
+<div id="e2"></div>
+</div>
+
+<!-- ============ ÉCRAN 3 ============ -->
+<div class="ecran"><span class="etiquette">Écran 3 : ce que j'ai fait comme « ce métier » (compétences à cocher)</span>
+<div id="e3"></div>
+</div>
+
+<!-- ============ ÉCRAN 4 ============ -->
+<div class="ecran"><span class="etiquette">Écran 4 : ce que mon parcours apporte à un métier de ma lecture</span>
+<div id="e4"></div>
+</div>
+
+<!-- ============ ÉCRAN 5 ============ -->
+<div class="ecran"><span class="etiquette">Écran 5 : ce qui part chez l'assistant en ligne</span>
+<div id="e5"></div>
+</div>
+
+<!-- ============ QUESTIONS ============ -->
+<div class="ecran"><span class="etiquette">Mes recommandations et mes questions</span>
+<div class="questions" id="qs"></div>
+</div>
+
+</div>
+
+<script>
+var METIERS=[{"nom":"Cuisinier","niv":3,"sf":[{"l":"Organiser le travail d'une équipe","c":1},{"l":"Suivre et faire progresser les compétences de son équipe","c":0},{"l":"Répartir les personnes et les moyens selon les besoins","c":0},{"l":"Transmettre un geste professionnel","c":0},{"l":"Créer et organiser un évènement","c":0},{"l":"Adapter un article ou une production à la demande","c":0},{"l":"Inventer des recettes et des menus","c":0},{"l":"Goûter et assembler des aliments","c":0},{"l":"Préparer des plats","c":1},{"l":"Préparer du pain, des pâtisseries, des viennoiseries et du chocolat","c":0},{"l":"Entretenir un équipement, une machine ou une installation","c":0},{"l":"Nettoyer et entretenir un lieu ou un local","c":0},{"l":"Superviser des opérations et des actions","c":0},{"l":"Analyser la qualité des façons de travailler","c":0},{"l":"Contrôler la qualité d'une matière première","c":0},{"l":"Contrôler la qualité des façons de travailler","c":1},{"l":"Gérer les stocks","c":0},{"l":"Organiser et suivre les approvisionnements","c":1},{"l":"Choisir comment acheter au meilleur prix","c":0},{"l":"Estimer les coûts et les délais","c":0},{"l":"Suivre la relation avec les fournisseurs et les prestataires","c":0},{"l":"Réduire les dépenses, la consommation et les déchets","c":1},{"l":"Préparer, suivre et piloter un budget","c":0},{"l":"Réduire l'impact de son activité sur l'environnement","c":0},{"l":"Présenter et mettre en valeur un produit ou un service","c":0},{"l":"Améliorer la qualité du service rendu","c":1},{"l":"Fidéliser les clients","c":0},{"l":"Favoriser l'entente et la collaboration","c":0},{"l":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","c":1},{"l":"Gérer une situation d'urgence","c":1}],"se":["Avoir l’esprit d’équipe","Faire preuve d’autonomie","Faire preuve de réactivité","Faire preuve de créativité, d’inventivité"],"sv":[{"l":"Approvisionnement en circuits courts","c":0},{"l":"Chaîne du froid","c":0},{"l":"Connaissance des tendances culinaires","c":0},{"l":"Cuisine des spécialités régionales françaises","c":0},{"l":"Cuisine du monde","c":0},{"l":"Diététique","c":0},{"l":"Familles de produits alimentaires","c":1},{"l":"Gestion de la qualité des produits","c":0},{"l":"Législation alimentaire","c":0},{"l":"Modalités de conservation des produits alimentaires","c":0},{"l":"Modalités de stockage de produits alimentaires","c":1},{"l":"Procédures de la marche en avant","c":0},{"l":"Règles d’hygiène et de sécurité alimentaire","c":1},{"l":"Régimes alimentaires","c":0},{"l":"Sensibilisation aux allergies alimentaires","c":0},{"l":"Système Hazard Analysis Critical Control Point (HACCP)","c":0},{"l":"Techniques de pâtisserie","c":0},{"l":"Utilisation de four (à chaleur tournante, à air pulsé, ...)","c":0},{"l":"Utilisation de grills professionnels","c":0},{"l":"Utilisation d’outils tranchants (couteaux, hachoirs, ...)","c":0}],"dip":["Bac pro cuisine","Bac techno sciences et technologies de l’hôtellerie et de la restauration","Bachelor en management des arts culinaires","CAP cuisine"]},{"nom":"Agent d'entretien","niv":2,"sf":[{"l":"Organiser le travail d'une équipe","c":1},{"l":"Coordonner le travail de plusieurs équipes de métiers différents","c":1},{"l":"Aménager un espace de travail","c":0},{"l":"Préparer son matériel avant de travailler","c":0},{"l":"Mesurer, doser et ajuster","c":0},{"l":"Entretenir un équipement, une machine ou une installation","c":1},{"l":"Vérifier qu'un équipement est conforme et fonctionne bien","c":1},{"l":"Nettoyer et entretenir un lieu ou un local","c":1},{"l":"Mettre en place et appliquer des consignes de sécurité","c":0},{"l":"Repérer, prévenir et gérer les risques","c":0},{"l":"Contrôler la qualité des façons de travailler","c":1},{"l":"Gérer les stocks","c":1},{"l":"Gérer un planning","c":0},{"l":"Évacuer et trier des déchets","c":0},{"l":"Recycler et valoriser des déchets","c":1},{"l":"Réduire l'impact de son activité sur l'environnement","c":1},{"l":"Suivre les résultats chiffrés et corriger les écarts","c":0},{"l":"Mettre en place des solutions pour mieux travailler","c":0},{"l":"Respecter les consignes, les normes et les procédures","c":0},{"l":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","c":1},{"l":"Gérer une situation d'urgence","c":0}],"se":["Avoir l’esprit d’équipe","Faire preuve de rigueur et de précision","Faire preuve de réactivité"],"sv":[{"l":"Gestion de la qualité de l’air","c":0},{"l":"Maintenance préventive des équipements de nettoyage","c":0},{"l":"Procédures de nettoyage et de désinfection","c":1},{"l":"Produits de nettoyage spécifiques","c":0},{"l":"Techniques de cirage de surfaces/sols","c":0},{"l":"Techniques de décapage de surfaces et sols","c":0},{"l":"Techniques de nettoyage des moquettes","c":0},{"l":"Techniques de nettoyage des équipements","c":0},{"l":"Techniques de nettoyage manuel","c":0},{"l":"Utilisation de machines de nettoyage haute pression","c":0},{"l":"Utilisation de machines de nettoyage électromécanique","c":0},{"l":"Utilisation de monobrosse","c":0},{"l":"Utilisation d’équipements mécanisés","c":0}],"dip":["CAP agent de propreté et d’hygiène"]},{"nom":"Cariste","niv":0,"sf":[{"l":"Faire une opération de maintenance","c":0},{"l":"Aménager un espace de stockage","c":0},{"l":"Contrôler le bon fonctionnement d'un équipement ou d'une machine","c":0},{"l":"Prévoir les dangers, les problèmes et les besoins en matériel","c":0},{"l":"Mettre en place et appliquer des consignes de sécurité","c":0},{"l":"Évaluer une situation à risques","c":0},{"l":"Repérer, prévenir et gérer les risques","c":1},{"l":"Préparer les règles de qualité, d'hygiène, de sécurité et d'environnement","c":0},{"l":"Piloter une démarche pour améliorer la qualité","c":0},{"l":"Contrôler la qualité des façons de travailler","c":1},{"l":"Gérer les stocks","c":0},{"l":"Charger, décharger et déplacer des produits","c":1},{"l":"Conditionner des produits","c":0},{"l":"Conduire un engin de manutention ou de chantier","c":1},{"l":"Réceptionner des produits et vérifier une livraison","c":1},{"l":"Trier et ranger des produits","c":0},{"l":"Organiser le matériel et le transport d'un évènement","c":0},{"l":"Organiser le traitement des commandes","c":0},{"l":"Organiser un transport de marchandises","c":0},{"l":"Améliorer la qualité du service rendu","c":1},{"l":"Travailler en groupe ou en réseau","c":0},{"l":"Respecter les consignes, les normes et les procédures","c":1},{"l":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","c":1}],"se":["Faire preuve de rigueur et de précision","Organiser son travail selon les priorités et les objectifs","Être ouvert aux changements"],"sv":[{"l":"Appréciation de charge","c":0},{"l":"Capacité à lire et interpréter des bons de livraison","c":0},{"l":"Caractéristiques de la chaîne logistique (Supply Chain)","c":0},{"l":"Chariot équipé de porte-charges","c":0},{"l":"Connaissance des normes ISO en logistique","c":0},{"l":"Engins de manutention non motorisés (transpalette, diable, etc.)","c":0},{"l":"Gestes et postures de manutention","c":1},{"l":"Informatique nomade (PDA, GPS...)","c":0},{"l":"Lecture de plan de stockage","c":0},{"l":"Maintenance de base des engins de manutention","c":1},{"l":"Matériaux d’emballage","c":0},{"l":"Organisation de la chaîne logistique","c":0},{"l":"Organisation d’un site d’entreposage (plan de circulation, ...)","c":1},{"l":"Principes d’équilibrage des charges","c":0},{"l":"Procédures de contrôle qualité","c":0},{"l":"Procédures de vérification du chargement","c":0},{"l":"Procédures et plan de stockage","c":0},{"l":"Règles et consignes de sécurité","c":0},{"l":"Réglementation sur le stockage de produits spécifiques (dangereux, sous température dirigée, phytosanitaire, ...)","c":0},{"l":"Santé et sécurité au travail","c":0},{"l":"Systèmes RFID (ou autres systèmes de scan/détection d’informations)","c":0},{"l":"Systèmes d’information et de gestion","c":0},{"l":"Techniques de cerclage","c":0},{"l":"Techniques de communication en logistique","c":0},{"l":"Techniques de filmage","c":0},{"l":"Techniques de palettisation","c":0},{"l":"Techniques de stockage en logistique","c":0},{"l":"Techniques d’inventaire","c":0},{"l":"Transpalette électrique à conducteur porté","c":0}],"dip":["CAP opérateur/opératrice logistique","CQP opérateur logistique","CQP opérateur logistique en commerces de gros de l’habillement, de la mercerie, de la chaussure et du jouet","Certificat d’aptitude à la conduite en sécurité R489 chariots de manutention automoteurs à conducteur porté catégorie 1A transpalettes à conducteur porté et préparateurs de commande sans élévation du poste de conduite (hauteur de levée < ou = à 1,20 m)"]},{"nom":"Animateur","niv":3,"sf":[{"l":"Imaginer des animations","c":0},{"l":"Proposer et animer des activités de détente ou de loisirs","c":1},{"l":"Organiser et animer des actions culturelles ou sociales","c":1},{"l":"Faire vivre un réseau ou une communauté","c":1},{"l":"Faire progresser les autres au quotidien","c":0},{"l":"Préparer son matériel avant de travailler","c":0},{"l":"Repérer, prévenir et gérer les risques","c":1},{"l":"Organiser le matériel et le transport d'un évènement","c":1},{"l":"Suivre les réservations","c":0},{"l":"Gérer un planning","c":1},{"l":"Préparer, suivre et piloter un budget","c":0},{"l":"Réduire l'impact de son activité sur l'environnement","c":0},{"l":"Comprendre et traiter la demande d'un client","c":1},{"l":"Entretenir de bonnes relations avec les autres","c":1},{"l":"Favoriser l'entente et la collaboration","c":0},{"l":"Participer à un projet avec d'autres métiers","c":0},{"l":"Travailler en groupe ou en réseau","c":1},{"l":"Communiquer à l'oral dans le travail","c":0},{"l":"Présenter et défendre un projet","c":0},{"l":"Expliquer les règles et les faire respecter","c":1},{"l":"Utiliser les outils numériques","c":0}],"se":["Avoir l’esprit d’équipe","Être à l’écoute, faire preuve d’empathie","Faire preuve de réactivité","Faire preuve de créativité, d’inventivité"],"sv":[{"l":"Arts plastiques","c":0},{"l":"Caractéristiques socio-culturelles des publics","c":0},{"l":"Gestion de groupe d’enfants","c":0},{"l":"Gestion de projets artistiques","c":0},{"l":"Gestion des conflits dans un environnement éducatif","c":0},{"l":"Organisation d’événements thématiques","c":0},{"l":"Pratique d’un instrument de musique","c":0},{"l":"Sécurité des espaces de jeu","c":0},{"l":"Techniques de maquillage","c":0},{"l":"Techniques de mime et d’expression corporelle","c":0},{"l":"Techniques de motivation de groupe","c":0},{"l":"Techniques d’animation en plein air","c":0},{"l":"Techniques d’expression corporelle","c":0},{"l":"Théories de l’apprentissage","c":0},{"l":"Utilisation de logiciels éducatifs","c":0},{"l":"Utilisation de tablettes graphiques","c":0}],"dip":["BPJEPS spécialité animateur mention animation culturelle","BPJEPS spécialité animateur mention animation socio-éducative ou culturelle","BPJEPS spécialité animateur mention éducation à l’environnement vers un développement durable","Titre professionnel animateur loisir tourisme"]},{"nom":"Aide-soignant","niv":4,"sf":[{"l":"Conseiller et accompagner une personne","c":1},{"l":"Aider une personne à gagner en autonomie","c":0},{"l":"Aider la personne dans les gestes de la vie quotidienne","c":0},{"l":"Informer et accompagner un patient","c":0},{"l":"Faire des soins du corps et d'esthétique","c":1},{"l":"Surveiller l'état de santé d'une personne","c":1},{"l":"Donner des soins médicaux","c":1},{"l":"Faire les gestes de premiers secours en cas d'urgence","c":1},{"l":"Repérer, prévenir et gérer les risques","c":1},{"l":"Évacuer et trier des déchets","c":0},{"l":"Entretenir de bonnes relations avec les autres","c":0},{"l":"Sensibiliser un public","c":0},{"l":"Respecter les consignes, les normes et les procédures","c":0}],"se":["Être à l’écoute, faire preuve d’empathie","Faire preuve de rigueur et de précision","Être force de proposition"],"sv":[{"l":"Connaissance de l’écosystème sanitaire, médico-social et social","c":0},{"l":"Connaissance des droits de l’homme et des libertés fondamentales","c":0},{"l":"Connaissance des principes de la bientraitance","c":0},{"l":"Connaissances de base des pathologies, du handicap et du vieillissement","c":0},{"l":"Modalités de prise en charge du patient","c":0},{"l":"Normes environnementales relatives au tri des déchets","c":0},{"l":"Règles de confidentialité","c":0},{"l":"Règles d’hygiène et d’asepsie","c":0},{"l":"Techniques de communication interpersonnelle","c":0},{"l":"Techniques de communication non verbale","c":0},{"l":"Techniques de gestion du stress","c":0},{"l":"Techniques de manipulation du patient","c":0},{"l":"Techniques d’accueil de la personne accompagnée","c":0},{"l":"Techniques d’écoute active et de médiation","c":0},{"l":"Utilisation de logiciels médicaux","c":0}],"dip":["Diplôme d’Etat d’aide-soignant"]},{"nom":"Employé polyvalent de restauration","niv":3,"sf":[{"l":"Adapter un article ou une production à la demande","c":0},{"l":"Préparer des boissons","c":1},{"l":"Utiliser un outil, une machine ou une installation","c":0},{"l":"Préparer des plats","c":1},{"l":"Préparer du pain, des pâtisseries, des viennoiseries et du chocolat","c":1},{"l":"Nettoyer et entretenir du matériel","c":0},{"l":"Nettoyer et entretenir un lieu ou un local","c":1},{"l":"Gérer une situation de crise","c":1},{"l":"Effectuer une livraison","c":0},{"l":"Tenir une caisse","c":1},{"l":"Accueillir, orienter et renseigner le public","c":0},{"l":"Répondre aux attentes d'un client","c":1},{"l":"Mener des actions commerciales et des promotions","c":1},{"l":"Présenter et mettre en valeur un produit ou un service","c":0},{"l":"Communiquer à l'oral dans le travail","c":1},{"l":"Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement","c":0}],"se":["Avoir l’esprit d’équipe","Avoir le sens du service","Faire preuve de rigueur et de précision","Organiser son travail selon les priorités et les objectifs"],"sv":[{"l":"Fiches techniques de cuisine","c":0},{"l":"Gestes et postures de manutention","c":0},{"l":"Gestion de la relation client (CRM)","c":0},{"l":"Gestion des déchets","c":0},{"l":"Modalités de conservation des produits alimentaires","c":0},{"l":"Modes de cuisson des aliments","c":0},{"l":"Plonge manuelle","c":0},{"l":"Règles de tenue de caisse","c":0},{"l":"Système Hazard Analysis Critical Control Point (HACCP)","c":0},{"l":"Techniques de présentation des plats","c":0},{"l":"Techniques de vente","c":0},{"l":"Traitement des commandes","c":0},{"l":"Types de sandwichs et produits snacking","c":0},{"l":"Utilisation de caisse enregistreuse","c":0},{"l":"Utilisation de grills professionnels","c":0},{"l":"Utilisation de machine de plonge automatisée","c":0},{"l":"Utilisation de matériel de nettoyage","c":0}],"dip":["Bac pro commercialisation et services en restauration","CAP commercialisation et services en hôtel-café-restaurant","CAP production et service en restaurations (rapide, collective, cafétéria)","Titre professionnel employé polyvalent en restauration"]},{"nom":"Magasinier","niv":2,"sf":[{"l":"Imaginer des idées nouvelles","c":0},{"l":"Faire une opération de maintenance","c":1},{"l":"Aménager un espace de stockage","c":0},{"l":"Repérer, prévenir et gérer les risques","c":1},{"l":"Gérer les stocks","c":0},{"l":"Charger, décharger et déplacer des produits","c":1},{"l":"Trier et ranger des produits","c":0},{"l":"Organiser le traitement des commandes","c":1},{"l":"Choisir comment acheter au meilleur prix","c":0},{"l":"Améliorer le fonctionnement d'une organisation","c":0},{"l":"Respecter les consignes, les normes et les procédures","c":1},{"l":"Alerter ou demander de l'aide","c":1}],"se":["Faire preuve de rigueur et de précision","Organiser son travail selon les priorités et les objectifs","Être force de proposition"],"sv":[{"l":"Appareils de lecture optique de codes-barres (pistolet, flasheur, etc.)","c":0},{"l":"Gestes et postures de manutention","c":1},{"l":"Gestion de la qualité des produits","c":0},{"l":"Gestion des inventaires","c":0},{"l":"Gestion des risques liés au stockage","c":1},{"l":"Lecture de plan de stockage","c":0},{"l":"Normes de sécurité pour le stockage de produits chimiques","c":0},{"l":"Organisation d’un site d’entreposage (plan de circulation, ...)","c":0},{"l":"Planification des livraisons","c":0},{"l":"Principes de la relation fournisseur","c":0},{"l":"Principes d’équilibrage des charges","c":0},{"l":"Progiciels de gestion intégrée d’entreprise (ERP)","c":0},{"l":"Suivi des expéditions","c":0},{"l":"Systèmes de gestion d’entrepôt (WMS)","c":0}],"dip":["Bac pro logistique"]},{"nom":"Agent de service hospitalier (ASH)","niv":3,"sf":[{"l":"Aider la personne dans les gestes de la vie quotidienne","c":1},{"l":"Appliquer les méthodes de travail","c":0},{"l":"Préparer son matériel avant de travailler","c":0},{"l":"Nettoyer et entretenir du matériel","c":1},{"l":"Nettoyer et entretenir un lieu ou un local","c":1},{"l":"Préparer des règles de prévention","c":0},{"l":"Repérer, prévenir et gérer les risques","c":0},{"l":"Contrôler la qualité des façons de travailler","c":0},{"l":"Gérer les stocks","c":0},{"l":"Respecter les consignes, les normes et les procédures","c":1},{"l":"Alerter ou demander de l'aide","c":0}],"se":["Être à l’écoute, faire preuve d’empathie","Faire preuve de rigueur et de précision","Faire preuve d’autonomie"],"sv":[{"l":"Caractéristiques des produits de nettoyage","c":0},{"l":"Connaissance de l’écosystème sanitaire, médico-social et social","c":0},{"l":"Connaissance des principes de la bientraitance","c":0},{"l":"Connaissance des usages fondamentaux du numérique","c":0},{"l":"Normes environnementales relatives au tri des déchets","c":0},{"l":"Procédures d’urgence et de premiers secours","c":0},{"l":"Règles de confidentialité","c":0},{"l":"Règles d’hygiène et de sécurité alimentaire","c":0},{"l":"Règles d’hygiène et d’asepsie","c":0},{"l":"Techniques de stérilisation du matériel","c":0},{"l":"Techniques d’écoute active et de médiation","c":0}],"dip":["Bac pro hygiène, propreté, stérilisation","CAP agent de propreté et d’hygiène","Titre professionnel agent de service médico-social"]}];
+var MAXM = 5;                       // cinq métiers au plus (décision du 18/11/2026)
+var TYPES = [["sf","Ce que je sais faire","Savoir-faire","Des gestes et des tâches que le métier demande."],
+             ["se","Comment je me comporte au travail","Savoir-être","Des qualités utiles dans tous les métiers."],
+             ["sv","Ce que je connais","Savoirs","Des connaissances, des outils, des règles."]];
+var VOIR_SV = 10;                   // les savoirs sont nombreux : dix d'abord, le reste d'un clic
+
+function norm(t){return String(t).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[’'-]/g," ").replace(/\s+/g," ").trim();}
+function E(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ---------- état : le parcours (jusqu'à cinq métiers), la compétence cochée = un texte ---------- */
+var S = { parcours: [], edit: 0, cible: 3, voirSv: {}, voirAcq: false, recherche: "", rechercheComp: "" };
+function lib(m,t){ return m[t].map(function(x){ return typeof x === "string" ? x : x.l; }); }
+function ajouter(i, precoche){
+  if (S.parcours.length >= MAXM || S.parcours.some(function(p){ return p.i === i; })) { return; }
+  var m = METIERS[i], c = { sf: {}, se: {}, sv: {} }, extra = [];
+  if (precoche) {
+    m.sf.forEach(function(x,k){ if (x.c || k % 3 === 0) { c.sf[x.l] = 1; } });
+    m.se.forEach(function(x,k){ if (k < m.se.length - 1) { c.se[x] = 1; } });
+    m.sv.forEach(function(x,k){ if (x.c) { c.sv[x.l] = 1; } });
+  }
+  S.parcours.push({ i: i, c: c, extra: extra });
+  S.edit = S.parcours.length - 1;
+}
+function nbCoches(p){ return Object.keys(p.c.sf).length + Object.keys(p.c.se).length + Object.keys(p.c.sv).length + p.extra.length; }
+function bagage(){            // tout ce que la personne dit avoir pratiqué, tous métiers confondus
+  var b = { sf: {}, se: {}, sv: {} };
+  S.parcours.forEach(function(p){ ["sf","se","sv"].forEach(function(t){ Object.keys(p.c[t]).forEach(function(l){ b[t][l] = 1; }); }); p.extra.forEach(function(x){ b[x.t][x.l] = 1; }); });
+  return b;
+}
+
+/* ---------- le calcul (celui de l'étape B2) : transférables, transversales, à acquérir ---------- */
+function comparer(cible){
+  var m = METIERS[cible], b = bagage(), r = { transf: [], transv: [], acq: [] };
+  m.sf.forEach(function(x){ (b.sf[x.l] ? r.transf : r.acq).push({ l: x.l, c: x.c, t: "sf" }); });
+  m.sv.forEach(function(x){ (b.sv[x.l] ? r.transf : r.acq).push({ l: x.l, c: x.c, t: "sv" }); });
+  m.se.forEach(function(x){ (b.se[x] ? r.transv : r.acq).push({ l: x, c: 1, t: "se" }); });
+  var rang = { sf: 0, se: 1, sv: 2 };
+  r.acq.sort(function(a,b2){ return (b2.c - a.c) || (rang[a.t] - rang[b2.t]); });   // le cœur du métier d'abord
+  r.total = m.sf.length + m.se.length + m.sv.length;
+  r.pct = r.total ? Math.round(100 * (r.transf.length + r.transv.length) / r.total) : 0;
+  return r;
+}
+
+/* ---------- écran 1 ---------- */
+function rendreE1(){
+  var n = S.parcours.length, tot = S.parcours.reduce(function(a,p){ return a + nbCoches(p); }, 0);
+  var h = '<h2><i class="bi bi-briefcase" aria-hidden="true"></i> Mon parcours professionnel <span class="etat-pastille ' + (n ? 'fait' : 'afaire') + '">' + (n ? 'Rempli' : 'À compléter') + '</span></h2>' +
+    '<p class="mini">Les métiers que vous avez déjà exercés, et ce que vous y avez vraiment fait. Cela permet à la lecture de dire <b>ce que votre expérience apporte</b> aux métiers qui ressortent de vos passages. Rien n\'est obligatoire.</p>';
+  if (n) { h += S.parcours.map(function(p){ return '<span class="pill" style="display:inline-block;font-size:.85rem;padding:.15rem .6rem;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);margin:.1rem .2rem .1rem 0">' + E(METIERS[p.i].nom) + ' : ' + nbCoches(p) + ' compétences cochées</span>'; }).join('') +
+    '<p class="note mt-2 mb-0">Total : ' + n + ' métier' + (n > 1 ? 's' : '') + ', ' + tot + ' compétences cochées.</p>'; }
+  h += '<div class="boutons-ligne"><button type="button" class="btn btn-primary" data-aller="e2"><i class="bi bi-pencil" aria-hidden="true"></i> ' + (n ? 'Modifier mon parcours' : 'Ajouter mon parcours') + '</button></div>';
+  document.getElementById("e1").innerHTML = h;
+}
+
+/* ---------- écran 2 ---------- */
+function suggestions(q){
+  var qn = norm(q); if (!qn) { return []; }
+  var mots = qn.split(" ").filter(Boolean);
+  return METIERS.map(function(m,i){ return { i: i, n: norm(m.nom) }; }).filter(function(x){
+    return mots.every(function(w){ return (" " + x.n).indexOf(" " + w) !== -1 || (w.length > 3 && x.n.indexOf(w) !== -1); }) && !S.parcours.some(function(p){ return p.i === x.i; });
+  }).slice(0,8);
+}
+function rendreE2(){
+  var n = S.parcours.length, h = '<h1 class="titre-page">Mon parcours</h1><p class="sous-titre">Les métiers que j\'ai exercés, jusqu\'à cinq.</p>' +
+    '<div class="encart"><i class="bi bi-shield-check" aria-hidden="true"></i><p>Ce n\'est pas un CV : pas de dates, pas d\'employeurs. Votre nom, votre adresse et vos réponses ne partent jamais. Seuls les noms des métiers et les compétences que vous cochez peuvent être lus par l\'assistant en ligne, et seulement si vous le décidez à l\'étape suivante.</p></div>' +
+    '<div class="bloc"><h2><i class="bi bi-list-check" aria-hidden="true"></i> Mes métiers exercés <span class="etat-pastille ' + (n ? 'fait' : 'afaire') + '">' + n + ' sur ' + MAXM + '</span></h2>';
+  if (!n) { h += '<p class="mb-0">Vous n\'avez encore ajouté aucun métier. Tapez ci-dessous le nom d\'un métier que vous avez exercé, même peu de temps, même il y a longtemps.</p>'; }
+  S.parcours.forEach(function(p,k){
+    h += '<div class="ligne"><div><div class="nom">' + E(METIERS[p.i].nom) + '</div><div class="sub">' + nbCoches(p) + ' compétence' + (nbCoches(p) > 1 ? 's' : '') + ' cochée' + (nbCoches(p) > 1 ? 's' : '') + '</div></div>' +
+      '<div class="boutons-ligne" style="margin:0"><button type="button" class="btn btn-outline-primary" data-edit="' + k + '"><i class="bi bi-ui-checks" aria-hidden="true"></i> Cocher mes compétences</button><button type="button" class="btn btn-outline-secondary" data-retirer="' + k + '"><i class="bi bi-trash" aria-hidden="true"></i> Retirer</button></div></div>';
+  });
+  h += '</div>';
+  if (n < MAXM) {
+    h += '<div class="bloc"><h2><i class="bi bi-search" aria-hidden="true"></i> Ajouter un métier que j\'ai exercé</h2><div class="rech"><label for="rM" class="mini">Tapez le nom du métier</label><input id="rM" type="search" autocomplete="off" placeholder="Par exemple : cuisinier, animateur, cariste" value="' + E(S.recherche) + '"></div>';
+    var sg = suggestions(S.recherche);
+    if (S.recherche && sg.length) { h += '<div class="sugg">' + sg.map(function(x){ return '<button type="button" data-ajout="' + x.i + '"><span><b>' + E(METIERS[x.i].nom) + '</b></span><span class="mini"><i class="bi bi-plus-circle" aria-hidden="true"></i> Ajouter</span></button>'; }).join('') + '</div>'; }
+    else if (S.recherche) { h += '<div class="encart warn mt-2"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><p>Aucun de ces huit métiers ne correspond (la maquette n\'en charge que huit). Dans l\'application : tous les métiers, par nom, autre nom ou sigle, comme dans « Par un métier ». Si le vôtre n\'existe pas : voir la question 3.</p></div>'; }
+    h += '</div>';
+  } else { h += '<div class="encart"><i class="bi bi-check-circle" aria-hidden="true"></i><p>Vous avez ajouté cinq métiers, c\'est le maximum. Retirez-en un pour en ajouter un autre.</p></div>'; }
+  h += '<div class="boutons-ligne"><button type="button" class="btn btn-primary" data-aller="e4"><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Voir ce que mon parcours apporte</button></div>';
+  document.getElementById("e2").innerHTML = h;
+  var inp = document.getElementById("rM");
+  if (inp) { inp.addEventListener("input", function(){ S.recherche = inp.value; var pos = inp.selectionStart; rendreE2(); var i2 = document.getElementById("rM"); if (i2) { i2.focus(); i2.setSelectionRange(pos,pos); } }); }
+}
+
+/* ---------- écran 3 ---------- */
+function rendreE3(){
+  var el = document.getElementById("e3");
+  if (!S.parcours.length) { el.innerHTML = '<div class="bloc"><p class="mb-0">Ajoutez d\'abord un métier (écran 2).</p></div>'; return; }
+  var p = S.parcours[S.edit], m = METIERS[p.i];
+  var h = '<div class="cml-fil" style="grid-template-columns:repeat(' + Math.min(S.parcours.length,5) + ',minmax(0,1fr))">' + S.parcours.map(function(q,k){
+    return '<button type="button" class="cml-fil-t ' + (k === S.edit ? 'encours' : 'fait') + '" data-edit="' + k + '"><span class="cml-num">' + (k+1) + '</span><span><b>' + E(METIERS[q.i].nom.replace(/ \(ASH\)/,"")) + '</b><small>' + nbCoches(q) + ' cochée' + (nbCoches(q) > 1 ? 's' : '') + '</small></span></button>'; }).join('') + '</div>';
+  h += '<div class="cml-bandeau"><span class="cml-num"><i class="bi bi-ui-checks" aria-hidden="true"></i></span><div><h2>Ce que j\'ai fait comme « ' + E(m.nom) + ' »</h2><p>Cochez ce que vous avez vraiment pratiqué, même un peu. Cette liste décrit le métier en général : elle peut différer de votre poste.</p></div></div>';
+  TYPES.forEach(function(T){
+    var t = T[0], liste = m[t].map(function(x){ return typeof x === "string" ? { l: x } : x; });
+    var nbc = liste.filter(function(x){ return p.c[t][x.l]; }).length;
+    var limite = (t === "sv" && !S.voirSv[S.edit]) ? VOIR_SV : liste.length;
+    h += '<div class="groupe"><h4>' + T[1] + ' <small>' + T[2] + ' : ' + nbc + ' cochée' + (nbc > 1 ? 's' : '') + ' sur ' + liste.length + '</small></h4><p class="aide">' + T[3] + '</p><div class="jetons">' +
+      liste.slice(0, limite).map(function(x){ var on = !!p.c[t][x.l]; return '<button type="button" class="cml-jt' + (on ? ' is-actif' : '') + '" aria-pressed="' + on + '" data-coche="' + t + '" data-l="' + E(x.l) + '"><i class="bi bi-check-lg" aria-hidden="true"></i>' + E(x.l) + '</button>'; }).join('') + '</div>' +
+      '<div class="boutons-ligne" style="margin-top:0"><button type="button" class="btn btn-sm btn-outline-secondary" data-tout="' + t + '">Tout cocher</button><button type="button" class="btn btn-sm btn-outline-secondary" data-rien="' + t + '">Tout décocher</button>' +
+      (t === "sv" && liste.length > VOIR_SV ? '<button type="button" class="btn btn-sm btn-outline-primary" data-voirsv="1">' + (S.voirSv[S.edit] ? 'Voir moins' : 'Voir les ' + (liste.length - VOIR_SV) + ' autres') + '</button>' : '') + '</div></div>';
+  });
+  if (m.dip.length) { h += '<div class="encart mt-3"><i class="bi bi-mortarboard" aria-hidden="true"></i><p><b>Diplômes et habilitations souvent demandés</b> pour ce métier : ' + m.dip.map(E).join(' ; ') + '. Ils ne sont pas à cocher ici : ce sont des titres, pas des compétences pratiquées. Ils restent visibles sur la fiche du métier.</p></div>'; }
+  // ajouter une compétence que la fiche ne cite pas
+  h += '<div class="bloc"><h3><i class="bi bi-plus-circle" aria-hidden="true"></i> Une compétence que la fiche ne cite pas ?</h3><p class="mini">Vous avez fait autre chose dans ce poste ? Cherchez une compétence parmi toutes celles de l\'application.</p><div class="rech"><input id="rC" type="search" autocomplete="off" placeholder="Par exemple : animer, planning, hygiène" value="' + E(S.rechercheComp) + '"></div>';
+  var cq = norm(S.rechercheComp);
+  if (cq) {
+    var vus = {}, trouvees = [];
+    METIERS.forEach(function(mm){ TYPES.forEach(function(T){ mm[T[0]].forEach(function(x){ var l = typeof x === "string" ? x : x.l; var k = T[0] + "|" + l; if (!vus[k] && norm(l).indexOf(cq) !== -1 && !p.c[T[0]][l] && !p.extra.some(function(e){ return e.l === l && e.t === T[0]; }) && !liste_dans(m, T[0], l)) { vus[k] = 1; trouvees.push({ t: T[0], l: l }); } }); }); });
+    h += trouvees.length ? '<div class="sugg">' + trouvees.slice(0,6).map(function(x){ return '<button type="button" data-extra="' + x.t + '" data-l="' + E(x.l) + '"><span>' + E(x.l) + '</span><span class="mini">' + (x.t === "sf" ? "Savoir-faire" : x.t === "se" ? "Savoir-être" : "Savoir") + ' <i class="bi bi-plus-circle" aria-hidden="true"></i></span></button>'; }).join('') + '</div>' : '<p class="note mt-2 mb-0">Rien de trouvé avec ces mots.</p>';
+  }
+  if (p.extra.length) { h += '<div class="jetons mt-2">' + p.extra.map(function(x,k){ return '<button type="button" class="cml-jt is-actif" data-retextra="' + k + '" aria-label="Retirer ' + E(x.l) + '"><i class="bi bi-check-lg" aria-hidden="true"></i>' + E(x.l) + ' <i class="bi bi-x" style="display:inline" aria-hidden="true"></i></button>'; }).join('') + '</div>'; }
+  h += '</div><div class="boutons-ligne"><button type="button" class="btn btn-primary" data-aller="e2"><i class="bi bi-check2" aria-hidden="true"></i> Terminer ce métier</button></div>';
+  el.innerHTML = h;
+  var ic = document.getElementById("rC");
+  if (ic) { ic.addEventListener("input", function(){ S.rechercheComp = ic.value; var pos = ic.selectionStart; rendreE3(); var i2 = document.getElementById("rC"); if (i2) { i2.focus(); i2.setSelectionRange(pos,pos); } }); }
+}
+function liste_dans(m, t, l){ return m[t].some(function(x){ return (typeof x === "string" ? x : x.l) === l; }); }
+
+/* ---------- écran 4 ---------- */
+function rendreE4(){
+  var el = document.getElementById("e4");
+  if (!S.parcours.length) { el.innerHTML = '<div class="bloc"><p class="mb-0">Sans parcours, la lecture ne peut pas dire ce que votre expérience apporte. Ajoutez un métier (écran 2).</p></div>'; return; }
+  var m = METIERS[S.cible], r = comparer(S.cible);
+  var h = '<div class="bloc"><h2><i class="bi bi-diagram-3" aria-hidden="true"></i> Ce que mon parcours apporte à…</h2><p class="mini">Dans la lecture, cette ligne existe sous <b>chacune</b> des deux ou trois pistes (jamais un seul « métier visé »). Ici, choisissez un métier pour voir :</p>' +
+    '<label for="sC" class="mini">Métier de ma lecture</label> <select id="sC" class="form-select" style="max-width:420px;min-height:44px">' + METIERS.map(function(x,i){ return '<option value="' + i + '"' + (i === S.cible ? ' selected' : '') + '>' + E(x.nom) + '</option>'; }).join('') + '</select></div>';
+  h += '<div class="bloc"><div class="cmp-tete"><div class="cml-pie" style="--pie:' + r.pct + '%;background:conic-gradient(var(--accent-solide,var(--accent)) 0 ' + r.pct + '%,var(--bg-subtle) 0)" aria-hidden="true"></div><div><h3 style="margin:0">« ' + E(m.nom) + ' »</h3>' +
+    '<p class="mb-1"><b>' + (r.transf.length + r.transv.length) + '</b> compétences sur <b>' + r.total + '</b> demandées se retrouvent dans votre parcours. <b>' + r.acq.length + '</b> sont à acquérir ou à confirmer.</p><p class="note mb-0">Calculé par l\'application à partir de ce que vous avez coché. Ce n\'est pas une note sur vous : une compétence non cochée n\'est pas une compétence que vous n\'avez pas, seulement une que vous n\'avez pas indiquée.</p></div></div></div>';
+  var liste = function(a, max, vide){ return a.length ? '<ul>' + a.slice(0,max).map(function(x){ return '<li>' + E(x.l) + '</li>'; }).join('') + '</ul>' + (a.length > max ? '<p class="note mb-0">et ' + (a.length - max) + ' autre' + (a.length - max > 1 ? 's' : '') + '</p>' : '') : '<p class="note mb-0">' + vide + '</p>'; };
+  h += '<div class="cols3"><div class="col"><h4><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Transférables</h4><p class="note mb-0">Savoir-faire et savoirs de votre parcours que ce métier demande aussi.</p>' + liste(r.transf, 6, 'Aucune pour l\'instant.') + '</div>' +
+    '<div class="col"><h4><i class="bi bi-people" aria-hidden="true"></i> Transversales</h4><p class="note mb-0">Qualités de votre parcours que ce métier demande aussi.</p>' + liste(r.transv, 6, 'Aucune pour l\'instant.') + '</div>' +
+    '<div class="col"><h4><i class="bi bi-signpost-2" aria-hidden="true"></i> À acquérir</h4><p class="note mb-0">Ce que ce métier demande et que vous n\'avez pas coché. Le cœur du métier d\'abord.</p>' + liste(r.acq, S.voirAcq ? 99 : 6, 'Rien : tout ce que le métier demande est déjà dans votre parcours.') + (r.acq.length > 6 ? '<button type="button" class="btn btn-sm btn-outline-primary mt-2" data-voiracq="1">' + (S.voirAcq ? 'Voir moins' : 'Voir toutes') + '</button>' : '') + '</div></div>';
+  if (m.dip.length) { h += '<div class="encart mt-3"><i class="bi bi-mortarboard" aria-hidden="true"></i><p><b>Diplômes et habilitations souvent demandés :</b> ' + m.dip.map(E).join(' ; ') + '. Ils ne sont jamais comptés dans « à acquérir » : une formation courte, une VAE ou une immersion peuvent en parler avec un conseiller.</p></div>'; }
+  el.innerHTML = h;
+  document.getElementById("sC").addEventListener("change", function(e){ S.cible = parseInt(e.target.value,10); S.voirAcq = false; rendreE4(); });
+}
+
+/* ---------- écran 5 : la ligne « PARCOURS PROFESSIONNEL » de la demande ---------- */
+var PLAF = { sf: 12, se: 4, sv: 8 };   // par métier exercé : au plus 12 savoir-faire, 4 savoir-être, 8 savoirs (le cœur du métier d'abord)
+function texteParcours(){
+  if (!S.parcours.length) { return "PARCOURS PROFESSIONNEL : non donné. Ne devinez rien : dites que la lecture ne voit pas ce que l'expérience apporte."; }
+  var lignes = S.parcours.map(function(p){
+    var m = METIERS[p.i], morceaux = [];
+    [["sf","savoir-faire"],["se","savoir-être"],["sv","savoirs"]].forEach(function(T){
+      var t = T[0], ordre = m[t].map(function(x){ return typeof x === "string" ? { l: x, c: 1 } : x; }).filter(function(x){ return p.c[t][x.l]; }).sort(function(a,b){ return b.c - a.c; });
+      var ex = p.extra.filter(function(e){ return e.t === t; }).map(function(e){ return { l: e.l }; });
+      var tous = ordre.concat(ex), garde = tous.slice(0, PLAF[t]);
+      if (garde.length) { morceaux.push(T[1] + " : " + garde.map(function(x){ return x.l; }).join(", ") + (tous.length > garde.length ? " (et " + (tous.length - garde.length) + " autres)" : "")); }
+    });
+    return "- " + m.nom + " (pratiqué par la personne) : " + (morceaux.length ? morceaux.join(" ; ") : "aucune compétence cochée") + ".";
+  });
+  return "PARCOURS PROFESSIONNEL (métiers exercés, compétences que la personne dit avoir pratiquées ; la fiche d'un métier décrit le métier en général, pas forcément son poste) :\n" + lignes.join("\n");
+}
+function rendreE5(){
+  var t = texteParcours();
+  var h = '<div class="bloc"><h2><i class="bi bi-send" aria-hidden="true"></i> Ce qui part, et seulement cela</h2><p class="mini">À l\'étape « Interpréter ma synthèse », cette ligne rejoint le reste de la demande (qui reste relisible en entier). Elle est <b>plafonnée</b> : cinq métiers, au plus douze savoir-faire, quatre savoir-être et huit savoirs par métier, le cœur du métier d\'abord. Aucun nom, aucune date, aucun employeur.</p><div class="pre">' + E(t) + '</div><p class="note mt-2 mb-0">' + t.length + ' caractères pour cette ligne. La demande entière garde son plafond de 12 000 caractères : si elle le dépasse, les blocs facultatifs sont retirés dans l\'ordre déjà prévu, le parcours en dernier.</p></div>' +
+    '<div class="encart warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><p>Dans la lecture, l\'assistant ne reçoit pas le calcul « à acquérir » : il reçoit ce que la personne a coché et les pistes. C\'est le code qui calcule transférables, transversales et à acquérir pour chaque piste, comme il calcule déjà l\'origine des pistes.</p></div>';
+  document.getElementById("e5").innerHTML = h;
+}
+
+/* ---------- questions ---------- */
+function rendreQs(){
+  var Q = [
+    ["1. Le parcours est-il relié à votre CV ?", "Séparé du CV (Recommandé)", "Le parcours est saisi ici, une seule fois, pour cette synthèse. Aucun lien avec les expériences du CV.",
+      "Bénéfices : simple, aucune surprise, la personne garde la main sur ce qui est lu ; fonctionne sans CV. Risque : une personne qui a déjà décrit ses expériences dans « Créer mon CV » doit les recocher. Alternative : proposer plus tard « reprendre depuis mon CV » (copie unique, jamais un lien permanent), à étudier après les essais."],
+    ["2. Garder le parcours dans la disquette ?", "Oui, avec « Garder ma synthèse » (Recommandé)", "Le parcours part dans la même sauvegarde que les passages (métiers et compétences cochées, aucun texte libre).",
+      "Bénéfices : un seul geste de sauvegarde, on retrouve tout à la reprise. Risque : sur un poste partagé, le fichier de session contient le parcours : c'est le même risque que pour les passages, déjà accepté. Alternative : ne pas le garder, la personne recoche à chaque fois (pénible)."],
+    ["3. Si le métier exercé n'existe pas dans la liste (petit boulot, bénévolat) ?", "« Autre expérience » : on ne choisit que des compétences (Recommandé)", "Un faux métier « Autre expérience » sans fiche : la personne cherche directement les compétences (la recherche de l'écran 3) et les coche.",
+      "Bénéfices : couvre bénévolat, jobs d'été, tâches à la maison, sans inventer de fiche ni de nom. Risque : un peu moins guidé (pas de liste toute prête). Alternative : refuser tout ce qui n'est pas un métier du répertoire (plus simple mais exclut justement les parcours les plus fragiles)."],
+    ["4. Les diplômes de la fiche", "Jamais à cocher, jamais « à acquérir » (Recommandé)", "Dans les vraies fiches, les « savoirs » mêlent des connaissances et des diplômes (« CAP cuisine », « BPJEPS animateur »). Je les range à part, en lecture seule.",
+      "Bénéfices : on ne compte pas un diplôme comme « compétence pratiquée », et « à acquérir » ne se remplit pas de titres. Risque : aucun, les diplômes restent visibles. Alternative : les laisser cochables (mélange gênant)."]
+  ];
+  document.getElementById("qs").innerHTML = '<p class="mini">Seules les questions qui changent le résultat. Le reste suit les règles déjà actées (cinq métiers, pas de « métier visé », origine calculée par le code, ton prudent, rien d\'obligatoire).</p>' + Q.map(function(q){
+    return '<div class="q"><h4>' + q[0] + '</h4><p class="reco"><i class="bi bi-star-fill" aria-hidden="true"></i> ' + q[1] + '</p><p>' + q[2] + '</p><p class="note">' + q[3] + '</p></div>';
+  }).join('');
+}
+
+/* ---------- câblage ---------- */
+function tout(){ rendreE1(); rendreE2(); rendreE3(); rendreE4(); rendreE5(); }
+document.addEventListener("click", function(ev){
+  var b = ev.target.closest("button"); if (!b) { return; }
+  var d = b.dataset, p = S.parcours[S.edit];
+  if (d.aller) { var cible = document.getElementById(d.aller); if (cible) { cible.scrollIntoView({ behavior: "smooth", block: "start" }); } return; }
+  if (d.edit !== undefined) { S.edit = parseInt(d.edit,10); S.rechercheComp = ""; tout(); document.getElementById("e3").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  if (d.retirer !== undefined) { S.parcours.splice(parseInt(d.retirer,10),1); S.edit = 0; tout(); return; }
+  if (d.ajout !== undefined) { ajouter(parseInt(d.ajout,10), false); S.recherche = ""; tout(); return; }
+  if (d.coche) { if (p.c[d.coche][d.l]) { delete p.c[d.coche][d.l]; } else { p.c[d.coche][d.l] = 1; } tout(); return; }
+  if (d.tout) { METIERS[p.i][d.tout].forEach(function(x){ p.c[d.tout][typeof x === "string" ? x : x.l] = 1; }); tout(); return; }
+  if (d.rien) { p.c[d.rien] = {}; tout(); return; }
+  if (d.voirsv) { S.voirSv[S.edit] = !S.voirSv[S.edit]; rendreE3(); return; }
+  if (d.extra) { p.extra.push({ t: d.extra, l: d.l }); S.rechercheComp = ""; tout(); return; }
+  if (d.retextra !== undefined) { p.extra.splice(parseInt(d.retextra,10),1); tout(); return; }
+  if (d.voiracq) { S.voirAcq = !S.voirAcq; rendreE4(); return; }
+  if (b.id === "bOrdi" || b.id === "bTel") { var tel = b.id === "bTel"; document.getElementById("page").classList.toggle("tel", tel); document.getElementById("bOrdi").setAttribute("aria-pressed", !tel); document.getElementById("bTel").setAttribute("aria-pressed", tel); return; }
+  if (b.id === "bSombre") { var s = document.documentElement.getAttribute("data-theme") === "sombre"; if (s) { document.documentElement.removeAttribute("data-theme"); } else { document.documentElement.setAttribute("data-theme","sombre"); } b.setAttribute("aria-pressed", !s); return; }
+  if (b.id === "bFerme") { document.getElementById("regl").style.display = "none"; document.getElementById("bRouvre").style.display = "inline-block"; return; }
+  if (b.id === "bRouvre") { document.getElementById("regl").style.display = "flex"; b.style.display = "none"; return; }
+});
+// Départ : deux métiers déjà remplis pour montrer le résultat, comme un utilisateur en cours de saisie
+ajouter(0, true); ajouter(1, true); S.edit = 0;
+tout(); rendreQs();
+</script>
+</body>
+</html>

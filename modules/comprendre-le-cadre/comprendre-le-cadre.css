@@ -542,6 +542,9 @@
   padding: .5rem .7rem;
 }
 .comprendre-le-cadre-digest-cle strong { color: var(--accent); }
+/* « En bref » (fiche nouvelle) : même bandeau que « Ce qui change », mais en vert, pour que le bleu reste celui du changement (consigne 422). */
+.comprendre-le-cadre-digest-cle--bref { background: var(--success-bg-subtle); border-left-color: var(--success); }
+.comprendre-le-cadre-digest-cle--bref strong { color: var(--success-strong); }
 .comprendre-le-cadre-digest-concerne { color: var(--text-strong); }
 .comprendre-le-cadre-digest-source {
   border-top: 1px dashed var(--border);
@@ -601,6 +604,12 @@
 .comprendre-le-cadre-arnaque h2 { color: var(--text-strong); }
 .comprendre-le-cadre-arnaque-rubrique { margin: 0 0 .35rem; font-size: .93rem; }
 .comprendre-le-cadre-signaler { border-top: 1px solid var(--border); padding-top: .8rem; }
+/* Lecture visuelle (consigne 422, Denis) : « Signaler une erreur ou un changement » est à DROITE et d'une couleur à part (ambre, celle de l'attention), pour ne pas se confondre avec « Ouvrir cette source » (bouton à bord bleu) ni avec les boutons pleins qui mènent vers « Comprendre le cadre ». */
+.comprendre-le-cadre-signaler { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1.2rem; }
+.comprendre-le-cadre-signaler > p { margin: 0 !important; flex: 1 1 16rem; }
+.comprendre-le-cadre-signaler--haut { border-top: 0; padding-top: 0; margin: 0 0 1rem; }
+.comprendre-le-cadre-signaler-btn { margin-left: auto; background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); font-weight: 600; }
+.comprendre-le-cadre-signaler-btn:hover, .comprendre-le-cadre-signaler-btn:focus-visible { border-color: var(--warning); background: var(--warning-bg-subtle); color: var(--warning-strong); box-shadow: 0 0 0 2px var(--warning-border); }
 /* Bouton « Signaler une erreur ou un changement » (Comprendre le cadre, Qui fait quoi, Près de chez moi, Smic et inflation) : un vrai bouton à cadre, jamais une ligne de texte soulignée (langage visuel commun, décision de Denis du 06/11/2026). Couleurs du thème : lisible en clair et en sombre. */
 button.comprendre-le-cadre-signaler-lien { display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem; padding: .4rem .9rem; min-height: 2.25rem; border: 1px solid var(--border-strong); border-radius: var(--radius, .5rem); background: var(--bg-subtle); font-size: .875rem; text-align: left; cursor: pointer; color: var(--text-strong); text-decoration: none; }
 button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signaler-lien:focus-visible { color: var(--accent); border-color: var(--accent); background: var(--accent-bg-subtle); }
@@ -695,3 +704,26 @@ button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signa
 /* Ligne « Dernière mise à jour » de « Ce qui a changé récemment » (module et page Nouveautés) : bien visible, la date en toutes lettres. */
 .comprendre-le-cadre-maj { font-size: 1.05rem; color: var(--text-strong); }
 .comprendre-le-cadre-maj .bi { color: var(--accent-texte); }
+
+/* Bouton « Lire la fiche en entier » de la page Nouveautés : une gélule douce (fond teinté, flèche qui se retourne à l'ouverture), volontairement différente des boutons d'action (consigne 422). */
+.comprendre-le-cadre-lire-tout { display: inline-flex; align-items: center; gap: .55rem; margin: .2rem 0 .6rem; padding: .5rem 1.15rem; border: 1px solid transparent; border-radius: 999px; background: var(--accent-bg-subtle); color: var(--accent); font-weight: 600; font-size: .9rem; cursor: pointer; transition: background .15s ease, box-shadow .15s ease; }
+.comprendre-le-cadre-lire-tout:hover, .comprendre-le-cadre-lire-tout:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); outline: none; }
+.comprendre-le-cadre-lire-tout .bi { transition: transform .2s ease; }
+.comprendre-le-cadre-lire-tout[aria-expanded="true"] .bi { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .comprendre-le-cadre-lire-tout, .comprendre-le-cadre-lire-tout .bi { transition: none; } }
+
+/* Texte complet d'un changement sans fiche (consigne 426) : bandeau « pas encore en vigueur », intertitres, rappel daté de la situation actuelle. Valeurs claires ET sombres par les variables du thème. */
+.comprendre-le-cadre-avenir-bandeau { display: flex; gap: .6rem; align-items: flex-start; background: var(--warning-bg-subtle); border: 1px solid var(--warning); border-left: 5px solid var(--warning); border-radius: 8px; padding: .6rem .8rem; margin: .6rem 0 .8rem; font-size: .92rem; color: var(--text-strong); }
+.comprendre-le-cadre-avenir-bandeau i { color: var(--warning-strong, var(--warning)); font-size: 1.2rem; line-height: 1.2; }
+.comprendre-le-cadre-avenir-texte h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .3rem; }
+.comprendre-le-cadre-avenir-texte p { margin: .3rem 0 .6rem; }
+.comprendre-le-cadre-avenir-pied { border-top: 1px solid var(--border-strong); margin-top: .8rem; padding-top: .6rem; font-size: .88rem; color: var(--text-muted); }
+.comprendre-le-cadre-rappel { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 10px; padding: .6rem .8rem; margin: .6rem 0 .8rem; }
+.comprendre-le-cadre-rappel dl { margin: .3rem 0 .2rem; display: grid; grid-template-columns: max-content 1fr; gap: .2rem .9rem; }
+.comprendre-le-cadre-rappel dt { font-weight: 600; }
+.comprendre-le-cadre-rappel dd { margin: 0; }
+.comprendre-le-cadre-rappel .date { font-size: .8rem; color: var(--text-muted); margin-top: .3rem; }
+@media (max-width: 575.98px) { .comprendre-le-cadre-rappel dl { grid-template-columns: 1fr; } }
+/* « Replier » en bas d'un texte lu sur place (consigne 438) : même pastille que « Lire la fiche en entier », avec la flèche vers le haut. */
+.comprendre-le-cadre-replier-rangee { margin-top: .8rem; text-align: center; }
+.comprendre-le-cadre-replier .bi { transition: none; }

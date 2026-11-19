@@ -134,7 +134,7 @@ test('inflation : le texte « Ce que cela veut dire » est calculé, sourcé chi
   assert.match(h, /les produits manufacturés \(<span class="chiffre"[^>]*>-0,2 %<\/span>, les prix baissent\)/);
   assert.match(h, /Depuis septembre :<\/b> le rythme s’accélère pour l’énergie, les services et les produits manufacturés ; il ralentit pour l’alimentation \(dont les produits frais et l’autre alimentation\)/);
   assert.match(h, /Sur un seul mois :<\/b> en octobre, les prix ont monté de <span class="chiffre"[^>]*>0,4 %<\/span> \(septembre : <span class="chiffre"[^>]*>-0,3 %/);
-  assert.match(h, /3,8 %/);
+  assert.match(h, /3,7 %/);
   assert.equal(sansSource(h), 0);
   assert.ok((h.match(/<span class="chiffre"/g) || []).length >= 9);
   assert.ok(!new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']').test(h));

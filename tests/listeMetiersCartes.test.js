@@ -43,9 +43,15 @@ test('la sous-section « Pourquoi ces métiers ? » a disparu et les métiers sa
   assert.ok(!/titre: 'Jobs saisonniers/.test(app), 'plus de « Jobs »');
 });
 
-test('les boutons vers le module « Comprendre les métiers » restent cachés tant qu’il n’existe pas', () => {
-  assert.match(app, /var MODULE_COMPRENDRE_METIERS_OUVERT = false;/);
-  assert.match(app, /if \(!MODULE_COMPRENDRE_METIERS_OUVERT\) \{ return ''; \}/);
+test('le module « Explorer les métiers » et ses boutons restent fermés au public : ouverts seulement en local (décision de Denis, 16/11/2026)', () => {
+  const mod = fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-metiers', 'index.js'), 'utf8');
+  assert.match(mod, /var CMV_OUVERT = false;/, 'interrupteur public fermé');
+  assert.match(mod, /var CMV_PONT_CHIFFRES_OUVERT = true;/, 'pont des chiffres ouvert depuis la phase 5, mais derrière l’interrupteur du module (rien de public)');
+  assert.ok(mod.includes('^(localhost|127') && mod.includes('location.hostname'), 'ouverture seulement sur localhost');
+  assert.match(mod, /function pageComprendreLesMetiers\(\) \{ if \(!cmvOuvert\(\)\)/, 'page fermée hors local');
+  assert.match(mod, /function pageIntroComprendreLesMetiers\(\) \{\s+if \(!cmvOuvert\(\)\)/, 'présentation fermée hors local');
+  assert.ok(!/MODULE_COMPRENDRE_METIERS_OUVERT/.test(app), 'plus d’interrupteur en double dans js/app.js');
+  assert.match(app, /if \(!_cmModuleOuvert\(\) \|\| \(type === 'bmo' && !CMV_PONT_CHIFFRES_OUVERT\)\) \{ return ''; \}/);
 });
 
 test('le style de la liste n’utilise aucune couleur en dur (mode sombre)', () => {

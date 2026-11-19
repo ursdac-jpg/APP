@@ -1128,7 +1128,6 @@ var DESCRIPTIONS_ECRITES = {
   "rome_K1230": { actions: ["organiser","encadrer_animer","gerer","piloter_projet"], activites: ["collegues","personnes_en_difficulte","partenaires_fournisseurs","documents"], environnement: ["social_creche","administration"] },
   "rome_K1231": { actions: ["accompagner","informer","expliquer_presenter","former"], activites: ["patients","familles","collegues"], environnement: ["sante","association"] },
   "rome_K1305": { actions: ["accompagner","soigner","informer","conseiller"], activites: ["familles","enfants","personnes_agees"], environnement: ["domicile"] },
-  "rome_K1306": { actions: ["accompagner","soigner","nettoyer","informer"], activites: ["personnes_agees","personnes_handicap","familles"], environnement: ["domicile","social_creche"] },
   "rome_K1307": { actions: ["accompagner","soigner","nettoyer","encadrer_animer"], activites: ["enfants","aliments","familles"], environnement: ["social_creche"] },
   "rome_K1308": { actions: ["accompagner","nettoyer","entretenir_maintenir","encadrer_animer"], activites: ["enfants","collegues","familles"], environnement: ["ecole_formation"] },
   "rome_K1309": { actions: ["accompagner","accueillir","soigner","informer"], activites: ["enfants","adolescents","familles"], environnement: ["domicile"] },

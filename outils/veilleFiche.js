@@ -9,11 +9,11 @@
 'use strict';
 
 // Clés dont la valeur s'écrit entre guillemets, clés en liste (une ligne « - » par élément, éléments entre guillemets ou non).
-const CLES_TEXTE_GUILLEMETS = ['titre', 'pour_qui', 'periode', 'voir_aussi_chiffres', 'phrase_generale', 'retire_raison'];
+const CLES_TEXTE_GUILLEMETS = ['titre', 'pour_qui', 'periode', 'voir_aussi_chiffres', 'phrase_generale', 'maj_resume', 'retire_raison'];
 const CLES_TEXTE_BRUT = ['id', 'rayon', 'territoire', 'statut', 'verifie_le', 'collecte', 'type', 'publie_le', 'retire_le', 'remplace_par', 'frein'];
 const CLES_LISTES = { sources: false, structures: false, voir_aussi_lexique: false, ce_qui_change_souvent: true, revisions: true, delai: false };
 // Clés qu'une personne peut modifier depuis l'outil (id, rayon, collecte restent verrouillés).
-const CLES_MODIFIABLES = ['titre', 'pour_qui', 'tags', 'territoire', 'statut', 'frein', 'verifie_le', 'lexique', 'voir_aussi_lexique', 'voir_aussi_chiffres', 'phrase_generale', 'sources', 'structures', 'ce_qui_change_souvent', 'revisions', 'retire_le', 'retire_raison', 'remplace_par'];
+const CLES_MODIFIABLES = ['titre', 'pour_qui', 'tags', 'territoire', 'statut', 'frein', 'verifie_le', 'lexique', 'voir_aussi_lexique', 'voir_aussi_chiffres', 'phrase_generale', 'maj_resume', 'sources', 'structures', 'ce_qui_change_souvent', 'revisions', 'retire_le', 'retire_raison', 'remplace_par'];
 const CLES_VERROUILLEES = ['id', 'rayon', 'collecte'];
 
 function echapGuillemets(v) { return String(v).replace(/"/g, '\\"'); }
@@ -155,6 +155,14 @@ const RE_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const LONGUEUR_MAX_PHRASE_CHIFFRES = 100;
 // Phrase generale (consigne 95, 05/11/2026) : affichee a la place du texte quand la fiche a six mois ou plus. Jamais de chiffre (regle controlee ici ET a l'ecran).
 const LONGUEUR_MAX_PHRASE_GENERALE = 500;
+// « Ce qui change » (consigne 423, 16/11/2026) : champ maj_resume, écrit « AAAA-MM-JJ : phrase simple ». La page Nouveautés l'affiche à la place du résumé
+// d'une fiche MISE À JOUR, à condition que la date soit celle de la mise à jour. L'outil écrit la date lui-même : la personne ne tape que la phrase.
+const LONGUEUR_MAX_MAJ_RESUME = 450, LONGUEUR_MIN_MAJ_RESUME = 20;
+const RE_MAJ_RESUME = /^(\d{4}-\d{2}-\d{2}) : ([\s\S]+)$/;
+// Mots qui n'ont rien à faire dans un texte lu par les personnes : le mot « IA » et les noms des assistants en ligne.
+const MOTS_INTERDITS_PUBLIC = /\bIA\b|ChatGPT|Perplexity|Claude|Gemini|Copilot|Mistral|OpenAI|Anthropic/i;
+// La phrase seule d'un champ maj_resume (sans sa date), ou '' s'il n'a pas la forme attendue.
+function phraseDeMajResume(valeur) { const m = RE_MAJ_RESUME.exec(String(valeur || '').trim()); return m ? m[2].trim() : ''; }
 // Une fiche « cite des chiffres » : un chiffre OU un nombre écrit en lettres devant une unité (« trente jours », « deux ans »).
 // MÊME MOTIF que COMPRENDRE_LE_CADRE_MOTIF_CHIFFRES (modules/comprendre-le-cadre/index.js, ce que voit la personne) : le test tests/veilleFiche.test.js vérifie qu'ils sont identiques.
 const MOTIF_A_CHIFFRES = '\\d|\\b(?:un|une)[ -](?:mois|an|ann[ée]e|semaine|jour|heure|euro)s?\\b|\\b(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|cent|mille)(?:[- ][a-zéèêû]+){0,2}[ -](?:mois|jours?|ans?|ann[ée]es?|semaines?|heures?|euros?|pour cent|salari[ée]s?)\\b';
@@ -184,7 +192,7 @@ function appliquerModification(texte, demande, contexte) {
 
   // 1. Ne garder que ce qui change réellement.
   const ch = {};
-  let retirerChiffres = false, retirerPhrase = false;
+  let retirerChiffres = false, retirerPhrase = false, retirerMaj = false;
   for (const k of Object.keys(brut)) {
     if (CLES_VERROUILLEES.indexOf(k) !== -1) { return { ok: false, erreur: 'Le champ « ' + k + ' » ne se modifie pas ici.' }; }
     if (CHAMPS_GERES_A_PART.indexOf(k) !== -1) { return { ok: false, erreur: 'Le champ « ' + k + ' » se règle avec les cases de date et « ce que j\'ai changé », jamais directement.' }; }
@@ -196,6 +204,14 @@ function appliquerModification(texte, demande, contexte) {
       const phrase = brut[k].trim();
       if (!phrase) { if (actuels[k] !== undefined && actuels[k] !== '') { retirerChiffres = true; } continue; }
       if (actuels[k] === undefined || actuels[k] !== phrase) { ch[k] = phrase; }
+      continue;
+    }
+    if (k === 'maj_resume') {
+      // « Ce qui change » : la personne écrit la phrase seule (une date AAAA-MM-JJ devant est tolérée et remplacée). Vide = champ retiré.
+      if (typeof brut[k] !== 'string') { return { ok: false, erreur: 'Le « Ce qui change » est un texte.' }; }
+      const saisi = brut[k].trim().replace(/^\d{4}-\d{2}-\d{2}\s*:\s*/, '').trim();
+      if (!saisi) { if (actuels[k] !== undefined && actuels[k] !== '') { retirerMaj = true; } continue; }
+      if (phraseDeMajResume(actuels[k]) !== saisi) { ch[k] = cx.aujourdhui + ' : ' + saisi; }
       continue;
     }
     if (k === 'phrase_generale') {
@@ -230,6 +246,14 @@ function appliquerModification(texte, demande, contexte) {
     // L'application ecrit cette phrase TELLE QUELLE dans la page : ces signes la casseraient.
     if (/[<>&]/.test(p)) { return { ok: false, erreur: 'La phrase générale ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.' }; }
   }
+  if (ch.maj_resume !== undefined) {
+    const p = phraseDeMajResume(ch.maj_resume);
+    if (p.length < LONGUEUR_MIN_MAJ_RESUME) { return { ok: false, erreur: 'Le « Ce qui change » est trop court : une ou deux phrases simples (' + LONGUEUR_MIN_MAJ_RESUME + ' caractères au moins).' }; }
+    if (p.length > LONGUEUR_MAX_MAJ_RESUME) { return { ok: false, erreur: 'Le « Ce qui change » est trop long : ' + p.length + ' caractères (' + LONGUEUR_MAX_MAJ_RESUME + ' au plus).' }; }
+    if (/[<>&]/.test(p)) { return { ok: false, erreur: 'Le « Ce qui change » ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.' }; }
+    if (MOTS_INTERDITS_PUBLIC.test(p)) { return { ok: false, erreur: 'Le « Ce qui change » ne peut citer ni le mot « IA » ni le nom d\'un assistant en ligne : dites « l\'assistant en ligne ».' }; }
+    if (/à vérifier/i.test(p)) { return { ok: false, erreur: 'Le « Ce qui change » contient « à vérifier » : une information incertaine ne se publie pas.' }; }
+  }
   if (ch.frein !== undefined && ch.frein !== 'true' && ch.frein !== 'false') { return { ok: false, erreur: 'Le champ « frein » vaut true ou false.' }; }
   if (ch.statut !== undefined && ch.statut !== 'actif' && ch.statut !== 'retire') { return { ok: false, erreur: 'État de la fiche inconnu : « ' + ch.statut + ' ».' }; }
   if (ch.tags !== undefined && (!Array.isArray(ch.tags) || ch.tags.some(function (t) { return !String(t).trim() || String(t).indexOf(',') !== -1; }))) { return { ok: false, erreur: 'Les mots de recherche sont des mots non vides, sans virgule à l\'intérieur.' }; }
@@ -248,7 +272,7 @@ function appliquerModification(texte, demande, contexte) {
   }
 
   // 3. Retrait et réactivation (le texte de la fiche est gardé dans les deux cas).
-  const supprimer = (retirerChiffres ? ['voir_aussi_chiffres'] : []).concat(retirerPhrase ? ['phrase_generale'] : []);
+  const supprimer = (retirerChiffres ? ['voir_aussi_chiffres'] : []).concat(retirerPhrase ? ['phrase_generale'] : []).concat(retirerMaj ? ['maj_resume'] : []);
   const etaitRetiree = actuels.statut === 'retire';
   let action = 'modifiée';
   if (ch.statut === 'retire' && !etaitRetiree) {
@@ -287,4 +311,4 @@ function appliquerModification(texte, demande, contexte) {
   return { ok: true, texte: r.texte, resume: { champs: Object.keys(ch).concat(supprimer), action: action, phrase: d.formeSeule ? 'simple correction de forme' : revision } };
 }
 
-module.exports = { lire: lire, ecrire: ecrire, ecrireBloc: ecrireBloc, champs: champs, corpsDe: corpsDe, appliquerModification: appliquerModification, CLES_MODIFIABLES: CLES_MODIFIABLES, CLES_VERROUILLEES: CLES_VERROUILLEES, TERRITOIRES: TERRITOIRES, LONGUEUR_MAX_PHRASE_CHIFFRES: LONGUEUR_MAX_PHRASE_CHIFFRES, LONGUEUR_MAX_PHRASE_GENERALE: LONGUEUR_MAX_PHRASE_GENERALE, MOTIF_A_CHIFFRES: MOTIF_A_CHIFFRES, aChiffres: aChiffres };
+module.exports = { lire: lire, ecrire: ecrire, ecrireBloc: ecrireBloc, champs: champs, corpsDe: corpsDe, appliquerModification: appliquerModification, CLES_MODIFIABLES: CLES_MODIFIABLES, CLES_VERROUILLEES: CLES_VERROUILLEES, TERRITOIRES: TERRITOIRES, LONGUEUR_MAX_PHRASE_CHIFFRES: LONGUEUR_MAX_PHRASE_CHIFFRES, LONGUEUR_MAX_PHRASE_GENERALE: LONGUEUR_MAX_PHRASE_GENERALE, LONGUEUR_MAX_MAJ_RESUME: LONGUEUR_MAX_MAJ_RESUME, LONGUEUR_MIN_MAJ_RESUME: LONGUEUR_MIN_MAJ_RESUME, phraseDeMajResume: phraseDeMajResume, MOTS_INTERDITS_PUBLIC: MOTS_INTERDITS_PUBLIC, MOTIF_A_CHIFFRES: MOTIF_A_CHIFFRES, aChiffres: aChiffres };

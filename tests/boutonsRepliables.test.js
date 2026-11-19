@@ -52,16 +52,17 @@ test('seules les animations de clignotement sont relayées par la flèche', () =
   assert.ok(!L.brEstAnimationPulse(undefined));
 });
 
-test('Nouveautés : une rubrique regardée est retirée du total, le reste demeure', () => {
-  assert.strictEqual(NV.nvNombreRestant(3, 'appli', { appli: true }), 0);
-  assert.strictEqual(NV.nvNombreRestant(3, 'appli', { regles: true }), 3);
-  assert.strictEqual(NV.nvNombreRestant(null, 'regles', { appli: true }), null);
-  const vus = NV.nvLireVus('{"appli":true,"corriges":true}');
-  const total = NV.nvTotalPastille(NV.nvNombreRestant(3, 'appli', vus), NV.nvNombreRestant(2, 'regles', vus), NV.nvNombreRestant(13, 'corriges', vus));
-  assert.strictEqual(total, 2);
-  const tout = NV.nvLireVus('{"appli":true,"regles":true,"corriges":true}');
-  assert.strictEqual(NV.nvTotalPastille(NV.nvNombreRestant(3, 'appli', tout), NV.nvNombreRestant(2, 'regles', tout), NV.nvNombreRestant(13, 'corriges', tout)), 0, 'tout vu : plus de chiffre');
-  assert.deepStrictEqual(NV.nvLireVus('n importe quoi'), { appli: false, regles: false, corriges: false });
+test('Nouveautés : ce qui a été vu est retiré du total, le reste demeure (mémoire élément par élément, consigne 418)', () => {
+  const auj = new Date(2026, 10, 16);
+  const liste = [{ date: '2026-11-15', titre: 'A' }, { date: '2026-11-14', titre: 'B' }];
+  let m = NV.nvMemoireNeuve(auj);
+  const total = (mm) => NV.nvTotalPastille(NV.nvNonVus(mm, 'appli', liste).length, NV.nvNonVus(mm, 'regles', []).length, NV.nvNonVus(mm, 'corriges', []).length);
+  assert.strictEqual(total(m), 2);
+  m = NV.nvMarquerVus(m, 'appli', [liste[0]]);
+  assert.strictEqual(total(m), 1);
+  m = NV.nvMarquerVus(m, 'appli', liste);
+  assert.strictEqual(total(m), 0, 'tout vu : plus de chiffre');
+  assert.strictEqual(NV.nvLireMemoire('n importe quoi', auj).v, 2, 'texte illisible : mémoire vierge, jamais d erreur');
 });
 
 test('index.html : les trois flèches existent, Introduction a la sienne juste après son bouton', () => {

@@ -112,6 +112,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Aide alimentaire et aides d'urgence : à qui s'adresser"
     }
   ],
+  "aide-carburant-grands-rouleurs": [
+    {
+      "ficheId": "mobilite-aide-carburant-grands-rouleurs-2026",
+      "rayon": "mobilite",
+      "titre": "L'aide carburant de l'État pour ceux qui font beaucoup de kilomètres pour travailler"
+    }
+  ],
   "aide-juridictionnelle": [
     {
       "ficheId": "juridique-aide-juridictionnelle",
@@ -650,6 +657,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "garde-creche-insertion-avip",
       "rayon": "garde",
       "titre": "Les crèches à vocation d'insertion professionnelle (AVIP) : une place liée à un accompagnement vers l'emploi"
+    }
+  ],
+  "credit-conso-nouvelles-regles-2026": [
+    {
+      "ficheId": "budget-credit-a-la-consommation-ce-qui-change-20-novembre-2026",
+      "rayon": "budget",
+      "titre": "Crédit à la consommation : ce qui change à partir du 20 novembre 2026"
     }
   ],
   "cse": [
@@ -1652,6 +1666,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "budget-rsa-prime-activite-reprise-emploi",
       "rayon": "budget",
       "titre": "Je suis au RSA et je reprends un emploi : que se passe-t-il pour mes droits ?"
+    }
+  ],
+  "prime-carburant-exoneration": [
+    {
+      "ficheId": "mobilite-prime-carburant-employeur-plafond-releve-2026",
+      "rayon": "mobilite",
+      "titre": "La prime carburant versée par l'employeur : un plafond relevé jusqu'au 31 décembre 2026"
     }
   ],
   "primo-arrivant": [

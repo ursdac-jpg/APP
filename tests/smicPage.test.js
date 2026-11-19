@@ -34,7 +34,7 @@ test('Cartes : chaque chiffre porte sa source, aucun tiret long, le vieux chiffr
     assert.ok(!/[\u2013\u2014]/.test(h));
   });
   assert.ok(smic.includes('12,31\u00a0€') && smic.includes('1\u00a0867,02\u00a0€') && smic.includes('2,41\u00a0%'));
-  assert.ok(infl.includes('3,4\u00a0%') && infl.includes('Estimation provisoire'));
+  assert.ok(infl.includes('3,4\u00a0%') && !infl.includes('Estimation provisoire'), 'les r\u00e9sultats d\u2019octobre sont d\u00e9finitifs (Insee, 13 novembre 2026)');
   const vieux = M._comprendreLesChiffresRenduCarteSmic(D, { smicAJour: false, inflationAJour: false });
   assert.ok(!vieux.includes('12,31') && vieux.includes('comprendre-les-chiffres-indic-absent') && vieux.includes('Ouvrir la page'));
   const vieuxI = M._comprendreLesChiffresRenduCarteInflation(D, { smicAJour: false, inflationAJour: false });

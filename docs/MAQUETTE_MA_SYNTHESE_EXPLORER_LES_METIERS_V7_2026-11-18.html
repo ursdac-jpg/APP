@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Ma synthèse, version 7 du 18/11/2026</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* Couleurs des six lettres : les mêmes que la maquette V2 du module (valeur claire ET sombre). La lettre est toujours écrite, jamais la couleur seule. */
+:root{--ri-R:#b4540a;--ri-I:#1f7a4d;--ri-A:#b4233c;--ri-S:#6d4aa8;--ri-E:#0f6f8f;--ri-C:#7a6a00;--ri-txt:#fff}
+[data-theme="sombre"]{--ri-R:#e8944f;--ri-I:#4cc38a;--ri-A:#f27a8f;--ri-S:#b79cf0;--ri-E:#52bfe0;--ri-C:#d6c24a;--ri-txt:#101418}
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 7rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.note{font-size:.85rem;color:var(--text-muted)}
+
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.2rem;margin:.7rem 0}
+.bloc h2,.bloc h3{font-size:var(--t-grand,1.25rem);font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.bloc h2 .bi,.bloc h3 .bi{color:var(--accent)}
+.titre-page{font-size:var(--t-titre-page,1.9rem);font-weight:800;margin:.2rem 0 .4rem;text-align:center}
+.sous-titre{text-align:center;color:var(--text-muted);margin-bottom:.6rem}
+.encart{background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.7rem .9rem;margin:.7rem 0;display:flex;gap:.7rem;align-items:flex-start}
+.encart.warn{background:var(--warning-bg-subtle);border-left-color:var(--warning-border)}
+.encart i{color:var(--accent);font-size:1.3rem;margin-top:.1rem}
+.encart p{margin:0}
+.pill{display:inline-block;font-size:.8rem;padding:.12rem .6rem;border-radius:999px;background:var(--bg-subtle);border:1px solid var(--border);color:var(--text-strong);margin:.1rem .15rem .1rem 0}
+.etat-pastille{font-size:.8rem;font-weight:700;padding:.12rem .6rem;border-radius:999px;margin-left:auto}
+.etat-pastille.fait{background:var(--success-bg-subtle,#e6f4ea);color:var(--success,#1e6b3a);border:1px solid var(--success,#1e6b3a)}
+.etat-pastille.afaire{background:var(--warning-bg-subtle);color:var(--warning-strong);border:1px solid var(--warning-border)}
+.ri-p{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--ri-c);color:var(--ri-txt);font-weight:800;font-size:.95rem;flex:none}
+.ri-p.gros{width:52px;height:52px;font-size:1.5rem}
+.ri-R{--ri-c:var(--ri-R)}.ri-I{--ri-c:var(--ri-I)}.ri-A{--ri-c:var(--ri-A)}.ri-S{--ri-c:var(--ri-S)}.ri-E{--ri-c:var(--ri-E)}.ri-C{--ri-c:var(--ri-C)}
+.lettres{display:flex;gap:1rem 1.4rem;flex-wrap:wrap;align-items:center;margin:.4rem 0}
+.lettres div{display:flex;gap:.5rem;align-items:center;font-weight:700}
+.ligne{display:flex;gap:.7rem;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--border);padding:.55rem 0}
+.ligne:first-of-type{border-top:0}
+.ligne .nom{font-weight:700}
+.ligne .sub{font-size:.85rem;color:var(--text-muted)}
+.boutons-ligne{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+.boutons-ligne .btn{min-height:44px}
+.dep{display:flex;gap:.5rem;flex-wrap:wrap;margin:.3rem 0 .6rem}
+.dep .btn{min-height:44px}
+.chiffre-cle{font-size:.85rem;color:var(--text-muted)}
+.mini-plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.tel .mini-plan{grid-template-columns:1fr}
+.mini-plan .carte{border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .8rem;background:var(--bg-card)}
+.mini-plan .carte h4{font-size:1rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.4rem;align-items:center}
+.mini-plan .carte p{font-size:.85rem;margin:0 0 .4rem;color:var(--text-muted)}
+.mini-plan .carte .btn{min-height:44px}
+.feuille{background:#fff;color:#111;border:1px solid #bbb;border-radius:4px;max-width:720px;margin:.8rem auto;padding:1.6rem 1.8rem;box-shadow:0 2px 10px rgba(0,0,0,.18);font-family:Georgia,"Times New Roman",serif}
+.feuille h1{font-size:1.5rem;margin:0 0 .2rem}
+.feuille h2{font-size:1.1rem;margin:1rem 0 .3rem;border-bottom:1px solid #999;padding-bottom:.15rem}
+.feuille p,.feuille li{font-size:.95rem;margin:.15rem 0}
+.feuille .pied{font-size:.8rem;color:#555;border-top:1px solid #999;margin-top:1rem;padding-top:.4rem}
+.feuille .ri-p{width:24px;height:24px;font-size:.8rem}
+.barre-navigation-fixe{position:fixed;left:0;right:0;bottom:0;background:var(--bg-card);border-top:1px solid var(--border);padding:.5rem 1rem;z-index:500}
+.barre-navigation-fixe .barre{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.m-fil{font-size:.85rem;color:var(--text-muted);text-align:center}
+@media (max-width:640px){.mini-plan{grid-template-columns:1fr}}
+.mini-plan.mini-plan4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.mini-plan.mini-plan4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.mini-plan.mini-plan4{grid-template-columns:1fr}}
+.bloc h3.h6{font-size:1rem;margin:.8rem 0 .2rem}
+.table-croise{width:100%;border-collapse:collapse;font-size:.9rem}
+.table-croise th,.table-croise td{border-top:1px solid var(--border);padding:.45rem .5rem;text-align:left;vertical-align:middle}
+.table-croise thead th{border-top:0;font-size:.8rem;color:var(--text-muted)}
+.table-croise td .ri-p{margin-right:.2rem}
+pre.demande{white-space:pre-wrap;word-break:break-word;background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:.7rem .8rem;font-size:.85rem;max-height:24rem;overflow:auto;font-family:inherit}
+.bloc h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:.9rem;flex:none}
+:root{--cam-autre:#cfd8e3;--vert-bg:#e3f3ea;--vert-bord:#1e6b3a;--orange-bg:#fdecd9;--orange-bord:#b4540a}
+[data-theme="sombre"]{--cam-autre:#3a4656;--vert-bg:#16352a;--vert-bord:#4cc38a;--orange-bg:#3d2a16;--orange-bord:#e8944f}
+.pill-vert{background:var(--vert-bg);border-color:var(--vert-bord)}
+.pill-orange{background:var(--orange-bg);border-color:var(--orange-bord)}
+.pill-sais{background:var(--orange-bg);border-color:var(--orange-bord);font-weight:700}
+.pill-ajout{background:transparent;border-style:dashed;cursor:pointer}
+.bloc-synth{border:2px solid var(--accent)}
+.tag-etape{font-size:.75rem;font-weight:700;padding:.1rem .5rem;border-radius:6px;background:var(--bg-subtle);border:1px dashed var(--border-strong);color:var(--text-muted)}
+.barres-lettres{display:flex;flex-direction:column;gap:.35rem;margin:.3rem 0 .5rem}
+.bl{display:grid;grid-template-columns:30px 9.5rem 1fr 3.2rem;gap:.5rem;align-items:center}
+.tel .bl{grid-template-columns:30px 7rem 1fr 3rem}
+.bl-nom{font-size:.9rem}
+.bl-barre{height:12px;border-radius:6px;background:var(--bg-subtle);overflow:hidden;border:1px solid var(--border)}
+.bl-barre i{display:block;height:100%;background:var(--ri-c)}
+.bl-pct{text-align:right;font-variant-numeric:tabular-nums}
+.bl.fort{font-weight:800}.bl.fort .bl-barre{height:16px}
+.bl.inter .bl-barre i{opacity:.75}.bl.inter{font-weight:600}
+.bl.doux{opacity:.55}.bl.doux .ri-p{width:24px;height:24px;font-size:.8rem}
+.fiche-retenue{border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.5rem 0;background:var(--bg-subtle)}
+.fr-tete{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.3rem}
+.fr-liste{list-style:none;margin:0;padding:0}.fr-liste li{margin:.25rem 0;font-size:.92rem}.fr-liste .bi{color:var(--accent);margin-right:.35rem}
+.candidats .cand{display:flex;justify-content:space-between;gap:.6rem;align-items:center;flex-wrap:wrap;border-top:1px solid var(--border);padding:.45rem 0}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0 .6rem}
+.chip{border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:999px;padding:.35rem .8rem;font-size:.9rem;min-height:40px;cursor:pointer}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.lab{display:block;font-weight:700;margin:.6rem 0 .2rem}
+.champ-rech{display:flex;gap:.5rem}.champ-rech .form-control{flex:1}
+.parc{border-top:1px solid var(--border);padding:.5rem 0}
+.aide-mots{margin-top:.7rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;padding:.5rem .8rem}.aide-mots summary{font-weight:700;cursor:pointer}
+.rejoindre{margin-top:.8rem;border:1px dashed var(--border-strong);border-radius:10px;padding:.6rem .8rem;opacity:.75}
+.graph-barres{margin:.4rem 0}.gb{display:grid;grid-template-columns:minmax(0,14rem) 1fr 3.5rem;gap:.5rem;align-items:center;margin:.25rem 0;font-size:.88rem}
+.tel .gb{grid-template-columns:minmax(0,8rem) 1fr 3rem}
+.gb-barre{height:14px;background:var(--bg-subtle);border-radius:7px;overflow:hidden;border:1px solid var(--border)}.gb-barre i{display:block;height:100%;background:var(--accent)}.gb-val{text-align:right}
+.trois{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}.deux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.tel .trois,.tel .deux{grid-template-columns:1fr}
+.tr{border:1px solid var(--border-strong);border-radius:12px;padding:.6rem .8rem;background:var(--bg-card)}.tr p{margin:.25rem 0;font-size:.9rem}
+.niveaux{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.niveaux div{display:flex;flex-direction:column}.niveaux b{font-size:1.1rem}
+.camembert-zone{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin:.3rem 0}
+.camembert{width:130px;height:130px;border-radius:50%;border:1px solid var(--border-strong)}
+.legende{list-style:none;margin:0;padding:0}.legende li{margin:.25rem 0}.puce{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:.45rem;vertical-align:-2px}.puce-a{background:var(--accent)}.puce-b{background:var(--cam-autre);border:1px solid var(--border-strong)}
+.onglets-mq{display:flex;gap:.4rem}.onglets-mq button{border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:8px 8px 0 0;padding:.4rem .9rem;min-height:40px}.onglets-mq button.actif{background:var(--accent);color:#fff;font-weight:700}
+.lab.check{display:flex;gap:.5rem;align-items:center;font-weight:400;margin:.25rem 0}
+.invite{display:flex;gap:.7rem;align-items:flex-start;background:var(--accent-bg-subtle);border:1px dashed var(--accent);border-radius:10px;padding:.7rem .9rem;margin:.4rem 0}.invite .bi{color:var(--accent);font-size:1.3rem}
+.ligne-actions{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.6rem}
+.encart>div{flex:1}
+.affiner{border:1px dashed var(--accent);border-radius:12px;padding:.7rem .9rem;margin:.6rem 0;background:var(--accent-bg-subtle)}
+.filtre-form{border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem 0;background:var(--bg-subtle)}
+.ligne-p3 .fr-liste li.niv{color:var(--text-muted)}.ligne-p3 .fr-liste li.niv .bi{color:var(--text-muted)}
+.ligne-p3 .fr-liste li{font-size:.88rem}.ligne-p3 .fr-liste li.egal{color:var(--text-muted)}.ligne-p3 .fr-liste li.egal .bi{color:var(--text-muted)}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette (version 7) <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Écran à voir</b>
+    <div class="boutons" id="mqEcrans"></div>
+  </div>
+  <div class="grp"><b>Ce que la personne a déjà fait (exemple fictif)</b>
+    <div class="boutons" id="mqRempl"></div>
+  </div>
+  <div class="grp"><b>Cas à essayer</b>
+    <div class="boutons" id="mqCas"></div>
+  </div>
+  <div class="grp"><b>Taille d’écran, thème</b>
+    <div class="boutons">
+      <button type="button" class="btn btn-sm btn-primary" id="mqLarge">Ordinateur</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="mqTel">Téléphone</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="mqTheme">Mode sombre</button>
+    </div>
+  </div>
+  <div class="grp"><b>Points encore à trancher</b>
+    <div class="boutons" id="mqVar"></div>
+  </div>
+  <div class="mq-retient" id="mqRetient"></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+<div id="mqBas"></div>
+
+<script>
+/* ------------------------------------------------------------------
+   MAQUETTE V3 du 18/11/2026 : « Ma synthèse » (consignes 460 et 461 de Denis).
+   Les chiffres des deux départements sont les vrais (enquête BMO 2026). Tout le reste (personne, pourcentages, métiers, niveaux) est FICTIF.
+   Les trois passages donnent un résultat ; le quatrième chemin (emplois en demande) donne du concret, pas un résultat.
+------------------------------------------------------------------ */
+var DEP = {
+  '24': { nom: 'Dordogne', metiers: [['Viticulteurs, arboriculteurs', 1447, 1383], ['Agriculteurs', 1212, 1145], ['Aides de cuisine et employés polyvalents de la restauration', 1098, 524]] },
+  '87': { nom: 'Haute-Vienne', metiers: [['Agriculteurs', 692, 610], ['Aides de cuisine et employés polyvalents de la restauration', 500, 137], ['Aides-soignants', 407, 84]] }
+};
+var LIEN_ENQUETE = { 'Aide-soignant ou aide-soignante': 'Aides-soignants' };
+var NOMS_LETTRES = { R: 'Réaliste', I: 'Investigateur', A: 'Artistique', S: 'Social', E: 'Entreprenant', C: 'Conventionnel' };
+var NIVEAUX = ['Sans diplôme', 'CAP ou BEP', 'Bac', 'Bac + 2', 'Bac + 3', 'Bac + 5'];
+var DATE = '18/11/2026';
+/* Les métiers du passage 1 : le mieux classé (recommandé), des métiers proches, un métier du commerce (pour montrer le turnover). */
+var METIERS = {
+  recommande: { nom: 'Auxiliaire de puériculture', pct: '82 %', niveau: 2, secteur: 'Santé et social', lettres: 'SR', comp: { se: 4, sf: 6, sv: 5 }, rang: 'le métier le mieux classé' },
+  proche: { nom: 'Animateur', pct: '78 %', niveau: 3, secteur: 'Animation et culture', lettres: 'SA', comp: { se: 4, sf: 6, sv: 4 }, rang: 'un métier proche' },
+  commerce: { nom: 'Employé ou employée de libre-service', pct: '66 %', niveau: 0, secteur: 'Commerce', lettres: 'EC', comp: { se: 4, sf: 5, sv: 3 }, rang: 'un métier proche', commerce: true }
+};
+var LETTRES_METIERS = [];   /* recalculée à chaque affichage par classerP3() : les trois premiers métiers du passage 3 */
+var COMPARE = { exerce: 'Aide à domicile', vise: 'Animateur', transferables: ['Écouter la personne', 'Accompagner un public fragile', 'Organiser une activité simple'], transversales: ['Communiquer', 'Garder son calme', 'Travailler en équipe'], acquerir: ['Concevoir un projet d’animation', 'Encadrer un groupe', 'Connaître le cadre réglementaire des accueils de mineurs'] };
+var COMP_CHOISIES = ['Écouter', 'Être patient', 'Expliquer simplement', 'Organiser une activité', 'Garder son calme'];
+var EXEMPLE = {
+  pct: { S: 71, A: 58, E: 33, I: 21, C: 12, R: 8 },
+  pctEgalite: { S: 60, A: 60, E: 60, I: 21, C: 12, R: 8 },
+  dateTest: '17/11/2026',
+  partie1: { S: 78, A: 66, E: 30 }, partie3: { S: 60, A: 35, E: 28 },
+  faciles: ['Parler avec des personnes', 'Expliquer', 'Travailler en équipe'],
+  difficiles: ['Travailler la nuit'],
+  choix: { 'Avec qui ou avec quoi': ['Des enfants', 'Des personnes âgées', 'Des animaux'], 'Ce que j’aimerais faire': ['Écouter, conseiller', 'Créer, imaginer', 'Prendre soin'], 'Où': ['Dans un lieu calme', 'À l’intérieur et à l’extérieur'] },
+  metiers2: [['Auxiliaire de puériculture', '82 %'], ['Animateur', '78 %'], ['Aide-soignant ou aide-soignante', '71 %']],
+  horsMetier: ['Créer, imaginer', 'Des animaux'],
+  parcours: [['Agent de service hospitalier', ['Entretenir les locaux', 'Aider au repas', 'Accompagner une personne âgée', 'Respecter les règles d’hygiène']], ['Aide à domicile', ['Faire les courses', 'Écouter la personne', 'Préparer un repas']]]
+};
+var COMPLEMENTS = ['Je peux me déplacer', 'Je peux me former', 'Je cherche vite un emploi', 'Je veux changer complètement', 'Je veux rester dans mon secteur', 'Des horaires fixes sont nécessaires', 'J’ai le permis B', 'J’ai envie de créer mon activité'];
+var ETAT = {
+  ecran: 'synthese', tel: false, sombre: false, regl: true, dep: '87',
+  p1: true, p2: true, p3: true, parcours: true, libre: true, lect: true,
+  retenu: 'proche',            // recommande | proche | commerce | aucun
+  egalite: false,
+  niveauPers: 1,              // index dans NIVEAUX
+  suivi: 'oui',               // oui | non | jamais
+  complements: { 0: true, 1: true },
+  formation: 'tous', voirMasques2: false, voirMasques3: false,
+  aff: { corps: 'peu', lieu: 'ext', autres: 'public', horaires: 'peu', secteurs: [] },
+  grapheCache: false, garde: false, retenu2: 'Auxiliaire de puériculture', retenu3: 'Animateur',
+  vParcours: 'fiche', vPasserelle: 'non'
+};
+
+function e(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function nb(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+function pastille(l, gros) { return '<span class="ri-p ri-' + l + (gros ? ' gros' : '') + '" aria-hidden="true">' + l + '</span>'; }
+function pastilleEtat(fait, texteFait) { return '<span class="etat-pastille ' + (fait ? 'fait' : 'afaire') + '">' + (fait ? (texteFait || 'Fait') : 'Pas encore fait') + '</span>'; }
+function invite(texte, bouton) {
+  return '<div class="invite"><i class="bi bi-lightbulb" aria-hidden="true"></i><div><p class="mb-1">' + texte + '</p><button type="button" class="btn btn-primary">' + bouton + '</button></div></div>';
+}
+function ligneActions(gauche) {
+  return '<div class="ligne-actions"><div class="boutons-ligne" style="margin-top:0">' + gauche + '</div><button type="button" class="btn btn-outline-primary btn-garder" data-garde="1"><i class="bi bi-save"></i> ' + (ETAT.garde ? 'Gardé dans la disquette' : 'Garder dans la disquette') + '</button></div>';
+}
+function boutonRetenir(passage, nom) {
+  var cle = passage === 2 ? 'retenu2' : 'retenu3', on = ETAT[cle] === nom;
+  return '<button type="button" class="btn btn-sm ' + (on ? 'btn-primary' : 'btn-outline-primary') + '" data-ret="' + passage + '" data-nom="' + e(nom) + '" aria-pressed="' + on + '">' + (on ? 'Retenu' : 'Retenir') + '</button>';
+}
+function pcts() { return ETAT.egalite ? EXEMPLE.pctEgalite : EXEMPLE.pct; }
+function met() { return ETAT.retenu === 'aucun' ? null : METIERS[ETAT.retenu]; }
+function nbSources() { return (ETAT.p1 && met() ? 1 : 0) + (ETAT.p2 ? 1 : 0) + (ETAT.p3 ? 1 : 0); }
+function compTotal(m) { return m.comp.se + m.comp.sf + m.comp.sv; }
+function lieEnquete(m) { var d = DEP[ETAT.dep], cible = LIEN_ENQUETE[m.nom], r = null; if (!cible) { return null; } d.metiers.forEach(function (x) { if (x[0] === cible) { r = x; } }); return r; }
+
+/* Les six lettres : deux premières en fort, une troisième en teinte intermédiaire si elle se démarque, les autres discrètes. Égalité : toutes les lettres à égalité sont en fort. */
+function classLettres() {
+  var p = pcts(), ordre = Object.keys(p).sort(function (a, b) { return p[b] - p[a]; });
+  var seuilFort = p[ordre[1]], res = {};
+  ordre.forEach(function (l, i) { res[l] = (p[l] >= seuilFort) ? 'fort' : 'doux'; });
+  var tiers = ordre.filter(function (l) { return res[l] === 'doux'; })[0];
+  if (tiers && p[tiers] >= 25 && p[tiers] - p[ordre[ordre.indexOf(tiers) + 1]] >= 8) { res[tiers] = 'inter'; }
+  return { ordre: ordre, cls: res };
+}
+function lettresHTML() {
+  var c = classLettres(), p = pcts();
+  return '<div class="barres-lettres" role="list">' + c.ordre.map(function (l) {
+    return '<div class="bl ri-' + l + ' ' + c.cls[l] + '" role="listitem">' + pastille(l) + '<span class="bl-nom">' + NOMS_LETTRES[l] + '</span><span class="bl-barre"><i style="width:' + p[l] + '%"></i></span><span class="bl-pct">' + p[l] + ' %</span></div>';
+  }).join('') + '</div><p class="note mb-0">Les deux premières lettres ressortent le plus' + (c.ordre.some(function (l) { return c.cls[l] === 'inter'; }) ? ', la troisième se démarque un peu' : '') + '. Un pourcentage dit seulement la place d’un type dans vos réponses : ce n’est pas une note.</p>';
+}
+function camembert(a, b, la, lb) {
+  var pa = Math.round(a / (a + b) * 100);
+  return '<div class="camembert-zone"><div class="camembert" style="background:conic-gradient(var(--accent) 0 ' + pa + '%, var(--cam-autre) ' + pa + '% 100%)" role="img" aria-label="' + la + ' : ' + a + ' ; ' + lb + ' : ' + b + '"></div>' +
+    '<ul class="legende"><li><span class="puce puce-a"></span>' + la + ' : ' + a + '</li><li><span class="puce puce-b"></span>' + lb + ' : ' + b + '</li></ul></div>';
+}
+
+/* ---------- Accueil du module ---------- */
+function ecranAccueil() {
+  var h = '<h1 class="titre-page"><i class="bi bi-compass"></i> Explorer les métiers</h1><p class="sous-titre">Par où voulez-vous commencer ?</p>';
+  h += '<div class="mini-plan mini-plan4">' +
+    '<div class="carte"><h4><i class="bi bi-search"></i> Par un métier</h4><p>Cherchez un métier par son nom, un sigle ou son secteur.</p><button class="btn btn-primary" type="button">Chercher un métier</button></div>' +
+    '<div class="carte"><h4><i class="bi bi-list-check"></i> Par ce que vous aimez faire</h4><p>Quatre pages de choix, puis des métiers proposés.</p><button class="btn btn-primary" type="button">' + (ETAT.p2 ? 'Revoir mes choix' : 'Choisir mes envies') + '</button></div>' +
+    '<div class="carte"><h4><i class="bi bi-hexagon"></i> Par un questionnaire</h4><p>Des questions numérotées, sans bonne ni mauvaise réponse.</p><button class="btn btn-primary" type="button">' + (ETAT.p3 ? 'Revoir mon résultat' : 'Voir le questionnaire') + '</button></div>' +
+    '<div class="carte"><h4><i class="bi bi-briefcase"></i> Les emplois en demande</h4><p>Ce que les employeurs prévoient d’embaucher, et des offres près de chez vous.</p><button class="btn btn-primary" type="button">Voir les emplois</button></div></div>';
+  if (ETAT.vPasserelle === 'oui') { h += '<div class="bloc" style="margin-top:.8rem"><h2><i class="bi bi-signpost-split"></i> D’un métier à un autre <span class="tag-etape">À décider</span></h2><p>Vous indiquez les métiers que vous avez exercés et ceux que vous visez (cinq au plus). L’application repère ce qui peut se transférer de l’un à l’autre, puis vous passez directement à la lecture.</p><button class="btn btn-outline-primary" type="button">Comparer mon parcours à un métier visé</button></div>'; }
+  if (nbSources() > 0) {
+    h += '<div class="bloc bloc-synth" style="margin-top:1rem"><h2><i class="bi bi-clipboard-check"></i> Ma synthèse</h2>' +
+      '<p>Vous avez déjà ' + (nbSources() === 1 ? 'un résultat' : nbSources() + ' résultats') + ' : voyez-les sur une seule page' + (ETAT.lect ? ', avec la lecture déjà faite' : ' et demandez, si vous le souhaitez, une lecture d’ensemble') + '.</p>' +
+      '<div class="boutons-ligne"><button type="button" class="btn btn-primary" data-go="synthese"><i class="bi bi-clipboard-check"></i> Voir ma synthèse</button>' +
+      '<button type="button" class="btn btn-outline-secondary"><i class="bi bi-arrow-repeat"></i> Refaire tout le chemin</button></div>' +
+      '<p class="note mt-2 mb-0">NOUVEAU : ce bloc n’apparaît que s’il y a au moins un résultat (importé depuis la disquette ou fait ici). « Refaire tout le chemin » demande confirmation et n’efface rien sans accord.</p></div>';
+  } else {
+    h += '<p class="note" style="text-align:center;margin-top:1rem">Rien à rassembler pour l’instant : « Ma synthèse » apparaît ici dès que vous avez un résultat.</p>';
+  }
+  return h;
+}
+
+/* ---------- Passage 1 : un seul métier retenu ---------- */
+function carteMetierRetenu(m) {
+  var d = DEP[ETAT.dep], l = lieEnquete({ nom: m.nom }), h = '<div class="fiche-retenue"><div class="fr-tete"><b>' + e(m.nom) + '</b><span class="pill">Retrouve ' + m.pct + ' de mes choix</span></div><ul class="fr-liste">' +
+    '<li><i class="bi bi-diagram-3"></i> Secteur : ' + e(m.secteur) + '</li>' +
+    '<li><i class="bi bi-mortarboard"></i> Niveau d’accès : ' + NIVEAUX[m.niveau] + '</li>' +
+    '<li><i class="bi bi-list-task"></i> ' + compTotal(m) + ' compétences demandées (' + m.comp.se + ' savoir-être, ' + m.comp.sf + ' savoir-faire, ' + m.comp.sv + ' savoirs)</li>';
+  if (l) { h += '<li><i class="bi bi-geo-alt"></i> Employeurs de ' + d.nom + ' : au moins ' + nb(l[1]) + ' projets de recrutement annoncés, dont au moins ' + nb(l[2]) + ' saisonniers.</li>'; }
+  if (m.commerce) { h += '<li><i class="bi bi-arrow-repeat"></i> Dans le commerce, des postes reviennent souvent : beaucoup d’enseignes recrutent toute l’année (turnover).</li>'; }
+  if (!l && !m.commerce) { h += '<li class="note"><i class="bi bi-info-circle"></i> Cette page n’affirme rien sur le recrutement de ce métier chez vous : il ne figure pas parmi les métiers les plus cités par les employeurs de ' + d.nom + '.</li>'; }
+  return h + '</ul></div>';
+}
+function blocPassage1() {
+  var m = met(), h = '<div class="bloc"><h2><i class="bi bi-search"></i> Passage 1 : le métier que j’ai retenu ' + pastilleEtat(ETAT.p1 && m, 'Retenu') + '</h2>';
+  if (ETAT.p1 && m) {
+    h += '<p class="note mb-1">Vos choix de compétences dans « Par un métier » : ' + COMP_CHOISIES.map(function (c) { return '<span class="pill">' + e(c) + '</span>'; }).join(' ') + '</p>' + carteMetierRetenu(m) +
+      '<p class="note mb-1">Vous avez retenu ' + m.rang + (ETAT.retenu === 'recommande' ? '' : ' (le métier recommandé était « ' + e(METIERS.recommande.nom) + ' »)') + '.</p>' +
+      ligneActions('') + '<details class="aide-mots"><summary>Retenir un autre des métiers proposés</summary><p class="note mb-1">Seulement parmi les métiers que vos choix ont fait ressortir : la synthèse repose sur vos résultats. La demande garde la trace du métier recommandé et de celui que vous retenez.</p>' + listeCandidats() + '</details>';
+  } else {
+    h += invite('Ce passage n’est pas encore fait. Le faire rend votre synthèse plus précise et la lecture plus fine : le métier retenu apporte les compétences qu’il demande. Dans « Par un métier », chaque métier proposé a un bouton « Retenir pour ma synthèse » : un seul peut être retenu.', 'Faire ce passage') + listeCandidats() + '<p class="note mt-1 mb-0">Dans la maquette, ces boutons simulent la page des métiers proposés.</p>';
+  }
+  return h + '</div>';
+}
+function listeCandidats() {
+  return '<div class="candidats">' + ['recommande', 'proche', 'commerce'].map(function (k) { return '<div class="cand"><span>' + e(METIERS[k].nom) + ' <span class="note">(' + METIERS[k].pct + ')</span></span><button type="button" class="btn btn-sm ' + (ETAT.retenu === k ? 'btn-primary' : 'btn-outline-primary') + '" data-retenir="' + k + '">' + (ETAT.retenu === k ? 'Retenu' : 'Retenir pour ma synthèse') + '</button></div>'; }).join('') + '</div>';
+}
+
+/* ---------- Passage 2 ---------- */
+function blocPassage2() {
+  var h = '<div class="bloc"><h2><i class="bi bi-list-check"></i> Passage 2 : ce que j’aime faire ' + pastilleEtat(ETAT.p2) + '</h2>';
+  if (ETAT.p2) {
+    h += Object.keys(EXEMPLE.choix).map(function (k) { return '<p class="mb-1"><b>' + e(k) + ' :</b> ' + EXEMPLE.choix[k].map(function (x) { return '<span class="pill">' + e(x) + '</span>'; }).join(' ') + '</p>'; }).join('') +
+      '<p class="mb-1"><b>Ce que je ferais facilement :</b> ' + EXEMPLE.faciles.map(function (x) { return '<span class="pill pill-vert">' + e(x) + '</span>'; }).join(' ') + '</p>' +
+      '<p class="mb-1"><b>Ce qui serait difficile :</b> ' + EXEMPLE.difficiles.map(function (x) { return '<span class="pill pill-orange">' + e(x) + '</span>'; }).join(' ') + '</p>' +
+      blocFiltreFormation(2, metiers2Masques()) + '<p class="note mb-1 mt-2">Les métiers qui retrouvent le plus de vos choix. Retenez celui qui vous attire le plus (un seul) :</p>' +
+      metiers2Visibles().map(function (x) { return '<div class="ligne"><div><div class="nom">' + e(x[0]) + '</div><span class="pill">Retrouve ' + x[1] + ' de mes choix</span> <span class="pill">Niveau d’accès : ' + libNiveau(x[2]) + '</span></div>' + boutonRetenir(2, x[0]) + '</div>'; }).join('') +
+      '<p class="note mt-1 mb-1">« Modifier mes choix » rouvre vos pages de choix (avec qui ou avec quoi, quoi faire, où, facile ou difficile). Vous changez ce que vous voulez : les métiers proposés et leurs pourcentages se recalculent.</p>' +
+      ligneActions('<button type="button" class="btn btn-outline-primary">Modifier mes choix</button>');
+  } else {
+    h += invite('Ce passage n’est pas encore fait. Le faire rend votre synthèse plus précise : vos envies donnent le lieu, ce qui serait facile ou difficile, et des métiers très proches de vos choix. Rien n’est obligatoire.', 'Choisir mes envies');
+  }
+  return h + '</div>';
+}
+
+/* ---------- Passage 3 ---------- */
+/* ---------- Passage 3 : départager les métiers aux mêmes lettres (V6) ---------- */
+/* Données RÉELLES de l'application, pour les lettres S, A, E : les 32 métiers dont les lettres retombent sur celles de la personne
+   (indice 100 %), avec leurs lettres, leur secteur et leurs conditions de travail (data/conditionsRome.js). */
+var DATA32 = [["Accompagnant d'eleves en situation de handicap (AESH)","S","Éducation et formation",[],4],["Accueillant familial thérapeutique auprès d'adultes","S","Social et services à la personne",["nuit","weekend","domicile"],null],["Agent d'accompagnement du transport","S","Transport et logistique",["weekend","horaires","deplacements","public"],3],["Animateur","SA","Sport, animation et loisirs",["weekend","horaires","exterieur","public"],3],["Animateur-coordinateur de formation","S","Éducation et formation",["deplacements","public"],6],["Art thérapeute","SA","Social et services à la personne",["public"],7],["Assistant de vie aux familles","S","Social et services à la personne",["weekend","horaires","deplacements","public","domicile"],3],["Assistant de vie aux familles (ADVF)","S","Social et services à la personne",["nuit","weekend","horaires","deplacements","charges","public","domicile"],3],["Assistant familial","S","Social et services à la personne",["nuit","weekend","domicile"],null],["Assistant maternel","S","Social et services à la personne",["nuit","weekend","horaires","deplacements","domicile"],null],["Assistant pédagogique en milieu scolaire","S","Éducation et formation",["public"],6],["Conseiller d'Insertion et de Probation (CIP)","S","Social et services à la personne",["public"],6],["Educateur de la protection judiciaire de la jeunesse","S","Social et services à la personne",["public"],6],["Éducateur spécialisé","S","Social et services à la personne",["weekend","horaires","deplacements","public"],6],["Employé au pair","S","Social et services à la personne",["weekend","horaires","debout","domicile"],3],["Employé de ménage à domicile","S","Social et services à la personne",["nuit","weekend","horaires","deplacements","public","domicile"],3],["Formateur de formateurs","S","Éducation et formation",["deplacements"],7],["Hôte d'accueil et d'animation de croisière","S","Hôtellerie, restauration et tourisme",["horaires","exterieur","public"],4],["Intervenant en Prévention des Risques Professionnels - IPRP","S","Administration, gestion et bureau",["deplacements"],6],["Maître de cérémonie funéraire","S","Social et services à la personne",["weekend","horaires","deplacements","public"],null],["Masseur bien-être","S","Commerce et vente",["deplacements","debout","precision"],2],["Ministre du culte","S","Social et services à la personne",["weekend","horaires","deplacements","public"],null],["Moniteur éducateur","S","Social et services à la personne",["nuit","weekend","deplacements","public"],4],["Patient partenaire en santé","S","Social et services à la personne",["horaires","deplacements","public"],8],["Professeur d'enseignement général pour déficients sensoriels","S","Éducation et formation",["deplacements","public"],7],["Professeur de collège et de lycée","S","Éducation et formation",["weekend","debout","public"],7],["Professeur de Français Langue Etrangère (FLE)","S","Éducation et formation",["public"],6],["Professeur de musique","SA","Éducation et formation",["weekend","public","domicile"],7],["Professeur territorial d'enseignement artistique","SA","Éducation et formation",["debout","precision","public"],5],["Responsable d'internat","S","Éducation et formation",["nuit","weekend","horaires","public"],6],["Sophrologue","S","Social et services à la personne",["weekend","deplacements","domicile"],2],["Steward de train","S","Hôtellerie, restauration et tourisme",["weekend","horaires","deplacements","debout","public"],3]];
+var NOMS_AFFICHES = { "Accompagnant d'eleves en situation de handicap (AESH)": 'Accompagnant d’élèves en situation de handicap (AESH)', 'Educateur de la protection judiciaire de la jeunesse': 'Éducateur de la protection judiciaire de la jeunesse' };
+function nomAff(n) { return NOMS_AFFICHES[n] || n; }
+/* Niveaux d'accès : mêmes libellés et mêmes trois groupes que le code (CML_LIBELLES_NIVEAU, cmlGroupeNiveau). */
+var LIB_NIVEAU = { 2: 'Sans diplôme', 3: 'CAP ou BEP', 4: 'Bac', 5: 'Bac + 2', 6: 'Bac + 3', 7: 'Bac + 5', 8: 'Études longues' };
+function libNiveau(n) { return LIB_NIVEAU[n] || 'Niveau d’accès non précisé'; }
+function groupeNiveau(n) { if (typeof n !== 'number') { return 'non_precise'; } if (n <= 3) { return 'court'; } if (n <= 5) { return 'moyen'; } return 'long'; }
+/* Filtre « formation que je suis prête à faire » : MONTRE ou CACHE, ne classe jamais. « non précisé » reste toujours visible. */
+function cache(niveau) {
+  var g = groupeNiveau(niveau), F = ETAT.formation;
+  if (F === 'tous' || g === 'non_precise') { return false; }
+  if (F === 'court') { return g !== 'court'; }
+  return g === 'long';
+}
+var OPTIONS_FORMATION = [['tous', 'Tous les métiers'], ['court', 'Sans diplôme ou formation courte, au plus'], ['moyen', 'Jusqu’au bac + 2, au plus']];
+/* ctx : 2 (passage 2) ou 3 (passage 3). masques : liste de { nom, niveau } cachés dans ce passage. */
+function blocFiltreFormation(ctx, masques) {
+  var h = '<div class="filtre-form"><h3 class="h6"><i class="bi bi-mortarboard" aria-hidden="true"></i> Les métiers que je suis prêt ou prête à préparer</h3>' +
+    '<p class="note mb-1">Vous choisissez la formation que vous pourriez faire. Ce réglage ne fait que cacher des métiers, il ne change jamais l’ordre. Rien n’est caché tant que vous ne le décidez pas, et deux sortes de métiers restent toujours visibles : celui que vous avez retenu, et ceux dont le niveau n’est pas précisé.</p>' +
+    '<div class="chips" role="group" aria-label="Formation que je suis prêt ou prête à faire">' +
+    OPTIONS_FORMATION.map(function (o) { var on = ETAT.formation === o[0]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-form="' + o[0] + '" aria-pressed="' + on + '">' + o[1] + '</button>'; }).join('') + '</div>';
+  if (masques.length) {
+    var ouvert = ETAT['voirMasques' + ctx];
+    h += '<p class="note mb-1"><b>' + masques.length + ' métier' + (masques.length > 1 ? 's sont cachés' : ' est caché') + '</b> : ' + (masques.length > 1 ? 'ils demandent' : 'il demande') + ' plus de formation que vous ne l’avez choisi. ' +
+      '<button type="button" class="btn btn-outline-primary btn-sm" data-voirmasques="' + ctx + '" aria-expanded="' + !!ouvert + '">' + (ouvert ? 'Cacher ces métiers' : 'Voir ces métiers') + '</button></p>';
+    if (ouvert) {
+      h += '<ul class="fr-liste">' + masques.map(function (x) { return '<li><i class="bi bi-mortarboard" aria-hidden="true"></i>' + e(x.nom) + ' <span class="note">(' + libNiveau(x.niveau) + ')</span></li>'; }).join('') + '</ul>' +
+        '<p class="note mb-0">Ces métiers restent possibles : le chemin passe par une formation, et la lecture en parle. Aucun n’est écarté définitivement.</p>';
+    }
+  }
+  return h + '</div>';
+}
+var QUESTIONS_AFF = [
+  { cle: 'corps', titre: 'Votre façon de travailler', options: [['debout', 'Plutôt debout, en mouvement'], ['assis', 'Plutôt assis ou assise'], ['peu', 'Peu importe']] },
+  { cle: 'lieu', titre: 'Où aimeriez-vous travailler ?', options: [['ext', 'En extérieur'], ['dom', 'Chez les gens, à leur domicile'], ['dep', 'En déplacement'], ['peu', 'Peu importe']] },
+  { cle: 'autres', titre: 'Avec les autres', options: [['public', 'Beaucoup de contact avec le public'], ['seul', 'Plutôt seul ou seule'], ['peu', 'Peu importe']] },
+  { cle: 'horaires', titre: 'Les horaires', options: [['reg', 'Plutôt réguliers, sans nuit ni week-end'], ['peu', 'Peu importe']] }
+];
+function nbReponses() {
+  var A = ETAT.aff;
+  return ['corps', 'lieu', 'autres', 'horaires'].filter(function (k) { return A[k] && A[k] !== 'peu'; }).length + (A.secteurs.length ? 1 : 0);
+}
+function classerP3() {
+  var ord = classLettres().ordre, deux = ord[0] + ord[1], A = ETAT.aff;
+  var liste = DATA32.map(function (d) {
+    var tags = d[3], raisons = [], pts = 0;
+    function a(t) { return tags.indexOf(t) > -1; }
+    function oui(cond, txt) { if (cond) { pts++; raisons.push(txt); } }
+    if (A.corps === 'debout') { oui(a('debout') || a('charges') || a('precision'), 'Il se pratique plutôt debout ou en mouvement, comme vous l’avez indiqué.'); }
+    if (A.corps === 'assis') { oui(a('assis'), 'Il se pratique plutôt assis, comme vous l’avez indiqué.'); }
+    if (A.lieu === 'ext') { oui(a('exterieur'), 'Il s’exerce en extérieur, comme vous l’avez indiqué.'); }
+    if (A.lieu === 'dom') { oui(a('domicile'), 'Il s’exerce au domicile des personnes, comme vous l’avez indiqué.'); }
+    if (A.lieu === 'dep') { oui(a('deplacements'), 'Il comporte des déplacements, comme vous l’avez indiqué.'); }
+    if (A.autres === 'public') { oui(a('public'), 'Il se fait au contact du public, comme vous l’avez indiqué.'); }
+    if (A.autres === 'seul') { oui(a('isole'), 'Il comporte des moments de travail seul, comme vous l’avez indiqué.'); }
+    if (A.horaires === 'reg') { oui(!a('nuit') && !a('weekend') && !a('horaires'), 'Aucun horaire décalé ni travail de nuit ou de week-end n’est signalé pour ce métier.'); }
+    if (A.secteurs.length) { oui(A.secteurs.indexOf(d[2]) > -1, 'Il est dans le secteur « ' + d[2] + ' » que vous avez choisi.'); }
+    return { nom: nomAff(d[0]), lettres: d[1], secteur: d[2], niveau: d[4], exact: d[1] === deux, pts: pts, raisons: raisons };
+  });
+  liste.sort(function (x, y) {
+    if (x.exact !== y.exact) { return x.exact ? -1 : 1; }
+    if (x.pts !== y.pts) { return y.pts - x.pts; }
+    return x.nom.localeCompare(y.nom, 'fr');
+  });
+  return liste;
+}
+/* Le métier retenu par la personne n'est jamais caché, même si le filtre le cacherait. */
+function visiblesP3() { return classerP3().filter(function (x) { return !cache(x.niveau) || x.nom === ETAT.retenu3; }); }
+function masquesP3() { return classerP3().filter(function (x) { return cache(x.niveau) && x.nom !== ETAT.retenu3; }); }
+function reponsesTexte() {
+  var A = ETAT.aff, t = [];
+  QUESTIONS_AFF.forEach(function (q) { if (A[q.cle] && A[q.cle] !== 'peu') { q.options.forEach(function (o) { if (o[0] === A[q.cle]) { t.push(o[1].toLowerCase()); } }); } });
+  if (A.secteurs.length) { t.push('secteurs : ' + A.secteurs.join(', ')); }
+  return t.join(' ; ');
+}
+function blocAffiner(nbSecteurs) {
+  var A = ETAT.aff;
+  var h = '<div class="affiner"><h3 class="h6"><i class="bi bi-sliders" aria-hidden="true"></i> Affiner mes métiers</h3>' +
+    '<p class="note mb-1">Cinq questions pour départager les métiers dont les lettres sont très proches des vôtres. Il n’y a ni bonne ni mauvaise réponse, et aucune réponse n’est obligatoire : « Peu importe » laisse la question de côté.</p>';
+  QUESTIONS_AFF.forEach(function (q, i) {
+    h += '<p class="lab">' + (i + 1) + '. ' + q.titre + '</p><div class="chips" role="group" aria-label="' + q.titre + '">' +
+      q.options.map(function (o) { var on = (A[q.cle] || 'peu') === o[0]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-aff="' + q.cle + '" data-val="' + o[0] + '" aria-pressed="' + on + '">' + o[1] + '</button>'; }).join('') + '</div>';
+  });
+  var secteurs = []; DATA32.forEach(function (d) { if (secteurs.indexOf(d[2]) < 0) { secteurs.push(d[2]); } }); secteurs.sort(function (x, y) { return x.localeCompare(y, 'fr'); });
+  h += '<p class="lab">5. Un ou plusieurs secteurs qui vous attirent (trois au plus)</p><div class="chips" role="group" aria-label="Secteurs">' +
+    '<button type="button" class="chip' + (A.secteurs.length ? '' : ' on') + '" data-affsect="" aria-pressed="' + (!A.secteurs.length) + '">Peu importe</button>' +
+    secteurs.map(function (s) { var on = A.secteurs.indexOf(s) > -1; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-affsect="' + e(s) + '" aria-pressed="' + on + '">' + e(s) + '</button>'; }).join('') + '</div>' +
+    '<p class="note mb-1">Dans l’application, les 21 secteurs sont proposés ; ici, seuls ceux des métiers concernés.</p>' +
+    '<div class="boutons-ligne" style="margin-top:0"><button type="button" class="btn btn-outline-primary btn-sm" data-affraz="1">Effacer mes réponses</button></div></div>';
+  return h;
+}
+function blocPassage3() {
+  var h = '<div class="bloc"><h2><i class="bi bi-hexagon"></i> Passage 3 : mes six lettres ' + pastilleEtat(ETAT.p3) + '</h2>';
+  if (ETAT.p3) {
+    var L = visiblesP3(), top = L.slice(0, 3), ord = classLettres().ordre, nbExact = L.filter(function (x) { return x.exact; }).length, masques = masquesP3();
+    h += '<p class="note mb-2">Questionnaire passé le ' + EXEMPLE.dateTest + '. Les six types, en pourcentage de vos réponses.</p>' + lettresHTML() +
+      blocFiltreFormation(3, masques) +
+      '<p class="note mb-1 mt-2"><b>' + L.length + ' métiers</b> ont des lettres qui retombent sur les vôtres' + (masques.length ? ' (et ne sont pas cachés)' : '') + ', dont <b>' + nbExact + '</b> avec vos deux premières lettres (' + ord[0] + ' puis ' + ord[1] + '). Voici les trois premiers dans l’ordre d’après vos réponses. Retenez celui qui vous attire le plus (un seul) :</p>';
+    h += top.map(function (x) {
+      var base = x.exact ? 'Vos deux premières lettres, ' + ord[0] + ' puis ' + ord[1] + ', sont aussi les siennes.' : 'Sa lettre ' + x.lettres + ' est votre première lettre ; il n’a pas la deuxième.';
+      var egaux = L.filter(function (y) { return y.exact === x.exact && y.pts === x.pts; }).length;
+      var rs = [base].concat(x.raisons).map(function (r) { return '<li><i class="bi bi-check2" aria-hidden="true"></i>' + e(r) + '</li>'; }).join('') +
+        '<li class="niv"><i class="bi bi-mortarboard" aria-hidden="true"></i>Niveau d’accès : ' + libNiveau(x.niveau) + '</li>';
+      var note = egaux > 1 ? '<li class="egal"><i class="bi bi-sort-alpha-down" aria-hidden="true"></i>À égalité avec ' + (egaux - 1) + ' autre' + (egaux > 2 ? 's' : '') + ' métier' + (egaux > 2 ? 's' : '') + ' sur vos réponses : placé ici par ordre alphabétique, faute d’autre critère.</li>' : '';
+      return '<div class="ligne ligne-p3"><div><div class="nom">' + e(x.nom) + '</div><span class="lettres" style="margin:0">' + x.lettres.split('').map(function (l) { return pastille(l); }).join('') + '</span><ul class="fr-liste">' + rs + note + '</ul></div>' + boutonRetenir(3, x.nom) + '</div>';
+    }).join('');
+    h += blocAffiner();
+    h += '<details class="aide-mots"><summary>Pourquoi ces métiers, et dans cet ordre ?</summary>' +
+      '<p class="mb-1">France Travail donne à chaque métier une ou deux lettres. Un métier est retenu quand <b>ses lettres retombent sur les vôtres, dans le même ordre</b> : sa première lettre compte plus que la seconde, et vos premières lettres comptent plus que les suivantes. Ici, ' + L.length + ' métiers sont à égalité sur ce point.</p>' +
+      '<p class="mb-1">Pour les départager, l’application regarde, dans cet ordre :</p><ol class="mb-1"><li>les lettres exactes : un métier « ' + ord[0] + ord[1] + ' » passe avant un métier qui n’a que la lettre ' + ord[0] + ' ;</li><li>vos réponses aux questions ci-dessus : chaque réponse que le métier retrouve compte pour un ;</li><li>l’ordre alphabétique, seulement si tout le reste est égal (ce n’est pas un classement de valeur, et l’écran le dit).</li></ol>' +
+      '<p class="mb-1"><b>Le niveau d’études ne joue jamais dans cet ordre.</b> Un métier qui demande plus d’études peut arriver en premier si vos lettres et vos réponses y mènent. L’écart de niveau est regardé ensuite, dans la lecture, avec des pistes de formation.</p>' +
+      '<p class="mb-1">Vous pouvez cacher des métiers selon la formation que vous êtes prêt ou prête à faire (réglage au-dessus de la liste) : cela cache, cela ne classe pas.</p>' +
+      '<p class="mb-1">Les conditions de travail viennent des fiches de France Travail : elles sont approximatives, un métier peut s’exercer autrement selon l’employeur.</p>' +
+      '<p class="mb-0">« Revoir mon résultat en détail » rouvre la page du questionnaire : l’hexagone, ce que veut dire chaque lettre, votre orientation (vers les personnes ou les objets, les idées ou les données), et tous les métiers qui partagent vos lettres avec leur niveau d’accès.</p></details>' +
+      '<details class="aide-mots"><summary>Voir les ' + L.length + ' métiers aux lettres proches des miennes, dans l’ordre actuel</summary><ol class="mb-0">' + L.map(function (x) { return '<li>' + e(x.nom) + ' <span class="note">(' + x.lettres + ', ' + e(x.secteur) + (x.pts ? ', ' + x.pts + ' réponse' + (x.pts > 1 ? 's' : '') + ' retrouvée' + (x.pts > 1 ? 's' : '') : '') + ')</span></li>'; }).join('') + '</ol></details>' +
+      ligneActions('<button type="button" class="btn btn-outline-primary">Revoir mon résultat en détail</button>');
+  } else {
+    h += invite('Ce passage n’est pas encore fait. Le faire rend votre synthèse plus précise : vos six lettres montrent ce qui vous attire de fond. Il n’y a ni bonne ni mauvaise réponse, et aucune réponse n’est obligatoire.', 'Voir le questionnaire');
+  }
+  return h + '</div>';
+}
+/* ---------- Passage 2 : mêmes métiers qu'avant, avec le niveau d'accès réel (Auxiliaire de puériculture et Aide-soignant : Bac ; Animateur : CAP ou BEP) ---------- */
+var NIV2 = { 'Auxiliaire de puériculture': 4, 'Animateur': 3, 'Aide-soignant ou aide-soignante': 4 };
+function metiers2Tous() { return EXEMPLE.metiers2.map(function (x) { return [x[0], x[1], NIV2[x[0]]]; }); }
+function metiers2Visibles() { return metiers2Tous().filter(function (x) { return !cache(x[2]) || x[0] === ETAT.retenu2; }); }
+function metiers2Masques() { return metiers2Tous().filter(function (x) { return cache(x[2]) && x[0] !== ETAT.retenu2; }).map(function (x) { return { nom: x[0], niveau: x[2] }; }); }
+function perceptionTexte() {
+  var P1 = EXEMPLE.partie1, P3 = EXEMPLE.partie3;
+  function fmt(P) { return Object.keys(P).map(function (l) { return NOMS_LETTRES[l] + ' ' + P[l] + ' %'; }).join(', '); }
+  return 'PERCEPTION DE SOI (à manier avec prudence) : ce que la personne aime faire (partie 1 du questionnaire) : ' + fmt(P1) + ' ; ce qu’elle dit savoir faire aujourd’hui (partie 3) : ' + fmt(P3) + '. La partie 3 reflète la façon dont la personne se voit, jamais une preuve d’aptitude : ne concluez à aucun manque et ne posez aucun diagnostic.';
+}
+
+/* ---------- Ce que les trois passages ont en commun (code, sans assistant) ---------- */
+function blocCommun() {
+  var n = nbSources(), m = met();
+  if (n < 1) { return ''; }
+  var h = '<div class="bloc bloc-synth"><h2><i class="bi bi-intersect"></i> Ma synthèse par recoupement <span class="tag-etape">Calculée par l’application</span></h2>' +
+    '<p class="note">Aucun assistant ici : l’application compte et rapproche ce que vous avez fait. Ce n’est pas une note sur vous.</p>';
+  if (n < 2) { return h + '<p class="mb-0">Un seul passage est fait : il n’y a pas encore de recoupement à montrer. Chaque passage ajouté rend cette synthèse plus riche.</p></div>'; }
+  var lignes = EXEMPLE.metiers2.map(function (x) {
+    var dansP1 = !!(ETAT.p1 && m && m.nom === x[0]);
+    var dansP3 = ETAT.p3 && LETTRES_METIERS.some(function (l) { return l[0] === x[0]; });
+    return { nom: x[0], p2: x[1], p1: dansP1, p3: dansP3, k: (dansP1 ? 1 : 0) + (ETAT.p2 ? 1 : 0) + (dansP3 ? 1 : 0) };
+  }).sort(function (a, b) { return b.k - a.k; });
+  h += '<h3 class="h6">Les métiers qui reviennent</h3><div class="table-responsive"><table class="table-croise"><thead><tr><th scope="col">Métier</th><th scope="col">Passage 1 : retenu</th><th scope="col">Passage 2 : mes choix</th><th scope="col">Passage 3 : mes lettres</th><th scope="col">Revient dans</th></tr></thead><tbody>' +
+    lignes.map(function (x) { return '<tr><th scope="row">' + e(x.nom) + '</th><td>' + (x.p1 ? 'Oui' : 'Non') + '</td><td>' + (ETAT.p2 ? x.p2 + (ETAT.retenu2 === x.nom ? ' (retenu)' : '') : 'Non') + '</td><td>' + (x.p3 ? 'Oui' + (ETAT.retenu3 === x.nom ? ' (retenu)' : '') : 'Non') + '</td><td><b>' + x.k + ' passage' + (x.k > 1 ? 's' : '') + ' sur ' + n + '</b></td></tr>'; }).join('') + '</tbody></table></div>' +
+    '<p class="note mt-1">Comment lire : « Oui » veut dire que le métier est sorti (ou retenu) dans ce passage, « Non » qu’il n’est pas sorti. Passage 2 : le pourcentage de vos choix qu’il retrouve. Passage 3 : le métier partage vos lettres.</p>';
+  h += '<div class="trois mt-2">' +
+    '<div class="tr"><b>Compétences qui ressortent</b><p>' + (ETAT.p1 && ETAT.parcours ? 'Choisies ET déjà pratiquées dans votre parcours : <b>Écouter</b>, <b>Garder son calme</b>.' : 'Ajoutez votre parcours pour voir lesquelles de vos compétences choisies sont déjà pratiquées.') + '</p></div>' +
+    '<div class="tr"><b>Lettres et métier retenu</b><p>' + (ETAT.p3 && m ? 'Vos deux premières lettres sont ' + classLettres().ordre.slice(0, 2).join(' et ') + ' ; le métier retenu a les lettres ' + m.lettres + ' : ' + ({ EC: 'elles diffèrent.', SA: 'elles se recouvrent.', SR: 'elles se recouvrent en partie (la première).' }[m.lettres]) : 'Passez le questionnaire pour comparer vos lettres à celles du métier.') + '</p></div>' +
+    '<div class="tr"><b>Ce que chaque passage ajoute</b><p>' + (ETAT.p2 ? 'Vos envies ajoutent le <b>lieu</b> (calme) et ce qui serait <b>difficile</b> (la nuit). ' : '') + (ETAT.p3 ? 'Les lettres ajoutent vos <b>préférences de fond</b>. ' : '') + (ETAT.p1 ? 'Le métier retenu ajoute les <b>compétences demandées</b>.' : '') + '</p></div>' +
+    '<div class="tr"><b>Ce qui diffère</b><p>' + (ETAT.p2 ? 'Vous avez choisi « Créer, imaginer », qui ne compte pas dans le métier le mieux classé.' : 'Rien à comparer pour l’instant.') + '</p></div></div></div>';
+  return h;
+}
+
+/* ---------- Ce que les tests ne disent pas : parcours, niveau, accompagnement, expression libre ---------- */
+function blocParcours() {
+  var h = '<div class="bloc"><h2><i class="bi bi-briefcase-fill"></i> Mon parcours professionnel ' + pastilleEtat(ETAT.parcours, 'Ajouté') + ' <span class="tag-etape">Étape B</span></h2>' +
+    '<p>Ce que vous avez déjà fait aide à repérer vos compétences, y compris celles que les tests ne voient pas. Vous pouvez en ajouter jusqu’à cinq métiers.</p>';
+  if (ETAT.vParcours === 'fiche') {
+    h += '<label class="lab" for="mqRech">Tapez un métier que vous avez exercé</label><div class="champ-rech"><input id="mqRech" class="form-control" type="text" placeholder="Par exemple : aide à domicile" value=""><button type="button" class="btn btn-primary"><i class="bi bi-search"></i> Chercher</button></div>';
+    if (ETAT.parcours) {
+      h += EXEMPLE.parcours.map(function (p) { return '<div class="parc"><b>' + e(p[0]) + '</b><div>' + p[1].map(function (c) { return '<span class="pill pill-vert">' + e(c) + '</span>'; }).join(' ') + ' <button type="button" class="pill pill-ajout">+ Ajouter une compétence</button></div></div>'; }).join('') +
+        '<p class="note mt-1">Vous cliquez les compétences que vous avez réellement pratiquées, et vous en ajoutez d’autres si besoin. 2 métiers sur 5.</p>';
+    } else {
+      h += '<p class="note mt-1">Quand le métier s’affiche, sa fiche montre toutes ses compétences : cliquez celles que vous avez pratiquées.</p>';
+    }
+  } else {
+    h += '<div class="boutons-ligne"><button type="button" class="btn btn-outline-primary"><i class="bi bi-file-earmark-arrow-up"></i> Déposer mon CV</button></div><p class="note mt-1 mb-0">Le contenu du CV est lu tel quel ; vous pourrez ensuite le compléter dans l’application pour ajouter des compétences absentes.</p>';
+  }
+  if (ETAT.parcours) {
+    h += '<div class="compare"><h3 class="h6">Du métier exercé (' + e(COMPARE.exerce) + ') au métier visé (' + e(COMPARE.vise) + ')</h3><p class="note mb-1">Vous choisissez seulement ce que vous avez pratiqué. Le métier visé est votre métier retenu (vous pouvez prendre une autre de vos pistes). <b>Le reste est établi par l’application</b>, à partir des fiches des deux métiers :</p><div class="trois">' +
+      '<div class="tr"><b>Transférables</b><p class="note">Dans les deux fiches</p>' + COMPARE.transferables.map(function (c) { return '<span class="pill pill-vert">' + e(c) + '</span>'; }).join(' ') + '</div>' +
+      '<div class="tr"><b>Transversales</b><p class="note">Utiles presque partout</p>' + COMPARE.transversales.map(function (c) { return '<span class="pill">' + e(c) + '</span>'; }).join(' ') + '</div>' +
+      '<div class="tr"><b>À acquérir</b><p class="note">Demandées, pas encore pratiquées</p>' + COMPARE.acquerir.map(function (c) { return '<span class="pill pill-orange">' + e(c) + '</span>'; }).join(' ') + '</div></div><p class="note mt-1 mb-0">Règle : une compétence que vous avez pratiquée et que le métier visé demande est <b>transférable</b> (savoir-faire, savoirs) ou <b>transversale</b> (savoir-être). Ce que le métier visé demande et que vous n’avez pas cliqué reste <b>à acquérir</b>. L’assistant commente ensuite dans la lecture.</p></div>';
+  }
+  h += '<details class="aide-mots" open><summary>Compétence transférable, compétence transversale : quelle différence ?</summary><p class="mb-1"><b>Transférable</b> : une compétence acquise dans un métier ou une situation, que vous pouvez réutiliser dans un autre métier. Exemple : savoir accompagner une personne âgée peut servir auprès d’enfants.</p><p class="mb-0"><b>Transversale</b> : une compétence utile dans presque tous les métiers, comme communiquer, s’organiser ou travailler en équipe.</p></details>';
+  return h + '</div>';
+}
+function blocLibre() {
+  var h = '<div class="bloc"><h2><i class="bi bi-pencil-square"></i> Ce que les tests ne disent pas ' + pastilleEtat(ETAT.libre, 'Rempli') + '</h2>' +
+    '<p class="note">Tout est facultatif. Cliquez ce qui vous correspond, écrivez librement ce qui vous semble important.</p>' +
+    '<div class="lab">Mon niveau d’études</div><div class="chips" role="group" aria-label="Niveau d’études">' + NIVEAUX.map(function (n, i) { return '<button type="button" class="chip ' + (ETAT.niveauPers === i ? 'on' : '') + '" data-niv="' + i + '" aria-pressed="' + (ETAT.niveauPers === i) + '">' + n + '</button>'; }).join('') + '</div>' +
+    '<div class="lab">Je suis accompagné(e) par un professionnel (conseiller France Travail ou autre)</div><div class="chips" role="group" aria-label="Accompagnement">' + [['oui', 'Oui'], ['non', 'Pas pour l’instant'], ['jamais', 'Non, jamais']].map(function (o) { return '<button type="button" class="chip ' + (ETAT.suivi === o[0] ? 'on' : '') + '" data-suivi="' + o[0] + '" aria-pressed="' + (ETAT.suivi === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="lab">Ce qui compte pour moi en ce moment</div><div class="chips" role="group" aria-label="Compléments">' + COMPLEMENTS.map(function (c, i) { var on = !!ETAT.complements[i]; return '<button type="button" class="chip ' + (on ? 'on' : '') + '" data-comp="' + i + '" aria-pressed="' + on + '">' + e(c) + '</button>'; }).join('') + '</div>' +
+    '<label class="lab" for="mqLibre">Dans mes mots</label><textarea id="mqLibre" class="form-control" rows="3" placeholder="Écrivez ici ce qui vous semble important et que les tests n’ont pas pu dire">' + (ETAT.libre ? 'J’ai toujours aimé m’occuper des autres, mais je ne sais pas si je saurais me former.' : '') + '</textarea>' +
+    '<div class="encart warn"><i class="bi bi-shield-exclamation"></i><p>Ce texte fait partie de la demande que vous copiez. N’écrivez ni nom, ni adresse, ni information de santé : vous pourrez relire la demande avant de la copier.</p></div>' +
+    '<div class="rejoindre"><b>Rejoindre un document</b> <span class="tag-etape">Plus tard</span><p class="note mb-0">Quand les autres modules « mieux se connaître » existeront (Big Five, exercices du bilan de compétences), leurs résultats pourront se joindre ici. Non montré au public tant qu’ils n’existent pas.</p></div></div>';
+  return h;
+}
+function blocEmplois() {
+  var d = DEP[ETAT.dep];
+  var avec = [];
+  if (met()) { var l = lieEnquete(met()); if (l) { avec.push({ nom: met().nom, l: l }); } }
+  EXEMPLE.metiers2.forEach(function (x) { var l = lieEnquete({ nom: x[0] }); if (l && !avec.some(function (a) { return a.nom === x[0]; })) { avec.push({ nom: x[0], l: l }); } });
+  var h = '<div class="bloc"><h2><i class="bi bi-geo-alt"></i> Chez moi : mes pistes et ce qui recrute</h2>' +
+    '<p class="note">Où cherchez-vous ?</p><div class="dep" role="group" aria-label="Département">' + ['24', '87'].map(function (c) { return '<button type="button" class="btn ' + (c === ETAT.dep ? 'btn-primary' : 'btn-outline-primary') + '" data-dep="' + c + '" aria-pressed="' + (c === ETAT.dep) + '">' + DEP[c].nom + '</button>'; }).join('') + '</div>';
+  if (avec.length) {
+    h += '<div class="encart"><i class="bi bi-hand-thumbs-up"></i><div><p><b>Bon signe : certaines de vos pistes figurent parmi les métiers les plus cités par les employeurs de ' + d.nom + '.</b></p><ul class="mb-1">' +
+      avec.map(function (x) { return '<li>' + e(x.nom) + ' : au moins ' + nb(x.l[1]) + ' projets de recrutement annoncés' + (x.l[2] / x.l[1] > 0.5 ? ', surtout saisonniers' : '') + '.</li>'; }).join('') + '</ul><p class="note mb-0">Intentions d’employeurs, pas des embauches garanties. Source : France Travail, enquête Besoins en main-d’œuvre 2026.</p></div></div>';
+  } else {
+    h += '<p class="mb-1">Aucune de vos pistes ne figure parmi les métiers les plus cités par les employeurs de ' + d.nom + '. Cela ne veut pas dire qu’on n’y recrute pas : cette liste ne montre que les métiers les plus cités.</p>';
+  }
+  h += '<div class="boutons-ligne"><button type="button" class="btn btn-outline-secondary"><i class="bi bi-briefcase"></i> Voir les emplois en demande chez moi</button></div></div>';
+  return h;
+}
+
+function blocInterpreter() {
+  var manque = nbSources() < 1, n = nbSources();
+  return '<div class="bloc bloc-synth"><h2><i class="bi bi-chat-square-quote"></i> Interpréter ma synthèse ' + (ETAT.lect ? '<span class="etat-pastille fait">Lecture faite</span>' : '') + '</h2>' +
+    (manque ? '<p>La lecture a besoin d’au moins un résultat.</p>' :
+      '<p>L’assistant en ligne peut lire tout ce que vous avez rassemblé ici (' + n + ' passage' + (n > 1 ? 's' : '') + (ETAT.parcours ? ', votre parcours' : '') + (ETAT.libre ? ', vos mots' : '') + ') et vous proposer des pistes de réflexion. Ce n’est ni une note, ni un diagnostic, ni une solution.</p>' +
+      (n < 3 ? '<p class="note">Plus vous avez de passages, plus la lecture est fine. Avec ' + (n === 1 ? 'un seul' : 'deux') + ', elle le dira et ne devinera pas le reste.</p>' : '')) +
+    '<div class="boutons-ligne"><button type="button" class="btn btn-primary btn-lg" data-go="' + (ETAT.lect ? 'lecture' : 'demande') + '"' + (manque ? ' disabled' : '') + '><i class="bi bi-clipboard-plus"></i> ' + (ETAT.lect ? 'Voir la lecture' : 'Interpréter ma synthèse') + '</button>' + (ETAT.lect ? '<button type="button" class="btn btn-outline-primary" data-go="demande">Refaire la lecture</button>' : '') + '</div>' +
+    '<p class="note mt-2 mb-0">Rien n’est envoyé par cette application : vous copiez la demande, la collez dans l’assistant de votre choix, puis rapportez sa réponse.</p></div>';
+}
+
+function blocFin() {
+  return '<div class="bloc"><h2><i class="bi bi-box-arrow-down"></i> Garder ou partager cette page</h2><p>Rien n’est conservé sans votre accord.</p><div class="boutons-ligne">' +
+    '<button type="button" class="btn btn-outline-primary" data-garde="1"><i class="bi bi-save"></i> ' + (ETAT.garde ? 'Gardé dans la disquette' : 'Garder dans la disquette') + '</button>' +
+    '<button type="button" class="btn btn-outline-primary" data-go="impression"><i class="bi bi-printer"></i> Imprimer ou enregistrer en PDF</button></div>' +
+    '<p class="note mt-2 mb-0">La disquette garde les résultats, vos compléments et, si vous le décidez, la lecture. Jamais une réponse du questionnaire.</p></div>';
+}
+function blocSauvegarde() {
+  if (nbSources() < 1) { return ''; }
+  return '<div class="encart ' + (ETAT.garde ? '' : 'warn') + '"><i class="bi bi-' + (ETAT.garde ? 'check2-circle' : 'exclamation-circle') + '"></i><div>' + (ETAT.garde ?
+    '<p class="mb-1"><b>Gardé dans la disquette le ' + DATE + '.</b> Après chaque nouveau passage, gardez de nouveau : la disquette garde l’état de ce moment.</p>' :
+    '<p class="mb-1"><b>Il n’y a pas de compte : tout ce que vous avez fait disparaît quand vous fermez le site.</b> Gardez-le dans la disquette pour reprendre plus tard, un passage après l’autre, ou pour le montrer à un conseiller.</p>') +
+    '<button type="button" class="btn ' + (ETAT.garde ? 'btn-outline-primary' : 'btn-primary') + '" data-garde="1"><i class="bi bi-save"></i> ' + (ETAT.garde ? 'Garder de nouveau' : 'Garder dans la disquette') + '</button></div></div>';
+}
+function ecranSynthese() {
+  var h = '<h1 class="titre-page"><i class="bi bi-clipboard-check"></i> Ma synthèse</h1><p class="sous-titre">Ce que vous avez trouvé dans « Explorer les métiers », sur une seule page</p>' +
+    '<div class="encart"><i class="bi bi-shield-check"></i><p>Cette page rassemble vos résultats pour vous aider à y voir clair. On ne vous note pas et on ne vous donne pas de solution : ce sont des pistes de réflexion. Tout reste sur cet appareil.</p></div>';
+  h += blocSauvegarde() + blocPassage1() + blocPassage2() + blocPassage3() + blocCommun() + blocParcours() + blocLibre() + blocEmplois();
+  h += blocInterpreter() + blocFin();
+  return h;
+}
+
+/* ---------- La demande à l'assistant ---------- */
+function texteDemande() {
+  var d = DEP[ETAT.dep], m = met(), t = [], c = pcts(), ord = classLettres().ordre;
+  t.push('Vous êtes un conseiller en insertion professionnelle, bienveillant et clair. Une personne a exploré des métiers avec l’application APP. Voici ses résultats. Aidez-la à y voir clair : donnez des pistes de réflexion, jamais de note, jamais de diagnostic, jamais de solution toute faite.');
+  t.push('');
+  if (ETAT.p1 && m) {
+    t.push('PASSAGE 1, un métier retenu après le choix de compétences : ' + m.nom + ' (' + m.pct + ' de compatibilité avec ses choix). ' + (ETAT.retenu === 'recommande' ? 'C’est le métier le mieux classé par l’application.' : 'Le métier le mieux classé par l’application était « ' + METIERS.recommande.nom + ' » ; la personne a retenu un métier proche.') + ' Secteur : ' + m.secteur + '. Niveau d’accès : ' + NIVEAUX[m.niveau] + '. Compétences demandées : ' + compTotal(m) + '. Compétences choisies par la personne : ' + COMP_CHOISIES.join(', ') + '. Autres métiers très proches proposés : ' + EXEMPLE.metiers2.map(function (x) { return x[0]; }).join(' ; ') + '. Autres filtres activés : secteur, niveau, conditions de travail.');
+    var l = lieEnquete({ nom: m.nom });
+    t.push('Recrutement : ' + (l ? 'ce métier fait partie des plus cités par les employeurs de ' + d.nom + ' (au moins ' + nb(l[1]) + ' projets, source France Travail, enquête Besoins en main-d’œuvre 2026).' : (m.commerce ? 'métier du commerce, où des postes reviennent souvent (turnover).' : 'aucune information de recrutement : n’affirmez rien.')));
+  }
+  if (ETAT.p2) { t.push('PASSAGE 2, ce que la personne aime faire : ' + Object.keys(EXEMPLE.choix).map(function (k) { return k + ' : ' + EXEMPLE.choix[k].join(', '); }).join(' ; ') + '. Elle ferait facilement : ' + EXEMPLE.faciles.join(', ') + '. Ce qui serait difficile : ' + EXEMPLE.difficiles.join(', ') + '. Métiers proposés : ' + EXEMPLE.metiers2.map(function (x) { return x[0] + ' (' + x[1] + ' de ses choix retrouvés)'; }).join(' ; ') + '. Choix qui ne comptent pas dans le métier recommandé : ' + EXEMPLE.horsMetier.join(', ') + '.'); }
+  if (ETAT.p2 && ETAT.retenu2) { t.push('Métier retenu par la personne au passage 2 : ' + ETAT.retenu2 + '.'); }
+  if (ETAT.p3 && ETAT.retenu3) { t.push('Métier retenu par la personne au passage 3 : ' + ETAT.retenu3 + '.'); }
+  if (ETAT.p3) { t.push('PASSAGE 3, questionnaire de préférences, six types en pourcentage de ses réponses (du plus haut au plus bas) : ' + ord.map(function (l) { return NOMS_LETTRES[l] + ' ' + c[l] + ' %'; }).join(', ') + '. Ce questionnaire dit des préférences, pas des aptitudes.'); }
+  if (ETAT.parcours) { t.push('PARCOURS PROFESSIONNEL (compétences cochées par la personne, jusqu’à cinq métiers) : ' + EXEMPLE.parcours.map(function (p) { return p[0] + ' : ' + p[1].join(', '); }).join(' ; ') + '.'); }
+  t.push('SITUATION : niveau d’études ' + NIVEAUX[ETAT.niveauPers] + '. ' + ({ oui: 'Accompagnée par un professionnel.', non: 'Pas accompagnée pour l’instant.', jamais: 'Jamais accompagnée.' }[ETAT.suivi]) + (Object.keys(ETAT.complements).filter(function (i) { return ETAT.complements[i]; }).length ? ' Ce qui compte pour elle : ' + Object.keys(ETAT.complements).filter(function (i) { return ETAT.complements[i]; }).map(function (i) { return COMPLEMENTS[i]; }).join(', ') + '.' : ''));
+  if (ETAT.libre) { t.push('SES MOTS : « J’ai toujours aimé m’occuper des autres, mais je ne sais pas si je saurais me former. »'); }
+  var manquants = []; if (!(ETAT.p1 && m)) { manquants.push('passage 1 (métier retenu)'); } if (!ETAT.p2) { manquants.push('passage 2 (ce que la personne aime faire)'); } if (!ETAT.p3) { manquants.push('passage 3 (questionnaire)'); }
+  if (manquants.length) { t.push('PASSAGES NON FAITS : ' + manquants.join(', ') + '. Ne devinez rien à leur sujet et dites-le.'); }
+  if (ETAT.p3 && nbReponses()) { t.push('Réponses de la personne pour départager les métiers aux lettres proches (passage 3) : ' + reponsesTexte() + '.'); }
+  if (ETAT.p3) { t.push('Métiers proches des lettres (passage 3) : ' + LETTRES_METIERS.map(function (x) { return x[0] + ' (' + x[1] + ')'; }).join(' ; ') + '.'); }
+  if (ETAT.parcours) { t.push('Du métier exercé (' + COMPARE.exerce + ') au métier visé (' + COMPARE.vise + '), calculé par l’application. Transférables : ' + COMPARE.transferables.join(', ') + '. À acquérir : ' + COMPARE.acquerir.join(', ') + '.'); }
+  if (ETAT.formation !== 'tous') { t.push('FORMATION QUE LA PERSONNE ACCEPTE DE PRÉPARER : ' + (ETAT.formation === 'court' ? 'sans diplôme ou une formation courte au plus' : 'jusqu’au bac + 2 au plus') + '. Des métiers plus exigeants ont été cachés à sa demande dans l’écran, mais ils restent possibles : ne les écartez pas, dites ce que demanderait le chemin.'); }
+  if (ETAT.p3) { t.push(perceptionTexte()); }
+  t.push('TERRITOIRE : ' + d.nom + '.');
+  t.push('');
+  t.push('CONSIGNES : 1. Pour chaque passage, donnez en deux ou trois phrases ce qu’il suggère. 2. Dites ce qui se retrouve d’un passage à l’autre et ce qui diffère. 3. Proposez trois métiers à regarder en premier et, pour chacun, ce qui va dans le sens de cette piste dans les résultats et ce qui reste à vérifier. 4. Comparez le niveau d’études de la personne et celui attendu par ces métiers : s’il manque une préparation, dites-le clairement et orientez vers un organisme de formation et un conseiller. 5. Parmi les compétences du parcours, dites lesquelles sont transférables et lesquelles sont transversales. 6. Distinguez la rencontre avec un professionnel (Ambassadeurs Métiers dans la région, ExplorJob ou My Job Glasses au niveau national) de l’immersion en structure (Immersion facilitée, demandée avec un conseiller), sans citer d’entreprise ; conseillez deux à trois immersions courtes dans des structures différentes. 7. Ne concluez jamais par « parlez-en à un conseiller » seul : proposez d’ESSAYER (rencontre, stage d’observation, immersion, formation courte, bénévolat) et dites ce que le conseiller peut faire (prescrire une immersion, orienter vers une formation) ; si la personne n’est pas accompagnée, dites où en trouver un (France Travail, mission locale avant 26 ans, Cap emploi) ou invitez à contacter ERIP. 8. Mots simples, phrases courtes, réponse de longueur raisonnable. N’inventez ni offre, ni salaire, ni diplôme. Répondez avec exactement ces titres : « Ce que disent mes trois passages », « Ce qui se retrouve, ce qui diffère », « Trois pistes à regarder en premier », « Mon niveau et ce qu’il faudrait », « Mes compétences transférables et transversales », « Rencontrer, essayer, être accompagné », « Questions pour un conseiller ».');
+  return t.join('\n');
+}
+function ecranDemande() {
+  return '<h1 class="titre-page"><i class="bi bi-clipboard-plus"></i> Interpréter ma synthèse</h1><p class="sous-titre">Étape 1 sur 2 : copier la demande et la coller dans l’assistant</p>' +
+    '<div class="encart"><i class="bi bi-shield-check"></i><p>La demande ne contient ni votre nom ni aucune réponse du questionnaire : seulement vos résultats et ce que vous avez écrit ici. Relisez-la avant de la copier.</p></div>' +
+    '<div class="bloc"><h2><span class="num">1</span> Copiez la demande</h2><pre class="demande">' + e(texteDemande()) + '</pre><div class="boutons-ligne"><button type="button" class="btn btn-primary"><i class="bi bi-clipboard"></i> Copier la demande</button></div></div>' +
+    '<div class="bloc"><h2><span class="num">2</span> Collez-la dans l’assistant</h2><p>Ouvrez l’assistant de votre choix, collez la demande et attendez sa réponse.</p><div class="boutons-ligne"><button type="button" class="btn btn-outline-primary"><i class="bi bi-box-arrow-up-right"></i> Ouvrir l’assistant</button></div></div>' +
+    '<div class="boutons-ligne" style="justify-content:center"><button type="button" class="btn btn-primary btn-lg" data-go="collage">J’ai la réponse : étape suivante <i class="bi bi-arrow-right"></i></button></div>';
+}
+function ecranCollage() {
+  return '<h1 class="titre-page"><i class="bi bi-clipboard-check"></i> Rapporter la réponse</h1><p class="sous-titre">Étape 2 sur 2 : coller la réponse de l’assistant</p>' +
+    '<div class="bloc"><h2>Collez la réponse ici</h2><textarea class="form-control" rows="8" aria-label="Réponse de l’assistant" placeholder="Collez ici la réponse de l’assistant"></textarea><div class="boutons-ligne"><button type="button" class="btn btn-primary btn-lg" data-lect="1">Voir ma lecture</button></div>' +
+    '<p class="note mt-2 mb-0">Même écran que pour la création du CV (composant « collez la réponse » partagé). Si la réponse n’a pas exactement les titres demandés, elle s’affiche quand même telle quelle : rien n’est perdu.</p></div>';
+}
+
+/* ---------- La lecture mise en page ---------- */
+function ecranLecture() {
+  var m = met() || METIERS.recommande, ecart = (m.niveau > ETAT.niveauPers), nomM = m.nom;
+  var h = '<h1 class="titre-page"><i class="bi bi-chat-square-quote"></i> Ma lecture</h1><p class="sous-titre">Lecture de l’assistant en ligne, reçue le ' + DATE + '</p>' +
+    '<div class="encart warn"><i class="bi bi-info-circle"></i><p>Ce sont des pistes de réflexion, pas une note, pas un diagnostic, pas une solution. Relisez-les avec une personne qui vous accompagne.</p></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-1-circle"></i> Ce que disent mes trois passages</h2><div class="trois">' +
+    '<div class="tr"><b>Mes compétences</b><p>Écouter, être patient et expliquer simplement vous rapprochent des métiers de l’accompagnement.</p><span class="pill">Piste : ' + e(nomM) + '</span></div>' +
+    '<div class="tr"><b>Mes envies</b><p>Enfants et personnes âgées, dans un lieu calme : vos choix visent la relation et le soin.</p><span class="pill">Piste : Auxiliaire de puériculture</span></div>' +
+    '<div class="tr"><b>Mes lettres</b><p>Social en tête, Artistique ensuite : le contact et la création ressortent.</p><span class="pill">Piste : Animateur ou animatrice</span></div></div></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-2-circle"></i> Ce qui se retrouve, ce qui diffère</h2><p><b>Se retrouve :</b> le contact avec des personnes, plus précisément les plus jeunes et les plus âgées.</p><p class="mb-0"><b>Diffère :</b> vous avez choisi « Créer, imaginer », qui ne compte pas dans le métier le mieux classé. Ce n’est pas une contradiction : c’est un point à regarder de près.</p></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-3-circle"></i> Trois pistes à regarder en premier</h2><div class="trois">' +
+    ['Auxiliaire de puériculture', 'Animateur', 'Aide-soignant ou aide-soignante'].map(function (n, i) { return '<div class="tr"><b>' + (i + 1) + '. ' + e(n) + '</b><p><i class="bi bi-check2"></i> Va dans le sens de vos résultats : revient dans plusieurs passages.</p><p class="note mb-0"><i class="bi bi-question-circle"></i> À vérifier : ' + (i === 2 ? 'les horaires de nuit, que vous avez écartés.' : 'ce que le quotidien demande vraiment.') + '</p></div>'; }).join('') + '</div></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-4-circle"></i> Mon niveau et ce qu’il faudrait</h2><div class="niveaux"><div><span class="note">Mon niveau</span><b>' + NIVEAUX[ETAT.niveauPers] + '</b></div><i class="bi bi-arrow-right" aria-hidden="true"></i><div><span class="note">Niveau d’accès de « ' + e(nomM) + ' »</span><b>' + NIVEAUX[m.niveau] + '</b></div></div>' +
+    (ecart ? '<div class="encart warn"><i class="bi bi-mortarboard"></i><p>Il manque une préparation pour ce métier. Le chemin passe par une formation : rapprochez-vous d’un organisme de formation et d’un conseiller (France Travail ou autre) pour une remise à niveau. Des offres existent, mais elles supposent ce niveau.</p></div>' : '<p class="mt-2 mb-0">Votre niveau correspond à celui demandé : vous pouvez regarder des offres.</p>') + '</div>';
+  h += '<div class="bloc"><h2><i class="bi bi-5-circle"></i> Mes compétences transférables et transversales</h2><div class="deux"><div class="tr"><b>Transférables</b><p>Accompagner une personne âgée, préparer un repas : à réutiliser auprès d’enfants ou de familles.</p></div><div class="tr"><b>Transversales</b><p>Écouter, garder son calme, travailler en équipe : utiles dans presque tous les métiers.</p></div></div>' +
+    '<p class="note mt-2">Les compétences du métier « ' + e(nomM) + ' » :</p>' + camembert(7, compTotal(m) - 7, 'Déjà pratiquées', 'À construire') + '<p class="note mb-0">Ce dessin n’est pas une note : il montre simplement ce que vous avez déjà et ce qu’il reste à découvrir.</p></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-6-circle"></i> Les six lettres</h2>' + lettresHTML() + '</div>';
+  h += '<div class="bloc"><h2><i class="bi bi-patch-check"></i> Valider mon projet : de quoi parle-t-on ?</h2><p>Valider un projet, c’est vérifier avant de se lancer qu’il est réaliste, faisable et bien connu du terrain. Trois questions :</p><ol class="mb-1"><li><b>Est-il réaliste ?</b> Mes compétences se rapprochent-elles de celles attendues ? Sinon, une formation peut réduire l’écart.</li><li><b>Est-il faisable ?</b> Y a-t-il des offres près de chez moi ? Mes contraintes (horaires, déplacements, garde d’enfants) sont-elles compatibles ?</li><li><b>Est-ce que je connais vraiment ce métier ?</b> En rencontrant des professionnels, puis en observant, voire en pratiquant quelques jours sur place : c’est l’immersion. Après cela, vous savez si vous vous voyez exercer ce métier.</li></ol><p class="note mb-0">D’après les sites de France Travail et de Choisir le service public, consultés le ' + DATE + '. Un mot à ajouter au Lexique.</p></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-7-circle"></i> Rencontrer, essayer, être accompagné</h2><ul class="mb-1"><li><b>Rencontrer</b> un professionnel pour poser vos questions : <a href="https://www.ambassadeursmetiers.fr" target="_blank" rel="noopener">Ambassadeurs Métiers</a> (Nouvelle-Aquitaine), ExplorJob ou My Job Glasses (toute la France).</li><li><b>Essayer</b> par une immersion courte, pour valider votre projet : <a href="https://immersion-facile.beta.gouv.fr" target="_blank" rel="noopener">Immersion facilitée</a> (site du gouvernement), avec votre conseiller. Deux à trois immersions de quelques jours, dans des structures différentes, donnent une vue d’ensemble.</li></ul><div class="boutons-ligne mb-2"><a class="btn btn-outline-primary" href="https://immersion-facile.beta.gouv.fr" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ouvrir Immersion facilitée</a><a class="btn btn-outline-primary" href="https://www.ambassadeursmetiers.fr" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ouvrir Ambassadeurs Métiers</a></div><p class="note mb-1">Types de structures : établissements d’accueil, services à domicile, associations, collectivités. Aucun nom d’entreprise n’est donné ici.</p>' +
+    '<p class="mb-0">' + ({ oui: 'Parlez de cette lecture à la personne qui vous accompagne : elle peut vous aider à choisir.', non: 'Se faire accompagner peut beaucoup aider : un conseiller France Travail ou de votre mission locale peut vous recevoir.', jamais: 'Vous pouvez contacter ERIP : lors d’un rendez-vous, vous explorez d’autres pistes ensemble avec les outils du dispositif.' }[ETAT.suivi]) + '</p><p class="note mb-0">Sources et conditions vérifiées le ' + DATE + ' ; elles peuvent changer.</p></div>';
+  h += '<div class="bloc"><h2><i class="bi bi-8-circle"></i> Questions pour un conseiller</h2><ul class="mb-0"><li>Quelle formation, et de quel niveau, pour la première piste près de chez moi ?</li><li>Comment tester ce métier avant de m’engager ?</li><li>Quelles aides pour une remise à niveau ?</li></ul></div>';
+  h += '<div class="bloc bloc-synth"><h2><i class="bi bi-briefcase"></i> Chercher des offres</h2><p>Choisissez parmi les métiers de vos tests et ceux de cette lecture, puis votre territoire.</p><div class="boutons-ligne"><button type="button" class="btn btn-primary" data-go="offres"><i class="bi bi-search"></i> Chercher des offres</button><button type="button" class="btn btn-outline-primary"><i class="bi bi-save"></i> Garder dans la disquette</button><button type="button" class="btn btn-outline-primary" data-go="impression"><i class="bi bi-printer"></i> Imprimer ou enregistrer en PDF</button></div></div>';
+  return h;
+}
+function ecranOffres() {
+  var l = [['Auxiliaire de puériculture', 'Mes tests'], ['Animateur', 'Mes tests'], ['Aide-soignant ou aide-soignante', 'Ma lecture'], ['Agent de service hospitalier', 'Ma lecture']];
+  return '<h1 class="titre-page"><i class="bi bi-search"></i> Chercher des offres</h1><p class="sous-titre">Une demande à part, comme dans « Les emplois en demande »</p>' +
+    '<div class="bloc"><h2>Les métiers pour lesquels chercher</h2><div class="onglets-mq"><button type="button" class="actif">Mes tests</button><button type="button">Ma lecture</button></div><p class="note mt-2">Jusqu’à cinq métiers : au-delà, les offres trouvées sont moins précises.</p><ul class="list-unstyled">' +
+    l.map(function (x, i) { return '<li><label class="lab check"><input type="checkbox"' + (i === 0 ? ' checked' : '') + '> ' + e(x[0]) + ' <small class="note">(' + x[1] + ')</small></label></li>'; }).join('') + '</ul>' +
+    (ETAT.niveauPers < 3 ? '<div class="encart warn"><i class="bi bi-mortarboard"></i><p>Certains de ces métiers demandent un niveau supérieur au vôtre. La demande le précisera : des offres, mais aussi la voie par la formation, avec un conseiller.</p></div>' : '') +
+    '<div class="dep" role="group">' + ['24', '87'].map(function (c) { return '<button type="button" class="btn ' + (c === ETAT.dep ? 'btn-primary' : 'btn-outline-primary') + '" data-dep="' + c + '">' + DEP[c].nom + '</button>'; }).join('') + '</div>' +
+    '<div class="boutons-ligne"><button type="button" class="btn btn-primary">Préparer ma demande d’offres</button></div><p class="note mt-2 mb-0">Reprend l’écran déjà construit pour le quatrième chemin (cases, onglets, cinq métiers au plus, autres appellations, métiers voisins).</p></div>';
+}
+
+/* ---------- Feuille imprimée ---------- */
+function ecranImpression() {
+  var d = DEP[ETAT.dep], m = met(), c = pcts(), ord = classLettres().ordre;
+  var h = '<p class="m-fil">Aperçu de la feuille imprimée (noir sur blanc, sans boutons). Les titres sont réels ; en vrai, chaque rubrique est complète et la feuille tient sur plusieurs pages.</p><div class="feuille"><h1>Ma synthèse : Explorer les métiers</h1><p>Établie le ' + DATE + '. Document personnel : pistes de réflexion, ni note, ni diagnostic, ni solution.</p>';
+  h += '<h2>1. Le métier que j’ai retenu</h2>' + (ETAT.p1 && m ? '<p><b>' + e(m.nom) + '</b> (' + e(m.secteur) + '). Niveau d’accès : ' + NIVEAUX[m.niveau] + '. ' + compTotal(m) + ' compétences demandées : ' + m.comp.se + ' savoir-être, ' + m.comp.sf + ' savoir-faire, ' + m.comp.sv + ' savoirs.</p><p>Compétences que j’ai choisies : ' + COMP_CHOISIES.join(', ') + '.</p>' + (ETAT.retenu === 'recommande' ? '' : '<p>Métier recommandé : ' + e(METIERS.recommande.nom) + '. Métier retenu : ' + e(m.nom) + '.</p>') : '<p>Pas encore fait.</p>');
+  h += '<h2>2. Ce que j’aime faire</h2>' + (ETAT.p2 ? '<ul>' + Object.keys(EXEMPLE.choix).map(function (k) { return '<li><b>' + e(k) + ' :</b> ' + EXEMPLE.choix[k].map(e).join(', ') + '</li>'; }).join('') + '<li><b>Je ferais facilement :</b> ' + EXEMPLE.faciles.join(', ') + '</li><li><b>Ce qui serait difficile :</b> ' + EXEMPLE.difficiles.join(', ') + '</li></ul><p>Métiers qui retrouvent le plus de mes choix : ' + EXEMPLE.metiers2.map(function (x) { return e(x[0]) + ' (' + x[1] + ')'; }).join(' ; ') + '.</p>' : '<p>Pas encore fait.</p>');
+  h += '<h2>3. Mes six lettres</h2>' + (ETAT.p3 ? '<p>' + ord.map(function (l) { return NOMS_LETTRES[l] + ' ' + c[l] + ' %'; }).join(' ; ') + '.</p><p>Métiers proches de mes lettres : ' + LETTRES_METIERS.map(function (x) { return e(x[0]) + ' (' + x[1] + ')'; }).join(' ; ') + '.</p>' : '<p>Pas encore fait.</p>');
+  h += '<h2>4. Ce que mes passages ont en commun</h2><p>Métiers qui reviennent, compétences qui ressortent, lettres et métier retenu, ce que chaque passage ajoute, ce qui diffère (calculés par l’application).</p>';
+  h += '<h2>5. Mon parcours et mes compétences</h2>' + (ETAT.parcours ? '<p>Métiers exercés : ' + EXEMPLE.parcours.map(function (p) { return e(p[0]) + ' (' + p[1].join(', ') + ')'; }).join(' ; ') + '.</p><p>Du métier exercé (' + COMPARE.exerce + ') au métier visé (' + COMPARE.vise + ') : transférables : ' + COMPARE.transferables.join(', ') + ' ; transversales : ' + COMPARE.transversales.join(', ') + ' ; à acquérir : ' + COMPARE.acquerir.join(', ') + '.</p>' : '<p>Pas encore ajouté.</p>');
+  h += '<h2>6. Ma situation</h2><p>Niveau d’études : ' + NIVEAUX[ETAT.niveauPers] + '. ' + ({ oui: 'Accompagné(e) par un professionnel.', non: 'Pas accompagné(e) pour l’instant.', jamais: 'Jamais accompagné(e).' }[ETAT.suivi]) + '</p>';
+  if (ETAT.lect) { h += '<h2>7. La lecture de l’assistant en ligne</h2><p>Reprise en entier : ce que disent mes trois passages ; ce qui se retrouve et ce qui diffère ; trois pistes avec ce qui va dans leur sens et ce qui reste à vérifier ; mon niveau et ce qu’il faudrait ; mes compétences transférables et transversales ; rencontrer, essayer, être accompagné ; questions pour un conseiller. Lecture à relire avec un conseiller.</p>'; }
+  h += '<h2>8. Valider mon projet</h2><ul><li>☐ Je compare mes compétences à celles attendues</li><li>☐ Je vérifie les offres près de chez moi (' + d.nom + ') et mes contraintes</li><li>☐ Je rencontre un professionnel (enquête métier)</li><li>☐ Je fais deux ou trois immersions courtes (immersion-facile.beta.gouv.fr)</li><li>☐ Je me demande : est-ce que je me vois exercer ce métier ?</li></ul>';
+  h += '<h2>9. Questions pour mon conseiller</h2><ul><li>Quelle formation, et de quel niveau, près de chez moi ?</li><li>Comment tester ce métier avant de m’engager ?</li></ul>' +
+    '<div class="pied">Rien n’a été envoyé : cette feuille a été produite sur l’appareil de la personne. Sources : France Travail, enquête Besoins en main-d’œuvre 2026 ; sites France Travail et Choisir le service public (consultés le ' + DATE + ').</div></div><div class="boutons-ligne" style="justify-content:center"><button type="button" class="btn btn-primary"><i class="bi bi-printer"></i> Lancer l’impression</button><button type="button" class="btn btn-outline-secondary" data-go="synthese">Retour à ma synthèse</button></div>';
+  return h;
+}
+
+var ECRANS = [['accueil', 'Accueil du module'], ['synthese', 'Ma synthèse'], ['demande', 'Demande'], ['collage', 'Réponse collée'], ['lecture', 'Ma lecture'], ['offres', 'Chercher des offres'], ['impression', 'Feuille imprimée']];
+var TOGGLES = [['garde', 'Déjà gardé dans la disquette'], ['p1', 'Passage 1'], ['p2', 'Passage 2'], ['p3', 'Passage 3'], ['parcours', 'Parcours ajouté'], ['libre', 'Dans mes mots'], ['lect', 'Lecture collée']];
+var RETIENT = {
+  accueil: ['Quatre cartes inchangées (la carte du questionnaire dit désormais « questions numérotées, sans bonne ni mauvaise réponse »). Option : une entrée à part « D’un métier à un autre » (réglage ci-dessous).', 'Bloc « Ma synthèse » seulement s’il y a un résultat, avec « Voir ma synthèse » et « Refaire tout le chemin » (avec confirmation).', 'À mettre aussi à jour avant les vidéos : vidéo d’introduction, présentation du module, infobulle de la carte, aide guidée, fonction disquette, recherche.'],
+  synthese: ['Filtre de formation (V7) : réglage commandé par la personne, aux passages 2 et 3. Il CACHE des métiers selon le niveau d’accès (tous, formation courte au plus, bac + 2 au plus), il ne change jamais l’ordre, il n’est jamais appliqué par défaut. Le métier retenu et les métiers au niveau non précisé restent visibles ; les métiers cachés se rouvrent d’un clic. Essayez-le.', 'Passage 3 (V6) : les lettres laissent beaucoup de métiers à égalité (ici 32, dont 4 avec exactement les deux premières lettres). Ils sont départagés dans cet ordre : lettres exactes, puis les cinq réponses de « Affiner mes métiers », puis l’ordre alphabétique en dernier recours, annoncé comme tel. La raison est écrite sous chaque métier. Le niveau d’études ne joue jamais dans l’ordre. Métiers, lettres et conditions : données réelles de l’application. Essayez les réponses : l’ordre bouge.', 'Sauvegarde : pas de compte, donc un bandeau le dit clairement en tête de page et chaque passage a son bouton « Garder dans la disquette » sur la même ligne que « Modifier ». Le même message et le même bouton sont à la fin de chaque chemin (page résultat). La disquette garde l’état du moment : à regarder de nouveau après chaque passage (cliquez le bouton pour voir le changement).', 'Passage non fait : on ne le masque jamais, on encourage à le faire (bouton qui y mène) : la synthèse est plus précise et la lecture plus fine (décochez les passages dans les réglages).', 'Chaque passage 2 et 3 permet de retenir UN métier (facultatif), comme le passage 1 : la demande reçoit ainsi les trois choix de la personne.', 'Accès : la synthèse existe dès UN résultat ; la lecture aussi, en disant ce qui manque (essayez de décocher des passages).', 'Passage 1 : UN seul métier retenu par le bouton « Retenir pour ma synthèse ». C’est la demande qui dit s’il s’agit du métier le mieux classé ou d’un métier proche (et lequel était recommandé).', 'La fiche du métier retenu ne dit que ce qui est vrai : recrutement du territoire seulement si le métier figure dans l’enquête, turnover seulement pour le commerce. Sinon : aucune affirmation.', 'Passage 2 : les deux versants, « je ferais facilement » et « ce qui serait difficile », et le pourcentage de chaque métier.', 'Passage 3 : les six lettres ; les deux premières en fort, la troisième en teinte intermédiaire si elle se démarque, les autres discrètes ; trois lettres à égalité : toutes en fort (essayez « Trois lettres à égalité »).', '« Ce que les tests ne disent pas » : niveau d’études, accompagnement, compléments par clics, texte libre avec avertissement. « Rejoindre un document » : plus tard.', '« Chez moi » ne montre que les pistes de la personne qui figurent dans l’enquête du territoire (changez de département pour voir les deux cas) : jamais une liste générale. « Ma synthèse par recoupement » est calculée par l’application, sans assistant.', 'Le bouton « Interpréter ma synthèse » déclenche la demande. Les offres viennent après, dans une demande à part.'],
+  collage: ['Écran « collez la réponse » : même composant que pour le CV. Le bouton de l’écran précédent y emmène directement.'],
+  demande: ['UNE seule réponse, de longueur raisonnable, avec des titres fixes. Aucune note, aucune solution : des pistes.', 'La demande contient : métier retenu (+ recommandé si différent), compétences choisies et demandées, choix des deux versants, six pourcentages, parcours, niveau d’études, accompagnement, mots libres, territoire.', 'Elle demande de comparer le niveau d’études, de nommer les compétences transférables et transversales, de distinguer rencontre et immersion, d’encourager l’accompagnement. Même écran « collez la réponse » que le CV.'],
+  lecture: ['Réponse mise en page par l’application : trois lectures (compétences, envies, lettres), ce qui se retrouve et diffère, trois pistes avec « ce qui va dans le sens » et « à vérifier », niveau d’études, compétences transférables et transversales, six lettres, camembert « déjà pratiquées / à construire » (jamais une note), rencontre et immersion, accompagnement selon la situation, questions.', 'Changez le niveau d’études dans « Cas à essayer » : l’encadré sur la remise à niveau apparaît ou disparaît.', 'Textes sur l’immersion et les rencontres : voir docs/RECHERCHE_IMMERSION_ET_ENQUETE_METIER_2026-11-18.md (vérifiés le 18/11/2026, à revérifier avant la mise en ligne).'],
+  offres: ['Demande d’offres à part : on choisit parmi les métiers des tests ET ceux de la lecture, cinq au plus, puis le territoire. Si le niveau ne suffit pas, la demande le dit.'],
+  impression: ['Feuille simple, noir sur blanc, produite sur l’appareil. Elle reprend tout ce qui est fait, y compris la lecture.']
+};
+var CAS = [
+  ['retenu', 'recommande', 'Métier retenu : le mieux classé'], ['retenu', 'proche', 'Métier retenu : un métier proche'], ['retenu', 'commerce', 'Métier retenu : commerce (turnover)'], ['retenu', 'aucun', 'Aucun métier retenu'], ['p2', false, 'Sans passage 2'], ['p3', false, 'Sans passage 3'],
+  ['niveauPers', 0, 'Niveau : sans diplôme'], ['niveauPers', 1, 'Niveau : CAP ou BEP'], ['niveauPers', 4, 'Niveau : Bac + 3'],
+  ['egalite', true, 'Trois lettres à égalité'], ['egalite', false, 'Lettres normales'],
+  ['suivi', 'oui', 'Accompagné'], ['suivi', 'non', 'Pas pour l’instant'], ['suivi', 'jamais', 'Jamais accompagné']
+];
+var VARIABLES = [
+  ['vParcours', 'Parcours professionnel', [['fiche', 'Chercher un métier et cliquer ses compétences (recommandé)'], ['cv', 'Déposer un CV']]],
+  ['vPasserelle', 'Entrée à part « D’un métier à un autre »', [['non', 'Non pour l’instant (recommandé)'], ['oui', 'Oui, sur l’accueil']]]
+];
+
+function barre() {
+  var retour = { synthese: 'accueil', demande: 'synthese', collage: 'demande', lecture: 'synthese', offres: 'lecture', impression: 'synthese' }[ETAT.ecran];
+  return '<div class="barre-navigation-fixe"><div class="barre"><span>' + (retour ? '<button class="btn btn-nav-erip btn-lg" data-go="' + retour + '">&#8592; Retour</button>' : '') + '</span><button class="btn btn-nav-erip btn-accueil" type="button"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button><span></span></div></div>';
+}
+function rendre() {
+  LETTRES_METIERS = visiblesP3().slice(0, 3).map(function (x) { return [x.nom, x.lettres]; });
+  document.documentElement.setAttribute('data-theme', ETAT.sombre ? 'sombre' : 'clair');
+  var p = document.getElementById('mqPage');
+  p.className = 'mq-page' + (ETAT.tel ? ' tel' : '');
+  var F = { accueil: ecranAccueil, synthese: ecranSynthese, demande: ecranDemande, collage: ecranCollage, lecture: ecranLecture, offres: ecranOffres, impression: ecranImpression };
+  p.innerHTML = F[ETAT.ecran]();
+  document.getElementById('mqBas').innerHTML = barre();
+  document.getElementById('mqEcrans').innerHTML = ECRANS.map(function (x) { return '<button type="button" class="btn btn-sm ' + (x[0] === ETAT.ecran ? 'btn-primary' : 'btn-outline-primary') + '" data-go="' + x[0] + '">' + x[1] + '</button>'; }).join('');
+  document.getElementById('mqRempl').innerHTML = TOGGLES.map(function (x) { return '<button type="button" class="btn btn-sm ' + (ETAT[x[0]] ? 'btn-primary' : 'btn-outline-secondary') + '" data-tog="' + x[0] + '" aria-pressed="' + ETAT[x[0]] + '">' + (ETAT[x[0]] ? '✓ ' : '') + x[1] + '</button>'; }).join('');
+  document.getElementById('mqCas').innerHTML = CAS.map(function (x, i) { return '<button type="button" class="btn btn-sm ' + (ETAT[x[0]] === x[1] ? 'btn-primary' : 'btn-outline-secondary') + '" data-cas="' + i + '">' + x[2] + '</button>'; }).join('');
+  document.getElementById('mqVar').innerHTML = VARIABLES.map(function (v) { return '<span class="note">' + v[1] + ' :</span> ' + v[2].map(function (o) { return '<button type="button" class="btn btn-sm ' + (ETAT[v[0]] === o[0] ? 'btn-primary' : 'btn-outline-secondary') + '" data-var="' + v[0] + '" data-val="' + o[0] + '">' + o[1] + '</button>'; }).join(' ') + '<br>'; }).join('');
+  document.getElementById('mqRetient').innerHTML = '<b>Ce que cet écran retient</b>' + (RETIENT[ETAT.ecran] || []).map(function (t) { return '<p>• ' + t + '</p>'; }).join('');
+  document.getElementById('mqLarge').className = 'btn btn-sm ' + (ETAT.tel ? 'btn-outline-primary' : 'btn-primary');
+  document.getElementById('mqTel').className = 'btn btn-sm ' + (ETAT.tel ? 'btn-primary' : 'btn-outline-primary');
+  document.getElementById('mqTheme').textContent = ETAT.sombre ? 'Mode clair' : 'Mode sombre';
+  document.getElementById('mqRegl').style.display = ETAT.regl ? '' : 'none';
+  document.getElementById('mqRouvrir').style.display = ETAT.regl ? 'none' : 'inline-flex';
+}
+document.addEventListener('click', function (ev) {
+  var t = ev.target.closest('[data-go],[data-dep],[data-tog],[data-var],[data-lect],[data-retenir],[data-niv],[data-suivi],[data-comp],[data-cas],[data-graphe],[data-garde],[data-ret],[data-aff],[data-affsect],[data-affraz],[data-form],[data-voirmasques]');
+  if (!t) { return; }
+  var d = t.dataset;
+  if (d.go) { ETAT.ecran = d.go; window.scrollTo(0, 0); }
+  if (d.dep) { ETAT.dep = d.dep; }
+  if (d.tog) { ETAT[d.tog] = !ETAT[d.tog]; }
+  if (d.lect) { ETAT.lect = true; ETAT.ecran = 'lecture'; window.scrollTo(0, 0); }
+  if (d.retenir) { ETAT.retenu = d.retenir; ETAT.p1 = d.retenir !== 'aucun'; }
+  if (d.niv !== undefined) { ETAT.niveauPers = +d.niv; }
+  if (d.suivi) { ETAT.suivi = d.suivi; }
+  if (d.comp !== undefined) { ETAT.complements[d.comp] = !ETAT.complements[d.comp]; }
+  if (d.graphe) { ETAT.grapheCache = !ETAT.grapheCache; }
+  if (d.garde) { ETAT.garde = true; }
+  if (d.ret) { ETAT['retenu' + d.ret] = d.nom; }
+  if (d.aff) { ETAT.aff[d.aff] = d.val; }
+  if (d.affsect !== undefined) { var S = ETAT.aff.secteurs, k = S.indexOf(d.affsect); if (d.affsect === '') { ETAT.aff.secteurs = []; } else if (k > -1) { S.splice(k, 1); } else if (S.length < 3) { S.push(d.affsect); } }
+  if (d.form) { ETAT.formation = d.form; }
+  if (d.voirmasques) { ETAT['voirMasques' + d.voirmasques] = !ETAT['voirMasques' + d.voirmasques]; }
+  if (d.affraz) { ETAT.aff = { corps: 'peu', lieu: 'peu', autres: 'peu', horaires: 'peu', secteurs: [] }; }
+  if (d.cas !== undefined) { var c = CAS[+d.cas]; ETAT[c[0]] = c[1]; if (c[0] === 'retenu') { ETAT.p1 = c[1] !== 'aucun'; } }
+  if (d.var) { ETAT[d.var] = d.val; }
+  rendre();
+});
+document.getElementById('mqLarge').onclick = function () { ETAT.tel = false; rendre(); };
+document.getElementById('mqTel').onclick = function () { ETAT.tel = true; rendre(); };
+document.getElementById('mqTheme').onclick = function () { ETAT.sombre = !ETAT.sombre; rendre(); };
+document.getElementById('mqFermer').onclick = function () { ETAT.regl = false; rendre(); };
+document.getElementById('mqRouvrir').onclick = function () { ETAT.regl = true; rendre(); };
+rendre();
+</script>
+</body>
+</html>

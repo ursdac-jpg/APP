@@ -449,7 +449,7 @@ function _comprendreLeCadreParserFiche(texteMd) {
   var entete = m[1];
   var f = {
     id: '', rayon: '', titre: '', pour_qui: '', territoire: '', statut: 'actif',
-    frein: false, verifie_le: '', tags: [], lexique: [], voir_aussi_lexique: [], voir_aussi_chiffres: '', phrase_generale: '', sources: [],
+    frein: false, verifie_le: '', tags: [], lexique: [], voir_aussi_lexique: [], voir_aussi_chiffres: '', phrase_generale: '', maj_resume: '', sources: [],
     ce_qui_change_souvent: [], revisions: [], collecte: '', corps: (m[2] || '').trim()
   };
   // TACHE (extension Chiffres, 2026-09-12) : phrase courte optionnelle
@@ -457,7 +457,7 @@ function _comprendreLeCadreParserFiche(texteMd) {
   // aller plus loin -> Comprendre les chiffres" -- vide par defaut, jamais
   // devinee, meme principe que voir_aussi_lexique.
   // Consigne 95 (Denis, option 1 du 05/11/2026) : phrase_generale = phrase SANS chiffre, affichee a la place du texte quand la fiche a six mois ou plus.
-  ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'statut', 'verifie_le', 'collecte', 'voir_aussi_chiffres', 'phrase_generale'].forEach(function (cle) {
+  ['id', 'rayon', 'titre', 'pour_qui', 'territoire', 'statut', 'verifie_le', 'collecte', 'voir_aussi_chiffres', 'phrase_generale', 'maj_resume'].forEach(function (cle) {
     var mm = entete.match(new RegExp('^' + cle + ':\\s*(.+)$', 'm'));
     if (mm) { f[cle] = mm[1].trim().replace(/^"|"$/g, ''); }
   });
@@ -582,6 +582,46 @@ function _comprendreLeCadreParserSourcesCollecte(texteCollecte) {
   return table;
 }
 
+// Pour chaque fiche de `fiches` (du rayon `id`) : le nom lisible de ses sources (collecte du rayon) et l'adresse, seulement si elle est vérifiée (LECONS 9.16). Renvoie une promesse.
+// Une seule source : le chargement d'un rayon entier ET celui d'une seule fiche (page « Nouveautés ») passent par ici.
+function _comprendreLeCadreResoudreSources(fiches, id) {
+  var base = COMPRENDRE_LE_CADRE_BASE_CONTENU + id + '/';
+  return Promise.all([
+    fetch(base + id + '.collecte.md').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
+    new Promise(function (resolve) { _comprendreLeCadreChargerLiensVerifies(resolve, function () { resolve({}); }); })
+  ]).then(function (res) {
+    var titres = _comprendreLeCadreParserSourcesCollecte(res[0]);
+    var liens = res[1] || {};
+    fiches.forEach(function (f) {
+      f.sourcesResolues = (f.sources || []).map(function (nom) {
+        var l = liens[nom];
+        var verifie = !!(l && l.dateVerification);
+        return {
+          nom: nom, titre: titres[nom] || nom,
+          url: verifie ? l.url : '', date: verifie ? l.dateVerification : '', verifie: verifie
+        };
+      });
+    });
+  });
+}
+
+// Charge UNE fiche (sans lire tout son rayon) pour l'afficher sur place dans la page « Nouveautés » ; lue une fois par session.
+var _comprendreLeCadreCacheFicheSeule = {};
+function _comprendreLeCadreChargerUneFiche(rayon, ficheId, onCharge, onErreur) {
+  var cle = rayon + '/' + ficheId;
+  if (_comprendreLeCadreCacheFicheSeule[cle]) { onCharge(_comprendreLeCadreCacheFicheSeule[cle]); return; }
+  var deja = (_comprendreLeCadreCache[rayon] || []).filter(function (f) { return f.id === ficheId; })[0];
+  if (deja) { _comprendreLeCadreCacheFicheSeule[cle] = deja; onCharge(deja); return; }
+  fetch(COMPRENDRE_LE_CADRE_BASE_CONTENU + rayon + '/' + ficheId + '.md').then(function (r) {
+    if (!r.ok) { throw new Error('fiche'); }
+    return r.text();
+  }).then(function (texte) {
+    var f = _comprendreLeCadreParserFiche(texte);
+    if (!f || f.statut === 'retire') { throw new Error('retiree'); }
+    return _comprendreLeCadreResoudreSources([f], rayon).then(function () { _comprendreLeCadreCacheFicheSeule[cle] = f; onCharge(f); });
+  }).catch(function () { onErreur(); });
+}
+
 // onCharge(fiches) / onErreur(message) - jamais d'exception qui remonte
 // jusqu'à l'appelant, ce module reste silencieux sur ses propres échecs
 // réseau et laisse l'écran l'expliquer simplement à la personne.
@@ -609,22 +649,7 @@ function _comprendreLeCadreChargerRayon(id, onCharge, onErreur) {
     // vérification dans liens-verifies.txt (LECONS 9.16). La collecte et
     // le registre manquants ne sont pas une erreur : la fiche s'affiche
     // alors avec les noms courts, sans lien.
-    return Promise.all([
-      fetch(base + id + '.collecte.md').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
-      new Promise(function (resolve) { _comprendreLeCadreChargerLiensVerifies(resolve, function () { resolve({}); }); })
-    ]).then(function (res) {
-      var titres = _comprendreLeCadreParserSourcesCollecte(res[0]);
-      var liens = res[1] || {};
-      fiches.forEach(function (f) {
-        f.sourcesResolues = (f.sources || []).map(function (nom) {
-          var l = liens[nom];
-          var verifie = !!(l && l.dateVerification);
-          return {
-            nom: nom, titre: titres[nom] || nom,
-            url: verifie ? l.url : '', date: verifie ? l.dateVerification : '', verifie: verifie
-          };
-        });
-      });
+    return _comprendreLeCadreResoudreSources(fiches, id).then(function () {
       _comprendreLeCadreCache[id] = fiches;
       onCharge(fiches);
     });
@@ -960,6 +985,49 @@ function _comprendreLeCadreDateChangement(item, repli) {
   return dates.sort().pop() || '';
 }
 
+// Texte complet d'un changement (consigne 426) : lignes « Détail : ... » du balayage, une par élément, dans l'ordre. Un élément commence par « # » (intertitre),
+// « > libellé = valeur » (ligne du rappel de la situation actuelle), « ! » (note datée du rappel) ou rien (paragraphe). Rend [{ t: 'h'|'r'|'n'|'p', ... }].
+function _comprendreLeCadreDetailsDuChangement(item) {
+  var liste = [];
+  (item.blocs || []).forEach(function (b) {
+    if (b.type !== 'paragraphe') { return; }
+    var m = b.texte.match(/^D[ée]tail\s*:\s*(.+)$/i);
+    if (!m) { return; }
+    var t = m[1].trim(), c;
+    if ((c = t.match(/^#\s+(.+)$/))) { liste.push({ t: 'h', texte: c[1] }); }
+    else if ((c = t.match(/^>\s*(.+?)\s+=\s+(.+)$/))) { liste.push({ t: 'r', libelle: c[1], valeur: c[2] }); }
+    else if ((c = t.match(/^!\s*(.+)$/))) { liste.push({ t: 'n', texte: c[1] }); }
+    else { liste.push({ t: 'p', texte: t }); }
+  });
+  return liste;
+}
+
+// HTML du texte complet : intertitres, paragraphes, et le rappel (lignes « libellé = valeur » suivies de leur note datée) dans un encadré.
+function _comprendreLeCadreRenduDetail(details) {
+  var e = _comprendreLeCadreEchapper, g = _comprendreLeCadreDigestGras, html = '', i = 0;
+  while (i < details.length) {
+    var d = details[i];
+    if (d.t === 'h') { html += '<h3>' + g(e(d.texte)) + '</h3>'; i++; }
+    else if (d.t === 'r') {
+      var rows = '';
+      while (i < details.length && details[i].t === 'r') { rows += '<dt>' + g(e(details[i].libelle)) + '</dt><dd>' + g(e(details[i].valeur)) + '</dd>'; i++; }
+      var note = '';
+      if (i < details.length && details[i].t === 'n') { note = '<div class="date"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> ' + g(e(details[i].texte)) + '</div>'; i++; }
+      html += '<div class="comprendre-le-cadre-rappel"><dl>' + rows + '</dl>' + note + '</div>';
+    }
+    else if (d.t === 'n') { html += '<p class="small text-muted"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> ' + g(e(d.texte)) + '</p>'; i++; }
+    else { html += '<p>' + g(e(d.texte)) + '</p>'; i++; }
+  }
+  return html;
+}
+
+// « Fiche liée : rayon/identifiant » (ligne facultative d'un changement officiel) : la fiche qui développe ce changement, lue sur place par un second
+// niveau de lecture (consigne 425). Renvoie { rayon, id } ou null si la ligne est absente ou mal formée.
+function _comprendreLeCadreFicheLiee(texte) {
+  var m = String(texte || '').trim().match(/^([a-z0-9-]+)\/([a-z0-9-]+)$/);
+  return m ? { rayon: m[1], id: m[2] } : null;
+}
+
 // Tous les changements de tous les fichiers chargés, en une seule liste, du plus récent au plus ancien. Un même changement déposé dans deux fichiers
 // n'apparaît qu'une fois (le fichier le plus récent l'emporte). Rien d'« à vérifier » (déjà retiré par le découpage).
 function _comprendreLeCadreAplatirChangements(digests) {
@@ -973,7 +1041,7 @@ function _comprendreLeCadreAplatirChangements(digests) {
         vus[cle] = true;
         var v = _comprendreLeCadreChampBloc(it, 'Vérifié le').match(/\d{4}-\d{2}-\d{2}/);
         liste.push({ domaine: dom.nom || 'Autres changements', titre: it.titre, blocs: it.blocs, date: _comprendreLeCadreDateChangement(it, repli), verifie: v ? v[0] : '',
-          dates: _comprendreLeCadreDatesDuTexte(_comprendreLeCadreChampBloc(it, 'Type')) });
+          dates: _comprendreLeCadreDatesDuTexte(_comprendreLeCadreChampBloc(it, 'Type')), ficheLiee: _comprendreLeCadreFicheLiee(_comprendreLeCadreChampBloc(it, 'Fiche liée')), detail: _comprendreLeCadreDetailsDuChangement(it) });
       });
     });
   });
@@ -1011,7 +1079,7 @@ function _comprendreLeCadreDatesDuTexte(texte) {
 function _comprendreLeCadreEstNouveau(c, aujourdhui) {
   return (c.dates || []).some(function (d) {
     var j = _comprendreLeCadreJoursEntre(d, aujourdhui);
-    return j >= 0 && j <= COMPRENDRE_LE_CADRE_JOURS_NOUVEAU;
+    return j >= 0 && j < COMPRENDRE_LE_CADRE_JOURS_NOUVEAU;   // 7 jours : du jour même au 6e jour ; le 7e, la marque a disparu
   });
 }
 
@@ -1135,7 +1203,11 @@ function _comprendreLeCadreDigestRenduBlocs(blocs) {
     // en bandeau de couleur. « Type » : pastilles (nature, dates). « Concerne » :
     // le public touché, étiqueté. « Source » : un vrai bouton vers le texte
     // officiel. Tout autre champ garde l'ancienne note discrète.
-    if (/^ce qui change$/i.test(label)) {
+    if (/^d[ée]tail$/i.test(label)) {
+      return;   // texte complet : lu par la page Nouveautés (second niveau de lecture), jamais affiché ligne par ligne
+    } else if (/^fiche li[ée]e$/i.test(label)) {
+      return;   // ligne de liaison : jamais affichée telle quelle, elle sert au bouton « Lire la fiche en entier » de la page Nouveautés
+    } else if (/^ce qui change$/i.test(label)) {
       html += '<p class="comprendre-le-cadre-digest-cle mb-2"><strong>Ce qui change.</strong> ' + gras(brut) + '</p>';
     } else if (/^type$/i.test(label)) {
       html += '<p class="comprendre-le-cadre-digest-pastilles mb-1">' + _comprendreLeCadreDigestPastillesType(brut) + '</p>';
@@ -1143,7 +1215,7 @@ function _comprendreLeCadreDigestRenduBlocs(blocs) {
       html += '<p class="comprendre-le-cadre-digest-concerne small mb-1"><strong>Concerne :</strong> ' + gras(brut) + '</p>';
     } else if (/^vérifié le$/i.test(label)) {
       // Marque verte : le changement a été validé un par un dans l'outil de veille (décision de Denis, 2026-10-15).
-      html += '<p class="comprendre-le-cadre-digest-verifie mb-0 mt-2"><span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--v"><i class="bi bi-patch-check-fill"></i> Vérifié le ' +
+      html += '<p class="comprendre-le-cadre-digest-verifie mb-0 mt-2"><span class="comprendre-le-cadre-pastille"><i class="bi bi-patch-check-fill"></i> Vérifié le ' +
         _comprendreLeCadreDateFr(brut.trim()) + '</span></p>';
     } else if (/^source$/i.test(label)) {
       var ms = brut.match(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/);
@@ -1167,7 +1239,7 @@ function _comprendreLeCadreDigestRenduBlocs(blocs) {
 
 function _comprendreLeCadrePastilleDate(c, aujourdhui) {
   var futur = c.date > aujourdhui;
-  return '<span class="comprendre-le-cadre-pastille' + (futur ? ' comprendre-le-cadre-pastille--a' : '') + '">' +
+  return '<span class="comprendre-le-cadre-pastille' + (futur ? ' comprendre-le-cadre-pastille--a' : '') + '" data-pastille="date" data-valeur="' + c.date + '" data-libelle="' + _comprendreLeCadreDateFr(c.date) + '">' +
     (futur ? 'À partir du ' : 'Depuis le ') + _comprendreLeCadreDateFr(c.date) + '</span>';
 }
 
@@ -1177,17 +1249,54 @@ function _comprendreLeCadrePastilleNouveau(c, aujourdhui) {
     : '';
 }
 
+// Pied d'un texte lu sur place (consigne 438, 17/11/2026) : « Replier » en bas, pour ne pas remonter en tête du texte, et « Signaler » quand il n'y est pas déjà.
+function _comprendreLeCadreBoutonReplierHtml(libelle) {
+  return '<div class="comprendre-le-cadre-replier-rangee"><button type="button" class="comprendre-le-cadre-lire-tout comprendre-le-cadre-replier" data-cc-replier="1"><i class="bi bi-chevron-up" aria-hidden="true"></i><span>' + libelle + '</span></button></div>';
+}
+// Deux niveaux de lecture, deux boutons différents (consigne 442, 17/11/2026) :
+// - celui du haut (juste sous le résumé) ne replie que la suite ouverte par « Lire la fiche en entier » : le résumé reste affiché ;
+// - celui du bas (« Replier la fiche », relié ici) replie TOUTE la fiche, puis la page revient sur son titre : la personne n'est jamais perdue.
+// `boutonOuvrir` = le bouton du haut (absent quand la fiche n'a qu'un niveau). Le second niveau est refermé avant la fiche, pour qu'elle se rouvre sur son résumé.
+function _comprendreLeCadreBrancherReplier(conteneur, boutonOuvrir) {
+  conteneur.querySelectorAll('[data-cc-replier]').forEach(function (r) {
+    r.addEventListener('click', function () {
+      if (boutonOuvrir && boutonOuvrir.getAttribute('aria-expanded') === 'true') { boutonOuvrir.click(); }
+      var fiche = r.closest('details');
+      if (fiche) { fiche.open = false; fiche.scrollIntoView({ block: 'start' }); }   // « start » et non « nearest » : une fois la fiche repliée, la page raccourcit et son titre reste visible en bas de l'écran, donc rien ne bougeait
+      else if (boutonOuvrir) { boutonOuvrir.scrollIntoView({ block: 'nearest' }); }
+    });
+  });
+}
+
 // Carte d'un changement dans la vue « Récemment ».
-function _comprendreLeCadreRenduCarteChangement(c, aujourdhui) {
+// `extra` (facultatif) : pastilles ajoutées par la page « Nouveautés » (« Nouveau » / « Déjà vu »), jamais écrites ici.
+// `avecFiche` (page « Nouveautés ») : si le changement a une fiche liée, un second niveau de lecture la propose en entier, lue sur place.
+function _comprendreLeCadreRenduCarteChangement(c, aujourdhui, extra, avecFiche) {
   var nouveau = _comprendreLeCadreEstNouveau(c, aujourdhui), futur = c.date > aujourdhui;
   return '<details class="comprendre-le-cadre-chg' + (nouveau ? ' comprendre-le-cadre-chg--nouveau' : '') + (futur ? ' comprendre-le-cadre-chg--avenir' : '') + '"' + (nouveau ? ' open' : '') + '>' +
     '<summary class="comprendre-le-cadre-chg-resume">' +
       '<span class="comprendre-le-cadre-chg-pastilles">' + _comprendreLeCadrePastilleNouveau(c, aujourdhui) + _comprendreLeCadrePastilleDate(c, aujourdhui) +
-        '<span class="comprendre-le-cadre-pastille">' + c.domaine + '</span></span>' +
+        '<span class="comprendre-le-cadre-pastille" data-pastille="domaine" data-valeur="' + _comprendreLeCadreEchapper(c.domaine) + '">' + c.domaine + '</span>' + (extra || '') + '</span>' +
       '<span class="comprendre-le-cadre-chg-titre">' + _comprendreLeCadreDigestGras(c.titre) + '</span>' +
       '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>' +
     '</summary>' +
-    '<div class="comprendre-le-cadre-chg-corps">' + _comprendreLeCadreDigestRenduBlocs(c.blocs) + '</div>' +
+    '<div class="comprendre-le-cadre-chg-corps">' + _comprendreLeCadreDigestRenduBlocs(c.blocs) +
+      (avecFiche && c.ficheLiee
+        ? '<div class="mt-2" data-cc-fiche-liee="' + c.ficheLiee.rayon + '/' + c.ficheLiee.id + '">' +
+            '<button type="button" class="comprendre-le-cadre-lire-tout" data-cc-lire-fiche-liee="1" aria-expanded="false"><span>Lire la fiche en entier</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>' +
+            '<div data-cc-fiche-liee-corps hidden></div></div>'
+        : (avecFiche && c.detail && c.detail.length
+          ? '<div class="mt-2" data-cc-detail="1">' +
+              '<button type="button" class="comprendre-le-cadre-lire-tout" data-cc-lire-detail="1" aria-expanded="false"><span>Lire plus d’informations</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>' +
+              '<div data-cc-detail-corps hidden>' +
+                (futur ? '<div class="comprendre-le-cadre-avenir-bandeau"><i class="bi bi-hourglass-split" aria-hidden="true"></i><div><strong>Cette règle n’est pas encore en vigueur.</strong> Ce texte explique ce qui est annoncé. Il peut changer quand le texte officiel paraîtra : relisez-le à ce moment-là.</div></div>' : '') +
+                '<div class="comprendre-le-cadre-avenir-texte">' + _comprendreLeCadreRenduDetail(c.detail) + '</div>' +
+                (futur ? '<div class="comprendre-le-cadre-avenir-pied"><i class="bi bi-info-circle" aria-hidden="true"></i> Quand ce texte sera acté, il pourra devenir une fiche de « Comprendre le cadre », et ce bouton deviendra « Lire la fiche en entier ».</div>' : '') +
+                _comprendreLeCadreRenduBoutonSignaler('Changement « ' + String(c.titre || '').split('**').join('').slice(0, 80) + ' » (nouveautés)', 'Un montant, une date ou un texte qui a changé ? Dites-le nous : cela aide les autres.') +
+                _comprendreLeCadreBoutonReplierHtml('Replier la fiche') +
+              '</div></div>'
+          : '')) +
+    '</div>' +
   '</details>';
 }
 
@@ -1522,10 +1631,11 @@ function _comprendreLeCadreChargerPourNeRienRaterAccueil() {
 
 // ---- Bouton « Signaler une erreur ou un changement » : le formulaire de signalement existant (js/app.js), page préremplie ----
 
-function _comprendreLeCadreRenduBoutonSignaler(nomPage, phrase) {
-  return '<div class="comprendre-le-cadre-signaler mt-4">' +
+// `enHaut` (page Nouveautés, consigne 424) : le même bouton, en tête de page ou de rubrique, sans trait au-dessus ; la même forme partout.
+function _comprendreLeCadreRenduBoutonSignaler(nomPage, phrase, enHaut) {
+  return '<div class="comprendre-le-cadre-signaler' + (enHaut ? ' comprendre-le-cadre-signaler--haut' : ' mt-4') + '">' +
     '<p class="small mb-2">' + phrase + '</p>' +
-    '<button type="button" class="btn btn-outline-secondary btn-sm" data-signaler-probleme="1" data-signaler-page="' +
+    '<button type="button" class="btn btn-sm comprendre-le-cadre-signaler-btn" data-signaler-probleme="1" data-signaler-page="' +
       _comprendreLeCadreEchapper(nomPage).replace(/"/g, '&quot;') + '"><i class="bi bi-flag"></i> Signaler une erreur ou un changement</button>' +
   '</div>';
 }
@@ -1553,7 +1663,7 @@ function _comprendreLeCadreRenduDelais(outil) {
             '<i class="bi bi-journal-text"></i> Lire la fiche</button></p>' +
           '<p class="mb-0">' + (ancien
             ? '<span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--a"><i class="bi bi-exclamation-triangle"></i> Vérifié il y a plus de six mois : confirmez ce délai sur la fiche</span>'
-            : '<span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--v"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(d.verifie_le) + '</span>') + '</p>' +
+            : '<span class="comprendre-le-cadre-pastille"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(d.verifie_le) + '</span>') + '</p>' +
         '</div>';
       }).join('') +
     '</details>';
@@ -1587,7 +1697,7 @@ function _comprendreLeCadreRenduArnaques(outil) {
     return '<div class="comprendre-le-cadre-arnaque">' +
       '<h2 class="h5 fw-bold mb-2"><i class="bi bi-shield-exclamation"></i> ' + _comprendreLeCadreEchapper(a.titre) + '</h2>' +
       rubrique('Ce qui se passe.', a.sePasse) + rubrique('Comment le reconnaître.', a.reconnaitre) + rubrique('Quoi faire.', a.quoiFaire) + rubrique('Où signaler.', a.signaler) +
-      '<p class="mb-0 mt-2"><span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--v"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(a.verifiee) + '</span></p>' +
+      '<p class="mb-0 mt-2"><span class="comprendre-le-cadre-pastille"><i class="bi bi-patch-check-fill"></i> Vérifié le ' + _comprendreLeCadreDateFr(a.verifiee) + '</span></p>' +
       (a.sourceUrl
         ? '<p class="mb-0 mt-2"><a class="comprendre-le-cadre-digest-btn-source" href="' + a.sourceUrl.replace(/"/g, '%22') + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la source officielle</a>' +
           '<span class="small text-muted d-block mt-1">Source : ' + _comprendreLeCadreEchapper(a.sourceLibelle) + '. Ce lien ouvre un autre site.</span></p>'
@@ -2329,7 +2439,8 @@ function _comprendreLeCadreRenduErreurChargement(libelleRetour) {
 // de vérification dans liens-verifies.txt (LECONS 9.16) : la personne
 // peut alors "aller voir de ses propres yeux". Sinon, nom seul + mention
 // honnête.
-function _comprendreLeCadreRenduFiche(f) {
+// `enLigne` (page « Nouveautés ») : le contenu seul, comme dans la fiche ; sans le bouton retour, sans le titre (déjà sur la carte) et sans les renvois vers d'autres modules (la personne ne doit pas s'égarer).
+function _comprendreLeCadreRenduFiche(f, enLigne) {
   var sources = f.sourcesResolues || (f.sources || []).map(function (n) { return { nom: n, titre: n, verifie: false }; });
   var listeSources = !sources.length ? '' :
     '<ul class="comprendre-le-cadre-sources">' + sources.map(function (s) {
@@ -2385,13 +2496,12 @@ function _comprendreLeCadreRenduFiche(f) {
       '</div>'
     : '';
   return '' +
-    _comprendreLeCadreRenduBoutonRetour('Retour au rayon') +
-    '<h1>' + f.titre + '</h1>' +
+    (enLigne ? '' : _comprendreLeCadreRenduBoutonRetour('Retour au rayon') + '<h1>' + f.titre + '</h1>') +
     // Passé six mois, un « Utile si... » qui cite un âge, une durée ou un montant n'est plus affiché (même raison que le texte : il a pu changer) ; la phrase générale dit à qui la fiche s'adresse.
-    ((f.pour_qui && !(_comprendreLeCadreCiteDesChiffres(f.pour_qui) && _comprendreLeCadreFichePerimee(f, _comprendreLeCadreAujourdhui()))) ? '<p class="text-muted">' + f.pour_qui + '</p>' : '') +
+    ((!enLigne && f.pour_qui && !(_comprendreLeCadreCiteDesChiffres(f.pour_qui) && _comprendreLeCadreFichePerimee(f, _comprendreLeCadreAujourdhui()))) ? '<p class="text-muted">' + f.pour_qui + '</p>' : '') +
     _comprendreLeCadreAvertissementPerime(f) +
     '<div class="comprendre-le-cadre-corps">' + _comprendreLeCadreCorpsAffiche(f) + '</div>' +
-    blocVoirAussi +
+    (enLigne ? '' : blocVoirAussi) +
     '<div class="comprendre-le-cadre-fiche-verif mt-4">' +
       '<p class="comprendre-le-cadre-verif-ligne">' +
         '<i class="bi bi-calendar-check"></i> Information vérifiée le ' +
@@ -2515,19 +2625,60 @@ function _comprendreLeCadreRenduFichesRecentes(fiches, depuis) {
   var nb = fiches.length;
   return '<h2 class="comprendre-le-cadre-chg-groupe">Dans les fiches <span class="comprendre-le-cadre-chg-groupe-nb">(' + nb + ')</span></h2>' +
     '<p class="small text-muted mb-2">Les fiches des rayons ajoutées ou mises à jour récemment. Le détail se lit dans la fiche.</p>' +
-    fiches.map(function (f) {
-      var rayon = (RAYON_LABEL[f.rayon] || {}).titre || f.rayon;
-      return '<div class="comprendre-le-cadre-fiche-recente">' +
-        '<span class="comprendre-le-cadre-chg-pastilles">' +
-          '<span class="comprendre-le-cadre-pastille ' + (f.nouvelle ? 'comprendre-le-cadre-pastille--v' : 'comprendre-le-cadre-pastille--m') + '">' + (f.nouvelle ? 'Nouvelle fiche' : 'Fiche mise à jour') + '</span>' +
-          '<span class="comprendre-le-cadre-pastille">' + (f.nouvelle ? 'Ajoutée le ' : 'Mise à jour le ') + _comprendreLeCadreDateFr(f.date) + '</span>' +
-          '<span class="comprendre-le-cadre-pastille">' + rayon + '</span>' +
-        '</span>' +
+    fiches.map(function (f) { return _comprendreLeCadreRenduCarteFiche(f); }).join('');
+}
+
+// Une carte de fiche récente (une seule source : le module et la page « Nouveautés » l'utilisent). f = { id, rayon, titre, date, nouvelle } ; `extra` = pastilles de la page « Nouveautés ».
+// `surPlace` : une carte repliable comme celle d'un changement ; le contenu de la fiche se charge à la première ouverture (voir comprendreLeCadreBrancherElements). Sinon : un bouton vers la fiche dans le module.
+function _comprendreLeCadreRenduCarteFiche(f, extra, surPlace) {
+  var rayon = (RAYON_LABEL[f.rayon] || {}).titre || f.rayon;
+  var pastilles = '<span class="comprendre-le-cadre-chg-pastilles">' +
+      '<span class="comprendre-le-cadre-pastille ' + (f.nouvelle ? 'comprendre-le-cadre-pastille--v' : 'comprendre-le-cadre-pastille--m') + '" data-pastille="genre" data-valeur="' + (f.nouvelle ? 'nouvelle' : 'maj') + '">' + (f.nouvelle ? 'Nouvelle fiche' : 'Fiche mise à jour') + '</span>' +
+      '<span class="comprendre-le-cadre-pastille" data-pastille="date" data-valeur="' + f.date + '" data-libelle="' + _comprendreLeCadreDateFr(f.date) + '">' + (f.nouvelle ? 'Ajoutée le ' : 'Mise à jour le ') + _comprendreLeCadreDateFr(f.date) + '</span>' +
+      '<span class="comprendre-le-cadre-pastille" data-pastille="rayon" data-valeur="' + f.rayon + '">' + rayon + '</span>' + (extra || '') +
+    '</span>';
+  if (surPlace) {
+    return '<details class="comprendre-le-cadre-chg comprendre-le-cadre-chg--fiche" data-cc-fiche="' + f.id + '" data-cc-rayon="' + f.rayon + '" data-cc-date="' + f.date + '" data-cc-nouvelle="' + (f.nouvelle ? '1' : '0') + '">' +
+      '<summary class="comprendre-le-cadre-chg-resume">' + pastilles +
         '<span class="comprendre-le-cadre-chg-titre">' + f.titre + '</span>' +
-        '<button type="button" class="btn btn-outline-primary btn-sm mt-2" data-comprendre-le-cadre-fiche-recente="' + f.id + '" data-comprendre-le-cadre-fiche-recente-rayon="' + f.rayon + '">' +
-          '<i class="bi bi-journal-text"></i> Ouvrir la fiche</button>' +
-      '</div>';
-    }).join('');
+        '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>' +
+      '</summary>' +
+      '<div class="comprendre-le-cadre-chg-corps" data-cc-fiche-corps><p class="text-muted mb-0">Chargement…</p></div>' +
+    '</details>';
+  }
+  return '<div class="comprendre-le-cadre-fiche-recente">' + pastilles +
+    '<span class="comprendre-le-cadre-chg-titre">' + f.titre + '</span>' +
+    '<button type="button" class="btn btn-outline-primary btn-sm mt-2" data-comprendre-le-cadre-fiche-recente="' + f.id + '" data-comprendre-le-cadre-fiche-recente-rayon="' + f.rayon + '">' +
+      '<i class="bi bi-journal-text"></i> Ouvrir la fiche</button>' +
+  '</div>';
+}
+
+// Premier temps de la lecture sur place (consigne 422, précisions de Denis) : une fiche NOUVELLE montre « En bref » (« Utile si... » puis la phrase de synthèse) ;
+// une fiche MISE À JOUR montre « Ce qui a changé » (champ maj_resume de la fiche, écrit en mots simples, sous la forme « AAAA-MM-JJ : texte »), à condition que sa date soit celle de la carte ;
+// sinon (aucun changement décrit pour cette mise à jour) elle retombe sur « En bref », jamais sur un texte inventé. Le texte entier vient au second temps, sur demande.
+// Même règle que la fiche : passé six mois, un « Utile si... » qui cite un chiffre n'est plus affiché.
+function _comprendreLeCadreTexteCeQuiChange(f, dateCarte) {
+  var m = /^(\d{4}-\d{2}-\d{2}) : ([\s\S]+)$/.exec(String(f.maj_resume || '').trim());
+  return (m && m[1] === dateCarte) ? m[2].trim() : '';
+}
+function _comprendreLeCadreRenduResumeFiche(f, dateCarte, nouvelle) {
+  var pourQui = (f.pour_qui && !(_comprendreLeCadreCiteDesChiffres(f.pour_qui) && _comprendreLeCadreFichePerimee(f, _comprendreLeCadreAujourdhui()))) ? '<p class="text-muted mb-2">' + f.pour_qui + '</p>' : '';
+  var change = nouvelle ? '' : _comprendreLeCadreTexteCeQuiChange(f, dateCarte);
+  if (change) {
+    return '<div class="comprendre-le-cadre-resume-fiche">' + pourQui + '<p class="comprendre-le-cadre-digest-cle mb-2"><strong>Ce qui a changé.</strong> ' + change + '</p></div>';
+  }
+  var phrase = String(f.phrase_generale || '').trim();
+  return '<div class="comprendre-le-cadre-resume-fiche">' + pourQui + (phrase ? '<p class="comprendre-le-cadre-digest-cle comprendre-le-cadre-digest-cle--bref mb-2"><strong>En bref.</strong> ' + phrase + '</p>' : '') + '</div>';
+}
+
+// Sous une fiche lue sur place : une phrase, puis deux boutons que la personne choisit ou non (la fiche dans son rayon ; le rayon entier).
+function _comprendreLeCadreRenduSuiteFiche(rayon) {
+  var titreRayon = (RAYON_LABEL[rayon] || {}).titre || rayon;
+  return '<div class="comprendre-le-cadre-encart mt-3">' +
+    '<p class="mb-2">Pour mieux comprendre le contexte de cette fiche, vous pouvez la lire dans « Comprendre le cadre », là où elle est rangée, ou parcourir tout son rayon.</p>' +
+    '<button type="button" class="btn btn-primary btn-sm me-2 mb-2" data-cc-vers-fiche="1"><i class="bi bi-journal-text"></i> Ouvrir la fiche dans « Comprendre le cadre »</button>' +
+    '<button type="button" class="btn btn-primary btn-sm mb-2" data-cc-vers-rayon="1"><i class="bi bi-folder2-open"></i> Voir le rayon « ' + titreRayon + ' »</button>' +
+  '</div>';
 }
 
 // Vue « Récemment » : résumé (nombre, nouveautés de la semaine, date de mise à jour calculée), puis « À venir », puis les mois, du plus récent au plus ancien.
@@ -2541,7 +2692,7 @@ function _comprendreLeCadreRenduVueRecente(liste, aujourdhui, sansTrimestre) {
       ? '<strong>' + nbPluriel(v.nb, 'changement', 'changements') + '</strong> à connaître' + (v.avenir.length ? ', dont ' + v.avenir.length + ' à venir' : '') + '.'
       : 'Aucun changement officiel repéré pour l’instant.') + '</p>' +
     (v.nbNouveaux ? '<p class="mb-1"><span class="comprendre-le-cadre-chg-nouveau"><i class="bi bi-stars"></i> ' + nbPluriel(v.nbNouveaux, 'nouveau', 'nouveaux') + ' cette semaine</span></p>' : '') +
-    (maj ? '<p class="comprendre-le-cadre-maj mb-1"><i class="bi bi-clock-history"></i> <strong>Dernière mise à jour : ' + _comprendreLeCadreDateLongue(maj) + '</strong></p>' +
+    (maj ? '<p class="comprendre-le-cadre-maj mb-1"><i class="bi bi-clock-history"></i> <strong>Dernière vérification des textes officiels : ' + _comprendreLeCadreDateLongue(maj) + '</strong></p>' +
       '<p class="small text-muted mb-2">Ce qui date de plus longtemps se retrouve dans les rayons, ou trimestre par trimestre.</p>' : '') +
     (v.nb > 1 ? _comprendreLeCadreBoutonToutDeplier() : '') +
   '</div>';
@@ -2647,10 +2798,142 @@ function comprendreLeCadreLireRecent(suite) {
   }, function () { terminer(null); }, 6);
 }
 
+// Pour la mémoire du « déjà vu » de la page « Nouveautés » (consigne 418) : TOUS les éléments connus de « Droits et règles », sous la forme que lit modules/nouveautes/logique.js :
+// { type: 'changement' | 'fiche', id (fiches), titre, date } ; la date d'une fiche est celle que montre sa carte (ajout si elle est nouvelle, sinon dernière mise à jour).
+// suite(liste) ; suite(null) si rien n'a pu être lu.
+// `tout` (facultatif, vrai) : lit aussi tous les mois plus anciens (la page « Nouveautés » ne le demande qu'une fois ouverte, jamais au démarrage de l'application).
+// Chaque élément porte aussi de quoi le filtrer et l'afficher : genre ('officiel' | 'nouvelle' | 'maj'), domaine (changements) ou rayon (fiches), ref (l'objet d'origine).
+function comprendreLeCadreLireElements(suite, tout) {
+  (tout ? comprendreLeCadreLireTout : comprendreLeCadreLireRecent)(function (infos) {
+    if (!infos) { suite(null); return; }
+    _comprendreLeCadreChargerFichesRecentes(function () {
+      var liste = [];
+      (infos.liste || []).forEach(function (c) { if (c.date) { liste.push({ type: 'changement', genre: 'officiel', titre: c.titre, date: c.date, domaine: c.domaine, ref: c }); } });
+      (_comprendreLeCadreFichesRecentes || []).forEach(function (f) {
+        if (f && f.date) { liste.push({ type: 'fiche', genre: f.ajoutee ? 'nouvelle' : 'maj', id: f.id, titre: f.titre, date: f.ajoutee ? f.ajoutee : f.date, rayon: f.rayon, ref: f }); }
+      });
+      suite(liste);
+    });
+  });
+}
+
+// Même lecture que comprendreLeCadreLireRecent, mais sur TOUS les mois publiés (rien ne disparaît avec le temps). Lue une fois par session.
+var _comprendreLeCadreToutNv = { etat: 'inactif', infos: null, attente: [] };
+function comprendreLeCadreLireTout(suite) {
+  if (_comprendreLeCadreToutNv.etat === 'ok') { suite(_comprendreLeCadreToutNv.infos); return; }
+  _comprendreLeCadreToutNv.attente.push(suite);
+  if (_comprendreLeCadreToutNv.etat === 'encours') { return; }
+  _comprendreLeCadreToutNv.etat = 'encours';
+  var terminer = function (infos) {
+    _comprendreLeCadreToutNv.etat = infos ? 'ok' : 'inactif';
+    _comprendreLeCadreToutNv.infos = infos;
+    var l = _comprendreLeCadreToutNv.attente; _comprendreLeCadreToutNv.attente = [];
+    l.forEach(function (f) { f(infos); });
+  };
+  _comprendreLeCadreChargerDigests(COMPRENDRE_LE_CADRE_OUTILS[0].dossier, function (digests) {
+    terminer(_comprendreLeCadreInfosRecent(digests));
+  }, function () { terminer(null); });
+}
+
+// Nom et icône d'un cadre (rayon) pour les filtres de la page « Nouveautés » ; { titre, icone } ou null.
+function comprendreLeCadreInfosRayon(id) { var r = RAYON_LABEL[id]; return r ? { titre: r.titre, icone: r.icone } : null; }
+// Les ids des rayons, dans l'ordre de l'accueil du module.
+function comprendreLeCadreIdsRayons() { return Object.keys(RAYON_LABEL); }
+
+// HTML d'UN élément de « Droits et règles » (changement officiel ou fiche), avec des pastilles ajoutées (`extra`). Brancher ensuite avec comprendreLeCadreBrancherRecent().
+function comprendreLeCadreRenduElement(el, aujourdhui, extra) {
+  if (el.type === 'fiche') { return _comprendreLeCadreRenduCarteFiche({ id: el.id, rayon: el.rayon, titre: el.titre, date: el.date, nouvelle: el.genre === 'nouvelle' }, extra, true); }
+  return _comprendreLeCadreRenduCarteChangement(el.ref, aujourdhui, extra, true);
+}
+// Le bouton « Signaler une erreur ou un changement » (le même que celui des fiches) pour la page Nouveautés.
+function comprendreLeCadreRenduBoutonSignaler(nomPage, phrase, enHaut) { return _comprendreLeCadreRenduBoutonSignaler(nomPage, phrase, enHaut); }
+function comprendreLeCadreAujourdhui() { return _comprendreLeCadreAujourdhui(); }
+// Le bouton « Replier » du pied d'un texte lu sur place et son branchement : un seul composant, aussi utilisé par les fiches « Chiffres » de la page Nouveautés (consigne 440).
+function comprendreLeCadreBoutonReplierHtml(libelle) { return _comprendreLeCadreBoutonReplierHtml(libelle); }
+function comprendreLeCadreBrancherReplier(conteneur, boutonOuvrir) { _comprendreLeCadreBrancherReplier(conteneur, boutonOuvrir); }
+function comprendreLeCadreEncartSource() { return _comprendreLeCadreEncartPasUneSourceDeDroit(); }
+
 // HTML de « Ce qui a changé récemment » pour la page « Nouveautés » (les fiches récentes sont lues d'abord). Brancher ensuite avec comprendreLeCadreBrancherRecent().
 function comprendreLeCadreRenduRecent(infos, suite) {
   _comprendreLeCadreChargerFichesRecentes(function () {
     suite(_comprendreLeCadreRenduVueRecente(infos.liste, infos.aujourdhui, true) + _comprendreLeCadreEncartPasUneSourceDeDroit());
+  });
+}
+
+// Cartes de fiches lues sur place (page « Nouveautés ») : à la première ouverture d'une carte, la fiche se charge et s'affiche EXACTEMENT comme dans le module (corps, vérification, sources).
+// opts = { label: nom de la page d'origine, route: sa route, retour: fonction qui y ramène } : les deux boutons du bas ouvrent le module avec un bouton « Revenir à <label> ».
+function comprendreLeCadreBrancherElements(zone, opts) {
+  opts = opts || {};
+  if (!zone) { return; }
+  // Second niveau de lecture d'un changement sans fiche : son texte complet est déjà dans la carte, le bouton l'ouvre ou le replie.
+  zone.querySelectorAll('[data-cc-detail]').forEach(function (bloc) {
+    var bouton = bloc.querySelector('[data-cc-lire-detail]'), corps = bloc.querySelector('[data-cc-detail-corps]');
+    bouton.addEventListener('click', function () {
+      var ouvrir = corps.hasAttribute('hidden');
+      if (ouvrir) { corps.removeAttribute('hidden'); } else { corps.setAttribute('hidden', ''); }
+      bouton.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+      bouton.firstChild.textContent = ouvrir ? 'Replier le texte' : 'Lire plus d’informations';   // le bouton du bas, lui, replie toute la fiche
+    });
+    _comprendreLeCadreBrancherReplier(corps, bouton);
+  });
+  // Second niveau de lecture d'un changement officiel : la fiche liée se charge au premier clic, puis se replie ou se déplie.
+  zone.querySelectorAll('[data-cc-fiche-liee]').forEach(function (bloc) {
+    var bouton = bloc.querySelector('[data-cc-lire-fiche-liee]'), corps = bloc.querySelector('[data-cc-fiche-liee-corps]');
+    var ref = bloc.getAttribute('data-cc-fiche-liee').split('/'), rayon = ref[0], id = ref[1];
+    function basculer() {
+      var ouvrir = corps.hasAttribute('hidden');
+      if (ouvrir) { corps.removeAttribute('hidden'); } else { corps.setAttribute('hidden', ''); }
+      bouton.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+      bouton.firstChild.textContent = ouvrir ? 'Revenir au résumé' : 'Lire la fiche en entier';
+    }
+    bouton.addEventListener('click', function () {
+      if (bloc.getAttribute('data-cc-charge')) { basculer(); return; }
+      bloc.setAttribute('data-cc-charge', '1');
+      bouton.disabled = true;
+      _comprendreLeCadreChargerUneFiche(rayon, id, function (f) {
+        corps.innerHTML = '<h3 class="h6 mt-2 mb-2">' + _comprendreLeCadreEchapper(f.titre || '') + '</h3>' + _comprendreLeCadreRenduFiche(f, true) + _comprendreLeCadreRenduSuiteFiche(rayon) + _comprendreLeCadreBoutonReplierHtml('Replier la fiche');
+        _comprendreLeCadreBrancherReplier(corps, bouton);
+        var bf = corps.querySelector('[data-cc-vers-fiche]'), br = corps.querySelector('[data-cc-vers-rayon]');
+        if (bf) { bf.addEventListener('click', function () { comprendreLeCadreOuvrirFiche(rayon, id, opts.label, opts.route, opts.retour); }); }
+        if (br) { br.addEventListener('click', function () { comprendreLeCadreOuvrirRayonDepuis(rayon, opts.label, opts.route, opts.retour); }); }
+        bouton.disabled = false;
+        basculer();
+      }, function () {
+        bloc.removeAttribute('data-cc-charge');   // un échec peut être retenté
+        bouton.disabled = false;
+        corps.innerHTML = '<p class="mb-0">Cette fiche ne peut pas s’afficher pour l’instant.</p>';
+        corps.removeAttribute('hidden');
+      });
+    });
+  });
+  zone.querySelectorAll('details[data-cc-fiche]').forEach(function (d) {
+    d.addEventListener('toggle', function () {
+      if (!d.open || d.getAttribute('data-cc-charge')) { return; }
+      d.setAttribute('data-cc-charge', '1');
+      var corps = d.querySelector('[data-cc-fiche-corps]'), rayon = d.getAttribute('data-cc-rayon'), id = d.getAttribute('data-cc-fiche');
+      _comprendreLeCadreChargerUneFiche(rayon, id, function (f) {
+        // Deux temps : le résumé d'abord ; le texte entier (avec sources et boutons vers le module) s'ouvre sur demande.
+        corps.innerHTML = _comprendreLeCadreRenduResumeFiche(f, d.getAttribute('data-cc-date'), d.getAttribute('data-cc-nouvelle') === '1') +
+          '<button type="button" class="comprendre-le-cadre-lire-tout" data-cc-lire-tout="1" aria-expanded="false"><span>Lire la fiche en entier</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>' +
+          '<div data-cc-fiche-entiere hidden>' + _comprendreLeCadreRenduFiche(f, true) + _comprendreLeCadreRenduSuiteFiche(rayon) + _comprendreLeCadreBoutonReplierHtml('Replier la fiche') + '</div>';
+        var bl = corps.querySelector('[data-cc-lire-tout]'), entiere = corps.querySelector('[data-cc-fiche-entiere]');
+        bl.addEventListener('click', function () {
+          var ouvrir = entiere.hasAttribute('hidden');
+          if (ouvrir) { entiere.removeAttribute('hidden'); } else { entiere.setAttribute('hidden', ''); }
+          bl.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+          bl.firstChild.textContent = ouvrir ? 'Revenir au résumé' : 'Lire la fiche en entier';
+        });
+        _comprendreLeCadreBrancherReplier(entiere, bl);
+        var bf = corps.querySelector('[data-cc-vers-fiche]'), br = corps.querySelector('[data-cc-vers-rayon]');
+        if (bf) { bf.addEventListener('click', function () { comprendreLeCadreOuvrirFiche(rayon, id, opts.label, opts.route, opts.retour); }); }
+        if (br) { br.addEventListener('click', function () { comprendreLeCadreOuvrirRayonDepuis(rayon, opts.label, opts.route, opts.retour); }); }
+      }, function () {
+        d.removeAttribute('data-cc-charge');   // un échec peut être retenté à la prochaine ouverture
+        corps.innerHTML = '<p class="mb-2">Cette fiche ne peut pas s’afficher pour l’instant.</p><button type="button" class="btn btn-primary btn-sm" data-cc-vers-fiche="1"><i class="bi bi-journal-text"></i> L’ouvrir dans « Comprendre le cadre »</button>';
+        var b = corps.querySelector('[data-cc-vers-fiche]');
+        if (b) { b.addEventListener('click', function () { comprendreLeCadreOuvrirFiche(rayon, id, opts.label, opts.route, opts.retour); }); }
+      });
+    });
   });
 }
 
@@ -3362,8 +3645,18 @@ function _comprendreLeCadreBrancherChoixTerritoire() {
 window.pageComprendreLeCadre = pageComprendreLeCadre;
 // Utilisés par la page « Nouveautés » (modules/nouveautes/index.js).
 window.comprendreLeCadreLireRecent = comprendreLeCadreLireRecent;
+window.comprendreLeCadreLireElements = comprendreLeCadreLireElements;
+window.comprendreLeCadreInfosRayon = comprendreLeCadreInfosRayon;
+window.comprendreLeCadreIdsRayons = comprendreLeCadreIdsRayons;
+window.comprendreLeCadreRenduElement = comprendreLeCadreRenduElement;
+window.comprendreLeCadreAujourdhui = comprendreLeCadreAujourdhui;
+window.comprendreLeCadreBoutonReplierHtml = comprendreLeCadreBoutonReplierHtml;
+window.comprendreLeCadreBrancherReplier = comprendreLeCadreBrancherReplier;
+window.comprendreLeCadreEncartSource = comprendreLeCadreEncartSource;
 window.comprendreLeCadreRenduRecent = comprendreLeCadreRenduRecent;
 window.comprendreLeCadreBrancherRecent = comprendreLeCadreBrancherRecent;
+window.comprendreLeCadreBrancherElements = comprendreLeCadreBrancherElements;
+window.comprendreLeCadreRenduBoutonSignaler = comprendreLeCadreRenduBoutonSignaler;
 window.comprendreLeCadreOuvrirAccueil = comprendreLeCadreOuvrirAccueil;
 
 // Export CommonJS protege -- tests/comprendreLeCadreLogique.test.js (Node),
@@ -3375,6 +3668,10 @@ if (typeof module !== 'undefined') {
     _comprendreLeCadreParserDigest: _comprendreLeCadreParserDigest,
     _comprendreLeCadreDateChangement: _comprendreLeCadreDateChangement,
     _comprendreLeCadreAplatirChangements: _comprendreLeCadreAplatirChangements,
+    _comprendreLeCadreFicheLiee: _comprendreLeCadreFicheLiee,
+    _comprendreLeCadreDetailsDuChangement: _comprendreLeCadreDetailsDuChangement,
+    _comprendreLeCadreRenduDetail: _comprendreLeCadreRenduDetail,
+    _comprendreLeCadreRenduCarteChangement: _comprendreLeCadreRenduCarteChangement,
     _comprendreLeCadreFichesRecentesVue: _comprendreLeCadreFichesRecentesVue,
     _comprendreLeCadreDateMoinsJours: _comprendreLeCadreDateMoinsJours,
     _comprendreLeCadreEstNouveau: _comprendreLeCadreEstNouveau,
@@ -3395,6 +3692,10 @@ if (typeof module !== 'undefined') {
     _comprendreLeCadreAgeEnMois: _comprendreLeCadreAgeEnMois,
     _comprendreLeCadreGrouperDelais: _comprendreLeCadreGrouperDelais,
     _comprendreLeCadreParserArnaques: _comprendreLeCadreParserArnaques,
-    _comprendreLeCadreArnaquesAffichables: _comprendreLeCadreArnaquesAffichables
+    _comprendreLeCadreArnaquesAffichables: _comprendreLeCadreArnaquesAffichables,
+    _comprendreLeCadreRenduFiche: _comprendreLeCadreRenduFiche,
+    _comprendreLeCadreRenduResumeFiche: _comprendreLeCadreRenduResumeFiche,
+    _comprendreLeCadreTexteCeQuiChange: _comprendreLeCadreTexteCeQuiChange,
+    _comprendreLeCadreRenduCarteFiche: _comprendreLeCadreRenduCarteFiche
   };
 }

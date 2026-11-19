@@ -76,7 +76,8 @@ test('« Nouveau cette semaine » : uniquement une information qui vient de sort
     M._comprendreLeCadreAplatirChangements([digest('## D\n\n' + item('X', type, verifie))])[0], '2026-11-09');
   assert.strictEqual(nouveau('décret, publié le 2026-11-05, en vigueur le 2026-11-06.'), true);
   assert.strictEqual(nouveau('annonce du Premier ministre du 09/11/2026, entrée en vigueur prévue le 2026-12-01.'), true, 'décidé cette semaine, applicable plus tard');
-  assert.strictEqual(nouveau('décret du 2 novembre 2026, en vigueur le 2026-12-01.'), true, 'exactement 7 jours');
+  assert.strictEqual(nouveau('décret du 3 novembre 2026, en vigueur le 2026-12-01.'), true, '6 jours écoulés : encore nouveau');
+  assert.strictEqual(nouveau('décret du 2 novembre 2026, en vigueur le 2026-12-01.'), false, '7 jours écoulés : une semaine, la marque a disparu (comme la mention « Nouveau » de la page Nouveautés)');
   assert.strictEqual(nouveau('décret du 1er novembre 2026, en vigueur le 2026-12-01.'), false);
   assert.strictEqual(nouveau('décret, en vigueur le 2026-10-01.', '2026-11-09'), false, 'repéré aujourd\'hui mais sorti il y a plus d\'un mois : pas nouveau');
   assert.strictEqual(nouveau('annonce, en vigueur le 2026-12-01.'), false, 'une date à venir seule n\'est pas « nouvelle »');

@@ -24,6 +24,7 @@ ce_qui_change_souvent:
 revisions:
   - "2026-11 : 2026-11-08 : le plafond et le montant de l'ASS ne sont écrits que dans la fiche sur les conditions de l'ASS (pour ne pas les tenir à jour à deux endroits)"
 phrase_generale: "Quand une personne qui touche l'allocation de solidarité spécifique reprend un travail, son allocation peut être maintenue un temps avec le salaire, puis s'arrêter si l'activité continue. La durée du cumul et les conditions changent : demandez à votre conseiller France Travail ce que le contrat change pour vous avant de signer."
+maj_resume: "2026-11-08 : Le plafond et le montant de l’ASS ne sont plus écrits dans cette fiche : ils se lisent dans la fiche sur les conditions de l’ASS, pour qu’ils restent à jour à un seul endroit."
 collecte: budget.collecte.md
 ---
 

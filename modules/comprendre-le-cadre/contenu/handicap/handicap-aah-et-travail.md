@@ -27,6 +27,7 @@ revisions:
   - "2026-11 : 2026-11-08 : les conditions d'accès, le montant, la déconjugalisation et les délais de la MDPH sont maintenant dans deux fiches dédiées (conditions, demande) pour ne pas les écrire à deux endroits"
   - "2026-11 : 2026-11-08 : précisions de la page Caf « AAH et ESAT : une nouvelle façon de déclarer vos revenus » (29/09/2026), relue sur la copie collée par Denis : revenus à déclarer, montants en net imposable et formulaire non prérempli, avis par courriel ou SMS, deux déclarations si la prime d'activité est aussi versée"
 phrase_generale: "L'allocation aux adultes handicapés est un revenu minimum versé par la CAF aux personnes en situation de handicap qui ont de faibles ressources, et elle peut se cumuler en partie avec un travail. Les conditions, les montants et les règles de cumul changent régulièrement : avant de reprendre une activité, confirmez-les auprès de la CAF ou sur les sources officielles indiquées plus bas."
+maj_resume: "2026-11-08 : La fiche précise comment déclarer ses revenus pour l’AAH quand on travaille en ESAT : revenus à déclarer, montants en net imposable, formulaire non prérempli, avis par courriel ou SMS, et deux déclarations si la prime d’activité est aussi versée. Les conditions d’accès, le montant et les délais de la MDPH se lisent maintenant dans deux fiches dédiées."
 collecte: handicap.collecte.md
 ---
 

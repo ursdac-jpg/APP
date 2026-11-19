@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : créer la fiche à partir d’un changement</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:900px;margin:0 auto;padding-top:1rem}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:900px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-regl .boutons button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-ecran{margin:1.6rem 0 .6rem;padding-top:.4rem;border-top:3px solid var(--accent)}
+.mq-ecran h2{font-size:1.15rem;margin:.2rem 0}
+.mq-ecran p{margin:.2rem 0;color:var(--text-muted);font-size:.9rem}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin:.6rem 0}
+.ov{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;padding:.9rem 1rem;margin:.6rem 0}
+.ov .tete{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-bottom:.4rem}
+.ov .pastille{display:inline-block;font-size:.72rem;font-weight:600;border-radius:99px;padding:.05rem .55rem;background:var(--bg-subtle);border:1px solid var(--border-strong);color:var(--text-strong)}
+.ov .pastille.jaune{background:var(--warning-bg-subtle);border-color:var(--warning)}
+.ov .pastille.vert{background:var(--success-bg-subtle);border-color:var(--success,var(--border-strong))}
+.ov .chg-champ{display:flex;gap:.8rem;padding:.5rem 0;border-top:1px solid var(--border-subtle,var(--border-strong))}
+.ov .chg-champ>label{flex:0 0 11rem;font-weight:600;font-size:.88rem}
+.ov .chg-champ .valeur{flex:1;min-width:0}
+.ov .mini{font-size:.78rem;color:var(--text-muted);margin-top:.2rem}
+.ov input[type=text],.ov textarea,.ov select{width:100%;font:inherit;font-size:.9rem;padding:.35rem .5rem;border:1px solid var(--border-strong);border-radius:6px;background:var(--bg-page);color:var(--text-strong)}
+.ov textarea{min-height:9rem}
+.ov pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:8px;padding:.6rem .8rem;margin:.3rem 0}
+.ov .note{display:flex;gap:.5rem;border-radius:8px;padding:.5rem .7rem;margin:.5rem 0;font-size:.88rem;border:1px solid var(--border-strong);background:var(--bg-subtle)}
+.ov .note.warn{background:var(--warning-bg-subtle);border-color:var(--warning);border-left:5px solid var(--warning)}
+.ov .note.ok{background:var(--success-bg-subtle);border-left:5px solid var(--success,var(--border-strong))}
+.ov .controle{font-size:.85rem;padding:.2rem .5rem;border-radius:6px;margin:.2rem 0}
+.ov .controle.ok{background:var(--success-bg-subtle)}
+.ov .controle.warn{background:var(--warning-bg-subtle)}
+.ov del{background:var(--danger-bg-subtle,transparent)}
+.ov ins{text-decoration:none;background:var(--success-bg-subtle)}
+.flux{display:grid;gap:.5rem;margin:.6rem 0}
+.flux .pas{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;padding:.55rem .8rem;font-size:.9rem}
+.flux .pas b{display:block}
+.flux .fleche{text-align:center;color:var(--accent);font-size:1.2rem;line-height:1}
+.tel .ov .chg-champ{flex-direction:column;gap:.2rem}
+.tel .ov .chg-champ>label{flex:none}
+.mq-page.tel{max-width:390px}
+.cache{display:none!important}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Affichage</b><div class="boutons" data-grp="vue">
+    <button type="button" class="btn btn-outline-secondary" data-v="bureau" aria-pressed="true">Ordinateur</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="tel" aria-pressed="false">Téléphone</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="sombre" aria-pressed="false">Mode sombre</button></div></div>
+  <div class="grp"><b>Le changement dans le sas</b><div class="boutons" data-grp="etat">
+    <button type="button" class="btn btn-outline-secondary" data-v="vigueur" aria-pressed="true">Règle en vigueur, texte officiel paru</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="avenir" aria-pressed="false">Règle encore à venir</button></div></div>
+  <div class="grp"><b>Après la publication de la fiche, « Fiche liée » se remplit</b><div class="boutons" data-grp="lien">
+    <button type="button" class="btn btn-outline-secondary" data-v="auto" aria-pressed="true">Toute seule</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="main" aria-pressed="false">Je la choisis à la main</button></div></div>
+</div>
+
+<div class="mq-page" id="mqPage">
+
+<div class="mq-retient"><b>Ce que cette maquette montre.</b> Le second temps de la consigne 426 : une fois qu’un changement est acté, comment la fiche s’en crée. Quatre écrans : (1) le bouton dans la carte du sas des changements, (2) ce qu’il prépare, (3) la proposition qui arrive dans « À valider », (4) la carte du changement après la publication. Les boutons de la page fonctionnent ; les réglages en haut changent les écrans 1 et 4. <b>Rien n’est écrit tout seul :</b> la fiche est rédigée par un assistant en ligne (comme pour « Préparer une fiche avec ce texte » qui existe déjà), puis vous relisez et vous dites « C’est bon ».</div>
+
+<!-- ============ ÉCRAN 1 ============ -->
+<div class="mq-ecran"><h2>1. Dans le sas des changements : le nouveau bouton</h2><p>Sous le texte complet de la carte. Il n’apparaît que si un texte complet a été écrit.</p></div>
+
+<div class="ov">
+  <div class="tete"><span class="pastille">Balayage du mois</span><span class="pastille">Emploi et contrats de travail</span><span class="pastille jaune">à vérifier</span></div>
+  <strong>Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026</strong>
+  <div class="chg-champ"><label>Ce qui change</label><div class="valeur"><input type="text" readonly value="Le Gouvernement annonce l’anticipation de la revalorisation du Smic au 1er décembre 2026 ..."></div></div>
+  <div class="chg-champ"><label>Fiche liée (facultatif)</label><div class="valeur"><input type="text" readonly placeholder="rayon/identifiant (choisissez dans la liste)"><div class="mini">Vide : aucune fiche n’existe encore pour ce changement.</div></div></div>
+  <div class="chg-champ"><label>Texte complet (facultatif)</label><div class="valeur"><textarea readonly rows="4"># Ce qui est annoncé
+À l’issue de la conférence sociale du 9 novembre 2026, le Premier ministre a annoncé ...
+# Où on en est aujourd’hui
+&gt; Smic horaire brut = 12,31 euros
+...</textarea></div></div>
+
+  <div class="chg-champ" style="background:var(--bg-subtle);border-radius:8px;padding:.6rem .7rem;margin-top:.4rem">
+    <label>Créer la fiche</label>
+    <div class="valeur">
+      <div class="note warn" id="avertAvenir"><i class="bi bi-hourglass-split"></i><div><strong>Cette règle n’est pas encore en vigueur.</strong> Une fiche se crée quand le texte officiel est paru : sinon elle risque de dire autre chose que la règle finale. Le bouton reste grisé tant que vous n’avez pas coché la case ci-dessous.</div></div>
+      <label class="mini" id="caseOfficielle" style="display:block"><input type="checkbox" id="caseOfficielleInput"> Le texte officiel est paru et j’ai ouvert la source pour le relire</label>
+      <div style="margin-top:.4rem"><button type="button" class="btn btn-sm btn-primary" id="btnCreer"><i class="bi bi-file-earmark-plus"></i> Créer la fiche à partir de ce changement</button></div>
+      <div class="mini" id="creerRes">Prépare le message pour l’assistant en ligne avec le texte complet et la source, et ouvre l’écran de création des fiches déjà rempli. Rien n’est publié.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mq-retient"><b>Ce que ça garde.</b> Le bouton n’invente aucun texte et ne publie rien. Il réutilise l’écran « Créer » de l’outil et son message de création de fiche (celui de « Préparer une fiche avec ce texte » pour les informations brutes en réserve) : un seul circuit de création de fiche, pas deux.</div>
+
+<!-- ============ ÉCRAN 2 ============ -->
+<div class="mq-ecran"><h2>2. Ce que le bouton prépare : l’écran de création, déjà rempli</h2><p>L’écran « Créer » de l’outil, ouvert avec le rayon proposé, le sujet et le texte du changement. Vous copiez le message, vous le donnez à l’assistant, vous collez sa réponse.</p></div>
+
+<div class="ov">
+  <div class="chg-champ"><label>Rayon</label><div class="valeur"><select aria-label="Rayon"><option>Emploi (proposé d’après le domaine « Emploi et contrats de travail »)</option><option>Budget</option><option>Accompagnement</option></select><div class="mini">Le domaine du changement propose un rayon. Vous pouvez en choisir un autre.</div></div></div>
+  <div class="chg-champ"><label>Sujet</label><div class="valeur"><input type="text" readonly value="Hausse du Smic de 1,6 % pour le 1er décembre 2026"></div></div>
+  <div class="chg-champ"><label>Ce que l’assistant reçoit</label><div class="valeur">
+<pre>Je veux créer une NOUVELLE fiche pour « Comprendre le cadre » (rayon : emploi).
+
+La règle est maintenant en vigueur. Ouvre d’abord la source officielle,
+vérifie chaque montant et chaque date, et n’écris que ce que la source dit.
+Retire les passages écrits « en attendant » (ce qui n’est pas encore décidé,
+que faire d’ici là).
+
+Texte du changement (écrit avant la parution du texte officiel) :
+  Ce qui est annoncé : ...
+  Smic horaire brut : 12,31 euros ...
+
+Source : info.gouv.fr, « Conférence sociale : hausse du SMIC de 1,6 % »
+https://www.info.gouv.fr/...
+
+(suivent les consignes habituelles de création d’une fiche : titre sous forme de
+question, « Utile si », mots de recherche, sources, phrase générale sans chiffre)</pre>
+    <div style="margin-top:.3rem"><button type="button" class="btn btn-sm btn-outline-secondary" id="btnCopier"><i class="bi bi-clipboard"></i> Copier le message</button> <span class="mini" id="copierRes"></span></div>
+  </div></div>
+</div>
+
+<div class="mq-retient"><b>Pourquoi un assistant et pas une conversion automatique ?</b> Le texte complet ne contient ni titre sous forme de question, ni « Utile si », ni mots de recherche, ni sources enregistrées, ni phrase générale : sans assistant, la carte arriverait avec tous ces champs vides à remplir à la main. Avec l’assistant, la proposition arrive complète, et vous relisez.</div>
+
+<!-- ============ ÉCRAN 3 ============ -->
+<div class="mq-ecran"><h2>3. La proposition arrive dans « À valider »</h2><p>Après avoir collé la réponse de l’assistant, comme pour toute nouvelle fiche. Les contrôles habituels s’appliquent (sources au registre, phrase générale, tiret long, doublon).</p></div>
+
+<div class="ov">
+  <div class="tete"><span class="pastille vert">Nouvelle fiche</span><span class="pastille">Emploi</span><span class="pastille jaune">à vérifier</span></div>
+  <strong>Le Smic : combien il est, et ce qui change au 1er décembre 2026</strong>
+  <div class="note ok"><i class="bi bi-link-45deg"></i><div><strong>Créée depuis le changement « Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026 ».</strong> À la publication, ce changement recevra sa fiche liée et son bouton « Lire la fiche en entier ».</div></div>
+  <div class="chg-champ"><label>Titre</label><div class="valeur"><ins>Le Smic : combien il est, et ce qui change au 1er décembre 2026</ins></div></div>
+  <div class="chg-champ"><label>Utile si</label><div class="valeur"><ins>Utile si vous êtes payé au Smic ou si vous voulez savoir combien rapporte une heure de travail au minimum.</ins></div></div>
+  <div class="chg-champ"><label>Sources</label><div class="valeur"><strong>info.gouv.fr</strong> <span class="pastille vert">Sera ajoutée au registre des adresses avec la fiche</span><div class="mini">Reprise de la source du changement : à ouvrir et à vérifier.</div></div></div>
+  <div class="chg-champ"><label>Phrase générale</label><div class="valeur"><textarea rows="3" readonly style="min-height:4rem">Le Smic est le salaire horaire minimum légal ; son montant est revalorisé régulièrement. Les montants et les dates en vigueur se trouvent sur la source officielle.</textarea></div></div>
+  <div class="controle ok">Aucun tiret long. Aucun guillemet droit.</div>
+  <div class="controle ok">Aucune fiche ne ressemble à celle-ci.</div>
+  <div class="controle warn">Cochez « J’ai ouvert les sources et je confirme que la fiche dit bien ce qu’elles disent ».</div>
+  <div style="margin-top:.5rem"><button type="button" class="btn btn-sm btn-primary" id="btnPublier">C’est bon, publier cette nouvelle fiche</button> <button type="button" class="btn btn-sm btn-outline-secondary">Écarter cette proposition</button></div>
+</div>
+
+<div class="mq-retient"><b>Ce que ça garde.</b> La proposition est une « Nouvelle fiche » comme les autres : mêmes contrôles, mêmes tests, même annulation possible. Seule nouveauté : la bande verte qui rappelle d’où elle vient.</div>
+
+<!-- ============ ÉCRAN 4 ============ -->
+<div class="mq-ecran"><h2>4. Après la publication : la carte du changement</h2><p>Deux cas, selon le réglage « Fiche liée » en haut de la page.</p></div>
+
+<div class="ov" id="ecran4">
+  <div class="tete"><span class="pastille">Balayage du mois</span><span class="pastille">Emploi et contrats de travail</span></div>
+  <strong>Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026</strong>
+  <div class="chg-champ"><label>Fiche liée (facultatif)</label><div class="valeur">
+    <input type="text" id="valFiche" readonly value="">
+    <div class="mini" id="aideFiche"></div></div></div>
+  <div class="chg-champ"><label>Ce que verront les personnes</label><div class="valeur">
+    <div class="mini" style="margin:0"><i class="bi bi-chevron-down"></i> Bouton <strong id="boutonFinal">« Lire la fiche en entier »</strong> : ouvre la fiche, le bandeau jaune « pas encore en vigueur » disparaît. Le texte complet reste écrit dans le balayage, sans être affiché tant qu’une fiche est liée.</div></div></div>
+</div>
+
+<div class="flux">
+  <div class="pas"><b>1. Le texte complet sert de matière</b>Écrit à l’avance pour le changement annoncé.</div>
+  <div class="fleche"><i class="bi bi-arrow-down"></i></div>
+  <div class="pas"><b>2. Le texte officiel paraît : vous cliquez sur « Créer la fiche »</b>L’assistant rédige, vous relisez.</div>
+  <div class="fleche"><i class="bi bi-arrow-down"></i></div>
+  <div class="pas"><b>3. La fiche est publiée</b>Le changement la propose à la place du texte complet.</div>
+</div>
+
+<div class="mq-retient"><b>Questions pour vous.</b>
+(1) Le bouton prépare le message pour l’assistant (recommandé, un seul circuit de création de fiche), ou vous préférez une fiche brouillon construite par l’outil seul, avec les champs vides à remplir à la main ?
+(2) Après la publication, la fiche liée se remplit toute seule (recommandé : plus d’oubli, mais un petit ajout dans le circuit de publication), ou vous la choisissez à la main dans la liste (déjà possible, rien à coder) ?
+(3) Tant que la règle est à venir : bouton grisé avec une case « le texte officiel est paru » (recommandé), ou toujours actif avec seulement l’avertissement jaune ?
+(4) Le rayon est proposé d’après le domaine du changement : cela vous convient-il, avec la possibilité d’en choisir un autre ?</div>
+
+</div>
+
+<script>
+(function () {
+  var page = document.getElementById('mqPage'), root = document.documentElement;
+  function groupe(g) { return document.querySelector('[data-grp="' + g + '"]'); }
+  function appui(g, v) { Array.prototype.forEach.call(groupe(g).children, function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v)); }); }
+  var etat = 'vigueur', lien = 'auto';
+  var btnCreer = document.getElementById('btnCreer'), caseO = document.getElementById('caseOfficielleInput');
+  function majEcran1() {
+    var avenir = etat === 'avenir';
+    document.getElementById('avertAvenir').classList.toggle('cache', !avenir);
+    document.getElementById('caseOfficielle').classList.toggle('cache', !avenir);
+    btnCreer.disabled = avenir && !caseO.checked;
+  }
+  function majEcran4() {
+    var auto = lien === 'auto', v = document.getElementById('valFiche'), a = document.getElementById('aideFiche');
+    if (auto) { v.value = 'emploi/emploi-smic'; a.textContent = 'Rempli tout seul à la publication de la fiche : rien à faire.'; }
+    else { v.value = ''; a.textContent = 'Reste vide : une fois la fiche publiée, choisissez « emploi/emploi-smic » dans la liste, puis « C’est bon, publier ». Un rappel s’affiche dans la carte tant que la fiche liée est vide.'; }
+    document.getElementById('boutonFinal').textContent = auto ? '« Lire la fiche en entier »' : '« Lire plus d’informations » (jusqu’à ce que vous choisissiez la fiche liée)';
+  }
+  groupe('vue').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    var v = b.getAttribute('data-v');
+    if (v === 'sombre') { var s = root.getAttribute('data-theme') === 'sombre'; if (s) { root.removeAttribute('data-theme'); } else { root.setAttribute('data-theme', 'sombre'); } b.setAttribute('aria-pressed', String(!s)); return; }
+    page.classList.toggle('tel', v === 'tel');
+    Array.prototype.forEach.call(groupe('vue').children, function (x) { if (x.getAttribute('data-v') !== 'sombre') { x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === v)); } });
+  });
+  groupe('etat').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) { return; } etat = b.getAttribute('data-v'); appui('etat', etat); majEcran1(); });
+  groupe('lien').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) { return; } lien = b.getAttribute('data-v'); appui('lien', lien); majEcran4(); });
+  caseO.addEventListener('change', majEcran1);
+  btnCreer.addEventListener('click', function () { document.getElementById('creerRes').textContent = 'L’écran « Créer » s’ouvre avec le rayon « Emploi », le sujet et le message prêts à copier (voir l’écran 2). Illustration : rien n’a été créé.'; });
+  document.getElementById('btnCopier').addEventListener('click', function () { document.getElementById('copierRes').textContent = 'Message copié (illustration).'; });
+  document.getElementById('btnPublier').addEventListener('click', function () { this.textContent = 'Publiée (illustration)'; this.disabled = true; });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+  document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'block'; this.style.display = 'none'; });
+  majEcran1(); majEcran4();
+})();
+</script>
+</body>
+</html>

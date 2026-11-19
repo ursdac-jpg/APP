@@ -3952,6 +3952,14 @@ var routes = {
   // presentation, 'xxx' = le module lui-meme. Gardes `typeof` : si le fichier du module ne se chargeait pas, l'application resterait entiere.
   'un-cv-plusieurs-metiers-intro': typeof pageIntroUnCvPlusieursMetiers === 'function' ? pageIntroUnCvPlusieursMetiers : function () { naviguerVers('cv'); },
   'un-cv-plusieurs-metiers': typeof pageUnCvPlusieursMetiers === 'function' ? pageUnCvPlusieursMetiers : function () { naviguerVers('cv'); },
+  // Module « Explorer les métiers » (modules/comprendre-les-metiers/), meme patron : 'xxx-intro' = presentation, 'xxx' = le module (trois entrees).
+  'comprendre-les-metiers-intro': typeof pageIntroComprendreLesMetiers === 'function' ? pageIntroComprendreLesMetiers : function () { naviguerVers('cv'); },
+  // Une présentation par chemin du module « Explorer les métiers » (modules/comprendre-les-metiers/index.js).
+  'comprendre-les-metiers-intro-metier': typeof pageIntroCmvMetier === 'function' ? pageIntroCmvMetier : function () { naviguerVers('cv'); },
+  'comprendre-les-metiers-intro-actions': typeof pageIntroCmvActions === 'function' ? pageIntroCmvActions : function () { naviguerVers('cv'); },
+  'comprendre-les-metiers-intro-q': typeof pageIntroCmvQuestionnaire === 'function' ? pageIntroCmvQuestionnaire : function () { naviguerVers('cv'); },
+  'comprendre-les-metiers-intro-recrute': typeof pageIntroCmvRecrute === 'function' ? pageIntroCmvRecrute : function () { naviguerVers('cv'); },
+  'comprendre-les-metiers': typeof pageComprendreLesMetiers === 'function' ? pageComprendreLesMetiers : function () { naviguerVers('cv'); },
   // TACHE (retour Denis, 2026-08-31) : le parcours "Decouvrir mes
   // competences" est desormais une PAGE (plus une fenetre modale).
   // pageDecouverte() (modules/decouverte-competences/decouverteParcours.js)
@@ -3985,6 +3993,10 @@ function naviguerVers(route, sansHistorique) {
   if (typeof mgSurNavigation === 'function') { mgSurNavigation(route); }
   // Module « Un CV, plusieurs metiers » : si le dossier d'un autre CV a ete mis a la place du vrai pour regler son aspect, le vrai dossier revient des qu'on quitte l'editeur.
   if (typeof ucpmGardeDossier === 'function') { ucpmGardeDossier(route); }
+  // Module « Explorer les metiers » : quitter le questionnaire en cours demande confirmation (seule fenetre du module).
+  if (typeof cmvGardeSortie === 'function' && cmvGardeSortie(route)) { return; }
+  // Module « Explorer les metiers » : le fil de voyage s'efface des qu'on sort de la fiche et des pages du module (jamais d'ancien voyage qui reparait par une autre porte).
+  if (typeof pmfSurNavigation === 'function') { pmfSurNavigation(route); }
   if (!routes[route]) { route = 'cv'; }
   // TACHE (2026-09-12, generalise le 2026-09-12 pour Comprendre les
   // chiffres) : une provenance externe (voir definirRetourModuleExterne())
@@ -4073,6 +4085,7 @@ function naviguerVers(route, sansHistorique) {
   pageActuelle = route;
   // La page courante est connue du style (consigne 150) : l'accueil et les introductions gardent la taille d'avant.
   document.documentElement.setAttribute('data-route', route);
+  if (typeof remonterSurNavigation === 'function') { remonterSurNavigation(); }   // flèche « Remonter » commune : la cible d'une page ne survit pas au changement de page
   if (historiquePages.indexOf(route) === -1) { historiquePages.push(route); }
   // Point 4 : on empile dans l'historique du navigateur pour que la fleche
   // "Precedent" revienne a l'etape precedente au lieu de quitter le site.
@@ -5367,8 +5380,10 @@ function pageChoixCV() {
           : 'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, expliqués simplement et à consulter quand vous en avez besoin.'),
         ['Comprendre le cadre', 'Comprendre les chiffres'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Qui fait quoi'] : [])) +
       htmlCarteAccueil('orientation', 'bi-signpost-split', 'Vous hésitez encore ?',
-        'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.',
-        ['Comparer mes pistes'].concat((typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) ? ['Un CV, plusieurs métiers'] : [])) +
+        ((typeof cmvOuvert === 'function' && cmvOuvert())
+          ? 'Vous n’êtes pas sûr de la direction à prendre ? Découvrez des métiers, voyez ce qui vous attire, et comparez vos pistes, à votre rythme.'
+          : 'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.'),
+        ['Comparer mes pistes'].concat((typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) ? ['Un CV, plusieurs métiers'] : []).concat((typeof cmvOuvert === 'function' && cmvOuvert()) ? ['Explorer les métiers'] : [])) +
     '</div>' +
     // TACHE (chantier accueil, Bloc 2 + Bloc 5) : les 3 boutons du pied de
     // page en une rangee centree (maquette validee). "Liens utiles" (nouveau,
@@ -10728,6 +10743,8 @@ function ouvrirFicheMetierOuCandidater(nom) {
 function ficheMetierCandidater() { if (_ficheMetierNom) { ouvrirPanneauChoixParcours(_ficheMetierNom); } }
 // « Retour » de la fiche : page d'avant (pile de navigation). Vers « Votre profil », ses métiers proposés ne sont pas retirés au tirage.
 function ficheMetierRetour() {
+  // Module « Explorer les métiers » : un voyage de fiche en fiche remonte d'une étape (modules/comprendre-les-metiers/parMetierFiche.js).
+  if (typeof pmfRetourVoyage === 'function' && pmfRetourVoyage()) { return; }
   if (pagePrecedenteDansPile() === 'revelation') { _retourDeFicheMetier = true; }
   retourPagePrecedente();
 }
@@ -10762,7 +10779,13 @@ function ficheMetierCorpsHTML(fiche, f) {
     h += '<details class="bloc-depli" open><summary><span class="preparer-num">' + n + '</span><span class="preparer-titre">' + titre + '</span></summary><div class="bloc-depli-corps">' + corps + '</div></details>';
   }
   var D = f ? ficheRomeDonnees(f, fiche) : null;
+  // Module « Explorer les métiers » : pourquoi ce métier est proche des choix de la personne, et les sigles qui le désignent (modules/comprendre-les-metiers/parMetier.js).
+  var CM = (typeof cmvFicheComplements === 'function') ? cmvFicheComplements(fiche) : { pourquoi: '', sigles: '' };
+  // Blocs en plus du module « Explorer les métiers » (vides tant que le module est fermé ou que ses données ne sont pas chargées : la fiche est alors celle d'avant).
+  var PF = (typeof pmfBlocsFiche === 'function') ? pmfBlocsFiche(fiche) : { conditions: null, competences: null, proches: null, secteur: null, voyager: null };
+  if (CM.pourquoi) { bloc('Pourquoi ce métier est proche de vos choix', CM.pourquoi); }
   if (D && D.acces) { bloc('Comment y accéder', '<div class="fm-acces">' + e(D.acces) + '</div>'); }
+  if (PF.conditions) { bloc(PF.conditions.titre, PF.conditions.html); }
   if (D && (D.presentation || D.missions.length)) {
     bloc('Ce que fait ce métier', (D.presentation ? '<p>' + e(D.presentation) + '</p>' : '') + (D.missions.length ? _fmListe(D.missions) : ''));
   }
@@ -10773,9 +10796,12 @@ function ficheMetierCorpsHTML(fiche, f) {
   var colonnes = _fmColonne('Qualités personnelles', 'Votre façon d’être au travail', 'bg-success', fiche.savoirEtre) +
     _fmColonne('Savoir-faire', 'Les gestes à maîtriser', 'bg-primary', fiche.savoirFaire) +
     _fmColonne('Connaissances', 'Ce qu’il faut avoir appris', 'bg-info', fiche.savoirs);
-  if (colonnes) {
+  if (PF.competences) {
+    bloc(PF.competences.titre, PF.competences.html);
+  } else if (colonnes) {
     bloc('Ce que ce métier demande', '<p class="fm-aide">Ce sont les mêmes couleurs que dans « Votre profil ». Ces listes sont là pour vous renseigner : elles ne sont pas à cliquer.</p><div class="fm-colonnes">' + colonnes + '</div>');
   }
+  if (PF.candidater) { bloc(PF.candidater.titre, PF.candidater.html); }
   if (D && D.savoirs.length) {
     bloc('Outils, techniques et connaissances', '<p class="fm-aide">Ce que les personnes qui font ce métier doivent connaître ou savoir utiliser.</p>' + D.savoirs.map(function (g) {
       var reste = g.items.length - 6;
@@ -10783,8 +10809,11 @@ function ficheMetierCorpsHTML(fiche, f) {
         (reste > 0 ? '<details class="fm-autres">' + _fmBoutonDetails('+ ' + reste + (reste > 1 ? ' autres' : ' autre')) + _fmListe(g.items.slice(6)) + '</details>' : '');
     }).join(''));
   }
-  if (D && D.noms.length) { bloc('Ce métier s’appelle aussi', '<p class="fm-aide">Selon les employeurs, le même métier porte d’autres noms.</p>' + _fmNoms(D.noms)); }
-  if (D && D.proches.length) { bloc('Des métiers proches', '<p class="fm-aide">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p>' + _fmListe(D.proches)); }
+  if ((D && D.noms.length) || CM.sigles) { bloc('Ce métier s’appelle aussi', '<p class="fm-aide">Selon les employeurs, le même métier porte d’autres noms.</p>' + CM.sigles + (D && D.noms.length ? _fmNoms(D.noms) : '')); }
+  if (PF.proches) { bloc(PF.proches.titre, PF.proches.html); }
+  else if (D && D.proches.length) { bloc('Des métiers proches', '<p class="fm-aide">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p>' + _fmListe(D.proches)); }
+  if (PF.secteur) { bloc(PF.secteur.titre, PF.secteur.html); }
+  if (PF.voyager) { bloc(PF.voyager.titre, PF.voyager.html); }
   var savoir = aSavoirSurLeMetierHTML(fiche, true);
   if (savoir) { bloc('À savoir sur ce métier', savoir); }
   // Tout en bas (demande de Denis, 13/11/2026) : les lettres RIASEC du métier et ce qu'elles veulent dire. Elles décrivent le métier, jamais la personne.
@@ -10937,6 +10966,7 @@ function pageFicheMetier() {
   app.innerHTML =
     bandeRetourCandidater +
     '<div class="page-catalogue-contenu bilan-preparer fiche-metier">' +
+    ((typeof cmvFicheHaut === 'function') ? cmvFicheHaut(fiche) : '') +
     '<h1 class="fm-titre"><span class="fm-initiale">' + echapperAttribut(aff.charAt(0)) + '</span>' + echapperAttribut(aff.slice(1)) + '</h1>' +
     (fiche.secteur ? '<p class="fm-secteur">' + echapperAttribut(fiche.secteur) + '</p>' : '') +
     '<div class="fm-actions">' +
@@ -10973,10 +11003,16 @@ function pageFicheMetier() {
   if (typeof reperesBrancherBoutonAncre === 'function') { reperesBrancherBoutonAncre(); }
   chargerFicheRome(fiche.rome, function (f) {
     if (pageActuelle !== 'fiche-metier' || _ficheMetierNom !== nom) { return; }   // la personne a quitté la page entre-temps
-    var zone = document.getElementById('ficheMetierCorps');
-    if (!zone) { return; }
-    zone.innerHTML = ficheMetierCorpsHTML(fiche, f) +
-      (f ? '' : '<p class="small text-muted">La fiche détaillée n’a pas pu être chargée. Vous pouvez la consulter sur France Travail.</p>');
+    var dessiner = function () {
+      if (pageActuelle !== 'fiche-metier' || _ficheMetierNom !== nom) { return; }
+      var zone = document.getElementById('ficheMetierCorps');
+      if (!zone) { return; }
+      zone.innerHTML = ficheMetierCorpsHTML(fiche, f) +
+        (f ? '' : '<p class="small text-muted">La fiche détaillée n’a pas pu être chargée. Vous pouvez la consulter sur France Travail.</p>');
+      // Le fil de voyage dépend des données du module : il se met à jour une fois celles-ci prêtes.
+    };
+    // Module « Explorer les métiers » (ouvert seulement) : ses données se chargent d'abord (index des compétences), puis la fiche se dessine avec ses blocs en plus.
+    if (typeof cmvOuvert === 'function' && cmvOuvert() && typeof pmCharger === 'function') { pmCharger(function () { dessiner(); }); } else { dessiner(); }
   });
 }
 function ouvrirDescriptifMetier(nom, rerender) {
@@ -11099,8 +11135,7 @@ function riasecHTML(lettres) {
 // LISTE « Métiers qui pourraient vous intéresser » (consignes 402 et 409, maquette validée docs/MAQUETTE_METIERS_QUI_POURRAIENT_VOUS_INTERESSER_2026-11-16.html, version 2).
 // Une grille régulière de cartes de même largeur ; sur chaque carte : le nom (jamais cliquable), le secteur, un bouton « France Travail », deux boutons qui ouvrent une rubrique
 // DANS la carte (« Proche de votre profil » avec ses compétences en commun, puis « Ce que fait ce métier »), et trois boutons égaux (fiche du métier, Garder comme Repère, Comparer).
-// Le module « Comprendre les métiers » (consigne 411) n'existe pas encore : tant que cet interrupteur est faux, ses deux boutons de destination restent cachés.
-var MODULE_COMPRENDRE_METIERS_OUVERT = false;
+// Le module « Explorer les métiers » (consigne 411) n'existe pas encore : tant que cet interrupteur est faux, ses deux boutons de destination restent cachés.
 var _CM_LIMITE = 6;
 var _cmEtat = { a: {}, b: {}, comp: {}, autres: {}, plus: {} };
 function _cmReinit() { _cmEtat = { a: {}, b: {}, comp: {}, autres: {}, plus: {} }; }
@@ -11154,8 +11189,10 @@ function _cmUnique(liste) {
   var vus = {};
   return liste.filter(function (c) { var k = normaliserTexte(c); if (vus[k]) { return false; } vus[k] = true; return true; });
 }
+// Le module est-il ouvert ? L'interrupteur est dans le module lui-même (CMV_OUVERT, modules/comprendre-les-metiers/index.js) : une seule source.
+function _cmModuleOuvert() { return typeof cmvOuvert === 'function' && cmvOuvert(); }
 function _cmBoutonModule(type, detail, libelle, icone) {
-  if (!MODULE_COMPRENDRE_METIERS_OUVERT) { return ''; }
+  if (!_cmModuleOuvert() || (type === 'bmo' && !CMV_PONT_CHIFFRES_OUVERT)) { return ''; }
   return '<button type="button" class="btn btn-primary" data-mc-act="module" data-mc-type="' + type + '" data-mc-detail="' + echapperAttribut(detail || '') + '"><i class="bi ' + icone + '" aria-hidden="true"></i> ' + libelle + '</button>';
 }
 // Deuxième niveau : la compétence touchée, le nombre de métiers qui la demandent et quelques exemples.
@@ -11183,7 +11220,7 @@ function _cmPanneauA(nom, fiche, groupe, scoreFiche) {
       h += '<p class="mc-sous">Ce pourcentage est une évaluation : il compare ce que vous avez indiqué à ce que demande ce métier. Les conditions de travail, l’équipe et bien d’autres choses comptent aussi.' +
         ((typeof scoreFiche.facteurInformation === 'number' && scoreFiche.facteurInformation < 0.95) ? ' Plus vous indiquez de choix et de compétences, plus il est précis et peut monter.' : '') + '</p>';
       var lignes = [];
-      [['actions', 'Ce que vous aimez faire'], ['activites', 'Avec qui ou avec quoi vous aimez travailler'], ['environnement', 'Où vous aimez travailler']].forEach(function (t) {
+      [['actions', 'Ce que vous aimez faire'], ['activites', 'Avec qui ou avec quoi vous vous verriez travailler'], ['environnement', 'Où vous vous verriez travailler']].forEach(function (t) {
         var l = (cm[t[0]] || []).map(function (id) { return e(_cmLibelleChoix(t[0], id)); });
         if (l.length) { lignes.push('<li><strong>' + t[1] + ' :</strong> ' + l.join(', ') + '</li>'); }
       });
@@ -11273,6 +11310,11 @@ function _cmLignesMetiersHTML(noms) {
       (fiche && fiche.rome ? '<button type="button" class="btn btn-sm btn-outline-secondary" data-ouvrir-fiche-metier="' + echapperAttribut(nom) + '"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Fiche</button>' : '') + '</div>';
   }).join('') + '</div>';
 }
+// Ponts vers le module « Explorer les métiers » (boutons cachés tant qu'il est fermé, voir _cmBoutonModule) : valables sur toutes les pages où ils s'affichent.
+document.addEventListener('click', function (ev) {
+  var el = ev.target.closest && ev.target.closest('[data-mc-act="module"]');
+  if (el && typeof cmvOuvrirPont === 'function') { cmvOuvrirPont(el.getAttribute('data-mc-type'), el.getAttribute('data-mc-detail') || ''); }
+});
 // Clics sur les rubriques des cartes : un seul écouteur pour toute la page (la page se redessine à chaque clic, sans perdre l'endroit où l'on est).
 document.addEventListener('click', function (ev) {
   var el = ev.target.closest && ev.target.closest('[data-mc-act]');
@@ -11328,7 +11370,7 @@ function contenuMetiersQuiRecrutent() {
     '<li>Le travail est physique ou en horaires décalés : des salariés changent de poste, il faut les remplacer.</li>' +
     '<li>Certains métiers suivent les saisons : les besoins reviennent chaque année.</li>' +
     '<li>Dans plusieurs métiers, beaucoup de salariés partent bientôt à la retraite.</li></ul>' +
-    '<p class="small text-muted">Ce sont des explications générales, pas des chiffres.' + (MODULE_COMPRENDRE_METIERS_OUVERT ? ' Les chiffres de votre territoire (besoins en main-d’œuvre, enquête de France Travail) sont dans le module « Comprendre les métiers ».' : '') + '</p>' +
+    '<p class="small text-muted">Ce sont des explications générales, pas des chiffres.' + (_cmModuleOuvert() && CMV_PONT_CHIFFRES_OUVERT ? ' Les chiffres de votre territoire (besoins en main-d’œuvre, enquête de France Travail) sont dans le module « Explorer les métiers ».' : '') + '</p>' +
     _cmBoutonModule('bmo', '', 'Comprendre pourquoi ils recrutent', 'bi-graph-up') + '</div>';
   if (!noms.length) { return intro + '<p class="text-muted small mb-0">Aucun métier disponible avec ces critères pour le moment.</p>' + pourquoi; }
   return intro + _cmLignesMetiersHTML(noms) + pourquoi;
@@ -11817,7 +11859,7 @@ var CONFIG_BLOC_PROFIL = {
   // pastilles vivent desormais dans les 3 sous-sections, avec la croix de
   // retrait reversible. Rappel du retrait sous la legende.
   resumeHTML: function () {
-    var intro = '<p class="small mb-2">Ces informations viennent de vos réponses au questionnaire (avec qui/quoi vous aimez travailler, ce que vous aimez faire, votre environnement de travail préféré), et de votre CV si vous en avez déposé un. Beaucoup de ces compétences sont transférables : on les retrouve d’un métier à l’autre.</p>';
+    var intro = '<p class="small mb-2">Ces informations viennent de vos réponses au questionnaire (avec qui/quoi vous vous verriez travailler, ce que vous aimez faire, votre environnement de travail préféré), et de votre CV si vous en avez déposé un. Beaucoup de ces compétences sont transférables : on les retrouve d’un métier à l’autre.</p>';
     var legende = '<div class="comp-profil-legende">' +
       '<span class="badge bg-primary">Savoir-faire</span>' +
       '<span class="badge bg-success">Savoir-être</span>' +
@@ -19003,7 +19045,7 @@ function construireContenuExportDocument(type) {
     // Fiche d'entretien (25/10/2026, retour Denis) : a l'etape « Exporter », en Word ou en PDF (ou en texte) ; plus d'« Aperçu » ici (il est dans la mise en page).
     entretien: [{ id: 'pdf-entretien', label: 'Enregistrer en PDF' }, { id: 'docx', label: 'Télécharger en Word' }, { id: 'texte-blocs', label: 'Copier le texte' }]
   };
-  var iconesFormatsExport = { docx: '&#128190;', 'texte-blocs': '&#128203;', autre: '&#128193;', apercu: '&#128065;', 'pdf-entretien': '&#128196;' };
+  var iconesFormatsExport = { docx: '&#128190;', 'texte-blocs': '&#128203;', autre: '&#128193;', apercu: '&#128269;', 'pdf-entretien': '&#128196;' };
   var styleExport = '<style>' +
     '.export-jetons{display:flex;flex-wrap:wrap;gap:.4rem;}' +
     '.export-jetons > .pastille-selection{font-size:.9rem;font-weight:600;cursor:pointer;padding:.45rem .95rem;' +
@@ -20473,6 +20515,15 @@ function _mepReprendreZoneVivante() {
   }
   g.garage.remove();
 }
+var _mepVerifFormesTirage = { jusqua: 0, essais: 0 };   // armé par un clic sur le dé : { jusqua : heure limite, essais : redessins permis }
+function _mepFormesSurPhotoOuNom() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var formes = Array.prototype.slice.call(d.querySelectorAll('#conteneurPage .formes-deco .forme-deco')).map(function (f) { return f.getBoundingClientRect(); });
+    var interdits = Array.prototype.slice.call(d.querySelectorAll('#conteneurPage .photo-mq, #conteneurPage .nom')).map(function (x) { return x.getBoundingClientRect(); }).filter(function (r) { return r.width > 0; });
+    return formes.some(function (a) { return interdits.some(function (z) { return a.left < z.right && a.right > z.left && a.top < z.bottom && a.bottom > z.top; }); });
+  } catch (e) { return false; }
+}
 function _mepMajOngletsApercu(essai) {
   var barreHote = document.getElementById('mepOngletsApercu');
   Array.prototype.forEach.call(document.querySelectorAll('#mepPanneauxForme'), function (x) { x.remove(); });
@@ -20518,6 +20569,13 @@ function _mepMajOngletsApercu(essai) {
     return;
   }
   _mepModeleVu = cle;
+  // Garde-fou après un tirage au hasard : les formes sont mesurées sur la page d'AVANT le nouveau rendu ; si le bandeau, la colonne ou l'ambiance tirés ensuite ont déplacé la photo ou le nom,
+  // une forme peut les recouvrir. Pendant quelques secondes seulement (jamais sur les formes que la personne place elle-même), on les retire alors au hasard sur la mise en page FINALE. Trois essais au plus.
+  if (_mepVerifFormesTirage.jusqua > Date.now() && _mepVerifFormesTirage.essais > 0 && _mepFormesSurPhotoOuNom() && typeof window._mepRedessinerFormesTirage === 'function' && window._mepRedessinerFormesTirage()) {
+    _mepVerifFormesTirage.essais--;
+    if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+    return;
+  }
   var kinds = _mepKindsDuModele(cle, e).concat(['formes']);
   // Composition (cvPdfCompositions.js) : proposee seulement quand le modele et le CV affiche la permettent ; elle REMPLACE le bandeau, donc les onglets Bandeau et Colonne disparaissent tant qu'elle est choisie.
   // Consigne 141 (Denis, 2026-11-07) : ces deux onglets ne disparaissent plus, ils restent visibles mais grisés, avec un retour évident (sinon la personne se croit coincée).
@@ -23927,6 +23985,14 @@ function _wireCarteSimpleMiseEnPage() {
       _mepAppelerIframePdf('_pdfDefinirFormesDeco', _formesDecoAuHasard({ pageL: page.offsetWidth, pageH: page.offsetHeight, interdits: interdits }));
     } catch (e) { /* un plus : le tirage reste valable sans les formes */ }
   }
+  // Redessine les formes du tirage sur la mise en page affichée (garde-fou de _mepMajOngletsApercu : une forme tirée sur l'ancienne mise en page recouvrait la photo ou le nom).
+  window._mepRedessinerFormesTirage = function () {
+    if (_mepGarderFormes()) { return false; }
+    var w = null; try { w = document.querySelector('#zonePdfInlineCV iframe').contentWindow; } catch (e) { return false; }
+    if (!w) { return false; }
+    _mepTirageFormesDeco(w);
+    return true;
+  };
   window._mepTirageStandardRiche = function () {
     if (_mepAllureActuelle() !== 'defaut') { return false; }
     window._mepInterditsDecor = [];   // pas de decor tire pour l'instant : les formes libres n'ont rien a eviter
@@ -25566,6 +25632,7 @@ function _wireCarteSimpleMiseEnPage() {
       var decorTire = false;
       if (window._mepTirageStandardRiche) { decorTire = !!window._mepTirageStandardRiche(); }
       _mepTirageDecorDeja = decorTire && !_mepGarderFormes();
+      _mepVerifFormesTirage = _mepGarderFormes() ? { jusqua: 0, essais: 0 } : { jusqua: Date.now() + 9000, essais: 3 };
       var tirageFait = null;
       try {
         var cleTirage = _mepCleModeleActuel(), etatTirage = _mepEtatFormesActuel();
@@ -25574,7 +25641,10 @@ function _wireCarteSimpleMiseEnPage() {
           if (_mepComposition()) { kindsTirage = kindsTirage.filter(function (k) { return k !== 'bandeau' && k !== 'colonne'; }); }
           kindsTirage.splice(kindsTirage.indexOf('formes'), 0, 'composition');
         }
-        if (typeof window._mepTirerFormesCv === 'function') { tirageFait = window._mepTirerFormesCv(cleTirage, etatTirage, kindsTirage); }
+        // Tout le tirage = UNE seule étape d'annulation (celle poussée au début du clic) : les réglages tirés ici n'en ajoutent pas chacun une.
+        var geleAvantTirage = _mepHistoGele; _mepHistoGele = true;
+        try { if (typeof window._mepTirerFormesCv === 'function') { tirageFait = window._mepTirerFormesCv(cleTirage, etatTirage, kindsTirage); } }
+        finally { _mepHistoGele = geleAvantTirage; }
       } catch (errTirage) { tirageFait = null; _mepTirageFormesEnAttente = true; }
       if (!tirageFait) { setTimeout(rerendre, 30); }   // sinon le tirage a deja demande la (seule) reconstruction
     };
@@ -34700,7 +34770,9 @@ var FICHIERS_PROMPTS_EXTERNES = {
   'ucpm-metiers': 'prompts/ucpm-metiers.md',
   'ucpm-accroches': 'prompts/ucpm-accroches.md',
   'ucpm-lettres': 'prompts/ucpm-lettres.md',
-  'ucpm-offres': 'prompts/ucpm-offres.md'
+  'ucpm-offres': 'prompts/ucpm-offres.md',
+  // Module « Explorer les métiers », « Ma lecture » (2026-11-19) : la demande à l'assistant (voir modules/comprendre-les-metiers/syntheseLectureLogique.js).
+  'ma-synthese': 'prompts/ma-synthese.md'
 };
 var promptsExternesCharges = {
   cv: null, 'cv-choix-personne': null, 'cv-missions-sans-lien': null, 'decouverte-metiers': null, decouverteRedaction: null, lettre: null, entretien: null, 'entretien-accueil': null, 'extraction-cv': null,
@@ -34710,7 +34782,8 @@ var promptsExternesCharges = {
   'comparer-situations': null, 'comparer-aller-plus-loin': null,
   'regard-recruteur': null,
   mesCompetences: null,
-  'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null
+  'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null,
+  'ma-synthese': null
 };
 
 // Fragment commun « voix humaine » (prompts/_voix-humaine.md, retour Denis 2026-09-30 : des textes moins robotiques, que les recruteurs ne
@@ -41517,6 +41590,8 @@ function collecterEtatsModulesPourSauvegarde() {
     regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null,
     modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null,
     mesCompetences: typeof mesCompExporterEtatPourSauvegarde === 'function' ? mesCompExporterEtatPourSauvegarde() : null,
+    // « Explorer les métiers » : seulement ce que la personne a gardé (résultat du questionnaire, choix), jamais une réponse (modules/comprendre-les-metiers/garder.js).
+    comprendreLesMetiers: typeof cmvExporterEtatPourSauvegarde === 'function' ? cmvExporterEtatPourSauvegarde() : null,
     // Departement et commune choisis (Qui fait quoi, Comprendre le cadre, Comprendre les chiffres) : un reglage, pas un travail (voir _modulesOntUnTravail).
     territoire: _territoireExporterPourSauvegarde()
   };
@@ -41557,6 +41632,7 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof regardRecruteurRestaurerEtatDepuisSauvegarde === 'function') { regardRecruteurRestaurerEtatDepuisSauvegarde(modulesEtat.regardRecruteur || null); }
   if (typeof mgRestaurerEtatDepuisSauvegarde === 'function') { mgRestaurerEtatDepuisSauvegarde(modulesEtat.modelesGardes || null); }
   if (typeof mesCompRestaurerEtatDepuisSauvegarde === 'function') { mesCompRestaurerEtatDepuisSauvegarde(modulesEtat.mesCompetences || null); }
+  if (typeof cmvRestaurerEtatDepuisSauvegarde === 'function') { cmvRestaurerEtatDepuisSauvegarde(modulesEtat.comprendreLesMetiers || null); }
   _territoireRestaurerDepuisSauvegarde(modulesEtat.territoire);
 }
 
@@ -42381,7 +42457,7 @@ var AIDE_PAGES = {
     { selecteur: '[data-carte-accueil="informe"]', icone: '<i class="bi bi-newspaper"></i>', titre: 'Se tenir informé',
       texte: function () { var qfq = (typeof mtOuvert === 'function' && mtOuvert()); return (qfq ? 'Trois outils' : 'Deux outils') + ' dans le même esprit, un point de repère et jamais un fil d’actualités : <strong>Comprendre le cadre</strong> (des fiches organisées par rayon, emploi, logement, mobilité, droits..., avec la source officielle à jour et une recherche à affiner quand on ne sait pas par où commencer) et <strong>Comprendre les chiffres</strong> (le chômage, l’emploi et les métiers qui recrutent près de chez vous, des chiffres officiels expliqués simplement et datés)' + (qfq ? ' et <strong>Qui fait quoi</strong> (à qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification)' : '') + '.'; } },
     { selecteur: '[data-carte-accueil="orientation"]', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Vous hésitez encore ?',
-      texte: function () { var uc = (typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT); return 'Pour quand le projet n’est pas encore clair : <strong>Comparer mes pistes</strong> (mettre deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause)' + (uc ? ' et <strong>Un CV, plusieurs métiers</strong> (quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun).' : '.') + ' Pour des liens vers d’autres sites (immersions, formations, autres métiers), voyez « Liens utiles » en bas de page.'; } },
+      texte: function () { var uc = (typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT); return 'Pour quand le projet n’est pas encore clair : <strong>Comparer mes pistes</strong> (mettre deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause)' + (uc ? ' et <strong>Un CV, plusieurs métiers</strong> (quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun).' : '.') + ((typeof cmvOuvert === 'function' && cmvOuvert()) ? ' <strong>Explorer les métiers</strong> vous aide à découvrir des métiers : en cherchant par leur nom, par ce que vous aimez faire, avec un questionnaire de préférences, ou en voyant ce que les employeurs de votre département veulent embaucher.' : '') + ' Pour des liens vers d’autres sites (immersions, formations, autres métiers), voyez « Liens utiles » en bas de page.'; } },
     { selecteur: '#btnLiensUtiles', icone: '<i class="bi bi-link-45deg"></i>', titre: 'Liens utiles',
       texte: 'Quelques sites extérieurs qui peuvent compléter votre démarche : trouver une immersion en entreprise, une formation, explorer d’autres métiers, ou un service d’accompagnement près de chez vous. L’application propose aussi des liens propres à deux départements, la Haute-Vienne (87, Limoges) et la Dordogne (24, Périgueux).' },
     { selecteur: '#btnRetourExperience', icone: '<i class="bi bi-chat-square-text"></i>', titre: 'Partager une information',
@@ -42619,7 +42695,9 @@ var AIDE_PAGES = {
   // Page Nouveautés (modules/nouveautes/index.js) : ce qui a été ajouté, du plus récent au plus ancien (aide ajoutée le 2026-10-28, le parcours « aide » la réclamait).
   nouveautes: [
     { selecteur: '.nv-page', icone: '&#128226;', titre: 'Ce qui a été ajouté',
-      texte: 'Trois entrées en haut de la page, chacune avec son nombre : les nouveautés de l’application (du plus récent au plus ancien ; les ajouts des 7 derniers jours portent la mention « Nouveau » et un bouton pour les essayer), ce qui vient de changer dans les droits et les règles, et les problèmes corrigés après les signalements.' }
+      texte: 'Trois entrées en haut de la page, chacune avec son nombre : les nouveautés de l’application (du plus récent au plus ancien ; ce que vous n’avez pas encore vu porte la mention « Nouveau », et les ajouts des 7 derniers jours ont un bouton pour les essayer), ce qui vient de changer dans les droits et les règles, et les problèmes corrigés après les signalements.' },
+    { selecteur: '.nv-filtres', icone: '&#128269;', titre: 'Filtrer et chercher',
+      texte: 'Tout est affiché : le filtre sert à ne garder que ce qui vous intéresse (ce que vous n’avez pas encore vu, une période, une carte ou un cadre). Dans « Droits et règles », vous pouvez aussi chercher un mot. « Replier » range le filtre, « Tout réinitialiser » efface vos choix et redonne tout. L’application se souvient de ce que vous avez déjà vu sur cet appareil ; « Tout remettre à neuf », sur la page d’arrivée des Nouveautés, repart de zéro.' }
   ],
   lexique: [
     { selecteur: '#lexiqueRechercheInput', icone: '&#128269;', titre: 'Rechercher un mot',
@@ -42856,6 +42934,57 @@ AIDE_PAGES['un-cv-plusieurs-metiers'] = [
     texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Votre travail est gardé tant que vous ne cliquez pas sur « Recommencer ».' }
 ];
 AIDE_PAGES['un-cv-plusieurs-metiers-intro'] = AIDE_PAGES['un-cv-plusieurs-metiers'];
+// Module « Explorer les métiers » (modules/comprendre-les-metiers/, ouvert seulement en local) : une aide pour la présentation, une pour les pages du module, qui change avec l'écran.
+AIDE_PAGES['comprendre-les-metiers-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Explorer les métiers',
+    texte: 'Ce module vous aide à découvrir des métiers : en cherchant par leur nom, en choisissant ce que vous aimez faire, ou en répondant à un questionnaire de préférences. Un quatrième chemin montre ce qui recrute dans votre département. Il ne choisit rien à votre place et ne juge pas vos capacités.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’accueil de l’application. Le bouton en haut de la page vous mène aux quatre chemins du module.' }
+];
+// Présentation d'un chemin : même aide pour les trois, avec le bon texte.
+function _aidePresentationChemin(titre, texte) {
+  return [
+    { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: titre, texte: texte },
+    { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+      texte: '« Commencer » ouvre ce chemin. « Retour » revient aux chemins du module. Quand vous arrivez ici depuis le chemin lui-même, « Revenir au module » vous ramène exactement où vous étiez.' }
+  ];
+}
+AIDE_PAGES['comprendre-les-metiers-intro-metier'] = _aidePresentationChemin('Par un métier', 'Ce chemin vous mène à la fiche d’un métier : vous le cherchez par son nom, un autre nom, un sigle ou son secteur, ou vous partez de ce que vous savez faire.');
+AIDE_PAGES['comprendre-les-metiers-intro-actions'] = _aidePresentationChemin('Par ce que vous aimez faire', 'Quatre pages de choix, puis une liste de métiers qui retrouvent vos choix. Vous pouvez modifier vos choix à tout moment.');
+AIDE_PAGES['comprendre-les-metiers-intro-recrute'] = _aidePresentationChemin('Les emplois en demande', 'Ce chemin ne pose aucune question et ne part pas de vos envies : il montre, pour votre département, les métiers que les employeurs veulent pourvoir, les emplois saisonniers et les endroits où l’on recrute en continu, avec la possibilité de candidater.');
+AIDE_PAGES['comprendre-les-metiers-intro-q'] = _aidePresentationChemin('Par un questionnaire de préférences', 'Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années. Il comporte beaucoup de questions, pour que les métiers proposés vous correspondent mieux : prévoyez le temps qu’il faut. Le résultat n’apparaît qu’à la fin.');
+AIDE_PAGES['comprendre-les-metiers'] = [
+  { selecteur: '#cmlCorps', icone: '<i class="bi bi-compass"></i>', titre: 'Cette page',
+    texte: function () {
+      var v = (typeof cmvEtat === 'function') ? cmvEtat().vue : '';
+      var textes = {
+        accueil: 'Trois façons de découvrir des métiers à partir de vous, et un chemin qui part de la demande des employeurs. Vous pouvez en essayer un, puis un autre : rien n’est obligatoire.',
+        recrute: 'Aucune question ici : vous voyez ce que les employeurs de votre département disent vouloir embaucher, avec des graphiques et les fiches des métiers. Plus bas, cochez jusqu’à cinq métiers pour préparer une demande d’offres, puis copiez-la dans l’assistant en ligne de votre choix.',
+        bmo: 'Un métier peut revenir souvent dans les offres pour trois raisons : il est difficile à pourvoir, les salariés changent souvent, ou il est saisonnier. Chaque explication renvoie à sa fiche du Lexique.',
+        competence: 'Voici les métiers qui demandent cette compétence. « Voir la fiche » ouvre un métier ; « Retour » revient pas à pas, jusqu’à la page de départ.',
+        secteur: 'Voici les métiers de ce secteur. « Voir la fiche » ouvre un métier ; « Retour » revient pas à pas, jusqu’à la page de départ.',
+        metier: 'Tapez le nom d’un métier, un autre nom, un sigle (AS, VRP…) ou un mot. Vous pouvez aussi choisir un secteur pour voir tous ses métiers. « Voir la fiche » ouvre le métier en détail.',
+        actions1: 'Choisissez ce qui vous attire, sans vous demander si vous en êtes capable. Chaque famille est expliquée ; vous pouvez tout désélectionner d’un clic.',
+        actions2: 'Choisissez les actions qui vous donnent envie. Huit familles, chacune est expliquée ; vous pouvez tout désélectionner d’un clic.',
+        actions3: 'Choisissez les lieux où vous vous verriez travailler.',
+        actions4: 'Indiquez ce qui serait facile ou difficile pour vous. Cela pèse peu dans les pourcentages, et chaque métier vous prévient.',
+        resultats2: 'Voici des métiers qui ressemblent à vos choix. Le pourcentage est une évaluation, jamais une mesure. « Grouper par niveau d’accès » range la liste sans rien cacher.',
+        'q-avant': 'Voici ce qui vous attend : quatre parties, sans bonne ni mauvaise réponse, sans minuteur, et aucune réponse n’est obligatoire. Le résultat n’apparaît qu’à la fin.',
+        'q-ouverture': 'Un questionnaire en quatre parties. Il comporte beaucoup de questions, pour que les métiers proposés vous correspondent mieux : prévoyez le temps qu’il faut. Le résultat n’apparaît qu’à la fin.',
+        resultat: 'Votre résultat montre vos préférences d’aujourd’hui, ce n’est pas un diagnostic. « Garder mon résultat » le met dans la disquette, sans vos réponses.',
+        pont: 'La liste des métiers qui correspondent. « Retour » revient à la page d’où vous venez.',
+        synthese: 'Vos résultats sur une seule page. Retenez un métier à chaque passage (facultatif), ajoutez ce que les tests ne disent pas (y compris les métiers que vous avez exercés, dans « Mon parcours »), puis demandez à l’assistant en ligne de lire le tout : il propose des pistes de réflexion, jamais une note. Vous pouvez la garder dans la disquette ou l’imprimer.',
+        parcours: 'Ajoutez les métiers que vous avez déjà exercés, jusqu’à cinq. Pour chacun, vous cochez ce que vous avez vraiment pratiqué. Si votre métier n’est pas dans la liste, « Autre expérience » vous laisse choisir vos compétences une à une. Rien n’est obligatoire.',
+        'parcours-fiche': 'Cochez ce que vous avez vraiment pratiqué, même un peu : la liste décrit le métier en général, elle peut différer de votre poste. Vous pouvez aussi chercher une compétence pour l’ajouter. Les diplômes et permis ne sont pas à cocher ici.',
+        'lecture-demande': 'Deux étapes. D’abord vous relisez la demande, puis elle est copiée pour l’assistant en ligne de votre choix. Ensuite vous revenez coller sa réponse ici. Ni votre nom, ni vos réponses au questionnaire ne partent.',
+        lecture: 'La lecture de l’assistant : ce qui se retrouve dans vos résultats, ce qui diffère, et deux ou trois pistes de métiers pour illustrer une direction. L’application vérifie elle-même d’où vient chaque piste. Ce sont des idées à confirmer, jamais une décision.',
+        'lecture-offres': 'Cochez jusqu’à cinq métiers, choisissez votre territoire, préparez la demande puis copiez-la dans l’assistant en ligne. Votre niveau d’études est rappelé dans la demande.'
+      };
+      return textes[v] || (/^q-/.test(v) ? 'Répondez en cliquant, sans réfléchir trop longtemps. Il n’y a pas de bonne ou de mauvaise réponse. « Continuer » est toujours possible : une ligne sans réponse compte pour zéro point, rien n’est retiré.' : textes.accueil);
+    } },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent du module, « Accueil » ramène à l’écran de départ. Dans le questionnaire, la seule fenêtre qui s’ouvre vous prévient si vous quittez avant la fin.' }
+];
 // Page « Le complément de votre CV » (route complement-cv) : une aide guidee, comme toutes les pages routees (essai « aide »).
 AIDE_PAGES['complement-cv'] = [
   { selecteur: 'h1', icone: '&#10133;', titre: 'Le complément de votre CV',

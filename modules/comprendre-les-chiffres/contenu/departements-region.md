@@ -14,6 +14,12 @@ sources:
   - "insee-dossier-correze | INSEE, dossier complet, département de la Corrèze (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-19 | 2026-11-10"
   - "insee-dossier-dordogne | INSEE, dossier complet, département de la Dordogne | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-24 | 2026-09-12"
   - "insee-dossier-haute-vienne | INSEE, dossier complet, département de la Haute-Vienne | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-87 | 2026-09-12"
+  - "insee-dossier-charente-maritime | INSEE, dossier complet, département de la Charente-Maritime (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-17 | 2026-11-17"
+  - "insee-dossier-creuse | INSEE, dossier complet, département de la Creuse (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-23 | 2026-11-17"
+  - "insee-dossier-gironde | INSEE, dossier complet, département de la Gironde (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-33 | 2026-11-17"
+  - "insee-dossier-landes | INSEE, dossier complet, département des Landes (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-40 | 2026-11-17"
+  - "insee-dossier-pyrenees-atlantiques | INSEE, dossier complet, département des Pyrénées-Atlantiques (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-64 | 2026-11-17"
+  - "insee-dossier-vienne | INSEE, dossier complet, département de la Vienne (recensement 2023) | https://www.insee.fr/fr/statistiques/2011101?geo=DEP-86 | 2026-11-17"
 ---
 
 # na
@@ -29,7 +35,12 @@ La Charente a un profil très industriel : l'industrie représente 16,6 % de l'e
 
 ## Charente-Maritime
 valeur: 7,9 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-charente-maritime
+part_65_et_plus: 29,7 %
+part_sans_diplome: 24,4 %
+part_diplome_superieur: 28,4 %
+
+En Charente-Maritime, l'emploi est surtout tertiaire : les services marchands représentent 45,1 % de l'emploi en 2024 (45,7 % dans la région) et les services non marchands (administration, enseignement, santé, action sociale) 32,1 % (32,2 %). L'industrie pèse un peu moins que dans l'ensemble de la région (10,1 %, contre 11,5 %), et l'agriculture un peu plus (4,9 %, contre 3,6 %). Le taux de pauvreté est de 13,1 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 25 710 euros, contre 25 520 euros. La population est plus âgée qu'en moyenne dans la région : 155 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121 dans la région.
 
 ## Corrèze
 valeur: 6,3 %
@@ -42,7 +53,12 @@ En Corrèze, les emplois de l'administration, de l'enseignement, de la santé et
 
 ## Creuse
 valeur: 7,4 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-creuse
+part_65_et_plus: 31,8 %
+part_sans_diplome: 28,0 %
+part_diplome_superieur: 22,9 %
+
+En Creuse, l'agriculture et les services non marchands (administration, enseignement, santé, action sociale) pèsent beaucoup plus que dans l'ensemble de la région : 9,5 % de l'emploi en 2024 pour l'agriculture (3,6 % dans la région) et 41,9 % pour les services non marchands (32,2 %). Les services marchands sont moins présents (32,8 %, contre 45,7 %), et l'industrie représente 10,0 % de l'emploi, contre 11,5 %. Le taux de pauvreté est de 19,5 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 23 210 euros, contre 25 520 euros. La population est nettement plus âgée qu'en moyenne dans la région : 180 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121.
 
 ## Deux-Sèvres
 valeur: 6,3 %
@@ -64,7 +80,12 @@ La Dordogne a une vraie composante agricole (Bergerac) et un tourisme qui fragil
 
 ## Gironde
 valeur: 8,0 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-gironde
+part_65_et_plus: 20,2 %
+part_sans_diplome: 20,5 %
+part_diplome_superieur: 38,4 %
+
+En Gironde, l'emploi est très tourné vers les services marchands : 51,6 % de l'emploi en 2024, contre 45,7 % dans la région. L'industrie (9,2 %, contre 11,5 %), l'agriculture (2,6 %, contre 3,6 %) et les services non marchands (administration, enseignement, santé, action sociale : 29,8 %, contre 32,2 %) pèsent moins. Le taux de pauvreté est de 14,2 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 26 820 euros, contre 25 520 euros. La population est plus jeune qu'en moyenne dans la région : 90 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121.
 
 ## Haute-Vienne
 valeur: 7,6 %
@@ -77,7 +98,12 @@ En Haute-Vienne, la zone la plus peuplée, Limoges, a une économie diversifiée
 
 ## Landes
 valeur: 7,4 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-landes
+part_65_et_plus: 26,7 %
+part_sans_diplome: 23,0 %
+part_diplome_superieur: 28,5 %
+
+Dans les Landes, l'industrie représente 12,9 % de l'emploi en 2024, contre 11,5 % dans la région. Les services marchands pèsent un peu moins (43,1 %, contre 45,7 %) et les services non marchands (administration, enseignement, santé, action sociale) un peu plus (33,3 %, contre 32,2 %). Le taux de pauvreté est de 12,1 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 25 650 euros, contre 25 520 euros. La population est plus âgée qu'en moyenne dans la région : 134 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121.
 
 ## Lot-et-Garonne
 valeur: 8,3 %
@@ -90,8 +116,18 @@ Le Lot-et-Garonne a une économie dominée par l'agriculture et l'agro-industrie
 
 ## Pyrénées-Atlantiques
 valeur: 6,4 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-pyrenees-atlantiques
+part_65_et_plus: 25,3 %
+part_sans_diplome: 19,7 %
+part_diplome_superieur: 35,6 %
+
+Dans les Pyrénées-Atlantiques, les services représentent l'essentiel de l'emploi en 2024 : 45,8 % pour les services marchands et 32,3 % pour les services non marchands (administration, enseignement, santé, action sociale), des parts très proches de celles de la région (45,7 % et 32,2 %). L'industrie pèse 11,8 % de l'emploi, contre 11,5 %, et l'agriculture 2,9 %, contre 3,6 %. Le taux de pauvreté est de 13,3 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 26 300 euros, contre 25 520 euros. La population est un peu plus âgée qu'en moyenne dans la région : 125 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121.
 
 ## Vienne
 valeur: 7,3 %
-sources: insee-chomage-dep-reg
+sources: insee-chomage-dep-reg, insee-essentiel-na, insee-dossier-vienne
+part_65_et_plus: 23,4 %
+part_sans_diplome: 24,8 %
+part_diplome_superieur: 30,0 %
+
+Dans la Vienne, l'industrie représente 12,7 % de l'emploi en 2024, contre 11,5 % dans la région, et les services non marchands (administration, enseignement, santé, action sociale) 36,5 %, contre 32,2 %. Les services marchands sont moins présents (41,9 %, contre 45,7 %). Le taux de pauvreté est de 15,5 % en 2023, contre 14,6 % dans la région, et le niveau de vie médian de 24 940 euros, contre 25 520 euros. La population est plus jeune qu'en moyenne dans la région : 104 personnes de 65 ans ou plus pour 100 jeunes de moins de 20 ans en 2023, contre 121.

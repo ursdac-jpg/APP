@@ -304,3 +304,51 @@ test('phrase_generale : toute fiche active qui cite des chiffres a sa phrase gé
   });
   assert.deepStrictEqual(manque, [], 'fiches à chiffres sans phrase générale : ' + manque.join(', '));
 });
+
+// ---------- « Ce qui change » (maj_resume), consigne 423, 17/11/2026 ----------
+test('maj_resume : la personne écrit la phrase seule, l\'outil écrit la date du jour ; vide la retire ; la même phrase ne change rien', () => {
+  const phrase = 'Le montant du 1er octobre est mis à jour et la démarche en ligne est ajoutée.';
+  const r = F.appliquerModification(CESU_FIXTURE, demande({ maj_resume: phrase }), CX);
+  assert.ok(r.ok, r.erreur);
+  assert.ok(/maj_resume: "2026-10-18 : [^"\n]+"\ncollecte: emploi.collecte.md/.test(r.texte), 'écrit avant « collecte », avec la date du jour');
+  assert.strictEqual(r.texte.split('\n').length, CESU_FIXTURE.split('\n').length + 1, 'une seule ligne de plus');
+  assert.deepStrictEqual(r.resume.champs, ['maj_resume']);
+  assert.strictEqual(F.phraseDeMajResume(F.champs(F.lire(r.texte)).maj_resume), phrase);
+  // une date tapée devant est remplacée par celle du jour
+  const avecDate = F.appliquerModification(CESU_FIXTURE, demande({ maj_resume: '2020-01-01 : ' + phrase }), CX);
+  assert.ok(avecDate.ok && /maj_resume: "2026-10-18 : /.test(avecDate.texte));
+  // la même phrase : rien ne change ; vide : le champ est retiré et la fiche redevient identique
+  assert.strictEqual(F.appliquerModification(r.texte, demande({ maj_resume: phrase }), CX).ok, false);
+  const retire = F.appliquerModification(r.texte, demande({ maj_resume: '  ' }), CX);
+  assert.ok(retire.ok, retire.erreur);
+  assert.strictEqual(retire.texte, CESU_FIXTURE);
+});
+
+test('maj_resume : refus du trop court, trop long, signes interdits, saut de ligne, tiret long, mot « IA », nom d\'assistant, « à vérifier », ou d\'un texte qui n\'en est pas un', () => {
+  const ko = (v) => F.appliquerModification(CESU_FIXTURE, demande({ maj_resume: v }), CX);
+  assert.match(ko('Trop court.').erreur, /trop court/);
+  assert.match(ko('x'.repeat(F.LONGUEUR_MAX_MAJ_RESUME + 1)).erreur, /trop long/);
+  assert.strictEqual(ko('Voir <b>ici</b> le nouveau montant du mois.').ok, false);
+  assert.strictEqual(ko('Il dit "ici" dans le nouveau texte publié.').ok, false);
+  assert.strictEqual(ko('Ligne un du nouveau texte\nligne deux du texte').ok, false);
+  assert.strictEqual(ko('Le montant change ' + String.fromCharCode(0x2014) + ' voir la fiche mise à jour.').ok, false);
+  assert.match(ko('Une IA a relu la fiche et ajouté la démarche.').erreur, /assistant/);
+  assert.match(ko('ChatGPT a trouvé un nouveau montant pour la fiche.').erreur, /assistant/);
+  assert.match(ko('Le nouveau montant est à vérifier avant la publication.').erreur, /vérifier/);
+  assert.strictEqual(ko(7).ok, false);
+  assert.strictEqual(F.MOTS_INTERDITS_PUBLIC.test('La maison, la vie et la mairie'), false, 'pas de faux positif sur des mots courants');
+});
+
+test('maj_resume : les champs des fiches réelles se relisent à l\'identique et respectent les limites de l\'outil', () => {
+  let n = 0;
+  fichesReelles().forEach(function (f) {
+    const fi = F.lire(fs.readFileSync(f.chemin, 'utf8'));
+    const v = fi.ok ? F.champs(fi).maj_resume : undefined;
+    if (v === undefined) { return; }
+    n++;
+    const p = F.phraseDeMajResume(v);
+    assert.ok(p.length >= F.LONGUEUR_MIN_MAJ_RESUME && p.length <= F.LONGUEUR_MAX_MAJ_RESUME, f.nom + ' : longueur ' + p.length);
+    assert.ok(!F.MOTS_INTERDITS_PUBLIC.test(p) && !/[<>&]/.test(p), f.nom + ' : signe ou mot interdit');
+  });
+  assert.ok(n >= 7);
+});

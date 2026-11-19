@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : texte complet des changements à venir</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:900px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:900px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem}
+.mq-regl .boutons button{font-size:.8rem}
+.mq-regl .boutons button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-ecran{margin:1.6rem 0 .6rem;padding-top:.4rem;border-top:3px solid var(--accent)}
+.mq-ecran h2{font-size:1.15rem;margin:.2rem 0}
+.mq-ecran p{margin:.2rem 0;color:var(--text-muted);font-size:.9rem}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin:.6rem 0}
+.mq-etat{font-size:.8rem;font-weight:600;color:var(--text-muted);margin:.8rem 0 .3rem;text-transform:uppercase;letter-spacing:.03em}
+/* Le bandeau « pas encore en vigueur » : couleurs d'avertissement de l'application, valeur claire ET sombre. */
+.cc-avenir-bandeau{display:flex;gap:.6rem;align-items:flex-start;background:var(--warning-bg-subtle);border:1px solid var(--warning-border-subtle,var(--warning));border-left:5px solid var(--warning);border-radius:8px;padding:.6rem .8rem;margin:.6rem 0 .8rem;font-size:.92rem;color:var(--text-strong)}
+.cc-avenir-bandeau i{color:var(--warning-strong,var(--warning));font-size:1.2rem;line-height:1.2}
+.cc-avenir-texte h3{font-size:1rem;margin:1rem 0 .3rem}
+.cc-avenir-texte p{margin:.3rem 0 .6rem}
+.cc-avenir-pied{border-top:1px solid var(--border-subtle,var(--border-strong));margin-top:.8rem;padding-top:.6rem;font-size:.88rem;color:var(--text-muted)}
+.cc-rappel{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0 .8rem}
+.cc-rappel dl{margin:.3rem 0 .2rem;display:grid;grid-template-columns:max-content 1fr;gap:.2rem .9rem}
+.cc-rappel dt{font-weight:600}
+.cc-rappel dd{margin:0}
+.cc-rappel .date{font-size:.8rem;color:var(--text-muted);margin-top:.3rem}
+.tel .cc-rappel dl{grid-template-columns:1fr}
+/* Aspect de l'outil de veille (imitation simplifiée, la vraie page garde ses propres styles). */
+.ov{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;padding:.9rem 1rem;margin:.6rem 0}
+.ov .chg-champ{display:flex;gap:.8rem;padding:.55rem 0;border-bottom:1px solid var(--border-subtle,var(--border-strong))}
+.ov .chg-champ>label{flex:0 0 11rem;font-weight:600;font-size:.88rem}
+.ov .chg-champ .valeur{flex:1;min-width:0}
+.ov .mini{font-size:.78rem;color:var(--text-muted);margin-top:.2rem}
+.ov input[type=text],.ov textarea,.ov select{width:100%;font:inherit;font-size:.9rem;padding:.35rem .5rem;border:1px solid var(--border-strong);border-radius:6px;background:var(--bg-page);color:var(--text-strong)}
+.ov textarea{min-height:11rem}
+.ov .pastille{display:inline-block;font-size:.72rem;font-weight:600;border-radius:99px;padding:.05rem .5rem;margin-left:.3rem;background:var(--warning-bg-subtle);color:var(--text-strong);border:1px solid var(--warning)}
+.ov .verif{font-size:.85rem;padding:.2rem .5rem;border-radius:6px;margin:.2rem 0}
+.ov .verif.ok{background:var(--success-bg-subtle)}
+.ov .verif.warn{background:var(--warning-bg-subtle)}
+.tel .ov .chg-champ{flex-direction:column;gap:.2rem}
+.tel .ov .chg-champ>label{flex:none}
+.flux{display:grid;gap:.6rem;margin:.6rem 0}
+.flux .pas{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;padding:.6rem .8rem}
+.flux .pas b{display:block;margin-bottom:.15rem}
+.flux .fleche{text-align:center;color:var(--accent);font-size:1.3rem;line-height:1}
+.btn-creer{display:inline-flex;gap:.4rem;align-items:center}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-sm btn-primary mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders"></i> Réglages de la maquette <button type="button" class="btn btn-sm btn-outline-secondary" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg"></i></button></h2>
+  <div class="grp"><b>Affichage</b><div class="boutons" data-grp="vue">
+    <button type="button" class="btn btn-outline-secondary" data-v="bureau" aria-pressed="true">Ordinateur</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="tel" aria-pressed="false">Téléphone</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="sombre" aria-pressed="false">Mode sombre</button></div></div>
+  <div class="grp"><b>Texte du bouton sous « Ce qui change »</b><div class="boutons" data-grp="lib">
+    <button type="button" class="btn btn-outline-secondary" data-v="Lire plus d’informations" aria-pressed="true">Lire plus d’informations</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="Lire le détail" aria-pressed="false">Lire le détail</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="Comprendre en détail" aria-pressed="false">Comprendre en détail</button></div></div>
+  <div class="grp"><b>Bandeau « pas encore en vigueur »</b><div class="boutons" data-grp="band">
+    <button type="button" class="btn btn-outline-secondary" data-v="haut" aria-pressed="true">En haut du texte</button>
+    <button type="button" class="btn btn-outline-secondary" data-v="bas" aria-pressed="false">En bas du texte</button></div></div>
+</div>
+
+<div class="mq-page" id="mqPage">
+
+<div class="mq-retient"><b>Ce que cette maquette montre.</b> Trois écrans : (1) ce que voit la personne dans Nouveautés pour un changement à venir, (2) la zone à remplir dans l’outil de veille, (3) comment le texte complet devient plus tard la fiche. L’exemple est la hausse du Smic annoncée (texte d’illustration : seuls les faits déjà écrits dans le balayage sont repris). Les boutons de cette page fonctionnent.</div>
+
+<!-- ============ ÉCRAN 1 ============ -->
+<div class="mq-ecran"><h2>1. Ce que voit la personne, dans Droits et règles</h2><p>Un changement à venir, fermé puis ouvert. Le résumé « Ce qui change » reste en premier : le texte complet est une seconde lecture, sur demande.</p></div>
+
+<div class="mq-etat">État fermé (à l’arrivée)</div>
+<details class="comprendre-le-cadre-chg comprendre-le-cadre-chg--nouveau comprendre-le-cadre-chg--avenir" open>
+  <summary class="comprendre-le-cadre-chg-resume">
+    <span class="comprendre-le-cadre-chg-pastilles">
+      <span class="comprendre-le-cadre-chg-nouveau"><i class="bi bi-stars"></i> Nouveau cette semaine</span>
+      <span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--a">À partir du 1 déc. 2026</span>
+      <span class="comprendre-le-cadre-pastille">Emploi et contrats de travail</span>
+    </span>
+    <span class="comprendre-le-cadre-chg-titre">Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026</span>
+    <i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>
+  </summary>
+  <div class="comprendre-le-cadre-chg-corps">
+    <p class="comprendre-le-cadre-digest-concerne small mb-1"><strong>Concerne :</strong> Salariés payés au Smic et leurs employeurs</p>
+    <p class="comprendre-le-cadre-digest-cle mb-2"><strong>Ce qui change.</strong> Le Gouvernement annonce l'anticipation de la revalorisation du Smic au 1er décembre 2026, avec une hausse de 1,6 % qui porterait le Smic net mensuel à 1 502 euros. Le décret n'est pas encore publié : les chiffres publiés ne changent qu'avec lui.</p>
+    <p class="comprendre-le-cadre-digest-source mb-0"><a class="comprendre-le-cadre-digest-btn-source" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Ouvrir la source officielle</a><span class="small text-muted d-block mt-1">Source : info.gouv.fr, « Conférence sociale : hausse du SMIC de 1,6 % » (09/11/2026). Ce lien ouvre un autre site.</span></p>
+    <p class="comprendre-le-cadre-digest-verifie mb-0 mt-2"><span class="comprendre-le-cadre-pastille"><i class="bi bi-patch-check-fill"></i> Vérifié le 9 nov. 2026</span></p>
+
+    <!-- NOUVEAU : seconde lecture -->
+    <div class="mt-2" id="avenirBloc">
+      <button type="button" class="comprendre-le-cadre-lire-tout" id="avenirBtn" aria-expanded="false"><span id="avenirLib">Lire plus d’informations</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>
+      <div id="avenirCorps" hidden>
+        <div class="cc-avenir-bandeau" id="bandHaut"><i class="bi bi-hourglass-split" aria-hidden="true"></i><div><strong>Cette règle n’est pas encore en vigueur.</strong> Ce texte explique ce qui est annoncé. Il peut changer quand le décret paraîtra : relisez-le à ce moment-là.</div></div>
+        <div class="cc-avenir-texte">
+          <h3>Ce qui est annoncé</h3>
+          <p>À l’issue de la conférence sociale du 9 novembre 2026, le Premier ministre a annoncé que la revalorisation du Smic serait avancée au 1er décembre 2026. La hausse annoncée est de 1,6 %. Elle porterait le Smic net mensuel à 1 502 euros.</p>
+          <h3>Où on en est aujourd’hui</h3>
+          <div class="cc-rappel">
+            <dl>
+              <dt>Smic mensuel brut</dt><dd>1 867,02 euros (35 heures par semaine)</dd>
+              <dt>Smic horaire brut</dt><dd>12,31 euros</dd>
+              <dt>Dernière hausse</dt><dd>2,41 %, en vigueur depuis le 1er juin 2026</dd>
+              <dt>Avant cette hausse</dt><dd>1 823,03 euros par mois, depuis le 1er janvier 2026</dd>
+            </dl>
+            <div class="date"><i class="bi bi-patch-check-fill"></i> Situation vérifiée le 9 novembre 2026, d’après info.gouv.fr. Ces montants changeront avec le décret.</div>
+          </div>
+          <h3>Ce qui n’est pas encore décidé</h3>
+          <p>Le texte officiel, un décret, n’est pas encore publié. Tant qu’il n’est pas paru, le montant en vigueur reste celui d’aujourd’hui.</p>
+          <h3>Qui est concerné</h3>
+          <p>Les salariés payés au Smic, et leurs employeurs, qui devront appliquer le nouveau montant sur la paie.</p>
+          <h3>Que faire d’ici là</h3>
+          <p>Rien à faire de votre côté pour l’instant. Votre bulletin de paie montrera le nouveau montant quand il s’appliquera. Pour savoir où en est le texte, ouvrez la source officielle ci-dessus.</p>
+        </div>
+        <div class="cc-avenir-bandeau" id="bandBas" style="display:none"><i class="bi bi-hourglass-split" aria-hidden="true"></i><div><strong>Cette règle n’est pas encore en vigueur.</strong> Ce texte explique ce qui est annoncé. Il peut changer quand le décret paraîtra.</div></div>
+        <div class="cc-avenir-pied"><i class="bi bi-info-circle"></i> Quand le décret sera publié, ce texte deviendra une fiche de « Comprendre le cadre », et ce bouton deviendra « Lire la fiche en entier ».</div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<div class="mq-retient"><b>Ce qui a changé depuis la première version.</b> Vous avez retenu « Que faire d’ici là ». Comme le texte officiel n’est pas publié, le texte complet ne peut pas dire plus sur l’annonce : il apporte à la place un rappel daté de la situation actuelle (Smic d’aujourd’hui, dernière hausse, son taux, depuis quand). Ce rappel porte toujours sa date de vérification, car ces montants changent avec le décret.</div>
+<div class="mq-retient"><b>Ce que ça garde.</b> Le résumé en deux lignes reste visible en premier. Le texte complet ne s’ouvre que si la personne le demande (même geste que « Lire la fiche en entier »). Le bandeau jaune dit toujours que la règle n’est pas en vigueur : jamais de texte complet sans ce rappel. Les changements déjà en vigueur et sans fiche n’ont pas ce bouton, sauf si un texte complet a été écrit pour eux.</div>
+
+<!-- ============ ÉCRAN 2 ============ -->
+<div class="mq-ecran"><h2>2. Dans l’outil de veille, sas des changements</h2><p>Deux ajouts sous les champs actuels : « Texte complet » et « Fiche liée ». Les deux sont facultatifs.</p></div>
+
+<div class="ov">
+  <div class="chg-champ"><label>Intitulé</label><div class="valeur"><input type="text" value="Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026" readonly></div></div>
+  <div class="chg-champ"><label>Ce qui change</label><div class="valeur"><input type="text" value="Le Gouvernement annonce l'anticipation de la revalorisation du Smic au 1er décembre 2026 ..." readonly><div class="mini">Deux phrases au plus : c’est le résumé affiché en premier.</div></div></div>
+  <div class="chg-champ"><label>Texte complet <span class="pastille">nouveau</span></label><div class="valeur">
+    <textarea id="ovTexte" aria-label="Texte complet">Ce qui est annoncé
+À l’issue de la conférence sociale du 9 novembre 2026, le Premier ministre a annoncé que la revalorisation du Smic serait avancée au 1er décembre 2026. La hausse annoncée est de 1,6 %. ...
+
+Où on en est aujourd’hui
+Smic mensuel brut : 1 867,02 euros. Dernière hausse : 2,41 %, depuis le 1er juin 2026. ...
+
+Ce qui n’est pas encore décidé
+Le texte officiel, un décret, n’est pas encore publié. ...</textarea>
+    <div class="mini" id="ovCompte">Facultatif. À remplir surtout pour un changement à venir. Une ligne seule = un intertitre, une ligne vide = un nouveau paragraphe. Pas de numéro d’article, pas de montant que la source n’annonce pas.</div>
+    <div style="margin-top:.4rem"><button type="button" class="btn btn-sm btn-outline-secondary" id="ovPropose"><i class="bi bi-chat-left-text"></i> Demander à l’assistant de rédiger ce texte depuis la source</button></div>
+  </div></div>
+  <div class="chg-champ"><label>Fiche liée <span class="pastille">nouveau</span></label><div class="valeur">
+    <select aria-label="Fiche liée"><option>Aucune pour l’instant (le texte complet sert de lecture)</option><option>emploi / emploi-rupture-conventionnelle (exemple : les fiches du rayon seraient listées ici)</option></select>
+    <div class="mini">Quand une fiche couvre déjà ce changement, choisissez-la : la carte proposera « Lire la fiche en entier » à la place du texte complet. Les propositions viennent des fiches du même rayon.</div></div></div>
+  <div style="margin-top:.6rem"><b style="font-size:.85rem">Contrôles automatiques</b>
+    <div class="verif ok">Aucun tiret long ni demi-long.</div>
+    <div class="verif ok">Le bandeau « Cette règle n’est pas encore en vigueur » sera ajouté tout seul (date d’entrée en vigueur à venir).</div>
+    <div class="verif warn">Le texte complet cite un montant ou une date : indiquez la date de vérification de la situation (« Situation vérifiée le ... ») et ouvrez la source avant « C’est bon ».</div>
+    <div class="verif warn">Le mot « IA », un nom d’assistant ou « à vérifier » dans le texte : refusé, comme pour « Ce qui change ».</div>
+  </div>
+</div>
+
+<div class="mq-retient"><b>Ce que ça garde.</b> Le sas reste celui d’aujourd’hui (« C’est bon » pour valider, « Pré-vérifié » après ouverture de la source). Le texte complet se contrôle avec les mêmes règles que « Ce qui change » : pas de tiret long, pas de « IA », pas de nom d’assistant, longueur limite (proposition : 3 000 caractères). Le bandeau jaune n’est pas à écrire : l’application l’ajoute tant que la date d’entrée en vigueur est dans le futur.</div>
+
+<!-- ============ ÉCRAN 3 ============ -->
+<div class="mq-ecran"><h2>3. Quand le changement est acté : la fiche se crée à partir du texte</h2><p>Second temps, à ne faire qu’une fois les deux premiers écrans validés.</p></div>
+<div class="flux">
+  <div class="pas"><b>1. Le changement est en vigueur</b>Le décret est publié. Dans le sas des changements, la carte garde son texte complet.</div>
+  <div class="fleche"><i class="bi bi-arrow-down"></i></div>
+  <div class="pas"><b>2. Un bouton dans l’outil de veille</b><button type="button" class="btn btn-sm btn-primary btn-creer" id="ovCreer"><i class="bi bi-file-earmark-plus"></i> Créer la fiche à partir de ce changement</button>
+    <div class="mini" id="ovCreerRes" style="margin-top:.4rem">Prépare une proposition de NOUVELLE fiche dans le sas des fiches : titre sous forme de question, texte repris du texte complet, source du changement, rayon à choisir. Rien n’est publié : vous relisez, vous corrigez, puis « C’est bon » comme pour toute fiche.</div></div>
+  <div class="fleche"><i class="bi bi-arrow-down"></i></div>
+  <div class="pas"><b>3. La carte se met à jour toute seule</b>Une fois la fiche publiée, « Fiche liée » est renseignée automatiquement : le bouton devient « Lire la fiche en entier » et le bandeau jaune disparaît.</div>
+</div>
+
+<div class="mq-retient"><b>Questions pour vous.</b> (1) Le bouton s’appelle-t-il bien « Lire plus d’informations » ? (2) Bandeau jaune en haut ou en bas du texte ? (3) Le texte complet est-il à écrire pour tous les changements à venir, ou seulement ceux que vous jugez importants ? (4) Le bouton « Créer la fiche à partir de ce changement » : voulez-vous ce second temps, ou préférez-vous recopier le texte à la main ? (5) Le rappel de la situation actuelle (Smic, dernière hausse) vous convient-il tel quel ? Il serait écrit à la main dans l’outil de veille, avec sa date de vérification : une fois le décret publié, il n’est plus à jour, et la fiche prend le relais.</div>
+
+</div>
+
+<script>
+(function () {
+  var page = document.getElementById('mqPage'), root = document.documentElement;
+  function groupe(g) { return document.querySelector('[data-grp="' + g + '"]'); }
+  function pressed(g, v) { Array.prototype.forEach.call(groupe(g).children, function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v)); }); }
+  groupe('vue').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    var v = b.getAttribute('data-v');
+    if (v === 'sombre') { var s = root.getAttribute('data-theme') === 'sombre'; if (s) { root.removeAttribute('data-theme'); } else { root.setAttribute('data-theme', 'sombre'); } b.setAttribute('aria-pressed', String(!s)); return; }
+    page.classList.toggle('tel', v === 'tel');
+    Array.prototype.forEach.call(groupe('vue').children, function (x) { if (x.getAttribute('data-v') !== 'sombre') { x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === v)); } });
+  });
+  groupe('lib').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    var v = b.getAttribute('data-v'); pressed('lib', v);
+    var ouvert = document.getElementById('avenirBtn').getAttribute('aria-expanded') === 'true';
+    document.getElementById('avenirLib').textContent = ouvert ? 'Replier le texte' : v;
+  });
+  groupe('band').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) { return; }
+    var v = b.getAttribute('data-v'); pressed('band', v);
+    document.getElementById('bandHaut').style.display = v === 'haut' ? 'flex' : 'none';
+    document.getElementById('bandBas').style.display = v === 'bas' ? 'flex' : 'none';
+  });
+  document.getElementById('avenirBtn').addEventListener('click', function () {
+    var corps = document.getElementById('avenirCorps'), ouvrir = corps.hasAttribute('hidden');
+    if (ouvrir) { corps.removeAttribute('hidden'); } else { corps.setAttribute('hidden', ''); }
+    this.setAttribute('aria-expanded', String(ouvrir));
+    var lib = groupe('lib').querySelector('[aria-pressed="true"]').getAttribute('data-v');
+    document.getElementById('avenirLib').textContent = ouvrir ? 'Replier le texte' : lib;
+  });
+  document.getElementById('mqFermer').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'none'; document.getElementById('mqRouvrir').style.display = 'block'; });
+  document.getElementById('mqRouvrir').addEventListener('click', function () { document.getElementById('mqRegl').style.display = 'block'; this.style.display = 'none'; });
+  var ta = document.getElementById('ovTexte'), compte = document.getElementById('ovCompte'), base = compte.textContent;
+  ta.addEventListener('input', function () { compte.textContent = ta.value.length + ' caractères sur 3 000 au plus. ' + base; });
+  document.getElementById('ovPropose').addEventListener('click', function () { this.textContent = 'Le message pour l’assistant est prêt à copier (voir l’outil réel)'; this.disabled = true; });
+  document.getElementById('ovCreer').addEventListener('click', function () { document.getElementById('ovCreerRes').textContent = 'Proposition de fiche préparée dans le sas des fiches : à relire avant « C’est bon ». (Illustration : rien n’a été créé.)'; this.disabled = true; });
+})();
+</script>
+</body>
+</html>

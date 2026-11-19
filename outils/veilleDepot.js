@@ -752,6 +752,9 @@ function creerDepot(racine, options) {
         const courantC = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
         const r = chg.appliquer(courantC, v.actions, {
           aujourdhui: aujourdhui(), ecartes: ecartesCourants(),
+          // la fiche liee d'un changement (« rayon/identifiant ») doit exister dans le depot
+          fichesPrevues: valides.filter(function (x) { return x.type === 'fiche'; }).map(function (x) { return x.chemin.split('/').slice(-2).join('/').replace(/\.md$/, ''); }),
+          ficheExiste: function (ref) { const p = String(ref).split('/'); return p.length === 2 && /^[a-z0-9-]+$/.test(p[0]) && /^[a-z0-9-]+$/.test(p[1]) && !!lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, p[0], p[1] + '.md')); },
           digest: function (mois) { return (lireOuNull(path.resolve(racine, chg.DOSSIER_DIGESTS, mois + '.md')) || Buffer.from('')).toString('utf8'); }
         });
         if (!r.ok) { return { ok: false, code: 'changements', erreur: r.erreur }; }
@@ -839,7 +842,7 @@ function creerDepot(racine, options) {
     } catch (e) { restaurer(); return { ok: false, code: 'ecriture', erreur: 'Ecriture impossible : ' + (e && e.message) }; }
 
     // Regeneration des copies derivees, puis tests.
-    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'fiches-sas' || v.type === 'ecartes' || v.type === 'mots-liste' || v.type === 'sans-numero' || v.type === 'mots-verifies' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
+    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'fiches-sas' || v.type === 'ecartes' || v.type === 'mots-liste' || v.type === 'sans-numero' || v.type === 'mots-verifies' || (v.type === 'changements' && !v.actions.some(function (a) { return a && (a.op === 'valider' || a.op === 'lier'); })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
     const etapes = [];
     const base = path.join(racine, 'scripts', 'genererBaseVeille.js');
     if (!seulementSas && fs.existsSync(base)) { etapes.push(lancer(process.execPath, ['scripts/genererBaseVeille.js'])); }
@@ -1376,6 +1379,11 @@ function creerDepot(racine, options) {
     const l = listerChangements();
     return { ok: true, prompt: chg.construirePrompt(v, l.exemples || [], d && d.socle) };
   }
+  // « Rédiger le texte complet avec l'assistant » (consigne 426) : un message à part, avec la date d'aujourd'hui pour le rappel daté. Rien n'est écrit.
+  function promptTexteComplet(d) {
+    const v = (d && d.valeurs) || {};
+    return { ok: true, prompt: chg.construirePromptTexteComplet(v, aujourdhui(), d && d.socle), aVenir: chg.changementAVenir(v.en_vigueur, aujourdhui()) };
+  }
   // « Faire vérifier par un assistant » (Qui fait quoi) : le prompt d'UNE fiche ou d'un GROUPE, et la lecture de la réponse. Rien n'est écrit, rien n'est daté.
   // Une fiche d'information du cadre, lue dans le dépôt (jamais envoyée par l'écran) : { rayon, id, titre, verifieLe, territoire, corps, change, sources }.
   function ficheDuCadre(rayon, id) {
@@ -1429,6 +1437,9 @@ function creerDepot(racine, options) {
   }
   function lireReponseChangement(d) {
     return chg.lireReponse(d && d.texte, d && d.actuel);
+  }
+  function lireTexteCompletChangement(d) {
+    return chg.lireTexteComplet(d && d.texte, d && d.actuel);
   }
 
   // Les fiches d'un registre du module « Qui fait quoi » avec leur fraicheur (pour l'ecran de mise a jour).
@@ -1583,7 +1594,7 @@ function creerDepot(racine, options) {
     return { ok: true, prompt: fichesSas.construirePrompt(rec, contexteFichesSas(rec.rayon), d && d.socle) };
   }
 
-  return { listerEcartes: listerEcartes, marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, controlerAppuis: controlerAppuis, relireAppuis: relireAppuis, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
+  return { listerEcartes: listerEcartes, marquerPrevFichesSas: marquerPrevFichesSas, listerFichesSas: listerFichesSas, lireReponseFichesSas: lireReponseFichesSas, promptFicheSas: promptFicheSas, promptVerification: promptVerification, lireVerification: lireVerification, etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, controlerAppuis: controlerAppuis, relireAppuis: relireAppuis, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement, promptTexteComplet: promptTexteComplet, lireTexteCompletChangement: lireTexteCompletChangement };
 }
 
 module.exports = { analyserCandidatsLexique: analyserCandidatsLexique, integrerCandidatsLexique: integrerCandidatsLexique, creerDepot: creerDepot, validerFichier: validerFichier, ajouterLigneReadme: ajouterLigneReadme, rayonsExistants: rayonsExistants, lancerCommande: lancerCommande, TAILLE_MAX: TAILLE_MAX };

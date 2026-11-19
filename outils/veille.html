@@ -2228,8 +2228,8 @@
 
   /* ---------- Blocs communs de rédaction (prompt 2) ---------- */
   var TON = "Écris pour une personne réelle qui va te lire, pas pour un système. Elle peut être un professionnel de l'insertion ou une personne en recherche d'emploi. Vocabulaire professionnel mais toujours expliqué. Phrases courtes. Jamais condescendant, jamais un pavé technique. Commence par le cas concret. Ton posé, clair, un peu chaleureux : ni administratif, ni familier. Développe chaque sigle une fois. Ne conclus jamais à la place de la personne : tu expliques, elle décide.";
-  var REGLES2 = TON + "\n\nPour chaque fiche : une synthèse humaine qui garde le maximum de détails utiles, sans recopier le matériau. Garde les nuances et les cas particuliers importants : ne lisse pas au point de perdre l'information. Dix à vingt lignes. Pas de numéro d'article dans le corps du texte (ils vont dans les sources). Ce qui bouge (montants, listes, délais) va dans « ce qui change souvent », pas dans le corps. Ces fiches servent à la fois la Dordogne et la Haute-Vienne : une règle nationale n'est jamais présentée comme propre à un département (aucun nom de département dans le titre ni dans le corps, sauf si le matériau dit expressément que l'information est locale). Aucune adresse postale, aucun numéro de téléphone, aucun courriel et aucune adresse de site dans le corps du texte : pour orienter vers une structure (Agefiph, Cap emploi, MDPH, France Travail, CAF...), écris seulement son nom, sans ses coordonnées ; l'application renvoie d'un clic vers la fiche de la structure, avec ses coordonnées exactes et à jour. N'écris jamais de coordonnées de mémoire : si le matériau en contient, ne les recopie pas. N'ajoute AUCUN fait qui ne serait pas dans le matériau ci-dessus : si le matériau ne dit rien sur un point, la fiche n'en parle pas, elle ne comble pas le vide. Chaque fiche dont le texte cite un chiffre, une date ou une durée a aussi une « phrase_generale » : une ou deux phrases SANS AUCUN chiffre (ni en chiffres, ni en lettres devant une unité comme « deux ans » ou « trente jours »), 500 caractères au plus, qui disent la règle en général et où trouver les montants et les dates. Elle remplace le texte de la fiche quand celle-ci a six mois ou plus. Je publie ces textes tels quels après une relecture.";
-  var FICHE_MODELE = "[FICHE 1]\nid: laisse vide pour un sujet nouveau ; recopie l'identifiant exact si la fiche correspond à un sujet déjà existant listé plus haut\ntitre: une question qu'une personne se pose vraiment\npour_qui: une phrase, dans quel cas cette fiche sert\nterritoire: national\nverifie_le: " + moisCourant() + "\ntags: mot-clé, mot-clé, mot-clé\nlexique:\n- terme = définition courte\nsources:\n- les noms-courts du matériau utiles à CETTE fiche (2 à 8), repris exactement, un par ligne\nce_qui_change_souvent:\n- trois à cinq points maximum, seulement ce qui bouge vraiment\nphrase_generale: une ou deux phrases sans aucun chiffre (obligatoire si le texte cite un chiffre, une date ou une durée)\ntexte:\nla fiche complète, dix à vingt lignes, prête à publier, au ton demandé\n[/FICHE 1]\n\n[FICHE 2]\n... même structure ...\n[/FICHE 2]";
+  var REGLES2 = TON + "\n\nPour chaque fiche : une synthèse humaine qui garde le maximum de détails utiles, sans recopier le matériau. Garde les nuances et les cas particuliers importants : ne lisse pas au point de perdre l'information. Dix à vingt lignes. Pas de numéro d'article dans le corps du texte (ils vont dans les sources). Ce qui bouge (montants, listes, délais) va dans « ce qui change souvent », pas dans le corps. Ces fiches servent à la fois la Dordogne et la Haute-Vienne : une règle nationale n'est jamais présentée comme propre à un département (aucun nom de département dans le titre ni dans le corps, sauf si le matériau dit expressément que l'information est locale). Aucune adresse postale, aucun numéro de téléphone, aucun courriel et aucune adresse de site dans le corps du texte : pour orienter vers une structure (Agefiph, Cap emploi, MDPH, France Travail, CAF...), écris seulement son nom, sans ses coordonnées ; l'application renvoie d'un clic vers la fiche de la structure, avec ses coordonnées exactes et à jour. N'écris jamais de coordonnées de mémoire : si le matériau en contient, ne les recopie pas. N'ajoute AUCUN fait qui ne serait pas dans le matériau ci-dessus : si le matériau ne dit rien sur un point, la fiche n'en parle pas, elle ne comble pas le vide. Chaque fiche dont le texte cite un chiffre, une date ou une durée a aussi une « phrase_generale » : une ou deux phrases SANS AUCUN chiffre (ni en chiffres, ni en lettres devant une unité comme « deux ans » ou « trente jours »), 500 caractères au plus, qui disent la règle en général et où trouver les montants et les dates. Elle remplace le texte de la fiche quand celle-ci a six mois ou plus. Pour une fiche qui existe déjà (identifiant listé plus haut) et dont le texte change, ajoute aussi « maj_resume » : une ou deux phrases simples, comme on le dirait à voix haute, qui disent ce qui est nouveau dans la fiche pour la personne qui la lit (sans date, 450 caractères au plus, jamais le mot « IA » ni le nom d'un assistant en ligne). Je publie ces textes tels quels après une relecture.";
+  var FICHE_MODELE = "[FICHE 1]\nid: laisse vide pour un sujet nouveau ; recopie l'identifiant exact si la fiche correspond à un sujet déjà existant listé plus haut\ntitre: une question qu'une personne se pose vraiment\npour_qui: une phrase, dans quel cas cette fiche sert\nterritoire: national\nverifie_le: " + moisCourant() + "\ntags: mot-clé, mot-clé, mot-clé\nlexique:\n- terme = définition courte\nsources:\n- les noms-courts du matériau utiles à CETTE fiche (2 à 8), repris exactement, un par ligne\nce_qui_change_souvent:\n- trois à cinq points maximum, seulement ce qui bouge vraiment\nphrase_generale: une ou deux phrases sans aucun chiffre (obligatoire si le texte cite un chiffre, une date ou une durée)\nmaj_resume: seulement pour une fiche déjà existante : ce qui change pour la personne, en une ou deux phrases simples (laisse vide pour un sujet nouveau)\ntexte:\nla fiche complète, dix à vingt lignes, prête à publier, au ton demandé\n[/FICHE 1]\n\n[FICHE 2]\n... même structure ...\n[/FICHE 2]";
 
   /* ---------- Veille de la semaine : les pages d'actualités à ouvrir ---------- */
   // SOURCE UNIQUE des adresses : le message donné aux assistants (assemblerVeilleRapide) ET la liste « sites que personne n'a pu lire » (onglet Travailler avec Claude) la lisent.
@@ -7932,6 +7932,11 @@
   #chgFenetre .chg-champ > .valeur { flex:1 1 18rem; min-width:0; }
   #chgFenetre .chg-champ input[type=text], #chgFenetre .chg-champ textarea { width:100%; font:inherit; background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:6px; padding:.3rem .5rem; }
   #chgFenetre .chg-champ textarea { min-height:4.5rem; }
+  #chgFenetre .chg-texte { margin-top:.5rem; padding:.5rem .6rem; border:1px dashed var(--border-strong); border-radius:8px; }
+  #chgFenetre .chg-texte details { margin-top:.4rem; }
+  #chgFenetre .chg-comp { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.5rem; margin:.4rem 0; }
+  #chgFenetre .chg-comp > div { border:1px solid var(--border); border-radius:6px; padding:.35rem .5rem; }
+  #chgFenetre .chg-comp pre { white-space:pre-wrap; margin:.2rem 0 0; font:inherit; font-size:.84rem; }
   #chgFenetre .chg-champ .attendu { border:2px solid var(--warn); }
   #chgFenetre .chg-apercu { background:var(--bg-subtle); border-left:4px solid var(--accent); border-radius:0 8px 8px 0; padding:.6rem .8rem; margin:.5rem 0; font-size:.92rem; }
   #chgFenetre .chg-apercu .t { font-weight:700; margin-bottom:.3rem; }
@@ -10610,7 +10615,7 @@
   function ficBase(r) {
     var c = r.champs;
     return {
-      titre: c.titre || '', pour_qui: c.pour_qui || '', tags: (c.tags || []).join(', '), territoire: c.territoire || 'national', statut: c.statut || 'actif', voir_aussi_chiffres: c.voir_aussi_chiffres || '', phrase_generale: c.phrase_generale || '',
+      titre: c.titre || '', pour_qui: c.pour_qui || '', tags: (c.tags || []).join(', '), territoire: c.territoire || 'national', statut: c.statut || 'actif', voir_aussi_chiffres: c.voir_aussi_chiffres || '', phrase_generale: c.phrase_generale || '', maj_resume: String(c.maj_resume || '').replace(/^\d{4}-\d{2}-\d{2}\s*:\s*/, ''),
       lexique: (c.lexique || []).map(function (x) { return { terme: x.terme, definition: x.definition }; }), voir_aussi_lexique: (c.voir_aussi_lexique || []).join(', '),
       sources: (c.sources || []).slice(), ce_qui_change_souvent: (c.ce_qui_change_souvent || []).slice(), corps: r.corps || '',
       retire_raison: c.retire_raison || '', remplace_par: c.remplace_par || '', datation: 'garder', revision: '', formeSeule: false, complements: [], phraseEditee: false
@@ -10625,6 +10630,7 @@
     if (!ficEgal(ficListe(c.voir_aussi_lexique), ficListe(o.voir_aussi_lexique))) { ch.voir_aussi_lexique = ficListe(c.voir_aussi_lexique); }
     if (String(c.voir_aussi_chiffres).trim() !== String(o.voir_aussi_chiffres).trim()) { ch.voir_aussi_chiffres = String(c.voir_aussi_chiffres).trim(); }
     if (String(c.phrase_generale).trim() !== String(o.phrase_generale).trim()) { ch.phrase_generale = String(c.phrase_generale).trim(); }
+    if (String(c.maj_resume).trim() !== String(o.maj_resume).trim()) { ch.maj_resume = String(c.maj_resume).trim(); }
     if (!ficEgal(c.sources, o.sources)) { ch.sources = c.sources.slice(); }
     var chg = c.ce_qui_change_souvent.map(function (x) { return x.trim(); }).filter(Boolean);
     if (!ficEgal(chg, o.ce_qui_change_souvent)) { ch.ce_qui_change_souvent = chg; }
@@ -10639,7 +10645,7 @@
   function ficNbChangements() { return Object.keys(ficChangements()).length + (ficCur && ficCur.datation === 'redater' ? 1 : 0); }
   function ficContenuChange(ch) { return ch.titre !== undefined || ch.corps !== undefined || ch.sources !== undefined; }
   function ficTousLesTextes(c) {
-    var t = [c.titre, c.pour_qui, c.tags, c.voir_aussi_lexique, c.voir_aussi_chiffres, c.phrase_generale, c.retire_raison, c.remplace_par, c.revision].concat(c.ce_qui_change_souvent);
+    var t = [c.titre, c.pour_qui, c.tags, c.voir_aussi_lexique, c.voir_aussi_chiffres, c.phrase_generale, c.maj_resume, c.retire_raison, c.remplace_par, c.revision].concat(c.ce_qui_change_souvent);
     c.lexique.forEach(function (x) { t.push(x.terme, x.definition); });
     return t;
   }
@@ -10679,6 +10685,17 @@
       if (/[<>&]/.test(pg)) { ko('La phrase générale ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.'); }
       if (/[\r\n]/.test(pg)) { ko('La phrase générale tient en un seul paragraphe.'); }
     } else if (window.veilleAChiffres(ficCorpsNet(c.corps))) { v.push(['warn', 'Cette fiche cite des chiffres mais n\'a pas de phrase générale : après six mois, la phrase commune à toutes les fiches s\'affichera à la place du texte.']); }
+    // « Ce qui change » (consigne 423) : la phrase lue dans Nouveautés pour une fiche mise à jour ; l'outil écrit la date lui-même.
+    var mr = String(c.maj_resume).trim();
+    if (mr) {
+      if (mr.length < 20) { ko('Le « Ce qui change » est trop court : une ou deux phrases simples (20 caractères au moins).'); }
+      if (mr.length > 450) { ko('Le « Ce qui change » est trop long : ' + mr.length + ' caractères (450 au plus).'); }
+      if (/[<>&]/.test(mr)) { ko('Le « Ce qui change » ne peut pas contenir « < », « > » ni « & » : l\'application l\'écrit telle quelle dans la page.'); }
+      if (/[\r\n]/.test(mr)) { ko('Le « Ce qui change » tient en un seul paragraphe.'); }
+      if (/\bIA\b|ChatGPT|Perplexity|Claude|Gemini|Copilot|Mistral|OpenAI|Anthropic/i.test(mr)) { ko('Le « Ce qui change » ne peut citer ni le mot « IA » ni le nom d\'un assistant en ligne : dites « l\'assistant en ligne ».'); }
+    }
+    if (ficContenuChange(ch) && !c.formeSeule && (!mr || mr === String(o.maj_resume).trim())) { v.push(['warn', 'Le texte de la fiche change : écrivez aussi « Ce qui change », en mots simples. C\'est ce que les personnes liront dans Nouveautés (sans cette phrase, elles verront seulement le résumé de la fiche).']); }
+    if (String(o.maj_resume).trim() && !mr) { v.push(['warn', 'Le « Ce qui change » sera retiré de cette fiche.']); }
     var avant = ficTousLesTextes(o).concat([o.corps]).join('\n'), apres = ficTousLesTextes(c).concat([c.corps]).join('\n');
     if (/à vérifier/i.test(apres) && !/à vérifier/i.test(avant)) { v.push(['warn', 'Le texte contient « à vérifier » : une information incertaine ne se publie pas.']); }
     if (c.statut === 'retire' && o.statut !== 'retire') {
@@ -10854,6 +10871,7 @@
       + ficLigneHtml('voir_aussi_lexique', 'Voir aussi (Lexique)', '<div id="ficVaActuels"></div><div class="mini" style="margin-top:.4rem"><strong>Propositions pour cette fiche (<span id="ficVaNb"></span>)</strong> : les plus sûres en premier, rien ne s\'ajoute tout seul.</div><div class="fic-liste" id="ficVaListe"></div><div class="mini"><strong>Un mot qui n\'est pas proposé</strong> : chercher dans tout le Lexique</div><input type="text" id="ficVaRecherche" placeholder="Tapez quelques lettres du mot" autocomplete="off"><div class="fic-liste" id="ficVaRes" style="display:none"></div>')
       + ficLigneHtml('voir_aussi_chiffres', 'Voir aussi (Comprendre les chiffres)', '<label class="mini" for="ficChiffres" style="display:block;color:var(--text-muted)">La phrase écrite sur le bouton « Pour aller plus loin »</label><input type="text" id="ficChiffres" data-fic="voir_aussi_chiffres" autocomplete="off" aria-label="Phrase du bouton vers Comprendre les chiffres"><div class="mini" id="ficChiffresNb" style="color:var(--text-muted)"></div><div class="mini" style="margin-top:.4rem"><strong>Phrases déjà utilisées par d\'autres fiches</strong> : un clic la reprend, rien ne s\'écrit tout seul.</div><div class="fic-liste" id="ficChiffresSugg"></div><div class="barre"><button class="btn petit" type="button" id="ficChiffresVide">Ne pas mettre de bouton</button><button class="btn petit" type="button" id="ficChiffresOrig">Remettre la phrase d\'origine</button></div><div id="ficChiffresApercu"></div>', 'Le bouton mène toujours à l\'accueil de « Comprendre les chiffres » : il ne peut pas ouvrir un chiffre précis. La phrase doit donc inviter à aller voir les chiffres du territoire, sans promettre un chiffre. Laisser vide : la fiche n\'a pas de bouton.')
       + ficLigneHtml('phrase_generale', '<label for="ficPhraseGenerale">Phrase générale (après six mois)</label>', '<textarea id="ficPhraseGenerale" data-fic="phrase_generale" style="min-height:5rem" aria-label="Phrase générale"></textarea><div class="mini" id="ficPhraseGeneraleInfo" style="color:var(--text-muted)"></div>', 'Cette phrase remplace le texte de la fiche quand elle n\'a pas été vérifiée depuis six mois : la personne ne voit alors aucun montant, durée ni date qui aurait pu changer, seulement cette phrase, puis les sources officielles. Aucun chiffre, ni en chiffres ni en lettres (« deux ans »). Laisser vide : la phrase commune à toutes les fiches s\'affiche. Inutile pour une fiche sans chiffre.')
+      + ficLigneHtml('maj_resume', '<label for="ficMajResume">Ce qui change (affiché dans Nouveautés)</label>', '<textarea id="ficMajResume" data-fic="maj_resume" style="min-height:4rem" aria-label="Ce qui change" placeholder="Par exemple : le montant du 1er octobre est mis à jour et la démarche en ligne est ajoutée."></textarea><div class="mini" id="ficMajResumeInfo" style="color:var(--text-muted)"></div>', 'Une ou deux phrases simples, comme on le dirait à voix haute : ce qui est nouveau dans la fiche pour la personne qui la lit. Ne tapez pas de date : l\'outil écrit celle du jour. À remplir à chaque mise à jour qui change le texte ; pour une fiche nouvelle, laissez vide.')
       + ficLigneHtml('sources', 'Sources', '<div id="ficListeSources"></div><div class="mini" style="margin-top:.5rem"><strong>Ajouter une source du rayon « ' + esc(libelleRayonFic(r.rayon)) + ' » (<span id="ficSrcNb"></span>)</strong></div><input type="text" id="ficSrcRecherche" placeholder="Chercher dans le titre de la source" autocomplete="off"><div class="fic-liste" id="ficSrcListe"></div><details><summary class="mini">Une source qui n\'est pas dans ce rayon (dernier recours, <span id="ficSrcAutreNb"></span> adresses du registre)</summary><div class="fic-sous"><select id="ficSrcAutre" aria-label="Autre source du registre"></select><button class="btn petit" type="button" id="ficSrcAutreBtn">Ajouter</button></div></details>', 'Les sources viennent du registre des adresses. Une adresse nouvelle passe d\'abord par « Les adresses des fiches » : une source n\'est jamais inventée ici.')
       + ficLigneHtml('ce_qui_change_souvent', 'Ce qui change souvent', '<div id="ficListeChange"></div>')
       + ficLigneHtml('corps', '<label for="ficTexte">Texte de la fiche</label>', '<textarea id="ficTexte" data-fic="corps" style="min-height:17rem"></textarea><div class="mini" id="ficCorpsInfo" style="color:var(--text-muted)"></div>', 'Un paragraphe = une ligne vide entre deux blocs. Pas de mise en forme à écrire (pas de #, pas de **).')
@@ -10869,7 +10887,7 @@
   function ficRemplirChamps() {
     var c = ficCur;
     $d('ficTitre').value = c.titre; $d('ficPourQui').value = c.pour_qui; $d('ficTerritoire').value = c.territoire; $d('ficStatut').value = c.statut;
-    $d('ficChiffres').value = c.voir_aussi_chiffres; $d('ficPhraseGenerale').value = c.phrase_generale; $d('ficTexte').value = c.corps; $d('ficRevision').value = c.revision; $d('ficRetireRaison').value = c.retire_raison; $d('ficRemplacePar').value = c.remplace_par;
+    $d('ficChiffres').value = c.voir_aussi_chiffres; $d('ficPhraseGenerale').value = c.phrase_generale; $d('ficMajResume').value = c.maj_resume; $d('ficTexte').value = c.corps; $d('ficRevision').value = c.revision; $d('ficRetireRaison').value = c.retire_raison; $d('ficRemplacePar').value = c.remplace_par;
     $d('ficFormeSeule').checked = !!c.formeSeule;
     Array.prototype.forEach.call(document.querySelectorAll('input[name=ficDatation]'), function (x) { x.checked = x.value === c.datation; });
   }
@@ -10883,8 +10901,9 @@
     $d('ficLigneRetrait').style.display = ficCur.statut === 'retire' ? 'flex' : 'none';
     ficRendreChiffresApercu();
     $d('ficPhraseGeneraleInfo').textContent = String(ficCur.phrase_generale).length + ' caractères sur 500 au plus.' + (window.veilleAChiffres(ficCorpsNet(ficCur.corps)) ? '' : ' Cette fiche ne cite aucun chiffre : elle n\'en a pas besoin.');
+    $d('ficMajResumeInfo').textContent = String(ficCur.maj_resume).length + ' caractères sur 450 au plus.';
     $d('ficCorpsInfo').textContent = ficCorpsNet(ficCur.corps).split(/\n\s*\n/).filter(Boolean).length + ' paragraphes, ' + ficCorpsNet(ficCur.corps).length + ' caractères.';
-    var cles = { titre: ['titre'], pour_qui: ['pour_qui'], tags: ['tags'], territoire: ['territoire'], statut: ['statut'], retrait: ['retire_raison', 'remplace_par'], lexique: ['lexique'], voir_aussi_lexique: ['voir_aussi_lexique'], voir_aussi_chiffres: ['voir_aussi_chiffres'], sources: ['sources'], ce_qui_change_souvent: ['ce_qui_change_souvent'], corps: ['corps'], phrase_generale: ['phrase_generale'] };
+    var cles = { titre: ['titre'], pour_qui: ['pour_qui'], tags: ['tags'], territoire: ['territoire'], statut: ['statut'], retrait: ['retire_raison', 'remplace_par'], lexique: ['lexique'], voir_aussi_lexique: ['voir_aussi_lexique'], voir_aussi_chiffres: ['voir_aussi_chiffres'], sources: ['sources'], ce_qui_change_souvent: ['ce_qui_change_souvent'], corps: ['corps'], phrase_generale: ['phrase_generale'], maj_resume: ['maj_resume'] };
     Array.prototype.forEach.call($d('ficVueEdition').querySelectorAll('.fic-ligne[data-c]'), function (l) {
       var k = l.getAttribute('data-c'), change = false;
       if (cles[k]) { change = cles[k].some(function (x) { return ch[x] !== undefined; }); }
@@ -10962,6 +10981,7 @@
     if (ch.voir_aussi_lexique !== undefined) { d.push(ficCarte('modifie', 'Voir aussi (Lexique) : modifié', '<div class="avant">' + esc(o.voir_aussi_lexique || '(vide)') + '</div><div class="apres">' + esc(ch.voir_aussi_lexique.join(', ') || '(vide)') + '</div>')); nM++; }
     if (ch.voir_aussi_chiffres !== undefined) { d.push(ficCarte('modifie', 'Voir aussi (Comprendre les chiffres) : ' + (!ch.voir_aussi_chiffres ? 'bouton retiré' : (!o.voir_aussi_chiffres ? 'bouton ajouté' : 'phrase modifiée')), '<div class="avant">' + esc(o.voir_aussi_chiffres || '(aucun bouton)') + '</div><div class="apres">' + esc(ch.voir_aussi_chiffres || '(aucun bouton)') + '</div>')); nM++; }
     if (ch.phrase_generale !== undefined) { d.push(ficCarte('modifie', 'Phrase générale : ' + (!ch.phrase_generale ? 'retirée' : (!o.phrase_generale ? 'ajoutée' : 'modifiée')), '<div class="avant">' + esc(o.phrase_generale || '(aucune : phrase commune)') + '</div><div class="apres">' + esc(ch.phrase_generale || '(aucune : phrase commune)') + '</div>')); nM++; }
+    if (ch.maj_resume !== undefined) { d.push(ficCarte('modifie', 'Ce qui change (Nouveautés) : ' + (!ch.maj_resume ? 'retiré' : (!o.maj_resume ? 'ajouté' : 'modifié')), '<div class="avant">' + esc(o.maj_resume || '(aucun)') + '</div><div class="apres">' + esc(ch.maj_resume || '(aucun)') + '</div>')); nM++; }
     if (ch.statut !== undefined) {
       if (ch.statut === 'retire') { d.push(ficCarte('retire', 'État de la fiche : retirée', 'La fiche n\'apparaîtra plus dans l\'application (son texte est gardé). Raison : ' + esc(String(c.retire_raison).trim()) + (String(c.remplace_par).trim() ? ' ; remplacée par ' + esc(String(c.remplace_par).trim()) : ''))); nR++; }
       else { d.push(ficCarte('ajoute', 'État de la fiche : réactivée', 'La fiche réapparaît dans l\'application.')); nA++; }
@@ -11537,12 +11557,16 @@
   // ---------- 6. Les changements du trimestre : le sas du balayage (decision de Denis, 2026-10-15 : rien de public sans validation) ----------
   var CHG_PAGE = 8;
   var CHG_CHAMPS = ['domaine', 'intitule', 'nature', 'en_vigueur', 'concerne', 'ce_qui_change', 'source_titre', 'source_url'];
-  var CHG_LIBELLES = { domaine: 'Domaine', intitule: 'Intitulé', nature: 'Nature et date du texte', en_vigueur: 'En vigueur le', concerne: 'Public concerné', ce_qui_change: 'Ce qui change', source_titre: 'Titre de la source', source_url: 'Adresse de la source' };
-  var CHG_AIDES = { en_vigueur: 'AAAA-MM-JJ, ou « prévu AAAA-MM-JJ » si pas encore en vigueur, ou « sans objet » pour une simple information', nature: 'ex. : décret du 2026-06-12', source_url: 'doit commencer par https://' };
-  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '', ecart: {}, ecartees: [], ecFiltre: '', ecNote: null, versEcartees: false, vueEcartees: false };
+  var CHG_LIBELLES = { domaine: 'Domaine', intitule: 'Intitulé', nature: 'Nature et date du texte', en_vigueur: 'En vigueur le', concerne: 'Public concerné', ce_qui_change: 'Ce qui change', source_titre: 'Titre de la source', source_url: 'Adresse de la source', fiche_liee: 'Fiche liée (facultatif)', detail: 'Texte complet (facultatif)' };
+  // Champs facultatifs (consignes 425 et 426) : la fiche qui développe le changement, et son texte complet lu dans « Lire plus d'informations ». Le texte complet est gardé « élément ¶ élément » (une ligne = un élément) ; la case l'affiche une ligne par élément.
+  var CHG_OPTIONNELS = ['fiche_liee', 'detail'];
+  var CHG_AIDES = { en_vigueur: 'AAAA-MM-JJ, ou « prévu AAAA-MM-JJ » si pas encore en vigueur, ou « sans objet » pour une simple information', nature: 'ex. : décret du 2026-06-12', source_url: 'doit commencer par https://',
+    fiche_liee: 'Choisissez dans la liste : le bouton deviendra « Lire la fiche en entier ». Laissez vide si aucune fiche n\'existe encore (pour un changement à venir, écrivez plutôt le texte complet ci-dessous).',
+    detail: 'Une ligne = un élément. « # » au début : intertitre. « > libellé = valeur » : une ligne du rappel de la situation actuelle. « ! » au début : note datée du rappel. Sans signe : paragraphe. Jamais le mot « IA » ni le nom d\'un assistant.' };
+  var chg = { lignes: [], attente: {}, edits: {}, verif: {}, page: 0, filtre: '', dom: '', q: '', aujourdhui: '', ecart: {}, ecartees: [], ecFiltre: '', ecNote: null, versEcartees: false, vueEcartees: false, officiel: {} };
   // ---------- Les fiches du cadre proposées par l'assistant (le sas des fiches : mise à jour, nouvelle fiche, retrait), dans la même fenêtre « À valider » ----------
   // Rien n'est écrit ici : la lecture et le contrôle viennent du serveur (outils/veilleFichesSas.js), la publication passe par le circuit « Publier » qui existe déjà.
-  var fc = { lignes: [], attente: {}, rev: {}, redater: {}, src: {}, texte: {}, msg: {}, ecart: {} };
+  var fc = { lignes: [], attente: {}, rev: {}, redater: {}, src: {}, texte: {}, msg: {}, ecart: {}, lien: {} };
   var FC_GENRES = { maj: { k: 'fc-maj', lib: 'Mise à jour d\'une fiche' }, nouv: { k: 'fc-nouv', lib: 'Nouvelle fiche' }, ret: { k: 'fc-ret', lib: 'Retrait' }, brut: { k: 'fc-brut', lib: 'Information brute' } };
   function fcLigne(id) { return fc.lignes.filter(function (x) { return x.id === id; })[0]; }
   function fcPrev(l) { return fc.src[l.id] !== undefined ? !!fc.src[l.id] : !!l.prev; }
@@ -11630,6 +11654,9 @@
       + '<span class="pastille p-' + g.k + '">' + g.lib + '</span> <span class="pastille p-neutre">' + esc(libelleRayonFic(l.rayon) || 'sans rayon') + '</span><br><strong>' + esc(l.titre || l.fiche) + '</strong>'
       + (l.creeLe ? ' <span class="mini">proposé le ' + esc(dateFr(l.creeLe)) + '</span>' : '');
     if ((l.problemes || []).length) { h += '<div class="note warn"><span>&#9888;&#65039;</span><span>' + l.problemes.map(esc).join('<br>') + '</span></div>'; }
+    if (l.genre === 'nouv' && l.depuisChangement) {
+      h += '<div class="note ok"><span>&#128279;</span><span><strong>Créée depuis le changement « ' + esc(l.depuisChangement.intitule) + ' ».</strong> ' + (dec ? '' : '<label class="chg-source" style="display:block"><input type="checkbox" data-fc-lien="' + id + '"' + (fc.lien[l.id] === false ? '' : ' checked') + '> À la publication, lier cette fiche à ce changement : il proposera « Lire la fiche en entier »</label>') + '</span></div>';
+    }
     if (l.genre === 'nouv' && (l.ressemble || []).length) { h += fcRessembleHtml(l.ressemble, l.id); }
     if (brut) {
       h += '<pre class="fc-brut">' + esc(l.texteBrut) + '</pre>';
@@ -11729,16 +11756,76 @@
   }
   window.fcAPI = {
     lire: function (texte, rayon, fiche) { return appeler('/api/fichessas/lire', { texte: texte, rayon: rayon || '', fiche: fiche || '' }); },
-    importer: function (propositions) { return appeler('/api/publier', { fichiers: [{ type: 'fiches-sas', actions: [{ op: 'importer', items: propositions }] }] }); },
+    importer: function (propositions) {
+      var dep = chgDepuisLire(), nouvelles = dep ? propositions.filter(function (p) { return p && p.genre === 'nouv'; }) : [];
+      nouvelles.forEach(function (p) { p.depuis_changement = dep; });
+      return appeler('/api/publier', { fichiers: [{ type: 'fiches-sas', actions: [{ op: 'importer', items: propositions }] }] }).then(function (r) { if (r && r.ok && nouvelles.length) { chgDepuisEffacer(); } return r; });
+    },
     lister: function () { return appeler('/api/fichessas/lister', {}); }
   };
 
+  // ----- Créer la fiche à partir d'un changement (consigne 426, second temps) -----
+  // Le changement d'origine est gardé (navigateur) entre le clic sur le bouton et le collage de la réponse de l'assistant.
+  var CLE_DEPUIS = 'veille_fiche_depuis_changement';
+  function chgDepuisLire() { try { var o = JSON.parse(localStorage.getItem(CLE_DEPUIS) || 'null'); return o && o.mois && o.domaine && o.intitule ? o : null; } catch (e) { return null; } }
+  function chgDepuisEcrire(o) { try { localStorage.setItem(CLE_DEPUIS, JSON.stringify(o)); } catch (e) { /* tant pis : le lien se choisira à la main */ } }
+  function chgDepuisEffacer() { try { localStorage.removeItem(CLE_DEPUIS); } catch (e) { /* rien */ } }
+  // Le rayon proposé d'après le domaine du changement (la personne peut en choisir un autre sur l'écran « Créer »).
+  var CHG_RAYONS_DOMAINES = [['emploi et contrats', 'emploi'], ['assurance chomage', 'emploi'], ['formation', 'former'], ['insertion par', 'accompagnement'], ['handicap', 'handicap'], ['rsa', 'budget'], ['sejour', 'etranger'], ['mobilite', 'mobilite'], ['accompagnement des jeunes', 'jeunes'], ['retraite', 'seniors'], ['logement', 'logement'], ['garde', 'garde'], ['acces aux soins', 'sante'], ['budget', 'budget'], ['parents separes', 'parents-separes'], ['justice', 'justice'], ['acces au droit', 'juridique'], ['apprendre le francais', 'francais'], ['creer son', 'creer'], ['employeurs', 'employeurs'], ['agriculture', 'agriculture'], ['fonction publique', 'fonction-publique'], ['armees', 'armees']];
+  function chgRayonPropose(domaine) {
+    var d = String(domaine || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''), r = '';
+    CHG_RAYONS_DOMAINES.some(function (x) { if (d.indexOf(x[0]) === 0) { r = x[1]; return true; } return false; });
+    return r;
+  }
+  // Le texte complet (éléments « # », « > libellé = valeur », « ! », paragraphes) rendu en lignes simples pour le message de l'assistant.
+  function chgTexteDepuisDetail(l) {
+    var lignes = [];
+    String(chgValeur(l, 'detail')).split('¶').map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (x) {
+      var m;
+      if ((m = /^#\s*(.+)$/.exec(x))) { lignes.push('', m[1]); }
+      else if ((m = /^>\s*(.+?)\s+=\s+(.+)$/.exec(x))) { lignes.push('  ' + m[1] + ' : ' + m[2]); }
+      else if ((m = /^!\s*(.+)$/.exec(x))) { lignes.push('  (' + m[1] + ')'); }
+      else { lignes.push(x); }
+    });
+    return lignes.join('\n').replace(/^\n+/, '');
+  }
+  function chgMessageCreerFiche(l) {
+    return String(chgValeur(l, 'intitule')) + '\n\n'
+      + 'Je veux créer une NOUVELLE fiche pour « Comprendre le cadre » à partir de ce changement. La règle est maintenant en vigueur : ouvre d\'abord la source officielle, vérifie chaque montant et chaque date, et n\'écris que ce que la source dit. Retire les passages écrits « en attendant » (ce qui n\'est pas encore décidé, que faire d\'ici là).\n\n'
+      + 'Texte du changement (écrit avant la parution du texte officiel) :\n' + chgTexteDepuisDetail(l) + '\n\n'
+      + 'Source : ' + chgValeur(l, 'source_titre') + ' ' + chgValeur(l, 'source_url');
+  }
+  // « prévu » ou date encore dans le futur : la règle n'est pas acquise, la fiche attend le texte officiel.
+  function chgAvenir(l) {
+    var v = String(chgValeur(l, 'en_vigueur')).trim();
+    if (/^pr[ée]vu/i.test(v)) { return true; }
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) && !!chg.aujourdhui && v > chg.aujourdhui;
+  }
+  function chgCreerFicheHtml(l) {
+    if (!String(chgValeur(l, 'detail')).trim()) { return ''; }
+    var id = esc(l.id), lie = String(chgValeur(l, 'fiche_liee')).trim();
+    if (lie) { return '<div class="note ok"><span>Ce changement a déjà sa fiche : <strong>' + esc(lie) + '</strong>.</span></div>'; }
+    var avenir = chgAvenir(l), coche = !!chg.officiel[l.id];
+    return '<div class="chg-creer-fiche" data-chg-creer-zone="' + id + '"><strong>Créer la fiche</strong>'
+      + (avenir ? '<div class="note warn"><span>&#9203;</span><span><strong>Cette règle n\'est pas encore en vigueur.</strong> Une fiche se crée quand le texte officiel est paru : sinon elle risque de dire autre chose que la règle finale. Le bouton reste grisé tant que la case ci-dessous n\'est pas cochée.</span></div>'
+        + '<label class="chg-source"><input type="checkbox" data-chg-officiel="' + id + '"' + (coche ? ' checked' : '') + '> Le texte officiel est paru et j\'ai ouvert la source pour le relire</label>' : '')
+      + '<div class="btn-rangee"><button class="btn primaire petit" type="button" data-chg-creer="' + id + '"' + (avenir && !coche ? ' disabled' : '') + '>Créer la fiche à partir de ce changement</button></div>'
+      + '<div class="mini">Prépare le message pour l\'assistant avec le texte complet et la source, et ouvre l\'écran « Créer » déjà rempli (rayon proposé : ' + esc(libelleRayonFic(chgRayonPropose(chgValeur(l, 'domaine'))) || 'à choisir') + '). Rien n\'est publié.</div></div>';
+  }
   function chgV(id) { chg.verif[id] = chg.verif[id] || { texte: '', analyse: null, garder: {}, remplis: {}, sourceOk: false, msg: '' }; return chg.verif[id]; }
   function chgValeur(l, c) { var e = chg.edits[l.id]; return (e && e[c] !== undefined) ? e[c] : (l.valeurs[c] || ''); }
   // Memes regles que le serveur (veilleChangements.js, verifierChangement) : le bouton se grise ici, mais c'est le serveur qui decide.
   function chgProblemes(l) {
     var v = {}; CHG_CHAMPS.forEach(function (c) { v[c] = String(chgValeur(l, c)).trim(); });
-    var p = [];
+    var p = [], fl = String(chgValeur(l, 'fiche_liee')).trim(), det = String(chgValeur(l, 'detail'));
+    if (fl && !/^[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/.test(fl)) { p.push('La fiche liée s\'écrit « rayon/identifiant » : choisissez-la dans la liste'); }
+    if (det.trim()) {
+      if (det.length > 3000) { p.push('Le texte complet est trop long (' + det.length + ' caractères, 3000 au plus)'); }
+      if (/\bIA\b|ChatGPT|Perplexity|Claude|Gemini|Copilot|Mistral|OpenAI|Anthropic/i.test(det)) { p.push('Le texte complet ne peut citer ni le mot « IA » ni un assistant'); }
+      if (det.split('¶').some(function (x) { x = x.trim(); return /^>/.test(x) && !/^>\s*.+?\s+=\s+.+$/.test(x); })) { p.push('Une ligne du rappel doit s\'écrire « > libellé = valeur »'); }
+      if (det.split('¶').some(function (x) { return x.trim().length > 700; })) { p.push('Une ligne du texte complet dépasse 700 caractères : coupez-la en deux'); }
+      if (/à vérifier|a verifier|à confirmer/i.test(det)) { p.push('« Texte complet » contient « à vérifier » : à lever avant de valider'); }
+    }
     CHG_CHAMPS.forEach(function (c) { if (!v[c] && c !== 'en_vigueur') { p.push(CHG_LIBELLES[c] + ' : obligatoire'); } });
     if (!v.en_vigueur) { p.push('La date d\'entrée en vigueur est obligatoire'); }
     else if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(v.en_vigueur) && !/^pr[ée]vu\s+\d{4}-\d{2}-\d{2}$/i.test(v.en_vigueur) && !/^sans objet$/i.test(v.en_vigueur)) { p.push('La date d\'entrée en vigueur doit s\'écrire AAAA-MM-JJ'); }
@@ -11753,15 +11840,22 @@
   }
   function chgChampHtml(l, c, dec) {
     var val = chgValeur(l, c), pb = chgProblemes(l), attendu = (c === 'en_vigueur' && pb.some(function (x) { return /entrée en vigueur/.test(x); })) || (!String(val).trim());
-    var champ = c === 'ce_qui_change'
+    var optionnel = CHG_OPTIONNELS.indexOf(c) >= 0;
+    if (optionnel) { attendu = false; }
+    var champ = c === 'detail'
+      ? '<textarea data-chg-champ="' + esc(l.id) + '|' + c + '"' + (dec ? ' readonly' : '') + ' rows="8" placeholder="Une ligne par élément. Laissez vide s\'il n\'y a pas de texte complet.">' + esc(String(val).split('¶').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')) + '</textarea>'
+      : c === 'fiche_liee'
+      ? '<input type="text" list="chgFichesListe" data-chg-champ="' + esc(l.id) + '|' + c + '" value="' + esc(val) + '"' + (dec ? ' readonly' : '') + ' autocomplete="off" placeholder="rayon/identifiant (choisissez dans la liste)">'
+      : c === 'ce_qui_change'
       ? '<textarea data-chg-champ="' + esc(l.id) + '|' + c + '"' + (dec ? ' readonly' : '') + (attendu ? ' class="attendu"' : '') + '>' + esc(val) + '</textarea>'
       : '<input type="text" data-chg-champ="' + esc(l.id) + '|' + c + '" value="' + esc(val) + '"' + (dec ? ' readonly' : '') + (attendu ? ' class="attendu"' : '') + ' autocomplete="off">';
+    var extraTexte = c === 'detail' && !dec ? chgTexteHtml(l) : '';
     var extra = c === 'source_url' && /^https:\/\//.test(val) ? ' <a class="btn petit" href="' + esc(val) + '" target="_blank" rel="noopener noreferrer">Ouvrir la source</a>' : '';
     var sansObjet = c === 'en_vigueur' && /^sans objet$/i.test(String(val).trim());
     if (sansObjet) { champ = champ.replace('<input ', '<input disabled '); }
     var case_so = c === 'en_vigueur' ? '<label class="chg-sansobjet"><input type="checkbox" data-chg-sansobjet="' + esc(l.id) + '"' + (sansObjet ? ' checked' : '') + (dec ? ' disabled' : '') + '> Sans objet (circulaire, programme, information : pas d\'entrée en vigueur)</label>' : '';
     var vr = chg.verif[l.id], prop = vr && vr.remplis && vr.remplis[c] ? ' <span class="pastille p-warn">proposé par l\'assistant</span>' : '';
-    return '<div class="chg-champ"><label>' + CHG_LIBELLES[c] + prop + '</label><div class="valeur">' + champ + case_so + (CHG_AIDES[c] ? '<div class="mini">' + esc(CHG_AIDES[c]) + '</div>' : '') + extra + '</div></div>';
+    return '<div class="chg-champ"><label>' + CHG_LIBELLES[c] + prop + '</label><div class="valeur">' + champ + case_so + (CHG_AIDES[c] ? '<div class="mini">' + esc(CHG_AIDES[c]) + '</div>' : '') + extra + extraTexte + '</div></div>';
   }
   var CHG_MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   // D'où vient un changement : le balayage d'un mois, celui d'un trimestre, ou un texte déjà publié à reconfirmer (couleurs de l'écran « À valider »).
@@ -11784,8 +11878,20 @@
     h += '<div><strong>Concerne :</strong> ' + esc(v.concerne || '(à renseigner)') + '</div>';
     h += '<div class="quoi"><strong>Ce qui change.</strong> ' + esc(v.ce_qui_change || '(à renseigner)') + '</div>';
     h += '<div class="mini">Source : ' + esc(v.source_titre || '(titre à renseigner)') + ' · ' + esc(v.source_url || '(adresse à renseigner)') + '</div>';
+    var elts = String(chgValeur(l, 'detail')).split('¶').map(function (x) { return x.trim(); }).filter(Boolean), fl = String(chgValeur(l, 'fiche_liee')).trim();
+    if (fl) { h += '<div class="mini">Bouton « Lire la fiche en entier » : ouvre la fiche <strong>' + esc(fl) + '</strong>.</div>'; }
+    else if (elts.length) { h += '<div class="mini">Bouton « Lire plus d\'informations » : ouvre un texte complet de ' + elts.length + ' élément' + (elts.length > 1 ? 's' : '') + ' (rendu exact dans l\'application).</div>'; }
     h += '<div class="mini">Domaine : ' + esc(v.domaine) + '</div>';
     return h;
+  }
+  // Liste des fiches existantes (« rayon/identifiant » avec leur titre), tirée de la base copiée dans l'outil : pour choisir une fiche liée sans la taper.
+  function chgFichesListeHtml() {
+    var b = window.BASE_VEILLE, h = '<datalist id="chgFichesListe">';
+    ((b && b.fiches) || []).forEach(function (f) {
+      var id = /^id:\s*(\S+)/m.exec(f.texte), ra = /^rayon:\s*(\S+)/m.exec(f.texte), ti = /^titre:\s*"?(.+?)"?\s*$/m.exec(f.texte);
+      if (id && ra) { h += '<option value="' + esc(ra[1] + '/' + id[1]) + '">' + esc(ti ? ti[1] : '') + '</option>'; }
+    });
+    return h + '</datalist>';
   }
   function chgHtmlFiche(l) {
     var dec = chg.attente[l.id], pb = chgBloquages(l), id = esc(l.id);
@@ -11794,11 +11900,12 @@
     h += ' <span class="mini">' + esc(l.valeurs.periode || ('mois ' + l.valeurs.mois)) + '</span>';
     h += '<p class="mini" style="margin:.4rem 0 .1rem">Ce que le public verra (se met à jour quand vous modifiez les cases) :</p><div class="chg-apercu" data-chg-apercu="' + id + '">' + chgApercuHtml(l) + '</div>';
     if (l.publie) { h += '<details class="chg-publie"><summary>Voir le texte actuellement publié (avant vos corrections)</summary><pre>' + esc(l.publie) + '</pre></details>'; }
-    CHG_CHAMPS.forEach(function (c) { h += chgChampHtml(l, c, !!dec); });
+    CHG_CHAMPS.concat(CHG_OPTIONNELS).forEach(function (c) { h += chgChampHtml(l, c, !!dec); });
     if (dec) {
       h += '<div class="note ' + (dec === 'valider' ? 'ok' : 'alert') + '"><span>' + (dec === 'valider' ? 'Sera <strong>publié</strong> dans le digest avec la marque « Vérifié le ' + esc(dateFr(chg.aujourdhui)) + ' ».' : 'Sera <strong>écarté</strong> : retiré du sas, jamais publié, gardé dans l’historique « Écartées ».') + '</span> <button class="btn petit" type="button" data-chg-annuler="' + id + '">Annuler ce choix</button></div>' + (dec === 'ecarter' ? ecartZoneHtml('c', l.id) : '');
     } else {
       h += chgVerifHtml(l);
+      h += chgCreerFicheHtml(l);
       h += '<div class="chg-pb" data-chg-pb="' + id + '">' + (pb.length ? 'À compléter : ' + esc(pb.join(' ; ')) : '') + '</div>';
       if (chg.edits[l.id] && Object.keys(chg.edits[l.id]).length) { h += '<div class="btn-rangee"><button class="btn petit" type="button" data-chg-reset="' + id + '">Revenir au texte d\'origine du sas</button></div>'; }
       h += '<div class="btn-rangee"><button class="btn primaire petit" type="button" data-chg-dec="' + id + ':valider"' + (pb.length ? ' disabled' : '') + '>C\'est bon, publier (date du jour)</button> ' +
@@ -11821,6 +11928,30 @@
     });
     h += '</tbody></table><div class="btn-rangee"><button class="btn primaire petit" type="button" data-chg-remplir="' + esc(l.id) + '">Remplir les cases cochées</button></div>';
     return h;
+  }
+  // « Rédiger le texte complet avec l'assistant » (consigne 426) : un message à part de la vérification des cases. Ce qui est lu et refait n'est JAMAIS publié tel quel :
+  // il remplit la case « Texte complet » (pastille « proposé par l'assistant »), et « C'est bon » reste bloqué tant que « J'ai ouvert la source » n'est pas coché.
+  function chgT(id) { chg.texteV = chg.texteV || {}; chg.texteV[id] = chg.texteV[id] || { texte: '', analyse: null, msg: '' }; return chg.texteV[id]; }
+  function chgLignesTexte(s) { return String(s || '').split('¶').map(function (x) { return x.trim(); }).filter(Boolean).join('\n'); }
+  // Le texte proposé est-il déjà celui de la case ? Calculé sur la case telle qu'elle est MAINTENANT (la personne a pu la retoucher depuis la lecture).
+  function chgTexteIdentique(l, a) { var n = function (x) { return String(x || '').toLowerCase().replace(/[^a-z0-9à-ÿ]+/g, ''); }; return !!n(chgValeur(l, 'detail')) && n(chgValeur(l, 'detail')) === n(a.detail); }
+  function chgTexteProposHtml(l) {
+    var a = chgT(l.id).analyse; if (!a) { return ''; }
+    if (!a.ok) { return '<div class="chg-pb">' + esc(a.erreur || 'Lecture impossible.') + '</div>'; }
+    var id = esc(l.id), existe = !!String(chgValeur(l, 'detail')).trim(), identique = chgTexteIdentique(l, a), bloque = a.problemes.length > 0 || identique;
+    var h = '<p class="mini">Statut annoncé : <strong>' + esc(a.statut || 'non précisé') + '</strong>' + (a.remarque ? ' · ' + esc(a.remarque) : '') + '</p>';
+    h += '<div class="mini">Pages lues : ' + (a.pages.length ? a.pages.map(function (p) { return esc(p) + ' <a class="btn petit" href="' + esc(p) + '" target="_blank" rel="noopener noreferrer">Ouvrir</a>'; }).join(' · ') : '<strong>aucune page indiquée : à confirmer</strong>') + '</div>';
+    if (a.citations.length) { h += '<div class="mini">' + a.citations.map(function (c) { return '« ' + esc(c) + ' »'; }).join(' · ') + '</div>'; }
+    a.problemes.forEach(function (p) { h += '<div class="chg-pb">' + esc(p) + '</div>'; });
+    h += '<div class="chg-comp">' + (existe ? '<div><strong>Texte actuel</strong><pre>' + esc(chgLignesTexte(chgValeur(l, 'detail'))) + '</pre></div>' : '') + '<div><strong>' + (existe ? 'Texte proposé' : 'Texte proposé (la case est vide)') + '</strong><pre>' + esc(chgLignesTexte(a.detail)) + '</pre></div></div>';
+    if (identique) { h += '<div class="mini">Le texte proposé est déjà celui de la case.</div>'; }
+    return h + '<div class="btn-rangee"><button class="btn primaire petit" type="button" data-chg-remplir-texte="' + id + '"' + (bloque ? ' disabled' : '') + '>' + (existe ? 'Remplacer le texte complet par cette proposition' : 'Remplir la case « Texte complet »') + '</button></div>';
+  }
+  function chgTexteHtml(l) {
+    var id = esc(l.id), t = chgT(l.id), existe = !!String(chgValeur(l, 'detail')).trim();
+    return '<div class="chg-texte"><div class="btn-rangee"><button class="btn petit btn-verif" type="button" data-chg-prompt-texte="' + id + '">' + (existe ? 'Faire réécrire le texte complet par un assistant (copie le message)' : 'Faire rédiger le texte complet par un assistant (copie le message)') + '</button> <span class="mini" data-chg-texte-msg="' + id + '">' + esc(t.msg || '') + '</span></div>'
+      + '<details' + (t.texte || t.analyse ? ' open' : '') + '><summary>Coller la réponse de l\'assistant (texte complet)</summary><textarea data-chg-reponse-texte="' + id + '" placeholder="Collez ici la réponse de l\'assistant (le bloc [TEXTE_COMPLET]).">' + esc(t.texte || '') + '</textarea>'
+      + '<div class="btn-rangee"><button class="btn petit" type="button" data-chg-lire-texte="' + id + '">Lire la réponse</button></div><div data-chg-texte-prop="' + id + '">' + chgTexteProposHtml(l) + '</div></details></div>';
   }
   function chgVerifHtml(l) {
     var id = esc(l.id), v = chg.verif[l.id] || {};
@@ -11942,7 +12073,7 @@
     var doms = []; tous.forEach(function (l) { var d = l.valeurs.domaine; if (d && doms.indexOf(d) === -1) { doms.push(d); } });
     var nbPrev = tous.filter(chgPrev).length + fc.lignes.filter(function (x) { return x.genre !== 'brut' && fcPrev(x); }).length;
     fc.lignes.forEach(function (x) { var d = 'rayon:' + x.rayon; if (x.rayon && doms.indexOf(d) === -1) { doms.push(d); } });
-    var h = '<div class="chg-collant-bande"><div class="barre"><span><strong>' + (tous.length + fc.lignes.length) + '</strong> proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' dans le sas (' + fc.lignes.length + ' fiche' + (fc.lignes.length > 1 ? 's' : '') + ' du cadre, ' + tous.length + ' changement' + (tous.length > 1 ? 's' : '') + ' du balayage), dont <strong>' + nbPrev + '</strong> pré-vérifié' + (nbPrev > 1 ? 's' : '') + ' et <strong>' + aCompleter + '</strong> à compléter</span></div>';
+    var h = chgFichesListeHtml() + '<div class="chg-collant-bande"><div class="barre"><span><strong>' + (tous.length + fc.lignes.length) + '</strong> proposition' + ((tous.length + fc.lignes.length) > 1 ? 's' : '') + ' dans le sas (' + fc.lignes.length + ' fiche' + (fc.lignes.length > 1 ? 's' : '') + ' du cadre, ' + tous.length + ' changement' + (tous.length > 1 ? 's' : '') + ' du balayage), dont <strong>' + nbPrev + '</strong> pré-vérifié' + (nbPrev > 1 ? 's' : '') + ' et <strong>' + aCompleter + '</strong> à compléter</span></div>';
     var legendeH = '<div class="legende-chg"><strong>D\'où ça vient :</strong> <span class="pastille p-o-mois">Balayage du mois</span> <span class="pastille p-o-trim">Balayage du trimestre</span> <span class="pastille p-o-rep">Déjà publié, à reconfirmer</span> <span class="pastille p-fc-maj">Mise à jour d\'une fiche</span> <span class="pastille p-fc-nouv">Nouvelle fiche</span> <span class="pastille p-fc-ret">Retrait</span> <span class="badge-prev" style="position:static">&#9733; PRÉ-VÉRIFIÉ</span> = source ouverte et confirmée par vous, il reste « C\'est bon »</div>';
     var ec = chg.vueEcartees;
     h += '<div class="filtres-chg">' + (ec ? '' : '<div><label for="chgFiltre">Ce que je veux voir</label><select id="chgFiltre" aria-label="Filtrer"><option value="">Tout</option>' + '<option value="fiches"' + (chg.filtre === 'fiches' ? ' selected' : '') + '>Fiches du cadre (toutes)</option><option value="f-maj"' + (chg.filtre === 'f-maj' ? ' selected' : '') + '>Mises à jour de fiches</option><option value="f-nouv"' + (chg.filtre === 'f-nouv' ? ' selected' : '') + '>Nouvelles fiches</option><option value="f-ret"' + (chg.filtre === 'f-ret' ? ' selected' : '') + '>Retraits</option><option value="f-brut"' + (chg.filtre === 'f-brut' ? ' selected' : '') + '>Informations brutes en réserve</option>' + '<option value="mois"' + (chg.filtre === 'mois' ? ' selected' : '') + '>Balayage du mois</option>' + '<option value="trim"' + (chg.filtre === 'trim' ? ' selected' : '') + '>Balayage du trimestre</option>' + '<option value="rep"' + (chg.filtre === 'rep' ? ' selected' : '') + '>Déjà publié, à reconfirmer</option>' + '<option value="prev"' + (chg.filtre === 'prev' ? ' selected' : '') + '>Pré-vérifiés</option>' + '<option value="averifier"' + (chg.filtre === 'averifier' ? ' selected' : '') + '>À vérifier</option>' + '<option value="completer"' + (chg.filtre === 'completer' ? ' selected' : '') + '>À compléter (date manquante...)</option>' + '<option value="nouveaux"' + (chg.filtre === 'nouveaux' ? ' selected' : '') + '>Nouveaux</option>' + '</select></div>')
@@ -12033,6 +12164,13 @@
       }
       var eF = fc.ecart[id] || {};
       sortisFc.push(fc.attente[id] === 'ecarter' && lf.genre !== 'brut' ? { op: 'ecarter', id: id, motif: eF.m, precision: eF.p || '' } : { op: 'retirer', id: id });
+    });
+    // Une nouvelle fiche créée depuis un changement : la fiche liée de ce changement se remplit dans le même enregistrement (sans renouveler sa date « Vérifié le »).
+    idsFc.forEach(function (id) {
+      var lf = fcLigne(id); if (!lf || fc.attente[id] !== 'valider' || !lf.demande || lf.genre !== 'nouv' || !lf.depuisChangement || fc.lien[id] === false) { return; }
+      var dm = lf.depuisChangement, act = { op: 'lier', mois: dm.mois, domaine: dm.domaine, intitule: dm.intitule, fiche_liee: lf.demande.rayon + '/' + String(lf.demande.nom).replace(/\.md$/, '') };
+      var deja = fichiers.filter(function (x) { return x.type === 'changements'; })[0];
+      if (deja) { deja.actions.push(act); } else { fichiers.push({ type: 'changements', actions: [act] }); }
     });
     if (sortisFc.length) { fichiers.push({ type: 'fiches-sas', actions: sortisFc }); }
     var b = $d('chgEnregistrer'); if (b) { b.disabled = true; b.textContent = 'Enregistrement...'; }
@@ -12316,14 +12454,17 @@
   $d('chgFermer').addEventListener('click', function () { chg.attente = {}; chg.ecart = {}; fc.ecart = {}; $d('chgFenetre').style.display = 'none'; chgCharger(); setTimeout(majRendreBadge, 600); if (window.tcVerifierSas) { setTimeout(window.tcVerifierSas, 800); } });
   $d('chgFenetre').addEventListener('input', function (e) {
     var rp = e.target.getAttribute && e.target.getAttribute('data-chg-reponse'); if (rp) { chgV(rp).texte = e.target.value; return; }
+    var rt = e.target.getAttribute && e.target.getAttribute('data-chg-reponse-texte'); if (rt) { chgT(rt).texte = e.target.value; return; }
     var t = e.target, k = t.getAttribute && t.getAttribute('data-chg-champ'); if (!k) { return; }
-    var p = k.split('|'); chg.edits[p[0]] = chg.edits[p[0]] || {}; chg.edits[p[0]][p[1]] = t.value; chgMajCarte(p[0]);
+    var p = k.split('|'); chg.edits[p[0]] = chg.edits[p[0]] || {}; chg.edits[p[0]][p[1]] = p[1] === 'detail' ? t.value.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean).join(' ¶ ') : t.value; chgMajCarte(p[0]);
   });
   $d('chgFenetre').addEventListener('change', function (e) {
     var t = e.target, g;
     if (t.id === 'chgFiltre') { chg.filtre = t.value; chg.page = 0; chgRendre(); return; }
     if (t.id === 'chgDom') { chg.dom = t.value; chg.page = 0; chgRendre(); return; }
     if (t.id === 'chgRech') { chg.q = t.value; chg.page = 0; chgRendre(); var r2 = $d('chgRech'); if (r2) { r2.focus(); } return; }
+    if ((g = t.getAttribute('data-chg-officiel'))) { chg.officiel[g] = t.checked; var bC = document.querySelector('[data-chg-creer="' + g.replace(/"/g, '') + '"]'); if (bC) { bC.disabled = !t.checked; } return; }
+    if ((g = t.getAttribute('data-fc-lien'))) { fc.lien[g] = t.checked; return; }
     if ((g = t.getAttribute('data-chg-garder'))) { var pg = g.split('|'); chgV(pg[0]).garder[pg[1]] = t.checked; return; }
     if ((g = t.getAttribute('data-chg-source-ok'))) { chgV(g).sourceOk = t.checked; chgMajCarte(g); chgMajBadge(g); return; }
     if ((g = t.getAttribute('data-chg-sansobjet'))) {
@@ -12333,7 +12474,7 @@
       chgMajCarte(g);
     }
   });
-  function chgValeursCourantes(l) { var v = {}; CHG_CHAMPS.forEach(function (c) { v[c] = String(chgValeur(l, c)).trim(); }); return v; }
+  function chgValeursCourantes(l) { var v = {}; CHG_CHAMPS.concat(CHG_OPTIONNELS).forEach(function (c) { v[c] = String(chgValeur(l, c)).trim(); }); return v; }
   function chgLigne(id) { return chg.lignes.filter(function (x) { return x.id === id; })[0]; }
   // Range dans les cases de la carte les propositions cochées de la réponse de l'assistant (« Lire la réponse » le fait seul ; le bouton « Remplir les cases cochées » le refait après un décochage).
   function chgRemplirDepuisReponse(id) {
@@ -12346,6 +12487,14 @@
     var t = e.target.closest ? e.target.closest('button') : null; if (!t) { return; }
     var dec = t.getAttribute('data-chg-dec');
     if (dec) { var q = dec.lastIndexOf(':'); chg.attente[dec.slice(0, q)] = dec.slice(q + 1); chgRendre(); return; }
+    var idCr = t.getAttribute('data-chg-creer');
+    if (idCr) {
+      var lc = chgLigne(idCr); if (!lc) { return; }
+      var vc = {}; CHG_CHAMPS.forEach(function (c) { vc[c] = String(chgValeur(lc, c)).trim(); });
+      chgDepuisEcrire({ mois: lc.valeurs.mois, domaine: vc.domaine, intitule: vc.intitule });
+      if (typeof window.majPreparerDepuisBrut === 'function') { $d('chgFenetre').style.display = 'none'; window.majPreparerDepuisBrut(chgRayonPropose(vc.domaine), chgMessageCreerFiche(lc)); }
+      return;
+    }
     var idp = t.getAttribute('data-chg-prompt');
     if (idp) {
       var lp = chgLigne(idp); if (!lp) { return; }
@@ -12372,6 +12521,38 @@
         var cible = document.querySelector('[data-chg-propositions="' + idl.replace(/"/g, '') + '"]'); if (cible) { cible.innerHTML = chgPropositionsHtml(ll); }
       });
       return;
+    }
+    var ipt = t.getAttribute('data-chg-prompt-texte');
+    if (ipt) {
+      var lpt = chgLigne(ipt); if (!lpt) { return; }
+      appeler('/api/changements/prompt-texte', { valeurs: chgValeursCourantes(lpt), socle: (typeof socleRecherche === 'function' ? socleRecherche() : '') }).then(function (r) {
+        var msgT = document.querySelector('[data-chg-texte-msg="' + ipt.replace(/"/g, '') + '"]');
+        if (!r.ok) { chgT(ipt).msg = r.erreur || 'Message impossible.'; if (msgT) { msgT.textContent = chgT(ipt).msg; } return; }
+        sasCopierTexte(r.prompt).then(function (copie) {
+          chgT(ipt).msg = copie ? 'Message copié. Collez-le chez l\'assistant (avec la recherche web activée), puis collez sa réponse ci-dessous.' : 'Copie impossible : sélectionnez le texte ci-dessous et copiez-le.';
+          if (msgT) { msgT.textContent = chgT(ipt).msg; }
+          if (!copie) { window.prompt('Message à copier :', r.prompt); }
+        });
+      });
+      return;
+    }
+    var ilt = t.getAttribute('data-chg-lire-texte');
+    if (ilt) {
+      var llt = chgLigne(ilt); if (!llt) { return; }
+      var zt = document.querySelector('[data-chg-reponse-texte="' + ilt.replace(/"/g, '') + '"]'), tv = chgT(ilt); if (zt) { tv.texte = zt.value; }
+      appeler('/api/changements/lire-texte', { texte: tv.texte, actuel: String(chgValeur(llt, 'detail')).trim() }).then(function (r) {
+        tv.analyse = r;
+        var cibleT = document.querySelector('[data-chg-texte-prop="' + ilt.replace(/"/g, '') + '"]'); if (cibleT) { cibleT.innerHTML = chgTexteProposHtml(llt); }
+      });
+      return;
+    }
+    var irt = t.getAttribute('data-chg-remplir-texte');
+    if (irt) {
+      var tr = chgT(irt), lrt = chgLigne(irt); if (!lrt || !tr.analyse || !tr.analyse.ok || tr.analyse.problemes.length || chgTexteIdentique(lrt, tr.analyse)) { return; }
+      chg.edits[irt] = chg.edits[irt] || {}; chg.edits[irt].detail = tr.analyse.detail;
+      var vrt = chgV(irt); vrt.remplis.detail = true; vrt.sourceOk = false;
+      tr.msg = 'Texte complet rangé dans la case. Ouvrez la source, relisez, puis cochez « J\'ai ouvert la source ».';
+      chgRendre(); return;
     }
     var idr = t.getAttribute('data-chg-remplir');
     if (idr) { chgRemplirDepuisReponse(idr); return; }

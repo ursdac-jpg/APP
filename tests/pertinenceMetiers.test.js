@@ -108,3 +108,16 @@ test('un poste qui n\'est le nom d\'aucune fiche est retrouvé dans le répertoi
     assert.deepEqual(M.experienceDepuisPostes([{ poste: 'Chef de projet galactique', dateDebut: '2015', dateFin: '2020' }], 2026).codes, [], 'un poste inconnu ne donne rien');
   } finally { delete globalThis.REPERTOIRE_ROME; }
 });
+
+test('niveaux d\'accès lus sur MétierScope : dans l\'échelle 2 à 8, en complément du ROME qui passe toujours avant', () => {
+  const { METIERS_ROME_NIVEAUX_VERIFIES } = require('../data/niveauxAccesVerifies.js');
+  const codes = Object.keys(METIERS_ROME_NIVEAUX_VERIFIES);
+  assert.ok(codes.length > 500, 'niveaux vérifiés : ' + codes.length);
+  assert.ok(codes.every((c) => /^[A-N]\d{4}$/.test(c) && Number.isInteger(METIERS_ROME_NIVEAUX_VERIFIES[c]) && METIERS_ROME_NIVEAUX_VERIFIES[c] >= 2 && METIERS_ROME_NIVEAUX_VERIFIES[c] <= 8));
+  // un code sans niveau dans le ROME prend le niveau vérifié ; un code avec niveau dans le ROME garde le sien
+  const sansRome = codes.find((c) => METIERS_ROME_NIVEAUX[c] === undefined);
+  assert.equal(M.niveauAccesMetier({ rome: sansRome }), METIERS_ROME_NIVEAUX_VERIFIES[sansRome]);
+  const avecRome = Object.keys(METIERS_ROME_NIVEAUX)[0];
+  assert.equal(M.niveauAccesMetier({ rome: avecRome }), METIERS_ROME_NIVEAUX[avecRome]);
+  assert.equal(M.niveauAccesMetier({ rome: 'Z9999' }), null);
+});

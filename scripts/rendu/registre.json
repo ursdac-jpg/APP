@@ -2,46 +2,46 @@
  "creatif:bandeauVertical": {
   "html": "5e44d42:10310",
   "css": "6c0115b8:15470",
-  "xml": "38875bae:68089",
+  "xml": "b641783c:68089",
   "pages": 1,
   "couverture": 44
  },
  "creatif:bandeauxNoirs": {
   "html": "3603defe:11992",
   "css": "1e901253:16730",
-  "xml": "d01e7820:42725",
+  "xml": "e9abcaf2:42725",
   "pages": 1,
-  "couverture": 16,
+  "couverture": 18,
   "bandeau": "diagonale"
  },
  "creatif:cadreBarre": {
   "html": "95450d7a:10310",
   "css": "81445e90:15470",
-  "xml": "ba731aec:67208",
+  "xml": "2485d9ac:67371",
   "pages": 1,
   "couverture": 24
  },
  "creatif:chronoFonce": {
   "html": "2fe11686:13109",
   "css": "c400ba17:20175",
-  "xml": "400a7c58:58446",
+  "xml": "60fc44a2:58446",
   "pages": 1,
-  "couverture": 38,
+  "couverture": 40,
   "bord": "droit"
  },
  "creatif:colonneBandeau": {
   "html": "98aa8290:11921",
   "css": "9d22a0e4:18718",
-  "xml": "1a7dcb08:52594",
+  "xml": "bf10c408:52594",
   "pages": 1,
-  "couverture": 50,
+  "couverture": 51,
   "bord": "droit",
   "bandeau": "droit"
  },
  "creatif:colonneClaire": {
   "html": "5bcaf4db:10255",
   "css": "cd9f8d18:17234",
-  "xml": "28d62034:45910",
+  "xml": "1b06b0cc:45910",
   "pages": 1,
   "couverture": 36,
   "bord": "droit"
@@ -49,30 +49,30 @@
  "creatif:colonneFoncee": {
   "html": "6ee586e2:12857",
   "css": "bd5985dc:20074",
-  "xml": "d53ab544:52658",
+  "xml": "eaf37be4:52658",
   "pages": 1,
-  "couverture": 38,
+  "couverture": 40,
   "bord": "droit"
  },
  "creatif:colonneRuban": {
   "html": "822bd11e:12870",
   "css": "4fee9e50:20394",
-  "xml": "115cab1c:52540",
+  "xml": "f69e969a:52540",
   "pages": 1,
-  "couverture": 47,
+  "couverture": 48,
   "bord": "droit"
  },
  "creatif:diagonalesContrastees": {
   "html": "cb416fd2:11936",
   "css": "62987cf8:16634",
-  "xml": "dfef3a28:52017",
+  "xml": "c971cb9c:52017",
   "pages": 1,
   "couverture": 6
  },
  "creatif:duoOvale": {
   "html": "441b4150:11921",
   "css": "2c62ae70:16831",
-  "xml": "ab910318:49107",
+  "xml": "2bf7e082:49109",
   "pages": 1,
   "couverture": 25,
   "bandeau": "arrondi"
@@ -80,35 +80,35 @@
  "creatif:frise": {
   "html": "23795b78:10235",
   "css": "a4a5ef33:7390",
-  "xml": "8959e6cc:48595",
+  "xml": "f66f01fc:48595",
   "pages": 1,
   "couverture": 39
  },
  "creatif:friseFoncee": {
   "html": "2db8d534:9804",
   "css": "d2de6e6f:8010",
-  "xml": "3a489dbc:48945",
+  "xml": "b3a51db0:48945",
   "pages": 1,
   "couverture": 39
  },
  "creatif:losangeVert": {
   "html": "9ce87ccc:10274",
   "css": "3dd06e38:15208",
-  "xml": "32301b7c:44180",
+  "xml": "d84e1ffa:44180",
   "pages": 1,
   "couverture": 0
  },
  "creatif:medaillon": {
   "html": "301a3784:11125",
   "css": "8abbb4f4:15424",
-  "xml": "107a2a18:45934",
+  "xml": "f17e70fc:45934",
   "pages": 1,
   "couverture": 13
  },
  "creatif:mqBandeau": {
   "html": "5fc379e8:11894",
   "css": "a9244b57:16348",
-  "xml": "82606844:42689",
+  "xml": "7b0ae5a8:42695",
   "pages": 1,
   "couverture": 20,
   "bandeau": "droit"
@@ -116,14 +116,14 @@
  "creatif:mqCadre": {
   "html": "2c9354c8:10305",
   "css": "b1cff570:15378",
-  "xml": "c07cd334:46558",
+  "xml": "ae88ec28:46564",
   "pages": 1,
   "couverture": 0
  },
  "creatif:mqColonne": {
-  "html": "d684f3e4:12849",
+  "html": "e08a9bf4:12849",
   "css": "a1fdd02f:19326",
-  "xml": "aadf6312:52448",
+  "xml": "f3742e4c:52454",
   "pages": 1,
   "couverture": 58,
   "bord": "droit"
@@ -131,28 +131,28 @@
  "creatif:mqDiagonale": {
   "html": "25296864:11948",
   "css": "2ab16340:16408",
-  "xml": "a2a9b5e4:42975",
+  "xml": "f7ab6514:42981",
   "pages": 1,
   "couverture": 0
  },
  "creatif:mqPicto": {
   "html": "b2f489e2:10292",
   "css": "e14e7248:15244",
-  "xml": "9825986e:43394",
+  "xml": "dd37e172:43562",
   "pages": 1,
   "couverture": 0
  },
  "creatif:pastille": {
   "html": "11f4e016:14181",
   "css": "1d914290:15495",
-  "xml": "dc706fcc:53995",
+  "xml": "35865bd4:54157",
   "pages": 1,
   "couverture": 0
  },
  "creatif:photoFrise": {
   "html": "ae034084:10644",
   "css": "ab165690:5201",
-  "xml": "c0ebfab2:53817",
+  "xml": "4fcbe170:53519",
   "pages": 1,
   "couverture": 0
  },
@@ -166,29 +166,29 @@
  "creatif:rubanDiagonal": {
   "html": "903779ca:11955",
   "css": "5e1a3aa0:17171",
-  "xml": "d81975a0:54974",
+  "xml": "696dd974:54974",
   "pages": 1,
   "couverture": 25
  },
  "creatif:sidebarVague": {
   "html": "55a732a8:12955",
   "css": "1517e844:21174",
-  "xml": "74b921a8:70211",
+  "xml": "64dad742:70211",
   "pages": 1,
-  "couverture": 53,
+  "couverture": 54,
   "bord": "vallonne"
  },
  "creatif:triangleSavoir": {
   "html": "67d4fd1a:10199",
   "css": "5848923f:15208",
-  "xml": "b4e6ebac:44124",
+  "xml": "32925be0:44124",
   "pages": 1,
   "couverture": 19
  },
  "creatif:vagueMarine": {
   "html": "5f84f918:12468",
   "css": "cb09467c:18230",
-  "xml": "d2e67a70:63979",
+  "xml": "a2deb3ca:63979",
   "pages": 1,
   "couverture": 23,
   "bandeau": "vallonne"
@@ -196,28 +196,28 @@
  "sobre:mq-bandeau": {
   "html": "35671282:10273",
   "css": "2104adb7:15243",
-  "xml": "8466873a:34917",
+  "xml": "991dde28:34917",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-cartes": {
   "html": "501dd268:10212",
   "css": "4c5fdf94:15864",
-  "xml": "1c42acd8:47263",
+  "xml": "97ffd244:47227",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-cartes-couleurs": {
   "html": "e3751e42:10228",
   "css": "6a0b43b4:16990",
-  "xml": "7d95fba0:47263",
+  "xml": "724afd0:47227",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-chrono": {
   "html": "bb10cbe8:13121",
   "css": "42bb9720:20385",
-  "xml": "cd7b9438:62616",
+  "xml": "b610743c:62616",
   "pages": 1,
   "couverture": 0,
   "bord": "droit"
@@ -225,49 +225,49 @@
  "sobre:mq-editorial": {
   "html": "37deeb5a:10271",
   "css": "37d9b618:16027",
-  "xml": "280eaa40:37280",
+  "xml": "6770554a:37280",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-editorial-large": {
   "html": "593628d4:10320",
   "css": "bf218f80:17139",
-  "xml": "64e579a:36537",
+  "xml": "fb238faa:36538",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-epure": {
   "html": "e81c0da8:10320",
   "css": "abc8f9c:15453",
-  "xml": "cea39b8:33382",
+  "xml": "32b85c90:33382",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-fond": {
   "html": "fbb0f450:10334",
   "css": "2104adb7:15243",
-  "xml": "6a3c26a:35962",
+  "xml": "f7a352c0:35962",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-frise": {
   "html": "c8af3ab8:8565",
   "css": "f76ab4d8:8835",
-  "xml": "e790d872:45063",
+  "xml": "12434fe0:45077",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-grille": {
   "html": "8a54fb94:10208",
   "css": "b1190284:15793",
-  "xml": "314e4328:42323",
+  "xml": "333fc114:42323",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-photo": {
   "html": "f235b248:8744",
   "css": "ce27f0a8:5255",
-  "xml": "4354f598:49343",
+  "xml": "f8ebaf10:49003",
   "pages": 1,
   "couverture": 0
  },
@@ -281,8 +281,8 @@
  "sobre:mq-technique": {
   "html": "3cf58c0:10400",
   "css": "10b3ff60:16187",
-  "xml": "cb30c0f0:39599",
+  "xml": "84ee355a:39599",
   "pages": 1,
-  "couverture": 18
+  "couverture": 16
  }
 }

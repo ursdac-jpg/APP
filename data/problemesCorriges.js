@@ -5,9 +5,37 @@
    - `corrige` : ce qui se passe maintenant ;
    - `origine` : 'personne' (la page affiche « Signalé par un utilisateur ») ou 'nous' (défaut repéré par nous : la page n'affiche rien). Dans le doute, 'nous'.
    Jamais le mot « IA » (dire « l'assistant »), jamais de tiret long. Une correction d'un module encore fermé au public n'est pas listée.
-   Le nombre affiché sur l'entrée compte les corrections des 7 derniers jours (modules/nouveautes/logique.js).
+   Le nombre affiché sur l'entrée compte les corrections que la personne n'a pas encore lues (mémoire du « déjà vu », modules/nouveautes/logique.js).
+   RÈGLE (décision de Denis, 16/11/2026, consigne 419) : toute incohérence ou tout bug visible trouvé ET corrigé reçoit sa ligne ici, dans le même commit que la correction.
    ============================================================ */
 var PROBLEMES_CORRIGES = [
+  { date: '2026-11-17', origine: 'nous', titre: 'Nouveautés : « Voir les suivants » vous renvoyait en haut de la page',
+    signale: 'Dans « Droits et règles », un clic sur « Voir les 20 suivants » vous ramenait tout en haut de la page, et il fallait redescendre à la main.',
+    corrige: 'Vous restez maintenant à l’endroit où vous lisiez, et les nouvelles fiches apparaissent à la suite. Une flèche permet de remonter quand vous le souhaitez.' },
+  { date: '2026-11-16', origine: 'nous', titre: 'Nouveautés : une fiche ouverte depuis « Droits et règles » enfermait dans « Comprendre le cadre »',
+    signale: 'Dans « Droits et règles », le bouton « Ouvrir la fiche » vous emmenait dans un autre module, sans moyen de revenir à la liste que vous lisiez.',
+    corrige: 'La fiche s’ouvre maintenant sur place, avec tout son contenu. Si vous choisissez d’aller dans « Comprendre le cadre », un bouton « Revenir à Nouveautés » vous ramène à la liste.' },
+  { date: '2026-11-16', origine: 'nous', titre: 'Droits et règles : la marque « Nouveau cette semaine » durait huit jours',
+    signale: 'Dans « Droits et règles », la marque « Nouveau cette semaine » restait affichée un jour de trop : huit jours au lieu de sept.',
+    corrige: 'Elle disparaît maintenant d’elle-même au bout d’une semaine, comme la mention « Nouveau » du reste de la page.' },
+  { date: '2026-11-16', origine: 'nous', titre: 'Droits et règles : des fiches nouvelles absentes des Nouveautés',
+    signale: 'Des fiches nouvelles de « Comprendre le cadre » étaient bien publiées, mais n’apparaissaient pas dans la page Nouveautés : seules les fiches mises à jour s’y voyaient.',
+    corrige: 'Toute fiche créée ou mise à jour apparaît maintenant dans « Droits et règles : ce qui change », avec sa date.' },
+  { date: '2026-11-16', origine: 'nous', titre: 'Créer un nouveau CV : « Réduire les espaces »',
+    signale: 'Cocher « Réduire les espaces » dans « Organisation du CV » ne changeait rien à l’aperçu du CV.',
+    corrige: 'L’aperçu se met de nouveau à jour tout de suite : le CV est plus compact quand vous réduisez les espaces, plus aéré quand vous les agrandissez.' },
+  { date: '2026-11-15', origine: 'nous', titre: 'Vos informations : certifications et loisirs',
+    signale: 'Les années et les missions écrites pour une certification ou un loisir dans « Vos informations » n’arrivaient ni à l’assistant ni sur le CV.',
+    corrige: 'Les missions et l’année d’obtention d’une certification sont maintenant transmises à l’assistant. Pour un loisir, les années sont transmises et la zone de missions, qui ne servait à rien, a été retirée.' },
+  { date: '2026-11-14', origine: 'nous', titre: 'Cartes et boutons qui débordaient',
+    signale: 'Sur certains écrans, notamment sur téléphone ou avec les caractères agrandis, des textes, des pastilles et la grille des secteurs sortaient de leur carte.',
+    corrige: 'Les textes passent à la ligne et les cartes restent dans la page, vérifié sur ordinateur, tablette et téléphone, avec les caractères agrandis.' },
+  { date: '2026-11-08', origine: 'nous', titre: 'Visite guidée : bulle coupée en bas de l’écran',
+    signale: 'Sur un écran peu haut, le bas de la bulle de la visite guidée sortait de l’écran : les boutons « Précédent », « Fermer » et « Suivant » n’étaient plus accessibles.',
+    corrige: 'La bulle se place maintenant selon sa vraie hauteur et reste entièrement visible, sur ordinateur comme sur téléphone.' },
+  { date: '2026-11-06', origine: 'nous', titre: 'Comprendre les chiffres : le disque des demandeurs d’emploi',
+    signale: 'Sur le disque qui montre depuis combien de temps les demandeurs d’emploi sont inscrits, un quart du disque restait blanc.',
+    corrige: 'Chaque part est maintenant dessinée en entier : le disque se referme complètement.' },
   { date: '2026-11-12', origine: 'nous', titre: 'Créer un nouveau CV : langue et permis',
     signale: 'Le bouton « Continuer » restait grisé tant qu’aucune langue n’était indiquée, même pour une personne qui ne parle pas d’autre langue.',
     corrige: 'Seule l’identité est demandée. Langues et permis restent proposés, mais ne bloquent plus jamais.' },

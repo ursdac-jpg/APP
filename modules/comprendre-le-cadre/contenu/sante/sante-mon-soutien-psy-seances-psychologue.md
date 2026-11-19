@@ -3,20 +3,23 @@ id: sante-mon-soutien-psy-seances-psychologue
 rayon: sante
 titre: "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »"
 pour_qui: "Utile si vous traversez une période de mal-être, ou si vous vous inquiétez pour votre enfant ou votre adolescent, et que vous cherchez un accompagnement par un psychologue en partie remboursé."
-tags: [santé mentale, psychologue, Mon soutien psy, Assurance maladie, tiers payant, remboursement, mal-être, ameli]
+tags: [santé mentale, psychologue, Mon soutien psy, Assurance maladie, tiers payant, remboursement, mal-être, ameli, Mon journal mental, application]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-11-09
+verifie_le: 2026-11-18
 lexique:
   - terme: "Mon soutien psy"
     definition: "Dispositif de l'Assurance maladie qui permet de voir un psychologue partenaire, avec des séances en partie remboursées."
   - terme: "tiers payant"
     definition: "Vous n'avancez pas la part prise en charge par l'Assurance maladie : le professionnel est payé directement."
+  - terme: "Mon journal mental"
+    definition: "Application gratuite et anonyme de l'Assurance maladie pour suivre son humeur et son sommeil au quotidien. Elle ne pose aucun diagnostic."
 voir_aussi_lexique: []
 sources:
   - ameli-mon-soutien-psy
   - info-gouv-ce-qui-change-octobre-2026
+  - ameli-mon-journal-mental
 ce_qui_change_souvent:
   - "Le prix de la séance et la part remboursée"
   - "Le nombre de séances prises en charge"
@@ -24,7 +27,9 @@ ce_qui_change_souvent:
   - "L'organisation du tiers payant (mesures d'application encore à publier)"
 revisions:
   - "2026-11 : 2026-11-09 : page « Remboursement de séances chez le psychologue : dispositif Mon soutien psy » de l'Assurance maladie (ameli.fr, datée du 16 septembre 2026) ouverte et relue ; page « Ce qui change en octobre 2026 » (info.gouv.fr, modifiée le 21 octobre 2026) pour le tiers payant"
+  - "2026-11 : 2026-11-18 : actualité ameli.fr du 17/11/2026 « Mon journal mental : une application gratuite pour prendre soin de sa santé mentale » (page copiée par Denis et relue en entier) : dernier paragraphe ajouté, sans changement du dispositif Mon soutien psy"
 phrase_generale: "Un dispositif de l'Assurance maladie, « Mon soutien psy », permet de voir un psychologue partenaire avec des séances en partie remboursées. Le prix de la séance, la part remboursée et le nombre de séances peuvent changer : ils se lisent sur le site de l'Assurance maladie."
+maj_resume: "2026-11-18 : L'Assurance maladie propose aussi une application gratuite et anonyme, Mon journal mental, pour suivre son humeur et son sommeil au quotidien. Aucun compte n'est à créer et les informations restent sur le téléphone."
 collecte: sante.collecte.md
 ---
 
@@ -39,3 +44,5 @@ Pour le premier rendez-vous, apportez votre attestation de carte Vitale papier e
 La séance est remboursée en partie par l'Assurance maladie : le prix et la part remboursée se lisent sur la page de l'Assurance maladie. Depuis octobre 2026, la loi généralise le tiers payant pour la part prise en charge par l'Assurance maladie : l'idée est que vous n'avancez plus cette part. Les mesures qui organisent concrètement ce changement doivent encore être publiées dans les prochains mois : demandez au psychologue comment il fonctionne aujourd'hui.
 
 Si la situation vous semble grave ou urgente, ne restez pas seul : parlez-en sans attendre à un médecin. C'est lui qui peut repérer une urgence et vous orienter vers un accompagnement plus adapté, comme un psychiatre ou l'hôpital.
+
+Une application gratuite pour mieux comprendre ce que vous ressentez : l'Assurance maladie propose aussi « Mon journal mental », dans le prolongement de « Mon soutien psy ». Elle est gratuite et anonyme. Vous pouvez y noter chaque jour votre humeur, votre sommeil, votre niveau d'énergie ou votre anxiété, ajouter ce qui a marqué votre journée, et voir comment vos ressentis évoluent avec le temps. Elle propose aussi des conseils pour prendre soin de soi (exercices de respiration, journal du sommeil, journal de gratitude) et une rubrique de soutien, avec des numéros d'urgence et des lignes d'écoute. Aucun compte n'est à créer : les informations restent sur votre téléphone et ne sont pas transmises à l'Assurance maladie. Cette application ne pose aucun diagnostic et ne remplace pas une consultation avec un médecin ou un psychologue. Elle peut seulement vous aider à mieux comprendre vos ressentis et à en parler avec un professionnel. Vous la trouvez sur Google Play et sur l'App Store.

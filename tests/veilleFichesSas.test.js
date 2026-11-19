@@ -218,3 +218,25 @@ test('phrase générale : obligatoire dès que le texte cite un chiffre ; sans c
   const maj = S.lireReponse(REPONSE_MAJ, ctx()).items[0];
   assert.ok(maj, 'la mise à jour de référence se lit');
 });
+
+test('« Ce qui change » (maj_resume) : lu dans la réponse, proposé dans le diff, écrit avec la date du dépôt ; sans effet sur une fiche nouvelle ; redonné à l\'assistant pour une mise à jour', () => {
+  const phrase = 'Les entretiens peuvent se faire avec un conseiller du salarié, c\'est désormais précisé.';
+  const reponse = REPONSE_MAJ.replace('\ntexte:\n', '\nmaj_resume: 2020-05-05 : ' + phrase + '\ntexte:\n');
+  const rec = S.lireReponse(reponse, ctx()).items[0];
+  assert.strictEqual(rec.champs.maj_resume, '2020-05-05 : ' + phrase);
+  const ev = S.evaluer(rec, ctx());
+  assert.deepStrictEqual(ev.problemes, []);
+  assert.strictEqual(ev.demande.changements.maj_resume, phrase, 'la date saisie est retirée : l\'outil écrit celle du dépôt');
+  assert.ok(ev.champsChanges.some((x) => x.cle === 'maj_resume' && x.apres === phrase && x.libelle === S.LIBELLES.maj_resume));
+  const r = F.appliquerModification(TEXTE_REEL, ev.demande, { aujourdhui: AUJ, sourcesConnues: SOURCES_REELLES, lexiqueIds: null });
+  assert.strictEqual(r.ok, true, r.erreur);
+  assert.match(r.texte, new RegExp('maj_resume: "' + AUJ + ' : '));
+  // une phrase interdite est refusée avec un message clair
+  const mauvaise = S.lireReponse(REPONSE_MAJ.replace('\ntexte:\n', '\nmaj_resume: Une IA a relu la fiche et ajouté un point.\ntexte:\n'), ctx()).items[0];
+  assert.ok(S.evaluer(mauvaise, ctx()).problemes.some((p) => /assistant/.test(p)));
+  // le message de vérification redonne la ligne et demande de la garder (mise à jour seulement)
+  assert.match(S.construirePrompt(rec, ctx(), 'SOCLE'), /maj_resume: 2020-05-05 : /);
+  assert.match(S.construirePrompt(rec, ctx(), 'SOCLE'), /8\. Pour cette mise à jour/);
+  const nouv = S.construirePrompt(Object.assign({}, rec, { genre: 'nouv' }), ctx(), 'SOCLE');
+  assert.ok(nouv.indexOf('maj_resume') === -1);
+});

@@ -31,6 +31,7 @@ revisions:
   - "2026-11-03 : relu sur Service Public : la CMU existe-t-elle toujours ? (vérifiée le 31/08/2026, adresse F13239 redirigée vers F34306), complémentaire santé solidaire (vérifiée le 01/07/2026) et médecin traitant (vérifiée le 21/08/2026)"
   - "2026-11 : 2026-11-09 : plafond annuel des franchises médicales et des participations forfaitaires relevé au 1er octobre 2026, d'après la page « Ce qui change en octobre 2026 » (info.gouv.fr, modifiée le 21 octobre 2026), ouverte et relue le 2026-11-09"
 phrase_generale: "La protection universelle maladie couvre en principe toute personne qui travaille ou réside en France de manière stable et régulière, et une complémentaire santé solidaire aide les personnes à revenus modestes. Les conditions, les plafonds et les démarches changent régulièrement : confirmez-les auprès de votre caisse d'assurance maladie ou sur les sources officielles indiquées plus bas."
+maj_resume: "2026-11-09 : Le plafond annuel des franchises médicales et des participations forfaitaires a été relevé au 1er octobre 2026."
 collecte: sante.collecte.md
 ---
 

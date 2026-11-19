@@ -248,7 +248,7 @@ var PARTIES = [
     items: ['Je préfère agir plutôt que discuter longtemps.', 'J’aime comprendre avant de décider.', 'J’ai besoin de liberté pour faire les choses à ma façon.', 'Je suis à l’aise pour aider et écouter les autres.', 'Je prends facilement l’initiative.', 'J’aime savoir exactement ce qu’on attend de moi.', 'J’aime les choses concrètes que l’on peut toucher.', 'J’aime chercher une solution originale.', 'J’aime travailler en équipe.', 'J’aime que mon travail soit bien rangé et soigné.'] }
 ];
 
-var ETAT = { ecran: 'accueil', taille: 'large', p3: 'doux', p4: 'doux', score: 'plafond', rep: {}, reperes: {}, compar: {}, choix: { qui: {}, actions: {}, env: {}, cond: {} }, fiche: null, depuis: 'metier', rech: 'AS', secteur: null, filtreSecteur: '', plusRes: false, proches: {}, secteurVoirTout: false, partieFinie: 1, cacher: {} };
+var ETAT = { ecran: 'accueil', taille: 'large', p3: 'doux', p4: 'doux', score: 'plafond', rep: {}, reperes: {}, compar: {}, choix: { qui: {}, actions: {}, env: {}, cond: {} }, fiche: null, depuis: 'metier', rech: 'AS', secteur: null, filtreSecteur: '', plusRes: false, proches: {}, secteurVoirTout: false, partieFinie: 1, cacher: {}, groupe: 'non' };
 
 var ECRANS = [
   ['accueil', 'Accueil : carte « Vous hésitez encore ? »'],
@@ -453,7 +453,7 @@ function vIntro() {
     '<div class="grille3">' +
     '<div class="entree"><i class="bi bi-search ico"></i><h3>Par un métier</h3><p>Vous avez déjà un métier en tête ? Cherchez-le par son nom, un autre nom, un sigle (AS, ASH, CIP…) ou son secteur, puis lisez sa fiche.</p><button type="button" class="btn btn-primary" data-go="metier">Chercher un métier</button></div>' +
     '<div class="entree"><i class="bi bi-list-check ico"></i><h3>Par ce que vous aimez faire</h3><p>Quatre pages : avec qui ou quoi, ce que vous aimeriez faire, où, et vos conditions de travail. Chaque famille de choix est expliquée. Des métiers vous sont proposés d’après vos goûts.</p><button type="button" class="btn btn-primary" data-go="actions1">Choisir mes envies</button></div>' +
-    '<div class="entree"><i class="bi bi-hexagon ico"></i><h3>Par un questionnaire d’intérêts</h3><p>Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années pour décrire les goûts professionnels. Rien n’est obligatoire.</p><button type="button" class="btn btn-primary" data-go="q-intro">Voir le questionnaire</button></div></div>' +
+    '<div class="entree"><i class="bi bi-hexagon ico"></i><h3>Par un questionnaire de préférences</h3><p>Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années pour décrire les goûts professionnels. Rien n’est obligatoire.</p><button type="button" class="btn btn-primary" data-go="q-intro">Voir le questionnaire</button></div></div>' +
     '<div class="bloc"><h3>Le RIASEC, c’est quoi ?</h3>' +
     '<p>Le RIASEC est une façon de décrire un métier selon l’activité qui y tient le plus de place. Il y a six types, et chaque lettre est l’initiale d’un type :</p>' +
     '<div class="six">' + six.map(function (s) { return '<div>' + past(s[0]) + '<span><b>' + s[1] + '</b> : ' + s[2] + '</span></div>'; }).join('') + '</div>' +
@@ -587,6 +587,37 @@ function carteRes(e, N, premier) {
 function blocGarder() {
   return '<div class="bloc"><h3>Garder mes pistes</h3><p>Pour retrouver vos choix et ces métiers plus tard, ou pour en parler avec un conseiller, gardez-les dans la disquette de l’application. Sans cela, rien n’est conservé.</p><button type="button" class="btn btn-outline-primary" style="min-height:46px"><i class="bi bi-save"></i> Garder mon résultat</button></div>';
 }
+/* Décision du 16/11/2026 : niveau d'accès sur chaque carte + bouton visible « Grouper par niveau d'accès » (jamais un filtre caché) ; phrase au-delà de 20 choix. */
+var GROUPES_NIVEAU = [
+  { cle: 'court', titre: 'Sans diplôme ou avec une formation courte' },
+  { cle: 'moyen', titre: 'Diplôme d’État, bac à bac + 2' },
+  { cle: 'long', titre: 'Bac + 3 et plus' }
+];
+function groupeNiveau(m) {
+  var t = (NIV[m.nom] || '').toLowerCase();
+  if (/bac \+ 3|licence|bac \+ 5|master/.test(t)) { return 'long'; }
+  if (/bac|diplôme d’état|bac \+ 2/.test(t)) { return 'moyen'; }
+  return 'court';
+}
+function blocGrouper() {
+  var oui = ETAT.groupe === 'oui';
+  return '<div class="bloc"><h3>Comment lire la liste</h3><p class="mb-2">' + (oui ? 'Les métiers sont rangés par niveau d’accès : vous voyez d’abord ceux qui se préparent le plus vite. Le pourcentage ne change pas.' : 'Les métiers sont rangés du plus proche de vos choix au moins proche. Le niveau d’accès est écrit sur chaque carte.') + '</p>' +
+    '<button type="button" class="btn btn-outline-primary" data-var="groupe" data-val="' + (oui ? 'non' : 'oui') + '"><i class="bi bi-mortarboard"></i> ' + (oui ? 'Revenir à un seul classement' : 'Grouper par niveau d’accès') + '</button></div>';
+}
+function listeAutres(reste) {
+  if (ETAT.groupe !== 'oui') {
+    var vus = ETAT.plusRes ? reste : reste.slice(0, 6);
+    return '<div class="bloc"><h3>Les autres métiers qui retrouvent le plus de vos choix</h3><div class="m-grille">' + vus.map(function (e) { return carteRes(e, selection().length, false); }).join('') + '</div>' +
+      (!ETAT.plusRes && reste.length > 6 ? '<div style="text-align:center;margin-top:.7rem"><button type="button" class="btn btn-outline-secondary" data-plus="1"><i class="bi bi-chevron-down"></i> Voir les autres</button></div>' : '') + '</div>';
+  }
+  return GROUPES_NIVEAU.map(function (g) {
+    var dans = reste.filter(function (e) { return groupeNiveau(e.m) === g.cle; });
+    if (!dans.length) { return ''; }
+    var vus = ETAT.plusRes ? dans : dans.slice(0, 3);
+    return '<div class="bloc"><h3>' + g.titre + ' <span class="pill">' + dans.length + '</span></h3><div class="m-grille">' + vus.map(function (e) { return carteRes(e, selection().length, false); }).join('') + '</div>' +
+      (!ETAT.plusRes && dans.length > 3 ? '<div style="text-align:center;margin-top:.7rem"><button type="button" class="btn btn-outline-secondary" data-plus="1"><i class="bi bi-chevron-down"></i> Voir les autres</button></div>' : '') + '</div>';
+  }).join('');
+}
 function vResultats2() {
   echantillonSiVide();
   var sel = selection(), N = sel.length;
@@ -597,19 +628,20 @@ function vResultats2() {
     '<div class="encart"><i class="bi bi-compass"></i><p>Ces métiers viennent <b>uniquement de ce que vous avez choisi</b> (' + N + ' choix). Ce sont des pistes à explorer, pas une réponse unique. Le pourcentage montre à quel point un métier retrouve vos choix.</p></div>' +
     '<div class="bloc"><h3>Vos choix</h3><p class="mb-2">' + selection().map(function (s) { return '<span class="pill">' + esc(s.label) + '</span>'; }).join(' ') + '</p>' +
     '<div style="display:flex;gap:.4rem;flex-wrap:wrap"><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions1">Modifier avec qui ou quoi</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions2">Modifier ce que je fais</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions3">Modifier où</button><button type="button" class="btn btn-outline-secondary btn-sm" data-go="actions4">Modifier mes conditions</button></div></div>' + blocCondResultat() +
+    (N > 20 ? '<div class="encart warn"><i class="bi bi-info-circle"></i><p><b>Vos choix sont très variés.</b> Beaucoup de métiers ressortent. Gardez ceux qui comptent le plus pour vous afin d’affiner la liste.</p></div>' : '') +
+    blocGrouper() +
     '<div class="m-grille">' + carteRes(premier, N, true) + '</div>' +
-    '<div class="bloc"><h3>Les autres métiers qui retrouvent le plus de vos choix</h3><div class="m-grille">' + vus.map(function (e) { return carteRes(e, N, false); }).join('') + '</div>' +
-    (!ETAT.plusRes && reste.length > 6 ? '<div style="text-align:center;margin-top:.7rem"><button type="button" class="btn btn-outline-secondary" data-plus="1"><i class="bi bi-chevron-down"></i> Voir les autres</button></div>' : '') + '</div>' + blocGarder();
+    listeAutres(reste) + blocGarder();
 }
 
 /* --- Entrée 3 : questionnaire --- */
 function vQIntro() {
-  return fil(['Questionnaire d’intérêts']) + '<div class="titre-page">Questionnaire d’intérêts</div>' + btnRevoir() +
+  return fil(['Découvrir mes préférences de métier']) + '<div class="titre-page">Découvrir mes préférences de métier</div>' + btnRevoir() +
     '<div class="bloc"><div class="hex-zone"><div>' + hexagone(null, true) + '</div><div>' +
     '<h2>Six façons d’aimer travailler</h2><p>Ce questionnaire repose sur le modèle du psychologue John Holland. Il classe les <b>métiers</b> en six types, selon l’activité qui y tient le plus de place. Les types opposés sont face à face sur l’hexagone : on les aime rarement tous les deux au même degré.</p>' +
     '<p class="mq-note">Réaliste face à Social, Investigateur face à Entreprenant, Artistique face à Conventionnel.</p></div></div></div>' +
     '<div class="encart"><i class="bi bi-building"></i><p><b>Ce n’est pas une invention de l’application.</b> France Travail donne à chaque métier du ROME une ou deux de ces lettres. Ici, ce questionnaire vous aide à trouver vos propres lettres pour retrouver des métiers qui leur ressemblent.</p></div>' +
-    '<div class="bloc"><h3>Comment ça se passe</h3><ol><li><b>Quatre parties</b> : ce que vous aimez faire, les métiers qui pourraient vous plaire, ce que vous sentez savoir faire, votre façon d’agir.</li><li>Vous répondez en cliquant, environ <b>10 minutes par partie</b>.</li><li>Votre résultat s’affiche une seule fois, à la fin des quatre parties : rien n’est montré avant, pour que vos réponses ne soient pas influencées. Vous pouvez vous arrêter quand vous voulez.</li></ol></div>' +
+    '<div class="bloc"><h3>Comment ça se passe</h3><ol><li><b>Quatre parties</b> : ce que vous aimez faire, les métiers qui pourraient vous plaire, ce que vous sentez savoir faire, votre façon d’agir.</li><li>Vous répondez en cliquant, environ <b>une demi-heure en tout</b> (durée à confirmer par un essai chronométré).</li><li>Votre résultat s’affiche une seule fois, à la fin des quatre parties : rien n’est montré avant, pour que vos réponses ne soient pas influencées. Les quatre parties se font d’une traite : si vous quittez avant la fin, vos réponses ne sont pas gardées.</li></ol></div>' +
     '<div class="bloc"><h3>Ce que ce questionnaire n’est pas</h3><p>Ce n’est pas un test de capacités, ni un verdict, ni une étiquette. Ce que vous cochez décrit vos goûts d’aujourd’hui : ils peuvent changer avec l’expérience. Rien n’est obligatoire.</p></div>' +
     '<div class="encart"><i class="bi bi-save"></i><p><b>Rien n’est conservé sans votre accord.</b> Si vous fermez la page, vos réponses sont perdues : la disquette de l’application garde votre résultat.</p></div>';
 }
@@ -719,7 +751,7 @@ RETIENT.intro = ['Page de présentation selon le patron commun, avec « Le RIASE
 RETIENT.fiche = ['Les trois boutons (France Travail, Repère, Comparer) tiennent sur UNE ligne, jamais en pleine largeur (retour de Denis 16/11/2026).', 'Les conditions de travail de la fiche viennent de data/conditionsRome.js (déjà dans l’application).', 'Depuis l’entrée 2, la fiche ajoute « Pourquoi ce métier est proche de vos choix ».'];
 RETIENT.actions3 = ['Quatre familles de lieux. Maximum 12. Le « Continuer » mène maintenant à la page des conditions de travail (nouveau).'];
 RETIENT.actions4 = ['NOUVEAU, à valider : une quatrième page « Ce qui serait difficile pour vous ». Les 11 conditions viennent des libellés réels du ROME déjà dans l’application ; les lieux (extérieur, domicile, public) ne sont pas répétés.', 'Les conditions NE CHANGENT PAS le pourcentage : le pourcentage dit « ce métier ressemble à ce que vous aimez ». Les conditions disent « attention, ce métier peut demander ce qui serait difficile pour vous ». Mélanger les deux ferait baisser un métier qui vous plaît sans que vous sachiez pourquoi.', 'Page à compléter, jamais obligatoire : le « Continuer » reste actif sans rien choisir.', 'Cela change la décision du 12/11/2026 (conditions « jamais demandées, jamais comptées ») : à confirmer par Denis.'];
-RETIENT.resultats2 = ['Les métiers viennent UNIQUEMENT des choix de la personne (pages 1 à 3). Première proposition mise en avant, avec le pourcentage, « x de vos N choix retrouvés », l’interprétation, ce que le métier demande en plus et ses métiers proches.', 'POURCENTAGE : pas de nouveau calcul. Le moteur qui existe déjà (consigne 410, « Métiers qui pourraient vous intéresser ») est réutilisé tel quel, alimenté par les pages 1 à 3 : choix rares plus pesants, couverture et précision, un point en moins par choix absent de la fiche, 100 % atteignable. Les chiffres de cette maquette sont des EXEMPLES ; les chiffres réels mesurés sont dans le fichier du chantier.', 'Nouveau : chaque carte indique le niveau d’accès (diplôme) et, si la personne a rempli la page 4, un « À vérifier » avec les conditions qui peuvent poser problème. Un bouton permet de masquer ces métiers.'];
+RETIENT.resultats2 = ['Les métiers viennent UNIQUEMENT des choix de la personne (pages 1 à 3). Première proposition mise en avant, avec le pourcentage, « x de vos N choix retrouvés », l’interprétation, ce que le métier demande en plus et ses métiers proches.', 'POURCENTAGE : pas de nouveau calcul. Le moteur qui existe déjà (consigne 410, « Métiers qui pourraient vous intéresser ») est réutilisé tel quel, alimenté par les pages 1 à 3 : choix rares plus pesants, couverture et précision, un point en moins par choix absent de la fiche, 100 % atteignable. Les chiffres de cette maquette sont des EXEMPLES ; les chiffres réels mesurés sont dans le fichier du chantier.', 'Nouveau : chaque carte indique le niveau d’accès (diplôme) et, si la personne a rempli la page 4, un « À vérifier » avec les conditions qui peuvent poser problème. Un bouton permet de masquer ces métiers.', 'Ajouté le 17/11/2026 (décisions de calibration) : bouton visible « Grouper par niveau d’accès » (trois groupes, le pourcentage ne change pas, jamais un filtre caché) et phrase « Vos choix sont très variés » au-delà de 20 choix.'];
 RETIENT.fin1 = ['PAS DE RÉSULTAT en cours de questionnaire (décision de Denis 16/11/2026) : ni provisoire, ni partiel. Le résultat n’apparaît qu’une fois, à la fin des quatre parties, pour ne pas influencer les réponses suivantes.', 'Cet écran dit seulement que la partie est terminée et combien il en reste. Si la personne s’arrête, aucun résultat n’est affiché ni conservé.'];
 RETIENT.resultat = ['Un score par lettre (barres), jamais une note sur 100 ni un classement de personnes.', 'Face à face : de quel côté penchent les réponses sur chaque paire d’opposés, en phrases de préférence.', 'Explication de chacune des trois lettres : en bref, ce qui attire, points forts, ce qui demande un peu d’attention, univers, métiers (mots à nous, tendances de groupe, pas un portrait).', 'Métiers : lettres `ri` du ROME. « Garder mon résultat » et « Refaire le questionnaire » sont dans la page, pas dans la barre du bas.'];
 RETIENT['q-intro'] = ['L’hexagone est dessiné en SVG (couleurs et mode sombre de l’application). Les types opposés sont face à face, reliés par un trait pointillé.', 'Origine dite clairement : lettres données par France Travail aux métiers du ROME.', 'Le résultat s’affiche une seule fois, à la fin : rien n’est montré avant. Rien n’est conservé sans accord.'];

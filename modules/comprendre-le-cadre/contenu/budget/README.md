@@ -25,7 +25,7 @@
    - microcrédit : **8 000 €** max, **6 mois à 7 ans** ;
    - droit au compte : délais 1 jour ouvré / 3 jours ouvrés.
 
-## Les 14 fiches
+## Les 15 fiches
 
 | id | titre |
 |---|---|
@@ -43,6 +43,7 @@
 | `budget-prime-de-noel` | La prime de Noël : une aide versée en décembre à certains allocataires |
 | `budget-decouvert-bancaire-verification-solvabilite` | Découvert bancaire : la banque doit vérifier votre situation avant de l'accorder |
 | `budget-fausses-aides-reseaux-sociaux` | Une « aide exceptionnelle » vue sur les réseaux sociaux : comment savoir si elle existe vraiment |
+| `budget-credit-a-la-consommation-ce-qui-change-20-novembre-2026` | Crédit à la consommation : ce qui change à partir du 20 novembre 2026 |
 
 ## Section « à qui s'adresser »
 

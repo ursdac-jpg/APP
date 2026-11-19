@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { chargerRome, empreinte } = require('./lireRome.js');
+const { chargerRome, empreinte, libelleSavoirEtre } = require('./lireRome.js');
 const T = require('./tablesRome.js');
 const TC = require('./tablesCompetences.js');
 const { niveauAcces } = require('./niveauxAcces.js');
@@ -72,6 +72,17 @@ function nomMasculin(libelle) {
   let p = 0;
   while (p < g.length && p < f.length && g[p] === f[p]) { p++; }
   return g.concat(f.slice(p + (g.length - p))).join(' ');
+}
+// Le fichier du ROME écrit certains intitulés SANS accent sur la majuscule (« Eleveur », « Educateur »...), alors que le répertoire des appellations (data/repertoireRome.js) les écrit correctement.
+// Correction de la forme, jamais du sens (défaut trouvé le 18/11/2026, tâche A4a de « Ma synthèse ») : chaque mot de cette table est remis avec son accent dans le nom de la fiche.
+// Cas de l'accompagnant éducatif et social (décision Denis 19/11/2026) : le code K1306 porte, une fois accentué, le MÊME nom que la fiche à la main « aes » (code K1301) ; il devient donc un alias de « aes » (règle commune plus bas), comme F1619 pour « couvreur ».
+// tests/nomsMetiersAccents.test.js vérifie qu'aucun nom de la base ne s'écarte du répertoire par les seuls accents.
+const MOTS_A_ACCENTUER = { "d'eleves": "d'élèves", evenementiel: 'événementiel', Elagueur: 'Élagueur', Eleveur: 'Éleveur', Educateur: 'Éducateur', Educatif: 'Éducatif', Etalagiste: 'Étalagiste', Editeur: 'Éditeur', Economiste: 'Économiste', Echafaudeur: 'Échafaudeur', Etancheur: 'Étancheur', Electricien: 'Électricien', Econome: 'Économe', Ecailler: 'Écailler', Electronicien: 'Électronicien', 'Electromécanicien': 'Électromécanicien', Ecoutant: 'Écoutant', Ecrivain: 'Écrivain', "l'Etat": "l'État", Equipier: 'Équipier', "l'Education": "l'Éducation", 'Etrangère': 'Étrangère', Egoutier: 'Égoutier', Eclairagiste: 'Éclairagiste', Evaluateur: 'Évaluateur', 'Eclusier-barragiste': 'Éclusier-barragiste' };
+function corrigerAccentsNom(nom) {
+  return nom.split(/(\s+)/).map((mot) => {
+    const nu = mot.replace(/^\(+|[),]+$/g, '');
+    return MOTS_A_ACCENTUER[nu] ? mot.replace(nu, MOTS_A_ACCENTUER[nu]) : mot;
+  }).join('');
 }
 const dedoublonner = (a) => a.filter((x, i) => a.indexOf(x) === i);
 const classer = (compte, ordre) => Object.keys(compte).sort((a, b) => (compte[b] - compte[a]) || (ordre.indexOf(a) - ordre.indexOf(b)));
@@ -203,7 +214,7 @@ Object.keys(rome.codes).sort().forEach((code) => {
   }
   const secteur = secteurParCode[code];
   if (!secteur || SECTEURS.indexOf(secteur) === -1) { sansSecteur.push(code); }
-  const nom = nomMasculin(f.libelle);
+  const nom = corrigerAccentsNom(nomMasculin(f.libelle));
   // Même nom qu'une fiche déjà présente (détaillée ou générée avant) : pas de seconde fiche du même nom, le code est noté en alias (la recherche par nom resterait ambiguë)
   const existante = metiersData.baseMetiersDetaillees.filter((m) => m.nom.toLowerCase() === nom.toLowerCase())[0] || fiches.filter((x) => x.nom.toLowerCase() === nom.toLowerCase())[0];
   if (existante) { alias[code] = existante.id; return; }
@@ -264,7 +275,7 @@ Object.keys(rome.codes).sort().forEach((code) => {
 const enteteCond = '/* ============================================================\n' +
   '   data/conditionsRome.js -- FICHIER GÉNÉRÉ, NE JAMAIS LE MODIFIER À LA MAIN.\n' +
   '   « À savoir sur ce métier » : conditions de travail du ROME (horaires, déplacements, charges, tenue, statuts) par code ROME, en phrases simples.\n' +
-  '   Affichées seulement dans la fiche d\'un métier (js/app.js, ouvrirDescriptifMetier) ; jamais un choix demandé, jamais un critère de score.\n' +
+  '   Affichées seulement dans la fiche d\'un métier (js/app.js, ouvrirDescriptifMetier) ; jamais un critère de score, sauf pour départager des égalités à la demande de la personne (Ma synthèse, questions « Affiner mes métiers »).\n' +
   '   Produit par : node scripts/importRome/genererMetiersRome.js <dossier CSV ROME>  (règles : CONDITIONS_REGLES, scripts/importRome/tablesRome.js)\n' +
   '   ============================================================ */\n';
 const libellesCond = {}; T.CONDITIONS_REGLES.forEach((r) => { libellesCond[r[0]] = r[2]; });
@@ -359,6 +370,7 @@ const clesMacros = [];
     const noms = f.appellations.filter((a) => !a.peuUsite).map((a) => net(a.libelle)).filter((x, i, l) => l.indexOf(x) === i);
     if (noms.length) { e.n = noms; }   // tous les autres noms usuels, les plus courants d'abord (13/11/2026 : plus de plafond à 8, la fiche en montre 8 puis un bouton)
     if (f.riasec) { e.ri = f.riasec; }   // lettres RIASEC du ROME : majeure puis mineure
+    if (f.savoirEtre.length) { e.e = f.savoirEtre.map(libelleSavoirEtre); }   // savoir-être officiels du ROME (au plus 5), voir ajouterSavoirEtreFiches.js
     PCV.enrichirFiche(e);
     (parLettre[code[0]] = parLettre[code[0]] || {})[code] = e;
   });
@@ -371,7 +383,7 @@ const clesMacros = [];
     const entete = '/* ============================================================\n' +
       '   data/rome/fiche_' + lettre + '.js -- FICHIER GÉNÉRÉ, NE JAMAIS LE MODIFIER À LA MAIN.\n' +
       '   Fiches complètes en langage courant des métiers du ROME (France Travail) dont le code commence par ' + lettre + ' : d = présentation, m = missions, mi = missions à l’infinitif prêtes à cocher pour le CV (phrasesCV.js), a = accès au métier, r = emploi réglementé,\n' +
-      '   k = compétences détaillées [numéro de macro-compétence, nombre de « cœur de métier », libellés], s = savoirs [numéro de catégorie, nombre de « cœur de métier », libellés], p = métiers proches (codes), n = autres noms du métier (tous, les plus courants d’abord), ri = lettres RIASEC du métier (majeure puis mineure).\n' +
+      '   k = compétences détaillées [numéro de macro-compétence, nombre de « cœur de métier », libellés], s = savoirs [numéro de catégorie, nombre de « cœur de métier », libellés], p = métiers proches (codes), n = autres noms du métier (tous, les plus courants d’abord), ri = lettres RIASEC du métier (majeure puis mineure), e = savoir-être professionnels officiels du ROME (au plus 5, libellés du ROME, orthographe corrigée).\n' +
       '   Numéros de macro-compétence et de catégorie : data/competencesRome.js. Chargé À LA DEMANDE (js/app.js, chargerFicheRome). Produit par : node scripts/importRome/genererMetiersRome.js <dossier CSV ROME>\n' +
       '   ============================================================ */\n';
     const corps = '(function (g) {\n  var P = g.FICHES_ROME = g.FICHES_ROME || {};\n  var donnees = ' + JSON.stringify(parLettre[lettre]) + ';\n  Object.keys(donnees).forEach(function (c) { P[c] = donnees[c]; });\n  if (typeof module !== "undefined" && module.exports) { module.exports = { FICHES_ROME_LETTRE: donnees }; }\n})(typeof window !== "undefined" ? window : globalThis);\n';

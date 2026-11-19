@@ -55,6 +55,7 @@ Ce que fait l'application sans intervention : treize mois après `publie_le`, la
 2. Le déposer dans `PROSPECTION/donnees_externes/bmo` (le plus récent est lu).
 3. Double-cliquer sur `outils/Mettre a jour les metiers qui recrutent.bat` (ou `node scripts/genereBmoMetiers.js --xlsx AAAA-MM-JJ`) et donner la date de publication de l'enquête. Cela refait `bmo-metiers.json` et rafraîchit la copie lue par l'outil de prospection.
 4. `npm test`, regarder la carte dans « Comprendre les chiffres » pour les deux départements, une ligne datée dans `docs/JOURNAL_DES_CHANGEMENTS.md`, puis commit.
+4 bis. **Mettre à jour aussi le chemin « Les emplois en demande » du module « Explorer les métiers »** (il lit le même `bmo-metiers.json`) : `npm test` échoue sur `tests/recrute.test.js` si un métier de l'enquête n'a pas ses fiches. Ajouter alors ce métier dans `CMR_FICHES_ENQUETE` (`modules/comprendre-les-metiers/recrute.js`, nom du métier, puis les identifiants de fiches de la base), et regarder le chemin pour les deux départements (graphiques, fiches, métiers saisonniers). Décision Denis 18/11/2026.
 5. Si le fichier change de forme (colonnes renommées), la conversion s'arrête avec « Colonne introuvable » : le dire à Claude, ne rien inventer.
 
 Jamais de chiffre écrit de mémoire : seulement le fichier officiel. Les nombres masqués par France Travail (secret statistique) sont ignorés : tous les chiffres affichés sont des minimums, et l'écran l'annonce.

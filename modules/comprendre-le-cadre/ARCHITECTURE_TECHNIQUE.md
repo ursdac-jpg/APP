@@ -308,3 +308,7 @@ creer.
   câblés (chantier « Comprendre les chiffres »).
 - **Champ `frein:`** : toujours lu, jamais consommé (Freins et Comprendre le cadre restent séparés).
   Quelques valeurs sont discutables ; à revoir quand le champ sera branché.
+
+## Champ facultatif `maj_resume` (consigne 422, 16/11/2026)
+
+En-tête d'une fiche : `maj_resume: "AAAA-MM-JJ : phrase simple"`. La page Nouveautés (entrée « Droits et règles ») le montre sous « Ce qui change » pour une fiche mise à jour, seulement si la date est celle de la carte (la dernière mise à jour) ; une fiche nouvelle montre « En bref » (`phrase_generale`). Absent ou d'une autre date : « En bref ». Lu par `_comprendreLeCadreParserFiche`, rendu par `_comprendreLeCadreRenduResumeFiche`. L'éditeur de l'outil de veille conserve ce bloc tel quel (il ne le modifie pas). Test : `tests/nouveautes.test.js`.

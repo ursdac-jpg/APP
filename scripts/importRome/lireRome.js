@@ -111,4 +111,8 @@ function empreinte(f) {
   return crypto.createHash('sha1').update(canon).digest('hex').slice(0, 12);
 }
 
-module.exports = { lireCsv, chargerRome, empreinte };
+// Libellé de savoir-être du ROME mis en français correct : apostrophe typographique, « Etre » devient « Être ».
+// Source unique, utilisée par ajouterSavoirEtreFiches.js et par genererMetiersRome.js (champ « e » des fiches).
+function libelleSavoirEtre(l) { return String(l).replace(/'/g, '’').replace(/^Etre\b/, 'Être'); }
+
+module.exports = { lireCsv, chargerRome, empreinte, libelleSavoirEtre };

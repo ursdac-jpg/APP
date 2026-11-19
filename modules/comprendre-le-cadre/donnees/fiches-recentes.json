@@ -1,5 +1,54 @@
 [
  {
+  "id": "budget-credit-a-la-consommation-ce-qui-change-20-novembre-2026",
+  "rayon": "budget",
+  "titre": "Crédit à la consommation : ce qui change à partir du 20 novembre 2026",
+  "date": "2026-11-18",
+  "ajoutee": "2026-11-18"
+ },
+ {
+  "id": "former-demission-reconversion",
+  "rayon": "former",
+  "titre": "Démissionner pour se reconvertir et garder le chômage : le dispositif démission-reconversion",
+  "date": "2026-11-18",
+  "ajoutee": ""
+ },
+ {
+  "id": "former-metiers-et-intelligence-artificielle-vision-des-employeurs",
+  "rayon": "former",
+  "titre": "L'intelligence artificielle va-t-elle changer mon métier ? Ce que pensent les employeurs",
+  "date": "2026-11-18",
+  "ajoutee": "2026-11-18"
+ },
+ {
+  "id": "former-se-former-avant-l-embauche",
+  "rayon": "former",
+  "titre": "Se former avant d'être embauché : la POEI et la POEC",
+  "date": "2026-11-18",
+  "ajoutee": ""
+ },
+ {
+  "id": "mobilite-aide-carburant-grands-rouleurs-2026",
+  "rayon": "mobilite",
+  "titre": "L'aide carburant de l'État pour ceux qui font beaucoup de kilomètres pour travailler",
+  "date": "2026-11-18",
+  "ajoutee": "2026-11-18"
+ },
+ {
+  "id": "mobilite-prime-carburant-employeur-plafond-releve-2026",
+  "rayon": "mobilite",
+  "titre": "La prime carburant versée par l'employeur : un plafond relevé jusqu'au 31 décembre 2026",
+  "date": "2026-11-18",
+  "ajoutee": "2026-11-18"
+ },
+ {
+  "id": "sante-mon-soutien-psy-seances-psychologue",
+  "rayon": "sante",
+  "titre": "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »",
+  "date": "2026-11-18",
+  "ajoutee": "2026-11-09"
+ },
+ {
   "id": "budget-decouvert-bancaire-verification-solvabilite",
   "rayon": "budget",
   "titre": "Découvert bancaire : la banque doit vérifier votre situation avant de l'accorder",
@@ -61,13 +110,6 @@
   "titre": "Les aides au logement de la CAF (APL, ALF, ALS) : qui y a droit ?",
   "date": "2026-11-09",
   "ajoutee": ""
- },
- {
-  "id": "sante-mon-soutien-psy-seances-psychologue",
-  "rayon": "sante",
-  "titre": "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »",
-  "date": "2026-11-09",
-  "ajoutee": "2026-11-09"
  },
  {
   "id": "sante-puma-c2s-et-medecin-traitant",
@@ -427,13 +469,6 @@
   "ajoutee": ""
  },
  {
-  "id": "former-demission-reconversion",
-  "rayon": "former",
-  "titre": "Démissionner pour se reconvertir et garder le chômage : le dispositif démission-reconversion",
-  "date": "2026-11-04",
-  "ajoutee": ""
- },
- {
   "id": "former-financer-sa-formation-demandeur-emploi",
   "rayon": "former",
   "titre": "Financer une formation quand on cherche un emploi",
@@ -451,13 +486,6 @@
   "id": "former-projet-de-transition-professionnelle",
   "rayon": "former",
   "titre": "Le projet de transition professionnelle : se former pour changer de métier en gardant son salaire",
-  "date": "2026-11-04",
-  "ajoutee": ""
- },
- {
-  "id": "former-se-former-avant-l-embauche",
-  "rayon": "former",
-  "titre": "Se former avant d'être embauché : la POEI et la POEC",
   "date": "2026-11-04",
   "ajoutee": ""
  },

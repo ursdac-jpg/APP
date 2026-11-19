@@ -169,9 +169,16 @@ Une tâche n'est pas finie tant que ses fichiers de suivi ne sont pas à jour.
 Dès qu'une fiche de « Comprendre le cadre » est **créée** ou **mise à jour**, et dès qu'un **changement législatif** est répertorié, il doit apparaître dans la page Nouveautés, entrée « Droits et règles : ce qui change ». Ce n'est jamais optionnel.
 
 - **Fiches** : le bloc « Dans les fiches » lit `modules/comprendre-le-cadre/donnees/fiches-recentes.json`, généré (`node scripts/genererFichesRecentes.js`) depuis `outils/journal_modifications.txt`. L'outil de veille écrit au journal toute fiche créée (« ajoutée ») ou changée (« modifiée »). Une fiche écrite hors de l'outil exige sa ligne `cadre` au journal à la main, puis la régénération du fichier, dans le même commit.
+- **« Ce qui change » d'une fiche mise à jour (consigne 422)** : champ facultatif `maj_resume: "AAAA-MM-JJ : phrase simple"` dans l'en-tête de la fiche, montré par la page Nouveautés seulement si sa date est celle de la carte ; sinon « En bref ». À écrire pour toute mise à jour qui change quelque chose pour le lecteur, jamais pour une simple relecture.
 - **Changements législatifs** : ils passent par le sas des changements puis les fichiers `contenu/balayage/AAAA-MM.md`, que la page lit directement.
 - **Contrôle** : à la fin de toute séance de veille (ou d'édition de fiches), vérifier que `tests/fichesRecentes.test.js` est vert (il refuse une fiche révisée absente du bloc) et regarder le bloc à l'écran. Leçon 9.183, consigne 416.
 - Cette règle ne remplace pas la ligne de `data/nouveautes.js` d'un chantier terminé (voir `CLAUDE.md`) : les deux existent.
+
+## Tout défaut corrigé apparaît dans « Problèmes corrigés », et toute amélioration de la page dans les Nouveautés (décision de Denis, 16/11/2026, consigne 419, très important)
+
+- **Défauts** : dès qu'une incohérence ou un bug **visible par les personnes** est trouvé ET corrigé, on ajoute une ligne dans `data/problemesCorriges.js` (date système réelle, titre qui nomme le module, `signale` et `corrige` en mots simples, `origine` « personne » ou « nous »), **dans le même commit que la correction**, et on l'annonce en une ligne. Une correction dans un module encore fermé au public n'est pas listée. Elle ne remplace ni `docs/ERREURS_ET_BUGS.md` ni les leçons : les trois existent.
+- **Améliorations** : toute amélioration visible reçoit sa ligne dans `data/nouveautes.js` à la fin du chantier (règle de `CLAUDE.md`). Pour le chantier des filtres et du « déjà vu » (consigne 418), cette ligne est à écrire à la fin du lot 5 : **ne pas l'oublier**.
+- **Contrôle** : à la fin d'une séance de correction, relire les bugs corrigés de la séance (registre, leçons, `git log`) et vérifier qu'ils sont tous dans `data/problemesCorriges.js`.
 
 ## À chaque décision que Denis prend
 

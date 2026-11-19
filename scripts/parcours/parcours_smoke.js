@@ -7,7 +7,7 @@
    Utilisation (navigateur integre, serveur de dev lance, page fraichement rechargee, attendre la fin du chargement) :
      eval(await (await fetch('/scripts/parcours/parcours_smoke.js')).text());
      await window.__parcours();            // ~40 s ; renvoie { ok, nbOk, nbEchecs, echecs, tout }
-   Un seul parcours : await window.__parcours(['bilan']) ; identifiants : bilan, comparer, decouverte, prompts, ats, certifs, cartes, aide.
+   Un seul parcours : await window.__parcours(['bilan']) ; identifiants : bilan, comparer, decouverte, prompts, ats, certifs, cartes, aide, comprendreMetiers.
 
    AVANT de lancer les essais qui touchent la flèche « Précédent » (accueilCartes, monTerritoire*, bilanHistorique, cadreHistorique, comparerHistorique, ucpmHistorique, decouverteHistorique, lexiqueHistorique, chiffresHistorique, regardHistorique, petitsModulesHistorique) : faire UN VRAI CLIC dans la page (pas un clic par script).
    Chrome ignore les entrées d'historique créées sans clic réel et un history.go(-n) peut alors sortir de la page (leçon 9.45).
@@ -24,7 +24,72 @@
     Object.defineProperty(HTMLTextAreaElement.prototype, 'value', { configurable: true, get: d.get, set: function (v) { d.set.call(this, v); if (/^texteCollage/.test(this.id)) { this.dispatchEvent(new Event('input', { bubbles: true })); } } });
     HTMLTextAreaElement.prototype.__valeurSimuleSaisie = true;
   })();
-  var attente = function (ms) { return new Promise(function (r) { setTimeout(r, ms || 600); }); };
+  // ---------------- Attente ADAPTATIVE (point B, 18/11/2026) : un SEUL endroit pour toutes les pauses des essais ----------------
+  // Avant : attente(ms) dormait toujours ms millisecondes (plus de 2 000 pauses fixes). Maintenant : elle rend la main dès que l'application est CALME, jamais après ms (plafond = l'ancienne pause)
+  // et jamais avant un plancher de 250 ms (ou ms si plus court). Calme = aucun minuteur de l'application en attente (setTimeout de 3 s au plus : au-delà, ce sont des décors comme l'arrêt de la pulsation d'un bouton ; requestAnimationFrame), aucune requête en cours,
+  // aucun cadre (aperçu du CV) en chargement, et AUCUNE modification de la page ni des cadres depuis 400 ms. Désactiver : window.__attenteFixe = true (retour aux pauses fixes). Une pause qui doit rester FIXE
+  // (délai à laisser s'écouler pour lui-même) s'écrit attenteFixe(ms). Les minuteurs des cadres sont aussi suivis (un cadre recréé est rebranché à chaque lecture).
+  var _setT = window.__calmeSetT || (window.__calmeSetT = window.setTimeout.bind(window));
+  var attenteFixe = function (ms) { return new Promise(function (r) { _setT(r, ms || 600); }); };
+  var _calme = (function () {
+    if (window.__calmeOutil) { return window.__calmeOutil; }
+    var etat = { minuteurs: {}, nbMin: 0, raf: 0, requetes: 0, derniere: Date.now() }, vus = (typeof WeakSet === 'function') ? new WeakSet() : null;
+    function envelopper(w) {
+      if (!w || w.__calmeMinuteurs) { return; }
+      try {
+        var st = w.setTimeout.bind(w), ct = w.clearTimeout.bind(w), ra = w.requestAnimationFrame && w.requestAnimationFrame.bind(w);
+        w.setTimeout = function (fn, d) {
+          var args = Array.prototype.slice.call(arguments, 2);
+          if (typeof fn !== 'function' || (d || 0) > 3000) { return st.apply(w, arguments); }
+          var id = st(function () { if (etat.minuteurs[id]) { delete etat.minuteurs[id]; etat.nbMin--; } fn.apply(w, args); }, d);
+          etat.minuteurs[id] = window.__calmeDebug ? { d: d, f: String(fn).slice(0, 140).replace(/\s+/g, ' ') } : 1; etat.nbMin++; return id;
+        };
+        w.clearTimeout = function (id) { if (etat.minuteurs[id]) { delete etat.minuteurs[id]; etat.nbMin--; } return ct(id); };
+        if (ra) { w.requestAnimationFrame = function (fn) { etat.raf++; return ra(function (t) { etat.raf--; fn(t); }); }; }
+        w.__calmeMinuteurs = true;
+      } catch (e) { /* fenêtre inaccessible : ignorée */ }
+    }
+    function observer(doc) {
+      if (!doc || (vus && vus.has(doc)) || !doc.documentElement) { return; }
+      try { if (vus) { vus.add(doc); } new MutationObserver(function () { etat.derniere = Date.now(); }).observe(doc.documentElement, { subtree: true, childList: true, attributes: true, characterData: true }); } catch (e) { /* sans effet */ }
+    }
+    envelopper(window); observer(document);
+    if (window.fetch && !window.__calmeFetch) {
+      var f0 = window.fetch.bind(window);
+      window.fetch = function () { etat.requetes++; var p; try { p = f0.apply(window, arguments); } catch (e) { etat.requetes--; throw e; } var fin = function () { etat.requetes--; }; p.then(fin, fin); return p; };
+      window.__calmeFetch = true;
+    }
+    var outil = {
+      etat: etat,
+      calme: function (quietMs) {
+        var cadres = document.querySelectorAll('iframe'), charge = false;
+        for (var i = 0; i < cadres.length; i++) {
+          try { var d = cadres[i].contentDocument; if (d) { observer(d); envelopper(cadres[i].contentWindow); if (d.readyState !== 'complete') { charge = true; } } } catch (e) { /* cadre d'une autre origine */ }
+        }
+        outil.cadreEnChargement = charge;
+        if (charge) { etat.derniere = Date.now(); return false; }
+        return etat.nbMin <= 0 && etat.raf <= 0 && etat.requetes <= 0 && (Date.now() - etat.derniere) >= (quietMs || 400);
+      }
+    };
+    window.__calmeOutil = outil; return outil;
+  })();
+  var attente = function (ms) {
+    ms = ms || 600;
+    if (window.__attenteFixe) { return attenteFixe(ms); }
+    var debut = Date.now(), plancher = Math.min(ms, 250);
+    var st = window.__attStats || (window.__attStats = { appels: 0, nominal: 0, reel: 0, plafond: 0, raisons: { minuteurs: 0, raf: 0, requetes: 0, modif: 0, cadre: 0 } });
+    return new Promise(function (r) {
+      (function boucle() {
+        var t = Date.now() - debut;
+        if (t >= ms || (t >= plancher && _calme.calme(400))) {
+          st.appels++; st.nominal += ms; st.reel += t;
+          if (t >= ms) { st.plafond++; var e = _calme.etat; if (e.nbMin > 0) { st.raisons.minuteurs++; if (window.__calmeDebug && (st.ex = st.ex || []).length < 14) { st.ex.push(ms + 'ms : ' + Object.values(e.minuteurs).map(function (m) { return (m.d || 0) + 'ms ' + (m.f || ''); }).slice(0, 3).join(' || ')); } } else if (e.raf > 0) { st.raisons.raf++; } else if (e.requetes > 0) { st.raisons.requetes++; } else if (_calme.cadreEnChargement) { st.raisons.cadre++; } else { st.raisons.modif++; } }
+          r(); return;
+        }
+        _setT(boucle, 50);
+      })();
+    });
+  };
   var resultats = [];
   // Ecran « Collez la reponse » partage (fenetre unique, 28/10/2026) : colle une reponse dans la fenetre, puis clique sur « Continuer » (celui de la barre du bas s'il est la, sinon celui de la fenetre).
   async function collerActionIA(texteReponse) {
@@ -2772,8 +2837,9 @@
     var lignesStyle = [].slice.call(cc0.querySelectorAll('[data-mep-stylefam-pro], [data-mep-stylefam-comp]')).map(function (b) { return b.closest('.inline'); }).filter(function (v, i, a) { return v && a.indexOf(v) === i; });
     // Depuis le palier de taille de base de la page CV (17 px à 1280, consigne 144), la rangée « Style » de chaque famille, dans une colonne de 334 px, passe sur 2 lignes (3 rectangles mesurés avec l'étiquette) : on garde la limite à 3 pour détecter pire. Point de forme à trancher par Denis (état des chantiers, 16/11/2026).
     cas('compétences : le choix du style de chaque famille (Général, Pastilles, Rectangles, Texte) reste lisible en affichage normal (3 lignes au plus)', lignesStyle.length === 2 && lignesStyle.every(function (z) { return lignesDe(z) <= 3; }), lignesStyle.map(function (z) { return lignesDe(z) + '@' + Math.round(z.getBoundingClientRect().width) + 'px:' + z.textContent.trim().replace(/\s+/g, ' ').slice(0, 80); }).join(' | '));
-    // « Adapter les dates côte à côte » passe sur 2 lignes dans une colonne de 220 px (palier de taille de base, consigne 144) : on accepte 2 lignes au plus.
+    // Le libellé « Dates côte à côte » (raccourci le 17/11/2026, ancien « Adapter les dates côte à côte » sur 2 lignes dans une colonne de 220 px au palier de taille de base, consigne 144) doit tenir sur UNE ligne ; les autres options acceptent 2 lignes au plus.
     cas('organisation : en affichage normal aussi, chaque option reste lisible (2 lignes au plus pour son intitulé, son carré et son « ? »)', [].slice.call(org().querySelectorAll('.checks.auto .ck')).every(function (l) { return lignesDe(l) <= 2; }), [].slice.call(org().querySelectorAll('.checks.auto .ck')).filter(function (l) { return lignesDe(l) > 2; }).map(function (l) { return l.textContent.trim().slice(0, 30); }).join(' / '));
+    cas('organisation : « Dates côte à côte » tient sur une seule ligne en affichage normal', (function () { var c = org().querySelector('[data-mep-dates-adapter]'), l = c && c.closest('.ck'); return !!l && lignesDe(l) === 1; })(), (function () { var c = org().querySelector('[data-mep-dates-adapter]'), l = c && c.closest('.ck'); return l ? lignesDe(l) + ' ligne(s) : ' + l.textContent.trim().slice(0, 40) : 'case absente'; })());
     // les deux listes de compétences s'ouvrent et se ferment ensemble
     var cC = document.getElementById('cComp'); cC.open = true;
     var bP = cC.querySelector('[data-mep-pick="pro"]'); if (bP) { bP.click(); await attente(900); }
@@ -3517,9 +3583,14 @@
     cas('remplissage : un CV neuf arrive plus grand qu’un CV non calculé', dossier.miseEnPageAutoFaite === true && e1 > 1 && h() > h0, 'drapeau=' + dossier.miseEnPageAutoFaite + ' echelle=' + e1 + ' h=' + h() + '/' + h0);
     cas('remplissage : le CV reste sur une page et la page est prête pour l’export Word', w().document.querySelectorAll('#conteneurPage .page-a4').length === 1 && w().__cvPdfRemplissagePret === true);
     // 4. « Revenir au modèle de départ » (drapeau remis à false) : le calcul est refait.
-    dossier.pdfReglages.echelle = 1; dossier.miseEnPageAutoFaite = false;
-    await ouvrir(false);
-    cas('remplissage : après « Revenir au modèle de départ », le CV est de nouveau rempli', dossier.miseEnPageAutoFaite === true && dossier.pdfReglages.echelle > 1, 'echelle=' + dossier.pdfReglages.echelle);
+    // Comme le vrai bouton : drapeau remis à false, échelle remise à 1 ET en-tête libre effacé (le bouton retire « enteteLibreMq » des réglages enregistrés).
+    var boutonRevenir = document.getElementById('btnMepRevenirDefaut');
+    if (boutonRevenir) { boutonRevenir.click(); await attente(7000); }   // le vrai bouton : il remet le drapeau à false et relance l'écran
+    else { dossier.pdfReglages.echelle = 1; dossier.miseEnPageAutoFaite = false; delete dossier.pdfReglages.enteteLibreMq; await ouvrir(false); }
+    cas('remplissage : le vrai bouton « Revenir au modèle de départ » a servi à l’essai', !!boutonRevenir, 'bouton absent : simulation');
+    // Patience : le calcul se termine après l'affichage (jusqu'à 15 s de plus sur une machine chargée).
+    for (var attenteRevenir = 0; attenteRevenir < 30 && !(dossier.miseEnPageAutoFaite === true && dossier.pdfReglages.echelle > 1); attenteRevenir++) { await attente(500); }
+    cas('remplissage : après « Revenir au modèle de départ », le CV est de nouveau rempli', dossier.miseEnPageAutoFaite === true && dossier.pdfReglages.echelle > 1, 'echelle=' + dossier.pdfReglages.echelle + ' drapeau=' + dossier.miseEnPageAutoFaite);
     // 5. Un CV trop long ne rétrécit que légèrement (jamais sous 10 px) ; la personne décide ensuite avec le bouton.
     for (var i = 0; i < 6; i++) { dossier.experiences.push(Object.assign({}, dossier.experiences[0], { poste: 'Poste ' + i, entreprise: 'Entreprise ' + i, dateDebut: (2000 + i) + '-01', dateFin: (2001 + i) + '-12' })); }
     await ouvrir(true);
@@ -3629,6 +3700,9 @@
           cumul.total++;
           if (exclus.indexOf(m[1]) !== -1) { cas('en-tête décalé : ' + etiquette + ' : modèle à en-tête propre, laissé tel quel', !active && !tete); continue; }
           if (!active) { continue; }   // modèle dont l'en-tête n'occupe pas toute la largeur (frise, rectangles...) : volontairement laissé tel quel
+          // Retrait voulu (Lot 8, décision du 26/10/2026) : si l'en-tête décalé est anormal (plus de 30 % de la page, accroche trop étroite, bloc qui sort), l'application revient d'elle-même à l'en-tête d'origine du modèle.
+          // C'est le cas, sans photo, des modèles à diagonale ou à vague. L'essai vérifie alors que l'en-tête de repli est bien normal.
+          if (!tete) { cas('en-tête décalé : ' + etiquette + ' : retiré d’office (trop haut ou trop étroit), l’en-tête d’origine du modèle reste normal', !!d.querySelector('#conteneurPage .tete') && !w()._pdfEnteteAnormale(), 'en-tête=' + (d.querySelector('#conteneurPage .tete') ? d.querySelector('#conteneurPage .tete').className : 'absent')); continue; }
           cumul.actives++;
           var rect = function (k) { var e = tete.querySelector('.blc[data-bl="' + k + '"]'); return e ? e.getBoundingClientRect() : null; };
           var nom = rect('nom'), coord = rect('coord'), met = rect('metier'), acc = rect('accroche');
@@ -3819,10 +3893,10 @@
     w()._pdfChoisirModeleCreatif('mqCadre'); await attente(2500);
     var b = document.getElementById('btnMepMiseEnPage');
     cas('pulsation : après un changement de modèle, le bouton « Mise en page » pulse', !!b && b.classList.contains('pulse-mep') && _mepPulseActif(), b ? b.className : 'pas de bouton');
-    await attente(6000);
+    await attenteFixe(6000);   // durée écoulée voulue : la pulsation s'arrête seule à 10 s
     b = document.getElementById('btnMepMiseEnPage');
     cas('pulsation : il pulse toujours à mi-parcours', !!b && b.classList.contains('pulse-mep'));
-    await attente(6500);
+    await attenteFixe(6500);
     b = document.getElementById('btnMepMiseEnPage');
     cas('pulsation : elle s’arrête toute seule après dix secondes', !!b && !b.classList.contains('pulse-mep') && !_mepPulseActif());
     // Nouveau changement de modèle : elle repart ; un clic l'arrête
@@ -5261,6 +5335,17 @@
       if (mots() !== avantTexte) { defauts.push('tirage ' + (i + 1) + ' : le texte du CV a changé'); }
     }
     cas('style aléatoire des formes : 8 tirages, de 1 à 4 formes, jamais sur la photo ni le nom, sans que deux formes se touchent, texte du CV intact', defauts.length === 0, defauts.join(' | ') + ' / nombres vus : ' + Object.keys(nombres).join(','));
+    // Garde-fou après un tirage (17/11/2026) : les formes sont mesurées avant le nouveau rendu ; si l'une recouvre la photo une fois la page refaite, elle est redessinée ailleurs.
+    // Une forme posée à la main sur la photo, hors tirage, reste en place (la personne seule décide).
+    var pagePh = w().document.querySelector('#conteneurPage .page-a4'), prPh = pagePh.getBoundingClientRect(), kPh = prPh.width / pagePh.offsetWidth, pbPh = w().document.querySelector('#conteneurPage .photo-mq').getBoundingClientRect();
+    var fSur = { forme: 'rond', zone: 'libre', taille: 'perso', fw: 0.2, style: 'plein', transp: 'leger', couleur: 'cv', teinte: _FORMES_DECO.TEINTES[0] };
+    var gSur = _formesDecoGeometrie(fSur, { pageL: pagePh.offsetWidth, pageH: pagePh.offsetHeight });
+    fSur.fx = ((pbPh.left - prPh.left) / kPh + pbPh.width / kPh / 2 - gSur.w / 2) / pagePh.offsetWidth; fSur.fy = ((pbPh.top - prPh.top) / kPh + pbPh.height / kPh / 2 - gSur.h / 2) / pagePh.offsetHeight;
+    _mepVerifFormesTirage = { jusqua: 0, essais: 0 };
+    _mepAppelerIframePdf('_pdfDefinirFormesDeco', [fSur]); _mepRerendre(); await attente(4500);
+    cas('garde-fou : une forme posée à la main sur la photo, hors tirage, n’est pas déplacée', _mepFormesSurPhotoOuNom());
+    _mepVerifFormesTirage = { jusqua: Date.now() + 9000, essais: 3 }; _mepRerendre(); await attente(7000);
+    cas('garde-fou : après un tirage, une forme qui recouvre la photo est redessinée ailleurs', !_mepFormesSurPhotoOuNom() && w()._cvPdfFormesDeco.length >= 1 && _mepVerifFormesTirage.essais < 3, 'essais restants=' + _mepVerifFormesTirage.essais + ' sur la photo=' + _mepFormesSurPhotoOuNom());
     // « Garder mes formes » : le tirage ne change, n'ajoute et ne retire AUCUNE forme.
     dossier.reglagesMiseEnPageCV.garderFormes = true;
     var gardees = [{ forme: 'rond', zone: 'hd', taille: 'M' }, { forme: 'ovale', zone: 'bas', taille: 'L' }];
@@ -5948,6 +6033,8 @@
       document.querySelector('[data-mep-allure="' + allures[pa] + '"]').click(); await attente(3500);
       for (var i = 0; i < 6; i++) {
         _mepTiroirForme = null; document.getElementById('btnMepDe').click(); await attente(6500);
+        // Sous charge, l'aperçu peut finir de se refaire après les 6,5 s : on lit seulement quand la barre d'onglets et la classe du CV ne bougent plus (deux lectures identiques à 800 ms, 12 s au plus).
+        for (var st = 0, avant = ''; st < 15; st++) { var cour = onglets() + '|' + (cv() ? cv().className : ''); if (cour === avant) { break; } avant = cour; await attente(800); }
         var nom = allures[pa] + ' tirage ' + (i + 1), a2 = cv().classList.contains('deux-col'), o = _mepTiroirForme || {}, ong = onglets();
         if (a2) { deux++; } else { une++; }
         var capCol = _cvFormesPourModele(_mepCleModeleActuel(), 'colonne').length > 0;
@@ -6031,9 +6118,11 @@
       if (onglets().indexOf('colonne') === -1) { ko.push(id + ' : pas d’onglet Colonne à deux colonnes (' + onglets() + ')'); continue; }
       if (cv().classList.contains('col-vague-g') || cv().classList.contains('col-vague-d')) { ko.push(id + ' : une colonne colorée dès l’arrivée du modèle'); continue; }
       document.querySelector('#mepOngletsApercu [data-mep-onglet="colonne"]').click(); await attente(1200);
+      if (!tiroir()) { ko.push(id + ' : le panneau Colonne ne s’ouvre pas (onglets ' + onglets() + ' ; panneaux ' + JSON.stringify(_mepTiroirForme) + ' ; ouvert=' + document.querySelector('#mepOngletsApercu [data-mep-onglet="colonne"]').getAttribute('aria-expanded') + ')'); continue; }
       var coche = tiroir().querySelector('.vign-forme[aria-checked="true"]:not(.vign-sens)');
       if (!coche || coche.getAttribute('data-mep-forme') !== 'aucun') { ko.push(id + ' : « Aucune » devrait être cochée'); continue; }
       tiroir().querySelector('[data-mep-forme="demiovale"]').click(); await attente(3500);
+      if (!tiroir()) { ko.push(id + ' : le panneau Colonne s’est refermé après le choix de la forme (panneaux ' + JSON.stringify(_mepTiroirForme) + ')'); continue; }
       var c = cv();
       if (!c.classList.contains('col-forme') || (!c.classList.contains('col-vague-g') && !c.classList.contains('col-vague-d'))) { ko.push(id + ' : la forme ne se dessine pas (' + c.className + ')'); continue; }
       var rangee = tiroir().querySelector('[data-mep-teinte-rang="colonne"]');
@@ -6050,6 +6139,7 @@
     await choisirSobre('mq-cartes'); await choisirColonnes(2);
     cas('colonne Sobre douce : changer de modèle Sobre repart sans colonne colorée', !cv().classList.contains('col-vague-g') && !cv().classList.contains('col-vague-d'), cv().className);
     // Sobre fond garde sa colonne d'office, sans rangée Teinte
+    _mepTiroirForme = null;   // le panneau Colonne de la dernière boucle est encore ouvert : sans cela, le clic sur l'onglet le refermerait
     await choisirSobre('mq-fond'); await choisirColonnes(2);
     var o = document.querySelector('#mepOngletsApercu [data-mep-onglet="colonne"]'); if (o) { o.click(); await attente(1200); }
     cas('colonne Sobre douce : Sobre fond garde sa colonne d’origine et n’a pas de rangée « Teinte de la colonne »', !!o && !tiroir().querySelector('[data-mep-teinte-rang="colonne"]'), cv().className);
@@ -7860,7 +7950,7 @@
       var onglets = [].slice.call(document.querySelectorAll('[role="tab"][data-comprendre-le-cadre-digest-vue]'));
       cas('digest : deux onglets « Récemment » (actif d’abord) et « Par trimestre »', onglets.length === 2 && /Récemment/.test(onglets[0].textContent) && onglets[0].getAttribute('aria-selected') === 'true' && /Par trimestre/.test(onglets[1].textContent));
       var resume = document.getElementById('comprendreLeCadreDigestResume');
-      cas('digest : le résumé donne le total, sans « depuis le… », et la ligne « Dernière mise à jour »', !!resume && new RegExp(cartes + ' changements?').test(resume.textContent) && !/depuis le \d+ \S+ \d{4}/.test(resume.textContent) && /Dernière mise à jour : \d+ \S+ \d{4}/.test(resume.textContent), resume && resume.textContent);
+      cas('digest : le résumé donne le total, sans « depuis le… », et la ligne « Dernière vérification »', !!resume && new RegExp(cartes + ' changements?').test(resume.textContent) && !/depuis le \d+ \S+ \d{4}/.test(resume.textContent) && /Dernière vérification[^:]*: \d+ \S+ \d{4}/.test(resume.textContent), resume && resume.textContent);
       var nouveaux = document.querySelectorAll('.comprendre-le-cadre-chg--nouveau');
       cas('digest : les changements de moins d’une semaine portent « Nouveau cette semaine » et sont ouverts', [].slice.call(nouveaux).every(function (c) { return c.open && /Nouveau cette semaine/.test(c.querySelector('summary').textContent); }) && document.querySelectorAll('.comprendre-le-cadre-chg:not(.comprendre-le-cadre-chg--nouveau) .comprendre-le-cadre-chg-nouveau').length === 0);
       var ferme = document.querySelector('.comprendre-le-cadre-chg:not([open])');
@@ -7882,15 +7972,15 @@
       var texteDigest = [].slice.call(document.querySelectorAll('.comprendre-le-cadre-chg')).map(function (e) { return e.textContent; }).join(' ');
       cas('digest : aucun changement « à vérifier » n’est affiché (information possiblement fausse)', !/à vérifier/i.test(texteDigest) && !/Mayotte/.test(texteDigest), 'trouvé');
       document.querySelector('[data-comprendre-le-cadre-digest-vue="trimestre"]').click(); await attente(300);
-      var trims = [].slice.call(document.querySelectorAll('[data-comprendre-le-cadre-digest-trimestre]'));
-      cas('digest : « Par trimestre » propose le trimestre en cours (annoncé « en cours ») et les précédents', trims.length >= 2 && /en cours/.test(trims[0].textContent) && trims[0].getAttribute('aria-pressed') === 'true', trims.map(function (b) { return b.textContent; }).join(' ; '));
+      var trims = [].slice.call(document.querySelectorAll('[data-comprendre-le-cadre-digest-trimestre]')); var iEC = trims.map(function (b) { return /en cours/.test(b.textContent); }).indexOf(true);   // depuis la consigne 426, un trimestre « à venir » peut passer avant celui « en cours »
+      cas('digest : « Par trimestre » propose le trimestre en cours (annoncé « en cours ») et les précédents', trims.length >= 2 && iEC >= 0 && trims[iEC].getAttribute('aria-pressed') === 'true', trims.map(function (b) { return b.textContent; }).join(' ; '));
       var panneaux = [].slice.call(document.querySelectorAll('.comprendre-le-cadre-digest-panneau'));
       cas('digest : par trimestre, les domaines sont repliables et seul le premier est ouvert', panneaux.length > 1 && panneaux[0].open && panneaux.slice(1).every(function (p) { return !p.open; }));
       var parTrim = document.querySelectorAll('.comprendre-le-cadre-digest-item').length;
-      cas('digest : le total d’un trimestre est celui de son bouton', new RegExp(': ' + parTrim + '$').test(trims[0].textContent.trim()), parTrim + ' / ' + trims[0].textContent);
-      trims[1].click(); await attente(300);
+      cas('digest : le total d’un trimestre est celui de son bouton', new RegExp(': ' + parTrim + '$').test(trims[iEC].textContent.trim()), parTrim + ' / ' + trims[iEC].textContent);
+      trims[iEC + 1].click(); await attente(300);
       var trims2 = [].slice.call(document.querySelectorAll('[data-comprendre-le-cadre-digest-trimestre]'));
-      cas('digest : un clic sur un trimestre précédent l’affiche', trims2[1].getAttribute('aria-pressed') === 'true' && /trimestre \d{4}/.test(document.getElementById('comprendreLeCadreDigestResume').textContent));
+      cas('digest : un clic sur un trimestre précédent l’affiche', trims2[iEC + 1].getAttribute('aria-pressed') === 'true' && /trimestre \d{4}/.test(document.getElementById('comprendreLeCadreDigestResume').textContent));
       var rupture = [].slice.call(document.querySelectorAll('.comprendre-le-cadre-digest-item')).filter(function (e) { return /Rupture conventionnelle dans la fonction publique/.test(e.textContent); })[0];
       cas('digest : la rupture conventionnelle (vérifiée à la source) affiche son entrée en vigueur en vert', !!rupture && /En vigueur le 8 août 2026|En vigueur le 8 ao/.test(rupture.textContent) && !!rupture.querySelector('.comprendre-le-cadre-pastille--v'));
       document.querySelector('[data-comprendre-le-cadre-digest-vue="recent"]').click(); await attente(300);
@@ -7898,8 +7988,8 @@
       var essaiMd = '## Emploi\n\n### Essai\nType : décret du 2026-08-06, en vigueur le 2026-08-08.\nConcerne : essai\nCe qui change : essai.\nSource : [Titre](https://exemple.fr/a)\nVérifié le : 2026-10-15\n\n### Sans marque\nType : décret, en vigueur à vérifier.\nConcerne : x\nCe qui change : x.\nSource : [T](https://exemple.fr/b)\n';
       var essai = _comprendreLeCadreAplatirChangements([{ corps: essaiMd, publie_le: '2026-09' }]);
       var tmp = document.createElement('div'); tmp.innerHTML = essai.length ? _comprendreLeCadreDigestRenduBlocs(essai[0].blocs) : '';
-      var marque = tmp.querySelector('.comprendre-le-cadre-digest-verifie .comprendre-le-cadre-pastille--v');
-      cas('digest : « Vérifié le » s’affiche en marque verte « Vérifié le 15 oct. 2026 », et un changement « à vérifier » reste caché', !!marque && /Vérifié le 15 oct\. 2026/.test(marque.textContent) && essai.length === 1);
+      var marque = tmp.querySelector('.comprendre-le-cadre-digest-verifie .comprendre-le-cadre-pastille');   // sans fond vert depuis la consigne 424 (17/11/2026)
+      cas('digest : « Vérifié le » s’affiche en marque, sans fond vert, « Vérifié le 15 oct. 2026 », et un changement « à vérifier » reste caché', !!marque && !marque.classList.contains('comprendre-le-cadre-pastille--v') && /Vérifié le 15 oct\. 2026/.test(marque.textContent) && essai.length === 1);
       cas('digest : la date d’un changement est la plus tardive entre « en vigueur » et « publié »', essai.length === 1 && essai[0].date === '2026-08-08', essai[0] && essai[0].date);
       cas('digest : la page affichée ne contient aucun « Rien de nouveau retenu »', !/Rien de nouveau retenu/.test(document.getElementById('app').innerText));
       cas('digest : un fichier aux fins de ligne Windows donne la même liste de sources', _comprendreLeCadreParserDigest('---\r\nperiode: "P"\r\nsources:\r\n  - "a | Titre A | [https://exemple.fr/a](https://exemple.fr/a) | 2026-09-18"\r\n  - "b | Titre B | [https://exemple.fr/b](https://exemple.fr/b) | 2026-09-18"\r\n---\r\n\r\n## D\r\n').sources.length === 2);
@@ -10017,12 +10107,12 @@
       // fin du décompte : l'ouverture se fait toute seule
       ouvertures.length = 0;
       _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: 1 };
-      ouvrirAts(); await attente(1700);
+      ouvrirAts(); await attenteFixe(1700);   // fin du compte à rebours : durée écoulée voulue
       cas('décompte/ats : au bout du compte à rebours, l’assistant s’ouvre tout seul', ouvertures.length === 1 && _etatTransitionIA.phase === 'ouvert', ouvertures.length + ' / ' + _etatTransitionIA.phase);
       // navigateur qui bloque l'ouverture
       window.open = function () { return null; };
       _etatTransitionIA = { urlAssistant: 'https://example.org', nomAssistant: 'ChatGPT', phase: 'decompte', secondesRestantes: 1 };
-      ouvrirAts(); await attente(1700);
+      ouvrirAts(); await attenteFixe(1700);
       cas('décompte/ats : si le navigateur bloque, le message le dit et un bouton propose d’ouvrir, la fenêtre reste visible', _etatTransitionIA.phase === 'bloque' && !!$('#btnOuvrirBloqueIA') && /bloqué/.test(texte($('#banniereTransitionIA'))) && !!$('#fcRacineAts .fc-apercu-legende'), String(_etatTransitionIA.phase));
       // session reprise sur l'ancien écran « chez »
       _atsEtat.ecran = 'chez'; ouvrirAts(); await attente(600);
@@ -10105,7 +10195,41 @@
     } finally { window.open = ouvrirReel; }
   }
 
-  var PARCOURS = { mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteCollage: parcoursDecouverteCollage, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, bilanAmeliorationFenetre: parcoursBilanAmeliorationFenetre, bilanCollageDiagnostic: parcoursBilanCollageDiagnostic, bilanCollageOrganisation: parcoursBilanCollageOrganisation, bilanCollageTitreAccroche: parcoursBilanCollageTitreAccroche, bilanCollageCorrectionLot: parcoursBilanCollageCorrectionLot, bilanCollageAssistanceLot: parcoursBilanCollageAssistanceLot, importActionIA: parcoursImportActionIA, reformulerCollage: parcoursReformulerCollage, lettreCollage: parcoursLettreCollage, prepLECollage: parcoursPrepLECollage, prepLEPassages: parcoursPrepLEPassages, reformulerPassages: parcoursReformulerPassages, modifierSurPlace: parcoursModifierSurPlace, bilanTexteLibre: parcoursBilanTexteLibre, entretienCollage: parcoursEntretienCollage, coherenceCollage: parcoursCoherenceCollage, regardExterieurCollage: parcoursRegardExterieurCollage, regardRecruteurCollage: parcoursRegardRecruteurCollage, regardFondCouleur: parcoursRegardFondCouleur, regardChoixMode: parcoursRegardChoixMode, regardAjoutImage: parcoursRegardAjoutImage, depotPageAts: parcoursDepotPageAts, depotPageModules: parcoursDepotPageModules, atsCollage: parcoursAtsCollage, decompteApercu: parcoursDecompteApercu, comparer: parcoursComparer, comparerAffinage: parcoursComparerAffinage, decouverte: parcoursDecouverte, decouverteChoixAssistantCV: parcoursDecouverteChoixAssistantCV, decouverteCompetencesTout: parcoursDecouverteCompetencesTout, decouverteQuestionsSuggerees: parcoursDecouverteQuestionsSuggerees, decouverteBarreEtAnnees: parcoursDecouverteBarreEtAnnees, decouverteComplementChanger: parcoursDecouverteComplementChanger,prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, reformulerInvitation: parcoursReformulerInvitation, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, rappelSauvegarde: parcoursRappelSauvegarde, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, chiffresLecture: parcoursChiffresLecture, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
+  // ---------------- Explorer les métiers (phase 7, 17/11/2026) : trois entrées, sigles, « Pourquoi ils recrutent » (département partagé), « Revoir la présentation » sans perte du travail ----------------
+  async function parcoursComprendreMetiers() {
+    cas('explorer les métiers : ouvert sur ce poste (localhost)', typeof cmvOuvert === 'function' && cmvOuvert());
+    cmvReinitialiser(); naviguerVers('comprendre-les-metiers'); await attente(1000);
+    cas('accueil du module : trois entrées et le bouton « Revoir la présentation »', document.querySelectorAll('.cml-entree').length === 3 && !!$('#btnCmlRevoir'), document.querySelectorAll('.cml-entree').length);
+    var noms = function (q) { return cmpRechercher(q).map(function (x) { return x.fiche.nom; }).join(' | '); };
+    cas('recherche : « AS » trouve aide-soignant, « CIP » trouve conseiller en insertion professionnelle, aucun résultat parasite', /aide-soignant/i.test(noms('AS')) && /insertion professionnelle/i.test(noms('CIP')) && !/flasheur/i.test(noms('ASH')), noms('AS') + ' / ' + noms('CIP') + ' / ' + noms('ASH'));
+    // Pourquoi ils recrutent : trois explications reliées au Lexique, département partagé
+    cmvOuvrirPont('bmo'); await attente(2000);
+    cas('pourquoi ils recrutent : trois fiches du Lexique et deux départements', document.querySelectorAll('[data-cml="lexique"]').length === 3 && document.querySelectorAll('[data-cml="bmoDep"]').length === 2, document.querySelectorAll('[data-cml="lexique"]').length);
+    var dep = function (re) { return [].slice.call(document.querySelectorAll('[data-cml="bmoDep"]')).filter(function (b) { return re.test(b.textContent); })[0]; };
+    dep(/Haute/).click(); await attente(500);
+    cas('pourquoi ils recrutent : la Haute-Vienne affiche ses métiers, pas ceux de la Dordogne', /Haute-Vienne/.test(texte($('#cmlBmoZone'))) && /Agriculteurs/.test(texte($('#cmlBmoZone'))) && !/Viticulteurs/.test(texte($('#cmlBmoZone'))));
+    dep(/Dordogne/).click(); await attente(500);
+    cas('pourquoi ils recrutent : la Dordogne revient, avec « Au moins » (nombres minimums) et le rappel des intentions d’employeurs', /Viticulteurs/.test(texte($('#cmlBmoZone'))) && /Au moins/.test(texte($('#cmlBmoZone'))) && /intentions d.employeurs/.test(texte($('#cmlBmoZone'))));
+    var fiches = (typeof LEXIQUE_FICHES !== 'undefined') ? LEXIQUE_FICHES.map(function (f) { return f.id; }) : [];
+    cas('Lexique : turnover, emploi-saisonnier, riasec et sigle-de-metier existent', ['turnover', 'emploi-saisonnier', 'riasec', 'sigle-de-metier'].every(function (id) { return fiches.indexOf(id) !== -1; }));
+    // Revoir la présentation : retour exact
+    $('#btnCmlRevoir').click(); await attente(900);
+    cas('revoir la présentation : la présentation s’affiche avec « Revenir au module »', pageActuelle === 'comprendre-les-metiers-intro' && !!$('#btnCmlRevenirModuleBas'), pageActuelle);
+    $('#btnCmlRevenirModuleBas').click(); await attente(900);
+    cas('revoir la présentation : retour exact sur « Pourquoi ils recrutent »', pageActuelle === 'comprendre-les-metiers' && cmvEtat().vue === 'bmo', cmvEtat().vue);
+    // Questionnaire commencé : le détour ne perd rien
+    cmvReinitialiser(); cmvEtat().vue = 'accueil'; cmvEntrerDansChemin('q'); cmvRendre(); await attente(500);
+    cas('questionnaire : l’entrée directe ouvre « Avant de commencer » avec son avertissement, sans page de présentation', cmvEtat().vue === 'q-avant' && /en quatre parties/.test(texte($('#cmlCorps'))), cmvEtat().vue);
+    document.getElementById('btnSuivantNavigation').click(); await attente(500);
+    document.getElementById('btnSuivantNavigation').click(); await attente(500);
+    var bouton = $('#cmlCorps [data-cml="rep"][data-rep="non"]'); bouton.click(); await attente(400);
+    var avant = document.querySelectorAll('#cmlCorps [aria-pressed="true"]').length;
+    $('#btnCmlRevoir').click(); await attente(900); $('#btnCmlRevenirModuleBas').click(); await attente(900);
+    cas('questionnaire commencé : après « Revoir la présentation », la réponse est gardée et aucune fenêtre ne s’ouvre', avant >= 1 && document.querySelectorAll('#cmlCorps [aria-pressed="true"]').length === avant && !$('.modal.show'), avant);
+    cmvReinitialiser();
+  }
+
+  var PARCOURS = { comprendreMetiers: parcoursComprendreMetiers, mesCompetences: parcoursMesCompetences, relectureToutRetirer: parcoursRelectureToutRetirer, exportFiche: parcoursExportFiche, deverrouillage: parcoursDeverrouillageProgressif, objectifComposant: parcoursObjectifComposant, coordonneesJaune: parcoursCoordonneesJaune, approfondiArrivee: parcoursApprofondiArrivee, versionRapide: parcoursVersionRapideDocument, creerRecit: parcoursCreerRecit, modelesGardes: parcoursModelesGardes, tirageCompositions: parcoursTirageCompositions, compositions: parcoursCompositions, texteHorsWord: parcoursTexteHorsWord, impressionFormes: parcoursImpressionFormes, enteteApercu: parcoursEnteteApercu, deuxModelesNeufs: parcoursDeuxModelesNeufs, bandeauSobreRectangles: parcoursBandeauSobreRectangles, colonneSobreDouce: parcoursColonneSobreDouce, bandeauSobreDoux: parcoursBandeauSobreDoux, colonnesTousModeles: parcoursColonnesTousModeles, colonnesTirage: parcoursColonnesTirage, sortieEntretien: parcoursSortieEntretien, petitsModulesHistorique: parcoursPetitsModulesHistorique, regardHistorique: parcoursRegardHistorique, chiffresHistorique: parcoursChiffresHistorique, lexiqueHistorique: parcoursLexiqueHistorique, decouverteCollage: parcoursDecouverteCollage, decouverteHistorique: parcoursDecouverteHistorique, ucpmHistorique: parcoursUcpmHistorique, comparerHistorique: parcoursComparerHistorique, cadreHistorique: parcoursCadreHistorique, bilanHistorique: parcoursBilanHistorique, territoires: parcoursTerritoires, hauteVienne: parcoursHauteVienne, employeurs: parcoursEmployeurs, etranger: parcoursEtranger, francais: parcoursFrancais, creer: parcoursCreer, seniors: parcoursSeniors, sante: parcoursSante, droitsJustice: parcoursDroitsJustice, emploi: parcoursEmploi, former: parcoursFormer, handicap: parcoursHandicap, garde: parcoursGarde, jeunes: parcoursJeunes, budget: parcoursBudget, mobilite: parcoursMobilite, accompagnement: parcoursAccompagnement, monTerritoireFreins: parcoursMonTerritoireFreins, monTerritoireLogement: parcoursMonTerritoireLogement, monTerritoire: parcoursMonTerritoire, monTerritoireProspection: parcoursMonTerritoireProspection, monTerritoireOffres: parcoursMonTerritoireOffres, monTerritoireAide: parcoursMonTerritoireAide, reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, modeleTient: parcoursModeleTientSurUnePage, suggestionsPage: parcoursSuggestionsPage, complementCv: parcoursComplementCv, barreBas: parcoursBarreBas, barreProfil: parcoursBarreProfil, orientationFormes: parcoursOrientationFormes, garderFormes: parcoursGarderFormes, panneauxGauche: parcoursPanneauxGauche, grandApercuFormes: parcoursGrandApercuFormes, ongletsApercu: parcoursOngletsApercu, bordBandeau: parcoursBordBandeau, formesBandeauColonne: parcoursFormesBandeauColonne, nouvellesFormesBandeau: parcoursNouvellesFormesBandeau, nouvellesFormesColonne: parcoursNouvellesFormesColonne, poigneesCv: parcoursPoigneesCv, tirageFormes: parcoursTirageFormes, texteDeuxTons: parcoursTexteDeuxTons, texteDeuxTonsColonne: parcoursTexteDeuxTonsColonne, cadreRougeTexte: parcoursCadreRougeTexte, sensBandeau: parcoursSensBandeau, sensColonne: parcoursSensColonne, formesTousModeles: parcoursFormesTousModeles, tirageFormesCv: parcoursTirageFormesCv, formesDeco: parcoursFormesDeco, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, unCvMetiersRetravail: parcoursUnCvMetiersRetravail, unCvMetiersPreparation: parcoursUnCvMetiersPreparation, unCvMetiersInvitationInfos: parcoursUnCvMetiersInvitationInfos, bilan: parcoursBilan, bilanAmeliorationFenetre: parcoursBilanAmeliorationFenetre, bilanCollageDiagnostic: parcoursBilanCollageDiagnostic, bilanCollageOrganisation: parcoursBilanCollageOrganisation, bilanCollageTitreAccroche: parcoursBilanCollageTitreAccroche, bilanCollageCorrectionLot: parcoursBilanCollageCorrectionLot, bilanCollageAssistanceLot: parcoursBilanCollageAssistanceLot, importActionIA: parcoursImportActionIA, reformulerCollage: parcoursReformulerCollage, lettreCollage: parcoursLettreCollage, prepLECollage: parcoursPrepLECollage, prepLEPassages: parcoursPrepLEPassages, reformulerPassages: parcoursReformulerPassages, modifierSurPlace: parcoursModifierSurPlace, bilanTexteLibre: parcoursBilanTexteLibre, entretienCollage: parcoursEntretienCollage, coherenceCollage: parcoursCoherenceCollage, regardExterieurCollage: parcoursRegardExterieurCollage, regardRecruteurCollage: parcoursRegardRecruteurCollage, regardFondCouleur: parcoursRegardFondCouleur, regardChoixMode: parcoursRegardChoixMode, regardAjoutImage: parcoursRegardAjoutImage, depotPageAts: parcoursDepotPageAts, depotPageModules: parcoursDepotPageModules, atsCollage: parcoursAtsCollage, decompteApercu: parcoursDecompteApercu, comparer: parcoursComparer, comparerAffinage: parcoursComparerAffinage, decouverte: parcoursDecouverte, decouverteChoixAssistantCV: parcoursDecouverteChoixAssistantCV, decouverteCompetencesTout: parcoursDecouverteCompetencesTout, decouverteQuestionsSuggerees: parcoursDecouverteQuestionsSuggerees, decouverteBarreEtAnnees: parcoursDecouverteBarreEtAnnees, decouverteComplementChanger: parcoursDecouverteComplementChanger,prompts: parcoursPrompts, entretienFiche: parcoursEntretienFiche, appuisSansAssistant: parcoursAppuisSansAssistant, reformulerInvitation: parcoursReformulerInvitation, voie3Classer: parcoursVoie3Classer, voie3Documents: parcoursVoie3Documents, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure, rappelSauvegarde: parcoursRappelSauvegarde, aide: parcoursAideCouverture, candidaterEntreprise: parcoursCandidaterEntreprise, chiffresToucher: parcoursChiffresToucher, chiffresLecture: parcoursChiffresLecture, accueilCartes: parcoursAccueilCartes, digestChangements: parcoursDigestChangements };
 
   // Attend que l'application soit chargee (un eval lance juste apres un rechargement tombe sinon sur une page a moitie prete).
   async function attendreApplication() {

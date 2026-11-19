@@ -8,6 +8,7 @@
                 node scripts/parcours/lancerParLots.js banc.json banc 1 600 738
    Conseils (16/11/2026) : 3 travailleurs au plus, 4 fait échouer des essais lourds à tort (délais de rendu). Les essais de mise en page du CV
    (tirage*, compositions, colonnes*, formes*, enteteAgrandi, enteteDecale) durent de 3 à 15 minutes : prévoir un délai de 2400 secondes.
+   Variable d'environnement ATTENTE_FIXE=1 : pauses fixes comme avant le 18/11/2026 (par défaut, l'attente est adaptative : voir `attente` dans parcours_smoke.js).
    Jamais chargé par l'application.
    ============================================================ */
 const fs = require('fs');
@@ -39,6 +40,7 @@ async function un(b, id) {
     await p.waitForTimeout(3500);
     await p.mouse.click(3, 600);
     await p.waitForTimeout(300);
+    if (process.env.ATTENTE_FIXE) { await p.evaluate(() => { window.__attenteFixe = true; }); }
     await p.evaluate(smoke);
     r = await Promise.race([
       p.evaluate(async (i) => await window.__parcours([i]), id),

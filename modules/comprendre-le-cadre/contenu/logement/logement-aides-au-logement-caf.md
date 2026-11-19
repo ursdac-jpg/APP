@@ -27,6 +27,7 @@ revisions:
   - "2026-11-04 : la page Service Public confirme les ressources sur douze mois actualisées tous les trois mois, l'aide due à partir du mois qui suit la demande (versement le 5 du mois) et la règle des étudiants étrangers (précisée) ; le plafond de loyer n'y figure pas (retiré)"
   - "2026-11 : 2026-11-09 : revalorisation du 1er octobre ajoutée d'après l'actualité Service-Public « L'APL revalorisée au 1er octobre » (publiée le 11 septembre 2026, mise à jour le 30 septembre 2026), ouverte et relue le 2026-11-09"
 phrase_generale: "La CAF (ou la MSA pour le régime agricole) verse une aide au logement à beaucoup de locataires aux revenus modestes, et c'est elle qui détermine laquelle de ces aides vous concerne. Les conditions, les plafonds et les montants changent régulièrement : faites une simulation auprès de la CAF ou consultez les sources officielles indiquées plus bas."
+maj_resume: "2026-11-09 : La revalorisation des aides au logement du 1er octobre 2026 est ajoutée."
 collecte: logement.collecte.md
 ---
 

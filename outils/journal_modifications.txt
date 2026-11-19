@@ -1717,3 +1717,19 @@
 2026-11-16 20:31 | liens | caf-fausse-aide-1366-novembre-2026 | ajoutée
 2026-11-16 20:31 | liens | mesdroitssociaux-accueil | ajoutée
 2026-11-16 20:31 | cadre | budget-fausses-aides-reseaux-sociaux | ajoutée | nouvelle fiche
+2026-11-18 21:40 | liens | unedic-etude-demission-reconversion | ajoutée
+2026-11-18 21:40 | liens | francetravail-eclairages-synthese-91 | ajoutée
+2026-11-18 21:40 | liens | francetravail-eclairages-synthese-90 | ajoutée
+2026-11-18 21:40 | liens | service-public-prime-transport-plafond-2026 | ajoutée
+2026-11-18 21:40 | liens | service-public-credit-conso-reforme-2026 | ajoutée
+2026-11-18 21:40 | liens | ameli-mon-journal-mental | ajoutée
+2026-11-18 21:40 | liens | service-public-aide-grands-rouleurs-2026 | ajoutée
+2026-11-18 21:40 | liens | francetravail-communique-poei-handicap-2026 | ajoutée
+2026-11-18 21:40 | cadre | former-demission-reconversion | modifiée | 2026-11-18 : page Unédic du 18/11/2026 (étude conjointe France compétences, Apec et Unédic) ajoutée en dernier paragraphe, sans changement de règle ; d'après le texte de la page Transitions Pro (texte copié, sans date), précisions ajoutées : le conseil en évolution professionnelle est gratuit et obligatoire pour déposer la demande, et les congés sans solde, sabbatiques ou périodes de disponibilité ne comptent pas dans la durée de travail exigée ; à confirmer sur la page en ligne ; la page Transitions Pro parle d'un délai de six mois à partir de l'attestation pour démissionner, ce qui diffère de la page France Travail : la fiche garde la version France Travail
+2026-11-18 21:40 | cadre | former-metiers-et-intelligence-artificielle-vision-des-employeurs | ajoutée | nouvelle fiche
+2026-11-18 21:40 | cadre | mobilite-prime-carburant-employeur-plafond-releve-2026 | ajoutée | nouvelle fiche
+2026-11-18 21:40 | cadre | budget-credit-a-la-consommation-ce-qui-change-20-novembre-2026 | ajoutée | nouvelle fiche
+2026-11-18 21:40 | cadre | sante-mon-soutien-psy-seances-psychologue | modifiée | 2026-11-18 : actualité ameli.fr du 17/11/2026 « Mon journal mental : une application gratuite pour prendre soin de sa santé mentale » (page copiée par Denis et relue en entier) : dernier paragraphe ajouté, sans changement du dispositif Mon soutien psy
+2026-11-18 21:40 | cadre | mobilite-aide-carburant-grands-rouleurs-2026 | ajoutée | nouvelle fiche
+2026-11-18 21:40 | cadre | former-se-former-avant-l-embauche | modifiée | 2026-11-18 : communiqué de presse de France Travail du 12/11/2026 (page ouverte et relue) : paragraphe ajouté sur les personnes en situation de handicap (formations adaptées, jusqu'à 600 heures, résultats) ; la préparation individuelle y est décrite comme une formation courte avant embauche, intégralement prise en charge par France Travail, pour répondre à une offre d'emploi
+2026-11-18 22:16 | cadre | mobilite-prime-carburant-employeur-plafond-releve-2026 | modifiée | 2026-11-18 : relecture croisée avec la page de l'Urssaf « Frais de transport domicile - lieu de travail : mesures 2026 » (mise à jour le 30/10/2026), ouverte et relue : la limite habituelle pour le carburant n'est plus donnée (la page Service-Public parle de 300 euros, l'Urssaf dit « déjà relevé de 300 à 600 € ») ; les assouplissements de conditions sont détaillés d'après l'Urssaf ; les deux sites ne disent pas la même chose pour la recharge des véhicules électriques (Service-Public : exclue, Urssaf : incluse), la fiche renvoie à l'employeur

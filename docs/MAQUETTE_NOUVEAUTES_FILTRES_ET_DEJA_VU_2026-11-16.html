@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!--
+  Maquette (concept cliquable) : « déjà vu » mémorisé d'une visite à l'autre + filtres dans la page Nouveautés. Rien n'est codé dans l'application.
+  Demande de Denis, 16/11/2026. Les données sont les VRAIES : data/nouveautes.js (36 lignes), fiches-recentes.json (105 fiches) ; les changements officiels sont un extrait réel des fichiers de balayage.
+  Ouverture : http://localhost:8123/docs/MAQUETTE_NOUVEAUTES_FILTRES_ET_DEJA_VU_2026-11-16.html
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Nouveautés : déjà vu et filtres</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  /* Bandeau de la maquette (n'existera pas dans l'application) */
+  .mq-bandeau { position: sticky; top: 0; z-index: 3000; background: #1b212c; color: #f3f5f8; padding: .55rem .8rem; font-size: .85rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; }
+  .mq-bandeau label { display: flex; gap: .4rem; align-items: center; margin: 0; }
+  .mq-bandeau select, .mq-bandeau button { font-size: .85rem; border-radius: 6px; border: 1px solid #8a93a3; background: #2a3242; color: #f3f5f8; padding: .15rem .5rem; }
+  .mq-cadre { margin: 1rem auto; max-width: 820px; }
+  .mq-cadre.mq-tel { max-width: 375px; border: 2px solid var(--border-strong); border-radius: 18px; padding: .3rem .5rem; }
+  .mq-note { border: 2px dashed var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); border-radius: 10px; padding: .55rem .8rem; font-size: .88rem; margin: .8rem 0; }
+  .mq-pastille-haut { display: inline-flex; align-items: center; gap: .4rem; font-weight: 700; }
+  .mq-pastille-haut .nv-compte { background: #d9381e; color: #fff; border: 0; }
+
+  /* NOUVEAU : barre de filtres, toujours visible en haut de la liste */
+  .nv-filtres { position: sticky; top: 42px; z-index: 50; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 14px; padding: .7rem .9rem .8rem; margin: .4rem 0 1rem; box-shadow: 0 4px 10px rgba(0,0,0,.08); }
+  .nv-filtres-titre { font-weight: 800; display: flex; align-items: center; gap: .4rem; margin-bottom: .45rem; }
+  .nv-f-rang { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .35rem 0; }
+  .nv-f-lib { font-size: .82rem; font-weight: 700; color: var(--text-muted); min-width: 6.2rem; }
+  .nv-f-btn { min-height: 38px; padding: .15rem .8rem; border: 1.5px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); color: var(--text-strong); font-size: .88rem; cursor: pointer; }
+  .nv-f-btn .nv-f-n { font-weight: 800; color: var(--accent-texte); margin-left: .25rem; }
+  .nv-f-btn[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); font-weight: 700; }
+  .nv-f-btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .nv-f-resultat { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .4rem; margin-top: .5rem; padding-top: .45rem; border-top: 1px solid var(--border); font-size: .9rem; }
+  .nv-f-reinit { min-height: 36px; padding: .1rem .9rem; border: 1.5px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .nv-f-reinit[hidden] { display: none; }
+  .nv-vide { border: 1px dashed var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); padding: 1rem; text-align: center; margin: 1rem 0; }
+  .nv-f-recherche { display: inline-flex; align-items: center; gap: .4rem; flex: 1 1 14rem; max-width: 24rem; border: 1.5px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); padding: 0 .4rem 0 .8rem; min-height: 40px; }
+  .nv-f-recherche:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .nv-f-recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-strong); font-size: .95rem; }
+  .nv-f-effacer { border: 0; background: transparent; color: var(--text-muted); min-width: 32px; min-height: 32px; cursor: pointer; }
+  .nv-rappel-avenir { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; border: 2px solid var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); border-radius: 12px; padding: .5rem .8rem; margin: .2rem 0 .8rem; }
+  .nv-vu-badge { font-size: .72rem; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .02rem .5rem; }
+  .nv-carte.nv-carte--vue { opacity: .86; }
+  .nv-rayon-pastille { font-size: .78rem; border: 1px solid var(--border-strong); border-radius: 999px; padding: .02rem .55rem; background: var(--bg-card); }
+  /* Filtre repliable : bouton en haut à droite de la barre ; replié, il ne reste qu'une ligne de résumé et le nombre de résultats */
+  .nv-f-tete { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+  .nv-f-tete .nv-filtres-titre { margin-bottom: 0; }
+  .nv-f-plier { min-height: 38px; padding: .1rem .9rem; border: 1.5px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .nv-f-resume { font-size: .85rem; color: var(--text-muted); margin: .3rem 0 0; }
+  .nv-f-corps[hidden] { display: none; }
+  .nv-filtres.nv-plie { padding-bottom: .55rem; }
+  .nv-filtres.nv-plie .nv-f-resultat { margin-top: .35rem; padding-top: .35rem; }
+  .nv-titre-entree { display: none; text-align: center; font-size: 1.15rem; font-weight: 800; margin: .2rem 0 .7rem; color: var(--nv-texte); }
+  .nv-titre-entree .bi { margin-right: .3rem; }
+
+  /* TÉLÉPHONE : trois pastilles seules (icône + nombre), le nom de l'entrée choisie s'écrit au-dessus de la liste.
+     Dans l'application : la même règle sous @media (max-width: 600px). */
+  .mq-tel .nv-entrees { flex-wrap: nowrap; gap: 1.1rem; justify-content: center; }
+  .mq-tel .nv-entree { width: 68px; height: 68px; min-height: 68px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .mq-tel .nv-entree .nv-entree-lib { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mq-tel .nv-entree .bi { font-size: 1.7rem; margin: 0; }
+  .mq-tel .nv-entree .nv-compte { position: absolute; top: -6px; right: -6px; }
+  .mq-tel .nv-titre-entree { display: block; }
+  .mq-tel .nv-f-lib { min-width: 100%; }
+  .mq-tel .nv-filtres { position: static; }              /* ouvert : le filtre défile avec la page (il est haut) */
+  .mq-tel .nv-filtres.nv-plie { position: sticky; }      /* replié : une seule ligne, toujours visible */
+  @media (max-width: 600px) {
+    .nv-entrees { flex-wrap: nowrap; gap: 1.1rem; justify-content: center; }
+    .nv-entree { width: 68px; height: 68px; min-height: 68px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+    .nv-entree .nv-entree-lib { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .nv-entree .bi { font-size: 1.7rem; margin: 0; }
+    .nv-entree .nv-compte { position: absolute; top: -6px; right: -6px; }
+    .nv-titre-entree { display: block; }
+    .nv-f-lib { min-width: 100%; }
+    .nv-filtres { position: static; }
+    .nv-filtres.nv-plie { position: sticky; }
+  }
+  .mq-chg { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .7rem 1rem; margin: .6rem 0; }
+  .mq-chg-corps { display: none; margin-top: .5rem; font-size: .92rem; color: var(--text-muted); }
+  .mq-chg.mq-ouvert .mq-chg-corps { display: block; }
+</style>
+</head>
+<body>
+
+<div class="mq-bandeau" role="region" aria-label="Réglages de la maquette">
+  <strong>MAQUETTE (rien n'est codé)</strong>
+  <label>Simuler :
+    <select id="mqScenario">
+      <option value="rien">Première visite : je n'ai rien vu</option>
+      <option value="09" selected>Je suis déjà venu(e) le 9 novembre</option>
+      <option value="tout">J'ai tout vu aujourd'hui</option>
+    </select>
+  </label>
+  <label>Écran :
+    <select id="mqLargeur"><option value="pc">Ordinateur</option><option value="tel">Téléphone</option></select>
+  </label>
+  <button type="button" id="mqTheme">Mode sombre</button>
+</div>
+
+<div class="mq-cadre" id="mqCadre">
+  <div class="mq-pastille-haut"><i class="bi bi-megaphone" aria-hidden="true"></i> Bouton Nouveautés <span class="nv-compte" id="mqPastille"></span></div>
+  <div class="text-center"><h1><i class="bi bi-megaphone" aria-hidden="true"></i> Nouveautés</h1></div>
+  <div class="nv-entrees" role="tablist" aria-label="Que voulez-vous voir ?" id="mqEntrees"></div>
+  <h2 class="nv-titre-entree" id="mqTitreEntree"></h2>
+  <div id="mqPanneau" role="tabpanel"></div>
+</div>
+
+<script src="../data/nouveautes.js"></script>
+<script>
+/* ---------- Données réelles ---------- */
+var AUJ = '2026-11-16';
+var RAYONS = {"emploi":["bi-briefcase","Emploi et contrats"],"former":["bi-mortarboard","Se former et se reconvertir"],"accompagnement":["bi-people","Accompagnement et structures de l'insertion"],"creer":["bi-rocket-takeoff","Créer son activité"],"employeurs":["bi-building","Employeurs et entrepreneurs"],"jeunes":["bi-backpack2","Moins de 26 ans"],"seniors":["bi-hourglass-split","Travailler après 50 ans et retraite"],"handicap":["bi-universal-access-circle","Handicap et emploi"],"etranger":["bi-globe2","Venir de l'étranger"],"justice":["bi-door-open","Justice : sortie de détention"],"budget":["bi-cash-coin","Budget, dettes, droits sociaux"],"mobilite":["bi-car-front","Mobilité"],"logement":["bi-house","Logement"],"garde":["bi-balloon","Garde d'enfant"],"francais":["bi-book","Apprendre le français"],"juridique":["bi-bank","Questions juridiques"],"sante":["bi-heart-pulse","Accès aux soins"],"armees":["bi-shield-check","Armées"],"fonction-publique":["bi-flag","Fonction publique"],"agriculture":["bi-tree","Agriculture"],"parents-separes":["bi-signpost-split","Parents séparés"]};
+/* Extrait RÉEL des fichiers de balayage (octobre et novembre 2026). `rayon` = le cadre rattaché par la table domaine -> rayon proposée (voir la question 3 dans le chat). */
+var CHANGEMENTS = [
+  { date:'2026-12-01', publie:'2026-11-09', rayon:'emploi', titre:'Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026', domaine:'Emploi et contrats de travail' },   // À VENIR : la date est celle de l'entrée en vigueur, `publie` celle de la publication
+  { date:'2026-06-01', rayon:'emploi', titre:'Revalorisation du SMIC au 1er juin 2026', domaine:'Emploi et contrats de travail' },
+  { date:'2026-04-01', rayon:'budget', titre:'Revalorisation annuelle du RSA et de la prime d\'activité au 1er avril 2026', domaine:'RSA, prime d\'activité, AAH et leurs cumuls' },
+  { date:'2026-06-01', rayon:'former', titre:'Hausse du reste à charge obligatoire du compte personnel de formation', domaine:'Formation, CPF, apprentissage, VAE' },
+  { date:'2026-06-01', rayon:'mobilite', titre:'Fin de l\'aide directe de France Travail au permis de conduire B', domaine:'Mobilité et aides associées' },
+  { date:'2026-11-09', rayon:'budget', titre:'Calcul de l\'AAH pour les personnes qui travaillent en Esat', domaine:'RSA, prime d\'activité, AAH et leurs cumuls' },
+  { date:'2026-11-09', rayon:'logement', titre:'Revalorisation des aides personnelles au logement de 1,15 % au 1er octobre 2026', domaine:'Logement et aides au logement' },
+  { date:'2026-11-09', rayon:'sante', titre:'Plafond annuel des franchises médicales relevé à 140 euros', domaine:'Accès aux soins et protection santé' },
+  { date:'2026-11-16', rayon:'seniors', titre:'Revalorisation de 1,4 % des retraites complémentaires du privé (Agirc-Arrco)', domaine:'Retraite et fin de carrière' },
+  { date:'2026-11-16', rayon:'seniors', titre:'Ircantec : nouveaux taux de cotisation', domaine:'Retraite et fin de carrière' },
+  { date:'2026-10-15', rayon:'accompagnement', titre:'Avenant n°2 à la convention d\'assurance chômage : plafonnement de l\'indemnisation en cas de rupture conventionnelle', domaine:'Assurance chômage et France Travail' },
+  { date:'2026-10-15', rayon:'emploi', titre:'Plafonnement de la durée des arrêts de travail', domaine:'Emploi et contrats de travail' },
+  { date:'2026-10-15', rayon:'former', titre:'Référentiel unique des niveaux de prise en charge des contrats d\'apprentissage', domaine:'Formation, CPF, apprentissage, VAE' },
+  { date:'2026-10-02', rayon:'etranger', titre:'Droits des ressortissants étrangers autorisés à travailler en France', domaine:'Séjour et droit au travail des personnes étrangères' }
+].map(function (c) { c.genre = 'officiel'; return c; });
+var FICHES = [];
+
+/* ---------- État de la maquette ---------- */
+var etat = { entree: 'appli', vuLe: '2026-11-09', plie: { appli: window.innerWidth <= 600, regles: window.innerWidth <= 600 },
+  appli: { montrer: 'nonvus', periode: 'tout', carte: '*' },
+  regles: { montrer: 'nonvus', genre: '*', periode: 'tout', rayon: '*', tousRayons: false, q: '', limite: 20 } };
+
+function esc(t) { return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function dateFr(iso) { var p = iso.split('-'); return (p[2] === '01' ? '1er' : +p[2]) + ' ' + MOIS[+p[1]-1] + ' ' + p[0]; }
+function jours(iso) { return Math.round((new Date(AUJ) - new Date(iso)) / 86400000); }
+/* « Pas encore vu » : dans la maquette, une ligne est vue si sa date est avant ou le jour de la dernière visite simulée. Dans l'application : liste mémorisée ligne par ligne. */
+function nonVu(date) { return !etat.vuLe || date > etat.vuLe; }
+function periodeOk(date, p) { return p === 'tout' || jours(date) <= +p; }
+
+function lignesAppli() { return (typeof NOUVEAUTES !== 'undefined' ? NOUVEAUTES : []).slice().sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); }); }
+function lignesRegles() {
+  var fl = FICHES.map(function (f) { var nouv = !!f.ajoutee; return { genre: nouv ? 'nouvelle' : 'maj', date: nouv ? f.ajoutee : f.date, rayon: f.rayon, titre: f.titre, id: f.id }; });
+  return fl.concat(CHANGEMENTS);
+}
+
+/* ---------- Comptes et pastilles ---------- */
+function nbNonVusAppli() { return lignesAppli().filter(function (n) { return nonVu(n.date); }).length; }
+function nbNonVusRegles() { return lignesRegles().filter(function (n) { return nonVu(n.publie || n.date); }).length; }
+function majPastilles() {
+  var a = nbNonVusAppli(), r = nbNonVusRegles(), t = a + r;
+  document.getElementById('mqPastille').textContent = t || '';
+  document.getElementById('mqPastille').hidden = !t;
+  var entrees = [['appli','bi-stars','Nouveautés de l’application','bleu',a],['regles','bi-journal-text','Droits et règles : ce qui change','jaune',r],['corriges','bi-check2-circle','Problèmes corrigés','vert',0]];
+  document.getElementById('mqEntrees').innerHTML = entrees.map(function (e) {
+    return '<button type="button" class="nv-entree nv-entree--' + e[3] + '" role="tab" aria-label="' + e[2] + (e[4] ? ' : ' + e[4] + ' non vu' + (e[4] > 1 ? 's' : '') : '') + '" aria-selected="' + (etat.entree === e[0]) + '" data-e="' + e[0] + '"><i class="bi ' + e[1] + '"></i> <span class="nv-entree-lib">' + e[2] + '</span> <span class="nv-compte nv-compte--' + e[3] + '"' + (e[4] ? '' : ' hidden') + '>' + e[4] + '</span></button>';
+  }).join('');
+  var ch = entrees.filter(function (e) { return e[0] === etat.entree; })[0];
+  var t = document.getElementById('mqTitreEntree');
+  t.className = 'nv-titre-entree nv-entree--' + ch[3];
+  t.innerHTML = '<i class="bi ' + ch[1] + '"></i>' + ch[2];
+  document.querySelectorAll('[data-e]').forEach(function (b) { b.addEventListener('click', function () { etat.entree = b.dataset.e; rendre(); }); });
+}
+
+/* ---------- Pièces communes de la barre de filtres ---------- */
+var LIB_PERIODE = { 'avenir': 'À venir', '7': '7 derniers jours', '30': '30 derniers jours', '60': '60 derniers jours', '90': '3 derniers mois', 'anciens': 'Plus anciens', 'tout': 'Toute la période' };
+var LIB_GENRE = { '*': 'Tout', nouvelle: 'Nouvelles fiches', maj: 'Fiches mises à jour', officiel: 'Changements officiels' };
+/* Résumé écrit quand le filtre est replié : la personne sait toujours ce qui est appliqué. */
+function resumeFiltres(cle) {
+  var f = etat[cle];
+  var morceaux = [f.montrer === 'nonvus' ? 'Pas encore vu' : 'Tout l’historique'];
+  if (cle === 'regles') { morceaux.push(LIB_GENRE[f.genre]); }
+  morceaux.push(LIB_PERIODE[f.periode]);
+  morceaux.push(cle === 'appli' ? (f.carte === '*' ? 'Toutes les cartes' : f.carte) : (f.rayon === '*' ? 'Tous les cadres' : (RAYONS[f.rayon] || [0, f.rayon])[1]));
+  if (cle === 'regles' && f.q) { morceaux.push('« ' + f.q + ' »'); }
+  return morceaux.join(' · ');
+}
+/* Début de la barre : titre à gauche, bouton « Replier / Déplier » en haut à droite. */
+function teteFiltres(cle, titre) {
+  var p = etat.plie[cle];
+  return '<div class="nv-f-tete"><div class="nv-filtres-titre"><i class="bi bi-funnel" aria-hidden="true"></i> ' + titre + '</div>' +
+    '<button type="button" class="nv-f-plier" id="nvPlier" aria-expanded="' + !p + '" aria-controls="nvFCorps"><i class="bi ' + (p ? 'bi-chevron-down' : 'bi-chevron-up') + '" aria-hidden="true"></i> ' + (p ? 'Déplier' : 'Replier') + '</button></div>' +
+    (p ? '<p class="nv-f-resume">' + esc(resumeFiltres(cle)) + '</p>' : '');
+}
+function bouton(groupe, valeur, texte, actif, n) {
+  return '<button type="button" class="nv-f-btn" aria-pressed="' + actif + '" data-g="' + groupe + '" data-v="' + valeur + '"' + (n === 0 ? ' disabled' : '') + '>' + esc(texte) + (n != null ? '<span class="nv-f-n">' + n + '</span>' : '') + '</button>';
+}
+function brancherFiltres(cle) {
+  document.querySelectorAll('[data-g]').forEach(function (b) {
+    b.addEventListener('click', function () { etat[cle][b.dataset.g] = b.dataset.v; if (cle === 'regles') { etat.regles.limite = 20; } rendre(); });
+  });
+  var r = document.getElementById('nvReinit');
+  if (r) { r.addEventListener('click', function () { etat[cle] = cle === 'appli' ? { montrer:'nonvus', periode:'tout', carte:'*' } : reinitRegles(); rendre(); }); }
+  if (cle === 'regles') {
+    var q = document.getElementById('nvQ');
+    q.addEventListener('input', function () { var pos = q.selectionStart; etat.regles.q = q.value; etat.regles.limite = 20; rendre(); var q2 = document.getElementById('nvQ'); q2.focus(); q2.setSelectionRange(pos, pos); });
+    var ef = document.getElementById('nvQEffacer');
+    if (ef) { ef.addEventListener('click', function () { etat.regles.q = ''; rendre(); document.getElementById('nvQ').focus(); }); }
+    var pls = document.getElementById('nvPlus');
+    if (pls) { pls.addEventListener('click', function () { etat.regles.limite += 20; rendre(); }); }
+    var el = document.getElementById('nvElargir');
+    if (el) { el.addEventListener('click', function () { etat.regles.montrer = 'tout'; etat.regles.genre = '*'; etat.regles.periode = 'tout'; etat.regles.rayon = '*'; rendre(); }); }
+  }
+  var pl = document.getElementById('nvPlier');
+  if (pl) { pl.addEventListener('click', function () { etat.plie[cle] = !etat.plie[cle]; rendre(); }); }
+  var tr = document.getElementById('nvTousRayons');
+  if (tr) { tr.addEventListener('click', function () { etat.regles.tousRayons = !etat.regles.tousRayons; rendre(); }); }
+}
+
+/* ---------- Entrée 1 : nouveautés de l'application ---------- */
+function panneauAppli() {
+  var f = etat.appli, toutes = lignesAppli();
+  var base = toutes.filter(function (n) { return (f.montrer === 'tout' || nonVu(n.date)) && periodeOk(n.date, f.periode); });   // sert à compter les cartes
+  var cartes = {};
+  base.forEach(function (n) { var k = n.carte || 'Ailleurs dans l’application'; cartes[k] = (cartes[k] || 0) + 1; });
+  var liste = base.filter(function (n) { return f.carte === '*' || (n.carte || 'Ailleurs dans l’application') === f.carte; });
+  var filtres =
+    '<div class="nv-filtres' + (etat.plie.appli ? ' nv-plie' : '') + '" role="group" aria-label="Filtrer les nouveautés">' + teteFiltres('appli', 'Filtrer les nouveautés') + '<div class="nv-f-corps" id="nvFCorps"' + (etat.plie.appli ? ' hidden' : '') + '>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Afficher</span>' + bouton('montrer','nonvus','Ce que je n’ai pas encore vu', f.montrer === 'nonvus', toutes.filter(function (n) { return nonVu(n.date); }).length) + bouton('montrer','tout','Tout l’historique', f.montrer === 'tout', toutes.length) + '</div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Période</span>' + bouton('periode','7','7 derniers jours', f.periode === '7') + bouton('periode','30','30 derniers jours', f.periode === '30') + bouton('periode','90','3 derniers mois', f.periode === '90') + bouton('periode','tout','Toute la période', f.periode === 'tout') + '</div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Où le trouver</span>' + bouton('carte','*','Toutes les cartes', f.carte === '*', base.length) +
+      Object.keys(cartes).sort(function (a, b) { return cartes[b] - cartes[a]; }).map(function (k) { return bouton('carte', k, k, f.carte === k, cartes[k]); }).join('') + '</div>' +
+    '</div><div class="nv-f-resultat"><span aria-live="polite"><strong>' + liste.length + '</strong> nouveauté' + (liste.length > 1 ? 's' : '') + ' affichée' + (liste.length > 1 ? 's' : '') + ' sur ' + toutes.length + '</span>' +
+    '<button type="button" class="nv-f-reinit" id="nvReinit"' + ((f.montrer === 'nonvus' && f.periode === 'tout' && f.carte === '*') ? ' hidden' : '') + '><i class="bi bi-x-circle" aria-hidden="true"></i> Tout réinitialiser</button></div></div>';
+  var corps = liste.map(function (n) {
+    var nv = nonVu(n.date);
+    return '<div class="nv-carte' + (nv ? '' : ' nv-carte--vue') + '"><div class="nv-tete"><span class="nv-date">' + dateFr(n.date) + '</span>' + (nv ? '<span class="nv-nouveau">Nouveau</span>' : '<span class="nv-vu-badge"><i class="bi bi-check2"></i> Déjà vu</span>') + '</div>' +
+      '<div class="nv-titre">' + esc(n.titre) + '</div><p class="mb-2">' + esc(n.texte) + '</p>' +
+      (n.carte ? '<p class="nv-ou mb-2"><i class="bi bi-signpost-2"></i> Carte « ' + esc(n.carte) + ' » de l’accueil.</p>' : '') +
+      (nv && n.route ? '<button type="button" class="btn btn-sm btn-outline-primary"><i class="bi ' + esc(n.icone || 'bi-play') + '"></i> Essayer : ' + esc(n.module || 'ouvrir') + '</button>' : '') + '</div>';
+  }).join('');
+  if (!liste.length) {
+    corps = '<div class="nv-vide"><p class="mb-2"><i class="bi bi-check-circle"></i> <strong>' + (f.montrer === 'nonvus' && f.periode === 'tout' && f.carte === '*' ? 'Vous avez tout vu : rien de nouveau depuis votre dernière visite.' : 'Aucune nouveauté ne correspond à ce filtre.') + '</strong></p>' +
+      '<button type="button" class="nv-btn-ovale" data-g="montrer" data-v="tout"><i class="bi bi-clock-history"></i> Revoir tout l’historique</button></div>';
+  }
+  return '<p class="nv-intro">Les ajouts et les améliorations importantes de l’application. Ce que vous avez déjà vu n’est plus signalé : il suffit de choisir « Tout l’historique » pour le retrouver.</p>' + filtres + corps;
+}
+
+/* ---------- Entrée 2 : droits et règles ---------- */
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+var LIB_GENRE_PASTILLE = { nouvelle: 'Nouvelle fiche', maj: 'Fiche mise à jour', officiel: 'Changement officiel' };
+function nonVuN(n) { return nonVu(n.publie || n.date); }
+function estAvenir(n) { return n.date > AUJ; }
+function dansPeriode(n, p) {
+  if (p === 'tout') { return true; }
+  if (p === 'avenir') { return estAvenir(n); }
+  var j = jours(n.date);
+  if (p === 'anciens') { return j > 60; }
+  return j >= 0 && j <= +p;
+}
+function reinitRegles() { return { montrer: 'nonvus', genre: '*', periode: 'tout', rayon: '*', tousRayons: false, q: '', limite: 20 }; }
+function panneauRegles() {
+  var f = etat.regles, toutes = lignesRegles();
+  var texteOk = function (n) { return !f.q || norm(n.titre + ' ' + (RAYONS[n.rayon] || [0, ''])[1] + ' ' + LIB_GENRE_PASTILLE[n.genre]).indexOf(norm(f.q)) !== -1; };
+  /* Décision de Denis (16/11/2026) : ce qui est À VENIR s'affiche toujours (même déjà vu), en tête de liste, tant qu'aucun filtre ne l'écarte. Pas de rappel à part. */
+  var vuOk = function (n) { return f.montrer === 'tout' || nonVuN(n) || estAvenir(n); };
+  var comme = function (sauf) {   // les éléments qui passent tous les filtres SAUF celui qu'on compte
+    return toutes.filter(function (n) { return vuOk(n) && texteOk(n) && (sauf === 'periode' || dansPeriode(n, f.periode)) && (sauf === 'genre' || f.genre === '*' || n.genre === f.genre) && (sauf === 'rayon' || f.rayon === '*' || n.rayon === f.rayon); });
+  };
+  var avantGenre = comme('genre'), avantRayon = comme('rayon'), avantPeriode = comme('periode');
+  var nbGenre = { nouvelle: 0, maj: 0, officiel: 0 }; avantGenre.forEach(function (n) { nbGenre[n.genre]++; });
+  var rayons = {}; avantRayon.forEach(function (n) { rayons[n.rayon] = (rayons[n.rayon] || 0) + 1; });
+  var ordre = Object.keys(rayons).sort(function (a, b) { return rayons[b] - rayons[a]; });
+  var visibles = f.tousRayons ? ordre : ordre.slice(0, 8);
+  if (f.rayon !== '*' && visibles.indexOf(f.rayon) === -1 && ordre.indexOf(f.rayon) !== -1) { visibles.push(f.rayon); }
+  var nbP = function (p) { return avantPeriode.filter(function (n) { return dansPeriode(n, p); }).length; };
+  var liste = comme('').sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+  var parDefaut = f.montrer === 'nonvus' && f.genre === '*' && f.periode === 'tout' && f.rayon === '*' && !f.q;
+  var filtres =
+    '<div class="nv-filtres' + (etat.plie.regles ? ' nv-plie' : '') + '" role="group" aria-label="Filtrer les droits et les règles">' + teteFiltres('regles', 'Filtrer les droits et les règles') + '<div class="nv-f-corps" id="nvFCorps"' + (etat.plie.regles ? ' hidden' : '') + '>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Afficher</span>' + bouton('montrer','nonvus','Ce que je n’ai pas encore vu', f.montrer === 'nonvus', toutes.filter(nonVuN).length) + bouton('montrer','tout','Tout l’historique', f.montrer === 'tout', toutes.length) + '</div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Quoi</span>' + bouton('genre','*','Tout', f.genre === '*', avantGenre.length) + bouton('genre','nouvelle','Nouvelles fiches', f.genre === 'nouvelle', nbGenre.nouvelle) + bouton('genre','maj','Fiches mises à jour', f.genre === 'maj', nbGenre.maj) + bouton('genre','officiel','Changements officiels', f.genre === 'officiel', nbGenre.officiel) + '</div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Date</span>' + bouton('periode','avenir','À venir', f.periode === 'avenir', nbP('avenir')) + bouton('periode','7','7 derniers jours', f.periode === '7', nbP('7')) + bouton('periode','30','30 derniers jours', f.periode === '30', nbP('30')) + bouton('periode','60','60 derniers jours', f.periode === '60', nbP('60')) + bouton('periode','anciens','Plus anciens', f.periode === 'anciens', nbP('anciens')) + bouton('periode','tout','Toute la période', f.periode === 'tout', nbP('tout')) + '</div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Cadre</span>' + bouton('rayon','*','Tous les cadres', f.rayon === '*', avantRayon.length) +
+      visibles.map(function (k) { return bouton('rayon', k, (RAYONS[k] || [0,k])[1], f.rayon === k, rayons[k] || 0); }).join('') +
+      (ordre.length > 8 ? '<button type="button" class="nv-f-btn" id="nvTousRayons">' + (f.tousRayons ? 'Moins de cadres' : 'Voir les ' + (ordre.length - 8) + ' autres cadres') + '</button>' : '') + '</div>' +
+    '</div>' +
+    '<div class="nv-f-resultat"><span aria-live="polite"><strong>' + liste.length + '</strong> élément' + (liste.length > 1 ? 's' : '') + ' affiché' + (liste.length > 1 ? 's' : '') + '</span>' +
+    '<span class="nv-f-recherche"><i class="bi bi-search" aria-hidden="true"></i><input type="search" id="nvQ" value="' + esc(f.q) + '" placeholder="Chercher un mot (Smic, APL, CPF…)" aria-label="Chercher dans les droits et les règles" autocomplete="off">' + (f.q ? '<button type="button" class="nv-f-effacer" id="nvQEffacer" aria-label="Effacer la recherche"><i class="bi bi-x-lg" aria-hidden="true"></i></button>' : '') + '</span>' +
+    '<button type="button" class="nv-f-reinit" id="nvReinit"' + (parDefaut ? ' hidden' : '') + '><i class="bi bi-x-circle" aria-hidden="true"></i> Tout réinitialiser</button></div></div>';
+  var montres = liste.slice(0, f.limite), mois = '', corps = '';
+  montres.forEach(function (n) {
+    var m = n.date.slice(0, 7), av = estAvenir(n), cle = av ? 'avenir' : m;
+    if (cle !== mois) { mois = cle; corps += '<h2 class="nv-mois"' + (av ? ' style="text-transform:none"' : '') + '>' + (av ? 'À venir' : MOIS[+m.slice(5) - 1] + ' ' + m.slice(0, 4)) + '</h2>'; }
+    var nv = nonVuN(n), cl = av ? 'comprendre-le-cadre-pastille--a' : (n.genre === 'nouvelle' ? 'comprendre-le-cadre-pastille--v' : (n.genre === 'maj' ? 'comprendre-le-cadre-pastille--m' : 'comprendre-le-cadre-pastille--a'));
+    var entete = '<span class="comprendre-le-cadre-chg-pastilles"><span class="comprendre-le-cadre-pastille ' + cl + '">' + (av ? 'À venir' : LIB_GENRE_PASTILLE[n.genre]) + '</span><span class="comprendre-le-cadre-pastille">' + (av ? 'À partir du ' : '') + dateFr(n.date) + '</span><span class="comprendre-le-cadre-pastille"><i class="bi ' + (RAYONS[n.rayon] || ['bi-folder'])[0] + '"></i> ' + esc((RAYONS[n.rayon] || [0, n.rayon])[1]) + '</span>' + (nv ? '<span class="nv-nouveau">Nouveau</span>' : '<span class="nv-vu-badge"><i class="bi bi-check2"></i> Déjà vu</span>') + '</span>';
+    if (n.genre === 'officiel') {
+      corps += '<div class="mq-chg' + (nv ? ' mq-ouvert' : '') + '">' + entete + '<div class="nv-titre mt-1">' + esc(n.titre) + '</div><div class="mq-chg-corps">Ce qui change, qui est concerné, source officielle (comme aujourd’hui).</div></div>';
+    } else {
+      corps += '<div class="comprendre-le-cadre-fiche-recente">' + entete + '<span class="comprendre-le-cadre-chg-titre d-block mt-1">' + esc(n.titre) + '</span><button type="button" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-journal-text"></i> Ouvrir la fiche</button></div>';
+    }
+  });
+  if (liste.length > f.limite) { corps += '<div class="text-center my-3"><button type="button" class="nv-btn-ovale" id="nvPlus"><i class="bi bi-plus-circle" aria-hidden="true"></i> Voir les ' + Math.min(20, liste.length - f.limite) + ' suivants (' + (liste.length - f.limite) + ' restants)</button></div>'; }
+  if (!liste.length) {
+    corps = '<div class="nv-vide"><p class="mb-2"><i class="bi bi-' + (f.q ? 'search' : 'check-circle') + '"></i> <strong>' + (f.q ? 'Rien trouvé pour « ' + esc(f.q) + ' » avec ces filtres.' : (parDefaut ? 'Vous avez tout vu : aucune fiche ni changement nouveau depuis votre dernière visite.' : 'Rien ne correspond à ce filtre.')) + '</strong></p>' +
+      '<button type="button" class="nv-btn-ovale" id="nvElargir"><i class="bi bi-clock-history"></i> ' + (f.q ? 'Chercher dans tout l’historique' : 'Voir tout l’historique') + '</button></div>';
+  }
+  return '<p class="nv-intro">Les fiches créées ou mises à jour et les changements officiels, rangés par date et par cadre. Rien ne disparaît avec le temps : « Plus anciens » les garde tous.</p>' + filtres + corps;
+}
+
+/* ---------- Entrée 3 : problèmes corrigés (pas de filtre, décision de Denis) ---------- */
+function panneauCorriges() {
+  return '<div class="nv-merci"><strong>Merci aux personnes qui nous signalent des problèmes.</strong>Voici ce qui avait été signalé et ce qui a été corrigé.</div>' +
+    '<div class="mq-note"><i class="bi bi-info-circle"></i> Ici, <strong>aucun filtre</strong> (comme vous l’avez dit). Seule la mémoire du « déjà vu » s’applique : le nombre de la pastille ne compte que les corrections que vous n’avez pas encore lues.</div>' +
+    '<div class="nv-carte-corrige"><div class="nv-tete"><span class="nv-badge-corrige"><i class="bi bi-check2"></i> Corrigé</span><span class="nv-date">14 novembre 2026</span></div><div class="nv-titre">(exemple) Liste des problèmes corrigés, comme aujourd’hui</div></div>';
+}
+
+function rendre() {
+  majPastilles();
+  document.getElementById('mqPanneau').innerHTML = etat.entree === 'regles' ? panneauRegles() : (etat.entree === 'corriges' ? panneauCorriges() : panneauAppli());
+  brancherFiltres(etat.entree === 'regles' ? 'regles' : 'appli');
+  document.querySelectorAll('.mq-chg').forEach(function (c) { c.addEventListener('click', function () { c.classList.toggle('mq-ouvert'); }); });
+}
+
+/* ---------- Réglages de la maquette ---------- */
+document.getElementById('mqScenario').addEventListener('change', function (e) { etat.vuLe = e.target.value === 'rien' ? null : (e.target.value === '09' ? '2026-11-09' : AUJ); rendre(); });
+document.getElementById('mqLargeur').addEventListener('change', function (e) { document.getElementById('mqCadre').classList.toggle('mq-tel', e.target.value === 'tel'); etat.plie.appli = etat.plie.regles = e.target.value === 'tel'; rendre(); });
+document.getElementById('mqTheme').addEventListener('click', function () { var h = document.documentElement; if (h.getAttribute('data-theme') === 'sombre') { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); } });
+fetch('../modules/comprendre-le-cadre/donnees/fiches-recentes.json').then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (l) { FICHES = l; rendre(); });
+rendre();
+</script>
+</body>
+</html>

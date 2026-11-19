@@ -249,6 +249,8 @@
   <script src="data/incoherencesImport.js" charset="UTF-8"></script>
   <!-- Fiches du ROME generees (consigne 263) : doit etre charge AVANT data/metiers.js, qui en fait une seule base avec les fiches detaillees -->
   <script src="data/metiersRome.js" charset="UTF-8"></script>
+  <!-- Niveaux d'acces lus sur MetierScope pour les codes sans niveau dans le ROME (genere) : avant data/metiers.js -->
+  <script src="data/niveauxAccesVerifies.js" charset="UTF-8"></script>
   <script src="data/conditionsRome.js" charset="UTF-8"></script>
   <!-- Secondes descriptions des fiches du ROME, ecrites a la main (consigne 280) : avant data/metiers.js -->
   <script src="data/descriptionsEcrites.js" charset="UTF-8"></script>
@@ -536,6 +538,7 @@
   <script src="modules/reperes/index.js" charset="UTF-8"></script>
   <!-- Boutons communs (consignes 125 et 126) : bouton vers un site extérieur, adresse avec bouton carte. Logique pure, chargée avant les modules qui l'appellent. Maquette : docs/MAQUETTE_BOUTONS_FIN_DES_LIENS_2026-11-07.html. -->
   <script src="modules/boutons-communs/logique.js" charset="UTF-8"></script>
+  <script src="modules/remonter/index.js" charset="UTF-8"></script>
   <!-- Module « Regard extérieur » — voir modules/regard-exterieur/ARCHITECTURE_TECHNIQUE.md.
        Chargé après modules/reperes/index.js (l'ancre #reperesZoneRegardExterieur
        lui appartient), avant js/app.js (qui l'appelle après chaque navigation). -->
@@ -597,6 +600,30 @@
   <script src="modules/un-cv-plusieurs-metiers/page6Lettres.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page7Fin.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page8Entretiens.js" charset="UTF-8"></script>
+  <!-- Module « Explorer les métiers » (rangé dans « Vous hésitez encore ? »), pages routées 'comprendre-les-metiers' et 'comprendre-les-metiers-intro'. Données et logique pure d'abord, puis le dessin ;
+       tout avant js/app.js. Plan : docs/PLAN_CLOTURE_COMPRENDRE_LES_METIERS_2026-11-16.md. -->
+  <script src="data/questionnaireRiasec.js" charset="UTF-8"></script>
+  <script src="data/lettresRiasecRome.js" charset="UTF-8"></script>
+  <script src="data/comprendreMetiersTextes.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/logique.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseLogique.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseParcoursLogique.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseLectureLogique.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/index.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/questionnaire.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parActions.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parMetier.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parMetierDonnees.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parMetierCalcul.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parMetierEcran.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/parMetierFiche.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/recrute.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/garder.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/synthese.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseVue.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseLecture.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseFeuille.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/syntheseParcours.js" charset="UTF-8"></script>
   <script src="modules/cv-modeles-gardes/logique.js" charset="UTF-8"></script>
   <script src="modules/cv-modeles-gardes/modelesGardes.js" charset="UTF-8"></script>
   <!-- Module « Découvrir mes competences » : filet, logique pure, interface. Apres passageAssistant.js (le passage avec l'assistant est partage), avant js/app.js. -->

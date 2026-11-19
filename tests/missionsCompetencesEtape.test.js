@@ -14,6 +14,7 @@ vm.runInContext(fs.readFileSync(path.join(racine, 'data', 'metiersRome.js'), 'ut
 vm.runInContext(fs.readFileSync(path.join(racine, 'data', 'metiers.js'), 'utf8') + ';this.F=FICHES_ROME;this.M=baseMetiers;', ctx);
 const FICHES = ctx.F, METIERS = ctx.M; // METIERS = baseMetiers : fiches écrites à la main d'abord, puis fiches générées du ROME
 const fiche = (code) => m.mcFicheNormalisee(code, FICHES, METIERS);
+global.METIERS_ROME_ALIAS = ctx.METIERS_ROME_ALIAS; // comme dans le navigateur : un code devenu alias (K1306 -> « aes ») reprend les compétences de la fiche
 
 // Écriture dans le dossier : mêmes règles que js/app.js (un savoir-être reste AUSSI dans competencesCV).
 function nouveauDossier(extra) {
@@ -45,7 +46,7 @@ function cas() {
 test('une fiche réelle est normalisée : missions, compétences courtes, activités précises sans doublon', () => {
   const f = fiche('K1306');
   assert.equal(f.code, 'K1306');
-  assert.deepEqual(f.sf.slice(0, 3), ['Accompagnement', 'Assistance', 'Médiation']);
+  assert.deepEqual(f.sf.slice(0, 3), ['Soins', 'Transmission', 'Accompagnement']);   // K1306 est un alias de la fiche « aes » : ses compétences, avec les missions et tâches propres à K1306
   assert.ok(f.se.includes('Écoute') && f.sv.length > 0);
   assert.ok(f.m.length >= 3 && f.m.every((x) => typeof x === 'string' && x.length > 0));
   assert.equal(new Set(f.k.map(m.mcCleTexte)).size, f.k.length);

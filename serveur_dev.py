@@ -88,6 +88,10 @@ if __name__ == '__main__':
     # utilise deja ThreadingHTTPServer par defaut depuis Python 3.7 -- ce
     # script doit se comporter pareil, jamais regresser en mono-thread.
     socketserver.ThreadingTCPServer.allow_reuse_address = True
+    # File d'attente des connexions : 5 par defaut, trop petit pour les
+    # ~235 <script src> chargés d'un coup (des "connection refused" au hasard,
+    # donc des fonctions "not defined" differentes a chaque rechargement).
+    socketserver.ThreadingTCPServer.request_queue_size = 256
     with socketserver.ThreadingTCPServer(('', port), GestionnaireSansCache) as httpd:
         print('Serveur (sans cache navigateur) sur le port ' + str(port))
         httpd.serve_forever()
