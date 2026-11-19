@@ -10199,7 +10199,7 @@
   async function parcoursComprendreMetiers() {
     cas('explorer les métiers : ouvert sur ce poste (localhost)', typeof cmvOuvert === 'function' && cmvOuvert());
     cmvReinitialiser(); naviguerVers('comprendre-les-metiers'); await attente(1000);
-    cas('accueil du module : trois entrées et le bouton « Revoir la présentation »', document.querySelectorAll('.cml-entree').length === 3 && !!$('#btnCmlRevoir'), document.querySelectorAll('.cml-entree').length);
+    cas('accueil du module : quatre entrées et le bouton « Revoir la présentation »', document.querySelectorAll('.cml-entree').length === 4 && !!$('#btnCmlRevoir'), document.querySelectorAll('.cml-entree').length);
     var noms = function (q) { return cmpRechercher(q).map(function (x) { return x.fiche.nom; }).join(' | '); };
     cas('recherche : « AS » trouve aide-soignant, « CIP » trouve conseiller en insertion professionnelle, aucun résultat parasite', /aide-soignant/i.test(noms('AS')) && /insertion professionnelle/i.test(noms('CIP')) && !/flasheur/i.test(noms('ASH')), noms('AS') + ' / ' + noms('CIP') + ' / ' + noms('ASH'));
     // Pourquoi ils recrutent : trois explications reliées au Lexique, département partagé

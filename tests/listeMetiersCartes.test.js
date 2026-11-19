@@ -43,13 +43,13 @@ test('la sous-section « Pourquoi ces métiers ? » a disparu et les métiers sa
   assert.ok(!/titre: 'Jobs saisonniers/.test(app), 'plus de « Jobs »');
 });
 
-test('le module « Explorer les métiers » et ses boutons restent fermés au public : ouverts seulement en local (décision de Denis, 16/11/2026)', () => {
+test('le module « Explorer les métiers » est ouvert au public depuis le 19/11/2026 (décision de Denis) : un seul interrupteur, CMV_OUVERT', () => {
   const mod = fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-metiers', 'index.js'), 'utf8');
-  assert.match(mod, /var CMV_OUVERT = false;/, 'interrupteur public fermé');
+  assert.match(mod, /var CMV_OUVERT = true;/, 'interrupteur public ouvert');
   assert.match(mod, /var CMV_PONT_CHIFFRES_OUVERT = true;/, 'pont des chiffres ouvert depuis la phase 5, mais derrière l’interrupteur du module (rien de public)');
-  assert.ok(mod.includes('^(localhost|127') && mod.includes('location.hostname'), 'ouverture seulement sur localhost');
-  assert.match(mod, /function pageComprendreLesMetiers\(\) \{ if \(!cmvOuvert\(\)\)/, 'page fermée hors local');
-  assert.match(mod, /function pageIntroComprendreLesMetiers\(\) \{\s+if \(!cmvOuvert\(\)\)/, 'présentation fermée hors local');
+  assert.ok(mod.includes('^(localhost|127') && mod.includes('location.hostname'), 'repli : ouvert sur localhost même si l’interrupteur repasse à false');
+  assert.match(mod, /function pageComprendreLesMetiers\(\) \{ if \(!cmvOuvert\(\)\)/, 'la page se referme si l’interrupteur repasse à false');
+  assert.match(mod, /function pageIntroComprendreLesMetiers\(\) \{\s+if \(!cmvOuvert\(\)\)/, 'la présentation se referme si l’interrupteur repasse à false');
   assert.ok(!/MODULE_COMPRENDRE_METIERS_OUVERT/.test(app), 'plus d’interrupteur en double dans js/app.js');
   assert.match(app, /if \(!_cmModuleOuvert\(\) \|\| \(type === 'bmo' && !CMV_PONT_CHIFFRES_OUVERT\)\) \{ return ''; \}/);
 });

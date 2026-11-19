@@ -12,9 +12,9 @@
    Plan : docs/PLAN_CLOTURE_COMPRENDRE_LES_METIERS_2026-11-16.md. Maquette : docs/MAQUETTE_COMPRENDRE_LES_METIERS_V2_2026-11-16.html.
    ============================================================ */
 
-// INTERRUPTEUR UNIQUE du module (décision de Denis, 16/11/2026 : ouvert seulement sur son poste, localhost / VS Code, jamais sur GitHub ni sur Internet pour l'instant).
-// Pour ouvrir au public : passer CMV_OUVERT à true (et alors seulement ajouter la ligne de data/nouveautes.js, décision D5).
-var CMV_OUVERT = false;
+// INTERRUPTEUR UNIQUE du module (16/11/2026 : fermé, ouvert seulement sur le poste de Denis ; ouvert au public le 19/11/2026 sur sa décision).
+// Ouvert : CMV_OUVERT à true, avec sa ligne dans data/nouveautes.js (décision D5, faite le 19/11/2026).
+var CMV_OUVERT = true;   // OUVERT AU PUBLIC le 19/11/2026 (décision de Denis). Pour refermer : repasser à false (le module redevient visible seulement sur localhost).
 var CMV_PONT_CHIFFRES_OUVERT = true;    // bouton « Comprendre pourquoi ils recrutent » : page « Pourquoi ils recrutent » (phase 5, consigne 427)
 function cmvOuvert() {
   if (CMV_OUVERT) { return true; }

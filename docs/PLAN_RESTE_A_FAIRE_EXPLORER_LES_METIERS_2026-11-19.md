@@ -29,7 +29,9 @@ Ce que Denis note pendant ces essais : dans le chat, avec « note ça » ; je l'
 | 4 | « Revoir ce que je n'ai pas su dire » en fin de questionnaire (consigne 468) | bas | à tester plus tard, sans aucune insistance |
 | 5 | Mise à jour des vidéos si un écran change après les essais | bas à moyen | une vidéo = un scénario rejouable (`docs/video_presentation/court/scenarios/`), `node fabriquer.js <nom>` |
 
-## 4. Ouverture au public (dernière étape, décision de Denis)
+## 4. Ouverture au public : FAITE le 19/11/2026 (consigne 486)
+
+> Les quatre points ci-dessous ont été faits. Pour refermer le module : repasser `CMV_OUVERT` à `false`.
 
 Rien n'est fait tant que Denis n'a pas dit « on ouvre ». Quand il le dit :
 
