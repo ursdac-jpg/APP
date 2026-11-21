@@ -1982,7 +1982,7 @@ function _candFinaliserNouveau() {
    ------------------------------------------------------------ */
 var CATALOGUE_LOISIRS = [
   { categorie: '⚽ Sports', items: ['Football', 'Rugby', 'Tennis', 'Natation', 'Course à pied', 'Cyclisme', 'Musculation / Fitness', 'Arts martiaux', 'Danse', 'Randonnée', 'Escalade', 'Sports mécaniques', 'Sports nautiques'] },
-  { categorie: '🎨 Activités créatives', items: ['Dessin', 'Peinture', 'Photographie', 'Couture', 'Tricot', 'Bricolage', 'Menuiserie', 'Sculpture', 'Décoration', 'DIY (Do It Yourself)'] },
+  { categorie: '🎨 Activités créatives', items: ['Dessin', 'Peinture', 'Photographie', 'Couture', 'Tricot', 'Bricolage', 'Menuiserie', 'Sculpture', 'Décoration', 'Objets faits main'] },
   { categorie: '🎵 Culture', items: ['Lecture', 'Écriture', 'Musique', 'Chant', 'Théâtre', 'Cinéma', 'Jeux de société', 'Langues étrangères'] },
   { categorie: '💻 Numérique', items: ['Informatique', 'Programmation', 'Jeux vidéo', 'Création de site Internet', 'Montage vidéo', 'Création graphique', 'Impression 3D', 'Robotique'] },
   { categorie: '🌿 Nature', items: ['Jardinage', 'Potager', 'Observation de la nature', 'Pêche', 'Chasse', 'Camping'] },
@@ -2131,7 +2131,8 @@ var mappingLoisirsCompetences = {
   'Menuiserie': ['Précision', 'Patience'],
   'Sculpture': ['Créativité', 'Expression artistique'],
   'Décoration': ['Créativité', 'Sens du détail', 'Expression artistique'],
-  'DIY (Do It Yourself)': ['Créativité', 'Innovation'],
+  'Objets faits main': ['Créativité', 'Innovation'],
+  'DIY (Do It Yourself)': ['Créativité', 'Innovation'], // ancien libellé, gardé pour les dossiers déjà enregistrés
   'Lecture': ['Apprentissage', 'Autonomie'],
   'Écriture': ['Créativité', 'Expression artistique'],
   'Musique': ['Créativité', 'Expression artistique'],
@@ -3615,6 +3616,13 @@ function obtenirSavoirs() {
     var ficheVisee = (dossier.metierCible && typeof metierParNom === 'function') ? metierParNom(dossier.metierCible) : null;
     if (ficheVisee) { (ficheVisee.savoirs || []).forEach(ajouter); }
     else if (!dossier.metierCible && dossier.secteurCible) { competencesFrequentesDuSecteur(dossier.secteurCible, 4).savoirs.forEach(ajouter); }
+  } else if (['stage', 'pmsmp', 'alternance', 'formation'].indexOf(dossier.objectif) !== -1) {
+    // Audit du 21/11/2026 (même défaut que « Défaut B » ci-dessus) : en stage, immersion, alternance ou formation le métier visé vit dans dossier.stage / immersion / alternance / formation, pas dans
+    // metierCible. Sans cette lecture, les savoirs de deux métiers DEVINÉS (transport et hôtellerie pour un agent d'accueil en mairie) partaient chez l'assistant comme s'ils étaient ceux de la personne.
+    // On lit la fiche du poste visé quand elle existe ; sinon aucun savoir deviné.
+    var detailsVises = (typeof CLE_DETAILS !== 'undefined' && dossier[CLE_DETAILS[dossier.objectif]]) || {};
+    var ficheStage = (detailsVises.poste && typeof metierParNom === 'function') ? metierParNom(detailsVises.poste) : null;
+    if (ficheStage) { (ficheStage.savoirs || []).forEach(ajouter); }
   } else if (!rienEteChoisi()) {
     rechercherMetiers(construireProfil(), 2).forEach(function (m) { m.savoirs.forEach(ajouter); });
   }
@@ -5784,7 +5792,7 @@ function definirObjectifCandidature(valeur) {
 // candidature est prete", pas encore vrai a ce stade).
 function rappelCibleRechercheHTML() {
   if (dossier.metierCible) {
-    return '<div class="objectif-rappel-cible"><p class="mb-0">Vous candidatez pour le métier de ' +
+    return '<div class="objectif-rappel-cible"><p class="mb-0">Vous candidatez pour ce métier : ' +
       '<strong>' + echapperAttribut(dossier.metierCible) + '</strong>.</p></div>';
   }
   if (dossier.secteurCible) {
@@ -10666,7 +10674,7 @@ function chargerFicheRome(code, rappel) {
 // Données de la fiche du ROME prêtes à afficher : source unique de la fenêtre (ficheRomeCompleteHTML) et de la page (pageFicheMetier).
 function ficheRomeDonnees(f, fiche) {
   var CP = COMPETENCES_ROME;
-  var D = { acces: f.a || '', presentation: f.d || '', missions: f.m || [], coeur: [], autres: [], nb: 0, savoirs: [], noms: f.n || [], proches: [] };
+  var D = { acces: f.a || '', presentation: f.d || '', missions: f.m || [], coeur: [], autres: [], nb: 0, savoirs: [], noms: (typeof pmcNomsEmploi === 'function') ? pmcNomsEmploi(f.n || [], fiche && fiche.nom) : (f.n || []), proches: [] };
   function famille(i) { var g = f.k[i]; return { titre: CP.phrases[g[0]], items: g[2] }; }
   if (f.k && f.k.length) {
     var c = [], a = [];
@@ -10708,7 +10716,7 @@ function ficheRomeCompleteHTML(f, fiche) {
     });
   }
   if (D.noms.length) {
-    h += '<p class="fw-semibold small mb-0 mt-3">Ce métier s’appelle aussi</p><p class="small text-muted mb-1">Selon les employeurs, le même métier porte d’autres noms.</p><div>' +
+    h += '<p class="fw-semibold small mb-0 mt-3">Ce métier s’appelle aussi</p><p class="small text-muted mb-1">' + TEXTE_NOMS_D_EMPLOI + '</p><div>' +
       D.noms.slice(0, 8).map(function (x) { return '<span class="badge bg-secondary me-1 mb-1" style="white-space:normal;text-align:left;max-width:100%;">' + e(x) + '</span>'; }).join('') + '</div>';
   }
   if (D.proches.length) {
@@ -10759,6 +10767,8 @@ function ficheMetierChoisir() {
 }
 function _fmListe(items) { return '<ul class="fm-liste">' + items.map(function (x) { return '<li>' + echapperAttribut(x) + '</li>'; }).join('') + '</ul>'; }
 function _fmFamilles(l) { return l.map(function (g) { return '<p class="fm-famille">' + echapperAttribut(g.titre) + '</p>' + _fmListe(g.items); }).join(''); }
+// Phrase d'explication commune aux deux fiches (consigne 496) : une fiche métier décrit un métier, et un même métier porte plusieurs noms d'emploi.
+var TEXTE_NOMS_D_EMPLOI = 'Cette fiche décrit un métier. Selon les employeurs, le même métier porte plusieurs noms d’emploi : tous ceux de cette liste correspondent à cette même fiche.';
 // Autres noms du métier : les 8 premiers (les plus courants) puis un bouton qui déplie tous les autres (consigne 263, 13/11/2026). Les noms ne sont pas cliquables : tous restent trouvables par la recherche de l'accueil.
 function _fmNoms(noms) {
   var visibles = noms.slice(0, 8), autres = noms.slice(8);
@@ -10809,7 +10819,7 @@ function ficheMetierCorpsHTML(fiche, f) {
         (reste > 0 ? '<details class="fm-autres">' + _fmBoutonDetails('+ ' + reste + (reste > 1 ? ' autres' : ' autre')) + _fmListe(g.items.slice(6)) + '</details>' : '');
     }).join(''));
   }
-  if ((D && D.noms.length) || CM.sigles) { bloc('Ce métier s’appelle aussi', '<p class="fm-aide">Selon les employeurs, le même métier porte d’autres noms.</p>' + CM.sigles + (D && D.noms.length ? _fmNoms(D.noms) : '')); }
+  if ((D && D.noms.length) || CM.sigles) { bloc('Ce métier s’appelle aussi', '<p class="fm-aide">' + TEXTE_NOMS_D_EMPLOI + '</p>' + CM.sigles + (D && D.noms.length ? _fmNoms(D.noms) : '')); }
   if (PF.proches) { bloc(PF.proches.titre, PF.proches.html); }
   else if (D && D.proches.length) { bloc('Des métiers proches', '<p class="fm-aide">Une bonne partie de ce que vous savez ferait aussi l’affaire dans ces métiers.</p>' + _fmListe(D.proches)); }
   if (PF.secteur) { bloc(PF.secteur.titre, PF.secteur.html); }
@@ -12388,11 +12398,22 @@ function resumeOnSuppressionPistes(idx) {
 function revelationCarteMetierVise() {
   var cible = (dossier.metierCible || '').trim();
   var domaine = (dossier.secteurCible || '').trim();
+  // Stage, alternance, immersion, formation : le poste ou la formation visé(e) se saisit à l'objectif (dossier[objectif].poste), pas dans metierCible.
+  var objSaisi = dossier.objectif;
+  var posteSaisi = (!cible && !domaine && objectifEstStageFamille(objSaisi) && dossier[CLE_DETAILS[objSaisi]] && dossier[CLE_DETAILS[objSaisi]].poste) ? String(dossier[CLE_DETAILS[objSaisi]].poste).trim() : '';
+  if (posteSaisi) {
+    return '<div class="revelation-carte-fixe revelation-carte-accent">' +
+      '<div class="revelation-mv-ligne"><span class="revelation-mv-ico">&#127919;</span>' +
+      '<span class="revelation-mv-nom">' + (objSaisi === 'formation' ? 'Formation visée : ' : 'Poste visé : ') + echapperAttribut(posteSaisi) + '</span></div>' +
+      '<p class="revelation-mv-txt">Pour le changer, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
+      '</div>';
+  }
   if (!cible && !domaine) {
+    var suiteSansMetier = dossier.creationSansAssistant ? 'Votre CV s\'appuiera sur l\'ensemble de votre parcours.' : 'L\'assistant s\'appuiera sur l\'ensemble de votre parcours.';
     return '<div class="revelation-carte-fixe revelation-carte-accent">' +
       '<div class="revelation-mv-ligne"><span class="revelation-mv-ico">&#127919;</span>' +
       '<span class="revelation-mv-nom">Pas de métier précis visé</span></div>' +
-      '<p class="revelation-mv-txt">Vous n\'avez pas ciblé de métier. L\'assistant s\'appuiera sur l\'ensemble de votre parcours. Pour cibler un métier, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
+      '<p class="revelation-mv-txt">Vous n\'avez pas ciblé de métier. ' + suiteSansMetier + ' Pour cibler un métier, ' + TEXTE_POUR_RECOMMENCER + '.</p>' +
       '</div>';
   }
   if (domaine && !cible) {
@@ -16160,7 +16181,8 @@ function activerChampsStandardises(racine) {
   var champsNavigables = Array.prototype.slice.call(racine.querySelectorAll('input[type="text"], input[type="url"], input[type="tel"], input[type="email"]'));
   champsNavigables.forEach(function (champ, index) {
     champ.style.cssText += 'height:2.75rem;font-size:1rem;padding:0.5rem 0.75rem;';
-    if (champ.type === 'text') {
+    // Les champs d'adresse internet (lien LinkedIn, site) restent en type="text" : jamais de majuscule automatique dessus (« Https://… » casse le lien).
+    if (champ.type === 'text' && !/lien|site|url/i.test(champ.id || '')) {
       champ.addEventListener('input', function () {
         if (this.value.length > 0 && this.value.charAt(0) !== this.value.charAt(0).toUpperCase()) {
           var position = this.selectionStart;
@@ -18776,7 +18798,7 @@ function htmlCoordonneesDestinataireLettre() {
       ? '<p class="small mb-1"><strong>' + echapperAttribut(entreprise) + '</strong></p>' +
         '<label class="form-label small mb-1" for="lettreDestAdresse">Code postal et commune de l’entreprise (à compléter)</label>' +
         '<input type="text" class="form-control form-control-sm mb-1" id="lettreDestAdresse" placeholder="24100 Bergerac" value="' + echapperAttribut(adresse) + '">' +
-        '<p class="small text-muted mb-2">Utile quand le recrutement est commun à plusieurs magasins : votre candidature arrive au bon endroit.</p>'
+        '<p class="small text-muted mb-2">Utile quand l’entreprise a plusieurs sites : votre candidature arrive au bon endroit.</p>'
       : '<p class="small text-muted mb-2">Aucune entreprise n’est indiquée : la lettre est adressée au service, sans nom d’entreprise. Pour en ajouter une, indiquez-la dans la partie « Votre candidature » de la page « Préparer ».</p>') +
     '<p class="small fw-bold mb-1">' + (bloc.personneConnue ? 'Service de ' + echapperAttribut(lignePersonneConnueLettreCo(dossier)) : 'À qui vous adressez-vous ?') + '</p>' +
     '<div class="jetons-ligne" id="lettreDestChoix">' + jetons + '</div>' +
@@ -34003,6 +34025,20 @@ function lienOffreCibleActuel() {
 // Potentiel) EST la reponse a "quel poste ?", mais n'etait pas utilise ici
 // en repli, d'ou l'affichage confus d'un "?" alors que l’assistant recevait deja
 // le metier ailleurs (ligne "Metier vise", plus haut dans ce texte).
+// Pages « Écrire ma lettre » et « M'entraîner à un entretien » (audit du 21/11/2026, choix de Denis) : pour un stage, une alternance ou une immersion dont le métier n'est connu nulle part ailleurs,
+// le champ « Métier ou domaine visé » est affiché ET exigé avant « Continuer ». Source unique : ces trois fonctions.
+function metierStageRequis() {
+  return ['stage', 'alternance', 'pmsmp'].indexOf(dossier.objectif) !== -1 && !(dossier.metierCible || dossier.secteurCible);
+}
+function posteStageSaisi() {
+  var im = (typeof CLE_DETAILS !== 'undefined' && dossier[CLE_DETAILS[dossier.objectif]]) || {};
+  return im.poste || '';
+}
+function contenuCandidatureAvecMetierStage(sansPreselectionCivilite) {
+  var avant = _panneauAvecMetierVise;
+  _panneauAvecMetierVise = metierStageRequis();
+  try { return contenuCandidature(sansPreselectionCivilite); } finally { _panneauAvecMetierVise = avant; }
+}
 function posteCibleActuel() {
   var o = dossier.objectif;
   var obj = o && dossier[o];
@@ -34130,6 +34166,8 @@ function texteProfil(type, sectionsSeulement) {
 
   // ---- SECTION : CONTEXTE DE LA CANDIDATURE ----
   var candidature = '';
+  // Audit du 21/11/2026 : la ligne « Métier visé » disait toujours « pour le CV », même dans le message d'une lettre ou d'un entretien.
+  var documentVisePourProfil = type === 'lettre' ? 'la lettre' : (type === 'entretien' ? 'l’entretien' : 'le CV');
   // TACHE (retour utilisateur : suggestions != metiers vises) : les metiers
   // RECOMMANDES par le moteur (suggererMetiers()) ne sont plus transmis a
   // l’assistant -- ce sont des suggestions a explorer par la personne, pas des
@@ -34138,7 +34176,7 @@ function texteProfil(type, sectionsSeulement) {
   // (dossier.metiersCandidats -- pastilles gardees volontairement par la
   // personne, cf. "Voir tous les metiers"), jamais la liste de suggestions.
   if (dossier.metierCible) {
-    candidature += '- Métier visé (à cibler en priorité pour le CV) : ' + dossier.metierCible + '\n';
+    candidature += '- Métier visé (à cibler en priorité pour ' + documentVisePourProfil + ') : ' + dossier.metierCible + '\n';
     // R.7 : metier absent de notre base -> l'assistant le rapproche d'UN des 21 secteurs du referentiel (cle secteurProche, cv.md point 10 ter).
     // Ligne envoyee seulement dans ce cas (environ 1 Ko) : jamais pour un metier de la base, ni pour la lettre ou l'entretien.
     if (type === 'cv' && secteurDuMetierSaisi()) {
@@ -34164,6 +34202,12 @@ function texteProfil(type, sectionsSeulement) {
     if (metiersCiblesSecteur.length) {
       candidature += '- Métiers ciblés dans ce secteur : ' + metiersCiblesSecteur.join(', ') + '\n';
     }
+  }
+  // Audit 2026-11-21 (choix A) : en stage, alternance et immersion, le poste visé se saisit à l'objectif (dossier[objectif].poste) et metierCible reste vide :
+  // sans cette ligne, l'assistant ne recevait le poste que noyé dans la ligne « Stage de formation : … ». Même libellé que pour un métier choisi.
+  if (!dossier.metierCible && !dossier.secteurCible && (dossier.objectif === 'stage' || dossier.objectif === 'alternance' || dossier.objectif === 'pmsmp')) {
+    var imMetierVise = dossier[CLE_DETAILS[dossier.objectif]];
+    if (imMetierVise && imMetierVise.poste) { candidature += '- Métier visé (à cibler en priorité pour ' + documentVisePourProfil + ') : ' + imMetierVise.poste + '\n'; }
   }
   // TACHE (retour utilisateur : "je veux m'assurer que le titre ira aussi
   // dans l'assistant, c'est une façon de corriger si c'est mal tapé") :
@@ -34243,7 +34287,8 @@ function texteProfil(type, sectionsSeulement) {
     } else { // reconversion
       candidature += '- Démarche : changer de métier (reconversion).\n';
       if (of.ancien) { candidature += '- Activité précédente de la personne (ancien ' + of.ancien + ').\n'; }
-      if (posteCible) { candidature += '- Métier visé : ' + posteCible + '\n'; }
+      // Audit du 21/11/2026 : la ligne « Métier visé (à cibler en priorité…) » plus haut dit déjà la même chose quand le métier est précis ; pas de doublon.
+      if (posteCible && posteCible !== dossier.metierCible) { candidature += '- Métier visé : ' + posteCible + '\n'; }
       if (entrepriseCible) { candidature += '- Entreprise cible : ' + entrepriseCible + '\n'; }
     }
     // Etape c5 : avec « plusieurs metiers d'un domaine », l'assistant doit savoir que l'intitule ci-dessus n'est pas un metier unique.
@@ -42357,6 +42402,16 @@ function appliquerPreferencesAffichage(prefs) {
   });
 }
 
+// Un seul panneau flottant de la ligne du haut ouvert à la fois (retour Denis, 21/11/2026) :
+// à appeler à l'ouverture d'un panneau, il ferme les deux autres.
+function fermerAutresPanneauxHaut(idAGarder) {
+  ['panneauPreferencesAffichage', 'panneauSessionTransfert', 'panneauAide', 'panneauCarnet', 'panneauJournalParcours'].forEach(function (id) {
+    if (id === idAGarder) { return; }
+    var p = document.getElementById(id);
+    if (p) { p.hidden = true; }
+  });
+}
+
 function initPreferencesAffichage() {
   var prefs = preferencesAffichageActuelles();
   appliquerPreferencesAffichage(prefs);
@@ -42372,6 +42427,7 @@ function initPreferencesAffichage() {
     // d'attirer son regard (coupe aussi le minuteur du coordinateur).
     _pulsePersistantLiberer('btnPreferencesAffichage');
     panneau.hidden = !panneau.hidden;
+    if (!panneau.hidden) { fermerAutresPanneauxHaut('panneauPreferencesAffichage'); }
   });
   // Ferme le panneau au clic ailleurs sur la page, jamais au clic a
   // l'interieur du panneau lui-meme (sinon impossible de choisir une
@@ -42457,7 +42513,7 @@ var AIDE_PAGES = {
     { selecteur: '[data-carte-accueil="informe"]', icone: '<i class="bi bi-newspaper"></i>', titre: 'Se tenir informé',
       texte: function () { var qfq = (typeof mtOuvert === 'function' && mtOuvert()); return (qfq ? 'Trois outils' : 'Deux outils') + ' dans le même esprit, un point de repère et jamais un fil d’actualités : <strong>Comprendre le cadre</strong> (des fiches organisées par rayon, emploi, logement, mobilité, droits..., avec la source officielle à jour et une recherche à affiner quand on ne sait pas par où commencer) et <strong>Comprendre les chiffres</strong> (le chômage, l’emploi et les métiers qui recrutent près de chez vous, des chiffres officiels expliqués simplement et datés)' + (qfq ? ' et <strong>Qui fait quoi</strong> (à qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification)' : '') + '.'; } },
     { selecteur: '[data-carte-accueil="orientation"]', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Vous hésitez encore ?',
-      texte: function () { var uc = (typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT); return 'Pour quand le projet n’est pas encore clair : <strong>Comparer mes pistes</strong> (mettre deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause)' + (uc ? ' et <strong>Un CV, plusieurs métiers</strong> (quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun).' : '.') + ((typeof cmvOuvert === 'function' && cmvOuvert()) ? ' <strong>Explorer les métiers</strong> vous aide à découvrir des métiers : en cherchant par leur nom, par ce que vous aimez faire, avec un questionnaire de préférences, ou en voyant ce que les employeurs de votre département veulent embaucher.' : '') + ' Pour des liens vers d’autres sites (immersions, formations, autres métiers), voyez « Liens utiles » en bas de page.'; } },
+      texte: function () { var uc = (typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT); return 'Pour quand le projet n’est pas encore clair : <strong>Comparer mes pistes</strong> (mettre deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause)' + (uc ? ' et <strong>Un CV, plusieurs métiers</strong> (quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun).' : '.') + ((typeof cmvOuvert === 'function' && cmvOuvert()) ? ' <strong>Explorer les métiers</strong> vous aide à découvrir des métiers : en cherchant par leur nom, en partant de vos envies, en répondant à un questionnaire de préférences, ou en voyant ce que les employeurs de votre département veulent embaucher.' : '') + ' Pour des liens vers d’autres sites (immersions, formations, autres métiers), voyez « Liens utiles » en bas de page.'; } },
     { selecteur: '#btnLiensUtiles', icone: '<i class="bi bi-link-45deg"></i>', titre: 'Liens utiles',
       texte: 'Quelques sites extérieurs qui peuvent compléter votre démarche : trouver une immersion en entreprise, une formation, explorer d’autres métiers, ou un service d’accompagnement près de chez vous. L’application propose aussi des liens propres à deux départements, la Haute-Vienne (87, Limoges) et la Dordogne (24, Périgueux).' },
     { selecteur: '#btnRetourExperience', icone: '<i class="bi bi-chat-square-text"></i>', titre: 'Partager une information',
@@ -42949,10 +43005,10 @@ function _aidePresentationChemin(titre, texte) {
       texte: '« Commencer » ouvre ce chemin. « Retour » revient aux chemins du module. Quand vous arrivez ici depuis le chemin lui-même, « Revenir au module » vous ramène exactement où vous étiez.' }
   ];
 }
-AIDE_PAGES['comprendre-les-metiers-intro-metier'] = _aidePresentationChemin('Par un métier', 'Ce chemin vous mène à la fiche d’un métier : vous le cherchez par son nom, un autre nom, un sigle ou son secteur, ou vous partez de ce que vous savez faire.');
-AIDE_PAGES['comprendre-les-metiers-intro-actions'] = _aidePresentationChemin('Par ce que vous aimez faire', 'Quatre pages de choix, puis une liste de métiers qui retrouvent vos choix. Vous pouvez modifier vos choix à tout moment.');
+AIDE_PAGES['comprendre-les-metiers-intro-metier'] = _aidePresentationChemin('Chercher un métier', 'Ce chemin vous mène à la fiche d’un métier : vous le cherchez par son nom, un autre nom, un sigle ou son secteur, ou vous partez de ce que vous savez faire.');
+AIDE_PAGES['comprendre-les-metiers-intro-actions'] = _aidePresentationChemin('Partir de vos envies', 'Cinq pages de choix, puis une liste de métiers qui retrouvent vos choix. Vous pouvez modifier vos choix à tout moment.');
 AIDE_PAGES['comprendre-les-metiers-intro-recrute'] = _aidePresentationChemin('Les emplois en demande', 'Ce chemin ne pose aucune question et ne part pas de vos envies : il montre, pour votre département, les métiers que les employeurs veulent pourvoir, les emplois saisonniers et les endroits où l’on recrute en continu, avec la possibilité de candidater.');
-AIDE_PAGES['comprendre-les-metiers-intro-q'] = _aidePresentationChemin('Par un questionnaire de préférences', 'Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années. Il comporte beaucoup de questions, pour que les métiers proposés vous correspondent mieux : prévoyez le temps qu’il faut. Le résultat n’apparaît qu’à la fin.');
+AIDE_PAGES['comprendre-les-metiers-intro-q'] = _aidePresentationChemin('Répondre à un questionnaire', 'Un questionnaire en quatre parties, utilisé depuis une quarantaine d’années. Il comporte beaucoup de questions, pour que les métiers proposés vous correspondent mieux : prévoyez le temps qu’il faut. Le résultat n’apparaît qu’à la fin.');
 AIDE_PAGES['comprendre-les-metiers'] = [
   { selecteur: '#cmlCorps', icone: '<i class="bi bi-compass"></i>', titre: 'Cette page',
     texte: function () {
@@ -42967,6 +43023,7 @@ AIDE_PAGES['comprendre-les-metiers'] = [
         actions1: 'Choisissez ce qui vous attire, sans vous demander si vous en êtes capable. Chaque famille est expliquée ; vous pouvez tout désélectionner d’un clic.',
         actions2: 'Choisissez les actions qui vous donnent envie. Huit familles, chacune est expliquée ; vous pouvez tout désélectionner d’un clic.',
         actions3: 'Choisissez les lieux où vous vous verriez travailler.',
+        actionsEviter: 'Touchez ce que vous ne voulez pas dans votre travail. Les métiers qui le demandent descendent dans la liste et vous sont signalés : aucun n’est retiré. Vous pouvez passer cette page.',
         actions4: 'Indiquez ce qui serait facile ou difficile pour vous. Cela pèse peu dans les pourcentages, et chaque métier vous prévient.',
         resultats2: 'Voici des métiers qui ressemblent à vos choix. Le pourcentage est une évaluation, jamais une mesure. « Grouper par niveau d’accès » range la liste sans rien cacher.',
         'q-avant': 'Voici ce qui vous attend : quatre parties, sans bonne ni mauvaise réponse, sans minuteur, et aucune réponse n’est obligatoire. Le résultat n’apparaît qu’à la fin.',
@@ -43641,6 +43698,7 @@ function initBoutonAide() {
     // Decouverte/Preparer un entretien/Co-construire ma lettre.
     if (detecterFenetreAideActive() || pageActuelle !== 'cv') { demarrerVisiteGuideePage(); return; }
     panneau.hidden = !panneau.hidden;
+    if (!panneau.hidden) { fermerAutresPanneauxHaut('panneauAide'); }
   });
   document.addEventListener('click', function (e) {
     if (!panneau.hidden && !panneau.contains(e.target) && e.target !== bouton) { panneau.hidden = true; }
@@ -43702,7 +43760,7 @@ function initBoutonSessionTransfert() {
     // regard (coupe aussi le minuteur du coordinateur).
     _pulsePersistantLiberer('btnSessionTransfert');
     panneau.hidden = !panneau.hidden;
-    if (!panneau.hidden) { actualiserDisponibiliteExport(); actualiserZoneEffacer(); }
+    if (!panneau.hidden) { fermerAutresPanneauxHaut('panneauSessionTransfert'); actualiserDisponibiliteExport(); actualiserZoneEffacer(); }
   });
   document.addEventListener('click', function (e) {
     if (!panneau.hidden && !panneau.contains(e.target) && e.target !== bouton) { panneau.hidden = true; }

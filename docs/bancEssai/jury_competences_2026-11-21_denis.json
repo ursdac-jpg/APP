@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-21",
+  "jury": "Denis (conseiller en insertion professionnelle)",
+  "feuille": "docs/bancEssai/feuille_competences.html (30 métiers)",
+  "legende": "B = Bon, A = Acceptable, R = À revoir",
+  "notes": {
+    "M01": "A", "M02": "B", "M03": "A", "M04": "A", "M05": "A", "M06": "A", "M07": "B", "M08": "B", "M09": "B", "M10": "B",
+    "M11": "B", "M12": "R", "M13": "R", "M14": "R", "M15": "R", "M16": "R", "M17": "R", "M18": "A", "M19": "A", "M20": "B",
+    "M21": "A", "M22": "R", "M23": "A", "M24": "B", "M25": "R", "M26": "R", "M27": "A", "M28": "B", "M29": "B", "M30": "B"
+  },
+  "totaux": { "B": 11, "A": 10, "R": 9 },
+  "commentaires": "Les commentaires de Denis (compétences voulues et compétences trompeuses, métier par métier) sont repris dans scripts/auditCartes/analyseRegleCompetences.js (tables GOLD et BAD). Texte intégral dans la conversation du 21/11/2026."
+}

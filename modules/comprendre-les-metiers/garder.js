@@ -4,7 +4,7 @@
 
    Règles tenues ici (décisions de Denis, 16/11/2026) :
    - la disquette ne reçoit QUE ce que la personne a choisi de garder (bouton « Garder mon résultat »), jamais d'office ;
-   - elle reçoit le RÉSULTAT, jamais une réponse : pour le questionnaire, les pourcentages par partie ; pour « Par ce que vous aimez faire »,
+   - elle reçoit le RÉSULTAT, jamais une réponse : pour le questionnaire, les pourcentages par partie ; pour « Partir de vos envies »,
      les identifiants des choix (les métiers proposés se recalculent) ;
    - la structure est EXTENSIBLE : { version, tests: { riasec, ... }, parActions } : un autre test s'ajoute sous `tests` sans rien défaire ;
    - tout ce qui vient d'un fichier est relu avec méfiance (identifiants connus, tailles limitées).
@@ -53,6 +53,16 @@ function _cmgIdentifiantsConnus(cle, brut, limite) {
   _cmaCatalogue(cle).forEach(function (g) { (g.items || []).forEach(function (it) { connus[it.id] = true; }); });
   return brut.filter(function (id, i, t) { return typeof id === 'string' && connus[id] && t.indexOf(id) === i; }).slice(0, limite);
 }
+// Choix à éviter relus (consigne 502) : seulement des identifiants connus d'un des trois catalogues, jamais un choix déjà fait, sans doublon, dans la limite de la page. Une ancienne sauvegarde n'en a pas : liste vide.
+function _cmgEvitesConnus(brut, choix) {
+  if (!Array.isArray(brut)) { return []; }
+  var connus = {}, faits = {};
+  ['activites', 'actions', 'environnement'].forEach(function (cle) {
+    _cmaCatalogue(cle).forEach(function (g) { (g.items || []).forEach(function (it) { connus[it.id] = true; }); });
+    (choix[cle] || []).forEach(function (id) { faits[id] = true; });
+  });
+  return brut.filter(function (id, i, t) { return typeof id === 'string' && connus[id] && !faits[id] && t.indexOf(id) === i; }).slice(0, CML_MAX_EVITER);
+}
 function _cmgConditionsConnues(brut) {
   if (!Array.isArray(brut) || typeof CONDITIONS_ROME === 'undefined') { return []; }
   return brut.filter(function (id, i, t) { return typeof id === 'string' && CONDITIONS_ROME.libelles[id] && t.indexOf(id) === i; }).slice(0, 20);
@@ -79,6 +89,7 @@ function cmvRestaurerEtatDepuisSauvegarde(brut) {
       conditions: _cmgConditionsConnues(pa.choix.conditions),
       faciles: _cmgConditionsConnues(pa.choix.faciles).filter(function (id) { return _cmgConditionsConnues(pa.choix.conditions).indexOf(id) === -1; })
     };
+    choix.eviter = _cmgEvitesConnus(pa.choix.eviter, choix);
     if (choix.activites.length + choix.actions.length + choix.environnement.length) {
       etat.choix = _cmgCopie(choix);
       etat.gardeChoix = { date: typeof pa.date === 'string' ? pa.date.slice(0, 40) : '', choix: _cmgCopie(choix) };

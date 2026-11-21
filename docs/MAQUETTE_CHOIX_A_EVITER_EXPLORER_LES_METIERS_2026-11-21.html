@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : choix à éviter</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-bandeau{background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;font-size:.82rem;margin:.4rem 0 .8rem}
+.titre-page{font-size:1.5rem;font-weight:800;margin:.2rem 0 .3rem;text-align:center}
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin:.9rem 0}
+.bloc h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.bloc .intro{font-size:.92rem;color:var(--text-muted);margin:.1rem 0 .7rem}
+.fam{border-top:1px solid var(--border);padding:.6rem 0}
+.fam:first-of-type{border-top:0}
+.fam h4{font-size:.98rem;font-weight:800;margin:0 0 .35rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.jetons{display:flex;flex-wrap:wrap;gap:.4rem}
+.jt{display:inline-flex;align-items:center;gap:.35rem;border:2px solid var(--border-strong);border-radius:999px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .8rem;min-height:40px;font-size:.9rem}
+.jt .bi{display:none}
+.jt.deja{background:var(--accent-bg-subtle);border-color:var(--accent);font-weight:600;opacity:.75;cursor:default}
+.jt.deja .bi{display:inline}
+.jt.evite{background:var(--warning-bg-subtle);border-color:var(--warning);font-weight:800}
+.jt.evite .bi{display:inline}
+.jt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.legende{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.85rem;margin:.3rem 0 .6rem}
+.pill-ev{display:inline-flex;align-items:center;gap:.3rem;border:2px solid var(--warning);background:var(--warning-bg-subtle);border-radius:999px;padding:.1rem .65rem;font-size:.85rem;font-weight:700}
+.ligne-choix2{display:flex;gap:.4rem .8rem;flex-wrap:wrap;align-items:baseline;border-top:1px solid var(--border);padding:.55rem 0}
+.ligne-choix2:first-of-type{border-top:0}
+.ligne-choix2 .qui{flex:0 0 11rem;font-weight:800}
+.ligne-choix2 .dit{flex:1 1 16rem}
+.carte-res{border:1px solid var(--border-strong);border-radius:12px;background:var(--bg-card);padding:.7rem .85rem;margin:.6rem 0;display:flex;flex-direction:column;gap:.35rem}
+.carte-res.bas{border-color:var(--warning)}
+.carte-res h4{font-size:1.02rem;font-weight:800;margin:0}
+.carte-res .cml-pill{align-self:flex-start}
+.avant{color:var(--text-muted);text-decoration:line-through;font-weight:400;margin-right:.3rem}
+.tel .ligne-choix2 .qui{flex-basis:100%}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran</b><div class="boutons" id="g-ecran">
+    <button type="button" data-v="choix">La page « Ce que vous voulez éviter »</button><button type="button" data-v="res">Les métiers proposés</button></div></div>
+  <div class="grp"><b>Profil d'exemple (chemin 2)</b><div class="boutons" id="g-profil"></div></div>
+  <div class="grp"><b>Où mettre le geste « à éviter »</b><div class="boutons" id="g-geste">
+    <button type="button" data-v="page">A. Une page à part, après « Où »</button><button type="button" data-v="cycle">B. Sur chaque pastille (deuxième clic)</button></div></div>
+  <div class="grp"><b>Effet d'un choix à éviter sur le pourcentage</b><div class="boutons" id="g-effet">
+    <button type="button" data-v="moitie">Divisé par deux</button><button type="button" data-v="vingt">Moins 20 points</button><button type="button" data-v="range">Inchangé, rangé plus bas</button></div></div>
+  <div class="grp"><b>Bouton « Masquer les métiers qui portent ce que j'évite »</b><div class="boutons" id="g-masque">
+    <button type="button" data-v="non">Pas de bouton</button><button type="button" data-v="oui">Avec le bouton (comme pour les conditions difficiles)</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Le moteur est le vrai (1 925 métiers de la base) : cliquez sur des pastilles pour dire ce que vous voulez éviter et regardez la liste changer. Seul l'effet du refus (réglage) est une proposition.</div>
+  <div id="rendu"></div>
+</div>
+
+<script src="../data/metiersRome.js"></script>
+<script src="../data/niveauxAccesVerifies.js"></script>
+<script src="../data/conditionsRome.js"></script>
+<script src="../data/descriptionsEcrites.js"></script>
+<script src="../data/rapprochementCompetences.js"></script>
+<script src="../data/metiers.js"></script>
+<script src="../data/actionsProfessionnelles.js"></script>
+<script src="../data/personnesMaterielsLieux.js"></script>
+<script src="../data/environnementsTravail.js"></script>
+<script src="../data/questionnaireRiasec.js"></script>
+<script src="../data/lettresRiasecRome.js"></script>
+<script src="../modules/comprendre-les-metiers/logique.js"></script>
+<script>
+var PROFILS = [
+  { titre: 'Animaux et nature', choix: { activites: ['animaux_compagnie', 'vegetaux'], actions: [], environnement: ['espaces_verts'] }, eviter: ['produits_dangereux'] },
+  { titre: 'Bureau et gestion', choix: { activites: ['ordinateur', 'documents'], actions: ['saisir', 'classer', 'communiquer_ecrit'], environnement: ['bureau'] }, eviter: ['usagers_public'] },
+  { titre: 'Cuisine et service', choix: { activites: ['clients', 'aliments'], actions: ['cuisiner', 'servir'], environnement: ['cuisine'] }, eviter: ['machines'] }
+];
+var CATS = [
+  { cle: 'activites', titre: 'Avec qui ou avec quoi', cat: CATALOGUE_PERSONNES_MATERIELS_LIEUX },
+  { cle: 'actions', titre: 'Ce que je fais', cat: CATALOGUE_ACTIONS_PRO },
+  { cle: 'environnement', titre: 'Où', cat: CATALOGUE_ENVIRONNEMENTS_TRAVAIL }
+];
+function copie(x) { return JSON.parse(JSON.stringify(x)); }
+var E = { ecran: 'choix', profil: 0, geste: 'page', effet: 'moitie', masque: 'non', tel: false, sombre: false, eviter: PROFILS[0].eviter.slice(), choix: copie(PROFILS[0].choix), masquer: false };
+
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+function pl(n, s) { return fmt(n) + ' ' + s + (n > 1 ? 's' : ''); }
+var LIB = {}, CAT_DE = {};
+CATS.forEach(function (c) { c.cat.forEach(function (g) { g.items.forEach(function (it) { LIB[it.id] = it.label; CAT_DE[it.id] = c.cle; }); }); });
+function choisis() { var P = E.choix, t = []; Object.keys(P).forEach(function (k) { P[k].forEach(function (id) { t.push(id); }); }); return t; }
+
+/* Calcul : le vrai moteur, puis l'effet proposé du refus */
+function calculer() {
+  var P = E.choix, N = choisis().length;
+  var liste = cmlEntree2Metiers(P, 5000);
+  var evites = E.eviter.map(function (id) { return { cat: CAT_DE[id], item: id }; });
+  var corr = correspond;
+  var rows = liste.map(function (m, rang) {
+    var f = evites.length ? _cmlFlagsMetier(m, evites, corr).flags : [];
+    var portes = []; f.forEach(function (ok, i) { if (ok) { portes.push(evites[i].item); } });
+    var s = m.score, apres = s;
+    if (portes.length) {
+      if (E.effet === 'moitie') { apres = Math.max(1, Math.round(s * Math.pow(0.5, portes.length))); }
+      else if (E.effet === 'vingt') { apres = Math.max(1, s - 20 * portes.length); }
+    }
+    return { m: m, avant: s, apres: apres, portes: portes, rang: rang };
+  });
+  rows.sort(function (a, b) {
+    if (E.effet === 'range' && (!!a.portes.length !== !!b.portes.length)) { return a.portes.length ? 1 : -1; }
+    return (b.apres - a.apres) || (a.rang - b.rang);
+  });
+  return { rows: rows, N: N, total: liste.length };
+}
+
+function jeton(id, etat) {
+  var cls = 'jt' + (etat === 'deja' ? ' deja' : (etat === 'evite' ? ' evite' : '')), bloque = etat === 'deja' && E.geste === 'page';
+  var icone = etat === 'deja' ? 'bi-check-lg' : 'bi-slash-circle';
+  var etiq = etat === 'deja' ? 'choisi' : (etat === 'evite' ? 'à éviter' : 'ni choisi ni évité');
+  return '<button type="button" class="' + cls + '" data-ev="' + id + '" aria-pressed="' + (etat !== 'rien') + '"' + (bloque ? ' disabled' : '') + ' aria-label="' + esc(LIB[id]) + ' : ' + etiq + '"><i class="bi ' + icone + '" aria-hidden="true"></i>' + esc(LIB[id]) + '</button>';
+}
+function etatDe(id) { if (choisis().indexOf(id) !== -1) { return 'deja'; } return E.eviter.indexOf(id) !== -1 ? 'evite' : 'rien'; }
+
+/* Écran : la page de choix à éviter */
+function pageChoix() {
+  var h = '<h1 class="titre-page">' + (E.geste === 'page' ? 'Qu’aimeriez-vous éviter ?' : 'Vos choix, avec ce que vous voulez éviter') + '</h1>';
+  h += '<div class="bloc"><h3><i class="bi bi-slash-circle" aria-hidden="true"></i> ' + (E.geste === 'page' ? 'Page 4 sur 5 : ce que vous voulez éviter' : 'Pages 1 à 3 : choisir ou éviter') + '</h3>' +
+    '<p class="intro">' + (E.geste === 'page'
+      ? 'Vous avez dit ce qui vous attire. Il y a peut-être aussi des choses dont vous ne voulez pas dans votre travail. Touchez-les : les métiers qui les demandent descendent dans la liste et vous sont signalés. Aucun métier n’est retiré, et vous pouvez passer cette page.'
+      : 'Sur chaque page de choix : un premier clic choisit une pastille, un deuxième clic la fait passer à « à éviter », un troisième clic la retire. (Maquette : les trois pages sont mises bout à bout, les choix de l’exemple sont déjà faits.)') + '</p>' +
+    '<div class="legende"><span><span class="pill-ev"><i class="bi bi-slash-circle" aria-hidden="true"></i> à éviter</span> : ce que vous ne voulez pas</span><span><span class="cml-pill pc"><i class="bi bi-check-lg" aria-hidden="true"></i> choisi</span> : ce qui vous attire' + (E.geste === 'page' ? ' (non modifiable ici)' : ' (un clic de plus le fait passer à « à éviter »)') + '</span></div>';
+  h += '<div class="cml-suivi" role="status" style="margin:.3rem 0 .6rem"><b>' + E.eviter.length + '</b> choix à éviter ' + (E.eviter.length ? '<button type="button" class="btn btn-outline-secondary btn-sm" data-vider="1" style="margin-left:.6rem"><i class="bi bi-x-circle" aria-hidden="true"></i> Tout désélectionner</button>' : '') + '</div>';
+  CATS.forEach(function (c) {
+    h += '<h4 style="margin:.8rem 0 .2rem;font-weight:800">' + c.titre + '</h4>';
+    c.cat.forEach(function (g) {
+      h += '<div class="fam"><h4>' + esc(g.categorie) + '</h4><div class="jetons" role="group" aria-label="' + esc(g.categorie) + '">' + g.items.map(function (it) { return jeton(it.id, etatDe(it.id)); }).join('') + '</div></div>';
+    });
+  });
+  return h + '</div>';
+}
+
+/* Écran : les métiers proposés */
+function vosChoix() {
+  var P = E.choix, h = '<div class="bloc"><h3><i class="bi bi-hand-index" aria-hidden="true"></i> Vos choix</h3>';
+  [['activites', 'Avec qui ou quoi'], ['actions', 'Ce que je fais'], ['environnement', 'Où']].forEach(function (c) {
+    h += '<div class="ligne-choix2"><div class="qui">' + c[1] + '</div><div class="dit">' + (P[c[0]].length ? P[c[0]].map(function (id) { return '<span class="cml-pill pc">' + esc(LIB[id]) + '</span>'; }).join(' ') : '<span class="cml-note">Rien choisi.</span>') + '</div></div>';
+  });
+  h += '<div class="ligne-choix2"><div class="qui">À éviter</div><div class="dit">' + (E.eviter.length ? E.eviter.map(function (id) { return '<span class="pill-ev"><i class="bi bi-slash-circle" aria-hidden="true"></i> ' + esc(LIB[id]) + '</span>'; }).join(' ') : '<span class="cml-note">Rien à éviter. Vous pouvez en indiquer à la page précédente.</span>') + '</div></div>';
+  return h + '</div>';
+}
+function pageRes() {
+  var R = calculer(), h = '<h1 class="titre-page">Par ce que vous aimez faire</h1>' + vosChoix();
+  var nbPortent = R.rows.filter(function (r) { return r.portes.length; }).length;
+  var rows = (E.masque === 'oui' && E.masquer) ? R.rows.filter(function (r) { return !r.portes.length; }) : R.rows;
+  if (E.eviter.length) {
+    h += '<div class="cml-encart"><i class="bi bi-slash-circle" aria-hidden="true"></i><p><b>Ce que vous voulez éviter pèse dans le classement.</b> ' +
+      (nbPortent ? pl(nbPortent, 'métier') + ' de votre liste de ' + fmt(R.total) + ' ' + (nbPortent > 1 ? 'demandent' : 'demande') + ' au moins un choix à éviter : ' + (E.effet === 'moitie' ? 'leur pourcentage est divisé par deux par choix évité retrouvé' : (E.effet === 'vingt' ? 'leur pourcentage baisse de 20 points par choix évité retrouvé' : 'leur pourcentage ne change pas, mais ils passent après les autres')) + ', et chacun vous le dit. Aucun n’est retiré.'
+        : 'Aucun métier de votre liste ne demande ce que vous voulez éviter.') + '</p></div>';
+    if (E.masque === 'oui' && nbPortent) {
+      h += '<div style="margin:.4rem 0"><button type="button" class="btn ' + (E.masquer ? 'btn-primary' : 'btn-outline-primary') + ' btn-sm" data-masquer="1" aria-pressed="' + E.masquer + '"><i class="bi bi-eye-slash" aria-hidden="true"></i> ' + (E.masquer ? 'Métiers masqués : cliquez pour les montrer' : 'Masquer les métiers qui demandent ce que je veux éviter') + '</button></div>';
+    }
+  }
+  function carte(r) {
+    var pct = r.apres, change = r.portes.length && r.apres !== r.avant;
+    return '<div class="carte-res' + (r.portes.length ? ' bas' : '') + '"><h4>' + esc(r.m.nom) + '</h4>' +
+      '<div class="cml-pct" role="img" aria-label="Ressemblance avec vos choix : ' + pct + ' pour cent"><span class="cml-note">Ressemblance avec vos choix</span><div class="piste"><span style="width:' + pct + '%"></span></div><b>' + (change ? '<span class="avant">' + r.avant + ' %</span>' : '') + pct + ' %</b></div>' +
+      '<p class="cml-note mb-0">' + r.m.choixRetrouves + ' de vos ' + R.N + ' choix retrouvés dans ce métier.</p>' +
+      (r.portes.length ? '<p class="mb-0" style="font-size:.9rem"><i class="bi bi-exclamation-triangle" style="color:var(--warning-strong)" aria-hidden="true"></i> <b>À vérifier :</b> ce métier peut demander ' + r.portes.map(function (id) { return '« ' + esc(LIB[id].charAt(0).toLowerCase() + LIB[id].slice(1)) + ' »'; }).join(' ; ') + ', que vous voulez éviter.</p>' : '') + '</div>';
+  }
+  var tete = rows.slice(0, 4), queue = rows.slice(4).filter(function (r) { return r.portes.length; }).slice(0, 3);
+  h += '<div class="bloc"><h3><i class="bi bi-briefcase" aria-hidden="true"></i> Vos métiers (' + fmt(rows.length) + ')</h3><p class="intro">Résumé de l’écran actuel : les quatre premiers, puis (en bas) trois métiers qui demandent ce que vous voulez éviter, pour voir leur place. Le moteur est le vrai.</p>';
+  h += tete.map(carte).join('');
+  if (queue.length) { h += '<h4 style="font-size:.98rem;font-weight:800;margin:.9rem 0 .2rem">Plus bas dans la liste, signalés</h4>' + queue.map(function (r) { return '<p class="cml-note mb-0">Place ' + (rows.indexOf(r) + 1) + ' sur ' + fmt(rows.length) + '</p>' + carte(r); }).join(''); }
+  return h + '</div>';
+}
+
+function rendre() {
+  document.getElementById('rendu').innerHTML = '<div class="' + (E.tel ? 'tel' : '') + '">' + (E.ecran === 'choix' ? pageChoix() : pageRes()) + '</div>';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  [['g-ecran', E.ecran], ['g-profil', String(E.profil)], ['g-geste', E.geste], ['g-effet', E.effet], ['g-masque', E.masque]].forEach(function (g) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + g[0] + ' button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === g[1] ? 'true' : 'false'); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#g-aff button'), function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', v ? String((v === 'tel') === E.tel) : String((m === 'sombre') === E.sombre));
+  });
+  document.getElementById('retient').innerHTML = '<p><b>Retenu pour l’instant :</b> ' + (E.geste === 'page' ? 'une page « Ce que vous voulez éviter » après « Où » (les pages de choix ne changent pas)' : 'un second clic sur chaque pastille, dans les trois pages de choix') +
+    ' ; effet : ' + { moitie: 'pourcentage divisé par deux par choix évité retrouvé', vingt: 'moins 20 points par choix évité retrouvé', range: 'pourcentage inchangé, métiers rangés après les autres' }[E.effet] + ' ; ' + (E.masque === 'oui' ? 'avec un bouton pour masquer ces métiers' : 'sans bouton de masquage') + '. Un métier n’est jamais retiré en silence.</p>';
+}
+document.getElementById('g-profil').innerHTML = PROFILS.map(function (p, i) { return '<button type="button" data-v="' + i + '">' + esc(p.titre) + '</button>'; }).join('');
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  var g = b.parentNode && b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-ecran') { E.ecran = v; }
+  else if (g === 'g-profil') { E.profil = Number(v); E.eviter = PROFILS[E.profil].eviter.slice(); E.choix = copie(PROFILS[E.profil].choix); E.masquer = false; }
+  else if (g === 'g-geste') { E.geste = v; }
+  else if (g === 'g-effet') { E.effet = v; }
+  else if (g === 'g-masque') { E.masque = v; E.masquer = false; }
+  else if (g === 'g-aff') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  else if (b.hasAttribute('data-ev')) {
+    var id = b.getAttribute('data-ev'), i = E.eviter.indexOf(id), cle = CAT_DE[id], j = E.choix[cle].indexOf(id);
+    if (E.geste === 'page') { if (i === -1) { E.eviter.push(id); } else { E.eviter.splice(i, 1); } }
+    else if (j !== -1) { E.choix[cle].splice(j, 1); E.eviter.push(id); }
+    else if (i !== -1) { E.eviter.splice(i, 1); }
+    else { E.choix[cle].push(id); }
+    E.masquer = false;
+  }
+  else if (b.hasAttribute('data-vider')) { E.eviter = []; }
+  else if (b.hasAttribute('data-masquer')) { E.masquer = !E.masquer; }
+  else if (b.id === 'fermer') { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; return; }
+  else if (b.id === 'rouvrir') { document.getElementById('regl').style.display = ''; b.style.display = 'none'; return; }
+  else { return; }
+  var y = window.scrollY; rendre(); window.scrollTo(0, y);
+});
+rendre();
+</script>
+</body>
+</html>

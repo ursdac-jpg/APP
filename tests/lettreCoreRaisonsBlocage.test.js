@@ -55,9 +55,24 @@ test('stage, alternance, immersion, formation : objectif et situation suffisent'
   }
 });
 
+test('stage ou immersion sans le type de stage : le message le dit', () => {
+  for (const objectif of ['stage', 'pmsmp']) {
+    assert.deepEqual(raisonsBlocageLettreCo(Object.assign({}, base, { objectif, typeStageATrancher: true })), ['dire de quel type de stage il s’agit']);
+  }
+  assert.deepEqual(raisonsBlocageLettreCo(Object.assign({}, base, { objectif: 'alternance', typeStageATrancher: true })), []);
+});
+
 test('phraseBlocageLettreCo : vide sans raison, « Il reste à A et à B. » sinon', () => {
   assert.equal(phraseBlocageLettreCo([]), '');
   assert.equal(phraseBlocageLettreCo(['A']), 'Il reste à A.');
   assert.equal(phraseBlocageLettreCo(['A', 'B']), 'Il reste à A et à B.');
   assert.equal(phraseBlocageLettreCo(['A', 'B', 'C']), 'Il reste à A, à B et à C.');
+});
+
+test('stage, alternance, immersion : le métier ou le domaine visé est exigé seulement quand le champ est affiché', () => {
+  for (const objectif of ['stage', 'alternance', 'pmsmp']) {
+    assert.deepEqual(raisonsBlocageLettreCo(Object.assign({}, base, { objectif, metierStageRequis: true, posteStage: '  ' })), ['indiquer le métier ou le domaine visé']);
+    assert.deepEqual(raisonsBlocageLettreCo(Object.assign({}, base, { objectif, metierStageRequis: true, posteStage: 'Aide-soignant' })), []);
+    assert.deepEqual(raisonsBlocageLettreCo(Object.assign({}, base, { objectif, metierStageRequis: false, posteStage: '' })), []);
+  }
 });

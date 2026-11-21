@@ -655,14 +655,23 @@ button.comprendre-le-cadre-signaler-lien:hover, button.comprendre-le-cadre-signa
   position: relative;
   list-style: none;
   cursor: pointer;
-  padding: .7rem 2.4rem .7rem 1rem;
+  padding: .7rem 6.4rem .7rem 1rem;
 }
 .comprendre-le-cadre-chg-resume::-webkit-details-marker { display: none; }
 .comprendre-le-cadre-chg-resume:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .comprendre-le-cadre-chg-pastilles { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
 .comprendre-le-cadre-chg-titre { display: block; font-weight: 700; font-size: 1.05rem; color: var(--text-strong); margin-top: .4rem; }
-.comprendre-le-cadre-chg-fleche { position: absolute; right: .9rem; top: 50%; transform: translateY(-50%); color: var(--accent); transition: transform .15s; }
-.comprendre-le-cadre-chg[open] .comprendre-le-cadre-chg-fleche { transform: translateY(-50%) rotate(180deg); }
+/* Repère d'ouverture (consigne 510) : le mot « Lire » (puis « Fermer ») dans une pastille à droite de la carte ; toute la carte reste cliquable. */
+.comprendre-le-cadre-chg-fleche { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: .35rem; min-height: 38px; padding: 0 .85rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte, var(--accent)); font-weight: 800; font-size: .9rem; line-height: 1; transition: background .15s, color .15s; }
+.comprendre-le-cadre-chg-fleche .bi { transition: transform .15s; }
+.comprendre-le-cadre-chg-fleche .cc-repere-fermer { display: none; }
+.comprendre-le-cadre-chg[open] .comprendre-le-cadre-chg-fleche .cc-repere-lire { display: none; }
+.comprendre-le-cadre-chg[open] .comprendre-le-cadre-chg-fleche .cc-repere-fermer { display: inline; }
+.comprendre-le-cadre-chg[open] .comprendre-le-cadre-chg-fleche .bi { transform: rotate(180deg); }
+.comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+.comprendre-le-cadre-chg-resume:hover .comprendre-le-cadre-chg-fleche { background: var(--accent); color: var(--bg-card); }
+@media (max-width: 600px) { .comprendre-le-cadre-chg-resume { padding-right: 5.6rem; } }
+@media (prefers-reduced-motion: reduce) { .comprendre-le-cadre-chg-fleche, .comprendre-le-cadre-chg-fleche .bi { transition: none; } }
 .comprendre-le-cadre-chg-corps { padding: 0 1rem .9rem; }
 
 /* Le repérage des informations de la semaine : un signe (étoiles) et une phrase, en couleur pleine. */

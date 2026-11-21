@@ -1,0 +1,469 @@
+[
+ {
+  "id": "M01",
+  "nom": "Maçon",
+  "secteur": "Bâtiment et travaux publics",
+  "rome": "F1703",
+  "trois": [
+   "Poser des revêtements",
+   "Faire de la menuiserie",
+   "Faire de la maçonnerie"
+  ],
+  "conditions": [
+   "Port de charges",
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail en extérieur, par tous les temps"
+  ]
+ },
+ {
+  "id": "M02",
+  "nom": "Agent d'accueil",
+  "secteur": "Administration, gestion et bureau",
+  "rome": "M1601",
+  "trois": [
+   "Accueillir, orienter et renseigner le public",
+   "Comprendre et traiter la demande d'un client",
+   "Respecter la confidentialité des informations"
+  ],
+  "conditions": [
+   "Longtemps assis",
+   "Contact régulier avec le public",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M03",
+  "nom": "Boulanger",
+  "secteur": "Métiers de bouche (artisanat)",
+  "rome": "D1102",
+  "trois": [
+   "Préparer du pain, des pâtisseries, des viennoiseries et du chocolat",
+   "Respecter les règles de qualité, d'hygiène, de sécurité et d'environnement",
+   "Participer à un inventaire"
+  ],
+  "conditions": [
+   "Travail de nuit possible",
+   "Longtemps debout ou dans des positions fatigantes",
+   "Port de charges"
+  ]
+ },
+ {
+  "id": "M04",
+  "nom": "Aide-soignant",
+  "secteur": "Santé et soins",
+  "rome": "J1501",
+  "trois": [
+   "Surveiller l'état de santé d'une personne",
+   "Faire des soins du corps et d'esthétique",
+   "Conseiller et accompagner une personne"
+  ],
+  "conditions": [
+   "Travail de nuit possible",
+   "Port de charges",
+   "Contact régulier avec le public"
+  ]
+ },
+ {
+  "id": "M05",
+  "nom": "Développeur informatique",
+  "secteur": "Informatique et numérique",
+  "rome": "M1855",
+  "trois": [
+   "Développer un logiciel ou une application",
+   "Produire une création numérique",
+   "Installer et mettre en service un logiciel"
+  ],
+  "conditions": [
+   "Longtemps assis"
+  ]
+ },
+ {
+  "id": "M06",
+  "nom": "Cuisinier",
+  "secteur": "Hôtellerie, restauration et tourisme",
+  "rome": "G1609",
+  "trois": [
+   "Préparer des plats",
+   "Réduire les dépenses, la consommation et les déchets",
+   "Organiser et suivre les approvisionnements"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Contact régulier avec le public",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ },
+ {
+  "id": "M07",
+  "nom": "Électricien",
+  "secteur": "Bâtiment et travaux publics",
+  "rome": "F1602",
+  "trois": [
+   "Raccorder un réseau (eau, électricité, chauffage...)",
+   "Fixer, poser et installer des éléments",
+   "Contrôler le bon fonctionnement d'un équipement ou d'une machine"
+  ],
+  "conditions": [
+   "Interventions au domicile de personnes",
+   "Travail en extérieur, par tous les temps",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M08",
+  "nom": "Agent de propreté de locaux",
+  "secteur": "Propreté et gestion des déchets",
+  "rome": "K2205",
+  "trois": [
+   "Nettoyer et entretenir un lieu ou un local",
+   "Aménager un espace de travail",
+   "Préparer son matériel avant de travailler"
+  ],
+  "conditions": [
+   "Environnement bruyant",
+   "Travail saisonnier ou pendant les vacances scolaires",
+   "Longtemps debout ou dans des positions fatigantes"
+  ]
+ },
+ {
+  "id": "M09",
+  "nom": "Chauffeur-livreur préparateur de commandes",
+  "secteur": "Transport et logistique",
+  "rome": "N4120",
+  "trois": [
+   "Organiser une livraison",
+   "Effectuer une livraison",
+   "Transporter des marchandises"
+  ],
+  "conditions": [
+   "Interventions au domicile de personnes",
+   "Longtemps assis",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ },
+ {
+  "id": "M10",
+  "nom": "Éducateur spécialisé",
+  "secteur": "Social et services à la personne",
+  "rome": "K1207",
+  "trois": [
+   "Aider une personne à gagner en autonomie",
+   "Conseiller et accompagner une personne",
+   "Faire le point sur la situation sanitaire et sociale d'une personne"
+  ],
+  "conditions": [
+   "Contact régulier avec le public",
+   "Travail le week-end ou les jours fériés possible",
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M11",
+  "nom": "Mécanicien automobile",
+  "secteur": "Mécanique et automobile",
+  "rome": "I1604",
+  "trois": [
+   "Entretenir un véhicule",
+   "Faire une opération de maintenance",
+   "Vérifier qu'un équipement est conforme et fonctionne bien"
+  ],
+  "conditions": [
+   "Travail le week-end ou les jours fériés possible",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M12",
+  "nom": "Vendeur conseil en jardinerie",
+  "secteur": "Commerce et vente",
+  "rome": "D1219",
+  "trois": [
+   "Cultiver et récolter",
+   "Organiser le traitement des commandes",
+   "Gérer les stocks"
+  ],
+  "conditions": [
+   "Port de charges",
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail en extérieur, par tous les temps"
+  ]
+ },
+ {
+  "id": "M13",
+  "nom": "Guide de haute montagne",
+  "secteur": "Sport, animation et loisirs",
+  "rome": "G1228",
+  "trois": [
+   "Faire les gestes de premiers secours en cas d'urgence",
+   "Prévoir la météo",
+   "Proposer et animer des activités de détente ou de loisirs"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail en extérieur, par tous les temps",
+   "Contact régulier avec le public"
+  ]
+ },
+ {
+  "id": "M14",
+  "nom": "Archéologue",
+  "secteur": "Éducation et formation",
+  "rome": "K2125",
+  "trois": [
+   "Mener des études et des recherches",
+   "Participer à un projet avec d'autres métiers",
+   "Faire le bilan de l'impact sur l'environnement"
+  ],
+  "conditions": [
+   "Travail en extérieur, par tous les temps",
+   "Tenue ou équipement de protection à porter",
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M15",
+  "nom": "Opérateur d'usinage (commande numérique)",
+  "secteur": "Industrie, production et énergie",
+  "rome": "H2903",
+  "trois": [
+   "Appliquer les méthodes de travail",
+   "Superviser des opérations et des actions",
+   "Réaliser les finitions d'un produit ou d'un ouvrage"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Tenue ou équipement de protection à porter",
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M16",
+  "nom": "Conducteur d'engins agricoles",
+  "secteur": "Agriculture, nature et espaces verts",
+  "rome": "A1101",
+  "trois": [
+   "Cultiver et récolter",
+   "Conduire un véhicule sur la route",
+   "Utiliser et régler une machine d'impression"
+  ],
+  "conditions": [
+   "Environnement bruyant",
+   "Port de charges",
+   "Travail en extérieur, par tous les temps"
+  ]
+ },
+ {
+  "id": "M17",
+  "nom": "Architecte système de force, d'arme ou équipement militaire",
+  "secteur": "Sécurité",
+  "rome": "K1735",
+  "trois": [
+   "S'adapter selon les situations",
+   "Organiser la logistique d'une usine",
+   "Appliquer les politiques publiques"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail le week-end ou les jours fériés possible",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M18",
+  "nom": "Socio-coiffeur",
+  "secteur": "Coiffure et esthétique",
+  "rome": "D1217",
+  "trois": [
+   "Faire des soins du corps et d'esthétique",
+   "Conseiller dans une relation commerciale",
+   "Appliquer un traitement ou un produit"
+  ],
+  "conditions": [
+   "Contact régulier avec le public"
+  ]
+ },
+ {
+  "id": "M19",
+  "nom": "Sertisseur en bijouterie ou joaillerie",
+  "secteur": "Artisanat et création",
+  "rome": "B1610",
+  "trois": [
+   "Façonner ou retoucher un objet d'art ou d'artisanat",
+   "Analyser la qualité d'un produit",
+   "Réparer"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M20",
+  "nom": "Agent animalier",
+  "secteur": "Métiers animaliers",
+  "rome": "A1506",
+  "trois": [
+   "Prendre soin d'un animal",
+   "Soigner des animaux",
+   "Observer des faits, des évènements ou des comportements"
+  ],
+  "conditions": [
+   "Travail en extérieur, par tous les temps",
+   "Contact régulier avec le public",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ },
+ {
+  "id": "M21",
+  "nom": "Orchestrateur",
+  "secteur": "Communication, culture et événementiel",
+  "rome": "L1210",
+  "trois": [
+   "Mettre à jour régulièrement ses connaissances",
+   "Créer un son ou une musique",
+   "Créer et organiser un évènement"
+  ],
+  "conditions": [
+   "Contact régulier avec le public",
+   "Travail le week-end ou les jours fériés possible",
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M22",
+  "nom": "Responsable de secteur en assurances",
+  "secteur": "Banque, assurance et immobilier",
+  "rome": "C1118",
+  "trois": [
+   "Repérer et choisir des fournisseurs",
+   "Développer son réseau professionnel",
+   "Traiter les réclamations et les litiges"
+  ],
+  "conditions": [
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M23",
+  "nom": "Posticheur",
+  "secteur": "Commerce et vente",
+  "rome": "D1215",
+  "trois": [
+   "Conseiller dans une relation commerciale",
+   "Faire des soins du corps et d'esthétique",
+   "Répondre aux attentes d'un client"
+  ],
+  "conditions": [
+   "Gestes précis et minutieux",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ },
+ {
+  "id": "M24",
+  "nom": "Architecte du bâtiment",
+  "secteur": "Bâtiment et travaux publics",
+  "rome": "F1101",
+  "trois": [
+   "Organiser et conduire des travaux",
+   "Concevoir un projet d'aménagement ou de construction",
+   "Contrôler la qualité d'un bâtiment ou d'une installation"
+  ],
+  "conditions": [
+   "Travail en extérieur, par tous les temps",
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M25",
+  "nom": "Artificier spectacle",
+  "secteur": "Communication, culture et événementiel",
+  "rome": "L1523",
+  "trois": [
+   "Organiser le matériel et le transport d'un évènement",
+   "S'adapter selon les situations",
+   "Estimer les coûts et les délais"
+  ],
+  "conditions": [
+   "Travail saisonnier ou pendant les vacances scolaires",
+   "Travail de nuit possible",
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)"
+  ]
+ },
+ {
+  "id": "M26",
+  "nom": "Responsable d'atelier de blanchisserie industrielle",
+  "secteur": "Industrie, production et énergie",
+  "rome": "H2511",
+  "trois": [
+   "Conseiller une organisation ou une structure",
+   "Contrôler la qualité des façons de travailler",
+   "Favoriser l'entente et la collaboration"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ },
+ {
+  "id": "M27",
+  "nom": "Économiste financier",
+  "secteur": "Administration, gestion et bureau",
+  "rome": "M1224",
+  "trois": [
+   "Analyser et gérer les risques financiers",
+   "Repérer les tendances et les envies des clients",
+   "Analyser les comptes d'une structure"
+  ],
+  "conditions": [
+   "Déplacements professionnels"
+  ]
+ },
+ {
+  "id": "M28",
+  "nom": "Responsable du développement commercial",
+  "secteur": "Commerce et vente",
+  "rome": "M1707",
+  "trois": [
+   "Chercher de nouveaux clients et de nouveaux marchés",
+   "Définir une stratégie commerciale",
+   "Repérer les tendances et les envies des clients"
+  ],
+  "conditions": [
+   "Contact régulier avec le public",
+   "Déplacements professionnels",
+   "Horaires variables ou décalés (astreintes, roulement)"
+  ]
+ },
+ {
+  "id": "M29",
+  "nom": "Agent d'entretien des piscines",
+  "secteur": "Bâtiment et travaux publics",
+  "rome": "I1204",
+  "trois": [
+   "Entretenir un équipement, une machine ou une installation",
+   "Nettoyer et entretenir un lieu ou un local",
+   "Assurer l'entretien et le bon état d'un site"
+  ],
+  "conditions": [
+   "Travail en extérieur, par tous les temps",
+   "Travail le week-end ou les jours fériés possible",
+   "Tenue ou équipement de protection à porter"
+  ]
+ },
+ {
+  "id": "M30",
+  "nom": "Artiste de cirque",
+  "secteur": "Communication, culture et événementiel",
+  "rome": "L1204",
+  "trois": [
+   "Interpréter une oeuvre ou un numéro devant un public",
+   "Mettre en scène un spectacle",
+   "Prévoir les dangers, les problèmes et les besoins en matériel"
+  ],
+  "conditions": [
+   "Consignes de sécurité à respecter (machines, produits, chaleur, hauteur...)",
+   "Travail en extérieur, par tous les temps",
+   "Travail le week-end ou les jours fériés possible"
+  ]
+ }
+]

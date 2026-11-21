@@ -63,7 +63,7 @@ function synBasculerRetenu(passage, nom, rome) {
   return true;
 }
 
-// Le bouton « Retenir pour ma synthèse » d'une carte de métier (passages 2 et 3 : geste du module ; passage 1 : geste de « Par un métier », attributs fournis par l'appelant).
+// Le bouton « Retenir pour ma synthèse » d'une carte de métier (passages 2 et 3 : geste du module ; passage 1 : geste de « Chercher un métier », attributs fournis par l'appelant).
 function synBoutonRetenir(passage, nom, rome, attributs) {
   var r = synRetenu(passage), on = !!(r && synNormaliser(r.nom) === synNormaliser(nom));
   var a = attributs || ('data-cml="retenir" data-passage="' + passage + '" data-nom="' + cmvE(nom) + '" data-rome="' + cmvE(rome || '') + '"');

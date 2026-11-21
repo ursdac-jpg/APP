@@ -24,6 +24,7 @@ function _cmlSource() {
       base: typeof baseMetiers !== 'undefined' ? baseMetiers : [],
       niveauAcces: typeof niveauAccesMetier === 'function' ? niveauAccesMetier : function () { return null; },
       rechercher: typeof rechercherMetiers === 'function' ? rechercherMetiers : null,
+      correspond: typeof correspond === 'function' ? correspond : null,
       normaliser: typeof normaliserTexte === 'function' ? normaliserTexte : function (s) { return String(s).toLowerCase(); }
     };
   }
@@ -32,7 +33,7 @@ function _cmlSource() {
   return {
     p1: q.RIASEC_PARTIE_1, p2: q.RIASEC_PARTIE_2, p3: q.RIASEC_PARTIE_3, p4: q.RIASEC_PARTIE_4,
     lettresRome: require('../../data/lettresRiasecRome.js').LETTRES_RIASEC_ROME,
-    base: m.baseMetiers, niveauAcces: m.niveauAccesMetier, rechercher: m.rechercherMetiers, normaliser: m.normaliserTexte
+    base: m.baseMetiers, niveauAcces: m.niveauAccesMetier, rechercher: m.rechercherMetiers, correspond: m.correspond, normaliser: m.normaliserTexte
   };
 }
 var _cmlMemo = null;
@@ -151,7 +152,7 @@ function _cmqNiveau(pourcentageArrondi) {
 
 // Cœur du calcul, à partir des pourcentages par partie (testable avec les exemples chiffrés de la règle).
 // pct = { p1: { R: 93, ... }, p2: ..., p3: ..., p4: ... } ; partie4Passee : la partie 4 n'entre pas dans la moyenne (÷ 3 au lieu de ÷ 4).
-function cmqResultatDepuisPourcentages(pct, partie4Passee) {
+function cmqResultatDepuisPourcentages(pct, partie4Passee, nbReponses, nbLignes) {
   var parties = partie4Passee ? ['p1', 'p2', 'p3'] : CMQ_PARTIES;
   var valeurs = {}, arrondis = {}, niveaux = {};
   CML_LETTRES.forEach(function (L) {
@@ -172,7 +173,9 @@ function cmqResultatDepuisPourcentages(pct, partie4Passee) {
 
   var haut = valeurs[classement[0]], bas = valeurs[classement[5]];
   var etat = 'normal';
-  if (haut < CMQ_SEUIL_PEU_REPONSES) { etat = 'peu_reponses'; }
+  // Trop de lignes laissées vides (consigne 508) : aucune lettre, car le code serait fragile ; distinct des réponses « plates » (aucune lettre ne ressort).
+  var peuDeLignes = cmlNiveauQuestionnaire(nbReponses, nbLignes) === 0;
+  if (peuDeLignes || haut < CMQ_SEUIL_PEU_REPONSES) { etat = 'peu_reponses'; }
   else if (haut - bas < CMQ_SEUIL_REPARTIES) { etat = 'reparties'; }
 
   var code = etat === 'peu_reponses' ? null : classement.slice(0, 3).filter(function (L) { return arrondis[L] >= CMQ_SEUIL_LETTRE; });
@@ -206,6 +209,7 @@ function cmqResultatDepuisPourcentages(pct, partie4Passee) {
 
   return {
     partie4Passee: !!partie4Passee,
+    nbReponses: nbLignes > 0 ? nbReponses : null, nbLignes: nbLignes > 0 ? nbLignes : null, peuDeLignes: peuDeLignes,
     parties: pct, valeurs: valeurs, pourcentages: arrondis, niveaux: niveaux,
     classement: classement, etat: etat, code: code, procheFrontiere: procheFrontiere,
     lettresPourMetiers: lettresPourMetiers, axes: axes, messages: messages
@@ -214,7 +218,9 @@ function cmqResultatDepuisPourcentages(pct, partie4Passee) {
 
 // Du début à la fin : réponses -> résultat.
 function cmqCalculer(reponses) {
-  return cmqResultatDepuisPourcentages(cmqPourcentagesParties(cmqPoints(reponses)), !!(reponses && reponses.partie4Passee));
+  var passee = !!(reponses && reponses.partie4Passee), n = 0, total = 0;
+  CMQ_PARTIES.forEach(function (p) { if (p === 'p4' && passee) { return; } n += cmqNombreReponses(reponses, p); total += cmqEnonces(p).length; });
+  return cmqResultatDepuisPourcentages(cmqPourcentagesParties(cmqPoints(reponses)), passee, n, total);
 }
 
 function cmqLibelleNiveau(niveau) { return CMQ_TEXTES.niveaux[niveau] || ''; }
@@ -260,7 +266,9 @@ function cmqResultatAGarder(calcul, dateTexte) {
     pourcentages: JSON.parse(JSON.stringify(calcul.pourcentages)),
     // Les pourcentages de chaque partie (24 nombres, jamais une réponse) : ils permettent de recalculer à l'identique tout l'affichage (cmqCalculDepuisGarde).
     parties: JSON.parse(JSON.stringify(calcul.parties)),
-    partie4Passee: !!calcul.partie4Passee
+    partie4Passee: !!calcul.partie4Passee,
+    nbReponses: calcul.nbLignes > 0 ? calcul.nbReponses : null,
+    nbLignes: calcul.nbLignes > 0 ? calcul.nbLignes : null
   };
 }
 // Pourcentages par partie relus avec méfiance : p1 à p3 obligatoires, p4 mise à zéro si absente ; null si inexploitable.
@@ -285,7 +293,7 @@ function _cmqPartiesGardees(brut) {
 // Recalcule tout le résultat (code, niveaux, axes, messages) depuis un résultat gardé ; null si la disquette ne le permet pas.
 function cmqCalculDepuisGarde(garde) {
   if (!garde || !garde.parties) { return null; }
-  return cmqResultatDepuisPourcentages(garde.parties, !!garde.partie4Passee);
+  return cmqResultatDepuisPourcentages(garde.parties, !!garde.partie4Passee, garde.nbReponses, garde.nbLignes);
 }
 // Relit un résultat gardé (venu d'une disquette : jamais de confiance) ; null si le contenu n'est pas exploitable.
 function cmqNormaliserResultatGarde(obj) {
@@ -298,10 +306,13 @@ function cmqNormaliserResultatGarde(obj) {
   }
   var codeValide = function (liste) { return Array.isArray(liste) && liste.every(function (L) { return CML_LETTRES.indexOf(L) !== -1; }); };
   var code = codeValide(obj.code) && obj.code.length >= 1 && obj.code.length <= 3 ? obj.code.slice() : null;
+  // Le nombre de lignes répondues vient d'une disquette : relu avec méfiance (entiers, au plus 1 000 lignes), sinon aucun niveau n'est dit.
+  var nbLignes = Math.floor(Number(obj.nbLignes)), nbReponses = Math.floor(Number(obj.nbReponses));
+  if (!(nbLignes > 0 && nbLignes <= 1000 && nbReponses >= 0 && nbReponses <= nbLignes)) { nbLignes = 0; nbReponses = 0; }
   var etat = obj.etat === 'reparties' || obj.etat === 'peu_reponses' ? obj.etat : 'normal';
   if (etat === 'peu_reponses') { code = null; }
   var pourMetiers = codeValide(obj.lettresPourMetiers) && code ? obj.lettresPourMetiers.filter(function (L, k, a) { return a.indexOf(L) === k; }) : (code ? code.slice() : []);
-  return { version: 1, date: typeof obj.date === 'string' ? obj.date.slice(0, 40) : '', etat: etat, code: code, lettresPourMetiers: pourMetiers, pourcentages: pourcentages, parties: _cmqPartiesGardees(obj.parties), partie4Passee: !!obj.partie4Passee };
+  return { version: 1, date: typeof obj.date === 'string' ? obj.date.slice(0, 40) : '', etat: etat, code: code, lettresPourMetiers: pourMetiers, pourcentages: pourcentages, parties: _cmqPartiesGardees(obj.parties), partie4Passee: !!obj.partie4Passee, nbReponses: nbLignes > 0 ? nbReponses : null, nbLignes: nbLignes > 0 ? nbLignes : null };
 }
 
 /* ------------------------------------------------------------
@@ -367,10 +378,15 @@ function cmlMetiersPourLettres(lettres) {
     if (indice <= 0) { return; }
     var memes = ri.split('').every(function (L) { return lettres.indexOf(L) !== -1; });
     var niveau = src.niveauAcces(m);
-    liste.push({ metier: m, lettres: ri, indice: indice, memesLettres: memes, niveau: niveau, groupe: cmlGroupeNiveau(niveau) });
+    var retrouvees = ri.split('').filter(function (L) { return lettres.indexOf(L) !== -1; }).length;
+    liste.push({ metier: m, lettres: ri, indice: indice, memesLettres: memes, niveau: niveau, groupe: cmlGroupeNiveau(niveau), retrouvees: retrouvees, ecart: ri.length - retrouvees });
   });
+  // Consigne 488 : à indice égal, le contenu départage (et non plus l'ordre alphabétique) : plus de lettres du métier retrouvées chez la personne (troisième lettre comprise),
+  // puis moins de lettres du métier qui ne figurent pas dans son code ; le nom ne vient qu'en dernier.
   liste.sort(function (a, b) {
     if (Math.abs(a.indice - b.indice) > 1e-9) { return b.indice - a.indice; }
+    if (a.retrouvees !== b.retrouvees) { return b.retrouvees - a.retrouvees; }
+    if (a.ecart !== b.ecart) { return a.ecart - b.ecart; }
     return a.metier.nom.localeCompare(b.metier.nom, 'fr');
   });
   return liste;
@@ -398,10 +414,322 @@ function cmlEntree2Profil(choix) {
   var limiter = function (k) { return (Array.isArray(c[k]) ? c[k] : []).slice(0, CML_MAX_CHOIX[k]); };
   return { actions: limiter('actions'), activites: limiter('activites'), environnement: limiter('environnement'), reglages: CML_REGLAGES_ENTREE_2 };
 }
-// Les métiers de l'entrée 2, avec le pourcentage « de compatibilité avec vos choix » (jamais une note de la personne). Aucun choix : aucune proposition.
+// Échelle de pistes (consigne 505, maquette validée le 21/11/2026) : le pourcentage et le NOM de la liste dépendent du NOMBRE DE CHOIX, pour les chemins 1 et 2.
+// Plafond selon le nombre de choix faits : 3 choix 30 %, 4 : 40 %, 5 : 50 %, 6 : 60 %, 7 : 70 %, 8 : 80 %, 9 : 90 %, 10 et plus : 95 % (jamais 100 %). 1 et 2 choix : jamais affichés (aucune liste sous 3 choix).
+// Mesuré sur la base (docs/AUDIT_ATTEIGNABILITE_METIERS_EXPLORER_LES_METIERS_2026-11-21.md, §7) : un métier retrouvé dans les dix premiers dès 3 choix dans 43 % des cas seulement : le pourcentage ne peut pas annoncer plus.
+var CML_PLAFOND_PAR_NB_CHOIX = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95];
+// Part minimale des choix qu'une fiche doit retrouver pour être proposée (au moins un choix) : sinon, un métier qui n'en retrouve qu'un seul parmi plusieurs ne ressort pas.
+// La moitié des choix, arrondie au-dessus (décision de Denis, 21/11/2026, consigne 517, option B) : avec 40 %, le minimum passait de 67 % à 40 % selon le nombre de choix et la liste grossissait par dents de scie
+// (médiane de 197 métiers à 3 choix, 547 à 5, 210 à 6 : docs/VERIFICATION_STABILITE_EXPLORER_LES_METIERS_2026-11-21.md).
+var CML_PART_MINI_CHOIX_RETROUVES = 0.5;
+// Nombre minimal de choix qu'une fiche doit retrouver pour être proposée, pour n choix faits (source unique : le classement ET la phrase de l'écran « N métiers retrouvent au moins X de vos choix » le lisent).
+// Jamais plus de CML_MINI_CHOIX_PLAFOND (consigne 519) : une fiche ne porte qu'une dizaine de choix du catalogue (médiane 10, maximum 17 sur 1 925 fiches) ; exiger la moitié de 15 choix (8) ou de 20 (10)
+// ne laissait aucun métier, même à une personne dont les choix sont cohérents. 5 = la moitié de la fiche médiane. Sans effet jusqu'à 10 choix.
+var CML_MINI_CHOIX_PLAFOND = 5;
+function cmlChoixMinimum(n) { return Math.min(CML_MINI_CHOIX_PLAFOND, Math.max(1, Math.ceil(CML_PART_MINI_CHOIX_RETROUVES * n - 1e-9))); }
+function cmlPlafondChoix(n) {
+  return n > 0 ? CML_PLAFOND_PAR_NB_CHOIX[Math.min(Math.floor(n), CML_PLAFOND_PAR_NB_CHOIX.length - 1)] : 0;
+}
+// Les quatre niveaux d'une liste, COMMUNS aux chemins 1 et 2 (le chemin 3, le questionnaire, garde sa propre démarche). Source unique des noms, des textes et des bornes.
+// Sous le minimum, aucune liste : « Pas encore de pistes ». Un niveau ne juge jamais la personne : il dit à quel point la liste est précise.
+var CML_MIN_CHOIX_PISTES = 3;
+var CML_BORNES_NIVEAUX = [3, 5, 7, 9];
+var CML_NIVEAU_PROPOSITION = 2;     // la grande carte « Première proposition » n'existe qu'à partir de ce niveau
+var CML_MAX_EGALITES_VEDETTE = 3;   // … et seulement si au plus ce nombre de métiers sont à égalité en tête (sinon en choisir un serait arbitraire)
+var CML_NIVEAUX_PISTES = [
+  { nom: 'Piste éloignée', texte: 'Avec peu de choix, beaucoup de métiers restent possibles. Ce sont des idées de départ, pas une proposition.',
+    texteQ: 'Vos réponses couvrent à peine la moitié du questionnaire : vos lettres peuvent encore changer. Ce sont des idées de départ, pas une proposition.' },
+  { nom: 'Piste à explorer', texte: 'Les premiers métiers qui ressortent sont de vraies propositions, mais plusieurs se valent encore. Ce sont des pistes à explorer.',
+    texteQ: 'Vos lettres se dessinent, mais elles pourraient encore bouger si vous répondiez aux lignes laissées vides. Ce sont des pistes à explorer.' },
+  { nom: 'Piste proche', texte: 'Peu de métiers retrouvent tout ce que vous avez choisi. Lisez leurs fiches pour vérifier qu’ils vous parlent.',
+    texteQ: 'Vos lettres sont assez stables. Lisez les fiches des métiers pour vérifier qu’ils vous parlent.' },
+  { nom: 'Piste précise', texte: 'La liste est étroite et bien ciblée. Parlez-en avec un conseiller, ou confirmez avec le questionnaire de préférences.',
+    texteQ: 'Vos lettres sont stables : presque toutes les lignes ont une réponse. Parlez-en avec un conseiller pour les confirmer.' }
+];
+// Le questionnaire (chemin 3, consigne 508) : le niveau dépend de la PART DES LIGNES RÉPONDUES (une ligne laissée vide compte zéro), pas d'un nombre de choix.
+// Seuils mesurés sur 360 personnes simulées (scripts/auditAtteignabilite/courbe_fiabilite_chemin3.js) : première lettre juste dans 68 % des cas à 40 % de lignes répondues, 75 % à 50 %, 84 % à 67 %, 94 % à 83 %.
+// Sous le premier seuil : aucune lettre (état « peu de réponses », comme sous 3 choix pour les chemins 1 et 2). Les réponses sont effacées après le calcul : le nombre de lignes répondues est donc gardé avec le résultat.
+var CML_BORNES_NIVEAUX_Q = [0.40, 0.50, 2 / 3, 5 / 6];   // 40 %, 50 %, deux tiers (67 %), cinq sixièmes (83 %) : 120, 150, 200 et 250 lignes sur 300
+// 0 = pas encore de pistes ; 1 à 4 = niveau ; null = nombre de lignes inconnu (résultat gardé avant cette règle : aucun niveau n'est dit).
+function cmlNiveauQuestionnaire(nbReponses, nbLignes) {
+  if (typeof nbReponses !== 'number' || typeof nbLignes !== 'number' || !(nbLignes > 0) || !(nbReponses >= 0)) { return null; }
+  var part = nbReponses / nbLignes, niv = 0;
+  for (var i = 0; i < CML_BORNES_NIVEAUX_Q.length; i++) { if (part >= CML_BORNES_NIVEAUX_Q[i] - 1e-9) { niv = i + 1; } }
+  return niv;
+}
+// Tout ce que l'écran dit du niveau du questionnaire : { niveau, nbReponses, nbLignes, pct (part répondue, arrondie à l'entier inférieur : jamais « 40 % » sous le seuil), nom, texte, aRepondre (lignes à avoir répondues pour le niveau suivant, 0 si dernier), suivant, minimum (lignes pour le premier niveau) }.
+function cmlInfoNiveauQuestionnaire(nbReponses, nbLignes) {
+  var niv = cmlNiveauQuestionnaire(nbReponses, nbLignes);
+  if (niv === null) { return null; }
+  var aRep = function (k) { return Math.ceil(CML_BORNES_NIVEAUX_Q[k] * nbLignes - 1e-9); };
+  var base = { niveau: niv, nbReponses: nbReponses, nbLignes: nbLignes, pct: Math.floor(100 * nbReponses / nbLignes + 1e-9), minimum: aRep(0) };
+  if (!niv) { base.nom = 'Pas encore de pistes'; base.texte = ''; base.aRepondre = aRep(0); base.suivant = CML_NIVEAUX_PISTES[0].nom; return base; }
+  base.nom = CML_NIVEAUX_PISTES[niv - 1].nom; base.texte = CML_NIVEAUX_PISTES[niv - 1].texteQ;
+  base.aRepondre = niv < CML_BORNES_NIVEAUX_Q.length ? aRep(niv) : 0;
+  base.suivant = niv < CML_NIVEAUX_PISTES.length ? CML_NIVEAUX_PISTES[niv].nom : '';
+  return base;
+}
+// 0 = pas encore de pistes ; 1 à 4 = le niveau de la liste pour ce nombre de choix.
+function cmlNiveauPistes(nbChoix) {
+  var n = Math.floor(nbChoix || 0), niv = 0;
+  for (var i = 0; i < CML_BORNES_NIVEAUX.length; i++) { if (n >= CML_BORNES_NIVEAUX[i]) { niv = i + 1; } }
+  return niv;
+}
+// Tout ce que l'écran dit du niveau : { niveau, nbChoix, nom, texte, reste (choix à ajouter pour le niveau suivant), suivant (nom du niveau suivant), minimum }.
+// Niveau 0 : nom « Pas encore de pistes », reste = choix manquants pour voir les premières pistes.
+function cmlInfoNiveauPistes(nbChoix) {
+  var n = Math.max(0, Math.floor(nbChoix || 0)), niv = cmlNiveauPistes(n);
+  if (!niv) { return { niveau: 0, nbChoix: n, nom: 'Pas encore de pistes', texte: '', reste: CML_BORNES_NIVEAUX[0] - n, suivant: CML_NIVEAUX_PISTES[0].nom, minimum: CML_MIN_CHOIX_PISTES }; }
+  var v = CML_NIVEAUX_PISTES[niv - 1];
+  return { niveau: niv, nbChoix: n, nom: v.nom, texte: v.texte, reste: niv < CML_BORNES_NIVEAUX.length ? CML_BORNES_NIVEAUX[niv] - n : 0, suivant: niv < CML_NIVEAUX_PISTES.length ? CML_NIVEAUX_PISTES[niv].nom : '', minimum: CML_MIN_CHOIX_PISTES };
+}
+// Combien de métiers sont à égalité en tête ? pcts = les pourcentages de la liste, du plus haut au plus bas.
+function cmlEgalitesEnTete(pcts) {
+  if (!pcts || !pcts.length) { return 0; }
+  return pcts.filter(function (p) { return p === pcts[0]; }).length;
+}
+// La grande carte « Première proposition » : à partir du niveau 2 ET si au plus 3 métiers sont à égalité en tête. Rend { oui, raison : '' | 'trop-tot' | 'egalite' }.
+function cmlVedetteAutorisee(nbChoix, nbEgalitesEnTete) {
+  if (cmlNiveauPistes(nbChoix) < CML_NIVEAU_PROPOSITION) { return { oui: false, raison: 'trop-tot' }; }
+  if (nbEgalitesEnTete > CML_MAX_EGALITES_VEDETTE) { return { oui: false, raison: 'egalite' }; }
+  return { oui: true, raison: '' };
+}
+// Les choix de la personne, à plat, dans l'ordre du moteur : { cat, item }. Source unique de cet ordre (le reclassement ET la rubrique « Comment vos choix ont été lus » la lisent).
+function _cmlListeChoisis(profil) {
+  var choisis = [];
+  ['activites', 'actions', 'environnement'].forEach(function (cat) {
+    (profil[cat] || []).forEach(function (item) { choisis.push({ cat: cat, item: item }); });
+  });
+  return choisis;
+}
+// Pour une fiche : quels choix retrouve-t-elle ? Ses deux signatures sont essayées, la meilleure est gardée ({ flags, nb, taille }). Source unique du « retrouvé / pas retrouvé ».
+function _cmlFlagsMetier(m, choisis, corr) {
+  var meilleure = null;
+  [m, m.signatureRome].forEach(function (sig) {
+    if (!sig) { return; }
+    var flags = choisis.map(function (c) { return (sig[c.cat] || []).some(function (x) { return corr(c.item, x); }); });
+    var nb = flags.filter(Boolean).length;
+    var taille = ['activites', 'actions', 'environnement'].reduce(function (s, k) { return s + (Array.isArray(sig[k]) ? sig[k].length : 0); }, 0);
+    if (!meilleure || nb > meilleure.nb || (nb === meilleure.nb && taille < meilleure.taille)) { meilleure = { flags: flags, nb: nb, taille: taille }; }
+  });
+  return { flags: meilleure ? meilleure.flags : choisis.map(function () { return false; }), nb: meilleure ? meilleure.nb : 0, taille: meilleure ? meilleure.taille : 0 };
+}
+// Pour chacun des choix : la fiche (ses deux signatures, la meilleure est gardée) le retrouve-t-elle ? Un choix large (très répandu dans la base) pèse moins qu'un choix précis.
+function cmlEntree2Reclasser(liste, profil, src) {
+  var corr = src.correspond;
+  if (!corr) { return liste; }
+  var choisis = _cmlListeChoisis(profil);
+  var n = choisis.length;
+  if (!n) { return []; }
+  var lignes = liste.map(function (m) {
+    var f = _cmlFlagsMetier(m, choisis, corr);
+    return { m: m, flags: f.flags, nb: f.nb, taille: f.taille };
+  });
+  var taillBase = (src.base && src.base.length) || 1900;
+  var poids = choisis.map(function (c, i) {
+    var f = lignes.filter(function (l) { return l.flags[i]; }).length;
+    return f > 0 ? Math.log((taillBase + 1) / (f + 1)) : 0;   // un choix que la base ne reconnaît chez personne ne pénalise personne
+  });
+  var total = poids.reduce(function (s, x) { return s + x; }, 0);
+  var plafond = cmlPlafondChoix(n);
+  var mini = cmlChoixMinimum(n);
+  var retenues = [];
+  lignes.forEach(function (l) {
+    if (l.nb < mini || total <= 0) { return; }
+    var gagne = 0;
+    l.flags.forEach(function (ok, i) { if (ok) { gagne += poids[i]; } });
+    var part = Math.min(1, gagne / total);
+    var exact = plafond * part;
+    var copie = {};
+    Object.keys(l.m).forEach(function (k) { copie[k] = l.m[k]; });
+    copie._moteur = l.m.scoreExact || 0;   // à choix retrouvés égaux, l'ordre des choix dans la fiche et sa précision (calcul du moteur) départagent
+    copie.score = Math.min(100, Math.max(1, Math.round(exact)));
+    copie.scoreExact = exact;
+    copie.partDesChoix = part;
+    copie.choixRetrouves = l.nb;
+    copie.choixTotal = n;
+    copie._taille = l.taille;
+    retenues.push(copie);
+  });
+  retenues.sort(function (a, b) {
+    return (b.score - a.score) || (b.scoreExact - a.scoreExact) || (b.choixRetrouves - a.choixRetrouves) ||
+      ((b._moteur || 0) - (a._moteur || 0)) || ((a._taille || 99) - (b._taille || 99)) || String(a.nom || '').localeCompare(String(b.nom || ''), 'fr');
+  });
+  retenues.forEach(function (m) { delete m._taille; delete m._moteur; });
+  return retenues;
+}
+// Les métiers de l'entrée 2, avec le pourcentage « de ressemblance avec vos choix » (jamais une note de la personne). Aucun choix : aucune proposition.
+// Le moteur de data/metiers.js donne les candidats et leurs explications ; le pourcentage affiché est recalculé ici (consigne 488) : plafond selon le nombre de choix, puis part des choix retrouvés.
 function cmlEntree2Metiers(choix, nombreMax) {
   if (cmlEntree2NombreChoix(choix) === 0) { return []; }
-  return _cmlSrc().rechercher(cmlEntree2Profil(choix), nombreMax || 5000);
+  var profil = cmlEntree2Profil(choix), src = _cmlSrc();
+  var candidats = src.rechercher(profil, 5000);
+  return cmlEntree2Reclasser(candidats, profil, src).slice(0, nombreMax || 5000);
+}
+
+/* ------------------------------------------------------------
+   « Comment vos choix ont été lus » (consigne 499, 21/11/2026) : ce que l'application a fait de chacun des choix, sans rien calculer de nouveau pour le classement.
+   Ces fonctions ne font que COMPTER avec les mêmes règles que le moteur (_cmlFlagsMetier, poids de rareté) : jamais un second calcul de pourcentage.
+   ------------------------------------------------------------ */
+// À quel point un choix aide à distinguer les métiers : 3 = beaucoup (porté par moins de 8 % des métiers), 2 = moyennement (moins de 25 %), 1 = un peu ; 0 = la base ne le reconnaît chez aucun métier.
+var CML_MOTS_AIDE = ['', 'un peu', 'moyennement', 'beaucoup'];
+function cmlNiveauAide(nb, total) {
+  if (!(nb > 0) || !(total > 0)) { return 0; }
+  var p = nb / total;
+  return p < 0.08 ? 3 : (p < 0.25 ? 2 : 1);
+}
+// Un choix est « peu présent » dans la liste quand moins d'un quart des métiers proposés le retrouvent (un choix que la base ne reconnaît chez aucun métier n'est pas concerné : il ne pèse sur personne).
+var CML_PART_CHOIX_PEU_PRESENT = 0.25;
+var _cmlMemoLus = { cle: '', nb: [], total: 0, flags: [] }, _cmlMemoLusListe = { cle: '', res: null };
+// Chemin 2. choix = { actions, activites, environnement } ; liste = les métiers affichés (déjà classés). Rend null s'il n'y a aucun choix.
+// { total (métiers de la base), liste (métiers affichés), lignes : [ { cat, item, nbMetiers (dans toute la base), dansListe (dans la liste affichée) } ], faibles : lignes peu présentes dans la liste }
+function cmlChoixLus2(choix, liste) {
+  var src = _cmlSrc(), corr = src.correspond;
+  if (!corr) { return null; }
+  var profil = cmlEntree2Profil(choix), choisis = _cmlListeChoisis(profil);
+  if (!choisis.length) { return null; }
+  var cle = JSON.stringify(profil), l = liste || [];
+  if (_cmlMemoLus.cle !== cle) {
+    var nb = choisis.map(function () { return 0; }), vus = {}, total = 0, tous = [];
+    src.base.forEach(function (m) {
+      var k = src.normaliser(m.nom);
+      if (vus[k]) { return; }
+      vus[k] = true; total++;
+      var fl = _cmlFlagsMetier(m, choisis, corr).flags;
+      tous.push(fl);
+      fl.forEach(function (ok, i) { if (ok) { nb[i]++; } });
+    });
+    _cmlMemoLus = { cle: cle, nb: nb, total: total, flags: tous };
+  }
+  var cleListe = cle + '|' + l.length + '|' + (l.length ? l[0].nom + '|' + l[l.length - 1].nom : '');
+  if (_cmlMemoLusListe.cle !== cleListe) {
+    var dans = choisis.map(function () { return 0; });
+    l.forEach(function (m) { _cmlFlagsMetier(m, choisis, corr).flags.forEach(function (ok, i) { if (ok) { dans[i]++; } }); });
+    _cmlMemoLusListe = { cle: cleListe, res: dans };
+  }
+  var dansListe = _cmlMemoLusListe.res;
+  var lignes = choisis.map(function (c, i) { return { cat: c.cat, item: c.item, nbMetiers: _cmlMemoLus.nb[i], dansListe: dansListe[i] }; });
+  var faibles = l.length ? lignes.filter(function (x) { return x.nbMetiers > 0 && x.dansListe / l.length < CML_PART_CHOIX_PEU_PRESENT; }) : [];
+  return { total: _cmlMemoLus.total, liste: l.length, lignes: lignes, faibles: faibles };
+}
+// Chemin 3. lettres = le code de la personne (résultat.lettresPourMetiers). { total, liste (métiers qui ont au moins une de ses lettres), lettres : [ { l, rang, nbMajeure } ] }
+// nbMajeure = nombre de métiers de la base dont la PREMIÈRE lettre est celle-ci.
+function cmlChoixLus3(lettres) {
+  var src = _cmlSrc(), vus = {}, total = 0, maj = {};
+  if (!lettres || !lettres.length) { return null; }
+  src.base.forEach(function (m) {
+    var k = src.normaliser(m.nom);
+    if (vus[k]) { return; }
+    vus[k] = true; total++;
+    var ri = src.lettresRome[m.rome];
+    if (ri) { maj[ri.charAt(0)] = (maj[ri.charAt(0)] || 0) + 1; }
+  });
+  var rangs = [];
+  for (var i = 0; i < lettres.length; i++) { rangs.push({ l: lettres[i], rang: i + 1, nbMajeure: maj[lettres[i]] || 0 }); }
+  return { total: total, liste: cmlMetiersPourLettres(lettres).length, lettres: rangs };
+}
+
+
+/* ------------------------------------------------------------
+   « Vos choix vont dans plusieurs directions » (consigne 501, 21/11/2026) : on COMPTE dans la base, sans liste de paires opposées.
+   Règle mesurée sur les profils du banc d'essai : à partir de 4 choix, si moins de 5 métiers retrouvent au moins 60 % des choix, le message paraît.
+   Constat sur la base, jamais sur la personne. Le choix à retirer est celui dont le retrait donne le plus de métiers (proposé seulement s'il en donne au moins 10).
+   ------------------------------------------------------------ */
+var CML_PART_COUVERTURE = 0.6, CML_MIN_METIERS_COUVERTURE = 5, CML_MIN_CHOIX_DIRECTIONS = 4;
+// flags = pour chaque métier de la base, un tableau « ce choix est retrouvé ou non » ; n = nombre de choix. Rend { n, declenche, nbCouverts, retirer : { index, nb } ou null }.
+function cmlDirectionsChoix(flags, n) {
+  var res = { n: n, declenche: false, nbCouverts: 0, retirer: null };
+  if (!(n >= CML_MIN_CHOIX_DIRECTIONS) || !flags || !flags.length) { return res; }
+  var compte = function (sauf) {
+    var idx = [], i;
+    for (i = 0; i < n; i++) { if (i !== sauf) { idx.push(i); } }
+    var mini = Math.ceil(CML_PART_COUVERTURE * idx.length - 1e-9), nb = 0;
+    flags.forEach(function (f) { var k = 0; idx.forEach(function (j) { if (f[j]) { k++; } }); if (k >= mini) { nb++; } });
+    return nb;
+  };
+  res.nbCouverts = compte(-1);
+  res.declenche = res.nbCouverts < CML_MIN_METIERS_COUVERTURE;
+  if (res.declenche) {
+    var meilleur = null, i;
+    for (i = 0; i < n; i++) { var nb = compte(i); if (!meilleur || nb > meilleur.nb) { meilleur = { index: i, nb: nb }; } }
+    if (meilleur && meilleur.nb >= 2 * CML_MIN_METIERS_COUVERTURE) { res.retirer = meilleur; }
+  }
+  return res;
+}
+// Chemin 2 : les mêmes « retrouvé / pas retrouvé » que le classement (_cmlFlagsMetier). Rend { cat, item } du choix à retirer dans retirer.choix.
+function cmlDirections2(choix) {
+  var lus = cmlChoixLus2(choix, []);
+  if (!lus) { return null; }
+  var profil = cmlEntree2Profil(choix), choisis = _cmlListeChoisis(profil);
+  var res = cmlDirectionsChoix(_cmlMemoLus.flags, choisis.length);
+  if (res.retirer) { res.retirer.choix = choisis[res.retirer.index]; }
+  return res;
+}
+
+/* ------------------------------------------------------------
+   « À éviter » (consigne 502, 21/11/2026, maquette validée par Denis) : un métier qui porte un choix évité voit son pourcentage DIVISÉ PAR DEUX par choix évité retrouvé,
+   et le dit (À vérifier). Jamais d'exclusion en silence : la liste garde tous les métiers, le bouton « Masquer » est un geste de la personne.
+   Les choix évités n'entrent pas dans le moteur (ni le plafond, ni la part des choix) : l'effet s'applique après, comme pour les conditions de travail.
+   ------------------------------------------------------------ */
+var CML_MAX_EVITER = 12;
+// evites = [ { cat, item } ] ; liste = métiers classés. Rend une copie classée par pourcentage décroissant (à égalité, l'ordre d'origine) ; chaque métier porte evitesPortes ([ { cat, item } ])
+// et, quand il en porte, scoreAvantEvites (le pourcentage d'avant). Sans choix évité, la liste est rendue telle quelle.
+function cmlAppliquerEvites(liste, evites) {
+  var src = _cmlSrc(), corr = src.correspond;
+  if (!corr || !evites || !evites.length) { return liste; }
+  var res = liste.map(function (m, rang) {
+    var f = _cmlFlagsMetier(m, evites, corr).flags, portes = [];
+    f.forEach(function (ok, i) { if (ok) { portes.push(evites[i]); } });
+    var copie = {};
+    Object.keys(m).forEach(function (k) { copie[k] = m[k]; });
+    copie.evitesPortes = portes;
+    if (portes.length) {
+      copie.scoreAvantEvites = m.score;
+      var apres = Math.round((m.score || 0) * Math.pow(0.5, portes.length));
+      copie.score = (m.score || 0) > 0 ? Math.max(1, apres) : 0;
+    }
+    copie._rang = rang;
+    return copie;
+  });
+  res.sort(function (a, b) { return (b.score - a.score) || (a._rang - b._rang); });
+  res.forEach(function (m) { delete m._rang; });
+  return res;
+}
+
+// ---------------- Cartes enrichies (consigne 509, règle ajustée le 21/11/2026 sur la feuille de Denis) ----------------
+// Ce que fait le métier (compétences du ROME) et à savoir sur ce métier (conditions de travail) : UNE règle pour les cartes des trois chemins.
+//  - compétences : data/competencesRome.js, champ « cartes » (6 phrases par code, calculées à la génération : activités du code pondérées par la rareté de la phrase) ;
+//  - conditions : sans les statuts d'emploi (indépendant, intérim, fonction publique, alternance), les plus RARES d'abord (ce sont elles qui distinguent un métier d'un autre), égalité : ordre du ROME.
+// Seulement affichées : jamais demandées, jamais comptées dans un score.
+var CML_STATUTS_CARTE = ['s_independant', 's_interim', 's_public', 's_alternance'];
+var CML_NB_COMPETENCES_CARTE = 3, CML_NB_CONDITIONS_CARTE = 3;
+var _cmlFreqCond = null, _cmlFreqCondSource = null;
+function _cmlFrequenceConditions(K) {
+  if (_cmlFreqCond && _cmlFreqCondSource === K) { return _cmlFreqCond; }
+  var f = {};
+  Object.keys(K.parCode).forEach(function (c) { K.parCode[c].forEach(function (id) { f[id] = (f[id] || 0) + 1; }); });
+  _cmlFreqCond = f; _cmlFreqCondSource = K;
+  return f;
+}
+// Toutes les conditions d'un code (sans les statuts), les plus rares d'abord : [{ id, lib }].
+function cmlConditionsCarte(code, K) {
+  if (!K || !code || !K.parCode || !K.parCode[code]) { return []; }
+  var f = _cmlFrequenceConditions(K);
+  return K.parCode[code].filter(function (id) { return CML_STATUTS_CARTE.indexOf(id) === -1 && K.libelles[id]; })
+    .sort(function (a, b) { return (f[a] - f[b]) || (K.ordre.indexOf(a) - K.ordre.indexOf(b)); })
+    .map(function (id) { return { id: id, lib: K.libelles[id] }; });
+}
+// Les phrases des cartes pour un code (jusqu'à 6, la plus représentative d'abord) ; [] si le fichier n'est pas chargé ou si le code est inconnu.
+function cmlCompetencesCarte(code, CP) {
+  if (!CP || !CP.cartes || !code || !CP.cartes[code]) { return []; }
+  return CP.cartes[code].map(function (i) { return CP.phrases[i]; }).filter(function (x) { return !!x; });
+}
+// Tout ce que la carte montre pour un code : { competences, resteCompetences, conditions, resteConditions }. « reste » = ce qui est dans la fiche du métier sans être sur la carte.
+function cmlResumeMetier(code, K, CP, nbCompetences, nbConditions) {
+  var nc = nbCompetences === undefined ? CML_NB_COMPETENCES_CARTE : nbCompetences, nd = nbConditions === undefined ? CML_NB_CONDITIONS_CARTE : nbConditions;
+  var comp = cmlCompetencesCarte(code, CP), conds = cmlConditionsCarte(code, K);
+  var totalComp = (CP && CP.parCode && CP.parCode[code]) ? CP.parCode[code].length : 0, vues = comp.slice(0, nc);
+  return { competences: vues, resteCompetences: vues.length ? Math.max(0, totalComp - vues.length) : 0, conditions: conds.slice(0, nd), resteConditions: Math.max(0, conds.length - nd) };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -416,6 +744,13 @@ if (typeof module !== 'undefined' && module.exports) {
     cmlLibelleNiveauAcces: cmlLibelleNiveauAcces, cmlGroupeNiveau: cmlGroupeNiveau, cmlGrouperParNiveau: cmlGrouperParNiveau, cmlNiveauDeMetier: cmlNiveauDeMetier,
     cmlIndiceLettres: cmlIndiceLettres, cmlMetiersPourLettres: cmlMetiersPourLettres,
     CML_MAX_CHOIX: CML_MAX_CHOIX, CML_SEUIL_CHOIX_VARIES: CML_SEUIL_CHOIX_VARIES, CML_REGLAGES_ENTREE_2: CML_REGLAGES_ENTREE_2,
-    cmlEntree2NombreChoix: cmlEntree2NombreChoix, cmlEntree2ChoixVaries: cmlEntree2ChoixVaries, cmlEntree2Profil: cmlEntree2Profil, cmlEntree2Metiers: cmlEntree2Metiers
+    cmlEntree2NombreChoix: cmlEntree2NombreChoix, cmlEntree2ChoixVaries: cmlEntree2ChoixVaries, cmlEntree2Profil: cmlEntree2Profil, cmlEntree2Metiers: cmlEntree2Metiers, cmlPlafondChoix: cmlPlafondChoix, cmlChoixMinimum: cmlChoixMinimum, CML_MINI_CHOIX_PLAFOND: CML_MINI_CHOIX_PLAFOND, CML_PLAFOND_PAR_NB_CHOIX: CML_PLAFOND_PAR_NB_CHOIX,
+    CML_MIN_CHOIX_PISTES: CML_MIN_CHOIX_PISTES, CML_BORNES_NIVEAUX: CML_BORNES_NIVEAUX, CML_NIVEAU_PROPOSITION: CML_NIVEAU_PROPOSITION, CML_MAX_EGALITES_VEDETTE: CML_MAX_EGALITES_VEDETTE, CML_NIVEAUX_PISTES: CML_NIVEAUX_PISTES, CML_BORNES_NIVEAUX_Q: CML_BORNES_NIVEAUX_Q, cmlNiveauQuestionnaire: cmlNiveauQuestionnaire, cmlInfoNiveauQuestionnaire: cmlInfoNiveauQuestionnaire,
+    cmlNiveauPistes: cmlNiveauPistes, cmlInfoNiveauPistes: cmlInfoNiveauPistes, cmlEgalitesEnTete: cmlEgalitesEnTete, cmlVedetteAutorisee: cmlVedetteAutorisee,
+    CML_MOTS_AIDE: CML_MOTS_AIDE, cmlNiveauAide: cmlNiveauAide, CML_PART_CHOIX_PEU_PRESENT: CML_PART_CHOIX_PEU_PRESENT, cmlChoixLus2: cmlChoixLus2, cmlChoixLus3: cmlChoixLus3,
+    cmlDirectionsChoix: cmlDirectionsChoix, cmlDirections2: cmlDirections2, CML_PART_COUVERTURE: CML_PART_COUVERTURE, CML_MIN_METIERS_COUVERTURE: CML_MIN_METIERS_COUVERTURE, CML_MIN_CHOIX_DIRECTIONS: CML_MIN_CHOIX_DIRECTIONS,
+    CML_MAX_EVITER: CML_MAX_EVITER, cmlAppliquerEvites: cmlAppliquerEvites,
+    CML_STATUTS_CARTE: CML_STATUTS_CARTE, CML_NB_COMPETENCES_CARTE: CML_NB_COMPETENCES_CARTE, CML_NB_CONDITIONS_CARTE: CML_NB_CONDITIONS_CARTE,
+    cmlConditionsCarte: cmlConditionsCarte, cmlCompetencesCarte: cmlCompetencesCarte, cmlResumeMetier: cmlResumeMetier
   };
 }

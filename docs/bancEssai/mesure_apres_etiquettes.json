@@ -1,0 +1,1584 @@
+{
+ "version": 1,
+ "agregats": {
+  "c2_unChoix_rappel10": 0.122,
+  "c2_unChoix_rappel50": 0.406,
+  "c2_unChoix_egalitesMediane": 139,
+  "c2_unChoix_scoreMax": 25,
+  "c2_personas_coherence5": 0.857,
+  "c2_personas_coherence10": 0.807,
+  "c2_stabilite_ajoutGeneral": 0.879,
+  "c2_stabilite_opposes": 0,
+  "c2_deterministe": 1,
+  "c2_retrouvaille_rappel10": 0.85,
+  "c2_retrouvaille_rappel50": 1,
+  "c3_egalitesMediane": 35,
+  "c3_coherence10": 1,
+  "c1_retrouvaille_rappel10": 1,
+  "c1_retrouvaille_rappel50": 1
+ },
+ "chemin2": {
+  "unChoix": {
+   "lignes": [
+    {
+     "id": "clients",
+     "label": "Des clients",
+     "nbMetiers": 792,
+     "egalitesEnTete": 792,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "collegues",
+     "label": "Des collègues",
+     "nbMetiers": 792,
+     "egalitesEnTete": 792,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "enfants",
+     "label": "Des enfants",
+     "nbMetiers": 93,
+     "egalitesEnTete": 93,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "personnes_agees",
+     "label": "Des personnes âgées",
+     "nbMetiers": 41,
+     "egalitesEnTete": 41,
+     "exemples": 2,
+     "dans10": 2,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "patients",
+     "label": "Des patients",
+     "nbMetiers": 133,
+     "egalitesEnTete": 133,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "eleves_etudiants",
+     "label": "Des élèves / étudiants",
+     "nbMetiers": 57,
+     "egalitesEnTete": 57,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "adolescents",
+     "label": "Des adolescents",
+     "nbMetiers": 43,
+     "egalitesEnTete": 43,
+     "exemples": 4,
+     "dans10": 0,
+     "dans50": 4,
+     "meilleurScore": 25
+    },
+    {
+     "id": "personnes_handicap",
+     "label": "Des personnes en situation de handicap",
+     "nbMetiers": 63,
+     "egalitesEnTete": 63,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "personnes_en_difficulte",
+     "label": "Des personnes en difficulté",
+     "nbMetiers": 79,
+     "egalitesEnTete": 79,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "familles",
+     "label": "Des familles",
+     "nbMetiers": 111,
+     "egalitesEnTete": 111,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "salaries_professionnels",
+     "label": "Des salariés ou professionnels à accompagner",
+     "nbMetiers": 166,
+     "egalitesEnTete": 166,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "partenaires_fournisseurs",
+     "label": "Des partenaires, des fournisseurs",
+     "nbMetiers": 422,
+     "egalitesEnTete": 422,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "sportifs",
+     "label": "Des sportifs",
+     "nbMetiers": 30,
+     "egalitesEnTete": 30,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "usagers_public",
+     "label": "Un public varié (usagers, voyageurs)",
+     "nbMetiers": 484,
+     "egalitesEnTete": 484,
+     "exemples": 4,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "machines",
+     "label": "Des machines",
+     "nbMetiers": 784,
+     "egalitesEnTete": 784,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "ordinateur",
+     "label": "Un ordinateur",
+     "nbMetiers": 635,
+     "egalitesEnTete": 635,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "documents",
+     "label": "Des documents",
+     "nbMetiers": 862,
+     "egalitesEnTete": 862,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "marchandises",
+     "label": "Des marchandises",
+     "nbMetiers": 193,
+     "egalitesEnTete": 193,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "vehicules",
+     "label": "Des véhicules",
+     "nbMetiers": 281,
+     "egalitesEnTete": 281,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "outils",
+     "label": "Des outils",
+     "nbMetiers": 679,
+     "egalitesEnTete": 679,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "appareils_numeriques",
+     "label": "Des appareils numériques",
+     "nbMetiers": 362,
+     "egalitesEnTete": 362,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "produits",
+     "label": "Des produits à vendre ou à stocker",
+     "nbMetiers": 388,
+     "egalitesEnTete": 388,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "materiaux",
+     "label": "Des matériaux (bois, métal, béton...)",
+     "nbMetiers": 320,
+     "egalitesEnTete": 320,
+     "exemples": 5,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "tissus_vetements",
+     "label": "Des tissus, des vêtements",
+     "nbMetiers": 95,
+     "egalitesEnTete": 95,
+     "exemples": 11,
+     "dans10": 1,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "aliments",
+     "label": "Des aliments, des denrées",
+     "nbMetiers": 118,
+     "egalitesEnTete": 118,
+     "exemples": 6,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "instruments_objets_art",
+     "label": "Des instruments, des objets d'art",
+     "nbMetiers": 127,
+     "egalitesEnTete": 127,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "vegetaux",
+     "label": "Des plantes, des végétaux",
+     "nbMetiers": 77,
+     "egalitesEnTete": 77,
+     "exemples": 5,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "produits_dangereux",
+     "label": "Des produits chimiques ou dangereux",
+     "nbMetiers": 388,
+     "egalitesEnTete": 388,
+     "exemples": 6,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "installations_electriques",
+     "label": "Des installations électriques",
+     "nbMetiers": 213,
+     "egalitesEnTete": 213,
+     "exemples": 5,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "animaux_compagnie",
+     "label": "Des animaux de compagnie",
+     "nbMetiers": 33,
+     "egalitesEnTete": 33,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "chevaux",
+     "label": "Des chevaux",
+     "nbMetiers": 16,
+     "egalitesEnTete": 16,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "elevage_ferme",
+     "label": "Des animaux d'élevage / de ferme",
+     "nbMetiers": 33,
+     "egalitesEnTete": 33,
+     "exemples": 0,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "abeilles",
+     "label": "Des abeilles",
+     "nbMetiers": 1,
+     "egalitesEnTete": 1,
+     "exemples": 1,
+     "dans10": 1,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "soins_veterinaires",
+     "label": "Des soins vétérinaires",
+     "nbMetiers": 25,
+     "egalitesEnTete": 25,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "organiser",
+     "label": "Organiser, planifier",
+     "nbMetiers": 776,
+     "egalitesEnTete": 776,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "gerer",
+     "label": "Gérer",
+     "nbMetiers": 624,
+     "egalitesEnTete": 624,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "controler",
+     "label": "Contrôler, diagnostiquer",
+     "nbMetiers": 842,
+     "egalitesEnTete": 842,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "analyser",
+     "label": "Analyser",
+     "nbMetiers": 615,
+     "egalitesEnTete": 615,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "negocier",
+     "label": "Négocier",
+     "nbMetiers": 261,
+     "egalitesEnTete": 261,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "calculer",
+     "label": "Calculer",
+     "nbMetiers": 91,
+     "egalitesEnTete": 91,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "classer",
+     "label": "Classer, archiver",
+     "nbMetiers": 52,
+     "egalitesEnTete": 52,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "saisir",
+     "label": "Saisir",
+     "nbMetiers": 55,
+     "egalitesEnTete": 55,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "communiquer_ecrit",
+     "label": "Communiquer par écrit",
+     "nbMetiers": 179,
+     "egalitesEnTete": 179,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "gerer_stocks_acheter",
+     "label": "Gérer des stocks, acheter",
+     "nbMetiers": 624,
+     "egalitesEnTete": 624,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "piloter_projet",
+     "label": "Piloter un projet ou un chantier",
+     "nbMetiers": 305,
+     "egalitesEnTete": 305,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "appliquer_consignes_securite",
+     "label": "Appliquer les règles de sécurité",
+     "nbMetiers": 235,
+     "egalitesEnTete": 235,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "encadrer_animer",
+     "label": "Encadrer ou animer un groupe",
+     "nbMetiers": 440,
+     "egalitesEnTete": 440,
+     "exemples": 4,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "organiser_evenement",
+     "label": "Organiser un événement, communiquer",
+     "nbMetiers": 776,
+     "egalitesEnTete": 776,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "conseiller",
+     "label": "Conseiller",
+     "nbMetiers": 509,
+     "egalitesEnTete": 509,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "accompagner",
+     "label": "Accompagner, aider",
+     "nbMetiers": 221,
+     "egalitesEnTete": 221,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "vendre",
+     "label": "Vendre",
+     "nbMetiers": 420,
+     "egalitesEnTete": 420,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "former",
+     "label": "Former",
+     "nbMetiers": 144,
+     "egalitesEnTete": 144,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "soigner",
+     "label": "Soigner",
+     "nbMetiers": 201,
+     "egalitesEnTete": 201,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "accueillir",
+     "label": "Accueillir",
+     "nbMetiers": 189,
+     "egalitesEnTete": 189,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "informer",
+     "label": "Informer",
+     "nbMetiers": 350,
+     "egalitesEnTete": 350,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "expliquer_presenter",
+     "label": "Expliquer, présenter à l'oral",
+     "nbMetiers": 115,
+     "egalitesEnTete": 115,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "encaisser",
+     "label": "Encaisser, tenir une caisse",
+     "nbMetiers": 44,
+     "egalitesEnTete": 44,
+     "exemples": 5,
+     "dans10": 2,
+     "dans50": 5,
+     "meilleurScore": 25
+    },
+    {
+     "id": "construire",
+     "label": "Construire",
+     "nbMetiers": 124,
+     "egalitesEnTete": 124,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "fabriquer",
+     "label": "Fabriquer",
+     "nbMetiers": 138,
+     "egalitesEnTete": 138,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "monter",
+     "label": "Monter",
+     "nbMetiers": 102,
+     "egalitesEnTete": 102,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "decouper",
+     "label": "Découper",
+     "nbMetiers": 67,
+     "egalitesEnTete": 67,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "installer",
+     "label": "Installer",
+     "nbMetiers": 163,
+     "egalitesEnTete": 163,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "amenager_espace",
+     "label": "Aménager un espace",
+     "nbMetiers": 93,
+     "egalitesEnTete": 93,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "utiliser_machines_outils",
+     "label": "Utiliser des machines, des outils",
+     "nbMetiers": 268,
+     "egalitesEnTete": 268,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "cuisiner",
+     "label": "Cuisiner",
+     "nbMetiers": 46,
+     "egalitesEnTete": 46,
+     "exemples": 3,
+     "dans10": 2,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "servir",
+     "label": "Servir à table ou au comptoir",
+     "nbMetiers": 14,
+     "egalitesEnTete": 14,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "preparer_boissons",
+     "label": "Préparer des boissons",
+     "nbMetiers": 3,
+     "egalitesEnTete": 3,
+     "exemples": 1,
+     "dans10": 1,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "reparer",
+     "label": "Réparer",
+     "nbMetiers": 180,
+     "egalitesEnTete": 180,
+     "exemples": 2,
+     "dans10": 2,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "entretenir_maintenir",
+     "label": "Entretenir, maintenir",
+     "nbMetiers": 300,
+     "egalitesEnTete": 300,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "nettoyer",
+     "label": "Nettoyer",
+     "nbMetiers": 95,
+     "egalitesEnTete": 95,
+     "exemples": 2,
+     "dans10": 2,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "trier_environnement",
+     "label": "Trier, protéger l'environnement",
+     "nbMetiers": 29,
+     "egalitesEnTete": 29,
+     "exemples": 4,
+     "dans10": 1,
+     "dans50": 4,
+     "meilleurScore": 25
+    },
+    {
+     "id": "cultiver_entretenir_plantes",
+     "label": "Cultiver, entretenir des plantes",
+     "nbMetiers": 50,
+     "egalitesEnTete": 50,
+     "exemples": 4,
+     "dans10": 1,
+     "dans50": 4,
+     "meilleurScore": 25
+    },
+    {
+     "id": "transporter",
+     "label": "Transporter",
+     "nbMetiers": 110,
+     "egalitesEnTete": 110,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "conduire",
+     "label": "Conduire / Piloter",
+     "nbMetiers": 140,
+     "egalitesEnTete": 140,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "livrer",
+     "label": "Livrer",
+     "nbMetiers": 120,
+     "egalitesEnTete": 120,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "preparer_commandes",
+     "label": "Préparer des commandes",
+     "nbMetiers": 139,
+     "egalitesEnTete": 139,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "manutentionner_emballer",
+     "label": "Manutentionner, emballer",
+     "nbMetiers": 115,
+     "egalitesEnTete": 115,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "surveiller_securiser",
+     "label": "Surveiller, sécuriser",
+     "nbMetiers": 237,
+     "egalitesEnTete": 237,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "reagir_urgence",
+     "label": "Réagir à un imprévu, une urgence",
+     "nbMetiers": 81,
+     "egalitesEnTete": 81,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "manipuler_produits",
+     "label": "Manipuler, préparer des produits",
+     "nbMetiers": 254,
+     "egalitesEnTete": 254,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "rechercher_tester",
+     "label": "Rechercher, tester",
+     "nbMetiers": 148,
+     "egalitesEnTete": 148,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "programmer",
+     "label": "Programmer",
+     "nbMetiers": 121,
+     "egalitesEnTete": 121,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "creer",
+     "label": "Créer",
+     "nbMetiers": 242,
+     "egalitesEnTete": 242,
+     "exemples": 0,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "rediger",
+     "label": "Rédiger",
+     "nbMetiers": 301,
+     "egalitesEnTete": 301,
+     "exemples": 0,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "imaginer",
+     "label": "Imaginer",
+     "nbMetiers": 50,
+     "egalitesEnTete": 50,
+     "exemples": 0,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "dessiner",
+     "label": "Dessiner, photographier",
+     "nbMetiers": 85,
+     "egalitesEnTete": 85,
+     "exemples": 0,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "concevoir",
+     "label": "Concevoir",
+     "nbMetiers": 244,
+     "egalitesEnTete": 244,
+     "exemples": 4,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "bureau",
+     "label": "Bureau",
+     "nbMetiers": 655,
+     "egalitesEnTete": 655,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "usine",
+     "label": "Usine / Atelier / Site industriel",
+     "nbMetiers": 570,
+     "egalitesEnTete": 570,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "magasin",
+     "label": "Magasin / Commerce",
+     "nbMetiers": 166,
+     "egalitesEnTete": 166,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "sante",
+     "label": "Établissement de santé",
+     "nbMetiers": 140,
+     "egalitesEnTete": 140,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "ecole_formation",
+     "label": "École / Centre de formation",
+     "nbMetiers": 81,
+     "egalitesEnTete": 81,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "cuisine",
+     "label": "Restaurant / Cuisine",
+     "nbMetiers": 50,
+     "egalitesEnTete": 50,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "hotel",
+     "label": "Hôtel",
+     "nbMetiers": 50,
+     "egalitesEnTete": 50,
+     "exemples": 2,
+     "dans10": 2,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "administration",
+     "label": "Administration / Collectivité",
+     "nbMetiers": 322,
+     "egalitesEnTete": 322,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "laboratoire",
+     "label": "Laboratoire",
+     "nbMetiers": 168,
+     "egalitesEnTete": 168,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "association",
+     "label": "Association",
+     "nbMetiers": 161,
+     "egalitesEnTete": 161,
+     "exemples": 3,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "cabinet_pharmacie",
+     "label": "Cabinet médical / Pharmacie",
+     "nbMetiers": 56,
+     "egalitesEnTete": 56,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "medias_studio",
+     "label": "Studio / Médias / Édition",
+     "nbMetiers": 126,
+     "egalitesEnTete": 126,
+     "exemples": 4,
+     "dans10": 0,
+     "dans50": 3,
+     "meilleurScore": 25
+    },
+    {
+     "id": "social_creche",
+     "label": "Établissement social, médico-social ou crèche",
+     "nbMetiers": 60,
+     "egalitesEnTete": 60,
+     "exemples": 4,
+     "dans10": 1,
+     "dans50": 4,
+     "meilleurScore": 25
+    },
+    {
+     "id": "securite_penitentiaire",
+     "label": "Sécurité / Établissement pénitentiaire",
+     "nbMetiers": 64,
+     "egalitesEnTete": 64,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "centre_appels",
+     "label": "Centre d'appels",
+     "nbMetiers": 30,
+     "egalitesEnTete": 30,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "domicile",
+     "label": "Au domicile des particuliers",
+     "nbMetiers": 322,
+     "egalitesEnTete": 322,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "teletravail_domicile",
+     "label": "À votre domicile (télétravail)",
+     "nbMetiers": 322,
+     "egalitesEnTete": 322,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "exterieur",
+     "label": "Extérieur / Chantier",
+     "nbMetiers": 545,
+     "egalitesEnTete": 545,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "exploitation_agricole",
+     "label": "Exploitation agricole",
+     "nbMetiers": 86,
+     "egalitesEnTete": 86,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "espaces_verts",
+     "label": "Espaces verts / Nature",
+     "nbMetiers": 46,
+     "egalitesEnTete": 46,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "evenementiel",
+     "label": "Salle de spectacle / Événementiel",
+     "nbMetiers": 189,
+     "egalitesEnTete": 189,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 1,
+     "meilleurScore": 25
+    },
+    {
+     "id": "salle_sport",
+     "label": "Salle de sport / Loisirs",
+     "nbMetiers": 48,
+     "egalitesEnTete": 48,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "aeroport_gare",
+     "label": "Aéroport / Gare",
+     "nbMetiers": 61,
+     "egalitesEnTete": 61,
+     "exemples": 1,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "port",
+     "label": "Port / Zone portuaire",
+     "nbMetiers": 95,
+     "egalitesEnTete": 95,
+     "exemples": 2,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    },
+    {
+     "id": "route",
+     "label": "Route / Transport",
+     "nbMetiers": 86,
+     "egalitesEnTete": 86,
+     "exemples": 2,
+     "dans10": 1,
+     "dans50": 2,
+     "meilleurScore": 25
+    },
+    {
+     "id": "entrepot_logistique",
+     "label": "Entrepôt / Plateforme logistique",
+     "nbMetiers": 75,
+     "egalitesEnTete": 75,
+     "exemples": 3,
+     "dans10": 0,
+     "dans50": 0,
+     "meilleurScore": 25
+    }
+   ],
+   "nbChoix": 113,
+   "rappel10": 0.122,
+   "rappel50": 0.406,
+   "egalitesMediane": 139,
+   "nbMetiersMediane": 139,
+   "scoreMaxObserve": 25
+  },
+  "personas": {
+   "lignes": [
+    {
+     "titre": "Animaux et nature",
+     "nbMetiers": 37,
+     "meilleurScore": 55,
+     "coherence5": 0.8,
+     "coherence10": 0.8,
+     "top5": [
+      "Chargé d'étude naturaliste (Agriculture, nature et espaces verts, 55 %)",
+      "Technicien naturaliste (Agriculture, nature et espaces verts, 55 %)",
+      "Ingénieur écologue (Agriculture, nature et espaces verts, 55 %)",
+      "Chercheur des écosystèmes (Éducation et formation, 36 %)",
+      "Chargé de conservation ex-situ (Agriculture, nature et espaces verts, 36 %)"
+     ]
+    },
+    {
+     "titre": "Cuisine et service",
+     "nbMetiers": 79,
+     "meilleurScore": 75,
+     "coherence5": 0.8,
+     "coherence10": 0.9,
+     "top5": [
+      "Crêpier (Hôtellerie, restauration et tourisme, 75 %)",
+      "Employé de restauration collective (Hôtellerie, restauration et tourisme, 71 %)",
+      "Employé polyvalent de restauration / Aide de cuisine (Hôtellerie, restauration et tourisme, 62 %)",
+      "Steward yachting polyvalent (Transport et logistique, 58 %)",
+      "Chef de rang (Hôtellerie, restauration et tourisme, 58 %)"
+     ]
+    },
+    {
+     "titre": "Aide aux personnes âgées",
+     "nbMetiers": 144,
+     "meilleurScore": 65,
+     "coherence5": 1,
+     "coherence10": 0.8,
+     "top5": [
+      "Gérontologue (Santé et soins, 65 %)",
+      "Assistant de vie aux familles (ADVF) (Social et services à la personne, 65 %)",
+      "Technicien d'Intervention Sociale et Familiale (TISF) (Social et services à la personne, 65 %)",
+      "Physiothérapeute (Santé et soins, 65 %)",
+      "Employé de ménage à domicile (Social et services à la personne, 65 %)"
+     ]
+    },
+    {
+     "titre": "Petite enfance et école",
+     "nbMetiers": 149,
+     "meilleurScore": 62,
+     "coherence5": 0.8,
+     "coherence10": 0.9,
+     "top5": [
+      "Graphothérapeute (Social et services à la personne, 62 %)",
+      "Éducateur spécialisé (Social et services à la personne, 59 %)",
+      "Enseignant en activité physique adaptée (EAPA) (Santé et soins, 59 %)",
+      "Assistant pédagogique en milieu scolaire (Éducation et formation, 57 %)",
+      "Professeur de collège et de lycée (Éducation et formation, 57 %)"
+     ]
+    },
+    {
+     "titre": "Bâtiment",
+     "nbMetiers": 171,
+     "meilleurScore": 82,
+     "coherence5": 1,
+     "coherence10": 0.8,
+     "top5": [
+      "Coffreur (Bâtiment et travaux publics, 82 %)",
+      "Monteur en structures métalliques (Bâtiment et travaux publics, 82 %)",
+      "Maçon-fumiste (Bâtiment et travaux publics, 82 %)",
+      "Maçon (Bâtiment et travaux publics, 75 %)",
+      "Couvreur (Bâtiment et travaux publics, 75 %)"
+     ]
+    },
+    {
+     "titre": "Logistique",
+     "nbMetiers": 68,
+     "meilleurScore": 68,
+     "coherence5": 0.8,
+     "coherence10": 0.6,
+     "top5": [
+      "Approvisionneur points de distribution (Administration, gestion et bureau, 68 %)",
+      "Agent d'exploitation en transport routier de marchandises (Transport et logistique, 68 %)",
+      "Opérateur logistique (Transport et logistique, 67 %)",
+      "Chauffeur-livreur préparateur de commandes (Transport et logistique, 67 %)",
+      "Aide-livreur (Transport et logistique, 67 %)"
+     ]
+    },
+    {
+     "titre": "Vente en magasin",
+     "nbMetiers": 504,
+     "meilleurScore": 75,
+     "coherence5": 1,
+     "coherence10": 1,
+     "top5": [
+      "Vendeur d'articles de sport et loisirs (Commerce et vente, 75 %)",
+      "Vendeur en accessoires de la personne (Commerce et vente, 75 %)",
+      "Hôte de caisse (Commerce et vente, 75 %)",
+      "Vendeur en articles de puériculture (Commerce et vente, 75 %)",
+      "Vendeur en articles de papeterie et loisirs créatifs (Commerce et vente, 75 %)"
+     ]
+    },
+    {
+     "titre": "Bureau et gestion",
+     "nbMetiers": 292,
+     "meilleurScore": 82,
+     "coherence5": 0.8,
+     "coherence10": 0.8,
+     "top5": [
+      "Assistant administratif multilingue (Administration, gestion et bureau, 82 %)",
+      "Assistant commercial (Commerce et vente, 82 %)",
+      "Agent administratif banque ou assurance (Banque, assurance et immobilier, 82 %)",
+      "Opérateur de saisie (Administration, gestion et bureau, 82 %)",
+      "Assistant ressources humaines (Administration, gestion et bureau, 82 %)"
+     ]
+    },
+    {
+     "titre": "Mécanique",
+     "nbMetiers": 709,
+     "meilleurScore": 75,
+     "coherence5": 0.8,
+     "coherence10": 0.9,
+     "top5": [
+      "Matelot machine de la marine marchande (Transport et logistique, 75 %)",
+      "Préparateur en tôlerie automobile (Mécanique et automobile, 67 %)",
+      "Débosseleur sans peinture (Mécanique et automobile, 67 %)",
+      "Technicien de réparation et pose de vitrage des véhicules (Mécanique et automobile, 67 %)",
+      "Mécanicien-réparateur d'engins de levage et de manutention (Mécanique et automobile, 57 %)"
+     ]
+    },
+    {
+     "titre": "Nettoyage et entretien",
+     "nbMetiers": 76,
+     "meilleurScore": 55,
+     "coherence5": 0.6,
+     "coherence10": 0.4,
+     "top5": [
+      "Technicien hygiéniste (Propreté et gestion des déchets, 55 %)",
+      "Agent de propreté de locaux (Propreté et gestion des déchets, 55 %)",
+      "Agent d'entretien des piscines (Bâtiment et travaux publics, 55 %)",
+      "Nettoyeur en cuir et peausserie (Commerce et vente, 55 %)",
+      "Agent de propreté urbaine (Propreté et gestion des déchets, 55 %)"
+     ]
+    },
+    {
+     "titre": "Informatique",
+     "nbMetiers": 231,
+     "meilleurScore": 65,
+     "coherence5": 1,
+     "coherence10": 0.8,
+     "top5": [
+      "Développeur blockchain (Informatique et numérique, 65 %)",
+      "Développeur - jeux vidéo (Informatique et numérique, 65 %)",
+      "Spécialiste en modélisation climatique (Informatique et numérique, 65 %)",
+      "Ingénieur en informatique embarquée (Informatique et numérique, 65 %)",
+      "Spécialiste test et validation logiciel ou application (Informatique et numérique, 65 %)"
+     ]
+    },
+    {
+     "titre": "Sécurité",
+     "nbMetiers": 65,
+     "meilleurScore": 55,
+     "coherence5": 1,
+     "coherence10": 1,
+     "top5": [
+      "Combattant des forces spéciales militaires (Sécurité, 55 %)",
+      "Gardien de compagnie républicaine de sécurité (CRS) (Sécurité, 55 %)",
+      "Opérateur en télésurveillance (Sécurité, 55 %)",
+      "Spécialiste de la protection des forces, installations ou matériels sensibles de l'État (Sécurité, 55 %)",
+      "Agent cynophile de sécurité (Sécurité, 55 %)"
+     ]
+    },
+    {
+     "titre": "Sport et animation",
+     "nbMetiers": 30,
+     "meilleurScore": 55,
+     "coherence5": 1,
+     "coherence10": 0.8,
+     "top5": [
+      "Préparateur physique (Sport, animation et loisirs, 55 %)",
+      "Directeur sportif (Sport, animation et loisirs, 55 %)",
+      "Arbitre professionnel discipline sportive (Sport, animation et loisirs, 55 %)",
+      "Animateur de loisirs sportifs (Sport, animation et loisirs, 55 %)",
+      "Entraîneur de sport professionnel et de haut niveau (Sport, animation et loisirs, 55 %)"
+     ]
+    },
+    {
+     "titre": "Création",
+     "nbMetiers": 148,
+     "meilleurScore": 65,
+     "coherence5": 0.6,
+     "coherence10": 0.8,
+     "top5": [
+      "Concepteur de contenus multimedia (Communication, culture et événementiel, 65 %)",
+      "Architecte multimédias interactifs (Informatique et numérique, 65 %)",
+      "Chef décorateur spectacle (Communication, culture et événementiel, 65 %)",
+      "Dessinateur-illustrateur (Communication, culture et événementiel, 65 %)",
+      "Roughman en design (Industrie, production et énergie, 65 %)"
+     ]
+    }
+   ],
+   "coherence5Moyenne": 0.857,
+   "coherence10Moyenne": 0.807
+  },
+  "difficiles": [
+   {
+    "titre": "Contradictoire : bureau et extérieur, programmer et soigner",
+    "nbMetiers": 217,
+    "meilleurScore": 45,
+    "top3": [
+     "Technicien d'installation de centrales téléphoniques (45 %)",
+     "Technicien Datacenter (45 %)",
+     "Cadre de santé d'unité de soins ou de service paramédical (44 %)"
+    ]
+   },
+   {
+    "titre": "Contradictoire : animaux, bureau, usine",
+    "nbMetiers": 87,
+    "meilleurScore": 45,
+    "top3": [
+     "Technicien en ostéologie-moulage (45 %)",
+     "Taxidermiste (45 %)",
+     "Opérateur de transformation des viandes (45 %)"
+    ]
+   },
+   {
+    "titre": "Très général : clients et collègues",
+    "nbMetiers": 1322,
+    "meilleurScore": 40,
+    "top3": [
+     "Chef de reception (40 %)",
+     "Concierge d'hôtel (40 %)",
+     "Directeur commercial (40 %)"
+    ]
+   },
+   {
+    "titre": "Très général : bureau seul",
+    "nbMetiers": 655,
+    "meilleurScore": 25,
+    "top3": [
+     "Chargé de mission aux relations internationales (25 %)",
+     "Rédacteur Banque de France (25 %)",
+     "Analyste d'étude informatique (25 %)"
+    ]
+   },
+   {
+    "titre": "Quinze choix variés",
+    "nbMetiers": 1,
+    "meilleurScore": 39,
+    "top3": [
+     "Restaurateur ambulant (39 %)"
+    ]
+   },
+   {
+    "titre": "Aucun choix",
+    "nbMetiers": 0,
+    "meilleurScore": 0,
+    "top3": []
+   }
+  ],
+  "stabilite": {
+   "deterministe": true,
+   "recouvrementAjoutGeneral": 0.879,
+   "recouvrementOpposes": 0
+  },
+  "retrouvaille": {
+   "essais": 60,
+   "rappel10": 0.85,
+   "rappel50": 1,
+   "rangMedian": 2,
+   "absents": 0
+  }
+ },
+ "chemin3": {
+  "lignes": [
+   {
+    "code": "RIA",
+    "nbMetiers": 1339,
+    "egalitesEnTete": 39,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Ajusteur-régleur de fabrication en instruments d'optique [RI]",
+     "Aménageur de véhicules [RI]",
+     "Animalier de laboratoire [RI]",
+     "Automaticien en bureau d'études [RI]",
+     "Auxiliaire vétérinaire [RI]"
+    ]
+   },
+   {
+    "code": "RC",
+    "nbMetiers": 1583,
+    "egalitesEnTete": 276,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Accastilleur [RC]",
+     "Agent animalier [RC]",
+     "Agent cynotechnique en détection des explosifs [RC]",
+     "Agent d'encadrement en industrie du bois [RC]",
+     "Agent d'entretien [RC]"
+    ]
+   },
+   {
+    "code": "SA",
+    "nbMetiers": 571,
+    "egalitesEnTete": 4,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Animateur [SA]",
+     "Art thérapeute [SA]",
+     "Professeur de musique [SA]",
+     "Professeur territorial d'enseignement artistique [SA]",
+     "Accompagnant d'élèves en situation de handicap (AESH) [S]"
+    ]
+   },
+   {
+    "code": "IE",
+    "nbMetiers": 881,
+    "egalitesEnTete": 31,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Chargé de mission eaux pluviales [IE]",
+     "Chargé de mission environnement [IE]",
+     "Chef de projet conception industrielle en mécanique [IE]",
+     "Chef de projet éolien [IE]",
+     "Chef de projet Maîtrise d'Ouvrage des Systèmes d'Information (MOA) [IE]"
+    ]
+   },
+   {
+    "code": "SEC",
+    "nbMetiers": 1440,
+    "egalitesEnTete": 19,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Agent de développement d'habitat social [SE]",
+     "Animateur de loisirs sportifs [SE]",
+     "Chargé d'emploi en entreprise de travail temporaire [SE]",
+     "Chargé de développement culturel [SE]",
+     "Chargé de développement social [SE]"
+    ]
+   },
+   {
+    "code": "AIS",
+    "nbMetiers": 918,
+    "egalitesEnTete": 7,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Animateur 2D 3D - films d'animation [AI]",
+     "Concepteur de contenus multimedia [AI]",
+     "Conservateur des antiquités et objets d'art [AI]",
+     "Graphiste [AI]",
+     "Musicologue [AI]"
+    ]
+   },
+   {
+    "code": "ERC",
+    "nbMetiers": 1742,
+    "egalitesEnTete": 40,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Agent d'encadrement en ameublement [ER]",
+     "Analyste de la performance sportive [ER]",
+     "Architecte naval [ER]",
+     "Capitaine de pêche [ER]",
+     "Capitaine de yacht [ER]"
+    ]
+   },
+   {
+    "code": "RIE",
+    "nbMetiers": 1614,
+    "egalitesEnTete": 39,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Ajusteur-régleur de fabrication en instruments d'optique [RI]",
+     "Aménageur de véhicules [RI]",
+     "Animalier de laboratoire [RI]",
+     "Automaticien en bureau d'études [RI]",
+     "Auxiliaire vétérinaire [RI]"
+    ]
+   },
+   {
+    "code": "CSE",
+    "nbMetiers": 1440,
+    "egalitesEnTete": 64,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Agent administratif banque ou assurance [CS]",
+     "Agent d'accompagnement des trains [CS]",
+     "Agent d'accueil [CS]",
+     "Agent d'accueil et de prévention en camping [CS]",
+     "Agent d'Escale Commerciale aéroportuaire (AEC) [CS]"
+    ]
+   },
+   {
+    "code": "ASI",
+    "nbMetiers": 918,
+    "egalitesEnTete": 5,
+    "lettresDansLeCode10": 1,
+    "top5": [
+     "Animateur d'antenne [AS]",
+     "Coordinateur d'intimité [AS]",
+     "DJ [AS]",
+     "Mascotte-personnage [AS]",
+     "Musicien [AS]"
+    ]
+   }
+  ],
+  "egalitesMediane": 35,
+  "coherence10Moyenne": 1
+ },
+ "chemin1": {
+  "essais": 33,
+  "rappel10": 1,
+  "rappel50": 1,
+  "rangMedian": 0,
+  "retenusMediane": 282,
+  "unSecteur": {
+   "retenus": 163,
+   "meilleurPct": 25
+  },
+  "autonomieSeule": {
+   "retenus": 511,
+   "meilleurPct": 25,
+   "dansLaBaseSur": 1920
+  }
+ }
+}

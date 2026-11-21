@@ -211,7 +211,7 @@ test('avancement : nombre de réponses et partie complète', () => {
 test('résultat gardé dans la disquette : le résultat seulement, jamais les réponses, et relu avec méfiance', () => {
   const c = L.cmqCalculer(repondre({ p1: (e) => (e.lettre === 'S' || e.lettre === 'A' ? 'oui' : 'non'), p2: 'non', p3: (e) => (e.lettre === 'S' ? 'a_laise' : 'en_progres'), p4: 'un_peu' }));
   const garde = L.cmqResultatAGarder(c, '17/11/2026');
-  assert.deepEqual(Object.keys(garde).sort(), ['code', 'date', 'etat', 'lettresPourMetiers', 'partie4Passee', 'parties', 'pourcentages', 'version']);
+  assert.deepEqual(Object.keys(garde).sort(), ['code', 'date', 'etat', 'lettresPourMetiers', 'nbLignes', 'nbReponses', 'partie4Passee', 'parties', 'pourcentages', 'version']);
   assert.ok(!JSON.stringify(garde).includes('R1'), 'aucune réponse');
   assert.deepEqual(L.cmqNormaliserResultatGarde(JSON.parse(JSON.stringify(garde))), garde);
   // Recalcul identique depuis la disquette : même code, mêmes niveaux, mêmes axes.
@@ -303,18 +303,80 @@ test('moteur : le facteur de quantité accepte un plafond du plein, ignoré s\'i
   assert.ok(M.facteurInformation(seize, 30) < 1, 'et pas le plein à 30');
 });
 
-test('entrée 2 : avec le plein à 16, les pourcentages ne baissent jamais et le premier métier monte pour un profil à 8 ou 12 choix', () => {
-  let montes = 0;
-  [PROFIL_BATIMENT, PROFIL_SOIN].forEach((p) => {
-    const avant = M.rechercherMetiers(p, 5000);
-    const apres = L.cmlEntree2Metiers(p);
-    const scoreAvant = {}; avant.forEach((m) => { scoreAvant[m.id] = m.scoreExact; });
-    apres.forEach((m) => { if (scoreAvant[m.id] !== undefined) { assert.ok(m.scoreExact >= scoreAvant[m.id] - 1e-9, m.nom); } });
-    assert.ok(apres[0].score >= avant[0].score, 'le premier ne baisse pas');
-    montes += apres[0].score > avant[0].score ? 1 : 0;
-    assert.ok(apres[0].score <= 100);
+test('entrée 2 (consigne 516) : le minimum de choix retrouvés est une source unique, lue par le classement et par la phrase de l’écran', () => {
+  assert.equal(L.cmlChoixMinimum(1), 1);
+  assert.equal(L.cmlChoixMinimum(3), 2);
+  assert.equal(L.cmlChoixMinimum(4), 2);
+  assert.equal(L.cmlChoixMinimum(5), 3, 'la moitié arrondie au-dessus (consigne 517)');
+  assert.equal(L.cmlChoixMinimum(7), 4);
+  assert.equal(L.cmlChoixMinimum(10), 5);
+  assert.equal(L.cmlChoixMinimum(11), 5, 'plafonné à 5 : une fiche ne porte qu’une dizaine de choix (consigne 519)');
+  assert.equal(L.cmlChoixMinimum(15), 5);
+  assert.equal(L.cmlChoixMinimum(40), 5);
+  // 15 choix très variés : au moins un métier est proposé (avant le plafond, la moitié exigeait 8 choix et aucune fiche n’y arrivait).
+  const varie = { activites: ['clients', 'enfants', 'machines', 'animaux_compagnie'], actions: ['cuisiner', 'soigner', 'conduire', 'decouper', 'vendre', 'nettoyer', 'cultiver_entretenir_plantes', 'servir'], environnement: ['bureau', 'exterieur', 'domicile'] };
+  const rVarie = L.cmlEntree2Metiers(varie, 5000);
+  assert.ok(rVarie.length > 0, 'au moins un métier pour quinze choix très variés');
+  rVarie.forEach((m) => assert.ok(m.choixRetrouves >= 5, m.nom));
+  // Tout métier proposé retrouve au moins ce minimum.
+  const choix = { actions: ['cuisiner'], activites: ['clients'], environnement: ['bureau'] };
+  const n = L.cmlEntree2NombreChoix(choix);
+  L.cmlEntree2Metiers(choix, 200).forEach((m) => assert.ok(m.choixRetrouves >= L.cmlChoixMinimum(n), m.nom));
+});
+
+test('entrée 2 (consigne 488) : le pourcentage plafonne selon le nombre de choix, jamais 53 % avec un seul choix', () => {
+  assert.deepEqual(L.CML_PLAFOND_PAR_NB_CHOIX, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95]);
+  assert.equal(L.cmlPlafondChoix(0), 0);
+  assert.equal(L.cmlPlafondChoix(1), 10);
+  assert.equal(L.cmlPlafondChoix(3), 30);
+  assert.equal(L.cmlPlafondChoix(9), 90);
+  assert.equal(L.cmlPlafondChoix(30), 95, 'jamais 100 %');
+  [{ actions: ['cuisiner'] }, { activites: ['clients'] }, { activites: ['animaux_compagnie'] }, { environnement: ['bureau'] }].forEach((p) => {
+    const r = L.cmlEntree2Metiers(p);
+    assert.ok(r.length > 0);
+    r.forEach((m) => assert.ok(m.score <= 10, 'un seul choix : au plus 10 % (' + m.nom + ' ' + m.score + ')'));
   });
-  assert.ok(montes >= 1, 'le premier métier monte pour au moins un des deux profils');
+  // Plus il y a de choix retrouvés par un même métier, plus le pourcentage monte.
+  const suite = [{ actions: ['cuisiner'] }, { actions: ['cuisiner'], activites: ['clients'] }, { actions: ['cuisiner', 'servir'], activites: ['clients'] }, { actions: ['cuisiner', 'servir'], activites: ['clients', 'collegues'] }];
+  let precedent = 0;
+  suite.forEach((p) => {
+    const r = L.cmlEntree2Metiers(p);
+    assert.ok(r[0].score >= precedent, 'le meilleur pourcentage ne baisse pas quand on ajoute un choix que le métier retrouve');
+    precedent = r[0].score;
+  });
+  assert.ok(precedent > 25 && precedent <= 65, 'quatre choix : entre 26 et 65 %');
+  [PROFIL_BATIMENT, PROFIL_SOIN].forEach((p) => {
+    const apres = L.cmlEntree2Metiers(p);
+    assert.ok(apres.length > 0 && apres[0].score <= 100);
+    apres.forEach((m) => { assert.ok(m.choixRetrouves >= L.cmlChoixMinimum(m.choixTotal), 'au moins la moitié des choix retrouvés, jamais plus de 5 exigés : ' + m.nom); });
+  });
+});
+
+test('entrée 2 (consigne 488) : des choix de nature et d’animaux ne font pas ressortir des métiers de bureau, et la liste n’est pas classée par ordre alphabétique', () => {
+  const r = L.cmlEntree2Metiers({ activites: ['animaux_compagnie', 'vegetaux'], environnement: ['espaces_verts'] });
+  assert.ok(r.length > 0);
+  assert.ok(r.slice(0, 5).every((m) => m.choixRetrouves >= 2), 'les premiers retrouvent au moins deux choix sur trois');
+  assert.ok(!r.some((m) => /web|cin[ée]aste|comptable/i.test(m.nom)), 'aucun métier d’écran ni de bureau');
+  const un = L.cmlEntree2Metiers({ activites: ['clients'] });
+  const noms = un.slice(0, 30).map((m) => m.nom);
+  assert.notDeepEqual(noms, noms.slice().sort((a, b) => a.localeCompare(b, 'fr')), 'à choix égal, ce n’est pas l’ordre alphabétique qui décide');
+});
+
+test('entrée 3 (consigne 488) : à indice égal, le contenu départage (lettres retrouvées, moins de lettres en trop), l’ordre alphabétique vient en dernier', () => {
+  const r = L.cmlMetiersPourLettres(['R', 'I', 'A']);
+  assert.ok(r.length > 0);
+  for (let k = 1; k < r.length; k++) {
+    const a = r[k - 1], b = r[k];
+    if (Math.abs(a.indice - b.indice) < 1e-9) {
+      assert.ok(a.retrouvees >= b.retrouvees, 'plus de lettres retrouvées d’abord : ' + a.metier.nom + ' avant ' + b.metier.nom);
+      if (a.retrouvees === b.retrouvees) { assert.ok(a.ecart <= b.ecart, 'puis moins de lettres en trop'); }
+    }
+  }
+  assert.ok(r[0].retrouvees >= 2, 'le premier retrouve au moins deux lettres du code RIA');
+});
+
+test('entrée 2 (consigne 488) : des choix que la base ne retrouve dans aucun métier ne donnent aucune proposition', () => {
+  assert.deepEqual(L.cmlEntree2Metiers({ actions: ['choix_inconnu_1', 'choix_inconnu_2'] }), []);
 });
 
 test('entrée 2 : maximum de choix par page, phrase « choix très variés » au-delà de 20, rien sans choix', () => {
@@ -425,5 +487,267 @@ test('jamais « aimer travailler » dans ce que la personne lit (consigne 446)',
     'modules/comprendre-les-metiers/parMetierEcran.js', 'data/questionnaireRiasec.js', 'data/metiers.js', 'js/app.js'].forEach((f) => {
     const t = lire(f);
     assert.ok(!/\baim(e|ez|er|eriez|erais|erait|ent)[- ](vous[- ])?travailler/i.test(t), 'aimer travailler dans ' + f);
+  });
+});
+
+test('échelle de pistes (consigne 505) : aucun niveau sous 3 choix, quatre niveaux aux bornes 3, 5, 7 et 9', () => {
+  assert.deepEqual(L.CML_BORNES_NIVEAUX, [3, 5, 7, 9]);
+  assert.equal(L.CML_MIN_CHOIX_PISTES, 3);
+  const niv = (n) => L.cmlNiveauPistes(n);
+  assert.deepEqual([0, 1, 2].map(niv), [0, 0, 0], 'un ou deux choix : pas encore de pistes');
+  assert.deepEqual([3, 4, 5, 6, 7, 8, 9, 10, 25].map(niv), [1, 1, 2, 2, 3, 3, 4, 4, 4]);
+  assert.deepEqual(L.CML_NIVEAUX_PISTES.map((v) => v.nom), ['Piste éloignée', 'Piste à explorer', 'Piste proche', 'Piste précise']);
+});
+test('échelle de pistes (consigne 505) : le nom, le texte et le nombre de choix qui manquent pour le niveau suivant', () => {
+  const a = L.cmlInfoNiveauPistes(1);
+  assert.equal(a.niveau, 0); assert.equal(a.nom, 'Pas encore de pistes'); assert.equal(a.reste, 2);
+  const b = L.cmlInfoNiveauPistes(2);
+  assert.equal(b.reste, 1, 'encore un choix pour voir les premières pistes');
+  const c = L.cmlInfoNiveauPistes(3);
+  assert.equal(c.nom, 'Piste éloignée'); assert.equal(c.reste, 2); assert.equal(c.suivant, 'Piste à explorer');
+  const d = L.cmlInfoNiveauPistes(6);
+  assert.equal(d.nom, 'Piste à explorer'); assert.equal(d.reste, 1); assert.equal(d.suivant, 'Piste proche');
+  const e = L.cmlInfoNiveauPistes(12);
+  assert.equal(e.niveau, 4); assert.equal(e.reste, 0); assert.equal(e.suivant, '');
+  L.CML_NIVEAUX_PISTES.forEach((v) => { assert.ok(v.texte.length > 20); assert.ok(!/[—–]/.test(v.nom + v.texte)); assert.ok(!/\bIA\b/.test(v.nom + v.texte)); });
+});
+test('échelle de pistes (consigne 505) : la première proposition demande le niveau 2 et au plus 3 métiers à égalité en tête', () => {
+  assert.equal(L.cmlEgalitesEnTete([]), 0);
+  assert.equal(L.cmlEgalitesEnTete([50, 50, 50, 40]), 3);
+  assert.equal(L.cmlEgalitesEnTete([60, 50, 50]), 1);
+  assert.deepEqual(L.cmlVedetteAutorisee(4, 1), { oui: false, raison: 'trop-tot' }, 'niveau 1 : trop tôt, même sans égalité');
+  assert.deepEqual(L.cmlVedetteAutorisee(2, 1), { oui: false, raison: 'trop-tot' });
+  assert.deepEqual(L.cmlVedetteAutorisee(5, 3), { oui: true, raison: '' });
+  assert.deepEqual(L.cmlVedetteAutorisee(5, 4), { oui: false, raison: 'egalite' }, 'quatre métiers à égalité : en choisir un serait arbitraire');
+  assert.deepEqual(L.cmlVedetteAutorisee(9, 1), { oui: true, raison: '' });
+});
+test('échelle de pistes (consigne 505) : un seul plafond pour les deux chemins, et aucun ancien texte de fiabilité', () => {
+  assert.equal(typeof L.cmlFiabiliteListe, 'undefined', 'la fiabilité est remplacée par les niveaux');
+  const C = require('../modules/comprendre-les-metiers/parMetierCalcul.js');
+  [1, 2, 3, 5, 9, 12].forEach((n) => {
+    const S = C.pmcEtatInitial();
+    S.comp = Array.from({ length: n }, (_, i) => ({ t: 'sf', i }));
+    assert.equal(C.pmcPlafond(S), L.cmlPlafondChoix(n), n + ' choix : même plafond que « Partir de vos envies »');
+  });
+  const lire = (f) => require('node:fs').readFileSync(require('node:path').join(__dirname, '..', f), 'utf8');
+  ['modules/comprendre-les-metiers/parActions.js', 'modules/comprendre-les-metiers/parMetierEcran.js'].forEach((f) => {
+    const t = lire(f);
+    assert.ok(t.indexOf('cmvBandeauNiveau') !== -1 || t.indexOf('cmvPasDePistes') !== -1, 'le bandeau de niveau est branché dans ' + f);
+    assert.ok(t.indexOf('cmvEncartQuestionnaire') !== -1, 'le pont vers le questionnaire est branché dans ' + f);
+    assert.ok(t.indexOf('cmlFiabiliteListe') === -1, 'plus d’ancienne fiabilité dans ' + f);
+  });
+});
+
+// Consigne 499 (21/11/2026) : « Comment vos choix ont été lus ». Les fonctions COMPTENT avec les règles du moteur, elles ne recalculent jamais un pourcentage.
+test('consigne 499 : le niveau d’aide d’un choix dépend de la part de métiers qu’il décrit', () => {
+  assert.equal(L.cmlNiveauAide(0, 1925), 0, 'un choix que la base ne reconnaît chez aucun métier n’aide pas à distinguer');
+  assert.equal(L.cmlNiveauAide(33, 1925), 3, 'moins de 8 % : beaucoup');
+  assert.equal(L.cmlNiveauAide(300, 1925), 2, 'de 8 % à 25 % : moyennement');
+  assert.equal(L.cmlNiveauAide(900, 1925), 1, 'plus de 25 % : un peu');
+  assert.deepEqual(L.CML_MOTS_AIDE, ['', 'un peu', 'moyennement', 'beaucoup']);
+});
+test('consigne 499 : chemin 2, chaque choix est compté dans toute la base et dans la liste affichée', () => {
+  const choix = { activites: ['animaux_compagnie', 'vegetaux'], actions: [], environnement: ['espaces_verts'] };
+  const liste = L.cmlEntree2Metiers(choix, 5000);
+  const lus = L.cmlChoixLus2(choix, liste);
+  assert.equal(lus.total, M.baseMetiers.length);
+  assert.equal(lus.liste, liste.length);
+  assert.equal(lus.lignes.length, 3);
+  lus.lignes.forEach((x) => { assert.ok(x.nbMetiers >= x.dansListe, 'la liste est une partie de la base'); assert.ok(x.nbMetiers > 0); });
+  assert.equal(lus.lignes[0].item, 'animaux_compagnie', 'l’ordre est celui du moteur : avec qui ou quoi, puis actions, puis où');
+  // Cohérence avec le moteur : la somme des « dans la liste » est la somme des choix retrouvés de chaque métier affiché.
+  assert.equal(lus.lignes.reduce((s, x) => s + x.dansListe, 0), liste.reduce((s, m) => s + m.choixRetrouves, 0));
+  // Un choix retrouvé par moins d’un quart de la liste est signalé, jamais les autres.
+  assert.deepEqual(lus.faibles.map((x) => x.item), ['animaux_compagnie']);
+});
+test('consigne 499 : chemin 2, rien à lire sans choix, et le classement n’a pas changé', () => {
+  assert.equal(L.cmlChoixLus2({ activites: [], actions: [], environnement: [] }, []), null);
+  const liste = L.cmlEntree2Metiers({ activites: ['animaux_compagnie'], actions: [], environnement: [] }, 5000);
+  assert.ok(liste.length > 0 && liste.every((m) => m.choixTotal === 1 && m.choixRetrouves === 1 && m.score === 10));
+});
+test('consigne 499 : chemin 3, une ligne par lettre du code avec le nombre de métiers dont elle est la lettre principale', () => {
+  assert.equal(L.cmlChoixLus3(''), null);
+  const lus = L.cmlChoixLus3('RIS');
+  assert.equal(lus.lettres.length, 3);
+  assert.deepEqual(lus.lettres.map((x) => x.l + x.rang), ['R1', 'I2', 'S3']);
+  assert.equal(lus.liste, L.cmlMetiersPourLettres('RIS').length);
+  assert.equal(lus.total, M.baseMetiers.length);
+  assert.ok(lus.lettres.every((x) => x.nbMajeure > 0));
+  assert.ok(lus.lettres.reduce((s, x) => s + x.nbMajeure, 0) <= lus.total);
+});
+
+// Consigne 501 (21/11/2026) : « Vos choix vont dans plusieurs directions ». On compte dans la base, sans liste de paires opposées.
+test('consigne 501 : le noyau de calcul, seuils, choix à retirer et absence de message sous 4 choix', () => {
+  const f = (o) => o.split('').map((c) => c === '1');
+  // 4 choix, aucun métier ne retrouve 3 choix sur 4 (deux groupes de métiers, chacun avec deux choix)
+  const base = []; for (let i = 0; i < 30; i++) { base.push(f('1100')); base.push(f('0011')); }
+  const r = L.cmlDirectionsChoix(base, 4);
+  assert.equal(r.declenche, true); assert.equal(r.nbCouverts, 0);
+  assert.equal(r.retirer.nb, 30, 'sans le choix 0, trente métiers retrouvent deux choix sur trois');
+  // le choix 3 bloque : sans lui, 20 métiers retrouvent 2 choix sur 3
+  const bloque = []; for (let i = 0; i < 20; i++) { bloque.push(f('1110')); } bloque.push(f('0001'));
+  const r2 = L.cmlDirectionsChoix(bloque, 4);
+  assert.equal(r2.declenche, false, '20 métiers retrouvent 3 choix sur 4 : rien à dire');
+  const r3 = L.cmlDirectionsChoix(bloque.slice(20).concat([f('1100'), f('1100'), f('0110'), f('1010'), f('1010'), f('0110'), f('1100'), f('1010'), f('0110'), f('1100'), f('1100'), f('1010')]), 4);
+  assert.equal(r3.declenche, true);
+  assert.equal(r3.retirer.index, 3, 'sans le choix 3, douze métiers retrouvent deux choix sur trois');
+  assert.equal(r3.retirer.nb, 12);
+  assert.equal(L.cmlDirectionsChoix(base, 3).declenche, false, 'jamais sous 4 choix');
+  assert.equal(L.cmlDirectionsChoix([], 5).declenche, false);
+});
+test('consigne 501 : aucun des profils cohérents du banc d’essai ne déclenche le message, les contradictoires oui', () => {
+  const B = require('../scripts/bancEssaiMoteur.js');
+  const complet = (c) => ({ activites: c.activites || [], actions: c.actions || [], environnement: c.environnement || [] });
+  B.PERSONAS.forEach((p) => {
+    const r = L.cmlDirections2(complet(p.choix));
+    assert.equal(r.declenche, false, p.titre + ' : ' + r.nbCouverts + ' métiers');
+  });
+  const contradictoire = L.cmlDirections2(complet(B.DIFFICILES[0].choix));
+  assert.equal(contradictoire.declenche, true);
+  assert.ok(contradictoire.nbCouverts < 5);
+  assert.ok(contradictoire.retirer && contradictoire.retirer.nb >= 10 && contradictoire.retirer.choix.item === 'soigner', 'sans « soigner », 159 métiers (sans « bureau », 59)');
+  const quinze = L.cmlDirections2(complet(B.DIFFICILES[4].choix));
+  assert.equal(quinze.declenche, true); assert.equal(quinze.retirer, null, 'à quinze choix, retirer un seul ne change rien');
+  assert.equal(L.cmlDirections2({ activites: [], actions: [], environnement: [] }), null);
+});
+
+// Consigne 502 (21/11/2026) : « à éviter » du chemin 2. Un métier qui porte un choix évité voit son pourcentage divisé par deux par choix évité retrouvé, et le dit. Jamais retiré.
+test('consigne 502 : un choix à éviter divise le pourcentage par deux, signale le métier et ne retire aucun métier', () => {
+  const B = require('../scripts/bancEssaiMoteur.js');
+  const p = B.PERSONAS.find((x) => /cuisine/i.test(x.titre));
+  const choix = { activites: p.choix.activites || [], actions: p.choix.actions || [], environnement: p.choix.environnement || [] };
+  const liste = L.cmlEntree2Metiers(choix, 5000);
+  const avant = JSON.stringify(liste);
+  assert.equal(L.cmlAppliquerEvites(liste, []), liste, 'sans choix évité, la liste est rendue telle quelle');
+  const res = L.cmlAppliquerEvites(liste, [{ cat: 'activites', item: 'machines' }]);
+  assert.equal(JSON.stringify(liste), avant, 'la liste d’origine n’est pas modifiée');
+  assert.equal(res.length, liste.length, 'aucun métier retiré');
+  const touches = res.filter((m) => m.evitesPortes.length);
+  assert.ok(touches.length > 0 && touches.length < res.length);
+  touches.forEach((m) => {
+    assert.equal(m.score, Math.max(1, Math.round(m.scoreAvantEvites * 0.5)), m.nom);
+    assert.equal(m.evitesPortes[0].item, 'machines');
+  });
+  res.forEach((m, i) => { if (i) { assert.ok(res[i - 1].score >= m.score, 'classé par pourcentage décroissant'); } });
+  assert.ok(res.filter((m) => !m.evitesPortes.length).every((m) => m.scoreAvantEvites === undefined));
+  // deux choix évités retrouvés : divisé par quatre ; le minimum reste 1 tant que le métier avait un pourcentage
+  const deux = L.cmlAppliquerEvites([{ nom: 'X', score: 3, activites: ['machines'], actions: ['utiliser_machines_outils'], environnement: [] }], [{ cat: 'activites', item: 'machines' }, { cat: 'actions', item: 'utiliser_machines_outils' }]);
+  assert.equal(deux[0].evitesPortes.length, 2); assert.equal(deux[0].score, 1);
+});
+test('consigne 502 : les choix à éviter ne dépassent pas la limite et la page « à éviter » est branchée partout', () => {
+  assert.equal(L.CML_MAX_EVITER, 12);
+  const fs = require('node:fs'), path = require('node:path');
+  const lire = (f) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+  const pa = lire('modules/comprendre-les-metiers/parActions.js'), idx = lire('modules/comprendre-les-metiers/index.js'), g = lire('modules/comprendre-les-metiers/garder.js'), app = lire('js/app.js');
+  assert.ok(/suite: 'actionsEviter'/.test(pa), 'la page « où » mène à « à éviter »');
+  assert.ok(/'actions3', 'actionsEviter', 'actions4'/.test(pa), 'cinq étapes dans le fil');
+  assert.ok(/cmlAppliquerEvites\(pmcAjusterListeConditions/.test(pa), 'l’effet vient après les conditions');
+  assert.ok(/eviter: \[\]/.test(idx) && /actionsEviter: 'actions'/.test(idx));
+  assert.ok(/_cmgEvitesConnus\(pa\.choix\.eviter, choix\)/.test(g), 'relu avec méfiance depuis la disquette');
+  assert.ok(/actionsEviter:/.test(app), 'texte d’aide de la page');
+});
+
+// ---------------- Échelle du questionnaire, chemin 3 (consigne 508) ----------------
+// Réponses « oui » seulement aux n premiers énoncés (parties 1 à 4 à la suite) : les autres lignes restent vides.
+function repondrePartiel(n, partie4Passee) {
+  const r = { partie4Passee: !!partie4Passee, p1: {}, p2: {}, p3: {}, p4: {} };
+  const ok = { p1: 'oui', p2: 'oui', p3: 'a_laise', p4: 'ressemble' };
+  let i = 0;
+  PARTIES.forEach((p) => { L.cmqEnonces(p).forEach((e) => { if (i < n && !(p === 'p4' && partie4Passee)) { r[p][e.id] = ok[p]; } i++; }); });
+  return r;
+}
+test('échelle du questionnaire : niveaux selon la part des lignes répondues (40, 50, 67 et 83 %)', () => {
+  const niv = (a, b) => L.cmlNiveauQuestionnaire(a, b);
+  assert.deepEqual([119, 120, 149, 150, 199, 200, 249, 250, 300].map((a) => niv(a, 300)), [0, 1, 1, 2, 2, 3, 3, 4, 4]);
+  assert.equal(niv(0, 300), 0);
+  assert.equal(niv(5, 0), null, 'nombre de lignes inconnu : aucun niveau');
+  assert.equal(niv(null, 300), null);
+  const i = L.cmlInfoNiveauQuestionnaire(119, 300);
+  assert.equal(i.nom, 'Pas encore de pistes'); assert.equal(i.pct, 39, 'jamais « 40 % » sous le seuil'); assert.equal(i.minimum, 120); assert.equal(i.aRepondre, 120);
+  const j = L.cmlInfoNiveauQuestionnaire(150, 300);
+  assert.equal(j.nom, 'Piste à explorer'); assert.equal(j.aRepondre, 200); assert.equal(j.suivant, 'Piste proche'); assert.equal(j.pct, 50);
+  const k = L.cmlInfoNiveauQuestionnaire(290, 300);
+  assert.equal(k.nom, 'Piste précise'); assert.equal(k.aRepondre, 0); assert.equal(k.suivant, '');
+  assert.deepEqual(L.CML_NIVEAUX_PISTES.map((v) => v.nom), ['Piste éloignée', 'Piste à explorer', 'Piste proche', 'Piste précise'], 'mêmes noms que les chemins 1 et 2');
+  L.CML_NIVEAUX_PISTES.forEach((v) => { assert.ok(v.texteQ && !/[—–]/.test(v.texteQ) && !/\bIA\b/.test(v.texteQ), 'texte du questionnaire propre : ' + v.nom); });
+});
+test('échelle du questionnaire : sous 40 % de lignes répondues, aucune lettre (état « peu de réponses »)', () => {
+  const peu = L.cmqCalculer(repondrePartiel(100));
+  assert.equal(peu.nbReponses, 100); assert.equal(peu.nbLignes, 300); assert.equal(peu.peuDeLignes, true);
+  assert.equal(peu.etat, 'peu_reponses'); assert.equal(peu.code, null); assert.deepEqual(peu.lettresPourMetiers, []);
+  const assez = L.cmqCalculer(repondrePartiel(120));
+  assert.equal(assez.peuDeLignes, false); assert.equal(assez.nbReponses, 120);
+  assert.equal(L.cmqCalculer(repondre(TOUT_NON)).peuDeLignes, false, 'répondre « non » à tout est répondre : la règle compte les lignes, pas les « oui »');
+  assert.equal(L.cmqCalculer(repondre({ p1: null, p2: null, p3: null, p4: null })).peuDeLignes, true, 'aucune ligne répondue');
+});
+test('échelle du questionnaire : une partie 4 passée sort du total des lignes', () => {
+  const total4 = L.cmqEnonces('p4').length;
+  const c = L.cmqCalculer(repondrePartiel(150, true));
+  assert.equal(c.nbLignes, 300 - total4); assert.equal(c.nbReponses, 150);
+  assert.equal(L.cmqCalculer(repondre(TOUT_OUI, true)).nbReponses, 300 - total4);
+});
+test('échelle du questionnaire : le nombre de lignes répondues est gardé et relu avec méfiance', () => {
+  const c = L.cmqCalculer(repondrePartiel(130));
+  const garde = L.cmqResultatAGarder(c, '21/11/2026');
+  assert.equal(garde.nbReponses, 130); assert.equal(garde.nbLignes, 300);
+  const refait = L.cmqCalculDepuisGarde(L.cmqNormaliserResultatGarde(JSON.parse(JSON.stringify(garde))));
+  assert.equal(refait.nbReponses, 130); assert.equal(refait.peuDeLignes, false);
+  const vide = L.cmqCalculDepuisGarde(L.cmqNormaliserResultatGarde(JSON.parse(JSON.stringify(L.cmqResultatAGarder(L.cmqCalculer(repondrePartiel(60)), '21/11/2026')))));
+  assert.equal(vide.peuDeLignes, true); assert.equal(vide.etat, 'peu_reponses'); assert.equal(vide.code, null);
+  // Résultat gardé avant cette règle, ou disquette abîmée : aucun niveau, comportement d'avant.
+  const ancien = Object.assign({}, garde); delete ancien.nbReponses; delete ancien.nbLignes;
+  const relu = L.cmqNormaliserResultatGarde(ancien);
+  assert.equal(relu.nbLignes, null); assert.equal(L.cmqCalculDepuisGarde(relu).peuDeLignes, false); assert.equal(L.cmlInfoNiveauQuestionnaire(relu.nbReponses, relu.nbLignes), null);
+  [{ nbReponses: 500, nbLignes: 300 }, { nbReponses: -1, nbLignes: 300 }, { nbReponses: 'x', nbLignes: 300 }, { nbReponses: 10, nbLignes: 99999 }].forEach((mauvais) => {
+    assert.equal(L.cmqNormaliserResultatGarde(Object.assign({}, garde, mauvais)).nbLignes, null, JSON.stringify(mauvais));
+  });
+});
+
+// Cartes enrichies (consigne 509, règle ajustée le 21/11/2026) : compétences et conditions de travail montrées sur les cartes des trois chemins.
+test('Cartes enrichies : les conditions sont les plus rares d\'abord, sans les statuts', () => {
+  const K = { libelles: { nuit: 'N', charges: 'C', public: 'P', s_interim: 'Intérim' }, ordre: ['nuit', 'charges', 'public', 's_interim'],
+    parCode: { A: ['nuit', 'charges', 'public', 's_interim'], B: ['nuit', 'public'], C: ['nuit'], D: ['nuit'] } };
+  // fréquence : nuit 4, public 2, charges 1 : charges d'abord, puis public, puis nuit ; le statut n'apparaît jamais
+  assert.deepEqual(L.cmlConditionsCarte('A', K).map((x) => x.id), ['charges', 'public', 'nuit']);
+  assert.deepEqual(L.cmlConditionsCarte('A', K).map((x) => x.lib), ['C', 'P', 'N']);
+  assert.deepEqual(L.cmlConditionsCarte('inconnu', K), []);
+  assert.deepEqual(L.cmlConditionsCarte('A', null), []);
+  // égalité de fréquence : l'ordre du ROME
+  const K2 = { libelles: { a: 'A', b: 'B' }, ordre: ['a', 'b'], parCode: { X: ['b', 'a'] } };
+  assert.deepEqual(L.cmlConditionsCarte('X', K2).map((x) => x.id), ['a', 'b']);
+});
+test('Cartes enrichies : les compétences viennent du champ « cartes », rien si le fichier manque', () => {
+  const CP = { phrases: ['p0', 'p1', 'p2', 'p3', 'p4'], parCode: { X: [0, 1, 2, 3, 4] }, cartes: { X: [3, 1, 4, 0] } };
+  assert.deepEqual(L.cmlCompetencesCarte('X', CP), ['p3', 'p1', 'p4', 'p0']);
+  assert.deepEqual(L.cmlCompetencesCarte('Y', CP), []);
+  assert.deepEqual(L.cmlCompetencesCarte('X', null), []);
+  assert.deepEqual(L.cmlCompetencesCarte('X', { phrases: [], parCode: {} }), []);
+});
+test('Cartes enrichies : trois compétences et trois conditions par défaut, avec ce qui reste dans la fiche', () => {
+  const CP = { phrases: ['p0', 'p1', 'p2', 'p3', 'p4'], parCode: { X: [0, 1, 2, 3, 4] }, cartes: { X: [3, 1, 4, 0] } };
+  const K = { libelles: { a: 'A', b: 'B', c: 'C', d: 'D', e: 'E' }, ordre: ['a', 'b', 'c', 'd', 'e'], parCode: { X: ['a', 'b', 'c', 'd', 'e'] } };
+  const r = L.cmlResumeMetier('X', K, CP);
+  assert.equal(r.competences.length, 3); assert.equal(r.resteCompetences, 2);
+  assert.equal(r.conditions.length, 3); assert.equal(r.resteConditions, 2);
+  const s = L.cmlResumeMetier('X', K, CP, 0);
+  assert.equal(s.competences.length, 0); assert.equal(s.resteCompetences, 0); assert.equal(s.conditions.length, 3);
+  const sans = L.cmlResumeMetier('X', K, null);
+  assert.equal(sans.competences.length, 0); assert.equal(sans.resteCompetences, 0); assert.equal(sans.conditions.length, 3);
+});
+test('Cartes enrichies : sur les vraies données, toute carte a ses compétences et celles-ci sont connues', () => {
+  const K = require('../data/conditionsRome.js').CONDITIONS_ROME, CP = require('../data/competencesRome.js').COMPETENCES_ROME;
+  const codes = Object.keys(CP.parCode);
+  assert.ok(codes.length > 1900);
+  let sans = 0;
+  codes.forEach((c) => {
+    const comp = L.cmlCompetencesCarte(c, CP);
+    if (!comp.length) { sans++; return; }
+    assert.ok(comp.length <= 6 && comp.length === new Set(comp).size, c);
+    comp.forEach((p) => assert.equal(typeof p, 'string'));
+    CP.cartes[c].forEach((i) => assert.ok(CP.parCode[c].indexOf(i) !== -1, c + ' : la phrase de la carte doit être une phrase du code'));
+  });
+  assert.ok(sans <= 3, 'codes sans compétence : ' + sans);
+  M.baseMetiers.filter((m) => m.rome).slice(0, 400).forEach((m) => {
+    L.cmlConditionsCarte(m.rome, K).forEach((x) => assert.ok(x.id.indexOf('s_') !== 0 && x.lib));
   });
 });

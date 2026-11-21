@@ -1002,6 +1002,7 @@ function carnetInitialiser() {
     bouton.addEventListener('click', function () {
       var ouvrir = panneau.hidden;
       panneau.hidden = !ouvrir;
+      if (ouvrir && typeof fermerAutresPanneauxHaut === 'function') { fermerAutresPanneauxHaut('panneauCarnet'); }
       if (ouvrir) {
         panneau.innerHTML = _carnetRenduPanneau();
         _carnetBrancherEvenementsPanneau();

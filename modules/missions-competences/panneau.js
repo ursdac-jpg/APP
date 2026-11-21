@@ -426,7 +426,8 @@ function mcPanneauBrancher(rerender) {
       var code = c.getAttribute('data-pan-sugg'), nom = c.getAttribute('data-pan-nom');
       var autres = cur.metiers.filter(function (m, i) { return i > 0 && m.code !== code; });
       cur.metiers = [{ code: code, nom: nom }].concat(autres).slice(0, cur.maxMetiers);
-      cur.poste = nom; cur.secteurIdx = null;
+      // Décision de Denis (audit du 21/11/2026) : l'intitulé reste celui que la personne a écrit ; le métier choisi ne sert qu'aux missions et compétences proposées.
+      cur.secteurIdx = null;
       _mcPanNettoyer(cur); rerender(); return;
     }
     if (c.hasAttribute('data-fm-metier')) {

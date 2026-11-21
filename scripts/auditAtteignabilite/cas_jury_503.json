@@ -1,0 +1,200 @@
+[
+ {
+  "origine": "Ouvrier paysagiste / Jardinier",
+  "secteur": "Agriculture, nature et espaces verts",
+  "choix": [
+   "outils",
+   "nettoyer",
+   "produits"
+  ]
+ },
+ {
+  "origine": "Responsable d'exploitation de gisements pétrole et gaz",
+  "secteur": "Bâtiment et travaux publics",
+  "choix": [
+   "produits",
+   "surveiller_securiser",
+   "produits_dangereux"
+  ]
+ },
+ {
+  "origine": "Mécanicien structure avion",
+  "secteur": "Mécanique et automobile",
+  "choix": [
+   "manipuler_produits",
+   "gerer_stocks_acheter",
+   "machines"
+  ]
+ },
+ {
+  "origine": "Directeur des achats",
+  "secteur": "Administration, gestion et bureau",
+  "choix": [
+   "analyser",
+   "domicile",
+   "gerer"
+  ]
+ },
+ {
+  "origine": "Technicien voilier",
+  "secteur": "Artisanat et création",
+  "choix": [
+   "clients",
+   "reparer",
+   "produits"
+  ]
+ },
+ {
+  "origine": "Installateur de bornes de recharges électriques",
+  "secteur": "Bâtiment et travaux publics",
+  "choix": [
+   "gerer",
+   "vehicules",
+   "installations_electriques"
+  ]
+ },
+ {
+  "origine": "Opérateur en pyrotechnie militaire",
+  "secteur": "Sécurité",
+  "choix": [
+   "nettoyer",
+   "machines",
+   "outils"
+  ]
+ },
+ {
+  "origine": "Graveur d'art",
+  "secteur": "Artisanat et création",
+  "choix": [
+   "utiliser_machines_outils",
+   "instruments_objets_art",
+   "dessiner"
+  ]
+ },
+ {
+  "origine": "Ingénieur démantèlement et assainissement",
+  "secteur": "Bâtiment et travaux publics",
+  "choix": [
+   "produits",
+   "concevoir",
+   "exterieur"
+  ]
+ },
+ {
+  "origine": "Écrivain public",
+  "secteur": "Social et services à la personne",
+  "choix": [
+   "bureau",
+   "conseiller",
+   "usagers_public"
+  ]
+ },
+ {
+  "origine": "Planneur stratégique",
+  "secteur": "Commerce et vente",
+  "choix": [
+   "communiquer_ecrit",
+   "analyser",
+   "ordinateur"
+  ]
+ },
+ {
+  "origine": "Opérateur en bijouterie",
+  "secteur": "Artisanat et création",
+  "choix": [
+   "produits_dangereux",
+   "monter",
+   "manipuler_produits"
+  ]
+ },
+ {
+  "origine": "Foreur",
+  "secteur": "Bâtiment et travaux publics",
+  "choix": [
+   "materiaux",
+   "gerer",
+   "controler"
+  ]
+ },
+ {
+  "origine": "Psychanalyste",
+  "secteur": "Social et services à la personne",
+  "choix": [
+   "analyser",
+   "collegues",
+   "bureau"
+  ]
+ },
+ {
+  "origine": "Agent recenseur",
+  "secteur": "Administration, gestion et bureau",
+  "choix": [
+   "domicile",
+   "familles",
+   "administration"
+  ]
+ },
+ {
+  "origine": "Coutelier d'art",
+  "secteur": "Artisanat et création",
+  "choix": [
+   "outils",
+   "produits_dangereux",
+   "manipuler_produits"
+  ]
+ },
+ {
+  "origine": "Sismologue",
+  "secteur": "Bâtiment et travaux publics",
+  "choix": [
+   "appareils_numeriques",
+   "concevoir",
+   "organiser_evenement"
+  ]
+ },
+ {
+  "origine": "Infirmier de prévention",
+  "secteur": "Santé et soins",
+  "choix": [
+   "accompagner",
+   "expliquer_presenter",
+   "usagers_public"
+  ]
+ },
+ {
+  "origine": "Chef de projet TMA - Tierce Maintenance Applicative",
+  "secteur": "Informatique et numérique",
+  "choix": [
+   "collegues",
+   "bureau",
+   "piloter_projet"
+  ]
+ },
+ {
+  "origine": "Gestionnaire de produits bancaires",
+  "secteur": "Banque, assurance et immobilier",
+  "choix": [
+   "usagers_public",
+   "concevoir",
+   "analyser"
+  ]
+ },
+ {
+  "origine": "Directeur d'accueil de loisirs sans hébergement",
+  "secteur": "Sport, animation et loisirs",
+  "choix": [
+   "association",
+   "organiser_evenement",
+   "gerer"
+  ]
+ },
+ {
+  "origine": "Chargé du guidage d'aéronef militaire",
+  "secteur": "Sécurité",
+  "choix": [
+   "exterieur",
+   "marchandises",
+   "organiser_evenement"
+  ]
+ }
+]

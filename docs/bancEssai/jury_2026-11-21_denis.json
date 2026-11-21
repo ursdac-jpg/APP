@@ -1,0 +1,1307 @@
+{
+ "date": "2026-11-21",
+ "jury": "Denis (conseiller en insertion professionnelle)",
+ "remarque": "Notes P01 à P52 données sur la feuille du 21/11/2026 (P01 à P27 revus, P28 à P52 nouveaux). P = Pertinent, A = Acceptable, X = Absurde.",
+ "notes": [
+  {
+   "profil": "P01",
+   "metier": "Chargé d'étude naturaliste",
+   "note": "P"
+  },
+  {
+   "profil": "P01",
+   "metier": "Technicien naturaliste",
+   "note": "P"
+  },
+  {
+   "profil": "P01",
+   "metier": "Ingénieur écologue",
+   "note": "A"
+  },
+  {
+   "profil": "P01",
+   "metier": "Chercheur des écosystèmes",
+   "note": "A"
+  },
+  {
+   "profil": "P01",
+   "metier": "Chargé de conservation ex-situ",
+   "note": "A"
+  },
+  {
+   "profil": "P02",
+   "metier": "Crêpier",
+   "note": "P"
+  },
+  {
+   "profil": "P02",
+   "metier": "Employé de restauration collective",
+   "note": "P"
+  },
+  {
+   "profil": "P02",
+   "metier": "Employé polyvalent de restauration / Aide de cuisine",
+   "note": "P"
+  },
+  {
+   "profil": "P02",
+   "metier": "Steward yachting polyvalent",
+   "note": "A"
+  },
+  {
+   "profil": "P02",
+   "metier": "Chef de rang",
+   "note": "P"
+  },
+  {
+   "profil": "P03",
+   "metier": "Gérontologue",
+   "note": "A"
+  },
+  {
+   "profil": "P03",
+   "metier": "Assistant de vie aux familles (ADVF)",
+   "note": "P"
+  },
+  {
+   "profil": "P03",
+   "metier": "Technicien d'Intervention Sociale et Familiale (TISF)",
+   "note": "A"
+  },
+  {
+   "profil": "P03",
+   "metier": "Physiothérapeute",
+   "note": "A"
+  },
+  {
+   "profil": "P03",
+   "metier": "Employé de ménage à domicile",
+   "note": "A"
+  },
+  {
+   "profil": "P04",
+   "metier": "Graphothérapeute",
+   "note": "A"
+  },
+  {
+   "profil": "P04",
+   "metier": "Éducateur spécialisé",
+   "note": "P"
+  },
+  {
+   "profil": "P04",
+   "metier": "Enseignant en activité physique adaptée (EAPA)",
+   "note": "A"
+  },
+  {
+   "profil": "P04",
+   "metier": "Assistant pédagogique en milieu scolaire",
+   "note": "P"
+  },
+  {
+   "profil": "P04",
+   "metier": "Professeur de collège et de lycée",
+   "note": "A"
+  },
+  {
+   "profil": "P05",
+   "metier": "Coffreur",
+   "note": "P"
+  },
+  {
+   "profil": "P05",
+   "metier": "Monteur en structures métalliques",
+   "note": "P"
+  },
+  {
+   "profil": "P05",
+   "metier": "Maçon-fumiste",
+   "note": "A"
+  },
+  {
+   "profil": "P05",
+   "metier": "Maçon",
+   "note": "P"
+  },
+  {
+   "profil": "P05",
+   "metier": "Couvreur",
+   "note": "P"
+  },
+  {
+   "profil": "P06",
+   "metier": "Approvisionneur points de distribution",
+   "note": "A"
+  },
+  {
+   "profil": "P06",
+   "metier": "Agent d'exploitation en transport routier de marchandises",
+   "note": "P"
+  },
+  {
+   "profil": "P06",
+   "metier": "Opérateur logistique",
+   "note": "P"
+  },
+  {
+   "profil": "P06",
+   "metier": "Chauffeur-livreur préparateur de commandes",
+   "note": "P"
+  },
+  {
+   "profil": "P06",
+   "metier": "Aide-livreur",
+   "note": "P"
+  },
+  {
+   "profil": "P07",
+   "metier": "Vendeur d'articles de sport et loisirs",
+   "note": "P"
+  },
+  {
+   "profil": "P07",
+   "metier": "Vendeur en accessoires de la personne",
+   "note": "P"
+  },
+  {
+   "profil": "P07",
+   "metier": "Hôte de caisse",
+   "note": "P"
+  },
+  {
+   "profil": "P07",
+   "metier": "Vendeur en articles de puériculture",
+   "note": "P"
+  },
+  {
+   "profil": "P07",
+   "metier": "Vendeur en articles de papeterie et loisirs créatifs",
+   "note": "P"
+  },
+  {
+   "profil": "P08",
+   "metier": "Assistant administratif multilingue",
+   "note": "P"
+  },
+  {
+   "profil": "P08",
+   "metier": "Assistant commercial",
+   "note": "P"
+  },
+  {
+   "profil": "P08",
+   "metier": "Agent administratif banque ou assurance",
+   "note": "P"
+  },
+  {
+   "profil": "P08",
+   "metier": "Opérateur de saisie",
+   "note": "P"
+  },
+  {
+   "profil": "P08",
+   "metier": "Assistant ressources humaines",
+   "note": "A"
+  },
+  {
+   "profil": "P09",
+   "metier": "Matelot machine de la marine marchande",
+   "note": "A"
+  },
+  {
+   "profil": "P09",
+   "metier": "Préparateur en tôlerie automobile",
+   "note": "P"
+  },
+  {
+   "profil": "P09",
+   "metier": "Débosseleur sans peinture",
+   "note": "P"
+  },
+  {
+   "profil": "P09",
+   "metier": "Technicien de réparation et pose de vitrage des véhicules",
+   "note": "P"
+  },
+  {
+   "profil": "P09",
+   "metier": "Mécanicien-réparateur d'engins de levage et de manutention",
+   "note": "P"
+  },
+  {
+   "profil": "P10",
+   "metier": "Technicien hygiéniste",
+   "note": "A"
+  },
+  {
+   "profil": "P10",
+   "metier": "Agent de propreté de locaux",
+   "note": "P"
+  },
+  {
+   "profil": "P10",
+   "metier": "Agent d'entretien des piscines",
+   "note": "A"
+  },
+  {
+   "profil": "P10",
+   "metier": "Nettoyeur en cuir et peausserie",
+   "note": "A"
+  },
+  {
+   "profil": "P10",
+   "metier": "Agent de propreté urbaine",
+   "note": "P"
+  },
+  {
+   "profil": "P11",
+   "metier": "Développeur blockchain",
+   "note": "A"
+  },
+  {
+   "profil": "P11",
+   "metier": "Développeur - jeux vidéo",
+   "note": "A"
+  },
+  {
+   "profil": "P11",
+   "metier": "Spécialiste en modélisation climatique",
+   "note": "A"
+  },
+  {
+   "profil": "P11",
+   "metier": "Ingénieur en informatique embarquée",
+   "note": "A"
+  },
+  {
+   "profil": "P11",
+   "metier": "Spécialiste test et validation logiciel ou application",
+   "note": "P"
+  },
+  {
+   "profil": "P12",
+   "metier": "Combattant des forces spéciales militaires",
+   "note": "A"
+  },
+  {
+   "profil": "P12",
+   "metier": "Gardien de compagnie républicaine de sécurité (CRS)",
+   "note": "P"
+  },
+  {
+   "profil": "P12",
+   "metier": "Opérateur en télésurveillance",
+   "note": "P"
+  },
+  {
+   "profil": "P12",
+   "metier": "Spécialiste de la protection des forces, installations ou matériels sensibles de l'État",
+   "note": "A"
+  },
+  {
+   "profil": "P12",
+   "metier": "Agent cynophile de sécurité",
+   "note": "P"
+  },
+  {
+   "profil": "P13",
+   "metier": "Préparateur physique",
+   "note": "P"
+  },
+  {
+   "profil": "P13",
+   "metier": "Directeur sportif",
+   "note": "A"
+  },
+  {
+   "profil": "P13",
+   "metier": "Arbitre professionnel discipline sportive",
+   "note": "A"
+  },
+  {
+   "profil": "P13",
+   "metier": "Animateur de loisirs sportifs",
+   "note": "P"
+  },
+  {
+   "profil": "P13",
+   "metier": "Entraîneur de sport professionnel et de haut niveau",
+   "note": "A"
+  },
+  {
+   "profil": "P14",
+   "metier": "Concepteur de contenus multimedia",
+   "note": "P"
+  },
+  {
+   "profil": "P14",
+   "metier": "Architecte multimédias interactifs",
+   "note": "A"
+  },
+  {
+   "profil": "P14",
+   "metier": "Chef décorateur spectacle",
+   "note": "A"
+  },
+  {
+   "profil": "P14",
+   "metier": "Dessinateur-illustrateur",
+   "note": "P"
+  },
+  {
+   "profil": "P14",
+   "metier": "Roughman en design",
+   "note": "A"
+  },
+  {
+   "profil": "P15",
+   "metier": "Technicien d'installation de centrales téléphoniques",
+   "note": "A"
+  },
+  {
+   "profil": "P15",
+   "metier": "Technicien Datacenter",
+   "note": "A"
+  },
+  {
+   "profil": "P15",
+   "metier": "Cadre de santé d'unité de soins ou de service paramédical",
+   "note": "A"
+  },
+  {
+   "profil": "P15",
+   "metier": "Technicien réseaux mobiles",
+   "note": "A"
+  },
+  {
+   "profil": "P15",
+   "metier": "Technicien de maintenance réseaux mobiles",
+   "note": "A"
+  },
+  {
+   "profil": "P16",
+   "metier": "Technicien en ostéologie-moulage",
+   "note": "A"
+  },
+  {
+   "profil": "P16",
+   "metier": "Taxidermiste",
+   "note": "A"
+  },
+  {
+   "profil": "P16",
+   "metier": "Opérateur de transformation des viandes",
+   "note": "A"
+  },
+  {
+   "profil": "P16",
+   "metier": "Ingénieur écologue",
+   "note": "A"
+  },
+  {
+   "profil": "P16",
+   "metier": "Ornithologue",
+   "note": "A"
+  },
+  {
+   "profil": "P17",
+   "metier": "Chargé de mission aux relations internationales",
+   "note": "A"
+  },
+  {
+   "profil": "P17",
+   "metier": "Rédacteur Banque de France",
+   "note": "A"
+  },
+  {
+   "profil": "P17",
+   "metier": "Analyste d'étude informatique",
+   "note": "A"
+  },
+  {
+   "profil": "P17",
+   "metier": "Analyste financier",
+   "note": "A"
+  },
+  {
+   "profil": "P17",
+   "metier": "Architecte systèmes et réseaux",
+   "note": "A"
+  },
+  {
+   "profil": "P18",
+   "metier": "Ajusteur-régleur de fabrication en instruments d'optique",
+   "note": "P"
+  },
+  {
+   "profil": "P18",
+   "metier": "Aménageur de véhicules",
+   "note": "P"
+  },
+  {
+   "profil": "P18",
+   "metier": "Animalier de laboratoire",
+   "note": "P"
+  },
+  {
+   "profil": "P18",
+   "metier": "Automaticien en bureau d'études",
+   "note": "P"
+  },
+  {
+   "profil": "P18",
+   "metier": "Auxiliaire vétérinaire",
+   "note": "A"
+  },
+  {
+   "profil": "P19",
+   "metier": "Animateur",
+   "note": "P"
+  },
+  {
+   "profil": "P19",
+   "metier": "Art thérapeute",
+   "note": "P"
+  },
+  {
+   "profil": "P19",
+   "metier": "Professeur de musique",
+   "note": "P"
+  },
+  {
+   "profil": "P19",
+   "metier": "Professeur territorial d'enseignement artistique",
+   "note": "P"
+  },
+  {
+   "profil": "P19",
+   "metier": "Accompagnant d'élèves en situation de handicap (AESH)",
+   "note": "A"
+  },
+  {
+   "profil": "P20",
+   "metier": "Chargé de mission eaux pluviales",
+   "note": "A"
+  },
+  {
+   "profil": "P20",
+   "metier": "Chargé de mission environnement",
+   "note": "P"
+  },
+  {
+   "profil": "P20",
+   "metier": "Chef de projet conception industrielle en mécanique",
+   "note": "P"
+  },
+  {
+   "profil": "P20",
+   "metier": "Chef de projet éolien",
+   "note": "P"
+  },
+  {
+   "profil": "P20",
+   "metier": "Chef de projet Maîtrise d'Ouvrage des Systèmes d'Information (MOA)",
+   "note": "P"
+  },
+  {
+   "profil": "P21",
+   "metier": "Animateur 2D 3D - films d'animation",
+   "note": "P"
+  },
+  {
+   "profil": "P21",
+   "metier": "Concepteur de contenus multimedia",
+   "note": "P"
+  },
+  {
+   "profil": "P21",
+   "metier": "Conservateur des antiquités et objets d'art",
+   "note": "A"
+  },
+  {
+   "profil": "P21",
+   "metier": "Graphiste",
+   "note": "P"
+  },
+  {
+   "profil": "P21",
+   "metier": "Musicologue",
+   "note": "A"
+  },
+  {
+   "profil": "P22",
+   "metier": "Accastilleur",
+   "note": "P"
+  },
+  {
+   "profil": "P22",
+   "metier": "Agent animalier",
+   "note": "A"
+  },
+  {
+   "profil": "P22",
+   "metier": "Agent cynotechnique en détection des explosifs",
+   "note": "A"
+  },
+  {
+   "profil": "P22",
+   "metier": "Agent d'encadrement en industrie du bois",
+   "note": "P"
+  },
+  {
+   "profil": "P22",
+   "metier": "Agent d'entretien",
+   "note": "P"
+  },
+  {
+   "profil": "P23",
+   "metier": "Agent administratif banque ou assurance",
+   "note": "P"
+  },
+  {
+   "profil": "P23",
+   "metier": "Agent d'accompagnement des trains",
+   "note": "A"
+  },
+  {
+   "profil": "P23",
+   "metier": "Agent d'accueil",
+   "note": "P"
+  },
+  {
+   "profil": "P23",
+   "metier": "Agent d'accueil et de prévention en camping",
+   "note": "A"
+  },
+  {
+   "profil": "P23",
+   "metier": "Agent d'Escale Commerciale aéroportuaire (AEC)",
+   "note": "P"
+  },
+  {
+   "profil": "P24",
+   "metier": "Agent de diagnostic et de contrôle en agriculture",
+   "note": "A"
+  },
+  {
+   "profil": "P24",
+   "metier": "Aide agricole en production végétale",
+   "note": "A"
+  },
+  {
+   "profil": "P24",
+   "metier": "Aide d'élevage agricole",
+   "note": "A"
+  },
+  {
+   "profil": "P24",
+   "metier": "Algoculteur",
+   "note": "A"
+  },
+  {
+   "profil": "P24",
+   "metier": "Bûcheron",
+   "note": "P"
+  },
+  {
+   "profil": "P25",
+   "metier": "Crêpier",
+   "note": "P"
+  },
+  {
+   "profil": "P25",
+   "metier": "Cuisinier",
+   "note": "P"
+  },
+  {
+   "profil": "P25",
+   "metier": "Écailler",
+   "note": "A"
+  },
+  {
+   "profil": "P25",
+   "metier": "Employé de restauration collective",
+   "note": "P"
+  },
+  {
+   "profil": "P25",
+   "metier": "Employé polyvalent de restauration / Aide de cuisine",
+   "note": "P"
+  },
+  {
+   "profil": "P26",
+   "metier": "Conducteur super poids lourd de l'armée",
+   "note": "A"
+  },
+  {
+   "profil": "P26",
+   "metier": "Aide-livreur",
+   "note": "P"
+  },
+  {
+   "profil": "P26",
+   "metier": "Chef d'équipe en déménagement",
+   "note": "A"
+  },
+  {
+   "profil": "P26",
+   "metier": "Conducteur d'engins de manœuvre du réseau ferré",
+   "note": "A"
+  },
+  {
+   "profil": "P26",
+   "metier": "Conducteur de véhicule de guidage",
+   "note": "P"
+  },
+  {
+   "profil": "P27",
+   "metier": "Ambulancier / Auxiliaire ambulancier",
+   "note": "P"
+  },
+  {
+   "profil": "P27",
+   "metier": "Équipier sécurité civile",
+   "note": "A"
+  },
+  {
+   "profil": "P27",
+   "metier": "Pompier",
+   "note": "A"
+  },
+  {
+   "profil": "P27",
+   "metier": "Agent de soins en hydrothérapie",
+   "note": "A"
+  },
+  {
+   "profil": "P27",
+   "metier": "Accueillant familial thérapeutique auprès d'adultes",
+   "note": "A"
+  },
+  {
+   "profil": "P28",
+   "metier": "Agent de mise en fourrière animale",
+   "note": "A"
+  },
+  {
+   "profil": "P28",
+   "metier": "Aide d'élevage agricole",
+   "note": "A"
+  },
+  {
+   "profil": "P28",
+   "metier": "Animalier de laboratoire",
+   "note": "A"
+  },
+  {
+   "profil": "P28",
+   "metier": "Dentiste équin",
+   "note": "P"
+  },
+  {
+   "profil": "P28",
+   "metier": "Éleveur d'ovins",
+   "note": "A"
+  },
+  {
+   "profil": "P29",
+   "metier": "Conducteur d'engins agricoles",
+   "note": "A"
+  },
+  {
+   "profil": "P29",
+   "metier": "Conducteur de véhicule de guidage",
+   "note": "P"
+  },
+  {
+   "profil": "P29",
+   "metier": "Conducteur de véhicule de protection de convoi exceptionnel",
+   "note": "P"
+  },
+  {
+   "profil": "P29",
+   "metier": "Déménageur",
+   "note": "A"
+  },
+  {
+   "profil": "P29",
+   "metier": "Mécanicien cycles",
+   "note": "X"
+  },
+  {
+   "profil": "P30",
+   "metier": "Enseignant d'équitation",
+   "note": "A"
+  },
+  {
+   "profil": "P30",
+   "metier": "Maréchal-ferrant",
+   "note": "A"
+  },
+  {
+   "profil": "P30",
+   "metier": "Toiletteur animalier",
+   "note": "A"
+  },
+  {
+   "profil": "P30",
+   "metier": "Auxiliaire vétérinaire",
+   "note": "P"
+  },
+  {
+   "profil": "P30",
+   "metier": "Agent animalier",
+   "note": "A"
+  },
+  {
+   "profil": "P31",
+   "metier": "Agent d'entretien",
+   "note": "A"
+  },
+  {
+   "profil": "P31",
+   "metier": "Employé de pressing",
+   "note": "A"
+  },
+  {
+   "profil": "P31",
+   "metier": "Désamianteur",
+   "note": "A"
+  },
+  {
+   "profil": "P31",
+   "metier": "Agent de propreté de locaux",
+   "note": "A"
+  },
+  {
+   "profil": "P31",
+   "metier": "Nettoyeur en cuir et peausserie",
+   "note": "A"
+  },
+  {
+   "profil": "P32",
+   "metier": "Technicien en investigation criminelle",
+   "note": "A"
+  },
+  {
+   "profil": "P32",
+   "metier": "Spécialiste en radioprotection au sein du Ministère des Armées",
+   "note": "A"
+  },
+  {
+   "profil": "P32",
+   "metier": "Responsable Hygiène Sécurité Environnement (HSE) en industrie",
+   "note": "P"
+  },
+  {
+   "profil": "P32",
+   "metier": "Responsable de sécurité industrielle",
+   "note": "P"
+  },
+  {
+   "profil": "P32",
+   "metier": "Plongeur démineur militaire dans les fonds marins",
+   "note": "A"
+  },
+  {
+   "profil": "P33",
+   "metier": "Mérandier",
+   "note": "A"
+  },
+  {
+   "profil": "P33",
+   "metier": "Agent de finissage couleurs et effets cuirs et peaux",
+   "note": "A"
+  },
+  {
+   "profil": "P33",
+   "metier": "Opérateur de préparation de poissons et produits de la mer",
+   "note": "A"
+  },
+  {
+   "profil": "P33",
+   "metier": "Foreur",
+   "note": "A"
+  },
+  {
+   "profil": "P33",
+   "metier": "Laqueur industriel",
+   "note": "A"
+  },
+  {
+   "profil": "P34",
+   "metier": "Chargé de diffusion publicitaire",
+   "note": "A"
+  },
+  {
+   "profil": "P34",
+   "metier": "Chargé de marketing digital",
+   "note": "A"
+  },
+  {
+   "profil": "P34",
+   "metier": "Responsable programmatique",
+   "note": "A"
+  },
+  {
+   "profil": "P34",
+   "metier": "Traffic manager",
+   "note": "A"
+  },
+  {
+   "profil": "P34",
+   "metier": "Assistant e-commerce",
+   "note": "A"
+  },
+  {
+   "profil": "P35",
+   "metier": "Chef d'équipe atelier en démontage recyclage de VHU (Véhicules hors d'usage)",
+   "note": "A"
+  },
+  {
+   "profil": "P35",
+   "metier": "Employé de laverie automatique",
+   "note": "A"
+  },
+  {
+   "profil": "P35",
+   "metier": "Lingère",
+   "note": "X"
+  },
+  {
+   "profil": "P35",
+   "metier": "Responsable de station de lavage",
+   "note": "A"
+  },
+  {
+   "profil": "P35",
+   "metier": "Technicien de forage pétrole et gaz",
+   "note": "A"
+  },
+  {
+   "profil": "P36",
+   "metier": "Intendant du sport",
+   "note": "A"
+  },
+  {
+   "profil": "P36",
+   "metier": "Agent de port de plaisance",
+   "note": "A"
+  },
+  {
+   "profil": "P36",
+   "metier": "Agent d'exploitation du réseau ferré",
+   "note": "A"
+  },
+  {
+   "profil": "P36",
+   "metier": "Technicien démonteur de batteries de véhicules électriques",
+   "note": "P"
+  },
+  {
+   "profil": "P36",
+   "metier": "Technicien de maintenance de batteries de véhicules électriques",
+   "note": "P"
+  },
+  {
+   "profil": "P37",
+   "metier": "Opérateur de finition en industrie du textile",
+   "note": "A"
+  },
+  {
+   "profil": "P37",
+   "metier": "Employé de pressing",
+   "note": "A"
+  },
+  {
+   "profil": "P37",
+   "metier": "Employé d'étage en hôtellerie",
+   "note": "A"
+  },
+  {
+   "profil": "P37",
+   "metier": "Plongeur en restauration",
+   "note": "A"
+  },
+  {
+   "profil": "P37",
+   "metier": "Ramoneur",
+   "note": "A"
+  },
+  {
+   "profil": "P38",
+   "metier": "Technicien spectacle en site de divertissement",
+   "note": "A"
+  },
+  {
+   "profil": "P38",
+   "metier": "Opérateur de prise de vues",
+   "note": "P"
+  },
+  {
+   "profil": "P38",
+   "metier": "Chargé d'édition musicale graphique",
+   "note": "A"
+  },
+  {
+   "profil": "P38",
+   "metier": "Animateur 2D 3D - films d'animation",
+   "note": "A"
+  },
+  {
+   "profil": "P38",
+   "metier": "Concepteur de contenus multimedia",
+   "note": "A"
+  },
+  {
+   "profil": "P39",
+   "metier": "Artificier spectacle",
+   "note": "A"
+  },
+  {
+   "profil": "P39",
+   "metier": "Menuisier",
+   "note": "A"
+  },
+  {
+   "profil": "P39",
+   "metier": "Prothésiste dentaire",
+   "note": "X"
+  },
+  {
+   "profil": "P39",
+   "metier": "Technicien en ostéologie-moulage",
+   "note": "A"
+  },
+  {
+   "profil": "P39",
+   "metier": "Chef de promotion des ventes",
+   "note": "X"
+  },
+  {
+   "profil": "P40",
+   "metier": "Gestionnaire en protection sociale",
+   "note": "P"
+  },
+  {
+   "profil": "P40",
+   "metier": "Agent d'accueil touristique",
+   "note": "A"
+  },
+  {
+   "profil": "P40",
+   "metier": "Conseiller vendeur d'autocars",
+   "note": "A"
+  },
+  {
+   "profil": "P40",
+   "metier": "Clerc de notaire",
+   "note": "P"
+  },
+  {
+   "profil": "P40",
+   "metier": "Agent d'accueil",
+   "note": "A"
+  },
+  {
+   "profil": "P41",
+   "metier": "Ethnologue",
+   "note": "A"
+  },
+  {
+   "profil": "P41",
+   "metier": "Chercheur en sciences humaines et sociales",
+   "note": "A"
+  },
+  {
+   "profil": "P41",
+   "metier": "Lecteur-correcteur",
+   "note": "P"
+  },
+  {
+   "profil": "P41",
+   "metier": "Référenceur web",
+   "note": "P"
+  },
+  {
+   "profil": "P41",
+   "metier": "Biostatisticien",
+   "note": "A"
+  },
+  {
+   "profil": "P42",
+   "metier": "Technicien de production du travail des métaux",
+   "note": "P"
+  },
+  {
+   "profil": "P42",
+   "metier": "Maçon",
+   "note": "A"
+  },
+  {
+   "profil": "P42",
+   "metier": "Plâtrier",
+   "note": "A"
+  },
+  {
+   "profil": "P42",
+   "metier": "Ouvrier de la construction modulaire hors-site",
+   "note": "A"
+  },
+  {
+   "profil": "P42",
+   "metier": "Plaquiste",
+   "note": "A"
+  },
+  {
+   "profil": "P43",
+   "metier": "Responsable de site de traitement des déchets",
+   "note": "A"
+  },
+  {
+   "profil": "P43",
+   "metier": "Gainier industriel",
+   "note": "A"
+  },
+  {
+   "profil": "P43",
+   "metier": "Agent d'encadrement en ameublement",
+   "note": "A"
+  },
+  {
+   "profil": "P43",
+   "metier": "Chef de fabrication en industrie graphique",
+   "note": "A"
+  },
+  {
+   "profil": "P43",
+   "metier": "Chef constructeur en décors",
+   "note": "A"
+  },
+  {
+   "profil": "P44",
+   "metier": "Développeur informatique",
+   "note": "A"
+  },
+  {
+   "profil": "P44",
+   "metier": "Assistant administratif",
+   "note": "A"
+  },
+  {
+   "profil": "P44",
+   "metier": "Responsable en organisation en entreprise",
+   "note": "A"
+  },
+  {
+   "profil": "P44",
+   "metier": "Chargé d'études commerciales",
+   "note": "A"
+  },
+  {
+   "profil": "P44",
+   "metier": "Coordinateur Maitrise d'Ouvrage Système d'Information (MOA SI)",
+   "note": "A"
+  },
+  {
+   "profil": "P45",
+   "metier": "Gardien d'immeuble",
+   "note": "A"
+  },
+  {
+   "profil": "P45",
+   "metier": "Assistant de service social",
+   "note": "P"
+  },
+  {
+   "profil": "P45",
+   "metier": "Directeur de centre socioculturel",
+   "note": "A"
+  },
+  {
+   "profil": "P45",
+   "metier": "Responsable de maison de quartier",
+   "note": "A"
+  },
+  {
+   "profil": "P45",
+   "metier": "Agent de développement d'habitat social",
+   "note": "P"
+  },
+  {
+   "profil": "P46",
+   "metier": "Démonteur de véhicules hors d'usage",
+   "note": "A"
+  },
+  {
+   "profil": "P46",
+   "metier": "Opérateur en pyrotechnie militaire",
+   "note": "A"
+  },
+  {
+   "profil": "P46",
+   "metier": "Boutefeu",
+   "note": "A"
+  },
+  {
+   "profil": "P46",
+   "metier": "Agent de désinsectisation",
+   "note": "A"
+  },
+  {
+   "profil": "P46",
+   "metier": "Plongeur démineur militaire dans les fonds marins",
+   "note": "A"
+  },
+  {
+   "profil": "P47",
+   "metier": "Urbaniste Datacenter",
+   "note": "A"
+  },
+  {
+   "profil": "P47",
+   "metier": "Superviseur de production virtuelle",
+   "note": "A"
+  },
+  {
+   "profil": "P47",
+   "metier": "Réalisateur audiovisuel",
+   "note": "A"
+  },
+  {
+   "profil": "P47",
+   "metier": "Chef de projet réseau fixe et mobile",
+   "note": "A"
+  },
+  {
+   "profil": "P47",
+   "metier": "Chef de projet jeux vidéo",
+   "note": "A"
+  },
+  {
+   "profil": "P48",
+   "metier": "Guide-accompagnateur de pêche",
+   "note": "A"
+  },
+  {
+   "profil": "P48",
+   "metier": "Guide-interprète",
+   "note": "A"
+  },
+  {
+   "profil": "P48",
+   "metier": "Guide-conférencier",
+   "note": "A"
+  },
+  {
+   "profil": "P48",
+   "metier": "Animateur de loisirs sportifs",
+   "note": "A"
+  },
+  {
+   "profil": "P48",
+   "metier": "Accompagnateur nature",
+   "note": "A"
+  },
+  {
+   "profil": "P49",
+   "metier": "Responsable innovation",
+   "note": "P"
+  },
+  {
+   "profil": "P49",
+   "metier": "Directeur de recherche en industrie pharmaceutique",
+   "note": "A"
+  },
+  {
+   "profil": "P49",
+   "metier": "Responsable de projet recherche et développement",
+   "note": "P"
+  },
+  {
+   "profil": "P49",
+   "metier": "Chef de projet contrôle qualité",
+   "note": "P"
+  },
+  {
+   "profil": "P49",
+   "metier": "Responsable du développement clinique en industrie pharmaceutique",
+   "note": "A"
+  },
+  {
+   "profil": "P50",
+   "metier": "Urbaniste",
+   "note": "A"
+  },
+  {
+   "profil": "P50",
+   "metier": "Architecte-urbaniste",
+   "note": "A"
+  },
+  {
+   "profil": "P50",
+   "metier": "Chargé de projet en aménagement du territoire",
+   "note": "A"
+  },
+  {
+   "profil": "P50",
+   "metier": "Chargé de développement culturel",
+   "note": "A"
+  },
+  {
+   "profil": "P50",
+   "metier": "Programmateur salle de cinéma",
+   "note": "A"
+  },
+  {
+   "profil": "P51",
+   "metier": "Animateur de développement régional",
+   "note": "A"
+  },
+  {
+   "profil": "P51",
+   "metier": "Directeur d'association",
+   "note": "P"
+  },
+  {
+   "profil": "P51",
+   "metier": "Chargé de développement social",
+   "note": "A"
+  },
+  {
+   "profil": "P51",
+   "metier": "Chargé de développement économique et local",
+   "note": "A"
+  },
+  {
+   "profil": "P51",
+   "metier": "Coordonnateur de projet logistique humanitaire",
+   "note": "A"
+  },
+  {
+   "profil": "P52",
+   "metier": "Pilote de centrale de béton",
+   "note": "A"
+  },
+  {
+   "profil": "P52",
+   "metier": "Agent technique de centrale à enrobés",
+   "note": "A"
+  },
+  {
+   "profil": "P52",
+   "metier": "Responsable propreté urbaine",
+   "note": "A"
+  },
+  {
+   "profil": "P52",
+   "metier": "Responsable de scierie",
+   "note": "A"
+  },
+  {
+   "profil": "P52",
+   "metier": "Manutentionnaire / Agent de quai",
+   "note": "A"
+  }
+ ]
+}

@@ -17,7 +17,7 @@
    Fonction pure, testee en Node (tests/lettreCoreRaisonsBlocage.test.js) : aucune
    lecture de « dossier » ici, l'appelant (data/metiers.js) passe un etat simple.
    etat = { cvPresent, cvRelu, objectif, modeRecherche, metierCible, secteurCible,
-            typeRecherche, forme, intituleDomaine, entreprise, situationActuelle }   (forme : voir formeCandidatureLettreCo, utile pour « changer de metier »)
+            typeRecherche, forme, intituleDomaine, entreprise, situationActuelle, typeStageATrancher, metierStageRequis, posteStage }   (forme : voir formeCandidatureLettreCo, utile pour « changer de metier »)
    ============================================================ */
 
 function raisonsBlocageLettreCo(etat) {
@@ -28,6 +28,12 @@ function raisonsBlocageLettreCo(etat) {
   else if (!e.cvRelu) { raisons.push('relire votre CV'); }
   else {
     if (!e.objectif) { raisons.push('choisir le type de candidature'); }
+    // Stage ou immersion choisi sans dire lequel des deux : « Adaptation au métier » reste verrouillé, le message doit le dire (audit du 21/11/2026).
+    else if ((e.objectif === 'stage' || e.objectif === 'pmsmp') && e.typeStageATrancher) { raisons.push('dire de quel type de stage il s’agit'); }
+    // Stage, alternance, immersion : le champ « Métier ou domaine visé » est affiché quand le métier n'est connu nulle part ailleurs (metierStageRequis) : il est alors exigé (audit du 21/11/2026, choix de Denis).
+    else if (['stage', 'alternance', 'pmsmp'].indexOf(e.objectif) !== -1) {
+      if (e.metierStageRequis && vide(e.posteStage)) { raisons.push('indiquer le métier ou le domaine visé'); }
+    }
     else if (['offre', 'spontanee', 'reconversion'].indexOf(e.objectif) !== -1) {
       if (!e.modeRecherche) { raisons.push('dire si vous visez un métier précis ou plusieurs métiers d’un domaine'); }
       else if (e.modeRecherche === 'metier' && vide(e.metierCible)) { raisons.push('indiquer le métier visé'); }

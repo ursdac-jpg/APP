@@ -65,7 +65,7 @@ function _cmqvDateDuJour() {
   return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
 }
 
-// ---------------- Présentation du chemin « Par un questionnaire de préférences » (19/11/2026) : le corps de la page de présentation (index.js, route comprendre-les-metiers-intro-q) ----------------
+// ---------------- Présentation du chemin « Répondre à un questionnaire » (19/11/2026) : le corps de la page de présentation (index.js, route comprendre-les-metiers-intro-q) ----------------
 // Le RIASEC, déplacé ici depuis la présentation générale (décision de Denis, 18/11/2026) : les mots sont ceux déjà validés le 16/11/2026.
 function cmvCorpsPresentationQuestionnaire() {
   var six = CML_LETTRES.map(function (l) { return [l, CMV_NOMS_LETTRES[l], TEXTES_LETTRES_RIASEC[l].court]; });
@@ -275,6 +275,19 @@ function cmvCartesMetiersLettres(lettres, etat) {
   }
   return html;
 }
+// « Comment vos réponses ont été lues » (consigne 499) : une ligne par lettre du code. Comptages : cmlChoixLus3 (logique.js). Jamais un jugement : chaque lettre est un goût de travail.
+function _cmqvBlocLu(lettres) {
+  var lus = cmlChoixLus3(lettres);
+  if (!lus) { return ''; }
+  var rangs = ['première', 'deuxième', 'troisième'];
+  var lignes = lus.lettres.slice(0, 3).map(function (x) {
+    var court = (typeof TEXTES_LETTRES_RIASEC !== 'undefined' && TEXTES_LETTRES_RIASEC[x.l]) ? TEXTES_LETTRES_RIASEC[x.l].court : '';
+    return cmvLigneLue(cmvPastille(x.l, true) + ' ' + rangs[x.rang - 1] + ' lettre', '',
+      '<p><b>' + CMV_NOMS_LETTRES[x.l] + '</b>' + (court ? ' : ' + court : '') + '</p><p class="cml-note mb-0">' + cmvPluriel(x.nbMajeure, 'métier') + (x.nbMajeure > 1 ? ' ont' : ' a') + ' ' + x.l + ' comme lettre principale.</p>');
+  }).join('');
+  return cmvBlocChoixLus('Comment vos réponses ont été lues', 'Vos réponses au questionnaire donnent un code de trois lettres, de la plus marquée à la moins marquée. Chaque lettre est un goût de travail, pas un jugement. Les métiers sont proposés quand leurs lettres sont les vôtres.', lignes,
+    cmvPluriel(lus.liste, 'métier') + ' sur ' + cmvNombre(lus.total) + (lus.liste > 1 ? ' ont' : ' a') + ' au moins une de vos lettres. Ceux qui ont vos lettres dans le même ordre passent en premier.');
+}
 cmvEnregistrerVue('resultat', {
   titre: 'Votre résultat',
   barre: function () { return { retour: 'accueil' }; },
@@ -283,20 +296,28 @@ cmvEnregistrerVue('resultat', {
     if (!r) { return '<p>Vous n’avez pas encore de résultat. <button type="button" class="btn btn-primary" data-cml="q-commencer">Commencer le questionnaire</button></p>'; }
     var c = r.calcul, code = c.code;
     var h = cmvFilParties(CMV_FIL_C3, -1, null, c.partie4Passee ? [3] : []) +
-      cmvEncart('bi-compass', 'Voici ce que vos réponses montrent <b>aujourd’hui</b> (questionnaire passé le ' + r.date + '). Ce n’est pas un diagnostic, ni une note : ce sont des directions qui vous attirent. Ce résultat peut changer, et vous pouvez le refaire plus tard. Tout le monde a un peu de chaque lettre.');
+      (c.peuDeLignes ? '' : cmvEncart('bi-compass', 'Voici ce que vos réponses montrent <b>aujourd’hui</b> (questionnaire passé le ' + r.date + '). Ce n’est pas un diagnostic, ni une note : ce sont des directions qui vous attirent. Ce résultat peut changer, et vous pouvez le refaire plus tard. Tout le monde a un peu de chaque lettre.'));
     if (c.partie4Passee) { h += '<p class="cml-note">' + CMQ_TEXTES.sansPartie4 + '</p>'; }
-    if (c.etat === 'peu_reponses') {
+    // Niveau du résultat (consigne 508) : selon la part des lignes répondues. Résultat gardé avant cette règle : nombre de lignes inconnu, aucun niveau.
+    var niv = cmlInfoNiveauQuestionnaire(c.nbReponses, c.nbLignes);
+    if (c.peuDeLignes) {
+      // Trop de lignes laissées vides : aucune lettre, ni barres ni hexagone ni métiers (le code serait fragile).
+      h += cmvBandeauQuestionnaire(niv) + cmvLegendeNiveauxQuestionnaire(niv);
+    } else if (c.etat === 'peu_reponses') {
       h += cmvEncart('bi-info-circle', CMQ_TEXTES.peuReponses, true);
     } else {
+      h += cmvBandeauQuestionnaire(niv);
       h += '<div class="cml-bloc"><h2>' + (code.length === 1 ? 'Votre lettre' : (code.length === 2 ? 'Vos deux lettres' : 'Vos trois lettres')) + '</h2><div style="display:flex;gap:.8rem 1.4rem;align-items:center;flex-wrap:wrap">' +
         code.map(function (l) { return '<div style="display:flex;gap:.5rem;align-items:center">' + cmvPastille(l, true) + '<b>' + CMV_NOMS_LETTRES[l] + '</b></div>'; }).join('') + '</div>' +
         (code.length < 3 ? '<p class="mt-2 mb-0">' + CMQ_TEXTES.sousSeuil + '</p>' : '') +
         (c.etat === 'reparties' ? '<p class="mt-2 mb-0">' + CMQ_TEXTES.reparties + '</p>' : '') +
         (c.procheFrontiere ? '<p class="mt-2 mb-0">' + CMQ_TEXTES.frontiere + '</p>' : '') + '</div>';
     }
-    h += '<div class="cml-bloc"><div class="cml-hex-zone"><div>' + cmvHexagone(c.pourcentages, true) + '</div><div><h2>Vos réponses sur l’hexagone</h2>' +
-      '<div role="group" aria-label="Vos six lettres">' + _cmqvBarresHTML(c) + '</div>' +
-      '<p class="cml-note mt-2 mb-0">' + CMQ_TEXTES.explicationBarres + '</p></div></div></div>';
+    if (!c.peuDeLignes) {
+      h += '<div class="cml-bloc"><div class="cml-hex-zone"><div>' + cmvHexagone(c.pourcentages, true) + '</div><div><h2>Vos réponses sur l’hexagone</h2>' +
+        '<div role="group" aria-label="Vos six lettres">' + _cmqvBarresHTML(c) + '</div>' +
+        '<p class="cml-note mt-2 mb-0">' + CMQ_TEXTES.explicationBarres + '</p></div></div></div>';
+    }
     var axes = [c.axes && c.axes.personnes && c.axes.personnes.phrase, c.axes && c.axes.idees && c.axes.idees.phrase].filter(function (x) { return !!x; });
     if (axes.length && c.etat !== 'peu_reponses') {
       h += '<div class="cml-bloc"><h2>Votre orientation</h2>' + axes.map(function (t) { return '<p class="mb-1">' + t + '</p>'; }).join('') + '</div>';
@@ -306,7 +327,8 @@ cmvEnregistrerVue('resultat', {
         '<div class="cml-bloc"><h2>Ce que veulent dire vos lettres</h2>' + cmvFichesLettres(code, true) + '</div>' +
         '<div class="cml-bloc"><h2>Des métiers qui partagent vos lettres</h2>' +
         cmvEncart('bi-building', 'France Travail donne à chaque métier de son répertoire une ou deux lettres. Ces métiers portent les vôtres : ce sont des pistes qui ressemblent à ce que vous aimez, pas une liste de métiers « faits pour vous ».') +
-        cmvCartesMetiersLettres(c.lettresPourMetiers, etat) + '</div>';
+        cmvCartesMetiersLettres(c.lettresPourMetiers, etat) + '</div>' +
+        _cmqvBlocLu(c.lettresPourMetiers) + cmvLegendeNiveauxQuestionnaire(niv);
     }
     h += cmvEncart('bi-people', 'Parler de ce résultat avec un conseiller ou un professionnel complète utilement cette exploration.') +
       '<div class="cml-bloc"><div style="display:flex;gap:.6rem;flex-wrap:wrap">' +

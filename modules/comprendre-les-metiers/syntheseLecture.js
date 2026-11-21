@@ -236,7 +236,7 @@ function _synLibs(D, liste, n) { return liste.slice(0, n).map(function (c) { ret
 function _synLibsTexte(D, liste, n) { return liste.slice(0, n).map(function (c) { return D[c.t][c.i].lib; }).join(', '); }
 
 // Ce que le CODE sait d'une piste (jamais ce que dit l'assistant) : origine, niveau d'accès, comparaison des compétences. UNE seule fonction pour la page et pour la feuille imprimée.
-// Ce que la personne a pratiqué, pour le comparer à CHAQUE piste : son parcours (étape B) s'il est rempli, sinon les compétences choisies dans « Par un métier ».
+// Ce que la personne a pratiqué, pour le comparer à CHAQUE piste : son parcours (étape B) s'il est rempli, sinon les compétences choisies dans « Chercher un métier ».
 function synSourceComparaison(D, S) {
   var parc = D ? synpBagageIds(D, synEtat().parcours) : [];
   if (parc.length) { return { source: 'parcours', choisies: parc }; }
@@ -265,12 +265,12 @@ function _synBlocPiste(etat, p, num, nomsTests, voisins, D, S) {
     '<p class="mb-1"><button type="button" class="btn btn-outline-primary btn-sm" data-cml="fiche" data-nom="' + cmvE(info.fiche) + '"><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Voir la fiche de ce métier</button></p>';
   var c = info.comparaison;
   if (c) {
-    h += _synCamembert(c.deja, c.total) + '<p class="cml-note mb-1">Calculé par l’application à partir ' + (info.source === 'parcours' ? 'de ce que vous avez coché dans « Mon parcours »' : 'des compétences que vous avez choisies dans « Par un métier »') + '. Une compétence non cochée n’est pas une compétence que vous n’avez pas, seulement une que vous n’avez pas indiquée. Ce n’est pas une note.</p>' +
+    h += _synCamembert(c.deja, c.total) + '<p class="cml-note mb-1">Calculé par l’application à partir ' + (info.source === 'parcours' ? 'de ce que vous avez coché dans « Mon parcours »' : 'des compétences que vous avez choisies dans « Chercher un métier »') + '. Une compétence non cochée n’est pas une compétence que vous n’avez pas, seulement une que vous n’avez pas indiquée. Ce n’est pas une note.</p>' +
       (c.transferables.length ? '<p class="mb-1"><b>Transférables :</b> ' + _synLibs(D, c.transferables, 4) + '.</p>' : '') +
       (c.transversales.length ? '<p class="mb-1"><b>Transversales :</b> ' + _synLibs(D, c.transversales, 4) + '.</p>' : '') +
       (c.aAcquerir.length ? '<p class="mb-0"><b>À acquérir :</b> ' + _synLibs(D, c.aAcquerir, 4) + '.</p>' : '');
   } else {
-    h += '<p class="cml-note mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i> Pour comparer vos compétences à celles de cette piste, ajoutez votre parcours (« Mon parcours » sur la page de synthèse) ou choisissez des compétences dans « Par un métier » : sans cela, un dessin serait trompeur.</p>';
+    h += '<p class="cml-note mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i> Pour comparer vos compétences à celles de cette piste, ajoutez votre parcours (« Mon parcours » sur la page de synthèse) ou choisissez des compétences dans « Chercher un métier » : sans cela, un dessin serait trompeur.</p>';
   }
   return h + '</div>';
 }
@@ -293,7 +293,7 @@ function _synHtmlLecture(etat) {
   var D = (typeof _pmfD === 'function') ? _pmfD() : null, S = (typeof pmEtat === 'function') ? pmEtat() : null, n = synNombreSources(etat);
   var manquants = [];
   if (!synRetenu(1)) { manquants.push('« Chercher un métier »'); }
-  if (!((typeof _cmaNombreChoix === 'function') && _cmaNombreChoix(etat) > 0)) { manquants.push('« Par ce que vous aimez faire »'); }
+  if (!((typeof _cmaNombreChoix === 'function') && _cmaNombreChoix(etat) > 0)) { manquants.push('« Partir de vos envies »'); }
   if (!(etat.q && etat.q.resultat)) { manquants.push('le questionnaire'); }
   var h = '<p class="cml-note">Lecture de l’assistant en ligne, reçue le ' + cmvE(l.date || '') + '.</p>' +
     cmvEncart('bi-info-circle', 'Ce sont des pistes de réflexion, pas une note, pas un diagnostic, pas une solution. Elles montrent une direction et quelques métiers pour l’illustrer, à confirmer ou à changer. Relisez-les avec une personne qui vous accompagne.', true);

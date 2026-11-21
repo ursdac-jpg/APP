@@ -110,7 +110,14 @@ function _synBlocPassage3(etat) {
   if (!r) {
     return h + _synInvite('Ce passage n’est pas encore fait. Le faire rend votre synthèse plus précise : vos six lettres montrent ce qui vous attire de fond. Il n’y a ni bonne ni mauvaise réponse, et aucune réponse n’est obligatoire.', 'Voir le questionnaire', 'q') + '</div>';
   }
-  var c = r.calcul, classes = synClasserLettres(c);
+  var c = r.calcul;
+  // Trop de lignes laissées vides (consigne 508) : aucune lettre n'est montrée, ni ici ni dans le résultat.
+  if (c.peuDeLignes) {
+    var niv = cmlInfoNiveauQuestionnaire(c.nbReponses, c.nbLignes);
+    return h + '<p class="cml-note mb-2">Questionnaire passé le ' + cmvE(r.date) + '.</p>' + cmvEncart('bi-info-circle', 'Trop de lignes sont restées vides pour montrer des lettres' + (niv ? ' (vous avez répondu à ' + cmvNombre(niv.nbReponses) + ' lignes sur ' + cmvNombre(niv.nbLignes) + ', il en faut au moins ' + cmvNombre(niv.minimum) + ')' : '') + '. Vous pouvez refaire le questionnaire quand vous le souhaitez.', true) +
+      '<button type="button" class="btn btn-outline-primary" data-cml="aller" data-vue="resultat">Voir pourquoi</button></div>';
+  }
+  var classes = synClasserLettres(c);
   h += '<p class="cml-note mb-2">Questionnaire passé le ' + cmvE(r.date) + '. Les six types, en pourcentage de vos réponses.</p>' +
     '<div role="group" aria-label="Vos six lettres">' + _cmqvBarresHTML(c, classes) + '</div>';
   if (c.etat === 'peu_reponses') {

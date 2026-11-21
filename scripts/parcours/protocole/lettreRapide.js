@@ -67,4 +67,4 @@ async function jouer(a, j, parcours) {
   j.info('chaîne des « Retour » : ' + chemin.join(' < '));
   if (!/^preparer-lettre-entretien:Lettre et entretien/.test(chemin[chemin.length - 1] || '')) { j.ko('version rapide parcours ' + parcours + ' : la chaîne des « Retour » ne rejoint pas la page « Lettre et entretien en version rapide » : ' + chemin.join(' < ')); } else { j.ok('version rapide parcours ' + parcours + ' : les « Retour » successifs rejoignent la page commune en ' + chemin.length + ' pas'); }
 }
-module.exports = { nom: 'lettreRapide', jouer: (a, j) => jouer(a, j, 1), jouerParcours: jouer };
+module.exports = { nom: 'lettreRapide', jouer: (a, j) => jouer(a, j, 1), jouerParcours: jouer, REPONSE_LETTRE, REPONSE_ENTRETIEN };

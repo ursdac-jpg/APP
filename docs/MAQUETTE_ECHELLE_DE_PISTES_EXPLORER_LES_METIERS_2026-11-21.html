@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : échelle de pistes</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.18);max-height:70vh;overflow:auto}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-regl .pas{display:inline-flex;align-items:center;gap:.25rem;border:1px solid var(--border-strong);border-radius:10px;padding:.1rem .3rem;font-size:.8rem}
+.mq-regl .pas button{min-height:30px;min-width:30px;padding:0}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-bandeau{background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;font-size:.82rem;margin:.4rem 0 .8rem}
+.titre-page{font-size:1.5rem;font-weight:800;margin:.2rem 0 .3rem;text-align:center}
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin:.9rem 0}
+.bloc h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.bloc .intro{font-size:.92rem;color:var(--text-muted);margin:.1rem 0 .7rem}
+.ligne-choix2{display:flex;gap:.4rem .8rem;flex-wrap:wrap;align-items:baseline;border-top:1px solid var(--border);padding:.55rem 0}
+.ligne-choix2:first-of-type{border-top:0}
+.ligne-choix2 .qui{flex:0 0 11rem;font-weight:800}
+.ligne-choix2 .dit{flex:1 1 16rem}
+.tel .ligne-choix2 .qui{flex-basis:100%}
+/* ----- Niveaux de piste : une seule teinte qui s'intensifie (variables posées par la maquette, claires et sombres) ----- */
+.niv{--nb:var(--bg-subtle);--nl:var(--border-strong);--nf:var(--accent)}
+.niv-bandeau{border:2px solid var(--nl);background:var(--nb);border-radius:14px;padding:.8rem 1rem;margin:.9rem 0;display:grid;gap:.45rem}
+.niv-tete{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.niv-nom{font-size:1.25rem;font-weight:800;margin:0}
+.niv-num{font-size:.82rem;font-weight:700;border:1px solid var(--nl);border-radius:999px;padding:.05rem .6rem;background:var(--bg-card)}
+.barres{display:inline-flex;align-items:flex-end;gap:3px;height:22px}
+.barres i{display:block;width:7px;border-radius:2px;background:var(--bg-card);border:1.5px solid var(--nl)}
+.barres i.on{background:var(--nf);border-color:var(--nf)}
+.niv-suite{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;font-weight:600}
+.niv-jauge{display:flex;gap:4px;flex:1 1 12rem;min-width:9rem}
+.niv-jauge span{flex:1;height:9px;border-radius:5px;background:var(--bg-card);border:1.5px solid var(--nl)}
+.niv-jauge span.on{background:var(--nf);border-color:var(--nf)}
+.liste-niv{display:grid;gap:.5rem;margin:.4rem 0}
+.liste-niv .ligne{display:grid;grid-template-columns:auto 1fr;gap:.2rem .7rem;align-items:center;border:2px solid var(--nl);background:var(--nb);border-radius:12px;padding:.55rem .8rem}
+.liste-niv .ligne.ici{box-shadow:0 0 0 3px var(--nf)}
+.liste-niv .ligne b{font-size:1rem}
+.liste-niv .ligne small{grid-column:2;color:var(--text-muted);font-size:.85rem}
+.liste-niv .ligne .ici-t{font-size:.78rem;font-weight:800;border:1px solid var(--nl);background:var(--bg-card);border-radius:999px;padding:.02rem .5rem;margin-left:.4rem}
+.carte-res{border:1px solid var(--border-strong);border-left:6px solid var(--nl);border-radius:12px;background:var(--bg-card);padding:.7rem .85rem;margin:.6rem 0;display:flex;flex-direction:column;gap:.35rem}
+.carte-res h4{font-size:1.02rem;font-weight:800;margin:0}
+.carte-res.vedette{padding:.9rem 1rem;border-width:2px;border-left-width:8px;border-color:var(--nl)}
+.carte-res .cml-pill{align-self:flex-start}
+.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.tel .grille{grid-template-columns:1fr}
+.grille .carte-res{margin:0}
+.tab-fiab{width:100%;border-collapse:collapse;font-size:.88rem}
+.tab-fiab th,.tab-fiab td{border:1px solid var(--border);padding:.3rem .5rem;text-align:left}
+.tab-fiab tr.ici td{background:var(--nb);font-weight:700}
+.tel .tab-fiab{font-size:.78rem}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran</b><div class="boutons" id="g-ecran">
+    <button type="button" data-v="res">Les métiers proposés</button><button type="button" data-v="niv">Les cinq niveaux</button><button type="button" data-v="tab">Pour décider : ce que donne le moteur de 1 à 10 choix</button></div></div>
+  <div class="grp"><b>Chemin</b><div class="boutons" id="g-chemin">
+    <button type="button" data-v="2">Chemin 2 : par ce que vous aimez faire</button><button type="button" data-v="1">Chemin 1 : par un métier (compétences)</button></div></div>
+  <div class="grp"><b>Profil d'exemple</b><div class="boutons" id="g-profil"></div></div>
+  <div class="grp"><b>Nombre de choix pris en compte (les premiers du profil)</b><div class="boutons" id="g-k"></div></div>
+  <div class="grp"><b>Chemin 2 : chaque niveau commence à tel nombre de choix (en dessous du niveau 1 : aucune liste)</b><div class="boutons" id="g-b2"></div></div>
+  <div class="grp"><b>Chemin 1 : chaque niveau commence à tel nombre de choix (en dessous du niveau 1 : aucune liste)</b><div class="boutons" id="g-b1"></div></div>
+  <div class="grp"><b>La grande carte « Première proposition » paraît à partir du niveau</b><div class="boutons" id="g-vedette">
+    <button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">Jamais</button></div></div>
+  <div class="grp"><b>… et seulement si peu de métiers sont à égalité en tête</b><div class="boutons" id="g-egal">
+    <button type="button" data-v="oui">Oui : au plus 3 à égalité</button><button type="button" data-v="non">Non, le niveau suffit</button></div></div>
+  <div class="grp"><b>Pourcentage maximum selon le nombre de choix</b><div class="boutons" id="g-cap">
+    <button type="button" data-v="actuel">Actuel : 25, 40, 55, 65, 75, 82, 88, 94, 100</button><button type="button" data-v="exigeant">Plus exigeant : dès 3 choix 30, 40, 50, 60, 70, 80, 90, jamais plus de 95</button></div></div>
+  <div class="grp"><b>Teinte des niveaux (une seule, qui s'intensifie)</b><div class="boutons" id="g-teinte">
+    <button type="button" data-v="215">Bleu</button><button type="button" data-v="175">Turquoise</button><button type="button" data-v="265">Violet</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Le moteur est le vrai (1 925 métiers de la base) : changez le profil et le nombre de choix, et regardez le niveau, les textes et la liste changer. Version 2 (21/11/2026, après vos remarques) : aucune liste sous 3 choix, quatre niveaux, première vraie proposition dès 5 choix, pourcentage plus exigeant. Tout se règle.</div>
+  <div id="rendu"></div>
+</div>
+
+<script src="../data/metiersRome.js"></script>
+<script src="../data/niveauxAccesVerifies.js"></script>
+<script src="../data/conditionsRome.js"></script>
+<script src="../data/descriptionsEcrites.js"></script>
+<script src="../data/rapprochementCompetences.js"></script>
+<script src="../data/metiers.js"></script>
+<script src="../data/actionsProfessionnelles.js"></script>
+<script src="../data/personnesMaterielsLieux.js"></script>
+<script src="../data/environnementsTravail.js"></script>
+<script src="../data/questionnaireRiasec.js"></script>
+<script src="../data/lettresRiasecRome.js"></script>
+<script src="../data/competencesRome.js"></script>
+<script src="../data/rome/indexCompetences.js"></script>
+<script src="../modules/comprendre-les-metiers/logique.js"></script>
+<script src="../modules/comprendre-les-metiers/parMetierDonnees.js"></script>
+<script src="../modules/comprendre-les-metiers/parMetierCalcul.js"></script>
+<script>
+/* ---------- Profils d'exemple ---------- */
+var PROFILS2 = [
+  { titre: 'Cuisine et service', choix: ['aliments', 'cuisiner', 'cuisine', 'clients', 'servir', 'nettoyer', 'hotel', 'preparer_boissons', 'accueillir', 'encaisser'] },
+  { titre: 'Animaux et nature', choix: ['animaux_compagnie', 'soins_veterinaires', 'espaces_verts', 'vegetaux', 'exploitation_agricole', 'soigner', 'cultiver_entretenir_plantes', 'exterieur', 'chevaux', 'elevage_ferme'] },
+  { titre: 'Bureau et gestion', choix: ['ordinateur', 'documents', 'bureau', 'saisir', 'classer', 'communiquer_ecrit', 'gerer', 'analyser', 'calculer', 'administration'] }
+];
+// Chemin 1 : les compétences (savoir-faire et savoir-être en alternance) de la fiche d'un métier, comme le ferait une personne qui pense à ce métier.
+var METIERS1 = ['Aide-soignant', 'Cuisinier / Commis de cuisine', 'Mécanicien automobile'];
+var CATS = [CATALOGUE_PERSONNES_MATERIELS_LIEUX, CATALOGUE_ACTIONS_PRO, CATALOGUE_ENVIRONNEMENTS_TRAVAIL], CLES = ['activites', 'actions', 'environnement'];
+var LIB = {}, CAT_DE = {};
+CATS.forEach(function (c, k) { c.forEach(function (g) { g.items.forEach(function (it) { LIB[it.id] = it.label; CAT_DE[it.id] = CLES[k]; }); }); });
+var D = pmdDonnees();
+var PROFILS1 = METIERS1.map(function (nom) {
+  var i = D.m.findIndex(function (r) { return r[0] === nom; }); var r = D.m[i], sf = r[3].slice(0, 6), se = r[4].slice(0, 4), t = [];
+  for (var j = 0; j < 6 || j < 4; j++) { if (sf[j] !== undefined) { t.push({ t: 'sf', i: sf[j] }); } if (se[j] !== undefined) { t.push({ t: 'se', i: se[j] }); } }
+  return { titre: 'Une personne qui pense à : ' + nom, comp: t.slice(0, 10) };
+});
+
+var E = { ecran: 'res', chemin: 2, profil: 0, k: 3, b2: [3, 5, 7, 9], b1: [3, 5, 7, 9], vedette: 2, egal: 'oui', cap: 'exigeant', teinte: 215, tel: false, sombre: false };
+var CAPS = { actuel: [0, 25, 40, 55, 65, 75, 82, 88, 94, 100], exigeant: [0, 0, 0, 30, 40, 50, 60, 70, 80, 90, 95] };
+function capDe(nom, N) { var c = CAPS[nom]; return c[Math.min(Math.floor(N), c.length - 1)]; }
+
+/* ---------- Les cinq niveaux : noms et légendes (propositions) ---------- */
+var NIVEAUX = [
+  { nom: 'Piste éloignée', texte: 'Avec peu de choix, beaucoup de métiers restent possibles. Ce sont des idées de départ, pas une proposition.' },
+  { nom: 'Piste à explorer', texte: 'Les premiers métiers qui ressortent sont de vraies propositions, mais plusieurs se valent encore. Ce sont des pistes à explorer.' },
+  { nom: 'Piste proche', texte: 'Peu de métiers retrouvent tout ce que vous avez choisi. Lisez leurs fiches pour vérifier qu’ils vous parlent.' },
+  { nom: 'Piste précise', texte: 'La liste est étroite et bien ciblée. Parlez-en avec un conseiller, ou confirmez avec le questionnaire de préférences.' }
+];
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+function pl(n, s) { return fmt(n) + ' ' + s + (n > 1 && !/[sx]$/.test(s) ? 's' : ''); }
+function bornes() { return E.chemin === 2 ? E.b2 : E.b1; }
+function niveauDe(N, b) { var n = 0; b = b || bornes(); for (var i = 0; i < 4; i++) { if (N >= b[i]) { n = i + 1; } } return n; }
+function plage2(i, b) { b = b || bornes(); if (i === 3) { return b[3] + ' choix et plus'; } var fin = b[i + 1] - 1; return fin <= b[i] ? b[i] + ' choix' : 'de ' + b[i] + ' à ' + fin + ' choix'; }
+
+/* ---------- Teinte : une seule, qui s'intensifie (claire et sombre) ---------- */
+function posePalette() {
+  var h = E.teinte, st = document.getElementById('rendu').style;
+  for (var i = 1; i <= 4; i++) {
+    var t = (i - 1) / 3;
+    if (E.sombre) {
+      st.setProperty('--nb' + i, 'hsl(' + h + ',38%,' + Math.round(15 + t * 12) + '%)');
+      st.setProperty('--nl' + i, 'hsl(' + h + ',55%,' + Math.round(34 + t * 28) + '%)');
+      st.setProperty('--nf' + i, 'hsl(' + h + ',70%,' + Math.round(48 + t * 14) + '%)');
+    } else {
+      st.setProperty('--nb' + i, 'hsl(' + h + ',70%,' + Math.round(97 - t * 9) + '%)');
+      st.setProperty('--nl' + i, 'hsl(' + h + ',50%,' + Math.round(76 - t * 34) + '%)');
+      st.setProperty('--nf' + i, 'hsl(' + h + ',65%,' + Math.round(52 - t * 20) + '%)');
+    }
+  }
+}
+function styleNiv(n) { n = Math.max(1, n); return 'style="--nb:var(--nb' + n + ');--nl:var(--nl' + n + ');--nf:var(--nf' + n + ')"'; }
+function barres(n) { n = Math.max(0, n); var h = '<span class="barres" role="img" aria-label="Niveau ' + n + ' sur 4">'; for (var i = 1; i <= 4; i++) { h += '<i class="' + (i <= n ? 'on' : '') + '" style="height:' + (7 + i * 4) + 'px"></i>'; } return h + '</span>'; }
+
+/* ---------- Le vrai moteur ---------- */
+function choixActuels(k) {
+  if (E.chemin === 2) { var c = { activites: [], actions: [], environnement: [] }; PROFILS2[E.profil].choix.slice(0, k).forEach(function (id) { c[CAT_DE[id]].push(id); }); return c; }
+  return PROFILS1[E.profil].comp.slice(0, k);
+}
+function calculer(k) {
+  var rows, rescale = function (p) { var ancien = capDe('actuel', k), nouveau = capDe(E.cap, k); return ancien ? Math.max(1, Math.round(p * nouveau / ancien)) : p; };
+  if (E.chemin === 2) {
+    var liste = cmlEntree2Metiers(choixActuels(k), 5000);
+    rows = liste.map(function (m) { return { nom: m.nom, secteur: m.secteur, pct: rescale(m.score), ret: m.choixRetrouves }; });
+  } else {
+    var S = pmcEtatInitial(); S.comp = choixActuels(k); var R = pmcCalculer(D, S);
+    rows = R.retenus.map(function (o) { return { nom: D.m[o.i][0], secteur: D.secteurs[D.m[o.i][1]], pct: rescale(o.sc.pct), ret: o.sc.retrouvees }; });
+  }
+  var top = rows.length ? rows[0].pct : 0;
+  return { rows: rows, total: rows.length, ex: rows.filter(function (r) { return r.pct === top; }).length, top: top };
+}
+function maxK() { return E.chemin === 2 ? PROFILS2[E.profil].choix.length : PROFILS1[E.profil].comp.length; }
+function libChoix(k) {
+  if (E.chemin === 2) { return PROFILS2[E.profil].choix.slice(0, k).map(function (id) { return LIB[id]; }); }
+  return PROFILS1[E.profil].comp.slice(0, k).map(function (c) { return D[c.t][c.i].lib; });
+}
+
+/* ---------- Bandeau du niveau ---------- */
+function bandeauNiveau(N) {
+  var n = niveauDe(N), b = bornes(), nv = NIVEAUX[Math.max(0, n - 1)];
+  if (!n) { return ''; }
+  var reste = n < 4 ? b[n] - N : 0, suite = n < 4 ? NIVEAUX[n].nom : '';
+  var h = '<div class="niv niv-bandeau" ' + styleNiv(n) + ' role="status">' +
+    '<div class="niv-tete">' + barres(n) + '<h2 class="niv-nom">' + esc(nv.nom) + '</h2><span class="niv-num">Niveau ' + n + ' sur 4</span></div>' +
+    '<p class="mb-0"><b>Pourquoi ce nom ?</b> ' + pl(N, 'choix') + ' : ' + esc(nv.texte) + '</p>' +
+    '<div class="niv-suite"><span class="niv-jauge" aria-hidden="true">' + [1, 2, 3, 4].map(function (i) { return '<span class="' + (i <= n ? 'on' : '') + '"></span>'; }).join('') + '</span>' +
+    (n < 4 ? '<span>Encore <b>' + pl(reste, 'choix') + '</b> pour passer à « ' + esc(suite) + ' ».</span>' : '<span>C’est le niveau le plus précis. Vous pouvez remplacer un choix pour comparer.</span>') + '</div></div>';
+  return h;
+}
+function legendeNiveaux(N) {
+  var n = niveauDe(N), b = bornes();
+  return '<div class="bloc"><h3><i class="bi bi-signpost-split" aria-hidden="true"></i> Les quatre niveaux d’une liste</h3><p class="intro">Le niveau ne dit pas que vous vous trompez : il dit à quel point la liste est précise, selon le nombre de choix que vous avez faits. En dessous de ' + bornes()[0] + ' choix, nous ne proposons pas encore de métiers.</p><div class="liste-niv">' +
+    NIVEAUX.map(function (v, i) {
+      return '<div class="niv ligne' + (n === i + 1 ? ' ici' : '') + '" ' + styleNiv(i + 1) + '>' + barres(i + 1) + '<span><b>' + esc(v.nom) + '</b> <span class="cml-note">(' + plage2(i, b) + ')</span>' + (n === i + 1 ? '<span class="ici-t">Vous êtes ici</span>' : '') + '</span><small>' + esc(v.texte) + '</small></div>';
+    }).join('') + '</div></div>';
+}
+
+/* ---------- Écran : les métiers proposés ---------- */
+function vosChoix(k) {
+  var l = libChoix(k);
+  return '<div class="bloc"><h3><i class="bi bi-hand-index" aria-hidden="true"></i> Vos choix (' + k + ')</h3><div class="chips">' + l.map(function (t) { return '<span class="cml-pill pc">' + esc(t) + '</span>'; }).join('') + '</div></div>';
+}
+function carte(r, N, vedette) {
+  return '<div class="carte-res' + (vedette ? ' vedette' : '') + '"' + '>' + (vedette ? '<span class="cml-pill" style="background:var(--accent);color:#fff;border-color:var(--accent)">Première proposition</span>' : '') +
+    '<h4>' + esc(r.nom) + '</h4><p class="cml-note mb-0">Secteur : ' + esc(r.secteur) + '</p>' +
+    '<div class="cml-pct" role="img" aria-label="Ressemblance avec vos choix : ' + r.pct + ' pour cent"><span class="cml-note">Ressemblance avec vos choix</span><div class="piste"><span style="width:' + r.pct + '%"></span></div><b>' + r.pct + ' %</b></div>' +
+    '<p class="cml-note mb-0">' + r.ret + ' de vos ' + N + ' choix retrouvés dans ce métier.' + '</p>' +
+    (vedette ? '<p class="mb-0" style="font-size:.9rem"><b>Pourquoi ce métier vous est proposé.</b> Il réunit ' + r.ret + ' de vos ' + N + ' choix.</p>' : '') + '</div>';
+}
+function pageRes() {
+  var k = Math.min(E.k, maxK()), N = k, n = niveauDe(N), b = bornes();
+  var h = '<h1 class="titre-page">' + (E.chemin === 2 ? 'Par ce que vous aimez faire' : 'Par un métier') + '</h1>' + vosChoix(k);
+  if (!n) {
+    var manque = b[0] - N;
+    return h + '<div class="niv niv-bandeau" ' + styleNiv(1) + ' role="status"><div class="niv-tete">' + barres(0) + '<h2 class="niv-nom">Pas encore de pistes</h2></div>' +
+      '<p class="mb-0"><b>Pourquoi ?</b> ' + (N ? 'Avec ' + pl(N, 'choix') + ', des centaines' : 'Sans choix, des milliers') + ' de métiers restent possibles : les classer ne vous aiderait pas. Nous ne proposons des métiers qu’à partir de ' + pl(b[0], 'choix') + '.</p>' +
+      '<div class="niv-suite"><span class="niv-jauge" aria-hidden="true">' + [1, 2, 3, 4].map(function () { return '<span></span>'; }).join('') + '</span><span>Encore <b>' + pl(manque, 'choix') + '</b> pour voir vos premières pistes.</span></div>' +
+      '<p class="mb-0"><button type="button" class="btn btn-primary btn-sm" data-ajout="1"><i class="bi bi-plus-lg" aria-hidden="true"></i> Retourner choisir</button> <span class="cml-note">(Dans la maquette : ajoute un choix du profil.)</span></p></div>' + legendeNiveaux(N);
+  }
+  var R = calculer(k);
+  h += '<div class="niv" ' + styleNiv(n) + '>' + bandeauNiveau(N) + '</div>';
+  var assez = n >= E.vedette, egal = E.egal === 'oui' ? R.ex <= 3 : true, vedette = assez && egal && R.rows.length > 0;
+  if (!R.rows.length) { return h + '<div class="cml-encart"><i class="bi bi-info-circle" aria-hidden="true"></i><p><b>Avec ces choix, notre base ne reconnaît aucun métier.</b> Cela ne veut pas dire qu’il n’existe pas : seulement que nous ne le connaissons pas.</p></div>' + legendeNiveaux(N); }
+  h += '<div class="cml-encart"><i class="bi bi-compass" aria-hidden="true"></i><p>' + pl(R.total, 'métier') + ' retrouvent vos choix' + (R.ex > 1 ? ', dont <b>' + pl(R.ex, 'métier') + '</b> à égalité en tête à ' + R.top + ' %' : '') + '. Ce sont des pistes à explorer, pas une réponse unique.</p></div>';
+  var niv = '<div class="niv" ' + styleNiv(n) + '>';
+  if (vedette) {
+    h += niv + carte(R.rows[0], N, true) + '</div>';
+    h += '<h3 style="font-size:1.05rem;font-weight:800;margin:.8rem 0 .2rem">Les autres métiers</h3><div class="grille">' + R.rows.slice(1, 5).map(function (r) { return niv + carte(r, N, false) + '</div>'; }).join('') + '</div>';
+  } else {
+    h += '<div class="cml-encart"><i class="bi bi-signpost-split" aria-hidden="true"></i><p><b>Aucun métier n’est mis en avant pour le moment.</b> ' + (assez && !egal ? 'Plusieurs métiers se valent en tête (' + R.ex + ' à égalité) : en choisir un comme « première proposition » serait arbitraire.' : 'Avec ' + pl(N, 'choix') + ', ce serait trop tôt pour désigner un métier. Voici des pistes, sans classement fiable entre elles.') + '</p></div>';
+    h += '<h3 style="font-size:1.05rem;font-weight:800;margin:.8rem 0 .2rem">Vos pistes (' + fmt(R.total) + ')</h3><div class="grille">' + R.rows.slice(0, 6).map(function (r) { return niv + carte(r, N, false) + '</div>'; }).join('') + '</div>';
+  }
+  h += '<div class="cml-encart"><i class="bi bi-hexagon" aria-hidden="true"></i><p><b>Pour confirmer ces pistes.</b> Elles viennent seulement de vos choix. Le questionnaire de préférences, plus long (300 questions en quatre parties), donne une lecture plus complète de ce qui vous attire : il peut les confirmer ou les nuancer.</p></div>';
+  return h + legendeNiveaux(N);
+}
+/* ---------- Écran : les quatre niveaux, côte à côte ---------- */
+function pageNiv() {
+  var k = Math.min(E.k, maxK());
+  return '<h1 class="titre-page">Les quatre niveaux</h1>' + legendeNiveaux(k) +
+    '<div class="bloc"><h3><i class="bi bi-info-circle" aria-hidden="true"></i> Ce que la personne lit, niveau par niveau</h3><p class="intro">Le bandeau de chaque niveau, tel qu’il paraîtrait en haut de la liste.</p>' +
+    NIVEAUX.map(function (v, i) { var N = bornes()[i]; return bandeauNiveau(N); }).join('') + '</div>';
+}
+/* ---------- Écran : pour décider, le moteur de 1 à 10 choix ---------- */
+function pageTab() {
+  var h = '<h1 class="titre-page">Pour décider</h1><div class="bloc"><h3><i class="bi bi-table" aria-hidden="true"></i> ' + (E.chemin === 2 ? PROFILS2[E.profil].titre : PROFILS1[E.profil].titre) + '</h3>' +
+    '<p class="intro">Le même profil, avec 1 puis 2 puis 3… choix. Le moteur est le vrai. « Égalités en tête » = nombre de métiers qui ont le même pourcentage que le premier : tant qu’il est grand, le premier est arbitraire.</p>' +
+    '<table class="tab-fiab"><thead><tr><th>Choix</th><th>Niveau</th><th>Métiers</th><th>Égalités en tête</th><th>% en tête</th><th>Le premier</th></tr></thead><tbody>';
+  for (var k = 1; k <= maxK(); k++) {
+    var n = niveauDe(k);
+    if (!n) { h += '<tr class="niv ' + (k === Math.min(E.k, maxK()) ? 'ici' : '') + '" ' + styleNiv(1) + '><td>' + k + '</td><td>Pas encore de pistes</td><td colspan="4">Aucune liste : moins de ' + bornes()[0] + ' choix</td></tr>'; continue; }
+    var R = calculer(k);
+    h += '<tr class="niv ' + (k === Math.min(E.k, maxK()) ? 'ici' : '') + '" ' + styleNiv(n) + '><td>' + k + '</td><td>' + n + ' · ' + esc(NIVEAUX[n - 1].nom) + '</td><td>' + fmt(R.total) + '</td><td>' + fmt(R.ex) + '</td><td>' + R.top + ' %</td><td>' + (R.rows[0] ? esc(R.rows[0].nom) : '') + '</td></tr>';
+  }
+  return h + '</tbody></table></div>';
+}
+
+/* ---------- Réglages ---------- */
+function boutonsB(id, tab, cle) {
+  var h = '';
+  for (var i = 0; i <= 3; i++) {
+    h += '<span class="pas">N' + (i + 1) + ' dès <button type="button" class="btn btn-outline-secondary btn-sm" data-b="' + cle + '" data-i="' + i + '" data-d="-1" aria-label="Moins">−</button><b>' + tab[i] + '</b><button type="button" class="btn btn-outline-secondary btn-sm" data-b="' + cle + '" data-i="' + i + '" data-d="1" aria-label="Plus">+</button> choix</span>';
+  }
+  document.getElementById(id).innerHTML = h;
+}
+function rendre() {
+  var k = Math.min(E.k, maxK()); E.k = k;
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  posePalette();
+  document.getElementById('rendu').innerHTML = '<div class="' + (E.tel ? 'tel' : '') + '">' + (E.ecran === 'res' ? pageRes() : (E.ecran === 'niv' ? pageNiv() : pageTab())) + '</div>';
+  posePalette();
+  var profils = E.chemin === 2 ? PROFILS2 : PROFILS1;
+  document.getElementById('g-profil').innerHTML = profils.map(function (p, i) { return '<button type="button" data-v="' + i + '">' + esc(p.titre) + '</button>'; }).join('');
+  var ks = ''; for (var i = 1; i <= maxK(); i++) { ks += '<button type="button" data-v="' + i + '">' + i + '</button>'; }
+  document.getElementById('g-k').innerHTML = ks;
+  boutonsB('g-b2', E.b2, '2'); boutonsB('g-b1', E.b1, '1');
+  [['g-ecran', E.ecran], ['g-chemin', String(E.chemin)], ['g-profil', String(E.profil)], ['g-k', String(k)], ['g-vedette', String(E.vedette)], ['g-egal', E.egal], ['g-cap', String(E.cap)], ['g-teinte', String(E.teinte)]].forEach(function (g) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + g[0] + ' button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === g[1] ? 'true' : 'false'); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#g-aff button'), function (b) {
+    var m = b.getAttribute('data-m'), v = b.getAttribute('data-v');
+    b.setAttribute('aria-pressed', m ? ((m === 'sombre') === E.sombre ? 'true' : 'false') : ((v === 'tel') === E.tel ? 'true' : 'false'));
+  });
+  var nomT = { 215: 'bleue', 175: 'turquoise', 265: 'violette' }[E.teinte];
+  document.getElementById('retient').innerHTML = '<p><b>Ce que je retiens de vos réglages :</b></p>' +
+    '<p>Chemin 2 : aucune liste sous ' + E.b2[0] + ' choix ; les quatre niveaux commencent à ' + E.b2.join(', ') + ' choix.</p><p>Chemin 1 : aucune liste sous ' + E.b1[0] + ' choix ; les quatre niveaux commencent à ' + E.b1.join(', ') + ' choix.</p>' +
+    '<p>Grande carte « Première proposition » : à partir du niveau ' + (E.vedette === 5 ? '(jamais)' : E.vedette) + (E.egal === 'oui' ? ', et seulement si au plus 3 métiers sont à égalité en tête' : ', sans condition d’égalité') + '.</p>' +
+    '<p>Pourcentage maximum : ' + (E.cap === 'exigeant' ? 'plus exigeant (30, 40, 50, 60, 70, 80, 90 dès 3 choix, jamais plus de 95 %)' : 'actuel (25, 40, 55, 65, 75, 82, 88, 94, 100 %)') + '. Teinte ' + nomT + '.</p>' +
+    '<p><button type="button" class="btn btn-outline-primary btn-sm" id="copier"><i class="bi bi-clipboard" aria-hidden="true"></i> Copier ces réglages</button> <span id="copie-ok" class="cml-note"></span></p>';
+}
+function texteReglages() {
+  var d = document.getElementById('retient').innerText.replace(/Copier ces réglages.*/s, '').trim();
+  return 'Réglages de la maquette « échelle de pistes » :\n' + d;
+}
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  var p = b.parentElement, id = p && p.id, v = b.getAttribute('data-v');
+  if (b.getAttribute('data-ajout')) { E.k = Math.min(maxK(), E.k + 1); rendre(); return; }
+  if (b.id === 'fermer') { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; return; }
+  if (b.id === 'rouvrir') { document.getElementById('regl').style.display = ''; b.style.display = 'none'; return; }
+  if (b.id === 'copier') { var t = texteReglages(); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { document.getElementById('copie-ok').textContent = 'Copié.'; }, function () { document.getElementById('copie-ok').textContent = 'Copie impossible : sélectionnez le texte.'; }); return; }
+  if (b.getAttribute('data-b')) {
+    var tab = b.getAttribute('data-b') === '2' ? E.b2 : E.b1, i = Number(b.getAttribute('data-i')), d = Number(b.getAttribute('data-d'));
+    var nv = tab[i] + d; if (nv >= 1 && (i === 0 || nv > tab[i - 1]) && (i === 3 || nv < tab[i + 1])) { tab[i] = nv; } rendre(); return;
+  }
+  if (id === 'g-ecran') { E.ecran = v; }
+  else if (id === 'g-chemin') { E.chemin = Number(v); E.profil = 0; E.k = 3; }
+  else if (id === 'g-profil') { E.profil = Number(v); }
+  else if (id === 'g-k') { E.k = Number(v); }
+  else if (id === 'g-vedette') { E.vedette = Number(v); }
+  else if (id === 'g-egal') { E.egal = v; }
+  else if (id === 'g-cap') { E.cap = v; }
+  else if (id === 'g-teinte') { E.teinte = Number(v); }
+  else if (id === 'g-aff') { if (b.getAttribute('data-m')) { E.sombre = b.getAttribute('data-m') === 'sombre'; } else { E.tel = v === 'tel'; } }
+  else { return; }
+  rendre();
+});
+rendre();
+</script>
+</body>
+</html>

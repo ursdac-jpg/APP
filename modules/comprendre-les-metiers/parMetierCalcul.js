@@ -1,11 +1,11 @@
 /* ============================================================
-   Module « Explorer les métiers » : entrée 1, « Par un métier » : CALCUL (aucun DOM, aucun stockage). Testé par tests/parMetierCalcul.test.js.
+   Module « Explorer les métiers » : entrée 1, « Chercher un métier » : CALCUL (aucun DOM, aucun stockage). Testé par tests/parMetierCalcul.test.js.
    Charge après parMetierDonnees.js. Reprend le calcul de la maquette validée par Denis (docs/MAQUETTE_PAR_UN_METIER_ENRICHI_EXPLORER_LES_METIERS_2026-11-17.html),
    sur les compétences COMPLÈTES du ROME (index complet) au lieu des listes courtes.
 
    Règles :
-   - le pourcentage d'un métier part de ce que la personne a choisi : compétences (savoir-être, savoir-faire, savoirs : pour chaque type, la racine carrée de
-     « part de ce que le métier demande qui est retrouvée » fois « part des choix de la personne qui est retrouvée », puis la moyenne des types), niveau d'accès,
+   - le pourcentage d'un métier part de ce que la personne a choisi : compétences (savoir-être, savoir-faire, savoirs : la part des choix de la personne que le métier retrouve, chaque choix pesé selon sa
+     rareté depuis le 21/11/2026, consigne 497 ; avant, moyenne des trois types ; depuis le 19/11/2026 (consigne 488) le « rappel », part de ce que le métier demande, ne compte plus que pour départager), niveau d'accès,
      secteur ; poids par défaut 60 / 25 / 10 ; une condition de travail facile ou difficile ajoute ou retire un demi-point (jamais un barrage) ;
    - « ce que le métier demande » est plafonné (savoir-être 4, savoir-faire 6, savoirs 6) : une fiche qui cite 74 savoirs ne doit pas rendre invisible
      chacun d'eux ; on garde ainsi l'ordre de grandeur validé sur les listes courtes ;
@@ -38,6 +38,25 @@ function pmcDepartementsVoisins(departement, zone) {
   return d && d.zones[zone] ? d.zones[zone].slice() : [];
 }
 
+// Noms d'emploi d'un métier (champ n des fiches du ROME, les plus courants d'abord) mis au propre pour l'affichage et pour la demande d'offres (consigne 496) :
+// « Aide-soignant / Aide-soignante en gériatrie » devient « Aide-soignant en gériatrie » (même règle que le générateur des fiches), les doublons et le nom du métier lui-même sont retirés.
+function pmcNomsEmploi(noms, nomMetier) {
+  var vus = {}, nom = String(nomMetier || '').trim().toLowerCase();
+  if (nom) { vus[nom] = true; }
+  var sortie = [];
+  (noms || []).forEach(function (n) {
+    var t = String(n || '').trim(), parties = t.split(' / ');
+    if (parties.length === 2) {
+      var g = parties[0].trim().split(/\s+/), f = parties[1].trim().split(/\s+/), p = 0;
+      while (p < g.length && p < f.length && g[p] === f[p]) { p++; }
+      t = g.concat(f.slice(p + (g.length - p))).join(' ');
+    }
+    var cle = t.toLowerCase();
+    if (!t || vus[cle]) { return; }
+    vus[cle] = true; sortie.push(t);
+  });
+  return sortie;
+}
 // La demande d'offres à coller dans l'assistant en ligne (maquette validée du 17/11/2026, lignes 607 à 629). Rien n'est repris en retour dans l'application.
 // o : { metier, dateTexte, departement (nom), zone, voisins (noms, du plus proche au plus éloigné), competences (libellés), niveau (libellé) }
 function pmcMessageOffres(o) {
@@ -45,6 +64,9 @@ function pmcMessageOffres(o) {
   // Un seul métier (fiche d'un métier) ou une liste de métiers (chemin « Les emplois en demande » : les métiers qui recrutent le plus dans le département).
   var unSeul = !!o.metier, ceMetier = unSeul ? 'ce métier' : 'ces métiers';
   L.push('Nous sommes le ' + o.dateTexte + '. Je cherche des offres d’emploi en ce moment ' + (unSeul ? 'pour le métier suivant : ' + o.metier : 'dans les métiers suivants' + ((o.metiers || []).length ? ' : ' + o.metiers.join(' ; ') : '')) + '. Utilise la recherche sur Internet. Cherche ' + (unSeul ? 'ce métier' : 'ces métiers') + ' sous tous ' + (unSeul ? 'ses' : 'leurs') + ' intitulés, pas seulement sous ' + (unSeul ? 'le nom écrit ici' : 'les noms écrits ici') + ' : autres appellations, noms usuels, anciens noms. Pour chaque offre, dis-moi sous quel intitulé elle est publiée.');
+  // Les appellations les plus courantes du métier (consigne 496) : l'assistant balaie plus large que le seul nom de la fiche
+  var noms = (o.appellations || []).filter(Boolean).slice(0, 5);
+  if (unSeul && noms.length) { L.push(''); L.push('Ce métier porte aussi d’autres noms d’emploi, parmi les plus courants chez les employeurs : ' + noms.join(' ; ') + '. Cherche les offres sous chacun de ces noms, pas seulement sous le premier.'); }
   L.push('');
   L.push('Où chercher : d’abord dans mon territoire' + (o.zone ? ' (' + o.zone + ', ' + o.departement + ')' : ', dans le département suivant : ' + o.departement) + '.' +
     (voisins.length ? ' Ensuite, dans les départements qui touchent ce territoire, du plus proche au plus éloigné de chez moi : ' + voisins.join(', ') + '. Écris toujours clairement dans quel département et quelle ville se trouve chaque offre, et présente d’abord les offres de mon territoire.' : ''));
@@ -71,10 +93,19 @@ function pmcEtatInitial() {
   return { q: '', comp: [], niveau: 0, secteurs: [], dif: [], fac: [], panneau: null, plus: 12, parcourir: false, w: { comp: 60, niv: 25, sec: 30 }, unite: 0.5, seuil: 40 };
 }
 function pmcNbChoix(S) { return S.comp.length + (S.niveau ? 1 : 0) + S.secteurs.length + S.dif.length + S.fac.length; }
+// Consigne 488 : le pourcentage plafonne selon le NOMBRE DE CHOIX (un seul choix ne peut pas donner 53 %). Une compétence, le niveau, les secteurs (un groupe : un métier n'a qu'un secteur)
+// et les conditions de travail (un groupe : elles ne font que décaler le classement) comptent chacun pour un. La table est celle de « Partir de vos envies » (logique.js, source unique).
+function pmcNbChoixPourPlafond(S) { return S.comp.length + (S.niveau ? 1 : 0) + (S.secteurs.length ? 1 : 0) + ((S.dif.length + S.fac.length) ? 1 : 0); }
+function pmcPlafond(S) {
+  var f = (typeof cmlPlafondChoix === 'function') ? cmlPlafondChoix : require('./logique.js').cmlPlafondChoix;
+  return f(pmcNbChoixPourPlafond(S));
+}
+// Un seuil exprimé en « qualité » (part de ce que les choix demandent) devient, à l'écran, un pourcentage plafonné : 40 % de qualité = 40 % du plafond.
+function pmcSeuilAffiche(S, seuilQualite) { return Math.round(seuilQualite * pmcPlafond(S) / 100); }
 function pmcPluriel(n, s, p) { return n + ' ' + (n > 1 ? (p || s + 's') : s); }
 function pmcEstChoisie(S, t, i) { return S.comp.some(function (c) { return c.t === t && c.i === i; }); }
 
-// UNE seule fonction pour l'effet des conditions de travail, partagée par « Par un métier » et « Par ce que vous aimez faire » (consigne 453).
+// UNE seule fonction pour l'effet des conditions de travail, partagée par « Chercher un métier » et « Partir de vos envies » (consigne 453).
 // ids : conditions du métier ; faciles, difficiles : choix de la personne ; unite : points par condition (0,5 par défaut). Jamais un barrage.
 function pmcEffetConditions(ids, faciles, difficiles, unite) {
   var cf = (faciles || []).filter(function (k) { return ids.indexOf(k) !== -1; });
@@ -83,7 +114,7 @@ function pmcEffetConditions(ids, faciles, difficiles, unite) {
   return { cf: cf, cd: cd, points: u * (cf.length - cd.length) };
 }
 
-// Applique cette même fonction à la liste du chemin « Par ce que vous aimez faire » (liste de { score, rome, ... }, déjà classée) :
+// Applique cette même fonction à la liste du chemin « Partir de vos envies » (liste de { score, rome, ... }, déjà classée) :
 // ajoute les points à chaque score (entre 0 et 100), puis reclasse du plus haut au plus bas en gardant l'ordre d'origine à égalité. Sans choix, la liste est rendue telle quelle.
 // idsDe(m) : les conditions du métier ; chaque élément rendu garde son score d'origine dans scoreSansConditions.
 function pmcAjusterListeConditions(liste, faciles, difficiles, idsDe, unite) {
@@ -101,8 +132,17 @@ function pmcAjusterListeConditions(liste, faciles, difficiles, idsDe, unite) {
 }
 
 /* ---------------- Le pourcentage d'un métier ---------------- */
+// Poids de rareté d'une compétence choisie (consigne 497) : logarithme de (nombre de métiers + 1) sur (métiers qui la portent + 1), comme `cmlEntree2Reclasser` (logique.js) ;
+// « Autonomie » (511 métiers sur 1 920) pèse environ 1,3, une compétence portée par dix métiers environ 5,2. Une compétence que la base ne reconnaît chez aucun métier ne pèse rien.
+// Calculé une fois par compétence et gardé dans les données (D._poidsRarete).
+function pmcPoidsRarete(D, t, id) {
+  var cache = D._poidsRarete || (D._poidsRarete = {}), cle = t + ':' + id;
+  if (cache[cle] !== undefined) { return cache[cle]; }
+  var f = (D.inv && D.inv[t] && D.inv[t][id]) ? D.inv[t][id].length : 0;
+  return (cache[cle] = f > 0 ? Math.log((D.m.length + 1) / (f + 1)) : 0);
+}
 function pmcScorer(D, S, r) {
-  var parts = [], poids = [], retrouvees = 0, tcomp = [], coeur = 0;
+  var parts = [], poids = [], retrouvees = 0, trappel = [], coeur = 0, gagne = 0, totalPoids = 0, nbComp = 0, nbRetrouvees = 0;
   PMC_TYPES.forEach(function (t) {
     var choisies = S.comp.filter(function (c) { return c.t === t; });
     if (!choisies.length) { return; }
@@ -112,10 +152,20 @@ function pmcScorer(D, S, r) {
     });
     retrouvees += n;
     var attendu = Math.min(fiche.length, PMC_PLAFOND_RAPPEL[t]);
-    var rappel = attendu ? Math.min(1, n / attendu) : 0, precision = n / choisies.length;
-    tcomp.push(Math.sqrt(rappel * precision));
+    var rappel = attendu ? Math.min(1, n / attendu) : 0;
+    // Consigne 497 (21/11/2026) : chaque choix pèse selon sa rareté (même pondération que « Partir de vos envies » : une compétence portée par peu de métiers dit plus qu'« Autonomie »).
+    choisies.forEach(function (c) {
+      var w = pmcPoidsRarete(D, t, c.i);
+      totalPoids += w; nbComp++;
+      if (fiche.indexOf(c.i) !== -1) { gagne += w; nbRetrouvees++; }
+    });
+    // Consigne 488 (19/11/2026) : le pourcentage dit la part des CHOIX de la personne que le métier retrouve (comme dans « Partir de vos envies »). La quantité d'information est déjà
+    // prise en compte par le plafond selon le nombre de choix : la compter une seconde fois par le « rappel » (part de ce que le métier demande) faisait afficher 36 % pour trois choix sur trois.
+    // Le rappel ne sert plus qu'à départager deux métiers qui retrouvent la même part des choix.
+    trappel.push(rappel);
   });
-  if (tcomp.length) { parts.push(tcomp.reduce(function (a, b) { return a + b; }, 0) / tcomp.length); poids.push(S.w.comp); }
+  // Part des choix retrouvés, pesée par la rareté. Si aucun choix n'a de poids (compétence portée par aucun métier), chaque choix compte pour un.
+  if (nbComp) { parts.push(totalPoids > 0 ? gagne / totalPoids : nbRetrouvees / nbComp); poids.push(S.w.comp); }
   if (S.niveau) {
     var sn = r[2] === 0 ? PMC_REGLAGES.niveauInconnu : (r[2] <= S.niveau ? 1 : Math.max(0, 1 - PMC_REGLAGES.perteParNiveau * (r[2] - S.niveau)));
     parts.push(sn); poids.push(S.w.niv);
@@ -124,15 +174,43 @@ function pmcScorer(D, S, r) {
   var base = 50;
   if (parts.length) { var tot = 0, ps = 0; parts.forEach(function (p, k) { tot += p * poids[k]; ps += poids[k]; }); base = ps ? 100 * tot / ps : 50; }
   var eff = pmcEffetConditions(r[6], S.fac, S.dif, S.unite);
-  var pct = Math.max(0, Math.min(100, base + eff.points));
-  return { pct: Math.round(pct), retrouvees: retrouvees, cd: eff.cd, cf: eff.cf, coeur: coeur };
+  // « qualité » : à quel point le métier retrouve ce qui a été choisi (0 à 100) ; « pct » : cette qualité ramenée au plafond permis par le nombre de choix (consigne 488).
+  var qualite = Math.max(0, Math.min(100, base + eff.points));
+  var plafond = pmcPlafond(S);
+  var rappelMoyen = trappel.length ? trappel.reduce(function (a, b) { return a + b; }, 0) / trappel.length : 0;
+  return { pct: Math.round(qualite * plafond / 100), qualite: Math.round(qualite), plafond: plafond, retrouvees: retrouvees, cd: eff.cd, cf: eff.cf, coeur: coeur, rappel: rappelMoyen };
 }
 // Tous les métiers, classés ; « retenus » = ceux qui atteignent le seuil (ou tous quand il n'y a aucun choix).
 function pmcCalculer(D, S) {
   var avec = pmcNbChoix(S) > 0, out = [];
   D.m.forEach(function (r, idx) { out.push({ i: idx, sc: pmcScorer(D, S, r) }); });
-  if (avec) { out.sort(function (a, b) { return b.sc.pct - a.sc.pct || b.sc.coeur - a.sc.coeur || a.i - b.i; }); }
-  return { tous: out, avec: avec, retenus: avec ? out.filter(function (o) { return o.sc.pct >= S.seuil; }) : out };
+  if (avec) { out.sort(function (a, b) { return b.sc.qualite - a.sc.qualite || b.sc.coeur - a.sc.coeur || b.sc.rappel - a.sc.rappel || a.i - b.i; }); }
+  return { tous: out, avec: avec, retenus: avec ? out.filter(function (o) { return o.sc.qualite >= S.seuil; }) : out };
+}
+
+/* ---------------- Comment vos choix ont été lus (consigne 499) ---------------- */
+// Ce que l'application a fait de chacun des choix, SANS rien recalculer : des comptages avec les mêmes données et les mêmes règles que pmcScorer.
+// Rend { total (métiers), plafond, nbChoix, liste (métiers affichés), seuil (pourcentage affiché), lignes : [ { type: 'comp' | 'niveau' | 'secteur' | 'conditions', ... } ] }.
+//  - comp : { t, i, nb } = nombre de métiers qui portent cette compétence (celui qui fait son poids de rareté, pmcPoidsRarete) ;
+//  - niveau : { niveau, nb } = métiers accessibles à ce niveau ou en dessous (les autres descendent dans la liste sans disparaître) ;
+//  - secteur : { secteur, nb } = métiers de ce secteur ; conditions : { nb } = nombre de conditions signalées (une nuance, jamais un barrage).
+function pmcChoixLus(D, S, nbRetenus) {
+  var lignes = [];
+  S.comp.forEach(function (c) { lignes.push({ type: 'comp', t: c.t, i: c.i, nb: (D.inv && D.inv[c.t] && D.inv[c.t][c.i]) ? D.inv[c.t][c.i].length : 0 }); });
+  if (S.niveau) { lignes.push({ type: 'niveau', niveau: S.niveau, nb: D.m.filter(function (r) { return r[2] > 0 && r[2] <= S.niveau; }).length }); }
+  S.secteurs.forEach(function (sec) { lignes.push({ type: 'secteur', secteur: sec, nb: D.m.filter(function (r) { return r[1] === sec; }).length }); });
+  if (S.dif.length + S.fac.length) { lignes.push({ type: 'conditions', nb: S.dif.length + S.fac.length }); }
+  return { total: D.m.length, plafond: pmcPlafond(S), nbChoix: pmcNbChoixPourPlafond(S), liste: nbRetenus, seuil: pmcSeuilAffiche(S, S.seuil), lignes: lignes };
+}
+
+// « Vos choix vont dans plusieurs directions » (consigne 501), chemin 1 : seules les COMPÉTENCES choisies comptent (le niveau et le secteur ne font que décaler le classement).
+// Même règle que le chemin 2 (cmlDirectionsChoix, logique.js) ; rend aussi, dans retirer.comp, la compétence { t, i } dont le retrait donne le plus de métiers.
+function pmcDirections(D, S) {
+  var f = (typeof cmlDirectionsChoix === 'function') ? cmlDirectionsChoix : require('./logique.js').cmlDirectionsChoix;
+  var flags = D.m.map(function (r) { return S.comp.map(function (c) { return r[PMC_RANG[c.t]].indexOf(c.i) !== -1; }); });
+  var res = f(flags, S.comp.length);
+  if (res.retirer) { res.retirer.comp = S.comp[res.retirer.index]; }
+  return res;
 }
 
 /* ---------------- Métiers proches, compétences en commun, métiers du même secteur ---------------- */
@@ -257,8 +335,8 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     PMC_TYPES: PMC_TYPES, PMC_RANG: PMC_RANG, PMC_NOMS_TYPES: PMC_NOMS_TYPES, PMC_PLAFOND_RAPPEL: PMC_PLAFOND_RAPPEL, PMC_REGLAGES: PMC_REGLAGES, PMC_MOTS_SECTEURS: PMC_MOTS_SECTEURS,
     PMC_NIVEAUX: PMC_NIVEAUX, PMC_LIB_NIVEAU: PMC_LIB_NIVEAU, PMC_ALIAS_NIVEAU: PMC_ALIAS_NIVEAU, PMC_TERRITOIRES: PMC_TERRITOIRES, PMC_NOMS_DEPARTEMENTS: PMC_NOMS_DEPARTEMENTS,
-    pmcDepartementsVoisins: pmcDepartementsVoisins, pmcMessageOffres: pmcMessageOffres, pmcEtatInitial: pmcEtatInitial, pmcNbChoix: pmcNbChoix, pmcPluriel: pmcPluriel, pmcEstChoisie: pmcEstChoisie,
-    pmcEffetConditions: pmcEffetConditions, pmcAjusterListeConditions: pmcAjusterListeConditions, pmcScorer: pmcScorer, pmcCalculer: pmcCalculer, pmcSimil: pmcSimil, pmcProches: pmcProches, pmcCommunes: pmcCommunes,
+    pmcDepartementsVoisins: pmcDepartementsVoisins, pmcMessageOffres: pmcMessageOffres, pmcNomsEmploi: pmcNomsEmploi, pmcChoixLus: pmcChoixLus, pmcDirections: pmcDirections, pmcEtatInitial: pmcEtatInitial, pmcNbChoix: pmcNbChoix, pmcNbChoixPourPlafond: pmcNbChoixPourPlafond, pmcPlafond: pmcPlafond, pmcSeuilAffiche: pmcSeuilAffiche, pmcPluriel: pmcPluriel, pmcEstChoisie: pmcEstChoisie,
+    pmcEffetConditions: pmcEffetConditions, pmcAjusterListeConditions: pmcAjusterListeConditions, pmcPoidsRarete: pmcPoidsRarete, pmcScorer: pmcScorer, pmcCalculer: pmcCalculer, pmcSimil: pmcSimil, pmcProches: pmcProches, pmcCommunes: pmcCommunes,
     pmcMetiersDuSecteur: pmcMetiersDuSecteur, pmcRepresentatifs: pmcRepresentatifs, pmcSuggestions: pmcSuggestions
   };
 }

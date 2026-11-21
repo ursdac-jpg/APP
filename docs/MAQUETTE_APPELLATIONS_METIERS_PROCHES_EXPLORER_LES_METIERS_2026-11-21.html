@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : appellations sur les cartes des métiers proches</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1040px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-note{font-size:.85rem;color:var(--text-muted)}
+.mq-bandeau{background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;font-size:.82rem;margin:.4rem 0 .8rem}
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin:.9rem 0}
+.bloc h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.legende{font-size:.9rem;color:var(--text-muted);margin:.1rem 0 .6rem}
+.fiche-tete{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:.8rem 1.1rem}
+.fiche-tete h1{font-size:1.5rem;font-weight:800;margin:0}
+.fiche-tete .noms{font-size:.9rem;color:var(--text-muted);margin-top:.2rem}
+
+/* Cartes : reprise de css/style.css (#pmRacine), plus les trois façons d'afficher les noms d'emploi (nouveau, seulement dans cette maquette) */
+#pmRacine .carte-m .noms-ligne{font-size:.82rem;color:var(--text-muted);line-height:1.35}
+#pmRacine .carte-m .noms-ligne .etiq{font-weight:700;color:var(--text-strong)}
+#pmRacine .carte-m .noms-ligne .plus{white-space:nowrap}
+#pmRacine .carte-m .noms-pastilles{display:flex;flex-wrap:wrap;gap:.25rem;align-items:center}
+#pmRacine .carte-m .noms-pastilles .np{display:inline-block;font-size:.76rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:999px;padding:.03rem .5rem;color:var(--text-strong)}
+#pmRacine .carte-m .noms-pastilles .plus{font-size:.76rem;color:var(--text-muted)}
+#pmRacine .carte-m .btn-noms{align-self:flex-start;border:1px solid var(--border-strong);border-radius:8px;padding:.15rem .6rem;background:var(--bg-card);min-height:32px;color:var(--text-strong);font-size:.82rem;display:inline-flex;gap:.3rem;align-items:center;cursor:pointer}
+#pmRacine .carte-m .btn-noms:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
+#pmRacine .carte-m .liste-noms{margin:.15rem 0 0;padding-left:1.1rem;font-size:.82rem;color:var(--text-muted)}
+#pmRacine .phrase-noms{font-size:.85rem;color:var(--text-muted);margin:0 0 .6rem}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+
+<div class="mq-regl" id="regl" role="region" aria-label="Réglages de la maquette">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Métier d'exemple (données réelles du ROME)</b><div class="boutons" id="g-metier"></div></div>
+  <div class="grp"><b>Façon d'afficher les noms d'emploi sur une carte</b><div class="boutons" id="g-facon">
+    <button type="button" data-v="A">A. Une ligne « Aussi appelé »</button>
+    <button type="button" data-v="B">B. Petites pastilles grises</button>
+    <button type="button" data-v="C">C. Un bouton qui déplie la liste</button></div></div>
+  <div class="grp"><b>Nombre de noms montrés avant « et N autres »</b><div class="boutons" id="g-nb">
+    <button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button></div></div>
+  <div class="grp"><b>Phrase d'explication</b><div class="boutons" id="g-phrase">
+    <button type="button" data-v="1">Une fois, au-dessus des cartes</button><button type="button" data-v="0">Aucune</button></div></div>
+  <div class="grp"><b>Écran et mode</b><div class="boutons" id="g-ecran">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Ce qui change par rapport à la fiche actuelle : <b>une ligne ou un bouton de noms d'emploi sur chaque carte de métier proche</b> (et, avec la même carte, sur les métiers du même secteur). Tout le reste de la carte est identique à l'application.</div>
+  <div id="rendu"></div>
+</div>
+
+<script>
+var DONNEES = [{"metier": "Cuisinier / Commis de cuisine", "code": "G1602", "noms": ["Agent de cuisine", "Aide de cuisine", "Commis de cuisine", "Commis de cuisine tournant", "Commis pâtissier de restaurant"], "proches": [{"nom": "Employé polyvalent de restauration / Aide de cuisine", "code": "G1603", "secteur": "Hôtellerie, restauration et tourisme", "acces": "CAP ou BEP", "communes": 14, "noms": ["Agent de restauration rapide", "Employé de friterie", "Employé de snack-bar", "Employé polyvalent de restaurant", "Employé polyvalent de restauration", "Equipier(ère) polyvalent(e) de restauration rapide", "Préparateur(trice) livreur(se) en restauration rapide", "Préparateur(trice)-vendeur(se) de plats à emporter", "Préparateur-vendeur de sandwichs", "Préparateur-vendeur en point chaud", "Préparateur(trice)-vendeur(se) en terminal de cuisson", "Vendeur de glaces", "Vendeur de sandwichs", "Préparateur(trice)-vendeur(se) en restauration rapide"]}, {"nom": "Employé de restauration collective", "code": "G1607", "secteur": "Hôtellerie, restauration et tourisme", "acces": "Sans diplôme", "communes": 8, "noms": ["Aide de cuisine de collectivité", "Assistant(e) de production en restauration collective", "Commis de cuisine de collectivité", "Commis de self", "Employé de cafétéria", "Employé de cantine", "Agent de restauration collective"]}, {"nom": "Cuisinier", "code": "G1609", "secteur": "Hôtellerie, restauration et tourisme", "acces": "CAP ou BEP", "communes": 19, "noms": ["Chef de partie", "Chef de partie poissonnier", "Chef de partie rôtisseur", "Chef entremettier de restaurant", "Chef saucier", "Grillardin", "Premier commis de cuisine", "Second de cuisine", "Chef de partie tournant", "Demi-chef de partie", "Chef de cuisine à domicile", "Cuisinier à domicile", "Sushiman"]}, {"nom": "Cuisinier de collectivité", "code": "G1606", "secteur": "Hôtellerie, restauration et tourisme", "acces": "Sans diplôme", "communes": 21, "noms": ["Cuisinier de laboratoire", "Cuisinier traiteur", "Cuisinier de cantine", "Traiteur"]}, {"nom": "Serveur en restauration", "code": "G1803", "secteur": "Hôtellerie, restauration et tourisme", "acces": "CAP ou BEP", "communes": 10, "noms": ["Commis de restaurant", "Commis de salle", "Employé de café, bar-brasserie", "Garçon de restaurant", "Garçon limonadier", "Hôte de salle", "Serveur de banquet", "Serveur de bar", "Serveur de bar-brasserie", "Serveur de restaurant", "Serveur de room service", "Serveur de salon de thé", "Commis de room service", "Serveur petit déjeuner", "Commis de salle runner", "Commis de salle tournant"]}, {"nom": "Chef de rayon produits alimentaires", "code": "D1502", "secteur": "Commerce et vente", "acces": "Bac + 2", "communes": 8, "noms": ["Adjoint au chef de rayon produits alimentaires", "Adjoint(e) au responsable de rayon produits alimentaires", "Chef de rayon boucherie", "Chef de rayon boucherie-charcuterie", "Chef de rayon boulangerie", "Chef de rayon boulangerie-pâtisserie", "Chef de rayon charcuterie", "Chef de rayon crèmerie fromagerie", "Chef de rayon épicerie", "Chef de rayon fruits et légumes", "Chef de rayon liquides", "Chef de rayon pâtisserie", "Chef de rayon poissonnerie", "Chef(fe) de rayon produits alimentaires hors frais", "Manager de rayon alimentaire hors produits frais", "Manager rayon alimentaire", "Responsable de rayon alimentaire hors produits frais", "Responsable de rayon produits alimentaires", "Chef de rayon alimentaire"]}], "secteur": [{"nom": "Cuisinier de collectivité", "code": "G1606", "secteur": "Hôtellerie, restauration et tourisme", "acces": "Sans diplôme", "communes": 21, "noms": ["Cuisinier de laboratoire", "Cuisinier traiteur", "Cuisinier de cantine", "Traiteur"]}, {"nom": "Cuisinier", "code": "G1609", "secteur": "Hôtellerie, restauration et tourisme", "acces": "CAP ou BEP", "communes": 19, "noms": ["Chef de partie", "Chef de partie poissonnier", "Chef de partie rôtisseur", "Chef entremettier de restaurant", "Chef saucier", "Grillardin", "Premier commis de cuisine", "Second de cuisine", "Chef de partie tournant", "Demi-chef de partie", "Chef de cuisine à domicile", "Cuisinier à domicile", "Sushiman"]}, {"nom": "Pâtissier de restaurant", "code": "G1610", "secteur": "Hôtellerie, restauration et tourisme", "acces": "CAP ou BEP", "communes": 18, "noms": ["Chef de partie pâtissier", "Chef pâtissier de restaurant", "Second de pâtisserie", "Cuisinier pâtissier", "Chef cuisinier-pâtissier"]}], "secteurNom": "Hôtellerie, restauration et tourisme"}, {"metier": "Auxiliaire petite enfance", "code": "K1303", "noms": ["Baby-sitter", "Garde d’enfant à domicile", "Gouvernant d’enfant à domicile", "Garde d’enfant"], "proches": [{"nom": "Auxiliaire de vie sociale auprès d'enfants", "code": "K1314", "secteur": "Social et services à la personne", "acces": "CAP ou BEP", "communes": 14, "noms": ["Auxiliaire de vie sociale auprès d’enfants", "Educateur familial", "Employé familial auprès d’enfants", "Maître de maison d’enfants"]}, {"nom": "Auxiliaire de puériculture", "code": "J1304", "secteur": "Santé et soins", "acces": "Bac", "communes": 11, "noms": []}, {"nom": "Aide-soignant", "code": "J1501", "secteur": "Santé et soins", "acces": "Bac", "communes": 5, "noms": ["Aide-soignant en gériatrie"]}, {"nom": "Accompagnant éducatif et social (AES)", "code": "K1301", "secteur": "Social et services à la personne", "acces": "CAP ou BEP", "communes": 9, "noms": ["Accompagnateur médicosocial", "Accompagnateur(trice) médicosocial(e) vie journalière", "Accompagnateur(trice) médicosocial(e) de personne dépendante", "Accompagnateur(trice) médicosocial(e) personnes en post-cure", "Educateur en locomotion", "Instructeur en locomotion", "Intervenant en accompagnement médicosocial", "Rééducateur(trice) en autonomie de la vie journalière", "Rééducateur en locomotion"]}, {"nom": "Assistant maternel", "code": "K1310", "secteur": "Social et services à la personne", "acces": "Niveau d’accès non précisé", "communes": 22, "noms": ["Assistant(e) maternel(le) du particulier employeur", "Assistant maternel agréé"]}, {"nom": "Éducateur de jeunes enfants", "code": "K1202", "secteur": "Social et services à la personne", "acces": "Bac + 3", "communes": 10, "noms": ["Educateur de jeunes enfants", "Educateur de jeunes enfants et animation RAM", "Educateur jeunes enfants gestion petite enfance", "Educateur(trice) jeunes enfants responsable adjt structure", "Educateur(trice) de jeunes enfants responsable de structure"]}], "secteur": [{"nom": "Assistant maternel", "code": "K1310", "secteur": "Social et services à la personne", "acces": "Niveau d’accès non précisé", "communes": 22, "noms": ["Assistant(e) maternel(le) du particulier employeur", "Assistant maternel agréé"]}, {"nom": "Assistant familial", "code": "K1309", "secteur": "Social et services à la personne", "acces": "Niveau d’accès non précisé", "communes": 19, "noms": ["Accueillant(e) familial(e) auprès d’enfants", "Accueillant(e) familial(e) thérapeutique auprès d’enfants", "Assistant(e) maternel(le) en famille d’accueil", "Auxiliaire parental", "Accueillant d’enfants", "Famille d’accueil"]}, {"nom": "Agent territorial spécialisé des écoles maternelles (ATSEM)", "code": "K1308", "secteur": "Social et services à la personne", "acces": "CAP ou BEP", "communes": 18, "noms": ["Agent(e) spécialisée des écoles maternelles (ASEM)", "Agent spécialisé des écoles primaires", "Aide maternel d’école", "Assistant(e) territorial(e) d’enseignement", "Agent territoriale spécialisée écoles maternelles"]}], "secteurNom": "Social et services à la personne"}, {"metier": "Aide-soignant", "code": "J1501", "noms": ["Aide-soignant en gériatrie"], "proches": [{"nom": "Auxiliaire de puériculture", "code": "J1304", "secteur": "Santé et soins", "acces": "Bac", "communes": 7, "noms": []}, {"nom": "Assistant de service juridique", "code": "M1612", "secteur": "Administration, gestion et bureau", "acces": "Bac", "communes": 1, "noms": ["Assistant de cabinet juridique", "Assistant de justice", "Auxiliaire juridique", "Clerc d’avocat", "Premier clerc d’avocat", "Principal clerc d’avocat", "Secrétaire juridique", "Sous-principal clerc d’avocat", "Secrétaire d’avocat"]}, {"nom": "Infirmier", "code": "J1506", "secteur": "Santé et soins", "acces": "Bac + 3", "communes": 17, "noms": ["Infirmier de soins généraux", "Infirmier en santé mentale", "Infirmier en stomatothérapie", "Infirmier hygiéniste", "Infirmier militaire", "Infirmier psychiatrique", "Infirmier préleveur", "Infirmier en gériatrie", "Infirmier en hémodialyse", "Infirmier conseiller de santé", "Infirmier en Médecine Chirurgie Obstétrique"]}, {"nom": "Ambulancier / Auxiliaire ambulancier", "code": "J1305", "secteur": "Santé et soins", "acces": "CAP ou BEP", "communes": 7, "noms": ["Ambulancier", "Ambulancier hospitalier", "Ambulancier urgentiste", "Conducteur ambulancier", "Conducteur(trice) ambulancier(ère) de services d’urgence", "Conducteur(trice) ambulancier(ère) hospitalier(ère)", "Conducteur de Véhicule Sanitaire", "Conducteur de Véhicule Sanitaire Léger (VSL)", "Ambulancier chef de bord"]}, {"nom": "Formateur / Éducateur", "code": "K2111", "secteur": "Éducation et formation", "acces": "Bac + 3", "communes": 1, "noms": ["Animateur de formation", "E-formateur", "Formateur", "Formateur animateur de formation", "Formateur consultant", "Formateur d’adultes", "Formateur de formation paramédicale", "Formateur de formation professionnelle", "Formateur de la formation continue", "Formateur e-learning", "Formateur enseignement à distance", "Formateur secourisme", "Formateur technique", "Formateur-conseil", "Moniteur de formation professionnelle", "Professeur en centre de formation pour adultes", "Formateur d’allemand", "Formateur d’anglais", "Formateur de chinois", "Formateur d’espagnol", "Formateur de Français Langue Etrangère - FLE -", "Formateur d’italien", "Formateur de japonais", "Formateur de langue vivante", "Formateur d’arabe", "Formateur de russe", "Formateur de néerlandais", "Formateur de portugais", "Formateur action sociale", "Formateur bâtiment", "Formateur bureautique", "Formateur comptabilité et gestion financière", "Formateur entretien espaces verts", "Formateur hôtellerie restauration", "Formateur informatique", "Formateur propreté nettoyage de locaux", "Formateur remise à niveau", "Formateur commerce vente", "Formateur ressources humaines", "Formateur secrétariat assistanat", "Formateur multimédia"]}, {"nom": "Agent de soins en hydrothérapie", "code": "D1203", "secteur": "Commerce et vente", "acces": "CAP ou BEP", "communes": 6, "noms": ["Agent d’accompagnement en thermalisme", "Agent de cure thermale", "Agent de thermalisme", "Agent en hydrothérapie", "Agent en soins thermaux", "Agent hydrothermal", "Agent thermal", "Auxiliaire en hydrothérapie", "Baigneur", "Doucheur", "Hydrothérapeute", "Hydrobalnéologue"]}], "secteur": [{"nom": "Infirmier", "code": "J1506", "secteur": "Santé et soins", "acces": "Bac + 3", "communes": 17, "noms": ["Infirmier de soins généraux", "Infirmier en santé mentale", "Infirmier en stomatothérapie", "Infirmier hygiéniste", "Infirmier militaire", "Infirmier psychiatrique", "Infirmier préleveur", "Infirmier en gériatrie", "Infirmier en hémodialyse", "Infirmier conseiller de santé", "Infirmier en Médecine Chirurgie Obstétrique"]}, {"nom": "Infirmier en Pratique Avancée (IPA)", "code": "J1508", "secteur": "Santé et soins", "acces": "Bac + 5", "communes": 16, "noms": []}, {"nom": "Infirmier coordonnateur (IDEC)", "code": "J1510", "secteur": "Santé et soins", "acces": "Bac + 5", "communes": 15, "noms": ["Infirmier(ère) coordonnateur(trice) service maintien à dom", "Infirmier(ère) coordonnateur(trice) soins infirmiers à dom", "Infirmier(ière) coordonnateur(trice) établissement soins", "Infirmier coordonnateur EMS", "Infirmier(ère) coordonnateur(trice) en cancéro"]}], "secteurNom": "Santé et soins"}];
+var E = { metier: 0, facon: 'A', nb: 3, phrase: 1, tel: false, sombre: false, plusProches: false, ouverts: {} };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+function noms(c, id) {
+  var n = c.noms; if (!n.length) { return ''; }
+  var vus = n.slice(0, E.nb), reste = n.length - vus.length;
+  var plus = reste > 0 ? ' et ' + reste + (reste > 1 ? ' autres' : ' autre') : '';
+  if (E.facon === 'A') {
+    return '<div class="noms-ligne"><span class="etiq">Aussi appelé :</span> ' + vus.map(esc).join(' ; ') + (reste > 0 ? ' <span class="plus">(et ' + reste + (reste > 1 ? ' autres' : ' autre') + ')</span>' : '') + '</div>';
+  }
+  if (E.facon === 'B') {
+    return '<div class="noms-pastilles" aria-label="Autres noms d’emploi">' + vus.map(function (x) { return '<span class="np">' + esc(x) + '</span>'; }).join('') + (plus ? '<span class="plus">' + plus.trim() + '</span>' : '') + '</div>';
+  }
+  var ouvert = !!E.ouverts[id];
+  return '<button type="button" class="btn-noms" data-noms="' + id + '" aria-expanded="' + ouvert + '"><i class="bi bi-' + (ouvert ? 'chevron-up' : 'chevron-down') + '" aria-hidden="true"></i> Autres noms d’emploi (' + n.length + ')</button>' +
+    (ouvert ? '<ul class="liste-noms">' + n.slice(0, 8).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + (n.length > 8 ? '<li>et ' + (n.length - 8) + ' autres dans la fiche</li>' : '') + '</ul>' : '');
+}
+function carte(c, id) {
+  return '<div class="carte-m"><h4>' + esc(c.nom) + '</h4>' + noms(c, id) +
+    '<button type="button" class="pill-btn" title="Voir tous les métiers de ce secteur"><i class="bi bi-grid" aria-hidden="true"></i> ' + esc(c.secteur) + '</button>' +
+    '<div class="acces"><i class="bi bi-mortarboard" aria-hidden="true"></i> ' + (c.acces === 'Niveau d’accès non précisé' ? c.acces : 'Accès : ' + esc(c.acces)) + '</div>' +
+    (c.communes ? '<div class="retrouve">' + c.communes + (c.communes > 1 ? ' compétences en commun' : ' compétence en commun') + '</div>' : '') +
+    '<div class="rang-boutons"><button type="button" class="btn btn-outline-primary b-fiche"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche</button></div></div>';
+}
+function grille(h) { return '<div class="grille" style="--cols:' + (E.tel ? 1 : 3) + '">' + h + '</div>'; }
+function rendre() {
+  var M = DONNEES[E.metier];
+  var proches = M.proches.slice(0, E.plusProches ? 6 : 3);
+  var h = '<div id="pmRacine" class="pm' + (E.tel ? ' tel' : '') + '">';
+  h += '<div class="fiche-tete"><h1>' + esc(M.metier) + '</h1><div class="noms">Fiche du métier (extrait de la page : seuls les blocs concernés sont montrés)</div></div>';
+  h += '<div class="bloc"><h3><i class="bi bi-people" aria-hidden="true"></i> Métiers proches</h3><p class="legende">Ils partagent beaucoup de compétences avec celui-ci.</p>';
+  if (E.phrase) { h += '<p class="phrase-noms"><i class="bi bi-info-circle" aria-hidden="true"></i> Un même métier peut porter plusieurs noms d’emploi. Ceux qui sont écrits sur les cartes correspondent à la même fiche que le titre.</p>'; }
+  h += grille(proches.map(function (c, k) { return carte(c, 'p' + E.metier + '-' + k); }).join(''));
+  h += '<div style="text-align:center;margin-top:.8rem"><button type="button" class="btn btn-outline-secondary" id="plus">' + (E.plusProches ? 'Voir moins de métiers proches' : 'Voir d’autres métiers proches') + '</button></div></div>';
+  h += '<div class="bloc"><h3><i class="bi bi-grid" aria-hidden="true"></i> Dans le même secteur</h3><p class="legende">' + esc(M.secteurNom) + '</p>';
+  h += grille(M.secteur.map(function (c, k) { return carte(c, 's' + E.metier + '-' + k); }).join('')) + '</div></div>';
+  document.getElementById('rendu').innerHTML = h;
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  pastilles();
+}
+function pastilles() {
+  [['g-facon', E.facon], ['g-nb', String(E.nb)], ['g-phrase', String(E.phrase)]].forEach(function (g) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + g[0] + ' button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === g[1] ? 'true' : 'false'); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#g-metier button'), function (b) { b.setAttribute('aria-pressed', Number(b.getAttribute('data-v')) === E.metier ? 'true' : 'false'); });
+  Array.prototype.forEach.call(document.querySelectorAll('#g-ecran button'), function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', v ? String((v === 'tel') === E.tel) : String((m === 'sombre') === E.sombre));
+  });
+  var f = { A: 'une ligne « Aussi appelé » sous le titre', B: 'de petites pastilles grises sous le titre', C: 'un bouton qui déplie la liste' }[E.facon];
+  document.getElementById('retient').innerHTML = '<p><b>Affichage retenu pour l’instant :</b> ' + f + (E.facon === 'C' ? '' : ', ' + E.nb + ' noms avant « et N autres »') + '.</p>' +
+    '<p>' + (E.phrase ? 'Avec' : 'Sans') + ' la phrase d’explication au-dessus des cartes.</p>';
+}
+document.getElementById('g-metier').innerHTML = DONNEES.map(function (m, i) { return '<button type="button" data-v="' + i + '">' + esc(m.metier) + '</button>'; }).join('');
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  var g = b.parentNode && b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-metier') { E.metier = Number(v); E.plusProches = false; E.ouverts = {}; }
+  else if (g === 'g-facon') { E.facon = v; E.ouverts = {}; }
+  else if (g === 'g-nb') { E.nb = Number(v); }
+  else if (g === 'g-phrase') { E.phrase = Number(v); }
+  else if (g === 'g-ecran') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  else if (b.id === 'plus') { E.plusProches = !E.plusProches; }
+  else if (b.hasAttribute('data-noms')) { var id = b.getAttribute('data-noms'); E.ouverts[id] = !E.ouverts[id]; }
+  else if (b.id === 'fermer') { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; return; }
+  else if (b.id === 'rouvrir') { document.getElementById('regl').style.display = ''; b.style.display = 'none'; return; }
+  else { return; }
+  rendre();
+});
+rendre();
+</script>
+</body>
+</html>

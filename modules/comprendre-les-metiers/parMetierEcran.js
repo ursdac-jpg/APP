@@ -1,5 +1,5 @@
 /* ============================================================
-   Module « Explorer les métiers » : entrée 1, « Par un métier » : L'ÉCRAN (barre unique, quatre boutons de filtre, métiers classés avec leur pourcentage).
+   Module « Explorer les métiers » : entrée 1, « Chercher un métier » : L'ÉCRAN (barre unique, quatre boutons de filtre, métiers classés avec leur pourcentage).
    Charge après parMetier.js (recherche par nom, autre nom et sigle) et parMetierCalcul.js. Reprend la maquette validée par Denis le 17/11/2026
    (docs/MAQUETTE_PAR_UN_METIER_ENRICHI_EXPLORER_LES_METIERS_2026-11-17.html), consignes 448 à 454.
 
@@ -42,7 +42,14 @@ function pmCharger(rappel) {
     if (ok && typeof INDEX_COMPETENCES !== 'undefined') { _pmD = pmdConstruire(pmdSources()); _pmChargement = 'pret'; } else { _pmChargement = 'echec'; }
     _pmAttente.splice(0).forEach(function (r) { r(!!_pmD); });
   };
-  var go = function () { if (typeof _chargerScriptUneFois === 'function') { _chargerScriptUneFois('data/rome/indexCompetences.js', fin); } else { fin(false); } };
+  // Les noms d'emploi (data/rome/nomsEmploi.js, environ 180 Ko, consigne 498) sont facultatifs : s'ils manquent, les cartes n'ont pas la ligne « Aussi appelé », rien d'autre ne change.
+  var go = function () {
+    if (typeof _chargerScriptUneFois !== 'function') { fin(false); return; }
+    _chargerScriptUneFois('data/rome/indexCompetences.js', function (ok) {
+      if (!ok) { fin(false); return; }
+      _chargerScriptUneFois('data/rome/nomsEmploi.js', function () { fin(true); });
+    });
+  };
   // Les noms des compétences (data/competencesRome.js) sont chargés par la fiche ; on les demande ici aussi.
   if (typeof COMPETENCES_ROME === 'undefined' && typeof _chargerScriptUneFois === 'function') { _chargerScriptUneFois('data/competencesRome.js', function (ok) { if (ok) { go(); } else { fin(false); } }); } else { go(); }
 }
@@ -73,7 +80,7 @@ function _pmTitreJauge(S, r, sc) {
 }
 function _pmJauge(D, S, idx, sc, r) {
   var p = sc.pct, titre = cmvE(_pmTitreJauge(S, r, sc));
-  return '<div class="jauge-zone"><div class="jauge" role="img" title="' + titre + '" aria-label="Pourcentage : ' + p + ' pour cent. ' + titre + '">' +
+  return '<div class="jauge-zone"><div class="jauge" role="img" title="' + titre + '" aria-label="Ressemblance avec vos choix : ' + p + ' pour cent. ' + titre + '">' +
     '<span class="j-plein' + (p >= 100 ? ' tout' : '') + '" style="width:' + p + '%"></span>' +
     '<span class="j-vide' + (p <= 0 ? ' rien' : '') + '" style="width:' + (100 - p) + '%"></span>' +
     '<span class="j-pct ' + (p >= 18 ? 'dedans' : 'dehors') + '" style="' + (p >= 18 ? 'left:.7rem' : 'left:calc(' + p + '% + .6rem)') + '">' + p + ' %</span></div></div>' +
@@ -85,9 +92,9 @@ function _pmApercu(D, r, t) {
   if (cle) { ids.sort(function (a, b) { return ((r.coeur[cle] && r.coeur[cle][b]) ? 1 : 0) - ((r.coeur[cle] && r.coeur[cle][a]) ? 1 : 0); }); }
   return ids.slice(0, 2);
 }
-function _pmCarte(D, S, o) {
+function _pmCarte(D, S, o, vedette) {
   var idx = o.i, r = D.m[idx], sc = o.sc, avec = pmcNbChoix(S) > 0;
-  var h = '<div class="carte-m"><h4>' + cmvE(r[0]) + '</h4>' + _pmSecteurPill(D, r) + _pmLigneAcces(r);
+  var h = '<div class="carte-m' + (vedette ? ' cml-vedette-c1' : '') + '">' + (vedette ? '<span class="cml-pill" style="background:var(--accent);color:#fff;border-color:var(--accent);align-self:flex-start">Première proposition</span>' : '') + '<h4>' + cmvE(r[0]) + '</h4>' + _pmSecteurPill(D, r) + _pmLigneAcces(r);
   if (avec) {
     h += _pmJauge(D, S, idx, sc, r);
     if (S.comp.length) {
@@ -97,8 +104,8 @@ function _pmCarte(D, S, o) {
   } else {
     h += '<div class="retrouve">' + PMC_TYPES.map(function (t) { return _pmApercu(D, r, t).map(function (c) { return '<span>' + cmvE(_pmLib(D, t, c)) + '</span>'; }).join(''); }).join('') + '</div>';
   }
-  var cd = r[6].slice(0, 3);
-  if (cd.length) { h += '<div class="cond-carte"><i class="bi bi-clock" aria-hidden="true"></i> ' + cd.map(function (k) { return cmvE(D.cond[k]); }).join(', ') + (r[6].length > 3 ? ' (+' + (r[6].length - 3) + ')' : '') + '</div>'; }
+  // Bloc commun des cartes (cmvResume, index.js) : sans choix, la carte montre déjà des repères du métier ci-dessus, donc seulement les conditions.
+  h += cmvResume(r.code, { sansCompetences: !avec });
   return h + '<div class="rang-boutons"><button type="button" class="btn btn-outline-primary b-fiche" data-pm="fiche" data-v="' + idx + '"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche</button></div>' +
     (typeof synBoutonRetenir === 'function' ? synBoutonRetenir(1, r[0], r.code, 'data-pm="retenir" data-v="' + idx + '"') : '') + '</div>';
 }
@@ -189,7 +196,7 @@ function _pmBlocSecteur(D, S) {
 function _pmBlocConditions(D, S) {
   return '<div class="bloc"><h3><i class="bi bi-sliders2"></i> Conditions de travail' + _pmFermer('cond') + '</h3>' +
     '<p class="legende">Pour chaque condition de travail, dites si elle serait facile ou difficile pour vous. Cela pèse peu dans le pourcentage : c’est une nuance, jamais un barrage.</p>' +
-    // Mêmes familles, mêmes lignes et mêmes couleurs que la page « Facile ou difficile » de « Par ce que vous aimez faire » (consigne 480) : briques cmvFamilleConditions et cmvLigneFacDif.
+    // Mêmes familles, mêmes lignes et mêmes couleurs que la page « Facile ou difficile » de « Partir de vos envies » (consigne 480) : briques cmvFamilleConditions et cmvLigneFacDif.
     _pmFamillesConditions(D).map(function (g) {
       var ks = g.ids.map(function (id) { return D.condCles.indexOf(id); }).filter(function (k) { return k >= 0; });
       var nbg = ks.filter(function (k) { return S.fac.indexOf(k) !== -1 || S.dif.indexOf(k) !== -1; }).length;
@@ -198,7 +205,7 @@ function _pmBlocConditions(D, S) {
       }).join(''));
     }).join('') + '</div>';
 }
-// Les familles de conditions de « Par ce que vous aimez faire » plus la famille des lieux ; toute condition connue qui n'est dans aucune famille est rangée dans une dernière famille, pour qu'aucune ne disparaisse.
+// Les familles de conditions de « Partir de vos envies » plus la famille des lieux ; toute condition connue qui n'est dans aucune famille est rangée dans une dernière famille, pour qu'aucune ne disparaisse.
 function _pmFamillesConditions(D) {
   var icones = (typeof CMA_ICONES_CONDITIONS !== 'undefined') ? CMA_ICONES_CONDITIONS : [];
   var familles = CMA_CONDITIONS_GROUPES.map(function (g, i) { return { titre: g.titre, aide: g.aide, ids: g.ids, icone: icones[i] || 'bi-sliders2' }; });
@@ -208,6 +215,16 @@ function _pmFamillesConditions(D) {
   var autres = D.condCles.filter(function (id) { return !rangees[id]; });
   if (autres.length) { familles.push({ titre: 'Autres conditions', aide: 'Ce que le travail peut aussi demander.', ids: autres, icone: 'bi-sliders2' }); }
   return familles;
+}
+
+// Le niveau de la liste et le plafond du pourcentage comptent les secteurs pour UN seul choix et les conditions de travail pour UN seul choix (pmcNbChoixPourPlafond) : quand cela change le total, l'écran le dit.
+function _pmNoteChoixComptes(S, nb) {
+  var nbP = pmcNbChoixPourPlafond(S);
+  if (nbP === nb) { return ''; }
+  var nbC = S.dif.length + S.fac.length, qui = [];
+  if (S.secteurs.length > 1) { qui.push('vos ' + S.secteurs.length + ' secteurs comptent pour un seul choix'); }
+  if (nbC > 1) { qui.push('vos ' + nbC + ' conditions de travail comptent pour un seul choix'); }
+  return '<p class="note mt-2 mb-0">Pour le niveau de la liste et le pourcentage maximal, ' + qui.join(' et ') + ' : cela fait ' + nbP + ' choix comptés sur ' + nb + '.</p>';
 }
 
 /* ---------------- Zone 1 : Vos choix ---------------- */
@@ -230,11 +247,11 @@ function _pmZoneChoix(D, S, nbRes) {
       S.secteurs.map(function (s) { return '<span class="chip"><span class="t">secteur</span> ' + cmvE(D.secteurs[s]) + '<button type="button" data-pm="retsec" data-v="' + s + '" aria-label="Retirer ' + cmvE(D.secteurs[s]) + '">&times;</button></span>'; }).join('') +
       S.dif.map(function (k) { return '<span class="chip"><span class="t">difficile</span> ' + cmvE(D.cond[k]) + '<button type="button" data-pm="retdif" data-v="' + k + '" aria-label="Retirer">&times;</button></span>'; }).join('') +
       S.fac.map(function (k) { return '<span class="chip"><span class="t">facile</span> ' + cmvE(D.cond[k]) + '<button type="button" data-pm="retfac" data-v="' + k + '" aria-label="Retirer">&times;</button></span>'; }).join('');
-    h += '<details class="mes-choix" ' + (nb <= 12 ? 'open' : '') + '><summary><b>Mes choix (' + nb + ')</b></summary><div class="mes-filtres">' + chips + '</div></details>';
+    h += '<details class="mes-choix" ' + (nb <= 12 ? 'open' : '') + '><summary><b>Mes choix (' + nb + ')</b></summary><div class="mes-filtres">' + chips + '</div>' + _pmNoteChoixComptes(S, nb) + '</details>';
   }
   if (!_pmEstTel() && nb) {
     // Sans aucun choix, ce bouton n'a pas de sens : c'est « Parcourir tous les métiers » (zone 2, en bleu) qui montre la liste. Le bouton dit combien de métiers la liste contient : sinon, quand la liste est déjà à l'écran, on a l'impression qu'il ne se passe rien.
-    var libRes = nbRes > 0 ? 'Voir les ' + pmcPluriel(nbRes, 'métier') + ' à ' + S.seuil + ' % ou plus' : 'Voir la liste : aucun métier n’atteint ' + S.seuil + ' % pour l’instant';
+    var libRes = nbRes > 0 ? 'Voir les ' + pmcPluriel(nbRes, 'métier') + ' à ' + pmcSeuilAffiche(S, S.seuil) + ' % ou plus' : 'Voir la liste : aucun métier ne retrouve assez de vos choix pour l’instant';
     h += '<div class="aller-res"><a class="btn btn-primary" href="#zRes" data-pm="allerres"><i class="bi bi-arrow-down" aria-hidden="true"></i> ' + libRes + '</a></div>';
   }
   return h + '</section>';
@@ -243,26 +260,60 @@ function _pmZoneChoix(D, S, nbRes) {
 /* ---------------- Zone 2 : les métiers ---------------- */
 function _pmEntonnoir(S, res) {
   var t = res.tous, n = t.length;
-  function nb(s) { return t.filter(function (o) { return o.sc.pct >= s; }).length; }
-  var bandes = [['Tous les métiers', n], ['À ' + S.seuil + ' % ou plus', nb(S.seuil)]];
-  [60, 80].forEach(function (s) { if (s > S.seuil) { bandes.push(['À ' + s + ' % ou plus', nb(s)]); } });
+  function nb(s) { return t.filter(function (o) { return o.sc.qualite >= s; }).length; }
+  var bandes = [['Tous les métiers', n], ['À ' + pmcSeuilAffiche(S, S.seuil) + ' % ou plus', nb(S.seuil)]];
+  [60, 80].forEach(function (s) { if (s > S.seuil) { bandes.push(['À ' + pmcSeuilAffiche(S, s) + ' % ou plus', nb(s)]); } });
   return '<div class="entonnoir" aria-label="Combien de métiers par pourcentage">' + bandes.map(function (b) { return '<div class="bande"><span class="lib">' + b[0] + '</span><span class="barre-e"><span style="width:' + Math.max(2, Math.round(100 * Math.sqrt(b[1] / n))) + '%"></span></span><b>' + b[1] + '</b></div>'; }).join('') + '</div>';
+}
+// « Comment vos choix ont été lus » (consigne 499) : ce que l'application fait de chacun des choix pour classer les métiers. Les comptages viennent de pmcChoixLus (parMetierCalcul.js), rien n'est recalculé ici.
+function _pmBlocChoixLus(D, S, res) {
+  var lus = pmcChoixLus(D, S, res.retenus.length);
+  if (!lus.lignes.length) { return ''; }
+  var lignes = lus.lignes.map(function (x) {
+    var qui, famille, dit;
+    if (x.type === 'comp') {
+      var n = cmlNiveauAide(x.nb, lus.total);
+      qui = _pmLib(D, x.t, x.i); famille = 'Compétence';
+      dit = n ? '<p>Portée par <b>' + pmcPluriel(x.nb, 'métier') + '</b> sur ' + cmvNombre(lus.total) + '. Aide à distinguer : ' + cmvAide(n) + '</p>' : '<p>Notre base ne reconnaît cette compétence chez aucun métier : elle n’a pas compté dans le classement.</p>';
+    } else if (x.type === 'niveau') {
+      qui = PMC_LIB_NIVEAU[x.niveau]; famille = 'Niveau d’études';
+      dit = '<p><b>' + pmcPluriel(x.nb, 'métier') + '</b> y mènent directement. Les métiers qui demandent un niveau plus haut descendent dans la liste, sans disparaître.</p>';
+    } else if (x.type === 'secteur') {
+      qui = D.secteurs[x.secteur]; famille = 'Secteur';
+      dit = '<p><b>' + pmcPluriel(x.nb, 'métier') + '</b> dans ce secteur. Les métiers des autres secteurs gardent très peu de poids : ils n’apparaissent que s’ils retrouvent presque tout le reste.</p>';
+    } else {
+      qui = 'Conditions de travail'; famille = pmcPluriel(x.nb, 'condition') + ' signalée' + (x.nb > 1 ? 's' : '');
+      dit = '<p>Elles décalent un peu le classement : une nuance, jamais un barrage. Chaque fiche vous dit si le métier peut les demander.</p>';
+    }
+    return cmvLigneLue('<span class="cml-pill pc">' + cmvE(qui) + '</span>', famille, dit);
+  }).join('');
+  var savoir = 'Avec ' + lus.nbChoix + ' choix, le pourcentage ne dépasse pas ' + lus.plafond + ' %. ' +
+    (lus.liste ? pmcPluriel(lus.liste, 'métier') + (lus.liste > 1 ? ' sont' : ' est') + ' à ' + lus.seuil + ' % ou plus.' : 'Aucun métier n’est à ' + lus.seuil + ' % ou plus.');
+  return cmvBlocChoixLus('Comment vos choix ont été lus', 'Voici ce que l’application fait de chacun de vos choix pour classer les métiers. Une compétence portée par peu de métiers compte plus qu’une compétence très répandue.', lignes, savoir);
 }
 function _pmZoneResultats(D, S) {
   var res = pmcCalculer(D, S), avec = res.avec, R = res.retenus;
+  var nbP = pmcNbChoixPourPlafond(S), info = cmlInfoNiveauPistes(nbP), sansListe = avec && !info.niveau;   // consigne 505 : sous le minimum de choix, aucune liste
   var h = '<section class="zone zone-res" id="zRes" aria-labelledby="zResT"><h2 id="zResT" class="zone-titre"><span class="num">2</span> Les métiers <span class="zone-sous">' + (avec ? 'Classés selon le pourcentage de chaque métier.' : 'Faites des choix : ils apparaîtront ici, classés.') + '</span>' + (!avec && S.parcourir ? '<button type="button" class="btn btn-outline-secondary tout-decocher" data-pm="parcourir" data-v="0"><i class="bi bi-x-circle" aria-hidden="true"></i> Fermer la liste</button>' : '') + '</h2>';
-  if (avec) { h += _pmEntonnoir(S, res); }
-  h += '<div class="compteur" role="status">' + pmcPluriel(R.length, 'métier') + (avec ? ' à ' + S.seuil + ' % ou plus' : ' au total') + '</div>';
-  if (avec) { h += '<details class="comment"><summary>Comment est calculé le pourcentage ?</summary><p>Chaque métier reçoit un pourcentage. Il monte quand le métier demande ce que vous avez choisi : plus la fiche du métier retrouve de vos compétences, plus il monte. Il baisse un peu quand le niveau d’accès est plus haut que votre niveau, quand le secteur est différent, ou quand une condition de travail vous est difficile. Aucun choix ne décide tout seul. Ce n’est pas une note sur vous : c’est une façon de classer des pistes. <b>Passez la souris sur la barre d’un métier (ou appuyez dessus) pour voir ce qui compte dans son pourcentage.</b></p></details>'; }
+  if (sansListe) { return h + cmvPasDePistes(nbP) + _pmBlocChoixLus(D, S, res) + '<p class="note mt-3">' + PM_NOTE_NIVEAU + '</p></section>'; }
+  if (avec) { var dir = pmcDirections(D, S); h += cmvBandeauNiveau(nbP) + _pmEntonnoir(S, res) + cmvMessageDirections(dir, dir.retirer ? _pmLibC(D, dir.retirer.comp) : ''); }
+  h += '<div class="compteur" role="status">' + pmcPluriel(R.length, 'métier') + (avec ? ' à ' + pmcSeuilAffiche(S, S.seuil) + ' % ou plus' : ' au total') + '</div>';
+  if (avec) { h += '<details class="comment"><summary>Comment est calculé le pourcentage ?</summary><p>Chaque métier reçoit un pourcentage. Il monte quand le métier demande ce que vous avez choisi : plus la fiche du métier retrouve de vos compétences, plus il monte. <b>Il dépend aussi du nombre de choix que vous avez faits : nous ne proposons pas de métiers avant trois choix, il ne dépasse pas 30 % avec trois choix, 60 % avec six, 90 % avec neuf, et jamais 95 %.</b> Il baisse un peu quand le niveau d’accès est plus haut que votre niveau, quand le secteur est différent, ou quand une condition de travail vous est difficile. Aucun choix ne décide tout seul. Ce n’est pas une note sur vous : c’est une façon de classer des pistes. <b>Passez la souris sur la barre d’un métier (ou appuyez dessus) pour voir ce qui compte dans son pourcentage.</b></p></details>'; }
   if (!R.length) {
-    h += '<div class="vide"><p class="mb-1"><b>Aucun métier n’atteint ' + S.seuil + ' % avec ces choix.</b></p><p class="note mb-2">Ce n’est pas grave. Vous pouvez retirer un choix ou en changer, puis regarder à nouveau.</p>' +
+    h += '<div class="vide"><p class="mb-1"><b>Avec ces choix, notre base ne reconnaît aucun métier.</b></p><p class="note mb-2">Cela ne veut pas dire qu’il n’existe pas : seulement que nous ne le connaissons pas. Vous pouvez retirer un choix ou en changer, puis regarder à nouveau.</p>' +
       (S.comp.length ? '<button type="button" class="btn btn-outline-primary" data-pm="ret" data-v="' + (S.comp.length - 1) + '">Retirer « ' + cmvE(_pmLibC(D, S.comp[S.comp.length - 1])) + ' »</button>' : '') + '</div>';
   } else if (!avec && !S.parcourir) {
     h += '<div class="vide"><p class="mb-1"><b>Faites un choix ou tapez un métier.</b></p><p class="note mb-2">Il y a ' + D.m.length + ' métiers dans cette liste : vos choix les classent au fur et à mesure.</p><button type="button" class="btn btn-primary" data-pm="parcourir" data-v="1"><i class="bi bi-list-ul" aria-hidden="true"></i> Parcourir tous les métiers</button></div>';
   } else {
-    h += '<div class="grille c3">' + R.slice(0, S.plus).map(function (o) { return _pmCarte(D, S, o); }).join('') + '</div>';
+    var vedette = avec ? cmlVedetteAutorisee(nbP, cmlEgalitesEnTete(R.map(function (o) { return o.sc.pct; }))) : { oui: false, raison: '' };
+    var enveloppe = avec ? '<div class="cml-niv cml-niv-' + info.niveau + ' cml-niv-cartes">' : '<div>';
+    if (avec && !vedette.oui) { h += cmvEncartSansVedette(nbP, vedette.raison, cmlEgalitesEnTete(R.map(function (o) { return o.sc.pct; }))); }
+    h += enveloppe + (vedette.oui ? '<div class="grille" style="--cols:1">' + _pmCarte(D, S, R[0], true) + '</div>' : '') +
+      '<div class="grille c3">' + R.slice(vedette.oui ? 1 : 0, S.plus).map(function (o) { return _pmCarte(D, S, o); }).join('') + '</div></div>';
     if (R.length > S.plus) { h += '<div style="text-align:center;margin-top:.8rem"><button type="button" class="btn btn-outline-secondary" data-pm="plus" style="min-height:44px"><i class="bi bi-chevron-down"></i> Voir les ' + (R.length - S.plus) + ' autres métiers</button></div>'; }
   }
+  if (avec && R.length) { h += cmvEncartQuestionnaire() + cmvLegendeNiveaux(nbP); }
+  if (avec) { h += _pmBlocChoixLus(D, S, res); }
   h += '<p class="note mt-3">' + PM_NOTE_NIVEAU + '</p>';
   return h + '</section>';
 }

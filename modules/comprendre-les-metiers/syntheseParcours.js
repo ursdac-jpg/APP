@@ -6,7 +6,7 @@
 
    Règles tenues ici :
    - jusqu'à cinq métiers exercés ; « Autre expérience » = aucune fiche, seulement des compétences cherchées une à une ;
-   - la recherche d'un métier et celle d'une compétence sont CELLES de « Par un métier » (pmcSuggestions) : aucune seconde recherche ;
+   - la recherche d'un métier et celle d'une compétence sont CELLES de « Chercher un métier » (pmcSuggestions) : aucune seconde recherche ;
    - les diplômes d'une fiche ne se cochent jamais ; une compétence non cochée n'est jamais présentée comme absente ;
    - le parcours est gardé avec « Garder ma synthèse » (disquette), jamais de texte libre, de date ni d'employeur ;
    - la comparaison à chaque piste de la lecture est faite par synComparerPiste (une seule brique), à partir du parcours (voir synSourceComparaison, syntheseLecture.js).
@@ -95,7 +95,7 @@ cmvEnregistrerVue('parcours', {
   }
 });
 
-// Les métiers qui répondent à la saisie : la recherche de « Par un métier » (nom, autre nom, sigle). Aucun métier déjà ajouté.
+// Les métiers qui répondent à la saisie : la recherche de « Chercher un métier » (nom, autre nom, sigle). Aucun métier déjà ajouté.
 function _synpSuggestionsMetiers(texte) {
   var D = _synpD();
   if (!D || !String(texte || '').trim()) { return ''; }
@@ -195,7 +195,7 @@ cmvEnregistrerVue('parcours-fiche', {
   }
 });
 
-// Les compétences qui répondent à la saisie : la recherche de « Par un métier ». Ni diplôme, ni compétence déjà cochée.
+// Les compétences qui répondent à la saisie : la recherche de « Chercher un métier ». Ni diplôme, ni compétence déjà cochée.
 function _synpSuggestionsCompetences(texte) {
   var D = _synpD(), s = synEtat(), e = s.parcours[_synpEdit];
   if (!D || !e || !String(texte || '').trim()) { return ''; }

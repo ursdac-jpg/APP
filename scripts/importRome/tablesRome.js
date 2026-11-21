@@ -252,19 +252,30 @@ const MATIERES = {
   ]
   };
 const MOTS_ANIMAUX = [
-  ['chevaux', /cheva|équin|équid|poney|équitation/i],
-  ['abeilles', /abeille|apicul|miel|ruche/i],
+  ['chevaux', /cheva(l|ux|ls)|équin|équid|poney|équitation/i],
+  ['abeilles', /abeille|apicul|miel|ruches?/i],
   ['soins_veterinaires', /vétérinaire|veterinaire/i],
-  ['elevage_ferme', /élevage|bovin|porc|volaille|ovin|caprin|lait|traite|poisson|pisci|aquacol|conchyl/i],
-  ['animaux_compagnie', /animal|animaux|chien|chat|félin|canin|toilett/i]
+  ['elevage_ferme', /élevage|bovin|porcs?|porcin|volaille|ovin|caprin|lait|laitier|laiterie|traites?|poisson|pisci|aquacol|conchyl/i],
+  ['animaux_compagnie', /animal|animaux|chiens?|chats?|chatons?|félin|canin|toilettage/i]
 ];
-const MOTS_VEGETAUX = /plante|végétaux|vegetaux|arbre|semis|fleur|gazon|forêt|essences|horticol|maraîch|viticol/i;
+const MOTS_VEGETAUX = /plantes?|végétaux|vegetaux|arbres?|semis|fleurs?|gazon|forêt|essences (forestières|d'arbres)|horticol|maraîch|viticol/i;
+// Motifs resserrés le 19/11/2026 (consigne 494) : ils reconnaissaient « traite » dans « traitement » (élevage pour un vigneron), « chat » dans « achats », « lait » dans « laiton », « plante » dans « implantation », « arbre » dans « arbre à cames ». Seuls les mots entiers comptent.
 const MOTS_PRODUITS_DANGEREUX = /produits? chimiques?|produits? dangereux|matières? dangereuses|toxique|inflammable|explosi|amiante|solvant|pesticide|phytosanitaire/i;
 const MOTS_INSTALLATIONS_ELECTRIQUES = /électrique|electrique|haute tension|basse tension|courant fort|habilitation électrique|électricité/i;
 
 // Resserrée le 12/11/2026 après lecture de 30 fiches : objectifs trop généraux retirés (cadre juridique, respect des règles, traiter des informations, argumenter, stratégie commerciale)
 // Un lieu qui n'a de sens que dans un secteur (« Cabinet libéral » vaut aussi pour un notaire ou un assureur : le choix « Cabinet médical / Pharmacie » ne s'applique qu'en santé)
 const LIEUX_SEULEMENT_DANS_SECTEUR = { cabinet_pharmacie: 'Santé et soins' };
+// Secteur corrigé à la main pour quelques codes (consigne 506, audit du 21/11/2026) : le domaine du répertoire, voté par appellations, les range dans un secteur qui surprend la personne qui filtre par secteur.
+// Jamais une correction de fiche à la main : la table est lue par genererMetiersRome.js, puis data/metiersRome.js est régénéré.
+const SECTEUR_CORRIGE_PAR_CODE = {
+  M1603: 'Transport et logistique',                 // Facteur : distribution du courrier (était Administration)
+  D1235: 'Hôtellerie, restauration et tourisme',    // Plagiste : plage, accueil des vacanciers (était Commerce et vente)
+  D1217: 'Coiffure et esthétique',                  // Socio-coiffeur (était Commerce et vente)
+  D1237: 'Coiffure et esthétique',                  // Socio-esthéticien (était Commerce et vente)
+  D1203: 'Santé et soins',                          // Agent de soins en hydrothérapie : soins d'eau, balnéothérapie (était Commerce et vente)
+  K1411: 'Métiers animaliers'                       // Inspecteur vétérinaire : contrôle sanitaire des animaux (était Administration)
+};
 
 // Les 84 « objectifs » de compétences du ROME -> actions de « Ce que vous faisiez » (un objectif absent = aucune action, c'est voulu : fonctions de cadre dirigeant, de stratégie ou de politique publique)
 const OBJECTIFS_ACTIONS = {
@@ -410,4 +421,17 @@ const CONDITIONS_REGLES = [
 const SEUIL_ACTION_MIN = 2, SEUIL_ACTION_PART = 0.3;
 const PLAFONDS = { actions: 6, publics: 3, matieres: 3, implicites: 3, activites: 6, lieux: 3, savoirFaire: 6, savoirEtre: 4, savoirs: 6, partMiniMot: 0.12 };
 
-module.exports = { SEUIL_ACTION_MIN, SEUIL_ACTION_PART, SAVOIR_ETRE_ACTIONS, OBJECTIFS_ACTIVITES_TOUJOURS, CONDITIONS_REGLES, VERBES_ACTIONS, MOTS_APPAREILS_NUMERIQUES, MOTS_ESPACES_VERTS, CONDITIONS_VERS_ACTIVITES, SEUIL_OBJECTIF_IMPLICITE, OBJECTIFS_SANS_SEUIL, OBJECTIFS_ACTIVITES, OBJECTIFS_LIEUX, LIEU_PAR_DEFAUT_DU_SECTEUR, LIEUX_SEULEMENT_DANS_SECTEUR, PUBLICS, LIEUX, MATIERES, MOTS_ANIMAUX, MOTS_VEGETAUX, MOTS_PRODUITS_DANGEREUX, MOTS_INSTALLATIONS_ELECTRIQUES, OBJECTIFS_ACTIONS, MACROS_ACTIONS, SAVOIR_ETRE, CATEGORIES_SAVOIRS, SOUS_CATEGORIES_SAVOIRS_EXCLUES, PLAFONDS };
+// ---------------------------------------------------------------------------------------------
+// Règles ajoutées le 19/11/2026 (consigne 494), mesurées contre les 134 fiches écrites à la main : voir docs/bancEssai/LISEZ_MOI.md
+// ---------------------------------------------------------------------------------------------
+// Un objectif du ROME présent dans plus de cette part des codes ne distingue pas un métier (« Protéger l'environnement » : 619 codes sur 1 923, « Analyser, prévenir les risques » : 984).
+// Ses actions ne comptent alors que pour POIDS_OBJECTIF_GENERAL, et seulement si une action plus précise existe déjà (sinon elles servent de repli).
+const SEUIL_OBJECTIF_GENERAL = 0.20;
+const POIDS_OBJECTIF_GENERAL = 0.5;
+// Matières très générales : « Outils, machines » ou « Documents » ne disent presque rien d'un métier ; elles demandent au moins deux savoirs du ROME pour être retenues (les autres matières : un seul).
+const MATIERES_GENERALES = ['machines', 'outils', 'documents', 'produits', 'materiaux', 'vehicules', 'ordinateur'];
+const MIN_SAVOIRS_MATIERE_GENERALE = 2;
+// Métiers qui travaillent avec des animaux sans les soigner (animaux morts, observation de la faune) : l'objectif « Prendre soin d'un animal » ne leur donne pas l'action « Soigner »
+const METIERS_SANS_SOINS_ANIMAUX = /taxiderm|ostéolog|ornitholog|naturalis|empaill/i;
+
+module.exports = { SEUIL_OBJECTIF_GENERAL, POIDS_OBJECTIF_GENERAL, MATIERES_GENERALES, MIN_SAVOIRS_MATIERE_GENERALE, METIERS_SANS_SOINS_ANIMAUX, SEUIL_ACTION_MIN, SEUIL_ACTION_PART, SAVOIR_ETRE_ACTIONS, OBJECTIFS_ACTIVITES_TOUJOURS, CONDITIONS_REGLES, VERBES_ACTIONS, MOTS_APPAREILS_NUMERIQUES, MOTS_ESPACES_VERTS, CONDITIONS_VERS_ACTIVITES, SEUIL_OBJECTIF_IMPLICITE, OBJECTIFS_SANS_SEUIL, OBJECTIFS_ACTIVITES, OBJECTIFS_LIEUX, LIEU_PAR_DEFAUT_DU_SECTEUR, LIEUX_SEULEMENT_DANS_SECTEUR, SECTEUR_CORRIGE_PAR_CODE, PUBLICS, LIEUX, MATIERES, MOTS_ANIMAUX, MOTS_VEGETAUX, MOTS_PRODUITS_DANGEREUX, MOTS_INSTALLATIONS_ELECTRIQUES, OBJECTIFS_ACTIONS, MACROS_ACTIONS, SAVOIR_ETRE, CATEGORIES_SAVOIRS, SOUS_CATEGORIES_SAVOIRS_EXCLUES, PLAFONDS };

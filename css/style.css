@@ -656,6 +656,17 @@ summary.pref-affichage-label::marker { color: var(--text-muted); }
 }
 #btnAide:hover { background: var(--bg-hover); }
 [data-theme="sombre"] #btnAide { border: 2px solid var(--border-strong); box-shadow: none; }
+/* Les trois panneaux de la ligne du haut ne dépassent jamais de l'écran : hauteur limitée et défilement (retour Denis, 21/11/2026). */
+#panneauPreferencesAffichage, #panneauSessionTransfert, #panneauAide {
+  max-height: calc(100vh - 82px); max-height: calc(100dvh - 82px);
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 768px) {
+  #panneauPreferencesAffichage, #panneauSessionTransfert, #panneauAide {
+    max-height: calc(100vh - var(--hauteur-progression, 5rem) - 56px);
+    max-height: calc(100dvh - var(--hauteur-progression, 5rem) - 56px);
+  }
+}
 #panneauAide {
   position: fixed; top: 70px; left: 20px; z-index: 2701; width: 260px;
   background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 0.6rem;
@@ -5249,7 +5260,9 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 /* Fiche « Chiffres » : exactement la carte de « Droits et règles » (classes comprendre-le-cadre-chg), seul le fond est turquoise (consigne 440). À venir garde son bord jaune. */
 .comprendre-le-cadre-chg--chiffres { background: var(--chf-fond); border-color: var(--chf-bord); border-left-color: var(--chf); }
 .comprendre-le-cadre-chg--chiffres.comprendre-le-cadre-chg--avenir { border-left-color: var(--warning-border); }
-.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-chg-fleche { color: var(--chf); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-chg-fleche { color: var(--chf); border-color: var(--chf); }
+.comprendre-le-cadre-chg--chiffres:hover { border-color: var(--chf); }
+.comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-chg-resume:hover .comprendre-le-cadre-chg-fleche { background: var(--chf); color: var(--bg-card); }
 .comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille { background: var(--bg-card); }
 .comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille--v { background: var(--success-bg-subtle); }
 .comprendre-le-cadre-chg--chiffres .comprendre-le-cadre-pastille--m { background: var(--maj-bg-subtle); }
@@ -5337,9 +5350,12 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
   .nv-f-resultat--3 .nv-f-reinit[hidden] { display: none; }
 }
 /* Droits et règles : recherche à hauteur du compte (consigne 418, lot 3) */
-.nv-f-recherche { display: inline-flex; align-items: center; gap: .4rem; flex: 1 1 14rem; max-width: 24rem; border: 1.5px solid var(--border-strong); border-radius: 999px; background: var(--bg-card); padding: 0 .4rem 0 .8rem; min-height: 40px; }
-.nv-f-recherche:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
-.nv-f-recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-strong); font-size: .95rem; }
+/* Barre de recherche bien visible (consigne 510, R2) : bord épais de la couleur du site, fond teinté, loupe et texte plus grands. */
+.nv-f-recherche { display: inline-flex; align-items: center; gap: .6rem; flex: 1 1 14rem; max-width: 24rem; border: 3px solid var(--accent); border-radius: 999px; background: var(--accent-bg-subtle); box-shadow: 0 2px 8px rgba(0,0,0,.14); padding: 0 .5rem 0 1rem; min-height: 54px; }
+.nv-f-recherche > .bi-search { font-size: 1.3rem; color: var(--accent); }
+.nv-f-recherche:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg-card), 0 0 0 6px var(--accent); }
+.nv-f-recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-strong); font-size: 1.05rem; font-weight: 600; }
+.nv-f-recherche input::placeholder { color: var(--text-strong); opacity: .72; font-weight: 600; }
 .nv-f-effacer { border: 0; background: transparent; color: var(--text-muted); min-width: 32px; min-height: 32px; cursor: pointer; }
 .nv-vide { border: 1px dashed var(--accent); border-radius: 12px; background: var(--accent-bg-subtle); padding: 1rem; text-align: center; margin: 1rem 0; }
 .nv-neuf { border: 1px dashed var(--border-strong); border-radius: 12px; padding: .8rem 1rem; text-align: center; margin: 1.2rem auto 0; max-width: 46rem; color: var(--text-muted); }
@@ -5862,6 +5878,16 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .cml-bloc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.2rem; margin: .7rem 0; }
 .cml-bloc h2, .cml-bloc h3 { font-size: var(--t-grand, 1.25rem); font-weight: 800; margin: 0 0 .5rem; }
 .cml-note { font-size: .85rem; color: var(--text-muted); }
+/* Bloc « Ce que vous y feriez » et « À savoir sur ce métier » des cartes de métiers (consigne 509) : cmvResume, modules/comprendre-les-metiers/index.js */
+.cml-resume { display: flex; flex-direction: column; gap: .45rem; border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .1rem; }
+.cml-resume .res-bloc h5 { font-size: .8rem; font-weight: 800; margin: 0 0 .2rem; color: var(--text-strong); display: flex; align-items: center; gap: .35rem; }
+.cml-resume .res-bloc h5 .bi { color: var(--accent); }
+.cml-resume ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .15rem; }
+.cml-resume li { font-size: .82rem; line-height: 1.3; display: flex; gap: .4rem; align-items: flex-start; }
+.cml-resume li .bi { flex: none; color: var(--text-muted); margin-top: .12rem; }
+.cml-resume .res-suite { font-size: .76rem; color: var(--text-muted); margin: .1rem 0 0; }
+.cml-resume .res-vide { font-size: .8rem; color: var(--text-muted); margin: 0; }
+#pmRacine .carte-m .cml-resume { margin-top: .2rem; }
 .cml-encart { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: .7rem .9rem; margin: .7rem 0; display: flex; gap: .7rem; align-items: flex-start; }
 .cml-encart.warn { background: var(--warning-bg-subtle); border-left-color: var(--warning-border); }
 .cml-encart > i { color: var(--accent); font-size: 1.3rem; margin-top: .1rem; }
@@ -5874,6 +5900,12 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .cml-entree h3 { font-size: var(--t-moyen, 1rem); font-weight: 800; margin: 0; }
 .cml-entree p { font-size: var(--t-petit, .875rem); margin: 0; color: var(--text-muted); flex: 1; }
 .cml-entree .btn { min-height: 44px; }
+/* Lecture des cartes de l'accueil en petits passages (consigne 513) : une question, puis trois repères */
+.cml-entree .cml-pour { font-size: .95rem; font-weight: 700; color: var(--text-strong); line-height: 1.3; flex: none; }
+.cml-entree .cml-reperes { list-style: none; margin: .1rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+.cml-entree .cml-reperes li { display: flex; gap: .55rem; align-items: flex-start; font-size: var(--t-petit, .875rem); line-height: 1.35; color: var(--text-muted); }
+.cml-entree .cml-reperes li .bi { flex: none; color: var(--accent); font-size: 1.05rem; margin-top: .05rem; }
+.cml-entree .cml-reperes li b { display: block; color: var(--text-strong); font-size: .8rem; font-weight: 800; margin-bottom: .05rem; }
 .cml-six { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem .9rem; margin-top: .4rem; }
 .cml-six > div { display: flex; gap: .5rem; align-items: flex-start; font-size: var(--t-petit, .875rem); }
 .cml-hex-zone { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: center; }
@@ -5892,10 +5924,11 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .cml-let { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; }
 @media (max-width: 759px) { .metier-carte-actions3 > [data-cml="fiche"] { grid-column: 1 / -1; } }
 .cml-pill { display: inline-block; font-size: .78rem; padding: .12rem .55rem; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); }
-.cml-pct { display: flex; align-items: center; gap: .6rem; }
-.cml-pct .piste { flex: 1; height: 16px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; }
+.cml-pct { display: flex; align-items: center; gap: .3rem .6rem; flex-wrap: wrap; }
+.cml-pct .piste { flex: 1 1 7rem; height: 16px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); overflow: hidden; }
 .cml-pct .piste span { display: block; height: 100%; background: var(--accent-solide, var(--accent)); border-radius: 999px; }
 .cml-pct b { font-size: 1rem; min-width: 3.2rem; text-align: right; }
+@media (max-width: 480px) { .cml-pct .cml-note { flex: 1 0 100%; } }
 .cml-depli { border-left: 4px solid var(--accent); border-radius: 8px; background: var(--bg-card); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: .5rem 0; }
 .cml-depli > summary { cursor: pointer; padding: .7rem .9rem; font-weight: 700; display: flex; gap: .6rem; align-items: center; background: var(--accent-bg-subtle); border-radius: 0 8px 8px 0; list-style: none; }
 .cml-depli > summary::-webkit-details-marker { display: none; }
@@ -5919,6 +5952,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
    --accent-texte (texte sur fond de page). Jamais la couleur seule : le numéro, le titre et l'état sont écrits. ===== */
 .cml-num { flex: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong); }
 .cml-fil { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin: .6rem 0; }
+.cml-fil.n5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .cml-fil-t { display: flex; gap: .55rem; align-items: center; text-align: left; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); padding: .45rem .6rem; min-height: 56px; font-size: var(--t-petit, .875rem); line-height: 1.15; }
 .cml-fil-t .cml-num { width: 32px; height: 32px; border-radius: 8px; font-size: 1.05rem; }
 .cml-fil-t small { display: block; color: var(--text-muted); font-size: var(--t-petit, .875rem); }
@@ -5972,6 +6006,13 @@ button.cml-fil-t.fait { cursor: pointer; }
 .cml-jt.is-actif { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; font-weight: 700; }
 .cml-jt.is-actif .bi { display: inline; }
 .cml-jt:disabled { opacity: .45; }
+/* « À éviter » (consigne 502) : ambre + icône barrée, jamais la couleur seule ; « déjà choisi » reste lisible. */
+.cml-jt.is-evite { background: var(--warning-bg-subtle); border-color: var(--warning); color: var(--text-strong); font-weight: 800; }
+.cml-jt.is-evite .bi { display: inline; }
+.cml-jt.is-actif.deja:disabled { opacity: .7; }
+.metier-carte.cml-carte-ev { border-color: var(--warning); }
+.cml-pill-ev { display: inline-flex; align-items: center; gap: .3rem; border: 2px solid var(--warning); background: var(--warning-bg-subtle); color: var(--text-strong); border-radius: 999px; padding: .1rem .65rem; font-size: .85rem; font-weight: 700; }
+.cml-pct .cml-avant { color: var(--text-muted); text-decoration: line-through; font-weight: 400; margin-right: .3rem; }
 .cml-jt:focus-visible, button.cml-fil-t:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .cml-pill-fd { display: inline-flex; align-items: center; gap: .3rem; font-size: var(--t-petit, .875rem); font-weight: 700; padding: .15rem .7rem; border-radius: 999px; border: 2px solid; color: var(--text-strong); margin: .1rem .15rem .1rem 0; }
 .cml-pill-fd.fac { background: var(--success-bg-subtle); border-color: var(--success); }
@@ -5987,6 +6028,22 @@ button.cml-fil-t.fait { cursor: pointer; }
 .cml-fd button.dif.is-actif { background: var(--warning-bg-subtle); border-color: var(--warning); font-weight: 800; }
 .cml-fd button.is-actif .bi { display: inline; }
 .cml-fd button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* « Comment vos choix ont été lus » (consigne 499) : ligne = ce qui est lu + ce que l'application en a fait ; trois points + un mot pour « aide à distinguer ». */
+.cml-lu .intro { margin: .1rem 0 .7rem; }
+.cml-lu h3 .bi { color: var(--accent-texte, var(--accent)); }
+.cml-lu-ligne { display: flex; gap: .4rem .8rem; flex-wrap: wrap; align-items: baseline; border-top: 1px solid var(--border); padding: .6rem 0; }
+.cml-lu-ligne:first-of-type { border-top: 0; }
+.cml-lu-ligne .qui { flex: 0 0 15rem; max-width: 100%; }
+.cml-lu-ligne .qui small { display: block; color: var(--text-muted); font-size: .8rem; margin-top: .15rem; }
+.cml-lu-ligne .dit { flex: 1 1 16rem; font-size: .92rem; }
+.cml-lu-ligne .dit p { margin: .1rem 0; }
+.cml-aide { display: inline-flex; align-items: center; gap: .4rem; font-weight: 700; }
+.cml-aide .pts { display: inline-flex; gap: .2rem; }
+.cml-aide .pa { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--accent); display: inline-block; }
+.cml-aide .pa.plein { background: var(--accent); }
+.cml-lu-savoir { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; padding: .55rem .75rem; margin-top: .6rem; font-size: .92rem; }
+.cml-lu-savoir .bi { color: var(--accent-texte, var(--accent)); margin-right: .3rem; }
+@media (max-width: 480px) { .cml-lu-ligne .qui { flex-basis: 100%; } }
 /* Résultats : « Vos choix » en lignes numérotées, « Pourquoi ce métier » en trois lignes */
 .cml-ligne-choix { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--border); padding: .5rem 0; }
 .cml-ligne-choix:first-of-type { border-top: 0; }
@@ -6129,7 +6186,7 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .cml-mot-bleu { color: var(--accent-texte, var(--accent)); font-weight: 700; }
 .cml-raisons .bi { color: var(--success-strong, var(--success)); flex: none; }
 
-@media (max-width: 640px) { .cml-fil { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .cml-fil, .cml-fil.n5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .cml-hex-zone, .cml-grille3, .cml-grille3.cml-grille4, .cml-six, .cml-secteurs { grid-template-columns: 1fr; }
   .cml-barre-l { grid-template-columns: 40px 1fr; }
@@ -6401,6 +6458,8 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
   .accueil-page .cartes-accueil { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: 1fr; max-width: 1900px; }
   .accueil-page .cartes-accueil .carte { min-width: 0; max-width: none; padding-top: 2.75rem; justify-content: flex-start; }
 }
+/* Le réglage n'agit que sous 1700 px : au-delà il serait sans effet, donc il n'est pas proposé (retour Denis, 21/11/2026). */
+@media (min-width: 1700px) { .pref-cartes-accueil { display: none; } }
 /* Réglage « Cartes de l'accueil » (options d'affichage), pour les écrans de moins de 1700 px de large. */
 @media (max-width: 1699.98px) {
   [data-cartes-accueil] .accueil-page .cartes-accueil .carte { min-height: 0; padding: 0.875rem 1rem 0.75rem; justify-content: center; }
@@ -6470,7 +6529,7 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 .nv-f-btn--jour { font-weight: 700; }
 
 /* ============================================================
-   Module « Explorer les métiers », entrée « Par un métier » (modules/comprendre-les-metiers/parMetierEcran.js) : tout est limité à #pmRacine.
+   Module « Explorer les métiers », entrée « Chercher un métier » (modules/comprendre-les-metiers/parMetierEcran.js) : tout est limité à #pmRacine.
    Repris de la maquette validée du 17/11/2026 ; n'emploie que les variables de couleur de l'application (mode sombre compris).
    ============================================================ */
 #pmRacine .note{font-size:.85rem;color:var(--text-muted)}
@@ -6531,6 +6590,10 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 #pmRacine .carte-m .retrouve span{display:inline-block;background:var(--accent-bg-subtle);border-radius:999px;padding:.05rem .5rem;margin:.1rem .15rem .1rem 0}
 #pmRacine .carte-m .manque{font-size:.82rem;color:var(--warning-strong)}
 #pmRacine .carte-m .btn{margin-top:auto;min-height:44px}
+#pmRacine .carte-m .noms-emploi{font-size:.82rem;color:var(--text-muted);line-height:1.35}
+#pmRacine .carte-m .noms-emploi .etiq{font-weight:700;color:var(--text-strong)}
+#pmRacine .carte-m .noms-emploi .plus{white-space:nowrap}
+#pmRacine .phrase-noms{font-size:.85rem;color:var(--text-muted);margin:0 0 .6rem}
 #pmRacine .vide{border:2px dashed var(--border-strong);border-radius:12px;padding:1rem;text-align:center}
 #pmRacine .filtres-boutons{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media (max-width:900px){
@@ -6582,7 +6645,6 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 #pmRacine .pc{display:inline-block;background:var(--accent-bg-subtle);border:1px solid var(--accent);border-radius:999px;padding:.05rem .5rem;margin:.1rem .15rem .1rem 0}
 #pmRacine .pill-btn{align-self:flex-start;border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-strong);border-radius:999px;padding:.1rem .65rem;font-size:.78rem;min-height:32px;display:inline-flex;gap:.3rem;align-items:center;cursor:pointer;text-align:left}
 #pmRacine .pill-btn:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
-#pmRacine .cond-carte{font-size:.78rem;color:var(--text-muted)}
 #pmRacine .rang-boutons{display:flex;gap:.4rem;margin-top:auto}
 #pmRacine .rang-boutons .btn{margin-top:0;min-height:44px}
 #pmRacine .rang-boutons .b-fiche{flex:3 1 0}
@@ -6609,7 +6671,7 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 #pmRacine .fil .ici{font-weight:800;border:2px solid var(--accent);background:var(--accent-bg-subtle);border-radius:999px;padding:.2rem .7rem}
 #pmRacine .rang-boutons .b-fiche{flex:1 1 auto}
 #pmRacine .zone .zone-titre .bi{color:var(--accent)}
-/* « Par un métier » : fiche enrichie, pages compétence et secteur, demande d'offres (maquette du 17/11/2026) */
+/* « Chercher un métier » : fiche enrichie, pages compétence et secteur, demande d'offres (maquette du 17/11/2026) */
 #pmRacine .fiche-tete{border-color:var(--accent);border-width:2px}
 #pmRacine .fm-titre{font-size:1.7rem;font-weight:800;margin:.1rem 0 .4rem}
 #pmRacine .fm-ligne{margin-bottom:.4rem}
@@ -6644,3 +6706,36 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 #pmfCandidater .pmf-grille li:has(input:checked) { border-color: var(--accent); background: var(--accent-bg-subtle); }
 #pmfCandidater .pmf-grille .lab.check { margin: 0; padding: .6rem .8rem; min-height: 44px; display: flex; align-items: flex-start; gap: .55rem; width: 100%; cursor: pointer; }
 @media (max-width: 575px) { #pmfCandidater .pmf-grille { grid-template-columns: 1fr; } }
+
+/* ---------- Échelle de pistes (consigne 505, 21/11/2026) : une seule teinte bleue qui s'intensifie avec le niveau, jamais la couleur seule (nom écrit, barres, jauge) ---------- */
+.cml-niv { --nb: var(--bg-subtle); --nl: var(--border-strong); --nf: var(--accent); }
+.cml-niv-0 { --nb: var(--bg-subtle); --nl: var(--border-strong); --nf: var(--border-strong); }
+.cml-niv-1 { --nb: hsl(215,70%,97%); --nl: hsl(215,50%,76%); --nf: hsl(215,65%,52%); }
+.cml-niv-2 { --nb: hsl(215,70%,94%); --nl: hsl(215,50%,65%); --nf: hsl(215,65%,45%); }
+.cml-niv-3 { --nb: hsl(215,70%,91%); --nl: hsl(215,50%,53%); --nf: hsl(215,65%,39%); }
+.cml-niv-4 { --nb: hsl(215,70%,88%); --nl: hsl(215,50%,42%); --nf: hsl(215,65%,32%); }
+[data-theme="sombre"] .cml-niv-1 { --nb: hsl(215,38%,15%); --nl: hsl(215,55%,34%); --nf: hsl(215,70%,48%); }
+[data-theme="sombre"] .cml-niv-2 { --nb: hsl(215,38%,19%); --nl: hsl(215,55%,43%); --nf: hsl(215,70%,53%); }
+[data-theme="sombre"] .cml-niv-3 { --nb: hsl(215,38%,23%); --nl: hsl(215,55%,53%); --nf: hsl(215,70%,57%); }
+[data-theme="sombre"] .cml-niv-4 { --nb: hsl(215,38%,27%); --nl: hsl(215,55%,62%); --nf: hsl(215,70%,62%); }
+.cml-niv-bandeau { border: 2px solid var(--nl); background: var(--nb); border-radius: 14px; padding: .8rem 1rem; margin: .9rem 0; display: grid; gap: .45rem; }
+.cml-niv-bandeau p { margin: 0; }
+.cml-niv-tete { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; }
+.cml-niv-nom { font-size: 1.25rem; font-weight: 800; margin: 0; }
+.cml-niv-num { font-size: .82rem; font-weight: 700; border: 1px solid var(--nl); border-radius: 999px; padding: .05rem .6rem; background: var(--bg-card); }
+.cml-barres { display: inline-flex; align-items: flex-end; gap: 3px; height: 22px; flex: none; }
+.cml-barres i { display: block; width: 7px; border-radius: 2px; background: var(--bg-card); border: 1.5px solid var(--nl); }
+.cml-barres i:nth-child(1) { height: 11px; } .cml-barres i:nth-child(2) { height: 15px; } .cml-barres i:nth-child(3) { height: 19px; } .cml-barres i:nth-child(4) { height: 22px; }
+.cml-barres i.on { background: var(--nf); border-color: var(--nf); }
+.cml-niv-suite { display: flex; gap: .5rem .7rem; align-items: center; flex-wrap: wrap; font-weight: 600; }
+.cml-niv-jauge { display: flex; gap: 4px; flex: 1 1 12rem; min-width: 9rem; }
+.cml-niv-jauge span { flex: 1; height: 9px; border-radius: 5px; background: var(--bg-card); border: 1.5px solid var(--nl); }
+.cml-niv-jauge span.on { background: var(--nf); border-color: var(--nf); }
+.cml-niv-liste { display: grid; gap: .5rem; margin: .4rem 0; }
+.cml-niv-ligne { display: grid; grid-template-columns: auto 1fr; gap: .2rem .7rem; align-items: center; border: 2px solid var(--nl); background: var(--nb); border-radius: 12px; padding: .55rem .8rem; }
+.cml-niv-ligne.ici { box-shadow: 0 0 0 3px var(--nf); }
+.cml-niv-ligne small { grid-column: 2; color: var(--text-muted); font-size: .85rem; }
+.cml-niv-ici { font-size: .78rem; font-weight: 800; border: 1px solid var(--nl); background: var(--bg-card); border-radius: 999px; padding: .02rem .5rem; margin-left: .4rem; }
+.cml-niv-cartes .metier-carte, .cml-niv-cartes .carte-m { border-left: 6px solid var(--nl); }
+.cml-niv-cartes .metier-carte-large, .cml-niv-cartes .cml-vedette-c1 { border-width: 2px; border-left-width: 8px; border-color: var(--nl); }
+#pmRacine .cml-vedette-c1 { padding: .9rem 1rem; }

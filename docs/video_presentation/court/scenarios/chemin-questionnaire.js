@@ -1,11 +1,12 @@
-/* Présentation du chemin « Par un questionnaire de préférences » (environ 1 minute). Clé : chemin-questionnaire. Parcours joué dans l'application réelle. */
+/* Présentation du chemin « Répondre à un questionnaire » (environ 1 minute). Clé : chemin-questionnaire. Parcours joué dans l'application réelle.
+   Refaite le 21/11/2026 (consigne 520) : nouveau nom du chemin et niveau du résultat (part des lignes répondues). */
 const { preparer, versModule, versAccueilModule, entrerChemin, dormir } = require('./metiers-commun');
 module.exports = {
   blocs: [
-    { id: 'q1', voix: 'Par un questionnaire de préférences, c’est pour vous si vous voulez voir quels univers de métiers vous attirent.', sous_titre: 'Par un questionnaire : voir quels univers de métiers vous attirent.' },
+    { id: 'q1', voix: 'Répondre à un questionnaire, c’est pour vous si vous préférez répondre à des questions plutôt que choisir vous-même, et voir quels univers de métiers vous attirent.', sous_titre: 'Répondre à un questionnaire : voir quels univers de métiers vous attirent.' },
     { id: 'q2', voix: 'Il y a quatre parties, sans minuteur et sans bonne réponse. Aucune réponse n’est obligatoire. Le résultat n’apparaît qu’à la fin : prévoyez le temps qu’il faut.', sous_titre: 'Quatre parties, sans minuteur, sans bonne réponse. Le résultat apparaît à la fin.' },
     { id: 'q3', voix: 'Pour chaque ligne, vous choisissez : ça me plairait, ça ne me plairait pas, ou je ne sais pas. Vous pouvez continuer à tout moment.', sous_titre: 'Ça me plairait, ça ne me plairait pas, ou je ne sais pas. Continuer est toujours possible.' },
-    { id: 'q4', voix: 'À la fin, votre résultat montre vos préférences d’aujourd’hui, avec des métiers qui leur correspondent. Ce n’est pas un diagnostic. Vous pouvez le garder dans la disquette.', sous_titre: 'Votre résultat : vos préférences d’aujourd’hui, des métiers. Ce n’est pas un diagnostic.' }
+    { id: 'q4', voix: 'À la fin, votre résultat montre vos préférences d’aujourd’hui, avec des métiers qui leur correspondent. Il porte un niveau : plus vous avez répondu, plus il est stable. Ce n’est pas un diagnostic. Vous pouvez le garder dans la disquette.', sous_titre: 'Un résultat avec un niveau : plus vous répondez, plus il est stable. Ce n’est pas un diagnostic.' }
   ],
   async jouer(o) {
     const p = o.p;

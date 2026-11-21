@@ -75,23 +75,21 @@
       <button type="button" data-pref-daltonien="1">Activé</button>
     </div>
     <!-- Cartes de l'accueil (consignes 336 a 338) : reglage facultatif pour les ecrans de moins de 1700 px de large. Defaut = normales. -->
-    <div class="pref-affichage-groupe">
-      <span class="pref-affichage-label">Cartes de l’accueil</span>
-      <button type="button" data-pref-cartes="normal">Normales</button>
-      <button type="button" data-pref-cartes="compact">Compactes</button>
-      <button type="button" data-pref-cartes="tres-compact">Très compactes</button>
-      <small class="d-block text-muted mt-1">Utile sur les écrans moyens et petits.</small>
-    </div>
-    <!-- TACHE (retour utilisateur : "Confort de lecture" separe de
-         "Police", pour ne pas stigmatiser en nommant "dyslexique" tout en
-         restant reconnaissable) : reglage independant et combinable
-         (voir css/style.css) -- grise les boutons Police pendant qu'il
-         est actif (voir appliquerPreferencesAffichage(), js/app.js). -->
+    <!-- Confort de lecture AVANT les cartes de l'accueil (retour Denis, 21/11/2026). -->
     <div class="pref-affichage-groupe">
       <span class="pref-affichage-label">Confort de lecture</span>
       <button type="button" data-pref-confort="0">Désactivé</button>
       <button type="button" data-pref-confort="1">Activé</button>
     </div>
+    <details class="pref-affichage-groupe pref-cartes-accueil">
+      <summary class="pref-affichage-label">Cartes de l’accueil</summary>
+      <div class="pref-affichage-details-corps">
+        <button type="button" data-pref-cartes="normal">Normales</button>
+        <button type="button" data-pref-cartes="compact">Compactes</button>
+        <button type="button" data-pref-cartes="tres-compact">Très compactes</button>
+        <small class="d-block text-muted mt-1">Utile sur les écrans moyens et petits.</small>
+      </div>
+    </details>
     <!-- TACHE (retour utilisateur, meme demande que ci-dessus) : <details>/
          <summary> natifs (deja utilises ailleurs dans l'appli pour ce
          meme besoin, voir js/app.js panneau Projet XXL) -- repliees par

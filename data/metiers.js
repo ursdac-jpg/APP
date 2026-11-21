@@ -5165,7 +5165,7 @@ function _coLettreRendreDepot() {
       ? '<div class="mt-3">' + (function () {
           var docPrepareAvant = dossier.dernierDocumentPrepare;
           dossier.dernierDocumentPrepare = 'lettre';
-          var htmlCandidature = estStageAlternancePmsmp ? contenuCandidature(true) : contenuModeRecherche(false, { modeUnifie: true, formeCandidature: _coLettreFormeCandidature() });
+          var htmlCandidature = estStageAlternancePmsmp ? contenuCandidatureAvecMetierStage(true) : contenuModeRecherche(false, { modeUnifie: true, formeCandidature: _coLettreFormeCandidature() });
           dossier.dernierDocumentPrepare = docPrepareAvant;
           return htmlCandidature + _coLettreHtmlAppuis();
         })() + '</div>'
@@ -5267,7 +5267,8 @@ function _coLettreEtatCta() {
     objectif: dossier.objectif, modeRecherche: dossier.modeRecherche, metierCible: dossier.metierCible, secteurCible: dossier.secteurCible,
     typeRecherche: dossier.typeRecherche, forme: dossier.objectif === 'reconversion' ? _coLettreFormeCandidature() : null,
     intituleDomaine: intituleDomaineActuel(),
-    entreprise: rc.entreprise, situationActuelle: dossier.situationActuelle
+    entreprise: rc.entreprise, situationActuelle: dossier.situationActuelle, typeStageATrancher: !!dossier._typeStageATrancher,
+    metierStageRequis: metierStageRequis(), posteStage: posteStageSaisi()
   });
   return { bloque: raisons.length > 0, raisons: raisons, phrase: phraseBlocageLettreCo(raisons) };
 }
@@ -6185,7 +6186,10 @@ function _reprendreCvRendreIntro() {
         // Une voie est deja engagee : on la reprend ; sinon on revient au choix de la voie.
         if (_reprendreCvDepuis && typeof csaVoieEngagee === 'function' && csaVoieEngagee()) { _reprendreCvActif = false; naviguerVers('cv-sans-assistant'); return; }
         if (_reprendreCvDepuis && via === 'reformuler') { _prepLEMode = 'reformuler'; _reprendreCvActif = false; _prepLEEcran = (typeof _reformulerEcranReprise !== 'undefined' && _reformulerEcranReprise) || 'depot'; naviguerVers('reformuler-cv'); return; }
-        if (_reprendreCvDepuis && via === 'maj' && dossier.objectif) { _reprendreCvActif = false; naviguerVers(_routeRepriseDuParcours('maj', 'resultats')); return; }
+        // Audit du 21/11/2026 : depuis le lot 4a l'objectif est choisi AVANT le premier passage chez l'assistant. Sans la réponse de l'assistant (lecture du CV), « Reprendre » ne saute pas
+        // à l'étape finale : elle ramène à la voie 1 là où la personne l'avait laissée (la page « Préparer »).
+        if (_reprendreCvDepuis && via === 'maj' && dossier.objectif && _prepLEEtat && _prepLEEtat.reponseAssistant) { _reprendreCvActif = false; naviguerVers(_routeRepriseDuParcours('maj', 'resultats')); return; }
+        if (_reprendreCvDepuis && via === 'maj') { _reprendreCvChoisirVoie('maj'); return; }
         _prepLEEcran = 'depot';
         naviguerVers('reprendre-cv');
       }
@@ -9412,7 +9416,7 @@ function itemsInfoCarteAccueil(id) {
   var qfqOuvert = typeof mtOuvert === 'function' && mtOuvert();
   if (qfqOuvert && id === 'preparer') { source.push(['Employeurs près de chez moi', 'bi-geo-alt', 'Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée.']); }
   if (id === 'boiteaoutils' && typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) { source.push(['Découvrir mes compétences', 'bi-compass', 'Vos documents montrent déjà ce que vous savez faire : l’outil le repère, avec la phrase qui le prouve, et vous aide à le dire.']); }
-  if (id === 'orientation' && typeof cmvOuvert === 'function' && cmvOuvert()) { source.push(['Explorer les métiers', 'bi-compass', 'Découvrir des métiers par leur nom, par ce que vous aimez faire ou par un questionnaire de préférences, voir ce que les employeurs de votre département veulent embaucher, puis rassembler vos résultats dans une synthèse.']); }
+  if (id === 'orientation' && typeof cmvOuvert === 'function' && cmvOuvert()) { source.push(['Explorer les métiers', 'bi-compass', 'Découvrir des métiers en cherchant par leur nom, en partant de vos envies ou en répondant à un questionnaire de préférences, voir ce que les employeurs de votre département veulent embaucher, puis rassembler vos résultats dans une synthèse.']); }
   if (id === 'orientation' && typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) { source.push(['Un CV, plusieurs métiers', 'bi-files', 'Quand plusieurs métiers vous intéressent : un seul CV de départ, puis un CV et une lettre pour chacun, sans rien inventer.']); }
   if (qfqOuvert && id === 'informe') { source.push(['Qui fait quoi', 'bi-geo-alt', 'À qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification.']); }
   return source;
@@ -10797,6 +10801,7 @@ function _prepaEntretienRaisonsCta() {
   // 25/10/2026 : le type de candidature est nécessaire (la synthèse le montre), comme pour la lettre.
   if (!dossier.objectif) { raisons.push('choisir le type de candidature dans « Votre candidature »'); }
   else if ((dossier.objectif === 'stage' || dossier.objectif === 'pmsmp') && dossier._typeStageATrancher) { raisons.push('dire de quel type de stage il s’agit'); }
+  else if (metierStageRequis() && !String(posteStageSaisi()).trim()) { raisons.push('indiquer le métier ou le domaine visé'); }
   else if (typeof raisonsBlocageObjectifCV === 'function') { raisons = raisons.concat(raisonsBlocageObjectifCV()); }
   if (!dossier.situationActuelle) { raisons.push('indiquer votre situation actuelle dans « Adaptation au métier »'); }
   return raisons;
@@ -10903,7 +10908,7 @@ function _prepaEntretienRendrePreparer() {
           dossier.dernierDocumentPrepare = 'entretien';
           // E1.1 (24/10/2026) : logique unifiee de la lettre (offre sans offre, spontanee a deux choix, domaine avec intitule, changer de metier) ; lot 4 : disponibilites comme la lettre
           // (texteProfil('entretien') les envoie deja a l'assistant).
-          var htmlCandidature = estStageAlternancePmsmp ? contenuCandidature(true) : contenuModeRecherche(false, { modeUnifie: true, formeCandidature: formeCandidatureActuelle() });
+          var htmlCandidature = estStageAlternancePmsmp ? contenuCandidatureAvecMetierStage(true) : contenuModeRecherche(false, { modeUnifie: true, formeCandidature: formeCandidatureActuelle() });
           dossier.dernierDocumentPrepare = docPrepareAvant;
           // 25/10/2026 : l'arrivée directe n'a plus de page « Synthèse » : la lettre de recommandation se dépose ici, comme dans « Écrire ma lettre avec l'assistant ».
           return htmlCandidature + _coLettreHtmlAppuis({ pourEntretien: true });

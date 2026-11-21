@@ -2733,6 +2733,7 @@ function reperesInitialiser() {
     bouton.innerHTML = '<i class="bi bi-journals"></i>';
     bouton.addEventListener('click', function () {
       panneau.hidden = !panneau.hidden;
+      if (!panneau.hidden && typeof fermerAutresPanneauxHaut === 'function') { fermerAutresPanneauxHaut('panneauJournalParcours'); }
       // TACHE (retour Denis 2026-09-20) : recalcule au moment precis de
       // l'ouverture, meme principe que _carnetPositionnerPanneau() --
       // jamais une position perimee d'une navigation precedente.

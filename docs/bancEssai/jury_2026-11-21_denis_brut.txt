@@ -1,0 +1,261 @@
+NOTES DU JURY (2026-11-21)
+P01|Chargé d'étude naturaliste|P
+P01|Technicien naturaliste|P
+P01|Ingénieur écologue|A
+P01|Chercheur des écosystèmes|A
+P01|Chargé de conservation ex-situ|A
+P02|Crêpier|P
+P02|Employé de restauration collective|P
+P02|Employé polyvalent de restauration / Aide de cuisine|P
+P02|Steward yachting polyvalent|A
+P02|Chef de rang|P
+P03|Gérontologue|A
+P03|Assistant de vie aux familles (ADVF)|P
+P03|Technicien d'Intervention Sociale et Familiale (TISF)|A
+P03|Physiothérapeute|A
+P03|Employé de ménage à domicile|A
+P04|Graphothérapeute|A
+P04|Éducateur spécialisé|P
+P04|Enseignant en activité physique adaptée (EAPA)|A
+P04|Assistant pédagogique en milieu scolaire|P
+P04|Professeur de collège et de lycée|A
+P05|Coffreur|P
+P05|Monteur en structures métalliques|P
+P05|Maçon-fumiste|A
+P05|Maçon|P
+P05|Couvreur|P
+P06|Approvisionneur points de distribution|A
+P06|Agent d'exploitation en transport routier de marchandises|P
+P06|Opérateur logistique|P
+P06|Chauffeur-livreur préparateur de commandes|P
+P06|Aide-livreur|P
+P07|Vendeur d'articles de sport et loisirs|P
+P07|Vendeur en accessoires de la personne|P
+P07|Hôte de caisse|P
+P07|Vendeur en articles de puériculture|P
+P07|Vendeur en articles de papeterie et loisirs créatifs|P
+P08|Assistant administratif multilingue|P
+P08|Assistant commercial|P
+P08|Agent administratif banque ou assurance|P
+P08|Opérateur de saisie|P
+P08|Assistant ressources humaines|A
+P09|Matelot machine de la marine marchande|A
+P09|Préparateur en tôlerie automobile|P
+P09|Débosseleur sans peinture|P
+P09|Technicien de réparation et pose de vitrage des véhicules|P
+P09|Mécanicien-réparateur d'engins de levage et de manutention|P
+P10|Technicien hygiéniste|A
+P10|Agent de propreté de locaux|P
+P10|Agent d'entretien des piscines|A
+P10|Nettoyeur en cuir et peausserie|A
+P10|Agent de propreté urbaine|P
+P11|Développeur blockchain|A
+P11|Développeur - jeux vidéo|A
+P11|Spécialiste en modélisation climatique|A
+P11|Ingénieur en informatique embarquée|A
+P11|Spécialiste test et validation logiciel ou application|P
+P12|Combattant des forces spéciales militaires|A
+P12|Gardien de compagnie républicaine de sécurité (CRS)|P
+P12|Opérateur en télésurveillance|P
+P12|Spécialiste de la protection des forces, installations ou matériels sensibles de l'État|A
+P12|Agent cynophile de sécurité|P
+P13|Préparateur physique|P
+P13|Directeur sportif|A
+P13|Arbitre professionnel discipline sportive|A
+P13|Animateur de loisirs sportifs|P
+P13|Entraîneur de sport professionnel et de haut niveau|A
+P14|Concepteur de contenus multimedia|P
+P14|Architecte multimédias interactifs|A
+P14|Chef décorateur spectacle|A
+P14|Dessinateur-illustrateur|P
+P14|Roughman en design|A
+P15|Technicien d'installation de centrales téléphoniques|A
+P15|Technicien Datacenter|A
+P15|Cadre de santé d'unité de soins ou de service paramédical|A
+P15|Technicien réseaux mobiles|A
+P15|Technicien de maintenance réseaux mobiles|A
+P16|Technicien en ostéologie-moulage|A
+P16|Taxidermiste|A
+P16|Opérateur de transformation des viandes|A
+P16|Ingénieur écologue|A
+P16|Ornithologue|A
+P17|Chargé de mission aux relations internationales|A
+P17|Rédacteur Banque de France|A
+P17|Analyste d'étude informatique|A
+P17|Analyste financier|A
+P17|Architecte systèmes et réseaux|A
+P18|Ajusteur-régleur de fabrication en instruments d'optique|P
+P18|Aménageur de véhicules|P
+P18|Animalier de laboratoire|P
+P18|Automaticien en bureau d'études|P
+P18|Auxiliaire vétérinaire|A
+P19|Animateur|P
+P19|Art thérapeute|P
+P19|Professeur de musique|P
+P19|Professeur territorial d'enseignement artistique|P
+P19|Accompagnant d'élèves en situation de handicap (AESH)|A
+P20|Chargé de mission eaux pluviales|A
+P20|Chargé de mission environnement|P
+P20|Chef de projet conception industrielle en mécanique|P
+P20|Chef de projet éolien|P
+P20|Chef de projet Maîtrise d'Ouvrage des Systèmes d'Information (MOA)|P
+P21|Animateur 2D 3D - films d'animation|P
+P21|Concepteur de contenus multimedia|P
+P21|Conservateur des antiquités et objets d'art|A
+P21|Graphiste|P
+P21|Musicologue|A
+P22|Accastilleur|P
+P22|Agent animalier|A
+P22|Agent cynotechnique en détection des explosifs|A
+P22|Agent d'encadrement en industrie du bois|P
+P22|Agent d'entretien|P
+P23|Agent administratif banque ou assurance|P
+P23|Agent d'accompagnement des trains|A
+P23|Agent d'accueil|P
+P23|Agent d'accueil et de prévention en camping|A
+P23|Agent d'Escale Commerciale aéroportuaire (AEC)|P
+P24|Agent de diagnostic et de contrôle en agriculture|A
+P24|Aide agricole en production végétale|A
+P24|Aide d'élevage agricole|A
+P24|Algoculteur|A
+P24|Bûcheron|P
+P25|Crêpier|P
+P25|Cuisinier|P
+P25|Écailler|A
+P25|Employé de restauration collective|P
+P25|Employé polyvalent de restauration / Aide de cuisine|P
+P26|Conducteur super poids lourd de l'armée|A
+P26|Aide-livreur|P
+P26|Chef d'équipe en déménagement|A
+P26|Conducteur d'engins de manœuvre du réseau ferré|A
+P26|Conducteur de véhicule de guidage|P
+P27|Ambulancier / Auxiliaire ambulancier|P
+P27|Équipier sécurité civile|A
+P27|Pompier|A
+P27|Agent de soins en hydrothérapie|A
+P27|Accueillant familial thérapeutique auprès d'adultes|A
+P28|Agent de mise en fourrière animale|A
+P28|Aide d'élevage agricole|A
+P28|Animalier de laboratoire|A
+P28|Dentiste équin|P
+P28|Éleveur d'ovins|A
+P29|Conducteur d'engins agricoles|A
+P29|Conducteur de véhicule de guidage|P
+P29|Conducteur de véhicule de protection de convoi exceptionnel|P
+P29|Déménageur|A
+P29|Mécanicien cycles|X
+P30|Enseignant d'équitation|A
+P30|Maréchal-ferrant|A
+P30|Toiletteur animalier|A
+P30|Auxiliaire vétérinaire|P
+P30|Agent animalier|A
+P31|Agent d'entretien|A
+P31|Employé de pressing|A
+P31|Désamianteur|A
+P31|Agent de propreté de locaux|A
+P31|Nettoyeur en cuir et peausserie|A
+P32|Technicien en investigation criminelle|A
+P32|Spécialiste en radioprotection au sein du Ministère des Armées|A
+P32|Responsable Hygiène Sécurité Environnement (HSE) en industrie|P
+P32|Responsable de sécurité industrielle|P
+P32|Plongeur démineur militaire dans les fonds marins|A
+P33|Mérandier|A
+P33|Agent de finissage couleurs et effets cuirs et peaux|A
+P33|Opérateur de préparation de poissons et produits de la mer|A
+P33|Foreur|A
+P33|Laqueur industriel|A
+P34|Chargé de diffusion publicitaire|A
+P34|Chargé de marketing digital|A
+P34|Responsable programmatique|A
+P34|Traffic manager|A
+P34|Assistant e-commerce|A
+P35|Chef d'équipe atelier en démontage recyclage de VHU (Véhicules hors d'usage)|A
+P35|Employé de laverie automatique|A
+P35|Lingère|X
+P35|Responsable de station de lavage|A
+P35|Technicien de forage pétrole et gaz|A
+P36|Intendant du sport|A
+P36|Agent de port de plaisance|A
+P36|Agent d'exploitation du réseau ferré|A
+P36|Technicien démonteur de batteries de véhicules électriques|P
+P36|Technicien de maintenance de batteries de véhicules électriques|P
+P37|Opérateur de finition en industrie du textile|A
+P37|Employé de pressing|A
+P37|Employé d'étage en hôtellerie|A
+P37|Plongeur en restauration|A
+P37|Ramoneur|A
+P38|Technicien spectacle en site de divertissement|A
+P38|Opérateur de prise de vues|P
+P38|Chargé d'édition musicale graphique|A
+P38|Animateur 2D 3D - films d'animation|A
+P38|Concepteur de contenus multimedia|A
+P39|Artificier spectacle|A
+P39|Menuisier|A
+P39|Prothésiste dentaire|X
+P39|Technicien en ostéologie-moulage|A
+P39|Chef de promotion des ventes|X
+P40|Gestionnaire en protection sociale|P
+P40|Agent d'accueil touristique|A
+P40|Conseiller vendeur d'autocars|A
+P40|Clerc de notaire|P
+P40|Agent d'accueil|A
+P41|Ethnologue|A
+P41|Chercheur en sciences humaines et sociales|A
+P41|Lecteur-correcteur|P
+P41|Référenceur web|P
+P41|Biostatisticien|A
+P42|Technicien de production du travail des métaux|P
+P42|Maçon|A
+P42|Plâtrier|A
+P42|Ouvrier de la construction modulaire hors-site|A
+P42|Plaquiste|A
+P43|Responsable de site de traitement des déchets|A
+P43|Gainier industriel|A
+P43|Agent d'encadrement en ameublement|A
+P43|Chef de fabrication en industrie graphique|A
+P43|Chef constructeur en décors|A
+P44|Développeur informatique|A
+P44|Assistant administratif|A
+P44|Responsable en organisation en entreprise|A
+P44|Chargé d'études commerciales|A
+P44|Coordinateur Maitrise d'Ouvrage Système d'Information (MOA SI)|A
+P45|Gardien d'immeuble|A
+P45|Assistant de service social|P
+P45|Directeur de centre socioculturel|A
+P45|Responsable de maison de quartier|A
+P45|Agent de développement d'habitat social|P
+P46|Démonteur de véhicules hors d'usage|A
+P46|Opérateur en pyrotechnie militaire|A
+P46|Boutefeu|A
+P46|Agent de désinsectisation|A
+P46|Plongeur démineur militaire dans les fonds marins|A
+P47|Urbaniste Datacenter|A
+P47|Superviseur de production virtuelle|A
+P47|Réalisateur audiovisuel|A
+P47|Chef de projet réseau fixe et mobile|A
+P47|Chef de projet jeux vidéo|A
+P48|Guide-accompagnateur de pêche|A
+P48|Guide-interprète|A
+P48|Guide-conférencier|A
+P48|Animateur de loisirs sportifs|A
+P48|Accompagnateur nature|A
+P49|Responsable innovation|P
+P49|Directeur de recherche en industrie pharmaceutique|A
+P49|Responsable de projet recherche et développement|P
+P49|Chef de projet contrôle qualité|P
+P49|Responsable du développement clinique en industrie pharmaceutique|A
+P50|Urbaniste|A
+P50|Architecte-urbaniste|A
+P50|Chargé de projet en aménagement du territoire|A
+P50|Chargé de développement culturel|A
+P50|Programmateur salle de cinéma|A
+P51|Animateur de développement régional|A
+P51|Directeur d'association|P
+P51|Chargé de développement social|A
+P51|Chargé de développement économique et local|A
+P51|Coordonnateur de projet logistique humanitaire|A
+P52|Pilote de centrale de béton|A
+P52|Agent technique de centrale à enrobés|A
+P52|Responsable propreté urbaine|A
+P52|Responsable de scierie|A
+P52|Manutentionnaire / Agent de quai|A

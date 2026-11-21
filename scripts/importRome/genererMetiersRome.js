@@ -37,6 +37,7 @@ const SECTEURS = metiersData.SECTEURS_APP.map((s) => s.libelle);
 
 // ---- Contrôle des tables : chaque identifiant cité doit exister
 const erreursTables = [];
+Object.keys(T.SECTEUR_CORRIGE_PAR_CODE).forEach((c) => { if (SECTEURS.indexOf(T.SECTEUR_CORRIGE_PAR_CODE[c]) === -1) { erreursTables.push('SECTEUR_CORRIGE_PAR_CODE : ' + c); } });
 Object.keys(T.PUBLICS).forEach((id) => { if (!idsPml.has(id)) { erreursTables.push('PUBLICS : ' + id); } });
 Object.keys(T.LIEUX).forEach((id) => { if (!idsLieux.has(id)) { erreursTables.push('LIEUX : ' + id); } });
 Object.keys(T.MATIERES).forEach((k) => T.MATIERES[k].forEach((id) => { if (!idsPml.has(id)) { erreursTables.push('MATIERES : ' + id); } }));
@@ -106,13 +107,21 @@ function deduire(f, secteur) {
   // Actions : poids = nombre de compétences du code qui relèvent d'un objectif relié à l'action, ou dont la macro-compétence nomme l'action
   const pa = {}, ordreA = [];
   const compter = (id) => { if (!(id in pa)) { pa[id] = 0; ordreA.push(id); } pa[id]++; };
+  const pg = {}, ordreG = []; // actions venues d'un objectif trop général (voir SEUIL_OBJECTIF_GENERAL)
+  const compterGeneral = (id) => { if (!(id in pg)) { pg[id] = 0; ordreG.push(id); } pg[id]++; };
   const pv = {}; // actions lues dans le verbe de la compétence (rédiger, installer, monter, découper, imaginer)
   f.competences.forEach((c) => {
-    (T.OBJECTIFS_ACTIONS[c.objectif] || []).forEach(compter);
+    (T.OBJECTIFS_ACTIONS[c.objectif] || []).forEach((id) => {
+      if (c.objectif === '1E4' && T.METIERS_SANS_SOINS_ANIMAUX.test(f.libelle)) { return; }
+      if (FREQ_OBJECTIF[c.objectif] / NB_CODES > T.SEUIL_OBJECTIF_GENERAL) { compterGeneral(id); } else { compter(id); }
+    });
     T.MACROS_ACTIONS.forEach((r) => { if (r[0].test(c.macro)) { compter(r[1]); } });
     T.VERBES_ACTIONS.forEach((r) => { if (r[0].test(c.libelle)) { pv[r[1]] = (pv[r[1]] || 0) + 1; } });
   });
   f.savoirEtre.forEach((l) => (T.SAVOIR_ETRE_ACTIONS[l] || []).forEach((id) => { compter(id); compter(id); }));
+  // Les actions d'objectifs trop généraux : un demi-point sur une action déjà précisée ; seules, elles ne servent que s'il n'y a rien d'autre
+  if (!ordreA.length) { ordreG.forEach((id) => { pa[id] = pg[id]; ordreA.push(id); }); }
+  else { ordreG.forEach((id) => { if (id in pa) { pa[id] += pg[id] * T.POIDS_OBJECTIF_GENERAL; } }); }
   const classees = classer(pa, ordreA);
   const seuil = Math.max(T.SEUIL_ACTION_MIN, T.SEUIL_ACTION_PART * (classees.length ? pa[classees[0]] : 0)); // une action doit peser au moins 2 compétences et 30 % de la première
   let actions = classees.filter((id) => pa[id] >= seuil).slice(0, T.PLAFONDS.actions);
@@ -140,7 +149,7 @@ function deduire(f, secteur) {
       if (T.MOTS_INSTALLATIONS_ELECTRIQUES.test(s.libelle)) { ajouterMatiere('installations_electriques'); }
     }
   });
-  const matieres = classer(pm, ordreM).slice(0, T.PLAFONDS.matieres);
+  const matieres = classer(pm, ordreM).filter((id) => pm[id] >= (T.MATIERES_GENERALES.indexOf(id) !== -1 ? T.MIN_SAVOIRS_MATIERE_GENERALE : 1)).slice(0, T.PLAFONDS.matieres);
   const publics = dedoublonner(f.contextes.map((c) => publicDe[c.libelle]).filter(Boolean)).slice(0, T.PLAFONDS.publics);
   let lieux = dedoublonner(f.contextes.map((c) => lieuDe[c.libelle]).filter(Boolean)).filter((id) => !T.LIEUX_SEULEMENT_DANS_SECTEUR[id] || T.LIEUX_SEULEMENT_DANS_SECTEUR[id] === secteur).slice(0, T.PLAFONDS.lieux);
 
@@ -154,7 +163,7 @@ function deduire(f, secteur) {
   const implicites = [];
   const ajouterImplicite = (id) => { if (!deja.has(id) && implicites.indexOf(id) === -1) { implicites.push(id); } };
   // Animaux et végétaux : l'objectif « soigner les animaux » (1E4) ou « cultiver » (3B4) nomme l'objet, on cherche lequel dans le texte de la fiche
-  const animalDuTexte = () => { const motifs = [['chevaux', /équin|équid|cheva|poney|équitation/i]].concat(T.MOTS_ANIMAUX), titre = f.libelle + ' ' + f.appellations.map((x) => x.libelle).join(' '); const a = motifs.filter((m) => m[1].test(titre))[0] || motifs.filter((m) => m[1].test(texteMetier))[0]; return a ? a[0] : null; };
+  const animalDuTexte = () => { const motifs = [['chevaux', /équin|équid|cheva(l|ux|ls)|poney|équitation/i]].concat(T.MOTS_ANIMAUX), titre = f.libelle + ' ' + f.appellations.map((x) => x.libelle).join(' '); const a = motifs.filter((m) => m[1].test(titre))[0] || motifs.filter((m) => m[1].test(texteMetier))[0]; return a ? a[0] : null; };
   const animalOuNull = animalDuTexte();
   if (poidsObjectif['1E4'] && !(pm.animaux_compagnie || pm.chevaux || pm.elevage_ferme || pm.abeilles || pm.soins_veterinaires)) { ajouterImplicite(animalOuNull || 'animaux_compagnie'); }
   if (poidsObjectif['3B4'] && !pm.vegetaux) { if (animalOuNull && animalOuNull !== 'animaux_compagnie') { ajouterImplicite(animalOuNull); } else if (T.MOTS_VEGETAUX.test(texteMetier) || !animalOuNull) { ajouterImplicite('vegetaux'); } }
@@ -201,6 +210,9 @@ function deduire(f, secteur) {
 // ---- Génération
 const rome = chargerRome(dossierRome);
 calculerFrequences(rome);
+// Part des codes du ROME qui portent chaque objectif (pour repérer les objectifs trop généraux, consigne 494)
+const FREQ_OBJECTIF = {}; Object.keys(rome.codes).forEach((c) => { new Set(rome.codes[c].competences.map((x) => x.objectif)).forEach((o) => { FREQ_OBJECTIF[o] = (FREQ_OBJECTIF[o] || 0) + 1; }); });
+const NB_CODES = Object.keys(rome.codes).length;
 const codesDetailles = new Set(metiersData.baseMetiersDetaillees.map((m) => m.rome));
 const fiches = [], ignores = [], sansSecteur = [], alias = {}, signatures = {};
 Object.keys(rome.codes).sort().forEach((code) => {
@@ -212,7 +224,7 @@ Object.keys(rome.codes).sort().forEach((code) => {
     signatures[code] = deduire(f, main.secteur);
     return;
   }
-  const secteur = secteurParCode[code];
+  const secteur = T.SECTEUR_CORRIGE_PAR_CODE[code] || secteurParCode[code];
   if (!secteur || SECTEURS.indexOf(secteur) === -1) { sansSecteur.push(code); }
   const nom = corrigerAccentsNom(nomMasculin(f.libelle));
   // Même nom qu'une fiche déjà présente (détaillée ou générée avant) : pas de seconde fiche du même nom, le code est noté en alias (la recherche par nom resterait ambiguë)
@@ -299,14 +311,25 @@ console.log('Conditions de travail : ' + Object.keys(parCode).length + ' codes s
     const n = {}; rome.codes[code].competences.forEach((x) => { const k = x.objectif + '|' + x.macro; n[k] = (n[k] || 0) + 1; });
     parCodePhrases[code] = Object.keys(n).sort((a, b) => (n[b] - n[a]) || (numero[a] - numero[b])).map((k) => numero[k]);
   });
+  // Les compétences des CARTES de métiers (consigne 509, règle ajustée le 21/11/2026 après la feuille de Denis sur 30 métiers) : pour chaque code, les 6 phrases qui comptent le plus
+  // d'activités du code, pondérées par leur RARETÉ dans toute la base (ln(nombre de codes / nombre de codes qui ont la phrase)). Les phrases très répandues (« s'adapter », « gérer les stocks »)
+  // ne distinguent aucun métier et passent après. Le « cœur de métier » du ROME n'est plus prioritaire : il mettait en tête des compétences trompeuses (mesuré sur la feuille de Denis).
+  const codesPar = {}; Object.keys(rome.codes).forEach((code) => { new Set(rome.codes[code].competences.map((x) => x.objectif + '|' + x.macro)).forEach((k) => { codesPar[k] = (codesPar[k] || 0) + 1; }); });
+  const nbCodes = Object.keys(rome.codes).length, cartes = {};
+  Object.keys(rome.codes).sort().forEach((code) => {
+    const n = {}; rome.codes[code].competences.forEach((x) => { const k = x.objectif + '|' + x.macro; n[k] = (n[k] || 0) + 1; });
+    const sc = (k) => n[k] * Math.log(nbCodes / codesPar[k]);
+    const ids = Object.keys(n).sort((a, b) => (sc(b) - sc(a)) || (numero[a] - numero[b])).slice(0, 6).map((k) => numero[k]);
+    if (ids.length) { cartes[code] = ids; }
+  });
   const enteteCp = '/* ============================================================\n' +
     '   data/competencesRome.js -- FICHIER GÉNÉRÉ, NE JAMAIS LE MODIFIER À LA MAIN.\n' +
     '   « Ce que fait ce métier » : les 489 macro-compétences du ROME en phrases simples (scripts/importRome/phrasesMacros.js, écrit à la main) et, pour chaque code ROME,\n' +
     '   les numéros de ses phrases classés du plus au moins important. Rattaché à la fiche par le code ROME (fiche.rome), jamais une seconde base de métiers.\n' +
-    '   phrases[i] = phrase simple ; objectifs[i] = objectif du ROME (83) de la phrase ; categories[i] = nom affiché de la catégorie de savoirs i ; parCode[code] = numéros de phrases.\n' +
+    '   phrases[i] = phrase simple ; objectifs[i] = objectif du ROME (83) de la phrase ; categories[i] = nom affiché de la catégorie de savoirs i ; parCode[code] = numéros de phrases ; cartes[code] = les 6 phrases montrées sur les cartes de métiers (rareté, voir genererMetiersRome.js).\n' +
     '   Produit par : node scripts/importRome/genererMetiersRome.js <dossier CSV ROME>\n' +
     '   ============================================================ */\n';
-  fs.writeFileSync(path.join(RACINE, 'data', 'competencesRome.js'), enteteCp + 'var COMPETENCES_ROME = ' + JSON.stringify({ phrases: cles.map((k) => PHRASES_MACROS[k]), objectifs: cles.map((k) => k.split('|')[0]), categories: TC.CATEGORIES_SAVOIRS.map((c) => c[1]), parCode: parCodePhrases }) + ';\n\n' +
+  fs.writeFileSync(path.join(RACINE, 'data', 'competencesRome.js'), enteteCp + 'var COMPETENCES_ROME = ' + JSON.stringify({ phrases: cles.map((k) => PHRASES_MACROS[k]), objectifs: cles.map((k) => k.split('|')[0]), categories: TC.CATEGORIES_SAVOIRS.map((c) => c[1]), parCode: parCodePhrases, cartes: cartes }) + ';\n\n' +
     'if (typeof module !== "undefined" && module.exports) { module.exports = { COMPETENCES_ROME: COMPETENCES_ROME }; }\n');
   console.log('Phrases simples : ' + cles.length + ' macro-compétences, ' + Object.keys(parCodePhrases).length + ' codes');
 }

@@ -475,7 +475,7 @@ function _nvRenduFicheChiffres(e, vuHtml) {
         '<div data-nv-chf-entiere hidden>' + _nvEntiereChiffres(e, p) + '</div>') + '</div>';
   }).join('');
   return '<details class="comprendre-le-cadre-chg comprendre-le-cadre-chg--fiche comprendre-le-cadre-chg--chiffres' + (avenir ? ' comprendre-le-cadre-chg--avenir' : '') + '" data-nv-chf="' + _nvEchap(e.id) + '">' +
-    '<summary class="comprendre-le-cadre-chg-resume"><span class="comprendre-le-cadre-chg-pastilles">' + pastilles + '</span><span class="comprendre-le-cadre-chg-titre">' + _nvEchap(e.titre) + '</span><i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i></summary>' +
+    '<summary class="comprendre-le-cadre-chg-resume"><span class="comprendre-le-cadre-chg-pastilles">' + pastilles + '</span><span class="comprendre-le-cadre-chg-titre">' + _nvEchap(e.titre) + '</span>' + comprendreLeCadreRepereOuvrir() + '</summary>' +
     '<div class="comprendre-le-cadre-chg-corps">' + barre + blocs + '</div></details>';
 }
 // Branche les fiches « Chiffres » : « Lire la fiche en entier », « Replier », les pastilles de territoire (un clic change les chiffres de TOUTES les fiches de la page) et le lien vers le module.
@@ -574,6 +574,46 @@ function _nvBrancherPastilles(zone) {
   });
 }
 
+// Ouverture des cartes de « Droits et règles » et de « Chiffres » (consigne 524, 22/11/2026) : (1) ouvrir une carte ferme celle qui était ouverte ; (2) tant qu'une carte n'est ouverte qu'au premier niveau (le résumé), un clic
+// n'importe où dessus, pas seulement sur son bandeau, la ferme. Ne la ferment pas : un bouton, un lien, un champ, une pastille-filtre, « Lire la fiche en entier » ; ni une carte dont le texte entier est ouvert (on y lit, on y copie) ;
+// ni un clic qui termine une sélection de texte. La carte que l'on ouvre reste à la même hauteur de l'écran quand celle du dessus se referme.
+var _NV_SECOND_NIVEAU = '[data-cc-fiche-entiere], [data-nv-chf-entiere], [data-cc-fiche-liee-corps], [data-cc-detail-corps]';
+function _nvCarteAuPremierNiveau(d) {
+  var niv2 = Array.prototype.filter.call(d.querySelectorAll(_NV_SECOND_NIVEAU), function (el) { return !el.closest('[data-nv-terr-bloc][hidden]'); });   // le bloc d'un autre territoire est caché : il ne compte pas
+  return niv2.length > 0 && niv2.every(function (el) { return el.hasAttribute('hidden'); });
+}
+function _nvBrancherOuvertureCartes(zone) {
+  var cartes = Array.prototype.slice.call(zone.querySelectorAll('details.comprendre-le-cadre-chg'));
+  cartes.forEach(function (d) {
+    var resume = d.querySelector('summary'), corps = d.querySelector('.comprendre-le-cadre-chg-corps');
+    if (resume) {
+      resume.addEventListener('click', function () {
+        if (d.open) { return; }   // elle se ferme : rien d'autre à faire
+        var avant = resume.getBoundingClientRect().top, aFermer = cartes.filter(function (c) { return c !== d && c.open; });
+        if (!aFermer.length) { return; }
+        aFermer.forEach(function (c) { c.open = false; });
+        var delta = resume.getBoundingClientRect().top - avant;
+        if (delta) { window.scrollBy(0, delta); }
+      });
+    }
+    if (corps) {
+      // Le doigt (curseur main) reste visible partout sur la carte tant qu'un clic la ferme, comme sur le rectangle des filtres ; au second niveau (texte entier) il disparaît : on y lit et on y copie.
+      corps.addEventListener('mousemove', function () {
+        var main = _nvCarteAuPremierNiveau(d) ? 'pointer' : '';
+        if (corps.style.cursor !== main) { corps.style.cursor = main; }
+      });
+      corps.addEventListener('click', function (e) {
+        if (e.target.closest('button, a, input, select, textarea, label, summary, [role="button"], [data-pastille]')) { return; }
+        var sel = window.getSelection && window.getSelection();
+        if (sel && String(sel).length) { return; }
+        if (!_nvCarteAuPremierNiveau(d)) { return; }
+        d.open = false;
+        if (resume && resume.getBoundingClientRect().top < 0) { d.scrollIntoView({ block: 'start' }); }   // le bandeau ne reste jamais au-dessus de l'écran
+      });
+    }
+  });
+}
+
 function _nvBrancherCorpsRegles(zone) {
   var f = _nvFiltres[_nvEntree];
   zone.querySelectorAll('[data-nv-g]').forEach(function (b) {
@@ -594,6 +634,7 @@ function _nvBrancherCorpsRegles(zone) {
   var plus = zone.querySelector('#nvPlus');
   if (plus) { plus.addEventListener('click', function () { f.limite += _NV_PAS_REGLES; _nvRedessinerRegles(null); }); }
   _nvBrancherPastilles(zone);
+  _nvBrancherOuvertureCartes(zone);
   // Une fiche s'ouvre SUR PLACE (son contenu complet, comme dans le module) ; seuls deux boutons, choisis par la personne, mènent ensuite au module, avec « Revenir aux Nouveautés » (consigne 422).
   if (_nvEntree === 'chiffres') { _nvBrancherFichesChiffres(zone); return; }
   if (typeof comprendreLeCadreBrancherElements === 'function') { comprendreLeCadreBrancherElements(zone, { label: 'Nouveautés', route: 'nouveautes', retour: function () { nvOuvrirEntree('regles'); } }); }

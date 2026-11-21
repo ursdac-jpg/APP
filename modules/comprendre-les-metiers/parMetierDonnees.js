@@ -1,5 +1,5 @@
 /* ============================================================
-   Module « Explorer les métiers » : entrée 1, « Par un métier » : DONNÉES (aucun DOM, aucun stockage). Testé par tests/parMetierCalcul.test.js.
+   Module « Explorer les métiers » : entrée 1, « Chercher un métier » : DONNÉES (aucun DOM, aucun stockage). Testé par tests/parMetierCalcul.test.js.
    Construit, une seule fois, le jeu de données que lisent le calcul (parMetierCalcul.js) et l'écran (parMetier.js), à partir de sources déjà existantes :
    - les fiches de l'application (baseMetiers, data/metiers.js : nom, code ROME, secteur, niveau d'accès) ;
    - l'INDEX COMPLET des compétences (data/rome/indexCompetences.js, chargé à la demande) : savoir-faire (489 macro-compétences), savoirs (ceux qui figurent dans
@@ -72,7 +72,7 @@ function pmdConstruire(src) {
   });
   lignes.forEach(function (r) { [3, 4, 5].forEach(function (k) { r[k].sort(function (a, b) { return a - b; }); }); });
 
-  var D = { secteurs: secteurs, sf: sf, sfFam: sfFam, se: se, seFam: seFam, sv: sv, svCats: comp.categories, svNums: svNums, cond: libCond, condCles: PMD_CLES_CONDITIONS, m: lignes, idxCode: idxCode };
+  var D = { secteurs: secteurs, sf: sf, sfFam: sfFam, se: se, seFam: seFam, sv: sv, svCats: comp.categories, svNums: svNums, cond: libCond, condCles: PMD_CLES_CONDITIONS, m: lignes, idxCode: idxCode, noms: src.noms || {}, aNoms: !!(src.noms && Object.keys(src.noms).length) };
   // Inverse : pour chaque compétence, les métiers qui la citent
   D.inv = { sf: {}, se: {}, sv: {} };
   [['sf', 3], ['se', 4], ['sv', 5]].forEach(function (t) { lignes.forEach(function (r, i) { r[t[1]].forEach(function (id) { (D.inv[t[0]][id] = D.inv[t[0]][id] || []).push(i); }); }); });
@@ -83,11 +83,12 @@ function pmdConstruire(src) {
 // Données lues dans leurs sources réelles (globales du navigateur, sinon require en Node).
 function pmdSources() {
   if (typeof baseMetiers !== 'undefined' && typeof INDEX_COMPETENCES !== 'undefined') {
-    return { base: baseMetiers, niveau: typeof niveauAccesMetier === 'function' ? niveauAccesMetier : function () { return null; }, index: INDEX_COMPETENCES, conditions: CONDITIONS_ROME, competences: COMPETENCES_ROME };
+    // noms : les noms d'emploi les plus courants (data/rome/nomsEmploi.js, consigne 498), facultatifs : sans eux, les cartes n'ont simplement pas la ligne « Aussi appelé ».
+    return { base: baseMetiers, niveau: typeof niveauAccesMetier === 'function' ? niveauAccesMetier : function () { return null; }, index: INDEX_COMPETENCES, conditions: CONDITIONS_ROME, competences: COMPETENCES_ROME, noms: typeof NOMS_EMPLOI !== 'undefined' ? NOMS_EMPLOI : {} };
   }
   var m = require('../../data/metiers.js');
   return { base: m.baseMetiers, niveau: m.niveauAccesMetier, index: require('../../data/rome/indexCompetences.js').INDEX_COMPETENCES,
-    conditions: require('../../data/conditionsRome.js').CONDITIONS_ROME, competences: require('../../data/competencesRome.js').COMPETENCES_ROME };
+    conditions: require('../../data/conditionsRome.js').CONDITIONS_ROME, competences: require('../../data/competencesRome.js').COMPETENCES_ROME, noms: require('../../data/rome/nomsEmploi.js').NOMS_EMPLOI };
 }
 var _pmdMemo = null;
 function pmdDonnees() { if (!_pmdMemo) { _pmdMemo = pmdConstruire(pmdSources()); } return _pmdMemo; }

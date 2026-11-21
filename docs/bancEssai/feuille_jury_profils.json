@@ -1,0 +1,1770 @@
+[
+ {
+  "id": "P01",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Animaux et nature",
+  "description": "La personne choisit : Des animaux de compagnie ; Des plantes, des végétaux ; Espaces verts / Nature.",
+  "nb": 37,
+  "metiers": [
+   {
+    "nom": "Chargé d'étude naturaliste",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Technicien naturaliste",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Ingénieur écologue",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chercheur des écosystèmes",
+    "secteur": "Éducation et formation",
+    "detail": "20 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de conservation ex-situ",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P02",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Cuisine et service",
+  "description": "La personne choisit : Des clients ; Des aliments, des denrées ; Cuisiner ; Servir à table ou au comptoir ; Restaurant / Cuisine.",
+  "nb": 79,
+  "metiers": [
+   {
+    "nom": "Crêpier",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Employé de restauration collective",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "47 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Employé polyvalent de restauration / Aide de cuisine",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "41 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Steward yachting polyvalent",
+    "secteur": "Transport et logistique",
+    "detail": "39 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Chef de rang",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "38 % de ressemblance, 4 de ses 5 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P03",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Aide aux personnes âgées",
+  "description": "La personne choisit : Des personnes âgées ; Soigner ; Accompagner, aider ; Au domicile des particuliers.",
+  "nb": 144,
+  "metiers": [
+   {
+    "nom": "Gérontologue",
+    "secteur": "Santé et soins",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Assistant de vie aux familles (ADVF)",
+    "secteur": "Social et services à la personne",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Technicien d'Intervention Sociale et Familiale (TISF)",
+    "secteur": "Social et services à la personne",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Physiothérapeute",
+    "secteur": "Santé et soins",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Employé de ménage à domicile",
+    "secteur": "Social et services à la personne",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P04",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Petite enfance et école",
+  "description": "La personne choisit : Des enfants ; Accompagner, aider ; Former ; Établissement social, médico-social ou crèche ; École / Centre de formation.",
+  "nb": 149,
+  "metiers": [
+   {
+    "nom": "Graphothérapeute",
+    "secteur": "Social et services à la personne",
+    "detail": "41 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Éducateur spécialisé",
+    "secteur": "Social et services à la personne",
+    "detail": "39 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Enseignant en activité physique adaptée (EAPA)",
+    "secteur": "Santé et soins",
+    "detail": "39 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Assistant pédagogique en milieu scolaire",
+    "secteur": "Éducation et formation",
+    "detail": "38 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Professeur de collège et de lycée",
+    "secteur": "Éducation et formation",
+    "detail": "38 % de ressemblance, 4 de ses 5 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P05",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Bâtiment",
+  "description": "La personne choisit : Des outils ; Des matériaux (bois, métal, béton...) ; Construire ; Installer ; Monter ; Extérieur / Chantier.",
+  "nb": 171,
+  "metiers": [
+   {
+    "nom": "Coffreur",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Monteur en structures métalliques",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Maçon-fumiste",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Maçon",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "55 % de ressemblance, 5 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Couvreur",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "55 % de ressemblance, 5 de ses 6 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P06",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Logistique",
+  "description": "La personne choisit : Des marchandises ; Des véhicules ; Transporter ; Préparer des commandes ; Manutentionner, emballer ; Entrepôt / Plateforme logistique.",
+  "nb": 68,
+  "metiers": [
+   {
+    "nom": "Approvisionneur points de distribution",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "49 % de ressemblance, 5 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'exploitation en transport routier de marchandises",
+    "secteur": "Transport et logistique",
+    "detail": "49 % de ressemblance, 5 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur logistique",
+    "secteur": "Transport et logistique",
+    "detail": "49 % de ressemblance, 5 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Chauffeur-livreur préparateur de commandes",
+    "secteur": "Transport et logistique",
+    "detail": "49 % de ressemblance, 5 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Aide-livreur",
+    "secteur": "Transport et logistique",
+    "detail": "49 % de ressemblance, 5 de ses 6 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P07",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Vente en magasin",
+  "description": "La personne choisit : Des clients ; Vendre ; Conseiller ; Encaisser, tenir une caisse ; Magasin / Commerce.",
+  "nb": 504,
+  "metiers": [
+   {
+    "nom": "Vendeur d'articles de sport et loisirs",
+    "secteur": "Commerce et vente",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Vendeur en accessoires de la personne",
+    "secteur": "Commerce et vente",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Hôte de caisse",
+    "secteur": "Commerce et vente",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Vendeur en articles de puériculture",
+    "secteur": "Commerce et vente",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Vendeur en articles de papeterie et loisirs créatifs",
+    "secteur": "Commerce et vente",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P08",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Bureau et gestion",
+  "description": "La personne choisit : Un ordinateur ; Des documents ; Saisir ; Classer, archiver ; Communiquer par écrit ; Bureau.",
+  "nb": 292,
+  "metiers": [
+   {
+    "nom": "Assistant administratif multilingue",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Assistant commercial",
+    "secteur": "Commerce et vente",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Agent administratif banque ou assurance",
+    "secteur": "Banque, assurance et immobilier",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur de saisie",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   },
+   {
+    "nom": "Assistant ressources humaines",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "60 % de ressemblance, 6 de ses 6 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P09",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Mécanique",
+  "description": "La personne choisit : Des machines ; Des véhicules ; Des outils ; Réparer ; Utiliser des machines, des outils.",
+  "nb": 709,
+  "metiers": [
+   {
+    "nom": "Matelot machine de la marine marchande",
+    "secteur": "Transport et logistique",
+    "detail": "50 % de ressemblance, 5 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Préparateur en tôlerie automobile",
+    "secteur": "Mécanique et automobile",
+    "detail": "45 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Débosseleur sans peinture",
+    "secteur": "Mécanique et automobile",
+    "detail": "45 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Technicien de réparation et pose de vitrage des véhicules",
+    "secteur": "Mécanique et automobile",
+    "detail": "45 % de ressemblance, 4 de ses 5 choix retrouvés"
+   },
+   {
+    "nom": "Mécanicien-réparateur d'engins de levage et de manutention",
+    "secteur": "Mécanique et automobile",
+    "detail": "38 % de ressemblance, 4 de ses 5 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P10",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Nettoyage et entretien",
+  "description": "La personne choisit : Des produits à vendre ou à stocker ; Nettoyer ; Entretenir, maintenir.",
+  "nb": 76,
+  "metiers": [
+   {
+    "nom": "Technicien hygiéniste",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de propreté de locaux",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'entretien des piscines",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Nettoyeur en cuir et peausserie",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de propreté urbaine",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P11",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Informatique",
+  "description": "La personne choisit : Un ordinateur ; Des appareils numériques ; Programmer ; Rechercher, tester.",
+  "nb": 231,
+  "metiers": [
+   {
+    "nom": "Développeur blockchain",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Développeur - jeux vidéo",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Spécialiste en modélisation climatique",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Ingénieur en informatique embarquée",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Spécialiste test et validation logiciel ou application",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P12",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Sécurité",
+  "description": "La personne choisit : Surveiller, sécuriser ; Réagir à un imprévu, une urgence ; Sécurité / Établissement pénitentiaire.",
+  "nb": 65,
+  "metiers": [
+   {
+    "nom": "Combattant des forces spéciales militaires",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Gardien de compagnie républicaine de sécurité (CRS)",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur en télésurveillance",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Spécialiste de la protection des forces, installations ou matériels sensibles de l'État",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent cynophile de sécurité",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P13",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Sport et animation",
+  "description": "La personne choisit : Des sportifs ; Encadrer ou animer un groupe ; Salle de sport / Loisirs.",
+  "nb": 30,
+  "metiers": [
+   {
+    "nom": "Préparateur physique",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Directeur sportif",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Arbitre professionnel discipline sportive",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Animateur de loisirs sportifs",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Entraîneur de sport professionnel et de haut niveau",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P14",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Création",
+  "description": "La personne choisit : Créer ; Dessiner, photographier ; Concevoir ; Studio / Médias / Édition.",
+  "nb": 148,
+  "metiers": [
+   {
+    "nom": "Concepteur de contenus multimedia",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Architecte multimédias interactifs",
+    "secteur": "Informatique et numérique",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Chef décorateur spectacle",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Dessinateur-illustrateur",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Roughman en design",
+    "secteur": "Industrie, production et énergie",
+    "detail": "40 % de ressemblance, 4 de ses 4 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P15",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Contradictoire : bureau et extérieur, programmer et soigner",
+  "description": "La personne choisit : Programmer ; Soigner ; Bureau ; Extérieur / Chantier.",
+  "nb": 217,
+  "metiers": [
+   {
+    "nom": "Technicien d'installation de centrales téléphoniques",
+    "secteur": "Industrie, production et énergie",
+    "detail": "28 % de ressemblance, 3 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Technicien Datacenter",
+    "secteur": "Industrie, production et énergie",
+    "detail": "28 % de ressemblance, 3 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Cadre de santé d'unité de soins ou de service paramédical",
+    "secteur": "Santé et soins",
+    "detail": "27 % de ressemblance, 2 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Technicien réseaux mobiles",
+    "secteur": "Industrie, production et énergie",
+    "detail": "22 % de ressemblance, 2 de ses 4 choix retrouvés"
+   },
+   {
+    "nom": "Technicien de maintenance réseaux mobiles",
+    "secteur": "Industrie, production et énergie",
+    "detail": "22 % de ressemblance, 2 de ses 4 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P16",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Contradictoire : animaux, bureau, usine",
+  "description": "La personne choisit : Des animaux de compagnie ; Bureau ; Usine / Atelier / Site industriel.",
+  "nb": 87,
+  "metiers": [
+   {
+    "nom": "Technicien en ostéologie-moulage",
+    "secteur": "Artisanat et création",
+    "detail": "25 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Taxidermiste",
+    "secteur": "Artisanat et création",
+    "detail": "25 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur de transformation des viandes",
+    "secteur": "Industrie, production et énergie",
+    "detail": "25 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Ingénieur écologue",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "24 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Ornithologue",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "24 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P17",
+  "chemin": "Chemin 2 : ce que vous aimez faire",
+  "titre": "Très général : bureau seul",
+  "description": "La personne choisit : Bureau.",
+  "nb": 655,
+  "metiers": [
+   {
+    "nom": "Chargé de mission aux relations internationales",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "10 % de ressemblance, 1 de ses 1 choix retrouvés"
+   },
+   {
+    "nom": "Rédacteur Banque de France",
+    "secteur": "Banque, assurance et immobilier",
+    "detail": "10 % de ressemblance, 1 de ses 1 choix retrouvés"
+   },
+   {
+    "nom": "Analyste d'étude informatique",
+    "secteur": "Informatique et numérique",
+    "detail": "10 % de ressemblance, 1 de ses 1 choix retrouvés"
+   },
+   {
+    "nom": "Analyste financier",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "10 % de ressemblance, 1 de ses 1 choix retrouvés"
+   },
+   {
+    "nom": "Architecte systèmes et réseaux",
+    "secteur": "Informatique et numérique",
+    "detail": "10 % de ressemblance, 1 de ses 1 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P18",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code RIA",
+  "description": "Le questionnaire donne le code RIA (Réaliste, Investigateur, Artistique).",
+  "nb": 1339,
+  "metiers": [
+   {
+    "nom": "Ajusteur-régleur de fabrication en instruments d'optique",
+    "secteur": "Industrie, production et énergie",
+    "detail": "lettres du métier : RI"
+   },
+   {
+    "nom": "Aménageur de véhicules",
+    "secteur": "Mécanique et automobile",
+    "detail": "lettres du métier : RI"
+   },
+   {
+    "nom": "Animalier de laboratoire",
+    "secteur": "Métiers animaliers",
+    "detail": "lettres du métier : RI"
+   },
+   {
+    "nom": "Automaticien en bureau d'études",
+    "secteur": "Industrie, production et énergie",
+    "detail": "lettres du métier : RI"
+   },
+   {
+    "nom": "Auxiliaire vétérinaire",
+    "secteur": "Métiers animaliers",
+    "detail": "lettres du métier : RI"
+   }
+  ]
+ },
+ {
+  "id": "P19",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code SA",
+  "description": "Le questionnaire donne le code SA (Social, Artistique).",
+  "nb": 571,
+  "metiers": [
+   {
+    "nom": "Animateur",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "lettres du métier : SA"
+   },
+   {
+    "nom": "Art thérapeute",
+    "secteur": "Social et services à la personne",
+    "detail": "lettres du métier : SA"
+   },
+   {
+    "nom": "Professeur de musique",
+    "secteur": "Éducation et formation",
+    "detail": "lettres du métier : SA"
+   },
+   {
+    "nom": "Professeur territorial d'enseignement artistique",
+    "secteur": "Éducation et formation",
+    "detail": "lettres du métier : SA"
+   },
+   {
+    "nom": "Accompagnant d'élèves en situation de handicap (AESH)",
+    "secteur": "Éducation et formation",
+    "detail": "lettres du métier : S"
+   }
+  ]
+ },
+ {
+  "id": "P20",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code IE",
+  "description": "Le questionnaire donne le code IE (Investigateur, Entreprenant).",
+  "nb": 881,
+  "metiers": [
+   {
+    "nom": "Chargé de mission eaux pluviales",
+    "secteur": "Social et services à la personne",
+    "detail": "lettres du métier : IE"
+   },
+   {
+    "nom": "Chargé de mission environnement",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "lettres du métier : IE"
+   },
+   {
+    "nom": "Chef de projet conception industrielle en mécanique",
+    "secteur": "Industrie, production et énergie",
+    "detail": "lettres du métier : IE"
+   },
+   {
+    "nom": "Chef de projet éolien",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "lettres du métier : IE"
+   },
+   {
+    "nom": "Chef de projet Maîtrise d'Ouvrage des Systèmes d'Information (MOA)",
+    "secteur": "Informatique et numérique",
+    "detail": "lettres du métier : IE"
+   }
+  ]
+ },
+ {
+  "id": "P21",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code AIS",
+  "description": "Le questionnaire donne le code AIS (Artistique, Investigateur, Social).",
+  "nb": 918,
+  "metiers": [
+   {
+    "nom": "Animateur 2D 3D - films d'animation",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "lettres du métier : AI"
+   },
+   {
+    "nom": "Concepteur de contenus multimedia",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "lettres du métier : AI"
+   },
+   {
+    "nom": "Conservateur des antiquités et objets d'art",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "lettres du métier : AI"
+   },
+   {
+    "nom": "Graphiste",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "lettres du métier : AI"
+   },
+   {
+    "nom": "Musicologue",
+    "secteur": "Éducation et formation",
+    "detail": "lettres du métier : AI"
+   }
+  ]
+ },
+ {
+  "id": "P22",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code RC",
+  "description": "Le questionnaire donne le code RC (Réaliste, Conventionnel).",
+  "nb": 1583,
+  "metiers": [
+   {
+    "nom": "Accastilleur",
+    "secteur": "Mécanique et automobile",
+    "detail": "lettres du métier : RC"
+   },
+   {
+    "nom": "Agent animalier",
+    "secteur": "Métiers animaliers",
+    "detail": "lettres du métier : RC"
+   },
+   {
+    "nom": "Agent cynotechnique en détection des explosifs",
+    "secteur": "Sécurité",
+    "detail": "lettres du métier : RC"
+   },
+   {
+    "nom": "Agent d'encadrement en industrie du bois",
+    "secteur": "Industrie, production et énergie",
+    "detail": "lettres du métier : RC"
+   },
+   {
+    "nom": "Agent d'entretien",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "lettres du métier : RC"
+   }
+  ]
+ },
+ {
+  "id": "P23",
+  "chemin": "Chemin 3 : questionnaire de préférences",
+  "titre": "Code CSE",
+  "description": "Le questionnaire donne le code CSE (Conventionnel, Social, Entreprenant).",
+  "nb": 1440,
+  "metiers": [
+   {
+    "nom": "Agent administratif banque ou assurance",
+    "secteur": "Banque, assurance et immobilier",
+    "detail": "lettres du métier : CS"
+   },
+   {
+    "nom": "Agent d'accompagnement des trains",
+    "secteur": "Transport et logistique",
+    "detail": "lettres du métier : CS"
+   },
+   {
+    "nom": "Agent d'accueil",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "lettres du métier : CS"
+   },
+   {
+    "nom": "Agent d'accueil et de prévention en camping",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "lettres du métier : CS"
+   },
+   {
+    "nom": "Agent d'Escale Commerciale aéroportuaire (AEC)",
+    "secteur": "Transport et logistique",
+    "detail": "lettres du métier : CS"
+   }
+  ]
+ },
+ {
+  "id": "P24",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Autonomie et nature",
+  "description": "La personne choisit : Faire preuve d’autonomie ; secteur Agriculture, nature et espaces verts.",
+  "nb": 511,
+  "metiers": [
+   {
+    "nom": "Agent de diagnostic et de contrôle en agriculture",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Aide agricole en production végétale",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Aide d'élevage agricole",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Algoculteur",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Bûcheron",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P25",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Préparer des plats, en hôtellerie-restauration",
+  "description": "La personne choisit : Préparer des plats ; secteur Hôtellerie, restauration et tourisme.",
+  "nb": 26,
+  "metiers": [
+   {
+    "nom": "Crêpier",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Cuisinier",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Écailler",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Employé de restauration collective",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Employé polyvalent de restauration / Aide de cuisine",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P26",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Conduire sur la route et esprit d’équipe, dans le transport",
+  "description": "La personne choisit : Conduire un véhicule sur la route ; Avoir l’esprit d’équipe ; secteur Transport et logistique.",
+  "nb": 99,
+  "metiers": [
+   {
+    "nom": "Conducteur super poids lourd de l'armée",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Aide-livreur",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Chef d'équipe en déménagement",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Conducteur d'engins de manœuvre du réseau ferré",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Conducteur de véhicule de guidage",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P27",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Donner des soins médicaux, niveau CAP ou BEP",
+  "description": "La personne choisit : Donner des soins médicaux ; niveau CAP ou BEP.",
+  "nb": 48,
+  "metiers": [
+   {
+    "nom": "Ambulancier / Auxiliaire ambulancier",
+    "secteur": "Santé et soins",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Équipier sécurité civile",
+    "secteur": "Sécurité",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Pompier",
+    "secteur": "Sécurité",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Agent de soins en hydrothérapie",
+    "secteur": "Santé et soins",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Accueillant familial thérapeutique auprès d'adultes",
+    "secteur": "Social et services à la personne",
+    "detail": "18 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P28",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Autonomie et soigner des animaux",
+  "description": "La personne choisit : Faire preuve d’autonomie ; Soigner des animaux.",
+  "nb": 40,
+  "metiers": [
+   {
+    "nom": "Agent de mise en fourrière animale",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Aide d'élevage agricole",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Animalier de laboratoire",
+    "secteur": "Métiers animaliers",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Dentiste équin",
+    "secteur": "Métiers animaliers",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Éleveur d'ovins",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "20 % de ressemblance (plafond de 20 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P29",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Autonomie, esprit d’équipe et conduire sur la route",
+  "description": "La personne choisit : Faire preuve d’autonomie ; Avoir l’esprit d’équipe ; Conduire un véhicule sur la route.",
+  "nb": 55,
+  "metiers": [
+   {
+    "nom": "Conducteur d'engins agricoles",
+    "secteur": "Agriculture, nature et espaces verts",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Conducteur de véhicule de guidage",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Conducteur de véhicule de protection de convoi exceptionnel",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Déménageur",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Mécanicien cycles",
+    "secteur": "Mécanique et automobile",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P30",
+  "chemin": "Chemin 1 : par un métier",
+  "titre": "Rigueur, accueillir le public et soigner des animaux",
+  "description": "La personne choisit : Faire preuve de rigueur et de précision ; Accueillir, orienter et renseigner le public ; Soigner des animaux.",
+  "nb": 40,
+  "metiers": [
+   {
+    "nom": "Enseignant d'équitation",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Maréchal-ferrant",
+    "secteur": "Métiers animaliers",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Toiletteur animalier",
+    "secteur": "Métiers animaliers",
+    "detail": "30 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Auxiliaire vétérinaire",
+    "secteur": "Métiers animaliers",
+    "detail": "28 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   },
+   {
+    "nom": "Agent animalier",
+    "secteur": "Métiers animaliers",
+    "detail": "28 % de ressemblance (plafond de 30 % avec ce nombre de choix)"
+   }
+  ]
+ },
+ {
+  "id": "P31",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Ouvrier paysagiste / Jardinier »",
+  "description": "La personne choisit : Des outils ; Nettoyer ; Des produits à vendre ou à stocker. Ces trois choix viennent de la fiche du métier « Ouvrier paysagiste / Jardinier » (Agriculture, nature et espaces verts), qui arrive en position 44 sur 105.",
+  "nb": 105,
+  "metiers": [
+   {
+    "nom": "Agent d'entretien",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Employé de pressing",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Désamianteur",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de propreté de locaux",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Nettoyeur en cuir et peausserie",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P32",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Responsable d'exploitation de gisements pétrole et gaz »",
+  "description": "La personne choisit : Des produits à vendre ou à stocker ; Surveiller, sécuriser ; Des produits chimiques ou dangereux. Ces trois choix viennent de la fiche du métier « Responsable d'exploitation de gisements pétrole et gaz » (Bâtiment et travaux publics), qui arrive en position 32 sur 388.",
+  "nb": 388,
+  "metiers": [
+   {
+    "nom": "Technicien en investigation criminelle",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Spécialiste en radioprotection au sein du Ministère des Armées",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable Hygiène Sécurité Environnement (HSE) en industrie",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable de sécurité industrielle",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Plongeur démineur militaire dans les fonds marins",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P33",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Mécanicien structure avion »",
+  "description": "La personne choisit : Manipuler, préparer des produits ; Gérer des stocks, acheter ; Des machines. Ces trois choix viennent de la fiche du métier « Mécanicien structure avion » (Mécanique et automobile), qui arrive en position 16 sur 284.",
+  "nb": 284,
+  "metiers": [
+   {
+    "nom": "Mérandier",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de finissage couleurs et effets cuirs et peaux",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur de préparation de poissons et produits de la mer",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Foreur",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Laqueur industriel",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P34",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Directeur des achats »",
+  "description": "La personne choisit : Analyser ; Au domicile des particuliers ; Gérer. Ces trois choix viennent de la fiche du métier « Directeur des achats » (Administration, gestion et bureau), qui arrive en position 150 sur 173.",
+  "nb": 173,
+  "metiers": [
+   {
+    "nom": "Chargé de diffusion publicitaire",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de marketing digital",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable programmatique",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Traffic manager",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Assistant e-commerce",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P35",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Technicien voilier »",
+  "description": "La personne choisit : Des clients ; Réparer ; Des produits à vendre ou à stocker. Ces trois choix viennent de la fiche du métier « Technicien voilier » (Artisanat et création), qui arrive en position 169 sur 195.",
+  "nb": 195,
+  "metiers": [
+   {
+    "nom": "Chef d'équipe atelier en démontage recyclage de VHU (Véhicules hors d'usage)",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Employé de laverie automatique",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Lingère",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable de station de lavage",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Technicien de forage pétrole et gaz",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "25 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P36",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Installateur de bornes de recharges électriques »",
+  "description": "La personne choisit : Gérer ; Des véhicules ; Des installations électriques. Ces trois choix viennent de la fiche du métier « Installateur de bornes de recharges électriques » (Bâtiment et travaux publics), qui arrive en position 19 sur 90.",
+  "nb": 90,
+  "metiers": [
+   {
+    "nom": "Intendant du sport",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de port de plaisance",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'exploitation du réseau ferré",
+    "secteur": "Transport et logistique",
+    "detail": "24 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Technicien démonteur de batteries de véhicules électriques",
+    "secteur": "Industrie, production et énergie",
+    "detail": "24 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Technicien de maintenance de batteries de véhicules électriques",
+    "secteur": "Industrie, production et énergie",
+    "detail": "24 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P37",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Opérateur en pyrotechnie militaire »",
+  "description": "La personne choisit : Nettoyer ; Des machines ; Des outils. Ces trois choix viennent de la fiche du métier « Opérateur en pyrotechnie militaire » (Sécurité), qui arrive en position 541 sur 594.",
+  "nb": 594,
+  "metiers": [
+   {
+    "nom": "Opérateur de finition en industrie du textile",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Employé de pressing",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Employé d'étage en hôtellerie",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Plongeur en restauration",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Ramoneur",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P38",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Graveur d'art »",
+  "description": "La personne choisit : Utiliser des machines, des outils ; Des instruments, des objets d'art ; Dessiner, photographier. Ces trois choix viennent de la fiche du métier « Graveur d'art » (Artisanat et création), qui arrive en position 14 sur 42.",
+  "nb": 42,
+  "metiers": [
+   {
+    "nom": "Technicien spectacle en site de divertissement",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur de prise de vues",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé d'édition musicale graphique",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Animateur 2D 3D - films d'animation",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Concepteur de contenus multimedia",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P39",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Ingénieur démantèlement et assainissement »",
+  "description": "La personne choisit : Des produits à vendre ou à stocker ; Concevoir ; Extérieur / Chantier. Ces trois choix viennent de la fiche du métier « Ingénieur démantèlement et assainissement » (Bâtiment et travaux publics), qui arrive en position 97 sur 154.",
+  "nb": 154,
+  "metiers": [
+   {
+    "nom": "Artificier spectacle",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Menuisier",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Prothésiste dentaire",
+    "secteur": "Santé et soins",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Technicien en ostéologie-moulage",
+    "secteur": "Artisanat et création",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef de promotion des ventes",
+    "secteur": "Commerce et vente",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P40",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Écrivain public »",
+  "description": "La personne choisit : Bureau ; Conseiller ; Un public varié (usagers, voyageurs). Ces trois choix viennent de la fiche du métier « Écrivain public » (Social et services à la personne), qui arrive en position 10 sur 313.",
+  "nb": 313,
+  "metiers": [
+   {
+    "nom": "Gestionnaire en protection sociale",
+    "secteur": "Banque, assurance et immobilier",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'accueil touristique",
+    "secteur": "Hôtellerie, restauration et tourisme",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Conseiller vendeur d'autocars",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Clerc de notaire",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'accueil",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P41",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Planneur stratégique »",
+  "description": "La personne choisit : Communiquer par écrit ; Analyser ; Un ordinateur. Ces trois choix viennent de la fiche du métier « Planneur stratégique » (Commerce et vente), qui arrive en position 40 sur 318.",
+  "nb": 318,
+  "metiers": [
+   {
+    "nom": "Ethnologue",
+    "secteur": "Éducation et formation",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chercheur en sciences humaines et sociales",
+    "secteur": "Éducation et formation",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Lecteur-correcteur",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Référenceur web",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Biostatisticien",
+    "secteur": "Éducation et formation",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P42",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Opérateur en bijouterie »",
+  "description": "La personne choisit : Des produits chimiques ou dangereux ; Monter ; Manipuler, préparer des produits. Ces trois choix viennent de la fiche du métier « Opérateur en bijouterie » (Artisanat et création), qui arrive en position 30 sur 149.",
+  "nb": 149,
+  "metiers": [
+   {
+    "nom": "Technicien de production du travail des métaux",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Maçon",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Plâtrier",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Ouvrier de la construction modulaire hors-site",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Plaquiste",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P43",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Foreur »",
+  "description": "La personne choisit : Des matériaux (bois, métal, béton...) ; Gérer ; Contrôler, diagnostiquer. Ces trois choix viennent de la fiche du métier « Foreur » (Bâtiment et travaux publics), qui arrive en position 44 sur 358.",
+  "nb": 358,
+  "metiers": [
+   {
+    "nom": "Responsable de site de traitement des déchets",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Gainier industriel",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent d'encadrement en ameublement",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef de fabrication en industrie graphique",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef constructeur en décors",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P44",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Psychanalyste »",
+  "description": "La personne choisit : Analyser ; Des collègues ; Bureau. Ces trois choix viennent de la fiche du métier « Psychanalyste » (Social et services à la personne), qui arrive en position 518 sur 533.",
+  "nb": 533,
+  "metiers": [
+   {
+    "nom": "Développeur informatique",
+    "secteur": "Informatique et numérique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Assistant administratif",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable en organisation en entreprise",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé d'études commerciales",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Coordinateur Maitrise d'Ouvrage Système d'Information (MOA SI)",
+    "secteur": "Informatique et numérique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P45",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Agent recenseur »",
+  "description": "La personne choisit : Au domicile des particuliers ; Des familles ; Administration / Collectivité. Ces trois choix viennent de la fiche du métier « Agent recenseur » (Administration, gestion et bureau), qui arrive en position 41 sur 96.",
+  "nb": 96,
+  "metiers": [
+   {
+    "nom": "Gardien d'immeuble",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Assistant de service social",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Directeur de centre socioculturel",
+    "secteur": "Social et services à la personne",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable de maison de quartier",
+    "secteur": "Social et services à la personne",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de développement d'habitat social",
+    "secteur": "Social et services à la personne",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P46",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Coutelier d'art »",
+  "description": "La personne choisit : Des outils ; Des produits chimiques ou dangereux ; Manipuler, préparer des produits. Ces trois choix viennent de la fiche du métier « Coutelier d'art » (Artisanat et création), qui arrive en position 63 sur 250.",
+  "nb": 250,
+  "metiers": [
+   {
+    "nom": "Démonteur de véhicules hors d'usage",
+    "secteur": "Mécanique et automobile",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Opérateur en pyrotechnie militaire",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Boutefeu",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent de désinsectisation",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Plongeur démineur militaire dans les fonds marins",
+    "secteur": "Sécurité",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P47",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Sismologue »",
+  "description": "La personne choisit : Des appareils numériques ; Concevoir ; Organiser un événement, communiquer. Ces trois choix viennent de la fiche du métier « Sismologue » (Bâtiment et travaux publics), qui arrive en position 70 sur 138.",
+  "nb": 138,
+  "metiers": [
+   {
+    "nom": "Urbaniste Datacenter",
+    "secteur": "Informatique et numérique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Superviseur de production virtuelle",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Réalisateur audiovisuel",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef de projet réseau fixe et mobile",
+    "secteur": "Informatique et numérique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef de projet jeux vidéo",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P48",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Infirmier de prévention »",
+  "description": "La personne choisit : Accompagner, aider ; Expliquer, présenter à l'oral ; Un public varié (usagers, voyageurs). Ces trois choix viennent de la fiche du métier « Infirmier de prévention » (Santé et soins), qui arrive en position 41 sur 126.",
+  "nb": 126,
+  "metiers": [
+   {
+    "nom": "Guide-accompagnateur de pêche",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Guide-interprète",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Guide-conférencier",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Animateur de loisirs sportifs",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Accompagnateur nature",
+    "secteur": "Sport, animation et loisirs",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P49",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Chef de projet TMA - Tierce Maintenance Applicative »",
+  "description": "La personne choisit : Des collègues ; Bureau ; Piloter un projet ou un chantier. Ces trois choix viennent de la fiche du métier « Chef de projet TMA - Tierce Maintenance Applicative » (Informatique et numérique), qui arrive en position 37 sur 384.",
+  "nb": 384,
+  "metiers": [
+   {
+    "nom": "Responsable innovation",
+    "secteur": "Commerce et vente",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Directeur de recherche en industrie pharmaceutique",
+    "secteur": "Éducation et formation",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable de projet recherche et développement",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chef de projet contrôle qualité",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable du développement clinique en industrie pharmaceutique",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P50",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Gestionnaire de produits bancaires »",
+  "description": "La personne choisit : Un public varié (usagers, voyageurs) ; Concevoir ; Analyser. Ces trois choix viennent de la fiche du métier « Gestionnaire de produits bancaires » (Banque, assurance et immobilier), qui arrive en position 23 sur 153.",
+  "nb": 153,
+  "metiers": [
+   {
+    "nom": "Urbaniste",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Architecte-urbaniste",
+    "secteur": "Bâtiment et travaux publics",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de projet en aménagement du territoire",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de développement culturel",
+    "secteur": "Social et services à la personne",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Programmateur salle de cinéma",
+    "secteur": "Communication, culture et événementiel",
+    "detail": "22 % de ressemblance, 2 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P51",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Directeur d'accueil de loisirs sans hébergement »",
+  "description": "La personne choisit : Association ; Organiser un événement, communiquer ; Gérer. Ces trois choix viennent de la fiche du métier « Directeur d'accueil de loisirs sans hébergement » (Sport, animation et loisirs), qui arrive en position 18 sur 334.",
+  "nb": 334,
+  "metiers": [
+   {
+    "nom": "Animateur de développement régional",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Directeur d'association",
+    "secteur": "Administration, gestion et bureau",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de développement social",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Chargé de développement économique et local",
+    "secteur": "Social et services à la personne",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Coordonnateur de projet logistique humanitaire",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ },
+ {
+  "id": "P52",
+  "chemin": "Chemin 2 : cas surprenants (audit du 21/11/2026)",
+  "titre": "Choix tirés de « Chargé du guidage d'aéronef militaire »",
+  "description": "La personne choisit : Extérieur / Chantier ; Des marchandises ; Organiser un événement, communiquer. Ces trois choix viennent de la fiche du métier « Chargé du guidage d'aéronef militaire » (Sécurité), qui arrive en position 11 sur 295.",
+  "nb": 295,
+  "metiers": [
+   {
+    "nom": "Pilote de centrale de béton",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Agent technique de centrale à enrobés",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable propreté urbaine",
+    "secteur": "Propreté et gestion des déchets",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Responsable de scierie",
+    "secteur": "Industrie, production et énergie",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   },
+   {
+    "nom": "Manutentionnaire / Agent de quai",
+    "secteur": "Transport et logistique",
+    "detail": "30 % de ressemblance, 3 de ses 3 choix retrouvés"
+   }
+  ]
+ }
+]

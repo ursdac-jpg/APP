@@ -42,7 +42,7 @@ function _synlSections(d) {
   if (p1 && p1.retenu && p1.retenu.nom) {
     var r = p1.retenu;
     ajouter('p1', [
-      'PASSAGE 1, « Par un métier » : FAIT. Métier retenu par la personne : ' + r.nom + (r.secteur ? ' (secteur : ' + r.secteur + ')' : '') + (r.niveau ? ' ; niveau d’accès : ' + r.niveau : '') + '.',
+      'PASSAGE 1, « Chercher un métier » : FAIT. Métier retenu par la personne : ' + r.nom + (r.secteur ? ' (secteur : ' + r.secteur + ')' : '') + (r.niveau ? ' ; niveau d’accès : ' + r.niveau : '') + '.',
       _synlListe(p1.choisies, _synlBase.plafonds.competences).length ? 'Compétences que la personne a choisies : ' + _synlListe(p1.choisies, _synlBase.plafonds.competences).join(' ; ') + '.' : '',
       (p1.choisies && p1.choisies.length && _synlPct(p1.pct)) ? 'Part de ses compétences choisies retrouvées dans ce métier : ' + _synlPct(p1.pct) + ' (ce n’est pas une note).' : ''
     ]);
@@ -50,12 +50,12 @@ function _synlSections(d) {
     ajouter('p1proches', [_synlListe(p1.proches, 8).length ? 'Métiers proches de ce métier (liste officielle, puis compétences en commun) : ' + _synlListe(p1.proches, 8).join(' ; ') + '.' : ''], 1);
     ajouter('p1secteur', [_synlListe(p1.memeSecteur, 8).length ? 'Autres métiers du même secteur : ' + _synlListe(p1.memeSecteur, 8).join(' ; ') + '.' : ''], 2);
   } else {
-    ajouter('p1', ['PASSAGE 1, « Par un métier » : NON FAIT (aucun métier retenu). Ne devinez rien à ce sujet : dites seulement ce que cela empêche de voir.']);
+    ajouter('p1', ['PASSAGE 1, « Chercher un métier » : NON FAIT (aucun métier retenu). Ne devinez rien à ce sujet : dites seulement ce que cela empêche de voir.']);
   }
 
   // PASSAGE 2
   if (p2 && p2.fait) {
-    var lignes2 = ['PASSAGE 2, « Par ce que vous aimez faire » : FAIT.'];
+    var lignes2 = ['PASSAGE 2, « Partir de vos envies » : FAIT.'];
     (Array.isArray(p2.choix) ? p2.choix : []).forEach(function (c) {
       var v = _synlListe(c && c.valeurs, 10);
       if (c && c.titre && v.length) { lignes2.push(c.titre + ' : ' + v.join(' ; ') + '.'); }
@@ -72,7 +72,7 @@ function _synlSections(d) {
       _synlListe(p2.nonRetrouves, 6).length ? 'Choix de la personne qui ne se retrouvent pas dans le métier retenu : ' + _synlListe(p2.nonRetrouves, 6).join(' ; ') + '.' : ''
     ]);
   } else {
-    ajouter('p2', ['PASSAGE 2, « Par ce que vous aimez faire » : NON FAIT. Ne devinez rien à ce sujet.']);
+    ajouter('p2', ['PASSAGE 2, « Partir de vos envies » : NON FAIT. Ne devinez rien à ce sujet.']);
   }
 
   // PASSAGE 3

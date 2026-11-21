@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : accueil des chemins d'Explorer les métiers</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.tel .cml-grille3.cml-grille4{grid-template-columns:1fr}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-bandeau{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-page h1{font-size:1.25rem;margin:.2rem 0 .3rem}
+
+/* ----- Seule nouveauté : l'intérieur des cartes (classes .cml-entree-*, à ranger dans css/style.css au moment du code) ----- */
+.cml-entree .cml-pour{font-size:.95rem;font-weight:700;color:var(--text-strong);line-height:1.3;flex:none}
+.cml-entree .cml-reperes{list-style:none;margin:.1rem 0 0;padding:0;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.cml-entree .cml-reperes li{display:flex;gap:.55rem;align-items:flex-start;font-size:.875rem;line-height:1.35;color:var(--text-muted)}
+.cml-entree .cml-reperes li .bi{flex:none;color:var(--accent);font-size:1.05rem;margin-top:.05rem}
+.cml-entree .cml-reperes li b{display:block;color:var(--text-strong);font-size:.8rem;font-weight:800;margin-bottom:.05rem}
+.cml-entree .cml-paras{display:flex;flex-direction:column;gap:.5rem;flex:1}
+.cml-entree .cml-paras p{flex:none}
+.cml-entree .cml-paras .cml-note{font-size:.8rem}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Lecture des cartes</b><div class="boutons" id="g-pres">
+    <button type="button" data-v="rep">A : trois repères avec icônes (recommandé)</button><button type="button" data-v="par">B : une question puis deux petits paragraphes</button></div></div>
+  <div class="grp"><b>Noms des trois chemins</b><div class="boutons" id="g-noms">
+    <button type="button" data-v="act">Noms actuels</button><button type="button" data-v="nou">Noms proposés (recommandé)</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Le cadre des cartes, les couleurs et les boutons sont ceux de l'application ; seuls l'intérieur des cartes et, au choix, les noms des chemins sont nouveaux. Les boutons sont inactifs ici. Les réglages ci-dessus sont câblés.</div>
+  <h1>Par où voulez-vous commencer ?</h1>
+  <p class="text-center">Trois façons de découvrir des métiers à partir de vous, et un chemin qui part de la demande des employeurs. Vous pouvez en essayer un, puis un autre : rien n’est obligatoire.</p>
+  <div id="rendu"></div>
+</div>
+<script>
+var E = { pres: 'rep', noms: 'nou', tel: false, sombre: false };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+var NOMS = {
+  act: ['Par un métier', 'Par ce que vous aimez faire', 'Par un questionnaire de préférences', 'Les emplois en demande'],
+  nou: ['Chercher un métier', 'Partir de vos envies', 'Répondre à un questionnaire', 'Les emplois en demande']
+};
+// Contenu des quatre cartes : la même matière que les présentations de chemin, en d'autres mots.
+var CARTES = [
+  { icone: 'bi-search', bouton: 'Chercher un métier',
+    pour: 'Un métier vous intrigue, ou vous voulez vérifier ce qu’il demande vraiment ?',
+    faites: 'Vous le cherchez par son nom, un autre nom, un sigle (AS, AMP, VRP…) ou un secteur. Vous pouvez aussi partir de ce que vous savez faire.',
+    obtenez: 'Sa fiche : ce que fait la personne, le niveau pour y entrer, les conditions de travail et des métiers voisins.',
+    savoir: 'Vous pouvez passer de fiche en fiche et garder celles qui vous intéressent.' },
+  { icone: 'bi-list-check', bouton: 'Choisir mes envies',
+    pour: 'Vous ne savez pas encore quel métier viser, mais vous savez ce qui vous attire, et ce dont vous ne voulez pas ?',
+    faites: 'Cinq pages : avec qui ou avec quoi, quelles actions, quels lieux, ce que vous voulez éviter, ce qui serait facile ou difficile pour vous.',
+    obtenez: 'Des métiers proposés, avec ce que chacun retrouve de vos choix.',
+    savoir: 'Plus vous choisissez, plus la liste se précise. Vous pouvez tout modifier ensuite.' },
+  { icone: 'bi-hexagon', bouton: 'Commencer le questionnaire',
+    pour: 'Vous préférez répondre à des questions plutôt que choisir vous-même ?',
+    faites: 'Quatre parties : des activités, des métiers, ce que vous savez faire, votre façon d’être. Il n’y a ni bonne ni mauvaise réponse.',
+    obtenez: 'Un résultat en lettres, d’après un modèle utilisé depuis une quarantaine d’années, et des métiers qui y correspondent.',
+    savoir: '300 questions : prévoyez le temps qu’il faut.' },
+  { icone: 'bi-briefcase', bouton: 'Voir les emplois en demande',
+    pour: 'Vous cherchez surtout un emploi ?',
+    faites: 'Aucune question : vous regardez les métiers que les employeurs de votre département veulent pourvoir, les emplois saisonniers et les employeurs qui recrutent toute l’année.',
+    obtenez: 'Une demande d’offres prête à copier, et les fiches pour préparer votre candidature.',
+    savoir: 'Pour l’instant : la Dordogne et la Haute-Vienne.' }
+];
+function corps(c) {
+  if (E.pres === 'par') {
+    return '<p class="cml-pour">' + esc(c.pour) + '</p><div class="cml-paras"><p>' + esc(c.faites) + ' ' + esc(c.obtenez) + '</p><p class="cml-note">' + esc(c.savoir) + '</p></div>';
+  }
+  return '<p class="cml-pour">' + esc(c.pour) + '</p><ul class="cml-reperes">' +
+    '<li><i class="bi bi-pencil" aria-hidden="true"></i><span><b>Ce que vous faites</b>' + esc(c.faites) + '</span></li>' +
+    '<li><i class="bi bi-card-list" aria-hidden="true"></i><span><b>Ce que vous obtenez</b>' + esc(c.obtenez) + '</span></li>' +
+    '<li><i class="bi bi-info-circle" aria-hidden="true"></i><span><b>À savoir</b>' + esc(c.savoir) + '</span></li></ul>';
+}
+function rendre() {
+  var noms = NOMS[E.noms];
+  document.getElementById('rendu').innerHTML = '<div class="cml-grille3 cml-grille4">' + CARTES.map(function (c, i) {
+    return '<div class="cml-entree"><i class="bi ' + c.icone + ' ico" aria-hidden="true"></i><h3>' + esc(noms[i]) + '</h3>' +
+      '<div style="display:flex;flex-direction:column;gap:.5rem;flex:1">' + corps(c).replace('<p class="cml-pour">', '<p class="cml-pour" style="margin:0">') + '</div>' +
+      '<button type="button" class="btn btn-primary">' + esc(c.bouton) + '</button>' +
+      '<button type="button" class="btn btn-outline-secondary"><i class="bi bi-info-circle" aria-hidden="true"></i> Présentation de ce chemin</button></div>';
+  }).join('') + '</div>';
+  document.getElementById('retient').innerHTML = '<b>Ce que cette maquette retient pour l\'instant :</b> ' + (E.pres === 'rep' ? 'trois repères avec icônes (ce que vous faites, ce que vous obtenez, à savoir)' : 'une question puis deux petits paragraphes') + ' ; ' + (E.noms === 'nou' ? 'noms proposés pour les trois premiers chemins' : 'noms actuels') + '.';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  [['g-pres', E.pres], ['g-noms', E.noms]].forEach(function (g) {
+    document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === g[1])); });
+  });
+  document.querySelectorAll('#g-aff button').forEach(function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', String(v ? (v === 'tel') === E.tel : (m === 'sombre') === E.sombre));
+  });
+}
+document.getElementById('regl').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b || b.id === 'fermer') { return; }
+  var g = b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-pres') { E.pres = v; } else if (g === 'g-noms') { E.noms = v; }
+  else if (g === 'g-aff') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  rendre();
+});
+document.getElementById('fermer').addEventListener('click', function () { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; });
+document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('regl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

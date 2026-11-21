@@ -1,5 +1,5 @@
 /* ============================================================
-   Module « Explorer les métiers » : entrée 1, « Par un métier ».
+   Module « Explorer les métiers » : entrée 1, « Chercher un métier ».
    Charge après parActions.js.
 
    Règles tenues ici :
@@ -299,7 +299,7 @@ cmvEnregistrerVue('bmo', {
   }
 });
 
-// ---------------- Présentation du chemin « Par un métier » (19/11/2026) : le corps de la page de présentation (index.js, route comprendre-les-metiers-intro-metier) ----------------
+// ---------------- Présentation du chemin « Chercher un métier » (19/11/2026) : le corps de la page de présentation (index.js, route comprendre-les-metiers-intro-metier) ----------------
 function cmvCorpsPresentationMetier() {
   return _introBlocSection('&#127919; À quoi sert ce chemin',
       '<p class="mb-0">Vous avez un métier en tête, ou vous en avez entendu parler et voulez savoir de quoi il s’agit. Ce chemin vous mène à sa fiche, pour que vous lisiez ce que fait le métier avant de décider quoi que ce soit.</p>') +

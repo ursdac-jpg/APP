@@ -9,6 +9,18 @@
    RÈGLE (décision de Denis, 16/11/2026, consigne 419) : toute incohérence ou tout bug visible trouvé ET corrigé reçoit sa ligne ici, dans le même commit que la correction.
    ============================================================ */
 var PROBLEMES_CORRIGES = [
+  { date: '2026-11-21', origine: 'nous', titre: 'Stage, alternance, immersion, formation : des savoirs qui n’étaient pas les vôtres',
+    signale: 'Sans métier précis visé, l’application ajoutait à vos savoirs ceux de métiers qu’elle devinait (transport, hôtellerie pour un agent d’accueil en mairie), et l’assistant pouvait les écrire sur votre CV ou votre lettre.',
+    corrige: 'Pour un stage, une alternance, une immersion ou une formation, seuls les savoirs du poste que vous visez sont proposés, et rien n’est deviné quand aucun poste n’est indiqué.' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Reprendre mon CV : revenir à une voie commencée',
+    signale: 'Si vous aviez choisi votre objectif dans « Le garder et le compléter » puis quitté avant le passage chez l’assistant, « Reprendre » vous menait directement à la dernière étape, sans lecture de votre CV ni correction.',
+    corrige: '« Reprendre » vous ramène maintenant à la page où vous vous êtes arrêté, et ne saute à la dernière étape que si l’assistant a déjà lu votre CV.' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Nouveautés : cartes et barre de recherche',
+    signale: 'Rien n’indiquait qu’un clic sur une carte de fiche ou de chiffre l’ouvrait, et la barre de recherche se confondait avec les boutons autour.',
+    corrige: 'Chaque carte porte une pastille « Lire » (puis « Fermer »), et la barre de recherche est plus grande, avec un bord épais de la couleur du site.' },
+  { date: '2026-11-21', origine: 'personne', titre: 'Roue, ampoule et disquette : panneaux coupés sur téléphone et ouverts en même temps',
+    signale: 'Sur téléphone, le bas des panneaux de la roue et de la disquette sortait de l’écran : on ne voyait ni le confort de lecture ni le bouton « Tout effacer sur cet appareil ». Les trois panneaux pouvaient aussi rester ouverts les uns sur les autres.',
+    corrige: 'Chaque panneau tient maintenant dans l’écran et se fait défiler. Un seul panneau reste ouvert à la fois (y compris le Carnet et le Journal de parcours) : en ouvrir un ferme l’autre. Le réglage « Cartes de l’accueil », sans effet sur un grand écran, n’est plus proposé à partir de 1700 px de large. Dans l’affichage, « Confort de lecture » passe avant « Cartes de l’accueil », qui se replie comme la couleur d’accent.' },
   { date: '2026-11-17', origine: 'nous', titre: 'Nouveautés : « Voir les suivants » vous renvoyait en haut de la page',
     signale: 'Dans « Droits et règles », un clic sur « Voir les 20 suivants » vous ramenait tout en haut de la page, et il fallait redescendre à la main.',
     corrige: 'Vous restez maintenant à l’endroit où vous lisiez, et les nouvelles fiches apparaissent à la suite. Une flèche permet de remonter quand vous le souhaitez.' },
@@ -59,5 +71,17 @@ var PROBLEMES_CORRIGES = [
     corrige: 'Les années impossibles ne sont plus proposées, dans tous les endroits où l’on choisit deux années.' },
   { date: '2026-11-10', origine: 'nous', titre: 'Le bouton « Continuer »',
     signale: 'Dans « À partir de mon récit », le bouton « Continuer » était parfois dans la page, parfois dans la barre du bas.',
-    corrige: 'Il est maintenant toujours dans la barre du bas, avec « Retour » et « Accueil ».' }
+    corrige: 'Il est maintenant toujours dans la barre du bas, avec « Retour » et « Accueil ».' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Le lien LinkedIn saisi devenait « Https »',
+    signale: 'Le premier caractère du lien LinkedIn ou du site personnel passait en majuscule, ce qui cassait le lien.',
+    corrige: 'Les champs d’adresse internet ne reçoivent plus de majuscule automatique.' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Le poste visé en stage, alternance et formation',
+    signale: 'La page « Votre profil » disait « Vous n’avez pas ciblé de métier » alors que le poste ou la formation visé(e) venait d’être saisi(e).',
+    corrige: 'Elle affiche maintenant « Poste visé » ou « Formation visée », et ne parle plus de l’assistant quand vous faites votre CV vous-même.' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Le poste que vous écrivez ne change plus',
+    signale: 'Quand vous cliquiez un métier suggéré pour une expérience, votre intitulé était remplacé par celui du métier, alors que le texte disait le contraire.',
+    corrige: 'Votre intitulé reste tel que vous l’avez écrit ; le métier choisi sert seulement à proposer des missions et des compétences.' },
+  { date: '2026-11-21', origine: 'nous', titre: 'Lettre : le message sous « Continuer » pour un stage',
+    signale: 'En choisissant « Stage » sans préciser le type, « Continuer » restait grisé avec une phrase qui ne parlait que de la situation actuelle.',
+    corrige: 'La phrase dit maintenant qu’il faut aussi dire de quel type de stage il s’agit.' }
 ];

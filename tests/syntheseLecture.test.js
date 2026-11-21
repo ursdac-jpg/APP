@@ -48,8 +48,8 @@ test('la demande reste sous le plafond du plafond avec le prompt réel', () => {
 
 test('un passage non fait est dit « NON FAIT » : l’assistant ne devine rien', () => {
   const r = L.synConstruireDemande(MODELE, { p1: null, p2: null, p3: null, situation: '', libre: '' });
-  assert.ok(r.texte.includes('PASSAGE 1, « Par un métier » : NON FAIT'));
-  assert.ok(r.texte.includes('PASSAGE 2, « Par ce que vous aimez faire » : NON FAIT'));
+  assert.ok(r.texte.includes('PASSAGE 1, « Chercher un métier » : NON FAIT'));
+  assert.ok(r.texte.includes('PASSAGE 2, « Partir de vos envies » : NON FAIT'));
   assert.ok(r.texte.includes('PASSAGE 3, six lettres (questionnaire) : NON FAIT'));
   assert.ok(r.texte.includes('SITUATION : non donnée'));
   assert.ok(!r.texte.includes('SES MOTS'));

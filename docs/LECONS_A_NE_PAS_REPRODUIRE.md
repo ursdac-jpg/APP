@@ -1701,3 +1701,35 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 ` JavaScript se fait avec l'outil d'édition, jamais par un script en heredoc ; relire la ligne après coup.
 - **Symptôme 2** : la demande à l'assistant dépassait la place disponible avec cinq métiers très cochés (4 486 signes contre 2 800 prévus). **Cause** : plafonds fixés métier par métier sans total. **Règle** : tout bloc répété par élément reçoit un budget total en signes avec des plafonds qui baissent ensemble, et un test avec le cas le plus chargé.
 - **Symptôme 3** : un test voyait « table introuvable » sur le générateur du ROME. **Cause** : fichier remis en fins de ligne Windows après une modification annulée (le test lit un saut de ligne simple). **Règle** : après avoir annulé une modification, vérifier les fins de ligne (`git ls-files --eol`) et relancer `npm test`.
+
+## 9.204 Un pourcentage qui ne dépend pas du nombre de choix est absurde pour la personne (2026-11-19, consigne 488)
+
+- **Symptôme** : une seule case cochée donnait déjà 53 % de compatibilité (secteur seul = 100 % en interne, compétence seule = 58 %) ; des métiers sans rapport restaient proposés avec un score « moyen ».
+- **Cause** : le pourcentage mesurait la part de ce que la fiche demande retrouvée, sans tenir compte de la quantité d'information donnée par la personne, et le seuil d'affichage portait sur ce même pourcentage.
+- **Règle** : tout pourcentage montré à la personne est plafonné par le nombre de choix (un choix 25 %, deux 40 %, trois 55 %, quatre 65 %, cinq 75 %, six 82 %, sept 88 %, huit 94 %, neuf et plus 100 %, source unique `cmlPlafondChoix` dans logique.js). Un seuil d'affichage se calcule sur la « qualité » avant plafond, puis se dit à l'écran en pourcentage plafonné. Un métier qui retrouve moins de 40 % des choix n'est pas proposé, et quand rien ne correspond on le dit (« notre base ne reconnaît aucun métier ») au lieu de montrer des métiers lointains.
+
+## 9.205 Des motifs de texte sans frontières de mot, et une régénération oubliée (2026-11-19, consigne 494)
+
+- **Symptôme** : un vigneron ou un matelot recevait des étiquettes d'élevage ou de « documents » sans rapport ; une fiche du ROME (installateur solaire, F1610) manquait à la base.
+- **Cause** : les motifs de `tablesRome.js` cherchaient des morceaux de mots (« traite » dans « traitement », « chat » dans « achats », « lait » dans « laiton ») ; les objectifs présents dans plus d'un métier sur cinq donnaient les mêmes actions à tous ; et le code ROME de la fiche « Couvreur » avait été corrigé à la main sans relancer le générateur.
+- **Règle** : tout motif de reconnaissance de mot s'écrit avec des frontières de mot (``). Une règle de déduction se règle en balayant des valeurs et en mesurant l'accord avec les fiches écrites à la main, jamais à l'œil. Tout changement du code ROME d'une fiche à la main se suit de la régénération (`node scripts/importRome/genererMetiersRome.js <dossier des CSV>`), et on ne remplace que le fichier concerné quand les autres fichiers générés diffèrent pour une raison étrangère.
+
+## 9.206 Un nom de classe CSS déjà pris dans la feuille de style change l'affichage sans prévenir (2026-11-21, consigne 498)
+- **Symptôme** : dans la maquette des appellations, l'étiquette « Aussi appelé : » passait seule sur sa ligne, le texte des noms en dessous.
+- **Cause** : la classe `.lab` choisie pour l'étiquette existe déjà dans `css/style.css` (`#pmRacine .lab{display:block;...}`, utilisée pour les libellés de formulaire) ; un `<span class="lab">` devenait un bloc.
+- **Règle** : avant de nommer une classe dans une maquette ou dans le module, `grep` du nom dans `css/style.css` (et dans les feuilles des modules). Les maquettes qui chargent la vraie feuille de style (`../css/style.css`) montrent ce piège tout de suite : c'est leur intérêt, ne pas les remplacer par une feuille recopiée.
+
+## 9.207 Relancer le générateur de la base ROME écrase des fichiers qui ne sont pas à nous (2026-11-21, consigne 509)
+- **Symptôme** : après avoir relancé `scripts/importRome/genererMetiersRome.js` pour ajouter un champ à `data/competencesRome.js`, les quatorze fichiers `data/rome/fiche_*.js`, `docs/ECHANTILLON_METIERS_ROME_2026-11-12.md` et `docs/suivi_rome/empreintes_ROME.json` avaient changé aussi : les fiches publiées contiennent des champs (`mi`, missions) que le générateur actuel ne produit plus tels quels (il écrit `e` à la place).
+- **Cause** : le générateur et les fichiers déjà publiés ne sont plus tout à fait alignés ; tout relancer remplace les fiches par une autre version.
+- **Règle** : après toute régénération, `git status` et `git diff --stat` AVANT de garder quoi que ce soit ; ne garder que le fichier voulu (ici `data/competencesRome.js`, vérifié en comparant les objets : seule la clé `cartes` est nouvelle) et rétablir les autres avec `git checkout -- <fichiers>`. Ne jamais valider une régénération complète sans l'avoir comparée. Écart à éclaircir un jour : pourquoi les fiches publiées ne sortent plus du générateur.
+
+## 9.208 Une règle appliquée à « tous les champs texte » touche aussi les adresses internet (2026-11-21, consigne 514)
+- **Symptôme** : le lien LinkedIn saisi « https://… » était enregistré « Https://… » (lien cassé), dans tous les parcours de création du CV.
+- **Cause** : la majuscule automatique du premier caractère était posée sur tous les `input type="text"` d'un écran ; le champ du lien est en `type="text"`, pas `url`.
+- **Règle** : une règle de saisie posée en masse se limite par un critère explicite (identifiant ou attribut), pas seulement par le type de champ. Tout nouveau champ d'adresse internet porte un identifiant contenant `lien`, `site` ou `url`. Un audit des parcours doit saisir un lien réel et relire le dossier enregistré.
+
+## 9.209 Un script de modification qui relit le fichier au milieu de sa propre étape écrase cette étape (2026-11-21, consigne 513)
+- **Symptôme** : après un renommage en un passage, l'assistant des cartes était modifié mais pas leur contenu : les anciens textes longs s'affichaient comme « repères » avec des `undefined` et des boutons sans libellé.
+- **Cause** : dans mon script, l'enveloppe `modifier(fichier, …)` ne réécrit le fichier qu'à la fin ; une étape interne relisait le fichier sur le disque (sans mes changements en mémoire) puis l'écrivait, et l'enveloppe a ensuite écrasé ce résultat par sa propre version.
+- **Règle** : dans un script de patch, une seule lecture et une seule écriture par fichier ; tout est modifié sur la même chaîne en mémoire. Et toujours regarder l'écran après un patch de ce type : les tests Node ne chargent pas `index.js`, ils sont restés verts avec un écran faux.

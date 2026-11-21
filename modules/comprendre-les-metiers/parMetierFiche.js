@@ -1,5 +1,5 @@
 /* ============================================================
-   Module « Explorer les métiers » : entrée 1, « Par un métier » : LA FICHE ENRICHIE, LES PAGES COMPÉTENCE ET SECTEUR, LE FIL DE VOYAGE.
+   Module « Explorer les métiers » : entrée 1, « Chercher un métier » : LA FICHE ENRICHIE, LES PAGES COMPÉTENCE ET SECTEUR, LE FIL DE VOYAGE.
    Charge après parMetierEcran.js. Reprend la maquette validée le 17/11/2026 (docs/MAQUETTE_PAR_UN_METIER_ENRICHI_EXPLORER_LES_METIERS_2026-11-17.html), consigne 453.
 
    Règles tenues ici :
@@ -28,6 +28,8 @@ var PMF_NB_SAVOIRS = 20;      // savoirs montrés sur la fiche avant « Voir les
 var PMF_NB_TOP = 10;          // métiers où une compétence compte le plus
 var PMF_NB_SECTEUR = 24;      // métiers montrés d'un coup sur la page d'un secteur
 var PMF_NB_PROCHES = 3;
+// Phrase d'explication posée une fois au-dessus des cartes de métiers proches (maquette du 21/11/2026) ; vide si les noms d'emploi ne sont pas chargés (D.aNoms).
+var PMF_TEXTE_NOMS_CARTES = '<p class="phrase-noms"><i class="bi bi-info-circle" aria-hidden="true"></i> Un même métier peut porter plusieurs noms d’emploi. Ceux qui sont écrits sur les cartes correspondent à la même fiche que le titre.</p>';
 var PMF_NOMS_TYPES = { se: 'Savoir-être', sf: 'Savoir-faire', sv: 'Savoirs' };
 var PMF_NOMS_TYPES_PLUR = { se: 'Savoir-être', sf: 'Savoir-faire', sv: 'Savoirs' };
 
@@ -48,9 +50,17 @@ function _pmfE(t) { return cmvE(t); }
 function _pmfBoutonSecteur(D, s) {
   return '<button type="button" class="pill-btn" data-pmf="sect" data-v="' + s + '" title="Voir tous les métiers de ce secteur"><i class="bi bi-grid" aria-hidden="true"></i> ' + _pmfE(D.secteurs[s]) + '</button>';
 }
+// Ligne « Aussi appelé » (consigne 498, maquette validée le 21/11/2026) : trois noms d'emploi courants, puis « (et N autres) ». Rien du tout quand la fiche n'a pas d'autre nom.
+// Les noms viennent de D.noms (data/rome/nomsEmploi.js, nettoyés par pmcNomsEmploi) ; le nombre de noms montrés est PMF_NB_NOMS_CARTE.
+function _pmfLigneNoms(D, r) {
+  var e = D.noms && D.noms[r.code];
+  if (!e || !e[0].length) { return ''; }
+  var reste = e[1] - e[0].length;
+  return '<div class="noms-emploi"><span class="etiq">Aussi appelé :</span> ' + e[0].map(_pmfE).join(' ; ') + (reste > 0 ? ' <span class="plus">(et ' + reste + (reste > 1 ? ' autres' : ' autre') + ')</span>' : '') + '</div>';
+}
 function _pmfCarteSimple(D, idx, extra) {
   var r = D.m[idx];
-  return '<div class="carte-m"><h4>' + _pmfE(r[0]) + '</h4>' + _pmfBoutonSecteur(D, r[1]) + _pmLigneAcces(r) + (extra || '') +
+  return '<div class="carte-m"><h4>' + _pmfE(r[0]) + '</h4>' + _pmfLigneNoms(D, r) + _pmfBoutonSecteur(D, r[1]) + _pmLigneAcces(r) + (extra || '') +
     '<div class="rang-boutons"><button type="button" class="btn btn-outline-primary b-fiche" data-pmf="fiche" data-v="' + idx + '"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Voir la fiche</button></div></div>';
 }
 function _pmfGrille(html) { return '<div class="grille" style="--cols:' + (_pmEstTel() ? 1 : 3) + '">' + html + '</div>'; }
@@ -105,7 +115,7 @@ function _pmfSectionProches(D, idx) {
   var fiche = null;
   var pr = pmcProches(D, idx, _pmfCodesOfficiels(r), P.procheTous ? 10 : PMF_NB_PROCHES);
   if (!pr.length) { return ''; }
-  return '<div id="pmfProches"><p class="legende">Ils partagent beaucoup de compétences avec celui-ci.</p>' +
+  return '<div id="pmfProches"><p class="legende">Ils partagent beaucoup de compétences avec celui-ci.</p>' + (D.aNoms ? PMF_TEXTE_NOMS_CARTES : '') +
     _pmfGrille(pr.map(function (p) { return _pmfCarteSimple(D, p.i, _pmfExtraCommun(D, idx, p.i)); }).join('')) +
     '<div style="text-align:center;margin-top:.8rem"><button type="button" class="btn btn-outline-secondary" data-pmf="procheplus">' + (P.procheTous ? 'Voir moins de métiers proches' : 'Voir d’autres métiers proches') + '</button></div></div>';
 }
@@ -173,7 +183,7 @@ function _pmfMessageOffres(sujet, avecChoix) {
   var dep = fo.dep === 'libre' ? (fo.libre.trim() || 'mon département') : PMC_TERRITOIRES[fo.dep].nom;
   var reprend = !!avecChoix && fo.inclure && !!D;
   return pmcMessageOffres({
-    metier: sujet.metier || '', metiers: sujet.metiers || [], dateTexte: _pmfDateFr(), departement: dep, zone: fo.dep === 'libre' ? '' : fo.terr,
+    metier: sujet.metier || '', appellations: sujet.appellations || [], metiers: sujet.metiers || [], dateTexte: _pmfDateFr(), departement: dep, zone: fo.dep === 'libre' ? '' : fo.terr,
     voisins: fo.dep === 'libre' ? [] : fo.voisins.map(function (c) { return PMC_NOMS_DEPARTEMENTS[c]; }),
     competences: reprend ? S.comp.map(function (c) { return D[c.t][c.i].lib; }) : [],
     niveau: reprend && S.niveau ? PMC_LIB_NIVEAU[S.niveau] : (sujet.niveau || ''), voieFormation: !!sujet.niveau
@@ -211,10 +221,15 @@ function _pmfFormulaireOffres(sujet, avecChoix) {
   }
   return h;
 }
+// Les cinq appellations les plus courantes du métier (champ n de la fiche du ROME, les plus courantes d'abord), sans le nom déjà donné (consigne 496)
+function _pmfAppellations(r) {
+  var f = (typeof window !== 'undefined' && window.FICHES_ROME && r && window.FICHES_ROME[r.code]) ? window.FICHES_ROME[r.code] : null;
+  return pmcNomsEmploi((f && f.n) || [], r && r[0]).slice(0, 5);
+}
 function _pmfBlocCandidater(D, idx) {
   var h = '<div id="pmfCandidater"><h4 class="ft" style="margin-top:.2rem">Chercher des offres en ce moment</h4>' +
     '<p class="legende">Votre demande est préparée ici. Vous la collez ensuite dans l’assistant en ligne de votre choix. Ce qu’il vous répond reste chez lui : cette application ne reprend rien.</p>';
-  h += _pmfFormulaireOffres({ metier: D.m[idx][0] }, true);
+  h += _pmfFormulaireOffres({ metier: D.m[idx][0], appellations: _pmfAppellations(D.m[idx]) }, true);
   h += '<h4 class="ft mt-4">Préparer ma candidature</h4><p class="legende">Le CV et la lettre se préparent dans le module Candidater. Le métier y est repris.</p>' +
     '<button type="button" class="btn btn-outline-primary" data-pmf="cand"><i class="bi bi-send" aria-hidden="true"></i> Préparer ma candidature pour ce métier</button>';
   return h + '</div>';

@@ -265,6 +265,17 @@ test('fiche lue sur place (consigne 422, étape B) : carte repliable, rendu sans
   assert.ok(nv.indexOf('comprendreLeCadreBrancherRecent();') === -1, 'plus de bouton qui piège dans le module');
 });
 
+test('ouverture des cartes (consigne 524) : une seule carte ouverte, un clic dans une carte au premier niveau la ferme, jamais au second niveau', () => {
+  const nv = fs.readFileSync(path.join(__dirname, '..', 'modules', 'nouveautes', 'index.js'), 'utf8');
+  assert.ok(nv.indexOf('function _nvBrancherOuvertureCartes(zone)') !== -1 && nv.indexOf('_nvBrancherOuvertureCartes(zone);') !== -1, 'les deux entrées à cartes branchent l ouverture');
+  const i = nv.indexOf('function _nvBrancherOuvertureCartes(zone)');
+  const corps = nv.slice(i, nv.indexOf('function _nvBrancherCorpsRegles(zone)'));
+  assert.ok(corps.indexOf('c.open = false') !== -1, 'ouvrir une carte ferme les autres');
+  assert.ok(corps.indexOf('_nvCarteAuPremierNiveau(d)') !== -1 && corps.indexOf('getSelection') !== -1, 'un clic ferme seulement au premier niveau, jamais en fin de sélection');
+  assert.ok(corps.indexOf("'pointer'") !== -1, 'le doigt reste visible sur toute la carte ouverte au premier niveau');
+  assert.ok(corps.indexOf('button, a, input, select, textarea, label, summary') !== -1 && corps.indexOf('[data-pastille]') !== -1, 'boutons, liens, champs et pastilles-filtres ne ferment pas');
+});
+
 test('filtrer un jour précis (consigne 422, étape C) : le jour remplace la période, un deuxième clic le retire', () => {
   const L = require('../modules/nouveautes/logique.js');
   const els = [

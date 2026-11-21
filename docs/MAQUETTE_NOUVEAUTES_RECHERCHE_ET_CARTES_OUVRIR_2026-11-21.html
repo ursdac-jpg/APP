@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--
+  Maquette (concept cliquable) : page Nouveautés, rubriques « Droits et règles » et « Chiffres ».
+  Deux demandes de Denis (21/11/2026) : 1. barre de recherche plus visible ; 2. rendre évident qu'un clic sur la carte entière ouvre la fiche sur place.
+  Rien n'est codé dans l'application. Les cartes reprennent le vrai habillage (css/style.css et comprendre-le-cadre.css).
+  Ouverture : http://localhost:8123/docs/MAQUETTE_NOUVEAUTES_RECHERCHE_ET_CARTES_OUVRIR_2026-11-21.html
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Nouveautés : recherche et ouverture des cartes</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  /* Habillage de la maquette (n'existera pas dans l'application) */
+  body { background: var(--bg-page, var(--bg-card)); color: var(--text-strong); }
+  .mq-bandeau { position: sticky; top: 0; z-index: 3000; background: #1b212c; color: #f3f5f8; padding: .55rem .8rem; font-size: .85rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; }
+  .mq-bandeau button { font-size: .85rem; border-radius: 6px; border: 1px solid #8a93a3; background: #2a3242; color: #f3f5f8; padding: .2rem .7rem; cursor: pointer; }
+  .mq-bandeau button[aria-pressed="true"] { background: #3d5fd1; border-color: #9db3ff; }
+  .mq-page { max-width: 880px; margin: 0 auto; padding: 0 1rem 4rem; }
+  .mq-page.mq-tel { max-width: 375px; border: 2px solid var(--border-strong); border-radius: 18px; padding: 0 .5rem 2rem; margin-top: 1rem; }
+  .mq-h { margin: 2.2rem 0 .3rem; font-size: 1.3rem; font-weight: 800; }
+  .mq-intro { color: var(--text-muted); margin: 0 0 1rem; }
+  .mq-prop { margin: 1.6rem 0 .4rem; padding: .35rem .8rem; border-radius: 0 8px 8px 0; border-left: 5px solid var(--accent); background: var(--accent-bg-subtle); font-weight: 800; }
+  .mq-prop small { font-weight: 400; color: var(--text-muted); }
+  .mq-pc { font-size: .88rem; margin: .3rem 0 .8rem; display: grid; gap: .15rem; }
+  .mq-pc b.mq-plus { color: var(--success-strong, #1e7a3c); }
+  .mq-pc b.mq-moins { color: var(--warning-strong, #a05a00); }
+  .mq-reco { display: inline-block; background: var(--success-bg-subtle); border: 1px solid var(--success); color: var(--text-strong); border-radius: 999px; padding: .05rem .7rem; font-size: .8rem; font-weight: 800; margin-left: .5rem; }
+  .mq-note { border: 2px dashed var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); border-radius: 10px; padding: .55rem .8rem; font-size: .88rem; margin: .8rem 0; }
+  .mq-entiere { padding: .3rem 0 .2rem; color: var(--text-muted); font-size: .92rem; border-top: 1px dashed var(--border-strong); margin-top: .4rem; }
+  .mq-entiere[hidden] { display: none; }
+
+  /* ---------- Cartes : tout ce qui est commun aux propositions ---------- */
+  .mq-liste .comprendre-le-cadre-chg { transition: box-shadow .15s, border-color .15s; }
+  .mq-repere, .mq-invite { display: none; }
+
+  /* PROPOSITION 0 : aujourd'hui = rien de plus (chevron gris-bleu seul) */
+
+  /* PROPOSITION A : le mot « Lire » dans une pastille à droite + survol de la carte */
+  .v-a .comprendre-le-cadre-chg-resume { padding-right: 6.4rem; }
+  .v-a .comprendre-le-cadre-chg-fleche { display: none; }
+  .v-a .mq-repere { display: inline-flex; align-items: center; gap: .35rem; position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); min-height: 38px; padding: 0 .85rem; border: 2px solid var(--accent); border-radius: 999px; background: var(--bg-card); color: var(--accent-texte); font-weight: 800; font-size: .9rem; }
+  .v-a .mq-repere .mq-ferme { display: none; }
+  .v-a [open] .mq-repere .mq-ouvre { display: none; }
+  .v-a [open] .mq-repere .mq-ferme { display: inline; }
+  .v-a [open] .mq-repere .bi { transform: rotate(180deg); }
+  .v-a .comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+  .v-a .comprendre-le-cadre-chg-resume:hover .mq-repere { background: var(--accent); color: #fff; }
+  .mq-tel .v-a .comprendre-le-cadre-chg-resume { padding-right: 5.6rem; }
+
+  /* PROPOSITION B : chevron dans un rond cerné + survol de la carte (aucun mot) */
+  .v-b .comprendre-le-cadre-chg-resume { padding-right: 3.8rem; }
+  .v-b .comprendre-le-cadre-chg-fleche { display: none; }
+  .v-b .mq-repere { display: inline-flex; align-items: center; justify-content: center; position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 2px solid var(--accent); border-radius: 50%; background: var(--bg-card); color: var(--accent-texte); font-size: 1.1rem; }
+  .v-b .mq-repere .mq-ouvre, .v-b .mq-repere .mq-ferme { display: none; }
+  .v-b [open] .mq-repere .bi { transform: rotate(180deg); }
+  .v-b .comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+  .v-b .comprendre-le-cadre-chg-resume:hover .mq-repere { background: var(--accent); color: #fff; }
+
+  /* PROPOSITION C : une phrase d'invitation sous le titre de chaque carte */
+  .v-c .mq-invite { display: inline-flex; align-items: center; gap: .35rem; margin-top: .35rem; color: var(--accent-texte); font-weight: 700; font-size: .9rem; }
+  .v-c [open] .mq-invite { display: none; }
+  .v-c .comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+
+  /* PROPOSITION D : seulement le survol (rien d'ajouté, rien de visible sur téléphone) */
+  .v-d .comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); background: var(--accent-bg-subtle); }
+
+  /* PROPOSITION E : une seule phrase au-dessus de la liste */
+  .mq-phrase { display: flex; gap: .6rem; align-items: center; margin: 0 0 .8rem; padding: .55rem .9rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); font-weight: 700; }
+  .mq-phrase .bi { color: var(--accent); font-size: 1.2rem; }
+  .v-e .comprendre-le-cadre-chg:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+
+  /* ---------- Recherche ---------- */
+  .mq-filtres { background: var(--bg-card); border: 2px solid var(--accent); border-radius: 14px; padding: .7rem .9rem .8rem; box-shadow: 0 4px 10px rgba(0,0,0,.08); }
+  .mq-filtres .nv-f-tete { padding-right: 0; }
+  .mq-tel .nv-f-resultat--3 { grid-template-columns: 1fr; }
+  .mq-tel .nv-f-resultat--3 .nv-f-recherche, .mq-tel .nv-f-resultat--3 .nv-f-reinit { grid-column: 1; }
+  .mq-tel .nv-f-resultat--3 .nv-f-reinit { display: none; }
+  .mq-tel .nv-f-lib { min-width: 100%; }
+
+  /* RECHERCHE R2 : même place (au milieu), beaucoup plus visible */
+  .r2 .nv-f-recherche { min-height: 54px; border: 3px solid var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 2px 8px rgba(0,0,0,.14); padding-left: 1rem; gap: .6rem; }
+  .r2 .nv-f-recherche > .bi-search { font-size: 1.3rem; color: var(--accent); }
+  .r2 .nv-f-recherche input { font-size: 1.05rem; font-weight: 600; }
+  .r2 .nv-f-recherche input::placeholder { color: var(--text-strong); opacity: .72; font-weight: 600; }
+
+  /* RECHERCHE R3 : sur sa propre ligne, pleine largeur, avec un titre « Chercher un mot » */
+  .r3-rang { margin: .1rem 0 .7rem; }
+  .r3-rang label { display: block; font-weight: 800; margin-bottom: .3rem; }
+  .r3-rang .nv-f-recherche { max-width: none; width: 100%; min-height: 54px; border: 3px solid var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 2px 8px rgba(0,0,0,.14); padding-left: 1rem; gap: .6rem; }
+  .r3-rang .nv-f-recherche > .bi-search { font-size: 1.3rem; color: var(--accent); }
+  .r3-rang .nv-f-recherche input { font-size: 1.05rem; font-weight: 600; }
+  .r3-rang .nv-f-recherche input::placeholder { color: var(--text-strong); opacity: .72; font-weight: 600; }
+  .mq-filtres .nv-f-resultat--3.sans-recherche { grid-template-columns: 1fr auto; }
+</style>
+</head>
+<body>
+
+<div class="mq-bandeau" role="toolbar" aria-label="Réglages de la maquette">
+  <strong>Maquette (rien n'est codé)</strong>
+  <button type="button" id="mqSombre" aria-pressed="false">Mode sombre</button>
+  <button type="button" id="mqTel" aria-pressed="false">Téléphone 375 px</button>
+  <span>Les cartes s'ouvrent vraiment : cliquez n'importe où sur la carte.</span>
+</div>
+
+<main class="mq-page" id="mqPage">
+
+<h1 class="mq-h" style="margin-top:1.2rem">Nouveautés : la recherche et l'ouverture des fiches</h1>
+<p class="mq-intro">Deux demandes de Denis (21/11/2026). Première partie : la barre de recherche. Deuxième partie : comment montrer qu'un clic sur la carte entière ouvre la fiche. Chaque proposition est cliquable et porte ses avantages et ses risques.</p>
+
+<!-- ======================= PARTIE 1 : RECHERCHE ======================= -->
+<h2 class="mq-h">1. La barre de recherche</h2>
+<p class="mq-intro">Aujourd'hui : un trait fin gris sur fond blanc, hauteur 40 px, dans le rectangle des filtres. Elle se confond avec les boutons autour.</p>
+
+<div class="mq-prop">R1. Aujourd'hui <small>(pour comparer)</small></div>
+<div class="mq-filtres" data-q="1"></div>
+
+<div class="mq-prop">R2. Même place, bien plus visible <span class="mq-reco">Recommandé</span></div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> bord épais de la couleur du site, fond teinté, loupe plus grosse, texte plus grand (54 px de haut au lieu de 40). On la voit avant tout le reste du rectangle. La place au milieu, décidée le 16/11/2026, ne change pas.</span>
+  <span><b class="mq-moins">Risque :</b> faible. Elle devient le point le plus appuyé du rectangle : si Denis la trouve trop forte, on baisse le bord à 2 px.</span>
+</div>
+<div class="mq-filtres r2" data-q="1"></div>
+
+<div class="mq-prop">R3. Sur sa propre ligne, pleine largeur, avec le titre « Chercher un mot »</div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> impossible de la manquer, et un titre écrit dit à quoi elle sert. Meilleure sur téléphone.</span>
+  <span><b class="mq-moins">Risque :</b> elle quitte le milieu de la ligne du compte (décision du 16/11/2026, lot 4) : c'est à confirmer. Elle ajoute aussi une ligne de hauteur, donc le rectangle fixe prend plus de place avant la liste.</span>
+</div>
+<div class="mq-filtres" data-q="3"></div>
+
+<!-- ======================= PARTIE 2 : CARTES ======================= -->
+<h2 class="mq-h">2. Montrer que la carte s'ouvre</h2>
+<p class="mq-intro">Aujourd'hui : un petit chevron gris-bleu au bout de la carte, rien d'autre. Toute la carte est déjà cliquable (une pastille, le titre, le vide : tout ouvre), mais rien ne le dit. Sur téléphone il n'existe pas de survol : seul un repère écrit ou dessiné aide.</p>
+
+<div class="mq-prop">P0. Aujourd'hui <small>(pour comparer)</small></div>
+<div class="mq-liste v-0" data-cartes="1"></div>
+
+<div class="mq-prop">PA. Le mot « Lire » dans une pastille à droite, plus le survol <span class="mq-reco">Recommandé</span></div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> un mot clair, le même que celui du bouton « Lire la fiche en entier » de l'intérieur. Il devient « Fermer » une fois ouverte. Il s'adresse au public peu à l'aise : un mot vaut mieux qu'un dessin. Fonctionne sur téléphone.</span>
+  <span><b class="mq-moins">Risque :</b> un repère répété sur chaque carte (une centaine) : un peu plus chargé, et le titre dispose d'un peu moins de largeur (surtout sur téléphone, où il passe sur une ligne de plus).</span>
+</div>
+<div class="mq-liste v-a" data-cartes="1"></div>
+
+<div class="mq-prop">PB. Chevron dans un rond cerné, plus le survol <small>(sans mot)</small></div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> le plus sobre des repères visibles : un rond, pas de texte. Prend peu de place.</span>
+  <span><b class="mq-moins">Risque :</b> un chevron seul est un signe que le public cible ne comprend pas toujours (« ça veut dire quoi, la flèche ? »). Mieux que l'existant, moins sûr qu'un mot.</span>
+</div>
+<div class="mq-liste v-b" data-cartes="1"></div>
+
+<div class="mq-prop">PC. Une phrase sous le titre de chaque carte : « Toucher pour lire la fiche »</div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> le plus explicite. Aucune ambiguïté possible.</span>
+  <span><b class="mq-moins">Risque :</b> surcharge : une ligne de plus sur chaque carte fermée (la liste s'allonge d'environ un quart) et le même texte répété cent fois. C'est exactement ce que Denis veut éviter.</span>
+</div>
+<div class="mq-liste v-c" data-cartes="1"></div>
+
+<div class="mq-prop">PD. Seulement le survol de la carte <small>(rien d'ajouté)</small></div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> zéro encombrement : la carte se teinte et se cerne quand la souris passe dessus.</span>
+  <span><b class="mq-moins">Risque :</b> inutile sur téléphone et tablette (pas de souris), donc ne règle pas le problème pour une grande partie du public. À réserver en complément, jamais seul.</span>
+</div>
+<div class="mq-liste v-d" data-cartes="1"></div>
+
+<div class="mq-prop">PE. Une seule phrase au-dessus de la liste : « Touchez une fiche pour la lire en entier. » <small>(avec le survol)</small></div>
+<div class="mq-pc">
+  <span><b class="mq-plus">Apporte :</b> le message est dit une fois, en clair, sans rien ajouter aux cartes.</span>
+  <span><b class="mq-moins">Risque :</b> la phrase sort de l'écran dès qu'on défile : quelqu'un qui arrive au milieu de la liste ne la voit plus. On peut la rendre fixe, mais cela prend de la place (le rectangle des filtres est déjà fixé en haut).</span>
+</div>
+<div class="mq-liste v-e" data-cartes="1" data-phrase="1"></div>
+
+<!-- ======================= PARTIE 3 : QUESTION D'UNE OU DEUX ÉTAPES ======================= -->
+<h2 class="mq-h">3. Une question qui touche au comportement</h2>
+<div class="mq-note">
+  <strong>Aujourd'hui, ouvrir une carte se fait en deux temps</strong> : un premier clic montre le résumé (« En bref ») ; un second clic sur « Lire la fiche en entier » montre tout le texte. Essayez ci-dessus : cliquez sur une carte, puis sur « Lire la fiche en entier ».<br><br>
+  <strong>Option 1 (Recommandé) : on garde les deux temps.</strong> Le résumé permet de balayer vite une longue liste sans se perdre ; le second bouton est déjà bien visible. Risque : quelqu'un peut croire que la carte ouverte est « finie » et ne pas voir qu'il y a la suite.<br>
+  <strong>Option 2 : un seul clic ouvre la fiche en entier.</strong> Plus direct, une étape de moins. Risque : sur une liste de plus de cent fiches, une carte ouverte pousse tout le reste très loin vers le bas, et le résumé « En bref » (utile pour savoir si la fiche nous concerne) disparaît.<br><br>
+  <em>Le repère choisi en partie 2 vaut pour les deux options : seule la question « résumé d'abord, ou tout d'un coup ? » change.</em>
+</div>
+
+</main>
+
+<script>
+(function () {
+  var racine = document.documentElement;
+  var page = document.getElementById('mqPage');
+  document.getElementById('mqSombre').addEventListener('click', function () {
+    var s = racine.getAttribute('data-theme') === 'sombre';
+    racine.setAttribute('data-theme', s ? 'clair' : 'sombre'); this.setAttribute('aria-pressed', String(!s));
+  });
+  document.getElementById('mqTel').addEventListener('click', function () {
+    var t = page.classList.toggle('mq-tel'); this.setAttribute('aria-pressed', String(t));
+  });
+
+  /* ---- Barres de filtres (version abrégée, vrais styles) ---- */
+  var champ = '<span class="nv-f-recherche"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Chercher un mot (Smic, APL, CPF...)" aria-label="Chercher un mot" autocomplete="off"></span>';
+  var rangs = '<div class="nv-f-rang"><span class="nv-f-lib">Afficher</span><button type="button" class="nv-f-btn" aria-pressed="true">Tout l’historique <span class="nv-f-n">147</span></button><button type="button" class="nv-f-btn" aria-pressed="false">Ce que je n’ai pas encore vu <span class="nv-f-n">27</span></button></div>' +
+    '<div class="nv-f-rang"><span class="nv-f-lib">Quoi</span><button type="button" class="nv-f-btn" aria-pressed="true">Tout</button><button type="button" class="nv-f-btn" aria-pressed="false">Nouvelles fiches</button><button type="button" class="nv-f-btn" aria-pressed="false">Fiches mises à jour</button></div>';
+  function barre(variante) {
+    var tete = '<div class="nv-f-tete"><div class="nv-filtres-titre"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrer les droits et règles</div><button type="button" class="nv-f-plier"><i class="bi bi-chevron-up" aria-hidden="true"></i> Replier</button></div>';
+    if (variante === '3') {
+      return tete + '<div class="r3-rang" style="margin-top:.6rem"><label for="mqQ3">Chercher un mot</label>' + champ.replace('<input ', '<input id="mqQ3" ') + '</div>' + rangs +
+        '<div class="nv-f-resultat"><span><strong>147</strong> éléments affichés</span><button type="button" class="nv-f-reinit"><i class="bi bi-x-circle" aria-hidden="true"></i> Tout réinitialiser</button></div>';
+    }
+    return tete + rangs + '<div class="nv-f-resultat nv-f-resultat--3"><span><strong>147</strong> éléments affichés</span>' + champ + '<button type="button" class="nv-f-reinit"><i class="bi bi-x-circle" aria-hidden="true"></i> Tout réinitialiser</button></div>';
+  }
+  document.querySelectorAll('[data-q]').forEach(function (z) { z.innerHTML = barre(z.getAttribute('data-q')); });
+
+  /* ---- Cartes (vrai balisage de comprendre-le-cadre) ---- */
+  var cartes = [
+    { v: 'v', g: 'Nouvelle fiche', d: 'Ajoutée le 18 nov. 2026', c: 'Budget, dettes, droits sociaux', t: 'Crédit à la consommation : ce qui change à partir du 20 novembre 2026', qs: 'Utile si vous pensez prendre un crédit, un petit crédit ou un paiement en plusieurs fois, ou si vous avez déjà des difficultés à rembourser.', b: 'De nouvelles règles s’appliquent aux crédits à la consommation, y compris aux petits crédits et aux paiements en plusieurs fois, pour mieux protéger les emprunteurs. Les détails et la date d’application se lisent sur la page de Service-Public indiquée plus bas.' },
+    { v: 'm', g: 'Fiche mise à jour', d: 'Mise à jour le 18 nov. 2026', c: 'Se former et se reconvertir', t: 'Démissionner pour se reconvertir et garder le chômage : le dispositif démission-reconversion', qs: '', b: 'Cette fiche a été relue et complétée. Lisez la fiche en entier pour retrouver les conditions et les démarches.' },
+    { v: 'a', g: '', d: 'À partir du 1 déc. 2026', c: 'Emploi et contrats de travail', t: 'Hausse du Smic de 1,6 % annoncée pour le 1er décembre 2026', qs: '', b: 'Une hausse du Smic est annoncée pour le 1er décembre 2026.' }
+  ];
+  function carte(x) {
+    var avenir = x.v === 'a';
+    var past = (x.g ? '<span class="comprendre-le-cadre-pastille comprendre-le-cadre-pastille--' + x.v + '">' + x.g + '</span>' : '') +
+      '<span class="comprendre-le-cadre-pastille' + (avenir ? ' comprendre-le-cadre-pastille--a' : '') + '">' + x.d + '</span>' +
+      '<span class="comprendre-le-cadre-pastille">' + x.c + '</span><span class="comprendre-le-cadre-pastille" style="background:var(--warning-bg-subtle);border-color:var(--warning-border)">NOUVEAU</span>';
+    return '<details class="comprendre-le-cadre-chg comprendre-le-cadre-chg--fiche' + (avenir ? ' comprendre-le-cadre-chg--avenir' : '') + '">' +
+      '<summary class="comprendre-le-cadre-chg-resume"><span class="comprendre-le-cadre-chg-pastilles">' + past + '</span>' +
+      '<span class="comprendre-le-cadre-chg-titre">' + x.t + '</span>' +
+      '<span class="mq-invite"><i class="bi bi-hand-index" aria-hidden="true"></i> Toucher pour lire la fiche <i class="bi bi-chevron-down" aria-hidden="true"></i></span>' +
+      '<span class="mq-repere"><span class="mq-ouvre">Lire</span><span class="mq-ferme">Fermer</span><i class="bi bi-chevron-down" aria-hidden="true"></i></span>' +
+      '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i></summary>' +
+      '<div class="comprendre-le-cadre-chg-corps"><div class="comprendre-le-cadre-resume-fiche">' + (x.qs ? '<p class="text-muted mb-2">' + x.qs + '</p>' : '') +
+      '<p class="comprendre-le-cadre-digest-cle comprendre-le-cadre-digest-cle--bref mb-2"><strong>En bref.</strong> ' + x.b + '</p></div>' +
+      '<button type="button" class="comprendre-le-cadre-lire-tout" aria-expanded="false"><span>Lire la fiche en entier</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>' +
+      '<div class="mq-entiere" hidden>(Ici s’affiche le texte complet de la fiche, comme aujourd’hui : qui est concerné, ce qui change, les démarches, les sources.)</div></div></details>';
+  }
+  document.querySelectorAll('[data-cartes]').forEach(function (z) {
+    z.innerHTML = (z.hasAttribute('data-phrase') ? '<p class="mq-phrase"><i class="bi bi-hand-index" aria-hidden="true"></i> Touchez une fiche pour la lire en entier.</p>' : '') + cartes.map(carte).join('');
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.comprendre-le-cadre-lire-tout'); if (!b) return;
+    var ouvert = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', String(!ouvert));
+    b.querySelector('span').textContent = ouvert ? 'Lire la fiche en entier' : 'Revenir au résumé';
+    b.nextElementSibling.hidden = ouvert;
+  });
+})();
+</script>
+</body>
+</html>

@@ -3,13 +3,13 @@ const assert = require('node:assert/strict');
 const { pmdDonnees, PMD_FAMILLES_SE } = require('../modules/comprendre-les-metiers/parMetierDonnees.js');
 const C = require('../modules/comprendre-les-metiers/parMetierCalcul.js');
 
-// « Par un métier » : données construites à partir de l'index complet, et calcul du pourcentage (maquette du 17/11/2026, consignes 448 à 454).
+// « Chercher un métier » : données construites à partir de l'index complet, et calcul du pourcentage (maquette du 17/11/2026, consignes 448 à 454).
 const D = pmdDonnees();
 const trouver = (t, morceau) => D[t].findIndex((x) => x.lib.toLowerCase().indexOf(morceau) !== -1);
 const metier = (code) => D.m.findIndex((r) => r.code === code);
 
 test('les données couvrent tous les métiers, toutes les compétences du ROME et les 17 conditions de travail', () => {
-  assert.equal(D.m.length, 1919);   // 1920 avant que K1306 devienne un alias de la fiche « aes » (19/11/2026)
+  assert.equal(D.m.length, 1920);   // 1919 le temps que « Installateur mainteneur en systèmes solaires » (F1610) manquait : sa fiche est revenue à la régénération du 19/11/2026 (consigne 494), le code de « Couvreur » ayant été corrigé en F1619
   assert.equal(D.sf.length, 489);
   assert.equal(D.se.length, 16);
   assert.equal(D.sv.length, 6413);
@@ -39,7 +39,7 @@ test('aucun choix : aucun pourcentage utile, tous les métiers sont listés', ()
   const S = C.pmcEtatInitial();
   const r = C.pmcCalculer(D, S);
   assert.equal(r.avec, false);
-  assert.equal(r.retenus.length, 1919);
+  assert.equal(r.retenus.length, 1920);
 });
 
 test('à choix égal, le métier qui demande la compétence choisie a un pourcentage plus haut que celui qui ne la demande pas', () => {
@@ -67,17 +67,20 @@ test('niveau : un métier qui demande plus de diplôme descend de 45 points par 
   const S = C.pmcEtatInitial();
   S.niveau = 3;
   const sous = D.m.find((r) => r[2] === 3), haut = D.m.find((r) => r[2] === 5), inconnu = D.m.find((r) => r[2] === 0);
-  assert.equal(C.pmcScorer(D, S, sous).pct, 100);
-  assert.equal(C.pmcScorer(D, S, haut).pct, 10);
-  assert.equal(C.pmcScorer(D, S, inconnu).pct, 60);
+  // La « qualité » est la part de ce que les choix demandent ; le pourcentage affiché est plafonné par le nombre de choix (consigne 505 : un seul choix, 10 % au plus).
+  assert.equal(C.pmcScorer(D, S, sous).qualite, 100);
+  assert.equal(C.pmcScorer(D, S, haut).qualite, 10);
+  assert.equal(C.pmcScorer(D, S, inconnu).qualite, 60);
+  assert.equal(C.pmcScorer(D, S, sous).pct, 10);
+  assert.equal(C.pmcScorer(D, S, inconnu).pct, 6);
 });
 
 test('secteur prioritaire (décision Denis 18/11/2026) : un autre secteur ne garde que 10 % du poids du secteur, jamais zéro', () => {
   const S = C.pmcEtatInitial();
   S.secteurs = [0];
   const dedans = D.m.find((r) => r[1] === 0), dehors = D.m.find((r) => r[1] !== 0);
-  assert.equal(C.pmcScorer(D, S, dedans).pct, 100);
-  assert.equal(C.pmcScorer(D, S, dehors).pct, 10);
+  assert.equal(C.pmcScorer(D, S, dedans).qualite, 100);
+  assert.equal(C.pmcScorer(D, S, dehors).qualite, 10);
 });
 
 test('conditions : UNE fonction partagée, facile ajoute et difficile retire un demi-point, jamais un barrage', () => {
@@ -99,8 +102,80 @@ test('le classement va du plus haut au plus bas et le seuil de 40 % filtre', () 
   S.niveau = 4;
   const r = C.pmcCalculer(D, S);
   assert.ok(r.avec);
-  for (let k = 1; k < r.tous.length; k++) { assert.ok(r.tous[k - 1].sc.pct >= r.tous[k].sc.pct); }
-  assert.ok(r.retenus.every((o) => o.sc.pct >= 40));
+  for (let k = 1; k < r.tous.length; k++) { assert.ok(r.tous[k - 1].sc.qualite >= r.tous[k].sc.qualite); }
+  assert.ok(r.retenus.every((o) => o.sc.qualite >= 40));
+  assert.ok(r.tous.every((o) => o.sc.pct <= 55), 'trois choix : au plus 55 %');
+});
+
+test('consigne 488 : le pourcentage plafonne selon le nombre de choix et monte quand on en ajoute un que le métier retrouve', () => {
+  const i = metier('J1501');
+  const ids = D.m[i][3].slice(0, 4);
+  assert.ok(ids.length >= 3);
+  let precedent = -1;
+  for (let n = 1; n <= ids.length; n++) {
+    const S = C.pmcEtatInitial();
+    S.comp = ids.slice(0, n).map((id) => ({ t: 'sf', i: id }));
+    assert.equal(C.pmcPlafond(S), [0, 10, 20, 30, 40][n]);
+    const sc = C.pmcScorer(D, S, D.m[i]);
+    assert.ok(sc.pct <= C.pmcPlafond(S), 'jamais au-dessus du plafond');
+    assert.ok(sc.pct > precedent, 'le pourcentage monte avec le nombre de choix retrouvés (' + n + ' : ' + sc.pct + ')');
+    precedent = sc.pct;
+  }
+  const un = C.pmcEtatInitial(); un.secteurs = [0];
+  assert.ok(C.pmcCalculer(D, un).tous.every((o) => o.sc.pct <= 10), 'un seul secteur : jamais plus de 10 %');
+  assert.equal(C.pmcSeuilAffiche(un, 40), 4);
+  const deux = C.pmcEtatInitial(); deux.secteurs = [0, 1];
+  assert.equal(C.pmcPlafond(deux), 10, 'plusieurs secteurs comptent pour un seul choix (un métier n’a qu’un secteur)');
+});
+
+test('consigne 488 : le pourcentage est la part des choix retrouvés (plafonnée par leur nombre), pas la part de ce que le métier demande', () => {
+  const conduire = D.sf.findIndex((x) => /Conduire un véhicule sur la route/.test(x.lib));
+  const equipe = D.se.findIndex((x) => /esprit d’équipe/.test(x.lib));
+  const S = C.pmcEtatInitial();
+  S.comp = [{ t: 'sf', i: conduire }, { t: 'se', i: equipe }]; S.secteurs = [20];
+  const r = C.pmcCalculer(D, S);
+  assert.equal(C.pmcPlafond(S), 30);
+  assert.equal(r.tous[0].sc.pct, 30, 'trois choix retrouvés sur trois : le plafond, pas 36 %');
+  assert.ok(r.retenus.length > 50);
+  // À égalité de part retrouvée, le cœur de métier puis le rappel départagent (jamais l'ordre alphabétique seul).
+  const egaux = r.tous.filter((o) => o.sc.qualite === r.tous[0].sc.qualite);
+  for (let k = 1; k < egaux.length; k++) {
+    const a = egaux[k - 1].sc, b = egaux[k].sc;
+    assert.ok(a.coeur > b.coeur || (a.coeur === b.coeur && a.rappel >= b.rappel - 1e-9), 'départage par le cœur de métier puis le rappel');
+  }
+  // Une seule compétence retrouvée : jamais plus que le plafond d'un choix, même si le métier demande peu.
+  const un = C.pmcEtatInitial(); un.comp = [{ t: 'se', i: equipe }];
+  assert.ok(C.pmcCalculer(D, un).tous.every((o) => o.sc.pct <= 25));
+});
+
+test('consigne 497 : une compétence rare pèse plus qu’une compétence très répandue, et le poids ne dépend que du nombre de métiers qui la portent', () => {
+  const autonomie = D.se.findIndex((x) => /autonomie/i.test(x.lib));
+  const rare = D.sv.findIndex((x, id) => D.inv.sv[id] && D.inv.sv[id].length >= 2 && D.inv.sv[id].length <= 10);
+  assert.ok(rare >= 0);
+  const wAut = C.pmcPoidsRarete(D, 'se', autonomie), wRare = C.pmcPoidsRarete(D, 'sv', rare);
+  assert.ok(wRare > 2 * wAut, 'rare ' + wRare + ' contre Autonomie ' + wAut);
+  assert.equal(C.pmcPoidsRarete(D, 'se', autonomie), wAut, 'même valeur à chaque appel');
+  assert.equal(C.pmcPoidsRarete(D, 'sf', 999999), 0, 'une compétence portée par aucun métier ne pèse rien');
+});
+
+test('consigne 497 : un métier qui retrouve la compétence rare passe devant un métier qui ne retrouve qu’« Autonomie », à nombre de choix retrouvés égal', () => {
+  const autonomie = D.se.findIndex((x) => /autonomie/i.test(x.lib));
+  const iRare = D.m.findIndex((r) => r[3].some((id) => D.inv.sf[id].length <= 10) && r[4].indexOf(autonomie) === -1);
+  assert.ok(iRare >= 0);
+  const idRare = D.m[iRare][3].find((id) => D.inv.sf[id].length <= 10);
+  const iAut = D.m.findIndex((r) => r[4].indexOf(autonomie) !== -1 && r[3].indexOf(idRare) === -1);
+  const S = C.pmcEtatInitial();
+  S.comp = [{ t: 'se', i: autonomie }, { t: 'sf', i: idRare }];
+  const avecRare = C.pmcScorer(D, S, D.m[iRare]), avecAut = C.pmcScorer(D, S, D.m[iAut]);
+  assert.equal(avecRare.retrouvees, 1);
+  assert.equal(avecAut.retrouvees, 1);
+  assert.ok(avecRare.qualite > avecAut.qualite, avecRare.qualite + ' contre ' + avecAut.qualite);
+  // Le métier qui retrouve les deux reste à la part maximale (plafond du nombre de choix).
+  const iDeux = D.m.findIndex((r) => r[4].indexOf(autonomie) !== -1 && r[3].indexOf(idRare) !== -1);
+  if (iDeux >= 0) { assert.equal(C.pmcScorer(D, S, D.m[iDeux]).pct, 40); }
+  // Un seul métier qui porte la compétence rare ET aucun autre ne retrouvant qu'Autonomie : ce dernier sort de la liste (moins de 40 % du poids des choix).
+  const res = C.pmcCalculer(D, S);
+  assert.ok(res.retenus.length < D.m.filter((r) => r[4].indexOf(autonomie) !== -1).length, 'la liste est plus courte qu’avec Autonomie seule');
 });
 
 test('métiers proches : la liste officielle du ROME passe d’abord, puis les compétences en commun complètent jusqu’à 3', () => {
@@ -163,7 +238,7 @@ test('les textes du module n’emploient ni tiret long ni le mot « IA »', () =
   });
 });
 
-test('« Par ce que vous aimez faire » : la liste est ajustée par la MÊME fonction de conditions, sans barrage, sans choix la liste ne bouge pas', () => {
+test('« Partir de vos envies » : la liste est ajustée par la MÊME fonction de conditions, sans barrage, sans choix la liste ne bouge pas', () => {
   const liste = [{ rome: 'A', score: 80 }, { rome: 'B', score: 79.8 }, { rome: 'C', score: 79.8 }, { rome: 'D', score: 0.2 }];
   const conds = { A: ['nuit'], B: ['weekend'], C: [], D: ['nuit'] };
   const idsDe = (m) => conds[m.rome];
@@ -180,7 +255,7 @@ test('« Par ce que vous aimez faire » : la liste est ajustée par la MÊME fon
   assert.equal(liste[0].score, 80, 'la liste d’origine n’est pas modifiée');
 });
 
-test('conditions de travail : « Par un métier » et « Par ce que vous aimez faire » partagent les mêmes familles, la même ligne Facile / Difficile et les 17 conditions du ROME sont toutes rangées (consigne 480)', () => {
+test('conditions de travail : « Chercher un métier » et « Partir de vos envies » partagent les mêmes familles, la même ligne Facile / Difficile et les 17 conditions du ROME sont toutes rangées (consigne 480)', () => {
   const fs = require('fs'), path = require('path');
   const lire = (f) => fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-metiers', f), 'utf8');
   const ecran = lire('parMetierEcran.js'), actions = lire('parActions.js');
@@ -188,7 +263,7 @@ test('conditions de travail : « Par un métier » et « Par ce que vous aimez f
   assert.ok(/cmvFamilleConditions\(/.test(actions) && /cmvLigneFacDif\(/.test(actions), 'le chemin 2 utilise la même brique');
   assert.ok(!/class="cond-ligne"/.test(ecran), 'plus d\'ancienne ligne propre au chemin 1');
   assert.ok(/data-pm="fac"/.test(ecran) && /data-pm="dif"/.test(ecran), 'les gestes du chemin 1 sont conservés');
-  // Chaque condition de « Par un métier » est dans une famille (quatre familles communes + les lieux).
+  // Chaque condition de « Chercher un métier » est dans une famille (quatre familles communes + les lieux).
   const D = require('../modules/comprendre-les-metiers/parMetierDonnees.js');
   const rangees = [];
   actions.replace(/ids: \[([^\]]+)\]/g, (m, l) => { l.split(',').forEach((x) => rangees.push(x.trim().replace(/'/g, ''))); return m; });
@@ -196,7 +271,7 @@ test('conditions de travail : « Par un métier » et « Par ce que vous aimez f
   assert.equal(D.PMD_CLES_CONDITIONS.length, 17);
 });
 
-test('« Par ce que vous aimez faire » : page des conditions facile / difficile, même vocabulaire, la fonction partagée est bien celle qui calcule', () => {
+test('« Partir de vos envies » : page des conditions facile / difficile, même vocabulaire, la fonction partagée est bien celle qui calcule', () => {
   const fs = require('fs'), path = require('path');
   const lire = (f) => fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-les-metiers', f), 'utf8');
   const actions = lire('parActions.js'), index = lire('index.js'), garder = lire('garder.js');
@@ -215,9 +290,9 @@ test('secteur prioritaire : le même métier pèse nettement plus quand son sect
   const r = D.m.find((x) => x[3].length >= 1 && x[3].length <= 3);
   const id = r[3][0], autre = (r[1] + 1) % D.secteurs.length;
   const S = C.pmcEtatInitial(); S.comp = [{ t: 'sf', i: id }]; S.secteurs = [r[1]];
-  const dedans = C.pmcScorer(D, S, r).pct;
+  const dedans = C.pmcScorer(D, S, r).qualite;
   S.secteurs = [autre];
-  const dehors = C.pmcScorer(D, S, r).pct;
+  const dehors = C.pmcScorer(D, S, r).qualite;
   assert.ok(dedans - dehors >= 20, 'le secteur choisi compte beaucoup (' + dedans + ' contre ' + dehors + ')');
   assert.ok(dehors >= 40, 'un autre secteur qui retrouve la compétence en entier reste visible (' + dehors + ')');
 });
@@ -259,4 +334,56 @@ test('pmcMessageOffres : sans territoire ni choix, le message reste complet et n
   assert.ok(m.indexOf('Ensuite, dans les départements') === -1);
   assert.ok(m.indexOf('Voici ce que je sais déjà faire') === -1);
   assert.ok(m.indexOf('Mon niveau d’études') === -1);
+});
+
+test('pmcMessageOffres : les cinq appellations les plus courantes du métier sont données (consigne 496), jamais pour une liste de métiers', () => {
+  const base = { dateTexte: '18 novembre 2026', departement: 'Corrèze (19)', zone: '', voisins: [], competences: [], niveau: '' };
+  const n = ['Agent de soins', 'Auxiliaire de gériatrie', 'Aide médico-psychologique', 'Soignant', 'Aide-soignant hospitalier', 'Sixième nom'];
+  const avec = C.pmcMessageOffres(Object.assign({ metier: 'Aide-soignant', appellations: n }, base));
+  assert.ok(/autres noms d’emploi/.test(avec));
+  assert.ok(avec.indexOf('Agent de soins ; Auxiliaire de gériatrie ; Aide médico-psychologique ; Soignant ; Aide-soignant hospitalier') !== -1);
+  assert.ok(avec.indexOf('Sixième nom') === -1, 'cinq noms au plus');
+  assert.ok(avec.indexOf('Où chercher') > avec.indexOf('Agent de soins'), 'les noms viennent avant le territoire');
+  assert.ok(!/autres noms d’emploi/.test(C.pmcMessageOffres(Object.assign({ metier: 'Aide-soignant', appellations: [] }, base))), 'rien si la fiche ne donne aucun autre nom');
+  assert.ok(!/autres noms d’emploi/.test(C.pmcMessageOffres(Object.assign({ metiers: ['Plombier', 'Maçon'], appellations: n }, base))), 'rien pour une liste de métiers');
+  assert.ok(!/[—–]/.test(avec));
+});
+
+test('pmcNomsEmploi : forme masculine, doublons et nom du métier retirés, ordre conservé (consigne 496)', () => {
+  const r = C.pmcNomsEmploi(['Aide-soignant / Aide-soignante', 'Aide-soignant / Aide-soignante en gériatrie', 'Agent de soins', 'agent de soins', "Conducteur / Conductrice d'engins"], 'Aide-soignant');
+  assert.deepEqual(r, ['Aide-soignant en gériatrie', 'Agent de soins', "Conducteur d'engins"]);
+  assert.deepEqual(C.pmcNomsEmploi(undefined, 'X'), []);
+});
+
+test('consigne 499 : « Comment vos choix ont été lus », chemin 1 : une ligne par choix, avec ses comptages réels', () => {
+  const autonomie = D.se.findIndex((x) => /autonomie/i.test(x.lib));
+  const S = C.pmcEtatInitial();
+  S.comp = [{ t: 'se', i: autonomie }];
+  S.niveau = 3; S.secteurs = [D.m[0][1]]; S.dif = ['nuit']; S.fac = [];
+  const res = C.pmcCalculer(D, S);
+  const lus = C.pmcChoixLus(D, S, res.retenus.length);
+  assert.equal(lus.total, D.m.length);
+  assert.equal(lus.nbChoix, C.pmcNbChoixPourPlafond(S));
+  assert.equal(lus.plafond, C.pmcPlafond(S));
+  assert.equal(lus.liste, res.retenus.length);
+  assert.deepEqual(lus.lignes.map((x) => x.type), ['comp', 'niveau', 'secteur', 'conditions']);
+  assert.equal(lus.lignes[0].nb, D.inv.se[autonomie].length, 'le nombre de métiers qui portent la compétence est celui du poids de rareté');
+  assert.equal(lus.lignes[1].nb, D.m.filter((r) => r[2] > 0 && r[2] <= 3).length);
+  assert.equal(lus.lignes[2].nb, D.m.filter((r) => r[1] === D.m[0][1]).length);
+  assert.equal(lus.lignes[3].nb, 1);
+  assert.equal(C.pmcChoixLus(D, C.pmcEtatInitial(), 0).lignes.length, 0, 'aucun choix : aucune ligne');
+});
+
+test('consigne 501 : chemin 1, le message ne compte que les compétences choisies et ne paraît pas sous 4 compétences', () => {
+  const S = C.pmcEtatInitial();
+  const idx = (t, re) => D[t].findIndex((x) => re.test(x.lib));
+  S.comp = [{ t: 'se', i: idx('se', /autonomie/i) }, { t: 'sf', i: idx('sf', /^Soigner des animaux$/) }];
+  assert.equal(C.pmcDirections(D, S).declenche, false, 'deux compétences : jamais de message');
+  S.niveau = 3; S.secteurs = [D.m[0][1]];
+  assert.equal(C.pmcDirections(D, S).n, 2, 'le niveau et le secteur ne comptent pas comme des choix du message');
+  // quatre compétences prises chacune chez un métier différent : très peu de métiers les retrouvent à 60 %
+  S.comp = [0, 1, 2, 3].map((k) => { const r = D.m[k * 400]; return { t: 'sf', i: r[3][0] }; });
+  const r = C.pmcDirections(D, S);
+  assert.equal(r.n, 4);
+  assert.equal(r.nbCouverts, D.m.filter((m) => S.comp.filter((c) => m[3].indexOf(c.i) !== -1).length >= 3).length);
 });

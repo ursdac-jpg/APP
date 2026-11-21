@@ -540,7 +540,7 @@ function _mtRenduAccueil() {
 
 function _mtRenduHorsZone() {
   var dep = (typeof departementRessourcesMemorise === 'function') ? departementRessourcesMemorise() : null;
-  return _mtTitre('bi-geo-alt', 'Qui fait quoi') +
+  return _mtTitre(_mtEntree === 'employeurs' ? 'bi-briefcase' : 'bi-geo-alt', _mtEntree === 'employeurs' ? 'Employeurs près de chez moi' : 'Qui fait quoi') +
     _mtEncart('bi-info-circle', _mtEsc(mtPhraseTerritoireNonCouvert(dep))) +
     '<p class="text-center">Ce n’est ni une erreur ni un oubli de votre part.</p>' +
     '<div class="text-center d-flex gap-2 justify-content-center flex-wrap">' + _mtBoutonRegistre('bonne-boite', 'Chercher par moi-même (La Bonne Boîte)') +
@@ -549,7 +549,7 @@ function _mtRenduHorsZone() {
 
 // La personne n'a encore choisi aucun département : on ne devine pas, on le lui demande (même choix que dans le reste de l'application).
 function _mtRenduChoixDepartement() {
-  return _mtTitre('bi-geo-alt', 'Qui fait quoi') +
+  return _mtTitre(_mtEntree === 'employeurs' ? 'bi-briefcase' : 'bi-geo-alt', _mtEntree === 'employeurs' ? 'Employeurs près de chez moi' : 'Qui fait quoi') +
     _mtEncart('bi-info-circle', 'Pour vous montrer les bonnes adresses, dites-nous dans quel département vous cherchez.') +
     '<div class="text-center"><button type="button" class="btn btn-primary" data-mt-choisir-departement><i class="bi bi-geo-alt"></i> Choisir mon département</button></div>';
 }
@@ -564,10 +564,10 @@ function _mtRenduEmploi() {
     return '<button type="button" class="sous-carte-accueil" data-mt-secteur="' + s.cle + '"' + (n[s.cle] ? '' : ' style="opacity:.8"') + '><i class="bi ' + a.icone + '"></i><strong>' + _mtEsc(s.libelle) + '</strong>' +
       '<span>' + _mtEsc(a.exemples) + '</span>' + (n[s.cle] ? '<span class="badge text-bg-primary mt-1">' + n[s.cle] + (n[s.cle] > 1 ? ' enseignes ou employeurs' : ' employeur') + '</span>' : '<span class="badge text-bg-light mt-1">Pas encore de liste</span>') + '</button>';
   }).join('');
-  return _mtTitre('bi-briefcase', 'Emploi : les employeurs de mon territoire', 'On montre des portes, pas des annonces : des employeurs où l’on peut se présenter, candidater ou passer un concours.') +
+  return _mtTitre('bi-briefcase', 'Emploi : les employeurs de mon territoire', 'Des portes, pas des annonces : des employeurs chez qui vous pouvez vous présenter, candidater ou passer un concours.') +
     _mtRenduChampRecherche('Un secteur ou un métier (exemple : caissier)') +
     _mtPortesPrincipales() +
-    '<h2 class="h5 fw-bold text-uppercase text-muted mt-4">Les 21 secteurs</h2><p class="small text-muted">Les secteurs qui ont une liste passent en premier. Chaque secteur a son objet-icône et trois exemples de métiers.</p>' +
+    '<h2 class="h5 fw-bold text-uppercase text-muted mt-4">Les 21 secteurs</h2><p class="small text-muted">Les secteurs qui ont une liste d’employeurs viennent en premier. Sous chaque secteur, trois exemples de métiers.</p>' +
     '<div class="grille-sous-cartes-accueil mt-grille-secteurs">' + tuiles + '</div>' +
     '<div class="comprendre-le-cadre-encart mt-4"><i class="bi bi-search"></i> Vous ne trouvez pas ? Chercher par vous-même sur un site officiel. ' + _mtBoutonRegistre('bonne-boite', 'La Bonne Boîte') + '</div>';
 }

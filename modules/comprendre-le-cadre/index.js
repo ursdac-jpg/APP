@@ -1268,6 +1268,9 @@ function _comprendreLeCadreBrancherReplier(conteneur, boutonOuvrir) {
   });
 }
 
+// Le repère qui dit qu'une carte s'ouvre (consigne 510) : un mot dans une pastille, « Lire » puis « Fermer » une fois ouverte. Un seul composant pour les cartes de changement, de fiche et de chiffres (page « Nouveautés » et vue « Récemment »). Décoratif : le résumé natif de la carte porte déjà le sens pour les lecteurs d'écran.
+function _comprendreLeCadreRepereOuvrir() { return '<span class="comprendre-le-cadre-chg-fleche" aria-hidden="true"><span class="cc-repere-lire">Lire</span><span class="cc-repere-fermer">Fermer</span><i class="bi bi-chevron-down"></i></span>'; }
+function comprendreLeCadreRepereOuvrir() { return _comprendreLeCadreRepereOuvrir(); }
 // Carte d'un changement dans la vue « Récemment ».
 // `extra` (facultatif) : pastilles ajoutées par la page « Nouveautés » (« Nouveau » / « Déjà vu »), jamais écrites ici.
 // `avecFiche` (page « Nouveautés ») : si le changement a une fiche liée, un second niveau de lecture la propose en entier, lue sur place.
@@ -1278,7 +1281,7 @@ function _comprendreLeCadreRenduCarteChangement(c, aujourdhui, extra, avecFiche)
       '<span class="comprendre-le-cadre-chg-pastilles">' + _comprendreLeCadrePastilleNouveau(c, aujourdhui) + _comprendreLeCadrePastilleDate(c, aujourdhui) +
         '<span class="comprendre-le-cadre-pastille" data-pastille="domaine" data-valeur="' + _comprendreLeCadreEchapper(c.domaine) + '">' + c.domaine + '</span>' + (extra || '') + '</span>' +
       '<span class="comprendre-le-cadre-chg-titre">' + _comprendreLeCadreDigestGras(c.titre) + '</span>' +
-      '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>' +
+      _comprendreLeCadreRepereOuvrir() +
     '</summary>' +
     '<div class="comprendre-le-cadre-chg-corps">' + _comprendreLeCadreDigestRenduBlocs(c.blocs) +
       (avecFiche && c.ficheLiee
@@ -2641,7 +2644,7 @@ function _comprendreLeCadreRenduCarteFiche(f, extra, surPlace) {
     return '<details class="comprendre-le-cadre-chg comprendre-le-cadre-chg--fiche" data-cc-fiche="' + f.id + '" data-cc-rayon="' + f.rayon + '" data-cc-date="' + f.date + '" data-cc-nouvelle="' + (f.nouvelle ? '1' : '0') + '">' +
       '<summary class="comprendre-le-cadre-chg-resume">' + pastilles +
         '<span class="comprendre-le-cadre-chg-titre">' + f.titre + '</span>' +
-        '<i class="bi bi-chevron-down comprendre-le-cadre-chg-fleche"></i>' +
+        _comprendreLeCadreRepereOuvrir() +
       '</summary>' +
       '<div class="comprendre-le-cadre-chg-corps" data-cc-fiche-corps><p class="text-muted mb-0">Chargement…</p></div>' +
     '</details>';

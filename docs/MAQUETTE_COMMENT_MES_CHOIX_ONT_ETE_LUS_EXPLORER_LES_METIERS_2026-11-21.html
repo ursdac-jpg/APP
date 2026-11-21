@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : comment mes choix ont été lus</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-retient p{margin:.1rem 0}
+.mq-bandeau{background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;font-size:.82rem;margin:.4rem 0 .8rem}
+.titre-page{font-size:1.6rem;font-weight:800;margin:.2rem 0 .3rem;text-align:center}
+.sous-titre{text-align:center;color:var(--text-muted);margin-bottom:.8rem}
+.bloc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin:.9rem 0}
+.bloc h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.bloc .intro{font-size:.92rem;color:var(--text-muted);margin:.1rem 0 .7rem}
+.ligne-choix{display:flex;gap:.4rem .8rem;flex-wrap:wrap;align-items:baseline;border-top:1px solid var(--border);padding:.6rem 0}
+.ligne-choix:first-of-type{border-top:0}
+.ligne-choix .qui{flex:0 0 15rem;max-width:100%}
+.ligne-choix .qui small{display:block;color:var(--text-muted);font-size:.76rem;margin-top:.15rem}
+.ligne-choix .dit{flex:1 1 16rem;font-size:.9rem}
+.ligne-choix .dit p{margin:.1rem 0}
+.aide{display:inline-flex;align-items:center;gap:.25rem;font-weight:700}
+.aide .pa{width:11px;height:11px;border-radius:50%;border:2px solid var(--accent);display:inline-block}
+.aide .pa.plein{background:var(--accent)}
+.a-savoir{background:var(--bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;margin-top:.6rem;font-size:.9rem}
+.a-savoir .bi{color:var(--accent-texte,var(--accent));margin-right:.3rem}
+.carte-res{border:1px solid var(--border-strong);border-radius:12px;background:var(--bg-card);padding:.7rem .85rem;margin:.6rem 0;display:flex;flex-direction:column;gap:.35rem}
+.carte-res h4{font-size:1.02rem;font-weight:800;margin:0}
+.carte-res .cml-pill{align-self:flex-start}
+.detail{background:var(--bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.5rem .7rem;font-size:.9rem}
+.detail ul{list-style:none;margin:.2rem 0 0;padding:0}
+.detail li{display:flex;gap:.4rem;align-items:baseline;padding:.1rem 0}
+.detail li.non{color:var(--text-muted)}
+.detail li .bi{flex:none}
+.detail .ok .bi{color:var(--success-strong,var(--success))}
+.lettre-r{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;font-weight:800;background:var(--accent-solide,var(--accent));color:#fff;margin-right:.4rem}
+.grille3{display:grid;gap:.6rem;grid-template-columns:repeat(3,minmax(0,1fr))}
+.tel .grille3{grid-template-columns:1fr}
+.tel .ligne-choix .qui{flex-basis:100%}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+
+<div class="mq-regl" id="regl" role="region" aria-label="Réglages de la maquette">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Chemin</b><div class="boutons" id="g-chemin">
+    <button type="button" data-v="2">2. Par ce que vous aimez faire</button><button type="button" data-v="1">1. Par un métier</button><button type="button" data-v="3">3. Par un questionnaire</button></div></div>
+  <div class="grp" id="grp-profil"><b>Profil d'exemple (chemin 2)</b><div class="boutons" id="g-profil"></div></div>
+  <div class="grp"><b>Où placer la rubrique « Comment vos choix ont été lus »</b><div class="boutons" id="g-place">
+    <button type="button" data-v="haut">Juste sous « Vos choix », avant la liste</button><button type="button" data-v="bas">En bas de la page, après la liste</button></div></div>
+  <div class="grp"><b>Choix qu'un métier ne retrouve pas</b><div class="boutons" id="g-manque">
+    <button type="button" data-v="jamais">Jamais montrés (comme aujourd'hui)</button><button type="button" data-v="detail">Dans un détail à ouvrir sur chaque métier</button></div></div>
+  <div class="grp"><b>Écran et mode</b><div class="boutons" id="g-ecran">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Les chiffres sont les vrais (1 920 métiers de la base, moteur actuel). Nouveau : la rubrique <b>« Comment vos choix ont été lus »</b> et, au choix, le <b>détail d'un métier</b>. Le reste de la page est un résumé de l'écran actuel.</div>
+  <div id="rendu"></div>
+</div>
+
+<script>
+var DONNEES = {"c1": {"total": 1920, "liste": 85, "plafond": 65, "lignes": [{"type": "comp", "libelle": "Faire preuve d’autonomie", "nb": 511, "poids": 1.3222765377290489}, {"type": "comp", "libelle": "Soigner des animaux", "nb": 40, "poids": 3.847029096064249}, {"type": "niveau", "libelle": "CAP ou BEP", "nb": 563}, {"type": "secteur", "libelle": "Agriculture, nature et espaces verts", "nb": 94}], "top": [{"nom": "Aide d'élevage agricole", "secteur": "Agriculture, nature et espaces verts", "pct": 65, "retrouves": ["Faire preuve d’autonomie", "Soigner des animaux"], "manques": [], "acces": "CAP ou BEP"}, {"nom": "Exploitant agricole", "secteur": "Agriculture, nature et espaces verts", "pct": 65, "retrouves": ["Faire preuve d’autonomie", "Soigner des animaux"], "manques": [], "acces": "CAP ou BEP"}, {"nom": "Ouvrier piscicole", "secteur": "Agriculture, nature et espaces verts", "pct": 65, "retrouves": ["Faire preuve d’autonomie", "Soigner des animaux"], "manques": [], "acces": "CAP ou BEP"}]}, "c2": [{"titre": "Animaux et nature", "total": 1925, "liste": 37, "plafond": 55, "lignes": [{"famille": "Avec qui ou quoi", "libelle": "Des animaux de compagnie", "nbMetiers": 33, "dansListe": 5}, {"famille": "Avec qui ou quoi", "libelle": "Des plantes, des végétaux", "nbMetiers": 77, "dansListe": 37}, {"famille": "Où", "libelle": "Espaces verts / Nature", "nbMetiers": 46, "dansListe": 33}], "top": [{"nom": "Chargé d'étude naturaliste", "secteur": "Agriculture, nature et espaces verts", "pct": 55, "retrouves": ["Des animaux de compagnie", "Des plantes, des végétaux", "Espaces verts / Nature"], "manques": []}, {"nom": "Technicien naturaliste", "secteur": "Agriculture, nature et espaces verts", "pct": 55, "retrouves": ["Des animaux de compagnie", "Des plantes, des végétaux", "Espaces verts / Nature"], "manques": []}, {"nom": "Ingénieur écologue", "secteur": "Agriculture, nature et espaces verts", "pct": 55, "retrouves": ["Des animaux de compagnie", "Des plantes, des végétaux", "Espaces verts / Nature"], "manques": []}]}, {"titre": "Cuisine et service", "total": 1925, "liste": 79, "plafond": 75, "lignes": [{"famille": "Ce que vous aimeriez faire", "libelle": "Cuisiner", "nbMetiers": 46, "dansListe": 41}, {"famille": "Ce que vous aimeriez faire", "libelle": "Servir à table ou au comptoir", "nbMetiers": 14, "dansListe": 12}, {"famille": "Avec qui ou quoi", "libelle": "Des clients", "nbMetiers": 792, "dansListe": 56}, {"famille": "Avec qui ou quoi", "libelle": "Des aliments, des denrées", "nbMetiers": 118, "dansListe": 68}, {"famille": "Où", "libelle": "Restaurant / Cuisine", "nbMetiers": 50, "dansListe": 42}], "top": [{"nom": "Crêpier", "secteur": "Hôtellerie, restauration et tourisme", "pct": 75, "retrouves": ["Cuisiner", "Servir à table ou au comptoir", "Des clients", "Des aliments, des denrées", "Restaurant / Cuisine"], "manques": []}, {"nom": "Employé de restauration collective", "secteur": "Hôtellerie, restauration et tourisme", "pct": 71, "retrouves": ["Cuisiner", "Servir à table ou au comptoir", "Des aliments, des denrées", "Restaurant / Cuisine"], "manques": ["Des clients"]}, {"nom": "Employé polyvalent de restauration / Aide de cuisine", "secteur": "Hôtellerie, restauration et tourisme", "pct": 62, "retrouves": ["Cuisiner", "Servir à table ou au comptoir", "Des clients", "Restaurant / Cuisine"], "manques": ["Des aliments, des denrées"]}]}], "c3": {"code": "RIA", "total": 1925, "liste": 1339, "lettres": [{"l": "R", "court": "le concret, les outils, le plein air", "rang": 1, "nbMajeure": 665}, {"l": "I", "court": "comprendre, chercher, analyser", "rang": 2, "nbMajeure": 304}, {"l": "A", "court": "créer, imaginer, s’exprimer", "rang": 3, "nbMajeure": 103}], "top": [{"nom": "Ajusteur-régleur de fabrication en instruments d'optique", "secteur": "Industrie, production et énergie", "lettres": "RI", "retrouvees": 2, "ecart": 0}, {"nom": "Aménageur de véhicules", "secteur": "Mécanique et automobile", "lettres": "RI", "retrouvees": 2, "ecart": 0}, {"nom": "Animalier de laboratoire", "secteur": "Métiers animaliers", "lettres": "RI", "retrouvees": 2, "ecart": 0}]}};
+var E = { chemin: 2, profil: 0, place: 'bas', manque: 'jamais', tel: false, sombre: false, ouverts: {} };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+function pl(n, s, p) { return n + ' ' + (n > 1 ? (p || s + 's') : s); }
+function niveauAide(nb, total) { var p = nb / total; return p < 0.08 ? 3 : (p < 0.25 ? 2 : 1); }
+function aide(n) {
+  var mots = ['', 'un peu', 'moyennement', 'beaucoup'];
+  return '<span class="aide" aria-label="Aide à distinguer les métiers : ' + mots[n] + '">' + [1, 2, 3].map(function (k) { return '<span class="pa' + (k <= n ? ' plein' : '') + '"></span>'; }).join('') + ' ' + mots[n] + '</span>';
+}
+function pct(p) { return '<div class="cml-pct" role="img" aria-label="Ressemblance avec vos choix : ' + p + ' pour cent"><span class="cml-note">Ressemblance avec vos choix</span><div class="piste"><span style="width:' + p + '%"></span></div><b>' + p + ' %</b></div>'; }
+function pastilles(l) { return l.map(function (x) { return '<span class="cml-pill pc">' + esc(x) + '</span>'; }).join(' '); }
+
+/* Détail d'un métier : choix retrouvés ET (selon le réglage) choix que la fiche ne cite pas */
+function detail(id, m, total) {
+  if (E.manque !== 'detail') { return ''; }
+  var ouvert = !!E.ouverts[id];
+  var h = '<button type="button" class="btn btn-outline-secondary btn-sm" data-det="' + id + '" aria-expanded="' + ouvert + '" style="align-self:flex-start"><i class="bi bi-' + (ouvert ? 'chevron-up' : 'chevron-down') + '" aria-hidden="true"></i> ' + (ouvert ? 'Masquer le détail' : 'Voir comment ce métier retrouve vos choix') + '</button>';
+  if (ouvert) {
+    h += '<div class="detail"><b>Vos ' + total + ' choix, vus par la fiche de ce métier</b><ul>' +
+      m.retrouves.map(function (x) { return '<li class="ok"><i class="bi bi-check-lg" aria-hidden="true"></i><span>' + esc(x) + ' : la fiche le cite</span></li>'; }).join('') +
+      m.manques.map(function (x) { return '<li class="non"><i class="bi bi-dash-lg" aria-hidden="true"></i><span>' + esc(x) + ' : la fiche ne le cite pas</span></li>'; }).join('') +
+      '</ul><p class="cml-note mb-0 mt-2">« La fiche ne le cite pas » ne dit rien sur vous : la fiche décrit le métier en général.</p></div>';
+  }
+  return h;
+}
+
+/* Chemin 2 */
+function rubrique2(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-list-check" aria-hidden="true"></i> Comment vos choix ont été lus</h3>' +
+    '<p class="intro">Voici ce que l’application a fait de chacun de vos choix. Plus un choix décrit peu de métiers, plus il aide à les distinguer. Ce n’est pas une note sur vous.</p>';
+  P.lignes.forEach(function (l) {
+    var n = niveauAide(l.nbMetiers, P.total);
+    h += '<div class="ligne-choix"><div class="qui"><span class="cml-pill pc">' + esc(l.libelle) + '</span><small>' + esc(l.famille) + '</small></div><div class="dit">' +
+      '<p>Retrouvé dans <b>' + pl(l.nbMetiers, 'métier') + '</b> sur ' + fmt(P.total) + '. Aide à distinguer : ' + aide(n) + '</p>' +
+      '<p class="cml-note mb-0">Dans votre liste de ' + fmt(P.liste) + ' métiers : <b>' + l.dansListe + '</b> le ' + (l.dansListe > 1 ? 'retrouvent' : 'retrouve') + '.</p></div></div>';
+  });
+  var faible = P.lignes.filter(function (l) { return l.dansListe / P.liste < 0.25; });
+  if (faible.length) {
+    h += '<div class="a-savoir"><i class="bi bi-lightbulb" aria-hidden="true"></i> <b>À savoir.</b> ' +
+      (faible.length === 1 ? 'Un de vos choix est peu présent dans la liste : « ' + esc(faible[0].libelle) + ' » (' + faible[0].dansListe + ' métiers sur ' + fmt(P.liste) + '). Les autres choix pèsent davantage dans le classement. Pour voir plus de métiers qui le retrouvent, retirez un autre choix.'
+        : 'Certains de vos choix sont peu présents dans la liste : ' + faible.map(function (l) { return '« ' + esc(l.libelle) + ' »'; }).join(', ') + '. Les autres choix pèsent davantage dans le classement.') + '</div>';
+  }
+  return h + '</div>';
+}
+function liste2(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-briefcase" aria-hidden="true"></i> Vos métiers (' + fmt(P.liste) + ')</h3><p class="intro">Résumé de l’écran actuel : les trois premiers.</p>';
+  P.top.forEach(function (m, k) {
+    h += '<div class="carte-res"><h4>' + esc(m.nom) + '</h4><span class="cml-pill">' + esc(m.secteur) + '</span>' + pct(m.pct) +
+      '<p class="cml-note mb-0">' + m.retrouves.length + ' de vos ' + P.lignes.length + ' choix retrouvés dans ce métier.</p><div>' + pastilles(m.retrouves) + '</div>' + detail('p' + E.profil + '-' + k, m, P.lignes.length) + '</div>';
+  });
+  return h + '</div>';
+}
+function vosChoix2(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-hand-index" aria-hidden="true"></i> Vos choix</h3>';
+  var fam = {}; P.lignes.forEach(function (l) { (fam[l.famille] = fam[l.famille] || []).push(l.libelle); });
+  Object.keys(fam).forEach(function (f) { h += '<div class="ligne-choix"><div class="qui"><b>' + esc(f) + '</b></div><div class="dit">' + pastilles(fam[f]) + '</div></div>'; });
+  return h + '</div>';
+}
+
+/* Chemin 1 */
+function rubrique1(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-list-check" aria-hidden="true"></i> Comment vos choix ont été lus</h3>' +
+    '<p class="intro">Voici ce que l’application fait de chacun de vos choix pour classer les métiers. Une compétence portée par peu de métiers compte plus qu’une compétence très répandue. Ce n’est pas une note sur vous.</p>';
+  P.lignes.forEach(function (l) {
+    var dit;
+    if (l.type === 'comp') { dit = '<p>Portée par <b>' + pl(l.nb, 'métier') + '</b> sur ' + fmt(P.total) + '. Aide à distinguer : ' + aide(niveauAide(l.nb, P.total)) + '</p>'; }
+    else if (l.type === 'niveau') { dit = '<p><b>' + l.nb + ' métiers</b> y mènent directement. Les métiers qui demandent un niveau plus haut descendent dans la liste, sans disparaître.</p>'; }
+    else { dit = '<p><b>' + pl(l.nb, 'métier') + '</b> dans ce secteur. Les métiers des autres secteurs gardent très peu de poids : ils n’apparaissent que s’ils retrouvent presque tout le reste.</p>'; }
+    var fam = { comp: 'Compétence', niveau: 'Niveau d’études', secteur: 'Secteur' }[l.type];
+    h += '<div class="ligne-choix"><div class="qui"><span class="cml-pill pc">' + esc(l.libelle) + '</span><small>' + fam + '</small></div><div class="dit">' + dit + '</div></div>';
+  });
+  h += '<div class="a-savoir"><i class="bi bi-lightbulb" aria-hidden="true"></i> <b>À savoir.</b> Avec ' + P.lignes.length + ' choix, le pourcentage ne dépasse pas ' + P.plafond + ' %. ' + fmt(P.liste) + ' métiers retrouvent au moins 40 % du poids de vos choix.</div>';
+  return h + '</div>';
+}
+function liste1(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-briefcase" aria-hidden="true"></i> Les métiers (' + fmt(P.liste) + ')</h3><p class="intro">Résumé de l’écran actuel : les trois premiers.</p>';
+  P.top.forEach(function (m, k) {
+    var tous = m.retrouves.length + m.manques.length;
+    h += '<div class="carte-res"><h4>' + esc(m.nom) + '</h4><span class="cml-pill">' + esc(m.secteur) + '</span>' + pct(m.pct) +
+      '<p class="cml-note mb-0">Retrouve ' + m.retrouves.length + ' de vos ' + tous + ' compétences</p><div>' + pastilles(m.retrouves) + '</div>' + detail('c1-' + k, m, tous) + '</div>';
+  });
+  return h + '</div>';
+}
+function vosChoix1(P) {
+  return '<div class="bloc"><h3><i class="bi bi-hand-index" aria-hidden="true"></i> Vos choix</h3><div>' + pastilles(P.lignes.map(function (l) { return l.libelle; })) + '</div></div>';
+}
+
+/* Chemin 3 */
+function rubrique3(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-list-check" aria-hidden="true"></i> Comment vos réponses ont été lues</h3>' +
+    '<p class="intro">Vos réponses au questionnaire donnent un code de trois lettres, de la plus marquée à la moins marquée. Chaque lettre est un goût de travail, pas un jugement. Les métiers sont proposés quand leurs lettres sont les vôtres.</p>';
+  P.lettres.forEach(function (x) {
+    h += '<div class="ligne-choix"><div class="qui"><span class="lettre-r">' + x.l + '</span>' + ['première', 'deuxième', 'troisième'][x.rang - 1] + ' lettre</div><div class="dit"><p><b>' + esc(x.court.charAt(0).toUpperCase() + x.court.slice(1)) + '</b></p>' +
+      '<p class="cml-note mb-0">' + x.nbMajeure + ' métiers ont ' + x.l + ' comme lettre principale.</p></div></div>';
+  });
+  h += '<div class="a-savoir"><i class="bi bi-lightbulb" aria-hidden="true"></i> <b>À savoir.</b> ' + fmt(P.liste) + ' métiers sur ' + fmt(P.total) + ' ont au moins une de vos lettres. Ceux qui ont vos lettres dans le même ordre passent en premier.</div>';
+  return h + '</div>';
+}
+function liste3(P) {
+  var h = '<div class="bloc"><h3><i class="bi bi-briefcase" aria-hidden="true"></i> Les métiers (' + fmt(P.liste) + ')</h3><p class="intro">Résumé de l’écran actuel : les trois premiers.</p>';
+  P.top.forEach(function (m, k) {
+    var lettresM = m.lettres.split('').map(function (l) { return '<span class="lettre-r" style="width:26px;height:26px;font-size:.85rem">' + l + '</span>'; }).join('');
+    h += '<div class="carte-res"><h4>' + esc(m.nom) + '</h4><span class="cml-pill">' + esc(m.secteur) + '</span><div>Lettres du métier : ' + lettresM + '</div>' +
+      '<p class="cml-note mb-0">' + pl(m.retrouvees, 'lettre') + ' sur ' + m.lettres.length + (m.retrouvees > 1 ? ' retrouvées' : ' retrouvée') + ' dans votre code ' + esc(P.code) + '.</p></div>';
+  });
+  return h + '</div>';
+}
+function vosChoix3(P) {
+  return '<div class="bloc"><h3><i class="bi bi-hand-index" aria-hidden="true"></i> Votre code</h3><div>' + P.lettres.map(function (x) { return '<span class="lettre-r">' + x.l + '</span>'; }).join('') + '</div></div>';
+}
+
+function rendre() {
+  var h;
+  if (E.chemin === 2) {
+    var P = DONNEES.c2[E.profil]; var R = rubrique2(P);
+    h = '<h1 class="titre-page">Par ce que vous aimez faire</h1>' + vosChoix2(P) + (E.place === 'haut' ? R : '') + liste2(P) + (E.place === 'bas' ? R : '');
+  } else if (E.chemin === 1) {
+    var P1 = DONNEES.c1, R1 = rubrique1(P1);
+    h = '<h1 class="titre-page">Par un métier</h1>' + vosChoix1(P1) + (E.place === 'haut' ? R1 : '') + liste1(P1) + (E.place === 'bas' ? R1 : '');
+  } else {
+    var P3 = DONNEES.c3, R3 = rubrique3(P3);
+    h = '<h1 class="titre-page">Par un questionnaire</h1>' + vosChoix3(P3) + (E.place === 'haut' ? R3 : '') + liste3(P3) + (E.place === 'bas' ? R3 : '');
+  }
+  document.getElementById('rendu').innerHTML = '<div class="' + (E.tel ? 'tel' : '') + '">' + h + '</div>';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  pastillesRegl();
+}
+function pastillesRegl() {
+  [['g-chemin', String(E.chemin)], ['g-profil', String(E.profil)], ['g-place', E.place], ['g-manque', E.manque]].forEach(function (g) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + g[0] + ' button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === g[1] ? 'true' : 'false'); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#g-ecran button'), function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', v ? String((v === 'tel') === E.tel) : String((m === 'sombre') === E.sombre));
+  });
+  document.getElementById('grp-profil').style.display = E.chemin === 2 ? '' : 'none';
+  document.getElementById('grp-manque').style.display = '';
+  document.getElementById('retient').innerHTML = '<p><b>Retenu pour l’instant :</b> rubrique ' + (E.place === 'haut' ? 'avant la liste' : 'après la liste') + ' ; ' +
+    (E.chemin === 3 ? 'le détail d’un métier ne s’applique pas au chemin 3 (il n’y a que des lettres).' : (E.manque === 'jamais' ? 'un métier ne montre jamais les choix qu’il ne retrouve pas.' : 'chaque métier a un détail à ouvrir, qui montre aussi les choix que sa fiche ne cite pas.')) + '</p>';
+}
+document.getElementById('g-profil').innerHTML = DONNEES.c2.map(function (p, i) { return '<button type="button" data-v="' + i + '">' + esc(p.titre) + '</button>'; }).join('');
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  var g = b.parentNode && b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-chemin') { E.chemin = Number(v); E.ouverts = {}; }
+  else if (g === 'g-profil') { E.profil = Number(v); E.ouverts = {}; }
+  else if (g === 'g-place') { E.place = v; }
+  else if (g === 'g-manque') { E.manque = v; E.ouverts = {}; }
+  else if (g === 'g-ecran') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  else if (b.hasAttribute('data-det')) { var id = b.getAttribute('data-det'); E.ouverts[id] = !E.ouverts[id]; }
+  else if (b.id === 'fermer') { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; return; }
+  else if (b.id === 'rouvrir') { document.getElementById('regl').style.display = ''; b.style.display = 'none'; return; }
+  else { return; }
+  rendre();
+});
+document.querySelector('#g-manque').parentNode.id = 'grp-manque';
+rendre();
+</script>
+</body>
+</html>

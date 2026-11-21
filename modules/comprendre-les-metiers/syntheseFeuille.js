@@ -58,7 +58,7 @@ function synHtmlFeuille(etat) {
       return '<p><b>' + _synF(D ? synpNomAffiche(D, e) : e.nom) + '</b>, ce que j’y ai pratiqué : ' + morceaux.join(' ; ') + '.</p>';
     }).join('') + '<p class="note">Compétences que j’ai cochées moi-même ; la fiche d’un métier décrit le métier en général, pas forcément mon poste.</p>';
   } else { h += '<p>Parcours pas encore ajouté.</p>'; }
-  if (D && S && S.comp.length) { h += '<p>Compétences choisies dans « Par un métier » : ' + S.comp.map(function (c) { return _synF(D[c.t][c.i].lib); }).join(', ') + '.</p>'; }
+  if (D && S && S.comp.length) { h += '<p>Compétences choisies dans « Chercher un métier » : ' + S.comp.map(function (c) { return _synF(D[c.t][c.i].lib); }).join(', ') + '.</p>'; }
 
   h += '<h2>6. Ma situation</h2>' + (d.situation ? '<p>' + _synF(d.situation.charAt(0).toUpperCase() + d.situation.slice(1)) + '.</p>' : '<p>Non indiquée.</p>') +
     (d.libre && d.libre.trim() ? '<p><b>Dans mes mots :</b> « ' + _synF(d.libre) + ' »</p>' : '');
