@@ -14,3 +14,6 @@ outils/retours/
 
 # Resultat de la prospection des structures (outil de veille, poste de Denis) : jamais envoye sur GitHub
 outils/prospection_structures/
+
+# Captures refaites à chaque essai de glisser les rectangles
+scripts/rendu/sorties_rectangles/
