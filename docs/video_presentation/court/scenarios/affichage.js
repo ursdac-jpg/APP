@@ -1,6 +1,6 @@
 /* Lot A, vidéo A4 : préférences d'affichage (thème, taille du texte). 30 s au plus. */
 const { dormir } = require('../lib');
-const URL = 'http://localhost:8123/index.html';
+const URL = 'http://Pc-Denis:8123/index.html';
 module.exports = {
   blocs: [
     { id: 'p1', voix: 'La roue, en haut à gauche, ouvre vos préférences d’affichage.', sous_titre: 'La roue, en haut à gauche, ouvre vos préférences d’affichage.' },

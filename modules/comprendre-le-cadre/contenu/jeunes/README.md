@@ -17,7 +17,7 @@ ministère du Travail, ministère de l'Éducation nationale, Agence du service c
    - obligation de formation 16-18 : loi de 2019, contrôle confié aux Missions locales ;
    - prépa-apprentissage : 16-29 ans, financée par le plan d'investissement dans les compétences.
 
-## Les 8 fiches
+## Les 9 fiches
 
 | id | titre |
 |---|---|
@@ -29,6 +29,7 @@ ministère du Travail, ministère de l'Éducation nationale, Agence du service c
 | `jeunes-aides-financieres` | Les aides financières quand on est jeune |
 | `jeunes-contrat-apprentissage` | Le contrat d'apprentissage : apprendre un métier en étant payé (ajoutée le 2026-09-06) |
 | `jeunes-apprentissage-sans-employeur` | Inscrit en apprentissage mais sans employeur : qui peut vous aider (ajoutée le 2026-11-03) |
+| `jeunes-pvt-australie-ce-qui-change` | Partir en Australie avec un Programme Vacances-Travail : ce qui change pour la 2e et la 3e année |
 
 ## Recoupements
 

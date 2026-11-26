@@ -1,7 +1,7 @@
 /* Lot A, vidéo A2 : masquer des informations dans un texte (relecture du CV déposé). 30 s au plus.
    Départ : le CV fictif est déjà déposé (préparé avant le début du film), écran « Vérifier le texte de votre CV ». */
 const { dormir } = require('../lib');
-const URL = 'http://localhost:8123/index.html';
+const URL = 'http://Pc-Denis:8123/index.html';
 const FICHIER = 'C:/Users/Denis/video_travail/ressources/cv_fictif_camille.txt';
 module.exports = {
   blocs: [

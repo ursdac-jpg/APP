@@ -117,7 +117,7 @@ function _regardExterieurRenduBouton() {
   return '<button type="button" class="btn btn-primary" id="btnRegardExterieur">' +
     '&#128301; Demander un Regard Extérieur</button>' +
     '<p class="reperes-regard-exterieur-explication small text-muted mt-2 mb-0">' +
-    'Avec votre accord, envoie vos Repères à un assistant de votre choix pour obtenir des pistes de réflexion complémentaires. ' +
+    'Avec votre accord, vos Repères sont envoyés à un assistant de votre choix, pour obtenir des pistes de réflexion complémentaires. ' +
     'Ce n\'est jamais une vérité, seulement un regard supplémentaire.</p>';
 }
 

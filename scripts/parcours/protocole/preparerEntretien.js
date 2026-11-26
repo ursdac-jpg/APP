@@ -21,8 +21,7 @@ module.exports = {
     j.info('« Adaptation au métier » après le seul type de candidature : ' + JSON.stringify(verrou1));
     j.info('métier précis : ' + await a.clic('', '^Un métier précis$')); await a.attendre(600);
     await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-    j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi')); await a.attendre(600);
-    j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]')); await a.attendre(700);
+    { let ch = await a.clic('[data-metier-cible-direct]'); if (ch !== 'ok') { ch = await a.clic('#btnValiderMetierSaisi'); } j.info('métier choisi dans les propositions : ' + ch); await a.attendre(700); }
     e = await a.ecran(); j.info('après le métier : « ' + e.avant + ' » raison « ' + e.raison + ' »');
     j.info('présentation générale : ' + await a.clic('', 'Je me présente de façon générale')); await a.attendre(600);
     e = await a.ecran(); j.info('après la présentation générale : « ' + e.avant + ' » raison « ' + e.raison + ' »');

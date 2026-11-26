@@ -550,7 +550,7 @@ function _mtRenduHorsZone() {
 // La personne n'a encore choisi aucun département : on ne devine pas, on le lui demande (même choix que dans le reste de l'application).
 function _mtRenduChoixDepartement() {
   return _mtTitre(_mtEntree === 'employeurs' ? 'bi-briefcase' : 'bi-geo-alt', _mtEntree === 'employeurs' ? 'Employeurs près de chez moi' : 'Qui fait quoi') +
-    _mtEncart('bi-info-circle', 'Pour vous montrer les bonnes adresses, dites-nous dans quel département vous cherchez.') +
+    _mtEncart('bi-info-circle', 'Pour vous montrer les bonnes adresses, indiquez dans quel département vous cherchez.') +
     '<div class="text-center"><button type="button" class="btn btn-primary" data-mt-choisir-departement><i class="bi bi-geo-alt"></i> Choisir mon département</button></div>';
 }
 

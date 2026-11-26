@@ -27,7 +27,7 @@ var SYN_PLAFONDS = {
   libre: 600,                  // caractères du texte libre de la personne
   complements: 10,
   suivi: 6,
-  demande: 12000               // caractères de toute la demande, consignes comprises (tâche A9 ; 9000 était trop juste : les consignes en font déjà plus de 7000)
+  demande: 22000               // caractères de toute la demande, consignes comprises (tâche A9 ; 9000, 12000, 14000, 16000 puis 20000 étaient trop justes : la version 3 du prompt, en deux messages, fait plus de 10 000 signes à elle seule, consigne 529 : les consignes en font déjà plus de 9000 depuis la version 2 du prompt, consigne 525). Les demandes des autres modules font déjà 23 000 signes sans problème.
 };
 
 // Texte sans accent, sans majuscule, espaces simples : pour comparer des noms de métiers écrits parfois sans accent dans la base.
@@ -337,7 +337,7 @@ function synTexteSituation(s) {
   var niv = synLibelleDe(SYN_NIVEAUX, e.niveau);
   if (niv) { t.push('niveau d’études : ' + niv); }
   var acc = (Array.isArray(e.suivi) ? e.suivi : []).map(function (x) { return synLibelleDe(SYN_ACCOMPAGNEMENTS, x); }).filter(Boolean)[0];
-  if (acc) { t.push({ oui: 'accompagné par un professionnel', non: 'pas accompagné pour l’instant', jamais: 'jamais accompagné' }[(e.suivi || [])[0]] || acc.toLowerCase()); }
+  if (acc) { t.push({ oui: 'accompagnement par un professionnel', non: 'pas d’accompagnement pour l’instant', jamais: 'jamais d’accompagnement' }[(e.suivi || [])[0]] || acc.toLowerCase()); }
   var comp = (Array.isArray(e.complements) ? e.complements : []).map(function (x) { return synLibelleDe(SYN_COMPLEMENTS, x); }).filter(Boolean);
   if (comp.length) { t.push('ce qui compte en ce moment : ' + comp.join(' ; ').toLowerCase()); }
   var form = synFormationValide(e.formation);
@@ -375,17 +375,25 @@ var SYN_VERSION_FICHIER = 1;
 // Le texte libre et la lecture n'y sont PAS : ils auront chacun leur propre accord (tâches A6 et A11).
 // Le parcours professionnel (étape B) a sa logique à part : syntheseParcoursLogique.js (navigateur : globales ; Node : require).
 function _synParcoursLib() { return (typeof synpPourFichier === 'function') ? { pour: synpPourFichier, depuis: synpNormaliserDepuisFichier } : (function () { var p = require('./syntheseParcoursLogique.js'); return { pour: p.synpPourFichier, depuis: p.synpNormaliserDepuisFichier }; })(); }
+// Les interprétations par chemin et les réponses cliquées (étape 2b) : interpretationLogique.js (navigateur : globales ; Node : require, à la demande pour éviter un cycle).
+function _synInterpLib() {
+  if (typeof intPourFichier === 'function') { return { pour: intPourFichier, depuis: intNormaliserDepuisFichier }; }
+  try { var l = require('./interpretationLogique.js'); return { pour: l.intPourFichier, depuis: l.intNormaliserDepuisFichier }; } catch (e) { return null; }
+}
 function synPourFichier(s) {
   if (!s || !s.gardee) { return null; }
   var retenu = function (r) { return r && typeof r.nom === 'string' && r.nom ? { nom: synPlafonnerTexte(r.nom, 140), rome: String(r.rome || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 10) } : null; };
   var ids = function (liste, max) { return synPlafonner((Array.isArray(liste) ? liste : []).filter(function (x) { return typeof x === 'string' && x.length > 0 && x.length <= 60; }), max); };
-  return {
+  var interp = (function () { var L = _synInterpLib(); return L ? L.pour(s.interpretations, s.reponsesQ) : null; })();
+  var sortie = {
     version: SYN_VERSION_FICHIER,
     retenu1: retenu(s.retenu1), retenu2: retenu(s.retenu2), retenu3: retenu(s.retenu3),
     niveau: (typeof s.niveau === 'number' && s.niveau >= 2 && s.niveau <= 8) ? s.niveau : null,
     suivi: ids(s.suivi, SYN_PLAFONDS.suivi), complements: ids(s.complements, SYN_PLAFONDS.complements),
     parcours: _synParcoursLib().pour(s.parcours)
   };
+  if (interp) { sortie.interpretations = interp; }
+  return sortie;
 }
 
 // Relit avec méfiance ce qui vient d'un fichier. resoudre(nom) rend le métier connu { nom, rome } (nom écrit comme aujourd'hui dans la base) ou null :
@@ -405,7 +413,9 @@ function synNormaliserDepuisFichier(brut, resoudre) {
     parcours: _synParcoursLib().depuis(brut.parcours),
     libre: '', lecture: null, gardee: true
   };
+  var interp = (function () { var L = _synInterpLib(); return L ? L.depuis(brut.interpretations) : null; })();
   var vide = !sortie.retenu1 && !sortie.retenu2 && !sortie.retenu3 && sortie.niveau === null && !sortie.suivi.length && !sortie.complements.length && !sortie.parcours.length;
+  if (interp && !vide) { sortie.interpretations = interp.interpretations; sortie.reponsesQ = interp.reponsesQ; }
   return vide ? null : sortie;
 }
 

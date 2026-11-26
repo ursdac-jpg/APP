@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l’IA », page de présentation enrichie (proposition du 25/11/2026)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  /* Toutes les classes de cette maquette commencent par mq- (leçon 9.218) : aucune collision avec css/style.css. */
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .mq-page { margin: 0 auto; }
+  .mq-note { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit); display: flex; gap: .6rem; align-items: flex-start; justify-content: space-between; }
+  .mq-note[hidden] { display: none; }
+  .mq-fermer { min-height: 36px; min-width: 36px; border: 2px solid currentColor; background: transparent; color: inherit; border-radius: 10px; font-weight: 800; cursor: pointer; }
+  .mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .2rem 0 1rem; }
+  .mq-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .mq-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .mq-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .mq-titre-page { font-size: var(--t-titre-page); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .mq-sous-titre { text-align: center; font-size: var(--t-grand); color: var(--text-muted); margin-bottom: 1rem; }
+  .mq-accroche { background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-radius: 14px; padding: .8rem 1.1rem; margin-bottom: 1rem; text-align: center; font-size: var(--t-grand); }
+  .mq-panneau { position: relative; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .mq-panneau h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .5rem; display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  .mq-panneau p, .mq-panneau li { font-size: var(--t-moyen); max-width: 52em; }
+  .mq-panneau ul { padding-left: 1.2rem; margin-bottom: 0; }
+  .mq-panneau li { margin-bottom: .45rem; }
+  .mq-panneau li:last-child { margin-bottom: 0; }
+  .mq-neuf { display: inline-block; border-radius: 999px; padding: .02rem .6rem; font-size: var(--t-petit); font-weight: 800; border: 1px solid var(--success-strong); background: var(--success-bg-subtle); color: var(--success-strong); }
+  body.mq-sans-neuf .mq-neuf { display: none; }
+  .mq-cta { display: flex; justify-content: center; margin: 1.2rem 0; }
+  .mq-btn { min-height: 48px; padding: .5rem 1.6rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent); color: #fff; font-weight: 800; cursor: pointer; font-size: var(--t-moyen); }
+  .mq-liste-chemins li strong { font-weight: 800; }
+  .mq-sans-liste { list-style: none; padding-left: 0 !important; }
+  .mq-sans-liste li { display: flex; gap: .6rem; align-items: flex-start; }
+  .mq-sans-liste .bi { color: var(--accent-texte, var(--accent)); margin-top: .15rem; flex: none; }
+</style>
+</head>
+<body>
+<div class="mq-page">
+
+  <div class="mq-note" id="mqNote">
+    <div><strong>Maquette de proposition, rien n’est dans l’application.</strong> Elle montre la page de présentation du module avec quatre rubriques en plus (marquées « Nouveau »). Les trois rubriques actuelles et l’accroche sont gardées telles quelles. Les textes sont écrits sans chiffre qui vieillit et sans nom de produit ; dans l’application, les noms des familles et des chemins seraient lus dans les données du module.</div>
+    <button type="button" class="mq-fermer" id="mqFermerNote" aria-label="Fermer ce message">×</button>
+  </div>
+
+  <div class="mq-barre" role="group" aria-label="Réglages de la maquette">
+    <button type="button" class="mq-choix" id="mqNeuf" aria-pressed="true">Montrer ce qui est nouveau</button>
+    <button type="button" class="mq-choix" id="mqSombre" aria-pressed="false">Mode sombre</button>
+  </div>
+
+  <h1 class="mq-titre-page"><i class="bi bi-chat-left-text"></i> Bien utiliser l’IA</h1>
+  <div class="mq-sous-titre">Apprenez à écrire une demande claire et à vérifier la réponse.</div>
+
+  <div class="mq-accroche"><strong>Ni test, ni note.</strong> Vous apprenez à demander clairement, à votre rythme.</div>
+
+  <!-- 1. Gardée telle quelle -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-compass" aria-hidden="true"></i> À quoi ça sert</h2>
+    <p>Un assistant en ligne ne devine rien : il répond à ce que vous écrivez. Une demande claire donne une réponse plus utile, et une réponse relue avec soin évite les erreurs.</p>
+    <p class="mb-0">Ce module vous montre comment écrire cette demande, pour une démarche, un courrier, une recherche d’emploi ou n’importe quel autre sujet, et comment vérifier ce que l’assistant répond.</p>
+  </div>
+
+  <!-- 2. Gardée, une phrase en plus -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-signpost-split" aria-hidden="true"></i> Quatre chemins <span class="mq-neuf">Une phrase ajoutée</span></h2>
+    <ul class="mq-liste-chemins">
+      <li><strong>Je veux comprendre.</strong> Pourquoi une demande claire change la réponse, et comment la vérifier.</li>
+      <li><strong>Je veux savoir comment il fonctionne.</strong> Ce qu’est un assistant, comment il écrit, d’où vient ce qu’il sait, la recherche web, ce qui distingue les différents assistants, les projets et la mémoire, et les cas où s’en passer.</li>
+      <li><strong>J’ai un papier ou une situation.</strong> Un courrier, un mail, une démarche, une recherche d’emploi : la demande est déjà écrite, vous la complétez et vous la copiez.</li>
+      <li><strong>Je veux écrire ma propre demande.</strong> Pour un sujet que les modèles ne couvrent pas : une lettre à une ambassade, un rendez-vous à l’hôpital, un voyage.</li>
+    </ul>
+    <p class="mt-2 mb-0"><strong>Deux niveaux de lecture.</strong> Pour « Je veux comprendre » et « Je veux savoir comment il fonctionne », « Les bases » suffit pour commencer. « Pour aller plus loin » ajoute des explications.</p>
+  </div>
+
+  <!-- 3. NOUVEAU -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-collection" aria-hidden="true"></i> Ce que vous y trouvez <span class="mq-neuf">Nouveau</span></h2>
+    <ul class="mq-sans-liste">
+      <li><i class="bi bi-pencil-square" aria-hidden="true"></i><span><strong>Des exercices courts.</strong> Réparer une demande trop vague, repérer ce qui se vérifie dans une réponse, voir la différence entre deux demandes. Les cas sont inventés : vous n’avez rien de personnel à écrire, et rien n’est noté.</span></li>
+      <li><i class="bi bi-envelope-paper" aria-hidden="true"></i><span><strong>Des modèles déjà écrits.</strong> Ils sont rangés en quatre familles : administration et démarches, chercher un emploi, écrire et comprendre, pour les professionnels. Vous complétez, puis vous copiez.</span></li>
+      <li><i class="bi bi-eraser" aria-hidden="true"></i><span><strong>Un coup de pouce pour protéger votre papier.</strong> Si vous collez un courrier, l’application peut masquer les numéros et les courriels avant que vous copiez. Les noms et les adresses, vous les masquez vous-même.</span></li>
+      <li><i class="bi bi-lightbulb" aria-hidden="true"></i><span><strong>Des repères sur les assistants.</strong> Comment un assistant écrit ses phrases, d’où vient ce qu’il sait, quand activer la recherche web, ce qui distingue les différents assistants, et les cas où il vaut mieux s’en passer.</span></li>
+    </ul>
+  </div>
+
+  <!-- 4. NOUVEAU -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-floppy" aria-hidden="true"></i> Ce que vous gardez <span class="mq-neuf">Nouveau</span></h2>
+    <p>Quand une demande marche bien, vous pouvez l’ajouter à votre disquette (vingt au plus). Vous la retrouvez ensuite dans « Mes demandes », au chemin « J’ai un papier ou une situation », prête à resservir.</p>
+    <p class="mb-0">Rien d’autre n’est gardé : le papier que vous collez et la réponse de l’assistant restent sur la page et ne sont pas enregistrés. Rien ne quitte votre appareil, sauf ce que vous copiez vous-même.</p>
+  </div>
+
+  <!-- 5. NOUVEAU -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-people" aria-hidden="true"></i> Pour les professionnels <span class="mq-neuf">Nouveau</span></h2>
+    <p>Vous accompagnez des personnes ? Une famille de modèles est écrite pour vous : synthèse de notes d’entretien, compte rendu ou bilan, document passé en langage simple.</p>
+    <ul>
+      <li><strong>Des questions à poser à votre structure</strong> avant d’utiliser un assistant : lesquels sont autorisés, quelles informations ne jamais envoyer, qui vérifie, où garder les textes produits. Le module ne dicte aucune règle à votre place.</li>
+      <li><strong>Une grille pour tester vos demandes</strong> sur des cas fictifs, et les rejouer quand l’assistant change.</li>
+      <li><strong>Le partage entre collègues.</strong> Vous pouvez préparer quelques-unes de vos demandes dans un petit fichier, après les avoir relues, et en recevoir d’un collègue. Le contenu est montré avant tout ajout.</li>
+    </ul>
+  </div>
+
+  <!-- 6. NOUVEAU -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-patch-question" aria-hidden="true"></i> D’où viennent les informations <span class="mq-neuf">Nouveau</span></h2>
+    <p>Ce que le module dit des assistants (leurs réglages, leur mémoire, ce qu’ils gardent) a été relu sur les pages officielles de leurs éditeurs. Ces pages changent vite : la date de la dernière relecture est affichée dans le chemin « Je veux savoir comment il fonctionne », et le contenu est relu régulièrement.</p>
+    <p class="mb-0">En cas de doute, la page officielle de l’assistant que vous utilisez fait foi.</p>
+  </div>
+
+  <!-- 7. Gardée, deux lignes en plus -->
+  <div class="mq-panneau">
+    <h2><i class="bi bi-slash-circle" aria-hidden="true"></i> Ce que ce module ne fait pas <span class="mq-neuf">Deux lignes ajoutées</span></h2>
+    <ul>
+      <li>Il n’envoie rien : vous copiez votre demande et vous la collez vous-même dans l’assistant de votre choix.</li>
+      <li>Il ne garde rien sur cet appareil, sauf les demandes que vous ajoutez vous-même à votre disquette.</li>
+      <li>Il ne rédige pas de courrier pour contester une décision ou faire un recours : une personne qui vous accompagne peut vous aider.</li>
+      <li>Il ne remplace pas une personne, ni un professionnel.</li>
+      <li class="mq-ajout">Il ne classe pas les assistants et ne recommande aucun abonnement payant. <span class="mq-neuf">Nouveau</span></li>
+      <li class="mq-ajout">Il ne dit jamais si une réponse est juste : il vous apprend à la vérifier. <span class="mq-neuf">Nouveau</span></li>
+    </ul>
+  </div>
+
+  <div class="mq-cta"><button type="button" class="mq-btn">Ouvrir le module →</button></div>
+</div>
+
+<script>
+  (function () {
+    var corps = document.body, neuf = document.getElementById('mqNeuf'), sombre = document.getElementById('mqSombre');
+    neuf.addEventListener('click', function () {
+      var on = neuf.getAttribute('aria-pressed') !== 'true';
+      neuf.setAttribute('aria-pressed', String(on));
+      corps.classList.toggle('mq-sans-neuf', !on);
+    });
+    sombre.addEventListener('click', function () {
+      var on = sombre.getAttribute('aria-pressed') !== 'true';
+      sombre.setAttribute('aria-pressed', String(on));
+      if (on) { document.documentElement.setAttribute('data-theme', 'sombre'); } else { document.documentElement.removeAttribute('data-theme'); }
+    });
+    document.getElementById('mqFermerNote').addEventListener('click', function () { document.getElementById('mqNote').hidden = true; });
+  })();
+</script>
+</body>
+</html>

@@ -36,7 +36,7 @@ var UNIVERS_CONNUS = [
   'formation', 'bulletin-salaire', 'protection-sociale', 'sante-travail',
   'structures-organismes', 'dispositifs', 'mobilite-budget',
   'entrepreneuriat-independance', 'demarches-administratives', 'conditions-travail',
-  'acces-aux-soins'
+  'acces-aux-soins', 'numerique-assistants'
 ];
 var REGISTRES_CONNUS = [
   'langage-cip', 'langage-rh', 'langage-juridique', 'langage-employeur',

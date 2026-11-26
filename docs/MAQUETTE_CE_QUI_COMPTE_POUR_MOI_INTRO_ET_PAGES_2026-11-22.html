@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : introduction enrichie et pages éclaircies de « Ce qui compte pour moi »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../data/cqcpmValeurs.js"></script>
+<script src="../data/cqcpmCartes.js"></script>
+<style>
+/* ===== Cadre de la maquette (jamais repris dans l'application) ===== */
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 7rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:.6rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-bande{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem;margin:2rem 0 0;font-size:.92rem}
+.mq-decision h2{font-size:1.05rem;margin:0 0 .5rem}
+.mq-decision li{margin:.45rem 0}
+.mq-barre{position:fixed;left:0;right:0;bottom:0;background:var(--bg-card);border-top:1px solid var(--border-strong);padding:.6rem 1rem;display:flex;justify-content:space-between;gap:.5rem;z-index:500}
+.mq-barre .btn{border-radius:999px;min-height:44px;padding:.3rem 1.2rem}
+.mq-page h1{font-size:2.2rem}
+.mq-page.tel h1{font-size:1.7rem}
+.mq-page .sousTitre{font-size:1.05rem}
+
+/* ===== Nouvelles règles de l'espace (à ranger dans css/style.css, à la place des .cqcpm-* actuelles). Tout est basé sur l'accent. ===== */
+/* Pastille d'icône carrée, comme dans Explorer les métiers (.cml-famille .ico) */
+.cqcpm-ico{flex:none;width:40px;height:40px;border-radius:10px;background:var(--accent-bg-subtle);color:var(--accent-texte,var(--accent));display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;border:1px solid var(--accent)}
+.cqcpm-ico.petit{width:34px;height:34px;font-size:1.1rem;border-radius:9px}
+/* Bloc : titre avec pastille d'icône, texte lisible (jamais du gris pâle pour ce qui se lit) */
+.cqcpm-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:14px;padding:1rem 1.1rem;margin:.8rem 0}
+.cqcpm-bloc>h2,.cqcpm-bloc>.tete{display:flex;align-items:center;gap:.65rem;font-size:1.15rem;font-weight:800;margin:0 0 .55rem}
+.cqcpm-bloc>h2 .cqcpm-ico{font-size:1.25rem}
+.cqcpm-bloc p,.cqcpm-bloc li{font-size:1rem;color:var(--text-strong);margin:.25rem 0}
+.cqcpm-bloc .cqcpm-note,.cqcpm-note{font-size:.9rem;color:var(--text-muted)}
+.cqcpm-bloc ul{padding-left:1.2rem;margin:.3rem 0}
+/* Bandeau de la carte en cours (remplace la ligne grise « Partie 1 sur 2 ») */
+.cqcpm-bandeau{display:flex;gap:.8rem;align-items:center;border:2px solid var(--accent);border-left-width:8px;border-radius:14px;background:var(--accent-bg-subtle);padding:.6rem .9rem;margin:.6rem 0}
+.cqcpm-bandeau .cqcpm-ico{width:44px;height:44px;font-size:1.4rem;background:var(--accent-solide,var(--accent));border-color:var(--accent-solide,var(--accent));color:#fff}
+.cqcpm-bandeau b{display:block;font-size:1.1rem}
+.cqcpm-bandeau span{font-size:.9rem;color:var(--text-soft)}
+.cqcpm-bandeau .n{margin-left:auto;font-weight:800;font-size:.9rem;border:2px solid var(--accent);border-radius:999px;padding:.1rem .7rem;background:var(--bg-card);white-space:nowrap}
+/* Une question et sa zone de réponse */
+.cqcpm-q{font-size:1.02rem;font-weight:800;color:var(--text-strong);margin:1rem 0 .15rem}
+.cqcpm-q .a{font-weight:400;color:var(--text-muted);font-size:.9rem}
+.cqcpm-champ,.form-control.cqcpm-champ{width:100%;min-height:3rem;font-size:1.05rem;padding:.55rem .85rem;border:2px solid color-mix(in srgb,var(--accent) 65%,var(--bg-card));border-radius:10px;background-color:var(--bg-card);color:var(--text-strong)}
+.cqcpm-champ:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg-subtle);outline:none}
+.cqcpm-champ::placeholder{color:var(--text-muted);opacity:1}
+textarea.cqcpm-champ{min-height:5.2rem}
+/* Variante B : chaque question est sa propre zone, avec un filet d'accent (comme .cml-q d'Explorer les métiers) */
+.mq-b .cqcpm-qb{background:var(--bg-card);border:1px solid var(--border-strong);border-left:6px solid var(--accent);border-radius:12px;padding:.7rem .9rem;margin:.7rem 0}
+.mq-b .cqcpm-qb .cqcpm-q{margin-top:0}
+.mq-b .cqcpm-bloc>.cqcpm-qb{background:var(--bg-subtle)}
+/* Boutons de choix : 2 px, jamais pâles ; le choix fait est plein (texte blanc sur --accent-solide), avec une coche */
+.cqcpm-rep{display:flex;flex-wrap:wrap;gap:.45rem;margin:.3rem 0}
+.cqcpm-rep button{font-size:.95rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .8rem;min-height:44px;display:inline-flex;align-items:center;gap:.4rem}
+.cqcpm-rep button:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
+.cqcpm-rep button .bi.coche{display:none}
+.cqcpm-rep button[aria-pressed="true"]{background:var(--accent-solide,var(--accent));border-color:var(--accent-solide,var(--accent));color:#fff;font-weight:800}
+.cqcpm-rep button[aria-pressed="true"] .bi.coche{display:inline}
+.cqcpm-rep button:focus-visible,.cqcpm-theme-bloc button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Lignes « un repère, trois piles » */
+.cqcpm-val{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .8rem;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.cqcpm-val:last-child{border-bottom:0}
+.cqcpm-val .lib{flex:1 1 200px;font-size:1rem;font-weight:700}
+.cqcpm-val .cqcpm-rep{margin:0}
+.cqcpm-sous-titre{font-size:1.02rem;font-weight:800;margin:1rem 0 .1rem;padding-bottom:.25rem;border-bottom:2px solid var(--accent);color:var(--text-strong)}
+/* Liste de phrases */
+.cqcpm-lignes{list-style:none;padding:0!important;margin:.4rem 0}
+.cqcpm-lignes li{display:flex;gap:.6rem;align-items:center;border:1px solid var(--accent);border-radius:10px;padding:.4rem .5rem .4rem .8rem;margin:.35rem 0;background:var(--accent-bg-subtle)}
+.cqcpm-lignes li span{flex:1}
+.cqcpm-lignes li .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--accent-solide,var(--accent));color:#fff;font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center}
+.cqcpm-ajout{display:flex;gap:.5rem;align-items:stretch;margin:.4rem 0}
+.cqcpm-ajout .btn{min-height:48px;flex:none}
+/* Compteur de réponses */
+.cqcpm-compte{display:inline-block;font-size:.85rem;font-weight:700;border:2px solid var(--border-strong);border-radius:999px;padding:.05rem .65rem;background:var(--bg-subtle);color:var(--text-strong)}
+.cqcpm-compte.plein{border-color:var(--accent);background:var(--accent-bg-subtle)}
+/* Fiche d'une entrée numérotée */
+.cqcpm-entree{border:1px solid var(--border-strong);border-radius:12px;padding:.2rem .9rem .8rem;margin:.7rem 0;background:var(--bg-card)}
+.cqcpm-entree>h3{display:flex;gap:.6rem;align-items:center;font-size:1.05rem;font-weight:800;margin:.7rem 0 .2rem}
+.cqcpm-entree>h3 .num{flex:none;width:30px;height:30px;border-radius:8px;background:var(--accent-solide,var(--accent));color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem}
+/* Thèmes de l'accueil : un bloc par thème, filet d'accent à gauche (comme .cml-famille d'Explorer les métiers) */
+.cqcpm-theme-bloc{background:var(--bg-card);border:1px solid var(--border);border-left:8px solid var(--accent);border-radius:14px;padding:.9rem 1rem 1rem;margin:1rem 0}
+.cqcpm-theme-bloc .tete{display:flex;gap:.7rem;align-items:center;margin-bottom:.7rem}
+.cqcpm-theme-bloc .tete h2{font-size:1.2rem;font-weight:800;margin:0}
+.cqcpm-theme-bloc .tete p{margin:0;font-size:.92rem;color:var(--text-soft)}
+.cqcpm-theme-bloc .tete .compte{margin-left:auto}
+.cqcpm-cartes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.cqcpm-cartes.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cqcpm-cartes.n1{grid-template-columns:minmax(0,1fr);max-width:50%}
+.cqcpm-carte{position:relative;display:flex;flex-direction:column;gap:.45rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.9rem 1rem}
+.cqcpm-carte h3{font-size:1.05rem;font-weight:800;margin:0}
+.cqcpm-carte .pour{font-size:.98rem;font-weight:700;color:var(--text-strong);margin:0;line-height:1.3}
+.cqcpm-carte .dit{font-size:.93rem;color:var(--text-soft);margin:0;flex:1}
+.cqcpm-carte .btn{min-height:46px}
+.cqcpm-carte .cqcpm-etat{position:absolute;top:.7rem;right:.8rem;font-size:.8rem;font-weight:700;border-radius:999px;padding:.1rem .6rem;border:2px solid var(--accent);color:var(--text-strong);background:var(--accent-bg-subtle);display:inline-flex;gap:.3rem;align-items:center}
+.cqcpm-carte .cqcpm-etat .bi{color:var(--accent-texte,var(--accent))}
+.cqcpm-ok,.cqcpm-alerte,.cqcpm-aide{background:var(--accent-bg-subtle);border:2px solid var(--accent);border-radius:12px;padding:.65rem .9rem;margin:.8rem 0;display:flex;gap:.7rem;align-items:flex-start}
+.cqcpm-ok>.bi,.cqcpm-alerte>.bi,.cqcpm-aide>.bi{color:var(--accent-texte,var(--accent));font-size:1.4rem}
+.cqcpm-alerte{border-style:dashed}
+/* Introduction : une carte du module par ligne, une étape par ligne */
+.cqcpm-intro-carte{display:flex;gap:.8rem;align-items:flex-start;border-top:1px solid var(--border);padding:.7rem 0}
+.cqcpm-intro-carte:first-of-type{border-top:0}
+.cqcpm-intro-carte h4{font-size:1.02rem;font-weight:800;margin:0}
+.cqcpm-intro-carte .q{font-weight:700;margin:.1rem 0}
+.cqcpm-intro-carte p{margin:.15rem 0;font-size:.97rem}
+.cqcpm-etapes{list-style:none;padding:0;margin:.3rem 0;display:grid;gap:.5rem}
+.cqcpm-etapes li{display:flex;gap:.7rem;align-items:flex-start;margin:0}
+.cqcpm-etapes .num{flex:none;width:32px;height:32px;border-radius:9px;background:var(--accent-solide,var(--accent));color:#fff;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+/* Résultat */
+.cqcpm-res li,.cqcpm-res .texte{color:var(--text-strong)}
+.cqcpm-pile{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.cqcpm-pile .col{border:1px solid var(--border-strong);border-radius:10px;padding:.5rem .7rem;background:var(--bg-subtle)}
+.cqcpm-pile .col h4{font-size:.95rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.4rem;align-items:center}
+.cqcpm-pile .col h4 .bi{color:var(--accent-texte,var(--accent))}
+.cqcpm-actions{display:flex;flex-wrap:wrap;gap:.6rem .8rem;margin:1rem 0 .2rem}
+.cqcpm-actions .btn{min-height:46px}
+.cqcpm-garde .ligne{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.5rem 0}
+.cqcpm-garde .txt{flex:1 1 220px}
+.cqcpm-garde h3{font-size:1.02rem;font-weight:800;margin:0}
+.cqcpm-garde p{margin:.15rem 0 0;font-size:.93rem}
+.mq-page.tel .cqcpm-cartes,.mq-page.tel .cqcpm-cartes.n2{grid-template-columns:1fr}
+.mq-page.tel .cqcpm-cartes.n1{max-width:none}
+.mq-page.tel .cqcpm-pile{grid-template-columns:1fr}
+.mq-page.tel .cqcpm-ajout{flex-direction:column}
+@media(max-width:700px){.cqcpm-cartes,.cqcpm-cartes.n2{grid-template-columns:1fr}.cqcpm-cartes.n1{max-width:none}.cqcpm-pile{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Maquette : introduction et pages <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran</b><div class="boutons" id="mqEcrans"></div></div>
+  <div class="grp"><b>Style des questions (à choisir)</b><div class="boutons" id="mqStyle"></div></div>
+  <div class="grp"><b>Pour vérifier que tout suit l'accent</b><div class="boutons" id="mqVerif"></div></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+/* ---------- Outils ---------- */
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var ETAT={ecran:'intro',style:'B',theme:'clair',accent:'bleu',tel:false,gardee:false,envies:['Apprendre à cuisiner pour d’autres','Voir la mer en hiver'],piles:{creer:'essentielle',aider:'importante',libre:'essentielle'},nsel:{}};
+var ECRANS=[['intro','Introduction'],['accueil','Accueil'],['invitation','Invitation'],['texte','Saisie : textes'],['liste','Saisie : liste'],['piles','Saisie : trois piles'],['resultat','Résultat'],['gardees','Ce que j’ai gardé']];
+function carte(id){return CQCPM_CARTES.filter(function(c){return c.id===id;})[0];}
+
+/* ---------- Réglages ---------- */
+function dessinerReglages(){
+  var b=function(act,val,lib,pressed){return '<button type="button" data-act="'+act+'" data-v="'+val+'" aria-pressed="'+pressed+'">'+lib+'</button>';};
+  document.getElementById('mqEcrans').innerHTML=ECRANS.map(function(e){return b('ecran',e[0],e[1],ETAT.ecran===e[0]);}).join('');
+  document.getElementById('mqStyle').innerHTML=b('style','A','A : questions libres dans le bloc',ETAT.style==='A')+b('style','B','B : une zone par question, filet d’accent (recommandé)',ETAT.style==='B');
+  document.getElementById('mqVerif').innerHTML=b('theme','clair','Clair',ETAT.theme==='clair')+b('theme','sombre','Sombre',ETAT.theme==='sombre')+' · '+b('accent','bleu','Bleu',ETAT.accent==='bleu')+b('accent','orange','Orange',ETAT.accent==='orange')+b('accent','vert','Vert',ETAT.accent==='vert')+' · '+b('tel','0','Ordinateur',!ETAT.tel)+b('tel','1','Téléphone',ETAT.tel);
+}
+document.getElementById('mqRegl').addEventListener('click',function(ev){
+  var b=ev.target.closest('button[data-act]'); if(!b){return;}
+  var a=b.getAttribute('data-act'),v=b.getAttribute('data-v');
+  if(a==='ecran'){ETAT.ecran=v;} if(a==='style'){ETAT.style=v;}
+  if(a==='theme'){ETAT.theme=v;} if(a==='accent'){ETAT.accent=v;} if(a==='tel'){ETAT.tel=v==='1';}
+  appliquer();
+});
+document.getElementById('mqFermer').addEventListener('click',function(){document.getElementById('mqRegl').style.display='none';document.getElementById('mqRouvrir').style.display='block';});
+document.getElementById('mqRouvrir').addEventListener('click',function(){document.getElementById('mqRegl').style.display='block';this.style.display='none';});
+
+/* ---------- Morceaux communs ---------- */
+function titre(sous){
+  return '<div class="text-center"><h1><i class="bi bi-layers"></i> Ce qui compte pour moi</h1>'+(sous?'<p class="sousTitre"><strong>'+sous+'</strong></p>':'')+'</div>';
+}
+function bandeCarte(c,partie){
+  return '<div class="cqcpm-bandeau"><span class="cqcpm-ico"><i class="bi '+c.icone+'" aria-hidden="true"></i></span><div><b>'+esc(c.nom)+'</b><span>'+esc(partie.titre)+'</span></div>'+(partie.n?'<span class="n">Partie '+partie.n+' sur '+partie.sur+'</span>':'')+'</div>';
+}
+function retour(){return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm" data-go="accueil"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à « Ce qui compte pour moi »</button></div>';}
+function revoir(){return '<div class="mb-2"><button type="button" class="btn btn-outline-primary btn-sm" data-go="intro"><i class="bi bi-layers" aria-hidden="true"></i> Revoir la présentation</button></div>';}
+function barre(retourLib,suiv){return '<div class="mq-barre"><button type="button" class="btn btn-outline-primary">← '+(retourLib||'Retour')+'</button><button type="button" class="btn btn-outline-primary"><i class="bi bi-house" aria-hidden="true"></i> Accueil</button>'+(suiv?'<button type="button" class="btn btn-primary">'+suiv+'</button>':'<span style="width:7rem"></span>')+'</div>';}
+function question(lib,aide,corps){var q='<p class="cqcpm-q">'+esc(lib)+(aide?' <span class="a">('+esc(aide)+')</span>':'')+'</p>'+corps;return ETAT.style==='B'?'<div class="cqcpm-qb">'+q+'</div>':q;}
+function champTexte(lib,aide,court,val){return question(lib,aide,(court?'<input type="text" class="cqcpm-champ" placeholder="Écrivez avec vos mots" aria-label="'+esc(lib)+'">':'<textarea class="cqcpm-champ" rows="3" placeholder="Écrivez avec vos mots" aria-label="'+esc(lib)+'">'+esc(val||'')+'</textarea>'));}
+
+/* ---------- Introduction enrichie ---------- */
+function ecranIntro(){
+  var themes=CQCPM_THEMES_ACCUEIL.map(function(t){
+    var cs=CQCPM_CARTES.filter(function(c){return c.theme===t.id;});
+    return '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi '+t.icone+'" aria-hidden="true"></i></span> '+esc(t.titre)+'</h2><p class="cqcpm-note mb-1">'+esc(t.sous)+'</p>'+
+      cs.map(function(c){return '<div class="cqcpm-intro-carte"><span class="cqcpm-ico petit"><i class="bi '+c.icone+'" aria-hidden="true"></i></span><div><h4>'+esc(c.nom)+'</h4><p class="q">'+esc(c.pour)+'</p><p><b>Vous obtenez :</b> '+esc(c.invitation.obtenez)+'</p></div></div>';}).join('')+'</div>';
+  }).join('');
+  return '<div class="text-center"><h1><i class="bi bi-layers"></i> Ce qui compte pour moi</h1><p class="sousTitre">Un espace pour mettre des mots sur ce que vous aimeriez, sur ce qui compte pour vous dans un travail et sur ce que vous avez vécu.</p></div>'+
+  '<div class="cv-section" style="margin-bottom:.9rem;background:var(--accent-bg-subtle);text-align:center;"><p class="mb-0"><strong>Ni test, ni note, ni profil.</strong> Seulement vos propres mots, à votre rythme.</p></div>'+
+  '<div class="cqcpm-bloc" style="border-style:dashed"><h2><span class="cqcpm-ico"><i class="bi bi-play-circle" aria-hidden="true"></i></span> Vidéo de présentation</h2><p class="cqcpm-note mb-0">Emplacement prévu : une seule vidéo courte pour tout l’espace, quelques secondes par carte et l’esprit général. Elle sera faite en tout dernier (consigne 565). Rien à valider ici.</p></div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-compass" aria-hidden="true"></i></span> À quoi ça sert</h2>'+
+    '<p>Les questions sur un parcours portent souvent sur ce que vous savez faire. Cet espace pose les autres : ce que vous aimeriez, ce qui compte pour vous, et dans quelles conditions vous vous sentez bien pour travailler.</p>'+
+    '<p class="mb-1">Vos mots peuvent ensuite vous servir à :</p><ul class="mb-0"><li>parler de vous à un conseiller, avec vos propres mots ;</li><li>préparer un entretien ;</li><li>choisir une direction, avec « Explorer les métiers » et sa synthèse.</li></ul></div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-grid" aria-hidden="true"></i></span> Huit cartes, en quatre thèmes</h2><p class="mb-0">Chaque carte est indépendante : vous commencez par celle que vous voulez, dans l’ordre que vous voulez, ou vous n’en faites qu’une. Voici ce que contient chacune.</p></div>'+
+  themes+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-list-ol" aria-hidden="true"></i></span> Comment se passe une carte</h2><ol class="cqcpm-etapes">'+
+    '<li><span class="num">1</span><span><b>Une page d’invitation</b> dit ce que vous allez faire et ce que vous obtenez.</span></li>'+
+    '<li><span class="num">2</span><span><b>Vous écrivez ou vous choisissez</b>, à votre rythme. Vous pouvez passer une question ou répondre « je ne sais pas ».</span></li>'+
+    '<li><span class="num">3</span><span><b>Vous voyez votre résultat</b>, avec vos mots, sans note ni jugement.</span></li>'+
+    '<li><span class="num">4</span><span><b>Vous choisissez de le garder ou non.</b> Prévoyez le temps qu’il faut.</span></li></ol></div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-floppy" aria-hidden="true"></i></span> Ce que vous gardez, et ce que vous en faites</h2><ul class="mb-0">'+
+    '<li>Les résultats gardés sont rangés dans « Ce que j’ai gardé ». Vous pouvez les relire, les modifier ou les effacer.</li>'+
+    '<li>Ils partent avec votre sauvegarde personnelle (la disquette), sur votre appareil.</li>'+
+    '<li><b>Nouveau :</b> vous pouvez les imprimer ou les enregistrer en PDF, pour les apporter à un conseiller.</li>'+
+    '<li>Dans « Explorer les métiers », la page « Ma synthèse » peut les lire avec le reste, seulement ceux que vous cochez. Vous relisez la demande avant qu’elle parte.</li></ul></div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-slash-circle" aria-hidden="true"></i></span> Ce que cet espace ne fait pas</h2><ul class="mb-0"><li>Il ne vous donne ni note, ni type, ni profil.</li><li>Il ne vous dit pas quel métier choisir.</li><li>Il ne juge aucune de vos réponses : il n’y a pas de bonne ou de mauvaise réponse.</li><li>Il ne remplace pas une aide. Si c’est difficile en ce moment, les fiches d’aide de l’application vous disent qui contacter.</li></ul></div>'+
+  '<div class="cqcpm-ok"><i class="bi bi-shield-check" aria-hidden="true"></i><span><b>Rien n’est enregistré pendant que vous écrivez.</b> À la fin de chaque carte, vous choisissez de garder le résultat ou non. Rien n’est envoyé ailleurs.</span></div>'+
+  '<div class="text-center"><button type="button" class="btn btn-primary btn-lg" data-go="accueil">Ouvrir l’espace →</button></div>';
+}
+
+/* ---------- Accueil ---------- */
+function ecranAccueil(){
+  var h=revoir()+titre('Par où voulez-vous commencer ?')+'<p class="text-center">Ni test, ni note : seulement vos propres mots. Chaque carte est indépendante : vous commencez par celle que vous voulez.</p>';
+  CQCPM_THEMES_ACCUEIL.forEach(function(t,ti){
+    var cs=CQCPM_CARTES.filter(function(c){return c.theme===t.id;});
+    var nb=ti===0?1:0;
+    h+='<div class="cqcpm-theme-bloc"><div class="tete"><span class="cqcpm-ico"><i class="bi '+t.icone+'" aria-hidden="true"></i></span><div><h2>'+esc(t.titre)+'</h2><p>'+esc(t.sous)+'</p></div><span class="compte cqcpm-compte'+(nb?' plein':'')+'">'+nb+' sur '+cs.length+' gardée'+(cs.length>1?'s':'')+'</span></div><div class="cqcpm-cartes n'+cs.length+'">';
+    cs.forEach(function(c,i){
+      var garde=ti===0&&i===0;
+      h+='<div class="cqcpm-carte">'+(garde?'<span class="cqcpm-etat"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Gardé</span>':'')+'<span class="cqcpm-ico"><i class="bi '+c.icone+'" aria-hidden="true"></i></span><h3>'+esc(c.nom)+'</h3><p class="pour">'+esc(c.pour)+'</p><p class="dit">'+esc(c.dit)+'</p><button type="button" class="btn '+(garde?'btn-outline-primary':'btn-primary')+'" data-go="'+(i===0&&ti===0?'invitation':(c.id==='journee'?'texte':(c.id==='valeurs'?'piles':'invitation')))+'">'+(garde?'Reprendre cette carte':'Commencer')+'</button></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='<div class="d-flex justify-content-center mt-3"><button type="button" class="btn btn-outline-primary" data-go="gardees"><i class="bi bi-floppy" aria-hidden="true"></i> Ce que j’ai gardé (1)</button></div>';
+  return h+barre('Retour');
+}
+
+/* ---------- Invitation ---------- */
+function ecranInvitation(){
+  var c=carte('envies'),d=c.invitation;
+  var b=function(ic,t,x){return '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi '+ic+'" aria-hidden="true"></i></span> '+t+'</h2><p class="mb-0">'+esc(x)+'</p></div>';};
+  return revoir()+titre(c.nom)+retour()+'<p class="text-center" style="font-size:1.05rem">'+esc(c.pour)+'</p>'+
+    b('bi-pencil','Ce que vous faites',d.faites)+b('bi-card-list','Ce que vous obtenez',d.obtenez)+b('bi-info-circle','À savoir',d.savoir+' Prévoyez le temps qu’il faut. Rien n’est enregistré tant que vous ne choisissez pas de garder le résultat.')+barre('Retour','Commencer');
+}
+
+/* ---------- Saisie : textes (Ma journée idéale) ---------- */
+function ecranTexte(){
+  var c=carte('journee');
+  return revoir()+titre(c.nom)+retour()+bandeCarte(c,{titre:'Ma journée'})+
+    '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-sun" aria-hidden="true"></i></span> Une journée de travail qui me ferait du bien</h2><p>Racontez-la au présent, comme si c’était aujourd’hui.</p>'+
+    champTexte('Le matin, avant de partir')+champTexte('Le lieu et le trajet')+champTexte('Ce que je fais pendant la journée')+champTexte('Avec qui','',true)+champTexte('La fin de journée')+'</div>'+barre('Retour','Voir mon résultat');
+}
+
+/* ---------- Saisie : liste (Si rien ne m'arrêtait) ---------- */
+function ecranListe(){
+  var c=carte('envies'),l=ETAT.envies;
+  var amorces=['J’aimerais apprendre…','J’aimerais créer…','J’aimerais aider…','J’aimerais voir…','J’aimerais vivre…','J’aimerais transmettre…'];
+  var corps='<p class="cqcpm-q">Si rien ne m’arrêtait…</p><p class="cqcpm-note">Imaginez que le temps, l’argent, la distance et les contraintes ne soient plus un obstacle. Écrivez de trois à dix envies, une phrase chacune. Elles peuvent être modestes : voir la mer en hiver, apprendre à cuisiner, aider un voisin.</p>'+
+    '<p class="cqcpm-q">Pour démarrer, choisissez un début de phrase</p><div class="cqcpm-rep">'+amorces.map(function(a){return '<button type="button" data-amorce="'+esc(a)+'">'+esc(a)+'</button>';}).join('')+'</div>'+
+    '<ul class="cqcpm-lignes">'+(l.length?l.map(function(x,i){return '<li><span class="num">'+(i+1)+'</span><span>'+esc(x)+'</span><button type="button" class="btn btn-outline-secondary btn-sm" data-retirer="'+i+'" aria-label="Retirer"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>';}).join(''):'<li><span>Vos envies apparaîtront ici.</span></li>')+'</ul>'+
+    '<div class="cqcpm-ajout"><input type="text" class="cqcpm-champ" id="mqNouvelle" placeholder="Écrivez une phrase, puis « Ajouter »" aria-label="Une nouvelle phrase"><button type="button" class="btn btn-primary" data-ajouter="1"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter</button></div>'+
+    '<p class="cqcpm-note"><span class="cqcpm-compte'+(l.length>=3?' plein':'')+'">'+l.length+' sur 10 au plus</span> De 3 à 10 sont attendues, mais « je ne sais pas » est une réponse possible : vous pouvez continuer sans rien écrire.</p>';
+  return revoir()+titre(c.nom)+retour()+bandeCarte(c,{titre:'Mes envies',n:1,sur:3})+'<div class="cqcpm-bloc">'+(ETAT.style==='B'?'<div class="cqcpm-qb">'+corps+'</div>':corps)+'</div>'+barre('Retour','Continuer');
+}
+
+/* ---------- Saisie : trois piles (Ce qui compte au travail) ---------- */
+function ecranPiles(){
+  var c=carte('valeurs');
+  var opts=[['essentielle','Essentielle','bi-star-fill'],['importante','Importante','bi-star-half'],['moins','Moins','bi-star']];
+  var corps='<p class="cqcpm-q">Dans un travail, qu’est-ce qui compte pour moi ?</p><p class="cqcpm-note">Pour chaque repère, choisissez une pile ou ne choisissez rien. Un repère sans pile veut dire « sans avis ».</p>';
+  CQCPM_VALEURS_GROUPES.slice(0,3).forEach(function(g){
+    corps+='<h3 class="cqcpm-sous-titre">'+esc(g.titre)+'</h3>'+g.valeurs.map(function(v){
+      return '<div class="cqcpm-val"><span class="lib">'+esc(v.lib)+'</span><div class="cqcpm-rep" role="group" aria-label="'+esc(v.lib)+'">'+opts.map(function(o){var p=ETAT.piles[v.id]===o[0];return '<button type="button" data-pile="'+v.id+'" data-v="'+o[0]+'" aria-pressed="'+p+'"><i class="bi '+o[2]+'" aria-hidden="true"></i> '+o[1]+'</button>';}).join('')+'</div></div>';
+    }).join('');
+  });
+  corps+='<p class="cqcpm-note mt-2">(La maquette montre trois groupes sur cinq.)</p>';
+  return revoir()+titre(c.nom)+retour()+bandeCarte(c,{titre:'Trois piles',n:1,sur:2})+'<div class="cqcpm-bloc">'+corps+'</div>'+barre('Retour','Continuer');
+}
+
+/* ---------- Résultat ---------- */
+function ecranResultat(){
+  var c=carte('journee'),g=ETAT.gardee;
+  var sec=function(t,ic,x){return '<div class="cqcpm-bloc cqcpm-res"><h2><span class="cqcpm-ico petit"><i class="bi '+ic+'" aria-hidden="true"></i></span> '+t+'</h2><p class="texte mb-0">'+x+'</p></div>';};
+  return revoir()+titre(c.nom)+retour()+
+    '<p class="text-center" style="font-size:1.05rem">Voici ce que vous venez de dire, avec vos mots. '+(g?'':'Rien n’est enregistré tant que vous ne le gardez pas.')+'</p>'+
+    (g?'<div class="cqcpm-ok"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span><b>Résultat gardé le 22/11/2026.</b> Vous le retrouvez dans « Ce que j’ai gardé », et il part avec votre sauvegarde personnelle (la disquette).</span></div>':'')+
+    '<div class="cqcpm-bloc cqcpm-res"><h2><span class="cqcpm-ico"><i class="bi bi-sun" aria-hidden="true"></i></span> Ma journée idéale de travail</h2><ul class="mb-0"><li>Le matin, avant de partir : un café au calme, sans courir.</li><li>Le lieu et le trajet : un atelier à quinze minutes à pied.</li><li>Ce que je fais pendant la journée : je répare, je remets en état.</li><li>Avec qui : une petite équipe.</li><li>La fin de journée : je rentre fatigué mais content.</li></ul></div>'+
+    '<div class="cqcpm-actions">'+(g?'<button type="button" class="btn btn-outline-secondary" data-garder="0"><i class="bi bi-x-circle" aria-hidden="true"></i> Ne plus garder ce résultat</button>':'<button type="button" class="btn btn-primary" data-garder="1"><i class="bi bi-floppy" aria-hidden="true"></i> Garder mon résultat</button>')+
+    '<button type="button" class="btn btn-outline-primary" data-imprimer="1"><i class="bi bi-printer" aria-hidden="true"></i> Imprimer ou enregistrer en PDF</button>'+
+    '<button type="button" class="btn btn-outline-secondary">Modifier mes réponses</button><button type="button" class="btn btn-outline-secondary" data-go="accueil"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l’espace</button></div>'+
+    '<div class="cqcpm-aide mt-3"><i class="bi bi-info-circle" aria-hidden="true"></i><span>« Imprimer ou enregistrer en PDF » ouvre la fenêtre d’impression de votre appareil : choisissez votre imprimante, ou « Enregistrer en PDF ». Rien n’est envoyé ailleurs.</span></div>'+barre('Retour');
+}
+
+/* ---------- Ce que j'ai gardé ---------- */
+function ecranGardees(){
+  var l=[['envies','Gardé le 22/11/2026','Mes trois envies : apprendre à cuisiner pour d’autres, voir la mer en hiver, créer un petit atelier.'],['valeurs','Gardé le 22/11/2026','Essentiel : créer ou fabriquer, être libre de m’organiser. Important : aider.']];
+  return revoir()+titre('Ce que j’ai gardé')+retour()+'<p class="text-center">Les résultats que vous avez choisi de garder. Vous pouvez les relire, les modifier en reprenant la carte, les imprimer ou les effacer.</p>'+
+    '<div class="cqcpm-garde">'+l.map(function(x){var c=carte(x[0]);return '<div class="ligne"><span class="cqcpm-ico"><i class="bi '+c.icone+'" aria-hidden="true"></i></span><div class="txt"><h3>'+esc(c.nom)+'</h3><p class="cqcpm-note">'+x[1]+'</p><p>'+esc(x[2])+'</p></div><button type="button" class="btn btn-outline-primary btn-sm">Relire</button><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash" aria-hidden="true"></i> Effacer</button></div>';}).join('')+'</div>'+
+    '<div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary"><i class="bi bi-printer" aria-hidden="true"></i> Tout imprimer ou enregistrer en PDF</button><button type="button" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Tout effacer</button></div>'+barre('Retour');
+}
+
+/* ---------- Rendu ---------- */
+var VUES={intro:ecranIntro,accueil:ecranAccueil,invitation:ecranInvitation,texte:ecranTexte,liste:ecranListe,piles:ecranPiles,resultat:ecranResultat,gardees:ecranGardees};
+function appliquer(){
+  var h=document.documentElement;
+  if(ETAT.theme==='sombre'){h.setAttribute('data-theme','sombre');}else{h.removeAttribute('data-theme');}
+  if(ETAT.accent==='bleu'){h.removeAttribute('data-accent');}else{h.setAttribute('data-accent',ETAT.accent);}
+  var p=document.getElementById('mqPage'); p.className='mq-page'+(ETAT.tel?' tel':'')+(ETAT.style==='B'?' mq-b':'');
+  p.innerHTML=VUES[ETAT.ecran]()+decisions();
+  dessinerReglages();
+}
+function decisions(){
+  if(ETAT.ecran!=='intro'&&ETAT.ecran!=='accueil'&&ETAT.ecran!=='resultat'){return '';}
+  return '<div class="mq-decision"><h2>Ce que cette maquette change</h2><ul class="mb-0">'+
+  '<li><b>Zones de saisie</b> : bordure d’accent de 2 px, fond de la carte, texte plus grand, cadre bleu au clic (la règle « champ bien visible » déjà utilisée par Qui fait quoi), jamais du gris sur blanc.</li>'+
+  '<li><b>Choix</b> : bordure de 2 px, choix fait en bleu plein avec une coche (comme les boutons d’Explorer les métiers).</li>'+
+  '<li><b>Textes</b> : plus de gris pâle pour ce qui se lit ; le gris reste pour les notes.</li>'+
+  '<li><b>Couleurs</b> : uniquement l’accent du site. Le vert et l’ambre de l’espace actuel disparaissent. Changez l’accent dans les réglages : tout suit.</li></ul></div>';
+}
+document.getElementById('mqPage').addEventListener('click',function(ev){
+  var b=ev.target.closest('button'); if(!b){return;}
+  if(b.getAttribute('data-go')){ETAT.ecran=b.getAttribute('data-go');appliquer();window.scrollTo(0,0);return;}
+  if(b.hasAttribute('data-pile')){var id=b.getAttribute('data-pile'),v=b.getAttribute('data-v');if(ETAT.piles[id]===v){delete ETAT.piles[id];}else{ETAT.piles[id]=v;}appliquer();return;}
+  if(b.hasAttribute('data-garder')){ETAT.gardee=b.getAttribute('data-garder')==='1';appliquer();return;}
+  if(b.hasAttribute('data-retirer')){ETAT.envies.splice(parseInt(b.getAttribute('data-retirer'),10),1);appliquer();return;}
+  if(b.hasAttribute('data-ajouter')){var f=document.getElementById('mqNouvelle');if(f&&f.value.trim()&&ETAT.envies.length<10){ETAT.envies.push(f.value.trim());appliquer();}return;}
+  if(b.hasAttribute('data-amorce')){var f2=document.getElementById('mqNouvelle');if(f2){f2.value=b.getAttribute('data-amorce').replace(/…$/,'')+' ';f2.focus();}return;}
+  if(b.hasAttribute('data-imprimer')){alert('Dans l’application, la fenêtre d’impression de l’appareil s’ouvrirait ici.');return;}
+});
+appliquer();
+</script>
+</body>
+</html>

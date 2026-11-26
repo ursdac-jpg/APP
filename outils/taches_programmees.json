@@ -216,7 +216,7 @@
       "titre": "Smic : y a-t-il une annonce de hausse ?",
       "date": "2026-12-01",
       "estimee": true,
-      "pourquoi": "Le plan de reprise note une hausse « au 1er décembre 2026 », le fichier du Smic dit 12,31 euros depuis le 01/06/2026, le web et `docs/VERIFICATIONS_A_DATE_FIXE.md` annoncent une revalorisation annuelle au 1er janvier 2027 (annonce en décembre 2026). Il faut lever ce doute sur un texte officiel. Marche à suivre : `docs/VERIFICATIONS_A_DATE_FIXE.md`.",
+      "pourquoi": "Le discours du Premier ministre du 09/11/2026 (vie-publique.fr, discours 305299) annonce un Smic en hausse de 1,6 % au 1er décembre 2026, soit environ 1 502 euros par mois (montant très probablement net, le texte ne le précise pas). Le décret n'est pas encore publié au Journal officiel : le fichier du Smic dit toujours 12,31 euros depuis le 01/06/2026 et ne doit pas changer avant ce décret. À faire à la parution : relever le texte officiel (brut, horaire, date d'effet), puis appliquer la marche à suivre de `docs/VERIFICATIONS_A_DATE_FIXE.md`. Rubrique « Ce qui change au prochain Smic » : EN RÉSERVE (décision de Denis, 23/11/2026) ; ni audit ni maquette avant le décret, à reproposer seulement après la mise à jour des chiffres (mode A, effort haut).",
       "quoi": "Montant du Smic horaire brut, date d'effet, texte officiel (décret ou arrêté, date de parution au Journal officiel). Dire clairement si rien n'est encore publié.",
       "fichiers": [
         "modules/comprendre-les-chiffres/donnees/smic-inflation.json",
@@ -231,6 +231,10 @@
         {
           "nom": "Légifrance, Journal officiel",
           "url": "https://www.legifrance.gouv.fr/jorf"
+        },
+        {
+          "nom": "Vie publique, discours du Premier ministre du 09/11/2026 (annonce de la hausse du Smic)",
+          "url": "https://www.vie-publique.fr/discours/305299"
         }
       ],
       "faite": null,
@@ -240,7 +244,7 @@
         "rubriques": [
           "Bloc « Le Smic et l’inflation » : montant, date d’effet, texte officiel (smic-inflation.json et smic-dares.md)",
           "Mots « Smic » et « RGDU » du Lexique, et toutes les fiches qui citent un montant",
-          "Si une hausse est annoncée : une rubrique « Ce qui change au prochain Smic » (montant à venir et date d’effet), à proposer à Denis avec maquette"
+          "Si une hausse est annoncée : une rubrique « Ce qui change au prochain Smic » (montant à venir et date d’effet), EN RÉSERVE depuis le 23/11/2026 : à reproposer à Denis avec maquette seulement après la mise à jour des chiffres"
         ],
         "nouveaute": "Une hausse annoncée ou appliquée est visible par les personnes : ajouter une ligne"
       }
@@ -669,8 +673,8 @@
       "titre": "Niveaux d’accès des métiers : reprendre quand MétierScope répond de nouveau",
       "date": "2026-11-24",
       "estimee": true,
-      "pourquoi": "Le 17/11/2026, le site de France Travail (donc MétierScope) ne répond plus : ni le navigateur intégré ni Chrome ne chargent les fiches. 533 niveaux sont déjà lus et rangés dans docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json (intégrés le 17/11/2026). Restent : le niveau du Couvreur (F1619), le choix pour deux fiches écrites à la main au mauvais code ROME, et l’intégration. Date estimée : à confirmer selon le retour du site.",
-      "quoi": "1) Vérifier à la main que le site candidat.francetravail.fr répond. 2) Lire la fiche F1619 (Couvreur), rubrique « Comment y accéder », et noter le niveau le plus bas qui permet d’entrer. 3) Trancher pour « Ouvrier agricole / viticole » (code A1405 à corriger en A1419) et « Ouvrier de chai / Agent de cave » (A1413 à corriger en A1422) : A1419 et A1422 existent déjà comme fiches générées du ROME, donc remplacer ou non les fiches écrites à la main (alias METIERS_ROME_ALIAS + identifiants dans data/metiers.js et data/secteurs.js). 4) Quand le niveau de F1619 est lu : l'ajouter au fichier docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json puis lancer node scripts/importRome/genererNiveauxVerifies.js. (Les 532 autres niveaux sont déjà intégrés depuis le 17/11/2026.)",
+      "pourquoi": "Terminé le 25/11/2026. MétierScope répond de nouveau. Couvreur (F1619) = niveau 3 (CAP, choix de Denis). Les deux fiches écrites à la main reprennent le bon code ROME : Ouvrier agricole / viticole A1419, Ouvrier de chai / Agent de cave A1422 (choix de Denis : corriger le code, pas de doublon avec les fiches générées).",
+      "quoi": "1) Trancher pour « Ouvrier agricole / viticole » (code A1405 à corriger en A1419) et « Ouvrier de chai / Agent de cave » (A1413 à corriger en A1422) : A1419 et A1422 existent déjà comme fiches générées du ROME, donc corriger le code de la fiche écrite à la main (avec alias METIERS_ROME_ALIAS pour éviter un doublon) ou la remplacer. Fichiers : data/metiers.js, data/metiersRome.js (alias), data/secteurs.js, modules/comprendre-les-metiers/recrute.js. 2) Une fois fait, régénérer si besoin avec node scripts/importRome/genererNiveauxVerifies.js, puis clore la tâche.",
       "fichiers": [
         "docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json",
         "scripts/importRome/genererNiveauxVerifies.js",
@@ -686,9 +690,9 @@
       ],
       "reprise": {
         "phrase": "Reprendre les niveaux d’accès des métiers (MétierScope)",
-        "contexte": "État : docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json (533 niveaux, 131 sans niveau de diplôme, tous doutes tranchés par Denis le 17/11/2026). Couvreur recodé F1619 (commit ca05d1f5). Les deux fiches agricoles restent aux anciens codes en attendant la décision de Denis. Vérifier d’abord avec Denis que MétierScope répond."
+        "contexte": "État : docs/NIVEAUX_VERIFIES_PAR_ASSISTANT_2026-11-17.json (533 niveaux dont F1619 = 3 depuis le 25/11/2026). Les deux fiches agricoles restent aux anciens codes en attendant la décision de Denis."
       },
-      "faite": null,
+      "faite": "2026-11-25",
       "creee_le": "2026-11-17",
       "miseAJour": {
         "module": "Explorer les métiers",
@@ -697,6 +701,56 @@
           "Fiches Ouvrier agricole / viticole, Ouvrier de chai et Couvreur"
         ],
         "nouveaute": "Une ligne dans data/nouveautes.js si le niveau d’accès devient visible sur de nouveaux métiers"
+      }
+    },
+    {
+      "id": "bien-utiliser-ia-relecture-mai-2027",
+      "titre": "Bien utiliser l’IA : relire le contenu qui vieillit vite",
+      "date": "2027-05-25",
+      "estimee": false,
+      "pourquoi": "Module ouvert au public le 25/11/2026. Les affirmations sur les assistants en ligne (conservation des conversations, recherche sur le web, réglages de confidentialité) changent vite : relecture tous les six mois.",
+      "quoi": "Relire les affirmations sur les assistants (conservation des conversations, recherche sur le web, réglages de confidentialité), les 17 fiches du Lexique de la famille « Numérique et assistants en ligne » (univers numerique-assistants) et les fiches datées de chaque assistant (date de mise à jour BUIA_C4_DATE_MAJ, champ source de chaque fiche).",
+      "fichiers": [
+        "data/buiaComprendre.js",
+        "prompts/bien-utiliser-*.md",
+        "data/lexique.js (univers numerique-assistants)"
+      ],
+      "sources": [],
+      "faite": null,
+      "creee_le": "2026-11-25",
+      "miseAJour": {
+        "module": "Bien utiliser l’IA",
+        "rubriques": [
+          "Fiches des assistants du chemin « Je veux savoir comment il fonctionne » et date BUIA_C4_DATE_MAJ",
+          "Affirmations du chemin « Comprendre » sur la conservation des conversations et la recherche sur le web",
+          "Fiches du Lexique « Numérique et assistants en ligne »"
+        ],
+        "nouveaute": "Seulement si une affirmation ou une fiche a changé pour les personnes : ajouter une ligne"
+      }
+    },
+    {
+      "id": "ce-qui-compte-relecture-mai-2027",
+      "titre": "Ce qui compte pour moi : relire les textes et la vidéo",
+      "date": "2027-05-25",
+      "estimee": false,
+      "pourquoi": "Espace ouvert au public le 25/11/2026. La vidéo montre l’accueil et les textes de fin de rubrique de cette date : elle est à rejouer si l’un d’eux a changé.",
+      "quoi": "Relire les huit cartes, les quatre textes de fin de rubrique (data/cqcpmCartes.js, champ fin) et vérifier que la vidéo (videos/modules/ce-qui-compte.mp4) correspond encore à l’accueil. Si besoin, la rejouer avec node fabriquer.js module-ce-qui-compte (dossier docs/video_presentation/court).",
+      "fichiers": [
+        "data/cqcpmCartes.js",
+        "modules/ce-qui-compte/ecrans.js",
+        "docs/video_presentation/court/scenarios/module-ce-qui-compte.js",
+        "videos/modules/ce-qui-compte.mp4"
+      ],
+      "sources": [],
+      "faite": null,
+      "creee_le": "2026-11-25",
+      "miseAJour": {
+        "module": "Ce qui compte pour moi",
+        "rubriques": [
+          "Textes de fin de rubrique de l’accueil",
+          "Vidéo de présentation, si l’accueil a changé"
+        ],
+        "nouveaute": "Seulement si un texte ou un écran visible a changé : ajouter une ligne"
       }
     }
   ]

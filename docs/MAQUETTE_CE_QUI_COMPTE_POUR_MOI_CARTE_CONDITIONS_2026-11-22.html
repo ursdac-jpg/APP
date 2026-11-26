@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : carte « Comment je veux travailler »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:860px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-bandeau{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.7rem .9rem;margin:1.4rem 0 0;font-size:.9rem}
+.mq-decision h2{font-size:1rem;margin:0 0 .4rem}
+.mq-decision ol{margin:0;padding-left:1.2rem}
+.mq-decision li{margin:.3rem 0}
+.mq-page h1{font-size:1.35rem;margin:.2rem 0 .3rem}
+.mq-page .chapeau{color:var(--text-muted);margin:0 0 1rem}
+
+/* ----- Intérieur de la carte (classes .cqcpm-*, à ranger dans css/style.css au moment du code) ----- */
+.cqcpm-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0}
+.cqcpm-bloc h2{font-size:1.02rem;font-weight:800;margin:0 0 .35rem;display:flex;align-items:center;gap:.5rem}
+.cqcpm-bloc h2 .bi{color:var(--accent);font-size:1.2rem}
+.cqcpm-bloc p,.cqcpm-bloc li{font-size:.92rem;color:var(--text-muted);margin:.2rem 0}
+.cqcpm-bloc ul{margin:.2rem 0;padding-left:1.1rem}
+.cqcpm-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+.cqcpm-actions .btn{min-height:44px}
+.cqcpm-theme{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;margin:.5rem 0;overflow:hidden}
+.cqcpm-theme>button{width:100%;display:flex;align-items:center;gap:.6rem;background:none;border:0;padding:.75rem 1rem;color:var(--text-strong);text-align:left;min-height:52px}
+.cqcpm-theme>button .bi:first-child{color:var(--accent);font-size:1.3rem;flex:none}
+.cqcpm-theme>button .t{flex:1}
+.cqcpm-theme>button .t b{display:block;font-size:1rem}
+.cqcpm-theme>button .t span{font-size:.85rem;color:var(--text-muted)}
+.cqcpm-theme>button .nb{font-size:.78rem;font-weight:700;border-radius:999px;padding:.1rem .55rem;border:1px solid var(--border-strong);color:var(--text-muted);flex:none}
+.cqcpm-theme>button .nb.plein{border-color:var(--accent);color:var(--text-strong);background:var(--accent-bg-subtle)}
+.cqcpm-theme.ouvert>button{border-bottom:1px solid var(--border)}
+.cqcpm-theme .corps{padding:.3rem 1rem .8rem}
+.cqcpm-cond{padding:.65rem 0;border-bottom:1px solid var(--border)}
+.cqcpm-cond:last-child{border-bottom:0}
+.cqcpm-cond .lib{font-size:.95rem;font-weight:600;margin:0 0 .4rem}
+.cqcpm-rep{display:flex;flex-wrap:wrap;gap:.4rem}
+.cqcpm-rep button{font-size:.85rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .7rem;min-height:44px;display:inline-flex;align-items:center;gap:.35rem}
+.cqcpm-rep button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.cqcpm-note{font-size:.85rem;color:var(--text-muted)}
+.cqcpm-champ{width:100%;min-height:44px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg-card);color:var(--text-strong);padding:.4rem .6rem}
+.cqcpm-ligne-e{padding:.7rem 0;border-bottom:1px solid var(--border)}
+.cqcpm-ligne-e:last-child{border-bottom:0}
+.cqcpm-ligne-e .lib{font-size:.95rem;font-weight:600;margin:0 0 .4rem;display:flex;gap:.5rem;align-items:flex-start}
+.cqcpm-ligne-e .lib .bi{color:var(--accent);font-size:1.2rem;flex:none}
+.cqcpm-res h2{font-size:1rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.5rem;align-items:center}
+.cqcpm-res h2 .bi{color:var(--accent)}
+.cqcpm-res ul{margin:.2rem 0;padding-left:1.2rem}
+.cqcpm-res li{font-size:.93rem;color:var(--text-strong);margin:.15rem 0}
+.cqcpm-res .vide{font-size:.9rem;color:var(--text-muted)}
+.cqcpm-ok{background:var(--accent-bg-subtle);border:1px solid var(--success);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;font-size:.92rem;display:flex;gap:.5rem;align-items:flex-start}
+.cqcpm-ok .bi{color:var(--success);font-size:1.2rem}
+.cqcpm-lien{display:inline-flex}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran de la carte</b><div class="boutons" id="g-ecran">
+    <button type="button" data-v="invit">1. Invitation</button><button type="button" data-v="saisie">2. Les thèmes</button><button type="button" data-v="energie">3. Énergie</button><button type="button" data-v="res">4. Résultat</button><button type="button" data-v="garde">5. Résultat gardé</button></div></div>
+  <div class="grp"><b>Remplissage pour l'exemple</b><div class="boutons" id="g-rempl">
+    <button type="button" data-v="vide">Aucune réponse</button><button type="button" data-v="ex">Réponses d'exemple</button></div></div>
+  <div class="grp"><b>Bloc « fiches métiers » sur le résultat</b><div class="boutons" id="g-rome">
+    <button type="button" data-v="oui">Montré (recommandé)</button><button type="button" data-v="non">Caché</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Les boutons de réponse, les thèmes qui s'ouvrent un par un et les boutons de navigation entre les cinq écrans fonctionnent ; l'enregistrement et les liens vers d'autres pages ne sont pas branchés. Les réponses saisies ici ne sont pas conservées.</div>
+  <div id="rendu"></div>
+  <div class="mq-decision">
+    <h2><i class="bi bi-question-circle" aria-hidden="true"></i> Ce que je vous demande de regarder</h2>
+    <ol>
+      <li>Les sept thèmes et les formulations des conditions (une cinquantaine) vous conviennent-ils ?</li>
+      <li>Les trois réponses « Je le veux », « Je peux m'adapter », « Je préfère l'éviter » sont-elles claires ? Ne rien cocher signifie « sans avis ».</li>
+      <li>La question d'énergie (écran 3) et le résultat (écran 4) vous paraissent-ils justes, sans rien de mesuré ni de classé ?</li>
+      <li>Le bloc « fiches métiers » du résultat : le garder, ou le retirer ?</li>
+    </ol>
+  </div>
+</div>
+<script>
+var E = { ecran: 'invit', rempl: 'vide', rome: 'oui', tel: false, sombre: false, ouvert: 'lieu', rep: {}, ener: {}, salaire: '' };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+var REPONSES = [
+  { id: 'veux', nom: 'Je le veux', icone: 'bi-check-lg' },
+  { id: 'adapte', nom: 'Je peux m’adapter', icone: 'bi-arrow-left-right' },
+  { id: 'evite', nom: 'Je préfère l’éviter', icone: 'bi-slash-circle' }
+];
+var THEMES = [
+  { id: 'lieu', icone: 'bi-geo-alt', titre: 'Où je travaille', sous: 'Dehors, dedans, chez moi, chez les autres.', conds: [
+    ['l1', 'Travailler à l’extérieur'], ['l2', 'Travailler à l’intérieur'], ['l3', 'Travailler chez les gens, à leur domicile'],
+    ['l4', 'Travailler à mon domicile'], ['l5', 'Travailler à distance (télétravail)'], ['l6', 'Changer de lieu au cours de la journée'],
+    ['l7', 'Travailler dans un endroit bruyant'], ['l8', 'Travailler dans un endroit calme'] ] },
+  { id: 'rythme', icone: 'bi-speedometer2', titre: 'Mon rythme', sous: 'La cadence, le corps, la précision.', conds: [
+    ['r1', 'Faire souvent les mêmes gestes'], ['r2', 'Avoir une tâche différente d’un jour à l’autre'], ['r3', 'Tenir un rythme soutenu, avec des pointes de travail'],
+    ['r4', 'Travailler à un rythme tranquille'], ['r5', 'Rester debout longtemps'], ['r6', 'Rester assis longtemps'],
+    ['r7', 'Porter des charges'], ['r8', 'Faire un travail minutieux, qui demande de la précision'] ] },
+  { id: 'horaires', icone: 'bi-clock', titre: 'Mes horaires', sous: 'Quand je travaille.', conds: [
+    ['h1', 'Avoir toujours les mêmes horaires'], ['h2', 'Avoir des horaires qui changent d’une semaine à l’autre'], ['h3', 'Travailler en soirée'],
+    ['h4', 'Travailler de nuit'], ['h5', 'Travailler le week-end'], ['h6', 'Travailler les jours fériés'],
+    ['h7', 'Faire un travail saisonnier'], ['h8', 'Pouvoir aménager mes horaires'] ] },
+  { id: 'contact', icone: 'bi-people', titre: 'Le contact avec les autres', sous: 'Seul(e), en équipe, avec le public.', conds: [
+    ['c1', 'Être en contact avec le public'], ['c2', 'Travailler en équipe'], ['c3', 'Travailler seul(e)'],
+    ['c4', 'Guider ou encadrer d’autres personnes'], ['c5', 'Recevoir des consignes d’un responsable'],
+    ['c6', 'Accueillir des personnes en difficulté ou mécontentes'], ['c7', 'Répondre au téléphone ou aux messages toute la journée'] ] },
+  { id: 'cadre', icone: 'bi-building', titre: 'Le cadre de travail', sous: 'La structure, les règles, la tenue.', conds: [
+    ['k1', 'Porter une tenue de travail'], ['k2', 'Respecter des règles de sécurité strictes'], ['k3', 'Travailler dans le secteur public'],
+    ['k4', 'Travailler dans une petite structure'], ['k5', 'Travailler dans une grande entreprise'],
+    ['k6', 'Avoir un responsable présent près de moi'], ['k7', 'Être autonome, sans personne derrière moi'], ['k8', 'Avoir des objectifs chiffrés à atteindre'] ] },
+  { id: 'deplacements', icone: 'bi-truck', titre: 'Les déplacements', sous: 'Rouler, se déplacer, changer de ville.', conds: [
+    ['d1', 'Conduire pour travailler'], ['d2', 'Passer d’un site à un autre dans la journée'], ['d3', 'Partir plusieurs jours de temps en temps'],
+    ['d4', 'Avoir un long trajet pour aller travailler'], ['d5', 'Déménager pour un emploi'], ['d6', 'Utiliser un véhicule fourni par l’employeur'] ] },
+  { id: 'vie', icone: 'bi-house-heart', titre: 'Mon cadre de vie', sous: 'Ce que mon travail doit laisser de place dans ma vie.', conds: [
+    ['v1', 'Rester près de chez moi'], ['v2', 'Pouvoir me rendre au travail sans voiture'], ['v3', 'Garder du temps pour ma vie de famille ou mes proches'],
+    ['v4', 'Accepter de céder sur certains horaires pour un emploi qui me plaît'], ['v5', 'Pouvoir changer de ville'] ], champ: true }
+];
+var EXEMPLE = { l1: 'veux', l3: 'evite', l5: 'adapte', r5: 'evite', r8: 'veux', h1: 'veux', h4: 'evite', h5: 'adapte', c1: 'veux', c3: 'adapte', k1: 'adapte', d1: 'veux', d3: 'evite', v1: 'veux', v4: 'adapte' };
+var EXEMPLE_E = { reflechir: 'seul', apprendre: 'ensemble', decider: 'depend', difficile: 'seul' };
+var SITUATIONS = [
+  { id: 'reflechir', lib: 'Quand j’ai besoin de réfléchir à un problème, je me sens mieux…' },
+  { id: 'apprendre', lib: 'Quand j’apprends quelque chose de nouveau, je me sens mieux…' },
+  { id: 'decider', lib: 'Quand je dois prendre une décision, je me sens mieux…' },
+  { id: 'difficile', lib: 'Après une journée difficile, je retrouve de l’énergie…' }
+];
+var CHOIX_E = [ { id: 'seul', nom: 'seul(e)' }, { id: 'ensemble', nom: 'avec d’autres' }, { id: 'depend', nom: 'ça dépend' } ];
+
+function repDe(id) { return E.rempl === 'ex' ? EXEMPLE[id] : E.rep[id]; }
+function enerDe(id) { return E.rempl === 'ex' ? EXEMPLE_E[id] : E.ener[id]; }
+function libelle(id) { var r = ''; THEMES.forEach(function (t) { t.conds.forEach(function (c) { if (c[0] === id) { r = c[1]; } }); }); return r; }
+function nbReponses(t) { return t.conds.filter(function (c) { return repDe(c[0]); }).length; }
+function barre(actions) { return '<div class="cqcpm-actions">' + actions + '</div>'; }
+function retourEspace() { return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à « Ce qui compte pour moi »</button></div>'; }
+
+function ecranInvitation() {
+  return retourEspace() + '<h1><i class="bi bi-sliders" aria-hidden="true" style="color:var(--accent)"></i> Comment je veux travailler</h1>' +
+    '<p class="chapeau">Dans quelles conditions vous sentez-vous bien pour travailler ? Il n’y a pas de bonne réponse : seulement ce qui vous correspond aujourd’hui.</p>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-pencil" aria-hidden="true"></i> Ce que vous faites</h2>' +
+    '<p>Sept thèmes, qui s’ouvrent un par un : où je travaille, mon rythme, mes horaires, le contact avec les autres, le cadre de travail, les déplacements, mon cadre de vie. Pour chaque situation, vous choisissez parmi trois réponses : <b>Je le veux</b>, <b>Je peux m’adapter</b>, <b>Je préfère l’éviter</b>.</p></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-card-list" aria-hidden="true"></i> Ce que vous obtenez</h2>' +
+    '<p>Une page qui résume, avec vos mots, ce que vous voulez, ce à quoi vous pouvez vous adapter et ce que vous préférez éviter, utile pour parler de vous à un conseiller.</p></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-info-circle" aria-hidden="true"></i> À savoir</h2>' +
+    '<p>Ne cochez que ce qui compte pour vous : une situation sans réponse veut dire « sans avis ». Vous pouvez changer d’avis à tout moment, et prévoyez le temps qu’il faut. Rien n’est enregistré tant que vous ne choisissez pas de garder le résultat.</p></div>' +
+    barre('<button type="button" class="btn btn-primary" data-go="saisie">Commencer</button>');
+}
+function ecranSaisie() {
+  var h = retourEspace() + '<h1>Mes conditions de travail</h1><p class="chapeau">Ouvrez un thème, répondez seulement à ce qui compte pour vous, puis passez au suivant.</p>';
+  THEMES.forEach(function (t) {
+    var n = nbReponses(t), ouvert = E.ouvert === t.id;
+    h += '<div class="cqcpm-theme' + (ouvert ? ' ouvert' : '') + '"><button type="button" data-ouvrir="' + t.id + '" aria-expanded="' + ouvert + '">' +
+      '<i class="bi ' + t.icone + '" aria-hidden="true"></i><span class="t"><b>' + esc(t.titre) + '</b><span>' + esc(t.sous) + '</span></span>' +
+      '<span class="nb' + (n ? ' plein' : '') + '">' + (n ? n + ' réponse' + (n > 1 ? 's' : '') : 'à compléter') + '</span>' +
+      '<i class="bi ' + (ouvert ? 'bi-chevron-up' : 'bi-chevron-down') + '" aria-hidden="true"></i></button>';
+    if (ouvert) {
+      h += '<div class="corps">';
+      t.conds.forEach(function (c) {
+        h += '<div class="cqcpm-cond"><p class="lib">' + esc(c[1]) + '</p><div class="cqcpm-rep" role="group" aria-label="' + esc(c[1]) + '">' +
+          REPONSES.map(function (r) {
+            return '<button type="button" data-cond="' + c[0] + '" data-rep="' + r.id + '" aria-pressed="' + (repDe(c[0]) === r.id) + '"><i class="bi ' + r.icone + '" aria-hidden="true"></i> ' + esc(r.nom) + '</button>';
+          }).join('') + '</div></div>';
+      });
+      if (t.champ) {
+        h += '<div class="cqcpm-cond"><p class="lib">Le salaire minimum dont j’ai besoin (à compléter si vous le souhaitez)</p><input class="cqcpm-champ" type="text" id="salaire" value="' + esc(E.salaire) + '" placeholder="Par exemple : le Smic, un peu plus, je ne sais pas encore"></div>' +
+          '<p class="cqcpm-note"><i class="bi bi-geo-alt" aria-hidden="true"></i> Pour réfléchir au transport et au lieu de vie, vous pouvez ouvrir <button type="button" class="btn btn-outline-secondary btn-sm">Mon territoire</button></p>';
+      }
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  return h + barre('<button type="button" class="btn btn-outline-secondary" data-go="invit"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour</button><button type="button" class="btn btn-primary" data-go="energie">Passer à la question d’énergie</button>');
+}
+function ecranEnergie() {
+  var h = retourEspace() + '<h1>Mon énergie</h1><p class="chapeau">Quatre situations. Il n’y a pas de bonne réponse, et cette question ne mesure rien : elle sert seulement à mieux dire comment vous vous sentez bien.</p>' +
+    '<div class="cqcpm-bloc">';
+  SITUATIONS.forEach(function (s) {
+    h += '<div class="cqcpm-ligne-e"><p class="lib"><i class="bi bi-battery-charging" aria-hidden="true"></i><span>' + esc(s.lib) + '</span></p><div class="cqcpm-rep" role="group" aria-label="' + esc(s.lib) + '">' +
+      CHOIX_E.map(function (c) { return '<button type="button" data-ener="' + s.id + '" data-ch="' + c.id + '" aria-pressed="' + (enerDe(s.id) === c.id) + '">' + esc(c.nom) + '</button>'; }).join('') + '</div></div>';
+  });
+  return h + '</div>' + barre('<button type="button" class="btn btn-outline-secondary" data-go="saisie"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour</button><button type="button" class="btn btn-primary" data-go="res">Voir mon résultat</button>');
+}
+function listeGroupe(rep) {
+  var ids = [];
+  THEMES.forEach(function (t) { t.conds.forEach(function (c) { if (repDe(c[0]) === rep) { ids.push(c[1]); } }); });
+  return ids.length ? '<ul>' + ids.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="vide">Rien dans cette liste pour l’instant.</p>';
+}
+function phraseEnergie() {
+  var fait = SITUATIONS.filter(function (s) { return enerDe(s.id); });
+  if (!fait.length) { return '<p class="vide">Vous n’avez pas répondu à cette partie.</p>'; }
+  var tx = { seul: 'seul(e)', ensemble: 'avec d’autres', depend: 'ça dépend' };
+  return '<ul>' + fait.map(function (s) { return '<li>' + esc(s.lib.replace('…', '')) + ' : <b>' + tx[enerDe(s.id)] + '</b></li>'; }).join('') + '</ul>';
+}
+function blocResultat() {
+  var h = '<div class="cqcpm-bloc cqcpm-res"><h2><i class="bi bi-check-lg" aria-hidden="true"></i> Ce que je veux</h2>' + listeGroupe('veux') + '</div>' +
+    '<div class="cqcpm-bloc cqcpm-res"><h2><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Ce à quoi je peux m’adapter</h2>' + listeGroupe('adapte') + '</div>' +
+    '<div class="cqcpm-bloc cqcpm-res"><h2><i class="bi bi-slash-circle" aria-hidden="true"></i> Ce que je préfère éviter</h2>' + listeGroupe('evite') + '</div>' +
+    '<div class="cqcpm-bloc cqcpm-res"><h2><i class="bi bi-battery-charging" aria-hidden="true"></i> Mon énergie</h2>' + phraseEnergie() + '</div>';
+  if (E.salaire.trim()) { h += '<div class="cqcpm-bloc cqcpm-res"><h2><i class="bi bi-cash-coin" aria-hidden="true"></i> Mon salaire minimum</h2><p style="color:var(--text-strong)">' + esc(E.salaire) + '</p></div>'; }
+  if (E.rome === 'oui') {
+    h += '<div class="cqcpm-bloc"><h2><i class="bi bi-briefcase" aria-hidden="true"></i> Dans les fiches métiers</h2><p>Certaines de ces conditions (travail de nuit, week-end, déplacements, public, extérieur…) sont signalées sur les fiches d’Explorer les métiers. Vos réponses ici ne changent pas les métiers proposés : elles vous aident à repérer ce que vous cherchez en lisant une fiche.</p>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm cqcpm-lien"><i class="bi bi-search" aria-hidden="true"></i> Ouvrir Explorer les métiers</button></div>';
+  }
+  return h;
+}
+function ecranResultat() {
+  return retourEspace() + '<h1>Comment je veux travailler : mon résultat</h1><p class="chapeau">Voici ce que vous venez de dire, avec vos mots. Rien n’est enregistré tant que vous ne le gardez pas.</p>' + blocResultat() +
+    barre('<button type="button" class="btn btn-primary" data-go="garde"><i class="bi bi-floppy" aria-hidden="true"></i> Garder mon résultat</button><button type="button" class="btn btn-outline-secondary" data-go="saisie">Modifier mes réponses</button><button type="button" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l’espace</button>');
+}
+function ecranGarde() {
+  return retourEspace() + '<h1>Comment je veux travailler : mon résultat</h1>' +
+    '<div class="cqcpm-ok"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span><b>Résultat gardé.</b> Vous le retrouvez dans « Ce que j’ai gardé », et il part avec votre sauvegarde personnelle (la disquette).</span></div>' + blocResultat() +
+    barre('<button type="button" class="btn btn-primary">Retour à l’espace</button><button type="button" class="btn btn-outline-secondary" data-go="saisie">Modifier mes réponses</button>');
+}
+var ECRANS = { invit: ecranInvitation, saisie: ecranSaisie, energie: ecranEnergie, res: ecranResultat, garde: ecranGarde };
+var DIT = {
+  invit: 'invitation : ce que vous faites, ce que vous obtenez, à savoir',
+  saisie: 'sept thèmes qui s’ouvrent un par un, trois réponses par situation (cliquez pour répondre, recliquez pour retirer)',
+  energie: 'quatre situations, trois choix chacune, icône de pile',
+  res: 'résultat en trois listes avec vos mots, énergie, bloc fiches métiers au choix, trois boutons',
+  garde: 'même page avec la confirmation « Résultat gardé » et le renvoi vers la disquette'
+};
+function rendre() {
+  var sal = document.getElementById('salaire'); if (sal) { E.salaire = sal.value; }
+  document.getElementById('rendu').innerHTML = ECRANS[E.ecran]();
+  document.getElementById('retient').innerHTML = '<b>Ce que cet écran montre :</b> ' + DIT[E.ecran] + '.';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  [['g-ecran', E.ecran], ['g-rempl', E.rempl], ['g-rome', E.rome]].forEach(function (g) {
+    document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === g[1])); });
+  });
+  document.querySelectorAll('#g-aff button').forEach(function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', String(v ? (v === 'tel') === E.tel : (m === 'sombre') === E.sombre));
+  });
+}
+function basculerExempleVersSaisie() {
+  if (E.rempl === 'ex') { E.rep = JSON.parse(JSON.stringify(EXEMPLE)); E.ener = JSON.parse(JSON.stringify(EXEMPLE_E)); E.rempl = 'vide'; }
+}
+document.getElementById('regl').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b || b.id === 'fermer') { return; }
+  var g = b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-ecran') { E.ecran = v; } else if (g === 'g-rempl') { E.rempl = v; if (v === 'vide') { E.rep = {}; E.ener = {}; } } else if (g === 'g-rome') { E.rome = v; }
+  else if (g === 'g-aff') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  rendre();
+});
+document.getElementById('rendu').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  if (b.hasAttribute('data-go')) { E.ecran = b.getAttribute('data-go'); window.scrollTo(0, 0); }
+  else if (b.hasAttribute('data-ouvrir')) { var id = b.getAttribute('data-ouvrir'); E.ouvert = E.ouvert === id ? '' : id; }
+  else if (b.hasAttribute('data-cond')) { basculerExempleVersSaisie(); var c = b.getAttribute('data-cond'), r = b.getAttribute('data-rep'); if (E.rep[c] === r) { delete E.rep[c]; } else { E.rep[c] = r; } }
+  else if (b.hasAttribute('data-ener')) { basculerExempleVersSaisie(); var s = b.getAttribute('data-ener'), ch = b.getAttribute('data-ch'); if (E.ener[s] === ch) { delete E.ener[s]; } else { E.ener[s] = ch; } }
+  else { return; }
+  rendre();
+});
+document.getElementById('fermer').addEventListener('click', function () { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; });
+document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('regl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

@@ -64,3 +64,13 @@ test('Synonymes : quelques recherches de la vie courante retrouvent le bon mot',
     assert.ok(ids.indexOf(id) !== -1 || C.rang(id, saisie) < 9, '« ' + saisie + ' » devrait retrouver ' + id);
   });
 });
+
+test('Mots du numérique : « IA », « prompt » et « hallucination » retrouvent leur fiche en premier, le mot entier avant les mots qui le contiennent', () => {
+  [['IA', 'ia'], ['prompt', 'prompt'], ['hallucination', 'reponse-inventee'], ['LLM', 'llm'], ['chatgpt', 'ia']].forEach(([saisie, id]) => {
+    const g = C.accueil(saisie).filter((x) => x.type === 'lexique')[0];
+    assert.ok(g, 'groupe Lexique absent pour ' + saisie);
+    assert.equal(g.resultats[0].id, id, saisie);
+  });
+  assert.equal(C.rang('ia', 'ia'), 0.5);
+  assert.equal(C.rang('mediane', 'ia'), 1);
+});

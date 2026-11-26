@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l'IA », enrichissement (consignes 596, 598, 599)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 1040px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit); }
+  h1.titre-page { font-size: var(--t-titre-page); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .sous-titre { text-align: center; font-size: var(--t-grand); color: var(--text-muted); margin-bottom: 1rem; }
+
+  .onglets { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .8rem 0 1.2rem; }
+  .btn-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; font-size: var(--t-petit); }
+  .btn-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .7rem .9rem; margin: .6rem 0; font-size: var(--t-moyen); }
+  .encart.ok { border-left-color: var(--success-strong); background: var(--success-bg-subtle); }
+  .encart.rappel { border-left-color: var(--warning-border); background: var(--warning-bg-subtle); }
+  .panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .panneau h2 { font-size: var(--t-grand); font-weight: 800; margin: 0 0 .5rem; }
+  .panneau h3 { font-size: var(--t-moyen); font-weight: 800; margin: .8rem 0 .3rem; }
+  .panneau p, .panneau li { font-size: var(--t-moyen); }
+
+  .etapes { display: flex; gap: .35rem; justify-content: center; flex-wrap: wrap; margin: .6rem 0 1rem; }
+  .etape { display: inline-flex; align-items: center; gap: .4rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 999px; padding: .2rem .75rem .2rem .3rem; background: var(--bg-card); color: var(--text-muted); font-size: var(--t-petit); font-weight: 700; cursor: pointer; }
+  .etape .rond { width: 1.7rem; height: 1.7rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-subtle); color: var(--text-strong); font-weight: 800; }
+  .etape.fait { color: var(--success-strong); border-color: var(--success-strong); }
+  .etape.fait .rond { background: var(--success-bg-subtle); }
+  .etape.actif { border-color: var(--accent); color: var(--accent-texte); background: var(--accent-bg-subtle); }
+  .etape.actif .rond { background: var(--accent); color: #fff; }
+  @media (max-width: 640px) { .etape .lib { display: none; } .etape.actif .lib { display: inline; } }
+
+  .intentions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 720px) { .intentions { grid-template-columns: 1fr; } }
+  .intention { display: flex; flex-direction: column; gap: .5rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 16px; background: var(--bg-card); padding: 1rem 1.1rem 1.1rem; }
+  .intention.nouveau { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .intention .rond-icone { width: 3rem; height: 3rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent-texte); display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+  .intention.nouveau .rond-icone { background: var(--accent); color: #fff; }
+  .intention h3 { font-size: var(--t-grand); font-weight: 800; margin: 0; }
+  .intention p { font-size: var(--t-moyen); margin: 0; }
+  .intention .detail { font-size: var(--t-petit); color: var(--text-muted); }
+  .pastille { display: inline-block; border-radius: 999px; padding: .05rem .7rem; background: var(--accent); color: #fff; font-size: var(--t-petit); font-weight: 800; }
+
+  .schema { display: flex; align-items: stretch; justify-content: center; gap: .5rem; flex-wrap: wrap; margin: .8rem 0; }
+  .schema .boite { flex: 1 1 170px; max-width: 250px; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .7rem; background: var(--bg-card); text-align: center; font-size: var(--t-petit); }
+  .schema .boite strong { display: block; font-size: var(--t-moyen); margin-bottom: .2rem; }
+  .schema .fleche { align-self: center; font-size: 1.6rem; color: var(--accent-texte); font-weight: 800; }
+  .schema .boite.b1 { background: var(--c1); color: var(--c1t); border-color: var(--c1t); }
+  .schema .boite.b2 { background: var(--c3); color: var(--c3t); border-color: var(--c3t); }
+  .schema .boite.b3 { background: var(--c2); color: var(--c2t); border-color: var(--c2t); }
+  @media (max-width: 640px) { .schema .fleche { transform: rotate(90deg); width: 100%; text-align: center; } }
+
+  .phrase-demo { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-subtle); font-size: var(--t-moyen); }
+  .mots { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+  .mot { border: 2px solid var(--border-strong, var(--border)); border-radius: 10px; padding: .15rem .7rem; background: var(--bg-card); font-weight: 700; font-size: var(--t-petit); }
+  .mot b { color: var(--accent-texte); }
+
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  @media (max-width: 720px) { .deux { grid-template-columns: 1fr; } }
+  .bloc-sait { border: 1px solid var(--border); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-subtle); }
+  .bloc-sait h3 { margin-top: 0; }
+  .bloc-sait.oui { border-top: 5px solid var(--success-strong); }
+  .bloc-sait.non { border-top: 5px solid var(--warning-border); }
+  .bloc-sait ul { margin: 0; padding-left: 1.2rem; }
+
+  .cartes-assistants { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin: .6rem 0; }
+  @media (max-width: 720px) { .cartes-assistants { grid-template-columns: 1fr; } }
+  .assistant { border: 1px solid var(--border); border-top: 5px solid var(--accent); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-card); }
+  .assistant h3 { margin-top: 0; }
+  .assistant .pour, .assistant .savoir { font-size: var(--t-petit); margin: .3rem 0 0; }
+  .assistant .savoir { color: var(--text-muted); }
+  .date-maj { display: inline-block; border: 2px solid var(--warning-border); border-radius: 999px; padding: .05rem .8rem; background: var(--warning-bg-subtle); color: var(--warning-strong); font-size: var(--t-petit); font-weight: 800; }
+
+  details.bloc-depli { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; margin: .6rem 0; background: var(--bg-card); }
+  details.bloc-depli > summary { padding: .6rem .9rem; font-weight: 800; cursor: pointer; background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; font-size: var(--t-moyen); }
+  details.bloc-depli.bd-warn { border-left-color: var(--warning-border); }
+  details.bloc-depli.bd-warn > summary { background: var(--warning-bg-subtle); }
+  .bloc-depli-corps { padding: .6rem .9rem .8rem; font-size: var(--t-moyen); }
+  .bloc-depli-corps p:last-child { margin-bottom: 0; }
+
+  .conclusion { border: 3px solid var(--accent); border-radius: 14px; padding: 1rem 1.1rem; background: var(--bg-card); }
+  .conclusion h2 { font-size: var(--t-grand); font-weight: 800; margin: 0 0 .6rem; }
+  .conclusion ul { margin: 0; padding-left: 1.2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .8rem; }
+  .btn-action { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+  .btn-sec { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .msg { font-size: var(--t-petit); font-weight: 700; color: var(--success-strong); margin-left: .6rem; }
+
+  .avant-apres { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  @media (max-width: 720px) { .avant-apres { grid-template-columns: 1fr; } }
+  .champ-demo { border: 1px solid var(--border-strong, var(--border)); border-radius: 10px; padding: .5rem .7rem; background: var(--bg-card); }
+  .champ-demo .lib { font-weight: 800; font-size: var(--t-moyen); }
+  .champ-demo .aide { font-size: var(--t-petit); color: var(--text-muted); }
+  .champ-demo .aide.nouveau { color: var(--accent-texte); font-weight: 700; }
+
+  .decision { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .8rem .9rem; margin-top: 1.4rem; background: var(--bg-card); }
+  .decision h2 { font-size: var(--t-grand); margin: 0 0 .4rem; font-weight: 800; }
+  .decision li { font-size: var(--t-moyen); margin-bottom: .55rem; }
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border-strong, var(--border)); padding: .5rem 1rem; display: flex; justify-content: space-between; gap: .6rem; z-index: 20; }
+  .barre-bas button { min-height: 44px; padding: .3rem 1.4rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .barre-bas button.principal { background: var(--accent); color: #fff; }
+  .barre-bas button:disabled { opacity: .45; cursor: default; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette de l'enrichissement du module « Bien utiliser l'IA » (consignes 596, 598 et 599), 24/11/2026.</strong> Les boutons marchent : les quatre onglets du haut, la barre d'étapes, « Continuer » et « Retour » du chemin 4. Les textes sont des brouillons à lire et à corriger. Les affirmations sur les assistants (gratuit, compte, recherche web) sont datées et seront sourcées avant l'ouverture. Rien n'est codé.</div>
+  <h1 class="titre-page">Bien utiliser l'IA : l'enrichissement</h1>
+  <div class="sous-titre">Un quatrième chemin, quelques ajouts dans les chemins existants</div>
+
+  <div class="onglets" role="group" aria-label="Parties de la maquette">
+    <button type="button" class="btn-choix" data-onglet="accueil" aria-pressed="true">1. L'accueil du module</button>
+    <button type="button" class="btn-choix" data-onglet="chemin" aria-pressed="false">2. Le nouveau chemin</button>
+    <button type="button" class="btn-choix" data-onglet="ajouts" aria-pressed="false">3. Ajouts aux chemins 1 et 3</button>
+    <button type="button" class="btn-choix" data-onglet="questions" aria-pressed="false">4. Vos décisions</button>
+  </div>
+
+  <!-- ===================== 1. ACCUEIL ===================== -->
+  <section id="accueil">
+    <div class="panneau">
+      <h2>L'accueil du module avec un quatrième chemin</h2>
+      <p>Les trois chemins actuels ne changent pas. Un quatrième bouton apparaît, pour celles et ceux qui veulent comprendre comment un assistant fonctionne.</p>
+      <div class="intentions">
+        <div class="intention"><span class="rond-icone"><i class="bi bi-book"></i></span><h3>Je veux comprendre comment demander</h3><p>Pourquoi une demande claire change la réponse, et comment la vérifier.</p><span class="detail">Rien à écrire. Huit écrans à lire.</span></div>
+        <div class="intention nouveau"><span class="rond-icone"><i class="bi bi-gear-wide-connected"></i></span><h3>Je veux savoir comment il fonctionne <span class="pastille">Nouveau</span></h3><p>Ce qu'est un assistant, comment il écrit, d'où vient ce qu'il sait, la recherche web, les différents assistants (ChatGPT, Copilot, Gemini, Claude...).</p><span class="detail">Rien à écrire. Sept écrans à lire.</span></div>
+        <div class="intention"><span class="rond-icone"><i class="bi bi-envelope-paper"></i></span><h3>J'ai un papier ou une situation</h3><p>Un courrier, un mail, une démarche : la demande est déjà écrite, vous la complétez et vous la copiez.</p><span class="detail">Douze modèles, dont trois pour les professionnels.</span></div>
+        <div class="intention"><span class="rond-icone"><i class="bi bi-pencil-square"></i></span><h3>Je veux écrire ma propre demande</h3><p>Pour un sujet que les modèles ne couvrent pas.</p><span class="detail">Vous la construisez pas à pas, puis vous l'améliorez.</span></div>
+      </div>
+      <div class="encart">Dans « Par où commencer ? », une cinquième phrase s'ajoute : <strong>« Je me demande comment un assistant fonctionne »</strong>. Elle allume le nouveau chemin.</div>
+      <div class="encart rappel"><strong>Question 1 (voir l'onglet 4) :</strong> à quelle place mettre ce bouton, et avec quel nom ?</div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. NOUVEAU CHEMIN ===================== -->
+  <section id="chemin" hidden>
+    <div class="etapes" id="etapes" role="list"></div>
+
+    <div id="ec1" class="panneau">
+      <h2>Un assistant, c'est une intelligence artificielle</h2>
+      <p>Quand vous écrivez à un assistant en ligne, vous utilisez une <strong>intelligence artificielle</strong>, souvent écrite « IA ». Dans ce module, nous disons simplement « l'assistant » : c'est la même chose.</p>
+      <div class="schema" aria-label="Schéma : vous, le programme, la réponse">
+        <div class="boite b1"><strong>Vous écrivez</strong>une demande, avec vos mots</div><div class="fleche" aria-hidden="true">&rarr;</div>
+        <div class="boite b2"><strong>Un programme</strong>qui a lu énormément de textes</div><div class="fleche" aria-hidden="true">&rarr;</div>
+        <div class="boite b3"><strong>Il écrit</strong>un texte qui a l'air juste</div>
+      </div>
+      <div class="encart ok"><strong>L'idée à retenir :</strong> derrière l'écran, il n'y a ni une personne ni un moteur de recherche. Il y a un programme qui écrit du texte.</div>
+      <details class="bloc-depli plus"><summary>Pour aller plus loin : un mot que vous croiserez</summary><div class="bloc-depli-corps"><p>Les assistants qui écrivent du texte reposent sur un « grand modèle de langage », en anglais <em>Large Language Model</em>, abrégé « LLM ». Ce sont les mots que vous verrez dans les articles. Vous n'avez pas besoin de les retenir pour bien utiliser un assistant.</p></div></details>
+    </div>
+
+    <div id="ec2" class="panneau" hidden>
+      <h2>Comment il écrit ses phrases</h2>
+      <p>L'assistant a lu une quantité immense de textes. Il en a retenu quels mots suivent souvent quels autres. Quand vous lui écrivez, il <strong>choisit le mot le plus vraisemblable, puis le suivant, puis le suivant</strong>, jusqu'à la fin de la réponse.</p>
+      <div class="phrase-demo"><strong>Un exemple.</strong> Pour finir « Le ciel est… », les mots les plus vraisemblables sont :
+        <div class="mots" id="motsDemo"></div>
+        <div class="mots"><button type="button" class="btn-choix" id="btnContexte" aria-pressed="false">Ajouter le contexte : « Nous sommes au coucher du soleil. »</button></div>
+        <div id="legendeMots" style="font-size:var(--t-petit)"></div>
+      </div>
+      <h3>Pourquoi votre consigne change la réponse</h3>
+      <p>Votre consigne fait partie du texte que l'assistant continue. Si vous écrivez « avec des mots simples », les mots simples deviennent plus vraisemblables que les mots compliqués. C'est pour cela que préciser la longueur, le ton ou la forme change vraiment le résultat.</p>
+      <div class="encart"><strong>Ce qu'il faut en retenir :</strong> l'assistant n'a pas d'avis ni d'intention. Il écrit la suite la plus probable de ce que vous lui avez donné. Donnez-lui donc de quoi bien continuer.</div>
+      <details class="bloc-depli plus"><summary>Pour aller plus loin : pourquoi deux réponses différentes</summary><div class="bloc-depli-corps"><p>Un peu de hasard est volontairement mélangé au choix des mots, pour que les réponses ne soient pas toujours identiques. Deux demandes identiques peuvent donc donner deux textes différents. Ce n'est pas une panne.</p></div></details>
+    </div>
+
+    <div id="ec3" class="panneau" hidden>
+      <h2>D'où vient ce qu'il sait</h2>
+      <div class="deux">
+        <div class="bloc-sait oui"><h3>Ce qu'il a</h3><ul><li>Ce qu'il a lu pendant son apprentissage, qui s'arrête à une date.</li><li>Ce que vous écrivez dans la conversation en cours.</li></ul></div>
+        <div class="bloc-sait non"><h3>Ce qu'il n'a pas</h3><ul><li>Ce qui s'est passé après la fin de son apprentissage.</li><li>Votre situation, si vous ne l'écrivez pas.</li><li>Les sites d'Internet, sauf si la recherche web est activée.</li></ul></div>
+      </div>
+      <div class="encart rappel"><strong>À savoir :</strong> un horaire, un montant, une règle ou une date limite peuvent avoir changé depuis son apprentissage. Pour ces informations, il faut la recherche web (écran suivant), puis vérifier vous-même.</div>
+      <details class="bloc-depli plus"><summary>Pour aller plus loin : pourquoi il peut inventer</summary><div class="bloc-depli-corps"><p>Quand il ne sait pas, l'assistant écrit quand même la suite la plus vraisemblable. Cela peut donner une date, un nom ou une loi qui n'existent pas, dans une phrase très sûre d'elle. Vous pouvez lui demander d'écrire « je ne sais pas » quand une information manque : cela réduit le risque, sans le supprimer.</p></div></details>
+    </div>
+
+    <div id="ec4" class="panneau" hidden>
+      <h2>La recherche web</h2>
+      <p>La plupart des assistants proposent une <strong>recherche web</strong> : avant de répondre, l'assistant va lire des pages d'Internet, puis écrit sa réponse à partir de ce qu'il a trouvé.</p>
+      <h3>Quand l'activer</h3>
+      <ul><li>Pour une information précise ou récente : un horaire, un prix, une règle, une date limite, une adresse.</li><li>Pour demander les sources : « indique les sites que tu as lus ».</li></ul>
+      <h3>Quand ne pas en avoir besoin</h3>
+      <ul><li>Pour reformuler ou corriger un texte que vous lui donnez.</li><li>Pour préparer un entretien à partir de votre propre parcours.</li></ul>
+      <div class="encart rappel"><strong>Même avec la recherche web, vérifiez.</strong> L'assistant peut résumer une page de travers ou s'appuyer sur une page ancienne. Ouvrez vous-même le lien et comparez avec le site de l'organisme.</div>
+      <p style="font-size:var(--t-petit)">Où se trouve le réglage ? Cela dépend de l'assistant : cherchez un bouton ou une case « Recherche » ou « Web » près de la zone où vous écrivez.</p>
+    </div>
+
+    <div id="ec5" class="panneau" hidden>
+      <h2>Les assistants : ce qui les distingue</h2>
+      <p><span class="date-maj">Écran à jour au 24/11/2026</span> Les offres gratuites, les comptes demandés et les réglages changent souvent. Regardez toujours la page de l'assistant avant de vous inscrire.</p>
+      <div class="cartes-assistants">
+        <div class="assistant"><h3>ChatGPT</h3><p class="pour"><strong>Pour quoi faire :</strong> le plus répandu. Écrire, reformuler, expliquer, préparer un courrier.</p><p class="savoir"><strong>À savoir :</strong> la version gratuite propose la recherche web. Selon les réglages, vos conversations peuvent servir à améliorer le service : regardez la confidentialité.</p></div>
+        <div class="assistant"><h3>Copilot (Microsoft)</h3><p class="pour"><strong>Pour quoi faire :</strong> écrire et chercher, et, dans Word, Outlook ou Teams, aider à rédiger ou à résumer. Beaucoup de personnes l'ont déjà avec leur abonnement Microsoft 365.</p><p class="savoir"><strong>À savoir :</strong> il existe deux versions. La version gratuite grand public, et celle ouverte avec un compte de travail ou d'école, protégée par les règles de l'organisation. Dans le doute, n'y mettez rien de personnel. <em>(À sourcer.)</em></p></div>
+        <div class="assistant"><h3>Gemini (Google)</h3><p class="pour"><strong>Pour quoi faire :</strong> écrire, expliquer, résumer. Il est relié aux services Google : Gmail, Documents, l'application du téléphone.</p><p class="savoir"><strong>À savoir :</strong> il s'utilise avec un compte Google, et vos échanges peuvent être enregistrés dans ce compte. Cherchez le réglage « Activité ». <em>(À sourcer.)</em></p></div>
+        <div class="assistant"><h3>Claude</h3><p class="pour"><strong>Pour quoi faire :</strong> des textes soignés, des documents longs à relire, et aussi du code, pas seulement de la mise en page.</p><p class="savoir"><strong>À savoir :</strong> un compte est demandé. La version gratuite a des limites d'usage dans la journée.</p></div>
+        <div class="assistant"><h3>Perplexity</h3><p class="pour"><strong>Pour quoi faire :</strong> chercher une information. Chaque réponse montre des liens numérotés vers les sources, notamment des médias.</p><p class="savoir"><strong>À savoir :</strong> utilisable sans compte pour des recherches simples. Une source peut être ancienne ou mal résumée : ouvrez-la.</p></div>
+        <div class="assistant"><h3>Le Chat (Mistral)</h3><p class="pour"><strong>Pour quoi faire :</strong> l'assistant d'une entreprise française. Écrire, chercher sur le web avec des liens, résumer des documents.</p><p class="savoir"><strong>À savoir :</strong> une offre gratuite existe, avec des limites non publiées. Le nom du service évolue : vérifiez sur le site de Mistral. <em>(À sourcer.)</em></p></div>
+        <div class="assistant"><h3>DeepSeek</h3><p class="pour"><strong>Pour quoi faire :</strong> un usage gratuit très large, sans abonnement, pour écrire et expliquer.</p><p class="savoir"><strong>À savoir :</strong> c'est un service chinois : vos textes sont traités hors de l'Union européenne. N'y écrivez rien de personnel. <em>(À sourcer avant affichage.)</em></p></div>
+        <div class="assistant"><h3>D'autres existent</h3><p class="pour">De nouveaux assistants apparaissent régulièrement. Les mêmes règles valent pour tous.</p><p class="savoir"><strong>Avant d'en essayer un :</strong> qui le propose, ce qu'il garde de vos échanges, et comment couper la mémoire.</p></div>
+      </div>
+      <div class="encart"><strong>Comment choisir ?</strong> Un seul assistant suffit pour commencer. Pour une information importante, posez la même question à deux assistants et comparez, puis vérifiez sur le site officiel.</div>
+    </div>
+
+    <div id="ec6" class="panneau" hidden>
+      <h2>Les projets et la mémoire <span class="pastille">Pour aller plus loin</span></h2>
+      <p>Certains assistants permettent de regrouper plusieurs conversations et des documents dans un <strong>projet</strong>, avec des consignes communes. D'autres gardent une <strong>mémoire</strong> : ils retiennent des éléments d'une conversation à l'autre.</p>
+      <div class="deux">
+        <div class="bloc-sait oui"><h3>Ce que cela apporte</h3><ul><li>Pas besoin de tout réexpliquer à chaque fois.</li><li>Des réponses plus cohérentes sur un même sujet.</li></ul></div>
+        <div class="bloc-sait non"><h3>Ce qu'il faut savoir</h3><ul><li>Ce que vous y mettez est conservé.</li><li>Selon l'assistant, un compte, parfois une formule payante.</li></ul></div>
+      </div>
+      <div class="encart rappel"><strong>Ne mettez jamais dans un projet ou dans la mémoire :</strong> votre nom, votre adresse, vos numéros, des informations de santé ou de situation administrative. Cherchez le réglage qui permet de couper la mémoire et d'effacer ce qui a été retenu.</div>
+    </div>
+
+    <div id="ec7" class="conclusion" hidden>
+      <h2>Ce qu'il faut retenir</h2>
+      <ul>
+        <li>L'assistant est une intelligence artificielle : un programme qui écrit du texte.</li>
+        <li>Il écrit la suite la plus vraisemblable : une consigne claire change la réponse.</li>
+        <li>Son savoir s'arrête à une date : pour une information précise, activez la recherche web.</li>
+        <li>Même avec la recherche web, vérifiez les dates, les montants et ouvrez les sources.</li>
+        <li>Les assistants diffèrent : regardez les conditions et la confidentialité avant de vous inscrire.</li>
+      </ul>
+      <div class="actions"><button type="button" class="btn-sec" id="btnVersModeles">Mettre en pratique avec un modèle</button><button type="button" class="btn-sec" id="btnVersComprendre">Apprendre à écrire une demande</button><span class="msg" id="msgVers" hidden></span></div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. AJOUTS ===================== -->
+  <section id="ajouts" hidden>
+    <div class="panneau">
+      <h2>Ajouts au chemin 1 « Comprendre comment demander »</h2>
+      <div class="encart ok"><strong>Vocabulaire, une fois, au bon endroit.</strong> À l'écran 1, une phrase : « Un assistant en ligne est une intelligence artificielle (IA). Dans ce module, nous disons “assistant”. » Le reste du module garde « assistant ».</div>
+      <h3>Au niveau « Pour aller plus loin » de l'écran 3 : quatre techniques de plus</h3>
+      <ul>
+        <li><strong>Donner un rôle réaliste.</strong> « Tu es un conseiller qui explique un courrier à quelqu'un qui débute » aide plus qu'un rôle fantaisiste. <em>(Source à confirmer avant affichage.)</em></li>
+        <li><strong>Découper en étapes.</strong> Une tâche longue se demande en deux ou trois fois : d'abord résumer, puis proposer, puis écrire.</li>
+        <li><strong>Plus long n'est pas meilleur.</strong> Une demande de cinq lignes bien choisies vaut mieux qu'une page de détails.</li>
+        <li><strong>Demander la citation du passage.</strong> « Pour chaque point, cite le passage du document sur lequel tu t'appuies. » Un point sans passage est suspect.</li>
+      </ul>
+      <p style="font-size:var(--t-petit)">Ce qui n'est pas retenu : « réfléchis étape par étape » comme règle (gain faible sur les assistants récents), tout ce qui vise les développeurs, « un texte qui semble écrit par un humain ».</p>
+    </div>
+    <div class="panneau">
+      <h2>Ajout aux chemins 1 et 3 : deux questions d'aide sous les champs</h2>
+      <p>Sous « Le but » et « La situation », une courte aide pour celles et ceux qui ne savent pas quoi écrire.</p>
+      <div class="avant-apres">
+        <div class="champ-demo"><div class="lib">Le but</div><div class="aide">Ce que l'assistant doit produire.</div><div class="aide nouveau">Pour qui ? Pourquoi ? Une phrase pour chacun suffit.</div></div>
+        <div class="champ-demo"><div class="lib">La situation</div><div class="aide">En une phrase, ce qui se passe.</div><div class="aide nouveau">Qu'est-ce qui est déjà fait ? Qu'est-ce qui bloque ?</div></div>
+      </div>
+    </div>
+    <div class="panneau">
+      <h2>Ce qui reste à votre décision</h2>
+      <div class="encart rappel">Deux réglages pour le chemin 3 « Écrire ma propre demande » changent le contenu des demandes construites. Je ne touche pas aux prompts : c'est à vous de dire oui ou non (question 5).
+        <ul style="margin:.4rem 0 0"><li>« Lui demander de se relire avant de répondre ».</li><li>Un niveau de langage « très facile à lire », en plus de « simple » et « soigné ».</li></ul></div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. QUESTIONS ===================== -->
+  <section id="questions" hidden>
+    <div class="decision">
+      <h2>Vos décisions, une par une</h2>
+      <p style="font-size:var(--t-petit)">Déjà tranché avec vous aujourd'hui : un quatrième chemin à part, un seul écran daté pour les noms d'assistants, une page « Pour aller plus loin » avec garde-fous pour les projets et la mémoire.</p>
+      <ol>
+        <li><strong>Place et nom du bouton.</strong> Recommandé : en deuxième position, « Je veux savoir comment il fonctionne », juste après « Je veux comprendre comment demander ». <em>Bénéfice :</em> les deux « comprendre » sont voisins. <em>Risque :</em> les noms se ressemblent, d'où la formulation différente.</li>
+        <li><strong>Quels assistants nommer.</strong> Ajoutés après votre remarque : Copilot (avec l'explication des deux versions, grand public et compte de travail ou d'école) et Gemini. J'ai aussi mis Le Chat de Mistral, l'assistant français : est-ce celui dont vous ne vous souveniez plus ? Sinon dites-moi lequel (Grok, Meta AI ?). Recommandé : ces sept, plus une carte « D'autres existent ». <em>Bénéfice :</em> tout le monde reconnaît au moins un nom. <em>Risque :</em> sept cartes à tenir à jour tous les six mois, d'où la date affichée et la règle « décrire l'usage, jamais un quota ».</li>
+        <li><strong>DeepSeek, Copilot et les données.</strong> Recommandé : dire que DeepSeek est un service chinois (rien de personnel), et que Copilot a deux versions, après vérification d'une source officielle. <em>Bénéfice :</em> protège le public. <em>Risque :</em> c'est un avertissement sur un produit précis, donc à sourcer et à dater.</li>
+        <li><strong>Les quatre techniques avancées</strong> (rôle réaliste, découper, plus long n'est pas meilleur, citer le passage) au niveau « Pour aller plus loin » du chemin 1. Recommandé : oui, sauf « rôle réaliste » tant que je n'ai pas trouvé de source solide.</li>
+        <li><strong>Les deux réglages du chemin 3</strong> (« se relire avant de répondre » ; langage « très facile »). Votre décision seule : ils changent les demandes construites.</li>
+        <li><strong>La revue de ce qui est daté.</strong> Recommandé : l'écran « Les assistants » et la page « projets et mémoire » portent « à jour au [date] », et une tâche de contrôle est notée tous les six mois dans le registre des tâches programmées. <em>Risque si refusé :</em> des conditions fausses affichées sans que personne ne le voie.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<div class="barre-bas" id="barreBas" hidden>
+  <button type="button" id="btnRetour">&larr; Retour</button>
+  <button type="button" class="principal" id="btnSuivant">Continuer &rarr;</button>
+</div>
+
+<script>
+(function () {
+  var ETAPES = ['L’assistant', 'Ses phrases', 'Son savoir', 'Recherche web', 'Les assistants', 'Projets et mémoire', 'À retenir'];
+  var cur = 1;
+  function $(id) { return document.getElementById(id); }
+
+  function onglet(nom) {
+    ['accueil', 'chemin', 'ajouts', 'questions'].forEach(function (k) { $(k).hidden = (k !== nom); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-onglet]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-onglet') === nom)); });
+    $('barreBas').hidden = (nom !== 'chemin');
+    window.scrollTo(0, 0);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-onglet]'), function (b) { b.addEventListener('click', function () { onglet(b.getAttribute('data-onglet')); }); });
+
+  function rendreEtapes() {
+    var h = '';
+    for (var i = 1; i <= 7; i++) {
+      h += '<button type="button" class="etape' + (i === cur ? ' actif' : (i < cur ? ' fait' : '')) + '" data-i="' + i + '" role="listitem"><span class="rond">' + i + '</span><span class="lib">' + ETAPES[i - 1] + '</span></button>';
+    }
+    $('etapes').innerHTML = h;
+    Array.prototype.forEach.call($('etapes').querySelectorAll('.etape'), function (b) { b.addEventListener('click', function () { aller(+b.getAttribute('data-i')); }); });
+  }
+  function aller(n) {
+    cur = Math.max(1, Math.min(7, n));
+    for (var i = 1; i <= 7; i++) { $('ec' + i).hidden = (i !== cur); }
+    $('btnRetour').disabled = (cur === 1);
+    $('btnSuivant').textContent = (cur === 7) ? 'Terminer' : 'Continuer →';
+    $('btnSuivant').disabled = (cur === 7);
+    rendreEtapes(); window.scrollTo(0, 0);
+  }
+  $('btnRetour').addEventListener('click', function () { aller(cur - 1); });
+  $('btnSuivant').addEventListener('click', function () { aller(cur + 1); });
+
+  /* Écran 2 : les mots vraisemblables, avec ou sans contexte */
+  var SANS = [['bleu', 62], ['gris', 14], ['clair', 9], ['nuageux', 7], ['sombre', 4]];
+  var AVEC = [['rouge', 41], ['orange', 33], ['rose', 15], ['bleu', 6], ['sombre', 3]];
+  var avec = false;
+  function mots() {
+    var l = avec ? AVEC : SANS;
+    $('motsDemo').innerHTML = l.map(function (m) { return '<span class="mot">' + m[0] + ' <b>' + m[1] + ' %</b></span>'; }).join('');
+    $('legendeMots').textContent = avec ? 'Avec le contexte, d’autres mots deviennent les plus vraisemblables. Les pourcentages sont inventés pour l’exemple.' : 'Sans contexte, « bleu » est le plus vraisemblable. Les pourcentages sont inventés pour l’exemple.';
+    $('btnContexte').setAttribute('aria-pressed', String(avec));
+  }
+  $('btnContexte').addEventListener('click', function () { avec = !avec; mots(); });
+
+  function vers(texte) { $('msgVers').hidden = false; $('msgVers').textContent = texte; }
+  $('btnVersModeles').addEventListener('click', function () { vers('Dans l’application : ouvre le chemin « J’ai un papier ou une situation ».'); });
+  $('btnVersComprendre').addEventListener('click', function () { vers('Dans l’application : ouvre le chemin « Je veux comprendre comment demander ».'); });
+
+  mots(); aller(1);
+})();
+</script>
+</body>
+</html>

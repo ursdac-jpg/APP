@@ -39,7 +39,7 @@ ministère du Travail, France Travail, économie.gouv.fr), consignée dans `acco
    navigateur par Denis le 2026-09-11 et datée dans `liens-verifies.txt`. La structure `asso-geiq-24`
    était déjà vérifiée (2026-09-08).
 
-## Les 8 fiches
+## Les 9 fiches
 
 | id | titre |
 |---|---|
@@ -51,6 +51,7 @@ ministère du Travail, France Travail, économie.gouv.fr), consignée dans `acco
 | `accompagnement-clause-sociale-plie` | La clause sociale des marchés publics et le plan local pour l'insertion et l'emploi |
 | `accompagnement-global-et-intensif` | L'accompagnement global, l'accompagnement intensif, et la sous-traitance |
 | `accompagnement-geiq` | Le GEIQ : être embauché par un groupement d'entreprises, en alternance (ajoutée le 2026-09-11) |
+| `accompagnement-art-d-acceder-a-l-emploi` | L'Art d'accéder à l'emploi : un projet créatif en groupe, puis une rencontre avec des recruteurs |
 
 ## Recoupements avec d'autres rayons
 

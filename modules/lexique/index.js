@@ -44,6 +44,7 @@ var _LEXIQUE_LIBELLES_UNIVERS = {
   'demarches-administratives': 'Démarches administratives et numériques',
   'conditions-travail': 'Conditions de travail',
   'acces-aux-soins': 'Accès aux soins',
+  'numerique-assistants': 'Numérique et assistants en ligne',
   // TACHE (chantier "repertoire des freins", etape 8, 2026-08-28) : les
   // fiches de cet univers ne sont PAS ecrites dans data/lexique.js -- elles
   // sont generees a partir de data/freins.js (source unique) et ajoutees a
@@ -66,7 +67,7 @@ var _LEXIQUE_FAMILLE_UNIVERS = {
   'emploi-recrutement': 1, 'ressources-humaines': 1, 'entrepreneuriat-independance': 1,
   'droit-travail': 2, 'contrats-statuts-emploi': 2, 'organisation-travail-management': 2, 'conditions-travail': 2,
   'bulletin-salaire': 3, 'protection-sociale': 3, 'mobilite-budget': 3,
-  'accompagnement-insertion': 4, formation: 4, dispositifs: 4, 'structures-organismes': 4, 'demarches-administratives': 4,
+  'accompagnement-insertion': 4, formation: 4, dispositifs: 4, 'structures-organismes': 4, 'demarches-administratives': 4, 'numerique-assistants': 4,
   'sante-travail': 5, 'acces-aux-soins': 5, 'freins-parcours': 5, urgences: 5
 };
 function _lexiqueClasseChapitre(univers) {
@@ -739,6 +740,7 @@ function _lexiqueRenduEcran() {
 function _lexiqueRenduIntro() {
   // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; seul le contenu des blocs est propre au Lexique.
   return htmlPageIntroModuleParcours({
+    temps: 'lexique',   // repère de temps (data/tempsModules.js, consigne 606)
     classeExtra: 'lexique-intro',
     titre: '<i class="bi bi-book"></i> Lexique',
     sousTitre: 'Comprendre un mot du monde du travail au moment où il vous bloque, puis repartir.',

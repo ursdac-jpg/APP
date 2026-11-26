@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette détaillée : vidéos, chemins et rubriques</title>
+<style>
+:root { --fond:#f6f7f9; --carte:#fff; --texte:#1d2330; --doux:#5b6475; --bord:#d5d9e2; --accent:#1f5fbf; --accent-pale:#e8f0fc; --note:#fff7e0; --nouveau:#1c7c3f; --nouveau-pale:#e6f5ec; --change:#a65b00; --change-pale:#fff0dc; }
+@media (prefers-color-scheme: dark) { :root { --fond:#12151c; --carte:#1b2029; --texte:#e8ebf2; --doux:#a3abbb; --bord:#333b4a; --accent:#6aa3f5; --accent-pale:#1d2a40; --note:#2c2614; --nouveau:#6fd596; --nouveau-pale:#17301f; --change:#f0b25a; --change-pale:#35281300; } }
+body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.5 system-ui, sans-serif; }
+main { max-width:980px; margin:0 auto; padding:16px; }
+h1 { font-size:1.5rem; } h2 { font-size:1.2rem; margin:2rem 0 .4rem; border-bottom:2px solid var(--bord); padding-bottom:.2rem; } h3 { font-size:1.02rem; margin:1rem 0 .3rem; }
+.note { background:var(--note); border:1px solid var(--bord); border-radius:10px; padding:.7rem 1rem; margin:1rem 0; }
+.ecran { background:var(--carte); border:2px solid var(--bord); border-radius:14px; padding:1rem 1.2rem; margin:.8rem 0 1.4rem; }
+.titre { text-align:center; font-size:1.35rem; font-weight:700; margin:.2rem 0; }
+.sous { text-align:center; color:var(--doux); margin:0 0 .8rem; }
+.video { display:flex; align-items:center; gap:.7rem; border:1px solid var(--bord); border-radius:10px; padding:.45rem .7rem; margin:.5rem 0; }
+.video .vign { width:72px; height:42px; border-radius:6px; background:#222; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+.video .duree { margin-left:auto; color:var(--doux); font-size:.85rem; }
+.video.ensemble { border:2px solid var(--accent); background:var(--accent-pale); }
+.rub { border:1px solid var(--bord); border-radius:10px; padding:.5rem .8rem; margin:.5rem 0; position:relative; }
+.rub h4 { margin:0 0 .2rem; font-size:.98rem; }
+.rub p, .rub ul { margin:.2rem 0; font-size:.93rem; }
+.rub.nouveau { border-left:5px solid var(--nouveau); background:var(--nouveau-pale); }
+.rub.change { border-left:5px solid var(--change); }
+.pastille { display:inline-block; font-size:.72rem; font-weight:700; padding:0 .5rem; border-radius:99px; margin-left:.4rem; vertical-align:middle; }
+.p-nouveau { background:var(--nouveau); color:#fff; } .p-change { background:var(--change); color:#fff; } .p-garde { background:var(--bord); color:var(--texte); }
+.chemin { border:1px solid var(--bord); border-radius:12px; padding:.5rem .8rem; margin:.5rem 0; }
+.chemin .tete { font-weight:700; }
+.bouton { display:inline-block; border:1.5px solid var(--accent); color:var(--accent); border-radius:8px; padding:.25rem .8rem; font-weight:600; margin:.2rem .3rem .2rem 0; font-size:.9rem; }
+.bouton.plein { background:var(--accent); color:#fff; }
+.voix { background:var(--accent-pale); border-radius:10px; padding:.6rem .9rem; margin:.4rem 0; font-size:.94rem; }
+table { border-collapse:collapse; width:100%; font-size:.9rem; margin:.5rem 0; } th, td { border:1px solid var(--bord); padding:.3rem .5rem; text-align:left; vertical-align:top; }
+th { background:var(--accent-pale); }
+.legende span { margin-right:.8rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>Maquette détaillée : vidéos, chemins et rubriques</h1>
+<div class="note"><strong>Étape 3 de la méthode. Rien n'est codé.</strong> Cette maquette montre, pour chaque module concerné, l'ordre exact de la page, les rubriques (avec leur texte proposé), la place des vidéos et le mot « chemin ». Elle s'appuie sur la lecture du code réel de chaque page (pas de supposition).
+<p class="legende" style="margin:.5rem 0 0"><span><span class="pastille p-nouveau">NOUVEAU</span> ajouté</span><span><span class="pastille p-change">CHANGÉ</span> modifié</span><span><span class="pastille p-garde">GARDÉ</span> inchangé</span></p></div>
+
+<h2>1. Le mot « chemin » : où il remplace quoi (texte visible seulement)</h2>
+<table>
+<tr><th>Aujourd'hui</th><th>Demain</th><th>Où</th></tr>
+<tr><td>« Voie 1 / 2 / 3 » (pastille), « Trois voies, chacune avec sa spécificité », « Ma voie », « choisissez votre voie », « Pour changer de voie »</td><td>« Chemin 1 / 2 / 3 », « Trois chemins, chacun avec sa spécificité », « Mon chemin », « choisissez votre chemin »</td><td>Reprendre mon CV (présentation, cartes de la page de dépôt, barre d'étapes)</td></tr>
+<tr><td>« Trois façons de faire », « votre façon de faire », « Pour changer de façon de faire », pastille « Voie »</td><td>« Trois chemins », « votre chemin », pastille « Chemin »</td><td>Créer un nouveau CV</td></tr>
+<tr><td>« Ce parcours ne fait pas », « le parcours », « Voir ce parcours en vidéo »</td><td>« Ce chemin ne fait pas », « le chemin », « Voir ce chemin en vidéo »</td><td>Pages de chacun des trois chemins de Créer</td></tr>
+<tr><td>« Deux parcours, chacun avec son but », pastille « Parcours 1 / 2 »</td><td>« Deux chemins, chacun avec son but », pastille « Chemin 1 / 2 »</td><td>Lettre et entretien en version rapide</td></tr>
+<tr><td>« Voir cette voie en vidéo », « Voir ce parcours en vidéo »</td><td>« Voir ce chemin en vidéo »</td><td>Libellés de toutes les vidéos de chemin</td></tr>
+</table>
+<p><strong>Ce qui ne change pas</strong> : les noms internes dans le code (REPRENDRE_CV_VOIES, _creerCvVoie, data-voie...), invisibles pour les personnes. Je ne les renomme pas : risque de casse pour aucun bénéfice visible (environ 136 occurrences dans <code>data/metiers.js</code>, dont la plupart sont internes). Je trie les textes visibles un par un, puis je fais une recherche large sur tout le dépôt (aides, recherche, Lexique, nouveautés, journal) pour ne rien oublier.</p>
+
+<h2>2. Reprendre mon CV</h2>
+<div class="ecran">
+<div class="titre">Reprendre mon CV</div>
+<p class="sous">Vous avez déjà un CV : vous le déposez une seule fois, puis vous choisissez parmi trois <strong>chemins</strong> ce que vous voulez en faire.</p>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><br><small>Les trois chemins, en une minute.</small></span><span class="duree">1 min</span><span class="pastille p-nouveau">NOUVEAU</span></div>
+<div class="rub"><h4>Rien n'est jamais envoyé sans votre accord <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>À quoi ça sert <span class="pastille p-change">DÉPLACÉ EN HAUT</span></h4><p>Partir d'un CV que vous avez déjà : le compléter, le reformuler pour un objectif précis, ou en refaire seulement la mise en page. (+ encart « la mise en page d'origine n'est pas conservée »)</p></div>
+<div class="rub change"><h4>Trois chemins, chacun avec sa spécificité <span class="pastille p-change">CHANGÉ : mot « chemin »</span></h4>
+ <div class="chemin"><div class="tete">Chemin 1 : Le garder et le compléter</div>phrase + situation, <strong>vidéo du chemin</strong> (déjà à cette place), trois repères<br><span class="bouton plein">Déposer mon CV</span></div>
+ <div class="chemin"><div class="tete">Chemin 2 : Le reformuler et le présenter</div>idem</div>
+ <div class="chemin"><div class="tete">Chemin 3 : Le refaire moi-même dans un modèle</div>idem</div></div>
+<div class="rub"><h4>Ce qui va se passer <span class="pastille p-change">CHANGÉ : mot « chemin »</span></h4><p>Déposer et relire, choisir son chemin, continuer. Vous ne redéposez jamais votre CV.</p></div>
+<div class="rub nouveau"><h4>Ce que ce module ne fait pas <span class="pastille p-nouveau">NOUVEAU</span></h4>
+<ul><li>Il ne crée pas de CV à partir de rien : pour cela, il y a « Créer un nouveau CV ».</li><li>Il ne porte pas de regard critique sur votre CV : pour cela, il y a « Un regard sur mon CV » et « Analyser ma candidature ».</li><li>Il ne garde pas la mise en page de votre CV d'origine : seules les informations sont reprises.</li></ul></div>
+<div class="rub nouveau"><h4>Ce que vous pourrez faire ensuite <span class="pastille p-nouveau">NOUVEAU</span></h4><ul><li>Mettre votre CV en forme : plusieurs modèles, en PDF ou en Word.</li><li>Préparer votre lettre de motivation.</li><li>Vous entraîner aux questions d'un entretien d'embauche.</li></ul><p><em>Même bloc que dans Créer : une seule source, jamais recopié.</em></p></div>
+<div class="rub"><h4>Mes Repères <span class="pastille p-garde">GARDÉ</span></h4></div>
+</div>
+
+<h2>3. Créer un nouveau CV</h2>
+<div class="ecran">
+<div class="titre">Créer un nouveau CV</div>
+<p class="sous">Vous partez d'une page blanche. Trois <strong>chemins</strong> : choisissez celui qui vous convient. Vous pourrez toujours recommencer autrement.</p>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><br><small>Les trois chemins, en une minute.</small></span><span class="duree">1 min</span><span class="pastille p-nouveau">NOUVEAU</span></div>
+<div class="rub"><h4>Rien n'est jamais envoyé sans votre accord <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>À quoi ça sert <span class="pastille p-garde">GARDÉ</span></h4><p>Construire un CV complet à partir d'une page blanche... + encart sur les modèles. Phrase « Vous choisissez ensuite votre façon de faire » devient « votre chemin ».</p></div>
+<div class="rub nouveau"><h4>Ce qui va se passer <span class="pastille p-nouveau">NOUVEAU</span></h4>
+<ul><li>Vous choisissez votre chemin ci-dessous. Chaque bouton vous mène directement dedans.</li><li>Quel que soit le chemin : vous indiquez votre objectif, vous dites votre parcours, vous précisez votre projet.</li><li>Vous choisissez un modèle de mise en forme et vous exportez votre CV (PDF ou Word).</li></ul><p><em>Le détail propre à chaque chemin reste sur sa page.</em></p></div>
+<div class="rub change"><h4>Trois chemins, chacun avec sa spécificité <span class="pastille p-change">CHANGÉ : mot « chemin »</span></h4>
+ <div class="chemin"><div class="tete">Chemin 1 : Avec l'assistant en ligne</div>phrase, situation, <strong>vidéo</strong>, trois repères <span class="bouton plein">Commencer avec l'assistant</span></div>
+ <div class="chemin"><div class="tete">Chemin 2 : À partir de mon récit</div>idem <span class="bouton plein">Raconter mon parcours</span></div>
+ <div class="chemin"><div class="tete">Chemin 3 : À la main, sans assistant</div>idem <span class="bouton plein">Commencer à la main</span></div></div>
+<div class="rub"><h4>Voir nos modèles de CV <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>Ce que ce module ne fait pas <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>Ce que vous pourrez faire ensuite <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>Mes Repères <span class="pastille p-garde">GARDÉ</span></h4></div>
+</div>
+
+<h2>4. Lettre et entretien en version rapide</h2>
+<div class="ecran">
+<div class="titre">Lettre et entretien en version rapide</div>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><br><small>Les deux chemins, en une minute.</small></span><span class="duree">1 min</span><span class="pastille p-nouveau">NOUVEAU</span></div>
+<div class="rub"><h4>Accroche, À quoi ça sert, Ce qui va se passer, Ce que ce module ne fait pas, Ce que vous pourrez faire ensuite, Mes Repères <span class="pastille p-garde">GARDÉS</span></h4><p>Cette page a déjà toutes les rubriques communes. Il manque seulement la vidéo d'ensemble et le mot « chemin ».</p></div>
+<div class="rub change"><h4>Deux chemins, chacun avec son but <span class="pastille p-change">CHANGÉ : mot « chemin »</span></h4>
+ <div class="chemin"><div class="tete">Chemin 1 : Ma lettre de motivation rapide</div>vidéo déjà à cette place</div>
+ <div class="chemin"><div class="tete">Chemin 2 : Ma fiche de préparation à l'entretien</div>vidéo déjà à cette place</div></div>
+<div class="rub"><h4>Comment ça se passe concrètement <span class="pastille p-garde">GARDÉ</span></h4></div>
+</div>
+
+<h2>5. Explorer les métiers</h2>
+<p>État réel : la page a <strong>déjà</strong> sa vidéo d'ensemble. Les quatre vidéos de chemin existent mais sont rangées sur les pages « Présentation de ce chemin », pas sur les cartes de l'accueil du module, et pas non plus dans la rubrique « Quatre chemins » de la page d'introduction. C'est cette dispersion que la maquette corrige.</p>
+<div class="ecran">
+<div class="titre">Explorer les métiers</div>
+<p class="sous">Pour découvrir des métiers, ou mieux comprendre ceux que vous connaissez mal. Il n'y a rien d'obligatoire et aucune réponse n'est mauvaise.</p>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong></span><span class="duree">1 min</span><span class="pastille p-garde">GARDÉ</span></div>
+<div class="rub"><h4>Ce module ne choisit rien à votre place <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub nouveau"><h4>À quoi ça sert <span class="pastille p-nouveau">NOUVEAU</span></h4><p>Découvrir des métiers que vous ne connaissiez pas, ou comprendre ce que demande vraiment un métier que vous connaissez mal. Vous voyez des pistes : vous ne décidez rien ici.</p></div>
+<div class="rub nouveau"><h4>Ce qui va se passer <span class="pastille p-nouveau">NOUVEAU</span></h4><ul><li>Vous choisissez un chemin parmi quatre, et vous en essayez un autre si vous voulez.</li><li>Vous obtenez des fiches de métiers (ce qu'ils demandent, leur niveau, leurs conditions de travail).</li><li>Si vous le souhaitez, « Ma synthèse » rassemble ce que vous avez fait sur une seule page.</li></ul></div>
+<div class="rub change"><h4>Quatre chemins <span class="pastille p-change">CHANGÉ : vidéo ajoutée dans chaque chemin</span></h4>
+ <div class="chemin"><div class="tete">Chercher un métier</div>« Ce qu'il fait », « Son point fort » + <strong>vidéo du chemin</strong> (NOUVEAU à cette place)</div>
+ <div class="chemin"><div class="tete">Partir de vos envies</div>idem</div>
+ <div class="chemin"><div class="tete">Répondre à un questionnaire</div>idem</div>
+ <div class="chemin"><div class="tete">Les emplois en demande</div>idem</div></div>
+<div class="rub"><h4>Ce que vous trouvez dans ce module <span class="pastille p-change">RAMENÉ À LA PREMIÈRE PHRASE</span></h4><p>Garde : « Des fiches pour plus de N métiers... ». Le second paragraphe (garder comme Repère, comparer, Lexique, candidature) part dans la rubrique « Ce que vous pourrez faire ensuite ».</p></div>
+<div class="rub"><h4>Ma synthèse (vidéo « Ma synthèse » dans la rubrique) <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub"><h4>Comment les informations sont présentées / D'où viennent les informations <span class="pastille p-garde">GARDÉS</span></h4></div>
+<div class="rub"><h4>Ce que ce module ne fait pas <span class="pastille p-garde">GARDÉ</span></h4></div>
+<div class="rub nouveau"><h4>Ce que vous pourrez faire ensuite <span class="pastille p-nouveau">NOUVEAU (déplacé)</span></h4><ul><li>Garder une fiche comme Repère.</li><li>La comparer avec une autre piste.</li><li>Comprendre un mot dans le Lexique.</li><li>Préparer une candidature.</li></ul></div>
+</div>
+<h3>Les cartes de l'accueil du module (« Par où voulez-vous commencer ? »)</h3>
+<div class="ecran">
+ <div class="chemin"><div class="tete">Chercher un métier</div>question, trois repères, <strong>ligne vidéo « Voir ce chemin en vidéo »</strong> <span class="pastille p-nouveau">NOUVEAU</span><br><span class="bouton plein">Chercher un métier</span><span class="bouton">Présentation de ce chemin</span></div>
+ <p class="sous">Les trois autres cartes sont identiques. <strong>Risque à vérifier au navigateur</strong> : la carte est étroite à quatre colonnes, le lecteur déplié y sera petit. Repli prévu si c'est trop serré : une seule colonne ou deux sur ordinateur.</p>
+</div>
+
+<h2>6. Les vidéos : ce qui existe, ce qui est à faire</h2>
+<table>
+<tr><th>Vidéo</th><th>Action</th><th>Remarque</th></tr>
+<tr><td>Vue d'ensemble « Reprendre mon CV » (clé reprendre)</td><td>À produire</td><td>Pas de miniature ni de fichier aujourd'hui</td></tr>
+<tr><td>Vue d'ensemble « Créer un nouveau CV » (clé creer)</td><td>À produire</td><td></td></tr>
+<tr><td>Vue d'ensemble « Lettre et entretien rapides » (clé pret)</td><td>À produire</td><td></td></tr>
+<tr><td>Trois vidéos de chemin de Reprendre</td><td>À rejouer</td><td>La voix dit « voie »</td></tr>
+<tr><td>Trois vidéos de chemin de Créer, deux de la version rapide</td><td>À écouter d'abord</td><td>Je les écoute avant de décider : seules les voix qui disent « parcours » ou « voie » sont refaites</td></tr>
+<tr><td>Quatre vidéos de chemin d'Explorer, vue d'ensemble, Ma synthèse</td><td>Gardées</td><td>Aucun changement de vocabulaire (« chemin » est déjà leur mot)</td></tr>
+<tr><td>Module « Bien utiliser l'IA »</td><td>Aucune vidéo</td><td>Décision de Denis, maquette à venir</td></tr>
+</table>
+<h3>Textes de voix proposés pour les trois vues d'ensemble (environ une minute chacun)</h3>
+<div class="voix"><strong>Reprendre mon CV.</strong> Vous avez déjà un CV. Vous le déposez une seule fois. Ensuite, trois chemins s'ouvrent. Premier chemin : le garder et le compléter. L'assistant en ligne lit votre CV, puis vous ajoutez, vous corrigez, vous complétez. Deuxième chemin : le reformuler et le présenter. Vos phrases sont reformulées, sans rien ajouter. Troisième chemin : le refaire vous-même dans un modèle, sans assistant. Vous pouvez changer de chemin sans déposer votre CV une seconde fois. Rien n'est envoyé sans votre accord. Chaque chemin a sa propre vidéo.</div>
+<div class="voix"><strong>Créer un nouveau CV.</strong> Vous n'avez pas encore de CV, ou vous voulez repartir d'une page blanche. Il y a trois chemins. Avec l'assistant en ligne : vous remplissez vos informations, et il vous aide à les formuler. À partir de votre récit : vous racontez ce que vous avez vécu, avec vos mots, et l'assistant en tire vos expériences et vos compétences. À la main, sans assistant : vous écrivez tout vous-même, et rien n'est envoyé nulle part. À la fin, vous avez un CV à enregistrer en PDF ou en Word. Vous pouvez recommencer autrement quand vous voulez.</div>
+<div class="voix"><strong>Lettre et entretien en version rapide.</strong> Vous avez un CV, et une candidature à envoyer vite. Il y a deux chemins, indépendants l'un de l'autre. Ma lettre de motivation rapide : l'assistant en ligne vous propose deux lettres, vous choisissez. Ma fiche de préparation à l'entretien : votre présentation, les questions probables, les questions à poser. Vous déposez votre CV une seule fois. Pour aller plus loin, la version approfondie se trouve dans « Me préparer à candidater ».</div>
+
+<h2>7. Inventaire avant code (rien n'est supprimé)</h2>
+<table>
+<tr><th>Élément</th><th>Verdict</th></tr>
+<tr><td>Toutes les rubriques existantes des quatre pages</td><td>GARDÉES (seul le mot « chemin » change)</td></tr>
+<tr><td>« À quoi ça sert » de Reprendre</td><td>DÉPLACÉE en haut, juste après la vidéo, comme dans Créer</td></tr>
+<tr><td>Second paragraphe de « Ce que vous trouvez dans ce module » (Explorer)</td><td>DÉPLACÉ dans la nouvelle rubrique « Ce que vous pourrez faire ensuite »</td></tr>
+<tr><td>Bloc « Ce que vous pourrez faire ensuite » (Créer)</td><td>FUSIONNÉ en source unique : lu aussi par Reprendre (déjà une fonction commune dans le code)</td></tr>
+<tr><td>Quatre rubriques sur Reprendre et Explorer, une sur Créer</td><td>AJOUTÉES (liste ci-dessus)</td></tr>
+<tr><td>Bouton « Présentation de ce chemin » d'Explorer</td><td>GARDÉ, plus la ligne vidéo dans la carte</td></tr>
+<tr><td>Fonctions : départ, Continuer, Recommencer, détour, Revoir la présentation</td><td>GARDÉES, non touchées</td></tr>
+<tr><td>Les pages d'introduction du reste de l'application (Bilan, Lettre, etc.)</td><td>Non concernées ici : revues ensuite, module par module, dans l'audit de cohérence</td></tr>
+</table>
+
+<h2>8. Ordre de réalisation</h2>
+<ol>
+<li><strong>Vocabulaire « chemin »</strong> sur les textes visibles + recherche large du dépôt <span class="pastille p-garde">effort moyen</span></li>
+<li><strong>Rubriques manquantes</strong> (Reprendre, Créer, Explorer) <span class="pastille p-garde">effort moyen</span></li>
+<li><strong>Vidéos de chemin dans Explorer</strong> (page d'introduction et cartes), test sur téléphone <span class="pastille p-garde">effort moyen</span></li>
+<li><strong>Branchement des trois vidéos d'ensemble</strong> dans le composant existant (clés, libellés, test) <span class="pastille p-garde">effort bas</span></li>
+<li><strong>Fabrication des vidéos</strong> (trois vues d'ensemble, trois chemins de Reprendre rejoués, écoute des autres) <span class="pastille p-garde">effort haut</span></li>
+<li>Journal des changements et ligne « Nouveautés » à la fin, seulement quand tout est vérifié.</li>
+</ol>
+<p>Chaque étape : un commit, <code>npm test</code> vert, test navigateur sur les pages modifiées en mode clair et sombre.</p>
+
+<h2>9. Points à trancher</h2>
+<ol>
+<li><strong>Vidéo dans les cartes d'Explorer</strong> : je la mets à la fois dans la rubrique « Quatre chemins » (pleine largeur) et dans les cartes de l'accueil (étroites). Si les cartes sont trop serrées au navigateur, je garde la vidéo dans la rubrique seulement et je vous le dis avant de continuer.</li>
+<li><strong>Textes de voix</strong> des trois vues d'ensemble : ceux de la section 6 vous conviennent-ils ?</li>
+<li><strong>Rubriques de Reprendre</strong> : « Ce que ce module ne fait pas » (trois points) vous convient-il ?</li>
+</ol>
+</main>
+</body>
+</html>

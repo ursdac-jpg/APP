@@ -21,15 +21,13 @@ async function parcoursComplet(a, j) {
   await a.verifier({ h1: 'Créer un nouveau CV' });
   j.info('Départ : bouton de la voie 1 : ' + await a.clic('#btnCreerCvAvecAssistant'));
   await a.attendre(900);
+  await require('./reprendreCv.js').passerChoixMissions(a, j, 'assistant');
   let e = await a.verifier({ hash: '#objectif', etape: 'Votre objectif' });
   if (!/grisé/.test(e.avant || '')) { j.ko('objectif : « Continuer » devrait être grisé tant qu\'aucun objectif n\'est choisi (état : ' + e.avant + ')'); } else { j.ok('objectif : « Continuer » grisé au départ'); }
   if (!e.raison) { j.ko('objectif : aucune raison affichée à côté du « Continuer » grisé'); }
   await choisirObjectif(a, 'Répondre à une offre');
   await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-  j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi'));
-  e = await a.ecran();
-  if (!/grisé/.test(e.avant || '')) { j.ko('objectif : « Continuer » actif alors que le domaine du métier n\'est pas choisi'); }
-  j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]'));
+  { let ch = await a.clic('[data-metier-cible-direct]'); if (ch !== 'ok') { ch = await a.clic('#btnValiderMetierSaisi'); } j.info('métier choisi dans les propositions : ' + ch); await a.attendre(700); }
   e = await a.verifier({ hash: '#objectif' });
   if (/grisé/.test(e.avant || '')) { j.ko('objectif : « Continuer » reste grisé après le choix du métier et du domaine (' + e.raison + ')'); }
   await a.suiv();
@@ -152,6 +150,7 @@ async function variantesObjectifs(a, j) {
     await a.ev(() => { try { _creerCvToutEffacer(); } catch (e) { /* rien */ } });
     await a.aller('creer-cv');
     await a.clic('#btnCreerCvAvecAssistant'); await a.attendre(700);
+    await require('./reprendreCv.js').passerChoixMissions(a, j, 'assistant');
     await choisirObjectif(a, re);
     let e = await a.verifier({ hash: '#objectif' });
     j.info('objectif « ' + re + ' » : bouton « ' + e.avant + ' », raison « ' + e.raison + ' »');

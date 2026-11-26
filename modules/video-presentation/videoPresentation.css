@@ -22,6 +22,15 @@
 .vp-note { color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0 0; }
 /* Dans une voie ou un parcours de la présentation : le bouton prend la largeur de la voie, sans marge de centrage. */
 .voie-presentation .vp { margin: 0.5rem 0 0.7rem; max-width: none; }
+/* Dans une carte de chemin (tuile de Bien utiliser l'IA, carte d'Explorer les métiers, rubrique de Ce qui compte pour moi) : le bouton prend la largeur de la carte, sans marge de centrage (décision de Denis du 25/11/2026, le film est au même endroit dans tous les modules). */
+.buia-intention .vp, .cml-entree .vp, .cqcpm-theme-bloc .vp { align-self: stretch; max-width: none; margin: 0.2rem 0 0.3rem; }
+/* Carte étroite (quatre tuiles côte à côte, téléphone) : l'aperçu passe au-dessus du texte, qui ne s'écrit plus mot par mot. La mesure est celle de la carte, pas celle de l'écran. */
+.vp { container-type: inline-size; }
+@container (max-width: 330px) {
+  .vp-bouton { flex-wrap: wrap; row-gap: 0.45rem; }
+  .vp-vignette { flex: 1 1 100%; width: 100%; }
+  .vp-texte { flex: 1 1 0; }
+}
 @media (max-width: 480px) {
   .vp-bouton { gap: 0.6rem; padding-right: 0.6rem; }
   .vp-vignette { width: 6.6rem; }
@@ -48,3 +57,6 @@
 .vm.ouvert .vm-chevron { transform: rotate(180deg); }
 .vm .vp-lecteur video { max-width: 560px; }
 @media (prefers-reduced-motion: reduce) { .vm-bouton, .vm-chevron { transition: none; } }
+
+/* Écran tactile (25/11/2026, audit téléphone) : la ligne de vidéo se touche sur 44 px au moins. */
+@media (pointer: coarse), (max-width: 768px) { .vm-bouton { min-height: 44px; } }

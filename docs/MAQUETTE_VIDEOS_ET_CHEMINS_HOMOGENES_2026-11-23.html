@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : vidéos et chemins homogènes</title>
+<style>
+:root { --fond:#f6f7f9; --carte:#fff; --texte:#1d2330; --doux:#5b6475; --bord:#d5d9e2; --accent:#1f5fbf; --accent-pale:#e8f0fc; --note:#fff7e0; }
+@media (prefers-color-scheme: dark) { :root { --fond:#12151c; --carte:#1b2029; --texte:#e8ebf2; --doux:#a3abbb; --bord:#333b4a; --accent:#6aa3f5; --accent-pale:#1d2a40; --note:#2c2614; } }
+body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.5 system-ui, sans-serif; }
+main { max-width:960px; margin:0 auto; padding:16px; }
+h1 { font-size:1.5rem; } h2 { font-size:1.15rem; margin:1.8rem 0 .4rem; }
+.note { background:var(--note); border:1px solid var(--bord); border-radius:10px; padding:.7rem 1rem; margin:1rem 0; }
+.ecran { background:var(--carte); border:2px solid var(--bord); border-radius:14px; padding:1rem 1.2rem 1.4rem; margin:.8rem 0 1.4rem; }
+.etiquette { display:inline-block; font-size:.8rem; color:var(--doux); border:1px solid var(--bord); border-radius:99px; padding:0 .6rem; margin-bottom:.5rem; }
+.titre { text-align:center; margin:.3rem 0 .2rem; font-size:1.4rem; font-weight:700; }
+.sous { text-align:center; color:var(--doux); margin:0 0 .8rem; }
+.video { display:flex; align-items:center; gap:.7rem; border:1px solid var(--bord); border-radius:10px; padding:.5rem .7rem; background:var(--carte); }
+.video .vign { width:84px; height:48px; border-radius:6px; background:#222; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex:none; }
+.video strong { display:block; } .video small { color:var(--doux); }
+.video .duree { margin-left:auto; color:var(--doux); font-size:.85rem; white-space:nowrap; }
+.video.ensemble { border:2px solid var(--accent); background:var(--accent-pale); }
+.bloc { border:1px solid var(--bord); border-radius:10px; padding:.6rem .9rem; margin:.6rem 0; }
+.bloc h4 { margin:0 0 .2rem; font-size:1rem; }
+.chemins { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:.8rem; margin-top:.5rem; }
+.chemin { border:1px solid var(--bord); border-radius:12px; padding:.7rem .8rem; display:flex; flex-direction:column; gap:.5rem; }
+.chemin .tete { display:flex; align-items:center; gap:.5rem; font-weight:700; }
+.rond { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.85rem; flex:none; }
+.bouton { align-self:flex-start; border:1.5px solid var(--accent); color:var(--accent); background:transparent; border-radius:8px; padding:.35rem .8rem; font-weight:600; }
+.bouton.plein { background:var(--accent); color:#fff; }
+.barre { display:flex; justify-content:space-between; gap:.5rem; margin-top:1rem; border-top:1px solid var(--bord); padding-top:.7rem; }
+table { border-collapse:collapse; width:100%; font-size:.92rem; } th, td { border:1px solid var(--bord); padding:.35rem .5rem; text-align:left; vertical-align:top; }
+</style>
+</head>
+<body>
+<main>
+<h1>Maquette : vidéos et chemins, partout pareil</h1>
+<div class="note"><strong>Concept grossier (étape 1), rien n'est codé.</strong> Il sert à valider la disposition. Les trois pages ci-dessous (Reprendre mon CV, Créer un nouveau CV, Explorer les métiers) montrent la même règle.</div>
+
+<h2>La règle commune</h2>
+<ol>
+<li><strong>Sous le titre de chaque module</strong> : une vidéo d'ensemble (environ une minute). Pour un module à plusieurs chemins, elle présente tous les chemins en une fois. Encadrée en bleu, pour qu'on la reconnaisse.</li>
+<li><strong>Dans la carte de chaque chemin</strong> : la vidéo propre à ce chemin, juste sous la phrase, avant le bouton de départ. Même place, même libellé « Voir ce chemin en vidéo » partout.</li>
+<li><strong>Le mot « chemin »</strong> remplace « voie », « façon de faire » et « parcours ».</li>
+<li><strong>Les mêmes rubriques</strong> sous les chemins dans toutes les introductions : À quoi ça sert, Ce qui va se passer, Ce que ce module ne fait pas, Ce que vous pourrez faire ensuite.</li>
+</ol>
+
+<h2>Exemple 1 : Reprendre mon CV (aujourd'hui sans vidéo d'ensemble)</h2>
+<div class="ecran">
+<span class="etiquette">Page du module</span>
+<div class="titre">Reprendre mon CV</div>
+<p class="sous">Vous avez déjà un CV : déposez-le une seule fois, puis choisissez votre chemin.</p>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><small>Les trois chemins, en une minute. Avec des sous-titres.</small></span><span class="duree">1 min</span></div>
+<div class="bloc"><h4>À quoi ça sert</h4>Partir d'un CV que vous avez déjà.</div>
+<div class="bloc"><h4>Trois chemins, chacun avec sa spécificité</h4>
+<div class="chemins">
+ <div class="chemin"><div class="tete"><span class="rond">1</span>Le garder et le compléter</div><span>« mon CV est à mettre à jour »</span>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Déposer mon CV</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">2</span>Le reformuler et le présenter</div><span>« mon contenu est bon, je veux une meilleure présentation »</span>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Déposer mon CV</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">3</span>Le refaire moi-même</div><span>« je refais la mise en page moi-même »</span>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Déposer mon CV</span></div>
+</div></div>
+<div class="bloc"><h4>Ce qui va se passer</h4>Vous déposez votre CV, puis vous choisissez votre chemin.</div>
+<div class="bloc"><h4>Ce que ce module ne fait pas &nbsp;<small>(à ajouter)</small></h4>Il ne conserve pas la mise en page de votre CV d'origine.</div>
+<div class="bloc"><h4>Ce que vous pourrez faire ensuite &nbsp;<small>(à ajouter)</small></h4>Écrire une lettre, préparer un entretien, faire analyser votre candidature.</div>
+<div class="barre"><span class="bouton">&larr; Retour</span><span class="bouton">Accueil</span><span class="bouton plein">Déposer mon CV &rarr;</span></div>
+</div>
+
+<h2>Exemple 2 : Créer un nouveau CV</h2>
+<div class="ecran">
+<span class="etiquette">Page du module</span>
+<div class="titre">Créer un nouveau CV</div>
+<p class="sous">On part d'une page blanche. Trois chemins : choisissez celui qui vous convient.</p>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><small>Les trois chemins, en une minute.</small></span><span class="duree">1 min</span></div>
+<div class="bloc"><h4>À quoi ça sert</h4>Construire votre CV, pour produire ensuite vos autres documents.</div>
+<div class="chemins">
+ <div class="chemin"><div class="tete"><span class="rond">1</span>Avec l'assistant en ligne</div>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">2</span>À partir de mon récit</div>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">3</span>À la main</div>
+  <div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span></div>
+</div>
+<div class="bloc"><h4>Ce qui va se passer &nbsp;<small>(à ajouter)</small></h4>Les étapes communes aux trois chemins.</div>
+<div class="bloc"><h4>Ce que ce module ne fait pas</h4>Texte actuel gardé.</div>
+<div class="bloc"><h4>Ce que vous pourrez faire ensuite &nbsp;<small>(à ajouter)</small></h4>Lettre, entretien, analyse.</div>
+</div>
+
+<h2>Exemple 3 : Explorer les métiers (a déjà sa vidéo d'ensemble)</h2>
+<div class="ecran">
+<span class="etiquette">Page du module</span>
+<div class="titre">Explorer les métiers</div>
+<div class="video ensemble"><span class="vign">&#9654;</span><span><strong>Voir la présentation en vidéo</strong><small>Les quatre chemins, en une minute.</small></span><span class="duree">1 min</span></div>
+<div class="bloc"><h4>À quoi ça sert &nbsp;<small>(à ajouter)</small></h4>Texte court, comme dans les autres modules.</div>
+<div class="chemins">
+ <div class="chemin"><div class="tete"><span class="rond">1</span>Chercher un métier</div><div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span><span class="bouton">Présentation de ce chemin</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">2</span>Partir de vos envies</div><div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span><span class="bouton">Présentation de ce chemin</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">3</span>Répondre à un questionnaire</div><div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span><span class="bouton">Présentation de ce chemin</span></div>
+ <div class="chemin"><div class="tete"><span class="rond">4</span>Les emplois en demande</div><div class="video"><span class="vign">&#9654;</span><span><strong>Voir ce chemin en vidéo</strong></span><span class="duree">1 min</span></div><span class="bouton plein">Commencer</span><span class="bouton">Présentation de ce chemin</span></div>
+</div>
+<div class="bloc"><h4>Ce qui va se passer et Ce que vous pourrez faire ensuite &nbsp;<small>(à ajouter)</small></h4>Rubriques communes.</div>
+</div>
+
+<h2>Carte de faisabilité (étape 2)</h2>
+<table>
+<tr><th>Élément</th><th>État du code</th><th>Risque</th></tr>
+<tr><td>Vidéo d'ensemble sous le titre des trois modules</td><td>Composant <code>htmlVideoPresentation</code> existant, champ <code>video</code> de la page d'introduction à renseigner</td><td>Faible. Trois vidéos à fabriquer avec la chaîne automatique (scénario, voix, enregistrement)</td></tr>
+<tr><td>Vidéo de chemin dans chaque carte</td><td>Déjà faite pour Créer et Reprendre ; à ajouter dans les cartes d'Explorer les métiers</td><td>Moyen : la page d'Explorer est plus dense, à tester sur téléphone</td></tr>
+<tr><td>Mot « chemin » partout</td><td>Environ 136 occurrences de « voie » dans <code>data/metiers.js</code>, dont beaucoup d'identifiants internes à ne pas toucher</td><td>Moyen : tri à faire au cas par cas ; recherche, aides et tests à revérifier</td></tr>
+<tr><td>Voix des vidéos de Reprendre</td><td>Les trois scénarios disent « voie » : à rejouer</td><td>Faible, chaîne automatique</td></tr>
+<tr><td>Rubriques communes des introductions</td><td>Blocs existants (<code>_introBlocSection</code>), texte à écrire</td><td>Faible</td></tr>
+</table>
+<p><strong>Verdict préliminaire : GO.</strong> Aucun bloquant. Réserve : environ six vidéos à produire (trois d'ensemble, trois de Reprendre rejouées) et le texte de chaque rubrique à valider avec vous.</p>
+
+<h2>Trois points à trancher</h2>
+<ol>
+<li><strong>Explorer les métiers</strong> : garder en plus la page « Présentation de ce chemin » (deuxième clic), ou la retirer maintenant que la vidéo est dans la carte ? Recommandation : la garder, elle porte du texte utile.</li>
+<li><strong>Vidéo d'ensemble</strong> : elle présente les chemins à plat, sans entrer dans le détail. Recommandation : une minute au plus.</li>
+<li><strong>Modules à un seul chemin</strong> : aucun changement, ils sont déjà conformes.</li>
+</ol>
+</main>
+</body>
+</html>

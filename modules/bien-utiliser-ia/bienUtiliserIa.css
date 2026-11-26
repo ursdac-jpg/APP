@@ -1,0 +1,236 @@
+/* Module « Bien utiliser l'IA » : écran d'entrée. Seulement des variables du thème : le mode sombre et le choix d'accent suivent. Préfixe buia- : aucune classe commune de l'application n'est réutilisée sous un autre sens. */
+/* Pleine largeur comme tous les autres modules (page-catalogue-contenu) : plus de plafond à 1040 px (consigne de Denis du 25/11/2026, mise en page homogène). Les paragraphes restent plafonnés par la règle commune (52 em). */
+.buia-page { margin: 0 auto; }
+.buia-panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+.buia-panneau h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .5rem; }
+.buia-panneau p { font-size: 1rem; }
+
+/* Quatre chemins : quatre sur une ligne dès 1400 px (grand écran), deux fois deux en dessous, un par ligne sur petit écran (jamais trois puis un). Même seuil que « Explorer les métiers » (.cml-grille4). */
+.buia-intentions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0 .2rem; }
+@media (max-width: 1399px) { .buia-intentions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .buia-intentions { grid-template-columns: 1fr; } }
+.buia-intention { position: relative; display: flex; flex-direction: column; gap: .5rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 16px; background: var(--bg-card); padding: 1rem 1.1rem 1.1rem; color: var(--text-strong); }
+.buia-intention .buia-rond { width: 3rem; height: 3rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; flex: none; }
+.buia-intention h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
+.buia-intention p { font-size: 1rem; margin: 0; }
+.buia-intention .buia-detail { font-size: .9rem; color: var(--text-muted); }
+.buia-intention .btn { margin-top: auto; min-height: 44px; font-weight: 700; }
+/* Phrase « Choisissez ce chemin si » de chaque tuile (décision de Denis du 25/11/2026) : aucun chemin n'est conseillé ni mis en avant. */
+.buia-intention .buia-quand { border-left: 4px solid var(--accent); padding: .15rem 0 .15rem .7rem; font-size: 1rem; line-height: 1.4; }
+.buia-intention .buia-quand strong { display: block; color: var(--accent-texte, var(--accent)); font-weight: 800; }
+.buia-construction { margin: .6rem 0 0; }
+
+.buia-seg { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+.buia-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; font-size: .95rem; text-align: left; }
+.buia-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); }
+.buia-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.buia-encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .7rem .9rem; margin: .6rem 0; font-size: 1rem; }
+.buia-encart.ok { border-left-color: var(--success-strong); background: var(--success-bg-subtle); }
+.buia-encart[hidden] { display: none !important; }
+
+.buia-rassurance { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin: .4rem 0; }
+@media (max-width: 880px) { .buia-rassurance { grid-template-columns: 1fr; } }
+.buia-rassurance div { border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; font-size: 1rem; background: var(--bg-card); }
+.buia-rassurance strong { display: block; }
+.buia-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0 .2rem; }
+
+/* ---------- Chemin 1 « Comprendre comment demander » ---------- */
+/* Les six couleurs des six éléments (fond et texte), avec leur valeur en mode sombre. La couleur ne porte jamais seule le sens : le numéro et le nom restent écrits. */
+:root {
+  --buia-c1: #dbe9ff; --buia-c1t: #0b4aa8;
+  --buia-c2: #d9f4e4; --buia-c2t: #17663a;
+  --buia-c3: #fdecc8; --buia-c3t: #7a4a00;
+  --buia-c4: #e8defa; --buia-c4t: #5a2fa0;
+  --buia-c5: #fadcdc; --buia-c5t: #8e2b2b;
+  --buia-c6: #d5f0f0; --buia-c6t: #0e5f66;
+}
+[data-theme="sombre"] {
+  --buia-c1: #1d3556; --buia-c1t: #a9c8f5;
+  --buia-c2: #1c3a2a; --buia-c2t: #9fdcb8;
+  --buia-c3: #4a3a14; --buia-c3t: #f2d291;
+  --buia-c4: #33284f; --buia-c4t: #cdb8f3;
+  --buia-c5: #4a2323; --buia-c5t: #f1b5b5;
+  --buia-c6: #173d40; --buia-c6t: #9bdbe0;
+}
+.buia-e1 { --buia-fond: var(--buia-c1); --buia-txt: var(--buia-c1t); }
+.buia-e2 { --buia-fond: var(--buia-c2); --buia-txt: var(--buia-c2t); }
+.buia-e3 { --buia-fond: var(--buia-c3); --buia-txt: var(--buia-c3t); }
+.buia-e4 { --buia-fond: var(--buia-c4); --buia-txt: var(--buia-c4t); }
+.buia-e5 { --buia-fond: var(--buia-c5); --buia-txt: var(--buia-c5t); }
+.buia-e6 { --buia-fond: var(--buia-c6); --buia-txt: var(--buia-c6t); }
+
+.buia-panneau h2 { display: flex; gap: .6rem; align-items: center; }
+.buia-rond-num { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; }
+.buia-niveaux { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; margin: .2rem 0 1rem; align-items: center; }
+.buia-etiq { font-size: .95rem; font-weight: 700; color: var(--text-muted); }
+.buia-petit { font-size: .9rem; }
+.buia-discret { color: var(--text-muted); }
+.buia-encart.rappel { border-left-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--warning-strong); }
+.buia-pastille-niveau { display: inline-block; font-size: .85rem; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); border: 1px solid var(--accent); margin-left: .4rem; }
+
+
+.buia-deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: .6rem 0; }
+@media (max-width: 720px) { .buia-deux { grid-template-columns: 1fr; } }
+.buia-liste { margin: 0; padding-left: 1.2rem; }
+.buia-liste li { font-size: 1rem; }
+.buia-sait { border: 1px solid var(--border); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-subtle); }
+.buia-sait h3 { font-size: 1rem; font-weight: 800; margin: 0 0 .3rem; }
+.buia-sait.oui { border-top: 5px solid var(--success-strong); }
+.buia-sait.non { border-top: 5px solid var(--warning-border); }
+
+.buia-schema { display: flex; align-items: stretch; justify-content: center; gap: .5rem; flex-wrap: wrap; margin: .8rem 0; }
+.buia-boite { flex: 1 1 170px; max-width: 250px; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .7rem; text-align: center; font-size: .95rem; }
+.buia-boite strong { display: block; font-size: 1rem; margin-bottom: .2rem; }
+.buia-fleche { align-self: center; font-size: 1.6rem; color: var(--accent-texte, var(--accent)); font-weight: 800; }
+.buia-b1 { background: var(--buia-c1); color: var(--buia-c1t); border-color: var(--buia-c1t); }
+.buia-b2 { background: var(--buia-c3); color: var(--buia-c3t); border-color: var(--buia-c3t); }
+.buia-b3 { background: var(--buia-c2); color: var(--buia-c2t); border-color: var(--buia-c2t); }
+@media (max-width: 640px) { .buia-fleche { transform: rotate(90deg); width: 100%; text-align: center; } }
+
+.buia-demande { border: 1px solid var(--border); border-radius: 10px; padding: .7rem .9rem; background: var(--bg-subtle); font-size: 1rem; }
+.buia-tete { font-weight: 800; margin-bottom: .3rem; font-size: .95rem; }
+.buia-demande.pauvre .buia-tete { color: var(--warning-strong); }
+.buia-demande.riche .buia-tete { color: var(--success-strong); }
+
+.buia-pile { display: flex; flex-direction: column; gap: .45rem; margin: .6rem 0; }
+.buia-rang { display: grid; grid-template-columns: 11rem 1fr; gap: .6rem; align-items: stretch; width: 100%; border: 2px solid var(--buia-txt); border-radius: 12px; background: var(--buia-fond); color: var(--buia-txt); padding: 0; text-align: left; cursor: pointer; overflow: hidden; min-height: 44px; }
+.buia-rang .buia-nom { padding: .5rem .6rem; font-weight: 800; font-size: .95rem; border-right: 2px solid var(--buia-txt); display: flex; gap: .4rem; align-items: center; }
+.buia-n { flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--buia-txt, var(--accent)); color: var(--buia-fond, #fff); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.buia-rang .buia-phrase { padding: .5rem .6rem; font-size: .95rem; }
+.buia-rang[aria-expanded="true"] { outline: 3px solid var(--buia-txt); outline-offset: 1px; }
+.buia-rang-raison { margin: -.1rem 0 .3rem; border-left: 4px solid var(--buia-txt); padding: .5rem .8rem; background: var(--bg-card); border-radius: 0 10px 10px 0; font-size: .95rem; color: var(--text-strong); }
+.buia-rang-raison[hidden] { display: none !important; }
+@media (max-width: 640px) { .buia-rang { grid-template-columns: 1fr; } .buia-rang .buia-nom { border-right: 0; border-bottom: 2px solid var(--buia-txt); } }
+.buia-demande-texte { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .8rem .9rem; background: var(--bg-card); font-family: "Cascadia Mono", Consolas, monospace; font-size: .9rem; line-height: 1.75; white-space: pre-wrap; }
+.buia-seg-couleur { padding: .1rem .25rem; border-radius: 5px; background: var(--buia-fond); color: var(--buia-txt); }
+
+.buia-boucle { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .4rem; margin: .8rem 0; }
+.buia-pas { display: flex; align-items: center; gap: .5rem; border: 2px solid var(--accent); border-radius: 999px; padding: .25rem .9rem .25rem .3rem; background: var(--bg-card); font-weight: 800; font-size: .95rem; }
+.buia-pas .buia-n { background: var(--accent); color: #fff; width: 1.8rem; height: 1.8rem; }
+.buia-retour { font-size: .95rem; font-weight: 700; color: var(--accent-texte, var(--accent)); }
+
+.buia-conclusion { border: 3px solid var(--accent); border-radius: 14px; padding: 1rem 1.1rem; background: var(--bg-card); margin-bottom: 1rem; }
+.buia-conclusion h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .6rem; }
+/* Écran 8 « Ses questions d'abord » : le conseil clé, dans le cadre accentué de la fiche finale (consigne 612). Couleurs = variables : mode sombre compris. */
+.buia-cle { margin: .4rem 0 1rem; }
+.buia-cle-titre { font-size: 1.1rem; font-weight: 800; margin: 0 0 .4rem; color: var(--accent-texte, var(--accent)); }
+.buia-cle-texte { font-size: 1.08rem; line-height: 1.5; font-weight: 600; }
+.buia-fiche h3 { font-size: 1rem; font-weight: 800; margin: .9rem 0 .3rem; border-bottom: 2px solid var(--accent); padding-bottom: .15rem; }
+.buia-six { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem .8rem; list-style: none; padding: 0; margin: 0; }
+@media (max-width: 640px) { .buia-six { grid-template-columns: 1fr; } }
+.buia-six li { background: var(--buia-fond); color: var(--buia-txt); border-radius: 8px; padding: .3rem .6rem; font-size: .95rem; font-weight: 700; }
+
+/* ---------- Chemin 2 « J'ai un papier ou une situation » ---------- */
+.buia-champ { margin: .8rem 0; }
+.buia-lib { display: block; font-weight: 800; font-size: 1rem; margin-bottom: .2rem; }
+.buia-aide-ch { font-size: .9rem; color: var(--text-muted); margin-bottom: .3rem; }
+.buia-aide-q { font-style: italic; }
+.buia-rang-raison .buia-aide-q { margin-top: .4rem; font-size: .9rem; color: var(--text-muted); }
+.buia-champ textarea, .buia-champ input[type="text"] { width: 100%; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .8rem; background: var(--bg-card); color: var(--text-strong); font-size: 1rem; font-family: inherit; }
+.buia-champ textarea:focus, .buia-champ input[type="text"]:focus { outline: 3px solid var(--accent); outline-offset: 1px; }
+.buia-msg { align-self: center; font-size: .95rem; font-weight: 700; color: var(--text-muted); }
+.buia-msg:empty { display: none; }
+
+.buia-alerte { border: 2px solid var(--warning-border); border-left-width: 6px; background: var(--warning-bg-subtle); color: var(--warning-strong); border-radius: 10px; padding: .7rem .9rem; margin: .6rem 0; font-size: 1rem; }
+.buia-alerte.calme { border-color: var(--border-strong, var(--border)); background: var(--bg-subtle); color: var(--text-strong); }
+.buia-alerte.douce { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); }
+.buia-alerte div { margin-bottom: .3rem; }
+.buia-phrase-courrier { display: block; font-size: .9rem; font-style: italic; margin-top: .15rem; }
+.buia-choix-alerte { display: flex; gap: .5rem; align-items: center; font-weight: 700; cursor: pointer; margin-top: .3rem; }
+.buia-choix-alerte input { width: 1.3rem; height: 1.3rem; flex: none; }
+
+.buia-sugg { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin: .6rem 0; }
+@media (max-width: 880px) { .buia-sugg { grid-template-columns: 1fr; } }
+.buia-prop { border: 2px solid var(--border-strong, var(--border)); border-radius: 14px; padding: .8rem .9rem; background: var(--bg-card); display: flex; flex-direction: column; gap: .35rem; }
+.buia-prop.premier { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.buia-prop h3 { font-size: 1.05rem; font-weight: 800; margin: 0; }
+.buia-prop .btn { margin-top: auto; min-height: 44px; font-weight: 700; }
+.buia-fam { font-size: .9rem; color: var(--text-muted); }
+.buia-pourquoi { font-size: .95rem; }
+.buia-pill { display: inline-block; margin: .1rem .25rem .1rem 0; padding: .05rem .6rem; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); font-size: .9rem; font-weight: 700; }
+
+.buia-modele-ligne { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; justify-content: space-between; padding: .55rem 0; border-bottom: 1px solid var(--border); }
+.buia-modele-ligne:last-child { border-bottom: 0; }
+.buia-nom-modele { font-weight: 800; font-size: 1rem; flex: 1 1 16rem; }
+.buia-var { display: block; font-weight: 400; font-size: .9rem; color: var(--text-muted); }
+/* Partager ses demandes avec un collègue (P13) : case devant chaque demande, fiche de ce qui part, case « J'ai relu ». Couleurs existantes seulement (aucune valeur à doubler en mode sombre). */
+.buia-p-case { display: flex; gap: .6rem; align-items: flex-start; cursor: pointer; margin: 0; }
+.buia-p-case > input[type="checkbox"], .buia-p-relu > input[type="checkbox"] { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: 0 0 auto; accent-color: var(--primary); }
+.buia-p-fiche { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .8rem; margin: .5rem 0; background: var(--bg-subtle); }
+.buia-p-fiche dl { margin: .3rem 0 0; display: grid; grid-template-columns: 7rem 1fr; gap: .15rem .6rem; font-size: .9rem; }
+.buia-p-fiche dt { font-weight: 800; }
+.buia-p-fiche dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 520px) { .buia-p-fiche dl { grid-template-columns: 1fr; } }
+.buia-p-relu { display: flex; gap: .6rem; align-items: flex-start; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .8rem; margin: .6rem 0; cursor: pointer; background: var(--bg-card); }
+.buia-modele-ligne .btn { min-height: 44px; font-weight: 700; }
+
+.buia-deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; align-items: start; }
+/* Un mot ou une adresse très longue, écrit par la personne, ne doit jamais élargir la page (trouvé le 25/11/2026, balayage téléphone avec saisies : page de 786 px sur un écran de 375 px). */
+.buia-deux-col > * { min-width: 0; }
+.buia-demande-texte { overflow-wrap: anywhere; }
+@media (max-width: 880px) { .buia-deux-col { grid-template-columns: 1fr; } }
+.buia-apercu { position: sticky; top: .5rem; border: 2px solid var(--accent); border-radius: 14px; padding: .8rem .9rem; background: var(--bg-card); }
+@media (max-width: 880px) { .buia-apercu { position: static; } }
+.buia-apercu .btn:disabled { opacity: .55; cursor: not-allowed; }
+/* L'aperçu est long (la demande complète) : le texte défile dans son cadre pour que le bouton « Copier » reste toujours visible. */
+.buia-apercu .buia-demande-texte { max-height: 44vh; overflow: auto; }
+.buia-apercu { max-height: calc(100vh - 7rem); overflow: auto; }
+@media (max-width: 880px) { .buia-apercu { max-height: none; overflow: visible; } .buia-apercu .buia-demande-texte { max-height: 50vh; } }
+
+/* ---- Chemin 3 « Écrire ma propre demande » : écran Améliorer (cases à cocher et essais) ---- */
+.buia-ligne-test { display: flex; gap: .75rem; align-items: flex-start; padding: .65rem 0; border-bottom: 1px solid var(--border); }
+.buia-ligne-test:last-of-type { border-bottom: 0; }
+.buia-ligne-test > input[type="checkbox"] { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: 0 0 auto; accent-color: var(--primary); }
+.buia-ligne-corps { flex: 1 1 auto; min-width: 0; }
+.buia-ligne-corps > label { font-weight: 600; cursor: pointer; }
+.buia-essai { margin-top: .5rem; margin-bottom: 0; }
+.buia-essai[hidden] { display: none; }
+.buia-ligne-corps input[type="text"] { width: 100%; }
+
+/* ---- Chemin 4 « Comment fonctionne un assistant » ---- */
+.buia-phrase-demo { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-subtle); margin: .6rem 0; }
+.buia-mots { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+.buia-mot { border: 2px solid var(--border-strong, var(--border)); border-radius: 10px; padding: .15rem .7rem; background: var(--bg-card); font-weight: 700; font-size: .95rem; }
+.buia-mot b { color: var(--accent-texte, var(--accent)); }
+.buia-assistants { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin: .6rem 0; }
+@media (max-width: 720px) { .buia-assistants { grid-template-columns: 1fr; } }
+.buia-assistant { border: 1px solid var(--border); border-top: 5px solid var(--accent); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-card); }
+.buia-assistant h3 { font-size: 1rem; font-weight: 800; margin: 0 0 .3rem; }
+.buia-pastille-date { display: inline-block; border: 2px solid var(--warning-border); border-radius: 999px; padding: .05rem .8rem; background: var(--warning-bg-subtle); color: var(--warning-strong); font-size: .9rem; font-weight: 800; }
+.buia-panneau > h3 { font-size: 1.05rem; font-weight: 800; margin: .9rem 0 .3rem; }
+
+/* Exercices du chemin 1 (« Réparer une demande », « Repérer ce qui se vérifie ») : couleurs des six éléments déjà définies plus haut, aucune nouvelle variable. */
+.buia-ex-demande { border: 2px dashed var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .9rem; background: var(--bg-subtle); font-weight: 700; font-size: 1.1rem; margin: .6rem 0; }
+.buia-ex-cases { display: grid; gap: .5rem; margin: .6rem 0; }
+.buia-ex-cases:focus, .buia-ex-reponse:focus { outline: none; }
+.buia-ex-case { display: flex; gap: .6rem; align-items: flex-start; border: 2px solid var(--border-strong, var(--border)); border-left: 6px solid var(--buia-txt); border-radius: 12px; padding: .55rem .8rem; background: var(--bg-card); cursor: pointer; }
+.buia-ex-case input { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: none; }
+.buia-ex-case.vu, .buia-ex-case.ajouter { background: var(--buia-fond); color: var(--buia-txt); cursor: default; }
+.buia-ex-case.inutile { cursor: default; }
+.buia-ex-nom { display: block; font-weight: 800; }
+.buia-ex-q { display: block; font-size: .9rem; color: var(--text-muted); }
+.buia-ex-case.vu .buia-ex-q, .buia-ex-case.ajouter .buia-ex-q { color: inherit; }
+.buia-ex-verdict { display: block; margin-top: .3rem; font-size: .95rem; }
+.buia-ex-etat { display: inline-block; border-radius: 999px; padding: .02rem .7rem; margin-right: .3rem; border: 1px solid var(--border-strong, var(--border)); background: var(--bg-card); color: var(--text-strong); }
+.buia-ex-etat.ajouter { border-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--warning-strong); }
+.buia-ex-etat.vu { border-color: var(--success-strong); background: var(--success-bg-subtle); color: var(--success-strong); }
+.buia-ex-reponse { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .7rem; background: var(--bg-subtle); margin: .6rem 0; }
+.buia-ex-phrase { display: block; width: 100%; text-align: left; border: 2px solid transparent; border-radius: 10px; padding: .45rem .6rem; margin: .2rem 0; background: transparent; color: var(--text-strong); font-size: 1rem; cursor: pointer; }
+.buia-ex-phrase:hover:not(:disabled) { background: var(--bg-card); }
+.buia-ex-phrase[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.buia-ex-phrase[aria-pressed="true"]::before { content: "\2713\00a0"; font-weight: 800; }
+.buia-ex-phrase:disabled { cursor: default; color: var(--text-strong); opacity: 1; }
+.buia-ex-phrase.verif { border-color: var(--warning-border); background: var(--warning-bg-subtle); }
+.buia-ex-phrase.rien { border-color: var(--border-strong, var(--border)); background: var(--bg-card); }
+.buia-ex-tag { display: block; font-size: .9rem; font-weight: 700; margin-top: .15rem; }
+.buia-ex-deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: .6rem 0; }
+.buia-ex-deux .buia-ex-demande { font-size: 1rem; font-weight: 600; margin-top: .3rem; }
+.buia-ex-deux .buia-ex-reponse { margin-top: .3rem; font-size: .95rem; }
+@media (max-width: 640px) { .buia-ex-deux { grid-template-columns: 1fr; } }
+
+/* Présentation du module : liste avec une petite icône devant chaque ligne (couleurs par variables, donc mode sombre déjà couvert). */
+.buia-panneau .buia-liste-icones { list-style: none; padding-left: 0; }
+.buia-panneau .buia-liste-icones li { display: flex; gap: .6rem; align-items: flex-start; }
+.buia-panneau .buia-liste-icones .bi { color: var(--accent-texte, var(--accent)); margin-top: .15rem; flex: none; }
+.buia-intro-liste li { margin-bottom: .45rem; }
+.buia-intro-liste li:last-child { margin-bottom: 0; }

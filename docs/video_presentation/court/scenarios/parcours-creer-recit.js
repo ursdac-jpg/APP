@@ -10,7 +10,7 @@ module.exports = {
     { id: 'rq', voix: 'Avant votre récit, une seule question : vous choisissez vous-même les missions et les compétences de vos expériences, ou l’assistant vous les propose. Une fois confirmé, ce choix ne change plus pour ce CV.', sous_titre: 'Une question : vous choisissez les missions et compétences, ou l’assistant les propose.' },
     { id: 'r3', voix: 'Vous écrivez avec vos mots, au clavier ou à la voix. Aucune forme imposée. Vous pouvez dire ce que vous visez, mais ce n’est pas obligatoire.', sous_titre: 'Vos mots, au clavier ou à la voix. Ce que vous visez : à compléter.' },
     { id: 'r4', voix: 'Un assistant en ligne en tire des expériences et des compétences. Pour chacune, vous choisissez la formulation qui vous ressemble. Il n’invente rien.', sous_titre: 'L’assistant en tire des expériences et compétences. Vous choisissez la formulation.' },
-    { id: 'r4b', voix: 'Vous vérifiez ensuite les expériences retrouvées dans votre récit : vous pouvez en retirer, les remettre, ou en ajouter d’autres, avec le même panneau que dans les autres parcours.', sous_titre: 'Vous vérifiez les expériences retrouvées : retirer, remettre, ou en ajouter.' },
+    { id: 'r4b', voix: 'Vous vérifiez ensuite les expériences retrouvées dans votre récit : vous pouvez en retirer, les remettre, ou en ajouter d’autres, avec le même panneau que dans les autres chemins.', sous_titre: 'Vous vérifiez les expériences retrouvées : retirer, remettre, ou en ajouter.' },
     { id: 'r5', voix: 'Pour repérer vos compétences dans des documents que vous avez déjà, voyez Découvrir mes compétences, dans la Boîte à outils.', sous_titre: 'À partir de documents existants : « Découvrir mes compétences » (Boîte à outils).' }
   ],
   async jouer(o) {

@@ -224,6 +224,7 @@ function pageIntroUnCvPlusieursMetiers() {
   // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la présentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
   var enCours = !_ucpmDetourPresentation && ucpmAUnTravailEnCours(_ucpmEtat);
   var config = {
+    temps: 'ucpm',   // repère de temps (data/tempsModules.js, consigne 606)
     carteRetour: 'orientation',
     detour: _ucpmDetourPresentation,
     syntheseHTML: enCours ? _introBlocReprise('Vous avez un travail en cours dans ce module.', 'btnUcpmRepriseContinuer', 'btnUcpmRepriseRecommencer', 'Reprendre') : '',

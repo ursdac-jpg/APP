@@ -1,5 +1,5 @@
 /* ============================================================
-   Module « Explorer les métiers » : quatrième chemin « Les emplois en demande » (consigne 456, 18/11/2026). MAQUETTE VIVANTE : module fermé, textes à valider par Denis
+   Module « Explorer les métiers » : quatrième chemin « Les emplois en demande » (consigne 456, 18/11/2026). MAQUETTE VIVANTE à l'époque (module alors fermé, ouvert au public depuis le 19/11/2026), textes à valider par Denis
    (docs/TEXTES_EXPLORER_LES_METIERS_A_RELIRE_2026-11-17.md, section 10). Plan : docs/PLAN_CHEMIN_LA_OU_CA_RECRUTE_2026-11-18.md.
 
    Ce chemin n'explore pas : il ne pose aucune question et montre du concret pour le DÉPARTEMENT de la personne (24 ou 87 pour l'instant) :
@@ -239,7 +239,7 @@ function _cmrChoixDepartement(dep) {
   var tuile = function (code, icone, titre, sous) {
     return '<button type="button" class="sous-carte-accueil" data-cml="recruteDep" data-dep="' + code + '"><i class="bi ' + icone + '" aria-hidden="true"></i><strong>' + titre + '</strong><span>' + sous + '</span></button>';
   };
-  var h = '<div class="cml-bloc"><p>Pour vous montrer les chiffres de votre département, dites-nous où vous cherchez. Vous pourrez le changer à tout moment.</p>' +
+  var h = '<div class="cml-bloc"><p>Pour vous montrer les chiffres de votre département, indiquez où vous cherchez. Vous pourrez le changer à tout moment.</p>' +
     '<div class="grille-sous-cartes-accueil">' + tuile('24', 'bi-geo-alt', 'Dordogne (24)', 'Région Nouvelle-Aquitaine') + tuile('87', 'bi-geo-alt', 'Haute-Vienne (87)', 'Région Nouvelle-Aquitaine') +
     tuile('ailleurs', 'bi-question-circle', 'Un autre département', 'Ou je ne sais pas encore') + '</div></div>';
   if (dep === 'ailleurs') {

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : accueil de l'espace « Ce qui compte pour moi »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-bandeau{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.7rem .9rem;margin:1.4rem 0 0;font-size:.9rem}
+.mq-decision h2{font-size:1rem;margin:0 0 .4rem}
+.mq-decision ol{margin:0;padding-left:1.2rem}
+.mq-decision li{margin:.3rem 0}
+.mq-page h1{font-size:1.35rem;margin:.2rem 0 .3rem;text-align:center}
+.mq-page .chapeau{text-align:center;color:var(--text-muted);max-width:640px;margin:0 auto 1rem}
+
+/* ----- Intérieur de l'espace (classes .cqcpm-*, à ranger dans css/style.css au moment du code) ----- */
+.cqcpm-haut{display:flex;justify-content:center;margin:.2rem 0 1rem}
+.cqcpm-theme{margin:1.3rem 0 .5rem}
+.cqcpm-theme h2{font-size:1.05rem;font-weight:800;margin:0;display:flex;align-items:center;gap:.5rem}
+.cqcpm-theme h2 .bi{color:var(--accent)}
+.cqcpm-theme p{margin:.15rem 0 0;font-size:.88rem;color:var(--text-muted)}
+.cqcpm-cartes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.cqcpm-cartes.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cqcpm-cartes.n1{grid-template-columns:minmax(0,1fr);max-width:50%}
+.tel .cqcpm-cartes,.tel .cqcpm-cartes.n3,.tel .cqcpm-cartes.n1{grid-template-columns:1fr;max-width:none}
+.cqcpm-carte{position:relative}
+.cqcpm-carte .cqcpm-etat{position:absolute;top:.7rem;right:.8rem;font-size:.78rem;font-weight:700;border-radius:999px;padding:.12rem .6rem;border:1px solid var(--success);color:var(--success);background:var(--bg-card);display:inline-flex;gap:.3rem;align-items:center}
+.cqcpm-carte .cqcpm-pour{font-size:.95rem;font-weight:700;color:var(--text-strong);line-height:1.3;flex:none}
+.cqcpm-carte .cqcpm-dure{font-size:.8rem;color:var(--text-muted);flex:none}
+.cqcpm-bas{display:flex;justify-content:center;margin:1.4rem 0 .2rem}
+.cqcpm-intro{display:flex;flex-direction:column;gap:.7rem;margin:.6rem 0}
+.cqcpm-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem}
+.cqcpm-bloc h2{font-size:1.02rem;font-weight:800;margin:0 0 .35rem;display:flex;align-items:center;gap:.5rem}
+.cqcpm-bloc h2 .bi{color:var(--accent);font-size:1.2rem}
+.cqcpm-bloc p,.cqcpm-bloc li{font-size:.92rem;color:var(--text-muted);margin:.2rem 0}
+.cqcpm-bloc ul{margin:.2rem 0;padding-left:1.1rem}
+.cqcpm-garde{display:flex;flex-direction:column;gap:.6rem}
+.cqcpm-garde .cqcpm-ligne{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;display:flex;gap:.7rem;align-items:flex-start;flex-wrap:wrap}
+.cqcpm-garde .cqcpm-ligne .bi{color:var(--accent);font-size:1.4rem;flex:none}
+.cqcpm-garde .cqcpm-ligne .txt{flex:1 1 220px}
+.cqcpm-garde .cqcpm-ligne h3{font-size:1rem;font-weight:800;margin:0}
+.cqcpm-garde .cqcpm-ligne p{margin:.15rem 0 0;font-size:.88rem;color:var(--text-muted)}
+.cqcpm-vide{text-align:center;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:12px;padding:1rem}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Page affichée</b><div class="boutons" id="g-page">
+    <button type="button" data-v="acc">Accueil de l'espace</button><button type="button" data-v="pres">Page de présentation</button><button type="button" data-v="gar">Ce que j'ai gardé</button></div></div>
+  <div class="grp" id="grp-etat"><b>Où en est la personne (accueil)</b><div class="boutons" id="g-etat">
+    <button type="button" data-v="rien">Elle arrive : rien de fait</button><button type="button" data-v="deux">Elle a terminé deux cartes</button></div></div>
+  <div class="grp" id="grp-gar"><b>Ce qui est gardé (page « Ce que j'ai gardé »)</b><div class="boutons" id="g-gar">
+    <button type="button" data-v="vide">Rien de gardé</button><button type="button" data-v="deux">Deux cartes gardées</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Le cadre des cartes, les couleurs et les boutons sont ceux de l'application ; seuls l'intérieur des cartes et l'organisation de l'espace sont nouveaux. Les boutons sont inactifs ici. Les réglages ci-dessus sont câblés.</div>
+  <div id="rendu"></div>
+  <div class="mq-decision">
+    <h2><i class="bi bi-question-circle" aria-hidden="true"></i> Ce que je vous demande de regarder</h2>
+    <ol>
+      <li>Les quatre thèmes et l'ordre des huit cartes vous conviennent-ils ?</li>
+      <li>La phrase de chaque carte (une question ou une invitation, puis ce qu'elle contient) est-elle assez claire pour une personne qui découvre l'espace ?</li>
+      <li>La pastille « Terminé » (visible seulement tant que la personne reste dans l'application) et la page « Ce que j'ai gardé » vous paraissent-elles claires ?</li>
+    </ol>
+  </div>
+</div>
+<script>
+var E = { page: 'acc', etat: 'rien', gar: 'deux', tel: false, sombre: false };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+var THEMES = [
+  { titre: 'Ce que j’aimerais', icone: 'bi-stars', sous: 'Vos envies, vos modèles, votre journée rêvée.', cartes: [
+    { id: 'envies', icone: 'bi-rocket-takeoff', nom: 'Si rien ne m’arrêtait',
+      pour: 'Si tout était possible, que voudriez-vous vivre, apprendre ou créer ?',
+      dit: 'Quelques envies d’une phrase, dites avec vos mots, puis trois que vous retenez.', bouton: 'Commencer' },
+    { id: 'inspirent', icone: 'bi-chat-quote', nom: 'Ceux qui m’inspirent',
+      pour: 'Une personne, un personnage ou une œuvre vous marque ?',
+      dit: 'Ce que vous admirez, et ce que vous aimeriez en apprendre.', bouton: 'Commencer' },
+    { id: 'journee', icone: 'bi-sun', nom: 'Ma journée idéale de travail',
+      pour: 'À quoi ressemblerait une journée de travail qui vous ferait du bien ?',
+      dit: 'Du réveil jusqu’au soir, en quelques lignes.', bouton: 'Commencer' }
+  ] },
+  { titre: 'Ce qui compte', icone: 'bi-layers', sous: 'Ce que vous attendez du travail, et dans quelles conditions.', cartes: [
+    { id: 'valeurs', icone: 'bi-collection', nom: 'Ce qui compte au travail',
+      pour: 'Qu’est-ce qui est essentiel pour vous dans un travail ?',
+      dit: 'Dix-neuf repères à ranger en trois piles : essentiel, important, moins important pour l’instant.', bouton: 'Commencer' },
+    { id: 'conditions', icone: 'bi-sliders', nom: 'Comment je veux travailler',
+      pour: 'Dans quelles conditions vous sentez-vous bien pour travailler ?',
+      dit: 'Lieu, rythme, horaires, contact, cadre, déplacements, cadre de vie : ce que vous voulez, ce à quoi vous pouvez vous adapter, ce que vous préférez éviter.', bouton: 'Commencer' }
+  ] },
+  { titre: 'Ce que j’ai vécu', icone: 'bi-journal-text', sous: 'Vos expériences et ce qui vous a aidé.', cartes: [
+    { id: 'experiences', icone: 'bi-journal-text', nom: 'Mes expériences, côté ressenti',
+      pour: 'Un emploi, un stage, un bénévolat, une activité : comment l’avez-vous vécu ?',
+      dit: 'Ce que vous avez aimé, ce qui a pesé, et comment vous en sortiez.', bouton: 'Commencer' },
+    { id: 'aide', icone: 'bi-life-preserver', nom: 'Ce qui m’a aidé quand c’était difficile',
+      pour: 'Qu’est-ce qui vous a aidé à tenir ou à repartir ?',
+      dit: 'Des appuis, des habitudes, des personnes. Cette carte ne cherche pas à expliquer vos difficultés.', bouton: 'Commencer' }
+  ] },
+  { titre: 'La suite', icone: 'bi-signpost-2', sous: 'Une fois que vous y voyez plus clair.', cartes: [
+    { id: 'pas', icone: 'bi-flag', nom: 'Mon prochain petit pas',
+      pour: 'Quelle petite action pourriez-vous faire dès maintenant ?',
+      dit: 'Choisir une action parmi vos envies, repérer qui peut vous aider, noter une question pour votre conseiller.', bouton: 'Commencer' }
+  ] }
+];
+var FAITES = { envies: 1, conditions: 1 };
+
+function enteteRetour(titre) {
+  return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à la Boîte à outils</button></div>';
+}
+function rendreAccueil() {
+  var h = '<h1>Ce qui compte pour moi</h1>' +
+    '<p class="chapeau">Un espace pour mettre des mots sur ce que vous aimeriez, sur ce qui compte pour vous et sur ce que vous avez vécu. Ni test, ni note : seulement vos propres mots. Chaque carte est indépendante, vous commencez par celle que vous voulez.</p>' +
+    '<div class="cqcpm-haut"><button type="button" class="btn btn-outline-secondary"><i class="bi bi-info-circle" aria-hidden="true"></i> Revoir la présentation</button></div>';
+  THEMES.forEach(function (t) {
+    h += '<div class="cqcpm-theme"><h2><i class="bi ' + t.icone + '" aria-hidden="true"></i> ' + esc(t.titre) + '</h2><p>' + esc(t.sous) + '</p></div><div class="cqcpm-cartes n' + t.cartes.length + '">';
+    t.cartes.forEach(function (c) {
+      var fait = E.etat === 'deux' && FAITES[c.id];
+      h += '<div class="cml-entree cqcpm-carte"><i class="bi ' + c.icone + ' ico" aria-hidden="true"></i>' +
+        (fait ? '<span class="cqcpm-etat"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Terminé</span>' : '') +
+        '<h3>' + esc(c.nom) + '</h3>' +
+        '<p class="cqcpm-pour" style="margin:0">' + esc(c.pour) + '</p>' +
+        '<p style="margin:0">' + esc(c.dit) + '</p>' +
+        '<button type="button" class="btn ' + (fait ? 'btn-outline-primary' : 'btn-primary') + '">' + (fait ? 'Reprendre cette carte' : c.bouton) + '</button></div>';
+    });
+    h += '</div>';
+  });
+  h += '<div class="cqcpm-bas"><button type="button" class="btn btn-outline-primary"><i class="bi bi-floppy" aria-hidden="true"></i> Ce que j’ai gardé</button></div>';
+  return h;
+}
+function rendrePresentation() {
+  return enteteRetour() + '<h1>Ce qui compte pour moi</h1>' +
+    '<p class="chapeau">Cette page se relit à tout moment avec « Revoir la présentation ».</p>' +
+    '<div class="cqcpm-intro">' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-compass" aria-hidden="true"></i> À quoi sert cet espace</h2>' +
+    '<p>À vous aider à dire, avec vos mots, ce que vous aimeriez, ce qui compte pour vous dans un travail et ce que vous avez vécu. Ces mots peuvent ensuite servir pour parler de vous à un conseiller, préparer un entretien ou choisir une direction.</p></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-slash-circle" aria-hidden="true"></i> Ce que cet espace ne fait pas</h2>' +
+    '<ul><li>Il ne vous donne ni note, ni type, ni profil.</li><li>Il ne vous dit pas quel métier choisir.</li><li>Il ne juge aucune de vos réponses : il n’y a pas de bonne ou de mauvaise réponse.</li></ul></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-grid" aria-hidden="true"></i> Comment ça se passe</h2>' +
+    '<ul><li>Huit cartes, indépendantes : vous les faites dans l’ordre que vous voulez, ou une seule.</li><li>Vous pouvez passer une question ou répondre « je ne sais pas ».</li><li>Vous prévoyez le temps qu’il faut. Une carte se fait en une fois.</li></ul></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-floppy" aria-hidden="true"></i> Ce qui est gardé</h2>' +
+    '<p>Rien n’est enregistré pendant que vous écrivez. À la fin de chaque carte, vous voyez votre résultat et vous choisissez de le garder ou non. Ce que vous gardez va avec votre sauvegarde personnelle (la disquette), sur votre appareil. Rien n’est envoyé ailleurs.</p></div>' +
+    '</div><div class="cqcpm-bas"><button type="button" class="btn btn-primary">Ouvrir l’espace</button></div>';
+}
+function rendreGarde() {
+  var h = enteteRetour() + '<h1>Ce que j’ai gardé</h1><p class="chapeau">Les résultats que vous avez choisi de garder. Vous pouvez les relire, les modifier en refaisant la carte, ou les effacer.</p>';
+  if (E.gar === 'vide') {
+    return h + '<div class="cqcpm-vide"><i class="bi bi-inbox" aria-hidden="true" style="font-size:1.6rem;color:var(--accent)"></i><p style="margin:.3rem 0 .6rem">Vous n’avez encore rien gardé. À la fin d’une carte, le bouton « Garder mon résultat » le range ici.</p><button type="button" class="btn btn-primary">Retour aux cartes</button></div>';
+  }
+  h += '<div class="cqcpm-garde">' +
+    '<div class="cqcpm-ligne"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i><div class="txt"><h3>Si rien ne m’arrêtait</h3><p>Trois envies retenues : apprendre à faire du pain, voyager seul(e), aider des personnes âgées.</p></div><button type="button" class="btn btn-outline-secondary btn-sm">Relire</button><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash" aria-hidden="true"></i> Effacer</button></div>' +
+    '<div class="cqcpm-ligne"><i class="bi bi-sliders" aria-hidden="true"></i><div class="txt"><h3>Comment je veux travailler</h3><p>Je le veux : travailler en journée. Je peux m’adapter : un lieu à 30 minutes de chez moi. Je préfère éviter : le travail de nuit.</p></div><button type="button" class="btn btn-outline-secondary btn-sm">Relire</button><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash" aria-hidden="true"></i> Effacer</button></div>' +
+    '</div><div class="cqcpm-bas"><button type="button" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Tout effacer</button></div>';
+  return h;
+}
+function rendre() {
+  document.getElementById('rendu').innerHTML = E.page === 'pres' ? rendrePresentation() : (E.page === 'gar' ? rendreGarde() : rendreAccueil());
+  document.getElementById('grp-etat').style.display = E.page === 'acc' ? '' : 'none';
+  document.getElementById('grp-gar').style.display = E.page === 'gar' ? '' : 'none';
+  var qui = { acc: 'accueil de l’espace : huit cartes en quatre thèmes, chacune avec une question, ce qu’elle contient et un bouton ; pastille « Terminé » sur les cartes faites dans la séance',
+    pres: 'page de présentation : à quoi sert l’espace, ce qu’il ne fait pas, comment ça se passe, ce qui est gardé',
+    gar: 'page « Ce que j’ai gardé » : les résultats gardés, relire ou effacer chacun, tout effacer' };
+  document.getElementById('retient').innerHTML = '<b>Ce que cette maquette montre :</b> ' + qui[E.page] + '.';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  [['g-page', E.page], ['g-etat', E.etat], ['g-gar', E.gar]].forEach(function (g) {
+    document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === g[1])); });
+  });
+  document.querySelectorAll('#g-aff button').forEach(function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', String(v ? (v === 'tel') === E.tel : (m === 'sombre') === E.sombre));
+  });
+}
+document.getElementById('regl').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b || b.id === 'fermer') { return; }
+  var g = b.parentNode.id, v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+  if (g === 'g-page') { E.page = v; } else if (g === 'g-etat') { E.etat = v; } else if (g === 'g-gar') { E.gar = v; }
+  else if (g === 'g-aff') { if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  rendre();
+});
+document.getElementById('fermer').addEventListener('click', function () { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; });
+document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('regl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

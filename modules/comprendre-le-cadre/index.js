@@ -314,7 +314,7 @@ var COMPRENDRE_LE_CADRE_QUESTIONS_RAYON = {
 // [REFORMULATION] (le public écrit souvent avec des fautes, on lui montre
 // qu'on l'a compris avant de chercher).
 function _comprendreLeCadreSocleRecherche() {
-  return "Nous sommes le " + new Date().toISOString().slice(0, 10) + ". "
+  return "Nous sommes le " + _comprendreLeCadreDateLongue(new Date().toLocaleDateString('sv-SE')) + ". "
     + "Recherche web obligatoire : si tu ne peux pas consulter le web, dis-le et ne réponds pas. "
     + "N'utilise que des pages que tu as réellement ouvertes. Ne fabrique jamais une adresse, un numéro "
     + "de texte (NOR, JORFTEXT, ELI, « décret n° ... ») ni une date : si tu ne l'as pas vu dans un "
@@ -3667,6 +3667,7 @@ window.comprendreLeCadreOuvrirAccueil = comprendreLeCadreOuvrirAccueil;
 // ou `module` n'est jamais defini).
 if (typeof module !== 'undefined') {
   module.exports = {
+    _comprendreLeCadreSocleRecherche: _comprendreLeCadreSocleRecherche,
     _comprendreLeCadreParserFiche: _comprendreLeCadreParserFiche,
     _comprendreLeCadreParserDigest: _comprendreLeCadreParserDigest,
     _comprendreLeCadreDateChangement: _comprendreLeCadreDateChangement,

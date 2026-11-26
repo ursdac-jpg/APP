@@ -34,6 +34,32 @@ function _introPhraseModeles() {
   return introPhraseModeles(s, c);
 }
 
+// Les trois points de départ des documents : lus dans MES_DOCUMENTS_PARCOURS (data/metiers.js), jamais recopiés. Le nombre de chemins de chacun est écrit ici, car la page du module le montre.
+var INTRO_NB_CHEMINS = { 'Créer un nouveau CV': 3, 'Reprendre mon CV': 3, 'Lettre et entretien en version rapide': 2 };
+function _introPointsDeDepart() {
+  return (typeof MES_DOCUMENTS_PARCOURS !== 'undefined' ? MES_DOCUMENTS_PARCOURS : []).map(function (p) {
+    var n = INTRO_NB_CHEMINS[p.titre];
+    return { titre: p.titre, icone: p.icone, infobulle: p.infobulle, chemins: n ? n + ' chemins' : '' };
+  });
+}
+// Les chemins d'« Explorer les métiers » : lus dans CMV_PRESENTATIONS (modules/comprendre-les-metiers/index.js), jamais recopiés.
+function _introCheminsMetiers() {
+  if (typeof CMV_PRESENTATIONS === 'undefined') { return []; }
+  return ['metier', 'actions', 'q', 'recrute'].filter(function (k) { return CMV_PRESENTATIONS[k]; }).map(function (k) { return CMV_PRESENTATIONS[k]; });
+}
+
+// Les groupes de modules ouverts : pour chacun, ses modules ouverts avec leur icône et leur phrase LUES sur l'accueil (une seule source). Un groupe sans module ouvert disparaît.
+function _introGroupesModules(ouverts) {
+  return INTRO_GROUPES_MODULES.map(function (g) {
+    var source = typeof itemsInfoCarteAccueil === 'function' ? itemsInfoCarteAccueil(g.carte) : [];
+    var modules = g.modules.map(function (m) {
+      var it = source.filter(function (x) { return x[0] === m.libelle; })[0];
+      return it && ouverts.indexOf(m.libelle) !== -1 ? { libelle: m.libelle, fichier: m.fichier, court: m.court, icone: it[1], phrase: it[2] } : null;
+    }).filter(Boolean);
+    return { id: g.id, titre: g.titre, icone: g.icone, colonnes: g.colonnes, intro: g.intro, sousTitre: g.sousTitre, notes: g.notes, modules: modules };
+  }).filter(function (g) { return g.modules.length; });
+}
+
 function _introFigure(fichier, alt, legende) {
   var src = INTRO_DOSSIER_IMAGES + fichier + '.png';
   return '<figure class="ip-figure"><a href="' + src + '"><img loading="lazy" src="' + src + '" alt="' + alt + '"></a>' +
@@ -83,7 +109,7 @@ function pageIntroduction() {
       '</div></div>' +
 
     '<div class="cv-section"><h4>&#127919; À quoi ça sert</h4>' +
-      '<p><strong>APP</strong> veut dire « Accompagnement de Parcours Professionnel ». Elle vous aide à avancer : écrire ou améliorer votre CV et votre lettre de motivation, vous entraîner à l’entretien, mieux comprendre le monde du travail, ou simplement réfléchir à la direction à prendre.</p>' +
+      '<p><strong>APP</strong> veut dire « Accompagnement de Parcours Professionnel ». Elle vous aide à avancer : écrire ou améliorer votre CV et votre lettre de motivation, vous entraîner à l’entretien, mieux comprendre le monde du travail, découvrir des métiers, ou simplement réfléchir à la direction à prendre.</p>' +
       (avecAnnuaire ? '<p>Elle vous aide aussi à trouver, près de chez vous, <strong>les employeurs à qui écrire</strong> et <strong>les structures à qui vous adresser</strong>, avec leurs coordonnées vérifiées et datées.</p>' : '') +
       '<p>Vous choisissez ce qui vous est utile. <strong>Rien n’est obligatoire</strong>, et vous pouvez vous arrêter et revenir quand vous voulez.</p>' +
       '<div class="ip-figures-deux">' +
@@ -99,13 +125,23 @@ function pageIntroduction() {
       '</ol>' +
       '<div class="ip-encart"><i class="bi bi-hand-index-thumb" aria-hidden="true"></i><span><strong>Vous gardez toujours la main.</strong> Rien ne se décide sans vous, et rien n’est envoyé sans votre geste.</span></div></div>' +
 
+    (function () {
+      var points = _introPointsDeDepart();
+      if (!points.length) { return ''; }
+      return '<div class="cv-section"><h4>&#128196; Pour vos documents : trois points de départ</h4>' +
+        '<p>Sur l’accueil, la carte « Mes documents » vous propose trois points de départ, selon l’état de votre CV. Chacun a ses propres <strong>chemins</strong>, avec une vidéo pour les présenter.</p>' +
+        '<ul class="ip-liste">' + points.map(function (p) {
+          return '<li><i class="bi ' + p.icone + '" aria-hidden="true"></i><span><strong>' + p.titre + '</strong>' + (p.chemins ? ' (' + p.chemins + ')' : '') + ' : ' + p.infobulle + '</span></li>';
+        }).join('') + '</ul></div>';
+    })() +
+
     _introBlocBoutonsHaut() +
 
     '<div class="cv-section"><h4>&#128221; Un exemple pas à pas : Camille crée son CV</h4>' +
       '<p>Camille est un personnage inventé, pour l’exemple. Voici ce qu’elle voit à chaque étape. La barre en haut de l’écran vous montre toujours où vous en êtes :</p>' +
-      '<div class="ip-etapes-barre"><span>Votre objectif</span><span>Vos informations</span><span>Votre parcours</span><span>Votre profil</span><span>Vos documents</span></div>' +
+      '<div class="ip-etapes-barre"><span>Votre objectif</span><span>Vos informations</span><span>Votre parcours</span><span>Vos missions et compétences</span><span>Votre profil</span><span>Vos documents</span></div>' +
       '<div class="ip-pas">' +
-        _introPas(1, '<strong>Elle choisit comment commencer.</strong> Trois façons de faire, selon qu’elle a déjà un CV ou non.', 'i_cv_1_choix', 'Capture : choix entre créer un CV avec un assistant, à la main, ou à partir de son récit') +
+        _introPas(1, '<strong>Elle choisit comment commencer.</strong> Pour créer un CV, trois chemins : avec un assistant, à partir de son récit, ou à la main.', 'i_cv_1_choix', 'Capture : choix entre créer un CV avec un assistant, à la main, ou à partir de son récit') +
         _introPas(2, '<strong>Elle dit ce qu’elle cherche.</strong> Un métier précis, une présentation générale : quelques clics, pas de page blanche.', 'i_cv_2_objectif', 'Capture : l’étape Votre objectif, avec des choix à cocher') +
         _introPas(3, '<strong>Elle choisit ce qu’elle a déjà fait.</strong> Des propositions déjà prêtes à cocher : les personnes qu’elle a aidées, ses gestes, les lieux où elle a travaillé. Elle garde celles qui lui ressemblent.', 'i_cv_3_parcours', 'Capture : l’étape Votre parcours, avec des choix comme Bureau, À domicile ou En extérieur') +
         _introPas(4, '<strong>Elle découvre son profil.</strong> Un coup d’œil sur ce qu’elle a saisi, ses compétences repérées et des métiers à regarder.', 'i_cv_4_profil', 'Capture : l’étape Votre profil') +
@@ -132,8 +168,17 @@ function pageIntroduction() {
       '<p>Avant de postuler, vous pouvez demander un regard sur votre CV : ce qui est solide, ce qui peut faire hésiter, et des pistes concrètes pour le renforcer.</p>' +
       _introOutil('Analyser ma candidature', 'Mon CV est-il solide ? Un assistant repère ce qui mérite d’être renforcé.',
         [['i_bilan_2_resultat', 'Un résultat clair : ce qui est solide, ce qui peut faire hésiter.'], ['i_bilan_3_resultat', 'Des pistes concrètes, de la plus importante à la moindre.']]) +
-      '<p class="mb-0">D’autres outils regardent votre CV avec les yeux d’un recruteur, comparent ses mots à ceux d’une offre, ou vérifient que votre CV, votre lettre et votre entretien racontent la même histoire.</p>' +
     '</div>';
+  _introGroupesModules(ouverts).forEach(function (g) {
+    html += '<div class="cv-section"><h4><i class="bi ' + g.icone + '" aria-hidden="true"></i> ' + g.titre + '</h4>' +
+      '<p>' + g.intro + '</p>' +
+      '<ul class="ip-liste">' + g.modules.map(function (m) {
+        return '<li><i class="bi ' + m.icone + '" aria-hidden="true"></i><span><strong>' + m.libelle + '</strong>' + (m.phrase.indexOf(' : ') !== -1 ? '. ' + m.phrase : ' : ' + m.phrase.charAt(0).toLowerCase() + m.phrase.slice(1)) + '</span></li>';   // une phrase qui contient déjà « : » est posée après un point, jamais deux deux-points de suite
+      }).join('') + '</ul>' +
+      '<div class="ip-figures-' + (g.modules.length === 3 ? 'trois' : 'deux') + '" style="margin-top:.8rem">' + g.modules.map(function (m) {
+        return _introFigure(m.fichier, 'Capture de la page « ' + m.libelle + ' » : son titre, sa vidéo de présentation et à quoi il sert', m.libelle);
+      }).join('') + '</div></div>';
+  });
 
   if (territoire.length) {
     html += '<div class="cv-section"><h4>&#128506;&#65039; Comprendre ce qui se passe près de chez vous</h4>' +
@@ -150,11 +195,26 @@ function pageIntroduction() {
     '</div>';
   }
 
-  html += '<div class="cv-section"><h4>&#129520; Et aussi</h4>' +
-      '<ul class="ip-liste">' +
-        '<li><i class="bi bi-briefcase" aria-hidden="true"></i><span><strong>Une boîte à outils</strong> pour garder vos réflexions (Mes Repères), noter librement (Mon Carnet), chercher un mot (Lexique) et découvrir vos compétences.</span></li>' +
-        '<li><i class="bi bi-signpost-split" aria-hidden="true"></i><span><strong>Si vous hésitez sur la direction</strong> : comparer vos pistes de métier, ou préparer un seul CV pour plusieurs métiers.</span></li>' +
-      '</ul></div>' +
+  var chemins = ouverts.indexOf('Explorer les métiers') !== -1 ? _introCheminsMetiers() : [];
+  if (chemins.length) {
+    html += '<div class="cv-section"><h4>&#129517; Découvrir des métiers et choisir une direction</h4>' +
+      '<p>Vous hésitez sur le métier à viser, ou vous voulez mieux comprendre un métier ? <strong>Explorer les métiers</strong> propose quatre chemins : vous en essayez un, puis un autre, sans rien d’obligatoire. Il ne choisit rien à votre place.</p>' +
+      '<ul class="ip-liste">' + chemins.map(function (c) {
+        return '<li><i class="bi ' + c.icone + '" aria-hidden="true"></i><span><strong>' + c.titre + '</strong> : ' + c.sousTitre + '</span></li>';
+      }).join('') + '</ul>' +
+      _introFigure('i_metiers_1_chemins', 'Capture de l’accueil d’Explorer les métiers : les cartes des chemins', 'Explorer les métiers : chaque chemin a sa carte, et sa vidéo.') +
+      '<p class="mb-0">Pour comparer deux pistes une fois que vous en avez, il y a aussi « Comparer mes pistes », et « Un CV, plusieurs métiers » pour préparer un CV adapté à chacune.</p></div>';
+  }
+  html +=
+
+    '<div class="cv-section"><h4><i class="bi bi-check2-circle" aria-hidden="true"></i> Aucun outil n’est obligatoire</h4>' +
+      '<p>Vous trouverez ici beaucoup d’outils. Ils ont été ajoutés parce qu’ils sont utiles, ou parce que des personnes en avaient besoin, et ils se complètent.</p>' +
+      '<p class="mb-0"><strong>Mais aucun n’est obligatoire.</strong> S’il y en a trop pour vous, laissez de côté ceux qui ne vous servent pas : vous avancez à votre rythme, et vous revenez quand vous voulez.</p></div>' +
+
+    '<div class="cv-section"><h4><i class="bi bi-phone" aria-hidden="true"></i> Elle s’adapte à votre écran</h4>' +
+      '<p>L’application change de forme selon la taille de l’écran : <strong>téléphone, tablette, ordinateur portable ou grand écran</strong>. Les pages, les boutons et les textes se réorganisent pour rester lisibles et faciles à toucher ou à cliquer.</p>' +
+      '<p>Elle ne s’affiche donc pas de la même façon d’un appareil à l’autre, mais tout y est, partout.</p>' +
+      _introFigure('i_appareils', 'Capture : le même accueil sur un téléphone, une tablette, un ordinateur portable et un grand écran', 'Le même accueil, sur quatre tailles d’écran.') + '</div>' +
 
     '<div class="cv-section"><h4>&#128161; Ce qui guide cette application</h4>' +
       '<ul class="ip-liste">' +
@@ -175,6 +235,7 @@ function pageIntroduction() {
         '<li><i class="bi bi-check2" aria-hidden="true"></i><span>Utilisable <strong>seul ou pendant un rendez-vous</strong> : la personne avance sans que le conseiller ait besoin d’être présent.</span></li>' +
         '<li><i class="bi bi-check2" aria-hidden="true"></i><span><strong>Aucun compte, aucun serveur qui garde les données</strong> : les informations restent sur l’appareil de la personne.</span></li>' +
         '<li><i class="bi bi-check2" aria-hidden="true"></i><span>Avec « Mes Repères », la personne <strong>choisit elle-même</strong> ce qu’elle veut garder pour elle ou aborder avec son conseiller.</span></li>' +
+        (ouverts.indexOf('Ce qui compte pour moi') !== -1 ? '<li><i class="bi bi-check2" aria-hidden="true"></i><span>Les résultats gardés dans « Ce qui compte pour moi » <strong>peuvent s’imprimer</strong>, pour les apporter à un rendez-vous.</span></li>' : '') +
         (avecAnnuaire ? '<li><i class="bi bi-check2" aria-hidden="true"></i><span>« Qui fait quoi » et « Employeurs près de chez moi » donnent, pour le département, des <strong>adresses utiles avec leur date de vérification</strong> : un appui pour préparer un rendez-vous.</span></li>' : '') +
       '</ul></div>' +
 

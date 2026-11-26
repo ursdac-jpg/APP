@@ -68,6 +68,11 @@ async function defiler(p, y, ms = 1000) {
   const y0 = await p.evaluate(() => window.scrollY); const n = Math.max(6, Math.round(ms / 40));
   for (let i = 1; i <= n; i++) { await p.evaluate(v => window.scrollTo(0, v), y0 + (y - y0) * (i / n)); await dormir(ms / 1000 / n); }
 }
+// Fait défiler la page jusqu'au bloc d'un chemin (.voie-presentation, numéro i) : les pages « Créer », « Reprendre » et « version rapide » ont le même composant.
+async function versChemin(p, i) {
+  const y = await p.evaluate(n => { const e = document.querySelectorAll('.voie-presentation')[n]; return e ? Math.max(0, e.getBoundingClientRect().top + window.scrollY - 90) : window.scrollY; }, i);
+  await defiler(p, y, 1400); await dormir(0.8);
+}
 async function accueil(p) { await p.evaluate(() => { const x = document.getElementById('fenetreERIPFermerBtn'); if (x && x.offsetParent !== null) x.click(); naviguerVers('cv'); window.scrollTo(0, 0); }); await dormir(0.7); }
 async function carteEtTuile(p, carte, tuile) { await cliquer(p, p.locator('[data-carte-accueil="' + carte + '"]'), 800); await dormir(0.6); await cliquer(p, tuile, 650); }
 
@@ -138,13 +143,13 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
   // ----- Plan 1 : titre puis accueil
   const tDebut = maint(); console.log('début du film à', tDebut.toFixed(2));
   await carteTitre(p); await dormir(0.5);
-  await bloc('p1_01'); await finDeVoix(0.5); await enleverTitre(p);
+  await bloc('p1_01'); await finDeVoix(0.3); await enleverTitre(p);
   await bloc('p1_02'); await bloc('p1_03'); await bloc('p1_04'); await bloc('p1_05'); await finDeVoix(1.0);
 
   // ----- Plan 2 : les grandes cartes
   await bloc('p2_01'); await survol(p, p.locator('[data-carte-accueil="mesdocuments"]'), 800);
   await bloc('p2_02'); await survol(p, p.locator('[data-carte-accueil="preparer"]'), 800); await survol(p, p.locator('[data-carte-accueil="boiteaoutils"]'), 800);
-  await bloc('p2_03'); await finDeVoix(0.8);
+  await bloc('p2_03'); await finDeVoix(0.3);
 
   // ----- Plan 3 : le CV, les trois temps
   await bloc('p3_01');
@@ -153,7 +158,8 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
   await bloc('p3_03');
   await bloc('p3_04'); await etiquette(p, 'e2', '2. Vous collez chez l’assistant en ligne');
   await bloc('p3_05'); await etiquette(p, 'e3', '3. Vous revenez coller sa réponse');
-  await bloc('p3_06'); await finDeVoix(0.8); await retirerEtiquettes(p);
+  await bloc('p3_06'); await finDeVoix(0.3); await retirerEtiquettes(p);
+  await bloc('p3_07'); await versChemin(p, 0); await versChemin(p, 2); await finDeVoix(0.3);
 
   // ----- Plan 4 : Camille crée son CV
   await bloc('p4_01');
@@ -171,20 +177,25 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
     await p.fill('#identitePrenom', 'Camille'); await p.fill('#identiteNom', 'Martin'); await p.fill('#identiteTelephone', '0612345678');
     await p.fill('#identiteEmail', 'camille.martin@exemple.fr'); await p.fill('#identiteCodePostal', '87000'); await p.fill('#identiteVille', 'Limoges'); await dormir(0.5);
     await cliquer(p, p.locator('#btnEnregistrerIdentite'), 600);
+    // Depuis le 16/11/2026 l'expérience s'ajoute dans un panneau : poste, métier proposé, missions et compétences cochées, « Je valide ».
     await cliquer(p, p.locator('#btnExpProOuvrir'), 600);
-    await p.fill('#xPoste', 'Agent d’entretien'); await p.fill('#xEntreprise', 'Clean Limousin'); await p.fill('#xDebut', '2019'); await p.fill('#xFin', '2023');
-    await p.fill('#xMissions', 'Nettoyage de bureaux, 12 locaux par jour, gestion des produits.'); await dormir(0.5);
-    await cliquer(p, p.locator('#btnExpProValider'), 600);
+    await cliquer(p, p.locator('#mcPanPoste'), 400); await p.keyboard.type('Agent d’entretien', { delay: 40 }); await dormir(0.9);
+    if (await p.locator('[data-pan-sugg]').count()) { await cliquer(p, p.locator('[data-pan-sugg]').first(), 400); await dormir(0.7); }
+    await cliquer(p, p.locator('[data-pan-mission]').nth(0), 350); await dormir(0.2);
+    await cliquer(p, p.locator('[data-pan-mission]').nth(1), 350); await dormir(0.2);
+    await cliquer(p, p.locator('[data-pan-comp]').nth(0), 350); await dormir(0.2);
+    await cliquer(p, p.locator('#mcPanValider'), 400); await dormir(0.7);
     await cliquer(p, p.locator('#btnSuivantNavigation'), 700); await dormir(0.5);
   });
   await bloc('p4_03');
   for (const champ of ['activites', 'actions', 'environnement']) { await cliquer(p, p.locator('.vp-carte[data-vp-champ="' + champ + '"]').first(), 650); await dormir(0.25); }
-  await cliquer(p, p.locator('#btnSuivantNavigation'), 700); await dormir(0.6);
-  await bloc('p4_04'); await dormir(2.4);
+  await cliquer(p, p.locator('#btnSuivantNavigation'), 700); await dormir(0.6);   // page « Vos missions et compétences »
+  await bloc('p4_04'); await dormir(0.9);
+  await cliquer(p, p.locator('#btnSuivantNavigation'), 600); await dormir(0.4);   // page « Votre profil »
   await bloc('p4_05');
   const toutes = p.locator('.pastille-etape-action:visible'); const nb = await toutes.count();
-  if (nb) { await survol(p, toutes.first(), 900); for (let i = 1; i < Math.min(nb, 4); i++) { await survol(p, toutes.nth(i), 550); } }
-  await finDeVoix(0.8);
+  if (nb) { await survol(p, toutes.first(), 900); for (let i = 1; i < Math.min(nb, 3); i++) { await survol(p, toutes.nth(i), 550); } }
+  await finDeVoix(0.3);
 
   // ----- Plan 5 : Vos documents, les modèles
   await cliquer(p, p.locator('#btnSuivantNavigation'), 750); await dormir(1.6);
@@ -198,9 +209,9 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
   await bloc('p5_03');
   const apercu = p.getByRole('button', { name: /Aperçu en plein écran/ }).first();
   if (await apercu.count()) { await cliquer(p, apercu, 800); await dormir(1.0); }
-  await bloc('p5_04'); await dormir(2.0);
+  await bloc('p5_04'); await dormir(1.0);
   const retour = p.getByRole('button', { name: /Revenir aux réglages/ }).first(); if (await retour.count()) await cliquer(p, retour, 700);
-  await finDeVoix(0.6);
+  await finDeVoix(0.4);
 
   // ----- Plan 6 : la lettre de motivation
   await accueil(p);
@@ -216,20 +227,59 @@ async function retirerImage(p) { await p.evaluate(() => { const d = document.get
   await bloc('p7_02'); await defiler(p, 260, 1500);
   await bloc('p7_03'); await imageEcran(p, 'i_entretien_1_resultat'); await finDeVoix(0.9); await retirerImage(p);
 
+  // ----- Plan 11 : Reprendre mon CV et la version rapide (chemins)
+  await accueil(p);
+  // Camille a déjà un CV en cours : « Reprendre » demanderait « Garder ce que vous avez déjà fait ? ». Pour la vidéo, on repart d'une session vide (comme une personne qui n'a rien commencé), sans montrer la question.
+  await p.evaluate(() => { if (typeof viderContenuCVDossier === 'function') { viderContenuCVDossier(); } try { _prepLEEtat = null; dossier.cvAnalyse = false; } catch (e) {} });
+  await bloc('p11_01');
+  await carteEtTuile(p, 'mesdocuments', p.locator('#btnCarteAccueilCvReprendre')); await dormir(0.4);
+  const oui = p.getByRole('button', { name: /Oui, le garder/ }); if (await oui.count() && await oui.first().isVisible()) { console.log('  question « Garder » encore présente : clic sur Oui'); await cliquer(p, oui.first(), 400); }
+  await versChemin(p, 0);
+  await bloc('p11_02'); await versChemin(p, 1); await versChemin(p, 2); await finDeVoix(0.4);
+  await accueil(p);
+  await bloc('p11_03');
+  await carteEtTuile(p, 'mesdocuments', p.locator('#btnCarteAccueilCvPret')); await dormir(0.4);
+  { const oui2 = p.getByRole('button', { name: /Oui, le garder/ }); if (await oui2.count() && await oui2.first().isVisible()) { console.log('  question « Garder » (version rapide) : clic sur Oui'); await cliquer(p, oui2.first(), 400); } }
+  await versChemin(p, 0); await finDeVoix(0.4);
+
+  // ----- Plan 12 : Explorer les métiers (quatre chemins)
+  await accueil(p);
+  await bloc('p12_01');
+  await carteEtTuile(p, 'orientation', p.locator('#fenetreERIP .sous-carte-accueil', { hasText: 'Explorer les métiers' }).first()); await dormir(1.0);
+  await bloc('p12_02'); await cliquer(p, p.locator('#btnCmlCommencer'), 700); await dormir(1.2);
+  await bloc('p12_03'); await survol(p, p.locator('[data-cml="entrer"]').nth(0), 700); await survol(p, p.locator('[data-cml="entrer"]').nth(1), 800);
+  await bloc('p12_04'); await survol(p, p.locator('[data-cml="entrer"]').nth(2), 800);
+  await bloc('p12_05'); await survol(p, p.locator('[data-cml="entrer"]').nth(3), 800); await finDeVoix(0.3);
+
+  // ----- Plan 13 : les deux espaces de la Boîte à outils (ouverts le 25/11/2026)
+  await accueil(p);
+  await bloc('p13_01'); await cliquer(p, p.locator('[data-carte-accueil="boiteaoutils"]'), 800); await dormir(0.8);
+  await bloc('p13_02'); await survol(p, p.locator('#btnCarteAccueilCeQuiCompte'), 800);
+  await bloc('p13_03'); await survol(p, p.locator('#btnCarteAccueilBienUtiliserIa'), 800); await finDeVoix(0.4);
+
   // ----- Plan 8 : les autres outils, et les professionnels
   await accueil(p);
   await bloc('p8_01'); await defiler(p, 460, 1100); await survol(p, p.locator('[data-carte-accueil="analyse"]'), 800);
   await bloc('p8_02'); await survol(p, p.locator('[data-carte-accueil="informe"]'), 900);
   await bloc('p8_03'); await survol(p, p.locator('[data-carte-accueil="orientation"]'), 900);
-  await bloc('p8_04'); await defiler(p, 0, 1000); await finDeVoix(0.8);
+  await bloc('p8_04'); await defiler(p, 0, 1000); await finDeVoix(0.3);
+
+  // ----- Plan 14 : aucun outil n'est obligatoire (demande de Denis du 25/11/2026)
+  await bloc('p14_01'); await survol(p, p.locator('[data-carte-accueil="mesdocuments"]'), 900);
+  await bloc('p14_02'); await bandeau(p, 'b0', 'Aucun outil n’est obligatoire'); await finDeVoix(0.4); await retirerBandeau(p);
+  await bloc('p14_03'); await survol(p, p.locator('[data-carte-accueil="boiteaoutils"]'), 900); await finDeVoix(0.3);
+
+  // ----- Plan 15 : l'application s'adapte à l'écran (demande de Denis du 25/11/2026)
+  await bloc('p15_01'); await dormir(0.6); await imageEcran(p, 'i_appareils');
+  await bloc('p15_02'); await bloc('p15_03'); await finDeVoix(0.9); await retirerImage(p);
 
   // ----- Plan 9 : la ligne du haut, les informations restent chez soi
   await bloc('p9_01'); await survol(p, p.locator('#btnAide'), 900);
   await bloc('p9_02'); await dormir(0.6);
   await bloc('p9_03'); const dq = p.locator('#btnSessionTransfert'); if (await dq.count()) await survol(p, dq, 800);
-  await bloc('p9_04'); await bandeau(p, 'b1', 'Vos informations restent sur votre appareil'); await finDeVoix(0.6); await retirerBandeau(p);
+  await bloc('p9_04'); await bandeau(p, 'b1', 'Vos informations restent sur votre appareil'); await finDeVoix(0.4); await retirerBandeau(p);
   await bloc('p9_05'); await survol(p, p.locator('#btnIntroduction'), 900); await dormir(0.4);
-  await cliquer(p, p.locator('#btnIntroduction'), 250); await dormir(1.6); await finDeVoix(0.6);
+  await cliquer(p, p.locator('#btnIntroduction'), 250); await dormir(1.6); await finDeVoix(0.4);
 
   // ----- Plan 10 : à vous de jouer
   await accueil(p);

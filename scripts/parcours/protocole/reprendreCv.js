@@ -63,6 +63,7 @@ async function jouer(a, j, voie) {
   j.info('choix de la voie ' + voie + ' : ' + await a.clic('', 'VOIE ' + voie));
   await a.attendre(900);
   if (process.env.REPRISE) { await require('./reprise.js').tester(a, j, 'reprise voie ' + voie + ' (Reprendre)', 'reprendre-cv'); return; }
+  await passerChoixMissions(a, j, voie === 3 ? 'moi' : 'assistant');
   const e = await a.ecran();
   j.info('après le choix de la voie ' + voie + ' : ' + e.hash + ' « ' + e.h1 + ' » bouton « ' + e.avant + ' » raison « ' + e.raison + ' » barre ' + e.barre);
   if (voie !== 3) {
@@ -72,8 +73,7 @@ async function jouer(a, j, voie) {
     if (/grisé/.test(x.avant || '') && !/métier précis|plusieurs métiers/.test(x.raison || '')) { j.ko('voie ' + voie + ' : « Continuer » grisé après le choix de l’objectif, mais la raison affichée (« ' + x.raison + ' ») ne dit pas ce qui manque vraiment : préciser un métier précis ou plusieurs métiers'); }
     j.info('métier précis : ' + await a.clic('', '^Un métier précis$')); await a.attendre(600);
     await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-    j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi')); await a.attendre(600);
-    j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]')); await a.attendre(700);
+    { let ch = await a.clic('[data-metier-cible-direct]'); if (ch !== 'ok') { ch = await a.clic('#btnValiderMetierSaisi'); } j.info('métier choisi dans les propositions : ' + ch); await a.attendre(700); }
     { const y = await a.ecran();
       if (voie === 1 || true) {
         if (/grisé/.test(y.avant || '') && /entreprise précise/.test(y.raison || '')) { j.ok('voie ' + voie + ' : « Continuer » reste grisé tant que « entreprise précise ou non » n’a pas de réponse, raison « ' + y.raison + ' »'); }
@@ -180,4 +180,15 @@ async function jouer(a, j, voie) {
   if (!/^reprendre-cv/.test(chemin[chemin.length - 1] || '')) { j.ko('voie 3 : la chaîne des « Retour » ne rejoint pas la page commune « Reprendre mon CV » : ' + chemin.join(' < ')); } else { j.ok('voie 3 : les « Retour » successifs rejoignent la page commune en ' + chemin.length + ' pas'); }
 }
 
-module.exports = { nom: 'reprendreCv', jouer, deposerCv, CV_TEXTE, REPONSE_EXTRACTION, REPONSE_REFORMULER, versAssistant };
+
+// Étape « Avant de commencer » (consigne 401) : qui choisit les missions. Rend la page suivante.
+async function passerChoixMissions(a, j, choix) {
+  const e = await a.ecran();
+  if (e.hash !== '#choix-missions') { return false; }
+  j.info('Avant de commencer : carte « ' + choix + ' » : ' + await a.clic('[data-cm-choix="' + choix + '"]')); await a.attendre(400);
+  await a.suiv(); await a.attendre(500);
+  j.info('Avant de commencer : confirmation : ' + await a.clic('#cmOui')); await a.attendre(500);
+  await a.suiv(); await a.attendre(900);
+  return true;
+}
+module.exports = { nom: 'reprendreCv', passerChoixMissions, jouer, deposerCv, CV_TEXTE, REPONSE_EXTRACTION, REPONSE_REFORMULER, versAssistant };

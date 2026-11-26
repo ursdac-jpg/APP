@@ -14,7 +14,9 @@ var SYN_CSS_FEUILLE = '@page{size:A4;margin:16mm}*{box-sizing:border-box}html,bo
   '.pied{margin-top:1.2rem;border-top:1px solid #000;padding-top:.3rem;font-size:9pt;color:#333}';
 
 function _synF(t) { return cmvE(t); }
-function _synFListe(liste) { return liste.length ? '<ul>' + liste.map(function (x) { return '<li>' + _synF(x) + '</li>'; }).join('') + '</ul>' : ''; }
+// Un texte long en paragraphes de deux ou trois phrases (consigne 536). `prefixe` est du texte sûr, écrit par l'application.
+function _synFParas(t, prefixe) { return synParagraphes(t).map(function (p, i) { return '<p>' + (i ? '' : (prefixe || '')) + _synF(p) + '</p>'; }).join(''); }
+function _synFListe(liste) { return liste.length ? '<ul>' + liste.map(function (x) { return '<li>' + synParagraphes(x).map(function (p, i) { return i ? ' <span style="display:block;margin-top:.35rem">' + _synF(p) + '</span>' : _synF(p); }).join('') + '</li>'; }).join('') + '</ul>' : ''; }
 
 function synHtmlFeuille(etat) {
   var s = synEtat(), d = synDonneesPourLecture(etat), l = s.lecture, D = (typeof _pmfD === 'function') ? _pmfD() : null, S = (typeof pmEtat === 'function') ? pmEtat() : null;
@@ -26,13 +28,18 @@ function synHtmlFeuille(etat) {
       (d.p1.principales.length ? '<p>Principales compétences demandées : ' + d.p1.principales.map(_synF).join(', ') + '.</p>' : '') +
       (d.p1.choisies.length ? '<p>Compétences que j’ai choisies : ' + d.p1.choisies.map(_synF).join(', ') + '.' + (d.p1.pct !== null ? ' Part de ces compétences retrouvée dans ce métier : ' + d.p1.pct + ' % (ce n’est pas une note).' : '') + '</p>' : '') +
       (d.p1.proches.length ? '<p>Métiers proches : ' + d.p1.proches.map(_synF).join(', ') + '.</p>' : '');
+  } else if (d.p1liste) {
+    var l1 = d.p1liste;
+    h += '<p>Aucun métier retenu. Mes choix : ' + [l1.competences.length ? 'compétences (' + l1.competences.map(_synF).join(', ') + ')' : '', l1.niveau ? 'niveau d’études (' + _synF(l1.niveau) + ')' : '', l1.secteurs.length ? 'secteurs (' + l1.secteurs.map(_synF).join(', ') + ')' : '', (l1.faciles.length || l1.difficiles.length) ? 'conditions de travail' : ''].filter(Boolean).join(' ; ') + '.</p>' +
+      (l1.metiers.length ? '<p>Métiers placés en tête par mes choix : ' + l1.metiers.map(function (m) { return _synF(m.nom) + (typeof m.pct === 'number' ? ' (' + Math.round(m.pct) + ' %)' : ''); }).join(', ') + '. Ce n’est pas une note.</p>' : '');
   } else { h += '<p>Pas encore fait.</p>'; }
 
   h += '<h2>2. Ce que j’aime faire</h2>';
   if (d.p2) {
     h += '<ul>' + d.p2.choix.filter(function (c) { return c.valeurs.length; }).map(function (c) { return '<li><b>' + _synF(c.titre) + ' :</b> ' + c.valeurs.map(_synF).join(', ') + '</li>'; }).join('') +
       (d.p2.faciles.length ? '<li><b>Je ferais facilement :</b> ' + d.p2.faciles.map(_synF).join(', ') + '</li>' : '') +
-      (d.p2.difficiles.length ? '<li><b>Ce qui serait difficile :</b> ' + d.p2.difficiles.map(_synF).join(', ') + '</li>' : '') + '</ul>' +
+      (d.p2.difficiles.length ? '<li><b>Ce qui serait difficile :</b> ' + d.p2.difficiles.map(_synF).join(', ') + '</li>' : '') +
+      (d.p2.eviter && d.p2.eviter.length ? '<li><b>Ce que j’évite :</b> ' + d.p2.eviter.map(_synF).join(', ') + '</li>' : '') + '</ul>' +
       (d.p2.metiers.length ? '<p>Métiers qui retrouvent le plus de mes choix : ' + d.p2.metiers.map(function (m) { return _synF(m.nom) + (m.pct !== null && m.pct !== undefined ? ' (' + Math.round(m.pct) + ' %)' : ''); }).join(' ; ') + '.</p>' : '') +
       (d.p2.retenu ? '<p>Métier retenu : <b>' + _synF(d.p2.retenu.nom) + '</b>.</p>' : '');
   } else { h += '<p>Pas encore fait.</p>'; }
@@ -64,12 +71,12 @@ function synHtmlFeuille(etat) {
     (d.libre && d.libre.trim() ? '<p><b>Dans mes mots :</b> « ' + _synF(d.libre) + ' »</p>' : '');
 
   if (l) {
-    h += '<h2>7. La lecture de l’assistant en ligne</h2><p class="note">Reçue le ' + _synF(l.date || '') + '. Une lecture à relire avec un conseiller : des pistes de réflexion, à confirmer ou à changer.</p>';
+    h += '<h2>7. La lecture de l’assistant en ligne</h2><p class="note">Reçue le ' + _synF(l.date || '') + '. Une lecture à relire avec un conseiller : des pistes de réflexion, à confirmer ou à changer. Texte écrit par l’assistant en ligne à partir de mes résultats : il s’adresse à moi, c’est pourquoi il dit « vous ».</p>';
     if (l.passages.length) { h += '<h3>Ce que disent mes résultats</h3>' + _synFListe(l.passages); }
-    if (l.converge) { h += '<h3>Ce qui converge</h3><p>' + _synF(l.converge) + '</p>'; }
+    if (l.converge) { h += '<h3>Ce qui converge</h3>' + _synFParas(l.converge); }
     if (l.diverge.length) { h += '<h3>Ce qui diverge</h3>' + _synFListe(l.diverge.map(function (x) { return (x.constat || '') + (x.hypothese ? ' ' + x.hypothese : ''); })); }
     if (l.ombre.length) { h += '<h3>Ce que mes résultats n’ont pas pu relever</h3>' + _synFListe(l.ombre); }
-    if (l.premiere || l.approfondie) { h += '<h3>Première lecture, puis lecture plus approfondie</h3>' + (l.premiere ? '<p>' + _synF(l.premiere) + '</p>' : '') + (l.approfondie ? '<p>' + _synF(l.approfondie) + '</p>' : ''); }
+    if (l.premiere || l.approfondie) { h += '<h3>Première lecture, puis lecture plus approfondie</h3>' + (l.premiere ? _synFParas(l.premiere) : '') + (l.approfondie ? _synFParas(l.approfondie) : ''); }
     if (l.direction) { h += '<h3>Une direction</h3><p>' + _synF(l.direction) + '</p>'; }
     if (l.pistes.length) {
       var tests = _synNomsTests(etat), voisins = D ? _synVoisinsDesRetenus(D) : [];
@@ -77,7 +84,7 @@ function synHtmlFeuille(etat) {
         var info = D ? synInfosPiste(p, D, S, tests, voisins) : { origine: synOrigineDePiste(p.metier, tests, voisins), idx: -1 };
         var c = info.comparaison;
         return '<div class="piste"><b>' + (i + 1) + '. ' + _synF(p.metier) + '</b><p class="note">' + _synF(SYN_LIB_ORIGINE[info.origine]) + (info.niveau ? ' · Niveau d’accès : ' + _synF(info.niveau) : '') + '</p>' +
-          (p.fort ? '<p>Va dans le sens de mes résultats : ' + _synF(p.fort) + '</p>' : '') + (p.verifier ? '<p>À vérifier : ' + _synF(p.verifier) + '</p>' : '') +
+          (p.fort ? _synFParas(p.fort, 'Va dans le sens des résultats : ') : '') + (p.verifier ? _synFParas(p.verifier, 'À vérifier : ') : '') +
           (c ? '<p class="note">Compétences déjà pratiquées : ' + c.deja + ' sur ' + c.total + ' (calculé par l’application, ce n’est pas une note).</p>' +
             (c.transferables.length ? '<p>Transférables : ' + _synF(_synLibsTexte(D, c.transferables, 6)) + '.</p>' : '') + (c.transversales.length ? '<p>Transversales : ' + _synF(_synLibsTexte(D, c.transversales, 6)) + '.</p>' : '') +
             (c.aAcquerir.length ? '<p>À acquérir : ' + _synF(_synLibsTexte(D, c.aAcquerir, 6)) + '.</p>' : '') : '') +
@@ -89,16 +96,25 @@ function synHtmlFeuille(etat) {
         (l.experience.transversales.length ? '<p><b>Transversales :</b> ' + l.experience.transversales.map(_synF).join(', ') + '.</p>' : '');
     }
     if (l.essayer.length) { h += '<h3>Rencontrer, essayer</h3>' + _synFListe(l.essayer); }
-    if (l.accompagnement) { h += '<p>' + _synF(l.accompagnement) + '</p>'; }
+    if (l.accompagnement) { h += _synFParas(l.accompagnement); }
+    if (l.suiteAttendue) { h += '<p class="note">La deuxième partie de la lecture (regard plus approfondi, ce que mon expérience apporte, ce dont j’aimerais parler avec la personne qui m’accompagne) n’a pas encore été reçue.</p>'; }
   } else {
     h += '<h2>7. La lecture de l’assistant en ligne</h2><p>Pas encore faite.</p>';
   }
 
-  h += '<h2>8. Valider mon projet</h2><ul><li>☐ Je compare mes compétences à celles attendues pour ce métier</li><li>☐ Je regarde les offres près de chez moi' + (d.territoire ? ' (' + _synF(d.territoire) + ')' : '') + ' et mes contraintes (horaires, déplacements)</li>' +
+  // « Ce qui compte pour moi » (consigne 566) : la partie n'existe que si l'espace est ouvert et si au moins une carte gardée est cochée ; les parties suivantes se renumérotent.
+  var cqcPartie = (typeof cqcpmOuvert === 'function' && cqcpmOuvert() && typeof cqcpmHtmlPartieSynthese === 'function' && typeof cqcpmEtat === 'function') ? cqcpmHtmlPartieSynthese(cqcpmEtat()) : '';
+  var numSuite = 8;
+  if (cqcPartie) { h += '<h2>8. Ce qui compte pour moi</h2>' + cqcPartie; numSuite = 9; }
+
+  h += '<h2>' + numSuite + '. Valider mon projet</h2><ul><li>☐ Je compare mes compétences à celles attendues pour ce métier</li><li>☐ Je regarde les offres près de chez moi' + (d.territoire ? ' (' + _synF(d.territoire) + ')' : '') + ' et mes contraintes (horaires, déplacements)</li>' +
     '<li>☐ Je rencontre un professionnel du métier</li><li>☐ Je fais une ou deux immersions courtes (Immersion facilitée : immersion-facile.beta.gouv.fr)</li><li>☐ Je me demande : est-ce que je me vois exercer ce métier ?</li></ul>';
 
-  var questions = (l && l.questions.length) ? l.questions : ['Quelle formation, et de quel niveau, près de chez moi ?', 'Comment tester ce métier avant de m’engager ?', 'Quelles aides pour une remise à niveau ?'];
-  h += '<h2>9. Questions pour mon conseiller</h2>' + _synFListe(questions);
+  var questions = (l && l.questions.length) ? l.questions : ['J’aimerais parler des formations près de chez moi, et de leur niveau.', 'J’aimerais parler des façons d’essayer ce métier avant de m’engager.', 'J’aimerais parler des aides pour une remise à niveau.'];
+  h += '<h2>' + (numSuite + 1) + '. Ce dont j’aimerais parler avec la personne qui m’accompagne</h2>' + _synFListe(questions);
+  // « Mon plan » (consigne 618) : en dernier, SEULEMENT si la personne l'a joint ; sinon la rubrique n'existe pas. Jamais envoyé à l'assistant (modules/mon-plan/document.js).
+  var planPartie = (typeof mplOuvert === 'function' && mplOuvert() && typeof mplHtmlPartieSynthese === 'function' && typeof mplEtat === 'function') ? mplHtmlPartieSynthese(mplEtat()) : '';
+  if (planPartie) { h += '<h2>' + (numSuite + 2) + '. ' + _synF(MPL_TITRE) + '</h2>' + planPartie; }
   h += '<div class="pied">Rien n’a été envoyé : cette feuille est produite sur l’appareil de la personne. Les lettres et les conditions de travail des métiers sont approximatives. Sources : base des métiers (ROME de France Travail)' + (d.recrutement && d.recrutement.length ? ', enquête Besoins en main-d’œuvre de France Travail' : '') + '.</div>';
   return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Ma synthèse : Explorer les métiers</title><style>' + SYN_CSS_FEUILLE + '</style></head><body>' + h + '</body></html>';
 }

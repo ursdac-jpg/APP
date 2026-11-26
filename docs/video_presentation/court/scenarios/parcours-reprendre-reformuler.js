@@ -1,14 +1,14 @@
-/* Lot C : « Reprendre mon CV », voie 2 « Le reformuler et le présenter » (environ 1 minute). Spécificité : avec l'assistant, on améliore les phrases et la présentation sans rien ajouter ; deux versions au choix.
-   Complémentarité : voie 1 (compléter, corriger le contenu) et voie 3 (refaire soi-même, sans assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
+/* Lot C : « Reprendre mon CV », chemin 2 « Le reformuler et le présenter » (environ 1 minute). Spécificité : avec l'assistant, on améliore les phrases et la présentation sans rien ajouter ; deux versions au choix.
+   Complémentarité : chemin 1 (compléter, corriger le contenu) et chemin 3 (refaire soi-même, sans assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
 const C = require('./mesdocuments-commun');
 const { dormir } = C;
 module.exports = {
   blocs: [
     { id: 'f1', voix: 'Le reformuler et le présenter : votre contenu est bon, vous voulez une meilleure présentation.', sous_titre: 'Le reformuler et le présenter : une meilleure présentation.' },
-    { id: 'f2', voix: 'Vous déposez votre CV une seule fois, vous masquez ce que vous ne voulez pas transmettre, puis vous choisissez la deuxième voie, avec l’assistant.', sous_titre: 'CV déposé une seule fois, le personnel masqué. Voie 2, avec l’assistant.' },
+    { id: 'f2', voix: 'Vous déposez votre CV une seule fois, vous masquez ce que vous ne voulez pas transmettre, puis vous choisissez le deuxième chemin, avec l’assistant.', sous_titre: 'CV déposé une seule fois, le personnel masqué. Chemin 2, avec l’assistant.' },
     { id: 'f3', voix: 'Vous indiquez le poste ou le domaine visé. Un assistant en ligne reformule votre CV : verbes d’action, phrases claires, rubriques bien rangées, vocabulaire rapproché du poste.', sous_titre: 'Le poste visé. L’assistant reformule : phrases claires, rubriques rangées.' },
     { id: 'f4', voix: 'Il vous renvoie deux versions, et vous choisissez celle qui vous convient. Il n’ajoute ni expérience, ni diplôme, ni compétence, ni date.', sous_titre: 'Deux versions au choix. Rien n’est ajouté : ni expérience, ni diplôme, ni date.' },
-    { id: 'f5', voix: 'Pour ajouter ou corriger le contenu, voyez la voie 1. Pour tout refaire vous-même, sans assistant, la voie 3. Sans redéposer votre CV.', sous_titre: 'Ajouter ou corriger : voie 1. Tout refaire sans assistant : voie 3.' }
+    { id: 'f5', voix: 'Pour ajouter ou corriger le contenu, voyez le chemin 1. Pour tout refaire vous-même, sans assistant, le chemin 3. Sans redéposer votre CV.', sous_titre: 'Ajouter ou corriger : chemin 1. Tout refaire sans assistant : chemin 3.' }
   ],
   async jouer(o) {
     const p = o.p;

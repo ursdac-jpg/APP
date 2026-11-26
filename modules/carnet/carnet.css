@@ -467,3 +467,6 @@
 @media (max-width: 768px) {
   #panneauCarnet { width: calc(100vw - 16px); max-width: 300px; right: 8px; }
 }
+
+.carnet-msg-vide { color: var(--text-muted); text-align: right; }
+[data-theme="sombre"] .carnet-msg-vide { color: var(--text-muted); }

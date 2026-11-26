@@ -1765,7 +1765,7 @@ function _candEtatNouveau() {
   if (!ok1) {
     if (!p) { message = 'Il reste à choisir ce que vous voulez préparer.'; }
     else if (estCv) { message = !rg.cvExiste ? 'Il reste à dire si vous avez déjà un CV.' : (rg.cvExiste === 'non' ? 'Il reste à choisir comment créer votre CV.' : 'Il reste à dire si vous voulez le mettre à jour.'); }
-    else { message = 'Il reste à choisir la façon de faire.'; }
+    else { message = 'Il reste à choisir le chemin.'; }
   }
   else if (!ok2) { message = obj ? phraseBlocageLettreCo(raisons) : 'Il reste à choisir votre objectif.'; }
   return { ok1: ok1, ok2: ok2, ok3: ok3, tout: ok1 && ok2, message: message, estCv: estCv, estLE: estLE, cvDispo: cvDispo };
@@ -3940,6 +3940,16 @@ var routes = {
   // Module « Découvrir mes compétences » (modules/mes-competences/), meme patron que 'un-cv-plusieurs-metiers' : 'xxx-intro' = presentation, 'xxx' = le module.
   'mes-competences-intro': typeof pageIntroMesCompetences === 'function' ? pageIntroMesCompetences : function () { naviguerVers('cv'); },
   'mes-competences': typeof pageMesCompetences === 'function' ? pageMesCompetences : function () { naviguerVers('cv'); },
+  'ce-qui-compte-intro': typeof pageIntroCeQuiCompte === 'function' ? pageIntroCeQuiCompte : function () { naviguerVers('cv'); },
+  'ce-qui-compte': typeof pageCeQuiCompte === 'function' ? pageCeQuiCompte : function () { naviguerVers('cv'); },
+  'mon-plan': typeof pageMonPlan === 'function' ? pageMonPlan : function () { naviguerVers('cv'); },
+  // Module « Bien utiliser l'IA » (modules/bien-utiliser-ia/, fermé au public : BUIA_OUVERT) : présentation puis écran d'entrée.
+  'bien-utiliser-ia-intro': typeof pageIntroBienUtiliserIa === 'function' ? pageIntroBienUtiliserIa : function () { naviguerVers('cv'); },
+  'bien-utiliser-ia': typeof pageBienUtiliserIa === 'function' ? pageBienUtiliserIa : function () { naviguerVers('cv'); },
+  'bien-utiliser-ia-comprendre': typeof pageBienUtiliserIaComprendre === 'function' ? pageBienUtiliserIaComprendre : function () { naviguerVers('cv'); },
+  'bien-utiliser-ia-fonctionne': typeof pageBienUtiliserIaFonctionne === 'function' ? pageBienUtiliserIaFonctionne : function () { naviguerVers('cv'); },
+  'bien-utiliser-ia-modeles': typeof pageBienUtiliserIaModeles === 'function' ? pageBienUtiliserIaModeles : function () { naviguerVers('cv'); },
+  'bien-utiliser-ia-ecrire': typeof pageBienUtiliserIaEcrire === 'function' ? pageBienUtiliserIaEcrire : function () { naviguerVers('cv'); },
   // TACHE (module « Regard recruteur », 2026-09) : parcours route, meme
   // patron que 'ats' / 'comparer-pistes'. pageRegardRecruteur() vit dans
   // modules/regard-recruteur/index.js. Conception : maquette
@@ -3987,7 +3997,7 @@ var routes = {
   // consultation. Chantier : docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md.
   'comprendre-les-chiffres-intro': pageIntroComprendreLesChiffres,
   'comprendre-les-chiffres': pageComprendreLesChiffres,
-  // Module "Qui fait quoi" (annuaire local, 3e entree de "Se tenir informe", decision D10 du 2026-10-12). Ferme au public tant que MT_OUVERT est faux.
+  // Module "Qui fait quoi" (annuaire local, 3e entree de "Se tenir informe", decision D10 du 2026-10-12). Ouvert au public depuis le 2026-11-05 (MT_OUVERT ; il se refermerait si MT_OUVERT repassait a faux).
   'mon-territoire-intro': pageIntroMonTerritoire,
   'employeurs-intro': pageIntroEmployeursTerritoire,
   'mon-territoire': pageMonTerritoire
@@ -5378,7 +5388,7 @@ function pageChoixCV() {
         ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Employeurs près de chez moi'] : [])) +
       htmlCarteAccueil('boiteaoutils', 'bi-briefcase', 'Boîte à outils',
         'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.',
-        ['Mes Repères', 'Mon Carnet', 'Lexique'].concat((typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) ? ['Découvrir mes compétences'] : [])) +
+        ['Mes Repères', 'Mon Carnet', 'Lexique'].concat((typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) ? ['Découvrir mes compétences'] : []).concat((typeof cqcpmOuvert === 'function' && cqcpmOuvert()) ? ['Ce qui compte pour moi'] : []).concat((typeof buiaOuvert === 'function' && buiaOuvert()) ? ['Bien utiliser l’IA'] : [])) +
       htmlCarteAccueil('analyse', 'bi-graph-up-arrow', 'Outils d’analyse',
         'Vérifier la solidité de votre candidature avant de postuler.',
         ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']) +
@@ -6694,7 +6704,7 @@ function _vpStyle() {
     '.vp-qvider+.vp-qpil{margin-left:0;}' +
     '.vp-qcorps{padding:.25rem .85rem .7rem;border-top:1px solid var(--border);}' +
     // Consigne 330 (15/11/2026) : sur écran large, les familles se rangent en plusieurs colonnes (minimum 26 rem chacune) ; en dessous, une seule colonne comme avant. Les phrases d'explication gardent toute la ligne.
-    '.vp-qcorps{display:grid;grid-template-columns:repeat(auto-fit,minmax(26rem,1fr));gap:0 .8rem;align-items:start;}' +
+    '.vp-qcorps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(26rem,100%),1fr));gap:0 .8rem;align-items:start;}' +
     '.vp-qcorps>*{grid-column:1/-1;}.vp-qcorps>.vp-fam{grid-column:auto;min-width:0;}' +
     '.vp-consigne{font-size:0.875rem;color:var(--text-muted);margin:.3rem 0 .45rem;}' +
     '.vp-regle{color: var(--accent-texte);font-weight:600;background:var(--accent-bg-subtle);border-radius:8px;padding:.4rem .6rem;}' +
@@ -26260,7 +26270,7 @@ function pageResultats() {
     // difference de "Co-construire ma lettre" (carte dediee, plus de questions).
     // Precise ici, au tout premier ecran, pour que ce ne soit plus une surprise.
     var texteIntroAdaptation = (docActif === 'lettre')
-      ? 'Ce parcours réutilise directement votre CV, sans autre question que le style d’écriture ci-dessous. Pour une lettre plus approfondie, avec davantage d’échanges, utilisez plutôt « Écrire ma lettre avec l’assistant » depuis l’accueil.'
+      ? 'Ce chemin réutilise directement votre CV, sans autre question que le style d’écriture ci-dessous. Pour une lettre plus approfondie, avec davantage d’échanges, utilisez plutôt « Écrire ma lettre avec l’assistant » depuis l’accueil.'
       : '';
     accordeonAdaptation = panneauEtapeAction('adaptation-metier', titreEtape('&#127891; Adaptation au métier'),
       texteIntroAdaptation,
@@ -27073,6 +27083,8 @@ function htmlPageIntroModule(config) {
     (config.boutonHautHTML || '') +
     '<div class="text-center"><h1><i class="bi ' + config.icone + '"></i> ' + config.titre + '</h1>' +
     '<p class="sousTitre">' + config.sousTitre + '</p></div>' +
+    // Repère de temps du module (consigne 606, data/tempsModules.js) : sous la phrase d'accroche, avant la vidéo. config.temps = identifiant du module dans TEMPS_MODULES.
+    (config.temps && typeof htmlRepereTempsModule === 'function' ? htmlRepereTempsModule(config.temps) : '') +
     // Vidéo de présentation du module (lot E) : bouton fermé, le lecteur se déplie au clic.
     (config.video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(config.video) : '') +
     // syntheseHTML : le bloc « Reprendre / Recommencer » d'un module commence (meme forme que « Reprendre mon CV », consigne 258) ; « Reprendre » est repris dans la barre du bas.
@@ -27361,6 +27373,7 @@ function htmlBilanIntro() {
   // « Reprendre » est repris dans la barre du bas, jamais « Analyser mon CV » qui relancerait un depot.
   var enCours = !detour && (typeof bilanTravailEnCours === 'function') && bilanTravailEnCours();
   return htmlPageIntroModule({
+    temps: 'bilan',   // repère de temps (data/tempsModules.js, consigne 606)
     classeExtra: 'bilan-intro',
     syntheseHTML: enCours ? _introBlocReprise('Vous avez une analyse en cours sur ce module.', 'btnBilanRepriseContinuer', 'btnBilanRepriseRecommencer', 'Reprendre') : '',
     // En detour : le bouton partage, meme place / forme / libelle que tous
@@ -27600,7 +27613,7 @@ function htmlBilanPreparer() {
     // temps, disponibilites) ni civilite/couleur d'entreprise : le Bilan ne les
     // lit pas, les remplir ne changerait rien au diagnostic.
     // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (sans civilite ni couleur, que le Bilan ne lit pas).
-    (dossier.objectif ? '<div id="bilanComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true }) + '</div>' : '') +
+    (dossier.objectif ? '<div id="bilanComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true, avecMetierVise: metierStageRequis() }) + '</div>' : '') +
     (montrerBloc3 ? '</div>' : '') +
     '</div></details>'
   );
@@ -34817,7 +34830,15 @@ var FICHIERS_PROMPTS_EXTERNES = {
   'ucpm-lettres': 'prompts/ucpm-lettres.md',
   'ucpm-offres': 'prompts/ucpm-offres.md',
   // Module « Explorer les métiers », « Ma lecture » (2026-11-19) : la demande à l'assistant (voir modules/comprendre-les-metiers/syntheseLectureLogique.js).
-  'ma-synthese': 'prompts/ma-synthese.md'
+  'ma-synthese': 'prompts/ma-synthese.md',
+  // Module « Explorer les métiers », interprétation d'un chemin (2026-11-22, consignes 537 et 543) : chemin 1, « Chercher un métier » (voir modules/comprendre-les-metiers/interpretationLogique.js).
+  'interpretation-chemin-metier': 'prompts/interpretation-chemin-metier.md',
+  'interpretation-chemin-actions': 'prompts/interpretation-chemin-actions.md',
+  'interpretation-chemin-q': 'prompts/interpretation-chemin-q.md',
+  // Espace « Ce qui compte pour moi », papier de fin « Ce qui revient dans mes cartes » (2026-11-23, consignes 569 et 570) : prompt rédigé par Denis (voir modules/ce-qui-compte/papier.js).
+  'ce-qui-revient': 'prompts/ce-qui-revient.md',
+  // Étape partagée « Mon plan » (2026-11-26, consignes 608 à 619) : prompt écrit par Claude, à essayer par Denis (voir modules/mon-plan/logique.js).
+  'mon-plan': 'prompts/mon-plan.md'
 };
 var promptsExternesCharges = {
   cv: null, 'cv-choix-personne': null, 'cv-missions-sans-lien': null, 'decouverte-metiers': null, decouverteRedaction: null, lettre: null, entretien: null, 'entretien-accueil': null, 'extraction-cv': null,
@@ -34828,7 +34849,7 @@ var promptsExternesCharges = {
   'regard-recruteur': null,
   mesCompetences: null,
   'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null,
-  'ma-synthese': null
+  'ma-synthese': null, 'interpretation-chemin-metier': null, 'interpretation-chemin-actions': null, 'interpretation-chemin-q': null, 'ce-qui-revient': null, 'mon-plan': null
 };
 
 // Fragment commun « voix humaine » (prompts/_voix-humaine.md, retour Denis 2026-09-30 : des textes moins robotiques, que les recruteurs ne
@@ -41637,6 +41658,10 @@ function collecterEtatsModulesPourSauvegarde() {
     mesCompetences: typeof mesCompExporterEtatPourSauvegarde === 'function' ? mesCompExporterEtatPourSauvegarde() : null,
     // « Explorer les métiers » : seulement ce que la personne a gardé (résultat du questionnaire, choix), jamais une réponse (modules/comprendre-les-metiers/garder.js).
     comprendreLesMetiers: typeof cmvExporterEtatPourSauvegarde === 'function' ? cmvExporterEtatPourSauvegarde() : null,
+    // « Ce qui compte pour moi » : seulement les cartes que la personne a gardées (modules/ce-qui-compte/), jamais une réponse de la séance.
+    ceQuiCompte: typeof cqcpmExporterEtatPourSauvegarde === 'function' ? cqcpmExporterEtatPourSauvegarde() : null,
+    monPlan: typeof mplExporterEtatPourSauvegarde === 'function' ? mplExporterEtatPourSauvegarde() : null,
+    bienUtiliserIa: typeof buiaExporterEtatPourSauvegarde === 'function' ? buiaExporterEtatPourSauvegarde() : null,
     // Departement et commune choisis (Qui fait quoi, Comprendre le cadre, Comprendre les chiffres) : un reglage, pas un travail (voir _modulesOntUnTravail).
     territoire: _territoireExporterPourSauvegarde()
   };
@@ -41678,6 +41703,9 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof mgRestaurerEtatDepuisSauvegarde === 'function') { mgRestaurerEtatDepuisSauvegarde(modulesEtat.modelesGardes || null); }
   if (typeof mesCompRestaurerEtatDepuisSauvegarde === 'function') { mesCompRestaurerEtatDepuisSauvegarde(modulesEtat.mesCompetences || null); }
   if (typeof cmvRestaurerEtatDepuisSauvegarde === 'function') { cmvRestaurerEtatDepuisSauvegarde(modulesEtat.comprendreLesMetiers || null); }
+  if (typeof cqcpmRestaurerEtatDepuisSauvegarde === 'function') { cqcpmRestaurerEtatDepuisSauvegarde(modulesEtat.ceQuiCompte || null); }
+  if (typeof mplRestaurerEtatDepuisSauvegarde === 'function') { mplRestaurerEtatDepuisSauvegarde(modulesEtat.monPlan || null); }
+  if (typeof buiaRestaurerEtatDepuisSauvegarde === 'function') { buiaRestaurerEtatDepuisSauvegarde(modulesEtat.bienUtiliserIa || null); }
   _territoireRestaurerDepuisSauvegarde(modulesEtat.territoire);
 }
 
@@ -41768,7 +41796,7 @@ function restaurerSession() {
 // unique), celui-ci porte TOUT le dossier en cours et se reimporte tel quel.
 function exporterSessionFichier() {
   try {
-    var horodatage = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    var horodatage = dateFichierFr(new Date(), true);   // jour-mois-année-heure, en français (décision de Denis du 25/11/2026), heure locale
     telechargerFichierTexte(
       'session-cv-' + horodatage + '.json',
       JSON.stringify(sauvegarderSession(), null, 2),
@@ -42787,7 +42815,7 @@ var AIDE_PAGES = {
   // presents dans le DOM courant -> les entrees des 2 ecrans cohabitent ici.
   'preparer-lettre-entretien': [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes de ce parcours : préparer, choisir l’assistant, coller sa réponse, vérifier vos informations, puis vos documents. Une étape déjà faite reste cliquable pour y revenir, sans rien perdre.' },
+      texte: 'La barre en haut suit les étapes de ce chemin : préparer, choisir l’assistant, coller sa réponse, vérifier vos informations, puis vos documents. Une étape déjà faite reste cliquable pour y revenir, sans rien perdre.' },
     { selecteur: '#btnPrepLettreEntretienCommencer', icone: '&#128196;', titre: 'Déposer mon CV',
       texte: 'Ce bouton ouvre la page unique où vous préparez tout : déposer votre CV, le relire et masquer ce que vous voulez, puis indiquer pourquoi vous faites ce CV. Rien n’est envoyé sans votre accord.' },
     { selecteur: '#prepLEBloc1', icone: '&#128196;', titre: 'Votre CV',
@@ -42799,13 +42827,13 @@ var AIDE_PAGES = {
   ],
   'reprendre-cv': [
     { selecteur: 'h1', icone: '<i class="bi bi-pencil-square"></i>', titre: 'Reprendre mon CV',
-      texte: 'Vous avez déjà un CV : vous le déposez une seule fois, puis vous choisissez parmi trois voies. Cette page explique ce que fait chacune : le garder et le compléter, le reformuler et le présenter, ou le refaire moi-même dans un modèle.' },
+      texte: 'Vous avez déjà un CV : vous le déposez une seule fois, puis vous choisissez parmi trois chemins. Cette page explique ce que fait chacune : le garder et le compléter, le reformuler et le présenter, ou le refaire moi-même dans un modèle.' },
     { selecteur: '#btnReprendreCvCommencer', icone: '&#9999;&#65039;', titre: 'Déposer mon CV',
       texte: 'Ce bouton ouvre la page de dépôt : déposer votre CV, le relire et masquer ce que vous ne voulez pas transmettre. La mise en page d’origine n’est pas conservée.' },
     { selecteur: '#prepLEBloc1', icone: '&#128196;', titre: 'Votre CV',
       texte: 'Déposez votre CV : fichier, copier-coller, photo ou scan. Il n’est envoyé nulle part à ce stade, et vous ne le redéposerez pas si vous changez de voie.' },
     { selecteur: '#prepLEBloc2', icone: '&#129517;', titre: 'Que voulez-vous faire de votre CV ?',
-      texte: 'Trois voies : le garder et le compléter, ou le reformuler et le présenter (toutes deux avec l’assistant), ou le refaire moi-même dans un modèle (sans assistant). Les cartes s’activent une fois votre CV déposé et relu.' },
+      texte: 'Trois chemins : le garder et le compléter, ou le reformuler et le présenter (toutes deux avec l’assistant), ou le refaire moi-même dans un modèle (sans assistant). Les cartes s’activent une fois votre CV déposé et relu.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Votre CV déposé n’est pas perdu.' }
   ],
@@ -42825,13 +42853,13 @@ var AIDE_PAGES = {
     { selecteur: 'h1', icone: '<i class="bi bi-grid-3x3-gap"></i>', titre: 'Le refaire moi-même dans un modèle',
       texte: 'Votre CV est déjà complet : vous en refaites seulement la mise en page, sans assistant en ligne. Vous classez ses informations, vous les vérifiez, puis vous choisissez un modèle. Rien n’est reformulé : vos mots restent les vôtres.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes de cette voie : déposer, ma voie, classer, vérifier, puis vos documents.' },
+      texte: 'La barre en haut suit les étapes de ce chemin : déposer, mon chemin, classer, vérifier, puis vos documents.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à « Reprendre mon CV », « Accueil » ramène à l’écran de départ. Votre CV déposé n’est pas perdu.' }
   ],
   'mettre-a-jour-cv': [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes de ce parcours : préparer, choisir l’assistant, coller sa réponse, corriger le contenu de votre CV, puis vos documents. Une étape déjà faite reste cliquable pour y revenir, sans rien perdre.' },
+      texte: 'La barre en haut suit les étapes de ce chemin : préparer, choisir l’assistant, coller sa réponse, corriger le contenu de votre CV, puis vos documents. Une étape déjà faite reste cliquable pour y revenir, sans rien perdre.' },
     { selecteur: '#btnMajCvCommencer', icone: '&#9999;&#65039;', titre: 'Déposer mon CV',
       texte: 'Ce bouton ouvre la page unique de mise à jour : déposer votre CV existant, le relire et masquer ce que vous voulez. La mise en page d’origine n’est pas conservée ; vous choisirez un modèle ensuite.' },
     { selecteur: '#prepLEBloc1', icone: '&#128196;', titre: 'Votre CV',
@@ -43037,10 +43065,85 @@ AIDE_PAGES['comprendre-les-metiers'] = [
         lecture: 'La lecture de l’assistant : ce qui se retrouve dans vos résultats, ce qui diffère, et deux ou trois pistes de métiers pour illustrer une direction. L’application vérifie elle-même d’où vient chaque piste. Ce sont des idées à confirmer, jamais une décision.',
         'lecture-offres': 'Cochez jusqu’à cinq métiers, choisissez votre territoire, préparez la demande puis copiez-la dans l’assistant en ligne. Votre niveau d’études est rappelé dans la demande.'
       };
-      return textes[v] || (/^q-/.test(v) ? 'Répondez en cliquant, sans réfléchir trop longtemps. Il n’y a pas de bonne ou de mauvaise réponse. « Continuer » est toujours possible : une ligne sans réponse compte pour zéro point, rien n’est retiré.' : textes.accueil);
+      return (textes[v] || (/^q-/.test(v) ? 'Répondez en cliquant, sans réfléchir trop longtemps. Il n’y a pas de bonne ou de mauvaise réponse. « Continuer » est toujours possible : une ligne sans réponse compte pour zéro point, rien n’est retiré.' : textes.accueil)) + ((v === 'synthese' || v === 'lecture-demande') && typeof cqcpmOuvert === 'function' && cqcpmOuvert() ? ' Si vous avez préparé le papier « Ce qui revient dans mes cartes » dans « Ce qui compte pour moi », vous choisissez seul(e) de le joindre ou non : les cartes elles-mêmes restent chez vous.' : '');
     } },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à l’écran précédent du module, « Accueil » ramène à l’écran de départ. Dans le questionnaire, la seule fenêtre qui s’ouvre vous prévient si vous quittez avant la fin.' }
+];
+// Espace « Ce qui compte pour moi » (modules/ce-qui-compte/, ouvert seulement en local) : une aide pour la présentation, une pour les pages de l'espace, qui change avec l'écran.
+AIDE_PAGES['ce-qui-compte-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-layers"></i>', titre: 'Ce qui compte pour moi',
+    texte: 'Huit cartes pour mettre des mots sur ce que vous aimeriez, sur ce qui compte pour vous dans un travail et sur ce que vous avez vécu. Ni test, ni note, ni profil : vous écrivez avec vos mots, et vous choisissez de garder ou non ce que vous voyez à la fin.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la Boîte à outils. Le bouton de droite ouvre l’espace. Si vous avez déjà des réponses, vous choisissez de reprendre ou de recommencer.' }
+];
+AIDE_PAGES['ce-qui-compte'] = [
+  { selecteur: '#cqcpmCorps', icone: '<i class="bi bi-layers"></i>', titre: 'Cette page',
+    texte: function () {
+      var ui = (typeof _cqcpmUi !== 'undefined') ? _cqcpmUi : { vue: 'accueil' };
+      if (ui.vue === 'gardees') { return 'Ici se trouvent les résultats que vous avez gardés. « Relire » rouvre la carte, « Effacer » retire un résultat, « Tout effacer » vide cet espace. Ce que vous gardez part avec votre sauvegarde personnelle (la disquette), sur votre appareil.'; }
+      if (ui.vue === 'papier-preparer') { return 'Cochez les cartes que l’assistant peut lire pour écrire votre papier. Une carte non cochée reste chez vous. Au moins deux cartes sont nécessaires.'; }
+      if (ui.vue === 'papier-assistant') { return 'Suivez les étapes : copier la demande, la coller dans l’assistant, puis coller sa réponse ici. Rien n’est envoyé automatiquement.'; }
+      if (ui.vue === 'papier') { return 'Voici votre papier. Vous pouvez l’imprimer ou l’effacer. Le joindre à « Explorer les métiers » se décide dans « Ma synthèse », jamais ici, et rien n’est joint sans votre choix.'; }
+      if (ui.vue === 'carte') {
+        var c = (typeof cqcpmCarte === 'function') ? cqcpmCarte(ui.carte) : null;
+        if (c && ui.ecran <= 0) { return 'Voici ce que vous allez faire dans cette carte, ce que vous obtenez à la fin et ce qu’il faut savoir. « Commencer » ouvre les questions. Rien n’est obligatoire.'; }
+        if (c && ui.ecran > c.ecrans.length) { return 'Voici ce que vous venez de dire, avec vos mots. Rien n’est enregistré tant que vous ne cliquez pas sur « Garder mon résultat ». « Modifier mes réponses » ramène aux questions.'; }
+        return 'Répondez seulement à ce qui compte pour vous : une question sans réponse veut dire « sans avis », et « je ne sais pas » est une réponse possible. Rien n’est enregistré en route.';
+      }
+      return 'Huit cartes, rangées en quatre thèmes. Chacune est indépendante : commencez par celle que vous voulez, et faites-en une seule si vous préférez. « Ce que j’ai gardé » rassemble les résultats que vous avez choisi de garder.';
+    } },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent de l’espace, « Accueil » ramène à l’écran de départ de l’application. Vos réponses ne sont pas perdues tant que vous restez dans l’application.' }
+];
+// « Mon plan » (modules/mon-plan/, fermé au public) : une aide qui change avec l'écran (préparer, assistant, plan).
+AIDE_PAGES['mon-plan'] = [
+  { selecteur: '#mplCorps', icone: '<i class="bi bi-calendar-check"></i>', titre: 'Cette page',
+    texte: function () {
+      var vue = (typeof _mplUi !== 'undefined') ? _mplUi.vue : 'preparer';
+      if (vue === 'assistant') { return 'Suivez les étapes : copier la demande, la coller dans l’assistant en ligne, puis coller sa réponse ici. Rien n’est envoyé automatiquement, et seul ce que vous avez coché part avec vos trois réponses.'; }
+      if (vue === 'plan') { return 'Voici votre plan. Cochez ce qui est fait, quand vous voulez : rien n’est compté. Vous pouvez l’imprimer, le refaire ou l’effacer. Le joindre à la feuille de « Ma synthèse » se décide dans « Ma synthèse », jamais ici.'; }
+      return 'Le plan reprend ce que vous avez déjà écrit, coché d’avance : décochez ce que vous ne voulez pas inclure. Vous répondez seulement à trois questions. Le plan n’est jamais obligatoire.';
+    } },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » ramène à l’espace d’où vous venez (« Ce qui compte pour moi » ou « Ma synthèse »), « Accueil » à l’écran de départ de l’application. Votre plan n’est pas perdu tant que vous restez dans l’application.' }
+];
+// Module « Bien utiliser l'IA » (modules/bien-utiliser-ia/, fermé au public) : une aide pour la présentation, une pour l'écran d'entrée.
+AIDE_PAGES['bien-utiliser-ia-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Bien utiliser l’IA',
+    texte: 'Ce module vous apprend à écrire une demande claire à un assistant en ligne et à vérifier sa réponse. Ni test, ni note : quatre chemins, à choisir selon ce que vous avez devant vous.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la Boîte à outils. Le bouton de droite ouvre le module.' }
+];
+AIDE_PAGES['bien-utiliser-ia-comprendre'] = [
+  { selecteur: '#buiaC1Corps', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Cette page',
+    texte: 'Neuf étapes courtes, dans l’ordre. Vous pouvez revenir en arrière quand vous voulez. « Pour aller plus loin » ajoute des explications : le niveau « Les bases » suffit pour commencer. Vous n’avez rien à écrire ici.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’étape d’avant, « Continuer » passe à la suivante, « Accueil » ramène à l’écran de départ de l’application. Rien de ce que vous faites ici n’est enregistré sur l’appareil.' }
+];
+AIDE_PAGES['bien-utiliser-ia-fonctionne'] = [
+  { selecteur: '#buiaC4Corps', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Cette page',
+    texte: 'Huit étapes courtes, dans l’ordre. Vous pouvez revenir en arrière quand vous voulez. « Pour aller plus loin » ajoute des explications : le niveau « Les bases » suffit pour commencer. Vous n’avez rien à écrire ici.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’étape d’avant, « Continuer » passe à la suivante, « Accueil » ramène à l’écran de départ de l’application. Rien de ce que vous faites ici n’est enregistré sur l’appareil.' }
+];
+AIDE_PAGES['bien-utiliser-ia-modeles'] = [
+  { selecteur: '#buiaC2Corps', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Cette page',
+    texte: 'Trois étapes : choisir un modèle (collez votre papier ou dites votre besoin en quelques mots), compléter quelques lignes, puis copier votre demande. Le texte que vous collez reste sur cet appareil : il n’est ni envoyé, ni enregistré.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’étape d’avant, puis à l’écran des quatre chemins. Rien de ce que vous faites ici n’est enregistré sur l’appareil.' }
+];
+AIDE_PAGES['bien-utiliser-ia-ecrire'] = [
+  { selecteur: '#buiaC3Corps', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Cette page',
+    texte: 'Trois étapes : écrire votre demande (elle se compose sous vos yeux), la tester et l’améliorer après avoir lu la réponse, puis la garder sur votre disquette si elle vous sert. Le texte que vous collez reste sur cet appareil : il n’est ni envoyé, ni gardé.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’étape d’avant, puis à l’écran des quatre chemins. Seules les demandes que vous ajoutez vous-même à la disquette sont gardées.' }
+];
+AIDE_PAGES['bien-utiliser-ia'] = [
+  { selecteur: '#buiaCorps', icone: '<i class="bi bi-chat-left-text"></i>', titre: 'Cette page',
+    texte: 'Quatre chemins : comprendre, savoir comment un assistant fonctionne, trouver une demande déjà écrite pour un papier ou une situation, ou écrire la vôtre. Sous chaque titre, la phrase « Choisissez ce chemin si » vous aide à vous reconnaître. Aucun chemin n’est imposé : vous restez libre de choisir, et de changer à tout moment.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la présentation du module, « Accueil » ramène à l’écran de départ de l’application. Rien de ce que vous faites ici n’est enregistré sur l’appareil.' }
 ];
 // Page « Le complément de votre CV » (route complement-cv) : une aide guidee, comme toutes les pages routees (essai « aide »).
 AIDE_PAGES['complement-cv'] = [
@@ -43118,13 +43221,13 @@ AIDE_PAGES['candidater'] = [
 ];
 AIDE_PAGES['creer-cv'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'Créer un nouveau CV',
-    texte: 'On part d’une page blanche. Trois façons de faire : à la main, avec l’assistant en ligne, ou à partir de votre récit. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
-  { selecteur: '#btnCreerCvAvecAssistant, #btnCreerCvRecit, #btnCreerCvSansAssistant', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Les trois façons de faire',
-    texte: 'Voie 1, « Avec l’assistant en ligne » : il vous aide à formuler vos informations. Voie 2, « À partir de mon récit » : vous racontez ce que vous avez vécu, l’assistant en tire vos expériences et vos compétences. Voie 3, « À la main » : vous écrivez tout vous-même, rien n’est envoyé. Chaque voie a sa vidéo, et son bouton vous mène directement dans le parcours ; « Revoir la présentation », dans le parcours, rouvre la page de la voie.' },
+    texte: 'On part d’une page blanche. Trois chemins : à la main, avec l’assistant en ligne, ou à partir de votre récit. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
+  { selecteur: '#btnCreerCvAvecAssistant, #btnCreerCvRecit, #btnCreerCvSansAssistant', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Les trois chemins',
+    texte: 'Chemin 1, « Avec l’assistant en ligne » : il vous aide à formuler vos informations. Chemin 2, « À partir de mon récit » : vous racontez ce que vous avez vécu, l’assistant en tire vos expériences et vos compétences. Chemin 3, « À la main » : vous écrivez tout vous-même, rien n’est envoyé. Chaque chemin a sa vidéo, et son bouton vous mène directement dedans ; « Revoir la présentation », dans le chemin, rouvre la page du chemin.' },
   { selecteur: '#blocMgVoirModeles', icone: '<i class="bi bi-grid-1x2"></i>', titre: 'Voir nos modèles',
     texte: 'Regardez nos modèles de CV avant de remplir quoi que ce soit, et gardez jusqu’à 5 modèles : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.' },
   { selecteur: '#btnCreerCvRecitContinuer, #btnCreerCvContinuer, #btnCreerCvReprendre', icone: '&#9193;', titre: 'Reprendre ou recommencer',
-    texte: 'Si vous avez déjà commencé un parcours, il n’y en a qu’un à la fois : « Reprendre » reprend là où vous en étiez, « Recommencer » repart de zéro après confirmation, et les trois parcours reviennent.' },
+    texte: 'Si vous avez déjà commencé un chemin, il n’y en a qu’un à la fois : « Reprendre » reprend là où vous en étiez, « Recommencer » repart de zéro après confirmation, et les trois chemins reviennent.' },
   { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Les étapes',
     texte: 'Cette barre montre le chemin complet. Elle sert de repère : on avance avec « Continuer », sans rien envoyer sans votre accord.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
@@ -43136,7 +43239,7 @@ AIDE_PAGES['creer-cv-main'] = [
   { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
     texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Reprendre » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
-    texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
+    texte: '« Retour » revient aux trois chemins, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
 ];
 AIDE_PAGES['creer-cv-assistant'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Créer mon CV avec l’assistant en ligne',
@@ -43144,7 +43247,7 @@ AIDE_PAGES['creer-cv-assistant'] = [
   { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
     texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Reprendre » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
-    texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
+    texte: '« Retour » revient aux trois chemins, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
 ];
 AIDE_PAGES['comprendre-les-chiffres-intro'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Comprendre les chiffres',

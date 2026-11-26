@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la feuille de Ma synthèse, qui parle</title>
+<style>
+:root{--fond:#eef1f5;--texte:#1b2430;--carte:#fff;--bord:#c9d1dc;--accent:#1f5fbf;--vous:#fff3d6;--vousbord:#e0a82e;--je:#e4eefc;--jebord:#7aa6e6}
+@media (prefers-color-scheme: dark){:root{--fond:#14181f;--texte:#e8edf4;--carte:#1d2430;--bord:#344052;--accent:#6aa5ff;--vous:#4a3a12;--vousbord:#c99a2c;--je:#1c3358;--jebord:#4f7fc4}}
+body{margin:0;background:var(--fond);color:var(--texte);font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+.cadre{max-width:900px;margin:0 auto;padding:16px}
+h1.m{font-size:1.15rem;margin:.2rem 0 .4rem}
+.bandeau{background:var(--carte);border:1px solid var(--bord);border-radius:10px;padding:.7rem .9rem;margin-bottom:12px;font-size:.95rem}
+.bandeau label{display:flex;gap:.5rem;align-items:center;font-weight:600;cursor:pointer}
+.legende{display:none;margin-top:.5rem;gap:.8rem;flex-wrap:wrap;font-size:.9rem}
+.legende span{padding:.15rem .5rem;border-radius:6px;border:1px solid}
+.legende .l-je{background:var(--je);border-color:var(--jebord)}
+.legende .l-vous{background:var(--vous);border-color:var(--vousbord)}
+body.voir .legende{display:flex}
+body.voir .je{background:var(--je);box-shadow:-4px 0 0 var(--jebord)}
+body.voir .vous{background:var(--vous);box-shadow:-4px 0 0 var(--vousbord)}
+/* la feuille : noir sur blanc, comme à l'impression (mêmes règles que SYN_CSS_FEUILLE) */
+.feuille{background:#fff;color:#000;border:1px solid var(--bord);padding:22px 26px;font-size:11pt;line-height:1.45}
+.feuille h1{font-size:19pt;margin:0 0 .2rem}
+.feuille h2{font-size:13pt;margin:1.1rem 0 .3rem;padding-bottom:.15rem;border-bottom:1.5px solid #000}
+.feuille h3{font-size:11pt;margin:.6rem 0 .15rem}
+.feuille p{margin:.25rem 0}.feuille ul{margin:.25rem 0 .25rem 1.2rem;padding:0}.feuille li{margin:.12rem 0}
+.feuille .note{font-size:9.5pt;color:#333}
+.feuille .piste{border:1px solid #000;padding:.4rem .6rem;margin:.4rem 0}
+.coupure{color:#555;font-size:9.5pt;text-align:center;margin:.8rem 0;font-style:italic}
+.nouveau{outline:2px dashed var(--accent);outline-offset:2px}
+body.voir .nouveau{outline:2px dashed #1f5fbf}
+.notes-m{background:var(--carte);border:1px solid var(--bord);border-radius:10px;padding:.7rem .9rem;margin-top:12px;font-size:.95rem}
+.notes-m li{margin:.25rem 0}
+</style>
+</head>
+<body>
+<div class="cadre">
+<h1 class="m">Maquette : la feuille de « Ma synthèse », avec la mention « qui parle »</h1>
+<div class="bandeau">
+  <p style="margin:0 0 .4rem">Extraits de la feuille imprimée, avec une personne inventée. Les cadres en pointillé sont les deux phrases ajoutées. Le reste est inchangé, sauf une précision dans « Des pistes à regarder » (voir plus bas).</p>
+  <label><input type="checkbox" id="voir"> Montrer qui parle (cette aide n'existe pas sur la vraie feuille)</label>
+  <div class="legende"><span class="l-je">Voix de la personne (« je », écrit par l'application)</span><span class="l-vous">Voix de l'assistant en ligne (« vous »)</span></div>
+</div>
+
+<div class="feuille">
+  <h1 class="je">Ma synthèse : Explorer les métiers</h1>
+  <p class="note je">Établie le 23 novembre 2026. Document personnel : des pistes de réflexion, ni une note, ni un diagnostic, ni une solution.</p>
+
+  <p class="coupure">[ rubriques 1 à 5 : inchangées ]</p>
+
+  <h2 class="je">6. Ma situation</h2>
+  <p class="je">Niveau d’études : aucun diplôme ; accompagnement par un conseiller en insertion.</p>
+  <p class="je"><b>Dans mes mots :</b> « Je veux un travail où je sais ce qu’on attend de moi, mais où je gère mon poste à ma façon. »</p>
+
+  <h2 class="je">7. La lecture de l’assistant en ligne</h2>
+  <p class="note je">Reçue le 23 novembre 2026. Une lecture à relire avec un conseiller : des pistes de réflexion, à confirmer ou à changer. <span class="nouveau">Texte écrit par l’assistant en ligne à partir de mes résultats : il s’adresse à moi, c’est pourquoi il dit « vous ».</span></p>
+  <h3 class="je">Ce que disent mes résultats</h3>
+  <ul>
+    <li class="vous">Le deuxième passage fait ressortir le métier de magasinier, que vous avez retenu. Il correspond à 68 % de vos choix, notamment travailler à l’intérieur, avec des objets et des documents.</li>
+    <li class="vous">Dans vos mots, vous exprimez le souhait de savoir ce qui est attendu tout en gardant la liberté d’organiser votre poste. Vos cartes font aussi ressortir l’importance d’aider.</li>
+  </ul>
+  <h3 class="je">Des pistes à regarder</h3>
+  <div class="piste">
+    <b class="je">1. Magasinier ou magasinière</b>
+    <p class="note je">Ressort déjà de vos tests · Niveau d’accès : CAP ou BEP</p>
+    <p><span class="je nouveau">Va dans le sens des résultats : </span><span class="vous">c’est le métier qui revient dans les deuxième et troisième passages. Organiser son poste et travailler seul sont deux compétences communes.</span></p>
+    <p><span class="je">À vérifier : </span><span class="vous">le niveau d’accès indiqué est CAP ou BEP, alors que vous n’avez pas de diplôme. Vous pourriez vérifier le bruit, la taille de l’équipe et le salaire proposé.</span></p>
+  </div>
+
+  <p class="coupure">[ le reste de la lecture : inchangé ]</p>
+
+  <h2 class="je">8. Ce qui compte pour moi</h2>
+  <p class="note je">Papier « Ce qui revient dans mes cartes », que j’ai choisi de joindre. <span class="nouveau">Texte écrit par l’assistant en ligne à partir de mes cartes : il s’adresse à moi, c’est pourquoi il dit « vous ».</span> Ce papier reprend ce que j’ai écrit ce jour-là. Ce n’est ni une note, ni un profil, ni un diagnostic, et il ne dit pas quel métier me convient.</p>
+  <h3 class="je">Ce qui revient</h3>
+  <ul>
+    <li class="vous">La recherche d’autonomie dans le travail apparaît dans plusieurs cartes : gérer son poste à sa manière, travailler sans surveillance directe et disposer de liberté dans son organisation.</li>
+  </ul>
+  <h3 class="je">Ce qui compte beaucoup</h3>
+  <ul>
+    <li class="vous">Parmi l’essentiel : « Aider » et « être libre de s’organiser ».</li>
+    <li class="vous">Salaire minimum : « 1 500 euros par mois, net ».</li>
+  </ul>
+
+  <p class="coupure">[ rubriques 9 et 10 : inchangées ]</p>
+</div>
+
+<div class="notes-m">
+  <b>Ce que cette maquette change, en trois points</b>
+  <ol>
+    <li>Une phrase en « je » dans la note de la rubrique 7 et dans celle de la rubrique 8, qui dit que le texte est écrit par l’assistant en ligne et pourquoi il dit « vous ». Le « vous » devient une parole citée, pas un changement de personne.</li>
+    <li>Une seule ligne change dans le reste : « Va dans le sens <u>de mes</u> résultats : » devient « Va dans le sens <u>des</u> résultats : », parce que cette ligne mélangeait « mes » et « vous » dans la même phrase.</li>
+    <li>Rien d’autre ne bouge : ni les prompts, ni les titres en « je », ni le papier imprimé seul (tout en « vous »).</li>
+  </ol>
+</div>
+</div>
+<script>
+document.getElementById('voir').addEventListener('change', function (e) { document.body.classList.toggle('voir', e.target.checked); });
+</script>
+</body>
+</html>

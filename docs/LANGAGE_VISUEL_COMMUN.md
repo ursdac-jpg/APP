@@ -65,6 +65,17 @@ accroche rassurante → « À quoi ça sert » → « Ce qui va se passer » →
 
 Chaque page d'intro de module devrait couvrir **à peu près la même quantité d'information** que celle d'« Analyser ma candidature » (voir chantier « Équilibrer les pages d'introduction des modules », `TACHES_VALIDEES.md`).
 
+### 5ter. La carte d'un chemin : le film est au même endroit dans tous les modules (Denis, 25/11/2026)
+
+Maquette validée : `docs/maquettes/maquette-films-sur-les-cartes-2026-11-25.html`. Chaque chemin d'un module (ou chaque rubrique qui regroupe des cartes) a sa carte, et **son film sur cette carte**. Ordre unique, dans tous les modules :
+pastille ou icône → repère de temps → titre → phrase qui dit à qui le chemin s'adresse → description → **film** (le bouton fermé du composant `htmlVideoPresentation`, jamais un lecteur ouvert) → détails (points, listes) → bouton.
+
+- Le film n'est jamais ailleurs que sur la carte : pas en haut de l'écran du chemin une fois entré (un seul endroit, jamais deux).
+- Dans « Créer », « Reprendre » et « Version rapide », la carte est le bloc du chemin de leur page de présentation (les cartes-boutons de la page de dépôt ne peuvent pas contenir un bouton).
+- « Ce qui compte pour moi » : un film par rubrique (clé `ce-qui-compte-<rubrique>`), sous la phrase de la rubrique et avant ses cartes ; les cartes elles-mêmes n'ont pas de film. Une rubrique sans film n'affiche rien (le composant renvoie une chaîne vide si la clé est inconnue).
+- Dans une carte étroite (tuile, téléphone), l'aperçu du film passe au-dessus du texte du bouton (règle de conteneur dans `videoPresentation.css`).
+- Un module futur qui a plusieurs chemins applique cet ordre. Le test `tests/harmonieFilmsCartes.test.js` vérifie l'ordre dans chaque module.
+
 ### 5bis. Comportements de navigation et d'état (OBLIGATOIRES, Denis 2026-08-30)
 
 **Implémentation de référence depuis le 2026-09-01 : « Cohérence de mon dossier »** (`modules/coherence-transversale/ui.js`, `ctHtmlBandeReprise()`, `_ctVoirIntro` / `_ctReprisePendante`). Le Bilan (`D5a`..`D5d`) a la version antérieure. **Tout module remodelé, retravaillé ou créé à partir de maintenant reprend ce comportement, ces boutons et ces options à l'identique** (décision Denis 2026-09-01). Seule exception connue : les parcours de « Mes documents ».

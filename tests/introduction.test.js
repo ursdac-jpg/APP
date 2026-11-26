@@ -34,8 +34,8 @@ test('introPhraseModeles : le total est la somme, jamais un chiffre faux quand u
   assert.ok(/de nombreux modèles/.test(L.introPhraseModeles(undefined, undefined)));
 });
 
-test('les 19 images de la page et du diaporama existent dans images/introduction/, et le dossier ne contient rien d’autre', () => {
-  assert.strictEqual(L.INTRO_IMAGES.length, 19);
+test('les 32 images de la page et du diaporama existent dans images/introduction/, et le dossier ne contient rien d’autre', () => {
+  assert.strictEqual(L.INTRO_IMAGES.length, 32);
   L.INTRO_IMAGES.forEach((n) => { assert.ok(fs.existsSync(path.join(RACINE, 'images', 'introduction', n + '.png')), 'image manquante : ' + n); });
   const presentes = fs.readdirSync(path.join(RACINE, 'images', 'introduction')).map((f) => f.replace(/\.png$/, '')).sort();
   assert.deepStrictEqual(presentes, L.INTRO_IMAGES.slice().sort());
@@ -79,7 +79,8 @@ test('règles de texte : pas de tiret long, pas de mot « IA », pas de « facul
   ['modules/introduction/index.js', 'modules/introduction/logique.js', 'modules/introduction/diaporama.js'].forEach((f) => {
     const t = lire(f);
     assert.ok(!/[—–]/.test(t), 'tiret long dans ' + f);
-    assert.ok(!/\bIA\b/.test(t), 'mot IA dans ' + f);
+    // Seule exception au mot « IA » : le nom du module « Bien utiliser l’IA » (dérogation de Denis du 22/11/2026), cité tel quel (libellé lu sur l'accueil).
+    assert.ok(!/\bIA\b/.test(t.split('Bien utiliser l’IA').join('')), 'mot IA dans ' + f);
     assert.ok(!/facultatif/i.test(t), 'facultatif dans ' + f);
   });
   const t = lire('modules/introduction/index.js');
@@ -145,7 +146,7 @@ test('vidéo : page, route, aide, recherche, deux boutons de même poids sur la 
   const ui = lire('modules/introduction/video.js');
   assert.ok(/function pageVideoIntroduction\(\) \{\s*if \(!_introOuverte\(\)\) \{ naviguerVers\('cv'\); return; \}/.test(ui), 'fermée comme l’Introduction');
   assert.strictEqual((ui.match(/INTRO_VIDEO_VTT/g) || []).length >= 3, true, 'le même fichier de sous-titres alimente la piste et le texte');
-  assert.ok(/barreNavigation\('introduction', null, null/.test(ui), 'Retour ramène à l’Introduction');
+  assert.ok(/barreNavigation\('introduction', null\)/.test(ui) && !/btnIntroVideoTexte/.test(ui) && /<details class="bloc-depli" id="ipVideoTexteBloc"/.test(ui) && !/sansAccueil: true/.test(ui), 'Retour ramène à l’Introduction, Accueil présent, texte de la vidéo pliable dans sa rubrique (pas dans la barre)');
   const page = lire('modules/introduction/index.js');
   assert.ok(/id="btnIntroVideo"/.test(page) && /naviguerVers\('introduction-video'\)/.test(page), 'bouton vidéo sur la page Introduction');
   const m1 = page.match(/class="ip-voie" id="btnIntroDiaporama"/), m2 = page.match(/class="ip-voie" id="btnIntroVideo"/);
@@ -257,4 +258,12 @@ test('diaporama : deux diapositives sur les outils privés (veille et sas, prosp
   assert.ok(/Écran d’exemple : aucune vraie entreprise n’est montrée/.test(ui), 'la prospection est montrée comme un exemple');
   assert.ok(/je m’en sers moi aussi/.test(ui), 'la note dit que l’outil sert aussi à l’orateur');
   assert.ok(ui.indexOf('Rien n’est inventé') < ui.indexOf('Un second outil') && ui.indexOf('Un second outil') < ui.indexOf('À vous de jouer'), 'ordre : veille, prospection, puis conclusion');
+});
+
+test('groupes de modules : onze modules, chacun avec son image, chaque libellé existe sur l’accueil', () => {
+  const tous = L.INTRO_GROUPES_MODULES.reduce((a, g) => a.concat(g.modules), []);
+  assert.strictEqual(tous.length, 11);
+  tous.forEach((m) => { assert.ok(L.INTRO_IMAGES.indexOf(m.fichier) !== -1, 'image non déclarée : ' + m.fichier); });
+  const metiers = lire('data/metiers.js');
+  tous.forEach((m) => { assert.ok(metiers.indexOf("'" + m.libelle + "'") !== -1, 'module absent de l’accueil : ' + m.libelle); });
 });

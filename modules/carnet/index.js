@@ -326,6 +326,7 @@ function _carnetRenduAstuceDictee() {
 function _carnetRenduIntro() {
   // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; propres au Carnet : sa couverture (titre habillé) et le contenu des blocs.
   return htmlPageIntroModuleParcours({
+    temps: 'carnet',   // repère de temps (data/tempsModules.js, consigne 606)
     classeExtra: 'carnet-intro',
     enTeteHTML:
         '<div class="carnet-couverture carnet-couverture-intro" aria-hidden="false">' +
@@ -775,13 +776,29 @@ function _carnetBrancherEvenementsListe() {
   }
 }
 
+// Note vide : message dans la page à côté du champ (jamais un clic sans réaction), effacé dès que la personne écrit.
+function _carnetMessageVide(texteArea) {
+  var zone = texteArea.closest ? texteArea.closest('.carnet-capture') : null;
+  if (!zone) { return; }
+  var msg = zone.querySelector('.carnet-msg-vide');
+  if (!msg) {
+    msg = document.createElement('p');
+    msg.className = 'carnet-msg-vide small mb-0 mt-1';
+    msg.setAttribute('role', 'status');
+    msg.textContent = 'Écrivez d’abord quelques mots, puis cliquez sur « + Noter ».';
+    zone.appendChild(msg);
+    texteArea.addEventListener('input', function () { if (msg.parentNode) { msg.parentNode.removeChild(msg); } }, { once: true });
+  }
+  texteArea.focus();
+}
+
 function _carnetBrancherEvenementsEcran() {
   var boutonGarder = document.getElementById('btnCarnetGarder');
   var texteArea = document.getElementById('carnetTexteNouveau');
   if (boutonGarder && texteArea) {
     boutonGarder.addEventListener('click', function () {
       var note = _carnetCreer(texteArea.value);
-      if (!note) { return; }
+      if (!note) { _carnetMessageVide(texteArea); return; }
       texteArea.value = '';
       _carnetApresModification();
       _carnetDeclencherPulseIcone();
@@ -800,7 +817,7 @@ function _carnetBrancherEvenementsPanneau() {
   if (boutonGarder && texteArea) {
     boutonGarder.addEventListener('click', function () {
       var note = _carnetCreer(texteArea.value);
-      if (!note) { return; }
+      if (!note) { _carnetMessageVide(texteArea); return; }
       texteArea.value = '';
       _carnetApresModification();
       _carnetDeclencherPulseIcone();

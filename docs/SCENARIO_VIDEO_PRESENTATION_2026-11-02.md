@@ -34,6 +34,8 @@ Retours de Denis après le premier brouillon (3 min 59) :
 | 8 | L'accueil, les cartes du bas. | D'autres outils en plus ; utilisable seul ou en rendez-vous. |
 | 9 | La ligne du haut, puis la page Introduction. | L'ampoule, la disquette, les informations restent chez soi, le bouton Introduction. |
 | 10 | L'accueil, texte final. | À vous de jouer. |
+| 11 | (joué après le 7) « Mes documents », « Reprendre mon CV », puis « Lettre et entretien en version rapide ». | Trois chemins pour reprendre son CV, et la version rapide. |
+| 12 | (joué après le 11) « Explorer les métiers » : la page du module, puis les quatre cartes de chemins. | Quatre chemins pour découvrir des métiers. |
 
 ## Texte à lire et sous-titres (version 2)
 
@@ -61,13 +63,14 @@ Chaque bloc tient en deux lignes de 44 signes au plus (la barre « / » sépare 
 4. que vous collez chez l'assistant / en ligne de votre choix.
 5. Puis vous revenez coller sa réponse.
 6. Vous relisez, vous modifiez, / vous gardez toujours la main.
+7. Pour créer un CV, il y a trois chemins.
 
 **Plan 4**
 
 1. Voici Camille, un personnage inventé.
 2. Elle indique ce qu'elle cherche.
 3. Elle coche ce qu'elle a déjà fait : / les propositions sont déjà là, elle choisit.
-4. Puis elle découvre son profil.
+4. Elle vérifie ses missions, puis elle découvre son profil.
 5. La barre en haut de l'écran lui / montre toujours où elle en est.
 
 **Plan 5**
@@ -109,6 +112,38 @@ Chaque bloc tient en deux lignes de 44 signes au plus (la barre « / » sépare 
 1. Choisissez un point de départ.
 2. Rien n'est obligatoire : vous pouvez vous / arrêter et revenir quand vous voulez.
 
+**Plan 11** (joué après le plan 7 : Reprendre mon CV et la version rapide)
+
+1. Vous avez déjà un CV ? Reprendre mon CV / propose aussi trois chemins :
+2. le compléter, le reformuler, / ou le refaire vous-même dans un modèle.
+3. Pour aller vite, il y a la version rapide : / une lettre et une fiche d'entretien.
+
+**Plan 12** (joué après le plan 11 : Explorer les métiers)
+
+1. Vous hésitez sur le métier à viser ?
+2. Explorer les métiers propose / quatre chemins :
+3. chercher un métier, partir de vos envies,
+4. répondre à un questionnaire,
+5. ou voir les emplois en demande, / près de chez vous.
+
+**Plan 13** (joué après le plan 12 : les deux espaces de la Boîte à outils ouverts le 25/11/2026)
+
+1. La Boîte à outils compte aussi / deux espaces.
+2. Ce qui compte pour moi, pour mettre des mots / sur ce que vous aimeriez et ce que vous avez vécu.
+3. Et Bien utiliser l’IA, pour apprendre à écrire / une demande claire à un assistant.
+
+**Plan 14** (joué après le plan 8 : aucun outil n’est obligatoire, demande de Denis du 25/11/2026)
+
+1. Il y a beaucoup d’outils ici. Ils sont là parce qu’ils / sont utiles, ou parce que des personnes en avaient besoin.
+2. Mais aucun n’est obligatoire.
+3. Prenez seulement ce qui vous sert, / à votre rythme, quand vous voulez.
+
+**Plan 15** (joué après le plan 14 : l’application s’adapte à l’écran, demande de Denis du 25/11/2026)
+
+1. L’application s’adapte / à la taille de l’écran.
+2. Sur un téléphone, une tablette ou un ordinateur, / elle ne s’affiche pas de la même façon.
+3. Tout y est, partout : / choisissez l’appareil qui vous convient.
+
 **Fin de la vidéo** : « Vidéo réalisée en novembre 2026 »
 
 ---
@@ -122,7 +157,7 @@ Chaque bloc tient en deux lignes de 44 signes au plus (la barre « / » sépare 
 | 1 | 0:00 à 0:12 | Titre « APP, Accompagnement de Parcours Professionnel », puis l'accueil de l'application. | « Voici APP, l'Accompagnement de Parcours Professionnel. Une application pour avancer dans votre recherche d'emploi, à votre rythme, sans que personne ne vous juge. » |
 | 2 | 0:12 à 0:30 | L'accueil : la souris passe lentement sur les grandes cartes. | « Sur l'accueil, de grandes cartes. Vous choisissez celle qui vous parle : écrire un CV, préparer une lettre, vous entraîner à l'entretien, mieux comprendre le monde du travail. Rien n'est obligatoire. » |
 | 3 | 0:30 à 0:55 | Clic sur « Créer un nouveau CV ». Texte à l'écran, un par un : « 1. Vous choisissez », « 2. Vous collez chez l'assistant en ligne », « 3. Vous revenez coller sa réponse ». | « Trois temps. Vous choisissez un point de départ. L'application prépare une demande toute prête, que vous collez chez l'assistant en ligne de votre choix. Puis vous revenez coller sa réponse. Vous relisez, vous modifiez, vous téléchargez. Vous gardez toujours la main. » |
-| 4 | 0:55 à 1:25 | Camille crée son CV : les quatre étapes (choisir comment commencer, dire ce qu'elle cherche, choisir ce qu'elle a déjà fait, découvrir son profil), avec la barre des étapes visible en haut. | « Prenons Camille, un personnage inventé. Elle choisit comment commencer. Elle dit ce qu'elle cherche. Elle coche ce qu'elle a déjà fait : les propositions sont déjà là, elle choisit. Puis elle découvre son profil. La barre en haut de l'écran lui montre toujours où elle en est. » |
+| 4 | 0:55 à 1:25 | Camille crée son CV : les étapes (choisir comment commencer, dire ce qu'elle cherche, choisir ce qu'elle a déjà fait, vérifier ses missions, découvrir son profil), avec la barre des étapes visible en haut. | « Prenons Camille, un personnage inventé. Elle choisit comment commencer. Elle dit ce qu'elle cherche. Elle coche ce qu'elle a déjà fait : les propositions sont déjà là, elle choisit. Elle vérifie ses missions, puis elle découvre son profil. La barre en haut de l'écran lui montre toujours où elle en est. » |
 | 5 | 1:25 à 1:45 | La galerie des modèles de CV, puis un modèle en grand. | « Son CV existe dans de nombreux modèles, sobres ou créatifs. Elle choisit les couleurs et la mise en page. Son texte, lui, ne change jamais. Elle le télécharge en PDF ou en Word. » |
 | 6 | 1:45 à 2:05 | Montage rapide de trois écrans : la lettre mise en page, l'entraînement à l'entretien, le résultat de l'analyse de candidature. | « L'application aide aussi à écrire une lettre de motivation, à s'entraîner à l'entretien, et à vérifier que sa candidature est solide, avant de postuler. » |
 | 7 | 2:05 à 2:20 | La ligne du haut : la souris s'arrête sur l'ampoule, sur la disquette, puis sur « Introduction ». | « En haut de l'écran, quelques boutons aident à circuler. L'ampoule explique la page où l'on est. La disquette enregistre son travail. Et le bouton Introduction ramène à cette présentation, quand on veut. » |
@@ -215,7 +250,7 @@ Chaque bloc tient en deux lignes de 42 signes au plus (la barre « / » sépare 
 2. Elle choisit comment commencer.
 3. Elle dit ce qu'elle cherche.
 4. Elle coche ce qu'elle a déjà fait : / les propositions sont déjà là, elle choisit.
-5. Puis elle découvre son profil.
+5. Elle vérifie ses missions, puis elle découvre son profil.
 6. La barre en haut de l'écran lui / montre toujours où elle en est.
 
 **Plan 5**

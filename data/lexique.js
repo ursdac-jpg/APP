@@ -6014,6 +6014,257 @@ var LEXIQUE_FICHES = [
     relations: [
       { ficheId: 'competence-transferable', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-etre', type: 'voir-aussi' }
     ]
+  },
+
+  // -- Espace « Ce qui compte pour moi » (22/11/2026) : un mot de l'espace, expliqué simplement. Texte proposé par Claude, à relire par Denis. --
+
+  {
+    id: 'valeurs-au-travail', titre: 'Valeurs au travail (ce qui compte pour moi)', titreDeTri: 'Valeurs au travail', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['mes valeurs', 'ce qui est important pour moi', 'ce que je cherche dans un travail', 'mes repères au travail'],
+    corps: "Une valeur au travail est ce qui compte pour une personne dans son travail, au-delà du métier lui-même : apprendre, aider, être libre de s'organiser, avoir un emploi stable, travailler en équipe, voir un résultat concret, etc. Il n'y a ni bonnes ni mauvaises valeurs, et aucune ne vaut mieux qu'une autre : elles changent d'une personne à l'autre, et d'une période de la vie à l'autre. Les nommer aide à reconnaître ce qui rend un travail supportable ou, au contraire, difficile à tenir. Ce ne sont pas des qualités à posséder et elles ne servent pas à noter quelqu'un.",
+    relations: [
+      { ficheId: 'conditions-de-travail', type: 'voir-aussi' }, { ficheId: 'projet-professionnel', type: 'voir-aussi' }, { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }
+    ]
+  },
+
+  // -- Papier de fin de l'espace « Ce qui compte pour moi » (23/11/2026, consigne 570). Texte proposé par Claude, à relire par Denis. --
+
+  {
+    id: 'ce-qui-revient-dans-mes-cartes', titre: 'Ce qui revient dans mes cartes (le papier de fin)', titreDeTri: 'Ce qui revient dans mes cartes', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['mon papier', 'papier de fin', 'lecture de mes cartes', 'joindre mon papier'],
+    corps: "C'est un papier d'une page, écrit par l'assistant en ligne à partir des cartes que vous avez gardées et cochées dans « Ce qui compte pour moi ». Il reprend ce que vous avez écrit : ce qui revient d'une carte à l'autre, ce qui semble compter, deux directions possibles et des questions à vous poser. Ce n'est ni un test, ni un profil, ni un avis sur vous : c'est une lecture de vos propres mots, que vous pouvez corriger, imprimer ou effacer. Vous seul décidez de le joindre ou non à « Explorer les métiers » : rien n'est joint sans votre choix, et rien n'est bloqué si vous ne le faites pas.",
+    relations: [
+      { ficheId: 'valeurs-au-travail', type: 'voir-aussi' }, { ficheId: 'projet-professionnel', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'mon-plan', titre: 'Mon plan pour les quatre semaines qui viennent', titreDeTri: 'Mon plan', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['mon plan', 'plan d action', 'feuille de route', 'petites actions par semaine'],
+    corps: "C'est un plan pour les semaines qui viennent, préparé avec l'assistant en ligne à partir de ce que vous avez déjà écrit dans « Ce qui compte pour moi » ou dans « Ma synthèse » d'« Explorer les métiers ». Vous répondez seulement à quelques questions : ce que vous visez, ce qui pourrait vous freiner, le temps que vous pouvez y consacrer. Le plan donne quelques petites actions par semaine, ce que vous ferez si quelque chose vous freine (« si… alors… »), et ce dont vous aimeriez parler avec la personne qui vous accompagne. Vous cochez ce qui est fait, quand vous voulez : rien n'est compté. Ce n'est ni un profil, ni un diagnostic, ni une obligation : vous pouvez le refaire ou l'effacer.",
+    relations: [
+      { ficheId: 'ce-qui-revient-dans-mes-cartes', type: 'voir-aussi' }, { ficheId: 'projet-professionnel', type: 'voir-aussi' }
+    ]
+  },
+
+  // -- Famille : Numérique et assistants en ligne (chantier « Bien utiliser l'IA », commit 7, consigne 597, 24/11/2026).
+  //    Le mot « IA » est permis ici (dérogation de Denis du 22/11/2026). Aucun chiffre dans le texte de fond, aucun nom de produit hors mots de recherche.
+
+  {
+    id: 'ia', titre: "Intelligence artificielle (IA)", titreDeTri: "Intelligence artificielle IA", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['IA', 'intelligence artificielle', 'ChatGPT et les autres', 'programme qui écrit à ma place'],
+    corps: "L'intelligence artificielle (IA) désigne des programmes capables de réaliser des tâches qui demandent d'ordinaire un effort humain : écrire un texte, résumer un document, traduire, reconnaître une image. Elle ne pense pas et ne comprend pas comme une personne : elle repère des régularités dans une très grande quantité d'exemples et produit ce qui est le plus probable. Ce qu'elle écrit peut donc être utile, mais aussi faux : la relecture reste à votre charge.",
+    relations: [
+      { ficheId: 'assistant-en-ligne', type: 'voir-aussi' },
+      { ficheId: 'llm', type: 'voir-aussi' },
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'assistant-en-ligne', titre: "Assistant en ligne", titreDeTri: "Assistant en ligne", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['chatbot', 'agent conversationnel', 'discuter avec une IA', "poser une question à l'IA"],
+    corps: "Un assistant en ligne est un service sur internet auquel vous écrivez une demande et qui vous répond par écrit, comme dans une conversation. Il repose sur l'intelligence artificielle : dans la vie courante, « l'IA » et « l'assistant » désignent donc souvent la même chose. Il ne remplace ni un conseiller, ni un avocat, ni un médecin : il propose, c'est à vous de vérifier et de décider.",
+    relations: [
+      { ficheId: 'ia', type: 'voir-aussi' },
+      { ficheId: 'prompt', type: 'voir-aussi' },
+      { ficheId: 'verifier-reponse', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'llm', titre: "Grand modèle de langage (LLM)", titreDeTri: "Grand modele de langage LLM", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['LLM', 'large language model', "moteur de l'IA", 'comment fonctionne ChatGPT'],
+    corps: "Un grand modèle de langage, souvent écrit LLM, est le moteur qui se trouve derrière la plupart des assistants en ligne qui écrivent du texte. Il a été entraîné sur une quantité immense de textes pour deviner, mot après mot, la suite la plus probable d'une phrase. C'est pourquoi il écrit de façon fluide, mais sans vérifier si ce qu'il écrit est vrai.",
+    relations: [
+      { ficheId: 'ia', type: 'voir-aussi' },
+      { ficheId: 'entrainement-ia', type: 'voir-aussi' },
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'entrainement-ia', titre: "Entraînement d'une IA", titreDeTri: "Entrainement d une IA", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["comment l'IA a appris", 'date de connaissance', "connaissances de l'IA", "données d'entraînement"],
+    corps: "L'entraînement est la période pendant laquelle une IA « lit » d'énormes quantités de textes pour apprendre à écrire. Elle s'arrête à une date : tout ce qui s'est passé après est inconnu de l'assistant, sauf s'il peut aussi chercher sur le web. Ce qu'elle a lu peut contenir des erreurs ou des préjugés, qu'elle peut reproduire.",
+    relations: [
+      { ficheId: 'llm', type: 'voir-aussi' },
+      { ficheId: 'recherche-web-assistant', type: 'voir-aussi' },
+      { ficheId: 'biais-assistant', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'prompt', titre: "Prompt (la demande ou la consigne)", titreDeTri: "Prompt demande consigne", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["consigne à l'IA", 'requête', "question à l'IA", 'comment bien demander'],
+    corps: "Un prompt est le texte que vous écrivez à un assistant en ligne pour lui dire ce que vous attendez : votre demande ou votre consigne. Plus elle est claire (le but, la situation, la forme voulue), plus la réponse a de chances d'être utile. Pour un sujet qui compte, vous pouvez aussi lui demander de vous poser d'abord ses questions, avant tout conseil. Le mot est anglais ; cette application parle simplement de « demande ».",
+    relations: [
+      { ficheId: 'contexte-assistant', type: 'voir-aussi' },
+      { ficheId: 'role-assistant', type: 'voir-aussi' },
+      { ficheId: 'assistant-en-ligne', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'contexte-assistant', titre: "Contexte (ce que l'assistant a sous les yeux)", titreDeTri: "Contexte assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['donner le contexte', 'préciser ma situation', "l'IA ne comprend pas ma situation", "donner des détails à l'IA"],
+    corps: "Le contexte, c'est tout ce que l'assistant peut lire au moment de répondre : votre demande, les messages précédents de la conversation et les textes que vous avez collés. En règle générale, il ne sait rien de vous au-delà, sauf une mémoire que vous avez vous-même activée. Une situation précisée en une phrase (pour qui, pourquoi, avec quelle contrainte) change souvent beaucoup la réponse.",
+    relations: [
+      { ficheId: 'prompt', type: 'voir-aussi' },
+      { ficheId: 'memoire-conversation', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'memoire-conversation', titre: "Mémoire d'une conversation avec un assistant", titreDeTri: "Memoire d une conversation", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["l'IA oublie", 'conversation trop longue', "l'assistant se souvient de moi", "effacer l'historique"],
+    corps: "Un assistant ne garde sous les yeux qu'une quantité limitée de texte. Dans une conversation très longue, il peut oublier ou mélanger les débuts. Selon l'assistant et ses réglages, certaines informations peuvent aussi être gardées d'une conversation à l'autre : regardez ce que le vôtre garde, et effacez ce qui ne doit pas rester. Pour un sujet important, il vaut mieux ouvrir une nouvelle conversation et y recoller l'essentiel.",
+    relations: [
+      { ficheId: 'contexte-assistant', type: 'voir-aussi' },
+      { ficheId: 'confidentialite-conversations', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'consignes-permanentes', titre: "Consignes permanentes de l'assistant", titreDeTri: "Consignes permanentes de l assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['instructions personnalisées', 'réglage une fois pour toutes', 'préférences de réponse', 'toujours répondre avec des phrases courtes'],
+    corps: "Plusieurs assistants permettent d'écrire une fois pour toutes vos préférences, par exemple « réponds avec des phrases courtes et des mots simples ». Elles s'appliquent ensuite à chaque conversation. Ce n'est pas la mémoire : c'est vous qui écrivez, et vous pouvez les modifier, les couper ou les effacer. Comme ce texte accompagne chacune de vos demandes, n'y écrivez ni votre nom, ni votre adresse, ni rien de personnel.",
+    relations: [
+      { ficheId: 'memoire-conversation', type: 'voir-aussi' },
+      { ficheId: 'projet-assistant', type: 'voir-aussi' },
+      { ficheId: 'donnees-personnelles-assistant', type: 'voir-aussi' }
+    ]
+  },
+
+  {
+    id: 'projet-assistant', titre: "Projet d'un assistant (documents et consignes rangés ensemble)", titreDeTri: "Projet d un assistant documents consignes", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['dossier de travail', 'espace de travail', 'répondre à partir de mes documents', 'donner un document à un assistant'],
+    corps: "Certains outils permettent de ranger des documents et des consignes dans un espace à part, souvent appelé projet, pour que l'assistant s'y appuie à chaque conversation. Certains répondent uniquement à partir de ces documents et disent quand la réponse n'y figure pas. Retrouvez vous-même le passage cité dans votre document. Les documents que vous donnez suivent les mêmes règles que n'importe quel texte : sans noms ni numéros, car rien ne garantit qu'ils ne servent pas à améliorer l'outil.",
+    relations: [
+      { ficheId: 'consignes-permanentes', type: 'voir-aussi' },
+      { ficheId: 'confidentialite-conversations', type: 'voir-aussi' },
+      { ficheId: 'verifier-reponse', type: 'voir-aussi' }
+    ]
+  },
+
+  {
+    id: 'complaisance-assistant', titre: "Un assistant qui vous donne raison", titreDeTri: "Un assistant qui vous donne raison complaisance", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["l'IA me donne toujours raison", 'un assistant qui flatte', "l'assistant approuve tout", 'demander les arguments contraires'],
+    corps: "Des recherches récentes montrent que les assistants approuvent ce que vous faites plus souvent que ne le feraient des personnes, même quand ce n'est pas une bonne idée. Une approbation n'est donc pas une preuve. Pour un choix important, essayez de lui demander les arguments contraires ou les points faibles, ou posez la question sans dire ce que vous en pensez. Ce sont des pistes, pas des garanties : parlez-en aussi à une personne de confiance.",
+    relations: [
+      { ficheId: 'verifier-reponse', type: 'voir-aussi' },
+      { ficheId: 'biais-assistant', type: 'voir-aussi' }
+    ]
+  },
+
+  {
+    id: 'role-assistant', titre: "Rôle donné à l'assistant", titreDeTri: "Role donne a l assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['tu es un expert', "faire parler l'IA comme un professionnel", 'jouer un rôle', "personnage de l'assistant"],
+    corps: "Donner un rôle, c'est commencer sa demande par une phrase comme « Tu es un conseiller qui explique simplement ». Cela peut orienter le ton et le vocabulaire de la réponse. Le rôle ne rend pas l'assistant plus compétent ni plus fiable : il ne remplace pas un vrai professionnel, et la réponse se vérifie comme les autres.",
+    relations: [
+      { ficheId: 'prompt', type: 'voir-aussi' },
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'exemple-dans-la-demande', titre: "Donner un exemple dans sa demande", titreDeTri: "Donner un exemple dans sa demande", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['modèle de réponse', 'montrer ce que je veux', 'exemple à imiter', "donner un modèle à l'IA"],
+    corps: "Joindre à sa demande un court exemple du style ou de la forme souhaitée aide l'assistant à s'en approcher. C'est utile pour un mail, une lettre ou un message : il imite la manière plutôt que de la deviner. Évitez d'y mettre des informations personnelles réelles, et relisez le résultat : il peut aussi recopier l'exemple de trop près.",
+    relations: [
+      { ficheId: 'prompt', type: 'voir-aussi' },
+      { ficheId: 'decouper-en-etapes', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'decouper-en-etapes', titre: "Découper une demande en étapes", titreDeTri: "Decouper une demande en etapes", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['une chose à la fois', 'demande trop longue', 'plusieurs demandes à la suite', 'poser les questions une par une'],
+    corps: "Quand la tâche est longue ou compliquée, mieux vaut la découper : d'abord faire comprendre le texte, puis lister les points, puis rédiger. Chaque étape est plus simple à demander et à vérifier, et vous gardez la main sur la direction. Une seule demande très chargée donne souvent une réponse plus floue.",
+    relations: [
+      { ficheId: 'prompt', type: 'voir-aussi' },
+      { ficheId: 'exemple-dans-la-demande', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'recherche-web-assistant', titre: "Recherche sur le web par l'assistant", titreDeTri: "Recherche sur le web par l assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['activer la recherche web', "l'IA ne connaît pas l'actualité", "sources de l'assistant", 'information récente'],
+    corps: "Certains assistants peuvent, quand cette option est active, chercher sur internet avant de répondre et indiquer leurs sources. Sans elle, ils répondent à partir de ce qu'ils ont appris jusqu'à leur date d'entraînement : ils peuvent donc ignorer une information récente. Pour un montant, une date limite ou une règle qui change, activez la recherche si elle existe, puis ouvrez la source indiquée.",
+    relations: [
+      { ficheId: 'entrainement-ia', type: 'voir-aussi' },
+      { ficheId: 'verifier-reponse', type: 'voir-aussi' },
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'reponse-inventee', titre: "Réponse inventée (hallucination)", titreDeTri: "Reponse inventee hallucination", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['hallucination', "l'IA invente", "l'IA se trompe", "fausse information de l'IA"],
+    corps: "Un assistant peut écrire avec aplomb une information fausse : une date, un montant, un nom, une loi ou une source qui n'existent pas. Cela s'appelle une réponse inventée, ou une hallucination. Il ne ment pas exprès : il complète sa phrase avec ce qui paraît le plus vraisemblable. Vérifiez tout ce qui compte (dates, montants, noms, règles) auprès d'une source officielle avant d'agir.",
+    relations: [
+      { ficheId: 'verifier-reponse', type: 'voir-aussi' },
+      { ficheId: 'llm', type: 'voir-aussi' },
+      { ficheId: 'recherche-web-assistant', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'verifier-reponse', titre: "Vérifier la réponse d'un assistant", titreDeTri: "Verifier la reponse d un assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["relire la réponse de l'IA", "l'IA a-t-elle raison", 'contrôler une réponse', 'source officielle'],
+    corps: "Vérifier une réponse, c'est la comparer avec votre papier ou avec la source officielle : les dates, les montants, les noms, les démarches citées. Une réponse bien écrite n'est pas forcément une réponse exacte. Pour une décision importante (argent, droits, santé, justice), faites confirmer par une personne compétente : un conseiller, un service public, un professionnel.",
+    relations: [
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' },
+      { ficheId: 'recherche-web-assistant', type: 'voir-aussi' },
+      { ficheId: 'complaisance-assistant', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'biais-assistant', titre: "Biais d'un assistant", titreDeTri: "Biais d un assistant", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["préjugés de l'IA", "l'IA discrimine", "réponse injuste de l'IA", 'stéréotypes'],
+    corps: "Un assistant a appris à partir de textes écrits par des humains : il peut en reproduire les préjugés ou les oublis, par exemple sur le sexe, l'origine, l'âge ou le handicap. Ses réponses ne sont donc pas neutres pour autant. Si une réponse vous semble injuste ou à côté, vous pouvez la contester, reformuler votre demande ou demander un autre avis à une personne.",
+    relations: [
+      { ficheId: 'entrainement-ia', type: 'voir-aussi' },
+      { ficheId: 'reponse-inventee', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'donnees-personnelles-assistant', titre: "Données personnelles", titreDeTri: "Donnees personnelles", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['informations personnelles', 'RGPD', 'protéger mes données', 'vie privée en ligne'],
+    corps: "Les données personnelles sont toutes les informations qui permettent de vous reconnaître : nom, adresse, téléphone, numéro de sécurité sociale ou de compte, date de naissance, photo, mais aussi des détails de situation comme la santé ou l'employeur. Évitez de les écrire dans un assistant en ligne : ce que vous tapez quitte votre appareil et peut être gardé par le service.",
+    relations: [
+      { ficheId: 'anonymiser', type: 'voir-aussi' },
+      { ficheId: 'confidentialite-conversations', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'anonymiser', titre: "Anonymiser un texte", titreDeTri: "Anonymiser un texte", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ['masquer mon nom', 'enlever les informations personnelles', 'cacher mes données', "supprimer les noms d'un courrier"],
+    corps: "Anonymiser, c'est retirer d'un texte tout ce qui permet de reconnaître une personne avant de le coller dans un assistant : noms, adresses, téléphones, numéros de dossier, de sécurité sociale ou de compte. Remplacez-les par des mots neutres, comme « mon fils » ou « la caisse ». Relisez ensuite le texte en entier : un seul détail oublié peut suffire à vous identifier.",
+    relations: [
+      { ficheId: 'donnees-personnelles-assistant', type: 'voir-aussi' },
+      { ficheId: 'confidentialite-conversations', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'confidentialite-conversations', titre: "Confidentialité de vos conversations", titreDeTri: "Confidentialite de vos conversations", type: 'terme',
+    univers: 'numerique-assistants', registres: [],
+    variantesRecherche: ["l'IA garde mes conversations", "désactiver l'historique", 'mes messages sont-ils lus', "vie privée de l'assistant"],
+    corps: "Selon l'assistant et ses réglages, ce que vous écrivez peut être conservé, relu par des équipes ou servir à améliorer le service. Les règles diffèrent d'un assistant à l'autre et changent avec le temps. Avant d'écrire quoi que ce soit de personnel, ouvrez les réglages de confidentialité de l'assistant que vous utilisez et choisissez ce que vous acceptez. Dans le doute, ne l'écrivez pas.",
+    relations: [
+      { ficheId: 'donnees-personnelles-assistant', type: 'voir-aussi' },
+      { ficheId: 'anonymiser', type: 'voir-aussi' },
+      { ficheId: 'memoire-conversation', type: 'voir-aussi' }
+    ]
   }
 ];
 
@@ -6026,6 +6277,13 @@ var LEXIQUE_COLLECTIONS = [
     fichesOrdonnees: [
       'riasec', 'sigle-de-metier', 'secteur-d-activite', 'conditions-de-travail', 'savoir-faire', 'savoir-etre', 'savoirs-connaissances', 'competence-transferable', 'competence-transversale', 'zone-d-emploi', 'metier-en-tension', 'turnover', 'emploi-saisonnier', 'projet-professionnel', 'valider-son-projet-professionnel'
     ]
+  },
+  {
+    id: 'collection-ce-qui-compte-pour-moi',
+    titre: 'Ce qui compte pour moi',
+    icone: '🧭',
+    mode: 'collection',
+    fichesOrdonnees: ['valeurs-au-travail', 'ce-qui-revient-dans-mes-cartes', 'mon-plan', 'conditions-de-travail', 'projet-professionnel', 'savoir-etre']
   },
   {
     id: 'collection-iae',
@@ -6554,7 +6812,21 @@ var LEXIQUE_COLLECTIONS = [
     icone: '🖥️',
     mode: 'collection',
     fichesOrdonnees: [
-      'franceconnect', 'identite-numerique', 'france-services', 'conseiller-numerique', 'illectronisme', 'tiers-de-confiance-numerique'
+      'franceconnect', 'identite-numerique', 'france-services', 'conseiller-numerique', 'illectronisme', 'tiers-de-confiance-numerique',
+      'assistant-en-ligne'
+    ]
+  },
+  {
+    id: 'parcours-assistants-en-ligne',
+    titre: "Comprendre et bien utiliser un assistant en ligne",
+    icone: '💬',
+    mode: 'parcours',
+    accroche: "Comprendre ce qu'est un assistant en ligne, comment lui demander clairement et comment vérifier ce qu'il répond.",
+    fichesOrdonnees: [
+      'ia', 'assistant-en-ligne', 'llm', 'entrainement-ia', 'prompt',
+      'contexte-assistant', 'memoire-conversation', 'role-assistant', 'exemple-dans-la-demande', 'decouper-en-etapes',
+      'recherche-web-assistant', 'reponse-inventee', 'verifier-reponse', 'biais-assistant', 'donnees-personnelles-assistant',
+      'anonymiser', 'confidentialite-conversations'
     ]
   }
 ];

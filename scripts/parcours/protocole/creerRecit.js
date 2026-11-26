@@ -53,6 +53,7 @@ async function jouer(a, j) {
   await a.aller('creer-cv');
   await a.verifier({ h1: 'Créer un nouveau CV' });
   j.info('départ direct voie 2 : ' + await a.clic('#btnCreerCvRecit'));
+  await a.attendre(900); await require('./reprendreCv.js').passerChoixMissions(a, j, 'assistant');
   await a.attendre(1000);
   let e = await a.verifier({ hash: '#decouverte', etape: 'Préparer' });
   if (!/grisé/.test(e.avant || '')) { j.ko('Préparer : « Continuer » devrait être grisé tant que le récit est vide (' + e.avant + ')'); } else { j.ok('Préparer : « Continuer » grisé sans récit, raison « ' + e.raison + ' »'); }

@@ -33,7 +33,7 @@ France Travail, France VAE, Transitions Pro, France compétences), consignée da
      404) : à réintégrer si une adresse vérifiable est retrouvée (matière dans
      `docs/NOTES_RESSOURCES_2026-09-08.md` § 4ter) ;
 
-## Les 10 fiches
+## Les 11 fiches
 
 | id | titre |
 |---|---|
@@ -47,6 +47,7 @@ France Travail, France VAE, Transitions Pro, France compétences), consignée da
 | `former-fondation-deuxieme-chance` | La Fondation de la 2ème Chance : un coup de pouce après une épreuve de vie (ajoutée le 2026-09-08) |
 | `former-aides-moins-connues-financer-formation` | Des aides moins connues pour financer une formation ou une reconversion (ajoutée le 2026-09-08) |
 | `former-metiers-et-intelligence-artificielle-vision-des-employeurs` | L'intelligence artificielle va-t-elle changer mon métier ? Ce que pensent les employeurs |
+| `former-passeport-de-prevention-formations-securite` | Mon Passeport Prévention : garder la trace de ses formations en sécurité au travail |
 
 ## Reste à collecter (noté dans `former.collecte.md`)
 

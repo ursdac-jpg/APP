@@ -2,6 +2,9 @@
   "name": "assistantia-mlb",
   "private": true,
   "scripts": {
-    "test": "node --test \"tests/*.test.js\""
+    "test": "node --test \"tests/*.test.js\"",
+    "telephone": "node scripts/rendu/balayageTelephone.js",
+    "telephone:parcours": "node scripts/rendu/balayageTelephoneParcours.js",
+    "telephone:modules": "node scripts/rendu/balayageTelephoneModules.js"
   }
 }

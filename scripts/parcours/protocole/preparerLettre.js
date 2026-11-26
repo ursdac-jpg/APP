@@ -16,8 +16,7 @@ module.exports = {
     e = await a.ecran(); j.info('après le type : « ' + e.avant + ' » raison « ' + e.raison + ' »');
     j.info('métier précis : ' + await a.clic('', '^Un métier précis$')); await a.attendre(600);
     await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-    j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi')); await a.attendre(600);
-    j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]')); await a.attendre(700);
+    { let ch = await a.clic('[data-metier-cible-direct]'); if (ch !== 'ok') { ch = await a.clic('#btnValiderMetierSaisi'); } j.info('métier choisi dans les propositions : ' + ch); await a.attendre(700); }
     e = await a.ecran(); j.info('après le métier : « ' + e.avant + ' » raison « ' + e.raison + ' »');
     j.info('entreprise : ' + await a.clic('', 'Je m’adresse à une entreprise précise')); await a.attendre(500);
     const champs = await a.ev(() => [].slice.call(document.querySelectorAll('#coLettreBlocCible input, #coLettreBlocCible textarea, #coLettreBlocCible select')).filter((x) => window.__P.visible(x)).map((x) => (x.id || x.name || x.type) + '[' + x.type + ']').join(' ; '));

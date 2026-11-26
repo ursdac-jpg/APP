@@ -467,3 +467,9 @@
 .chapitre-lexique-4 { --chap: var(--chap-4); --chap-fond: var(--chap-4-fond); }
 .chapitre-lexique-5 { --chap: var(--chap-5); --chap-fond: var(--chap-5-fond); }
 .chapitre-lexique-registre { --chap: var(--chap-7); --chap-fond: var(--chap-7-fond); border-style: dashed; }
+
+/* Écran tactile (25/11/2026, audit téléphone, npm run telephone:modules) : boutons et puces du Lexique, au moins 44 px à toucher. */
+@media (pointer: coarse), (max-width: 768px) {
+  .chapitre-lexique { min-height: 44px; }
+  [id^="lexique"] .lexique-fiche-retour, [id^="lexique"] .lexique-fiche-plus-toggle, [id^="lexique"] .lexique-fiche-lien { min-height: 44px; }
+}

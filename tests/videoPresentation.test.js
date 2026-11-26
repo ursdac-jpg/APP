@@ -36,7 +36,12 @@ test('vidéos de présentation : clé inconnue -> rien (jamais de lien mort)', (
 test('vidéos de présentation : les textes affichés n’ont ni tiret long ni le mot IA', () => {
   const tout = JSON.stringify(VIDEOS_PRESENTATION) + htmlVideoPresentation('lettre');
   assert.doesNotMatch(tout, new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']'));
-  assert.doesNotMatch(tout, /\bIA\b/);
+  // Dérogation du 22/11/2026 : le module « Bien utiliser l’IA » garde le mot dans son nom, donc dans le titre de ses vidéos (et nulle part ailleurs).
+  const sansDerogation = JSON.stringify(Object.keys(VIDEOS_PRESENTATION).filter((k) => k.indexOf('bien-utiliser-ia') !== 0).map((k) => VIDEOS_PRESENTATION[k])) + htmlVideoPresentation('lettre');
+  assert.doesNotMatch(sansDerogation, /\bIA\b/);
+  Object.keys(VIDEOS_PRESENTATION).filter((k) => k.indexOf('bien-utiliser-ia') === 0).forEach((k) => {
+    assert.doesNotMatch(VIDEOS_PRESENTATION[k].titre.replace('Bien utiliser l’IA', ''), /\bIA\b/, k);
+  });
 });
 
 test('petits passages : chaque geste a son fichier vidéo sur le disque', () => {

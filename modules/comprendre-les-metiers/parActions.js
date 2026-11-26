@@ -430,6 +430,7 @@ cmvEnregistrerVue('resultats2', {
     }
     h += cmvEncartQuestionnaire() + cmvLegendeNiveaux(N) +
       _cmaBlocChoixLus(etat, liste) +
+      (typeof intBloc === 'function' ? intBloc('actions') : '') +
       '<div class="cml-bloc"><h3>Garder mes pistes</h3><p>Pour retrouver vos choix et ces métiers plus tard, ou pour en parler avec un conseiller, gardez-les dans la disquette de l’application. Sans cela, rien n’est conservé.</p>' +
       (etat.gardeChoix
         ? cmvEncart('bi-check2-circle', '<b>Choix gardés.</b> Ils seront dans la disquette quand vous l’enregistrerez : vos choix seulement, les métiers proposés se recalculent à chaque fois.') +

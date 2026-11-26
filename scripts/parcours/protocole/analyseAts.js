@@ -17,13 +17,12 @@ module.exports = {
     let e = await a.ecran();
     if (!/grisé/.test(e.avant || '') || !e.raison) { j.ko('ats : « Continuer » devrait être grisé avec une raison tant que la référence n’est pas choisie (' + e.avant + ' / ' + e.raison + ')'); } else { j.ok('ats : « Continuer » grisé avec la raison « ' + e.raison + ' »'); }
     j.info('métier précis : ' + await a.clic('', '^Un métier précis$')); await a.attendre(600);
-    await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-    j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi')); await a.attendre(800);
-    j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]')); await a.attendre(900);
+    await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(900);
+    j.info('métier choisi dans les propositions : ' + await a.clic('[data-metier-cible-direct]')); await a.attendre(900);
     e = await a.ecran(); j.info('après le métier : « ' + e.avant + ' » raison « ' + e.raison + ' »');
     if (/grisé/.test(e.avant || '')) { j.ko('ats : « Continuer » reste grisé alors que CV et métier sont donnés (' + e.raison + ')'); } else { j.ok('ats : « Continuer » dégrisé'); }
     await E.retourPuisReprendre(a, j, 'ats', async () => {
-      const t = await a.ev(() => ({ metier: /agent d’accueil/i.test(document.getElementById('app').innerText) }));
+      const t = await a.ev(() => ({ metier: /agent d.accueil/i.test(document.getElementById('app').innerText) }));
       const bas = await a.ecran();
       return (!/grisé/.test(bas.avant || '') && t.metier) ? true : JSON.stringify(t) + ' bas ' + bas.avant + ' ' + bas.raison;
     });

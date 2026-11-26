@@ -640,7 +640,7 @@ var COMPARER_ETAPES_CHOIX_IA_SANS_WEB = [
 
 var COMPARER_TITRES_ECRANS = [
   'Ajouter mes pistes',
-  'Les pistes qu’on a comprises',
+  'Les pistes que l’assistant a comprises',
   'Collecter les informations',
   'Une fiche par piste',
   'Deux angles pour vos pistes',
@@ -1291,7 +1291,7 @@ function ouvrirComparerPistes() {
     }
 
     return '<div class="cp-boite-regard">' +
-      '<p class="cp-regard-titre"><strong>&#128260; Voici comment on vous propose de regarder vos pistes :</strong></p>' +
+      '<p class="cp-regard-titre"><strong>&#128260; Voici comment regarder vos pistes :</strong></p>' +
       '<ul class="cp-regard-liste">' + puces + '</ul>' +
       (forme === 'mixte'
         ? '<p class="preparer-detail" style="margin:.3rem 0 0;">On commence par un angle, vous pourrez faire l’autre juste après.</p>'
@@ -1310,7 +1310,7 @@ function ouvrirComparerPistes() {
     // Etape "detection" : la personne colle le resultat du prompt 0.
     if (ecran0bisBesoinDetection()) {
       return '<div class="bilan-preparer">' +
-        '<p class="text-muted small" style="margin-bottom:1rem;">Vous n’avez rien catégorisé. On demande à un assistant en ligne de lire ce que vous avez dit et d’en tirer des pistes, que vous validez ensuite.</p>' +
+        '<p class="text-muted small" style="margin-bottom:1rem;">Vous n’avez rien catégorisé. Un assistant en ligne lit ce que vous avez dit et en tire des pistes, que vous validez ensuite.</p>' +
         envoiIAHTML('detection') +
         '<p class="preparer-detail" style="margin-top:1rem;">L’assistant ne renvoie rien d’utilisable ? <button type="button" class="btn btn-outline-secondary btn-sm" data-cp-sauter-detection>Nommer mes pistes moi-même</button></p>' +
         '</div>';
@@ -1339,7 +1339,7 @@ function ouvrirComparerPistes() {
         '</div>' +
         (p.etiquette === 'frein_ou_etape' ? ecran0bisFreinHTML(p) : '') +
         (p.etiquette === 'idee_a_explorer'
-          ? '<p class="preparer-detail" style="margin:.4rem 0 0;">Sans piste concrète derrière, on ne compare pas : voir l’encadré plus bas.</p>'
+          ? '<p class="preparer-detail" style="margin:.4rem 0 0;">Sans piste concrète derrière, la comparaison ne se lance pas : voir l’encadré plus bas.</p>'
           : '') +
         '</div>';
     }).join('');
@@ -1361,7 +1361,7 @@ function ouvrirComparerPistes() {
       ecran0bisBoiteCommentOnRegarde() +
       ecran0bisBlocBHTML() +
       '<details class="bloc-depli mt-2"><summary><span class="preparer-titre">&#128161; Et si je n’avais aucune piste précise ?</span></summary>' +
-      '<div class="bloc-depli-corps"><p style="margin:0;font-size:.87rem;">Si vous aviez surtout dit « j’ai envie de changer mais je ne sais pas vers quoi », sans piste concrète, on ne lancerait pas de comparaison. On proposerait d’abord un <strong>bilan</strong> ou un <strong>conseil en évolution professionnelle</strong> (CEP, gratuit), pour faire apparaître des pistes. La comparaison viendrait ensuite.</p></div></details>' +
+      '<div class="bloc-depli-corps"><p style="margin:0;font-size:.87rem;">Si vous aviez surtout dit « j’ai envie de changer mais je ne sais pas vers quoi », sans piste concrète, la comparaison ne se lancerait pas. Un <strong>bilan</strong> ou un <strong>conseil en évolution professionnelle</strong> (CEP, gratuit) serait proposé d’abord, pour faire apparaître des pistes. La comparaison viendrait ensuite.</p></div></details>' +
       '</div>';
   }
 
@@ -1407,7 +1407,7 @@ function ouvrirComparerPistes() {
       '<span class="preparer-titre">&#128172; Quelques précisions selon votre situation</span>' +
       '<span class="preparer-oblig">à compléter</span></summary>' +
       '<div class="bloc-depli-corps">' +
-      '<p class="preparer-detail" style="margin-top:0;">' + echapperTexte(serie.titre) + '. Ces questions changent selon ce que vous avez indiqué. Tout est à compléter, mais rien n’est bloquant ; « Je ne sais pas » devient une question pour votre conseiller.</p>' +
+      '<p class="preparer-detail" style="margin-top:0;">' + echapperTexte(serie.titre) + '. Ces questions changent selon ce que vous avez indiqué. Tout est à compléter, mais rien n’est bloquant ; « Je ne sais pas » est une réponse valable, à voir ensuite avec la personne qui vous accompagne.</p>' +
       qHTML +
       '</div></details>';
   }
@@ -1633,7 +1633,7 @@ function ouvrirComparerPistes() {
 
     var blocReponse;
     if (etat.collecteSansAssistant) {
-      blocReponse = '<div class="cp-info-encart"><strong>&#9432; Sans recherche web.</strong> On garde les informations stables (les fiches) et les questions à préparer. Les informations qui changent (rémunération, financement, tension) resteront « à vérifier avec un conseiller ».</div>' +
+      blocReponse = '<div class="cp-info-encart"><strong>&#9432; Sans recherche web.</strong> Les informations stables (les fiches) et les questions à préparer sont gardées. Les informations qui changent (rémunération, financement, tension) resteront « à vérifier avec un conseiller ».</div>' +
         '<button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-cp-collecte-reprendre>Finalement, coller une réponse d’assistant</button>';
     } else if (dossiers) {
       blocReponse =
@@ -2066,7 +2066,7 @@ function ouvrirComparerPistes() {
     var dejaSuperpo = etat.anglesVus.indexOf('superposition') >= 0;
     var dejaFrise = etat.anglesVus.indexOf('frise') >= 0;
     return '<div class="bilan-preparer">' +
-      '<p class="text-muted small" style="margin-bottom:.6rem;">Votre liste mélange des pistes de même nature et une (ou des) situation(s). On ne peut pas tout mettre sur la même échelle : on regarde en deux temps. Vous pouvez faire les deux, dans l’ordre que vous voulez, et y revenir.</p>' +
+      '<p class="text-muted small" style="margin-bottom:.6rem;">Votre liste mélange des pistes de même nature et une (ou des) situation(s). Tout ne tient pas sur la même échelle : le regard se fait en deux temps. Vous pouvez faire les deux, dans l’ordre que vous voulez, et y revenir.</p>' +
       ecranLegendePistes() +
       '<div class="cp-fiches">' +
       '<div class="cp-voie' + (dejaFrise ? ' cp-voie-faite' : '') + '"><strong>&#128260; Dans le temps</strong>' +
@@ -2076,7 +2076,7 @@ function ouvrirComparerPistes() {
       '<p class="preparer-detail">Vos formations sur les mêmes repères chiffrés : durée, coût, rémunération. Des réglettes, une dimension à la fois.</p>' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" data-cp-angle-vers="5">' + (dejaSuperpo ? 'Revoir cet angle' : 'Voir cet angle') + ' &#8594;</button></div>' +
       '</div>' +
-      '<div class="cp-info-encart"><strong>On vous conseille de commencer par « dans le temps ».</strong> C’est la question qui commande : bouger, ou pas. « Côte à côte » aide ensuite à choisir entre les formations, si vous décidez de bouger.</div>' +
+      '<div class="cp-info-encart"><strong>Commencez par « dans le temps ».</strong> C’est la question qui commande : bouger, ou pas. « Côte à côte » aide ensuite à choisir entre les formations, si vous décidez de bouger.</div>' +
       (dejaSuperpo && dejaFrise
         ? '<p class="mt-3"><button type="button" class="btn btn-primary" data-cp-angle-vers="7">Continuer &#8594;</button></p>'
         : '') +
@@ -2484,7 +2484,7 @@ function ouvrirComparerPistes() {
     }
 
     return '<div class="bilan-preparer">' +
-      '<p class="text-muted small" style="margin-bottom:.6rem;">On ne met pas ces pistes sur une échelle : on regarde ce que chacune change <strong>mois après mois</strong>. La colonne « repère » sert de point de comparaison.</p>' +
+      '<p class="text-muted small" style="margin-bottom:.6rem;">Ces pistes ne se mettent pas sur une échelle : la comparaison regarde ce que chacune change <strong>mois après mois</strong>. La colonne « repère » sert de point de comparaison.</p>' +
       legendeHTML + corps +
       (etat.formeComparaison === 'mixte'
         ? '<div class="cp-info-encart"><strong>&#128209; Il reste l’autre angle.</strong> Pour départager vos formations sur les chiffres, regardez-les « côte à côte ».' +
@@ -2584,7 +2584,8 @@ function ouvrirComparerPistes() {
   // ECRAN 8 -- Ce que vous retenez
   // ------------------------------------------------------------------
 
-  // Points a discuter avec le conseiller : tout ce qui reste "a verifier"
+  // Ce dont la personne aimerait parler avec la personne qui l'accompagne
+  // (consigne 617) : tout ce qui reste "a verifier"
   // + conditions + incertitudes + questions conseiller + freins + handicap.
   function ecran8PointsConseiller() {
     var pts = [];
@@ -2644,7 +2645,7 @@ function ouvrirComparerPistes() {
     if (rc.criteres && rc.criteres.length) { lignes.push('Ce qui compte : ' + rc.criteres.join(', ')); }
     if (rc.contrainte) { lignes.push('Contrainte à ne pas oublier : ' + rc.contrainte); }
     if (etat.retenirTexte) { lignes.push('', 'Ce que je retiens :', etat.retenirTexte); }
-    lignes.push('', 'Points à discuter avec mon conseiller :');
+    lignes.push('', 'Ce dont j’aimerais parler avec la personne qui m’accompagne :');
     ecran8PointsConseiller().forEach(function (t) { lignes.push('- ' + t); });
     var srcLignes = [];
     (etat.dossiersCollecte && etat.dossiersCollecte.pistes || []).forEach(function (p) {
@@ -2672,7 +2673,7 @@ function ouvrirComparerPistes() {
         : '') +
       '<div class="cp-section"><h3>Ce qui vous attire, ce qui vous inquiète, ce que vous voulez approfondir</h3>' +
       '<textarea class="form-control form-control-sm" rows="3" data-cp-retenir placeholder="Écrivez librement...">' + echapperTexte(etat.retenirTexte || '') + '</textarea></div>' +
-      '<div class="cp-section"><h3>Points à discuter avec mon conseiller</h3>' +
+      '<div class="cp-section"><h3>Ce dont j’aimerais parler avec la personne qui m’accompagne</h3>' +
       (pts.length
         ? '<ul>' + pts.map(function (t) { return '<li>' + echapperTexte(t) + '</li>'; }).join('') + '</ul>'
         : '<p class="preparer-detail">Rien d’automatique à lister : préparez vos propres questions ci-dessus.</p>') +

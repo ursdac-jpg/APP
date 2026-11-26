@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Mon plan », une étape partagée (consignes 608, 610, 611, 615 et 618)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<script src="../../data/cqcpmValeurs.js"></script>
+<script src="../../data/cqcpmCartes.js"></script>
+<script src="../../data/freins.js"></script>
+<style>
+/* ===== Cadre de la maquette (jamais repris dans l'application) ===== */
+body{margin:0;background:var(--bg-page);color:var(--text-strong);padding:0 16px 2rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:.6rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:2px dashed var(--warning-border);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12);max-height:55vh;overflow:auto}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-bande{background:var(--warning-bg-subtle);border:1px solid var(--warning-border);color:var(--warning-strong);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{border:2px dashed var(--warning-border);border-radius:12px;padding:.8rem 1rem;margin:2rem 0 0;font-size:.92rem;background:var(--bg-card)}
+.mq-decision h2{font-size:1.05rem;margin:0 0 .5rem;font-weight:800}
+.mq-decision li{margin:.45rem 0}
+.mq-barre{background:var(--bg-card);border-top:1px solid var(--border-strong);padding:.6rem 1rem;display:flex;justify-content:space-between;gap:.5rem;margin-top:1.5rem;border-radius:10px}
+.mq-barre .btn{border-radius:999px;min-height:44px;padding:.3rem 1.2rem}
+.mq-feuille{background:#fff;color:#000;border:1px solid #999;border-radius:6px;padding:1.2rem 1.6rem;font-family:Georgia,serif;margin:.8rem 0}
+.mq-feuille h1{font-size:1.4rem;color:#000;margin:0 0 .5rem}
+.mq-feuille h2{font-size:1.1rem;color:#000;border-bottom:1px solid #000;padding-bottom:.15rem;margin:1rem 0 .4rem}
+.mq-feuille h3{font-size:1rem;color:#000;margin:.6rem 0 .2rem}
+.mq-feuille p,.mq-feuille li{font-size:.95rem;color:#000;margin:.2rem 0}
+.mq-feuille .note{font-size:.85rem;color:#333;font-style:italic}
+.mq-feuille .pied{font-size:.8rem;color:#333;border-top:1px solid #000;margin-top:1rem;padding-top:.3rem}
+.mq-feuille .case{display:inline-block;width:.9em;height:.9em;border:1px solid #000;margin-right:.4rem;vertical-align:-.1em}
+
+/* ===== NOUVEAUTÉS de cette maquette (à ranger dans css/style.css, avec leur valeur en mode sombre par les variables) ===== */
+/* Une semaine du plan : un bloc à filet d'accent, comme les zones de question de l'espace */
+.mpl-semaine{background:var(--bg-card);border:1px solid var(--border-strong);border-left:6px solid var(--accent);border-radius:12px;padding:.6rem .9rem;margin:.6rem 0}
+.mpl-semaine h4{font-size:1rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.5rem;align-items:center}
+.mpl-semaine h4 .bi{color:var(--accent-texte,var(--accent))}
+.mpl-action{display:flex;gap:.6rem;align-items:flex-start;padding:.3rem 0;border-top:1px solid var(--border)}
+.mpl-action:first-of-type{border-top:0}
+.mpl-action input[type=checkbox]{flex:none;width:24px;height:24px;margin-top:.1rem;accent-color:var(--accent-solide,var(--accent))}
+.mpl-action .txt{flex:1;font-size:1rem;color:var(--text-strong)}
+.mpl-action.fait .txt{color:var(--text-soft)}
+.mpl-action .puce{flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent-solide,var(--accent));margin-top:.55rem}
+.mpl-origine{display:inline-block;font-size:.8rem;font-weight:700;border:1px solid var(--accent);border-radius:999px;padding:0 .5rem;margin-left:.3rem;background:var(--accent-bg-subtle);color:var(--text-strong)}
+/* Si… alors je… */
+.mpl-si{border:1px solid var(--border-strong);border-radius:12px;padding:.6rem .9rem;margin:.6rem 0;background:var(--bg-subtle)}
+.mpl-si p{margin:.15rem 0}
+.mpl-si .si{font-weight:800}
+/* Ce que le plan reprend (sources) */
+.mpl-source{display:flex;gap:.8rem;align-items:flex-start;background:var(--bg-card);border:2px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.5rem 0}
+.mpl-source.coche{border-color:var(--accent);background:var(--accent-bg-subtle)}
+.mpl-source input[type=checkbox]{flex:none;width:24px;height:24px;margin-top:.2rem;accent-color:var(--accent-solide,var(--accent))}
+.mpl-source h3{font-size:1.02rem;font-weight:800;margin:0}
+.mpl-source p{margin:.15rem 0 0;font-size:.95rem;color:var(--text-strong)}
+.mpl-source.absente{border-style:dashed;background:var(--bg-subtle)}
+/* Un point qui passe avant le plan (frein vital) */
+.mpl-avant{border:2px solid var(--accent);border-left-width:8px;border-radius:14px;background:var(--accent-bg-subtle);padding:.8rem 1rem;margin:.8rem 0}
+.mpl-avant h2{font-size:1.15rem;font-weight:800;margin:0 0 .4rem;display:flex;gap:.6rem;align-items:center}
+.mpl-urgence{display:inline-flex;gap:.4rem;align-items:center;font-weight:800;border:2px solid var(--accent);border-radius:10px;padding:.2rem .7rem;background:var(--bg-card);margin:.3rem 0}
+.mq-page.tel .mpl-source{flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Maquette « Mon plan » <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran</b><div class="boutons" id="mqEcrans"></div></div>
+  <div class="grp"><b>Ce que la personne a déjà fait</b><div class="boutons" id="mqSit"></div></div>
+  <div class="grp"><b>Ce que l'assistant a trouvé dans ses réponses</b><div class="boutons" id="mqFrein"></div></div>
+  <div class="grp"><b>Les choix à trancher (comparer les deux)</b><div class="boutons" id="mqChoix"></div></div>
+  <div class="grp"><b>Pour vérifier l'affichage</b><div class="boutons" id="mqVerif"></div></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function carte(id){return CQCPM_CARTES.filter(function(c){return c.id===id;})[0];}
+var PAS=carte('pas');
+
+/* ===== État de la maquette ===== */
+var ETAT={
+  ecran:'cqcpm', depuis:'cqcpm',
+  sources:'deux',          // 'deux' | 'cqcpm' | 'explorer' | 'aucune'
+  petitPas:true, papier:true,
+  plan:false, joint:false, change:false,
+  frein:'vital',           // 'vital' | 'mobilite' | 'aucun'
+  coches:{papier:true,pas:true,metiers:true},
+  vise:'Trouver un travail où je répare ou fabrique des choses, près de chez moi, d’ici l’été.',
+  obstacles:['Je n’ai pas de voiture.','J’ai peur de ne pas savoir me présenter.'],
+  temps:'moment',
+  faits:{},
+  choixPage:'propre', choixCases:'oui', choixPoint:'fixe', choixChange:'garder',
+  theme:'clair', tel:false
+};
+var ECRANS=[['cqcpm','1. Ce qui compte pour moi'],['synthese','2. Ma synthèse'],['preparer','3. Préparer mon plan'],['assistant','4. Avec l’assistant'],['plan','5. Mon plan'],['pdf','6. Mon plan en PDF'],['feuille','7. Feuille de Ma synthèse']];
+var TEMPS=[['peu','Un peu de temps'],['moment','Un moment par semaine'],['plusieurs','Plusieurs moments par semaine']];
+var METIERS=['Agent ou agente de maintenance des bâtiments','Menuisier ou menuisière','Réparateur ou réparatrice d’appareils électroménagers'];
+
+function aCqcpm(){return ETAT.sources==='deux'||ETAT.sources==='cqcpm';}
+function aExplorer(){return ETAT.sources==='deux'||ETAT.sources==='explorer';}
+function aPas(){return aCqcpm()&&ETAT.petitPas;}
+function aPapier(){return aCqcpm()&&ETAT.papier;}
+function rienDuTout(){return ETAT.sources==='aucune';}
+function sourcesCochees(){var l=[];if(aPapier()&&ETAT.coches.papier){l.push('papier');}if(aPas()&&ETAT.coches.pas){l.push('pas');}if(aExplorer()&&ETAT.coches.metiers){l.push('metiers');}return l;}
+function questionsRemplies(){return ETAT.vise.trim().length>0;}
+
+/* ===== Réglages ===== */
+function b(act,val,lib,pressed){return '<button type="button" data-act="'+act+'" data-v="'+val+'" aria-pressed="'+pressed+'">'+lib+'</button>';}
+function dessinerReglages(){
+  document.getElementById('mqEcrans').innerHTML=ECRANS.map(function(e){return b('ecran',e[0],e[1],ETAT.ecran===e[0]);}).join('');
+  document.getElementById('mqSit').innerHTML=
+    b('sources','deux','Les deux espaces',ETAT.sources==='deux')+b('sources','cqcpm','Seulement « Ce qui compte pour moi »',ETAT.sources==='cqcpm')+b('sources','explorer','Seulement « Ma synthèse »',ETAT.sources==='explorer')+b('sources','aucune','Ni l’un ni l’autre',ETAT.sources==='aucune')+
+    ' · '+b('pas','1','« Mon prochain petit pas » gardé',ETAT.petitPas)+b('pas','0','Sans petit pas',!ETAT.petitPas)+
+    ' · '+b('papier','1','Papier reçu',ETAT.papier)+b('papier','0','Sans papier',!ETAT.papier)+
+    ' · '+b('change','1','Une source a changé depuis le plan',ETAT.change)+b('change','0','Rien n’a changé',!ETAT.change);
+  document.getElementById('mqFrein').innerHTML=b('frein','vital','Un point qui passe avant (logement)',ETAT.frein==='vital')+b('frein','mobilite','Un frein ordinaire (se déplacer)',ETAT.frein==='mobilite')+b('frein','aucun','Aucun frein du répertoire',ETAT.frein==='aucun');
+  document.getElementById('mqChoix').innerHTML=
+    'Question 1 : '+b('choixPage','propre','Page « Mon plan » à part',ETAT.choixPage==='propre')+b('choixPage','cqcpm','Dans « Ce qui compte pour moi »',ETAT.choixPage==='cqcpm')+
+    ' · Question 2 : '+b('choixCases','oui','Cases « Fait »',ETAT.choixCases==='oui')+b('choixCases','non','Plan à lire seulement',ETAT.choixCases==='non')+
+    ' · Question 3 : '+b('choixPoint','fixe','Point de la semaine : questions fixes',ETAT.choixPoint==='fixe')+b('choixPoint','assistant','Questions écrites par l’assistant',ETAT.choixPoint==='assistant')+
+    ' · Question 4 : '+b('choixChange','garder','Source changée : plan gardé',ETAT.choixChange==='garder')+b('choixChange','retirer','Source changée : plan retiré',ETAT.choixChange==='retirer');
+  document.getElementById('mqVerif').innerHTML=b('theme','clair','Clair',ETAT.theme==='clair')+b('theme','sombre','Sombre',ETAT.theme==='sombre')+' · '+b('tel','0','Ordinateur',!ETAT.tel)+b('tel','1','Téléphone',ETAT.tel)+
+    ' · '+b('plan','1','Plan déjà reçu',ETAT.plan)+b('plan','0','Pas encore de plan',!ETAT.plan)+' · '+b('joint','1','Joint à Ma synthèse',ETAT.joint)+b('joint','0','Non joint',!ETAT.joint);
+}
+document.getElementById('mqRegl').addEventListener('click',function(ev){
+  var x=ev.target.closest('button[data-act]'); if(!x){return;}
+  var a=x.getAttribute('data-act'),v=x.getAttribute('data-v');
+  if(a==='ecran'){ETAT.ecran=v;}
+  else if(a==='sources'||a==='frein'||a==='choixPage'||a==='choixCases'||a==='choixPoint'||a==='choixChange'||a==='theme'){ETAT[a]=v;}
+  else if(a==='pas'){ETAT.petitPas=v==='1';}
+  else if(a==='papier'){ETAT.papier=v==='1';}
+  else if(a==='change'){ETAT.change=v==='1';}
+  else if(a==='tel'){ETAT.tel=v==='1';}
+  else if(a==='plan'){ETAT.plan=v==='1';if(!ETAT.plan){ETAT.joint=false;}}
+  else if(a==='joint'){ETAT.joint=v==='1';if(ETAT.joint){ETAT.plan=true;}}
+  appliquer();
+});
+document.getElementById('mqFermer').addEventListener('click',function(){document.getElementById('mqRegl').style.display='none';document.getElementById('mqRouvrir').style.display='block';});
+document.getElementById('mqRouvrir').addEventListener('click',function(){document.getElementById('mqRegl').style.display='block';this.style.display='none';});
+
+/* ===== Morceaux communs (mêmes fonctions que l'application : htmlTitreEtapeModule, barre du bas) ===== */
+function titreModule(icone,nom,etape){return '<div class="text-center"><h1><i class="bi '+icone+'"></i> '+nom+'</h1>'+(etape?'<p class="sousTitre"><strong>'+etape+'</strong></p>':'')+'</div>';}
+function titrePlan(etape){return ETAT.choixPage==='propre'?titreModule('bi-calendar-check','Mon plan',etape):titreModule('bi-layers','Ce qui compte pour moi',etape&&etape.indexOf('plan')!==-1?etape:(etape?'Mon plan : '+etape.charAt(0).toLowerCase()+etape.slice(1):'Mon plan'));}
+function libRetour(){return ETAT.depuis==='synthese'?'Retour à « Ma synthèse »':'Retour à « Ce qui compte pour moi »';}
+function retour(lib,go){return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm" data-go="'+(go||ETAT.depuis)+'"><i class="bi bi-arrow-left" aria-hidden="true"></i> '+(lib||libRetour())+'</button></div>';}
+function barre(go){return '<div class="mq-barre"><button type="button" class="btn btn-outline-primary" data-go="'+(go||ETAT.depuis)+'">← Retour</button><button type="button" class="btn btn-outline-primary"><i class="bi bi-house" aria-hidden="true"></i> Accueil</button></div>';}
+function aide(icone,html){return '<div class="cqcpm-aide"><i class="bi '+icone+'" aria-hidden="true"></i><span>'+html+'</span></div>';}
+function alerte(html){return '<div class="cqcpm-alerte"><i class="bi bi-info-circle" aria-hidden="true"></i><span>'+html+'</span></div>';}
+function pastille(lib,ico){return ' <span class="cqcpm-pastille"><i class="bi '+(ico||'bi-check-circle-fill')+'" aria-hidden="true"></i> '+lib+'</span>';}
+function planRetire(){return ETAT.plan&&ETAT.change&&ETAT.choixChange==='retirer';}
+function aUnPlan(){return ETAT.plan&&!planRetire();}
+
+/* ===== Le bloc « Mon plan » : même bloc dans les deux espaces (une seule fonction, une seule source) ===== */
+function blocMonPlan(ici){
+  var h='<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-calendar-check" aria-hidden="true"></i></span> Mon plan pour les quatre semaines qui viennent'+(aUnPlan()?pastille('Plan reçu'):'')+(aUnPlan()&&ETAT.joint&&ici==='synthese'?pastille('Joint à ma synthèse','bi-link-45deg'):'')+'</h2>';
+  if(planRetire()){h+=alerte('<b>Votre plan a été retiré.</b> Vous avez changé une réponse qu’il reprenait : il ne correspondait plus à ce que vous avez écrit. Vous pouvez en préparer un nouveau quand vous le souhaitez.');}
+  if(rienDuTout()){
+    return h+'<p class="mb-1">Ce plan reprend ce que vous avez écrit dans « Ce qui compte pour moi » ou dans « Ma synthèse » d’« Explorer les métiers ». Commencez par l’un des deux : rien ne presse, et le plan n’est jamais obligatoire.</p><div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" disabled><i class="bi bi-calendar-check" aria-hidden="true"></i> Préparer mon plan</button></div></div>';
+  }
+  if(aUnPlan()){
+    h+=(ETAT.change?'<p class="cqcpm-note mb-1"><i class="bi bi-info-circle" aria-hidden="true"></i> Depuis ce plan, vous avez changé une réponse qu’il reprenait. Vous pouvez le garder tel quel ou le refaire.</p>':'')+
+      '<p class="mb-1">Préparé le 26/11/2026. '+(ETAT.choixCases==='oui'?'Vous pouvez cocher ce qui est fait, au fil des semaines.':'Vous pouvez le relire, l’imprimer ou le refaire.')+'</p>';
+    if(ici==='synthese'){
+      h+=(ETAT.joint?'<p class="cml-note">Ce plan est joint à votre synthèse : il figure sur la feuille imprimée. Il n’est pas envoyé à l’assistant, et il ne change rien à « Ma lecture ».</p>':'<p>Ce plan n’est pas joint à votre synthèse. Si vous le joignez, il figure sur la feuille imprimée de « Ma synthèse ». Il n’est jamais envoyé à l’assistant.</p>')+
+        '<div class="cqcpm-actions">'+(ETAT.joint?'<button type="button" class="btn btn-outline-secondary" data-joint="0"><i class="bi bi-x-circle" aria-hidden="true"></i> Ne plus joindre ce plan</button>':'<button type="button" class="btn btn-primary" data-joint="1"><i class="bi bi-link-45deg" aria-hidden="true"></i> Joindre mon plan</button>')+
+        '<button type="button" class="btn btn-outline-primary" data-ouvrir-plan="synthese"><i class="bi bi-calendar-check" aria-hidden="true"></i> Ouvrir mon plan</button></div>';
+    } else {
+      h+='<div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-ouvrir-plan="cqcpm"><i class="bi bi-calendar-check" aria-hidden="true"></i> Ouvrir mon plan</button><button type="button" class="btn btn-outline-secondary" data-preparer="cqcpm">Le refaire</button></div>';
+    }
+    return h+'</div>';
+  }
+  return h+'<p class="mb-1">Quatre semaines, quelques petites actions par semaine, et ce que vous ferez si quelque chose vous freine. Le plan reprend ce que vous avez déjà écrit, sans vous le redemander. Il n’est jamais obligatoire.</p>'+
+    '<div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-preparer="'+ici+'"><i class="bi bi-calendar-check" aria-hidden="true"></i> Préparer mon plan</button></div></div>';
+}
+
+/* ---------- 1. Ce qui compte pour moi : le bloc s'ajoute sous « Mon papier » ---------- */
+function ecranCqcpm(){
+  ETAT.depuis='cqcpm';
+  return titreModule('bi-layers','Ce qui compte pour moi','Par où voulez-vous commencer ?')+
+    '<div class="mq-bande">Maquette : les huit cartes et le bloc « Mon papier » restent comme dans l’application. Seul le bloc « Mon plan » est nouveau, en bas de l’accueil, juste sous « Mon papier ».</div>'+
+    '<div class="cqcpm-bloc cqcpm-bloc-papier"><h2><span class="cqcpm-ico"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span> Mon papier : ce qui revient dans mes cartes'+(aPapier()?pastille('Papier reçu'):'')+'</h2><p class="mb-1 cqcpm-note">(Bloc inchangé.)</p></div>'+
+    blocMonPlan('cqcpm')+barre('cqcpm');
+}
+
+/* ---------- 2. Ma synthèse : le même bloc, avec « Joindre » ---------- */
+function ecranSynthese(){
+  ETAT.depuis='synthese';
+  return titreModule('bi-diagram-3','Explorer les métiers','Ma synthèse')+
+    '<div class="mq-bande">Maquette : le reste de « Ma synthèse » ne change pas (métiers retenus, « Ce que les tests ne disent pas », « Ce qui compte pour moi », « Ma lecture »). Le bloc « Mon plan » vient en dernier, après « Ma lecture » : le plan s’appuie sur la synthèse, il vient donc après elle.</div>'+
+    (aExplorer()?'<div class="cml-bloc"><h2><i class="bi bi-star" aria-hidden="true"></i> Les métiers que je retiens</h2><ul class="mb-0">'+METIERS.map(function(m){return '<li>'+esc(m)+'</li>';}).join('')+'</ul></div>':'<div class="cml-bloc"><h2><i class="bi bi-star" aria-hidden="true"></i> Les métiers que je retiens</h2><p class="cml-note mb-0">Aucun métier retenu pour l’instant.</p></div>')+
+    blocMonPlan('synthese')+barre('synthese');
+}
+
+/* ---------- 3. Préparer mon plan : ce qui est repris, puis trois questions ---------- */
+function ligneSource(id,titre,detail,present,absent){
+  if(!present){return '<div class="mpl-source absente"><span class="cqcpm-ico petit"><i class="bi bi-dash-circle" aria-hidden="true"></i></span><span><h3>'+titre+'</h3><p>'+absent+'</p></span></div>';}
+  var on=ETAT.coches[id]!==false;
+  return '<label class="mpl-source'+(on?' coche':'')+'"><input type="checkbox" data-source="'+id+'"'+(on?' checked':'')+'><span><h3>'+titre+'</h3><p>'+detail+'</p></span></label>';
+}
+function ecranPreparer(){
+  if(rienDuTout()){return titrePlan('Préparer mon plan')+retour()+alerte('Ce plan reprend ce que vous avez écrit dans « Ce qui compte pour moi » ou dans « Ma synthèse ». Commencez par l’un des deux, puis revenez ici.')+'<div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" data-go="cqcpm"><i class="bi bi-layers" aria-hidden="true"></i> Ouvrir « Ce qui compte pour moi »</button><button type="button" class="btn btn-outline-primary" data-go="synthese"><i class="bi bi-diagram-3" aria-hidden="true"></i> Ouvrir « Explorer les métiers »</button></div>'+barre();}
+  var pasTxt=aPas()?'« Appeler un atelier près de chez moi pour demander si je peux venir voir », avec l’aide de : mon conseiller, un proche. Il devient l’action de la première semaine.':'';
+  var n=sourcesCochees().length, ok=n>0&&questionsRemplies();
+  var obst=ETAT.obstacles.map(function(o,i){return '<li><span class="num">'+(i+1)+'</span><span>'+esc(o)+'</span><button type="button" class="btn btn-outline-secondary btn-sm" data-retirer="'+i+'" aria-label="Retirer cette phrase"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>';}).join('');
+  return titrePlan('Préparer mon plan')+retour()+
+  '<p class="text-center" style="font-size:1.05rem">Votre plan reprend ce que vous avez déjà écrit. Vous n’avez que trois questions à compléter.</p>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span> Ce que le plan reprend</h2><p class="cqcpm-note">Tout est coché d’avance ; décochez ce que vous ne voulez pas inclure.</p>'+
+    ligneSource('pas','Mon prochain petit pas',pasTxt,aPas(),aCqcpm()?'Pas encore fait. Le plan marche sans lui ; vous pourrez le faire dans « Ce qui compte pour moi ».':'Dans « Ce qui compte pour moi », que vous n’avez pas encore ouvert. Le plan marche sans lui.')+
+    ligneSource('papier','Mon papier « Ce qui revient dans mes cartes »','Ce qui revient dans vos cartes, tel que vous l’avez reçu le 23/11/2026.',aPapier(),aCqcpm()?'Pas encore reçu. Le plan marche sans lui.':'Dans « Ce qui compte pour moi ». Le plan marche sans lui.')+
+    ligneSource('metiers','Les métiers que je retiens (Ma synthèse)',METIERS.map(esc).join(' ; ')+'.',aExplorer(),'Pas encore de synthèse gardée dans « Explorer les métiers ». Le plan marche sans elle.')+
+  '</div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-pencil" aria-hidden="true"></i></span> Trois questions</h2>'+
+    '<div class="cqcpm-qb"><p class="cqcpm-q">Ce que je vise dans le travail, dans les mois qui viennent <span class="a">(une ou deux phrases, à compléter)</span></p><textarea class="form-control champ-bien-visible cqcpm-champ" id="mplVise" rows="2" placeholder="Écrivez avec vos mots">'+esc(ETAT.vise)+'</textarea></div>'+
+    '<div class="cqcpm-qb"><p class="cqcpm-q">Ce qui pourrait m’empêcher d’avancer <span class="a">(une à trois choses, à compléter)</span></p><ul class="cqcpm-lignes">'+obst+'</ul>'+
+      (ETAT.obstacles.length<3?'<div class="cqcpm-ajout"><input type="text" class="form-control champ-bien-visible cqcpm-champ" id="mplObst" placeholder="Écrivez une phrase, puis « Ajouter »" aria-label="Ce qui pourrait m’empêcher d’avancer"><button type="button" class="btn btn-outline-primary" data-ajouter="1"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter</button></div>':'<p class="cqcpm-note">Trois phrases au plus.</p>')+
+      '<p class="cqcpm-note">Écrivez seulement ce que vous voulez bien voir dans le plan. Rien sur votre santé ou votre vie privée n’est demandé.</p></div>'+
+    '<div class="cqcpm-qb"><p class="cqcpm-q">Le temps que je peux y consacrer chaque semaine</p><div class="cqcpm-rep" role="group" aria-label="Le temps que je peux y consacrer">'+TEMPS.map(function(t){var on=ETAT.temps===t[0];return '<button type="button" data-temps="'+t[0]+'" aria-pressed="'+on+'"><i class="bi bi-check-lg coche" aria-hidden="true"></i> '+t[1]+'</button>';}).join('')+'</div>'+
+      '<p class="cqcpm-note">Une action par semaine, deux, ou trois au plus selon votre choix. Jamais de durée en minutes.</p></div>'+
+  '</div>'+
+  aide('bi-shield-check','<b>Ce qui va se passer.</b> Ce qui est coché et vos trois réponses sont écrits dans une demande que vous copiez vous-même dans l’assistant en ligne de votre choix. Rien n’est envoyé par l’application. Ni votre nom, ni votre adresse, ni votre téléphone.')+
+  '<div class="cqcpm-actions"><button type="button" class="btn btn-primary"'+(ok?'':' disabled')+' data-go="assistant"><i class="bi bi-clipboard" aria-hidden="true"></i> Préparer la demande</button><button type="button" class="btn btn-outline-secondary" data-go="'+ETAT.depuis+'">Pas maintenant</button></div>'+
+  (ok?'':'<p class="cqcpm-note">'+(n?'Écrivez ce que vous visez pour continuer.':'Gardez au moins une chose cochée pour continuer.')+'</p>')+barre();
+}
+
+/* ---------- 4. Passage avec l'assistant : écran commun, inchangé ---------- */
+function ecranAssistant(){
+  return titrePlan('Avec l’assistant en ligne')+retour('Retour à la préparation','preparer')+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></span> Écran commun, inchangé</h2><p>C’est le passage que la personne connaît déjà (« Mon papier », « Ma lecture », les interprétations d’« Explorer les métiers »), repris tel quel :</p><ol><li>choisir l’assistant ;</li><li>relire ce qui part (ce qui est coché, les trois réponses) ;</li><li>copier, ouvrir l’assistant, coller la demande ;</li><li>recoller la réponse ici.</li></ol><p class="cqcpm-note mb-0">Aucun nouvel écran à apprendre. La demande (un nouveau prompt) est écrite par Claude puis essayée par Denis.</p></div>'+
+  '<div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-recu="1">Simuler : la réponse est collée, voir mon plan</button></div>'+barre('preparer');
+}
+
+/* ---------- 5. Mon plan ---------- */
+function ficheFrein(code){
+  var f=FREINS_REPERTOIRE[code]; if(!f){return '';}
+  return '<details class="bloc-depli mt-2"'+(f.niveau==='vital'?' open':'')+'><summary><span class="preparer-titre"><i class="bi bi-lightbulb" aria-hidden="true"></i> Se renseigner sur ce point : '+esc(f.titre)+'</span></summary><div class="bloc-depli-corps">'+
+    (f.urgence?'<p class="mpl-urgence"><i class="bi bi-telephone" aria-hidden="true"></i> '+esc(f.urgence.numero)+' : '+esc(f.urgence.libelle)+'</p>':'')+
+    '<p>'+esc(f.commentLever)+'</p><p class="mb-0"><b>Qui voir</b></p><ul>'+f.quiVoir.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul>'+
+    (f.ressources.length?'<p class="mb-0"><b>Où se renseigner</b></p><ul class="mb-0">'+f.ressources.map(function(r){return '<li>'+esc(r.libelle)+' : '+esc(r.motsCles.join(', '))+'</li>';}).join('')+'</ul>':'')+
+    '<p class="cqcpm-note mb-0">Fiche du répertoire de l’application : l’assistant a seulement reconnu le sujet, les adresses viennent de l’application.</p></div></details>';
+}
+function semaines(){
+  var n={peu:1,moment:2,plusieurs:3}[ETAT.temps];
+  var S=[
+    [[aPas()&&ETAT.coches.pas?'Appeler un atelier près de chez moi pour demander si je peux venir voir.':'Choisir un des métiers retenus et lire sa fiche, en notant ce qui me plaît.',aPas()&&ETAT.coches.pas?'Mon petit pas':''],['Demander à un proche s’il connaît quelqu’un qui fait ce métier.',''],['Noter trois choses que je sais déjà faire de mes mains.','']],
+    [['Chercher les horaires de bus vers la zone d’activité la plus proche.',''],['Écrire trois phrases pour me présenter.',''],['Lire la fiche du deuxième métier retenu.','']],
+    [['Dire mes trois phrases à voix haute, une fois, à un proche.',''],['Préparer ce dont j’aimerais parler à mon prochain rendez-vous.',''],['Repérer un atelier ou une entreprise à aller voir.','']],
+    [['Relire mes notes et choisir le métier à regarder de plus près.',''],['Garder ce qui a marché pour la suite.',''],['Refaire un plan si j’en ai envie.','']]
+  ];
+  return S.map(function(acts,i){
+    return '<div class="mpl-semaine"><h4><i class="bi bi-calendar-week" aria-hidden="true"></i> Semaine '+(i+1)+'</h4>'+acts.slice(0,n).map(function(a,j){
+      var k=i+'-'+j, fait=!!ETAT.faits[k];
+      var txt='<span class="txt">'+esc(a[0])+(a[1]?'<span class="mpl-origine">'+a[1]+'</span>':'')+'</span>';
+      return ETAT.choixCases==='oui'?'<label class="mpl-action'+(fait?' fait':'')+'"><input type="checkbox" data-fait="'+k+'"'+(fait?' checked':'')+'>'+txt+'</label>':'<div class="mpl-action"><span class="puce" aria-hidden="true"></span>'+txt+'</div>';
+    }).join('')+'</div>';
+  }).join('');
+}
+function pointSemaine(){
+  var q=ETAT.choixPoint==='fixe'
+    ?['Qu’est-ce qui a avancé cette semaine, même un peu ?','Qu’est-ce qui m’a freiné ?','Qu’est-ce que je garde pour la semaine prochaine ?']
+    :['Est-ce que l’appel à l’atelier m’a donné envie d’aller plus loin ?','Le trajet en bus est-il possible pour moi ?','Qu’ai-je ressenti en disant mes trois phrases ?'];
+  var parler=[];
+  if(aPas()&&ETAT.coches.pas){parler.push(['J’aimerais parler des façons d’essayer un métier manuel avant de m’engager.','Écrit dans « Mon prochain petit pas »']);}
+  parler.push(['J’aimerais parler des aides pour me déplacer près de chez moi.','']);
+  return '<h3><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Mon point de la semaine</h3><p>Une fois par semaine, quand vous voulez, relisez ces questions pour vous-même :</p><ul>'+q.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'+
+    '<h3><i class="bi bi-chat-dots" aria-hidden="true"></i> Ce dont j’aimerais parler avec la personne qui m’accompagne</h3><p class="cqcpm-note">Si vous le souhaitez, à votre prochain rendez-vous.</p><ul>'+parler.map(function(p){return '<li>'+esc(p[0])+(p[1]?' <span class="mpl-origine">'+p[1]+'</span>':'')+'</li>';}).join('')+'</ul>';
+}
+function sourcesTexte(){
+  var l=[];if(aPas()&&ETAT.coches.pas){l.push('« Mon prochain petit pas »');}if(aPapier()&&ETAT.coches.papier){l.push('votre papier');}if(aExplorer()&&ETAT.coches.metiers){l.push('les métiers que vous retenez');}
+  return l.length?l.join(', '):'vos trois réponses';
+}
+function contenuPlan(){
+  var vital=ETAT.frein==='vital';
+  var rappel='<h3><i class="bi bi-chat-square-quote" aria-hidden="true"></i> Ce que vous avez indiqué</h3><p>Vous avez indiqué ce que vous visez : « '+esc(ETAT.vise.trim().replace(/\.$/,''))+' ».'+
+    (aPapier()&&ETAT.coches.papier?' Dans vos cartes, il revient que vous aimez fabriquer ou réparer de vos mains, au calme.':'')+
+    (aExplorer()&&ETAT.coches.metiers?' Vous avez retenu trois métiers : '+METIERS.map(esc).join(', ')+'.':'')+'</p>';
+  var prio='<h3><i class="bi bi-list-ol" aria-hidden="true"></i> Mes trois priorités</h3><ol><li>Voir de près un métier où l’on répare ou fabrique.</li><li>Trouver une solution pour me déplacer.</li><li>Préparer ce que je dirai pour me présenter.</li></ol>';
+  var si='<h3><i class="bi bi-signpost-split" aria-hidden="true"></i> Si quelque chose me freine</h3>'+
+    (vital?'':'')+
+    '<div class="mpl-si"><p><span class="si">Si</span> je n’ai pas de solution pour me déplacer, <span class="si">alors je</span> demande à la personne qui m’accompagne quelles aides existent près de chez moi.</p>'+(ETAT.frein!=='aucun'?ficheFrein('mobilite'):'')+'</div>'+
+    '<div class="mpl-si"><p><span class="si">Si</span> j’ai peur de ne pas savoir me présenter, <span class="si">alors je</span> relis mes trois phrases écrites et je les dis une fois à voix haute.</p></div>';
+  return rappel+prio+'<h3><i class="bi bi-calendar3" aria-hidden="true"></i> Mes quatre semaines</h3>'+semaines()+si+pointSemaine()+
+    '<p class="prudence">Ce plan reprend ce que vous avez écrit. Ce n’est ni un profil, ni un diagnostic, ni une obligation : vous pouvez le changer ou le refaire quand vous voulez.</p>';
+}
+function blocAvant(){
+  if(ETAT.frein!=='vital'){return '';}
+  return '<div class="mpl-avant"><h2><span class="cqcpm-ico"><i class="bi bi-house-door" aria-hidden="true"></i></span> Avant votre plan : un point qui passe en premier</h2><p>Vous avez écrit : « Je risque de perdre mon logement. » Ce point compte plus que tout le reste : il est normal de s’en occuper d’abord. Le plan reste là, il attendra.</p>'+ficheFrein('hebergement')+'</div>';
+}
+function ecranPlan(){
+  if(!aUnPlan()){return titrePlan('')+retour()+'<div class="cqcpm-vide"><p>'+(planRetire()?'Votre plan a été retiré : vous avez changé une réponse qu’il reprenait.':'Vous n’avez pas encore de plan.')+'</p><button type="button" class="btn btn-primary" data-preparer="'+ETAT.depuis+'">Préparer mon plan</button></div>'+barre();}
+  var j=ETAT.joint;
+  var lien='<div class="cqcpm-joint'+(j?' oui':'')+'"><i class="bi bi-link-45deg" aria-hidden="true"></i><div><b>'+(j?'Ce plan est joint à « Ma synthèse ».':'Ce plan peut figurer sur la feuille de « Ma synthèse »')+'</b><span>'+(j?'Il figure sur la feuille imprimée de « Ma synthèse ». Pour le retirer, ouvrez « Ma synthèse » dans « Explorer les métiers » : c’est là que vous décidez.':'Dans « Explorer les métiers », à l’étape « Ma synthèse », vous pouvez joindre ce plan : il figurera sur la feuille imprimée. Il n’est jamais envoyé à l’assistant. C’est votre choix, jamais une obligation.')+'</span></div></div>';
+  return titrePlan('')+retour()+
+    (ETAT.change&&ETAT.choixChange==='garder'?alerte('Depuis ce plan, vous avez changé une réponse qu’il reprenait. Vous pouvez le garder tel quel, ou le refaire quand vous le souhaitez.'):'')+
+    blocAvant()+
+    '<div class="cqcpm-papier"><div class="entete"><span class="cqcpm-ico"><i class="bi bi-calendar-check" aria-hidden="true"></i></span><div><h2>Mon plan pour les quatre semaines qui viennent</h2><span class="cqcpm-note">Préparé le 26/11/2026, à partir de '+sourcesTexte()+'.'+(ETAT.choixCases==='oui'?' Cochez ce qui est fait, quand vous voulez : rien n’est compté.':'')+'</span></div></div>'+contenuPlan()+'</div>'+
+    (aExplorer()?lien:'')+
+    '<div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" data-go="pdf"><i class="bi bi-printer" aria-hidden="true"></i> Imprimer ou enregistrer en PDF</button><button type="button" class="btn btn-outline-secondary" data-preparer="'+ETAT.depuis+'">Le refaire</button><button type="button" class="btn btn-outline-secondary" data-effacer="1"><i class="bi bi-trash" aria-hidden="true"></i> Effacer ce plan</button></div>'+
+    aide('bi-floppy','Ce plan part avec votre sauvegarde personnelle (la disquette)'+(ETAT.choixCases==='oui'?', avec ce que vous avez coché':'')+'. Il n’est jamais enregistré ailleurs.')+barre();
+}
+
+/* ---------- 6. Mon plan en PDF ---------- */
+function feuillePlan(h){
+  var n={peu:1,moment:2,plusieurs:3}[ETAT.temps];
+  var tmp=document.createElement('div');tmp.innerHTML=semaines();
+  var sem=[].map.call(tmp.querySelectorAll('.mpl-semaine'),function(s,i){return '<'+h+'>Semaine '+(i+1)+'</'+h+'><ul style="list-style:none;padding-left:0">'+[].map.call(s.querySelectorAll('.txt'),function(t){var c=t.parentNode.querySelector('input');return '<li><span class="case">'+(c&&c.checked?'✓':'')+'</span>'+esc(t.childNodes[0].textContent)+'</li>';}).join('')+'</ul>';}).join('');
+  return '<'+h+'>Mes trois priorités</'+h+'><ol><li>Voir de près un métier où l’on répare ou fabrique.</li><li>Trouver une solution pour me déplacer.</li><li>Préparer ce que je dirai pour me présenter.</li></ol>'+sem+
+    '<'+h+'>Si quelque chose me freine</'+h+'><p>Si je n’ai pas de solution pour me déplacer, alors je demande à la personne qui m’accompagne quelles aides existent près de chez moi.</p><p>Si j’ai peur de ne pas savoir me présenter, alors je relis mes trois phrases écrites et je les dis une fois à voix haute.</p>'+
+    '<'+h+'>Mon point de la semaine</'+h+'><ul><li>Qu’est-ce qui a avancé cette semaine, même un peu ?</li><li>Qu’est-ce qui m’a freiné ?</li><li>Qu’est-ce que je garde pour la semaine prochaine ?</li></ul>';
+}
+function ecranPdf(){
+  return titrePlan('Aperçu du PDF')+retour('Retour à mon plan','plan')+
+  '<p class="text-center cqcpm-note">Aperçu de ce qui s’imprime (noir sur blanc, sans bouton). Même composant d’impression que « Mon papier ». Les actions cochées à l’écran sont cochées sur la feuille.</p>'+
+  '<div class="mq-feuille"><h1>Mon plan pour les quatre semaines qui viennent</h1><p class="note">Établi le 26 novembre 2026, à partir de ce que j’ai écrit. Ce n’est ni un profil, ni un diagnostic, ni une obligation : je peux le changer quand je veux.</p>'+feuillePlan('h2')+
+  '<div class="pied">Rien n’a été envoyé : ce document est produit sur l’appareil de la personne.</div></div>'+barre('plan');
+}
+
+/* ---------- 7. Feuille imprimée de Ma synthèse ---------- */
+function ecranFeuille(){
+  var j=ETAT.joint&&aUnPlan();
+  return '<div class="text-center"><h1><i class="bi bi-printer"></i> Feuille imprimée de Ma synthèse</h1></div>'+
+  '<p class="text-center cqcpm-note">Aperçu. Utilisez « Joint à Ma synthèse » ou « Non joint » dans les réglages pour comparer.</p>'+
+  '<div class="mq-feuille"><h1>Ma synthèse : explorer les métiers</h1><p class="note">(Rubriques déjà en place inchangées, jusqu’à « Ce dont j’aimerais parler avec la personne qui m’accompagne ».)</p>'+
+  (j?'<h2>Mon plan pour les quatre semaines qui viennent</h2><p class="note">Plan que j’ai choisi de joindre, préparé le 26/11/2026 avec l’assistant en ligne à partir de ce que j’ai écrit. Il s’adresse à moi. Ce n’est ni un profil, ni un diagnostic.</p>'+feuillePlan('h3'):'<p class="note">Sans plan joint, cette rubrique n’apparaît pas et la numérotation se referme toute seule.</p>')+
+  '</div>'+barre('synthese');
+}
+
+var VUES={cqcpm:ecranCqcpm,synthese:ecranSynthese,preparer:ecranPreparer,assistant:ecranAssistant,plan:ecranPlan,pdf:ecranPdf,feuille:ecranFeuille};
+
+function decisions(){
+  var parEcran={
+    cqcpm:['Le bloc « Mon plan » vient sous « Mon papier ». Le même bloc (une seule fonction) apparaît aussi dans « Ma synthèse ».','Réglez « Ni l’un ni l’autre » : le bouton est éteint et dit par où commencer.'],
+    synthese:['Le bloc vient après « Ma lecture ». C’est ici, et seulement ici, que la personne joint ou retire son plan, comme pour « Mon papier » (décision du 23/11/2026).','Joint, le plan figure sur la feuille imprimée. Il n’est jamais envoyé à l’assistant de « Ma lecture » (consigne 618).'],
+    preparer:['Rien n’est redemandé : le plan reprend « Mon prochain petit pas », le papier et les métiers retenus, cochés d’avance (consigne 611). Les autres cartes une à une ne partent pas, comme pour « Ma synthèse ».','Trois questions seulement. Le bouton reste fermé tant que « ce que je vise » est vide ou que rien n’est coché. Essayez de vider le champ ou de tout décocher.','Le temps se choisit sans minutes : une, deux ou trois actions par semaine.'],
+    assistant:['Même passage que « Mon papier » et « Ma lecture » : rien de nouveau à apprendre.'],
+    plan:['Le texte du plan est écrit par l’assistant ; celui-ci est un exemple inventé (personne fictive), pour juger la forme.','Le petit pas devient l’action de la semaine 1, avec l’étiquette « Mon petit pas ».','Chaque « si… alors je… » reconnu par l’assistant ouvre la fiche du répertoire des freins : l’assistant reconnaît le sujet, les adresses viennent de l’application.','Un frein qui passe avant (logement, santé, violences, faim, addiction) s’affiche en haut, avant le plan, comme dans « Regard extérieur ». Réglez « Un point qui passe avant ».','« Ce dont j’aimerais parler avec la personne qui m’accompagne » reprend ce que la personne a écrit dans son petit pas, puis des sujets « J’aimerais parler de… », jamais une question pour le professionnel.'],
+    pdf:['La feuille reprend le plan sans les fiches des freins (elles restent à l’écran).'],
+    feuille:['La rubrique « Mon plan » vient en dernier sur la feuille de « Ma synthèse », seulement si le plan est joint.']
+  }[ETAT.ecran]||[];
+  var q=[
+    '<b>Question 1. Où vit le plan ?</b> <i>Page « Mon plan » à part, ouverte depuis les deux espaces (Recommandé)</i> : neutre entre les deux modules, la personne qui vient d’« Explorer les métiers » n’atterrit pas dans un espace qu’elle ne connaît pas ; « Retour » ramène d’où elle vient. Risque : un titre de plus à connaître. <i>Dans « Ce qui compte pour moi »</i> : rien de nouveau dans le menu. Risque : la personne qui vient d’« Explorer les métiers » se retrouve sous le titre d’un autre espace.',
+    '<b>Question 2. Des cases « Fait » sur les actions ?</b> <i>Oui (Recommandé)</i> : le plan devient un outil qui sert chaque semaine, gardé sur la disquette ; jamais de compteur ni de « bravo ». Risque : un peu plus de code. <i>Plan à lire seulement</i> : plus simple. Risque : un papier qu’on lit une fois.',
+    '<b>Question 3. Les questions du point de la semaine ?</b> <i>Trois questions fixes, écrites par l’application (Recommandé)</i> : toujours les mêmes, toujours ouvertes, sans risque de dérive. Risque : moins personnelles. <i>Écrites par l’assistant</i> : plus proches du plan. Risque : une question maladroite ou qui juge, et une demande plus longue.',
+    '<b>Question 4. Si la personne change une réponse reprise (son petit pas, son papier, ses métiers) ?</b> <i>Plan gardé, avec un message doux qui propose de le refaire (Recommandé)</i> : ce qui est coché n’est jamais perdu. Risque : un plan un peu en retard sur les réponses. <i>Plan retiré, comme « Mon papier »</i> : toujours à jour. Risque : la personne perd ce qu’elle avait coché.'
+  ];
+  return (parEcran.length?'<div class="mq-decision"><h2>Ce que cet écran montre</h2><ul class="mb-0">'+parEcran.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':'')+
+    '<div class="mq-decision"><h2>Quatre choix à trancher (comparez avec les réglages du haut)</h2><ul class="mb-0">'+q.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>';
+}
+
+function appliquer(){
+  var h=document.documentElement;
+  if(ETAT.theme==='sombre'){h.setAttribute('data-theme','sombre');}else{h.removeAttribute('data-theme');}
+  var p=document.getElementById('mqPage'); p.className='mq-page'+(ETAT.tel?' tel':'');
+  p.innerHTML=VUES[ETAT.ecran]()+decisions();
+  dessinerReglages();
+}
+function aller(e){ETAT.ecran=e;appliquer();window.scrollTo(0,0);}
+document.getElementById('mqPage').addEventListener('click',function(ev){
+  var x=ev.target.closest('button'); if(!x){return;}
+  if(x.getAttribute('data-go')){aller(x.getAttribute('data-go'));return;}
+  if(x.hasAttribute('data-preparer')){ETAT.depuis=x.getAttribute('data-preparer');aller('preparer');return;}
+  if(x.hasAttribute('data-ouvrir-plan')){ETAT.depuis=x.getAttribute('data-ouvrir-plan');aller('plan');return;}
+  if(x.hasAttribute('data-joint')){ETAT.joint=x.getAttribute('data-joint')==='1';appliquer();return;}
+  if(x.hasAttribute('data-recu')){ETAT.plan=true;ETAT.change=false;ETAT.faits={};aller('plan');return;}
+  if(x.hasAttribute('data-effacer')){ETAT.plan=false;ETAT.joint=false;aller(ETAT.depuis);return;}
+  if(x.hasAttribute('data-temps')){ETAT.temps=x.getAttribute('data-temps');appliquer();return;}
+  if(x.hasAttribute('data-retirer')){ETAT.obstacles.splice(+x.getAttribute('data-retirer'),1);appliquer();return;}
+  if(x.hasAttribute('data-ajouter')){var c=document.getElementById('mplObst');var t=c&&c.value.trim();if(t&&ETAT.obstacles.length<3){ETAT.obstacles.push(t);}appliquer();var n=document.getElementById('mplObst');if(n){n.focus();}return;}
+});
+document.getElementById('mqPage').addEventListener('change',function(ev){
+  var s=ev.target.closest('input[data-source]'); if(s){ETAT.coches[s.getAttribute('data-source')]=s.checked;appliquer();return;}
+  var f=ev.target.closest('input[data-fait]'); if(f){ETAT.faits[f.getAttribute('data-fait')]=f.checked;appliquer();return;}
+});
+document.getElementById('mqPage').addEventListener('input',function(ev){
+  if(ev.target.id==='mplVise'){
+    var vide=!ETAT.vise.trim(); ETAT.vise=ev.target.value;
+    if(vide!==!ETAT.vise.trim()){var pos=ev.target.selectionStart;appliquer();var c=document.getElementById('mplVise');c.focus();c.setSelectionRange(pos,pos);}
+  }
+});
+document.getElementById('mqPage').addEventListener('keydown',function(ev){
+  if(ev.target.id==='mplObst'&&ev.key==='Enter'){ev.preventDefault();var t=ev.target.value.trim();if(t&&ETAT.obstacles.length<3){ETAT.obstacles.push(t);}appliquer();var n=document.getElementById('mplObst');if(n){n.focus();}}
+});
+appliquer();
+</script>
+</body>
+</html>

@@ -314,6 +314,8 @@ function _pmZoneResultats(D, S) {
   }
   if (avec && R.length) { h += cmvEncartQuestionnaire() + cmvLegendeNiveaux(nbP); }
   if (avec) { h += _pmBlocChoixLus(D, S, res); }
+  // L'interprétation de ce chemin par l'assistant (consigne 543) : le bloc est vide tant qu'elle est fermée (interpretation.js, chargé plus tard : appelé seulement à l'affichage).
+  if (avec && typeof intBlocMetier === 'function') { h += intBlocMetier(); }
   h += '<p class="note mt-3">' + PM_NOTE_NIVEAU + '</p>';
   return h + '</section>';
 }

@@ -378,7 +378,7 @@ test('situation : la phrase de la demande ne dit que ce qui est rempli', () => {
   assert.equal(S.synTexteSituation({}), '');
   assert.equal(S.synTexteSituation(null), '');
   assert.equal(S.synTexteSituation({ niveau: 4, suivi: ['non'], complements: ['former', 'vite'] }),
-    'niveau d’études : Bac ; pas accompagné pour l’instant ; ce qui compte en ce moment : je peux me former ; je cherche vite un emploi');
+    'niveau d’études : Bac ; pas d’accompagnement pour l’instant ; ce qui compte en ce moment : je peux me former ; je cherche vite un emploi');
   assert.equal(S.synTexteSituation({ niveau: 99, suivi: ['x'], complements: ['y'] }), '');
 });
 

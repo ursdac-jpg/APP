@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l’IA », partager ses demandes avec un collègue (proposition P13 du 25/11/2026)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  /* Toutes les classes de cette maquette commencent par mq- (leçon 9.218) : aucune collision avec css/style.css. */
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .mq-page { max-width: 920px; margin: 0 auto; }
+  .mq-note { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit); }
+  .mq-titre-page { font-size: var(--t-titre-page); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .mq-sous-titre { text-align: center; font-size: var(--t-grand); color: var(--text-muted); margin-bottom: 1rem; }
+  .mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .8rem 0 1.2rem; align-items: center; }
+  .mq-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .mq-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .mq-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .mq-btn { min-height: 44px; padding: .4rem 1.2rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent); color: #fff; font-weight: 800; cursor: pointer; }
+  .mq-btn.mq-second { background: var(--bg-card); color: var(--accent-texte); }
+  .mq-btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .mq-panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .mq-panneau h2 { font-size: var(--t-grand); font-weight: 800; margin: 0 0 .5rem; }
+  .mq-panneau h3 { font-size: var(--t-moyen); font-weight: 800; margin: .9rem 0 .4rem; }
+  .mq-panneau p, .mq-panneau li { font-size: var(--t-moyen); }
+  .mq-famille { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; margin-bottom: .7rem; background: var(--bg-card); }
+  .mq-famille > summary { cursor: pointer; font-weight: 800; padding: .7rem .9rem; font-size: var(--t-moyen); }
+  .mq-famille-corps { padding: 0 .9rem .9rem; }
+  .mq-ligne { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: space-between; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .5rem .7rem; margin: .45rem 0; background: var(--bg-card); }
+  .mq-ligne.mq-choisie { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .mq-case { display: flex; gap: .6rem; align-items: flex-start; flex: 1 1 14rem; cursor: pointer; margin: 0; }
+  .mq-case input { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: 0 0 auto; }
+  .mq-nom { font-weight: 800; display: block; }
+  .mq-var { display: block; font-size: var(--t-petit); color: var(--text-muted); }
+  .mq-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .mq-encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .6rem .9rem; margin: .8rem 0; font-size: var(--t-petit); }
+  .mq-encart.mq-rappel { border-left-color: var(--warning-border); background: var(--warning-bg-subtle); }
+  .mq-encart.mq-ok { border-left-color: var(--success-strong); background: var(--success-bg-subtle); }
+  .mq-encart.mq-erreur { border-left-color: var(--danger-strong, #b3261e); background: var(--danger-bg-subtle, #fdecea); }
+  .mq-compteur { font-weight: 800; margin: .5rem 0; }
+  .mq-fiche { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .8rem; margin: .5rem 0; background: var(--bg-subtle); }
+  .mq-fiche dl { margin: .3rem 0 0; display: grid; grid-template-columns: 7rem 1fr; gap: .15rem .6rem; font-size: var(--t-petit); }
+  .mq-fiche dt { font-weight: 800; }
+  .mq-fiche dd { margin: 0; overflow-wrap: anywhere; }
+  .mq-pastille { display: inline-block; border-radius: 999px; padding: .02rem .6rem; font-size: var(--t-petit); font-weight: 700; border: 1px solid var(--border-strong, var(--border)); background: var(--bg-subtle); color: var(--text-muted); margin-left: .3rem; }
+  .mq-pastille.mq-bon { background: var(--success-bg-subtle); color: var(--success-strong); border-color: var(--success-strong); }
+  .mq-pastille.mq-ecart { background: var(--warning-bg-subtle); color: var(--warning-strong); border-color: var(--warning-border); }
+  .mq-relecture { display: flex; gap: .6rem; align-items: flex-start; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .6rem .8rem; margin: .6rem 0; cursor: pointer; background: var(--bg-card); }
+  .mq-relecture input { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: 0 0 auto; }
+  .mq-questions { display: grid; gap: .8rem; }
+  .mq-q { border: 2px solid var(--border-strong, var(--border)); border-radius: 14px; padding: .8rem .9rem; background: var(--bg-card); }
+  .mq-q h3 { margin-top: 0; }
+  .mq-q p { font-size: var(--t-petit); margin: .25rem 0; }
+  .mq-reco { border-color: var(--accent); }
+  [hidden] { display: none !important; }
+  @media (max-width: 520px) { .mq-fiche dl { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="mq-page">
+  <div class="mq-note"><strong>Maquette de proposition, rien n’est dans l’application.</strong> Elle montre comment une personne enverrait quelques-unes de ses demandes à un collègue, et comment ce collègue les recevrait. Les contrôles sont câblés : le fichier s’enregistre vraiment, et vous pouvez le rouvrir dans l’onglet « Recevoir » (même dans un deuxième onglet du navigateur, pour jouer le rôle du collègue). Les demandes affichées sont inventées. Rien n’est envoyé nulle part.</div>
+
+  <h1 class="mq-titre-page"><i class="bi bi-chat-left-text"></i> Bien utiliser l’IA</h1>
+  <div class="mq-sous-titre">Partager ses demandes avec un collègue</div>
+
+  <div class="mq-barre" role="group" aria-label="Écrans de la maquette">
+    <button type="button" class="mq-choix" data-onglet="envoi" aria-pressed="true">1. Envoyer des demandes</button>
+    <button type="button" class="mq-choix" data-onglet="recevoir" aria-pressed="false">2. Recevoir des demandes</button>
+    <button type="button" class="mq-choix" data-onglet="questions" aria-pressed="false">3. Vos choix à faire</button>
+    <button type="button" class="mq-choix" id="mqSombre" aria-pressed="false">Mode sombre</button>
+  </div>
+
+  <!-- ÉCRAN 1 : envoyer. Reprend l’écran du chemin 2 où la famille « Mes demandes » existe déjà. -->
+  <section id="mq-envoi">
+    <div class="mq-panneau">
+      <h2>Chemin 2 : « Mes modèles »</h2>
+      <p class="mb-2">Les familles sont celles de l’application. Seule la famille « Mes demandes » change : une case devant chaque demande, et un bloc « Partager ».</p>
+      <details class="mq-famille" open>
+        <summary>Mes demandes</summary>
+        <div class="mq-famille-corps">
+          <div id="mqListe"></div>
+          <div class="mq-encart mq-rappel" id="mqMsgListe" role="status" hidden></div>
+
+          <h3>Partager avec un collègue</h3>
+          <p class="mb-1">Cochez les demandes à envoyer. Le fichier ne contient que ces demandes : jamais votre disquette, jamais le texte ou le courrier que vous avez collé.</p>
+          <div class="mq-compteur" id="mqCompteur" role="status" aria-live="polite"></div>
+          <div class="mq-actions">
+            <button type="button" class="mq-btn" id="mqPreparer" disabled>Préparer le fichier à partager</button>
+          </div>
+
+          <!-- Étape « Ce qui va partir » : dans la page, jamais dans une fenêtre. -->
+          <div id="mqPrepa" hidden>
+            <h3 tabindex="-1" id="mqPrepaTitre">Ce qui va partir dans le fichier</h3>
+            <p class="mb-1">Lisez bien : tout ce qui est écrit ci-dessous sera lu par la personne qui recevra le fichier.</p>
+            <div id="mqPrepaListe"></div>
+            <div class="mq-encart mq-rappel"><strong>À vérifier :</strong> aucun nom, aucune adresse, aucun numéro, rien qui permette de reconnaître une personne (vous, un usager, un collègue). L’application ne peut pas le vérifier à votre place. Si vous en voyez un, retournez à la liste, ouvrez la demande et retirez-le.</div>
+            <label class="mq-relecture" for="mqRelu"><input type="checkbox" id="mqRelu"> <span>J’ai relu : il n’y a rien de personnel dans ces demandes.</span></label>
+            <div class="mq-actions">
+              <button type="button" class="mq-btn" id="mqEnregistrer" disabled>Enregistrer le fichier</button>
+              <button type="button" class="mq-btn mq-second" id="mqRetour">Retour à la liste</button>
+            </div>
+          </div>
+          <div class="mq-encart mq-ok" id="mqMsgEnvoi" role="status" hidden></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ÉCRAN 2 : recevoir. Placé dans la famille « Pour les professionnels », visible même sans aucune demande gardée. -->
+  <section id="mq-recevoir" hidden>
+    <div class="mq-panneau">
+      <h2>Chemin 2 : « Mes modèles »</h2>
+      <details class="mq-famille" open>
+        <summary>Pour les professionnels</summary>
+        <div class="mq-famille-corps">
+          <p class="mb-1"><em>(Les deux blocs déjà présents, « Questions à poser à sa structure » et « Grille pour tester mes demandes », ne changent pas.)</em></p>
+          <h3>Recevoir des demandes d’un collègue</h3>
+          <p>Votre collègue vous a envoyé un fichier de demandes ? Choisissez-le ici : vous lirez d’abord ce qu’il contient, puis vous déciderez de l’ajouter ou non à vos demandes.</p>
+          <div class="mq-actions">
+            <button type="button" class="mq-btn" id="mqChoisirFichier">Choisir le fichier reçu</button>
+            <input type="file" id="mqFichier" accept=".json,application/json" class="visually-hidden" tabindex="-1">
+          </div>
+          <p class="mt-3 mb-1"><strong>Pour essayer sans fichier</strong> (cette ligne n’existe que dans la maquette) :</p>
+          <div class="mq-actions">
+            <button type="button" class="mq-btn mq-second" data-exemple="normal">Un fichier de collègue</button>
+            <button type="button" class="mq-btn mq-second" data-exemple="long">Un fichier de 19 demandes</button>
+            <button type="button" class="mq-btn mq-second" data-exemple="disquette">Une disquette complète</button>
+            <button type="button" class="mq-btn mq-second" data-exemple="abime">Un fichier abîmé</button>
+          </div>
+
+          <div id="mqReception" aria-live="polite"></div>
+        </div>
+      </details>
+      <div class="mq-encart"><strong>Dans « Mes demandes » :</strong> après l’ajout, les demandes reçues y apparaissent. Revenez à l’onglet 1 pour les voir dans la liste.</div>
+    </div>
+  </section>
+
+  <!-- ÉCRAN 3 : décisions -->
+  <section id="mq-questions" hidden>
+    <div class="mq-panneau">
+      <h2>Cinq choix à faire (ma recommandation en premier)</h2>
+      <div class="mq-questions">
+        <div class="mq-q mq-reco">
+          <h3>1. Une case « J’ai relu » avant d’enregistrer (Recommandé)</h3>
+          <p><strong>Bénéfice :</strong> la personne regarde ce qui part et voit un nom oublié. <strong>Risque :</strong> un clic de plus, et une case se coche sans lire.</p>
+          <p><strong>Autre option : pas de case.</strong> Plus rapide, mais l’envoi d’un nom par erreur devient plus probable.</p>
+        </div>
+        <div class="mq-q mq-reco">
+          <h3>2. Lire le contenu du fichier reçu avant de l’ajouter (Recommandé)</h3>
+          <p><strong>Bénéfice :</strong> la personne voit ce qui arrive, ce qui est écarté, et peut annuler. <strong>Risque :</strong> un écran de plus.</p>
+          <p><strong>Autre option : ajout direct.</strong> Plus court, mais la personne ne sait pas ce qui vient d’entrer dans ses demandes.</p>
+        </div>
+        <div class="mq-q mq-reco">
+          <h3>3. Même nom qu’une de mes demandes : garder les deux, la reçue s’appelle « Nom (reçue) » (Recommandé)</h3>
+          <p><strong>Bénéfice :</strong> rien n’est jamais écrasé. <strong>Risque :</strong> deux demandes proches à trier.</p>
+          <p><strong>Autres options :</strong> remplacer la mienne (rapide, mais la personne perd son travail), ou demander à chaque fois (plus lourd).</p>
+        </div>
+        <div class="mq-q mq-reco">
+          <h3>4. Le bouton de réception est dans « Pour les professionnels » (Recommandé)</h3>
+          <p><strong>Bénéfice :</strong> visible même sans demande gardée, et la page « Mes demandes » ne change pas pour tout le monde. <strong>Risque :</strong> un collègue peut ne pas penser à regarder là.</p>
+          <p><strong>Autre option :</strong> le mettre aussi dans « Mes demandes », qui apparaîtrait alors toujours, même vide.</p>
+        </div>
+        <div class="mq-q mq-reco">
+          <h3>5. Nom du fichier : « demandes-partagees-25-11-2026.json » (Recommandé ; la date est toujours jour-mois-année)</h3>
+          <p><strong>Bénéfice :</strong> clair pour celui qui le reçoit, et distinct d’une disquette. <strong>Risque :</strong> certaines messageries professionnelles bloquent les fichiers .json : prévenir à l’écran qu’une clé USB ou un dossier partagé fonctionne aussi.</p>
+          <p><strong>Autre option :</strong> un nom avec le premier titre de demande. Plus parlant, mais peut contenir un mot personnel.</p>
+        </div>
+      </div>
+      <div class="mq-encart mq-rappel"><strong>Ce que cette maquette ne règle pas :</strong> l’application ne peut pas reconnaître un nom ou une adresse dans un texte. La seule protection est de montrer ce qui part et de demander de relire. Il ne faut donc pas promettre que le partage est « sans risque ».</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var MAX = 20, NOM_MAX = 60;
+  var MODELES = { 1: 'Écrire un mail de candidature', 2: 'Comprendre un courrier reçu', 3: 'Répondre à l’administration', 4: 'Compte rendu ou bilan', 5: 'Synthèse de notes d’entretien' };
+  var mes = [
+    { id: 'd1', nom: 'Mot pour l’école', type: 'libre', but: 'Écrire un mot court et poli pour prévenir l’école d’une absence.', situation: 'Mon fils sera absent jeudi après-midi pour un rendez-vous chez le médecin.', exemple: '' },
+    { id: 'd2', nom: 'Courrier de la caisse', type: 'modele', modele: 2, but: 'Comprendre ce que demande ce courrier et ce que je dois faire.', situation: 'Je ne connais pas les mots administratifs.', exemple: '' },
+    { id: 'd3', nom: 'Compte rendu d’atelier', type: 'modele', modele: 4, but: 'Écrire un compte rendu de l’atelier de mardi, en dix lignes.', situation: 'Atelier de recherche d’emploi, huit participants.', exemple: '' },
+    { id: 'd4', nom: 'Mail de relance', type: 'libre', but: 'Relancer poliment un employeur sans réponse.', situation: 'J’ai envoyé ma candidature il y a dix jours.', exemple: 'Bonjour Madame Durand, je me permets de vous relancer au sujet de ma candidature.' }
+  ];
+  var choisies = {};
+  var reception = null;
+  var q = function (id) { return document.getElementById(id); };
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]; }); }
+  function pluriel(n, un, plusieurs) { return n + ' ' + (n > 1 ? plusieurs : un); }
+  function nomType(d) { return d.type === 'modele' ? 'Modèle : ' + (MODELES[d.modele] || '') : 'Demande écrite par moi'; }
+  function nombreChoisies() { return mes.filter(function (d) { return choisies[d.id]; }).length; }
+
+  // ---- Écran 1 : la liste « Mes demandes » ----
+  function rendreListe() {
+    q('mqListe').innerHTML = mes.map(function (d) {
+      return '<div class="mq-ligne' + (choisies[d.id] ? ' mq-choisie' : '') + '"><label class="mq-case"><input type="checkbox" data-id="' + esc(d.id) + '"' + (choisies[d.id] ? ' checked' : '') + '><span><span class="mq-nom">' + esc(d.nom) + '</span><span class="mq-var">' + esc(nomType(d)) + '</span></span></label>' +
+        '<div class="mq-actions"><button type="button" class="mq-btn mq-second" data-inchange="1">Ouvrir</button><button type="button" class="mq-btn mq-second" data-inchange="1">Supprimer</button></div></div>';
+    }).join('') || '<p class="mb-0">Vous n’avez encore rien gardé.</p>';
+    majCompteur();
+  }
+  function majCompteur() {
+    var n = nombreChoisies();
+    q('mqCompteur').textContent = n === 0 ? 'Aucune demande choisie.' : pluriel(n, 'demande choisie', 'demandes choisies') + '.';
+    q('mqPreparer').disabled = n === 0;
+  }
+  q('mqListe').addEventListener('change', function (e) {
+    var c = e.target.closest('input[data-id]'); if (!c) { return; }
+    choisies[c.getAttribute('data-id')] = c.checked;
+    c.closest('.mq-ligne').classList.toggle('mq-choisie', c.checked);
+    q('mqPrepa').hidden = true; q('mqMsgEnvoi').hidden = true;
+    majCompteur();
+  });
+  q('mqListe').addEventListener('click', function (e) {
+    if (e.target.closest('[data-inchange]')) { var m = q('mqMsgListe'); m.textContent = 'Les boutons « Ouvrir » et « Supprimer » ne changent pas : cette maquette ne montre que le partage.'; m.hidden = false; }
+  });
+
+  // ---- Étape « Ce qui va partir » ----
+  q('mqPreparer').addEventListener('click', function () {
+    var liste = mes.filter(function (d) { return choisies[d.id]; });
+    q('mqPrepaListe').innerHTML = liste.map(function (d) {
+      return '<div class="mq-fiche"><strong>' + esc(d.nom) + '</strong><span class="mq-pastille">' + esc(nomType(d)) + '</span><dl>' +
+        '<dt>But</dt><dd>' + (esc(d.but) || '<em>(vide)</em>') + '</dd><dt>Situation</dt><dd>' + (esc(d.situation) || '<em>(vide)</em>') + '</dd>' +
+        '<dt>Exemple</dt><dd>' + (esc(d.exemple) || '<em>(vide)</em>') + '</dd></dl></div>';
+    }).join('');
+    q('mqRelu').checked = false; q('mqEnregistrer').disabled = true; q('mqMsgEnvoi').hidden = true;
+    q('mqPrepa').hidden = false; q('mqPrepaTitre').focus();
+  });
+  q('mqRelu').addEventListener('change', function () { q('mqEnregistrer').disabled = !q('mqRelu').checked; });
+  q('mqRetour').addEventListener('click', function () { q('mqPrepa').hidden = true; q('mqPreparer').focus(); });
+  q('mqEnregistrer').addEventListener('click', function () {
+    var liste = mes.filter(function (d) { return choisies[d.id]; });
+    var fichier = { type: 'demandes-partagees', version: 1, demandes: liste.map(function (d) {
+      var o = { nom: d.nom, type: d.type, saisie: { but: d.but, situation: d.situation, exemple: d.exemple } };
+      if (d.type === 'modele') { o.modele = d.modele; }
+      return o;
+    }) };
+    var nom = 'demandes-partagees-' + (function (d) { var z = function (n) { return ('0' + n).slice(-2); }; return z(d.getDate()) + '-' + z(d.getMonth() + 1) + '-' + d.getFullYear(); })(new Date()) + '.json';
+    var blob = new Blob([JSON.stringify(fichier, null, 2)], { type: 'application/json;charset=utf-8' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    var m = q('mqMsgEnvoi');
+    m.innerHTML = '<strong>' + esc(pluriel(liste.length, 'demande est enregistrée', 'demandes sont enregistrées')) + '</strong> dans le fichier « ' + esc(nom) + ' ». Envoyez-le à votre collègue par courriel, sur une clé USB ou dans un dossier partagé (certaines messageries bloquent ce type de fichier : prenez alors la clé ou le dossier). Ce n’est pas votre disquette : vos autres travaux n’y sont pas.';
+    m.hidden = false; q('mqPrepa').hidden = true;
+  });
+
+  // ---- Écran 2 : recevoir ----
+  function nomLibre(nom, pris) {
+    var base = String(nom == null ? '' : nom).replace(/\s+/g, ' ').trim().slice(0, NOM_MAX).trim() || 'Ma demande';
+    var cle = function (t) { return t.toLowerCase(); };
+    if (!pris[cle(base)]) { return base; }
+    var essai = base + ' (reçue)', n = 2;
+    while (pris[cle(essai)]) { essai = base + ' (reçue ' + n + ')'; n++; }
+    return essai;
+  }
+  function analyser(texte) {
+    var brut;
+    try { brut = JSON.parse(texte); } catch (e) { return { erreur: 'illisible' }; }
+    if (!brut || typeof brut !== 'object') { return { erreur: 'illisible' }; }
+    if (brut.dossier || brut.modulesEtat) { return { erreur: 'disquette' }; }
+    if (brut.type !== 'demandes-partagees' || !Array.isArray(brut.demandes)) { return { erreur: 'autre' }; }
+    var pris = {}; mes.forEach(function (d) { pris[d.nom.toLowerCase()] = true; });
+    var bonnes = [], ecartees = [];
+    brut.demandes.forEach(function (d) {
+      var s = (d && d.saisie && typeof d.saisie === 'object') ? d.saisie : {};
+      var f = function (v, max) { return typeof v === 'string' ? v.slice(0, max) : ''; };
+      var propre = { nom: nomLibre(d && d.nom, pris), type: d && d.type === 'modele' ? 'modele' : 'libre', but: f(s.but, 600), situation: f(s.situation, 600), exemple: f(s.exemple, 1500) };
+      var nomAffiche = propre.nom;
+      if (!d || typeof d !== 'object' || (d.type !== 'libre' && d.type !== 'modele')) { ecartees.push({ nom: (d && d.nom) || 'Sans nom', raison: 'ce n’est pas une demande reconnue' }); return; }
+      if (propre.type === 'modele') {
+        if (!MODELES[d.modele]) { ecartees.push({ nom: nomAffiche, raison: 'le modèle ne fait pas partie de cette application' }); return; }
+        propre.modele = d.modele;
+      } else if (!propre.but.trim() && !propre.situation.trim()) { ecartees.push({ nom: nomAffiche, raison: 'la demande est vide' }); return; }
+      pris[propre.nom.toLowerCase()] = true;
+      bonnes.push(propre);
+    });
+    return { bonnes: bonnes, ecartees: ecartees, lues: brut.demandes.length };
+  }
+  function afficherAnalyse(texte) {
+    var z = q('mqReception'), r = analyser(texte);
+    reception = null;
+    if (r.erreur) {
+      var msg = {
+        illisible: 'Ce fichier ne peut pas être lu : ce n’est pas un fichier de demandes. Vérifiez que vous avez choisi le bon fichier. Rien n’a été changé.',
+        disquette: 'Ce fichier est une disquette complète, pas un fichier de demandes à partager. Pour retrouver votre travail, utilisez « Ouvrir ma disquette ». Rien n’a été changé.',
+        autre: 'Ce fichier ne contient pas de demandes à partager. Vérifiez que vous avez choisi le bon fichier. Rien n’a été changé.'
+      }[r.erreur];
+      z.innerHTML = '<div class="mq-encart mq-erreur" role="alert">' + esc(msg) + '</div>'; return;
+    }
+    reception = r;
+    var place = Math.max(0, MAX - mes.length), aAjouter = Math.min(place, r.bonnes.length);
+    var h = '<h3>Ce que contient ce fichier</h3><p class="mb-1">' + esc(pluriel(r.lues, 'demande lue', 'demandes lues')) + ' : ' + esc(pluriel(r.bonnes.length, 'est valide', 'sont valides')) + (r.ecartees.length ? ', ' + esc(pluriel(r.ecartees.length, 'est écartée', 'sont écartées')) : '') + '.</p>' +
+      '<div class="mq-encart mq-rappel">Ce texte vient d’une autre personne. Lisez-le avant de vous en servir : rien n’est envoyé à un assistant sans votre geste.</div>';
+    h += r.bonnes.map(function (d) {
+      return '<div class="mq-fiche"><strong>' + esc(d.nom) + '</strong><span class="mq-pastille mq-bon">' + esc(nomType(d)) + '</span><dl><dt>But</dt><dd>' + (esc(d.but) || '<em>(vide)</em>') + '</dd><dt>Situation</dt><dd>' + (esc(d.situation) || '<em>(vide)</em>') + '</dd><dt>Exemple</dt><dd>' + (esc(d.exemple) || '<em>(vide)</em>') + '</dd></dl></div>';
+    }).join('');
+    h += r.ecartees.map(function (d) { return '<div class="mq-fiche"><strong>' + esc(d.nom) + '</strong><span class="mq-pastille mq-ecart">Écartée</span><div class="mq-var">Raison : ' + esc(d.raison) + '.</div></div>'; }).join('');
+    if (aAjouter === 0 && r.bonnes.length) { h += '<div class="mq-encart mq-rappel">Votre disquette est pleine : elle garde au plus ' + MAX + ' demandes. Supprimez des demandes dans « Mes demandes », puis rouvrez le fichier.</div>'; }
+    else if (aAjouter < r.bonnes.length) { h += '<div class="mq-encart mq-rappel">Votre disquette garde au plus ' + MAX + ' demandes. Seules les ' + aAjouter + ' premières seront ajoutées. Pour ajouter les autres, supprimez des demandes dans « Mes demandes », puis rouvrez le fichier.</div>'; }
+    h += '<div class="mq-actions"><button type="button" class="mq-btn" id="mqAjouter"' + (aAjouter ? '' : ' disabled') + '>Ajouter à mes demandes</button><button type="button" class="mq-btn mq-second" id="mqAnnuler">Annuler</button></div>';
+    z.innerHTML = h;
+  }
+  q('mqReception').addEventListener('click', function (e) {
+    if (e.target.id === 'mqAnnuler') { reception = null; q('mqReception').innerHTML = '<div class="mq-encart" role="status">Rien n’a été ajouté.</div>'; return; }
+    if (e.target.id === 'mqAjouter' && reception) {
+      var place = Math.max(0, MAX - mes.length), ajout = reception.bonnes.slice(0, place), suivant = 0;
+      mes.forEach(function (d) { var m = /^d(\d+)$/.exec(d.id); if (m && +m[1] > suivant) { suivant = +m[1]; } });
+      ajout.forEach(function (d) { suivant++; d.id = 'd' + suivant; mes.push(d); });
+      var reste = reception.bonnes.length - ajout.length; reception = null;
+      q('mqReception').innerHTML = '<div class="mq-encart mq-ok" role="status"><strong>' + esc(pluriel(ajout.length, 'demande est ajoutée', 'demandes sont ajoutées')) + '</strong> à votre disquette. Pensez à enregistrer la disquette.' + (reste ? ' ' + esc(pluriel(reste, 'demande n’a pas été ajoutée', 'demandes n’ont pas été ajoutées')) + ' : votre disquette garde au plus ' + MAX + ' demandes.' : '') + '</div>';
+      rendreListe();
+    }
+  });
+  q('mqChoisirFichier').addEventListener('click', function () { q('mqFichier').click(); });
+  q('mqFichier').addEventListener('change', function () {
+    var f = q('mqFichier').files && q('mqFichier').files[0]; q('mqFichier').value = ''; if (!f) { return; }
+    var l = new FileReader(); l.onload = function () { afficherAnalyse(String(l.result)); }; l.readAsText(f);
+  });
+  var EXEMPLES = {
+    normal: function () { return JSON.stringify({ type: 'demandes-partagees', version: 1, demandes: [
+      { nom: 'Mot pour l’école', type: 'libre', saisie: { but: 'Écrire un mot pour une sortie scolaire.', situation: 'Classe de CE2, sortie au musée vendredi.', exemple: '' } },
+      { nom: 'Compte rendu d’entretien', type: 'libre', saisie: { but: 'Résumer un entretien de 30 minutes en cinq points.', situation: 'Entretien de suivi avec une personne accompagnée.', exemple: '' } },
+      { nom: 'Fiche de poste', type: 'modele', modele: 999, saisie: { but: 'Transformer une offre en liste de missions.', situation: '', exemple: '' } }
+    ] }); },
+    long: function () { var d = []; for (var i = 1; i <= 19; i++) { d.push({ nom: 'Demande du collègue ' + i, type: 'libre', saisie: { but: 'But numéro ' + i, situation: 'Situation numéro ' + i, exemple: '' } }); } return JSON.stringify({ type: 'demandes-partagees', version: 1, demandes: d }); },
+    disquette: function () { return JSON.stringify({ dossier: {}, modulesEtat: {}, historique: ['cv'], page: 'cv' }); },
+    abime: function () { return '{ ceci n’est pas un fichier correct'; }
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('[data-exemple]'), function (b) {
+    b.addEventListener('click', function () { afficherAnalyse(EXEMPLES[b.getAttribute('data-exemple')]()); });
+  });
+
+  // ---- Onglets et mode sombre ----
+  Array.prototype.forEach.call(document.querySelectorAll('[data-onglet]'), function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-onglet]'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      ['envoi', 'recevoir', 'questions'].forEach(function (id) { q('mq-' + id).hidden = id !== b.getAttribute('data-onglet'); });
+      if (b.getAttribute('data-onglet') === 'envoi') { rendreListe(); }
+    });
+  });
+  q('mqSombre').addEventListener('click', function () {
+    var on = q('mqSombre').getAttribute('aria-pressed') !== 'true';
+    q('mqSombre').setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (on) { document.documentElement.setAttribute('data-theme', 'sombre'); } else { document.documentElement.removeAttribute('data-theme'); }
+  });
+  rendreListe();
+})();
+</script>
+</body>
+</html>

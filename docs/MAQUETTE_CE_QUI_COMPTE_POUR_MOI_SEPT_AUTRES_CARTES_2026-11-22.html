@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : les sept autres cartes de « Ce qui compte pour moi »</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 6rem}
+.mq-page{max-width:860px;margin:0 auto;padding-top:1rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-retient{background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem;font-size:.85rem;margin-top:.5rem}
+.mq-bandeau{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:10px;padding:.7rem .9rem;margin:1.4rem 0 0;font-size:.9rem}
+.mq-decision h2{font-size:1rem;margin:0 0 .4rem}
+.mq-decision ul{margin:0;padding-left:1.2rem}
+.mq-decision li{margin:.3rem 0}
+.mq-page h1{font-size:1.35rem;margin:.2rem 0 .3rem}
+.mq-page .chapeau{color:var(--text-muted);margin:0 0 1rem}
+
+/* ----- Intérieur des cartes (classes .cqcpm-*, communes avec la carte type, à ranger dans css/style.css au moment du code) ----- */
+.cqcpm-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0}
+.cqcpm-bloc h2{font-size:1.02rem;font-weight:800;margin:0 0 .35rem;display:flex;align-items:center;gap:.5rem}
+.cqcpm-bloc h2 .bi{color:var(--accent);font-size:1.2rem}
+.cqcpm-bloc h3{font-size:.95rem;font-weight:800;margin:.7rem 0 .25rem}
+.cqcpm-bloc p,.cqcpm-bloc li{font-size:.92rem;color:var(--text-muted);margin:.2rem 0}
+.cqcpm-bloc ul{margin:.2rem 0;padding-left:1.1rem}
+.cqcpm-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+.cqcpm-actions .btn{min-height:44px}
+.cqcpm-etape{font-size:.82rem;color:var(--text-muted);margin:0 0 .3rem}
+.cqcpm-rep{display:flex;flex-wrap:wrap;gap:.4rem;margin:.25rem 0 .1rem}
+.cqcpm-rep button{font-size:.85rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .7rem;min-height:44px;display:inline-flex;align-items:center;gap:.35rem}
+.cqcpm-rep button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.cqcpm-rep button.petit{min-height:40px;font-size:.82rem}
+.cqcpm-champ{width:100%;min-height:44px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg-card);color:var(--text-strong);padding:.4rem .6rem}
+textarea.cqcpm-champ{min-height:76px;resize:vertical}
+.cqcpm-q{font-size:.95rem;font-weight:700;color:var(--text-strong);margin:.8rem 0 .25rem}
+.cqcpm-q .a{font-weight:400;color:var(--text-muted);font-size:.85rem}
+.cqcpm-note{font-size:.85rem;color:var(--text-muted)}
+.cqcpm-lignes{list-style:none;padding:0;margin:.3rem 0}
+.cqcpm-lignes li{display:flex;gap:.5rem;align-items:center;border:1px solid var(--border);border-radius:10px;padding:.35rem .6rem;margin:.3rem 0;background:var(--bg-card)}
+.cqcpm-lignes li span{flex:1;color:var(--text-strong);font-size:.93rem}
+.cqcpm-pile{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.tel .cqcpm-pile{grid-template-columns:1fr}
+.cqcpm-pile .col{border:1px solid var(--border-strong);border-radius:10px;padding:.5rem .6rem;background:var(--bg-subtle)}
+.cqcpm-pile .col h4{font-size:.9rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.4rem;align-items:center}
+.cqcpm-pile .col h4 .bi{color:var(--accent)}
+.cqcpm-pile .col ul{margin:0;padding-left:1.1rem}
+.cqcpm-pile .col li{font-size:.88rem;color:var(--text-strong);margin:.15rem 0}
+.cqcpm-val{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.cqcpm-val:last-child{border-bottom:0}
+.cqcpm-val .lib{flex:1 1 200px;font-size:.93rem;font-weight:600}
+.cqcpm-val .cqcpm-rep{margin:0}
+.cqcpm-val .cqcpm-rep button{min-height:40px;padding:.2rem .5rem;font-size:.8rem}
+.cqcpm-ok{background:var(--accent-bg-subtle);border:1px solid var(--success);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;font-size:.92rem;display:flex;gap:.5rem;align-items:flex-start}
+.cqcpm-ok .bi{color:var(--success);font-size:1.2rem}
+.cqcpm-alerte{background:var(--bg-subtle);border:1px solid var(--warning);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;font-size:.92rem;display:flex;gap:.5rem;align-items:flex-start}
+.cqcpm-alerte .bi{color:var(--warning);font-size:1.2rem}
+.cqcpm-vide{color:var(--text-muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<button type="button" class="btn btn-outline-primary btn-sm mq-rouvrir" id="rouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette</button>
+<div class="mq-regl" id="regl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Réglages de la maquette <button type="button" class="btn btn-outline-secondary btn-sm" id="fermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Carte</b><div class="boutons" id="g-carte"></div></div>
+  <div class="grp"><b>Écran de la carte</b><div class="boutons" id="g-ecran"></div></div>
+  <div class="grp"><b>Remplissage pour l'exemple</b><div class="boutons" id="g-rempl">
+    <button type="button" data-v="vide">Aucune réponse</button><button type="button" data-v="ex">Réponses d'exemple</button></div></div>
+  <div class="grp"><b>Affichage</b><div class="boutons" id="g-aff">
+    <button type="button" data-v="pc">Ordinateur</button><button type="button" data-v="tel">Téléphone</button>
+    <button type="button" data-m="clair">Mode clair</button><button type="button" data-m="sombre">Mode sombre</button></div></div>
+  <div class="mq-retient" id="retient"></div>
+</div>
+<div class="mq-page" id="page">
+  <div class="mq-bandeau"><i class="bi bi-info-circle" aria-hidden="true"></i> Maquette : rien ici n'est dans l'application. Les sept cartes suivent le modèle de « Comment je veux travailler » (invitation, saisie, résultat, « Garder mon résultat »). Les boutons de choix, les piles, les boutons de navigation et « Garder mon résultat » fonctionnent ; l'enregistrement réel et les liens vers d'autres pages ne sont pas branchés. Les zones de texte sont remplies par les « réponses d'exemple ».</div>
+  <div id="rendu"></div>
+  <div class="mq-decision">
+    <h2><i class="bi bi-question-circle" aria-hidden="true"></i> Ce que je vous demande de regarder</h2>
+    <ul>
+      <li>Pour chaque carte : l'invitation, les questions et le résultat disent-ils ce que vous aviez validé, avec vos mots ?</li>
+      <li>« Ce qui compte au travail » : les dix-neuf valeurs et leur classement en trois piles vous conviennent-ils ?</li>
+      <li>« Ce qui m'a aidé quand c'était difficile » : le renvoi vers les fiches d'urgence, placé sans jamais classer ni expliquer une difficulté, vous convient-il ?</li>
+      <li>« Mon prochain petit pas » : est-ce une bonne clôture de l'espace ?</li>
+    </ul>
+  </div>
+</div>
+<script>
+var E = { carte: 'envies', ecran: 0, rempl: 'vide', tel: false, sombre: false, sel: {}, garde: false };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function ex() { return E.rempl === 'ex'; }
+function sel(k) { return E.sel[k] || []; }
+
+// Les dix-neuf valeurs, en cinq groupes (brouillon validé, consigne 542)
+var GROUPES = [
+  { t: 'Ce que je fais', v: ['Créer ou fabriquer', 'Apprendre et comprendre', 'Résoudre des problèmes', 'Soigner les détails', 'Voir un résultat concret'] },
+  { t: 'Avec les autres', v: ['Aider', 'Travailler en équipe', 'Transmettre ce que je sais', 'Être reconnu(e) pour mon travail'] },
+  { t: 'Ma façon de travailler', v: ['Être libre de m’organiser', 'Avoir un cadre clair', 'Varier les tâches'] },
+  { t: 'Ce que j’en attends', v: ['Un revenu confortable', 'Un emploi stable', 'Progresser ou évoluer'] },
+  { t: 'Le sens', v: ['Un travail utile aux autres', 'Respecter mes principes', 'Un métier qui me passionne', 'Contribuer à un projet collectif'] }
+];
+var VALEURS = []; GROUPES.forEach(function (g) { g.v.forEach(function (x) { VALEURS.push(x); }); });
+
+// ---------- briques communes ----------
+function btnChoix(cle, id, texte, max, petit) {
+  var pris = sel(cle).indexOf(id) !== -1;
+  return '<button type="button" class="' + (petit ? 'petit' : '') + '" data-tog="' + esc(cle) + '" data-id="' + esc(id) + '" data-max="' + (max || 99) + '" aria-pressed="' + pris + '">' + esc(texte) + '</button>';
+}
+function chips(cle, options, max, petit) { return '<div class="cqcpm-rep" role="group">' + options.map(function (o) { return btnChoix(cle, o, o, max, petit); }).join('') + '</div>'; }
+function valeursChoix(cle) {
+  return '<p class="cqcpm-q">Jusqu’à trois valeurs qui se retrouvent ici <span class="a">(dans la liste des dix-neuf, à compléter si vous le souhaitez)</span></p>' + chips(cle, VALEURS, 3, true);
+}
+function zone(lib, exemple, aide) {
+  return '<p class="cqcpm-q">' + esc(lib) + (aide ? ' <span class="a">' + esc(aide) + '</span>' : '') + '</p><textarea class="cqcpm-champ" aria-label="' + esc(lib) + '" placeholder="Écrivez avec vos mots">' + (ex() ? esc(exemple) : '') + '</textarea>';
+}
+function retourEspace() { return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à « Ce qui compte pour moi »</button></div>'; }
+function barre(a) { return '<div class="cqcpm-actions">' + a + '</div>'; }
+function bout(go, texte, plein, retour) { return '<button type="button" class="btn ' + (plein ? 'btn-primary' : 'btn-outline-secondary') + '" data-go="' + go + '">' + (retour ? '<i class="bi bi-arrow-left" aria-hidden="true"></i> ' : '') + texte + '</button>'; }
+function liste(items) { return items.length ? '<ul>' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="cqcpm-vide">À compléter.</p>'; }
+function etape(n, N) { return '<p class="cqcpm-etape">Partie ' + n + ' sur ' + N + '</p>'; }
+
+// ---------- les sept cartes ----------
+var CARTES = {};
+
+CARTES.envies = { nom: 'Si rien ne m’arrêtait', icone: 'bi-rocket-takeoff',
+  pour: 'Si tout était possible, que voudriez-vous vivre, apprendre ou créer ?',
+  faites: 'Vous écrivez de trois à dix envies d’une phrase, vous en retenez trois, puis vous remplissez une petite fiche pour chacune.',
+  obtenez: 'Vos trois envies, avec ce qui vous attire, les valeurs qui s’y retrouvent et une petite chose que vous pourriez faire déjà.',
+  savoir: 'Les envies peuvent être modestes. « Je ne sais pas » est une réponse possible.',
+  ecrans: ['Mes envies', 'Retenir trois envies', 'Une fiche par envie'] };
+var ENVIES_EX = ['Apprendre à faire du pain', 'Voyager seul(e) quelques jours', 'Aider des personnes âgées', 'Créer un petit jardin', 'Voir la mer en hiver'];
+function envies() { return ex() ? ENVIES_EX : (E.sel.enviesAjout || []); }
+CARTES.envies.rendre = function (i) {
+  var tr = sel('retenues');
+  if (i === 0) {
+    return etape(1, 3) + '<div class="cqcpm-bloc"><h2><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Si rien ne m’arrêtait…</h2>' +
+      '<p>Imaginez que le temps, l’argent, la distance et les contraintes ne soient plus un obstacle. Écrivez de trois à dix envies, une phrase chacune. Elles peuvent être modestes : voir la mer en hiver, apprendre à cuisiner, aider un voisin.</p>' +
+      '<p class="cqcpm-q">Pour démarrer, choisissez un début de phrase</p><div class="cqcpm-rep">' +
+      ['J’aimerais apprendre…', 'J’aimerais créer…', 'J’aimerais aider…', 'J’aimerais voir…', 'J’aimerais vivre…', 'J’aimerais transmettre…'].map(function (a) { return '<button type="button" class="petit" data-amorce="' + esc(a) + '">' + esc(a) + '</button>'; }).join('') + '</div>' +
+      '<ul class="cqcpm-lignes">' + (envies().length ? envies().map(function (e) { return '<li><span>' + esc(e) + '</span><button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Retirer cette envie"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>'; }).join('') : '<li class="cqcpm-vide" style="border-style:dashed"><span>Vos envies apparaîtront ici.</span></li>') + '</ul>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter une envie</button> <button type="button" class="btn btn-outline-secondary btn-sm">Je ne sais pas pour l’instant</button></div>' +
+      barre(bout(1, 'Continuer', true));
+  }
+  if (i === 1) {
+    return etape(2, 3) + '<div class="cqcpm-bloc"><h2>Quelles trois envies vous parlent le plus ?</h2><p>Choisissez-en trois, sans les classer : elles ont la même importance.</p>' +
+      '<div class="cqcpm-rep" style="flex-direction:column;align-items:stretch">' + envies().map(function (e) { return btnChoix('retenues', e, e, 3); }).join('') + '</div>' +
+      '<p class="cqcpm-note">' + tr.length + ' choisie' + (tr.length > 1 ? 's' : '') + ' sur 3.</p></div>' + barre(bout(0, 'Retour', false, true) + bout(2, 'Continuer', true));
+  }
+  var h = etape(3, 3) + '<div class="cqcpm-bloc"><h2>Une fiche par envie</h2><p>Pour chacune de vos trois envies, quelques mots seulement.</p>';
+  (tr.length ? tr : (ex() ? [] : [])).forEach(function (e, k) {
+    h += '<h3>' + (k + 1) + '. ' + esc(e) + '</h3>' + zone('Ce qui m’attire', 'Faire quelque chose de mes mains, voir le résultat le soir.') + valeursChoix('val_env' + k) + zone('Une petite chose que je pourrais faire déjà', 'Demander une recette à un voisin ce week-end.');
+  });
+  if (!tr.length) { h += '<p class="cqcpm-vide">Retenez d’abord trois envies à l’écran précédent.</p>'; }
+  return h + '</div>' + barre(bout(1, 'Retour', false, true) + bout(3, 'Voir mon résultat', true));
+};
+CARTES.envies.resultat = function () {
+  var tr = sel('retenues');
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Mes trois envies</h2>' + (tr.length ? '<ul>' + tr.map(function (e, k) { var v = sel('val_env' + k); return '<li><b style="color:var(--text-strong)">' + esc(e) + '</b>' + (ex() ? '<br>Ce qui m’attire : faire quelque chose de mes mains, voir le résultat le soir.<br>Petite chose à faire déjà : demander une recette à un voisin ce week-end.' : '') + (v.length ? '<br>Valeurs : ' + v.map(esc).join(', ') : '') + '</li>'; }).join('') + '</ul>' : '<p class="cqcpm-vide">À compléter.</p>') + '</div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-list-ul" aria-hidden="true"></i> Toutes mes envies</h2>' + liste(envies()) + '</div>';
+};
+
+CARTES.inspirent = { nom: 'Ceux qui m’inspirent', icone: 'bi-chat-quote',
+  pour: 'Une personne, un personnage ou une œuvre vous marque ?',
+  faites: 'Vous choisissez de une à trois personnes ou œuvres, et vous répondez à trois questions pour chacune.',
+  obtenez: 'Pour chaque entrée : ce que vous admirez, ce que vous aimeriez en apprendre, et jusqu’à trois valeurs qui s’y retrouvent.',
+  savoir: 'Il ne s’agit pas de lui ressembler, mais de voir ce qu’elle vous apprend sur vous. « Rien à ajouter pour l’instant » est possible.',
+  ecrans: ['Mes inspirations'] };
+CARTES.inspirent.rendre = function () {
+  var type = sel('type_insp')[0];
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-chat-quote" aria-hidden="true"></i> Entrée 1 sur 3 au plus</h2>' +
+    '<p class="cqcpm-q">Qui ou quoi vous inspire ?</p>' + '<div class="cqcpm-rep">' + ['Une personne que je connais', 'Une personne connue ou disparue', 'Un personnage ou une œuvre'].map(function (o) { return btnChoix('type_insp', o, o, 1); }).join('') + '</div>' +
+    '<p class="cqcpm-q">Son nom ou son titre</p><input class="cqcpm-champ" type="text" aria-label="Son nom ou son titre" value="' + (ex() ? 'Ma grand-mère' : '') + '" placeholder="Par exemple : ma grand-mère, un artisan, un personnage de film">' +
+    zone('Ce que j’admire', 'Elle ne se plaignait jamais et trouvait toujours une solution.') +
+    zone('Ce que j’aimerais apprendre d’elle', 'Garder son calme quand tout va vite.', '(jamais « être comme elle »)') + valeursChoix('val_insp0') +
+    '<div style="margin-top:.8rem"><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter une deuxième entrée</button> <button type="button" class="btn btn-outline-secondary btn-sm">Rien à ajouter pour l’instant</button></div></div>' +
+    barre(bout(1, 'Voir mon résultat', true));
+};
+CARTES.inspirent.resultat = function () {
+  var v = sel('val_insp0');
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-chat-quote" aria-hidden="true"></i> Ce qui m’inspire</h2>' + (ex() ? '<ul><li><b style="color:var(--text-strong)">Ma grand-mère</b> (une personne que je connais)<br>Ce que j’admire : elle ne se plaignait jamais et trouvait toujours une solution.<br>Ce que j’aimerais apprendre : garder mon calme quand tout va vite.' + (v.length ? '<br>Valeurs : ' + v.map(esc).join(', ') : '') + '</li></ul>' : '<p class="cqcpm-vide">À compléter.</p>') + '</div>';
+};
+
+CARTES.journee = { nom: 'Ma journée idéale de travail', icone: 'bi-sun',
+  pour: 'À quoi ressemblerait une journée de travail qui vous ferait du bien ?',
+  faites: 'Vous racontez cette journée en cinq moments, du réveil jusqu’au soir, en quelques lignes chacun.',
+  obtenez: 'Un petit récit de votre journée idéale, qui dit où vous êtes, avec qui, ce que vous faites et comment vous finissez la journée.',
+  savoir: 'Ce n’est pas un souhait irréaliste : c’est une direction. Vous pouvez laisser des moments vides.',
+  ecrans: ['Ma journée'] };
+var MOMENTS = [
+  ['Le matin, avant de partir', 'Je me lève sans me presser, je prends un vrai petit-déjeuner.'],
+  ['Le lieu et le trajet', 'Un trajet court, à pied ou à vélo.'],
+  ['Ce que je fais pendant la journée', 'Je m’occupe de plusieurs choses, avec un résultat que je vois.'],
+  ['Avec qui', 'Une petite équipe, et un moment seul(e) pour me concentrer.'],
+  ['La fin de journée', 'Je rentre fatigué(e) mais content(e), il me reste du temps pour moi.']
+];
+CARTES.journee.rendre = function () {
+  var h = '<div class="cqcpm-bloc"><h2><i class="bi bi-sun" aria-hidden="true"></i> Une journée de travail qui me ferait du bien</h2><p>Racontez-la au présent, comme si c’était aujourd’hui.</p>';
+  MOMENTS.forEach(function (m) { h += zone(m[0], m[1]); });
+  return h + '</div>' + barre(bout(1, 'Voir mon résultat', true));
+};
+CARTES.journee.resultat = function () {
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-sun" aria-hidden="true"></i> Ma journée idéale de travail</h2>' + (ex() ? '<ul>' + MOMENTS.map(function (m) { return '<li><b style="color:var(--text-strong)">' + esc(m[0]) + '</b> : ' + esc(m[1]) + '</li>'; }).join('') + '</ul>' : '<p class="cqcpm-vide">À compléter.</p>') + '</div>';
+};
+
+CARTES.valeurs = { nom: 'Ce qui compte au travail', icone: 'bi-collection',
+  pour: 'Qu’est-ce qui est essentiel pour vous dans un travail ?',
+  faites: 'Dix-neuf repères, en cinq groupes : vous les rangez en trois piles (essentiel, important, moins important pour l’instant), puis vous répondez à trois questions.',
+  obtenez: 'Vos trois piles, ce qui vous parle le moins aujourd’hui, une situation vécue et ce que vous pouvez accepter si un repère n’est pas respecté.',
+  savoir: 'Ce n’est pas une liste de qualités : tous ces repères sont bons. Vous ne choisissez que ce qui compte pour vous.',
+  ecrans: ['Trois piles', 'Trois questions'] };
+var PILES = [ { id: 'ess', nom: 'Essentielle', ico: 'bi-star-fill' }, { id: 'imp', nom: 'Importante', ico: 'bi-star-half' }, { id: 'moins', nom: 'Moins importante pour l’instant', ico: 'bi-star' } ];
+var VAL_EX = { 'Apprendre et comprendre': 'ess', 'Aider': 'ess', 'Un emploi stable': 'ess', 'Travailler en équipe': 'imp', 'Être libre de m’organiser': 'imp', 'Un travail utile aux autres': 'imp', 'Créer ou fabriquer': 'moins', 'Progresser ou évoluer': 'moins' };
+function pileDe(v) { var p = ''; PILES.forEach(function (x) { if (sel('pile_' + x.id).indexOf(v) !== -1) { p = x.id; } }); if (!p && ex() && !E.sel.piles_touche) { p = VAL_EX[v] || ''; } return p; }
+CARTES.valeurs.rendre = function (i) {
+  if (i === 0) {
+    var h = etape(1, 2) + '<div class="cqcpm-bloc"><h2><i class="bi bi-collection" aria-hidden="true"></i> Dans un travail, qu’est-ce qui compte pour moi ?</h2><p>Pour chaque repère, choisissez une pile ou ne choisissez rien. Une valeur sans pile veut dire « sans avis ».</p>';
+    GROUPES.forEach(function (g) {
+      h += '<h3>' + esc(g.t) + '</h3>';
+      g.v.forEach(function (v) {
+        h += '<div class="cqcpm-val"><span class="lib">' + esc(v) + '</span><div class="cqcpm-rep" role="group" aria-label="' + esc(v) + '">' +
+          PILES.map(function (p) { return '<button type="button" data-pile="' + p.id + '" data-v="' + esc(v) + '" aria-pressed="' + (pileDe(v) === p.id) + '" title="' + esc(p.nom) + '"><i class="bi ' + p.ico + '" aria-hidden="true"></i> ' + (p.id === 'moins' ? 'Moins' : p.nom) + '</button>'; }).join('') + '</div></div>';
+      });
+    });
+    return h + '</div>' + barre(bout(1, 'Continuer', true));
+  }
+  var nonRanges = VALEURS.filter(function (v) { return !pileDe(v); });
+  return etape(2, 2) + '<div class="cqcpm-bloc"><h2>Trois questions pour finir</h2>' +
+    '<p class="cqcpm-q">Parmi les repères, lequel vous parle le moins aujourd’hui ? <span class="a">(un seul, à compléter)</span></p>' + chips('moins_parle', ex() ? ['Contribuer à un projet collectif', 'Un revenu confortable'] : VALEURS, 1, true) +
+    zone('Une situation vécue où l’un de vos repères essentiels a été respecté, ou pas', 'Dans mon dernier stage, on m’a laissé finir un travail jusqu’au bout et ça m’a fait du bien.') +
+    zone('Si l’un de ces repères n’est pas respecté, que puis-je accepter ?', 'Je peux accepter un salaire plus bas si le travail est utile et que l’équipe est bonne.') +
+    '</div>' + barre(bout(0, 'Retour', false, true) + bout(2, 'Voir mon résultat', true));
+};
+CARTES.valeurs.resultat = function () {
+  var cols = PILES.map(function (p) {
+    var l = VALEURS.filter(function (v) { return pileDe(v) === p.id; });
+    return '<div class="col"><h4><i class="bi ' + p.ico + '" aria-hidden="true"></i> ' + esc(p.nom) + '</h4>' + (l.length ? '<ul>' + l.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="cqcpm-vide">Rien dans cette pile.</p>') + '</div>';
+  }).join('');
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-collection" aria-hidden="true"></i> Mes repères au travail</h2><div class="cqcpm-pile">' + cols + '</div></div>' +
+    (ex() ? '<div class="cqcpm-bloc"><h2><i class="bi bi-chat-left-text" aria-hidden="true"></i> Mes réponses</h2><ul><li>Ce qui me parle le moins aujourd’hui : contribuer à un projet collectif.</li><li>Une situation vécue : dans mon dernier stage, on m’a laissé finir un travail jusqu’au bout et ça m’a fait du bien.</li><li>Ce que je peux accepter : un salaire plus bas si le travail est utile et que l’équipe est bonne.</li></ul></div>' : '');
+};
+
+CARTES.experiences = { nom: 'Mes expériences, côté ressenti', icone: 'bi-journal-text',
+  pour: 'Un emploi, un stage, un bénévolat, une activité : comment l’avez-vous vécu ?',
+  faites: 'Vous choisissez de une à trois expériences et vous répondez à quatre questions pour chacune, plus deux questions sur les raisons de son début et de sa fin.',
+  obtenez: 'Pour chaque expérience : ce que vous avez aimé, ce qui a pesé, l’énergie qu’il vous restait ensuite, et jusqu’à trois valeurs qui s’y retrouvent.',
+  savoir: 'Il s’agit de votre ressenti, pas de vos compétences : cette carte ne remplace pas la fiche de vos compétences. Il n’y a pas de bonne ou de mauvaise expérience.',
+  ecrans: ['Mon expérience'] };
+CARTES.experiences.rendre = function () {
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-journal-text" aria-hidden="true"></i> Expérience 1 sur 3 au plus</h2>' +
+    '<p class="cqcpm-q">Quelle sorte d’expérience ?</p><div class="cqcpm-rep">' + ['Un emploi', 'Un stage ou une formation', 'Du bénévolat', 'Un projet personnel', 'Une activité de loisir', 'Autre'].map(function (o) { return btnChoix('type_exp', o, o, 1); }).join('') + '</div>' +
+    '<p class="cqcpm-q">Son nom, en quelques mots</p><input class="cqcpm-champ" type="text" aria-label="Son nom" value="' + (ex() ? 'Mon stage en cuisine collective' : '') + '" placeholder="Par exemple : mon emploi chez…, mon stage à…">' +
+    zone('Ce que j’ai aimé', 'Préparer les repas avec l’équipe et voir les assiettes revenir vides.') +
+    zone('Ce qui a pesé', 'Rester debout longtemps, et le bruit.') +
+    '<p class="cqcpm-q">Après une journée là-bas, j’étais…</p><div class="cqcpm-rep">' +
+    [['recharge', 'rechargé(e)'], ['fatigue', 'fatigué(e)'], ['entre', 'entre les deux']].map(function (o) { return '<button type="button" data-tog="ener_exp" data-id="' + o[0] + '" data-max="1" aria-pressed="' + (sel('ener_exp').indexOf(o[0]) !== -1 || (ex() && !E.sel.ener_exp_touche && o[0] === 'entre')) + '"><i class="bi bi-battery-half" aria-hidden="true"></i> ' + o[1] + '</button>'; }).join('') + '</div>' +
+    '<p class="cqcpm-q">Ce qui me redonnait de l’énergie, c’était plutôt…</p>' + '<div class="cqcpm-rep">' + [['seul', 'être seul(e)'], ['autres', 'être avec d’autres'], ['depend', 'ça dépendait']].map(function (o) { return btnChoix('recup_exp', o[0], o[1], 1); }).join('') + '</div>' +
+    valeursChoix('val_exp0') +
+    '<h3>Pour aller plus loin <span class="cqcpm-note">(à compléter si vous le souhaitez)</span></h3>' + zone('Pourquoi je l’ai commencée', 'Un conseiller me l’avait proposé, je voulais essayer.') + zone('Pourquoi je l’ai arrêtée', 'Le stage était terminé, mais j’aurais continué.') +
+    '<div style="margin-top:.8rem"><button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter une deuxième expérience</button></div></div>' + barre(bout(1, 'Voir mon résultat', true));
+};
+CARTES.experiences.resultat = function () {
+  var v = sel('val_exp0'), r = sel('recup_exp')[0];
+  var tx = { seul: 'être seul(e)', autres: 'être avec d’autres', depend: 'ça dépendait' };
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-journal-text" aria-hidden="true"></i> Mes expériences, côté ressenti</h2>' + (ex() ? '<ul><li><b style="color:var(--text-strong)">Mon stage en cuisine collective</b> (un stage)<br>Ce que j’ai aimé : préparer les repas avec l’équipe et voir les assiettes revenir vides.<br>Ce qui a pesé : rester debout longtemps, et le bruit.<br>Après une journée là-bas : entre les deux' + (r ? ', et ce qui me redonnait de l’énergie : ' + tx[r] : '') + '.' + (v.length ? '<br>Valeurs : ' + v.map(esc).join(', ') : '') + '<br>Je l’ai commencé parce qu’un conseiller me l’avait proposé ; je l’ai arrêté parce que le stage était terminé.</li></ul>' : '<p class="cqcpm-vide">À compléter.</p>') + '</div>';
+};
+
+CARTES.aide = { nom: 'Ce qui m’a aidé quand c’était difficile', icone: 'bi-life-preserver',
+  pour: 'Qu’est-ce qui vous a aidé à tenir ou à repartir ?',
+  faites: 'Vous repérez ce qui vous a soutenu dans un moment difficile : des personnes, des habitudes, des lieux, des activités.',
+  obtenez: 'La liste de vos appuis, avec vos mots, et ce que vous referiez si c’était à vivre de nouveau.',
+  savoir: 'Cette carte ne cherche pas à expliquer vos difficultés et ne les classe pas. Elle ne remplace pas une aide, si vous en avez besoin.',
+  ecrans: ['Mes appuis'] };
+CARTES.aide.rendre = function () {
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-life-preserver" aria-hidden="true"></i> Un moment difficile que vous avez traversé</h2>' +
+    '<p>Pensez à un moment difficile de votre parcours, grand ou petit, sans avoir besoin de le raconter. Seulement ce qui vous a aidé.</p>' +
+    '<p class="cqcpm-q">Qu’est-ce qui vous a aidé ? <span class="a">(autant de choix que vous voulez)</span></p>' +
+    '<div class="cqcpm-rep">' + ['Une personne', 'Une habitude', 'Un lieu', 'Une activité', 'Un moment de la journée', 'Quelque chose que je me suis dit', 'Autre'].map(function (o) { return btnChoix('aide_type', o, o, 7); }).join('') + '</div>' +
+    zone('Ce qui m’a aidé, avec mes mots', 'Marcher le soir avec mon chien, et appeler ma sœur le dimanche.') +
+    zone('Ce que je referais si c’était à vivre de nouveau', 'J’en parlerais plus tôt à quelqu’un.') +
+    '<div class="cqcpm-alerte"><i class="bi bi-life-preserver" aria-hidden="true"></i><span><b>Si c’est difficile en ce moment</b>, vous n’avez pas à rester seul(e) : les fiches d’aide immédiate de l’application vous indiquent qui contacter. <button type="button" class="btn btn-outline-secondary btn-sm" style="margin-left:.3rem">Ouvrir les fiches d’aide</button></span></div></div>' +
+    barre(bout(1, 'Voir mon résultat', true));
+};
+CARTES.aide.resultat = function () {
+  var t = sel('aide_type');
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-life-preserver" aria-hidden="true"></i> Ce qui m’a aidé</h2>' +
+    (t.length ? '<p style="color:var(--text-strong)">Mes appuis : ' + t.map(function (x) { return esc(x.toLowerCase()); }).join(', ') + '.</p>' : '') +
+    (ex() ? '<ul><li>Ce qui m’a aidé : marcher le soir avec mon chien, et appeler ma sœur le dimanche.</li><li>Ce que je referais : j’en parlerais plus tôt à quelqu’un.</li></ul>' : (t.length ? '' : '<p class="cqcpm-vide">À compléter.</p>')) + '</div>';
+};
+
+CARTES.pas = { nom: 'Mon prochain petit pas', icone: 'bi-flag',
+  pour: 'Quelle petite action pourriez-vous faire dès maintenant ?',
+  faites: 'Vous choisissez une petite action parmi vos envies ou vous en écrivez une, vous repérez qui peut vous aider, puis vous notez une question à poser à votre conseiller.',
+  obtenez: 'Une petite action, les personnes qui peuvent vous aider et une question prête pour votre prochain rendez-vous.',
+  savoir: 'Un petit pas, ce n’est pas un projet : c’est quelque chose que vous pouvez faire cette semaine.',
+  ecrans: ['Mon petit pas'] };
+CARTES.pas.rendre = function () {
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-flag" aria-hidden="true"></i> Un petit pas, cette semaine</h2>' +
+    '<p class="cqcpm-q">Quelle petite action voudriez-vous essayer ?</p><div class="cqcpm-rep" style="flex-direction:column;align-items:stretch">' +
+    (ex() ? ['Demander une recette à un voisin', 'Visiter un atelier de boulangerie', 'Écrire à une association d’aide aux personnes âgées'] : []).map(function (a) { return btnChoix('pas', a, a, 1); }).join('') + '</div>' +
+    (ex() ? '' : '<p class="cqcpm-note">Les petites actions de vos envies retenues apparaissent ici si vous avez fait la carte « Si rien ne m’arrêtait ».</p>') +
+    zone('Ou une autre petite action, avec mes mots', 'Aller voir un atelier près de chez moi samedi.') +
+    '<p class="cqcpm-q">Qui peut m’aider ? <span class="a">(autant de choix que vous voulez)</span></p>' + chips('qui', ['Mon conseiller', 'Un proche', 'Un ami', 'Un voisin', 'Une association', 'Un ancien collègue', 'Personne pour l’instant'], 7, true) +
+    zone('Une question à poser à mon conseiller', 'Existe-t-il un stage de découverte en boulangerie ?') + '</div>' +
+    barre(bout(1, 'Voir mon résultat', true));
+};
+CARTES.pas.resultat = function () {
+  var p = sel('pas')[0], q = sel('qui');
+  return '<div class="cqcpm-bloc"><h2><i class="bi bi-flag" aria-hidden="true"></i> Mon prochain petit pas</h2><ul>' +
+    '<li>Mon petit pas : ' + (p ? esc(p) : (ex() ? 'aller voir un atelier près de chez moi samedi' : 'à compléter')) + '.</li>' +
+    '<li>Qui peut m’aider : ' + (q.length ? q.map(function (x) { return esc(x.toLowerCase()); }).join(', ') : 'à compléter') + '.</li>' +
+    '<li>Ma question pour mon conseiller : ' + (ex() ? 'existe-t-il un stage de découverte en boulangerie ?' : 'à compléter') + '</li></ul></div>';
+};
+
+// ---------- rendu ----------
+var ORDRE = ['envies', 'inspirent', 'journee', 'valeurs', 'experiences', 'aide', 'pas'];
+function nbEcrans(c) { return CARTES[c].ecrans.length; }
+function ecransDeLaCarte(c) { return CARTES[c].ecrans.concat(['Résultat', 'Résultat gardé']); }
+function invitation(c) {
+  var d = CARTES[c];
+  return retourEspace() + '<h1><i class="bi ' + d.icone + '" aria-hidden="true" style="color:var(--accent)"></i> ' + esc(d.nom) + '</h1><p class="chapeau">' + esc(d.pour) + '</p>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-pencil" aria-hidden="true"></i> Ce que vous faites</h2><p>' + esc(d.faites) + '</p></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-card-list" aria-hidden="true"></i> Ce que vous obtenez</h2><p>' + esc(d.obtenez) + '</p></div>' +
+    '<div class="cqcpm-bloc"><h2><i class="bi bi-info-circle" aria-hidden="true"></i> À savoir</h2><p>' + esc(d.savoir) + ' Prévoyez le temps qu’il faut. Rien n’est enregistré tant que vous ne choisissez pas de garder le résultat.</p></div>' +
+    barre('<button type="button" class="btn btn-primary" data-go="1">Commencer</button>');
+}
+function ecranCourant() {
+  var c = E.carte, N = nbEcrans(c), e = E.ecran;
+  if (e === 0) { return invitation(c); }
+  if (e <= N) { var h = retourEspace() + '<h1>' + esc(CARTES[c].nom) + '</h1>'; var r = CARTES[c].rendre(e - 1); return h + r.replace(/data-go="(\d+)"/g, function (m, n) { return 'data-go="' + (parseInt(n, 10) + 1) + '"'; }); }
+  var res = retourEspace() + '<h1>' + esc(CARTES[c].nom) + ' : mon résultat</h1>';
+  if (e === N + 1) {
+    return res + '<p class="chapeau">Voici ce que vous venez de dire, avec vos mots. Rien n’est enregistré tant que vous ne le gardez pas.</p>' + CARTES[c].resultat() +
+      barre('<button type="button" class="btn btn-primary" data-go="' + (N + 2) + '"><i class="bi bi-floppy" aria-hidden="true"></i> Garder mon résultat</button><button type="button" class="btn btn-outline-secondary" data-go="1">Modifier mes réponses</button><button type="button" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l’espace</button>');
+  }
+  return res + '<div class="cqcpm-ok"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span><b>Résultat gardé.</b> Vous le retrouvez dans « Ce que j’ai gardé », et il part avec votre sauvegarde personnelle (la disquette).</span></div>' + CARTES[c].resultat() +
+    barre('<button type="button" class="btn btn-primary">Retour à l’espace</button><button type="button" class="btn btn-outline-secondary" data-go="1">Modifier mes réponses</button>');
+}
+function rendre() {
+  var c = E.carte;
+  document.getElementById('g-carte').innerHTML = ORDRE.map(function (id) { return '<button type="button" data-carte="' + id + '" aria-pressed="' + (id === c) + '">' + esc(CARTES[id].nom) + '</button>'; }).join('');
+  var noms = ['Invitation'].concat(ecransDeLaCarte(c));
+  document.getElementById('g-ecran').innerHTML = noms.map(function (n, k) { return '<button type="button" data-ecran="' + k + '" aria-pressed="' + (k === E.ecran) + '">' + (k + 1) + '. ' + esc(n) + '</button>'; }).join('');
+  document.getElementById('rendu').innerHTML = ecranCourant();
+  document.getElementById('retient').innerHTML = '<b>Ce que cet écran montre :</b> carte « ' + esc(CARTES[c].nom) + ' », écran « ' + esc(noms[E.ecran]) + ' ».';
+  document.getElementById('page').className = 'mq-page' + (E.tel ? ' tel' : '');
+  document.documentElement.setAttribute('data-theme', E.sombre ? 'sombre' : 'clair');
+  document.querySelectorAll('#g-rempl button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === E.rempl)); });
+  document.querySelectorAll('#g-aff button').forEach(function (b) {
+    var v = b.getAttribute('data-v'), m = b.getAttribute('data-m');
+    b.setAttribute('aria-pressed', String(v ? (v === 'tel') === E.tel : (m === 'sombre') === E.sombre));
+  });
+}
+document.getElementById('regl').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b || b.id === 'fermer') { return; }
+  if (b.hasAttribute('data-carte')) { E.carte = b.getAttribute('data-carte'); E.ecran = 0; E.sel = {}; }
+  else if (b.hasAttribute('data-ecran')) { E.ecran = parseInt(b.getAttribute('data-ecran'), 10); }
+  else if (b.parentNode.id === 'g-rempl') { E.rempl = b.getAttribute('data-v'); E.sel = {}; if (ex()) { E.sel.retenues = ENVIES_EX.slice(0, 3); } }
+  else if (b.parentNode.id === 'g-aff') { var v = b.getAttribute('data-v'), m = b.getAttribute('data-m'); if (v) { E.tel = v === 'tel'; } else { E.sombre = m === 'sombre'; } }
+  rendre();
+});
+document.getElementById('rendu').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) { return; }
+  if (b.hasAttribute('data-go')) { E.ecran = parseInt(b.getAttribute('data-go'), 10); window.scrollTo(0, 0); }
+  else if (b.hasAttribute('data-tog')) {
+    var k = b.getAttribute('data-tog'), id = b.getAttribute('data-id'), max = parseInt(b.getAttribute('data-max'), 10), l = (E.sel[k] || []).slice(), p = l.indexOf(id);
+    if (p !== -1) { l.splice(p, 1); } else { if (max === 1) { l = []; } if (l.length < max) { l.push(id); } }
+    E.sel[k] = l; if (k === 'ener_exp') { E.sel.ener_exp_touche = true; }
+  }
+  else if (b.hasAttribute('data-pile')) {
+    var v = b.getAttribute('data-v'), pid = b.getAttribute('data-pile'), avant = pileDe(v);
+    if (ex() && !E.sel.piles_touche) { E.sel.piles_touche = true; PILES.forEach(function (x) { E.sel['pile_' + x.id] = VALEURS.filter(function (y) { return VAL_EX[y] === x.id; }); }); }
+    PILES.forEach(function (x) { var l = (E.sel['pile_' + x.id] || []).filter(function (y) { return y !== v; }); E.sel['pile_' + x.id] = l; });
+    if (avant !== pid) { E.sel['pile_' + pid].push(v); }
+    E.sel.piles_touche = true;
+  }
+  else if (b.hasAttribute('data-amorce')) { var a = (E.sel.enviesAjout || []).slice(); a.push(b.getAttribute('data-amorce') + ' …'); E.sel.enviesAjout = a; }
+  else { return; }
+  rendre();
+});
+document.getElementById('fermer').addEventListener('click', function () { document.getElementById('regl').style.display = 'none'; document.getElementById('rouvrir').style.display = 'inline-flex'; });
+document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('regl').style.display = ''; this.style.display = 'none'; });
+rendre();
+</script>
+</body>
+</html>

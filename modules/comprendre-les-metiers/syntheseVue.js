@@ -196,11 +196,13 @@ function _synBlocAffiner(entrees, aff) {
 var SYN_TOP = { p2: 30, p3: 60 };
 var SYN_NOMS_CLES = { activites: 'avec qui ou quoi', actions: 'ce que je fais', environnement: 'où' };
 
-function _synListesPassages(etat) {
-  var r1 = synRetenu(1), r2 = synRetenu(2), r3 = synRetenu(3);
-  var N = (typeof _cmaNombreChoix === 'function') ? _cmaNombreChoix(etat) : 0;
+// misDeCote = numéros des passages que la personne a mis de côté (étape 2, consigne 543) : leurs listes sont vides. Sans second argument, rien n'est mis de côté (la page « Ma synthèse » montre tout).
+function _synListesPassages(etat, misDeCote) {
+  var cote = Array.isArray(misDeCote) ? misDeCote : [];
+  var r1 = cote.indexOf(1) === -1 ? synRetenu(1) : null, r2 = cote.indexOf(2) === -1 ? synRetenu(2) : null, r3 = cote.indexOf(3) === -1 ? synRetenu(3) : null;
+  var N = (cote.indexOf(2) === -1 && typeof _cmaNombreChoix === 'function') ? _cmaNombreChoix(etat) : 0;
   var l2 = N > 0 ? _cmaListeMetiers(etat).slice(0, SYN_TOP.p2).map(function (m) { return { nom: m.nom, score: Math.round(m.score || 0) }; }) : [];
-  var q = etat.q && etat.q.resultat;
+  var q = cote.indexOf(3) === -1 ? (etat.q && etat.q.resultat) : null;
   var l3 = (q && q.calcul.etat !== 'peu_reponses') ? cmlMetiersPourLettres(q.calcul.lettresPourMetiers).slice(0, SYN_TOP.p3).map(function (x) { return { nom: x.metier.nom }; }) : [];
   var dans = function (liste, r) { return liste.some(function (x) { return synNormaliser(x.nom) === synNormaliser(r.nom); }); };
   if (N > 0 && r2 && !dans(l2, r2)) { l2.push({ nom: r2.nom, score: null }); }
@@ -264,6 +266,7 @@ function _synBlocRecoupement(etat) {
     if (etat.choix.environnement.length) { apports.push('le <b>lieu</b>'); }
     if (etat.choix.faciles.length) { apports.push('ce qui serait <b>facile</b>'); }
     if (etat.choix.conditions.length) { apports.push('ce qui serait <b>difficile</b>'); }
+    if (etat.choix.eviter && etat.choix.eviter.length) { apports.push('ce que vous voulez <b>éviter</b>'); }
     ajoute.push('Vos envies ajoutent ' + (apports.length ? apports.join(', ') : 'ce qui vous attire') + '.');
   }
   if (L.fait.p3) { ajoute.push('Les lettres donnent une idée de vos <b>préférences de fond</b>.'); }
@@ -284,6 +287,30 @@ function _synBlocRecoupement(etat) {
     '<div class="cml-lecture-mini"><b>Ce que chaque passage ajoute</b><p>' + ajoute.join(' ') + '</p></div>' +
     '<div class="cml-lecture-mini"><b>Ce qui diffère</b><p>' + (diffs.length ? diffs.join(' ') : (N > 0 ? 'Retenez un métier pour voir ce qui ne se recoupe pas avec vos choix.' : 'Rien à comparer pour l’instant.')) + '</p></div></div></div>';
   return h;
+}
+
+/* ---------- « Ce qui compte pour moi » (consignes 565 puis 570) : le lien avec l'autre espace. Rien tant qu'il est fermé au public.
+   Seul le PAPIER « Ce qui revient dans mes cartes » peut venir ici, et seulement si la personne l'a joint : jamais bloquant, Ma synthèse et Ma lecture marchent sans lui. ---------- */
+function _synBlocCqc(etat) {
+  if (typeof cqcpmOuvert !== 'function' || !cqcpmOuvert() || typeof cqcpmSituationPapier !== 'function') { return ''; }
+  var sit = cqcpmSituationPapier();
+  var corps;
+  if (sit.joint) {
+    var parties = (typeof cqcpmPapierSections === 'function' && typeof cqcpmEtat === 'function') ? cqcpmPapierSections(cqcpmEtat()) : [];
+    corps = '<p class="cml-note">Ce papier est joint à votre synthèse : il figure sur la feuille imprimée et dans la lecture que vous demandez à l’assistant. C’est une lecture de ce que vous avez écrit dans l’autre espace, pas un profil.</p>' +
+      parties.map(function (s) { return '<p class="mb-0"><b>' + cmvE(s.titre) + '</b></p>' + (s.type === 'liste' ? '<ul class="mb-2">' + s.valeur.map(function (x) { return '<li>' + cmvE(x) + '</li>'; }).join('') + '</ul>' : '<p>' + cmvE(s.valeur) + '</p>'); }).join('') +
+      '<div class="boutons-ligne"><button type="button" class="btn btn-outline-secondary" data-cml="synJoindrePapier"><i class="bi bi-x-circle" aria-hidden="true"></i> Ne plus joindre ce papier</button>' +
+      '<button type="button" class="btn btn-outline-primary" data-cml="synOuvrirCqc"><i class="bi bi-layers" aria-hidden="true"></i> Ouvrir « Ce qui compte pour moi »</button></div>';
+  } else if (sit.papier) {
+    corps = '<p>Vous avez un papier « Ce qui revient dans mes cartes », mais il n’est pas joint. Ma synthèse et Ma lecture fonctionnent sans lui.</p>' +
+      '<div class="boutons-ligne"><button type="button" class="btn btn-primary" data-cml="synJoindrePapier"><i class="bi bi-link-45deg" aria-hidden="true"></i> Joindre mon papier</button>' +
+      '<button type="button" class="btn btn-outline-primary" data-cml="synOuvrirCqc">Le relire d’abord</button></div>';
+  } else {
+    corps = '<p class="cml-note">Cet espace est à compléter si vous le souhaitez et ne bloque rien. Vous pouvez y écrire vos envies, ce qui compte pour vous au travail et vos conditions de travail, puis y recevoir un papier que vous choisissez ou non de joindre ici.</p>' +
+      (sit.retire ? cmvEncart('bi-info-circle', 'Votre papier a été retiré : vous avez modifié une carte qu’il lisait. Vous pouvez en demander un nouveau dans l’autre espace.') : '') +
+      '<div class="boutons-ligne"><button type="button" class="btn btn-outline-primary" data-cml="synOuvrirCqc"><i class="bi bi-layers" aria-hidden="true"></i> ' + (sit.gardees ? 'Retourner dans « Ce qui compte pour moi »' : 'Ouvrir « Ce qui compte pour moi »') + '</button></div>';
+  }
+  return '<div class="cml-bloc"><h2><i class="bi bi-layers" aria-hidden="true"></i> Ce qui compte pour moi ' + (sit.joint ? _synPastilleEtat(true, 'Papier joint') : '') + '</h2>' + corps + '</div>';
 }
 
 /* ---------- Ce que les tests ne disent pas (tâche A6) : niveau d'études, accompagnement, compléments, texte libre. Rien n'est obligatoire. ---------- */
@@ -345,6 +372,8 @@ function _synBlocChezMoi(etat) {
 }
 // Après le dessin de la page : le texte libre se garde au fil de la frappe (sans redessiner), et les chiffres de l'enquête sont chargés puis la zone « Chez moi » est redessinée seule.
 function _synCabler(etat) {
+  var bp = document.getElementById('synBlocPlan');
+  if (bp && typeof mplClicBloc === 'function') { bp.addEventListener('click', function (ev) { mplClicBloc(ev, cmvRendre); }); }
   var t = document.getElementById('synLibre');
   if (t) { t.addEventListener('input', function () { synEtat().libre = String(t.value || '').slice(0, SYN_PLAFONDS.libre); }); }
   if (typeof _cmrDep !== 'function' || !_cmrDepCouvert(_cmrDep())) { return; }
@@ -364,7 +393,8 @@ function _synCabler(etat) {
 function _synBlocGarder(etat) {
   var gardee = !!synEtat().gardee;
   return '<div class="cml-bloc"><h2><i class="bi bi-floppy" aria-hidden="true"></i> Garder ma synthèse</h2>' +
-    '<p>Pour la retrouver plus tard, ou en parler avec un conseiller, gardez-la dans la disquette de l’application. Sans cela, rien n’est conservé. Seuls sont gardés vos métiers retenus, vos résultats et votre parcours (métiers exercés et compétences cochées) : jamais vos réponses au questionnaire.</p>' +
+    '<p>Pour la retrouver plus tard, ou en parler avec un conseiller, gardez-la dans la disquette de l’application. Sans cela, rien n’est conservé. Seuls sont gardés vos métiers retenus, vos résultats et votre parcours (métiers exercés et compétences cochées) : jamais vos réponses au questionnaire.' +
+    ((typeof intOuvert === 'function' && intOuvert()) ? ' Si vous avez fait interpréter un passage, l’interprétation et vos réponses cliquées aux questions sont gardées aussi : les mots que vous écrivez ne le sont jamais.' : '') + '</p>' +
     (gardee
       ? '<div class="cml-etat fait mb-2" role="status">Synthèse gardée : elle sera dans la disquette quand vous l’enregistrerez.</div><div>' +
         '<button type="button" class="btn btn-outline-primary" style="min-height:46px" data-cml="synGarder"><i class="bi bi-x-circle" aria-hidden="true"></i> Ne plus garder ma synthèse</button></div>'
@@ -388,8 +418,11 @@ cmvEnregistrerVue('synthese', {
       cmvEncart('bi-shield-check', 'Cette page rassemble vos résultats pour vous aider à y voir clair. Vous n’êtes pas noté et personne ne vous donne de solution : ce sont des pistes de réflexion. Tout reste sur cet appareil.') +
       (n > 0 && typeof htmlRappelSauvegarde === 'function' ? htmlRappelSauvegarde() : '') +
       _synBlocPassage1(etat) + _synBlocPassage2(etat) + _synBlocPassage3(etat) + _synBlocRecoupement(etat) +
-      (typeof _synBlocParcours === 'function' ? _synBlocParcours(etat) : '') + _synBlocTests(etat) + _synBlocChezMoi(etat) +
+      (typeof _synBlocParcours === 'function' ? _synBlocParcours(etat) : '') + _synBlocCqc(etat) + _synBlocTests(etat) + _synBlocChezMoi(etat) +
+      (typeof intBlocsSynthese === 'function' ? intBlocsSynthese(etat) : '') +
       (typeof _synBlocLecture === 'function' ? _synBlocLecture(etat) : '') +
+      // « Mon plan » (consignes 610 et 618) : après « Ma lecture », car le plan s'appuie sur la synthèse. Le même bloc que dans « Ce qui compte pour moi » (modules/mon-plan/index.js).
+      (typeof mplHtmlBloc === 'function' ? '<div id="synBlocPlan">' + mplHtmlBloc(CMV_ROUTE) + '</div>' : '') +
       ((n > 0 || synpNbTotal(synEtat().parcours) > 0) ? _synBlocGarder(etat) : '');
   },
   cabler: _synCabler

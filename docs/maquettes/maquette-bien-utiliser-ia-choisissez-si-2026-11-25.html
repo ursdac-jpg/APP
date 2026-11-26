@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l’IA », phrases « Choisissez ce chemin si » sur les quatre tuiles</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/bien-utiliser-ia/bienUtiliserIa.css">
+<style>
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 1240px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit, .9rem); }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: var(--t-petit, .9rem); }
+  h1.titre-page { font-size: var(--t-titre-page, 2rem); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .sous-titre { text-align: center; font-size: var(--t-grand, 1.15rem); color: var(--text-muted); margin-bottom: 1.2rem; }
+  .decision { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .8rem .9rem; margin-top: 1.4rem; background: var(--bg-card); }
+  .decision h2 { font-size: var(--t-grand, 1.15rem); margin: 0 0 .4rem; font-weight: 800; }
+  .decision li { margin-bottom: .35rem; }
+
+  /* NOUVEAUTÉ de cette maquette : la phrase « Choisissez ce chemin si … », posée sous le titre de chaque tuile. */
+  .buia-intention .buia-quand { border-left: 4px solid var(--accent); padding: .15rem 0 .15rem .7rem; font-size: 1rem; line-height: 1.4; }
+  .buia-intention .buia-quand strong { display: block; color: var(--accent-texte, var(--accent)); font-weight: 800; }
+
+  /* Mise en page de l'écran d'entrée réel, recopiée pour que la maquette soit fidèle. */
+  .panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .panneau h2 { font-size: var(--t-grand, 1.15rem); font-weight: 800; margin: 0 0 .5rem; }
+  .encart { border-left: 3px solid var(--success-strong); background: var(--success-bg-subtle); border-radius: 0 10px 10px 0; padding: .7rem .9rem; margin: .6rem 0; }
+  .encart[hidden] { display: none !important; }
+  .seg-choix { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+  .btn-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; font-size: .95rem; text-align: left; }
+  .btn-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .rassurance { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin: .4rem 0; }
+  @media (max-width: 880px) { .rassurance { grid-template-columns: 1fr; } }
+  .rassurance div { border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; background: var(--bg-card); }
+  .rassurance strong { display: block; }
+  #cadre.etroit { max-width: 375px; margin: 0 auto; }
+  #cadre.etroit .buia-intentions, #cadre.etroit .rassurance { grid-template-columns: 1fr; }
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border-strong, var(--border)); padding: .5rem 1rem; display: flex; justify-content: space-between; z-index: 20; }
+  .barre-bas button { min-height: 44px; padding: .3rem 1.4rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette : une phrase « Choisissez ce chemin si » sous le titre de chacune des quatre tuiles.</strong> Version 2, après la remarque de Denis : plus aucun chemin n’est conseillé ni mis en avant. Le panneau « Par où commencer ? » et l’étiquette « Chemin conseillé » ont disparu, les quatre tuiles sont montrées à égalité. Le reste est celui d’aujourd’hui (repère de temps, texte, détail, bouton). Les boutons des tuiles et du bas sont simulés. Aucun enregistrement.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label><input type="checkbox" id="etroit"> Voir en largeur de téléphone</label>
+  </div>
+
+  <div id="cadre">
+  <h1 class="titre-page">Bien utiliser l’IA</h1>
+  <p class="sous-titre">Apprenez à écrire une demande claire et à vérifier la réponse.</p>
+
+  <div class="panneau">
+    <h2>Que voulez-vous faire aujourd’hui ?</h2>
+    <p class="mb-0">Quatre chemins, un seul module. Vous pouvez changer de chemin à tout moment.</p>
+    <div class="buia-intentions">
+
+      <div class="buia-intention" id="int-comprendre">
+        <span class="buia-rond"><i class="bi bi-book" aria-hidden="true"></i></span>
+        <div class="repere-temps-ligne"><span class="repere-temps" data-niveau="1" role="img" aria-label="Temps à prévoir : rapide"><span class="repere-temps-pts" aria-hidden="true"><i></i><i></i><i></i></span><span class="repere-temps-mot" aria-hidden="true">Rapide</span></span></div>
+        <h3>Je veux comprendre</h3>
+        <p class="buia-quand"><strong>Choisissez ce chemin si</strong>vous n’avez jamais utilisé d’assistant en ligne, ou si vous ne savez pas par où commencer.</p>
+        <p>Pourquoi une demande claire change la réponse, et comment la vérifier.</p>
+        <p class="buia-detail">Rien à écrire. Sept écrans à lire, pour tous les sujets : emploi, santé, administration, voyage.</p>
+        <button type="button" class="btn btn-primary" data-simule>Commencer à comprendre</button>
+      </div>
+
+      <div class="buia-intention" id="int-fonctionne">
+        <span class="buia-rond"><i class="bi bi-gear-wide-connected" aria-hidden="true"></i></span>
+        <div class="repere-temps-ligne"><span class="repere-temps" data-niveau="2" role="img" aria-label="Temps à prévoir : un peu plus long"><span class="repere-temps-pts" aria-hidden="true"><i></i><i></i><i></i></span><span class="repere-temps-mot" aria-hidden="true">Un peu plus long</span></span></div>
+        <h3>Je veux savoir comment il fonctionne</h3>
+        <p class="buia-quand"><strong>Choisissez ce chemin si</strong>vous vous demandez comment un assistant fonctionne et d’où vient ce qu’il sait.</p>
+        <p>Ce qu’est un assistant, comment il écrit, d’où vient ce qu’il sait, la recherche web, ce qui distingue les différents assistants, les projets et la mémoire, et les cas où s’en passer.</p>
+        <p class="buia-detail">Rien à écrire. Huit étapes à lire.</p>
+        <button type="button" class="btn btn-primary" data-simule>Découvrir comment il fonctionne</button>
+      </div>
+
+      <div class="buia-intention" id="int-modeles">
+        <span class="buia-rond"><i class="bi bi-envelope-paper" aria-hidden="true"></i></span>
+        <div class="repere-temps-ligne"><span class="repere-temps" data-niveau="2" role="img" aria-label="Temps à prévoir : un peu plus long"><span class="repere-temps-pts" aria-hidden="true"><i></i><i></i><i></i></span><span class="repere-temps-mot" aria-hidden="true">Un peu plus long</span></span></div>
+        <h3>J’ai un papier ou une situation</h3>
+        <p class="buia-quand"><strong>Choisissez ce chemin si</strong>vous avez un courrier, un mail ou une démarche devant vous.</p>
+        <p>Un courrier, un mail, une démarche, une recherche d’emploi : la demande est déjà écrite, vous la complétez et vous la copiez.</p>
+        <p class="buia-detail">Vous pouvez coller votre papier : l’application vous propose le bon modèle. Des modèles existent aussi pour les professionnels.</p>
+        <button type="button" class="btn btn-primary" data-simule>Trouver mon modèle</button>
+      </div>
+
+      <div class="buia-intention" id="int-ecrire">
+        <span class="buia-rond"><i class="bi bi-pencil-square" aria-hidden="true"></i></span>
+        <div class="repere-temps-ligne"><span class="repere-temps" data-niveau="3" role="img" aria-label="Temps à prévoir : à prendre à votre rythme"><span class="repere-temps-pts" aria-hidden="true"><i></i><i></i><i></i></span><span class="repere-temps-mot" aria-hidden="true">À prendre à votre rythme</span></span></div>
+        <h3>Je veux écrire ma propre demande</h3>
+        <p class="buia-quand"><strong>Choisissez ce chemin si</strong>vous avez déjà utilisé un assistant et que votre sujet n’est pas dans les modèles.</p>
+        <p>Pour un sujet que les modèles ne couvrent pas : une lettre à une ambassade, un rendez-vous à l’hôpital, un voyage.</p>
+        <p class="buia-detail">Vous la construisez pas à pas, puis vous la relisez et vous l’améliorez.</p>
+        <button type="button" class="btn btn-primary" data-simule>Écrire la mienne</button>
+      </div>
+
+    </div>
+    <div class="encart" id="msgSimule" role="status" hidden></div>
+  </div>
+
+  <div class="panneau">
+    <h2>Avant de commencer</h2>
+    <div class="rassurance">
+      <div><strong>Aucune note, aucun test</strong>Ce module est là pour vous aider, pas pour vous évaluer.</div>
+      <div><strong>Rien n’est envoyé d’ici</strong>Vos textes restent sur cet appareil. Vous copiez votre demande, puis vous la collez vous-même dans l’assistant de votre choix.</div>
+      <div><strong>Vérifiez toujours la réponse</strong>Un assistant peut se tromper ou inventer. Le module vous montre comment relire.</div>
+    </div>
+  </div>
+  </div>
+
+  <div class="decision">
+    <h2>À trancher avec Denis</h2>
+    <ol>
+      <li><strong>Les mots.</strong> Vous aviez écrit « Choisissez ceci si ». J’ai mis « Choisissez ce chemin si » : « ceci » ne dit pas de quoi on parle, « chemin » est le mot déjà utilisé dans tout le module (« Quatre chemins », « Chemin conseillé »).</li>
+      <li><strong>La place.</strong> Sous le titre, avant la description : c’est ce que la personne lit juste après le nom du chemin, au moment de choisir. Le texte, le détail et le bouton restent tels quels.</li>
+      <li><strong>Plus de chemin conseillé.</strong> Le panneau « Par où commencer ? » et l’étiquette « Chemin conseillé » sont retirés : le module ne sait pas pourquoi la personne est là, il montre les quatre chemins à égalité et les phrases « Choisissez ce chemin si » lui permettent de se reconnaître elle-même. Cela retire une fonction (la tuile qui s’allume) : c’est un choix de Denis, pas une perte involontaire. Le code et les tests de cette aide seraient retirés avec elle.</li>
+      <li><strong>Les vidéos.</strong> Voir la réponse de Claude : elles restent au début de chaque chemin, rien n’est ajouté sur les tuiles dans cette version.</li>
+      <li><strong>Hauteur des tuiles.</strong> Chaque tuile gagne deux à trois lignes. Sur téléphone, les quatre tuiles se suivent déjà l’une sous l’autre : le bouton « Voir en largeur de téléphone » ci-dessus montre le résultat.</li>
+      <li><strong>Le chemin « Je veux écrire ma propre demande »</strong> est le seul dont la phrase porte deux conditions (avoir déjà utilisé un assistant ET un sujet absent des modèles). C’est voulu : sinon une personne qui débute le choisirait à la place du chemin 1.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="barre-bas">
+  <button type="button" data-simule>Retour</button>
+  <button type="button" data-simule>Accueil</button>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-simule]'), function (b) {
+    b.addEventListener('click', function () { var m = $('msgSimule'); m.textContent = '(Maquette) Ce bouton ouvre le chemin correspondant.'; m.hidden = false; });
+  });
+  $('modeSombre').addEventListener('change', function (e) { if (e.target.checked) document.documentElement.setAttribute('data-theme', 'sombre'); else document.documentElement.removeAttribute('data-theme'); });
+  $('etroit').addEventListener('change', function (e) { var c = $('cadre'); c.classList.toggle('etroit', e.target.checked); });
+})();
+</script>
+</body>
+</html>

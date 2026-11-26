@@ -1,5 +1,33 @@
 [
  {
+  "id": "accompagnement-art-d-acceder-a-l-emploi",
+  "rayon": "accompagnement",
+  "titre": "L'Art d'accéder à l'emploi : un projet créatif en groupe, puis une rencontre avec des recruteurs",
+  "date": "2026-11-23",
+  "ajoutee": "2026-11-23"
+ },
+ {
+  "id": "former-passeport-de-prevention-formations-securite",
+  "rayon": "former",
+  "titre": "Mon Passeport Prévention : garder la trace de ses formations en sécurité au travail",
+  "date": "2026-11-23",
+  "ajoutee": "2026-11-23"
+ },
+ {
+  "id": "jeunes-pvt-australie-ce-qui-change",
+  "rayon": "jeunes",
+  "titre": "Partir en Australie avec un Programme Vacances-Travail : ce qui change pour la 2e et la 3e année",
+  "date": "2026-11-23",
+  "ajoutee": "2026-11-23"
+ },
+ {
+  "id": "sante-mon-soutien-psy-seances-psychologue",
+  "rayon": "sante",
+  "titre": "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »",
+  "date": "2026-11-23",
+  "ajoutee": "2026-11-09"
+ },
+ {
   "id": "budget-credit-a-la-consommation-ce-qui-change-20-novembre-2026",
   "rayon": "budget",
   "titre": "Crédit à la consommation : ce qui change à partir du 20 novembre 2026",
@@ -40,13 +68,6 @@
   "titre": "La prime carburant versée par l'employeur : un plafond relevé jusqu'au 31 décembre 2026",
   "date": "2026-11-18",
   "ajoutee": "2026-11-18"
- },
- {
-  "id": "sante-mon-soutien-psy-seances-psychologue",
-  "rayon": "sante",
-  "titre": "Voir un psychologue avec l'Assurance maladie : le dispositif « Mon soutien psy »",
-  "date": "2026-11-18",
-  "ajoutee": "2026-11-09"
  },
  {
   "id": "budget-decouvert-bancaire-verification-solvabilite",

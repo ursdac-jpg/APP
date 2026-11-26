@@ -308,7 +308,7 @@ function _atsRendrePreparer() {
     _atsLiaison('Vous choisissez ensuite votre assistant en ligne : l’application prépare tout et l’ouvre dans un nouvel onglet, vous n’avez rien à taper.') +
 
     '<div class="text-center" style="margin-top:1.25rem;" data-barre-bas-zone>' +
-    '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="Déposez et relisez votre CV, puis choisissez la référence (une offre ou un métier)."' + (actif ? '' : ' disabled') + '>Continuer &#8594;</button>' +
+    '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="' + echapperAttribut(actif ? '' : 'Il reste à ' + [(!cvOk ? 'déposer votre CV' : (!e.cvRelu ? 'relire votre CV' : '')), (!refOk ? 'choisir la référence (une offre ou un métier)' : '')].filter(Boolean).join(' et à ') + '.') + '"' + (actif ? '' : ' disabled') + '>Continuer &#8594;</button>' +
     '<p style="margin:.55rem 0 0;color:var(--text-muted);font-size:.9rem;">Actif une fois votre CV déposé (et relu) et la référence choisie.</p>' +
     '</div>';
 }
@@ -587,7 +587,7 @@ function _atsRendreResultat() {
     _atsBonASavoir(r) +
     '<div class="cv-section" style="background:var(--accent-bg-subtle);border-left:4px solid var(--accent);">' +
     '<p class="mb-1"><strong>&#10145;&#65039; Et maintenant ?</strong></p>' +
-    '<p class="mb-0">Choisissez <strong>2 ou 3 mots</strong> à travailler, pas plus. La page suivante en fait une fiche à emporter, avec des questions pour votre conseiller.</p>' +
+    '<p class="mb-0">Choisissez <strong>2 ou 3 mots</strong> à travailler, pas plus. La page suivante en fait une fiche à emporter, avec ce dont vous aimeriez parler avec la personne qui vous accompagne.</p>' +
     '</div>' +
     '<div class="text-center" style="margin-top:1rem;" data-barre-bas-zone>' +
     '<button type="button" id="btnAtsVersFiche" class="btn btn-primary btn-lg" data-barre-bas="1">Voir ma fiche &#8594;</button>' +
@@ -802,19 +802,20 @@ function _atsRendreEmporter() {
     '</div>';
 }
 
-// Questions a poser au conseiller, derivees du resultat (les « a verifier »
+// Sujets dont la personne aimerait parler avec la personne qui l'accompagne
+// (consigne 617, jamais une question qui la met en difficulte), derives du resultat (les « a verifier »
 // et les termes non retrouves : c'est la que la personne a besoin d'un avis).
 function _atsQuestionsConseiller(r) {
   r = r || {};
   var questions = [];
   (r.aVerifier || []).slice(0, 3).forEach(function (it) {
-    questions.push('Est-ce que « ' + it.termeReference + ' » décrit bien ce que je faisais' + (it.termeCV ? ' quand j’écris « ' + it.termeCV + ' »' : '') + ' ?');
+    questions.push('J’aimerais vérifier que « ' + it.termeReference + ' » décrit bien ce que je faisais' + (it.termeCV ? ' quand j’écris « ' + it.termeCV + ' »' : '') + '.');
   });
   (r.pasRetrouve || []).slice(0, 2).forEach(function (it) {
-    questions.push('Ai-je vraiment fait quelque chose qui correspond à « ' + it.terme + ' » ?');
+    questions.push('J’aimerais voir si j’ai déjà fait quelque chose qui correspond à « ' + it.terme + ' ».');
   });
   (r.changementsPrioritaires || []).slice(0, 2).forEach(function (c) {
-    questions.push('Puis-je écrire « ' + c.motReference + ' » pour mon expérience « ' + (c.experienceConcernee || 'ce poste') + ' » ?');
+    questions.push('J’aimerais voir si je peux écrire « ' + c.motReference + ' » pour mon expérience « ' + (c.experienceConcernee || 'ce poste') + ' ».');
   });
   var uniques = [];
   questions.forEach(function (q) { if (uniques.indexOf(q) === -1) { uniques.push(q); } });
@@ -825,9 +826,9 @@ function _atsBlocQuestionsConseiller(r) {
   var qs = _atsQuestionsConseiller(r);
   if (!qs.length) { return ''; }
   return '<div class="cv-section">' +
-    '<p class="mb-1"><strong>&#10067; Questions à poser à votre conseiller</strong></p>' +
+    '<p class="mb-1"><strong>&#128172; Ce dont j’aimerais parler avec la personne qui m’accompagne</strong></p>' +
     '<ul style="padding-left:1.2rem;">' + qs.map(function (q) { return '<li>' + echapperAttribut(q) + '</li>'; }).join('') + '</ul>' +
-    '<p style="color:var(--text-muted);font-size:.85rem;margin-bottom:0;">Ces questions se copient avec la fiche.</p>' +
+    '<p style="color:var(--text-muted);font-size:.85rem;margin-bottom:0;">Ces sujets se copient avec la fiche.</p>' +
     '</div>';
 }
 
@@ -877,7 +878,7 @@ function _atsFicheTexte() {
   }
   var qs = _atsQuestionsConseiller(r);
   if (qs.length) {
-    lignes.push('Questions pour mon conseiller :');
+    lignes.push('Ce dont j’aimerais parler avec la personne qui m’accompagne :');
     qs.forEach(function (q) { lignes.push('- ' + q); });
     lignes.push('');
   }
@@ -970,7 +971,7 @@ function _atsFaq() {
     { q: 'L’offre d’emploi est déjà pleine de mots-clés', r: 'Quand il y a une annonce, elle contient presque toujours les mots que le logiciel de tri va chercher : l’intitulé du poste, les compétences demandées, les outils, le vocabulaire du métier. Répondre à cette offre, c’est faire en sorte que votre CV parle la même langue, quand ces mots décrivent ce que vous avez réellement fait.' },
     { q: 'Comment lit-il mon CV ?', r: 'Il range le texte dans des cases : nom, coordonnées, expériences, formations, compétences, dates. Il ne comprend pas les phrases. Repères utiles : des titres de rubriques classiques, les sigles écrits en entier une fois, des dates lisibles.' },
     { q: 'Les mots-clés, les « quotas »', r: 'Le logiciel compare les mots de l’offre avec ceux de votre CV et fait remonter les CV les plus proches. Ce n’est pas un quota à atteindre : c’est un classement. Un recruteur peut aussi chercher un mot précis ; si le mot n’est nulle part dans votre CV, votre CV ne ressort pas de cette recherche.' },
-    { q: 'Les questions éliminatoires au moment de postuler', r: 'Beaucoup de formulaires posent des questions fermées : autorisation de travailler, permis obligatoire, années d’expérience, mobilité. Une réponse « non » à une question obligatoire peut écarter la candidature automatiquement. Ce n’est pas votre CV, c’est le formulaire. Répondez honnêtement ; notez toute condition floue comme question pour votre conseiller.' },
+    { q: 'Les questions éliminatoires au moment de postuler', r: 'Beaucoup de formulaires posent des questions fermées : autorisation de travailler, permis obligatoire, années d’expérience, mobilité. Une réponse « non » à une question obligatoire peut écarter la candidature automatiquement. Ce n’est pas votre CV, c’est le formulaire. Répondez honnêtement ; notez toute condition floue, pour en parler avec la personne qui vous accompagne.' },
     { q: 'Et les techniques pour « tromper » le logiciel ?', r: 'Écrire des mots-clés en blanc, en tout petit, dans les marges, ou remplir le CV d’une liste de mots : ça se voit. Le logiciel lit le texte blanc comme le texte noir, et beaucoup d’outils montrent au recruteur le contenu extrait à côté du CV. Une candidature repérée ainsi est souvent écartée. La seule chose qui aide vraiment : décrire vos expériences réelles avec les bons mots.' },
     { q: 'Pourquoi ce module ne donne pas de score', r: 'Les « scores de compatibilité » affichés par certains sites sont des estimations faites par ces sites. Ce n’est pas le classement du logiciel de l’employeur, que vous ne voyez pas. Un score rassure ou inquiète pour rien. Ici, on vous montre du vocabulaire à ajuster, pas une note.' }
   ];

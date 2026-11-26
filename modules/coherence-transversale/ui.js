@@ -185,6 +185,7 @@ function ctHtmlBandeReprise() {
 function ctHtmlExplication(detour) {
   var enCours = !detour && ctTravailEnCours();
   return htmlPageIntroModule({
+    temps: 'coherence',   // repère de temps (data/tempsModules.js, consigne 606)
     // Le bouton du haut n'existe que pour « Revenir au module » (detour) : sur la presentation normale il n'y a rien a « revoir ».
     boutonHautHTML: detour ? ctHtmlBandeReprise() : '',
     syntheseHTML: enCours ? _introBlocReprise('Vous avez une analyse en cours sur ce module.', 'ctRepriseContinuer', 'ctRepriseRecommencer', 'Reprendre') : '',
@@ -387,7 +388,7 @@ function ctHtmlCollecte() {
     '<p class="preparer-detail">Cette information est réutilisée ailleurs dans l’application (elle a pu être renseignée pendant un autre parcours).</p>' +
     '<div class="mt-3 pt-3" style="border-top:1px solid var(--border);">' +
     // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (sans civilite ni couleur, que l'analyse ne lit pas).
-    (dossier.objectif && typeof htmlCandidatureComposant === 'function' ? '<div id="ctComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true }) + '</div>' : '') +
+    (dossier.objectif && typeof htmlCandidatureComposant === 'function' ? '<div id="ctComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true, avecMetierVise: (typeof metierStageRequis === 'function' && metierStageRequis()) }) + '</div>' : '') +
     '</div>' +
     '<p class="small text-muted mb-3">&#128247; Vous avez seulement une photo de l’offre ? Envoyez-la directement à votre assistant habituel (il sait lire une image), demandez-lui de vous en recopier le texte, puis collez ce texte ici.</p>' +
     '<h4 class="h6">&#128172; Une question ou une demande précise ? <span class="text-muted small">(à compléter)</span></h4>' +

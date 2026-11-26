@@ -213,7 +213,7 @@
    lecture facilitée quand il y a beaucoup de rapports") : grille, jamais
    un nombre de colonnes fixe (auto-fill/minmax, s'adapte à la largeur
    réelle de la fenêtre ERIP -- même patron que .reperes-colonnes). */
-#reperesRapportsListe { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; align-items: start; }
+#reperesRapportsListe { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 12px; align-items: start; }
 #reperesRapportsListe .reperes-rapport { margin-bottom: 0; }
 #reperesRapportsListe .reperes-rapport[open] { grid-column: 1 / -1; }
 .reperes-legende-rapports-approfondir .reperes-rapport-badge { margin: 0 3px; }
@@ -415,10 +415,12 @@
 .reperes-item-head .reperes-src {
   font-size: 1.1rem;
   font-weight: 600;
-  display: block;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .reperes-item-head .reperes-date {
   font-size: 0.9rem;

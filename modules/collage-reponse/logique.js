@@ -183,7 +183,7 @@ function collagePastille(passage) {
 }
 
 // Ce que la fenêtre montre. entree : { etat, mode, passage, silencieux, echecApresSuite, pieces, nomAssistant, conseilAssistant,
-//   echecPersonnalise: { texte, bouton: { libelle } } (facultatif), module: { nom, libelleSuite, quoi, differe, verif, conseil } }.
+//   echecPersonnalise: { texte, bouton: { libelle } } (facultatif), module: { nom, libelleSuite, quoi, differe, verif, conseil, recuTexte (facultatif : remplace la phrase « La réponse est complète… » quand la réponse peut n'être qu'une première partie) } }.
 // etat : 'ouvert' | 'pret' | 'main' | 'recu' | 'coupe' | 'echec'. mode : 'reponse' (défaut) | 'complement' (sans 'ouvert').
 function modeleFenetreCollage(entree) {
   var e = entree || {};
@@ -229,7 +229,7 @@ function modeleFenetreCollage(entree) {
   modele.blocMain = zoneAction ? { question: T.main.question, explication: T.main.explication, bouton: T.main.bouton } : null;
   modele.zoneMain = { visible: etat === 'main', consigne: T.main.consigne, verifier: T.main.verifier, retourAuto: T.main.retourAuto, placeholder: T.main.placeholder };
 
-  var lignes = [{ type: 'ok', texte: T.recu.complete },
+  var lignes = [{ type: 'ok', texte: m.recuTexte || T.recu.complete },
     { type: 'info', texte: '<strong>À vérifier :</strong> ' + (m.verif || T.recu.verifierDefaut) }];
   modele.recu = { visible: etat === 'recu', titre: T.recu.titre, morceaux: pieces > 1 ? T.recu.morceaux(pieces) : '', lignes: lignes,
     avertissement: (mode === 'complement' && e.avertissement) ? { titre: T.complement.videTitre, texte: String(e.avertissement) } : null };

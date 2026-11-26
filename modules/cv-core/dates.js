@@ -8,6 +8,7 @@
                                     dateFin: « 2022 », periode: « 2019 - 2022 », trouve: true }. Les dates n'ont rien a faire dans un titre :
                                     elles vont dans les champs de dates.
    - formaterDateCourte(date)     : « 2023-09 » -> « sept. 2023 » ; « 2023 » -> « 2023 ».
+   - dateFichierFr(date, avecHeure) : date d'un nom de fichier, jour-mois-année (« 25-11-2026 », « 25-11-2026-09h30 »).
    ============================================================ */
 
 var _DATES_MOIS = { janvier: 1, janv: 1, jan: 1, fevrier: 2, fevr: 2, fev: 2, mars: 3, avril: 4, avr: 4, mai: 5, juin: 6, juillet: 7, juil: 7,
@@ -31,6 +32,14 @@ function normaliserDateImport(texte) {
   if ((m = t.match(/([a-z]+)\.?\s+((?:19|20)\d{2})(?!\d)/)) && _DATES_MOIS[m[1]]) { return m[2] + '-' + _datesDeuxChiffres(_DATES_MOIS[m[1]]); }
   if ((m = t.match(/(?:^|\D)((?:19|20)\d{2})(?!\d)/))) { return m[1]; }
   return '';
+}
+
+// Date d'un NOM DE FICHIER, toujours en français : jour, mois, année (décision de Denis du 25/11/2026, jamais année-mois-jour, même pour un fichier enregistré).
+// « 25-11-2026 » ; avec l'heure : « 25-11-2026-09h30 ». Le tiret remplace la barre oblique, interdite dans un nom de fichier. Date et heure LOCALES (jamais UTC).
+function dateFichierFr(date, avecHeure) {
+  var d = date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
+  var s = _datesDeuxChiffres(d.getDate()) + '-' + _datesDeuxChiffres(d.getMonth() + 1) + '-' + d.getFullYear();
+  return avecHeure ? s + '-' + _datesDeuxChiffres(d.getHours()) + 'h' + _datesDeuxChiffres(d.getMinutes()) : s;
 }
 
 function formaterDateCourte(date) {
@@ -139,7 +148,7 @@ function dureeEntreDates(dateDebut, dateFin) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { dureeEntreDates: dureeEntreDates, normaliserDateImport: normaliserDateImport, separerDatesDuTitre: separerDatesDuTitre, formaterDateCourte: formaterDateCourte,
+  module.exports = { dureeEntreDates: dureeEntreDates, normaliserDateImport: normaliserDateImport, separerDatesDuTitre: separerDatesDuTitre, formaterDateCourte: formaterDateCourte, dateFichierFr: dateFichierFr,
     estMentionEnCours: estMentionEnCours, dateFinImportee: dateFinImportee,
     cleChronologiqueExperience: cleChronologiqueExperience, cleChronologiqueFormation: cleChronologiqueFormation, trierDuPlusRecent: trierDuPlusRecent };
 }

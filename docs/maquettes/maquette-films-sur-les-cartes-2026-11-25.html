@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le film sur la carte de chaque chemin, partout pareil</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/video-presentation/videoPresentation.css">
+<link rel="stylesheet" href="../../modules/bien-utiliser-ia/bienUtiliserIa.css">
+<style>
+  body { padding: 1rem 1rem 3rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 1240px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit, .9rem); }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: var(--t-petit, .9rem); }
+  .module-titre { font-size: 1.05rem; font-weight: 800; margin: 1.6rem 0 .3rem; padding: .35rem .7rem; border-radius: 8px; background: var(--accent-bg-subtle); color: var(--accent-texte); display: inline-block; }
+  .module-note { font-size: .92rem; color: var(--text-muted); margin: 0 0 .6rem; }
+  .panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .decision { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .8rem .9rem; margin-top: 1.4rem; background: var(--bg-card); }
+  .decision h2 { font-size: 1.15rem; margin: 0 0 .4rem; font-weight: 800; }
+  .decision li { margin-bottom: .45rem; }
+  .ordre { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .4rem 0 .2rem; }
+  .ordre span { border: 1px solid var(--border-strong); border-radius: 999px; padding: .15rem .7rem; font-size: .88rem; background: var(--bg-card); }
+  .ordre .film { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); font-weight: 800; }
+  .ordre i { color: var(--text-muted); font-style: normal; }
+  .nouveau { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
+  #cadre.etroit { max-width: 375px; margin: 0 auto; }
+  #cadre.etroit .buia-intentions, #cadre.etroit .cqcpm-cartes, #cadre.etroit .cml-grille3 { grid-template-columns: 1fr !important; max-width: none !important; }
+  /* Rubrique « Ce que j'aimerais » : la phrase de la rubrique et son film se placent sous le titre, avant les cartes. */
+  .cqcpm-theme-bloc .vp { margin: 0 0 .8rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette : une seule disposition pour la carte de chaque chemin, dans tous les modules.</strong> Ordre commun : <em>repère de temps, titre, phrase qui dit à qui le chemin s’adresse, description, film, détails, boutons</em>. Le film est toujours le bouton fermé avec son aperçu, jamais un lecteur ouvert. Les cadres bleus montrent ce qui change ; le reste existe déjà. Les boutons sont factices. Les films des trois rubriques de « Ce qui compte pour moi » n’existent pas encore : l’aperçu montré est celui du module entier, en attendant.</div>
+
+  <div class="panneau">
+    <strong>L’ordre commun</strong>
+    <div class="ordre"><span>Pastille ou icône</span><i>›</i><span>Repère de temps</span><i>›</i><span>Titre</span><i>›</i><span>« À qui s’adresse ce chemin »</span><i>›</i><span>Description</span><i>›</i><span class="film">Film</span><i>›</i><span>Détails (points, listes)</span><i>›</i><span>Bouton</span></div>
+  </div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label><input type="checkbox" id="etroit"> Voir en largeur de téléphone</label>
+  </div>
+
+  <div id="cadre">
+
+  <!-- 1. Bien utiliser l'IA -->
+  <div class="module-titre">1. Bien utiliser l’IA : le film arrive sur les quatre tuiles</div>
+  <p class="module-note">Aujourd’hui le film est en haut de l’écran de chaque chemin, une fois la personne entrée. Il passe sur la tuile, entre la description et le détail, et disparaît du premier écran des chemins (un seul endroit, jamais deux).</p>
+  <div class="panneau">
+    <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 .5rem">Que voulez-vous faire aujourd’hui ?</h2>
+    <div class="buia-intentions" id="buiaTuiles"></div>
+  </div>
+
+  <!-- 2. Explorer les métiers -->
+  <div class="module-titre">2. Explorer les métiers : le film monte au-dessus des trois repères</div>
+  <p class="module-note">Aujourd’hui le film est placé après les trois repères, juste avant les boutons. Il remonte avant les repères, comme dans « Créer » et « Reprendre ».</p>
+  <div class="cml-grille3 cml-grille4" style="grid-template-columns:repeat(2,minmax(0,1fr))" id="exploTuiles"></div>
+
+  <!-- 3. Créer / Reprendre / Version rapide -->
+  <div class="module-titre">3. Créer un CV, Reprendre mon CV, Version rapide : rien ne change</div>
+  <p class="module-note">Leur page de présentation suit déjà cet ordre : temps, titre, phrase, film, points. Elle est montrée ici pour comparer le rendu.</p>
+  <div class="voie-presentation" id="creerBloc"></div>
+
+  <!-- 4. Ce qui compte pour moi -->
+  <div class="module-titre">4. Ce qui compte pour moi : un film par rubrique</div>
+  <p class="module-note">Aujourd’hui un seul film pour tout le module. Les rubriques « Ce que j’aimerais », « Ce qui compte » et « Ce que j’ai vécu » reçoivent chacune leur film, sous la phrase de la rubrique, avant les cartes. Les cartes elles-mêmes n’ont pas de film.</p>
+  <div class="cqcpm-theme-bloc" id="rubrique">
+    <div class="tete"><span class="cqcpm-ico"><i class="bi bi-stars" aria-hidden="true"></i></span><div><h2>Ce que j’aimerais</h2><p>Vos envies, vos modèles, votre journée rêvée.</p></div><span class="cqcpm-compte">0 sur 3 gardée</span></div>
+    <div id="rubriqueFilm"></div>
+    <div class="cqcpm-cartes n3" id="rubriqueCartes"></div>
+  </div>
+
+  </div>
+
+  <div class="decision">
+    <h2>À trancher avec Denis</h2>
+    <ol>
+      <li><strong>Où va le film dans la carte.</strong> Après la description, avant les détails et les boutons. C’est l’endroit déjà utilisé par « Créer », « Reprendre » et « Version rapide », donc deux modules seulement changent (Bien utiliser l’IA et Explorer les métiers). Autre choix possible : le film juste au-dessus du bouton, mais « Créer », « Reprendre » et « Version rapide » devraient alors tous changer.</li>
+      <li><strong>Bien utiliser l’IA.</strong> Les quatre films existent déjà et sont déjà faits : ils changent seulement de place. La tuile gagne la hauteur d’une ligne de film. Sur grand écran, quatre tuiles côte à côte, c’est étroit : regardez avec « largeur de téléphone » et en largeur normale.</li>
+      <li><strong>Ce qui compte pour moi : trois films à fabriquer</strong> (un par rubrique). Il existe en fait <strong>quatre rubriques</strong> : « La suite » ne contient qu’une carte (« Mon prochain petit pas »). Je propose de ne pas lui donner de film. Les textes lus par la voix vous seront soumis avant toute fabrication, car ils parlent de ce que les personnes ont vécu.</li>
+      <li><strong>Créer, Reprendre, Version rapide :</strong> les cartes cliquables de la page de dépôt (celles qui portent le repère de temps) n’ont pas de film, car une carte-bouton ne peut pas en contenir un. Le film y reste sur la page de présentation. Dites-moi si vous voulez autre chose.</li>
+      <li><strong>Défaut vu sur téléphone :</strong> dans une carte étroite, le bouton du film se serre (« Voir ce chemin en vidéo » s’écrit mot par mot). Je le corrige dans le même passage, pour toutes les cartes à la fois : sur écran étroit, l’aperçu passe au-dessus du texte du bouton. Cette maquette montre l’état actuel du bouton, pas encore corrigé.</li>
+      <li><strong>Un test d’harmonie</strong> ensuite : il refuse qu’un module futur place son film ailleurs, ou qu’un chemin n’ait pas le sien. La règle est écrite dans le langage visuel commun.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var NIV = { 1: 'Rapide', 2: 'Un peu plus long', 3: 'À prendre à votre rythme' };
+  var ARIA = { 1: 'rapide', 2: 'un peu plus long', 3: 'à prendre à votre rythme' };
+  function temps(n) { return '<div class="repere-temps-ligne"><span class="repere-temps" data-niveau="' + n + '" role="img" aria-label="Temps à prévoir : ' + ARIA[n] + '"><span class="repere-temps-pts" aria-hidden="true"><i></i><i></i><i></i></span><span class="repere-temps-mot" aria-hidden="true">' + NIV[n] + '</span></span></div>'; }
+  function film(id, libelle, extra) {
+    return '<div class="vp' + (extra ? ' ' + extra : '') + '"><button type="button" class="vp-bouton" aria-expanded="false" data-simule>' +
+      '<span class="vp-vignette"><img src="../../videos/modules/vignettes/' + id + '.jpg" alt="" loading="lazy"><span class="vp-icone" aria-hidden="true">&#9654;</span></span>' +
+      '<span class="vp-texte"><strong>' + libelle + '</strong><span>En images, avec des sous-titres.</span></span>' +
+      '<span class="vp-duree">1 min</span><span class="vp-chevron" aria-hidden="true">&#9662;</span></button></div>';
+  }
+  // 1. Bien utiliser l'IA
+  var tuiles = [
+    { id: 'comprendre', icone: 'bi-book', n: 1, titre: 'Je veux comprendre', quand: 'vous n’avez jamais utilisé d’assistant en ligne, ou si vous ne savez pas par où commencer.', texte: 'Pourquoi une demande claire change la réponse, et comment la vérifier.', detail: 'Rien à écrire. Sept écrans à lire, pour tous les sujets : emploi, santé, administration, voyage.', bouton: 'Commencer à comprendre' },
+    { id: 'fonctionne', icone: 'bi-gear-wide-connected', n: 2, titre: 'Je veux savoir comment il fonctionne', quand: 'vous vous demandez comment un assistant fonctionne et d’où vient ce qu’il sait.', texte: 'Ce qu’est un assistant, comment il écrit, d’où vient ce qu’il sait, la recherche web, ce qui distingue les différents assistants, les projets et la mémoire, et les cas où s’en passer.', detail: 'Rien à écrire. Huit étapes à lire.', bouton: 'Découvrir comment il fonctionne' },
+    { id: 'modeles', icone: 'bi-envelope-paper', n: 2, titre: 'J’ai un papier ou une situation', quand: 'vous avez un courrier, un mail ou une démarche devant vous.', texte: 'Un courrier, un mail, une démarche, une recherche d’emploi : la demande est déjà écrite, vous la complétez et vous la copiez.', detail: 'Vous pouvez coller votre papier : l’application vous propose le bon modèle. Des modèles existent aussi pour les professionnels.', bouton: 'Trouver mon modèle' },
+    { id: 'ecrire', icone: 'bi-pencil-square', n: 3, titre: 'Je veux écrire ma propre demande', quand: 'vous avez déjà utilisé un assistant et que votre sujet n’est pas dans les modèles.', texte: 'Pour un sujet que les modèles ne couvrent pas : une lettre à une ambassade, un rendez-vous à l’hôpital, un voyage.', detail: 'Vous la construisez pas à pas, puis vous la relisez et vous l’améliorez.', bouton: 'Écrire la mienne' }
+  ];
+  $('buiaTuiles').innerHTML = tuiles.map(function (c) {
+    return '<div class="buia-intention"><span class="buia-rond"><i class="bi ' + c.icone + '" aria-hidden="true"></i></span>' + temps(c.n) +
+      '<h3>' + c.titre + '</h3><p class="buia-quand"><strong>Choisissez ce chemin si</strong>' + c.quand + '</p><p>' + c.texte + '</p>' +
+      '<div class="nouveau">' + film('bien-utiliser-ia-' + c.id, 'Voir ce chemin en vidéo') + '</div>' +
+      '<p class="buia-detail">' + c.detail + '</p><button type="button" class="btn btn-primary" data-simule>' + c.bouton + '</button></div>';
+  }).join('');
+
+  // 2. Explorer les métiers (deux des quatre cartes)
+  function repere(ic, t, x) { return '<li><i class="bi ' + ic + '" aria-hidden="true"></i><span><b>' + t + '</b>' + x + '</span></li>'; }
+  function carteExplo(ic, titre, pour, faites, obtenez, savoir, vid, btn) {
+    return '<div class="cml-entree"><i class="bi ' + ic + ' ico" aria-hidden="true"></i>' + temps(1) + '<h3>' + titre + '</h3><p class="cml-pour">' + pour + '</p>' +
+      '<div class="nouveau">' + film(vid, 'Voir ce chemin en vidéo') + '</div>' +
+      '<ul class="cml-reperes">' + repere('bi-pencil', 'Ce que vous faites', faites) + repere('bi-card-list', 'Ce que vous obtenez', obtenez) + repere('bi-info-circle', 'À savoir', savoir) + '</ul>' +
+      '<button type="button" class="btn btn-primary" data-simule>' + btn + '</button>' +
+      '<button type="button" class="btn btn-outline-secondary" data-simule><i class="bi bi-info-circle" aria-hidden="true"></i> Présentation de ce chemin</button></div>';
+  }
+  $('exploTuiles').innerHTML =
+    carteExplo('bi-search', 'Chercher un métier', 'Un métier vous intrigue, ou vous voulez vérifier ce qu’il demande vraiment ?', 'Vous le cherchez par son nom, un autre nom, un sigle ou un secteur.', 'Sa fiche : ce que fait la personne, le niveau pour y entrer, les conditions de travail.', 'Vous pouvez passer de fiche en fiche et garder celles qui vous intéressent.', 'chemin-metier', 'Chercher un métier') +
+    carteExplo('bi-lightbulb', 'Partir de vos envies', 'Vous savez ce que vous aimez faire, sans savoir quel métier y correspond ?', 'Vous choisissez des actions qui vous parlent.', 'Des métiers qui les contiennent, à comparer.', 'Aucun test : vous choisissez, l’application ne note rien.', 'chemin-actions', 'Partir de mes envies');
+
+  // 3. Créer / Reprendre : bloc de présentation d'un chemin
+  $('creerBloc').innerHTML = temps(2) +
+    '<div class="voie-presentation-tete"><span class="carte-voie-num">Chemin 1</span><i class="bi bi-pencil-square" aria-hidden="true"></i><strong>Le garder et le compléter</strong></div>' +
+    '<p class="voie-presentation-phrase"><strong>Avec l’assistant.</strong> Il lit mon CV, puis je le mets à jour : j’ajoute, je corrige, je complète. <span class="small" style="color:var(--text-muted);">Pour un CV déjà écrit, à mettre à jour.</span></p>' +
+    film('reprendre-garder', 'Voir ce chemin en vidéo') +
+    '<ul class="mb-0" style="padding-left:1.25rem;"><li>Vous déposez votre CV.</li><li>L’assistant vous propose des ajouts, vous gardez ce qui vous convient.</li><li>(liste de la page réelle, inchangée)</li></ul>';
+
+  // 4. Ce qui compte pour moi
+  $('rubriqueFilm').innerHTML = '<div class="nouveau">' + film('ce-qui-compte', 'Voir cette rubrique en vidéo') + '</div>';
+  var cartes = [
+    ['bi-rocket-takeoff', 'Si rien ne m’arrêtait', 'Si tout était possible, que voudriez-vous vivre, apprendre ou créer ?', 'Quelques envies d’une phrase, dites avec vos mots, puis trois que vous retenez.'],
+    ['bi-chat-quote', 'Ceux qui m’inspirent', 'Une personne, un personnage ou une œuvre vous marque ?', 'Ce que vous admirez, et ce que vous aimeriez en apprendre.'],
+    ['bi-sun', 'Ma journée idéale de travail', 'À quoi ressemblerait une journée de travail qui vous ferait du bien ?', 'Du réveil jusqu’au soir, en quelques lignes.']
+  ];
+  $('rubriqueCartes').innerHTML = cartes.map(function (c) {
+    return '<div class="cqcpm-carte"><span class="cqcpm-ico"><i class="bi ' + c[0] + '" aria-hidden="true"></i></span>' + temps(2) + '<h3>' + c[1] + '</h3><p class="pour">' + c[2] + '</p><p class="dit">' + c[3] + '</p><button type="button" class="btn btn-primary" data-simule>Commencer</button></div>';
+  }).join('');
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-simule]'), function (b) { b.addEventListener('click', function (e) { e.preventDefault(); }); });
+  $('modeSombre').addEventListener('change', function (e) { if (e.target.checked) document.documentElement.setAttribute('data-theme', 'sombre'); else document.documentElement.removeAttribute('data-theme'); });
+  $('etroit').addEventListener('change', function (e) { $('cadre').classList.toggle('etroit', e.target.checked); });
+})();
+</script>
+</body>
+</html>

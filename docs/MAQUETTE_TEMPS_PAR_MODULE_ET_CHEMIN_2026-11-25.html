@@ -1,0 +1,213 @@
+<!doctype html>
+<!--
+  MAQUETTE (version 3, 2026-11-25) - Un repère de temps à trois niveaux, DANS les modules seulement. Aucune minute (consigne 445).
+  Réglages choisis par Denis (consigne 606) : forme points et mot ; une seule teinte ; sur la page de présentation d'un module : sous la phrase d'accroche ;
+  sur une carte de chemin : au-dessus du titre. Préfixe « Temps à prévoir : » sur la page d’un module seulement (consigne 607), jamais sur les cartes de chemins. Mots : 1 = Rapide ; 2 = Un peu plus long ; 3 = À prendre à votre rythme.
+  Décision de Denis : RIEN sur les tuiles de l'accueil (trop d'informations, décourage de s'engager). La vue 1 le montre : les tuiles restent inchangées.
+  Contenu : (1) tuiles inchangées ; (2) haut de la page de présentation de trois modules ; (3) cartes de chemins ; (4) tableau des niveaux (valeurs de Denis, modifiable).
+  Aucun code de l'application n'est touché. Les niveaux seront rangés dans UN seul fichier de données (jamais recopiés).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le temps dans les modules</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { margin: 0; background: var(--bg-page, var(--bg-card)); color: var(--text-strong); }
+  .mq-barre { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .55rem .8rem; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); position: sticky; top: 0; z-index: 20; }
+  .mq-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; padding: .3rem .7rem; cursor: pointer; }
+  .mq-barre button.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-barre .mq-droite { margin-left: auto; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .mq-barre label { font-size: .88rem; display: flex; gap: .3rem; align-items: center; }
+  .mq-vue { margin: 1rem auto; padding: 0 16px; max-width: 980px; }
+  .mq-vue[hidden] { display: none; }
+  .mq-vue.tel { max-width: 375px; }
+  .mq-note { color: var(--text-muted); font-size: .9rem; margin: .4rem 0 1rem; }
+  .mq-fond { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 1.1rem; padding: 1rem; }
+
+  /* ===== Le repère de temps (composant proposé) : points et mot, une seule teinte ===== */
+  .nt { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 600; line-height: 1.2; color: var(--text-strong); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 999px; padding: .2rem .7rem .2rem .5rem; --nt-c: var(--accent-texte); }
+  .nt-pre { font-weight: 400; color: var(--text-muted); }
+  .nt-pts { display: inline-flex; gap: .2rem; }
+  .nt-pts i { width: .65rem; height: .65rem; border-radius: 50%; border: 2px solid var(--nt-c); box-sizing: border-box; background: transparent; display: block; margin: 0; font-size: 0; }
+  .nt[data-n="1"] .nt-pts i:nth-child(-n+1), .nt[data-n="2"] .nt-pts i:nth-child(-n+2), .nt[data-n="3"] .nt-pts i { background: var(--nt-c); }
+  .nt-mot { text-align: left; }
+  .mq-ligne-nt { margin: .3rem 0 .7rem; text-align: center; }
+  .mq-entete-module { text-align: center; }
+  .mq-entete-module .mq-video { display: flex; gap: .8rem; align-items: center; max-width: 560px; margin: .8rem auto; border: 2px solid var(--accent); border-radius: 14px; padding: .6rem .8rem; background: var(--accent-bg-subtle); text-align: left; }
+  .mq-entete-module .mq-video .vig { width: 7rem; height: 4rem; background: var(--bg-subtle); border-radius: 8px; flex: none; display: grid; place-items: center; }
+  .mq-chemin { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 1.1rem; padding: .9rem; text-align: center; }
+  .mq-chemin .ico { font-size: 2rem; color: var(--accent-texte); display: block; }
+  .mq-chemin .mq-ligne-nt { margin: .4rem 0 .1rem; }
+  .mq-chemin h3 { font-size: 1.05rem; margin: .3rem 0; }
+  .mq-chemin p { font-size: .88rem; color: var(--text-muted); margin: 0 0 .5rem; }
+  .mq-chemin .bouton-fictif { display: inline-block; background: var(--accent); color: #fff; border-radius: 8px; padding: .35rem .8rem; font-size: .9rem; margin-top: .4rem; }
+  .mq-grille-ch { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .mq-vue.tel .mq-grille-ch { grid-template-columns: 1fr; }
+  .mq-vue.tel .grille-sous-cartes-accueil .sous-carte-accueil { flex: 1 1 140px; max-width: none; }
+  .mq-vue h2.mq-t { font-size: 1.05rem; margin: 1.4rem 0 .5rem; }
+  .mq-rub { font-size: .92rem; font-weight: 700; margin: .9rem 0 .3rem; color: var(--text-muted); }
+  table.mq-niv { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.mq-niv th, table.mq-niv td { border-bottom: 1px solid var(--border-strong); padding: .35rem .4rem; text-align: left; vertical-align: middle; }
+  table.mq-niv tr.chem td:first-child { padding-left: 1.6rem; color: var(--text-muted); }
+  table.mq-niv select { background: var(--bg-card); color: var(--text-strong); border: 1px solid var(--border-strong); border-radius: 6px; padding: .15rem .3rem; }
+  table.mq-niv tr.groupe th { background: var(--bg-subtle); font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="mq-barre" role="tablist">
+  <button class="actif" data-vue="v1">1. Accueil : tuiles inchangées</button>
+  <button data-vue="v2">2. Page d’un module</button>
+  <button data-vue="v3">3. Cartes de chemins</button>
+  <button data-vue="v4">4. Tableau des niveaux</button>
+  <span class="mq-droite">
+    <button id="bSombre">Mode sombre</button>
+    <button id="bTel">Largeur téléphone</button>
+  </span>
+</div>
+
+<section class="mq-vue" id="v1">
+  <p class="mq-note"><strong>Décision de Denis :</strong> aucun repère sur l’accueil. La carte « Boîte à outils » ouvre ses tuiles exactement comme aujourd’hui, sans information en plus, pour ne pas alourdir ni décourager de s’engager. Le temps ne s’affiche qu’une fois dans le module.</p>
+  <div class="mq-fond"><h2 class="h5 text-center"><i class="bi bi-briefcase titre-icone-accent"></i> Boîte à outils</h2>
+    <div class="grille-sous-cartes-accueil" id="tuiles"></div></div>
+</section>
+
+<section class="mq-vue" id="v2" hidden>
+  <p class="mq-note">Le haut de la page de présentation de trois modules : un sans chemins (Lexique, niveau 1), un long à huit cartes (Ce qui compte pour moi, niveau 3) et un long à quatre chemins (Explorer les métiers, niveau 3). Le repère, précédé de « Temps à prévoir : », est <strong>sous la phrase d’accroche</strong>, avant la vidéo. Dans le code, ce sera <strong>un seul ajout dans le composant partagé</strong> de page de présentation, que chaque module renseigne par un niveau.</p>
+  <div class="mq-fond mq-entete-module" id="entete0"></div>
+  <div class="mq-fond mq-entete-module mt-3" id="entete1"></div>
+  <div class="mq-fond mq-entete-module mt-3" id="entete2"></div>
+</section>
+
+<section class="mq-vue" id="v3" hidden>
+  <p class="mq-note">Le repère de chaque chemin est <strong>au-dessus du titre</strong> de sa carte. Il compare les chemins d’un même module entre eux (pas avec les autres modules). Pas de préfixe ici : la carte est déjà dans le module, et le mot suffit.</p>
+  <h2 class="mq-t">Explorer les métiers (quatre chemins)</h2>
+  <div class="mq-grille-ch" id="chemins-metiers"></div>
+  <h2 class="mq-t">Bien utiliser l’IA (quatre chemins)</h2>
+  <div class="mq-grille-ch" id="chemins-buia"></div>
+  <h2 class="mq-t">Créer un nouveau CV (trois chemins)</h2>
+  <div class="mq-grille-ch" id="chemins-creer"></div>
+  <h2 class="mq-t">Ce qui compte pour moi (huit cartes, quatre rubriques)</h2>
+  <div id="chemins-compte"></div>
+</section>
+
+<section class="mq-vue" id="v4" hidden>
+  <p class="mq-note">Les niveaux que Denis a choisis. 1 = Rapide, 2 = Un peu plus long, 3 = À prendre à votre rythme. Modifiez une ligne : les autres vues suivent.</p>
+  <div class="mq-fond"><table class="mq-niv" id="tab"></table></div>
+</section>
+
+<script>
+/* Niveaux de Denis (consigne 606). id = clé stable ; ch = chemins du module. */
+var MODULES = [
+  { g: 'Mes documents', m: [
+    { id: 'creer', nom: 'Créer un nouveau CV', n: 2, ch: [['Avec l’assistant', 1], ['À partir de mon récit', 1], ['À la main', 3]] },
+    { id: 'reprendre', nom: 'Reprendre mon CV', n: 2, ch: [['Le garder et le compléter', 1], ['Le reformuler et le présenter', 1], ['Le refaire moi-même dans un modèle', 3]] },
+    { id: 'rapide', nom: 'Lettre et entretien en version rapide', n: 1, ch: [['Une lettre', 1], ['Une fiche d’entretien', 1]] } ] },
+  { g: 'Me préparer à candidater', m: [
+    { id: 'lettre', nom: 'Écrire ma lettre avec l’assistant', n: 2, ch: [] },
+    { id: 'entretien', nom: 'M’entraîner à un entretien', n: 2, ch: [] },
+    { id: 'employeurs', nom: 'Employeurs près de chez moi', n: 1, ch: [] } ] },
+  { g: 'Boîte à outils', m: [
+    { id: 'reperes', nom: 'Mes Repères', n: 1, ch: [], ic: 'bi-bookmark-star', ph: 'Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller.' },
+    { id: 'carnet', nom: 'Mon Carnet', n: 1, ch: [], ic: 'bi-journal-text', ph: 'Notez librement ce qui vous passe par la tête, sans rien décider tout de suite.' },
+    { id: 'lexique', nom: 'Lexique', n: 1, ch: [], ic: 'bi-book', ph: 'Cherchez un mot du monde du travail dès qu’il vous bloque, expliqué simplement.' },
+    { id: 'competences', nom: 'Découvrir mes compétences', n: 2, ch: [], ic: 'bi-compass', ph: 'Ce que vos documents montrent déjà que vous savez faire, avec la phrase qui le prouve.' },
+    { id: 'compte', nom: 'Ce qui compte pour moi', n: 3, ic: 'bi-layers', ph: 'Mettez des mots sur ce que vous aimeriez, sur ce qui compte pour vous et sur ce que vous avez vécu.', ch: [['Si rien ne m’arrêtait', 2], ['Ceux qui m’inspirent', 2], ['Ma journée idéale de travail', 2], ['Ce qui compte au travail', 2], ['Comment je veux travailler', 2], ['Mes expériences, côté ressenti', 3], ['Ce qui m’a aidé quand c’était difficile', 3], ['Mon prochain petit pas', 1]] },
+    { id: 'buia', nom: 'Bien utiliser l’IA', n: 3, ic: 'bi-chat-left-text', ph: 'Apprenez à écrire une demande claire à un assistant en ligne et à vérifier sa réponse.', ch: [['Je veux comprendre', 1], ['Je veux savoir comment il fonctionne', 2], ['J’ai un papier ou une situation', 2], ['Je veux écrire ma propre demande', 3]] } ] },
+  { g: 'Outils d’analyse', m: [
+    { id: 'bilan', nom: 'Analyser ma candidature', n: 2, ch: [] },
+    { id: 'regard', nom: 'Un regard sur mon CV', n: 2, ch: [] },
+    { id: 'ats', nom: 'Les mots de votre CV (ATS)', n: 2, ch: [] },
+    { id: 'coherence', nom: 'Cohérence de mon dossier', n: 2, ch: [] } ] },
+  { g: 'Se tenir informé', m: [
+    { id: 'cadre', nom: 'Comprendre le cadre', n: 1, ch: [] },
+    { id: 'chiffres', nom: 'Comprendre les chiffres', n: 1, ch: [] },
+    { id: 'quifaitquoi', nom: 'Qui fait quoi', n: 1, ch: [] } ] },
+  { g: 'Vous hésitez encore ?', m: [
+    { id: 'pistes', nom: 'Comparer mes pistes', n: 2, ch: [] },
+    { id: 'ucpm', nom: 'Un CV, plusieurs métiers', n: 2, ch: [] },
+    { id: 'metiers', nom: 'Explorer les métiers', n: 3, ic: 'bi-compass', ph: 'Cherchez un métier, découvrez ceux qui ressemblent à ce que vous aimez faire, ou répondez à un questionnaire.', ch: [['Chercher un métier', 1], ['Partir de vos envies', 2], ['Répondre à un questionnaire', 3], ['Les emplois en demande près de chez vous', 1]] } ] }
+];
+var MOTS = { 1: 'Rapide', 2: 'Un peu plus long', 3: 'À prendre à votre rythme' };
+var ARIA = { 1: 'rapide', 2: 'un peu plus long', 3: 'à prendre à votre rythme' };
+var avecPre = true;   /* consigne 607 : fixé */
+function trouver(id) { var r = null; MODULES.forEach(function (g) { g.m.forEach(function (m) { if (m.id === id) { r = m; } }); }); return r; }
+function nt(n, pre) {
+  return '<span class="nt" data-n="' + n + '" role="img" aria-label="Temps à prévoir : ' + ARIA[n] + '">' +
+    '<span class="nt-pts" aria-hidden="true"><i></i><i></i><i></i></span>' + (pre && avecPre ? '<span class="nt-pre">Temps à prévoir :</span>' : '') + '<span class="nt-mot">' + MOTS[n] + '</span></span>';
+}
+function tuiles() {
+  document.getElementById('tuiles').innerHTML = MODULES[2].m.map(function (m) {
+    return '<button type="button" class="sous-carte-accueil"><i class="bi ' + m.ic + '"></i><strong>' + m.nom + '</strong><span>' + m.ph + '</span></button>';
+  }).join('');
+}
+function entete(id, titre, ic, phrase) {
+  var m = trouver(id);
+  return '<h1 class="h2"><i class="bi ' + ic + ' titre-icone-accent"></i> ' + titre + '</h1><p class="sousTitre">' + phrase + '</p>' +
+    '<div class="mq-ligne-nt">' + nt(m.n, true) + '</div>' +
+    '<div class="mq-video"><div class="vig"><i class="bi bi-play-circle-fill" style="font-size:1.8rem;color:var(--accent-texte)"></i></div><div><strong>Voir la présentation en vidéo</strong><br><span style="color:var(--text-muted);font-size:.88rem">En images, avec des sous-titres.</span></div></div>';
+}
+function pages() {
+  document.getElementById('entete0').innerHTML = entete('lexique', 'Lexique', 'bi-book', 'Un mot vous bloque ? Cherchez-le ici : il est expliqué simplement.');
+  document.getElementById('entete1').innerHTML = entete('compte', 'Ce qui compte pour moi', 'bi-layers', 'Un espace pour mettre des mots sur ce que vous aimeriez, sur ce qui compte pour vous dans un travail et sur ce que vous avez vécu.');
+  document.getElementById('entete2').innerHTML = entete('metiers', 'Explorer les métiers', 'bi-compass', 'Cherchez un métier, découvrez ceux qui ressemblent à ce que vous aimez faire, ou répondez à un questionnaire.');
+}
+function carte(c, ic, txt) {
+  return '<div class="mq-chemin"><i class="bi ' + ic + ' ico"></i><div class="mq-ligne-nt">' + nt(c[1], false) + '</div><h3>' + c[0] + '</h3>' + (txt ? '<p>' + txt + '</p>' : '') + '<span class="bouton-fictif">Commencer</span></div>';
+}
+function chemins() {
+  var m = trouver('metiers'), ic = ['bi-search', 'bi-list-check', 'bi-hexagon', 'bi-briefcase'];
+  var txt = ['Un métier vous intrigue, ou vous voulez vérifier ce qu’il demande vraiment ?', 'Vous ne savez pas encore quel métier viser, mais vous savez ce qui vous attire ?', 'Vous préférez répondre à des questions plutôt que choisir vous-même ?', 'Vous cherchez surtout un emploi ?'];
+  document.getElementById('chemins-metiers').innerHTML = m.ch.map(function (c, i) { return carte(c, ic[i], txt[i]); }).join('');
+  var b = trouver('buia'), icb = ['bi-lightbulb', 'bi-gear', 'bi-file-earmark-text', 'bi-pencil-square'];
+  document.getElementById('chemins-buia').innerHTML = b.ch.map(function (c, i) { return carte(c, icb[i], ''); }).join('');
+  var cr = trouver('creer'), icc = ['bi-chat-dots', 'bi-journal-text', 'bi-pencil'];
+  document.getElementById('chemins-creer').innerHTML = cr.ch.map(function (c, i) { return carte(c, icc[i], ''); }).join('');
+  var cp = trouver('compte'), rub = [['Ce que j’aimerais', 0, 3], ['Ce qui compte', 3, 5], ['Ce que j’ai vécu', 5, 7], ['La suite', 7, 8]];
+  document.getElementById('chemins-compte').innerHTML = rub.map(function (r) {
+    return '<div class="mq-rub">' + r[0] + '</div><div class="mq-grille-ch">' + cp.ch.slice(r[1], r[2]).map(function (c) { return carte(c, 'bi-card-text', ''); }).join('') + '</div>';
+  }).join('');
+}
+function tableau() {
+  var h = '<tr><th>Module ou chemin</th><th>Niveau</th></tr>';
+  MODULES.forEach(function (g) {
+    h += '<tr class="groupe"><th colspan="2">' + g.g + '</th></tr>';
+    g.m.forEach(function (m) {
+      h += '<tr><td><strong>' + m.nom + '</strong></td><td>' + sel(m.id, -1, m.n) + '</td></tr>';
+      (m.ch || []).forEach(function (c, i) { h += '<tr class="chem"><td>' + c[0] + '</td><td>' + sel(m.id, i, c[1]) + '</td></tr>'; });
+    });
+  });
+  document.getElementById('tab').innerHTML = h;
+  document.querySelectorAll('#tab select').forEach(function (s) {
+    s.addEventListener('change', function () {
+      var m = trouver(s.dataset.m), i = Number(s.dataset.i), v = Number(s.value);
+      if (i < 0) { m.n = v; } else { m.ch[i][1] = v; }
+      tout(false);
+    });
+  });
+}
+function sel(id, i, n) {
+  return '<select data-m="' + id + '" data-i="' + i + '" aria-label="Niveau">' + [1, 2, 3].map(function (k) { return '<option value="' + k + '"' + (k === n ? ' selected' : '') + '>' + k + ' : ' + MOTS[k] + '</option>'; }).join('') + '</select>';
+}
+function tout(avecTableau) { tuiles(); pages(); chemins(); if (avecTableau !== false) { tableau(); } }
+document.querySelectorAll('.mq-barre [data-vue]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.mq-barre [data-vue]').forEach(function (x) { x.classList.toggle('actif', x === b); });
+    document.querySelectorAll('.mq-vue').forEach(function (v) { v.hidden = v.id !== b.dataset.vue; });
+  });
+});
+document.getElementById('bSombre').addEventListener('click', function () {
+  var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+  if (s) { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', 'sombre'); }
+});
+document.getElementById('bTel').addEventListener('click', function () {
+  var b = document.getElementById('bTel'); b.classList.toggle('actif');
+  document.querySelectorAll('.mq-vue').forEach(function (v) { v.classList.toggle('tel', b.classList.contains('actif')); });
+});
+tout(true);
+</script>
+</body>
+</html>

@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="modules/message-affichage/messageAffichage.css">
   <!-- Vidéos de présentation des modules (lot E, consigne 178) : un seul bouton-ligne avec vignette, le lecteur se déplie au clic. -->
   <link rel="stylesheet" href="modules/video-presentation/videoPresentation.css">
+  <link rel="stylesheet" href="modules/bien-utiliser-ia/bienUtiliserIa.css">
   <!-- Module « Lexique » — voir modules/lexique/ARCHITECTURE_TECHNIQUE.md. Cible ses
        écrans via [id^="lexique"], jamais les classes Bootstrap génériques globalement. -->
   <link rel="stylesheet" href="modules/lexique/lexique.css">
@@ -607,6 +608,7 @@
   <script src="modules/comprendre-les-metiers/syntheseLogique.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseParcoursLogique.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseLectureLogique.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/interpretationLogique.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/index.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/questionnaire.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/parActions.js" charset="UTF-8"></script>
@@ -620,6 +622,8 @@
   <script src="modules/comprendre-les-metiers/synthese.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseVue.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseLecture.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/interpretation.js" charset="UTF-8"></script>
+  <script src="modules/comprendre-les-metiers/interpretationQuestions.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseFeuille.js" charset="UTF-8"></script>
   <script src="modules/comprendre-les-metiers/syntheseParcours.js" charset="UTF-8"></script>
   <script src="modules/cv-modeles-gardes/logique.js" charset="UTF-8"></script>
@@ -633,6 +637,45 @@
   <script src="modules/mes-competences/pageRelecture.js" charset="UTF-8"></script>
   <script src="modules/mes-competences/pageDocument.js" charset="UTF-8"></script>
   <script src="modules/mes-competences/exportDocx.js" charset="UTF-8"></script>
+  <!-- Espace « Ce qui compte pour moi » (Boîte à outils) : données des cartes, logique pure, point d'entrée. Fermé au public (CQCPM_OUVERT). Plan : docs/AUDIT_ET_PLAN_CE_QUI_COMPTE_POUR_MOI_2026-11-22.md -->
+  <script src="data/cqcpmValeurs.js" charset="UTF-8"></script>
+  <script src="data/cqcpmConditions.js" charset="UTF-8"></script>
+  <script src="data/cqcpmCartes.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/logique.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/papier.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/document.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/index.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/ecrans.js" charset="UTF-8"></script>
+  <script src="modules/ce-qui-compte/papierEcrans.js" charset="UTF-8"></script>
+  <!-- « Mon plan » (consignes 608 à 619) : page partagée, ouverte depuis « Ce qui compte pour moi » et « Ma synthèse ». Ouverte au public le 26/11/2026 (MPL_OUVERT). -->
+  <script src="modules/mon-plan/logique.js" charset="UTF-8"></script>
+  <script src="modules/mon-plan/document.js" charset="UTF-8"></script>
+  <script src="modules/mon-plan/index.js" charset="UTF-8"></script>
+  <!-- Module « Bien utiliser l'IA » (Boîte à outils) : textes de l'écran d'entrée, logique pure, point d'entrée. Fermé au public (BUIA_OUVERT). Plan : docs/AUDIT_ET_PLAN_BIEN_UTILISER_L_IA_2026-11-23.md -->
+  <script src="data/buiaEntree.js" charset="UTF-8"></script>
+  <script src="data/buiaDemande.js" charset="UTF-8"></script>
+  <script src="data/buiaComprendre.js" charset="UTF-8"></script>
+  <script src="data/buiaExercices.js" charset="UTF-8"></script>
+  <script src="data/buiaFonctionne.js" charset="UTF-8"></script>
+  <script src="data/buiaModeles.js" charset="UTF-8"></script>
+  <script src="data/buiaModelesTextes.js" charset="UTF-8"></script>
+  <script src="data/buiaLibreTextes.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/logique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/blocs.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/comprendreLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/exercicesLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/fonctionneLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/modelesLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/papierLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/modeleLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/libreLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/gardeLogique.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/comprendreUi.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/exercicesUi.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/fonctionneUi.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/modelesUi.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/libreUi.js" charset="UTF-8"></script>
+  <script src="modules/bien-utiliser-ia/index.js" charset="UTF-8"></script>
   <script src="modules/comprendre-le-cadre/index.js" charset="UTF-8"></script>
   <!-- Module « Comprendre les chiffres » (2e sous-carte de « Se tenir informé »),
        page routée, pure consultation. Chargé avant js/app.js (référencé dans
@@ -664,6 +707,8 @@
   <script src="modules/message-affichage/messageAffichage.js" charset="UTF-8"></script>
   <!-- Vidéos de présentation (brique commune, lot E) : htmlVideoPresentation(), appelée par les pages de présentation ; avant js/app.js. -->
   <script src="modules/video-presentation/videoPresentation.js" charset="UTF-8"></script>
+  <!-- Repère de temps à trois niveaux (consignes 605 à 607) : niveaux + htmlRepereTempsModule / htmlRepereTempsChemin ; avant js/app.js et les modules. -->
+  <script src="data/tempsModules.js" charset="UTF-8"></script>
   <!-- Nouveautés : données, logique pure, interface ; avant js/app.js (route 'nouveautes'). -->
   <script src="data/nouveautes.js" charset="UTF-8"></script>
   <script src="data/problemesCorriges.js" charset="UTF-8"></script>

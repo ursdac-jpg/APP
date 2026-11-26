@@ -5733,6 +5733,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .ip-figure img { border: 1px solid var(--border-strong); border-radius: 12px; display: block; background: var(--bg-card); }
 .ip-figure figcaption { color: var(--text-muted); font-size: var(--t-petit); margin-top: .3rem; }
 .ip-figures-deux { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.ip-figures-trois { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
 .ip-pas { display: grid; gap: 1.2rem; margin-top: .8rem; }
 .ip-pas-ligne { display: grid; grid-template-columns: 2.1rem 1fr; gap: .8rem; align-items: start; }
 .ip-pas-ligne .ip-figure { margin: .5rem 0 0; }
@@ -5766,7 +5767,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .ip-video-absente { padding: 1.2rem; background: var(--bg-card); color: var(--text-strong); }
 .ip-video-texte p { margin: 0 0 .5rem; }
 @media (max-width: 640px) {
-  .ip-figures-deux, .ip-modeles { grid-template-columns: 1fr; }
+  .ip-figures-deux, .ip-figures-trois, .ip-modeles { grid-template-columns: 1fr; }
 }
 
 /* ===== Étape « Vos missions et compétences » (lot 3, 14/11/2026) =====
@@ -5895,6 +5896,7 @@ body:has(.ip-barre-fixe) #fenetreERIP .fenetre-erip-boite { max-height: calc(100
 .cml-encart p { margin: 0; }
 .cml-grille3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
 .cml-grille3.cml-grille4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 1700px) { .cml-grille3.cml-grille4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }   /* quatre chemins sur une ligne sur grand écran, comme « Bien utiliser l'IA » (consigne de Denis du 25/11/2026, mise en page homogène). Seuil 1700 px et non 1400 : le bloc vidéo de chaque carte mesure 361 px, en dessous la dernière carte déborde. */
 .cml-entree { display: flex; flex-direction: column; gap: .5rem; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .9rem 1rem; }
 .cml-entree .ico { font-size: 1.7rem; color: var(--accent); }
 .cml-entree h3 { font-size: var(--t-moyen, 1rem); font-weight: 800; margin: 0; }
@@ -6002,6 +6004,9 @@ button.cml-fil-t.fait { cursor: pointer; }
 .cml-groupe-comp .cml-jetons { margin: .4rem 0 .7rem; }
 .cml-jt { border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); padding: .35rem .8rem; min-height: 44px; font-size: var(--t-moyen, 1rem); display: inline-flex; align-items: center; gap: .4rem; text-align: left; }
 .cml-jt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg-subtle); }
+/* Un bouton déjà actif reste lisible au survol (texte blanc sur fond plein, jamais blanc sur fond pâle). */
+.cml-jt.is-actif:hover:not(:disabled) { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; }
+.cml-jt.is-evite:hover:not(:disabled) { background: var(--warning-bg-subtle); border-color: var(--warning); color: var(--text-strong); }
 .cml-jt .bi { display: none; }
 .cml-jt.is-actif { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: #fff; font-weight: 700; }
 .cml-jt.is-actif .bi { display: inline; }
@@ -6144,6 +6149,14 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .cml-invite > i { color: var(--accent-texte, var(--accent)); font-size: 1.4rem; }
 .cml-invite p { margin: 0 0 .5rem; }
 .cml-invite .btn { min-height: 44px; }
+/* Explorer les métiers : questions de l'interprétation, au moment de la synthèse (étape 2, consignes 543 et 548) */
+.cml-int-ligne { display: grid; grid-template-columns: 1fr auto; gap: .5rem .8rem; align-items: center; border-top: 1px solid var(--border); padding: .7rem 0; }
+.cml-int-question { border-top: 1px solid var(--border); padding: .8rem 0; }
+.cml-int-question .qt { font-weight: 700; margin: 0 0 .15rem; }
+.cml-int-tag { display: inline-block; font-size: .78rem; border: 1px solid var(--border-strong); border-radius: 999px; padding: .05rem .55rem; margin: 0 .3rem .3rem 0; color: var(--text-muted); background: var(--bg-subtle); }
+.cml-int-regroupe { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); padding: .5rem .9rem; }
+.cml-int-regroupe p { margin: .4rem 0; }
+@media (max-width: 480px) { .cml-int-ligne { grid-template-columns: 1fr; } }
 .cml-retenu-ligne { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border: 2px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); padding: .5rem .8rem; margin: .6rem 0; }
 .cml-retenu-ligne > i { color: var(--accent-texte, var(--accent)); font-size: 1.2rem; }
 .cml-retenu-ligne .btn { min-height: 44px; }
@@ -6163,7 +6176,10 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .cml-table-croisee thead th { background: var(--bg-subtle); color: var(--text-strong); }
 .cml-quatre { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; }
 .cml-lecture-mini { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .8rem; }
-.cml-lecture-mini p { margin: .25rem 0 0; font-size: var(--t-petit, .875rem); }
+.cml-lecture-mini p { margin: .25rem 0 0; line-height: 1.5; font-size: var(--t-petit, .875rem); }
+.cml-lecture-mini p + p { margin-top: .7rem; }
+/* Suite d'un texte long découpé en paragraphes (consigne 536). */
+.cml-para-suite { margin-top: .6rem; }
 /* Passage 3 de « Ma synthèse » : départage des métiers aux mêmes lettres (A1b, A1d). */
 .cml-affiner { border: 1px dashed var(--accent); border-radius: 12px; padding: .7rem .9rem; margin: .8rem 0; background: var(--accent-bg-subtle); }
 .cml-affiner h3 { font-size: var(--t-grand, 1.125rem); font-weight: 800; margin: 0 0 .3rem; display: flex; gap: .5rem; align-items: center; }
@@ -6224,6 +6240,13 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .idp-images { display: grid; gap: 1.6cqw; min-height: 0; align-items: start; }
 .idp-images.idp-n1 { grid-template-columns: 1fr; }
 .idp-images.idp-n2 { grid-template-columns: 1fr 1fr; }
+.idp-mosaique { display: grid; gap: 1.4cqw; align-items: start; }
+.idp-mosaique.m2 { grid-template-columns: 1fr 1fr; }
+.idp-mosaique.m3 { grid-template-columns: repeat(3, 1fr); }
+.idp-mosaique figure { margin: 0; }
+.idp-mosaique img { width: 100%; display: block; border: 1px solid var(--border-strong); border-radius: .8cqw; }
+.idp-mosaique.compact img { aspect-ratio: 1000 / 270; object-fit: cover; object-position: top; }
+.idp-mosaique figcaption { font-size: 2cqw; font-weight: 700; margin-top: .4cqw; line-height: 1.2; }
 .idp-figure { margin: 0; min-height: 0; }
 .idp-figure figcaption { font-size: 2cqw; color: var(--text-muted); margin-top: .5cqw; line-height: 1.25; }
 .idp-encart { background: var(--accent-bg-subtle); border-left: .5cqw solid var(--accent); border-radius: 1cqw; padding: 1.4cqw 2cqw; display: flex; gap: 1.6cqw; align-items: center; }
@@ -6235,8 +6258,8 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .idp-btn { border: 2px solid var(--accent); background: var(--bg-card); color: var(--accent-texte); border-radius: 8px; font-weight: 700; font-size: 1.9cqw; padding: .7cqw 1.8cqw; cursor: pointer; min-height: 44px; }
 .idp-btn.idp-btn-plein { background: var(--accent); color: #fff; }
 .idp-btn:disabled { opacity: .4; cursor: default; }
-.idp-points { flex: 1 1 auto; display: flex; gap: .7cqw; justify-content: center; flex-wrap: wrap; }
-.idp-points button { width: 1.5cqw; height: 1.5cqw; min-width: 12px; min-height: 12px; border-radius: 50%; border: 1px solid var(--accent); background: transparent; padding: 0; cursor: pointer; }
+.idp-points { flex: 1 1 auto; display: flex; gap: .5cqw; justify-content: center; flex-wrap: wrap; }
+.idp-points button { width: 1.4cqw; height: 1.4cqw; min-width: 12px; min-height: 12px; border-radius: 50%; border: 1px solid var(--accent); background: transparent; padding: 0; cursor: pointer; }
 .idp-points button.actif { background: var(--accent); }
 .idp-compteur { font-size: 1.7cqw; color: var(--text-muted); min-width: 7cqw; text-align: center; }
 .idp-plein-ecran { position: absolute; top: 1.2cqw; right: 1.4cqw; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent-texte); border-radius: 8px; font-size: 1.8cqw; padding: .4cqw 1cqw; cursor: pointer; z-index: 3; min-height: 32px; }
@@ -6247,7 +6270,7 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 @media (max-width: 700px) {
   .idp-cadre { aspect-ratio: auto; min-height: 0; }
   .idp-diapo { padding: 5cqw 5cqw 3cqw; }
-  .idp-colonnes, .idp-colonnes.idp-egal, .idp-images.idp-n2 { grid-template-columns: 1fr; }
+  .idp-colonnes, .idp-colonnes.idp-egal, .idp-images.idp-n2, .idp-mosaique.m2, .idp-mosaique.m3 { grid-template-columns: 1fr; }
   .idp-diapo h2 { font-size: 7cqw; }
   .idp-diapo p, .idp-diapo li { font-size: 4.6cqw; }
   .idp-grand { font-size: 5.4cqw !important; }
@@ -6384,6 +6407,57 @@ button.cml-rep:focus-visible { outline: 3px solid var(--accent); outline-offset:
 .fm-bouton-details { display: inline-block; list-style: none; cursor: pointer; margin-top: .5rem; }
 .fm-bouton-details::-webkit-details-marker { display: none; }
 @media (max-width: 720px) { .fm-colonnes { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   Écran tactile (24/11/2026, audit téléphone, docs/AUDIT_TELEPHONE_2026-11-24.md, lot 1) : toute cible au doigt compte au moins 44 px.
+   Les boutons dessinés plus petits (boutons ronds du haut, flèches, pastilles d'étapes, « i » des fiches) gardent leur dessin : seule leur ZONE À TOUCHER grandit,
+   par un cadre invisible (::after) posé autour. Rien ne bouge à l'écran. Aucune couleur : le mode sombre n'est pas concerné.
+   Garde-fou : npm run telephone (scripts/rendu/balayageTelephone.js) mesure la zone à toucher réelle de chaque cible sur les 68 routes.
+   ============================================================ */
+@media (pointer: coarse), (max-width: 768px) {
+  /* Cadre invisible CENTRÉ sur la cible, jamais plus petit que 44 px (la bordure ou le mode sombre ne changent donc pas la mesure). Boutons ronds fixes du haut, Introduction, Carnet,
+     pastilles d'étapes, étapes de la barre du haut : 6 px d'écart entre deux boutons du haut, leurs zones se touchent sans se recouvrir. */
+  #btnPreferencesAffichage::after, #btnAide::after, #btnSessionTransfert::after, #btnNouveautes::after, #btnIntroduction::after, #btnCarnet::after,
+  .pastille-etape-action::after, .progression .etape::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; min-width: 44px; min-height: 44px; transform: translate(-50%, -50%);
+  }
+  /* Flèches collées au bord de l'écran : hauteur 44 px, largeur 24 px (la largeur est limitée par le bord de l'écran et le bouton voisin). */
+  .fleche-bouton::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 100%; min-width: 24px; min-height: 44px; transform: translateY(-50%); }
+  .fleche-bouton--droite::after { left: auto; right: 0; }
+  .pastille-etape-action, .progression .etape { position: relative; }
+  /* Bouton « Accueil » de la barre du bas (icône seule sur téléphone). */
+  .barre-navigation-fixe .barre-navigation .btn-accueil { min-width: 44px; }
+  /* Titres repliables sans classe (« En savoir plus sur... ») et « petits » titres repliables : 22 px dessinés. Marge intérieure de 11 px en haut et en bas, compensée par une marge extérieure négative :
+     la zone à toucher atteint 44 px et l'espacement à l'écran ne change pas. */
+  .bloc-depli > summary { min-height: 44px; }   /* bloc repliable standard : 43 px dessinés, on garde son propre espacement */
+  details:not(.bloc-depli) > summary:not([class]), details:not(.bloc-depli) > summary.small { min-height: 44px; padding-top: 11px; padding-bottom: 11px; margin-top: -11px; margin-bottom: -11px; }
+  /* Choix et cases à cocher entourés de leur texte (radio ou case dans un label) : la ligne entière se touche, elle compte 44 px au moins. */
+  #app label:has(> input[type=radio]), #app label:has(> input[type=checkbox]) { min-height: 44px; }
+  /* « Garder comme Repère » dans les cartes du rapport : la règle d'origine impose min-height 0 avec !important, on la bat ici sur téléphone seulement. */
+  .carte-action-repere .btn[data-repere-trigger] { min-height: 44px !important; }
+  /* Choix de formulation (« Étape 1 ») : le texte à côté du bouton rond se touche sur toute sa ligne. */
+  .reco-corps > label { display: flex; align-items: center; min-height: 44px; }
+  /* Boutons de l'application : au moins 44 px de haut. */
+  .btn, .expo-sec, .bilan-preparer .preparer-jeton, .pastille-selection, .onglet-validation-import-btn, .decouverte-parcours .onglet-validation-import-btn { min-height: 44px; }
+  /* Bouton de fermeture des fenêtres, « i » des cartes, retour à la carte. */
+  .fenetre-erip-fermer { width: 44px; height: 44px; }
+  .carte-accueil-info-trigger { position: relative; }
+  .carte-accueil-info-trigger::after { content: ""; position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; min-width: 44px; min-height: 44px; transform: translate(-50%, -50%); }
+  .btn-retour-carte-accueil { min-height: 44px; }
+  /* Familles repliables de « Votre parcours » et « Vos informations » (42 px dessinés). Le ::after porte déjà la flèche, la zone utilise donc le ::before. */
+  .vp-fam > summary { position: relative; }
+  .vp-fam > summary::before { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 100%; min-height: 44px; transform: translateY(-50%); }
+  /* Nom d'un métier cliquable dans une carte (texte seul sur une ligne) : zone verticale élargie, sans changer l'espacement. */
+  .metier-resume-nom { position: relative; }
+  .metier-resume-nom::after { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 100%; min-height: 44px; transform: translateY(-50%); }
+  /* « Tout désélectionner » de « Votre parcours » et « Vos informations ». */
+  .vp-qvider { min-height: 44px; }
+  /* Texte d'état (« À compléter ») : peut passer à la ligne au lieu de dépasser du cadre. */
+  .appui-partie-titre { flex-wrap: wrap; }
+  .appui-etat { white-space: normal; }
+  /* Bouton seul de l'accueil du Lexique. */
+  .lexique-accueil-tous { min-height: 44px; }
+}
 
 /* ============================================================
    Boutons repliables (15/11/2026, modules/boutons-repliables, consignes 332 à 332 sexies ; maquette docs/MAQUETTE_BOUTONS_REPLIABLES_2026-11-15.html).
@@ -6739,3 +6813,256 @@ body.repli-sans-transition :is(#btnPreferencesAffichage, #btnAide, #btnSessionTr
 .cml-niv-cartes .metier-carte, .cml-niv-cartes .carte-m { border-left: 6px solid var(--nl); }
 .cml-niv-cartes .metier-carte-large, .cml-niv-cartes .cml-vedette-c1 { border-width: 2px; border-left-width: 8px; border-color: var(--nl); }
 #pmRacine .cml-vedette-c1 { padding: .9rem 1rem; }
+
+/* ============================================================
+   Espace « Ce qui compte pour moi » (modules/ce-qui-compte/) : variables seulement, le mode sombre et le choix d'accent viennent avec elles.
+   Maquettes validées le 22/11/2026 : docs/MAQUETTE_CE_QUI_COMPTE_POUR_MOI_*.html ; pages éclaircies et introduction (consigne 566) :
+   docs/MAQUETTE_CE_QUI_COMPTE_POUR_MOI_INTRO_ET_PAGES_2026-11-22.html.
+   RÈGLE DE COULEUR (Denis, consigne 566) : jamais une autre couleur que l'accent du site (--accent et dérivées), donc ni vert ni ambre ici.
+   Zones de saisie : la brique commune « .form-control.champ-bien-visible » (bordure d'accent de 2 px), jamais recopiée.
+   ============================================================ */
+/* Pastille d'icône carrée (comme .cml-famille .ico d'Explorer les métiers) */
+.cqcpm-ico { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent-texte, var(--accent)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid var(--accent); }
+.cqcpm-ico.petit { width: 34px; height: 34px; font-size: 1.1rem; border-radius: 9px; }
+/* Accueil : un bloc par thème, filet d'accent à gauche (comme .cml-famille) */
+.cqcpm-theme-bloc { background: var(--bg-card); border: 1px solid var(--border); border-left: 8px solid var(--accent); border-radius: 14px; padding: .9rem 1rem 1rem; margin: 1rem 0; }
+.cqcpm-theme-bloc .tete { display: flex; gap: .7rem; align-items: center; margin-bottom: .7rem; flex-wrap: wrap; }
+.cqcpm-theme-bloc .tete h2 { font-size: 1.2rem; font-weight: 800; margin: 0; }
+.cqcpm-theme-bloc .tete p { margin: 0; font-size: .92rem; color: var(--text-soft); }
+.cqcpm-theme-bloc .tete .cqcpm-compte { margin-left: auto; }
+.cqcpm-cartes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.cqcpm-cartes.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cqcpm-cartes.n1 { grid-template-columns: minmax(0, 1fr); max-width: 50%; }
+.cqcpm-carte { position: relative; display: flex; flex-direction: column; gap: .45rem; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .9rem 1rem; }
+.cqcpm-carte h3 { font-size: 1.05rem; font-weight: 800; margin: 0; }
+.cqcpm-carte .pour { font-size: .98rem; font-weight: 700; color: var(--text-strong); margin: 0; line-height: 1.3; }
+.cqcpm-carte .dit { font-size: .93rem; color: var(--text-soft); margin: 0; flex: 1; }
+.cqcpm-carte .btn { min-height: 46px; }
+.cqcpm-carte .cqcpm-etat { position: absolute; top: .7rem; right: .8rem; font-size: .8rem; font-weight: 700; border-radius: 999px; padding: .1rem .6rem; border: 2px solid var(--accent); color: var(--text-strong); background: var(--accent-bg-subtle); display: inline-flex; gap: .3rem; align-items: center; }
+.cqcpm-carte .cqcpm-etat .bi { color: var(--accent-texte, var(--accent)); }
+.cqcpm-compte { display: inline-block; font-size: .85rem; font-weight: 700; border: 2px solid var(--border-strong); border-radius: 999px; padding: .05rem .65rem; background: var(--bg-subtle); color: var(--text-strong); }
+.cqcpm-compte.plein { border-color: var(--accent); background: var(--accent-bg-subtle); }
+/* Fin de rubrique (consigne 601) : deux phrases lisibles, puis le bloc dépliant commun .bloc-depli (aucune couleur nouvelle : variables d'accent seulement) */
+.cqcpm-fin { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+.cqcpm-fin .cherche { font-size: 1rem; color: var(--text-strong); margin: 0 0 .5rem; }
+.cqcpm-fin .bloc-depli { margin: .4rem 0 0; }
+.cqcpm-fin .aide { font-size: 1rem; color: var(--text-strong); margin: .7rem 0 .3rem; }
+.cqcpm-fin-carte { border-top: 1px solid var(--border); margin-top: .8rem; padding-top: .7rem; }
+.cqcpm-fin-carte h3 { display: flex; align-items: center; gap: .55rem; font-size: 1.02rem; font-weight: 800; margin: 0 0 .3rem; }
+.cqcpm-fin-carte p { font-size: .98rem; color: var(--text-strong); margin: .25rem 0; }
+.cqcpm-bas { display: flex; justify-content: center; margin: 1.4rem 0 .2rem; }
+/* Bloc : titre avec pastille d'icône ; le texte qui se lit n'est jamais en gris pâle (le gris reste pour les notes) */
+.cqcpm-bloc { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; }
+.cqcpm-bloc > h2 { display: flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; margin: 0 0 .55rem; }
+.cqcpm-bloc > h2 .cqcpm-ico { font-size: 1.25rem; }
+.cqcpm-bloc p, .cqcpm-bloc li { font-size: 1rem; color: var(--text-strong); margin: .25rem 0; }
+.cqcpm-bloc ul { margin: .3rem 0; padding-left: 1.2rem; }
+.cqcpm-note, .cqcpm-bloc .cqcpm-note { font-size: .9rem; color: var(--text-muted); }
+.cqcpm-res li, .cqcpm-res .texte { color: var(--text-strong); }
+.cqcpm-fiches { list-style: none; padding: 0; }
+.cqcpm-fiches li { padding: .5rem 0; border-bottom: 1px solid var(--border); }
+.cqcpm-fiches li:last-child { border-bottom: 0; }
+.cqcpm-actions { display: flex; flex-wrap: wrap; gap: .6rem .8rem; margin: 1rem 0 .2rem; }
+.cqcpm-actions .btn { min-height: 46px; }
+/* Bandeau de la carte en cours (titre de l'écran et « Partie 1 sur 2 ») */
+.cqcpm-bandeau { display: flex; gap: .8rem; align-items: center; border: 2px solid var(--accent); border-left-width: 8px; border-radius: 14px; background: var(--accent-bg-subtle); padding: .6rem .9rem; margin: .6rem 0; }
+.cqcpm-bandeau .cqcpm-ico { width: 44px; height: 44px; font-size: 1.4rem; background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: white; }
+.cqcpm-bandeau b { display: block; font-size: 1.1rem; }
+.cqcpm-bandeau span { font-size: .9rem; color: var(--text-soft); }
+.cqcpm-bandeau .n { margin-left: auto; font-weight: 800; font-size: .9rem; border: 2px solid var(--accent); border-radius: 999px; padding: .1rem .7rem; background: var(--bg-card); color: var(--text-strong); white-space: nowrap; }
+/* Une question et sa zone de réponse (une zone par question, filet d'accent, comme .cml-q) */
+.cqcpm-qb { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-left: 6px solid var(--accent); border-radius: 12px; padding: .7rem .9rem; margin: .7rem 0; }
+.cqcpm-qb > .cqcpm-q:first-child { margin-top: 0; }
+.cqcpm-q { font-size: 1.02rem; font-weight: 800; color: var(--text-strong); margin: 1rem 0 .15rem; }
+.cqcpm-q .a { font-weight: 400; color: var(--text-muted); font-size: .9rem; }
+.cqcpm-champ { width: 100%; }
+textarea.cqcpm-champ { min-height: 5.2rem; }
+.cqcpm-champ::placeholder { color: var(--text-muted); opacity: 1; }
+.cqcpm-ajout { display: flex; gap: .5rem; align-items: stretch; margin: .4rem 0; }
+.cqcpm-ajout .btn { min-height: 48px; flex: none; }
+/* Boutons de choix : 2 px, le choix fait est plein (texte blanc sur --accent-solide), comme les boutons d'Explorer les métiers */
+.cqcpm-rep { display: flex; flex-wrap: wrap; gap: .45rem; margin: .3rem 0; }
+.cqcpm-rep button { font-size: .95rem; border: 2px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); padding: .3rem .8rem; min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; }
+.cqcpm-rep button:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.cqcpm-rep button[aria-pressed="true"] { background: var(--accent-solide, var(--accent)); border-color: var(--accent-solide, var(--accent)); color: white; font-weight: 800; }
+.cqcpm-rep button.petit { min-height: 40px; font-size: .9rem; }
+.cqcpm-rep.colonne { flex-direction: column; align-items: stretch; }
+.cqcpm-rep.colonne button { justify-content: flex-start; text-align: left; }
+.cqcpm-rep button:focus-visible, .cqcpm-theme > button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Liste de phrases : chaque phrase est numérotée et encadrée d'accent */
+.cqcpm-page ul.cqcpm-lignes, .cqcpm-page ul.cqcpm-fiches { list-style: none; padding: 0; margin: .4rem 0; }
+.cqcpm-lignes li { display: flex; gap: .6rem; align-items: center; border: 1px solid var(--accent); border-radius: 10px; padding: .4rem .5rem .4rem .8rem; margin: .35rem 0; background: var(--accent-bg-subtle); }
+.cqcpm-lignes li span { flex: 1; color: var(--text-strong); }
+.cqcpm-lignes li span.num { flex: none; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-solide, var(--accent)); color: white; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; }
+.cqcpm-lignes li.cqcpm-vide-ligne { background: var(--bg-subtle); border-style: dashed; border-color: var(--border-strong); }
+.cqcpm-lignes li.cqcpm-vide-ligne span { color: var(--text-muted); }
+/* Accordéon des sept thèmes de conditions */
+.cqcpm-theme { background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 12px; margin: .5rem 0; overflow: hidden; }
+.cqcpm-theme.ouvert { border-color: var(--accent); }
+.cqcpm-theme > button { width: 100%; display: flex; align-items: center; gap: .7rem; background: none; border: 0; padding: .75rem 1rem; color: var(--text-strong); text-align: left; min-height: 56px; }
+.cqcpm-theme > button .t { flex: 1; }
+.cqcpm-theme > button .t b { display: block; font-size: 1.02rem; }
+.cqcpm-theme > button .t span { font-size: .88rem; color: var(--text-soft); }
+.cqcpm-theme > button .nb { font-size: .8rem; font-weight: 700; border-radius: 999px; padding: .1rem .6rem; border: 2px solid var(--border-strong); color: var(--text-strong); background: var(--bg-subtle); flex: none; }
+.cqcpm-theme > button .nb.plein { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.cqcpm-theme.ouvert > button { border-bottom: 1px solid var(--border); background: var(--accent-bg-subtle); }
+.cqcpm-theme .corps { padding: .3rem 1rem .8rem; }
+.cqcpm-cond { padding: .65rem 0; border-bottom: 1px solid var(--border); }
+.cqcpm-cond:last-child { border-bottom: 0; }
+.cqcpm-cond .lib { font-size: 1rem; font-weight: 700; margin: 0 0 .4rem; color: var(--text-strong); }
+.cqcpm-sous-titre { font-size: 1.02rem; font-weight: 800; margin: 1rem 0 .1rem; padding-bottom: .25rem; border-bottom: 2px solid var(--accent); color: var(--text-strong); }
+/* Fiche d'une entrée numérotée */
+.cqcpm-entree { border: 1px solid var(--border-strong); border-radius: 12px; padding: .2rem .9rem .8rem; margin: .7rem 0; background: var(--bg-card); }
+.cqcpm-entree > h3 { display: flex; gap: .6rem; align-items: center; font-size: 1.05rem; font-weight: 800; margin: .7rem 0 .2rem; }
+.cqcpm-entree > h3 .num { flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-solide, var(--accent)); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; }
+.cqcpm-entree > h3 small { font-weight: 400; color: var(--text-muted); font-size: .85rem; }
+/* Trois piles de repères */
+.cqcpm-pile { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.cqcpm-pile .col { border: 1px solid var(--border-strong); border-radius: 10px; padding: .5rem .7rem; background: var(--bg-subtle); }
+.cqcpm-pile .col h4 { font-size: .95rem; font-weight: 800; margin: 0 0 .3rem; display: flex; gap: .4rem; align-items: center; }
+.cqcpm-pile .col h4 .bi { color: var(--accent-texte, var(--accent)); }
+.cqcpm-pile .col ul { margin: 0; padding-left: 1.1rem; }
+.cqcpm-pile .col li { font-size: .93rem; color: var(--text-strong); margin: .15rem 0; }
+.cqcpm-val { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+.cqcpm-val:last-child { border-bottom: 0; }
+.cqcpm-val .lib { flex: 1 1 200px; font-size: 1rem; font-weight: 700; }
+.cqcpm-val .cqcpm-rep { margin: 0; }
+.cqcpm-val .cqcpm-rep button { min-height: 40px; padding: .2rem .55rem; font-size: .85rem; }
+/* Messages : tout en accent (jamais de vert ni d'ambre) ; le message « difficile en ce moment » est en pointillés */
+.cqcpm-ok, .cqcpm-alerte, .cqcpm-aide { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .65rem .9rem; margin: .8rem 0; font-size: 1rem; display: flex; gap: .7rem; align-items: flex-start; }
+.cqcpm-ok > .bi, .cqcpm-alerte > .bi, .cqcpm-aide > .bi { color: var(--accent-texte, var(--accent)); font-size: 1.4rem; }
+.cqcpm-alerte { border-style: dashed; }
+.cqcpm-vide { color: var(--text-muted); font-size: .95rem; text-align: center; background: var(--bg-subtle); border: 2px dashed var(--border-strong); border-radius: 12px; padding: 1rem; }
+.cqcpm-bloc .cqcpm-vide { background: none; border: 0; padding: 0; text-align: left; }
+/* Ce que j'ai gardé */
+.cqcpm-garde { display: flex; flex-direction: column; gap: .6rem; }
+.cqcpm-garde .cqcpm-ligne { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: .7rem .9rem; display: flex; gap: .8rem; align-items: flex-start; flex-wrap: wrap; }
+.cqcpm-garde .cqcpm-ligne .txt { flex: 1 1 220px; }
+.cqcpm-garde .cqcpm-ligne h3 { font-size: 1.02rem; font-weight: 800; margin: 0; }
+.cqcpm-garde .cqcpm-ligne p { margin: .15rem 0 0; font-size: .93rem; color: var(--text-strong); }
+.cqcpm-garde .cqcpm-ligne p.cqcpm-note { color: var(--text-muted); }
+/* Introduction : une carte du module par ligne, une étape par ligne */
+.cqcpm-intro-carte { display: flex; gap: .8rem; align-items: flex-start; border-top: 1px solid var(--border); padding: .7rem 0; }
+.cqcpm-intro-carte.premiere { border-top: 0; }
+.cqcpm-intro-carte h4 { font-size: 1.02rem; font-weight: 800; margin: 0; }
+.cqcpm-intro-carte p { margin: .15rem 0; font-size: .97rem; }
+.cqcpm-intro-carte .q { font-weight: 700; }
+.cqcpm-etapes { list-style: none; padding: 0; margin: .3rem 0; display: grid; gap: .5rem; }
+.cqcpm-etapes li { display: flex; gap: .7rem; align-items: flex-start; margin: 0; }
+.cqcpm-etapes .num { flex: none; width: 32px; height: 32px; border-radius: 9px; background: var(--accent-solide, var(--accent)); color: white; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 700px) {
+  .cqcpm-cartes, .cqcpm-cartes.n2, .cqcpm-cartes.n3 { grid-template-columns: 1fr; }
+  .cqcpm-cartes.n1 { max-width: none; }
+  .cqcpm-pile { grid-template-columns: 1fr; }
+  .cqcpm-ajout { flex-direction: column; }
+}
+
+/* Le papier de fin « Ce qui revient dans mes cartes » (maquette du 23/11/2026, consignes 569 et 570). Tout est basé sur l'accent : aucune autre couleur. */
+.cqcpm-bloc-papier { border: 2px solid var(--accent); }
+.cqcpm-pastille { display: inline-flex; gap: .3rem; align-items: center; font-size: .8rem; font-weight: 700; border-radius: 999px; padding: .1rem .6rem; border: 2px solid var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); }
+.cqcpm-pastille .bi { color: var(--accent-texte, var(--accent)); }
+.cqcpm-pap-cases { display: grid; gap: .5rem; margin: .6rem 0; }
+.cqcpm-pap-case { display: flex; gap: .8rem; align-items: flex-start; background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 12px; padding: .7rem .9rem; cursor: pointer; }
+.cqcpm-pap-case.coche { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.cqcpm-pap-case input[type="checkbox"] { flex: none; width: 24px; height: 24px; margin-top: .2rem; accent-color: var(--accent-solide, var(--accent)); }
+.cqcpm-pap-case h3 { font-size: 1.02rem; font-weight: 800; margin: 0; }
+.cqcpm-pap-case p { margin: .15rem 0 0; font-size: .93rem; color: var(--text-strong); }
+.cqcpm-pap-case .prive { color: var(--text-soft); }
+.cqcpm-papier { background: var(--bg-card); border: 2px solid var(--accent); border-radius: 14px; padding: 1rem 1.2rem; margin: .8rem 0; }
+.cqcpm-papier .entete { display: flex; gap: .7rem; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: .6rem; margin-bottom: .4rem; }
+.cqcpm-papier .entete h2 { font-size: 1.25rem; font-weight: 800; margin: 0; }
+.cqcpm-papier h3 { font-size: 1.05rem; font-weight: 800; margin: 1rem 0 .25rem; display: flex; gap: .5rem; align-items: center; }
+.cqcpm-papier h3 .bi { color: var(--accent-texte, var(--accent)); }
+.cqcpm-papier p, .cqcpm-papier li { font-size: 1rem; color: var(--text-strong); margin: .25rem 0; }
+.cqcpm-papier ul { padding-left: 1.2rem; margin: .2rem 0; }
+.cqcpm-papier .prudence { font-size: .9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .9rem; }
+.cqcpm-joint { display: flex; gap: .8rem; align-items: flex-start; border: 2px solid var(--border-strong); border-radius: 14px; background: var(--bg-subtle); padding: .8rem 1rem; margin: .9rem 0; }
+.cqcpm-joint.oui { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.cqcpm-joint > .bi { font-size: 1.6rem; color: var(--accent-texte, var(--accent)); }
+.cqcpm-joint b { display: block; font-size: 1.05rem; }
+.cqcpm-joint span { color: var(--text-strong); }
+@media (max-width: 700px) { .cqcpm-pap-case { flex-wrap: wrap; } }
+
+/* « Mon plan » (modules/mon-plan/index.js, maquette docs/maquettes/maquette-mon-plan-2026-11-26.html) : reprend les classes cqcpm-*, ajoute les semaines, les actions à cocher,
+   les « si… alors… », les sources reprises et le point qui passe en premier. Couleurs par variables : le mode sombre suit sans règle à part. */
+.mpl-semaine { background: var(--bg-card); border: 1px solid var(--border-strong); border-left: 6px solid var(--accent); border-radius: 12px; padding: .6rem .9rem; margin: .6rem 0; }
+.mpl-semaine h4 { font-size: 1rem; font-weight: 800; margin: 0 0 .3rem; display: flex; gap: .5rem; align-items: center; }
+.mpl-semaine h4 .bi { color: var(--accent-texte, var(--accent)); }
+.mpl-action { display: flex; gap: .6rem; align-items: flex-start; padding: .35rem 0; border-top: 1px solid var(--border); cursor: pointer; margin: 0; }
+.mpl-action:first-of-type { border-top: 0; }
+.mpl-action input[type="checkbox"] { flex: none; width: 24px; height: 24px; margin-top: .1rem; accent-color: var(--accent-solide, var(--accent)); }
+.mpl-action .txt { flex: 1; font-size: 1rem; color: var(--text-strong); }
+.mpl-action.fait .txt { color: var(--text-soft); }
+.mpl-origine { display: inline-block; font-size: .8rem; font-weight: 700; border: 1px solid var(--accent); border-radius: 999px; padding: 0 .5rem; margin-left: .3rem; background: var(--accent-bg-subtle); color: var(--text-strong); }
+.mpl-si { border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .9rem; margin: .6rem 0; background: var(--bg-subtle); }
+.mpl-si p { margin: .15rem 0; }
+.mpl-si .si { font-weight: 800; }
+.mpl-source { display: flex; gap: .8rem; align-items: flex-start; background: var(--bg-card); border: 2px solid var(--border-strong); border-radius: 12px; padding: .7rem .9rem; margin: .5rem 0; }
+label.mpl-source { cursor: pointer; }
+.mpl-source.coche { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.mpl-source input[type="checkbox"] { flex: none; width: 24px; height: 24px; margin-top: .2rem; accent-color: var(--accent-solide, var(--accent)); }
+.mpl-source h3 { font-size: 1.02rem; font-weight: 800; margin: 0; }
+.mpl-source p { margin: .15rem 0 0; font-size: .95rem; color: var(--text-strong); }
+.mpl-source.absente { border-style: dashed; background: var(--bg-subtle); }
+.mpl-avant { border: 2px solid var(--accent); border-left-width: 8px; border-radius: 14px; background: var(--accent-bg-subtle); padding: .8rem 1rem; margin: .8rem 0; }
+.mpl-avant h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .4rem; display: flex; gap: .6rem; align-items: center; }
+.mpl-avant p { color: var(--text-strong); }
+.mpl-page .bloc-depli > summary { flex-wrap: nowrap; }   /* titre long « Se renseigner sur ce point : … » : la flèche reste à côté, jamais seule sur sa ligne */
+@media (max-width: 700px) { .mpl-source { flex-wrap: wrap; } }
+
+/* ============================================================
+   Écran tactile, suite (25/11/2026, audit téléphone, lot « autres modules », npm run telephone:modules) : cibles encore sous 44 px dans « Explorer les métiers »,
+   le panneau « Options d'affichage », les pastilles de filtre des Nouveautés et les liens utiles. Placé APRÈS les règles d'origine (même poids, la dernière gagne).
+   Les règles du Lexique et des vidéos sont dans leurs propres feuilles (modules/lexique/lexique.css, modules/video-presentation/videoPresentation.css).
+   ============================================================ */
+@media (pointer: coarse), (max-width: 768px) {
+  /* Explorer les métiers : boutons de choix, pastilles à cocher, filtres, « Fermer ». Les grandes tuiles `.fb` (64 px) gardent leur hauteur. */
+  #pmRacine .pill-btn, #pmRacine .cp, #pmRacine .fil button, #pmRacine .bloc h3 .pm-fermer,
+  #pmRacine button[data-pm]:not(.fb), #pmRacine button[data-pmf]:not(.fb) { min-height: 44px; }
+  .lien-utile-ressource { min-height: 44px; }
+  /* Panneau « Options d'affichage » : boutons de thème, de daltonisme et de lecture, titres repliables. */
+  .pref-affichage-groupe button { min-height: 44px; }
+  /* Pastilles qui filtrent (Nouveautés, Comprendre le cadre) : zone à toucher agrandie vers le haut et le bas, sans rien déplacer. */
+  .nv-pastille-filtre, .comprendre-le-cadre-pastille[role="button"] { position: relative; }
+  .nv-pastille-filtre::after, .comprendre-le-cadre-pastille[role="button"]::after { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 44px; transform: translateY(-50%); }
+  /* Petite croix « retirer » des puces de « Explorer les métiers » : le dessin reste de 32 px, la zone à toucher passe à 44 px par un cadre invisible centré. */
+  #pmRacine .chip button[data-pm]:not(.fb) { min-height: 32px; position: relative; }
+  #pmRacine .chip button[data-pm]::after { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
+  summary.pref-affichage-label { padding-top: 13px; padding-bottom: 13px; margin-top: -13px; margin-bottom: calc(0.3rem - 13px); }
+  /* Nouveautés, Comprendre le cadre, fiche du Lexique : boutons de filtre, « Déplier », recherche, lecture, favori (le préfixe body bat les règles d'origine, quel que soit l'ordre des feuilles). */
+  body .nv-f-btn, body .nv-f-plier, body #nvPlier, body #nvQ, body .comprendre-le-cadre-lire-tout, body .comprendre-le-cadre-digest-liste-sources .comprendre-le-cadre-digest-btn-source,
+  body .comprendre-le-cadre-digest-btn-source, body .lexique-fiche-action, body #lexiqueBoutonFavori { min-height: 44px; }
+}
+
+/* ============================================================
+   Écran tactile, suite (25/11/2026, audit téléphone) : champs de saisie à 16 px au moins.
+   Sur iPhone (Safari), un champ de moins de 16 px fait zoomer la page à l'ouverture du clavier : la personne se retrouve sur une page agrandie, décalée,
+   sans savoir revenir. Trouvé par le balayage (Vos informations, listes du réglage du CV, tableau de bord de Cohérence, réponses ciblées de Découverte).
+   Règle unique pour tous les champs, seulement sur écran tactile ou étroit ; !important parce que beaucoup de champs ont une taille posée par leur identifiant.
+   Les cases à cocher, ronds, curseurs, couleurs et fichiers ne sont pas concernés. Le garde-fou est dans scripts/rendu/mesureTelephone.js (`champsPetits`).
+   ============================================================ */
+@media (pointer: coarse), (max-width: 768px) {
+  body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="hidden"]),
+  body select, body textarea { font-size: max(16px, 1em) !important; }
+}
+
+/* Écran tactile, suite (25/11/2026, audit téléphone, parcours « Ce qui compte pour moi » avec saisies) : réponses en boutons de 40 px (choix nombreux, tableau des valeurs) portées à 44 px. */
+@media (pointer: coarse), (max-width: 768px) {
+  body .cqcpm-rep button.petit, body .cqcpm-val .cqcpm-rep button { min-height: 44px; }
+}
+
+/* Repère de temps à trois niveaux (consignes 605 à 607, data/tempsModules.js) : points et mot, une seule teinte, seulement dans les modules (jamais sur les tuiles de l'accueil).
+   Les règles sont précises (préfixe .repere-temps) pour que ni les titres, ni les i, ni les span d'une page ou d'une carte ne les déforment (piège des tuiles, maquette du 25/11/2026).
+   Couleurs : variables existantes, qui ont déjà leur valeur en mode sombre. */
+.repere-temps-ligne { margin: .3rem 0 .7rem; text-align: center; }
+.repere-temps { display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .15rem .4rem; max-width: 100%; box-sizing: border-box; font-size: .85rem; font-weight: 600; line-height: 1.25; color: var(--text-strong); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 1.2rem; padding: .2rem .7rem .2rem .5rem; }
+.repere-temps .repere-temps-pts { display: inline-flex; gap: .2rem; font-size: 0; }
+.repere-temps .repere-temps-pts i { display: block; width: .65rem; height: .65rem; margin: 0; border-radius: 50%; border: 2px solid var(--accent-texte); box-sizing: border-box; background: transparent; font-size: 0; }
+.repere-temps[data-niveau="1"] .repere-temps-pts i:nth-child(-n+1),
+.repere-temps[data-niveau="2"] .repere-temps-pts i:nth-child(-n+2),
+.repere-temps[data-niveau="3"] .repere-temps-pts i { background: var(--accent-texte); }
+.repere-temps .repere-temps-pre { display: inline; margin: 0; font-size: .85rem; font-weight: 400; color: var(--text-muted); }
+.repere-temps .repere-temps-mot { display: inline; margin: 0; font-size: .85rem; color: var(--text-strong); }
+.repere-temps-ligne { display: block; }
+/* Cartes dont le contenu est aligné à gauche : le repère suit (sinon il reste centré, comme sur une page de module). */
+.cml-entree .repere-temps-ligne, .voie-presentation .repere-temps-ligne { text-align: left; margin: .1rem 0 .5rem; }

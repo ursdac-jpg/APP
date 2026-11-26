@@ -5455,7 +5455,7 @@ function _comprendreLesChiffresTerritoirePourPrompt() {
 }
 
 var COMPRENDRE_LES_CHIFFRES_SOCLE_PROMPT =
-  'Nous sommes le ' + new Date().toISOString().slice(0, 10) + '. Recherche web obligatoire : si tu ne peux pas ' +
+  'Nous sommes le ' + _comprendreLesChiffresDateEnClair(new Date().toLocaleDateString('sv-SE')) + '. Recherche web obligatoire : si tu ne peux pas ' +
   'consulter le web, dis-le et ne réponds pas. N\'utilise que des pages officielles que tu as réellement ouvertes ' +
   '(INSEE, DARES, France Travail, Eurostat, CAF, Cap Métiers...). Ne fabrique jamais une adresse, un chiffre ni une ' +
   'date : si tu ne l\'as pas vu, écris « à vérifier ». Réponds en français, en phrases courtes, sans jargon. Pas ' +
@@ -6053,6 +6053,7 @@ window.pageComprendreLesChiffres = pageComprendreLesChiffres;
 // <script>, ou `module` n'est jamais defini).
 if (typeof module !== 'undefined') {
   module.exports = {
+    COMPRENDRE_LES_CHIFFRES_SOCLE_PROMPT: COMPRENDRE_LES_CHIFFRES_SOCLE_PROMPT,
     _comprendreLesChiffresParserZonesEmploi: _comprendreLesChiffresParserZonesEmploi,
     _comprendreLesChiffresParserDigest: _comprendreLesChiffresParserDigest,
     comprendreLesChiffresConstruireFiches: comprendreLesChiffresConstruireFiches,

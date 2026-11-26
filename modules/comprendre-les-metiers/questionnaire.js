@@ -328,7 +328,8 @@ cmvEnregistrerVue('resultat', {
         '<div class="cml-bloc"><h2>Des métiers qui partagent vos lettres</h2>' +
         cmvEncart('bi-building', 'France Travail donne à chaque métier de son répertoire une ou deux lettres. Ces métiers portent les vôtres : ce sont des pistes qui ressemblent à ce que vous aimez, pas une liste de métiers « faits pour vous ».') +
         cmvCartesMetiersLettres(c.lettresPourMetiers, etat) + '</div>' +
-        _cmqvBlocLu(c.lettresPourMetiers) + cmvLegendeNiveauxQuestionnaire(niv);
+        _cmqvBlocLu(c.lettresPourMetiers) + cmvLegendeNiveauxQuestionnaire(niv) +
+        (typeof intBloc === 'function' ? intBloc('q') : '');
     }
     h += cmvEncart('bi-people', 'Parler de ce résultat avec un conseiller ou un professionnel complète utilement cette exploration.') +
       '<div class="cml-bloc"><div style="display:flex;gap:.6rem;flex-wrap:wrap">' +

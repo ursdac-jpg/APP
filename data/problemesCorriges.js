@@ -9,6 +9,34 @@
    RÈGLE (décision de Denis, 16/11/2026, consigne 419) : toute incohérence ou tout bug visible trouvé ET corrigé reçoit sa ligne ici, dans le même commit que la correction.
    ============================================================ */
 var PROBLEMES_CORRIGES = [
+  { date: '2026-11-25', origine: 'nous', titre: 'Téléphone : la page zoomait toute seule en touchant une zone de saisie',
+    signale: 'Sur certains téléphones (iPhone), toucher une zone où écrire faisait agrandir toute la page, qui restait zoomée ensuite.',
+    corrige: 'Sur téléphone, les zones de saisie ont maintenant une écriture assez grande pour que la page ne bouge plus toute seule. Sur un grand écran, rien ne change.' },
+
+  { date: '2026-11-25', origine: 'nous', titre: 'Régler le CV : une croix qui ne servait à rien',
+    signale: 'En plein écran, dans « Retirer une rubrique ou une mission », une croix apparaissait aussi sur des titres (compétences, informations complémentaires) que le retrait ne sait pas enlever.',
+    corrige: 'Cette croix n’apparaît plus sur ces titres. Elle reste sur les rubriques et les missions que vous pouvez retirer.' },
+
+  { date: '2026-11-25', origine: 'nous', titre: 'Explorer les métiers : cinq fiches reliées au mauvais métier',
+    signale: 'Les fiches Couvreur, Ouvrier agricole, Ouvrier de chai, Auxiliaire petite enfance et Logisticien étaient reliées au code d’un autre métier : leur niveau d’accès et certains éléments pouvaient être ceux d’un autre métier.',
+    corrige: 'Chaque fiche est maintenant reliée au bon métier, avec le bon niveau d’accès (par exemple le CAP pour Couvreur).' },
+
+  { date: '2026-11-25', origine: 'nous', titre: 'Disquette : une date plus claire dans le nom du fichier',
+    signale: 'Le nom du fichier enregistré par la disquette commençait par l’année, et son heure pouvait être décalée d’une ou deux heures.',
+    corrige: 'Le nom indique maintenant le jour, le mois puis l’année (par exemple session-cv-25-11-2026-09h30.json), avec l’heure de votre appareil.' },
+
+  { date: '2026-11-24', origine: 'nous', titre: 'Téléphone : « À compléter » coupé dans les appuis de la lettre',
+    signale: 'Sur téléphone, dans la liste des appuis de la lettre, la mention « À compléter » ou « Fait » dépassait à droite du cadre et restait en partie cachée.',
+    corrige: 'La mention passe maintenant à la ligne sous le titre quand la place manque. Sur ordinateur, rien ne change. Les boutons, cases et titres repliables des écrans de création sont aussi plus faciles à toucher au doigt.' },
+
+  { date: '2026-11-24', origine: 'nous', titre: 'Votre parcours sur téléphone : phrases et choix coupés à droite',
+    signale: 'Sur téléphone, dans « Votre parcours », la fin des phrases d’explication et certains choix (par exemple « Des documents » ou « Des sportifs ») sortaient de l’écran et restaient cachés.',
+    corrige: 'Les choix et les phrases tiennent maintenant dans la largeur de l’écran. Dans les Repères, la liste des rapports est corrigée de la même façon.' },
+
+  { date: '2026-11-22', origine: 'nous', titre: 'Déposer un document : des messages plus clairs',
+    signale: 'Quand la connexion empêchait de lire un PDF ou un fichier Word, le message disait seulement « Impossible de lire ce fichier (erreur) ». Et un texte de quelques mots passait sans rien dire jusqu’à l’assistant.',
+    corrige: 'Le message explique maintenant qu’il faut une connexion internet, ou de coller le texte soi-même. Un texte très court est signalé avant l’enregistrement, sans rien bloquer.' },
+
   { date: '2026-11-21', origine: 'nous', titre: 'Stage, alternance, immersion, formation : des savoirs qui n’étaient pas les vôtres',
     signale: 'Sans métier précis visé, l’application ajoutait à vos savoirs ceux de métiers qu’elle devinait (transport, hôtellerie pour un agent d’accueil en mairie), et l’assistant pouvait les écrire sur votre CV ou votre lettre.',
     corrige: 'Pour un stage, une alternance, une immersion ou une formation, seuls les savoirs du poste que vous visez sont proposés, et rien n’est deviné quand aucun poste n’est indiqué.' },

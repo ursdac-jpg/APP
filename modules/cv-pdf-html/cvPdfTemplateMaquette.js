@@ -90,6 +90,18 @@ var _PDF_INTITULES = {
   infos: 'Informations complémentaires'
 };
 
+// Rubriques que « Retirer une rubrique ou une mission » sait retirer : intitulé -> listes du contenu vidées. UNE SEULE source, lue par le filtre de
+// la feuille (plus bas) ET par le plein écran, qui ne pose la croix que sur ces titres (2026-11-25 : la croix des compétences, de Savoirs et des
+// Informations complémentaires ne faisait rien, elle n'est plus affichée ; les compétences se retirent une par une).
+var _PDF_RUBRIQUE_VERS_CONTENU = {};
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.experience] = ['experiences'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.experiencePerso] = ['experiencesPersonnelles', 'engagements'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.formations] = ['formations'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.logiciels] = ['logiciels'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.langues] = ['langues'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.certifications] = ['certifications'];
+_PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.loisirs] = ['loisirs'];
+
 // Icone de chaque rubrique (titres « pastille » : pictogramme dans un rond de couleur). Memes pictogrammes que l'ancien rendu.
 
 // ---------- Disposition PERSONNALISEE en 2 colonnes (lot 5, 2026-09-26) ----------
@@ -254,19 +266,10 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // entiere retiree a la main devient juste une liste vide ICI, avant la repartition par modele --
   // chaque modele de la galerie sait deja ne rien afficher pour une rubrique vide (meme mecanisme
   // que les rubriques masquees par l'assistant), un seul point de filtre pour tous les modeles.
-  // Limite volontaire (voir docs) : couvre les rubriques a liste simple (Experience/Formation/
-  // Certifications/Langues/Logiciels/Loisirs/Experience perso) -- pas les competences pro/
-  // comportementales (deja retirables une par une, forme de donnees differente).
+  // Limite volontaire (voir docs) : couvre les rubriques a liste simple (table _PDF_RUBRIQUE_VERS_CONTENU, plus haut) -- pas les competences pro/
+  // comportementales (deja retirables une par une, forme de donnees differente) : le plein ecran n'y pose donc pas de croix.
   var rubriquesRetireesMain = opts.rubriquesRetirees || [];
   if (rubriquesRetireesMain.length) {
-    var _PDF_RUBRIQUE_VERS_CONTENU = {};
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.experience] = ['experiences'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.experiencePerso] = ['experiencesPersonnelles', 'engagements'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.formations] = ['formations'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.logiciels] = ['logiciels'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.langues] = ['langues'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.certifications] = ['certifications'];
-    _PDF_RUBRIQUE_VERS_CONTENU[_PDF_INTITULES.loisirs] = ['loisirs'];
     var contenuSansRubriques = {};
     Object.keys(contenu).forEach(function (cle) { contenuSansRubriques[cle] = contenu[cle]; });
     rubriquesRetireesMain.forEach(function (rub) {

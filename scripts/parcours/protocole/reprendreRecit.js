@@ -7,6 +7,7 @@ module.exports = {
   jouer: async (a, j) => {
     await a.aller('creer-cv');
     j.info('départ voie 2 : ' + await a.clic('#btnCreerCvRecit')); await a.attendre(1000);
+    await a.attendre(900); await require('./reprendreCv.js').passerChoixMissions(a, j, 'assistant');
     await a.saisir('#decouverteRecitTexte', DEBUT); await a.attendre(500);
     await a.aller('decouverte-intro'); await a.attendre(900);
     const m1 = await E.mesureReprise(a, j, 'récit (présentation)');

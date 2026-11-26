@@ -22,10 +22,48 @@ var INTRO_IMAGES_TERRITOIRE = [
 ];
 
 // Toutes les images de la page et du diaporama (dossier images/introduction/) : sert au test qui vérifie qu'aucune n'a disparu.
-// Les trois dernières (outil de veille, sas, outil de prospection) ne servent qu'au diaporama.
+// Les trois images avant la dernière (outil de veille, sas, outil de prospection) ne servent qu'au diaporama.
 var INTRO_IMAGES = ['accueil', 'accueil_bas', 'i_cv_1_choix', 'i_cv_2_objectif', 'i_cv_3_parcours', 'i_cv_4_profil', 'modeles_creatifs', 'modele_grand', 'modeles_sobres',
   'i_lettre_1_preparer', 'i_lettre_2_mise_en_page', 'i_entretien_1_resultat', 'i_bilan_2_resultat', 'i_bilan_3_resultat', 'i_chiffres_1_chomage', 'i_employeurs_2_liste',
-  'i_veille_1_accueil', 'i_veille_2_sas', 'i_prospection_1_carnet'];
+  'i_veille_1_accueil', 'i_veille_2_sas', 'i_prospection_1_carnet', 'i_metiers_1_chemins',
+  'i_mod_reperes', 'i_mod_carnet', 'i_mod_lexique', 'i_mod_competences', 'i_mod_regard', 'i_mod_ats', 'i_mod_coherence', 'i_mod_pistes', 'i_mod_ucpm', 'i_mod_ce_qui_compte', 'i_mod_bien_utiliser_ia', 'i_appareils'];
+
+// Les onze modules présentés par groupes (page et diaporama) : `libelle` = le nom de la tuile sur l'accueil (c'est lui qui décide si le module est ouvert), `fichier` = capture du haut de sa page,
+// `court` = légende sous l'image du diaporama. Les noms, icônes et phrases de la page sont LUS sur l'accueil (itemsInfoCarteAccueil), jamais recopiés.
+var INTRO_GROUPES_MODULES = [
+  { id: 'outils', carte: 'boiteaoutils', titre: 'La boîte à outils', icone: 'bi-briefcase', colonnes: 2,
+    intro: 'Quatre outils que vous ouvrez quand vous en avez besoin, sans ordre imposé et sans que rien ne soit noté. Sur l’accueil, ils sont réunis dans la carte « Boîte à outils ».',
+    sousTitre: 'Quatre outils à ouvrir quand vous en avez besoin.',
+    notes: 'Les quatre outils de la carte « Boîte à outils ». Aucun ordre, aucune note. Chacun a sa vidéo d’une minute sur sa page.',
+    modules: [
+      { libelle: 'Mes Repères', fichier: 'i_mod_reperes', court: 'Mes Repères : garder une pensée' },
+      { libelle: 'Mon Carnet', fichier: 'i_mod_carnet', court: 'Mon Carnet : écrire librement' },
+      { libelle: 'Lexique', fichier: 'i_mod_lexique', court: 'Lexique : comprendre un mot' },
+      { libelle: 'Découvrir mes compétences', fichier: 'i_mod_competences', court: 'Découvrir mes compétences' }] },
+  // Deux outils de plus dans la même carte de l'accueil (ouverts le 25/11/2026), présentés à part pour que chaque image reste lisible. Même source : les noms et les phrases sont lus sur l'accueil.
+  { id: 'mots', carte: 'boiteaoutils', titre: 'Pour mettre des mots et mieux demander', icone: 'bi-chat-left-text', colonnes: 2,
+    intro: 'Deux outils de plus dans la Boîte à outils : l’un pour dire ce qui compte pour vous, l’autre pour apprendre à écrire une demande claire à un assistant en ligne. Ni test, ni note.',
+    sousTitre: 'Mettre des mots sur ce qui compte, bien demander à un assistant.',
+    notes: 'Deux outils de plus dans la carte « Boîte à outils ». Le premier aide à dire ce que l’on aimerait et ce qui compte pour soi, sans test ni note ; les résultats gardés peuvent s’imprimer pour un rendez-vous. Le second apprend à écrire une demande claire à un assistant en ligne et à vérifier sa réponse. Chacun a sa vidéo sur sa page.',
+    modules: [
+      { libelle: 'Ce qui compte pour moi', fichier: 'i_mod_ce_qui_compte', court: 'Ce qui compte pour moi : dire ses envies' },
+      { libelle: 'Bien utiliser l’IA', fichier: 'i_mod_bien_utiliser_ia', court: 'Bien utiliser l’IA : demander clairement' }] },
+  { id: 'regards', carte: 'analyse', titre: 'D’autres regards sur votre candidature', icone: 'bi-search', colonnes: 3,
+    intro: 'En plus de « Analyser ma candidature », ces outils donnent un avis extérieur avant d’envoyer vos documents. Ils demandent un CV déjà prêt.',
+    sousTitre: 'Un avis extérieur avant d’envoyer vos documents.',
+    notes: 'Trois outils, en plus de « Analyser ma candidature ». Aucun n’est une note ni le verdict d’un vrai recruteur : ce sont des pistes à vérifier.',
+    modules: [
+      { libelle: 'Un regard sur mon CV', fichier: 'i_mod_regard', court: 'Un regard sur mon CV : ce que voit un recruteur' },
+      { libelle: 'Les mots de votre CV (ATS)', fichier: 'i_mod_ats', court: 'Les mots de votre CV : parle-t-il comme l’offre ?' },
+      { libelle: 'Cohérence de mon dossier', fichier: 'i_mod_coherence', court: 'Cohérence : mes documents se tiennent-ils ?' }] },
+  { id: 'pistes', carte: 'orientation', titre: 'Quand vous avez des pistes', icone: 'bi-signpost-split', colonnes: 2,
+    intro: 'Une fois que vous avez une ou plusieurs idées de métier, ces outils vous aident à décider et à préparer vos documents.',
+    sousTitre: 'Choisir, puis préparer ses documents.',
+    notes: 'Pour celles et ceux qui ont plusieurs idées de métier. La comparaison ne désigne aucune « meilleure » piste.',
+    modules: [
+      { libelle: 'Comparer mes pistes', fichier: 'i_mod_pistes', court: 'Comparer mes pistes : choisir vous-même' },
+      { libelle: 'Un CV, plusieurs métiers', fichier: 'i_mod_ucpm', court: 'Un CV, plusieurs métiers : un CV pour chacun' }] }
+];
 
 // Libellés (de la tuile) disponibles = ceux de toutes les cartes de l'accueil. `libellesOuverts` : tableau de textes.
 function introFiltrerParOuverture(liste, libellesOuverts) {
@@ -89,7 +127,7 @@ function introEstOuverte(mtOuvertFn) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { INTRO_OUTILS_TERRITOIRE: INTRO_OUTILS_TERRITOIRE, INTRO_IMAGES_TERRITOIRE: INTRO_IMAGES_TERRITOIRE, INTRO_IMAGES: INTRO_IMAGES,
+  module.exports = { INTRO_OUTILS_TERRITOIRE: INTRO_OUTILS_TERRITOIRE, INTRO_IMAGES_TERRITOIRE: INTRO_IMAGES_TERRITOIRE, INTRO_IMAGES: INTRO_IMAGES, INTRO_GROUPES_MODULES: INTRO_GROUPES_MODULES,
     introFiltrerParOuverture: introFiltrerParOuverture, introEstOuverte: introEstOuverte, introPhraseModeles: introPhraseModeles,
     INTRO_TITRES_BOUTONS_HAUT: INTRO_TITRES_BOUTONS_HAUT, introChoisirBoutonsHaut: introChoisirBoutonsHaut,
     INTRO_TITRES_DIAPO_BOUTONS: INTRO_TITRES_DIAPO_BOUTONS, INTRO_PHRASES_COURTES_BOUTONS: INTRO_PHRASES_COURTES_BOUTONS,

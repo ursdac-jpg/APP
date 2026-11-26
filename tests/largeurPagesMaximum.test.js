@@ -15,7 +15,7 @@ test('plus de plafond de colonne, marges de 20 px sur ordinateur, texte plafonn�
 
 test('les familles de « Votre parcours » se rangent en colonnes quand la place le permet', () => {
   const style = app.slice(app.indexOf('function _vpStyle()'), app.indexOf('function pageVotreParcours()'));
-  assert.ok(style.includes('.vp-qcorps{display:grid;grid-template-columns:repeat(auto-fit,minmax(26rem,1fr));'));
+  assert.ok(style.includes('.vp-qcorps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(26rem,100%),1fr));'));
   assert.ok(style.includes('.vp-qcorps>*{grid-column:1/-1;}.vp-qcorps>.vp-fam{grid-column:auto;min-width:0;}'));
 });
 

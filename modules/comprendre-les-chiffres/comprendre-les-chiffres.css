@@ -1329,3 +1329,15 @@
 .comprendre-les-chiffres-national-titre { margin: 0 0 .3rem; font-weight: 800; color: var(--accent-texte); }
 .comprendre-les-chiffres-national-recent .comprendre-les-chiffres-indic-valeur { margin-bottom: .2rem; }
 .comprendre-les-chiffres-national-date { font-size: .9rem; color: var(--text-muted); }
+
+/* ---- Écran tactile et téléphone (24/11/2026, audit docs/AUDIT_TELEPHONE_2026-11-24.md) : boutons et pastilles à 44 px au moins. ----
+   Les chiffres cliquables au milieu d'une phrase (.chiffre) gardent leur zone agrandie par la marge intérieure (voir plus haut) : une phrase ne peut pas avoir de lignes de 44 px. */
+@media (pointer: coarse), (max-width: 768px) {
+  .comprendre-les-chiffres-contenu button,
+  .comprendre-les-chiffres-contenu a.comprendre-les-chiffres-pastille,
+  .comprendre-les-chiffres-bascule-vue button,
+  .comprendre-les-chiffres-niveaux button,
+  .comprendre-les-chiffres-choix-dep button,
+  .comprendre-les-chiffres-bascule-lecture button,
+  .comprendre-les-chiffres-vues-ordre button { min-height: 44px; }
+}

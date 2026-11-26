@@ -8,6 +8,7 @@ const { Journal, ouvrirPage, pilote } = require('./outils.js');
   const largeur = Number(process.argv[3]) || 1280;
   if (!nom) { console.log('Parcours disponibles : ' + fs.readdirSync(__dirname).filter((f) => /\.js$/.test(f) && !/^(lancer|outils)\.js$/.test(f)).map((f) => f.replace('.js', '')).join(', ')); return; }
   const parcours = require('./' + nom + '.js');
+  if (typeof parcours.jouer !== 'function') { console.log('« ' + nom + ' » est une aide appelée par les autres parcours (par exemple avec REPRISE=1 devant reprendreVoie1), pas un parcours à lancer seul.'); return; }
   const j = new Journal(nom);
   const { b, p, erreurs } = await ouvrirPage(largeur);
   const a = pilote(p, j);

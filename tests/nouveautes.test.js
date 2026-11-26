@@ -48,7 +48,9 @@ test('les données : chaque ligne a une date, un titre, un texte, un lien connu 
     assert.ok(!n.route || app.indexOf("'" + n.route + "':") !== -1, 'route inconnue : ' + n.route);
     assert.ok(!n.route || /^bi-[a-z0-9-]+$/.test(n.icone || ''), 'icône manquante : ' + n.titre);
     const t = n.titre + ' ' + n.texte + ' ' + (n.module || '');
-    assert.ok(!/[–—]/.test(t) && !/\bIA\b/.test(t), 'tiret long ou « IA » : ' + n.titre);
+    // Seule exception au mot « IA » : le nom du module « Bien utiliser l’IA » (dérogation de Denis du 22/11/2026), cité tel quel.
+    const sansNomModule = t.split('Bien utiliser l’IA').join('');
+    assert.ok(!/[–—]/.test(t) && !/\bIA\b/.test(sansNomModule), 'tiret long ou « IA » : ' + n.titre);
     assert.ok(!/territoire/i.test(t), 'fonction fermée au public : ' + n.titre);
     assert.ok(n.carte ? CARTES.indexOf(n.carte) !== -1 : !!n.lieu, 'carte de l’accueil inconnue (ou lieu manquant) : ' + n.titre);
   });

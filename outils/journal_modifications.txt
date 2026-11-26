@@ -1733,3 +1733,11 @@
 2026-11-18 21:40 | cadre | mobilite-aide-carburant-grands-rouleurs-2026 | ajoutée | nouvelle fiche
 2026-11-18 21:40 | cadre | former-se-former-avant-l-embauche | modifiée | 2026-11-18 : communiqué de presse de France Travail du 12/11/2026 (page ouverte et relue) : paragraphe ajouté sur les personnes en situation de handicap (formations adaptées, jusqu'à 600 heures, résultats) ; la préparation individuelle y est décrite comme une formation courte avant embauche, intégralement prise en charge par France Travail, pour répondre à une offre d'emploi
 2026-11-18 22:16 | cadre | mobilite-prime-carburant-employeur-plafond-releve-2026 | modifiée | 2026-11-18 : relecture croisée avec la page de l'Urssaf « Frais de transport domicile - lieu de travail : mesures 2026 » (mise à jour le 30/10/2026), ouverte et relue : la limite habituelle pour le carburant n'est plus donnée (la page Service-Public parle de 300 euros, l'Urssaf dit « déjà relevé de 300 à 600 € ») ; les assouplissements de conditions sont détaillés d'après l'Urssaf ; les deux sites ne disent pas la même chose pour la recharge des véhicules électriques (Service-Public : exclue, Urssaf : incluse), la fiche renvoie à l'employeur
+2026-11-23 22:28 | liens | service-public-pvt-australie-regles-changent | ajoutée
+2026-11-23 22:28 | liens | passeport-prevention-espace-travailleurs-demandeurs-emploi | ajoutée
+2026-11-23 22:28 | cadre | jeunes-pvt-australie-ce-qui-change | ajoutée | nouvelle fiche
+2026-11-23 22:28 | cadre | former-passeport-de-prevention-formations-securite | ajoutée | nouvelle fiche
+2026-11-23 23:07 | liens | francetravail-art-d-acceder-a-l-emploi-culture | ajoutée
+2026-11-23 23:07 | liens | service-public-sante-mentale-etudiant-site | ajoutée
+2026-11-23 23:07 | cadre | accompagnement-art-d-acceder-a-l-emploi | ajoutée | nouvelle fiche
+2026-11-23 23:07 | cadre | sante-mon-soutien-psy-seances-psychologue | modifiée | 2026-11-23 : actualité de Service-Public « Santé mentale : un nouveau dispositif en ligne pour aider les jeunes » (publiée le 20/11/2026, page copiée par Denis et relue en entier) : paragraphe ajouté sur le site Santé Mentale Étudiant, sans changement du dispositif Mon soutien psy ; la page du site lui-même n'a pas été lue

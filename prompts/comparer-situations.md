@@ -25,6 +25,7 @@ Des pistes sont mises en regard : elles ne sont pas de même nature, on ne les m
 
 - La colonne `repere` sert de point de comparaison : décris pour elle ce qui reste pareil dans le temps. Pour chaque colonne `depart`, décris ce qui change par rapport au repère, mois après mois.
 - Trois moments : `aujourdhui`, `pendant` (les premiers mois ou la première année), `apres`.
+- Le champ `questions_conseiller` ne contient pas de questions : ce sont des sujets écrits du côté de la personne, à la première personne (par exemple « J'aimerais parler des conditions pour financer cette formation. », à ne pas recopier). Jamais une phrase qui teste, interroge ou met en difficulté le professionnel, jamais une phrase qui lui dit ce qu'il doit faire ou savoir.
 - Si une RQTH est signalée, ajoute dans `conditions_a_reunir` les lignes orientation MDPH, aides AGEFIPH, reconnaissance de la lourdeur du handicap.
 
 ## 4. Format de réponse
@@ -48,7 +49,7 @@ Réponds avec UN SEUL objet JSON, sans texte avant ni après.
   "impact_sur_les_droits": [
     { "droit": "ARE | RSA | retraite | securite_sociale | mutuelle", "effet": "", "source": { "nom": "…", "url": "https://…" }, "date_info": "AAAA-MM" }
   ],
-  "questions_conseiller": ["3 à 5 questions concrètes adaptées à la situation de la personne"],
+  "questions_conseiller": ["3 à 5 sujets concrets, adaptés à la situation de la personne, dont elle aimerait parler avec la personne qui l'accompagne : chacun en une phrase qui commence par « J'aimerais parler de », jamais une question"],
   "incertitudes": ["ce qui n'a pas pu être vérifié"],
   "cloture": "Ces informations servent à préparer un échange avec un conseiller et peuvent évoluer."
 }

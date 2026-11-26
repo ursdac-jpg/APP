@@ -187,7 +187,8 @@ function _ucpmPassageCablerColler(etat, cle, config) {
     module: module,
     verifier: function (texte) {
       // Lecture sans rien enregistrer quand le module sait la faire ; sinon la lecture a lieu à « Continuer ».
-      if (typeof config.verifier === 'function') { return { ok: !!config.verifier(texte) }; }
+      // Le module peut aussi répondre par un objet { ok, personnalise: { texte } } pour dire POURQUOI la réponse est inutilisable (consigne 529) ; un booléen reste accepté.
+      if (typeof config.verifier === 'function') { var v = config.verifier(texte); return (v && typeof v === 'object') ? v : { ok: !!v }; }
       return { ok: true };
     },
     onChangerAssistant: function () {

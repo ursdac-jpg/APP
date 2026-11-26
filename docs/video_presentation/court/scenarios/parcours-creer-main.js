@@ -5,7 +5,7 @@ const { dormir } = C;
 module.exports = {
   blocs: [
     { id: 'a1', voix: 'Créer mon CV à la main, sans assistant : vous écrivez vous-même vos informations, étape par étape. Rien n’est envoyé nulle part.', sous_titre: 'À la main, sans assistant : vous écrivez vous-même. Rien n’est envoyé.' },
-    { id: 'a2', voix: 'C’est le parcours pour garder tout sous la main. Vous indiquez d’abord votre objectif : répondre à une offre, une candidature spontanée, un stage, une formation.', sous_titre: 'D’abord votre objectif : offre, spontanée, stage, formation…' },
+    { id: 'a2', voix: 'C’est le chemin pour garder tout sous la main. Vous indiquez d’abord votre objectif : répondre à une offre, une candidature spontanée, un stage, une formation.', sous_titre: 'D’abord votre objectif : offre, spontanée, stage, formation…' },
     { id: 'a3', voix: 'Puis vous renseignez vos informations avec vos mots. Pour chaque expérience, vous tapez le poste, vous choisissez le métier, puis vous cochez les missions et les compétences que vous avez vraiment. Rien n’est ajouté avant Je valide.', sous_titre: 'Le poste, le métier, ce que vous avez vraiment fait. Rien n’est ajouté avant « Je valide ».' },
     { id: 'a3c', voix: 'Une étape suivante vous montre ce que demande le métier que vous visez. Personne ne reformule à votre place : le CV reste le vôtre.', sous_titre: 'Ce que demande le métier visé. Personne ne reformule : le CV reste le vôtre.' },
     { id: 'a4', voix: 'À la fin, vous choisissez un modèle, en PDF ou en Word. Vous pourrez ensuite préparer votre lettre et votre entretien.', sous_titre: 'À la fin : un modèle, en PDF ou en Word. Puis la lettre et l’entretien.' },

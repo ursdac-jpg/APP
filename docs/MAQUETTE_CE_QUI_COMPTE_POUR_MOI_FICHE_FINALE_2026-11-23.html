@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le papier de fin de « Ce qui compte pour moi » (23/11/2026)</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../data/cqcpmValeurs.js"></script>
+<script src="../data/cqcpmCartes.js"></script>
+<style>
+/* ===== Cadre de la maquette (jamais repris dans l'application) ===== */
+body{margin:0;background:var(--bg-page);color:var(--text-strong);font-family:"Segoe UI",Roboto,system-ui,sans-serif;padding:0 16px 7rem}
+.mq-page{max-width:1000px;margin:0 auto;padding-top:.6rem}
+.mq-page.tel{max-width:390px}
+.mq-regl{position:sticky;top:0;z-index:600;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.6rem auto 1rem;max-width:1100px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mq-regl h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+.mq-regl h2 button{margin-left:auto}
+.mq-regl .grp{margin:.45rem 0}
+.mq-regl .grp>b{display:block;font-size:.85rem;margin-bottom:.25rem}
+.mq-regl .boutons{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.mq-regl .boutons button{font-size:.8rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.25rem .65rem;min-height:36px}
+.mq-regl .boutons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg-subtle);font-weight:700}
+.mq-rouvrir{position:fixed;top:8px;right:8px;z-index:610;display:none}
+.mq-bande{background:var(--accent-bg-subtle);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin:.4rem 0 1rem}
+.mq-decision{background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:12px;padding:.8rem 1rem;margin:2rem 0 0;font-size:.92rem}
+.mq-decision h2{font-size:1.05rem;margin:0 0 .5rem}
+.mq-decision li{margin:.45rem 0}
+.mq-barre{position:fixed;left:0;right:0;bottom:0;background:var(--bg-card);border-top:1px solid var(--border-strong);padding:.6rem 1rem;display:flex;justify-content:space-between;gap:.5rem;z-index:500}
+.mq-barre .btn{border-radius:999px;min-height:44px;padding:.3rem 1.2rem}
+.mq-page h1{font-size:2.2rem}
+.mq-page.tel h1{font-size:1.7rem}
+.mq-page .sousTitre{font-size:1.05rem}
+
+/* ===== Nouvelles règles de l'espace (à ranger dans css/style.css, à la place des .cqcpm-* actuelles). Tout est basé sur l'accent. ===== */
+/* Pastille d'icône carrée, comme dans Explorer les métiers (.cml-famille .ico) */
+.cqcpm-ico{flex:none;width:40px;height:40px;border-radius:10px;background:var(--accent-bg-subtle);color:var(--accent-texte,var(--accent));display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;border:1px solid var(--accent)}
+.cqcpm-ico.petit{width:34px;height:34px;font-size:1.1rem;border-radius:9px}
+/* Bloc : titre avec pastille d'icône, texte lisible (jamais du gris pâle pour ce qui se lit) */
+.cqcpm-bloc{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:14px;padding:1rem 1.1rem;margin:.8rem 0}
+.cqcpm-bloc>h2,.cqcpm-bloc>.tete{display:flex;align-items:center;gap:.65rem;font-size:1.15rem;font-weight:800;margin:0 0 .55rem}
+.cqcpm-bloc>h2 .cqcpm-ico{font-size:1.25rem}
+.cqcpm-bloc p,.cqcpm-bloc li{font-size:1rem;color:var(--text-strong);margin:.25rem 0}
+.cqcpm-bloc .cqcpm-note,.cqcpm-note{font-size:.9rem;color:var(--text-muted)}
+.cqcpm-bloc ul{padding-left:1.2rem;margin:.3rem 0}
+/* Bandeau de la carte en cours (remplace la ligne grise « Partie 1 sur 2 ») */
+.cqcpm-bandeau{display:flex;gap:.8rem;align-items:center;border:2px solid var(--accent);border-left-width:8px;border-radius:14px;background:var(--accent-bg-subtle);padding:.6rem .9rem;margin:.6rem 0}
+.cqcpm-bandeau .cqcpm-ico{width:44px;height:44px;font-size:1.4rem;background:var(--accent-solide,var(--accent));border-color:var(--accent-solide,var(--accent));color:#fff}
+.cqcpm-bandeau b{display:block;font-size:1.1rem}
+.cqcpm-bandeau span{font-size:.9rem;color:var(--text-soft)}
+.cqcpm-bandeau .n{margin-left:auto;font-weight:800;font-size:.9rem;border:2px solid var(--accent);border-radius:999px;padding:.1rem .7rem;background:var(--bg-card);white-space:nowrap}
+/* Une question et sa zone de réponse */
+.cqcpm-q{font-size:1.02rem;font-weight:800;color:var(--text-strong);margin:1rem 0 .15rem}
+.cqcpm-q .a{font-weight:400;color:var(--text-muted);font-size:.9rem}
+.cqcpm-champ,.form-control.cqcpm-champ{width:100%;min-height:3rem;font-size:1.05rem;padding:.55rem .85rem;border:2px solid color-mix(in srgb,var(--accent) 65%,var(--bg-card));border-radius:10px;background-color:var(--bg-card);color:var(--text-strong)}
+.cqcpm-champ:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg-subtle);outline:none}
+.cqcpm-champ::placeholder{color:var(--text-muted);opacity:1}
+textarea.cqcpm-champ{min-height:5.2rem}
+/* Variante B : chaque question est sa propre zone, avec un filet d'accent (comme .cml-q d'Explorer les métiers) */
+.mq-b .cqcpm-qb{background:var(--bg-card);border:1px solid var(--border-strong);border-left:6px solid var(--accent);border-radius:12px;padding:.7rem .9rem;margin:.7rem 0}
+.mq-b .cqcpm-qb .cqcpm-q{margin-top:0}
+.mq-b .cqcpm-bloc>.cqcpm-qb{background:var(--bg-subtle)}
+/* Boutons de choix : 2 px, jamais pâles ; le choix fait est plein (texte blanc sur --accent-solide), avec une coche */
+.cqcpm-rep{display:flex;flex-wrap:wrap;gap:.45rem;margin:.3rem 0}
+.cqcpm-rep button{font-size:.95rem;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-card);color:var(--text-strong);padding:.3rem .8rem;min-height:44px;display:inline-flex;align-items:center;gap:.4rem}
+.cqcpm-rep button:hover{border-color:var(--accent);background:var(--accent-bg-subtle)}
+.cqcpm-rep button .bi.coche{display:none}
+.cqcpm-rep button[aria-pressed="true"]{background:var(--accent-solide,var(--accent));border-color:var(--accent-solide,var(--accent));color:#fff;font-weight:800}
+.cqcpm-rep button[aria-pressed="true"] .bi.coche{display:inline}
+.cqcpm-rep button:focus-visible,.cqcpm-theme-bloc button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Lignes « un repère, trois piles » */
+.cqcpm-val{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .8rem;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.cqcpm-val:last-child{border-bottom:0}
+.cqcpm-val .lib{flex:1 1 200px;font-size:1rem;font-weight:700}
+.cqcpm-val .cqcpm-rep{margin:0}
+.cqcpm-sous-titre{font-size:1.02rem;font-weight:800;margin:1rem 0 .1rem;padding-bottom:.25rem;border-bottom:2px solid var(--accent);color:var(--text-strong)}
+/* Liste de phrases */
+.cqcpm-lignes{list-style:none;padding:0!important;margin:.4rem 0}
+.cqcpm-lignes li{display:flex;gap:.6rem;align-items:center;border:1px solid var(--accent);border-radius:10px;padding:.4rem .5rem .4rem .8rem;margin:.35rem 0;background:var(--accent-bg-subtle)}
+.cqcpm-lignes li span{flex:1}
+.cqcpm-lignes li .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--accent-solide,var(--accent));color:#fff;font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center}
+.cqcpm-ajout{display:flex;gap:.5rem;align-items:stretch;margin:.4rem 0}
+.cqcpm-ajout .btn{min-height:48px;flex:none}
+/* Compteur de réponses */
+.cqcpm-compte{display:inline-block;font-size:.85rem;font-weight:700;border:2px solid var(--border-strong);border-radius:999px;padding:.05rem .65rem;background:var(--bg-subtle);color:var(--text-strong)}
+.cqcpm-compte.plein{border-color:var(--accent);background:var(--accent-bg-subtle)}
+/* Fiche d'une entrée numérotée */
+.cqcpm-entree{border:1px solid var(--border-strong);border-radius:12px;padding:.2rem .9rem .8rem;margin:.7rem 0;background:var(--bg-card)}
+.cqcpm-entree>h3{display:flex;gap:.6rem;align-items:center;font-size:1.05rem;font-weight:800;margin:.7rem 0 .2rem}
+.cqcpm-entree>h3 .num{flex:none;width:30px;height:30px;border-radius:8px;background:var(--accent-solide,var(--accent));color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem}
+/* Thèmes de l'accueil : un bloc par thème, filet d'accent à gauche (comme .cml-famille d'Explorer les métiers) */
+.cqcpm-theme-bloc{background:var(--bg-card);border:1px solid var(--border);border-left:8px solid var(--accent);border-radius:14px;padding:.9rem 1rem 1rem;margin:1rem 0}
+.cqcpm-theme-bloc .tete{display:flex;gap:.7rem;align-items:center;margin-bottom:.7rem}
+.cqcpm-theme-bloc .tete h2{font-size:1.2rem;font-weight:800;margin:0}
+.cqcpm-theme-bloc .tete p{margin:0;font-size:.92rem;color:var(--text-soft)}
+.cqcpm-theme-bloc .tete .compte{margin-left:auto}
+.cqcpm-cartes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.cqcpm-cartes.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cqcpm-cartes.n1{grid-template-columns:minmax(0,1fr);max-width:50%}
+.cqcpm-carte{position:relative;display:flex;flex-direction:column;gap:.45rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.9rem 1rem}
+.cqcpm-carte h3{font-size:1.05rem;font-weight:800;margin:0}
+.cqcpm-carte .pour{font-size:.98rem;font-weight:700;color:var(--text-strong);margin:0;line-height:1.3}
+.cqcpm-carte .dit{font-size:.93rem;color:var(--text-soft);margin:0;flex:1}
+.cqcpm-carte .btn{min-height:46px}
+.cqcpm-carte .cqcpm-etat{position:absolute;top:.7rem;right:.8rem;font-size:.8rem;font-weight:700;border-radius:999px;padding:.1rem .6rem;border:2px solid var(--accent);color:var(--text-strong);background:var(--accent-bg-subtle);display:inline-flex;gap:.3rem;align-items:center}
+.cqcpm-carte .cqcpm-etat .bi{color:var(--accent-texte,var(--accent))}
+.cqcpm-ok,.cqcpm-alerte,.cqcpm-aide{background:var(--accent-bg-subtle);border:2px solid var(--accent);border-radius:12px;padding:.65rem .9rem;margin:.8rem 0;display:flex;gap:.7rem;align-items:flex-start}
+.cqcpm-ok>.bi,.cqcpm-alerte>.bi,.cqcpm-aide>.bi{color:var(--accent-texte,var(--accent));font-size:1.4rem}
+.cqcpm-alerte{border-style:dashed}
+/* Introduction : une carte du module par ligne, une étape par ligne */
+.cqcpm-intro-carte{display:flex;gap:.8rem;align-items:flex-start;border-top:1px solid var(--border);padding:.7rem 0}
+.cqcpm-intro-carte:first-of-type{border-top:0}
+.cqcpm-intro-carte h4{font-size:1.02rem;font-weight:800;margin:0}
+.cqcpm-intro-carte .q{font-weight:700;margin:.1rem 0}
+.cqcpm-intro-carte p{margin:.15rem 0;font-size:.97rem}
+.cqcpm-etapes{list-style:none;padding:0;margin:.3rem 0;display:grid;gap:.5rem}
+.cqcpm-etapes li{display:flex;gap:.7rem;align-items:flex-start;margin:0}
+.cqcpm-etapes .num{flex:none;width:32px;height:32px;border-radius:9px;background:var(--accent-solide,var(--accent));color:#fff;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+/* Résultat */
+.cqcpm-res li,.cqcpm-res .texte{color:var(--text-strong)}
+.cqcpm-pile{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.cqcpm-pile .col{border:1px solid var(--border-strong);border-radius:10px;padding:.5rem .7rem;background:var(--bg-subtle)}
+.cqcpm-pile .col h4{font-size:.95rem;font-weight:800;margin:0 0 .3rem;display:flex;gap:.4rem;align-items:center}
+.cqcpm-pile .col h4 .bi{color:var(--accent-texte,var(--accent))}
+.cqcpm-actions{display:flex;flex-wrap:wrap;gap:.6rem .8rem;margin:1rem 0 .2rem}
+.cqcpm-actions .btn{min-height:46px}
+.cqcpm-garde .ligne{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem;margin:.5rem 0}
+.cqcpm-garde .txt{flex:1 1 220px}
+.cqcpm-garde h3{font-size:1.02rem;font-weight:800;margin:0}
+.cqcpm-garde p{margin:.15rem 0 0;font-size:.93rem}
+.mq-page.tel .cqcpm-cartes,.mq-page.tel .cqcpm-cartes.n2{grid-template-columns:1fr}
+.mq-page.tel .cqcpm-cartes.n1{max-width:none}
+.mq-page.tel .cqcpm-pile{grid-template-columns:1fr}
+.mq-page.tel .cqcpm-ajout{flex-direction:column}
+@media(max-width:700px){.cqcpm-cartes,.cqcpm-cartes.n2{grid-template-columns:1fr}.cqcpm-cartes.n1{max-width:none}.cqcpm-pile{grid-template-columns:1fr}}
+/* ===== Nouveautés de cette maquette : le papier « Ce qui revient dans mes cartes » ===== */
+.mq-pap-cases{display:grid;gap:.5rem;margin:.6rem 0}
+.mq-pap-case{display:flex;gap:.8rem;align-items:flex-start;background:var(--bg-card);border:2px solid var(--border-strong);border-radius:12px;padding:.7rem .9rem}
+.mq-pap-case.coche{border-color:var(--accent);background:var(--accent-bg-subtle)}
+.mq-pap-case input[type=checkbox]{flex:none;width:24px;height:24px;margin-top:.2rem;accent-color:var(--accent-solide,var(--accent))}
+.mq-pap-case h3{font-size:1.02rem;font-weight:800;margin:0}
+.mq-pap-case p{margin:.15rem 0 0;font-size:.93rem;color:var(--text-strong)}
+.mq-pap-case .prive{font-size:.88rem;color:var(--text-soft)}
+.mq-papier{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:1rem 1.2rem;margin:.8rem 0}
+.mq-papier .entete{display:flex;gap:.7rem;align-items:center;border-bottom:1px solid var(--border);padding-bottom:.6rem;margin-bottom:.4rem}
+.mq-papier .entete h2{font-size:1.25rem;font-weight:800;margin:0}
+.mq-papier h3{font-size:1.05rem;font-weight:800;margin:1rem 0 .25rem;display:flex;gap:.5rem;align-items:center}
+.mq-papier h3 .bi{color:var(--accent-texte,var(--accent))}
+.mq-papier p,.mq-papier li{font-size:1rem;color:var(--text-strong);margin:.25rem 0}
+.mq-papier ul{padding-left:1.2rem;margin:.2rem 0}
+.mq-papier .prudence{font-size:.9rem;color:var(--text-muted);border-top:1px solid var(--border);padding-top:.5rem;margin-top:.9rem}
+.mq-joint{display:flex;gap:.8rem;align-items:flex-start;border:2px solid var(--border-strong);border-radius:14px;background:var(--bg-subtle);padding:.8rem 1rem;margin:.9rem 0}
+.mq-joint.oui{border-color:var(--accent);background:var(--accent-bg-subtle)}
+.mq-joint>.bi{font-size:1.6rem;color:var(--accent-texte,var(--accent))}
+.mq-joint b{display:block;font-size:1.05rem}
+.mq-etatpap{display:inline-flex;gap:.3rem;align-items:center;font-size:.8rem;font-weight:700;border-radius:999px;padding:.1rem .6rem;border:2px solid var(--accent);background:var(--accent-bg-subtle);color:var(--text-strong)}
+.mq-feuille{background:#fff;color:#000;border:1px solid #999;border-radius:6px;padding:1.2rem 1.6rem;font-family:Georgia,serif;margin:.8rem 0}
+.mq-feuille h1{font-size:1.4rem;color:#000;margin:0 0 .5rem}
+.mq-feuille h2{font-size:1.1rem;color:#000;border-bottom:1px solid #000;padding-bottom:.15rem;margin:1rem 0 .4rem}
+.mq-feuille h3{font-size:1rem;color:#000;margin:.6rem 0 .2rem}
+.mq-feuille p,.mq-feuille li{font-size:.95rem;color:#000;margin:.2rem 0}
+.mq-feuille .note{font-size:.85rem;color:#333;font-style:italic}
+.mq-feuille .pied{font-size:.8rem;color:#333;border-top:1px solid #000;margin-top:1rem;padding-top:.3rem}
+.mq-page.tel .mq-pap-case{flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn btn-primary btn-sm mq-rouvrir" id="mqRouvrir"><i class="bi bi-sliders" aria-hidden="true"></i> Réglages</button>
+
+<div class="mq-regl" id="mqRegl">
+  <h2><i class="bi bi-sliders" aria-hidden="true"></i> Maquette : le papier de fin de « Ce qui compte pour moi » <button type="button" class="btn btn-outline-secondary btn-sm" id="mqFermer" aria-label="Fermer les réglages"><i class="bi bi-x-lg" aria-hidden="true"></i></button></h2>
+  <div class="grp"><b>Écran</b><div class="boutons" id="mqEcrans"></div></div>
+  <div class="grp"><b>Situation de la personne</b><div class="boutons" id="mqSit"></div></div>
+  <div class="grp"><b>Pour vérifier que tout suit l'accent</b><div class="boutons" id="mqVerif"></div></div>
+</div>
+
+<div class="mq-page" id="mqPage"></div>
+
+<script>
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+/* sit : 'huit' (toutes cartes gardées), 'cinq' (cinq cartes gardées), 'une' (une seule carte gardée), 'aucune' */
+var ETAT={ecran:'accueil',sit:'cinq',theme:'clair',accent:'bleu',tel:false,papier:false,joint:false,obsolete:false,coches:{journee:true,valeurs:true,conditions:true,experiences:true,envies:true,aide:false,inspirent:true}};
+var ECRANS=[['accueil','1. Accueil de l’espace'],['preparer','2. Préparer mon papier'],['assistant','3. Passage avec l’assistant'],['papier','4. Mon papier'],['pdf','5. Le papier en PDF'],['synthese','6. Dans Ma synthèse'],['feuille','7. Feuille imprimée de Ma synthèse'],['obsolete','8. Une carte a changé']];
+var SITS=[['huit','Les huit cartes gardées'],['cinq','Cinq cartes gardées'],['une','Une seule carte gardée'],['aucune','Aucune carte gardée']];
+function carte(id){return CQCPM_CARTES.filter(function(c){return c.id===id;})[0];}
+var GARDEES={huit:['envies','inspirent','journee','valeurs','conditions','experiences','aide','pas'],cinq:['journee','valeurs','conditions','experiences','aide'],une:['journee'],aucune:[]};
+function gardees(){return GARDEES[ETAT.sit].filter(function(id){return !!carte(id);});}
+function cochees(){return gardees().filter(function(id){return ETAT.coches[id]!==false&&(ETAT.coches[id]===true||id!=='aide');});}
+function aUnPapier(){return ETAT.papier&&ETAT.sit!=='aucune'&&ETAT.sit!=='une';}
+
+function dessinerReglages(){
+  var b=function(act,val,lib,pressed){return '<button type="button" data-act="'+act+'" data-v="'+val+'" aria-pressed="'+pressed+'">'+lib+'</button>';};
+  document.getElementById('mqEcrans').innerHTML=ECRANS.map(function(e){return b('ecran',e[0],e[1],ETAT.ecran===e[0]);}).join('');
+  document.getElementById('mqSit').innerHTML=SITS.map(function(s){return b('sit',s[0],s[1],ETAT.sit===s[0]);}).join('')+' · '+b('papier','1','Papier déjà reçu',ETAT.papier)+b('papier','0','Pas encore de papier',!ETAT.papier);
+  document.getElementById('mqVerif').innerHTML=b('theme','clair','Clair',ETAT.theme==='clair')+b('theme','sombre','Sombre',ETAT.theme==='sombre')+' · '+b('accent','bleu','Bleu',ETAT.accent==='bleu')+b('accent','orange','Orange',ETAT.accent==='orange')+b('accent','vert','Vert',ETAT.accent==='vert')+' · '+b('tel','0','Ordinateur',!ETAT.tel)+b('tel','1','Téléphone',ETAT.tel);
+}
+document.getElementById('mqRegl').addEventListener('click',function(ev){
+  var b=ev.target.closest('button[data-act]'); if(!b){return;}
+  var a=b.getAttribute('data-act'),v=b.getAttribute('data-v');
+  if(a==='ecran'){ETAT.ecran=v;} if(a==='sit'){ETAT.sit=v;} if(a==='papier'){ETAT.papier=v==='1';if(!ETAT.papier){ETAT.joint=false;}}
+  if(a==='theme'){ETAT.theme=v;} if(a==='accent'){ETAT.accent=v;} if(a==='tel'){ETAT.tel=v==='1';}
+  appliquer();
+});
+document.getElementById('mqFermer').addEventListener('click',function(){document.getElementById('mqRegl').style.display='none';document.getElementById('mqRouvrir').style.display='block';});
+document.getElementById('mqRouvrir').addEventListener('click',function(){document.getElementById('mqRegl').style.display='block';this.style.display='none';});
+
+function titre(sous){return '<div class="text-center"><h1><i class="bi bi-layers"></i> Ce qui compte pour moi</h1>'+(sous?'<p class="sousTitre"><strong>'+sous+'</strong></p>':'')+'</div>';}
+function retour(lib,go){return '<div class="mb-2"><button type="button" class="btn btn-outline-secondary btn-sm" data-go="'+(go||'accueil')+'"><i class="bi bi-arrow-left" aria-hidden="true"></i> '+(lib||'Retour à « Ce qui compte pour moi »')+'</button></div>';}
+function barre(retourLib,go){return '<div class="mq-barre"><button type="button" class="btn btn-outline-primary" data-go="'+(go||'accueil')+'">← '+(retourLib||'Retour')+'</button><button type="button" class="btn btn-outline-primary"><i class="bi bi-house" aria-hidden="true"></i> Accueil</button></div>';}
+function nCartes(n){return n+(n>1?' cartes':' carte');}
+
+/* Le texte du papier : écrit par l'assistant, à partir de ce que la personne a écrit. Exemple inventé (profil « Camille »). */
+function texteDuPapier(){
+  var n=cochees().length;
+  return '<div class="entete"><span class="cqcpm-ico"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span><div><h2>Ce qui revient dans mes cartes</h2><span class="cqcpm-note">Lu le 23/11/2026, à partir de '+nCartes(n)+' : '+cochees().map(function(id){return esc(carte(id).nom);}).join(', ')+'.</span></div></div>'+
+  '<h3><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Ce qui revient</h3><ul>'+
+  '<li><b>Fabriquer ou réparer de vos mains.</b> Vous l’écrivez dans votre journée idéale (« je répare des objets »), parmi vos repères essentiels (« créer ou fabriquer ») et dans vos envies (« créer un petit atelier »).</li>'+
+  '<li><b>Du calme, sans course.</b> Un café au calme le matin, des horaires réguliers, et le bruit que vous citez parmi ce qui a pesé dans une expérience.</li></ul>'+
+  '<h3><i class="bi bi-bullseye" aria-hidden="true"></i> Ce qui compte beaucoup pour vous</h3><ul><li>Être libre de vous organiser.</li><li>Aider les autres, que vous placez parmi les repères importants.</li></ul>'+
+  '<h3><i class="bi bi-arrows-expand" aria-hidden="true"></i> Ce qui peut tirer dans deux directions</h3><p>Vous voulez être libre de vous organiser et, en même temps, des horaires réguliers. Les deux peuvent aller ensemble, selon le métier : c’est une question à regarder fiche par fiche.</p>'+
+  '<h3><i class="bi bi-pencil" aria-hidden="true"></i> Ce que vous pourriez préciser</h3><p>Votre carte « Mes expériences » dit ce qui a pesé, mais pas encore ce que vous accepteriez de supporter si le reste vous convenait.</p>'+
+  '<h3><i class="bi bi-search" aria-hidden="true"></i> En regardant des métiers, vous pouvez vous demander</h3><ul><li>Est-ce que je travaillerais surtout seul(e), ou entouré(e) de bruit ?</li><li>Est-ce que je fabrique, répare ou crée quelque chose de concret ?</li><li>Est-ce que mes horaires seraient réguliers ?</li></ul>'+
+  '<p class="prudence">Ce papier reprend ce que vous avez écrit ce jour-là. Ce n’est ni une note, ni un profil, ni un diagnostic, et il ne dit pas quel métier vous convient.</p>';
+}
+
+/* ---------- 1. Accueil de l'espace : où la personne trouve son papier ---------- */
+function ecranAccueil(){
+  var g=gardees().length, p=aUnPapier();
+  var etat=p?'<span class="mq-etatpap"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Papier reçu</span>':'';
+  var corps;
+  if(g<2){corps='<p class="mb-1"><b>Il faut au moins deux cartes gardées</b> pour qu’il y ait quelque chose à lire ensemble.'+(g===1?' Vous en avez une.':' Vous n’en avez encore aucune.')+'</p><div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" disabled><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Préparer mon papier</button></div>';}
+  else if(p){corps='<p class="mb-1">Votre papier a été préparé à partir de '+nCartes(cochees().length)+'. Vous pouvez le relire, l’imprimer ou le refaire.</p><div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-go="papier"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Lire mon papier</button><button type="button" class="btn btn-outline-secondary" data-go="preparer">Le refaire</button></div>';}
+  else{corps='<p class="mb-1">Quand vous avez fait plusieurs cartes, vous pouvez recevoir <b>un papier</b> qui dit ce qui revient dans ce que vous avez écrit. Vous gardez la main : rien ne part tant que vous ne le décidez pas, et ce papier n’est jamais obligatoire.</p><div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-go="preparer"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Préparer mon papier</button></div>';}
+  return titre('')+'<div class="cqcpm-bloc" style="border-color:var(--accent);border-width:2px"><h2><span class="cqcpm-ico"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span> Mon papier : ce qui revient dans mes cartes '+etat+'</h2>'+corps+'</div>'+
+  '<p class="cqcpm-note text-center">(Les huit cartes et « Ce que j’ai gardé » restent comme dans l’application : cet encadré s’ajoute en bas de l’accueil de l’espace.)</p>'+barre('Retour','accueil');
+}
+
+/* ---------- 2. Préparer mon papier ---------- */
+function ecranPreparer(){
+  var g=gardees();
+  if(g.length<2){return titre('Préparer mon papier')+retour()+'<div class="cqcpm-alerte"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Il faut au moins deux cartes gardées. Reprenez une carte, gardez son résultat, puis revenez ici.</span></div>'+barre('Retour');}
+  var lignes=g.map(function(id){
+    var c=carte(id),on=cochees().indexOf(id)!==-1;
+    return '<label class="mq-pap-case'+(on?' coche':'')+'"><input type="checkbox" data-coche="'+id+'"'+(on?' checked':'')+'><span class="cqcpm-ico petit"><i class="bi '+c.icone+'" aria-hidden="true"></i></span><span><h3>'+esc(c.nom)+'</h3>'+(id==='aide'?'<p class="prive">Carte très personnelle : elle n’est pas cochée d’avance. Cochez-la seulement si vous le souhaitez.</p>':'<p>Gardée le 22/11/2026.</p>')+'</span></label>';
+  }).join('');
+  var n=cochees().length;
+  return titre('Préparer mon papier')+retour()+
+  '<p class="text-center" style="font-size:1.05rem">Choisissez les cartes à lire ensemble. Elles sont cochées d’avance ; décochez celles que vous ne voulez pas inclure.</p>'+
+  '<div class="mq-pap-cases">'+lignes+'</div>'+
+  '<div class="cqcpm-aide"><i class="bi bi-shield-check" aria-hidden="true"></i><span><b>Ce qui va se passer.</b> Les cartes cochées sont écrites dans une demande que vous copiez vous-même dans l’assistant en ligne de votre choix. Rien n’est envoyé par l’application. Vous relirez la demande avant de la copier, et vous pouvez vous arrêter à tout moment.</span></div>'+
+  '<div class="cqcpm-actions"><button type="button" class="btn btn-primary"'+(n<2?' disabled':'')+' data-go="assistant"><i class="bi bi-clipboard" aria-hidden="true"></i> Préparer la demande ('+nCartes(n)+')</button><button type="button" class="btn btn-outline-secondary" data-go="accueil">Pas maintenant</button></div>'+
+  (n<2?'<p class="cqcpm-note">Cochez au moins deux cartes.</p>':'')+barre('Retour');
+}
+
+/* ---------- 3. Passage avec l'assistant : écran commun déjà existant ---------- */
+function ecranAssistant(){
+  return titre('Mon papier : avec l’assistant en ligne')+retour('Retour à la préparation','preparer')+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-diagram-3" aria-hidden="true"></i></span> Écran commun, inchangé</h2><p>C’est le passage que la personne connaît déjà dans « Ma lecture » et dans les interprétations d’Explorer les métiers, repris tel quel :</p><ol><li>choisir l’assistant ;</li><li>relire la demande qui part (liste de ce qui est écrit, cartes décochées absentes) ;</li><li>copier, ouvrir l’assistant, coller la demande ;</li><li>recoller la réponse ici.</li></ol><p class="cqcpm-note mb-0">Aucun nouvel écran à apprendre. Le prompt de cette demande reste à Denis seul.</p></div>'+
+  '<div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-recu="1">Simuler : la réponse est collée, voir mon papier</button></div>'+barre('Retour','preparer');
+}
+
+/* ---------- 4. Mon papier ---------- */
+function ecranPapier(){
+  var j=ETAT.joint;
+  return titre('Mon papier')+retour()+
+  '<p class="text-center" style="font-size:1.05rem">Voici ce qui revient dans ce que vous avez écrit. C’est une lecture, pas un profil : vous pouvez la garder, la corriger en reprenant vos cartes, ou la laisser de côté.</p>'+
+  '<div class="mq-papier">'+texteDuPapier()+'</div>'+
+  '<div class="mq-joint'+(j?' oui':'')+'"><i class="bi '+(j?'bi-link-45deg':'bi-link-45deg')+'" aria-hidden="true"></i><div><b>'+(j?'Ce papier est joint à « Explorer les métiers ».':'Joindre ce papier à « Explorer les métiers » ?')+'</b><span>'+(j?'Il apparaît dans « Ma synthèse » et dans la lecture que vous demandez à l’assistant. Vous pouvez le retirer quand vous voulez.':'C’est un choix qui vous appartient, et il n’est jamais obligatoire. Sans ce papier, « Explorer les métiers » fonctionne exactement comme avant. Rien n’est joint tant que vous ne le décidez pas.')+'</span><div class="cqcpm-actions" style="margin-top:.6rem">'+(j?'<button type="button" class="btn btn-outline-secondary" data-joint="0"><i class="bi bi-x-circle" aria-hidden="true"></i> Ne plus le joindre</button>':'<button type="button" class="btn btn-primary" data-joint="1"><i class="bi bi-link-45deg" aria-hidden="true"></i> Joindre à Explorer les métiers</button>')+'</div></div></div>'+
+  '<div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" data-go="pdf"><i class="bi bi-printer" aria-hidden="true"></i> Imprimer ou enregistrer en PDF</button><button type="button" class="btn btn-outline-secondary" data-go="preparer">Le refaire avec d’autres cartes</button><button type="button" class="btn btn-outline-secondary" data-oublier="1"><i class="bi bi-trash" aria-hidden="true"></i> Effacer ce papier</button></div>'+
+  '<div class="cqcpm-aide mt-3"><i class="bi bi-floppy" aria-hidden="true"></i><span>Ce papier part avec votre sauvegarde personnelle (la disquette), comme vos cartes gardées. Il n’est jamais enregistré ailleurs.</span></div>'+barre('Retour');
+}
+
+/* ---------- 5. Le papier en PDF ---------- */
+function ecranPdf(){
+  var n=cochees().length;
+  return titre('Mon papier : aperçu du PDF')+retour('Retour à mon papier','papier')+
+  '<p class="text-center cqcpm-note">Aperçu de ce qui s’imprime (noir sur blanc, sans bouton). Même composant d’impression que pour les cartes.</p>'+
+  '<div class="mq-feuille"><h1>Ce qui revient dans mes cartes</h1><p class="note">Établi le 23 novembre 2026, à partir de '+nCartes(n)+'. Document personnel : ce que j’ai exprimé ce jour-là, avec mes mots. Ce n’est ni une note, ni un profil, ni un diagnostic.</p>'+
+  '<h2>Ce qui revient</h2><ul><li>Fabriquer ou réparer de mes mains.</li><li>Du calme, sans course.</li></ul><h2>Ce qui compte beaucoup pour moi</h2><ul><li>Être libre de m’organiser.</li><li>Aider les autres.</li></ul><h2>Ce qui peut tirer dans deux directions</h2><p>Être libre de m’organiser et avoir des horaires réguliers : à regarder métier par métier.</p><h2>Ce que je pourrais préciser</h2><p>Ce que j’accepterais de supporter si le reste me convenait.</p><div class="pied">Rien n’a été envoyé : ce document est produit sur l’appareil de la personne.</div></div>'+barre('Retour','papier');
+}
+
+/* ---------- 6. Dans Ma synthèse (Explorer les métiers) ---------- */
+function ecranSynthese(){
+  var p=aUnPapier(), j=ETAT.joint&&p, corps;
+  if(j){corps='<div class="mq-papier" style="border-width:1px">'+texteDuPapier()+'</div><div class="cqcpm-actions"><button type="button" class="btn btn-outline-secondary" data-joint="0">Ne plus joindre ce papier</button><button type="button" class="btn btn-outline-primary" data-go="papier">Ouvrir dans « Ce qui compte pour moi »</button></div>';}
+  else if(p){corps='<p>Vous avez un papier « Ce qui revient dans mes cartes », mais il n’est pas joint. Ma synthèse et Ma lecture fonctionnent sans lui.</p><div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-joint="1"><i class="bi bi-link-45deg" aria-hidden="true"></i> Joindre mon papier</button><button type="button" class="btn btn-outline-primary" data-go="papier">Le relire d’abord</button></div>';}
+  else{corps='<p>Cet espace est facultatif et ne bloque rien. Si vous le souhaitez, vous pouvez y recevoir un papier sur ce qui compte pour vous, puis choisir de le joindre ici.</p><div class="cqcpm-actions"><button type="button" class="btn btn-outline-primary" data-go="accueil"><i class="bi bi-layers" aria-hidden="true"></i> Aller dans « Ce qui compte pour moi »</button></div>';}
+  return '<div class="text-center"><h1><i class="bi bi-diagram-3"></i> Explorer les métiers</h1><p class="sousTitre"><strong>Ma synthèse</strong></p></div>'+
+  '<div class="mq-bande">Maquette : seul le bloc « Ce qui compte pour moi » est nouveau. Le reste de la page (passages, parcours, Ma lecture) ne change pas.</div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-layers" aria-hidden="true"></i></span> Ce qui compte pour moi '+(j?'<span class="mq-etatpap"><i class="bi bi-link-45deg" aria-hidden="true"></i> Papier joint</span>':'')+'</h2>'+corps+'</div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-eye" aria-hidden="true"></i></span> Ma lecture</h2><p class="mb-1">'+(j?'La demande à l’assistant contiendra aussi votre papier, présenté comme une lecture que vous avez choisi de joindre.':'La demande à l’assistant ne contient pas de papier de « Ce qui compte pour moi ».')+'</p><div class="cqcpm-actions"><button type="button" class="btn btn-primary">Préparer ma lecture</button></div></div>'+barre('Retour');
+}
+
+/* ---------- 7. Feuille imprimée de Ma synthèse ---------- */
+function ecranFeuille(){
+  var j=ETAT.joint&&aUnPapier();
+  return '<div class="text-center"><h1><i class="bi bi-printer"></i> Feuille imprimée de Ma synthèse</h1></div>'+
+  '<p class="text-center cqcpm-note">Aperçu. Utilisez « Situation » et le bouton « Joindre » pour comparer avec et sans papier.</p>'+
+  '<div class="mq-feuille"><h1>Ma synthèse : explorer les métiers</h1><h2>1. Mes choix</h2><p class="note">(rubriques 1 à 7 inchangées)</p>'+
+  (j?'<h2>8. Ce qui compte pour moi</h2><p class="note">Papier « Ce qui revient dans mes cartes », que j’ai choisi de joindre. Ce que j’ai exprimé ce jour-là, avec mes mots.</p><h3>Ce qui revient</h3><ul><li>Fabriquer ou réparer de mes mains.</li><li>Du calme, sans course.</li></ul><h3>Ce qui compte beaucoup pour moi</h3><ul><li>Être libre de m’organiser.</li><li>Aider les autres.</li></ul><h3>Ce qui peut tirer dans deux directions</h3><p>Être libre de m’organiser et avoir des horaires réguliers.</p><h2>9. Valider mon projet</h2><h2>10. Questions pour mon conseiller</h2>':'<h2>8. Valider mon projet</h2><h2>9. Questions pour mon conseiller</h2><p class="note">Sans papier joint, la rubrique « Ce qui compte pour moi » n’apparaît pas et la numérotation se referme toute seule.</p>')+'</div>'+barre('Retour','synthese');
+}
+
+/* ---------- 8. Une carte a changé : le papier est retiré avec douceur ---------- */
+function ecranObsolete(){
+  return titre('')+'<div class="cqcpm-alerte"><i class="bi bi-info-circle" aria-hidden="true"></i><span><b>Votre papier a été retiré.</b> Vous avez modifié ou effacé une carte qu’il lisait : il ne correspondait plus à ce que vous avez écrit. Vous pouvez en demander un nouveau quand vous le souhaitez. Il n’est plus joint à « Explorer les métiers ».</span></div>'+
+  '<div class="cqcpm-bloc"><h2><span class="cqcpm-ico"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span> Mon papier : ce qui revient dans mes cartes</h2><div class="cqcpm-actions"><button type="button" class="btn btn-primary" data-go="preparer"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Préparer un nouveau papier</button></div></div>'+barre('Retour');
+}
+
+var VUES={accueil:ecranAccueil,preparer:ecranPreparer,assistant:ecranAssistant,papier:ecranPapier,pdf:ecranPdf,synthese:ecranSynthese,feuille:ecranFeuille,obsolete:ecranObsolete};
+function decisions(){
+  var t={accueil:['Un encadré « Mon papier » est ajouté en bas de l’accueil de l’espace. Il explique en deux phrases à quoi sert le papier et rappelle qu’il est facultatif.','Avec moins de deux cartes gardées, le bouton est éteint et dit pourquoi (dernière situation du réglage « Situation »).'],
+  preparer:['Les cartes gardées sont cochées d’avance, sauf « Ce qui m’a aidé quand c’était difficile ».','La personne voit ce qui va se passer avant de continuer : rien n’est envoyé par l’application.'],
+  assistant:['Même passage que « Ma lecture » : aucun nouvel écran à apprendre, aucune copie automatique.'],
+  papier:['Le texte du papier est écrit par l’assistant en ligne, d’après le prompt de Denis. Le contenu ci-dessus est un exemple inventé pour juger la forme (profil « Camille »).','Les sections proposées (ce qui revient, ce qui compte beaucoup, ce qui tire dans deux directions, ce que la personne pourrait préciser, questions à se poser) sont à valider : ce sont elles que le code saura lire et afficher.','Joindre à Explorer les métiers est un choix de la personne, jamais une obligation.'],
+  pdf:['Même composant d’impression que les cartes (« Enregistrer en PDF » de l’appareil).'],
+  synthese:['Trois situations pour le bloc : papier joint, papier non joint, pas de papier. Dans aucun cas Ma synthèse ou Ma lecture ne sont bloquées.','Seul le papier part dans la demande de Ma lecture. Les cartes une à une ne partent plus.'],
+  feuille:['La rubrique « Ce qui compte pour moi » n’apparaît que si le papier est joint ; la numérotation se referme sans lui.'],
+  obsolete:['Même règle que les interprétations d’Explorer : si une carte change, le papier est retiré avec un message doux, et la personne peut en demander un autre.']}[ETAT.ecran]||[];
+  return t.length?'<div class="mq-decision"><h2>Ce que cet écran montre</h2><ul class="mb-0">'+t.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':'';
+}
+function appliquer(){
+  var h=document.documentElement;
+  if(ETAT.theme==='sombre'){h.setAttribute('data-theme','sombre');}else{h.removeAttribute('data-theme');}
+  if(ETAT.accent==='bleu'){h.removeAttribute('data-accent');}else{h.setAttribute('data-accent',ETAT.accent);}
+  var p=document.getElementById('mqPage'); p.className='mq-page'+(ETAT.tel?' tel':'');
+  p.innerHTML=VUES[ETAT.ecran]()+decisions();
+  dessinerReglages();
+}
+document.getElementById('mqPage').addEventListener('click',function(ev){
+  var b=ev.target.closest('button'); if(!b){return;}
+  if(b.getAttribute('data-go')){ETAT.ecran=b.getAttribute('data-go');appliquer();window.scrollTo(0,0);return;}
+  if(b.hasAttribute('data-joint')){ETAT.joint=b.getAttribute('data-joint')==='1';appliquer();return;}
+  if(b.hasAttribute('data-recu')){ETAT.papier=true;ETAT.ecran='papier';appliquer();window.scrollTo(0,0);return;}
+  if(b.hasAttribute('data-oublier')){ETAT.papier=false;ETAT.joint=false;ETAT.ecran='accueil';appliquer();window.scrollTo(0,0);return;}
+});
+document.getElementById('mqPage').addEventListener('change',function(ev){
+  var c=ev.target.closest('input[data-coche]'); if(!c){return;}
+  ETAT.coches[c.getAttribute('data-coche')]=c.checked; appliquer();
+});
+appliquer();
+</script>
+</body>
+</html>

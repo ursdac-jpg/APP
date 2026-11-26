@@ -87,6 +87,20 @@ function synBasculerGardee() {
 }
 cmvEnregistrerAction('synGarder', function () { return synBasculerGardee(); });
 
+// « Ce qui compte pour moi » : joindre ou ne plus joindre le papier « Ce qui revient dans mes cartes » (consigne 570). Un choix de la personne, jamais bloquant ; le papier se prépare dans l'espace.
+cmvEnregistrerAction('synJoindrePapier', function () {
+  if (typeof cqcpmBasculerJointPapier !== 'function') { return false; }
+  return cqcpmBasculerJointPapier();
+});
+
+cmvEnregistrerAction('synOuvrirCqc', function () {
+  if (typeof cqcpmOuvert !== 'function' || !cqcpmOuvert()) { return false; }
+  // « Retour » de la présentation de l'espace ramène ici, à « Ma synthèse » (et non à la carte « Boîte à outils »).
+  if (typeof cqcpmOuvrirDepuis === 'function') { cqcpmOuvrirDepuis(CMV_ROUTE); }
+  else if (typeof naviguerVers === 'function' && typeof CQCPM_ROUTE_INTRO !== 'undefined') { naviguerVers(CQCPM_ROUTE_INTRO); }
+  return false;
+});
+
 cmvEnregistrerAction('retenir', function (el) {
   return synBasculerRetenu(parseInt(el.getAttribute('data-passage'), 10), el.getAttribute('data-nom'), el.getAttribute('data-rome'));
 });

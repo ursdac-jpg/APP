@@ -5,7 +5,7 @@ sp, = sys.argv[1:2]
 blocs = json.load(open(sp + '/blocs.json', encoding='utf-8'))
 voice = PiperVoice.load(sp + '/voix/fr_FR-tom-medium.onnx')
 cfg = SynthesisConfig(length_scale=1.08)  # un peu plus lent, plus posé
-PRON = [(r'\bAPP\b', 'A P P'), (r'\bCV\b', 'cé vé'), (r'\bPDF\b', 'pé dé éf'), (r'\bWord\b', 'Ouorde')]
+PRON = [(r'\bAPP\b', 'A P P'), (r'\bCV\b', 'cé vé'), (r'\bPDF\b', 'pé dé éf'), (r'\bWord\b', 'Ouorde'), (r'\bIA\b', 'i a')]
 for b in blocs:
     t = b['voix']
     for a, r in PRON: t = re.sub(a, r, t)

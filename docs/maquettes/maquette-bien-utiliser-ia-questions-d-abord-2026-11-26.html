@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l’IA », une demande qui pose d’abord ses questions (consigne 609)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../modules/bien-utiliser-ia/bienUtiliserIa.css">
+<style>
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 1100px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .9rem; }
+  .reglages { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .7rem .9rem; margin-bottom: 1rem; background: var(--bg-card); font-size: .9rem; position: relative; }
+  .reglages[hidden] { display: none; }
+  .reglages .fermer { position: absolute; top: .3rem; right: .5rem; border: 0; background: none; font-size: 1.2rem; color: var(--text-muted); }
+  .reglages fieldset { margin: .3rem 0; }
+  .reglages label { margin-right: 1.2rem; }
+  #rouvrir { margin-bottom: 1rem; }
+  .decision { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .8rem .9rem; margin-top: 1.4rem; background: var(--bg-card); font-size: .92rem; }
+  .decision h2 { font-size: 1.1rem; margin: 0 0 .4rem; font-weight: 800; }
+  .decision li { margin-bottom: .3rem; }
+  #cadre.etroit { max-width: 375px; margin: 0 auto; }
+  .fiche-place { border: 1px dashed var(--border-strong, var(--border)); border-radius: 12px; padding: 1rem; text-align: center; color: var(--text-muted); }
+  /* La barre du bas de la maquette reste dans la page (pas fixe), pour ne pas cacher la boîte des décisions. */
+  .barre-navigation-fixe.maq { position: static; }
+  /* NOUVEAUTÉ de cette maquette : le cadre « Le conseil clé » (cadre accentué de la fiche finale, buia-conclusion). */
+  .maq-cle { margin: .4rem 0 1rem; }
+  .maq-cle-titre { font-size: 1.1rem; font-weight: 800; margin: 0 0 .4rem; color: var(--accent-texte, var(--accent)); }
+  .maq-cle-texte { font-size: 1.08rem; line-height: 1.5; font-weight: 600; }
+  .maq-nouveau { font-size: .75rem; font-weight: 700; border: 1px dashed var(--warning-border); color: var(--warning-strong); border-radius: 6px; padding: 0 .3rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette (consigne 609), version 2 : « Ses questions d’abord », un écran à part entière, mis en évidence.</strong> Remarque de Denis : c’est l’information clé, elle ne doit pas être noyée parmi les autres. Elle a donc sa propre étape dans la barre, visible aux deux niveaux de lecture, avec un cadre « Le conseil clé », et elle est rappelée dans la fiche « À retenir ». Le reste du chemin « Comprendre » ne change pas. Tous les boutons marchent : Copier, Retour, Continuer et niveau de lecture.</div>
+
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="rouvrir" hidden>Rouvrir les réglages de la maquette</button>
+  <div class="reglages" id="reglages">
+    <button type="button" class="fermer" id="fermer" aria-label="Fermer les réglages">&times;</button>
+    <fieldset><legend class="fs-6 fw-bold mb-1">Où placer l’écran « Ses questions d’abord » ? (la barre passe à neuf étapes)</legend>
+      <label><input type="radio" name="place" value="P1" checked> 1. Écran 8, après « Améliorer », juste avant « À retenir » (Recommandé)</label><br>
+      <label><input type="radio" name="place" value="P2"> 2. Écran 4, juste après « Six éléments »</label>
+    </fieldset>
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+    <label><input type="checkbox" id="etroit"> Voir en largeur de téléphone</label>
+  </div>
+
+  <div id="cadre">
+  <div id="app"><div class="page-catalogue-contenu buia-page" id="buiaRacine"><div class="bande-reprise-module seule"><div class="bande-reprise-module-gauche"><div class="bloc-revoir-module"><button type="button" class="btn-revoir-module"><i class="bi bi-chat-left-text"></i> Revoir la présentation</button></div></div></div><div class="text-center"><h1><i class="bi bi-chat-left-text"></i> Bien utiliser l’IA</h1><p class="sousTitre"><strong>Comprendre comment demander</strong><br>Les principes pour écrire une bonne demande à un assistant, sur n’importe quel sujet.</p></div>
+    <div class="barre-etapes-cadre" id="barre"></div>
+    <div id="buiaC1Niveaux"><div class="buia-niveaux"><span class="buia-etiq">Niveau de lecture :</span><button type="button" class="buia-choix" data-niv="bases" aria-pressed="false">Les bases</button><button type="button" class="buia-choix" data-niv="plus" aria-pressed="true">Pour aller plus loin</button></div></div>
+    <div id="buiaC1Corps"></div>
+  </div></div>
+  <div class="barre-navigation-fixe maq"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation"><button class="btn btn-nav-erip btn-lg" id="btnRetour">← Retour</button><button class="btn btn-nav-erip btn-accueil"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button><button class="btn btn-primary btn-lg" id="btnSuivant">Continuer →</button></div></div>
+  </div>
+
+  <div class="decision">
+    <h2>À décider par Denis</h2>
+    <ol>
+      <li><strong>Placement</strong>, dans les réglages en haut. <strong>1. Écran 8, après « Améliorer » (Recommandé)</strong> : la personne connaît déjà les six éléments, la forme, la protection et la vérification ; l’exemple les réunit tous, c’est l’aboutissement du chemin, juste avant la fiche. Risque : une personne qui s’arrête avant la fin ne le voit pas (le rappel dans la fiche et la barre limitent ce risque). <strong>2. Écran 4, après « Six éléments »</strong> : vu plus tôt. Risque : l’exemple arrive avant les écrans « Se protéger » et « Vérifier », dont il a besoin (ne rien écrire de personnel, l’avis n’est pas un verdict).</li>
+      <li><strong>Ce qui le met en évidence</strong> : une étape à lui dans la barre (icône clé), visible aux deux niveaux de lecture ; en haut de l’écran, un cadre « Le conseil clé » au trait épais, comme la fiche finale ; une section « Le conseil clé » ajoutée dans la fiche « À retenir ». Aucun bloc de cet écran n’est marqué « Pour aller plus loin ».</li>
+      <li><strong>Le texte de l’écran</strong> : à relire. Il développe le conseil de l’écran 3 (« Laisser l’assistant poser des questions », niveau « Pour aller plus loin »), sans le recopier.</li>
+      <li><strong>Corrections du prompt, obligatoires</strong> (règles de l’application, déjà faites dans la maquette) : cinq tirets longs remplacés par deux-points ; les « \- » remplacés par des tirets de liste ; guillemets droits remplacés par « » ; « Les 2-3 problèmes "clé" » devient « les deux ou trois problèmes clés » ; listes terminées par des points-virgules.</li>
+      <li><strong>Corrections du prompt, à valider</strong> (traduction maladroite de l’anglais, déjà faites dans la maquette ; dites lesquelles garder) :
+        <ul>
+          <li>« coach exécutif » → « coach de dirigeants » ; « mentor informé par la thérapie » → « mentor qui connaît les approches thérapeutiques » ;</li>
+          <li>« ENTRÉE PROFONDE » → « ENTRETIEN APPROFONDI » ;</li>
+          <li>« dialogue interne » → « dialogue intérieur » ; « ce qui me fatigue contre ce qui me motive » → « ce qui me fatigue et ce qui me motive » ; « signification » → « sens » ; « compétences que je veux » → « compétences que je veux acquérir » ; « Amusement » → « Loisirs » ; « systèmes » → « organisation » ; « comment je veux impacter les autres » → « la trace que je veux laisser auprès des autres » ;</li>
+          <li>le point 11 « Poussez au-delà… » n’est pas un domaine : il devient une phrase sans numéro, « Allez au-delà… » (le prompt annonce bien dix domaines) ;</li>
+          <li>« Modèles ou contradictions » → « les schémas ou contradictions » ; « vs. » → « comparé à » ;</li>
+          <li>« description vive » → « description vivante » ; « l’identité vers laquelle je grandis » → « la personne que je deviens » ;</li>
+          <li>« Sprint de 90 jours » → « une étape de 90 jours » ; « Le "pourquoi" basé sur l’identité derrière chacune » → « pour chacune, le « pourquoi » relié à la personne que je veux devenir » ; « Obstacle probable et ma réponse préalablement décidée à chacun » → « pour chacune, l’obstacle probable et la réponse que j’aurai décidée à l’avance » ; « Moins de changements, mais plus profonds surpassent une longue liste » → « Quelques changements profonds valent mieux qu’une longue liste » ;</li>
+          <li>« SYSTÈME D’EXPLOITATION » → « MES OUTILS DE SUIVI » ; « révision hebdomadaire » → « point hebdomadaire » ; « processus de réinitialisation trimestrielle » → « une façon de tout remettre à plat chaque trimestre » ; « pour la responsabilité » → « pour m’aider à tenir mes engagements » ;</li>
+          <li>« platitudes génériques d’auto-assistance » → « banalités générales de développement personnel » ; « La séquence compte » → « L’ordre compte ».</li>
+        </ul>
+        Gardé tel quel : le fond, le « vous » adressé à l’assistant, les notes de 1 à 10, « Soyez direct. Ne me flattez pas. », et « (cette IA) » (ce module a le droit d’écrire « IA »).</li>
+      <li><strong>L’encart « Avant d’essayer »</strong> : quatre précautions. À compléter ou alléger.</li>
+    </ol>
+    <p class="mb-0">Rien n’est codé. Après validation : textes dans <code>data/buiaComprendre.js</code>, prompt dans un fichier <code>prompts/</code> lu au besoin (aucune copie dans le code), recherche de l’accueil et Lexique branchés, test, ligne au journal.</p>
+  </div>
+</div>
+
+<script>
+// ---------- Textes de la rubrique (proposés) ----------
+var RUB = {
+  titre: 'Ses questions d’abord, vos réponses ensuite',
+  cleTitre: 'Le conseil clé',
+  cle: 'Pour un sujet qui compte, ne demandez pas tout de suite une réponse : demandez à l’assistant de vous poser d’abord ses questions. Pas d’avis, pas de conclusion, pas de conseil avant d’avoir lu vos réponses. Sa réponse partira alors de votre situation, pas de généralités.',
+  copierPhrase: 'Copier cette phrase',
+  phraseSeule: 'Avant de me conseiller quoi que ce soit, pose-moi tes questions, deux ou trois à la fois, et attends mes réponses.',
+  ficheLigne: 'Pour un sujet qui compte : « pose-moi tes questions d’abord, et attends mes réponses ». Pas de conseil avant.',
+  intro: 'Les demandes les plus abouties font travailler l’assistant en conversation : il pose ses questions, quelques-unes à la fois, attend vos réponses, et seulement ensuite il propose. C’est utile pour un sujet large : faire le point, préparer un projet, organiser un changement.',
+  reconnaitreTitre: 'Ce qui la reconnaît :',
+  reconnaitre: [
+    'elle dit à l’assistant quel rôle tenir et quel est le but ;',
+    'elle lui demande de poser ses questions d’abord, et d’attendre vos réponses ;',
+    'elle lui interdit de conseiller avant la fin des questions ;',
+    'elle découpe la suite en étapes : ce qu’il a compris, puis le but, puis un plan ;',
+    'elle fixe des règles : rien de général, tout rattaché à ce que vous avez dit.'
+  ],
+  phraseTitre: 'À ajouter à n’importe quelle demande :',
+  phrase: 'Avant de me conseiller quoi que ce soit, pose-moi tes questions, deux ou trois à la fois, et attends mes réponses.',
+  exempleTitre: 'Un exemple à essayer : faire le point sur sa vie',
+  exempleIntro: 'Voici une demande de ce type, donnée telle quelle (seul le français a été corrigé). Elle est longue, et l’échange aussi : prévoyez le temps qu’il faut, vous pouvez l’arrêter et le reprendre.',
+  avantTitre: 'Avant d’essayer',
+  avant: [
+    'Elle pose des questions sur la santé, la famille et l’argent. Vous pouvez répondre « je passe » ou arrêter quand vous voulez.',
+    'N’écrivez aucun nom, aucune adresse, aucun numéro (étape « Se protéger »).',
+    'Elle demande à l’assistant d’être direct. Si vous préférez, ajoutez : « Sois direct, mais bienveillant. »',
+    'Ce que dit l’assistant reste un avis, pas un verdict. Pour la santé, l’argent ou ce qui pèse, parlez-en aussi à une personne.'
+  ],
+  copier: 'Copier la demande',
+  copiee: 'Copiée. Collez-la dans votre assistant en ligne.',
+  copieImpossible: 'La copie n’a pas fonctionné. Sélectionnez le texte de la demande et copiez-le à la main.'
+};
+
+var PROMPT = [
+'Vous êtes mon stratège en développement personnel : à la fois coach de dirigeants, mentor qui connaît les approches thérapeutiques et planificateur stratégique. Votre travail est de m’aider à construire une feuille de route complète et honnête pour devenir la meilleure version de moi-même dans tous les domaines de ma vie, pas seulement en termes de productivité.',
+'',
+'PHASE 1 : ENTRETIEN APPROFONDI (faites ceci en premier ; ne donnez pas encore de conseils)',
+'Interrogez-moi un domaine à la fois, 2 à 3 questions par message, et attendez mes réponses. Couvrez :',
+'1. Identité et valeurs : ce qui m’importe, qui j’admire et pourquoi, ce que je voudrais qu’on dise à mes funérailles ;',
+'2. Santé : sommeil, mouvement, nutrition, énergie, stress ;',
+'3. Esprit et émotions : humeur, dialogue intérieur, résilience, ce qui me fatigue et ce qui me motive ;',
+'4. Relations : partenaire, enfants et famille, amis, communauté ;',
+'5. Carrière et savoir-faire : compétences, trajectoire, sens, leadership ;',
+'6. Argent : état actuel, objectifs, habitudes, angoisses ;',
+'7. Croissance et apprentissage : curiosité, lecture, compétences que je veux acquérir ;',
+'8. Loisirs, jeu et créativité : ce que je fais juste parce que j’adore ça ;',
+'9. Environnement et organisation : maison, outils, routines, utilisation du temps ;',
+'10. Contribution et héritage : la trace que je veux laisser auprès des autres.',
+'Allez au-delà des réponses superficielles. Si quelque chose semble vague, répétitif ou contradictoire, posez une question de suivi. Demandez-moi de noter chaque domaine de 1 à 10, pour ma satisfaction actuelle et pour son importance.',
+'',
+'PHASE 2 : DIAGNOSTIC',
+'Avant tout plan, dites-moi :',
+'- les deux ou trois problèmes clés qui, s’ils étaient résolus, feraient progresser plusieurs domaines à la fois ;',
+'- les schémas ou contradictions que vous avez remarqués (par exemple, ce que je dis valoriser, comparé à la façon dont je passe mon temps) ;',
+'- ce que je suis probablement en train d’éviter ou de sous-estimer ;',
+'- mes véritables forces, sur lesquelles m’appuyer.',
+'Soyez direct. Ne me flattez pas. Si vous pensez que je me trompe sur un point, dites-le et expliquez pourquoi.',
+'',
+'PHASE 3 : VISION',
+'Aidez-moi à rédiger une description vivante et spécifique de ma vie dans 3 ans, dans tous les domaines, au présent. Ensuite, définissez avec mes propres mots ce que « la meilleure version de moi » signifie : la personne que je deviens, pas seulement les résultats.',
+'',
+'PHASE 4 : FEUILLE DE ROUTE',
+'Élaborez un plan par phases :',
+'- les thèmes sur 12 mois (3 priorités au maximum ; dites explicitement sur quoi je ne me concentre pas encore) ;',
+'- une étape de 90 jours : des objectifs spécifiques, avec des résultats mesurables ;',
+'- des obligations hebdomadaires non négociables (des habitudes clés, suffisamment petites pour tenir pendant les semaines difficiles) ;',
+'- pour chacune, le « pourquoi » relié à la personne que je veux devenir ;',
+'- pour chacune, l’obstacle probable et la réponse que j’aurai décidée à l’avance.',
+'Respectez mes véritables contraintes (temps, famille, énergie, argent). Quelques changements profonds valent mieux qu’une longue liste.',
+'',
+'PHASE 5 : MES OUTILS DE SUIVI',
+'Donnez-moi :',
+'- un modèle de point hebdomadaire de 15 minutes ;',
+'- un modèle de suivi mensuel ;',
+'- une façon de tout remettre à plat chaque trimestre ;',
+'- la façon dont je devrais vous utiliser (cette IA) à partir de maintenant, pour m’aider à tenir mes engagements.',
+'',
+'RÈGLES',
+'- Pas de banalités générales de développement personnel. Tout doit se rattacher à ce que je vous ai dit.',
+'- Priorisez sans pitié. L’ordre compte plus que l’ambition.',
+'- Ancrez les recommandations dans des preuves solides (changement de comportement, science du sommeil, psychologie) et dites quand quelque chose est une opinion.',
+'- Si je semble gérer quelque chose qui nécessite un professionnel (médecin, thérapeute, conseiller financier), dites-le-moi.',
+'',
+'Commencez la phase 1 maintenant, avec vos premières questions.'
+].join('\n');
+
+// ---------- Écran 7 réel (recopié de data/buiaComprendre.js) ----------
+var E7 = {
+  titre: 'Améliorer par petits essais',
+  intro: 'La première réponse ne convient pas toujours. Ce n’est pas un échec : vous améliorez la demande, pas vous-même.',
+  regle: ['Une seule chose à la fois.', 'Changez un élément, relancez, comparez. Ainsi vous savez ce qui a aidé.'],
+  blocs: [
+    ['La réponse ne répond pas à ce que je voulais', 'Précisez le but en une phrase : ce que l’assistant doit produire.'],
+    ['Elle est trop longue, trop courte ou trop compliquée', 'Ajoutez la longueur voulue et le langage voulu (étape « La forme »).'],
+    ['Elle contient une information que je n’ai pas donnée', 'Ajoutez « n’invente rien : si une information manque, dis-le-moi », puis vérifiez vous-même.'],
+    ['Elle ne tient pas compte de ma situation', 'Ajoutez un détail sur votre situation, par exemple pour qui est le texte.']],
+  plus: [
+    ['Garder la version qui marche, et la retester', 'Quand une demande donne une bonne réponse, gardez-la et notez ce que vous avez changé. Essayez-la sur un cas imaginaire, sans vos vraies informations. Les assistants évoluent : une demande qui marche aujourd’hui peut se comporter autrement dans quelques mois ou sur un autre assistant. Retestez-la de temps en temps.'],
+    ['Une conversation longue se brouille', 'Plus une conversation s’allonge, plus l’assistant risque de mélanger les sujets ou de perdre le début. Pour un nouveau sujet, ouvrez une nouvelle conversation. Pour garder le fil, demandez-lui un court résumé (« Résume en cinq lignes ce que nous avons décidé. »), relisez-le, puis collez-le au début de la suivante.']]
+};
+
+var ETAPES = [['Ce qu’il sait', 'bi-lightbulb'], ['Une demande', 'bi-chat-left-text'], ['Six éléments', 'bi-list-ol'], ['La forme', 'bi-sliders'], ['Se protéger', 'bi-shield-check'], ['Vérifier', 'bi-check2-square'], ['Améliorer', 'bi-arrow-repeat'], ['À retenir', 'bi-bookmark-check']];
+var ETAPE_NOUVELLE = ['Ses questions d’abord', 'bi-key'];
+
+var etat = { place: 'P1', niveau: 'plus', ecran: 'nouveau', copie: '', copiePhrase: '' };
+
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function depli(titre, corps, classe, plus) {
+  return '<details class="bloc-depli ' + (classe || '') + '" open><summary>' + esc(titre) + (plus ? ' <span class="buia-pastille-niveau">Pour aller plus loin</span>' : '') + '</summary><div class="bloc-depli-corps">' + corps + '</div></details>';
+}
+function encart(titre, texte, classe) { return '<div class="buia-encart' + (classe ? ' ' + classe : '') + '">' + (titre ? '<strong>' + esc(titre) + '</strong> ' : '') + esc(texte) + '</div>'; }
+function liste(items) { return '<ul class="buia-liste">' + items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'; }
+
+// Le contenu de l'écran « Ses questions d'abord ».
+function corpsRubrique() {
+  return '<div class="buia-conclusion maq-cle"><h3 class="maq-cle-titre"><i class="bi bi-key" aria-hidden="true"></i> ' + esc(RUB.cleTitre) + '</h3>' +
+      '<p class="maq-cle-texte">' + esc(RUB.cle) + '</p>' +
+      '<p class="fw-bold mb-1">' + esc(RUB.phraseTitre) + '</p><div class="buia-demande-texte">' + esc(RUB.phrase) + '</div>' +
+      '<div class="buia-actions"><button type="button" class="btn btn-outline-primary" id="btnCopierPhrase">' + esc(RUB.copierPhrase) + '</button></div>' +
+      '<div class="buia-encart ok" id="msgCopiePhrase" role="status"' + (etat.copiePhrase ? '' : ' hidden') + '>' + esc(etat.copiePhrase) + '</div></div>' +
+    '<p>' + esc(RUB.intro) + '</p>' +
+    '<p class="fw-bold mb-1">' + esc(RUB.reconnaitreTitre) + '</p>' + liste(RUB.reconnaitre) +
+    depli(RUB.exempleTitre,
+      '<p>' + esc(RUB.exempleIntro) + '</p>' +
+      depli(RUB.avantTitre, liste(RUB.avant), 'bd-warn', false) +
+      '<div class="buia-apercu"><div class="buia-demande-texte" id="texteDemande">' + esc(PROMPT) + '</div></div>' +
+      '<div class="buia-actions"><button type="button" class="btn btn-primary" id="btnCopier">' + esc(RUB.copier) + '</button></div>' +
+      '<div class="buia-encart ok" id="msgCopie" role="status"' + (etat.copie ? '' : ' hidden') + '>' + esc(etat.copie) + '</div>',
+      'bd-pret', false);
+}
+
+function ecran7() {
+  var h = '<h2><span class="buia-rond-num" aria-hidden="true">7</span>' + esc(E7.titre) + '</h2><p>' + esc(E7.intro) + '</p>' + encart(E7.regle[0], E7.regle[1]);
+  E7.blocs.forEach(function (b) { h += depli(b[0], '<p>' + esc(b[1]) + '</p>', '', false); });
+  if (etat.niveau === 'plus') { E7.plus.forEach(function (b) { h += depli(b[0], '<p>' + esc(b[1]) + '</p>', '', true); }); }
+  return '<div class="buia-panneau">' + h + '</div>';
+}
+function numeroNouveau() { return etat.place === 'P1' ? 8 : 4; }
+function ecranNouveau() {
+  return '<div class="buia-panneau"><h2><span class="buia-rond-num" aria-hidden="true">' + numeroNouveau() + '</span>' + esc(RUB.titre) + '</h2>' + corpsRubrique() + '</div>';
+}
+function place(t) { return '<div class="buia-panneau"><div class="fiche-place">' + esc(t) + '</div></div>'; }
+function fiche() {
+  return '<div class="buia-conclusion"><h2>Ce qu’il faut retenir</h2><div class="buia-fiche">' +
+    '<div class="fiche-place">Ici, la fiche actuelle (six éléments, la méthode, avant d’envoyer, après la réponse), inchangée.</div>' +
+    '<h3><i class="bi bi-key" aria-hidden="true"></i> ' + esc(RUB.cleTitre) + ' <span class="maq-nouveau">nouveau</span></h3><p class="mb-1">' + esc(RUB.ficheLigne) + '</p></div></div>';
+}
+
+// Les écrans montrés selon le placement : l'écran nouveau, et ses deux voisins.
+function suite() {
+  return etat.place === 'P1'
+    ? [['e7', ecran7], ['nouveau', ecranNouveau], ['fiche', fiche]]
+    : [['e3', function () { return place('Ici, l’écran 3 « Les six éléments d’une bonne demande », inchangé.'); }], ['nouveau', ecranNouveau], ['e4', function () { return place('Ici, l’écran « Régler la forme de la réponse », inchangé (il devient l’écran 5).'); }]];
+}
+function etapes() { var l = ETAPES.slice(); l.splice(etat.place === 'P1' ? 7 : 3, 0, ETAPE_NOUVELLE); return l; }
+function indexCourant() {
+  var p1 = etat.place === 'P1';
+  return { e7: 6, nouveau: p1 ? 7 : 3, fiche: 8, e3: 2, e4: 4 }[etat.ecran];
+}
+function barre() {
+  var l = etapes(), k = indexCourant(), h = '<div class="barre-etapes-bilan d-flex justify-content-center align-items-center">';
+  l.forEach(function (e, i) {
+    if (i) { h += '<span class="chevron-etape-action' + (i === k + 1 ? ' chevron-pulse' : '') + '"' + (i > k ? ' style="opacity:0.4;"' : '') + ' aria-hidden="true"><i class="bi bi-chevron-double-right"></i></span>'; }
+    var cl = i < k ? ' pastille-etape-action-validee' : (i === k ? ' pastille-etape-action-courante pastille-etape-action-ouverte' : '');
+    h += '<span class="pastille-etape-action' + cl + '" style="cursor:default;' + (i > k ? 'opacity:0.4;' : '') + '"><span class="pastille-etape-action-icone"><i class="bi ' + e[1] + '"></i></span><span class="pastille-etape-action-label">' + esc(e[0]) + '</span></span>';
+  });
+  return h + '</div><p class="barre-etapes-tel">Étape ' + (k + 1) + ' sur ' + l.length + ' : ' + esc(l[k][0]) + '</p>';
+}
+
+function rendre() {
+  var s = suite(), courant = s.filter(function (x) { return x[0] === etat.ecran; })[0] || s[1];
+  etat.ecran = courant[0];
+  document.getElementById('barre').innerHTML = barre();
+  document.getElementById('buiaC1Corps').innerHTML = courant[1]();
+  document.querySelectorAll('[data-niv]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-niv') === etat.niveau ? 'true' : 'false'); });
+  document.getElementById('buiaC1Niveaux').hidden = etat.ecran === 'fiche';
+  var c = document.getElementById('btnCopier'); if (c) { c.addEventListener('click', function () { copier(PROMPT, 'copie', 'msgCopie'); }); }
+  var cp = document.getElementById('btnCopierPhrase'); if (cp) { cp.addEventListener('click', function () { copier(RUB.phraseSeule, 'copiePhrase', 'msgCopiePhrase'); }); }
+}
+
+function copier(texte, cle, idMsg) {
+  var fin = function (ok) { etat[cle] = ok ? RUB.copiee : RUB.copieImpossible; var m = document.getElementById(idMsg); if (m) { m.textContent = etat[cle]; m.hidden = false; } };
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(texte).then(function () { fin(true); }, function () { fin(false); }); } else { fin(false); }
+}
+function aller(pas) {
+  var s = suite(), i = s.map(function (x) { return x[0]; }).indexOf(etat.ecran), j = Math.max(0, Math.min(s.length - 1, i + pas));
+  etat.ecran = s[j][0]; etat.copie = ''; etat.copiePhrase = ''; rendre(); window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('[data-niv]').forEach(function (b) { b.addEventListener('click', function () { etat.niveau = b.getAttribute('data-niv'); rendre(); }); });
+document.querySelectorAll('input[name=place]').forEach(function (r) { r.addEventListener('change', function () { etat.place = r.value; etat.ecran = 'nouveau'; etat.copie = ''; etat.copiePhrase = ''; rendre(); }); });
+document.getElementById('btnSuivant').addEventListener('click', function () { aller(1); });
+document.getElementById('btnRetour').addEventListener('click', function () { aller(-1); });
+document.getElementById('modeSombre').addEventListener('change', function (e) { if (e.target.checked) { document.documentElement.setAttribute('data-theme', 'sombre'); } else { document.documentElement.removeAttribute('data-theme'); } });
+document.getElementById('etroit').addEventListener('change', function (e) { document.getElementById('cadre').classList.toggle('etroit', e.target.checked); });
+document.getElementById('fermer').addEventListener('click', function () { document.getElementById('reglages').hidden = true; document.getElementById('rouvrir').hidden = false; });
+document.getElementById('rouvrir').addEventListener('click', function () { document.getElementById('reglages').hidden = false; document.getElementById('rouvrir').hidden = true; });
+rendre();
+</script>
+</body>
+</html>

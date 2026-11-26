@@ -1,15 +1,15 @@
-/* Lot C : « Reprendre mon CV », voie 1 « Le garder et le compléter » (environ 1 minute). Spécificité : avec l'assistant, on ajoute, corrige, complète champ par champ, en gardant la main sur chaque correction.
-   Complémentarité : voie 2 (reformuler et présenter, sans rien ajouter) et voie 3 (refaire soi-même dans un modèle, sans assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
+/* Lot C : « Reprendre mon CV », chemin 1 « Le garder et le compléter » (environ 1 minute). Spécificité : avec l'assistant, on ajoute, corrige, complète champ par champ, en gardant la main sur chaque correction.
+   Complémentarité : chemin 2 (reformuler et présenter, sans rien ajouter) et chemin 3 (refaire soi-même dans un modèle, sans assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
 const C = require('./mesdocuments-commun');
 const { dormir } = C;
 module.exports = {
   blocs: [
     { id: 'g1', voix: 'Le garder et le compléter : vous avez déjà un CV, il est à mettre à jour. Vous ajoutez, vous corrigez, vous complétez.', sous_titre: 'Le garder et le compléter : un CV à mettre à jour.' },
-    { id: 'g2', voix: 'Vous déposez votre CV une seule fois, et vous masquez ce que vous ne voulez pas transmettre. Puis vous choisissez la première voie, avec l’assistant.', sous_titre: 'Votre CV, déposé une seule fois. Vous masquez le personnel. Voie 1, avec l’assistant.' },
+    { id: 'g2', voix: 'Vous déposez votre CV une seule fois, et vous masquez ce que vous ne voulez pas transmettre. Puis vous choisissez le premier chemin, avec l’assistant.', sous_titre: 'Votre CV, déposé une seule fois. Vous masquez le personnel. Chemin 1, avec l’assistant.' },
     { id: 'gq', voix: 'Avant de commencer, une seule question : vous choisissez vous-même les missions et les compétences de vos expériences, ou l’assistant vous les propose. Une fois confirmé, ce choix ne change plus pour ce CV.', sous_titre: 'Une question : vous choisissez les missions et compétences, ou l’assistant les propose.' },
     { id: 'g3', voix: 'Vous dites pourquoi vous faites ce CV. Un assistant en ligne en ressort vos informations : expériences, compétences, formations.', sous_titre: 'Pourquoi ce CV. L’assistant en ressort expériences, compétences, formations.' },
     { id: 'g4', voix: 'Vous corrigez et complétez ensuite expérience par expérience : le panneau vous propose le métier, ses missions et ses compétences, et votre texte d’origine est conservé. Puis vous choisissez la mise en forme.', sous_titre: 'Expérience par expérience : métier, missions, compétences. Votre texte est conservé.' },
-    { id: 'g5', voix: 'Pour une meilleure présentation sans rien ajouter, voyez la voie 2. Pour refaire la mise en page vous-même, sans assistant, la voie 3. Sans redéposer votre CV.', sous_titre: 'Autre présentation : voie 2. Refaire soi-même, sans assistant : voie 3.' }
+    { id: 'g5', voix: 'Pour une meilleure présentation sans rien ajouter, voyez le chemin 2. Pour refaire la mise en page vous-même, sans assistant, le chemin 3. Sans redéposer votre CV.', sous_titre: 'Autre présentation : chemin 2. Refaire soi-même, sans assistant : chemin 3.' }
   ],
   async jouer(o) {
     const p = o.p;

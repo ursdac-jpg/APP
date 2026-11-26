@@ -15,7 +15,21 @@
 // dans dossier.pdfReglages.
 // ============================================================
 
-var _mqPlein = { mode: { deplacer: false, retirer: false, retirerRubrique: false, texte: false, entete: false, couleurs: false, rubriques: false }, rub: null, bl: null, zc: null, histRub: [] };
+var _mqPlein = { mode: { deplacer: false, retirer: false, retirerRubrique: false, texte: false, entete: false, couleurs: false, rubriques: false }, rub: null, bl: null, zc: null, histRub: [], agrandi: false, outilsPlies: false };
+
+// Téléphone (audit docs/AUDIT_TELEPHONE_2026-11-24.md, lot 3, consigne 600) : écran tactile ou étroit, MÊME condition que les règles « téléphone » des feuilles de style.
+// Sur un téléphone, la page A4 est réduite à 42 % pour tenir en largeur : les poignées mesurent 5 à 13 px à l'écran. Le bouton « Agrandir le CV » la montre à 150 % (elle défile
+// de côté) et les poignées, flèches et croix grossissent alors (classes `tactile` et `zoome` posées sur le corps de la feuille, règles dans _MQ_CSS_MODES). Sur ordinateur : rien ne change.
+var _MQ_ECHELLE_AGRANDI = 1.5;
+function _mqTactile() { try { return !!(window.matchMedia && window.matchMedia('(pointer: coarse), (max-width: 768px)').matches); } catch (e) { return false; } }
+function _mqAgrandi() { return !!(_mqPlein.agrandi && _mqTactile()); }
+// Classes de la fenêtre : `mq-zoom` (page agrandie : le bouton « Outils » apparaît) et `outils-plies` (barre d'outils rangée). Les feuilles de style ne les lisent que sur téléphone.
+function _mqMajOutilsPlies() {
+  var r = _mqEl('mqPleinRacine'), b = _mqEl('mqOutilsBtn'); if (!r) { return; }
+  r.classList.toggle('mq-zoom', _mqAgrandi());
+  r.classList.toggle('outils-plies', _mqAgrandi() && _mqPlein.outilsPlies);
+  if (b) { b.setAttribute('aria-expanded', (_mqAgrandi() && _mqPlein.outilsPlies) ? 'false' : 'true'); b.innerHTML = (_mqAgrandi() && _mqPlein.outilsPlies) ? 'Outils &#9662;' : 'Outils &#9652;'; }
+}
 
 function _mqPanneau() {
   try { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; } catch (e) { return null; }
@@ -91,14 +105,27 @@ var _MQ_CSS_MODES =
   '.mq-fantome{position:absolute;z-index:9;pointer-events:none;background:#fff;border:2px solid #0d6efd;border-radius:8px;padding:5px 10px;font:700 12px sans-serif;text-transform:uppercase;color:#0d6efd;box-shadow:0 6px 16px rgba(0,0,0,.25)}' +
   '.marque-page{position:absolute;left:0;right:0;height:0;border-top:2px dashed #e4572e;z-index:3}' +
   '.marque-page span{position:absolute;right:8px;top:-18px;background:#fff;color:#e4572e;font-size:10.5px;padding:0 5px}' +
-  '@media print{.marque-page{display:none!important}}';
+  '@media print{.marque-page{display:none!important}}' +
+  // Téléphone, CV agrandi à 150 % (classes posées par _mqRendu seulement sur écran tactile ou étroit) : zones à toucher de 44 px à l'écran (30 px dans la page x 1,5).
+  '.tactile.zoome .mq-poi{width:30px;height:32px;line-height:32px;font-size:20px;left:2px;top:0}' +
+  '.tactile.zoome .mq-poi-m{width:28px;height:28px;line-height:28px;font-size:18px;left:-34px;top:-3px}' +
+  '.tactile.zoome.mode-deplacer .cv .item[data-exp],.tactile.zoome.mode-deplacer .cv .fr-item[data-exp],.tactile.zoome.mode-deplacer .cv .item[data-form],.tactile.zoome.mode-deplacer .cv .fr-item[data-form],.tactile.zoome.mode-deplacer .cv .rc-item[data-form],.tactile.zoome.mode-deplacer .cv .ph-item[data-form]{padding-left:38px}' +
+  '.tactile.zoome .mq-poignee{font-size:22px;padding:4px 9px;margin-left:6px}' +
+  '.tactile.zoome .mq-fleche{padding:4px 10px;font-size:20px}' +
+  '.tactile.zoome .mq-x,.tactile.zoome.mode-retirer .cv .pill .x,.tactile.zoome.mode-retirer .cv li .x{position:relative}' +
+  '.tactile.zoome .mq-x::after,.tactile.zoome.mode-retirer .cv .pill .x::after,.tactile.zoome.mode-retirer .cv li .x::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-50%)}';
 
 function _mqTexteAide() {
+  var m = _mqPlein.mode;
+  var gesteTactile = _mqTactile() && !_mqAgrandi() && (m.deplacer || m.rubriques || m.retirer || m.retirerRubrique);
+  return _mqTexteAideBase() + (gesteTactile ? ' Sur téléphone, touchez « Agrandir le CV » pour attraper facilement les poignées.' : '');
+}
+function _mqTexteAideBase() {
   var m = _mqPlein.mode;
   if (m.entete) { return 'Glissez un bloc pour le déplacer, tirez sa poignée grise de droite pour l’élargir, celle du bas pour la hauteur. Cliquez sur un bloc pour ses réglages.'; }
   return m.deplacer ? 'Prenez une expérience, une formation ou une mission par sa poignée ⠿ et déposez-la à son nouvel endroit : une ligne bleue montre où elle ira.'
     : m.retirer ? 'Cliquez sur la croix rouge d’une compétence pour la retirer de ce CV.'
-    : m.retirerRubrique ? 'Cliquez sur la croix rouge du titre d’une rubrique pour la retirer entière, ou sur celle d’une mission pour ne retirer qu’elle.'
+    : m.retirerRubrique ? 'Cliquez sur la croix rouge du titre d’une rubrique pour la retirer entière (pas pour les compétences, qui se retirent une par une), ou sur celle d’une mission pour ne retirer qu’elle.'
     : m.texte ? 'Cliquez dans le CV pour corriger un texte.'
     : m.couleurs ? 'Toutes les zones colorées sont entourées : cliquez sur celle dont vous voulez changer la couleur.'
     : m.rubriques ? 'Prenez une rubrique par sa poignée ⠿ et déposez-la sur une ligne bleue (nouvelle ligne) ou sur une case « à côté » ; tirez ↕ pour régler l’espace au-dessus ; cliquez sur son titre pour sa taille, son interligne et son espace. Elle n’est déposée qu’au relâchement (Échap : on annule).'
@@ -387,6 +414,8 @@ function _mqBrancher(d, feuille) {
   // presentes dans le rendu normal), la feuille etant reecrite en entier a chaque _mqRendu().
   if (m.retirerRubrique) {
     Array.prototype.forEach.call(feuille.querySelectorAll('[data-rub]'), function (h) {
+      // Pas de croix sur un titre que le retrait ne sait pas traiter (compétences, Savoirs, Informations complémentaires) : jamais un bouton qui ne fait rien.
+      if (!Object.prototype.hasOwnProperty.call(_PDF_RUBRIQUE_VERS_CONTENU, h.getAttribute('data-rub'))) { return; }
       var x = d.createElement('span');
       x.className = 'mq-x'; x.textContent = '✕'; x.title = 'Retirer cette rubrique';
       h.appendChild(x);
@@ -1107,7 +1136,9 @@ function _mqAjusterEchelle() {
   // Deux passes : la barre de defilement verticale apparait (et mange de la largeur) une fois le conteneur dimensionne.
   for (var passe = 0; passe < 2; passe++) {
     var dispo = zone.clientWidth - marges, s = dispo > 0 ? Math.max(0.3, Math.min(1, dispo / 830)) : 1;
-    f.style.transformOrigin = '0 0'; f.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+    if (_mqAgrandi()) { s = _MQ_ECHELLE_AGRANDI; }   // téléphone, « Agrandir le CV » : la page défile de côté dans la zone
+    f.style.transformOrigin = '0 0'; f.style.transform = s !== 1 ? 'scale(' + s + ')' : '';
+    try { f.contentDocument.body.style.setProperty('--ech', String(s)); } catch (e) { /* cadre pas prêt */ }
     cad.style.width = Math.round(830 * s) + 'px'; cad.style.height = Math.round(f.offsetHeight * s) + 'px';
   }
 }
@@ -1118,7 +1149,7 @@ function _mqRendu() {
   var w = _mqPanneau(), f = _mqEl('mqFrame'); if (!w || !f) { return; }
   var res = w._pdfMqResultat().resultat;
   var m = _mqPlein.mode;
-  var classes = (m.deplacer ? 'mode-deplacer ' : '') + (m.retirer ? 'mode-retirer ' : '') + (m.retirerRubrique ? 'mode-retirer-rubrique ' : '') + (m.entete ? 'mode-entete ' : '') + (m.couleurs ? 'mode-couleurs ' : '') + (m.rubriques ? 'mode-rubriques ' : '') + (m.texte ? 'mode-texte' : '');
+  var classes = (m.deplacer ? 'mode-deplacer ' : '') + (m.retirer ? 'mode-retirer ' : '') + (m.retirerRubrique ? 'mode-retirer-rubrique ' : '') + (m.entete ? 'mode-entete ' : '') + (m.couleurs ? 'mode-couleurs ' : '') + (m.rubriques ? 'mode-rubriques ' : '') + (m.texte ? 'mode-texte ' : '') + (_mqTactile() ? 'tactile ' : '') + (_mqAgrandi() ? 'zoome' : '');
   var d = f.contentDocument;
   d.open();
   d.write('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><style>' + res.css + _MQ_CSS_MODES + '</style></head><body class="' + classes + '">' + res.pageHtml + '</body></html>');
@@ -1160,6 +1191,7 @@ function _mqBasculer(nom) {
   _mqEl('mqBarreRub').style.display = 'none'; _mqPlein.rub = null;
   _mqEl('mqBarreCoul').style.display = 'none'; _mqPlein.zc = null;
   _mqEl('mqHint').textContent = _mqTexteAide();
+  if (_mqAgrandi() && nom && !etait) { _mqPlein.outilsPlies = true; _mqMajOutilsPlies(); }   // outil choisi sur la page agrandie : on range la barre
   var w = _mqPanneau(); if (w) { w._pdfMqDefinirEntete(ent); }
   _mqSegDisp();
   _mqRendu();
@@ -1365,7 +1397,7 @@ function fermerPleinEcranMaquette() {
   if (w) { w._pdfMqDefinirEntete(ent); }
   if (r && r.parentNode) { r.parentNode.removeChild(r); }
   _mqPlein.mode = { deplacer: false, retirer: false, retirerRubrique: false, texte: false, entete: false, couleurs: false, rubriques: false };
-  _mqPlein.histRub = [];
+  _mqPlein.histRub = []; _mqPlein.agrandi = false; _mqPlein.outilsPlies = false;
   _mqPlein.bl = null; _mqPlein.rub = null; _mqPlein.zc = null;
   // La page des reglages est reconstruite pour refleter TOUT ce qui a ete fait en plein ecran (ordre des experiences, competences retirees,
   // en-tete...) : avant le 2026-09-26, la fonction appelee (`rerendre`) n'existait pas hors de la page, donc les cartes de gauche restaient
@@ -1383,7 +1415,9 @@ function ouvrirPleinEcranMaquette(cible) {
   racine.innerHTML =
     '<div class="plein ouvert" role="dialog" aria-label="Aperçu en plein écran">' +
     '<div class="plein-tete"><button type="button" class="mep-btn" id="mqRetour">&larr; Revenir aux r&eacute;glages</button>' +
-    '<span class="hint" id="mqHint">Vous agissez directement sur le CV.</span><span class="hint" id="mqPage" style="margin-left:auto"></span></div>' +
+    '<span class="hint" id="mqHint">Vous agissez directement sur le CV.</span><span class="hint" id="mqPage" style="margin-left:auto"></span>' +
+    '<button type="button" class="mep-btn mq-agrandir" id="mqAgrandir" aria-pressed="false">&#128269; Agrandir le CV</button>' +
+    '<button type="button" class="mep-btn mq-outils-btn" id="mqOutilsBtn" aria-expanded="true">Outils &#9662;</button></div>' +
     '<div class="plein-corps"><div class="plein-outils">' +
     '<button type="button" class="t" id="mqTTexte">&#9997;&#65039; Modifier le texte</button>' +
     '<button type="button" class="t" id="mqTEntete">&#10530; R&eacute;gler l&rsquo;en-t&ecirc;te</button>' +
@@ -1446,6 +1480,17 @@ function ouvrirPleinEcranMaquette(cible) {
   document.body.appendChild(racine);
 
   _mqEl('mqRetour').onclick = fermerPleinEcranMaquette;
+  // Téléphone seulement (le bouton est masqué ailleurs par la feuille de style) : bascule entre la page entière et la page agrandie à 150 %.
+  _mqEl('mqAgrandir').onclick = function () {
+    _mqPlein.agrandi = !_mqPlein.agrandi;
+    this.setAttribute('aria-pressed', _mqPlein.agrandi ? 'true' : 'false');
+    this.innerHTML = _mqPlein.agrandi ? '&#128269; Voir la page entière' : '&#128269; Agrandir le CV';
+    _mqPlein.outilsPlies = !!_mqPlein.agrandi;   // page agrandie : la barre d'outils se range derrière « Outils » pour laisser toute la place au CV
+    _mqMajOutilsPlies();
+    _mqEl('mqHint').textContent = _mqTexteAide();
+    _mqRendu();
+  };
+  _mqEl('mqOutilsBtn').onclick = function () { _mqPlein.outilsPlies = !_mqPlein.outilsPlies; _mqMajOutilsPlies(); _mqAjusterEchelle(); };
   _mqEl('mqTTexte').onclick = function () { _mqBasculer('texte'); };
   _mqEl('mqTEntete').onclick = function () { _mqBasculer('entete'); };
   _mqEl('mqTCouleurs').onclick = function () { _mqBasculer('couleurs'); };

@@ -24,6 +24,8 @@ Définir `VIDEO_TRAVAIL` (un dossier de travail hors du dépôt, avec `voix/`, `
 
 ## Points à connaître
 
+- **Vue publique (23/11/2026)** : sur le poste de Denis, `localhost` et `127.0.0.1` ouvrent aussi les modules fermés au public. Pour filmer ou capturer ce que le public voit, utiliser l'adresse du poste par son nom (`http://Pc-Denis:8123`). Voir `docs/ETAT_DES_LIEUX_INTRODUCTION_2026-11-23.md`.
+
 - La voix est prononcée avec quelques corrections (APP lu « A P P », CV lu « cé vé », PDF, Word) dans `voix_blocs.py`.
 - Le pointeur et le rond au clic sont dessinés dans la page (l'enregistrement de Playwright ne montre pas la souris).
 - Les clics se font à la vraie souris : un élément caché par la barre du bas est amené au milieu de l'écran avant le clic.

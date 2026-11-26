@@ -17,7 +17,7 @@ function _idpFig(fichier, alt, legende) {
 }
 // La barre des étapes de la création du CV ; `actifs` : les numéros (0 à 4) des étapes montrées sur la diapositive.
 function _idpBarreEtapes(actifs) {
-  var noms = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Votre profil', 'Vos documents'];
+  var noms = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Vos missions et compétences', 'Votre profil', 'Vos documents'];
   return '<div class="idp-etapes-barre">' + noms.map(function (n, i) { return '<span' + (actifs.indexOf(i) !== -1 ? ' class="actif"' : '') + '>' + n + '</span>'; }).join('') + '</div>';
 }
 function _idpLigne(icone, texte) {
@@ -48,6 +48,7 @@ function _idpConstruireDiapos() {
       _idpLigne('bi-file-earmark-person', 'Écrire ou améliorer votre CV et votre lettre de motivation') +
       _idpLigne('bi-chat-dots', 'Vous entraîner à l’entretien') +
       _idpLigne('bi-graph-up', 'Mieux comprendre le monde du travail') +
+      _idpLigne('bi-search', 'Découvrir des métiers') +
       _idpLigne('bi-signpost-split', 'Réfléchir à la direction à prendre') + '</ul>' });
 
   d.push({ notes: 'Montrer l’écran d’accueil réel. Le message : de grandes cartes, on choisit celle qui nous parle. Rien n’est imposé.',
@@ -71,13 +72,21 @@ function _idpConstruireDiapos() {
       '<li><span class="idp-pastille"><i class="bi bi-compass" aria-hidden="true"></i></span><span><strong>Introduction</strong> : cette présentation, quand vous voulez</span></li></ul>' });
   }
 
-  d.push({ notes: 'Camille est un personnage inventé. Premier écran : trois façons de commencer. Deuxième écran : elle dit ce qu’elle cherche. La barre du haut dit toujours où l’on en est.',
+  var points = _introPointsDeDepart();
+  if (points.length) {
+    d.push({ notes: 'La carte « Mes documents » de l’accueil : trois points de départ, selon que la personne a un CV ou non. Chacun a ses chemins, avec une vidéo pour les présenter. Ne pas détailler : Camille en montre un.',
+      html: '<h2><i class="bi bi-files" aria-hidden="true"></i>Pour vos documents</h2><ul class="idp-liste">' + points.map(function (p) {
+        return _idpLigne(p.icone, '<strong>' + p.titre + '</strong>' + (p.chemins ? ' : ' + p.chemins : ''));
+      }).join('') + '</ul>' });
+  }
+
+  d.push({ notes: 'Camille est un personnage inventé. Premier écran : trois chemins pour créer son CV (avec l’assistant, à partir de son récit, à la main). Deuxième écran : elle dit ce qu’elle cherche. La barre du haut dit toujours où l’on en est.',
     html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (1/2)</h2>' + _idpBarreEtapes([0]) +
       '<div class="idp-images idp-n2">' + _idpFig('i_cv_1_choix', 'Capture : choisir comment commencer', 'Elle choisit comment commencer') +
       _idpFig('i_cv_2_objectif', 'Capture : dire ce que l’on cherche', 'Elle dit ce qu’elle cherche') + '</div>' });
 
   d.push({ notes: 'Troisième écran : des propositions déjà prêtes à cocher, sur ce qu’elle a déjà fait (les personnes aidées, les gestes, les lieux de travail) : la personne choisit celles qui lui ressemblent. Quatrième écran : son profil, ses compétences repérées et des métiers à regarder.',
-    html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (2/2)</h2>' + _idpBarreEtapes([2, 3]) +
+    html: '<h2><i class="bi bi-file-earmark-person" aria-hidden="true"></i>Camille crée son CV (2/2)</h2>' + _idpBarreEtapes([2, 3, 4]) +
       '<div class="idp-images idp-n2">' + _idpFig('i_cv_3_parcours', 'Capture : choisir ce que l’on a déjà fait', 'Elle choisit ce qu’elle a déjà fait') +
       _idpFig('i_cv_4_profil', 'Capture : découvrir son profil', 'Elle découvre son profil') + '</div>' });
 
@@ -100,6 +109,14 @@ function _idpConstruireDiapos() {
       '<div class="idp-images idp-n2">' + _idpFig('i_bilan_2_resultat', 'Capture : résultat de l’analyse', 'Un résultat clair') +
       _idpFig('i_bilan_3_resultat', 'Capture : pistes concrètes', 'Des pistes, de la plus importante à la moindre') + '</div>' });
 
+  _introGroupesModules(ouverts).forEach(function (g) {
+    d.push({ notes: g.notes,
+      html: '<h2><i class="bi ' + g.icone + '" aria-hidden="true"></i>' + g.titre + '</h2><p class="idp-sous">' + g.sousTitre + '</p>' +
+        '<div class="idp-mosaique m' + g.colonnes + (g.modules.length === 4 ? ' compact' : '') + '">' + g.modules.map(function (m) {
+          return '<figure>' + _idpImg(m.fichier, 'Capture de la page « ' + m.libelle + ' »') + '<figcaption>' + m.court + '</figcaption></figure>';
+        }).join('') + '</div>' });
+  });
+
   if (territoire.length) {
     d.push({ notes: 'Des repères sur le département, expliqués simplement et datés. Pour les employeurs et les structures : adresses vérifiées avec leur date.',
       html: '<h2><i class="bi bi-geo-alt" aria-hidden="true"></i>Comprendre ce qui se passe près de chez vous</h2><div class="idp-colonnes idp-egal"><ul class="idp-liste">' +
@@ -108,10 +125,20 @@ function _idpConstruireDiapos() {
           imagesTerritoire.map(function (im) { return _idpFig(im.fichier, 'Capture dans l’outil « ' + im.libelle + ' »', ''); }).join('') + '</div>' : '') + '</div>' });
   }
 
-  d.push({ notes: 'Deux mots seulement : la boîte à outils et l’aide à l’hésitation. Pas de détail.',
-    html: '<h2><i class="bi bi-plus-circle" aria-hidden="true"></i>Et aussi</h2><ul class="idp-liste">' +
-      _idpLigne('bi-briefcase', '<strong>Une boîte à outils</strong> : garder vos réflexions, noter librement, chercher un mot, découvrir vos compétences') +
-      _idpLigne('bi-signpost-split', '<strong>Si vous hésitez</strong> : comparer vos pistes de métier') + '</ul>' });
+  var chemins = ouverts.indexOf('Explorer les métiers') !== -1 ? _introCheminsMetiers() : [];
+  if (chemins.length) {
+    d.push({ notes: 'Pour celles et ceux qui hésitent sur le métier : Explorer les métiers, quatre chemins à essayer l’un après l’autre. Il ne choisit rien à la place de la personne. Chaque chemin a sa vidéo, sur sa carte.',
+      html: '<h2><i class="bi bi-compass" aria-hidden="true"></i>Découvrir des métiers</h2><div class="idp-colonnes idp-egal"><ul class="idp-liste">' +
+        chemins.map(function (c) { return _idpLigne(c.icone, c.titre); }).join('') + '</ul>' +
+        _idpFig('i_metiers_1_chemins', 'Capture de l’accueil d’Explorer les métiers', '') + '</div>' });
+  }
+
+  d.push({ notes: 'Dire clairement : il y a beaucoup d’outils, ils ont été ajoutés parce qu’ils étaient utiles ou demandés, et aucun n’est obligatoire. Chacun prend ce qui lui sert, à son rythme. À prendre le temps de dire, surtout devant des personnes qui pourraient se sentir dépassées.',
+    html: _idpCentre('bi-check2-circle', '<h2>Beaucoup d’outils, aucune obligation</h2>', '<p class="idp-grand">Prenez ceux qui vous servent,<br>quand vous en avez besoin.</p>') });
+
+  d.push({ notes: 'Dire que l’application change de forme selon l’écran : téléphone, tablette, ordinateur portable, grand écran. Rassurer : tout est disponible partout, la personne choisit l’appareil qui lui convient.',
+    html: '<h2><i class="bi bi-phone" aria-hidden="true"></i>Elle s’adapte à votre écran</h2><p class="idp-sous">Téléphone, tablette, ordinateur : tout est là, partout.</p>' +
+      '<div class="idp-images idp-n1">' + _idpFig('i_appareils', 'Le même accueil sur un téléphone, une tablette, un ordinateur portable et un grand écran', '') + '</div>' });
 
   d.push({ notes: 'Les quatre principes. C’est la diapositive sur laquelle on peut prendre le plus de temps avec un groupe de professionnels.',
     html: '<h2><i class="bi bi-lightbulb" aria-hidden="true"></i>Ce qui guide cette application</h2><ul class="idp-liste">' +
@@ -131,6 +158,7 @@ function _idpConstruireDiapos() {
       _idpLigne('bi-check2', 'Seul ou <strong>pendant un rendez-vous</strong>') +
       _idpLigne('bi-check2', '<strong>Aucun compte</strong>, aucun serveur qui garde les données') +
       _idpLigne('bi-check2', 'La personne <strong>choisit</strong> ce qu’elle garde ou aborde avec son conseiller') +
+      (ouverts.indexOf('Ce qui compte pour moi') !== -1 ? _idpLigne('bi-check2', 'Les résultats de « Ce qui compte pour moi » <strong>s’impriment</strong> pour un rendez-vous') : '') +
       (avecAnnuaire ? _idpLigne('bi-check2', 'Des adresses utiles, <strong>datées</strong>, pour préparer un rendez-vous') : '') + '</ul>' });
 
   d.push({ notes: 'Pour un public de professionnels, à passer sinon. Répondre à la question « d’où viennent ces informations ? » : elles ne sont pas inventées. Un outil que je garde pour moi surveille les sources officielles ; chaque changement attend dans un sas, où je le relis avant de le publier. Ce sont de vrais écrans de l’outil (les dates de la barre de suivi sont des exemples).',

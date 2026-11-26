@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l'IA », quatre exercices pour apprendre en faisant (proposition du 24/11/2026)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  :root { --e1: #dbe9ff; --e1t: #0b4aa8; --e2: #d9f4e4; --e2t: #17663a; --e3: #fdecc8; --e3t: #7a4a00; --e4: #e8defa; --e4t: #5a2fa0; --e5: #fadcdc; --e5t: #8e2b2b; --e6: #d5f0f0; --e6t: #0e5f66; }
+  [data-theme="sombre"] { --e1: #1d3556; --e1t: #a9c8f5; --e2: #1c3a2a; --e2t: #9fdcb8; --e3: #4a3a14; --e3t: #f2d291; --e4: #33284f; --e4t: #cdb8f3; --e5: #4a2323; --e5t: #f1b5b5; --e6: #173d40; --e6t: #9bdbe0; }
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 920px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit); }
+  h1.titre-page { font-size: var(--t-titre-page); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .mq-sous-titre { text-align: center; font-size: var(--t-grand); color: var(--text-muted); margin-bottom: 1rem; }
+  .mq-onglets { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .8rem 0 1.2rem; }
+  .btn-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; }
+  .btn-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .btn-action { min-height: 44px; padding: .4rem 1.2rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent); color: #fff; font-weight: 800; cursor: pointer; }
+  .btn-action.second { background: var(--bg-card); color: var(--accent-texte); }
+  .panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .panneau h2 { font-size: var(--t-grand); font-weight: 800; margin: 0 0 .5rem; }
+  .panneau p, .panneau li { font-size: var(--t-moyen); }
+  .cas { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .7rem .9rem; margin: .6rem 0; }
+  .demande-faible { border: 2px dashed var(--border-strong, var(--border)); border-radius: 12px; padding: .7rem .9rem; background: var(--bg-subtle); font-weight: 700; font-size: var(--t-grand); margin: .6rem 0; }
+  .rappel { border-left: 3px solid var(--warning-border); background: var(--warning-bg-subtle); border-radius: 0 10px 10px 0; padding: .6rem .9rem; margin: .8rem 0; font-size: var(--t-petit); }
+  .liste-cases { display: grid; gap: .5rem; margin: .6rem 0; }
+  .case { display: flex; gap: .6rem; align-items: flex-start; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .55rem .8rem; background: var(--bg-card); cursor: pointer; }
+  .case input { width: 1.4rem; height: 1.4rem; margin-top: .15rem; flex: 0 0 auto; }
+  .case .mq-nom { font-weight: 800; }
+  .case .mq-q { display: block; font-size: var(--t-petit); color: var(--text-muted); }
+  .case.utile { border-color: var(--success-strong); background: var(--success-bg-subtle); }
+  .case.inutile { border-color: var(--border-strong, var(--border)); }
+  .verdict { display: block; margin-top: .3rem; font-size: var(--t-petit); }
+  .verdict b { display: inline-block; border-radius: 999px; padding: .02rem .6rem; margin-right: .3rem; }
+  .verdict .vu { background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+  .verdict .vn { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-strong, var(--border)); }
+  .blocs { display: grid; gap: .45rem; margin: .6rem 0; }
+  .mq-bloc { border-radius: 10px; padding: .55rem .8rem; font-size: var(--t-moyen); border-left: 6px solid; }
+  .mq-bloc small { display: block; font-weight: 800; font-size: var(--t-petit); }
+  .b1 { background: var(--e1); color: var(--e1t); border-color: var(--e1t); } .b2 { background: var(--e2); color: var(--e2t); border-color: var(--e2t); }
+  .b3 { background: var(--e3); color: var(--e3t); border-color: var(--e3t); } .b4 { background: var(--e4); color: var(--e4t); border-color: var(--e4t); }
+  .b5 { background: var(--e5); color: var(--e5t); border-color: var(--e5t); } .b6 { background: var(--e6); color: var(--e6t); border-color: var(--e6t); }
+  .reponse { border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; padding: .8rem 1rem; background: var(--bg-subtle); }
+  .phrase { display: block; width: 100%; text-align: left; border: 2px solid transparent; border-radius: 10px; padding: .45rem .6rem; margin: .2rem 0; background: transparent; color: var(--text-strong); font-size: var(--t-moyen); cursor: pointer; }
+  .phrase:hover { background: var(--bg-card); }
+  .phrase[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .phrase[aria-pressed="true"]::before { content: "\2713\00a0"; font-weight: 800; }
+  .phrase.verif { border-color: var(--warning-border); background: var(--warning-bg-subtle); }
+  .phrase.mq-rien { border-color: var(--border-strong, var(--border)); }
+  .phrase .tag { display: block; font-size: var(--t-petit); font-weight: 700; margin-top: .15rem; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .deux { grid-template-columns: 1fr; } }
+  .mq-cartes { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+  @media (max-width: 720px) { .mq-cartes { grid-template-columns: 1fr; } }
+  .mq-carte { border: 2px solid var(--border-strong, var(--border)); border-radius: 14px; padding: .8rem .9rem; background: var(--bg-card); }
+  .mq-carte h3 { font-size: var(--t-moyen); font-weight: 800; margin: 0 0 .3rem; }
+  .mq-carte p { font-size: var(--t-petit); margin: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette de proposition, rien n'est dans l'application.</strong> Quatre exercices pour apprendre en faisant, sans aucun envoi à un assistant : tout est calculé sur la page, avec des cas inventés. Les réponses « d'assistant » sont écrites à la main pour la démonstration : une vraie réponse varie d'une fois à l'autre. Les phrases des demandes montrées ici sont des illustrations, pas celles des modèles de l'application. Aucune note, aucun score : les retours portent sur la demande, jamais sur la personne.</div>
+
+  <h1 class="titre-page"><i class="bi bi-chat-left-text"></i> Bien utiliser l'IA</h1>
+  <div class="mq-sous-titre">S'entraîner avec des cas inventés</div>
+
+  <div class="mq-onglets" role="group" aria-label="Exercices">
+    <button type="button" class="btn-choix" data-onglet="1" aria-pressed="true">1. Réparer une demande</button>
+    <button type="button" class="btn-choix" data-onglet="2" aria-pressed="false">2. Repérer ce qui est à vérifier</button>
+    <button type="button" class="btn-choix" data-onglet="3" aria-pressed="false">3. Avant et après</button>
+    <button type="button" class="btn-choix" data-onglet="4" aria-pressed="false">4. Quand ne pas lui demander</button>
+  </div>
+
+  <!-- Exercice 1 -->
+  <section class="panneau" id="ex1">
+    <h2>Une demande trop vague : que lui manque-t-il ?</h2>
+    <div class="cas">Karima veut prévenir l'école que son fils sera absent jeudi après-midi, pour un rendez-vous chez le médecin. Elle écrit à l'assistant :</div>
+    <div class="demande-faible">« Aide-moi pour l'école. »</div>
+    <p><strong>Cochez ce que l'assistant ne peut pas deviner et qui serait utile ici.</strong> Il n'y a pas de mauvaise réponse : vous verrez ensuite ce qui manque.</p>
+    <div class="liste-cases" id="ex1Cases"></div>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <button type="button" class="btn-action" id="ex1Corriger">Voir ce qui manque</button>
+      <button type="button" class="btn-action second" id="ex1Reparer" hidden>Voir la demande réparée</button>
+      <button type="button" class="btn-action second" id="ex1Recommencer" hidden>Recommencer</button>
+    </div>
+    <div id="ex1Reparee" hidden>
+      <h2 class="mt-3">La même demande, réparée</h2>
+      <div class="blocs" id="ex1Blocs"></div>
+      <div class="rappel">Cette liste juge la demande, pas vous. Dans l'application, chaque bloc correspond à un des six éléments déjà expliqués, et la date du jour est ajoutée toute seule.</div>
+    </div>
+  </section>
+
+  <!-- Exercice 2 -->
+  <section class="panneau" id="ex2" hidden>
+    <h2>Une réponse bien écrite n'est pas une réponse exacte</h2>
+    <div class="cas">Une personne demande à un assistant : « Comment m'inscrire à l'atelier couture de l'association Les Ateliers du Parc ? » (association inventée pour l'exercice). Il répond :</div>
+    <div class="reponse" id="ex2Reponse"></div>
+    <p class="mt-2"><strong>Touchez les phrases que vous vérifieriez avant d'agir.</strong> Vous ne pouvez pas savoir seul ce qui est inventé : l'exercice sert à repérer ce qui se vérifie.</p>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <button type="button" class="btn-action" id="ex2Corriger">Voir ce qui se vérifie</button>
+      <button type="button" class="btn-action second" id="ex2Recommencer" hidden>Recommencer</button>
+    </div>
+    <div id="ex2Bilan" hidden>
+      <div class="rappel mt-3"><strong>Le réflexe à garder :</strong> tout ce qui est daté, chiffré ou nommé se vérifie auprès de l'organisme. Une règle citée avec une année ou un numéro (comme « la loi de 2019 » ici, inventée pour l'exercice) se retrouve sur le site officiel avant d'être crue.</div>
+      <p class="mt-2">Pour aller plus vite, vous pouvez ajouter à votre demande : <em>« Pour chaque information, indique où je peux la vérifier. »</em></p>
+    </div>
+  </section>
+
+  <!-- Exercice 3 -->
+  <section class="panneau" id="ex3" hidden>
+    <h2>La même envie, deux demandes : voyez la différence</h2>
+    <div class="cas">Karim a passé un entretien mardi pour un poste d'agent d'accueil. Il veut relancer poliment. Choisissez la demande qu'il envoie :</div>
+    <div class="mq-onglets" role="group" aria-label="Demande">
+      <button type="button" class="btn-choix" data-d="vague" aria-pressed="true">Demande rapide</button>
+      <button type="button" class="btn-choix" data-d="precise" aria-pressed="false">Demande précisée</button>
+    </div>
+    <div class="deux">
+      <div><strong>Ce qu'il écrit</strong><div class="reponse" id="ex3Demande"></div></div>
+      <div><strong>Ce que répond l'assistant (exemple)</strong><div class="reponse" id="ex3Reponse"></div></div>
+    </div>
+    <div class="rappel mt-3" id="ex3Note"></div>
+  </section>
+
+  <!-- Exercice 4 -->
+  <section class="panneau" id="ex4" hidden>
+    <h2>Quand ne pas lui demander</h2>
+    <p>Un assistant est utile, mais pas pour tout. Voici quatre situations où il vaut mieux se tourner vers une personne ou une source officielle.</p>
+    <div class="mq-cartes" id="ex4Cartes"></div>
+    <div class="rappel mt-3">Cet écran ne juge personne : il aide à choisir le bon outil au bon moment.</div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ---------- Onglets ----------
+  var onglets = document.querySelectorAll('[data-onglet]');
+  Array.prototype.forEach.call(onglets, function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(onglets, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      [1, 2, 3, 4].forEach(function (n) { document.getElementById('ex' + n).hidden = String(n) !== b.getAttribute('data-onglet'); });
+    });
+  });
+
+  // ---------- Exercice 1 : réparer une demande ----------
+  var ELEMS = [
+    { id: 'but', n: 1, nom: 'Le but', q: 'Ce que l’assistant doit produire.', utile: true, raison: 'Il ne sait pas ce qu’il doit produire : un mot, une question, un résumé ?', phrase: 'Écris un mot pour l’institutrice de mon fils.' },
+    { id: 'situation', n: 2, nom: 'La situation', q: 'Qui, pourquoi, pour qui.', utile: true, raison: 'Il ne sait ni qui sera absent, ni pourquoi, ni pour qui est le mot.', phrase: 'Mon fils a un rendez-vous chez le médecin jeudi après-midi.' },
+    { id: 'texte', n: 3, nom: 'Le texte à traiter', q: 'Un courrier, un mail, des notes.', utile: false, raison: 'Il n’y a aucun document à lui donner dans cette situation.', phrase: '' },
+    { id: 'attente', n: 4, nom: 'Ce que j’attends', q: 'Longueur, langage, forme.', utile: true, raison: 'Court ou long ? Simple ou soigné ? Sans précision, il choisit à votre place.', phrase: 'Trois phrases, en langage simple et poli.' },
+    { id: 'interdit', n: 5, nom: 'Ce qu’il ne doit pas faire', q: 'Ce que je ne veux pas.', utile: true, raison: 'Pour qu’il n’invente aucun détail (un nom de médecin, un motif) que Karima ne lui a pas donné.', phrase: 'N’invente aucun détail que je ne t’ai pas donné.' },
+    { id: 'date', n: 6, nom: 'La date et le délai', q: 'La date du jour.', utile: true, raison: 'Jeudi, mais quel jeudi ? La date du jour lui permet de situer le délai.', phrase: 'Nous sommes le [date du jour, ajoutée automatiquement].' }
+  ];
+  var c1 = document.getElementById('ex1Cases');
+  ELEMS.forEach(function (e) {
+    var l = document.createElement('label'); l.className = 'case'; l.id = 'ex1c-' + e.id;
+    l.innerHTML = '<input type="checkbox" data-id="' + e.id + '"><span><span class="mq-nom">' + e.n + '. ' + e.nom + '</span><span class="mq-q">' + e.q + '</span><span class="verdict" hidden></span></span>';
+    c1.appendChild(l);
+  });
+  var b1c = document.getElementById('ex1Corriger'), b1r = document.getElementById('ex1Reparer'), b1x = document.getElementById('ex1Recommencer');
+  b1c.addEventListener('click', function () {
+    ELEMS.forEach(function (e) {
+      var l = document.getElementById('ex1c-' + e.id), cochee = l.querySelector('input').checked, v = l.querySelector('.verdict');
+      l.classList.toggle('utile', e.utile); l.classList.toggle('inutile', !e.utile);
+      v.hidden = false;
+      v.innerHTML = e.utile
+        ? '<b class="vu">' + (cochee ? 'Vous l’aviez vu' : 'À ajouter') + '</b>' + e.raison
+        : '<b class="vn">' + 'Pas nécessaire ici' + '</b>' + e.raison;
+      l.querySelector('input').disabled = true;
+    });
+    b1c.hidden = true; b1r.hidden = false; b1x.hidden = false;
+  });
+  b1r.addEventListener('click', function () {
+    var h = '';
+    ELEMS.forEach(function (e) { if (e.utile) { h += '<div class="mq-bloc b' + e.n + '"><small>' + e.n + '. ' + e.nom + '</small>' + e.phrase + '</div>'; } });
+    document.getElementById('ex1Blocs').innerHTML = h;
+    document.getElementById('ex1Reparee').hidden = false; b1r.hidden = true;
+  });
+  b1x.addEventListener('click', function () {
+    ELEMS.forEach(function (e) {
+      var l = document.getElementById('ex1c-' + e.id); l.classList.remove('utile', 'inutile');
+      var i = l.querySelector('input'); i.checked = false; i.disabled = false; l.querySelector('.verdict').hidden = true;
+    });
+    document.getElementById('ex1Reparee').hidden = true; b1c.hidden = false; b1r.hidden = true; b1x.hidden = true;
+  });
+
+  // ---------- Exercice 2 : repérer ce qui se vérifie ----------
+  var PHRASES = [
+    { t: 'Les inscriptions se font à l’accueil de l’association.', v: true, tag: 'Un lieu : à confirmer.' },
+    { t: 'Le dernier jour pour s’inscrire est le 12 décembre.', v: true, tag: 'Une date : à vérifier.' },
+    { t: 'La cotisation annuelle est de 35 euros.', v: true, tag: 'Un montant : à vérifier.' },
+    { t: 'Selon la loi de 2019 sur les associations, un justificatif de domicile est obligatoire.', v: true, tag: 'Une règle avec une année : à retrouver sur le site officiel avant d’y croire.' },
+    { t: 'L’atelier est animé par Mme Durand, couturière diplômée.', v: true, tag: 'Un nom : à vérifier.' },
+    { t: 'N’hésitez pas à venir avec vos questions : l’équipe sera ravie de vous aider.', v: false, tag: 'Aucune information à vérifier.' }
+  ];
+  var r2 = document.getElementById('ex2Reponse');
+  PHRASES.forEach(function (p, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'phrase'; b.id = 'ex2p' + i; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = p.t + '<span class="tag" hidden></span>';
+    b.addEventListener('click', function () { if (!b.disabled) { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); } });
+    r2.appendChild(b);
+  });
+  var b2c = document.getElementById('ex2Corriger'), b2x = document.getElementById('ex2Recommencer');
+  b2c.addEventListener('click', function () {
+    PHRASES.forEach(function (p, i) {
+      var b = document.getElementById('ex2p' + i), tg = b.querySelector('.tag');
+      b.classList.add(p.v ? 'verif' : 'mq-rien'); tg.hidden = false; tg.textContent = p.tag; b.disabled = true;
+    });
+    document.getElementById('ex2Bilan').hidden = false; b2c.hidden = true; b2x.hidden = false;
+  });
+  b2x.addEventListener('click', function () {
+    PHRASES.forEach(function (p, i) {
+      var b = document.getElementById('ex2p' + i); b.classList.remove('verif', 'mq-rien'); b.disabled = false; b.setAttribute('aria-pressed', 'false'); b.querySelector('.tag').hidden = true;
+    });
+    document.getElementById('ex2Bilan').hidden = true; b2c.hidden = false; b2x.hidden = true;
+  });
+
+  // ---------- Exercice 3 : avant et après ----------
+  var DEUX = {
+    vague: {
+      d: '« Écris un mail de relance. »',
+      r: '<p><strong>Objet : Relance</strong></p><p>Bonjour,<br>Je me permets de vous relancer au sujet de ma candidature.<br>Cordialement,<br>[Votre nom]</p>',
+      n: 'La réponse est correcte mais générale : elle ne dit ni quel poste, ni quand a eu lieu l’entretien. Il faudra tout compléter à la main.'
+    },
+    precise: {
+      d: '« J’ai passé un entretien mardi pour un poste d’agent d’accueil. Écris un mail de relance de quatre phrases, simple et poli, qui remercie pour l’entretien et demande où en est le choix. N’invente aucun détail. »',
+      r: '<p><strong>Objet : Suite à mon entretien de mardi, poste d’agent d’accueil</strong></p><p>Bonjour Madame, Monsieur,<br>Je vous remercie pour l’entretien de mardi.<br>Ce poste d’agent d’accueil m’intéresse beaucoup.<br>Pourriez-vous m’indiquer où en est votre choix ?<br>Je vous remercie par avance.<br>Cordialement,<br>[Votre nom]</p>',
+      n: 'La réponse est prête à relire : le poste et le jour sont là, la longueur est respectée, rien n’est inventé. Une vraie réponse sera un peu différente, mais proche.'
+    }
+  };
+  function montrer3(k) {
+    document.getElementById('ex3Demande').textContent = DEUX[k].d;
+    document.getElementById('ex3Reponse').innerHTML = DEUX[k].r;
+    document.getElementById('ex3Note').textContent = DEUX[k].n;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-d]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-d') === k ? 'true' : 'false'); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-d]'), function (b) { b.addEventListener('click', function () { montrer3(b.getAttribute('data-d')); }); });
+  montrer3('vague');
+
+  // ---------- Exercice 4 : quand ne pas lui demander ----------
+  var CARTES = [
+    { t: 'Une urgence ou un danger', p: 'Appelez les secours ou une personne près de vous. Un assistant ne peut pas intervenir.' },
+    { t: 'Une grande décision (santé, argent, droit)', p: 'Parlez à un professionnel. L’assistant peut aider à préparer vos questions, pas à décider à votre place.' },
+    { t: 'Une réponse qui doit être exacte', p: 'Un délai, un montant, une règle : retrouvez-les chez l’organisme concerné, sur son site officiel.' },
+    { t: 'Un texte qui parle d’autres personnes', p: 'Leurs noms, leurs situations ne vous appartiennent pas. Retirez-les avant d’écrire, ou n’écrivez pas.' }
+  ];
+  var c4 = document.getElementById('ex4Cartes');
+  CARTES.forEach(function (c) { var d = document.createElement('div'); d.className = 'mq-carte'; d.innerHTML = '<h3>' + c.t + '</h3><p>' + c.p + '</p>'; c4.appendChild(d); });
+})();
+</script>
+</body>
+</html>

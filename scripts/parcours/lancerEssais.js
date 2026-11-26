@@ -13,8 +13,9 @@ const fs = require('fs');
 const path = require('path');
 const RACINE = path.join(__dirname, '..', '..');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.md': 'text/markdown; charset=utf-8', '.json': 'application/json', '.txt': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf' };
-async function ouvrir(b, largeur) {
-  const ctx = await b.newContext({ viewport: { width: largeur || 1280, height: 900 } });
+// `options` (facultatif) : réglages ajoutés au contexte du navigateur, par exemple { isMobile: true, hasTouch: true, viewport: { width: 375, height: 812 } } pour un téléphone.
+async function ouvrir(b, largeur, options) {
+  const ctx = await b.newContext(Object.assign({ viewport: { width: largeur || 1280, height: 900 } }, options || {}));
   // Pas de serveur : les requêtes http://app.local/... sont servies depuis le disque par le navigateur de test.
   await ctx.route('http://app.local/**', async (route) => {
     const u = new URL(route.request().url());

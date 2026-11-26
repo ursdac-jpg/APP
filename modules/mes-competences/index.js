@@ -212,6 +212,7 @@ function pageIntroMesCompetences() {
   // Reprise : MEME forme que « Reprendre mon CV » (consigne 258, 12/11/2026) : bloc sur la présentation, « Reprendre » dans la barre du bas, « Recommencer » dans le bloc.
   var enCours = !_mesCompDetourPresentation && mesCompAUnTravailEnCours(_mesCompEtat);
   var config = {
+    temps: 'competences',   // repère de temps (data/tempsModules.js, consigne 606)
     carteRetour: 'boiteaoutils',
     detour: _mesCompDetourPresentation,
     syntheseHTML: enCours ? _introBlocReprise('Vous avez un travail en cours dans ce module.', 'btnMesCompRepriseContinuer', 'btnMesCompRepriseRecommencer', 'Reprendre') : '',

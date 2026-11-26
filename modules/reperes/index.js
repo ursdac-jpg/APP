@@ -1401,6 +1401,7 @@ function _reperesRenduAccueil() {
   var enDetour = !!_reperesForcerAccueil;
   // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; propres aux Repères : leur en-tête et le contenu des blocs.
   return htmlPageIntroModuleParcours({
+    temps: 'reperes',   // repère de temps (data/tempsModules.js, consigne 606)
     enTeteHTML:
     '<div class="reperes-accueil-entete">' +
       // TACHE (retour Denis, 2026-08-31) : une seule icone d'identite du

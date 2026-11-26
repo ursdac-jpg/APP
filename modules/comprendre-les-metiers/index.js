@@ -514,7 +514,8 @@ cmvEnregistrerVue('accueil', {
     // Lecture en petits passages (consigne 513, maquette validée le 21/11/2026) : une question qui dit à qui s'adresse le chemin, puis trois repères (ce que vous faites, ce que vous obtenez, à savoir).
     var repere = function (icone, titre, texte) { return '<li><i class="bi ' + icone + '" aria-hidden="true"></i><span><b>' + titre + '</b>' + texte + '</span></li>'; };
     var carte = function (icone, titre, pour, faites, obtenez, savoir, chemin, libelle) {
-      return '<div class="cml-entree"><i class="bi ' + icone + ' ico" aria-hidden="true"></i><h3>' + titre + '</h3><p class="cml-pour">' + pour + '</p>' +
+      return '<div class="cml-entree"><i class="bi ' + icone + ' ico" aria-hidden="true"></i>' + (typeof htmlRepereTempsChemin === 'function' ? htmlRepereTempsChemin('metiers', chemin) : '') + '<h3>' + titre + '</h3><p class="cml-pour">' + pour + '</p>' +
+        (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(CMV_PRESENTATIONS[chemin].video) : '') +
         '<ul class="cml-reperes">' + repere('bi-pencil', 'Ce que vous faites', faites) + repere('bi-card-list', 'Ce que vous obtenez', obtenez) + repere('bi-info-circle', 'À savoir', savoir) + '</ul>' +
         '<button type="button" class="btn btn-primary" data-cml="entrer" data-chemin="' + chemin + '">' + libelle + '</button>' +
         '<button type="button" class="btn btn-outline-secondary" data-cml="presenter" data-chemin="' + chemin + '"><i class="bi bi-info-circle" aria-hidden="true"></i> Présentation de ce chemin</button></div>';
@@ -562,10 +563,12 @@ function cmvPlusDeMetiers() {
 }
 function pageIntroComprendreLesMetiers() {
   if (!cmvOuvert()) { naviguerVers('cv'); return; }
-  var bloc = function (icone, titre, fait, fort) {
-    return '<div class="cml-bloc"><h3><i class="bi ' + icone + '" aria-hidden="true"></i> ' + titre + '</h3><p><b>Ce qu’il fait :</b> ' + fait + '</p><p class="mb-0"><b>Son point fort :</b> ' + fort + '</p></div>';
+  var bloc = function (icone, titre, fait, fort, video) {
+    return '<div class="cml-bloc"><h3><i class="bi ' + icone + '" aria-hidden="true"></i> ' + titre + '</h3><p><b>Ce qu’il fait :</b> ' + fait + '</p><p><b>Son point fort :</b> ' + fort + '</p>' +
+      (video && typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation(video) : '') + '</div>';
   };
   var config = {
+    temps: 'metiers',   // repère de temps (data/tempsModules.js, consigne 606)
     carteRetour: 'orientation',
     detour: _cmvDetourPresentation && !_cmvDetourChemin,
     detourLogo: CMV_ICONE,
@@ -585,24 +588,32 @@ function pageIntroComprendreLesMetiers() {
     },
     blocsHTML:
       _introBlocAccroche('<strong>Ce module ne choisit rien à votre place.</strong> Il vous donne des pistes à explorer, à votre rythme.') +
+      _introBlocSection('&#127919; À quoi ça sert',
+        '<p class="mb-0">Découvrir des métiers que vous ne connaissiez pas, ou comprendre ce que demande vraiment un métier que vous connaissez mal. Vous voyez des pistes : vous ne décidez rien ici.</p>') +
+      _introBlocSection('&#128203; Ce qui va se passer',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Vous choisissez un chemin parmi quatre, et vous en essayez un autre si vous le voulez.</li>' +
+        '<li>Vous obtenez des fiches de métiers : ce qu’ils demandent, leur niveau d’accès, leurs conditions de travail.</li>' +
+        '<li>Si vous le souhaitez, « Ma synthèse » rassemble ce que vous avez fait sur une seule page.</li>' +
+        '</ul>') +
       _introBlocSection('&#129517; Quatre chemins',
         '<p>Trois chemins pour explorer et comprendre des métiers à partir de vous, un qui part de la demande des employeurs. Vous pouvez en essayer un, puis un autre.</p>' +
         bloc('bi-search', 'Chercher un métier',
           'vous cherchez un métier précis, par son nom, un autre nom, un sigle ou son secteur, ou vous partez de ce que vous savez faire. Vous lisez sa fiche.',
-          'vous voyez ce que le métier demande vraiment, et vous pouvez de là découvrir des métiers proches.') +
+          'vous voyez ce que le métier demande vraiment, et vous pouvez de là découvrir des métiers proches.', 'chemin-metier') +
         bloc('bi-list-check', 'Partir de vos envies',
           'vous choisissez ce qui vous plaît (avec qui ou avec quoi, quelles actions, quels lieux, ce qui serait facile ou difficile pour vous). Des métiers vous sont proposés.',
-          'il part de vous, pas d’un métier. C’est le plus utile quand vous ne savez pas quel métier choisir.') +
+          'il part de vous, pas d’un métier. C’est le plus utile quand vous ne savez pas quel métier choisir.', 'chemin-actions') +
         bloc('bi-hexagon', 'Répondre à un questionnaire',
           'vous répondez à ' + cmvNombreQuestions() + ' questions en quatre parties. Votre résultat s’affiche à la fin, avec des métiers qui lui correspondent.',
-          'c’est le plus complet. Il repose sur beaucoup de réponses, pour des pistes plus justes.') +
+          'c’est le plus complet. Il repose sur beaucoup de réponses, pour des pistes plus justes.', 'chemin-questionnaire') +
         (typeof CMV_NOM_RECRUTE === 'string' ? bloc('bi-briefcase', CMV_NOM_RECRUTE,
           'vous cherchez surtout un emploi. Aucune question, et ce ne sont pas vos envies qui guident : vous voyez les métiers que les employeurs de votre département disent vouloir pourvoir, les emplois saisonniers et les endroits où l’on recrute en continu, avec les fiches pour candidater.',
-          'il va droit au concret. Pour l’instant, il ne couvre que la Dordogne et la Haute-Vienne.') : '') +
-        '<p class="cml-note mb-0 mt-2">Chaque chemin a sa propre présentation, avec une vidéo. Vous la trouvez sur la carte du chemin.</p>') +
+          'il va droit au concret. Pour l’instant, il ne couvre que la Dordogne et la Haute-Vienne.', 'chemin-recrute') : '') +
+        '<p class="cml-note mb-0 mt-2">Chaque chemin a aussi sa propre page de présentation : vous la trouvez sur la carte du chemin.</p>') +
       _introBlocSection('&#128218; Ce que vous trouvez dans ce module',
         '<p>Des fiches pour ' + cmvPlusDeMetiers() + ' métiers. Une fiche dit ce que fait le métier, ce qu’il demande (savoir-faire, savoir-être, savoirs), le niveau pour y accéder, ses conditions de travail (horaires, effort, environnement, contact avec les autres) et des métiers proches.</p>' +
-        '<p class="mb-0">À partir d’une fiche, vous pouvez la garder comme Repère, la comparer avec une autre piste, comprendre un mot dans le Lexique, ou préparer une candidature. Les mots techniques ont leur explication dans le Lexique de l’application.</p>') +
+        '<p class="mb-0">Les mots techniques ont leur explication dans le Lexique de l’application.</p>') +
       _introBlocSection('&#129517; Ma synthèse',
         (typeof htmlVideoPresentation === 'function' ? htmlVideoPresentation('synthese') : '') +
         '<p>Quand vous avez fait un ou plusieurs passages, « Ma synthèse » les rassemble sur une seule page : le métier que vous avez retenu, vos envies, vos six lettres, ce qui revient d’un passage à l’autre. Vous pouvez y ajouter ce que les tests ne disent pas (votre niveau d’études, un accompagnement, vos mots) et « Mon parcours » : les métiers que vous avez déjà exercés, avec ce que vous y avez vraiment pratiqué. L’application en déduit ce qui vous servirait déjà pour une piste et ce qui resterait à construire.</p>' +
@@ -623,6 +634,13 @@ function pageIntroComprendreLesMetiers() {
         '</ul>') +
       _introBlocSection('&#128683; Ce que ce module ne fait pas',
         '<p class="mb-0">Il ne dit pas si vous êtes « fait pour » un métier, ne juge pas vos capacités et ne donne aucun verdict. Un conseiller peut compléter ce que vous découvrez ici.</p>') +
+      _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Garder une fiche comme Repère.</li>' +
+        '<li>La comparer avec une autre piste.</li>' +
+        '<li>Comprendre un mot dans le Lexique.</li>' +
+        '<li>Préparer une candidature.</li>' +
+        '</ul>') +
       _introBlocEncart('&#128190;', 'Rien n’est conservé sans votre accord. Pour garder votre résultat ou votre synthèse, utilisez la disquette de l’application. Vos réponses restent sur cet appareil : personne ne les reçoit.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);

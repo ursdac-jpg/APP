@@ -1,14 +1,14 @@
-/* Lot C : « Reprendre mon CV », voie 3 « Le refaire moi-même dans un modèle » (environ 1 minute). Spécificité : sans assistant, on classe et on vérifie soi-même les informations du CV déposé, puis on choisit un modèle ; rien n'est reformulé.
-   Complémentarité : voie 1 (compléter avec l'assistant) et voie 2 (reformuler avec l'assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
+/* Lot C : « Reprendre mon CV », chemin 3 « Le refaire moi-même dans un modèle » (environ 1 minute). Spécificité : sans assistant, on classe et on vérifie soi-même les informations du CV déposé, puis on choisit un modèle ; rien n'est reformulé.
+   Complémentarité : chemin 1 (compléter avec l'assistant) et chemin 2 (reformuler avec l'assistant) ; le CV se dépose une seule fois. Parcours joué dans l'application réelle. */
 const C = require('./mesdocuments-commun');
 const { dormir } = C;
 module.exports = {
   blocs: [
     { id: 's1', voix: 'Le refaire moi-même dans un modèle : sans assistant, vous reprenez vos informations et vous les remettez en page vous-même.', sous_titre: 'Le refaire moi-même : sans assistant, dans le modèle de votre choix.' },
-    { id: 's2', voix: 'Vous déposez votre CV une seule fois, vous masquez ce que vous ne voulez pas garder, puis vous choisissez la troisième voie.', sous_titre: 'CV déposé une seule fois, le personnel masqué. Voie 3, sans assistant.' },
+    { id: 's2', voix: 'Vous déposez votre CV une seule fois, vous masquez ce que vous ne voulez pas garder, puis vous choisissez le troisième chemin.', sous_titre: 'CV déposé une seule fois, le personnel masqué. Chemin 3, sans assistant.' },
     { id: 's3', voix: 'Votre CV est découpé en blocs. Ce qui est sûr est déjà classé. Pour le reste, c’est vous qui choisissez la rubrique, en touchant la pastille du bloc.', sous_titre: 'Votre CV en blocs. Ce qui est sûr est classé. Le reste : vous choisissez la rubrique.' },
     { id: 's4', voix: 'Vous vérifiez, puis vous choisissez l’un de nos modèles et vous exportez. Rien n’est reformulé : vos mots restent les vôtres.', sous_titre: 'Vous vérifiez, vous choisissez un modèle, vous exportez. Vos mots restent les vôtres.' },
-    { id: 's5', voix: 'Pour compléter le contenu, voyez la voie 1. Pour reformuler les phrases, la voie 2. Sans redéposer votre CV.', sous_titre: 'Compléter : voie 1. Reformuler : voie 2.' }
+    { id: 's5', voix: 'Pour compléter le contenu, voyez le chemin 1. Pour reformuler les phrases, le chemin 2. Sans redéposer votre CV.', sous_titre: 'Compléter : chemin 1. Reformuler : chemin 2.' }
   ],
   async jouer(o) {
     const p = o.p;

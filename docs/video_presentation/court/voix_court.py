@@ -5,7 +5,7 @@ vt, vid = sys.argv[1:3]
 blocs = json.load(open(f'{vt}/{vid}/blocs.json', encoding='utf-8'))
 voice = PiperVoice.load(f'{vt}/voix/fr_FR-tom-medium.onnx')
 cfg = SynthesisConfig(length_scale=1.08)
-PRON = [(r'\bAPP\b', 'A P P'), (r'\bCV\b', 'cé vé'), (r'\bPDF\b', 'pé dé éf'), (r'\bWord\b', 'Ouorde'), (r'\bChatGPT\b', 'tchatte gé pé té'), (r'\bPerplexity\b', 'Perplexité')]
+PRON = [(r'\bAPP\b', 'A P P'), (r'\bCV\b', 'cé vé'), (r'\bPDF\b', 'pé dé éf'), (r'\bWord\b', 'Ouorde'), (r'\bChatGPT\b', 'tchatte gé pé té'), (r'\bPerplexity\b', 'Perplexité'), (r'\bIA\b', 'i a')]
 import os
 os.makedirs(f'{vt}/{vid}/blocs', exist_ok=True)
 for b in blocs:

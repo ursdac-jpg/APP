@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : « Bien utiliser l'IA », écran d'entrée (consigne 587)</title>
+<link href="../../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  body { padding: 1rem 1rem 6rem; background: var(--bg-page, #f4f6fb); color: var(--text-strong); }
+  .page { max-width: 1040px; margin: 0 auto; }
+  .note-maquette { background: var(--warning-bg-subtle); border: 1px solid var(--warning-border); color: var(--warning-strong); border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: var(--t-petit); }
+  .barre-outils { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: var(--t-petit); }
+  h1.titre-page { font-size: var(--t-titre-page); font-weight: 800; text-align: center; margin: .6rem 0 .2rem; }
+  .sous-titre { text-align: center; font-size: var(--t-grand); color: var(--text-muted); margin-bottom: 1.2rem; }
+
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 0 10px 10px 0; padding: .7rem .9rem; margin: .6rem 0; font-size: var(--t-moyen); }
+  .encart.ok { border-left-color: var(--success-strong); background: var(--success-bg-subtle); }
+  .encart[hidden] { display: none !important; }
+
+  .panneau { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .panneau h2 { font-size: var(--t-grand); font-weight: 800; margin: 0 0 .5rem; }
+  .panneau p { font-size: var(--t-moyen); }
+
+  /* Trois cartes d'intention */
+  .intentions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 880px) { .intentions { grid-template-columns: 1fr; } }
+  .intention { position: relative; display: flex; flex-direction: column; gap: .5rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 16px; background: var(--bg-card); padding: 1rem 1.1rem 1.1rem; text-decoration: none; color: var(--text-strong); }
+  .intention:hover { border-color: var(--accent); }
+  .intention.conseille { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+  .intention .rond-icone { width: 3rem; height: 3rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent-texte); display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; flex: none; }
+  .intention.conseille .rond-icone { background: var(--accent); color: #fff; }
+  .intention h2 { font-size: var(--t-grand); font-weight: 800; margin: 0; }
+  .intention p { font-size: var(--t-moyen); margin: 0; }
+  .intention .detail { font-size: var(--t-petit); color: var(--text-muted); }
+  .intention .btn-action { margin-top: auto; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .etiquette { align-self: flex-start; visibility: hidden; border-radius: 999px; padding: .05rem .7rem; background: var(--accent); color: #fff; font-size: var(--t-petit); font-weight: 800; }
+  .intention.conseille .etiquette { visibility: visible; }
+
+  .btn-action { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+  .btn-sec { min-height: 44px; padding: .35rem 1.3rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+  .btn-sec:hover { background: var(--accent-bg-subtle); }
+  .btn-choix { min-height: 44px; padding: .35rem 1.1rem; border: 2px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-strong); font-weight: 700; cursor: pointer; font-size: var(--t-petit); text-align: left; }
+  .btn-choix[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent-texte); }
+  .btn-choix[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .seg-choix { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: .6rem 0; }
+  .msg { font-size: var(--t-petit); font-weight: 700; color: var(--success-strong); }
+  .msg[hidden] { display: none !important; }
+
+  .rassurance { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin: .4rem 0; }
+  @media (max-width: 880px) { .rassurance { grid-template-columns: 1fr; } }
+  .rassurance div { border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; font-size: var(--t-moyen); background: var(--bg-card); }
+  .rassurance strong { display: block; }
+
+  .decision { border: 2px dashed var(--warning-border); border-radius: 12px; padding: .8rem .9rem; margin-top: 1.4rem; background: var(--bg-card); }
+  .decision h2 { font-size: var(--t-grand); margin: 0 0 .4rem; font-weight: 800; }
+  .decision li { font-size: var(--t-moyen); margin-bottom: .35rem; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border-strong, var(--border)); padding: .5rem 1rem; display: flex; justify-content: space-between; gap: .6rem; z-index: 20; }
+  .barre-bas button { min-height: 44px; padding: .3rem 1.4rem; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); color: var(--accent-texte); font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="note-maquette"><strong>Maquette de l'écran d'entrée du module « Bien utiliser l'IA » (consigne 587).</strong> C'est la première page que voit la personne. Les trois grands boutons mènent vers les trois chemins du même module : dans cette maquette, ils ouvrent les maquettes des chemins, dans un nouvel onglet. L'aide « Par où commencer ? » fonctionne : elle met en avant le chemin conseillé. Les boutons du bas et de la présentation sont simulés. Rien n'est envoyé ni enregistré.</div>
+
+  <div class="barre-outils">
+    <label><input type="checkbox" id="modeSombre"> Voir en mode sombre</label>
+  </div>
+
+  <h1 class="titre-page">Bien utiliser l'IA</h1>
+  <p class="sous-titre">Apprenez à écrire une demande claire et à vérifier la réponse.</p>
+
+  <div class="panneau">
+    <h2>Que voulez-vous faire aujourd'hui ?</h2>
+    <p class="mb-0">Trois chemins, un seul module. Vous pouvez changer de chemin à tout moment.</p>
+
+    <div class="intentions" id="intentions">
+      <a class="intention" id="int1" href="maquette-bien-utiliser-ia-comprendre-2026-11-23.html" target="_blank" rel="noopener">
+        <span class="etiquette">Chemin conseillé</span>
+        <span class="rond-icone"><i class="bi bi-book" aria-hidden="true"></i></span>
+        <h2>Je veux comprendre</h2>
+        <p>Pourquoi une demande claire change la réponse, et comment la vérifier.</p>
+        <p class="detail">Rien à écrire. Une vidéo et sept écrans à lire, pour tous les sujets : emploi, santé, administration, voyage.</p>
+        <span class="btn-action">Commencer à comprendre</span>
+      </a>
+      <a class="intention" id="int2" href="maquette-bien-utiliser-ia-mes-modeles-2026-11-23.html" target="_blank" rel="noopener">
+        <span class="etiquette">Chemin conseillé</span>
+        <span class="rond-icone"><i class="bi bi-envelope-paper" aria-hidden="true"></i></span>
+        <h2>J'ai un papier ou une situation</h2>
+        <p>Un courrier, un mail, une démarche, une recherche d'emploi : la demande est déjà écrite, vous la complétez et vous la copiez.</p>
+        <p class="detail">Vous pouvez coller votre papier : l'application vous propose le bon modèle. Des modèles existent aussi pour les professionnels.</p>
+        <span class="btn-action">Trouver mon modèle</span>
+      </a>
+      <a class="intention" id="int3" href="maquette-bien-utiliser-ia-ecrire-ma-demande-2026-11-23.html" target="_blank" rel="noopener">
+        <span class="etiquette">Chemin conseillé</span>
+        <span class="rond-icone"><i class="bi bi-pencil-square" aria-hidden="true"></i></span>
+        <h2>Je veux écrire ma propre demande</h2>
+        <p>Pour un sujet que les modèles ne couvrent pas : une lettre à une ambassade, un rendez-vous à l'hôpital, un voyage.</p>
+        <p class="detail">Vous la construisez pas à pas, puis vous la relisez et vous l'améliorez.</p>
+        <span class="btn-action">Écrire la mienne</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="panneau" id="aide">
+    <h2>Par où commencer ?</h2>
+    <p>Choisissez la phrase qui ressemble le plus à votre situation.</p>
+    <div class="seg-choix" role="group" aria-label="Par où commencer ?">
+      <button class="btn-choix" type="button" data-v="1" aria-pressed="false">Je n'ai jamais utilisé d'assistant en ligne</button>
+      <button class="btn-choix" type="button" data-v="2" aria-pressed="false">J'ai un courrier ou une situation précise devant moi</button>
+      <button class="btn-choix" type="button" data-v="3" aria-pressed="false">J'ai déjà utilisé un assistant, mais mon sujet n'est pas dans les modèles</button>
+      <button class="btn-choix" type="button" data-v="1" aria-pressed="false">Je ne sais pas</button>
+    </div>
+    <div class="encart ok" id="conseil" role="status" hidden></div>
+  </div>
+
+  <div class="panneau">
+    <h2>Avant de commencer</h2>
+    <div class="rassurance">
+      <div><strong>Aucune note, aucun test</strong>Ce module est là pour vous aider, pas pour vous évaluer.</div>
+      <div><strong>Rien n'est envoyé d'ici</strong>Vos textes restent sur cet appareil. Vous copiez votre demande, puis vous la collez vous-même dans l'assistant de votre choix.</div>
+      <div><strong>Vérifiez toujours la réponse</strong>Un assistant peut se tromper ou inventer. Le module vous montre comment relire.</div>
+    </div>
+    <div class="actions">
+      <button class="btn-sec" type="button" data-simule="Ouvre la présentation du module (page introduction, refaite une seule fois à l'ouverture des modules).">Revoir la présentation</button>
+      <button class="btn-sec" type="button" data-simule="Ouvre le Lexique : assistant en ligne, demande (prompt), réponse inventée, anonymiser.">Voir les mots expliqués</button>
+      <span class="msg" id="msgSimule" role="status" hidden></span>
+    </div>
+  </div>
+
+  <div class="decision">
+    <h2>À trancher avec Denis</h2>
+    <ol>
+      <li><strong>Ordre des trois boutons.</strong> Proposé : Comprendre, Mes modèles, Écrire. Comme la plupart des personnes arrivent avec un papier, l'autre ordre possible met « J'ai un papier » en premier.</li>
+      <li><strong>« Par où commencer ? »</strong> : quatre phrases, une seule est cochée, le chemin conseillé s'allume. Aucun diagnostic, seulement une suggestion. Je recommande de la garder.</li>
+      <li><strong>« Revoir la présentation »</strong> : bouton standard de tous les modules, conservé en bas. La présentation elle-même sera refaite une seule fois, quand les modules seront ouverts.</li>
+      <li><strong>Professionnels</strong> : une simple mention sous le deuxième bouton, pas de bouton à part (décision du point 5 du chemin 2).</li>
+      <li><strong>Retrouver mes demandes gardées</strong> (disquette) : absent de cet écran pour l'instant, car la disquette garde au niveau du chemin 2 et du chemin 3. À ajouter ici seulement si vous le souhaitez.</li>
+      <li><strong>Mots de l'écran</strong> : « demande » partout dans les textes, « prompt » seulement dans le Lexique ; « assistant en ligne », jamais de robot.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="barre-bas">
+  <button type="button" data-simule="Retour à la Boîte à outils.">Retour</button>
+  <button type="button" data-simule="Retour à l'accueil de l'application.">Accueil</button>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var CONSEIL = {
+    1: 'Si vous débutez ou si vous hésitez, le chemin conseillé est « Je veux comprendre ». Vous pourrez changer de chemin à tout moment.',
+    2: 'Si vous avez un courrier ou une situation précise, le chemin conseillé est « J’ai un papier ou une situation ». Vous pouvez y coller votre papier.',
+    3: 'Si votre sujet n’est pas dans les modèles, le chemin conseillé est « Je veux écrire ma propre demande ».'
+  };
+  var boutons = document.querySelectorAll('#aide .btn-choix');
+  Array.prototype.forEach.call(boutons, function (b) {
+    b.addEventListener('click', function () {
+      var v = b.getAttribute('data-v');
+      Array.prototype.forEach.call(boutons, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      [1, 2, 3].forEach(function (n) { $('int' + n).classList.toggle('conseille', String(n) === v); });
+      var c = $('conseil'); c.textContent = CONSEIL[v]; c.hidden = false;
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-simule]'), function (b) {
+    b.addEventListener('click', function () { var m = $('msgSimule'); m.textContent = '(Maquette) ' + b.getAttribute('data-simule'); m.hidden = false; });
+  });
+  $('modeSombre').addEventListener('change', function (e) { if (e.target.checked) document.documentElement.setAttribute('data-theme', 'sombre'); else document.documentElement.removeAttribute('data-theme'); });
+})();
+</script>
+</body>
+</html>

@@ -212,6 +212,7 @@
   "F1626": 3,
   "F1628": 3,
   "F1629": 3,
+  "F1619": 3,
   "F1701": 3,
   "F1702": 2,
   "F1703": 3,
@@ -689,7 +690,6 @@
   "A1404": "diplôme obligatoire pour s’installer, sans niveau précis",
   "B1702": "niveau variable",
   "B1814": "niveau variable",
-  "F1610": "niveau lu sous un code qui n’est plus celui de notre fiche Couvreur (corrigé en F1619) : à ne pas rattacher",
-  "F1619": "fiche Couvreur recodée F1619 le 2026-11-17 : niveau à lire sur MétierScope"
+  "F1610": "niveau lu sous un code qui n’est plus celui de notre fiche Couvreur (corrigé en F1619) : à ne pas rattacher"
  }
 }

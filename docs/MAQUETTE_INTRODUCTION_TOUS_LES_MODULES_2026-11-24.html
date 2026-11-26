@@ -1,0 +1,151 @@
+<!doctype html>
+<!--
+  MAQUETTE - Introduction : les neuf modules qui n'étaient pas présentés (2026-11-24).
+  Demande de Denis : la page et le diaporama de l'Introduction ne montrent pas la boîte à outils ni plusieurs modules ; une image par module.
+  Contenu : (1) trois rubriques à ajouter à la page d'Introduction ; (2) trois diapositives en mosaïque (une image par module) pour le diaporama.
+  Les neuf images sont de vraies captures de l'application (vue publique, personnage inventé), rognées en haut d'écran : titre, phrase, vidéo.
+  Dans le vrai code, les listes (noms, icônes) seront LUES à la source de l'accueil (itemsInfoCarteAccueil) : un module ouvert plus tard apparaîtra tout seul, un module fermé n'apparaît pas.
+  Aucun code de l'application n'est touché.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : tous les modules dans l'Introduction</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { margin: 0; background: var(--bg-page, var(--bg-card)); color: var(--text-strong); }
+  .mq-barre { display: flex; gap: .5rem; padding: .55rem .8rem; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); position: sticky; top: 0; z-index: 5; }
+  .mq-barre button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; padding: .3rem .7rem; cursor: pointer; }
+  .mq-barre button.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mq-vue { max-width: 980px; margin: 1rem auto; padding: 0 16px; }
+  .mq-vue[hidden] { display: none; }
+  .mq-note { color: var(--text-muted); font-size: .9rem; margin: .4rem 0 1rem; }
+  .mq-diapo { margin-bottom: 2rem; }
+  .mq-diapo h3 { font-size: 1rem; margin: 0 0 .4rem; color: var(--text-muted); }
+  .mq-vignette { margin: 0; }
+  .mq-vignette img { width: 100%; display: block; border: 1px solid var(--border-strong); border-radius: 8px; }
+  .mq-vignette figcaption { font-weight: 700; margin-top: .3rem; font-size: .95rem; }
+  .mq-grille2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mq-grille3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 640px) { .mq-grille2, .mq-grille3 { grid-template-columns: 1fr; } }
+  /* Dans les diapositives (tailles en cqw) */
+  .idp-mosaique { display: grid; gap: 1.4cqw; align-items: start; }
+  .idp-mosaique.m2 { grid-template-columns: 1fr 1fr; }
+  .idp-mosaique.m3 { grid-template-columns: repeat(3, 1fr); }
+  .idp-mosaique.compact img { aspect-ratio: 1000 / 270; object-fit: cover; object-position: top; }
+  .idp-mosaique figure { margin: 0; }
+  .idp-mosaique img { width: 100%; display: block; border: 1px solid var(--border-strong); border-radius: .8cqw; }
+  .idp-mosaique figcaption { font-size: 2cqw; font-weight: 700; margin-top: .4cqw; line-height: 1.2; }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <button class="actif" data-vue="page">La page d'Introduction (3 rubriques)</button>
+  <button data-vue="diapos">Le diaporama (3 diapositives)</button>
+</div>
+
+<!-- ===================== LA PAGE ===================== -->
+<div class="mq-vue page-catalogue-contenu ip-page" id="vue-page">
+  <p class="mq-note">Ces trois rubriques se placent juste après « Vérifier la solidité de votre candidature » et avant « Comprendre ce qui se passe près de chez vous ». La phrase « D'autres outils regardent votre CV… » et la ligne « Une boîte à outils » de « Et aussi » disparaissent : elles sont remplacées par ces rubriques.</p>
+
+  <div class="cv-section"><h4>&#129520; La boîte à outils</h4>
+    <p>Quatre outils que vous ouvrez quand vous en avez besoin, sans ordre imposé et sans que rien ne soit noté. Sur l'accueil, ils sont réunis dans la carte « Boîte à outils ».</p>
+    <ul class="ip-liste">
+      <li><i class="bi bi-bookmark-star" aria-hidden="true"></i><span><strong>Mes Repères</strong> : pour ne pas perdre une pensée juste parce qu’elle est venue au mauvais moment.</span></li>
+      <li><i class="bi bi-journal-text" aria-hidden="true"></i><span><strong>Mon Carnet</strong> : vous écrivez d’abord ; vous verrez plus tard ce que vous en faites, ou rien.</span></li>
+      <li><i class="bi bi-book" aria-hidden="true"></i><span><strong>Lexique</strong> : rien à préparer, vous cherchez un mot au moment où il vous arrête.</span></li>
+      <li><i class="bi bi-compass" aria-hidden="true"></i><span><strong>Découvrir mes compétences</strong> : vos documents montrent déjà ce que vous savez faire ; l’outil le repère.</span></li>
+    </ul>
+    <div class="mq-grille2" style="margin-top:.8rem">
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_reperes.png" alt=""><figcaption>Mes Repères</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_carnet.png" alt=""><figcaption>Mon Carnet</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_lexique.png" alt=""><figcaption>Lexique</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_competences.png" alt=""><figcaption>Découvrir mes compétences</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="cv-section"><h4>&#128270; D’autres regards sur votre candidature</h4>
+    <p>En plus de « Analyser ma candidature », trois outils donnent un avis extérieur avant d’envoyer vos documents. Ils demandent un CV déjà prêt.</p>
+    <ul class="ip-liste">
+      <li><i class="bi bi-image" aria-hidden="true"></i><span><strong>Un regard sur mon CV</strong> : que verra un recruteur ? Ce qui ressort en premier, et ce qui peut faire hésiter.</span></li>
+      <li><i class="bi bi-card-checklist" aria-hidden="true"></i><span><strong>Les mots de votre CV (ATS)</strong> : votre CV parle-t-il comme l’offre ? Ni un logiciel de tri, ni une note.</span></li>
+      <li><i class="bi bi-check2-circle" aria-hidden="true"></i><span><strong>Cohérence de mon dossier</strong> : votre CV, votre lettre et votre entretien racontent-ils la même histoire ?</span></li>
+    </ul>
+    <div class="mq-grille3" style="margin-top:.8rem">
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_regard.png" alt=""><figcaption>Un regard sur mon CV</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_ats.png" alt=""><figcaption>Les mots de votre CV</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_coherence.png" alt=""><figcaption>Cohérence de mon dossier</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="cv-section"><h4>&#129517; Quand vous avez des pistes</h4>
+    <p>Une fois que vous avez une ou plusieurs idées de métier, deux outils vous aident à décider et à préparer vos documents. Ils se trouvent dans la carte « Vous hésitez encore ».</p>
+    <ul class="ip-liste">
+      <li><i class="bi bi-signpost-split" aria-hidden="true"></i><span><strong>Comparer mes pistes</strong> : deux ou trois pistes mises côte à côte, pour choisir vous-même.</span></li>
+      <li><i class="bi bi-files" aria-hidden="true"></i><span><strong>Un CV, plusieurs métiers</strong> : un seul CV de départ, adapté à chaque métier, sans rien inventer.</span></li>
+    </ul>
+    <div class="mq-grille2" style="margin-top:.8rem">
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_pistes.png" alt=""><figcaption>Comparer mes pistes</figcaption></figure>
+      <figure class="mq-vignette"><img src="maquette_introduction_modules/m_ucpm.png" alt=""><figcaption>Un CV, plusieurs métiers</figcaption></figure>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LE DIAPORAMA ===================== -->
+<div class="mq-vue" id="vue-diapos" hidden>
+  <p class="mq-note">Trois diapositives de plus, placées après « Vérifier la solidité de votre candidature » (le diaporama passe de 23 à 26). Chaque diapositive : un titre, une image par module, le nom sous l'image. Les notes de l'orateur sont dessous.</p>
+
+  <div class="mq-diapo"><h3>Diapositive A</h3>
+    <div class="idp-cadre"><div class="idp-diapo">
+      <h2><i class="bi bi-briefcase" aria-hidden="true"></i>La boîte à outils</h2>
+      <p class="idp-sous">Quatre outils à ouvrir quand vous en avez besoin.</p>
+      <div class="idp-mosaique m2 compact">
+        <figure><img src="maquette_introduction_modules/m_reperes.png" alt=""><figcaption>Mes Repères : garder une pensée</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_carnet.png" alt=""><figcaption>Mon Carnet : écrire librement</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_lexique.png" alt=""><figcaption>Lexique : comprendre un mot</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_competences.png" alt=""><figcaption>Découvrir mes compétences</figcaption></figure>
+      </div>
+    </div></div>
+    <p class="mq-note"><strong>Notes :</strong> Les quatre outils de la carte « Boîte à outils ». Aucun ordre, aucune note. Chacun a sa vidéo d’une minute sur sa page.</p>
+  </div>
+
+  <div class="mq-diapo"><h3>Diapositive B</h3>
+    <div class="idp-cadre"><div class="idp-diapo">
+      <h2><i class="bi bi-search" aria-hidden="true"></i>D’autres regards sur votre candidature</h2>
+      <p class="idp-sous">Un avis extérieur avant d’envoyer vos documents.</p>
+      <div class="idp-mosaique m3">
+        <figure><img src="maquette_introduction_modules/m_regard.png" alt=""><figcaption>Un regard sur mon CV : ce que voit un recruteur</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_ats.png" alt=""><figcaption>Les mots de votre CV : parle-t-il comme l’offre ?</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_coherence.png" alt=""><figcaption>Cohérence : mes documents se tiennent-ils ?</figcaption></figure>
+      </div>
+    </div></div>
+    <p class="mq-note"><strong>Notes :</strong> Trois outils, en plus de « Analyser ma candidature ». Aucun n’est une note ni le verdict d’un vrai recruteur : ce sont des pistes à vérifier.</p>
+  </div>
+
+  <div class="mq-diapo"><h3>Diapositive C</h3>
+    <div class="idp-cadre"><div class="idp-diapo">
+      <h2><i class="bi bi-signpost-split" aria-hidden="true"></i>Quand vous avez des pistes</h2>
+      <p class="idp-sous">Choisir, puis préparer ses documents.</p>
+      <div class="idp-mosaique m2">
+        <figure><img src="maquette_introduction_modules/m_pistes.png" alt=""><figcaption>Comparer mes pistes : choisir vous-même</figcaption></figure>
+        <figure><img src="maquette_introduction_modules/m_ucpm.png" alt=""><figcaption>Un CV, plusieurs métiers : un CV pour chacun</figcaption></figure>
+      </div>
+    </div></div>
+    <p class="mq-note"><strong>Notes :</strong> Pour celles et ceux qui ont plusieurs idées de métier. La comparaison ne désigne aucune « meilleure » piste.</p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.mq-barre button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.mq-barre button').forEach(function (x) { x.classList.toggle('actif', x === b); });
+      document.getElementById('vue-page').hidden = b.dataset.vue !== 'page';
+      document.getElementById('vue-diapos').hidden = b.dataset.vue !== 'diapos';
+    });
+  });
+</script>
+</body>
+</html>

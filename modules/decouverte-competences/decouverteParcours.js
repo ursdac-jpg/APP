@@ -858,7 +858,7 @@ function ouvrirDecouverteCompetences() {
         ? '<div class="objectif-cadrage" style="margin-top:16px">' +
           // E1.4 (24/10/2026) : meme logique que la lettre pour « offre » et « spontanee » (offre sans offre = spontanee) ; « stage » inchange.
           // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (plus de bloc repliable ni de « Le poste que vous recherchez »).
-          '<div id="decouverteComposantCandidature">' + htmlCandidatureComposant({ dejaRepondu: !!depuisCandidater }) + '</div>' +
+          '<div id="decouverteComposantCandidature">' + htmlCandidatureComposant({ dejaRepondu: !!depuisCandidater, avecMetierVise: (typeof metierStageRequis === 'function' && metierStageRequis()) }) + '</div>' +
           (depuisCandidater ? '' : resumeObjectifLigne()) +   // venu de Candidater : le résumé est déjà en haut, dans le rappel
           '</div>'
         : '<p class="sousTitre text-center" style="margin-top:14px">Choisissez un objectif ci-dessus pour préciser votre candidature.</p>');

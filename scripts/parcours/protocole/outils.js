@@ -7,6 +7,7 @@
    ============================================================ */
 const { chromium } = require('playwright');
 const { ouvrir } = require('../lancerEssais.js');
+const telephone = require('../../rendu/mesureTelephone.js');   // mesure « téléphone » (source unique, audit du 24/11/2026)
 
 // Script injecté dans la page : petites fonctions de pilotage et de contrôle, toutes préfixées __P.
 const SCRIPT_PAGE = `
@@ -93,7 +94,8 @@ class Journal {
 
 async function ouvrirPage(largeur) {
   const b = await chromium.launch();
-  const p = await ouvrir(b, largeur || 1280);
+  // À 480 px ou moins : un téléphone simulé (écran tactile), et chaque écran reçoit aussi la mesure « téléphone » (voir `verifier`).
+  const p = await ouvrir(b, largeur || 1280, (largeur || 1280) <= 480 ? telephone.optionsTelephone(largeur) : undefined);
   const erreurs = [];
   p.on('pageerror', (e) => erreurs.push('PAGEERR ' + e.message.slice(0, 200)));
   p.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) { erreurs.push('CONSOLE ' + m.text().slice(0, 200)); } });
@@ -122,6 +124,12 @@ function pilote(p, j) {
     verifier: async (attendu) => {
       const e = await o.ecran(); const an = await o.controle();
       if (attendu && attendu.h1 && !new RegExp(attendu.h1).test(e.h1)) { an.push('titre attendu /' + attendu.h1 + '/ mais « ' + e.h1 + ' »'); }
+      // Téléphone (480 px ou moins) : débordement, contenu coupé, cibles de moins de 44 px sur CET écran, par la même mesure que `npm run telephone`.
+      const larg = await p.evaluate(() => window.innerWidth);
+      if (larg <= 480) {
+        const m = await p.evaluate(telephone.mesurer, { seuil: telephone.SEUIL_CIBLE });
+        telephone.anomalies(m, larg).forEach((a) => an.push('téléphone : ' + a));
+      }
       if (attendu && attendu.hash && e.hash !== attendu.hash) { an.push('page attendue ' + attendu.hash + ' mais ' + e.hash); }
       if (attendu && attendu.etape && !new RegExp('\\[' + attendu.etape + '\\]').test(e.barre)) { an.push('étape courante attendue « ' + attendu.etape + ' » mais barre : ' + e.barre); }
       if (process.env.DEBUG) {
@@ -132,6 +140,19 @@ function pilote(p, j) {
         console.log('  texte : ' + det.t);
       }
       j.ecran(e, an); return e;
+    },
+    // Essai avec saisies (25/11/2026) : remplit tous les champs visibles de l'écran courant (texte court, texte long avec mot très long, listes, cases), sans rien décocher.
+    remplir: async () => { const n = await p.evaluate(telephone.remplirChamps); await p.waitForTimeout(300); return n; },
+    // Téléphone seulement : simule le clavier ouvert (écran de 420 px de haut) et signale un champ caché sous une barre fixe ou sorti de l'écran.
+    clavier: async () => {
+      const larg = await p.evaluate(() => window.innerWidth);
+      if (larg > 480) { return []; }
+      await p.setViewportSize({ width: larg, height: 420 }); await p.waitForTimeout(250);
+      const r = await p.evaluate(telephone.controleClavier);
+      await p.setViewportSize({ width: larg, height: 812 }); await p.waitForTimeout(250);
+      const e = await o.ecran();
+      r.forEach((x) => j.ko(e.hash + ' « ' + e.h1 + ' » : téléphone : clavier ouvert : ' + x));
+      return r;
     },
     // Reprise : « Accueil » puis retour dans le module par sa page commune ; rend les boutons visibles de la page commune pour que le parcours les contrôle.
     accueilPuisPageCommune: async (nom, routeCommune) => {

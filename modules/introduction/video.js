@@ -20,12 +20,12 @@ function pageVideoIntroduction() {
         'Votre navigateur ne sait pas lire cette vidéo.' +
       '</video>' +
     '</div>' +
-    '<div class="cv-section" id="ipVideoTexteBloc" hidden><h4><i class="bi bi-card-text" aria-hidden="true"></i> Le texte de la vidéo</h4>' +
-      '<div class="ip-video-texte" id="ipVideoTexte"></div></div>' +
+    '<details class="bloc-depli" id="ipVideoTexteBloc" open hidden><summary><i class="bi bi-card-text" aria-hidden="true"></i> Le texte de la vidéo</summary>' +
+      '<div class="bloc-depli-corps ip-video-texte" id="ipVideoTexte"></div></details>' +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('introduction', null, null, { sansAccueil: true }) + '</div>';
+    // Barre du bas : Retour et Accueil.
+    '<div class="barre-navigation-fixe">' + barreNavigation('introduction', null) + '</div>';
   app.innerHTML = html;
-
   var video = document.getElementById('ipVideo');
   var source = video ? video.querySelector('source') : null;
   if (source) {

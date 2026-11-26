@@ -4,12 +4,12 @@ async function jouer(a, j) {
   await a.verifier({ h1: 'Créer un nouveau CV' });
   j.info('départ direct voie 3 : ' + await a.clic('#btnCreerCvSansAssistant'));
   await a.attendre(900);
+  await require('./reprendreCv.js').passerChoixMissions(a, j, 'moi');
   let e = await a.verifier({ hash: '#objectif', etape: 'Votre objectif' });
   if (!/grisé/.test(e.avant || '')) { j.ko('objectif : « Continuer » devrait être grisé tant qu’aucun objectif n’est choisi (' + e.avant + ')'); } else { j.ok('objectif : « Continuer » grisé au départ, raison « ' + e.raison + ' »'); }
   j.info('objectif : ' + await a.clic('.carte-objectif', 'Répondre à une offre'));
   await a.saisir('#rechercheMetierCibleInput', 'agent d’accueil'); await a.attendre(700);
-  j.info('métier saisi : ' + await a.clic('#btnValiderMetierSaisi'));
-  j.info('domaine : ' + await a.clic('.carte-domaine-metier', 'Administration') + ' / ' + await a.clic('[data-domaine-metier-confirmer]'));
+  { let ch = await a.clic('[data-metier-cible-direct]'); if (ch !== 'ok') { ch = await a.clic('#btnValiderMetierSaisi'); } j.info('métier choisi dans les propositions : ' + ch); await a.attendre(700); }
   e = await a.verifier({ hash: '#objectif' });
   if (/grisé/.test(e.avant || '')) { j.ko('objectif : « Continuer » reste grisé après le choix du métier et du domaine (' + e.raison + ')'); }
   await a.suiv();
@@ -48,6 +48,8 @@ async function jouer(a, j) {
   e = await a.verifier({ hash: '#votre-parcours' });
   if (/grisé/.test(e.avant || '')) { j.ko('Votre parcours : « Continuer » reste grisé après une case cochée par question'); }
   await a.suiv();
+  e = await a.ecran(); j.info('après Votre parcours : ' + e.hash + ' « ' + e.h1 + ' » bouton « ' + e.avant + ' » raison « ' + e.raison + ' »');
+  if (e.hash === '#missions-competences') { j.info('Vos missions et compétences : étape passée avec « ' + e.avant + ' »'); await a.suiv(); await a.attendre(900); }
   e = await a.verifier({ hash: '#revelation', etape: 'Votre profil' });
   // Décision de Denis (11/11/2026) : message dans la page dès l'arrivée, une seule action « Indiquer l'entreprise », bouton de droite « Continuer sans entreprise ».
   const encart = await a.ev(() => !!document.getElementById('encartEntrepriseManquante'));

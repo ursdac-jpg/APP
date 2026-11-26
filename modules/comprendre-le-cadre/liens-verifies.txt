@@ -512,3 +512,7 @@ service-public-credit-conso-reforme-2026 | https://www.service-public.gouv.fr/pa
 ameli-mon-journal-mental | https://www.ameli.fr/assure/actualites/mon-journal-mental-une-application-gratuite-pour-prendre-soin-de-sa-sante-mentale | 2026-11-18 | national
 service-public-aide-grands-rouleurs-2026 | https://www.service-public.gouv.fr/particuliers/actualites/A18903 | 2026-11-18 | national
 francetravail-communique-poei-handicap-2026 | https://www.francetravail.org/accueil/communiques/2026/handicap-des-formations-adaptees-qui-accelerent-le-retour-a-l-emploi.html | 2026-11-18 | national
+service-public-pvt-australie-regles-changent | https://www.service-public.gouv.fr/particuliers/actualites/A19145 | 2026-11-23 | national
+passeport-prevention-espace-travailleurs-demandeurs-emploi | https://passeport-prevention.travail-emploi.gouv.fr/actualites/mon-passeport-prevention-ouvre-son-espace-aux-travailleurs-et-aux-demandeurs-demploi | 2026-11-23 | national
+francetravail-art-d-acceder-a-l-emploi-culture | https://www.francetravail.org/accueil/acteurs-de-lemploi/AAE/l-art-d-acceder-a-l-emploi-la-culture-change-d-echelle.html?type=article | 2026-11-23 | national
+service-public-sante-mentale-etudiant-site | https://www.service-public.gouv.fr/particuliers/actualites/A19151 | 2026-11-23 | national

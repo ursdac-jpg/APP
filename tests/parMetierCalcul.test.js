@@ -9,7 +9,7 @@ const trouver = (t, morceau) => D[t].findIndex((x) => x.lib.toLowerCase().indexO
 const metier = (code) => D.m.findIndex((r) => r.code === code);
 
 test('les données couvrent tous les métiers, toutes les compétences du ROME et les 17 conditions de travail', () => {
-  assert.equal(D.m.length, 1920);   // 1919 le temps que « Installateur mainteneur en systèmes solaires » (F1610) manquait : sa fiche est revenue à la régénération du 19/11/2026 (consigne 494), le code de « Couvreur » ayant été corrigé en F1619
+  assert.equal(D.m.length, 1921);   // 1921 depuis le 25/11/2026 : le code N1210 (« Logisticien ») porte maintenant la fiche à la main « Logisticien » (avant, il n'avait aucune fiche, la fiche à la main portait N1301). Avant : 1920 ; 1919 le temps que « Installateur mainteneur en systèmes solaires » (F1610) manquait : sa fiche est revenue à la régénération du 19/11/2026 (consigne 494), le code de « Couvreur » ayant été corrigé en F1619
   assert.equal(D.sf.length, 489);
   assert.equal(D.se.length, 16);
   assert.equal(D.sv.length, 6413);
@@ -39,7 +39,7 @@ test('aucun choix : aucun pourcentage utile, tous les métiers sont listés', ()
   const S = C.pmcEtatInitial();
   const r = C.pmcCalculer(D, S);
   assert.equal(r.avec, false);
-  assert.equal(r.retenus.length, 1920);
+  assert.equal(r.retenus.length, 1921);
 });
 
 test('à choix égal, le métier qui demande la compétence choisie a un pourcentage plus haut que celui qui ne la demande pas', () => {
